@@ -1,0 +1,1842 @@
+{
+  "app": {
+    "type": "apps",
+    "id": "6759768784",
+    "attributes": {
+      "accessibilityUrl": null,
+      "name": "iScoreboard: Sports Scoreboard",
+      "bundleId": "com.douhua.jifen.ios",
+      "sku": "com.douhua.jifen.ios",
+      "primaryLocale": "en-US",
+      "isOrEverWasMadeForKids": false,
+      "subscriptionStatusUrl": "https://api.jifenqi.com/api/billing/webhooks/apple",
+      "subscriptionStatusUrlVersion": "V2",
+      "subscriptionStatusUrlForSandbox": "https://api.jifenqi.com/api/billing/webhooks/apple",
+      "subscriptionStatusUrlVersionForSandbox": "V2",
+      "contentRightsDeclaration": "DOES_NOT_USE_THIRD_PARTY_CONTENT",
+      "streamlinedPurchasingEnabled": true
+    },
+    "relationships": {
+      "accessibilityDeclarations": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/accessibilityDeclarations",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/accessibilityDeclarations"
+        }
+      },
+      "ciProduct": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/ciProduct",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/ciProduct"
+        }
+      },
+      "betaTesters": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/betaTesters"
+        }
+      },
+      "betaGroups": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/betaGroups",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/betaGroups"
+        }
+      },
+      "appStoreVersions": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appStoreVersions",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appStoreVersions"
+        }
+      },
+      "appTags": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appTags",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appTags"
+        }
+      },
+      "preReleaseVersions": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/preReleaseVersions",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/preReleaseVersions"
+        }
+      },
+      "betaAppLocalizations": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/betaAppLocalizations",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/betaAppLocalizations"
+        }
+      },
+      "builds": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/builds",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/builds"
+        }
+      },
+      "betaLicenseAgreement": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/betaLicenseAgreement",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/betaLicenseAgreement"
+        }
+      },
+      "betaAppReviewDetail": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/betaAppReviewDetail",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/betaAppReviewDetail"
+        }
+      },
+      "appInfos": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appInfos",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appInfos"
+        }
+      },
+      "appClips": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appClips",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appClips"
+        }
+      },
+      "appPricePoints": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appPricePoints",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appPricePoints"
+        }
+      },
+      "endUserLicenseAgreement": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/endUserLicenseAgreement",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/endUserLicenseAgreement"
+        }
+      },
+      "appPriceSchedule": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appPriceSchedule",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appPriceSchedule"
+        }
+      },
+      "appAvailabilityV2": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appAvailabilityV2",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appAvailabilityV2"
+        }
+      },
+      "inAppPurchases": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/inAppPurchases",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/inAppPurchases"
+        }
+      },
+      "subscriptionGroups": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/subscriptionGroups",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/subscriptionGroups"
+        }
+      },
+      "gameCenterEnabledVersions": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/gameCenterEnabledVersions",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/gameCenterEnabledVersions"
+        }
+      },
+      "performanceOverviews": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/performanceOverviews",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/performanceOverviews"
+        }
+      },
+      "perfPowerMetrics": {
+        "links": {
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/perfPowerMetrics"
+        }
+      },
+      "appCustomProductPages": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appCustomProductPages",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appCustomProductPages"
+        }
+      },
+      "inAppPurchasesV2": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/inAppPurchasesV2",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/inAppPurchasesV2"
+        }
+      },
+      "promotedPurchases": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/promotedPurchases",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/promotedPurchases"
+        }
+      },
+      "appEvents": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appEvents",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appEvents"
+        }
+      },
+      "reviewSubmissions": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/reviewSubmissions",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/reviewSubmissions"
+        }
+      },
+      "subscriptionGracePeriod": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/subscriptionGracePeriod",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/subscriptionGracePeriod"
+        }
+      },
+      "customerReviews": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/customerReviews",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/customerReviews"
+        }
+      },
+      "customerReviewSummarizations": {
+        "links": {
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/customerReviewSummarizations"
+        }
+      },
+      "gameCenterDetail": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/gameCenterDetail",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/gameCenterDetail"
+        }
+      },
+      "appStoreVersionExperimentsV2": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appStoreVersionExperimentsV2",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appStoreVersionExperimentsV2"
+        }
+      },
+      "alternativeDistributionKey": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/alternativeDistributionKey",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/alternativeDistributionKey"
+        }
+      },
+      "analyticsReportRequests": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/analyticsReportRequests",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/analyticsReportRequests"
+        }
+      },
+      "marketplaceSearchDetail": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/marketplaceSearchDetail",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/marketplaceSearchDetail"
+        }
+      },
+      "buildUploads": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/buildUploads",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/buildUploads"
+        }
+      },
+      "backgroundAssets": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/backgroundAssets",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/backgroundAssets"
+        }
+      },
+      "betaFeedbackScreenshotSubmissions": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/betaFeedbackScreenshotSubmissions",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/betaFeedbackScreenshotSubmissions"
+        }
+      },
+      "betaFeedbackCrashSubmissions": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/betaFeedbackCrashSubmissions",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/betaFeedbackCrashSubmissions"
+        }
+      },
+      "searchKeywords": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/searchKeywords",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/searchKeywords"
+        }
+      },
+      "webhooks": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/webhooks",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/webhooks"
+        }
+      },
+      "androidToIosAppMappingDetails": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/androidToIosAppMappingDetails",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/androidToIosAppMappingDetails"
+        }
+      }
+    },
+    "links": {
+      "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784"
+    }
+  },
+  "targets": {
+    "lifetime": {
+      "parent": {
+        "type": "inAppPurchases",
+        "id": "6807102027",
+        "attributes": {
+          "name": "lifetime vip",
+          "productId": "iscoreboard_lifetime_vip",
+          "inAppPurchaseType": "NON_CONSUMABLE",
+          "state": "APPROVED",
+          "reviewNote": null,
+          "familySharable": true,
+          "contentHosting": false
+        },
+        "relationships": {
+          "inAppPurchaseLocalizations": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/inAppPurchaseLocalizations",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/inAppPurchaseLocalizations"
+            }
+          },
+          "pricePoints": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/pricePoints",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/pricePoints"
+            }
+          },
+          "content": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/content",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/content"
+            }
+          },
+          "appStoreReviewScreenshot": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/appStoreReviewScreenshot",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/appStoreReviewScreenshot"
+            }
+          },
+          "promotedPurchase": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/promotedPurchase",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/promotedPurchase"
+            }
+          },
+          "iapPriceSchedule": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/iapPriceSchedule",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/iapPriceSchedule"
+            }
+          },
+          "inAppPurchaseAvailability": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/inAppPurchaseAvailability",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/inAppPurchaseAvailability"
+            }
+          },
+          "images": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/images",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/images"
+            }
+          },
+          "offerCodes": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/offerCodes",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/offerCodes"
+            }
+          },
+          "versions": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/versions",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/versions"
+            }
+          }
+        },
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027"
+        }
+      },
+      "versions": [
+        {
+          "type": "inAppPurchaseVersions",
+          "id": "9d84e958-19e9-45db-b557-93e9915ce9ed",
+          "attributes": {
+            "version": 2,
+            "state": "PREPARE_FOR_SUBMISSION"
+          },
+          "relationships": {
+            "image": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/9d84e958-19e9-45db-b557-93e9915ce9ed/relationships/image",
+                "related": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/9d84e958-19e9-45db-b557-93e9915ce9ed/image"
+              }
+            },
+            "images": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/9d84e958-19e9-45db-b557-93e9915ce9ed/relationships/images",
+                "related": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/9d84e958-19e9-45db-b557-93e9915ce9ed/images"
+              }
+            },
+            "localizations": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/9d84e958-19e9-45db-b557-93e9915ce9ed/relationships/localizations",
+                "related": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/9d84e958-19e9-45db-b557-93e9915ce9ed/localizations"
+              }
+            }
+          },
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/9d84e958-19e9-45db-b557-93e9915ce9ed"
+          }
+        },
+        {
+          "type": "inAppPurchaseVersions",
+          "id": "62928f26-91b5-4e63-a520-6e7e1303a6f9",
+          "attributes": {
+            "version": 1,
+            "state": "APPROVED"
+          },
+          "relationships": {
+            "image": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/62928f26-91b5-4e63-a520-6e7e1303a6f9/relationships/image",
+                "related": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/62928f26-91b5-4e63-a520-6e7e1303a6f9/image"
+              }
+            },
+            "images": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/62928f26-91b5-4e63-a520-6e7e1303a6f9/relationships/images",
+                "related": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/62928f26-91b5-4e63-a520-6e7e1303a6f9/images"
+              }
+            },
+            "localizations": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/62928f26-91b5-4e63-a520-6e7e1303a6f9/relationships/localizations",
+                "related": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/62928f26-91b5-4e63-a520-6e7e1303a6f9/localizations"
+              }
+            }
+          },
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/62928f26-91b5-4e63-a520-6e7e1303a6f9"
+          }
+        }
+      ],
+      "metadata": {
+        "9d84e958-19e9-45db-b557-93e9915ce9ed": {
+          "localizations": [
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "2a4aa185-4100-44c0-b0c0-d899595a2ae4",
+              "attributes": {
+                "name": "Tư cách thành viên trọn đời",
+                "locale": "vi",
+                "description": "Mua một lần, truy cập trọn đời"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/2a4aa185-4100-44c0-b0c0-d899595a2ae4"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "ee080ed6-b5f0-44b6-9393-089d3b3fbc2b",
+              "attributes": {
+                "name": "تاحیات رکنیت",
+                "locale": "ur-PK",
+                "description": "ایک بار کی خریداری، تاحیات رسائی"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/ee080ed6-b5f0-44b6-9393-089d3b3fbc2b"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "746319a0-119c-4244-88b1-1dd050319ddf",
+              "attributes": {
+                "name": "Довічне членство",
+                "locale": "uk",
+                "description": "Одноразова покупка, довічний доступ"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/746319a0-119c-4244-88b1-1dd050319ddf"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "8990c106-3ece-4667-a523-3b79310d8eef",
+              "attributes": {
+                "name": "Ömür Boyu Üyelik",
+                "locale": "tr",
+                "description": "Tek seferlik satın alma, ömür boyu erişim"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/8990c106-3ece-4667-a523-3b79310d8eef"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "fc674187-542b-41d8-ac42-6d0421c54ba6",
+              "attributes": {
+                "name": "สมาชิกตลอดชีพ",
+                "locale": "th",
+                "description": "ซื้อครั้งเดียว เข้าถึงได้ตลอดชีพ"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/fc674187-542b-41d8-ac42-6d0421c54ba6"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "13dad3fe-7fef-4066-8ada-21aec32549e4",
+              "attributes": {
+                "name": "జీవితకాల సభ్యత్వం",
+                "locale": "te-IN",
+                "description": "ఒకసారి కొనుగోలు, జీవితకాల VIP యాక్సెస్"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/13dad3fe-7fef-4066-8ada-21aec32549e4"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "7333687b-c101-4d36-bab3-bef19d339bf5",
+              "attributes": {
+                "name": "வாழ்நாள் உறுப்பினர்",
+                "locale": "ta-IN",
+                "description": "ஒரு முறை வாங்குதல், வாழ்நாள் அணுகல்"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/7333687b-c101-4d36-bab3-bef19d339bf5"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "61de14ec-b6fb-4531-b45a-3a5ac8452f5a",
+              "attributes": {
+                "name": "Livstidsmedlemskap",
+                "locale": "sv",
+                "description": "Engångsköp, livstidsåtkomst"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/61de14ec-b6fb-4531-b45a-3a5ac8452f5a"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "90b6d29e-b203-4481-832a-5dcba9b483fd",
+              "attributes": {
+                "name": "VIP de por vida",
+                "locale": "es-ES",
+                "description": "Compra única, acceso de por vida"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/90b6d29e-b203-4481-832a-5dcba9b483fd"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "6aa5260c-4cee-4473-be38-481ce36002f7",
+              "attributes": {
+                "name": "VIP de por vida",
+                "locale": "es-MX",
+                "description": "Compra única, acceso de por vida"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/6aa5260c-4cee-4473-be38-481ce36002f7"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "625e9d0e-f2c6-4cfa-a8d9-79b9e7ebb767",
+              "attributes": {
+                "name": "Doživljenjsko članstvo",
+                "locale": "sl-SI",
+                "description": "Enkraten nakup, doživljenjski dostop"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/625e9d0e-f2c6-4cfa-a8d9-79b9e7ebb767"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "72a6d43b-a2b8-4d45-89a9-155f49e6c646",
+              "attributes": {
+                "name": "Doživotné členstvo",
+                "locale": "sk",
+                "description": "Jednorazový nákup, doživotný prístup"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/72a6d43b-a2b8-4d45-89a9-155f49e6c646"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "7fcd3b94-b974-45f1-9c62-21005f3a40e3",
+              "attributes": {
+                "name": "Бессрочный доступ",
+                "locale": "ru",
+                "description": "Единоразовая покупка, пожизненный доступ."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/7fcd3b94-b974-45f1-9c62-21005f3a40e3"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "49e52a2c-1efa-430f-81a9-65e9a8f3b7b6",
+              "attributes": {
+                "name": "Abonament pe viață",
+                "locale": "ro",
+                "description": "Achiziție unică, acces pe viață"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/49e52a2c-1efa-430f-81a9-65e9a8f3b7b6"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "43adc534-97c4-4081-818d-fbf34dac6d21",
+              "attributes": {
+                "name": "ਲਾਈਫਟਾਈਮ ਮੈਂਬਰਸ਼ਿਪ",
+                "locale": "pa-IN",
+                "description": "ਇੱਕ ਵਾਰ ਦੀ ਖਰੀਦ, ਜੀਵਨ ਭਰ ਪਹੁੰਚ"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/43adc534-97c4-4081-818d-fbf34dac6d21"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "f1ecd1eb-9f46-481c-9306-16b09b5b2783",
+              "attributes": {
+                "name": "VIP vitalício",
+                "locale": "pt-PT",
+                "description": "Compra única, acesso vitalício"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/f1ecd1eb-9f46-481c-9306-16b09b5b2783"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "cfa9e9a1-c7db-4dfd-b147-f1ac60ce0979",
+              "attributes": {
+                "name": "VIP vitalício",
+                "locale": "pt-BR",
+                "description": "Compra única, acesso vitalício"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/cfa9e9a1-c7db-4dfd-b147-f1ac60ce0979"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "ec9a90de-5323-4dd3-94fa-325a8f152a55",
+              "attributes": {
+                "name": "Członkostwo dożywotnie",
+                "locale": "pl",
+                "description": "Jednorazowy zakup, dożywotni dostęp"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/ec9a90de-5323-4dd3-94fa-325a8f152a55"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "7e04ca56-981c-4abd-be7f-04041a70a336",
+              "attributes": {
+                "name": "ଆଜୀବନ ସଦସ୍ୟତା",
+                "locale": "or-IN",
+                "description": "ଏକ ଥର କ୍ରୟ, ଆଜୀବନ ପ୍ରବେଶ"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/7e04ca56-981c-4abd-be7f-04041a70a336"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "35a46a84-f07e-4d94-b54e-e7722a9d8cee",
+              "attributes": {
+                "name": "Livstidsmedlemskap",
+                "locale": "no",
+                "description": "Engangskjøp, livstidstilgang"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/35a46a84-f07e-4d94-b54e-e7722a9d8cee"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "b7ad6507-05a1-4e77-b9bc-d928059347b7",
+              "attributes": {
+                "name": "आजीवन सदस्यत्व",
+                "locale": "mr-IN",
+                "description": "एक-वेळ खरेदी, आजीवन प्रवेश"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/b7ad6507-05a1-4e77-b9bc-d928059347b7"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "89c2fe6b-3ed8-40da-9ab9-55960266d50d",
+              "attributes": {
+                "name": "ആജീവനാന്ത അംഗത്വം",
+                "locale": "ml-IN",
+                "description": "ഒറ്റത്തവണ വാങ്ങൽ, ആജീവനാന്ത പ്രവേശനം"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/89c2fe6b-3ed8-40da-9ab9-55960266d50d"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "30cddeb7-4918-4775-8ba5-0fc649be109b",
+              "attributes": {
+                "name": "Keahlian Sepanjang Hayat",
+                "locale": "ms",
+                "description": "Pembelian sekali, akses seumur hidup"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/30cddeb7-4918-4775-8ba5-0fc649be109b"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "ba2530a4-ffe0-4e4d-8b7c-10df0cc6fdc6",
+              "attributes": {
+                "name": "평생 멤버십",
+                "locale": "ko",
+                "description": "일회성 구매, 평생 이용 가능"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/ba2530a4-ffe0-4e4d-8b7c-10df0cc6fdc6"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "fbd2093c-2f4d-4215-a71a-6c0b46bc43f0",
+              "attributes": {
+                "name": "ಜೀವಮಾನ ಸದಸ್ಯತ್ವ",
+                "locale": "kn-IN",
+                "description": "ಒಂದು ಬಾರಿ ಖರೀದಿ, ಜೀವಮಾನದ ಪ್ರವೇಶ"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/fbd2093c-2f4d-4215-a71a-6c0b46bc43f0"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "4b422bc6-da4c-4f46-aa28-31998b5b32f8",
+              "attributes": {
+                "name": "永久会員",
+                "locale": "ja",
+                "description": "一度購入すれば生涯アクセス可能"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/4b422bc6-da4c-4f46-aa28-31998b5b32f8"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "f7f8e134-46b9-47e1-a648-22a5ddb99ca5",
+              "attributes": {
+                "name": "Iscrizione a vita",
+                "locale": "it",
+                "description": "Acquisto unico, accesso VIP a vita."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/f7f8e134-46b9-47e1-a648-22a5ddb99ca5"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "bec82c50-66a8-47c9-a935-c23ec9598211",
+              "attributes": {
+                "name": "Keanggotaan Seumur Hidup",
+                "locale": "id",
+                "description": "Pembelian satu kali, akses seumur hidup"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/bec82c50-66a8-47c9-a935-c23ec9598211"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "eeb9e0ba-7bbf-4587-9ad7-18a015dc1f62",
+              "attributes": {
+                "name": "Életre szóló tagság",
+                "locale": "hu",
+                "description": "Egyszeri vásárlás, élethosszig tartó elérés."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/eeb9e0ba-7bbf-4587-9ad7-18a015dc1f62"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "0b821d93-203b-4c0d-b256-05caf46ba9dc",
+              "attributes": {
+                "name": "आजीवन सदस्यता",
+                "locale": "hi",
+                "description": "एक बार की खरीदारी, आजीवन पहुंच"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/0b821d93-203b-4c0d-b256-05caf46ba9dc"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "f0b9db6a-57cf-4564-824e-cc02fc004c27",
+              "attributes": {
+                "name": "מינוי לכל החיים",
+                "locale": "he",
+                "description": "רכישה חד פעמית, גישה לכל החיים"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/f0b9db6a-57cf-4564-824e-cc02fc004c27"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "f01557be-04e2-442e-aa9e-a48e7e21d8ed",
+              "attributes": {
+                "name": "આજીવન સભ્યપદ",
+                "locale": "gu-IN",
+                "description": "એક વખતની ખરીદી, આજીવન ઍક્સેસ"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/f01557be-04e2-442e-aa9e-a48e7e21d8ed"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "8d90b647-079f-4609-a941-5351099ff735",
+              "attributes": {
+                "name": "Ισόβια συνδρομή",
+                "locale": "el",
+                "description": "Εφάπαξ αγορά, πρόσβαση εφ' όρου ζωής"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/8d90b647-079f-4609-a941-5351099ff735"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "5163338b-6846-47b9-b604-5ac92c44b9f2",
+              "attributes": {
+                "name": "Lebenslange Mitgliedschaft",
+                "locale": "de-DE",
+                "description": "Einmaliger Kauf, lebenslanger Zugriff"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/5163338b-6846-47b9-b604-5ac92c44b9f2"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "65578aed-fc60-4dec-b445-e1e2541c33f6",
+              "attributes": {
+                "name": "Abonnement à vie",
+                "locale": "fr-CA",
+                "description": "Achat unique, accès à vie"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/65578aed-fc60-4dec-b445-e1e2541c33f6"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "165b943a-eaf4-4dbf-bea5-4d5275e767f6",
+              "attributes": {
+                "name": "Abonnement à vie",
+                "locale": "fr-FR",
+                "description": "Achat unique, accès à vie"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/165b943a-eaf4-4dbf-bea5-4d5275e767f6"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "5506b10a-c88d-4e70-99eb-893bfd81b75c",
+              "attributes": {
+                "name": "Elinikäinen jäsenyys",
+                "locale": "fi",
+                "description": "Kertaostos, elinikäinen käyttöoikeus"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/5506b10a-c88d-4e70-99eb-893bfd81b75c"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "98249cfa-21b2-4299-878e-b0c77f6662ac",
+              "attributes": {
+                "name": "Lifetime VIP",
+                "locale": "en-GB",
+                "description": "One-time purchase. All VIP features for life."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/98249cfa-21b2-4299-878e-b0c77f6662ac"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "62750eef-cb98-4a39-a86e-d98b9b652436",
+              "attributes": {
+                "name": "Lifetime VIP",
+                "locale": "en-CA",
+                "description": "One-time purchase. All VIP features for life."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/62750eef-cb98-4a39-a86e-d98b9b652436"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "99e2274d-81cd-443c-8917-1416131f2b57",
+              "attributes": {
+                "name": "Lifetime VIP",
+                "locale": "en-AU",
+                "description": "One-time purchase. All VIP features for life."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/99e2274d-81cd-443c-8917-1416131f2b57"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "51132be3-1a75-4ad1-8eda-6389ed52d194",
+              "attributes": {
+                "name": "Levenslang lidmaatschap",
+                "locale": "nl-NL",
+                "description": "Eenmalige aankoop, levenslange toegang"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/51132be3-1a75-4ad1-8eda-6389ed52d194"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "29380791-5437-4037-a4bb-3e2d72b83826",
+              "attributes": {
+                "name": "Livsvarigt medlemskab",
+                "locale": "da",
+                "description": "Engangskøb, livstidsadgang"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/29380791-5437-4037-a4bb-3e2d72b83826"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "0d424656-b50f-4639-9f93-77fff5d663c0",
+              "attributes": {
+                "name": "Doživotní členství",
+                "locale": "cs",
+                "description": "Jednorázový nákup, doživotní přístup"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/0d424656-b50f-4639-9f93-77fff5d663c0"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "a72a7e69-6912-40bc-8391-4cd9b688e078",
+              "attributes": {
+                "name": "Doživotno članstvo",
+                "locale": "hr",
+                "description": "Jednokratna kupnja, doživotni pristup"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/a72a7e69-6912-40bc-8391-4cd9b688e078"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "61f8c6b9-3348-48fa-83d0-df2a7e82e6b6",
+              "attributes": {
+                "name": "終身會員（買斷）",
+                "locale": "zh-Hant",
+                "description": "一次性買斷，永久解鎖全部 VIP 功能，無需續訂。"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/61f8c6b9-3348-48fa-83d0-df2a7e82e6b6"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "298bee66-9d69-4ac2-a80d-50abe6a3c4b9",
+              "attributes": {
+                "name": "Subscripció de per vida",
+                "locale": "ca",
+                "description": "Compra única, accés de tota la vida"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/298bee66-9d69-4ac2-a80d-50abe6a3c4b9"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "1fbdfc46-205d-4b74-b6a4-fe6a9ca244a8",
+              "attributes": {
+                "name": "আজীবন সদস্যপদ",
+                "locale": "bn-BD",
+                "description": "এককালীন কেনাকাটা, আজীবন অ্যাক্সেস"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/1fbdfc46-205d-4b74-b6a4-fe6a9ca244a8"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "926219ad-a16a-418d-9e37-892dcdf6c96f",
+              "attributes": {
+                "name": "عضوية مدى الحياة",
+                "locale": "ar-SA",
+                "description": "الشراء لمرة واحدة، إمكانية الوصول مدى الحياة"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/926219ad-a16a-418d-9e37-892dcdf6c96f"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "79e3526b-f4eb-4473-b345-3d110e923fd2",
+              "attributes": {
+                "name": "Lifetime VIP",
+                "locale": "en-US",
+                "description": "One-time purchase. All VIP features for life."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/79e3526b-f4eb-4473-b345-3d110e923fd2"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "783a08bf-4d5b-4922-accc-532272682712",
+              "attributes": {
+                "name": "终身会员（买断）",
+                "locale": "zh-Hans",
+                "description": "一次性买断，永久解锁全部 VIP 功能，无需续订。"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/783a08bf-4d5b-4922-accc-532272682712"
+              }
+            }
+          ],
+          "images": [
+            {
+              "type": "inAppPurchaseImages",
+              "id": "ad6a3962-dec5-4424-a0df-5cbe06dceee0",
+              "attributes": {
+                "fileSize": 1051750,
+                "fileName": "lifetime-c3254beef9.png",
+                "assetToken": "5f7a402f-f4f6-c54a-6557-3d3fa2909b67",
+                "imageAsset": {
+                  "templateUrl": "https://is1-ssl.mzstatic.com/image/thumb/KZDCZZCEno2-yHxqiMzlNg/{w}x{h}bb.{f}",
+                  "width": 1024,
+                  "height": 1024
+                },
+                "assetDeliveryState": {
+                  "errors": null,
+                  "warnings": null,
+                  "state": "COMPLETE"
+                }
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseImages/ad6a3962-dec5-4424-a0df-5cbe06dceee0"
+              }
+            }
+          ]
+        },
+        "62928f26-91b5-4e63-a520-6e7e1303a6f9": {
+          "localizations": [
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "67ac9fd8-b549-4234-a107-39420bdb034a",
+              "attributes": {
+                "name": "Lifetime VIP",
+                "locale": "en-US",
+                "description": "Unlock all for lifetime!"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/67ac9fd8-b549-4234-a107-39420bdb034a"
+              }
+            },
+            {
+              "type": "inAppPurchaseLocalizations",
+              "id": "1aade057-7742-41ba-8541-40267e97ce74",
+              "attributes": {
+                "name": "永久会员",
+                "locale": "zh-Hans",
+                "description": "一次解锁终身享受VIP体验"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseLocalizations/1aade057-7742-41ba-8541-40267e97ce74"
+              }
+            }
+          ],
+          "images": []
+        }
+      }
+    },
+    "monthly": {
+      "parent": {
+        "type": "subscriptions",
+        "id": "6807103111",
+        "attributes": {
+          "name": "monthly membership",
+          "productId": "iscoreboard_monthly_vip",
+          "familySharable": false,
+          "state": "APPROVED",
+          "subscriptionPeriod": "ONE_MONTH",
+          "reviewNote": null,
+          "groupLevel": 1,
+          "multiSeatStatus": "ENABLED",
+          "marketSettings": [
+            "APP_STORE",
+            "APPLE_BUSINESS",
+            "APPLE_SCHOOL"
+          ]
+        },
+        "relationships": {
+          "subscriptionLocalizations": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/subscriptionLocalizations",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/subscriptionLocalizations"
+            }
+          },
+          "appStoreReviewScreenshot": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/appStoreReviewScreenshot",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/appStoreReviewScreenshot"
+            }
+          },
+          "introductoryOffers": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/introductoryOffers",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/introductoryOffers"
+            }
+          },
+          "promotionalOffers": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/promotionalOffers",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/promotionalOffers"
+            }
+          },
+          "offerCodes": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/offerCodes",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/offerCodes"
+            }
+          },
+          "prices": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/prices",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/prices"
+            }
+          },
+          "pricePoints": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/pricePoints",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/pricePoints"
+            }
+          },
+          "promotedPurchase": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/promotedPurchase",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/promotedPurchase"
+            }
+          },
+          "subscriptionAvailability": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/subscriptionAvailability",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/subscriptionAvailability"
+            }
+          },
+          "winBackOffers": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/winBackOffers",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/winBackOffers"
+            }
+          },
+          "images": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/images",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/images"
+            }
+          },
+          "planAvailabilities": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/planAvailabilities",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/planAvailabilities"
+            }
+          },
+          "versions": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/versions",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/versions"
+            }
+          }
+        },
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111"
+        }
+      },
+      "versions": [
+        {
+          "type": "subscriptionVersions",
+          "id": "c1719b77-4aa3-41c2-bf36-50d837970d01",
+          "attributes": {
+            "version": 3,
+            "state": "PREPARE_FOR_SUBMISSION"
+          },
+          "relationships": {
+            "image": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/c1719b77-4aa3-41c2-bf36-50d837970d01/relationships/image",
+                "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/c1719b77-4aa3-41c2-bf36-50d837970d01/image"
+              }
+            },
+            "images": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/c1719b77-4aa3-41c2-bf36-50d837970d01/relationships/images",
+                "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/c1719b77-4aa3-41c2-bf36-50d837970d01/images"
+              }
+            },
+            "localizations": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/c1719b77-4aa3-41c2-bf36-50d837970d01/relationships/localizations",
+                "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/c1719b77-4aa3-41c2-bf36-50d837970d01/localizations"
+              }
+            }
+          },
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/c1719b77-4aa3-41c2-bf36-50d837970d01"
+          }
+        },
+        {
+          "type": "subscriptionVersions",
+          "id": "e4956952-d9f4-4242-bf40-6100ce80f5ec",
+          "attributes": {
+            "version": 2,
+            "state": "APPROVED"
+          },
+          "relationships": {
+            "image": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/e4956952-d9f4-4242-bf40-6100ce80f5ec/relationships/image",
+                "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/e4956952-d9f4-4242-bf40-6100ce80f5ec/image"
+              }
+            },
+            "images": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/e4956952-d9f4-4242-bf40-6100ce80f5ec/relationships/images",
+                "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/e4956952-d9f4-4242-bf40-6100ce80f5ec/images"
+              }
+            },
+            "localizations": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/e4956952-d9f4-4242-bf40-6100ce80f5ec/relationships/localizations",
+                "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/e4956952-d9f4-4242-bf40-6100ce80f5ec/localizations"
+              }
+            }
+          },
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/e4956952-d9f4-4242-bf40-6100ce80f5ec"
+          }
+        },
+        {
+          "type": "subscriptionVersions",
+          "id": "fdb3fd0b-f6c1-4106-a261-20511a20fce1",
+          "attributes": {
+            "version": 1,
+            "state": "REPLACED_WITH_NEW_VERSION"
+          },
+          "relationships": {
+            "image": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/fdb3fd0b-f6c1-4106-a261-20511a20fce1/relationships/image",
+                "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/fdb3fd0b-f6c1-4106-a261-20511a20fce1/image"
+              }
+            },
+            "images": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/fdb3fd0b-f6c1-4106-a261-20511a20fce1/relationships/images",
+                "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/fdb3fd0b-f6c1-4106-a261-20511a20fce1/images"
+              }
+            },
+            "localizations": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/fdb3fd0b-f6c1-4106-a261-20511a20fce1/relationships/localizations",
+                "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/fdb3fd0b-f6c1-4106-a261-20511a20fce1/localizations"
+              }
+            }
+          },
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/fdb3fd0b-f6c1-4106-a261-20511a20fce1"
+          }
+        }
+      ],
+      "metadata": {
+        "c1719b77-4aa3-41c2-bf36-50d837970d01": {
+          "localizations": [
+            {
+              "type": "subscriptionLocalizations",
+              "id": "08872a82-afeb-471b-81e3-a5a0474a1d2e",
+              "attributes": {
+                "name": "Μηνιαία συνδρομή",
+                "locale": "el",
+                "description": "Λειτουργίες VIP. Αυτόματη μηνιαία ανανέωση."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/08872a82-afeb-471b-81e3-a5a0474a1d2e"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "205738d0-e95e-45af-96ef-09185ebf37c7",
+              "attributes": {
+                "name": "Monatliche Mitgliedschaft",
+                "locale": "de-DE",
+                "description": "Alle VIP-Funktionen. Monatliche Verlängerung."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/205738d0-e95e-45af-96ef-09185ebf37c7"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "b13f564f-4f8e-487e-b98c-56bc208b9b22",
+              "attributes": {
+                "name": "Abonnement mensuel",
+                "locale": "fr-CA",
+                "description": "Fonctions VIP. Renouvellement mensuel auto."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/b13f564f-4f8e-487e-b98c-56bc208b9b22"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "027d934a-23dd-48d2-90b2-8955aa8d7132",
+              "attributes": {
+                "name": "Abonnement mensuel",
+                "locale": "fr-FR",
+                "description": "Fonctions VIP. Renouvellement mensuel auto."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/027d934a-23dd-48d2-90b2-8955aa8d7132"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "d60660b4-7f51-4282-beda-bd159b986202",
+              "attributes": {
+                "name": "Kuukausittainen jäsenyys",
+                "locale": "fi",
+                "description": "VIP-toiminnot. Uusiutuu kuukausittain."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/d60660b4-7f51-4282-beda-bd159b986202"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "35993a37-1edd-474a-b66b-9fda7e3f6d7e",
+              "attributes": {
+                "name": "Monthly VIP",
+                "locale": "en-GB",
+                "description": "All VIP features. Auto-renews monthly."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/35993a37-1edd-474a-b66b-9fda7e3f6d7e"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "25e7738c-d613-4bd1-a763-0b655a8b8dee",
+              "attributes": {
+                "name": "Monthly VIP",
+                "locale": "en-CA",
+                "description": "All VIP features. Auto-renews monthly."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/25e7738c-d613-4bd1-a763-0b655a8b8dee"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "5b3ee994-84b9-46fe-a66d-63ec45edb2cd",
+              "attributes": {
+                "name": "Monthly VIP",
+                "locale": "en-AU",
+                "description": "All VIP features. Auto-renews monthly."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/5b3ee994-84b9-46fe-a66d-63ec45edb2cd"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "b9666945-5048-4390-be0b-08a7362d733b",
+              "attributes": {
+                "name": "Maandelijks lidmaatschap",
+                "locale": "nl-NL",
+                "description": "VIP-functies. Automatische maandverlenging."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/b9666945-5048-4390-be0b-08a7362d733b"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "dcebaf20-1e7b-43a6-bf7f-79192b71bba3",
+              "attributes": {
+                "name": "Månedligt medlemskab",
+                "locale": "da",
+                "description": "VIP-funktioner. Automatisk månedsfornyelse."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/dcebaf20-1e7b-43a6-bf7f-79192b71bba3"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "cfa09ee1-f37a-4409-b57b-99ffa3941e23",
+              "attributes": {
+                "name": "Měsíční členství",
+                "locale": "cs",
+                "description": "VIP funkce. Automatická měsíční obnova."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/cfa09ee1-f37a-4409-b57b-99ffa3941e23"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "f9075035-4194-4fde-aa41-20d6224d56e5",
+              "attributes": {
+                "name": "Mjesečno članstvo",
+                "locale": "hr",
+                "description": "VIP značajke. Automatska mjesečna obnova."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/f9075035-4194-4fde-aa41-20d6224d56e5"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "6d48f785-f4c4-4800-a70b-7f4b83ecf350",
+              "attributes": {
+                "name": "月會員",
+                "locale": "zh-Hant",
+                "description": "解鎖全部 VIP 功能，按月自動續訂，可隨時取消。"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/6d48f785-f4c4-4800-a70b-7f4b83ecf350"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "110dd933-3d87-48c9-a410-771f75a31408",
+              "attributes": {
+                "name": "Subscripció mensual",
+                "locale": "ca",
+                "description": "Funcions VIP. Renovació mensual automàtica."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/110dd933-3d87-48c9-a410-771f75a31408"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "4f7db583-0bee-43f8-bec9-4218450a941d",
+              "attributes": {
+                "name": "মাসিক সদস্যপদ",
+                "locale": "bn-BD",
+                "description": "সব VIP সুবিধা। মাসে মাসে স্বয়ং নবায়ন।"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/4f7db583-0bee-43f8-bec9-4218450a941d"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "24692ac8-cf13-4037-9df4-76b98c92653c",
+              "attributes": {
+                "name": "العضوية الشهرية",
+                "locale": "ar-SA",
+                "description": "مزايا VIP. تجديد تلقائي شهري."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/24692ac8-cf13-4037-9df4-76b98c92653c"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "61f05c98-249b-4217-9a2c-fae23cb8e9ab",
+              "attributes": {
+                "name": "Monthly VIP",
+                "locale": "en-US",
+                "description": "All VIP features. Auto-renews monthly."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/61f05c98-249b-4217-9a2c-fae23cb8e9ab"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "be6bbc15-00ea-4a2d-a828-b6b3e1b41fd0",
+              "attributes": {
+                "name": "月会员",
+                "locale": "zh-Hans",
+                "description": "解锁全部 VIP 功能，按月自动续订，可随时取消。"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/be6bbc15-00ea-4a2d-a828-b6b3e1b41fd0"
+              }
+            }
+          ],
+          "images": []
+        },
+        "e4956952-d9f4-4242-bf40-6100ce80f5ec": {
+          "localizations": [
+            {
+              "type": "subscriptionLocalizations",
+              "id": "97cfed3e-ed88-4d03-86c5-9371d28a7b9e",
+              "attributes": {
+                "name": "Monthly Plan",
+                "locale": "en-US",
+                "description": "All premium features, ad-free for 1 month."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/97cfed3e-ed88-4d03-86c5-9371d28a7b9e"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "16614905-b3a5-4349-b9a0-52fa496e426e",
+              "attributes": {
+                "name": "包月会员",
+                "locale": "zh-Hans",
+                "description": "解锁VIP体验，月月畅打畅玩！"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/16614905-b3a5-4349-b9a0-52fa496e426e"
+              }
+            }
+          ],
+          "images": []
+        },
+        "fdb3fd0b-f6c1-4106-a261-20511a20fce1": {
+          "localizations": [],
+          "images": []
+        }
+      }
+    },
+    "yearly": {
+      "parent": {
+        "type": "subscriptions",
+        "id": "6807106491",
+        "attributes": {
+          "name": "yearly membership",
+          "productId": "iscoreboard_yearly_vip",
+          "familySharable": true,
+          "state": "APPROVED",
+          "subscriptionPeriod": "ONE_YEAR",
+          "reviewNote": null,
+          "groupLevel": 2,
+          "multiSeatStatus": "ENABLED",
+          "marketSettings": [
+            "APP_STORE",
+            "APPLE_BUSINESS",
+            "APPLE_SCHOOL"
+          ]
+        },
+        "relationships": {
+          "subscriptionLocalizations": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/subscriptionLocalizations",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/subscriptionLocalizations"
+            }
+          },
+          "appStoreReviewScreenshot": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/appStoreReviewScreenshot",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/appStoreReviewScreenshot"
+            }
+          },
+          "introductoryOffers": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/introductoryOffers",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/introductoryOffers"
+            }
+          },
+          "promotionalOffers": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/promotionalOffers",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/promotionalOffers"
+            }
+          },
+          "offerCodes": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/offerCodes",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/offerCodes"
+            }
+          },
+          "prices": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/prices",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/prices"
+            }
+          },
+          "pricePoints": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/pricePoints",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/pricePoints"
+            }
+          },
+          "promotedPurchase": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/promotedPurchase",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/promotedPurchase"
+            }
+          },
+          "subscriptionAvailability": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/subscriptionAvailability",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/subscriptionAvailability"
+            }
+          },
+          "winBackOffers": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/winBackOffers",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/winBackOffers"
+            }
+          },
+          "images": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/images",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/images"
+            }
+          },
+          "planAvailabilities": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/planAvailabilities",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/planAvailabilities"
+            }
+          },
+          "versions": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/versions",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/versions"
+            }
+          }
+        },
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491"
+        }
+      },
+      "versions": [
+        {
+          "type": "subscriptionVersions",
+          "id": "dbc2efcc-8938-4431-aa80-3f5e3094f25f",
+          "attributes": {
+            "version": 2,
+            "state": "APPROVED"
+          },
+          "relationships": {
+            "image": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/dbc2efcc-8938-4431-aa80-3f5e3094f25f/relationships/image",
+                "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/dbc2efcc-8938-4431-aa80-3f5e3094f25f/image"
+              }
+            },
+            "images": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/dbc2efcc-8938-4431-aa80-3f5e3094f25f/relationships/images",
+                "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/dbc2efcc-8938-4431-aa80-3f5e3094f25f/images"
+              }
+            },
+            "localizations": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/dbc2efcc-8938-4431-aa80-3f5e3094f25f/relationships/localizations",
+                "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/dbc2efcc-8938-4431-aa80-3f5e3094f25f/localizations"
+              }
+            }
+          },
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/dbc2efcc-8938-4431-aa80-3f5e3094f25f"
+          }
+        },
+        {
+          "type": "subscriptionVersions",
+          "id": "39529ec4-d789-4c4a-8847-68f03fff405c",
+          "attributes": {
+            "version": 1,
+            "state": "REPLACED_WITH_NEW_VERSION"
+          },
+          "relationships": {
+            "image": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/39529ec4-d789-4c4a-8847-68f03fff405c/relationships/image",
+                "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/39529ec4-d789-4c4a-8847-68f03fff405c/image"
+              }
+            },
+            "images": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/39529ec4-d789-4c4a-8847-68f03fff405c/relationships/images",
+                "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/39529ec4-d789-4c4a-8847-68f03fff405c/images"
+              }
+            },
+            "localizations": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/39529ec4-d789-4c4a-8847-68f03fff405c/relationships/localizations",
+                "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/39529ec4-d789-4c4a-8847-68f03fff405c/localizations"
+              }
+            }
+          },
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/39529ec4-d789-4c4a-8847-68f03fff405c"
+          }
+        }
+      ],
+      "metadata": {
+        "dbc2efcc-8938-4431-aa80-3f5e3094f25f": {
+          "localizations": [
+            {
+              "type": "subscriptionLocalizations",
+              "id": "12955aa2-fd37-4f1c-885a-71984e005739",
+              "attributes": {
+                "name": "Annual Plan",
+                "locale": "en-US",
+                "description": "All premium features, ad-free for 1 year."
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/12955aa2-fd37-4f1c-885a-71984e005739"
+              }
+            },
+            {
+              "type": "subscriptionLocalizations",
+              "id": "488e877f-e005-4ecd-a064-8c484ac65ee1",
+              "attributes": {
+                "name": "包年会员",
+                "locale": "zh-Hans",
+                "description": "享受一整年的VIP体验！"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionLocalizations/488e877f-e005-4ecd-a064-8c484ac65ee1"
+              }
+            }
+          ],
+          "images": []
+        },
+        "39529ec4-d789-4c4a-8847-68f03fff405c": {
+          "localizations": [],
+          "images": []
+        }
+      }
+    },
+    "group": {
+      "parent": {
+        "type": "subscriptionGroups",
+        "id": "22348946",
+        "attributes": {
+          "referenceName": "iscoreboard"
+        },
+        "relationships": {
+          "subscriptions": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptionGroups/22348946/relationships/subscriptions",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptionGroups/22348946/subscriptions"
+            }
+          },
+          "subscriptionGroupLocalizations": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptionGroups/22348946/relationships/subscriptionGroupLocalizations",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptionGroups/22348946/subscriptionGroupLocalizations"
+            }
+          },
+          "versions": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptionGroups/22348946/relationships/versions",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptionGroups/22348946/versions"
+            }
+          }
+        },
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/subscriptionGroups/22348946"
+        }
+      },
+      "versions": [
+        {
+          "type": "subscriptionGroupVersions",
+          "id": "1d632b66-0cc3-42a3-91bf-9a27998c10c8",
+          "attributes": {
+            "version": 2,
+            "state": "APPROVED"
+          },
+          "relationships": {
+            "localizations": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/subscriptionGroupVersions/1d632b66-0cc3-42a3-91bf-9a27998c10c8/relationships/localizations",
+                "related": "https://api.appstoreconnect.apple.com/v1/subscriptionGroupVersions/1d632b66-0cc3-42a3-91bf-9a27998c10c8/localizations"
+              }
+            }
+          },
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/subscriptionGroupVersions/1d632b66-0cc3-42a3-91bf-9a27998c10c8"
+          }
+        },
+        {
+          "type": "subscriptionGroupVersions",
+          "id": "d68b91e2-8b93-4885-88d1-229aa17f2ad4",
+          "attributes": {
+            "version": 1,
+            "state": "REPLACED_WITH_NEW_VERSION"
+          },
+          "relationships": {
+            "localizations": {
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/subscriptionGroupVersions/d68b91e2-8b93-4885-88d1-229aa17f2ad4/relationships/localizations",
+                "related": "https://api.appstoreconnect.apple.com/v1/subscriptionGroupVersions/d68b91e2-8b93-4885-88d1-229aa17f2ad4/localizations"
+              }
+            }
+          },
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/subscriptionGroupVersions/d68b91e2-8b93-4885-88d1-229aa17f2ad4"
+          }
+        }
+      ],
+      "metadata": {
+        "1d632b66-0cc3-42a3-91bf-9a27998c10c8": {
+          "localizations": [
+            {
+              "type": "subscriptionGroupLocalizations",
+              "id": "2eca5556-0902-43dd-b48b-50d7a32c20c0",
+              "attributes": {
+                "name": "Premium Membership",
+                "customAppName": "iScoreboard",
+                "locale": "en-US"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionGroupLocalizations/2eca5556-0902-43dd-b48b-50d7a32c20c0"
+              }
+            },
+            {
+              "type": "subscriptionGroupLocalizations",
+              "id": "07ceb0e4-4d65-47fd-a53a-eea138f311a8",
+              "attributes": {
+                "name": "订阅会员",
+                "customAppName": null,
+                "locale": "zh-Hans"
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionGroupLocalizations/07ceb0e4-4d65-47fd-a53a-eea138f311a8"
+              }
+            }
+          ]
+        },
+        "d68b91e2-8b93-4885-88d1-229aa17f2ad4": {
+          "localizations": []
+        }
+      }
+    }
+  }
+}

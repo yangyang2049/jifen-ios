@@ -208,7 +208,7 @@ import ScoreCore
                 $0.currentSet = 1
                 $0.winnerSide = .left
                 $0.winnerName = "Alice"
-            } == "Point. Game. 11-7. Alice wins"
+            } == "Point. Game. 11, 7. Alice wins"
         )
         #expect(
             payload(.pickleball, language: .enUS) {
@@ -219,7 +219,7 @@ import ScoreCore
                 $0.rightSets = 0
                 $0.winnerSide = .left
                 $0.winnerName = "Alice"
-            } == "Point. Game. Match. 11-7. Alice wins"
+            } == "Point. Game. Match. 11, 7. Alice wins"
         )
     }
 }

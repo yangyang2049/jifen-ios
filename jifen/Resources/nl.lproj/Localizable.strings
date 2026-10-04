@@ -165,8 +165,8 @@
 "record_training_end_rate" = "Training beëindigd · nauwkeurigheid %1$d%%";
 "game_football" = "Voetbal";
 "game_volleyball" = "Volleybal";
-"game_checkers" = "Chinees Dammen";
-"timer_checkers" = "Dammen";
+"game_checkers" = "Internationaal dammen";
+"timer_checkers" = "Internationaal dammen";
 "game_boxing" = "Boksen";
 "game_billiards" = "Biljart";
 "game_pickleball" = "Pickleball";
@@ -589,7 +589,7 @@
 "faq_question_4" = "Hoe verwijder ik records of wis ik gegevens?";
 "faq_answer_4" = "Gebruik tijdens een wedstrijd Ongedaan maken, Terug of het bewerkingsitem als de huidige sport dit ondersteunt.\n\nVoor opgeslagen wedstrijden opent u het item in Historie en verwijdert u het daar. Ik → Gegevens wissen verwijdert lokale scores, timer, onvoltooide wedstrijd, opgeslagen record en enkele lokale instellingsgegevens. Dit kan niet ongedaan worden gemaakt.";
 "faq_question_5" = "Hoe sluit ik een beeldscherm of een andere telefoon aan?";
-"faq_answer_5" = "Om scores op een andere telefoon of tablet weer te geven, opent u op het weergaveapparaat Score synchroniseren → Doe mee aan de wedstrijd en volg de pagina om een code of QR-code aan te maken; verbindt u vanaf het bedieningsapparaat nadat u een wedstrijd bent binnengegaan; de score wordt dan gesynchroniseerd met het display. Houd beide apparaten online en vermijd het vergrendelen van het scherm of het verplaatsen van de app naar de achtergrond; als de synchronisatie vastloopt, verlaat het scherm dan aan beide kanten en maak opnieuw verbinding.\n\nOm het scorebord naar een tv of groot scherm te casten, gebruikt u het draadloze display van uw telefoonsysteem (Miracast). Open de draadloze weergave vanuit het systeemcontrolecentrum en maak verbinding met de tv; zodra de app het verbonden scherm detecteert, verschijnt het scorebord er automatisch op. De app is afhankelijk van de systeemcast en kan niet zelfstandig naar tv's zoeken, en als u de systeemcast loskoppelt, wordt ook de projectie beëindigd. Verschillende merken kunnen het anders noemen (bijvoorbeeld draadloze weergave of interactie op meerdere schermen); voltooi eerst de verbinding in het systeem.";
+"faq_answer_5" = "Gebruik twee apparaten samen: de ene houdt de score bij, de andere toont deze op volledig scherm. Deelapparaat: Meld u aan en start de synchronisatie om een 6-cijferige code te ontvangen. Weergaveapparaat: Meld u aan en voer de 6-cijferige code van het deelapparaat in. Begin met scoren — de score wordt automatisch gesynchroniseerd.\n\nAirPlay Schermspiegeling wordt aanbevolen. Eenmaal verbonden en gedetecteerd, verschijnt het scorebord automatisch op het grote scherm. Open het Controlecentrum en tik op Schermspiegeling (AirPlay). Maak eerst de AirPlay-verbinding in de systeeminstellingen; de app kan slechts één aangesloten beeldscherm tegelijk gebruiken en kan zelf niet naar tv's of projectoren zoeken. Als u de verbinding met AirPlay verbreekt, wordt ook de castsessie beëindigd.";
 "faq_question_6" = "Ik kan mijn sport niet vinden. Wat moet ik doen?";
 "faq_answer_6" = "Begin met de dichtstbijzijnde sport. Als alleen namen, sets, teams of startvolgorde verschillen, pas deze dan aan in Spelinstellingen en voeg de instellingen toe aan Snelle start.\n\nAls de huidige sporten de regels niet kunnen naleven, stuur dan feedback met de sportnaam, het gebruikelijke formaat, de scoremethode en het verwachte verloop.";
 "faq_question_7" = "Hoe werken lidmaatschap, aanmelding en nieuwe apparaten?";
@@ -597,9 +597,9 @@
 "faq_question_8" = "Hoe meld ik een probleem of stel ik een functie voor?";
 "faq_answer_8" = "Open Mij → Feedback en kies een bugrapport of functiesuggestie. Vermeld de sport, de stappen, het verwachte resultaat en het daadwerkelijke resultaat. Voor weergave- of lidmaatschapsproblemen vermeldt u ook het apparaatmodel, de systeemversie en de app-versie.";
 "faq_question_10" = "Hoe maak ik een back-up van mijn gegevens of verplaats ik deze naar een nieuwe telefoon?";
-"faq_answer_10" = "Meld u aan bij uw account, zodat uw gebruikelijke namen, plaatsen en wedstrijdgegevens eraan worden gekoppeld. Met de cloudsynchronisatie voor leden worden uw gegevens op verschillende apparaten gesynchroniseerd. Meld u op een nieuwe telefoon aan met hetzelfde account en uw gegevens worden automatisch hersteld. Zonder aanmelding worden gegevens alleen op het huidige apparaat opgeslagen.";
+"faq_answer_10" = "Log in om opgeslagen team- en spelersnamen en locaties tussen apparaten te synchroniseren. Log op een nieuwe telefoon in met hetzelfde account om deze algemene gegevens op te halen. Wedstrijd- en timerregistraties en lopende wedstrijden blijven op het huidige apparaat; cloudback-up en herstel van deze registraties zijn niet beschikbaar.";
 "faq_question_11" = "Hoe worden mijn gegevens en privacy behandeld?";
-"faq_answer_11" = "In het privacybeleid wordt uitgelegd welke gegevens worden gebruikt en waarom. De microfoon wordt alleen gebruikt bij het opnemen van spraaknotities en de camera alleen bij het scannen van een QR-code om in te loggen; beide worden lokaal op uw apparaat verwerkt.";
+"faq_answer_11" = "In het privacybeleid wordt uitgelegd welke gegevens worden gebruikt en waarom. De microfoon wordt gebruikt om spraaknotities op te nemen. De camera wordt gebruikt om vertrouwde inlog-QR-codes te scannen en een foto voor je avatar te maken.";
 "common_names_add" = "Toevoegen";
 "common_names_edit_title" = "Naam bewerken";
 "common_names_team_placeholder" = "Voer de teamnaam in";
@@ -654,7 +654,7 @@
 "schedule_location_placeholder" = "Locatie invoeren";
 "schedule_reminders" = "Herinneringen";
 "schedule_reminder_hours_before" = "%d uur voor aanvang";
-"schedule_reminder_minutes_before" = "%d minuten voor aanvang";
+"schedule_reminder_minutes_before" = "%d min voor aanvang";
 "schedule_reminder_help_title" = "Herinneringen";
 "schedule_reminder_help_message" = "Herinneringen zijn lokale meldingen. Schakel meldingen in om ze te ontvangen. Ze kunnen gemist worden als de app wordt verwijderd of als iOS de levering beperkt. Als je een wedstrijd bewerkt of annuleert, worden deze bijgewerkt.";
 "schedule_notes" = "Opmerkingen";
@@ -844,6 +844,13 @@
 "scoreboard_double_tap_subtract_help_message" = "Wanneer ingeschakeld, dubbeltikt u op hetzelfde scoregebied of dezelfde spelertegel om 1 af te trekken. Wanneer uitgeschakeld, veegt u omlaag om af te trekken of veegt u naar links om ongedaan te maken. Knopscoreborden zoals basketbal en snooker zijn ongewijzigd.";
 "scoreboard_official_break_help_title" = "Officiële pauzes";
 "scoreboard_official_break_help_message" = "Indien ingeschakeld, pauzeren officiële pauzes het scoren. Je kunt een pauze overslaan of ongedaan maken.\n\nTafeltennis en Jianzi: 60 sec tussen games\nBadminton: 60 sec halverwege de game, 120 sec tussen games\nSquash: 90 sec tussen games\nTennis en Padel: 90 sec bij de wissel, 120 sec tussen sets\nSoft tennis: 60 sec bij de wissel\nPickleball: 60 sec halverwege de beslissende game, 120 sec tussen games";
+"scoreboard_official_break_help_intro" = "Indien ingeschakeld, pauzeren officiële pauzes het scoren. Je kunt een pauze overslaan of ongedaan maken.";
+"scoreboard_official_break_rule_between_games_60" = "60 sec tussen games";
+"scoreboard_official_break_rule_badminton" = "60 sec halverwege de game, 120 sec tussen games";
+"scoreboard_official_break_rule_squash" = "90 sec tussen games";
+"scoreboard_official_break_rule_tennis" = "90 sec bij de wissel, 120 sec tussen sets";
+"scoreboard_official_break_rule_soft_tennis" = "60 sec bij de wissel";
+"scoreboard_official_break_rule_pickleball" = "60 sec halverwege de beslissende game, 120 sec tussen games";
 "show_match_time" = "Tijd weergeven";
 "hide_match_time" = "Tijd verbergen";
 "scoreboard_match_time_this_game_only" = "Alleen deze wedstrijd; de volgende wedstrijd keert terug naar de standaardinstelling van de sport.";
@@ -978,7 +985,7 @@
 "timer_custom_seconds" = "Sec";
 "timer_countdown_notification_title" = "Aftellen voltooid";
 "timer_countdown_notification_content" = "Het aftellen is afgelopen. Tik om terug te keren.";
-"scoreboard_usage_hint_menu" = "Gebruiksaanwijzing";
+"scoreboard_usage_hint_menu" = "Uitleg";
 "scoreboard_usage_hint_title" = "Gebruiksaanwijzing";
 "scoreboard_usage_hint_got_it" = "Begrepen";
 "scoreboard_usage_hint_football" = "👆 Tik op het linker/rechter scoregebied om 1 doelpunt toe te voegen\n⬆️ Veeg omhoog om toe te voegen\n⬇️ Veeg omlaag om af te trekken\n↩️ Veeg naar links om ongedaan te maken\n⏱️ Open Blessuretijd in het menu rechtsonder, kies een duur en maak vervolgens ongedaan of bevestig\n🏁 Na de tweede helft en de blessuretijd kan een gelijkspel doorgaan tot twee verlengingen van 15 minuten";
@@ -1036,7 +1043,7 @@
 "scoreboard_key_point_volleyball_set" = "SP";
 "scoreboard_key_point_set" = "SP";
 "scoreboard_key_point_match" = "MP";
-"record_recap_set_format" = "Game %d";
+"record_recap_set_format" = "Set %d";
 "record_recap_tennis_set_format" = "Set %d";
 "record_recap_period_format" = "Periode %d";
 "record_recap_round_format" = "Ronde %d";
@@ -1094,7 +1101,7 @@
 "doudizhu_role_landlord" = "Landheer";
 "doudizhu_role_farmer" = "Boer";
 "doudizhu_player_role_format" = "%@ (%@)";
-"doudizhu_winner_separator" = ",";
+"doudizhu_winner_separator" = ", ";
 "draw_result" = "Gelijkspel";
 "filter" = "Filteren";
 "flip_coin_recent" = "Recente muntworpen";
@@ -1130,7 +1137,7 @@
 "timeout" = "Time-out";
 "timer_record_time" = "Vastgelegd op";
 "undo" = "Ongedaan maken";
-"scoreboard_set_end_format" = "Game %d voltooid";
+"scoreboard_set_end_format" = "Set %d voltooid";
 "winner_named_format" = "%@ wint";
 "basketball_fouls_count" = "Overtredingen %d";
 "basketball_timeout_remaining" = "Time-out (%d)";
@@ -1184,7 +1191,7 @@
 "official_break_prepare" = "Maak je klaar";
 "official_breaks" = "Officiële pauzes";
 "official_break_mid_game" = "Pauze halverwege de game";
-"official_break_game" = "Gamepauze";
+"official_break_game" = "Pauze tussen games";
 "official_break_set" = "Setpauze";
 "official_break_changeover" = "Wisselpauze";
 "official_break_continue" = "Hervatten";
@@ -1552,3 +1559,9 @@
 "game_short" = "Games";
 "set_short" = "Sets";
 "football_injury_title" = "Blessuretijd";
+
+"feedback_official" = "Officieel";
+
+"feedback_pinned" = "Vastgezet";
+
+"voice_announce_server" = "Serveerder aankondigen";

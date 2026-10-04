@@ -1,0 +1,58 @@
+{
+  "locale": "fr-FR",
+  "iosLocale": "fr",
+  "language": "French",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Tableau de scores",
+  "subtitle": "Scores, chronos et matchs",
+  "description": "Chaque point compte. Transformez votre iPhone ou iPad en tableau de scores clair et facile à utiliser pour vos matchs, entraînements et parties entre amis.\n\nComptez les points pour plus de 26 sports et jeux : tennis, pickleball, badminton, tennis de table, basket, football, volley et billard. Pour les sports compatibles, adaptez les règles de score, le format du match et l'ordre de service en double.\n\nEnregistrez vos matchs et revivez-les grâce à l'évolution du score, à la chronologie et aux notes vocales. Profitez des pendules d'échecs et de go, du minuteur pour cube et du chronomètre. Affichez le score sur grand écran et partagez un code de match pour que vos proches le suivent à distance.\n\nPile ou face, équipes aléatoires, cartons rouges et jaunes, partage des frais : vos outils pratiques sont réunis. Moins de temps à compter, plus de plaisir à jouer.\n\nConditions d’utilisation :\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité :\nhttps://jifenqi.com/privacy\n\nContrat de licence standard Apple :\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Chaque point\ncompte",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Tous les scores\nen un coup d’œil",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "Un tableau de scores\npour plus de 26 sports",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Revivez\nchaque match",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Vos règles\nvotre façon de jouer",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Bien plus que\ndes jeux de ballon",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Votre score\nsur grand écran",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Comptez les points\nau poignet",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Les outils d’arbitrage\ndans une seule app",
+      "enabled": true
+    }
+  ]
+}

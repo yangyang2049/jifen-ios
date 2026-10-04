@@ -400,6 +400,8 @@ struct TennisScoreboardView: View {
                 store = restored
                 didSpeakOpeningAnnouncement = true
             }
+            ScoreVoiceAnnouncer.shared.beginSession(store.sessionId)
+            if store.voiceAnnouncementEnabled && !store.state.finished { ScoreVoiceAnnouncer.shared.checkSessionVoice() }
             if let savedBreak = store.state.officialBreakState {
                 officialBreakSession = OfficialBreakSession(state: savedBreak)
                 officialBreakSession.reconcileAfterRestore(
@@ -477,6 +479,7 @@ struct TennisScoreboardView: View {
             )
         }
         .onDisappear {
+            ScoreVoiceAnnouncer.shared.stop()
             cancelPendingTap()
             cancelPendingOpeningAnnouncement()
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
@@ -1764,7 +1767,7 @@ struct TennisScoreboardView: View {
     }
 
     private var menuItems: [ScoreboardMenuItem] {
-        let extras: [ScoreboardMenuItem] = [
+        let extras: [ScoreboardMenuItem] = SportsVoiceSupport.isSupported ? [
             ScoreboardMenuItem(
                 title: store.voiceAnnouncementEnabled
                     ? NSLocalizedString("voice_announcement_on", value: "语音：开", comment: "")
@@ -1774,7 +1777,7 @@ struct TennisScoreboardView: View {
                 icon: store.voiceAnnouncementEnabled ? "speaker.wave.2" : "speaker.slash",
                 keepDialogOpen: true
             )
-        ]
+        ] : []
         return ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
             resetConfirming: menuConfirm.resetConfirming,
@@ -1818,6 +1821,8 @@ struct TennisScoreboardView: View {
                 toastMessage = ScoreboardMenuConfirmAction.finish.localizedToast
             }
         case "voiceAnnouncement":
+            guard SportsVoiceSupport.isSupported else { return }
+            if !store.voiceAnnouncementEnabled, !ScoreVoiceAnnouncer.shared.prepareToEnable() { return }
             store.setVoiceAnnouncementEnabled(!store.voiceAnnouncementEnabled)
             if store.voiceAnnouncementEnabled {
                 speakOpeningAnnouncementIfNeeded()

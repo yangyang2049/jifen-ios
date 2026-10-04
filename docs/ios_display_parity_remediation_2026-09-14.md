@@ -90,6 +90,6 @@ Android/HarmonyOS 有麻将而 iOS 当前目录没有，这是新增项目范围
 - [持久代表截图与协议证据](audits/2026-09-14/evidence)
 - [原始问题报告](ios_display_parity_audit_2026-09-13.md)
 
-![网球双打窄竖屏，主分及姓名完整显示](audits/2026-09-14/evidence/display_tennis_doubles_portrait_sync_1.5x.png)
+网球双打窄竖屏，主分及姓名完整显示（已于2026-10-04清理）
 
-![桌上足球双打编辑页，底部局分完整显示](audits/2026-09-14/evidence/iPhone_audit_foosball_02_edit.png)
+桌上足球双打编辑页，底部局分完整显示（已于2026-10-04清理）

@@ -791,12 +791,54 @@ final class ScoreboardDisplayTests: XCTestCase {
         XCTAssertEqual(teamScore("tennis", "15"), 1)
         XCTAssertEqual(teamScore("tennis", "30"), 2)
         XCTAssertEqual(teamScore("tennis", "40"), 3)
-        XCTAssertEqual(teamScore("tennis", "AD"), 4)
+        XCTAssertEqual(teamScore("tennis", "Ad"), 4)
         XCTAssertEqual(teamScore("tennis", "7"), 7, "抢七实际分数应原样透传")
         XCTAssertEqual(teamScore("tennis_doubles", "30"), 2)
         XCTAssertEqual(teamScore("soft_tennis", "15"), 1, "软式网球 wire 用原始步进值")
-        XCTAssertEqual(teamScore("padel", "AD"), 4)
+        XCTAssertEqual(teamScore("padel", "Ad"), 4)
         XCTAssertEqual(teamScore("football", "15"), 15, "非网球家族不转换")
+    }
+
+    func testTennisTiebreakScoresPreserveFifteenThirtyAndFortyThroughWireAndResults() throws {
+        for gameID in ["tennis", "tennis_doubles", "padel"] {
+            for score in [15, 30, 40] {
+                for finished in [false, true] {
+                    var compact = compactFixture(
+                        gameID: gameID, leftName: "A", rightName: "B",
+                        leftScore: String(score), rightScore: String(score - 2), revision: 1
+                    )
+                    compact.finished = finished
+                    let state = ScoreboardDisplayState.enriched(
+                        compact: compact, layoutKind: .twoSide,
+                        sportState: ["tennisIsTieBreak": .boolean(true), "resultScoreLevel": .string("score")]
+                    )
+                    XCTAssertEqual(state.teams.map(\.score), [score, score - 2], gameID)
+                    if finished {
+                        XCTAssertEqual(state.result?.winnerID, "team_0")
+                        XCTAssertEqual(state.result?.finalScores?["team_0"]?.score, score)
+                    }
+                    let decoded = try XCTUnwrap(DisplayStateWireCodec.decode(try XCTUnwrap(DisplayStateWireCodec.encode(state))))
+                    XCTAssertEqual(decoded.teams.map(\.score), [score, score - 2], gameID)
+                    if finished { XCTAssertEqual(decoded.result?.finalScores?["team_0"]?.score, score) }
+                }
+            }
+        }
+    }
+
+    func testTennisTiebreakScoreAndWinnerNormalizeAfterSideSwap() throws {
+        var compact = compactFixture(
+            gameID: "tennis_doubles", leftName: "B", rightName: "A",
+            leftScore: "30", rightScore: "28", revision: 1
+        )
+        compact.finished = true
+        let state = ScoreboardDisplayState.enriched(
+            compact: compact, layoutKind: .doublesCourt,
+            sportState: ["tennisIsTieBreak": .boolean(true), "team0ScreenSide": .string("right")]
+        )
+        XCTAssertEqual(state.teams.map(\.name), ["A", "B"])
+        XCTAssertEqual(state.teams.map(\.score), [28, 30])
+        XCTAssertEqual(state.result?.winnerID, "team_1")
+        XCTAssertEqual(state.result?.finalScores?["team_1"]?.score, 30)
     }
 
     /// 未设置比赛抬头时 wire 不携带 matchTitle（对齐安卓），设置了才透传。

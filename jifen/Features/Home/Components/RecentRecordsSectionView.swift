@@ -74,10 +74,9 @@ struct RecentRowView: View {
     private func buildScoreboardItem() -> some View {
         NavigationLink(destination: ScoreboardRecordDetailPage(recordId: activity.id)) {
             HStack(spacing: 0) { // Row()
-                // Left: Game Emoji Icon (+ watch sync badge)
+                // Left: Game icon (+ watch sync badge)
                 ZStack(alignment: .bottomTrailing) {
-                    Text(activity.gameType.icon)
-                        .font(.system(size: 28))
+                    AppCatalogIcon(gameType: activity.gameType, size: 32)
                         .frame(width: 40, height: 40)
                         .multilineTextAlignment(.center)
                         .minimumScaleFactor(0.5)
@@ -151,8 +150,7 @@ struct RecentRowView: View {
 
     @ViewBuilder
     private func buildGameIcon(_ gameType: GameType) -> some View {
-        Text(gameType.icon)
-            .font(.system(size: 24))
+        AppCatalogIcon(gameType: gameType, size: 28)
             .frame(width: 32, height: 32)
             .multilineTextAlignment(.center)
             .minimumScaleFactor(0.5)

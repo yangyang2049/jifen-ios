@@ -1,0 +1,133 @@
+{
+  "locale": "zh-Hant",
+  "status": "verified",
+  "images": [
+    {
+      "index": 1,
+      "id": "3b000019-2e9e-82d0-8025-c313f528ee1e",
+      "md5": "12973f596180ba115f6fac9439370413",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 2,
+      "id": "02c00019-2e9e-82d0-8015-b1ec19a0030e",
+      "md5": "e012333ebaad1d871c5bf050c8583efd",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 3,
+      "id": "d9800019-2e9e-82d0-803f-f1a3e53dbe0c",
+      "md5": "772b3984977070d1bf02eebd759311ed",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 4,
+      "id": "47c00019-2e9e-82d0-8023-f3389c98e8e1",
+      "md5": "c0a3f725d2378742b91c4f9f27412d13",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 5,
+      "id": "88400019-2e9e-82d0-803c-9ffb53d704cc",
+      "md5": "4d349997b91d4c9ce5ddcc8560c0b1c2",
+      "action": "reused",
+      "state": "COMPLETE"
+    }
+  ],
+  "deletedIds": [],
+  "startedAt": "2026-10-02T18:37:20.704176+00:00",
+  "setId": "5149ce48-30e7-4b10-a77f-6fdbd9dd8050",
+  "verified": true,
+  "completedAt": "2026-10-02T18:37:22.771258+00:00",
+  "after": [
+    {
+      "id": "3b000019-2e9e-82d0-8025-c313f528ee1e",
+      "type": "appScreenshots",
+      "attributes": {
+        "fileName": "zh-Hant-ipad-01-snooker-12973f596180.png",
+        "fileSize": 476631,
+        "sourceFileChecksum": "12973f596180ba115f6fac9439370413",
+        "assetDeliveryState": {
+          "state": "COMPLETE",
+          "errorCodes": []
+        },
+        "imageAsset": {
+          "width": 2752,
+          "height": 2064
+        }
+      }
+    },
+    {
+      "id": "02c00019-2e9e-82d0-8015-b1ec19a0030e",
+      "type": "appScreenshots",
+      "attributes": {
+        "fileName": "zh-Hant-ipad-02-basketball-e012333ebaad.png",
+        "fileSize": 250924,
+        "sourceFileChecksum": "e012333ebaad1d871c5bf050c8583efd",
+        "assetDeliveryState": {
+          "state": "COMPLETE",
+          "errorCodes": []
+        },
+        "imageAsset": {
+          "width": 2752,
+          "height": 2064
+        }
+      }
+    },
+    {
+      "id": "d9800019-2e9e-82d0-803f-f1a3e53dbe0c",
+      "type": "appScreenshots",
+      "attributes": {
+        "fileName": "zh-Hant-ipad-03-record-772b39849770.png",
+        "fileSize": 252804,
+        "sourceFileChecksum": "772b3984977070d1bf02eebd759311ed",
+        "assetDeliveryState": {
+          "state": "COMPLETE",
+          "errorCodes": []
+        },
+        "imageAsset": {
+          "width": 2752,
+          "height": 2064
+        }
+      }
+    },
+    {
+      "id": "47c00019-2e9e-82d0-8023-f3389c98e8e1",
+      "type": "appScreenshots",
+      "attributes": {
+        "fileName": "zh-Hant-ipad-04-setup-c0a3f725d237.png",
+        "fileSize": 920397,
+        "sourceFileChecksum": "c0a3f725d2378742b91c4f9f27412d13",
+        "assetDeliveryState": {
+          "state": "COMPLETE",
+          "errorCodes": []
+        },
+        "imageAsset": {
+          "width": 2752,
+          "height": 2064
+        }
+      }
+    },
+    {
+      "id": "88400019-2e9e-82d0-803c-9ffb53d704cc",
+      "type": "appScreenshots",
+      "attributes": {
+        "fileName": "zh-Hant-ipad-05-home-4d349997b91d.png",
+        "fileSize": 1397021,
+        "sourceFileChecksum": "4d349997b91d4c9ce5ddcc8560c0b1c2",
+        "assetDeliveryState": {
+          "state": "COMPLETE",
+          "errorCodes": []
+        },
+        "imageAsset": {
+          "width": 2752,
+          "height": 2064
+        }
+      }
+    }
+  ]
+}

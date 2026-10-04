@@ -1,0 +1,68 @@
+{
+  "locale": "ar-SA",
+  "appleLanguage": "ar",
+  "appleLocale": "ar_SA",
+  "names": [
+    "أحمد",
+    "عمر",
+    "علي",
+    "يوسف"
+  ],
+  "fontFamily": "Noto Sans Arabic",
+  "basketballTeams": [
+    "المضيف",
+    "الضيف"
+  ],
+  "simulator": "7230B956-03E3-4A0B-9322-B555C35F76F0",
+  "cards": [
+    {
+      "index": 1,
+      "scene": "snooker",
+      "file": "exports/ar-SA/01-snooker.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "ac2f9dece847af8a32bd8ed58b23071f226bf72e49ccb36f7417b349d57c8dc8",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 2,
+      "scene": "basketball",
+      "file": "exports/ar-SA/02-basketball.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "6c525f869a154bdd6ceffabbef6e55a03e7751e489920b8e6663a688ccffc6e9",
+      "capture": "production SwiftUI via simctl",
+      "teamNames": [
+        "المضيف",
+        "الضيف"
+      ]
+    },
+    {
+      "index": 3,
+      "scene": "record",
+      "file": "exports/ar-SA/03-record.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "282c6a91fbf6770793aa481845adece7f091c4e92323334ac54a5baafe778fb6",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 4,
+      "scene": "setup",
+      "file": "exports/ar-SA/04-setup.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "186e5e0867e70f698490d784a8bae34aca2f15b47ff1032a5bf10032a7fd111c",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 5,
+      "scene": "home",
+      "file": "exports/ar-SA/05-home.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "faf07824864841be0cb7aed549cfe4f7952a15dbbcc91087462357fb34ee412e",
+      "capture": "production SwiftUI via simctl"
+    }
+  ]
+}

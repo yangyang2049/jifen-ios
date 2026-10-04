@@ -1,0 +1,308 @@
+{
+  "verifiedAt": "2026-10-02",
+  "source": "https://developer.apple.com/documentation/appstoreconnectapi/managing-metadata-in-your-app-by-using-locale-shortcodes",
+  "appStoreLocaleCount": 50,
+  "iosLocaleCount": 47,
+  "locales": [
+    {
+      "locale": "ar-SA",
+      "iosLocale": "ar",
+      "language": "Arabic",
+      "file": "locales/ar-SA.json"
+    },
+    {
+      "locale": "bn-BD",
+      "iosLocale": "bn",
+      "language": "Bengali",
+      "file": "locales/bn-BD.json"
+    },
+    {
+      "locale": "ca",
+      "iosLocale": "ca",
+      "language": "Catalan",
+      "file": "locales/ca.json"
+    },
+    {
+      "locale": "zh-Hans",
+      "iosLocale": "zh-Hans",
+      "language": "Chinese (Simplified)",
+      "file": "locales/zh-Hans.json"
+    },
+    {
+      "locale": "zh-Hant",
+      "iosLocale": "zh-Hant",
+      "language": "Chinese (Traditional)",
+      "file": "locales/zh-Hant.json"
+    },
+    {
+      "locale": "hr",
+      "iosLocale": "hr",
+      "language": "Croatian",
+      "file": "locales/hr.json"
+    },
+    {
+      "locale": "cs",
+      "iosLocale": "cs",
+      "language": "Czech",
+      "file": "locales/cs.json"
+    },
+    {
+      "locale": "da",
+      "iosLocale": "da",
+      "language": "Danish",
+      "file": "locales/da.json"
+    },
+    {
+      "locale": "nl-NL",
+      "iosLocale": "nl",
+      "language": "Dutch",
+      "file": "locales/nl-NL.json"
+    },
+    {
+      "locale": "en-AU",
+      "iosLocale": "en",
+      "language": "English (Australia)",
+      "file": "locales/en-AU.json"
+    },
+    {
+      "locale": "en-CA",
+      "iosLocale": "en",
+      "language": "English (Canada)",
+      "file": "locales/en-CA.json"
+    },
+    {
+      "locale": "en-GB",
+      "iosLocale": "en",
+      "language": "English (U.K.)",
+      "file": "locales/en-GB.json"
+    },
+    {
+      "locale": "en-US",
+      "iosLocale": "en",
+      "language": "English (U.S.)",
+      "file": "locales/en-US.json"
+    },
+    {
+      "locale": "fi",
+      "iosLocale": "fi",
+      "language": "Finnish",
+      "file": "locales/fi.json"
+    },
+    {
+      "locale": "fr-FR",
+      "iosLocale": "fr",
+      "language": "French",
+      "file": "locales/fr-FR.json"
+    },
+    {
+      "locale": "fr-CA",
+      "iosLocale": "fr-CA",
+      "language": "French (Canada)",
+      "file": "locales/fr-CA.json"
+    },
+    {
+      "locale": "de-DE",
+      "iosLocale": "de",
+      "language": "German",
+      "file": "locales/de-DE.json"
+    },
+    {
+      "locale": "el",
+      "iosLocale": "el",
+      "language": "Greek",
+      "file": "locales/el.json"
+    },
+    {
+      "locale": "gu-IN",
+      "iosLocale": "gu",
+      "language": "Gujarati",
+      "file": "locales/gu-IN.json"
+    },
+    {
+      "locale": "he",
+      "iosLocale": "he",
+      "language": "Hebrew",
+      "file": "locales/he.json"
+    },
+    {
+      "locale": "hi",
+      "iosLocale": "hi",
+      "language": "Hindi",
+      "file": "locales/hi.json"
+    },
+    {
+      "locale": "hu",
+      "iosLocale": "hu",
+      "language": "Hungarian",
+      "file": "locales/hu.json"
+    },
+    {
+      "locale": "id",
+      "iosLocale": "id",
+      "language": "Indonesian",
+      "file": "locales/id.json"
+    },
+    {
+      "locale": "it",
+      "iosLocale": "it",
+      "language": "Italian",
+      "file": "locales/it.json"
+    },
+    {
+      "locale": "ja",
+      "iosLocale": "ja",
+      "language": "Japanese",
+      "file": "locales/ja.json"
+    },
+    {
+      "locale": "kn-IN",
+      "iosLocale": "kn",
+      "language": "Kannada",
+      "file": "locales/kn-IN.json"
+    },
+    {
+      "locale": "ko",
+      "iosLocale": "ko",
+      "language": "Korean",
+      "file": "locales/ko.json"
+    },
+    {
+      "locale": "ms",
+      "iosLocale": "ms",
+      "language": "Malay",
+      "file": "locales/ms.json"
+    },
+    {
+      "locale": "ml-IN",
+      "iosLocale": "ml",
+      "language": "Malayalam",
+      "file": "locales/ml-IN.json"
+    },
+    {
+      "locale": "mr-IN",
+      "iosLocale": "mr",
+      "language": "Marathi",
+      "file": "locales/mr-IN.json"
+    },
+    {
+      "locale": "no",
+      "iosLocale": "nb",
+      "language": "Norwegian",
+      "file": "locales/no.json"
+    },
+    {
+      "locale": "or-IN",
+      "iosLocale": "or",
+      "language": "Oriya",
+      "file": "locales/or-IN.json"
+    },
+    {
+      "locale": "pl",
+      "iosLocale": "pl",
+      "language": "Polish",
+      "file": "locales/pl.json"
+    },
+    {
+      "locale": "pt-BR",
+      "iosLocale": "pt-BR",
+      "language": "Portuguese (Brazil)",
+      "file": "locales/pt-BR.json"
+    },
+    {
+      "locale": "pt-PT",
+      "iosLocale": "pt-PT",
+      "language": "Portuguese (Portugal)",
+      "file": "locales/pt-PT.json"
+    },
+    {
+      "locale": "pa-IN",
+      "iosLocale": "pa",
+      "language": "Punjabi",
+      "file": "locales/pa-IN.json"
+    },
+    {
+      "locale": "ro",
+      "iosLocale": "ro",
+      "language": "Romanian",
+      "file": "locales/ro.json"
+    },
+    {
+      "locale": "ru",
+      "iosLocale": "ru",
+      "language": "Russian",
+      "file": "locales/ru.json"
+    },
+    {
+      "locale": "sk",
+      "iosLocale": "sk",
+      "language": "Slovak",
+      "file": "locales/sk.json"
+    },
+    {
+      "locale": "sl-SI",
+      "iosLocale": "sl",
+      "language": "Slovenian",
+      "file": "locales/sl-SI.json"
+    },
+    {
+      "locale": "es-MX",
+      "iosLocale": "es-MX",
+      "language": "Spanish (Mexico)",
+      "file": "locales/es-MX.json"
+    },
+    {
+      "locale": "es-ES",
+      "iosLocale": "es-ES",
+      "language": "Spanish (Spain)",
+      "file": "locales/es-ES.json"
+    },
+    {
+      "locale": "sv",
+      "iosLocale": "sv",
+      "language": "Swedish",
+      "file": "locales/sv.json"
+    },
+    {
+      "locale": "ta-IN",
+      "iosLocale": "ta",
+      "language": "Tamil",
+      "file": "locales/ta-IN.json"
+    },
+    {
+      "locale": "te-IN",
+      "iosLocale": "te",
+      "language": "Telugu",
+      "file": "locales/te-IN.json"
+    },
+    {
+      "locale": "th",
+      "iosLocale": "th",
+      "language": "Thai",
+      "file": "locales/th.json"
+    },
+    {
+      "locale": "tr",
+      "iosLocale": "tr",
+      "language": "Turkish",
+      "file": "locales/tr.json"
+    },
+    {
+      "locale": "uk",
+      "iosLocale": "uk",
+      "language": "Ukrainian",
+      "file": "locales/uk.json"
+    },
+    {
+      "locale": "ur-PK",
+      "iosLocale": "ur",
+      "language": "Urdu",
+      "file": "locales/ur-PK.json"
+    },
+    {
+      "locale": "vi",
+      "iosLocale": "vi",
+      "language": "Vietnamese",
+      "file": "locales/vi.json"
+    }
+  ]
+}

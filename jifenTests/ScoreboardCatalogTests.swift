@@ -10,6 +10,88 @@ import UIKit
 // they stay locale-agnostic by design. Do not "fix" them for zh-Hant.
 @MainActor
 final class ScoreboardCatalogTests: XCTestCase {
+    func testQuickStartDefaultsFollowAsianAndEuropeanUILanguages() {
+        let badmintonLocales = [
+            "zh-Hans", "zh-Hant", "ja-JP", "ko-KR", "id-ID", "ms-MY", "th-TH", "vi-VN",
+            "hi-IN", "bn-BD", "gu-IN", "kn-IN", "ml-IN", "mr-IN", "or-IN", "pa-IN", "ta-IN", "te-IN", "ur-PK"
+        ]
+        let tennisLocales = [
+            "en", "en-US", "en-GB", "en-AU", "en-CA", "de-DE", "fr-FR", "fr-CA",
+            "es-ES", "es-MX", "pt-PT", "pt-BR", "ru-RU", "it-IT", "nl-NL", "ar-SA", "he-IL"
+        ]
+        for localization in badmintonLocales {
+            XCTAssertEqual(QuickStartConfig.defaults(for: localization).secondarySport, .badminton, localization)
+        }
+        for localization in tennisLocales {
+            XCTAssertEqual(QuickStartConfig.defaults(for: localization).secondarySport, .tennis, localization)
+        }
+    }
+
+    func testQuickStartDefaultsIgnoreCountryAndHandleLocaleIdentifierVariants() {
+        for localization in ["en-IN", "en_TH", "fr-IN", "es-CN", "EN_us", "unrecognized"] {
+            XCTAssertEqual(QuickStartConfig.defaults(for: localization).secondarySport, .tennis, localization)
+        }
+        for localization in ["zh-US", "hi_GB", "id-US", "JA_de", "ur-GB"] {
+            XCTAssertEqual(QuickStartConfig.defaults(for: localization).secondarySport, .badminton, localization)
+        }
+    }
+
+    func testQuickStartDefaultsKeepBasketballFirstAndDistinctSportsForEveryAppLanguage() {
+        for localization in Bundle.main.localizations where localization != "Base" {
+            let config = QuickStartConfig.defaults(for: localization)
+            XCTAssertEqual(config.primarySport, .basketball, localization)
+            XCTAssertEqual(Set([config.primarySport, config.secondarySport, config.tertiarySport]).count, 3, localization)
+            for sport in [config.primarySport, config.secondarySport, config.tertiarySport] {
+                XCTAssertTrue(QuickStartConfig.selectableGameTypes.contains(sport), localization)
+            }
+        }
+    }
+
+    func testQuickStartFreshAndInvalidStorageKeepLanguageDefaultsAcrossDeviceLayouts() {
+        let layouts = [(false, false), (true, false), (true, true)]
+        for localization in ["en-IN", "ja", "hi", "de", "pt-BR"] {
+            for invalidStorage in [false, true] {
+                for (largeScreen, twoInOne) in layouts {
+                    let suite = "QuickStartDefaultsTests.\(UUID().uuidString)"
+                    let defaults = UserDefaults(suiteName: suite)!
+                    defer { defaults.removePersistentDomain(forName: suite) }
+                    if invalidStorage { defaults.set(Data([0, 1, 2]), forKey: "quickStartConfig") }
+                    let manager = QuickStartConfigManager(userDefaults: defaults, localization: localization)
+                    manager.configureDefaultsIfNeeded(isLargeScreen: largeScreen, is2in1: twoInOne)
+                    XCTAssertEqual(manager.quickStartConfig, QuickStartConfig.defaults(for: localization))
+                    XCTAssertEqual(manager.configurationReadCount, 1)
+                    XCTAssertEqual(defaults.data(forKey: "quickStartConfig"), invalidStorage ? Data([0, 1, 2]) : nil)
+                }
+            }
+        }
+    }
+
+    func testQuickStartSavedChoicesSurviveLanguageChangesAndCompactEditing() async throws {
+        let suite = "QuickStartSavedTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let manager = QuickStartConfigManager(userDefaults: defaults, localization: "en")
+        try await manager.setSports(primary: .snooker, secondary: .pingpong, tertiary: .football)
+        try await manager.setSports(primary: .boxing, secondary: .badminton, tertiary: nil)
+        let savedData = defaults.data(forKey: "quickStartConfig")
+        let expected = QuickStartConfig(primarySport: .boxing, secondarySport: .badminton, tertiarySport: .football)
+        for localization in ["ja", "hi", "en-GB", "ru"] {
+            let restored = QuickStartConfigManager(userDefaults: defaults, localization: localization)
+            restored.configureDefaultsIfNeeded(isLargeScreen: true, is2in1: true)
+            XCTAssertEqual(restored.quickStartConfig, expected)
+            XCTAssertEqual(defaults.data(forKey: "quickStartConfig"), savedData)
+            XCTAssertEqual(restored.configurationReadCount, 1)
+        }
+    }
+
+    func testQuickStartLegacyTwoSlotChoicesRetainTheirMigrationContract() throws {
+        let data = Data(#"{"primarySport":"badminton","secondarySport":"snooker"}"#.utf8)
+        let restored = try JSONDecoder().decode(QuickStartConfig.self, from: data)
+        XCTAssertEqual(restored.primarySport, .badminton)
+        XCTAssertEqual(restored.secondarySport, .snooker)
+        XCTAssertEqual(restored.tertiarySport, .tennis)
+    }
+
     func testCommonNamePolicyUsesPlayerNamesForSinglesAndDoublesMembers() {
         let playerGames: [jifen.GameType] = [
             .pingpong, .badminton, .tennis, .pickleball, .foosball,
@@ -1878,6 +1960,22 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertNil(UnoTargetScorePolicy.customValue(from: "0"))
         XCTAssertEqual(UnoTargetScorePolicy.customValue(from: "10000"), 10000)
         XCTAssertNil(UnoTargetScorePolicy.customValue(from: "100000"))
+    }
+
+    func testNumericInputAcceptsLocalizedDecimalDigitsAndPreservesLimits() {
+        for input in ["٢١", "۲۱", "२१", "২১", "๒๑", "２１"] {
+            XCTAssertEqual(normalizedDecimalDigits(input, limit: 2), "21", input)
+        }
+        XCTAssertEqual(normalizedDecimalDigits("a٠１२३x٤५", limit: 4), "0123")
+        XCTAssertEqual(normalizedDecimalDigits("²Ⅳ①1️⃣⅕", limit: 5), "")
+        XCTAssertEqual(normalizedDecimalDigits("123", limit: 0), "")
+        XCTAssertEqual(normalizedDecimalDigits("123", limit: -1), "")
+
+        XCTAssertEqual(UnoTargetScorePolicy.sanitizedInput("٨٥٠"), "850")
+        XCTAssertEqual(UnoTargetScorePolicy.sanitizedInput("１２３４５６"), "12345")
+        XCTAssertEqual(UnoTargetScorePolicy.customValue(from: "८५०"), 850)
+        XCTAssertNil(UnoTargetScorePolicy.customValue(from: "8a50"))
+        XCTAssertNil(UnoTargetScorePolicy.customValue(from: "١٠٠٠٠٠"))
     }
 
     func testFootball31SetupUsesFixedElevenAsideDefaultAndConfigurableFiveAsideRange() {

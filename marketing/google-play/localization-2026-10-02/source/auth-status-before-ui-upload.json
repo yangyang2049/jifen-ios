@@ -1,0 +1,17 @@
+{
+  "verifiedAt": "2026-10-03T01:07:59.417293+08:00",
+  "packageName": "com.bolo.jifen",
+  "developerId": "6102652090463005491",
+  "appId": "4975387028858187045",
+  "cloudProject": "pc-api-6102652090463005491-968",
+  "androidPublisherApiEnabled": true,
+  "serviceAccount": "store-localization@pc-api-6102652090463005491-968.iam.gserviceaccount.com",
+  "credentialPath": "/Users/yangyang/Downloads/pc-api-6102652090463005491-968-a4f44706e330.json",
+  "localServiceAccountKeyFound": true,
+  "oauthAuthenticationSucceeded": true,
+  "playEditAccessVerified": true,
+  "verifiedPermissionScope": "com.bolo.jifen; other applications and future applications not tested",
+  "status": "Temporary edit revalidated after localization self-audit: 47 locales / 329 screenshots; not committed",
+  "secretsStoredInArtifacts": false,
+  "listingAndImageAccessVerified": true
+}

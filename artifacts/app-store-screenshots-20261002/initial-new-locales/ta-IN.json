@@ -1,0 +1,57 @@
+{
+  "locale": "ta-IN",
+  "completed": false,
+  "screenshots": [
+    {
+      "id": "90c00019-2e9e-82d0-8010-7a2527e5928f",
+      "position": 1,
+      "fileName": "01-slogan.png",
+      "md5": "7f27cbd48b16594cf180800edf31107a",
+      "state": "COMPLETE"
+    },
+    {
+      "id": "24c00019-2e9e-82d0-8009-a7e477c042b9",
+      "position": 2,
+      "fileName": "02-score.png",
+      "md5": "24694c8dd60ded0b9cee21505bc92aa0",
+      "state": "COMPLETE"
+    },
+    {
+      "id": "aac00019-2e9e-82d0-8017-2ae4afa1ae03",
+      "position": 3,
+      "fileName": "03-catalog.png",
+      "md5": "92a115d9fa4130c3ecbd0182a44f72f4",
+      "state": "COMPLETE"
+    },
+    {
+      "id": "2ec00019-2e9e-82d0-802a-bc271a7cfc06",
+      "position": 4,
+      "fileName": "04-recap.png",
+      "md5": "57052139c78294d7a1006301b6dad4ff",
+      "state": "COMPLETE"
+    },
+    {
+      "id": "3dc00019-2e9e-82d0-8014-dc594dd092bc",
+      "position": 5,
+      "fileName": "05-setup.png",
+      "md5": "36617fdf8862d8d7abd5414e38a482c5",
+      "state": "COMPLETE"
+    },
+    {
+      "id": "de000019-2e9e-82d0-8031-0615b28b722f",
+      "position": 6,
+      "fileName": "06-multiplayer.png",
+      "md5": "8e003fda796824d6679db2a32c9f06fa",
+      "state": "COMPLETE"
+    },
+    {
+      "id": "9d800019-2e9e-82d0-800a-4823bd9849b0",
+      "position": 7,
+      "fileName": "07-cast.png",
+      "md5": "2576fa56caedab0d4e66c57b7d03c735",
+      "state": "UPLOAD_COMPLETE"
+    }
+  ],
+  "setId": "5ce867f2-3b0b-4d63-be6e-63e932797b54",
+  "error": ""
+}

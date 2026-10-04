@@ -1,0 +1,225 @@
+{
+  "appId": "6759768784",
+  "appInfoId": "1aa0ff31-d3d8-4d53-8b4e-983263bf8659",
+  "startedAt": "20261004T054436Z",
+  "expectedURL": "https://jifenqi.com/en/privacy",
+  "excludedLocales": [
+    "zh-Hans",
+    "zh-Hant"
+  ],
+  "submittedForReview": false,
+  "results": [
+    {
+      "locale": "kn-IN",
+      "action": "PATCH"
+    },
+    {
+      "locale": "no",
+      "action": "PATCH"
+    },
+    {
+      "locale": "te-IN",
+      "action": "PATCH"
+    },
+    {
+      "locale": "sl-SI",
+      "action": "PATCH"
+    },
+    {
+      "locale": "en-GB",
+      "action": "PATCH"
+    },
+    {
+      "locale": "th",
+      "action": "PATCH"
+    },
+    {
+      "locale": "ca",
+      "action": "PATCH"
+    },
+    {
+      "locale": "ur-PK",
+      "action": "PATCH"
+    },
+    {
+      "locale": "da",
+      "action": "PATCH"
+    },
+    {
+      "locale": "mr-IN",
+      "action": "PATCH"
+    },
+    {
+      "locale": "hr",
+      "action": "PATCH"
+    },
+    {
+      "locale": "cs",
+      "action": "PATCH"
+    },
+    {
+      "locale": "pl",
+      "action": "PATCH"
+    },
+    {
+      "locale": "fr-FR",
+      "action": "PATCH"
+    },
+    {
+      "locale": "hu",
+      "action": "PATCH"
+    },
+    {
+      "locale": "nl-NL",
+      "action": "PATCH"
+    },
+    {
+      "locale": "pa-IN",
+      "action": "PATCH"
+    },
+    {
+      "locale": "ta-IN",
+      "action": "PATCH"
+    },
+    {
+      "locale": "tr",
+      "action": "PATCH"
+    },
+    {
+      "locale": "id",
+      "action": "PATCH"
+    },
+    {
+      "locale": "fr-CA",
+      "action": "PATCH"
+    },
+    {
+      "locale": "de-DE",
+      "action": "PATCH"
+    },
+    {
+      "locale": "es-MX",
+      "action": "PATCH"
+    },
+    {
+      "locale": "ru",
+      "action": "PATCH"
+    },
+    {
+      "locale": "uk",
+      "action": "PATCH"
+    },
+    {
+      "locale": "ko",
+      "action": "PATCH"
+    },
+    {
+      "locale": "ms",
+      "action": "PATCH"
+    },
+    {
+      "locale": "or-IN",
+      "action": "PATCH"
+    },
+    {
+      "locale": "zh-Hant",
+      "action": "preserved"
+    },
+    {
+      "locale": "ro",
+      "action": "PATCH"
+    },
+    {
+      "locale": "en-US",
+      "action": "unchanged"
+    },
+    {
+      "locale": "zh-Hans",
+      "action": "preserved"
+    },
+    {
+      "locale": "ml-IN",
+      "action": "PATCH"
+    },
+    {
+      "locale": "it",
+      "action": "PATCH"
+    },
+    {
+      "locale": "bn-BD",
+      "action": "PATCH"
+    },
+    {
+      "locale": "gu-IN",
+      "action": "PATCH"
+    },
+    {
+      "locale": "vi",
+      "action": "PATCH"
+    },
+    {
+      "locale": "ar-SA",
+      "action": "PATCH"
+    },
+    {
+      "locale": "hi",
+      "action": "PATCH"
+    },
+    {
+      "locale": "pt-BR",
+      "action": "PATCH"
+    },
+    {
+      "locale": "el",
+      "action": "PATCH"
+    },
+    {
+      "locale": "en-AU",
+      "action": "PATCH"
+    },
+    {
+      "locale": "sv",
+      "action": "PATCH"
+    },
+    {
+      "locale": "he",
+      "action": "PATCH"
+    },
+    {
+      "locale": "pt-PT",
+      "action": "PATCH"
+    },
+    {
+      "locale": "es-ES",
+      "action": "PATCH"
+    },
+    {
+      "locale": "sk",
+      "action": "PATCH"
+    },
+    {
+      "locale": "en-CA",
+      "action": "PATCH"
+    },
+    {
+      "locale": "fi",
+      "action": "PATCH"
+    },
+    {
+      "locale": "ja",
+      "action": "PATCH"
+    }
+  ],
+  "completedAt": "2026-10-04T05:45:21.318945+00:00",
+  "verifiedLocaleCount": 50,
+  "verifiedEnglishURLCount": 48,
+  "changedLocaleCount": 47,
+  "preservedChineseURLs": {
+    "zh-Hans": "https://jifenqi.com/privacy",
+    "zh-Hant": "https://jifenqi.com/privacy"
+  },
+  "mismatches": [],
+  "otherFieldChanges": [],
+  "appInfoStateUnchanged": true,
+  "verified": true
+}

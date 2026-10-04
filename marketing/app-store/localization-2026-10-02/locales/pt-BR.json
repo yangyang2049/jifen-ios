@@ -1,0 +1,58 @@
+{
+  "locale": "pt-BR",
+  "iosLocale": "pt-BR",
+  "language": "Portuguese (Brazil)",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Placar esportivo",
+  "subtitle": "Pontos, tempos e partidas",
+  "description": "Cada ponto conta. Transforme seu iPhone ou iPad em um placar claro e fácil de usar para partidas, treinos e jogos com amigos.\n\nMarque pontos em mais de 26 esportes e jogos, incluindo tênis, pickleball, badminton, tênis de mesa, basquete, futebol, vôlei e bilhar. Nos esportes compatíveis, ajuste as regras de pontuação, o formato da partida e a ordem de saque em duplas.\n\nSalve suas partidas e reveja a evolução do placar, a linha do tempo e as notas de voz. Use relógios de xadrez e go, um temporizador para cubos e um cronômetro. Mostre o placar em uma tela grande e compartilhe um código de partida para seus amigos acompanharem à distância.\n\nCara ou coroa, equipes aleatórias, cartões vermelhos e amarelos e divisão de despesas: tudo em um só lugar. Menos trabalho para contar, mais tempo para jogar.\n\nTermos de uso:\nhttps://jifenqi.com/terms\n\nPolítica de privacidade:\nhttps://jifenqi.com/privacy\n\nContrato de licença padrão da Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Cada ponto\nconta",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Todo o placar\nnum piscar de olhos",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "Um placar\npara mais de 26 esportes",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Reveja\ncada partida",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Suas regras\nseu jeito de jogar",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Muito além dos\nesportes com bola",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Seu placar\nna tela grande",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Marque pontos\nno pulso",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Ferramentas de arbitragem\nem um só app",
+      "enabled": true
+    }
+  ]
+}

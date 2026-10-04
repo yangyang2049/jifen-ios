@@ -283,7 +283,7 @@ struct ShengjiScoreboardView: View {
                     }
                 }
                 ForEach([1, 2, 3], id: \.self) { step in
-                    scoreboardCardActionButton("+\(step)") {
+                    scoreboardCardActionButton("\(step)", isAddition: true) {
                         send(.resolveRound(winner: side, delta: step))
                     }
                 }

@@ -1,0 +1,115 @@
+{
+  "files": [
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/da.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/da.json",
+      "sha256": "ff4415bc18c2ca5941235b4e33e6a5fb905df098e82951b0fa1729e04d9ee5e4"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-AU.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/en-AU.json",
+      "sha256": "ad292ea85d3360a29610fb7b2ea4ff40b7f4aeada7ea213f55a3cbef2ac6826b"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-CA.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/en-CA.json",
+      "sha256": "db8ebe8d66a4f0ab897865be7702efa1999235030bc60dc8a5af873b4ff7bc51"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-GB.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/en-GB.json",
+      "sha256": "709549c75149f9ffbe392a6db83486e787e1699b82cf8226ed461e43b3c330a8"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-US.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/en-US.json",
+      "sha256": "af83b785426d39d604e248a03b532fd8b89780ad568b943bdc3635527556e929"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/fr-CA.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/fr-CA.json",
+      "sha256": "7045e997b1742fbdb507756c7e235d26e2ad28272ed47489682e97a241414660"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/fr-FR.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/fr-FR.json",
+      "sha256": "46de91475537a40fa2cb1ab89a3c75a2f22726bc8f08ccfb9649c3ac54d7f3a6"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/id.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/id.json",
+      "sha256": "a24b9b14d5b815f541c643aaddf961fc2250b11169a6c3b21bce66feb89fbf90"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ms.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/ms.json",
+      "sha256": "d1c6d3765a2c8a4a438f848c4fb07607746c3a72965788fa2da2bfbc2e813dc6"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/pl.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/pl.json",
+      "sha256": "5828db00ce3ffa223a197da4c2ad3b51d6cf7a4e6622719e4bbcbd9e8ac48d9f"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ro.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/ro.json",
+      "sha256": "9749ef892e405723602e0fd44ce57a6a2f7ec9c6edf3307db3ca849d7714b90f"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/th.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/th.json",
+      "sha256": "b210b147d11c9d631f13d2730756e586967af09bee2d8c91329d5d701df8cb84"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ur-PK.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/ur-PK.json",
+      "sha256": "a6ebfbcf390751063d197d320f53fe892146694b0f9ae5eb53b530fdff1ca7dd"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/vi.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/vi.json",
+      "sha256": "afc2a26f9cedeba263e2fb4e0cc60f0ee8dd424b3c39e848ddaa517dfb9c5cf3"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/validate.py",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/validate.py",
+      "sha256": "5169690f016da513fb77adf14e27f38e1d447a242d07f00ddfa2ec9860fe9930"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/metadata.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/metadata.json",
+      "sha256": "3ba775a4eae917129fc7c3f6fb331a48525dd7730f5047465e9d9f422a2164e4"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/screenshot-titles.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/screenshot-titles.json",
+      "sha256": "47b50a14643dc0382385fe83f5261e768df92c7b0f85c6faa9d7cbcf04a17758"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/copy-review.md",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/copy-review.md",
+      "sha256": "9ba5060e8b289841ef933aa5f77371eeb243b669e95b5d3b49cad6df98a2099c"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/names-and-subtitles.md",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/names-and-subtitles.md",
+      "sha256": "60dac0322ed0744733357d3245c0ec79d025de08c6160cb9f24de428be388400"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/names-and-subtitles.csv",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/names-and-subtitles.csv",
+      "sha256": "6383304412ce807274dda8369a50b1ccc6bca7e325595821fd03b6fbbbfd477a"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/validation-report.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/validation-report.json",
+      "sha256": "2fc44e3af6bede33c60ac01fa56d6136bc010e8230c993a44d79cdc23e5a276b"
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/api-requests.template.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/api-requests.template.json",
+      "sha256": "a3d5307477eed981c716eccaf165a46f90c73e48f49a053f97bf8a5cae787630"
+    }
+  ],
+  "sourceRoot": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02"
+}

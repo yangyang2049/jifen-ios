@@ -88,11 +88,12 @@ extension ScoreboardDisplayRest {
 
 extension ScoreboardDisplayState {
     /// 网球家族 wire 比分：对齐安卓 `toProtocolTennisPointScore` 协议契约。
-    /// 常规局显示串 0/15/30/40/AD 统一转成点数序号 0/1/2/3/4（软式网球序号即原始步进值），
+    /// 常规局显示串 0/15/30/40/Ad 统一转成点数序号 0/1/2/3/4（软式网球序号即原始步进值），
     /// 抢七等实际分数是纯数字串，原样透传；显示端由 tennisIsDeuce/tennisAdvantage 表达占先。
-    static func wireProtocolScore(gameID: String, display: String) -> Int {
+    /// 入参只来自本进程生成的显示串，跨端 wire 传的是点数序号，因此这里只认当前拼写。
+    static func wireProtocolScore(gameID: String, display: String, isTieBreak: Bool = false) -> Int {
         let tennisFamilyGameIDs: Set<String> = ["tennis", "tennis_doubles", "soft_tennis", "padel"]
-        guard tennisFamilyGameIDs.contains(gameID) else {
+        guard tennisFamilyGameIDs.contains(gameID), !isTieBreak else {
             return Int(display) ?? 0
         }
         switch display {
@@ -100,17 +101,17 @@ extension ScoreboardDisplayState {
         case "15": return 1
         case "30": return 2
         case "40": return 3
-        case "AD": return 4
+        case "Ad": return 4
         default: return Int(display) ?? 0
         }
     }
 
-    init(compactState state: LocalScoreboardDisplayState) {
+    init(compactState state: LocalScoreboardDisplayState, tennisIsTieBreak: Bool = false) {
         let profile = ScoreboardAppearanceSnapshot.current(
             styleID: ScoreboardStyleID(rawValue: state.gameID)
         ).styleProfileV2
-        let leftValue = Self.wireProtocolScore(gameID: state.gameID, display: state.leftScore)
-        let rightValue = Self.wireProtocolScore(gameID: state.gameID, display: state.rightScore)
+        let leftValue = Self.wireProtocolScore(gameID: state.gameID, display: state.leftScore, isTieBreak: tennisIsTieBreak)
+        let rightValue = Self.wireProtocolScore(gameID: state.gameID, display: state.rightScore, isTieBreak: tennisIsTieBreak)
         let teams = [
             ScoreboardDisplayTeam(
                 id: "team_0",
@@ -238,7 +239,10 @@ extension ScoreboardDisplayState {
         clock: ScoreboardDisplayClock? = nil,
         rest: ScoreboardDisplayRest? = nil
     ) -> ScoreboardDisplayState {
-        var value = ScoreboardDisplayState(compactState: compact)
+        var value = ScoreboardDisplayState(
+            compactState: compact,
+            tennisIsTieBreak: sportState["tennisIsTieBreak"] == .boolean(true)
+        )
         value.layoutKind = layoutKind
         value.orientation = orientation ?? (layoutKind == .multiGrid ? .portrait : .landscape)
         value.players = players

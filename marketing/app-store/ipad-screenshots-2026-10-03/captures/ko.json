@@ -1,0 +1,68 @@
+{
+  "locale": "ko",
+  "appleLanguage": "ko",
+  "appleLocale": "ko_KR",
+  "names": [
+    "민준",
+    "서준",
+    "지훈",
+    "수빈"
+  ],
+  "fontFamily": "Noto Sans KR",
+  "basketballTeams": [
+    "홈팀",
+    "원정팀"
+  ],
+  "simulator": "7230B956-03E3-4A0B-9322-B555C35F76F0",
+  "cards": [
+    {
+      "index": 1,
+      "scene": "snooker",
+      "file": "exports/ko/01-snooker.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "59169ea8febdf3fabafe481b36546c43e2054100ce3b995ce49c4fabc0408668",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 2,
+      "scene": "basketball",
+      "file": "exports/ko/02-basketball.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "8aac4694771cbfc3239e35ef545c06f3120c9d0e3efc56da9d4ca12562f94e72",
+      "capture": "production SwiftUI via simctl",
+      "teamNames": [
+        "홈팀",
+        "원정팀"
+      ]
+    },
+    {
+      "index": 3,
+      "scene": "record",
+      "file": "exports/ko/03-record.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "9a77235e909400454b43176de9aa72a28dc772235022334d500adf024bd8e3ac",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 4,
+      "scene": "setup",
+      "file": "exports/ko/04-setup.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "a43bd967441af2db18df52782f55bdc788b4ac8da41bef793cdd16aa546c3fb2",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 5,
+      "scene": "home",
+      "file": "exports/ko/05-home.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "15e78d4e695e8f3ede556eb2d8f815e60d11904a650e6a2bc92d4d8069f3a465",
+      "capture": "production SwiftUI via simctl"
+    }
+  ]
+}

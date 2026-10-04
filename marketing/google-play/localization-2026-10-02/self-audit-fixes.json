@@ -1,0 +1,189 @@
+[
+  {
+    "locale": "da-DK",
+    "field": "fullDescription",
+    "old": "en terningetimer",
+    "new": "en timer til professorterninger",
+    "reason": "Clarify puzzle-cube timer; avoid dice-timer interpretation."
+  },
+  {
+    "locale": "th",
+    "field": "fullDescription",
+    "old": "เปลี่ยน โทรศัพท์",
+    "new": "เปลี่ยนโทรศัพท์",
+    "reason": "Remove space splitting the Thai verb from its object."
+  },
+  {
+    "locale": "th",
+    "field": "fullDescription",
+    "old": "พิกเคิลบอล",
+    "new": "พิคเคิลบอล",
+    "reason": "Use the established Thai spelling of pickleball."
+  },
+  {
+    "locale": "fr-FR",
+    "field": "fullDescription",
+    "old": "Conditions d’utilisation:",
+    "new": "Conditions d’utilisation :",
+    "reason": "French typography: space before colon."
+  },
+  {
+    "locale": "fr-FR",
+    "field": "fullDescription",
+    "old": "Politique de confidentialité:",
+    "new": "Politique de confidentialité :",
+    "reason": "French typography: space before colon."
+  },
+  {
+    "locale": "fr-CA",
+    "field": "fullDescription",
+    "old": "Conditions d’utilisation:",
+    "new": "Conditions d’utilisation :",
+    "reason": "French typography: space before colon."
+  },
+  {
+    "locale": "fr-CA",
+    "field": "fullDescription",
+    "old": "Politique de confidentialité:",
+    "new": "Politique de confidentialité :",
+    "reason": "French typography: space before colon."
+  },
+  {
+    "locale": "id",
+    "card": 6,
+    "field": "screenshotCaption",
+    "old": "PERMAINAN MULTIPEMAIN\nDAN PAPAN",
+    "new": "PERMAINAN MULTIPEMAIN\nDAN PERMAINAN PAPAN",
+    "reason": "Correct multiplayer/board-game terminology and supply missing noun."
+  },
+  {
+    "locale": "hu-HU",
+    "card": 6,
+    "field": "screenshotCaption",
+    "old": "TÖBBSZEREPLŐS\nÉS TÁRSASJÁTÉKOK",
+    "new": "TÖBBJÁTÉKOS JÁTÉKOK\nÉS TÁRSASJÁTÉKOK",
+    "reason": "Correct multiplayer/board-game terminology and supply missing noun."
+  },
+  {
+    "locale": "bn-BD",
+    "card": 6,
+    "field": "screenshotCaption",
+    "old": "একাধিক খেলোয়াড়ের\nও বোর্ড গেম",
+    "new": "একাধিক খেলোয়াড়ের গেম\nও বোর্ড গেম",
+    "reason": "Correct multiplayer/board-game terminology and supply missing noun."
+  },
+  {
+    "locale": "hi-IN",
+    "card": 6,
+    "field": "screenshotCaption",
+    "old": "कई खिलाड़ियों वाले\nऔर बोर्ड गेम",
+    "new": "कई खिलाड़ियों वाले गेम\nऔर बोर्ड गेम",
+    "reason": "Correct multiplayer/board-game terminology and supply missing noun."
+  },
+  {
+    "locale": "gu",
+    "card": 6,
+    "field": "screenshotCaption",
+    "old": "ઘણા ખેલાડીઓની\nઅને બોર્ડ ગેમ્સ",
+    "new": "ઘણા ખેલાડીઓની રમતો\nઅને બોર્ડ ગેમ્સ",
+    "reason": "Correct multiplayer/board-game terminology and supply missing noun."
+  },
+  {
+    "locale": "mr-IN",
+    "card": 6,
+    "field": "screenshotCaption",
+    "old": "अनेक खेळाडूंचे\nआणि बोर्ड गेम",
+    "new": "अनेक खेळाडूंचे गेम\nआणि बोर्ड गेम",
+    "reason": "Correct multiplayer/board-game terminology and supply missing noun."
+  },
+  {
+    "locale": "kn-IN",
+    "card": 6,
+    "field": "screenshotCaption",
+    "old": "ಬಹು ಆಟಗಾರರ\nಮತ್ತು ಬೋರ್ಡ್ ಆಟಗಳು",
+    "new": "ಬಹು ಆಟಗಾರರ ಆಟಗಳು\nಮತ್ತು ಬೋರ್ಡ್ ಆಟಗಳು",
+    "reason": "Correct multiplayer/board-game terminology and supply missing noun."
+  },
+  {
+    "locale": "unsupported-or-IN",
+    "card": 6,
+    "field": "screenshotCaption",
+    "old": "ଏକାଧିକ ଖେଳାଳିଙ୍କ\nଓ ବୋର୍ଡ ଖେଳ",
+    "new": "ଏକାଧିକ ଖେଳାଳିଙ୍କ ଖେଳ\nଓ ବୋର୍ଡ ଖେଳ",
+    "reason": "Correct multiplayer/board-game terminology and supply missing noun."
+  },
+  {
+    "locale": "pa",
+    "card": 6,
+    "field": "screenshotCaption",
+    "old": "ਕਈ ਖਿਡਾਰੀਆਂ ਵਾਲੀਆਂ\nਅਤੇ ਬੋਰਡ ਗੇਮਾਂ",
+    "new": "ਕਈ ਖਿਡਾਰੀਆਂ ਵਾਲੀਆਂ ਗੇਮਾਂ\nਅਤੇ ਬੋਰਡ ਗੇਮਾਂ",
+    "reason": "Correct multiplayer/board-game terminology and supply missing noun."
+  },
+  {
+    "locale": "te-IN",
+    "card": 6,
+    "field": "screenshotCaption",
+    "old": "బహుళ ఆటగాళ్ల\nమరియు బోర్డు ఆటలు",
+    "new": "బహుళ ఆటగాళ్ల ఆటలు\nమరియు బోర్డు ఆటలు",
+    "reason": "Correct multiplayer/board-game terminology and supply missing noun."
+  },
+  {
+    "locale": "vi",
+    "card": 1,
+    "field": "screenshotCaption",
+    "old": "MỖI\nĐIỂM SỐ\nĐỀU\nQUAN\nTRỌNG",
+    "new": "MỖI ĐIỂM SỐ\nĐỀU\nQUAN TRỌNG",
+    "reason": "Keep phrase together at manual line breaks."
+  },
+  {
+    "locale": "hi-IN",
+    "card": 1,
+    "field": "screenshotCaption",
+    "old": "हर अंक\nमायने\nरखता है",
+    "new": "हर अंक\nमायने रखता है",
+    "reason": "Keep phrase together at manual line breaks."
+  },
+  {
+    "locale": "pa",
+    "card": 1,
+    "field": "screenshotCaption",
+    "old": "ਹਰ ਅੰਕ\nਮਾਇਨੇ\nਰੱਖਦਾ ਹੈ",
+    "new": "ਹਰ ਅੰਕ\nਮਾਇਨੇ ਰੱਖਦਾ ਹੈ",
+    "reason": "Keep phrase together at manual line breaks."
+  },
+  {
+    "locale": "mr-IN",
+    "card": 1,
+    "field": "screenshotCaption",
+    "old": "प्रत्येक गुण\nमहत्त्वाचा\nआहे",
+    "new": "प्रत्येक गुण\nमहत्त्वाचा आहे",
+    "reason": "Keep phrase together at manual line breaks."
+  },
+  {
+    "locale": "sk",
+    "card": 1,
+    "field": "screenshotCaption",
+    "old": "KAŽDÝ\nBOD\nSA\nPOČÍTA",
+    "new": "KAŽDÝ\nBOD\nSA POČÍTA",
+    "reason": "Keep phrase together at manual line breaks."
+  },
+  {
+    "field": "copy.platform",
+    "old": "iOS",
+    "new": "Google Play",
+    "reason": "Correct inherited iOS provenance fields to actual Google Play asset format."
+  },
+  {
+    "field": "copy.width",
+    "old": 1284,
+    "new": 1080,
+    "reason": "Correct inherited iOS provenance fields to actual Google Play asset format."
+  },
+  {
+    "field": "copy.height",
+    "old": 2778,
+    "new": 1920,
+    "reason": "Correct inherited iOS provenance fields to actual Google Play asset format."
+  }
+]

@@ -27,11 +27,13 @@ enum UnoTargetScorePolicy {
     }
 
     static func sanitizedInput(_ rawValue: String) -> String {
-        String(rawValue.filter(\.isNumber).prefix(5))
+        normalizedDecimalDigits(rawValue, limit: 5)
     }
 
     static func customValue(from text: String) -> Int? {
-        guard let value = Int(text), allowedRange.contains(value) else { return nil }
+        let normalized = normalizedDecimalDigits(text, limit: text.count)
+        guard normalized.count == text.count,
+              let value = Int(normalized), allowedRange.contains(value) else { return nil }
         return value
     }
 }

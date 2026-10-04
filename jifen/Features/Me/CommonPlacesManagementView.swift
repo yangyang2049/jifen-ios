@@ -163,6 +163,7 @@ struct CommonPlacesManagementView: View {
                     } label: {
                         Label(NSLocalizedString("edit", comment: ""), systemImage: "pencil")
                     }
+                    .disabled(filteredPlaces.isEmpty)
                     Button(role: .destructive) {
                         showClearConfirm = true
                     } label: {

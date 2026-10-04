@@ -1,5 +1,7 @@
 # 全能计分器 · 简体中文 App Store 截图测试
 
+> 2026-10-04 清理说明：两组旧方案的 PNG 预览和总览图已清理；HTML、渲染脚本及其 `sources/` 输入素材保留，可按原流程重新生成。
+
 本目录有两套 iPhone 截图方案，每套 5 张。`A-score-first` 以比赛中清楚可见的大比分开场；`B-start-first` 以快速开赛开场。两套都使用真实 App 界面，文案放在截图外侧。`preview.html` 和 `overview.png` 可用于并排审稿。
 
 ## 输出

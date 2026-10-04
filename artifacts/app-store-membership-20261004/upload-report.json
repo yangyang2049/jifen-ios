@@ -1,0 +1,947 @@
+{
+  "appId": "6759768784",
+  "bundleId": "com.douhua.jifen.ios",
+  "startedAt": "20261004T051814Z",
+  "localeCount": 50,
+  "metadataSHA256": "786b700d2d74ce6f7e112eeea4ee89a3f3a9aac3cd3d6fd497fcdb3979d8db87",
+  "submittedForReview": false,
+  "promotedPurchasesChanged": false,
+  "pricingChanged": false,
+  "targets": {
+    "lifetime": {
+      "productId": "iscoreboard_lifetime_vip",
+      "updates": [
+        {
+          "locale": "ar-SA",
+          "action": "unchanged"
+        },
+        {
+          "locale": "bn-BD",
+          "action": "unchanged"
+        },
+        {
+          "locale": "ca",
+          "action": "unchanged"
+        },
+        {
+          "locale": "zh-Hans",
+          "action": "unchanged"
+        },
+        {
+          "locale": "zh-Hant",
+          "action": "unchanged"
+        },
+        {
+          "locale": "hr",
+          "action": "unchanged"
+        },
+        {
+          "locale": "cs",
+          "action": "unchanged"
+        },
+        {
+          "locale": "da",
+          "action": "unchanged"
+        },
+        {
+          "locale": "nl-NL",
+          "action": "unchanged"
+        },
+        {
+          "locale": "en-AU",
+          "action": "unchanged"
+        },
+        {
+          "locale": "en-CA",
+          "action": "unchanged"
+        },
+        {
+          "locale": "en-GB",
+          "action": "unchanged"
+        },
+        {
+          "locale": "en-US",
+          "action": "unchanged"
+        },
+        {
+          "locale": "fi",
+          "action": "unchanged"
+        },
+        {
+          "locale": "fr-FR",
+          "action": "unchanged"
+        },
+        {
+          "locale": "fr-CA",
+          "action": "unchanged"
+        },
+        {
+          "locale": "de-DE",
+          "action": "unchanged"
+        },
+        {
+          "locale": "el",
+          "action": "unchanged"
+        },
+        {
+          "locale": "gu-IN",
+          "action": "unchanged"
+        },
+        {
+          "locale": "he",
+          "action": "unchanged"
+        },
+        {
+          "locale": "hi",
+          "action": "unchanged"
+        },
+        {
+          "locale": "hu",
+          "action": "unchanged"
+        },
+        {
+          "locale": "id",
+          "action": "unchanged"
+        },
+        {
+          "locale": "it",
+          "action": "unchanged"
+        },
+        {
+          "locale": "ja",
+          "action": "unchanged"
+        },
+        {
+          "locale": "kn-IN",
+          "action": "unchanged"
+        },
+        {
+          "locale": "ko",
+          "action": "unchanged"
+        },
+        {
+          "locale": "ms",
+          "action": "unchanged"
+        },
+        {
+          "locale": "ml-IN",
+          "action": "unchanged"
+        },
+        {
+          "locale": "mr-IN",
+          "action": "unchanged"
+        },
+        {
+          "locale": "no",
+          "action": "unchanged"
+        },
+        {
+          "locale": "or-IN",
+          "action": "unchanged"
+        },
+        {
+          "locale": "pl",
+          "action": "unchanged"
+        },
+        {
+          "locale": "pt-BR",
+          "action": "unchanged"
+        },
+        {
+          "locale": "pt-PT",
+          "action": "unchanged"
+        },
+        {
+          "locale": "pa-IN",
+          "action": "unchanged"
+        },
+        {
+          "locale": "ro",
+          "action": "unchanged"
+        },
+        {
+          "locale": "ru",
+          "action": "unchanged"
+        },
+        {
+          "locale": "sk",
+          "action": "unchanged"
+        },
+        {
+          "locale": "sl-SI",
+          "action": "unchanged"
+        },
+        {
+          "locale": "es-MX",
+          "action": "unchanged"
+        },
+        {
+          "locale": "es-ES",
+          "action": "unchanged"
+        },
+        {
+          "locale": "sv",
+          "action": "unchanged"
+        },
+        {
+          "locale": "ta-IN",
+          "action": "unchanged"
+        },
+        {
+          "locale": "te-IN",
+          "action": "unchanged"
+        },
+        {
+          "locale": "th",
+          "action": "unchanged"
+        },
+        {
+          "locale": "tr",
+          "action": "unchanged"
+        },
+        {
+          "locale": "uk",
+          "action": "unchanged"
+        },
+        {
+          "locale": "ur-PK",
+          "action": "unchanged"
+        },
+        {
+          "locale": "vi",
+          "action": "unchanged"
+        }
+      ],
+      "image": {
+        "id": "ad6a3962-dec5-4424-a0df-5cbe06dceee0",
+        "path": "marketing/app-store/membership-2026-10-04/images/lifetime.png",
+        "md5": "c3254beef9c4883d49869d899e893184",
+        "resource": {
+          "type": "inAppPurchaseImages",
+          "id": "ad6a3962-dec5-4424-a0df-5cbe06dceee0",
+          "attributes": {
+            "fileSize": 1051750,
+            "fileName": "lifetime-c3254beef9.png",
+            "assetToken": "5f7a402f-f4f6-c54a-6557-3d3fa2909b67",
+            "imageAsset": {
+              "templateUrl": "https://is1-ssl.mzstatic.com/image/thumb/KZDCZZCEno2-yHxqiMzlNg/{w}x{h}bb.{f}",
+              "width": 1024,
+              "height": 1024
+            },
+            "assetDeliveryState": {
+              "errors": null,
+              "warnings": null,
+              "state": "COMPLETE"
+            }
+          },
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseImages/ad6a3962-dec5-4424-a0df-5cbe06dceee0"
+          }
+        }
+      },
+      "draftId": "9d84e958-19e9-45db-b557-93e9915ce9ed",
+      "draftAction": "reused",
+      "draftState": "PREPARE_FOR_SUBMISSION",
+      "verifiedLocaleCount": 50,
+      "imageStates": [
+        {
+          "errors": null,
+          "warnings": null,
+          "state": "COMPLETE"
+        }
+      ]
+    },
+    "monthly": {
+      "productId": "iscoreboard_monthly_vip",
+      "updates": [
+        {
+          "locale": "ar-SA",
+          "action": "unchanged"
+        },
+        {
+          "locale": "bn-BD",
+          "action": "PATCH"
+        },
+        {
+          "locale": "ca",
+          "action": "unchanged"
+        },
+        {
+          "locale": "zh-Hans",
+          "action": "unchanged"
+        },
+        {
+          "locale": "zh-Hant",
+          "action": "unchanged"
+        },
+        {
+          "locale": "hr",
+          "action": "unchanged"
+        },
+        {
+          "locale": "cs",
+          "action": "unchanged"
+        },
+        {
+          "locale": "da",
+          "action": "unchanged"
+        },
+        {
+          "locale": "nl-NL",
+          "action": "PATCH"
+        },
+        {
+          "locale": "en-AU",
+          "action": "unchanged"
+        },
+        {
+          "locale": "en-CA",
+          "action": "unchanged"
+        },
+        {
+          "locale": "en-GB",
+          "action": "unchanged"
+        },
+        {
+          "locale": "en-US",
+          "action": "unchanged"
+        },
+        {
+          "locale": "fi",
+          "action": "unchanged"
+        },
+        {
+          "locale": "fr-FR",
+          "action": "unchanged"
+        },
+        {
+          "locale": "fr-CA",
+          "action": "unchanged"
+        },
+        {
+          "locale": "de-DE",
+          "action": "unchanged"
+        },
+        {
+          "locale": "el",
+          "action": "unchanged"
+        },
+        {
+          "locale": "gu-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "he",
+          "action": "POST"
+        },
+        {
+          "locale": "hi",
+          "action": "POST"
+        },
+        {
+          "locale": "hu",
+          "action": "POST"
+        },
+        {
+          "locale": "id",
+          "action": "POST"
+        },
+        {
+          "locale": "it",
+          "action": "POST"
+        },
+        {
+          "locale": "ja",
+          "action": "POST"
+        },
+        {
+          "locale": "kn-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "ko",
+          "action": "POST"
+        },
+        {
+          "locale": "ms",
+          "action": "POST"
+        },
+        {
+          "locale": "ml-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "mr-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "no",
+          "action": "POST"
+        },
+        {
+          "locale": "or-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "pl",
+          "action": "POST"
+        },
+        {
+          "locale": "pt-BR",
+          "action": "POST"
+        },
+        {
+          "locale": "pt-PT",
+          "action": "POST"
+        },
+        {
+          "locale": "pa-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "ro",
+          "action": "POST"
+        },
+        {
+          "locale": "ru",
+          "action": "POST"
+        },
+        {
+          "locale": "sk",
+          "action": "POST"
+        },
+        {
+          "locale": "sl-SI",
+          "action": "POST"
+        },
+        {
+          "locale": "es-MX",
+          "action": "POST"
+        },
+        {
+          "locale": "es-ES",
+          "action": "POST"
+        },
+        {
+          "locale": "sv",
+          "action": "POST"
+        },
+        {
+          "locale": "ta-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "te-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "th",
+          "action": "POST"
+        },
+        {
+          "locale": "tr",
+          "action": "POST"
+        },
+        {
+          "locale": "uk",
+          "action": "POST"
+        },
+        {
+          "locale": "ur-PK",
+          "action": "POST"
+        },
+        {
+          "locale": "vi",
+          "action": "POST"
+        }
+      ],
+      "image": {
+        "id": "64605858-e9fa-4eeb-8cda-75ea18333232",
+        "path": "marketing/app-store/membership-2026-10-04/images/monthly.png",
+        "md5": "6d420bb8824f46f367f10e9e155c2775",
+        "resource": {
+          "type": "subscriptionImages",
+          "id": "64605858-e9fa-4eeb-8cda-75ea18333232",
+          "attributes": {
+            "fileSize": 987196,
+            "fileName": "monthly-6d420bb882.png",
+            "assetToken": "PurpleSource211/v4/f5/4d/dd/f54ddd53-90cc-a2ae-53bb-1a0b4d812b7b/monthly-6d420bb882.png",
+            "imageAsset": null,
+            "assetDeliveryState": {
+              "errors": null,
+              "warnings": null,
+              "state": "UPLOAD_COMPLETE"
+            }
+          },
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v2/subscriptionImages/64605858-e9fa-4eeb-8cda-75ea18333232"
+          }
+        }
+      },
+      "draftId": "c1719b77-4aa3-41c2-bf36-50d837970d01",
+      "draftAction": "reused",
+      "draftState": "PREPARE_FOR_SUBMISSION",
+      "verifiedLocaleCount": 50,
+      "imageStates": [
+        {
+          "errors": null,
+          "warnings": null,
+          "state": "COMPLETE"
+        }
+      ]
+    },
+    "yearly": {
+      "productId": "iscoreboard_yearly_vip",
+      "updates": [
+        {
+          "locale": "ar-SA",
+          "action": "POST"
+        },
+        {
+          "locale": "bn-BD",
+          "action": "POST"
+        },
+        {
+          "locale": "ca",
+          "action": "POST"
+        },
+        {
+          "locale": "zh-Hans",
+          "action": "PATCH"
+        },
+        {
+          "locale": "zh-Hant",
+          "action": "POST"
+        },
+        {
+          "locale": "hr",
+          "action": "POST"
+        },
+        {
+          "locale": "cs",
+          "action": "POST"
+        },
+        {
+          "locale": "da",
+          "action": "POST"
+        },
+        {
+          "locale": "nl-NL",
+          "action": "POST"
+        },
+        {
+          "locale": "en-AU",
+          "action": "POST"
+        },
+        {
+          "locale": "en-CA",
+          "action": "POST"
+        },
+        {
+          "locale": "en-GB",
+          "action": "POST"
+        },
+        {
+          "locale": "en-US",
+          "action": "PATCH"
+        },
+        {
+          "locale": "fi",
+          "action": "POST"
+        },
+        {
+          "locale": "fr-FR",
+          "action": "POST"
+        },
+        {
+          "locale": "fr-CA",
+          "action": "POST"
+        },
+        {
+          "locale": "de-DE",
+          "action": "POST"
+        },
+        {
+          "locale": "el",
+          "action": "POST"
+        },
+        {
+          "locale": "gu-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "he",
+          "action": "POST"
+        },
+        {
+          "locale": "hi",
+          "action": "POST"
+        },
+        {
+          "locale": "hu",
+          "action": "POST"
+        },
+        {
+          "locale": "id",
+          "action": "POST"
+        },
+        {
+          "locale": "it",
+          "action": "POST"
+        },
+        {
+          "locale": "ja",
+          "action": "POST"
+        },
+        {
+          "locale": "kn-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "ko",
+          "action": "POST"
+        },
+        {
+          "locale": "ms",
+          "action": "POST"
+        },
+        {
+          "locale": "ml-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "mr-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "no",
+          "action": "POST"
+        },
+        {
+          "locale": "or-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "pl",
+          "action": "POST"
+        },
+        {
+          "locale": "pt-BR",
+          "action": "POST"
+        },
+        {
+          "locale": "pt-PT",
+          "action": "POST"
+        },
+        {
+          "locale": "pa-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "ro",
+          "action": "POST"
+        },
+        {
+          "locale": "ru",
+          "action": "POST"
+        },
+        {
+          "locale": "sk",
+          "action": "POST"
+        },
+        {
+          "locale": "sl-SI",
+          "action": "POST"
+        },
+        {
+          "locale": "es-MX",
+          "action": "POST"
+        },
+        {
+          "locale": "es-ES",
+          "action": "POST"
+        },
+        {
+          "locale": "sv",
+          "action": "POST"
+        },
+        {
+          "locale": "ta-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "te-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "th",
+          "action": "POST"
+        },
+        {
+          "locale": "tr",
+          "action": "POST"
+        },
+        {
+          "locale": "uk",
+          "action": "POST"
+        },
+        {
+          "locale": "ur-PK",
+          "action": "POST"
+        },
+        {
+          "locale": "vi",
+          "action": "POST"
+        }
+      ],
+      "image": {
+        "id": "87a8298f-5a7e-4ec3-be9a-9a59ba16d34c",
+        "path": "marketing/app-store/membership-2026-10-04/images/yearly.png",
+        "md5": "4310e56edbb1db3bd79542b55a8fa286",
+        "resource": {
+          "type": "subscriptionImages",
+          "id": "87a8298f-5a7e-4ec3-be9a-9a59ba16d34c",
+          "attributes": {
+            "fileSize": 1113404,
+            "fileName": "yearly-4310e56edb.png",
+            "assetToken": "PurpleSource221/v4/2a/d4/05/2ad4052f-0e10-cef0-f77c-f2bd666c3aff/yearly-4310e56edb.png",
+            "imageAsset": null,
+            "assetDeliveryState": {
+              "errors": null,
+              "warnings": null,
+              "state": "UPLOAD_COMPLETE"
+            }
+          },
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v2/subscriptionImages/87a8298f-5a7e-4ec3-be9a-9a59ba16d34c"
+          }
+        }
+      },
+      "draftId": "3ade8e17-8149-4ef4-9918-a71f107bf7c7",
+      "draftAction": "created",
+      "draftState": "PREPARE_FOR_SUBMISSION",
+      "verifiedLocaleCount": 50,
+      "imageStates": [
+        {
+          "errors": null,
+          "warnings": null,
+          "state": "COMPLETE"
+        }
+      ]
+    },
+    "group": {
+      "productId": null,
+      "updates": [
+        {
+          "locale": "ar-SA",
+          "action": "POST"
+        },
+        {
+          "locale": "bn-BD",
+          "action": "POST"
+        },
+        {
+          "locale": "ca",
+          "action": "POST"
+        },
+        {
+          "locale": "zh-Hans",
+          "action": "PATCH"
+        },
+        {
+          "locale": "zh-Hant",
+          "action": "POST"
+        },
+        {
+          "locale": "hr",
+          "action": "POST"
+        },
+        {
+          "locale": "cs",
+          "action": "POST"
+        },
+        {
+          "locale": "da",
+          "action": "POST"
+        },
+        {
+          "locale": "nl-NL",
+          "action": "POST"
+        },
+        {
+          "locale": "en-AU",
+          "action": "POST"
+        },
+        {
+          "locale": "en-CA",
+          "action": "POST"
+        },
+        {
+          "locale": "en-GB",
+          "action": "POST"
+        },
+        {
+          "locale": "en-US",
+          "action": "PATCH"
+        },
+        {
+          "locale": "fi",
+          "action": "POST"
+        },
+        {
+          "locale": "fr-FR",
+          "action": "POST"
+        },
+        {
+          "locale": "fr-CA",
+          "action": "POST"
+        },
+        {
+          "locale": "de-DE",
+          "action": "POST"
+        },
+        {
+          "locale": "el",
+          "action": "POST"
+        },
+        {
+          "locale": "gu-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "he",
+          "action": "POST"
+        },
+        {
+          "locale": "hi",
+          "action": "POST"
+        },
+        {
+          "locale": "hu",
+          "action": "POST"
+        },
+        {
+          "locale": "id",
+          "action": "POST"
+        },
+        {
+          "locale": "it",
+          "action": "POST"
+        },
+        {
+          "locale": "ja",
+          "action": "POST"
+        },
+        {
+          "locale": "kn-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "ko",
+          "action": "POST"
+        },
+        {
+          "locale": "ms",
+          "action": "POST"
+        },
+        {
+          "locale": "ml-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "mr-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "no",
+          "action": "POST"
+        },
+        {
+          "locale": "or-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "pl",
+          "action": "POST"
+        },
+        {
+          "locale": "pt-BR",
+          "action": "POST"
+        },
+        {
+          "locale": "pt-PT",
+          "action": "POST"
+        },
+        {
+          "locale": "pa-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "ro",
+          "action": "POST"
+        },
+        {
+          "locale": "ru",
+          "action": "POST"
+        },
+        {
+          "locale": "sk",
+          "action": "POST"
+        },
+        {
+          "locale": "sl-SI",
+          "action": "POST"
+        },
+        {
+          "locale": "es-MX",
+          "action": "POST"
+        },
+        {
+          "locale": "es-ES",
+          "action": "POST"
+        },
+        {
+          "locale": "sv",
+          "action": "POST"
+        },
+        {
+          "locale": "ta-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "te-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "th",
+          "action": "POST"
+        },
+        {
+          "locale": "tr",
+          "action": "POST"
+        },
+        {
+          "locale": "uk",
+          "action": "POST"
+        },
+        {
+          "locale": "ur-PK",
+          "action": "POST"
+        },
+        {
+          "locale": "vi",
+          "action": "POST"
+        }
+      ],
+      "image": null,
+      "draftId": "3c28d428-aa50-436d-ae91-82718971b244",
+      "draftAction": "created",
+      "draftState": "PREPARE_FOR_SUBMISSION",
+      "verifiedLocaleCount": 50
+    }
+  },
+  "errors": [],
+  "mismatches": [],
+  "verified": true,
+  "completedAt": "2026-10-04T05:32:52.055366+00:00"
+}

@@ -111,7 +111,7 @@ struct TimeoutCountdownView: View {
             let compactLandscape = UIDevice.current.userInterfaceIdiom == .phone && geometry.size.width > geometry.size.height
 
             ZStack {
-                Color.black.ignoresSafeArea()
+                Theme.backgroundColor.ignoresSafeArea()
 
                 VStack(spacing: 0) {
                     topBar
@@ -128,7 +128,7 @@ struct TimeoutCountdownView: View {
 
                         Text(compactDuration(state.durationSeconds))
                             .font(.system(size: compactLandscape ? 14 : 16, weight: .medium))
-                            .foregroundStyle(.white.opacity(0.62))
+                            .foregroundStyle(Theme.textSecondary)
 
                         Spacer(minLength: compactLandscape ? 4 : 16)
 
@@ -163,7 +163,6 @@ struct TimeoutCountdownView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar)
-        .preferredColorScheme(.dark)
         .sheet(isPresented: $showsCustomEditor) {
             customEditor
                 .presentationDetents([.height(340)])
@@ -197,9 +196,9 @@ struct TimeoutCountdownView: View {
         Button(action: action) {
             Image(systemName: systemName)
                 .font(.system(size: 22, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.textPrimary)
                 .frame(width: 60, height: 60)
-                .background(.white.opacity(0.08), in: Circle())
+                .background(Theme.controlBackground, in: Circle())
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
@@ -268,10 +267,10 @@ struct TimeoutCountdownView: View {
                         } label: {
                             Text(sport.title)
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundStyle(selectedSportID == sport.id ? Theme.textOnPrimary : .white.opacity(0.65))
+                                .foregroundStyle(selectedSportID == sport.id ? Theme.textOnPrimary : Theme.textSecondary)
                                 .padding(.horizontal, 14)
                                 .frame(height: 34)
-                                .background(selectedSportID == sport.id ? Theme.primary : .white.opacity(0.10), in: Capsule())
+                                .background(selectedSportID == sport.id ? Theme.primary : Theme.controlBackground, in: Capsule())
                                 .contentShape(Capsule())
                         }
                         .buttonStyle(.plain)
@@ -315,10 +314,10 @@ struct TimeoutCountdownView: View {
                         .opacity(0.72)
                 }
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(Theme.textPrimary)
             .frame(maxWidth: .infinity)
             .frame(height: 52)
-            .background(selected ? Color.white.opacity(0.22) : Color.white.opacity(0.10))
+            .background(selected ? Theme.tintedFill(Theme.primary, lightAlpha: 0.12, darkAlpha: 0.22) : Theme.controlBackground)
             .overlay(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .stroke(selected ? Theme.primary : Color.clear, lineWidth: 1.5)
@@ -340,7 +339,7 @@ struct TimeoutCountdownView: View {
                 } label: {
                     Text(item.title)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(mode == item ? Theme.textOnPrimary : .white.opacity(0.65))
+                        .foregroundStyle(mode == item ? Theme.textOnPrimary : Theme.textSecondary)
                         .frame(maxWidth: .infinity)
                         .frame(height: 36)
                         .background(mode == item ? Theme.primary : .clear, in: Capsule())
@@ -352,7 +351,7 @@ struct TimeoutCountdownView: View {
             }
         }
         .padding(3)
-        .background(.white.opacity(0.1), in: Capsule())
+        .background(Theme.controlBackground, in: Capsule())
     }
 
     private var controls: some View {
@@ -360,10 +359,10 @@ struct TimeoutCountdownView: View {
             Button(action: resetCountdown) {
                 Image(systemName: "arrow.counterclockwise")
                     .font(.system(size: 23, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.textPrimary)
                     .frame(width: 60, height: 60)
-                    .background(.black.opacity(0.2), in: Circle())
-                    .overlay(Circle().stroke(.white.opacity(0.3), lineWidth: 1))
+                    .background(Theme.controlBackground, in: Circle())
+                    .overlay(Circle().stroke(Theme.divider, lineWidth: 1))
                     .opacity(resetDisabled ? 0.35 : 1)
                     .contentShape(Circle())
             }
@@ -376,10 +375,10 @@ struct TimeoutCountdownView: View {
             Button(action: mainAction) {
                 Image(systemName: state.phase == .running ? "pause.fill" : "play.fill")
                     .font(.system(size: 32, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.textPrimary)
                     .frame(width: 90, height: 90)
-                    .background(.white.opacity(0.13), in: Circle())
-                    .overlay(Circle().stroke(.white.opacity(0.55), lineWidth: 1.5))
+                    .background(Theme.controlBackground, in: Circle())
+                    .overlay(Circle().stroke(Theme.textSecondary, lineWidth: 1.5))
                     .contentShape(Circle())
             }
             .buttonStyle(.plain)
@@ -394,15 +393,15 @@ struct TimeoutCountdownView: View {
 
     private var customEditor: some View {
         ZStack {
-            Color(hex: "151515").ignoresSafeArea()
+            Theme.dialogSurfaceBackground.ignoresSafeArea()
             VStack(spacing: 22) {
                 Text(NSLocalizedString("timer_countdown_edit_time", value: "编辑时间", comment: "Edit countdown time"))
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.textPrimary)
 
                 Text(NSLocalizedString("timer_custom_duration", value: "自定义", comment: "Custom duration"))
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.58))
+                    .foregroundStyle(Theme.textSecondary)
 
                 customValueRow(
                     title: NSLocalizedString("timer_custom_minutes", value: "分钟", comment: "Minutes"),
@@ -432,7 +431,6 @@ struct TimeoutCountdownView: View {
                 .contentShape(Rectangle())
                 .padding(12)
         }
-        .preferredColorScheme(.dark)
     }
 
     private func customValueRow(
@@ -444,14 +442,14 @@ struct TimeoutCountdownView: View {
         HStack(spacing: 16) {
             Text(title)
                 .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(.white.opacity(0.72))
+                .foregroundStyle(Theme.textSecondary)
                 .frame(width: 56, alignment: .leading)
 
             valueButton(systemName: "minus", action: decrease)
 
             Text("\(value)")
                 .font(.system(size: 22, weight: .semibold, design: .monospaced))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.textPrimary)
                 .frame(maxWidth: .infinity)
 
             valueButton(systemName: "plus", action: increase)
@@ -462,9 +460,9 @@ struct TimeoutCountdownView: View {
         Button(action: action) {
             Image(systemName: systemName)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.textPrimary)
                 .frame(width: 44, height: 44)
-                .background(.white.opacity(0.1), in: Circle())
+                .background(Theme.dialogControlBackground, in: Circle())
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
@@ -480,10 +478,10 @@ struct TimeoutCountdownView: View {
 
     private var timeColor: Color {
         let seconds = Int(ceil(displayRemainingMilliseconds / 1_000))
-        guard state.phase == .running else { return .white }
-        if seconds <= 3 { return Color(hex: "FF453A") }
-        if seconds <= 10 { return Color(hex: "FF9F0A") }
-        return .white
+        guard state.phase == .running else { return Theme.textPrimary }
+        if seconds <= 3 { return Theme.destructiveText }
+        if seconds <= 10 { return Theme.warningText }
+        return Theme.textPrimary
     }
 
     private func shouldShowPresets(compactLandscape: Bool) -> Bool {

@@ -1,0 +1,260 @@
+{
+  "version": "3.3",
+  "build": "61",
+  "appId": "6759768784",
+  "bundleId": "com.douhua.jifen.ios",
+  "reviewStatus": "Codex reviewed; native speaker review not performed",
+  "keywordSource": "Reviewed app sport names; only currently included sports",
+  "locales": [
+    {
+      "locale": "ar-SA",
+      "whatsNew": "تم توسيع اللغات المدعومة في التطبيق وصفحته على App Store.\nتدعم الإعلانات الصوتية للنتائج الرياضية مزيدًا من اللغات.\nتحسين الترجمة وعرض مدة المباراة والتبديل بين الحسابات.",
+      "keywords": "كرة الريشة,كرة السلة,كرة القدم,تنس الطاولة,التنس,كرة الطائرة,سنوكر,بلياردو,كرة قدم الطاولة"
+    },
+    {
+      "locale": "bn-BD",
+      "whatsNew": "অ্যাপ ও App Store পৃষ্ঠায় আরও ভাষার সমর্থন যোগ করা হয়েছে।\nখেলার স্কোরের ভয়েস ঘোষণা এখন আরও ভাষায় পাওয়া যায়।\nঅনুবাদ, ম্যাচের সময়কাল প্রদর্শন এবং অ্যাকাউন্ট পরিবর্তনের অভিজ্ঞতা উন্নত করা হয়েছে।",
+      "keywords": "ব্যাডমিন্টন,বাস্কেটবল,ফুটবল,টেবিল টেনিস,টেনিস,ভলিবল,স্নুকার,বিলিয়ার্ডস,ফুসবল"
+    },
+    {
+      "locale": "ca",
+      "whatsNew": "S’ha ampliat la localització de l’app i de la seva pàgina a l’App Store.\nEls anuncis de resultats esportius per veu admeten més llengües.\nMillores en les traduccions, la visualització de la durada dels partits i el canvi de compte.",
+      "keywords": "Bàdminton,Bàsquet,Futbol,Tennis de taula,Tennis,Voleibol,Snooker,Billar,Futbolí"
+    },
+    {
+      "locale": "zh-Hans",
+      "whatsNew": "新增更多界面语言及 App Store 本地化。\n运动计分支持更多语言的语音播报。\n优化本地化文案、比赛时长显示和账号切换体验。",
+      "keywords": "羽毛球,篮球,足球,乒乓球,网球,排球,斯诺克,台球,桌上足球"
+    },
+    {
+      "locale": "zh-Hant",
+      "whatsNew": "新增更多介面語言及 App Store 在地化。\n運動計分支援更多語言的語音播報。\n改善在地化文字、比賽時間顯示及帳號切換體驗。",
+      "keywords": "羽毛球,籃球,足球,乒乓球,網球,排球,斯諾克,檯球,桌上足球"
+    },
+    {
+      "locale": "hr",
+      "whatsNew": "Proširena je lokalizacija aplikacije i njezine stranice u App Storeu.\nGlasovne najave sportskih rezultata podržavaju više jezika.\nPoboljšani su prijevodi, prikaz trajanja utakmica i prebacivanje između računa.",
+      "keywords": "Badminton,Košarka,Nogomet,Stolni tenis,Tenis,Odbojka,Snooker,Biljar,Stolni nogomet"
+    },
+    {
+      "locale": "cs",
+      "whatsNew": "Rozšířili jsme lokalizaci aplikace a její stránky v App Storu.\nHlasové oznamování sportovního skóre podporuje více jazyků.\nVylepšili jsme překlady, zobrazení délky zápasů a přepínání účtů.",
+      "keywords": "Badminton,Basketbal,Fotbal,Stolní tenis,Tenis,Volejbal,Snooker,Kulečník,Stolní fotbal"
+    },
+    {
+      "locale": "da",
+      "whatsNew": "Appen og dens side i App Store er blevet lokaliseret til flere sprog.\nOplæsning af sportsresultater understøtter flere sprog.\nOversættelser, visning af kampvarighed og skift mellem konti er forbedret.",
+      "keywords": "Badminton,Basketball,Fodbold,Bordtennis,Tennis,Volleyball,Snooker,Billard,Bordfodbold"
+    },
+    {
+      "locale": "nl-NL",
+      "whatsNew": "De app en de App Store-pagina zijn in meer talen beschikbaar.\nGesproken sportuitslagen ondersteunen meer talen.\nVertalingen, de weergave van de wedstrijdduur en het wisselen van account zijn verbeterd.",
+      "keywords": "Badminton,Basketbal,Voetbal,Tafeltennis,Tennis,Volleybal,Snooker,Biljart,Tafelvoetbal"
+    },
+    {
+      "locale": "en-AU",
+      "whatsNew": "Expanded app and App Store localization.\nAdded sports score announcements in more supported languages.\nImproved translated text, match duration formatting and account switching.",
+      "keywords": "badminton,basketball,football,table tennis,tennis,volleyball,snooker,billiards,foosball"
+    },
+    {
+      "locale": "en-CA",
+      "whatsNew": "Expanded app and App Store localization.\nAdded sports score announcements in more supported languages.\nImproved translated text, match duration formatting and account switching.",
+      "keywords": "badminton,basketball,football,table tennis,tennis,volleyball,snooker,billiards,foosball"
+    },
+    {
+      "locale": "en-GB",
+      "whatsNew": "Expanded app and App Store localization.\nAdded sports score announcements in more supported languages.\nImproved translated text, match duration formatting and account switching.",
+      "keywords": "badminton,basketball,football,table tennis,tennis,volleyball,snooker,billiards,foosball"
+    },
+    {
+      "locale": "en-US",
+      "whatsNew": "Expanded app and App Store localization.\nAdded sports score announcements in more supported languages.\nImproved translated text, match duration formatting and account switching.",
+      "keywords": "badminton,basketball,football,table tennis,tennis,volleyball,snooker,billiards,foosball"
+    },
+    {
+      "locale": "fi",
+      "whatsNew": "Sovelluksen ja App Store -sivun kielitukea on laajennettu.\nUrheilutulosten puhekuulutukset tukevat useampia kieliä.\nKäännöksiä, ottelun keston näyttöä ja tilin vaihtamista on parannettu.",
+      "keywords": "Sulkapallo,Koripallo,Jalkapallo,Pöytätennis,Tennis,Lentopallo,Snooker,Biljardi,Pöytäjalkapallo"
+    },
+    {
+      "locale": "fr-FR",
+      "whatsNew": "La localisation de l’app et de sa page App Store a été étendue.\nLes annonces vocales des scores prennent en charge davantage de langues.\nAmélioration des traductions, de l’affichage de la durée des matchs et du changement de compte.",
+      "keywords": "Badminton,Basket-ball,Football,Tennis de table,Tennis,Volley-ball,Snooker,Billard,Baby-foot"
+    },
+    {
+      "locale": "fr-CA",
+      "whatsNew": "La localisation de l’app et de sa page App Store a été étendue.\nLes annonces vocales des scores prennent en charge davantage de langues.\nAmélioration des traductions, de l’affichage de la durée des matchs et du changement de compte.",
+      "keywords": "Badminton,Basketball,Soccer,Tennis de table,Tennis,Volleyball,Snooker,Billard,Baby-foot"
+    },
+    {
+      "locale": "de-DE",
+      "whatsNew": "Die Lokalisierung der App und im App Store wurde erweitert.\nSport-Spielstände können in weiteren unterstützten Sprachen angesagt werden.\nÜbersetzungen, die Anzeige der Spieldauer und der Kontowechsel wurden verbessert.",
+      "keywords": "Badminton,Basketball,Fußball,Tischtennis,Tennis,Volleyball,Snooker,Billard,Tischfußball"
+    },
+    {
+      "locale": "el",
+      "whatsNew": "Επεκτείναμε την τοπική προσαρμογή της εφαρμογής και της σελίδας της στο App Store.\nΟι φωνητικές ανακοινώσεις αθλητικών σκορ υποστηρίζουν περισσότερες γλώσσες.\nΒελτιώσαμε τις μεταφράσεις, την εμφάνιση της διάρκειας των αγώνων και την εναλλαγή λογαριασμών.",
+      "keywords": "Μπάντμιντον,Μπάσκετ,Ποδόσφαιρο,Πινγκ πονγκ,Τένις,Βόλεϊ,Σνούκερ,Μπιλιάρδο,Επιτραπέζιο ποδόσφαιρο"
+    },
+    {
+      "locale": "gu-IN",
+      "whatsNew": "ઍપ અને App Store પેજમાં વધુ ભાષાઓનો સપોર્ટ ઉમેરાયો છે.\nરમતના સ્કોરની અવાજમાં જાહેરાત હવે વધુ ભાષાઓમાં ઉપલબ્ધ છે.\nઅનુવાદ, મેચની અવધિ દર્શાવવાની રીત અને એકાઉન્ટ બદલવાના અનુભવમાં સુધારો કર્યો છે.",
+      "keywords": "બેડમિન્ટન,બાસ્કેટબોલ,ફૂટબોલ,ટેબલ ટેનિસ,ટેનિસ,વોલીબોલ,સ્નૂકર,બિલિયર્ડ્સ,ફુસબોલ"
+    },
+    {
+      "locale": "he",
+      "whatsNew": "הורחבה התמיכה בשפות באפליקציה ובעמוד שלה ב-App Store.\nהכרזות קוליות על תוצאות ספורט זמינות בשפות נוספות.\nשופרו התרגומים, הצגת משך המשחק והמעבר בין חשבונות.",
+      "keywords": "בדמינטון,כדורסל,כדורגל,טניס שולחן,טניס,כדורעף,סנוקר,ביליארד,כדורגל שולחן"
+    },
+    {
+      "locale": "hi",
+      "whatsNew": "ऐप और App Store पेज में अधिक भाषाओं के लिए समर्थन जोड़ा गया है।\nखेल के स्कोर की आवाज़ में घोषणा अब अधिक भाषाओं में उपलब्ध है।\nअनुवाद, मैच की अवधि के प्रदर्शन और खाते बदलने के अनुभव में सुधार किया गया है।",
+      "keywords": "बैडमिंटन,बास्केटबॉल,फुटबॉल,टेबल टेनिस,टेनिस,वॉलीबॉल,स्नूकर,बिलियर्ड्स,फ़ॉस्बॉल"
+    },
+    {
+      "locale": "hu",
+      "whatsNew": "Bővült az alkalmazás és az App Store-oldal nyelvi támogatása.\nA sporteredmények hangos bemondása több nyelven érhető el.\nJavultak a fordítások, a mérkőzések időtartamának megjelenítése és a fiókváltás.",
+      "keywords": "Tollaslabda,Kosárlabda,Labdarúgás,Asztalitenisz,Tenisz,Röplabda,Snooker,Biliárd,Csocsó"
+    },
+    {
+      "locale": "id",
+      "whatsNew": "Dukungan bahasa untuk aplikasi dan halaman App Store diperluas.\nPengumuman skor olahraga melalui suara mendukung lebih banyak bahasa.\nTerjemahan, tampilan durasi pertandingan, dan perpindahan akun diperbaiki.",
+      "keywords": "Bulutangkis,Bola Basket,Sepak bola,Tenis Meja,Tenis,Bola Voli,Snooker,Biliar,Sepak Bola Meja"
+    },
+    {
+      "locale": "it",
+      "whatsNew": "È stata ampliata la localizzazione dell’app e della pagina sull’App Store.\nGli annunci vocali dei punteggi sportivi supportano più lingue.\nMiglioramenti alle traduzioni, alla visualizzazione della durata delle partite e al cambio di account.",
+      "keywords": "Badminton,Pallacanestro,Calcio,Tennis tavolo,Tennis,Pallavolo,Snooker,Biliardo,Calcio balilla"
+    },
+    {
+      "locale": "ja",
+      "whatsNew": "アプリと App Store の対応言語を拡充しました。\nスポーツの得点読み上げで、より多くの言語に対応しました。\n翻訳、試合時間の表示、アカウント切り替えを改善しました。",
+      "keywords": "バドミントン,バスケットボール,サッカー,卓球,テニス,バレーボール,スヌーカー,ビリヤード,テーブルサッカー"
+    },
+    {
+      "locale": "kn-IN",
+      "whatsNew": "ಆ್ಯಪ್ ಮತ್ತು App Store ಪುಟದಲ್ಲಿ ಹೆಚ್ಚಿನ ಭಾಷೆಗಳ ಬೆಂಬಲ ಸೇರಿಸಲಾಗಿದೆ.\nಕ್ರೀಡಾ ಸ್ಕೋರ್‌ಗಳ ಧ್ವನಿ ಪ್ರಕಟಣೆಗಳು ಈಗ ಹೆಚ್ಚಿನ ಭಾಷೆಗಳಲ್ಲಿ ಲಭ್ಯವಿವೆ.\nಅನುವಾದ, ಪಂದ್ಯದ ಅವಧಿಯ ಪ್ರದರ್ಶನ ಮತ್ತು ಖಾತೆ ಬದಲಾಯಿಸುವ ಅನುಭವ ಸುಧಾರಿಸಲಾಗಿದೆ.",
+      "keywords": "ಬ್ಯಾಡ್ಮಿಂಟನ್,ಬ್ಯಾಸ್ಕೆಟ್‌ಬಾಲ್,ಫುಟ್‌ಬಾಲ್,ಟೇಬಲ್ ಟೆನಿಸ್,ಟೆನಿಸ್,ವಾಲಿಬಾಲ್,ಸ್ನೂಕರ್,ಬಿಲಿಯರ್ಡ್ಸ್,ಫುಸ್‌ಬಾಲ್"
+    },
+    {
+      "locale": "ko",
+      "whatsNew": "앱과 App Store의 지원 언어를 확대했습니다.\n스포츠 점수 음성 안내에서 더 많은 언어를 지원합니다.\n번역, 경기 시간 표시 및 계정 전환을 개선했습니다.",
+      "keywords": "배드민턴,농구,축구,탁구,테니스,배구,스누커,당구,테이블 축구"
+    },
+    {
+      "locale": "ms",
+      "whatsNew": "Sokongan bahasa untuk aplikasi dan halaman App Store diperluas.\nPengumuman skor sukan melalui suara menyokong lebih banyak bahasa.\nTerjemahan, paparan tempoh perlawanan dan pertukaran akaun ditambah baik.",
+      "keywords": "Badminton,Bola Keranjang,Bola sepak,Pingpong,Tenis,Bola Tampar,Snuker,Biliard,Foosball"
+    },
+    {
+      "locale": "ml-IN",
+      "whatsNew": "ആപ്പിലും App Store പേജിലും കൂടുതൽ ഭാഷകൾക്ക് പിന്തുണ ചേർത്തു.\nകായിക മത്സരങ്ങളുടെ സ്കോർ ശബ്ദത്തിലൂടെ അറിയിക്കുന്നത് കൂടുതൽ ഭാഷകളിൽ ലഭ്യമാണ്.\nവിവർത്തനം, മത്സര ദൈർഘ്യത്തിന്റെ പ്രദർശനം, അക്കൗണ്ട് മാറ്റുന്ന അനുഭവം എന്നിവ മെച്ചപ്പെടുത്തി.",
+      "keywords": "ബാഡ്മിൻ്റൺ,ബാസ്കറ്റ്ബോൾ,ഫുട്ബോൾ,ടേബിൾ ടെന്നീസ്,ടെന്നീസ്,വോളിബോൾ,സ്നൂക്കർ,ബില്യാർഡ്സ്,ടേബിൾ ഫുട്ബോൾ"
+    },
+    {
+      "locale": "mr-IN",
+      "whatsNew": "ॲप आणि App Store पृष्ठावर अधिक भाषांसाठी समर्थन जोडले आहे.\nखेळांच्या गुणांची आवाजात घोषणा आता अधिक भाषांमध्ये उपलब्ध आहे.\nभाषांतर, सामन्याचा कालावधी दाखवण्याची पद्धत आणि खाते बदलण्याचा अनुभव सुधारला आहे.",
+      "keywords": "बॅडमिंटन,बास्केटबॉल,फुटबॉल,टेबल टेनिस,टेनिस,व्हॉलीबॉल,स्नूकर,बिलियर्ड्स,Foosball"
+    },
+    {
+      "locale": "no",
+      "whatsNew": "Appen og siden i App Store er tilgjengelige på flere språk.\nOpplesing av sportsresultater støtter flere språk.\nOversettelser, visning av kampvarighet og bytte av konto er forbedret.",
+      "keywords": "Badminton,Basketball,Fotball,Bordtennis,Tennis,Volleyball,Snooker,Biljard,Bordfotball"
+    },
+    {
+      "locale": "or-IN",
+      "whatsNew": "ଆପ୍ ଏବଂ App Store ପୃଷ୍ଠାରେ ଅଧିକ ଭାଷା ପାଇଁ ସମର୍ଥନ ଯୋଡ଼ାଯାଇଛି।\nକ୍ରୀଡ଼ା ସ୍କୋରର ଭଏସ୍ ଘୋଷଣା ଏବେ ଅଧିକ ଭାଷାରେ ଉପଲବ୍ଧ।\nଅନୁବାଦ, ମ୍ୟାଚ୍ ଅବଧିର ପ୍ରଦର୍ଶନ ଏବଂ ଆକାଉଣ୍ଟ ବଦଳାଇବାର ଅନୁଭୂତି ଉନ୍ନତ କରାଯାଇଛି।",
+      "keywords": "ବ୍ୟାଡମିଣ୍ଟନ୍,ବାସ୍କେଟବଲ୍,ଫୁଟବଲ୍,ଟେବୁଲ୍ ଟେନିସ୍,ଟେନିସ୍,ଭଲିବଲ୍,ସ୍ନୁକର,ବିଲିୟର୍ଡସ୍,ଫୁସବଲ୍"
+    },
+    {
+      "locale": "pl",
+      "whatsNew": "Rozszerzono lokalizację aplikacji i jej strony w App Store.\nGłosowe ogłaszanie wyników sportowych obsługuje więcej języków.\nUlepszono tłumaczenia, wyświetlanie czasu trwania meczów i przełączanie kont.",
+      "keywords": "Badminton,Koszykówka,Piłka nożna,Tenis stołowy,Tenis,Siatkówka,Snooker,Bilard,Piłkarzyki"
+    },
+    {
+      "locale": "pt-BR",
+      "whatsNew": "Ampliamos a localização do app e de sua página na App Store.\nOs anúncios de placares por voz oferecem suporte a mais idiomas.\nMelhorias nas traduções, na exibição da duração das partidas e na troca de conta.",
+      "keywords": "Badminton,Basquete,Futebol,Tênis de mesa,Tênis,Vôlei,Snooker,Bilhar,Pebolim"
+    },
+    {
+      "locale": "pt-PT",
+      "whatsNew": "Foi alargada a localização da app e da sua página na App Store.\nOs anúncios de resultados por voz suportam mais idiomas.\nMelhorias nas traduções, na apresentação da duração dos jogos e na mudança de conta.",
+      "keywords": "Badminton,Basquetebol,Futebol,Ténis de mesa,Ténis,Voleibol,Snooker,Bilhar,Matraquilhos"
+    },
+    {
+      "locale": "pa-IN",
+      "whatsNew": "ਐਪ ਅਤੇ App Store ਪੰਨੇ ਵਿੱਚ ਹੋਰ ਭਾਸ਼ਾਵਾਂ ਲਈ ਸਹਾਇਤਾ ਜੋੜੀ ਗਈ ਹੈ।\nਖੇਡਾਂ ਦੇ ਸਕੋਰ ਦੇ ਆਵਾਜ਼ੀ ਐਲਾਨ ਹੁਣ ਹੋਰ ਭਾਸ਼ਾਵਾਂ ਵਿੱਚ ਉਪਲਬਧ ਹਨ।\nਅਨੁਵਾਦ, ਮੈਚ ਦੀ ਮਿਆਦ ਦਿਖਾਉਣ ਅਤੇ ਖਾਤੇ ਬਦਲਣ ਦੇ ਤਜਰਬੇ ਵਿੱਚ ਸੁਧਾਰ ਕੀਤਾ ਗਿਆ ਹੈ।",
+      "keywords": "ਬੈਡਮਿੰਟਨ,ਬਾਸਕਟਬਾਲ,ਫੁੱਟਬਾਲ,ਟੇਬਲ ਟੈਨਿਸ,ਟੈਨਿਸ,ਵਾਲੀਬਾਲ,ਸਨੂਕਰ,ਬਿਲੀਅਰਡਸ,ਫੁਸਬਾਲ"
+    },
+    {
+      "locale": "ro",
+      "whatsNew": "Am extins localizarea aplicației și a paginii din App Store.\nAnunțurile vocale ale scorurilor sportive acceptă mai multe limbi.\nAm îmbunătățit traducerile, afișarea duratei meciurilor și schimbarea contului.",
+      "keywords": "Badminton,Baschet,Fotbal,Tenis de masă,Tenis,Volei,Snooker,Biliard,Fotbal de masă"
+    },
+    {
+      "locale": "ru",
+      "whatsNew": "Расширена локализация приложения и страницы в App Store.\nГолосовое объявление спортивного счёта поддерживает больше языков.\nУлучшены переводы, отображение длительности матчей и переключение аккаунтов.",
+      "keywords": "Бадминтон,Баскетбол,Футбол,Настольный теннис,Теннис,Волейбол,Снукер,Бильярд,Настольный футбол"
+    },
+    {
+      "locale": "sk",
+      "whatsNew": "Rozšírili sme lokalizáciu aplikácie a jej stránky v App Store.\nHlasové oznamovanie športového skóre podporuje viac jazykov.\nVylepšili sme preklady, zobrazenie trvania zápasov a prepínanie účtov.",
+      "keywords": "Bedminton,Basketbal,Futbal,Stolný tenis,Tenis,Volejbal,Snooker,Biliard,Stolný futbal"
+    },
+    {
+      "locale": "sl-SI",
+      "whatsNew": "Razširjena je lokalizacija aplikacije in njene strani v App Store.\nGlasovno oznanjanje športnih rezultatov podpira več jezikov.\nIzboljšani so prevodi, prikaz trajanja tekem in preklapljanje med računi.",
+      "keywords": "Badminton,Košarka,Nogomet,Namizni tenis,Tenis,Odbojka,Snooker,Biljard,Namizni nogomet"
+    },
+    {
+      "locale": "es-MX",
+      "whatsNew": "Se amplió la localización de la app y de su página en el App Store.\nLos anuncios de marcadores por voz admiten más idiomas.\nMejoras en las traducciones, la visualización de la duración de los partidos y el cambio de cuenta.",
+      "keywords": "Bádminton,Basquetbol,Fútbol,Tenis de mesa,Tenis,Voleibol,Snooker,Billar,Futbolín"
+    },
+    {
+      "locale": "es-ES",
+      "whatsNew": "Se ha ampliado la localización de la app y de su página en el App Store.\nLos anuncios de resultados por voz admiten más idiomas.\nMejoras en las traducciones, la visualización de la duración de los partidos y el cambio de cuenta.",
+      "keywords": "Bádminton,Baloncesto,Fútbol,Tenis de mesa,Tenis,Voleibol,Snooker,Billar,Futbolín"
+    },
+    {
+      "locale": "sv",
+      "whatsNew": "Lokaliseringen av appen och sidan i App Store har utökats.\nRöstannonsering av sportresultat stöder fler språk.\nÖversättningar, visning av matchlängd och byte av konto har förbättrats.",
+      "keywords": "Badminton,Basket,Fotboll,Bordtennis,Tennis,Volleyboll,Snooker,Biljard,Bordsfotboll"
+    },
+    {
+      "locale": "ta-IN",
+      "whatsNew": "செயலி மற்றும் App Store பக்கத்தில் கூடுதல் மொழி ஆதரவு சேர்க்கப்பட்டுள்ளது.\nவிளையாட்டு மதிப்பெண்களின் குரல் அறிவிப்புகள் மேலும் பல மொழிகளில் கிடைக்கின்றன.\nமொழிபெயர்ப்பு, போட்டி நேரக் காட்சி மற்றும் கணக்கை மாற்றும் அனுபவம் மேம்படுத்தப்பட்டுள்ளது.",
+      "keywords": "பூப்பந்து,கூடைப்பந்து,கால்பந்து,டேபிள் டென்னிஸ்,டென்னிஸ்,கைப்பந்து,ஸ்னூக்கர்,பில்லியர்ட்ஸ்"
+    },
+    {
+      "locale": "te-IN",
+      "whatsNew": "యాప్ మరియు App Store పేజీలో మరిన్ని భాషలకు మద్దతు జోడించాం.\nక్రీడల స్కోర్ వాయిస్ ప్రకటనలు ఇప్పుడు మరిన్ని భాషల్లో అందుబాటులో ఉన్నాయి.\nఅనువాదాలు, మ్యాచ్ వ్యవధి ప్రదర్శన మరియు ఖాతాలను మార్చే అనుభవాన్ని మెరుగుపరిచాం.",
+      "keywords": "బ్యాడ్మింటన్,బాస్కెట్‌బాల్,ఫుట్‌బాల్,టేబుల్ టెన్నిస్,టెన్నిస్,వాలీబాల్,స్నూకర్,బిలియర్డ్స్"
+    },
+    {
+      "locale": "th",
+      "whatsNew": "เพิ่มการรองรับภาษาในแอปและหน้า App Store\nการประกาศคะแนนกีฬาด้วยเสียงรองรับภาษาเพิ่มเติม\nปรับปรุงคำแปล การแสดงระยะเวลาการแข่งขัน และการสลับบัญชี",
+      "keywords": "แบดมินตัน,บาสเก็ตบอล,ฟุตบอล,เทเบิลเทนนิส,เทนนิส,วอลเลย์บอล,สนุกเกอร์,บิลเลียด,ฟุตบอลโต๊ะ"
+    },
+    {
+      "locale": "tr",
+      "whatsNew": "Uygulamanın ve App Store sayfasının dil desteği genişletildi.\nSpor skorlarının sesli duyuruları daha fazla dili destekliyor.\nÇeviriler, maç süresinin gösterimi ve hesap değiştirme deneyimi iyileştirildi.",
+      "keywords": "Badminton,Basketbol,Futbol,Masa Tenisi,Tenis,Voleybol,Snooker,Bilardo,Langırt"
+    },
+    {
+      "locale": "uk",
+      "whatsNew": "Розширено локалізацію застосунку та сторінки в App Store.\nГолосове оголошення спортивного рахунку підтримує більше мов.\nПоліпшено переклади, відображення тривалості матчів і перемикання облікових записів.",
+      "keywords": "Бадмінтон,Баскетбол,Футбол,Настільний теніс,Теніс,Волейбол,Снукер,Більярд,Настільний футбол"
+    },
+    {
+      "locale": "ur-PK",
+      "whatsNew": "ایپ اور App Store کے صفحے میں مزید زبانوں کی معاونت شامل کی گئی ہے۔\nکھیلوں کے اسکور کے صوتی اعلانات اب مزید زبانوں میں دستیاب ہیں۔\nترجمے، میچ کے دورانیے کی نمائش اور اکاؤنٹ تبدیل کرنے کے تجربے کو بہتر بنایا گیا ہے۔",
+      "keywords": "بیڈمنٹن,باسکٹ بال,فٹ بال,ٹیبل ٹینس,ٹینس,والی بال,سنوکر,بلیئرڈ,فوس بال"
+    },
+    {
+      "locale": "vi",
+      "whatsNew": "Mở rộng hỗ trợ ngôn ngữ cho ứng dụng và trang App Store.\nThông báo điểm số thể thao bằng giọng nói hỗ trợ thêm nhiều ngôn ngữ.\nCải thiện bản dịch, cách hiển thị thời lượng trận đấu và việc chuyển đổi tài khoản.",
+      "keywords": "Cầu lông,Bóng rổ,Bóng đá,Bóng bàn,Quần vợt,Bóng chuyền,Snooker,Bi-a,Bóng đá bàn"
+    }
+  ]
+}

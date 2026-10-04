@@ -113,6 +113,8 @@ struct ScoreboardTemplate: View {
     @Environment(\.scoreboardUsageHintCoordinator) private var usageHintCoordinator
     @State private var config: TemplateConfig
     @State private var typographySession: ScoreboardTypographySession
+    // Refresh parent-owned overlay state instead of retaining its initial closure in config.
+    private let contentOverlayProvider: ((Bool, Color) -> AnyView)?
     var onBack: (() -> Void)? = nil
 
     init(
@@ -127,6 +129,7 @@ struct ScoreboardTemplate: View {
         self._appearance = State(initialValue: ScoreboardAppearanceSnapshot.current(
             styleID: ScoreboardStyleID(gameType: config.gameType)
         ))
+        self.contentOverlayProvider = config.contentOverlayProvider
         self.onBack = onBack
     }
     @State private var showMenu: Bool = false
@@ -493,7 +496,7 @@ struct ScoreboardTemplate: View {
                 }
 
                 // 中间层：仅比左右半区高一层，在编辑/底部按钮与菜单之下（如射箭的发球箭头+半区点击）；传入 isEditMode 以便编辑时隐藏/禁用，并传入指示器色
-                if !isEditMode && !isStyleEditing && !showDisplaySettings, let provider = config.contentOverlayProvider {
+                if !isEditMode && !isStyleEditing && !showDisplaySettings && !showMenu, let provider = contentOverlayProvider {
                     provider(isEditMode, appearance.serverIndicatorColor)
                 }
 
@@ -1252,7 +1255,7 @@ struct TeamSection: View {
                         HStack(spacing: 12) {
                             ForEach(scoringOptions, id: \.self) { points in
                                 Button(action: { onScoreTap(points) }) {
-                                    Text("+\(points)")
+                                    AddValueLabel(value: "\(points)", numberFontSize: 18)
                                         .font(.system(size: 18, weight: .bold))
                                         .foregroundColor(foregroundColor)
                                         .frame(

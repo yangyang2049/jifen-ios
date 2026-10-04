@@ -165,8 +165,8 @@
 "record_training_end_rate" = "トレーニング終了 · 成功率%1$d%%";
 "game_football" = "サッカー";
 "game_volleyball" = "バレーボール";
-"game_checkers" = "ダイヤモンドゲーム";
-"timer_checkers" = "チェッカー";
+"game_checkers" = "国際チェッカー";
+"timer_checkers" = "国際チェッカー";
 "game_boxing" = "ボクシング";
 "game_billiards" = "ビリヤード";
 "game_pickleball" = "ピックルボール";
@@ -450,7 +450,7 @@
 
 /* Records Tab */
 "clear_all_records" = "すべての記録を消去";
-"clear_records_tab_message" = "「記録」タブのスコア記録とタイマー記録を削除します。この操作は取り消せません。よく使う名前、よく使う場所、予約は削除されません。";
+"clear_records_tab_message" = "「記録」タブのスコア記録とタイマー記録を削除します。この操作は取り消せません。保存した名前、保存した場所、予約は削除されません。";
 "clear_data" = "データを消去";
 "clear_data_failed_title" = "消去に失敗";
 "clear_data_failed_format" = "一部のデータを消去できませんでした。再試行しても安全です:\n%@";
@@ -520,14 +520,14 @@
 "version" = "バージョン";
 "privacy_policy" = "プライバシーポリシー";
 "accessibility" = "アクセシビリティ";
-"common_names_manage" = "よく使う名前";
+"common_names_manage" = "保存した名前";
 "common_names_team" = "チーム名";
 "common_names_player" = "選手名";
 "common_names_clear_current" = "現在のカテゴリをクリア";
-"common_names_clear_current_message" = "%@のよく使う名前をすべて削除します。この操作は取り消せません。";
-"common_names_title" = "よく使う名前";
-"common_names_empty" = "よく使う名前はありません";
-"common_names_empty_hint" = "「設定」＞「データ」＞「よく使う名前」でチーム名や選手名を追加すると、ここで再利用できます。";
+"common_names_clear_current_message" = "%@の保存した名前をすべて削除します。この操作は取り消せません。";
+"common_names_title" = "保存した名前";
+"common_names_empty" = "保存した名前はありません";
+"common_names_empty_hint" = "「設定」＞「データ」＞「保存した名前」でチーム名や選手名を追加すると、ここで再利用できます。";
 "common_names_management_empty_hint" = "計分中に入力したチーム名と選手名がここに保存され、次回すぐに選択できます。";
 "common_names_search_placeholder" = "名前を検索";
 "common_names_no_search_results" = "結果はありません";
@@ -556,15 +556,15 @@
 
 /* First-launch legal consent */
 "home_common_names_desc" = "チームと選手";
-"common_places_title" = "よく使う場所";
+"common_places_title" = "保存した場所";
 "home_common_places_desc" = "コート・会場";
 "common_places_add" = "場所を追加";
 "common_places_edit_title" = "場所を編集";
 "common_places_placeholder" = "場所を入力してください";
 "common_places_clear" = "場所を消去";
-"common_places_clear_message" = "よく使う場所をすべて消去します。この操作は取り消せません。";
+"common_places_clear_message" = "保存した場所をすべて消去します。この操作は取り消せません。";
 "common_places_search_placeholder" = "場所を検索";
-"common_places_no_records" = "よく使う場所はありません";
+"common_places_no_records" = "保存した場所はありません";
 "common_places_no_search_results" = "結果はありません";
 "common_places_usage_desc" = "予約に入力された場所はここに保存され、次回すぐに選択できるようになります。";
 "common_places_batch_hint" = "1 行に 1 か所、またはカンマで区切ります";
@@ -573,13 +573,13 @@
 "common_places_save_failed" = "保存に失敗しました";
 "common_places_batch_empty" = "有効な場所を少なくとも 1 つ入力してください";
 "common_places_batch_result" = "%d を追加、%d はスキップ";
-"common_places_empty_hint" = "ホームの「よく使う場所」から追加できます";
+"common_places_empty_hint" = "ホームの「保存した場所」から追加できます";
 "common_places_select" = "場所を選択";
 "common_places_added" = "追加しました";
 "common_places_updated" = "更新されました";
 "common_places_deleted" = "削除されました";
 "common_places_batch_delete_confirm" = "選択した場所 %d を削除しますか?";
-"schedule_pick_common_place" = "よく使う場所を選択";
+"schedule_pick_common_place" = "保存した場所を選択";
 "faq_question_1" = "試合を素早く開始するにはどうすればよいですか?";
 "faq_answer_1" = "ホームでスポーツを選択するか、新しい試合を開いてその他のオプションを表示します。頻繁に使用するスポーツとセットアップをクイック スタートに追加すると、次の試合がより早く開始されます。\n\nチーム名、セット、フォーマット、またはサービング ルールが必要なスポーツでは、最初にゲーム セットアップを開きます。確認後、スコアボードが開きます。一部の設定はスコアリング中に引き続き調整できます。";
 "faq_question_2" = "試合中の得点入力や修正はどうすればよいですか？";
@@ -589,7 +589,7 @@
 "faq_question_4" = "レコードを削除したり、データをクリアするにはどうすればよいですか?";
 "faq_answer_4" = "試合中は、その競技で利用できる「元に戻す」「戻る」または編集機能を使ってください。\n\n保存済みの試合は「記録」で開いて削除できます。「マイページ」＞「データを消去」では、端末内の計分、タイマー、未完了の試合、保存した記録、一部の設定データが削除されます。この操作は取り消せません。";
 "faq_question_5" = "大画面や別のスマートフォンに接続するには？";
-"faq_answer_5" = "別のスマートフォンやタブレットにスコアを表示するには、表示側で「スコア同期」＞「試合に参加」を開き、案内に従ってコードまたはQRコードを作成します。試合開始後、操作側から接続するとスコアが表示側に同期されます。両方の端末をオンラインに保ち、画面をロックしたりアプリをバックグラウンドに移したりしないでください。同期が止まった場合は、両方の端末で同期画面を閉じて再接続してください。\n\nテレビや大画面に表示するには、端末のワイヤレスディスプレイ（Miracast）を使います。システムのコントロールセンターからテレビに接続すると、アプリが接続先を検出してスコアボードを自動表示します。アプリ単独ではテレビを検索できず、システム側の接続を切ると投影も終了します。名称は端末により「ワイヤレスディスプレイ」「マルチスクリーン」など異なります。";
+"faq_answer_5" = "2台のデバイスを連携します。1台で得点を記録し、もう1台に全画面で表示します。 共有デバイス: サインインして同期を開始し、6桁のコードを発行します。 表示用デバイス: サインインし、共有元デバイスの6桁のコードを入力します。 得点を記録すると自動的に同期されます。\n\nAirPlay 画面ミラーリングを推奨します。接続して検出されると、スコアボードが自動的に大画面に表示されます。 コントロールセンターを開き、「画面ミラーリング」（AirPlay）をタップします。 先にシステムの設定からAirPlayに接続してください。アプリで同時に使用できる外部ディスプレイは1台のみで、テレビやプロジェクターをアプリ内から検索することはできません。AirPlayを切断すると、キャストも終了します。";
 "faq_question_6" = "自分のスポーツが見つかりません。どうすればいいですか？";
 "faq_answer_6" = "最も近いスポーツから始めてください。名前、セット、チーム、スタート順のみが異なる場合は、ゲーム設定で調整し、クイックスタートに設定を追加してください。\n\n現在のスポーツでルールをカバーできない場合は、スポーツ名、共通形式、得点方法、予想される流れを含めてフィードバックを送信してください。";
 "faq_question_7" = "メンバーシップ、サインイン、新しいデバイスはどのように機能しますか?";
@@ -597,9 +597,9 @@
 "faq_question_8" = "問題を報告したり、機能を提案するにはどうすればよいですか?";
 "faq_answer_8" = "「マイページ」＞「フィードバック」を開き、不具合報告または機能提案を選びます。競技名、手順、期待した結果、実際の結果を記載してください。表示やメンバーシップの問題では、端末モデル、OSバージョン、アプリバージョンも添えてください。";
 "faq_question_10" = "データをバックアップしたり、新しい携帯電話に移動するにはどうすればよいですか?";
-"faq_answer_10" = "アカウントにサインインすると、よく使う名前、場所、試合記録がアカウントに紐づきます。メンバーシップのクラウド同期を使うと、端末間でデータが同期されます。新しい端末で同じアカウントにサインインすると、データが自動的に復元されます。サインインしない場合、データは現在の端末にだけ保存されます。";
+"faq_answer_10" = "サインインすると、保存したチーム名、選手名、場所をデバイス間で同期できます。新しいスマートフォンで同じアカウントにサインインすると、これらの共通データを取得できます。試合記録、タイマー記録、未終了の試合は現在のデバイスに保存され、クラウドへのバックアップや復元には対応していません。";
 "faq_question_11" = "私のデータとプライバシーはどのように扱われますか?";
-"faq_answer_11" = "プライバシー ポリシーでは、どのようなデータが使用されるか、およびその理由が説明されています。マイクは音声メモを録音する場合にのみ使用され、カメラは QR コードをスキャンしてサインインする場合にのみ使用されます。どちらもデバイス上でローカルに処理されます。";
+"faq_answer_11" = "プライバシー ポリシーでは、どのようなデータが使用されるか、およびその理由が説明されています。 ボイスメモの録音にマイクを使用します。 信頼できるログイン用QRコードの読み取り、アバター用の写真の撮影にカメラを使用します。";
 "common_names_add" = "追加";
 "common_names_edit_title" = "名前を編集";
 "common_names_team_placeholder" = "チーム名を入力してください";
@@ -844,6 +844,13 @@
 "scoreboard_double_tap_subtract_help_message" = "オンにすると、同じスコア領域またはプレイヤータイルをダブルタップして1点減らせます。オフの場合は、下へスワイプして減点するか、左へスワイプして元に戻します。バスケットボールやスヌーカーなど、ボタン式のスコアボードには影響しません。";
 "scoreboard_official_break_help_title" = "公式ルールの休憩";
 "scoreboard_official_break_help_message" = "有効にすると、公式ルールに基づく休憩中は得点操作を一時停止します。休憩はスキップまたは取り消せます。\n\n卓球とジェンズ：ゲーム間60秒\nバドミントン：ゲーム中60秒、ゲーム間120秒\nスカッシュ：ゲーム間90秒\nテニスとパデル：チェンジオーバー90秒、セット間120秒\nソフトテニス：チェンジオーバー60秒\nピックルボール：最終ゲーム中60秒、ゲーム間120秒";
+"scoreboard_official_break_help_intro" = "有効にすると、公式ルールに基づく休憩中は得点操作を一時停止します。休憩はスキップまたは取り消せます。";
+"scoreboard_official_break_rule_between_games_60" = "ゲーム間60秒";
+"scoreboard_official_break_rule_badminton" = "ゲーム中60秒、ゲーム間120秒";
+"scoreboard_official_break_rule_squash" = "ゲーム間90秒";
+"scoreboard_official_break_rule_tennis" = "チェンジオーバー90秒、セット間120秒";
+"scoreboard_official_break_rule_soft_tennis" = "チェンジオーバー60秒";
+"scoreboard_official_break_rule_pickleball" = "最終ゲーム中60秒、ゲーム間120秒";
 "show_match_time" = "時間を表示";
 "hide_match_time" = "時間を非表示";
 "scoreboard_match_time_this_game_only" = "この試合にのみ適用され、次の試合では競技のデフォルト設定に戻ります。";
@@ -1036,7 +1043,7 @@
 "scoreboard_key_point_volleyball_set" = "SP";
 "scoreboard_key_point_set" = "SP";
 "scoreboard_key_point_match" = "MP";
-"record_recap_set_format" = "第%dゲーム";
+"record_recap_set_format" = "第%dセット";
 "record_recap_tennis_set_format" = "セット %d";
 "record_recap_period_format" = "第%dピリオド";
 "record_recap_round_format" = "第%dラウンド";
@@ -1130,7 +1137,7 @@
 "timeout" = "タイムアウト";
 "timer_record_time" = "記録日時";
 "undo" = "元に戻す";
-"scoreboard_set_end_format" = "第%dゲーム終了";
+"scoreboard_set_end_format" = "第%dセット終了";
 "winner_named_format" = "%@の勝利";
 "basketball_fouls_count" = "ファウル %d";
 "basketball_timeout_remaining" = "タイムアウト (%d)";
@@ -1183,8 +1190,8 @@
 "official_break" = "公式休憩";
 "official_break_prepare" = "再開準備";
 "official_breaks" = "公式休憩";
-"official_break_mid_game" = "ゲーム中休憩";
-"official_break_game" = "ゲーム間休憩";
+"official_break_mid_game" = "ゲーム中インターバル";
+"official_break_game" = "ゲーム間インターバル";
 "official_break_set" = "セット間休憩";
 "official_break_changeover" = "コートチェンジ休憩";
 "official_break_continue" = "再開";
@@ -1473,7 +1480,7 @@
 "account_deletion_impact_title" = "続行する前に";
 "account_deletion_impact_account" = "プロフィールとサインイン情報は削除または匿名化されます。";
 "account_deletion_impact_feedback" = "あなたが投稿したフィードバックやその他のアカウント関連のコンテンツは、削除または匿名化される場合があります。";
-"account_deletion_impact_local_data" = "端末内の得点記録、予約、よく使う名前、設定は削除されません。";
+"account_deletion_impact_local_data" = "端末内の得点記録、予約、保存した名前、設定は削除されません。";
 "account_deletion_impact_irreversible" = "一度削除したアカウントは復元できません。";
 "account_deletion_submitting" = "送信中…";
 "account_deletion_apply" = "アカウントを削除";
@@ -1552,3 +1559,9 @@
 "game_short" = "ゲーム";
 "set_short" = "セット";
 "football_injury_title" = "アディショナルタイム";
+
+"feedback_official" = "公式";
+
+"feedback_pinned" = "固定";
+
+"voice_announce_server" = "サーブする選手を読み上げる";

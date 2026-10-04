@@ -1,0 +1,58 @@
+{
+  "locale": "it",
+  "iosLocale": "it",
+  "language": "Italian",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Segnapunti",
+  "subtitle": "Punti, tempi e partite",
+  "description": "Ogni punto conta. Trasforma il tuo iPhone o iPad in un tabellone chiaro e facile da usare per partite, allenamenti e giochi con gli amici.\n\nSegna i punti per oltre 26 sport e giochi, tra cui tennis, pickleball, badminton, ping pong, basket, calcio, pallavolo e biliardo. Per gli sport compatibili, imposta le regole di punteggio, il formato della partita e l'ordine di servizio nel doppio.\n\nSalva le partite e riguardale con l'andamento del punteggio, la cronologia e le note vocali. Usa orologi per scacchi e go, un timer per cubi e un cronometro. Mostra il tabellone su un grande schermo e condividi un codice partita per far seguire il punteggio agli amici a distanza.\n\nLancio della moneta, squadre casuali, cartellini rossi e gialli e divisione delle spese: tutto in un unico posto. Meno tempo a contare, più tempo per divertirti.\n\nCondizioni d’uso:\nhttps://jifenqi.com/terms\n\nInformativa sulla privacy:\nhttps://jifenqi.com/privacy\n\nContratto di licenza standard Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Ogni punto\nconta",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Tutti i punteggi\na colpo d’occhio",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "Un tabellone\nper oltre 26 sport",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Rivedi\nogni partita",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Le tue regole\nil tuo modo di giocare",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Non solo\ngiochi con la palla",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Il tuo tabellone\nsul grande schermo",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Segna i punti\ndal polso",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Gli strumenti dell’arbitro\nin una sola app",
+      "enabled": true
+    }
+  ]
+}

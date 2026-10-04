@@ -1,0 +1,42 @@
+[
+  {
+    "id": "be356800-33f7-4291-97d1-3bdaa41529df",
+    "sourceFileChecksum": "9a0b12399063d8a7d24fb24ebd9f7d92",
+    "backupMD5": "7acb7b00e8b99990ba0cead9b95f07c9",
+    "bytes": 479280,
+    "sha256": "01d53be474135d90ffe8065f52fa5fa39e25edb6fc9e0e9bb70108c61405be33",
+    "copyType": "Apple processed PNG at original dimensions"
+  },
+  {
+    "id": "bcd6e301-1ad8-4b69-9c47-7a48dc3ce231",
+    "sourceFileChecksum": "9bf74deb325e8f7dbea169f9d711ac30",
+    "backupMD5": "6e4a16d390db662779788a8947bacfae",
+    "bytes": 264371,
+    "sha256": "99cd50e528837007271985df834645c68ff19125f946cfb57c92a423f5b7ba82",
+    "copyType": "Apple processed PNG at original dimensions"
+  },
+  {
+    "id": "c1a122e9-26d3-4801-a869-69d7f07bad2b",
+    "sourceFileChecksum": "ba6bdb363a54e221795a6b5d4f552b51",
+    "backupMD5": "912637d5ee44d1bd2dbd32eaafd81a3c",
+    "bytes": 256427,
+    "sha256": "38eb77b719be1803b3d1bf017fefec3b2e778901aceacf2413f8076d5165c79d",
+    "copyType": "Apple processed PNG at original dimensions"
+  },
+  {
+    "id": "8d3674d4-b193-42e5-b6a0-c4ab2bbb38cb",
+    "sourceFileChecksum": "faab08a8a8b61623c19e122941653e6f",
+    "backupMD5": "e690f5c5afb0bdda24c95513c4ea0ebb",
+    "bytes": 452754,
+    "sha256": "d1135b8034c3a4ec1caa35045440ed9ce5a44f1deed48e4369b15622d4db2bb2",
+    "copyType": "Apple processed PNG at original dimensions"
+  },
+  {
+    "id": "2532a6b3-1b91-417a-a3db-52a9e2c4f7e5",
+    "sourceFileChecksum": "5867417b7a6dba5d8c87fe08ee09a425",
+    "backupMD5": "da3c8e6ad163aeb4605212bb625dad90",
+    "bytes": 1376109,
+    "sha256": "79631fa5ba50710b394643132690fdbf7098a3c7f54bacbc759f260163b542bc",
+    "copyType": "Apple processed PNG at original dimensions"
+  }
+]

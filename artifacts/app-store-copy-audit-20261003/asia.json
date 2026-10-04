@@ -1,0 +1,526 @@
+{
+  "locales": [
+    {
+      "locale": "bn-BD",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/bn-BD.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "SUGGESTION",
+      "findings": [
+        {
+          "severity": "suggestion",
+          "field": "cards.multiplayer.text",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+          "old": "একাধিক খেলোয়াড়ের\nও বোর্ড গেম",
+          "new": "একাধিক খেলোয়াড়ের গেম\nও বোর্ড গেম",
+          "reason": "第一项只写“多个玩家的”，接“与桌游”前省略গেম，使两项不平行；建议补出游戏名词。不是slogan问题。",
+          "confidence": "high"
+        }
+      ],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan和copy.cards[slogan].text，人工换行均位于合理语义边界。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "逐个审读实际copy.cards七张标题（含multiplayer），并查看16个locale第2–7张共96个实际PNG顶部标题裁切，未见新增缺字、词内断行或标题截断。Malayalam/Tamil/Malay部分长标题自动三行，均在完整词边界。",
+        "renderedSlogan": "已查看源PNG或contactsheet中的第1张实际渲染；结论见findings。",
+        "renderedOtherTitles": "PASS：已看2–7实际标题；标题文句中需语言复核处另见cards.multiplayer.text。顶部裁切只用于标题检视，未把整个游戏UI作为本轮校对范围。"
+      }
+    },
+    {
+      "locale": "gu-IN",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/gu-IN.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "SUGGESTION",
+      "findings": [
+        {
+          "severity": "suggestion",
+          "field": "cards.multiplayer.text",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+          "old": "ઘણા ખેલાડીઓની\nઅને બોર્ડ ગેમ્સ",
+          "new": "ઘણા ખેલાડીઓની રમતો\nઅને બોર્ડ ગેમ્સ",
+          "reason": "第一项以所有格ની收尾，后直接连接“和桌游”；补出રમતો可让两项各自成完整名词组。",
+          "confidence": "high"
+        }
+      ],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan和copy.cards[slogan].text，人工换行均位于合理语义边界。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "逐个审读实际copy.cards七张标题（含multiplayer），并查看16个locale第2–7张共96个实际PNG顶部标题裁切，未见新增缺字、词内断行或标题截断。Malayalam/Tamil/Malay部分长标题自动三行，均在完整词边界。",
+        "renderedSlogan": "已查看源PNG或contactsheet中的第1张实际渲染；结论见findings。",
+        "renderedOtherTitles": "PASS：已看2–7实际标题；标题文句中需语言复核处另见cards.multiplayer.text。顶部裁切只用于标题检视，未把整个游戏UI作为本轮校对范围。"
+      }
+    },
+    {
+      "locale": "hi",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/hi.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "SUGGESTION",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "SUGGESTION",
+      "findings": [
+        {
+          "severity": "suggestion",
+          "field": "renderedSlogan",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/hi/01-slogan.png",
+          "old": "हर अंक\nमायने रखता\nहै",
+          "new": "हर अंक\nमायने रखता है",
+          "reason": "PNG自动多出第三行，句尾系词है独占一行。未拆词，语法仍正确；建议缩小字号/加宽框，使完整谓语मायने रखता है保持一行。",
+          "confidence": "high"
+        },
+        {
+          "severity": "suggestion",
+          "field": "cards.multiplayer.text",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+          "old": "कई खिलाड़ियों वाले\nऔर बोर्ड गेम",
+          "new": "कई खिलाड़ियों के गेम\nऔर बोर्ड गेम",
+          "reason": "第一项“多名玩家的/多名玩家参与的”修饰语后缺少游戏名词；补出गेम可避免后项与前项结构不平行。",
+          "confidence": "high"
+        }
+      ],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan和copy.cards[slogan].text，人工换行均位于合理语义边界。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "逐个审读实际copy.cards七张标题（含multiplayer），并查看16个locale第2–7张共96个实际PNG顶部标题裁切，未见新增缺字、词内断行或标题截断。Malayalam/Tamil/Malay部分长标题自动三行，均在完整词边界。",
+        "renderedSlogan": "已查看源PNG或contactsheet中的第1张实际渲染；结论见findings。",
+        "renderedOtherTitles": "PASS：已看2–7实际标题；标题文句中需语言复核处另见cards.multiplayer.text。顶部裁切只用于标题检视，未把整个游戏UI作为本轮校对范围。"
+      }
+    },
+    {
+      "locale": "kn-IN",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/kn-IN.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "NATIVE_REVIEW",
+      "findings": [
+        {
+          "severity": "native-review",
+          "field": "cards.multiplayer.text",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+          "old": "ಬಹು ಆಟಗಾರರ\nಮತ್ತು ಬೋರ್ಡ್ ಆಟಗಳು",
+          "new": "ಬಹು ಆಟಗಾರರ ಆಟಗಳು\nಮತ್ತು ಬೋರ್ಡ್ ಆಟಗಳು",
+          "reason": "第一项是“多个玩家的”所有格短语，再与桌游连接；可能是共用末尾名词的省略，但营销标题中建议明确第一项的ಆಟಗಳು。须由母语复核判断是否必改。",
+          "confidence": "medium"
+        }
+      ],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan和copy.cards[slogan].text，人工换行均位于合理语义边界。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "逐个审读实际copy.cards七张标题（含multiplayer），并查看16个locale第2–7张共96个实际PNG顶部标题裁切，未见新增缺字、词内断行或标题截断。Malayalam/Tamil/Malay部分长标题自动三行，均在完整词边界。",
+        "renderedSlogan": "已查看源PNG或contactsheet中的第1张实际渲染；结论见findings。",
+        "renderedOtherTitles": "PASS：已看2–7实际标题；标题文句中需语言复核处另见cards.multiplayer.text。顶部裁切只用于标题检视，未把整个游戏UI作为本轮校对范围。"
+      }
+    },
+    {
+      "locale": "ml-IN",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ml-IN.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "ISSUE",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [
+        {
+          "severity": "error",
+          "field": "renderedSlogan",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ml-IN/01-slogan.png",
+          "old": "ഓരോ പോ\nയിന്റും\nപ്രധാനമാ\nണ്",
+          "new": "ഓരോ\nപോയിന്റും\nപ്രധാനമാണ്",
+          "reason": "PNG在പോയിന്റും和പ്രധാനമാണ്内部自动断行。源文拼写没有问题；需要足够宽度/较小字号使每个单词完整，再重新渲染，不应改成同音英语。",
+          "confidence": "high"
+        }
+      ],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan和copy.cards[slogan].text，人工换行均位于合理语义边界。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "逐个审读实际copy.cards七张标题（含multiplayer），并查看16个locale第2–7张共96个实际PNG顶部标题裁切，未见新增缺字、词内断行或标题截断。Malayalam/Tamil/Malay部分长标题自动三行，均在完整词边界。",
+        "renderedSlogan": "已查看源PNG或contactsheet中的第1张实际渲染；结论见findings。",
+        "renderedOtherTitles": "PASS：已看2–7实际标题；标题文句中需语言复核处另见cards.multiplayer.text。顶部裁切只用于标题检视，未把整个游戏UI作为本轮校对范围。"
+      }
+    },
+    {
+      "locale": "mr-IN",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/mr-IN.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "SUGGESTION",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "NATIVE_REVIEW",
+      "findings": [
+        {
+          "severity": "suggestion",
+          "field": "renderedSlogan",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/mr-IN/01-slogan.png",
+          "old": "प्रत्येक गुण\nमहत्त्वाचा\nआहे",
+          "new": "प्रत्येक गुण\nमहत्त्वाचा आहे",
+          "reason": "PNG自动三行把系词आहे独占末行。不是语法错误；建议使महत्त्वाचा आहे同一行，提升短句完整感。",
+          "confidence": "high"
+        },
+        {
+          "severity": "native-review",
+          "field": "cards.multiplayer.text",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+          "old": "अनेक खेळाडूंचे\nआणि बोर्ड गेम",
+          "new": "अनेक खेळाडूंचे गेम\nआणि बोर्ड गेम",
+          "reason": "第一项所有格形容词后直接接“和桌游”，补गेम更清楚；是否允许这种共享中心名词的省略请母语确认，暂不判确定错。",
+          "confidence": "medium"
+        }
+      ],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan和copy.cards[slogan].text，人工换行均位于合理语义边界。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "逐个审读实际copy.cards七张标题（含multiplayer），并查看16个locale第2–7张共96个实际PNG顶部标题裁切，未见新增缺字、词内断行或标题截断。Malayalam/Tamil/Malay部分长标题自动三行，均在完整词边界。",
+        "renderedSlogan": "已查看源PNG或contactsheet中的第1张实际渲染；结论见findings。",
+        "renderedOtherTitles": "PASS：已看2–7实际标题；标题文句中需语言复核处另见cards.multiplayer.text。顶部裁切只用于标题检视，未把整个游戏UI作为本轮校对范围。"
+      }
+    },
+    {
+      "locale": "or-IN",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/or-IN.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "NATIVE_REVIEW",
+      "findings": [
+        {
+          "severity": "native-review",
+          "field": "cards.multiplayer.text",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+          "old": "ଏକାଧିକ ଖେଳାଳିଙ୍କ\nଓ ବୋର୍ଡ ଖେଳ",
+          "new": "ଏକାଧିକ ଖେଳାଳିଙ୍କ ଖେଳ\nଓ ବୋର୍ଡ ଖେଳ",
+          "reason": "第一项所有格“多个玩家的”之后没有游戏名词；可以补ଖେଳ使两项独立。需母语确认是否接受原省略，暂不判确定错。",
+          "confidence": "medium"
+        }
+      ],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan和copy.cards[slogan].text，人工换行均位于合理语义边界。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "逐个审读实际copy.cards七张标题（含multiplayer），并查看16个locale第2–7张共96个实际PNG顶部标题裁切，未见新增缺字、词内断行或标题截断。Malayalam/Tamil/Malay部分长标题自动三行，均在完整词边界。",
+        "renderedSlogan": "已查看源PNG或contactsheet中的第1张实际渲染；结论见findings。",
+        "renderedOtherTitles": "PASS：已看2–7实际标题；标题文句中需语言复核处另见cards.multiplayer.text。顶部裁切只用于标题检视，未把整个游戏UI作为本轮校对范围。"
+      }
+    },
+    {
+      "locale": "pa-IN",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/pa-IN.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "SUGGESTION",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "NATIVE_REVIEW",
+      "findings": [
+        {
+          "severity": "suggestion",
+          "field": "renderedSlogan",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pa-IN/01-slogan.png",
+          "old": "ਹਰ ਅੰਕ\nਮਾਇਨੇ ਰੱਖਦਾ\nਹੈ",
+          "new": "ਹਰ ਅੰਕ\nਮਾਇਨੇ ਰੱਖਦਾ ਹੈ",
+          "reason": "PNG系词ਹੈ孤行。所有词都完整，属于可改善的排版，建议使完整谓语ਮਾਇਨੇ ਰੱਖਦਾ ਹੈ同一行。",
+          "confidence": "high"
+        },
+        {
+          "severity": "native-review",
+          "field": "cards.multiplayer.text",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+          "old": "ਕਈ ਖਿਡਾਰੀਆਂ ਵਾਲੀਆਂ\nਅਤੇ ਬੋਰਡ ਗੇਮਾਂ",
+          "new": "ਕਈ ਖਿਡਾਰੀਆਂ ਵਾਲੀਆਂ ਗੇਮਾਂ\nਅਤੇ ਬੋਰਡ ਗੇਮਾਂ",
+          "reason": "第一项形容结构缺少显式游戏名词；两项可能共享末尾ਗੇਮਾਂ，建议母语评估是否应补全第一项，暂不判确定错。",
+          "confidence": "medium"
+        }
+      ],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan和copy.cards[slogan].text，人工换行均位于合理语义边界。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "逐个审读实际copy.cards七张标题（含multiplayer），并查看16个locale第2–7张共96个实际PNG顶部标题裁切，未见新增缺字、词内断行或标题截断。Malayalam/Tamil/Malay部分长标题自动三行，均在完整词边界。",
+        "renderedSlogan": "已查看源PNG或contactsheet中的第1张实际渲染；结论见findings。",
+        "renderedOtherTitles": "PASS：已看2–7实际标题；标题文句中需语言复核处另见cards.multiplayer.text。顶部裁切只用于标题检视，未把整个游戏UI作为本轮校对范围。"
+      }
+    },
+    {
+      "locale": "ta-IN",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ta-IN.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "ISSUE",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [
+        {
+          "severity": "error",
+          "field": "renderedSlogan",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ta-IN/01-slogan.png",
+          "old": "ஒவ்வொ\nரு புள்ளி\nயும்\nமுக்கியம்",
+          "new": "ஒவ்வொரு\nபுள்ளியும்\nமுக்கியம்",
+          "reason": "PNG把ஒவ்வொரு和புள்ளியும்分别拆开，其中后缀யும்孤立。源文拼写及人工断行合理；需调字号/文本框和三行排版避免词内断行。",
+          "confidence": "high"
+        }
+      ],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan和copy.cards[slogan].text，人工换行均位于合理语义边界。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "逐个审读实际copy.cards七张标题（含multiplayer），并查看16个locale第2–7张共96个实际PNG顶部标题裁切，未见新增缺字、词内断行或标题截断。Malayalam/Tamil/Malay部分长标题自动三行，均在完整词边界。",
+        "renderedSlogan": "已查看源PNG或contactsheet中的第1张实际渲染；结论见findings。",
+        "renderedOtherTitles": "PASS：已看2–7实际标题；标题文句中需语言复核处另见cards.multiplayer.text。顶部裁切只用于标题检视，未把整个游戏UI作为本轮校对范围。"
+      }
+    },
+    {
+      "locale": "te-IN",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/te-IN.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "NATIVE_REVIEW",
+      "findings": [
+        {
+          "severity": "native-review",
+          "field": "cards.multiplayer.text",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+          "old": "బహుళ ఆటగాళ్ల\nమరియు బోర్డు ఆటలు",
+          "new": "బహుళ ఆటగాళ్ల ఆటలు\nమరియు బోర్డు ఆటలు",
+          "reason": "第一项所有格“多个玩家的”与后项桌游并列，建议补ఆటలు以消除省略歧义；需母语确认，暂不判确定错。",
+          "confidence": "medium"
+        }
+      ],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan和copy.cards[slogan].text，人工换行均位于合理语义边界。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "逐个审读实际copy.cards七张标题（含multiplayer），并查看16个locale第2–7张共96个实际PNG顶部标题裁切，未见新增缺字、词内断行或标题截断。Malayalam/Tamil/Malay部分长标题自动三行，均在完整词边界。",
+        "renderedSlogan": "已查看源PNG或contactsheet中的第1张实际渲染；结论见findings。",
+        "renderedOtherTitles": "PASS：已看2–7实际标题；标题文句中需语言复核处另见cards.multiplayer.text。顶部裁切只用于标题检视，未把整个游戏UI作为本轮校对范围。"
+      }
+    },
+    {
+      "locale": "id",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/id.json",
+      "descriptionStatus": "SUGGESTION",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [
+        {
+          "severity": "suggestion",
+          "field": "description",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/id.json",
+          "old": "pewaktu kubus",
+          "new": "pewaktu kubus Rubik",
+          "reason": "kubus是泛指立方体；为准确呈现魔方计时可加Rubik，WCA印尼赛事原文使用kubus rubik。属于消除歧义建议，不能认定原文中的kubus作为语境简称是错译。",
+          "confidence": "high",
+          "reference": "https://www.worldcubeassociation.org/competitions/GramediaCubeOpenJakarta2024"
+        }
+      ],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan和copy.cards[slogan].text，人工换行均位于合理语义边界。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "逐个审读实际copy.cards七张标题（含multiplayer），并查看16个locale第2–7张共96个实际PNG顶部标题裁切，未见新增缺字、词内断行或标题截断。Malayalam/Tamil/Malay部分长标题自动三行，均在完整词边界。",
+        "renderedSlogan": "已查看源PNG或contactsheet中的第1张实际渲染；结论见findings。",
+        "renderedOtherTitles": "PASS：已看2–7实际标题；标题文句中需语言复核处另见cards.multiplayer.text。顶部裁切只用于标题检视，未把整个游戏UI作为本轮校对范围。"
+      }
+    },
+    {
+      "locale": "ms",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ms.json",
+      "descriptionStatus": "SUGGESTION",
+      "sloganStatus": "ISSUE",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [
+        {
+          "severity": "error",
+          "field": "renderedSlogan",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ms/01-slogan.png",
+          "old": "SETIAP\nMATA\nBERMAKN\nA",
+          "new": "SETIAP\nMATA\nBERMAKNA",
+          "reason": "PNG把完整单词BERMAKNA拆成BERMAKN与孤立A；确定词内断行。应缩小字号或加宽框以使BERMAKNA整词同一行。",
+          "confidence": "high"
+        },
+        {
+          "severity": "suggestion",
+          "field": "description",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ms.json",
+          "old": "pemasa kiub",
+          "new": "pemasa kiub Rubik",
+          "reason": "kiub是泛指立方体；可用kiub Rubik说明魔方计时，DBP术语实例使用kiub rubik。属于清晰度建议，原词在魔方语境中可作简称。",
+          "confidence": "high",
+          "reference": "https://prpm.dbp.gov.my/Cari1?d=371752&keyword=jana"
+        }
+      ],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan和copy.cards[slogan].text，人工换行均位于合理语义边界。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "逐个审读实际copy.cards七张标题（含multiplayer），并查看16个locale第2–7张共96个实际PNG顶部标题裁切，未见新增缺字、词内断行或标题截断。Malayalam/Tamil/Malay部分长标题自动三行，均在完整词边界。",
+        "renderedSlogan": "已查看源PNG或contactsheet中的第1张实际渲染；结论见findings。",
+        "renderedOtherTitles": "PASS：已看2–7实际标题；标题文句中需语言复核处另见cards.multiplayer.text。顶部裁切只用于标题检视，未把整个游戏UI作为本轮校对范围。"
+      }
+    },
+    {
+      "locale": "th",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/th.json",
+      "descriptionStatus": "SUGGESTION",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [
+        {
+          "severity": "suggestion",
+          "field": "description",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/th.json",
+          "old": "ตัวจับเวลาลูกบาศก์",
+          "new": "ตัวจับเวลารูบิค",
+          "reason": "ลูกบาศก์是泛指立方体；本功能实际计时魔方速拧，WCA泰国赛事原文使用รูบิค。可进一步明确对象；不把原几何名词直接判成拼写错误。",
+          "confidence": "high",
+          "reference": "https://www.worldcubeassociation.org/competitions/ThailandChampionship2018"
+        }
+      ],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan和copy.cards[slogan].text，人工换行均位于合理语义边界。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "逐个审读实际copy.cards七张标题（含multiplayer），并查看16个locale第2–7张共96个实际PNG顶部标题裁切，未见新增缺字、词内断行或标题截断。Malayalam/Tamil/Malay部分长标题自动三行，均在完整词边界。",
+        "renderedSlogan": "已查看源PNG或contactsheet中的第1张实际渲染；结论见findings。",
+        "renderedOtherTitles": "PASS：已看2–7实际标题；标题文句中需语言复核处另见cards.multiplayer.text。顶部裁切只用于标题检视，未把整个游戏UI作为本轮校对范围。"
+      }
+    },
+    {
+      "locale": "vi",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/vi.json",
+      "descriptionStatus": "SUGGESTION",
+      "sloganStatus": "SUGGESTION",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [
+        {
+          "severity": "suggestion",
+          "field": "renderedSlogan",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/vi/01-slogan.png",
+          "old": "MỖI ĐIỂM\nSỐ\nĐỀU QUAN\nTRỌNG",
+          "new": "MỖI ĐIỂM SỐ\nĐỀU QUAN TRỌNG",
+          "reason": "PNG将固定词组ĐIỂM SỐ和QUAN TRỌNG分别拆行，SỐ单独成行。越南语空格分隔音节，不能等同西方单词级拼写错；这是阅读节奏/词组完整性建议。应调整字号/宽度使两组连贯。",
+          "confidence": "high"
+        },
+        {
+          "severity": "suggestion",
+          "field": "description",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/vi.json",
+          "old": "bộ đếm giờ cho khối lập phương",
+          "new": "bộ đếm giờ giải Rubik",
+          "reason": "khối lập phương主要指几何立方体，当前长描述没有点明魔方速拧；建议用当地WCA赛事所用Rubik使功能对象明确。这是专门术语清晰度建议，原文并非拼写错误。",
+          "confidence": "high",
+          "reference": "https://www.worldcubeassociation.org/competitions/VietnamChampionship2026"
+        }
+      ],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan和copy.cards[slogan].text，人工换行均位于合理语义边界。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "逐个审读实际copy.cards七张标题（含multiplayer），并查看16个locale第2–7张共96个实际PNG顶部标题裁切，未见新增缺字、词内断行或标题截断。Malayalam/Tamil/Malay部分长标题自动三行，均在完整词边界。",
+        "renderedSlogan": "已查看源PNG或contactsheet中的第1张实际渲染；结论见findings。",
+        "renderedOtherTitles": "PASS：已看2–7实际标题；标题文句中需语言复核处另见cards.multiplayer.text。顶部裁切只用于标题检视，未把整个游戏UI作为本轮校对范围。"
+      }
+    },
+    {
+      "locale": "ja",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ja.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "ISSUE",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [
+        {
+          "severity": "error",
+          "field": "renderedSlogan",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ja/01-slogan.png",
+          "old": "すべての得\n点に\n意味がある",
+          "new": "すべての\n得点に\n意味がある",
+          "reason": "源文人工两行合理，但PNG实际自动分成三行，把“得点”拆开。建议保留完整词组得点，改三行并调字号/文本框，重新渲染确认。属于排版问题，不是日语专名或语法错误。",
+          "confidence": "high"
+        }
+      ],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan和copy.cards[slogan].text，人工换行均位于合理语义边界。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "逐个审读实际copy.cards七张标题（含multiplayer），并查看16个locale第2–7张共96个实际PNG顶部标题裁切，未见新增缺字、词内断行或标题截断。Malayalam/Tamil/Malay部分长标题自动三行，均在完整词边界。",
+        "renderedSlogan": "已查看源PNG或contactsheet中的第1张实际渲染；结论见findings。",
+        "renderedOtherTitles": "PASS：已看2–7实际标题；标题文句中需语言复核处另见cards.multiplayer.text。顶部裁切只用于标题检视，未把整个游戏UI作为本轮校对范围。"
+      }
+    },
+    {
+      "locale": "ko",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ko.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan和copy.cards[slogan].text，人工换行均位于合理语义边界。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "逐个审读实际copy.cards七张标题（含multiplayer），并查看16个locale第2–7张共96个实际PNG顶部标题裁切，未见新增缺字、词内断行或标题截断。Malayalam/Tamil/Malay部分长标题自动三行，均在完整词边界。",
+        "renderedSlogan": "已查看源PNG或contactsheet中的第1张实际渲染；结论见findings。",
+        "renderedOtherTitles": "PASS：已看2–7实际标题；标题文句中需语言复核处另见cards.multiplayer.text。顶部裁切只用于标题检视，未把整个游戏UI作为本轮校对范围。"
+      }
+    },
+    {
+      "locale": "zh-Hans",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/zh-Hans.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan，人工换行正常；当前截图copy.json无该locale。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "当前上传copy无此locale；简繁中文只审本地JSON营销标题。",
+        "renderedSlogan": "未纳入当前48种语言截图集，未给中文当前商店图片做视觉PASS。"
+      }
+    },
+    {
+      "locale": "zh-Hant",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/zh-Hant.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [],
+      "checks": {
+        "description": "已逐段审读；iPhone/iPad/Apple 正确保留；运动名称、Go 围棋语境、工具功能与基准吻合；4 个正文段落加3个法律链接区块，3条URL完整独立。",
+        "subtitle": "已单独审读；无意外换行；未见确定拼写、语法或专名错误。",
+        "sloganSource": "已单独审读 JSON slogan，人工换行正常；当前截图copy.json无该locale。",
+        "enabledJsonTitles": "逐个审读 score/catalog/recap/setup/timer/cast/tools；停用watch不作为当前发布文案。",
+        "uploadedTitles": "当前上传copy无此locale；简繁中文只审本地JSON营销标题。",
+        "renderedSlogan": "未纳入当前48种语言截图集，未给中文当前商店图片做视觉PASS。"
+      }
+    }
+  ],
+  "scopeNote": "只读语言及视觉审校；未改JSON、Pen、PNG或App Store远端。PASS表示本轮未发现确定问题，不等于母语专家认证。16个非中文locale逐个审Description/subtitle/启用JSON标题/copy标题，并查看第1张slogan及第2–7张实际PNG顶部标题；简繁中文只审本地JSON，未纳入当前48locale上传图片集。"
+}

@@ -35,7 +35,7 @@ struct DualTimerSetupView: View {
     }
 
     private var title: String {
-        gameType.displayName + NSLocalizedString("setup_suffix", value: "设置", comment: "")
+        gameType.displayName
     }
 
     private var availableModes: [BoardTimeMode] {
@@ -83,6 +83,7 @@ struct DualTimerSetupView: View {
                     Button(NSLocalizedString("cancel", value: "取消", comment: "")) {
                         onCancel?()
                     }
+                    .foregroundStyle(Theme.textPrimary)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(NSLocalizedString("start_game", value: "开始", comment: "Start game")) {

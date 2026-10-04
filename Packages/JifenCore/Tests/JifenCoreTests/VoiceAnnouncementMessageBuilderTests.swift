@@ -53,7 +53,7 @@ import ScoreCore
 
     @Test func badmintonScoreAndServiceOver() {
         #expect(racket(.badminton) == "5比3")
-        #expect(racket(.badminton, language: .enUS) == "5-3")
+        #expect(racket(.badminton, language: .enUS) == "5, 3")
         #expect(
             racket(.badminton) {
                 $0.serviceOver = true
@@ -68,7 +68,7 @@ import ScoreCore
                 $0.serverSide = .right
                 $0.leftScore = 5
                 $0.rightScore = 3
-            } == "Service over, 3-5"
+            } == "Service over, 3, 5"
         )
     }
 
@@ -99,7 +99,7 @@ import ScoreCore
                 $0.leftScore = 11
                 $0.rightScore = 8
                 $0.isInterval = true
-            } == "11-8, interval"
+            } == "11, 8, interval"
         )
     }
 
@@ -122,7 +122,7 @@ import ScoreCore
                 $0.leftSets = 1
                 $0.rightSets = 0
                 $0.currentSet = 1
-            } == "Game. First game won by Alice, 21-18"
+            } == "Game. First game won by Alice, 21, 18"
         )
         #expect(
             racket(.badminton) {
@@ -158,7 +158,7 @@ import ScoreCore
                     .init(leftGames: 19, rightGames: 21),
                     .init(leftGames: 21, rightGames: 15),
                 ]
-            } == "Game. Match won by Alice, 21-18, 19-21, 21-15"
+            } == "Game. Match won by Alice, 21, 18, 19, 21, 21, 15"
         )
         #expect(racket(.badminton) { $0.phase = .sideChange } == "交换场地")
         #expect(racket(.badminton, language: .enUS) { $0.phase = .sideChange } == "Change ends")
@@ -173,9 +173,9 @@ import ScoreCore
                 == "Alice to serve, love all"
         )
         #expect(racket(.pingpong) { $0.leftScore = 8; $0.rightScore = 7 } == "8比7")
-        #expect(racket(.pingpong, language: .enUS) { $0.leftScore = 8; $0.rightScore = 7 } == "8-7")
+        #expect(racket(.pingpong, language: .enUS) { $0.leftScore = 8; $0.rightScore = 7 } == "8, 7")
         #expect(racket(.pingpong) { $0.leftScore = 8; $0.rightScore = 8 } == "8平")
-        #expect(racket(.pingpong, language: .enUS) { $0.leftScore = 8; $0.rightScore = 8 } == "8-all")
+        #expect(racket(.pingpong, language: .enUS) { $0.leftScore = 8; $0.rightScore = 8 } == "8 all")
         #expect(
             racket(.pingpong) {
                 $0.phase = .setEnd
@@ -194,7 +194,7 @@ import ScoreCore
                 $0.leftSets = 1
                 $0.rightSets = 0
                 $0.currentSet = 1
-            } == "11-5. Game to Alice"
+            } == "11, 5. Game to Alice"
         )
         #expect(
             racket(.pingpong) {
@@ -216,14 +216,14 @@ import ScoreCore
 
     @Test func tennisPointsGamesSetsAndMatch() {
         #expect(tennis { $0.leftScore = 1; $0.rightScore = 0 } == "15比0")
-        #expect(tennis(language: .enUS) { $0.leftScore = 1; $0.rightScore = 0 } == "Fifteen-love")
+        #expect(tennis(language: .enUS) { $0.leftScore = 1; $0.rightScore = 0 } == "Fifteen, love")
         #expect(tennis { $0.leftScore = 1; $0.rightScore = 1; $0.serverSide = .right } == "15平")
         #expect(
             tennis(language: .enUS) { $0.leftScore = 1; $0.rightScore = 1; $0.serverSide = .right }
-                == "Fifteen-all"
+                == "Fifteen all"
         )
         #expect(tennis { $0.leftScore = 2; $0.rightScore = 1 } == "30比15")
-        #expect(tennis(language: .enUS) { $0.leftScore = 2; $0.rightScore = 1 } == "Thirty-fifteen")
+        #expect(tennis(language: .enUS) { $0.leftScore = 2; $0.rightScore = 1 } == "Thirty, fifteen")
         #expect(tennis { $0.leftScore = 3; $0.rightScore = 3 } == "平分")
         #expect(tennis(language: .enUS) { $0.leftScore = 3; $0.rightScore = 3 } == "Deuce")
         #expect(tennis { $0.leftScore = 4; $0.rightScore = 3 } == "Alice占先")
@@ -245,7 +245,7 @@ import ScoreCore
         #expect(tennis { $0.leftScore = 3; $0.rightScore = 2; $0.isTieBreak = true } == "3比2，Alice")
         #expect(
             tennis(language: .enUS) { $0.leftScore = 3; $0.rightScore = 2; $0.isTieBreak = true }
-                == "3-2 Alice"
+                == "3, 2, Alice"
         )
         #expect(
             tennis {
@@ -341,7 +341,7 @@ import ScoreCore
                     .init(leftGames: 3, rightGames: 6),
                     .init(leftGames: 7, rightGames: 6),
                 ]
-            } == "Game, set and match Alice, 2 sets to 1, 6-4, 3-6, 7-6"
+            } == "Game, set and match Alice, 2 sets to 1, 6, 4, 3, 6, 7, 6"
         )
     }
 
@@ -482,7 +482,7 @@ import ScoreCore
         #expect(!VoiceAnnouncementBatchPolicy.shouldDebounce([interval, changeEnds]))
         #expect(
             [interval, changeEnds].map { VoiceAnnouncementMessageBuilder.build($0, language: .enUS) }
-                == ["11-8, interval", "Change ends"]
+                == ["11, 8, interval", "Change ends"]
         )
         #expect(VoiceAnnouncementBatchPolicy.queuePolicy([ordinary]) == .latestScore)
         #expect(VoiceAnnouncementBatchPolicy.queuePolicy([changeEnds]) == .append)
@@ -586,7 +586,7 @@ import ScoreCore
                 $0.phase = .scoreChange
                 $0.leftScore = 10
                 $0.rightScore = 10
-            } == "10-all, a player must win by 2 points"
+            } == "10 all, a player must win by 2 points"
         )
         #expect(racket(.shuttlecock) { $0.phase = .opening; $0.leftScore = 0; $0.rightScore = 0 } == "Alice发球，0比0")
 

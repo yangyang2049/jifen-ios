@@ -1,0 +1,2657 @@
+{
+  "schemaVersion": 1,
+  "status": "text-only-draft",
+  "source": "metadata.json",
+  "localizations": [
+    {
+      "locale": "ar-SA",
+      "iosLocale": "ar",
+      "direction": "rtl",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "كل نقطة\nلها قيمة",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "نتيجة المباراة\nبنظرة واحدة",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "لوحة واحدة\nلأكثر من 26 رياضة",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "راجع\nكل مباراة",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "قواعدك أنت\nوطريقتك في اللعب",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "أكثر من\nألعاب الكرة",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "لوحة النتائج\nعلى الشاشة الكبيرة",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "سجّل النقاط\nمن معصمك",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "أدوات الحكم\nفي تطبيق واحد",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "bn-BD",
+      "iosLocale": "bn",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "প্রতিটি পয়েন্টই\nগুরুত্বপূর্ণ",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "সব স্কোর\nএক নজরে",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "এক স্কোরবোর্ড\n২৬টির বেশি খেলার জন্য",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ফিরে দেখুন\nপ্রতিটি ম্যাচ",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "আপনার নিয়ম\nআপনার মতো খেলা",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "শুধু বলের\nখেলা নয়",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "আপনার স্কোরবোর্ড\nবড় পর্দায়",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "কবজি থেকেই\nস্কোর রাখুন",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "রেফারির দরকারি সরঞ্জাম\nএক অ্যাপেই",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ca",
+      "iosLocale": "ca",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Cada punt\ncompta",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Tot el marcador\nd’un cop d’ull",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Un marcador\nper a més de 26 esports",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Repassa\ncada partit",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Les teves regles\nla teva manera de jugar",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Molt més que\njocs de pilota",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "El teu marcador\na la pantalla gran",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Anota punts\ndes del canell",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Eines d’arbitratge\nen una sola app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "cs",
+      "iosLocale": "cs",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Každý bod\nse počítá",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Všechna skóre\nna první pohled",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Jedna tabule\npro více než 26 sportů",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Ohlédněte se\nza každým zápasem",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Vaše pravidla\nvaše hra",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Více než\nmíčové hry",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Vaše tabule\nna velké obrazovce",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Zapisujte skóre\nze zápěstí",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Nástroje rozhodčího\nv jedné aplikaci",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "da",
+      "iosLocale": "da",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Hvert point\ntæller",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Alle resultater\nmed ét blik",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Én måltavle\ntil over 26 sportsgrene",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Se tilbage på\nhver kamp",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Dine regler\ndit spil",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Mere end\nboldspil",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Din måltavle\npå den store skærm",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Tæl point\nfra håndleddet",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Dommerens værktøjer\ni én app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "de-DE",
+      "iosLocale": "de",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Jeder Punkt\nzählt",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Alle Spielstände\nauf einen Blick",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Eine Punktetafel\nfür über 26 Sportarten",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Jede Partie\nim Rückblick",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Deine Regeln\ndein Spiel",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Mehr als\nnur Ballsport",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Deine Punktetafel\nauf dem großen Bildschirm",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Punkte direkt\nam Handgelenk",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Alle Schiri-Helfer\nin einer App",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "el",
+      "iosLocale": "el",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Κάθε πόντος\nμετράει",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Όλα τα σκορ\nμε μια ματιά",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Ένας πίνακας σκορ\nγια πάνω από 26 αθλήματα",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Ξαναδείτε\nκάθε αγώνα",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Οι κανόνες σας\nτο παιχνίδι σας",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Περισσότερα από\nπαιχνίδια με μπάλα",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Το σκορ σας\nστη μεγάλη οθόνη",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Κρατήστε σκορ\nαπό τον καρπό",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Εργαλεία διαιτητή\nσε μία εφαρμογή",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "en-AU",
+      "iosLocale": "en",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Every point\ncounts",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Keep every score\nat a glance",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "One scoreboard\nfor 26+ sports",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Review\nevery match",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Set your rules\nplay your way",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "More than\nball games",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Your scoreboard\non the big screen",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Score from\nyour wrist",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Every referee\ntool in one app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "en-CA",
+      "iosLocale": "en",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Every point\ncounts",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Keep every score\nat a glance",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "One scoreboard\nfor 26+ sports",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Review\nevery match",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Set your rules\nplay your way",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "More than\nball games",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Your scoreboard\non the big screen",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Score from\nyour wrist",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Every referee\ntool in one app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "en-GB",
+      "iosLocale": "en",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Every point\ncounts",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Keep every score\nat a glance",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "One scoreboard\nfor 26+ sports",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Review\nevery match",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Set your rules\nplay your way",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "More than\nball games",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Your scoreboard\non the big screen",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Score from\nyour wrist",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Every referee\ntool in one app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "en-US",
+      "iosLocale": "en",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Every point\ncounts",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Keep every score\nat a glance",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "One scoreboard\nfor 26+ sports",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Review\nevery match",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Set your rules\nplay your way",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "More than\nball games",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Your scoreboard\non the big screen",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Score from\nyour wrist",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Every referee\ntool in one app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "es-ES",
+      "iosLocale": "es-ES",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Cada punto\ncuenta",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Todo el marcador\nde un vistazo",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Un marcador\npara más de 26 deportes",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Repasa\ncada partido",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Tus reglas\ntu forma de jugar",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Mucho más que\ndeportes de pelota",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Tu marcador\nen pantalla grande",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Anota puntos\ndesde tu muñeca",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Herramientas de arbitraje\nen una sola app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "es-MX",
+      "iosLocale": "es-MX",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Cada punto\ncuenta",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Todo el marcador\nde un vistazo",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Un marcador\npara más de 26 deportes",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Revisa\ncada partido",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Tus reglas\ntu forma de jugar",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Mucho más que\ndeportes de pelota",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Tu marcador\nen pantalla grande",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Anota puntos\ndesde tu muñeca",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Herramientas de arbitraje\nen una sola app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "fi",
+      "iosLocale": "fi",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Jokainen piste\nmerkitsee",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Kaikki tulokset\nyhdellä silmäyksellä",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Yksi tulostaulu\nyli 26 urheilulajiin",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Palaa\njokaiseen otteluun",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Sinun sääntösi\nsinun pelisi",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Enemmän kuin\npallopelejä",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Tulostaulusi\nisolla näytöllä",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Kirjaa pisteet\nranteesta",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Erotuomarin työkalut\nyhdessä sovelluksessa",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "fr-CA",
+      "iosLocale": "fr-CA",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Chaque point\ncompte",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Tout le pointage\nen un coup d’œil",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Un tableau de pointage\npour plus de 26 sports",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Revivez\nchaque match",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Vos règles\nvotre façon de jouer",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Bien plus que\ndes jeux de ballon",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Votre pointage\nsur grand écran",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Comptez les points\nau poignet",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Les outils d’arbitrage\ndans une seule app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "fr-FR",
+      "iosLocale": "fr",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Chaque point\ncompte",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Tous les scores\nen un coup d’œil",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Un tableau de scores\npour plus de 26 sports",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Revivez\nchaque match",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Vos règles\nvotre façon de jouer",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Bien plus que\ndes jeux de ballon",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Votre score\nsur grand écran",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Comptez les points\nau poignet",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Les outils d’arbitrage\ndans une seule app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "gu-IN",
+      "iosLocale": "gu",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "દરેક પોઇન્ટ\nમહત્વનો છે",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "બધો સ્કોર\nએક નજરમાં",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "એક સ્કોરબોર્ડ\n26થી વધુ રમતો માટે",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "દરેક મેચ\nફરી જુઓ",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "તમારા નિયમો\nતમારી રમત",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "માત્ર બોલની\nરમતો જ નહીં",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "તમારું સ્કોરબોર્ડ\nમોટી સ્ક્રીન પર",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "કાંડેથી\nસ્કોર રાખો",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "રેફરીનાં ઉપયોગી સાધનો\nએક જ ઍપમાં",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "he",
+      "iosLocale": "he",
+      "direction": "rtl",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "כל נקודה\nנחשבת",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "כל התוצאות\nבמבט אחד",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "לוח תוצאות אחד\nליותר מ-26 ענפי ספורט",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "חוזרים\nלכל משחק",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "הכללים שלכם\nהמשחק שלכם",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "יותר ממשחקי\nכדור",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "לוח התוצאות שלכם\nעל המסך הגדול",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "רושמים נקודות\nמפרק כף היד",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "כל כלי השיפוט\nבאפליקציה אחת",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "hi",
+      "iosLocale": "hi",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "हर अंक\nमायने रखता है",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "पूरा स्कोर\nएक नज़र में",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "एक स्कोरबोर्ड\n26 से अधिक खेलों के लिए",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "हर मैच\nफिर से देखें",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "आपके नियम\nआपका खेल",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "सिर्फ गेंद वाले\nखेल ही नहीं",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "आपका स्कोरबोर्ड\nबड़ी स्क्रीन पर",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "कलाई से\nस्कोर रखें",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "रेफ़री के उपयोगी साधन\nएक ही ऐप में",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "hr",
+      "iosLocale": "hr",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Svaki bod\nvrijedi",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Svi rezultati\nna prvi pogled",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Jedan semafor\nza više od 26 sportova",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Pregledajte\nsvaku utakmicu",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Vaša pravila\nvaša igra",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Više od\nigara s loptom",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Vaš semafor\nna velikom zaslonu",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Bilježite bodove\nsa zapešća",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Sudački alati\nu jednoj aplikaciji",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "hu",
+      "iosLocale": "hu",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Minden pont\nszámít",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Minden eredmény\negy pillantásra",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Egy eredményjelző\ntöbb mint 26 sporthoz",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Nézz vissza\nminden meccset",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "A te szabályaid\na te játékod",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Több mint\nlabdajátékok",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Az eredményjelződ\nnagy képernyőn",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Vezesd a pontokat\na csuklódról",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Bírói eszközök\negy alkalmazásban",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "id",
+      "iosLocale": "id",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Setiap poin\nberarti",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Semua skor\nsekilas terlihat",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Satu papan skor\nuntuk 26+ olahraga",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Tinjau kembali\nsetiap pertandingan",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Aturanmu\ncara bermainmu",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Lebih dari sekadar\npermainan bola",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Papan skormu\ndi layar besar",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Catat skor\ndari pergelangan tangan",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Peralatan wasit\ndalam satu aplikasi",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "it",
+      "iosLocale": "it",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Ogni punto\nconta",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Tutti i punteggi\na colpo d’occhio",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Un tabellone\nper oltre 26 sport",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Rivedi\nogni partita",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Le tue regole\nil tuo modo di giocare",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Non solo\ngiochi con la palla",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Il tuo tabellone\nsul grande schermo",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Segna i punti\ndal polso",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Gli strumenti dell’arbitro\nin una sola app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ja",
+      "iosLocale": "ja",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "すべての得点に\n意味がある",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "試合のスコアが\nひと目でわかる",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "26 種類以上の競技を\nひとつのスコアボードで",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "すべての試合を\n振り返ろう",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "ルールを決めて\n自分たちらしい試合を",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "球技以外にも\n便利な機能が満載",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "大きな画面で\nみんなにスコアを",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "手首で\nスコアを記録",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "審判に便利なツールを\nひとつのアプリに",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "kn-IN",
+      "iosLocale": "kn",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "ಪ್ರತಿ ಅಂಕವೂ\nಮುಖ್ಯ",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "ಎಲ್ಲ ಅಂಕಗಳು\nಒಂದೇ ನೋಟದಲ್ಲಿ",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "ಒಂದು ಸ್ಕೋರ್‌ಬೋರ್ಡ್\n26ಕ್ಕೂ ಹೆಚ್ಚು ಕ್ರೀಡೆಗಳಿಗೆ",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ಪ್ರತಿ ಪಂದ್ಯವನ್ನು\nಮತ್ತೆ ನೋಡಿ",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "ನಿಮ್ಮ ನಿಯಮಗಳು\nನಿಮ್ಮ ಆಟ",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "ಚೆಂಡಿನ ಆಟಗಳಿಗಿಂತ\nಹೆಚ್ಚಿನ ಆಯ್ಕೆಗಳು",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "ನಿಮ್ಮ ಸ್ಕೋರ್‌ಬೋರ್ಡ್\nದೊಡ್ಡ ಪರದೆಯಲ್ಲಿ",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "ಮಣಿಕಟ್ಟಿನಿಂದಲೇ\nಅಂಕ ದಾಖಲಿಸಿ",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "ರೆಫರಿಯ ಸಾಧನಗಳು\nಒಂದೇ ಆ್ಯಪ್‌ನಲ್ಲಿ",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ko",
+      "iosLocale": "ko",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "모든 득점이\n소중하니까",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "경기 점수를\n한눈에",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "26가지 이상의 종목을\n하나의 점수판으로",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "모든 경기를\n다시 돌아보기",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "규칙은 직접\n경기는 원하는 대로",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "공을 쓰는 경기\n그 이상으로",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "큰 화면으로\n함께 보는 점수판",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "손목에서\n간편하게 점수 기록",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "심판에게 필요한 도구를\n하나의 앱에",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ml-IN",
+      "iosLocale": "ml",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "ഓരോ പോയിന്റും\nപ്രധാനമാണ്",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "എല്ലാ സ്കോറുകളും\nഒറ്റനോട്ടത്തിൽ",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "ഒരു സ്കോർബോർഡ്\n26-ലധികം കായിക ഇനങ്ങൾക്ക്",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ഓരോ മത്സരവും\nവീണ്ടും പരിശോധിക്കൂ",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "നിങ്ങളുടെ നിയമങ്ങൾ\nനിങ്ങളുടെ കളി",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "പന്തുകളികൾക്ക്\nഅപ്പുറവും",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "നിങ്ങളുടെ സ്കോർബോർഡ്\nവലിയ സ്ക്രീനിൽ",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "കൈത്തണ്ടയിൽ നിന്ന്\nസ്കോർ രേഖപ്പെടുത്തൂ",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "റെഫറിയുടെ ഉപകരണങ്ങൾ\nഒരേ ആപ്പിൽ",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "mr-IN",
+      "iosLocale": "mr",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "प्रत्येक गुण\nमहत्त्वाचा आहे",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "संपूर्ण स्कोअर\nएका नजरेत",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "एक स्कोअरबोर्ड\n26 हून अधिक खेळांसाठी",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "प्रत्येक सामना\nपुन्हा पाहा",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "तुमचे नियम\nतुमचा खेळ",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "फक्त चेंडूचे\nखेळच नाही",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "तुमचा स्कोअरबोर्ड\nमोठ्या स्क्रीनवर",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "मनगटावरून\nगुण नोंदवा",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "रेफरीची उपयुक्त साधने\nएकाच अॅपमध्ये",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ms",
+      "iosLocale": "ms",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Setiap mata\nbermakna",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Semua skor\nsekilas pandang",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Satu papan skor\nuntuk lebih 26 sukan",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Semak semula\nsetiap perlawanan",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Peraturan anda\ncara permainan anda",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Lebih daripada\npermainan bola",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Papan skor anda\npada skrin besar",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Catat skor\ndari pergelangan tangan",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Alat pengadil\ndalam satu aplikasi",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "nl-NL",
+      "iosLocale": "nl",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Elk punt\ntelt",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Alle scores\nin één oogopslag",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Eén scorebord\nvoor meer dan 26 sporten",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Bekijk\nelke wedstrijd terug",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Jouw regels\njouw spel",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Meer dan\nbalsporten",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Jouw scorebord\nop het grote scherm",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Houd de score bij\nvanaf je pols",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Alle scheidsrechterstools\nin één app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "no",
+      "iosLocale": "nb",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Hvert poeng\nteller",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Alle resultater\nmed ett blikk",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Én resultattavle\nfor over 26 idretter",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Se tilbake på\nhver kamp",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Dine regler\nditt spill",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Mer enn\nballspill",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Resultattavlen din\npå storskjermen",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Før poeng\nfra håndleddet",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Dommerverktøy\ni én app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "or-IN",
+      "iosLocale": "or",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "ପ୍ରତ୍ୟେକ ପଏଣ୍ଟ\nଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "ସମସ୍ତ ସ୍କୋର\nଏକ ନଜରରେ",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "ଗୋଟିଏ ସ୍କୋରବୋର୍ଡ\n26ରୁ ଅଧିକ କ୍ରୀଡ଼ା ପାଇଁ",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ପ୍ରତ୍ୟେକ ମ୍ୟାଚ୍\nପୁଣି ଦେଖନ୍ତୁ",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "ଆପଣଙ୍କ ନିୟମ\nଆପଣଙ୍କ ଖେଳ",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "କେବଳ ବଲ୍\nଖେଳ ନୁହେଁ",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "ଆପଣଙ୍କ ସ୍କୋରବୋର୍ଡ\nବଡ଼ ପରଦାରେ",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "କଚଟିରୁ\nସ୍କୋର ରଖନ୍ତୁ",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "ରେଫରିଙ୍କ ଉପଯୋଗୀ ସାଧନ\nଗୋଟିଏ ଆପ୍‌ରେ",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "pa-IN",
+      "iosLocale": "pa",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "ਹਰ ਅੰਕ\nਮਾਇਨੇ ਰੱਖਦਾ ਹੈ",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "ਸਾਰਾ ਸਕੋਰ\nਇੱਕ ਨਜ਼ਰ ਵਿੱਚ",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "ਇੱਕ ਸਕੋਰਬੋਰਡ\n26 ਤੋਂ ਵੱਧ ਖੇਡਾਂ ਲਈ",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ਹਰ ਮੈਚ\nਮੁੜ ਵੇਖੋ",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "ਤੁਹਾਡੇ ਨਿਯਮ\nਤੁਹਾਡੀ ਖੇਡ",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "ਸਿਰਫ਼ ਗੇਂਦ ਵਾਲੀਆਂ\nਖੇਡਾਂ ਹੀ ਨਹੀਂ",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "ਤੁਹਾਡਾ ਸਕੋਰਬੋਰਡ\nਵੱਡੀ ਸਕ੍ਰੀਨ ਉੱਤੇ",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "ਗੁੱਟ ਤੋਂ\nਸਕੋਰ ਰੱਖੋ",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "ਰੈਫ਼ਰੀ ਦੇ ਲਾਭਦਾਇਕ ਸਾਧਨ\nਇੱਕੋ ਐਪ ਵਿੱਚ",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "pl",
+      "iosLocale": "pl",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Każdy punkt\nsię liczy",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Wszystkie wyniki\nna pierwszy rzut oka",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Jedna tablica wyników\ndla ponad 26 dyscyplin",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Wróć do\nkażdego meczu",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Twoje zasady\ntwoja gra",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Więcej niż\ngry z piłką",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Twoje wyniki\nna dużym ekranie",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Zapisuj punkty\nz nadgarstka",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Narzędzia sędziego\nw jednej aplikacji",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "pt-BR",
+      "iosLocale": "pt-BR",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Cada ponto\nconta",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Todo o placar\nnum piscar de olhos",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Um placar\npara mais de 26 esportes",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Reveja\ncada partida",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Suas regras\nseu jeito de jogar",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Muito além dos\nesportes com bola",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Seu placar\nna tela grande",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Marque pontos\nno pulso",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Ferramentas de arbitragem\nem um só app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "pt-PT",
+      "iosLocale": "pt-PT",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Cada ponto\nconta",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Todo o marcador\nnum relance",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Um marcador\npara mais de 26 desportos",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Revê\ncada partida",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "As tuas regras\na tua forma de jogar",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Muito mais do que\njogos de bola",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "O teu marcador\nno grande ecrã",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Regista pontos\nno pulso",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Ferramentas de arbitragem\nnuma só app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ro",
+      "iosLocale": "ro",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Fiecare punct\ncontează",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Toate scorurile\ndintr-o privire",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "O singură tabelă\npentru peste 26 de sporturi",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Revino la\nfiecare meci",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Regulile tale\njocul tău",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Mai mult decât\njocuri cu mingea",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Tabela ta\npe ecranul mare",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Ține scorul\nde la încheietură",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Instrumente pentru arbitri\nîntr-o singură aplicație",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ru",
+      "iosLocale": "ru",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Каждое очко\nважно",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Весь счёт\nс первого взгляда",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Одно табло\nдля 26+ видов спорта",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Разберите\nкаждый матч",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Ваши правила\nваша игра",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Больше, чем\nигры с мячом",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Ваше табло\nна большом экране",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Ведите счёт\nс запястья",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Инструменты судьи\nв одном приложении",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "sk",
+      "iosLocale": "sk",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Každý bod\nsa počíta",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Všetky skóre\nna prvý pohľad",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Jedna tabuľa\npre viac ako 26 športov",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Vráťte sa\nku každému zápasu",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Vaše pravidlá\nvaša hra",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Viac než\nloptové hry",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Vaša tabuľa\nna veľkej obrazovke",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Zapisujte skóre\nzo zápästia",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Nástroje rozhodcu\nv jednej aplikácii",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "sl-SI",
+      "iosLocale": "sl",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Vsaka točka\nšteje",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Vsi rezultati\nna prvi pogled",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "En semafor\nza več kot 26 športov",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Poglejte nazaj\nna vsako tekmo",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Vaša pravila\nvaša igra",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Več kot\nigre z žogo",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Vaš semafor\nna velikem zaslonu",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Beležite točke\nz zapestja",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Sodniška orodja\nv eni aplikaciji",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "sv",
+      "iosLocale": "sv",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Varje poäng\nräknas",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Alla resultat\nmed en blick",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "En resultattavla\nför över 26 sporter",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Se tillbaka på\nvarje match",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Dina regler\nditt spel",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Mer än\nbollspel",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Din resultattavla\npå storskärmen",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Räkna poäng\nfrån handleden",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Domarverktyg\ni en app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ta-IN",
+      "iosLocale": "ta",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "ஒவ்வொரு புள்ளியும்\nமுக்கியம்",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "அனைத்துப் புள்ளிகளும்\nஒரே பார்வையில்",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "ஒரே ஸ்கோர்போர்டு\n26-க்கும் மேற்பட்ட விளையாட்டுகளுக்கு",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ஒவ்வொரு போட்டியையும்\nமீண்டும் பாருங்கள்",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "உங்கள் விதிகள்\nஉங்கள் விளையாட்டு",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "பந்து விளையாட்டுகளுக்கு\nஅப்பாலும்",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "உங்கள் ஸ்கோர்போர்டு\nபெரிய திரையில்",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "மணிக்கட்டிலிருந்து\nபுள்ளிகளைப் பதிவுசெய்யுங்கள்",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "நடுவருக்கான கருவிகள்\nஒரே செயலியில்",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "te-IN",
+      "iosLocale": "te",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "ప్రతి పాయింట్\nముఖ్యం",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "అన్ని స్కోర్లు\nఒక్క చూపులో",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "ఒకే స్కోర్‌బోర్డ్\n26కు పైగా క్రీడలకు",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ప్రతి మ్యాచ్‌ను\nమళ్లీ చూడండి",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "మీ నియమాలు\nమీ ఆట",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "బంతి ఆటలకు\nమించి",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "మీ స్కోర్‌బోర్డ్\nపెద్ద తెరపై",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "మణికట్టు నుంచే\nస్కోరు నమోదు చేయండి",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "రెఫరీ సాధనాలు\nఒకే యాప్‌లో",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "th",
+      "iosLocale": "th",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "ทุกคะแนน\nมีความหมาย",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "เห็นทุกคะแนน\nได้ในพริบตา",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "กระดานเดียว\nสำหรับกีฬากว่า 26 ประเภท",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ย้อนดู\nทุกการแข่งขัน",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "กติกาของคุณ\nเล่นในแบบของคุณ",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "มากกว่า\nกีฬาที่ใช้ลูกบอล",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "กระดานคะแนน\nบนหน้าจอใหญ่",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "บันทึกคะแนน\nจากข้อมือ",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "เครื่องมือผู้ตัดสิน\nครบในแอปเดียว",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "tr",
+      "iosLocale": "tr",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Her sayı\ndeğerli",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Tüm skorlar\nbir bakışta",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Tek skor tahtası\n26’dan fazla spor",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Her maçı\nyeniden inceleyin",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Kurallar sizin\noyun sizin",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Top oyunlarından\nçok daha fazlası",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Skor tahtanız\nbüyük ekranda",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Bileğinizden\nskor tutun",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Hakem araçları\ntek uygulamada",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "uk",
+      "iosLocale": "uk",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Кожне очко\nважливе",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Увесь рахунок\nз першого погляду",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Одне табло\nдля 26+ видів спорту",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Перегляньте\nкожен матч",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Ваші правила\nваша гра",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Більше, ніж\nігри з м’ячем",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Ваше табло\nна великому екрані",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Ведіть рахунок\nіз зап’ястя",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Інструменти судді\nв одному застосунку",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ur-PK",
+      "iosLocale": "ur",
+      "direction": "rtl",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "ہر پوائنٹ\nاہم ہے",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "پورا اسکور\nایک نظر میں",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "ایک اسکور بورڈ\n26 سے زیادہ کھیلوں کے لیے",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ہر میچ کا\nدوبارہ جائزہ لیں",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "آپ کے اصول\nآپ کا کھیل",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "صرف گیند والے\nکھیل ہی نہیں",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "آپ کا اسکور بورڈ\nبڑی اسکرین پر",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "کلائی سے\nاسکور رکھیں",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "ریفری کے کارآمد اوزار\nایک ہی ایپ میں",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "vi",
+      "iosLocale": "vi",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Mỗi điểm số\nđều quan trọng",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Toàn bộ điểm số\nchỉ trong một cái nhìn",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Một bảng điểm\ncho hơn 26 môn thể thao",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Xem lại\ntừng trận đấu",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Luật của bạn\ncách chơi của bạn",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Không chỉ là\ntrò chơi với bóng",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Bảng điểm của bạn\ntrên màn hình lớn",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Ghi điểm\nngay trên cổ tay",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Công cụ trọng tài\ntrong một ứng dụng",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "zh-Hans",
+      "iosLocale": "zh-Hans",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "每一分\n都值得",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "比赛计分\n一屏看清",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "26+ 运动项目\n打开就能计",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "赛后复盘\n进步看得见",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "规则你说了算\n怎么打都能计",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "不只球类\n计时同样在行",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "投上电视\n全场都看得清",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "抬腕就能计分",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "裁判小工具\n一应俱全",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "zh-Hant",
+      "iosLocale": "zh-Hant",
+      "direction": "ltr",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "每一分\n都值得",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "比賽計分\n一眼看清",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "26+ 運動項目\n開啟就能計分",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "賽後回顧\n看見每次進步",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "規則由你決定\n怎麼打都能計分",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "不只球類\n計時也很拿手",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "投放到電視\n全場都看得清",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "抬腕就能計分",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "裁判小工具\n一應俱全",
+          "enabled": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "generated_at": "2026-10-03",
+  "mode": "built-in image_gen",
+  "use_case": "stylized-concept",
+  "reference_role": "style references only",
+  "candidates": [
+    {
+      "name": "jianzi-a",
+      "prompt": "Use case: stylized-concept.\nAsset type: a single square app sport icon from the supplied 3D Sports Icons library.\nInput images are STYLE REFERENCES ONLY; create the requested new object, do not preserve their sport subjects.\nMatch the references closely: refined realistic equipment rendered in 3D, rounded edges, subtly grainy matte/satin materials, soft studio key light from upper left, gentle self shadows, cheerful natural equipment colors. Clean central large object, almost front view with a slight three-quarter view, approximately 10% transparent padding around the silhouette. Actual transparent RGBA background, no backdrop, no checkerboard, no ground, no pedestal, no cast shadow outside the object, no decorative effects, no frame, no logo, no watermark. 1024x1024 square.\nPrimary request: Chinese kicking shuttlecock (jianzi / 毽子), variant A. A clearly visible flat circular weighted rubber disc base with stacked rings, rich red with one golden ring, from which five long upright feather plumes rise in a compact fan. Feathers in red, golden yellow, blue and green, with fine feather barbs and realistic central shafts. It is a Chinese FOOT kicking shuttlecock: its base must be a FLAT HEAVY ROUND DISC, not the round cork badminton nose, and its feathers must be tall loose upright plumes, not a badminton cone/cage. Base at lower center, plume fan at upper center, modest diagonal tilt. Natural sports equipment, not a decorative bird or a feather duster. No text.",
+      "reference_paths": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Badbinton.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png"
+      ],
+      "source_path": "/Users/yangyang/.codex/generated_images/01a0fd6a-f7d2-7450-9599-873d9456c2d6/exec-a9561a03-e161-4a10-992c-1e5fa103e206.png",
+      "output_path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/jianzi-a.png"
+    },
+    {
+      "name": "jianzi-b",
+      "prompt": "Use case: stylized-concept.\nAsset type: a single square app sport icon from the supplied 3D Sports Icons library.\nInput images are STYLE REFERENCES ONLY; create the requested new object, do not preserve their sport subjects.\nMatch the references closely: refined realistic equipment rendered in 3D, rounded edges, subtly grainy matte/satin materials, soft studio key light from upper left, gentle self shadows, cheerful natural equipment colors. Clean central large object, almost front view with a slight three-quarter view, approximately 10% transparent padding around the silhouette. Actual transparent RGBA background, no backdrop, no checkerboard, no ground, no pedestal, no cast shadow outside the object, no decorative effects, no frame, no logo, no watermark. 1024x1024 square.\nPrimary request: Chinese kicking shuttlecock (jianzi / 毽子), variant B. A clearly visible short flat circular weighted rubber disc base, stacked dark-red and golden yellow rings, from which four long upright feather plumes rise in a graceful asymmetric fan. Feather colors red, blue, emerald green, and golden yellow. Feather texture should have fine natural barbs and realistic central shafts. It is a Chinese FOOT kicking shuttlecock: its base must be a FLAT HEAVY ROUND DISC, not the round cork badminton nose, and its feathers must be tall loose upright plumes, not a badminton cone/cage. Slight three-quarter front view shows circular top rim and base thickness; base lower center and tall feather fan upper center. Make this composition distinct from variant A through a narrower, more upright feather fan and slightly different plume arrangement. No text.",
+      "reference_paths": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Badbinton.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png"
+      ],
+      "source_path": "/Users/yangyang/.codex/generated_images/01a0fd6a-f7d2-7450-9599-873d9456c2d6/exec-26dd8759-c147-4627-b61d-6b88f6ac5665.png",
+      "output_path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/jianzi-b.png"
+    },
+    {
+      "name": "pickleball-a",
+      "prompt": "Use case: stylized-concept.\nAsset type: a single square app sport icon from the supplied 3D Sports Icons library.\nInput images are STYLE REFERENCES ONLY; create the requested new object, do not preserve their sport subjects.\nMatch the references closely: refined realistic equipment rendered in 3D, rounded edges, subtly grainy matte/satin materials, soft studio key light from upper left, gentle self shadows, cheerful natural equipment colors. Clean central large object, almost front view with a slight three-quarter view, approximately 10% transparent padding around the silhouette. Actual transparent RGBA background, no backdrop, no checkerboard, no ground, no pedestal, no cast shadow outside the object, no decorative effects, no frame, no logo, no watermark. 1024x1024 square.\nPrimary request: a single golden yellow perforated pickleball, variant A. One spherical hollow plastic pickleball with evenly distributed round drilled holes, visible dark-gold inner surfaces and actual openings, natural warm bright yellow. Camera and proportions close to the supplied yellow ball, but rotate the hole pattern to form a distinct new candidate. No seams, no fuzz, no text. A refined equipment icon, not a tennis ball.",
+      "reference_paths": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "source_path": "/Users/yangyang/.codex/generated_images/01a0fd6a-f7d2-7450-9599-873d9456c2d6/exec-056a87bd-774e-4f66-adcd-df901132d248.png",
+      "output_path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/pickleball-a.png"
+    },
+    {
+      "name": "pickleball-b",
+      "prompt": "Use case: stylized-concept.\nAsset type: a single square app sport icon from the supplied 3D Sports Icons library.\nInput images are STYLE REFERENCES ONLY; create the requested new object, do not preserve their sport subjects.\nMatch the references closely: refined realistic equipment rendered in 3D, rounded edges, subtly grainy matte/satin materials, soft studio key light from upper left, gentle self shadows, cheerful natural equipment colors. Clean central large object, almost front view with a slight three-quarter view, approximately 10% transparent padding around the silhouette. Actual transparent RGBA background, no backdrop, no checkerboard, no ground, no pedestal, no cast shadow outside the object, no decorative effects, no frame, no logo, no watermark. 1024x1024 square.\nPrimary request: pickleball sport icon, variant B. A real pickleball paddle with a broad solid rounded-rectangle face, short handle and black textured grip; face rich turquoise blue with a clean dark rim and no logo. Place a golden yellow perforated pickleball in front at the lower right, large enough that its round holes are unmistakable. Slight three-quarter front view, paddle leaning diagonally with handle at lower left, ball neatly overlaps the paddle silhouette. A solid pickleball paddle, NOT a tennis racket with strings and not a round table-tennis paddle. Two real objects only. Match warm yellow perforated ball reference exactly in material. No text.",
+      "reference_paths": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/PingPong.png"
+      ],
+      "source_path": "/Users/yangyang/.codex/generated_images/01a0fd6a-f7d2-7450-9599-873d9456c2d6/exec-0fd0b01f-cb37-46d5-8230-e2d245f2bfe7.png",
+      "output_path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/pickleball-b.png"
+    },
+    {
+      "name": "archery-a",
+      "prompt": "Use case: stylized-concept.\nAsset type: a single square app sport icon from the supplied 3D Sports Icons library.\nInput images are STYLE REFERENCES ONLY; create the requested new object, do not preserve their sport subjects.\nMatch the references closely: refined realistic equipment rendered in 3D, rounded edges, subtly grainy matte/satin materials, soft studio key light from upper left, gentle self shadows, cheerful natural equipment colors. Clean central large object, almost front view with a slight three-quarter view, approximately 10% transparent padding around the silhouette. Actual transparent RGBA background, no backdrop, no checkerboard, no ground, no pedestal, no cast shadow outside the object, no decorative effects, no frame, no logo, no watermark. 1024x1024 square.\nPrimary request: archery sport icon, variant A. A clean circular standard archery target as the dominant object, slight three-quarter front angle reveals slim beveled thickness. Correct colored concentric rings from outermost to center: white, black, blue, red, golden yellow bullseye; each color can have two subtly divided scoring rings. One realistic slim arrow embedded near the center with narrow straight shaft and red small fletching, shaft extends diagonally up-right. Refined matte target and satin arrow, no numbers, no lettering, no stand or base. Target and single arrow only. Make the target visually distinct from a dartboard: simple concentric scoring rings, no radial sectors.",
+      "reference_paths": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png"
+      ],
+      "source_path": "/Users/yangyang/.codex/generated_images/01a0fd6a-f7d2-7450-9599-873d9456c2d6/exec-74b4c370-2f94-4c45-bb8a-29d097b6ffb5.png",
+      "output_path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/archery-a.png"
+    },
+    {
+      "name": "archery-b",
+      "prompt": "Use case: stylized-concept.\nAsset type: a single square app sport icon from the supplied 3D Sports Icons library.\nInput images are STYLE REFERENCES ONLY; create the requested new object, do not preserve their sport subjects.\nMatch the references closely: refined realistic equipment rendered in 3D, rounded edges, subtly grainy matte/satin materials, soft studio key light from upper left, gentle self shadows, cheerful natural equipment colors. Clean central large object, almost front view with a slight three-quarter view, approximately 10% transparent padding around the silhouette. Actual transparent RGBA background, no backdrop, no checkerboard, no ground, no pedestal, no cast shadow outside the object, no decorative effects, no frame, no logo, no watermark. 1024x1024 square.\nPrimary request: archery sport icon, variant B. One sleek recurve bow and a single long arrow arranged diagonally together, clear silhouette for a small sport app icon. A warm wood-and-deep-blue recurve bow with two gracefully curved limbs, realistic taut bowstring connecting the limb tips, simple grip in the middle. One arrow with a narrow straight wooden shaft, small metallic arrowhead and red fletching. Nearly front three-quarter angle, curved bow sweeps from lower left to upper right and arrow is visually separate enough to read. No target, no person, no stand, no ornate fantasy bow, no extra arrows, no text.",
+      "reference_paths": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Fencing.png"
+      ],
+      "source_path": "/Users/yangyang/.codex/generated_images/01a0fd6a-f7d2-7450-9599-873d9456c2d6/exec-cf0c3dc9-ebd6-4dff-90a0-3a74f2a35065.png",
+      "output_path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/archery-b.png"
+    },
+    {
+      "name": "snooker-a",
+      "prompt": "Use case: stylized-concept.\nAsset type: a single square app sport icon from the supplied 3D Sports Icons library.\nInput images are STYLE REFERENCES ONLY; create the requested new object, do not preserve their sport subjects.\nMatch the references closely: refined realistic equipment rendered in 3D, rounded edges, subtly grainy matte/satin materials, soft studio key light from upper left, gentle self shadows, cheerful natural equipment colors. Clean central large object, almost front view with a slight three-quarter view, approximately 10% transparent padding around the silhouette. Actual transparent RGBA background, no backdrop, no checkerboard, no ground, no pedestal, no cast shadow outside the object, no decorative effects, no frame, no logo, no watermark. 1024x1024 square.\nPrimary request: snooker sport icon, variant A. A compact pair of realistic snooker balls: one deep red solid ball in front-left, one solid black ball just behind-right. Both equal diameter, sphere geometry, subtly grainy satin finish matching supplied 8-ball's material and lighting. No numbers, no white patches, no stripes on EITHER ball: snooker balls are completely plain single color. No white cue ball. Two balls only, graceful overlapping silhouette, nearly front three-quarter view. Red and black should be recognizable at thumbnail size. No text of any kind.",
+      "reference_paths": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png"
+      ],
+      "source_path": "/Users/yangyang/.codex/generated_images/01a0fd6a-f7d2-7450-9599-873d9456c2d6/exec-4faed32b-e661-4ed1-afca-0ac68380b31b.png",
+      "output_path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/snooker-a.png"
+    },
+    {
+      "name": "snooker-b",
+      "prompt": "Use case: stylized-concept.\nAsset type: a single square app sport icon from the supplied 3D Sports Icons library.\nInput images are STYLE REFERENCES ONLY; create the requested new object, do not preserve their sport subjects.\nMatch the references closely: refined realistic equipment rendered in 3D, rounded edges, subtly grainy matte/satin materials, soft studio key light from upper left, gentle self shadows, cheerful natural equipment colors. Clean central large object, almost front view with a slight three-quarter view, approximately 10% transparent padding around the silhouette. Actual transparent RGBA background, no backdrop, no checkerboard, no ground, no pedestal, no cast shadow outside the object, no decorative effects, no frame, no logo, no watermark. 1024x1024 square.\nPrimary request: snooker sport icon, variant B. A simple compact three-ball triangular group of equal-sized realistic snooker balls: red ball foreground lower-left, plain black ball behind at upper-center, golden yellow ball foreground lower-right. Distinct clean silhouette, slight overlaps, matte/satin granular texture, soft highlights on upper-left. No numbers, no white number discs, no stripes on ANY ball: each is a completely plain solid-color snooker ball. Exactly three balls only, no racks, no tables, no cues, no text of any kind.",
+      "reference_paths": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png"
+      ],
+      "source_path": "/Users/yangyang/.codex/generated_images/01a0fd6a-f7d2-7450-9599-873d9456c2d6/exec-4b0efb86-3999-4e7b-b9c5-4b1a81d33e3b.png",
+      "output_path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/snooker-b.png"
+    },
+    {
+      "name": "nineball-a",
+      "prompt": "Use case: stylized-concept.\nAsset type: a single square app sport icon from the supplied 3D Sports Icons library.\nInput images are STYLE REFERENCES ONLY; create the requested new object, do not preserve their sport subjects.\nMatch the references closely: refined realistic equipment rendered in 3D, rounded edges, subtly grainy matte/satin materials, soft studio key light from upper left, gentle self shadows, cheerful natural equipment colors. Clean central large object, almost front view with a slight three-quarter view, approximately 10% transparent padding around the silhouette. Actual transparent RGBA background, no backdrop, no checkerboard, no ground, no pedestal, no cast shadow outside the object, no decorative effects, no frame, no logo, no watermark. 1024x1024 square.\nPrimary request: nine-ball pool sport icon, variant A. One spherical real pool number-9 ball. The ball is WHITE at the upper and lower caps, with a broad golden YELLOW STRIPE wrapping horizontally around its equator. On the front portion of the yellow stripe there is one circular white number badge; inside it is a single large crisp BLACK digit \"9\", upright and easy to read. The digit 9 must be unambiguous, with one enclosed top loop and one descending curved tail; not 8, not 6. Match the reference 8-ball's sphere scale, subtle satin grain, upper-left soft lighting and large central composition. No other balls, no rack, no cue, no other text.",
+      "reference_paths": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png"
+      ],
+      "source_path": "/Users/yangyang/.codex/generated_images/01a0fd6a-f7d2-7450-9599-873d9456c2d6/exec-0ce30491-fff5-4132-b70f-46481a2cc92e.png",
+      "output_path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/nineball-a.png"
+    },
+    {
+      "name": "nineball-b",
+      "prompt": "Use case: stylized-concept.\nAsset type: a single square app sport icon from the supplied 3D Sports Icons library.\nInput images are STYLE REFERENCES ONLY; create the requested new object, do not preserve their sport subjects.\nMatch the references closely: refined realistic equipment rendered in 3D, rounded edges, subtly grainy matte/satin materials, soft studio key light from upper left, gentle self shadows, cheerful natural equipment colors. Clean central large object, almost front view with a slight three-quarter view, approximately 10% transparent padding around the silhouette. Actual transparent RGBA background, no backdrop, no checkerboard, no ground, no pedestal, no cast shadow outside the object, no decorative effects, no frame, no logo, no watermark. 1024x1024 square.\nPrimary request: nine-ball pool sport icon, variant B. One large spherical WHITE pool ball with a broad golden YELLOW equatorial horizontal stripe. On the stripe front, a circular WHITE badge holds one clear upright BLACK \"9\". The digit 9 must have one enclosed upper loop and a descending curved tail; not 8, not 6. A single simple realistic wooden billiard cue segment lies diagonally behind the ball, from lower-left to upper-right, with a small blue chalked tip visible at upper-right and a dark grip end lower-left. The ball remains dominant, front-right with the \"9\" unobscured. Match 8-ball reference satin-grain material and upper-left light. Exactly one number-9 ball and one clean cue segment; no other balls, no rack, no extra numbers or logos.",
+      "reference_paths": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png"
+      ],
+      "source_path": "/Users/yangyang/.codex/generated_images/01a0fd6a-f7d2-7450-9599-873d9456c2d6/exec-b62a6012-5152-4e35-8ba9-5166983d0807.png",
+      "output_path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/nineball-b.png"
+    }
+  ]
+}

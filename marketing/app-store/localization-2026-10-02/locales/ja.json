@@ -1,0 +1,58 @@
+{
+  "locale": "ja",
+  "iosLocale": "ja",
+  "language": "Japanese",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: 万能スコアボード",
+  "subtitle": "得点記録・試合タイマー・振り返り",
+  "description": "すべての得点を、大切に。iPhone や iPad が、試合や練習、友達とのゲームで使える見やすいスコアボードになります。\n\nテニス、ピックルボール、バドミントン、卓球、バスケットボール、サッカー、バレーボール、ビリヤードなど、26 種類以上のスポーツやゲームに対応。対応する競技では、得点ルールや試合形式、ダブルスのサービス順を設定できます。\n\n試合記録を保存し、得点の推移、タイムライン、音声メモで振り返り。チェスや囲碁の対局時計、キューブ用タイマー、ストップウォッチも搭載しています。スコアボードを大きな画面に表示したり、試合コードを共有して離れた友達に得点を見てもらったりできます。\n\nコイントス、ランダムなチーム分け、レッドカード・イエローカード、割り勘計算などの便利なツールもひとつに。記録の手間を減らして、もっと試合を楽しみましょう。\n\n利用規約:\nhttps://jifenqi.com/terms\n\nプライバシーポリシー:\nhttps://jifenqi.com/privacy\n\nApple 標準使用許諾契約:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "すべての得点に\n意味がある",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "試合のスコアが\nひと目でわかる",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "26 種類以上の競技を\nひとつのスコアボードで",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "すべての試合を\n振り返ろう",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "ルールを決めて\n自分たちらしい試合を",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "球技以外にも\n便利な機能が満載",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "大きな画面で\nみんなにスコアを",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "手首で\nスコアを記録",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "審判に便利なツールを\nひとつのアプリに",
+      "enabled": true
+    }
+  ]
+}

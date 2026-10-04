@@ -1,0 +1,1009 @@
+{
+  "appId": "6759768784",
+  "bundleId": "com.douhua.jifen.ios",
+  "localeCount": 50,
+  "reviewStatus": "draft",
+  "titleSource": "reviewed in-app membership plan titles with listed store overrides",
+  "localizations": [
+    {
+      "locale": "ar-SA",
+      "iosLocale": "ar",
+      "language": "Arabic",
+      "group": {
+        "name": "iScoreboard العضوية"
+      },
+      "monthly": {
+        "name": "العضوية الشهرية",
+        "description": "مزايا VIP. تجديد تلقائي شهري."
+      },
+      "yearly": {
+        "name": "العضوية السنوية",
+        "description": "مزايا VIP. تجديد تلقائي سنوي."
+      },
+      "lifetime": {
+        "name": "عضوية مدى الحياة",
+        "description": "الشراء لمرة واحدة، إمكانية الوصول مدى الحياة"
+      }
+    },
+    {
+      "locale": "bn-BD",
+      "iosLocale": "bn",
+      "language": "Bengali",
+      "group": {
+        "name": "iScoreboard সদস্যপদ"
+      },
+      "monthly": {
+        "name": "মাসিক সদস্যপদ",
+        "description": "সব VIP সুবিধা। মাসিক স্বয়ংক্রিয় নবায়ন।"
+      },
+      "yearly": {
+        "name": "বার্ষিক সদস্যপদ",
+        "description": "সব VIP সুবিধা। বার্ষিক স্বয়ংক্রিয় নবায়ন।"
+      },
+      "lifetime": {
+        "name": "আজীবন সদস্যপদ",
+        "description": "এককালীন কেনাকাটা, আজীবন অ্যাক্সেস"
+      }
+    },
+    {
+      "locale": "ca",
+      "iosLocale": "ca",
+      "language": "Catalan",
+      "group": {
+        "name": "iScoreboard Membre"
+      },
+      "monthly": {
+        "name": "Subscripció mensual",
+        "description": "Funcions VIP. Renovació mensual automàtica."
+      },
+      "yearly": {
+        "name": "Subscripció anual",
+        "description": "Funcions VIP. Renovació anual automàtica."
+      },
+      "lifetime": {
+        "name": "Subscripció de per vida",
+        "description": "Compra única, accés de tota la vida"
+      }
+    },
+    {
+      "locale": "zh-Hans",
+      "iosLocale": "zh-Hans",
+      "language": "Chinese (Simplified)",
+      "group": {
+        "name": "iScoreboard 会员"
+      },
+      "monthly": {
+        "name": "月会员",
+        "description": "解锁全部 VIP 功能，按月自动续订，可随时取消。"
+      },
+      "yearly": {
+        "name": "年会员",
+        "description": "解锁全部 VIP 功能，按年自动续订，可随时取消。"
+      },
+      "lifetime": {
+        "name": "终身会员（买断）",
+        "description": "一次性买断，永久解锁全部 VIP 功能，无需续订。"
+      }
+    },
+    {
+      "locale": "zh-Hant",
+      "iosLocale": "zh-Hant",
+      "language": "Chinese (Traditional)",
+      "group": {
+        "name": "iScoreboard 會員"
+      },
+      "monthly": {
+        "name": "月會員",
+        "description": "解鎖全部 VIP 功能，按月自動續訂，可隨時取消。"
+      },
+      "yearly": {
+        "name": "年會員",
+        "description": "解鎖全部 VIP 功能，按年自動續訂，可隨時取消。"
+      },
+      "lifetime": {
+        "name": "終身會員（買斷）",
+        "description": "一次性買斷，永久解鎖全部 VIP 功能，無需續訂。"
+      }
+    },
+    {
+      "locale": "hr",
+      "iosLocale": "hr",
+      "language": "Croatian",
+      "group": {
+        "name": "iScoreboard Članstvo"
+      },
+      "monthly": {
+        "name": "Mjesečno članstvo",
+        "description": "VIP značajke. Automatska mjesečna obnova."
+      },
+      "yearly": {
+        "name": "Godišnje članstvo",
+        "description": "VIP značajke. Automatska godišnja obnova."
+      },
+      "lifetime": {
+        "name": "Doživotno članstvo",
+        "description": "Jednokratna kupnja, doživotni pristup"
+      }
+    },
+    {
+      "locale": "cs",
+      "iosLocale": "cs",
+      "language": "Czech",
+      "group": {
+        "name": "iScoreboard Členství"
+      },
+      "monthly": {
+        "name": "Měsíční členství",
+        "description": "VIP funkce. Automatická měsíční obnova."
+      },
+      "yearly": {
+        "name": "Roční členství",
+        "description": "VIP funkce. Automatická roční obnova."
+      },
+      "lifetime": {
+        "name": "Doživotní členství",
+        "description": "Jednorázový nákup, doživotní přístup"
+      }
+    },
+    {
+      "locale": "da",
+      "iosLocale": "da",
+      "language": "Danish",
+      "group": {
+        "name": "iScoreboard Medlemskab"
+      },
+      "monthly": {
+        "name": "Månedligt medlemskab",
+        "description": "VIP-funktioner. Automatisk månedsfornyelse."
+      },
+      "yearly": {
+        "name": "Årligt medlemskab",
+        "description": "VIP-funktioner. Automatisk årsfornyelse."
+      },
+      "lifetime": {
+        "name": "Livsvarigt medlemskab",
+        "description": "Engangskøb, livstidsadgang"
+      }
+    },
+    {
+      "locale": "nl-NL",
+      "iosLocale": "nl",
+      "language": "Dutch",
+      "group": {
+        "name": "iScoreboard Lidmaatschap"
+      },
+      "monthly": {
+        "name": "Maandelijks lidmaatschap",
+        "description": "VIP-functies. Vernieuwt automatisch per maand"
+      },
+      "yearly": {
+        "name": "Jaarlijks lidmaatschap",
+        "description": "VIP-functies. Vernieuwt automatisch per jaar."
+      },
+      "lifetime": {
+        "name": "Levenslang lidmaatschap",
+        "description": "Eenmalige aankoop, levenslange toegang"
+      }
+    },
+    {
+      "locale": "en-AU",
+      "iosLocale": "en",
+      "language": "English (Australia)",
+      "group": {
+        "name": "iScoreboard Membership"
+      },
+      "monthly": {
+        "name": "Monthly VIP",
+        "description": "All VIP features. Auto-renews monthly."
+      },
+      "yearly": {
+        "name": "Annual VIP",
+        "description": "All VIP features. Auto-renews yearly."
+      },
+      "lifetime": {
+        "name": "Lifetime VIP",
+        "description": "One-time purchase. All VIP features for life."
+      }
+    },
+    {
+      "locale": "en-CA",
+      "iosLocale": "en",
+      "language": "English (Canada)",
+      "group": {
+        "name": "iScoreboard Membership"
+      },
+      "monthly": {
+        "name": "Monthly VIP",
+        "description": "All VIP features. Auto-renews monthly."
+      },
+      "yearly": {
+        "name": "Annual VIP",
+        "description": "All VIP features. Auto-renews yearly."
+      },
+      "lifetime": {
+        "name": "Lifetime VIP",
+        "description": "One-time purchase. All VIP features for life."
+      }
+    },
+    {
+      "locale": "en-GB",
+      "iosLocale": "en",
+      "language": "English (U.K.)",
+      "group": {
+        "name": "iScoreboard Membership"
+      },
+      "monthly": {
+        "name": "Monthly VIP",
+        "description": "All VIP features. Auto-renews monthly."
+      },
+      "yearly": {
+        "name": "Annual VIP",
+        "description": "All VIP features. Auto-renews yearly."
+      },
+      "lifetime": {
+        "name": "Lifetime VIP",
+        "description": "One-time purchase. All VIP features for life."
+      }
+    },
+    {
+      "locale": "en-US",
+      "iosLocale": "en",
+      "language": "English (U.S.)",
+      "group": {
+        "name": "iScoreboard Membership"
+      },
+      "monthly": {
+        "name": "Monthly VIP",
+        "description": "All VIP features. Auto-renews monthly."
+      },
+      "yearly": {
+        "name": "Annual VIP",
+        "description": "All VIP features. Auto-renews yearly."
+      },
+      "lifetime": {
+        "name": "Lifetime VIP",
+        "description": "One-time purchase. All VIP features for life."
+      }
+    },
+    {
+      "locale": "fi",
+      "iosLocale": "fi",
+      "language": "Finnish",
+      "group": {
+        "name": "iScoreboard Jäsenyys"
+      },
+      "monthly": {
+        "name": "Kuukausittainen jäsenyys",
+        "description": "VIP-toiminnot. Uusiutuu kuukausittain."
+      },
+      "yearly": {
+        "name": "Vuosittainen jäsenyys",
+        "description": "VIP-toiminnot. Uusiutuu vuosittain."
+      },
+      "lifetime": {
+        "name": "Elinikäinen jäsenyys",
+        "description": "Kertaostos, elinikäinen käyttöoikeus"
+      }
+    },
+    {
+      "locale": "fr-FR",
+      "iosLocale": "fr",
+      "language": "French",
+      "group": {
+        "name": "iScoreboard Abonnement"
+      },
+      "monthly": {
+        "name": "Abonnement mensuel",
+        "description": "Fonctions VIP. Renouvellement mensuel auto."
+      },
+      "yearly": {
+        "name": "Abonnement annuel",
+        "description": "Fonctions VIP. Renouvellement annuel auto."
+      },
+      "lifetime": {
+        "name": "Abonnement à vie",
+        "description": "Achat unique, accès à vie"
+      }
+    },
+    {
+      "locale": "fr-CA",
+      "iosLocale": "fr-CA",
+      "language": "French (Canada)",
+      "group": {
+        "name": "iScoreboard Abonnement"
+      },
+      "monthly": {
+        "name": "Abonnement mensuel",
+        "description": "Fonctions VIP. Renouvellement mensuel auto."
+      },
+      "yearly": {
+        "name": "Abonnement annuel",
+        "description": "Fonctions VIP. Renouvellement annuel auto."
+      },
+      "lifetime": {
+        "name": "Abonnement à vie",
+        "description": "Achat unique, accès à vie"
+      }
+    },
+    {
+      "locale": "de-DE",
+      "iosLocale": "de",
+      "language": "German",
+      "group": {
+        "name": "iScoreboard Mitgliedschaft"
+      },
+      "monthly": {
+        "name": "Monatliche Mitgliedschaft",
+        "description": "Alle VIP-Funktionen. Monatliche Verlängerung."
+      },
+      "yearly": {
+        "name": "Jährliche Mitgliedschaft",
+        "description": "Alle VIP-Funktionen. Jährliche Verlängerung."
+      },
+      "lifetime": {
+        "name": "Lebenslange Mitgliedschaft",
+        "description": "Einmaliger Kauf, lebenslanger Zugriff"
+      }
+    },
+    {
+      "locale": "el",
+      "iosLocale": "el",
+      "language": "Greek",
+      "group": {
+        "name": "iScoreboard Συνδρομή"
+      },
+      "monthly": {
+        "name": "Μηνιαία συνδρομή",
+        "description": "Λειτουργίες VIP. Αυτόματη μηνιαία ανανέωση."
+      },
+      "yearly": {
+        "name": "Ετήσια συνδρομή",
+        "description": "Λειτουργίες VIP. Αυτόματη ετήσια ανανέωση."
+      },
+      "lifetime": {
+        "name": "Ισόβια συνδρομή",
+        "description": "Εφάπαξ αγορά, πρόσβαση εφ' όρου ζωής"
+      }
+    },
+    {
+      "locale": "gu-IN",
+      "iosLocale": "gu",
+      "language": "Gujarati",
+      "group": {
+        "name": "iScoreboard સભ્યપદ"
+      },
+      "monthly": {
+        "name": "માસિક સભ્યપદ",
+        "description": "બધી VIP સુવિધાઓ. દર મહિને આપમેળે નવીકરણ."
+      },
+      "yearly": {
+        "name": "વાર્ષિક સભ્યપદ",
+        "description": "બધી VIP સુવિધાઓ. દર વર્ષે આપમેળે નવીકરણ."
+      },
+      "lifetime": {
+        "name": "આજીવન સભ્યપદ",
+        "description": "એક વખતની ખરીદી, આજીવન ઍક્સેસ"
+      }
+    },
+    {
+      "locale": "he",
+      "iosLocale": "he",
+      "language": "Hebrew",
+      "group": {
+        "name": "iScoreboard מינוי"
+      },
+      "monthly": {
+        "name": "מינוי חודשי",
+        "description": "כל תכונות VIP. חידוש אוטומטי מדי חודש."
+      },
+      "yearly": {
+        "name": "מינוי שנתי",
+        "description": "כל תכונות VIP. חידוש אוטומטי מדי שנה."
+      },
+      "lifetime": {
+        "name": "מינוי לכל החיים",
+        "description": "רכישה חד פעמית, גישה לכל החיים"
+      }
+    },
+    {
+      "locale": "hi",
+      "iosLocale": "hi",
+      "language": "Hindi",
+      "group": {
+        "name": "iScoreboard सदस्यता"
+      },
+      "monthly": {
+        "name": "मासिक सदस्यता",
+        "description": "सभी VIP सुविधाएँ। हर महीने स्वतः नवीनीकरण।"
+      },
+      "yearly": {
+        "name": "वार्षिक सदस्यता",
+        "description": "सभी VIP सुविधाएँ। हर वर्ष स्वतः नवीनीकरण।"
+      },
+      "lifetime": {
+        "name": "आजीवन सदस्यता",
+        "description": "एक बार की खरीदारी, आजीवन पहुंच"
+      }
+    },
+    {
+      "locale": "hu",
+      "iosLocale": "hu",
+      "language": "Hungarian",
+      "group": {
+        "name": "iScoreboard Tagság"
+      },
+      "monthly": {
+        "name": "Havi tagság",
+        "description": "VIP-funkciók. Automatikus havi megújítás."
+      },
+      "yearly": {
+        "name": "Éves tagság",
+        "description": "VIP-funkciók. Automatikus éves megújítás."
+      },
+      "lifetime": {
+        "name": "Életre szóló tagság",
+        "description": "Egyszeri vásárlás, élethosszig tartó elérés."
+      }
+    },
+    {
+      "locale": "id",
+      "iosLocale": "id",
+      "language": "Indonesian",
+      "group": {
+        "name": "iScoreboard Keanggotaan"
+      },
+      "monthly": {
+        "name": "Keanggotaan Bulanan",
+        "description": "Fitur VIP. Perpanjangan otomatis bulanan."
+      },
+      "yearly": {
+        "name": "Keanggotaan Tahunan",
+        "description": "Fitur VIP. Perpanjangan otomatis tahunan."
+      },
+      "lifetime": {
+        "name": "Keanggotaan Seumur Hidup",
+        "description": "Pembelian satu kali, akses seumur hidup"
+      }
+    },
+    {
+      "locale": "it",
+      "iosLocale": "it",
+      "language": "Italian",
+      "group": {
+        "name": "iScoreboard Iscrizione"
+      },
+      "monthly": {
+        "name": "Abbonamento mensile",
+        "description": "Funzioni VIP. Rinnovo mensile automatico."
+      },
+      "yearly": {
+        "name": "Abbonamento annuale",
+        "description": "Funzioni VIP. Rinnovo annuale automatico."
+      },
+      "lifetime": {
+        "name": "Iscrizione a vita",
+        "description": "Acquisto unico, accesso VIP a vita."
+      }
+    },
+    {
+      "locale": "ja",
+      "iosLocale": "ja",
+      "language": "Japanese",
+      "group": {
+        "name": "iScoreboard メンバーシップ"
+      },
+      "monthly": {
+        "name": "月額会員",
+        "description": "すべてのVIP機能を利用。毎月自動更新、いつでも解約可能。"
+      },
+      "yearly": {
+        "name": "年間会員",
+        "description": "すべてのVIP機能を利用。毎年自動更新、いつでも解約可能。"
+      },
+      "lifetime": {
+        "name": "永久会員",
+        "description": "一度購入すれば生涯アクセス可能"
+      }
+    },
+    {
+      "locale": "kn-IN",
+      "iosLocale": "kn",
+      "language": "Kannada",
+      "group": {
+        "name": "iScoreboard ಸದಸ್ಯತ್ವ"
+      },
+      "monthly": {
+        "name": "ಮಾಸಿಕ ಸದಸ್ಯತ್ವ",
+        "description": "ಎಲ್ಲ VIP ಸೌಲಭ್ಯಗಳು. ಮಾಸಿಕ ಸ್ವಯಂ ನವೀಕರಣ."
+      },
+      "yearly": {
+        "name": "ವಾರ್ಷಿಕ ಸದಸ್ಯತ್ವ",
+        "description": "ಎಲ್ಲ VIP ಸೌಲಭ್ಯಗಳು. ವಾರ್ಷಿಕ ಸ್ವಯಂ ನವೀಕರಣ."
+      },
+      "lifetime": {
+        "name": "ಜೀವಮಾನ ಸದಸ್ಯತ್ವ",
+        "description": "ಒಂದು ಬಾರಿ ಖರೀದಿ, ಜೀವಮಾನದ ಪ್ರವೇಶ"
+      }
+    },
+    {
+      "locale": "ko",
+      "iosLocale": "ko",
+      "language": "Korean",
+      "group": {
+        "name": "iScoreboard 멤버십"
+      },
+      "monthly": {
+        "name": "월간 멤버십",
+        "description": "모든 VIP 기능 이용. 매월 자동 갱신, 언제든 취소 가능."
+      },
+      "yearly": {
+        "name": "연간 멤버십",
+        "description": "모든 VIP 기능 이용. 매년 자동 갱신, 언제든 취소 가능."
+      },
+      "lifetime": {
+        "name": "평생 멤버십",
+        "description": "일회성 구매, 평생 이용 가능"
+      }
+    },
+    {
+      "locale": "ms",
+      "iosLocale": "ms",
+      "language": "Malay",
+      "group": {
+        "name": "iScoreboard Keahlian"
+      },
+      "monthly": {
+        "name": "Keahlian Bulanan",
+        "description": "Ciri VIP. Pembaharuan automatik bulanan."
+      },
+      "yearly": {
+        "name": "Keahlian Tahunan",
+        "description": "Ciri VIP. Pembaharuan automatik tahunan."
+      },
+      "lifetime": {
+        "name": "Keahlian Sepanjang Hayat",
+        "description": "Pembelian sekali, akses seumur hidup"
+      }
+    },
+    {
+      "locale": "ml-IN",
+      "iosLocale": "ml",
+      "language": "Malayalam",
+      "group": {
+        "name": "iScoreboard അംഗത്വം"
+      },
+      "monthly": {
+        "name": "പ്രതിമാസ അംഗത്വം",
+        "description": "VIP സൗകര്യങ്ങൾ. പ്രതിമാസ സ്വയം പുതുക്കൽ."
+      },
+      "yearly": {
+        "name": "വാർഷിക അംഗത്വം",
+        "description": "VIP സൗകര്യങ്ങൾ. വാർഷിക സ്വയം പുതുക്കൽ."
+      },
+      "lifetime": {
+        "name": "ആജീവനാന്ത അംഗത്വം",
+        "description": "ഒറ്റത്തവണ വാങ്ങൽ, ആജീവനാന്ത പ്രവേശനം"
+      }
+    },
+    {
+      "locale": "mr-IN",
+      "iosLocale": "mr",
+      "language": "Marathi",
+      "group": {
+        "name": "iScoreboard सदस्यत्व"
+      },
+      "monthly": {
+        "name": "मासिक सदस्यत्व",
+        "description": "सर्व VIP सुविधा. दरमहा आपोआप नूतनीकरण."
+      },
+      "yearly": {
+        "name": "वार्षिक सदस्यत्व",
+        "description": "सर्व VIP सुविधा. दरवर्षी आपोआप नूतनीकरण."
+      },
+      "lifetime": {
+        "name": "आजीवन सदस्यत्व",
+        "description": "एक-वेळ खरेदी, आजीवन प्रवेश"
+      }
+    },
+    {
+      "locale": "no",
+      "iosLocale": "nb",
+      "language": "Norwegian",
+      "group": {
+        "name": "iScoreboard Medlemskap"
+      },
+      "monthly": {
+        "name": "Månedlig medlemskap",
+        "description": "VIP-funksjoner. Automatisk månedsfornyelse."
+      },
+      "yearly": {
+        "name": "Årlig medlemskap",
+        "description": "VIP-funksjoner. Automatisk årsfornyelse."
+      },
+      "lifetime": {
+        "name": "Livstidsmedlemskap",
+        "description": "Engangskjøp, livstidstilgang"
+      }
+    },
+    {
+      "locale": "or-IN",
+      "iosLocale": "or",
+      "language": "Oriya",
+      "group": {
+        "name": "iScoreboard ସଦସ୍ୟତା"
+      },
+      "monthly": {
+        "name": "ମାସିକ ସଦସ୍ୟତା",
+        "description": "ସମସ୍ତ VIP ସୁବିଧା। ପ୍ରତି ମାସ ଆପେ ନବୀକରଣ।"
+      },
+      "yearly": {
+        "name": "ବାର୍ଷିକ ସଦସ୍ୟତା",
+        "description": "ସମସ୍ତ VIP ସୁବିଧା। ପ୍ରତି ବର୍ଷ ଆପେ ନବୀକରଣ।"
+      },
+      "lifetime": {
+        "name": "ଆଜୀବନ ସଦସ୍ୟତା",
+        "description": "ଏକ ଥର କ୍ରୟ, ଆଜୀବନ ପ୍ରବେଶ"
+      }
+    },
+    {
+      "locale": "pl",
+      "iosLocale": "pl",
+      "language": "Polish",
+      "group": {
+        "name": "iScoreboard Członkostwo"
+      },
+      "monthly": {
+        "name": "Miesięczne członkostwo",
+        "description": "Funkcje VIP. Automatyczna odnowa co miesiąc."
+      },
+      "yearly": {
+        "name": "Członkostwo roczne",
+        "description": "Funkcje VIP. Automatyczna odnowa co rok."
+      },
+      "lifetime": {
+        "name": "Członkostwo dożywotnie",
+        "description": "Jednorazowy zakup, dożywotni dostęp"
+      }
+    },
+    {
+      "locale": "pt-BR",
+      "iosLocale": "pt-BR",
+      "language": "Portuguese (Brazil)",
+      "group": {
+        "name": "iScoreboard Assinatura"
+      },
+      "monthly": {
+        "name": "Assinatura mensal VIP",
+        "description": "Recursos VIP. Renovação mensal automática."
+      },
+      "yearly": {
+        "name": "Assinatura anual VIP",
+        "description": "Recursos VIP. Renovação anual automática."
+      },
+      "lifetime": {
+        "name": "VIP vitalício",
+        "description": "Compra única, acesso vitalício"
+      }
+    },
+    {
+      "locale": "pt-PT",
+      "iosLocale": "pt-PT",
+      "language": "Portuguese (Portugal)",
+      "group": {
+        "name": "iScoreboard Plano VIP"
+      },
+      "monthly": {
+        "name": "Subscrição mensal VIP",
+        "description": "Funções VIP. Renovação mensal automática."
+      },
+      "yearly": {
+        "name": "Subscrição anual VIP",
+        "description": "Funções VIP. Renovação anual automática."
+      },
+      "lifetime": {
+        "name": "VIP vitalício",
+        "description": "Compra única, acesso vitalício"
+      }
+    },
+    {
+      "locale": "pa-IN",
+      "iosLocale": "pa",
+      "language": "Punjabi",
+      "group": {
+        "name": "iScoreboard ਮੈਂਬਰਸ਼ਿਪ"
+      },
+      "monthly": {
+        "name": "ਮਾਸਿਕ ਮੈਂਬਰਸ਼ਿਪ",
+        "description": "ਸਾਰੀਆਂ VIP ਸਹੂਲਤਾਂ। ਹਰ ਮਹੀਨੇ ਆਪੇ ਨਵੀਨੀਕਰਨ।"
+      },
+      "yearly": {
+        "name": "ਸਲਾਨਾ ਮੈਂਬਰਸ਼ਿਪ",
+        "description": "ਸਾਰੀਆਂ VIP ਸਹੂਲਤਾਂ। ਹਰ ਸਾਲ ਆਪੇ ਨਵੀਨੀਕਰਨ।"
+      },
+      "lifetime": {
+        "name": "ਲਾਈਫਟਾਈਮ ਮੈਂਬਰਸ਼ਿਪ",
+        "description": "ਇੱਕ ਵਾਰ ਦੀ ਖਰੀਦ, ਜੀਵਨ ਭਰ ਪਹੁੰਚ"
+      }
+    },
+    {
+      "locale": "ro",
+      "iosLocale": "ro",
+      "language": "Romanian",
+      "group": {
+        "name": "iScoreboard Abonament"
+      },
+      "monthly": {
+        "name": "Abonament lunar",
+        "description": "Funcții VIP. Reînnoire lunară automată."
+      },
+      "yearly": {
+        "name": "Abonament anual",
+        "description": "Funcții VIP. Reînnoire anuală automată."
+      },
+      "lifetime": {
+        "name": "Abonament pe viață",
+        "description": "Achiziție unică, acces pe viață"
+      }
+    },
+    {
+      "locale": "ru",
+      "iosLocale": "ru",
+      "language": "Russian",
+      "group": {
+        "name": "iScoreboard Подписка"
+      },
+      "monthly": {
+        "name": "Месячная подписка",
+        "description": "Все функции VIP. Автопродление каждый месяц."
+      },
+      "yearly": {
+        "name": "Годовая подписка",
+        "description": "Все функции VIP. Автопродление каждый год."
+      },
+      "lifetime": {
+        "name": "Бессрочный доступ",
+        "description": "Единоразовая покупка, пожизненный доступ."
+      }
+    },
+    {
+      "locale": "sk",
+      "iosLocale": "sk",
+      "language": "Slovak",
+      "group": {
+        "name": "iScoreboard Členstvo"
+      },
+      "monthly": {
+        "name": "Mesačné členstvo",
+        "description": "VIP funkcie. Automatická mesačná obnova."
+      },
+      "yearly": {
+        "name": "Ročné členstvo",
+        "description": "VIP funkcie. Automatická ročná obnova."
+      },
+      "lifetime": {
+        "name": "Doživotné členstvo",
+        "description": "Jednorazový nákup, doživotný prístup"
+      }
+    },
+    {
+      "locale": "sl-SI",
+      "iosLocale": "sl",
+      "language": "Slovenian",
+      "group": {
+        "name": "iScoreboard Članstvo"
+      },
+      "monthly": {
+        "name": "Mesečno članstvo",
+        "description": "Funkcije VIP. Samodejno mesečno podaljšanje."
+      },
+      "yearly": {
+        "name": "Letno članstvo",
+        "description": "Funkcije VIP. Samodejno letno podaljšanje."
+      },
+      "lifetime": {
+        "name": "Doživljenjsko članstvo",
+        "description": "Enkraten nakup, doživljenjski dostop"
+      }
+    },
+    {
+      "locale": "es-MX",
+      "iosLocale": "es-MX",
+      "language": "Spanish (Mexico)",
+      "group": {
+        "name": "iScoreboard Membresía"
+      },
+      "monthly": {
+        "name": "Membresía mensual VIP",
+        "description": "Funciones VIP. Renovación mensual automática."
+      },
+      "yearly": {
+        "name": "Membresía anual VIP",
+        "description": "Funciones VIP. Renovación anual automática."
+      },
+      "lifetime": {
+        "name": "VIP de por vida",
+        "description": "Compra única, acceso de por vida"
+      }
+    },
+    {
+      "locale": "es-ES",
+      "iosLocale": "es-ES",
+      "language": "Spanish (Spain)",
+      "group": {
+        "name": "iScoreboard Membresía"
+      },
+      "monthly": {
+        "name": "Suscripción mensual VIP",
+        "description": "Funciones VIP. Renovación mensual automática."
+      },
+      "yearly": {
+        "name": "Suscripción anual VIP",
+        "description": "Funciones VIP. Renovación anual automática."
+      },
+      "lifetime": {
+        "name": "VIP de por vida",
+        "description": "Compra única, acceso de por vida"
+      }
+    },
+    {
+      "locale": "sv",
+      "iosLocale": "sv",
+      "language": "Swedish",
+      "group": {
+        "name": "iScoreboard Medlemskap"
+      },
+      "monthly": {
+        "name": "Månadsmedlemskap",
+        "description": "VIP-funktioner. Automatisk månadsförnyelse."
+      },
+      "yearly": {
+        "name": "Årligt medlemskap",
+        "description": "VIP-funktioner. Automatisk årsförnyelse."
+      },
+      "lifetime": {
+        "name": "Livstidsmedlemskap",
+        "description": "Engångsköp, livstidsåtkomst"
+      }
+    },
+    {
+      "locale": "ta-IN",
+      "iosLocale": "ta",
+      "language": "Tamil",
+      "group": {
+        "name": "iScoreboard உறுப்பினர்"
+      },
+      "monthly": {
+        "name": "மாதாந்திர உறுப்பினர்",
+        "description": "VIP வசதிகள். மாதாந்திர தானியக்க புதுப்பிப்பு"
+      },
+      "yearly": {
+        "name": "ஆண்டு உறுப்பினர்",
+        "description": "VIP வசதிகள். வருடாந்திர தானியக்க புதுப்பிப்பு"
+      },
+      "lifetime": {
+        "name": "வாழ்நாள் உறுப்பினர்",
+        "description": "ஒரு முறை வாங்குதல், வாழ்நாள் அணுகல்"
+      }
+    },
+    {
+      "locale": "te-IN",
+      "iosLocale": "te",
+      "language": "Telugu",
+      "group": {
+        "name": "iScoreboard సభ్యత్వం"
+      },
+      "monthly": {
+        "name": "నెలవారీ సభ్యత్వం",
+        "description": "అన్ని VIP ఫీచర్లు. నెలవారీ స్వీయ పునరుద్ధరణ."
+      },
+      "yearly": {
+        "name": "వార్షిక సభ్యత్వం",
+        "description": "అన్ని VIP ఫీచర్లు. వార్షిక స్వీయ పునరుద్ధరణ."
+      },
+      "lifetime": {
+        "name": "జీవితకాల సభ్యత్వం",
+        "description": "ఒకసారి కొనుగోలు, జీవితకాల VIP యాక్సెస్"
+      }
+    },
+    {
+      "locale": "th",
+      "iosLocale": "th",
+      "language": "Thai",
+      "group": {
+        "name": "iScoreboard สมาชิก"
+      },
+      "monthly": {
+        "name": "สมาชิกรายเดือน",
+        "description": "ฟีเจอร์ VIP ทั้งหมด ต่ออายุอัตโนมัติรายเดือน"
+      },
+      "yearly": {
+        "name": "สมาชิกรายปี",
+        "description": "ฟีเจอร์ VIP ทั้งหมด ต่ออายุอัตโนมัติรายปี"
+      },
+      "lifetime": {
+        "name": "สมาชิกตลอดชีพ",
+        "description": "ซื้อครั้งเดียว เข้าถึงได้ตลอดชีพ"
+      }
+    },
+    {
+      "locale": "tr",
+      "iosLocale": "tr",
+      "language": "Turkish",
+      "group": {
+        "name": "iScoreboard Üyelik"
+      },
+      "monthly": {
+        "name": "Aylık Üyelik",
+        "description": "VIP özellikleri. Aylık otomatik yenileme."
+      },
+      "yearly": {
+        "name": "Yıllık Üyelik",
+        "description": "VIP özellikleri. Yıllık otomatik yenileme."
+      },
+      "lifetime": {
+        "name": "Ömür Boyu Üyelik",
+        "description": "Tek seferlik satın alma, ömür boyu erişim"
+      }
+    },
+    {
+      "locale": "uk",
+      "iosLocale": "uk",
+      "language": "Ukrainian",
+      "group": {
+        "name": "iScoreboard Членство"
+      },
+      "monthly": {
+        "name": "Щомісячне членство",
+        "description": "Усі функції VIP. Автопоновлення щомісяця."
+      },
+      "yearly": {
+        "name": "Річне членство",
+        "description": "Усі функції VIP. Автопоновлення щороку."
+      },
+      "lifetime": {
+        "name": "Довічне членство",
+        "description": "Одноразова покупка, довічний доступ"
+      }
+    },
+    {
+      "locale": "ur-PK",
+      "iosLocale": "ur",
+      "language": "Urdu",
+      "group": {
+        "name": "iScoreboard رکنیت"
+      },
+      "monthly": {
+        "name": "ماہانہ رکنیت",
+        "description": "تمام VIP خصوصیات۔ ماہانہ خودکار تجدید۔"
+      },
+      "yearly": {
+        "name": "سالانہ رکنیت",
+        "description": "تمام VIP خصوصیات۔ سالانہ خودکار تجدید۔"
+      },
+      "lifetime": {
+        "name": "تاحیات رکنیت",
+        "description": "ایک بار کی خریداری، تاحیات رسائی"
+      }
+    },
+    {
+      "locale": "vi",
+      "iosLocale": "vi",
+      "language": "Vietnamese",
+      "group": {
+        "name": "iScoreboard Tư cách thành viên"
+      },
+      "monthly": {
+        "name": "Gói tháng",
+        "description": "Tính năng VIP. Tự động gia hạn hằng tháng."
+      },
+      "yearly": {
+        "name": "Gói năm",
+        "description": "Tính năng VIP. Tự động gia hạn hằng năm."
+      },
+      "lifetime": {
+        "name": "Tư cách thành viên trọn đời",
+        "description": "Mua một lần, truy cập trọn đời"
+      }
+    }
+  ]
+}

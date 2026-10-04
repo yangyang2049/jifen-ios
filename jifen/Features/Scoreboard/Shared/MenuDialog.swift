@@ -28,6 +28,7 @@ struct ScoreboardMenuItem: Identifiable, Equatable {
     let action: String
     let group: ScoreboardMenuGroup
     var icon: String? = nil
+    var iconAsset: String? = nil
     var customText: String? = nil
     var customTextScale: CGFloat = 1
     var backgroundColor: Color? = nil
@@ -170,7 +171,7 @@ enum ScoreboardMenuItemBuilder {
                     title: NSLocalizedString("scoreboard_style_edit", value: "样式", comment: ""),
                     action: "displaySettings",
                     group: .tools,
-                    customText: "Aa"
+                    icon: "paintpalette"
                 )
             )
         }
@@ -191,7 +192,7 @@ enum ScoreboardMenuItemBuilder {
                 title: NSLocalizedString("scoreboard_usage_hint_menu", value: "使用说明", comment: ""),
                 action: "usageHint",
                 group: .tools,
-                customText: "?",
+                icon: "info.circle",
                 keepDialogOpen: true
             )
         )
@@ -246,7 +247,29 @@ struct MenuDialog: View {
     var resetConfirming: Bool = false
     var items: [ScoreboardMenuItem]? = nil
     var analyticsGameType: GameType? = nil
+    var voiceAnnouncementEnabled: Bool = false
+    @AppStorage("pingpongAnnounceServer") private var announceServer = true
+    @State private var showServePopup = false
+    @State private var servePopupRevision = 0
+    @State private var voiceCardCenterX: CGFloat = 0
     @State private var containerSize: CGSize = .zero
+
+    private var hasServeOption: Bool {
+        analyticsGameType == .pingpong && resolvedItems.contains { $0.action == "voiceAnnouncement" }
+    }
+
+    private var servePopupWidth: CGFloat { min(280, dialogWidth - 32) }
+    private var voiceAnchorOffset: CGFloat { voiceCardCenterX > 0 ? voiceCardCenterX - dialogWidth / 2 : 0 }
+    private var servePopupOffset: CGFloat {
+        let limit = max(0, (dialogWidth - servePopupWidth) / 2 - 16)
+        return min(limit, max(-limit, voiceAnchorOffset))
+    }
+
+    private func revealServePopup() {
+        guard hasServeOption, voiceAnnouncementEnabled else { return }
+        servePopupRevision += 1
+        showServePopup = true
+    }
 
     // Keep the operation menu opaque over the saturated score panels. A single
     // surface and subtle dividers read more clearly than three stacked grays.
@@ -358,6 +381,7 @@ struct MenuDialog: View {
                     }
                 }
                 .frame(width: dialogWidth)
+                .coordinateSpace(name: "scoreboard_menu")
                 // 高度完全 wrap_content：头部/底栏固定，中部网格由
                 // resolvedMatchSectionHeight 按行数撑开（上限 maxMatchSectionHeight
                 // 保证总高不超出屏幕）。不要用 frame(maxHeight:)——flexible frame
@@ -379,12 +403,17 @@ struct MenuDialog: View {
                 }
             }
             .onAppear {
+                revealServePopup()
                 var parameters: AnalyticsParameters = [.actionName: .string("menu_open")]
                 if let analyticsGameType {
                     parameters[.gameType] = .string(analyticsGameType.analyticsIdentifier)
                 }
                 AppAnalytics.track(.scoreboardAction, parameters: parameters)
             }
+            .onChange(of: voiceAnnouncementEnabled) { _, enabled in
+                if enabled { revealServePopup() } else { showServePopup = false }
+            }
+            .onDisappear { showServePopup = false }
             .onGeometryChange(for: CGSize.self) { proxy in
                 proxy.size
             } action: { size in
@@ -416,6 +445,23 @@ struct MenuDialog: View {
                     menuCard(item: item, size: .medium, stripItem: true)
                         .frame(maxWidth: .infinity)
                         .frame(height: syncCardHeight)
+                        .onGeometryChange(for: CGFloat.self) { proxy in
+                            proxy.frame(in: .named("scoreboard_menu")).midX
+                        } action: { center in
+                            if item.action == "voiceAnnouncement" { voiceCardCenterX = center }
+                        }
+                        .overlay(alignment: .trailing) {
+                            if hasServeOption, item.action == "voiceAnnouncement", voiceAnnouncementEnabled {
+                                Button(action: revealServePopup) {
+                                    Image(systemName: "chevron.down")
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundStyle(.white)
+                                        .frame(width: 24, height: 44)
+                                }
+                                .accessibilityLabel(NSLocalizedString("voice_announce_server", value: "Announce server", comment: ""))
+                                .accessibilityIdentifier("scoreboard_voice_options")
+                            }
+                        }
                 }
             }
             .frame(maxWidth: .infinity)
@@ -427,6 +473,36 @@ struct MenuDialog: View {
         .overlay(alignment: .bottom) {
             sectionDivider.frame(height: 1).allowsHitTesting(false)
         }
+        .overlay(alignment: .top) {
+            if showServePopup, voiceAnnouncementEnabled {
+                VStack(spacing: 0) {
+                    Image(systemName: "triangle.fill")
+                        .font(.system(size: 14))
+                        .foregroundStyle(cardBackground)
+                        .padding(.bottom, -3)
+                        .offset(x: voiceAnchorOffset - servePopupOffset)
+                    Toggle(NSLocalizedString("voice_announce_server", value: "Announce server", comment: ""), isOn: $announceServer)
+                        .font(.system(size: 15))
+                        .foregroundStyle(.white)
+                        .tint(Theme.primary)
+                        .padding(14)
+                        .background(cardBackground, in: RoundedRectangle(cornerRadius: 14))
+                        .accessibilityIdentifier("scoreboard_announce_server_toggle")
+                        .onChange(of: announceServer) { _, _ in
+                            ScoreVoiceAnnouncer.shared.stop()
+                            servePopupRevision += 1
+                        }
+                }
+                .frame(width: servePopupWidth)
+                .offset(x: servePopupOffset, y: topBarHeight - 4)
+                .shadow(color: .black.opacity(0.3), radius: 12, y: 4)
+                .task(id: servePopupRevision) {
+                    try? await Task.sleep(for: .seconds(5))
+                    if !Task.isCancelled { showServePopup = false }
+                }
+            }
+        }
+        .zIndex(1)
     }
 
     private func matchGrid(items: [ScoreboardMenuItem]) -> some View {
@@ -518,7 +594,14 @@ struct MenuDialog: View {
             }
         } label: {
             VStack(spacing: size == .large ? 7 : 4) {
-                if let customText = item.customText {
+                if let iconAsset = item.iconAsset {
+                    Image(iconAsset)
+                        .renderingMode(.original)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: iconSize(size), height: iconSize(size))
+                        .accessibilityHidden(true)
+                } else if let customText = item.customText {
                     Text(customText)
                         .font(.system(
                             size: customTextSize(size) * min(2, max(0.5, item.customTextScale)),
@@ -526,9 +609,16 @@ struct MenuDialog: View {
                         ))
                         .foregroundColor(.white)
                 } else if let icon = item.icon {
-                    Image(systemName: icon)
-                        .font(.system(size: iconSize(size), weight: .semibold))
-                        .foregroundColor(.white)
+                    Group {
+                        if icon == "pause" {
+                            ScoreboardMenuPauseIcon()
+                                .frame(width: iconSize(size), height: iconSize(size))
+                        } else {
+                            Image(systemName: icon)
+                                .font(.system(size: iconSize(size), weight: .semibold))
+                        }
+                    }
+                    .foregroundColor(.white)
                 }
 
                 Text(item.title)
@@ -622,6 +712,26 @@ struct MenuDialog: View {
         case .medium: return 18
         case .small: return 14
         }
+    }
+}
+
+private struct ScoreboardMenuPauseIcon: Shape {
+    func path(in rect: CGRect) -> Path {
+        let size = min(rect.width, rect.height)
+        let barWidth = size * 0.2
+        let barHeight = size * 0.62
+        let gap = size * 0.24
+        let cornerSize = CGSize(width: barWidth * 0.36, height: barWidth * 0.36)
+        let y = rect.midY - barHeight / 2
+        var path = Path()
+        for x in [rect.midX - gap / 2 - barWidth, rect.midX + gap / 2] {
+            path.addRoundedRect(
+                in: CGRect(x: x, y: y, width: barWidth, height: barHeight),
+                cornerSize: cornerSize,
+                style: .continuous
+            )
+        }
+        return path
     }
 }
 

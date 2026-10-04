@@ -1,0 +1,11 @@
+{
+  "passed": 5,
+  "networkCalls": 0,
+  "checks": [
+    "COMPLETE precedes checksum: waited for exact metadata",
+    "Permanent missing checksum: rejected after 60 seconds; sanitized diagnostics",
+    "Order alternates after first match: required consecutive matches",
+    "Final inventory is stale after reorder: waited for exact seven-image order",
+    "Permanent six-image set: rejected; no relaxed success"
+  ]
+}

@@ -1,0 +1,5042 @@
+[
+  {
+    "frameId": "lXGwB",
+    "id": "Xn2ht",
+    "frame": "en-US · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "NyUsi",
+    "id": "NIiJR",
+    "frame": "en-US · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "X2f7y",
+    "id": "HzQDO",
+    "frame": "en-US · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "T2gmN",
+    "id": "khXVt",
+    "frame": "en-US · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "QmQWE",
+    "id": "c4zfj",
+    "frame": "en-US · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "FN8Zl",
+    "id": "JoU4p",
+    "frame": "en-US · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "jnC4B",
+    "id": "Hvv6S",
+    "frame": "en-US · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "XRvY8",
+    "id": "dEFDJ",
+    "frame": "ja-JP · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 450
+    }
+  },
+  {
+    "frameId": "REQSc",
+    "id": "S7cRU2",
+    "frame": "ja-JP · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "nYETM",
+    "id": "HJpwr",
+    "frame": "ja-JP · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 88,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 202
+    }
+  },
+  {
+    "frameId": "w7BwU",
+    "id": "pNHJJ",
+    "frame": "ja-JP · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "nPUiI",
+    "id": "szx8Y",
+    "frame": "ja-JP · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "DdMYf",
+    "id": "SbP3h",
+    "frame": "ja-JP · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "Nmiom",
+    "id": "hd57O",
+    "frame": "ja-JP · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "hKe25",
+    "id": "ZWRh0",
+    "frame": "ru-RU · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "MJ5oB",
+    "id": "ynHo6",
+    "frame": "ru-RU · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 86,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 172
+    }
+  },
+  {
+    "frameId": "cKeNi",
+    "id": "w5DYa",
+    "frame": "ru-RU · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 74,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 148
+    }
+  },
+  {
+    "frameId": "QEKtn",
+    "id": "UjWCL",
+    "frame": "ru-RU · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "iDZtI",
+    "id": "PNg51",
+    "frame": "ru-RU · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "idr0K",
+    "id": "zRDCy",
+    "frame": "ru-RU · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 78,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 156
+    }
+  },
+  {
+    "frameId": "wUHTN",
+    "id": "wPD7U",
+    "frame": "ru-RU · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 80,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 160
+    }
+  },
+  {
+    "frameId": "xKMlp",
+    "id": "PPFvW",
+    "frame": "ar · 01",
+    "height": 520,
+    "lines": 2,
+    "fontSize": 130,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 300
+    }
+  },
+  {
+    "frameId": "w9QagP",
+    "id": "qiYrG",
+    "frame": "ar · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "L73fg",
+    "id": "m8J4J",
+    "frame": "ar · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "nXB6S",
+    "id": "f3Kup",
+    "frame": "ar · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "j614dm",
+    "id": "M8P6c",
+    "frame": "ar · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "BacVZ",
+    "id": "hUY0s",
+    "frame": "ar · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "Iat81",
+    "id": "XDd6K",
+    "frame": "ar · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "mxtt6",
+    "id": "Qkugx",
+    "frame": "ko-KR · 01",
+    "height": 520,
+    "lines": 2,
+    "fontSize": 130,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 300
+    }
+  },
+  {
+    "frameId": "sAI2i",
+    "id": "jz5Mt",
+    "frame": "ko-KR · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "D0Jkds",
+    "id": "LoJOD",
+    "frame": "ko-KR · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "wlnUn",
+    "id": "fpgZT",
+    "frame": "ko-KR · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "R13y5X",
+    "id": "WK9oo",
+    "frame": "ko-KR · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "P3J34",
+    "id": "KR6Iy",
+    "frame": "ko-KR · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "ko3PE",
+    "id": "hGAj3",
+    "frame": "ko-KR · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "wRyaD",
+    "id": "UptGW",
+    "frame": "de-DE · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "VnxLg",
+    "id": "jo8sB",
+    "frame": "de-DE · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "zXsym",
+    "id": "u0csj",
+    "frame": "de-DE · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 78,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 156
+    }
+  },
+  {
+    "frameId": "R8di9j",
+    "id": "FB3Nd",
+    "frame": "de-DE · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "LhCko",
+    "id": "nNfot",
+    "frame": "de-DE · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "iknum",
+    "id": "aYwTV",
+    "frame": "de-DE · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "D5QkNn",
+    "id": "yjKhF",
+    "frame": "de-DE · 07",
+    "height": 250,
+    "lines": 3,
+    "fontSize": 78,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 234
+    }
+  },
+  {
+    "frameId": "zTVMQ",
+    "id": "nypim",
+    "frame": "fr-FR · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "RLYQ2",
+    "id": "C4RDs",
+    "frame": "fr-FR · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "YyaZZ",
+    "id": "n2rdoz",
+    "frame": "fr-FR · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 82,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 164
+    }
+  },
+  {
+    "frameId": "IEe2C",
+    "id": "E0W3cm",
+    "frame": "fr-FR · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "Bizmz",
+    "id": "NiOXH",
+    "frame": "fr-FR · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 84,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 168
+    }
+  },
+  {
+    "frameId": "d08D9y",
+    "id": "RtSIN",
+    "frame": "fr-FR · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "GlPjZ",
+    "id": "KjvWy",
+    "frame": "fr-FR · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "ufwKR",
+    "id": "NWxjq",
+    "frame": "es-ES · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "xvIKm",
+    "id": "N9nu8i",
+    "frame": "es-ES · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "tlZa4",
+    "id": "YVjtB",
+    "frame": "es-ES · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 76,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 152
+    }
+  },
+  {
+    "frameId": "sg9Ei",
+    "id": "VyOdG",
+    "frame": "es-ES · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "F1GqN6",
+    "id": "SPafN",
+    "frame": "es-ES · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "bubRo",
+    "id": "twH8T",
+    "frame": "es-ES · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 84,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 168
+    }
+  },
+  {
+    "frameId": "ldotC",
+    "id": "vP1ru",
+    "frame": "es-ES · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 92,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 184
+    }
+  },
+  {
+    "frameId": "A3kMjV",
+    "id": "wg62X",
+    "frame": "pt-BR · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "cvr0E",
+    "id": "AIsiv",
+    "frame": "pt-BR · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 88,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 176
+    }
+  },
+  {
+    "frameId": "ipyeH",
+    "id": "XlMxT",
+    "frame": "pt-BR · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 74,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 148
+    }
+  },
+  {
+    "frameId": "vKbEA",
+    "id": "F41pC",
+    "frame": "pt-BR · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "gjlC3",
+    "id": "d0fs0C",
+    "frame": "pt-BR · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "BrVj4",
+    "id": "ZJydx",
+    "frame": "pt-BR · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 86,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 172
+    }
+  },
+  {
+    "frameId": "mKTeA",
+    "id": "oJnXm",
+    "frame": "pt-BR · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "cidRD",
+    "id": "x5PXWo",
+    "frame": "it-IT · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "AEFYL",
+    "id": "RJyTI",
+    "frame": "it-IT · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "xAMgC",
+    "id": "e32Tc",
+    "frame": "it-IT · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "d5TFt",
+    "id": "uNKMH",
+    "frame": "it-IT · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "GMvsw",
+    "id": "fefVS",
+    "frame": "it-IT · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 82,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 164
+    }
+  },
+  {
+    "frameId": "m4iSRx",
+    "id": "Z0wkx",
+    "frame": "it-IT · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 80,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 160
+    }
+  },
+  {
+    "frameId": "HXSF0",
+    "id": "qH1Xj",
+    "frame": "it-IT · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 88,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 176
+    }
+  },
+  {
+    "frameId": "cEltP",
+    "id": "P0o6I",
+    "frame": "hi-IN · 01",
+    "height": 520,
+    "lines": 2,
+    "fontSize": 116,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 266
+    }
+  },
+  {
+    "frameId": "iIX9C",
+    "id": "zzivo",
+    "frame": "hi-IN · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "drVUg",
+    "id": "wkW6O",
+    "frame": "hi-IN · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 94,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 216
+    }
+  },
+  {
+    "frameId": "W29pd",
+    "id": "Z18UZ",
+    "frame": "hi-IN · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "FeDOQ",
+    "id": "Y0LK9",
+    "frame": "hi-IN · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "gXTN9",
+    "id": "H8VLk",
+    "frame": "hi-IN · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "op82l",
+    "id": "H4opXj",
+    "frame": "hi-IN · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "jIWzK",
+    "id": "xKB2u",
+    "frame": "nl-NL · 01",
+    "height": 520,
+    "lines": 2,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 260
+    }
+  },
+  {
+    "frameId": "ZRffh",
+    "id": "ljqRu",
+    "frame": "nl-NL · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "kbNug",
+    "id": "rdg6F",
+    "frame": "nl-NL · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 70,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 140
+    }
+  },
+  {
+    "frameId": "f34gPq",
+    "id": "Y8rOu",
+    "frame": "nl-NL · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 86,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 172
+    }
+  },
+  {
+    "frameId": "Qbpid",
+    "id": "D8yKZ5",
+    "frame": "nl-NL · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "gWcrX",
+    "id": "l25wcv",
+    "frame": "nl-NL · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "fJCoV",
+    "id": "Bg09k",
+    "frame": "nl-NL · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 88,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 176
+    }
+  },
+  {
+    "frameId": "KPPH4",
+    "id": "pr0wy",
+    "frame": "tr-TR · 01",
+    "height": 520,
+    "lines": 2,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 260
+    }
+  },
+  {
+    "frameId": "bGlud",
+    "id": "biz5g",
+    "frame": "tr-TR · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "Cmpdk",
+    "id": "W5C2wg",
+    "frame": "tr-TR · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "Ggw5h",
+    "id": "qzOe3",
+    "frame": "tr-TR · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "TPBdo",
+    "id": "KXhXt",
+    "frame": "tr-TR · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "QtPJo",
+    "id": "p77QG",
+    "frame": "tr-TR · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 78,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 156
+    }
+  },
+  {
+    "frameId": "EsSDZ",
+    "id": "m4Zr8l",
+    "frame": "tr-TR · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "bEJfu",
+    "id": "wyzZB",
+    "frame": "id · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "mNs85",
+    "id": "e1IJn",
+    "frame": "id · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "RuxvO",
+    "id": "Squp2",
+    "frame": "id · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 90,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 180
+    }
+  },
+  {
+    "frameId": "LgYzm",
+    "id": "AmEcl",
+    "frame": "id · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 88,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 176
+    }
+  },
+  {
+    "frameId": "iz6tG",
+    "id": "UtdV2",
+    "frame": "id · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "tBzCz",
+    "id": "w8A6PC",
+    "frame": "id · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 78,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 156
+    }
+  },
+  {
+    "frameId": "sIad6",
+    "id": "weUod",
+    "frame": "id · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "wqfLY",
+    "id": "hNAPv",
+    "frame": "vi · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 98,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 294
+    }
+  },
+  {
+    "frameId": "V9wvbj",
+    "id": "AUVGF",
+    "frame": "vi · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 82,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 164
+    }
+  },
+  {
+    "frameId": "gGKaq",
+    "id": "NztQG",
+    "frame": "vi · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 76,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 152
+    }
+  },
+  {
+    "frameId": "osrPe",
+    "id": "xNlG7",
+    "frame": "vi · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "h6kGyl",
+    "id": "GmSoa",
+    "frame": "vi · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "m7dpEn",
+    "id": "jA2V5",
+    "frame": "vi · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 88,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 176
+    }
+  },
+  {
+    "frameId": "E1nqx",
+    "id": "XHqeH",
+    "frame": "vi · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "v8D1U",
+    "id": "MCJkr",
+    "frame": "th · 01",
+    "height": 520,
+    "lines": 2,
+    "fontSize": 124,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 286
+    }
+  },
+  {
+    "frameId": "BAKIB",
+    "id": "Ys30F",
+    "frame": "th · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "XoQ9K",
+    "id": "gSELJ",
+    "frame": "th · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 88,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 202
+    }
+  },
+  {
+    "frameId": "b2nOt",
+    "id": "CCe5Q",
+    "frame": "th · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "JG2t4",
+    "id": "s7xLp9",
+    "frame": "th · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "gMH2Z",
+    "id": "ZyacO",
+    "frame": "th · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "SC1up",
+    "id": "v2F2Jx",
+    "frame": "th · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "W0IrK",
+    "id": "E6U18i",
+    "frame": "bn-BD · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 450
+    }
+  },
+  {
+    "frameId": "xYvfx",
+    "id": "HC6kX",
+    "frame": "bn-BD · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "BcphG",
+    "id": "b4yVK",
+    "frame": "bn-BD · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "hI8EA",
+    "id": "IGbt2",
+    "frame": "bn-BD · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "r1qjZC",
+    "id": "lkYI6",
+    "frame": "bn-BD · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "r1LDB",
+    "id": "t2C95",
+    "frame": "bn-BD · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 88,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 202
+    }
+  },
+  {
+    "frameId": "cFyRI",
+    "id": "ZcNsh",
+    "frame": "bn-BD · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "y3cZ7f",
+    "id": "Blk7K",
+    "frame": "ca · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "d0W7m",
+    "id": "WRGPz",
+    "frame": "ca · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "VaQDO",
+    "id": "m96ot",
+    "frame": "ca · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 80,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 160
+    }
+  },
+  {
+    "frameId": "Sohpa",
+    "id": "hT8wX",
+    "frame": "ca · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "qUHEC",
+    "id": "ie8cC",
+    "frame": "ca · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 74,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 148
+    }
+  },
+  {
+    "frameId": "UA2mU",
+    "id": "noUTS",
+    "frame": "ca · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 92,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 184
+    }
+  },
+  {
+    "frameId": "c1lbb",
+    "id": "fQ1Ln",
+    "frame": "ca · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "Pbi6N",
+    "id": "ELZq1",
+    "frame": "cs-CZ · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "NxmoH",
+    "id": "d6l0QF",
+    "frame": "cs-CZ · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "ychtZ",
+    "id": "cwofH",
+    "frame": "cs-CZ · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 82,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 164
+    }
+  },
+  {
+    "frameId": "X2GwY0",
+    "id": "q1Cm7",
+    "frame": "cs-CZ · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 92,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 184
+    }
+  },
+  {
+    "frameId": "TE7iX",
+    "id": "xna1i",
+    "frame": "cs-CZ · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "g1zzZ",
+    "id": "Fbmv1",
+    "frame": "cs-CZ · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 94,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 188
+    }
+  },
+  {
+    "frameId": "q1tcI",
+    "id": "O6kxnn",
+    "frame": "cs-CZ · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 90,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 180
+    }
+  },
+  {
+    "frameId": "bxNFo",
+    "id": "FH0Uu",
+    "frame": "da-DK · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "yR7Fb",
+    "id": "g2ys3",
+    "frame": "da-DK · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "Qle2l",
+    "id": "gRnh4",
+    "frame": "da-DK · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 78,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 156
+    }
+  },
+  {
+    "frameId": "OSJMY",
+    "id": "FGAoA",
+    "frame": "da-DK · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "kuSsD",
+    "id": "auVCu",
+    "frame": "da-DK · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "caUjD",
+    "id": "ppm36",
+    "frame": "da-DK · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "esUoM",
+    "id": "gu8AJ",
+    "frame": "da-DK · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 92,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 184
+    }
+  },
+  {
+    "frameId": "CljSK",
+    "id": "Zroxw",
+    "frame": "el-GR · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "Z26iW",
+    "id": "BV0Jh",
+    "frame": "el-GR · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "C5mD5C",
+    "id": "p1jrk",
+    "frame": "el-GR · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 72,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 144
+    }
+  },
+  {
+    "frameId": "jx2x2",
+    "id": "SAUPT",
+    "frame": "el-GR · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "LkLDI",
+    "id": "Zg0fa",
+    "frame": "el-GR · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "GO5wP",
+    "id": "XNa6h",
+    "frame": "el-GR · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 84,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 168
+    }
+  },
+  {
+    "frameId": "aDuS6",
+    "id": "yxIN1",
+    "frame": "el-GR · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "f846zC",
+    "id": "VBNrF",
+    "frame": "en-AU · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "Fan0I",
+    "id": "mTQgi",
+    "frame": "en-AU · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "l7RZT",
+    "id": "e2cMOc",
+    "frame": "en-AU · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "xrpwA",
+    "id": "vX0pt",
+    "frame": "en-AU · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "F0fE9",
+    "id": "yXXzv",
+    "frame": "en-AU · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "V0zUd",
+    "id": "JLzqw",
+    "frame": "en-AU · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "C2FPr",
+    "id": "j9dVJg",
+    "frame": "en-AU · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "r3HyvN",
+    "id": "lWJpi",
+    "frame": "en-CA · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "dAQlo",
+    "id": "lNKCY",
+    "frame": "en-CA · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "urLjG",
+    "id": "Qsl7p",
+    "frame": "en-CA · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "ZyjGe",
+    "id": "sGAh9",
+    "frame": "en-CA · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "WRbZY",
+    "id": "UaCZR",
+    "frame": "en-CA · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "JElr7",
+    "id": "zsMI3",
+    "frame": "en-CA · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "J2LcN",
+    "id": "gaQZo",
+    "frame": "en-CA · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "dNo0u",
+    "id": "K05xA",
+    "frame": "en-GB · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "c4jg2x",
+    "id": "QS0qy",
+    "frame": "en-GB · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "KegIY",
+    "id": "mSpis",
+    "frame": "en-GB · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "UBGmE",
+    "id": "OOqpU",
+    "frame": "en-GB · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "DmLE4",
+    "id": "eR1Bi",
+    "frame": "en-GB · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "TC2jJ",
+    "id": "u406WB",
+    "frame": "en-GB · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "wu2V7",
+    "id": "Khxic",
+    "frame": "en-GB · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "zgU0o",
+    "id": "gfFNy",
+    "frame": "es-419 · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "EU9F7",
+    "id": "mBX2n",
+    "frame": "es-419 · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "rAUX6",
+    "id": "D7dZf",
+    "frame": "es-419 · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 76,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 152
+    }
+  },
+  {
+    "frameId": "Z5H28R",
+    "id": "pDruw",
+    "frame": "es-419 · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "Y84Ar",
+    "id": "Di1wt",
+    "frame": "es-419 · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "ksew5",
+    "id": "GX40q",
+    "frame": "es-419 · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 84,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 168
+    }
+  },
+  {
+    "frameId": "W5ESQ",
+    "id": "CYwiG",
+    "frame": "es-419 · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 92,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 184
+    }
+  },
+  {
+    "frameId": "V7pVI2",
+    "id": "Ze43m",
+    "frame": "fi-FI · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 126,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 378
+    }
+  },
+  {
+    "frameId": "T2MqsL",
+    "id": "c0OM3",
+    "frame": "fi-FI · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 86,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 172
+    }
+  },
+  {
+    "frameId": "l4UxtO",
+    "id": "X42mHB",
+    "frame": "fi-FI · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "o14vC",
+    "id": "i965c",
+    "frame": "fi-FI · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 92,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 184
+    }
+  },
+  {
+    "frameId": "I976YY",
+    "id": "A6Pacv",
+    "frame": "fi-FI · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "wUJ6a",
+    "id": "lcv2J",
+    "frame": "fi-FI · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "tXz1P",
+    "id": "qgx4F",
+    "frame": "fi-FI · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "H94cx3",
+    "id": "Fu30C",
+    "frame": "fr-CA · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "r0jxoo",
+    "id": "dn4mp",
+    "frame": "fr-CA · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "O3fPp",
+    "id": "z2umFD",
+    "frame": "fr-CA · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 78,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 156
+    }
+  },
+  {
+    "frameId": "I7dtu",
+    "id": "P8ZbJ",
+    "frame": "fr-CA · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "p3xA7k",
+    "id": "U98Q2j",
+    "frame": "fr-CA · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 84,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 168
+    }
+  },
+  {
+    "frameId": "RgD1D",
+    "id": "R4x7QO",
+    "frame": "fr-CA · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "N9YqI",
+    "id": "cXTxP",
+    "frame": "fr-CA · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "O7CF8",
+    "id": "v8p4C",
+    "frame": "gu · 01",
+    "height": 520,
+    "lines": 2,
+    "fontSize": 130,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 300
+    }
+  },
+  {
+    "frameId": "psqRI",
+    "id": "NfL1c",
+    "frame": "gu · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "CR0lp",
+    "id": "yLhwM",
+    "frame": "gu · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "kvp1U",
+    "id": "wsU9b",
+    "frame": "gu · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "H6G4o",
+    "id": "Dt76o",
+    "frame": "gu · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "LEVe3",
+    "id": "R1TLOg",
+    "frame": "gu · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "ZbSy2",
+    "id": "f5l3sN",
+    "frame": "gu · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "R2w5Ca",
+    "id": "ng8vV",
+    "frame": "iw-IL · 01",
+    "height": 520,
+    "lines": 2,
+    "fontSize": 130,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 300
+    }
+  },
+  {
+    "frameId": "lzWI0",
+    "id": "FKtSJ",
+    "frame": "iw-IL · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "nZI18",
+    "id": "rEEO2",
+    "frame": "iw-IL · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 94,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 216
+    }
+  },
+  {
+    "frameId": "P9m8P",
+    "id": "yoIb5",
+    "frame": "iw-IL · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "ps4fS",
+    "id": "xhTaW",
+    "frame": "iw-IL · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "H32WmJ",
+    "id": "rVhJx",
+    "frame": "iw-IL · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 84,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 194
+    }
+  },
+  {
+    "frameId": "rWSTW",
+    "id": "S67aB",
+    "frame": "iw-IL · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "y8vxcj",
+    "id": "xZleS",
+    "frame": "hr · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "TbMfz",
+    "id": "LrT7z",
+    "frame": "hr · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "G4faI3",
+    "id": "XaYJ5",
+    "frame": "hr · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 80,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 160
+    }
+  },
+  {
+    "frameId": "TMqxq",
+    "id": "dQpnh",
+    "frame": "hr · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "LCIR0",
+    "id": "ln593",
+    "frame": "hr · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "j7YYhh",
+    "id": "e7AYb",
+    "frame": "hr · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "Koycv",
+    "id": "O41MT",
+    "frame": "hr · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 92,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 184
+    }
+  },
+  {
+    "frameId": "g8D8T",
+    "id": "UQdjf",
+    "frame": "hu-HU · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "ce4Z9",
+    "id": "JPqEa",
+    "frame": "hu-HU · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "sMl27",
+    "id": "vOAZO",
+    "frame": "hu-HU · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 80,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 160
+    }
+  },
+  {
+    "frameId": "cCohg",
+    "id": "qMNvc",
+    "frame": "hu-HU · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "rkDS8",
+    "id": "TAyLL",
+    "frame": "hu-HU · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "L7QpOu",
+    "id": "EbkkD",
+    "frame": "hu-HU · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 84,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 168
+    }
+  },
+  {
+    "frameId": "zlWd9",
+    "id": "pno8z",
+    "frame": "hu-HU · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "MLvUY",
+    "id": "IYVU2",
+    "frame": "kn-IN · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 450
+    }
+  },
+  {
+    "frameId": "e2Cbg7",
+    "id": "z2KVsY",
+    "frame": "kn-IN · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "D5Jfcz",
+    "id": "lvX70",
+    "frame": "kn-IN · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 94,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 216
+    }
+  },
+  {
+    "frameId": "YFTQx",
+    "id": "morDy",
+    "frame": "kn-IN · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "Oy9j1",
+    "id": "eBZb5",
+    "frame": "kn-IN · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "lzHtr",
+    "id": "keoMk",
+    "frame": "kn-IN · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 88,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 202
+    }
+  },
+  {
+    "frameId": "UYJhd",
+    "id": "OSxXw",
+    "frame": "kn-IN · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "HhFDf",
+    "id": "g2rlts",
+    "frame": "ml-IN · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 330
+    }
+  },
+  {
+    "frameId": "M1h1hZ",
+    "id": "LGi8F",
+    "frame": "ml-IN · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 88,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 202
+    }
+  },
+  {
+    "frameId": "WtITW",
+    "id": "y1vn6",
+    "frame": "ml-IN · 03",
+    "height": 250,
+    "lines": 3,
+    "fontSize": 68,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 234
+    }
+  },
+  {
+    "frameId": "K0Z8qJ",
+    "id": "pbPfG",
+    "frame": "ml-IN · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 80,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 184
+    }
+  },
+  {
+    "frameId": "tzI4h",
+    "id": "w0Y79Y",
+    "frame": "ml-IN · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 80,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 184
+    }
+  },
+  {
+    "frameId": "FARZp",
+    "id": "BfEwK",
+    "frame": "ml-IN · 06",
+    "height": 250,
+    "lines": 3,
+    "fontSize": 68,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 234
+    }
+  },
+  {
+    "frameId": "V08S3",
+    "id": "Q7rxi",
+    "frame": "ml-IN · 07",
+    "height": 250,
+    "lines": 3,
+    "fontSize": 68,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 234
+    }
+  },
+  {
+    "frameId": "zQfc6",
+    "id": "dvmvp",
+    "frame": "mr-IN · 01",
+    "height": 520,
+    "lines": 2,
+    "fontSize": 118,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 272
+    }
+  },
+  {
+    "frameId": "Drv63",
+    "id": "GHpVv",
+    "frame": "mr-IN · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "CpqQr",
+    "id": "Qly2y",
+    "frame": "mr-IN · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "U3ISVf",
+    "id": "vDqEn",
+    "frame": "mr-IN · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "gKVTU",
+    "id": "OzCqQ",
+    "frame": "mr-IN · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "pFmOm",
+    "id": "V8wjjO",
+    "frame": "mr-IN · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "R4x9PW",
+    "id": "oHPuf",
+    "frame": "mr-IN · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "DBRDv",
+    "id": "H9IwS",
+    "frame": "ms-MY · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 118,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 354
+    }
+  },
+  {
+    "frameId": "YCQD7",
+    "id": "hekMK",
+    "frame": "ms-MY · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "l4zns",
+    "id": "aJMl3",
+    "frame": "ms-MY · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 88,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 176
+    }
+  },
+  {
+    "frameId": "hBoII",
+    "id": "IqBAv",
+    "frame": "ms-MY · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 94,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 188
+    }
+  },
+  {
+    "frameId": "VoJRS",
+    "id": "vANLi",
+    "frame": "ms-MY · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 82,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 164
+    }
+  },
+  {
+    "frameId": "vUqpW",
+    "id": "RmCWv",
+    "frame": "ms-MY · 06",
+    "height": 250,
+    "lines": 3,
+    "fontSize": 78,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 234
+    }
+  },
+  {
+    "frameId": "sN7GZ",
+    "id": "K12eBy",
+    "frame": "ms-MY · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "d1uun",
+    "id": "GC9Wq",
+    "frame": "no-NO · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "ggeoB",
+    "id": "ttoIZ",
+    "frame": "no-NO · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "OYLHQ",
+    "id": "D8uYTk",
+    "frame": "no-NO · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 92,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 184
+    }
+  },
+  {
+    "frameId": "z8LQd",
+    "id": "p4MqV",
+    "frame": "no-NO · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "n3izt",
+    "id": "YyeUG",
+    "frame": "no-NO · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "SIeyj",
+    "id": "dORb0",
+    "frame": "no-NO · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "O1yJtk",
+    "id": "c4gxIO",
+    "frame": "no-NO · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 94,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 188
+    }
+  },
+  {
+    "frameId": "u2F06",
+    "id": "JgQYx",
+    "frame": "unsupported-or-IN · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 450
+    }
+  },
+  {
+    "frameId": "UDgpY",
+    "id": "Vg0nz",
+    "frame": "unsupported-or-IN · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "pMeSt",
+    "id": "g7R0s",
+    "frame": "unsupported-or-IN · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "TrKRh",
+    "id": "mBwLR",
+    "frame": "unsupported-or-IN · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "vLXik",
+    "id": "T1l7qP",
+    "frame": "unsupported-or-IN · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "KyMgV",
+    "id": "Hx28k",
+    "frame": "unsupported-or-IN · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "p4Kql",
+    "id": "B9G9p",
+    "frame": "unsupported-or-IN · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "eQOAE",
+    "id": "r9kPth",
+    "frame": "pa · 01",
+    "height": 520,
+    "lines": 2,
+    "fontSize": 110,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 252
+    }
+  },
+  {
+    "frameId": "Nqxxj",
+    "id": "KVvSS",
+    "frame": "pa · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "w0qlM",
+    "id": "CK6Qa",
+    "frame": "pa · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "r4UF7K",
+    "id": "ZwA7B",
+    "frame": "pa · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "M7mEr9",
+    "id": "xNHpt",
+    "frame": "pa · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "jSoL4",
+    "id": "TJi8e",
+    "frame": "pa · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 88,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 202
+    }
+  },
+  {
+    "frameId": "r8fZ27",
+    "id": "SsMFM",
+    "frame": "pa · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "bZzuH",
+    "id": "wX4VC",
+    "frame": "pl-PL · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "PxHN8",
+    "id": "WhEVy",
+    "frame": "pl-PL · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 84,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 168
+    }
+  },
+  {
+    "frameId": "Fym2n",
+    "id": "Lxx1c",
+    "frame": "pl-PL · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 76,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 152
+    }
+  },
+  {
+    "frameId": "DiPTg",
+    "id": "v3ZNEm",
+    "frame": "pl-PL · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "m6x0C",
+    "id": "lIaGh",
+    "frame": "pl-PL · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "LQjc8",
+    "id": "gp7y5",
+    "frame": "pl-PL · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 94,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 188
+    }
+  },
+  {
+    "frameId": "ZEQjY",
+    "id": "aUepS",
+    "frame": "pl-PL · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "u2VR22",
+    "id": "KoPMf",
+    "frame": "pt-PT · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "JV5SS",
+    "id": "dNm9E",
+    "frame": "pt-PT · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "QzLUE",
+    "id": "C4rwP9",
+    "frame": "pt-PT · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 70,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 140
+    }
+  },
+  {
+    "frameId": "Cb53O",
+    "id": "cmvDZ",
+    "frame": "pt-PT · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "Wh3nn",
+    "id": "VwfU3",
+    "frame": "pt-PT · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 84,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 168
+    }
+  },
+  {
+    "frameId": "kKZoq",
+    "id": "wOm3d",
+    "frame": "pt-PT · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 86,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 172
+    }
+  },
+  {
+    "frameId": "bGh5I",
+    "id": "kOh5N",
+    "frame": "pt-PT · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "D5fNB",
+    "id": "lvFxU",
+    "frame": "ro · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 122,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 366
+    }
+  },
+  {
+    "frameId": "l37Z7",
+    "id": "jTrCJ",
+    "frame": "ro · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "w0S1G",
+    "id": "l2byiI",
+    "frame": "ro · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 68,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 136
+    }
+  },
+  {
+    "frameId": "paZrl",
+    "id": "ttA5E",
+    "frame": "ro · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "wiGjP",
+    "id": "KtD48",
+    "frame": "ro · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "c76Ahk",
+    "id": "a9SSp",
+    "frame": "ro · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "MA1UE",
+    "id": "oXy5f",
+    "frame": "ro · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "XKxWF",
+    "id": "O5w3BC",
+    "frame": "sk · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 126,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 378
+    }
+  },
+  {
+    "frameId": "MxgbD",
+    "id": "Gy96a",
+    "frame": "sk · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "LSza1",
+    "id": "Up0LA",
+    "frame": "sk · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 76,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 152
+    }
+  },
+  {
+    "frameId": "Z2y9d",
+    "id": "zLT4V",
+    "frame": "sk · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 94,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 188
+    }
+  },
+  {
+    "frameId": "LthkZ",
+    "id": "Ak7DB",
+    "frame": "sk · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "Pj0L4",
+    "id": "B8zNIG",
+    "frame": "sk · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "lVvWK",
+    "id": "SMmCw",
+    "frame": "sk · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 86,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 172
+    }
+  },
+  {
+    "frameId": "O1ynQ",
+    "id": "hvglk",
+    "frame": "sl · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "RdGUR",
+    "id": "Cx0CC",
+    "frame": "sl · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "ped5K",
+    "id": "nyBZA",
+    "frame": "sl · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 82,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 164
+    }
+  },
+  {
+    "frameId": "i2eNH",
+    "id": "pQas3",
+    "frame": "sl · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "INTtl",
+    "id": "H3VVLe",
+    "frame": "sl · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "KQU7O",
+    "id": "xfZm9",
+    "frame": "sl · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 90,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 180
+    }
+  },
+  {
+    "frameId": "a9KMO",
+    "id": "iaPqo",
+    "frame": "sl · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 94,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 188
+    }
+  },
+  {
+    "frameId": "mrZfY",
+    "id": "DddNU",
+    "frame": "sv-SE · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 390
+    }
+  },
+  {
+    "frameId": "y3NnaY",
+    "id": "bzqkd",
+    "frame": "sv-SE · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "YVmSW",
+    "id": "bYimI",
+    "frame": "sv-SE · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 92,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 184
+    }
+  },
+  {
+    "frameId": "beelH",
+    "id": "w9TL6V",
+    "frame": "sv-SE · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "o1Q3y1",
+    "id": "oM07x",
+    "frame": "sv-SE · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "d0jDAo",
+    "id": "J1prt",
+    "frame": "sv-SE · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "lTm7I",
+    "id": "n5br3I",
+    "frame": "sv-SE · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "WOHSH",
+    "id": "aR9nz",
+    "frame": "ta-IN · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 104,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 360
+    }
+  },
+  {
+    "frameId": "IAov9",
+    "id": "MZ5EF",
+    "frame": "ta-IN · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 68,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 156
+    }
+  },
+  {
+    "frameId": "YPJSI",
+    "id": "e4z0U",
+    "frame": "ta-IN · 03",
+    "height": 250,
+    "lines": 3,
+    "fontSize": 68,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 234
+    }
+  },
+  {
+    "frameId": "iFQGQ",
+    "id": "v79neN",
+    "frame": "ta-IN · 04",
+    "height": 250,
+    "lines": 3,
+    "fontSize": 68,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 234
+    }
+  },
+  {
+    "frameId": "jtL0x",
+    "id": "KmzNA",
+    "frame": "ta-IN · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 78,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 180
+    }
+  },
+  {
+    "frameId": "GnZmo",
+    "id": "e8suis",
+    "frame": "ta-IN · 06",
+    "height": 250,
+    "lines": 3,
+    "fontSize": 62,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 213
+    }
+  },
+  {
+    "frameId": "pAzka",
+    "id": "WspnU",
+    "frame": "ta-IN · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 72,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 166
+    }
+  },
+  {
+    "frameId": "KEst8",
+    "id": "F9ZHGF",
+    "frame": "te-IN · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 130,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 450
+    }
+  },
+  {
+    "frameId": "eL4Rr",
+    "id": "R4xeB",
+    "frame": "te-IN · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "gPph7",
+    "id": "XuIIx",
+    "frame": "te-IN · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "Rajaf",
+    "id": "Q5qOG9",
+    "frame": "te-IN · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "pfldY",
+    "id": "n41xjW",
+    "frame": "te-IN · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "jHrU1",
+    "id": "M33Awn",
+    "frame": "te-IN · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "u3kBh",
+    "id": "nz80r",
+    "frame": "te-IN · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "KhGFZ",
+    "id": "LHErB",
+    "frame": "uk · 01",
+    "height": 520,
+    "lines": 3,
+    "fontSize": 120,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 360
+    }
+  },
+  {
+    "frameId": "HKguP",
+    "id": "bQ7s8",
+    "frame": "uk · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 84,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 168
+    }
+  },
+  {
+    "frameId": "m9BvoY",
+    "id": "fJ9XV",
+    "frame": "uk · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 78,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 156
+    }
+  },
+  {
+    "frameId": "PfTFE",
+    "id": "K8Luaq",
+    "frame": "uk · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "Ecfir",
+    "id": "DPnQa",
+    "frame": "uk · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 192
+    }
+  },
+  {
+    "frameId": "UiYbo",
+    "id": "mxvly",
+    "frame": "uk · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 92,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 184
+    }
+  },
+  {
+    "frameId": "S9DbkR",
+    "id": "bVUsk",
+    "frame": "uk · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 80,
+    "lineHeight": 1,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 160
+    }
+  },
+  {
+    "frameId": "Acy4i",
+    "id": "WV5K8",
+    "frame": "ur · 01",
+    "height": 520,
+    "lines": 2,
+    "fontSize": 130,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 200,
+      "y": 690,
+      "width": 680,
+      "height": 300
+    }
+  },
+  {
+    "frameId": "GzEHi",
+    "id": "X8N1op",
+    "frame": "ur · 02",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "GFt7C",
+    "id": "dTGei",
+    "frame": "ur · 03",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 84,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 194
+    }
+  },
+  {
+    "frameId": "GCe7z",
+    "id": "v0U11u",
+    "frame": "ur · 04",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "pvQg2",
+    "id": "Q8K49a",
+    "frame": "ur · 05",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "I1H10",
+    "id": "L5JHza",
+    "frame": "ur · 06",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  },
+  {
+    "frameId": "vLcpF",
+    "id": "UIT6M",
+    "frame": "ur · 07",
+    "height": 250,
+    "lines": 2,
+    "fontSize": 96,
+    "lineHeight": 1.15,
+    "bounds": {
+      "x": 40,
+      "y": 172,
+      "width": 1000,
+      "height": 220
+    }
+  }
+]

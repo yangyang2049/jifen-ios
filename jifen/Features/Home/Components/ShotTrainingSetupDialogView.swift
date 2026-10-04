@@ -52,7 +52,7 @@ struct ShotTrainingSetupDialogView: View {
     var body: some View {
         AdaptiveSetupDialogLayout(maxHeight: maxDialogHeight) {
             HStack(spacing: 8) {
-                Text("🏀")
+                AppCatalogIcon(gameType: .basketballTraining, size: 17)
                 Text(NSLocalizedString("shot_training_setup_title", value: "投篮训练", comment: ""))
                     .font(.system(size: 20, weight: .medium))
                     .foregroundStyle(Theme.textPrimary)
@@ -94,7 +94,7 @@ struct ShotTrainingSetupDialogView: View {
             HStack(spacing: Theme.md) {
                 Button(action: { onCancel?() }) {
                     Text(NSLocalizedString("cancel", value: "取消", comment: ""))
-                        .foregroundStyle(Theme.textSecondary)
+                        .foregroundStyle(Theme.textPrimary)
                         .frame(width: 100, height: 44)
                         .background(Theme.dialogControlBackground, in: Capsule())
                         .contentShape(Capsule())

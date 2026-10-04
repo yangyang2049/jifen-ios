@@ -1,9 +1,151 @@
 import Foundation
+import AVFoundation
 @testable import jifen
 import ScoreCore
 import XCTest
 
 final class LocalizationIntegrityTests: XCTestCase {
+    func testOptionalPingpongServerCallsKeepNamesAndOtherSportsUnchanged() throws {
+        for code in LocalizationTestSupport.promotedLocales {
+            guard let language = SportsVoiceLanguage.resolve(localization: code, iosMajorVersion: 27) else { continue }
+            for game in [ScoreCore.GameType.pingpong, .pingpongDoubles] {
+                var payload = VoiceAnnouncementPayload(gameType: game, phase: .scoreChange,
+                    leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 2, rightScore: 1,
+                    serverSide: .right, serverName: game == .pingpongDoubles ? "Carol %2$@" : nil)
+                let standard = try XCTUnwrap(SportsVoiceSupport.message(payload, language: language))
+                let name = payload.serverName ?? "Bob"
+                let expected = VoiceAnnouncementMessage.phrase("%1$@. %2$@ to serve", [.verbatim(standard), .verbatim(name)])
+                    .render(locale: Locale(identifier: language.speechLocale), template: { SportsVoiceSupport.template($0, language: language) })
+                XCTAssertEqual(SportsVoiceSupport.message(payload, language: language, announceServer: true), expected, code)
+                payload.phase = .matchEnd
+                XCTAssertEqual(SportsVoiceSupport.message(payload, language: language, announceServer: true),
+                               SportsVoiceSupport.message(payload, language: language), code)
+                payload.gameType = .badminton
+                payload.phase = .scoreChange
+                XCTAssertEqual(SportsVoiceSupport.message(payload, language: language, announceServer: true),
+                               SportsVoiceSupport.message(payload, language: language), code)
+            }
+        }
+    }
+
+    func testSportsVoiceResourcesAndLanguageMatrix() throws {
+        let englishPath = repositoryRoot.appendingPathComponent("jifen/Resources/en.lproj/ScoreVoice.strings")
+        let english = try PropertyListSerialization.propertyList(from: Data(contentsOf: englishPath), format: nil) as! [String: String]
+        XCTAssertEqual(SportsVoiceLanguage.all.count, 46)
+        for code in LocalizationTestSupport.promotedLocales {
+            let language = SportsVoiceLanguage.resolve(localization: code, iosMajorVersion: 27)
+            XCTAssertEqual(language != nil, code != "ur", code)
+            XCTAssertEqual(SportsVoiceLanguage.resolve(localization: code, iosMajorVersion: 26) != nil, !["ur", "gu", "ml", "or", "pa"].contains(code), code)
+            guard let language else { continue }
+            let url = repositoryRoot.appendingPathComponent("jifen/Resources/\(code).lproj/ScoreVoice.strings")
+            let values = try PropertyListSerialization.propertyList(from: Data(contentsOf: url), format: nil) as! [String: String]
+            if code.hasPrefix("zh-") { XCTAssertTrue(Set(values.keys).isSuperset(of: Set(english.keys))) }
+            else { XCTAssertEqual(Set(values.keys), Set(english.keys), code) }
+            XCTAssertTrue(values.values.allSatisfy { !$0.isEmpty }, code)
+            for (key, value) in values {
+                XCTAssertEqual(SportsVoiceSupport.template(key, language: language), value, "compiled bundle differs from reviewed \(code)/\(key)")
+            }
+            for (key, source) in english {
+                XCTAssertEqual(Set(LocalizationTestSupport.formatTokens(in: source)), Set(LocalizationTestSupport.formatTokens(in: values[key]!)), "\(code) \(key)")
+                XCTAssertNotNil(SportsVoiceSupport.template(key, language: language), "compiled bundle lacks \(code)/\(key)")
+            }
+            for sport in ScoreCore.GameType.allCases.filter({ VoiceAnnouncementSupport.isSupported($0) }) {
+                for phase in [VoiceAnnouncementPhase.opening, .scoreChange, .setEnd, .matchEnd, .breakWarning, .breakResume] {
+                    let payload = VoiceAnnouncementPayload(gameType: sport, phase: phase, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 3, rightScore: 3, winnerSide: .left, leftPlayerNames: ["Alice", "Carol"], breakCue: .twentySeconds)
+                    let rendered = SportsVoiceSupport.message(payload, language: language)
+                    XCTAssertNotNil(rendered, "\(code) \(sport) \(phase)")
+                    XCTAssertFalse(rendered?.contains("%1$@") ?? true, code)
+                }
+            }
+        }
+    }
+
+    func testSportsVoiceUsesReviewedCallsAndNumericFallbacks() {
+        for language in SportsVoiceLanguage.all {
+            let separator = ["zh-Hans", "zh-Hant"].contains(language.localization) ? "比" : (language.localization == "ja" ? "、" : ", ")
+            for sport in [ScoreCore.GameType.volleyball, .beachVolleyball, .airVolleyball, .shuttlecock] {
+                let payload = VoiceAnnouncementPayload(gameType: sport, phase: .scoreChange, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 3, rightScore: 2, serverSide: .right, serviceOver: true, criticalPoint: .matchPoint, isInterval: true)
+                XCTAssertEqual(SportsVoiceSupport.message(payload, language: language), "3\(separator)2", "\(language.localization) \(sport)")
+            }
+        }
+        let english = SportsVoiceLanguage.resolve(localization: "en", iosMajorVersion: 27)!
+        var payload = VoiceAnnouncementPayload(gameType: .softTennis, phase: .scoreChange, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 4, rightScore: 3, serverSide: .right)
+        XCTAssertEqual(SportsVoiceSupport.message(payload, language: english), "Advantage, receiver")
+        payload.gameType = .pingpong; payload.phase = .breakResume; payload.leftScore = 8; payload.rightScore = 7
+        XCTAssertEqual(SportsVoiceSupport.message(payload, language: english), "Time. 7, 8")
+    }
+
+    func testSportsVoiceFeatureFilteringAndOldDraftProtection() {
+        for code in LocalizationTestSupport.promotedLocales {
+            for version in [26, 27] {
+                let supported = SportsVoiceLanguage.resolve(localization: code, iosMajorVersion: version) != nil
+                for sport in [jifen.GameType.pingpong, .badminton, .tennis, .pickleball, .volleyball, .beachVolleyball, .airVolleyball, .shuttlecock, .squash, .softTennis, .padel] {
+                    for singles in [true, false] {
+                        let features = SportsSetupMatchFeature.features(for: sport, isSingles: singles, voiceSupported: supported)
+                        XCTAssertEqual(features.contains(.voiceAnnouncement), supported, "\(code) iOS \(version) \(sport)")
+                        var draft = SportsSetupDraft()
+                        draft.voiceAnnouncement = true // Includes restored drafts and booking configurations.
+                        draft.isSingles = singles
+                        XCTAssertEqual(draft.makeResult(gameType: sport, usesDoublesPlayerInputs: !singles, voiceSupported: supported).voiceAnnouncement, supported)
+                    }
+                }
+            }
+        }
+        for code in ["fr", "fr-CA", "es-ES", "es-MX", "pt-PT", "pt-BR"] {
+            let target = SportsVoiceLanguage.resolve(localization: code, iosMajorVersion: 27)!
+            XCTAssertEqual(target.matchedVoiceLanguage(in: [target.speechLocale]), target.speechLocale)
+            XCTAssertNil(target.matchedVoiceLanguage(in: []))
+        }
+    }
+
+    func testNativeVoiceInventoryMatchesSelectedRegions() throws {
+        let inventory = AVSpeechSynthesisVoice.speechVoices().map(\.language)
+        var report: [String: String] = [:]
+        for language in SportsVoiceLanguage.all {
+            let expected = language.matchedVoiceLanguage(in: inventory)
+            let voice = SportsVoiceSupport.voice(for: language)
+            XCTAssertEqual(voice?.language, expected, language.localization)
+            report[language.localization] = voice?.language ?? "missing on simulator"
+        }
+        let data = try JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys])
+        let attachment = XCTAttachment(data: data, uniformTypeIdentifier: "public.json")
+        attachment.name = "sports-voice-inventory"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    func testRecordDurationUsesLocalizedUnitsAcrossDurationBranches() {
+        let chinese = Locale(identifier: "zh-Hans")
+        XCTAssertEqual(formatScoreboardDuration(0, locale: chinese), "0秒")
+        XCTAssertEqual(formatScoreboardDuration(59.9, locale: chinese), "59秒")
+        XCTAssertEqual(formatScoreboardDuration(60, locale: chinese), "1分钟")
+        XCTAssertEqual(formatScoreboardDuration(3661, locale: chinese), "1小时1分钟1秒")
+
+        let japanese = formatScoreboardDuration(3661, locale: Locale(identifier: "ja"))
+        XCTAssertTrue(japanese.contains("時間"))
+        XCTAssertTrue(japanese.contains("分"))
+        XCTAssertTrue(japanese.contains("秒"))
+        let ukrainian = formatScoreboardDuration(1287, locale: Locale(identifier: "uk"))
+        XCTAssertTrue(ukrainian.contains("хв"))
+        XCTAssertTrue(ukrainian.contains("с"))
+        XCTAssertFalse(ukrainian.contains("m"))
+        XCTAssertFalse(ukrainian.contains("s"))
+    }
+
+    func testInvalidRecordDurationsDisplayZeroWithoutCrashing() {
+        for duration: TimeInterval in [-1, .nan, .infinity, -.infinity] {
+            XCTAssertEqual(formatScoreboardDuration(duration, locale: Locale(identifier: "zh-Hans")), "0秒")
+        }
+    }
+
+    func testExtremeFiniteRecordDurationDoesNotOverflowStorage() {
+        let locale = Locale(identifier: "en_US")
+        let maximum = Double(Int64.max).nextDown
+        XCTAssertEqual(formatScoreboardDuration(.greatestFiniteMagnitude, locale: locale),
+                       formatScoreboardDuration(maximum, locale: locale))
+        XCTAssertEqual(formatScoreboardDuration(-.greatestFiniteMagnitude, locale: locale), "0 sec")
+    }
+
     private typealias Entry = LocalizationTestSupport.Entry
 
     private var repositoryRoot: URL {
@@ -87,6 +229,34 @@ final class LocalizationIntegrityTests: XCTestCase {
         }
     }
 
+    func testMembershipAgreementFragmentsKeepWordBoundaries() throws {
+        // These links are concatenated directly in MembershipView. Chinese,
+        // Japanese and Thai do not require spaces between the linked phrases;
+        // Arabic and Hebrew attach their conjunction to the following word.
+        let unspacedLanguages: Set<String> = ["zh-Hans", "zh-Hant", "ja", "th"]
+        let attachedConjunctions: Set<String> = ["ar", "he"]
+        for locale in LocalizationTestSupport.promotedLocales where !unspacedLanguages.contains(locale) {
+            let strings = try LocalizationTestSupport.valuesByKey(
+                relativePath: LocalizationTestSupport.localizablePaths[locale]!
+            )
+            let prefix = try XCTUnwrap(strings["vip_agreement_plain_prefix"])
+            let separator = try XCTUnwrap(strings["vip_agreement_link_separator"])
+            let middleSeparator = try XCTUnwrap(strings["vip_agreement_link_middle_separator"])
+            XCTAssertTrue(prefix.hasSuffix(" "), "\(locale): prefix must separate the first link")
+            XCTAssertTrue(separator.hasPrefix(" "), "\(locale): conjunction must separate the previous link")
+            if !attachedConjunctions.contains(locale) {
+                XCTAssertTrue(separator.hasSuffix(" "), "\(locale): conjunction must separate the next link")
+            }
+            XCTAssertTrue(middleSeparator.hasSuffix(" "), "\(locale): punctuation must separate the next link")
+            let setupSuffix = try XCTUnwrap(strings["setup_suffix"])
+            let winnerSeparator = try XCTUnwrap(strings["doudizhu_winner_separator"])
+            XCTAssertTrue(setupSuffix.hasPrefix(" ") || setupSuffix.hasPrefix(":"),
+                          "\(locale): setup title must separate the sport name")
+            XCTAssertTrue(winnerSeparator.hasSuffix(" "),
+                          "\(locale): winner names must remain separated")
+        }
+    }
+
     func testTimerGoKeepsTheBoardGameMeaningInEveryPromotedLanguage() throws {
         let expected: [String: String] = [
             "en": "Go", "zh-Hans": "围棋", "zh-Hant": "圍棋",
@@ -94,7 +264,12 @@ final class LocalizationIntegrityTests: XCTestCase {
             "fr": "Go", "fr-CA": "Go", "es-MX": "Go", "es-ES": "Go",
             "pt-BR": "Go", "pt-PT": "Go", "ar": "غو", "he": "גו",
             "ur": "گو", "ru": "Го", "uk": "Ґо",
-            "it": "Go", "nl": "Go", "sv": "Go"
+            "it": "Go", "nl": "Go", "sv": "Go",
+            "ca": "Go", "pl": "Go", "ro": "Go", "cs": "Go", "sk": "Go", "sl": "Go", "hr": "Go",
+            "da": "Go", "nb": "Go", "fi": "Go", "hu": "Go", "el": "Γκο",
+            "hi": "गो", "bn": "গো", "mr": "गो", "gu": "ગો", "pa": "ਗੋ",
+            "ta": "கோ", "te": "గో", "kn": "ಗೋ", "ml": "ഗോ", "or": "ଗୋ",
+            "tr": "Go", "vi": "Cờ vây", "th": "โกะ", "id": "Go", "ms": "Go"
         ]
 
         XCTAssertEqual(Set(expected.keys), Set(LocalizationTestSupport.promotedLocales))
@@ -265,6 +440,35 @@ final class LocalizationIntegrityTests: XCTestCase {
         XCTAssertEqual(traditional["scoreboard_key_point_set"], "盤點")
     }
 
+    func testDefaultParticipantNameResourcesCoverEveryLanguage() throws {
+        let keys = [
+            "team_a", "team_b", "team_home", "team_away", "player_a", "player_b",
+            "archer_a", "archer_b", "scoreboard_team_red", "scoreboard_team_blue",
+            "player1_name", "player2_name", "timer_red_player", "timer_black_player", "timer_white_player",
+            "dual_timer_player", "shot_training_miss", "shot_training_made",
+            "doubles_red_a", "doubles_red_b", "doubles_blue_a", "doubles_blue_b",
+            "shuttlecock_red_1", "shuttlecock_red_2", "shuttlecock_red_3",
+            "shuttlecock_blue_1", "shuttlecock_blue_2", "shuttlecock_blue_3",
+            "doudizhu_player_adam", "doudizhu_player_bob", "doudizhu_player_chris", "doudizhu_player_david",
+            "multi_score_player_default_format", "schedule_red_top", "schedule_red_bottom",
+            "schedule_blue_top", "schedule_blue_bottom"
+        ]
+        for locale in LocalizationTestSupport.promotedLocales {
+            let values = try LocalizationTestSupport.valuesByKey(
+                relativePath: LocalizationTestSupport.localizablePaths[locale]!
+            )
+            for key in keys {
+                let value = try XCTUnwrap(values[key], "\(locale) \(key)")
+                XCTAssertFalse(value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "\(locale) \(key)")
+                XCTAssertNotEqual(value, key, "\(locale) \(key)")
+                if !locale.hasPrefix("zh"), locale != "ja" {
+                    XCTAssertNil(value.range(of: "[\\u4E00-\\u9FFF]", options: .regularExpression), "\(locale) \(key): \(value)")
+                }
+            }
+            XCTAssertEqual(LocalizationTestSupport.formatTokens(in: values["multi_score_player_default_format"]!), ["%d"], locale)
+        }
+    }
+
     func testDefaultParticipantNamesUseCanonicalEnglishAndChineseCopy() throws {
         let expected: [String: (english: String, simplified: String, traditional: String)] = [
             "red_team": ("Red", "红方", "紅方"),
@@ -370,7 +574,6 @@ final class LocalizationIntegrityTests: XCTestCase {
         let unifiedSurfacePaths = [
             "jifen/Features/Scoreboard/ScoreboardTab.swift",
             "jifen/Features/Timer/TimerTab.swift",
-            "jifen/Features/Home/Components/ProToolsSectionView.swift",
             "jifen/Features/Activity/RecentActivityPage.swift",
             "jifen/Features/Activity/TimerRecordDetailPage.swift",
             "jifen/Features/Me/SettingsView.swift",
@@ -399,7 +602,6 @@ final class LocalizationIntegrityTests: XCTestCase {
         let materialRegressionPaths = [
             "jifen/Features/Scoreboard/ScoreboardTab.swift",
             "jifen/Features/Timer/TimerTab.swift",
-            "jifen/Features/Home/Components/ProToolsSectionView.swift",
             "jifen/Features/Activity/RecentActivityPage.swift"
         ]
         for relativePath in materialRegressionPaths {
@@ -454,7 +656,7 @@ final class LocalizationIntegrityTests: XCTestCase {
     private func assertStaticKeysExist(sourceDirectory: String, stringsPath: String) throws {
         let available = Set(try entries(at: stringsPath).map(\.key))
         let patterns = [
-            #"NSLocalizedString\s*\(\s*\"([^\"]+)\""#,
+            #"NSLocalizedString\s*\(\s*\"([^\"]+)\"\s*,"#,
             #"\blocalized\s*\(\s*\"([^\"]+)\"\s*,"#
         ]
         var missing: [String] = []

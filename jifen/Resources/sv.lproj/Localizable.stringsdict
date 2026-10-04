@@ -205,9 +205,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d timme innan</string>
+			<string>%d tim innan</string>
 			<key>other</key>
-			<string>%d timmar innan</string>
+			<string>%d tim innan</string>
 		</dict>
 	</dict>
 	<key>schedule_reminder_minutes_before</key>
@@ -221,9 +221,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d minut innan</string>
+			<string>%d min innan</string>
 			<key>other</key>
-			<string>%d minuter innan</string>
+			<string>%d min innan</string>
 		</dict>
 	</dict>
 	<key>schedule_participants_limit</key>

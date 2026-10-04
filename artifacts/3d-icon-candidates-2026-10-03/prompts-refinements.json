@@ -1,0 +1,23 @@
+{
+  "tool": "built-in image_gen",
+  "records": [
+    {
+      "id": "dice-a",
+      "prompt": "Use case: precise-object-edit. Edit target: the supplied single dice PNG. Correct ONLY the dice face pips: keep the front face exactly FIVE pips arranged four corners plus center, replace the top face's two pips with exactly ONE centered black recessed pip, keep the right face exactly THREE pips in a diagonal. These three adjacent faces must be 5, 1, 3 so the object can be a real standard die. Keep the entire cube shape, angle, size, position, ivory-white finely textured satin plastic, round edges, lighting, shadows within object and style unchanged. Preserve the genuinely transparent RGBA background. Clean the object alpha edge of any colored fringe, tiny stray dots or white halo. No new objects, text, floor, cast shadow, background or watermark.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-ad3de74a-0828-4a87-b119-a67ac3ea0a79.png",
+      "reference": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-d58adc25-e7dd-4b3c-8d2c-43a90df643b8.png"
+    },
+    {
+      "id": "foosball-a",
+      "prompt": "Use case: precise-object-edit. Edit target is the supplied close-up 3D foosball icon. Change ONLY the red player figurine to exactly the SAME royal blue color as the existing blue player, so TWO SAME-TEAM BLUE FIGURINES are mounted on the one metal rod. A real foosball rod must carry players from one team, never different teams on the same rod. Keep everything else exactly unchanged: both figure shapes, round heads, rectangular striking feet, positions, single silver rod through torsos, single black handle on the RIGHT only, plain bare rod end on LEFT, small white ball, camera, subtle grainy satin material, soft upper-left light. Genuine transparent RGBA background, clean antialiased alpha edges, no colored fringe or white halos. No table, extra rods, extra players, text, floor, podium or watermark.",
+      "reference": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/foosball-a.png",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-b099c1b2-7ab0-4752-9cf5-1d7b90fe7016.png"
+    },
+    {
+      "id": "foosball-b",
+      "prompt": "Use case: precise-object-edit. Edit target is this 3D miniature foosball table icon. Correct ONLY the control rod handles. There are FOUR parallel rods, from nearest row to farthest row: BLUE, RED, BLUE, RED. Preserve all current same-team player colors and all figures. Every single rod must have exactly ONE black rubber handle at one end, and a short plain bare silver metal end on its other side. Blue team handles are all on the LEFT long side of the table; RED team handles all on the RIGHT long side. Thus nearest BLUE row: LEFT handle, RIGHT bare metal end; next RED row: LEFT bare end, RIGHT handle; next BLUE row: LEFT handle, RIGHT bare end; farthest RED row: LEFT bare end, RIGHT handle. Exactly four handles total. Remove extra handles and replace by plain slim silver rod end. Keep wood body, green field, white markings, legs, ball, perspective, composition, grainy satin real-object material and soft upper-left lighting exactly unchanged. Preserve genuinely transparent RGBA background and clean edges. No labels, scene, ground, base, watermark or new objects.",
+      "reference": "/Users/yangyang/.codex/generated_images/01a0fd6b-5620-7b90-b9d3-743f3c66681b/exec-b506a2e0-c642-4187-99df-3cf25c867fe1.png",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-82a5a02c-f0e1-4fc5-bbf2-1c17966e0005.png"
+    }
+  ]
+}

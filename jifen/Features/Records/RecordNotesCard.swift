@@ -728,6 +728,7 @@ private struct VoiceNoteEntryView: View {
                 .foregroundStyle(isPlaying ? Theme.textPrimary : Theme.textSecondary)
             Menu {
                 Button(NSLocalizedString("record_note_voice_rerecord", value: "重新录制", comment: ""), action: onRequestVoice)
+                    .disabled(isRecordingBlocked)
                 Button(NSLocalizedString("delete", value: "删除", comment: ""), role: .destructive, action: onDeleteVoice)
             } label: {
                 Image(systemName: "ellipsis")

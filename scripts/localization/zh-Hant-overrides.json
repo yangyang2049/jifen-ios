@@ -384,15 +384,75 @@
     "date": "2026-09-19"
   },
   "faq_answer_5": {
-    "value": "要把比分顯示在另一台手機或平板上：在顯示端進入「同步比分 → 加入比賽」，按頁面提示產生短碼/QR Code；主控端進入比賽後連線，比分會同步到顯示端。兩端需保持網路穩定，盡量不要鎖屏或切到背景；若同步卡住，請雙方退出後重新連線。\n\n要把計分板投影到電視或大螢幕：請使用手機系統的無線投影（Miracast）。從系統控制中心開啟無線投影並連線電視，應用偵測到已連線的螢幕後，計分板會自動顯示到大螢幕。應用依賴系統投影能力，不會自己搜尋電視；在系統中斷開投影，本次投影也會結束。不同品牌可能將無線投影稱為「無線顯示」或「多螢互動」，請先在系統中完成連線。",
-    "note": "reviewed: 保留 Miracast/一臺 原文（Miracast 为三语共同遗留文案，另开修复项）",
-    "reviewer": "yy",
-    "date": "2026-09-19"
+    "value": "兩台裝置配合使用：分享端負責計分，顯示端全螢幕展示比分。 分享端: 登入並開始同步，產生 6 位短碼。 顯示端: 登入並輸入分享端提供的 6 位短碼。 進入計分項目開始計分，比分會自動同步。\n\n建議優先使用系統「螢幕鏡像」（AirPlay）。連線成功並被檢測到後，計分板會自動顯示到大屏。 從控制中心開啟「螢幕鏡像」（AirPlay）。 請先在系統裡完成 AirPlay 連線；App 一次只能使用一塊已連線的螢幕，不能直接搜索電視或投影機。斷開 AirPlay 後，本次投影也會結束。",
+    "note": "2026-09-30: 按 iOS AirPlay 投屏和常用资料同步实际能力修正 FAQ",
+    "reviewer": "codex",
+    "date": "2026-09-30"
   },
   "sync_intro_overview": {
     "value": "兩台裝置配合使用：分享端負責計分，顯示端全螢幕展示比分。",
     "note": "reviewed: 保留 Miracast/一臺 原文（Miracast 为三语共同遗留文案，另开修复项）",
     "reviewer": "yy",
     "date": "2026-09-19"
+  },
+  "faq_answer_10": {
+    "value": "登入後，常用的隊伍、選手名稱和地點可在不同裝置間同步。更換手機時，使用同一帳號登入即可取得這些常用資料。比賽記錄、計時記錄和未完成的比賽儲存在目前裝置，暫不支援這些記錄的雲端備份和恢復。",
+    "note": "2026-09-30: 按 iOS AirPlay 投屏和常用资料同步实际能力修正 FAQ",
+    "reviewer": "codex",
+    "date": "2026-09-30"
+  },
+  "faq_answer_11": {
+    "value": "《隱私政策》說明了資料的用途與範圍。錄製語音筆記需要使用麥克風。掃描受信任的計分器登入二維碼、拍照設定頭像時需要使用相機。",
+    "note": "FAQ 相机用途包括扫描登录和拍摄头像",
+    "reviewer": "codex",
+    "date": "2026-09-30"
+  },
+  "voice_announce_server": {
+    "value": "播報發球方",
+    "note": "Preserve the reviewed server-announcement label in generator reruns.",
+    "reviewer": "codex",
+    "date": "2026-10-04"
+  },
+  "scoreboard_official_break_help_intro": {
+    "value": "開啟後，以下項目會按規則自動顯示官方休息倒計時：",
+    "note": "Split from the existing reviewed official-break help text.",
+    "reviewer": "Codex",
+    "date": "2026-10-04"
+  },
+  "scoreboard_official_break_rule_between_games_60": {
+    "value": "局間60秒",
+    "note": "Split from the existing reviewed official-break help text.",
+    "reviewer": "Codex",
+    "date": "2026-10-04"
+  },
+  "scoreboard_official_break_rule_badminton": {
+    "value": "局中60秒、局間120秒",
+    "note": "Split from the existing reviewed official-break help text.",
+    "reviewer": "Codex",
+    "date": "2026-10-04"
+  },
+  "scoreboard_official_break_rule_squash": {
+    "value": "局間90秒",
+    "note": "Split from the existing reviewed official-break help text.",
+    "reviewer": "Codex",
+    "date": "2026-10-04"
+  },
+  "scoreboard_official_break_rule_tennis": {
+    "value": "換邊90秒、盤間120秒",
+    "note": "Split from the existing reviewed official-break help text.",
+    "reviewer": "Codex",
+    "date": "2026-10-04"
+  },
+  "scoreboard_official_break_rule_soft_tennis": {
+    "value": "換邊60秒",
+    "note": "Split from the existing reviewed official-break help text.",
+    "reviewer": "Codex",
+    "date": "2026-10-04"
+  },
+  "scoreboard_official_break_rule_pickleball": {
+    "value": "決勝局局中60秒、局間120秒",
+    "note": "Split from the existing reviewed official-break help text.",
+    "reviewer": "Codex",
+    "date": "2026-10-04"
   }
 }

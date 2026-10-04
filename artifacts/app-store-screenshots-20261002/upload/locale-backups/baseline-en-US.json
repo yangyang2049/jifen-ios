@@ -1,0 +1,126 @@
+{
+  "locale": "en-US",
+  "versionId": "a118dc62-4303-4c03-ae92-b358c60438d5",
+  "localizationId": "7311b82f-a2d7-4248-abc7-1a365f69182a",
+  "screenshots": [
+    {
+      "id": "d00157ba-127e-49f0-9bd1-deaad724dd0d",
+      "type": "appScreenshots",
+      "attributes": {
+        "fileName": "appstore-en01.png",
+        "fileSize": 1619637,
+        "sourceFileChecksum": "fb63fff2472e0e58e93e011a35b2816a",
+        "assetDeliveryState": {
+          "state": "COMPLETE",
+          "errorCodes": []
+        },
+        "imageAsset": {
+          "width": 1284,
+          "height": 2778
+        }
+      }
+    },
+    {
+      "id": "5bbbe2b9-2c1a-4011-bc7e-acb50d29c8f8",
+      "type": "appScreenshots",
+      "attributes": {
+        "fileName": "appstore-en2.png",
+        "fileSize": 56595,
+        "sourceFileChecksum": "e92e35d5c4495131f09fc152724078fb",
+        "assetDeliveryState": {
+          "state": "COMPLETE",
+          "errorCodes": []
+        },
+        "imageAsset": {
+          "width": 1284,
+          "height": 2778
+        }
+      }
+    },
+    {
+      "id": "fdaa3c7a-b7f0-4894-ad32-13bd11103cbb",
+      "type": "appScreenshots",
+      "attributes": {
+        "fileName": "appstore-en3.png",
+        "fileSize": 62034,
+        "sourceFileChecksum": "f1dbb358a38a1b0b557e199be11698d3",
+        "assetDeliveryState": {
+          "state": "COMPLETE",
+          "errorCodes": []
+        },
+        "imageAsset": {
+          "width": 1284,
+          "height": 2778
+        }
+      }
+    },
+    {
+      "id": "f6801b63-78a9-41d1-a288-742d6b1f7864",
+      "type": "appScreenshots",
+      "attributes": {
+        "fileName": "appstore-en4.png",
+        "fileSize": 335262,
+        "sourceFileChecksum": "2f497956ca020b97c13f111e36e6f20d",
+        "assetDeliveryState": {
+          "state": "COMPLETE",
+          "errorCodes": []
+        },
+        "imageAsset": {
+          "width": 1284,
+          "height": 2778
+        }
+      }
+    },
+    {
+      "id": "3eb24b13-7e7b-4c87-9eec-e6fc5c81043c",
+      "type": "appScreenshots",
+      "attributes": {
+        "fileName": "appstore-en5.png",
+        "fileSize": 541136,
+        "sourceFileChecksum": "60ba025655ea9da1663f6580259c9595",
+        "assetDeliveryState": {
+          "state": "COMPLETE",
+          "errorCodes": []
+        },
+        "imageAsset": {
+          "width": 1284,
+          "height": 2778
+        }
+      }
+    },
+    {
+      "id": "2f0f1cff-6b82-4a8b-bda4-2cd8075ef8b0",
+      "type": "appScreenshots",
+      "attributes": {
+        "fileName": "appstore-en6.png",
+        "fileSize": 392801,
+        "sourceFileChecksum": "e6f5347c3525385abffd907d8b215c8f",
+        "assetDeliveryState": {
+          "state": "COMPLETE",
+          "errorCodes": []
+        },
+        "imageAsset": {
+          "width": 1284,
+          "height": 2778
+        }
+      }
+    },
+    {
+      "id": "a92d7310-15e9-41d6-93b8-a72a7eb53ce6",
+      "type": "appScreenshots",
+      "attributes": {
+        "fileName": "appstore-en7.png",
+        "fileSize": 577176,
+        "sourceFileChecksum": "b6946aa5e03473f8be19687354c632d0",
+        "assetDeliveryState": {
+          "state": "COMPLETE",
+          "errorCodes": []
+        },
+        "imageAsset": {
+          "width": 1284,
+          "height": 2778
+        }
+      }
+    }
+  ]
+}

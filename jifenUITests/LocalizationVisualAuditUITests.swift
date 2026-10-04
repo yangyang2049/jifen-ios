@@ -29,6 +29,33 @@ final class LocalizationVisualAuditUITests: XCTestCase {
         AuditLocale(code: "es-ES", configuration: UITestLocale.esES, isRTL: false),
         AuditLocale(code: "pt-BR", configuration: UITestLocale.ptBR, isRTL: false),
         AuditLocale(code: "pt-PT", configuration: UITestLocale.ptPT, isRTL: false),
+        AuditLocale(code: "ca", configuration: UITestLocale.ca, isRTL: false),
+        AuditLocale(code: "pl", configuration: UITestLocale.pl, isRTL: false),
+        AuditLocale(code: "ro", configuration: UITestLocale.ro, isRTL: false),
+        AuditLocale(code: "cs", configuration: UITestLocale.cs, isRTL: false),
+        AuditLocale(code: "sk", configuration: UITestLocale.sk, isRTL: false),
+        AuditLocale(code: "sl", configuration: UITestLocale.sl, isRTL: false),
+        AuditLocale(code: "hr", configuration: UITestLocale.hr, isRTL: false),
+        AuditLocale(code: "da", configuration: UITestLocale.da, isRTL: false),
+        AuditLocale(code: "nb", configuration: UITestLocale.nb, isRTL: false),
+        AuditLocale(code: "fi", configuration: UITestLocale.fi, isRTL: false),
+        AuditLocale(code: "hu", configuration: UITestLocale.hu, isRTL: false),
+        AuditLocale(code: "el", configuration: UITestLocale.el, isRTL: false),
+        AuditLocale(code: "hi", configuration: UITestLocale.hi, isRTL: false),
+        AuditLocale(code: "bn", configuration: UITestLocale.bn, isRTL: false),
+        AuditLocale(code: "mr", configuration: UITestLocale.mr, isRTL: false),
+        AuditLocale(code: "gu", configuration: UITestLocale.gu, isRTL: false),
+        AuditLocale(code: "pa", configuration: UITestLocale.pa, isRTL: false),
+        AuditLocale(code: "ta", configuration: UITestLocale.ta, isRTL: false),
+        AuditLocale(code: "te", configuration: UITestLocale.te, isRTL: false),
+        AuditLocale(code: "kn", configuration: UITestLocale.kn, isRTL: false),
+        AuditLocale(code: "ml", configuration: UITestLocale.ml, isRTL: false),
+        AuditLocale(code: "or", configuration: UITestLocale.or, isRTL: false),
+        AuditLocale(code: "tr", configuration: UITestLocale.tr, isRTL: false),
+        AuditLocale(code: "vi", configuration: UITestLocale.vi, isRTL: false),
+        AuditLocale(code: "th", configuration: UITestLocale.th, isRTL: false),
+        AuditLocale(code: "id", configuration: UITestLocale.id, isRTL: false),
+        AuditLocale(code: "ms", configuration: UITestLocale.ms, isRTL: false),
     ]
 
     private let rtlLocales = [
@@ -82,10 +109,115 @@ final class LocalizationVisualAuditUITests: XCTestCase {
     func testCaptureAr() { captureLocale("ar") }
     func testCaptureHe() { captureLocale("he") }
     func testCaptureUr() { captureLocale("ur") }
+    func testCaptureCa() { captureLocale("ca") }
+    func testCapturePl() { captureLocale("pl") }
+    func testCaptureRo() { captureLocale("ro") }
+    func testCaptureCs() { captureLocale("cs") }
+    func testCaptureSk() { captureLocale("sk") }
+    func testCaptureSl() { captureLocale("sl") }
+    func testCaptureHr() { captureLocale("hr") }
+    func testCaptureDa() { captureLocale("da") }
+    func testCaptureNb() { captureLocale("nb") }
+    func testCaptureFi() { captureLocale("fi") }
+    func testCaptureHu() { captureLocale("hu") }
+    func testCaptureEl() { captureLocale("el") }
+    func testCaptureHi() { captureLocale("hi") }
+    func testCaptureBn() { captureLocale("bn") }
+    func testCaptureMr() { captureLocale("mr") }
+    func testCaptureGu() { captureLocale("gu") }
+    func testCapturePa() { captureLocale("pa") }
+    func testCaptureTa() { captureLocale("ta") }
+    func testCaptureTe() { captureLocale("te") }
+    func testCaptureKn() { captureLocale("kn") }
+    func testCaptureMl() { captureLocale("ml") }
+    func testCaptureOr() { captureLocale("or") }
+    func testCaptureTr() { captureLocale("tr") }
+    func testCaptureVi() { captureLocale("vi") }
+    func testCaptureTh() { captureLocale("th") }
+    func testCaptureId() { captureLocale("id") }
+    func testCaptureMs() { captureLocale("ms") }
+
+    func testSportsVoiceLanguageEntryAndMissingGuide() {
+        let samples = (priorityLocales + rtlLocales).filter { ["fr-CA", "es-MX", "pt-BR", "ar", "ur", "gu"].contains($0.code) }
+        for locale in samples {
+            let app = launch(locale, voiceMissing: true)
+            XCTAssertTrue(tapTab(2, in: app))
+            let pingPong = element("scoreboard_catalog_pingpong", in: app)
+            XCTAssertTrue(scrollUntilHittable(pingPong, in: app))
+            pingPong.tap()
+            let sides = element("setup_feature_auto_change_sides", in: app)
+            XCTAssertTrue(scrollUntilHittable(sides, in: app))
+            let voice = element("setup_feature_voice_announcement", in: app)
+            let supported = supportsSportsVoice(locale)
+            XCTAssertEqual(voice.exists, supported, locale.code)
+            XCTAssertTrue(sides.isHittable)
+            snap(app, locale, "voice_support_entry")
+            if supported {
+                XCTAssertTrue(voice.isHittable)
+                voice.tap()
+                let alert = app.alerts.firstMatch
+                XCTAssertTrue(alert.waitForExistence(timeout: 4), "missing voice must explain download")
+                snap(app, locale, "voice_missing_download")
+                if alert.exists { alert.buttons.firstMatch.tap() }
+                XCTAssertEqual(voice.value as? String, "0", "missing voice must leave toggle off")
+            }
+            app.terminate()
+        }
+    }
+
+    private func supportsSportsVoice(_ locale: AuditLocale) -> Bool {
+        locale.code != "ur" && (ProcessInfo.processInfo.operatingSystemVersion.majorVersion >= 27 || !["gu", "ml", "or", "pa"].contains(locale.code))
+    }
+
+    func testSportsVoiceUnsupportedSingleCardLayout() {
+        for locale in (priorityLocales + rtlLocales).filter({ ["ur", "gu"].contains($0.code) && !supportsSportsVoice($0) }) {
+            let app = launch(locale)
+            XCTAssertTrue(tapTab(2, in: app))
+            let badminton = element("scoreboard_catalog_badminton", in: app)
+            XCTAssertTrue(scrollUntilHittable(badminton, in: app))
+            badminton.tap()
+            let sides = element("setup_feature_auto_change_sides", in: app)
+            XCTAssertTrue(scrollUntilHittable(sides, in: app))
+            XCTAssertFalse(element("setup_feature_voice_announcement", in: app).exists)
+            XCTAssertTrue(sides.isHittable)
+            snap(app, locale, "voice_unsupported_single_switch")
+            app.terminate()
+        }
+    }
 
     func testCaptureCompactControls() {
         for locale in priorityLocales + rtlLocales.filter({ $0.code == "ar" }) {
             captureCompactControls(locale)
+        }
+    }
+
+    /// Focused regression for two-line setup cards and localized record units.
+    /// Run on a narrow iPhone and iPad; attachments preserve rendered evidence.
+    func testCaptureSetupAndRecordLocalizationFixes() {
+        let locales = priorityLocales.filter { ["de", "it", "nl", "uk"].contains($0.code) }
+            + [AuditLocale(code: "zh-Hans", configuration: UITestLocale.zhHans, isRTL: false)]
+        for locale in locales {
+            if ["de", "it", "nl"].contains(locale.code) {
+                let app = launch(locale)
+                if tapTab(2, in: app) {
+                    let pingPong = element("scoreboard_catalog_pingpong", in: app)
+                    XCTAssertTrue(scrollUntilHittable(pingPong, in: app))
+                    pingPong.tap()
+                    app.swipeUp()
+                    let changeSides = element("setup_feature_auto_change_sides", in: app)
+                    XCTAssertTrue(scrollUntilHittable(changeSides, in: app))
+                    for key in ["auto_change_sides", "show_match_time", "voice_announcement"] {
+                        XCTAssertTrue(element("setup_feature_\(key)", in: app).isHittable)
+                    }
+                    snap(app, locale, "fix_setup_two_line_labels")
+                }
+                app.terminate()
+            }
+
+            let app = launch(locale, recordFixture: true)
+            XCTAssertTrue(element("record_detail_section_all", in: app).waitForExistence(timeout: 10))
+            snap(app, locale, "fix_record_units_and_sets")
+            app.terminate()
         }
     }
 
@@ -195,12 +327,7 @@ final class LocalizationVisualAuditUITests: XCTestCase {
             membership.tap()
             waitForMembershipToSettle(in: app)
             snap(app, locale, "06_membership")
-            let monthly = element("membership_plan_iscoreboard_monthly_vip", in: app)
-            guard scrollUntilHittable(monthly, in: app) else {
-                XCTFail("\(locale.code): monthly plan is missing")
-                continue
-            }
-            monthly.tap()
+            guard selectMonthlyPlan(in: app) else { continue }
             snap(app, locale, "06_membership_subscription")
         }
     }
@@ -255,6 +382,12 @@ final class LocalizationVisualAuditUITests: XCTestCase {
                 pingPong.tap()
                 RunLoop.current.run(until: Date().addingTimeInterval(0.7))
                 snap(app, locale, "03_pingpong_setup")
+                let changeSides = element("setup_feature_auto_change_sides", in: app)
+                XCTAssertTrue(scrollUntilHittable(changeSides, in: app))
+                for key in ["auto_change_sides", "show_match_time"] + (supportsSportsVoice(locale) ? ["voice_announcement"] : []) {
+                    XCTAssertTrue(element("setup_feature_\(key)", in: app).isHittable)
+                }
+                snap(app, locale, "03b_setup_features")
             } else {
                 XCTFail("\(locale.code): ping-pong setup entry is missing")
             }
@@ -284,6 +417,9 @@ final class LocalizationVisualAuditUITests: XCTestCase {
                 RunLoop.current.run(until: Date().addingTimeInterval(0.8))
                 waitForMembershipToSettle(in: app)
                 snap(app, locale, "06_membership")
+                if selectMonthlyPlan(in: app) {
+                    snap(app, locale, "06_membership_subscription")
+                }
             } else {
                 XCTFail("\(locale.code): membership entry is missing")
             }
@@ -323,7 +459,8 @@ final class LocalizationVisualAuditUITests: XCTestCase {
     private func launch(
         _ locale: AuditLocale,
         recordFixture: Bool = false,
-        accessibilityText: Bool = false
+        accessibilityText: Bool = false,
+        voiceMissing: Bool = false
     ) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments += UITestLocale.launchArguments(locale.configuration) + [
@@ -331,6 +468,7 @@ final class LocalizationVisualAuditUITests: XCTestCase {
             "-UITestSkipScoreboardUsageHints",
             "-UITestScreenshotMode", "1",
         ]
+        if voiceMissing { app.launchArguments += ["-UITestSportsVoiceMissing"] }
         if accessibilityText {
             app.launchArguments += [
                 "-UIPreferredContentSizeCategoryName",
@@ -387,6 +525,30 @@ final class LocalizationVisualAuditUITests: XCTestCase {
             return identified
         }
         return app.tabBars.buttons.element(boundBy: index)
+    }
+
+    private func selectMonthlyPlan(in app: XCUIApplication) -> Bool {
+        let monthly = element("membership_plan_iscoreboard_monthly_vip", in: app)
+        // A partially visible card can be hittable while its center is behind
+        // the fixed purchase footer. Move the whole card into the content area.
+        let contentBottom = app.frame.minY + app.frame.height * 0.65
+        for _ in 0..<8 {
+            if monthly.exists, monthly.isHittable, monthly.frame.maxY < contentBottom { break }
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.55))
+                .press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)))
+            RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+        }
+        guard monthly.exists, monthly.isHittable, monthly.frame.maxY < contentBottom else {
+            XCTFail("Monthly plan is not fully visible above the purchase footer")
+            return false
+        }
+        monthly.tap()
+        let selected = XCTNSPredicateExpectation(
+            predicate: NSPredicate { _, _ in monthly.isSelected }, object: monthly
+        )
+        let didSelect = XCTWaiter.wait(for: [selected], timeout: 5) == .completed
+        XCTAssertTrue(didSelect, "Monthly plan must be selected before capturing subscription agreements")
+        return didSelect
     }
 
     private func scrollUntilHittable(_ element: XCUIElement, in app: XCUIApplication) -> Bool {

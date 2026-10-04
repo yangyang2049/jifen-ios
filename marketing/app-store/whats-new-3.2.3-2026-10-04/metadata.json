@@ -1,0 +1,31 @@
+{
+  "appId": "6759768784",
+  "appStoreVersionId": "a118dc62-4303-4c03-ae92-b358c60438d5",
+  "version": "3.2.3",
+  "localizations": [
+    {
+      "locale": "en-US",
+      "whatsNew": "Refreshed the interface with new 3D sports and tool icons.\nExpanded app and App Store localization.\nAdded sports score announcements in more supported languages.\nImproved translated text, match duration formatting."
+    },
+    {
+      "locale": "en-GB",
+      "whatsNew": "Refreshed the interface with new 3D sports and tool icons.\nExpanded app and App Store localization.\nAdded sports score announcements in more supported languages.\nImproved translated text, match duration formatting."
+    },
+    {
+      "locale": "en-CA",
+      "whatsNew": "Refreshed the interface with new 3D sports and tool icons.\nExpanded app and App Store localization.\nAdded sports score announcements in more supported languages.\nImproved translated text, match duration formatting."
+    },
+    {
+      "locale": "en-AU",
+      "whatsNew": "Refreshed the interface with new 3D sports and tool icons.\nExpanded app and App Store localization.\nAdded sports score announcements in more supported languages.\nImproved translated text, match duration formatting."
+    },
+    {
+      "locale": "zh-Hans",
+      "whatsNew": "全新 3D 运动与工具图标，让界面更生动直观。\n新增更多界面语言及 App Store 本地化。\n运动计分支持更多语言的语音播报。\n优化本地化文案、比赛时长显示和账号切换体验。"
+    },
+    {
+      "locale": "zh-Hant",
+      "whatsNew": "全新 3D 運動與工具圖示，讓介面更生動直覺。\n新增更多介面語言及 App Store 在地化。\n運動計分支援更多語言的語音播報。\n改善在地化文字、比賽時間顯示。"
+    }
+  ]
+}

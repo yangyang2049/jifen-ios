@@ -1,0 +1,51 @@
+﻿locale,language,name,nameCharacters,subtitle,subtitleCharacters,descriptionCharacters,reviewStatus
+ar-SA,Arabic,iScoreboard: لوحة النتائج,25,النتائج والتوقيت وسجل اللعب,27,903,draft
+bn-BD,Bengali,iScoreboard: স্কোরবোর্ড,23,"স্কোর, সময় ও ম্যাচের রেকর্ড",28,927,draft
+ca,Catalan,iScoreboard: Marcador,21,"Punts, temps i partits",22,1043,draft
+cs,Czech,iScoreboard: Výsledková tabule,30,"Skóre, čas a záznamy zápasů",27,986,draft
+da,Danish,iScoreboard: Måltavle,21,"Resultater, tid og kampe",24,934,draft
+de-DE,German,iScoreboard: Punktetafel,24,"Spielstand, Timer & Ergebnisse",30,1058,draft
+el,Greek,iScoreboard: Πίνακας σκορ,25,"Σκορ, χρόνοι και αγώνες",23,1076,draft
+en-AU,English (Australia),iScoreboard: Sports Scoreboard,30,"Scores, timers & match records",30,927,draft
+en-CA,English (Canada),iScoreboard: Sports Scoreboard,30,"Scores, timers & match records",30,925,draft
+en-GB,English (U.K.),iScoreboard: Sports Scoreboard,30,"Scores, timers & match records",30,927,draft
+en-US,English (U.S.),iScoreboard: Sports Scoreboard,30,"Scores, timers & match records",30,925,draft
+es-ES,Spanish (Spain),iScoreboard: Marcador,21,"Puntos, tiempos y partidos",26,1072,draft
+es-MX,Spanish (Mexico),iScoreboard: Marcador,21,"Puntos, tiempos y partidos",26,1074,draft
+fi,Finnish,iScoreboard: Tulostaulu,23,"Tulokset, ajastimet ja pelit",28,1030,draft
+fr-CA,French (Canada),iScoreboard: Tableau de scores,30,"Pointage, chronos et matchs",27,1100,draft
+fr-FR,French,iScoreboard: Tableau de scores,30,"Scores, chronos et matchs",25,1083,draft
+gu-IN,Gujarati,iScoreboard: સ્કોરબોર્ડ,23,"સ્કોર, સમય અને મેચ રેકોર્ડ",26,879,draft
+he,Hebrew,iScoreboard: לוח תוצאות,23,"תוצאות, זמנים ותיעוד משחקים",27,806,draft
+hi,Hindi,iScoreboard: स्कोरबोर्ड,23,"स्कोर, समय और मैच रिकॉर्ड",25,937,draft
+hr,Croatian,iScoreboard: Semafor,20,"Rezultati, vrijeme i utakmice",29,1022,draft
+hu,Hungarian,iScoreboard: Eredményjelző,26,"Eredmények, időmérés, meccsek",29,1062,draft
+id,Indonesian,iScoreboard: Papan Skor,23,"Skor, waktu dan catatan laga",28,1057,draft
+it,Italian,iScoreboard: Segnapunti,23,"Punti, tempi e partite",22,1039,draft
+ja,Japanese,iScoreboard: 万能スコアボード,21,得点記録・試合タイマー・振り返り,16,531,draft
+kn-IN,Kannada,iScoreboard: ಸ್ಕೋರ್‌ಬೋರ್ಡ್,26,"ಅಂಕ, ಸಮಯ ಮತ್ತು ಪಂದ್ಯದ ದಾಖಲೆ",27,1018,draft
+ko,Korean,iScoreboard: 만능 점수판,19,스포츠 점수 기록과 경기 타이머,17,573,draft
+ml-IN,Malayalam,iScoreboard: സ്കോർബോർഡ്,23,"സ്കോർ, സമയം, മത്സര രേഖകൾ",24,1130,draft
+mr-IN,Marathi,iScoreboard: स्कोअरबोर्ड,24,"गुण, वेळ आणि सामन्याच्या नोंदी",30,956,draft
+ms,Malay,iScoreboard: Papan Skor,23,"Skor, masa dan rekod sukan",26,1039,draft
+nl-NL,Dutch,iScoreboard: Scorebord,22,"Scores, timers en wedstrijden",29,997,draft
+no,Norwegian,iScoreboard: Resultattavle,26,"Resultater, tid og kamper",25,916,draft
+or-IN,Oriya,iScoreboard: ସ୍କୋରବୋର୍ଡ,23,"ସ୍କୋର, ସମୟ ଓ ମ୍ୟାଚ୍ ରେକର୍ଡ",26,927,draft
+pa-IN,Punjabi,iScoreboard: ਸਕੋਰਬੋਰਡ,21,"ਸਕੋਰ, ਸਮਾਂ ਤੇ ਮੈਚ ਰਿਕਾਰਡ",24,873,draft
+pl,Polish,iScoreboard: Tablica wyników,28,"Wyniki, zegary i historia gier",30,976,draft
+pt-BR,Portuguese (Brazil),iScoreboard: Placar esportivo,29,"Pontos, tempos e partidas",25,1004,draft
+pt-PT,Portuguese (Portugal),iScoreboard: Marcador,21,"Pontos, tempos e jogos",22,1006,draft
+ro,Romanian,iScoreboard: Tabelă de scor,27,"Scoruri, timp și meciuri",24,1080,draft
+ru,Russian,iScoreboard: Табло,18,"Счёт, таймеры и история игр",27,1040,draft
+sk,Slovak,iScoreboard: Výsledková tabuľa,30,"Skóre, čas a záznamy zápasov",28,1010,draft
+sl-SI,Slovenian,iScoreboard: Semafor,20,"Rezultati, čas in tekme",23,1000,draft
+sv,Swedish,iScoreboard: Resultattavla,26,"Resultat, tid och matcher",25,938,draft
+ta-IN,Tamil,iScoreboard: ஸ்கோர்போர்டு,25,"புள்ளிகள், நேரம், போட்டிகள்",27,1164,draft
+te-IN,Telugu,iScoreboard: స్కోర్‌బోర్డ్,26,"స్కోరు, సమయం, మ్యాచ్‌లు",23,1021,draft
+th,Thai,iScoreboard: กระดานคะแนน,24,คะแนน เวลา และบันทึกการแข่งขัน,30,866,draft
+tr,Turkish,iScoreboard: Skor Tahtası,25,"Skor, süre ve maç kayıtları",27,1022,draft
+uk,Ukrainian,iScoreboard: Табло,18,"Рахунок, час та записи ігор",27,1015,draft
+ur-PK,Urdu,iScoreboard: اسکور بورڈ,23,اسکور، وقت اور میچ ریکارڈ,25,946,draft
+vi,Vietnamese,iScoreboard: Bảng điểm,22,"Điểm số, thời gian và trận đấu",30,985,draft
+zh-Hans,Chinese (Simplified),全能计分器,5,运动计分、比赛计时与赛后复盘,14,427,draft
+zh-Hant,Chinese (Traditional),全能計分器,5,運動計分、比賽計時與賽後回顧,14,431,draft

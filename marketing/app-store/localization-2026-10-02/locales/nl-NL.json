@@ -1,0 +1,58 @@
+{
+  "locale": "nl-NL",
+  "iosLocale": "nl",
+  "language": "Dutch",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Scorebord",
+  "subtitle": "Scores, timers en wedstrijden",
+  "description": "Elk punt telt. Maak van je iPhone of iPad een duidelijk en gebruiksvriendelijk scorebord voor wedstrijden, trainingen en spellen met vrienden.\n\nHoud de score bij voor meer dan 26 sporten en spellen, zoals tennis, pickleball, badminton, tafeltennis, basketbal, voetbal, volleybal en biljart. Pas voor ondersteunde sporten de puntentelling, wedstrijdvorm en serveervolgorde bij dubbelspel aan.\n\nBewaar wedstrijden en bekijk het scoreverloop, de tijdlijn en gesproken notities. Gebruik schaak- en go-klokken, een kubustimer en een stopwatch. Toon je scorebord op een groot scherm en deel een wedstrijdcode zodat vrienden op afstand kunnen meekijken.\n\nMunt opgooien, willekeurige teams, rode en gele kaarten en kosten verdelen: alles op één plek. Minder tijd voor de telling, meer plezier in het spel.\n\nGebruiksvoorwaarden:\nhttps://jifenqi.com/terms\n\nPrivacybeleid:\nhttps://jifenqi.com/privacy\n\nStandaardlicentieovereenkomst van Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Elk punt\ntelt",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Alle scores\nin één oogopslag",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "Eén scorebord\nvoor meer dan 26 sporten",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Bekijk\nelke wedstrijd terug",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Jouw regels\njouw spel",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Meer dan\nbalsporten",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Jouw scorebord\nop het grote scherm",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Houd de score bij\nvanaf je pols",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Alle scheidsrechterstools\nin één app",
+      "enabled": true
+    }
+  ]
+}

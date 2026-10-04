@@ -10,11 +10,19 @@ import SwiftUI
 enum AACalculationPolicy {
     static let participantRange = 2...20
 
-    static func amountPerPerson(totalText: String, participants: Int) -> Double? {
+    static func totalAmount(from text: String, locale: Locale = .current) -> Double? {
+        let decimalText = text.replacingOccurrences(of: locale.decimalSeparator ?? ".", with: ".")
+        let normalized = decimalText.map { character in
+            let digit = normalizedDecimalDigits(String(character), limit: 1)
+            return digit.isEmpty ? String(character) : digit
+        }.joined()
+        guard let total = Double(normalized), total.isFinite, total > 0 else { return nil }
+        return total
+    }
+
+    static func amountPerPerson(totalText: String, participants: Int, locale: Locale = .current) -> Double? {
         guard participantRange.contains(participants),
-              let total = Double(totalText),
-              total.isFinite,
-              total > 0 else {
+              let total = totalAmount(from: totalText, locale: locale) else {
             return nil
         }
         let value = total / Double(participants)
@@ -123,7 +131,7 @@ struct AACalculatorView: View {
                                     showResult = false
                                 }
                             }) {
-                                Text("-")
+                                Image(systemName: "minus")
                                     .font(.system(size: 28))
                                     .foregroundColor(Theme.textPrimary)
                                     .frame(width: 60, height: 60)
@@ -152,7 +160,7 @@ struct AACalculatorView: View {
                                     showResult = false
                                 }
                             }) {
-                                Text("+")
+                                Image(systemName: "plus")
                                     .font(.system(size: 28))
                                     .foregroundColor(Theme.textPrimary)
                                     .frame(width: 60, height: 60)
@@ -196,7 +204,7 @@ struct AACalculatorView: View {
                                         .font(.system(size: 14))
                                         .foregroundColor(Theme.textSecondary)
                                     Spacer()
-                                    if let total = Double(totalAmount) {
+                                    if let total = AACalculationPolicy.totalAmount(from: totalAmount) {
                                         Text("¥\(total, specifier: "%.2f")")
                                             .font(.system(size: 14))
                                             .foregroundColor(Theme.textPrimary)

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 private enum BookingNamePickerTarget: Identifiable {
     case participant(Int)
@@ -182,7 +183,17 @@ struct CreateBookingPage: View {
         Section {
             Picker(NSLocalizedString("schedule_sport", value: "项目", comment: ""), selection: $sportType) {
                 ForEach(selectableSportTypes) { type in
-                    Text("\(type.icon) \(type.displayName)").tag(type)
+                    HStack {
+                        if let image = sportPickerImage(for: type) {
+                            Image(uiImage: image)
+                                .renderingMode(.original)
+                        } else {
+                            Text(type.icon)
+                                .font(.system(size: 18))
+                        }
+                        Text(type.displayName)
+                    }
+                    .tag(type)
                 }
             }
 
@@ -212,6 +223,16 @@ struct CreateBookingPage: View {
                     .multilineTextAlignment(.center)
                 durationButton(systemName: "plus.circle", delta: LocalBooking.durationStepMinutes)
             }
+        }
+    }
+
+    private func sportPickerImage(for type: BookingSportType) -> UIImage? {
+        guard let gameType = type.gameType,
+              let image = UIImage(named: AppCatalogIconAssets.game(gameType)) else { return nil }
+        // Native Picker labels use the UIImage's intrinsic size rather than SwiftUI frames.
+        let size = CGSize(width: 18, height: 18)
+        return UIGraphicsImageRenderer(size: size).image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
         }
     }
 

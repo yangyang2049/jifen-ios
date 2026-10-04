@@ -1,0 +1,16 @@
+{
+  "packageName": "com.bolo.jifen",
+  "listings": [
+    {
+      "language": "zh-TW",
+      "title": "全能計分器"
+    },
+    {
+      "language": "zh-CN",
+      "title": "全能计分器",
+      "shortDescription": "运动计分、比赛计时与赛后回顾",
+      "fullDescription": "每一分都值得认真记录。把 Android 手机或平板变成清楚、好用的计分板，轻松记录比赛、训练和朋友间的对局。\n\n支持 26+ 种运动与游戏计分，包括网球、匹克球、羽毛球、乒乓球、篮球、足球、排球和台球。依照项目调整计分规则、比赛局数与双打发球顺序，让计分方式符合你的比赛。\n\n保存比赛记录，通过比分趋势、时间轴和语音笔记回顾精彩时刻。内置国际象棋与围棋计时、魔方计时和秒表，球类之外也能用。将计分板显示在大屏幕上。\n\n掷硬币、随机分队、红黄牌和费用分摊等实用工具集中在一处。少一点记分的忙乱，多一点比赛的乐趣。\n\n使用条款:\nhttps://jifenqi.com/terms\n\n隐私政策:\nhttps://jifenqi.com/privacy"
+    }
+  ],
+  "note": "Traditional title-only patch; new Simplified listing requires short/full descriptions, explicitly authorized by user. No screenshot upload."
+}

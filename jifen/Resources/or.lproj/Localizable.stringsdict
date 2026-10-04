@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>match_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d ମ୍ୟାଚ୍</string>
+			<key>other</key>
+			<string>%d ମ୍ୟାଚ୍</string>
+		</dict>
+	</dict>
+	<key>timer_byoyomi_periods_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>ବ୍ୟୋୟୋମି: %d ଅବଧି</string>
+			<key>other</key>
+			<string>ବ୍ୟୋୟୋମି: %d ଅବଧି</string>
+		</dict>
+	</dict>
+	<key>display_training_fixed_points</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d-ପଏଣ୍ଟ ଶଟ୍</string>
+			<key>other</key>
+			<string>%d-ପଏଣ୍ଟ ଶଟ୍</string>
+		</dict>
+	</dict>
+	<key>record_format_sets_play_all</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>ସମସ୍ତ %d ସେଟ୍ ଖେଳନ୍ତୁ</string>
+			<key>other</key>
+			<string>ସମସ୍ତ %d ସେଟ୍ ଖେଳନ୍ତୁ</string>
+		</dict>
+	</dict>
+	<key>record_format_sets_play_all_tennis</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>ସମସ୍ତ %d ସେଟ୍ ଖେଳନ୍ତୁ</string>
+			<key>other</key>
+			<string>ସମସ୍ତ %d ସେଟ୍ ଖେଳନ୍ତୁ</string>
+		</dict>
+	</dict>
+	<key>record_format_points_per_set</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>ସେଟ୍ ପ୍ରତି %d ପଏଣ୍ଟ</string>
+			<key>other</key>
+			<string>ସେଟ୍ ପ୍ରତି %d ପଏଣ୍ଟ</string>
+		</dict>
+	</dict>
+	<key>record_format_pickleball_score</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>ଲକ୍ଷ୍ୟ: %d ପଏଣ୍ଟ</string>
+			<key>other</key>
+			<string>ଲକ୍ଷ୍ୟ: %d ପଏଣ୍ଟ</string>
+		</dict>
+	</dict>
+	<key>players_count_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d ଖେଳାଳି</string>
+			<key>other</key>
+			<string>%d ଖେଳାଳି</string>
+		</dict>
+	</dict>
+	<key>random_team_team_count_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d ଦଳ</string>
+			<key>other</key>
+			<string>%d ଦଳଗୁଡିକ</string>
+		</dict>
+	</dict>
+	<key>common_names_batch_delete_confirm</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>ବାଛିଥିବା %d ନାମ ବିଲୋପ କରିବେ?</string>
+			<key>other</key>
+			<string>ବାଛିଥିବା %d ନାମ ବିଲୋପ କରିବେ?</string>
+		</dict>
+	</dict>
+	<key>records_batch_selected_n</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d ମନୋନୀତ</string>
+			<key>other</key>
+			<string>%d ମନୋନୀତ</string>
+		</dict>
+	</dict>
+	<key>common_places_batch_delete_confirm</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>ବାଛିଥିବା %d ସ୍ଥାନ ବିଲୋପ କରିବେ?</string>
+			<key>other</key>
+			<string>ବାଛିଥିବା %d ସ୍ଥାନ ବିଲୋପ କରିବେ?</string>
+		</dict>
+	</dict>
+	<key>schedule_reminder_hours_before</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d ଘଣ୍ଟା ପୂର୍ବରୁ</string>
+			<key>other</key>
+			<string>%d ଘଣ୍ଟା ପୂର୍ବରୁ</string>
+		</dict>
+	</dict>
+	<key>schedule_reminder_minutes_before</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d ମିନିଟ୍ ପୂର୍ବରୁ</string>
+			<key>other</key>
+			<string>%d ମିନିଟ୍ ପୂର୍ବରୁ</string>
+		</dict>
+	</dict>
+	<key>schedule_participants_limit</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>ସର୍ବାଧିକ %d ବ୍ୟକ୍ତି; ସମାନ ନାମଗୁଡ଼ିକ ମିଶାଯିବ</string>
+			<key>other</key>
+			<string>ସର୍ବାଧିକ %d ଜଣ; ସମାନ ନାମଗୁଡ଼ିକ ମିଶାଯିବ</string>
+		</dict>
+	</dict>
+	<key>schedule_batch_delete_message</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>ବାଛିଥିବା %d ବୁକିଂ ବିଲୋପ କରିବେ?</string>
+			<key>other</key>
+			<string>ବାଛିଥିବା %d ବୁକିଂ ବିଲୋପ କରିବେ?</string>
+		</dict>
+	</dict>
+	<key>schedule_sets_summary</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d ସେଟ୍ / ଫ୍ରେମ୍</string>
+			<key>other</key>
+			<string>%d ସେଟ୍ / ଫ୍ରେମ୍</string>
+		</dict>
+	</dict>
+	<key>schedule_points_summary</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>ସେଟ୍ ପ୍ରତି %d ପଏଣ୍ଟ</string>
+			<key>other</key>
+			<string>ସେଟ୍ ପ୍ରତି %d ପଏଣ୍ଟ</string>
+		</dict>
+	</dict>
+	<key>sync_sets_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d ସେଟ୍</string>
+			<key>other</key>
+			<string>%d ସେଟ୍</string>
+		</dict>
+	</dict>
+	<key>sync_games_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d ଗେମ୍</string>
+			<key>other</key>
+			<string>%d ଗେମ୍</string>
+		</dict>
+	</dict>
+	<key>tennis_sync_sets_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d ସେଟ୍</string>
+			<key>other</key>
+			<string>%d ସେଟ୍</string>
+		</dict>
+	</dict>
+	<key>tennis_sync_games_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d ଗେମ୍</string>
+			<key>other</key>
+			<string>%d ଗେମ୍</string>
+		</dict>
+	</dict>
+	<key>sync_players_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d ଖେଳାଳି</string>
+			<key>other</key>
+			<string>%d ଖେଳାଳି</string>
+		</dict>
+	</dict>
+	<key>home_sync_connected_devices</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d ଉପକରଣ ସଂଯୁକ୍ତ</string>
+			<key>other</key>
+			<string>%d ଉପକରଣଗୁଡ଼ିକ ସଂଯୁକ୍ତ</string>
+		</dict>
+	</dict>
+	<key>feedback_time_days_ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d ଦିନ ପୂର୍ବରୁ</string>
+			<key>other</key>
+			<string>%d ଦିନ ପୂର୍ବରୁ</string>
+		</dict>
+	</dict>
+	<key>feedback_comment_count_label</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>ମନ୍ତବ୍ୟ (%d)</string>
+			<key>other</key>
+			<string>ମନ୍ତବ୍ୟଗୁଡିକ (%d)</string>
+		</dict>
+	</dict>
+	<key>feedback_image_prepare_failed</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%dଟି ଛବି ପ୍ରକ୍ରିୟାକରଣ ହୋଇପାରିଲା ନାହିଁ। ଦୟାକରି ଅନ୍ୟ ଏକ ଛବି ସହ ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।</string>
+			<key>other</key>
+			<string>%dଟି ଛବି ପ୍ରକ୍ରିୟାକରଣ ହୋଇପାରିଲା ନାହିଁ। ଦୟାକରି ଅନ୍ୟ ଛବି ସହ ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।</string>
+		</dict>
+	</dict>
+	<key>basketball_fouls_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>ଫାଉଲ୍ %d</string>
+			<key>other</key>
+			<string>ଫାଉଲ୍ %d</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

@@ -1,0 +1,11 @@
+/* 
+  InfoPlist.strings
+  jifen
+
+  Localized privacy permission descriptions
+*/
+
+"NSPhotoLibraryAddUsageDescription" = "Az eredményjelző képernyőképeinek mentéséhez hozzá kell férnünk a fotókönyvtárához.";
+"CFBundleDisplayName" = "iScoreboard";
+"NSCameraUsageDescription" = "A kamera megbízható bejelentkezési QR-kódok beolvasására és profilkép készítésére szolgál.";
+"NSMicrophoneUsageDescription" = "A mikrofon hangjegyzetek rögzítésére szolgál.";

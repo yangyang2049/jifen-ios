@@ -249,6 +249,99 @@ struct TeamCourtScoreboardPanel: View {
     }
 }
 
+/// Matches Android and HarmonyOS: one pause entry, with both kinds and both sides.
+private struct TableTennisPauseDialog: View {
+    let leftName: String
+    let rightName: String
+    let regularUsedLeft: Bool
+    let regularUsedRight: Bool
+    let onClose: () -> Void
+    let onSelect: (MatchSide, PingPongAdministrativeActionType) -> Void
+
+    var body: some View {
+        GeometryReader { proxy in
+            ZStack {
+                Theme.scoreboardDialogScrim.ignoresSafeArea()
+                    .onTapGesture(perform: onClose)
+
+                VStack(spacing: 12) {
+                    HStack(spacing: 0) {
+                        Color.clear.frame(width: 44, height: 44)
+                        Text(NSLocalizedString("timeout", value: "暂停", comment: ""))
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundStyle(Theme.scoreboardDialogTextPrimary)
+                            .frame(maxWidth: .infinity)
+                        ScoreboardDialogCloseButton(
+                            action: onClose,
+                            accessibilityIdentifier: "pingpong_pause_close"
+                        )
+                    }
+                    HStack(spacing: 12) {
+                        choice(.timeout, side: .left, name: leftName, used: regularUsedLeft)
+                        choice(.timeout, side: .right, name: rightName, used: regularUsedRight)
+                    }
+                    Divider().overlay(Color.white.opacity(0.13))
+                    HStack(spacing: 12) {
+                        choice(.medicalTimeout, side: .left, name: leftName, used: false)
+                        choice(.medicalTimeout, side: .right, name: rightName, used: false)
+                    }
+                }
+                .padding(.horizontal, 18)
+                .padding(.vertical, 16)
+                .frame(width: Theme.dialogWidth(
+                    availableWidth: proxy.size.width,
+                    phonePreferredWidth: 360,
+                    padPreferredWidth: 360
+                ))
+                .background(Theme.scoreboardDialogSurface, in: RoundedRectangle(cornerRadius: 20))
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("pingpong_pause_dialog")
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    private func choice(
+        _ type: PingPongAdministrativeActionType,
+        side: MatchSide,
+        name: String,
+        used: Bool
+    ) -> some View {
+        let regular = type == .timeout
+        let title = regular
+            ? NSLocalizedString("timeout", value: "暂停", comment: "")
+            : NSLocalizedString("medical_timeout", value: "医疗暂停", comment: "")
+        let color = regular ? Color(red: 48 / 255, green: 209 / 255, blue: 88 / 255) : .white
+        return Button { onSelect(side, type) } label: {
+            VStack(spacing: 0) {
+                Text(title)
+                    .font(.system(size: 11, weight: .medium))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 26)
+                    .background(color.opacity(regular ? 0.75 : 0.42))
+                Text(name)
+                    .font(.system(size: 16, weight: .bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .padding(.horizontal, 8)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .frame(height: 64)
+            .background(color.opacity(regular ? 0.45 : 0.26))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(.plain)
+        .disabled(used)
+        .opacity(used ? 0.38 : 1)
+        .accessibilityLabel("\(name) · \(title)")
+        .accessibilityIdentifier("pingpong_pause_\(regular ? "regular" : "medical")_\(side == .left ? "left" : "right")")
+    }
+}
+
 struct RallyScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scoreboardUsageHintCoordinator) private var usageHintCoordinator
@@ -289,7 +382,6 @@ struct RallyScoreboardView: View {
     @State private var terminalHold = ScoreboardTerminalHold<RallyTerminalSetPresentation>()
     @State private var officialBreakSession = OfficialBreakSession()
     @State private var showPingPongPauseDialog = false
-    @State private var showPingPongMedicalDialog = false
     @State private var showPingPongCardsDialog = false
     @State private var pingPongPenaltySelectedSide: MatchSide?
     @State private var showPingPongPenaltyConfirmation = false
@@ -512,7 +604,8 @@ struct RallyScoreboardView: View {
                     onUsageHint: { activeUsageHintCoordinator?.presentFromMenu() },
                     showEndGame: true,
                     items: menuItems,
-                    analyticsGameType: GameType(scoreCoreGameType: store.gameType) ?? .simpleScore
+                    analyticsGameType: GameType(scoreCoreGameType: store.gameType) ?? .simpleScore,
+                    voiceAnnouncementEnabled: voiceAnnouncementEnabled
                 )
 
                 if officialBreakSupported, officialBreakSession.state != nil {
@@ -527,6 +620,38 @@ struct RallyScoreboardView: View {
 
                 if isBadmintonGame, showBadmintonMisconductDialog {
                     badmintonMisconductDialogOverlay
+                }
+
+                if showPingPongCardsDialog {
+                    TableTennisCardsDialog(
+                        leftName: store.state.leftName,
+                        rightName: store.state.rightName,
+                        leftColor: appearance.palette.left,
+                        rightColor: appearance.palette.right,
+                        leftStatus: store.state.pingPongAdministrativeStatus(for: .left),
+                        rightStatus: store.state.pingPongAdministrativeStatus(for: .right),
+                        leftStage: store.state.pingPongPenaltyStage(for: .left),
+                        rightStage: store.state.pingPongPenaltyStage(for: .right),
+                        actionDescription: pingPongPenaltyActionDescription,
+                        onClose: { showPingPongCardsDialog = false },
+                        onConfirm: selectPingPongPenaltySide
+                    )
+                    .zIndex(90)
+                }
+
+                if showPingPongPauseDialog {
+                    TableTennisPauseDialog(
+                        leftName: store.state.leftName,
+                        rightName: store.state.rightName,
+                        regularUsedLeft: !pingPongTimeoutAvailable(side: .left),
+                        regularUsedRight: !pingPongTimeoutAvailable(side: .right),
+                        onClose: { showPingPongPauseDialog = false },
+                        onSelect: { side, type in
+                            showPingPongPauseDialog = false
+                            dispatch(.pingPongAdministrativeAction(type: type, side: side))
+                        }
+                    )
+                    .zIndex(90)
                 }
 
                 if showGameOverDialog {
@@ -600,6 +725,8 @@ struct RallyScoreboardView: View {
         )
         .onAppear {
             onPresented()
+            ScoreVoiceAnnouncer.shared.beginSession(store.sessionId)
+            if voiceAnnouncementEnabled && !store.state.finished { ScoreVoiceAnnouncer.shared.checkSessionVoice() }
             typographySession.switchStyleID(ScoreboardStyleID(scoreCoreGameType: gameType))
             appearance = .current(styleID: ScoreboardStyleID(scoreCoreGameType: gameType))
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
@@ -647,6 +774,9 @@ struct RallyScoreboardView: View {
             ))
         }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
+        .onChange(of: showPingPongPauseDialog) { _, _ in updateImmersiveForBlocking() }
+        .onChange(of: showPingPongCardsDialog) { _, _ in updateImmersiveForBlocking() }
+        .onChange(of: showPingPongPenaltyConfirmation) { _, _ in updateImmersiveForBlocking() }
         .scoreboardStyleEditorEntry(
             styleEditorEntry,
             typographySession: typographySession,
@@ -666,6 +796,7 @@ struct RallyScoreboardView: View {
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onDisappear {
+            ScoreVoiceAnnouncer.shared.stop()
             cancelPendingTap()
             cancelPendingOpeningAnnouncement()
             flashTask?.cancel()
@@ -680,43 +811,6 @@ struct RallyScoreboardView: View {
             session: typographySession,
             metrics: ScoreboardTypographyProfile.rally.adjustableMetrics
         )
-        .confirmationDialog(
-            NSLocalizedString("timeout", value: "暂停", comment: ""),
-            isPresented: $showPingPongPauseDialog,
-            titleVisibility: .visible
-        ) {
-            Button(pingPongAdministrativeChoiceTitle(.timeout, side: .left)) {
-                dispatch(.pingPongAdministrativeAction(type: .timeout, side: .left))
-            }
-            .disabled(!pingPongTimeoutAvailable(side: .left))
-            Button(pingPongAdministrativeChoiceTitle(.timeout, side: .right)) {
-                dispatch(.pingPongAdministrativeAction(type: .timeout, side: .right))
-            }
-            .disabled(!pingPongTimeoutAvailable(side: .right))
-            Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
-        }
-        .confirmationDialog(
-            NSLocalizedString("medical_timeout", value: "医疗暂停", comment: ""),
-            isPresented: $showPingPongMedicalDialog,
-            titleVisibility: .visible
-        ) {
-            Button(pingPongAdministrativeChoiceTitle(.medicalTimeout, side: .left)) {
-                dispatch(.pingPongAdministrativeAction(type: .medicalTimeout, side: .left))
-            }
-            Button(pingPongAdministrativeChoiceTitle(.medicalTimeout, side: .right)) {
-                dispatch(.pingPongAdministrativeAction(type: .medicalTimeout, side: .right))
-            }
-            Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
-        }
-        .confirmationDialog(
-            NSLocalizedString("select_player", value: "选择选手", comment: ""),
-            isPresented: $showPingPongCardsDialog,
-            titleVisibility: .visible
-        ) {
-            Button(pingPongPenaltySelectionTitle(side: .left)) { selectPingPongPenaltySide(.left) }
-            Button(pingPongPenaltySelectionTitle(side: .right)) { selectPingPongPenaltySide(.right) }
-            Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
-        }
         .confirmationDialog(
             pingPongPenaltyConfirmationTitle,
             isPresented: $showPingPongPenaltyConfirmation,
@@ -1690,7 +1784,7 @@ struct RallyScoreboardView: View {
     private var menuItems: [ScoreboardMenuItem] {
         var extras: [ScoreboardMenuItem] = []
         extras.append(contentsOf: [])
-        if VoiceAnnouncementSupport.isSupported(gameType) {
+        if VoiceAnnouncementSupport.isSupported(gameType) && SportsVoiceSupport.isSupported {
             extras.append(
                 ScoreboardMenuItem(
                     title: voiceAnnouncementEnabled
@@ -1793,6 +1887,8 @@ struct RallyScoreboardView: View {
             showMenu = false
             activeUsageHintCoordinator?.presentFromMenu()
         case "voiceAnnouncement":
+            guard SportsVoiceSupport.isSupported else { return }
+            if !voiceAnnouncementEnabled, !ScoreVoiceAnnouncer.shared.prepareToEnable() { return }
             voiceAnnouncementEnabled.toggle()
             store.setVoiceAnnouncementEnabled(voiceAnnouncementEnabled)
             if voiceAnnouncementEnabled {
@@ -1803,8 +1899,6 @@ struct RallyScoreboardView: View {
             }
         case "pingpongPause":
             showPingPongPauseDialog = true
-        case "pingpongMedical":
-            showPingPongMedicalDialog = true
         case "pingpongCards":
             showPingPongCardsDialog = true
         case "bd_cards":
@@ -1922,22 +2016,14 @@ struct RallyScoreboardView: View {
                 title: NSLocalizedString("timeout", value: "暂停", comment: ""),
                 action: "pingpongPause",
                 group: .match,
-                customText: "Ⅱ",
+                icon: "pause",
                 sortOrder: 20
-            ),
-            ScoreboardMenuItem(
-                title: NSLocalizedString("medical_timeout", value: "医疗暂停", comment: ""),
-                action: "pingpongMedical",
-                group: .match,
-                customText: "+",
-                sortOrder: 25
             ),
             ScoreboardMenuItem(
                 title: NSLocalizedString("tool_red_yellow_card", value: "红黄牌", comment: ""),
                 action: "pingpongCards",
                 group: .match,
-                customText: "🟨🟥",
-                customTextScale: 0.72,
+                iconAsset: AppCatalogIconAssets.tool("red_yellow_card"),
                 sortOrder: 30
             )
         ]
@@ -1999,12 +2085,12 @@ struct RallyScoreboardView: View {
 
     private func selectPingPongPenaltySide(_ side: MatchSide) {
         pingPongPenaltySelectedSide = side
-        DispatchQueue.main.async { showPingPongPenaltyConfirmation = true }
-    }
-
-    private func pingPongPenaltySelectionTitle(side: MatchSide) -> String {
-        let name = side == .left ? store.state.leftName : store.state.rightName
-        return "\(name) · \(pingPongPenaltyActionDescription(for: side))"
+        showPingPongCardsDialog = false
+        if store.state.pingPongPenaltyStage(for: side) == .report {
+            DispatchQueue.main.async { showPingPongPenaltyConfirmation = true }
+        } else {
+            confirmPingPongPenalty()
+        }
     }
 
     private var pingPongPenaltyConfirmationTitle: String {
@@ -2064,15 +2150,14 @@ struct RallyScoreboardView: View {
                 title: NSLocalizedString("medical_break", value: "医疗中断", comment: ""),
                 action: "bd_medical",
                 group: .match,
-                customText: "+",
+                icon: "plus",
                 sortOrder: 25
             ),
             ScoreboardMenuItem(
                 title: NSLocalizedString("tool_red_yellow_card", value: "红黄牌", comment: ""),
                 action: "bd_cards",
                 group: .match,
-                customText: "🟨🟥",
-                customTextScale: 0.72,
+                iconAsset: AppCatalogIconAssets.tool("red_yellow_card"),
                 sortOrder: 30
             )
         ]
@@ -2188,15 +2273,7 @@ struct RallyScoreboardView: View {
                         if badmintonMisconductSide != nil {
                             badmintonKindChip(.yellow)
                             badmintonKindChip(.red)
-                            Button {
-                                badmintonMisconductKind = .disqualify
-                            } label: {
-                                Text(NSLocalizedString("badminton_action_disqualify", value: "取消比赛资格", comment: ""))
-                                    .font(.system(size: 13))
-                                    .foregroundColor(.white.opacity(0.85))
-                                    .underline()
-                            }
-                            .buttonStyle(.plain)
+                            badmintonKindChip(.disqualify)
                         } else {
                             Text(NSLocalizedString("tt_select_side_hint", value: "请先选择选手", comment: ""))
                                 .font(.system(size: 14))
@@ -2278,9 +2355,7 @@ struct RallyScoreboardView: View {
                 Circle()
                     .fill(badmintonPenaltyColor(kind))
                     .frame(width: 14, height: 14)
-                Text(kind == .yellow
-                     ? NSLocalizedString("badminton_card_yellow", value: "黄牌", comment: "")
-                     : NSLocalizedString("badminton_action_red", value: "出示红牌", comment: ""))
+                Text(badmintonMisconductToastLabel(for: kind))
                     .font(.system(size: 14, weight: selected ? .semibold : .regular))
                     .foregroundColor(.white)
             }
@@ -2416,7 +2491,9 @@ struct RallyScoreboardView: View {
     private func revealImmersiveChrome() {
         chromeVisible = true
         immersiveGeneration += 1
-        guard appearance.immersiveMode, !isEditMode, !showDisplaySettings, !showMenu, !isStyleEditing else { return }
+        guard appearance.immersiveMode, !isEditMode, !showDisplaySettings, !showMenu,
+              !showPingPongPauseDialog, !showPingPongCardsDialog, !showPingPongPenaltyConfirmation,
+              !isStyleEditing else { return }
         let hideDelay: TimeInterval
         if let exitConfirmDeadline, Date() <= exitConfirmDeadline {
             hideDelay = max(exitConfirmDeadline.timeIntervalSinceNow, 0) + 0.05
@@ -2437,7 +2514,8 @@ struct RallyScoreboardView: View {
     }
 
     private func updateImmersiveForBlocking() {
-        if showMenu || showDisplaySettings || isEditMode || isStyleEditing || !appearance.immersiveMode {
+        if showMenu || showDisplaySettings || showPingPongPauseDialog || showPingPongCardsDialog ||
+            showPingPongPenaltyConfirmation || isEditMode || isStyleEditing || !appearance.immersiveMode {
             immersiveGeneration += 1
             chromeVisible = true
         } else {

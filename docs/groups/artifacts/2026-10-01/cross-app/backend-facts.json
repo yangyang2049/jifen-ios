@@ -1,0 +1,283 @@
+{
+  "groups": [
+    {
+      "id": "cmuoir6ii000ai0awc0wimmt4",
+      "name": "双端联调小组",
+      "groupNo": "55440227",
+      "activeMembers": 2
+    },
+    {
+      "id": "cmuokbi5l000qi00er2ypbqye",
+      "name": "鸿蒙扫码联调组",
+      "groupNo": "17912790",
+      "activeMembers": 2
+    }
+  ],
+  "results": [
+    {
+      "id": "cmuoj4lac0001i00e7i3q52u5",
+      "groupId": "cmuoir6ii000ai0awc0wimmt4",
+      "gameId": "cmuoj0n7y000ki0awjpkw75db",
+      "activityId": null,
+      "status": "confirmed",
+      "outcome": "draw",
+      "winnerSide": null,
+      "source": "scoreboard",
+      "setScoreA": 1,
+      "setScoreB": 1,
+      "rulesJson": {
+        "sport": "badminton",
+        "maxSets": 2,
+        "version": 1,
+        "pointCap": 15,
+        "winByTwo": true,
+        "gamesPerSet": 6,
+        "pointsToWinSet": 3,
+        "setScoringMode": "regular",
+        "tieBreakPoints": 7,
+        "useRallyScoring": false,
+        "usesNoAdScoring": false,
+        "matchCompletionMode": "play_all"
+      },
+      "playedAt": "2026-09-30T19:58:38.92",
+      "submitterMemberId": "cmuoisgdj000ii0awled77tfu",
+      "confirmedByMemberId": "cmuoir6in000ci0awfcjgasyj"
+    },
+    {
+      "id": "cmuoj8kw30008i00etoakwtzo",
+      "groupId": "cmuoir6ii000ai0awc0wimmt4",
+      "gameId": "cmuoj8kw20006i00ed7zsg06u",
+      "activityId": null,
+      "status": "confirmed",
+      "outcome": "win",
+      "winnerSide": "A",
+      "source": "manual",
+      "setScoreA": 2,
+      "setScoreB": 0,
+      "rulesJson": {
+        "sport": "badminton",
+        "maxSets": 3,
+        "version": 1,
+        "pointCap": 30,
+        "winByTwo": true,
+        "gamesPerSet": 6,
+        "pointsToWinSet": 21,
+        "setScoringMode": "regular",
+        "tieBreakPoints": 7,
+        "useRallyScoring": false,
+        "usesNoAdScoring": false,
+        "matchCompletionMode": "best_of"
+      },
+      "playedAt": "2026-09-30T20:02:16.014",
+      "submitterMemberId": "cmuoisgdj000ii0awled77tfu",
+      "confirmedByMemberId": "cmuoir6in000ci0awfcjgasyj"
+    },
+    {
+      "id": "cmuojohja000mi00e846iekwa",
+      "groupId": "cmuoir6ii000ai0awc0wimmt4",
+      "gameId": "cmuojlj9m000ki00e016ydami",
+      "activityId": "cmuojg81v000di00ett4i1r4w",
+      "status": "confirmed",
+      "outcome": "win",
+      "winnerSide": "A",
+      "source": "scoreboard",
+      "setScoreA": 1,
+      "setScoreB": 0,
+      "rulesJson": {
+        "sport": "badminton",
+        "maxSets": 1,
+        "version": 1,
+        "pointCap": 15,
+        "winByTwo": true,
+        "gamesPerSet": 6,
+        "pointsToWinSet": 3,
+        "setScoringMode": "regular",
+        "tieBreakPoints": 7,
+        "useRallyScoring": false,
+        "usesNoAdScoring": false,
+        "matchCompletionMode": "best_of"
+      },
+      "playedAt": "2026-09-30T20:15:23.467",
+      "submitterMemberId": "cmuoisgdj000ii0awled77tfu",
+      "confirmedByMemberId": "cmuoir6in000ci0awfcjgasyj"
+    }
+  ],
+  "games": [
+    {
+      "id": "cmuoj0n7y000ki0awjpkw75db",
+      "activityId": null,
+      "clientSessionId": "hos-0d36a2f9-0e0a-4d2f-998a-f70133383d3e",
+      "state": "submitted",
+      "format": "singles",
+      "rulesJson": {
+        "sport": "badminton",
+        "maxSets": 2,
+        "version": 1,
+        "pointCap": 15,
+        "winByTwo": true,
+        "gamesPerSet": 6,
+        "pointsToWinSet": 3,
+        "setScoringMode": "regular",
+        "tieBreakPoints": 7,
+        "useRallyScoring": false,
+        "usesNoAdScoring": false,
+        "matchCompletionMode": "play_all"
+      },
+      "participantsJson": [
+        {
+          "seat": 0,
+          "side": "A",
+          "memberId": "cmuoir6in000ci0awfcjgasyj"
+        },
+        {
+          "seat": 0,
+          "side": "B",
+          "memberId": "cmuoisgdj000ii0awled77tfu"
+        }
+      ]
+    },
+    {
+      "id": "cmuoj8kw20006i00ed7zsg06u",
+      "activityId": null,
+      "clientSessionId": "hos-ad759734-e0e1-4f98-aa1a-9ff9f7b74a21",
+      "state": "submitted",
+      "format": "singles",
+      "rulesJson": {
+        "sport": "badminton",
+        "maxSets": 3,
+        "version": 1,
+        "pointCap": 30,
+        "winByTwo": true,
+        "gamesPerSet": 6,
+        "pointsToWinSet": 21,
+        "setScoringMode": "regular",
+        "tieBreakPoints": 7,
+        "useRallyScoring": false,
+        "usesNoAdScoring": false,
+        "matchCompletionMode": "best_of"
+      },
+      "participantsJson": [
+        {
+          "seat": 0,
+          "side": "A",
+          "memberId": "cmuoir6in000ci0awfcjgasyj"
+        },
+        {
+          "seat": 0,
+          "side": "B",
+          "memberId": "cmuoisgdj000ii0awled77tfu"
+        }
+      ]
+    },
+    {
+      "id": "cmuojlj9m000ki00e016ydami",
+      "activityId": "cmuojg81v000di00ett4i1r4w",
+      "clientSessionId": "hos-49281608-7eb8-4dfd-843f-8e4d749fe4c3",
+      "state": "submitted",
+      "format": "singles",
+      "rulesJson": {
+        "sport": "badminton",
+        "maxSets": 1,
+        "version": 1,
+        "pointCap": 15,
+        "winByTwo": true,
+        "gamesPerSet": 6,
+        "pointsToWinSet": 3,
+        "setScoringMode": "regular",
+        "tieBreakPoints": 7,
+        "useRallyScoring": false,
+        "usesNoAdScoring": false,
+        "matchCompletionMode": "best_of"
+      },
+      "participantsJson": [
+        {
+          "seat": 0,
+          "side": "A",
+          "memberId": "cmuoir6in000ci0awfcjgasyj"
+        },
+        {
+          "seat": 0,
+          "side": "B",
+          "memberId": "cmuoisgdj000ii0awled77tfu"
+        }
+      ]
+    }
+  ],
+  "activities": [
+    {
+      "id": "cmuojg81v000di00ett4i1r4w",
+      "title": "联调活动",
+      "status": "completed",
+      "format": "singles",
+      "capacity": 4
+    }
+  ],
+  "registrations": [
+    {
+      "activityId": "cmuojg81v000di00ett4i1r4w",
+      "memberId": "cmuoir6in000ci0awfcjgasyj",
+      "status": "registered"
+    },
+    {
+      "activityId": "cmuojg81v000di00ett4i1r4w",
+      "memberId": "cmuoisgdj000ii0awled77tfu",
+      "status": "registered"
+    }
+  ],
+  "joinRequests": [
+    {
+      "groupId": "cmuoir6ii000ai0awc0wimmt4",
+      "status": "approved"
+    },
+    {
+      "groupId": "cmuokbi5l000qi00er2ypbqye",
+      "status": "approved"
+    }
+  ],
+  "rankings": {
+    "items": [
+      {
+        "memberId": "cmuoir6in000ci0awfcjgasyj",
+        "displayName": "iOS 联调账号",
+        "games": 3,
+        "wins": 2,
+        "losses": 0,
+        "draws": 1,
+        "setsWon": 4,
+        "setsLost": 1,
+        "winRateText": "",
+        "rank": 1
+      },
+      {
+        "memberId": "cmuoisgdj000ii0awled77tfu",
+        "displayName": "HOS 联调账号",
+        "games": 3,
+        "wins": 0,
+        "losses": 2,
+        "draws": 1,
+        "setsWon": 1,
+        "setsLost": 4,
+        "winRateText": "",
+        "rank": 2
+      }
+    ]
+  },
+  "stats": {
+    "confirmedMatchCount": 3,
+    "currentMonthMatchCount": 3,
+    "activeMemberCount30d": 2,
+    "lastCompletedAt": 1790799323467
+  },
+  "checks": {
+    "allThreeConfirmed": true,
+    "twoScoreboardOneManual": true,
+    "drawHasNullWinner": true,
+    "bothGroupsTwoMembers": true,
+    "bothAccountsRegistered": true,
+    "activityCompleted": true,
+    "noDuplicateResultsAfterRelaunch": true,
+    "rankingsIncludeDraw": true,
+    "winRateHiddenBelowFive": true,
+    "confirmedStatsMatch": true
+  }
+}

@@ -165,8 +165,8 @@
 "record_training_end_rate" = "Training finished · %1$d%% accuracy";
 "game_football" = "Football";
 "game_volleyball" = "Volleyball";
-"game_checkers" = "Chinese Checkers";
-"timer_checkers" = "Checkers";
+"game_checkers" = "International Checkers";
+"timer_checkers" = "International Checkers";
 "game_boxing" = "Boxing";
 "game_billiards" = "Billiards";
 "game_pickleball" = "Pickleball";
@@ -434,7 +434,7 @@
 "menu_swap_sides" = "Swap Sides";
 "menu_reset" = "Reset";
 "menu_undo" = "Undo";
-"scoreboard_rotate_orientation" = "Rotate Orientation";
+"scoreboard_rotate_orientation" = "Rotate";
 
 /* Font Selection */
 "font_default" = "Default";
@@ -450,7 +450,7 @@
 
 /* Records Tab */
 "clear_all_records" = "Clear All Records";
-"clear_records_tab_message" = "Score and timer records in the Records tab will be deleted. This cannot be undone. Common names, common places, and bookings will not be deleted.";
+"clear_records_tab_message" = "Score and timer records in the Records tab will be deleted. This cannot be undone. Saved names, saved places, and bookings will not be deleted.";
 "clear_data" = "Clear Data";
 "clear_data_failed_title" = "Clear Failed";
 "clear_data_failed_format" = "Some data could not be cleared. It is safe to retry:\n%@";
@@ -520,14 +520,14 @@
 "version" = "Version";
 "privacy_policy" = "Privacy Policy";
 "accessibility" = "Accessibility";
-"common_names_manage" = "Common Names";
+"common_names_manage" = "Saved Names";
 "common_names_team" = "Team Names";
 "common_names_player" = "Player Names";
 "common_names_clear_current" = "Clear Current Category";
-"common_names_clear_current_message" = "All common names in %@ will be deleted. This cannot be undone.";
-"common_names_title" = "Common Names";
-"common_names_empty" = "No common names";
-"common_names_empty_hint" = "Add team or player names in Settings > Data > Common Names, then reuse them here.";
+"common_names_clear_current_message" = "All saved names in %@ will be deleted. This cannot be undone.";
+"common_names_title" = "Saved Names";
+"common_names_empty" = "No saved names";
+"common_names_empty_hint" = "Add team or player names in Settings > Data > Saved Names, then reuse them here.";
 "common_names_management_empty_hint" = "Team and player names entered while scoring are saved here for quick selection next time.";
 "common_names_search_placeholder" = "Search names";
 "common_names_no_search_results" = "No Results";
@@ -556,15 +556,15 @@
 
 /* First-launch legal consent */
 "home_common_names_desc" = "Teams & players";
-"common_places_title" = "Common Places";
+"common_places_title" = "Saved Places";
 "home_common_places_desc" = "Courts & venues";
 "common_places_add" = "Add Place";
 "common_places_edit_title" = "Edit Place";
 "common_places_placeholder" = "Enter a place";
 "common_places_clear" = "Clear Places";
-"common_places_clear_message" = "All common places will be cleared. This cannot be undone.";
+"common_places_clear_message" = "All saved places will be cleared. This cannot be undone.";
 "common_places_search_placeholder" = "Search places";
-"common_places_no_records" = "No Common Places";
+"common_places_no_records" = "No Saved Places";
 "common_places_no_search_results" = "No Results";
 "common_places_usage_desc" = "Places entered in bookings are saved here for quick selection next time.";
 "common_places_batch_hint" = "One place per line, or separate with commas";
@@ -573,13 +573,13 @@
 "common_places_save_failed" = "Failed to save";
 "common_places_batch_empty" = "Enter at least one valid place";
 "common_places_batch_result" = "Added %d, skipped %d";
-"common_places_empty_hint" = "Add places from Common Places on Home";
+"common_places_empty_hint" = "Add places from Saved Places on Home";
 "common_places_select" = "Select Place";
 "common_places_added" = "Added";
 "common_places_updated" = "Updated";
 "common_places_deleted" = "Deleted";
 "common_places_batch_delete_confirm" = "Delete %d selected places?";
-"schedule_pick_common_place" = "Select a Common Place";
+"schedule_pick_common_place" = "Select a Saved Place";
 "faq_question_1" = "How do I start a match quickly?";
 "faq_answer_1" = "On Home, pick a sport, or open New match for more options. Add frequent sports and setups to Quick start so the next match opens faster.\n\nSports that need team names, sets, format, or serving rules open Game setup first. After confirming, the scoreboard opens; some settings can still be adjusted during scoring.";
 "faq_question_2" = "How do I score and fix mistakes?";
@@ -589,7 +589,7 @@
 "faq_question_4" = "How do I delete records or clear data?";
 "faq_answer_4" = "During a match, use Undo, Back, or the edit entry if the current sport supports it.\n\nFor saved matches, open the item in Records and delete it there. Me → Clear Data removes local scoring, timer, unfinished match, saved record, and some local setting data. This cannot be undone.";
 "faq_question_5" = "How do I connect a display or another phone?";
-"faq_answer_5" = "To show scores on another phone or tablet, on the display device open Sync score → Join match and follow the page to create a code or QR code; connect from the controller side after entering a match and the score syncs to the display. Keep both devices online and avoid locking the screen or moving the app to the background; if sync gets stuck, leave on both sides and reconnect.\n\nTo cast the scoreboard to a TV or large screen, use your phone system wireless display (Miracast). Open wireless display from the system Control Center and connect to the TV; once the app detects the connected screen, the scoreboard appears on it automatically. The app relies on the system cast and cannot search for TVs on its own, and disconnecting the system cast also ends the projection. Different brands may name it differently (e.g. wireless display or multi-screen interaction); complete the connection in the system first.";
+"faq_answer_5" = "Use two devices together: one keeps score, the other shows it full screen. Sharing device: Sign in and start sync to get a 6-digit code. Display device: Sign in and enter the 6-digit code from the sharing device. Start scoring — the score syncs automatically.\n\nAirPlay Screen Mirroring is recommended. Once connected and detected, the scoreboard shows up on the big screen automatically. Open Control Center and tap Screen Mirroring (AirPlay). Make the AirPlay connection in system settings first; the app can use only one connected display at a time and cannot search for TVs or projectors itself. Disconnecting AirPlay also ends the cast session.";
 "faq_question_6" = "I cannot find my sport. What should I do?";
 "faq_answer_6" = "Start with the closest sport. If only names, sets, teams, or starting order differ, adjust them in Game setup and add the setup to Quick start.\n\nIf the current sports cannot cover the rules, send Feedback with the sport name, common format, scoring method, and expected flow.";
 "faq_question_7" = "How do membership, sign-in, and new devices work?";
@@ -597,9 +597,9 @@
 "faq_question_8" = "How do I report a problem or suggest a feature?";
 "faq_answer_8" = "Open Me → Feedback and choose bug report or feature suggestion. Include the sport, steps, expected result, and actual result. For display or membership issues, also include device model, system version, and app version.";
 "faq_question_10" = "How do I back up my data or move it to a new phone?";
-"faq_answer_10" = "Sign in to your account so your common names, places, and match records are tied to it. With the membership Cloud sync, your data syncs across devices. On a new phone, sign in with the same account and your data restores automatically. Without sign-in, data is stored only on the current device.";
+"faq_answer_10" = "Sign in to sync saved team and player names and places between devices. On a new phone, sign in with the same account to retrieve this common data. Match records, timer records and unfinished matches remain on the current device; cloud backup and restore for these records are not available.";
 "faq_question_11" = "How are my data and privacy handled?";
-"faq_answer_11" = "The Privacy Policy explains what data is used and why. The microphone is used only when recording voice notes, and the camera only when scanning a QR code to sign in; both are processed locally on your device.";
+"faq_answer_11" = "The Privacy Policy explains what data is used and why. The microphone is used to record voice notes. The camera is used to scan trusted login QR codes and take a photo for your avatar.";
 "common_names_add" = "Add";
 "common_names_edit_title" = "Edit Name";
 "common_names_team_placeholder" = "Enter team name";
@@ -653,8 +653,8 @@
 "schedule_location" = "Location";
 "schedule_location_placeholder" = "Enter location";
 "schedule_reminders" = "Reminders";
-"schedule_reminder_hours_before" = "%d hours before";
-"schedule_reminder_minutes_before" = "%d minutes before";
+"schedule_reminder_hours_before" = "%d hr before";
+"schedule_reminder_minutes_before" = "%d min before";
 "schedule_reminder_help_title" = "Reminders";
 "schedule_reminder_help_message" = "Reminders are local notifications. Enable notifications to receive them. They may be missed if the app is removed or iOS restricts delivery. Editing or canceling a match updates them.";
 "schedule_notes" = "Notes";
@@ -844,6 +844,13 @@
 "scoreboard_double_tap_subtract_help_message" = "When on, double-tap the same score area or player tile to subtract 1. When off, swipe down to subtract or swipe left to undo. Button scoreboards like basketball and snooker are unchanged.";
 "scoreboard_official_break_help_title" = "Official Breaks";
 "scoreboard_official_break_help_message" = "When enabled, official breaks pause scoring. You can skip or undo a break.\n\nTable tennis and Jianzi: 60s between games\nBadminton: 60s mid-game, 120s between games\nSquash: 90s between games\nTennis and Padel: 90s changeovers, 120s between sets\nSoft tennis: 60s changeovers\nPickleball: 60s mid-game in the deciding game, 120s between games";
+"scoreboard_official_break_help_intro" = "When enabled, official breaks pause scoring. You can skip or undo a break.";
+"scoreboard_official_break_rule_between_games_60" = "60s between games";
+"scoreboard_official_break_rule_badminton" = "60s mid-game, 120s between games";
+"scoreboard_official_break_rule_squash" = "90s between games";
+"scoreboard_official_break_rule_tennis" = "90s changeovers, 120s between sets";
+"scoreboard_official_break_rule_soft_tennis" = "60s changeovers";
+"scoreboard_official_break_rule_pickleball" = "60s mid-game in the deciding game, 120s between games";
 "show_match_time" = "Show time";
 "hide_match_time" = "Hide time";
 "scoreboard_match_time_this_game_only" = "This match only; the next match reverts to the sport's default setting.";
@@ -978,8 +985,8 @@
 "timer_custom_seconds" = "Sec";
 "timer_countdown_notification_title" = "Countdown finished";
 "timer_countdown_notification_content" = "Your countdown has ended. Tap to return.";
-"scoreboard_usage_hint_menu" = "How to Use";
-"scoreboard_usage_hint_title" = "How to Use";
+"scoreboard_usage_hint_menu" = "Guide";
+"scoreboard_usage_hint_title" = "How to use";
 "scoreboard_usage_hint_got_it" = "Got It";
 "scoreboard_usage_hint_football" = "👆 Tap left/right score area to add 1 goal\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n⏱️ Open Injury time from the bottom-right menu, choose a duration, then undo or confirm\n🏁 After the second half and injury time, a tied match can continue to two 15-minute periods of extra time";
 "scoreboard_usage_hint_basketball" = "👆 Tap +1, +2, or +3 for the team\n↩️ Swipe left to undo\n🚩 Tap the foul area to add a foul; long-press to remove one\n⏱️ Use the basketball panel for the clock, period, and timeouts";
@@ -1036,7 +1043,7 @@
 "scoreboard_key_point_volleyball_set" = "SP";
 "scoreboard_key_point_set" = "SP";
 "scoreboard_key_point_match" = "MP";
-"record_recap_set_format" = "Game %d";
+"record_recap_set_format" = "Set %d";
 "record_recap_tennis_set_format" = "Set %d";
 "record_recap_period_format" = "Period %d";
 "record_recap_round_format" = "Round %d";
@@ -1130,7 +1137,7 @@
 "timeout" = "Timeout";
 "timer_record_time" = "Recorded At";
 "undo" = "Undo";
-"scoreboard_set_end_format" = "Game %d Finished";
+"scoreboard_set_end_format" = "Set %d Finished";
 "winner_named_format" = "%@ Wins";
 "basketball_fouls_count" = "Fouls %d";
 "basketball_timeout_remaining" = "Timeout (%d)";
@@ -1183,8 +1190,8 @@
 "official_break" = "Official Break";
 "official_break_prepare" = "Get ready";
 "official_breaks" = "Official Breaks";
-"official_break_mid_game" = "Mid-Game Break";
-"official_break_game" = "Game Break";
+"official_break_mid_game" = "Mid-game interval";
+"official_break_game" = "Between-game interval";
 "official_break_set" = "Set Break";
 "official_break_changeover" = "Changeover Break";
 "official_break_continue" = "Resume";
@@ -1473,7 +1480,7 @@
 "account_deletion_impact_title" = "Before You Continue";
 "account_deletion_impact_account" = "Your profile and sign-in identity will be deleted or anonymized.";
 "account_deletion_impact_feedback" = "Feedback and other account-related content you posted may be deleted or anonymized.";
-"account_deletion_impact_local_data" = "Local scoring records, bookings, common names, and settings are kept.";
+"account_deletion_impact_local_data" = "Local scoring records, bookings, saved names, and settings are kept.";
 "account_deletion_impact_irreversible" = "Once deleted, the account cannot be recovered.";
 "account_deletion_submitting" = "Submitting...";
 "account_deletion_apply" = "Delete Account";
@@ -1552,3 +1559,9 @@
 "game_short" = "Games";
 "set_short" = "Sets";
 "football_injury_title" = "Stoppage Time";
+
+"feedback_official" = "Official";
+
+"feedback_pinned" = "Pinned";
+
+"voice_announce_server" = "Announce server";

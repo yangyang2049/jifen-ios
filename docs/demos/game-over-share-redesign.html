@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>比赛结束 · 分享转化重设计 — iOS Demo</title>
+<style>
+  :root {
+    --page-bg: #0b0d10;
+    --card: #15181d;
+    --card-border: #242933;
+    --text: #e8eaee;
+    --text-dim: #9aa1ac;
+    --text-faint: #6b7280;
+    --accent: #30d158;
+    --accent-dim: rgba(48, 209, 88, 0.14);
+    --dlg-surface: #2c2c2e;
+    --dlg-control: #3a3a3c;
+    --dlg-secondary: #98989d;
+    --dlg-disabled: #48484a;
+    --winner: #34c759;
+    --danger: #ff6b6b;
+    --amber: #ffd60a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--page-bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding: 48px 32px 80px;
+  }
+  .wrap { max-width: 1760px; margin: 0 auto; }
+
+  /* ---------- header ---------- */
+  .kicker {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 600; letter-spacing: 0.08em;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid rgba(48, 209, 88, 0.3);
+    padding: 6px 14px; border-radius: 999px;
+    margin-bottom: 18px;
+  }
+  h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.01em; }
+  .sub { margin-top: 10px; font-size: 15px; line-height: 1.7; color: var(--text-dim); max-width: 860px; }
+  .sub b { color: var(--text); font-weight: 600; }
+
+  /* ---------- problem cards ---------- */
+  .problems { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 34px; }
+  @media (max-width: 1400px) { .problems { grid-template-columns: repeat(2, 1fr); } }
+  .problem {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 16px; padding: 18px 18px 20px;
+  }
+  .problem .tag {
+    display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    padding: 3px 9px; border-radius: 6px; margin-bottom: 12px;
+  }
+  .tag.p0 { background: rgba(255, 107, 107, 0.14); color: var(--danger); border: 1px solid rgba(255,107,107,.3); }
+  .tag.p1 { background: rgba(255, 214, 10, 0.1); color: var(--amber); border: 1px solid rgba(255,214,10,.25); }
+  .tag.p2 { background: rgba(154, 161, 172, 0.1); color: var(--text-dim); border: 1px solid rgba(154,161,172,.22); }
+  .problem h3 { font-size: 15.5px; font-weight: 650; margin-bottom: 8px; line-height: 1.45; }
+  .problem p { font-size: 13px; line-height: 1.75; color: var(--text-dim); }
+  .problem code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 11.5px; background: #0e1013; border: 1px solid #23272e;
+    padding: 1px 6px; border-radius: 5px; color: #8fd8a5;
+  }
+
+  /* ---------- section titles ---------- */
+  .section-head { margin: 52px 0 6px; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .section-head h2 { font-size: 21px; font-weight: 700; }
+  .section-head .hint { font-size: 13px; color: var(--text-faint); }
+
+  /* ---------- phone stage ---------- */
+  .stage { display: flex; gap: 40px; margin-top: 26px; flex-wrap: wrap; align-items: flex-start; }
+  .phone-col { flex: 1 1 560px; min-width: 520px; }
+  .phone-col .col-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 15px; font-weight: 700; margin-bottom: 14px;
+  }
+  .col-label .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .col-label .now .dot { background: var(--danger); box-shadow: 0 0 10px rgba(255,107,107,.6); }
+  .col-label .new .dot { background: var(--accent); box-shadow: 0 0 10px rgba(48,209,88,.6); }
+  .col-label small { font-weight: 500; font-size: 12.5px; color: var(--text-faint); margin-left: 4px; }
+
+  .phone {
+    position: relative;
+    width: 100%; aspect-ratio: 844 / 390;
+    background: #000;
+    border-radius: 44px;
+    border: 3px solid #3a3d42;
+    box-shadow: 0 0 0 6px #17181b, 0 30px 70px rgba(0,0,0,.55), inset 0 0 0 2px #000;
+    overflow: hidden;
+  }
+  .screen { position: absolute; inset: 10px; border-radius: 34px; overflow: hidden; background: #101214; }
+  .island {
+    position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+    width: 110px; height: 26px; background: #000; border-radius: 14px; z-index: 40;
+  }
+  @media (max-width: 1200px) { .phone-col { min-width: 100%; } }
+
+  /* ---------- fake scoreboard behind dialogs ---------- */
+  .sb {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, #0d1114 0%, #0b0e10 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; user-select: none;
+  }
+  .sb .sport-row { display: flex; align-items: center; gap: 8px; opacity: .55; font-size: 13px; color: #cfd4da; }
+  .sb .duel { display: flex; align-items: center; gap: 26px; margin-top: 4px; }
+  .sb .side { text-align: center; }
+  .sb .side .nm { font-size: 14px; color: #aab0b9; margin-bottom: 2px; }
+  .sb .side .sc { font-size: 74px; font-weight: 800; color: #f2f4f6; font-variant-numeric: tabular-nums; line-height: 1; }
+  .sb .sep { font-size: 40px; color: #4a4f57; font-weight: 300; }
+  .sb .serve { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; margin-right: 6px; vertical-align: 2px; }
+  .sb .sets { display: flex; gap: 8px; margin-top: 10px; opacity: .75; }
+  .sb .set-chip {
+    font-size: 12px; font-weight: 600; color: #c8cdd4;
+    background: #1b2026; border: 1px solid #262c34;
+    padding: 4px 10px; border-radius: 8px; font-variant-numeric: tabular-nums;
+  }
+  .sb .win-mark { color: var(--winner); font-size: 15px; }
+  .sb.dim { filter: brightness(.75); }
+
+  /* ---------- GameOverDialog 复刻(现状) ---------- */
+  .scrim {
+    position: absolute; inset: 0; background: rgba(0,0,0,.45); z-index: 10;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .dlg {
+    width: 430px; max-width: calc(100% - 60px);
+    background: var(--dlg-surface);
+    border-radius: 26px;
+    padding: 14px 20px 16px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.5);
+    position: relative;
+    font-family: inherit;
+  }
+  .dlg .dlg-title { text-align: center; font-size: 19px; font-weight: 700; color: #fff; }
+  .dlg .dlg-sport {
+    display: flex; justify-content: center; align-items: center; gap: 7px;
+    font-size: 13px; font-weight: 500; color: var(--dlg-secondary); margin-top: 5px;
+  }
+  .dlg .result { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 10px 0 14px; }
+  .dlg .r-col { text-align: center; width: 130px; }
+  .dlg .r-col .nm { font-size: 12px; color: #fff; opacity: .92; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dlg .r-col .sc { font-size: 34px; font-weight: 800; color: #fff; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .dlg .r-col.w .sc { color: var(--winner); }
+  .dlg .dash { font-size: 19px; color: var(--dlg-secondary); }
+  .dlg .btn-primary {
+    display: flex; align-items: center; justify-content: center;
+    height: 42px; border-radius: 11px;
+    background: var(--accent); color: #fff; font-size: 15.5px; font-weight: 600;
+    cursor: pointer; border: none; width: 100%;
+    font-family: inherit; transition: filter .15s;
+  }
+  .dlg .btn-primary:hover { filter: brightness(1.08); }
+  .dlg .btn-row { display: flex; gap: 8px; margin-top: 9px; }
+  .dlg .btn-sec {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    height: 42px; border-radius: 11px;
+    background: var(--dlg-control); color: #fff; font-size: 15px;
+    cursor: pointer; border: none; font-family: inherit; transition: background .15s;
+  }
+  .dlg .btn-sec:hover { background: #46464a; }
+  .dlg .btn-sec.hot { color: var(--accent); }
+
+  /* ---------- NEW dialog ---------- */
+  .dlg2 {
+    width: 500px; max-width: calc(100% - 56px);
+    background: linear-gradient(180deg, #2e2e31 0%, #262628 100%);
+    border-radius: 26px;
+    padding: 16px 22px 12px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06);
+    position: relative; z-index: 12;
+    font-family: inherit;
+  }
+  .dlg2 .head { display: flex; align-items: center; justify-content: space-between; }
+  .dlg2 .head .t { font-size: 19px; font-weight: 700; color: #fff; }
+  .dlg2 .head .sport {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; color: #d7d9dd;
+    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.09);
+    padding: 4px 10px; border-radius: 999px;
+  }
+  .dlg2 .winner-line {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 8px; font-size: 16px; font-weight: 700; color: var(--winner);
+  }
+  .dlg2 .winner-line .crown { font-size: 17px; filter: drop-shadow(0 0 6px rgba(255,214,10,.5)); }
+  .dlg2 .result { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 2px; }
+  .dlg2 .r-col { text-align: center; width: 150px; }
+  .dlg2 .r-col .nm { font-size: 13px; color: #eceef0; opacity: .95; }
+  .dlg2 .r-col .sc { font-size: 44px; font-weight: 800; line-height: 1.12; color: #fff; font-variant-numeric: tabular-nums; }
+  .dlg2 .r-col.w .sc { color: var(--winner); }
+  .dlg2 .dash { font-size: 24px; color: var(--dlg-secondary); font-weight: 300; }
+  .dlg2 .setrow { display: flex; justify-content: center; gap: 7px; margin-top: 8px; }
+  .dlg2 .set-chip {
+    font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums;
+    color: #c9ccd1; background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.1);
+    padding: 3px 10px; border-radius: 8px;
+  }
+  .dlg2 .set-chip.wl { color: #b9f2c9; background: rgba(48,209,88,.13); border-color: rgba(48,209,88,.35); }
+  .dlg2 .meta { display: flex; justify-content: center; gap: 14px; margin-top: 9px; font-size: 12px; color: var(--dlg-secondary); }
+  .dlg2 .meta span { display: inline-flex; align-items: center; gap: 5px; }
+  .dlg2 .cta { display: flex; gap: 9px; margin-top: 13px; }
+  .dlg2 .cta .b {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+    height: 44px; border-radius: 12px; font-size: 15.5px; font-weight: 650;
+    border: none; cursor: pointer; font-family: inherit; transition: filter .15s, background .15s;
+  }
+  .dlg2 .cta .share { background: var(--accent); color: #fff; box-shadow: 0 4px 18px rgba(48,209,88,.35); }
+  .dlg2 .cta .share:hover { filter: brightness(1.07); }
+  .dlg2 .cta .again { background: var(--dlg-control); color: #fff; }
+  .dlg2 .cta .again:hover { background: #46464a; }
+  .dlg2 .foot { display: flex; justify-content: center; gap: 22px; padding: 9px 0 2px; }
+  .dlg2 .foot button {
+    background: none; border: none; font-size: 12.5px; color: var(--dlg-secondary);
+    cursor: pointer; font-family: inherit; padding: 4px 2px;
+  }
+  .dlg2 .foot button:hover { color: #d0d3d8; }
+
+  /* ---------- 现状分享结果 overlay ---------- */
+  .share-result {
+    position: absolute; inset: 0; z-index: 60;
+    background: rgba(6,8,10,.9);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; padding: 22px;
+    animation: fadeIn .25s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .share-result .shot {
+    width: 62%; border-radius: 14px; overflow: hidden;
+    border: 1px solid #333a44;
+    box-shadow: 0 18px 44px rgba(0,0,0,.6);
+    position: relative; aspect-ratio: 844 / 390; background: #0d1114;
+  }
+  .share-result .shot .mini-scrim { position: absolute; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; }
+  .share-result .shot .mini-dlg {
+    width: 66%; background: var(--dlg-surface); border-radius: 18px; padding: 9px 12px 10px;
+    transform: scale(.98);
+  }
+  .share-result .shot .mini-dlg .t { text-align: center; color: #fff; font-weight: 700; font-size: 11px; }
+  .share-result .shot .mini-dlg .row { display: flex; justify-content: center; gap: 8px; align-items: center; margin: 4px 0 6px; }
+  .share-result .shot .mini-dlg .nm { font-size: 7px; color: #fff; text-align: center; }
+  .share-result .shot .mini-dlg .sc { font-size: 16px; font-weight: 800; color: #fff; text-align: center; line-height: 1.1; }
+  .share-result .shot .mini-dlg .sc.w { color: var(--winner); }
+  .share-result .shot .mini-dlg .dash { font-size: 9px; color: var(--dlg-secondary); }
+  .share-result .shot .mini-dlg .p1 { height: 16px; border-radius: 5px; background: var(--accent); margin-top: 2px; }
+  .share-result .shot .mini-dlg .p2 { display: flex; gap: 4px; margin-top: 4px; }
+  .share-result .shot .mini-dlg .p2 i { flex: 1; height: 16px; border-radius: 5px; background: var(--dlg-control); }
+  .share-result .shot .mini-sb { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 14px; }
+  .share-result .shot .mini-sb .m-sc { font-size: 40px; font-weight: 800; color: #eef1f4; font-variant-numeric: tabular-nums; }
+  .share-result .shot .mini-sb .m-nm { font-size: 9px; color: #99a0a9; text-align: center; margin-bottom: 2px; }
+  .share-result .cap { font-size: 13px; line-height: 1.7; color: #e6c9c9; text-align: center; max-width: 420px; }
+  .share-result .cap b { color: var(--danger); }
+  .share-result .close-hint { font-size: 12px; color: var(--text-faint); cursor: pointer; padding: 5px 14px; border: 1px solid #2a3038; border-radius: 999px; }
+
+  /* ---------- NEW share preview(卡片居中 + 底部应用条) ---------- */
+  .sheet-wrap { position: absolute; inset: 0; z-index: 60; display: none; }
+  .sheet-wrap.open { display: flex; flex-direction: column; align-items: center; padding-top: 14px; }
+  .sheet-wrap .mask { position: absolute; inset: 0; background: rgba(0,0,0,.62); animation: fadeIn .22s ease; }
+  .sheet-wrap .pv-body {
+    position: relative; z-index: 2;
+    animation: pop .3s cubic-bezier(.2,.9,.3,1.2);
+  }
+  @keyframes pop { from { opacity: 0; transform: scale(.9) translateY(10px); } to { opacity: 1; transform: none; } }
+  .sheet-wrap .pv-caption {
+    position: relative; z-index: 2;
+    margin-top: 9px; font-size: 10.5px; color: #b9bec6; text-align: center;
+    background: rgba(20,22,26,.85); border: 1px solid rgba(255,255,255,.08);
+    border-radius: 999px; padding: 4px 14px;
+  }
+  .sheet-wrap .pv-caption .lnk { color: #5eb4ff; }
+  .sheet-wrap .pv-apps {
+    position: absolute; z-index: 2; left: 50%; bottom: 12px; transform: translateX(-50%);
+    display: flex; gap: 4px;
+    background: rgba(28,30,34,.92); border: 1px solid rgba(255,255,255,.09);
+    border-radius: 16px; padding: 6px 10px;
+    backdrop-filter: blur(6px);
+  }
+  .sheet-wrap .app { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 9px; color: #b6bac1; min-width: 44px; cursor: pointer; }
+  .sheet-wrap .app:hover .ico { filter: brightness(1.15); }
+  .sheet-wrap .app .ico {
+    width: 32px; height: 32px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 15px;
+    background: #2b2e33; border: 1px solid rgba(255,255,255,.08);
+  }
+
+  /* ---------- share card(白底战绩卡) ---------- */
+  .scard {
+    width: 208px; flex-shrink: 0;
+    background: #f7f7f4;
+    border-radius: 14px; overflow: hidden;
+    color: #1c1c1e;
+    box-shadow: 0 14px 34px rgba(0,0,0,.5);
+    font-family: inherit;
+  }
+  .scard .inner { padding: 11px 12px 10px; }
+  .scard .top { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 600; color: #6e6e73; }
+  .scard .top .finished { margin-left: auto; color: #248a3d; font-weight: 700; font-size: 9.5px; }
+  .scard .title { text-align: center; font-size: 13px; font-weight: 700; color: #1c1c1e; margin-top: 7px; }
+  .scard .win-line { text-align: center; font-size: 10px; font-weight: 700; color: #248a3d; margin-top: 2px; }
+  .scard .res { display: flex; align-items: center; justify-content: center; gap: 11px; margin-top: 3px; }
+  .scard .res .c { text-align: center; width: 58px; }
+  .scard .res .c .nm { font-size: 9.5px; color: #3a3a3c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .scard .res .c .sc { font-size: 26px; font-weight: 800; color: #1c1c1e; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .scard .res .c.w .sc { color: #248a3d; }
+  .scard .res .d { font-size: 12px; color: #aeaeb2; }
+  .scard .chips { display: flex; justify-content: center; gap: 4px; margin-top: 6px; }
+  .scard .chips span {
+    font-size: 8.5px; font-weight: 700; font-variant-numeric: tabular-nums;
+    color: #3a3a3c; background: #ececea; padding: 2px 6px; border-radius: 5px;
+  }
+  .scard .chips span.w { color: #248a3d; background: #e2f2e6; }
+  .scard .meta2 { display: flex; justify-content: center; gap: 10px; margin-top: 5px; font-size: 8.5px; color: #8e8e93; }
+  .scard .divider { border-top: 1px dashed #d9d9d4; margin: 8px 0 7px; }
+  .scard .footer { display: flex; align-items: center; gap: 7px; }
+  .scard .appicon {
+    width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0;
+    background: linear-gradient(145deg, #34d15e, #1e9e42);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 800; font-size: 12px;
+  }
+  .scard .footer .brand b { display: block; font-size: 10.5px; color: #1c1c1e; }
+  .scard .footer .brand i { display: block; font-style: normal; font-size: 8px; color: #8e8e93; margin-top: 1px; }
+  .scard .footer .qr { margin-left: auto; width: 34px; height: 34px; background: #fff; border-radius: 4px; overflow: hidden; }
+  .scard .footer .qr svg { width: 100%; height: 100%; display: block; }
+
+
+  /* ---------- footnote strip ---------- */
+  .strip {
+    margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap;
+    font-size: 12.5px; color: var(--text-dim);
+  }
+  .strip .pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 999px; padding: 7px 14px;
+  }
+  .strip .pill b { color: var(--text); font-weight: 600; }
+  .ok { color: var(--accent); }
+
+  /* ---------- roadmap ---------- */
+  .roadmap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 20px; }
+  @media (max-width: 1100px) { .roadmap { grid-template-columns: 1fr; } }
+  .phase { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 18px; }
+  .phase .ph-tag { font-size: 11px; font-weight: 800; letter-spacing: .08em; color: var(--accent); margin-bottom: 8px; }
+  .phase h3 { font-size: 15.5px; font-weight: 650; margin-bottom: 10px; }
+  .phase ul { list-style: none; }
+  .phase li { font-size: 13px; line-height: 1.7; color: var(--text-dim); padding-left: 16px; position: relative; margin-bottom: 6px; }
+  .phase li::before { content: "·"; position: absolute; left: 4px; color: var(--accent); font-weight: 800; }
+  .phase code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px; background: #0e1013; border: 1px solid #23272e; padding: 1px 5px; border-radius: 4px; color: #8fd8a5; }
+
+  footer.note { margin-top: 46px; font-size: 12.5px; color: var(--text-faint); line-height: 1.8; border-top: 1px solid #1d2129; padding-top: 18px; }
+  footer.note code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px; color: #8fd8a5; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ HEADER ============ -->
+  <div class="kicker">MATCH-END · SHARE CONVERSION</div>
+  <h1>比赛结束时刻:现状分析与分享转化重设计</h1>
+  <p class="sub">
+    结束弹窗是用户情绪峰值最高的一刻——赢了想晒,输了想约下一场。<b>现状的「分享」却把这一刻浪费了</b>:
+    分享出去的是一张带着弹窗和按钮的屏幕截图,文案没有品牌署名。下面的 demo 左侧是现状的像素级复刻(含"分享出去的图"实况预览),
+    右侧是建议的新方案(可点击「分享战绩卡」体验完整链路)。
+  </p>
+
+  <!-- ============ PROBLEMS ============ -->
+  <div class="problems">
+    <div class="problem">
+      <span class="tag p0">P0 · 分享物质量</span>
+      <h3>分享出去的图 = 带弹窗的截屏</h3>
+      <p>点「分享」那一刻结束弹窗还在屏上,<code>ScoreboardShareSupport.present</code> 直接截取整个 keyWindow——
+      发出去的图带着黑色蒙层、「再来一场 / 退出」按钮,像一张 bug 截图。这是分享最致命的质量问题。</p>
+    </div>
+    <div class="problem">
+      <span class="tag p0">P0 · 零品牌归因</span>
+      <h3>分享文案没有 App 署名</h3>
+      <p>文案只有一行 <code>"红队 21 - 18 蓝队"</code>:无 App 名、无链接、无运动类型、无时间。
+      收到的人不知道这是什么 App 产出的,裂变链路完全断裂。记录详情页的分享卡其实已经有品牌页脚 + 下载二维码,却藏在二级页面。</p>
+    </div>
+    <div class="problem">
+      <span class="tag p1">P1 · 入口权重</span>
+      <h3>分享与「退出」平级</h3>
+      <p>「查看记录 / 分享 / 退出」三个等宽灰按钮并排,分享是增长杠杆,视觉优先级却排第四;
+      唯一的高亮主按钮给了「再来一场」(留存动作)。两者可以并存,但分享值得更高的视觉权重。</p>
+    </div>
+    <div class="problem">
+      <span class="tag p1">P1 · 情绪与细节</span>
+      <h3>结果区没有"值得晒"的内容</h3>
+      <p>弹窗只有一行大比分:无胜者庆祝(皇冠/奖杯)、无网球逐盘比分(6-4 / 3-6 / 7-5)、无时长日期。
+      赢球的炫耀欲没有被视觉放大,比分之外的"故事感"全丢了。</p>
+    </div>
+  </div>
+
+  <!-- ============ STAGE ============ -->
+  <div class="section-head">
+    <h2>交互 Demo:现状 vs 新方案</h2>
+    <span class="hint">网球 · 横屏(真实计分场景)· 左图点击「分享」看现状实际分享物 · 右图点击「分享战绩卡」走完新链路</span>
+  </div>
+
+  <div class="stage">
+
+    <!-- ======== 现状 ======== -->
+    <div class="phone-col">
+      <div class="col-label now"><span class="dot"></span>现状 · GameOverDialog(复刻)<small>GameOverDialog.swift + ScoreboardShareSupport.present()</small></div>
+      <div class="phone">
+        <div class="island"></div>
+        <div class="screen">
+          <!-- 计分板背景 -->
+          <div class="sb dim">
+            <div class="sport-row">🎾 网球 · 第 3 盘</div>
+            <div class="duel">
+              <div class="side"><div class="nm">红队</div><div class="sc">1</div></div>
+              <div class="sep">:</div>
+              <div class="side"><div class="nm"><span class="serve"></span>蓝队</div><div class="sc">2</div></div>
+            </div>
+            <div class="sets">
+              <span class="set-chip"><span class="win-mark">●</span> 6-4</span>
+              <span class="set-chip">3-6</span>
+              <span class="set-chip"><span class="win-mark">●</span> 5-4</span>
+            </div>
+          </div>
+          <!-- 弹窗 -->
+          <div class="scrim">
+            <div class="dlg">
+              <div class="dlg-title">比赛结束</div>
+              <div class="dlg-sport">🎾 <span>网球</span></div>
+              <div class="result">
+                <div class="r-col"><div class="nm">红队</div><div class="sc">1</div></div>
+                <div class="dash">-</div>
+                <div class="r-col w"><div class="nm">蓝队</div><div class="sc">2</div></div>
+              </div>
+              <button class="btn-primary">再来一场</button>
+              <div class="btn-row">
+                <button class="btn-sec">查看记录</button>
+                <button class="btn-sec hot" onclick="showNowShare()">分享</button>
+                <button class="btn-sec">退出</button>
+              </div>
+            </div>
+          </div>
+          <!-- 现状分享物预览 -->
+          <div class="share-result" id="nowShare" style="display:none" onclick="hideNowShare()">
+            <div class="shot">
+              <div class="mini-sb">
+                <div><div class="m-nm">红队</div><div class="m-sc">1</div></div>
+                <div><div class="m-nm" style="opacity:0">:</div><div class="m-sc" style="font-size:22px;opacity:.5">:</div></div>
+                <div><div class="m-nm">蓝队</div><div class="m-sc">2</div></div>
+              </div>
+              <div class="mini-scrim">
+                <div class="mini-dlg">
+                  <div class="t">比赛结束</div>
+                  <div class="row">
+                    <div><div class="nm">红队</div><div class="sc">1</div></div>
+                    <div class="dash">-</div>
+                    <div><div class="nm">蓝队</div><div class="sc w">2</div></div>
+                  </div>
+                  <div class="p1"></div>
+                  <div class="p2"><i></i><i></i><i></i></div>
+                </div>
+              </div>
+            </div>
+            <div class="cap">这是<b>现在实际分享出去的图</b>:蒙层 + 弹窗 + 按钮全在,<br>群里的人看到的是一张"报错截图",而不是一张战报。</div>
+            <div class="close-hint">点击任意处返回</div>
+          </div>
+        </div>
+      </div>
+      <div class="strip">
+        <span class="pill">现状分享物 = <b>截屏 + 一行纯文本</b></span>
+        <span class="pill">文案:<b>"红队 1 - 2 蓝队"</b> · 无署名无链接</span>
+      </div>
+    </div>
+
+    <!-- ======== 新方案 ======== -->
+    <div class="phone-col">
+      <div class="col-label new"><span class="dot"></span>新方案 · 战绩卡时刻<small>胜者庆祝 + 双 CTA + ImageRenderer 品牌分享卡</small></div>
+      <div class="phone">
+        <div class="island"></div>
+        <div class="screen">
+          <!-- 计分板背景(终局态,更亮一点因为弹窗更窄) -->
+          <div class="sb dim">
+            <div class="sport-row">🎾 网球 · 已结束</div>
+            <div class="duel">
+              <div class="side"><div class="nm">红队</div><div class="sc">1</div></div>
+              <div class="sep">:</div>
+              <div class="side"><div class="nm">蓝队</div><div class="sc">2</div></div>
+            </div>
+          </div>
+          <!-- 新弹窗 -->
+          <div class="scrim">
+            <div class="dlg2">
+              <div class="head">
+                <span class="t">比赛结束</span>
+                <span class="sport">🎾 网球</span>
+              </div>
+              <div class="winner-line"><span class="crown">👑</span> 蓝队 获胜</div>
+              <div class="result">
+                <div class="r-col"><div class="nm">红队</div><div class="sc">1</div></div>
+                <div class="dash">—</div>
+                <div class="r-col w"><div class="nm">蓝队</div><div class="sc">2</div></div>
+              </div>
+              <div class="setrow">
+                <span class="set-chip wl">6-4</span>
+                <span class="set-chip">3-6</span>
+                <span class="set-chip wl">4-6</span>
+              </div>
+              <div class="meta"><span>⏱ 1 小时 24 分</span><span>📅 10 月 2 日 15:30</span></div>
+              <div class="cta">
+                <button class="b share" onclick="openSheet()">📤 分享战绩卡</button>
+                <button class="b again">再来一场</button>
+              </div>
+              <div class="foot">
+                <button>查看记录</button>
+                <button>退出</button>
+              </div>
+            </div>
+          </div>
+          <!-- 分享预览:卡片 + 应用条 -->
+          <div class="sheet-wrap" id="sheet">
+            <div class="mask" onclick="closeSheet()"></div>
+            <div class="pv-body">
+              <div class="scard">
+                <div class="inner">
+                  <div class="top">🎾 网球 · 10 月 2 日<span class="finished">已结束</span></div>
+                  <div class="title">俱乐部友谊赛</div>
+                  <div class="win-line">👑 蓝队 获胜</div>
+                  <div class="res">
+                    <div class="c"><div class="nm">红队</div><div class="sc">1</div></div>
+                    <div class="d">:</div>
+                    <div class="c w"><div class="nm">蓝队</div><div class="sc">2</div></div>
+                  </div>
+                  <div class="chips"><span class="w">6-4</span><span>3-6</span><span class="w">4-6</span></div>
+                  <div class="meta2"><span>⏱ 1 小时 24 分</span></div>
+                  <div class="divider"></div>
+                  <div class="footer">
+                    <div class="appicon">记</div>
+                    <div class="brand"><b>iScore 计分</b><i>每一分都算数</i></div>
+                    <div class="qr"><svg id="qr" viewBox="0 0 29 29"></svg></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="pv-caption">文案:🎾 蓝队 2:1 红队 · 逐盘 6-4 / 3-6 / 4-6 · 用 <b>iScore 计分</b>记录 <span class="lnk">jifenqi.com/download</span></div>
+            <div class="pv-apps">
+              <div class="app"><div class="ico" style="background:#07c160">💬</div>微信</div>
+              <div class="app"><div class="ico" style="background:#f2f2f2;color:#e0642f">🌈</div>朋友圈</div>
+              <div class="app"><div class="ico" style="background:#ff2442">📕</div>小红书</div>
+              <div class="app"><div class="ico">🖼️</div>保存图片</div>
+              <div class="app"><div class="ico">🔗</div>拷贝</div>
+              <div class="app"><div class="ico">···</div>更多</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="strip">
+        <span class="pill ok">✓ 分享物 = 品牌战报卡(复用 <b>RecordDetailShareCardView</b> 基建)</span>
+        <span class="pill ok">✓ 文案带署名 + 下载链接 + 二维码归因</span>
+        <span class="pill ok">✓ 分享升为主 CTA,查看记录/退出降为文字链接</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ROADMAP ============ -->
+  <div class="section-head">
+    <h2>落地路径建议</h2>
+    <span class="hint">按投入从小到大分三档,A 档几乎零风险,可先行上线看数据</span>
+  </div>
+  <div class="roadmap">
+    <div class="phase">
+      <div class="ph-tag">A · 止血(1–2 天)</div>
+      <h3>先把分享物质量修对</h3>
+      <ul>
+        <li>分享改走 <code>ImageRenderer</code> 渲染分享卡,替换 <code>captureKeyWindowImage</code>;截图方案兜底时先隐藏弹窗再截纯计分板</li>
+        <li>文案模板:<code>"🎾 网球 · 蓝队 2:1 红队(6-4, 3-6, 4-6)· 用 iScore 记录 jifenqi.com/download"</code></li>
+        <li>复用现成组件:<code>RecordDetailShareCardView</code> + <code>ShareQRCodeRenderer</code>(品牌页脚 + 二维码已实现)</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <div class="ph-tag">B · 重设计(本 demo)</div>
+      <h3>结束弹窗 = 战绩卡时刻</h3>
+      <ul>
+        <li>胜者庆祝行(👑 获胜 / 平局对应文案),多人均分场景兼容 <code>multiParticipantGrid</code></li>
+        <li>比分下方增加逐盘/逐节 chips 与时长日期 chips(数据源:<code>ScoreboardRecord</code> / 实时 state)</li>
+        <li>双 CTA:分享战绩卡(主)+ 再来一场(次);查看记录 / 退出降为底部文字链接,44pt 触控热区保留</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <div class="ph-tag">C · 增长放大(后续)</div>
+      <h3>让分享有理由、有闭环</h3>
+      <ul>
+        <li>里程碑文案:本周第 3 胜 / 连胜 2 场 / 双方对战 10 场(数据都在记录库里)</li>
+        <li>败方视角战报:"惜败 4-6,约再战"——输的人也需要分享理由</li>
+        <li>埋点已有 <code>trackSuccessfulShare</code>,按 A/B 分版对比分享率与二维码扫码归因</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer class="note">
+    现状实现参考:<code>jifen/Features/Scoreboard/Shared/GameOverDialog.swift</code>(弹窗与 ScoreboardShareSupport)、
+    <code>ScreenshotSaveCoordinator.swift</code>(截图管线)、
+    <code>jifen/Features/Records/ScoreboardRecordDetailPage.swift:1151</code>(已有的品牌分享卡基建,含虚线分隔 + App 图标 + 下载二维码页脚,1:1 对齐安卓)。
+    注意:分享卡在结束时刻生成需先持久化记录(Tennis 当前在退出/查看记录时才 <code>persistSnapshot</code>),或直接用实时 state 构建卡片内容。
+  </footer>
+</div>
+
+<script>
+  // ---- 现状分享预览 ----
+  function showNowShare() { document.getElementById('nowShare').style.display = 'flex'; }
+  function hideNowShare() { document.getElementById('nowShare').style.display = 'none'; }
+
+  // ---- 新方案分享 sheet ----
+  function openSheet() {
+    const s = document.getElementById('sheet');
+    s.classList.add('open');
+  }
+  function closeSheet() { document.getElementById('sheet').classList.remove('open'); }
+
+  // ---- 伪二维码(确定性图案,仅示意) ----
+  (function () {
+    const N = 29, svg = document.getElementById('qr');
+    if (!svg) return;
+    let seed = 20261002;
+    const rand = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+    const cells = [];
+    const finder = (x, y) => {
+      cells.push([x, y, 7, 7, 1]); cells.push([x + 1, y + 1, 5, 5, 0]); cells.push([x + 2, y + 2, 3, 3, 1]);
+    };
+    finder(0, 0); finder(N - 7, 0); finder(0, N - 7);
+    const inFinder = (x, y) =>
+      (x < 8 && y < 8) || (x >= N - 8 && y < 8) || (x < 8 && y >= N - 8);
+    for (let y = 0; y < N; y++) {
+      for (let x = 0; x < N; x++) {
+        if (inFinder(x, y)) continue;
+        if (rand() < 0.46) cells.push([x, y, 1, 1, 1]);
+      }
+    }
+    let html = '<rect width="29" height="29" fill="#fff"/>';
+    for (const [x, y, w, h, dark] of cells) {
+      html += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${dark ? '#1c1c1e' : '#fff'}"/>`;
+    }
+    svg.innerHTML = html;
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+{
+  "locale": "sl-SI",
+  "iosLocale": "sl",
+  "language": "Slovenian",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Semafor",
+  "subtitle": "Rezultati, čas in tekme",
+  "description": "Vsaka točka šteje. Spremenite iPhone ali iPad v pregleden semafor, ki je preprost za uporabo na tekmah, treningih in pri igrah s prijatelji.\n\nBeležite rezultate za več kot 26 športov in iger, vključno s tenisom, pickleballom, badmintonom, namiznim tenisom, košarko, nogometom, odbojko in biljardom. Pri podprtih športih prilagodite pravila točkovanja, obliko tekme in vrstni red servisa v dvojicah.\n\nShranite tekme ter preglejte potek rezultata, časovnico in glasovne opombe. Uporabljajte ure za šah in go, časovnik za kocko in štoparico. Prikažite semafor na velikem zaslonu in delite kodo tekme, da lahko prijatelji spremljajo rezultat na daljavo.\n\nMet kovanca, naključna razdelitev v ekipe, rdeči in rumeni kartoni ter delitev stroškov — vse na enem mestu. Manj dela s štetjem, več veselja pri igri.\n\nPogoji uporabe:\nhttps://jifenqi.com/terms\n\nPravilnik o zasebnosti:\nhttps://jifenqi.com/privacy\n\nStandardna licenčna pogodba Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Vsaka točka\nšteje",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Vsi rezultati\nna prvi pogled",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "En semafor\nza več kot 26 športov",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Poglejte nazaj\nna vsako tekmo",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Vaša pravila\nvaša igra",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Več kot\nigre z žogo",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Vaš semafor\nna velikem zaslonu",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Beležite točke\nz zapestja",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Sodniška orodja\nv eni aplikaciji",
+      "enabled": true
+    }
+  ]
+}

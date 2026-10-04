@@ -3,9 +3,10 @@ import SwiftUI
 struct BentoCardView: View {
     let title: String
     var subtitle: String = ""
-    let icon: String
+    let gameType: GameType
     var gradientColors: [Color] = [Theme.surface, Theme.surface] // Default to Theme.surface
     var showDecorativeBars: Bool = false
+    var artworkSize: CGFloat = 64
     
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -16,8 +17,7 @@ struct BentoCardView: View {
             )
 
             VStack(alignment: .leading, spacing: 0) {
-                Text(icon)
-                    .font(.system(size: 36))
+                AppCatalogIcon(gameType: gameType, size: 36, artworkSize: artworkSize)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Spacer()
@@ -35,16 +35,16 @@ struct BentoCardView: View {
         }
         .cornerRadius(Theme.xxl)
         .shadow(color: Theme.homeButtonShadow, radius: 10, x: 0, y: 5)
-        .buttonStyle(CardButtonStyle())
     }
 }
 
 // Custom ButtonStyle to handle press feedback
 struct CardButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
-            .opacity(configuration.isPressed ? 0.8 : 1.0)
-            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1.0)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: configuration.isPressed)
     }
 }

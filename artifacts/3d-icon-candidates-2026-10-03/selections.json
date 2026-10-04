@@ -1,0 +1,335 @@
+{
+  "date": "2026-10-03",
+  "method": "user-confirmed choices and user-authorized final supplementary choices",
+  "note": "All rejected candidates preserved locally. Pickleball uses original downloaded file; soft_tennis reuses tennis asset. Go uses second newly generated two-stone version.",
+  "aliases": {
+    "soft_tennis": "tennis",
+    "counter": "simple_score"
+  },
+  "assets": [
+    {
+      "id": "fencing",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Fencing.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "pickleball",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "golf",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Golf.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "eight_ball",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "darts",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "american_football",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Football.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "pingpong",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/PingPong.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "baseball",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Baseball.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "badminton",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Badbinton.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "hockey",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Hockey.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "basketball",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Basket.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "mma",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/MMA.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "football",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Soccer.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "tennis",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Tennis.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "volleyball",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Volley.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "handball",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Handball.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "boxing",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Boxe.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "rugby",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Rugby.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "bowling",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Bowling.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "weightlifting",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Weightlifting.png",
+      "variant": "original",
+      "kind": "original-library"
+    },
+    {
+      "id": "shuttlecock",
+      "name": "毽子/毽球",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/jianzi-a.png",
+      "variant": "A",
+      "kind": "user-selected"
+    },
+    {
+      "id": "archery",
+      "name": "射箭",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/archery-a.png",
+      "variant": "A",
+      "kind": "user-selected"
+    },
+    {
+      "id": "snooker",
+      "name": "斯诺克",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/snooker-b.png",
+      "variant": "B",
+      "kind": "user-selected"
+    },
+    {
+      "id": "nine_ball",
+      "name": "九球",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/nineball-a.png",
+      "variant": "A",
+      "kind": "user-selected"
+    },
+    {
+      "id": "xiangqi",
+      "name": "象棋",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/xiangqi-b.png",
+      "variant": "B",
+      "kind": "user-selected"
+    },
+    {
+      "id": "chess",
+      "name": "国际象棋",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/chess-b.png",
+      "variant": "B",
+      "kind": "user-selected"
+    },
+    {
+      "id": "checkers",
+      "name": "国际跳棋",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/checkers-a.png",
+      "variant": "A",
+      "kind": "user-selected"
+    },
+    {
+      "id": "playing_cards",
+      "name": "扑克牌",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/playing-cards-b.png",
+      "variant": "B",
+      "kind": "user-selected"
+    },
+    {
+      "id": "mahjong",
+      "name": "麻将",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/mahjong-a.png",
+      "variant": "A",
+      "kind": "user-selected"
+    },
+    {
+      "id": "uno",
+      "name": "UNO",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/uno-b.png",
+      "variant": "B：反转牌",
+      "kind": "user-selected"
+    },
+    {
+      "id": "foosball",
+      "name": "桌上足球",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/foosball-a.png",
+      "variant": "A：简洁杆与玩偶，结构修正",
+      "kind": "user-selected"
+    },
+    {
+      "id": "flip_coin",
+      "name": "抛硬币",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/flip_coin-a.png",
+      "variant": "A",
+      "kind": "user-selected"
+    },
+    {
+      "id": "dice",
+      "name": "骰子",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/dice-a.png",
+      "variant": "A：真实点数修正",
+      "kind": "user-selected"
+    },
+    {
+      "id": "whistle",
+      "name": "哨子",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/whistle-a.png",
+      "variant": "A",
+      "kind": "user-selected"
+    },
+    {
+      "id": "random_team",
+      "name": "随机分队",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/random_team-a.png",
+      "variant": "A",
+      "kind": "user-selected"
+    },
+    {
+      "id": "red_yellow_card",
+      "name": "红黄牌",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/red_yellow_card-b.png",
+      "variant": "B",
+      "kind": "user-selected"
+    },
+    {
+      "id": "fullscreen_barrage",
+      "name": "全屏弹幕",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/fullscreen_barrage-a.png",
+      "variant": "A",
+      "kind": "user-selected"
+    },
+    {
+      "id": "points_table",
+      "name": "积分表",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/points_table-b.png",
+      "variant": "B",
+      "kind": "user-selected"
+    },
+    {
+      "id": "time",
+      "name": "翻页时钟",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/time-a.png",
+      "variant": "A",
+      "kind": "user-selected"
+    },
+    {
+      "id": "aa_calculator",
+      "name": "AA计算器",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/aa_calculator-b.png",
+      "variant": "B",
+      "kind": "user-selected"
+    },
+    {
+      "id": "ten_second",
+      "name": "十秒挑战",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/ten_second-a.png",
+      "variant": "A",
+      "kind": "user-selected"
+    },
+    {
+      "id": "go",
+      "name": "围棋",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/go-d.png",
+      "variant": "D：新第二款",
+      "kind": "user-selected-or-user-delegated"
+    },
+    {
+      "id": "squash",
+      "name": "壁球",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/squash-a.png",
+      "variant": "A：两黄点单球",
+      "kind": "user-selected-or-user-delegated"
+    },
+    {
+      "id": "padel",
+      "name": "板式网球",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/padel-b.png",
+      "variant": "B：蓝色球拍",
+      "kind": "user-selected-or-user-delegated"
+    },
+    {
+      "id": "simple_score",
+      "name": "通用计分",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/simple_score-a.png",
+      "variant": "A：翻牌计分板",
+      "kind": "user-selected-or-user-delegated"
+    },
+    {
+      "id": "multi_scoreboard",
+      "name": "多人计分",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/multi_scoreboard-a.png",
+      "variant": "A：三色计分板",
+      "kind": "user-selected-or-user-delegated"
+    },
+    {
+      "id": "cube",
+      "name": "魔方",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/cube-b.png",
+      "variant": "B：绿红黄魔方",
+      "kind": "user-selected-or-user-delegated"
+    },
+    {
+      "id": "stopwatch",
+      "name": "秒表",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/stopwatch-b.png",
+      "variant": "B：蓝色秒表",
+      "kind": "user-selected-or-user-delegated"
+    },
+    {
+      "id": "timeout",
+      "name": "倒计时",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/timeout-b.png",
+      "variant": "B：沙漏",
+      "kind": "user-selected-or-user-delegated"
+    }
+  ],
+  "pending": []
+}

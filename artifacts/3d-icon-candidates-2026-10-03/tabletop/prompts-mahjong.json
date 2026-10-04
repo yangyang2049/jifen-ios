@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-10-03",
+  "mode": "built-in image_gen",
+  "use_case": "stylized-concept",
+  "reference_role": "style references only",
+  "candidates": [
+    {
+      "name": "mahjong-a",
+      "prompt": "Use case: stylized-concept.\nAsset type: a single square app sport icon from the supplied 3D Sports Icons library.\nInput images are STYLE REFERENCES ONLY; create the requested new object, do not preserve their sport subjects.\nMatch the references closely: refined realistic equipment rendered in 3D, rounded edges, subtly grainy matte/satin materials, soft studio key light from upper left, gentle self shadows, cheerful natural equipment colors. Clean central large object, almost front view with a slight three-quarter view, approximately 10% transparent padding around the silhouette. Actual transparent RGBA background, no backdrop, no checkerboard, no ground, no pedestal, no cast shadow outside the object, no decorative effects, no frame, no logo, no watermark. 1024x1024 square.\nPrimary request: a compact two-tile Chinese Mahjong icon, variant A. Exactly two real three-dimensional mahjong tiles, near-front slight three-quarter view. Each tile is a thick rounded-rectangle block with an ivory cream ceramic-like face and a rich emerald green back layer visible along its thickness. Two tiles lean together with slight overlap, both printed faces clearly visible: left tile has one accurately formed RED Chinese character \"中\" centered large; right tile has one accurately formed GREEN traditional Chinese character \"發\" centered large. The text is exactly \"中\" and \"發\", one character on each tile, no additional writing. These are authentic thick chunky mahjong equipment, not flat playing cards, not text signs. Surface is subtle finely grainy satin, polished realistic 3D geometry, soft upper-left light. Fill central 80% area with 10% genuine transparent padding on every side. No floor, no stand, no shadows outside the silhouette, no decoration, no logos, no watermark.",
+      "reference_paths": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png"
+      ],
+      "source_path": "/Users/yangyang/.codex/generated_images/01a0fd6a-f7d2-7450-9599-873d9456c2d6/exec-e591f762-3478-4316-ac9e-843bba1fc9e7.png",
+      "output_path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/mahjong-a.png"
+    },
+    {
+      "name": "mahjong-b",
+      "prompt": "Use case: stylized-concept.\nAsset type: a single square app sport icon from the supplied 3D Sports Icons library.\nInput images are STYLE REFERENCES ONLY; create the requested new object, do not preserve their sport subjects.\nMatch the references closely: refined realistic equipment rendered in 3D, rounded edges, subtly grainy matte/satin materials, soft studio key light from upper left, gentle self shadows, cheerful natural equipment colors. Clean central large object, almost front view with a slight three-quarter view, approximately 10% transparent padding around the silhouette. Actual transparent RGBA background, no backdrop, no checkerboard, no ground, no pedestal, no cast shadow outside the object, no decorative effects, no frame, no logo, no watermark. 1024x1024 square.\nPrimary request: a compact three-tile Chinese Mahjong icon, variant B. Exactly three authentic thick chunky mahjong tile blocks with rounded-rectangle ivory cream faces and rich emerald green back layers visible on the sides. Near-front slight three-quarter view; arranged as a small fan with a little overlap, but all three faces and ALL symbols readable. Left tile: one accurately formed large RED Chinese character \"中\" (red dragon), no other symbols. Middle tile: the three-circle suit tile 三筒, showing EXACTLY THREE same-sized ornate circular pips stacked vertically: one BLUE circle at top, one RED circle in middle, one BLUE circle at bottom; no extra circles, no numerals or characters. Right tile: the two-bamboo suit tile 二条, showing EXACTLY TWO separate long GREEN bamboo stalk symbols placed side-by-side, with traditional segmented bamboo forms, no extra stalks, no digits or characters. Carefully preserve the count THREE circles and TWO bamboo stalks. These are realistic mahjong equipment with visible genuine tile thickness, not playing cards or thin paper or signs. Subtle satin grain, refined realistic 3D geometry and soft upper-left light. Fill central 80% with about 10% transparent padding all sides. Actual transparent alpha background. No floor, stand, decorative objects, shadows outside objects, logos, watermarks or extra text.",
+      "reference_paths": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png"
+      ],
+      "source_path": "/Users/yangyang/.codex/generated_images/01a0fd6a-f7d2-7450-9599-873d9456c2d6/exec-ede7a9d7-b8d1-4375-ad38-9d1a0c26fb57.png",
+      "output_path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/mahjong-b.png"
+    }
+  ]
+}

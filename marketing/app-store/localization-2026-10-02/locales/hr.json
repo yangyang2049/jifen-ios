@@ -1,0 +1,58 @@
+{
+  "locale": "hr",
+  "iosLocale": "hr",
+  "language": "Croatian",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Semafor",
+  "subtitle": "Rezultati, vrijeme i utakmice",
+  "description": "Svaki bod vrijedi. Pretvorite iPhone ili iPad u pregledan semafor jednostavan za korištenje tijekom utakmica, treninga i igara s prijateljima.\n\nBilježite rezultate za više od 26 sportova i igara, uključujući tenis, pickleball, badminton, stolni tenis, košarku, nogomet, odbojku i biljar. U podržanim sportovima prilagodite pravila bodovanja, format utakmice i redoslijed servisa u parovima.\n\nSpremite utakmice i pregledajte kretanje rezultata, vremenski slijed i glasovne bilješke. Koristite satove za šah i go, mjerač vremena za kocku i štopericu. Prikažite semafor na velikom zaslonu i podijelite kod utakmice kako bi prijatelji mogli pratiti rezultat na daljinu.\n\nBacanje novčića, nasumična podjela u ekipe, crveni i žuti kartoni te podjela troškova — sve na jednom mjestu. Manje brige oko bodova, više uživanja u igri.\n\nUvjeti korištenja:\nhttps://jifenqi.com/terms\n\nPravila privatnosti:\nhttps://jifenqi.com/privacy\n\nStandardni Appleov ugovor o licenci:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Svaki bod\nvrijedi",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Svi rezultati\nna prvi pogled",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "Jedan semafor\nza više od 26 sportova",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Pregledajte\nsvaku utakmicu",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Vaša pravila\nvaša igra",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Više od\nigara s loptom",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Vaš semafor\nna velikom zaslonu",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Bilježite bodove\nsa zapešća",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Sudački alati\nu jednoj aplikaciji",
+      "enabled": true
+    }
+  ]
+}

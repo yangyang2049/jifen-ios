@@ -85,6 +85,15 @@ struct SnookerScoreboardView: View {
             firstBreaker = .left
         }
         var initial = SnookerState.initial(striker: firstBreaker, maxFrames: maxFrames)
+        #if DEBUG
+        if MarketingScreenshotFixture.isRequested("snooker") {
+            initial.leftScore = 38
+            initial.rightScore = 28
+            initial.rightBreak = 28
+            initial.striker = .right
+            initial.redBallsRemaining = 6
+        }
+        #endif
         var start = Date()
         var id = UUID().uuidString
         var actions = 0
@@ -827,7 +836,7 @@ struct SnookerScoreboardView: View {
                     .frame(maxWidth: .infinity)
                     .frame(height: 22)
                     .background(Color(hex: "D64F4F").opacity(0.75))
-                Text("+\(points)")
+                AddValueLabel(value: "\(points)", numberFontSize: 18)
                     .font(.system(size: 18, weight: .bold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)

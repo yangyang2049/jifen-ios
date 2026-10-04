@@ -1,0 +1,11 @@
+/* 
+  InfoPlist.strings
+  jifen
+
+  Localized privacy permission descriptions
+*/
+
+"NSPhotoLibraryAddUsageDescription" = "Chúng tôi cần quyền truy cập vào thư viện ảnh của bạn để lưu ảnh chụp màn hình bảng điểm.";
+"CFBundleDisplayName" = "iScoreboard";
+"NSCameraUsageDescription" = "Máy ảnh dùng để quét mã QR đăng nhập đáng tin cậy và chụp ảnh đại diện.";
+"NSMicrophoneUsageDescription" = "Micrô được sử dụng để ghi lại ghi chú giọng nói.";

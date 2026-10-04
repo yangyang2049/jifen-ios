@@ -30,7 +30,7 @@ struct NineBallSetupDialogView: View {
     var body: some View {
         AdaptiveSetupDialogLayout(maxHeight: maxDialogHeight) {
             HStack(spacing: 6) {
-                Text("🎱")
+                AppCatalogIcon(gameType: .nineBall, size: 17)
                 Text(NSLocalizedString("game_nine_ball", value: "追分", comment: ""))
                     .font(.system(size: 20, weight: .medium))
                     .foregroundStyle(Theme.textPrimary)
@@ -106,7 +106,7 @@ struct NineBallSetupDialogView: View {
             HStack(spacing: 12) {
                 Button(action: requestCancel) {
                     Text(NSLocalizedString("cancel", comment: ""))
-                        .foregroundStyle(Theme.textSecondary)
+                        .foregroundStyle(Theme.textPrimary)
                         .frame(width: 100, height: 44)
                         .background(Theme.dialogControlBackground)
                         .clipShape(Capsule())

@@ -66,7 +66,56 @@ final class ScoreVoiceAnnouncer {
     private var scoreChangeTask: Task<Void, Never>?
     private let scoreChangeDebounceNanoseconds: UInt64 = 420_000_000
 
+    private var sessionGate = SportsVoiceSessionGate()
+
     private init() {}
+
+    func beginSession(_ id: UUID) {
+        guard sessionGate.beginSession(id) else { return }
+        stop()
+    }
+
+    @discardableResult
+    func prepareToEnable() -> Bool {
+        guard let language = SportsVoiceSupport.language else { return false }
+        guard SportsVoiceSupport.voice(for: language) != nil else {
+            presentDownloadGuide(language)
+            return false
+        }
+        return true
+    }
+
+    func refreshAfterForeground() {
+        // Resolve the inventory again. Playback always checks it afresh; the
+        // per-match notification budget survives background/foreground changes.
+        guard let language = SportsVoiceSupport.language,
+              SportsVoiceSupport.voice(for: language) != nil else { stop(); return }
+    }
+
+    private func presentDownloadGuide(_ language: SportsVoiceLanguage) {
+        NotificationCenter.default.post(name: .sportsVoiceNeedsDownload, object: nil, userInfo: [
+            "title": SportsVoiceSupport.template("voice_download_title", language: language) ?? "",
+            "message": SportsVoiceSupport.template("voice_download_guide", language: language) ?? ""
+        ])
+    }
+
+    /// Validate restored voice-enabled matches even when their opening call was already spoken.
+    func checkSessionVoice() {
+        _ = playbackLanguage()
+    }
+
+    private func playbackLanguage() -> SportsVoiceLanguage? {
+        let target = SportsVoiceSupport.language
+        let available = target.map { SportsVoiceSupport.voice(for: $0) != nil } ?? false
+        switch sessionGate.evaluate(language: target, voiceAvailable: available) {
+        case .unsupported: stop(); return nil
+        case .missingVoice(let showDownloadGuide):
+            stop()
+            if showDownloadGuide, let language = target { presentDownloadGuide(language) }
+            return nil
+        case .ready: return target
+        }
+    }
 
     /// International-standard scoreboard voice (BWF / ITTF / ITF).
     func speak(_ payload: VoiceAnnouncementPayload) {
@@ -76,10 +125,13 @@ final class ScoreVoiceAnnouncer {
     /// Speaks one reducer event as an atomic, ordered batch. This prevents a
     /// delayed score call from interrupting the following interval/change-ends call.
     func speak(_ payloads: [VoiceAnnouncementPayload]) {
-        let language = VoiceAnnouncementLanguage.resolve()
-        let texts = payloads
-            .map { VoiceAnnouncementMessageBuilder.build($0, language: language) }
-            .filter { !$0.isEmpty }
+        guard let language = playbackLanguage() else { return }
+        var texts: [String] = []
+        for payload in payloads {
+            let announceServer = UserDefaults.standard.object(forKey: "pingpongAnnounceServer") as? Bool ?? true
+            guard let text = SportsVoiceSupport.message(payload, language: language, announceServer: announceServer) else { stop(); return }
+            if !text.isEmpty { texts.append(text) }
+        }
         guard !texts.isEmpty else { return }
 
         let policy = VoiceAnnouncementBatchPolicy.queuePolicy(payloads)
@@ -109,53 +161,20 @@ final class ScoreVoiceAnnouncer {
 
     private func speakTexts(
         _ texts: [String],
-        language: VoiceAnnouncementLanguage,
+        language: SportsVoiceLanguage,
         interruptCurrent: Bool
     ) {
         if interruptCurrent {
             synthesizer.stopSpeaking(at: .immediate)
         }
+        guard SportsVoiceSupport.language == language,
+              let voice = SportsVoiceSupport.voice(for: language) else { return }
         for text in texts {
             let utterance = AVSpeechUtterance(string: text)
-            utterance.voice = Self.resolveVoice(for: language)
-            if utterance.voice == nil {
-                utterance.voice = AVSpeechSynthesisVoice(language: language.rawValue)
-            }
+            utterance.voice = voice
             utterance.rate = AVSpeechUtteranceDefaultSpeechRate
             synthesizer.speak(utterance)
         }
     }
 
-    /// Traditional Chinese falls back through zh-HK/zh-CN voices so playback
-    /// never goes silent when a device lacks a dedicated zh-TW voice.
-    private static func resolveVoice(for language: VoiceAnnouncementLanguage) -> AVSpeechSynthesisVoice? {
-        if language != .zhTW {
-            return AVSpeechSynthesisVoice(language: language.rawValue)
-        }
-        let voices = AVSpeechSynthesisVoice.speechVoices()
-        if let exact = voices.first(where: { $0.language == VoiceAnnouncementLanguage.zhTW.rawValue }) {
-            #if DEBUG
-            print("[Voice] zh-TW exact voice: \(exact.identifier)")
-            #endif
-            return exact
-        }
-        if let prefixed = voices.first(where: { $0.language.hasPrefix("zh-TW") }) {
-            #if DEBUG
-            print("[Voice] zh-TW prefixed voice: \(prefixed.language)")
-            #endif
-            return prefixed
-        }
-        for fallback in ["zh-HK", "zh-CN"] {
-            if let voice = voices.first(where: { $0.language.hasPrefix(fallback) }) {
-                #if DEBUG
-                print("[Voice] zh-TW degraded to \(voice.language) voice")
-                #endif
-                return voice
-            }
-        }
-        #if DEBUG
-        print("[Voice] zh-TW: no Chinese voice available, using utterance.language")
-        #endif
-        return nil
-    }
 }

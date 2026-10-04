@@ -1035,7 +1035,7 @@ private struct BasketballTeamPanel: View {
         VStack(spacing: scoreButtonSpacing) {
             ForEach(points, id: \.self) { point in
                 Button(action: { onScore(point) }) {
-                    Text("+\(point)")
+                    AddValueLabel(value: "\(point)", numberFontSize: scoreButtonFontSize)
                         .font(.system(size: scoreButtonFontSize, weight: .bold))
                         .foregroundStyle(.white)
                         .frame(width: scoreButtonSize, height: scoreButtonSize)

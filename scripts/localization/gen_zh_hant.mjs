@@ -164,6 +164,11 @@ const template = parseTemplate(cfg.iosHans);
 const cn = parseAndroid(cfg.androidCn);
 const tw = parseAndroid(cfg.androidTw);
 const overrides = JSON.parse(readFileSync(cfg.overrides, 'utf8'));
+for (const [key, entry] of Object.entries(overrides)) {
+  if (!entry || typeof entry !== 'object' || Array.isArray(entry) || typeof entry.value !== 'string') {
+    throw new Error(`Invalid override for ${key}: expected an object with a string value`);
+  }
+}
 
 const cnValueIndex = new Map(); // cn value -> [tw keys]
 for (const [k, v] of cn) if (tw.has(k)) cnValueIndex.set(v, (cnValueIndex.get(v) || []).concat(k));

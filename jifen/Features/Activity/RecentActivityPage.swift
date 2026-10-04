@@ -166,8 +166,7 @@ struct RecentActivityPage: View {
         switch item {
         case .scoreboard(let record):
             HStack(spacing: 12) {
-                Text(record.gameType.icon)
-                    .font(.title)
+                AppCatalogIcon(gameType: record.gameType, size: 28)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(record.displayMatchTitle)
                         .font(.headline)
@@ -193,8 +192,7 @@ struct RecentActivityPage: View {
 
         case .timer(let record):
             HStack(spacing: 12) {
-                Text(record.gameType.icon)
-                    .font(.title)
+                AppCatalogIcon(gameType: record.gameType, size: 28)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(record.title)
                         .font(.headline)

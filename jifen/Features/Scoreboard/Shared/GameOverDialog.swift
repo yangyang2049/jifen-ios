@@ -248,8 +248,7 @@ struct GameOverDialog: View {
                         .padding(.bottom, usesTabletSpacing ? 12 : 4)
 
                     HStack(spacing: 8) {
-                        Text(gameType.icon)
-                            .font(.system(size: 18))
+                        AppCatalogIcon(gameType: gameType, size: 18)
                         Text(gameType.displayName)
                             .font(.system(size: 14, weight: .medium))
                             .foregroundStyle(secondaryText)

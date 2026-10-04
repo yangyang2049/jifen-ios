@@ -112,7 +112,7 @@ final class LocalPeerRoomManager: NSObject, ObservableObject {
             return
         }
         stop()
-        let normalized = code.filter(\.isNumber)
+        let normalized = normalizedDecimalDigits(code, limit: code.count)
         guard normalized.count == 6 else {
             fail(NSLocalizedString("sync_invalid_code", value: "请输入 6 位同步码", comment: ""))
             return

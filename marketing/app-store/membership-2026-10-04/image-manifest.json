@@ -1,0 +1,39 @@
+{
+  "generator": "built-in image_gen.imagegen",
+  "languageFree": true,
+  "images": [
+    {
+      "plan": "lifetime",
+      "file": "marketing/app-store/membership-2026-10-04/images/lifetime.png",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "mode": "RGB",
+      "bytes": 1051750,
+      "md5": "c3254beef9c4883d49869d899e893184"
+    },
+    {
+      "plan": "monthly",
+      "file": "marketing/app-store/membership-2026-10-04/images/monthly.png",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "mode": "RGB",
+      "bytes": 987196,
+      "md5": "6d420bb8824f46f367f10e9e155c2775"
+    },
+    {
+      "plan": "yearly",
+      "file": "marketing/app-store/membership-2026-10-04/images/yearly.png",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "mode": "RGB",
+      "bytes": 1113404,
+      "md5": "4310e56edbb1db3bd79542b55a8fa286"
+    }
+  ]
+}

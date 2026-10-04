@@ -163,10 +163,8 @@ struct MultiScoreSetupDialogView: View {
     var body: some View {
         AdaptiveSetupDialogLayout(maxHeight: maxDialogHeight) {
             HStack(spacing: 6) {
-                Text(titleEmoji)
-                    .font(.system(size: 20))
-                Text(NSLocalizedString(titleKey, value: titleFallback, comment: "")
-                    + NSLocalizedString("setup_suffix", value: " 设置", comment: ""))
+                AppCatalogIcon(gameType: gameType, fallbackEmoji: titleEmoji, size: 20)
+                Text(NSLocalizedString(titleKey, value: titleFallback, comment: ""))
                     .font(.system(size: 20, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
             }
@@ -215,7 +213,7 @@ struct MultiScoreSetupDialogView: View {
                 Button(action: { onCancel?() }) {
                     Text(NSLocalizedString("cancel", comment: "Cancel button"))
                         .font(.system(size: 16))
-                        .foregroundColor(Theme.textSecondary)
+                        .foregroundColor(Theme.textPrimary)
                         .frame(width: 100, height: 44)
                         .background(Theme.dialogControlBackground)
                         .cornerRadius(.infinity)
@@ -480,7 +478,6 @@ struct MultiScoreSetupDialogView: View {
     }
 
     private static func normalizePlayerNames(_ names: [String], capacity: Int) -> [String] {
-        let base = NSLocalizedString("multi_score_player_default", value: "玩家", comment: "")
         var result = names
         // 商店源图要真实玩家名：见 DefaultParticipantNames.uiTestParticipantNames
         for (index, name) in DefaultParticipantNames.uiTestParticipantNames.enumerated() {
@@ -488,7 +485,7 @@ struct MultiScoreSetupDialogView: View {
         }
         if result.count < capacity {
             for i in result.count..<capacity {
-                result.append("\(base) \(i + 1)")
+                result.append(DefaultParticipantNames.numberedPlayer(i + 1))
             }
         }
         if result.count > capacity {
@@ -505,8 +502,7 @@ struct MultiScoreSetupDialogView: View {
     }
 
     private func playerLabel(_ index: Int) -> String {
-        let base = NSLocalizedString("multi_score_player_default", value: "玩家", comment: "")
-        return "\(base) \(index + 1)"
+        DefaultParticipantNames.numberedPlayer(index + 1)
     }
 
     private func bindingForPlayerName(_ index: Int) -> Binding<String> {
@@ -556,7 +552,6 @@ struct MultiScoreSetupDialogView: View {
             }
             onConfirm?(result)
         case .multiScore, .doudizhu, .uno:
-            let base = NSLocalizedString("multi_score_player_default", value: "玩家", comment: "")
             let doudizhuDefaults = Self.defaultDoudizhuNames()
             let finalNames = Array(playerNames.prefix(selectedPlayerCount)).enumerated().map { idx, raw in
                 let value = raw.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -564,9 +559,9 @@ struct MultiScoreSetupDialogView: View {
                 if layoutMode == .doudizhu, idx < doudizhuDefaults.count {
                     return doudizhuDefaults[idx]
                 }
-                return "\(base) \(idx + 1)"
+                return DefaultParticipantNames.numberedPlayer(idx + 1)
             }
-            let team1 = finalNames.first ?? "\(base) 1"
+            let team1 = finalNames.first ?? DefaultParticipantNames.numberedPlayer(1)
             let team2 = finalNames.count > 1 ? finalNames[1] : ""
             var result = SportsSetupResult(
                 team1Name: team1,

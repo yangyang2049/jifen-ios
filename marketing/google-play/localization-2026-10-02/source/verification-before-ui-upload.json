@@ -1,0 +1,42 @@
+{
+  "frameCount": 336,
+  "imageCount": 336,
+  "uploadEligibleLanguages": 47,
+  "unsupportedDraftLanguages": [
+    "or-IN"
+  ],
+  "dimensions": [
+    1080,
+    1920
+  ],
+  "pngMode": "RGB",
+  "missingGlyphs": [],
+  "changedUIOutsideApprovedTextRegions": [],
+  "pixelTolerancePerChannel": 1,
+  "textFit": "Shaped with HarfBuzz; no automatic extra wraps required",
+  "fonts": {
+    "files": 21,
+    "families": 17,
+    "license": "SIL Open Font License 1.1"
+  },
+  "onlineApiTested": true,
+  "currentAssetsMatchStagedImages": true,
+  "published": false,
+  "basketballTeamRevision": {
+    "languages": 48,
+    "cards": [
+      6,
+      7
+    ],
+    "tvNameY": 576,
+    "tvNameUpwardShift": 54
+  },
+  "onlineApiReport": "api-verification.json",
+  "selfAudit": {
+    "report": "self-audit-report.json",
+    "reviewedLocales": 48,
+    "changedScreenshots": 15,
+    "nativeMeasuredHeadlines": 336,
+    "passed": true
+  }
+}

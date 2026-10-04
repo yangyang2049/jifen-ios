@@ -229,11 +229,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d hora antes</string>
+			<string>%d h antes</string>
 			<key>many</key>
-			<string>%d horas antes</string>
+			<string>%d h antes</string>
 			<key>other</key>
-			<string>%d horas antes</string>
+			<string>%d h antes</string>
 		</dict>
 	</dict>
 	<key>schedule_reminder_minutes_before</key>
@@ -247,11 +247,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d minuto antes</string>
+			<string>%d min antes</string>
 			<key>many</key>
-			<string>%d minutos antes</string>
+			<string>%d min antes</string>
 			<key>other</key>
-			<string>%d minutos antes</string>
+			<string>%d min antes</string>
 		</dict>
 	</dict>
 	<key>schedule_participants_limit</key>

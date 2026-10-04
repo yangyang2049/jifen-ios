@@ -1,0 +1,68 @@
+{
+  "locale": "kn-IN",
+  "appleLanguage": "kn",
+  "appleLocale": "kn_IN",
+  "names": [
+    "ಅರ್ಜುನ್",
+    "ಕಿರಣ್",
+    "ರಾಹುಲ್",
+    "ವಿಕಾಸ್"
+  ],
+  "fontFamily": "Noto Sans Kannada",
+  "basketballTeams": [
+    "ಆತಿಥೇಯ",
+    "ಅತಿಥಿ"
+  ],
+  "simulator": "5AC81D3A-D96A-4165-957E-F378FF101B69",
+  "cards": [
+    {
+      "index": 1,
+      "scene": "snooker",
+      "file": "exports/kn-IN/01-snooker.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "c92074618d3940f0a9586a8589fa6b62b6473100e147cb3e9933e44be79c759b",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 2,
+      "scene": "basketball",
+      "file": "exports/kn-IN/02-basketball.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "fa8f230881387655e04eeb5d2892bff840d6e5843ca8b6891e9d09b0b1dfb6d6",
+      "capture": "production SwiftUI via simctl",
+      "teamNames": [
+        "ಆತಿಥೇಯ",
+        "ಅತಿಥಿ"
+      ]
+    },
+    {
+      "index": 3,
+      "scene": "record",
+      "file": "exports/kn-IN/03-record.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "6a8a043330813035405a8e6070010c83766c42e864bbb3a690eb25a66f97908a",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 4,
+      "scene": "setup",
+      "file": "exports/kn-IN/04-setup.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "c934111b9baf985ccf14e8eef49642df079dc01e191b35a0e599e2bc6a48a7c1",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 5,
+      "scene": "home",
+      "file": "exports/kn-IN/05-home.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "afbd7360733f2e4bf8a154f761be236a267c2041929a4b6c920d1eb867b0b1bb",
+      "capture": "production SwiftUI via simctl"
+    }
+  ]
+}

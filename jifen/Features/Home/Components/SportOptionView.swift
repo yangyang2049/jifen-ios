@@ -14,8 +14,7 @@ struct SportOptionView: View {
                 let iconSize = max(24, min(56, side * 0.4))
                 let fontSize = max(11, min(18, side * 0.12))
                 VStack(spacing: Theme.sm) {
-                    Text(getGameIcon(type: sport))
-                        .font(.system(size: iconSize))
+                    AppCatalogIcon(gameType: sport, size: iconSize)
                     Text(getGameName(type: sport))
                         .font(.system(size: fontSize, weight: .medium))
                         .foregroundColor(Theme.textPrimary)

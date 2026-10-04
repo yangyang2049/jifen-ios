@@ -211,7 +211,7 @@ public struct TennisMatchState: Codable, Equatable, Sendable {
         if isTieBreak { return String(own) }
         if own >= 3, other >= 3 {
             if own == other || rules.usesNoAdScoring { return "40" }
-            return own > other ? "AD" : "40"
+            return own > other ? "Ad" : "40"
         }
         switch own {
         case 0: return "0"

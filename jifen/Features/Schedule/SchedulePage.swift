@@ -253,8 +253,7 @@ struct SchedulePage: View {
 
     private func bookingRow(_ booking: LocalBooking) -> some View {
         HStack(spacing: 10) {
-            Text(booking.sportType.icon)
-                .font(.system(size: 22))
+            AppCatalogIcon(bookingSport: booking.sportType, size: 22)
                 .opacity(0.8)
                 .padding(.top, 1)
 

@@ -1044,26 +1044,7 @@ struct DualPlayerTimerView: View {
     }
 
     private func playerName(for playerID: Int) -> String {
-        switch gameType {
-        case .go:
-            return playerID == 1
-                ? NSLocalizedString("timer_black_player", value: "黑方", comment: "")
-                : NSLocalizedString("timer_white_player", value: "白方", comment: "")
-        case .xiangqi:
-            return playerID == 1
-                ? NSLocalizedString("timer_red_player", value: "红方", comment: "")
-                : NSLocalizedString("timer_black_player", value: "黑方", comment: "")
-        case .chess:
-            return playerID == 1
-                ? NSLocalizedString("timer_white_player", value: "白方", comment: "")
-                : NSLocalizedString("timer_black_player", value: "黑方", comment: "")
-        case .checkers:
-            return playerID == 1
-                ? NSLocalizedString("timer_red_player", value: "红方", comment: "")
-                : NSLocalizedString("timer_black_player", value: "黑方", comment: "")
-        default:
-            return NSLocalizedString("dual_timer_player", value: "玩家", comment: "") + " \(playerID)"
-        }
+        BoardTimerParticipantNames.name(for: gameType, playerID: playerID)
     }
 
     private func statusIndicatorForegroundColor(for playerID: Int) -> Color {

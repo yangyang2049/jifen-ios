@@ -1,0 +1,242 @@
+[
+  {
+    "family": "poppins",
+    "file": "fonts/poppins/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/poppins/OFL.txt",
+    "sha256": "6be04893d770899a015649c7aa3b582f871b272f8747a92b78b17c3e5c8b2573"
+  },
+  {
+    "family": "poppins",
+    "file": "fonts/poppins/Poppins-Bold.ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/poppins/Poppins-Bold.ttf",
+    "sha256": "983676516167748b74de6f4771fb384c664fd913acb8b471122ecacf5da5ea6c"
+  },
+  {
+    "family": "poppins",
+    "file": "fonts/poppins/Poppins-BoldItalic.ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/poppins/Poppins-BoldItalic.ttf",
+    "sha256": "3572ac8116a0ac7317d342262b29937bcbaf94d8f03f90df6fe666fa7e2fb43a"
+  },
+  {
+    "family": "montserrat",
+    "file": "fonts/montserrat/Montserrat-Italic[wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/Montserrat-Italic%5Bwght%5D.ttf",
+    "sha256": "51607f316bc020e59f03cbf51543eecffbea501c0b31d73e5b82927c5cca442c"
+  },
+  {
+    "family": "montserrat",
+    "file": "fonts/montserrat/Montserrat[wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/Montserrat%5Bwght%5D.ttf",
+    "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7"
+  },
+  {
+    "family": "montserrat",
+    "file": "fonts/montserrat/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/OFL.txt",
+    "sha256": "8b7141c03fa4f8d44e6345d5d4931709290f0f67875e452e95ac1fd3a027802e"
+  },
+  {
+    "family": "notosans",
+    "file": "fonts/notosans/NotoSans-Italic[wdth,wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosans/NotoSans-Italic%5Bwdth%2Cwght%5D.ttf",
+    "sha256": "58e6e0ebd1931b29a365aa2d3e2ee9a9e831a3af7cf3ad1462d4e72154f0b291"
+  },
+  {
+    "family": "notosans",
+    "file": "fonts/notosans/NotoSans[wdth,wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosans/NotoSans%5Bwdth%2Cwght%5D.ttf",
+    "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d"
+  },
+  {
+    "family": "notosans",
+    "file": "fonts/notosans/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosans/OFL.txt",
+    "sha256": "cee9892f9f0cc8fe882c9e9537ee6a89621d86ee7ceaf70b02e2b2b1c25c061a"
+  },
+  {
+    "family": "notosansjp",
+    "file": "fonts/notosansjp/NotoSansJP[wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansjp/NotoSansJP%5Bwght%5D.ttf",
+    "sha256": "c2f3b4d463500a2ddcd3849cded1fceeb9fd6d1c32e6cbecd568453ba50fc68f"
+  },
+  {
+    "family": "notosansjp",
+    "file": "fonts/notosansjp/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansjp/OFL.txt",
+    "sha256": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9"
+  },
+  {
+    "family": "notosanskr",
+    "file": "fonts/notosanskr/NotoSansKR[wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+    "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+  },
+  {
+    "family": "notosanskr",
+    "file": "fonts/notosanskr/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanskr/OFL.txt",
+    "sha256": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9"
+  },
+  {
+    "family": "notosansarabic",
+    "file": "fonts/notosansarabic/NotoSansArabic[wdth,wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansarabic/NotoSansArabic%5Bwdth%2Cwght%5D.ttf",
+    "sha256": "63111b5b2e074dd48cc67692e0a2726d86ee94c1c37fe8598257b7b4e87e869e"
+  },
+  {
+    "family": "notosansarabic",
+    "file": "fonts/notosansarabic/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansarabic/OFL.txt",
+    "sha256": "07fc70bfeb985cc1a87a8587d0a0c80bab11c86c9dc3fd95b6f0cb332f983e96"
+  },
+  {
+    "family": "notosanshebrew",
+    "file": "fonts/notosanshebrew/NotoSansHebrew[wdth,wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanshebrew/NotoSansHebrew%5Bwdth%2Cwght%5D.ttf",
+    "sha256": "7ef36a2c3593758cdb622e1bdef4f84523e92fbc3ccc667438dd80ff54c2de88"
+  },
+  {
+    "family": "notosanshebrew",
+    "file": "fonts/notosanshebrew/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanshebrew/OFL.txt",
+    "sha256": "9b9fe028b5ba74d231659a1bbaf0ed09b11e759d1ca6a070999e16d151616b47"
+  },
+  {
+    "family": "notosansbengali",
+    "file": "fonts/notosansbengali/NotoSansBengali[wdth,wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansbengali/NotoSansBengali%5Bwdth%2Cwght%5D.ttf",
+    "sha256": "dcd42978094e584a849c84a51450eeac40c8826057d566ea6d4b9627a403a05a"
+  },
+  {
+    "family": "notosansbengali",
+    "file": "fonts/notosansbengali/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansbengali/OFL.txt",
+    "sha256": "754f0e221aa7d5a915489f3bf1f20fe53ddc35ab2834a4d91656d78f9622de70"
+  },
+  {
+    "family": "notosansgujarati",
+    "file": "fonts/notosansgujarati/NotoSansGujarati[wdth,wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansgujarati/NotoSansGujarati%5Bwdth%2Cwght%5D.ttf",
+    "sha256": "9901d8552f1dd5d2c50dbd4caa6f6e174e74e8264f06594ab259ae6e7b1ac428"
+  },
+  {
+    "family": "notosansgujarati",
+    "file": "fonts/notosansgujarati/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansgujarati/OFL.txt",
+    "sha256": "c0b88977aa18b5e4fd05d646d560da89fde61b6581fa4507cb00dd90bd1bf7d4"
+  },
+  {
+    "family": "notosansdevanagari",
+    "file": "fonts/notosansdevanagari/NotoSansDevanagari[wdth,wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansdevanagari/NotoSansDevanagari%5Bwdth%2Cwght%5D.ttf",
+    "sha256": "14ec4af41f27482216d1c2229f417ff9b1425e1babb014e57d1d40d03229853e"
+  },
+  {
+    "family": "notosansdevanagari",
+    "file": "fonts/notosansdevanagari/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansdevanagari/OFL.txt",
+    "sha256": "a216f6f8d85c7228093e0ee5e258d9d377e6671f68acb4db1930b29583d0f331"
+  },
+  {
+    "family": "notosanskannada",
+    "file": "fonts/notosanskannada/NotoSansKannada[wdth,wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanskannada/NotoSansKannada%5Bwdth%2Cwght%5D.ttf",
+    "sha256": "cca4f3b3a8cb12fb261f1b43baf5d2f7f59d90fe123d41f0065ed3a183997ec9"
+  },
+  {
+    "family": "notosanskannada",
+    "file": "fonts/notosanskannada/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanskannada/OFL.txt",
+    "sha256": "9d49a4e56df9b36403b139f48bf07fd87cc5e716cb3203c54b04b674adb16238"
+  },
+  {
+    "family": "notosansmalayalam",
+    "file": "fonts/notosansmalayalam/NotoSansMalayalam[wdth,wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansmalayalam/NotoSansMalayalam%5Bwdth%2Cwght%5D.ttf",
+    "sha256": "312e0e7c3cc15fa09eb42a8f749eeb246b593ed420e3c81aafe8d910c3a6fb56"
+  },
+  {
+    "family": "notosansmalayalam",
+    "file": "fonts/notosansmalayalam/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansmalayalam/OFL.txt",
+    "sha256": "1df18163a0bf60f02131401ba1609df90051f40c4047684dda1c8a2e9586f7f2"
+  },
+  {
+    "family": "notosansoriya",
+    "file": "fonts/notosansoriya/NotoSansOriya[wdth,wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansoriya/NotoSansOriya%5Bwdth%2Cwght%5D.ttf",
+    "sha256": "910342275d619081b896b4ed25fd9ad6ff320c25591b810de1fcc4beb153ba82"
+  },
+  {
+    "family": "notosansoriya",
+    "file": "fonts/notosansoriya/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansoriya/OFL.txt",
+    "sha256": "c90ff15ade263a49148e35af34e9c177c6d56881e81260b29f10123e9e227eca"
+  },
+  {
+    "family": "notosansgurmukhi",
+    "file": "fonts/notosansgurmukhi/NotoSansGurmukhi[wdth,wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansgurmukhi/NotoSansGurmukhi%5Bwdth%2Cwght%5D.ttf",
+    "sha256": "1e6f728fa620e566f842d81e220265813faa12771214765d289c98e035adc5f2"
+  },
+  {
+    "family": "notosansgurmukhi",
+    "file": "fonts/notosansgurmukhi/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansgurmukhi/OFL.txt",
+    "sha256": "3f7451b7e2c8381be0c5712f7b0dd5c2d75fe787ae16a99f18b7fa45627a0fde"
+  },
+  {
+    "family": "notosanstamil",
+    "file": "fonts/notosanstamil/NotoSansTamil[wdth,wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanstamil/NotoSansTamil%5Bwdth%2Cwght%5D.ttf",
+    "sha256": "aa3a9b321f4b0bb2c40203ffbde9af89713227866e0e13f76e5b9eeea727cf88"
+  },
+  {
+    "family": "notosanstamil",
+    "file": "fonts/notosanstamil/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanstamil/OFL.txt",
+    "sha256": "f8ff8ce7d0a81bf8d5e121c635ef027250c531f2fd37d5988b8dd6e45f19d7f1"
+  },
+  {
+    "family": "notosanstelugu",
+    "file": "fonts/notosanstelugu/NotoSansTelugu[wdth,wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanstelugu/NotoSansTelugu%5Bwdth%2Cwght%5D.ttf",
+    "sha256": "e618af7bf999df192ed4f388eba2e563f2b5015034e9cbb317b5bd793bd7334d"
+  },
+  {
+    "family": "notosanstelugu",
+    "file": "fonts/notosanstelugu/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanstelugu/OFL.txt",
+    "sha256": "481c72a8f1b4f645a7e6b10326be41b2da2c15cb470ff48a07fab773eed00102"
+  },
+  {
+    "family": "notosansthai",
+    "file": "fonts/notosansthai/NotoSansThai[wdth,wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansthai/NotoSansThai%5Bwdth%2Cwght%5D.ttf",
+    "sha256": "5a1c559bb539583c8a1fd99d1c5b9491e5e14478c9cd2bd0970d5c3096cc9ef8"
+  },
+  {
+    "family": "notosansthai",
+    "file": "fonts/notosansthai/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansthai/OFL.txt",
+    "sha256": "2e98fd23a52d253db8612cd5942c8f2ff4111b21d2367050fdca91d8ccc374a0"
+  },
+  {
+    "family": "poppins",
+    "file": "fonts/poppins/Poppins-SemiBold.ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/poppins/Poppins-SemiBold.ttf",
+    "sha256": "d3bf1bdaf0550e83da9ac0b1d1d9fe6db086835a83aa28578e609a394b9a0286"
+  },
+  {
+    "family": "notosanstc",
+    "file": "fonts/notosanstc/NotoSansTC[wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanstc/NotoSansTC%5Bwght%5D.ttf",
+    "sha256": "864727d210d54f2537bbe23b3a839436c3992af72de9322af5270897246bd44f"
+  },
+  {
+    "family": "notosanstc",
+    "file": "fonts/notosanstc/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanstc/OFL.txt",
+    "sha256": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9"
+  }
+]

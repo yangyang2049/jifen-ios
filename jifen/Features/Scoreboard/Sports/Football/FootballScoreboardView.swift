@@ -13,6 +13,7 @@ import Combine
 struct FootballScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.scenePhase) private var scenePhase
+    @ScaledMetric(relativeTo: .body) private var stoppageButtonFontSize: CGFloat = 17
     var onNavigationBack: (() -> Void)? = nil
     var initialSetup: SportsSetupResult? = nil
     var initialResumeSessionId: String? = nil
@@ -563,8 +564,14 @@ struct FootballScoreboardView: View {
                     .font(.system(size: 32, weight: .bold)).monospacedDigit()
                 HStack(spacing: 12) {
                     ForEach([15, 30, 60, 90], id: \.self) { seconds in
-                        Button("+\(seconds) \(NSLocalizedString("seconds_short", value: "秒", comment: ""))") {
+                        Button {
                             viewModel.addStoppage(seconds)
+                        } label: {
+                            AddValueLabel(
+                                value: "\(seconds) \(NSLocalizedString("seconds_short", value: "秒", comment: ""))",
+                                numberFontSize: stoppageButtonFontSize
+                            )
+                            .font(.system(size: stoppageButtonFontSize))
                         }
                         .buttonStyle(.bordered)
                         .accessibilityIdentifier("football_stoppage_add_\(seconds)")

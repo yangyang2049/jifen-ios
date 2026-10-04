@@ -1,0 +1,1209 @@
+{
+  "meaning": [
+    "Home",
+    "Away"
+  ],
+  "source": "iOS approved basketball-teams.json",
+  "localizations": [
+    {
+      "locale": "en-US",
+      "sourceLocale": "en-US",
+      "fontFamily": "Poppins",
+      "names": [
+        "Home",
+        "Away"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "FN8Zl",
+          "card": 6
+        },
+        {
+          "id": "jnC4B",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "ja-JP",
+      "sourceLocale": "ja",
+      "fontFamily": "Noto Sans JP",
+      "names": [
+        "ホーム",
+        "アウェイ"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "DdMYf",
+          "card": 6
+        },
+        {
+          "id": "Nmiom",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "ko-KR",
+      "sourceLocale": "ko",
+      "fontFamily": "Noto Sans KR",
+      "names": [
+        "홈팀",
+        "원정팀"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "P3J34",
+          "card": 6
+        },
+        {
+          "id": "ko3PE",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "de-DE",
+      "sourceLocale": "de-DE",
+      "fontFamily": "Poppins",
+      "names": [
+        "Heim",
+        "Gast"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "iknum",
+          "card": 6
+        },
+        {
+          "id": "D5QkNn",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "fr-FR",
+      "sourceLocale": "fr-FR",
+      "fontFamily": "Poppins",
+      "names": [
+        "Domicile",
+        "Extérieur"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "d08D9y",
+          "card": 6
+        },
+        {
+          "id": "GlPjZ",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "es-ES",
+      "sourceLocale": "es-ES",
+      "fontFamily": "Poppins",
+      "names": [
+        "Local",
+        "Visitante"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "bubRo",
+          "card": 6
+        },
+        {
+          "id": "ldotC",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "pt-BR",
+      "sourceLocale": "pt-BR",
+      "fontFamily": "Poppins",
+      "names": [
+        "Mandante",
+        "Visitante"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "BrVj4",
+          "card": 6
+        },
+        {
+          "id": "mKTeA",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "it-IT",
+      "sourceLocale": "it",
+      "fontFamily": "Poppins",
+      "names": [
+        "Casa",
+        "Trasferta"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "m4iSRx",
+          "card": 6
+        },
+        {
+          "id": "HXSF0",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "ru-RU",
+      "sourceLocale": "ru",
+      "fontFamily": "Montserrat",
+      "names": [
+        "Хозяева",
+        "Гости"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "idr0K",
+          "card": 6
+        },
+        {
+          "id": "wUHTN",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "ar",
+      "sourceLocale": "ar-SA",
+      "fontFamily": "Noto Sans Arabic",
+      "names": [
+        "المضيف",
+        "الضيف"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "BacVZ",
+          "card": 6
+        },
+        {
+          "id": "Iat81",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "hi-IN",
+      "sourceLocale": "hi",
+      "fontFamily": "Noto Sans Devanagari",
+      "names": [
+        "मेज़बान",
+        "मेहमान"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "gXTN9",
+          "card": 6
+        },
+        {
+          "id": "op82l",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "nl-NL",
+      "sourceLocale": "nl-NL",
+      "fontFamily": "Poppins",
+      "names": [
+        "Thuis",
+        "Uit"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "gWcrX",
+          "card": 6
+        },
+        {
+          "id": "fJCoV",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "tr-TR",
+      "sourceLocale": "tr",
+      "fontFamily": "Poppins",
+      "names": [
+        "Ev Sahibi",
+        "Deplasman"
+      ],
+      "sizes": {
+        "board": 43,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 25
+      },
+      "frames": [
+        {
+          "id": "QtPJo",
+          "card": 6
+        },
+        {
+          "id": "EsSDZ",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "id",
+      "sourceLocale": "id",
+      "fontFamily": "Poppins",
+      "names": [
+        "Tuan Rumah",
+        "Tandang"
+      ],
+      "sizes": {
+        "board": 39,
+        "tv": 44,
+        "phoneLeft": 24,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "tBzCz",
+          "card": 6
+        },
+        {
+          "id": "sIad6",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "vi",
+      "sourceLocale": "vi",
+      "fontFamily": "Noto Sans",
+      "names": [
+        "Chủ nhà",
+        "Khách"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "m7dpEn",
+          "card": 6
+        },
+        {
+          "id": "E1nqx",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "th",
+      "sourceLocale": "th",
+      "fontFamily": "Noto Sans Thai",
+      "names": [
+        "เหย้า",
+        "เยือน"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "gMH2Z",
+          "card": 6
+        },
+        {
+          "id": "SC1up",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "bn-BD",
+      "sourceLocale": "bn-BD",
+      "fontFamily": "Noto Sans Bengali",
+      "names": [
+        "স্বাগতিক",
+        "অতিথি"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "r1LDB",
+          "card": 6
+        },
+        {
+          "id": "cFyRI",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "ca",
+      "sourceLocale": "ca",
+      "fontFamily": "Poppins",
+      "names": [
+        "Local",
+        "Visitant"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "UA2mU",
+          "card": 6
+        },
+        {
+          "id": "c1lbb",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "cs-CZ",
+      "sourceLocale": "cs",
+      "fontFamily": "Poppins",
+      "names": [
+        "Domácí",
+        "Hosté"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "g1zzZ",
+          "card": 6
+        },
+        {
+          "id": "q1tcI",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "da-DK",
+      "sourceLocale": "da",
+      "fontFamily": "Poppins",
+      "names": [
+        "Hjemme",
+        "Ude"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "caUjD",
+          "card": 6
+        },
+        {
+          "id": "esUoM",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "el-GR",
+      "sourceLocale": "el",
+      "fontFamily": "Noto Sans",
+      "names": [
+        "Γηπεδούχοι",
+        "Φιλοξενούμενοι"
+      ],
+      "sizes": {
+        "board": 33,
+        "tv": 44,
+        "phoneLeft": 27,
+        "phoneRight": 19
+      },
+      "frames": [
+        {
+          "id": "GO5wP",
+          "card": 6
+        },
+        {
+          "id": "aDuS6",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "en-AU",
+      "sourceLocale": "en-AU",
+      "fontFamily": "Poppins",
+      "names": [
+        "Home",
+        "Away"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "V0zUd",
+          "card": 6
+        },
+        {
+          "id": "C2FPr",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "en-CA",
+      "sourceLocale": "en-CA",
+      "fontFamily": "Poppins",
+      "names": [
+        "Home",
+        "Away"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "JElr7",
+          "card": 6
+        },
+        {
+          "id": "J2LcN",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "en-GB",
+      "sourceLocale": "en-GB",
+      "fontFamily": "Poppins",
+      "names": [
+        "Home",
+        "Away"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "TC2jJ",
+          "card": 6
+        },
+        {
+          "id": "wu2V7",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "es-419",
+      "sourceLocale": "es-MX",
+      "fontFamily": "Poppins",
+      "names": [
+        "Local",
+        "Visitante"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "ksew5",
+          "card": 6
+        },
+        {
+          "id": "W5ESQ",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "fi-FI",
+      "sourceLocale": "fi",
+      "fontFamily": "Poppins",
+      "names": [
+        "Koti",
+        "Vieras"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "wUJ6a",
+          "card": 6
+        },
+        {
+          "id": "tXz1P",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "fr-CA",
+      "sourceLocale": "fr-CA",
+      "fontFamily": "Poppins",
+      "names": [
+        "Domicile",
+        "Visiteurs"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "RgD1D",
+          "card": 6
+        },
+        {
+          "id": "N9YqI",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "gu",
+      "sourceLocale": "gu-IN",
+      "fontFamily": "Noto Sans Gujarati",
+      "names": [
+        "યજમાન",
+        "મહેમાન"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "LEVe3",
+          "card": 6
+        },
+        {
+          "id": "ZbSy2",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "iw-IL",
+      "sourceLocale": "he",
+      "fontFamily": "Noto Sans Hebrew",
+      "names": [
+        "בית",
+        "חוץ"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "H32WmJ",
+          "card": 6
+        },
+        {
+          "id": "rWSTW",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "hr",
+      "sourceLocale": "hr",
+      "fontFamily": "Poppins",
+      "names": [
+        "Domaći",
+        "Gosti"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "j7YYhh",
+          "card": 6
+        },
+        {
+          "id": "Koycv",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "hu-HU",
+      "sourceLocale": "hu",
+      "fontFamily": "Poppins",
+      "names": [
+        "Hazai",
+        "Vendég"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "L7QpOu",
+          "card": 6
+        },
+        {
+          "id": "zlWd9",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "kn-IN",
+      "sourceLocale": "kn-IN",
+      "fontFamily": "Noto Sans Kannada",
+      "names": [
+        "ಆತಿಥೇಯ",
+        "ಅತಿಥಿ"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "lzHtr",
+          "card": 6
+        },
+        {
+          "id": "UYJhd",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "ml-IN",
+      "sourceLocale": "ml-IN",
+      "fontFamily": "Noto Sans Malayalam",
+      "names": [
+        "ആതിഥേയ",
+        "അതിഥി"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 27,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "FARZp",
+          "card": 6
+        },
+        {
+          "id": "V08S3",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "mr-IN",
+      "sourceLocale": "mr-IN",
+      "fontFamily": "Noto Sans Devanagari",
+      "names": [
+        "यजमान",
+        "पाहुणे"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "pFmOm",
+          "card": 6
+        },
+        {
+          "id": "R4x9PW",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "ms-MY",
+      "sourceLocale": "ms",
+      "fontFamily": "Poppins",
+      "names": [
+        "Tuan Rumah",
+        "Pelawat"
+      ],
+      "sizes": {
+        "board": 39,
+        "tv": 44,
+        "phoneLeft": 24,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "vUqpW",
+          "card": 6
+        },
+        {
+          "id": "sN7GZ",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "no-NO",
+      "sourceLocale": "no",
+      "fontFamily": "Poppins",
+      "names": [
+        "Hjemme",
+        "Borte"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "SIeyj",
+          "card": 6
+        },
+        {
+          "id": "O1yJtk",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "unsupported-or-IN",
+      "sourceLocale": "or-IN",
+      "fontFamily": "Noto Sans Oriya",
+      "names": [
+        "ଆୟୋଜକ",
+        "ଅତିଥି"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "KyMgV",
+          "card": 6
+        },
+        {
+          "id": "p4Kql",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "pa",
+      "sourceLocale": "pa-IN",
+      "fontFamily": "Noto Sans Gurmukhi",
+      "names": [
+        "ਮੇਜ਼ਬਾਨ",
+        "ਮਹਿਮਾਨ"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "jSoL4",
+          "card": 6
+        },
+        {
+          "id": "r8fZ27",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "pl-PL",
+      "sourceLocale": "pl",
+      "fontFamily": "Poppins",
+      "names": [
+        "Gospodarze",
+        "Goście"
+      ],
+      "sizes": {
+        "board": 42,
+        "tv": 44,
+        "phoneLeft": 25,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "LQjc8",
+          "card": 6
+        },
+        {
+          "id": "ZEQjY",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "pt-PT",
+      "sourceLocale": "pt-PT",
+      "fontFamily": "Poppins",
+      "names": [
+        "Casa",
+        "Visitante"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "kKZoq",
+          "card": 6
+        },
+        {
+          "id": "bGh5I",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "ro",
+      "sourceLocale": "ro",
+      "fontFamily": "Poppins",
+      "names": [
+        "Gazde",
+        "Oaspeți"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "c76Ahk",
+          "card": 6
+        },
+        {
+          "id": "MA1UE",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "sk",
+      "sourceLocale": "sk",
+      "fontFamily": "Poppins",
+      "names": [
+        "Domáci",
+        "Hostia"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "Pj0L4",
+          "card": 6
+        },
+        {
+          "id": "lVvWK",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "sl",
+      "sourceLocale": "sl-SI",
+      "fontFamily": "Poppins",
+      "names": [
+        "Domači",
+        "Gostje"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "KQU7O",
+          "card": 6
+        },
+        {
+          "id": "a9KMO",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "sv-SE",
+      "sourceLocale": "sv",
+      "fontFamily": "Poppins",
+      "names": [
+        "Hemma",
+        "Borta"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "d0jDAo",
+          "card": 6
+        },
+        {
+          "id": "lTm7I",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "ta-IN",
+      "sourceLocale": "ta-IN",
+      "fontFamily": "Noto Sans Tamil",
+      "names": [
+        "உள்ளூர்",
+        "விருந்தினர்"
+      ],
+      "sizes": {
+        "board": 39,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 23
+      },
+      "frames": [
+        {
+          "id": "GnZmo",
+          "card": 6
+        },
+        {
+          "id": "pAzka",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "te-IN",
+      "sourceLocale": "te-IN",
+      "fontFamily": "Noto Sans Telugu",
+      "names": [
+        "ఆతిథ్య",
+        "అతిథి"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "jHrU1",
+          "card": 6
+        },
+        {
+          "id": "u3kBh",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "uk",
+      "sourceLocale": "uk",
+      "fontFamily": "Montserrat",
+      "names": [
+        "Господарі",
+        "Гості"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "UiYbo",
+          "card": 6
+        },
+        {
+          "id": "S9DbkR",
+          "card": 7
+        }
+      ]
+    },
+    {
+      "locale": "ur",
+      "sourceLocale": "ur-PK",
+      "fontFamily": "Noto Sans Arabic",
+      "names": [
+        "میزبان",
+        "مہمان"
+      ],
+      "sizes": {
+        "board": 44,
+        "tv": 44,
+        "phoneLeft": 28,
+        "phoneRight": 28
+      },
+      "frames": [
+        {
+          "id": "I1H10",
+          "card": 6
+        },
+        {
+          "id": "vLcpF",
+          "card": 7
+        }
+      ]
+    }
+  ]
+}

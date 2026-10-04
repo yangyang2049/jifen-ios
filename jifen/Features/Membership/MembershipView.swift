@@ -520,6 +520,7 @@ struct MembershipView: View {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("membership_plan_\(product.id)")
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private func planCard(_ product: Product) -> some View {
@@ -576,6 +577,7 @@ struct MembershipView: View {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("membership_plan_\(product.id)")
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private func planInfo(for id: String) -> (title: String, subtitle: String, badge: String) {
@@ -678,9 +680,9 @@ struct MembershipView: View {
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
             .frame(height: 54)
-            .background(Capsule().fill(Theme.accentColor.opacity(isBusy ? 0.48 : 1)))
+            .background(Capsule().fill(Theme.accentColor.opacity(canStartPurchase ? 1 : 0.48)))
         }
-        .disabled(isBusy)
+        .disabled(!canStartPurchase)
     }
 
     /// 协议行（对齐安卓/鸿蒙 VipPage）：
@@ -819,7 +821,7 @@ struct MembershipView: View {
     }
 
     private func startPurchase() async {
-        guard let product = selectedProduct else { return }
+        guard canStartPurchase, let product = selectedProduct else { return }
         // Guideline 5.1.1(v)：登录不作为购买前提，未登录时由 StoreKit 直接授予权益。
         guard acceptedTerms else {
             agreementHint = true
@@ -827,6 +829,10 @@ struct MembershipView: View {
         }
         agreementHint = false
         await manager.purchase(product)
+    }
+
+    private var canStartPurchase: Bool {
+        !isBusy && selectedProduct != nil
     }
 
     private var isBusy: Bool {

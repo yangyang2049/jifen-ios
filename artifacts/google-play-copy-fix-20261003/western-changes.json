@@ -1,0 +1,414 @@
+{
+  "status": "STOPPED_NO_SOURCE_WRITES_CONCURRENT_GOOGLE_PLAY_WORK",
+  "reviewDate": "2026-10-03",
+  "platform": "Google Play",
+  "sourceRoot": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02",
+  "scope": "18 Western/Americas locale source files only; no copy.json, Pen, PNG, aggregates or remote writes.",
+  "stopReason": "Google Play source already changed during the broader task and root confirmed this session did not run its generator. Per user instruction to avoid duplicate Google Play work, root stopped this agent before any source mutation.",
+  "summary": {
+    "localesRead": 18,
+    "sourceFilesModified": 0,
+    "remoteWrites": 0,
+    "backupFilesCreated": 0,
+    "alreadyAppliedElsewhere": [
+      "da-DK cube-timer terminology",
+      "fr-FR and fr-CA missing footer colon spaces"
+    ],
+    "remainingFormattingSuggestions": [
+      "fr-FR U+0020 before colons to U+00A0",
+      "fr-CA U+0020 before colons to U+00A0"
+    ],
+    "androidAdaptationAndLegalLinkChecks": "PASS",
+    "fieldLimitsAndNfcChecks": "PASS"
+  },
+  "concurrentMutationEvidence": [
+    {
+      "locale": "fr-FR",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/fr-FR.json",
+      "currentMtimeAsiaShanghai": "2026-10-03T01:02:41.332913+08:00",
+      "currentMtimeNanoseconds": 1790960561332913476,
+      "currentSha256": "fc6eaf6566500e351cf18ff2aa7409d4520c9bbcfa4eb25a4be91e2309e7c032",
+      "beforeEvidenceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/before-self-audit/metadata.json",
+      "beforeEvidenceEntry": "fr-FR",
+      "old": "Conditions d’utilisation:\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité:\nhttps://jifenqi.com/privacy",
+      "new": "Conditions d’utilisation :\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité :\nhttps://jifenqi.com/privacy",
+      "evidenceType": "Existing before-self-audit metadata compared with current source. French footer differences were also present in this task initial-versus-later read outputs.",
+      "writer": "unknown; not this agent"
+    },
+    {
+      "locale": "fr-CA",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/fr-CA.json",
+      "currentMtimeAsiaShanghai": "2026-10-03T01:02:41.337930+08:00",
+      "currentMtimeNanoseconds": 1790960561337930397,
+      "currentSha256": "a429cd76fffa0fa1997305d0400a45c224db15ade828a478d244e15c0614e3c8",
+      "beforeEvidenceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/before-self-audit/metadata.json",
+      "beforeEvidenceEntry": "fr-CA",
+      "old": "Conditions d’utilisation:\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité:\nhttps://jifenqi.com/privacy",
+      "new": "Conditions d’utilisation :\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité :\nhttps://jifenqi.com/privacy",
+      "evidenceType": "Existing before-self-audit metadata compared with current source. French footer differences were also present in this task initial-versus-later read outputs.",
+      "writer": "unknown; not this agent"
+    },
+    {
+      "locale": "da-DK",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/da-DK.json",
+      "currentMtimeAsiaShanghai": "2026-10-03T01:02:41.336822+08:00",
+      "currentMtimeNanoseconds": 1790960561336821438,
+      "currentSha256": "3a5b12dc4fb5fa8a8365c1bbbc753e390d2720424ce4c4d07fea2a26bdf370c5",
+      "beforeEvidenceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/before-self-audit/metadata.json",
+      "beforeEvidenceEntry": "da-DK",
+      "old": "en terningetimer",
+      "new": "en timer til professorterninger",
+      "evidenceType": "Existing before-self-audit metadata compared with current source. French footer differences were also present in this task initial-versus-later read outputs.",
+      "writer": "unknown; not this agent"
+    }
+  ],
+  "locales": [
+    {
+      "locale": "ca",
+      "sourceLocale": "ca",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/ca.json",
+      "descriptionStatus": "PASS",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "41625a39e6f93440425c28222a12552a53446798a308f7556de3e362f07ad382",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.335950+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged."
+      ]
+    },
+    {
+      "locale": "de-DE",
+      "sourceLocale": "de-DE",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/de-DE.json",
+      "descriptionStatus": "PASS",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "7368f66d4917f47f0d04ada300e60fc0daa71656caf47a2e11f798711476f32d",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.332706+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged."
+      ]
+    },
+    {
+      "locale": "en-AU",
+      "sourceLocale": "en-AU",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/en-AU.json",
+      "descriptionStatus": "PASS",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "6b0e42d889396ddb1fb915fd1dd27fae70adcf67d8a161af73a159c250736780",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.337066+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged."
+      ]
+    },
+    {
+      "locale": "en-CA",
+      "sourceLocale": "en-CA",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/en-CA.json",
+      "descriptionStatus": "PASS",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "1f0be81f57935585a8173a4f4c659ddf0dabb8be93a5f1d5db56f108ae7237da",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.337303+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged."
+      ]
+    },
+    {
+      "locale": "en-GB",
+      "sourceLocale": "en-GB",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/en-GB.json",
+      "descriptionStatus": "PASS",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "4de1c71a25b3895321425e9f8a0ff1459e3621b5251aeaddcebbbc3b79079b2c",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.337378+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged."
+      ]
+    },
+    {
+      "locale": "en-US",
+      "sourceLocale": "en-US",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/en-US.json",
+      "descriptionStatus": "PASS",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "0a2c8ccd737e4621b001711f166af17fd4b926d7388e59dafec7842ef00e776c",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.332443+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged."
+      ]
+    },
+    {
+      "locale": "es-ES",
+      "sourceLocale": "es-ES",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/es-ES.json",
+      "descriptionStatus": "PASS",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "964731af93ba3ee705952acf43d21f1b2f4b1a57471407edcd630863fdf9ef99",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.333332+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged."
+      ]
+    },
+    {
+      "locale": "es-419",
+      "sourceLocale": "es-MX",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/es-419.json",
+      "descriptionStatus": "PASS",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "cbf8a14036dfc51712a5f8d1d3d1f145687b6f66278f7ab4d0929717ed47c255",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.337592+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged."
+      ]
+    },
+    {
+      "locale": "fr-FR",
+      "sourceLocale": "fr-FR",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/fr-FR.json",
+      "descriptionStatus": "SUGGESTION_NOT_APPLIED_CONCURRENT_WORK",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "fc6eaf6566500e351cf18ff2aa7409d4520c9bbcfa4eb25a4be91e2309e7c032",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.332913+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [
+        {
+          "severity": "high_confidence_suggestion",
+          "field": "fullDescription",
+          "old": " :",
+          "new": " :",
+          "occurrences": 4,
+          "reason": "French colons should be preceded by a nonbreaking space; the missing footer spaces have already been corrected by another writer, but the present spaces are U+0020. This review did not apply further changes because concurrent work was detected.",
+          "reference": "https://vitrinelinguistique.oqlf.gouv.qc.ca/23325/la-ponctuation/deux-points/emplois-courants-du-deux-points",
+          "applied": false
+        }
+      ],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged."
+      ]
+    },
+    {
+      "locale": "fr-CA",
+      "sourceLocale": "fr-CA",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/fr-CA.json",
+      "descriptionStatus": "SUGGESTION_NOT_APPLIED_CONCURRENT_WORK",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "a429cd76fffa0fa1997305d0400a45c224db15ade828a478d244e15c0614e3c8",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.337930+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [
+        {
+          "severity": "high_confidence_suggestion",
+          "field": "fullDescription",
+          "old": " :",
+          "new": " :",
+          "occurrences": 4,
+          "reason": "French colons should be preceded by a nonbreaking space; the missing footer spaces have already been corrected by another writer, but the present spaces are U+0020. This review did not apply further changes because concurrent work was detected.",
+          "reference": "https://vitrinelinguistique.oqlf.gouv.qc.ca/23325/la-ponctuation/deux-points/emplois-courants-du-deux-points",
+          "applied": false
+        }
+      ],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged."
+      ]
+    },
+    {
+      "locale": "it-IT",
+      "sourceLocale": "it",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/it-IT.json",
+      "descriptionStatus": "PASS",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "e9a76a936524fb49d1e4b9cc7c6a822070ad33667558f5309eaf1d185a4cdf4f",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.333802+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged."
+      ]
+    },
+    {
+      "locale": "nl-NL",
+      "sourceLocale": "nl-NL",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/nl-NL.json",
+      "descriptionStatus": "PASS",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "dc3aab3146fe898395a66fcff4cfe5cac9262c897e1dd14c66fad161577f49fa",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.335504+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged."
+      ]
+    },
+    {
+      "locale": "pt-BR",
+      "sourceLocale": "pt-BR",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/pt-BR.json",
+      "descriptionStatus": "PASS",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "c59185746ef1c7feaf97a4e2a2cfbb11eb4950f21a2eb17b6c1a73901d22b3e6",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.333508+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged."
+      ]
+    },
+    {
+      "locale": "pt-PT",
+      "sourceLocale": "pt-PT",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/pt-PT.json",
+      "descriptionStatus": "PASS",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "26453a06cb769c55e350f5e40bd838a64a782965551c0b0d0402588055b1fd82",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.339313+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged."
+      ]
+    },
+    {
+      "locale": "da-DK",
+      "sourceLocale": "da",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/da-DK.json",
+      "descriptionStatus": "PASS",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "3a5b12dc4fb5fa8a8365c1bbbc753e390d2720424ce4c4d07fea2a26bdf370c5",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.336822+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged.",
+        "The Danish cube-timer term has already been corrected to timer til professorterninger by another writer; no duplicate edit was attempted."
+      ]
+    },
+    {
+      "locale": "fi-FI",
+      "sourceLocale": "fi",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/fi-FI.json",
+      "descriptionStatus": "PASS",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "169b0af2148d9b7420c26cea19c1cac78ec5cad498b406af98526abe7f4d7b57",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.337767+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged."
+      ]
+    },
+    {
+      "locale": "no-NO",
+      "sourceLocale": "no",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/no-NO.json",
+      "descriptionStatus": "PASS",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "ca25da0eee52866147c809946810f756eadf81e48e2ff541d70b462a80c5ea07",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.338900+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged."
+      ]
+    },
+    {
+      "locale": "sv-SE",
+      "sourceLocale": "sv",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/google-play/localization-2026-10-02/locales/sv-SE.json",
+      "descriptionStatus": "PASS",
+      "shortDescriptionStatus": "PASS",
+      "titleStatus": "PASS",
+      "sourceSchemaPreserved": true,
+      "sha256Observed": "d5047be496138c4d25521f665ce5dc59e2268a959bbcdd503c290d6cd92e8e55",
+      "mtimeAsiaShanghai": "2026-10-03T01:02:41.339639+08:00",
+      "backup": null,
+      "changes": [],
+      "findings": [],
+      "notes": [
+        "Individually reviewed actual Google Play fullDescription, shortDescription and title. Google Play source has no screenshotTitles field. Android wording and the two independent legal URLs are appropriate; no Apple EULA is present.",
+        "No definite sport-name or slogan-copy error found in these fields. Regional vocabulary and natural existing translations remain unchanged."
+      ]
+    }
+  ]
+}

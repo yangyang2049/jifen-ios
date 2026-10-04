@@ -1,0 +1,398 @@
+{
+  "completedAt": "2026-10-03",
+  "platform": "IOS",
+  "version": "3.3",
+  "appId": "6759768784",
+  "versionId": "a118dc62-4303-4c03-ae92-b358c60438d5",
+  "sourceRoot": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02",
+  "backupRoot": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before",
+  "summary": {
+    "changedLocaleCount": 14,
+    "changedDescriptionLocaleCount": 8,
+    "descriptionLocales": [
+      "da",
+      "fr-CA",
+      "fr-FR",
+      "id",
+      "ms",
+      "th",
+      "ur-PK",
+      "vi"
+    ],
+    "changedTitleLocaleCount": 6,
+    "titleLocales": [
+      "en-AU",
+      "en-CA",
+      "en-GB",
+      "en-US",
+      "pl",
+      "ro"
+    ],
+    "sourceFindingCount": 14,
+    "backupFileCount": 22,
+    "actualChangedFileCount": 21,
+    "preservedNativeReviewFindingIds": [
+      "kn-IN-1",
+      "mr-IN-2",
+      "or-IN-1",
+      "pa-IN-2",
+      "te-IN-1"
+    ],
+    "sourceNamesAndSubtitlesUnchanged": true,
+    "allOtherSourceFieldsUnchanged": true,
+    "remoteUploaded": false,
+    "penOrPngModifiedByThisAgent": false
+  },
+  "changes": [
+    {
+      "locale": "da",
+      "field": "description",
+      "findingId": "da-1",
+      "severity": "suggestion",
+      "confidence": "high",
+      "old": "en terningetimer",
+      "new": "en timer til professorterninger",
+      "reason": "丹麦语 terning 可以表示骰子或立方体，未明确魔方。可采用词典中的 professorterning 明确对象；属于术语清晰度建议，完整表达可再由母语者确认。",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/da.json"
+    },
+    {
+      "locale": "en-AU",
+      "field": "screenshotTitles.score.title",
+      "findingId": "en-AU-1",
+      "severity": "suggestion",
+      "confidence": "high",
+      "old": "Keep every score\nat a glance",
+      "new": "See every score\nat a glance",
+      "reason": "at a glance 表示快速看清信息，与 See every score 搭配更自然。当前 PNG 已使用 SEE EVERY SCORE，仅建议同步 JSON 的旧标题。",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-AU.json"
+    },
+    {
+      "locale": "en-CA",
+      "field": "screenshotTitles.score.title",
+      "findingId": "en-CA-1",
+      "severity": "suggestion",
+      "confidence": "high",
+      "old": "Keep every score\nat a glance",
+      "new": "See every score\nat a glance",
+      "reason": "at a glance 表示快速看清信息，与 See every score 搭配更自然。当前 PNG 已使用 SEE EVERY SCORE，仅建议同步 JSON 的旧标题。",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-CA.json"
+    },
+    {
+      "locale": "en-GB",
+      "field": "screenshotTitles.score.title",
+      "findingId": "en-GB-1",
+      "severity": "suggestion",
+      "confidence": "high",
+      "old": "Keep every score\nat a glance",
+      "new": "See every score\nat a glance",
+      "reason": "at a glance 表示快速看清信息，与 See every score 搭配更自然。当前 PNG 已使用 SEE EVERY SCORE，仅建议同步 JSON 的旧标题。",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-GB.json"
+    },
+    {
+      "locale": "en-US",
+      "field": "screenshotTitles.score.title",
+      "findingId": "en-US-1",
+      "severity": "suggestion",
+      "confidence": "high",
+      "old": "Keep every score\nat a glance",
+      "new": "See every score\nat a glance",
+      "reason": "at a glance 表示快速看清信息，与 See every score 搭配更自然。当前 PNG 已使用 SEE EVERY SCORE，仅建议同步 JSON 的旧标题。",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-US.json"
+    },
+    {
+      "locale": "fr-CA",
+      "field": "description",
+      "findingId": "fr-CA-1",
+      "severity": "error",
+      "confidence": "high",
+      "old": "Conditions d’utilisation:\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité:\nhttps://jifenqi.com/privacy\n\nContrat de licence standard Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "new": "Conditions d’utilisation :\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité :\nhttps://jifenqi.com/privacy\n\nContrat de licence standard Apple :\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "reason": "三个法律链接标签的冒号前缺少法语所需空格。建议插入不换行空格 U+00A0；保留 URL 独立行及现有段落。正文已有普通空格，也可统一为不换行空格。",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/fr-CA.json"
+    },
+    {
+      "locale": "fr-FR",
+      "field": "description",
+      "findingId": "fr-FR-1",
+      "severity": "error",
+      "confidence": "high",
+      "old": "Conditions d’utilisation:\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité:\nhttps://jifenqi.com/privacy\n\nContrat de licence standard Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "new": "Conditions d’utilisation :\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité :\nhttps://jifenqi.com/privacy\n\nContrat de licence standard Apple :\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "reason": "三个法律链接标签的冒号前缺少法语所需空格。建议插入不换行空格 U+00A0；保留 URL 独立行及现有段落。正文已有普通空格，也可统一为不换行空格。",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/fr-FR.json"
+    },
+    {
+      "locale": "id",
+      "field": "description",
+      "findingId": "id-1",
+      "severity": "suggestion",
+      "confidence": "high",
+      "old": "pewaktu kubus",
+      "new": "pewaktu kubus Rubik",
+      "reason": "kubus是泛指立方体；为准确呈现魔方计时可加Rubik，WCA印尼赛事原文使用kubus rubik。属于消除歧义建议，不能认定原文中的kubus作为语境简称是错译。",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/id.json"
+    },
+    {
+      "locale": "ms",
+      "field": "description",
+      "findingId": "ms-2",
+      "severity": "suggestion",
+      "confidence": "high",
+      "old": "pemasa kiub",
+      "new": "pemasa kiub Rubik",
+      "reason": "kiub是泛指立方体；可用kiub Rubik说明魔方计时，DBP术语实例使用kiub rubik。属于清晰度建议，原词在魔方语境中可作简称。",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ms.json"
+    },
+    {
+      "locale": "pl",
+      "field": "screenshotTitles.recap.title",
+      "findingId": "pl-1",
+      "severity": "suggestion",
+      "confidence": "high",
+      "old": "Wróć do\nkażdego meczu",
+      "new": "Wróć\ndo każdego meczu",
+      "reason": "文意和语法正确，但手动换行把介词do留在上一行，建议让do与każdego meczu同一行以保持短语完整；当前PNG也这样断行，调整后须测量行宽。实际cards应保留全大写形式。",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/pl.json"
+    },
+    {
+      "locale": "ro",
+      "field": "screenshotTitles.recap.title",
+      "findingId": "ro-1",
+      "severity": "suggestion",
+      "confidence": "high",
+      "old": "Revino la\nfiecare meci",
+      "new": "Revino\nla fiecare meci",
+      "reason": "文意和语法正确，但手动换行把介词la留在上一行，建议与fiecare meci同一行。实际cards应保留全大写形式。",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ro.json"
+    },
+    {
+      "locale": "th",
+      "field": "description",
+      "findingId": "th-1",
+      "severity": "suggestion",
+      "confidence": "high",
+      "old": "ตัวจับเวลาลูกบาศก์",
+      "new": "ตัวจับเวลารูบิค",
+      "reason": "ลูกบาศก์是泛指立方体；本功能实际计时魔方速拧，WCA泰国赛事原文使用รูบิค。可进一步明确对象；不把原几何名词直接判成拼写错误。",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/th.json"
+    },
+    {
+      "locale": "ur-PK",
+      "field": "description",
+      "findingId": "ur-PK-1",
+      "severity": "error",
+      "confidence": "certain",
+      "old": "معاون کھیلوں میں پوائنٹس کے اصول، میچ کا طریقہ اور ڈبلز میں سروس کی ترتیب طے کریں۔",
+      "new": "جن کھیلوں میں یہ سہولت دستیاب ہے، ان میں پوائنٹس کے اصول، میچ کا طریقہ اور ڈبلز میں سروس کی ترتیب طے کریں۔",
+      "reason": "معاون意为协助者/辅助者（主动义），不能准确表达supported sports（支持该功能的项目）；改为“在这些功能可用的运动中”以保留功能支持范围。",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ur-PK.json"
+    },
+    {
+      "locale": "vi",
+      "field": "description",
+      "findingId": "vi-2",
+      "severity": "suggestion",
+      "confidence": "high",
+      "old": "bộ đếm giờ cho khối lập phương",
+      "new": "bộ đếm giờ giải Rubik",
+      "reason": "khối lập phương主要指几何立方体，当前长描述没有点明魔方速拧；建议用当地WCA赛事所用Rubik使功能对象明确。这是专门术语清晰度建议，原文并非拼写错误。",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/vi.json"
+    }
+  ],
+  "descriptionUpdates": [
+    {
+      "locale": "da",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/da.json",
+      "oldDescription": "Hvert point tæller. Gør din iPhone eller iPad til en tydelig og brugervenlig måltavle til kampe, træning og spil med venner.\n\nHold styr på point i mere end 26 sportsgrene og spil, blandt andet tennis, pickleball, badminton, bordtennis, basketball, fodbold, volleyball og billard. Tilpas pointregler, kampformat og serverækkefølge i double for de sportsgrene, der understøtter det.\n\nGem kampe, og se pointudvikling, tidslinjer og stemmenoter. Brug skak- og go-ure, en terningetimer og et stopur. Vis måltavlen på en stor skærm, og del en kampkode, så venner kan følge stillingen på afstand.\n\nMøntkast, tilfældige hold, røde og gule kort samt deling af udgifter — det hele er samlet ét sted. Mindre tid på at tælle, mere tid til spillet.\n\nBrugsvilkår:\nhttps://jifenqi.com/terms\n\nPrivatlivspolitik:\nhttps://jifenqi.com/privacy\n\nApples standardlicensaftale:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "description": "Hvert point tæller. Gør din iPhone eller iPad til en tydelig og brugervenlig måltavle til kampe, træning og spil med venner.\n\nHold styr på point i mere end 26 sportsgrene og spil, blandt andet tennis, pickleball, badminton, bordtennis, basketball, fodbold, volleyball og billard. Tilpas pointregler, kampformat og serverækkefølge i double for de sportsgrene, der understøtter det.\n\nGem kampe, og se pointudvikling, tidslinjer og stemmenoter. Brug skak- og go-ure, en timer til professorterninger og et stopur. Vis måltavlen på en stor skærm, og del en kampkode, så venner kan følge stillingen på afstand.\n\nMøntkast, tilfældige hold, røde og gule kort samt deling af udgifter — det hele er samlet ét sted. Mindre tid på at tælle, mere tid til spillet.\n\nBrugsvilkår:\nhttps://jifenqi.com/terms\n\nPrivatlivspolitik:\nhttps://jifenqi.com/privacy\n\nApples standardlicensaftale:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+    },
+    {
+      "locale": "fr-CA",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/fr-CA.json",
+      "oldDescription": "Chaque point compte. Transformez votre iPhone ou iPad en tableau de pointage clair et facile à utiliser pour vos matchs, entraînements et parties entre amis.\n\nComptez les points pour plus de 26 sports et jeux : tennis, pickleball, badminton, tennis de table, basketball, soccer, volleyball et billard. Pour les sports compatibles, adaptez les règles de pointage, le format du match et l'ordre de service en double.\n\nEnregistrez vos matchs et revivez-les grâce à l'évolution du pointage, à la chronologie et aux notes vocales. Profitez des pendules d'échecs et de go, du minuteur pour cube et du chronomètre. Affichez le pointage sur grand écran et partagez un code de match pour que vos proches le suivent à distance.\n\nPile ou face, équipes aléatoires, cartons rouges et jaunes, partage des frais : vos outils pratiques sont réunis. Moins de temps à compter, plus de plaisir à jouer.\n\nConditions d’utilisation:\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité:\nhttps://jifenqi.com/privacy\n\nContrat de licence standard Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "description": "Chaque point compte. Transformez votre iPhone ou iPad en tableau de pointage clair et facile à utiliser pour vos matchs, entraînements et parties entre amis.\n\nComptez les points pour plus de 26 sports et jeux : tennis, pickleball, badminton, tennis de table, basketball, soccer, volleyball et billard. Pour les sports compatibles, adaptez les règles de pointage, le format du match et l'ordre de service en double.\n\nEnregistrez vos matchs et revivez-les grâce à l'évolution du pointage, à la chronologie et aux notes vocales. Profitez des pendules d'échecs et de go, du minuteur pour cube et du chronomètre. Affichez le pointage sur grand écran et partagez un code de match pour que vos proches le suivent à distance.\n\nPile ou face, équipes aléatoires, cartons rouges et jaunes, partage des frais : vos outils pratiques sont réunis. Moins de temps à compter, plus de plaisir à jouer.\n\nConditions d’utilisation :\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité :\nhttps://jifenqi.com/privacy\n\nContrat de licence standard Apple :\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+    },
+    {
+      "locale": "fr-FR",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/fr-FR.json",
+      "oldDescription": "Chaque point compte. Transformez votre iPhone ou iPad en tableau de scores clair et facile à utiliser pour vos matchs, entraînements et parties entre amis.\n\nComptez les points pour plus de 26 sports et jeux : tennis, pickleball, badminton, tennis de table, basket, football, volley et billard. Pour les sports compatibles, adaptez les règles de score, le format du match et l'ordre de service en double.\n\nEnregistrez vos matchs et revivez-les grâce à l'évolution du score, à la chronologie et aux notes vocales. Profitez des pendules d'échecs et de go, du minuteur pour cube et du chronomètre. Affichez le score sur grand écran et partagez un code de match pour que vos proches le suivent à distance.\n\nPile ou face, équipes aléatoires, cartons rouges et jaunes, partage des frais : vos outils pratiques sont réunis. Moins de temps à compter, plus de plaisir à jouer.\n\nConditions d’utilisation:\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité:\nhttps://jifenqi.com/privacy\n\nContrat de licence standard Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "description": "Chaque point compte. Transformez votre iPhone ou iPad en tableau de scores clair et facile à utiliser pour vos matchs, entraînements et parties entre amis.\n\nComptez les points pour plus de 26 sports et jeux : tennis, pickleball, badminton, tennis de table, basket, football, volley et billard. Pour les sports compatibles, adaptez les règles de score, le format du match et l'ordre de service en double.\n\nEnregistrez vos matchs et revivez-les grâce à l'évolution du score, à la chronologie et aux notes vocales. Profitez des pendules d'échecs et de go, du minuteur pour cube et du chronomètre. Affichez le score sur grand écran et partagez un code de match pour que vos proches le suivent à distance.\n\nPile ou face, équipes aléatoires, cartons rouges et jaunes, partage des frais : vos outils pratiques sont réunis. Moins de temps à compter, plus de plaisir à jouer.\n\nConditions d’utilisation :\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité :\nhttps://jifenqi.com/privacy\n\nContrat de licence standard Apple :\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+    },
+    {
+      "locale": "id",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/id.json",
+      "oldDescription": "Setiap poin berarti. Ubah iPhone atau iPad menjadi papan skor yang jelas dan mudah digunakan untuk pertandingan, latihan, dan permainan bersama teman.\n\nCatat skor untuk lebih dari 26 olahraga dan permainan, termasuk tenis, pickleball, bulu tangkis, tenis meja, basket, sepak bola, voli, dan biliar. Atur aturan poin, format pertandingan, dan urutan servis ganda pada olahraga yang mendukungnya.\n\nSimpan pertandingan dan tinjau perubahan skor, linimasa, serta catatan suara. Gunakan jam catur dan go, pewaktu kubus, dan stopwatch. Tampilkan papan skor di layar besar dan bagikan kode pertandingan agar teman dapat mengikuti skor dari jauh.\n\nLempar koin, bagi tim secara acak, tampilkan kartu merah dan kuning, serta bagi biaya dengan alat praktis dalam satu aplikasi. Lebih sedikit repot menghitung, lebih banyak waktu menikmati permainan.\n\nKetentuan penggunaan:\nhttps://jifenqi.com/terms\n\nKebijakan privasi:\nhttps://jifenqi.com/privacy\n\nPerjanjian lisensi pengguna akhir standar Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "description": "Setiap poin berarti. Ubah iPhone atau iPad menjadi papan skor yang jelas dan mudah digunakan untuk pertandingan, latihan, dan permainan bersama teman.\n\nCatat skor untuk lebih dari 26 olahraga dan permainan, termasuk tenis, pickleball, bulu tangkis, tenis meja, basket, sepak bola, voli, dan biliar. Atur aturan poin, format pertandingan, dan urutan servis ganda pada olahraga yang mendukungnya.\n\nSimpan pertandingan dan tinjau perubahan skor, linimasa, serta catatan suara. Gunakan jam catur dan go, pewaktu kubus Rubik, dan stopwatch. Tampilkan papan skor di layar besar dan bagikan kode pertandingan agar teman dapat mengikuti skor dari jauh.\n\nLempar koin, bagi tim secara acak, tampilkan kartu merah dan kuning, serta bagi biaya dengan alat praktis dalam satu aplikasi. Lebih sedikit repot menghitung, lebih banyak waktu menikmati permainan.\n\nKetentuan penggunaan:\nhttps://jifenqi.com/terms\n\nKebijakan privasi:\nhttps://jifenqi.com/privacy\n\nPerjanjian lisensi pengguna akhir standar Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+    },
+    {
+      "locale": "ms",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ms.json",
+      "oldDescription": "Setiap mata bermakna. Jadikan iPhone atau iPad anda papan skor yang jelas dan mudah digunakan untuk perlawanan, latihan dan permainan bersama rakan.\n\nCatat skor untuk lebih 26 sukan dan permainan, termasuk tenis, pickleball, badminton, ping pong, bola keranjang, bola sepak, bola tampar dan biliard. Laraskan peraturan mata, format perlawanan dan urutan servis beregu bagi sukan yang menyokongnya.\n\nSimpan perlawanan dan semak perubahan skor, garis masa serta nota suara. Gunakan jam catur dan go, pemasa kiub dan jam randik. Paparkan papan skor pada skrin besar dan kongsi kod perlawanan supaya rakan boleh mengikuti skor dari jauh.\n\nLambungan syiling, pembahagian pasukan secara rawak, kad merah dan kuning serta pembahagian belanja — semuanya dalam satu aplikasi. Kurangkan kerja mengira, nikmati permainan dengan lebih lagi.\n\nSyarat penggunaan:\nhttps://jifenqi.com/terms\n\nDasar privasi:\nhttps://jifenqi.com/privacy\n\nPerjanjian lesen pengguna akhir standard Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "description": "Setiap mata bermakna. Jadikan iPhone atau iPad anda papan skor yang jelas dan mudah digunakan untuk perlawanan, latihan dan permainan bersama rakan.\n\nCatat skor untuk lebih 26 sukan dan permainan, termasuk tenis, pickleball, badminton, ping pong, bola keranjang, bola sepak, bola tampar dan biliard. Laraskan peraturan mata, format perlawanan dan urutan servis beregu bagi sukan yang menyokongnya.\n\nSimpan perlawanan dan semak perubahan skor, garis masa serta nota suara. Gunakan jam catur dan go, pemasa kiub Rubik dan jam randik. Paparkan papan skor pada skrin besar dan kongsi kod perlawanan supaya rakan boleh mengikuti skor dari jauh.\n\nLambungan syiling, pembahagian pasukan secara rawak, kad merah dan kuning serta pembahagian belanja — semuanya dalam satu aplikasi. Kurangkan kerja mengira, nikmati permainan dengan lebih lagi.\n\nSyarat penggunaan:\nhttps://jifenqi.com/terms\n\nDasar privasi:\nhttps://jifenqi.com/privacy\n\nPerjanjian lesen pengguna akhir standard Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+    },
+    {
+      "locale": "th",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/th.json",
+      "oldDescription": "ทุกคะแนนมีความหมาย เปลี่ยน iPhone หรือ iPad ให้เป็นกระดานคะแนนที่ชัดเจนและใช้ง่าย สำหรับการแข่งขัน การฝึกซ้อม และการเล่นกับเพื่อน\n\nบันทึกคะแนนสำหรับกีฬาและเกมกว่า 26 ประเภท ทั้งเทนนิส พิกเคิลบอล แบดมินตัน ปิงปอง บาสเกตบอล ฟุตบอล วอลเลย์บอล และบิลเลียด ปรับกติกาการนับคะแนน รูปแบบการแข่งขัน และลำดับเสิร์ฟประเภทคู่สำหรับกีฬาที่รองรับ\n\nบันทึกการแข่งขันแล้วดูแนวโน้มคะแนน ลำดับเหตุการณ์ และบันทึกเสียง ใช้นาฬิกาหมากรุกและโกะ ตัวจับเวลาลูกบาศก์ และนาฬิกาจับเวลา แสดงกระดานคะแนนบนหน้าจอใหญ่ และแชร์รหัสการแข่งขันให้เพื่อนติดตามคะแนนจากระยะไกล\n\nเครื่องมือโยนเหรียญ สุ่มแบ่งทีม ใบแดงและใบเหลือง รวมถึงหารค่าใช้จ่าย อยู่ในแอปเดียว ใช้เวลานับคะแนนน้อยลงและสนุกกับเกมมากขึ้น\n\nเงื่อนไขการใช้งาน:\nhttps://jifenqi.com/terms\n\nนโยบายความเป็นส่วนตัว:\nhttps://jifenqi.com/privacy\n\nข้อตกลงสิทธิ์การใช้งานมาตรฐานของ Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "description": "ทุกคะแนนมีความหมาย เปลี่ยน iPhone หรือ iPad ให้เป็นกระดานคะแนนที่ชัดเจนและใช้ง่าย สำหรับการแข่งขัน การฝึกซ้อม และการเล่นกับเพื่อน\n\nบันทึกคะแนนสำหรับกีฬาและเกมกว่า 26 ประเภท ทั้งเทนนิส พิกเคิลบอล แบดมินตัน ปิงปอง บาสเกตบอล ฟุตบอล วอลเลย์บอล และบิลเลียด ปรับกติกาการนับคะแนน รูปแบบการแข่งขัน และลำดับเสิร์ฟประเภทคู่สำหรับกีฬาที่รองรับ\n\nบันทึกการแข่งขันแล้วดูแนวโน้มคะแนน ลำดับเหตุการณ์ และบันทึกเสียง ใช้นาฬิกาหมากรุกและโกะ ตัวจับเวลารูบิค และนาฬิกาจับเวลา แสดงกระดานคะแนนบนหน้าจอใหญ่ และแชร์รหัสการแข่งขันให้เพื่อนติดตามคะแนนจากระยะไกล\n\nเครื่องมือโยนเหรียญ สุ่มแบ่งทีม ใบแดงและใบเหลือง รวมถึงหารค่าใช้จ่าย อยู่ในแอปเดียว ใช้เวลานับคะแนนน้อยลงและสนุกกับเกมมากขึ้น\n\nเงื่อนไขการใช้งาน:\nhttps://jifenqi.com/terms\n\nนโยบายความเป็นส่วนตัว:\nhttps://jifenqi.com/privacy\n\nข้อตกลงสิทธิ์การใช้งานมาตรฐานของ Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+    },
+    {
+      "locale": "ur-PK",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ur-PK.json",
+      "oldDescription": "ہر پوائنٹ اہم ہے۔ میچوں، مشق اور دوستوں کے ساتھ کھیلنے کے لیے اپنے iPhone یا iPad کو ایک واضح اور آسان اسکور بورڈ میں بدلیں۔\n\nٹینس، پکل بال، بیڈمنٹن، ٹیبل ٹینس، باسکٹ بال، فٹ بال، والی بال اور بلیئرڈز سمیت 26 سے زیادہ کھیلوں میں اسکور رکھیں۔ معاون کھیلوں میں پوائنٹس کے اصول، میچ کا طریقہ اور ڈبلز میں سروس کی ترتیب طے کریں۔\n\nمیچ محفوظ کریں اور اسکور کی تبدیلیوں، واقعات کی ترتیب اور صوتی نوٹس سے دوبارہ جائزہ لیں۔ شطرنج اور گو کی گھڑیاں، کیوب ٹائمر اور اسٹاپ واچ استعمال کریں۔ بڑی اسکرین پر اسکور بورڈ دکھائیں اور میچ کوڈ شیئر کریں تاکہ دوست دور سے اسکور دیکھ سکیں۔\n\nسکہ اچھالنے، بے ترتیب ٹیمیں بنانے، سرخ اور پیلے کارڈ دکھانے اور اخراجات بانٹنے کے کارآمد اوزار ایک ہی ایپ میں۔ اسکور رکھنے میں کم وقت، کھیل کا زیادہ لطف۔\n\nاستعمال کی شرائط:\nhttps://jifenqi.com/terms\n\nرازداری کی پالیسی:\nhttps://jifenqi.com/privacy\n\nApple کا معیاری آخری صارف لائسنس معاہدہ:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "description": "ہر پوائنٹ اہم ہے۔ میچوں، مشق اور دوستوں کے ساتھ کھیلنے کے لیے اپنے iPhone یا iPad کو ایک واضح اور آسان اسکور بورڈ میں بدلیں۔\n\nٹینس، پکل بال، بیڈمنٹن، ٹیبل ٹینس، باسکٹ بال، فٹ بال، والی بال اور بلیئرڈز سمیت 26 سے زیادہ کھیلوں میں اسکور رکھیں۔ جن کھیلوں میں یہ سہولت دستیاب ہے، ان میں پوائنٹس کے اصول، میچ کا طریقہ اور ڈبلز میں سروس کی ترتیب طے کریں۔\n\nمیچ محفوظ کریں اور اسکور کی تبدیلیوں، واقعات کی ترتیب اور صوتی نوٹس سے دوبارہ جائزہ لیں۔ شطرنج اور گو کی گھڑیاں، کیوب ٹائمر اور اسٹاپ واچ استعمال کریں۔ بڑی اسکرین پر اسکور بورڈ دکھائیں اور میچ کوڈ شیئر کریں تاکہ دوست دور سے اسکور دیکھ سکیں۔\n\nسکہ اچھالنے، بے ترتیب ٹیمیں بنانے، سرخ اور پیلے کارڈ دکھانے اور اخراجات بانٹنے کے کارآمد اوزار ایک ہی ایپ میں۔ اسکور رکھنے میں کم وقت، کھیل کا زیادہ لطف۔\n\nاستعمال کی شرائط:\nhttps://jifenqi.com/terms\n\nرازداری کی پالیسی:\nhttps://jifenqi.com/privacy\n\nApple کا معیاری آخری صارف لائسنس معاہدہ:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+    },
+    {
+      "locale": "vi",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/vi.json",
+      "oldDescription": "Mỗi điểm số đều quan trọng. Biến iPhone hoặc iPad thành bảng điểm rõ ràng, dễ dùng cho thi đấu, luyện tập và chơi cùng bạn bè.\n\nGhi điểm cho hơn 26 môn thể thao và trò chơi, gồm quần vợt, pickleball, cầu lông, bóng bàn, bóng rổ, bóng đá, bóng chuyền và bi-a. Với các môn được hỗ trợ, bạn có thể chỉnh luật tính điểm, thể thức thi đấu và thứ tự giao bóng đôi.\n\nLưu trận đấu và xem lại diễn biến điểm số, dòng thời gian cùng ghi chú giọng nói. Sử dụng đồng hồ cờ vua và cờ vây, bộ đếm giờ cho khối lập phương và đồng hồ bấm giờ. Hiển thị bảng điểm trên màn hình lớn, chia sẻ mã trận đấu để bạn bè theo dõi điểm số từ xa.\n\nTung đồng xu, chia đội ngẫu nhiên, thẻ đỏ và thẻ vàng, chia đều chi phí: các công cụ tiện ích đều ở một nơi. Bớt bận tính điểm, thêm thời gian tận hưởng trận đấu.\n\nĐiều khoản sử dụng:\nhttps://jifenqi.com/terms\n\nChính sách quyền riêng tư:\nhttps://jifenqi.com/privacy\n\nThỏa thuận cấp phép tiêu chuẩn của Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "description": "Mỗi điểm số đều quan trọng. Biến iPhone hoặc iPad thành bảng điểm rõ ràng, dễ dùng cho thi đấu, luyện tập và chơi cùng bạn bè.\n\nGhi điểm cho hơn 26 môn thể thao và trò chơi, gồm quần vợt, pickleball, cầu lông, bóng bàn, bóng rổ, bóng đá, bóng chuyền và bi-a. Với các môn được hỗ trợ, bạn có thể chỉnh luật tính điểm, thể thức thi đấu và thứ tự giao bóng đôi.\n\nLưu trận đấu và xem lại diễn biến điểm số, dòng thời gian cùng ghi chú giọng nói. Sử dụng đồng hồ cờ vua và cờ vây, bộ đếm giờ giải Rubik và đồng hồ bấm giờ. Hiển thị bảng điểm trên màn hình lớn, chia sẻ mã trận đấu để bạn bè theo dõi điểm số từ xa.\n\nTung đồng xu, chia đội ngẫu nhiên, thẻ đỏ và thẻ vàng, chia đều chi phí: các công cụ tiện ích đều ở một nơi. Bớt bận tính điểm, thêm thời gian tận hưởng trận đấu.\n\nĐiều khoản sử dụng:\nhttps://jifenqi.com/terms\n\nChính sách quyền riêng tư:\nhttps://jifenqi.com/privacy\n\nThỏa thuận cấp phép tiêu chuẩn của Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+    }
+  ],
+  "changedFiles": [
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/da.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/da.json",
+      "beforeSha256": "ff4415bc18c2ca5941235b4e33e6a5fb905df098e82951b0fa1729e04d9ee5e4",
+      "afterSha256": "ecb0481af0434be02681db1e00b6202bb7d54e8e9b544dbf438c111b6d4c91e8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-AU.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/en-AU.json",
+      "beforeSha256": "ad292ea85d3360a29610fb7b2ea4ff40b7f4aeada7ea213f55a3cbef2ac6826b",
+      "afterSha256": "f680df7fd3ec3df4900f6f64713cfa97f8ffe66303ffcfae140276b786ab016e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-CA.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/en-CA.json",
+      "beforeSha256": "db8ebe8d66a4f0ab897865be7702efa1999235030bc60dc8a5af873b4ff7bc51",
+      "afterSha256": "b0eea970d8e9935940a0ecc2a48b1e304b1883a513fa41cb63133cfdb0065176"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-GB.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/en-GB.json",
+      "beforeSha256": "709549c75149f9ffbe392a6db83486e787e1699b82cf8226ed461e43b3c330a8",
+      "afterSha256": "1e7d8f88ffabee5503179d3a8a319c46c695fc306b4b8b7a47f77dbd8ad4d5b1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-US.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/en-US.json",
+      "beforeSha256": "af83b785426d39d604e248a03b532fd8b89780ad568b943bdc3635527556e929",
+      "afterSha256": "2a95d8a5ecfc30b90c15a08084cd080cae0d071d935602c7c145aa0639b4b9c6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/fr-CA.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/fr-CA.json",
+      "beforeSha256": "7045e997b1742fbdb507756c7e235d26e2ad28272ed47489682e97a241414660",
+      "afterSha256": "b41813b375dfc725d4f3fe4be5ba13e49356b88f9d9306086fc5477dcdcf8286"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/fr-FR.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/fr-FR.json",
+      "beforeSha256": "46de91475537a40fa2cb1ab89a3c75a2f22726bc8f08ccfb9649c3ac54d7f3a6",
+      "afterSha256": "3cf3aa12bce3de3b61ae5b29f9bd7686d28686dde92531c692ac4b6401415545"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/id.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/id.json",
+      "beforeSha256": "a24b9b14d5b815f541c643aaddf961fc2250b11169a6c3b21bce66feb89fbf90",
+      "afterSha256": "6ec53db485e9568a8e2979eecba4648303ec68031f57ef6ebc321d73063c4e62"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ms.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/ms.json",
+      "beforeSha256": "d1c6d3765a2c8a4a438f848c4fb07607746c3a72965788fa2da2bfbc2e813dc6",
+      "afterSha256": "6be4f6a3346b89c0022f2e88525ba495b99b476410bb978a32e40db2e32c4dee"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/pl.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/pl.json",
+      "beforeSha256": "5828db00ce3ffa223a197da4c2ad3b51d6cf7a4e6622719e4bbcbd9e8ac48d9f",
+      "afterSha256": "7d06bf8a5abfd36a64b6136ed6ca1567d414bd5b8cd9be92750a1f14854fc622"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ro.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/ro.json",
+      "beforeSha256": "9749ef892e405723602e0fd44ce57a6a2f7ec9c6edf3307db3ca849d7714b90f",
+      "afterSha256": "56be04d2eb2e7f6562e9bfe669ee5d05c8f804e0468845d3ff80ad5684e604b1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/th.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/th.json",
+      "beforeSha256": "b210b147d11c9d631f13d2730756e586967af09bee2d8c91329d5d701df8cb84",
+      "afterSha256": "62c694a3178340e95ad98d7e392de5ecb046663a4c146eea8dad68e4cd74f6c9"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ur-PK.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/ur-PK.json",
+      "beforeSha256": "a6ebfbcf390751063d197d320f53fe892146694b0f9ae5eb53b530fdff1ca7dd",
+      "afterSha256": "59390d313cc0ccb5372bac05c6aa9ba381e688fde3c14a462e0a3c6f5a3afd53"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/vi.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/locales/vi.json",
+      "beforeSha256": "afc2a26f9cedeba263e2fb4e0cc60f0ee8dd424b3c39e848ddaa517dfb9c5cf3",
+      "afterSha256": "0c01e88ee3af339fca2e3ac84636b54b498ebc7ac016c4614dfff2564ba51aca"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/validate.py",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/validate.py",
+      "beforeSha256": "5169690f016da513fb77adf14e27f38e1d447a242d07f00ddfa2ec9860fe9930",
+      "afterSha256": "48ebaf82919c2dc4f050435d3a7e2b0ed7c0998c42d35f31fadc85f7a7ed988c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/metadata.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/metadata.json",
+      "beforeSha256": "3ba775a4eae917129fc7c3f6fb331a48525dd7730f5047465e9d9f422a2164e4",
+      "afterSha256": "eed412d121169c0b7ecd7cd58ab96f996d50979eb99142b521c2fc5e188d2c54"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/screenshot-titles.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/screenshot-titles.json",
+      "beforeSha256": "47b50a14643dc0382385fe83f5261e768df92c7b0f85c6faa9d7cbcf04a17758",
+      "afterSha256": "9fbb4ecd8e59feb32343b92fd332bd4f6b64f4707699a3c6f8d22b96185c0000"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/copy-review.md",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/copy-review.md",
+      "beforeSha256": "9ba5060e8b289841ef933aa5f77371eeb243b669e95b5d3b49cad6df98a2099c",
+      "afterSha256": "d886c79fb3dbe8157f80828766674e1916c868f2facbc4ae5a22d96ea6b26572"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/names-and-subtitles.csv",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/names-and-subtitles.csv",
+      "beforeSha256": "6383304412ce807274dda8369a50b1ccc6bca7e325595821fd03b6fbbbfd477a",
+      "afterSha256": "c1a53d28d25f7d57ececfa17b69fd5b1b53b0b98665af986bb0307de212ea292"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/validation-report.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/validation-report.json",
+      "beforeSha256": "2fc44e3af6bede33c60ac01fa56d6136bc010e8230c993a44d79cdc23e5a276b",
+      "afterSha256": "5a88056fafdcf60f2fe7fb5b0ba04e7075e2b698afd3724cacff082de1384d27"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/api-requests.template.json",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/metadata-before/api-requests.template.json",
+      "beforeSha256": "a3d5307477eed981c716eccaf165a46f90c73e48f49a053f97bf8a5cae787630",
+      "afterSha256": "59884216247c7e9c9d42fe4fc9bb3b58c29ddb62e9f9316d63124347aef60b81"
+    }
+  ],
+  "validatorChange": {
+    "file": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/validate.py",
+    "scope": "Only en-US score uses the audited See every score title instead of the historical 2026-09 title; all other source-title constraints remain exact."
+  },
+  "verification": {
+    "status": "PASS",
+    "localeCoverage": 50,
+    "urlIntegrityAndStandaloneLines": 150,
+    "sourceOnlyAuthorizedChanges": true,
+    "derivedMetadataEqualsSource": true,
+    "offlineApiPayloadsEqualSource": true,
+    "sourceNfcAndControlCharacterChecks": true,
+    "commands": [
+      "python3 marketing/app-store/localization-2026-10-02/validate.py --refresh",
+      "python3 marketing/app-store/localization-2026-10-02/validate.py",
+      "python3 marketing/app-store/localization-2026-10-02/export_api_payloads.py --out marketing/app-store/localization-2026-10-02/api-requests.template.json"
+    ]
+  }
+}

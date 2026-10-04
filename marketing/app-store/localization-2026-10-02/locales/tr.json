@@ -1,0 +1,58 @@
+{
+  "locale": "tr",
+  "iosLocale": "tr",
+  "language": "Turkish",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Skor Tahtası",
+  "subtitle": "Skor, süre ve maç kayıtları",
+  "description": "Her sayı değerli. iPhone veya iPad'inizi maçlarda, antrenmanlarda ve arkadaşlarınızla oynarken kullanabileceğiniz net ve pratik bir skor tahtasına dönüştürün.\n\nTenis, pickleball, badminton, masa tenisi, basketbol, futbol, voleybol ve bilardo dahil 26'dan fazla spor ve oyunda skor tutun. Desteklenen sporlarda puanlama kurallarını, maç formatını ve çiftlerde servis sırasını ayarlayın.\n\nMaçları kaydedin; skor değişimleri, zaman çizelgesi ve sesli notlarla yeniden inceleyin. Satranç ve go saatleri, küp zamanlayıcısı ve kronometreyi kullanın. Skor tahtasını büyük ekranda gösterin ve arkadaşlarınızın uzaktan takip edebilmesi için maç kodunu paylaşın.\n\nYazı tura, rastgele takım oluşturma, kırmızı ve sarı kartlar, masraf bölüşme araçları tek yerde. Skor tutmaya daha az, oyunun keyfine daha çok zaman ayırın.\n\nKullanım koşulları:\nhttps://jifenqi.com/terms\n\nGizlilik politikası:\nhttps://jifenqi.com/privacy\n\nApple standart son kullanıcı lisans sözleşmesi:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Her sayı\ndeğerli",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Tüm skorlar\nbir bakışta",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "Tek skor tahtası\n26’dan fazla spor",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Her maçı\nyeniden inceleyin",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Kurallar sizin\noyun sizin",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Top oyunlarından\nçok daha fazlası",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Skor tahtanız\nbüyük ekranda",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Bileğinizden\nskor tutun",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Hakem araçları\ntek uygulamada",
+      "enabled": true
+    }
+  ]
+}

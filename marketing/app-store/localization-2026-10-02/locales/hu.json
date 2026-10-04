@@ -1,0 +1,58 @@
+{
+  "locale": "hu",
+  "iosLocale": "hu",
+  "language": "Hungarian",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Eredményjelző",
+  "subtitle": "Eredmények, időmérés, meccsek",
+  "description": "Minden pont számít. Alakítsd iPhone-odat vagy iPadedet átlátható, könnyen használható eredményjelzővé meccsekhez, edzéshez és baráti játékokhoz.\n\nVezesd az eredményt több mint 26 sportban és játékban, például teniszben, pickleballban, tollaslabdában, asztaliteniszben, kosárlabdában, fociban, röplabdában és biliárdban. A támogatott sportoknál állítsd be a pontozás szabályait, a mérkőzés formáját és a páros adogatási sorrendet.\n\nMentsd el a meccseket, és nézd vissza a pontok alakulását, az idővonalat és a hangjegyzeteket. Használj sakk- és goórát, kockaidőzítőt és stoppert. Jelenítsd meg az eredményjelzőt nagy képernyőn, és oszd meg a meccskódot, hogy barátaid távolról is követhessék az állást.\n\nPénzfeldobás, véletlenszerű csapatok, piros és sárga lapok, költségmegosztás — minden egy helyen. Kevesebb gond a számolással, több öröm a játékban.\n\nFelhasználási feltételek:\nhttps://jifenqi.com/terms\n\nAdatvédelmi szabályzat:\nhttps://jifenqi.com/privacy\n\nAz Apple szabványos licencszerződése:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Minden pont\nszámít",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Minden eredmény\negy pillantásra",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "Egy eredményjelző\ntöbb mint 26 sporthoz",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Nézz vissza\nminden meccset",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "A te szabályaid\na te játékod",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Több mint\nlabdajátékok",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Az eredményjelződ\nnagy képernyőn",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Vezesd a pontokat\na csuklódról",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Bírói eszközök\negy alkalmazásban",
+      "enabled": true
+    }
+  ]
+}

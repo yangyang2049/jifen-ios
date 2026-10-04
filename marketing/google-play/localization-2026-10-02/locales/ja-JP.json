@@ -1,0 +1,12 @@
+{
+  "sourceLocale": "ja",
+  "language": "ja-JP",
+  "languageName": "Japanese",
+  "direction": "ltr",
+  "reviewStatus": "adapted-draft",
+  "title": "iScoreboard: 万能スコアボード",
+  "shortDescription": "得点記録・試合タイマー・振り返り",
+  "fullDescription": "すべての得点を、大切に。Android のスマートフォンやタブレットが、試合や練習、友達とのゲームで使える見やすいスコアボードになります。\n\nテニス、ピックルボール、バドミントン、卓球、バスケットボール、サッカー、バレーボール、ビリヤードなど、26 種類以上のスポーツやゲームに対応。対応する競技では、得点ルールや試合形式、ダブルスのサービス順を設定できます。\n\n試合記録を保存し、得点の推移、タイムライン、音声メモで振り返り。チェスや囲碁の対局時計、キューブ用タイマー、ストップウォッチも搭載しています。スコアボードを大きな画面に表示できます。\n\nコイントス、ランダムなチーム分け、レッドカード・イエローカード、割り勘計算などの便利なツールもひとつに。記録の手間を減らして、もっと試合を楽しみましょう。\n\n利用規約:\nhttps://jifenqi.com/terms\n\nプライバシーポリシー:\nhttps://jifenqi.com/privacy",
+  "screenshotFolder": "exports/ja-JP",
+  "uploadEligible": true
+}

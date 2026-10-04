@@ -1,0 +1,1356 @@
+{
+  "locale": "zh-Hant",
+  "authoring": "Native sports templates, reviewed by Codex; Chinese standard calls preserved from existing regression baseline.",
+  "entries": {
+    " and ": {
+      "source_hash": "e3ee915a8e8c7aa02d2fced443314522b20824abd2535d5959c41dc8ab8a09e4",
+      "value": "和",
+      "status": "reviewed"
+    },
+    "%1$@": {
+      "source_hash": "b992096d3b038360746437102823a55339b6c27b2bd26281ffbb89c33784c9ee",
+      "value": "%1$@",
+      "status": "reviewed"
+    },
+    "%1$@ %2$@": {
+      "source_hash": "0fd7ca00fd8247e38dc8242ad269d5182412b7e0a399e10d0db50352ea91a21a",
+      "value": "%1$@ %2$@",
+      "status": "reviewed"
+    },
+    "%1$@ games to %2$@": {
+      "source_hash": "5d442a9c2f1924c0cdd208f7c410071e639f97c076a7a646b370629682e46059",
+      "value": "局分: %1$@, %2$@",
+      "status": "reviewed"
+    },
+    "%1$@ serves, 0-0": {
+      "source_hash": "f2e13ba4292f47e290519f31d5dd60c154c62eaea2ca237288216e6376d64c21",
+      "value": "%1$@發球, 0–0",
+      "status": "reviewed"
+    },
+    "%1$@ to serve to %2$@, love all, play": {
+      "source_hash": "ee578946d289dbdee97eca4e40a3cc045800a854c59103b8d70ee197d2b9bfae",
+      "value": "%1$@發球，%2$@接發, 0–0",
+      "status": "reviewed"
+    },
+    "%1$@ to serve, %2$@ to receive, best of %3$@ games, love all": {
+      "source_hash": "9fb03203b8568aa6be92fd93fa7e0e065fd4e25c62b48ca9b2b7e2ae6f2e8f3b",
+      "value": "%1$@發球，%2$@接發，%3$@局制，0比0",
+      "status": "reviewed"
+    },
+    "%1$@ to serve, love all": {
+      "source_hash": "ee26fd62bb6ffdc3cd4ea1bae9750e7b9b80df2705a8587625e9fc5a3ae23634",
+      "value": "%1$@發球, 0–0",
+      "status": "reviewed"
+    },
+    "%1$@ to serve, love all, play": {
+      "source_hash": "29811b69a9bbb26a663dde3f4e16dbec698ac42b614c663a47807eb744c7d17a",
+      "value": "%1$@發球，比賽開始, 0–0",
+      "status": "reviewed"
+    },
+    "%1$@ to serve, play": {
+      "source_hash": "3fa1490d91273b0050854b883daf215fee1853812654f1bbf57c6393cce6b23f",
+      "value": "%1$@發球，比賽開始",
+      "status": "reviewed"
+    },
+    "%1$@, %2$@": {
+      "source_hash": "b41da2237a299d09ad1ca40676455fc9a97d88fcd729c8ee55da02959fb86464",
+      "value": "%1$@, %2$@",
+      "status": "reviewed"
+    },
+    "%1$@, %2$@, %3$@": {
+      "source_hash": "9776ef65762cb0292ede08ffcdb5653a117e86771647d7adbcd86164fdcd2599",
+      "value": "%1$@, %2$@, %3$@",
+      "status": "reviewed"
+    },
+    "%1$@, play": {
+      "source_hash": "20b70093eaa8e0fce72249e8a2f77285eae0e3a9512e70ad98841b50364ab22c",
+      "value": "%1$@. 比賽繼續",
+      "status": "reviewed"
+    },
+    "%1$@-%2$@": {
+      "source_hash": "b41da2237a299d09ad1ca40676455fc9a97d88fcd729c8ee55da02959fb86464",
+      "value": "%1$@, %2$@",
+      "status": "reviewed"
+    },
+    "%1$@-%2$@ %3$@": {
+      "source_hash": "9776ef65762cb0292ede08ffcdb5653a117e86771647d7adbcd86164fdcd2599",
+      "value": "%1$@, %2$@, %3$@",
+      "status": "reviewed"
+    },
+    "%1$@-all": {
+      "source_hash": "810990c6e1c078f1eb7e0bb0ce71cb23b330af262dcc44e2e0f466acdf8341ae",
+      "value": "%1$@平",
+      "status": "reviewed"
+    },
+    "%1$@ to %2$@": {
+      "source_hash": "b41da2237a299d09ad1ca40676455fc9a97d88fcd729c8ee55da02959fb86464",
+      "value": "%1$@, %2$@",
+      "status": "reviewed"
+    },
+    "%1$@-game match, play ball": {
+      "source_hash": "4bc97de0e1ff33e4de64e32add7157490982cb8ab6a518227c25900bcaccaba0",
+      "value": "%1$@局制，比賽開始",
+      "status": "reviewed"
+    },
+    "%1$@. %2$@ to serve": {
+      "source_hash": "c337f86cddd49ced91b61dd0afc2cd5662455590d9b95bf1f5fd49d06349e8e7",
+      "value": "%1$@. %2$@發球",
+      "status": "reviewed"
+    },
+    "%1$@. Game and match to %2$@. %3$@ wins %4$@ games to %5$@": {
+      "source_hash": "c708e8bbb660b47c86c127047882dcc5ec1aef28e94bd1008a7b7e9ffbc9d26b",
+      "value": "%1$@. 本局結束. %2$@獲勝. 比賽結束. %3$@獲勝. 局分: %4$@, %5$@",
+      "status": "reviewed"
+    },
+    "%1$@. Game to %2$@": {
+      "source_hash": "ef4cf593539d21c45fabd51e487ba2cab57391fdd473ba8710bb4e6582bba607",
+      "value": "%1$@. 本局結束. %2$@獲勝",
+      "status": "reviewed"
+    },
+    "%1$@th": {
+      "source_hash": "8b5e52fd568bbdb4b3576e03c331ecbb2cdf06171a58b70f4c1d699a10cbffdb",
+      "value": "%1$@",
+      "status": "reviewed"
+    },
+    ", ": {
+      "source_hash": "0a07f659461970d8d8dcefe4fff96a1745599810dc7d47391e95c803b7b2072c",
+      "value": ", ",
+      "status": "reviewed"
+    },
+    ", %1$@": {
+      "source_hash": "4a0621431dd6a9a6dd4f7d4a23788752c33348f5ca3c6c34aa19928643c448fc",
+      "value": ", %1$@",
+      "status": "reviewed"
+    },
+    ", a player must win by 2 points": {
+      "source_hash": "7a2ac2a305bb39f8e9074c21165a206bd80f1773efbdece80494a1529a6f6068",
+      "value": ", 須淨勝兩分",
+      "status": "reviewed"
+    },
+    ", change ends": {
+      "source_hash": "1d52814fed5f454850545b0862ce650d2dc6c643f85cc640542061388e765a90",
+      "value": ", 交換場地",
+      "status": "reviewed"
+    },
+    ", interval": {
+      "source_hash": "f26ed60a03aa7a36cdb089a1e19323fba8b252a915ff3c00d955d854310d3355",
+      "value": ", 休息",
+      "status": "reviewed"
+    },
+    ". ": {
+      "source_hash": "8dccf256f6d5783e62bba717ef04a6cfcea41d9befffa5ade55235e0b6a0eeb0",
+      "value": ". ",
+      "status": "reviewed"
+    },
+    ". %1$@ games all": {
+      "source_hash": "8da8b0edb76c52698d201b95cf7cb074e7bcd6c4366dbc550b88449121d7605d",
+      "value": ". 局分: %1$@平",
+      "status": "reviewed"
+    },
+    ". One game all": {
+      "source_hash": "2a7ea15ac4a039fb8109403a44df4d370776c9bb9ad665b43d3486e173a77d51",
+      "value": ". 局分: 1平",
+      "status": "reviewed"
+    },
+    "10-point match tie-break": {
+      "source_hash": "99c27ada16139088f5d96d629fc5999413b8381fc43426f6b6a514b14bbadfed",
+      "value": "10分決勝搶十",
+      "status": "reviewed"
+    },
+    "15 seconds": {
+      "source_hash": "218ffc0593c1daaed29e9a040b7ddcc3706dab7d424bf18d45a6b1c81853381a",
+      "value": "15秒",
+      "status": "reviewed"
+    },
+    "20 seconds": {
+      "source_hash": "f22796541a454510dedfa94b3cf6fca5a1b742f699ef18f7ac6d8a8729f74827",
+      "value": "20秒",
+      "status": "reviewed"
+    },
+    "7-point tie-break match": {
+      "source_hash": "eff8f9935b55fc009a5edc356ad7ebfd4324c3c50270668d78837f2db7c7a847",
+      "value": "7分搶七比賽",
+      "status": "reviewed"
+    },
+    "Advantage %1$@": {
+      "source_hash": "f0c6e4516b122ceb55b74403892fcccd06e8985138f689ea95cc40f0249f6946",
+      "value": "%1$@佔先",
+      "status": "reviewed"
+    },
+    "Change ends": {
+      "source_hash": "12ace709f37e25358373d8715253e85e3250553dd0fd390c72341dc374db3457",
+      "value": "交換場地",
+      "status": "reviewed"
+    },
+    "Deciding point, receiver's choice": {
+      "source_hash": "eea188fa62e15d90cf5ec2c81bfda3b05be08c2a9db59a25fb604e233bcf995d",
+      "value": "決勝分，接發方選擇",
+      "status": "reviewed"
+    },
+    "Deuce": {
+      "source_hash": "ec263f69e2839c762ff6eb3ec87ce68ce61b99bd5ed4fd423268f9db9dff29b2",
+      "value": "平分",
+      "status": "reviewed"
+    },
+    "Deuce 1": {
+      "source_hash": "acde86e687da411f847592fe38d7dfb0e78f4cea33db6057033f196be593cdf5",
+      "value": "平分 1",
+      "status": "reviewed"
+    },
+    "Deuce 2": {
+      "source_hash": "d755710979d79431443a8d58da6b5b49e9d2d6cc1069699c6f6ed1adfd9c5a47",
+      "value": "平分 2",
+      "status": "reviewed"
+    },
+    "Deuce 3, Star point": {
+      "source_hash": "303b4c40dec111032b5b5fcfd32bfecbf9d0e3bdfbf5f064c35d9e71746e5bfd",
+      "value": "平分 3, 星點",
+      "status": "reviewed"
+    },
+    "Game": {
+      "source_hash": "5c412a262086b9701cda06302f6667f9265b1807d0368fcec6cc03bf64fc250b",
+      "value": "本局結束",
+      "status": "reviewed"
+    },
+    "Game %1$@. %2$@ games all": {
+      "source_hash": "103d36993bb2e09d795789ad91fc47ba44790022a5d12c1d26367c2bd45e7925",
+      "value": "本局結束. %1$@獲勝. 局分: %2$@平",
+      "status": "reviewed"
+    },
+    "Game %1$@. %2$@ games all. Tie-break": {
+      "source_hash": "793e02ef5f9e62b1479231eac8b397f8b1b5c1bf70eb03b74e650adcd3f38aa5",
+      "value": "本局結束. %1$@獲勝. 局分: %2$@平. 搶七",
+      "status": "reviewed"
+    },
+    "Game %1$@. %2$@ leads %3$@ games to %4$@, %5$@ set": {
+      "source_hash": "48756dadc1c9da0d8db8de86857904d2d92734c6cc5834a455c550fbd8880a13",
+      "value": "本局結束. %1$@獲勝. %2$@以%3$@局比%4$@局領先. 第%5$@盤",
+      "status": "reviewed"
+    },
+    "Game %1$@. %2$@-%3$@": {
+      "source_hash": "955ad11595c355bf9739abd76c299a3b24df7f12b94090f89d26beeb1e6fcfac",
+      "value": "本局結束. %1$@獲勝. %2$@, %3$@",
+      "status": "reviewed"
+    },
+    "Game and %1$@ set %2$@, %3$@": {
+      "source_hash": "e749780fe4ad76672e458f338539538aca134b0c46b4e21afc1abce03e4919e7",
+      "value": "本局結束. 第%1$@盤. %2$@獲勝, %3$@",
+      "status": "reviewed"
+    },
+    "Game ball": {
+      "source_hash": "ccb8c7cf357f8b1b7df9bf7e6d4c5cc440d1873f4c49168afc91cd9380bd7b20",
+      "value": "局點",
+      "status": "reviewed"
+    },
+    "Game over": {
+      "source_hash": "8690cf739f1a2d492ee173746103948986c9f09f2bbc6e74a6168eb571a2c1ae",
+      "value": "本局結束",
+      "status": "reviewed"
+    },
+    "Game set. Match to %1$@, %2$@": {
+      "source_hash": "7b78b0912960fbff9ffd99993676278883d6ddb55db3a82317a45a448284468f",
+      "value": "本局結束. 本盤結束. 比賽結束. %1$@獲勝, %2$@",
+      "status": "reviewed"
+    },
+    "Game, set and match %1$@, %2$@ sets to %3$@, %4$@": {
+      "source_hash": "2915205b0184a3bed3cd47be2c6cbaeedc7e2cc18790f33da598330cb38b6180",
+      "value": "本局結束. 本盤結束. 比賽結束. %1$@獲勝. 盤分: %2$@, %3$@, %4$@",
+      "status": "reviewed"
+    },
+    "Game. %1$@ game won by %2$@, %3$@": {
+      "source_hash": "259c7e1c344873b8055c01c857a7cc8355c47453d0b819215e13c19ba9f563d5",
+      "value": "第%1$@局. %2$@獲勝, %3$@",
+      "status": "reviewed"
+    },
+    "Game. Match won by %1$@, %2$@": {
+      "source_hash": "cd153f44a0d3443b7c1608041044958574288bf85fb1d0a6c270eb6b4ed59a9a",
+      "value": "本局結束. 比賽結束. %1$@獲勝, %2$@",
+      "status": "reviewed"
+    },
+    "Golden point, receiver's choice": {
+      "source_hash": "b7502aac758ba8315b392f16019e9eeed7f7c8fb3f688cc92e96def85dcc6fb2",
+      "value": "黃金分，接發方選擇",
+      "status": "reviewed"
+    },
+    "Half-time": {
+      "source_hash": "1a7d5c10539f335b1a37beca0d03552ef86a0bf28f192326d759381486edb203",
+      "value": "休息時間過半",
+      "status": "reviewed"
+    },
+    "Hand out, %1$@": {
+      "source_hash": "799303bafeaadac2bcba79affdea5d1e190ed026be402a07febf86904df458d3",
+      "value": "換發球, %1$@",
+      "status": "reviewed"
+    },
+    "Interval, %1$@": {
+      "source_hash": "9869e4a1c836be5fb7d2bca4b0ca59426dc16e2202e355e99b785c40390a93a1",
+      "value": "休息, %1$@",
+      "status": "reviewed"
+    },
+    "Match %1$@, %2$@": {
+      "source_hash": "8b4ef03ef05f64ff5d139caebb46d20e841266456172fa840a6c6dfece1fa7bc",
+      "value": "比賽結束. %1$@獲勝, %2$@",
+      "status": "reviewed"
+    },
+    "Match %1$@, %2$@ %3$@ to %4$@": {
+      "source_hash": "c6fb9c299d02613a1baa2e63f03fcb59ac095ee60639413c8335de6be47555e1",
+      "value": "比賽結束. %1$@獲勝. %2$@ %3$@, %4$@",
+      "status": "reviewed"
+    },
+    "Match ball": {
+      "source_hash": "27606a7c8319912f435c5b1d3ad69d312ad9465e8443166a07fe2969e19d009c",
+      "value": "賽點",
+      "status": "reviewed"
+    },
+    "Match over": {
+      "source_hash": "583505f7471820fb8673c5bd41f1164f774d199cba871dbf762744702d3bd70e",
+      "value": "比賽結束",
+      "status": "reviewed"
+    },
+    "Match start, %1$@ to serve": {
+      "source_hash": "cc51ef27981ad3cb0f3846a8ef392cff6071a622a102736bb00ba714ca02febd",
+      "value": "%1$@發球，比賽開始",
+      "status": "reviewed"
+    },
+    "Match to %1$@. %2$@ wins %3$@ games to %4$@": {
+      "source_hash": "22c705b1ec42376d7fc7fb66b6496343ed36f0056b962755bc4f064f1743559b",
+      "value": "比賽結束. %1$@獲勝. %2$@獲勝. 局分: %3$@, %4$@",
+      "status": "reviewed"
+    },
+    "Match won by %1$@": {
+      "source_hash": "022e170142ea5522513bc2894e958fe86454dc912d32648f98d8dc219531979e",
+      "value": "比賽結束. %1$@獲勝",
+      "status": "reviewed"
+    },
+    "Match. %1$@ wins": {
+      "source_hash": "14d1b9e30bb36410499b3693f421ff6b539b727b678587ed7bcc5811d7b2dd74",
+      "value": "比賽結束. %1$@獲勝",
+      "status": "reviewed"
+    },
+    "Point. Game. %1$@. %2$@ wins": {
+      "source_hash": "4df1de82ea1d3ba8e448083830f83fd32963b8668a262ceedae58ab163d857a7",
+      "value": "得分. 本局結束. %1$@. %2$@獲勝",
+      "status": "reviewed"
+    },
+    "Point. Game. Match. %1$@. %2$@ wins": {
+      "source_hash": "ac5883461be012125a514857b5c8525492ce2a2f32056b0aff1d332384d22b68",
+      "value": "得分. 本局結束. 比賽結束. %1$@. %2$@獲勝",
+      "status": "reviewed"
+    },
+    "Second server, %1$@": {
+      "source_hash": "ac982b667f42414e97252a4bfb087133123687bcde535727939d4efcffb7fce2",
+      "value": "第二發球, %1$@",
+      "status": "reviewed"
+    },
+    "Service over, %1$@": {
+      "source_hash": "22b62c1602aba92e73363a38abaa847e381b2de98a8eba6ef82214aeccc0f58c",
+      "value": "換發球, %1$@",
+      "status": "reviewed"
+    },
+    "Set over": {
+      "source_hash": "beca92477cf5d9d7d3674c93815b14b8a073e2ec9cde46418e7fe622928972c0",
+      "value": "本盤結束",
+      "status": "reviewed"
+    },
+    "Side out, %1$@": {
+      "source_hash": "9a0e75dc76d204899a1ca9bb7f795642072755c3fe57c197246849314298f615",
+      "value": "換發球, %1$@",
+      "status": "reviewed"
+    },
+    "Time": {
+      "source_hash": "33b93476cf597a3330653b66a658983d892ac264b5d6029a2dc642b9b1f30870",
+      "value": "時間到",
+      "status": "reviewed"
+    },
+    "Time in, %1$@": {
+      "source_hash": "1c4af2a731d340ab976071ce53e5a230277c293f77250b07e284a48a51e28d66",
+      "value": "比賽繼續, %1$@",
+      "status": "reviewed"
+    },
+    "Time-out": {
+      "source_hash": "6c4bbdd6721e626729f7fad76799bacccfcec14c2bd6d759fa65c6a8f0057b47",
+      "value": "暫停",
+      "status": "reviewed"
+    },
+    "Time. Game %1$@, %2$@ serves, 0-0": {
+      "source_hash": "5bf289d2118b397073c1bb9e97522fd8d5dd7cc36e507c06226bef6b6ef47964",
+      "value": "時間到. 第%1$@局. %2$@發球, 0–0",
+      "status": "reviewed"
+    },
+    "Time. Game %1$@. %2$@ serves, love all": {
+      "source_hash": "3643c7a06fcfa888c8f1a8d90175259b2ef4482421c13f4c1c383d8342f23935",
+      "value": "時間到. 第%1$@局. %2$@發球, 0–0",
+      "status": "reviewed"
+    },
+    "Time. Game %1$@. %2$@ to serve, love all": {
+      "source_hash": "bb4091ff4659930424ee806c92eb50554b53d6fd80d08048d70cfbe182f11d0c",
+      "value": "時間到. 第%1$@局. %2$@發球, 0–0",
+      "status": "reviewed"
+    },
+    "game point": {
+      "source_hash": "e8dfad93ac81fd8e63703cc307a5b03b83823033e5aa51dbb3640f524bf49b81",
+      "value": "局點",
+      "status": "reviewed"
+    },
+    "love": {
+      "source_hash": "686f746a95b6f836d7d70567c302c3f9ebb5ee0def3d1220ee9d4e9f34f5e131",
+      "value": "0",
+      "status": "reviewed"
+    },
+    "match point": {
+      "source_hash": "7a34db3aabec0a97bda804db6693799a05dfef1d4c3e6c0c344045db4d4b1034",
+      "value": "賽點",
+      "status": "reviewed"
+    },
+    "minute": {
+      "source_hash": "28cdd20eaf134a05f18369414cb2df5e36c6a4e4f551b8c9cff8548029c41d6c",
+      "value": "分鐘",
+      "status": "reviewed"
+    },
+    "minutes": {
+      "source_hash": "90e63d85fa1ab2c8ed65222f3ebd794b1e524b4b7cf84bec451542d0451b2985",
+      "value": "分鐘",
+      "status": "reviewed"
+    },
+    "set": {
+      "source_hash": "6ee0eb490ff832101cf82a3d387c35f29e4230be786978f7acf9e811febf6723",
+      "value": "盤",
+      "status": "reviewed"
+    },
+    "sets": {
+      "source_hash": "82c6db3dbf4ab47132dfd1d9d1bf8525edccb48512c8647b7a2067e0417537c0",
+      "value": "盤",
+      "status": "reviewed"
+    },
+    "first": {
+      "source_hash": "a7937b64b8caa58f03721bb6bacf5c78cb235febe0e70b1b84cd99541461a08e",
+      "value": "1",
+      "status": "reviewed"
+    },
+    "second": {
+      "source_hash": "16367aacb67a4a017c8da8ab95682ccb390863780f7114dda0a0e0c55644c7c4",
+      "value": "2",
+      "status": "reviewed"
+    },
+    "third": {
+      "source_hash": "b1e99324505bd32da0e1f85dcf5e19a09db0481e8a15f62c41eb320304a8e927",
+      "value": "3",
+      "status": "reviewed"
+    },
+    "fourth": {
+      "source_hash": "dc81b1d371a4072be7fcfc3e1939f5bddae8bdc168846a50a78face975b9af63",
+      "value": "4",
+      "status": "reviewed"
+    },
+    "fifth": {
+      "source_hash": "1774b8eebdec58c5f11998669e983f81e3d2c1d1a63649113096ddef143a7c2b",
+      "value": "5",
+      "status": "reviewed"
+    },
+    "thirty": {
+      "source_hash": "aca5fb59db69e5dffeda36ff0bd65205f16720b7fa1893c4557e9216dfc276d5",
+      "value": "30",
+      "status": "reviewed"
+    },
+    "forty": {
+      "source_hash": "9cee2304bd633d42c35db17c1427a273668bd3166487f924216d807a566a8e73",
+      "value": "40",
+      "status": "reviewed"
+    },
+    "voice_download_title": {
+      "source_hash": "c9f3d1926a64b81cf6e2a08528a2a64062cf2328b462e43b4d88da7126e16321",
+      "value": "下載播報語音",
+      "status": "reviewed"
+    },
+    "voice_download_guide": {
+      "source_hash": "52581cac3135831be3d9cd0e77b55e77ed518d189baa01268f20b1eec5f005fa",
+      "value": "目前沒有此語言的可用語音。請前往「設定 → 輔助使用 → VoiceOver → 語音」，選擇對應語言和地區並下載語音。無需開啟 VoiceOver。返回全能計分器後重新開啟語音播報。",
+      "status": "reviewed"
+    },
+    "zero": {
+      "source_hash": "f9194e73f9e9459e3450ea10a179cdf77aafa695beecd3b9344a98d111622243",
+      "value": "0",
+      "status": "reviewed"
+    },
+    "one": {
+      "source_hash": "7692c3ad3540bb803c020b3aee66cd8887123234ea0c6e7143c0add73ff431ed",
+      "value": "1",
+      "status": "reviewed"
+    },
+    "two": {
+      "source_hash": "3fc4ccfe745870e2c0d99f71f30ff0656c8dedd41cc1d7d3d376b0dbe685e2f3",
+      "value": "2",
+      "status": "reviewed"
+    },
+    "three": {
+      "source_hash": "8b5b9db0c13db24256c829aa364aa90c6d2eba318b9232a4ab9313b954d3555f",
+      "value": "3",
+      "status": "reviewed"
+    },
+    "four": {
+      "source_hash": "04efaf080f5a3e74e1c29d1ca6a48569382cbbcd324e8d59d2b83ef21c039f00",
+      "value": "4",
+      "status": "reviewed"
+    },
+    "five": {
+      "source_hash": "222b0bd51fcef7e65c2e62db2ed65457013bab56be6fafeb19ee11d453153c80",
+      "value": "5",
+      "status": "reviewed"
+    },
+    "six": {
+      "source_hash": "44778d82365e4af681c40d5f0eef5cf6f5899d3f0ac335050a7ed6779cf3f674",
+      "value": "6",
+      "status": "reviewed"
+    },
+    "seven": {
+      "source_hash": "3ba8d02b16fd2a01c1a8ba1a1f036d7ce386ed953696fa57331c2ac48a80b255",
+      "value": "7",
+      "status": "reviewed"
+    },
+    "eight": {
+      "source_hash": "c195d2d8756234367242ba7616c5c60369bc25ced2dcb5b92808d31b58ef217a",
+      "value": "8",
+      "status": "reviewed"
+    },
+    "nine": {
+      "source_hash": "edcd8e701a2df0cd66a39bae6aa156cf16fe2b9653ef65f7d31742e2352421e4",
+      "value": "9",
+      "status": "reviewed"
+    },
+    "ten": {
+      "source_hash": "e4432baa90819aaef51d2a7f8e148bf7e679610f3173752fabb4dcb2d0f418d3",
+      "value": "10",
+      "status": "reviewed"
+    },
+    "eleven": {
+      "source_hash": "e979074ebd5633a7263aa48c4b7dea055a769115fbc0a7de459f8a74cd2efd2b",
+      "value": "11",
+      "status": "reviewed"
+    },
+    "twelve": {
+      "source_hash": "d1a749ad879b6c07e1f356b260ba81f9cb5b4376072280c9994a5c125165b701",
+      "value": "12",
+      "status": "reviewed"
+    },
+    "thirteen": {
+      "source_hash": "9ecc81f0a4b6dfb0c30e78370c42a1e0c118d2b426ec4dd1ee06c9f62a832040",
+      "value": "13",
+      "status": "reviewed"
+    },
+    "fourteen": {
+      "source_hash": "fef8f41cdcd2038663b027a0cfbe252d39510bc162b599d1d4aa683873cc21d7",
+      "value": "14",
+      "status": "reviewed"
+    },
+    "fifteen": {
+      "source_hash": "c463967e5708cab7f980855e14042ddbcfd1c3556d520ad4dacdfb4a115c67a5",
+      "value": "15",
+      "status": "reviewed"
+    },
+    "set_unit.zero": {
+      "source_hash": "82c6db3dbf4ab47132dfd1d9d1bf8525edccb48512c8647b7a2067e0417537c0",
+      "value": "盤",
+      "status": "reviewed"
+    },
+    "set_unit.one": {
+      "source_hash": "6ee0eb490ff832101cf82a3d387c35f29e4230be786978f7acf9e811febf6723",
+      "value": "盤",
+      "status": "reviewed"
+    },
+    "set_unit.two": {
+      "source_hash": "82c6db3dbf4ab47132dfd1d9d1bf8525edccb48512c8647b7a2067e0417537c0",
+      "value": "盤",
+      "status": "reviewed"
+    },
+    "set_unit.few": {
+      "source_hash": "82c6db3dbf4ab47132dfd1d9d1bf8525edccb48512c8647b7a2067e0417537c0",
+      "value": "盤",
+      "status": "reviewed"
+    },
+    "set_unit.many": {
+      "source_hash": "82c6db3dbf4ab47132dfd1d9d1bf8525edccb48512c8647b7a2067e0417537c0",
+      "value": "盤",
+      "status": "reviewed"
+    },
+    "set_unit.other": {
+      "source_hash": "82c6db3dbf4ab47132dfd1d9d1bf8525edccb48512c8647b7a2067e0417537c0",
+      "value": "盤",
+      "status": "reviewed"
+    },
+    "tennis.point.love": {
+      "source_hash": "686f746a95b6f836d7d70567c302c3f9ebb5ee0def3d1220ee9d4e9f34f5e131",
+      "value": "0",
+      "status": "reviewed"
+    },
+    "tennis.point.fifteen": {
+      "source_hash": "c463967e5708cab7f980855e14042ddbcfd1c3556d520ad4dacdfb4a115c67a5",
+      "value": "15",
+      "status": "reviewed"
+    },
+    "tennis.point.thirty": {
+      "source_hash": "aca5fb59db69e5dffeda36ff0bd65205f16720b7fa1893c4557e9216dfc276d5",
+      "value": "30",
+      "status": "reviewed"
+    },
+    "tennis.point.forty": {
+      "source_hash": "9cee2304bd633d42c35db17c1427a273668bd3166487f924216d807a566a8e73",
+      "value": "40",
+      "status": "reviewed"
+    },
+    "tennis.score.all": {
+      "source_hash": "810990c6e1c078f1eb7e0bb0ce71cb23b330af262dcc44e2e0f466acdf8341ae",
+      "value": "%1$@平",
+      "status": "reviewed"
+    },
+    "badminton.number.0": {
+      "source_hash": "686f746a95b6f836d7d70567c302c3f9ebb5ee0def3d1220ee9d4e9f34f5e131",
+      "value": "0",
+      "status": "reviewed"
+    },
+    "badminton.number.1": {
+      "source_hash": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+      "value": "1",
+      "status": "reviewed"
+    },
+    "badminton.number.2": {
+      "source_hash": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
+      "value": "2",
+      "status": "reviewed"
+    },
+    "badminton.number.3": {
+      "source_hash": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
+      "value": "3",
+      "status": "reviewed"
+    },
+    "badminton.number.4": {
+      "source_hash": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+      "value": "4",
+      "status": "reviewed"
+    },
+    "badminton.number.5": {
+      "source_hash": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",
+      "value": "5",
+      "status": "reviewed"
+    },
+    "badminton.number.6": {
+      "source_hash": "e7f6c011776e8db7cd330b54174fd76f7d0216b612387a5ffcfb81e6f0919683",
+      "value": "6",
+      "status": "reviewed"
+    },
+    "badminton.number.7": {
+      "source_hash": "7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451",
+      "value": "7",
+      "status": "reviewed"
+    },
+    "badminton.number.8": {
+      "source_hash": "2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3",
+      "value": "8",
+      "status": "reviewed"
+    },
+    "badminton.number.9": {
+      "source_hash": "19581e27de7ced00ff1ce50b2047e7a567c76b1cbaebabe5ef03f7c3017bb5b7",
+      "value": "9",
+      "status": "reviewed"
+    },
+    "badminton.number.10": {
+      "source_hash": "4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5",
+      "value": "10",
+      "status": "reviewed"
+    },
+    "badminton.number.11": {
+      "source_hash": "4fc82b26aecb47d2868c4efbe3581732a3e7cbcc6c2efb32062c08170a05eeb8",
+      "value": "11",
+      "status": "reviewed"
+    },
+    "badminton.number.12": {
+      "source_hash": "6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918",
+      "value": "12",
+      "status": "reviewed"
+    },
+    "badminton.number.13": {
+      "source_hash": "3fdba35f04dc8c462986c992bcf875546257113072a909c162f7e470e581e278",
+      "value": "13",
+      "status": "reviewed"
+    },
+    "badminton.number.14": {
+      "source_hash": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+      "value": "14",
+      "status": "reviewed"
+    },
+    "badminton.number.15": {
+      "source_hash": "e629fa6598d732768f7c726b4b621285f9c3b85303900aa912017db7617d8bdb",
+      "value": "15",
+      "status": "reviewed"
+    },
+    "badminton.number.16": {
+      "source_hash": "b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9",
+      "value": "16",
+      "status": "reviewed"
+    },
+    "badminton.number.17": {
+      "source_hash": "4523540f1504cd17100c4835e85b7eefd49911580f8efff0599a8f283be6b9e3",
+      "value": "17",
+      "status": "reviewed"
+    },
+    "badminton.number.18": {
+      "source_hash": "4ec9599fc203d176a301536c2e091a19bc852759b255bd6818810a42c5fed14a",
+      "value": "18",
+      "status": "reviewed"
+    },
+    "badminton.number.19": {
+      "source_hash": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767",
+      "value": "19",
+      "status": "reviewed"
+    },
+    "badminton.number.20": {
+      "source_hash": "f5ca38f748a1d6eaf726b8a42fb575c3c71f1864a8143301782de13da2d9202b",
+      "value": "20",
+      "status": "reviewed"
+    },
+    "badminton.number.21": {
+      "source_hash": "6f4b6612125fb3a0daecd2799dfd6c9c299424fd920f9b308110a2c1fbd8f443",
+      "value": "21",
+      "status": "reviewed"
+    },
+    "badminton.number.22": {
+      "source_hash": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09",
+      "value": "22",
+      "status": "reviewed"
+    },
+    "badminton.number.23": {
+      "source_hash": "535fa30d7e25dd8a49f1536779734ec8286108d115da5045d77f3b4185d8f790",
+      "value": "23",
+      "status": "reviewed"
+    },
+    "badminton.number.24": {
+      "source_hash": "c2356069e9d1e79ca924378153cfbbfb4d4416b1f99d41a2940bfdb66c5319db",
+      "value": "24",
+      "status": "reviewed"
+    },
+    "badminton.number.25": {
+      "source_hash": "b7a56873cd771f2c446d369b649430b65a756ba278ff97ec81bb6f55b2e73569",
+      "value": "25",
+      "status": "reviewed"
+    },
+    "badminton.number.26": {
+      "source_hash": "5f9c4ab08cac7457e9111a30e4664920607ea2c115a1433d7be98e97e64244ca",
+      "value": "26",
+      "status": "reviewed"
+    },
+    "badminton.number.27": {
+      "source_hash": "670671cd97404156226e507973f2ab8330d3022ca96e0c93bdbdb320c41adcaf",
+      "value": "27",
+      "status": "reviewed"
+    },
+    "badminton.number.28": {
+      "source_hash": "59e19706d51d39f66711c2653cd7eb1291c94d9b55eb14bda74ce4dc636d015a",
+      "value": "28",
+      "status": "reviewed"
+    },
+    "badminton.number.29": {
+      "source_hash": "35135aaa6cc23891b40cb3f378c53a17a1127210ce60e125ccf03efcfdaec458",
+      "value": "29",
+      "status": "reviewed"
+    },
+    "badminton.number.30": {
+      "source_hash": "624b60c58c9d8bfb6ff1886c2fd605d2adeb6ea4da576068201b6c6958ce93f4",
+      "value": "30",
+      "status": "reviewed"
+    },
+    "pingpong.love.all": {
+      "source_hash": "203a1b519bbadcb23c32d1dbb300959a65e40a71a5e906d04f4dcccf2f9e2a6a",
+      "status": "reviewed",
+      "value": "Love all"
+    },
+    "score.numbers": {
+      "source_hash": "996f4dd19247db54fbef7464fe00ac74532aa8cd828a6f54c6e96afa8527c14f",
+      "status": "reviewed",
+      "value": "%1$@比%2$@"
+    },
+    "score.numbers.three": {
+      "source_hash": "f2f833495caeb48bd329ea6eb8fc90e7d5f41b59b3f891e3fd0b5a2c1d809e10",
+      "status": "reviewed",
+      "value": "%1$@比%2$@、%3$@"
+    },
+    "badminton.critical.all": {
+      "source_hash": "6a33344caea80fd1386a0d61f535a19244cf2c6c3888fce6de111c84afe677cb",
+      "status": "reviewed",
+      "value": "%1$@, %2$@, all"
+    },
+    "softtennis.opening": {
+      "source_hash": "4972590dc9a1720d6f702644c0af8731a8526aec79709d5abfb6de50a5e7c0ca",
+      "status": "reviewed",
+      "value": "%1$@ game match, play ball"
+    },
+    "softtennis.score.all": {
+      "source_hash": "810990c6e1c078f1eb7e0bb0ce71cb23b330af262dcc44e2e0f466acdf8341ae",
+      "status": "reviewed",
+      "value": "%1$@ all"
+    },
+    "softtennis.deuce": {
+      "source_hash": "ec263f69e2839c762ff6eb3ec87ce68ce61b99bd5ed4fd423268f9db9dff29b2",
+      "status": "reviewed",
+      "value": "Deuce"
+    },
+    "softtennis.deuce.again": {
+      "source_hash": "98246cd6b2497ba887793431aef00d43ed3bace067cf62f7573f1f5b0bb99479",
+      "status": "reviewed",
+      "value": "Deuce again"
+    },
+    "softtennis.advantage.server": {
+      "source_hash": "5f084bb47ed867e091dd117a2f348d2d2972823006e1f4ebdfaa7b5f201bd0d2",
+      "status": "reviewed",
+      "value": "Advantage, server"
+    },
+    "softtennis.advantage.receiver": {
+      "source_hash": "f33376d466ba10b90c6fa3bb8816988fece0becc588be9321961cd22330296c6",
+      "status": "reviewed",
+      "value": "Advantage, receiver"
+    },
+    "softtennis.game.set": {
+      "source_hash": "4d68a5afb9c338705b611f9c57cf5682b75cc7fb4ab915f8ac556430ef51784e",
+      "status": "reviewed",
+      "value": "Game set"
+    },
+    "softtennis.change.sides": {
+      "source_hash": "5ce9e35134980f4aa16a0b984198b73b7e5763f717587adffe9576c646375f15",
+      "status": "reviewed",
+      "value": "Change sides"
+    },
+    "softtennis.no.time": {
+      "source_hash": "95f75fb91c3cb06d2c2f8d280648f5cfabc4cce5b56f30f8fe59ec175aae815c",
+      "status": "reviewed",
+      "value": "No time"
+    },
+    "softtennis.time": {
+      "source_hash": "33b93476cf597a3330653b66a658983d892ac264b5d6029a2dc642b9b1f30870",
+      "status": "reviewed",
+      "value": "Time"
+    },
+    "squash.game.to": {
+      "source_hash": "e17d126ba415ffe8d67d4f8b1a47fef661d8e7f0410e23ac90dc03e241600c28",
+      "status": "reviewed",
+      "value": "%1$@, game to %2$@"
+    },
+    "squash.games.all": {
+      "source_hash": "c6b6b8da4ec5b0c99a020e86fc9e31ba13e4b79620c8513a9c9aa8e11c687a1f",
+      "status": "reviewed",
+      "value": "%1$@ games all"
+    },
+    "squash.leads": {
+      "source_hash": "af6ef0f64903783533e0603ee04530c49140b46c4c6081c09f36c67c1ec64fc7",
+      "status": "reviewed",
+      "value": "%1$@ leads %2$@ %3$@ to %4$@"
+    },
+    "squash.game.unit": {
+      "source_hash": "6ca5cab77e702c787b4c14b3d3bf26bad43da606be6eed04ab0b9720120ae081",
+      "status": "reviewed",
+      "value": "game"
+    },
+    "squash.games.unit": {
+      "source_hash": "cd7ac4c61fd8bd3e76fe77e03b810a442d82f21d7dd08be0f82a58e2ad17a4e5",
+      "status": "reviewed",
+      "value": "games"
+    },
+    "squash.match.to": {
+      "source_hash": "e1ff6a0f2f50e6c6a3f9ed84a076879c9028ec5f9fa183c0858d6e734a5a5f3a",
+      "status": "reviewed",
+      "value": "%1$@, match to %2$@, %3$@ games to %4$@, %5$@"
+    },
+    "padel.advantage.number": {
+      "source_hash": "14970789433212f650e54b752e59c76a77483df3f1b8c208ed6860d81512d910",
+      "status": "reviewed",
+      "value": "Advantage %1$@, %2$@"
+    },
+    "softtennis.number.0": {
+      "source_hash": "f9194e73f9e9459e3450ea10a179cdf77aafa695beecd3b9344a98d111622243",
+      "status": "reviewed",
+      "value": "zero"
+    },
+    "softtennis.number.1": {
+      "source_hash": "7692c3ad3540bb803c020b3aee66cd8887123234ea0c6e7143c0add73ff431ed",
+      "status": "reviewed",
+      "value": "one"
+    },
+    "softtennis.number.2": {
+      "source_hash": "3fc4ccfe745870e2c0d99f71f30ff0656c8dedd41cc1d7d3d376b0dbe685e2f3",
+      "status": "reviewed",
+      "value": "two"
+    },
+    "softtennis.number.3": {
+      "source_hash": "8b5b9db0c13db24256c829aa364aa90c6d2eba318b9232a4ab9313b954d3555f",
+      "status": "reviewed",
+      "value": "three"
+    },
+    "softtennis.number.4": {
+      "source_hash": "04efaf080f5a3e74e1c29d1ca6a48569382cbbcd324e8d59d2b83ef21c039f00",
+      "status": "reviewed",
+      "value": "four"
+    },
+    "softtennis.number.5": {
+      "source_hash": "222b0bd51fcef7e65c2e62db2ed65457013bab56be6fafeb19ee11d453153c80",
+      "status": "reviewed",
+      "value": "five"
+    },
+    "softtennis.number.6": {
+      "source_hash": "44778d82365e4af681c40d5f0eef5cf6f5899d3f0ac335050a7ed6779cf3f674",
+      "status": "reviewed",
+      "value": "six"
+    },
+    "tennis.deuce.first": {
+      "source_hash": "f9c10be7a4b900afd6860b86c04b256c7406c7db893fcc8db1f0287bfde78159",
+      "status": "reviewed",
+      "value": "平分"
+    },
+    "tennis.deuce.again": {
+      "source_hash": "f9c10be7a4b900afd6860b86c04b256c7406c7db893fcc8db1f0287bfde78159",
+      "status": "reviewed",
+      "value": "平分"
+    },
+    "tennis.advantage.name": {
+      "source_hash": "cf92b9f40534227363236760847055f693b6f97bd8f336966f58de9fd171dbd9",
+      "status": "reviewed",
+      "value": "%1$@占先"
+    },
+    "tennis.deciding.point": {
+      "source_hash": "eea188fa62e15d90cf5ec2c81bfda3b05be08c2a9db59a25fb604e233bcf995d",
+      "status": "reviewed",
+      "value": "Deciding point, receiver's choice"
+    },
+    "pingpong.score.all": {
+      "source_hash": "6cb24159d76b1f4a06b5c052db4321212a93948beca7d74b6085e255e61197e0",
+      "status": "reviewed",
+      "value": "%1$@平"
+    },
+    "softtennis.game": {
+      "source_hash": "5c412a262086b9701cda06302f6667f9265b1807d0368fcec6cc03bf64fc250b",
+      "status": "reviewed",
+      "value": "Game"
+    },
+    "squash.zero": {
+      "source_hash": "686f746a95b6f836d7d70567c302c3f9ebb5ee0def3d1220ee9d4e9f34f5e131",
+      "status": "reviewed",
+      "value": "love"
+    },
+    "squash.score.all": {
+      "source_hash": "810990c6e1c078f1eb7e0bb0ce71cb23b330af262dcc44e2e0f466acdf8341ae",
+      "status": "reviewed",
+      "value": "%1$@ all"
+    },
+    "squash.hand.out": {
+      "source_hash": "799303bafeaadac2bcba79affdea5d1e190ed026be402a07febf86904df458d3",
+      "status": "reviewed",
+      "value": "Hand out, %1$@"
+    },
+    "squash.two.clear": {
+      "source_hash": "6ce3e75da2785c6df6d48bef138f4b890b78b1568ae1188d89c6509e6d1a3a60",
+      "status": "reviewed",
+      "value": "a player must win by 2 points"
+    },
+    "squash.game.ball": {
+      "source_hash": "ccb8c7cf357f8b1b7df9bf7e6d4c5cc440d1873f4c49168afc91cd9380bd7b20",
+      "status": "reviewed",
+      "value": "Game ball"
+    },
+    "squash.match.ball": {
+      "source_hash": "27606a7c8319912f435c5b1d3ad69d312ad9465e8443166a07fe2969e19d009c",
+      "status": "reviewed",
+      "value": "Match ball"
+    },
+    "tennis.opening": {
+      "source_hash": "3fa1490d91273b0050854b883daf215fee1853812654f1bbf57c6393cce6b23f",
+      "status": "reviewed",
+      "value": "%1$@ to serve, play"
+    },
+    "softtennis.match.games.7": {
+      "source_hash": "7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451",
+      "status": "reviewed",
+      "value": "7"
+    },
+    "softtennis.match.games.9": {
+      "source_hash": "19581e27de7ced00ff1ce50b2047e7a567c76b1cbaebabe5ef03f7c3017bb5b7",
+      "status": "reviewed",
+      "value": "9"
+    },
+    "%1$@分钟": {
+      "source_hash": "4c6bf6ff3944bcf8afced19679a7d6303320eb96b5c0159c0b107d9e34003fac",
+      "value": "%1$@分鍾",
+      "status": "reviewed"
+    },
+    "%1$@占先": {
+      "source_hash": "cf92b9f40534227363236760847055f693b6f97bd8f336966f58de9fd171dbd9",
+      "value": "%1$@佔先",
+      "status": "reviewed"
+    },
+    "%1$@发球，%2$@接发，%3$@局制，0比0": {
+      "source_hash": "ebe4ab3ea754554bb6f8b8a2a6decedbd4edf1ad2e170de1523e01cef3da6c38",
+      "value": "%1$@發球，%2$@接發，%3$@局制，0比0",
+      "status": "reviewed"
+    },
+    "%1$@发球，%2$@接发，0比0，比赛开始": {
+      "source_hash": "b477cd57d78570d68e3a813ca7f26553e37bb967946f7c28be2445a20e561cab",
+      "value": "%1$@發球，%2$@接發，0比0，比賽開始",
+      "status": "reviewed"
+    },
+    "%1$@发球，0比0": {
+      "source_hash": "5e808987b47ea9c9e524f47cb168a9170f9a5e622bc2212ae320dc5a9b514338",
+      "value": "%1$@發球，0比0",
+      "status": "reviewed"
+    },
+    "%1$@发球，0比0，比赛开始": {
+      "source_hash": "38a010403ec972bca8d3ef8da4f70bdbed27ce34117ffe14215fd49f61b18f1d",
+      "value": "%1$@發球，0比0，比賽開始",
+      "status": "reviewed"
+    },
+    "%1$@发球，比赛开始": {
+      "source_hash": "c70b1892f2db9699c364a239c8ead968b3af8dc05ba0e77205ba303d9ed0dcbc",
+      "value": "%1$@發球，比賽開始",
+      "status": "reviewed"
+    },
+    "%1$@局制，比赛开始": {
+      "source_hash": "3d53642b5458a160e5efc2dc9df14c8a7af103d4bad1e23fa83ac3e83decc645",
+      "value": "%1$@局制，比賽開始",
+      "status": "reviewed"
+    },
+    "%1$@平": {
+      "source_hash": "6cb24159d76b1f4a06b5c052db4321212a93948beca7d74b6085e255e61197e0",
+      "value": "%1$@平",
+      "status": "reviewed"
+    },
+    "%1$@开始，%2$@发球": {
+      "source_hash": "020eed6cce3bb206c0edf20cb5f081de4035c3efac72fbf848c48f17566e01f6",
+      "value": "%1$@開始，%2$@發球",
+      "status": "reviewed"
+    },
+    "%1$@比%2$@": {
+      "source_hash": "996f4dd19247db54fbef7464fe00ac74532aa8cd828a6f54c6e96afa8527c14f",
+      "value": "%1$@比%2$@",
+      "status": "reviewed"
+    },
+    "%1$@比%2$@，%3$@": {
+      "source_hash": "e1f27396e4c68d64010797cb9c4b4a06c5b75a946c98126e06637c113b6bc00f",
+      "value": "%1$@比%2$@，%3$@",
+      "status": "reviewed"
+    },
+    "%1$@胜本局，局分%2$@平": {
+      "source_hash": "ad5589046238958648cfadc3a04a65eb1949d168efc9cfb599d6aa3df673f4a4",
+      "value": "%1$@勝本局，局分%2$@平",
+      "status": "reviewed"
+    },
+    "%1$@胜本局，局分%2$@平，抢七": {
+      "source_hash": "9f2b1b9d167d9b89e474cb57cb467de911d40cbc4f1220ca7e0cedf3d0804b1a",
+      "value": "%1$@勝本局，局分%2$@平，搶七",
+      "status": "reviewed"
+    },
+    "%1$@胜本局，局分%2$@比%3$@": {
+      "source_hash": "ed499b9e89b8d96a059bd26d7d8b2cc01073bd7d43b5e0876369854db0c2d2db",
+      "value": "%1$@勝本局，局分%2$@比%3$@",
+      "status": "reviewed"
+    },
+    "%1$@胜本局，并以%2$@赢得第%3$@盘": {
+      "source_hash": "12005baceae47c9ced366c40badbd9f63fcb38fedb49cdefc9ba998e5ceb5bee",
+      "value": "%1$@勝本局，並以%2$@贏得第%3$@盤",
+      "status": "reviewed"
+    },
+    "%1$@，%2$@号": {
+      "source_hash": "76872d6ea992738d1a00c06d7c59333fcb5398fb9b10eb31d25b5814fced0bc5",
+      "value": "%1$@，%2$@號",
+      "status": "reviewed"
+    },
+    "%1$@，%2$@，%3$@": {
+      "source_hash": "a58cad414e436ba2b05d175b278968ad8eeb5905b17c467ca92209d0760f874e",
+      "value": "%1$@，%2$@，%3$@",
+      "status": "reviewed"
+    },
+    "%1$@，本局及比赛由%2$@获胜；%3$@以%4$@获胜": {
+      "source_hash": "f70e6fac622d8d1c9c553afccc359e72ca6cb3dff73ddcb7cf4356cf0ebe6efc",
+      "value": "%1$@，本局及比賽由%2$@獲勝；%3$@以%4$@獲勝",
+      "status": "reviewed"
+    },
+    "%1$@，本局由%2$@获胜": {
+      "source_hash": "14ba6d13c48238d4ee0c207d185fa0a6d7259b065bc4a04deb24bb4a34a8eac8",
+      "value": "%1$@，本局由%2$@獲勝",
+      "status": "reviewed"
+    },
+    "%1$@，比赛继续": {
+      "source_hash": "d729b36b43727b82e952d010e2ab026de9b077cb0e8474b6bda6af099271146d",
+      "value": "%1$@，比賽繼續",
+      "status": "reviewed"
+    },
+    "0": {
+      "source_hash": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+      "value": "0",
+      "status": "reviewed"
+    },
+    "15": {
+      "source_hash": "e629fa6598d732768f7c726b4b621285f9c3b85303900aa912017db7617d8bdb",
+      "value": "15",
+      "status": "reviewed"
+    },
+    "15秒": {
+      "source_hash": "4048bd1bdbade308cfa54fd9610a4544a4bde1233bb096efe2abea8c1d2ed051",
+      "value": "15秒",
+      "status": "reviewed"
+    },
+    "20秒": {
+      "source_hash": "c9dbd459f266413d52413649e99b0219d3c766811da5292d6bed37a101e7d7c2",
+      "value": "20秒",
+      "status": "reviewed"
+    },
+    "30": {
+      "source_hash": "624b60c58c9d8bfb6ff1886c2fd605d2adeb6ea4da576068201b6c6958ce93f4",
+      "value": "30",
+      "status": "reviewed"
+    },
+    "40": {
+      "source_hash": "d59eced1ded07f84c145592f65bdf854358e009c5cd705f5215bf18697fed103",
+      "value": "40",
+      "status": "reviewed"
+    },
+    "、": {
+      "source_hash": "c4a40ea8fe35627476f7f8cb9e1fc7f8898f428c6d1ff18b0bc5479d5db39c5f",
+      "value": "、",
+      "status": "reviewed"
+    },
+    "一": {
+      "source_hash": "51a75f4634dfa8598a0a1436da0b7764830edd1f3a97661222387da2fe2b38d1",
+      "value": "一",
+      "status": "reviewed"
+    },
+    "三": {
+      "source_hash": "a4c3313deb180960469d0e79a770b9deee47fdeed74fe0f74d0bf51006fcc4f0",
+      "value": "三",
+      "status": "reviewed"
+    },
+    "二": {
+      "source_hash": "084b42f6e95e4e6545e236975ade8e205383fefe1021c9d793f758c21f9377dc",
+      "value": "二",
+      "status": "reviewed"
+    },
+    "五": {
+      "source_hash": "c9b87f516a38ea36a0ca35f5137d4676a0705b6af36302cac4b68927a1e42c60",
+      "value": "五",
+      "status": "reviewed"
+    },
+    "交换场地": {
+      "source_hash": "efb3633eda76ddaa51fc4f47f15c8180c4519db94147d6558fbb1ec773351449",
+      "value": "交換場地",
+      "status": "reviewed"
+    },
+    "休息过半": {
+      "source_hash": "fce01eca87f1eed042492f4ad524da12b97e691fa1e2c1266478727104bead59",
+      "value": "休息過半",
+      "status": "reviewed"
+    },
+    "决胜分，接发方选择": {
+      "source_hash": "b107fb4e12a814399354fb102e16253cac4f0e901e3db118fd02c262e887f214",
+      "value": "決勝分，接發方選擇",
+      "status": "reviewed"
+    },
+    "决胜盘": {
+      "source_hash": "79e5da182738adc4f649bf156276f0b9cacfe1b4661f89ee44b06695f9776bda",
+      "value": "決勝盤",
+      "status": "reviewed"
+    },
+    "和": {
+      "source_hash": "3d7114281f5b59d9a7ab82c23fb0d9411eac84fa3b69aa9426edfad89098dda8",
+      "value": "和",
+      "status": "reviewed"
+    },
+    "四": {
+      "source_hash": "754a9d5828d502f19ae91df8f089811d9affe9e0a487b20528975700f7c90f75",
+      "value": "四",
+      "status": "reviewed"
+    },
+    "局点": {
+      "source_hash": "1c6945ffa9c4c12f99caa7a5aecc4306fc3431bd7decb68cf7d06452b62c1271",
+      "value": "局點",
+      "status": "reviewed"
+    },
+    "局间休息，%1$@分钟": {
+      "source_hash": "342c8a759258e630ec0eb4a1458796213385087a56bb9a7757263f53bea4d307",
+      "value": "局間休息，%1$@分鍾",
+      "status": "reviewed"
+    },
+    "平分": {
+      "source_hash": "f9c10be7a4b900afd6860b86c04b256c7406c7db893fcc8db1f0287bfde78159",
+      "value": "平分",
+      "status": "reviewed"
+    },
+    "得分，本局结束，%1$@，%2$@胜": {
+      "source_hash": "20fb045ba4e15f33c9c46d40708736fc5200ba8812ab6662576f1bd4d058c571",
+      "value": "得分，本局結束，%1$@，%2$@勝",
+      "status": "reviewed"
+    },
+    "得分，本局结束，比赛结束，%1$@，%2$@胜": {
+      "source_hash": "22122f00c09c24c527df43a23c29c0351cc447f614667ce0e2a67ecc78cf2205",
+      "value": "得分，本局結束，比賽結束，%1$@，%2$@勝",
+      "status": "reviewed"
+    },
+    "抢七赛": {
+      "source_hash": "1e02a5cc7f8bc18637e65fb1dc52f006a5693a972a2d3a33c8dfd53f9ed47ee1",
+      "value": "搶七賽",
+      "status": "reviewed"
+    },
+    "抢十赛": {
+      "source_hash": "7f0c1750086d771219f2a90fe7246df077f375458641617098d833d0827a522e",
+      "value": "搶十賽",
+      "status": "reviewed"
+    },
+    "换发球，%1$@": {
+      "source_hash": "90bae961509fce97eef1f8e9861dd6a8e70087cd3a63c393afcc842433a35637",
+      "value": "換發球，%1$@",
+      "status": "reviewed"
+    },
+    "时间到": {
+      "source_hash": "a9c6c90f7e131e8d9a008bdec759280cc9f1b0b1ea0a05186a2596f211d5bf5f",
+      "value": "時間到",
+      "status": "reviewed"
+    },
+    "时间到，第%1$@局，%2$@发球，0比0": {
+      "source_hash": "601c16732fae6f66d5f9dd085e00b12927d15cc47f07bcd4bec5e87d78c8d6ec",
+      "value": "時間到，第%1$@局，%2$@發球，0比0",
+      "status": "reviewed"
+    },
+    "暂停": {
+      "source_hash": "8d12fc0d4eb26021d93db693a076e474b8fc6e01f8808666744816c8ba72b746",
+      "value": "暫停",
+      "status": "reviewed"
+    },
+    "本局、%1$@及比赛由%2$@获胜，%3$@以%4$@盘比%5$@盘获胜，%6$@": {
+      "source_hash": "f08a9aa8f96a916ebdad4c262aa1c9107a8943dfe7a1c8063330933d53b0f9ee",
+      "value": "本局、%1$@及比賽由%2$@獲勝，%3$@以%4$@盤比%5$@盤獲勝，%6$@",
+      "status": "reviewed"
+    },
+    "本局由%1$@获胜，%2$@在第%3$@盘以%4$@比%5$@领先": {
+      "source_hash": "9b7873deb42e9fd3fcc309a1ddd975d94210bd8d3b19db94c3779e43f23a8bc8",
+      "value": "本局由%1$@獲勝，%2$@在第%3$@盤以%4$@比%5$@領先",
+      "status": "reviewed"
+    },
+    "本局结束": {
+      "source_hash": "3a437d5d791fe190f6a79bd2d9ec8f07bc96f6596914de439ec062cfeba02006",
+      "value": "本局結束",
+      "status": "reviewed"
+    },
+    "本局结束，比赛由%1$@获胜，%2$@": {
+      "source_hash": "3ee756e0952d49b494f5f802de95de6dd331348eb6fc1cb592de3b73723c5143",
+      "value": "本局結束，比賽由%1$@獲勝，%2$@",
+      "status": "reviewed"
+    },
+    "本局结束，第%1$@局由%2$@获胜，%3$@": {
+      "source_hash": "af283fe2f0c8c72f9aa2198dba4b9c26441b9be3228a0bd2648c9c45a1a96c46",
+      "value": "本局結束，第%1$@局由%2$@獲勝，%3$@",
+      "status": "reviewed"
+    },
+    "本盘结束": {
+      "source_hash": "07cea6e691743870e77d13b27ea68eab6bb80f95a906c65cfdddabc098fe911b",
+      "value": "本盤結束",
+      "status": "reviewed"
+    },
+    "比赛结束": {
+      "source_hash": "ae41a35e5ad41665e75f6e12cf82b35b6f5a30b30acae93ab437957b838a907e",
+      "value": "比賽結束",
+      "status": "reviewed"
+    },
+    "比赛结束，%1$@以%2$@盘比%3$@盘获胜": {
+      "source_hash": "def65913829c0bc6f006c1fdae20d3c0318f613cc737440db585cd6c76c960b2",
+      "value": "比賽結束，%1$@以%2$@盤比%3$@盤獲勝",
+      "status": "reviewed"
+    },
+    "比赛结束，%1$@以%2$@获胜": {
+      "source_hash": "a9fc5e9a0804a3e4c600cbd9bb990adc584698230cb6bd518fdfffaf3a6ed9c6",
+      "value": "比賽結束，%1$@以%2$@獲勝",
+      "status": "reviewed"
+    },
+    "比赛结束，%1$@胜": {
+      "source_hash": "68f6f0460f7e1a9f0a31a49325a50cf7768ae908197ed5a7fc9aac996a0cc5d9",
+      "value": "比賽結束，%1$@勝",
+      "status": "reviewed"
+    },
+    "比赛结束，%1$@胜，%2$@": {
+      "source_hash": "834abfe04aa4b5fdcddee4b4906663143f66634a5532d676dfbd33e87cea4052",
+      "value": "比賽結束，%1$@勝，%2$@",
+      "status": "reviewed"
+    },
+    "比赛结束，%1$@获胜": {
+      "source_hash": "a3f6629f1ca70853320ff2131e77b51e89589c74a48e20404ff93af6bcb793f1",
+      "value": "比賽結束，%1$@獲勝",
+      "status": "reviewed"
+    },
+    "比赛结束，%1$@，%2$@胜": {
+      "source_hash": "2b57fd5ff8384a159007bec08b7217ab1b1a0ec2916054084e0bb500461e2c22",
+      "value": "比賽結束，%1$@，%2$@勝",
+      "status": "reviewed"
+    },
+    "比赛继续，%1$@": {
+      "source_hash": "0ad8ac4106211113b2bc90169fbecdd72460266c3da7ccf9516dc9a6f9ab2221",
+      "value": "比賽繼續，%1$@",
+      "status": "reviewed"
+    },
+    "第%1$@盘": {
+      "source_hash": "6ac26a4248a8eb2293c3fd1547eb50fb2591368d4bb8f6d04e33679dd65ccb8c",
+      "value": "第%1$@盤",
+      "status": "reviewed"
+    },
+    "第一次平分": {
+      "source_hash": "217a04cb90798f1ff0244fc83e8786a3e4606f77324b7eed93590e8c39f7731f",
+      "value": "第一次平分",
+      "status": "reviewed"
+    },
+    "第三次平分，星点": {
+      "source_hash": "08c91950bcb840f41bd556781131856dbb8520bb88b3c6e0011cbc87b778c9d4",
+      "value": "第三次平分，星點",
+      "status": "reviewed"
+    },
+    "第二发球，%1$@": {
+      "source_hash": "0f242027354691d2e9e06cbd34e2d77f977df67fc57cd4d6defe4edfbe4f2a49",
+      "value": "第二發球，%1$@",
+      "status": "reviewed"
+    },
+    "第二次平分": {
+      "source_hash": "9bb119c3e8d67613ba27c8fb6d967c2bfd279eb73fdaf44f83afb55befec9e0d",
+      "value": "第二次平分",
+      "status": "reviewed"
+    },
+    "赛点": {
+      "source_hash": "b369448e8086bf84862ab6e6114802b39a6f25ea4ff393d3d97a967ef0f93753",
+      "value": "賽點",
+      "status": "reviewed"
+    },
+    "零": {
+      "source_hash": "9489a4a6f3fbf136816df3dd09583e15303363fc58288d12697ebb5475901f6e",
+      "value": "零",
+      "status": "reviewed"
+    },
+    "黄金分，接发方选择": {
+      "source_hash": "b82707a2ec135b1890bb3b226e9b91ca3af34a0f1911b20ca310b1aa9f4a76e2",
+      "value": "黃金分，接發方選擇",
+      "status": "reviewed"
+    },
+    "，": {
+      "source_hash": "ad9464da161a8d5ae3709ec94baad99de11664bfadb5d02d94caf72fa3bea203",
+      "value": "，",
+      "status": "reviewed"
+    },
+    "，%1$@": {
+      "source_hash": "b2724a01dfaf9cf87f132c0259e53152e9482b44b0c45cefec7a74a5e7fcfdca",
+      "value": "，%1$@",
+      "status": "reviewed"
+    },
+    "，局分%1$@平": {
+      "source_hash": "8b84a2c34acf6706b8dd5ba8624445b4dfe3555b20dd9cd08fdf79330b8e713e",
+      "value": "，局分%1$@平",
+      "status": "reviewed"
+    },
+    "，必须领先两分": {
+      "source_hash": "3e9cd5c1fef339714848bf4897e89b92bac14be620ffc52348f8fd6c999e17c1",
+      "value": "，必須領先兩分",
+      "status": "reviewed"
+    },
+    "，间歇": {
+      "source_hash": "aa3b564c91c10c8da6eec90f70ca600487a9e23d23ed43d97635c459afbd4a43",
+      "value": "，休息",
+      "status": "reviewed"
+    }
+  }
+}

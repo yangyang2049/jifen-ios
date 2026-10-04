@@ -1,0 +1,7202 @@
+[
+  {
+    "frame": "en-US · 01",
+    "text": "Center slogan",
+    "content": "EVERY\nPOINT\nCOUNTS",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 524.68,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "en-US · 02",
+    "text": "Marketing headline",
+    "content": "SEE EVERY SCORE\nAT A GLANCE",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 784.7,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-US · 02",
+    "text": "Localized player name",
+    "content": "Ethan",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 289.12,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "en-US · 03",
+    "text": "Marketing headline",
+    "content": "ONE SCOREBOARD\nFOR 26+ SPORTS",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 842.78,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-US · 03",
+    "text": "Localized player name",
+    "content": "Liam",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 245.23,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "en-US · 04",
+    "text": "Marketing headline",
+    "content": "REVIEW\nEVERY MATCH",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 648.48,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-US · 05",
+    "text": "Marketing headline",
+    "content": "SET YOUR RULES\nPLAY YOUR WAY",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 751.2,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-US · 06",
+    "text": "Marketing headline",
+    "content": "MULTI-PLAYER &\nBOARD GAMES",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 753.79,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-US · 07",
+    "text": "Marketing headline",
+    "content": "YOUR SCOREBOARD\nON THE BIG SCREEN",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 909.98,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "ja-JP · 01",
+    "text": "Center slogan",
+    "content": "すべての\n得点に\n意味がある",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 650.0,
+    "boxHeight": 520,
+    "estimatedHeight": 448.5
+  },
+  {
+    "frame": "ja-JP · 02",
+    "text": "Marketing headline",
+    "content": "試合のスコアが\nひと目でわかる",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 672.0,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ja-JP · 02",
+    "text": "Localized player name",
+    "content": "伊達政宗",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 416.0,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "ja-JP · 03",
+    "text": "Marketing headline",
+    "content": "26 種類以上の競技を\nひとつのスコアボードで",
+    "fontSize": 88,
+    "width": 1000,
+    "shapedMaxLineWidth": 961.84,
+    "boxHeight": 250,
+    "estimatedHeight": 202.4
+  },
+  {
+    "frame": "ja-JP · 03",
+    "text": "Localized player name",
+    "content": "真田幸村",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 416.0,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "ja-JP · 04",
+    "text": "Marketing headline",
+    "content": "すべての試合を\n振り返ろう",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 661.44,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ja-JP · 05",
+    "text": "Marketing headline",
+    "content": "ルールを決めて\n自分たちらしい試合を",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 960.0,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ja-JP · 06",
+    "text": "Marketing headline",
+    "content": "多人数ゲームも\nボードゲームも",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 669.12,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ja-JP · 07",
+    "text": "Marketing headline",
+    "content": "大きな画面で\nみんなにスコアを",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 768.0,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ru-RU · 01",
+    "text": "Center slogan",
+    "content": "КАЖДОЕ\nОЧКО\nВАЖНО",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 611.91,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "ru-RU · 02",
+    "text": "Marketing headline",
+    "content": "ВЕСЬ СЧЁТ\nС ПЕРВОГО ВЗГЛЯДА",
+    "fontSize": 86,
+    "width": 1000,
+    "shapedMaxLineWidth": 948.58,
+    "boxHeight": 250,
+    "estimatedHeight": 172
+  },
+  {
+    "frame": "ru-RU · 02",
+    "text": "Localized player name",
+    "content": "Алексей",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 454.69,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "ru-RU · 03",
+    "text": "Marketing headline",
+    "content": "26+ ДИСЦИПЛИН\nОДНО ТАБЛО",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 872.57,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "ru-RU · 03",
+    "text": "Localized player name",
+    "content": "Иван",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 272.48,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "ru-RU · 04",
+    "text": "Marketing headline",
+    "content": "РАЗБЕРИТЕ\nКАЖДЫЙ МАТЧ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 796.13,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "ru-RU · 05",
+    "text": "Marketing headline",
+    "content": "ВАШИ ПРАВИЛА\nВАША ИГРА",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 850.37,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "ru-RU · 06",
+    "text": "Marketing headline",
+    "content": "ИГРЫ ДЛЯ КОМПАНИИ\nИ НАСТОЛЬНЫЕ ИГРЫ",
+    "fontSize": 78,
+    "width": 1000,
+    "shapedMaxLineWidth": 948.32,
+    "boxHeight": 250,
+    "estimatedHeight": 156
+  },
+  {
+    "frame": "ru-RU · 07",
+    "text": "Marketing headline",
+    "content": "ВАШЕ ТАБЛО\nНА БОЛЬШОМ ЭКРАНЕ",
+    "fontSize": 80,
+    "width": 1000,
+    "shapedMaxLineWidth": 962.64,
+    "boxHeight": 250,
+    "estimatedHeight": 160
+  },
+  {
+    "frame": "ar · 01",
+    "text": "Center slogan",
+    "content": "كل نقطة\nلها قيمة",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 476.97,
+    "boxHeight": 520,
+    "estimatedHeight": 299.0
+  },
+  {
+    "frame": "ar · 02",
+    "text": "Marketing headline",
+    "content": "نتيجة المباراة\nبنظرة واحدة",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 540.38,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ar · 02",
+    "text": "Localized player name",
+    "content": "أحمد",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 211.54,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "ar · 03",
+    "text": "Marketing headline",
+    "content": "لوحة واحدة\nلأكثر من 26 رياضة",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 752.83,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ar · 03",
+    "text": "Localized player name",
+    "content": "عمر",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 163.7,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "ar · 04",
+    "text": "Marketing headline",
+    "content": "راجع\nكل مباراة",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 376.03,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ar · 05",
+    "text": "Marketing headline",
+    "content": "قواعدك أنت\nوطريقتك في اللعب",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 802.46,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ar · 06",
+    "text": "Marketing headline",
+    "content": "ألعاب جماعية\nوألعاب لوحية",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 558.24,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ar · 07",
+    "text": "Marketing headline",
+    "content": "لوحة النتائج\nعلى الشاشة الكبيرة",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 805.06,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ko-KR · 01",
+    "text": "Center slogan",
+    "content": "모든 득점이\n소중하니까",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 627.51,
+    "boxHeight": 520,
+    "estimatedHeight": 299.0
+  },
+  {
+    "frame": "ko-KR · 02",
+    "text": "Marketing headline",
+    "content": "경기 점수를\n한눈에",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 463.39,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ko-KR · 02",
+    "text": "Localized player name",
+    "content": "민준",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 191.36,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "ko-KR · 03",
+    "text": "Marketing headline",
+    "content": "26가지 이상의 종목을\n하나의 점수판으로",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 863.42,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ko-KR · 03",
+    "text": "Localized player name",
+    "content": "서준",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 191.36,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "ko-KR · 04",
+    "text": "Marketing headline",
+    "content": "모든 경기를\n다시 돌아보기",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 551.71,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ko-KR · 05",
+    "text": "Marketing headline",
+    "content": "규칙은 직접\n경기는 원하는 대로",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 750.14,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ko-KR · 06",
+    "text": "Marketing headline",
+    "content": "다인용 게임부터\n보드게임까지",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 640.03,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ko-KR · 07",
+    "text": "Marketing headline",
+    "content": "큰 화면으로\n함께 보는 점수판",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 661.82,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "de-DE · 01",
+    "text": "Center slogan",
+    "content": "JEDER\nPUNKT\nZÄHLT",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 419.77,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "de-DE · 02",
+    "text": "Marketing headline",
+    "content": "ALLE SPIELSTÄNDE\nAUF EINEN BLICK",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 812.83,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "de-DE · 02",
+    "text": "Localized player name",
+    "content": "Max",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 212.89,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "de-DE · 03",
+    "text": "Marketing headline",
+    "content": "EINE PUNKTETAFEL\nFÜR ÜBER 26 SPORTARTEN",
+    "fontSize": 78,
+    "width": 1000,
+    "shapedMaxLineWidth": 949.65,
+    "boxHeight": 250,
+    "estimatedHeight": 156
+  },
+  {
+    "frame": "de-DE · 03",
+    "text": "Localized player name",
+    "content": "Paul",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 220.48,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "de-DE · 04",
+    "text": "Marketing headline",
+    "content": "JEDE PARTIE\nIM RÜCKBLICK",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 649.44,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "de-DE · 05",
+    "text": "Marketing headline",
+    "content": "DEINE REGELN\nDEIN SPIEL",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 616.99,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "de-DE · 06",
+    "text": "Marketing headline",
+    "content": "MEHRSPIELER-\nUND BRETTSPIELE",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 773.66,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "de-DE · 07",
+    "text": "Marketing headline",
+    "content": "DEINE PUNKTETAFEL\nAUF DEM FERNSEHER",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 926.98,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "fr-FR · 01",
+    "text": "Center slogan",
+    "content": "CHAQUE\nPOINT\nCOMPTE",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 531.57,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "fr-FR · 02",
+    "text": "Marketing headline",
+    "content": "TOUS LES SCORES\nEN UN COUP D’ŒIL",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 832.99,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "fr-FR · 02",
+    "text": "Localized player name",
+    "content": "Louis",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 253.86,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "fr-FR · 03",
+    "text": "Marketing headline",
+    "content": "26+ SPORTS\nUN TABLEAU DE SCORES",
+    "fontSize": 84,
+    "width": 1000,
+    "shapedMaxLineWidth": 939.54,
+    "boxHeight": 250,
+    "estimatedHeight": 168
+  },
+  {
+    "frame": "fr-FR · 03",
+    "text": "Localized player name",
+    "content": "Hugo",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 269.26,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "fr-FR · 04",
+    "text": "Marketing headline",
+    "content": "REVIVEZ\nCHAQUE MATCH",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 753.5,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "fr-FR · 05",
+    "text": "Marketing headline",
+    "content": "VOS RÈGLES\nVOTRE FAÇON DE JOUER",
+    "fontSize": 84,
+    "width": 1000,
+    "shapedMaxLineWidth": 961.13,
+    "boxHeight": 250,
+    "estimatedHeight": 168
+  },
+  {
+    "frame": "fr-FR · 06",
+    "text": "Marketing headline",
+    "content": "JEUX MULTIJOUEURS\nET JEUX DE SOCIÉTÉ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 939.36,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "fr-FR · 07",
+    "text": "Marketing headline",
+    "content": "VOTRE SCORE\nSUR GRAND ÉCRAN",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 866.4,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "es-ES · 01",
+    "text": "Center slogan",
+    "content": "CADA\nPUNTO\nCUENTA",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 508.69,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "es-ES · 02",
+    "text": "Marketing headline",
+    "content": "TODO EL MARCADOR\nDE UN VISTAZO",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 942.34,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "es-ES · 02",
+    "text": "Localized player name",
+    "content": "Pablo",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 284.96,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "es-ES · 03",
+    "text": "Marketing headline",
+    "content": "UN MARCADOR\nPARA MÁS DE 26 DEPORTES",
+    "fontSize": 76,
+    "width": 1000,
+    "shapedMaxLineWidth": 968.32,
+    "boxHeight": 250,
+    "estimatedHeight": 152
+  },
+  {
+    "frame": "es-ES · 03",
+    "text": "Localized player name",
+    "content": "Álvaro",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 326.35,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "es-ES · 04",
+    "text": "Marketing headline",
+    "content": "REPASA\nCADA PARTIDO",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 693.22,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "es-ES · 05",
+    "text": "Marketing headline",
+    "content": "TUS REGLAS\nTU FORMA DE JUGAR",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 938.02,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "es-ES · 06",
+    "text": "Marketing headline",
+    "content": "JUEGOS MULTIJUGADOR\nY DE MESA",
+    "fontSize": 84,
+    "width": 1000,
+    "shapedMaxLineWidth": 968.35,
+    "boxHeight": 250,
+    "estimatedHeight": 168
+  },
+  {
+    "frame": "es-ES · 07",
+    "text": "Marketing headline",
+    "content": "TU MARCADOR\nEN PANTALLA GRANDE",
+    "fontSize": 92,
+    "width": 1000,
+    "shapedMaxLineWidth": 962.6,
+    "boxHeight": 250,
+    "estimatedHeight": 184
+  },
+  {
+    "frame": "pt-BR · 01",
+    "text": "Center slogan",
+    "content": "CADA\nPONTO\nCONTA",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 453.44,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "pt-BR · 02",
+    "text": "Marketing headline",
+    "content": "TODO O PLACAR\nNUM PISCAR DE OLHOS",
+    "fontSize": 88,
+    "width": 1000,
+    "shapedMaxLineWidth": 950.4,
+    "boxHeight": 250,
+    "estimatedHeight": 176
+  },
+  {
+    "frame": "pt-BR · 02",
+    "text": "Localized player name",
+    "content": "Lucas",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 291.72,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "pt-BR · 03",
+    "text": "Marketing headline",
+    "content": "UM PLACAR\nPARA MAIS DE 26 ESPORTES",
+    "fontSize": 74,
+    "width": 1000,
+    "shapedMaxLineWidth": 954.3,
+    "boxHeight": 250,
+    "estimatedHeight": 148
+  },
+  {
+    "frame": "pt-BR · 03",
+    "text": "Localized player name",
+    "content": "Pedro",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 291.72,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "pt-BR · 04",
+    "text": "Marketing headline",
+    "content": "REVEJA\nCADA PARTIDA",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 688.51,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "pt-BR · 05",
+    "text": "Marketing headline",
+    "content": "SUAS REGRAS\nSEU JEITO DE JOGAR",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 915.84,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "pt-BR · 06",
+    "text": "Marketing headline",
+    "content": "JOGOS MULTIJOGADOR\nE DE TABULEIRO",
+    "fontSize": 86,
+    "width": 1000,
+    "shapedMaxLineWidth": 961.82,
+    "boxHeight": 250,
+    "estimatedHeight": 172
+  },
+  {
+    "frame": "pt-BR · 07",
+    "text": "Marketing headline",
+    "content": "SEU PLACAR\nNA TELA GRANDE",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 769.25,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "it-IT · 01",
+    "text": "Center slogan",
+    "content": "OGNI\nPUNTO\nCONTA",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 453.44,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "it-IT · 02",
+    "text": "Marketing headline",
+    "content": "TUTTI I PUNTEGGI\nA COLPO D’OCCHIO",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 890.11,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "it-IT · 02",
+    "text": "Localized player name",
+    "content": "Luca",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 238.68,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "it-IT · 03",
+    "text": "Marketing headline",
+    "content": "UN TABELLONE\nPER OLTRE 26 SPORT",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 906.72,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "it-IT · 03",
+    "text": "Localized player name",
+    "content": "Marco",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 320.42,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "it-IT · 04",
+    "text": "Marketing headline",
+    "content": "RIVEDI\nOGNI PARTITA",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 640.13,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "it-IT · 05",
+    "text": "Marketing headline",
+    "content": "LE TUE REGOLE\nIL TUO MODO DI GIOCARE",
+    "fontSize": 82,
+    "width": 1000,
+    "shapedMaxLineWidth": 968.99,
+    "boxHeight": 250,
+    "estimatedHeight": 164
+  },
+  {
+    "frame": "it-IT · 06",
+    "text": "Marketing headline",
+    "content": "GIOCHI MULTIGIOCATORE\nE DA TAVOLO",
+    "fontSize": 80,
+    "width": 1000,
+    "shapedMaxLineWidth": 964.8,
+    "boxHeight": 250,
+    "estimatedHeight": 160
+  },
+  {
+    "frame": "it-IT · 07",
+    "text": "Marketing headline",
+    "content": "IL TUO TABELLONE\nSUL GRANDE SCHERMO",
+    "fontSize": 88,
+    "width": 1000,
+    "shapedMaxLineWidth": 955.15,
+    "boxHeight": 250,
+    "estimatedHeight": 176
+  },
+  {
+    "frame": "hi-IN · 01",
+    "text": "Center slogan",
+    "content": "हर अंक\nमायने रखता है",
+    "fontSize": 116,
+    "width": 680,
+    "shapedMaxLineWidth": 639.51,
+    "boxHeight": 520,
+    "estimatedHeight": 266.8
+  },
+  {
+    "frame": "hi-IN · 02",
+    "text": "Marketing headline",
+    "content": "पूरा स्कोर\nएक नज़र में",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 427.3,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "hi-IN · 02",
+    "text": "Localized player name",
+    "content": "अर्जुन",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 226.82,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "hi-IN · 03",
+    "text": "Marketing headline",
+    "content": "एक स्कोरबोर्ड\n26 से अधिक खेलों के लिए",
+    "fontSize": 94,
+    "width": 1000,
+    "shapedMaxLineWidth": 960.12,
+    "boxHeight": 250,
+    "estimatedHeight": 216.2
+  },
+  {
+    "frame": "hi-IN · 03",
+    "text": "Localized player name",
+    "content": "राहुल",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 205.71,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "hi-IN · 04",
+    "text": "Marketing headline",
+    "content": "हर मैच\nफिर से देखें",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 409.15,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "hi-IN · 05",
+    "text": "Marketing headline",
+    "content": "आपके नियम\nआपका खेल",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 484.51,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "hi-IN · 06",
+    "text": "Marketing headline",
+    "content": "कई खिलाड़ियों वाले गेम\nऔर बोर्ड गेम",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 866.98,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "hi-IN · 07",
+    "text": "Marketing headline",
+    "content": "आपका स्कोरबोर्ड\nबड़ी स्क्रीन पर",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 635.14,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "nl-NL · 01",
+    "text": "Center slogan",
+    "content": "ELK PUNT\nTELT",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 566.02,
+    "boxHeight": 520,
+    "estimatedHeight": 260
+  },
+  {
+    "frame": "nl-NL · 02",
+    "text": "Marketing headline",
+    "content": "ALLE SCORES\nIN ÉÉN OOGOPSLAG",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 879.36,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "nl-NL · 02",
+    "text": "Localized player name",
+    "content": "Daan",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 273.42,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "nl-NL · 03",
+    "text": "Marketing headline",
+    "content": "EÉN SCOREBORD\nVOOR MEER DAN 26 SPORTEN",
+    "fontSize": 70,
+    "width": 1000,
+    "shapedMaxLineWidth": 960.19,
+    "boxHeight": 250,
+    "estimatedHeight": 140
+  },
+  {
+    "frame": "nl-NL · 03",
+    "text": "Localized player name",
+    "content": "Bram",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 277.47,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "nl-NL · 04",
+    "text": "Marketing headline",
+    "content": "BEKIJK\nELKE WEDSTRIJD TERUG",
+    "fontSize": 86,
+    "width": 1000,
+    "shapedMaxLineWidth": 953.65,
+    "boxHeight": 250,
+    "estimatedHeight": 172
+  },
+  {
+    "frame": "nl-NL · 05",
+    "text": "Marketing headline",
+    "content": "JOUW REGELS\nJOUW SPEL",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 633.31,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "nl-NL · 06",
+    "text": "Marketing headline",
+    "content": "MULTIPLAYER-\nEN BORDSPELLEN",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 760.99,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "nl-NL · 07",
+    "text": "Marketing headline",
+    "content": "JOUW SCOREBORD\nOP HET GROTE SCHERM",
+    "fontSize": 88,
+    "width": 1000,
+    "shapedMaxLineWidth": 958.67,
+    "boxHeight": 250,
+    "estimatedHeight": 176
+  },
+  {
+    "frame": "tr-TR · 01",
+    "text": "Center slogan",
+    "content": "HER SAYI\nDEĞERLİ",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 547.17,
+    "boxHeight": 520,
+    "estimatedHeight": 260
+  },
+  {
+    "frame": "tr-TR · 02",
+    "text": "Marketing headline",
+    "content": "TÜM SKORLAR\nBİR BAKIŞTA",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 644.93,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "tr-TR · 02",
+    "text": "Localized player name",
+    "content": "Emre",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 259.58,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "tr-TR · 03",
+    "text": "Marketing headline",
+    "content": "TEK SKOR TAHTASI\n26’DAN FAZLA SPOR",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 904.13,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "tr-TR · 03",
+    "text": "Localized player name",
+    "content": "Deniz",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 272.06,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "tr-TR · 04",
+    "text": "Marketing headline",
+    "content": "HER MAÇI\nYENİDEN İNCELEYİN",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 867.46,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "tr-TR · 05",
+    "text": "Marketing headline",
+    "content": "KURALLAR SİZİN\nOYUN SİZİN",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 717.12,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "tr-TR · 06",
+    "text": "Marketing headline",
+    "content": "ÇOK OYUNCULU OYUNLAR\nVE MASA OYUNLARI",
+    "fontSize": 78,
+    "width": 1000,
+    "shapedMaxLineWidth": 966.03,
+    "boxHeight": 250,
+    "estimatedHeight": 156
+  },
+  {
+    "frame": "tr-TR · 07",
+    "text": "Marketing headline",
+    "content": "SKOR TAHTANIZ\nBÜYÜK EKRANDA",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 776.74,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "id · 01",
+    "text": "Center slogan",
+    "content": "SETIAP\nPOIN\nBERARTI",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 509.21,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "id · 02",
+    "text": "Marketing headline",
+    "content": "SEMUA SKOR\nSEKILAS TERLIHAT",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 797.95,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "id · 02",
+    "text": "Localized player name",
+    "content": "Andi",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 231.71,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "id · 03",
+    "text": "Marketing headline",
+    "content": "SATU PAPAN SKOR\nUNTUK 26+ OLAHRAGA",
+    "fontSize": 90,
+    "width": 1000,
+    "shapedMaxLineWidth": 969.48,
+    "boxHeight": 250,
+    "estimatedHeight": 180
+  },
+  {
+    "frame": "id · 03",
+    "text": "Localized player name",
+    "content": "Budi",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 224.12,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "id · 04",
+    "text": "Marketing headline",
+    "content": "TINJAU KEMBALI\nSETIAP PERTANDINGAN",
+    "fontSize": 88,
+    "width": 1000,
+    "shapedMaxLineWidth": 962.1,
+    "boxHeight": 250,
+    "estimatedHeight": 176
+  },
+  {
+    "frame": "id · 05",
+    "text": "Marketing headline",
+    "content": "ATURANMU\nCARA BERMAINMU",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 848.74,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "id · 06",
+    "text": "Marketing headline",
+    "content": "PERMAINAN MULTIPEMAIN\nDAN PERMAINAN PAPAN",
+    "fontSize": 78,
+    "width": 1000,
+    "shapedMaxLineWidth": 966.58,
+    "boxHeight": 250,
+    "estimatedHeight": 156
+  },
+  {
+    "frame": "id · 07",
+    "text": "Marketing headline",
+    "content": "PAPAN SKORMU\nDI LAYAR BESAR",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 739.2,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "vi · 01",
+    "text": "Center slogan",
+    "content": "MỖI ĐIỂM SỐ\nĐỀU\nQUAN TRỌNG",
+    "fontSize": 98,
+    "width": 680,
+    "shapedMaxLineWidth": 641.7,
+    "boxHeight": 520,
+    "estimatedHeight": 294
+  },
+  {
+    "frame": "vi · 02",
+    "text": "Marketing headline",
+    "content": "TOÀN BỘ ĐIỂM SỐ\nCHỈ TRONG MỘT CÁI NHÌN",
+    "fontSize": 82,
+    "width": 1000,
+    "shapedMaxLineWidth": 956.94,
+    "boxHeight": 250,
+    "estimatedHeight": 164
+  },
+  {
+    "frame": "vi · 02",
+    "text": "Localized player name",
+    "content": "Minh",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 247.83,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "vi · 03",
+    "text": "Marketing headline",
+    "content": "MỘT BẢNG ĐIỂM\nCHO HƠN 26 MÔN THỂ THAO",
+    "fontSize": 76,
+    "width": 1000,
+    "shapedMaxLineWidth": 959.5,
+    "boxHeight": 250,
+    "estimatedHeight": 152
+  },
+  {
+    "frame": "vi · 03",
+    "text": "Localized player name",
+    "content": "An",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 132.6,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "vi · 04",
+    "text": "Marketing headline",
+    "content": "XEM LẠI\nTỪNG TRẬN ĐẤU",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 707.52,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "vi · 05",
+    "text": "Marketing headline",
+    "content": "LUẬT CỦA BẠN\nCÁCH CHƠI CỦA BẠN",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 878.69,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "vi · 06",
+    "text": "Marketing headline",
+    "content": "TRÒ CHƠI NHIỀU NGƯỜI\nVÀ TRÒ CHƠI BÀN CỜ",
+    "fontSize": 88,
+    "width": 1000,
+    "shapedMaxLineWidth": 961.14,
+    "boxHeight": 250,
+    "estimatedHeight": 176
+  },
+  {
+    "frame": "vi · 07",
+    "text": "Marketing headline",
+    "content": "BẢNG ĐIỂM CỦA BẠN\nTRÊN MÀN HÌNH LỚN",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 912.96,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "th · 01",
+    "text": "Center slogan",
+    "content": "ทุกคะแนน\nมีความหมาย",
+    "fontSize": 124,
+    "width": 680,
+    "shapedMaxLineWidth": 646.29,
+    "boxHeight": 520,
+    "estimatedHeight": 285.2
+  },
+  {
+    "frame": "th · 02",
+    "text": "Marketing headline",
+    "content": "เห็นทุกคะแนน\nได้ในพริบตา",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 557.66,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "th · 02",
+    "text": "Localized player name",
+    "content": "นนท์",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 197.5,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "th · 03",
+    "text": "Marketing headline",
+    "content": "กระดานเดียว\nสำหรับกีฬากว่า 26 ประเภท",
+    "fontSize": 88,
+    "width": 1000,
+    "shapedMaxLineWidth": 963.51,
+    "boxHeight": 250,
+    "estimatedHeight": 202.4
+  },
+  {
+    "frame": "th · 03",
+    "text": "Localized player name",
+    "content": "ภูมิ",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 130.83,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "th · 04",
+    "text": "Marketing headline",
+    "content": "ย้อนดู\nทุกการแข่งขัน",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 562.18,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "th · 05",
+    "text": "Marketing headline",
+    "content": "กติกาของคุณ\nเล่นในแบบของคุณ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 748.99,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "th · 06",
+    "text": "Marketing headline",
+    "content": "เกมหลายผู้เล่น\nและบอร์ดเกม",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 590.69,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "th · 07",
+    "text": "Marketing headline",
+    "content": "กระดานคะแนน\nบนหน้าจอใหญ่",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 590.11,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "bn-BD · 01",
+    "text": "Center slogan",
+    "content": "প্রতিটি\nপয়েন্টই\nগুরুত্বপূর্ণ",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 482.17,
+    "boxHeight": 520,
+    "estimatedHeight": 448.5
+  },
+  {
+    "frame": "bn-BD · 02",
+    "text": "Marketing headline",
+    "content": "সব স্কোর\nএক নজরে",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 416.45,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "bn-BD · 02",
+    "text": "Localized player name",
+    "content": "আরিফ",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 300.77,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "bn-BD · 03",
+    "text": "Marketing headline",
+    "content": "এক স্কোরবোর্ড\n২৬টির বেশি খেলার জন্য",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 955.3,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "bn-BD · 03",
+    "text": "Localized player name",
+    "content": "হাসান",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 243.98,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "bn-BD · 04",
+    "text": "Marketing headline",
+    "content": "ফিরে দেখুন\nপ্রতিটি ম্যাচ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 448.51,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "bn-BD · 05",
+    "text": "Marketing headline",
+    "content": "আপনার নিয়ম\nআপনার মতো খেলা",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 777.22,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "bn-BD · 06",
+    "text": "Marketing headline",
+    "content": "একাধিক খেলোয়াড়ের গেম\nও বোর্ড গেম",
+    "fontSize": 88,
+    "width": 1000,
+    "shapedMaxLineWidth": 954.27,
+    "boxHeight": 250,
+    "estimatedHeight": 202.4
+  },
+  {
+    "frame": "bn-BD · 07",
+    "text": "Marketing headline",
+    "content": "আপনার স্কোরবোর্ড\nবড় পর্দায়",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 744.86,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ca · 01",
+    "text": "Center slogan",
+    "content": "CADA\nPUNT\nCOMPTA",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 551.59,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "ca · 02",
+    "text": "Marketing headline",
+    "content": "TOT EL MARCADOR\nD’UN COP D’ULL",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 857.18,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "ca · 02",
+    "text": "Localized player name",
+    "content": "Marc",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 257.71,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "ca · 03",
+    "text": "Marketing headline",
+    "content": "UN MARCADOR\nPER A MÉS DE 26 ESPORTS",
+    "fontSize": 80,
+    "width": 1000,
+    "shapedMaxLineWidth": 954.72,
+    "boxHeight": 250,
+    "estimatedHeight": 160
+  },
+  {
+    "frame": "ca · 03",
+    "text": "Localized player name",
+    "content": "Pau",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 195.21,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "ca · 04",
+    "text": "Marketing headline",
+    "content": "REPASSA\nCADA PARTIT",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 608.06,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "ca · 05",
+    "text": "Marketing headline",
+    "content": "LES TEVES REGLES\nLA TEVA MANERA DE JUGAR",
+    "fontSize": 74,
+    "width": 1000,
+    "shapedMaxLineWidth": 962.44,
+    "boxHeight": 250,
+    "estimatedHeight": 148
+  },
+  {
+    "frame": "ca · 06",
+    "text": "Marketing headline",
+    "content": "JOCS MULTIJUGADOR\nI DE TAULA",
+    "fontSize": 92,
+    "width": 1000,
+    "shapedMaxLineWidth": 952.38,
+    "boxHeight": 250,
+    "estimatedHeight": 184
+  },
+  {
+    "frame": "ca · 07",
+    "text": "Marketing headline",
+    "content": "EL TEU MARCADOR\nA LA PANTALLA GRAN",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 968.06,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "cs-CZ · 01",
+    "text": "Center slogan",
+    "content": "KAŽDÝ\nBOD\nSE POČÍTÁ",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 634.79,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "cs-CZ · 02",
+    "text": "Marketing headline",
+    "content": "VŠECHNA SKÓRE\nNA PRVNÍ POHLED",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 806.4,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "cs-CZ · 02",
+    "text": "Localized player name",
+    "content": "Jakub",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 315.22,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "cs-CZ · 03",
+    "text": "Marketing headline",
+    "content": "JEDNA TABULE\nPRO VÍCE NEŽ 26 SPORTŮ",
+    "fontSize": 82,
+    "width": 1000,
+    "shapedMaxLineWidth": 955.79,
+    "boxHeight": 250,
+    "estimatedHeight": 164
+  },
+  {
+    "frame": "cs-CZ · 03",
+    "text": "Localized player name",
+    "content": "Tomáš",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 347.98,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "cs-CZ · 04",
+    "text": "Marketing headline",
+    "content": "OHLÉDNĚTE SE\nZA KAŽDÝM ZÁPASEM",
+    "fontSize": 92,
+    "width": 1000,
+    "shapedMaxLineWidth": 952.75,
+    "boxHeight": 250,
+    "estimatedHeight": 184
+  },
+  {
+    "frame": "cs-CZ · 05",
+    "text": "Marketing headline",
+    "content": "VAŠE PRAVIDLA\nVAŠE HRA",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 712.32,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "cs-CZ · 06",
+    "text": "Marketing headline",
+    "content": "HRY PRO VÍCE HRÁČŮ\nA DESKOVÉ HRY",
+    "fontSize": 94,
+    "width": 1000,
+    "shapedMaxLineWidth": 952.13,
+    "boxHeight": 250,
+    "estimatedHeight": 188
+  },
+  {
+    "frame": "cs-CZ · 07",
+    "text": "Marketing headline",
+    "content": "VAŠE TABULE\nNA VELKÉ OBRAZOVCE",
+    "fontSize": 90,
+    "width": 1000,
+    "shapedMaxLineWidth": 953.19,
+    "boxHeight": 250,
+    "estimatedHeight": 180
+  },
+  {
+    "frame": "da-DK · 01",
+    "text": "Center slogan",
+    "content": "HVERT\nPOINT\nTÆLLER",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 457.34,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "da-DK · 02",
+    "text": "Marketing headline",
+    "content": "ALLE RESULTATER\nMED ÉT BLIK",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 775.87,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "da-DK · 02",
+    "text": "Localized player name",
+    "content": "Mads",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 280.28,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "da-DK · 03",
+    "text": "Marketing headline",
+    "content": "ÉN MÅLTAVLE\nTIL OVER 26 SPORTSGRENE",
+    "fontSize": 78,
+    "width": 1000,
+    "shapedMaxLineWidth": 963.14,
+    "boxHeight": 250,
+    "estimatedHeight": 156
+  },
+  {
+    "frame": "da-DK · 03",
+    "text": "Localized player name",
+    "content": "Emil",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 211.22,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "da-DK · 04",
+    "text": "Marketing headline",
+    "content": "SE TILBAGE PÅ\nHVER KAMP",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 636.29,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "da-DK · 05",
+    "text": "Marketing headline",
+    "content": "DINE REGLER\nDIT SPIL",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 558.82,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "da-DK · 06",
+    "text": "Marketing headline",
+    "content": "FLERSPILLER-\nOG BRÆTSPIL",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 605.18,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "da-DK · 07",
+    "text": "Marketing headline",
+    "content": "DIN MÅLTAVLE\nPÅ DEN STORE SKÆRM",
+    "fontSize": 92,
+    "width": 1000,
+    "shapedMaxLineWidth": 967.38,
+    "boxHeight": 250,
+    "estimatedHeight": 184
+  },
+  {
+    "frame": "el-GR · 01",
+    "text": "Center slogan",
+    "content": "ΚΆΘΕ\nΠΌΝΤΟΣ\nΜΕΤΡΆΕΙ",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 555.36,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "el-GR · 02",
+    "text": "Marketing headline",
+    "content": "ΌΛΑ ΤΑ ΣΚΟΡ\nΜΕ ΜΙΑ ΜΑΤΙΆ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 630.14,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "el-GR · 02",
+    "text": "Localized player name",
+    "content": "Νίκος",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 284.02,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "el-GR · 03",
+    "text": "Marketing headline",
+    "content": "ΈΝΑΣ ΠΊΝΑΚΑΣ ΣΚΟΡ\nΓΙΑ ΠΆΝΩ ΑΠΌ 26 ΑΘΛΉΜΑΤΑ",
+    "fontSize": 72,
+    "width": 1000,
+    "shapedMaxLineWidth": 968.69,
+    "boxHeight": 250,
+    "estimatedHeight": 144
+  },
+  {
+    "frame": "el-GR · 03",
+    "text": "Localized player name",
+    "content": "Γιάννης",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 361.4,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "el-GR · 04",
+    "text": "Marketing headline",
+    "content": "ΞΑΝΑΔΕΊΤΕ\nΚΆΘΕ ΑΓΏΝΑ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 578.59,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "el-GR · 05",
+    "text": "Marketing headline",
+    "content": "ΟΙ ΚΑΝΌΝΕΣ ΣΑΣ\nΤΟ ΠΑΙΧΝΊΔΙ ΣΑΣ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 740.06,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "el-GR · 06",
+    "text": "Marketing headline",
+    "content": "ΠΑΙΧΝΊΔΙΑ ΓΙΑ ΠΟΛΛΟΎΣ\nΚΑΙ ΕΠΙΤΡΑΠΈΖΙΑ",
+    "fontSize": 84,
+    "width": 1000,
+    "shapedMaxLineWidth": 958.02,
+    "boxHeight": 250,
+    "estimatedHeight": 168
+  },
+  {
+    "frame": "el-GR · 07",
+    "text": "Marketing headline",
+    "content": "ΤΟ ΣΚΟΡ ΣΑΣ\nΣΤΗ ΜΕΓΆΛΗ ΟΘΌΝΗ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 917.86,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-AU · 01",
+    "text": "Center slogan",
+    "content": "EVERY\nPOINT\nCOUNTS",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 524.68,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "en-AU · 02",
+    "text": "Marketing headline",
+    "content": "SEE EVERY SCORE\nAT A GLANCE",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 784.7,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-AU · 02",
+    "text": "Localized player name",
+    "content": "Jack",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 242.22,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "en-AU · 03",
+    "text": "Marketing headline",
+    "content": "ONE SCOREBOARD\nFOR 26+ SPORTS",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 842.78,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-AU · 03",
+    "text": "Localized player name",
+    "content": "Oliver",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 289.74,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "en-AU · 04",
+    "text": "Marketing headline",
+    "content": "REVIEW\nEVERY MATCH",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 648.48,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-AU · 05",
+    "text": "Marketing headline",
+    "content": "SET YOUR RULES\nPLAY YOUR WAY",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 751.2,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-AU · 06",
+    "text": "Marketing headline",
+    "content": "MULTI-PLAYER &\nBOARD GAMES",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 753.79,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-AU · 07",
+    "text": "Marketing headline",
+    "content": "YOUR SCOREBOARD\nON THE BIG SCREEN",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 909.98,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-CA · 01",
+    "text": "Center slogan",
+    "content": "EVERY\nPOINT\nCOUNTS",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 524.68,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "en-CA · 02",
+    "text": "Marketing headline",
+    "content": "SEE EVERY SCORE\nAT A GLANCE",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 784.7,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-CA · 02",
+    "text": "Localized player name",
+    "content": "Noah",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 271.13,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "en-CA · 03",
+    "text": "Marketing headline",
+    "content": "ONE SCOREBOARD\nFOR 26+ SPORTS",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 842.78,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-CA · 03",
+    "text": "Localized player name",
+    "content": "Lucas",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 291.72,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "en-CA · 04",
+    "text": "Marketing headline",
+    "content": "REVIEW\nEVERY MATCH",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 648.48,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-CA · 05",
+    "text": "Marketing headline",
+    "content": "SET YOUR RULES\nPLAY YOUR WAY",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 751.2,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-CA · 06",
+    "text": "Marketing headline",
+    "content": "MULTI-PLAYER &\nBOARD GAMES",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 753.79,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-CA · 07",
+    "text": "Marketing headline",
+    "content": "YOUR SCOREBOARD\nON THE BIG SCREEN",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 909.98,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-GB · 01",
+    "text": "Center slogan",
+    "content": "EVERY\nPOINT\nCOUNTS",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 524.68,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "en-GB · 02",
+    "text": "Marketing headline",
+    "content": "SEE EVERY SCORE\nAT A GLANCE",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 784.7,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-GB · 02",
+    "text": "Localized player name",
+    "content": "Harry",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 277.47,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "en-GB · 03",
+    "text": "Marketing headline",
+    "content": "ONE SCOREBOARD\nFOR 26+ SPORTS",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 842.78,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-GB · 03",
+    "text": "Localized player name",
+    "content": "Oliver",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 289.74,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "en-GB · 04",
+    "text": "Marketing headline",
+    "content": "REVIEW\nEVERY MATCH",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 648.48,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-GB · 05",
+    "text": "Marketing headline",
+    "content": "SET YOUR RULES\nPLAY YOUR WAY",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 751.2,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-GB · 06",
+    "text": "Marketing headline",
+    "content": "MULTI-PLAYER &\nBOARD GAMES",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 753.79,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "en-GB · 07",
+    "text": "Marketing headline",
+    "content": "YOUR SCOREBOARD\nON THE BIG SCREEN",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 909.98,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "es-419 · 01",
+    "text": "Center slogan",
+    "content": "CADA\nPUNTO\nCUENTA",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 508.69,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "es-419 · 02",
+    "text": "Marketing headline",
+    "content": "TODO EL MARCADOR\nDE UN VISTAZO",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 942.34,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "es-419 · 02",
+    "text": "Localized player name",
+    "content": "Diego",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 289.95,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "es-419 · 03",
+    "text": "Marketing headline",
+    "content": "UN MARCADOR\nPARA MÁS DE 26 DEPORTES",
+    "fontSize": 76,
+    "width": 1000,
+    "shapedMaxLineWidth": 968.32,
+    "boxHeight": 250,
+    "estimatedHeight": 152
+  },
+  {
+    "frame": "es-419 · 03",
+    "text": "Localized player name",
+    "content": "Luis",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 191.15,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "es-419 · 04",
+    "text": "Marketing headline",
+    "content": "REVISA\nCADA PARTIDO",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 693.22,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "es-419 · 05",
+    "text": "Marketing headline",
+    "content": "TUS REGLAS\nTU FORMA DE JUGAR",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 938.02,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "es-419 · 06",
+    "text": "Marketing headline",
+    "content": "JUEGOS MULTIJUGADOR\nY DE MESA",
+    "fontSize": 84,
+    "width": 1000,
+    "shapedMaxLineWidth": 968.35,
+    "boxHeight": 250,
+    "estimatedHeight": 168
+  },
+  {
+    "frame": "es-419 · 07",
+    "text": "Marketing headline",
+    "content": "TU MARCADOR\nEN PANTALLA GRANDE",
+    "fontSize": 92,
+    "width": 1000,
+    "shapedMaxLineWidth": 962.6,
+    "boxHeight": 250,
+    "estimatedHeight": 184
+  },
+  {
+    "frame": "fi-FI · 01",
+    "text": "Center slogan",
+    "content": "JOKAINEN\nPISTE\nMERKITSEE",
+    "fontSize": 126,
+    "width": 680,
+    "shapedMaxLineWidth": 643.99,
+    "boxHeight": 520,
+    "estimatedHeight": 378
+  },
+  {
+    "frame": "fi-FI · 02",
+    "text": "Marketing headline",
+    "content": "KAIKKI TULOKSET\nYHDELLÄ SILMÄYKSELLÄ",
+    "fontSize": 86,
+    "width": 1000,
+    "shapedMaxLineWidth": 963.03,
+    "boxHeight": 250,
+    "estimatedHeight": 172
+  },
+  {
+    "frame": "fi-FI · 02",
+    "text": "Localized player name",
+    "content": "Eero",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 216.94,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "fi-FI · 03",
+    "text": "Marketing headline",
+    "content": "YKSI TULOSTAULU\nYLI 26 URHEILULAJIIN",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 930.05,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "fi-FI · 03",
+    "text": "Localized player name",
+    "content": "Mikko",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 295.67,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "fi-FI · 04",
+    "text": "Marketing headline",
+    "content": "PALAA\nJOKAISEEN OTTELUUN",
+    "fontSize": 92,
+    "width": 1000,
+    "shapedMaxLineWidth": 950.64,
+    "boxHeight": 250,
+    "estimatedHeight": 184
+  },
+  {
+    "frame": "fi-FI · 05",
+    "text": "Marketing headline",
+    "content": "SINUN SÄÄNTÖSI\nSINUN PELISI",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 772.22,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "fi-FI · 06",
+    "text": "Marketing headline",
+    "content": "MONINPELIT\nJA LAUTAPELIT",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 662.5,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "fi-FI · 07",
+    "text": "Marketing headline",
+    "content": "TULOSTAULUSI\nISOLLA NÄYTÖLLÄ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 802.85,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "fr-CA · 01",
+    "text": "Center slogan",
+    "content": "CHAQUE\nPOINT\nCOMPTE",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 531.57,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "fr-CA · 02",
+    "text": "Marketing headline",
+    "content": "TOUT LE POINTAGE\nEN UN COUP D’ŒIL",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 836.74,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "fr-CA · 02",
+    "text": "Localized player name",
+    "content": "Émile",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 271.75,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "fr-CA · 03",
+    "text": "Marketing headline",
+    "content": "26+ SPORTS\nUN TABLEAU DE SCORES",
+    "fontSize": 84,
+    "width": 1000,
+    "shapedMaxLineWidth": 939.54,
+    "boxHeight": 250,
+    "estimatedHeight": 168
+  },
+  {
+    "frame": "fr-CA · 03",
+    "text": "Localized player name",
+    "content": "Félix",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 218.71,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "fr-CA · 04",
+    "text": "Marketing headline",
+    "content": "REVIVEZ\nCHAQUE MATCH",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 753.5,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "fr-CA · 05",
+    "text": "Marketing headline",
+    "content": "VOS RÈGLES\nVOTRE FAÇON DE JOUER",
+    "fontSize": 84,
+    "width": 1000,
+    "shapedMaxLineWidth": 961.13,
+    "boxHeight": 250,
+    "estimatedHeight": 168
+  },
+  {
+    "frame": "fr-CA · 06",
+    "text": "Marketing headline",
+    "content": "JEUX MULTIJOUEURS\nET JEUX DE SOCIÉTÉ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 939.36,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "fr-CA · 07",
+    "text": "Marketing headline",
+    "content": "VOTRE POINTAGE\nSUR GRAND ÉCRAN",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 866.4,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "gu · 01",
+    "text": "Center slogan",
+    "content": "દરેક પોઇન્ટ\nમહત્વનો છે",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 551.46,
+    "boxHeight": 520,
+    "estimatedHeight": 299.0
+  },
+  {
+    "frame": "gu · 02",
+    "text": "Marketing headline",
+    "content": "બધો સ્કોર\nએક નજરમાં",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 445.15,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "gu · 02",
+    "text": "Localized player name",
+    "content": "જય",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 155.17,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "gu · 03",
+    "text": "Marketing headline",
+    "content": "એક સ્કોરબોર્ડ\n26થી વધુ રમતો માટે",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 729.41,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "gu · 03",
+    "text": "Localized player name",
+    "content": "અર્જુન",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 246.27,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "gu · 04",
+    "text": "Marketing headline",
+    "content": "દરેક મેચ\nફરી જુઓ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 354.34,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "gu · 05",
+    "text": "Marketing headline",
+    "content": "તમારા નિયમો\nતમારી રમત",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 483.94,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "gu · 06",
+    "text": "Marketing headline",
+    "content": "ઘણા ખેલાડીઓની રમતો\nઅને બોર્ડ ગેમ્સ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 877.44,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "gu · 07",
+    "text": "Marketing headline",
+    "content": "તમારું સ્કોરબોર્ડ\nમોટી સ્ક્રીન પર",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 573.31,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "iw-IL · 01",
+    "text": "Center slogan",
+    "content": "כל נקודה\nנחשבת",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 514.67,
+    "boxHeight": 520,
+    "estimatedHeight": 299.0
+  },
+  {
+    "frame": "iw-IL · 02",
+    "text": "Marketing headline",
+    "content": "כל התוצאות\nבמבט אחד",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 517.92,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "iw-IL · 02",
+    "text": "Localized player name",
+    "content": "דניאל",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 256.15,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "iw-IL · 03",
+    "text": "Marketing headline",
+    "content": "לוח תוצאות אחד\nליותר מ-26 ענפי ספורט",
+    "fontSize": 94,
+    "width": 1000,
+    "shapedMaxLineWidth": 966.32,
+    "boxHeight": 250,
+    "estimatedHeight": 216.2
+  },
+  {
+    "frame": "iw-IL · 03",
+    "text": "Localized player name",
+    "content": "יונתן",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 217.98,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "iw-IL · 04",
+    "text": "Marketing headline",
+    "content": "חוזרים\nלכל משחק",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 452.93,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "iw-IL · 05",
+    "text": "Marketing headline",
+    "content": "הכללים שלכם\nהמשחק שלכם",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 605.66,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "iw-IL · 06",
+    "text": "Marketing headline",
+    "content": "משחקים מרובי משתתפים\nומשחקי קופסה",
+    "fontSize": 84,
+    "width": 1000,
+    "shapedMaxLineWidth": 959.78,
+    "boxHeight": 250,
+    "estimatedHeight": 193.2
+  },
+  {
+    "frame": "iw-IL · 07",
+    "text": "Marketing headline",
+    "content": "לוח התוצאות שלכם\nעל המסך הגדול",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 836.45,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "hr · 01",
+    "text": "Center slogan",
+    "content": "SVAKI\nBOD\nVRIJEDI",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 469.04,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "hr · 02",
+    "text": "Marketing headline",
+    "content": "SVI REZULTATI\nNA PRVI POGLED",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 740.54,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "hr · 02",
+    "text": "Localized player name",
+    "content": "Luka",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 236.81,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "hr · 03",
+    "text": "Marketing headline",
+    "content": "JEDAN SEMAFOR\nZA VIŠE OD 26 SPORTOVA",
+    "fontSize": 80,
+    "width": 1000,
+    "shapedMaxLineWidth": 956.72,
+    "boxHeight": 250,
+    "estimatedHeight": 160
+  },
+  {
+    "frame": "hr · 03",
+    "text": "Localized player name",
+    "content": "Ivan",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 219.54,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "hr · 04",
+    "text": "Marketing headline",
+    "content": "PREGLEDAJTE\nSVAKU UTAKMICU",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 832.99,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "hr · 05",
+    "text": "Marketing headline",
+    "content": "VAŠA PRAVILA\nVAŠA IGRA",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 664.7,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "hr · 06",
+    "text": "Marketing headline",
+    "content": "IGRE ZA VIŠE IGRAČA\nI DRUŠTVENE IGRE",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 938.78,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "hr · 07",
+    "text": "Marketing headline",
+    "content": "VAŠ SEMAFOR\nNA VELIKOM ZASLONU",
+    "fontSize": 92,
+    "width": 1000,
+    "shapedMaxLineWidth": 963.7,
+    "boxHeight": 250,
+    "estimatedHeight": 184
+  },
+  {
+    "frame": "hu-HU · 01",
+    "text": "Center slogan",
+    "content": "MINDEN\nPONT\nSZÁMÍT",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 495.3,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "hu-HU · 02",
+    "text": "Marketing headline",
+    "content": "MINDEN EREDMÉNY\nEGY PILLANTÁSRA",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 870.62,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "hu-HU · 02",
+    "text": "Localized player name",
+    "content": "Bence",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 312.0,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "hu-HU · 03",
+    "text": "Marketing headline",
+    "content": "EGY EREDMÉNYJELZŐ\nTÖBB MINT 26 SPORTHOZ",
+    "fontSize": 80,
+    "width": 1000,
+    "shapedMaxLineWidth": 947.2,
+    "boxHeight": 250,
+    "estimatedHeight": 160
+  },
+  {
+    "frame": "hu-HU · 03",
+    "text": "Localized player name",
+    "content": "Máté",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 257.61,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "hu-HU · 04",
+    "text": "Marketing headline",
+    "content": "NÉZZ VISSZA\nMINDEN MECCSET",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 815.81,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "hu-HU · 05",
+    "text": "Marketing headline",
+    "content": "A TE SZABÁLYAID\nA TE JÁTÉKOD",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 777.5,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "hu-HU · 06",
+    "text": "Marketing headline",
+    "content": "TÖBBJÁTÉKOS JÁTÉKOK\nÉS TÁRSASJÁTÉKOK",
+    "fontSize": 84,
+    "width": 1000,
+    "shapedMaxLineWidth": 963.9,
+    "boxHeight": 250,
+    "estimatedHeight": 168
+  },
+  {
+    "frame": "hu-HU · 07",
+    "text": "Marketing headline",
+    "content": "AZ EREDMÉNYJELZŐD\nNAGY KÉPERNYŐN",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 964.99,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "kn-IN · 01",
+    "text": "Center slogan",
+    "content": "ಪ್ರತಿ\nಅಂಕವೂ\nಮುಖ್ಯ",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 494.39,
+    "boxHeight": 520,
+    "estimatedHeight": 448.5
+  },
+  {
+    "frame": "kn-IN · 02",
+    "text": "Marketing headline",
+    "content": "ಎಲ್ಲ ಅಂಕಗಳು\nಒಂದೇ ನೋಟದಲ್ಲಿ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 747.07,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "kn-IN · 02",
+    "text": "Localized player name",
+    "content": "ಅರ್ಜುನ್",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 394.68,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "kn-IN · 03",
+    "text": "Marketing headline",
+    "content": "ಒಂದು ಸ್ಕೋರ್‌ಬೋರ್ಡ್\n26ಕ್ಕೂ ಹೆಚ್ಚು ಕ್ರೀಡೆಗಳಿಗೆ",
+    "fontSize": 94,
+    "width": 1000,
+    "shapedMaxLineWidth": 959.18,
+    "boxHeight": 250,
+    "estimatedHeight": 216.2
+  },
+  {
+    "frame": "kn-IN · 03",
+    "text": "Localized player name",
+    "content": "ಕಿರಣ್",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 266.66,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "kn-IN · 04",
+    "text": "Marketing headline",
+    "content": "ಪ್ರತಿ ಪಂದ್ಯವನ್ನು\nಮತ್ತೆ ನೋಡಿ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 638.4,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "kn-IN · 05",
+    "text": "Marketing headline",
+    "content": "ನಿಮ್ಮ ನಿಯಮಗಳು\nನಿಮ್ಮ ಆಟ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 753.7,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "kn-IN · 06",
+    "text": "Marketing headline",
+    "content": "ಬಹು ಆಟಗಾರರ ಆಟಗಳು\nಮತ್ತು ಬೋರ್ಡ್ ಆಟಗಳು",
+    "fontSize": 88,
+    "width": 1000,
+    "shapedMaxLineWidth": 953.66,
+    "boxHeight": 250,
+    "estimatedHeight": 202.4
+  },
+  {
+    "frame": "kn-IN · 07",
+    "text": "Marketing headline",
+    "content": "ನಿಮ್ಮ ಸ್ಕೋರ್‌ಬೋರ್ಡ್\nದೊಡ್ಡ ಪರದೆಯಲ್ಲಿ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 943.97,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ml-IN · 01",
+    "text": "Center slogan",
+    "content": "ഓരോ\nപോയിന്റും\nപ്രധാനമാണ്",
+    "fontSize": 96,
+    "width": 680,
+    "shapedMaxLineWidth": 644.74,
+    "boxHeight": 520,
+    "estimatedHeight": 331.2
+  },
+  {
+    "frame": "ml-IN · 02",
+    "text": "Marketing headline",
+    "content": "എല്ലാ സ്കോറുകളും\nഒറ്റനോട്ടത്തിൽ",
+    "fontSize": 88,
+    "width": 1000,
+    "shapedMaxLineWidth": 959.64,
+    "boxHeight": 250,
+    "estimatedHeight": 202.4
+  },
+  {
+    "frame": "ml-IN · 02",
+    "text": "Localized player name",
+    "content": "അർജുൻ",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 505.75,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "ml-IN · 03",
+    "text": "Marketing headline",
+    "content": "26+ കായിക ഇനങ്ങൾ\nഒരു സ്കോർബോർഡ്",
+    "fontSize": 82,
+    "width": 1000,
+    "shapedMaxLineWidth": 959.81,
+    "boxHeight": 250,
+    "estimatedHeight": 188.6
+  },
+  {
+    "frame": "ml-IN · 03",
+    "text": "Localized player name",
+    "content": "കിരൺ",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 392.08,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "ml-IN · 04",
+    "text": "Marketing headline",
+    "content": "ഓരോ മത്സരവും\nവീണ്ടും പരിശോധിക്കൂ",
+    "fontSize": 80,
+    "width": 1000,
+    "shapedMaxLineWidth": 951.36,
+    "boxHeight": 250,
+    "estimatedHeight": 184.0
+  },
+  {
+    "frame": "ml-IN · 05",
+    "text": "Marketing headline",
+    "content": "നിങ്ങളുടെ നിയമങ്ങൾ\nനിങ്ങളുടെ കളി",
+    "fontSize": 80,
+    "width": 1000,
+    "shapedMaxLineWidth": 960.8,
+    "boxHeight": 250,
+    "estimatedHeight": 184.0
+  },
+  {
+    "frame": "ml-IN · 06",
+    "text": "Marketing headline",
+    "content": "മൾട്ടിപ്ലെയർ\nബോർഡ് ഗെയിമുകളും",
+    "fontSize": 78,
+    "width": 1000,
+    "shapedMaxLineWidth": 963.85,
+    "boxHeight": 250,
+    "estimatedHeight": 179.4
+  },
+  {
+    "frame": "ml-IN · 07",
+    "text": "Marketing headline",
+    "content": "സ്കോർബോർഡ്\nവലിയ സ്ക്രീനിൽ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 902.21,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "mr-IN · 01",
+    "text": "Center slogan",
+    "content": "प्रत्येक गुण\nमहत्त्वाचा आहे",
+    "fontSize": 118,
+    "width": 680,
+    "shapedMaxLineWidth": 646.52,
+    "boxHeight": 520,
+    "estimatedHeight": 271.4
+  },
+  {
+    "frame": "mr-IN · 02",
+    "text": "Marketing headline",
+    "content": "संपूर्ण स्कोअर\nएका नजरेत",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 504.67,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "mr-IN · 02",
+    "text": "Localized player name",
+    "content": "अजय",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 229.01,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "mr-IN · 03",
+    "text": "Marketing headline",
+    "content": "एक स्कोअरबोर्ड\n26 हून अधिक खेळांसाठी",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 929.09,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "mr-IN · 03",
+    "text": "Localized player name",
+    "content": "राहुल",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 205.71,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "mr-IN · 04",
+    "text": "Marketing headline",
+    "content": "प्रत्येक सामना\nपुन्हा पाहा",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 502.27,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "mr-IN · 05",
+    "text": "Marketing headline",
+    "content": "तुमचे नियम\nतुमचा खेळ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 424.42,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "mr-IN · 06",
+    "text": "Marketing headline",
+    "content": "अनेक खेळाडूंचे गेम\nआणि बोर्ड गेम",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 703.58,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "mr-IN · 07",
+    "text": "Marketing headline",
+    "content": "तुमचा स्कोअरबोर्ड\nमोठ्या स्क्रीनवर",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 656.83,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ms-MY · 01",
+    "text": "Center slogan",
+    "content": "SETIAP\nMATA\nBERMAKNA",
+    "fontSize": 118,
+    "width": 680,
+    "shapedMaxLineWidth": 642.86,
+    "boxHeight": 520,
+    "estimatedHeight": 354
+  },
+  {
+    "frame": "ms-MY · 02",
+    "text": "Marketing headline",
+    "content": "SEMUA SKOR\nSEKILAS PANDANG",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 847.01,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "ms-MY · 02",
+    "text": "Localized player name",
+    "content": "Amir",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 243.46,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "ms-MY · 03",
+    "text": "Marketing headline",
+    "content": "SATU PAPAN SKOR\nUNTUK LEBIH 26 SUKAN",
+    "fontSize": 88,
+    "width": 1000,
+    "shapedMaxLineWidth": 959.38,
+    "boxHeight": 250,
+    "estimatedHeight": 176
+  },
+  {
+    "frame": "ms-MY · 03",
+    "text": "Localized player name",
+    "content": "Hakim",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 329.16,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "ms-MY · 04",
+    "text": "Marketing headline",
+    "content": "SEMAK SEMULA\nSETIAP PERLAWANAN",
+    "fontSize": 94,
+    "width": 1000,
+    "shapedMaxLineWidth": 953.35,
+    "boxHeight": 250,
+    "estimatedHeight": 188
+  },
+  {
+    "frame": "ms-MY · 05",
+    "text": "Marketing headline",
+    "content": "PERATURAN ANDA\nCARA PERMAINAN ANDA",
+    "fontSize": 82,
+    "width": 1000,
+    "shapedMaxLineWidth": 957.84,
+    "boxHeight": 250,
+    "estimatedHeight": 164
+  },
+  {
+    "frame": "ms-MY · 06",
+    "text": "Marketing headline",
+    "content": "BERBILANG PEMAIN\nDAN PAPAN PERMAINAN",
+    "fontSize": 84,
+    "width": 1000,
+    "shapedMaxLineWidth": 968.52,
+    "boxHeight": 250,
+    "estimatedHeight": 168
+  },
+  {
+    "frame": "ms-MY · 07",
+    "text": "Marketing headline",
+    "content": "PAPAN SKOR ANDA\nPADA SKRIN BESAR",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 878.98,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "no-NO · 01",
+    "text": "Center slogan",
+    "content": "HVERT\nPOENG\nTELLER",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 432.25,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "no-NO · 02",
+    "text": "Marketing headline",
+    "content": "ALLE RESULTATER\nMED ETT BLIKK",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 775.87,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "no-NO · 02",
+    "text": "Localized player name",
+    "content": "Ola",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 173.78,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "no-NO · 03",
+    "text": "Marketing headline",
+    "content": "ÉN RESULTATTAVLE\nFOR OVER 26 IDRETTER",
+    "fontSize": 92,
+    "width": 1000,
+    "shapedMaxLineWidth": 967.84,
+    "boxHeight": 250,
+    "estimatedHeight": 184
+  },
+  {
+    "frame": "no-NO · 03",
+    "text": "Localized player name",
+    "content": "Emil",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 211.22,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "no-NO · 04",
+    "text": "Marketing headline",
+    "content": "SE TILBAKE PÅ\nHVER KAMP",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 630.05,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "no-NO · 05",
+    "text": "Marketing headline",
+    "content": "DINE REGLER\nDITT SPILL",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 558.82,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "no-NO · 06",
+    "text": "Marketing headline",
+    "content": "FLERSPILLER-\nOG BRETTSPILL",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 661.25,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "no-NO · 07",
+    "text": "Marketing headline",
+    "content": "RESULTATTAVLEN DIN\nPÅ STORSKJERMEN",
+    "fontSize": 94,
+    "width": 1000,
+    "shapedMaxLineWidth": 954.48,
+    "boxHeight": 250,
+    "estimatedHeight": 188
+  },
+  {
+    "frame": "unsupported-or-IN · 01",
+    "text": "Center slogan",
+    "content": "ପ୍ରତ୍ୟେକ\nପଏଣ୍ଟ\nଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 510.12,
+    "boxHeight": 520,
+    "estimatedHeight": 448.5
+  },
+  {
+    "frame": "unsupported-or-IN · 02",
+    "text": "Marketing headline",
+    "content": "ସମସ୍ତ ସ୍କୋର\nଏକ ନଜରରେ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 527.52,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "unsupported-or-IN · 02",
+    "text": "Localized player name",
+    "content": "ଅର୍ଜୁନ",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 235.87,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "unsupported-or-IN · 03",
+    "text": "Marketing headline",
+    "content": "ଗୋଟିଏ ସ୍କୋରବୋର୍ଡ\n26ରୁ ଅଧିକ କ୍ରୀଡ଼ା ପାଇଁ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 863.42,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "unsupported-or-IN · 03",
+    "text": "Localized player name",
+    "content": "ରାହୁଲ",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 269.67,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "unsupported-or-IN · 04",
+    "text": "Marketing headline",
+    "content": "ପ୍ରତ୍ୟେକ ମ୍ୟାଚ୍\nପୁଣି ଦେଖନ୍ତୁ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 563.23,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "unsupported-or-IN · 05",
+    "text": "Marketing headline",
+    "content": "ଆପଣଙ୍କ ନିୟମ\nଆପଣଙ୍କ ଖେଳ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 581.76,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "unsupported-or-IN · 06",
+    "text": "Marketing headline",
+    "content": "ଏକାଧିକ ଖେଳାଳିଙ୍କ ଖେଳ\nଓ ବୋର୍ଡ ଖେଳ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 969.22,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "unsupported-or-IN · 07",
+    "text": "Marketing headline",
+    "content": "ଆପଣଙ୍କ ସ୍କୋରବୋର୍ଡ\nବଡ଼ ପରଦାରେ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 805.25,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "pa · 01",
+    "text": "Center slogan",
+    "content": "ਹਰ ਅੰਕ\nਮਾਇਨੇ ਰੱਖਦਾ ਹੈ",
+    "fontSize": 110,
+    "width": 680,
+    "shapedMaxLineWidth": 639.21,
+    "boxHeight": 520,
+    "estimatedHeight": 253.0
+  },
+  {
+    "frame": "pa · 02",
+    "text": "Marketing headline",
+    "content": "ਸਾਰਾ ਸਕੋਰ\nਇੱਕ ਨਜ਼ਰ ਵਿੱਚ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 544.22,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "pa · 02",
+    "text": "Localized player name",
+    "content": "ਅਮਨ",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 216.53,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "pa · 03",
+    "text": "Marketing headline",
+    "content": "ਇੱਕ ਸਕੋਰਬੋਰਡ\n26 ਤੋਂ ਵੱਧ ਖੇਡਾਂ ਲਈ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 685.73,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "pa · 03",
+    "text": "Localized player name",
+    "content": "ਅਰਜੁਨ",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 281.94,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "pa · 04",
+    "text": "Marketing headline",
+    "content": "ਹਰ ਮੈਚ\nਮੁੜ ਵੇਖੋ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 272.26,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "pa · 05",
+    "text": "Marketing headline",
+    "content": "ਤੁਹਾਡੇ ਨਿਯਮ\nਤੁਹਾਡੀ ਖੇਡ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 455.23,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "pa · 06",
+    "text": "Marketing headline",
+    "content": "ਕਈ ਖਿਡਾਰੀਆਂ ਵਾਲੀਆਂ ਗੇਮਾਂ\nਅਤੇ ਬੋਰਡ ਗੇਮਾਂ",
+    "fontSize": 88,
+    "width": 1000,
+    "shapedMaxLineWidth": 955.42,
+    "boxHeight": 250,
+    "estimatedHeight": 202.4
+  },
+  {
+    "frame": "pa · 07",
+    "text": "Marketing headline",
+    "content": "ਤੁਹਾਡਾ ਸਕੋਰਬੋਰਡ\nਵੱਡੀ ਸਕ੍ਰੀਨ ਉੱਤੇ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 620.54,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "pl-PL · 01",
+    "text": "Center slogan",
+    "content": "KAŻDY\nPUNKT\nSIĘ LICZY",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 543.92,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "pl-PL · 02",
+    "text": "Marketing headline",
+    "content": "WSZYSTKIE WYNIKI\nNA PIERWSZY RZUT OKA",
+    "fontSize": 84,
+    "width": 1000,
+    "shapedMaxLineWidth": 952.06,
+    "boxHeight": 250,
+    "estimatedHeight": 168
+  },
+  {
+    "frame": "pl-PL · 02",
+    "text": "Localized player name",
+    "content": "Jan",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 191.26,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "pl-PL · 03",
+    "text": "Marketing headline",
+    "content": "26+ DYSCYPLIN\nJEDNA TABLICA",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 719.18,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "pl-PL · 03",
+    "text": "Localized player name",
+    "content": "Piotr",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 226.3,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "pl-PL · 04",
+    "text": "Marketing headline",
+    "content": "WRÓĆ DO\nKAŻDEGO MECZU",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 785.18,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "pl-PL · 05",
+    "text": "Marketing headline",
+    "content": "TWOJE ZASADY\nTWOJA GRA",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 718.46,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "pl-PL · 06",
+    "text": "Marketing headline",
+    "content": "GRY WIELOOSOBOWE\nI PLANSZOWE",
+    "fontSize": 94,
+    "width": 1000,
+    "shapedMaxLineWidth": 956.36,
+    "boxHeight": 250,
+    "estimatedHeight": 188
+  },
+  {
+    "frame": "pl-PL · 07",
+    "text": "Marketing headline",
+    "content": "TWOJE WYNIKI\nNA DUŻYM EKRANIE",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 888.77,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "pt-PT · 01",
+    "text": "Center slogan",
+    "content": "CADA\nPONTO\nCONTA",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 453.44,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "pt-PT · 02",
+    "text": "Marketing headline",
+    "content": "TODO O MARCADOR\nNUM RELANCE",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 923.42,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "pt-PT · 02",
+    "text": "Localized player name",
+    "content": "João",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 251.58,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "pt-PT · 03",
+    "text": "Marketing headline",
+    "content": "UM MARCADOR\nPARA MAIS DE 26 DESPORTOS",
+    "fontSize": 70,
+    "width": 1000,
+    "shapedMaxLineWidth": 968.31,
+    "boxHeight": 250,
+    "estimatedHeight": 140
+  },
+  {
+    "frame": "pt-PT · 03",
+    "text": "Localized player name",
+    "content": "Miguel",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 336.54,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "pt-PT · 04",
+    "text": "Marketing headline",
+    "content": "REVÊ\nCADA PARTIDA",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 688.51,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "pt-PT · 05",
+    "text": "Marketing headline",
+    "content": "AS TUAS REGRAS\nA TUA FORMA DE JOGAR",
+    "fontSize": 84,
+    "width": 1000,
+    "shapedMaxLineWidth": 961.97,
+    "boxHeight": 250,
+    "estimatedHeight": 168
+  },
+  {
+    "frame": "pt-PT · 06",
+    "text": "Marketing headline",
+    "content": "JOGOS MULTIJOGADOR\nE DE TABULEIRO",
+    "fontSize": 86,
+    "width": 1000,
+    "shapedMaxLineWidth": 961.82,
+    "boxHeight": 250,
+    "estimatedHeight": 172
+  },
+  {
+    "frame": "pt-PT · 07",
+    "text": "Marketing headline",
+    "content": "O TEU MARCADOR\nNO GRANDE ECRÃ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 825.7,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "ro · 01",
+    "text": "Center slogan",
+    "content": "FIECARE\nPUNCT\nCONTEAZĂ",
+    "fontSize": 122,
+    "width": 680,
+    "shapedMaxLineWidth": 641.35,
+    "boxHeight": 520,
+    "estimatedHeight": 366
+  },
+  {
+    "frame": "ro · 02",
+    "text": "Marketing headline",
+    "content": "TOATE SCORURILE\nDINTR-O PRIVIRE",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 813.98,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "ro · 02",
+    "text": "Localized player name",
+    "content": "Andrei",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 330.62,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "ro · 03",
+    "text": "Marketing headline",
+    "content": "O SINGURĂ TABELĂ\nPENTRU PESTE 26 DE SPORTURI",
+    "fontSize": 68,
+    "width": 1000,
+    "shapedMaxLineWidth": 965.67,
+    "boxHeight": 250,
+    "estimatedHeight": 136
+  },
+  {
+    "frame": "ro · 03",
+    "text": "Localized player name",
+    "content": "Mihai",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 276.02,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "ro · 04",
+    "text": "Marketing headline",
+    "content": "REVINO LA\nFIECARE MECI",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 617.95,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "ro · 05",
+    "text": "Marketing headline",
+    "content": "REGULILE TALE\nJOCUL TĂU",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 634.27,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "ro · 06",
+    "text": "Marketing headline",
+    "content": "JOCURI MULTIPLAYER\nȘI DE SOCIETATE",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 969.79,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "ro · 07",
+    "text": "Marketing headline",
+    "content": "TABELA TA\nPE ECRANUL MARE",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 826.66,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "sk · 01",
+    "text": "Center slogan",
+    "content": "KAŽDÝ\nBOD\nSA POČÍTA",
+    "fontSize": 126,
+    "width": 680,
+    "shapedMaxLineWidth": 639.95,
+    "boxHeight": 520,
+    "estimatedHeight": 378
+  },
+  {
+    "frame": "sk · 02",
+    "text": "Marketing headline",
+    "content": "VŠETKY SKÓRE\nNA PRVÝ POHĽAD",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 796.9,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "sk · 02",
+    "text": "Localized player name",
+    "content": "Martin",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 325.83,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "sk · 03",
+    "text": "Marketing headline",
+    "content": "JEDNA TABUĽA\nPRE VIAC AKO 26 ŠPORTOV",
+    "fontSize": 76,
+    "width": 1000,
+    "shapedMaxLineWidth": 966.26,
+    "boxHeight": 250,
+    "estimatedHeight": 152
+  },
+  {
+    "frame": "sk · 03",
+    "text": "Localized player name",
+    "content": "Tomáš",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 347.98,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "sk · 04",
+    "text": "Marketing headline",
+    "content": "VRÁŤTE SA\nKU KAŽDÉMU ZÁPASU",
+    "fontSize": 94,
+    "width": 1000,
+    "shapedMaxLineWidth": 963.12,
+    "boxHeight": 250,
+    "estimatedHeight": 188
+  },
+  {
+    "frame": "sk · 05",
+    "text": "Marketing headline",
+    "content": "VAŠE PRAVIDLÁ\nVAŠA HRA",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 712.32,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "sk · 06",
+    "text": "Marketing headline",
+    "content": "HRY PRE VIACERÝCH\nA STOLOVÉ HRY",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 926.78,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "sk · 07",
+    "text": "Marketing headline",
+    "content": "VAŠA TABUĽA\nNA VEĽKEJ OBRAZOVKE",
+    "fontSize": 86,
+    "width": 1000,
+    "shapedMaxLineWidth": 955.89,
+    "boxHeight": 250,
+    "estimatedHeight": 172
+  },
+  {
+    "frame": "sl · 01",
+    "text": "Center slogan",
+    "content": "VSAKA\nTOČKA\nŠTEJE",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 446.29,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "sl · 02",
+    "text": "Marketing headline",
+    "content": "VSI REZULTATI\nNA PRVI POGLED",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 740.54,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "sl · 02",
+    "text": "Localized player name",
+    "content": "Luka",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 236.81,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "sl · 03",
+    "text": "Marketing headline",
+    "content": "EN SEMAFOR\nZA VEČ KOT 26 ŠPORTOV",
+    "fontSize": 82,
+    "width": 1000,
+    "shapedMaxLineWidth": 956.37,
+    "boxHeight": 250,
+    "estimatedHeight": 164
+  },
+  {
+    "frame": "sl · 03",
+    "text": "Localized player name",
+    "content": "Jan",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 191.26,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "sl · 04",
+    "text": "Marketing headline",
+    "content": "POGLEJTE NAZAJ\nNA VSAKO TEKMO",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 825.7,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "sl · 05",
+    "text": "Marketing headline",
+    "content": "VAŠA PRAVILA\nVAŠA IGRA",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 664.7,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "sl · 06",
+    "text": "Marketing headline",
+    "content": "IGRE ZA VEČ IGRALCEV\nIN NAMIZNE IGRE",
+    "fontSize": 90,
+    "width": 1000,
+    "shapedMaxLineWidth": 954.0,
+    "boxHeight": 250,
+    "estimatedHeight": 180
+  },
+  {
+    "frame": "sl · 07",
+    "text": "Marketing headline",
+    "content": "VAŠ SEMAFOR\nNA VELIKEM ZASLONU",
+    "fontSize": 94,
+    "width": 1000,
+    "shapedMaxLineWidth": 961.62,
+    "boxHeight": 250,
+    "estimatedHeight": 188
+  },
+  {
+    "frame": "sv-SE · 01",
+    "text": "Center slogan",
+    "content": "VARJE\nPOÄNG\nRÄKNAS",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 521.95,
+    "boxHeight": 520,
+    "estimatedHeight": 390
+  },
+  {
+    "frame": "sv-SE · 02",
+    "text": "Marketing headline",
+    "content": "ALLA RESULTAT\nMED EN BLICK",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 686.88,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "sv-SE · 02",
+    "text": "Localized player name",
+    "content": "Erik",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 176.07,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "sv-SE · 03",
+    "text": "Marketing headline",
+    "content": "EN RESULTATTAVLA\nFÖR ÖVER 26 SPORTER",
+    "fontSize": 92,
+    "width": 1000,
+    "shapedMaxLineWidth": 959.84,
+    "boxHeight": 250,
+    "estimatedHeight": 184
+  },
+  {
+    "frame": "sv-SE · 03",
+    "text": "Localized player name",
+    "content": "Johan",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 319.07,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "sv-SE · 04",
+    "text": "Marketing headline",
+    "content": "SE TILLBAKA PÅ\nVARJE MATCH",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 691.3,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "sv-SE · 05",
+    "text": "Marketing headline",
+    "content": "DINA REGLER\nDITT SPEL",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 577.63,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "sv-SE · 06",
+    "text": "Marketing headline",
+    "content": "FLERSPELARSPEL\nOCH BRÄDSPEL",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 737.18,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "sv-SE · 07",
+    "text": "Marketing headline",
+    "content": "DIN RESULTATTAVLA\nPÅ STORSKÄRMEN",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 924.77,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "ta-IN · 01",
+    "text": "Center slogan",
+    "content": "ஒவ்வொரு\nபுள்ளியும்\nமுக்கியம்",
+    "fontSize": 104,
+    "width": 680,
+    "shapedMaxLineWidth": 648.34,
+    "boxHeight": 520,
+    "estimatedHeight": 358.8
+  },
+  {
+    "frame": "ta-IN · 02",
+    "text": "Marketing headline",
+    "content": "அனைத்துப் புள்ளிகளும்\nஒரே பார்வையில்",
+    "fontSize": 68,
+    "width": 1000,
+    "shapedMaxLineWidth": 951.59,
+    "boxHeight": 250,
+    "estimatedHeight": 156.4
+  },
+  {
+    "frame": "ta-IN · 02",
+    "text": "Localized player name",
+    "content": "அருண்",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 423.8,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "ta-IN · 03",
+    "text": "Marketing headline",
+    "content": "26+ விளையாட்டுகள்\nஒரே ஸ்கோர்போர்டு",
+    "fontSize": 82,
+    "width": 1000,
+    "shapedMaxLineWidth": 950.95,
+    "boxHeight": 250,
+    "estimatedHeight": 188.6
+  },
+  {
+    "frame": "ta-IN · 03",
+    "text": "Localized player name",
+    "content": "கவின்",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 373.26,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "ta-IN · 04",
+    "text": "Marketing headline",
+    "content": "ஒவ்வொரு ஆட்டமும்\nமீண்டும் பாருங்கள்",
+    "fontSize": 82,
+    "width": 1000,
+    "shapedMaxLineWidth": 950.71,
+    "boxHeight": 250,
+    "estimatedHeight": 188.6
+  },
+  {
+    "frame": "ta-IN · 05",
+    "text": "Marketing headline",
+    "content": "உங்கள் விதிகள்\nஉங்கள் விளையாட்டு",
+    "fontSize": 78,
+    "width": 1000,
+    "shapedMaxLineWidth": 947.86,
+    "boxHeight": 250,
+    "estimatedHeight": 179.4
+  },
+  {
+    "frame": "ta-IN · 06",
+    "text": "Marketing headline",
+    "content": "மல்டிபிளேயர்\nபலகை விளையாட்டுகள்",
+    "fontSize": 68,
+    "width": 1000,
+    "shapedMaxLineWidth": 954.11,
+    "boxHeight": 250,
+    "estimatedHeight": 156.4
+  },
+  {
+    "frame": "ta-IN · 07",
+    "text": "Marketing headline",
+    "content": "உங்கள் ஸ்கோர்போர்டு\nபெரிய திரையில்",
+    "fontSize": 72,
+    "width": 1000,
+    "shapedMaxLineWidth": 955.01,
+    "boxHeight": 250,
+    "estimatedHeight": 165.6
+  },
+  {
+    "frame": "te-IN · 01",
+    "text": "Center slogan",
+    "content": "ప్రతి\nపాయింట్\nముఖ్యం",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 499.46,
+    "boxHeight": 520,
+    "estimatedHeight": 448.5
+  },
+  {
+    "frame": "te-IN · 02",
+    "text": "Marketing headline",
+    "content": "అన్ని స్కోర్లు\nఒక్క చూపులో",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 570.82,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "te-IN · 02",
+    "text": "Localized player name",
+    "content": "అర్జున్",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 267.9,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "te-IN · 03",
+    "text": "Marketing headline",
+    "content": "ఒకే స్కోర్‌బోర్డ్\n26కు పైగా క్రీడలకు",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 722.98,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "te-IN · 03",
+    "text": "Localized player name",
+    "content": "కిరణ్",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 212.26,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "te-IN · 04",
+    "text": "Marketing headline",
+    "content": "ప్రతి మ్యాచ్‌ను\nమళ్లీ చూడండి",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 564.86,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "te-IN · 05",
+    "text": "Marketing headline",
+    "content": "మీ నియమాలు\nమీ ఆట",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 588.29,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "te-IN · 06",
+    "text": "Marketing headline",
+    "content": "బహుళ ఆటగాళ్ల ఆటలు\nమరియు బోర్డు ఆటలు",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 948.58,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "te-IN · 07",
+    "text": "Marketing headline",
+    "content": "మీ స్కోర్‌బోర్డ్\nపెద్ద తెరపై",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 522.62,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "uk · 01",
+    "text": "Center slogan",
+    "content": "КОЖНЕ\nОЧКО\nВАЖЛИВЕ",
+    "fontSize": 120,
+    "width": 680,
+    "shapedMaxLineWidth": 649.2,
+    "boxHeight": 520,
+    "estimatedHeight": 360
+  },
+  {
+    "frame": "uk · 02",
+    "text": "Marketing headline",
+    "content": "УВЕСЬ РАХУНОК\nЗ ПЕРШОГО ПОГЛЯДУ",
+    "fontSize": 84,
+    "width": 1000,
+    "shapedMaxLineWidth": 960.88,
+    "boxHeight": 250,
+    "estimatedHeight": 168
+  },
+  {
+    "frame": "uk · 02",
+    "text": "Localized player name",
+    "content": "Андрій",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 380.43,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "uk · 03",
+    "text": "Marketing headline",
+    "content": "ОДНЕ ТАБЛО\nДЛЯ 26+ ВИДІВ СПОРТУ",
+    "fontSize": 78,
+    "width": 1000,
+    "shapedMaxLineWidth": 960.34,
+    "boxHeight": 250,
+    "estimatedHeight": 156
+  },
+  {
+    "frame": "uk · 03",
+    "text": "Localized player name",
+    "content": "Тарас",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 302.74,
+    "boxHeight": 168,
+    "estimatedHeight": 104
+  },
+  {
+    "frame": "uk · 04",
+    "text": "Marketing headline",
+    "content": "ПЕРЕГЛЯНЬТЕ\nКОЖЕН МАТЧ",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 705.89,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "uk · 05",
+    "text": "Marketing headline",
+    "content": "ВАШІ ПРАВИЛА\nВАША ГРА",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 803.04,
+    "boxHeight": 250,
+    "estimatedHeight": 192
+  },
+  {
+    "frame": "uk · 06",
+    "text": "Marketing headline",
+    "content": "ІГРИ ДЛЯ КОМПАНІЇ\nТА НАСТІЛЬНІ ІГРИ",
+    "fontSize": 92,
+    "width": 1000,
+    "shapedMaxLineWidth": 961.12,
+    "boxHeight": 250,
+    "estimatedHeight": 184
+  },
+  {
+    "frame": "uk · 07",
+    "text": "Marketing headline",
+    "content": "ВАШЕ ТАБЛО\nНА ВЕЛИКОМУ ЕКРАНІ",
+    "fontSize": 80,
+    "width": 1000,
+    "shapedMaxLineWidth": 953.28,
+    "boxHeight": 250,
+    "estimatedHeight": 160
+  },
+  {
+    "frame": "ur · 01",
+    "text": "Center slogan",
+    "content": "ہر پوائنٹ\nاہم ہے",
+    "fontSize": 130,
+    "width": 680,
+    "shapedMaxLineWidth": 523.38,
+    "boxHeight": 520,
+    "estimatedHeight": 299.0
+  },
+  {
+    "frame": "ur · 02",
+    "text": "Marketing headline",
+    "content": "پورا اسکور\nایک نظر میں",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 521.18,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ur · 02",
+    "text": "Localized player name",
+    "content": "احمد",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 211.85,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "ur · 03",
+    "text": "Marketing headline",
+    "content": "ایک اسکور بورڈ\n26 سے زیادہ کھیلوں کے لیے",
+    "fontSize": 84,
+    "width": 1000,
+    "shapedMaxLineWidth": 951.22,
+    "boxHeight": 250,
+    "estimatedHeight": 193.2
+  },
+  {
+    "frame": "ur · 03",
+    "text": "Localized player name",
+    "content": "علی",
+    "fontSize": 104,
+    "width": 760,
+    "shapedMaxLineWidth": 170.56,
+    "boxHeight": 168,
+    "estimatedHeight": 119.6
+  },
+  {
+    "frame": "ur · 04",
+    "text": "Marketing headline",
+    "content": "ہر میچ کا\nدوبارہ جائزہ لیں",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 639.94,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ur · 05",
+    "text": "Marketing headline",
+    "content": "آپ کے اصول\nآپ کا کھیل",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 512.83,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ur · 06",
+    "text": "Marketing headline",
+    "content": "کئی کھلاڑیوں کے کھیل\nاور بورڈ گیمز",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 899.23,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "ur · 07",
+    "text": "Marketing headline",
+    "content": "آپ کا اسکور بورڈ\nبڑی اسکرین پر",
+    "fontSize": 96,
+    "width": 1000,
+    "shapedMaxLineWidth": 695.81,
+    "boxHeight": 250,
+    "estimatedHeight": 220.8
+  },
+  {
+    "frame": "en-US · 06",
+    "text": "Basketball team name · 0",
+    "content": "Home",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 133.89,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "en-US · 06",
+    "text": "Basketball team name · 1",
+    "content": "Away",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 128.22,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "en-US · 07",
+    "text": "TV left name",
+    "content": "Home",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 133.89,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "en-US · 07",
+    "text": "TV right name",
+    "content": "Away",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 128.22,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "en-US · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Home",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 85.2,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "en-US · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Away",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 81.59,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "ja-JP · 06",
+    "text": "Basketball team name · 0",
+    "content": "ホーム",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 130.68,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ja-JP · 06",
+    "text": "Basketball team name · 1",
+    "content": "アウェイ",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 176.0,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ja-JP · 07",
+    "text": "TV left name",
+    "content": "ホーム",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 130.68,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ja-JP · 07",
+    "text": "TV right name",
+    "content": "アウェイ",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 176.0,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ja-JP · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "ホーム",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 83.16,
+    "boxHeight": 50,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "ja-JP · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "アウェイ",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 112.0,
+    "boxHeight": 60,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "ru-RU · 06",
+    "text": "Basketball team name · 0",
+    "content": "Хозяева",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 190.65,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "ru-RU · 06",
+    "text": "Basketball team name · 1",
+    "content": "Гости",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 127.86,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "ru-RU · 07",
+    "text": "TV left name",
+    "content": "Хозяева",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 190.65,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "ru-RU · 07",
+    "text": "TV right name",
+    "content": "Гости",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 127.86,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "ru-RU · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Хозяева",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 121.32,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "ru-RU · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Гости",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 81.37,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "ar · 06",
+    "text": "Basketball team name · 0",
+    "content": "المضيف",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 160.03,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ar · 06",
+    "text": "Basketball team name · 1",
+    "content": "الضيف",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 133.32,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ar · 07",
+    "text": "TV left name",
+    "content": "المضيف",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 160.03,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ar · 07",
+    "text": "TV right name",
+    "content": "الضيف",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 133.32,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ar · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "المضيف",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 101.84,
+    "boxHeight": 50,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "ar · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "الضيف",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 84.84,
+    "boxHeight": 60,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "ko-KR · 06",
+    "text": "Basketball team name · 0",
+    "content": "홈팀",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 80.96,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ko-KR · 06",
+    "text": "Basketball team name · 1",
+    "content": "원정팀",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 121.44,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ko-KR · 07",
+    "text": "TV left name",
+    "content": "홈팀",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 80.96,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ko-KR · 07",
+    "text": "TV right name",
+    "content": "원정팀",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 121.44,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ko-KR · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "홈팀",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 51.52,
+    "boxHeight": 50,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "ko-KR · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "원정팀",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 77.28,
+    "boxHeight": 60,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "de-DE · 06",
+    "text": "Basketball team name · 0",
+    "content": "Heim",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 118.84,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "de-DE · 06",
+    "text": "Basketball team name · 1",
+    "content": "Gast",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 105.82,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "de-DE · 07",
+    "text": "TV left name",
+    "content": "Heim",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 118.84,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "de-DE · 07",
+    "text": "TV right name",
+    "content": "Gast",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 105.82,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "de-DE · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Heim",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 75.63,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "de-DE · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Gast",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 67.34,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "fr-FR · 06",
+    "text": "Basketball team name · 0",
+    "content": "Domicile",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 199.28,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "fr-FR · 06",
+    "text": "Basketball team name · 1",
+    "content": "Extérieur",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 202.05,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "fr-FR · 07",
+    "text": "TV left name",
+    "content": "Domicile",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 199.28,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "fr-FR · 07",
+    "text": "TV right name",
+    "content": "Extérieur",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 202.05,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "fr-FR · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Domicile",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 126.81,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "fr-FR · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Extérieur",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 128.58,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "es-ES · 06",
+    "text": "Basketball team name · 0",
+    "content": "Local",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 118.49,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "es-ES · 06",
+    "text": "Basketball team name · 1",
+    "content": "Visitante",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 205.0,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "es-ES · 07",
+    "text": "TV left name",
+    "content": "Local",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 118.49,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "es-ES · 07",
+    "text": "TV right name",
+    "content": "Visitante",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 205.0,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "es-ES · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Local",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 75.4,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "es-ES · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Visitante",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 130.45,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "pt-BR · 06",
+    "text": "Basketball team name · 0",
+    "content": "Mandante",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 234.3,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "pt-BR · 06",
+    "text": "Basketball team name · 1",
+    "content": "Visitante",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 205.0,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "pt-BR · 07",
+    "text": "TV left name",
+    "content": "Mandante",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 234.3,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "pt-BR · 07",
+    "text": "TV right name",
+    "content": "Visitante",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 205.0,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "pt-BR · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Mandante",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 149.1,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "pt-BR · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Visitante",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 130.45,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "it-IT · 06",
+    "text": "Basketball team name · 0",
+    "content": "Casa",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 117.83,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "it-IT · 06",
+    "text": "Basketball team name · 1",
+    "content": "Trasferta",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 208.78,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "it-IT · 07",
+    "text": "TV left name",
+    "content": "Casa",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 117.83,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "it-IT · 07",
+    "text": "TV right name",
+    "content": "Trasferta",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 208.78,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "it-IT · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Casa",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 74.98,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "it-IT · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Trasferta",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 132.86,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "hi-IN · 06",
+    "text": "Basketball team name · 0",
+    "content": "मेज़बान",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 126.5,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "hi-IN · 06",
+    "text": "Basketball team name · 1",
+    "content": "मेहमान",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 118.32,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "hi-IN · 07",
+    "text": "TV left name",
+    "content": "मेज़बान",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 126.5,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "hi-IN · 07",
+    "text": "TV right name",
+    "content": "मेहमान",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 118.32,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "hi-IN · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "मेज़बान",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 80.5,
+    "boxHeight": 50,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "hi-IN · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "मेहमान",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 75.29,
+    "boxHeight": 60,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "nl-NL · 06",
+    "text": "Basketball team name · 0",
+    "content": "Thuis",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 122.85,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "nl-NL · 06",
+    "text": "Basketball team name · 1",
+    "content": "Uit",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 61.86,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "nl-NL · 07",
+    "text": "TV left name",
+    "content": "Thuis",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 122.85,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "nl-NL · 07",
+    "text": "TV right name",
+    "content": "Uit",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 61.86,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "nl-NL · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Thuis",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 78.18,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "nl-NL · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Uit",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 39.37,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "tr-TR · 06",
+    "text": "Basketball team name · 0",
+    "content": "Ev Sahibi",
+    "fontSize": 43,
+    "width": 280,
+    "shapedMaxLineWidth": 198.49,
+    "boxHeight": 65,
+    "estimatedHeight": 43
+  },
+  {
+    "frame": "tr-TR · 06",
+    "text": "Basketball team name · 1",
+    "content": "Deplasman",
+    "fontSize": 43,
+    "width": 280,
+    "shapedMaxLineWidth": 256.54,
+    "boxHeight": 65,
+    "estimatedHeight": 43
+  },
+  {
+    "frame": "tr-TR · 07",
+    "text": "TV left name",
+    "content": "Ev Sahibi",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 203.1,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "tr-TR · 07",
+    "text": "TV right name",
+    "content": "Deplasman",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 262.5,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "tr-TR · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Ev Sahibi",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 129.25,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "tr-TR · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Deplasman",
+    "fontSize": 25,
+    "width": 174,
+    "shapedMaxLineWidth": 149.15,
+    "boxHeight": 60,
+    "estimatedHeight": 25
+  },
+  {
+    "frame": "id · 06",
+    "text": "Basketball team name · 0",
+    "content": "Tuan Rumah",
+    "fontSize": 39,
+    "width": 280,
+    "shapedMaxLineWidth": 256.15,
+    "boxHeight": 65,
+    "estimatedHeight": 39
+  },
+  {
+    "frame": "id · 06",
+    "text": "Basketball team name · 1",
+    "content": "Tandang",
+    "fontSize": 39,
+    "width": 280,
+    "shapedMaxLineWidth": 181.54,
+    "boxHeight": 65,
+    "estimatedHeight": 39
+  },
+  {
+    "frame": "id · 07",
+    "text": "TV left name",
+    "content": "Tuan Rumah",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 288.99,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "id · 07",
+    "text": "TV right name",
+    "content": "Tandang",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 204.82,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "id · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Tuan Rumah",
+    "fontSize": 24,
+    "width": 180,
+    "shapedMaxLineWidth": 157.63,
+    "boxHeight": 50,
+    "estimatedHeight": 24
+  },
+  {
+    "frame": "id · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Tandang",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 130.34,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "vi · 06",
+    "text": "Basketball team name · 0",
+    "content": "Chủ nhà",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 177.54,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "vi · 06",
+    "text": "Basketball team name · 1",
+    "content": "Khách",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 132.44,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "vi · 07",
+    "text": "TV left name",
+    "content": "Chủ nhà",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 177.54,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "vi · 07",
+    "text": "TV right name",
+    "content": "Khách",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 132.44,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "vi · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Chủ nhà",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 112.98,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "vi · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Khách",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 84.28,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "th · 06",
+    "text": "Basketball team name · 0",
+    "content": "เหย้า",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 86.59,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "th · 06",
+    "text": "Basketball team name · 1",
+    "content": "เยือน",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 93.81,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "th · 07",
+    "text": "TV left name",
+    "content": "เหย้า",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 86.59,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "th · 07",
+    "text": "TV right name",
+    "content": "เยือน",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 93.81,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "th · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "เหย้า",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 55.1,
+    "boxHeight": 50,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "th · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "เยือน",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 59.7,
+    "boxHeight": 60,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "bn-BD · 06",
+    "text": "Basketball team name · 0",
+    "content": "স্বাগতিক",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 150.0,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "bn-BD · 06",
+    "text": "Basketball team name · 1",
+    "content": "অতিথি",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 125.58,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "bn-BD · 07",
+    "text": "TV left name",
+    "content": "স্বাগতিক",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 150.0,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "bn-BD · 07",
+    "text": "TV right name",
+    "content": "অতিথি",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 125.58,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "bn-BD · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "স্বাগতিক",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 95.45,
+    "boxHeight": 50,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "bn-BD · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "অতিথি",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 79.91,
+    "boxHeight": 60,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "ca · 06",
+    "text": "Basketball team name · 0",
+    "content": "Local",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 118.49,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "ca · 06",
+    "text": "Basketball team name · 1",
+    "content": "Visitant",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 177.89,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "ca · 07",
+    "text": "TV left name",
+    "content": "Local",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 118.49,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "ca · 07",
+    "text": "TV right name",
+    "content": "Visitant",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 177.89,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "ca · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Local",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 75.4,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "ca · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Visitant",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 113.2,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "cs-CZ · 06",
+    "text": "Basketball team name · 0",
+    "content": "Domácí",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 177.23,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "cs-CZ · 06",
+    "text": "Basketball team name · 1",
+    "content": "Hosté",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 129.71,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "cs-CZ · 07",
+    "text": "TV left name",
+    "content": "Domácí",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 177.23,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "cs-CZ · 07",
+    "text": "TV right name",
+    "content": "Hosté",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 129.71,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "cs-CZ · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Domácí",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 112.78,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "cs-CZ · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Hosté",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 82.54,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "da-DK · 06",
+    "text": "Basketball team name · 0",
+    "content": "Hjemme",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 192.5,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "da-DK · 06",
+    "text": "Basketball team name · 1",
+    "content": "Ude",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 88.0,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "da-DK · 07",
+    "text": "TV left name",
+    "content": "Hjemme",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 192.5,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "da-DK · 07",
+    "text": "TV right name",
+    "content": "Ude",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 88.0,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "da-DK · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Hjemme",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 122.5,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "da-DK · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Ude",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 56.0,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "el-GR · 06",
+    "text": "Basketball team name · 0",
+    "content": "Γηπεδούχοι",
+    "fontSize": 33,
+    "width": 280,
+    "shapedMaxLineWidth": 188.83,
+    "boxHeight": 65,
+    "estimatedHeight": 33
+  },
+  {
+    "frame": "el-GR · 06",
+    "text": "Basketball team name · 1",
+    "content": "Φιλοξενούμενοι",
+    "fontSize": 33,
+    "width": 280,
+    "shapedMaxLineWidth": 258.92,
+    "boxHeight": 65,
+    "estimatedHeight": 33
+  },
+  {
+    "frame": "el-GR · 07",
+    "text": "TV left name",
+    "content": "Γηπεδούχοι",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 251.77,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "el-GR · 07",
+    "text": "TV right name",
+    "content": "Φιλοξενούμενοι",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 345.22,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "el-GR · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Γηπεδούχοι",
+    "fontSize": 27,
+    "width": 180,
+    "shapedMaxLineWidth": 154.49,
+    "boxHeight": 50,
+    "estimatedHeight": 27
+  },
+  {
+    "frame": "el-GR · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Φιλοξενούμενοι",
+    "fontSize": 19,
+    "width": 174,
+    "shapedMaxLineWidth": 149.07,
+    "boxHeight": 60,
+    "estimatedHeight": 19
+  },
+  {
+    "frame": "en-AU · 06",
+    "text": "Basketball team name · 0",
+    "content": "Home",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 133.89,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "en-AU · 06",
+    "text": "Basketball team name · 1",
+    "content": "Away",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 128.22,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "en-AU · 07",
+    "text": "TV left name",
+    "content": "Home",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 133.89,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "en-AU · 07",
+    "text": "TV right name",
+    "content": "Away",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 128.22,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "en-AU · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Home",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 85.2,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "en-AU · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Away",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 81.59,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "en-CA · 06",
+    "text": "Basketball team name · 0",
+    "content": "Home",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 133.89,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "en-CA · 06",
+    "text": "Basketball team name · 1",
+    "content": "Away",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 128.22,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "en-CA · 07",
+    "text": "TV left name",
+    "content": "Home",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 133.89,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "en-CA · 07",
+    "text": "TV right name",
+    "content": "Away",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 128.22,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "en-CA · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Home",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 85.2,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "en-CA · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Away",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 81.59,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "en-GB · 06",
+    "text": "Basketball team name · 0",
+    "content": "Home",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 133.89,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "en-GB · 06",
+    "text": "Basketball team name · 1",
+    "content": "Away",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 128.22,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "en-GB · 07",
+    "text": "TV left name",
+    "content": "Home",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 133.89,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "en-GB · 07",
+    "text": "TV right name",
+    "content": "Away",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 128.22,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "en-GB · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Home",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 85.2,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "en-GB · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Away",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 81.59,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "es-419 · 06",
+    "text": "Basketball team name · 0",
+    "content": "Local",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 118.49,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "es-419 · 06",
+    "text": "Basketball team name · 1",
+    "content": "Visitante",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 205.0,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "es-419 · 07",
+    "text": "TV left name",
+    "content": "Local",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 118.49,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "es-419 · 07",
+    "text": "TV right name",
+    "content": "Visitante",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 205.0,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "es-419 · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Local",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 75.4,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "es-419 · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Visitante",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 130.45,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "fi-FI · 06",
+    "text": "Basketball team name · 0",
+    "content": "Koti",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 89.54,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "fi-FI · 06",
+    "text": "Basketball team name · 1",
+    "content": "Vieras",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 145.46,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "fi-FI · 07",
+    "text": "TV left name",
+    "content": "Koti",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 89.54,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "fi-FI · 07",
+    "text": "TV right name",
+    "content": "Vieras",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 145.46,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "fi-FI · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Koti",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 56.98,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "fi-FI · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Vieras",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 92.57,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "fr-CA · 06",
+    "text": "Basketball team name · 0",
+    "content": "Domicile",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 199.28,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "fr-CA · 06",
+    "text": "Basketball team name · 1",
+    "content": "Visiteurs",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 200.64,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "fr-CA · 07",
+    "text": "TV left name",
+    "content": "Domicile",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 199.28,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "fr-CA · 07",
+    "text": "TV right name",
+    "content": "Visiteurs",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 200.64,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "fr-CA · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Domicile",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 126.81,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "fr-CA · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Visiteurs",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 127.68,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "gu · 06",
+    "text": "Basketball team name · 0",
+    "content": "યજમાન",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 130.9,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "gu · 06",
+    "text": "Basketball team name · 1",
+    "content": "મહેમાન",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 121.09,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "gu · 07",
+    "text": "TV left name",
+    "content": "યજમાન",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 130.9,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "gu · 07",
+    "text": "TV right name",
+    "content": "મહેમાન",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 121.09,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "gu · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "યજમાન",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 83.3,
+    "boxHeight": 50,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "gu · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "મહેમાન",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 77.06,
+    "boxHeight": 60,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "iw-IL · 06",
+    "text": "Basketball team name · 0",
+    "content": "בית",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 70.22,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "iw-IL · 06",
+    "text": "Basketball team name · 1",
+    "content": "חוץ",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 69.17,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "iw-IL · 07",
+    "text": "TV left name",
+    "content": "בית",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 70.22,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "iw-IL · 07",
+    "text": "TV right name",
+    "content": "חוץ",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 69.17,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "iw-IL · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "בית",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 44.69,
+    "boxHeight": 50,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "iw-IL · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "חוץ",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 44.02,
+    "boxHeight": 60,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "hr · 06",
+    "text": "Basketball team name · 0",
+    "content": "Domaći",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 176.09,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "hr · 06",
+    "text": "Basketball team name · 1",
+    "content": "Gosti",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 116.95,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "hr · 07",
+    "text": "TV left name",
+    "content": "Domaći",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 176.09,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "hr · 07",
+    "text": "TV right name",
+    "content": "Gosti",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 116.95,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "hr · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Domaći",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 112.06,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "hr · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Gosti",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 74.42,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "hu-HU · 06",
+    "text": "Basketball team name · 0",
+    "content": "Hazai",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 126.72,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "hu-HU · 06",
+    "text": "Basketball team name · 1",
+    "content": "Vendég",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 175.74,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "hu-HU · 07",
+    "text": "TV left name",
+    "content": "Hazai",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 126.72,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "hu-HU · 07",
+    "text": "TV right name",
+    "content": "Vendég",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 175.74,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "hu-HU · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Hazai",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 80.64,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "hu-HU · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Vendég",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 111.83,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "kn-IN · 06",
+    "text": "Basketball team name · 0",
+    "content": "ಆತಿಥೇಯ",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 183.57,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "kn-IN · 06",
+    "text": "Basketball team name · 1",
+    "content": "ಅತಿಥಿ",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 104.46,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "kn-IN · 07",
+    "text": "TV left name",
+    "content": "ಆತಿಥೇಯ",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 183.57,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "kn-IN · 07",
+    "text": "TV right name",
+    "content": "ಅತಿಥಿ",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 104.46,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "kn-IN · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "ಆತಿಥೇಯ",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 116.82,
+    "boxHeight": 50,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "kn-IN · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "ಅತಿಥಿ",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 66.47,
+    "boxHeight": 60,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "ml-IN · 06",
+    "text": "Basketball team name · 0",
+    "content": "ആതിഥേയ",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 254.89,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ml-IN · 06",
+    "text": "Basketball team name · 1",
+    "content": "അതിഥി",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 182.56,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ml-IN · 07",
+    "text": "TV left name",
+    "content": "ആതിഥേയ",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 254.89,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ml-IN · 07",
+    "text": "TV right name",
+    "content": "അതിഥി",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 182.56,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ml-IN · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "ആതിഥേയ",
+    "fontSize": 27,
+    "width": 180,
+    "shapedMaxLineWidth": 156.41,
+    "boxHeight": 50,
+    "estimatedHeight": 31.05
+  },
+  {
+    "frame": "ml-IN · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "അതിഥി",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 116.17,
+    "boxHeight": 60,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "mr-IN · 06",
+    "text": "Basketball team name · 0",
+    "content": "यजमान",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 127.07,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "mr-IN · 06",
+    "text": "Basketball team name · 1",
+    "content": "पाहुणे",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 97.02,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "mr-IN · 07",
+    "text": "TV left name",
+    "content": "यजमान",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 127.07,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "mr-IN · 07",
+    "text": "TV right name",
+    "content": "पाहुणे",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 97.02,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "mr-IN · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "यजमान",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 80.86,
+    "boxHeight": 50,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "mr-IN · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "पाहुणे",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 61.74,
+    "boxHeight": 60,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "ms-MY · 06",
+    "text": "Basketball team name · 0",
+    "content": "Tuan Rumah",
+    "fontSize": 39,
+    "width": 280,
+    "shapedMaxLineWidth": 256.15,
+    "boxHeight": 65,
+    "estimatedHeight": 39
+  },
+  {
+    "frame": "ms-MY · 06",
+    "text": "Basketball team name · 1",
+    "content": "Pelawat",
+    "fontSize": 39,
+    "width": 280,
+    "shapedMaxLineWidth": 162.44,
+    "boxHeight": 65,
+    "estimatedHeight": 39
+  },
+  {
+    "frame": "ms-MY · 07",
+    "text": "TV left name",
+    "content": "Tuan Rumah",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 288.99,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "ms-MY · 07",
+    "text": "TV right name",
+    "content": "Pelawat",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 183.26,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "ms-MY · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Tuan Rumah",
+    "fontSize": 24,
+    "width": 180,
+    "shapedMaxLineWidth": 157.63,
+    "boxHeight": 50,
+    "estimatedHeight": 24
+  },
+  {
+    "frame": "ms-MY · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Pelawat",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 116.62,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "no-NO · 06",
+    "text": "Basketball team name · 0",
+    "content": "Hjemme",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 192.5,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "no-NO · 06",
+    "text": "Basketball team name · 1",
+    "content": "Borte",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 120.82,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "no-NO · 07",
+    "text": "TV left name",
+    "content": "Hjemme",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 192.5,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "no-NO · 07",
+    "text": "TV right name",
+    "content": "Borte",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 120.82,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "no-NO · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Hjemme",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 122.5,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "no-NO · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Borte",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 76.89,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "unsupported-or-IN · 06",
+    "text": "Basketball team name · 0",
+    "content": "ଆୟୋଜକ",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 185.33,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "unsupported-or-IN · 06",
+    "text": "Basketball team name · 1",
+    "content": "ଅତିଥି",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 97.99,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "unsupported-or-IN · 07",
+    "text": "TV left name",
+    "content": "ଆୟୋଜକ",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 185.33,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "unsupported-or-IN · 07",
+    "text": "TV right name",
+    "content": "ଅତିଥି",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 97.99,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "unsupported-or-IN · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "ଆୟୋଜକ",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 117.94,
+    "boxHeight": 50,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "unsupported-or-IN · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "ଅତିଥି",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 62.36,
+    "boxHeight": 60,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "pa · 06",
+    "text": "Basketball team name · 0",
+    "content": "ਮੇਜ਼ਬਾਨ",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 124.83,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "pa · 06",
+    "text": "Basketball team name · 1",
+    "content": "ਮਹਿਮਾਨ",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 133.85,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "pa · 07",
+    "text": "TV left name",
+    "content": "ਮੇਜ਼ਬਾਨ",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 124.83,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "pa · 07",
+    "text": "TV right name",
+    "content": "ਮਹਿਮਾਨ",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 133.85,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "pa · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "ਮੇਜ਼ਬਾਨ",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 79.44,
+    "boxHeight": 50,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "pa · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "ਮਹਿਮਾਨ",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 85.18,
+    "boxHeight": 60,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "pl-PL · 06",
+    "text": "Basketball team name · 0",
+    "content": "Gospodarze",
+    "fontSize": 42,
+    "width": 280,
+    "shapedMaxLineWidth": 259.18,
+    "boxHeight": 65,
+    "estimatedHeight": 42
+  },
+  {
+    "frame": "pl-PL · 06",
+    "text": "Basketball team name · 1",
+    "content": "Goście",
+    "fontSize": 42,
+    "width": 280,
+    "shapedMaxLineWidth": 145.87,
+    "boxHeight": 65,
+    "estimatedHeight": 42
+  },
+  {
+    "frame": "pl-PL · 07",
+    "text": "TV left name",
+    "content": "Gospodarze",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 271.52,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "pl-PL · 07",
+    "text": "TV right name",
+    "content": "Goście",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 152.81,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "pl-PL · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Gospodarze",
+    "fontSize": 25,
+    "width": 180,
+    "shapedMaxLineWidth": 154.28,
+    "boxHeight": 50,
+    "estimatedHeight": 25
+  },
+  {
+    "frame": "pl-PL · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Goście",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 97.24,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "pt-PT · 06",
+    "text": "Basketball team name · 0",
+    "content": "Casa",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 117.83,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "pt-PT · 06",
+    "text": "Basketball team name · 1",
+    "content": "Visitante",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 205.0,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "pt-PT · 07",
+    "text": "TV left name",
+    "content": "Casa",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 117.83,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "pt-PT · 07",
+    "text": "TV right name",
+    "content": "Visitante",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 205.0,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "pt-PT · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Casa",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 74.98,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "pt-PT · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Visitante",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 130.45,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "ro · 06",
+    "text": "Basketball team name · 0",
+    "content": "Gazde",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 142.21,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "ro · 06",
+    "text": "Basketball team name · 1",
+    "content": "Oaspeți",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 176.84,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "ro · 07",
+    "text": "TV left name",
+    "content": "Gazde",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 142.21,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "ro · 07",
+    "text": "TV right name",
+    "content": "Oaspeți",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 176.84,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "ro · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Gazde",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 90.5,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "ro · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Oaspeți",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 112.53,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "sk · 06",
+    "text": "Basketball team name · 0",
+    "content": "Domáci",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 176.09,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "sk · 06",
+    "text": "Basketball team name · 1",
+    "content": "Hostia",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 145.46,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "sk · 07",
+    "text": "TV left name",
+    "content": "Domáci",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 176.09,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "sk · 07",
+    "text": "TV right name",
+    "content": "Hostia",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 145.46,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "sk · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Domáci",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 112.06,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "sk · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Hostia",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 92.57,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "sl · 06",
+    "text": "Basketball team name · 0",
+    "content": "Domači",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 176.09,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "sl · 06",
+    "text": "Basketball team name · 1",
+    "content": "Gostje",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 144.01,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "sl · 07",
+    "text": "TV left name",
+    "content": "Domači",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 176.09,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "sl · 07",
+    "text": "TV right name",
+    "content": "Gostje",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 144.01,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "sl · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Domači",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 112.06,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "sl · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Gostje",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 91.64,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "sv-SE · 06",
+    "text": "Basketball team name · 0",
+    "content": "Hemma",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 182.34,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "sv-SE · 06",
+    "text": "Basketball team name · 1",
+    "content": "Borta",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 123.6,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "sv-SE · 07",
+    "text": "TV left name",
+    "content": "Hemma",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 182.34,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "sv-SE · 07",
+    "text": "TV right name",
+    "content": "Borta",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 123.6,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "sv-SE · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Hemma",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 116.03,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "sv-SE · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Borta",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 78.65,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "ta-IN · 06",
+    "text": "Basketball team name · 0",
+    "content": "உள்ளூர்",
+    "fontSize": 39,
+    "width": 280,
+    "shapedMaxLineWidth": 179.91,
+    "boxHeight": 65,
+    "estimatedHeight": 44.85
+  },
+  {
+    "frame": "ta-IN · 06",
+    "text": "Basketball team name · 1",
+    "content": "விருந்தினர்",
+    "fontSize": 39,
+    "width": 280,
+    "shapedMaxLineWidth": 254.71,
+    "boxHeight": 65,
+    "estimatedHeight": 44.85
+  },
+  {
+    "frame": "ta-IN · 07",
+    "text": "TV left name",
+    "content": "உள்ளூர்",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 202.97,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ta-IN · 07",
+    "text": "TV right name",
+    "content": "விருந்தினர்",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 287.36,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ta-IN · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "உள்ளூர்",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 129.16,
+    "boxHeight": 50,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "ta-IN · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "விருந்தினர்",
+    "fontSize": 23,
+    "width": 174,
+    "shapedMaxLineWidth": 150.21,
+    "boxHeight": 60,
+    "estimatedHeight": 26.45
+  },
+  {
+    "frame": "te-IN · 06",
+    "text": "Basketball team name · 0",
+    "content": "ఆతిథ్య",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 128.79,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "te-IN · 06",
+    "text": "Basketball team name · 1",
+    "content": "అతిథి",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 108.06,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "te-IN · 07",
+    "text": "TV left name",
+    "content": "ఆతిథ్య",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 128.79,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "te-IN · 07",
+    "text": "TV right name",
+    "content": "అతిథి",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 108.06,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "te-IN · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "ఆతిథ్య",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 81.96,
+    "boxHeight": 50,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "te-IN · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "అతిథి",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 68.77,
+    "boxHeight": 60,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "uk · 06",
+    "text": "Basketball team name · 0",
+    "content": "Господарі",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 232.32,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "uk · 06",
+    "text": "Basketball team name · 1",
+    "content": "Гості",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 109.91,
+    "boxHeight": 65,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "uk · 07",
+    "text": "TV left name",
+    "content": "Господарі",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 232.32,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "uk · 07",
+    "text": "TV right name",
+    "content": "Гості",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 109.91,
+    "boxHeight": 90,
+    "estimatedHeight": 44
+  },
+  {
+    "frame": "uk · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "Господарі",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 147.84,
+    "boxHeight": 50,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "uk · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "Гості",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 69.94,
+    "boxHeight": 60,
+    "estimatedHeight": 28
+  },
+  {
+    "frame": "ur · 06",
+    "text": "Basketball team name · 0",
+    "content": "میزبان",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 118.05,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ur · 06",
+    "text": "Basketball team name · 1",
+    "content": "مہمان",
+    "fontSize": 44,
+    "width": 280,
+    "shapedMaxLineWidth": 118.01,
+    "boxHeight": 65,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ur · 07",
+    "text": "TV left name",
+    "content": "میزبان",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 118.05,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ur · 07",
+    "text": "TV right name",
+    "content": "مہمان",
+    "fontSize": 44,
+    "width": 400,
+    "shapedMaxLineWidth": 118.01,
+    "boxHeight": 90,
+    "estimatedHeight": 50.6
+  },
+  {
+    "frame": "ur · 07",
+    "text": "Phone basketball team name · 0",
+    "content": "میزبان",
+    "fontSize": 28,
+    "width": 180,
+    "shapedMaxLineWidth": 75.12,
+    "boxHeight": 50,
+    "estimatedHeight": 32.2
+  },
+  {
+    "frame": "ur · 07",
+    "text": "Phone basketball team name · 1",
+    "content": "مہمان",
+    "fontSize": 28,
+    "width": 174,
+    "shapedMaxLineWidth": 75.1,
+    "boxHeight": 60,
+    "estimatedHeight": 32.2
+  }
+]

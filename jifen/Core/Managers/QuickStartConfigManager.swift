@@ -5,6 +5,7 @@ final class QuickStartConfigManager: ObservableObject { // Add ObservableObject
     static let shared = QuickStartConfigManager()
     private let userDefaults: UserDefaults
     private let configKey: String
+    private let initialDefaultConfig: QuickStartConfig
     private var didResolveInitialConfig: Bool
     private(set) var configurationReadCount = 0
 
@@ -12,37 +13,35 @@ final class QuickStartConfigManager: ObservableObject { // Add ObservableObject
 
     init(
         userDefaults: UserDefaults = .standard,
-        configKey: String = "quickStartConfig"
+        configKey: String = "quickStartConfig",
+        localization: String = Bundle.main.preferredLocalizations.first ?? "en"
     ) {
         self.userDefaults = userDefaults
         self.configKey = configKey
+        let defaultConfig = QuickStartConfig.defaults(for: localization)
+        self.initialDefaultConfig = defaultConfig
         configurationReadCount = 1
         if let data = userDefaults.data(forKey: configKey) {
             if let config = try? JSONDecoder().decode(QuickStartConfig.self, from: data) {
                 self.quickStartConfig = config
                 didResolveInitialConfig = true
             } else {
-                self.quickStartConfig = QuickStartConfig.defaultPhoneConfig
+                self.quickStartConfig = defaultConfig
                 didResolveInitialConfig = false
             }
         } else {
-            self.quickStartConfig = QuickStartConfig.defaultPhoneConfig
+            self.quickStartConfig = defaultConfig
             didResolveInitialConfig = false
         }
     }
 
-    /// Resolves device-specific defaults without reading UserDefaults again.
+    /// Resolves language defaults without reading UserDefaults again.
     /// A persisted configuration always wins and is decoded only in `init`.
+    /// Device layout controls the visible slot count, not the selected sports.
     func configureDefaultsIfNeeded(isLargeScreen: Bool, is2in1: Bool) {
         guard !didResolveInitialConfig else { return }
         didResolveInitialConfig = true
-        if is2in1 {
-            quickStartConfig = .default2In1Config
-        } else {
-            quickStartConfig = isLargeScreen
-                ? .defaultTabletConfig
-                : .defaultPhoneConfig
-        }
+        quickStartConfig = initialDefaultConfig
     }
 
     /// Saves the visible quick-start slots in one write. Compact layouts pass

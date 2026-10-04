@@ -1,0 +1,760 @@
+{
+  "status": "passed",
+  "checkedAt": "2026-10-02",
+  "scope": "Offline structure, locale coverage, length, source-title fidelity and disabled Watch status; not linguistic or visual certification.",
+  "localeCount": 50,
+  "translatedTitleCount": 450,
+  "enabledTitleCount": 400,
+  "locales": [
+    {
+      "locale": "ar-SA",
+      "characters": {
+        "name": 25,
+        "subtitle": 27,
+        "description": 903
+      },
+      "utf16Units": {
+        "name": 25,
+        "subtitle": 27,
+        "description": 903
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "bn-BD",
+      "characters": {
+        "name": 23,
+        "subtitle": 28,
+        "description": 927
+      },
+      "utf16Units": {
+        "name": 23,
+        "subtitle": 28,
+        "description": 927
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "ca",
+      "characters": {
+        "name": 21,
+        "subtitle": 22,
+        "description": 1043
+      },
+      "utf16Units": {
+        "name": 21,
+        "subtitle": 22,
+        "description": 1043
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "cs",
+      "characters": {
+        "name": 30,
+        "subtitle": 27,
+        "description": 986
+      },
+      "utf16Units": {
+        "name": 30,
+        "subtitle": 27,
+        "description": 986
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "da",
+      "characters": {
+        "name": 21,
+        "subtitle": 24,
+        "description": 919
+      },
+      "utf16Units": {
+        "name": 21,
+        "subtitle": 24,
+        "description": 919
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "de-DE",
+      "characters": {
+        "name": 24,
+        "subtitle": 30,
+        "description": 1058
+      },
+      "utf16Units": {
+        "name": 24,
+        "subtitle": 30,
+        "description": 1058
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "el",
+      "characters": {
+        "name": 25,
+        "subtitle": 23,
+        "description": 1076
+      },
+      "utf16Units": {
+        "name": 25,
+        "subtitle": 23,
+        "description": 1076
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "en-AU",
+      "characters": {
+        "name": 30,
+        "subtitle": 30,
+        "description": 927
+      },
+      "utf16Units": {
+        "name": 30,
+        "subtitle": 30,
+        "description": 927
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "en-CA",
+      "characters": {
+        "name": 30,
+        "subtitle": 30,
+        "description": 925
+      },
+      "utf16Units": {
+        "name": 30,
+        "subtitle": 30,
+        "description": 925
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "en-GB",
+      "characters": {
+        "name": 30,
+        "subtitle": 30,
+        "description": 927
+      },
+      "utf16Units": {
+        "name": 30,
+        "subtitle": 30,
+        "description": 927
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "en-US",
+      "characters": {
+        "name": 30,
+        "subtitle": 30,
+        "description": 925
+      },
+      "utf16Units": {
+        "name": 30,
+        "subtitle": 30,
+        "description": 925
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "es-ES",
+      "characters": {
+        "name": 21,
+        "subtitle": 26,
+        "description": 1072
+      },
+      "utf16Units": {
+        "name": 21,
+        "subtitle": 26,
+        "description": 1072
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "es-MX",
+      "characters": {
+        "name": 21,
+        "subtitle": 26,
+        "description": 1074
+      },
+      "utf16Units": {
+        "name": 21,
+        "subtitle": 26,
+        "description": 1074
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "fi",
+      "characters": {
+        "name": 23,
+        "subtitle": 28,
+        "description": 1030
+      },
+      "utf16Units": {
+        "name": 23,
+        "subtitle": 28,
+        "description": 1030
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "fr-CA",
+      "characters": {
+        "name": 30,
+        "subtitle": 27,
+        "description": 1097
+      },
+      "utf16Units": {
+        "name": 30,
+        "subtitle": 27,
+        "description": 1097
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "fr-FR",
+      "characters": {
+        "name": 30,
+        "subtitle": 25,
+        "description": 1080
+      },
+      "utf16Units": {
+        "name": 30,
+        "subtitle": 25,
+        "description": 1080
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "gu-IN",
+      "characters": {
+        "name": 23,
+        "subtitle": 26,
+        "description": 879
+      },
+      "utf16Units": {
+        "name": 23,
+        "subtitle": 26,
+        "description": 879
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "he",
+      "characters": {
+        "name": 23,
+        "subtitle": 27,
+        "description": 806
+      },
+      "utf16Units": {
+        "name": 23,
+        "subtitle": 27,
+        "description": 806
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "hi",
+      "characters": {
+        "name": 23,
+        "subtitle": 25,
+        "description": 937
+      },
+      "utf16Units": {
+        "name": 23,
+        "subtitle": 25,
+        "description": 937
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "hr",
+      "characters": {
+        "name": 20,
+        "subtitle": 29,
+        "description": 1022
+      },
+      "utf16Units": {
+        "name": 20,
+        "subtitle": 29,
+        "description": 1022
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "hu",
+      "characters": {
+        "name": 26,
+        "subtitle": 29,
+        "description": 1062
+      },
+      "utf16Units": {
+        "name": 26,
+        "subtitle": 29,
+        "description": 1062
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "id",
+      "characters": {
+        "name": 23,
+        "subtitle": 28,
+        "description": 1051
+      },
+      "utf16Units": {
+        "name": 23,
+        "subtitle": 28,
+        "description": 1051
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "it",
+      "characters": {
+        "name": 23,
+        "subtitle": 22,
+        "description": 1039
+      },
+      "utf16Units": {
+        "name": 23,
+        "subtitle": 22,
+        "description": 1039
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "ja",
+      "characters": {
+        "name": 21,
+        "subtitle": 16,
+        "description": 531
+      },
+      "utf16Units": {
+        "name": 21,
+        "subtitle": 16,
+        "description": 531
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "kn-IN",
+      "characters": {
+        "name": 26,
+        "subtitle": 27,
+        "description": 1018
+      },
+      "utf16Units": {
+        "name": 26,
+        "subtitle": 27,
+        "description": 1018
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "ko",
+      "characters": {
+        "name": 19,
+        "subtitle": 17,
+        "description": 573
+      },
+      "utf16Units": {
+        "name": 19,
+        "subtitle": 17,
+        "description": 573
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "ml-IN",
+      "characters": {
+        "name": 23,
+        "subtitle": 24,
+        "description": 1130
+      },
+      "utf16Units": {
+        "name": 23,
+        "subtitle": 24,
+        "description": 1130
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "mr-IN",
+      "characters": {
+        "name": 24,
+        "subtitle": 30,
+        "description": 956
+      },
+      "utf16Units": {
+        "name": 24,
+        "subtitle": 30,
+        "description": 956
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "ms",
+      "characters": {
+        "name": 23,
+        "subtitle": 26,
+        "description": 1033
+      },
+      "utf16Units": {
+        "name": 23,
+        "subtitle": 26,
+        "description": 1033
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "nl-NL",
+      "characters": {
+        "name": 22,
+        "subtitle": 29,
+        "description": 997
+      },
+      "utf16Units": {
+        "name": 22,
+        "subtitle": 29,
+        "description": 997
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "no",
+      "characters": {
+        "name": 26,
+        "subtitle": 25,
+        "description": 916
+      },
+      "utf16Units": {
+        "name": 26,
+        "subtitle": 25,
+        "description": 916
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "or-IN",
+      "characters": {
+        "name": 23,
+        "subtitle": 26,
+        "description": 927
+      },
+      "utf16Units": {
+        "name": 23,
+        "subtitle": 26,
+        "description": 927
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "pa-IN",
+      "characters": {
+        "name": 21,
+        "subtitle": 24,
+        "description": 873
+      },
+      "utf16Units": {
+        "name": 21,
+        "subtitle": 24,
+        "description": 873
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "pl",
+      "characters": {
+        "name": 28,
+        "subtitle": 30,
+        "description": 976
+      },
+      "utf16Units": {
+        "name": 28,
+        "subtitle": 30,
+        "description": 976
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "pt-BR",
+      "characters": {
+        "name": 29,
+        "subtitle": 25,
+        "description": 1004
+      },
+      "utf16Units": {
+        "name": 29,
+        "subtitle": 25,
+        "description": 1004
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "pt-PT",
+      "characters": {
+        "name": 21,
+        "subtitle": 22,
+        "description": 1006
+      },
+      "utf16Units": {
+        "name": 21,
+        "subtitle": 22,
+        "description": 1006
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "ro",
+      "characters": {
+        "name": 27,
+        "subtitle": 24,
+        "description": 1080
+      },
+      "utf16Units": {
+        "name": 27,
+        "subtitle": 24,
+        "description": 1080
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "ru",
+      "characters": {
+        "name": 18,
+        "subtitle": 27,
+        "description": 1040
+      },
+      "utf16Units": {
+        "name": 18,
+        "subtitle": 27,
+        "description": 1040
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "sk",
+      "characters": {
+        "name": 30,
+        "subtitle": 28,
+        "description": 1010
+      },
+      "utf16Units": {
+        "name": 30,
+        "subtitle": 28,
+        "description": 1010
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "sl-SI",
+      "characters": {
+        "name": 20,
+        "subtitle": 23,
+        "description": 1000
+      },
+      "utf16Units": {
+        "name": 20,
+        "subtitle": 23,
+        "description": 1000
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "sv",
+      "characters": {
+        "name": 26,
+        "subtitle": 25,
+        "description": 938
+      },
+      "utf16Units": {
+        "name": 26,
+        "subtitle": 25,
+        "description": 938
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "ta-IN",
+      "characters": {
+        "name": 25,
+        "subtitle": 27,
+        "description": 1164
+      },
+      "utf16Units": {
+        "name": 25,
+        "subtitle": 27,
+        "description": 1164
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "te-IN",
+      "characters": {
+        "name": 26,
+        "subtitle": 23,
+        "description": 1021
+      },
+      "utf16Units": {
+        "name": 26,
+        "subtitle": 23,
+        "description": 1021
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "th",
+      "characters": {
+        "name": 24,
+        "subtitle": 30,
+        "description": 869
+      },
+      "utf16Units": {
+        "name": 24,
+        "subtitle": 30,
+        "description": 869
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "tr",
+      "characters": {
+        "name": 25,
+        "subtitle": 27,
+        "description": 1022
+      },
+      "utf16Units": {
+        "name": 25,
+        "subtitle": 27,
+        "description": 1022
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "uk",
+      "characters": {
+        "name": 18,
+        "subtitle": 27,
+        "description": 1015
+      },
+      "utf16Units": {
+        "name": 18,
+        "subtitle": 27,
+        "description": 1015
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "ur-PK",
+      "characters": {
+        "name": 23,
+        "subtitle": 25,
+        "description": 922
+      },
+      "utf16Units": {
+        "name": 23,
+        "subtitle": 25,
+        "description": 922
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "vi",
+      "characters": {
+        "name": 22,
+        "subtitle": 30,
+        "description": 994
+      },
+      "utf16Units": {
+        "name": 22,
+        "subtitle": 30,
+        "description": 994
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "zh-Hans",
+      "characters": {
+        "name": 18,
+        "subtitle": 14,
+        "description": 427
+      },
+      "utf16Units": {
+        "name": 18,
+        "subtitle": 14,
+        "description": 427
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    },
+    {
+      "locale": "zh-Hant",
+      "characters": {
+        "name": 18,
+        "subtitle": 14,
+        "description": 431
+      },
+      "utf16Units": {
+        "name": 18,
+        "subtitle": 14,
+        "description": 431
+      },
+      "translatedTitleCount": 9,
+      "enabledTitleCount": 8
+    }
+  ]
+}

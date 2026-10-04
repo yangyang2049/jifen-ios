@@ -1,0 +1,16 @@
+<svg width="1284" height="2778" viewBox="0 0 1284 2778" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g clip-path="url(#clip0_1343_263)">
+<rect width="1284" height="2778" fill="#0B61FB"/>
+<rect x="-220" y="2675" width="2571" height="1725" transform="rotate(-90 -220 2675)" fill="url(#pattern0_1343_263)"/>
+<text fill="white" style="white-space: pre" xml:space="preserve" font-family="Poppins" font-size="200" font-weight="bold" letter-spacing="-0.04em"><tspan x="327.234" y="1239.5">EVERY &#10;</tspan><tspan x="353.215" y="1459.5">POINT&#10;</tspan><tspan x="240.906" y="1679.5">COUNTS</tspan></text>
+</g>
+<defs>
+<pattern id="pattern0_1343_263" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0_1343_263" transform="scale(0.000653306 0.00097371)"/>
+</pattern>
+<clipPath id="clip0_1343_263">
+<rect width="1284" height="2778" fill="white"/>
+</clipPath>
+<image id="image0_1343_263" width="1531" height="1027" preserveAspectRatio="none" xlink:href="image-1-0.png"/>
+</defs>
+</svg>

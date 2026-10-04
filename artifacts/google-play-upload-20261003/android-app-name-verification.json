@@ -1,0 +1,19 @@
+{
+  "checkedAt": "2026-10-03T19:05:30.917560+08:00",
+  "packageName": "com.bolo.jifen",
+  "sourceAppNames": {
+    "zh-CN": "全能计分器",
+    "zh-TW": "全能計分器"
+  },
+  "manifestLabel": "@string/app_name",
+  "homeAndAboutUseAppNameResource": true,
+  "apkPath": "/Users/yangyang/Desktop/jifenqi/jifen-android-google/app/build/outputs/apk/googleplay/release/app-googleplay-release.apk",
+  "apkIdentity": "package: name='com.bolo.jifen' versionCode='332' versionName='3.3' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'",
+  "apkChineseLabels": [
+    "application-label-zh-CN:'全能计分器'",
+    "application-label-zh-HK:'全能計分器'",
+    "application-label-zh-TW:'全能計分器'"
+  ],
+  "rebuilt": false,
+  "reason": "Existing source resources and compiled version 332 already contain the requested Chinese names; no Android code change."
+}

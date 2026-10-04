@@ -1,0 +1,50 @@
+{
+  "verified": true,
+  "images": [
+    {
+      "plan": "monthly",
+      "imageId": "64605858-e9fa-4eeb-8cda-75ea18333232",
+      "draftSelectedImageId": "64605858-e9fa-4eeb-8cda-75ea18333232",
+      "assetState": "COMPLETE",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "sourceMD5": "6d420bb8824f46f367f10e9e155c2775",
+      "applePNGMD5": "48f46ed69489dc9878e4747de2c36af3",
+      "pixelsIdentical": true,
+      "meanAbsoluteRGBError": 0.0,
+      "applePNGPath": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-membership-20261004/apple-processed-images/monthly.png"
+    },
+    {
+      "plan": "yearly",
+      "imageId": "87a8298f-5a7e-4ec3-be9a-9a59ba16d34c",
+      "draftSelectedImageId": "87a8298f-5a7e-4ec3-be9a-9a59ba16d34c",
+      "assetState": "COMPLETE",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "sourceMD5": "4310e56edbb1db3bd79542b55a8fa286",
+      "applePNGMD5": "a2f4c6ac7e60cf85fa111e9d64dfd284",
+      "pixelsIdentical": true,
+      "meanAbsoluteRGBError": 0.0,
+      "applePNGPath": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-membership-20261004/apple-processed-images/yearly.png"
+    },
+    {
+      "plan": "lifetime",
+      "imageId": "ad6a3962-dec5-4424-a0df-5cbe06dceee0",
+      "draftSelectedImageId": "ad6a3962-dec5-4424-a0df-5cbe06dceee0",
+      "assetState": "COMPLETE",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "sourceMD5": "c3254beef9c4883d49869d899e893184",
+      "applePNGMD5": "6644264cd1bd20e2225093b7350c5a18",
+      "pixelsIdentical": true,
+      "meanAbsoluteRGBError": 0.0,
+      "applePNGPath": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-membership-20261004/apple-processed-images/lifetime.png"
+    }
+  ]
+}

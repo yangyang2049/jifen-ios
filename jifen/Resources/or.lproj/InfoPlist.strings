@@ -1,0 +1,11 @@
+/* 
+  InfoPlist.strings
+  jifen
+
+  Localized privacy permission descriptions
+*/
+
+"NSPhotoLibraryAddUsageDescription" = "ସ୍କୋରବୋର୍ଡ ସ୍କ୍ରିନସଟ୍ ସେଭ୍ କରିବାକୁ ଆମକୁ ଆପଣଙ୍କ ଫଟୋ ଲାଇବ୍ରେରୀକୁ ପ୍ରବେଶ ଅନୁମତି ଦରକାର।";
+"CFBundleDisplayName" = "iScoreboard";
+"NSCameraUsageDescription" = "ବିଶ୍ୱସ୍ତ ସାଇନ୍-ଇନ୍ QR କୋଡ୍ ସ୍କାନ କରିବା ଓ ଆପଣଙ୍କ ଅବତାର ପାଇଁ ଫଟୋ ଉଠାଇବାକୁ କ୍ୟାମେରା ବ୍ୟବହାର ହୁଏ.";
+"NSMicrophoneUsageDescription" = "ଭଏସ୍ ନୋଟ୍ ରେକର୍ଡ କରିବା ପାଇଁ ମାଇକ୍ରୋଫୋନ୍ ବ୍ୟବହୃତ ହୁଏ";

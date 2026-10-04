@@ -1,0 +1,68 @@
+{
+  "locale": "gu-IN",
+  "appleLanguage": "gu",
+  "appleLocale": "gu_IN",
+  "names": [
+    "જય",
+    "અર્જુન",
+    "કિરણ",
+    "રાહુલ"
+  ],
+  "fontFamily": "Noto Sans Gujarati",
+  "basketballTeams": [
+    "યજમાન",
+    "મહેમાન"
+  ],
+  "simulator": "5AC81D3A-D96A-4165-957E-F378FF101B69",
+  "cards": [
+    {
+      "index": 1,
+      "scene": "snooker",
+      "file": "exports/gu-IN/01-snooker.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "f3f6e95e5081cc5673ad5b850eb15fce6884eb7e4a3c311bfc86ed156133d3fe",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 2,
+      "scene": "basketball",
+      "file": "exports/gu-IN/02-basketball.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "b91c1ce6ec1d542c9eaaf0871b689a303951e4ba1c9baba592341124b98ee37d",
+      "capture": "production SwiftUI via simctl",
+      "teamNames": [
+        "યજમાન",
+        "મહેમાન"
+      ]
+    },
+    {
+      "index": 3,
+      "scene": "record",
+      "file": "exports/gu-IN/03-record.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "09109a623c67ab1c9900de8585bc3946a1a3e3d963e24229057946f8490385a9",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 4,
+      "scene": "setup",
+      "file": "exports/gu-IN/04-setup.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "85f7e7e48b05c3da3faa0c8c734d26b4c8f9e2fc460650f5ed9057ffc70f1967",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 5,
+      "scene": "home",
+      "file": "exports/gu-IN/05-home.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "8bdc8fbda5abca36d8e644507cbb796145b5d40005d728aa2d00ecf7b8dbb5b1",
+      "capture": "production SwiftUI via simctl"
+    }
+  ]
+}

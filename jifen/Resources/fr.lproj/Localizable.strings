@@ -165,8 +165,8 @@
 "record_training_end_rate" = "Entraînement terminé · %1$d%% de précision";
 "game_football" = "Football";
 "game_volleyball" = "Volley-ball";
-"game_checkers" = "Dames chinoises";
-"timer_checkers" = "Dames";
+"game_checkers" = "Dames internationales";
+"timer_checkers" = "Dames internationales";
 "game_boxing" = "Boxe";
 "game_billiards" = "Billard";
 "game_pickleball" = "Pickleball";
@@ -450,7 +450,7 @@
 
 /* Records Tab */
 "clear_all_records" = "Effacer tout l’historique";
-"clear_records_tab_message" = "L’historique des scores et du chronomètre sera supprimé de l’onglet Historique. Cette action est irréversible. Les noms fréquents, les lieux fréquents et les réservations ne seront pas supprimés.";
+"clear_records_tab_message" = "L’historique des scores et du chronomètre sera supprimé de l’onglet Historique. Cette action est irréversible. Les noms enregistrés, les lieux enregistrés et les réservations ne seront pas supprimés.";
 "clear_data" = "Effacer les données";
 "clear_data_failed_title" = "Échec de la suppression";
 "clear_data_failed_format" = "Certaines données n’ont pas pu être effacées. Vous pouvez réessayer sans risque :\n%@";
@@ -520,14 +520,14 @@
 "version" = "Version";
 "privacy_policy" = "Politique de confidentialité";
 "accessibility" = "Accessibilité";
-"common_names_manage" = "Noms fréquents";
+"common_names_manage" = "Noms enregistrés";
 "common_names_team" = "Noms des équipes";
 "common_names_player" = "Noms des joueurs";
 "common_names_clear_current" = "Effacer la catégorie actuelle";
-"common_names_clear_current_message" = "Tous les noms fréquents de %@ seront supprimés. Cette action est irréversible.";
-"common_names_title" = "Noms fréquents";
-"common_names_empty" = "Aucun nom fréquent";
-"common_names_empty_hint" = "Ajoutez des noms d’équipe ou de joueur dans Réglages > Données > Noms fréquents, puis réutilisez-les ici.";
+"common_names_clear_current_message" = "Tous les noms enregistrés de %@ seront supprimés. Cette action est irréversible.";
+"common_names_title" = "Noms enregistrés";
+"common_names_empty" = "Aucun nom enregistré";
+"common_names_empty_hint" = "Ajoutez des noms d’équipe ou de joueur dans Réglages > Données > Noms enregistrés, puis réutilisez-les ici.";
 "common_names_management_empty_hint" = "Les noms d’équipe et de joueur saisis pendant le comptage des points sont enregistrés ici pour être rapidement réutilisés.";
 "common_names_search_placeholder" = "Rechercher des noms";
 "common_names_no_search_results" = "Aucun résultat";
@@ -556,15 +556,15 @@
 
 /* First-launch legal consent */
 "home_common_names_desc" = "Équipes et joueurs";
-"common_places_title" = "Lieux fréquents";
+"common_places_title" = "Lieux enregistrés";
 "home_common_places_desc" = "Terrains et salles";
 "common_places_add" = "Ajouter un lieu";
 "common_places_edit_title" = "Modifier le lieu";
 "common_places_placeholder" = "Saisissez un lieu";
 "common_places_clear" = "Effacer les lieux";
-"common_places_clear_message" = "Tous les lieux fréquents seront effacés. Cette action est irréversible.";
+"common_places_clear_message" = "Tous les lieux enregistrés seront effacés. Cette action est irréversible.";
 "common_places_search_placeholder" = "Rechercher des lieux";
-"common_places_no_records" = "Aucun lieu fréquent";
+"common_places_no_records" = "Aucun lieu enregistré";
 "common_places_no_search_results" = "Aucun résultat";
 "common_places_usage_desc" = "Les lieux saisis dans les réservations sont enregistrés ici pour être rapidement réutilisés.";
 "common_places_batch_hint" = "Un lieu par ligne ou plusieurs séparés par des virgules";
@@ -573,13 +573,13 @@
 "common_places_save_failed" = "Échec de l'enregistrement";
 "common_places_batch_empty" = "Entrez au moins un lieu valide";
 "common_places_batch_result" = "%d ajoutés, %d ignorés";
-"common_places_empty_hint" = "Ajoutez des lieux depuis Lieux fréquents sur l’accueil";
+"common_places_empty_hint" = "Ajoutez des lieux depuis Lieux enregistrés sur l’accueil";
 "common_places_select" = "Sélectionner un lieu";
 "common_places_added" = "Ajouté";
 "common_places_updated" = "Mis à jour";
 "common_places_deleted" = "Supprimé";
 "common_places_batch_delete_confirm" = "Supprimer %d lieux sélectionnés ?";
-"schedule_pick_common_place" = "Sélectionner un lieu fréquent";
+"schedule_pick_common_place" = "Sélectionner un lieu enregistré";
 "faq_question_1" = "Comment démarrer un match rapidement ?";
 "faq_answer_1" = "Sur l’accueil, choisissez un sport ou ouvrez « Nouveau match » pour afficher davantage d’options. Ajoutez vos sports et configurations habituels au « Démarrage rapide » pour lancer plus vite le prochain match.\n\nLes sports qui nécessitent des noms d’équipe, des sets, un format ou des règles de service ouvrent d’abord la page « Configuration du match ». Après confirmation, le tableau de score s’affiche ; certains réglages restent modifiables pendant le comptage des points.";
 "faq_question_2" = "Comment noter et corriger les erreurs ?";
@@ -589,7 +589,7 @@
 "faq_question_4" = "Comment supprimer l’historique ou effacer les données ?";
 "faq_answer_4" = "Pendant un match, utilisez « Annuler », « Retour » ou l’option de modification si le sport actuel le permet.\n\nPour un match enregistré, ouvrez-le dans Historique et supprimez-le depuis cette page. « Profil → Effacer les données » supprime de l’appareil l’historique des scores et du chronomètre, les matchs inachevés, les enregistrements sauvegardés et certains réglages locaux. Cette action est irréversible.";
 "faq_question_5" = "Comment connecter un écran ou un autre téléphone ?";
-"faq_answer_5" = "Pour afficher le score sur un autre téléphone ou une tablette, ouvrez « Synchroniser le score → Rejoindre le match » sur l’appareil d’affichage, puis suivez les instructions pour générer un code court ou un code QR. Une fois le match ouvert sur l’appareil principal, connectez-le : le score sera synchronisé avec l’écran. Gardez les deux appareils en ligne et évitez de verrouiller l’écran ou de laisser l’app en arrière-plan. Si la synchronisation se bloque, quittez-la sur les deux appareils puis reconnectez-les.\n\nPour diffuser le tableau de score sur un téléviseur ou un grand écran, utilisez l’affichage sans fil du système (Miracast). Ouvrez l’affichage sans fil dans le Centre de contrôle et connectez-vous au téléviseur ; dès que l’app détecte l’écran connecté, le tableau de score y apparaît automatiquement. L’app repose sur la diffusion du système et ne recherche pas elle-même les téléviseurs. Déconnecter la diffusion dans le système met également fin à la projection. Le nom de cette fonction varie selon la marque, par exemple « affichage sans fil » ou « interaction multi-écran » ; établissez d’abord la connexion dans le système.";
+"faq_answer_5" = "Utilisez deux appareils ensemble : l’un compte les points, l’autre affiche le score en plein écran. Appareil principal: Connectez-vous et démarrez la synchronisation pour obtenir un code à 6 chiffres. Appareil d’affichage: Connectez-vous et saisissez le code à 6 chiffres de l’appareil principal. Commencez à compter les points — le score se synchronise automatiquement.\n\nLa recopie de l’écran via AirPlay est recommandée. Une fois l’écran connecté et détecté, le tableau de score s’y affiche automatiquement. Ouvrez le Centre de contrôle et touchez Recopie de l’écran (AirPlay). Établissez d’abord la connexion AirPlay dans les réglages du système. L’app ne peut utiliser qu’un seul écran connecté à la fois et ne recherche pas elle-même les téléviseurs ou projecteurs. Déconnecter AirPlay met également fin à la diffusion.";
 "faq_question_6" = "Je ne trouve pas mon sport. Que faire ?";
 "faq_answer_6" = "Commencez par le sport le plus proche. Si seuls les noms, les sets, les équipes ou l’ordre de départ diffèrent, modifiez-les dans « Configuration du match » et ajoutez cette configuration au « Démarrage rapide ».\n\nSi aucun sport disponible ne couvre les règles, envoyez un avis en précisant le nom du sport, le format habituel, la méthode de comptage et le déroulement souhaité.";
 "faq_question_7" = "Comment fonctionnent l’abonnement, la connexion et les nouveaux appareils ?";
@@ -597,9 +597,9 @@
 "faq_question_8" = "Comment signaler un problème ou suggérer une fonctionnalité ?";
 "faq_answer_8" = "Ouvrez « Profil → Avis et suggestions », puis choisissez « Signaler un bug » ou « Suggérer une fonctionnalité ». Indiquez le sport, les étapes, le résultat attendu et le résultat obtenu. Pour les problèmes d’affichage ou d’abonnement, ajoutez également le modèle de l’appareil et les versions du système et de l’app.";
 "faq_question_10" = "Comment sauvegarder mes données ou les déplacer vers un nouveau téléphone ?";
-"faq_answer_10" = "Connectez-vous à votre compte pour y associer vos noms fréquents, vos lieux et votre historique de matchs. Avec la synchronisation cloud de l’abonnement, vos données sont synchronisées entre vos appareils. Sur le nouveau téléphone, connectez-vous avec le même compte pour restaurer automatiquement vos données. Sans connexion, elles restent stockées uniquement sur l’appareil actuel.";
+"faq_answer_10" = "Connectez-vous pour synchroniser les noms d’équipes et de joueurs ainsi que les lieux enregistrés entre vos appareils. Sur un nouveau téléphone, connectez-vous avec le même compte pour récupérer ces données communes. Les historiques de matchs, de minuteurs et les matchs en cours restent sur l’appareil actuel ; leur sauvegarde et leur restauration dans le cloud ne sont pas disponibles.";
 "faq_question_11" = "Comment mes données et ma vie privée sont-elles traitées ?";
-"faq_answer_11" = "La Politique de confidentialité explique quelles données sont utilisées et pourquoi. Le microphone sert uniquement à enregistrer des notes vocales, et la caméra uniquement à lire un code QR de connexion ; les deux opérations sont traitées localement sur votre appareil.";
+"faq_answer_11" = "La Politique de confidentialité explique quelles données sont utilisées et pourquoi. Le microphone est utilisé pour enregistrer des notes vocales. La caméra sert à numériser les codes QR de connexion fiables et à prendre une photo de profil.";
 "common_names_add" = "Ajouter";
 "common_names_edit_title" = "Modifier le nom";
 "common_names_team_placeholder" = "Saisissez le nom de l’équipe";
@@ -653,8 +653,8 @@
 "schedule_location" = "Lieu";
 "schedule_location_placeholder" = "Saisissez le lieu";
 "schedule_reminders" = "Rappels";
-"schedule_reminder_hours_before" = "%d heures avant";
-"schedule_reminder_minutes_before" = "%d minutes avant";
+"schedule_reminder_hours_before" = "%d h avant";
+"schedule_reminder_minutes_before" = "%d min avant";
 "schedule_reminder_help_title" = "Rappels";
 "schedule_reminder_help_message" = "Les rappels sont des notifications locales. Activez les notifications pour les recevoir. Ils risquent de ne pas arriver si l’app est supprimée ou si iOS limite leur distribution. Modifier ou annuler un match met également les rappels à jour.";
 "schedule_notes" = "Notes";
@@ -844,6 +844,13 @@
 "scoreboard_double_tap_subtract_help_message" = "Lorsque cette option est activée, touchez deux fois la même zone de score ou la vignette du joueur pour soustraire 1. Lorsqu’elle est désactivée, balayez vers le bas pour soustraire ou vers la gauche pour annuler. Les tableaux de score à boutons, comme ceux du basket-ball et du snooker, restent inchangés.";
 "scoreboard_official_break_help_title" = "Pauses officielles";
 "scoreboard_official_break_help_message" = "Lorsque cette option est activée, les pauses officielles interrompent le comptage des points. Vous pouvez ignorer ou annuler une pause.\n\nTennis de table et jianzi : 60 s entre les jeux\nBadminton : 60 s en milieu de jeu et 120 s entre les jeux\nSquash : 90 s entre les jeux\nTennis et padel : 90 s aux changements de côté et 120 s entre les sets\nSoft tennis : 60 s aux changements de côté\nPickleball : 60 s en milieu de jeu dans le jeu décisif et 120 s entre les jeux";
+"scoreboard_official_break_help_intro" = "Lorsque cette option est activée, les pauses officielles interrompent le comptage des points. Vous pouvez ignorer ou annuler une pause.";
+"scoreboard_official_break_rule_between_games_60" = "60 s entre les jeux";
+"scoreboard_official_break_rule_badminton" = "60 s en milieu de jeu et 120 s entre les jeux";
+"scoreboard_official_break_rule_squash" = "90 s entre les jeux";
+"scoreboard_official_break_rule_tennis" = "90 s aux changements de côté et 120 s entre les sets";
+"scoreboard_official_break_rule_soft_tennis" = "60 s aux changements de côté";
+"scoreboard_official_break_rule_pickleball" = "60 s en milieu de jeu dans le jeu décisif et 120 s entre les jeux";
 "show_match_time" = "Afficher le chronomètre";
 "hide_match_time" = "Masquer le chronomètre";
 "scoreboard_match_time_this_game_only" = "Uniquement pour ce match ; le prochain utilisera de nouveau le réglage par défaut du sport.";
@@ -978,7 +985,7 @@
 "timer_custom_seconds" = "S";
 "timer_countdown_notification_title" = "Compte à rebours terminé";
 "timer_countdown_notification_content" = "Votre compte à rebours est terminé. Touchez pour revenir.";
-"scoreboard_usage_hint_menu" = "Mode d’emploi";
+"scoreboard_usage_hint_menu" = "Guide";
 "scoreboard_usage_hint_title" = "Mode d’emploi";
 "scoreboard_usage_hint_got_it" = "Compris";
 "scoreboard_usage_hint_football" = "👆 Touchez la zone de score gauche/droite pour ajouter 1 but\n⬆️ Balayez vers le haut pour ajouter\n⬇️ Balayez vers le bas pour soustraire\n↩️ Balayez vers la gauche pour annuler\n⏱️ Ouvrez Temps additionnel dans le menu en bas à droite, choisissez une durée, puis annulez ou confirmez\n🏁 Après la seconde mi-temps et le temps additionnel, un match nul peut se poursuivre par deux périodes de prolongation de 15 minutes";
@@ -1036,7 +1043,7 @@
 "scoreboard_key_point_volleyball_set" = "SP";
 "scoreboard_key_point_set" = "SP";
 "scoreboard_key_point_match" = "MP";
-"record_recap_set_format" = "Jeu %d";
+"record_recap_set_format" = "Set %d";
 "record_recap_tennis_set_format" = "Set %d";
 "record_recap_period_format" = "Période %d";
 "record_recap_round_format" = "Round %d";
@@ -1094,7 +1101,7 @@
 "doudizhu_role_landlord" = "Propriétaire terrien";
 "doudizhu_role_farmer" = "Paysan";
 "doudizhu_player_role_format" = "%@ (%@)";
-"doudizhu_winner_separator" = ",";
+"doudizhu_winner_separator" = ", ";
 "draw_result" = "Égalité";
 "filter" = "Filtre";
 "flip_coin_recent" = "Lancers récents";
@@ -1130,7 +1137,7 @@
 "timeout" = "Temps mort";
 "timer_record_time" = "Enregistré à";
 "undo" = "Annuler";
-"scoreboard_set_end_format" = "Jeu %d terminé";
+"scoreboard_set_end_format" = "Set %d terminé";
 "winner_named_format" = "%@ gagne";
 "basketball_fouls_count" = "Fautes %d";
 "basketball_timeout_remaining" = "Temps mort (%d)";
@@ -1183,8 +1190,8 @@
 "official_break" = "Pause officielle";
 "official_break_prepare" = "Préparez-vous";
 "official_breaks" = "Pauses officielles";
-"official_break_mid_game" = "Pause en milieu de partie";
-"official_break_game" = "Pause de jeu";
+"official_break_mid_game" = "Pause en cours de manche";
+"official_break_game" = "Pause entre les manches";
 "official_break_set" = "Pause entre les sets";
 "official_break_changeover" = "Pause au changement de côté";
 "official_break_continue" = "Reprendre";
@@ -1473,7 +1480,7 @@
 "account_deletion_impact_title" = "Avant de continuer";
 "account_deletion_impact_account" = "Votre profil et votre identité de connexion seront supprimés ou anonymisés.";
 "account_deletion_impact_feedback" = "Les avis et autres contenus liés au compte que vous avez publiés peuvent être supprimés ou anonymisés.";
-"account_deletion_impact_local_data" = "L’historique local des scores, les réservations, les noms fréquents et les réglages sont conservés.";
+"account_deletion_impact_local_data" = "L’historique local des scores, les réservations, les noms enregistrés et les réglages sont conservés.";
 "account_deletion_impact_irreversible" = "Une fois supprimé, le compte ne peut pas être récupéré.";
 "account_deletion_submitting" = "Envoi…";
 "account_deletion_apply" = "Supprimer le compte";
@@ -1552,3 +1559,9 @@
 "game_short" = "Jeux";
 "set_short" = "Sets";
 "football_injury_title" = "Temps additionnel";
+
+"feedback_official" = "Officiel";
+
+"feedback_pinned" = "Épinglé";
+
+"voice_announce_server" = "Annoncer le serveur";

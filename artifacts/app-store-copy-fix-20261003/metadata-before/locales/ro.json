@@ -1,0 +1,58 @@
+{
+  "locale": "ro",
+  "iosLocale": "ro",
+  "language": "Romanian",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Tabelă de scor",
+  "subtitle": "Scoruri, timp și meciuri",
+  "description": "Fiecare punct contează. Transformă iPhone-ul sau iPad-ul într-o tabelă de scor clară și ușor de folosit pentru meciuri, antrenamente și jocuri cu prietenii.\n\nȚine scorul pentru peste 26 de sporturi și jocuri, inclusiv tenis, pickleball, badminton, tenis de masă, baschet, fotbal, volei și biliard. În sporturile compatibile, adaptează regulile de punctaj, formatul meciului și ordinea serviciului la dublu.\n\nSalvează meciurile și urmărește evoluția scorului, cronologia și notele vocale. Folosește ceasuri pentru șah și go, un cronometru pentru cub și un cronometru obișnuit. Afișează tabela pe un ecran mare și distribuie un cod de meci pentru ca prietenii să urmărească scorul de la distanță.\n\nAruncarea monedei, echipe aleatorii, cartonașe roșii și galbene și împărțirea cheltuielilor — toate într-un singur loc. Mai puțin efort cu scorul, mai multă bucurie în joc.\n\nCondiții de utilizare:\nhttps://jifenqi.com/terms\n\nPolitica de confidențialitate:\nhttps://jifenqi.com/privacy\n\nAcordul de licență standard Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Fiecare punct\ncontează",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Toate scorurile\ndintr-o privire",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "O singură tabelă\npentru peste 26 de sporturi",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Revino la\nfiecare meci",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Regulile tale\njocul tău",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Mai mult decât\njocuri cu mingea",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Tabela ta\npe ecranul mare",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Ține scorul\nde la încheietură",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Instrumente pentru arbitri\nîntr-o singură aplicație",
+      "enabled": true
+    }
+  ]
+}

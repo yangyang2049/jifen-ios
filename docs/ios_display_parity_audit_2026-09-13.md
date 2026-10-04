@@ -190,8 +190,8 @@ Android 同类模型明确读取 mainScore/playerName 倍率，并有同步端�
 
 网球双打，852×393 同步显示、正常上限 1.5x：底部姓名被裁切。
 
-![网球双打底部姓名裁切](audits/2026-09-13/evidence/display_tennis_doubles_phone_sync_1.5x.png)
+网球双打底部姓名裁切（已于2026-10-04清理）
 
 样式工具展开后，确认/退出按钮停在主分中线，工具条遮盖局分。
 
-![样式编辑器布局](audits/2026-09-13/evidence/iPhone_audit_pingpong_07_palette.png)
+样式编辑器布局（已于2026-10-04清理）

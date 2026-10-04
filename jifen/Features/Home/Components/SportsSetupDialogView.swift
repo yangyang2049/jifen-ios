@@ -25,8 +25,7 @@ struct SportsSetupDialogView: View {
     var body: some View {
         AdaptiveSetupDialogLayout(maxHeight: maxDialogHeight) {
             HStack(spacing: 6) {
-                Text(getEmoji())
-                    .font(.system(size: 20))
+                AppCatalogIcon(gameType: gameType, size: 20)
                 Text(getProjectTitle())
                     .font(.system(size: 20, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
@@ -105,7 +104,7 @@ struct SportsSetupDialogView: View {
                 Button(action: requestCancelDialog) {
                     Text(NSLocalizedString("cancel", comment: "Cancel button"))
                         .font(.system(size: 16))
-                        .foregroundColor(Theme.textSecondary)
+                        .foregroundColor(Theme.textPrimary)
                         .frame(width: 100, height: 44)
                         .background(Theme.dialogControlBackground)
                         .clipShape(Capsule())
@@ -156,10 +155,6 @@ struct SportsSetupDialogView: View {
 
     private func getProjectTitle() -> String {
         gameType.displayName
-    }
-
-    private func getEmoji() -> String {
-        return gameType.icon // Using GameType.icon which is defined
     }
 
     private func shouldShowSinglesDoublesAtTop() -> Bool {

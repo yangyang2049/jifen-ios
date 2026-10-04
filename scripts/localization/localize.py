@@ -58,15 +58,18 @@ FORMAT_RE = re.compile(
     r"(?:hh|h|ll|l|L|z|t|j)?(?P<type>[@dDuUxXoOfFeEgGcCsSpaAi]))"
 )
 URL_RE = re.compile(r"(?:https?://|mailto:)[^\s<>]+", re.IGNORECASE)
+URL_LITERAL_RE = re.compile(r"(?:https?://|mailto:)[^\s<>()\[\]{}（）「」『』《》〈〉«»\"'“”‘’、，。；：！？،؛؟]+", re.IGNORECASE)
 SECTION_RE = re.compile(r"^\s*/\*\s*(.*?)\s*\*/\s*$")
 BIDI_CONTROLS = set("\u061c\u200e\u200f\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069")
 REVIEW_STATES = {"reviewed", "fixed"}
-# These reviewed fragments are concatenated directly into an attributed sentence.
+# These reviewed fragments are concatenated directly into a sentence or title.
 # Their boundary spaces are grammatical, not provider padding.
 SENTENCE_FRAGMENT_KEYS = {
     "vip_agreement_plain_prefix",
     "vip_agreement_link_separator",
     "vip_agreement_link_middle_separator",
+    "setup_suffix",
+    "doudizhu_winner_separator",
 }
 # Web translation providers return several candidates separated by " | " when they are
 # unsure. The separator survives into the draft (measured on 1,306 Odia rows, including
@@ -330,6 +333,11 @@ def format_arguments(value: str) -> Tuple[Dict[int, str], bool]:
             return ({-1: "conflicting"}, True)
         arguments[position] = normalized
     return arguments, saw_positional and saw_unpositioned
+
+
+def url_literals(value: str) -> List[str]:
+    # Sentence punctuation and translated brackets are not part of the URL.
+    return sorted(match.group(0).rstrip(".,;:!?") for match in URL_LITERAL_RE.finditer(value))
 
 
 def protected_spans(value: str, literal_terms: Sequence[str]) -> Tuple[str, Dict[str, str]]:
@@ -1202,6 +1210,9 @@ def validate_locale(locale: str, require_reviewed: bool) -> Dict[str, Any]:
             report(blockers, "manual-bidi-control", entry, repr(bidi))
         if PIPE_ARTIFACT in value and PIPE_ARTIFACT not in entry.value:
             report(blockers, "provider-artifact", entry, "machine multi-alternative residue: %r" % value[:60])
+        source_urls = url_literals(entry.value)
+        if source_urls and url_literals(value) != source_urls:
+            report(blockers, "protected-url", entry, "source URL was changed, removed, or split by whitespace")
         for term in config.get("literal_terms", []):
             if term in entry.value and term not in value:
                 report(blockers, "protected-term", entry, "%s was changed or removed" % term)
@@ -1378,6 +1389,19 @@ def build_parser() -> argparse.ArgumentParser:
         group = command.add_mutually_exclusive_group(required=True)
         group.add_argument("--locale", action="append", help="iOS locale identifier; repeatable")
         group.add_argument("--all", action="store_true", help="all 44 new locales")
+
+    voice = subparsers.add_parser("voice", help="validate/promote the reviewed sports voice table")
+    voice.add_argument("action", choices=["validate", "promote"])
+    voice.add_argument("--locale", action="append")
+    voice.add_argument("--dry-run", action="store_true")
+    def run_voice(args: argparse.Namespace) -> int:
+        import voice_localization
+        selected = [args.action]
+        for locale in args.locale or []:
+            selected += ["--locale", locale]
+        if args.dry_run: selected.append("--dry-run")
+        return voice_localization.main(selected)
+    voice.set_defaults(handler=run_voice)
 
     inventory = subparsers.add_parser("inventory", help="show source and cost inventory")
     add_selection(inventory)

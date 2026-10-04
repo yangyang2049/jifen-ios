@@ -1,0 +1,17 @@
+{
+  "verifiedAt": "2026-10-03T19:09:01.738598+08:00",
+  "packageName": "com.bolo.jifen",
+  "committed": true,
+  "storeNames": {
+    "zh-CN": "全能计分器",
+    "zh-TW": "全能計分器"
+  },
+  "newSimplifiedDescriptions": "User-approved conversion from existing Traditional Chinese descriptions, with mainland terminology.",
+  "existingDescriptionsUnchanged": true,
+  "otherListingFieldsUnchanged": true,
+  "traditionalScreenshotHashesUnchanged": true,
+  "screenshotsUploaded": 0,
+  "tracksUnchanged": true,
+  "androidAppNameVerification": "android-app-name-verification.json",
+  "storePublicAvailability": "Saved in Google Play Console; public rollout/review status not verified."
+}

@@ -1,0 +1,2167 @@
+{
+  "sourceFigmaFile": "g6mp1X09AI3sZm8ftIqFzw",
+  "sourceNode": "1341:61",
+  "platform": "Google Play",
+  "width": 1080,
+  "height": 1920,
+  "status": "translated-draft",
+  "localizations": [
+    {
+      "locale": "en-US",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "EVERY\nPOINT\nCOUNTS"
+        },
+        {
+          "id": "score",
+          "text": "SEE EVERY SCORE\nAT A GLANCE"
+        },
+        {
+          "id": "catalog",
+          "text": "ONE SCOREBOARD\nFOR 26+ SPORTS"
+        },
+        {
+          "id": "recap",
+          "text": "REVIEW\nEVERY MATCH"
+        },
+        {
+          "id": "setup",
+          "text": "SET YOUR RULES\nPLAY YOUR WAY"
+        },
+        {
+          "id": "multiplayer",
+          "text": "MULTI-PLAYER &\nBOARD GAMES"
+        },
+        {
+          "id": "cast",
+          "text": "YOUR SCOREBOARD\nON THE BIG SCREEN"
+        }
+      ],
+      "playerNames": {
+        "score": "Ethan",
+        "catalog": "Liam"
+      },
+      "sourceLocale": "en-US",
+      "basketballTeamNames": [
+        "Home",
+        "Away"
+      ]
+    },
+    {
+      "locale": "ja-JP",
+      "fontFamily": "Noto Sans JP",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "すべての得点に\n意味がある"
+        },
+        {
+          "id": "score",
+          "text": "試合のスコアが\nひと目でわかる"
+        },
+        {
+          "id": "catalog",
+          "text": "26 種類以上の競技を\nひとつのスコアボードで"
+        },
+        {
+          "id": "recap",
+          "text": "すべての試合を\n振り返ろう"
+        },
+        {
+          "id": "setup",
+          "text": "ルールを決めて\n自分たちらしい試合を"
+        },
+        {
+          "id": "multiplayer",
+          "text": "多人数ゲームも\nボードゲームも"
+        },
+        {
+          "id": "cast",
+          "text": "大きな画面で\nみんなにスコアを"
+        }
+      ],
+      "playerNames": {
+        "score": "伊達政宗",
+        "catalog": "真田幸村"
+      },
+      "sourceLocale": "ja",
+      "basketballTeamNames": [
+        "ホーム",
+        "アウェイ"
+      ]
+    },
+    {
+      "locale": "ko-KR",
+      "fontFamily": "Noto Sans KR",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "모든 득점이\n소중하니까"
+        },
+        {
+          "id": "score",
+          "text": "경기 점수를\n한눈에"
+        },
+        {
+          "id": "catalog",
+          "text": "26가지 이상의 종목을\n하나의 점수판으로"
+        },
+        {
+          "id": "recap",
+          "text": "모든 경기를\n다시 돌아보기"
+        },
+        {
+          "id": "setup",
+          "text": "규칙은 직접\n경기는 원하는 대로"
+        },
+        {
+          "id": "multiplayer",
+          "text": "다인용 게임부터\n보드게임까지"
+        },
+        {
+          "id": "cast",
+          "text": "큰 화면으로\n함께 보는 점수판"
+        }
+      ],
+      "playerNames": {
+        "score": "민준",
+        "catalog": "서준"
+      },
+      "sourceLocale": "ko",
+      "basketballTeamNames": [
+        "홈팀",
+        "원정팀"
+      ]
+    },
+    {
+      "locale": "de-DE",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "JEDER PUNKT\nZÄHLT"
+        },
+        {
+          "id": "score",
+          "text": "ALLE SPIELSTÄNDE\nAUF EINEN BLICK"
+        },
+        {
+          "id": "catalog",
+          "text": "EINE PUNKTETAFEL\nFÜR ÜBER 26 SPORTARTEN"
+        },
+        {
+          "id": "recap",
+          "text": "JEDE PARTIE\nIM RÜCKBLICK"
+        },
+        {
+          "id": "setup",
+          "text": "DEINE REGELN\nDEIN SPIEL"
+        },
+        {
+          "id": "multiplayer",
+          "text": "MEHRSPIELER-\nUND BRETTSPIELE"
+        },
+        {
+          "id": "cast",
+          "text": "DEINE PUNKTETAFEL\nAUF DEM GROSSEN BILDSCHIRM"
+        }
+      ],
+      "playerNames": {
+        "score": "Max",
+        "catalog": "Paul"
+      },
+      "sourceLocale": "de-DE",
+      "basketballTeamNames": [
+        "Heim",
+        "Gast"
+      ]
+    },
+    {
+      "locale": "fr-FR",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "CHAQUE POINT\nCOMPTE"
+        },
+        {
+          "id": "score",
+          "text": "TOUS LES SCORES\nEN UN COUP D’ŒIL"
+        },
+        {
+          "id": "catalog",
+          "text": "UN TABLEAU DE SCORES\nPOUR PLUS DE 26 SPORTS"
+        },
+        {
+          "id": "recap",
+          "text": "REVIVEZ\nCHAQUE MATCH"
+        },
+        {
+          "id": "setup",
+          "text": "VOS RÈGLES\nVOTRE FAÇON DE JOUER"
+        },
+        {
+          "id": "multiplayer",
+          "text": "JEUX MULTIJOUEURS\nET JEUX DE SOCIÉTÉ"
+        },
+        {
+          "id": "cast",
+          "text": "VOTRE SCORE\nSUR GRAND ÉCRAN"
+        }
+      ],
+      "playerNames": {
+        "score": "Louis",
+        "catalog": "Hugo"
+      },
+      "sourceLocale": "fr-FR",
+      "basketballTeamNames": [
+        "Domicile",
+        "Extérieur"
+      ]
+    },
+    {
+      "locale": "es-ES",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "CADA PUNTO\nCUENTA"
+        },
+        {
+          "id": "score",
+          "text": "TODO EL MARCADOR\nDE UN VISTAZO"
+        },
+        {
+          "id": "catalog",
+          "text": "UN MARCADOR\nPARA MÁS DE 26 DEPORTES"
+        },
+        {
+          "id": "recap",
+          "text": "REPASA\nCADA PARTIDO"
+        },
+        {
+          "id": "setup",
+          "text": "TUS REGLAS\nTU FORMA DE JUGAR"
+        },
+        {
+          "id": "multiplayer",
+          "text": "JUEGOS MULTIJUGADOR\nY DE MESA"
+        },
+        {
+          "id": "cast",
+          "text": "TU MARCADOR\nEN PANTALLA GRANDE"
+        }
+      ],
+      "playerNames": {
+        "score": "Pablo",
+        "catalog": "Álvaro"
+      },
+      "sourceLocale": "es-ES",
+      "basketballTeamNames": [
+        "Local",
+        "Visitante"
+      ]
+    },
+    {
+      "locale": "pt-BR",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "CADA PONTO\nCONTA"
+        },
+        {
+          "id": "score",
+          "text": "TODO O PLACAR\nNUM PISCAR DE OLHOS"
+        },
+        {
+          "id": "catalog",
+          "text": "UM PLACAR\nPARA MAIS DE 26 ESPORTES"
+        },
+        {
+          "id": "recap",
+          "text": "REVEJA\nCADA PARTIDA"
+        },
+        {
+          "id": "setup",
+          "text": "SUAS REGRAS\nSEU JEITO DE JOGAR"
+        },
+        {
+          "id": "multiplayer",
+          "text": "JOGOS MULTIJOGADOR\nE DE TABULEIRO"
+        },
+        {
+          "id": "cast",
+          "text": "SEU PLACAR\nNA TELA GRANDE"
+        }
+      ],
+      "playerNames": {
+        "score": "Lucas",
+        "catalog": "Pedro"
+      },
+      "sourceLocale": "pt-BR",
+      "basketballTeamNames": [
+        "Mandante",
+        "Visitante"
+      ]
+    },
+    {
+      "locale": "it-IT",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "OGNI PUNTO\nCONTA"
+        },
+        {
+          "id": "score",
+          "text": "TUTTI I PUNTEGGI\nA COLPO D’OCCHIO"
+        },
+        {
+          "id": "catalog",
+          "text": "UN TABELLONE\nPER OLTRE 26 SPORT"
+        },
+        {
+          "id": "recap",
+          "text": "RIVEDI\nOGNI PARTITA"
+        },
+        {
+          "id": "setup",
+          "text": "LE TUE REGOLE\nIL TUO MODO DI GIOCARE"
+        },
+        {
+          "id": "multiplayer",
+          "text": "GIOCHI MULTIGIOCATORE\nE DA TAVOLO"
+        },
+        {
+          "id": "cast",
+          "text": "IL TUO TABELLONE\nSUL GRANDE SCHERMO"
+        }
+      ],
+      "playerNames": {
+        "score": "Luca",
+        "catalog": "Marco"
+      },
+      "sourceLocale": "it",
+      "basketballTeamNames": [
+        "Casa",
+        "Trasferta"
+      ]
+    },
+    {
+      "locale": "ru-RU",
+      "fontFamily": "Montserrat",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "КАЖДОЕ ОЧКО\nВАЖНО"
+        },
+        {
+          "id": "score",
+          "text": "ВЕСЬ СЧЁТ\nС ПЕРВОГО ВЗГЛЯДА"
+        },
+        {
+          "id": "catalog",
+          "text": "ОДНО ТАБЛО\nДЛЯ 26+ ВИДОВ СПОРТА"
+        },
+        {
+          "id": "recap",
+          "text": "РАЗБЕРИТЕ\nКАЖДЫЙ МАТЧ"
+        },
+        {
+          "id": "setup",
+          "text": "ВАШИ ПРАВИЛА\nВАША ИГРА"
+        },
+        {
+          "id": "multiplayer",
+          "text": "ИГРЫ ДЛЯ КОМПАНИИ\nИ НАСТОЛЬНЫЕ ИГРЫ"
+        },
+        {
+          "id": "cast",
+          "text": "ВАШЕ ТАБЛО\nНА БОЛЬШОМ ЭКРАНЕ"
+        }
+      ],
+      "playerNames": {
+        "score": "Алексей",
+        "catalog": "Иван"
+      },
+      "sourceLocale": "ru",
+      "basketballTeamNames": [
+        "Хозяева",
+        "Гости"
+      ]
+    },
+    {
+      "locale": "ar",
+      "fontFamily": "Noto Sans Arabic",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "كل نقطة\nلها قيمة"
+        },
+        {
+          "id": "score",
+          "text": "نتيجة المباراة\nبنظرة واحدة"
+        },
+        {
+          "id": "catalog",
+          "text": "لوحة واحدة\nلأكثر من 26 رياضة"
+        },
+        {
+          "id": "recap",
+          "text": "راجع\nكل مباراة"
+        },
+        {
+          "id": "setup",
+          "text": "قواعدك أنت\nوطريقتك في اللعب"
+        },
+        {
+          "id": "multiplayer",
+          "text": "ألعاب جماعية\nوألعاب لوحية"
+        },
+        {
+          "id": "cast",
+          "text": "لوحة النتائج\nعلى الشاشة الكبيرة"
+        }
+      ],
+      "playerNames": {
+        "score": "أحمد",
+        "catalog": "عمر"
+      },
+      "sourceLocale": "ar-SA",
+      "basketballTeamNames": [
+        "المضيف",
+        "الضيف"
+      ]
+    },
+    {
+      "locale": "hi-IN",
+      "fontFamily": "Noto Sans Devanagari",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "हर अंक\nमायने रखता है"
+        },
+        {
+          "id": "score",
+          "text": "पूरा स्कोर\nएक नज़र में"
+        },
+        {
+          "id": "catalog",
+          "text": "एक स्कोरबोर्ड\n26 से अधिक खेलों के लिए"
+        },
+        {
+          "id": "recap",
+          "text": "हर मैच\nफिर से देखें"
+        },
+        {
+          "id": "setup",
+          "text": "आपके नियम\nआपका खेल"
+        },
+        {
+          "id": "multiplayer",
+          "text": "कई खिलाड़ियों वाले गेम\nऔर बोर्ड गेम"
+        },
+        {
+          "id": "cast",
+          "text": "आपका स्कोरबोर्ड\nबड़ी स्क्रीन पर"
+        }
+      ],
+      "playerNames": {
+        "score": "अर्जुन",
+        "catalog": "राहुल"
+      },
+      "sourceLocale": "hi",
+      "basketballTeamNames": [
+        "मेज़बान",
+        "मेहमान"
+      ]
+    },
+    {
+      "locale": "nl-NL",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "ELK PUNT\nTELT"
+        },
+        {
+          "id": "score",
+          "text": "ALLE SCORES\nIN ÉÉN OOGOPSLAG"
+        },
+        {
+          "id": "catalog",
+          "text": "EÉN SCOREBORD\nVOOR MEER DAN 26 SPORTEN"
+        },
+        {
+          "id": "recap",
+          "text": "BEKIJK\nELKE WEDSTRIJD TERUG"
+        },
+        {
+          "id": "setup",
+          "text": "JOUW REGELS\nJOUW SPEL"
+        },
+        {
+          "id": "multiplayer",
+          "text": "MULTIPLAYER-\nEN BORDSPELLEN"
+        },
+        {
+          "id": "cast",
+          "text": "JOUW SCOREBORD\nOP HET GROTE SCHERM"
+        }
+      ],
+      "playerNames": {
+        "score": "Daan",
+        "catalog": "Bram"
+      },
+      "sourceLocale": "nl-NL",
+      "basketballTeamNames": [
+        "Thuis",
+        "Uit"
+      ]
+    },
+    {
+      "locale": "tr-TR",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "HER SAYI\nDEĞERLİ"
+        },
+        {
+          "id": "score",
+          "text": "TÜM SKORLAR\nBİR BAKIŞTA"
+        },
+        {
+          "id": "catalog",
+          "text": "TEK SKOR TAHTASI\n26’DAN FAZLA SPOR"
+        },
+        {
+          "id": "recap",
+          "text": "HER MAÇI\nYENİDEN İNCELEYİN"
+        },
+        {
+          "id": "setup",
+          "text": "KURALLAR SİZİN\nOYUN SİZİN"
+        },
+        {
+          "id": "multiplayer",
+          "text": "ÇOK OYUNCULU OYUNLAR\nVE MASA OYUNLARI"
+        },
+        {
+          "id": "cast",
+          "text": "SKOR TAHTANIZ\nBÜYÜK EKRANDA"
+        }
+      ],
+      "playerNames": {
+        "score": "Emre",
+        "catalog": "Deniz"
+      },
+      "sourceLocale": "tr",
+      "basketballTeamNames": [
+        "Ev Sahibi",
+        "Deplasman"
+      ]
+    },
+    {
+      "locale": "id",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "SETIAP POIN\nBERARTI"
+        },
+        {
+          "id": "score",
+          "text": "SEMUA SKOR\nSEKILAS TERLIHAT"
+        },
+        {
+          "id": "catalog",
+          "text": "SATU PAPAN SKOR\nUNTUK 26+ OLAHRAGA"
+        },
+        {
+          "id": "recap",
+          "text": "TINJAU KEMBALI\nSETIAP PERTANDINGAN"
+        },
+        {
+          "id": "setup",
+          "text": "ATURANMU\nCARA BERMAINMU"
+        },
+        {
+          "id": "multiplayer",
+          "text": "PERMAINAN MULTIPEMAIN\nDAN PERMAINAN PAPAN"
+        },
+        {
+          "id": "cast",
+          "text": "PAPAN SKORMU\nDI LAYAR BESAR"
+        }
+      ],
+      "playerNames": {
+        "score": "Andi",
+        "catalog": "Budi"
+      },
+      "sourceLocale": "id",
+      "basketballTeamNames": [
+        "Tuan Rumah",
+        "Tandang"
+      ]
+    },
+    {
+      "locale": "vi",
+      "fontFamily": "Noto Sans",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "MỖI ĐIỂM SỐ\nĐỀU\nQUAN TRỌNG"
+        },
+        {
+          "id": "score",
+          "text": "TOÀN BỘ ĐIỂM SỐ\nCHỈ TRONG MỘT CÁI NHÌN"
+        },
+        {
+          "id": "catalog",
+          "text": "MỘT BẢNG ĐIỂM\nCHO HƠN 26 MÔN THỂ THAO"
+        },
+        {
+          "id": "recap",
+          "text": "XEM LẠI\nTỪNG TRẬN ĐẤU"
+        },
+        {
+          "id": "setup",
+          "text": "LUẬT CỦA BẠN\nCÁCH CHƠI CỦA BẠN"
+        },
+        {
+          "id": "multiplayer",
+          "text": "TRÒ CHƠI NHIỀU NGƯỜI\nVÀ TRÒ CHƠI BÀN CỜ"
+        },
+        {
+          "id": "cast",
+          "text": "BẢNG ĐIỂM CỦA BẠN\nTRÊN MÀN HÌNH LỚN"
+        }
+      ],
+      "playerNames": {
+        "score": "Minh",
+        "catalog": "An"
+      },
+      "sourceLocale": "vi",
+      "basketballTeamNames": [
+        "Chủ nhà",
+        "Khách"
+      ]
+    },
+    {
+      "locale": "th",
+      "fontFamily": "Noto Sans Thai",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "ทุกคะแนน\nมีความหมาย"
+        },
+        {
+          "id": "score",
+          "text": "เห็นทุกคะแนน\nได้ในพริบตา"
+        },
+        {
+          "id": "catalog",
+          "text": "กระดานเดียว\nสำหรับกีฬากว่า 26 ประเภท"
+        },
+        {
+          "id": "recap",
+          "text": "ย้อนดู\nทุกการแข่งขัน"
+        },
+        {
+          "id": "setup",
+          "text": "กติกาของคุณ\nเล่นในแบบของคุณ"
+        },
+        {
+          "id": "multiplayer",
+          "text": "เกมหลายผู้เล่น\nและบอร์ดเกม"
+        },
+        {
+          "id": "cast",
+          "text": "กระดานคะแนน\nบนหน้าจอใหญ่"
+        }
+      ],
+      "playerNames": {
+        "score": "นนท์",
+        "catalog": "ภูมิ"
+      },
+      "sourceLocale": "th",
+      "basketballTeamNames": [
+        "เหย้า",
+        "เยือน"
+      ]
+    },
+    {
+      "locale": "bn-BD",
+      "fontFamily": "Noto Sans Bengali",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "প্রতিটি পয়েন্টই\nগুরুত্বপূর্ণ"
+        },
+        {
+          "id": "score",
+          "text": "সব স্কোর\nএক নজরে"
+        },
+        {
+          "id": "catalog",
+          "text": "এক স্কোরবোর্ড\n২৬টির বেশি খেলার জন্য"
+        },
+        {
+          "id": "recap",
+          "text": "ফিরে দেখুন\nপ্রতিটি ম্যাচ"
+        },
+        {
+          "id": "setup",
+          "text": "আপনার নিয়ম\nআপনার মতো খেলা"
+        },
+        {
+          "id": "multiplayer",
+          "text": "একাধিক খেলোয়াড়ের গেম\nও বোর্ড গেম"
+        },
+        {
+          "id": "cast",
+          "text": "আপনার স্কোরবোর্ড\nবড় পর্দায়"
+        }
+      ],
+      "playerNames": {
+        "score": "আরিফ",
+        "catalog": "হাসান"
+      },
+      "sourceLocale": "bn-BD",
+      "basketballTeamNames": [
+        "স্বাগতিক",
+        "অতিথি"
+      ]
+    },
+    {
+      "locale": "ca",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "CADA PUNT\nCOMPTA"
+        },
+        {
+          "id": "score",
+          "text": "TOT EL MARCADOR\nD’UN COP D’ULL"
+        },
+        {
+          "id": "catalog",
+          "text": "UN MARCADOR\nPER A MÉS DE 26 ESPORTS"
+        },
+        {
+          "id": "recap",
+          "text": "REPASSA\nCADA PARTIT"
+        },
+        {
+          "id": "setup",
+          "text": "LES TEVES REGLES\nLA TEVA MANERA DE JUGAR"
+        },
+        {
+          "id": "multiplayer",
+          "text": "JOCS MULTIJUGADOR\nI DE TAULA"
+        },
+        {
+          "id": "cast",
+          "text": "EL TEU MARCADOR\nA LA PANTALLA GRAN"
+        }
+      ],
+      "playerNames": {
+        "score": "Marc",
+        "catalog": "Pau"
+      },
+      "sourceLocale": "ca",
+      "basketballTeamNames": [
+        "Local",
+        "Visitant"
+      ]
+    },
+    {
+      "locale": "cs-CZ",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "KAŽDÝ BOD\nSE POČÍTÁ"
+        },
+        {
+          "id": "score",
+          "text": "VŠECHNA SKÓRE\nNA PRVNÍ POHLED"
+        },
+        {
+          "id": "catalog",
+          "text": "JEDNA TABULE\nPRO VÍCE NEŽ 26 SPORTŮ"
+        },
+        {
+          "id": "recap",
+          "text": "OHLÉDNĚTE SE\nZA KAŽDÝM ZÁPASEM"
+        },
+        {
+          "id": "setup",
+          "text": "VAŠE PRAVIDLA\nVAŠE HRA"
+        },
+        {
+          "id": "multiplayer",
+          "text": "HRY PRO VÍCE HRÁČŮ\nA DESKOVÉ HRY"
+        },
+        {
+          "id": "cast",
+          "text": "VAŠE TABULE\nNA VELKÉ OBRAZOVCE"
+        }
+      ],
+      "playerNames": {
+        "score": "Jakub",
+        "catalog": "Tomáš"
+      },
+      "sourceLocale": "cs",
+      "basketballTeamNames": [
+        "Domácí",
+        "Hosté"
+      ]
+    },
+    {
+      "locale": "da-DK",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "HVERT POINT\nTÆLLER"
+        },
+        {
+          "id": "score",
+          "text": "ALLE RESULTATER\nMED ÉT BLIK"
+        },
+        {
+          "id": "catalog",
+          "text": "ÉN MÅLTAVLE\nTIL OVER 26 SPORTSGRENE"
+        },
+        {
+          "id": "recap",
+          "text": "SE TILBAGE PÅ\nHVER KAMP"
+        },
+        {
+          "id": "setup",
+          "text": "DINE REGLER\nDIT SPIL"
+        },
+        {
+          "id": "multiplayer",
+          "text": "FLERSPILLER-\nOG BRÆTSPIL"
+        },
+        {
+          "id": "cast",
+          "text": "DIN MÅLTAVLE\nPÅ DEN STORE SKÆRM"
+        }
+      ],
+      "playerNames": {
+        "score": "Mads",
+        "catalog": "Emil"
+      },
+      "sourceLocale": "da",
+      "basketballTeamNames": [
+        "Hjemme",
+        "Ude"
+      ]
+    },
+    {
+      "locale": "el-GR",
+      "fontFamily": "Noto Sans",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "ΚΆΘΕ ΠΌΝΤΟΣ\nΜΕΤΡΆΕΙ"
+        },
+        {
+          "id": "score",
+          "text": "ΌΛΑ ΤΑ ΣΚΟΡ\nΜΕ ΜΙΑ ΜΑΤΙΆ"
+        },
+        {
+          "id": "catalog",
+          "text": "ΈΝΑΣ ΠΊΝΑΚΑΣ ΣΚΟΡ\nΓΙΑ ΠΆΝΩ ΑΠΌ 26 ΑΘΛΉΜΑΤΑ"
+        },
+        {
+          "id": "recap",
+          "text": "ΞΑΝΑΔΕΊΤΕ\nΚΆΘΕ ΑΓΏΝΑ"
+        },
+        {
+          "id": "setup",
+          "text": "ΟΙ ΚΑΝΌΝΕΣ ΣΑΣ\nΤΟ ΠΑΙΧΝΊΔΙ ΣΑΣ"
+        },
+        {
+          "id": "multiplayer",
+          "text": "ΠΑΙΧΝΊΔΙΑ ΓΙΑ ΠΟΛΛΟΎΣ\nΚΑΙ ΕΠΙΤΡΑΠΈΖΙΑ"
+        },
+        {
+          "id": "cast",
+          "text": "ΤΟ ΣΚΟΡ ΣΑΣ\nΣΤΗ ΜΕΓΆΛΗ ΟΘΌΝΗ"
+        }
+      ],
+      "playerNames": {
+        "score": "Νίκος",
+        "catalog": "Γιάννης"
+      },
+      "sourceLocale": "el",
+      "basketballTeamNames": [
+        "Γηπεδούχοι",
+        "Φιλοξενούμενοι"
+      ]
+    },
+    {
+      "locale": "en-AU",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "EVERY\nPOINT\nCOUNTS"
+        },
+        {
+          "id": "score",
+          "text": "SEE EVERY SCORE\nAT A GLANCE"
+        },
+        {
+          "id": "catalog",
+          "text": "ONE SCOREBOARD\nFOR 26+ SPORTS"
+        },
+        {
+          "id": "recap",
+          "text": "REVIEW\nEVERY MATCH"
+        },
+        {
+          "id": "setup",
+          "text": "SET YOUR RULES\nPLAY YOUR WAY"
+        },
+        {
+          "id": "multiplayer",
+          "text": "MULTI-PLAYER &\nBOARD GAMES"
+        },
+        {
+          "id": "cast",
+          "text": "YOUR SCOREBOARD\nON THE BIG SCREEN"
+        }
+      ],
+      "playerNames": {
+        "score": "Jack",
+        "catalog": "Oliver"
+      },
+      "sourceLocale": "en-AU",
+      "basketballTeamNames": [
+        "Home",
+        "Away"
+      ]
+    },
+    {
+      "locale": "en-CA",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "EVERY\nPOINT\nCOUNTS"
+        },
+        {
+          "id": "score",
+          "text": "SEE EVERY SCORE\nAT A GLANCE"
+        },
+        {
+          "id": "catalog",
+          "text": "ONE SCOREBOARD\nFOR 26+ SPORTS"
+        },
+        {
+          "id": "recap",
+          "text": "REVIEW\nEVERY MATCH"
+        },
+        {
+          "id": "setup",
+          "text": "SET YOUR RULES\nPLAY YOUR WAY"
+        },
+        {
+          "id": "multiplayer",
+          "text": "MULTI-PLAYER &\nBOARD GAMES"
+        },
+        {
+          "id": "cast",
+          "text": "YOUR SCOREBOARD\nON THE BIG SCREEN"
+        }
+      ],
+      "playerNames": {
+        "score": "Noah",
+        "catalog": "Lucas"
+      },
+      "sourceLocale": "en-CA",
+      "basketballTeamNames": [
+        "Home",
+        "Away"
+      ]
+    },
+    {
+      "locale": "en-GB",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "EVERY\nPOINT\nCOUNTS"
+        },
+        {
+          "id": "score",
+          "text": "SEE EVERY SCORE\nAT A GLANCE"
+        },
+        {
+          "id": "catalog",
+          "text": "ONE SCOREBOARD\nFOR 26+ SPORTS"
+        },
+        {
+          "id": "recap",
+          "text": "REVIEW\nEVERY MATCH"
+        },
+        {
+          "id": "setup",
+          "text": "SET YOUR RULES\nPLAY YOUR WAY"
+        },
+        {
+          "id": "multiplayer",
+          "text": "MULTI-PLAYER &\nBOARD GAMES"
+        },
+        {
+          "id": "cast",
+          "text": "YOUR SCOREBOARD\nON THE BIG SCREEN"
+        }
+      ],
+      "playerNames": {
+        "score": "Harry",
+        "catalog": "Oliver"
+      },
+      "sourceLocale": "en-GB",
+      "basketballTeamNames": [
+        "Home",
+        "Away"
+      ]
+    },
+    {
+      "locale": "es-419",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "CADA PUNTO\nCUENTA"
+        },
+        {
+          "id": "score",
+          "text": "TODO EL MARCADOR\nDE UN VISTAZO"
+        },
+        {
+          "id": "catalog",
+          "text": "UN MARCADOR\nPARA MÁS DE 26 DEPORTES"
+        },
+        {
+          "id": "recap",
+          "text": "REVISA\nCADA PARTIDO"
+        },
+        {
+          "id": "setup",
+          "text": "TUS REGLAS\nTU FORMA DE JUGAR"
+        },
+        {
+          "id": "multiplayer",
+          "text": "JUEGOS MULTIJUGADOR\nY DE MESA"
+        },
+        {
+          "id": "cast",
+          "text": "TU MARCADOR\nEN PANTALLA GRANDE"
+        }
+      ],
+      "playerNames": {
+        "score": "Diego",
+        "catalog": "Luis"
+      },
+      "sourceLocale": "es-MX",
+      "basketballTeamNames": [
+        "Local",
+        "Visitante"
+      ]
+    },
+    {
+      "locale": "fi-FI",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "JOKAINEN PISTE\nMERKITSEE"
+        },
+        {
+          "id": "score",
+          "text": "KAIKKI TULOKSET\nYHDELLÄ SILMÄYKSELLÄ"
+        },
+        {
+          "id": "catalog",
+          "text": "YKSI TULOSTAULU\nYLI 26 URHEILULAJIIN"
+        },
+        {
+          "id": "recap",
+          "text": "PALAA\nJOKAISEEN OTTELUUN"
+        },
+        {
+          "id": "setup",
+          "text": "SINUN SÄÄNTÖSI\nSINUN PELISI"
+        },
+        {
+          "id": "multiplayer",
+          "text": "MONINPELIT\nJA LAUTAPELIT"
+        },
+        {
+          "id": "cast",
+          "text": "TULOSTAULUSI\nISOLLA NÄYTÖLLÄ"
+        }
+      ],
+      "playerNames": {
+        "score": "Eero",
+        "catalog": "Mikko"
+      },
+      "sourceLocale": "fi",
+      "basketballTeamNames": [
+        "Koti",
+        "Vieras"
+      ]
+    },
+    {
+      "locale": "fr-CA",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "CHAQUE POINT\nCOMPTE"
+        },
+        {
+          "id": "score",
+          "text": "TOUT LE POINTAGE\nEN UN COUP D’ŒIL"
+        },
+        {
+          "id": "catalog",
+          "text": "UN TABLEAU DE POINTAGE\nPOUR PLUS DE 26 SPORTS"
+        },
+        {
+          "id": "recap",
+          "text": "REVIVEZ\nCHAQUE MATCH"
+        },
+        {
+          "id": "setup",
+          "text": "VOS RÈGLES\nVOTRE FAÇON DE JOUER"
+        },
+        {
+          "id": "multiplayer",
+          "text": "JEUX MULTIJOUEURS\nET JEUX DE SOCIÉTÉ"
+        },
+        {
+          "id": "cast",
+          "text": "VOTRE POINTAGE\nSUR GRAND ÉCRAN"
+        }
+      ],
+      "playerNames": {
+        "score": "Émile",
+        "catalog": "Félix"
+      },
+      "sourceLocale": "fr-CA",
+      "basketballTeamNames": [
+        "Domicile",
+        "Visiteurs"
+      ]
+    },
+    {
+      "locale": "gu",
+      "fontFamily": "Noto Sans Gujarati",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "દરેક પોઇન્ટ\nમહત્વનો છે"
+        },
+        {
+          "id": "score",
+          "text": "બધો સ્કોર\nએક નજરમાં"
+        },
+        {
+          "id": "catalog",
+          "text": "એક સ્કોરબોર્ડ\n26થી વધુ રમતો માટે"
+        },
+        {
+          "id": "recap",
+          "text": "દરેક મેચ\nફરી જુઓ"
+        },
+        {
+          "id": "setup",
+          "text": "તમારા નિયમો\nતમારી રમત"
+        },
+        {
+          "id": "multiplayer",
+          "text": "ઘણા ખેલાડીઓની રમતો\nઅને બોર્ડ ગેમ્સ"
+        },
+        {
+          "id": "cast",
+          "text": "તમારું સ્કોરબોર્ડ\nમોટી સ્ક્રીન પર"
+        }
+      ],
+      "playerNames": {
+        "score": "જય",
+        "catalog": "અર્જુન"
+      },
+      "sourceLocale": "gu-IN",
+      "basketballTeamNames": [
+        "યજમાન",
+        "મહેમાન"
+      ]
+    },
+    {
+      "locale": "iw-IL",
+      "fontFamily": "Noto Sans Hebrew",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "כל נקודה\nנחשבת"
+        },
+        {
+          "id": "score",
+          "text": "כל התוצאות\nבמבט אחד"
+        },
+        {
+          "id": "catalog",
+          "text": "לוח תוצאות אחד\nליותר מ-26 ענפי ספורט"
+        },
+        {
+          "id": "recap",
+          "text": "חוזרים\nלכל משחק"
+        },
+        {
+          "id": "setup",
+          "text": "הכללים שלכם\nהמשחק שלכם"
+        },
+        {
+          "id": "multiplayer",
+          "text": "משחקים מרובי משתתפים\nומשחקי קופסה"
+        },
+        {
+          "id": "cast",
+          "text": "לוח התוצאות שלכם\nעל המסך הגדול"
+        }
+      ],
+      "playerNames": {
+        "score": "דניאל",
+        "catalog": "יונתן"
+      },
+      "sourceLocale": "he",
+      "basketballTeamNames": [
+        "בית",
+        "חוץ"
+      ]
+    },
+    {
+      "locale": "hr",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "SVAKI BOD\nVRIJEDI"
+        },
+        {
+          "id": "score",
+          "text": "SVI REZULTATI\nNA PRVI POGLED"
+        },
+        {
+          "id": "catalog",
+          "text": "JEDAN SEMAFOR\nZA VIŠE OD 26 SPORTOVA"
+        },
+        {
+          "id": "recap",
+          "text": "PREGLEDAJTE\nSVAKU UTAKMICU"
+        },
+        {
+          "id": "setup",
+          "text": "VAŠA PRAVILA\nVAŠA IGRA"
+        },
+        {
+          "id": "multiplayer",
+          "text": "IGRE ZA VIŠE IGRAČA\nI DRUŠTVENE IGRE"
+        },
+        {
+          "id": "cast",
+          "text": "VAŠ SEMAFOR\nNA VELIKOM ZASLONU"
+        }
+      ],
+      "playerNames": {
+        "score": "Luka",
+        "catalog": "Ivan"
+      },
+      "sourceLocale": "hr",
+      "basketballTeamNames": [
+        "Domaći",
+        "Gosti"
+      ]
+    },
+    {
+      "locale": "hu-HU",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "MINDEN PONT\nSZÁMÍT"
+        },
+        {
+          "id": "score",
+          "text": "MINDEN EREDMÉNY\nEGY PILLANTÁSRA"
+        },
+        {
+          "id": "catalog",
+          "text": "EGY EREDMÉNYJELZŐ\nTÖBB MINT 26 SPORTHOZ"
+        },
+        {
+          "id": "recap",
+          "text": "NÉZZ VISSZA\nMINDEN MECCSET"
+        },
+        {
+          "id": "setup",
+          "text": "A TE SZABÁLYAID\nA TE JÁTÉKOD"
+        },
+        {
+          "id": "multiplayer",
+          "text": "TÖBBJÁTÉKOS JÁTÉKOK\nÉS TÁRSASJÁTÉKOK"
+        },
+        {
+          "id": "cast",
+          "text": "AZ EREDMÉNYJELZŐD\nNAGY KÉPERNYŐN"
+        }
+      ],
+      "playerNames": {
+        "score": "Bence",
+        "catalog": "Máté"
+      },
+      "sourceLocale": "hu",
+      "basketballTeamNames": [
+        "Hazai",
+        "Vendég"
+      ]
+    },
+    {
+      "locale": "kn-IN",
+      "fontFamily": "Noto Sans Kannada",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "ಪ್ರತಿ ಅಂಕವೂ\nಮುಖ್ಯ"
+        },
+        {
+          "id": "score",
+          "text": "ಎಲ್ಲ ಅಂಕಗಳು\nಒಂದೇ ನೋಟದಲ್ಲಿ"
+        },
+        {
+          "id": "catalog",
+          "text": "ಒಂದು ಸ್ಕೋರ್‌ಬೋರ್ಡ್\n26ಕ್ಕೂ ಹೆಚ್ಚು ಕ್ರೀಡೆಗಳಿಗೆ"
+        },
+        {
+          "id": "recap",
+          "text": "ಪ್ರತಿ ಪಂದ್ಯವನ್ನು\nಮತ್ತೆ ನೋಡಿ"
+        },
+        {
+          "id": "setup",
+          "text": "ನಿಮ್ಮ ನಿಯಮಗಳು\nನಿಮ್ಮ ಆಟ"
+        },
+        {
+          "id": "multiplayer",
+          "text": "ಬಹು ಆಟಗಾರರ ಆಟಗಳು\nಮತ್ತು ಬೋರ್ಡ್ ಆಟಗಳು"
+        },
+        {
+          "id": "cast",
+          "text": "ನಿಮ್ಮ ಸ್ಕೋರ್‌ಬೋರ್ಡ್\nದೊಡ್ಡ ಪರದೆಯಲ್ಲಿ"
+        }
+      ],
+      "playerNames": {
+        "score": "ಅರ್ಜುನ್",
+        "catalog": "ಕಿರಣ್"
+      },
+      "sourceLocale": "kn-IN",
+      "basketballTeamNames": [
+        "ಆತಿಥೇಯ",
+        "ಅತಿಥಿ"
+      ]
+    },
+    {
+      "locale": "ml-IN",
+      "fontFamily": "Noto Sans Malayalam",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "ഓരോ പോയിന്റും\nപ്രധാനമാണ്"
+        },
+        {
+          "id": "score",
+          "text": "എല്ലാ സ്കോറുകളും\nഒറ്റനോട്ടത്തിൽ"
+        },
+        {
+          "id": "catalog",
+          "text": "ഒരു സ്കോർബോർഡ്\n26-ലധികം കായിക ഇനങ്ങൾക്ക്"
+        },
+        {
+          "id": "recap",
+          "text": "ഓരോ മത്സരവും\nവീണ്ടും പരിശോധിക്കൂ"
+        },
+        {
+          "id": "setup",
+          "text": "നിങ്ങളുടെ നിയമങ്ങൾ\nനിങ്ങളുടെ കളി"
+        },
+        {
+          "id": "multiplayer",
+          "text": "ഒന്നിലധികം കളിക്കാരുടെ\nഗെയിമുകളും ബോർഡ് ഗെയിമുകളും"
+        },
+        {
+          "id": "cast",
+          "text": "നിങ്ങളുടെ സ്കോർബോർഡ്\nവലിയ സ്ക്രീനിൽ"
+        }
+      ],
+      "playerNames": {
+        "score": "അർജുൻ",
+        "catalog": "കിരൺ"
+      },
+      "sourceLocale": "ml-IN",
+      "basketballTeamNames": [
+        "ആതിഥേയ",
+        "അതിഥി"
+      ]
+    },
+    {
+      "locale": "mr-IN",
+      "fontFamily": "Noto Sans Devanagari",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "प्रत्येक गुण\nमहत्त्वाचा आहे"
+        },
+        {
+          "id": "score",
+          "text": "संपूर्ण स्कोअर\nएका नजरेत"
+        },
+        {
+          "id": "catalog",
+          "text": "एक स्कोअरबोर्ड\n26 हून अधिक खेळांसाठी"
+        },
+        {
+          "id": "recap",
+          "text": "प्रत्येक सामना\nपुन्हा पाहा"
+        },
+        {
+          "id": "setup",
+          "text": "तुमचे नियम\nतुमचा खेळ"
+        },
+        {
+          "id": "multiplayer",
+          "text": "अनेक खेळाडूंचे गेम\nआणि बोर्ड गेम"
+        },
+        {
+          "id": "cast",
+          "text": "तुमचा स्कोअरबोर्ड\nमोठ्या स्क्रीनवर"
+        }
+      ],
+      "playerNames": {
+        "score": "अजय",
+        "catalog": "राहुल"
+      },
+      "sourceLocale": "mr-IN",
+      "basketballTeamNames": [
+        "यजमान",
+        "पाहुणे"
+      ]
+    },
+    {
+      "locale": "ms-MY",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "SETIAP MATA\nBERMAKNA"
+        },
+        {
+          "id": "score",
+          "text": "SEMUA SKOR\nSEKILAS PANDANG"
+        },
+        {
+          "id": "catalog",
+          "text": "SATU PAPAN SKOR\nUNTUK LEBIH 26 SUKAN"
+        },
+        {
+          "id": "recap",
+          "text": "SEMAK SEMULA\nSETIAP PERLAWANAN"
+        },
+        {
+          "id": "setup",
+          "text": "PERATURAN ANDA\nCARA PERMAINAN ANDA"
+        },
+        {
+          "id": "multiplayer",
+          "text": "PERMAINAN BERBILANG PEMAIN\nDAN PERMAINAN PAPAN"
+        },
+        {
+          "id": "cast",
+          "text": "PAPAN SKOR ANDA\nPADA SKRIN BESAR"
+        }
+      ],
+      "playerNames": {
+        "score": "Amir",
+        "catalog": "Hakim"
+      },
+      "sourceLocale": "ms",
+      "basketballTeamNames": [
+        "Tuan Rumah",
+        "Pelawat"
+      ]
+    },
+    {
+      "locale": "no-NO",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "HVERT POENG\nTELLER"
+        },
+        {
+          "id": "score",
+          "text": "ALLE RESULTATER\nMED ETT BLIKK"
+        },
+        {
+          "id": "catalog",
+          "text": "ÉN RESULTATTAVLE\nFOR OVER 26 IDRETTER"
+        },
+        {
+          "id": "recap",
+          "text": "SE TILBAKE PÅ\nHVER KAMP"
+        },
+        {
+          "id": "setup",
+          "text": "DINE REGLER\nDITT SPILL"
+        },
+        {
+          "id": "multiplayer",
+          "text": "FLERSPILLER-\nOG BRETTSPILL"
+        },
+        {
+          "id": "cast",
+          "text": "RESULTATTAVLEN DIN\nPÅ STORSKJERMEN"
+        }
+      ],
+      "playerNames": {
+        "score": "Ola",
+        "catalog": "Emil"
+      },
+      "sourceLocale": "no",
+      "basketballTeamNames": [
+        "Hjemme",
+        "Borte"
+      ]
+    },
+    {
+      "locale": "unsupported-or-IN",
+      "fontFamily": "Noto Sans Oriya",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "ପ୍ରତ୍ୟେକ ପଏଣ୍ଟ\nଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ"
+        },
+        {
+          "id": "score",
+          "text": "ସମସ୍ତ ସ୍କୋର\nଏକ ନଜରରେ"
+        },
+        {
+          "id": "catalog",
+          "text": "ଗୋଟିଏ ସ୍କୋରବୋର୍ଡ\n26ରୁ ଅଧିକ କ୍ରୀଡ଼ା ପାଇଁ"
+        },
+        {
+          "id": "recap",
+          "text": "ପ୍ରତ୍ୟେକ ମ୍ୟାଚ୍\nପୁଣି ଦେଖନ୍ତୁ"
+        },
+        {
+          "id": "setup",
+          "text": "ଆପଣଙ୍କ ନିୟମ\nଆପଣଙ୍କ ଖେଳ"
+        },
+        {
+          "id": "multiplayer",
+          "text": "ଏକାଧିକ ଖେଳାଳିଙ୍କ ଖେଳ\nଓ ବୋର୍ଡ ଖେଳ"
+        },
+        {
+          "id": "cast",
+          "text": "ଆପଣଙ୍କ ସ୍କୋରବୋର୍ଡ\nବଡ଼ ପରଦାରେ"
+        }
+      ],
+      "playerNames": {
+        "score": "ଅର୍ଜୁନ",
+        "catalog": "ରାହୁଲ"
+      },
+      "sourceLocale": "or-IN",
+      "basketballTeamNames": [
+        "ଆୟୋଜକ",
+        "ଅତିଥି"
+      ]
+    },
+    {
+      "locale": "pa",
+      "fontFamily": "Noto Sans Gurmukhi",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "ਹਰ ਅੰਕ\nਮਾਇਨੇ ਰੱਖਦਾ ਹੈ"
+        },
+        {
+          "id": "score",
+          "text": "ਸਾਰਾ ਸਕੋਰ\nਇੱਕ ਨਜ਼ਰ ਵਿੱਚ"
+        },
+        {
+          "id": "catalog",
+          "text": "ਇੱਕ ਸਕੋਰਬੋਰਡ\n26 ਤੋਂ ਵੱਧ ਖੇਡਾਂ ਲਈ"
+        },
+        {
+          "id": "recap",
+          "text": "ਹਰ ਮੈਚ\nਮੁੜ ਵੇਖੋ"
+        },
+        {
+          "id": "setup",
+          "text": "ਤੁਹਾਡੇ ਨਿਯਮ\nਤੁਹਾਡੀ ਖੇਡ"
+        },
+        {
+          "id": "multiplayer",
+          "text": "ਕਈ ਖਿਡਾਰੀਆਂ ਵਾਲੀਆਂ ਗੇਮਾਂ\nਅਤੇ ਬੋਰਡ ਗੇਮਾਂ"
+        },
+        {
+          "id": "cast",
+          "text": "ਤੁਹਾਡਾ ਸਕੋਰਬੋਰਡ\nਵੱਡੀ ਸਕ੍ਰੀਨ ਉੱਤੇ"
+        }
+      ],
+      "playerNames": {
+        "score": "ਅਮਨ",
+        "catalog": "ਅਰਜੁਨ"
+      },
+      "sourceLocale": "pa-IN",
+      "basketballTeamNames": [
+        "ਮੇਜ਼ਬਾਨ",
+        "ਮਹਿਮਾਨ"
+      ]
+    },
+    {
+      "locale": "pl-PL",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "KAŻDY PUNKT\nSIĘ LICZY"
+        },
+        {
+          "id": "score",
+          "text": "WSZYSTKIE WYNIKI\nNA PIERWSZY RZUT OKA"
+        },
+        {
+          "id": "catalog",
+          "text": "JEDNA TABLICA WYNIKÓW\nDLA PONAD 26 DYSCYPLIN"
+        },
+        {
+          "id": "recap",
+          "text": "WRÓĆ DO\nKAŻDEGO MECZU"
+        },
+        {
+          "id": "setup",
+          "text": "TWOJE ZASADY\nTWOJA GRA"
+        },
+        {
+          "id": "multiplayer",
+          "text": "GRY WIELOOSOBOWE\nI PLANSZOWE"
+        },
+        {
+          "id": "cast",
+          "text": "TWOJE WYNIKI\nNA DUŻYM EKRANIE"
+        }
+      ],
+      "playerNames": {
+        "score": "Jan",
+        "catalog": "Piotr"
+      },
+      "sourceLocale": "pl",
+      "basketballTeamNames": [
+        "Gospodarze",
+        "Goście"
+      ]
+    },
+    {
+      "locale": "pt-PT",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "CADA PONTO\nCONTA"
+        },
+        {
+          "id": "score",
+          "text": "TODO O MARCADOR\nNUM RELANCE"
+        },
+        {
+          "id": "catalog",
+          "text": "UM MARCADOR\nPARA MAIS DE 26 DESPORTOS"
+        },
+        {
+          "id": "recap",
+          "text": "REVÊ\nCADA PARTIDA"
+        },
+        {
+          "id": "setup",
+          "text": "AS TUAS REGRAS\nA TUA FORMA DE JOGAR"
+        },
+        {
+          "id": "multiplayer",
+          "text": "JOGOS MULTIJOGADOR\nE DE TABULEIRO"
+        },
+        {
+          "id": "cast",
+          "text": "O TEU MARCADOR\nNO GRANDE ECRÃ"
+        }
+      ],
+      "playerNames": {
+        "score": "João",
+        "catalog": "Miguel"
+      },
+      "sourceLocale": "pt-PT",
+      "basketballTeamNames": [
+        "Casa",
+        "Visitante"
+      ]
+    },
+    {
+      "locale": "ro",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "FIECARE PUNCT\nCONTEAZĂ"
+        },
+        {
+          "id": "score",
+          "text": "TOATE SCORURILE\nDINTR-O PRIVIRE"
+        },
+        {
+          "id": "catalog",
+          "text": "O SINGURĂ TABELĂ\nPENTRU PESTE 26 DE SPORTURI"
+        },
+        {
+          "id": "recap",
+          "text": "REVINO LA\nFIECARE MECI"
+        },
+        {
+          "id": "setup",
+          "text": "REGULILE TALE\nJOCUL TĂU"
+        },
+        {
+          "id": "multiplayer",
+          "text": "JOCURI MULTIPLAYER\nȘI DE SOCIETATE"
+        },
+        {
+          "id": "cast",
+          "text": "TABELA TA\nPE ECRANUL MARE"
+        }
+      ],
+      "playerNames": {
+        "score": "Andrei",
+        "catalog": "Mihai"
+      },
+      "sourceLocale": "ro",
+      "basketballTeamNames": [
+        "Gazde",
+        "Oaspeți"
+      ]
+    },
+    {
+      "locale": "sk",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "KAŽDÝ\nBOD\nSA POČÍTA"
+        },
+        {
+          "id": "score",
+          "text": "VŠETKY SKÓRE\nNA PRVÝ POHĽAD"
+        },
+        {
+          "id": "catalog",
+          "text": "JEDNA TABUĽA\nPRE VIAC AKO 26 ŠPORTOV"
+        },
+        {
+          "id": "recap",
+          "text": "VRÁŤTE SA\nKU KAŽDÉMU ZÁPASU"
+        },
+        {
+          "id": "setup",
+          "text": "VAŠE PRAVIDLÁ\nVAŠA HRA"
+        },
+        {
+          "id": "multiplayer",
+          "text": "HRY PRE VIACERÝCH\nA STOLOVÉ HRY"
+        },
+        {
+          "id": "cast",
+          "text": "VAŠA TABUĽA\nNA VEĽKEJ OBRAZOVKE"
+        }
+      ],
+      "playerNames": {
+        "score": "Martin",
+        "catalog": "Tomáš"
+      },
+      "sourceLocale": "sk",
+      "basketballTeamNames": [
+        "Domáci",
+        "Hostia"
+      ]
+    },
+    {
+      "locale": "sl",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "VSAKA TOČKA\nŠTEJE"
+        },
+        {
+          "id": "score",
+          "text": "VSI REZULTATI\nNA PRVI POGLED"
+        },
+        {
+          "id": "catalog",
+          "text": "EN SEMAFOR\nZA VEČ KOT 26 ŠPORTOV"
+        },
+        {
+          "id": "recap",
+          "text": "POGLEJTE NAZAJ\nNA VSAKO TEKMO"
+        },
+        {
+          "id": "setup",
+          "text": "VAŠA PRAVILA\nVAŠA IGRA"
+        },
+        {
+          "id": "multiplayer",
+          "text": "IGRE ZA VEČ IGRALCEV\nIN NAMIZNE IGRE"
+        },
+        {
+          "id": "cast",
+          "text": "VAŠ SEMAFOR\nNA VELIKEM ZASLONU"
+        }
+      ],
+      "playerNames": {
+        "score": "Luka",
+        "catalog": "Jan"
+      },
+      "sourceLocale": "sl-SI",
+      "basketballTeamNames": [
+        "Domači",
+        "Gostje"
+      ]
+    },
+    {
+      "locale": "sv-SE",
+      "fontFamily": "Poppins",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "VARJE POÄNG\nRÄKNAS"
+        },
+        {
+          "id": "score",
+          "text": "ALLA RESULTAT\nMED EN BLICK"
+        },
+        {
+          "id": "catalog",
+          "text": "EN RESULTATTAVLA\nFÖR ÖVER 26 SPORTER"
+        },
+        {
+          "id": "recap",
+          "text": "SE TILLBAKA PÅ\nVARJE MATCH"
+        },
+        {
+          "id": "setup",
+          "text": "DINA REGLER\nDITT SPEL"
+        },
+        {
+          "id": "multiplayer",
+          "text": "FLERSPELARSPEL\nOCH BRÄDSPEL"
+        },
+        {
+          "id": "cast",
+          "text": "DIN RESULTATTAVLA\nPÅ STORSKÄRMEN"
+        }
+      ],
+      "playerNames": {
+        "score": "Erik",
+        "catalog": "Johan"
+      },
+      "sourceLocale": "sv",
+      "basketballTeamNames": [
+        "Hemma",
+        "Borta"
+      ]
+    },
+    {
+      "locale": "ta-IN",
+      "fontFamily": "Noto Sans Tamil",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "ஒவ்வொரு புள்ளியும்\nமுக்கியம்"
+        },
+        {
+          "id": "score",
+          "text": "அனைத்துப் புள்ளிகளும்\nஒரே பார்வையில்"
+        },
+        {
+          "id": "catalog",
+          "text": "ஒரே ஸ்கோர்போர்டு\n26-க்கும் மேற்பட்ட விளையாட்டுகளுக்கு"
+        },
+        {
+          "id": "recap",
+          "text": "ஒவ்வொரு போட்டியையும்\nமீண்டும் பாருங்கள்"
+        },
+        {
+          "id": "setup",
+          "text": "உங்கள் விதிகள்\nஉங்கள் விளையாட்டு"
+        },
+        {
+          "id": "multiplayer",
+          "text": "பலர் விளையாடும்\nவிளையாட்டுகளும் பலகை விளையாட்டுகளும்"
+        },
+        {
+          "id": "cast",
+          "text": "உங்கள் ஸ்கோர்போர்டு\nபெரிய திரையில்"
+        }
+      ],
+      "playerNames": {
+        "score": "அருண்",
+        "catalog": "கவின்"
+      },
+      "sourceLocale": "ta-IN",
+      "basketballTeamNames": [
+        "உள்ளூர்",
+        "விருந்தினர்"
+      ]
+    },
+    {
+      "locale": "te-IN",
+      "fontFamily": "Noto Sans Telugu",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "ప్రతి పాయింట్\nముఖ్యం"
+        },
+        {
+          "id": "score",
+          "text": "అన్ని స్కోర్లు\nఒక్క చూపులో"
+        },
+        {
+          "id": "catalog",
+          "text": "ఒకే స్కోర్‌బోర్డ్\n26కు పైగా క్రీడలకు"
+        },
+        {
+          "id": "recap",
+          "text": "ప్రతి మ్యాచ్‌ను\nమళ్లీ చూడండి"
+        },
+        {
+          "id": "setup",
+          "text": "మీ నియమాలు\nమీ ఆట"
+        },
+        {
+          "id": "multiplayer",
+          "text": "బహుళ ఆటగాళ్ల ఆటలు\nమరియు బోర్డు ఆటలు"
+        },
+        {
+          "id": "cast",
+          "text": "మీ స్కోర్‌బోర్డ్\nపెద్ద తెరపై"
+        }
+      ],
+      "playerNames": {
+        "score": "అర్జున్",
+        "catalog": "కిరణ్"
+      },
+      "sourceLocale": "te-IN",
+      "basketballTeamNames": [
+        "ఆతిథ్య",
+        "అతిథి"
+      ]
+    },
+    {
+      "locale": "uk",
+      "fontFamily": "Montserrat",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "КОЖНЕ ОЧКО\nВАЖЛИВЕ"
+        },
+        {
+          "id": "score",
+          "text": "УВЕСЬ РАХУНОК\nЗ ПЕРШОГО ПОГЛЯДУ"
+        },
+        {
+          "id": "catalog",
+          "text": "ОДНЕ ТАБЛО\nДЛЯ 26+ ВИДІВ СПОРТУ"
+        },
+        {
+          "id": "recap",
+          "text": "ПЕРЕГЛЯНЬТЕ\nКОЖЕН МАТЧ"
+        },
+        {
+          "id": "setup",
+          "text": "ВАШІ ПРАВИЛА\nВАША ГРА"
+        },
+        {
+          "id": "multiplayer",
+          "text": "ІГРИ ДЛЯ КОМПАНІЇ\nТА НАСТІЛЬНІ ІГРИ"
+        },
+        {
+          "id": "cast",
+          "text": "ВАШЕ ТАБЛО\nНА ВЕЛИКОМУ ЕКРАНІ"
+        }
+      ],
+      "playerNames": {
+        "score": "Андрій",
+        "catalog": "Тарас"
+      },
+      "sourceLocale": "uk",
+      "basketballTeamNames": [
+        "Господарі",
+        "Гості"
+      ]
+    },
+    {
+      "locale": "ur",
+      "fontFamily": "Noto Sans Arabic",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "ہر پوائنٹ\nاہم ہے"
+        },
+        {
+          "id": "score",
+          "text": "پورا اسکور\nایک نظر میں"
+        },
+        {
+          "id": "catalog",
+          "text": "ایک اسکور بورڈ\n26 سے زیادہ کھیلوں کے لیے"
+        },
+        {
+          "id": "recap",
+          "text": "ہر میچ کا\nدوبارہ جائزہ لیں"
+        },
+        {
+          "id": "setup",
+          "text": "آپ کے اصول\nآپ کا کھیل"
+        },
+        {
+          "id": "multiplayer",
+          "text": "کئی کھلاڑیوں کے کھیل\nاور بورڈ گیمز"
+        },
+        {
+          "id": "cast",
+          "text": "آپ کا اسکور بورڈ\nبڑی اسکرین پر"
+        }
+      ],
+      "playerNames": {
+        "score": "احمد",
+        "catalog": "علی"
+      },
+      "sourceLocale": "ur-PK",
+      "basketballTeamNames": [
+        "میزبان",
+        "مہمان"
+      ]
+    },
+    {
+      "locale": "zh-TW",
+      "fontFamily": "Noto Sans TC",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "每一分\n都值得"
+        },
+        {
+          "id": "score",
+          "text": "比賽計分\n一眼看清"
+        },
+        {
+          "id": "catalog",
+          "text": "26+ 運動項目\n開啟就能計分"
+        },
+        {
+          "id": "recap",
+          "text": "賽後回顧\n看見每次進步"
+        },
+        {
+          "id": "setup",
+          "text": "規則由你決定\n怎麼打都能計分"
+        },
+        {
+          "id": "multiplayer",
+          "text": "多人遊戲\n桌遊都支援"
+        },
+        {
+          "id": "cast",
+          "text": "投放到電視\n全場都看得清"
+        }
+      ],
+      "playerNames": {
+        "score": "陳冠廷",
+        "catalog": "林雅婷"
+      },
+      "sourceLocale": "zh-Hant",
+      "basketballTeamNames": [
+        "主隊",
+        "客隊"
+      ]
+    },
+    {
+      "locale": "zh-CN",
+      "fontFamily": "Noto Sans SC",
+      "cards": [
+        {
+          "id": "slogan",
+          "text": "每一分\n都值得\n每一场\n都精彩"
+        },
+        {
+          "id": "score",
+          "text": "比赛计分\n一眼看清"
+        },
+        {
+          "id": "catalog",
+          "text": "26+ 运动项目\n打开就能计分"
+        },
+        {
+          "id": "recap",
+          "text": "赛后回顾\n看见每次进步"
+        },
+        {
+          "id": "setup",
+          "text": "规则由你决定\n怎么打都能计分"
+        },
+        {
+          "id": "multiplayer",
+          "text": "多人游戏\n桌游都支持"
+        },
+        {
+          "id": "cast",
+          "text": "投放到电视\n全场都看得清"
+        }
+      ],
+      "playerNames": {
+        "score": "陈冠廷",
+        "catalog": "林雅婷"
+      },
+      "sourceLocale": "zh-Hans",
+      "basketballTeamNames": [
+        "主队",
+        "客队"
+      ],
+      "multiplayerNames": [
+        "玩家1",
+        "玩家2",
+        "玩家3",
+        "玩家4"
+      ],
+      "basketballQuarterLabel": "第4节"
+    }
+  ]
+}

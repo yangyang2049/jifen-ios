@@ -1,0 +1,68 @@
+{
+  "locale": "ja",
+  "appleLanguage": "ja",
+  "appleLocale": "ja_JP",
+  "names": [
+    "伊達政宗",
+    "真田幸村",
+    "武田信玄",
+    "上杉謙信"
+  ],
+  "fontFamily": "Noto Sans JP",
+  "basketballTeams": [
+    "ホーム",
+    "アウェイ"
+  ],
+  "simulator": "7230B956-03E3-4A0B-9322-B555C35F76F0",
+  "cards": [
+    {
+      "index": 1,
+      "scene": "snooker",
+      "file": "exports/ja/01-snooker.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "802bee2a177573de8e0cd03e789ad81802171e464e220f112e91f85ee2ff00df",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 2,
+      "scene": "basketball",
+      "file": "exports/ja/02-basketball.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "0eb98cf8914b875233f2005f15d77b269aa6dd74d5b7b02979aee847fa5fea25",
+      "capture": "production SwiftUI via simctl",
+      "teamNames": [
+        "ホーム",
+        "アウェイ"
+      ]
+    },
+    {
+      "index": 3,
+      "scene": "record",
+      "file": "exports/ja/03-record.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "384b7dfa122b28045bf3e63875a0916728d0a1d08655e763400bed2a5cf65bae",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 4,
+      "scene": "setup",
+      "file": "exports/ja/04-setup.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "31c9fb5b4cd8b7276c72fdaaab7b2c4614d0577731cdfca9504cd88242f423bf",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 5,
+      "scene": "home",
+      "file": "exports/ja/05-home.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "5e8fc00c38e4553ac9de124e7996d4139d3fafda8b843e86d622345181e8097d",
+      "capture": "production SwiftUI via simctl"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "locale": "en-AU",
+  "iosLocale": "en",
+  "language": "English (Australia)",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Sports Scoreboard",
+  "subtitle": "Scores, timers & match records",
+  "description": "Every point counts. Turn your iPhone or iPad into a clear, easy-to-use scoreboard for matches, training and games with friends.\n\nKeep score for 26+ sports and games, including tennis, pickleball, badminton, table tennis, basketball, football, volleyball and billiards. Adjust scoring rules, match formats and doubles serving order for supported sports.\n\nReview saved matches with score trends, timelines and voice notes. Use built-in chess and Go clocks, a cube timer and a stopwatch. Display your scoreboard on a larger screen and share a match code so friends can follow the score remotely.\n\nGet practical tools for coin tosses, random teams, red and yellow cards, and splitting the bill. Spend less time keeping track and more time enjoying the game.\n\nTerms of Use:\nhttps://jifenqi.com/terms\n\nPrivacy Policy:\nhttps://jifenqi.com/privacy\n\nApple Standard EULA:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Every point\ncounts",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "See every score\nat a glance",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "One scoreboard\nfor 26+ sports",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Review\nevery match",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Set your rules\nplay your way",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "More than\nball games",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Your scoreboard\non the big screen",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Score from\nyour wrist",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Every referee\ntool in one app",
+      "enabled": true
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+/* 
+  InfoPlist.strings
+  jifen
+
+  Localized privacy permission descriptions
+*/
+
+"NSPhotoLibraryAddUsageDescription" = "Skor tablosu ekran görüntülerini kaydetmek için fotoğraf kitaplığınıza erişmemiz gerekiyor.";
+"CFBundleDisplayName" = "iScoreboard";
+"NSCameraUsageDescription" = "Kamera, güvenilir oturum açma QR kodlarını taramak ve avatar fotoğrafınızı çekmek için kullanılır.";
+"NSMicrophoneUsageDescription" = "Mikrofon sesli notları kaydetmek için kullanılır.";

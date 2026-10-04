@@ -3,6 +3,8 @@ DerivedData/
 *.xcuserstate
 .DS_Store
 xcuserdata/
+__pycache__/
+*.py[cod]
 UITestScreenshots/
 UITestScreenshots-iPad/
 UITestScreenshots-All/
@@ -11,3 +13,15 @@ UITestScreenshots-All/
 
 # 业务/合同类文档不入库
 APP_*.docx
+
+# 可重新生成的构建与测试结果
+/Packages/JifenCore/build/
+*.xcresult/
+
+# 截图流程的过程备份、临时采集和重复交付包
+/artifacts/ios-screenshots-*/before-*/
+/artifacts/ios-screenshots-*/capture-run/
+/artifacts/ios-screenshots-*/final-slogans/
+/marketing/artifacts/**/before-*/
+/marketing/google-play/localization-*/before-*/
+/marketing/google-play/localization-*/package/

@@ -106,7 +106,7 @@ enum ScoreboardExternalResultScorePresentation {
         case "games":
             return "\(finalScore?.games ?? team?.games ?? 0)"
         default:
-            // Preserve display-only tennis values such as AD when the live
+            // Preserve display-only tennis values such as Ad when the live
             // score and authoritative final numeric value describe the same
             // level. Older payloads without the explicit level also retain
             // their established points-only rendering.
@@ -1277,7 +1277,7 @@ struct ScoreboardExternalLiveView: View {
             guard let advantage, !advantage.isEmpty, advantage != "none" else { return "40" }
             let advantageScreenSide = servingScreenSide(forTeam: advantage)
             let hasAdvantage = isLeft ? advantageScreenSide == "left" : advantageScreenSide == "right"
-            return hasAdvantage ? "AD" : "40"
+            return hasAdvantage ? "Ad" : "40"
         }
         if ExternalTennisScoreProjection.hidesTransientCompletedGameOrdinal(
             rawScore: rawScore,
@@ -1286,7 +1286,7 @@ struct ScoreboardExternalLiveView: View {
             isLocalProjection: projection.isLocalProjection
         ) {
             // Completed games can briefly publish ordinal 4 before games/sets
-            // catch up. Do not flash a false AD during that transition.
+            // catch up. Do not flash a false Ad during that transition.
             return "0"
         }
         return formatTennisPointScore(rawScore)
@@ -1298,14 +1298,14 @@ struct ScoreboardExternalLiveView: View {
         case 1: "15"
         case 2: "30"
         case 3: "40"
-        case 4: "AD"
+        case 4: "Ad"
         default: "--"
         }
     }
 
     private func formatSoftTennisPoint(_ score: Int, opponentScore: Int) -> String {
         if score <= 3 { return "\(score)" }
-        if score - opponentScore == 1 { return "AD" }
+        if score - opponentScore == 1 { return "Ad" }
         return "3"
     }
 
@@ -2043,7 +2043,10 @@ private struct DisplayTwoSideSurface: View {
 
     @ViewBuilder
     private func secondaryScore(side: DisplayTwoSideSideModel) -> some View {
-        let content = Text(side.secondaryText.isEmpty ? "0" : side.secondaryText)
+        let content = Text(ScoreAdditionTypography.attributedLabel(
+            side.secondaryText.isEmpty ? "0" : side.secondaryText,
+            numberFontSize: snookerSecondaryFontSize
+        ))
             .font(scoreFont(size: snookerSecondaryFontSize))
             .foregroundStyle(side.secondaryText.isEmpty ? Color.clear : Color(hex: side.secondaryHex))
             .lineLimit(1)
@@ -3294,13 +3297,17 @@ private struct ScoreboardExternalRestOverlay: View {
                         Text(titleLines[0])
                             .font(.system(size: 18 * scale, weight: .medium))
                             .foregroundColor(.white)
-                            .lineLimit(1)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity)
                             .multilineTextAlignment(.center)
                         if titleLines.count > 1 {
                             Text(titleLines.dropFirst().joined(separator: " · "))
                                 .font(.system(size: 16 * scale, weight: .medium))
                                 .foregroundColor(.white)
                                 .lineLimit(2)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxWidth: .infinity)
                                 .multilineTextAlignment(.center)
                         }
                     }
@@ -3309,9 +3316,9 @@ private struct ScoreboardExternalRestOverlay: View {
                         .monospacedDigit()
                         .foregroundColor(Color(red: 0x31 / 255, green: 0xD1 / 255, blue: 0x58 / 255))
                 }
-                .frame(minWidth: 156 * scale)
                 .padding(.horizontal, 24 * scale)
                 .padding(.vertical, 14 * scale)
+                .frame(width: min(viewport.width * 0.9, 360 * scale))
                 .background(
                     Color(red: 0x0C / 255, green: 0x0C / 255, blue: 0x0E / 255).opacity(0.8),
                     in: RoundedRectangle(cornerRadius: 32 * scale, style: .continuous)

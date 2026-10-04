@@ -1,0 +1,282 @@
+[
+  {
+    "slug": "chess-a",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 934280,
+    "opaque_pixels": 1756,
+    "alpha_bounds": [
+      57,
+      39,
+      1227,
+      1236
+    ]
+  },
+  {
+    "slug": "chess-b",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 1103860,
+    "opaque_pixels": 1461,
+    "alpha_bounds": [
+      97,
+      82,
+      1057,
+      1254
+    ]
+  },
+  {
+    "slug": "playing-cards-a",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 752816,
+    "opaque_pixels": 1299,
+    "alpha_bounds": [
+      95,
+      120,
+      1192,
+      1182
+    ]
+  },
+  {
+    "slug": "playing-cards-b",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 861301,
+    "opaque_pixels": 1223,
+    "alpha_bounds": [
+      91,
+      130,
+      1128,
+      1150
+    ]
+  },
+  {
+    "slug": "uno-a",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 722639,
+    "opaque_pixels": 1519,
+    "alpha_bounds": [
+      2,
+      53,
+      1190,
+      1174
+    ]
+  },
+  {
+    "slug": "uno-b",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 752299,
+    "opaque_pixels": 1145,
+    "alpha_bounds": [
+      82,
+      71,
+      1193,
+      1145
+    ]
+  },
+  {
+    "slug": "foosball-a",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 1143244,
+    "opaque_pixels": 1133,
+    "alpha_bounds": [
+      0,
+      21,
+      1228,
+      1254
+    ]
+  },
+  {
+    "slug": "foosball-b",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 848204,
+    "opaque_pixels": 1437,
+    "alpha_bounds": [
+      0,
+      53,
+      1241,
+      1214
+    ]
+  },
+  {
+    "slug": "go-a",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 908684,
+    "opaque_pixels": 856,
+    "alpha_bounds": [
+      59,
+      13,
+      1202,
+      1200
+    ]
+  },
+  {
+    "slug": "go-b",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 857271,
+    "opaque_pixels": 654,
+    "alpha_bounds": [
+      0,
+      21,
+      1222,
+      1254
+    ]
+  },
+  {
+    "slug": "xiangqi-a",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 851089,
+    "opaque_pixels": 884,
+    "alpha_bounds": [
+      99,
+      171,
+      1196,
+      1238
+    ]
+  },
+  {
+    "slug": "xiangqi-b",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 825546,
+    "opaque_pixels": 856,
+    "alpha_bounds": [
+      0,
+      113,
+      1192,
+      1254
+    ]
+  },
+  {
+    "slug": "checkers-a",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 945007,
+    "opaque_pixels": 836,
+    "alpha_bounds": [
+      0,
+      48,
+      1220,
+      1212
+    ]
+  },
+  {
+    "slug": "checkers-b",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 800860,
+    "opaque_pixels": 552,
+    "alpha_bounds": [
+      0,
+      23,
+      1240,
+      1254
+    ]
+  }
+]

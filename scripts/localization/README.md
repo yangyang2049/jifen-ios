@@ -73,10 +73,15 @@ Set `LOCALIZATION_VISUAL_AUDIT_DIR` to preserve earlier screenshots in a separat
 directory when running a new audit.
 
 Reviewed `vip_agreement_plain_prefix`, `vip_agreement_link_separator`, and
-`vip_agreement_link_middle_separator` values retain grammatical boundary spaces
-when saved and promoted. These three fragments are concatenated directly in the
-membership page. Validation permits one ordinary boundary space for these keys
+`vip_agreement_link_middle_separator`, `setup_suffix`, and
+`doudizhu_winner_separator` values retain grammatical boundary spaces when saved
+and promoted. These fragments are concatenated directly in membership sentences,
+setup titles, and winner-name lists. Validation permits one ordinary boundary space for these keys
 only; provider drafts and ordinary labels still have padding removed.
+
+Source URLs must remain exact in reviewed translations. The `protected-url`
+gate ignores surrounding sentence punctuation and translated brackets, but
+blocks changed addresses, missing URLs, or inserted spaces inside a domain.
 
 After a generated packet has been checked line by line, it can itself be passed
 to `apply-review`; unchanged rows are approved with source/draft freshness
@@ -134,3 +139,67 @@ node scripts/localization/gen_zh_hant.mjs --check
 The generator defaults to sibling `jifen-android` and `jifenqi-website`
 directories; use its `--android-cn`, `--android-tw`, and `--website-root`
 arguments when the checkout layout differs.
+
+## Sports voice templates
+
+Production announcements use `LocalizedVoiceAnnouncementBuilder.buildReviewed`.
+Its sport/language/phase rules are grounded in the sources listed in
+[`sports-voice-score-calls-2026-10-03.md`](../../docs/sports-voice-score-calls-2026-10-03.md).
+Catalog `reviewed` status validates resource consistency; it does not certify an
+officiating expression. Unverified score calls use `score.numbers` with a pause,
+without importing another sport's terminology. The documented three-number
+pickleball doubles call retains its server number.
+
+To export reviewed catalogs and actual iOS production messages for the existing
+domestic Android, Google Android and HarmonyOS parity tests:
+
+```sh
+python3 scripts/localization/sync_reviewed_voice_catalogs.py --fixtures
+```
+
+The exporter runs a temporary Swift test and removes it when finished. Android
+adapts 0/15/30/40/45 displayed points; HarmonyOS retains step counts. Fixtures test
+the public production builders, native calls, numeric fallbacks, names, recurring
+deuce and documented sides-exchange cues. Exporting catalogs does not add voice
+languages or enable unverified expressions.
+
+Before writing any sibling project, the exporter validates every catalog's
+source hash, review state, positional arguments, locale identity and promoted
+resource. A failed gate leaves the sibling projects untouched.
+
+`ScoreVoice.strings` is independent of UI translations. The 46 voice locales
+come from the UI manifest minus Urdu. iOS 26 enables 42; Gujarati, Malayalam,
+Odia and Punjabi require iOS 27. Product support determines entry visibility;
+installed voices determine whether playback can start. Regional French, Spanish
+and Portuguese variants require their exact voice region.
+
+`voice-phrases.json` contains native sentence frames, sports terms, native
+numbered game/set captions and quantity forms. `voice_catalogs/<locale>.json`
+records reviewed values and source hashes. This campaign was authored and
+reviewed by Codex without external translation providers; it does not represent
+a separate native-speaker review. English source sentences serve as semantic
+IDs; playback never translates through string replacement. Legacy Chinese call
+templates remain for compatibility tests; production uses the evidence matrix
+above.
+
+```sh
+python3 scripts/localization/localize.py voice validate
+python3 scripts/localization/localize.py voice promote --locale fr-CA --dry-run
+python3 scripts/localization/localize.py voice promote --locale fr-CA
+python3 -m unittest discover -s scripts/localization -p 'test_voice_localization.py'
+```
+
+Validation rejects missing/extra catalogs, stale/unreviewed rows, empty values,
+missing or changed positional arguments, unsafe printf formats and resources
+that differ from the reviewed catalog. Repeating a positional argument is
+allowed for native constructions such as Korean tied scores. After changing
+a frame, inspect every resulting sentence and quantity/name construction,
+update its reviewed value/hash, promote it, then run the voice gate and core/app
+tests. The common table contains 194 entries; Chinese tables also contain 76
+legacy call templates.
+
+Speech uses `AVSpeechSynthesisVoice.speechVoices()` without a system-default
+fallback. No speech asset is bundled and no private Settings URL is used.
+Download guidance names Settings → Accessibility → VoiceOver → Speech and
+explicitly says VoiceOver need not be enabled. The per-match missing-voice
+notification budget uses the existing persisted session ID, in memory only.

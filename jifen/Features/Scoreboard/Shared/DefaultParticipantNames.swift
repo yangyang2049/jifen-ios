@@ -74,6 +74,12 @@ enum DefaultParticipantNames {
         ]
     }
 
+    static func numberedPlayer(_ number: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString("multi_score_player_default_format", value: "Player %d", comment: ""), number
+        )
+    }
+
     static var shuttlecockTeamMembers: [String] {
         [
             NSLocalizedString("shuttlecock_red_1", value: "红A", comment: ""),

@@ -1,0 +1,24 @@
+{
+  "verifiedAt": "2026-10-03T18:51:11.390554+08:00",
+  "appId": "6759768784",
+  "appInfoId": "1aa0ff31-d3d8-4d53-8b4e-983263bf8659",
+  "storeState": "PREPARE_FOR_SUBMISSION",
+  "verified": true,
+  "changedField": "name",
+  "localizations": [
+    {
+      "locale": "zh-Hans",
+      "name": "全能计分器",
+      "action": "unchanged"
+    },
+    {
+      "locale": "zh-Hant",
+      "name": "全能計分器",
+      "action": "unchanged"
+    }
+  ],
+  "otherFieldsPreserved": true,
+  "otherLocalesPreserved": true,
+  "submittedForReview": false,
+  "released": false
+}

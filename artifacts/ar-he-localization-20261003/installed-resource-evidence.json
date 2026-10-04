@@ -1,0 +1,14 @@
+{
+  "game_type_badminton": [
+    "      () \"Badminton\""
+  ],
+  "sports_setup_serving_side": [
+    "      () \"First server\""
+  ],
+  "setup_match_completion_classic": [
+    "      () \"Best of\""
+  ],
+  "setup_set_unit": [
+    "      () \"games\""
+  ]
+}

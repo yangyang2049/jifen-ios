@@ -1,0 +1,216 @@
+{
+  "appId": "6759768784",
+  "version": "3.3",
+  "appInfoId": "1aa0ff31-d3d8-4d53-8b4e-983263bf8659",
+  "appStoreVersionId": "a118dc62-4303-4c03-ae92-b358c60438d5",
+  "startedAt": "20261002T113436128204Z",
+  "backup": "before-20261002T113436128204Z.json",
+  "results": [
+    {
+      "locale": "ar-SA",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: ar-SA already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "bn-BD",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: bn-BD already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "ca",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: ca already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "cs",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: cs already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "da",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: da already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "de-DE",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: de-DE already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "el",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: el already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "en-AU",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: en-AU already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "en-CA",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: en-CA already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "en-GB",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: en-GB already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "en-US",
+      "nameAndSubtitle": "PATCH",
+      "description": "PATCH"
+    },
+    {
+      "locale": "es-ES",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: es-ES already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "es-MX",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: es-MX already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "fi",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: fi already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "fr-CA",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: fr-CA already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "fr-FR",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: fr-FR already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "gu-IN",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: gu-IN already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "he",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: he already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "hi",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: hi already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "hr",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: hr already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "hu",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: hu already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "id",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: id already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "it",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: it already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "ja",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: ja already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "kn-IN",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: kn-IN already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "ko",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: ko already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "ml-IN",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: ml-IN already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "mr-IN",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: mr-IN already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "ms",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: ms already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "nl-NL",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: nl-NL already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "no",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: no already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "or-IN",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: or-IN already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "pa-IN",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: pa-IN already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    },
+    {
+      "locale": "pl",
+      "nameAndSubtitle": "POST",
+      "description": "pending",
+      "error": "POST https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE\", \"detail\": \"Entity with locale: pl already exists. Try updating.\", \"source\": {\"pointer\": \"/data/attributes/locale\"}}]"
+    }
+  ],
+  "submittedForReview": false,
+  "released": false,
+  "screenshotUpload": false
+}

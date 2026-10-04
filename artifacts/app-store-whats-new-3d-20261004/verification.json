@@ -1,0 +1,21 @@
+{
+  "verified": true,
+  "appId": "6759768784",
+  "version": "3.2.3",
+  "verifiedLocales": [
+    "en-US",
+    "en-GB",
+    "en-CA",
+    "en-AU",
+    "zh-Hans",
+    "zh-Hant"
+  ],
+  "verifiedLocaleCount": 6,
+  "untouchedLocaleCount": 44,
+  "mismatches": [],
+  "otherFieldChanges": [],
+  "versionAttributesUnchanged": true,
+  "appStoreState": "PREPARE_FOR_SUBMISSION",
+  "submittedForReview": false,
+  "completedAt": "2026-10-04T05:54:23.170928+00:00"
+}

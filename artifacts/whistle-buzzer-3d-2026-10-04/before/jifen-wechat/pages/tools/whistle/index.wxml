@@ -1,0 +1,16 @@
+<view class="wh-root">
+  <view
+    class="wh-card wh-card--short {{isPlayingShort ? 'wh-card--short-on' : ''}}"
+    bindtap="playShort"
+  >
+    <text class="wh-emoji {{isPlayingShort ? 'wh-emoji--pop' : ''}}">🔊</text>
+    <text class="wh-label">短哨</text>
+  </view>
+  <view
+    class="wh-card wh-card--long {{isPlayingLong ? 'wh-card--long-on' : ''}}"
+    bindtap="playLong"
+  >
+    <text class="wh-emoji {{isPlayingLong ? 'wh-emoji--pop' : ''}}">📯</text>
+    <text class="wh-label">蜂鸣</text>
+  </view>
+</view>

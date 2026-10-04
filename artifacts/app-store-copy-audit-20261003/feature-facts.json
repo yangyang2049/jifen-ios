@@ -1,0 +1,20 @@
+{
+  "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Shared/GameCatalog.swift",
+  "catalogItems": 29,
+  "englishVisibleItems": 27,
+  "descriptionClaimsVerifiedFromCurrentSource": [
+    "iPhone/iPad support",
+    "scoreboard sports and games",
+    "match formats and supported doubles serving order",
+    "saved records and charts",
+    "voice notes recording",
+    "chess and Go clocks",
+    "cube timer and stopwatch",
+    "large-screen scoreboard and remote match code",
+    "coin toss, random teams, red-yellow cards, AA bill splitting"
+  ],
+  "notes": [
+    "26+ is supported as a broad count of scoring entries; the catalog also includes game modes, cards and variants.",
+    "Verification here is source-level copy accuracy, not new device testing."
+  ]
+}

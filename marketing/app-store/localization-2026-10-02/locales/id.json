@@ -1,0 +1,58 @@
+{
+  "locale": "id",
+  "iosLocale": "id",
+  "language": "Indonesian",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Papan Skor",
+  "subtitle": "Skor, waktu dan catatan laga",
+  "description": "Setiap poin berarti. Ubah iPhone atau iPad menjadi papan skor yang jelas dan mudah digunakan untuk pertandingan, latihan, dan permainan bersama teman.\n\nCatat skor untuk lebih dari 26 olahraga dan permainan, termasuk tenis, pickleball, bulu tangkis, tenis meja, basket, sepak bola, voli, dan biliar. Atur aturan poin, format pertandingan, dan urutan servis ganda pada olahraga yang mendukungnya.\n\nSimpan pertandingan dan tinjau perubahan skor, linimasa, serta catatan suara. Gunakan jam catur dan go, pewaktu kubus Rubik, dan stopwatch. Tampilkan papan skor di layar besar dan bagikan kode pertandingan agar teman dapat mengikuti skor dari jauh.\n\nLempar koin, bagi tim secara acak, tampilkan kartu merah dan kuning, serta bagi biaya dengan alat praktis dalam satu aplikasi. Lebih sedikit repot menghitung, lebih banyak waktu menikmati permainan.\n\nKetentuan penggunaan:\nhttps://jifenqi.com/terms\n\nKebijakan privasi:\nhttps://jifenqi.com/privacy\n\nPerjanjian lisensi pengguna akhir standar Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Setiap poin\nberarti",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Semua skor\nsekilas terlihat",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "Satu papan skor\nuntuk 26+ olahraga",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Tinjau kembali\nsetiap pertandingan",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Aturanmu\ncara bermainmu",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Lebih dari sekadar\npermainan bola",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Papan skormu\ndi layar besar",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Catat skor\ndari pergelangan tangan",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Peralatan wasit\ndalam satu aplikasi",
+      "enabled": true
+    }
+  ]
+}

@@ -34,6 +34,9 @@ nonisolated struct FeedbackItem: Codable, Identifiable, Equatable, Sendable {
     var isLiked: Bool
     var isReported: Bool
     var clientPlatform: String?
+    var language: String? = nil
+    var isPinned: Bool? = nil
+    var isOfficial: Bool? = nil
     var moderationStatus: String? = nil
     var visibility: String? = nil
     var isVisibleToOthers: Bool? = nil

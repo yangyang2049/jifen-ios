@@ -1,0 +1,36 @@
+<svg width="1284" height="2778" viewBox="0 0 1284 2778" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<rect width="1284" height="2778" fill="#0B61FB"/>
+<text fill="white" style="white-space: pre" xml:space="preserve" font-family="Poppins" font-size="116" font-style="italic" font-weight="bold" letter-spacing="-0.04em"><tspan x="190.375" y="282.6">MULTI-PLAYER &#38;&#10;</tspan><tspan x="237.563" y="398.6">BOARD GAMES</tspan></text>
+<rect x="34" y="590" width="1217" height="560" rx="32" fill="url(#pattern0_1342_150)"/>
+<rect x="28" y="584" width="1229" height="572" rx="38" stroke="white" stroke-opacity="0.4" stroke-width="12"/>
+<rect x="33" y="1000" width="1218" height="560" rx="32" fill="url(#pattern1_1342_150)"/>
+<rect x="27" y="994" width="1230" height="572" rx="38" stroke="white" stroke-opacity="0.4" stroke-width="12"/>
+<rect x="34" y="1400" width="1216.73" height="560" rx="32" fill="url(#pattern2_1342_150)"/>
+<rect x="28" y="1394" width="1228.73" height="572" rx="38" stroke="white" stroke-opacity="0.4" stroke-width="12"/>
+<rect x="34" y="1800" width="1217" height="560" rx="32" fill="url(#pattern3_1342_150)"/>
+<rect x="28" y="1794" width="1229" height="572" rx="38" stroke="white" stroke-opacity="0.4" stroke-width="12"/>
+<rect x="34" y="2200" width="1217" height="560" rx="32" fill="url(#pattern4_1342_150)"/>
+<rect x="28" y="2194" width="1229" height="572" rx="38" stroke="white" stroke-opacity="0.4" stroke-width="12"/>
+<defs>
+<pattern id="pattern0_1342_150" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0_1342_150" transform="scale(0.000348675 0.000757746)"/>
+</pattern>
+<pattern id="pattern1_1342_150" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image1_1342_150" transform="scale(0.000381388 0.000829519)"/>
+</pattern>
+<pattern id="pattern2_1342_150" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image2_1342_150" transform="scale(0.000348675 0.000757576)"/>
+</pattern>
+<pattern id="pattern3_1342_150" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image3_1342_150" transform="scale(0.000348675 0.000757746)"/>
+</pattern>
+<pattern id="pattern4_1342_150" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image4_1342_150" transform="scale(0.000348675 0.000757746)"/>
+</pattern>
+<image id="image0_1342_150" width="2868" height="1320" preserveAspectRatio="none" xlink:href="image-6-0.png"/>
+<image id="image1_1342_150" width="2622" height="1206" preserveAspectRatio="none" xlink:href="image-6-1.png"/>
+<image id="image2_1342_150" width="2868" height="1320" preserveAspectRatio="none" xlink:href="image-6-2.png"/>
+<image id="image3_1342_150" width="2868" height="1320" preserveAspectRatio="none" xlink:href="image-6-3.png"/>
+<image id="image4_1342_150" width="2868" height="1320" preserveAspectRatio="none" xlink:href="image-6-4.png"/>
+</defs>
+</svg>

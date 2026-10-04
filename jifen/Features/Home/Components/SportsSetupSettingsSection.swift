@@ -5,6 +5,14 @@ struct SportsSetupSettingsSection: View {
     let gameType: GameType
     @Binding var draft: SportsSetupDraft
     @State private var completionModeExpanded = false
+    @State private var requestedCustomField: CustomField?
+    @FocusState private var focusedCustomField: CustomField?
+
+    private enum CustomField: String, Hashable {
+        case sets
+        case points
+        case foosballScoreCap
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -12,6 +20,32 @@ struct SportsSetupSettingsSection: View {
             // 「比赛功能」区：对齐安卓功能卡片矩阵，所有计分项目统一渲染。
             SportsSetupMatchFeaturesSection(gameType: gameType, draft: $draft)
         }
+        .onChange(of: focusedCustomField) { oldField, newField in
+            if let oldField, oldField != newField, requestedCustomField == oldField {
+                requestedCustomField = nil
+            }
+        }
+    }
+
+    private func focusRequestedCustomField(_ field: CustomField) async {
+        guard requestedCustomField == field else { return }
+        // Start after this field is mounted, including cells in lazy grids.
+        do {
+            try await Task.sleep(for: .milliseconds(100))
+        } catch {
+            return
+        }
+        guard !Task.isCancelled, requestedCustomField == field else { return }
+        focusedCustomField = field
+    }
+
+    private func dismissCustomFocus() {
+        requestedCustomField = nil
+        focusedCustomField = nil
+    }
+
+    private func isEditingCustomField(_ field: CustomField) -> Bool {
+        requestedCustomField == field || focusedCustomField == field
     }
 
     private func getChipBackgroundColor(selected: Bool) -> Color {
@@ -177,7 +211,7 @@ struct SportsSetupSettingsSection: View {
                         draft.customMaxSetsText = ""
                     }
                 }
-                customNumberChip(selection: $draft.selectedMaxSets, text: $draft.customMaxSetsText, maxValue: 99)
+                customNumberChip(selection: $draft.selectedMaxSets, text: $draft.customMaxSetsText, maxValue: 99, field: .sets)
             }
         }
     }
@@ -310,14 +344,13 @@ struct SportsSetupSettingsSection: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(NSLocalizedString("points_per_set", value: "每局分数", comment: "Points per set"))
                 .settingsLabelStyle()
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
-                ForEach(pointPresets, id: \.self) { points in
-                    numberChip(points, selection: $draft.selectedPointsPerSet) {
-                        draft.customPointsText = ""
-                    }
-                }
-                customNumberChip(selection: $draft.selectedPointsPerSet, text: $draft.customPointsText, maxValue: 999)
-            }
+            customNumberChipGrid(
+                presets: pointPresets,
+                selection: $draft.selectedPointsPerSet,
+                text: $draft.customPointsText,
+                maxValue: 999,
+                field: .points
+            )
         }
     }
 
@@ -360,6 +393,7 @@ struct SportsSetupSettingsSection: View {
                     .settingsLabelStyle()
                 HStack(spacing: 8) {
                     Button {
+                        dismissCustomFocus()
                         draft.foosballScoreCap = nil
                         draft.customFoosballScoreCapText = ""
                     } label: {
@@ -374,6 +408,7 @@ struct SportsSetupSettingsSection: View {
                     .buttonStyle(.plain)
                     ForEach([8, 10], id: \.self) { value in
                         Button {
+                            dismissCustomFocus()
                             draft.foosballScoreCap = value
                             draft.customFoosballScoreCapText = ""
                         } label: {
@@ -448,14 +483,13 @@ struct SportsSetupSettingsSection: View {
         let primaryPresets = [1, 3, 5, 7]
         VStack(alignment: .leading, spacing: 8) {
             Text(NSLocalizedString("snooker_frames", value: "局数", comment: "")).settingsLabelStyle()
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
-                ForEach(primaryPresets, id: \.self) { count in
-                    numberChip(count, selection: $draft.selectedMaxSets) {
-                        draft.customMaxSetsText = ""
-                    }
-                }
-                customNumberChip(selection: $draft.selectedMaxSets, text: $draft.customMaxSetsText, maxValue: 99)
-            }
+            customNumberChipGrid(
+                presets: primaryPresets,
+                selection: $draft.selectedMaxSets,
+                text: $draft.customMaxSetsText,
+                maxValue: 99,
+                field: .sets
+            )
         }
         settingsToggle("match_title", fallback: "比赛抬头", value: $draft.matchTitleEnabled)
         if draft.matchTitleEnabled {
@@ -475,11 +509,40 @@ struct SportsSetupSettingsSection: View {
     private func buildSetCountSettings(title: String, presets: [Int]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title).settingsLabelStyle()
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
-                ForEach(presets, id: \.self) { count in
-                    numberChip(count, selection: $draft.selectedMaxSets) { draft.customMaxSetsText = "" }
+            customNumberChipGrid(
+                presets: presets,
+                selection: $draft.selectedMaxSets,
+                text: $draft.customMaxSetsText,
+                maxValue: 99,
+                field: .sets
+            )
+        }
+    }
+
+    /// Keep input fields mounted when the keyboard changes the scroll viewport.
+    private func customNumberChipGrid(
+        presets: [Int],
+        selection: Binding<Int>,
+        text: Binding<String>,
+        maxValue: Int,
+        field: CustomField
+    ) -> some View {
+        VStack(spacing: 8) {
+            ForEach(0..<((presets.count + 4) / 4), id: \.self) { row in
+                HStack(spacing: 8) {
+                    ForEach(0..<4, id: \.self) { column in
+                        let index = row * 4 + column
+                        if index < presets.count {
+                            numberChip(presets[index], selection: selection) {
+                                text.wrappedValue = ""
+                            }
+                        } else if index == presets.count {
+                            customNumberChip(selection: selection, text: text, maxValue: maxValue, field: field)
+                        } else {
+                            Color.clear.frame(maxWidth: .infinity).frame(height: 36)
+                        }
+                    }
                 }
-                customNumberChip(selection: $draft.selectedMaxSets, text: $draft.customMaxSetsText, maxValue: 99)
             }
         }
     }
@@ -525,6 +588,7 @@ struct SportsSetupSettingsSection: View {
         onSelect: @escaping () -> Void = {}
     ) -> some View {
         Button {
+            dismissCustomFocus()
             selection.wrappedValue = value
             onSelect()
         } label: {
@@ -543,19 +607,23 @@ struct SportsSetupSettingsSection: View {
     private func customNumberChip(
         selection: Binding<Int>,
         text: Binding<String>,
-        maxValue: Int
+        maxValue: Int,
+        field: CustomField
     ) -> some View {
-        if !text.wrappedValue.isEmpty {
+        if !text.wrappedValue.isEmpty || isEditingCustomField(field) {
             TextField(NSLocalizedString("custom", value: "自定义", comment: ""), text: Binding(
                 get: { text.wrappedValue },
                 set: { rawValue in
                     let limit = String(maxValue).count
-                    let sanitized = String(rawValue.filter(\.isNumber).prefix(limit))
+                    let sanitized = normalizedDecimalDigits(rawValue, limit: limit)
                     text.wrappedValue = sanitized
                     selection.wrappedValue = min(maxValue, Int(sanitized) ?? 0)
                 }
             ))
             .keyboardType(.numberPad)
+            .focused($focusedCustomField, equals: field)
+            .task(id: requestedCustomField) { await focusRequestedCustomField(field) }
+            .accessibilityIdentifier("setup_custom_\(field.rawValue)_field")
             .multilineTextAlignment(.center)
             .font(.system(size: 14))
             .frame(maxWidth: .infinity)
@@ -565,6 +633,7 @@ struct SportsSetupSettingsSection: View {
         } else {
             Button {
                 text.wrappedValue = selection.wrappedValue > 0 ? String(selection.wrappedValue) : "1"
+                requestedCustomField = field
             } label: {
                 Image(systemName: "pencil")
                     .font(.system(size: 15, weight: .medium))
@@ -576,6 +645,7 @@ struct SportsSetupSettingsSection: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel(NSLocalizedString("custom", value: "自定义", comment: ""))
+            .accessibilityIdentifier("setup_custom_\(field.rawValue)_button")
         }
     }
 
@@ -585,6 +655,7 @@ struct SportsSetupSettingsSection: View {
         selection: Binding<Int?>
     ) -> some View {
         Button {
+            dismissCustomFocus()
             selection.wrappedValue = value
         } label: {
             Text(label)
@@ -604,14 +675,14 @@ struct SportsSetupSettingsSection: View {
         text: Binding<String>,
         maxValue: Int
     ) -> some View {
-        let isCustomActive = !text.wrappedValue.isEmpty
+        let isCustomActive = isEditingCustomField(.foosballScoreCap) || !text.wrappedValue.isEmpty
             || (selection.wrappedValue != nil && selection.wrappedValue != 8 && selection.wrappedValue != 10)
         if isCustomActive {
             TextField(NSLocalizedString("custom", value: "自定义", comment: ""), text: Binding(
                 get: { text.wrappedValue },
                 set: { rawValue in
                     let limit = String(maxValue).count
-                    let sanitized = String(rawValue.filter(\.isNumber).prefix(limit))
+                    let sanitized = normalizedDecimalDigits(rawValue, limit: limit)
                     text.wrappedValue = sanitized
                     if let value = Int(sanitized), value >= 1 {
                         selection.wrappedValue = min(maxValue, value)
@@ -621,6 +692,9 @@ struct SportsSetupSettingsSection: View {
                 }
             ))
             .keyboardType(.numberPad)
+            .focused($focusedCustomField, equals: .foosballScoreCap)
+            .task(id: requestedCustomField) { await focusRequestedCustomField(.foosballScoreCap) }
+            .accessibilityIdentifier("setup_custom_foosballScoreCap_field")
             .multilineTextAlignment(.center)
             .font(.system(size: 14))
             .frame(maxWidth: .infinity)
@@ -632,6 +706,7 @@ struct SportsSetupSettingsSection: View {
                 let seed = selection.wrappedValue ?? 12
                 text.wrappedValue = String(seed)
                 selection.wrappedValue = seed
+                requestedCustomField = .foosballScoreCap
             } label: {
                 Image(systemName: "pencil")
                     .font(.system(size: 15, weight: .medium))
@@ -643,6 +718,7 @@ struct SportsSetupSettingsSection: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel(NSLocalizedString("custom", value: "自定义", comment: ""))
+            .accessibilityIdentifier("setup_custom_foosballScoreCap_button")
         }
     }
 
@@ -726,6 +802,7 @@ struct SportsSetupSettingsSection: View {
             HStack(spacing: Theme.sm) {
                 ForEach(matchCompletionPresets, id: \.self) { sets in
                     Button(action: {
+                        dismissCustomFocus()
                         draft.selectMatchCompletionPreset(sets, gameType: gameType)
                     }) {
                         Text("\(sets)")
@@ -744,6 +821,7 @@ struct SportsSetupSettingsSection: View {
                         draft.selectedMaxSets = 0
                         draft.customMaxSetsText = ""
                     }
+                    requestedCustomField = .sets
                 }) {
                     Image(systemName: "pencil")
                         .font(.system(size: 15, weight: .medium))
@@ -759,16 +837,18 @@ struct SportsSetupSettingsSection: View {
             }
             .frame(maxWidth: .infinity, alignment: .center)
 
-            if !matchCompletionPresets.contains(draft.selectedMaxSets) {
+            if !matchCompletionPresets.contains(draft.selectedMaxSets) || isEditingCustomField(.sets) {
                 TextField(NSLocalizedString("match_completion_custom_placeholder", value: "输入 1-99", comment: ""), text: Binding(
                     get: { draft.customMaxSetsText },
                     set: { rawValue in
-                        let sanitized = String(rawValue.filter(\.isNumber).prefix(2))
+                        let sanitized = normalizedDecimalDigits(rawValue, limit: 2)
                         draft.customMaxSetsText = sanitized
                         draft.selectedMaxSets = Int(sanitized) ?? 0
                     }
                 ))
                 .keyboardType(.numberPad)
+                .focused($focusedCustomField, equals: .sets)
+                .task(id: requestedCustomField) { await focusRequestedCustomField(.sets) }
                 .textFieldStyle(.roundedBorder)
                 .accessibilityIdentifier("custom_max_sets_field")
             }

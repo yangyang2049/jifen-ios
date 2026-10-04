@@ -14,6 +14,8 @@ struct QuickStartGridView: View {
     var onNewGameClick: (() -> Void)? = nil
     var onEditClick: (() -> Void)? = nil
 
+    private let smallCardIconSize: CGFloat = 56
+
     @State private var startGameText: String = NSLocalizedString("home_start_game", comment: "Start Game text for QuickStartGrid")
     @State private var startTimerText: String = NSLocalizedString("home_start_timer", value: "Start Timer", comment: "Start Timer text for QuickStartGrid")
     @State private var newGameShortText: String = NSLocalizedString("home_new_game_short", comment: "New Game short text for QuickStartGrid")
@@ -54,11 +56,12 @@ struct QuickStartGridView: View {
                         BentoCardView( // Primary Card
                             title: getGameName(type: primarySport),
                             subtitle: isQuickStartTimerType(primarySport) ? startTimerText : startGameText,
-                            icon: getGameIcon(type: primarySport),
-                            gradientColors: getGameGradient(type: primarySport)
+                            gameType: primarySport,
+                            gradientColors: getGameGradient(type: primarySport),
+                            artworkSize: 72
                         )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(CardButtonStyle())
                     .accessibilityIdentifier("home_quick_start_primary")
 
                     VStack(spacing: Theme.md) {
@@ -90,8 +93,11 @@ struct QuickStartGridView: View {
 
                                 VStack(alignment: .leading, spacing: 0) {
                                     Image(systemName: "plus")
-                                        .font(.system(size: 28, weight: .bold))
+                                        .resizable()
+                                        .scaledToFit()
+                                        .fontWeight(.bold)
                                         .foregroundColor(.white)
+                                        .frame(width: 36, height: 36)
                                         .frame(maxWidth: .infinity, alignment: .leading)
 
                                     Spacer()
@@ -108,7 +114,7 @@ struct QuickStartGridView: View {
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                             }
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(CardButtonStyle())
                         .frame(maxHeight: .infinity) // Added for equal height
                         .accessibilityIdentifier("home_quick_start_new_game")
                     }
@@ -129,11 +135,12 @@ struct QuickStartGridView: View {
             BentoCardView(
                 title: getGameName(type: sport),
                 subtitle: isQuickStartTimerType(sport) ? startTimerText : startGameText,
-                icon: getGameIcon(type: sport),
-                gradientColors: getGameGradient(type: sport)
+                gameType: sport,
+                gradientColors: getGameGradient(type: sport),
+                artworkSize: smallCardIconSize
             )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(CardButtonStyle())
         .frame(maxHeight: .infinity)
         .accessibilityIdentifier(identifier)
     }

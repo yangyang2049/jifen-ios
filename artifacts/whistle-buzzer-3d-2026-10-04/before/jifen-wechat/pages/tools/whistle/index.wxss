@@ -1,0 +1,68 @@
+@import '../../../styles/design-tokens.wxss';
+
+.wh-root {
+  min-height: 100vh;
+  padding: 32rpx 48rpx calc(48rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24rpx;
+}
+
+.wh-card {
+  width: 100%;
+  max-width: 620rpx;
+  aspect-ratio: 1;
+  max-height: 52vh;
+  border-radius: 24rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 32rpx 44rpx;
+  gap: 28rpx;
+  box-sizing: border-box;
+}
+
+.wh-card--short {
+  background: rgba(48, 209, 88, 0.12);
+  border: 2rpx solid rgba(48, 209, 88, 0.35);
+}
+
+.wh-card--short-on {
+  background: rgba(48, 209, 88, 0.22);
+  border-width: 4rpx;
+  border-color: var(--brand);
+}
+
+.wh-card--long {
+  background: rgba(244, 67, 54, 0.1);
+  border: 2rpx solid rgba(244, 67, 54, 0.35);
+}
+
+.wh-card--long-on {
+  background: rgba(244, 67, 54, 0.2);
+  border-width: 4rpx;
+  border-color: #f44336;
+}
+
+.wh-emoji {
+  font-size: clamp(80rpx, 18vw, 120rpx);
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.wh-emoji--pop {
+  transform: scale(1.12);
+  opacity: 0.88;
+}
+
+.wh-label {
+  font-size: 32rpx;
+  font-weight: 650;
+  color: rgba(15, 23, 42, 0.72);
+  letter-spacing: 0.5rpx;
+}

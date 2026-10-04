@@ -56,8 +56,7 @@ struct TimerRecordDetailPage: View {
 
     private func gameInfoCard(_ record: GameRecordSummary) -> some View {
         HStack(spacing: Theme.md) {
-            Text(record.gameType.icon)
-                .font(.system(size: 40))
+            AppCatalogIcon(gameType: record.gameType, size: 40)
             VStack(alignment: .leading, spacing: 4) {
                 Text(record.title)
                     .font(.system(size: Theme.fontH5, weight: .medium))

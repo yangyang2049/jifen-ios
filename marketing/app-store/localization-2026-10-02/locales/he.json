@@ -1,0 +1,58 @@
+{
+  "locale": "he",
+  "iosLocale": "he",
+  "language": "Hebrew",
+  "direction": "rtl",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: לוח תוצאות",
+  "subtitle": "תוצאות, זמנים ותיעוד משחקים",
+  "description": "כל נקודה נחשבת. הפכו את ה-iPhone או ה-iPad ללוח תוצאות ברור ונוח למשחקים, לאימונים ולמפגשים עם חברים.\n\nעקבו אחר הניקוד ביותר מ-26 ענפי ספורט ומשחקים, ובהם טניס, פיקלבול, בדמינטון, טניס שולחן, כדורסל, כדורגל, כדורעף וביליארד. בענפים הנתמכים אפשר להתאים את כללי הניקוד, מבנה המשחק וסדר ההגשה בזוגות.\n\nשמרו משחקים ועיינו במגמות הניקוד, בציר הזמן ובהערות קוליות. השתמשו בשעוני שחמט וגו, בטיימר לקובייה ובשעון עצר. הציגו את לוח התוצאות על מסך גדול ושתפו קוד משחק כדי שחברים יוכלו לעקוב מרחוק.\n\nהטלת מטבע, חלוקה אקראית לקבוצות, כרטיסים אדומים וצהובים וחלוקת הוצאות — הכול במקום אחד. פחות התעסקות בניקוד, יותר הנאה מהמשחק.\n\nתנאי שימוש:\nhttps://jifenqi.com/terms\n\nמדיניות פרטיות:\nhttps://jifenqi.com/privacy\n\nהסכם רישיון משתמש קצה סטנדרטי של Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "כל נקודה\nנחשבת",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "כל התוצאות\nבמבט אחד",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "לוח תוצאות אחד\nליותר מ-26 ענפי ספורט",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "חוזרים\nלכל משחק",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "הכללים שלכם\nהמשחק שלכם",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "יותר ממשחקי\nכדור",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "לוח התוצאות שלכם\nעל המסך הגדול",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "רושמים נקודות\nמפרק כף היד",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "כל כלי השיפוט\nבאפליקציה אחת",
+      "enabled": true
+    }
+  ]
+}

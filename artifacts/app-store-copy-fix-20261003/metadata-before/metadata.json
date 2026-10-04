@@ -1,0 +1,2950 @@
+{
+  "schemaVersion": 1,
+  "preparedAt": "2026-10-02",
+  "platform": "app-store-connect",
+  "bundleId": "com.douhua.jifen.ios",
+  "status": "draft",
+  "brandPrefix": "iScoreboard: ",
+  "limits": {
+    "name": 30,
+    "subtitle": 30,
+    "description": 4000
+  },
+  "sourceCopy": {
+    "screenshotTitles": "../2026-09/locales/{en,zh-Hans}.json",
+    "description": "Feature-based copy authored for this localization pack; not a fetched live store description.",
+    "legalFooter": "Links preserved from the published 3.2.2 zh-Hans Description, observed in App Store Connect on 2026-10-02. Footer headings localized for all 47 iOS locales."
+  },
+  "sources": {
+    "locales": "https://developer.apple.com/documentation/appstoreconnectapi/managing-metadata-in-your-app-by-using-locale-shortcodes",
+    "nameAndSubtitleLimits": "https://developer.apple.com/help/app-store-connect/reference/app-information/app-information",
+    "descriptionLimit": "https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information",
+    "createAppInfo": "https://developer.apple.com/documentation/appstoreconnectapi/post-v1-appinfolocalizations",
+    "createVersion": "https://developer.apple.com/documentation/appstoreconnectapi/post-v1-appstoreversionlocalizations",
+    "patchAppInfo": "https://developer.apple.com/documentation/appstoreconnectapi/patch-v1-appinfolocalizations-_id_",
+    "patchVersion": "https://developer.apple.com/documentation/appstoreconnectapi/patch-v1-appstoreversionlocalizations-_id_"
+  },
+  "localizations": [
+    {
+      "locale": "ar-SA",
+      "iosLocale": "ar",
+      "language": "Arabic",
+      "direction": "rtl",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: لوحة النتائج",
+      "subtitle": "النتائج والتوقيت وسجل اللعب",
+      "description": "كل نقطة تستحق التسجيل. حوّل iPhone أو iPad إلى لوحة نتائج واضحة وسهلة الاستخدام للمباريات والتدريبات واللعب مع الأصدقاء.\n\nسجّل النتائج لأكثر من 26 رياضة ولعبة، منها التنس والبيكلبول والريشة الطائرة وتنس الطاولة وكرة السلة وكرة القدم والكرة الطائرة والبلياردو. خصّص قواعد احتساب النقاط ونظام المباراة وترتيب الإرسال في الزوجي للرياضات التي تدعم ذلك.\n\nاحفظ المباريات وراجع تغيّر النتائج وتسلسل الأحداث والملاحظات الصوتية. استخدم ساعات الشطرنج وغو ومؤقّت المكعب وساعة الإيقاف. اعرض لوحة النتائج على شاشة كبيرة وشارك رمز المباراة ليتابع الأصدقاء النتيجة عن بُعد.\n\nتجد أيضاً أدوات لقرعة العملة وتقسيم الفرق عشوائياً والبطاقات الحمراء والصفراء وتقسيم المصاريف. وقت أقل في حساب النقاط ومتعة أكثر في اللعب.\n\nشروط الاستخدام:\nhttps://jifenqi.com/terms\n\nسياسة الخصوصية:\nhttps://jifenqi.com/privacy\n\nاتفاقية ترخيص المستخدم النهائي القياسية من Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "كل نقطة\nلها قيمة",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "نتيجة المباراة\nبنظرة واحدة",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "لوحة واحدة\nلأكثر من 26 رياضة",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "راجع\nكل مباراة",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "قواعدك أنت\nوطريقتك في اللعب",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "أكثر من\nألعاب الكرة",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "لوحة النتائج\nعلى الشاشة الكبيرة",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "سجّل النقاط\nمن معصمك",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "أدوات الحكم\nفي تطبيق واحد",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "bn-BD",
+      "iosLocale": "bn",
+      "language": "Bengali",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: স্কোরবোর্ড",
+      "subtitle": "স্কোর, সময় ও ম্যাচের রেকর্ড",
+      "description": "প্রতিটি পয়েন্টই গুরুত্বপূর্ণ। ম্যাচ, অনুশীলন এবং বন্ধুদের সঙ্গে খেলার জন্য আপনার iPhone বা iPad-কে একটি স্পষ্ট ও সহজ স্কোরবোর্ডে পরিণত করুন।\n\nটেনিস, পিকলবল, ব্যাডমিন্টন, টেবিল টেনিস, বাস্কেটবল, ফুটবল, ভলিবল ও বিলিয়ার্ডসসহ ২৬টির বেশি খেলা ও গেমের স্কোর রাখুন। সমর্থিত খেলায় পয়েন্টের নিয়ম, ম্যাচের ধরন ও ডাবলসের সার্ভিসের ক্রম বদলাতে পারবেন।\n\nম্যাচ সংরক্ষণ করে স্কোরের পরিবর্তন, ঘটনাক্রম ও ভয়েস নোট দিয়ে ফিরে দেখুন। দাবা ও গো খেলার ঘড়ি, কিউব টাইমার এবং স্টপওয়াচ ব্যবহার করুন। বড় পর্দায় স্কোরবোর্ড দেখান এবং ম্যাচের কোড শেয়ার করুন, যাতে বন্ধুরা দূর থেকে স্কোর দেখতে পারেন।\n\nকয়েন টস, এলোমেলোভাবে দল ভাগ, লাল ও হলুদ কার্ড এবং খরচ ভাগ করার দরকারি সরঞ্জাম এক অ্যাপেই পাবেন। স্কোর রাখার ঝামেলা কমান, খেলায় আনন্দ বাড়ান।\n\nব্যবহারের শর্তাবলি:\nhttps://jifenqi.com/terms\n\nগোপনীয়তা নীতি:\nhttps://jifenqi.com/privacy\n\nApple-এর মানক ব্যবহারকারী লাইসেন্স চুক্তি:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "প্রতিটি পয়েন্টই\nগুরুত্বপূর্ণ",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "সব স্কোর\nএক নজরে",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "এক স্কোরবোর্ড\n২৬টির বেশি খেলার জন্য",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ফিরে দেখুন\nপ্রতিটি ম্যাচ",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "আপনার নিয়ম\nআপনার মতো খেলা",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "শুধু বলের\nখেলা নয়",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "আপনার স্কোরবোর্ড\nবড় পর্দায়",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "কবজি থেকেই\nস্কোর রাখুন",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "রেফারির দরকারি সরঞ্জাম\nএক অ্যাপেই",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ca",
+      "iosLocale": "ca",
+      "language": "Catalan",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Marcador",
+      "subtitle": "Punts, temps i partits",
+      "description": "Cada punt compta. Converteix el teu iPhone o iPad en un marcador clar i fàcil d'utilitzar per a partits, entrenaments i jocs amb amics.\n\nPorta el marcador de més de 26 esports i jocs, com ara tennis, pickleball, bàdminton, tennis de taula, bàsquet, futbol, voleibol i billar. En els esports compatibles, ajusta les regles de puntuació, el format del partit i l'ordre de servei en dobles.\n\nDesa els partits i repassa l'evolució del marcador, la cronologia i les notes de veu. Fes servir rellotges d'escacs i de go, un temporitzador per a cubs i un cronòmetre. Mostra el marcador en una pantalla gran i comparteix un codi de partit perquè els amics el segueixin a distància.\n\nLlançament de moneda, equips aleatoris, targetes vermelles i grogues i repartiment de despeses: tot en un sol lloc. Menys feina comptant, més temps per gaudir del joc.\n\nCondicions d’ús:\nhttps://jifenqi.com/terms\n\nPolítica de privacitat:\nhttps://jifenqi.com/privacy\n\nAcord de llicència estàndard d’Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Cada punt\ncompta",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Tot el marcador\nd’un cop d’ull",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Un marcador\nper a més de 26 esports",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Repassa\ncada partit",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Les teves regles\nla teva manera de jugar",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Molt més que\njocs de pilota",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "El teu marcador\na la pantalla gran",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Anota punts\ndes del canell",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Eines d’arbitratge\nen una sola app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "cs",
+      "iosLocale": "cs",
+      "language": "Czech",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Výsledková tabule",
+      "subtitle": "Skóre, čas a záznamy zápasů",
+      "description": "Každý bod se počítá. Proměňte iPhone nebo iPad v přehlednou a snadno ovladatelnou výsledkovou tabuli pro zápasy, tréninky i hry s přáteli.\n\nZapisujte skóre pro více než 26 sportů a her, včetně tenisu, pickleballu, badmintonu, stolního tenisu, basketbalu, fotbalu, volejbalu a kulečníku. U podporovaných sportů upravte pravidla bodování, formát zápasu a pořadí podání ve čtyřhře.\n\nUkládejte zápasy a prohlížejte vývoj skóre, časovou osu a hlasové poznámky. Používejte šachové hodiny, hodiny pro go, časovač pro kostku a stopky. Zobrazte tabuli na velké obrazovce a sdílejte kód zápasu, aby přátelé mohli sledovat skóre na dálku.\n\nHod mincí, náhodné rozdělení do týmů, červené a žluté karty i rozdělení nákladů — vše na jednom místě. Méně starostí s počítáním, více radosti ze hry.\n\nPodmínky použití:\nhttps://jifenqi.com/terms\n\nZásady ochrany osobních údajů:\nhttps://jifenqi.com/privacy\n\nStandardní licenční smlouva Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Každý bod\nse počítá",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Všechna skóre\nna první pohled",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Jedna tabule\npro více než 26 sportů",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Ohlédněte se\nza každým zápasem",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Vaše pravidla\nvaše hra",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Více než\nmíčové hry",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Vaše tabule\nna velké obrazovce",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Zapisujte skóre\nze zápěstí",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Nástroje rozhodčího\nv jedné aplikaci",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "da",
+      "iosLocale": "da",
+      "language": "Danish",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Måltavle",
+      "subtitle": "Resultater, tid og kampe",
+      "description": "Hvert point tæller. Gør din iPhone eller iPad til en tydelig og brugervenlig måltavle til kampe, træning og spil med venner.\n\nHold styr på point i mere end 26 sportsgrene og spil, blandt andet tennis, pickleball, badminton, bordtennis, basketball, fodbold, volleyball og billard. Tilpas pointregler, kampformat og serverækkefølge i double for de sportsgrene, der understøtter det.\n\nGem kampe, og se pointudvikling, tidslinjer og stemmenoter. Brug skak- og go-ure, en terningetimer og et stopur. Vis måltavlen på en stor skærm, og del en kampkode, så venner kan følge stillingen på afstand.\n\nMøntkast, tilfældige hold, røde og gule kort samt deling af udgifter — det hele er samlet ét sted. Mindre tid på at tælle, mere tid til spillet.\n\nBrugsvilkår:\nhttps://jifenqi.com/terms\n\nPrivatlivspolitik:\nhttps://jifenqi.com/privacy\n\nApples standardlicensaftale:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Hvert point\ntæller",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Alle resultater\nmed ét blik",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Én måltavle\ntil over 26 sportsgrene",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Se tilbage på\nhver kamp",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Dine regler\ndit spil",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Mere end\nboldspil",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Din måltavle\npå den store skærm",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Tæl point\nfra håndleddet",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Dommerens værktøjer\ni én app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "de-DE",
+      "iosLocale": "de",
+      "language": "German",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Punktetafel",
+      "subtitle": "Spielstand, Timer & Ergebnisse",
+      "description": "Jeder Punkt zählt. Verwandle dein iPhone oder iPad in eine übersichtliche, einfach bedienbare Punktetafel für Spiele, Training und gemeinsame Partien.\n\nErfasse Punkte für über 26 Sportarten und Spiele, darunter Tennis, Pickleball, Badminton, Tischtennis, Basketball, Fußball, Volleyball und Billard. Passe bei unterstützten Sportarten die Zählweise, das Spielformat und die Aufschlagreihenfolge im Doppel an.\n\nSpeichere Partien und sieh dir Spielstandverläufe, Zeitleisten und Sprachnotizen an. Nutze Schach- und Go-Uhren, einen Timer für Zauberwürfel und eine Stoppuhr. Zeige die Punktetafel auf einem großen Bildschirm und teile einen Spielcode, damit Freunde den Spielstand aus der Ferne verfolgen können.\n\nMünzwurf, zufällige Teams, rote und gelbe Karten sowie das Aufteilen von Kosten sind ebenfalls dabei. Weniger Aufwand beim Zählen, mehr Freude am Spiel.\n\nNutzungsbedingungen:\nhttps://jifenqi.com/terms\n\nDatenschutzerklärung:\nhttps://jifenqi.com/privacy\n\nApple Standard-Lizenzvertrag:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Jeder Punkt\nzählt",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Alle Spielstände\nauf einen Blick",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Eine Punktetafel\nfür über 26 Sportarten",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Jede Partie\nim Rückblick",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Deine Regeln\ndein Spiel",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Mehr als\nnur Ballsport",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Deine Punktetafel\nauf dem großen Bildschirm",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Punkte direkt\nam Handgelenk",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Alle Schiri-Helfer\nin einer App",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "el",
+      "iosLocale": "el",
+      "language": "Greek",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Πίνακας σκορ",
+      "subtitle": "Σκορ, χρόνοι και αγώνες",
+      "description": "Κάθε πόντος μετράει. Μετατρέψτε το iPhone ή το iPad σε έναν ευδιάκριτο και εύχρηστο πίνακα σκορ για αγώνες, προπονήσεις και παιχνίδια με φίλους.\n\nΚρατήστε σκορ σε περισσότερα από 26 αθλήματα και παιχνίδια, όπως τένις, πίκλμπολ, μπάντμιντον, πινγκ πονγκ, μπάσκετ, ποδόσφαιρο, βόλεϊ και μπιλιάρδο. Στα υποστηριζόμενα αθλήματα, προσαρμόστε τους κανόνες βαθμολόγησης, τη μορφή του αγώνα και τη σειρά σερβίς στο διπλό.\n\nΑποθηκεύστε αγώνες και δείτε την εξέλιξη του σκορ, το χρονολόγιο και τις φωνητικές σημειώσεις. Χρησιμοποιήστε ρολόγια σκακιού και γκο, χρονόμετρο για κύβο και χρονόμετρο μέτρησης. Προβάλετε το σκορ σε μεγάλη οθόνη και μοιραστείτε έναν κωδικό αγώνα για να το παρακολουθούν οι φίλοι σας από μακριά.\n\nΡίψη νομίσματος, τυχαίες ομάδες, κόκκινες και κίτρινες κάρτες και μοίρασμα εξόδων — όλα σε ένα μέρος. Λιγότερη δουλειά με το σκορ, περισσότερη χαρά στο παιχνίδι.\n\nΌροι χρήσης:\nhttps://jifenqi.com/terms\n\nΠολιτική απορρήτου:\nhttps://jifenqi.com/privacy\n\nΤυπική άδεια χρήσης τελικού χρήστη της Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Κάθε πόντος\nμετράει",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Όλα τα σκορ\nμε μια ματιά",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Ένας πίνακας σκορ\nγια πάνω από 26 αθλήματα",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Ξαναδείτε\nκάθε αγώνα",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Οι κανόνες σας\nτο παιχνίδι σας",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Περισσότερα από\nπαιχνίδια με μπάλα",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Το σκορ σας\nστη μεγάλη οθόνη",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Κρατήστε σκορ\nαπό τον καρπό",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Εργαλεία διαιτητή\nσε μία εφαρμογή",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "en-AU",
+      "iosLocale": "en",
+      "language": "English (Australia)",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Sports Scoreboard",
+      "subtitle": "Scores, timers & match records",
+      "description": "Every point counts. Turn your iPhone or iPad into a clear, easy-to-use scoreboard for matches, training and games with friends.\n\nKeep score for 26+ sports and games, including tennis, pickleball, badminton, table tennis, basketball, football, volleyball and billiards. Adjust scoring rules, match formats and doubles serving order for supported sports.\n\nReview saved matches with score trends, timelines and voice notes. Use built-in chess and Go clocks, a cube timer and a stopwatch. Display your scoreboard on a larger screen and share a match code so friends can follow the score remotely.\n\nGet practical tools for coin tosses, random teams, red and yellow cards, and splitting the bill. Spend less time keeping track and more time enjoying the game.\n\nTerms of Use:\nhttps://jifenqi.com/terms\n\nPrivacy Policy:\nhttps://jifenqi.com/privacy\n\nApple Standard EULA:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Every point\ncounts",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Keep every score\nat a glance",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "One scoreboard\nfor 26+ sports",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Review\nevery match",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Set your rules\nplay your way",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "More than\nball games",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Your scoreboard\non the big screen",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Score from\nyour wrist",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Every referee\ntool in one app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "en-CA",
+      "iosLocale": "en",
+      "language": "English (Canada)",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Sports Scoreboard",
+      "subtitle": "Scores, timers & match records",
+      "description": "Every point counts. Turn your iPhone or iPad into a clear, easy-to-use scoreboard for matches, training and games with friends.\n\nKeep score for 26+ sports and games, including tennis, pickleball, badminton, table tennis, basketball, soccer, volleyball and billiards. Adjust scoring rules, match formats and doubles serving order for supported sports.\n\nReview saved matches with score trends, timelines and voice notes. Use built-in chess and Go clocks, a cube timer and a stopwatch. Display your scoreboard on a larger screen and share a match code so friends can follow the score remotely.\n\nGet practical tools for coin tosses, random teams, red and yellow cards, and splitting the bill. Spend less time keeping track and more time enjoying the game.\n\nTerms of Use:\nhttps://jifenqi.com/terms\n\nPrivacy Policy:\nhttps://jifenqi.com/privacy\n\nApple Standard EULA:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Every point\ncounts",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Keep every score\nat a glance",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "One scoreboard\nfor 26+ sports",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Review\nevery match",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Set your rules\nplay your way",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "More than\nball games",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Your scoreboard\non the big screen",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Score from\nyour wrist",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Every referee\ntool in one app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "en-GB",
+      "iosLocale": "en",
+      "language": "English (U.K.)",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Sports Scoreboard",
+      "subtitle": "Scores, timers & match records",
+      "description": "Every point counts. Turn your iPhone or iPad into a clear, easy-to-use scoreboard for matches, training and games with friends.\n\nKeep score for 26+ sports and games, including tennis, pickleball, badminton, table tennis, basketball, football, volleyball and billiards. Adjust scoring rules, match formats and doubles serving order for supported sports.\n\nReview saved matches with score trends, timelines and voice notes. Use built-in chess and Go clocks, a cube timer and a stopwatch. Display your scoreboard on a larger screen and share a match code so friends can follow the score remotely.\n\nGet practical tools for coin tosses, random teams, red and yellow cards, and splitting the bill. Spend less time keeping track and more time enjoying the game.\n\nTerms of Use:\nhttps://jifenqi.com/terms\n\nPrivacy Policy:\nhttps://jifenqi.com/privacy\n\nApple Standard EULA:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Every point\ncounts",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Keep every score\nat a glance",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "One scoreboard\nfor 26+ sports",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Review\nevery match",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Set your rules\nplay your way",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "More than\nball games",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Your scoreboard\non the big screen",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Score from\nyour wrist",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Every referee\ntool in one app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "en-US",
+      "iosLocale": "en",
+      "language": "English (U.S.)",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Sports Scoreboard",
+      "subtitle": "Scores, timers & match records",
+      "description": "Every point counts. Turn your iPhone or iPad into a clear, easy-to-use scoreboard for matches, training and games with friends.\n\nKeep score for 26+ sports and games, including tennis, pickleball, badminton, table tennis, basketball, soccer, volleyball and billiards. Adjust scoring rules, match formats and doubles serving order for supported sports.\n\nReview saved matches with score trends, timelines and voice notes. Use built-in chess and Go clocks, a cube timer and a stopwatch. Display your scoreboard on a larger screen and share a match code so friends can follow the score remotely.\n\nGet practical tools for coin tosses, random teams, red and yellow cards, and splitting the bill. Spend less time keeping track and more time enjoying the game.\n\nTerms of Use:\nhttps://jifenqi.com/terms\n\nPrivacy Policy:\nhttps://jifenqi.com/privacy\n\nApple Standard EULA:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Every point\ncounts",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Keep every score\nat a glance",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "One scoreboard\nfor 26+ sports",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Review\nevery match",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Set your rules\nplay your way",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "More than\nball games",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Your scoreboard\non the big screen",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Score from\nyour wrist",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Every referee\ntool in one app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "es-ES",
+      "iosLocale": "es-ES",
+      "language": "Spanish (Spain)",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Marcador",
+      "subtitle": "Puntos, tiempos y partidos",
+      "description": "Cada punto cuenta. Convierte tu iPhone o iPad en un marcador claro y fácil de usar para partidos, entrenamientos y juegos con amigos.\n\nLleva el marcador de más de 26 deportes y juegos, como tenis, pickleball, bádminton, tenis de mesa, baloncesto, fútbol, voleibol y billar. En los deportes compatibles, ajusta las reglas de puntuación, el formato del partido y el orden de saque en dobles.\n\nGuarda tus partidos y repásalos con la evolución del marcador, la cronología y las notas de voz. Usa relojes de ajedrez y go, un temporizador para cubos y un cronómetro. Muestra el marcador en una pantalla grande y comparte un código de partido para que tus amigos lo sigan a distancia.\n\nTambién tienes herramientas para lanzar una moneda, formar equipos al azar, mostrar tarjetas rojas y amarillas y dividir gastos. Menos esfuerzo contando, más tiempo disfrutando del juego.\n\nCondiciones de uso:\nhttps://jifenqi.com/terms\n\nPolítica de privacidad:\nhttps://jifenqi.com/privacy\n\nAcuerdo de licencia estándar de Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Cada punto\ncuenta",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Todo el marcador\nde un vistazo",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Un marcador\npara más de 26 deportes",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Repasa\ncada partido",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Tus reglas\ntu forma de jugar",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Mucho más que\ndeportes de pelota",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Tu marcador\nen pantalla grande",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Anota puntos\ndesde tu muñeca",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Herramientas de arbitraje\nen una sola app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "es-MX",
+      "iosLocale": "es-MX",
+      "language": "Spanish (Mexico)",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Marcador",
+      "subtitle": "Puntos, tiempos y partidos",
+      "description": "Cada punto cuenta. Convierte tu iPhone o iPad en un marcador claro y fácil de usar para partidos, entrenamientos y juegos con amigos.\n\nLleva el marcador de más de 26 deportes y juegos, como tenis, pickleball, bádminton, tenis de mesa, básquetbol, futbol, voleibol y billar. En los deportes compatibles, ajusta las reglas de puntuación, el formato del partido y el orden de saque en dobles.\n\nGuarda tus partidos y revísalos con la evolución del marcador, la línea de tiempo y las notas de voz. Usa relojes de ajedrez y go, un temporizador para cubos y un cronómetro. Muestra el marcador en una pantalla grande y comparte un código de partido para que tus amigos lo sigan a distancia.\n\nTambién tienes herramientas para lanzar una moneda, formar equipos al azar, mostrar tarjetas rojas y amarillas y dividir gastos. Menos esfuerzo contando, más tiempo disfrutando del juego.\n\nTérminos de uso:\nhttps://jifenqi.com/terms\n\nPolítica de privacidad:\nhttps://jifenqi.com/privacy\n\nAcuerdo de licencia estándar de Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Cada punto\ncuenta",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Todo el marcador\nde un vistazo",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Un marcador\npara más de 26 deportes",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Revisa\ncada partido",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Tus reglas\ntu forma de jugar",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Mucho más que\ndeportes de pelota",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Tu marcador\nen pantalla grande",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Anota puntos\ndesde tu muñeca",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Herramientas de arbitraje\nen una sola app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "fi",
+      "iosLocale": "fi",
+      "language": "Finnish",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Tulostaulu",
+      "subtitle": "Tulokset, ajastimet ja pelit",
+      "description": "Jokainen piste merkitsee. Muuta iPhone tai iPad selkeäksi ja helppokäyttöiseksi tulostauluksi otteluihin, harjoitteluun ja peleihin ystävien kanssa.\n\nPidä kirjaa pisteistä yli 26 urheilulajissa ja pelissä, kuten tenniksessä, pickleballissa, sulkapallossa, pöytätenniksessä, koripallossa, jalkapallossa, lentopallossa ja biljardissa. Muokkaa tuetuissa lajeissa pistelaskun sääntöjä, ottelumuotoa ja nelinpelin syöttöjärjestystä.\n\nTallenna ottelut ja tarkastele pistetilanteen kehitystä, aikajanaa ja äänimuistiinpanoja. Käytä shakki- ja go-kelloja, kuutioajastinta ja sekuntikelloa. Näytä tulostaulu isolla näytöllä ja jaa ottelukoodi, jotta ystävät voivat seurata tulosta etänä.\n\nKolikonheitto, satunnaiset joukkueet, punaiset ja keltaiset kortit sekä kulujen jakaminen löytyvät samasta paikasta. Vähemmän vaivaa pisteistä, enemmän iloa pelistä.\n\nKäyttöehdot:\nhttps://jifenqi.com/terms\n\nTietosuojakäytäntö:\nhttps://jifenqi.com/privacy\n\nApplen vakiolisenssisopimus:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Jokainen piste\nmerkitsee",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Kaikki tulokset\nyhdellä silmäyksellä",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Yksi tulostaulu\nyli 26 urheilulajiin",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Palaa\njokaiseen otteluun",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Sinun sääntösi\nsinun pelisi",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Enemmän kuin\npallopelejä",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Tulostaulusi\nisolla näytöllä",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Kirjaa pisteet\nranteesta",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Erotuomarin työkalut\nyhdessä sovelluksessa",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "fr-CA",
+      "iosLocale": "fr-CA",
+      "language": "French (Canada)",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Tableau de scores",
+      "subtitle": "Pointage, chronos et matchs",
+      "description": "Chaque point compte. Transformez votre iPhone ou iPad en tableau de pointage clair et facile à utiliser pour vos matchs, entraînements et parties entre amis.\n\nComptez les points pour plus de 26 sports et jeux : tennis, pickleball, badminton, tennis de table, basketball, soccer, volleyball et billard. Pour les sports compatibles, adaptez les règles de pointage, le format du match et l'ordre de service en double.\n\nEnregistrez vos matchs et revivez-les grâce à l'évolution du pointage, à la chronologie et aux notes vocales. Profitez des pendules d'échecs et de go, du minuteur pour cube et du chronomètre. Affichez le pointage sur grand écran et partagez un code de match pour que vos proches le suivent à distance.\n\nPile ou face, équipes aléatoires, cartons rouges et jaunes, partage des frais : vos outils pratiques sont réunis. Moins de temps à compter, plus de plaisir à jouer.\n\nConditions d’utilisation:\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité:\nhttps://jifenqi.com/privacy\n\nContrat de licence standard Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Chaque point\ncompte",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Tout le pointage\nen un coup d’œil",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Un tableau de pointage\npour plus de 26 sports",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Revivez\nchaque match",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Vos règles\nvotre façon de jouer",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Bien plus que\ndes jeux de ballon",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Votre pointage\nsur grand écran",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Comptez les points\nau poignet",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Les outils d’arbitrage\ndans une seule app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "fr-FR",
+      "iosLocale": "fr",
+      "language": "French",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Tableau de scores",
+      "subtitle": "Scores, chronos et matchs",
+      "description": "Chaque point compte. Transformez votre iPhone ou iPad en tableau de scores clair et facile à utiliser pour vos matchs, entraînements et parties entre amis.\n\nComptez les points pour plus de 26 sports et jeux : tennis, pickleball, badminton, tennis de table, basket, football, volley et billard. Pour les sports compatibles, adaptez les règles de score, le format du match et l'ordre de service en double.\n\nEnregistrez vos matchs et revivez-les grâce à l'évolution du score, à la chronologie et aux notes vocales. Profitez des pendules d'échecs et de go, du minuteur pour cube et du chronomètre. Affichez le score sur grand écran et partagez un code de match pour que vos proches le suivent à distance.\n\nPile ou face, équipes aléatoires, cartons rouges et jaunes, partage des frais : vos outils pratiques sont réunis. Moins de temps à compter, plus de plaisir à jouer.\n\nConditions d’utilisation:\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité:\nhttps://jifenqi.com/privacy\n\nContrat de licence standard Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Chaque point\ncompte",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Tous les scores\nen un coup d’œil",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Un tableau de scores\npour plus de 26 sports",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Revivez\nchaque match",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Vos règles\nvotre façon de jouer",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Bien plus que\ndes jeux de ballon",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Votre score\nsur grand écran",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Comptez les points\nau poignet",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Les outils d’arbitrage\ndans une seule app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "gu-IN",
+      "iosLocale": "gu",
+      "language": "Gujarati",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: સ્કોરબોર્ડ",
+      "subtitle": "સ્કોર, સમય અને મેચ રેકોર્ડ",
+      "description": "દરેક પોઇન્ટ મહત્વનો છે. મેચ, તાલીમ અને મિત્રો સાથે રમવા માટે તમારા iPhone અથવા iPadને સ્પષ્ટ અને સરળ સ્કોરબોર્ડમાં ફેરવો.\n\nટેનિસ, પિકલબોલ, બેડમિન્ટન, ટેબલ ટેનિસ, બાસ્કેટબોલ, ફૂટબોલ, વોલીબોલ અને બિલિયર્ડ્સ સહિત 26થી વધુ રમતોમાં સ્કોર રાખો. સમર્થિત રમતોમાં પોઇન્ટ ગણવાના નિયમો, મેચનું સ્વરૂપ અને ડબલ્સમાં સર્વિસનો ક્રમ ગોઠવો.\n\nમેચ સાચવો અને સ્કોરના ફેરફારો, ઘટનાક્રમ તથા વૉઇસ નોટ્સથી ફરી જુઓ. ચેસ અને ગોની ઘડિયાળો, ક્યુબ ટાઇમર અને સ્ટોપવૉચ વાપરો. મોટી સ્ક્રીન પર સ્કોરબોર્ડ બતાવો અને મેચ કોડ શેર કરો, જેથી મિત્રો દૂરથી સ્કોર જોઈ શકે.\n\nસિક્કો ઉછાળવા, રેન્ડમ ટીમ બનાવવા, લાલ અને પીળા કાર્ડ બતાવવા તથા ખર્ચ વહેંચવાનાં ઉપયોગી સાધનો એક જ ઍપમાં મેળવો. સ્કોર રાખવામાં ઓછો સમય, રમવાની વધુ મજા.\n\nઉપયોગની શરતો:\nhttps://jifenqi.com/terms\n\nગોપનીયતા નીતિ:\nhttps://jifenqi.com/privacy\n\nAppleનો માનક અંતિમ વપરાશકર્તા લાઇસન્સ કરાર:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "દરેક પોઇન્ટ\nમહત્વનો છે",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "બધો સ્કોર\nએક નજરમાં",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "એક સ્કોરબોર્ડ\n26થી વધુ રમતો માટે",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "દરેક મેચ\nફરી જુઓ",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "તમારા નિયમો\nતમારી રમત",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "માત્ર બોલની\nરમતો જ નહીં",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "તમારું સ્કોરબોર્ડ\nમોટી સ્ક્રીન પર",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "કાંડેથી\nસ્કોર રાખો",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "રેફરીનાં ઉપયોગી સાધનો\nએક જ ઍપમાં",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "he",
+      "iosLocale": "he",
+      "language": "Hebrew",
+      "direction": "rtl",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: לוח תוצאות",
+      "subtitle": "תוצאות, זמנים ותיעוד משחקים",
+      "description": "כל נקודה נחשבת. הפכו את ה-iPhone או ה-iPad ללוח תוצאות ברור ונוח למשחקים, לאימונים ולמפגשים עם חברים.\n\nעקבו אחר הניקוד ביותר מ-26 ענפי ספורט ומשחקים, ובהם טניס, פיקלבול, בדמינטון, טניס שולחן, כדורסל, כדורגל, כדורעף וביליארד. בענפים הנתמכים אפשר להתאים את כללי הניקוד, מבנה המשחק וסדר ההגשה בזוגות.\n\nשמרו משחקים ועיינו במגמות הניקוד, בציר הזמן ובהערות קוליות. השתמשו בשעוני שחמט וגו, בטיימר לקובייה ובשעון עצר. הציגו את לוח התוצאות על מסך גדול ושתפו קוד משחק כדי שחברים יוכלו לעקוב מרחוק.\n\nהטלת מטבע, חלוקה אקראית לקבוצות, כרטיסים אדומים וצהובים וחלוקת הוצאות — הכול במקום אחד. פחות התעסקות בניקוד, יותר הנאה מהמשחק.\n\nתנאי שימוש:\nhttps://jifenqi.com/terms\n\nמדיניות פרטיות:\nhttps://jifenqi.com/privacy\n\nהסכם רישיון משתמש קצה סטנדרטי של Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "כל נקודה\nנחשבת",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "כל התוצאות\nבמבט אחד",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "לוח תוצאות אחד\nליותר מ-26 ענפי ספורט",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "חוזרים\nלכל משחק",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "הכללים שלכם\nהמשחק שלכם",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "יותר ממשחקי\nכדור",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "לוח התוצאות שלכם\nעל המסך הגדול",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "רושמים נקודות\nמפרק כף היד",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "כל כלי השיפוט\nבאפליקציה אחת",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "hi",
+      "iosLocale": "hi",
+      "language": "Hindi",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: स्कोरबोर्ड",
+      "subtitle": "स्कोर, समय और मैच रिकॉर्ड",
+      "description": "हर अंक मायने रखता है। अपने iPhone या iPad को मैच, अभ्यास और दोस्तों के साथ खेलने के लिए एक स्पष्ट और आसान स्कोरबोर्ड में बदलें।\n\nटेनिस, पिकलबॉल, बैडमिंटन, टेबल टेनिस, बास्केटबॉल, फुटबॉल, वॉलीबॉल और बिलियर्ड्स सहित 26 से अधिक खेलों में स्कोर रखें। समर्थित खेलों में अंक गिनने के नियम, मैच का प्रारूप और डबल्स में सर्विस का क्रम तय करें।\n\nमैच सहेजें और स्कोर के उतार-चढ़ाव, घटनाक्रम और वॉइस नोट्स से उनकी समीक्षा करें। शतरंज और गो की घड़ियाँ, क्यूब टाइमर और स्टॉपवॉच इस्तेमाल करें। स्कोरबोर्ड बड़ी स्क्रीन पर दिखाएँ और मैच कोड साझा करें, ताकि दोस्त दूर से स्कोर देख सकें।\n\nसिक्का उछालने, यादृच्छिक टीमें बनाने, लाल और पीले कार्ड दिखाने और खर्च बाँटने के उपयोगी साधन एक ही ऐप में पाएँ। स्कोर रखने में कम समय लगाएँ और खेल का अधिक आनंद लें।\n\nउपयोग की शर्तें:\nhttps://jifenqi.com/terms\n\nगोपनीयता नीति:\nhttps://jifenqi.com/privacy\n\nApple का मानक अंतिम उपयोगकर्ता लाइसेंस समझौता:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "हर अंक\nमायने रखता है",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "पूरा स्कोर\nएक नज़र में",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "एक स्कोरबोर्ड\n26 से अधिक खेलों के लिए",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "हर मैच\nफिर से देखें",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "आपके नियम\nआपका खेल",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "सिर्फ गेंद वाले\nखेल ही नहीं",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "आपका स्कोरबोर्ड\nबड़ी स्क्रीन पर",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "कलाई से\nस्कोर रखें",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "रेफ़री के उपयोगी साधन\nएक ही ऐप में",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "hr",
+      "iosLocale": "hr",
+      "language": "Croatian",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Semafor",
+      "subtitle": "Rezultati, vrijeme i utakmice",
+      "description": "Svaki bod vrijedi. Pretvorite iPhone ili iPad u pregledan semafor jednostavan za korištenje tijekom utakmica, treninga i igara s prijateljima.\n\nBilježite rezultate za više od 26 sportova i igara, uključujući tenis, pickleball, badminton, stolni tenis, košarku, nogomet, odbojku i biljar. U podržanim sportovima prilagodite pravila bodovanja, format utakmice i redoslijed servisa u parovima.\n\nSpremite utakmice i pregledajte kretanje rezultata, vremenski slijed i glasovne bilješke. Koristite satove za šah i go, mjerač vremena za kocku i štopericu. Prikažite semafor na velikom zaslonu i podijelite kod utakmice kako bi prijatelji mogli pratiti rezultat na daljinu.\n\nBacanje novčića, nasumična podjela u ekipe, crveni i žuti kartoni te podjela troškova — sve na jednom mjestu. Manje brige oko bodova, više uživanja u igri.\n\nUvjeti korištenja:\nhttps://jifenqi.com/terms\n\nPravila privatnosti:\nhttps://jifenqi.com/privacy\n\nStandardni Appleov ugovor o licenci:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Svaki bod\nvrijedi",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Svi rezultati\nna prvi pogled",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Jedan semafor\nza više od 26 sportova",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Pregledajte\nsvaku utakmicu",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Vaša pravila\nvaša igra",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Više od\nigara s loptom",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Vaš semafor\nna velikom zaslonu",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Bilježite bodove\nsa zapešća",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Sudački alati\nu jednoj aplikaciji",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "hu",
+      "iosLocale": "hu",
+      "language": "Hungarian",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Eredményjelző",
+      "subtitle": "Eredmények, időmérés, meccsek",
+      "description": "Minden pont számít. Alakítsd iPhone-odat vagy iPadedet átlátható, könnyen használható eredményjelzővé meccsekhez, edzéshez és baráti játékokhoz.\n\nVezesd az eredményt több mint 26 sportban és játékban, például teniszben, pickleballban, tollaslabdában, asztaliteniszben, kosárlabdában, fociban, röplabdában és biliárdban. A támogatott sportoknál állítsd be a pontozás szabályait, a mérkőzés formáját és a páros adogatási sorrendet.\n\nMentsd el a meccseket, és nézd vissza a pontok alakulását, az idővonalat és a hangjegyzeteket. Használj sakk- és goórát, kockaidőzítőt és stoppert. Jelenítsd meg az eredményjelzőt nagy képernyőn, és oszd meg a meccskódot, hogy barátaid távolról is követhessék az állást.\n\nPénzfeldobás, véletlenszerű csapatok, piros és sárga lapok, költségmegosztás — minden egy helyen. Kevesebb gond a számolással, több öröm a játékban.\n\nFelhasználási feltételek:\nhttps://jifenqi.com/terms\n\nAdatvédelmi szabályzat:\nhttps://jifenqi.com/privacy\n\nAz Apple szabványos licencszerződése:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Minden pont\nszámít",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Minden eredmény\negy pillantásra",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Egy eredményjelző\ntöbb mint 26 sporthoz",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Nézz vissza\nminden meccset",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "A te szabályaid\na te játékod",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Több mint\nlabdajátékok",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Az eredményjelződ\nnagy képernyőn",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Vezesd a pontokat\na csuklódról",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Bírói eszközök\negy alkalmazásban",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "id",
+      "iosLocale": "id",
+      "language": "Indonesian",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Papan Skor",
+      "subtitle": "Skor, waktu dan catatan laga",
+      "description": "Setiap poin berarti. Ubah iPhone atau iPad menjadi papan skor yang jelas dan mudah digunakan untuk pertandingan, latihan, dan permainan bersama teman.\n\nCatat skor untuk lebih dari 26 olahraga dan permainan, termasuk tenis, pickleball, bulu tangkis, tenis meja, basket, sepak bola, voli, dan biliar. Atur aturan poin, format pertandingan, dan urutan servis ganda pada olahraga yang mendukungnya.\n\nSimpan pertandingan dan tinjau perubahan skor, linimasa, serta catatan suara. Gunakan jam catur dan go, pewaktu kubus, dan stopwatch. Tampilkan papan skor di layar besar dan bagikan kode pertandingan agar teman dapat mengikuti skor dari jauh.\n\nLempar koin, bagi tim secara acak, tampilkan kartu merah dan kuning, serta bagi biaya dengan alat praktis dalam satu aplikasi. Lebih sedikit repot menghitung, lebih banyak waktu menikmati permainan.\n\nKetentuan penggunaan:\nhttps://jifenqi.com/terms\n\nKebijakan privasi:\nhttps://jifenqi.com/privacy\n\nPerjanjian lisensi pengguna akhir standar Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Setiap poin\nberarti",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Semua skor\nsekilas terlihat",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Satu papan skor\nuntuk 26+ olahraga",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Tinjau kembali\nsetiap pertandingan",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Aturanmu\ncara bermainmu",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Lebih dari sekadar\npermainan bola",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Papan skormu\ndi layar besar",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Catat skor\ndari pergelangan tangan",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Peralatan wasit\ndalam satu aplikasi",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "it",
+      "iosLocale": "it",
+      "language": "Italian",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Segnapunti",
+      "subtitle": "Punti, tempi e partite",
+      "description": "Ogni punto conta. Trasforma il tuo iPhone o iPad in un tabellone chiaro e facile da usare per partite, allenamenti e giochi con gli amici.\n\nSegna i punti per oltre 26 sport e giochi, tra cui tennis, pickleball, badminton, ping pong, basket, calcio, pallavolo e biliardo. Per gli sport compatibili, imposta le regole di punteggio, il formato della partita e l'ordine di servizio nel doppio.\n\nSalva le partite e riguardale con l'andamento del punteggio, la cronologia e le note vocali. Usa orologi per scacchi e go, un timer per cubi e un cronometro. Mostra il tabellone su un grande schermo e condividi un codice partita per far seguire il punteggio agli amici a distanza.\n\nLancio della moneta, squadre casuali, cartellini rossi e gialli e divisione delle spese: tutto in un unico posto. Meno tempo a contare, più tempo per divertirti.\n\nCondizioni d’uso:\nhttps://jifenqi.com/terms\n\nInformativa sulla privacy:\nhttps://jifenqi.com/privacy\n\nContratto di licenza standard Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Ogni punto\nconta",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Tutti i punteggi\na colpo d’occhio",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Un tabellone\nper oltre 26 sport",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Rivedi\nogni partita",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Le tue regole\nil tuo modo di giocare",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Non solo\ngiochi con la palla",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Il tuo tabellone\nsul grande schermo",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Segna i punti\ndal polso",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Gli strumenti dell’arbitro\nin una sola app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ja",
+      "iosLocale": "ja",
+      "language": "Japanese",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: 万能スコアボード",
+      "subtitle": "得点記録・試合タイマー・振り返り",
+      "description": "すべての得点を、大切に。iPhone や iPad が、試合や練習、友達とのゲームで使える見やすいスコアボードになります。\n\nテニス、ピックルボール、バドミントン、卓球、バスケットボール、サッカー、バレーボール、ビリヤードなど、26 種類以上のスポーツやゲームに対応。対応する競技では、得点ルールや試合形式、ダブルスのサービス順を設定できます。\n\n試合記録を保存し、得点の推移、タイムライン、音声メモで振り返り。チェスや囲碁の対局時計、キューブ用タイマー、ストップウォッチも搭載しています。スコアボードを大きな画面に表示したり、試合コードを共有して離れた友達に得点を見てもらったりできます。\n\nコイントス、ランダムなチーム分け、レッドカード・イエローカード、割り勘計算などの便利なツールもひとつに。記録の手間を減らして、もっと試合を楽しみましょう。\n\n利用規約:\nhttps://jifenqi.com/terms\n\nプライバシーポリシー:\nhttps://jifenqi.com/privacy\n\nApple 標準使用許諾契約:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "すべての得点に\n意味がある",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "試合のスコアが\nひと目でわかる",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "26 種類以上の競技を\nひとつのスコアボードで",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "すべての試合を\n振り返ろう",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "ルールを決めて\n自分たちらしい試合を",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "球技以外にも\n便利な機能が満載",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "大きな画面で\nみんなにスコアを",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "手首で\nスコアを記録",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "審判に便利なツールを\nひとつのアプリに",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "kn-IN",
+      "iosLocale": "kn",
+      "language": "Kannada",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: ಸ್ಕೋರ್‌ಬೋರ್ಡ್",
+      "subtitle": "ಅಂಕ, ಸಮಯ ಮತ್ತು ಪಂದ್ಯದ ದಾಖಲೆ",
+      "description": "ಪ್ರತಿ ಅಂಕವೂ ಮುಖ್ಯ. ಪಂದ್ಯ, ಅಭ್ಯಾಸ ಮತ್ತು ಸ್ನೇಹಿತರೊಂದಿಗೆ ಆಟವಾಡಲು ನಿಮ್ಮ iPhone ಅಥವಾ iPad ಅನ್ನು ಸ್ಪಷ್ಟವಾದ, ಸುಲಭವಾಗಿ ಬಳಸಬಹುದಾದ ಸ್ಕೋರ್‌ಬೋರ್ಡ್ ಆಗಿ ಪರಿವರ್ತಿಸಿ.\n\nಟೆನಿಸ್, ಪಿಕಲ್‌ಬಾಲ್, ಬ್ಯಾಡ್ಮಿಂಟನ್, ಟೇಬಲ್ ಟೆನಿಸ್, ಬಾಸ್ಕೆಟ್‌ಬಾಲ್, ಫುಟ್‌ಬಾಲ್, ವಾಲಿಬಾಲ್ ಮತ್ತು ಬಿಲಿಯರ್ಡ್ಸ್ ಸೇರಿದಂತೆ 26ಕ್ಕೂ ಹೆಚ್ಚು ಕ್ರೀಡೆ ಮತ್ತು ಆಟಗಳಲ್ಲಿ ಅಂಕ ದಾಖಲಿಸಿ. ಬೆಂಬಲಿತ ಕ್ರೀಡೆಗಳಲ್ಲಿ ಅಂಕದ ನಿಯಮಗಳು, ಪಂದ್ಯದ ಮಾದರಿ ಮತ್ತು ಡಬಲ್ಸ್ ಸರ್ವ್ ಕ್ರಮವನ್ನು ಹೊಂದಿಸಿ.\n\nಪಂದ್ಯಗಳನ್ನು ಉಳಿಸಿ, ಅಂಕಗಳ ಬದಲಾವಣೆ, ಘಟನೆಗಳ ಕ್ರಮ ಮತ್ತು ಧ್ವನಿ ಟಿಪ್ಪಣಿಗಳ ಮೂಲಕ ಮತ್ತೆ ನೋಡಿ. ಚೆಸ್ ಮತ್ತು ಗೋ ಗಡಿಯಾರಗಳು, ಕ್ಯೂಬ್ ಟೈಮರ್ ಮತ್ತು ಸ್ಟಾಪ್‌ವಾಚ್ ಬಳಸಿ. ದೊಡ್ಡ ಪರದೆಯಲ್ಲಿ ಸ್ಕೋರ್‌ಬೋರ್ಡ್ ತೋರಿಸಿ ಮತ್ತು ಪಂದ್ಯದ ಕೋಡ್ ಹಂಚಿಕೊಳ್ಳಿ; ಸ್ನೇಹಿತರು ದೂರದಿಂದಲೇ ಅಂಕಗಳನ್ನು ನೋಡಬಹುದು.\n\nನಾಣ್ಯ ಚಿಮ್ಮಿಸುವುದು, ಯಾದೃಚ್ಛಿಕ ತಂಡಗಳ ರಚನೆ, ಕೆಂಪು ಮತ್ತು ಹಳದಿ ಕಾರ್ಡ್‌ಗಳು ಹಾಗೂ ಖರ್ಚು ಹಂಚಿಕೆಯ ಸಾಧನಗಳು ಒಂದೇ ಆ್ಯಪ್‌ನಲ್ಲಿ. ಅಂಕ ದಾಖಲಿಸುವ ಕೆಲಸ ಕಡಿಮೆ ಮಾಡಿ, ಆಟದ ಮಜಾ ಹೆಚ್ಚಿಸಿಕೊಳ್ಳಿ.\n\nಬಳಕೆಯ ನಿಯಮಗಳು:\nhttps://jifenqi.com/terms\n\nಗೌಪ್ಯತಾ ನೀತಿ:\nhttps://jifenqi.com/privacy\n\nApple ಪ್ರಮಾಣಿತ ಅಂತಿಮ ಬಳಕೆದಾರ ಪರವಾನಗಿ ಒಪ್ಪಂದ:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "ಪ್ರತಿ ಅಂಕವೂ\nಮುಖ್ಯ",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "ಎಲ್ಲ ಅಂಕಗಳು\nಒಂದೇ ನೋಟದಲ್ಲಿ",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "ಒಂದು ಸ್ಕೋರ್‌ಬೋರ್ಡ್\n26ಕ್ಕೂ ಹೆಚ್ಚು ಕ್ರೀಡೆಗಳಿಗೆ",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ಪ್ರತಿ ಪಂದ್ಯವನ್ನು\nಮತ್ತೆ ನೋಡಿ",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "ನಿಮ್ಮ ನಿಯಮಗಳು\nನಿಮ್ಮ ಆಟ",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "ಚೆಂಡಿನ ಆಟಗಳಿಗಿಂತ\nಹೆಚ್ಚಿನ ಆಯ್ಕೆಗಳು",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "ನಿಮ್ಮ ಸ್ಕೋರ್‌ಬೋರ್ಡ್\nದೊಡ್ಡ ಪರದೆಯಲ್ಲಿ",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "ಮಣಿಕಟ್ಟಿನಿಂದಲೇ\nಅಂಕ ದಾಖಲಿಸಿ",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "ರೆಫರಿಯ ಸಾಧನಗಳು\nಒಂದೇ ಆ್ಯಪ್‌ನಲ್ಲಿ",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ko",
+      "iosLocale": "ko",
+      "language": "Korean",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: 만능 점수판",
+      "subtitle": "스포츠 점수 기록과 경기 타이머",
+      "description": "모든 득점을 소중하게 기록하세요. iPhone과 iPad를 경기, 훈련, 친구들과의 게임에 쓰기 좋은 선명하고 간편한 점수판으로 바꿔 보세요.\n\n테니스, 피클볼, 배드민턴, 탁구, 농구, 축구, 배구, 당구 등 26가지 이상의 스포츠와 게임 점수를 기록할 수 있습니다. 지원 종목에서는 득점 규칙, 경기 방식, 복식 서브 순서를 설정할 수 있습니다.\n\n경기 기록을 저장하고 점수 추이, 타임라인, 음성 메모로 돌아보세요. 체스와 바둑 대국 시계, 큐브 타이머, 스톱워치도 제공합니다. 점수판을 큰 화면에 표시하거나 경기 코드를 공유해 멀리 있는 친구에게 실시간 점수를 보여 주세요.\n\n동전 던지기, 무작위 팀 나누기, 레드·옐로 카드, 비용 나누기 도구까지 한곳에 모았습니다. 기록에 드는 수고는 줄이고 경기의 즐거움은 더하세요.\n\n이용 약관:\nhttps://jifenqi.com/terms\n\n개인정보 처리방침:\nhttps://jifenqi.com/privacy\n\nApple 표준 최종 사용자 사용권 계약:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "모든 득점이\n소중하니까",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "경기 점수를\n한눈에",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "26가지 이상의 종목을\n하나의 점수판으로",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "모든 경기를\n다시 돌아보기",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "규칙은 직접\n경기는 원하는 대로",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "공을 쓰는 경기\n그 이상으로",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "큰 화면으로\n함께 보는 점수판",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "손목에서\n간편하게 점수 기록",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "심판에게 필요한 도구를\n하나의 앱에",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ml-IN",
+      "iosLocale": "ml",
+      "language": "Malayalam",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: സ്കോർബോർഡ്",
+      "subtitle": "സ്കോർ, സമയം, മത്സര രേഖകൾ",
+      "description": "ഓരോ പോയിന്റും പ്രധാനമാണ്. മത്സരങ്ങൾക്കും പരിശീലനത്തിനും സുഹൃത്തുക്കളോടൊപ്പമുള്ള കളികൾക്കും നിങ്ങളുടെ iPhone അല്ലെങ്കിൽ iPad വ്യക്തവും എളുപ്പത്തിൽ ഉപയോഗിക്കാവുന്നതുമായ സ്കോർബോർഡാക്കി മാറ്റൂ.\n\nടെന്നീസ്, പിക്കിൾബോൾ, ബാഡ്മിന്റൺ, ടേബിൾ ടെന്നീസ്, ബാസ്കറ്റ്ബോൾ, ഫുട്ബോൾ, വോളിബോൾ, ബില്യാർഡ്സ് എന്നിവ ഉൾപ്പെടെ 26-ലധികം കായിക ഇനങ്ങളിലും കളികളിലും സ്കോർ രേഖപ്പെടുത്തൂ. പിന്തുണയ്ക്കുന്ന ഇനങ്ങളിൽ സ്കോറിങ് നിയമങ്ങൾ, മത്സരരീതി, ഡബിൾസ് സർവിന്റെ ക്രമം എന്നിവ ക്രമീകരിക്കാം.\n\nമത്സരങ്ങൾ സേവ് ചെയ്ത് സ്കോറിലെ മാറ്റങ്ങൾ, സംഭവക്രമം, വോയ്സ് നോട്ടുകൾ എന്നിവയിലൂടെ വീണ്ടും പരിശോധിക്കൂ. ചെസ്, ഗോ ക്ലോക്കുകൾ, ക്യൂബ് ടൈമർ, സ്റ്റോപ്പ്വാച്ച് എന്നിവ ഉപയോഗിക്കൂ. വലിയ സ്ക്രീനിൽ സ്കോർബോർഡ് കാണിക്കൂ; സുഹൃത്തുക്കൾക്ക് ദൂരെയിരുന്ന് സ്കോർ പിന്തുടരാൻ മത്സര കോഡ് പങ്കിടൂ.\n\nനാണയം ടോസ് ചെയ്യൽ, ക്രമരഹിതമായി ടീമുകൾ തിരിക്കൽ, ചുവപ്പും മഞ്ഞയും കാർഡുകൾ, ചെലവ് പങ്കിടൽ എന്നിവയ്ക്കുള്ള ഉപകരണങ്ങൾ ഒരേ ആപ്പിൽ. സ്കോർ രേഖപ്പെടുത്താൻ കുറച്ച് സമയം, കളി ആസ്വദിക്കാൻ കൂടുതൽ സമയം.\n\nഉപയോഗ നിബന്ധനകൾ:\nhttps://jifenqi.com/terms\n\nസ്വകാര്യതാ നയം:\nhttps://jifenqi.com/privacy\n\nApple സ്റ്റാൻഡേർഡ് അന്തിമ ഉപയോക്തൃ ലൈസൻസ് കരാർ:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "ഓരോ പോയിന്റും\nപ്രധാനമാണ്",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "എല്ലാ സ്കോറുകളും\nഒറ്റനോട്ടത്തിൽ",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "ഒരു സ്കോർബോർഡ്\n26-ലധികം കായിക ഇനങ്ങൾക്ക്",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ഓരോ മത്സരവും\nവീണ്ടും പരിശോധിക്കൂ",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "നിങ്ങളുടെ നിയമങ്ങൾ\nനിങ്ങളുടെ കളി",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "പന്തുകളികൾക്ക്\nഅപ്പുറവും",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "നിങ്ങളുടെ സ്കോർബോർഡ്\nവലിയ സ്ക്രീനിൽ",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "കൈത്തണ്ടയിൽ നിന്ന്\nസ്കോർ രേഖപ്പെടുത്തൂ",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "റെഫറിയുടെ ഉപകരണങ്ങൾ\nഒരേ ആപ്പിൽ",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "mr-IN",
+      "iosLocale": "mr",
+      "language": "Marathi",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: स्कोअरबोर्ड",
+      "subtitle": "गुण, वेळ आणि सामन्याच्या नोंदी",
+      "description": "प्रत्येक गुण महत्त्वाचा आहे. सामने, सराव आणि मित्रांसोबतच्या खेळांसाठी तुमचा iPhone किंवा iPad स्पष्ट आणि सहज वापरता येणाऱ्या स्कोअरबोर्डमध्ये बदला.\n\nटेनिस, पिकलबॉल, बॅडमिंटन, टेबल टेनिस, बास्केटबॉल, फुटबॉल, व्हॉलीबॉल आणि बिलियर्ड्स यांसह 26 हून अधिक खेळांसाठी गुण नोंदवा. समर्थित खेळांमध्ये गुण मोजण्याचे नियम, सामन्याचे स्वरूप आणि दुहेरीतील सर्व्हिसचा क्रम ठरवा.\n\nसामने जतन करा आणि गुणांतील बदल, घटनाक्रम व व्हॉइस नोट्स यांच्या मदतीने पुन्हा पाहा. बुद्धिबळ आणि गोची घड्याळे, क्यूब टाइमर व स्टॉपवॉच वापरा. मोठ्या स्क्रीनवर स्कोअरबोर्ड दाखवा आणि सामन्याचा कोड शेअर करा, जेणेकरून मित्र दूरून गुण पाहू शकतील.\n\nनाणेफेक, यादृच्छिक संघवाटप, लाल व पिवळी कार्डे आणि खर्च वाटून घेण्याची साधने एकाच अॅपमध्ये मिळवा. गुण नोंदवण्यात कमी वेळ घालवा आणि खेळाचा अधिक आनंद घ्या.\n\nवापराच्या अटी:\nhttps://jifenqi.com/terms\n\nगोपनीयता धोरण:\nhttps://jifenqi.com/privacy\n\nAppleचा मानक अंतिम वापरकर्ता परवाना करार:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "प्रत्येक गुण\nमहत्त्वाचा आहे",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "संपूर्ण स्कोअर\nएका नजरेत",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "एक स्कोअरबोर्ड\n26 हून अधिक खेळांसाठी",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "प्रत्येक सामना\nपुन्हा पाहा",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "तुमचे नियम\nतुमचा खेळ",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "फक्त चेंडूचे\nखेळच नाही",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "तुमचा स्कोअरबोर्ड\nमोठ्या स्क्रीनवर",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "मनगटावरून\nगुण नोंदवा",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "रेफरीची उपयुक्त साधने\nएकाच अॅपमध्ये",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ms",
+      "iosLocale": "ms",
+      "language": "Malay",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Papan Skor",
+      "subtitle": "Skor, masa dan rekod sukan",
+      "description": "Setiap mata bermakna. Jadikan iPhone atau iPad anda papan skor yang jelas dan mudah digunakan untuk perlawanan, latihan dan permainan bersama rakan.\n\nCatat skor untuk lebih 26 sukan dan permainan, termasuk tenis, pickleball, badminton, ping pong, bola keranjang, bola sepak, bola tampar dan biliard. Laraskan peraturan mata, format perlawanan dan urutan servis beregu bagi sukan yang menyokongnya.\n\nSimpan perlawanan dan semak perubahan skor, garis masa serta nota suara. Gunakan jam catur dan go, pemasa kiub dan jam randik. Paparkan papan skor pada skrin besar dan kongsi kod perlawanan supaya rakan boleh mengikuti skor dari jauh.\n\nLambungan syiling, pembahagian pasukan secara rawak, kad merah dan kuning serta pembahagian belanja — semuanya dalam satu aplikasi. Kurangkan kerja mengira, nikmati permainan dengan lebih lagi.\n\nSyarat penggunaan:\nhttps://jifenqi.com/terms\n\nDasar privasi:\nhttps://jifenqi.com/privacy\n\nPerjanjian lesen pengguna akhir standard Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Setiap mata\nbermakna",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Semua skor\nsekilas pandang",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Satu papan skor\nuntuk lebih 26 sukan",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Semak semula\nsetiap perlawanan",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Peraturan anda\ncara permainan anda",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Lebih daripada\npermainan bola",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Papan skor anda\npada skrin besar",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Catat skor\ndari pergelangan tangan",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Alat pengadil\ndalam satu aplikasi",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "nl-NL",
+      "iosLocale": "nl",
+      "language": "Dutch",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Scorebord",
+      "subtitle": "Scores, timers en wedstrijden",
+      "description": "Elk punt telt. Maak van je iPhone of iPad een duidelijk en gebruiksvriendelijk scorebord voor wedstrijden, trainingen en spellen met vrienden.\n\nHoud de score bij voor meer dan 26 sporten en spellen, zoals tennis, pickleball, badminton, tafeltennis, basketbal, voetbal, volleybal en biljart. Pas voor ondersteunde sporten de puntentelling, wedstrijdvorm en serveervolgorde bij dubbelspel aan.\n\nBewaar wedstrijden en bekijk het scoreverloop, de tijdlijn en gesproken notities. Gebruik schaak- en go-klokken, een kubustimer en een stopwatch. Toon je scorebord op een groot scherm en deel een wedstrijdcode zodat vrienden op afstand kunnen meekijken.\n\nMunt opgooien, willekeurige teams, rode en gele kaarten en kosten verdelen: alles op één plek. Minder tijd voor de telling, meer plezier in het spel.\n\nGebruiksvoorwaarden:\nhttps://jifenqi.com/terms\n\nPrivacybeleid:\nhttps://jifenqi.com/privacy\n\nStandaardlicentieovereenkomst van Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Elk punt\ntelt",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Alle scores\nin één oogopslag",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Eén scorebord\nvoor meer dan 26 sporten",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Bekijk\nelke wedstrijd terug",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Jouw regels\njouw spel",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Meer dan\nbalsporten",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Jouw scorebord\nop het grote scherm",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Houd de score bij\nvanaf je pols",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Alle scheidsrechterstools\nin één app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "no",
+      "iosLocale": "nb",
+      "language": "Norwegian",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Resultattavle",
+      "subtitle": "Resultater, tid og kamper",
+      "description": "Hvert poeng teller. Gjør iPhone eller iPad til en tydelig og brukervennlig resultattavle for kamper, trening og spill med venner.\n\nFør poeng i over 26 idretter og spill, blant annet tennis, pickleball, badminton, bordtennis, basketball, fotball, volleyball og biljard. Tilpass poengregler, kampformat og serverekkefølge i double for idrettene som støtter det.\n\nLagre kamper og se poengutvikling, tidslinjer og talenotater. Bruk sjakk- og go-klokker, en tidtaker for kuber og en stoppeklokke. Vis resultattavlen på en stor skjerm, og del en kampkode slik at venner kan følge stillingen på avstand.\n\nMyntkast, tilfeldige lag, røde og gule kort og fordeling av utgifter — alt på ett sted. Mindre tid på telling, mer glede av spillet.\n\nBruksvilkår:\nhttps://jifenqi.com/terms\n\nPersonvernerklæring:\nhttps://jifenqi.com/privacy\n\nApples standardlisensavtale:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Hvert poeng\nteller",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Alle resultater\nmed ett blikk",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Én resultattavle\nfor over 26 idretter",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Se tilbake på\nhver kamp",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Dine regler\nditt spill",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Mer enn\nballspill",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Resultattavlen din\npå storskjermen",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Før poeng\nfra håndleddet",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Dommerverktøy\ni én app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "or-IN",
+      "iosLocale": "or",
+      "language": "Oriya",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: ସ୍କୋରବୋର୍ଡ",
+      "subtitle": "ସ୍କୋର, ସମୟ ଓ ମ୍ୟାଚ୍ ରେକର୍ଡ",
+      "description": "ପ୍ରତ୍ୟେକ ପଏଣ୍ଟ ଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ। ମ୍ୟାଚ୍, ଅଭ୍ୟାସ ଓ ସାଙ୍ଗମାନଙ୍କ ସହ ଖେଳ ପାଇଁ ଆପଣଙ୍କ iPhone କିମ୍ବା iPadକୁ ଏକ ସ୍ପଷ୍ଟ ଓ ସହଜ ସ୍କୋରବୋର୍ଡରେ ପରିଣତ କରନ୍ତୁ।\n\nଟେନିସ୍, ପିକଲବଲ୍, ବ୍ୟାଡମିଣ୍ଟନ୍, ଟେବୁଲ୍ ଟେନିସ୍, ବାସ୍କେଟବଲ୍, ଫୁଟବଲ୍, ଭଲିବଲ୍ ଓ ବିଲିୟାର୍ଡସ୍ ସହିତ 26ରୁ ଅଧିକ କ୍ରୀଡ଼ା ଓ ଖେଳର ସ୍କୋର ରଖନ୍ତୁ। ସମର୍ଥିତ କ୍ରୀଡ଼ାରେ ପଏଣ୍ଟ ନିୟମ, ମ୍ୟାଚ୍ ପ୍ରଣାଳୀ ଓ ଡବଲ୍ସ ସର୍ଭିସ୍ କ୍ରମ ସଜାନ୍ତୁ।\n\nମ୍ୟାଚ୍ ସଞ୍ଚୟ କରି ସ୍କୋରର ପରିବର୍ତ୍ତନ, ଘଟଣାକ୍ରମ ଓ ଭଏସ୍ ନୋଟ୍ ମାଧ୍ୟମରେ ପୁଣି ଦେଖନ୍ତୁ। ଚେସ୍ ଓ ଗୋ ଘଣ୍ଟା, କ୍ୟୁବ୍ ଟାଇମର୍ ଏବଂ ଷ୍ଟପ୍‌ୱାଚ୍ ବ୍ୟବହାର କରନ୍ତୁ। ବଡ଼ ପରଦାରେ ସ୍କୋରବୋର୍ଡ ଦେଖାନ୍ତୁ ଏବଂ ମ୍ୟାଚ୍ କୋଡ୍ ସେୟାର କରନ୍ତୁ, ଯାହାଦ୍ୱାରା ସାଙ୍ଗମାନେ ଦୂରରୁ ସ୍କୋର ଦେଖିପାରିବେ।\n\nକଏନ୍ ଟସ୍, ଯାଦୃଚ୍ଛିକ ଦଳ ଗଠନ, ଲାଲ୍ ଓ ହଳଦିଆ କାର୍ଡ ଏବଂ ଖର୍ଚ୍ଚ ବାଣ୍ଟିବାର ସାଧନ ଗୋଟିଏ ଆପ୍‌ରେ। ସ୍କୋର ରଖିବାରେ କମ୍ ସମୟ, ଖେଳରେ ଅଧିକ ଆନନ୍ଦ।\n\nବ୍ୟବହାର ସର୍ତ୍ତାବଳୀ:\nhttps://jifenqi.com/terms\n\nଗୋପନୀୟତା ନୀତି:\nhttps://jifenqi.com/privacy\n\nAppleର ମାନକ ଶେଷ ଉପଭୋକ୍ତା ଲାଇସେନ୍ସ ଚୁକ୍ତି:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "ପ୍ରତ୍ୟେକ ପଏଣ୍ଟ\nଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "ସମସ୍ତ ସ୍କୋର\nଏକ ନଜରରେ",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "ଗୋଟିଏ ସ୍କୋରବୋର୍ଡ\n26ରୁ ଅଧିକ କ୍ରୀଡ଼ା ପାଇଁ",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ପ୍ରତ୍ୟେକ ମ୍ୟାଚ୍\nପୁଣି ଦେଖନ୍ତୁ",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "ଆପଣଙ୍କ ନିୟମ\nଆପଣଙ୍କ ଖେଳ",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "କେବଳ ବଲ୍\nଖେଳ ନୁହେଁ",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "ଆପଣଙ୍କ ସ୍କୋରବୋର୍ଡ\nବଡ଼ ପରଦାରେ",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "କଚଟିରୁ\nସ୍କୋର ରଖନ୍ତୁ",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "ରେଫରିଙ୍କ ଉପଯୋଗୀ ସାଧନ\nଗୋଟିଏ ଆପ୍‌ରେ",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "pa-IN",
+      "iosLocale": "pa",
+      "language": "Punjabi",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: ਸਕੋਰਬੋਰਡ",
+      "subtitle": "ਸਕੋਰ, ਸਮਾਂ ਤੇ ਮੈਚ ਰਿਕਾਰਡ",
+      "description": "ਹਰ ਅੰਕ ਮਾਇਨੇ ਰੱਖਦਾ ਹੈ। ਮੈਚਾਂ, ਅਭਿਆਸ ਅਤੇ ਦੋਸਤਾਂ ਨਾਲ ਖੇਡਣ ਲਈ ਆਪਣੇ iPhone ਜਾਂ iPad ਨੂੰ ਇੱਕ ਸਾਫ਼ ਅਤੇ ਵਰਤਣ ਵਿੱਚ ਆਸਾਨ ਸਕੋਰਬੋਰਡ ਬਣਾਓ।\n\nਟੈਨਿਸ, ਪਿਕਲਬਾਲ, ਬੈਡਮਿੰਟਨ, ਟੇਬਲ ਟੈਨਿਸ, ਬਾਸਕਟਬਾਲ, ਫੁੱਟਬਾਲ, ਵਾਲੀਬਾਲ ਅਤੇ ਬਿਲੀਅਰਡਸ ਸਮੇਤ 26 ਤੋਂ ਵੱਧ ਖੇਡਾਂ ਦੇ ਸਕੋਰ ਰੱਖੋ। ਸਮਰਥਿਤ ਖੇਡਾਂ ਵਿੱਚ ਅੰਕਾਂ ਦੇ ਨਿਯਮ, ਮੈਚ ਦਾ ਢੰਗ ਅਤੇ ਡਬਲਜ਼ ਦੀ ਸਰਵਿਸ ਦਾ ਕ੍ਰਮ ਸੈੱਟ ਕਰੋ।\n\nਮੈਚ ਸੰਭਾਲੋ ਅਤੇ ਸਕੋਰ ਦੇ ਬਦਲਾਅ, ਘਟਨਾਕ੍ਰਮ ਤੇ ਵੌਇਸ ਨੋਟਾਂ ਰਾਹੀਂ ਮੁੜ ਵੇਖੋ। ਸ਼ਤਰੰਜ ਅਤੇ ਗੋ ਦੀਆਂ ਘੜੀਆਂ, ਕਿਊਬ ਟਾਈਮਰ ਅਤੇ ਸਟਾਪਵਾਚ ਵਰਤੋ। ਵੱਡੀ ਸਕ੍ਰੀਨ ਉੱਤੇ ਸਕੋਰਬੋਰਡ ਦਿਖਾਓ ਅਤੇ ਮੈਚ ਕੋਡ ਸਾਂਝਾ ਕਰੋ, ਤਾਂ ਜੋ ਦੋਸਤ ਦੂਰੋਂ ਸਕੋਰ ਵੇਖ ਸਕਣ।\n\nਸਿੱਕਾ ਉਛਾਲਣ, ਬੇਤਰਤੀਬ ਟੀਮਾਂ ਬਣਾਉਣ, ਲਾਲ ਤੇ ਪੀਲੇ ਕਾਰਡ ਦਿਖਾਉਣ ਅਤੇ ਖਰਚ ਵੰਡਣ ਦੇ ਸਾਧਨ ਇੱਕੋ ਐਪ ਵਿੱਚ। ਸਕੋਰ ਰੱਖਣ ਵਿੱਚ ਘੱਟ ਸਮਾਂ, ਖੇਡ ਦਾ ਵੱਧ ਆਨੰਦ।\n\nਵਰਤੋਂ ਦੀਆਂ ਸ਼ਰਤਾਂ:\nhttps://jifenqi.com/terms\n\nਪਰਦੇਦਾਰੀ ਨੀਤੀ:\nhttps://jifenqi.com/privacy\n\nApple ਦਾ ਮਿਆਰੀ ਅੰਤਿਮ ਵਰਤੋਂਕਾਰ ਲਾਇਸੈਂਸ ਸਮਝੌਤਾ:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "ਹਰ ਅੰਕ\nਮਾਇਨੇ ਰੱਖਦਾ ਹੈ",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "ਸਾਰਾ ਸਕੋਰ\nਇੱਕ ਨਜ਼ਰ ਵਿੱਚ",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "ਇੱਕ ਸਕੋਰਬੋਰਡ\n26 ਤੋਂ ਵੱਧ ਖੇਡਾਂ ਲਈ",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ਹਰ ਮੈਚ\nਮੁੜ ਵੇਖੋ",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "ਤੁਹਾਡੇ ਨਿਯਮ\nਤੁਹਾਡੀ ਖੇਡ",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "ਸਿਰਫ਼ ਗੇਂਦ ਵਾਲੀਆਂ\nਖੇਡਾਂ ਹੀ ਨਹੀਂ",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "ਤੁਹਾਡਾ ਸਕੋਰਬੋਰਡ\nਵੱਡੀ ਸਕ੍ਰੀਨ ਉੱਤੇ",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "ਗੁੱਟ ਤੋਂ\nਸਕੋਰ ਰੱਖੋ",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "ਰੈਫ਼ਰੀ ਦੇ ਲਾਭਦਾਇਕ ਸਾਧਨ\nਇੱਕੋ ਐਪ ਵਿੱਚ",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "pl",
+      "iosLocale": "pl",
+      "language": "Polish",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Tablica wyników",
+      "subtitle": "Wyniki, zegary i historia gier",
+      "description": "Każdy punkt się liczy. Zamień iPhone'a lub iPada w czytelną, wygodną tablicę wyników na mecze, treningi i rozgrywki ze znajomymi.\n\nZapisuj punkty w ponad 26 dyscyplinach i grach, takich jak tenis, pickleball, badminton, tenis stołowy, koszykówka, piłka nożna, siatkówka i bilard. W obsługiwanych dyscyplinach dostosuj zasady punktacji, format meczu i kolejność serwowania w deblu.\n\nZachowuj mecze i przeglądaj zmiany wyniku, oś czasu oraz notatki głosowe. Korzystaj z zegarów szachowych i do go, timera do kostki oraz stopera. Wyświetlaj wynik na dużym ekranie i udostępniaj kod meczu, aby znajomi mogli śledzić go zdalnie.\n\nRzut monetą, losowanie drużyn, czerwone i żółte kartki oraz dzielenie kosztów — wszystko w jednym miejscu. Mniej liczenia, więcej przyjemności z gry.\n\nWarunki użytkowania:\nhttps://jifenqi.com/terms\n\nPolityka prywatności:\nhttps://jifenqi.com/privacy\n\nStandardowa umowa licencyjna Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Każdy punkt\nsię liczy",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Wszystkie wyniki\nna pierwszy rzut oka",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Jedna tablica wyników\ndla ponad 26 dyscyplin",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Wróć do\nkażdego meczu",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Twoje zasady\ntwoja gra",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Więcej niż\ngry z piłką",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Twoje wyniki\nna dużym ekranie",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Zapisuj punkty\nz nadgarstka",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Narzędzia sędziego\nw jednej aplikacji",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "pt-BR",
+      "iosLocale": "pt-BR",
+      "language": "Portuguese (Brazil)",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Placar esportivo",
+      "subtitle": "Pontos, tempos e partidas",
+      "description": "Cada ponto conta. Transforme seu iPhone ou iPad em um placar claro e fácil de usar para partidas, treinos e jogos com amigos.\n\nMarque pontos em mais de 26 esportes e jogos, incluindo tênis, pickleball, badminton, tênis de mesa, basquete, futebol, vôlei e bilhar. Nos esportes compatíveis, ajuste as regras de pontuação, o formato da partida e a ordem de saque em duplas.\n\nSalve suas partidas e reveja a evolução do placar, a linha do tempo e as notas de voz. Use relógios de xadrez e go, um temporizador para cubos e um cronômetro. Mostre o placar em uma tela grande e compartilhe um código de partida para seus amigos acompanharem à distância.\n\nCara ou coroa, equipes aleatórias, cartões vermelhos e amarelos e divisão de despesas: tudo em um só lugar. Menos trabalho para contar, mais tempo para jogar.\n\nTermos de uso:\nhttps://jifenqi.com/terms\n\nPolítica de privacidade:\nhttps://jifenqi.com/privacy\n\nContrato de licença padrão da Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Cada ponto\nconta",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Todo o placar\nnum piscar de olhos",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Um placar\npara mais de 26 esportes",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Reveja\ncada partida",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Suas regras\nseu jeito de jogar",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Muito além dos\nesportes com bola",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Seu placar\nna tela grande",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Marque pontos\nno pulso",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Ferramentas de arbitragem\nem um só app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "pt-PT",
+      "iosLocale": "pt-PT",
+      "language": "Portuguese (Portugal)",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Marcador",
+      "subtitle": "Pontos, tempos e jogos",
+      "description": "Cada ponto conta. Transforma o teu iPhone ou iPad num marcador claro e fácil de usar para jogos, treinos e partidas com amigos.\n\nRegista pontos em mais de 26 desportos e jogos, incluindo ténis, pickleball, badminton, ténis de mesa, basquetebol, futebol, voleibol e bilhar. Nos desportos compatíveis, ajusta as regras de pontuação, o formato do jogo e a ordem de serviço em pares.\n\nGuarda as partidas e revê a evolução do marcador, a cronologia e as notas de voz. Usa relógios de xadrez e go, um temporizador para cubos e um cronómetro. Mostra o marcador num ecrã grande e partilha um código de jogo para os teus amigos acompanharem à distância.\n\nCara ou coroa, equipas aleatórias, cartões vermelhos e amarelos e divisão de despesas: tudo num só lugar. Menos trabalho a contar, mais tempo para jogar.\n\nTermos de utilização:\nhttps://jifenqi.com/terms\n\nPolítica de privacidade:\nhttps://jifenqi.com/privacy\n\nContrato de licença padrão da Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Cada ponto\nconta",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Todo o marcador\nnum relance",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Um marcador\npara mais de 26 desportos",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Revê\ncada partida",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "As tuas regras\na tua forma de jogar",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Muito mais do que\njogos de bola",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "O teu marcador\nno grande ecrã",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Regista pontos\nno pulso",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Ferramentas de arbitragem\nnuma só app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ro",
+      "iosLocale": "ro",
+      "language": "Romanian",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Tabelă de scor",
+      "subtitle": "Scoruri, timp și meciuri",
+      "description": "Fiecare punct contează. Transformă iPhone-ul sau iPad-ul într-o tabelă de scor clară și ușor de folosit pentru meciuri, antrenamente și jocuri cu prietenii.\n\nȚine scorul pentru peste 26 de sporturi și jocuri, inclusiv tenis, pickleball, badminton, tenis de masă, baschet, fotbal, volei și biliard. În sporturile compatibile, adaptează regulile de punctaj, formatul meciului și ordinea serviciului la dublu.\n\nSalvează meciurile și urmărește evoluția scorului, cronologia și notele vocale. Folosește ceasuri pentru șah și go, un cronometru pentru cub și un cronometru obișnuit. Afișează tabela pe un ecran mare și distribuie un cod de meci pentru ca prietenii să urmărească scorul de la distanță.\n\nAruncarea monedei, echipe aleatorii, cartonașe roșii și galbene și împărțirea cheltuielilor — toate într-un singur loc. Mai puțin efort cu scorul, mai multă bucurie în joc.\n\nCondiții de utilizare:\nhttps://jifenqi.com/terms\n\nPolitica de confidențialitate:\nhttps://jifenqi.com/privacy\n\nAcordul de licență standard Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Fiecare punct\ncontează",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Toate scorurile\ndintr-o privire",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "O singură tabelă\npentru peste 26 de sporturi",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Revino la\nfiecare meci",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Regulile tale\njocul tău",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Mai mult decât\njocuri cu mingea",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Tabela ta\npe ecranul mare",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Ține scorul\nde la încheietură",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Instrumente pentru arbitri\nîntr-o singură aplicație",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ru",
+      "iosLocale": "ru",
+      "language": "Russian",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Табло",
+      "subtitle": "Счёт, таймеры и история игр",
+      "description": "Каждое очко важно. Превратите iPhone или iPad в удобное и наглядное табло для матчей, тренировок и игр с друзьями.\n\nВедите счёт в более чем 26 видах спорта и играх: теннис, пиклбол, бадминтон, настольный теннис, баскетбол, футбол, волейбол и бильярд. Для поддерживаемых видов спорта можно настроить правила подсчёта, формат матча и порядок подачи в парной игре.\n\nСохраняйте матчи и просматривайте динамику счёта, хронологию событий и голосовые заметки. Пользуйтесь шахматными часами, часами для го, таймером для кубика и секундомером. Показывайте табло на большом экране и делитесь кодом матча, чтобы друзья следили за счётом удалённо.\n\nПодбрасывание монеты, случайное распределение по командам, красные и жёлтые карточки, разделение расходов — всё в одном приложении. Меньше хлопот со счётом, больше удовольствия от игры.\n\nУсловия использования:\nhttps://jifenqi.com/terms\n\nПолитика конфиденциальности:\nhttps://jifenqi.com/privacy\n\nСтандартное лицензионное соглашение Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Каждое очко\nважно",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Весь счёт\nс первого взгляда",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Одно табло\nдля 26+ видов спорта",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Разберите\nкаждый матч",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Ваши правила\nваша игра",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Больше, чем\nигры с мячом",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Ваше табло\nна большом экране",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Ведите счёт\nс запястья",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Инструменты судьи\nв одном приложении",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "sk",
+      "iosLocale": "sk",
+      "language": "Slovak",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Výsledková tabuľa",
+      "subtitle": "Skóre, čas a záznamy zápasov",
+      "description": "Každý bod sa počíta. Premeňte iPhone alebo iPad na prehľadnú a ľahko ovládateľnú výsledkovú tabuľu na zápasy, tréningy aj hry s priateľmi.\n\nZapisujte skóre pre viac ako 26 športov a hier vrátane tenisu, pickleballu, bedmintonu, stolného tenisu, basketbalu, futbalu, volejbalu a biliardu. Pri podporovaných športoch upravte pravidlá bodovania, formát zápasu a poradie podania vo štvorhre.\n\nUkladajte zápasy a prezerajte si vývoj skóre, časovú os a hlasové poznámky. Používajte šachové hodiny, hodiny na go, časovač na kocku a stopky. Zobrazte tabuľu na veľkej obrazovke a zdieľajte kód zápasu, aby priatelia mohli sledovať skóre na diaľku.\n\nHod mincou, náhodné rozdelenie do tímov, červené a žlté karty aj rozdelenie nákladov — všetko na jednom mieste. Menej starostí s počítaním, viac radosti z hry.\n\nPodmienky používania:\nhttps://jifenqi.com/terms\n\nZásady ochrany osobných údajov:\nhttps://jifenqi.com/privacy\n\nŠtandardná licenčná zmluva Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Každý bod\nsa počíta",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Všetky skóre\nna prvý pohľad",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Jedna tabuľa\npre viac ako 26 športov",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Vráťte sa\nku každému zápasu",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Vaše pravidlá\nvaša hra",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Viac než\nloptové hry",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Vaša tabuľa\nna veľkej obrazovke",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Zapisujte skóre\nzo zápästia",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Nástroje rozhodcu\nv jednej aplikácii",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "sl-SI",
+      "iosLocale": "sl",
+      "language": "Slovenian",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Semafor",
+      "subtitle": "Rezultati, čas in tekme",
+      "description": "Vsaka točka šteje. Spremenite iPhone ali iPad v pregleden semafor, ki je preprost za uporabo na tekmah, treningih in pri igrah s prijatelji.\n\nBeležite rezultate za več kot 26 športov in iger, vključno s tenisom, pickleballom, badmintonom, namiznim tenisom, košarko, nogometom, odbojko in biljardom. Pri podprtih športih prilagodite pravila točkovanja, obliko tekme in vrstni red servisa v dvojicah.\n\nShranite tekme ter preglejte potek rezultata, časovnico in glasovne opombe. Uporabljajte ure za šah in go, časovnik za kocko in štoparico. Prikažite semafor na velikem zaslonu in delite kodo tekme, da lahko prijatelji spremljajo rezultat na daljavo.\n\nMet kovanca, naključna razdelitev v ekipe, rdeči in rumeni kartoni ter delitev stroškov — vse na enem mestu. Manj dela s štetjem, več veselja pri igri.\n\nPogoji uporabe:\nhttps://jifenqi.com/terms\n\nPravilnik o zasebnosti:\nhttps://jifenqi.com/privacy\n\nStandardna licenčna pogodba Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Vsaka točka\nšteje",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Vsi rezultati\nna prvi pogled",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "En semafor\nza več kot 26 športov",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Poglejte nazaj\nna vsako tekmo",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Vaša pravila\nvaša igra",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Več kot\nigre z žogo",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Vaš semafor\nna velikem zaslonu",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Beležite točke\nz zapestja",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Sodniška orodja\nv eni aplikaciji",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "sv",
+      "iosLocale": "sv",
+      "language": "Swedish",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Resultattavla",
+      "subtitle": "Resultat, tid och matcher",
+      "description": "Varje poäng räknas. Gör din iPhone eller iPad till en tydlig och lättanvänd resultattavla för matcher, träning och spel med vänner.\n\nHåll koll på poängen i över 26 sporter och spel, bland annat tennis, pickleball, badminton, bordtennis, basket, fotboll, volleyboll och biljard. Anpassa poängregler, matchformat och serveordning i dubbel för de sporter som stöder det.\n\nSpara matcher och se poängutveckling, tidslinjer och röstanteckningar. Använd schack- och go-klockor, en kubtimer och ett stoppur. Visa resultattavlan på en stor skärm och dela en matchkod så att vänner kan följa ställningen på distans.\n\nSlantsingling, slumpmässiga lag, röda och gula kort och delning av kostnader — allt på ett ställe. Mindre tid på att räkna, mer glädje i spelet.\n\nAnvändarvillkor:\nhttps://jifenqi.com/terms\n\nIntegritetspolicy:\nhttps://jifenqi.com/privacy\n\nApples standardlicensavtal:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Varje poäng\nräknas",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Alla resultat\nmed en blick",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "En resultattavla\nför över 26 sporter",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Se tillbaka på\nvarje match",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Dina regler\nditt spel",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Mer än\nbollspel",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Din resultattavla\npå storskärmen",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Räkna poäng\nfrån handleden",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Domarverktyg\ni en app",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ta-IN",
+      "iosLocale": "ta",
+      "language": "Tamil",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: ஸ்கோர்போர்டு",
+      "subtitle": "புள்ளிகள், நேரம், போட்டிகள்",
+      "description": "ஒவ்வொரு புள்ளியும் முக்கியம். போட்டிகள், பயிற்சி மற்றும் நண்பர்களுடன் விளையாட உங்கள் iPhone அல்லது iPad-ஐ தெளிவான, எளிதான ஸ்கோர்போர்டாக மாற்றுங்கள்.\n\nடென்னிஸ், பிக்கிள்பால், பேட்மிண்டன், டேபிள் டென்னிஸ், கூடைப்பந்து, கால்பந்து, கைப்பந்து, பில்லியர்ட்ஸ் உள்ளிட்ட 26-க்கும் மேற்பட்ட விளையாட்டுகளில் புள்ளிகளைப் பதிவு செய்யுங்கள். ஆதரிக்கப்படும் விளையாட்டுகளில் புள்ளி விதிகள், போட்டி முறை, இரட்டையர் சர்வ் வரிசை ஆகியவற்றை அமைக்கலாம்.\n\nபோட்டிகளைச் சேமித்து, புள்ளி மாற்றங்கள், நிகழ்வுகளின் வரிசை, குரல் குறிப்புகள் மூலம் மீண்டும் பாருங்கள். சதுரங்கம் மற்றும் கோ கடிகாரங்கள், கியூப் டைமர், ஸ்டாப்வாட்ச் ஆகியவற்றைப் பயன்படுத்துங்கள். பெரிய திரையில் ஸ்கோர்போர்டைக் காட்டுங்கள்; நண்பர்கள் தொலைவிலிருந்து புள்ளிகளைப் பார்க்க போட்டிக் குறியீட்டைப் பகிருங்கள்.\n\nநாணயச் சுண்டல், சீரற்ற அணி பிரித்தல், சிவப்பு மற்றும் மஞ்சள் அட்டைகள், செலவுப் பகிர்வு ஆகியவற்றுக்கான கருவிகள் ஒரே செயலியில். புள்ளிகளைப் பதிவு செய்யும் வேலையைக் குறைத்து, விளையாட்டை அதிகம் ரசிக்கலாம்.\n\nபயன்பாட்டு விதிமுறைகள்:\nhttps://jifenqi.com/terms\n\nதனியுரிமைக் கொள்கை:\nhttps://jifenqi.com/privacy\n\nApple நிலையான இறுதிப் பயனர் உரிம ஒப்பந்தம்:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "ஒவ்வொரு புள்ளியும்\nமுக்கியம்",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "அனைத்துப் புள்ளிகளும்\nஒரே பார்வையில்",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "ஒரே ஸ்கோர்போர்டு\n26-க்கும் மேற்பட்ட விளையாட்டுகளுக்கு",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ஒவ்வொரு போட்டியையும்\nமீண்டும் பாருங்கள்",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "உங்கள் விதிகள்\nஉங்கள் விளையாட்டு",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "பந்து விளையாட்டுகளுக்கு\nஅப்பாலும்",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "உங்கள் ஸ்கோர்போர்டு\nபெரிய திரையில்",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "மணிக்கட்டிலிருந்து\nபுள்ளிகளைப் பதிவுசெய்யுங்கள்",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "நடுவருக்கான கருவிகள்\nஒரே செயலியில்",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "te-IN",
+      "iosLocale": "te",
+      "language": "Telugu",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: స్కోర్‌బోర్డ్",
+      "subtitle": "స్కోరు, సమయం, మ్యాచ్‌లు",
+      "description": "ప్రతి పాయింట్ ముఖ్యం. మ్యాచ్‌లు, శిక్షణ మరియు స్నేహితులతో ఆటల కోసం మీ iPhone లేదా iPadను స్పష్టమైన, సులభంగా ఉపయోగించగల స్కోర్‌బోర్డ్‌గా మార్చండి.\n\nటెన్నిస్, పికిల్‌బాల్, బ్యాడ్మింటన్, టేబుల్ టెన్నిస్, బాస్కెట్‌బాల్, ఫుట్‌బాల్, వాలీబాల్ మరియు బిలియర్డ్స్‌తో సహా 26కు పైగా క్రీడలు, ఆటల్లో స్కోరు నమోదు చేయండి. మద్దతు ఉన్న క్రీడల్లో పాయింట్ల నియమాలు, మ్యాచ్ విధానం, డబుల్స్ సర్వ్ క్రమాన్ని సెట్ చేయండి.\n\nమ్యాచ్‌లను సేవ్ చేసి, స్కోరు మార్పులు, సంఘటనల క్రమం మరియు వాయిస్ నోట్స్‌తో మళ్లీ చూడండి. చెస్ మరియు గో గడియారాలు, క్యూబ్ టైమర్, స్టాప్‌వాచ్ ఉపయోగించండి. పెద్ద తెరపై స్కోర్‌బోర్డ్ చూపండి; స్నేహితులు దూరం నుంచి స్కోరు చూడటానికి మ్యాచ్ కోడ్ పంచుకోండి.\n\nనాణెం టాస్, యాదృచ్ఛికంగా జట్లు ఏర్పాటు చేయడం, ఎరుపు మరియు పసుపు కార్డులు, ఖర్చు పంచుకోవడం కోసం సాధనాలు ఒకే యాప్‌లో. స్కోరు నమోదులో తక్కువ శ్రమ, ఆటలో ఎక్కువ ఆనందం.\n\nవినియోగ నిబంధనలు:\nhttps://jifenqi.com/terms\n\nగోప్యతా విధానం:\nhttps://jifenqi.com/privacy\n\nApple ప్రామాణిక తుది వినియోగదారు లైసెన్స్ ఒప్పందం:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "ప్రతి పాయింట్\nముఖ్యం",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "అన్ని స్కోర్లు\nఒక్క చూపులో",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "ఒకే స్కోర్‌బోర్డ్\n26కు పైగా క్రీడలకు",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ప్రతి మ్యాచ్‌ను\nమళ్లీ చూడండి",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "మీ నియమాలు\nమీ ఆట",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "బంతి ఆటలకు\nమించి",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "మీ స్కోర్‌బోర్డ్\nపెద్ద తెరపై",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "మణికట్టు నుంచే\nస్కోరు నమోదు చేయండి",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "రెఫరీ సాధనాలు\nఒకే యాప్‌లో",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "th",
+      "iosLocale": "th",
+      "language": "Thai",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: กระดานคะแนน",
+      "subtitle": "คะแนน เวลา และบันทึกการแข่งขัน",
+      "description": "ทุกคะแนนมีความหมาย เปลี่ยน iPhone หรือ iPad ให้เป็นกระดานคะแนนที่ชัดเจนและใช้ง่าย สำหรับการแข่งขัน การฝึกซ้อม และการเล่นกับเพื่อน\n\nบันทึกคะแนนสำหรับกีฬาและเกมกว่า 26 ประเภท ทั้งเทนนิส พิกเคิลบอล แบดมินตัน ปิงปอง บาสเกตบอล ฟุตบอล วอลเลย์บอล และบิลเลียด ปรับกติกาการนับคะแนน รูปแบบการแข่งขัน และลำดับเสิร์ฟประเภทคู่สำหรับกีฬาที่รองรับ\n\nบันทึกการแข่งขันแล้วดูแนวโน้มคะแนน ลำดับเหตุการณ์ และบันทึกเสียง ใช้นาฬิกาหมากรุกและโกะ ตัวจับเวลาลูกบาศก์ และนาฬิกาจับเวลา แสดงกระดานคะแนนบนหน้าจอใหญ่ และแชร์รหัสการแข่งขันให้เพื่อนติดตามคะแนนจากระยะไกล\n\nเครื่องมือโยนเหรียญ สุ่มแบ่งทีม ใบแดงและใบเหลือง รวมถึงหารค่าใช้จ่าย อยู่ในแอปเดียว ใช้เวลานับคะแนนน้อยลงและสนุกกับเกมมากขึ้น\n\nเงื่อนไขการใช้งาน:\nhttps://jifenqi.com/terms\n\nนโยบายความเป็นส่วนตัว:\nhttps://jifenqi.com/privacy\n\nข้อตกลงสิทธิ์การใช้งานมาตรฐานของ Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "ทุกคะแนน\nมีความหมาย",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "เห็นทุกคะแนน\nได้ในพริบตา",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "กระดานเดียว\nสำหรับกีฬากว่า 26 ประเภท",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ย้อนดู\nทุกการแข่งขัน",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "กติกาของคุณ\nเล่นในแบบของคุณ",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "มากกว่า\nกีฬาที่ใช้ลูกบอล",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "กระดานคะแนน\nบนหน้าจอใหญ่",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "บันทึกคะแนน\nจากข้อมือ",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "เครื่องมือผู้ตัดสิน\nครบในแอปเดียว",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "tr",
+      "iosLocale": "tr",
+      "language": "Turkish",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Skor Tahtası",
+      "subtitle": "Skor, süre ve maç kayıtları",
+      "description": "Her sayı değerli. iPhone veya iPad'inizi maçlarda, antrenmanlarda ve arkadaşlarınızla oynarken kullanabileceğiniz net ve pratik bir skor tahtasına dönüştürün.\n\nTenis, pickleball, badminton, masa tenisi, basketbol, futbol, voleybol ve bilardo dahil 26'dan fazla spor ve oyunda skor tutun. Desteklenen sporlarda puanlama kurallarını, maç formatını ve çiftlerde servis sırasını ayarlayın.\n\nMaçları kaydedin; skor değişimleri, zaman çizelgesi ve sesli notlarla yeniden inceleyin. Satranç ve go saatleri, küp zamanlayıcısı ve kronometreyi kullanın. Skor tahtasını büyük ekranda gösterin ve arkadaşlarınızın uzaktan takip edebilmesi için maç kodunu paylaşın.\n\nYazı tura, rastgele takım oluşturma, kırmızı ve sarı kartlar, masraf bölüşme araçları tek yerde. Skor tutmaya daha az, oyunun keyfine daha çok zaman ayırın.\n\nKullanım koşulları:\nhttps://jifenqi.com/terms\n\nGizlilik politikası:\nhttps://jifenqi.com/privacy\n\nApple standart son kullanıcı lisans sözleşmesi:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Her sayı\ndeğerli",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Tüm skorlar\nbir bakışta",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Tek skor tahtası\n26’dan fazla spor",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Her maçı\nyeniden inceleyin",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Kurallar sizin\noyun sizin",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Top oyunlarından\nçok daha fazlası",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Skor tahtanız\nbüyük ekranda",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Bileğinizden\nskor tutun",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Hakem araçları\ntek uygulamada",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "uk",
+      "iosLocale": "uk",
+      "language": "Ukrainian",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Табло",
+      "subtitle": "Рахунок, час та записи ігор",
+      "description": "Кожне очко важливе. Перетворіть iPhone або iPad на зручне й наочне табло для матчів, тренувань та ігор із друзями.\n\nВедіть рахунок у понад 26 видах спорту та іграх: теніс, піклбол, бадмінтон, настільний теніс, баскетбол, футбол, волейбол і більярд. Для підтримуваних видів спорту можна налаштувати правила підрахунку, формат матчу та порядок подачі в парній грі.\n\nЗберігайте матчі й переглядайте зміни рахунку, хронологію подій та голосові нотатки. Користуйтеся шаховими годинниками, годинниками для ґо, таймером для кубика й секундоміром. Показуйте табло на великому екрані та діліться кодом матчу, щоб друзі стежили за рахунком віддалено.\n\nПідкидання монети, випадковий розподіл на команди, червоні й жовті картки, поділ витрат — усе в одному застосунку. Менше клопоту з рахунком, більше задоволення від гри.\n\nУмови використання:\nhttps://jifenqi.com/terms\n\nПолітика конфіденційності:\nhttps://jifenqi.com/privacy\n\nСтандартна ліцензійна угода Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Кожне очко\nважливе",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Увесь рахунок\nз першого погляду",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Одне табло\nдля 26+ видів спорту",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Перегляньте\nкожен матч",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Ваші правила\nваша гра",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Більше, ніж\nігри з м’ячем",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Ваше табло\nна великому екрані",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Ведіть рахунок\nіз зап’ястя",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Інструменти судді\nв одному застосунку",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "ur-PK",
+      "iosLocale": "ur",
+      "language": "Urdu",
+      "direction": "rtl",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: اسکور بورڈ",
+      "subtitle": "اسکور، وقت اور میچ ریکارڈ",
+      "description": "ہر پوائنٹ اہم ہے۔ میچوں، مشق اور دوستوں کے ساتھ کھیلنے کے لیے اپنے iPhone یا iPad کو ایک واضح اور آسان اسکور بورڈ میں بدلیں۔\n\nٹینس، پکل بال، بیڈمنٹن، ٹیبل ٹینس، باسکٹ بال، فٹ بال، والی بال اور بلیئرڈز سمیت 26 سے زیادہ کھیلوں میں اسکور رکھیں۔ معاون کھیلوں میں پوائنٹس کے اصول، میچ کا طریقہ اور ڈبلز میں سروس کی ترتیب طے کریں۔\n\nمیچ محفوظ کریں اور اسکور کی تبدیلیوں، واقعات کی ترتیب اور صوتی نوٹس سے دوبارہ جائزہ لیں۔ شطرنج اور گو کی گھڑیاں، کیوب ٹائمر اور اسٹاپ واچ استعمال کریں۔ بڑی اسکرین پر اسکور بورڈ دکھائیں اور میچ کوڈ شیئر کریں تاکہ دوست دور سے اسکور دیکھ سکیں۔\n\nسکہ اچھالنے، بے ترتیب ٹیمیں بنانے، سرخ اور پیلے کارڈ دکھانے اور اخراجات بانٹنے کے کارآمد اوزار ایک ہی ایپ میں۔ اسکور رکھنے میں کم وقت، کھیل کا زیادہ لطف۔\n\nاستعمال کی شرائط:\nhttps://jifenqi.com/terms\n\nرازداری کی پالیسی:\nhttps://jifenqi.com/privacy\n\nApple کا معیاری آخری صارف لائسنس معاہدہ:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "ہر پوائنٹ\nاہم ہے",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "پورا اسکور\nایک نظر میں",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "ایک اسکور بورڈ\n26 سے زیادہ کھیلوں کے لیے",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "ہر میچ کا\nدوبارہ جائزہ لیں",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "آپ کے اصول\nآپ کا کھیل",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "صرف گیند والے\nکھیل ہی نہیں",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "آپ کا اسکور بورڈ\nبڑی اسکرین پر",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "کلائی سے\nاسکور رکھیں",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "ریفری کے کارآمد اوزار\nایک ہی ایپ میں",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "vi",
+      "iosLocale": "vi",
+      "language": "Vietnamese",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: Bảng điểm",
+      "subtitle": "Điểm số, thời gian và trận đấu",
+      "description": "Mỗi điểm số đều quan trọng. Biến iPhone hoặc iPad thành bảng điểm rõ ràng, dễ dùng cho thi đấu, luyện tập và chơi cùng bạn bè.\n\nGhi điểm cho hơn 26 môn thể thao và trò chơi, gồm quần vợt, pickleball, cầu lông, bóng bàn, bóng rổ, bóng đá, bóng chuyền và bi-a. Với các môn được hỗ trợ, bạn có thể chỉnh luật tính điểm, thể thức thi đấu và thứ tự giao bóng đôi.\n\nLưu trận đấu và xem lại diễn biến điểm số, dòng thời gian cùng ghi chú giọng nói. Sử dụng đồng hồ cờ vua và cờ vây, bộ đếm giờ cho khối lập phương và đồng hồ bấm giờ. Hiển thị bảng điểm trên màn hình lớn, chia sẻ mã trận đấu để bạn bè theo dõi điểm số từ xa.\n\nTung đồng xu, chia đội ngẫu nhiên, thẻ đỏ và thẻ vàng, chia đều chi phí: các công cụ tiện ích đều ở một nơi. Bớt bận tính điểm, thêm thời gian tận hưởng trận đấu.\n\nĐiều khoản sử dụng:\nhttps://jifenqi.com/terms\n\nChính sách quyền riêng tư:\nhttps://jifenqi.com/privacy\n\nThỏa thuận cấp phép tiêu chuẩn của Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "Mỗi điểm số\nđều quan trọng",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "Toàn bộ điểm số\nchỉ trong một cái nhìn",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "Một bảng điểm\ncho hơn 26 môn thể thao",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "Xem lại\ntừng trận đấu",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "Luật của bạn\ncách chơi của bạn",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "Không chỉ là\ntrò chơi với bóng",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "Bảng điểm của bạn\ntrên màn hình lớn",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "Ghi điểm\nngay trên cổ tay",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "Công cụ trọng tài\ntrong một ứng dụng",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "zh-Hans",
+      "iosLocale": "zh-Hans",
+      "language": "Chinese (Simplified)",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: 全能计分器",
+      "subtitle": "运动计分、比赛计时与赛后复盘",
+      "description": "每一分都值得认真记录。把 iPhone 或 iPad 变成清晰、顺手的计分板，轻松记录比赛、训练和朋友间的对局。\n\n支持 26+ 种运动与游戏计分，包括网球、匹克球、羽毛球、乒乓球、篮球、足球、排球和台球。根据项目调整分制、比赛局数与双打发球顺序，让计分方式适合你的比赛。\n\n保存比赛记录，通过比分趋势、时间线和语音笔记回顾精彩时刻。内置国际象棋与围棋计时、魔方计时和秒表，球类之外也能用。将计分板显示在大屏上，或分享比赛口令码，让亲友远程同步看比分。\n\n抛硬币、随机分队、红黄牌和费用平摊等实用工具集中在一处。少一点记分的忙乱，多一点比赛的乐趣。\n\n使用条款:\nhttps://jifenqi.com/terms\n\n隐私政策:\nhttps://jifenqi.com/privacy\n\nApple 标准最终用户许可协议:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "每一分\n都值得",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "比赛计分\n一屏看清",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "26+ 运动项目\n打开就能计",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "赛后复盘\n进步看得见",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "规则你说了算\n怎么打都能计",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "不只球类\n计时同样在行",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "投上电视\n全场都看得清",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "抬腕就能计分",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "裁判小工具\n一应俱全",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "locale": "zh-Hant",
+      "iosLocale": "zh-Hant",
+      "language": "Chinese (Traditional)",
+      "direction": "ltr",
+      "reviewStatus": "draft",
+      "name": "iScoreboard: 全能計分器",
+      "subtitle": "運動計分、比賽計時與賽後回顧",
+      "description": "每一分都值得認真記錄。把 iPhone 或 iPad 變成清楚、好用的計分板，輕鬆記錄比賽、訓練和朋友間的對局。\n\n支援 26+ 種運動與遊戲計分，包括網球、匹克球、羽毛球、桌球、籃球、足球、排球和撞球。依照項目調整計分規則、比賽局數與雙打發球順序，讓計分方式符合你的比賽。\n\n儲存比賽紀錄，透過比分趨勢、時間軸和語音筆記回顧精彩時刻。內建西洋棋與圍棋計時、魔術方塊計時和碼錶，球類之外也能用。將計分板顯示在大螢幕上，或分享比賽代碼，讓親友遠端同步看比分。\n\n擲硬幣、隨機分隊、紅黃牌和費用分攤等實用工具集中在一處。少一點記分的忙亂，多一點比賽的樂趣。\n\n使用條款:\nhttps://jifenqi.com/terms\n\n隱私權政策:\nhttps://jifenqi.com/privacy\n\nApple 標準終端使用者授權合約:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "screenshotTitles": [
+        {
+          "id": "slogan",
+          "title": "每一分\n都值得",
+          "enabled": true
+        },
+        {
+          "id": "score",
+          "title": "比賽計分\n一眼看清",
+          "enabled": true
+        },
+        {
+          "id": "catalog",
+          "title": "26+ 運動項目\n開啟就能計分",
+          "enabled": true
+        },
+        {
+          "id": "recap",
+          "title": "賽後回顧\n看見每次進步",
+          "enabled": true
+        },
+        {
+          "id": "setup",
+          "title": "規則由你決定\n怎麼打都能計分",
+          "enabled": true
+        },
+        {
+          "id": "timer",
+          "title": "不只球類\n計時也很拿手",
+          "enabled": true
+        },
+        {
+          "id": "cast",
+          "title": "投放到電視\n全場都看得清",
+          "enabled": true
+        },
+        {
+          "id": "watch",
+          "title": "抬腕就能計分",
+          "enabled": false,
+          "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+        },
+        {
+          "id": "tools",
+          "title": "裁判小工具\n一應俱全",
+          "enabled": true
+        }
+      ]
+    }
+  ],
+  "appStoreConnectUpload": {
+    "uploadedAt": "2026-10-02T19:38:35.344243+08:00",
+    "platform": "app-store-connect",
+    "appId": "6759768784",
+    "version": "3.3",
+    "appInfoId": "1aa0ff31-d3d8-4d53-8b4e-983263bf8659",
+    "appStoreVersionId": "a118dc62-4303-4c03-ae92-b358c60438d5",
+    "storeState": "PREPARE_FOR_SUBMISSION",
+    "verified": true,
+    "localeCount": 50,
+    "fields": [
+      "name",
+      "subtitle",
+      "description"
+    ],
+    "submittedForReview": false,
+    "released": false,
+    "screenshotsUploaded": false,
+    "keywordsLocalized": false,
+    "report": "../../../artifacts/app-store-localization-20261002/upload-report.json"
+  }
+}

@@ -47,17 +47,9 @@ struct ToolItemView: View {
         Button(action: {
             onClickCallback?()
         }) {
-            VStack(spacing: Theme.sm) {
-                // Icon Container
-                ZStack {
-                    Text(tool.emoji)
-                        .font(.system(size: 32))
-                        .foregroundColor(iconColor)
-                }
-                .frame(width: 64, height: 64)
-                .background(Theme.appCardBackground)
-                .cornerRadius(Theme.cornerRadius)
-                .shadow(color: Theme.lightModeShadow(0.05), radius: 2, x: 0, y: 1)
+            VStack(spacing: 4) {
+                AppCatalogIcon(tool: tool, size: 48, artworkSize: 64)
+                    .frame(width: 64, height: 64)
 
                 // Label（与 Score/Timer/工具列表共用中文一行、外文两行口径）
                 Text(tool.title)

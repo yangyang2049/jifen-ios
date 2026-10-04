@@ -1,0 +1,2660 @@
+{
+  "summary": {
+    "icons": 49,
+    "masters_bytes": 52477103,
+    "platform_bytes": {
+      "ios": 2613287,
+      "android": 1680964,
+      "wechat": 1034832,
+      "harmonyos": 2524359
+    }
+  },
+  "records": [
+    {
+      "id": "fencing",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Fencing.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 654785,
+      "source_sha256": "e84a8622a9e370859b392c7af1dd681418c36ede99478a68ad27d3093ad2f3c6",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_fencing.imageset/fencing@1x.png",
+          "bytes": 3922
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_fencing.imageset/fencing@2x.png",
+          "bytes": 11898
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_fencing.imageset/fencing@3x.png",
+          "bytes": 28570
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_fencing.webp",
+          "bytes": 26518,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/fencing.webp",
+          "bytes": 14894,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_fencing.png",
+          "bytes": 51284,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "pickleball",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 737794,
+      "source_sha256": "504d0bce714ac4b0bb0216ac2540c9e7f60e766e44c56f7c8014b63000f256bf",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_pickleball.imageset/pickleball@1x.png",
+          "bytes": 4684
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_pickleball.imageset/pickleball@2x.png",
+          "bytes": 12857
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_pickleball.imageset/pickleball@3x.png",
+          "bytes": 25001
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_pickleball.webp",
+          "bytes": 28188,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/pickleball.webp",
+          "bytes": 17188,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_pickleball.png",
+          "bytes": 41885,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "golf",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Golf.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 789550,
+      "source_sha256": "07d648c00c0b8b3aba5c394f47395593b9a187c2e894e4618415f7d579748b84",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_golf.imageset/golf@1x.png",
+          "bytes": 4686
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_golf.imageset/golf@2x.png",
+          "bytes": 13077
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_golf.imageset/golf@3x.png",
+          "bytes": 24958
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_golf.webp",
+          "bytes": 25484,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/golf.webp",
+          "bytes": 15354,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_golf.png",
+          "bytes": 41305,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "eight_ball",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 902397,
+      "source_sha256": "173bc48d40cc6050bf9669a2e7872a341ed1bec2e274771f16ddeeafa133c7a1",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_eight_ball.imageset/eight_ball@1x.png",
+          "bytes": 5476
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_eight_ball.imageset/eight_ball@2x.png",
+          "bytes": 14590
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_eight_ball.imageset/eight_ball@3x.png",
+          "bytes": 27988
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_eight_ball.webp",
+          "bytes": 28772,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/eight_ball.webp",
+          "bytes": 17124,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_eight_ball.png",
+          "bytes": 46873,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "darts",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 321767,
+      "source_sha256": "53c5cb33a3fafbf87437327c6114bb046b236eb2cab93b7e97a7dd4803bbf4bb",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_darts.imageset/darts@1x.png",
+          "bytes": 3642
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_darts.imageset/darts@2x.png",
+          "bytes": 10138
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_darts.imageset/darts@3x.png",
+          "bytes": 18909
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_darts.webp",
+          "bytes": 20374,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/darts.webp",
+          "bytes": 13422,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_darts.png",
+          "bytes": 29891,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "american_football",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Football.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 763064,
+      "source_sha256": "ce9b234a63677b952cac89b35613c89c6e4359d8a927270cf74bf277975bd38b",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_american_football.imageset/american_football@1x.png",
+          "bytes": 4899
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_american_football.imageset/american_football@2x.png",
+          "bytes": 14064
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_american_football.imageset/american_football@3x.png",
+          "bytes": 27360
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_american_football.webp",
+          "bytes": 27698,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/american_football.webp",
+          "bytes": 16750,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_american_football.png",
+          "bytes": 45930,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "pingpong",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/PingPong.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 782158,
+      "source_sha256": "7603b5a5ea6669ae4d24919cfd4c6cec6f415588b93602c4ea3f176d38b4351c",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_pingpong.imageset/pingpong@1x.png",
+          "bytes": 4755
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_pingpong.imageset/pingpong@2x.png",
+          "bytes": 13577
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_pingpong.imageset/pingpong@3x.png",
+          "bytes": 26486
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_pingpong.webp",
+          "bytes": 27158,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/pingpong.webp",
+          "bytes": 16680,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_pingpong.png",
+          "bytes": 43891,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "baseball",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Baseball.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 973174,
+      "source_sha256": "7c228c67b9497bb5a8550335e9029a8bbfe0f24da4040e29f4fd4bd3b210267e",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_baseball.imageset/baseball@1x.png",
+          "bytes": 4998
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_baseball.imageset/baseball@2x.png",
+          "bytes": 14650
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_baseball.imageset/baseball@3x.png",
+          "bytes": 29563
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_baseball.webp",
+          "bytes": 33688,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/baseball.webp",
+          "bytes": 20256,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_baseball.png",
+          "bytes": 50241,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "badminton",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Badbinton.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 812926,
+      "source_sha256": "7a779fbcf266bf54b79b93eeef659c54bb7e1e9a12caafce84d2643e6b3a2e93",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_badminton.imageset/badminton@1x.png",
+          "bytes": 5851
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_badminton.imageset/badminton@2x.png",
+          "bytes": 17194
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_badminton.imageset/badminton@3x.png",
+          "bytes": 32815
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_badminton.webp",
+          "bytes": 32370,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/badminton.webp",
+          "bytes": 19984,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_badminton.png",
+          "bytes": 53519,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "hockey",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Hockey.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 524379,
+      "source_sha256": "e55e0328719da62d73c71b3cf4b856c1a566e271f9501d786dbdc52d5c07f9a9",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_hockey.imageset/hockey@1x.png",
+          "bytes": 3246
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_hockey.imageset/hockey@2x.png",
+          "bytes": 9738
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_hockey.imageset/hockey@3x.png",
+          "bytes": 20936
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_hockey.webp",
+          "bytes": 20308,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/hockey.webp",
+          "bytes": 11716,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_hockey.png",
+          "bytes": 37973,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "basketball",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Basket.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 945395,
+      "source_sha256": "5171656aaab9e0d59000a481ef58bda44bb6c834e976fc79cc49011432c3b632",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_basketball.imageset/basketball@1x.png",
+          "bytes": 5005
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_basketball.imageset/basketball@2x.png",
+          "bytes": 14912
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_basketball.imageset/basketball@3x.png",
+          "bytes": 30933
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_basketball.webp",
+          "bytes": 33864,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/basketball.webp",
+          "bytes": 19840,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_basketball.png",
+          "bytes": 53588,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "mma",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/MMA.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 622416,
+      "source_sha256": "94cf6646ebd9190595ed0653718b3b4a71d57d49adf91310c24171709ede1f8f",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_mma.imageset/mma@1x.png",
+          "bytes": 5841
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_mma.imageset/mma@2x.png",
+          "bytes": 17531
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_mma.imageset/mma@3x.png",
+          "bytes": 33950
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_mma.webp",
+          "bytes": 34502,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/mma.webp",
+          "bytes": 21494,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_mma.png",
+          "bytes": 55150,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "football",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Soccer.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 842063,
+      "source_sha256": "36732d54b3d48ae8716a2ebac5a6b821df102333237c0649a0709f8a4b87afcc",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_football.imageset/football@1x.png",
+          "bytes": 4997
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_football.imageset/football@2x.png",
+          "bytes": 13930
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_football.imageset/football@3x.png",
+          "bytes": 27371
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_football.webp",
+          "bytes": 27176,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/football.webp",
+          "bytes": 16262,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_football.png",
+          "bytes": 46011,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "tennis",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Tennis.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 916843,
+      "source_sha256": "c4062ae80c30353fbf1aa400af54bc46326d35dcff1c9ee5946b55ad7d1dc598",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_tennis.imageset/tennis@1x.png",
+          "bytes": 4479
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_tennis.imageset/tennis@2x.png",
+          "bytes": 13813
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_tennis.imageset/tennis@3x.png",
+          "bytes": 27965
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_tennis.webp",
+          "bytes": 31582,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/tennis.webp",
+          "bytes": 18750,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_tennis.png",
+          "bytes": 47876,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "volleyball",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Volley.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 1054302,
+      "source_sha256": "25390708fe2658a5309a17b9dddd3b5d9cc75764f1ca7f5c9a2048e629991174",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_volleyball.imageset/volleyball@1x.png",
+          "bytes": 5755
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_volleyball.imageset/volleyball@2x.png",
+          "bytes": 16002
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_volleyball.imageset/volleyball@3x.png",
+          "bytes": 31736
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_volleyball.webp",
+          "bytes": 35880,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/volleyball.webp",
+          "bytes": 21342,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_volleyball.png",
+          "bytes": 54206,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "handball",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Handball.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 977868,
+      "source_sha256": "bad36891c97c9a28ff3fab6c03aa528350613bbcabe8354673d3f1e136dd6ecf",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_handball.imageset/handball@1x.png",
+          "bytes": 5756
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_handball.imageset/handball@2x.png",
+          "bytes": 16420
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_handball.imageset/handball@3x.png",
+          "bytes": 32204
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_handball.webp",
+          "bytes": 32890,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/handball.webp",
+          "bytes": 19482,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_handball.png",
+          "bytes": 53671,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "boxing",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Boxe.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 808218,
+      "source_sha256": "664fd92498cbd7a1cd733afaebed41f2fdccd182708b1cf27973c24899a102c6",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_boxing.imageset/boxing@1x.png",
+          "bytes": 5861
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_boxing.imageset/boxing@2x.png",
+          "bytes": 17287
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_boxing.imageset/boxing@3x.png",
+          "bytes": 33213
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_boxing.webp",
+          "bytes": 32874,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/boxing.webp",
+          "bytes": 20390,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_boxing.png",
+          "bytes": 53475,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "rugby",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Rugby.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 919407,
+      "source_sha256": "aa433a655607c8a1356b2b38f5698276d1bdde12c3755387d709a4cea412794f",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_rugby.imageset/rugby@1x.png",
+          "bytes": 5141
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_rugby.imageset/rugby@2x.png",
+          "bytes": 14816
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_rugby.imageset/rugby@3x.png",
+          "bytes": 29709
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_rugby.webp",
+          "bytes": 30690,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/rugby.webp",
+          "bytes": 17948,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_rugby.png",
+          "bytes": 50677,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "bowling",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Bowling.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 836340,
+      "source_sha256": "f5e77ec7e22095fe7a0f54c0253cf25d26d1e886a6a20ac93a2fd950f74504e1",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_bowling.imageset/bowling@1x.png",
+          "bytes": 4603
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_bowling.imageset/bowling@2x.png",
+          "bytes": 13037
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_bowling.imageset/bowling@3x.png",
+          "bytes": 25468
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_bowling.webp",
+          "bytes": 26114,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/bowling.webp",
+          "bytes": 15332,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_bowling.png",
+          "bytes": 42766,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "weightlifting",
+      "source": "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Weightlifting.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bytes": 384861,
+      "source_sha256": "c82cc1cfcd2725ce92dcf42204cb4793593f1b8968b4053d6b7939d82567c1b8",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_weightlifting.imageset/weightlifting@1x.png",
+          "bytes": 3985
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_weightlifting.imageset/weightlifting@2x.png",
+          "bytes": 11427
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_weightlifting.imageset/weightlifting@3x.png",
+          "bytes": 21485
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_weightlifting.webp",
+          "bytes": 21372,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/weightlifting.webp",
+          "bytes": 13848,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_weightlifting.png",
+          "bytes": 34172,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "shuttlecock",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/jianzi-a.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1519950,
+      "source_sha256": "0055495f13d8e15b0dcb54ea677e3085f4f08b5713b7e6a4084b3c14bd582218",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_shuttlecock.imageset/shuttlecock@1x.png",
+          "bytes": 6331
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_shuttlecock.imageset/shuttlecock@2x.png",
+          "bytes": 19658
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_shuttlecock.imageset/shuttlecock@3x.png",
+          "bytes": 39324
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_shuttlecock.webp",
+          "bytes": 46100,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/shuttlecock.webp",
+          "bytes": 28168,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_shuttlecock.png",
+          "bytes": 65344,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "archery",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/archery-a.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1653306,
+      "source_sha256": "43e7dfc9520f94f6dd28ee74b671c979a0e54d6c2c0e6ea51c8d162182645d7e",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_archery.imageset/archery@1x.png",
+          "bytes": 7346
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_archery.imageset/archery@2x.png",
+          "bytes": 22121
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_archery.imageset/archery@3x.png",
+          "bytes": 43116
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_archery.webp",
+          "bytes": 46692,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/archery.webp",
+          "bytes": 28370,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_archery.png",
+          "bytes": 69707,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "snooker",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/snooker-b.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1133493,
+      "source_sha256": "b75ee39ff8cfecddee2be00e8c8267533c12212b78c88f8447e347954b2e46ed",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_snooker.imageset/snooker@1x.png",
+          "bytes": 5477
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_snooker.imageset/snooker@2x.png",
+          "bytes": 15444
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_snooker.imageset/snooker@3x.png",
+          "bytes": 28726
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_snooker.webp",
+          "bytes": 31598,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/snooker.webp",
+          "bytes": 20050,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_snooker.png",
+          "bytes": 45291,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "nine_ball",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/nineball-a.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1216431,
+      "source_sha256": "1c4c7ad60931e8200145c3fc78a4a59f524a302a2b4c2f1c193d4b376b898782",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_nine_ball.imageset/nine_ball@1x.png",
+          "bytes": 5825
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_nine_ball.imageset/nine_ball@2x.png",
+          "bytes": 16733
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_nine_ball.imageset/nine_ball@3x.png",
+          "bytes": 31433
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_nine_ball.webp",
+          "bytes": 35172,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/nine_ball.webp",
+          "bytes": 21806,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_nine_ball.png",
+          "bytes": 50432,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "xiangqi",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/xiangqi-b.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1499385,
+      "source_sha256": "3d0c2f2c92168c2291f5f2d34ebc81c7be885802859908047c0a0cb1db18ec18",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_xiangqi.imageset/xiangqi@1x.png",
+          "bytes": 7102
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_xiangqi.imageset/xiangqi@2x.png",
+          "bytes": 22135
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_xiangqi.imageset/xiangqi@3x.png",
+          "bytes": 43920
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_xiangqi.webp",
+          "bytes": 46506,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/xiangqi.webp",
+          "bytes": 28414,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_xiangqi.png",
+          "bytes": 72035,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "chess",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/chess-b.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 849940,
+      "source_sha256": "ed7a4476f8ecd533fc0c36d3d4616eebea3e9e177cd1b28e8c28df12946668d9",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_chess.imageset/chess@1x.png",
+          "bytes": 5107
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_chess.imageset/chess@2x.png",
+          "bytes": 13985
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_chess.imageset/chess@3x.png",
+          "bytes": 25399
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_chess.webp",
+          "bytes": 27284,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/chess.webp",
+          "bytes": 17284,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_chess.png",
+          "bytes": 39784,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "checkers",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/checkers-a.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1166035,
+      "source_sha256": "f0a47ea67763752b246c60aa0ab90cfa96df76accb41849976ec79c8f87935b3",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_checkers.imageset/checkers@1x.png",
+          "bytes": 6012
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_checkers.imageset/checkers@2x.png",
+          "bytes": 17505
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_checkers.imageset/checkers@3x.png",
+          "bytes": 33297
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_checkers.webp",
+          "bytes": 35202,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/checkers.webp",
+          "bytes": 21626,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_checkers.png",
+          "bytes": 52954,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "playing_cards",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/playing-cards-b.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1178435,
+      "source_sha256": "3cecbf55d88566c16fe29c73212590421a9b2bf6f706cda215eb761323293580",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_playing_cards.imageset/playing_cards@1x.png",
+          "bytes": 5615
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_playing_cards.imageset/playing_cards@2x.png",
+          "bytes": 15739
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_playing_cards.imageset/playing_cards@3x.png",
+          "bytes": 29818
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_playing_cards.webp",
+          "bytes": 32274,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/playing_cards.webp",
+          "bytes": 20006,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_playing_cards.png",
+          "bytes": 48569,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "mahjong",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/mahjong-a.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1134914,
+      "source_sha256": "4f63c8b2c2f08d1e64f0a09d46fe4e55fa3fe08f1c0474f1fa745f808f06c71f",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_mahjong.imageset/mahjong@1x.png",
+          "bytes": 6197
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_mahjong.imageset/mahjong@2x.png",
+          "bytes": 18199
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_mahjong.imageset/mahjong@3x.png",
+          "bytes": 34191
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_mahjong.webp",
+          "bytes": 38776,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/mahjong.webp",
+          "bytes": 24578,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_mahjong.png",
+          "bytes": 54381,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "uno",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/uno-b.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1458999,
+      "source_sha256": "90969bc23bef92d13be93e70a8d2cbd57b3e9235adf689e300a6ddde898009c0",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_uno.imageset/uno@1x.png",
+          "bytes": 7940
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_uno.imageset/uno@2x.png",
+          "bytes": 24231
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_uno.imageset/uno@3x.png",
+          "bytes": 45841
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_uno.webp",
+          "bytes": 52022,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/uno.webp",
+          "bytes": 32514,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_uno.png",
+          "bytes": 72765,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "foosball",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/foosball-a.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 798313,
+      "source_sha256": "0238c4aa5e16fca340a714f936bf7acab95d49bb33efb54e0756ccd973fa68cc",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_foosball.imageset/foosball@1x.png",
+          "bytes": 5190
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_foosball.imageset/foosball@2x.png",
+          "bytes": 14473
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_foosball.imageset/foosball@3x.png",
+          "bytes": 26881
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_foosball.webp",
+          "bytes": 30416,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/foosball.webp",
+          "bytes": 19606,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_foosball.png",
+          "bytes": 42531,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "flip_coin",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/flip_coin-a.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1533728,
+      "source_sha256": "0e622a4aa8c2b2b8e9f482e11fdd2dfca7f8a2593de6360fe36a08ab25edca50",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_flip_coin.imageset/flip_coin@1x.png",
+          "bytes": 6122
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_flip_coin.imageset/flip_coin@2x.png",
+          "bytes": 18956
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_flip_coin.imageset/flip_coin@3x.png",
+          "bytes": 37460
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_flip_coin.webp",
+          "bytes": 43182,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/flip_coin.webp",
+          "bytes": 26298,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_flip_coin.png",
+          "bytes": 61738,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "dice",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/dice-a.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 966384,
+      "source_sha256": "23019ea1a4cc1fbd9c264ca491c1cc87fec7babf717c7c03afe425870f86bf1a",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_dice.imageset/dice@1x.png",
+          "bytes": 5452
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_dice.imageset/dice@2x.png",
+          "bytes": 14956
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_dice.imageset/dice@3x.png",
+          "bytes": 27864
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_dice.webp",
+          "bytes": 28878,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/dice.webp",
+          "bytes": 18202,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_dice.png",
+          "bytes": 44633,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "whistle",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/whistle-a.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1112964,
+      "source_sha256": "1032a11fc81413ad57bff09f2a05937ed1bae36e85b76adb9aa7179d5b90ca1f",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_whistle.imageset/whistle@1x.png",
+          "bytes": 5387
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_whistle.imageset/whistle@2x.png",
+          "bytes": 15992
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_whistle.imageset/whistle@3x.png",
+          "bytes": 30695
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_whistle.webp",
+          "bytes": 29016,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/whistle.webp",
+          "bytes": 17742,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_whistle.png",
+          "bytes": 49663,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "random_team",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/random_team-a.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1246366,
+      "source_sha256": "9836006ea9f5b1d46c8fce20473aebd592db6c1e68c538c1abd1f7d26ad7c048",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_random_team.imageset/random_team@1x.png",
+          "bytes": 6006
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_random_team.imageset/random_team@2x.png",
+          "bytes": 17100
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_random_team.imageset/random_team@3x.png",
+          "bytes": 31651
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_random_team.webp",
+          "bytes": 35648,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/random_team.webp",
+          "bytes": 23060,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_random_team.png",
+          "bytes": 49465,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "red_yellow_card",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/red_yellow_card-b.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1184429,
+      "source_sha256": "436470aec4eadcb22a5e6c9a2e722147ea954511033b1f247b50d4a634821e79",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_red_yellow_card.imageset/red_yellow_card@1x.png",
+          "bytes": 4717
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_red_yellow_card.imageset/red_yellow_card@2x.png",
+          "bytes": 14136
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_red_yellow_card.imageset/red_yellow_card@3x.png",
+          "bytes": 27405
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_red_yellow_card.webp",
+          "bytes": 33940,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/red_yellow_card.webp",
+          "bytes": 21786,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_red_yellow_card.png",
+          "bytes": 44318,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "fullscreen_barrage",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/fullscreen_barrage-a.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1073432,
+      "source_sha256": "3c05efbbe15239af6729f2b505178f060353cbd283aeb3325aa11836fafe14ab",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_fullscreen_barrage.imageset/fullscreen_barrage@1x.png",
+          "bytes": 4215
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_fullscreen_barrage.imageset/fullscreen_barrage@2x.png",
+          "bytes": 15817
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_fullscreen_barrage.imageset/fullscreen_barrage@3x.png",
+          "bytes": 30922
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_fullscreen_barrage.webp",
+          "bytes": 35906,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/fullscreen_barrage.webp",
+          "bytes": 22248,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_fullscreen_barrage.png",
+          "bytes": 49654,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "points_table",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/points_table-b.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1477355,
+      "source_sha256": "e5745cd3be06e3d79382e697cb4fc1a92c8f74e33c61b8951ed652124982387c",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_points_table.imageset/points_table@1x.png",
+          "bytes": 7542
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_points_table.imageset/points_table@2x.png",
+          "bytes": 22582
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_points_table.imageset/points_table@3x.png",
+          "bytes": 42738
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_points_table.webp",
+          "bytes": 47288,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/points_table.webp",
+          "bytes": 29642,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_points_table.png",
+          "bytes": 67789,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "time",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/time-a.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1242037,
+      "source_sha256": "1c8717c6933a84c70cc8e41afe5111af12927be5e84531d5ff5faf616680a1f8",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_time.imageset/time@1x.png",
+          "bytes": 5557
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_time.imageset/time@2x.png",
+          "bytes": 16179
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_time.imageset/time@3x.png",
+          "bytes": 30610
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_time.webp",
+          "bytes": 33244,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/time.webp",
+          "bytes": 20842,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_time.png",
+          "bytes": 48445,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "aa_calculator",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/aa_calculator-b.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1416389,
+      "source_sha256": "3bd5ea1b230b103c3d27a86a1ccc1dac20968777dd3e8ee723cc2863839c4bdc",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_aa_calculator.imageset/aa_calculator@1x.png",
+          "bytes": 7054
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_aa_calculator.imageset/aa_calculator@2x.png",
+          "bytes": 22035
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_aa_calculator.imageset/aa_calculator@3x.png",
+          "bytes": 42530
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_aa_calculator.webp",
+          "bytes": 49536,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/aa_calculator.webp",
+          "bytes": 31446,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_aa_calculator.png",
+          "bytes": 67604,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "ten_second",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/ten_second-a.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1408221,
+      "source_sha256": "834650e42d402437103d11242048d309e9088e0564932aad986fd53a27182fe7",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_ten_second.imageset/ten_second@1x.png",
+          "bytes": 6813
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_ten_second.imageset/ten_second@2x.png",
+          "bytes": 19856
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_ten_second.imageset/ten_second@3x.png",
+          "bytes": 37549
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_ten_second.webp",
+          "bytes": 41526,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/ten_second.webp",
+          "bytes": 25956,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_ten_second.png",
+          "bytes": 59572,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "go",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/go-d.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 801411,
+      "source_sha256": "f1c14b298ed938ca762c081d4c020c25d16790e34bdc8f9ecf61c5b15c737b1e",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_go.imageset/go@1x.png",
+          "bytes": 3968
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_go.imageset/go@2x.png",
+          "bytes": 10945
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_go.imageset/go@3x.png",
+          "bytes": 20375
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_go.webp",
+          "bytes": 21278,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/go.webp",
+          "bytes": 13560,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_go.png",
+          "bytes": 32281,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "squash",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/squash-a.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1315433,
+      "source_sha256": "ed6e6b9b29f6d89adb863efd347a5bc6f931589e6f140027a3203224460cba09",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_squash.imageset/squash@1x.png",
+          "bytes": 4423
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_squash.imageset/squash@2x.png",
+          "bytes": 12944
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_squash.imageset/squash@3x.png",
+          "bytes": 25616
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_squash.webp",
+          "bytes": 29370,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/squash.webp",
+          "bytes": 17318,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_squash.png",
+          "bytes": 42986,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "padel",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/padel-b.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1479386,
+      "source_sha256": "9b67328ed304a1e6fe7fa0062f467df1a1119af8ff8cf7a0bc77609b4fbd14a5",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_padel.imageset/padel@1x.png",
+          "bytes": 6979
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_padel.imageset/padel@2x.png",
+          "bytes": 20620
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_padel.imageset/padel@3x.png",
+          "bytes": 40048
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_padel.webp",
+          "bytes": 45540,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/padel.webp",
+          "bytes": 28300,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_padel.png",
+          "bytes": 65151,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "simple_score",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/simple_score-a.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1507051,
+      "source_sha256": "768dd274feb47917307264f215d4ee612b35555627d05522c5a9e4781b173d57",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_simple_score.imageset/simple_score@1x.png",
+          "bytes": 6548
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_simple_score.imageset/simple_score@2x.png",
+          "bytes": 19069
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_simple_score.imageset/simple_score@3x.png",
+          "bytes": 36737
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_simple_score.webp",
+          "bytes": 41552,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/simple_score.webp",
+          "bytes": 25356,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_simple_score.png",
+          "bytes": 59420,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "multi_scoreboard",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/multi_scoreboard-a.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1515880,
+      "source_sha256": "d32e70cccbba033544e715574e8474413787d0925b658fdd8f9be7abe3ba9c86",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_multi_scoreboard.imageset/multi_scoreboard@1x.png",
+          "bytes": 6395
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_multi_scoreboard.imageset/multi_scoreboard@2x.png",
+          "bytes": 19483
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_multi_scoreboard.imageset/multi_scoreboard@3x.png",
+          "bytes": 37764
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_multi_scoreboard.webp",
+          "bytes": 45026,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/multi_scoreboard.webp",
+          "bytes": 27796,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_multi_scoreboard.png",
+          "bytes": 60417,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "cube",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/cube-b.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1436367,
+      "source_sha256": "a5cc4d6c659dba008d9e97ff96ce230e564be6204f5ca53de8768c3c6f236c58",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_cube.imageset/cube@1x.png",
+          "bytes": 6664
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_cube.imageset/cube@2x.png",
+          "bytes": 20398
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_cube.imageset/cube@3x.png",
+          "bytes": 39759
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_cube.webp",
+          "bytes": 47270,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/cube.webp",
+          "bytes": 29898,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_cube.png",
+          "bytes": 64247,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "stopwatch",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/stopwatch-b.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1311017,
+      "source_sha256": "677d8869f7be0b465933011f9cec32b70021f5bd3a24e2e2b20af2fd44a35b7a",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_stopwatch.imageset/stopwatch@1x.png",
+          "bytes": 6539
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_stopwatch.imageset/stopwatch@2x.png",
+          "bytes": 18692
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_stopwatch.imageset/stopwatch@3x.png",
+          "bytes": 35339
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_stopwatch.webp",
+          "bytes": 37224,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/stopwatch.webp",
+          "bytes": 23132,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_stopwatch.png",
+          "bytes": 56452,
+          "encoding": "lossless"
+        }
+      ]
+    },
+    {
+      "id": "timeout",
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/timeout-b.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_bytes": 1270345,
+      "source_sha256": "e31a1fab259d4354cfb65ca46a4f435ae17f52045f739495bdc9b1fa9cedffb3",
+      "outputs": [
+        {
+          "platform": "ios",
+          "scale": 1,
+          "size": 64,
+          "path": "exports/ios/icon_3d_timeout.imageset/timeout@1x.png",
+          "bytes": 5301
+        },
+        {
+          "platform": "ios",
+          "scale": 2,
+          "size": 128,
+          "path": "exports/ios/icon_3d_timeout.imageset/timeout@2x.png",
+          "bytes": 15838
+        },
+        {
+          "platform": "ios",
+          "scale": 3,
+          "size": 192,
+          "path": "exports/ios/icon_3d_timeout.imageset/timeout@3x.png",
+          "bytes": 31474
+        },
+        {
+          "platform": "android",
+          "size": 256,
+          "path": "exports/android/jf3d_timeout.webp",
+          "bytes": 35996,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "wechat",
+          "size": 192,
+          "path": "exports/wechat/timeout.webp",
+          "bytes": 21772,
+          "encoding": "lossless"
+        },
+        {
+          "platform": "harmonyos",
+          "size": 256,
+          "path": "exports/harmonyos/icon3d_timeout.png",
+          "bytes": 52347,
+          "encoding": "lossless"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>match_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d mecz</string>
+			<key>few</key>
+			<string>%d mecze</string>
+			<key>many</key>
+			<string>%d meczów</string>
+			<key>other</key>
+			<string>%d meczu</string>
+		</dict>
+	</dict>
+	<key>timer_byoyomi_periods_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Byoyomi: %d okres</string>
+			<key>few</key>
+			<string>Byoyomi: %d okresy</string>
+			<key>many</key>
+			<string>Byoyomi: %d okresów</string>
+			<key>other</key>
+			<string>Byoyomi: %d okresu</string>
+		</dict>
+	</dict>
+	<key>display_training_fixed_points</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Rzut za %d punkt</string>
+			<key>few</key>
+			<string>Rzut za %d punkty</string>
+			<key>many</key>
+			<string>Rzut za %d punktów</string>
+			<key>other</key>
+			<string>Rzut za %d punktu</string>
+		</dict>
+	</dict>
+	<key>record_format_sets_play_all</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Rozegraj wszystkie sety (%d)</string>
+			<key>few</key>
+			<string>Rozegraj wszystkie sety (%d)</string>
+			<key>many</key>
+			<string>Rozegraj wszystkie sety (%d)</string>
+			<key>other</key>
+			<string>Rozegraj wszystkie sety (%d)</string>
+		</dict>
+	</dict>
+	<key>record_format_sets_play_all_tennis</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Rozegraj wszystkie sety (%d)</string>
+			<key>few</key>
+			<string>Rozegraj wszystkie sety (%d)</string>
+			<key>many</key>
+			<string>Rozegraj wszystkie sety (%d)</string>
+			<key>other</key>
+			<string>Rozegraj wszystkie sety (%d)</string>
+		</dict>
+	</dict>
+	<key>record_format_points_per_set</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d punkt na set</string>
+			<key>few</key>
+			<string>%d punkty na set</string>
+			<key>many</key>
+			<string>%d punktów na set</string>
+			<key>other</key>
+			<string>%d punktu na set</string>
+		</dict>
+	</dict>
+	<key>record_format_pickleball_score</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Cel: %d punkt</string>
+			<key>few</key>
+			<string>Cel: %d punkty</string>
+			<key>many</key>
+			<string>Cel: %d punktów</string>
+			<key>other</key>
+			<string>Cel: %d punktu</string>
+		</dict>
+	</dict>
+	<key>players_count_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d gracz</string>
+			<key>few</key>
+			<string>%d gracze</string>
+			<key>many</key>
+			<string>%d graczy</string>
+			<key>other</key>
+			<string>%d gracza</string>
+		</dict>
+	</dict>
+	<key>random_team_team_count_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d drużyna</string>
+			<key>few</key>
+			<string>%d drużyny</string>
+			<key>many</key>
+			<string>%d drużyn</string>
+			<key>other</key>
+			<string>%d drużyny</string>
+		</dict>
+	</dict>
+	<key>common_names_batch_delete_confirm</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Usunąć wybraną nazwę (%d)?</string>
+			<key>few</key>
+			<string>Usunąć %d wybrane nazwy?</string>
+			<key>many</key>
+			<string>Usunąć %d wybranych nazw?</string>
+			<key>other</key>
+			<string>Usunąć wybrane nazwy (%d)?</string>
+		</dict>
+	</dict>
+	<key>records_batch_selected_n</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Wybrano: %d</string>
+			<key>few</key>
+			<string>Wybrano: %d</string>
+			<key>many</key>
+			<string>Wybrano: %d</string>
+			<key>other</key>
+			<string>Wybrano: %d</string>
+		</dict>
+	</dict>
+	<key>common_places_batch_delete_confirm</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Usunąć %d wybrane miejsce?</string>
+			<key>few</key>
+			<string>Usunąć %d wybrane miejsca?</string>
+			<key>many</key>
+			<string>Usunąć %d wybranych miejsc?</string>
+			<key>other</key>
+			<string>Usunąć wybrane miejsca (%d)?</string>
+		</dict>
+	</dict>
+	<key>schedule_reminder_hours_before</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d godz. przed</string>
+			<key>few</key>
+			<string>%d godz. przed</string>
+			<key>many</key>
+			<string>%d godz. przed</string>
+			<key>other</key>
+			<string>%d godz. przed</string>
+		</dict>
+	</dict>
+	<key>schedule_reminder_minutes_before</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d min przed</string>
+			<key>few</key>
+			<string>%d min przed</string>
+			<key>many</key>
+			<string>%d min przed</string>
+			<key>other</key>
+			<string>%d min przed</string>
+		</dict>
+	</dict>
+	<key>schedule_participants_limit</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Do %d osoby; powtarzające się nazwy są łączone</string>
+			<key>few</key>
+			<string>Do %d osób; powtarzające się nazwy są łączone</string>
+			<key>many</key>
+			<string>Do %d osób; powtarzające się nazwy są łączone</string>
+			<key>other</key>
+			<string>Do %d osoby; powtarzające się nazwy są łączone</string>
+		</dict>
+	</dict>
+	<key>schedule_batch_delete_message</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Usunąć wybraną rezerwację (%d)?</string>
+			<key>few</key>
+			<string>Usunąć %d wybrane rezerwacje?</string>
+			<key>many</key>
+			<string>Usunąć %d wybranych rezerwacji?</string>
+			<key>other</key>
+			<string>Usunąć wybrane rezerwacje (%d)?</string>
+		</dict>
+	</dict>
+	<key>schedule_sets_summary</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d set / frejm</string>
+			<key>few</key>
+			<string>%d sety / frejmy</string>
+			<key>many</key>
+			<string>%d setów / frejmów</string>
+			<key>other</key>
+			<string>%d seta / frejma</string>
+		</dict>
+	</dict>
+	<key>schedule_points_summary</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d punkt na set</string>
+			<key>few</key>
+			<string>%d punkty na set</string>
+			<key>many</key>
+			<string>%d punktów na set</string>
+			<key>other</key>
+			<string>%d punktu na set</string>
+		</dict>
+	</dict>
+	<key>sync_sets_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d set</string>
+			<key>few</key>
+			<string>%d sety</string>
+			<key>many</key>
+			<string>%d setów</string>
+			<key>other</key>
+			<string>%d seta</string>
+		</dict>
+	</dict>
+	<key>sync_games_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d gem</string>
+			<key>few</key>
+			<string>%d gemy</string>
+			<key>many</key>
+			<string>%d gemów</string>
+			<key>other</key>
+			<string>%d gema</string>
+		</dict>
+	</dict>
+	<key>tennis_sync_sets_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d set</string>
+			<key>few</key>
+			<string>%d sety</string>
+			<key>many</key>
+			<string>%d setów</string>
+			<key>other</key>
+			<string>%d seta</string>
+		</dict>
+	</dict>
+	<key>tennis_sync_games_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d gem</string>
+			<key>few</key>
+			<string>%d gemy</string>
+			<key>many</key>
+			<string>%d gemów</string>
+			<key>other</key>
+			<string>%d gema</string>
+		</dict>
+	</dict>
+	<key>sync_players_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d gracz</string>
+			<key>few</key>
+			<string>%d gracze</string>
+			<key>many</key>
+			<string>%d graczy</string>
+			<key>other</key>
+			<string>%d gracza</string>
+		</dict>
+	</dict>
+	<key>home_sync_connected_devices</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d urządzenie połączone</string>
+			<key>few</key>
+			<string>%d urządzenia połączone</string>
+			<key>many</key>
+			<string>%d urządzeń połączonych</string>
+			<key>other</key>
+			<string>Połączone urządzenia: %d</string>
+		</dict>
+	</dict>
+	<key>feedback_time_days_ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d dzień temu</string>
+			<key>few</key>
+			<string>%d dni temu</string>
+			<key>many</key>
+			<string>%d dni temu</string>
+			<key>other</key>
+			<string>%d dnia temu</string>
+		</dict>
+	</dict>
+	<key>feedback_comment_count_label</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Komentarz (%d)</string>
+			<key>few</key>
+			<string>Komentarze (%d)</string>
+			<key>many</key>
+			<string>Komentarze (%d)</string>
+			<key>other</key>
+			<string>Komentarze (%d)</string>
+		</dict>
+	</dict>
+	<key>feedback_image_prepare_failed</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Nie można przetworzyć %d obrazu. Spróbuj innego.</string>
+			<key>few</key>
+			<string>Nie można przetworzyć %d obrazów. Spróbuj innych.</string>
+			<key>many</key>
+			<string>Nie można przetworzyć %d obrazów. Spróbuj innych.</string>
+			<key>other</key>
+			<string>Nie można przetworzyć obrazów (%d). Spróbuj innych.</string>
+		</dict>
+	</dict>
+	<key>basketball_fouls_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Faul %d</string>
+			<key>few</key>
+			<string>Faule %d</string>
+			<key>many</key>
+			<string>Faule %d</string>
+			<key>other</key>
+			<string>Faule %d</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

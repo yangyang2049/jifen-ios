@@ -1,0 +1,1030 @@
+{
+  "date": "2026-10-03",
+  "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios",
+  "assets_directory": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets",
+  "asset_names": [
+    "icon_3d_aa_calculator",
+    "icon_3d_archery",
+    "icon_3d_badminton",
+    "icon_3d_basketball",
+    "icon_3d_boxing",
+    "icon_3d_checkers",
+    "icon_3d_chess",
+    "icon_3d_cube",
+    "icon_3d_dice",
+    "icon_3d_eight_ball",
+    "icon_3d_flip_coin",
+    "icon_3d_foosball",
+    "icon_3d_football",
+    "icon_3d_fullscreen_barrage",
+    "icon_3d_go",
+    "icon_3d_multi_scoreboard",
+    "icon_3d_nine_ball",
+    "icon_3d_padel",
+    "icon_3d_pickleball",
+    "icon_3d_pingpong",
+    "icon_3d_playing_cards",
+    "icon_3d_points_table",
+    "icon_3d_random_team",
+    "icon_3d_red_yellow_card",
+    "icon_3d_shuttlecock",
+    "icon_3d_simple_score",
+    "icon_3d_snooker",
+    "icon_3d_squash",
+    "icon_3d_stopwatch",
+    "icon_3d_ten_second",
+    "icon_3d_tennis",
+    "icon_3d_time",
+    "icon_3d_timeout",
+    "icon_3d_uno",
+    "icon_3d_volleyball",
+    "icon_3d_whistle",
+    "icon_3d_xiangqi"
+  ],
+  "asset_count": 37,
+  "fallback_keys": [],
+  "png_bytes": 2064073,
+  "base_points": 64,
+  "scales": [
+    1,
+    2,
+    3
+  ],
+  "max_entry_icon_points": 56,
+  "view_files": [
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Activity/RecentActivityPage.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Activity/TimerRecordDetailPage.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/BentoCardView.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/MultiScoreSetupDialogView.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/NineBallSetupDialogView.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/ProToolsSectionView.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/QuickStartEditView.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/RecentRecordsSectionView.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/ShotTrainingSetupDialogView.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/SportOptionView.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/SportsSetupDialogView.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/UnfinishedGameBarView.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/HomeTab.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Records/RecordsTab.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Records/ScoreboardRecordDetailPage.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Schedule/BookingDetailPage.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Schedule/CreateBookingPage.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Schedule/SchedulePage.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/ScoreboardTab.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/GameOverDialog.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/TimerTab.swift",
+    "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/ToolsTab.swift"
+  ],
+  "files": [
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_aa_calculator.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_aa_calculator.imageset/Contents.json",
+      "sha256": "3cc9ae0bca000839cfbb52b58d8120855577b70ccf67b768a2698386d6e219ff",
+      "bytes": 454
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_aa_calculator.imageset/aa_calculator@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_aa_calculator.imageset/aa_calculator@1x.png",
+      "sha256": "89b9e48cc7abac60a4968daf5b3edacd5ac8a2a6f07d6784344083882c66d28b",
+      "bytes": 7054
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_aa_calculator.imageset/aa_calculator@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_aa_calculator.imageset/aa_calculator@2x.png",
+      "sha256": "5203c90b54b2486e0115ec90bc3937697fbd482a7cf31374a39eb5e563fe8714",
+      "bytes": 22035
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_aa_calculator.imageset/aa_calculator@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_aa_calculator.imageset/aa_calculator@3x.png",
+      "sha256": "4fdd263fd86ca430eb2991fe0fef5334fabe44166f2c11b5cbbab3d8201f15c3",
+      "bytes": 42530
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_archery.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_archery.imageset/Contents.json",
+      "sha256": "c9ca855f517164d0b23d0b4f36691b16b20f611eb04b2d40f5f9ff543286829a",
+      "bytes": 436
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_archery.imageset/archery@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_archery.imageset/archery@1x.png",
+      "sha256": "c9a1671d813c1e45bb4d7ad0ebf3cc85a745ad44fe376b7066ab0874a130c187",
+      "bytes": 7346
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_archery.imageset/archery@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_archery.imageset/archery@2x.png",
+      "sha256": "ad0805ba14ef709c5b87f88d03e8a6bf73dd85b9233db2c5b38b3d8b61ab5617",
+      "bytes": 22121
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_archery.imageset/archery@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_archery.imageset/archery@3x.png",
+      "sha256": "1e84b4c08820a698915b610016fc3f96a97f9e869c83d43bb95800a381739e70",
+      "bytes": 43116
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_badminton.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_badminton.imageset/Contents.json",
+      "sha256": "be2e318759eabeee8b643040b5f985adf6db57741de4678e0d751675f5dc2d89",
+      "bytes": 442
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_badminton.imageset/badminton@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_badminton.imageset/badminton@1x.png",
+      "sha256": "ddd38ebff31f9e4607ac05afbf740507c8108e3ec783e0f0aaa9516ff82fcd49",
+      "bytes": 5851
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_badminton.imageset/badminton@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_badminton.imageset/badminton@2x.png",
+      "sha256": "a473146d9594fad34fde4b9ed35398e95d3989d04665a34cb825831a8cf0ec0e",
+      "bytes": 17194
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_badminton.imageset/badminton@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_badminton.imageset/badminton@3x.png",
+      "sha256": "db5cada1fff69da96b4c49982834916a4d9116d04194570b2fd490b4a44e5356",
+      "bytes": 32815
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_basketball.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_basketball.imageset/Contents.json",
+      "sha256": "597074effd0335509eebe80b0f41810d1231f8e710a8a05eef6c689d2d737095",
+      "bytes": 445
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_basketball.imageset/basketball@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_basketball.imageset/basketball@1x.png",
+      "sha256": "58b50f16499cc7322469462c0384e7141287110c3ce84c960025dc3826274a79",
+      "bytes": 5005
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_basketball.imageset/basketball@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_basketball.imageset/basketball@2x.png",
+      "sha256": "746ae190e4bc5938f4aa4725f77dc9ab058d60b891109cca86b220954a7680bc",
+      "bytes": 14912
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_basketball.imageset/basketball@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_basketball.imageset/basketball@3x.png",
+      "sha256": "7531b3fbd976bbf70a8f5f492a9d296e47269a9220e6edd876a391176c3c3c93",
+      "bytes": 30933
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_boxing.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_boxing.imageset/Contents.json",
+      "sha256": "3bb0374d0ad70ac12e072885bc2fab097ae342c69661050e200bc0dc5999c06b",
+      "bytes": 433
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_boxing.imageset/boxing@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_boxing.imageset/boxing@1x.png",
+      "sha256": "42c5e1e870795f2e0de5e524507742d82fe839405989afab66af2ba685c0be6e",
+      "bytes": 5861
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_boxing.imageset/boxing@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_boxing.imageset/boxing@2x.png",
+      "sha256": "8318ba2aa7388e50b162f10daf1db7f52b85e490e9bb77d67df019d5bb29e816",
+      "bytes": 17287
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_boxing.imageset/boxing@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_boxing.imageset/boxing@3x.png",
+      "sha256": "d10a745afb4860f86182d66999cf596248166d9265b4eae75a15ae9ea02a3402",
+      "bytes": 33213
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_checkers.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_checkers.imageset/Contents.json",
+      "sha256": "420ef998f4f2d2012d1686c8d7c7fce18e70324d6340005b0d511678767d5ec9",
+      "bytes": 439
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_checkers.imageset/checkers@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_checkers.imageset/checkers@1x.png",
+      "sha256": "89d5dcae32e83f756dbd7db45c3464f2d9af45845ee3d475d70271bc24258142",
+      "bytes": 6012
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_checkers.imageset/checkers@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_checkers.imageset/checkers@2x.png",
+      "sha256": "a03995938c068f531f21ae22737e40443543cc8e97cdeb55b9bdd208801a9608",
+      "bytes": 17505
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_checkers.imageset/checkers@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_checkers.imageset/checkers@3x.png",
+      "sha256": "64ac7d504e6f8fcdeeec9230b26685df47ff847b864195553223293ee573b1ec",
+      "bytes": 33297
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_chess.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_chess.imageset/Contents.json",
+      "sha256": "6db7ddc34e43fcff9ddd9eb7aaad8b201c97766a7aaa6eca82256e29700fd5d9",
+      "bytes": 430
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_chess.imageset/chess@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_chess.imageset/chess@1x.png",
+      "sha256": "7f5ee203b589afd1135ffdaf4719eb2b8665aa38ed94f685fbf85fb1dc0b5fd6",
+      "bytes": 5107
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_chess.imageset/chess@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_chess.imageset/chess@2x.png",
+      "sha256": "194947f36082db03b1510db35def438267ba932432f07e9e668a7795c31abc97",
+      "bytes": 13985
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_chess.imageset/chess@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_chess.imageset/chess@3x.png",
+      "sha256": "0cdb5bd2227d4104e35cc0f71dd11417c690e81f168198f6adeb67aee1fe976f",
+      "bytes": 25399
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_cube.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_cube.imageset/Contents.json",
+      "sha256": "678a92be81a972fc2ff3baf1fab316d9449b64a6a953f627a310bf434a426b0c",
+      "bytes": 427
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_cube.imageset/cube@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_cube.imageset/cube@1x.png",
+      "sha256": "a0f7ace295500f7f7bcb76d13e8d7d895954fb952d014ea8d94801cdefd24376",
+      "bytes": 6664
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_cube.imageset/cube@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_cube.imageset/cube@2x.png",
+      "sha256": "41d633668a5e16607407973e9e135151db25614c1b37fb1483df823105699773",
+      "bytes": 20398
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_cube.imageset/cube@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_cube.imageset/cube@3x.png",
+      "sha256": "d6383ca1280499bfab3a602bd405a1282f23b70ebdd5992316a92dfbee2ae9ba",
+      "bytes": 39759
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_dice.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_dice.imageset/Contents.json",
+      "sha256": "17b3a495f8c6caa3f401e0311436d8177c86b25ed0cdedc70d6d7e0c305f83ec",
+      "bytes": 427
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_dice.imageset/dice@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_dice.imageset/dice@1x.png",
+      "sha256": "7eae308469acb1ef91663eebf12f47688f9df420c1b907626ef17b88271e04b2",
+      "bytes": 5452
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_dice.imageset/dice@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_dice.imageset/dice@2x.png",
+      "sha256": "dee859e3e62962f20150998b8df1271c0c424178d5fba9fb9b610978e26fe285",
+      "bytes": 14956
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_dice.imageset/dice@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_dice.imageset/dice@3x.png",
+      "sha256": "3162ec3ec2c5fac4e4ec074eef91995ea766950be8ab79b3a3959fab14a23f02",
+      "bytes": 27864
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_eight_ball.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_eight_ball.imageset/Contents.json",
+      "sha256": "a0aabda7c39cdaa9779537f2d159caca061cb0f2c27607c024c7d6f0144bceee",
+      "bytes": 445
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_eight_ball.imageset/eight_ball@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_eight_ball.imageset/eight_ball@1x.png",
+      "sha256": "73743c7a24a4b8fa9820ac4d4392cfb6ee951139a0b7b61378f2fb4c8d5eb9de",
+      "bytes": 5476
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_eight_ball.imageset/eight_ball@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_eight_ball.imageset/eight_ball@2x.png",
+      "sha256": "b9340598ff644f449eed701943420d3614d537aa4e30d17217853fea62ad971e",
+      "bytes": 14590
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_eight_ball.imageset/eight_ball@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_eight_ball.imageset/eight_ball@3x.png",
+      "sha256": "db483ada64004b751a2d61ba90989766346d438baa789494da74d20664e66d2c",
+      "bytes": 27988
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_flip_coin.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_flip_coin.imageset/Contents.json",
+      "sha256": "4cc2ccd4202430d68c46a3e9953e78d4315f0578eaa8e4fce6611a81d18a8e14",
+      "bytes": 442
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_flip_coin.imageset/flip_coin@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_flip_coin.imageset/flip_coin@1x.png",
+      "sha256": "754835753bb63eeff4b67a5f87124edcf55fe1f3b2e6f6aabc08ff61e131bda6",
+      "bytes": 6122
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_flip_coin.imageset/flip_coin@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_flip_coin.imageset/flip_coin@2x.png",
+      "sha256": "d490ebad46d4e26db15fda6205202718dc730cdb90c0c7b5b79ef8c47ad088a9",
+      "bytes": 18956
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_flip_coin.imageset/flip_coin@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_flip_coin.imageset/flip_coin@3x.png",
+      "sha256": "7c3c815042d68c3836b47604efeb86c317dfd2495dcc697523f9e482c11c5545",
+      "bytes": 37460
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_foosball.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_foosball.imageset/Contents.json",
+      "sha256": "84d4299bcb8abf49e5cbc264ec9b608048c835c7f05902ca1b6f781484042abc",
+      "bytes": 439
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_foosball.imageset/foosball@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_foosball.imageset/foosball@1x.png",
+      "sha256": "9f52699cd84eba311ced5d751ce4a502d566c6a5dc5d095955cd090ebba0852e",
+      "bytes": 5190
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_foosball.imageset/foosball@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_foosball.imageset/foosball@2x.png",
+      "sha256": "5e92167c5e5277975b0c270ff7aa43468bc243c2e281c2c332422bd7cd6c84f9",
+      "bytes": 14473
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_foosball.imageset/foosball@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_foosball.imageset/foosball@3x.png",
+      "sha256": "7d1034064ef4b460a18203c6fba8388e2bd11fe8cfec025dfb1b061f7a80d72a",
+      "bytes": 26881
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_football.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_football.imageset/Contents.json",
+      "sha256": "9ef625418bd89d29d4c9ffbe0849839d7f95bbb32f87f4b1947016dd36994b44",
+      "bytes": 439
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_football.imageset/football@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_football.imageset/football@1x.png",
+      "sha256": "f438a1d3e18f7d13f96ee6039708cb8d4e2bbf22aabebb7166132c40534cf0af",
+      "bytes": 4997
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_football.imageset/football@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_football.imageset/football@2x.png",
+      "sha256": "d6d13c85fcbef8e3ee25a5e4e0649ce302c27525b3cb47a9c302e9a17ae1e48c",
+      "bytes": 13930
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_football.imageset/football@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_football.imageset/football@3x.png",
+      "sha256": "4616b8bd03b2f3636aa87ebf5b145b4411a34fa6790e9cc3423bbc1eca4225b9",
+      "bytes": 27371
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_fullscreen_barrage.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_fullscreen_barrage.imageset/Contents.json",
+      "sha256": "b47c8056fe8c781014b8023934fde3a3becd41bd1e5e06e664c96e8405023ca1",
+      "bytes": 469
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_fullscreen_barrage.imageset/fullscreen_barrage@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_fullscreen_barrage.imageset/fullscreen_barrage@1x.png",
+      "sha256": "0d4014637caef4fafd685b847652ee561a2b899ed3cadd47de87932465773496",
+      "bytes": 4215
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_fullscreen_barrage.imageset/fullscreen_barrage@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_fullscreen_barrage.imageset/fullscreen_barrage@2x.png",
+      "sha256": "50fccfdb7f257cc414fc8d776f61dc557c880045910d61b7f0c0b9dc3314cdfc",
+      "bytes": 15817
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_fullscreen_barrage.imageset/fullscreen_barrage@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_fullscreen_barrage.imageset/fullscreen_barrage@3x.png",
+      "sha256": "54bbdc73cedafad304f9b822199d3c5b43915cf75e433cbfdbce82aaddcfa9a6",
+      "bytes": 30922
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_go.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_go.imageset/Contents.json",
+      "sha256": "776cb72449338019ecf6ddadf48aa7fef5dc659c55f2f940aef850d2e31b791b",
+      "bytes": 421
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_go.imageset/go@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_go.imageset/go@1x.png",
+      "sha256": "664e53bcbd82a111cd35c691fac0f3e6e21e9598e8c4d7554556d0fc210a611c",
+      "bytes": 3968
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_go.imageset/go@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_go.imageset/go@2x.png",
+      "sha256": "5feaa54e70f6da85d9abff845575465fe6994835bebe789ae11ca8b727d2720b",
+      "bytes": 10945
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_go.imageset/go@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_go.imageset/go@3x.png",
+      "sha256": "569ffa258b04013ff559a024175f45582fe619860a4e4213b37eee435d4225aa",
+      "bytes": 20375
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_multi_scoreboard.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_multi_scoreboard.imageset/Contents.json",
+      "sha256": "8aaf9bf3828e5fee5d38dcc7b5a75f399cc62f9142916bb022302f5acb43c157",
+      "bytes": 463
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_multi_scoreboard.imageset/multi_scoreboard@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_multi_scoreboard.imageset/multi_scoreboard@1x.png",
+      "sha256": "348a1462ef763d502c67fe0235ed116828e780b152a884e4a78feb25913f7367",
+      "bytes": 6395
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_multi_scoreboard.imageset/multi_scoreboard@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_multi_scoreboard.imageset/multi_scoreboard@2x.png",
+      "sha256": "4b8d95addda09bc879089faf622d46c6d28c0c9fb8bef1f4a4ff3d7348d3d5dc",
+      "bytes": 19483
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_multi_scoreboard.imageset/multi_scoreboard@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_multi_scoreboard.imageset/multi_scoreboard@3x.png",
+      "sha256": "98bbbc3b218f9ac9e3c65474e19de79f36c3692ad63515569e28567a297c3ed3",
+      "bytes": 37764
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_nine_ball.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_nine_ball.imageset/Contents.json",
+      "sha256": "a860338697e13533e4d8cd9305e53d42fecc5b80d338d1e72bb5ca5f91254232",
+      "bytes": 442
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_nine_ball.imageset/nine_ball@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_nine_ball.imageset/nine_ball@1x.png",
+      "sha256": "20f97a6259d76040b3593aaf4f30c634261cc1f4c63e77957cd126c5bc54df31",
+      "bytes": 5825
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_nine_ball.imageset/nine_ball@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_nine_ball.imageset/nine_ball@2x.png",
+      "sha256": "b74d99b2ea4c9480baf71bd072bb136e8ecd7f3b06e49b80a6eba2db699389cf",
+      "bytes": 16733
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_nine_ball.imageset/nine_ball@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_nine_ball.imageset/nine_ball@3x.png",
+      "sha256": "e8c233041a01e89a6cb08e3a36a935f86e244e4014e56d8bc8b0116ddd2160da",
+      "bytes": 31433
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_padel.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_padel.imageset/Contents.json",
+      "sha256": "8004b4958ec33cd57ece2c058bd187f1c471557185debb20cf7ef635f72be5da",
+      "bytes": 430
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_padel.imageset/padel@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_padel.imageset/padel@1x.png",
+      "sha256": "d5683b145ddc2840b636dc1826e997467f63e5704315fc96db940218d8dc02d1",
+      "bytes": 6979
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_padel.imageset/padel@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_padel.imageset/padel@2x.png",
+      "sha256": "82ef3032ee927f0a87123efa85bc53e4edd56563df74becfb03a99bf7588e428",
+      "bytes": 20620
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_padel.imageset/padel@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_padel.imageset/padel@3x.png",
+      "sha256": "230a18fa65ce8f49339c392997a080576ccedca466fb15363c15a52759d15a07",
+      "bytes": 40048
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_pickleball.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_pickleball.imageset/Contents.json",
+      "sha256": "dca84c7464a102a783a52c27a0b88e9b979fcdd7f081d9607f7f345fe00e7b29",
+      "bytes": 445
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_pickleball.imageset/pickleball@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_pickleball.imageset/pickleball@1x.png",
+      "sha256": "69a2e3443505928bdcb0138b01d10f01d170a54ccedd44cd8e6b2d42ad3ba77f",
+      "bytes": 4684
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_pickleball.imageset/pickleball@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_pickleball.imageset/pickleball@2x.png",
+      "sha256": "1ac3b51c5f87095c21847ddfac4e8923f60f6e8dba0ef809c0103306ab639988",
+      "bytes": 12857
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_pickleball.imageset/pickleball@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_pickleball.imageset/pickleball@3x.png",
+      "sha256": "d174712ce9d9edcaf06aae98482dd87fcca03b33e801b500b9822ea1d048c37f",
+      "bytes": 25001
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_pingpong.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_pingpong.imageset/Contents.json",
+      "sha256": "48040554463d82f335e3b6cc315442989b7bdeb934fd45ac1c765a31c0ea12d6",
+      "bytes": 439
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_pingpong.imageset/pingpong@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_pingpong.imageset/pingpong@1x.png",
+      "sha256": "ab0eee57e69ee31bf1ce02d8fb0b940a74e3fd2d16eae597b88c50257bc3008e",
+      "bytes": 4755
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_pingpong.imageset/pingpong@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_pingpong.imageset/pingpong@2x.png",
+      "sha256": "f2f031892ce7a006ad345b53627a11c02ebe2dbab4c5fe67eed61fd00d671399",
+      "bytes": 13577
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_pingpong.imageset/pingpong@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_pingpong.imageset/pingpong@3x.png",
+      "sha256": "ed18415229628d66ba3ee00c31bbabc26941dfd093a5860d8549c96cc41ddd44",
+      "bytes": 26486
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_playing_cards.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_playing_cards.imageset/Contents.json",
+      "sha256": "e187f867c24ed2f40aececaca8f334469a262d73d22f86e8189fd91bd434aa21",
+      "bytes": 454
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_playing_cards.imageset/playing_cards@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_playing_cards.imageset/playing_cards@1x.png",
+      "sha256": "282e6944e0ef5ba2db3eff1ae7f64ad4c08ef0fe8f98e00e4b5aba5ad3800264",
+      "bytes": 5615
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_playing_cards.imageset/playing_cards@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_playing_cards.imageset/playing_cards@2x.png",
+      "sha256": "ac1fce60d1973f673de15ea1376ba1c971dada830f30144929883d32396bde5c",
+      "bytes": 15739
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_playing_cards.imageset/playing_cards@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_playing_cards.imageset/playing_cards@3x.png",
+      "sha256": "032d6df1ffacec7bd82dcf29a93986636c1c36aab964c81c249f573f340b5b8b",
+      "bytes": 29818
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_points_table.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_points_table.imageset/Contents.json",
+      "sha256": "6d7b2cd56f9e916717c1e903421b15069f0cfb73d8185013255e9e7b971459c3",
+      "bytes": 451
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_points_table.imageset/points_table@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_points_table.imageset/points_table@1x.png",
+      "sha256": "373766db35bb773f6c26f722c57e3396beb96612a570f228538a26d76a19c690",
+      "bytes": 7542
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_points_table.imageset/points_table@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_points_table.imageset/points_table@2x.png",
+      "sha256": "24bd961825752b6465b3e6ca1c978c7387ae54c2ca34e1dca0c839803f1df07b",
+      "bytes": 22582
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_points_table.imageset/points_table@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_points_table.imageset/points_table@3x.png",
+      "sha256": "560cf8eec65e354a6a8dde688c22ce4929b5d5b430cf6782730771334d5d1ee7",
+      "bytes": 42738
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_random_team.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_random_team.imageset/Contents.json",
+      "sha256": "50147f204b941bfdfccfaa8e52a5cc53f7090a321a44440feffd5401a57cdced",
+      "bytes": 448
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_random_team.imageset/random_team@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_random_team.imageset/random_team@1x.png",
+      "sha256": "9cb0982adf21f167b571fc553fdf9de2aedfef1ecff417b78576b7ab3245c50c",
+      "bytes": 6006
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_random_team.imageset/random_team@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_random_team.imageset/random_team@2x.png",
+      "sha256": "8df2ac9e9b622ad45a3ce8c1c1fd7012d65b82eae0149ae997daaa9149e32192",
+      "bytes": 17100
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_random_team.imageset/random_team@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_random_team.imageset/random_team@3x.png",
+      "sha256": "6e236eae978b37a1cb103eb03987f535ab03b74ed3aefc2286f0f5ce8fe9eb02",
+      "bytes": 31651
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_red_yellow_card.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_red_yellow_card.imageset/Contents.json",
+      "sha256": "9d20b3ecfe401061d238fc3df0e9c8d7a63088313eb6ee9afbade16f1fbc0d1a",
+      "bytes": 460
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_red_yellow_card.imageset/red_yellow_card@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_red_yellow_card.imageset/red_yellow_card@1x.png",
+      "sha256": "f1ccaac12ae46f63cc0350121b67994e60ab0a1bdebda4fe33a8959c8dd1c82e",
+      "bytes": 4717
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_red_yellow_card.imageset/red_yellow_card@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_red_yellow_card.imageset/red_yellow_card@2x.png",
+      "sha256": "3116ab078620b4340ce68860dffd5d34593cd80564b4437897cdf94e16fa16a5",
+      "bytes": 14136
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_red_yellow_card.imageset/red_yellow_card@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_red_yellow_card.imageset/red_yellow_card@3x.png",
+      "sha256": "25343d5f8d8e7280351eefbd436e7bff397e2a3b4e6f94a4c1dcc1343eb6e81c",
+      "bytes": 27405
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_shuttlecock.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_shuttlecock.imageset/Contents.json",
+      "sha256": "00ebe0dc702bd41b29f1cee8ad0eda2476321635ed535cff70d79c427123fbe5",
+      "bytes": 448
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_shuttlecock.imageset/shuttlecock@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_shuttlecock.imageset/shuttlecock@1x.png",
+      "sha256": "7d1eed226778527c2b3af2460678fa527cda4b05251bf3f9af17882fb8ce67be",
+      "bytes": 6331
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_shuttlecock.imageset/shuttlecock@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_shuttlecock.imageset/shuttlecock@2x.png",
+      "sha256": "0943cbc8417c3f8e16c8c3cc0d19e0990ae101060506782e97180d5975eb1d5a",
+      "bytes": 19658
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_shuttlecock.imageset/shuttlecock@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_shuttlecock.imageset/shuttlecock@3x.png",
+      "sha256": "135fa04cdcc31782b9ec49f8bdccd0b0edf00c8a27d74971103c875f29ee7f89",
+      "bytes": 39324
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_simple_score.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_simple_score.imageset/Contents.json",
+      "sha256": "6921a0ef81fb54f2cf2526cfa28d6aa1729921616ec61b10f0f4308fc247dff7",
+      "bytes": 451
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_simple_score.imageset/simple_score@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_simple_score.imageset/simple_score@1x.png",
+      "sha256": "72d8021ecfa0623b82890ef588c344d10d6ba186f0b7808b99a99ea979ce9810",
+      "bytes": 6548
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_simple_score.imageset/simple_score@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_simple_score.imageset/simple_score@2x.png",
+      "sha256": "a778ea9a3787df87bfb6d4c81af34cc2d22fbd1f4805fbcdebb4b6abbf31f660",
+      "bytes": 19069
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_simple_score.imageset/simple_score@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_simple_score.imageset/simple_score@3x.png",
+      "sha256": "db93db42fc7e83353eb0d6727ff7023a242937166f56becf01429e5878213306",
+      "bytes": 36737
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_snooker.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_snooker.imageset/Contents.json",
+      "sha256": "49723d9b203ef5f56f50c51ce14ba07507b03f850a0750501667edb8484c8a22",
+      "bytes": 436
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_snooker.imageset/snooker@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_snooker.imageset/snooker@1x.png",
+      "sha256": "09168e3d3ac18f2a6dce3fa8b76258f1978a0e29bae76387871ae475b1c59c57",
+      "bytes": 5477
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_snooker.imageset/snooker@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_snooker.imageset/snooker@2x.png",
+      "sha256": "6f09d0c6bdf120901465364706ccbae60fba47179fc5753e29823bc5e0831aed",
+      "bytes": 15444
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_snooker.imageset/snooker@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_snooker.imageset/snooker@3x.png",
+      "sha256": "a08b93391c5012d2eb2e02c629b63e453c42ace768c2a3754cf832f1a2193f24",
+      "bytes": 28726
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_squash.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_squash.imageset/Contents.json",
+      "sha256": "4aaf8d4f59bc4edddf6dd859672041302999d21d935ae9287595d7c8a286ab59",
+      "bytes": 433
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_squash.imageset/squash@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_squash.imageset/squash@1x.png",
+      "sha256": "c463135b90995eb34116442c625db9ba12fe215140db289b39fb4898d961e6f3",
+      "bytes": 4423
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_squash.imageset/squash@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_squash.imageset/squash@2x.png",
+      "sha256": "3b27d0008401f6b1d0b3affd455f73aa7f41324fa04beb5eaebbecca8bc027a5",
+      "bytes": 12944
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_squash.imageset/squash@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_squash.imageset/squash@3x.png",
+      "sha256": "e98c1fd8fdb285df6dfad68a974f432e5d744d27a01b9143b4376d29868f5a86",
+      "bytes": 25616
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_stopwatch.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_stopwatch.imageset/Contents.json",
+      "sha256": "212db0c8ee5cb161646f85771cccba018c5e8b52f2bda4a3251628d4d5a768bf",
+      "bytes": 442
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_stopwatch.imageset/stopwatch@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_stopwatch.imageset/stopwatch@1x.png",
+      "sha256": "55dda637e77397cd21f7d49d4e4819d130b96a021b006a26e657b05adf8f0a7d",
+      "bytes": 6539
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_stopwatch.imageset/stopwatch@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_stopwatch.imageset/stopwatch@2x.png",
+      "sha256": "adbfc6b3f2e6cd7122b5c31899171933599c8c4d2f34b67c9e6de96e4c982547",
+      "bytes": 18692
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_stopwatch.imageset/stopwatch@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_stopwatch.imageset/stopwatch@3x.png",
+      "sha256": "a55c38752d3628b65905a4710241d11c745bf444ef3e365dc696d216d350438b",
+      "bytes": 35339
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_ten_second.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_ten_second.imageset/Contents.json",
+      "sha256": "adef3a6e4578415b596d9d37aba59ec12e65dd61617001e79daf3a1216b7759b",
+      "bytes": 445
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_ten_second.imageset/ten_second@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_ten_second.imageset/ten_second@1x.png",
+      "sha256": "77c8f1653faff8c35eb86411c4206964c73f67725bda605045d92ac10a000900",
+      "bytes": 6813
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_ten_second.imageset/ten_second@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_ten_second.imageset/ten_second@2x.png",
+      "sha256": "70e6f64a7f9c6af850f186d213734b077d05180c5cd22a4c8b9320fd7afa12fd",
+      "bytes": 19856
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_ten_second.imageset/ten_second@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_ten_second.imageset/ten_second@3x.png",
+      "sha256": "15af05c796da6eccbdc954afba362509286fb5cacacc42f28145e8a1c9196d14",
+      "bytes": 37549
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_tennis.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_tennis.imageset/Contents.json",
+      "sha256": "c84a843c034c0a3db0cfc91988e2cbf8da5cbc4c25b2e8f5cba41a2e5dc76832",
+      "bytes": 433
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_tennis.imageset/tennis@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_tennis.imageset/tennis@1x.png",
+      "sha256": "b55130c5c2d4af907d4c5411de6d3f8feed6f51e4eea5189574076b40305fbde",
+      "bytes": 4479
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_tennis.imageset/tennis@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_tennis.imageset/tennis@2x.png",
+      "sha256": "44cf6dde0c2fbdabd7a0a6a127f679c82dcd2a45a7c63ae3c0fb3ee8b6e241fa",
+      "bytes": 13813
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_tennis.imageset/tennis@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_tennis.imageset/tennis@3x.png",
+      "sha256": "5825b66b973dc185cb6006f70288bca3301e567269ac113b653a0bd8b60ca4db",
+      "bytes": 27965
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_time.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_time.imageset/Contents.json",
+      "sha256": "9c76305f838f9463b87afb21261fba702095781e4a72ab939c10d35668fbfe48",
+      "bytes": 427
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_time.imageset/time@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_time.imageset/time@1x.png",
+      "sha256": "c792e97ddc699a522a6559373c56905cdf9b39b2020e18929ae6167c0da2a2f8",
+      "bytes": 5557
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_time.imageset/time@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_time.imageset/time@2x.png",
+      "sha256": "d3335726e10de17d7a61f6f5ece9558f9ac7873ec98098a4dc7cb07713e796b2",
+      "bytes": 16179
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_time.imageset/time@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_time.imageset/time@3x.png",
+      "sha256": "005d3efc98bec1639ccb9f11f946f82fd7d8a3ca5f4dd2024b4e54277107e275",
+      "bytes": 30610
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_timeout.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_timeout.imageset/Contents.json",
+      "sha256": "d2b2f4b44d3208ce1baee9ca56c955b4ad9f18e0a786e2ea3717260507641275",
+      "bytes": 436
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_timeout.imageset/timeout@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_timeout.imageset/timeout@1x.png",
+      "sha256": "749683d2e61042e889b932766df09359a4d3bea925088c52da164e5f6982d1a4",
+      "bytes": 5301
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_timeout.imageset/timeout@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_timeout.imageset/timeout@2x.png",
+      "sha256": "b0eb99c2f7fcdac8e941bbad5523e387931c2f38053d67bdab62405e829f0e29",
+      "bytes": 15838
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_timeout.imageset/timeout@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_timeout.imageset/timeout@3x.png",
+      "sha256": "b0950a17c4c3593d4e387d4ad47c16db34151046b3d71d7948e53d4ac99e0f0b",
+      "bytes": 31474
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_uno.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_uno.imageset/Contents.json",
+      "sha256": "da4ba84d03a9f114357b97c5dc1774f6a7d4f6cd692f49d98352eb22e73c0ee7",
+      "bytes": 424
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_uno.imageset/uno@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_uno.imageset/uno@1x.png",
+      "sha256": "7658e75430479159f557b20663270a8ce7bb82046782ecd51a99fbca15dab0fd",
+      "bytes": 7940
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_uno.imageset/uno@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_uno.imageset/uno@2x.png",
+      "sha256": "74083513214f798658cefb54d1c2251089e6069896dd11a1da0a71177c8ce467",
+      "bytes": 24231
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_uno.imageset/uno@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_uno.imageset/uno@3x.png",
+      "sha256": "362b313666cae4b80e4730b1b930bbfc47a086ea44b840dd6c657363e6ebcac7",
+      "bytes": 45841
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_volleyball.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_volleyball.imageset/Contents.json",
+      "sha256": "bedbc2957b12836ff0095b517d75563524681e35e258326d07788c34115582e6",
+      "bytes": 445
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_volleyball.imageset/volleyball@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_volleyball.imageset/volleyball@1x.png",
+      "sha256": "61ced23fd55ba1221643bf243be4fc61fcefcdadd3f4cb9d8f7b3a7274fb7da1",
+      "bytes": 5755
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_volleyball.imageset/volleyball@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_volleyball.imageset/volleyball@2x.png",
+      "sha256": "53746d874530bff571689f3a012b15285484bf3381277afdbbc0084d6102978e",
+      "bytes": 16002
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_volleyball.imageset/volleyball@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_volleyball.imageset/volleyball@3x.png",
+      "sha256": "391e150070c58a6e1d1960794fdc072e148dccfe194a84a69add552c586c0a86",
+      "bytes": 31736
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_whistle.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_whistle.imageset/Contents.json",
+      "sha256": "09cc35f3beb2bcd5ecc36300668f7fd3fbd542092fbbb36390ad42fec2a13481",
+      "bytes": 436
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_whistle.imageset/whistle@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_whistle.imageset/whistle@1x.png",
+      "sha256": "2925619c610503a45b8d259d89b96ae0f658275da4432c8668cd95fba3db0583",
+      "bytes": 5387
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_whistle.imageset/whistle@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_whistle.imageset/whistle@2x.png",
+      "sha256": "7cabb9c92d30fc9cb082fb2821dc3d951b209b8bb005a48520f41df15b963131",
+      "bytes": 15992
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_whistle.imageset/whistle@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_whistle.imageset/whistle@3x.png",
+      "sha256": "fb1328f29c9c6a07a6d234865fdc8319ebc88268d415aab5555c13139730014d",
+      "bytes": 30695
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_xiangqi.imageset/Contents.json",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_xiangqi.imageset/Contents.json",
+      "sha256": "a8bf636f74a893279bf91f9672e69ee09e6601d8c8f86a54a99d529ae547120b",
+      "bytes": 436
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_xiangqi.imageset/xiangqi@1x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_xiangqi.imageset/xiangqi@1x.png",
+      "sha256": "555bf57d52c09bb3e4c25ebe5c1276c01a73b57ce005086de04684b9abe81de2",
+      "bytes": 7102
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_xiangqi.imageset/xiangqi@2x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_xiangqi.imageset/xiangqi@2x.png",
+      "sha256": "b55c9bab16c00f9ccd97de5e25e5ecbca2a69913b49990b9e2a1e10ba255de1c",
+      "bytes": 22135
+    },
+    {
+      "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/exports/ios/icon_3d_xiangqi.imageset/xiangqi@3x.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_xiangqi.imageset/xiangqi@3x.png",
+      "sha256": "dffbb54b0abd887e682be8c79031966ab5b21f8f2675b64d18cb44ad13ff154e",
+      "bytes": 43920
+    }
+  ],
+  "checks": {
+    "exact_copy_sha256": true,
+    "png_dimensions_and_rgba": true,
+    "fallback_code_build": "succeeded",
+    "final_resource_build": "succeeded",
+    "compiled_car_names": true,
+    "simulator_screenshot_capture": "pending"
+  },
+  "compiled_asset_names": [
+    "icon_3d_aa_calculator",
+    "icon_3d_archery",
+    "icon_3d_badminton",
+    "icon_3d_basketball",
+    "icon_3d_boxing",
+    "icon_3d_checkers",
+    "icon_3d_chess",
+    "icon_3d_cube",
+    "icon_3d_dice",
+    "icon_3d_eight_ball",
+    "icon_3d_flip_coin",
+    "icon_3d_foosball",
+    "icon_3d_football",
+    "icon_3d_fullscreen_barrage",
+    "icon_3d_go",
+    "icon_3d_multi_scoreboard",
+    "icon_3d_nine_ball",
+    "icon_3d_padel",
+    "icon_3d_pickleball",
+    "icon_3d_pingpong",
+    "icon_3d_playing_cards",
+    "icon_3d_points_table",
+    "icon_3d_random_team",
+    "icon_3d_red_yellow_card",
+    "icon_3d_shuttlecock",
+    "icon_3d_simple_score",
+    "icon_3d_snooker",
+    "icon_3d_squash",
+    "icon_3d_stopwatch",
+    "icon_3d_ten_second",
+    "icon_3d_tennis",
+    "icon_3d_time",
+    "icon_3d_timeout",
+    "icon_3d_uno",
+    "icon_3d_volleyball",
+    "icon_3d_whistle",
+    "icon_3d_xiangqi"
+  ],
+  "final_build_log": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/validation/ios-build-final.log",
+  "shared_asset_mappings": {
+    "softTennis": "icon_3d_tennis",
+    "counter": "icon_3d_simple_score"
+  },
+  "second_batch_keys": [
+    "cube",
+    "go",
+    "multi_scoreboard",
+    "padel",
+    "simple_score",
+    "squash",
+    "stopwatch",
+    "timeout"
+  ]
+}

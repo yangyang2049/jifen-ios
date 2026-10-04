@@ -1,0 +1,74 @@
+{
+  "locale": "pa-IN",
+  "startedAt": "2026-10-02T17:20:12.055487+00:00",
+  "status": "failed",
+  "images": [
+    {
+      "index": 1,
+      "id": "54000019-2e9e-82d0-8022-cb6ce605b5b1",
+      "md5": "ff8c684e37c72465b2ab6822f51a53f2",
+      "action": "uploaded",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 2,
+      "id": "78400019-2e9e-82d0-8021-5c4bd0b45d4a",
+      "md5": "2b83799c004394b91e04abacf6ba17fb",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 3,
+      "id": "86000019-2e9e-82d0-8011-20898a5cddd1",
+      "md5": "cc3c331fda59e4d77ade0aa7d3352a45",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 4,
+      "id": "9bc00019-2e9e-82d0-8035-5a0be9a1015e",
+      "md5": "b47cde2f1c0a65301d1d9aa090643b4b",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 5,
+      "id": "b2400019-2e9e-82d0-8002-31a65f07c592",
+      "md5": "230c35f6f22cf7c4578ded83231b6705",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 6,
+      "id": "80000019-2e9e-82d0-8020-7f4734cb174d",
+      "md5": "b40873b8195e7aa84e77787474d82db2",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 7,
+      "id": "46400019-2e9e-82d0-803d-444dfb0451ef",
+      "md5": "cd72521c267bc4c07258adb888813d59",
+      "action": "reused",
+      "state": "COMPLETE"
+    }
+  ],
+  "deletedIds": [
+    "4e400019-2e9e-82d0-8000-a8e92194ab7d"
+  ],
+  "setId": "85fd2e81-9660-46ae-8b18-0bd0e54578d7",
+  "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/screenshot-upload/locale-backups/20261002T171841132002Z-pa-IN.json",
+  "verified": false,
+  "error": "Target seven-screenshot order failed verification",
+  "completedAt": "2026-10-02T17:20:29.986685+00:00",
+  "restoredIds": [
+    "28400019-2e9e-82d0-8009-dd69621848fa",
+    "78400019-2e9e-82d0-8021-5c4bd0b45d4a",
+    "86000019-2e9e-82d0-8011-20898a5cddd1",
+    "9bc00019-2e9e-82d0-8035-5a0be9a1015e",
+    "b2400019-2e9e-82d0-8002-31a65f07c592",
+    "80000019-2e9e-82d0-8020-7f4734cb174d",
+    "46400019-2e9e-82d0-803d-444dfb0451ef"
+  ],
+  "rollback": "verified"
+}

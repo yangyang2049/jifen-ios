@@ -7,6 +7,31 @@
 
 import Foundation
 
+/// Current-language defaults for new board-timer sessions. Records keep their saved labels.
+enum BoardTimerParticipantNames {
+    static func name(for gameType: GameType, playerID: Int, bundle: Bundle = .main) -> String {
+        if let key = nameKey(for: gameType, playerID: playerID) {
+            return bundle.localizedString(forKey: key, value: englishNames[key], table: nil)
+        }
+        let player = bundle.localizedString(forKey: "dual_timer_player", value: "Player", table: nil)
+        return "\(player) \(playerID)"
+    }
+
+    private static func nameKey(for gameType: GameType, playerID: Int) -> String? {
+        guard (1...2).contains(playerID) else { return nil }
+        switch gameType {
+        case .go: return playerID == 1 ? "timer_black_player" : "timer_white_player"
+        case .xiangqi, .checkers: return playerID == 1 ? "timer_red_player" : "timer_black_player"
+        case .chess: return playerID == 1 ? "timer_white_player" : "timer_black_player"
+        default: return nil
+        }
+    }
+
+    private static let englishNames = [
+        "timer_black_player": "Black", "timer_white_player": "White", "timer_red_player": "Red"
+    ]
+}
+
 enum BoardTimeMode: String, CaseIterable, Identifiable, Equatable {
     case countdown
     case increment

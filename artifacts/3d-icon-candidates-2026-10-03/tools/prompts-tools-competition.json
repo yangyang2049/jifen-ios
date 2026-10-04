@@ -1,0 +1,125 @@
+{
+  "tool": "built-in image_gen",
+  "created": "2026-10-03",
+  "prompts": [
+    {
+      "id": "flip_coin-a",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: flip-a-coin utility. ONE golden brass coin, large circular face viewed slightly from the side so the rounded milled rim and thickness are visible. A simple embossed five-point star on the face, believable smooth satin metal and subtle microtexture, softly warm gold, similar material fidelity to reference darts' brass. No currency writing, no floating extra coins.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-57eaa46a-ac8e-4f3f-b024-b5c252c68cf8.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "tools/flip_coin-a.png"
+    },
+    {
+      "id": "flip_coin-b",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: flip-a-coin utility. TWO golden brass coins, one upright at a dynamic modest tilt in foreground and one angled face behind it suggesting a tossed coin. Each coin has a simple embossed five-point star, detailed rounded milled edges and visible thickness. A compact overlapping two-coin silhouette, warm satin metal with subtle microtexture. No motion trails, currency writing, arrows or extra objects.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-7b255b56-a48b-484f-97cd-575c415871d5.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "tools/flip_coin-b.png"
+    },
+    {
+      "id": "dice-a",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: roll-dice utility. ONE large ivory-white dice cube, rounded but with realistically straight faces, the front shows five dark indented pips, the top shows two, the side shows three. Each face is a normal 1-to-6 dice face. Warm white fine-grain plastic material, subtle dark circular pip recesses. Compact front-three-quarter view.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-d58adc25-e7dd-4b3c-8d2c-43a90df643b8.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "tools/dice-a.png",
+      "iterations": [
+        {
+          "prompt": "Use case: precise-object-edit. Edit target: the supplied single dice PNG. Correct ONLY the dice face pips: keep the front face exactly FIVE pips arranged four corners plus center, replace the top face's two pips with exactly ONE centered black recessed pip, keep the right face exactly THREE pips in a diagonal. These three adjacent faces must be 5, 1, 3 so the object can be a real standard die. Keep the entire cube shape, angle, size, position, ivory-white finely textured satin plastic, round edges, lighting, shadows within object and style unchanged. Preserve the genuinely transparent RGBA background. Clean the object alpha edge of any colored fringe, tiny stray dots or white halo. No new objects, text, floor, cast shadow, background or watermark.",
+          "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-ad3de74a-0828-4a87-b119-a67ac3ea0a79.png",
+          "reference": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/dice-a.png",
+          "reference_original_source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-d58adc25-e7dd-4b3c-8d2c-43a90df643b8.png",
+          "note": "Corrected physically possible adjacent dice faces to 5/1/3."
+        }
+      ]
+    },
+    {
+      "id": "dice-b",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: roll-dice utility. TWO overlapping ivory-white dice cubes with black indented pips, one foreground tilted modestly showing six, one raised behind showing three. Each visible face follows normal dice numbering, max six pips. Rounded straight-edged cubes of tactile matte plastic with subtle microtexture, readable simple silhouette.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-dda03d99-f315-4b87-a4a5-35c66cc1db8f.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "tools/dice-b.png"
+    },
+    {
+      "id": "whistle-a",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: referee whistle utility. ONE traditional small silver metal pea whistle in close-up, visible rectangular mouthpiece pointing to lower left, round resonating chamber, black air slot and a small loop at its rear. Believable satin nickel-plated metal with soft reflections, slightly rounded edges. No cord, no decorative element.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-40be72e8-e575-4341-ab5f-9824de91d631.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "tools/whistle-a.png"
+    },
+    {
+      "id": "whistle-b",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: referee whistle utility. ONE red matte sport referee whistle in close-up, clearly visible mouthpiece pointing left and rounded hollow chamber, small rear loop with just a short loop of black lanyard threaded through it. The red tactile plastic matches the reference darts red color, fine microtexture. Whistle dominates; lanyard small and simple.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-06db99ff-b4b8-4558-9a35-7ebadbad518a.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "tools/whistle-b.png"
+    },
+    {
+      "id": "random_team-a",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: random-team assignment utility. A compact group of THREE smooth generic miniature pawn-shaped person tokens with spherical heads and rounded tapered torso silhouettes, two cobalt blue tokens grouped on the left, one red token on right, clearly representing splitting people into teams. Real 3D objects in satin painted material with subtle micrograin, no flat person glyphs, no platform, no faces, no writing.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-b229f8d7-8216-4523-9c7d-2b118c4254bd.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "tools/random_team-a.png"
+    },
+    {
+      "id": "random_team-b",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: random-team assignment utility. TWO small sport shirt objects side by side, one rich cobalt blue and one bright red, plus one tiny neutral white pawn-shaped person token between them in foreground, representing allocating a player to teams. Shirts are miniature real thick fabric objects with short sleeves and softly rounded folds, subtle fabric texture, no mannequin, no logos, no numbers. Simple compact grouping.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-c7e8ebe2-4d20-430f-bf20-c9b452138f45.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "tools/random_team-b.png"
+    },
+    {
+      "id": "red_yellow_card-a",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: referee red-and-yellow-card utility. TWO physical referee cards, one bright yellow rectangular card at the front and one bright red card peeking from behind, slightly fanned. Rectangular cards with softly rounded corners, straight sides, realistic thick plastic paper-like satin surface and narrow visible edges. No text, no symbols, no black wallet.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-fcb86eed-88df-4830-b320-669754c3eddf.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "tools/red_yellow_card-a.png"
+    },
+    {
+      "id": "red_yellow_card-b",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: referee red-and-yellow-card utility. TWO physical referee cards at a stronger diagonal fan angle, the red card in front toward right and the yellow card behind to left, both large and clearly visible with realistic thickness and softly rounded corners. Fine satin plastic microtexture, bright pure red and golden yellow. No text, no symbols, no hand, no wallet.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-3b3f923b-4340-42f9-9038-9dd6588688b3.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "tools/red_yellow_card-b.png"
+    }
+  ]
+}

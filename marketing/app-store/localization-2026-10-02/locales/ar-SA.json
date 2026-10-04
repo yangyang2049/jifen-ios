@@ -1,0 +1,58 @@
+{
+  "locale": "ar-SA",
+  "iosLocale": "ar",
+  "language": "Arabic",
+  "direction": "rtl",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: لوحة النتائج",
+  "subtitle": "النتائج والتوقيت وسجل اللعب",
+  "description": "كل نقطة تستحق التسجيل. حوّل iPhone أو iPad إلى لوحة نتائج واضحة وسهلة الاستخدام للمباريات والتدريبات واللعب مع الأصدقاء.\n\nسجّل النتائج لأكثر من 26 رياضة ولعبة، منها التنس والبيكلبول والريشة الطائرة وتنس الطاولة وكرة السلة وكرة القدم والكرة الطائرة والبلياردو. خصّص قواعد احتساب النقاط ونظام المباراة وترتيب الإرسال في الزوجي للرياضات التي تدعم ذلك.\n\nاحفظ المباريات وراجع تغيّر النتائج وتسلسل الأحداث والملاحظات الصوتية. استخدم ساعات الشطرنج وغو ومؤقّت المكعب وساعة الإيقاف. اعرض لوحة النتائج على شاشة كبيرة وشارك رمز المباراة ليتابع الأصدقاء النتيجة عن بُعد.\n\nتجد أيضاً أدوات لقرعة العملة وتقسيم الفرق عشوائياً والبطاقات الحمراء والصفراء وتقسيم المصاريف. وقت أقل في حساب النقاط ومتعة أكثر في اللعب.\n\nشروط الاستخدام:\nhttps://jifenqi.com/terms\n\nسياسة الخصوصية:\nhttps://jifenqi.com/privacy\n\nاتفاقية ترخيص المستخدم النهائي القياسية من Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "كل نقطة\nلها قيمة",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "نتيجة المباراة\nبنظرة واحدة",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "لوحة واحدة\nلأكثر من 26 رياضة",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "راجع\nكل مباراة",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "قواعدك أنت\nوطريقتك في اللعب",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "أكثر من\nألعاب الكرة",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "لوحة النتائج\nعلى الشاشة الكبيرة",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "سجّل النقاط\nمن معصمك",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "أدوات الحكم\nفي تطبيق واحد",
+      "enabled": true
+    }
+  ]
+}

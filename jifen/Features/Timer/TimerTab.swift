@@ -156,8 +156,8 @@ struct TimerTab: View {
                         }
                     } label: {
                         VStack(spacing: 10) {
-                            Text(dest.emoji)
-                                .font(.system(size: 40))
+                            // 仅放大图案，保留原有占位，避免改变格子尺寸和标题位置。
+                            AppCatalogIcon(timer: dest, size: 44, artworkSize: 56)
                             Text(dest.title)
                                 .font(.system(size: Theme.fontBody2))
                                 .foregroundColor(Theme.textPrimary)
@@ -167,7 +167,8 @@ struct TimerTab: View {
                             }
                         }
                         .padding(.horizontal, 6)
-                        .padding(.vertical, Theme.cardPadding)
+                        // 图标加高 4pt 后纵向 padding 各收 2pt，卡片总高与网格节奏保持不变
+                        .padding(.vertical, Theme.cardPadding - 2)
                         .frame(maxWidth: .infinity)
                         .frame(minHeight: 92)
                         .background(Theme.appCardBackground)

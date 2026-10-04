@@ -46,12 +46,21 @@ final class BasketballSessionStore {
         ruleSet: BasketballRuleSet = .fiba,
         resumeRepository: ResumeSessionRepository? = nil
     ) {
-        let initial = BasketballMatchEngine.initial(
+        var initial = BasketballMatchEngine.initial(
             leftName: leftName,
             rightName: rightName,
             gameMode: gameMode,
             ruleSet: ruleSet
         )
+        #if DEBUG
+        if MarketingScreenshotFixture.isRequested("basketball") {
+            initial.leftScore = 71
+            initial.rightScore = 68
+            initial.currentPeriod = 4
+            initial.gameTimeSeconds = 580
+            initial.shotTimeSeconds = 4
+        }
+        #endif
         let session = ScoreSession<BasketballMatchState, BasketballMatchEvent>(
             gameType: gameMode == .threeXThree ? .threeBasketball : .basketball,
             ruleFamily: .s2,

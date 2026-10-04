@@ -5,14 +5,17 @@ actor FeedbackAPI {
     private static let appClientHeaders = ["X-App-Client": "ios"]
     private let client: APIClient
     private let tokenStore: AuthTokenStore
+    private let languageProvider: @Sendable () -> String
 
-    init(client: APIClient = .shared, tokenStore: AuthTokenStore = .shared) {
+    init(client: APIClient = .shared, tokenStore: AuthTokenStore = .shared, languageProvider: @escaping @Sendable () -> String = { FeedbackLanguage.current }) {
         self.client = client
         self.tokenStore = tokenStore
+        self.languageProvider = languageProvider
     }
 
-    func list(page: Int = 1, type: FeedbackType? = nil) async throws -> FeedbackPage {
+    func list(page: Int = 1, type: FeedbackType? = nil, language: String? = nil) async throws -> FeedbackPage {
         var query = [URLQueryItem(name: "page", value: String(page)), URLQueryItem(name: "pageSize", value: "20")]
+        query.append(URLQueryItem(name: "language", value: FeedbackLanguage.normalize(language ?? languageProvider())))
         if let type { query.append(URLQueryItem(name: "type", value: type.rawValue)) }
         return try await publicRequest("/api/feedback", query: query)
     }
@@ -25,24 +28,28 @@ actor FeedbackAPI {
         try await publicRequest("/api/feedback/\(feedbackId)/comments")
     }
 
-    func create(type: FeedbackType, title: String, content: String, imageURLs: [String]) async throws -> FeedbackItem {
+    func authSessionRevision() async -> UInt64 { await client.authSessionRevision() }
+
+    func create(type: FeedbackType, title: String, content: String, imageURLs: [String], expectedAuthRevision: UInt64? = nil) async throws -> FeedbackItem {
         struct Body: Encodable, Sendable {
             var type: FeedbackType
             var title: String
             var content: String
             var imageUrls: [String]
             let clientPlatform = "ios"
+            var language: String
         }
         return try await client.request(
             "/api/feedback",
             method: .post,
-            body: Body(type: type, title: title, content: content, imageUrls: imageURLs),
+            body: Body(type: type, title: title, content: content, imageUrls: imageURLs, language: FeedbackLanguage.normalize(languageProvider())),
             requiresAuth: true,
-            headers: Self.appClientHeaders
+            headers: Self.appClientHeaders,
+            expectedAuthRevision: expectedAuthRevision
         )
     }
 
-    func uploadJPEG(_ data: Data) async throws -> String {
+    func uploadJPEG(_ data: Data, expectedAuthRevision: UInt64? = nil) async throws -> String {
         let boundary = "jifen-feedback-\(UUID().uuidString)"
         var body = Data()
         body.appendUTF8("--\(boundary)\r\n")
@@ -54,7 +61,8 @@ actor FeedbackAPI {
             "/api/feedback/upload-image",
             multipartBody: body,
             boundary: boundary,
-            headers: Self.appClientHeaders
+            headers: Self.appClientHeaders,
+            expectedAuthRevision: expectedAuthRevision
         )
         return response.url
     }

@@ -1,0 +1,13 @@
+{
+  "editId": "05800506389833971444",
+  "expiryTimeSeconds": "1791032184",
+  "packageName": "com.bolo.jifen",
+  "createdAt": "2026-10-03T18:56:30.278851+08:00",
+  "committed": true,
+  "validated": true,
+  "committedAt": "2026-10-03T19:05:08.484756+08:00",
+  "changedTitles": {
+    "zh-TW": "全能計分器"
+  },
+  "changesNotSentForReview": false
+}

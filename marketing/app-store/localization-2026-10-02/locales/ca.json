@@ -1,0 +1,58 @@
+{
+  "locale": "ca",
+  "iosLocale": "ca",
+  "language": "Catalan",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Marcador",
+  "subtitle": "Punts, temps i partits",
+  "description": "Cada punt compta. Converteix el teu iPhone o iPad en un marcador clar i fàcil d'utilitzar per a partits, entrenaments i jocs amb amics.\n\nPorta el marcador de més de 26 esports i jocs, com ara tennis, pickleball, bàdminton, tennis de taula, bàsquet, futbol, voleibol i billar. En els esports compatibles, ajusta les regles de puntuació, el format del partit i l'ordre de servei en dobles.\n\nDesa els partits i repassa l'evolució del marcador, la cronologia i les notes de veu. Fes servir rellotges d'escacs i de go, un temporitzador per a cubs i un cronòmetre. Mostra el marcador en una pantalla gran i comparteix un codi de partit perquè els amics el segueixin a distància.\n\nLlançament de moneda, equips aleatoris, targetes vermelles i grogues i repartiment de despeses: tot en un sol lloc. Menys feina comptant, més temps per gaudir del joc.\n\nCondicions d’ús:\nhttps://jifenqi.com/terms\n\nPolítica de privacitat:\nhttps://jifenqi.com/privacy\n\nAcord de llicència estàndard d’Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Cada punt\ncompta",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Tot el marcador\nd’un cop d’ull",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "Un marcador\nper a més de 26 esports",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Repassa\ncada partit",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Les teves regles\nla teva manera de jugar",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Molt més que\njocs de pilota",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "El teu marcador\na la pantalla gran",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Anota punts\ndes del canell",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Eines d’arbitratge\nen una sola app",
+      "enabled": true
+    }
+  ]
+}

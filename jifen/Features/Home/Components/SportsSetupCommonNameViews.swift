@@ -21,10 +21,10 @@ struct CommonNameSelectorDialog: View {
                 if names.isEmpty {
                     VStack(spacing: Theme.sm) {
                         EmptyStateCourtIcon(size: 44)
-                        Text(NSLocalizedString("common_names_empty", value: "暂无常用名称", comment: ""))
+                        Text(NSLocalizedString("common_names_empty", value: "暂无已保存名称", comment: ""))
                             .font(.system(size: 16))
                             .foregroundColor(Theme.textSecondary)
-                        Text(NSLocalizedString("common_names_empty_hint", value: "在「设置」-「数据」-「常用名称管理」中添加队伍或选手名称，下次即可在此快速选择。", comment: "Hint when no common names"))
+                        Text(NSLocalizedString("common_names_empty_hint", value: "在「设置」-「数据」-「已保存名称管理」中添加队伍或选手名称，下次即可在此快速选择。", comment: "Hint when no common names"))
                             .font(.system(size: 14))
                             .foregroundColor(Theme.textSecondary.opacity(0.9))
                             .multilineTextAlignment(.center)
@@ -52,7 +52,7 @@ struct CommonNameSelectorDialog: View {
                 }
             }
             .background(Theme.dialogSurfaceBackground)
-            .navigationTitle(NSLocalizedString("common_names_title", value: "常用名称", comment: ""))
+            .navigationTitle(NSLocalizedString("common_names_title", value: "已保存名称", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

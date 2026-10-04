@@ -1986,13 +1986,17 @@ struct OfficialBreakOverlay: View {
                 Text(titleLines[0])
                     .font(.system(size: 18, weight: .medium))
                     .foregroundColor(.white)
-                    .lineLimit(1)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity)
                     .multilineTextAlignment(.center)
                 if titleLines.count > 1 {
                     Text(titleLines.dropFirst().joined(separator: " · "))
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.white)
                         .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity)
                         .multilineTextAlignment(.center)
                 }
             }
@@ -2039,10 +2043,12 @@ struct OfficialBreakOverlay: View {
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 14)
+        .frame(maxWidth: 360)
         .background(
             Color(red: 0x0C / 255, green: 0x0C / 255, blue: 0x0E / 255).opacity(0.8),
             in: RoundedRectangle(cornerRadius: 32, style: .continuous)
         )
+        .padding(.horizontal, 16)
     }
 
     private func completeOnce(_ action: OfficialBreakAfterAction) {

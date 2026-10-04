@@ -5,7 +5,7 @@ import UIKit
 private enum AppSupportURLs {
     static let website = URL(string: "https://jifenqi.com?utm_source=ios_app&utm_medium=me_tab&utm_campaign=official_website&utm_content=website_entry")!
     static let download = URL(string: "https://jifenqi.com/download?utm_source=ios_app&utm_medium=share&utm_campaign=share_app")!
-    static let appStore = URL(string: "https://apps.apple.com/us/app/%E5%85%A8%E8%83%BD%E8%AE%A1%E5%88%86%E5%99%A8/id6759768784")!
+    static let appStore = URL(string: "https://apps.apple.com/us/app/iscoreboard-score-and-timer/id6759768784")!
     static let support = URL(string: "https://jifenqi.com/contact")!
     static let wechatGroup = URL(string: "https://jifenqi.com/contact?utm_source=jifenqi_app&utm_medium=app_link&utm_campaign=official_wechat_group&utm_content=about_page")!
     static let qqGroupNumber = "825096333"
@@ -838,7 +838,9 @@ private struct ScoreboardToggleSettingRow: View {
                     title: help.title,
                     message: help.message,
                     accessibilityIdentifier: "\(toggleAccessibilityIdentifier)_help",
-                    showsDetailSheet: help == .officialBreak || help == .doubleTapSubtract
+                    showsDetailSheet: help == .officialBreak || help == .doubleTapSubtract,
+                    detailSheetContent: help == .officialBreak ? AnyView(OfficialBreakHelpContent()) : nil,
+                    detailSheetDetents: help == .officialBreak ? [.large] : [.medium, .large]
                 )
             }
             Spacer()
@@ -851,6 +853,69 @@ private struct ScoreboardToggleSettingRow: View {
         // 对齐安卓 ScoreboardSettingsSwitchRow：整行可点击切换开关。
         .contentShape(Rectangle())
         .onTapGesture { isOn.toggle() }
+    }
+}
+
+/// 每个运动独立展示；相同规则只复用说明文案，不合并运动条目。
+private struct OfficialBreakHelpContent: View {
+    private let gameTypes: [GameType] = [
+        .pingpong, .badminton, .squash, .shuttlecock,
+        .tennis, .softTennis, .padel, .pickleball
+    ]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(NSLocalizedString(
+                "scoreboard_official_break_help_intro",
+                value: "开启后，以下项目会按规则自动显示官方休息倒计时：",
+                comment: ""
+            ))
+            .font(.body)
+            .foregroundStyle(Theme.textSecondary)
+            .fixedSize(horizontal: false, vertical: true)
+
+            VStack(spacing: 8) {
+                ForEach(gameTypes, id: \.self) { gameType in
+                    HStack(spacing: 12) {
+                        AppCatalogIcon(gameType: gameType, size: 32, artworkSize: 40)
+                            .frame(width: 40, height: 40)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(gameType.displayName)
+                                .font(.headline)
+                                .foregroundStyle(Theme.textPrimary)
+                            Text(ruleDescription(for: gameType))
+                                .font(.subheadline)
+                                .foregroundStyle(Theme.textSecondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .background(Theme.backgroundColor, in: RoundedRectangle(cornerRadius: 12))
+                    .accessibilityIdentifier("official_break_help_\(gameType.canonicalScoreboardIdentifier)")
+                }
+            }
+        }
+    }
+
+    private func ruleDescription(for gameType: GameType) -> String {
+        switch gameType {
+        case .pingpong, .shuttlecock:
+            return NSLocalizedString("scoreboard_official_break_rule_between_games_60", value: "局间60秒", comment: "")
+        case .badminton:
+            return NSLocalizedString("scoreboard_official_break_rule_badminton", value: "局中60秒、局间120秒", comment: "")
+        case .squash:
+            return NSLocalizedString("scoreboard_official_break_rule_squash", value: "局间90秒", comment: "")
+        case .tennis, .padel:
+            return NSLocalizedString("scoreboard_official_break_rule_tennis", value: "换边90秒、盘间120秒", comment: "")
+        case .softTennis:
+            return NSLocalizedString("scoreboard_official_break_rule_soft_tennis", value: "换边60秒", comment: "")
+        case .pickleball:
+            return NSLocalizedString("scoreboard_official_break_rule_pickleball", value: "决胜局局中60秒、局间120秒", comment: "")
+        default:
+            return ""
+        }
     }
 }
 

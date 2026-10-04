@@ -1,0 +1,565 @@
+{
+  "date": "2026-10-03",
+  "platform": "Google Play",
+  "scope": "Independent Google Play metadata and editable screenshot text audit; iOS source/design untouched.",
+  "reviewedLocales": 48,
+  "uploadEligibleLocales": 47,
+  "reviewedScreenshots": 336,
+  "correctionRecords": 25,
+  "changedDescriptionLocales": [
+    "da-DK",
+    "th",
+    "fr-FR",
+    "fr-CA"
+  ],
+  "changedScreenshotCount": 15,
+  "unchangedScreenshotCount": 321,
+  "changedScreenshots": [
+    "exports/hi-IN/01.png",
+    "exports/hi-IN/06.png",
+    "exports/id/06.png",
+    "exports/vi/01.png",
+    "exports/bn-BD/06.png",
+    "exports/gu/06.png",
+    "exports/hu-HU/06.png",
+    "exports/kn-IN/06.png",
+    "exports/mr-IN/01.png",
+    "exports/mr-IN/06.png",
+    "exports/unsupported-or-IN/06.png",
+    "exports/pa/01.png",
+    "exports/pa/06.png",
+    "exports/sk/01.png",
+    "exports/te-IN/06.png"
+  ],
+  "nativeMeasuredHeadlineCount": 336,
+  "unexpectedExtraWraps": [],
+  "textClipping": [],
+  "missingGlyphs": [],
+  "metadataLiteralEscapedNewlines": [],
+  "policyLinks": [
+    {
+      "url": "https://jifenqi.com/terms",
+      "httpStatus": 200
+    },
+    {
+      "url": "https://jifenqi.com/privacy",
+      "httpStatus": 200
+    }
+  ],
+  "terminologySources": [
+    {
+      "term": "Thai pickleball",
+      "url": "https://activities.decathlon.co.th/th-TH/sport-activities/details/659535"
+    },
+    {
+      "term": "Danish puzzle cube",
+      "url": "https://danskspeedcubingforening.dk/"
+    },
+    {
+      "term": "Hungarian multiplayer",
+      "url": "https://developer.microsoft.com/hu-HU/games/partner"
+    }
+  ],
+  "limitations": [
+    "Single-assistant language review; not a separate native-speaker editorial certification.",
+    "Pre-existing raster application UI text and non-basketball demo names remain English; only the authorized editable marketing and name layers are localized.",
+    "Oriya remains a local draft because it is not upload eligible.",
+    "Temporary API edit is not committed and expires; local source and exports remain saved."
+  ],
+  "locales": [
+    {
+      "locale": "en-US",
+      "sourceLocale": "en-US",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "ja-JP",
+      "sourceLocale": "ja",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "ko-KR",
+      "sourceLocale": "ko",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "de-DE",
+      "sourceLocale": "de-DE",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "fr-FR",
+      "sourceLocale": "fr-FR",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "es-ES",
+      "sourceLocale": "es-ES",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "pt-BR",
+      "sourceLocale": "pt-BR",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "it-IT",
+      "sourceLocale": "it",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "ru-RU",
+      "sourceLocale": "ru",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "ar",
+      "sourceLocale": "ar-SA",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "hi-IN",
+      "sourceLocale": "hi",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "nl-NL",
+      "sourceLocale": "nl-NL",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "tr-TR",
+      "sourceLocale": "tr",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "id",
+      "sourceLocale": "id",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "vi",
+      "sourceLocale": "vi",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "th",
+      "sourceLocale": "th",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "bn-BD",
+      "sourceLocale": "bn-BD",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "ca",
+      "sourceLocale": "ca",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "cs-CZ",
+      "sourceLocale": "cs",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "da-DK",
+      "sourceLocale": "da",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "el-GR",
+      "sourceLocale": "el",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "en-AU",
+      "sourceLocale": "en-AU",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "en-CA",
+      "sourceLocale": "en-CA",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "en-GB",
+      "sourceLocale": "en-GB",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "es-419",
+      "sourceLocale": "es-MX",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "fi-FI",
+      "sourceLocale": "fi",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "fr-CA",
+      "sourceLocale": "fr-CA",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "gu",
+      "sourceLocale": "gu-IN",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "iw-IL",
+      "sourceLocale": "he",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "hr",
+      "sourceLocale": "hr",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "hu-HU",
+      "sourceLocale": "hu",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "kn-IN",
+      "sourceLocale": "kn-IN",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "ml-IN",
+      "sourceLocale": "ml-IN",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "mr-IN",
+      "sourceLocale": "mr-IN",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "ms-MY",
+      "sourceLocale": "ms",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "no-NO",
+      "sourceLocale": "no",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "unsupported-or-IN",
+      "sourceLocale": "or-IN",
+      "uploadEligible": false,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "pa",
+      "sourceLocale": "pa-IN",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "pl-PL",
+      "sourceLocale": "pl",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "pt-PT",
+      "sourceLocale": "pt-PT",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "ro",
+      "sourceLocale": "ro",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "sk",
+      "sourceLocale": "sk",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "sl",
+      "sourceLocale": "sl-SI",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "sv-SE",
+      "sourceLocale": "sv",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "ta-IN",
+      "sourceLocale": "ta-IN",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "te-IN",
+      "sourceLocale": "te-IN",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "uk",
+      "sourceLocale": "uk",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    },
+    {
+      "locale": "ur",
+      "sourceLocale": "ur-PK",
+      "uploadEligible": true,
+      "metadataLengthAndLineBreakChecks": "passed",
+      "nameDescriptionAndTerminologyReview": "completed",
+      "screenshotCaptionReviewCount": 7,
+      "nativeMeasuredHeadlines": 7,
+      "glyphCoverageAndExportValidation": "passed"
+    }
+  ],
+  "nativeCanvasClippingProblems": [],
+  "roundingTolerance": "Up to one pixel per line for native line-height rounding; no extra lines.",
+  "apiSynchronization": {
+    "verifiedAt": "2026-10-03T01:07:59.417293+08:00",
+    "localeCount": 47,
+    "screenshotCount": 329,
+    "changedImages": 14,
+    "changedListings": 4,
+    "reuploadedImagesForOrder": 47,
+    "hashesOrderAndListingReadbackMatch": true,
+    "validatedByGooglePlay": true,
+    "committed": false,
+    "expiresAt": "2026-10-03T02:03:15+08:00"
+  }
+}

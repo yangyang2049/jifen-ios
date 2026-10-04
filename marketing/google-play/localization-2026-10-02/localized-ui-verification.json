@@ -1,0 +1,690 @@
+{
+  "localeCount": 48,
+  "updatedImageCount": 96,
+  "unchangedImageCount": 247,
+  "dimensions": [
+    1080,
+    1920
+  ],
+  "mode": "RGB",
+  "nativeUnicodeNames": true,
+  "englishTrendFallback": [],
+  "changedPixelsOutsideUIRegions": [],
+  "assets": [
+    {
+      "locale": "en-US",
+      "card": 4,
+      "file": "exports/en-US/04.png",
+      "sha256": "148085fa3196bf57cde6b9f490d854ac0f4598dc3ec8763969bc619354853fe9",
+      "bytes": 142971
+    },
+    {
+      "locale": "en-US",
+      "card": 5,
+      "file": "exports/en-US/05.png",
+      "sha256": "bdebffc629d44a38347029283bb86af4182e42659a15372296c67cc2e1963d11",
+      "bytes": 176077
+    },
+    {
+      "locale": "ja-JP",
+      "card": 4,
+      "file": "exports/ja-JP/04.png",
+      "sha256": "636e9ae17255f74b4ef567a40c3b8969c5260a44d83afcba199a4e9652ee6ab4",
+      "bytes": 169871
+    },
+    {
+      "locale": "ja-JP",
+      "card": 5,
+      "file": "exports/ja-JP/05.png",
+      "sha256": "7f8bf8c66aa3e5470098e762dbea307451e8ea71526fcb4b01ab65bdbb2b0734",
+      "bytes": 195640
+    },
+    {
+      "locale": "ko-KR",
+      "card": 4,
+      "file": "exports/ko-KR/04.png",
+      "sha256": "be998887fc28e7dc24b43e46b39cc51d5dbf8eb577f7ed80b8f7799769eceb57",
+      "bytes": 119797
+    },
+    {
+      "locale": "ko-KR",
+      "card": 5,
+      "file": "exports/ko-KR/05.png",
+      "sha256": "ef3fd4fe029e87266664300c2050437f6b337168ef34f3a5e0decbcf3c4abe5c",
+      "bytes": 142354
+    },
+    {
+      "locale": "de-DE",
+      "card": 4,
+      "file": "exports/de-DE/04.png",
+      "sha256": "a1428461b9843510d066e06f3019d6af5e196c366526f422cda8fffd3c26720d",
+      "bytes": 146107
+    },
+    {
+      "locale": "de-DE",
+      "card": 5,
+      "file": "exports/de-DE/05.png",
+      "sha256": "5b57afb87d7208619809557b9fb22b4f3e7b94fdb0b359b6e320981cf03021f1",
+      "bytes": 170071
+    },
+    {
+      "locale": "fr-FR",
+      "card": 4,
+      "file": "exports/fr-FR/04.png",
+      "sha256": "e6bf5ad72463f229aba3a08c4857b31d9fd42c69c5c3ecc33ce71d943941c9b1",
+      "bytes": 157661
+    },
+    {
+      "locale": "fr-FR",
+      "card": 5,
+      "file": "exports/fr-FR/05.png",
+      "sha256": "49ec11fcc175c657d48915cd0c2184af39a3e9568b8dd43f93e3d336d01e0ba5",
+      "bytes": 183041
+    },
+    {
+      "locale": "es-ES",
+      "card": 4,
+      "file": "exports/es-ES/04.png",
+      "sha256": "f3c4bce8dca735b4f7157a6144fb18d4a708a768ec53c4fc02459396081c9fb6",
+      "bytes": 163866
+    },
+    {
+      "locale": "es-ES",
+      "card": 5,
+      "file": "exports/es-ES/05.png",
+      "sha256": "f4e0355e0a98e265c8b884bebc5c22828fd17bd9c0e4db622e8e7ef1b6877f73",
+      "bytes": 189562
+    },
+    {
+      "locale": "pt-BR",
+      "card": 4,
+      "file": "exports/pt-BR/04.png",
+      "sha256": "0c3e0a7fbb061457f699a3919bb21381f8cef2629305473dd718b721770fe3fe",
+      "bytes": 161837
+    },
+    {
+      "locale": "pt-BR",
+      "card": 5,
+      "file": "exports/pt-BR/05.png",
+      "sha256": "a2a84ac3c45c2a92fc8cb4e3f6a3f027d1ec1e5ff60e5ca13579181e4622d32c",
+      "bytes": 187603
+    },
+    {
+      "locale": "it-IT",
+      "card": 4,
+      "file": "exports/it-IT/04.png",
+      "sha256": "0e05deb99cf762ec8d159d6c9d029e1a35f3decbc704643ac3ec137e8a135dbe",
+      "bytes": 152911
+    },
+    {
+      "locale": "it-IT",
+      "card": 5,
+      "file": "exports/it-IT/05.png",
+      "sha256": "ea108d04450e99627ef7b2c1e300cdbacbaffac721444231f2e39507faef663d",
+      "bytes": 184344
+    },
+    {
+      "locale": "ru-RU",
+      "card": 4,
+      "file": "exports/ru-RU/04.png",
+      "sha256": "56b54a9eed0477bfaccaf24dec77704aa11a0b0ae025218236dbcbe028386f58",
+      "bytes": 176359
+    },
+    {
+      "locale": "ru-RU",
+      "card": 5,
+      "file": "exports/ru-RU/05.png",
+      "sha256": "34dfcad588edb9a62ce271c7125ba0b637b17cb1b9d0f88c63fc4ab0c40c0166",
+      "bytes": 188573
+    },
+    {
+      "locale": "ar",
+      "card": 4,
+      "file": "exports/ar/04.png",
+      "sha256": "a5ca7a30c374b3869f7bb69487b69fef1bc0eaedc27a10e1039b2a8d848f4146",
+      "bytes": 132322
+    },
+    {
+      "locale": "ar",
+      "card": 5,
+      "file": "exports/ar/05.png",
+      "sha256": "4e5ad46cb4e39850a0363bd10d8365fddde772dc76082c4c32e67451f7055eae",
+      "bytes": 165350
+    },
+    {
+      "locale": "hi-IN",
+      "card": 4,
+      "file": "exports/hi-IN/04.png",
+      "sha256": "16e77bb88c287682117e6cd5c11f4c57d16aeb823bca6b3bcd4b36670e030c06",
+      "bytes": 139074
+    },
+    {
+      "locale": "hi-IN",
+      "card": 5,
+      "file": "exports/hi-IN/05.png",
+      "sha256": "19f8182859632e701d2ddbd2e66c0a90f281608e7fed8fe5a52595dd23cf5bbf",
+      "bytes": 153613
+    },
+    {
+      "locale": "nl-NL",
+      "card": 4,
+      "file": "exports/nl-NL/04.png",
+      "sha256": "5778118545934917e0260435d66c6024689437dfa00fd151027ac62679ac89a2",
+      "bytes": 151180
+    },
+    {
+      "locale": "nl-NL",
+      "card": 5,
+      "file": "exports/nl-NL/05.png",
+      "sha256": "8c197a64fa23baa07145d7335e46a8f24b5ddb49adef98078142321f5c3fff70",
+      "bytes": 177786
+    },
+    {
+      "locale": "tr-TR",
+      "card": 4,
+      "file": "exports/tr-TR/04.png",
+      "sha256": "c7ec04810e23526cbada89aeacfb564de68109fa2cccff79b77cc32ce948db68",
+      "bytes": 155491
+    },
+    {
+      "locale": "tr-TR",
+      "card": 5,
+      "file": "exports/tr-TR/05.png",
+      "sha256": "ccd487dbc4a3cb7c0d9c7e9950ca5f3100b9713b2288f1762d67b6c48db7a525",
+      "bytes": 167816
+    },
+    {
+      "locale": "id",
+      "card": 4,
+      "file": "exports/id/04.png",
+      "sha256": "0b19e94796b1c3d8d514d3054dd4be6ef37f7d819d59413e6c39ff289a2a67a1",
+      "bytes": 158930
+    },
+    {
+      "locale": "id",
+      "card": 5,
+      "file": "exports/id/05.png",
+      "sha256": "4cb24d49761ee5031b3fdd954f3a34e2e88f38dede063ca160f8befeb55157f1",
+      "bytes": 180925
+    },
+    {
+      "locale": "vi",
+      "card": 4,
+      "file": "exports/vi/04.png",
+      "sha256": "bcf556427cd86487323dbcb1a367fef00e4c9093df486ef0144a2eb01006cbe8",
+      "bytes": 152411
+    },
+    {
+      "locale": "vi",
+      "card": 5,
+      "file": "exports/vi/05.png",
+      "sha256": "d7bd642c411cf8532a8e2c67d18c2fc310eabdeb11577eeceaf655d3c8b098cf",
+      "bytes": 179501
+    },
+    {
+      "locale": "th",
+      "card": 4,
+      "file": "exports/th/04.png",
+      "sha256": "902dac11222acde881f561d91be65b9ed66e86ab9899b1d26a20d2084a58dab5",
+      "bytes": 145546
+    },
+    {
+      "locale": "th",
+      "card": 5,
+      "file": "exports/th/05.png",
+      "sha256": "a90fb453494e2fff588637d68c30df8d905c50352dd3251b5c4cef8aad725533",
+      "bytes": 168448
+    },
+    {
+      "locale": "bn-BD",
+      "card": 4,
+      "file": "exports/bn-BD/04.png",
+      "sha256": "21b2d581584921b20f5f71ebcfdfd530d4799cf2413d5afcbda39c0188efdd2d",
+      "bytes": 161390
+    },
+    {
+      "locale": "bn-BD",
+      "card": 5,
+      "file": "exports/bn-BD/05.png",
+      "sha256": "d9ee1fd50f436f2bb7c6a94960cc238fc9df126f7c7c6386d9988efaa0a24090",
+      "bytes": 173474
+    },
+    {
+      "locale": "ca",
+      "card": 4,
+      "file": "exports/ca/04.png",
+      "sha256": "7cb8302a3ce29be1bdb7e930207895b52b7207d5f80ca541dc25604f6ea45009",
+      "bytes": 158564
+    },
+    {
+      "locale": "ca",
+      "card": 5,
+      "file": "exports/ca/05.png",
+      "sha256": "8054ab3aef7e55c48bbdd5dc3b21f9fb1a1c7b51ea5286e0bdaeb195f6d571b7",
+      "bytes": 180741
+    },
+    {
+      "locale": "cs-CZ",
+      "card": 4,
+      "file": "exports/cs-CZ/04.png",
+      "sha256": "dce944cc2c9cd89c203b61753cefcaf22010da86db7d302ac378ec8b636911f4",
+      "bytes": 168500
+    },
+    {
+      "locale": "cs-CZ",
+      "card": 5,
+      "file": "exports/cs-CZ/05.png",
+      "sha256": "5ae3004bceac43ddc0a5179f96052f48168c38b9d0e7429deea0b37b56fabb87",
+      "bytes": 173447
+    },
+    {
+      "locale": "da-DK",
+      "card": 4,
+      "file": "exports/da-DK/04.png",
+      "sha256": "5bff699b17b0e795da92c261298673832c727d2acaaf4bbb7e0f220ebc54c1f7",
+      "bytes": 148932
+    },
+    {
+      "locale": "da-DK",
+      "card": 5,
+      "file": "exports/da-DK/05.png",
+      "sha256": "0794b968ca046e62460d7d1cf9e78f2ba118ae9aaae73f7dc44c1cd30db63103",
+      "bytes": 168878
+    },
+    {
+      "locale": "el-GR",
+      "card": 4,
+      "file": "exports/el-GR/04.png",
+      "sha256": "5295149c759d2caf7e4daf745f4b5a0194f7d131d3a9dba71a54cebfb9a56072",
+      "bytes": 174237
+    },
+    {
+      "locale": "el-GR",
+      "card": 5,
+      "file": "exports/el-GR/05.png",
+      "sha256": "127e09ab3761bfae53feffa7040cea88b45c550898d43ca259a81f97a1c760b8",
+      "bytes": 195406
+    },
+    {
+      "locale": "en-AU",
+      "card": 4,
+      "file": "exports/en-AU/04.png",
+      "sha256": "a1ab80c06de43077e728c9e569468c983416508f9365d0ccf77bf8fdb7f74141",
+      "bytes": 144936
+    },
+    {
+      "locale": "en-AU",
+      "card": 5,
+      "file": "exports/en-AU/05.png",
+      "sha256": "e34c2dacda2fb65c5e277be40c706166dc36e54648bb90be8a6326ab4ae1e9af",
+      "bytes": 177420
+    },
+    {
+      "locale": "en-CA",
+      "card": 4,
+      "file": "exports/en-CA/04.png",
+      "sha256": "2b634be45680d413df0b96e90f070c3d63d3e935d9a56eaf0b26e9f7335f33d6",
+      "bytes": 144868
+    },
+    {
+      "locale": "en-CA",
+      "card": 5,
+      "file": "exports/en-CA/05.png",
+      "sha256": "acfd75673d0d1ac9f81588ac3b6baaf74ccc40f343ac157d13768c3d112ec64e",
+      "bytes": 177361
+    },
+    {
+      "locale": "en-GB",
+      "card": 4,
+      "file": "exports/en-GB/04.png",
+      "sha256": "a21a8c9d2ab843cc1a12725957875de43e00a5075043ffafef06a4425e3a5923",
+      "bytes": 145161
+    },
+    {
+      "locale": "en-GB",
+      "card": 5,
+      "file": "exports/en-GB/05.png",
+      "sha256": "fc9f9fc6d0f2921dcd2c0c0886e638be0e1f6c953db76063d3f5fdc9e530b0f1",
+      "bytes": 177251
+    },
+    {
+      "locale": "es-419",
+      "card": 4,
+      "file": "exports/es-419/04.png",
+      "sha256": "1ed81961d7267c41a93d840211e61d3ee5fa18050de544ca5c31a4f1cce12e7f",
+      "bytes": 161471
+    },
+    {
+      "locale": "es-419",
+      "card": 5,
+      "file": "exports/es-419/05.png",
+      "sha256": "e6fd149e7687f8c387743e43517012c9a592a3a85c7788949d375efc1ad4b856",
+      "bytes": 187748
+    },
+    {
+      "locale": "fi-FI",
+      "card": 4,
+      "file": "exports/fi-FI/04.png",
+      "sha256": "88c115ed6148aa5d9e0eab8cefe2456d1db9681edb4bb5eb68bf93d43373b43a",
+      "bytes": 159027
+    },
+    {
+      "locale": "fi-FI",
+      "card": 5,
+      "file": "exports/fi-FI/05.png",
+      "sha256": "b1538fd3613754f26f0d4d0574a2ed85c1424a99c56497cecfc3b272fba6c59c",
+      "bytes": 189461
+    },
+    {
+      "locale": "fr-CA",
+      "card": 4,
+      "file": "exports/fr-CA/04.png",
+      "sha256": "13cdc8751ce70dfa42c94621ca62aadfc10240e51c12a8c8f0112099e296630b",
+      "bytes": 157484
+    },
+    {
+      "locale": "fr-CA",
+      "card": 5,
+      "file": "exports/fr-CA/05.png",
+      "sha256": "7cb31df3ec9facba34ee191d2605c2273baa7350cd8a695395849bd496fe9dc1",
+      "bytes": 182861
+    },
+    {
+      "locale": "gu",
+      "card": 4,
+      "file": "exports/gu/04.png",
+      "sha256": "251cb57a47e955abd5720f026ced0c0a2a9f807fd1e7e4051802ce57245f9847",
+      "bytes": 146566
+    },
+    {
+      "locale": "gu",
+      "card": 5,
+      "file": "exports/gu/05.png",
+      "sha256": "44d66dac7bbab8422b2e59dac9f02941eff77829c5fa3be296b3f623134f47e7",
+      "bytes": 160708
+    },
+    {
+      "locale": "iw-IL",
+      "card": 4,
+      "file": "exports/iw-IL/04.png",
+      "sha256": "5e0dea15b334a5f598462c29abec4b633b811db517440c481244bc2cec2ebf29",
+      "bytes": 122092
+    },
+    {
+      "locale": "iw-IL",
+      "card": 5,
+      "file": "exports/iw-IL/05.png",
+      "sha256": "a5ac5d20d31acbfef9c085daff1336371299fdb08b13340bf44ae4ae4f0e9aa6",
+      "bytes": 146844
+    },
+    {
+      "locale": "hr",
+      "card": 4,
+      "file": "exports/hr/04.png",
+      "sha256": "3b4b2264e775034255fa5d447bac348bea705f928dacb12469414e7b005824c6",
+      "bytes": 162277
+    },
+    {
+      "locale": "hr",
+      "card": 5,
+      "file": "exports/hr/05.png",
+      "sha256": "bfe6fa0ea074ecfc6bad3518e411097f7d511fe078bb97cc78d5b2e693f7b914",
+      "bytes": 183301
+    },
+    {
+      "locale": "hu-HU",
+      "card": 4,
+      "file": "exports/hu-HU/04.png",
+      "sha256": "36e7253d8f13661b2c1f206146911af3a4dbc766fa46fb10936f694f9ba7ff04",
+      "bytes": 166724
+    },
+    {
+      "locale": "hu-HU",
+      "card": 5,
+      "file": "exports/hu-HU/05.png",
+      "sha256": "07b3e41a87ddb4023d8173c922cf8bb7e33acb7622841fe6a21e777ed85e40cc",
+      "bytes": 184384
+    },
+    {
+      "locale": "kn-IN",
+      "card": 4,
+      "file": "exports/kn-IN/04.png",
+      "sha256": "fa0f5e2081854aedaa4763570699df4c0f76618be16c74900026dade0ef34596",
+      "bytes": 203762
+    },
+    {
+      "locale": "kn-IN",
+      "card": 5,
+      "file": "exports/kn-IN/05.png",
+      "sha256": "0eff2465f36c946d4e9d49af82f48e1010f36b9aaf6c875b7b77b8a5f911537a",
+      "bytes": 212185
+    },
+    {
+      "locale": "ml-IN",
+      "card": 4,
+      "file": "exports/ml-IN/04.png",
+      "sha256": "3221ecd71818e266d38b37a687cf1c0c3b940b2a18347527e4d5c254e218debe",
+      "bytes": 217526
+    },
+    {
+      "locale": "ml-IN",
+      "card": 5,
+      "file": "exports/ml-IN/05.png",
+      "sha256": "60f40933f7d6b24d3925b5059b30f530e1a39ab4b4a517aba25de6f6217bb8ed",
+      "bytes": 243397
+    },
+    {
+      "locale": "mr-IN",
+      "card": 4,
+      "file": "exports/mr-IN/04.png",
+      "sha256": "7d8bd2c270efb884a31caaa714733786ce02e4f027844b8c7e28c442a8b9edb5",
+      "bytes": 144967
+    },
+    {
+      "locale": "mr-IN",
+      "card": 5,
+      "file": "exports/mr-IN/05.png",
+      "sha256": "ca87c5bc913ebddcecd7b708e14e499b04f0c65fc4eab3f9bdea24dda12a998b",
+      "bytes": 160502
+    },
+    {
+      "locale": "ms-MY",
+      "card": 4,
+      "file": "exports/ms-MY/04.png",
+      "sha256": "4998018dbb67b98f31368d1c51c2c3c52b49d58c014bd6fd814a6eba5a06e333",
+      "bytes": 158161
+    },
+    {
+      "locale": "ms-MY",
+      "card": 5,
+      "file": "exports/ms-MY/05.png",
+      "sha256": "6682e43da043e154094ee1cb9345f2f47b0a43202a7dded62c6d6db7ceda94e5",
+      "bytes": 185064
+    },
+    {
+      "locale": "no-NO",
+      "card": 4,
+      "file": "exports/no-NO/04.png",
+      "sha256": "f5d9ba52f5f930fba5270193bb1c6599c0632372529dd9bafccf4e687da57b30",
+      "bytes": 145751
+    },
+    {
+      "locale": "no-NO",
+      "card": 5,
+      "file": "exports/no-NO/05.png",
+      "sha256": "6672673509008e540593bd7d3a51b6a17e8cfa51f882c00a8c1688a9a3b492f5",
+      "bytes": 169295
+    },
+    {
+      "locale": "pa",
+      "card": 4,
+      "file": "exports/pa/04.png",
+      "sha256": "1ea467ce411cb5b39cf16e34cadf1608660696feaed8b6d026b359bb9cac65a5",
+      "bytes": 140034
+    },
+    {
+      "locale": "pa",
+      "card": 5,
+      "file": "exports/pa/05.png",
+      "sha256": "c15e21473c0cd03a659a46e45145181b4710559abe7c0cd0701b161b1b0cc8a0",
+      "bytes": 160146
+    },
+    {
+      "locale": "pl-PL",
+      "card": 4,
+      "file": "exports/pl-PL/04.png",
+      "sha256": "fff9153c004c4139106756cd7e8ce769e6e7fb5126cfae3059755316ed083b1f",
+      "bytes": 164826
+    },
+    {
+      "locale": "pl-PL",
+      "card": 5,
+      "file": "exports/pl-PL/05.png",
+      "sha256": "ce56571af2e5b77a0f4344ea11151b22f392fa6cda6f33d8e15cb9cbcd2d821b",
+      "bytes": 189306
+    },
+    {
+      "locale": "pt-PT",
+      "card": 4,
+      "file": "exports/pt-PT/04.png",
+      "sha256": "68f46cbce47c2a6ffe7f34d034ddf3b84a5310217c0d8ccff1101f29a0c973cb",
+      "bytes": 161809
+    },
+    {
+      "locale": "pt-PT",
+      "card": 5,
+      "file": "exports/pt-PT/05.png",
+      "sha256": "b43ba37e4b4731152443526738006efeffbe4b955244cd7574e3df7cb91c609b",
+      "bytes": 193796
+    },
+    {
+      "locale": "ro",
+      "card": 4,
+      "file": "exports/ro/04.png",
+      "sha256": "cc3aa417ea0e311b28f4c26466cade71c4b9a8d63dcd99616fd0fb7d1e86117d",
+      "bytes": 156481
+    },
+    {
+      "locale": "ro",
+      "card": 5,
+      "file": "exports/ro/05.png",
+      "sha256": "d3991de08f7b41b691af7f47758a8f606dba01fb0ae1cc2581990f0db505151c",
+      "bytes": 171474
+    },
+    {
+      "locale": "sk",
+      "card": 4,
+      "file": "exports/sk/04.png",
+      "sha256": "bccfb06e221a9b1fde7a4abd47bae2f189feb533739d31f3ae1cc253c204cf64",
+      "bytes": 168607
+    },
+    {
+      "locale": "sk",
+      "card": 5,
+      "file": "exports/sk/05.png",
+      "sha256": "7739412d8c8a8dcf8bf7f1f0198486fb4b07fe50d73414412630647804b9221a",
+      "bytes": 176562
+    },
+    {
+      "locale": "sl",
+      "card": 4,
+      "file": "exports/sl/04.png",
+      "sha256": "38f40bd141c6fc45b5bc0622c0454d6e12351fdcc57a63cfe5ac1e3391d2a3e0",
+      "bytes": 160785
+    },
+    {
+      "locale": "sl",
+      "card": 5,
+      "file": "exports/sl/05.png",
+      "sha256": "f994e991dcd077439bd973a010058b7372c8e751cc2602c7b309df247ba100c4",
+      "bytes": 169704
+    },
+    {
+      "locale": "sv-SE",
+      "card": 4,
+      "file": "exports/sv-SE/04.png",
+      "sha256": "0b90b4bffc62012f2ff23ee73b0fdebc6d3eedbe7f04f631e60835ab77952a1a",
+      "bytes": 150201
+    },
+    {
+      "locale": "sv-SE",
+      "card": 5,
+      "file": "exports/sv-SE/05.png",
+      "sha256": "e8c9431b380ca7fbd3f182c2169c522397b19cba34268095679939aa16ca2039",
+      "bytes": 166548
+    },
+    {
+      "locale": "ta-IN",
+      "card": 4,
+      "file": "exports/ta-IN/04.png",
+      "sha256": "fc28de6ed2051c78fca4c77b4ed4e4db11a13978589d05ed59b598b5a9382625",
+      "bytes": 197321
+    },
+    {
+      "locale": "ta-IN",
+      "card": 5,
+      "file": "exports/ta-IN/05.png",
+      "sha256": "2f1cb41c559ca4bce7c56f41ae876e315ccda88e776b1c86c844980b0b972be9",
+      "bytes": 229323
+    },
+    {
+      "locale": "te-IN",
+      "card": 4,
+      "file": "exports/te-IN/04.png",
+      "sha256": "990d9aa85236770ae5c7611f2bf098860fd96b594260f8eb6d078e5408ab8e27",
+      "bytes": 195027
+    },
+    {
+      "locale": "te-IN",
+      "card": 5,
+      "file": "exports/te-IN/05.png",
+      "sha256": "1505b17bf49210e0eed8916eacd8290834ea92136741625498ab81934f2ce45e",
+      "bytes": 195858
+    },
+    {
+      "locale": "uk",
+      "card": 4,
+      "file": "exports/uk/04.png",
+      "sha256": "6eaccb750b019c7ba340441cb32faca0425ae70acba1535da4a72c214bbee132",
+      "bytes": 165721
+    },
+    {
+      "locale": "uk",
+      "card": 5,
+      "file": "exports/uk/05.png",
+      "sha256": "e39dfa3ad9f5c00e27df16915f5ed98478b17ae0cdf54a9db3909790c178007b",
+      "bytes": 187367
+    },
+    {
+      "locale": "ur",
+      "card": 4,
+      "file": "exports/ur/04.png",
+      "sha256": "5e17040711bcfe5c9fa393efb3c288e78217019d725158b03da9ff7efad0fc18",
+      "bytes": 140326
+    },
+    {
+      "locale": "ur",
+      "card": 5,
+      "file": "exports/ur/05.png",
+      "sha256": "d8fa58518de478c9ca31a22c01f4fa79f46bab004a99e7ccb30423041a10e7f3",
+      "bytes": 149696
+    },
+    {
+      "locale": "zh-TW",
+      "card": 4,
+      "file": "exports/zh-TW/04.png",
+      "sha256": "ae06982ecd69baa9a52e9ebe0d789f7409bfb6844a01fb9bdec4386437debb9a",
+      "bytes": 158457
+    },
+    {
+      "locale": "zh-TW",
+      "card": 5,
+      "file": "exports/zh-TW/05.png",
+      "sha256": "61e353f7f6e1815b3f02c4afb5dba712db95702bb424c25802b083d4e2e8c13e",
+      "bytes": 169131
+    }
+  ],
+  "verification": "Capture UI labels, names, PNG dimensions/mode, Pen background paths, approved pixel regions, and hashes of every untouched export passed.",
+  "googlePlayUploaded": true,
+  "uploadReport": "zh-cn-and-localized-ui-upload-verification.json"
+}

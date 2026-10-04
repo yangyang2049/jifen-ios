@@ -1,0 +1,58 @@
+{
+  "locale": "es-ES",
+  "iosLocale": "es-ES",
+  "language": "Spanish (Spain)",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Marcador",
+  "subtitle": "Puntos, tiempos y partidos",
+  "description": "Cada punto cuenta. Convierte tu iPhone o iPad en un marcador claro y fácil de usar para partidos, entrenamientos y juegos con amigos.\n\nLleva el marcador de más de 26 deportes y juegos, como tenis, pickleball, bádminton, tenis de mesa, baloncesto, fútbol, voleibol y billar. En los deportes compatibles, ajusta las reglas de puntuación, el formato del partido y el orden de saque en dobles.\n\nGuarda tus partidos y repásalos con la evolución del marcador, la cronología y las notas de voz. Usa relojes de ajedrez y go, un temporizador para cubos y un cronómetro. Muestra el marcador en una pantalla grande y comparte un código de partido para que tus amigos lo sigan a distancia.\n\nTambién tienes herramientas para lanzar una moneda, formar equipos al azar, mostrar tarjetas rojas y amarillas y dividir gastos. Menos esfuerzo contando, más tiempo disfrutando del juego.\n\nCondiciones de uso:\nhttps://jifenqi.com/terms\n\nPolítica de privacidad:\nhttps://jifenqi.com/privacy\n\nAcuerdo de licencia estándar de Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Cada punto\ncuenta",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Todo el marcador\nde un vistazo",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "Un marcador\npara más de 26 deportes",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Repasa\ncada partido",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Tus reglas\ntu forma de jugar",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Mucho más que\ndeportes de pelota",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Tu marcador\nen pantalla grande",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Anota puntos\ndesde tu muñeca",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Herramientas de arbitraje\nen una sola app",
+      "enabled": true
+    }
+  ]
+}

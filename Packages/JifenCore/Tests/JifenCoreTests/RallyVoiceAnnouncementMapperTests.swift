@@ -30,7 +30,7 @@ struct RallyVoiceAnnouncementMapperTests {
         )
         #expect(interval.map(\.phase) == [.scoreChange, .sideChange])
         #expect(interval[0].isInterval)
-        #expect(VoiceAnnouncementMessageBuilder.build(interval[0], language: .enUS) == "11-8, interval")
+        #expect(VoiceAnnouncementMessageBuilder.build(interval[0], language: .enUS) == "11, 8, interval")
         #expect(VoiceAnnouncementMessageBuilder.build(interval[1], language: .enUS) == "Change ends")
 
         before.leftPoints = 19

@@ -46,9 +46,9 @@ struct QuickStartEditView: View {
         }
     }
 
-    var initialPrimary: GameType = .basketball
-    var initialSecondary: GameType = .badminton
-    var initialTertiary: GameType = .tennis
+    var initialPrimary: GameType = QuickStartConfig.defaultPhoneConfig.primarySport
+    var initialSecondary: GameType = QuickStartConfig.defaultPhoneConfig.secondarySport
+    var initialTertiary: GameType = QuickStartConfig.defaultPhoneConfig.tertiarySport
     var showsTertiarySlot: Bool = false
     var onSave: ((GameType, GameType, GameType?) -> Void)?
 
@@ -63,9 +63,9 @@ struct QuickStartEditView: View {
     )
 
     init(
-        initialPrimary: GameType = .basketball,
-        initialSecondary: GameType = .badminton,
-        initialTertiary: GameType = .tennis,
+        initialPrimary: GameType = QuickStartConfig.defaultPhoneConfig.primarySport,
+        initialSecondary: GameType = QuickStartConfig.defaultPhoneConfig.secondarySport,
+        initialTertiary: GameType = QuickStartConfig.defaultPhoneConfig.tertiarySport,
         showsTertiarySlot: Bool = false,
         onSave: ((GameType, GameType, GameType?) -> Void)? = nil
     ) {
@@ -75,9 +75,10 @@ struct QuickStartEditView: View {
         self.showsTertiarySlot = showsTertiarySlot
         self.onSave = onSave
         let list = Self.editDialogSports
-        let fallbackPrimary = list.first ?? .basketball
-        let fallbackSecondary = list.dropFirst().first ?? fallbackPrimary
-        let fallbackTertiary = list.dropFirst(2).first ?? .tennis
+        let defaults = QuickStartConfig.defaultPhoneConfig
+        let fallbackPrimary = defaults.primarySport
+        let fallbackSecondary = defaults.secondarySport
+        let fallbackTertiary = defaults.tertiarySport
         let resolvedPrimary = list.contains(initialPrimary) ? initialPrimary : fallbackPrimary
         let resolvedSecondary = list.contains(initialSecondary) ? initialSecondary : fallbackSecondary
         let resolvedTertiary = list.contains(initialTertiary) ? initialTertiary : fallbackTertiary
@@ -189,9 +190,7 @@ struct QuickStartEditView: View {
                 }
 
                 HStack(spacing: 6) {
-                    Text(getGameIcon(type: sport))
-                        .font(.system(size: 16))
-                        .lineLimit(1)
+                    AppCatalogIcon(gameType: sport, size: 16)
 
                     Text(getGameName(type: sport))
                         .font(.system(size: 16, weight: .bold))

@@ -1,0 +1,68 @@
+{
+  "locale": "zh-Hant",
+  "appleLanguage": "zh-Hant",
+  "appleLocale": "zh_TW",
+  "names": [
+    "陳冠廷",
+    "林雅婷",
+    "王宗翰",
+    "黃淑芬"
+  ],
+  "fontFamily": "Noto Sans TC",
+  "basketballTeams": [
+    "主隊",
+    "客隊"
+  ],
+  "simulator": "7230B956-03E3-4A0B-9322-B555C35F76F0",
+  "cards": [
+    {
+      "index": 1,
+      "scene": "snooker",
+      "file": "exports/zh-Hant/01-snooker.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "e019e2ca60ef3446313521dd38fd6cc713ce39ce9ed6b228da909aa9055505d8",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 2,
+      "scene": "basketball",
+      "file": "exports/zh-Hant/02-basketball.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "bf2d065501b961e037fad02c4434594098a1222353dabc2d81b055145023297e",
+      "capture": "production SwiftUI via simctl",
+      "teamNames": [
+        "主隊",
+        "客隊"
+      ]
+    },
+    {
+      "index": 3,
+      "scene": "record",
+      "file": "exports/zh-Hant/03-record.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "cce7bea83372558cf1c735fef937e73a19abb48b06a0c21652a12128d820e1b8",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 4,
+      "scene": "setup",
+      "file": "exports/zh-Hant/04-setup.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "74ef7849a88cd0c6f0f28331cced1bfd11faef2cfc580b049a2bd2ab68387362",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 5,
+      "scene": "home",
+      "file": "exports/zh-Hant/05-home.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "f72a0107ac64fc4de9004867e6919a56ddc8add14f4be3f950ffb97bbc270455",
+      "capture": "production SwiftUI via simctl"
+    }
+  ]
+}

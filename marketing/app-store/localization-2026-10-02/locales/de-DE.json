@@ -1,0 +1,58 @@
+{
+  "locale": "de-DE",
+  "iosLocale": "de",
+  "language": "German",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Punktetafel",
+  "subtitle": "Spielstand, Timer & Ergebnisse",
+  "description": "Jeder Punkt zählt. Verwandle dein iPhone oder iPad in eine übersichtliche, einfach bedienbare Punktetafel für Spiele, Training und gemeinsame Partien.\n\nErfasse Punkte für über 26 Sportarten und Spiele, darunter Tennis, Pickleball, Badminton, Tischtennis, Basketball, Fußball, Volleyball und Billard. Passe bei unterstützten Sportarten die Zählweise, das Spielformat und die Aufschlagreihenfolge im Doppel an.\n\nSpeichere Partien und sieh dir Spielstandverläufe, Zeitleisten und Sprachnotizen an. Nutze Schach- und Go-Uhren, einen Timer für Zauberwürfel und eine Stoppuhr. Zeige die Punktetafel auf einem großen Bildschirm und teile einen Spielcode, damit Freunde den Spielstand aus der Ferne verfolgen können.\n\nMünzwurf, zufällige Teams, rote und gelbe Karten sowie das Aufteilen von Kosten sind ebenfalls dabei. Weniger Aufwand beim Zählen, mehr Freude am Spiel.\n\nNutzungsbedingungen:\nhttps://jifenqi.com/terms\n\nDatenschutzerklärung:\nhttps://jifenqi.com/privacy\n\nApple Standard-Lizenzvertrag:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Jeder Punkt\nzählt",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Alle Spielstände\nauf einen Blick",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "Eine Punktetafel\nfür über 26 Sportarten",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Jede Partie\nim Rückblick",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Deine Regeln\ndein Spiel",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Mehr als\nnur Ballsport",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Deine Punktetafel\nauf dem großen Bildschirm",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Punkte direkt\nam Handgelenk",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Alle Schiri-Helfer\nin einer App",
+      "enabled": true
+    }
+  ]
+}

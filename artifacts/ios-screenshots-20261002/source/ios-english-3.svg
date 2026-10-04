@@ -1,0 +1,22 @@
+<svg width="1284" height="2778" viewBox="0 0 1284 2778" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_1342_67)">
+<rect width="1284" height="2778" fill="#0B61FB"/>
+<text fill="white" style="white-space: pre" xml:space="preserve" font-family="Poppins" font-size="116" font-style="italic" font-weight="bold" letter-spacing="-0.04em"><tspan x="136.51" y="282.6">ONE SCOREBOARD&#10;</tspan><tspan x="197.625" y="398.6">FOR 26+ SPORTS</tspan></text>
+<path d="M0 1024H1124C1159.35 1024 1188 1052.65 1188 1088V1968C1188 2003.35 1159.35 2032 1124 2032H0V1024Z" fill="#007AFF"/>
+<path d="M1124 1012C1165.97 1012 1200 1046.03 1200 1088V1968C1200 2009.97 1165.97 2044 1124 2044H-12V1012H1124Z" stroke="white" stroke-opacity="0.6" stroke-width="24"/>
+<text fill="white" style="white-space: pre" xml:space="preserve" font-family="Poppins" font-size="104" font-weight="600" letter-spacing="-0.04em"><tspan x="473.344" y="1224.4">Bob</tspan></text>
+<text fill="white" style="white-space: pre" xml:space="preserve" font-family="Poppins" font-size="400" font-weight="600" letter-spacing="-0.04em"><tspan x="456.156" y="1668">2</tspan></text>
+<text fill="white" fill-opacity="0.8" style="white-space: pre" xml:space="preserve" font-family="Poppins" font-size="112" font-weight="600" letter-spacing="-0.04em"><tspan x="573.711" y="1907.2">1</tspan></text>
+<circle cx="1102" cy="1952" r="60" fill="black" fill-opacity="0.5"/>
+<path d="M1102 1954.66C1103.47 1954.66 1104.67 1953.47 1104.67 1952C1104.67 1950.52 1103.47 1949.33 1102 1949.33C1100.53 1949.33 1099.33 1950.52 1099.33 1952C1099.33 1953.47 1100.53 1954.66 1102 1954.66Z" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1102 1936C1103.47 1936 1104.67 1934.8 1104.67 1933.33C1104.67 1931.86 1103.47 1930.66 1102 1930.66C1100.53 1930.66 1099.33 1931.86 1099.33 1933.33C1099.33 1934.8 1100.53 1936 1102 1936Z" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1102 1973.33C1103.47 1973.33 1104.67 1972.14 1104.67 1970.66C1104.67 1969.19 1103.47 1968 1102 1968C1100.53 1968 1099.33 1969.19 1099.33 1970.66C1099.33 1972.14 1100.53 1973.33 1102 1973.33Z" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="1102" cy="1107" r="60" fill="black" fill-opacity="0.5"/>
+<path d="M1109 1090.66L1118.33 1100M1123.41 1094.89C1124.64 1093.66 1125.33 1091.99 1125.33 1090.24C1125.33 1088.5 1124.64 1086.82 1123.41 1085.59C1122.17 1084.36 1120.5 1083.66 1118.76 1083.66C1117.01 1083.66 1115.34 1084.36 1114.1 1085.59L1082.96 1116.74C1082.42 1117.28 1082.02 1117.94 1081.8 1118.67L1078.71 1128.83C1078.65 1129.03 1078.65 1129.25 1078.7 1129.45C1078.75 1129.65 1078.86 1129.84 1079.01 1129.99C1079.16 1130.14 1079.34 1130.24 1079.55 1130.29C1079.75 1130.35 1079.97 1130.34 1080.17 1130.28L1090.33 1127.2C1091.06 1126.98 1091.72 1126.58 1092.26 1126.04L1123.41 1094.89Z" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_1342_67">
+<rect width="1284" height="2778" fill="white"/>
+</clipPath>
+</defs>
+</svg>

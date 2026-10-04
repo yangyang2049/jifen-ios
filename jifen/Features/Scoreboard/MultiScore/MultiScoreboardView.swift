@@ -10,8 +10,7 @@ import SwiftUI
 import UIKit
 
 private func defaultMultiPlayerNames(count: Int) -> [String] {
-    let base = NSLocalizedString("multi_score_player_default", value: "玩家", comment: "")
-    return (1...count).map { "\(base) \($0)" }
+    (1...count).map { DefaultParticipantNames.numberedPlayer($0) }
 }
 
 enum MultiScoreRules {
@@ -137,6 +136,15 @@ struct MultiScoreboardView: View {
         _players = State(initialValue: defaultMultiPlayerNames(count: safeCount).enumerated().map {
             MultiPlayerItem(id: $0.offset, name: $0.element, score: 0)
         })
+        #if DEBUG
+        if MarketingScreenshotFixture.isRequested("multi") {
+            let names = MarketingScreenshotFixture.names
+            let scores = [12, 8, 15, 3]
+            _players = State(initialValue: names.enumerated().map {
+                MultiPlayerItem(id: $0.offset, name: $0.element, score: scores[$0.offset % scores.count])
+            })
+        }
+        #endif
         _typographySession = State(initialValue: ScoreboardTypographySession(
             styleID: ScoreboardStyleID(gameType: gameType)
         ))
@@ -695,8 +703,7 @@ struct MultiScoreboardView: View {
     }
 
     private func playerPlaceholder(_ index: Int) -> String {
-        let base = NSLocalizedString("multi_score_player_default", value: "玩家", comment: "")
-        return "\(base) \(index + 1)"
+        DefaultParticipantNames.numberedPlayer(index + 1)
     }
 
     private func openPlayerEdit(index: Int) {
@@ -930,7 +937,7 @@ struct MultiScoreboardView: View {
                                     .keyboardType(.numberPad)
                                     .focused($unoNumberFieldFocused)
                                     .onChange(of: unoNumberTotalText) { _, value in
-                                        unoNumberTotalText = String(value.filter(\.isNumber).prefix(4))
+                                        unoNumberTotalText = normalizedDecimalDigits(value, limit: 4)
                                     }
                                     .font(.system(size: 20, weight: .semibold))
                                     .foregroundStyle(Theme.scoreboardDialogTextPrimary)
@@ -1333,6 +1340,12 @@ struct MultiScoreboardView: View {
         }
 
         players = names.enumerated().map { MultiPlayerItem(id: $0.offset, name: $0.element, score: 0) }
+        #if DEBUG
+        if MarketingScreenshotFixture.isRequested("multi") {
+            let scores = [12, 8, 15, 3]
+            for index in players.indices { players[index].score = scores[index % scores.count] }
+        }
+        #endif
         if let flag = setup.multiScoreCustomAdjustEnabled {
             customAdjustEnabled = flag
         }

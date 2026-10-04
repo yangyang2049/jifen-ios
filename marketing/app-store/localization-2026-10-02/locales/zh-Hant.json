@@ -1,0 +1,58 @@
+{
+  "locale": "zh-Hant",
+  "iosLocale": "zh-Hant",
+  "language": "Chinese (Traditional)",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "全能計分器",
+  "subtitle": "運動計分、比賽計時與賽後回顧",
+  "description": "每一分都值得認真記錄。把 iPhone 或 iPad 變成清楚、好用的計分板，輕鬆記錄比賽、訓練和朋友間的對局。\n\n支援 26+ 種運動與遊戲計分，包括網球、匹克球、羽毛球、桌球、籃球、足球、排球和撞球。依照項目調整計分規則、比賽局數與雙打發球順序，讓計分方式符合你的比賽。\n\n儲存比賽紀錄，透過比分趨勢、時間軸和語音筆記回顧精彩時刻。內建西洋棋與圍棋計時、魔術方塊計時和碼錶，球類之外也能用。將計分板顯示在大螢幕上，或分享比賽代碼，讓親友遠端同步看比分。\n\n擲硬幣、隨機分隊、紅黃牌和費用分攤等實用工具集中在一處。少一點記分的忙亂，多一點比賽的樂趣。\n\n使用條款:\nhttps://jifenqi.com/terms\n\n隱私權政策:\nhttps://jifenqi.com/privacy\n\nApple 標準終端使用者授權合約:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "每一分\n都值得",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "比賽計分\n一眼看清",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "26+ 運動項目\n開啟就能計分",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "賽後回顧\n看見每次進步",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "規則由你決定\n怎麼打都能計分",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "不只球類\n計時也很拿手",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "投放到電視\n全場都看得清",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "抬腕就能計分",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "裁判小工具\n一應俱全",
+      "enabled": true
+    }
+  ]
+}

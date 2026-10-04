@@ -1,0 +1,197 @@
+[
+  {
+    "frameId": "tBzCz",
+    "nodeId": "w8A6PC",
+    "frame": "id · 06",
+    "locale": "id",
+    "card": 6,
+    "props": {
+      "content": "PERMAINAN MULTIPEMAIN\nDAN PERMAINAN PAPAN",
+      "fontSize": 78,
+      "lineHeight": 1,
+      "letterSpacing": -2.7300000000000004
+    }
+  },
+  {
+    "frameId": "L7QpOu",
+    "nodeId": "EbkkD",
+    "frame": "hu-HU · 06",
+    "locale": "hu-HU",
+    "card": 6,
+    "props": {
+      "content": "TÖBBJÁTÉKOS JÁTÉKOK\nÉS TÁRSASJÁTÉKOK",
+      "fontSize": 84,
+      "lineHeight": 1,
+      "letterSpacing": -2.9400000000000004
+    }
+  },
+  {
+    "frameId": "r1LDB",
+    "nodeId": "t2C95",
+    "frame": "bn-BD · 06",
+    "locale": "bn-BD",
+    "card": 6,
+    "props": {
+      "content": "একাধিক খেলোয়াড়ের গেম\nও বোর্ড গেম",
+      "fontSize": 88,
+      "lineHeight": 1.15,
+      "letterSpacing": 0
+    }
+  },
+  {
+    "frameId": "gXTN9",
+    "nodeId": "H8VLk",
+    "frame": "hi-IN · 06",
+    "locale": "hi-IN",
+    "card": 6,
+    "props": {
+      "content": "कई खिलाड़ियों वाले गेम\nऔर बोर्ड गेम",
+      "fontSize": 96,
+      "lineHeight": 1.15,
+      "letterSpacing": 0
+    }
+  },
+  {
+    "frameId": "LEVe3",
+    "nodeId": "R1TLOg",
+    "frame": "gu · 06",
+    "locale": "gu",
+    "card": 6,
+    "props": {
+      "content": "ઘણા ખેલાડીઓની રમતો\nઅને બોર્ડ ગેમ્સ",
+      "fontSize": 96,
+      "lineHeight": 1.15,
+      "letterSpacing": 0
+    }
+  },
+  {
+    "frameId": "pFmOm",
+    "nodeId": "V8wjjO",
+    "frame": "mr-IN · 06",
+    "locale": "mr-IN",
+    "card": 6,
+    "props": {
+      "content": "अनेक खेळाडूंचे गेम\nआणि बोर्ड गेम",
+      "fontSize": 96,
+      "lineHeight": 1.15,
+      "letterSpacing": 0
+    }
+  },
+  {
+    "frameId": "lzHtr",
+    "nodeId": "keoMk",
+    "frame": "kn-IN · 06",
+    "locale": "kn-IN",
+    "card": 6,
+    "props": {
+      "content": "ಬಹು ಆಟಗಾರರ ಆಟಗಳು\nಮತ್ತು ಬೋರ್ಡ್ ಆಟಗಳು",
+      "fontSize": 88,
+      "lineHeight": 1.15,
+      "letterSpacing": 0
+    }
+  },
+  {
+    "frameId": "KyMgV",
+    "nodeId": "Hx28k",
+    "frame": "unsupported-or-IN · 06",
+    "locale": "unsupported-or-IN",
+    "card": 6,
+    "props": {
+      "content": "ଏକାଧିକ ଖେଳାଳିଙ୍କ ଖେଳ\nଓ ବୋର୍ଡ ଖେଳ",
+      "fontSize": 96,
+      "lineHeight": 1.15,
+      "letterSpacing": 0
+    }
+  },
+  {
+    "frameId": "jSoL4",
+    "nodeId": "TJi8e",
+    "frame": "pa · 06",
+    "locale": "pa",
+    "card": 6,
+    "props": {
+      "content": "ਕਈ ਖਿਡਾਰੀਆਂ ਵਾਲੀਆਂ ਗੇਮਾਂ\nਅਤੇ ਬੋਰਡ ਗੇਮਾਂ",
+      "fontSize": 88,
+      "lineHeight": 1.15,
+      "letterSpacing": 0
+    }
+  },
+  {
+    "frameId": "jHrU1",
+    "nodeId": "M33Awn",
+    "frame": "te-IN · 06",
+    "locale": "te-IN",
+    "card": 6,
+    "props": {
+      "content": "బహుళ ఆటగాళ్ల ఆటలు\nమరియు బోర్డు ఆటలు",
+      "fontSize": 96,
+      "lineHeight": 1.15,
+      "letterSpacing": 0
+    }
+  },
+  {
+    "frameId": "wqfLY",
+    "nodeId": "hNAPv",
+    "frame": "vi · 01",
+    "locale": "vi",
+    "card": 1,
+    "props": {
+      "content": "MỖI ĐIỂM SỐ\nĐỀU\nQUAN TRỌNG",
+      "fontSize": 98,
+      "lineHeight": 1,
+      "letterSpacing": -3.43
+    }
+  },
+  {
+    "frameId": "cEltP",
+    "nodeId": "P0o6I",
+    "frame": "hi-IN · 01",
+    "locale": "hi-IN",
+    "card": 1,
+    "props": {
+      "content": "हर अंक\nमायने रखता है",
+      "fontSize": 116,
+      "lineHeight": 1.15,
+      "letterSpacing": 0
+    }
+  },
+  {
+    "frameId": "eQOAE",
+    "nodeId": "r9kPth",
+    "frame": "pa · 01",
+    "locale": "pa",
+    "card": 1,
+    "props": {
+      "content": "ਹਰ ਅੰਕ\nਮਾਇਨੇ ਰੱਖਦਾ ਹੈ",
+      "fontSize": 110,
+      "lineHeight": 1.15,
+      "letterSpacing": 0
+    }
+  },
+  {
+    "frameId": "zQfc6",
+    "nodeId": "dvmvp",
+    "frame": "mr-IN · 01",
+    "locale": "mr-IN",
+    "card": 1,
+    "props": {
+      "content": "प्रत्येक गुण\nमहत्त्वाचा आहे",
+      "fontSize": 118,
+      "lineHeight": 1.15,
+      "letterSpacing": 0
+    }
+  },
+  {
+    "frameId": "XKxWF",
+    "nodeId": "O5w3BC",
+    "frame": "sk · 01",
+    "locale": "sk",
+    "card": 1,
+    "props": {
+      "content": "KAŽDÝ\nBOD\nSA POČÍTA",
+      "fontSize": 126,
+      "lineHeight": 1,
+      "letterSpacing": -4.41
+    }
+  }
+]

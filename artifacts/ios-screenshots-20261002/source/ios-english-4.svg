@@ -1,0 +1,23 @@
+<svg width="1284" height="2778" viewBox="0 0 1284 2778" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g clip-path="url(#clip0_1342_82)">
+<rect width="1284" height="2778" fill="#0B61FB"/>
+<text fill="white" style="white-space: pre" xml:space="preserve" font-family="Poppins" font-size="116" font-style="italic" font-weight="bold" letter-spacing="-0.04em"><tspan x="432.532" y="282.6">REVIEW&#10;</tspan><tspan x="253.026" y="398.6">EVERY MATCH</tspan></text>
+<rect x="138" y="1487" width="1008" height="2061" fill="url(#pattern0_1342_82)"/>
+<rect x="42" y="600" width="1200" height="785" rx="48" fill="url(#pattern1_1342_82)"/>
+<rect x="36" y="594" width="1212" height="797" rx="54" stroke="white" stroke-opacity="0.4" stroke-width="12"/>
+<rect width="131" height="116" transform="translate(313 1549)" fill="#F2F2F7"/>
+</g>
+<defs>
+<pattern id="pattern0_1342_82" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0_1342_82" transform="scale(0.00111122 0.000543478)"/>
+</pattern>
+<pattern id="pattern1_1342_82" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image1_1342_82" transform="matrix(0.00107759 0 0 0.00164745 -0.211207 -2.67216)"/>
+</pattern>
+<clipPath id="clip0_1342_82">
+<rect width="1284" height="2778" fill="white"/>
+</clipPath>
+<image id="image0_1342_82" width="900" height="1840" preserveAspectRatio="none" xlink:href="image-4-0.png"/>
+<image id="image1_1342_82" width="1320" height="2868" preserveAspectRatio="none" xlink:href="image-4-1.png"/>
+</defs>
+</svg>

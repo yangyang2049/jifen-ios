@@ -1,0 +1,2281 @@
+{
+  "app": {
+    "type": "apps",
+    "id": "6759768784",
+    "attributes": {
+      "accessibilityUrl": null,
+      "name": "全能计分器",
+      "bundleId": "com.douhua.jifen.ios",
+      "sku": "com.douhua.jifen.ios",
+      "primaryLocale": "zh-Hans",
+      "isOrEverWasMadeForKids": false,
+      "subscriptionStatusUrl": "https://api.jifenqi.com/api/billing/webhooks/apple",
+      "subscriptionStatusUrlVersion": "V2",
+      "subscriptionStatusUrlForSandbox": "https://api.jifenqi.com/api/billing/webhooks/apple",
+      "subscriptionStatusUrlVersionForSandbox": "V2",
+      "contentRightsDeclaration": "DOES_NOT_USE_THIRD_PARTY_CONTENT",
+      "streamlinedPurchasingEnabled": true
+    },
+    "relationships": {
+      "accessibilityDeclarations": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/accessibilityDeclarations",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/accessibilityDeclarations"
+        }
+      },
+      "ciProduct": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/ciProduct",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/ciProduct"
+        }
+      },
+      "betaTesters": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/betaTesters"
+        }
+      },
+      "betaGroups": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/betaGroups",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/betaGroups"
+        }
+      },
+      "appStoreVersions": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appStoreVersions",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appStoreVersions"
+        }
+      },
+      "appTags": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appTags",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appTags"
+        }
+      },
+      "preReleaseVersions": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/preReleaseVersions",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/preReleaseVersions"
+        }
+      },
+      "betaAppLocalizations": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/betaAppLocalizations",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/betaAppLocalizations"
+        }
+      },
+      "builds": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/builds",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/builds"
+        }
+      },
+      "betaLicenseAgreement": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/betaLicenseAgreement",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/betaLicenseAgreement"
+        }
+      },
+      "betaAppReviewDetail": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/betaAppReviewDetail",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/betaAppReviewDetail"
+        }
+      },
+      "appInfos": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appInfos",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appInfos"
+        }
+      },
+      "appClips": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appClips",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appClips"
+        }
+      },
+      "appPricePoints": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appPricePoints",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appPricePoints"
+        }
+      },
+      "endUserLicenseAgreement": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/endUserLicenseAgreement",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/endUserLicenseAgreement"
+        }
+      },
+      "appPriceSchedule": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appPriceSchedule",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appPriceSchedule"
+        }
+      },
+      "appAvailabilityV2": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appAvailabilityV2",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appAvailabilityV2"
+        }
+      },
+      "inAppPurchases": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/inAppPurchases",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/inAppPurchases"
+        }
+      },
+      "subscriptionGroups": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/subscriptionGroups",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/subscriptionGroups"
+        }
+      },
+      "gameCenterEnabledVersions": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/gameCenterEnabledVersions",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/gameCenterEnabledVersions"
+        }
+      },
+      "performanceOverviews": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/performanceOverviews",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/performanceOverviews"
+        }
+      },
+      "perfPowerMetrics": {
+        "links": {
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/perfPowerMetrics"
+        }
+      },
+      "appCustomProductPages": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appCustomProductPages",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appCustomProductPages"
+        }
+      },
+      "inAppPurchasesV2": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/inAppPurchasesV2",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/inAppPurchasesV2"
+        }
+      },
+      "promotedPurchases": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/promotedPurchases",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/promotedPurchases"
+        }
+      },
+      "appEvents": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appEvents",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appEvents"
+        }
+      },
+      "reviewSubmissions": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/reviewSubmissions",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/reviewSubmissions"
+        }
+      },
+      "subscriptionGracePeriod": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/subscriptionGracePeriod",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/subscriptionGracePeriod"
+        }
+      },
+      "customerReviews": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/customerReviews",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/customerReviews"
+        }
+      },
+      "customerReviewSummarizations": {
+        "links": {
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/customerReviewSummarizations"
+        }
+      },
+      "gameCenterDetail": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/gameCenterDetail",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/gameCenterDetail"
+        }
+      },
+      "appStoreVersionExperimentsV2": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/appStoreVersionExperimentsV2",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/appStoreVersionExperimentsV2"
+        }
+      },
+      "alternativeDistributionKey": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/alternativeDistributionKey",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/alternativeDistributionKey"
+        }
+      },
+      "analyticsReportRequests": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/analyticsReportRequests",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/analyticsReportRequests"
+        }
+      },
+      "marketplaceSearchDetail": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/marketplaceSearchDetail",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/marketplaceSearchDetail"
+        }
+      },
+      "buildUploads": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/buildUploads",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/buildUploads"
+        }
+      },
+      "backgroundAssets": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/backgroundAssets",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/backgroundAssets"
+        }
+      },
+      "betaFeedbackScreenshotSubmissions": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/betaFeedbackScreenshotSubmissions",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/betaFeedbackScreenshotSubmissions"
+        }
+      },
+      "betaFeedbackCrashSubmissions": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/betaFeedbackCrashSubmissions",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/betaFeedbackCrashSubmissions"
+        }
+      },
+      "searchKeywords": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/searchKeywords",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/searchKeywords"
+        }
+      },
+      "webhooks": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/webhooks",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/webhooks"
+        }
+      },
+      "androidToIosAppMappingDetails": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/relationships/androidToIosAppMappingDetails",
+          "related": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/androidToIosAppMappingDetails"
+        }
+      }
+    },
+    "links": {
+      "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784"
+    }
+  },
+  "appInfo": {
+    "type": "appInfos",
+    "id": "1aa0ff31-d3d8-4d53-8b4e-983263bf8659",
+    "attributes": {
+      "appStoreState": "PREPARE_FOR_SUBMISSION",
+      "state": "PREPARE_FOR_SUBMISSION",
+      "appStoreAgeRating": "FOUR_PLUS",
+      "australiaAgeRating": null,
+      "brazilAgeRating": "L",
+      "brazilAgeRatingV2": "SELF_RATED_L",
+      "franceAgeRating": null,
+      "koreaAgeRating": null
+    },
+    "relationships": {
+      "ageRatingDeclaration": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/relationships/ageRatingDeclaration",
+          "related": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/ageRatingDeclaration"
+        }
+      },
+      "appInfoLocalizations": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/relationships/appInfoLocalizations",
+          "related": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/appInfoLocalizations"
+        }
+      },
+      "primaryCategory": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/relationships/primaryCategory",
+          "related": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/primaryCategory"
+        }
+      },
+      "primarySubcategoryOne": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/relationships/primarySubcategoryOne",
+          "related": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/primarySubcategoryOne"
+        }
+      },
+      "primarySubcategoryTwo": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/relationships/primarySubcategoryTwo",
+          "related": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/primarySubcategoryTwo"
+        }
+      },
+      "secondaryCategory": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/relationships/secondaryCategory",
+          "related": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/secondaryCategory"
+        }
+      },
+      "secondarySubcategoryOne": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/relationships/secondarySubcategoryOne",
+          "related": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/secondarySubcategoryOne"
+        }
+      },
+      "secondarySubcategoryTwo": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/relationships/secondarySubcategoryTwo",
+          "related": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/secondarySubcategoryTwo"
+        }
+      },
+      "territoryAgeRatings": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/relationships/territoryAgeRatings",
+          "related": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659/territoryAgeRatings"
+        }
+      }
+    },
+    "links": {
+      "self": "https://api.appstoreconnect.apple.com/v1/appInfos/1aa0ff31-d3d8-4d53-8b4e-983263bf8659"
+    }
+  },
+  "appStoreVersion": {
+    "type": "appStoreVersions",
+    "id": "a118dc62-4303-4c03-ae92-b358c60438d5",
+    "attributes": {
+      "platform": "IOS",
+      "versionString": "3.3",
+      "appStoreState": "PREPARE_FOR_SUBMISSION",
+      "appVersionState": "PREPARE_FOR_SUBMISSION",
+      "copyright": "2026 重庆豆花科技有限公司",
+      "reviewType": "APP_STORE",
+      "releaseType": "AFTER_APPROVAL",
+      "earliestReleaseDate": null,
+      "usesIdfa": null,
+      "downloadable": true,
+      "createdDate": "2026-10-02T04:26:41-07:00"
+    },
+    "relationships": {
+      "appStoreVersionLocalizations": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/relationships/appStoreVersionLocalizations",
+          "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/appStoreVersionLocalizations"
+        }
+      },
+      "build": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/relationships/build",
+          "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/build"
+        }
+      },
+      "appStoreVersionPhasedRelease": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/relationships/appStoreVersionPhasedRelease",
+          "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/appStoreVersionPhasedRelease"
+        }
+      },
+      "gameCenterAppVersion": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/relationships/gameCenterAppVersion",
+          "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/gameCenterAppVersion"
+        }
+      },
+      "routingAppCoverage": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/relationships/routingAppCoverage",
+          "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/routingAppCoverage"
+        }
+      },
+      "appStoreReviewDetail": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/relationships/appStoreReviewDetail",
+          "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/appStoreReviewDetail"
+        }
+      },
+      "appStoreVersionSubmission": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/relationships/appStoreVersionSubmission",
+          "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/appStoreVersionSubmission"
+        }
+      },
+      "appClipDefaultExperience": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/relationships/appClipDefaultExperience",
+          "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/appClipDefaultExperience"
+        }
+      },
+      "appStoreVersionExperiments": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/relationships/appStoreVersionExperiments",
+          "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/appStoreVersionExperiments"
+        }
+      },
+      "appStoreVersionExperimentsV2": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/relationships/appStoreVersionExperimentsV2",
+          "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/appStoreVersionExperimentsV2"
+        }
+      },
+      "customerReviews": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/relationships/customerReviews",
+          "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/customerReviews"
+        }
+      },
+      "alternativeDistributionPackage": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/relationships/alternativeDistributionPackage",
+          "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5/alternativeDistributionPackage"
+        }
+      }
+    },
+    "links": {
+      "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersions/a118dc62-4303-4c03-ae92-b358c60438d5"
+    }
+  },
+  "appInfoLocalizations": [
+    {
+      "type": "appInfoLocalizations",
+      "id": "ea34bae1-08f6-46e4-b07a-ea34c2e6b8c4",
+      "attributes": {
+        "locale": "kn-IN",
+        "name": "iScoreboard: ಸ್ಕೋರ್‌ಬೋರ್ಡ್",
+        "subtitle": "ಅಂಕ, ಸಮಯ ಮತ್ತು ಪಂದ್ಯದ ದಾಖಲೆ",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/ea34bae1-08f6-46e4-b07a-ea34c2e6b8c4"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "ea228a2a-7dda-41bc-bd98-20a2fe0044de",
+      "attributes": {
+        "locale": "no",
+        "name": "iScoreboard: Resultattavle",
+        "subtitle": "Resultater, tid og kamper",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/ea228a2a-7dda-41bc-bd98-20a2fe0044de"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "fee67cba-9f62-4f7e-a459-aa0ae5c452f8",
+      "attributes": {
+        "locale": "en-GB",
+        "name": "iScoreboard: Sports Scoreboard",
+        "subtitle": "Scores, timers & match records",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/fee67cba-9f62-4f7e-a459-aa0ae5c452f8"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "fc6e1b5f-b382-4210-8ca7-fcde2953c2e4",
+      "attributes": {
+        "locale": "ca",
+        "name": "iScoreboard: Marcador",
+        "subtitle": "Punts, temps i partits",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/fc6e1b5f-b382-4210-8ca7-fcde2953c2e4"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "e12c91b0-c35b-40a9-bf5d-a468b4a2cec6",
+      "attributes": {
+        "locale": "da",
+        "name": "iScoreboard: Måltavle",
+        "subtitle": "Resultater, tid og kampe",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/e12c91b0-c35b-40a9-bf5d-a468b4a2cec6"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "2dbdf5c1-4c84-4d5c-991e-dcf47b1a89c5",
+      "attributes": {
+        "locale": "mr-IN",
+        "name": "iScoreboard: स्कोअरबोर्ड",
+        "subtitle": "गुण, वेळ आणि सामन्याच्या नोंदी",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/2dbdf5c1-4c84-4d5c-991e-dcf47b1a89c5"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "01d356b2-1b8a-4a24-a7c0-f5470b144faf",
+      "attributes": {
+        "locale": "hr",
+        "name": "iScoreboard: Semafor",
+        "subtitle": "Rezultati, vrijeme i utakmice",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/01d356b2-1b8a-4a24-a7c0-f5470b144faf"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "7dbb5e10-c416-4cb5-8aa2-82bf9b9b913a",
+      "attributes": {
+        "locale": "cs",
+        "name": "iScoreboard: Výsledková tabule",
+        "subtitle": "Skóre, čas a záznamy zápasů",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/7dbb5e10-c416-4cb5-8aa2-82bf9b9b913a"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "fd532838-dcb4-488a-96ef-046443dd38a2",
+      "attributes": {
+        "locale": "pl",
+        "name": "iScoreboard: Tablica wyników",
+        "subtitle": "Wyniki, zegary i historia gier",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/fd532838-dcb4-488a-96ef-046443dd38a2"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "1d713152-7798-45c6-956d-60d117055af3",
+      "attributes": {
+        "locale": "fr-FR",
+        "name": "iScoreboard: Tableau de scores",
+        "subtitle": "Scores, chronos et matchs",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/1d713152-7798-45c6-956d-60d117055af3"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "756ccc66-4169-46a5-a785-bd14ae7e638f",
+      "attributes": {
+        "locale": "hu",
+        "name": "iScoreboard: Eredményjelző",
+        "subtitle": "Eredmények, időmérés, meccsek",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/756ccc66-4169-46a5-a785-bd14ae7e638f"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "d7393a42-bf8b-402f-8b09-44426626246a",
+      "attributes": {
+        "locale": "nl-NL",
+        "name": "iScoreboard: Scorebord",
+        "subtitle": "Scores, timers en wedstrijden",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/d7393a42-bf8b-402f-8b09-44426626246a"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "ae25defd-df09-41f5-866d-2186c45e1b7b",
+      "attributes": {
+        "locale": "pa-IN",
+        "name": "iScoreboard: ਸਕੋਰਬੋਰਡ",
+        "subtitle": "ਸਕੋਰ, ਸਮਾਂ ਤੇ ਮੈਚ ਰਿਕਾਰਡ",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/ae25defd-df09-41f5-866d-2186c45e1b7b"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "41b0e764-9f8d-4dc7-b04f-0959a430483c",
+      "attributes": {
+        "locale": "id",
+        "name": "iScoreboard: Papan Skor",
+        "subtitle": "Skor, waktu dan catatan laga",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/41b0e764-9f8d-4dc7-b04f-0959a430483c"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "3c97042d-732c-49c0-90c7-9dc664266532",
+      "attributes": {
+        "locale": "fr-CA",
+        "name": "iScoreboard: Tableau de scores",
+        "subtitle": "Pointage, chronos et matchs",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/3c97042d-732c-49c0-90c7-9dc664266532"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "5024de6f-28ec-4c46-80ab-0ad7d9b0565f",
+      "attributes": {
+        "locale": "de-DE",
+        "name": "iScoreboard: Punktetafel",
+        "subtitle": "Spielstand, Timer & Ergebnisse",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/5024de6f-28ec-4c46-80ab-0ad7d9b0565f"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "fc2778f3-13f6-4aa3-9204-f128c22609f0",
+      "attributes": {
+        "locale": "es-MX",
+        "name": "iScoreboard: Marcador",
+        "subtitle": "Puntos, tiempos y partidos",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/fc2778f3-13f6-4aa3-9204-f128c22609f0"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "c9dec964-b626-446a-a4ce-9d210c5da7c2",
+      "attributes": {
+        "locale": "ko",
+        "name": "iScoreboard: 만능 점수판",
+        "subtitle": "스포츠 점수 기록과 경기 타이머",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/c9dec964-b626-446a-a4ce-9d210c5da7c2"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "77a6768f-7e81-4101-9fa2-50bcd63e4572",
+      "attributes": {
+        "locale": "ms",
+        "name": "iScoreboard: Papan Skor",
+        "subtitle": "Skor, masa dan rekod sukan",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/77a6768f-7e81-4101-9fa2-50bcd63e4572"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "6f5fe13c-fb87-4df3-b121-043a58920487",
+      "attributes": {
+        "locale": "or-IN",
+        "name": "iScoreboard: ସ୍କୋରବୋର୍ଡ",
+        "subtitle": "ସ୍କୋର, ସମୟ ଓ ମ୍ୟାଚ୍ ରେକର୍ଡ",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/6f5fe13c-fb87-4df3-b121-043a58920487"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "fb542348-b106-4e3f-bb8c-ab62f3f3f1f0",
+      "attributes": {
+        "locale": "en-US",
+        "name": "iScoreboard: Sports Scoreboard",
+        "subtitle": "Scores, timers & match records",
+        "privacyPolicyUrl": "https://jifenqi.com/en/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/fb542348-b106-4e3f-bb8c-ab62f3f3f1f0"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "f9f82bd0-a359-4821-aaf2-43ee2efb0096",
+      "attributes": {
+        "locale": "zh-Hans",
+        "name": "全能计分器",
+        "subtitle": "运动棋牌计分全搞定！",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/f9f82bd0-a359-4821-aaf2-43ee2efb0096"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "9070eead-9d2e-4500-95c1-5cafb055ef35",
+      "attributes": {
+        "locale": "ml-IN",
+        "name": "iScoreboard: സ്കോർബോർഡ്",
+        "subtitle": "സ്കോർ, സമയം, മത്സര രേഖകൾ",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/9070eead-9d2e-4500-95c1-5cafb055ef35"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "aa2e7309-8ac3-4f01-ba9c-5f8684bf3d6f",
+      "attributes": {
+        "locale": "it",
+        "name": "iScoreboard: Segnapunti",
+        "subtitle": "Punti, tempi e partite",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/aa2e7309-8ac3-4f01-ba9c-5f8684bf3d6f"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "8603f24c-2375-4ffb-a9be-aa36ae5b0a3c",
+      "attributes": {
+        "locale": "bn-BD",
+        "name": "iScoreboard: স্কোরবোর্ড",
+        "subtitle": "স্কোর, সময় ও ম্যাচের রেকর্ড",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/8603f24c-2375-4ffb-a9be-aa36ae5b0a3c"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "c9071bb2-c549-4a1c-b2aa-7f63206c3660",
+      "attributes": {
+        "locale": "gu-IN",
+        "name": "iScoreboard: સ્કોરબોર્ડ",
+        "subtitle": "સ્કોર, સમય અને મેચ રેકોર્ડ",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/c9071bb2-c549-4a1c-b2aa-7f63206c3660"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "1cb5597c-71e9-415c-9f6b-f2f58555ce81",
+      "attributes": {
+        "locale": "ar-SA",
+        "name": "iScoreboard: لوحة النتائج",
+        "subtitle": "النتائج والتوقيت وسجل اللعب",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/1cb5597c-71e9-415c-9f6b-f2f58555ce81"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "fd988dee-dd65-4e90-aa02-b59922c167bb",
+      "attributes": {
+        "locale": "hi",
+        "name": "iScoreboard: स्कोरबोर्ड",
+        "subtitle": "स्कोर, समय और मैच रिकॉर्ड",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/fd988dee-dd65-4e90-aa02-b59922c167bb"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "3a1c0fae-8e1d-44fb-aafa-b82a4f641fcf",
+      "attributes": {
+        "locale": "pt-BR",
+        "name": "iScoreboard: Placar esportivo",
+        "subtitle": "Pontos, tempos e partidas",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/3a1c0fae-8e1d-44fb-aafa-b82a4f641fcf"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "5aed708b-19e8-48c7-9e44-418fc51bc7af",
+      "attributes": {
+        "locale": "el",
+        "name": "iScoreboard: Πίνακας σκορ",
+        "subtitle": "Σκορ, χρόνοι και αγώνες",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/5aed708b-19e8-48c7-9e44-418fc51bc7af"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "02cd30d8-8e3f-400a-b1b7-5fd3459b859d",
+      "attributes": {
+        "locale": "en-AU",
+        "name": "iScoreboard: Sports Scoreboard",
+        "subtitle": "Scores, timers & match records",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/02cd30d8-8e3f-400a-b1b7-5fd3459b859d"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "c83de246-5ea6-478d-9dcf-1071d61a4ee3",
+      "attributes": {
+        "locale": "he",
+        "name": "iScoreboard: לוח תוצאות",
+        "subtitle": "תוצאות, זמנים ותיעוד משחקים",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/c83de246-5ea6-478d-9dcf-1071d61a4ee3"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "349f9965-1c96-44ba-b1d9-5e3aafeb0a8f",
+      "attributes": {
+        "locale": "es-ES",
+        "name": "iScoreboard: Marcador",
+        "subtitle": "Puntos, tiempos y partidos",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/349f9965-1c96-44ba-b1d9-5e3aafeb0a8f"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "534c3c2c-c415-44be-ba58-f88e67bc8fd6",
+      "attributes": {
+        "locale": "en-CA",
+        "name": "iScoreboard: Sports Scoreboard",
+        "subtitle": "Scores, timers & match records",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/534c3c2c-c415-44be-ba58-f88e67bc8fd6"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "165f2ffa-267f-4c7b-81df-8b36bee80ab9",
+      "attributes": {
+        "locale": "fi",
+        "name": "iScoreboard: Tulostaulu",
+        "subtitle": "Tulokset, ajastimet ja pelit",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/165f2ffa-267f-4c7b-81df-8b36bee80ab9"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "f9630fc6-8cec-4af4-a049-c8f8c92e0643",
+      "attributes": {
+        "locale": "ja",
+        "name": "iScoreboard: 万能スコアボード",
+        "subtitle": "得点記録・試合タイマー・振り返り",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/f9630fc6-8cec-4af4-a049-c8f8c92e0643"
+      }
+    }
+  ],
+  "appStoreVersionLocalizations": [
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "a82d85fc-449c-494d-b2df-c59f39aac1e5",
+      "attributes": {
+        "description": null,
+        "locale": "cs",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/a82d85fc-449c-494d-b2df-c59f39aac1e5/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/a82d85fc-449c-494d-b2df-c59f39aac1e5/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/a82d85fc-449c-494d-b2df-c59f39aac1e5/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/a82d85fc-449c-494d-b2df-c59f39aac1e5/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/a82d85fc-449c-494d-b2df-c59f39aac1e5/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/a82d85fc-449c-494d-b2df-c59f39aac1e5/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/a82d85fc-449c-494d-b2df-c59f39aac1e5"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "8ab55f71-a695-4970-b9f5-8ceca760d178",
+      "attributes": {
+        "description": "全能计分器是一款专业的体育与棋牌计分、计时应用，为运动爱好者和棋牌玩家提供便捷、准确的工具。无论是激烈的比赛还是朋友聚会，都能轻松掌控比分与时间。\n\n【主要功能】\n• 运动计分：支持足球、篮球、排球、乒乓球、羽毛球、网球、拳击等多种项目\n• 棋牌计分：内置斗地主、掼蛋/升级计分系统，也可作为通用计分器，多人计分更方便\n• 专业计时：提供象棋、围棋、国际象棋计时功能，以及通用计时器与暂停功能\n• 便捷工具：提供硬币、骰子、哨子、红黄牌、随机分组、全屏字幕、积分榜等实用小工具\n• 特色体验：简洁直观的界面，支持震动反馈与语音播报、中英文双语切换及离线使用\n\n【适用场景】\n• 各类体育比赛现场\n• 棋牌游戏与娱乐聚会\n• 日常训练与比赛记录\n\n欢迎下载体验！\n\n使用条款 / Terms of Use:\nhttps://jifenqi.com/terms\n\n隐私政策 / Privacy Policy:\nhttps://jifenqi.com/privacy\n\nApple 标准最终用户许可协议 / Apple Standard EULA:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/\n",
+        "locale": "zh-Hans",
+        "keywords": "全能计分器 score board 计分器 体育计分 棋牌计分 计时器 比分牌 足球 篮球 排球 乒乓球 羽毛球 网球 拳击 象棋 围棋 国际象棋 斗地主 掼蛋 升级 随机分组 语音播报 记分 比分",
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": "https://jifenqi.com/",
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/8ab55f71-a695-4970-b9f5-8ceca760d178/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/8ab55f71-a695-4970-b9f5-8ceca760d178/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/8ab55f71-a695-4970-b9f5-8ceca760d178/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/8ab55f71-a695-4970-b9f5-8ceca760d178/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/8ab55f71-a695-4970-b9f5-8ceca760d178/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/8ab55f71-a695-4970-b9f5-8ceca760d178/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/8ab55f71-a695-4970-b9f5-8ceca760d178"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "7311b82f-a2d7-4248-abc7-1a365f69182a",
+      "attributes": {
+        "description": "Every point counts. Turn your iPhone or iPad into a clear, easy-to-use scoreboard for matches, training and games with friends.\n\nKeep score for 26+ sports and games, including tennis, pickleball, badminton, table tennis, basketball, soccer, volleyball and billiards. Adjust scoring rules, match formats and doubles serving order for supported sports.\n\nReview saved matches with score trends, timelines and voice notes. Use built-in chess and Go clocks, a cube timer and a stopwatch. Display your scoreboard on a larger screen and share a match code so friends can follow the score remotely.\n\nGet practical tools for coin tosses, random teams, red and yellow cards, and splitting the bill. Spend less time keeping track and more time enjoying the game.\n\nTerms of Use:\nhttps://jifenqi.com/terms\n\nPrivacy Policy:\nhttps://jifenqi.com/privacy\n\nApple Standard EULA:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+        "locale": "en-US",
+        "keywords": "scorekeeper,match,referee,volleyball,cricket,baseball,racquetball,billiards,darts,stopwatch,timeout",
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": "https://jifenqi.com/",
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/7311b82f-a2d7-4248-abc7-1a365f69182a/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/7311b82f-a2d7-4248-abc7-1a365f69182a/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/7311b82f-a2d7-4248-abc7-1a365f69182a/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/7311b82f-a2d7-4248-abc7-1a365f69182a/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/7311b82f-a2d7-4248-abc7-1a365f69182a/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/7311b82f-a2d7-4248-abc7-1a365f69182a/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/7311b82f-a2d7-4248-abc7-1a365f69182a"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "9c4a6a32-c9b7-434d-bfe4-be543e34feb3",
+      "attributes": {
+        "description": null,
+        "locale": "nl-NL",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/9c4a6a32-c9b7-434d-bfe4-be543e34feb3/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/9c4a6a32-c9b7-434d-bfe4-be543e34feb3/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/9c4a6a32-c9b7-434d-bfe4-be543e34feb3/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/9c4a6a32-c9b7-434d-bfe4-be543e34feb3/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/9c4a6a32-c9b7-434d-bfe4-be543e34feb3/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/9c4a6a32-c9b7-434d-bfe4-be543e34feb3/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/9c4a6a32-c9b7-434d-bfe4-be543e34feb3"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "128a001f-ad51-4c4a-8185-162ebe38c6fe",
+      "attributes": {
+        "description": null,
+        "locale": "pa-IN",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/128a001f-ad51-4c4a-8185-162ebe38c6fe/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/128a001f-ad51-4c4a-8185-162ebe38c6fe/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/128a001f-ad51-4c4a-8185-162ebe38c6fe/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/128a001f-ad51-4c4a-8185-162ebe38c6fe/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/128a001f-ad51-4c4a-8185-162ebe38c6fe/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/128a001f-ad51-4c4a-8185-162ebe38c6fe/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/128a001f-ad51-4c4a-8185-162ebe38c6fe"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "6737286b-6e9e-47b3-9b7d-45ad07573bb8",
+      "attributes": {
+        "description": null,
+        "locale": "da",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6737286b-6e9e-47b3-9b7d-45ad07573bb8/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6737286b-6e9e-47b3-9b7d-45ad07573bb8/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6737286b-6e9e-47b3-9b7d-45ad07573bb8/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6737286b-6e9e-47b3-9b7d-45ad07573bb8/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6737286b-6e9e-47b3-9b7d-45ad07573bb8/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6737286b-6e9e-47b3-9b7d-45ad07573bb8/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6737286b-6e9e-47b3-9b7d-45ad07573bb8"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "963a2273-8733-44b1-bbbc-73d846450e0c",
+      "attributes": {
+        "description": null,
+        "locale": "ko",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/963a2273-8733-44b1-bbbc-73d846450e0c/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/963a2273-8733-44b1-bbbc-73d846450e0c/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/963a2273-8733-44b1-bbbc-73d846450e0c/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/963a2273-8733-44b1-bbbc-73d846450e0c/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/963a2273-8733-44b1-bbbc-73d846450e0c/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/963a2273-8733-44b1-bbbc-73d846450e0c/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/963a2273-8733-44b1-bbbc-73d846450e0c"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "d84ca8dc-c71c-4da3-b71d-e9b1dec01428",
+      "attributes": {
+        "description": null,
+        "locale": "or-IN",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/d84ca8dc-c71c-4da3-b71d-e9b1dec01428/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/d84ca8dc-c71c-4da3-b71d-e9b1dec01428/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/d84ca8dc-c71c-4da3-b71d-e9b1dec01428/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/d84ca8dc-c71c-4da3-b71d-e9b1dec01428/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/d84ca8dc-c71c-4da3-b71d-e9b1dec01428/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/d84ca8dc-c71c-4da3-b71d-e9b1dec01428/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/d84ca8dc-c71c-4da3-b71d-e9b1dec01428"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "af846ceb-9137-4078-976a-ed609b65cdd6",
+      "attributes": {
+        "description": null,
+        "locale": "pl",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/af846ceb-9137-4078-976a-ed609b65cdd6/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/af846ceb-9137-4078-976a-ed609b65cdd6/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/af846ceb-9137-4078-976a-ed609b65cdd6/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/af846ceb-9137-4078-976a-ed609b65cdd6/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/af846ceb-9137-4078-976a-ed609b65cdd6/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/af846ceb-9137-4078-976a-ed609b65cdd6/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/af846ceb-9137-4078-976a-ed609b65cdd6"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "ff9eb2c9-4e91-47c5-a372-57e66084ab35",
+      "attributes": {
+        "description": null,
+        "locale": "de-DE",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/ff9eb2c9-4e91-47c5-a372-57e66084ab35/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/ff9eb2c9-4e91-47c5-a372-57e66084ab35/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/ff9eb2c9-4e91-47c5-a372-57e66084ab35/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/ff9eb2c9-4e91-47c5-a372-57e66084ab35/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/ff9eb2c9-4e91-47c5-a372-57e66084ab35/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/ff9eb2c9-4e91-47c5-a372-57e66084ab35/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/ff9eb2c9-4e91-47c5-a372-57e66084ab35"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "6bb80996-0c84-41b6-8318-6fff63190391",
+      "attributes": {
+        "description": null,
+        "locale": "es-MX",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6bb80996-0c84-41b6-8318-6fff63190391/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6bb80996-0c84-41b6-8318-6fff63190391/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6bb80996-0c84-41b6-8318-6fff63190391/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6bb80996-0c84-41b6-8318-6fff63190391/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6bb80996-0c84-41b6-8318-6fff63190391/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6bb80996-0c84-41b6-8318-6fff63190391/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6bb80996-0c84-41b6-8318-6fff63190391"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "6de00144-7594-45fa-bcd7-9c8f820f37be",
+      "attributes": {
+        "description": null,
+        "locale": "id",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6de00144-7594-45fa-bcd7-9c8f820f37be/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6de00144-7594-45fa-bcd7-9c8f820f37be/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6de00144-7594-45fa-bcd7-9c8f820f37be/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6de00144-7594-45fa-bcd7-9c8f820f37be/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6de00144-7594-45fa-bcd7-9c8f820f37be/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6de00144-7594-45fa-bcd7-9c8f820f37be/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6de00144-7594-45fa-bcd7-9c8f820f37be"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "6af5e91b-cd20-4b9a-8382-f28e81a04e7e",
+      "attributes": {
+        "description": null,
+        "locale": "fr-FR",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6af5e91b-cd20-4b9a-8382-f28e81a04e7e/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6af5e91b-cd20-4b9a-8382-f28e81a04e7e/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6af5e91b-cd20-4b9a-8382-f28e81a04e7e/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6af5e91b-cd20-4b9a-8382-f28e81a04e7e/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6af5e91b-cd20-4b9a-8382-f28e81a04e7e/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6af5e91b-cd20-4b9a-8382-f28e81a04e7e/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/6af5e91b-cd20-4b9a-8382-f28e81a04e7e"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "7f2d6109-897f-4967-a8a0-323eec0f3ab5",
+      "attributes": {
+        "description": null,
+        "locale": "hu",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/7f2d6109-897f-4967-a8a0-323eec0f3ab5/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/7f2d6109-897f-4967-a8a0-323eec0f3ab5/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/7f2d6109-897f-4967-a8a0-323eec0f3ab5/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/7f2d6109-897f-4967-a8a0-323eec0f3ab5/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/7f2d6109-897f-4967-a8a0-323eec0f3ab5/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/7f2d6109-897f-4967-a8a0-323eec0f3ab5/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/7f2d6109-897f-4967-a8a0-323eec0f3ab5"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "743341b8-0974-4ee1-a5d7-437103beb358",
+      "attributes": {
+        "description": null,
+        "locale": "fr-CA",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/743341b8-0974-4ee1-a5d7-437103beb358/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/743341b8-0974-4ee1-a5d7-437103beb358/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/743341b8-0974-4ee1-a5d7-437103beb358/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/743341b8-0974-4ee1-a5d7-437103beb358/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/743341b8-0974-4ee1-a5d7-437103beb358/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/743341b8-0974-4ee1-a5d7-437103beb358/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/743341b8-0974-4ee1-a5d7-437103beb358"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "063ca2a3-77f7-4630-beb6-618a8adf5bfe",
+      "attributes": {
+        "description": null,
+        "locale": "he",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/063ca2a3-77f7-4630-beb6-618a8adf5bfe/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/063ca2a3-77f7-4630-beb6-618a8adf5bfe/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/063ca2a3-77f7-4630-beb6-618a8adf5bfe/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/063ca2a3-77f7-4630-beb6-618a8adf5bfe/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/063ca2a3-77f7-4630-beb6-618a8adf5bfe/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/063ca2a3-77f7-4630-beb6-618a8adf5bfe/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/063ca2a3-77f7-4630-beb6-618a8adf5bfe"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "8cb9b429-0be7-4354-a308-f0fb8372dda0",
+      "attributes": {
+        "description": null,
+        "locale": "en-CA",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/8cb9b429-0be7-4354-a308-f0fb8372dda0/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/8cb9b429-0be7-4354-a308-f0fb8372dda0/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/8cb9b429-0be7-4354-a308-f0fb8372dda0/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/8cb9b429-0be7-4354-a308-f0fb8372dda0/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/8cb9b429-0be7-4354-a308-f0fb8372dda0/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/8cb9b429-0be7-4354-a308-f0fb8372dda0/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/8cb9b429-0be7-4354-a308-f0fb8372dda0"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "1fa74a9c-76de-4282-b3d3-9a34e26ecc4c",
+      "attributes": {
+        "description": null,
+        "locale": "fi",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/1fa74a9c-76de-4282-b3d3-9a34e26ecc4c/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/1fa74a9c-76de-4282-b3d3-9a34e26ecc4c/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/1fa74a9c-76de-4282-b3d3-9a34e26ecc4c/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/1fa74a9c-76de-4282-b3d3-9a34e26ecc4c/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/1fa74a9c-76de-4282-b3d3-9a34e26ecc4c/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/1fa74a9c-76de-4282-b3d3-9a34e26ecc4c/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/1fa74a9c-76de-4282-b3d3-9a34e26ecc4c"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "cea25665-26f0-42a3-ba00-9b708928e7b4",
+      "attributes": {
+        "description": null,
+        "locale": "es-ES",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/cea25665-26f0-42a3-ba00-9b708928e7b4/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/cea25665-26f0-42a3-ba00-9b708928e7b4/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/cea25665-26f0-42a3-ba00-9b708928e7b4/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/cea25665-26f0-42a3-ba00-9b708928e7b4/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/cea25665-26f0-42a3-ba00-9b708928e7b4/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/cea25665-26f0-42a3-ba00-9b708928e7b4/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/cea25665-26f0-42a3-ba00-9b708928e7b4"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "0d2bbc91-6f40-4fdb-b6df-6719e3c76e80",
+      "attributes": {
+        "description": null,
+        "locale": "pt-BR",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/0d2bbc91-6f40-4fdb-b6df-6719e3c76e80/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/0d2bbc91-6f40-4fdb-b6df-6719e3c76e80/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/0d2bbc91-6f40-4fdb-b6df-6719e3c76e80/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/0d2bbc91-6f40-4fdb-b6df-6719e3c76e80/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/0d2bbc91-6f40-4fdb-b6df-6719e3c76e80/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/0d2bbc91-6f40-4fdb-b6df-6719e3c76e80/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/0d2bbc91-6f40-4fdb-b6df-6719e3c76e80"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "2da11e9b-526e-4305-87b5-0657f0539304",
+      "attributes": {
+        "description": null,
+        "locale": "en-AU",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/2da11e9b-526e-4305-87b5-0657f0539304/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/2da11e9b-526e-4305-87b5-0657f0539304/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/2da11e9b-526e-4305-87b5-0657f0539304/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/2da11e9b-526e-4305-87b5-0657f0539304/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/2da11e9b-526e-4305-87b5-0657f0539304/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/2da11e9b-526e-4305-87b5-0657f0539304/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/2da11e9b-526e-4305-87b5-0657f0539304"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "ddb877ca-2ec2-4af7-b483-e36455ffdc6f",
+      "attributes": {
+        "description": null,
+        "locale": "el",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/ddb877ca-2ec2-4af7-b483-e36455ffdc6f/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/ddb877ca-2ec2-4af7-b483-e36455ffdc6f/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/ddb877ca-2ec2-4af7-b483-e36455ffdc6f/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/ddb877ca-2ec2-4af7-b483-e36455ffdc6f/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/ddb877ca-2ec2-4af7-b483-e36455ffdc6f/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/ddb877ca-2ec2-4af7-b483-e36455ffdc6f/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/ddb877ca-2ec2-4af7-b483-e36455ffdc6f"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "4658d0c0-147b-4d98-986a-a1199c567cf6",
+      "attributes": {
+        "description": null,
+        "locale": "ja",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/4658d0c0-147b-4d98-986a-a1199c567cf6/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/4658d0c0-147b-4d98-986a-a1199c567cf6/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/4658d0c0-147b-4d98-986a-a1199c567cf6/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/4658d0c0-147b-4d98-986a-a1199c567cf6/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/4658d0c0-147b-4d98-986a-a1199c567cf6/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/4658d0c0-147b-4d98-986a-a1199c567cf6/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/4658d0c0-147b-4d98-986a-a1199c567cf6"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "a747e220-1386-40bd-bc72-6d22ae22d91b",
+      "attributes": {
+        "description": null,
+        "locale": "hr",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/a747e220-1386-40bd-bc72-6d22ae22d91b/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/a747e220-1386-40bd-bc72-6d22ae22d91b/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/a747e220-1386-40bd-bc72-6d22ae22d91b/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/a747e220-1386-40bd-bc72-6d22ae22d91b/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/a747e220-1386-40bd-bc72-6d22ae22d91b/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/a747e220-1386-40bd-bc72-6d22ae22d91b/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/a747e220-1386-40bd-bc72-6d22ae22d91b"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "b2fc0758-6f74-48ee-b823-60c25e120047",
+      "attributes": {
+        "description": null,
+        "locale": "mr-IN",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/b2fc0758-6f74-48ee-b823-60c25e120047/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/b2fc0758-6f74-48ee-b823-60c25e120047/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/b2fc0758-6f74-48ee-b823-60c25e120047/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/b2fc0758-6f74-48ee-b823-60c25e120047/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/b2fc0758-6f74-48ee-b823-60c25e120047/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/b2fc0758-6f74-48ee-b823-60c25e120047/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/b2fc0758-6f74-48ee-b823-60c25e120047"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "94959fb1-c974-45b2-9be1-a4cfc1ca984f",
+      "attributes": {
+        "description": null,
+        "locale": "ms",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/94959fb1-c974-45b2-9be1-a4cfc1ca984f/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/94959fb1-c974-45b2-9be1-a4cfc1ca984f/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/94959fb1-c974-45b2-9be1-a4cfc1ca984f/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/94959fb1-c974-45b2-9be1-a4cfc1ca984f/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/94959fb1-c974-45b2-9be1-a4cfc1ca984f/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/94959fb1-c974-45b2-9be1-a4cfc1ca984f/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/94959fb1-c974-45b2-9be1-a4cfc1ca984f"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "89e9aa93-cda7-492e-82bc-e81e6cfba17c",
+      "attributes": {
+        "description": null,
+        "locale": "en-GB",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/89e9aa93-cda7-492e-82bc-e81e6cfba17c/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/89e9aa93-cda7-492e-82bc-e81e6cfba17c/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/89e9aa93-cda7-492e-82bc-e81e6cfba17c/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/89e9aa93-cda7-492e-82bc-e81e6cfba17c/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/89e9aa93-cda7-492e-82bc-e81e6cfba17c/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/89e9aa93-cda7-492e-82bc-e81e6cfba17c/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/89e9aa93-cda7-492e-82bc-e81e6cfba17c"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "158963ac-72fa-498f-8c26-aa7c9ca9591e",
+      "attributes": {
+        "description": null,
+        "locale": "kn-IN",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/158963ac-72fa-498f-8c26-aa7c9ca9591e/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/158963ac-72fa-498f-8c26-aa7c9ca9591e/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/158963ac-72fa-498f-8c26-aa7c9ca9591e/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/158963ac-72fa-498f-8c26-aa7c9ca9591e/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/158963ac-72fa-498f-8c26-aa7c9ca9591e/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/158963ac-72fa-498f-8c26-aa7c9ca9591e/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/158963ac-72fa-498f-8c26-aa7c9ca9591e"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "1dca443a-f145-4e6e-95bb-efd9586c0cd7",
+      "attributes": {
+        "description": null,
+        "locale": "ca",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/1dca443a-f145-4e6e-95bb-efd9586c0cd7/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/1dca443a-f145-4e6e-95bb-efd9586c0cd7/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/1dca443a-f145-4e6e-95bb-efd9586c0cd7/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/1dca443a-f145-4e6e-95bb-efd9586c0cd7/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/1dca443a-f145-4e6e-95bb-efd9586c0cd7/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/1dca443a-f145-4e6e-95bb-efd9586c0cd7/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/1dca443a-f145-4e6e-95bb-efd9586c0cd7"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "f416df94-3249-4838-b98b-862831d012a5",
+      "attributes": {
+        "description": null,
+        "locale": "no",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/f416df94-3249-4838-b98b-862831d012a5/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/f416df94-3249-4838-b98b-862831d012a5/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/f416df94-3249-4838-b98b-862831d012a5/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/f416df94-3249-4838-b98b-862831d012a5/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/f416df94-3249-4838-b98b-862831d012a5/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/f416df94-3249-4838-b98b-862831d012a5/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/f416df94-3249-4838-b98b-862831d012a5"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "4bc4c492-679c-4976-8672-f74c92c3259d",
+      "attributes": {
+        "description": null,
+        "locale": "ar-SA",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/4bc4c492-679c-4976-8672-f74c92c3259d/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/4bc4c492-679c-4976-8672-f74c92c3259d/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/4bc4c492-679c-4976-8672-f74c92c3259d/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/4bc4c492-679c-4976-8672-f74c92c3259d/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/4bc4c492-679c-4976-8672-f74c92c3259d/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/4bc4c492-679c-4976-8672-f74c92c3259d/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/4bc4c492-679c-4976-8672-f74c92c3259d"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "24fdd024-9c0d-4530-8847-6338373d9215",
+      "attributes": {
+        "description": null,
+        "locale": "ml-IN",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/24fdd024-9c0d-4530-8847-6338373d9215/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/24fdd024-9c0d-4530-8847-6338373d9215/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/24fdd024-9c0d-4530-8847-6338373d9215/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/24fdd024-9c0d-4530-8847-6338373d9215/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/24fdd024-9c0d-4530-8847-6338373d9215/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/24fdd024-9c0d-4530-8847-6338373d9215/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/24fdd024-9c0d-4530-8847-6338373d9215"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "5bc9b6ca-bd1f-4836-83fc-43fa4f7531fd",
+      "attributes": {
+        "description": null,
+        "locale": "bn-BD",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/5bc9b6ca-bd1f-4836-83fc-43fa4f7531fd/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/5bc9b6ca-bd1f-4836-83fc-43fa4f7531fd/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/5bc9b6ca-bd1f-4836-83fc-43fa4f7531fd/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/5bc9b6ca-bd1f-4836-83fc-43fa4f7531fd/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/5bc9b6ca-bd1f-4836-83fc-43fa4f7531fd/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/5bc9b6ca-bd1f-4836-83fc-43fa4f7531fd/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/5bc9b6ca-bd1f-4836-83fc-43fa4f7531fd"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "30dd0aab-2ab4-46d3-ba14-736057c4725e",
+      "attributes": {
+        "description": null,
+        "locale": "gu-IN",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/30dd0aab-2ab4-46d3-ba14-736057c4725e/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/30dd0aab-2ab4-46d3-ba14-736057c4725e/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/30dd0aab-2ab4-46d3-ba14-736057c4725e/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/30dd0aab-2ab4-46d3-ba14-736057c4725e/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/30dd0aab-2ab4-46d3-ba14-736057c4725e/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/30dd0aab-2ab4-46d3-ba14-736057c4725e/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/30dd0aab-2ab4-46d3-ba14-736057c4725e"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "77662a67-ad27-4f7f-b077-e57923dac148",
+      "attributes": {
+        "description": null,
+        "locale": "hi",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/77662a67-ad27-4f7f-b077-e57923dac148/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/77662a67-ad27-4f7f-b077-e57923dac148/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/77662a67-ad27-4f7f-b077-e57923dac148/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/77662a67-ad27-4f7f-b077-e57923dac148/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/77662a67-ad27-4f7f-b077-e57923dac148/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/77662a67-ad27-4f7f-b077-e57923dac148/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/77662a67-ad27-4f7f-b077-e57923dac148"
+      }
+    },
+    {
+      "type": "appStoreVersionLocalizations",
+      "id": "e238ae93-8dbf-4b84-bde0-190de8e68cb8",
+      "attributes": {
+        "description": null,
+        "locale": "it",
+        "keywords": null,
+        "marketingUrl": null,
+        "promotionalText": null,
+        "supportUrl": null,
+        "whatsNew": null
+      },
+      "relationships": {
+        "appScreenshotSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/e238ae93-8dbf-4b84-bde0-190de8e68cb8/relationships/appScreenshotSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/e238ae93-8dbf-4b84-bde0-190de8e68cb8/appScreenshotSets"
+          }
+        },
+        "appPreviewSets": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/e238ae93-8dbf-4b84-bde0-190de8e68cb8/relationships/appPreviewSets",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/e238ae93-8dbf-4b84-bde0-190de8e68cb8/appPreviewSets"
+          }
+        },
+        "searchKeywords": {
+          "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/e238ae93-8dbf-4b84-bde0-190de8e68cb8/relationships/searchKeywords",
+            "related": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/e238ae93-8dbf-4b84-bde0-190de8e68cb8/searchKeywords"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/e238ae93-8dbf-4b84-bde0-190de8e68cb8"
+      }
+    }
+  ]
+}

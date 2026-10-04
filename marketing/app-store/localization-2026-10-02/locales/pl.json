@@ -1,0 +1,58 @@
+{
+  "locale": "pl",
+  "iosLocale": "pl",
+  "language": "Polish",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Tablica wyników",
+  "subtitle": "Wyniki, zegary i historia gier",
+  "description": "Każdy punkt się liczy. Zamień iPhone'a lub iPada w czytelną, wygodną tablicę wyników na mecze, treningi i rozgrywki ze znajomymi.\n\nZapisuj punkty w ponad 26 dyscyplinach i grach, takich jak tenis, pickleball, badminton, tenis stołowy, koszykówka, piłka nożna, siatkówka i bilard. W obsługiwanych dyscyplinach dostosuj zasady punktacji, format meczu i kolejność serwowania w deblu.\n\nZachowuj mecze i przeglądaj zmiany wyniku, oś czasu oraz notatki głosowe. Korzystaj z zegarów szachowych i do go, timera do kostki oraz stopera. Wyświetlaj wynik na dużym ekranie i udostępniaj kod meczu, aby znajomi mogli śledzić go zdalnie.\n\nRzut monetą, losowanie drużyn, czerwone i żółte kartki oraz dzielenie kosztów — wszystko w jednym miejscu. Mniej liczenia, więcej przyjemności z gry.\n\nWarunki użytkowania:\nhttps://jifenqi.com/terms\n\nPolityka prywatności:\nhttps://jifenqi.com/privacy\n\nStandardowa umowa licencyjna Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Każdy punkt\nsię liczy",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Wszystkie wyniki\nna pierwszy rzut oka",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "Jedna tablica wyników\ndla ponad 26 dyscyplin",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Wróć\ndo każdego meczu",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Twoje zasady\ntwoja gra",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Więcej niż\ngry z piłką",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Twoje wyniki\nna dużym ekranie",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Zapisuj punkty\nz nadgarstka",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Narzędzia sędziego\nw jednej aplikacji",
+      "enabled": true
+    }
+  ]
+}

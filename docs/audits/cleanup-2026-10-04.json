@@ -1,0 +1,1781 @@
+{
+  "bytes": 23660791246,
+  "files": 334965,
+  "failed": [],
+  "documentation_updates": {
+    "docs/ios_display_parity_audit_2026-09-13.md": 2,
+    "docs/localization-deep-review-g6-ui-2026-09-30.md": 2,
+    "docs/sports-voice-localization-2026-10-02.md": 3,
+    "docs/localization-deep-review-g3-2026-09-30.md": 2,
+    "docs/ar-he-localization-audit-2026-10-03.md": 1,
+    "docs/localization-deep-review-g5-2026-09-30.md": 1,
+    "docs/ios_display_parity_remediation_2026-09-14.md": 2,
+    "docs/localization-review-2026-09-29-30locales.md": 4,
+    "docs/localization-review-2026-09-26.md": 8,
+    "docs/localization-deep-review-g6-2026-09-30.md": 1,
+    "docs/groups/self-review-and-cross-app-2026-10-01.md": 5,
+    "artifacts/app-store-copy-audit-20261003/audit-report.md": 3,
+    "marketing/google-play/localization-2026-10-02/README.md": 0,
+    "marketing/app-store/ipad-screenshots-2026-10-03/README.md": 0,
+    "marketing/app-store/zh-Hans-2026-09/README.md": 0,
+    "marketing/app-store/localization-2026-10-02/README.md": 2
+  },
+  "noncache_media_files_removed": 2791,
+  "preserved_file_baseline_count": 3718,
+  "removed_targets": [
+    {
+      "path": ".DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 10244
+    },
+    {
+      "path": "UITestScreenshots",
+      "category": "test_screenshots",
+      "files": 10,
+      "bytes": 3388860
+    },
+    {
+      "path": "UITestScreenshots-All",
+      "category": "test_screenshots",
+      "files": 414,
+      "bytes": 90373310
+    },
+    {
+      "path": "UITestScreenshots-iPad",
+      "category": "test_screenshots",
+      "files": 90,
+      "bytes": 18525762
+    },
+    {
+      "path": "build",
+      "category": "build_cache",
+      "files": 264763,
+      "bytes": 16970701342
+    },
+    {
+      "path": "Packages/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 6148
+    },
+    {
+      "path": "artifacts/groups-review-20261002",
+      "category": "generated_artifact",
+      "files": 11,
+      "bytes": 92398517
+    },
+    {
+      "path": "artifacts/pingpong-cards-2026-10-04",
+      "category": "generated_artifact",
+      "files": 6,
+      "bytes": 1030854
+    },
+    {
+      "path": "artifacts/plus-icons-20261003",
+      "category": "generated_artifact",
+      "files": 3,
+      "bytes": 413546
+    },
+    {
+      "path": "artifacts/serve-announcement-2026-10-03",
+      "category": "generated_artifact",
+      "files": 2,
+      "bytes": 701814
+    },
+    {
+      "path": "jifen/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 6148
+    },
+    {
+      "path": "jifenWatch Watch App/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 6148
+    },
+    {
+      "path": "marketing/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 6148
+    },
+    {
+      "path": "scripts/__pycache__",
+      "category": "runtime_cache",
+      "files": 2,
+      "bytes": 77204
+    },
+    {
+      "path": "/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl",
+      "category": "project_xcode_cache",
+      "files": 55817,
+      "bytes": 3967609593
+    },
+    {
+      "path": "Packages/JifenCore/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 6148
+    },
+    {
+      "path": "Packages/JifenCore/.build",
+      "category": "build_cache",
+      "files": 6167,
+      "bytes": 575109283
+    },
+    {
+      "path": "Packages/JifenCore/build",
+      "category": "build_cache",
+      "files": 3424,
+      "bytes": 492978434
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/asia-title-preview-1.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 450698
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/asia-title-preview-2.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 463655
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/asia-title-preview-3.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 508947
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/asia-title-preview-4.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 475737
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/slogan-preview-1.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 799322
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/slogan-preview-2.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 805631
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/slogan-preview-3.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 816965
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/titles-ar-SA.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 163801
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/titles-cs.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 228950
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/titles-el.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 211368
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/titles-he.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 168833
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/titles-hr.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 223670
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/titles-hu.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 241088
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/titles-pl.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 226301
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/titles-ro.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 209475
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/titles-ru.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 213441
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/titles-sk.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 218877
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/titles-sl-SI.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 221961
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/titles-tr.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 220799
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/titles-uk.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 216616
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/titles-ur-PK.jpg",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 173509
+    },
+    {
+      "path": "artifacts/app-store-copy-fix-20261003/pen-exports",
+      "category": "generated_artifact",
+      "files": 23,
+      "bytes": 26868239
+    },
+    {
+      "path": "artifacts/app-store-copy-fix-20261003/screenshot-restore",
+      "category": "generated_artifact",
+      "files": 129,
+      "bytes": 103820536
+    },
+    {
+      "path": "artifacts/app-store-copy-fix-20261003/screenshots-before",
+      "category": "generated_artifact",
+      "files": 27,
+      "bytes": 27630082
+    },
+    {
+      "path": "artifacts/app-store-membership-20261004/image-verification.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 294
+    },
+    {
+      "path": "artifacts/app-store-membership-20261004/text-upload.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "artifacts/app-store-membership-20261004/upload-resume.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 740
+    },
+    {
+      "path": "artifacts/app-store-membership-20261004/upload.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 3274
+    },
+    {
+      "path": "artifacts/app-store-privacy-url-20261004/update.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 214
+    },
+    {
+      "path": "artifacts/app-store-screenshots-20261002/backup-originals",
+      "category": "generated_artifact",
+      "files": 8,
+      "bytes": 4443117
+    },
+    {
+      "path": "artifacts/ar-he-localization-20261003/google-resource-build.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 6064
+    },
+    {
+      "path": "artifacts/ar-he-localization-20261003/installed-google-screen.png",
+      "category": "generated_artifact",
+      "files": 1,
+      "bytes": 172393
+    },
+    {
+      "path": "artifacts/ar-he-localization-20261003/installed-google.apk",
+      "category": "generated_artifact",
+      "files": 1,
+      "bytes": 91380014
+    },
+    {
+      "path": "artifacts/ios-screenshots-20261002/before-basketball-teams",
+      "category": "old_snapshot",
+      "files": 436,
+      "bytes": 256085866
+    },
+    {
+      "path": "artifacts/ios-screenshots-20261002/before-card3-simplify",
+      "category": "old_snapshot",
+      "files": 28,
+      "bytes": 4392244
+    },
+    {
+      "path": "artifacts/ios-screenshots-20261002/before-cards-4-7",
+      "category": "old_snapshot",
+      "files": 340,
+      "bytes": 238386823
+    },
+    {
+      "path": "artifacts/ios-screenshots-20261002/before-localized-names",
+      "category": "old_snapshot",
+      "files": 99,
+      "bytes": 14267823
+    },
+    {
+      "path": "artifacts/ios-screenshots-20261002/capture-run",
+      "category": "generated_artifact",
+      "files": 404,
+      "bytes": 104489963
+    },
+    {
+      "path": "artifacts/ios-screenshots-20261002/excluded-zh-Hans-draft",
+      "category": "generated_artifact",
+      "files": 7,
+      "bytes": 4879031
+    },
+    {
+      "path": "artifacts/ios-screenshots-20261002/figma-english-overview.png",
+      "category": "generated_artifact",
+      "files": 1,
+      "bytes": 60996
+    },
+    {
+      "path": "artifacts/ios-screenshots-20261002/final-slogans",
+      "category": "generated_artifact",
+      "files": 48,
+      "bytes": 101805866
+    },
+    {
+      "path": "artifacts/ios-screenshots-20261002/font-check",
+      "category": "generated_artifact",
+      "files": 2,
+      "bytes": 2302475
+    },
+    {
+      "path": "artifacts/ios-screenshots-20261002/recheck",
+      "category": "generated_artifact",
+      "files": 1,
+      "bytes": 124316
+    },
+    {
+      "path": "jifen/Features/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 6148
+    },
+    {
+      "path": "marketing/app-store/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 8196
+    },
+    {
+      "path": "marketing/artifacts/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 6148
+    },
+    {
+      "path": "marketing/google-play/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 10244
+    },
+    {
+      "path": "artifacts/3d-icon-candidates-2026-10-03/validation/ios-build-final.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 120423
+    },
+    {
+      "path": "artifacts/3d-icon-candidates-2026-10-03/validation/ios-build-with-assets.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 133412
+    },
+    {
+      "path": "artifacts/3d-icon-candidates-2026-10-03/validation/ios-build.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 2802542
+    },
+    {
+      "path": "artifacts/3d-icon-candidates-2026-10-03/validation/ios-icon-captures-verified.xcresult",
+      "category": "test_result",
+      "files": 29,
+      "bytes": 71566
+    },
+    {
+      "path": "artifacts/3d-icon-candidates-2026-10-03/validation/ios-icon-captures.xcresult",
+      "category": "test_result",
+      "files": 30,
+      "bytes": 400259
+    },
+    {
+      "path": "artifacts/3d-icon-candidates-2026-10-03/validation/ios-screenshot-capture-verified.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 57830
+    },
+    {
+      "path": "artifacts/3d-icon-candidates-2026-10-03/validation/ios-screenshot-capture.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 1132409
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/ca.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 160932
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/da.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 143632
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/de-DE.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 156085
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/en-AU.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 155571
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/en-CA.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 155605
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/en-GB.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 155678
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/en-US.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 155561
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/es-ES.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 161020
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/es-MX.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 160928
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/fi.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 157136
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/fr-CA.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 170684
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/fr-FR.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 171067
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/it.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 159556
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/nl-NL.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 158697
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/no.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 149857
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/pt-BR.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 159703
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/pt-PT.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 165782
+    },
+    {
+      "path": "artifacts/app-store-copy-audit-20261003/visual-western/sv.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 155241
+    },
+    {
+      "path": "jifen/Features/Scoreboard/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 6148
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 8196
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/__pycache__",
+      "category": "runtime_cache",
+      "files": 2,
+      "bytes": 30655
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/boot-b.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 33240
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/build-statusbar.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 103622
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/capture-a-final.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 755
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/capture-a.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 2184
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/capture-b-final.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 878
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/capture-b.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 1883
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/capture-fast.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 690
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/capture.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 1948715
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/capture.xcresult",
+      "category": "test_result",
+      "files": 1575,
+      "bytes": 80491850
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/pilot-attachments",
+      "category": "generated_artifact",
+      "files": 6,
+      "bytes": 2997105
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/pilot-b.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 10530
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/pilot-b.xcresult",
+      "category": "test_result",
+      "files": 41,
+      "bytes": 3038894
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/pilot.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 10140
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/pilot.xcresult",
+      "category": "test_result",
+      "files": 42,
+      "bytes": 3342689
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/preview.png",
+      "category": "store_preview",
+      "files": 1,
+      "bytes": 557284
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/qa",
+      "category": "generated_artifact",
+      "files": 5,
+      "bytes": 3595775
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/upload-preflight.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 84
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/upload-resume.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 3410
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/upload-zh-hant-verify.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 2718
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/upload-zh-hant.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 2846
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/upload.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 9313
+    },
+    {
+      "path": "marketing/app-store/zh-Hans-2026-09/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 6148
+    },
+    {
+      "path": "marketing/app-store/zh-Hans-2026-09/overview.png",
+      "category": "old_store_preview",
+      "files": 1,
+      "bytes": 742175
+    },
+    {
+      "path": "marketing/artifacts/google-play-copy-fix-20261003/before-section-groups",
+      "category": "old_snapshot",
+      "files": 1,
+      "bytes": 587868
+    },
+    {
+      "path": "marketing/artifacts/google-play-copy-fix-20261003/before-zhtw-centering",
+      "category": "old_snapshot",
+      "files": 1,
+      "bytes": 587011
+    },
+    {
+      "path": "marketing/artifacts/google-play-copy-fix-20261003/before-zhtw-slogan",
+      "category": "old_snapshot",
+      "files": 1,
+      "bytes": 587850
+    },
+    {
+      "path": "marketing/artifacts/ios-screenshots-20261002/before-section-groups",
+      "category": "old_snapshot",
+      "files": 1,
+      "bytes": 446849
+    },
+    {
+      "path": "marketing/artifacts/ios-screenshots-20261002/before-zhhant-centering",
+      "category": "old_snapshot",
+      "files": 1,
+      "bytes": 446611
+    },
+    {
+      "path": "marketing/artifacts/ios-screenshots-20261002/before-zhhant-slogan",
+      "category": "old_snapshot",
+      "files": 1,
+      "bytes": 446831
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 10244
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/basketball-native-exports",
+      "category": "generated_artifact",
+      "files": 96,
+      "bytes": 38873437
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/before-basketball-teams",
+      "category": "old_snapshot",
+      "files": 102,
+      "bytes": 27142770
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/before-icon-layer-fix",
+      "category": "old_snapshot",
+      "files": 354,
+      "bytes": 101875530
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/before-localized-ui",
+      "category": "old_snapshot",
+      "files": 125,
+      "bytes": 18756814
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/before-self-audit",
+      "category": "old_snapshot",
+      "files": 26,
+      "bytes": 8201136
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/capture-all.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 879
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/capture-last.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 61
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/capture-pilots.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 91
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/capture-repairs.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 270
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/composite-all.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 778
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/localized-ui-commit.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 233
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/localized-ui-resume.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 49
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/localized-ui-upload-dry-run.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 96
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/localized-ui-upload.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 2240
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/package",
+      "category": "generated_artifact",
+      "files": 3,
+      "bytes": 119866277
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/pen-build-zhtw.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 4742
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/pen-build.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 135342
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/pen-center-zhtw.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 3888
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/pen-fit.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 146715
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/pen-reexport-03.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 13027
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/pen-shorten-titles.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 4571
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/pen-simplify-card3.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 15831
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/pen-title-refinement.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 3751
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/pen-zhtw-slogan.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 2237
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/play-stage-rerun.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 8929
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/play-stage-zhtw.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 9305
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/portable-check",
+      "category": "generated_artifact",
+      "files": 2,
+      "bytes": 1271723
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/preview-basketball-update.png",
+      "category": "store_preview",
+      "files": 1,
+      "bytes": 275253
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/preview-localized-ui-1.jpg",
+      "category": "store_preview",
+      "files": 1,
+      "bytes": 250762
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/preview-localized-ui-2.jpg",
+      "category": "store_preview",
+      "files": 1,
+      "bytes": 225812
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/preview-localized-ui.png",
+      "category": "store_preview",
+      "files": 1,
+      "bytes": 363278
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/preview-major.png",
+      "category": "store_preview",
+      "files": 1,
+      "bytes": 1338846
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/preview-scripts.png",
+      "category": "store_preview",
+      "files": 1,
+      "bytes": 2244903
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/preview-self-audit.png",
+      "category": "store_preview",
+      "files": 1,
+      "bytes": 280139
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/preview-zh-CN.png",
+      "category": "store_preview",
+      "files": 1,
+      "bytes": 359398
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/self-audit-native-exports",
+      "category": "generated_artifact",
+      "files": 15,
+      "bytes": 10351496
+    },
+    {
+      "path": "docs/audits/2026-09-13/evidence/display_boxing_phone_sync_1.5x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 41242
+    },
+    {
+      "path": "docs/audits/2026-09-13/evidence/display_tennis_doubles_phone_sync_1.5x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 49153
+    },
+    {
+      "path": "docs/audits/2026-09-13/evidence/display_tennis_doubles_portrait_sync_1x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 37524
+    },
+    {
+      "path": "docs/audits/2026-09-13/evidence/display_uno_tablet_sync_1.5x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 75376
+    },
+    {
+      "path": "docs/audits/2026-09-13/evidence/display_uno_tablet_sync_1x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 75376
+    },
+    {
+      "path": "docs/audits/2026-09-13/evidence/iPhone_audit_pingpong_07_palette.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 176158
+    },
+    {
+      "path": "docs/audits/2026-09-13/evidence/iPhone_audit_tennis_02_edit.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 161609
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/display_basketball_phone_sync_1.5x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 37418
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/display_boxing_phone_sync_1.5x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 37922
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/display_doudizhu_phone_sync_1.5x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 40746
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/display_padel_portrait_sync_1.5x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 43307
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/display_tennis_doubles_phone_sync_1.5x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 55347
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/display_tennis_doubles_portrait_sync_1.5x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 43307
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/display_tennis_phone_sync_1.5x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 37965
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/display_uno_tablet_sync_1.5x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 94300
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/display_uno_tablet_sync_1x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 75376
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/iPad_audit_archery_05_text_panel.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 275090
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/iPhone_audit_archery_05_text_panel.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 217128
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/iPhone_audit_foosball_02_edit.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 151397
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/iPhone_audit_pingpong_05_text_panel.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 224570
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/iPhone_audit_pingpong_07_palette.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 206645
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/iPhone_audit_snooker_04_style.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 481839
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/iPhone_audit_tennis_02_edit.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 148183
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/remediation_badminton_doubles_secondary_1.5x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 40116
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/remediation_team_court_portrait.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 26864
+    },
+    {
+      "path": "docs/audits/2026-09-14/evidence/remediation_tennis_doubles_secondary_1.5x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 43954
+    },
+    {
+      "path": "docs/audits/2026-09-14/followup/display_archery_dual_phone_sync_1x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 34467
+    },
+    {
+      "path": "docs/audits/2026-09-14/followup/display_multi_scoreboard_phone_cast_1x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 34613
+    },
+    {
+      "path": "docs/audits/2026-09-14/followup/display_tennis_doubles_phone_sync_1.5x.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 55522
+    },
+    {
+      "path": "docs/audits/2026-09-14/followup/iPhone_audit_badminton_doubles_mainScore_panel.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 270731
+    },
+    {
+      "path": "docs/audits/2026-09-14/followup/iPhone_audit_boxing_01_board.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 151067
+    },
+    {
+      "path": "docs/audits/2026-09-14/followup/iPhone_audit_boxing_03_menu.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 229975
+    },
+    {
+      "path": "docs/audits/2026-09-14/followup/iPhone_audit_eight_ball_02_edit.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 134903
+    },
+    {
+      "path": "docs/audits/2026-09-14/followup/iPhone_audit_football_04_style.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 165923
+    },
+    {
+      "path": "docs/audits/2026-09-14/followup/iPhone_audit_football_10_stoppage_settings.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 145928
+    },
+    {
+      "path": "docs/audits/2026-09-14/followup/iPhone_audit_pickleball_8_palette_panel.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 266357
+    },
+    {
+      "path": "docs/audits/2026-09-14/followup/iPhone_audit_snooker_04_style.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 186754
+    },
+    {
+      "path": "docs/audits/2026-09-14/followup/iPhone_audit_tennis_doubles_02_edit.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 169384
+    },
+    {
+      "path": "docs/audits/2026-09-14/followup/iPhone_audit_uno_04_style.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 268751
+    },
+    {
+      "path": "docs/audits/2026-09-14/followup/remediation_multi_scoreboard_4_players_sync.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 51359
+    },
+    {
+      "path": "docs/audits/2026-09-14/followup/remediation_nine_ball_4_players_cast.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 48169
+    },
+    {
+      "path": "docs/demos/artifacts/scoreboard-orientation/basketball-portrait.jpg",
+      "category": "demo_preview",
+      "files": 1,
+      "bytes": 34637
+    },
+    {
+      "path": "docs/demos/artifacts/scoreboard-orientation/doudizhu-four-portrait.png",
+      "category": "demo_preview",
+      "files": 1,
+      "bytes": 19461
+    },
+    {
+      "path": "docs/demos/artifacts/scoreboard-orientation/landscape.jpg",
+      "category": "demo_preview",
+      "files": 1,
+      "bytes": 45704
+    },
+    {
+      "path": "docs/demos/artifacts/scoreboard-orientation/nine-ball-four-portrait.png",
+      "category": "demo_preview",
+      "files": 1,
+      "bytes": 21381
+    },
+    {
+      "path": "docs/demos/artifacts/scoreboard-orientation/nine-ball-three-portrait.png",
+      "category": "demo_preview",
+      "files": 1,
+      "bytes": 20595
+    },
+    {
+      "path": "docs/demos/artifacts/scoreboard-orientation/nine-ball-two-portrait.png",
+      "category": "demo_preview",
+      "files": 1,
+      "bytes": 19272
+    },
+    {
+      "path": "docs/demos/artifacts/scoreboard-orientation/portrait-first-hint.jpg",
+      "category": "demo_preview",
+      "files": 1,
+      "bytes": 32423
+    },
+    {
+      "path": "docs/demos/artifacts/scoreboard-orientation/rally-portrait-right-games.png",
+      "category": "demo_preview",
+      "files": 1,
+      "bytes": 19157
+    },
+    {
+      "path": "docs/demos/artifacts/scoreboard-orientation/snooker-portrait-left-rail.png",
+      "category": "demo_preview",
+      "files": 1,
+      "bytes": 22855
+    },
+    {
+      "path": "docs/demos/artifacts/scoreboard-orientation/tennis-portrait-games-points-sets.png",
+      "category": "demo_preview",
+      "files": 1,
+      "bytes": 20013
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/backend-tests.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 2847
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/backend-types.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 115
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/hos-build.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 179
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/hos-install-launch.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 202
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/hos-overview.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 268864
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/hos-paths.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 40
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/hos-rules-queue.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 156
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/hos-share-qr.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 172125
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/ios-contract-tests.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 5064
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/ipad-light-group-activities.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 116645
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/ipad-light-group-members.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 120569
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/ipad-light-group-overview.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 170975
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/ipad-light-group-results-draw.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 128037
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/ipad-light-group-share-qr.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 286075
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/ipad-light-ui.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 939
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/iphone-dark-group-activities.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 56860
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/iphone-dark-group-members.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 62072
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/iphone-dark-group-overview.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 85684
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/iphone-dark-group-results-draw.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 70245
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/iphone-dark-group-share-qr.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 69571
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/iphone-dark-ui.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 1452
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/iphone-device-test-blocked.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 278
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/iphone-final-ui.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 1452
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/iphone-light-ui.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 884
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/migration.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 80
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/qr-image-decode.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 145
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-02-second-review/group-activities.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 65184
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-02-second-review/group-manual-empty-selection.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 132138
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-02-second-review/group-members.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 69901
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-02-second-review/group-overview.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 90111
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-02-second-review/group-results-draw.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 75997
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-02-second-review/group-share-qr.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 67682
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-02-second-review/ios-archive.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 1902916
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-02-second-review/ios-export.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 376
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-02-second-review/ios-signature.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-02-second-review/ios-tests.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 1847849
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-02-second-review/ios-ui-final.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 63169
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/exports/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 12292
+    },
+    {
+      "path": "marketing/app-store/ipad-screenshots-2026-10-03/upload/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 6148
+    },
+    {
+      "path": "marketing/app-store/zh-Hans-2026-09/A-score-first/01.png",
+      "category": "old_store_preview",
+      "files": 1,
+      "bytes": 118068
+    },
+    {
+      "path": "marketing/app-store/zh-Hans-2026-09/A-score-first/02.png",
+      "category": "old_store_preview",
+      "files": 1,
+      "bytes": 594963
+    },
+    {
+      "path": "marketing/app-store/zh-Hans-2026-09/A-score-first/03.png",
+      "category": "old_store_preview",
+      "files": 1,
+      "bytes": 213639
+    },
+    {
+      "path": "marketing/app-store/zh-Hans-2026-09/A-score-first/04.png",
+      "category": "old_store_preview",
+      "files": 1,
+      "bytes": 193092
+    },
+    {
+      "path": "marketing/app-store/zh-Hans-2026-09/A-score-first/05.png",
+      "category": "old_store_preview",
+      "files": 1,
+      "bytes": 205043
+    },
+    {
+      "path": "marketing/app-store/zh-Hans-2026-09/B-start-first/01.png",
+      "category": "old_store_preview",
+      "files": 1,
+      "bytes": 594555
+    },
+    {
+      "path": "marketing/app-store/zh-Hans-2026-09/B-start-first/02.png",
+      "category": "old_store_preview",
+      "files": 1,
+      "bytes": 139267
+    },
+    {
+      "path": "marketing/app-store/zh-Hans-2026-09/B-start-first/03.png",
+      "category": "old_store_preview",
+      "files": 1,
+      "bytes": 389045
+    },
+    {
+      "path": "marketing/app-store/zh-Hans-2026-09/B-start-first/04.png",
+      "category": "old_store_preview",
+      "files": 1,
+      "bytes": 214394
+    },
+    {
+      "path": "marketing/app-store/zh-Hans-2026-09/B-start-first/05.png",
+      "category": "old_store_preview",
+      "files": 1,
+      "bytes": 212847
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/captures/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 12292
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/exports/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 14340
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/fonts/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 10244
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/tools/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 6148
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/api-http.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 19153
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/cleanup.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 583
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/hos-activity-score-finished.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 215997
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/hos-final-build.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 88
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/hos-final-ranking.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 287094
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/hos-paths.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 40
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/hos-qr-join-approved.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 172571
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/hos-qr.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 165449
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/hos-rules-queue.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 156
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/ios-activity.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 975
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/ios-approve-hos.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 133380
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/ios-approve.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 975
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/ios-confirm-activity.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 975
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/ios-confirm-manual.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 975
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/ios-confirm.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 975
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/ios-create.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 975
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/ios-create.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 149217
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/ios-final.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 5146
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/ios-hos-qr-join-pending.png",
+      "category": "old_review_evidence",
+      "files": 1,
+      "bytes": 148356
+    },
+    {
+      "path": "docs/groups/artifacts/2026-10-01/cross-app/ios-qr.log",
+      "category": "generated_log",
+      "files": 1,
+      "bytes": 975
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/tools/python/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 6148
+    },
+    {
+      "path": "marketing/google-play/localization-2026-10-02/tools/unicode-input/.DS_Store",
+      "category": "runtime_cache",
+      "files": 1,
+      "bytes": 6148
+    },
+    {
+      "path": "artifacts/app-store-copy-fix-20261003/preview-corrected-1.jpg",
+      "category": "generated_preview",
+      "files": 1,
+      "bytes": 272030
+    },
+    {
+      "path": "artifacts/app-store-copy-fix-20261003/preview-corrected-2.jpg",
+      "category": "generated_preview",
+      "files": 1,
+      "bytes": 292181
+    },
+    {
+      "path": "artifacts/app-store-membership-20261004/apple-processed-images",
+      "category": "generated_preview",
+      "files": 3,
+      "bytes": 3154249
+    },
+    {
+      "path": "artifacts/whistle-curve-refinement-2026-10-03/comparison.svg.png",
+      "category": "generated_preview",
+      "files": 1,
+      "bytes": 46344
+    },
+    {
+      "path": "artifacts/whistle-curve-refinement-2026-10-03/comparison-rounded.png",
+      "category": "generated_preview",
+      "files": 1,
+      "bytes": 46294
+    }
+  ],
+  "verification": {
+    "preserved_files_checked": 3711,
+    "application_source_resource_test_files_unchanged": 730,
+    "workflow_script_files_unchanged": 72,
+    "missing": [],
+    "unexpected_changes": [],
+    "volatile_ide_state_changes": [
+      "jifen.xcodeproj/project.xcworkspace/xcuserdata/yangyang.xcuserdatad/UserInterfaceState.xcuserstate"
+    ],
+    "cache_residue": [],
+    "all_selected_targets_removed": true,
+    "no_build_or_tests_run": true,
+    "gitignore_keeps_source_and_current_store_exports_visible": true
+  }
+}

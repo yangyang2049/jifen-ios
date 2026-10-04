@@ -1,0 +1,198 @@
+{
+  "en-US": {
+    "04": "assets/localized/en-US-04-8c4a4514d995.png",
+    "05": "assets/localized/en-US-05-12e73a44f5d2.png"
+  },
+  "ja-JP": {
+    "04": "assets/localized/ja-JP-04-240bcae4d5b5.png",
+    "05": "assets/localized/ja-JP-05-a4abb0ffb0a8.png"
+  },
+  "ko-KR": {
+    "04": "assets/localized/ko-KR-04-a237ff320f2c.png",
+    "05": "assets/localized/ko-KR-05-8a61a08885b5.png"
+  },
+  "de-DE": {
+    "04": "assets/localized/de-DE-04-75dcd1bbf60f.png",
+    "05": "assets/localized/de-DE-05-a6c9307187ca.png"
+  },
+  "fr-FR": {
+    "04": "assets/localized/fr-FR-04-bd6c4efa268d.png",
+    "05": "assets/localized/fr-FR-05-dee585473131.png"
+  },
+  "es-ES": {
+    "04": "assets/localized/es-ES-04-51b3bf9be6cc.png",
+    "05": "assets/localized/es-ES-05-0de6a567e20c.png"
+  },
+  "pt-BR": {
+    "04": "assets/localized/pt-BR-04-cc8adb5c5f62.png",
+    "05": "assets/localized/pt-BR-05-a652e6b75454.png"
+  },
+  "it-IT": {
+    "04": "assets/localized/it-IT-04-0e3497d70924.png",
+    "05": "assets/localized/it-IT-05-3440e490d59d.png"
+  },
+  "ru-RU": {
+    "04": "assets/localized/ru-RU-04-00e9e61d760b.png",
+    "05": "assets/localized/ru-RU-05-4ba3699d102e.png"
+  },
+  "ar": {
+    "04": "assets/localized/ar-04-4ccbb0987218.png",
+    "05": "assets/localized/ar-05-632dd6c5c97d.png"
+  },
+  "hi-IN": {
+    "04": "assets/localized/hi-IN-04-0f89ad723fb9.png",
+    "05": "assets/localized/hi-IN-05-5e9b43d9077f.png"
+  },
+  "nl-NL": {
+    "04": "assets/localized/nl-NL-04-314995614979.png",
+    "05": "assets/localized/nl-NL-05-9667a14c2587.png"
+  },
+  "tr-TR": {
+    "04": "assets/localized/tr-TR-04-d4b7cebf27c3.png",
+    "05": "assets/localized/tr-TR-05-da229e21e85b.png"
+  },
+  "id": {
+    "04": "assets/localized/id-04-730c4a43b7ab.png",
+    "05": "assets/localized/id-05-134e1b022b78.png"
+  },
+  "vi": {
+    "04": "assets/localized/vi-04-15c6022e34db.png",
+    "05": "assets/localized/vi-05-fbc32e093039.png"
+  },
+  "th": {
+    "04": "assets/localized/th-04-7c04fba9b438.png",
+    "05": "assets/localized/th-05-c736934db960.png"
+  },
+  "bn-BD": {
+    "04": "assets/localized/bn-BD-04-e6379629fa6c.png",
+    "05": "assets/localized/bn-BD-05-c9a79be7ee27.png"
+  },
+  "ca": {
+    "04": "assets/localized/ca-04-e1a20d5c4b49.png",
+    "05": "assets/localized/ca-05-d902217af763.png"
+  },
+  "cs-CZ": {
+    "04": "assets/localized/cs-CZ-04-d83dbde13c00.png",
+    "05": "assets/localized/cs-CZ-05-6a48356d8829.png"
+  },
+  "da-DK": {
+    "04": "assets/localized/da-DK-04-cdb16e852442.png",
+    "05": "assets/localized/da-DK-05-628e2e3a1d12.png"
+  },
+  "el-GR": {
+    "04": "assets/localized/el-GR-04-34a5203e8638.png",
+    "05": "assets/localized/el-GR-05-0028930065a9.png"
+  },
+  "en-AU": {
+    "04": "assets/localized/en-AU-04-1602ddba3262.png",
+    "05": "assets/localized/en-AU-05-04c6961c3051.png"
+  },
+  "en-CA": {
+    "04": "assets/localized/en-CA-04-5db131cee61a.png",
+    "05": "assets/localized/en-CA-05-c5fa640b9e5c.png"
+  },
+  "en-GB": {
+    "04": "assets/localized/en-GB-04-692a9ff63a4a.png",
+    "05": "assets/localized/en-GB-05-61fba614c4d1.png"
+  },
+  "es-419": {
+    "04": "assets/localized/es-419-04-2856c865a3af.png",
+    "05": "assets/localized/es-419-05-1bb28cdc5987.png"
+  },
+  "fi-FI": {
+    "04": "assets/localized/fi-FI-04-b55afa578385.png",
+    "05": "assets/localized/fi-FI-05-de835255ee6b.png"
+  },
+  "fr-CA": {
+    "04": "assets/localized/fr-CA-04-188db15a203b.png",
+    "05": "assets/localized/fr-CA-05-0c6467632a9b.png"
+  },
+  "gu": {
+    "04": "assets/localized/gu-04-c1b18ca7d04a.png",
+    "05": "assets/localized/gu-05-000a3941bab3.png"
+  },
+  "iw-IL": {
+    "04": "assets/localized/iw-IL-04-c08a32875df4.png",
+    "05": "assets/localized/iw-IL-05-1afcee54041c.png"
+  },
+  "hr": {
+    "04": "assets/localized/hr-04-3af9bf1ac99a.png",
+    "05": "assets/localized/hr-05-e654ee1e3c37.png"
+  },
+  "hu-HU": {
+    "04": "assets/localized/hu-HU-04-554cfaca3610.png",
+    "05": "assets/localized/hu-HU-05-27c3e0da2b6f.png"
+  },
+  "kn-IN": {
+    "04": "assets/localized/kn-IN-04-3c62f61c8486.png",
+    "05": "assets/localized/kn-IN-05-91cae646e6cf.png"
+  },
+  "ml-IN": {
+    "04": "assets/localized/ml-IN-04-a193de94ae1d.png",
+    "05": "assets/localized/ml-IN-05-22196ec332cc.png"
+  },
+  "mr-IN": {
+    "04": "assets/localized/mr-IN-04-b1cb9d680a24.png",
+    "05": "assets/localized/mr-IN-05-e4a14253a898.png"
+  },
+  "ms-MY": {
+    "04": "assets/localized/ms-MY-04-03759a93a59a.png",
+    "05": "assets/localized/ms-MY-05-774eb60a836d.png"
+  },
+  "no-NO": {
+    "04": "assets/localized/no-NO-04-1bbbc2c6436e.png",
+    "05": "assets/localized/no-NO-05-9e3a50958fbf.png"
+  },
+  "pa": {
+    "04": "assets/localized/pa-04-e087387dfaa8.png",
+    "05": "assets/localized/pa-05-42fbd4390a11.png"
+  },
+  "pl-PL": {
+    "04": "assets/localized/pl-PL-04-9c111551e5ff.png",
+    "05": "assets/localized/pl-PL-05-03920dde513a.png"
+  },
+  "pt-PT": {
+    "04": "assets/localized/pt-PT-04-8b789fba5c32.png",
+    "05": "assets/localized/pt-PT-05-48e77f600a29.png"
+  },
+  "ro": {
+    "04": "assets/localized/ro-04-5865631ccdb4.png",
+    "05": "assets/localized/ro-05-a62c69ce29e7.png"
+  },
+  "sk": {
+    "04": "assets/localized/sk-04-963a7d1b2e57.png",
+    "05": "assets/localized/sk-05-c22730fb5cf3.png"
+  },
+  "sl": {
+    "04": "assets/localized/sl-04-d4125e7c334e.png",
+    "05": "assets/localized/sl-05-c76cdd74919b.png"
+  },
+  "sv-SE": {
+    "04": "assets/localized/sv-SE-04-5e736696b601.png",
+    "05": "assets/localized/sv-SE-05-c903954ce772.png"
+  },
+  "ta-IN": {
+    "04": "assets/localized/ta-IN-04-1638e3b1a3d5.png",
+    "05": "assets/localized/ta-IN-05-b69dfd03fa1d.png"
+  },
+  "te-IN": {
+    "04": "assets/localized/te-IN-04-4e0c3b7048b4.png",
+    "05": "assets/localized/te-IN-05-79681c4a7042.png"
+  },
+  "uk": {
+    "04": "assets/localized/uk-04-343c19953e99.png",
+    "05": "assets/localized/uk-05-776e3f663fa1.png"
+  },
+  "ur": {
+    "04": "assets/localized/ur-04-16c77cccdbd6.png",
+    "05": "assets/localized/ur-05-86c8d4b75ad3.png"
+  },
+  "zh-TW": {
+    "04": "assets/localized/zh-TW-04-b067b86c1450.png",
+    "05": "assets/localized/zh-TW-05-35e535ea00dc.png"
+  },
+  "zh-CN": {
+    "04": "assets/localized/zh-CN-04.png",
+    "05": "assets/localized/zh-CN-05.png"
+  }
+}

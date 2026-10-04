@@ -1,0 +1,47 @@
+<svg width="1284" height="2778" viewBox="0 0 1284 2778" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g clip-path="url(#clip0_1342_159)">
+<rect width="1284" height="2778" fill="#0B61FB"/>
+<text fill="white" style="white-space: pre" xml:space="preserve" font-family="Poppins" font-size="116" font-style="italic" font-weight="bold" letter-spacing="-0.04em"><tspan x="96.1792" y="282.6">YOUR SCOREBOARD&#10;</tspan><tspan x="117.585" y="398.6">ON THE BIG SCREEN</tspan></text>
+<rect x="-18" y="800" width="1320" height="805" fill="url(#pattern0_1342_159)"/>
+<rect width="91" height="571" transform="translate(551 820)" fill="#C62828"/>
+<rect width="91" height="571" transform="translate(642 820)" fill="#007AFF"/>
+<g clip-path="url(#clip1_1342_159)">
+<rect x="517" y="1400" width="51" height="62" rx="25.5" fill="#2C1116"/>
+<text fill="white" style="white-space: pre" xml:space="preserve" font-family="Poppins" font-size="24" font-weight="600" letter-spacing="-0.04em"><tspan x="530.958" y="1440.4">4</tspan></text>
+<text fill="white" style="white-space: pre" xml:space="preserve" font-family="Poppins" font-size="20" font-weight="600" letter-spacing="-0.04em"><tspan x="545.865" y="1440.4">th</tspan></text>
+</g>
+<rect x="729" y="1400" width="39" height="62" rx="19.5" fill="#08203D"/>
+<text fill="#FFDD52" style="white-space: pre" xml:space="preserve" font-family="Poppins" font-size="32" font-weight="600" letter-spacing="-0.04em"><tspan x="737.922" y="1442.2">4</tspan></text>
+<rect x="70.916" y="1840.38" width="1200" height="1200" transform="rotate(-15 70.916 1840.38)" fill="url(#pattern1_1342_159)"/>
+<rect x="582" y="1697" width="120" height="120" fill="url(#pattern2_1342_159)"/>
+<rect x="255.908" y="2564.28" width="450" height="920" transform="rotate(-105 255.908 2564.28)" fill="url(#pattern3_1342_159)"/>
+<path d="M948.568 2322.23C937.673 2279.99 939.819 2265.13 982.067 2254.23L1102.57 2322.23L1303.03 2146.46C1345.28 2135.57 1294.17 2279.99 1305.07 2322.23L1504.45 2611.16C1515.34 2653.41 1489.93 2696.49 1447.68 2707.38L1206 2731.38C1163.75 2742.27 1176.96 2659.48 1166.07 2617.23L1094 2450.38L1041 2403.38L1010 2379.38L976.034 2354.8L948.568 2322.23Z" fill="url(#pattern4_1342_159)"/>
+</g>
+<defs>
+<pattern id="pattern0_1342_159" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0_1342_159" transform="matrix(0.000757576 0 0 0.00124224 0 -0.868323)"/>
+</pattern>
+<pattern id="pattern1_1342_159" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image1_1342_159" transform="scale(0.00142857)"/>
+</pattern>
+<pattern id="pattern2_1342_159" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image2_1342_159" transform="scale(0.00208333)"/>
+</pattern>
+<pattern id="pattern3_1342_159" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image3_1342_159" transform="scale(0.00111111 0.000543478)"/>
+</pattern>
+<pattern id="pattern4_1342_159" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image1_1342_159" transform="matrix(0.00298138 -0.000739305 0.000768809 0.00286697 -1.59463 -0.565578)"/>
+</pattern>
+<clipPath id="clip0_1342_159">
+<rect width="1284" height="2778" fill="white"/>
+</clipPath>
+<clipPath id="clip1_1342_159">
+<rect x="517" y="1400" width="51" height="62" rx="25.5" fill="white"/>
+</clipPath>
+<image id="image0_1342_159" width="1320" height="2868" preserveAspectRatio="none" xlink:href="image-7-0.png"/>
+<image id="image1_1342_159" width="700" height="700" preserveAspectRatio="none" xlink:href="image-7-1.png"/>
+<image id="image2_1342_159" width="480" height="480" preserveAspectRatio="none" xlink:href="image-7-2.png"/>
+<image id="image3_1342_159" width="900" height="1840" preserveAspectRatio="none" xlink:href="image-7-3.png"/>
+</defs>
+</svg>

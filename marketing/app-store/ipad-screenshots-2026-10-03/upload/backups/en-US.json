@@ -1,0 +1,294 @@
+{
+  "locale": "en-US",
+  "localizationId": "7311b82f-a2d7-4248-abc7-1a365f69182a",
+  "sets": [
+    {
+      "set": {
+        "id": "807951be-b61b-49b1-9687-d3861fef1375",
+        "type": "appScreenshotSets",
+        "attributes": {
+          "screenshotDisplayType": "APP_IPAD_PRO_3GEN_129"
+        }
+      },
+      "screenshots": [
+        {
+          "id": "be356800-33f7-4291-97d1-3bdaa41529df",
+          "type": "appScreenshots",
+          "attributes": {
+            "fileName": "iPad_marketing_pad_en_snooker.png",
+            "fileSize": 475522,
+            "sourceFileChecksum": "9a0b12399063d8a7d24fb24ebd9f7d92",
+            "assetDeliveryState": {
+              "state": "COMPLETE",
+              "errorCodes": []
+            },
+            "imageAsset": {
+              "width": 2752,
+              "height": 2064
+            }
+          }
+        },
+        {
+          "id": "bcd6e301-1ad8-4b69-9c47-7a48dc3ce231",
+          "type": "appScreenshots",
+          "attributes": {
+            "fileName": "iPad_marketing_pad_en_basketball.png",
+            "fileSize": 288538,
+            "sourceFileChecksum": "9bf74deb325e8f7dbea169f9d711ac30",
+            "assetDeliveryState": {
+              "state": "COMPLETE",
+              "errorCodes": []
+            },
+            "imageAsset": {
+              "width": 2752,
+              "height": 2064
+            }
+          }
+        },
+        {
+          "id": "c1a122e9-26d3-4801-a869-69d7f07bad2b",
+          "type": "appScreenshots",
+          "attributes": {
+            "fileName": "iPad_marketing_pad_en_record_detail.png",
+            "fileSize": 263191,
+            "sourceFileChecksum": "ba6bdb363a54e221795a6b5d4f552b51",
+            "assetDeliveryState": {
+              "state": "COMPLETE",
+              "errorCodes": []
+            },
+            "imageAsset": {
+              "width": 2752,
+              "height": 2064
+            }
+          }
+        },
+        {
+          "id": "8d3674d4-b193-42e5-b6a0-c4ab2bbb38cb",
+          "type": "appScreenshots",
+          "attributes": {
+            "fileName": "iPad_marketing_pad_en_tennis_setup.png",
+            "fileSize": 532863,
+            "sourceFileChecksum": "faab08a8a8b61623c19e122941653e6f",
+            "assetDeliveryState": {
+              "state": "COMPLETE",
+              "errorCodes": []
+            },
+            "imageAsset": {
+              "width": 2752,
+              "height": 2064
+            }
+          }
+        },
+        {
+          "id": "2532a6b3-1b91-417a-a3db-52a9e2c4f7e5",
+          "type": "appScreenshots",
+          "attributes": {
+            "fileName": "iPad_marketing_pad_en_home.png",
+            "fileSize": 1559048,
+            "sourceFileChecksum": "5867417b7a6dba5d8c87fe08ee09a425",
+            "assetDeliveryState": {
+              "state": "COMPLETE",
+              "errorCodes": []
+            },
+            "imageAsset": {
+              "width": 2752,
+              "height": 2064
+            }
+          }
+        }
+      ]
+    },
+    {
+      "set": {
+        "id": "df4ccf29-5158-4614-8f30-12f6a95b4932",
+        "type": "appScreenshotSets",
+        "attributes": {
+          "screenshotDisplayType": "APP_WATCH_SERIES_10"
+        }
+      },
+      "screenshots": [
+        {
+          "id": "30928c36-4270-42b2-8c4e-2b728c43c682",
+          "type": "appScreenshots",
+          "attributes": {
+            "fileName": "642.png",
+            "fileSize": 11179,
+            "sourceFileChecksum": "72409e35d915c73ddccf67fa7ce68321",
+            "assetDeliveryState": {
+              "state": "COMPLETE",
+              "errorCodes": []
+            },
+            "imageAsset": {
+              "width": 416,
+              "height": 496
+            }
+          }
+        },
+        {
+          "id": "2edb156c-a758-47ef-848f-0f0f149e233b",
+          "type": "appScreenshots",
+          "attributes": {
+            "fileName": "Frame 75.png",
+            "fileSize": 29911,
+            "sourceFileChecksum": "28fca4e1edbc277d1d352e3acb050608",
+            "assetDeliveryState": {
+              "state": "COMPLETE",
+              "errorCodes": []
+            },
+            "imageAsset": {
+              "width": 416,
+              "height": 496
+            }
+          }
+        },
+        {
+          "id": "056472d4-a400-41c6-89ce-c84ca9e11b3d",
+          "type": "appScreenshots",
+          "attributes": {
+            "fileName": "641.png",
+            "fileSize": 68167,
+            "sourceFileChecksum": "e218cb05d1f8eff96f73f9d42562e625",
+            "assetDeliveryState": {
+              "state": "COMPLETE",
+              "errorCodes": []
+            },
+            "imageAsset": {
+              "width": 416,
+              "height": 496
+            }
+          }
+        }
+      ]
+    },
+    {
+      "set": {
+        "id": "94c855cc-a7fa-4812-97da-b32b00cb7d48",
+        "type": "appScreenshotSets",
+        "attributes": {
+          "screenshotDisplayType": "APP_IPHONE_65"
+        }
+      },
+      "screenshots": [
+        {
+          "id": "bc000019-2e9e-82d0-8021-e7c6b4a7d5df",
+          "type": "appScreenshots",
+          "attributes": {
+            "fileName": "en-US-01-75c4b005a8cc9fa5.png",
+            "fileSize": 2117672,
+            "sourceFileChecksum": "75c4b005a8cc9fa5be8330512a8b1b82",
+            "assetDeliveryState": {
+              "state": "COMPLETE",
+              "errorCodes": []
+            },
+            "imageAsset": {
+              "width": 1284,
+              "height": 2778
+            }
+          }
+        },
+        {
+          "id": "5b400019-2e9e-82d0-800b-a0d7129c703f",
+          "type": "appScreenshots",
+          "attributes": {
+            "fileName": "en-US-02-611784d90c30b6b3.png",
+            "fileSize": 137007,
+            "sourceFileChecksum": "611784d90c30b6b3de624104b38d588c",
+            "assetDeliveryState": {
+              "state": "COMPLETE",
+              "errorCodes": []
+            },
+            "imageAsset": {
+              "width": 1284,
+              "height": 2778
+            }
+          }
+        },
+        {
+          "id": "7e000019-2e9e-82d0-8037-ea068f039869",
+          "type": "appScreenshots",
+          "attributes": {
+            "fileName": "en-US-03-cec5a8ff2018ef70.png",
+            "fileSize": 147971,
+            "sourceFileChecksum": "cec5a8ff2018ef70a1c718f8fb90e4b6",
+            "assetDeliveryState": {
+              "state": "COMPLETE",
+              "errorCodes": []
+            },
+            "imageAsset": {
+              "width": 1284,
+              "height": 2778
+            }
+          }
+        },
+        {
+          "id": "ea000019-2e9e-82d0-8039-cbdd282f4d81",
+          "type": "appScreenshots",
+          "attributes": {
+            "fileName": "en-US-04-4f81354045d5e76b.png",
+            "fileSize": 493248,
+            "sourceFileChecksum": "4f81354045d5e76b934e0f4160d8bf38",
+            "assetDeliveryState": {
+              "state": "COMPLETE",
+              "errorCodes": []
+            },
+            "imageAsset": {
+              "width": 1284,
+              "height": 2778
+            }
+          }
+        },
+        {
+          "id": "c5000019-2e9e-82d0-8022-5ecd3762f3ca",
+          "type": "appScreenshots",
+          "attributes": {
+            "fileName": "en-US-05-27de35ac6a9b34ce.png",
+            "fileSize": 921147,
+            "sourceFileChecksum": "27de35ac6a9b34ce06188c4c05962daf",
+            "assetDeliveryState": {
+              "state": "COMPLETE",
+              "errorCodes": []
+            },
+            "imageAsset": {
+              "width": 1284,
+              "height": 2778
+            }
+          }
+        },
+        {
+          "id": "9d400019-2e9e-82d0-803a-d5501a2b7ee9",
+          "type": "appScreenshots",
+          "attributes": {
+            "fileName": "en-US-06-91072bee1bb592d4.png",
+            "fileSize": 426678,
+            "sourceFileChecksum": "91072bee1bb592d4e94c4026ad32df2b",
+            "assetDeliveryState": {
+              "state": "COMPLETE",
+              "errorCodes": []
+            },
+            "imageAsset": {
+              "width": 1284,
+              "height": 2778
+            }
+          }
+        },
+        {
+          "id": "48800019-2e9e-82d0-801e-c5c7734c9a73",
+          "type": "appScreenshots",
+          "attributes": {
+            "fileName": "en-US-07-164754b5124605ee.png",
+            "fileSize": 828618,
+            "sourceFileChecksum": "164754b5124605ee6fd2b93591083edd",
+            "assetDeliveryState": {
+              "state": "COMPLETE",
+              "errorCodes": []
+            },
+            "imageAsset": {
+              "width": 1284,
+              "height": 2778
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

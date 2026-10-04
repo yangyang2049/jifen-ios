@@ -1,0 +1,230 @@
+{
+  "ar": {
+    "locale": "ar",
+    "rtl": true,
+    "expected_rows": 1613,
+    "catalog_rows": 1613,
+    "status_counts": {
+      "fixed": 7,
+      "reviewed": 1606
+    },
+    "blockers": [],
+    "warnings": [
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "foosball_mode_1v1",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "foosball_mode_2v2",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "scoreboard_key_point_game",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "scoreboard_key_point_volleyball_set",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "scoreboard_key_point_set",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "scoreboard_key_point_match",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "feedback_platform_harmony",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "feedback_platform_ios",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "vip_title",
+        "detail": "translation equals English source"
+      }
+    ],
+    "passed": true,
+    "changedKeys": [
+      "scoreboard_usage_hint_shengji",
+      "snooker_foul_label_4"
+    ],
+    "retainedLatinOnlyKeys": [
+      "app_name",
+      "me_profile_vip_badge",
+      "scoreboard_key_point_game",
+      "scoreboard_key_point_volleyball_set",
+      "scoreboard_key_point_set",
+      "scoreboard_key_point_match",
+      "feedback_platform_harmony",
+      "feedback_platform_ios",
+      "vip_title"
+    ]
+  },
+  "he": {
+    "locale": "he",
+    "rtl": true,
+    "expected_rows": 1529,
+    "catalog_rows": 1529,
+    "status_counts": {
+      "fixed": 7,
+      "reviewed": 1522
+    },
+    "blockers": [],
+    "warnings": [
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "coin_heads_text",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "points_table_team_c",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "about_company_en",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "game_uno",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "foosball_mode_1v1",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "foosball_mode_2v2",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "chase_chalk_small",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "chase_chalk_normal",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "chase_chalk_ball_in_hand",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "chase_chalk_foul",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "scoreboard_key_point_game",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "scoreboard_key_point_volleyball_set",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "scoreboard_key_point_set",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "scoreboard_key_point_match",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "doudizhu_fan_suffix",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "feedback_platform_harmony",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "feedback_platform_ios",
+        "detail": "translation equals English source"
+      },
+      {
+        "code": "source-equality",
+        "table": "Localizable",
+        "key": "vip_title",
+        "detail": "translation equals English source"
+      }
+    ],
+    "passed": true,
+    "changedKeys": [
+      "game_doudizhu",
+      "scoreboard_official_break_help_message",
+      "scoreboard_usage_hint_foosball",
+      "scoreboard_usage_hint_foosball_doubles",
+      "snooker_foul_label_4",
+      "basketball_extra_overtime",
+      "game_shuttlecock"
+    ],
+    "retainedLatinOnlyKeys": [
+      "app_name",
+      "coin_heads_text",
+      "me_profile_vip_badge",
+      "about_company_en",
+      "game_uno",
+      "scoreboard_key_point_game",
+      "scoreboard_key_point_volleyball_set",
+      "scoreboard_key_point_set",
+      "scoreboard_key_point_match",
+      "feedback_platform_harmony",
+      "feedback_platform_ios",
+      "vip_title"
+    ]
+  }
+}

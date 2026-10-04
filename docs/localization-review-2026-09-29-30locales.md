@@ -1,5 +1,21 @@
 # 本地化机器初稿校验 · 30 套 · 2026-09-29
 
+## 2026-09-30：G2–G7 全部深审并晋级
+
+原剩余 27 套已完成全部 40,669 行实际读审，按本轮备份口径修正 11,396 条有效译文；全部 hash 新鲜、0 blockers，已晋级到应用。当前包内 47 套语言；三个 FAQ 源文也按实际 iOS 行为校正。最终构建和 511 项应用单测、23 项流水线测试通过；两设备 594 张代表页最终截图已实际复核。详见[最新交付报告](localization-deep-review-2026-09-30.md)。下文 2026-09-29 的队列与阶段数据保留为历史快照。
+
+## 2026-09-30：U-1 / U-2 / U-3 收尾
+
+以下更新覆盖本文后面的历史“待拍板”状态：
+
+- **U-1 设置功能卡片**：按实际等分宽度测量完整标签，以最长标签决定整行卡片高度；保留最低 74pt，取消两行截断，德语/意大利语/荷兰语长文案完整换行。原先仅增加固定高度仍会让意大利语显示省略号，因此改为内容自适应。
+- **U-2 记录时长**：`formatScoreboardDuration` 使用 Foundation `Duration.UnitsFormatStyle`，秒/分/小时单位、数字和分隔符按 locale 格式化，不再手拼 `h/m/s`。保留整秒显示，负数和非有限值显示零。计分记录和计时记录共用此修复；无需新增 20 套单位键。
+- **U-3 局数术语**：英文 `record_recap_set_format` 与射箭 `scoreboard_set_end_format` 改为 `Set`，17 套已晋级语言同步采用“每局分数”对应的术语（例如 de `Satz`、ru `Партия`、uk `Партія`），中文继续使用“局”。网球“盘”、台球 frame、回合使用各自独立键。
+- 对应翻译目录和包内资源已同步。另逐套复核六个网球抢七键：现有译文仍符合 `Tiebreak to 7/10`，更新过期的源文审核 hash，恢复完整校验。
+- 验证：164 项应用单测、22 项 Python 本地化测试、17 套已晋级目录 `validate --require-reviewed`、繁体生成器 `--check` 均通过。iPhone SE（第三代）与 iPad Pro 11-inch (M5)，iOS 26.5，定向 UI 测试各 1 项通过，共 16 张截图；已人工复核长标签、记录时长和局标题。本轮截图（已于2026-10-04清理），入口为 `testCaptureSetupAndRecordLocalizationFixes`。
+
+本节为 U-1/U-2/U-3 完成时的阶段记录；G2–G7 的后续深审、当前源文变更复核与晋级现已全部完成，见顶部最新交付报告。
+
 范围：iOS 3.2.2 (52) 收口期，把剩余 30 套 `status=machine` 的机器初稿语言按语法家族+市场分 7 组推进。本轮完成 **G1（it/nl/sv）逐行深审并晋级进包**，以及 **30 套全量硬缺陷清底**；G2–G7 尚未深审，本文末尾给出可直接接续的排产队列。
 
 口径沿用 [2026-09-26 复查](localization-review-2026-09-26.md)：P2 = 语义或可读性必须修，P3 = 术语/表达质量。四类反复出现的缺陷：拼接粘连、多义词误译、体育术语漂移、复数 `one` 里残留数量词。
@@ -19,25 +35,25 @@
 | 晋级后自查返修 | it 6、nl 7、sv 2、**he 3**（he 为已晋级语言，同类缺陷由新门禁扫出）= 18 行，见「晋级后自查」 |
 | 二审全量返修 | nl 20、sv 26、it 7、**he 17** = **69 行**，全部有"同套已审行"或"≥6 套参照语共识"作依据，见第 6 节。含 3 个新缺陷类：幻影标签名、`controller` 假朋友、错义词（`סיר`=锅、`חיסול`=歼灭、`Buda`=佛陀） |
 | 跨表同名键分裂 | nl 1、es-ES 2 = **3 行**（见 6.6）。同类启发式全仓命中 334 行，逐条核对只有这 3 行是真缺陷，**不做门禁**，留在人工预检第 3 条 |
-| re-promote 落地 | 返修合计 **91 行**（18 + 69 + 3 + 截图审计 1）已随 it/nl/sv/he/es-ES 五套 re-promote 进包：15 个 `.lproj` 文件 `plutil -lint` 全 OK，[bundle_delta.py](../build/localization/g1/bundle_delta.py) 由 88 降到 **TOTAL 0**（包内字符串与 catalog 逐行一致） |
+| re-promote 落地 | 返修合计 **91 行**（18 + 69 + 3 + 截图审计 1）已随 it/nl/sv/he/es-ES 五套 re-promote 进包：15 个 `.lproj` 文件 `plutil -lint` 全 OK，bundle_delta.py（已于2026-10-04清理） 由 88 降到 **TOTAL 0**（包内字符串与 catalog 逐行一致） |
 | Xcode 门禁 | 返修 re-promote **之后**复跑 `LocalizationIntegrityTests`：**19 tests / 0 failures**，跑两次 —— 14:35（`build/localization-integrity-promoted.log`，覆盖前 90 行）与 15:16（`build/localization-integrity-final91.log`，覆盖第 91 行 it 同意行落进 `it.lproj`（14:58）之后的最终包）。`timer_go` 字典与 `promotedLocales` 集合相等（20 套）。第一次跑是环境失败不是断言失败：`Timed out trying to boot simulator after waiting 60.00s`（当时他刚跑完营销截图，已有 2 台 Booted），先 `simctl boot` 再复跑才有效——**看到这条超时就先起设备，别当成回归** |
 | 复证三件套（收口时点） | `python3 scripts/localization/test_localize.py` → **22 OK**；`python3 build/localization/g1/bundle_delta.py` → **TOTAL 0**（it/nl/sv/he/es-ES 逐行 0 diff）；`LocalizationIntegrityTests` → **19/0** |
 | 剩余队列 | G2–G7 共 27 套、**39,230 行** machine 状态未深审 |
 | 包体 | 单套 `.lproj` 约 120–156KB；G1 三套约 **+400KB**，30 套全晋制约 +4.2MB |
 
-结构化数据：[build/localization/review/metrics-30locales.json](../build/localization/review/metrics-30locales.json)。备份：`build/localization/before-30locales-20260929-120948.zip`、`before-g1-apply-20260929-130751.zip`、`before-g1-rework-20260929-133327.zip`、`before-g1-rework3-20260929-135324.zip`（catalogs 未纳入 git，ZIP 是唯一回滚路径）。
+结构化数据：build/localization/review/metrics-30locales.json（已于2026-10-04清理）。备份：`build/localization/before-30locales-20260929-120948.zip`、`before-g1-apply-20260929-130751.zip`、`before-g1-rework-20260929-133327.zip`、`before-g1-rework3-20260929-135324.zip`（catalogs 未纳入 git，ZIP 是唯一回滚路径）。
 
 ## 分组
 
 | 组 | 语言 | 状态 |
 | --- | --- | --- |
 | G1 | it, nl, sv | **已深审 + 已晋级**（含晋级后返修） |
-| G2 | ca, pl, ro | 待深审 |
-| G3 | cs, sk, sl, hr | 待深审 |
-| G4 | da, nb, fi, hu, el | 待深审（42 行无稿、英文残留已清底） |
-| G5 | hi, bn, mr, gu, pa | 待深审 |
-| G6 | ta, te, kn, ml, or | 待深审（or 污染已清） |
-| G7 | tr, vi, th, id, ms | 待深审 |
+| G2 | ca, pl, ro | **已深审 + 已晋级**（2026-09-30） |
+| G3 | cs, sk, sl, hr | **已深审 + 已晋级**（2026-09-30） |
+| G4 | da, nb, fi, hu, el | **已深审 + 已晋级**（2026-09-30） |
+| G5 | hi, bn, mr, gu, pa | **已深审 + 已晋级**（2026-09-30） |
+| G6 | ta, te, kn, ml, or | **已深审 + 已晋级**（2026-09-30） |
+| G7 | tr, vi, th, id, ms | **已深审 + 已晋级**（2026-09-30） |
 
 晋级是逐套原子交付：`promote --locale X` 要求该套 0 行 `status=machine`，通过后渲染 3 个 `.lproj` 文件、`plutil -lint`，并把 locale 追加进 `knownRegions`（[localize.py:1289](../scripts/localization/localize.py#L1289) 幂等，重复 promote 不重复追加）。
 
@@ -59,7 +75,7 @@
 | 阶段 | 行数 | 手段 |
 | --- | --- | --- |
 | 句尾单 `\|` | 1,194 | 确定性脚本双层同修（catalog + `build/localization/cache/google-web/or.json`），见 [or-pipe-residue-repair-2026-09-29.py](../docs/audits/reference/or-pipe-residue-repair-2026-09-29.py)；剥离后已验证不为空串 |
-| 引擎把多候选塞进同句（`ଯେକ any ଣସି`、`ପୁନ ry ଚେଷ୍ଟା`） | 112 | 逐行人工重写，成品 [or-rewritten.json](../build/localization/g6/or-rewritten.json)，落 `build/localization/review/empty-rows/or-residue.jsonl` 后 apply |
+| 引擎把多候选塞进同句（`ଯେକ any ଣସି`、`ପୁନ ry ଚେଷ୍ଟା`） | 112 | 逐行人工重写，成品 or-rewritten.json（已于2026-10-04清理），落 `build/localization/review/empty-rows/or-residue.jsonl` 后 apply |
 
 同坏形态实测**只在 or**，其余 29 套 0 行。or 现 machine 1,339 行（其余套 1,451 左右），仍待 G6 深审。
 

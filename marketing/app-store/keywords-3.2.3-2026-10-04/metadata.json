@@ -1,0 +1,1244 @@
+{
+  "appId": "6759768784",
+  "bundleId": "com.douhua.jifen.ios",
+  "appStoreVersionId": "a118dc62-4303-4c03-ae92-b358c60438d5",
+  "version": "3.2.3",
+  "keywordSource": "Existing keywords plus reviewed app strings for implemented sports and tools; complete terms selected within 100 UTF-16 units.",
+  "localizations": [
+    {
+      "locale": "ar-SA",
+      "iosLocale": "ar",
+      "beforeCharacters": 90,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "كرة الريشة,كرة السلة,كرة القدم,تنس الطاولة,التنس,كرة الطائرة,سنوكر,بلياردو,كرة قدم الطاولة,إسكواش,غو",
+      "added": [
+        {
+          "key": "game_squash",
+          "term": "إسكواش"
+        },
+        {
+          "key": "timer_go",
+          "term": "غو"
+        }
+      ]
+    },
+    {
+      "locale": "bn-BD",
+      "iosLocale": "bn",
+      "beforeCharacters": 77,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "ব্যাডমিন্টন,বাস্কেটবল,ফুটবল,টেবিল টেনিস,টেনিস,ভলিবল,স্নুকার,বিলিয়ার্ডস,ফুসবল,পিকলবল,প্যাডেল,দাবা,গো",
+      "added": [
+        {
+          "key": "game_pickleball",
+          "term": "পিকলবল"
+        },
+        {
+          "key": "game_padel",
+          "term": "প্যাডেল"
+        },
+        {
+          "key": "timer_chess",
+          "term": "দাবা"
+        },
+        {
+          "key": "timer_go",
+          "term": "গো"
+        }
+      ]
+    },
+    {
+      "locale": "ca",
+      "iosLocale": "ca",
+      "beforeCharacters": 79,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Bàdminton,Bàsquet,Futbol,Tennis de taula,Tennis,Voleibol,Snooker,Billar,Futbolí,Pàdel,Boxa,Escacs,Go",
+      "added": [
+        {
+          "key": "game_padel",
+          "term": "Pàdel"
+        },
+        {
+          "key": "game_boxing",
+          "term": "Boxa"
+        },
+        {
+          "key": "timer_chess",
+          "term": "Escacs"
+        },
+        {
+          "key": "timer_go",
+          "term": "Go"
+        }
+      ]
+    },
+    {
+      "locale": "cs",
+      "iosLocale": "cs",
+      "beforeCharacters": 85,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Badminton,Basketbal,Fotbal,Stolní tenis,Tenis,Volejbal,Snooker,Kulečník,Stolní fotbal,Padel,Šachy,Go",
+      "added": [
+        {
+          "key": "game_padel",
+          "term": "Padel"
+        },
+        {
+          "key": "timer_chess",
+          "term": "Šachy"
+        },
+        {
+          "key": "timer_go",
+          "term": "Go"
+        }
+      ]
+    },
+    {
+      "locale": "da",
+      "iosLocale": "da",
+      "beforeCharacters": 85,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Badminton,Basketball,Fodbold,Bordtennis,Tennis,Volleyball,Snooker,Billard,Bordfodbold,Squash,Skak,Go",
+      "added": [
+        {
+          "key": "game_squash",
+          "term": "Squash"
+        },
+        {
+          "key": "timer_chess",
+          "term": "Skak"
+        },
+        {
+          "key": "timer_go",
+          "term": "Go"
+        }
+      ]
+    },
+    {
+      "locale": "de-DE",
+      "iosLocale": "de",
+      "beforeCharacters": 87,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Badminton,Basketball,Fußball,Tischtennis,Tennis,Volleyball,Snooker,Billard,Tischfußball,Squash,Padel",
+      "added": [
+        {
+          "key": "game_squash",
+          "term": "Squash"
+        },
+        {
+          "key": "game_padel",
+          "term": "Padel"
+        }
+      ]
+    },
+    {
+      "locale": "el",
+      "iosLocale": "el",
+      "beforeCharacters": 95,
+      "characters": 99,
+      "remaining": 1,
+      "keywords": "Μπάντμιντον,Μπάσκετ,Ποδόσφαιρο,Πινγκ πονγκ,Τένις,Βόλεϊ,Σνούκερ,Μπιλιάρδο,Επιτραπέζιο ποδόσφαιρο,Γκο",
+      "added": [
+        {
+          "key": "timer_go",
+          "term": "Γκο"
+        }
+      ]
+    },
+    {
+      "locale": "en-AU",
+      "iosLocale": "en",
+      "beforeCharacters": 87,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "badminton,basketball,football,table tennis,tennis,volleyball,snooker,billiards,foosball,squash,padel",
+      "added": [
+        {
+          "key": "game_squash",
+          "term": "squash"
+        },
+        {
+          "key": "game_padel",
+          "term": "padel"
+        }
+      ]
+    },
+    {
+      "locale": "en-CA",
+      "iosLocale": "en",
+      "beforeCharacters": 87,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "badminton,basketball,football,table tennis,tennis,volleyball,snooker,billiards,foosball,squash,padel",
+      "added": [
+        {
+          "key": "game_squash",
+          "term": "squash"
+        },
+        {
+          "key": "game_padel",
+          "term": "padel"
+        }
+      ]
+    },
+    {
+      "locale": "en-GB",
+      "iosLocale": "en",
+      "beforeCharacters": 87,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "badminton,basketball,football,table tennis,tennis,volleyball,snooker,billiards,foosball,squash,padel",
+      "added": [
+        {
+          "key": "game_squash",
+          "term": "squash"
+        },
+        {
+          "key": "game_padel",
+          "term": "padel"
+        }
+      ]
+    },
+    {
+      "locale": "en-US",
+      "iosLocale": "en",
+      "beforeCharacters": 87,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "badminton,basketball,football,table tennis,tennis,volleyball,snooker,billiards,foosball,squash,padel",
+      "added": [
+        {
+          "key": "game_squash",
+          "term": "squash"
+        },
+        {
+          "key": "game_padel",
+          "term": "padel"
+        }
+      ]
+    },
+    {
+      "locale": "es-ES",
+      "iosLocale": "es-ES",
+      "beforeCharacters": 80,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Bádminton,Baloncesto,Fútbol,Tenis de mesa,Tenis,Voleibol,Snooker,Billar,Futbolín,Pickleball,Pádel,Go",
+      "added": [
+        {
+          "key": "game_pickleball",
+          "term": "Pickleball"
+        },
+        {
+          "key": "game_padel",
+          "term": "Pádel"
+        },
+        {
+          "key": "timer_go",
+          "term": "Go"
+        }
+      ]
+    },
+    {
+      "locale": "es-MX",
+      "iosLocale": "es-MX",
+      "beforeCharacters": 80,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Bádminton,Basquetbol,Fútbol,Tenis de mesa,Tenis,Voleibol,Snooker,Billar,Futbolín,Pickleball,Pádel,Go",
+      "added": [
+        {
+          "key": "game_pickleball",
+          "term": "Pickleball"
+        },
+        {
+          "key": "game_padel",
+          "term": "Pádel"
+        },
+        {
+          "key": "timer_go",
+          "term": "Go"
+        }
+      ]
+    },
+    {
+      "locale": "fi",
+      "iosLocale": "fi",
+      "beforeCharacters": 94,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Sulkapallo,Koripallo,Jalkapallo,Pöytätennis,Tennis,Lentopallo,Snooker,Biljardi,Pöytäjalkapallo,Padel",
+      "added": [
+        {
+          "key": "game_padel",
+          "term": "Padel"
+        }
+      ]
+    },
+    {
+      "locale": "fr-CA",
+      "iosLocale": "fr-CA",
+      "beforeCharacters": 87,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Badminton,Basketball,Soccer,Tennis de table,Tennis,Volleyball,Snooker,Billard,Baby-foot,Squash,Padel",
+      "added": [
+        {
+          "key": "game_squash",
+          "term": "Squash"
+        },
+        {
+          "key": "game_padel",
+          "term": "Padel"
+        }
+      ]
+    },
+    {
+      "locale": "fr-FR",
+      "iosLocale": "fr",
+      "beforeCharacters": 91,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Badminton,Basket-ball,Football,Tennis de table,Tennis,Volley-ball,Snooker,Billard,Baby-foot,Padel,Go",
+      "added": [
+        {
+          "key": "game_padel",
+          "term": "Padel"
+        },
+        {
+          "key": "timer_go",
+          "term": "Go"
+        }
+      ]
+    },
+    {
+      "locale": "gu-IN",
+      "iosLocale": "gu",
+      "beforeCharacters": 77,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "બેડમિન્ટન,બાસ્કેટબોલ,ફૂટબોલ,ટેબલ ટેનિસ,ટેનિસ,વોલીબોલ,સ્નૂકર,બિલિયર્ડ્સ,ફુસબોલ,પિકલબોલ,સ્ક્વોશ,ચેસ,ગો",
+      "added": [
+        {
+          "key": "game_pickleball",
+          "term": "પિકલબોલ"
+        },
+        {
+          "key": "game_squash",
+          "term": "સ્ક્વોશ"
+        },
+        {
+          "key": "timer_chess",
+          "term": "ચેસ"
+        },
+        {
+          "key": "timer_go",
+          "term": "ગો"
+        }
+      ]
+    },
+    {
+      "locale": "he",
+      "iosLocale": "he",
+      "beforeCharacters": 72,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "בדמינטון,כדורסל,כדורגל,טניס שולחן,טניס,כדורעף,סנוקר,ביליארד,כדורגל שולחן,פיקלבול,פאדל,איגרוף,שחמט,גו",
+      "added": [
+        {
+          "key": "game_pickleball",
+          "term": "פיקלבול"
+        },
+        {
+          "key": "game_padel",
+          "term": "פאדל"
+        },
+        {
+          "key": "game_boxing",
+          "term": "איגרוף"
+        },
+        {
+          "key": "timer_chess",
+          "term": "שחמט"
+        },
+        {
+          "key": "timer_go",
+          "term": "גו"
+        }
+      ]
+    },
+    {
+      "locale": "hi",
+      "iosLocale": "hi",
+      "beforeCharacters": 78,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "बैडमिंटन,बास्केटबॉल,फुटबॉल,टेबल टेनिस,टेनिस,वॉलीबॉल,स्नूकर,बिलियर्ड्स,फ़ॉस्बॉल,पिकलबॉल,पैडल,शतरंज,गो",
+      "added": [
+        {
+          "key": "game_pickleball",
+          "term": "पिकलबॉल"
+        },
+        {
+          "key": "game_padel",
+          "term": "पैडल"
+        },
+        {
+          "key": "timer_chess",
+          "term": "शतरंज"
+        },
+        {
+          "key": "timer_go",
+          "term": "गो"
+        }
+      ]
+    },
+    {
+      "locale": "hr",
+      "iosLocale": "hr",
+      "beforeCharacters": 82,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Badminton,Košarka,Nogomet,Stolni tenis,Tenis,Odbojka,Snooker,Biljar,Stolni nogomet,Padel,Boks,Šah,Go",
+      "added": [
+        {
+          "key": "game_padel",
+          "term": "Padel"
+        },
+        {
+          "key": "game_boxing",
+          "term": "Boks"
+        },
+        {
+          "key": "timer_chess",
+          "term": "Šah"
+        },
+        {
+          "key": "timer_go",
+          "term": "Go"
+        }
+      ]
+    },
+    {
+      "locale": "hu",
+      "iosLocale": "hu",
+      "beforeCharacters": 86,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Tollaslabda,Kosárlabda,Labdarúgás,Asztalitenisz,Tenisz,Röplabda,Snooker,Biliárd,Csocsó,Padel,Sakk,Go",
+      "added": [
+        {
+          "key": "game_padel",
+          "term": "Padel"
+        },
+        {
+          "key": "timer_chess",
+          "term": "Sakk"
+        },
+        {
+          "key": "timer_go",
+          "term": "Go"
+        }
+      ]
+    },
+    {
+      "locale": "id",
+      "iosLocale": "id",
+      "beforeCharacters": 92,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Bulutangkis,Bola Basket,Sepak bola,Tenis Meja,Tenis,Bola Voli,Snooker,Biliar,Sepak Bola Meja,Go,Dadu",
+      "added": [
+        {
+          "key": "timer_go",
+          "term": "Go"
+        },
+        {
+          "key": "tool_dice",
+          "term": "Dadu"
+        }
+      ]
+    },
+    {
+      "locale": "it",
+      "iosLocale": "it",
+      "beforeCharacters": 93,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Badminton,Pallacanestro,Calcio,Tennis tavolo,Tennis,Pallavolo,Snooker,Biliardo,Calcio balilla,Squash",
+      "added": [
+        {
+          "key": "game_squash",
+          "term": "Squash"
+        }
+      ]
+    },
+    {
+      "locale": "ja",
+      "iosLocale": "ja",
+      "beforeCharacters": 55,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "バドミントン,バスケットボール,サッカー,卓球,テニス,バレーボール,スヌーカー,ビリヤード,テーブルサッカー,ピックルボール,スカッシュ,パデル,ボクシング,アーチェリー,チェス,囲碁,シュート練習",
+      "added": [
+        {
+          "key": "game_pickleball",
+          "term": "ピックルボール"
+        },
+        {
+          "key": "game_squash",
+          "term": "スカッシュ"
+        },
+        {
+          "key": "game_padel",
+          "term": "パデル"
+        },
+        {
+          "key": "game_boxing",
+          "term": "ボクシング"
+        },
+        {
+          "key": "project_archery",
+          "term": "アーチェリー"
+        },
+        {
+          "key": "timer_chess",
+          "term": "チェス"
+        },
+        {
+          "key": "timer_go",
+          "term": "囲碁"
+        },
+        {
+          "key": "game_basketball_training",
+          "term": "シュート練習"
+        }
+      ]
+    },
+    {
+      "locale": "kn-IN",
+      "iosLocale": "kn",
+      "beforeCharacters": 97,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "ಬ್ಯಾಡ್ಮಿಂಟನ್,ಬ್ಯಾಸ್ಕೆಟ್‌ಬಾಲ್,ಫುಟ್‌ಬಾಲ್,ಟೇಬಲ್ ಟೆನಿಸ್,ಟೆನಿಸ್,ವಾಲಿಬಾಲ್,ಸ್ನೂಕರ್,ಬಿಲಿಯರ್ಡ್ಸ್,ಫುಸ್‌ಬಾಲ್,ಗೋ",
+      "added": [
+        {
+          "key": "timer_go",
+          "term": "ಗೋ"
+        }
+      ]
+    },
+    {
+      "locale": "ko",
+      "iosLocale": "ko",
+      "beforeCharacters": 34,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "배드민턴,농구,축구,탁구,테니스,배구,스누커,당구,테이블 축구,피클볼,스쿼시,파델,복싱,양궁,체스,바둑,제기차기,8볼 점수전,9볼 점수전,슛 연습,샹치,다인 점수,카운터,카운트다운",
+      "added": [
+        {
+          "key": "game_pickleball",
+          "term": "피클볼"
+        },
+        {
+          "key": "game_squash",
+          "term": "스쿼시"
+        },
+        {
+          "key": "game_padel",
+          "term": "파델"
+        },
+        {
+          "key": "game_boxing",
+          "term": "복싱"
+        },
+        {
+          "key": "project_archery",
+          "term": "양궁"
+        },
+        {
+          "key": "timer_chess",
+          "term": "체스"
+        },
+        {
+          "key": "timer_go",
+          "term": "바둑"
+        },
+        {
+          "key": "game_shuttlecock",
+          "term": "제기차기"
+        },
+        {
+          "key": "game_eight_ball",
+          "term": "8볼 점수전"
+        },
+        {
+          "key": "game_nine_ball",
+          "term": "9볼 점수전"
+        },
+        {
+          "key": "game_basketball_training",
+          "term": "슛 연습"
+        },
+        {
+          "key": "timer_xiangqi",
+          "term": "샹치"
+        },
+        {
+          "key": "game_multi_scoreboard",
+          "term": "다인 점수"
+        },
+        {
+          "key": "game_counter",
+          "term": "카운터"
+        },
+        {
+          "key": "timer_timeout",
+          "term": "카운트다운"
+        }
+      ]
+    },
+    {
+      "locale": "ml-IN",
+      "iosLocale": "ml",
+      "beforeCharacters": 98,
+      "characters": 98,
+      "remaining": 2,
+      "keywords": "ബാഡ്മിൻ്റൺ,ബാസ്കറ്റ്ബോൾ,ഫുട്ബോൾ,ടേബിൾ ടെന്നീസ്,ടെന്നീസ്,വോളിബോൾ,സ്നൂക്കർ,ബില്യാർഡ്സ്,ടേബിൾ ഫുട്ബോൾ",
+      "added": []
+    },
+    {
+      "locale": "mr-IN",
+      "iosLocale": "mr",
+      "beforeCharacters": 80,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "बॅडमिंटन,बास्केटबॉल,फुटबॉल,टेबल टेनिस,टेनिस,व्हॉलीबॉल,स्नूकर,बिलियर्ड्स,Foosball,पिकलबॉल,बॉक्सिंग,गो",
+      "added": [
+        {
+          "key": "game_pickleball",
+          "term": "पिकलबॉल"
+        },
+        {
+          "key": "game_boxing",
+          "term": "बॉक्सिंग"
+        },
+        {
+          "key": "timer_go",
+          "term": "गो"
+        }
+      ]
+    },
+    {
+      "locale": "ms",
+      "iosLocale": "ms",
+      "beforeCharacters": 86,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Badminton,Bola Keranjang,Bola sepak,Pingpong,Tenis,Bola Tampar,Snuker,Biliard,Foosball,Padel,Go,Dadu",
+      "added": [
+        {
+          "key": "game_padel",
+          "term": "Padel"
+        },
+        {
+          "key": "timer_go",
+          "term": "Go"
+        },
+        {
+          "key": "tool_dice",
+          "term": "Dadu"
+        }
+      ]
+    },
+    {
+      "locale": "nl-NL",
+      "iosLocale": "nl",
+      "beforeCharacters": 85,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Badminton,Basketbal,Voetbal,Tafeltennis,Tennis,Volleybal,Snooker,Biljart,Tafelvoetbal,Padel,Go,Fluit",
+      "added": [
+        {
+          "key": "game_padel",
+          "term": "Padel"
+        },
+        {
+          "key": "timer_go",
+          "term": "Go"
+        },
+        {
+          "key": "tool_whistle",
+          "term": "Fluit"
+        }
+      ]
+    },
+    {
+      "locale": "no",
+      "iosLocale": "nb",
+      "beforeCharacters": 85,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Badminton,Basketball,Fotball,Bordtennis,Tennis,Volleyball,Snooker,Biljard,Bordfotball,Padel,Sjakk,Go",
+      "added": [
+        {
+          "key": "game_padel",
+          "term": "Padel"
+        },
+        {
+          "key": "timer_chess",
+          "term": "Sjakk"
+        },
+        {
+          "key": "timer_go",
+          "term": "Go"
+        }
+      ]
+    },
+    {
+      "locale": "or-IN",
+      "iosLocale": "or",
+      "beforeCharacters": 83,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "ବ୍ୟାଡମିଣ୍ଟନ୍,ବାସ୍କେଟବଲ୍,ଫୁଟବଲ୍,ଟେବୁଲ୍ ଟେନିସ୍,ଟେନିସ୍,ଭଲିବଲ୍,ସ୍ନୁକର,ବିଲିୟର୍ଡସ୍,ଫୁସବଲ୍,ସ୍କ୍ୱାସ୍,ଚେସ୍,ଗୋ",
+      "added": [
+        {
+          "key": "game_squash",
+          "term": "ସ୍କ୍ୱାସ୍"
+        },
+        {
+          "key": "timer_chess",
+          "term": "ଚେସ୍"
+        },
+        {
+          "key": "timer_go",
+          "term": "ଗୋ"
+        }
+      ]
+    },
+    {
+      "locale": "pa-IN",
+      "iosLocale": "pa",
+      "beforeCharacters": 72,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "ਬੈਡਮਿੰਟਨ,ਬਾਸਕਟਬਾਲ,ਫੁੱਟਬਾਲ,ਟੇਬਲ ਟੈਨਿਸ,ਟੈਨਿਸ,ਵਾਲੀਬਾਲ,ਸਨੂਕਰ,ਬਿਲੀਅਰਡਸ,ਫੁਸਬਾਲ,ਪਿਕਲਬਾਲ,ਸਕੁਐਸ਼,ਪੈਡਲ,ਗੋ,ਪਾਸਾ",
+      "added": [
+        {
+          "key": "game_pickleball",
+          "term": "ਪਿਕਲਬਾਲ"
+        },
+        {
+          "key": "game_squash",
+          "term": "ਸਕੁਐਸ਼"
+        },
+        {
+          "key": "game_padel",
+          "term": "ਪੈਡਲ"
+        },
+        {
+          "key": "timer_go",
+          "term": "ਗੋ"
+        },
+        {
+          "key": "tool_dice",
+          "term": "ਪਾਸਾ"
+        }
+      ]
+    },
+    {
+      "locale": "pl",
+      "iosLocale": "pl",
+      "beforeCharacters": 88,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Badminton,Koszykówka,Piłka nożna,Tenis stołowy,Tenis,Siatkówka,Snooker,Bilard,Piłkarzyki,Squash,Boks",
+      "added": [
+        {
+          "key": "game_squash",
+          "term": "Squash"
+        },
+        {
+          "key": "game_boxing",
+          "term": "Boks"
+        }
+      ]
+    },
+    {
+      "locale": "pt-BR",
+      "iosLocale": "pt-BR",
+      "beforeCharacters": 75,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Badminton,Basquete,Futebol,Tênis de mesa,Tênis,Vôlei,Snooker,Bilhar,Pebolim,Squash,Padel,Boxe,Xadrez",
+      "added": [
+        {
+          "key": "game_squash",
+          "term": "Squash"
+        },
+        {
+          "key": "game_padel",
+          "term": "Padel"
+        },
+        {
+          "key": "game_boxing",
+          "term": "Boxe"
+        },
+        {
+          "key": "timer_chess",
+          "term": "Xadrez"
+        }
+      ]
+    },
+    {
+      "locale": "pt-PT",
+      "iosLocale": "pt-PT",
+      "beforeCharacters": 86,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Badminton,Basquetebol,Futebol,Ténis de mesa,Ténis,Voleibol,Snooker,Bilhar,Matraquilhos,Padel,Boxe,Go",
+      "added": [
+        {
+          "key": "game_padel",
+          "term": "Padel"
+        },
+        {
+          "key": "game_boxing",
+          "term": "Boxe"
+        },
+        {
+          "key": "timer_go",
+          "term": "Go"
+        }
+      ]
+    },
+    {
+      "locale": "ro",
+      "iosLocale": "ro",
+      "beforeCharacters": 81,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Badminton,Baschet,Fotbal,Tenis de masă,Tenis,Volei,Snooker,Biliard,Fotbal de masă,Box,Șah,Go,Xiangqi",
+      "added": [
+        {
+          "key": "game_boxing",
+          "term": "Box"
+        },
+        {
+          "key": "timer_chess",
+          "term": "Șah"
+        },
+        {
+          "key": "timer_go",
+          "term": "Go"
+        },
+        {
+          "key": "timer_xiangqi",
+          "term": "Xiangqi"
+        }
+      ]
+    },
+    {
+      "locale": "ru",
+      "iosLocale": "ru",
+      "beforeCharacters": 93,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Бадминтон,Баскетбол,Футбол,Настольный теннис,Теннис,Волейбол,Снукер,Бильярд,Настольный футбол,Падель",
+      "added": [
+        {
+          "key": "game_padel",
+          "term": "Падель"
+        }
+      ]
+    },
+    {
+      "locale": "sk",
+      "iosLocale": "sk",
+      "beforeCharacters": 84,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Bedminton,Basketbal,Futbal,Stolný tenis,Tenis,Volejbal,Snooker,Biliard,Stolný futbal,Squash,Box,Šach",
+      "added": [
+        {
+          "key": "game_squash",
+          "term": "Squash"
+        },
+        {
+          "key": "game_boxing",
+          "term": "Box"
+        },
+        {
+          "key": "timer_chess",
+          "term": "Šach"
+        }
+      ]
+    },
+    {
+      "locale": "sl-SI",
+      "iosLocale": "sl",
+      "beforeCharacters": 85,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Badminton,Košarka,Nogomet,Namizni tenis,Tenis,Odbojka,Snooker,Biljard,Namizni nogomet,Padel,Boks,Šah",
+      "added": [
+        {
+          "key": "game_padel",
+          "term": "Padel"
+        },
+        {
+          "key": "game_boxing",
+          "term": "Boks"
+        },
+        {
+          "key": "timer_chess",
+          "term": "Šah"
+        }
+      ]
+    },
+    {
+      "locale": "sv",
+      "iosLocale": "sv",
+      "beforeCharacters": 82,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Badminton,Basket,Fotboll,Bordtennis,Tennis,Volleyboll,Snooker,Biljard,Bordsfotboll,Squash,Boxning,Go",
+      "added": [
+        {
+          "key": "game_squash",
+          "term": "Squash"
+        },
+        {
+          "key": "game_boxing",
+          "term": "Boxning"
+        },
+        {
+          "key": "timer_go",
+          "term": "Go"
+        }
+      ]
+    },
+    {
+      "locale": "ta-IN",
+      "iosLocale": "ta",
+      "beforeCharacters": 90,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "பூப்பந்து,கூடைப்பந்து,கால்பந்து,டேபிள் டென்னிஸ்,டென்னிஸ்,கைப்பந்து,ஸ்னூக்கர்,பில்லியர்ட்ஸ்,செஸ்,பகடை",
+      "added": [
+        {
+          "key": "timer_chess",
+          "term": "செஸ்"
+        },
+        {
+          "key": "tool_dice",
+          "term": "பகடை"
+        }
+      ]
+    },
+    {
+      "locale": "te-IN",
+      "iosLocale": "te",
+      "beforeCharacters": 90,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "బ్యాడ్మింటన్,బాస్కెట్‌బాల్,ఫుట్‌బాల్,టేబుల్ టెన్నిస్,టెన్నిస్,వాలీబాల్,స్నూకర్,బిలియర్డ్స్,పాడెల్,గో",
+      "added": [
+        {
+          "key": "game_padel",
+          "term": "పాడెల్"
+        },
+        {
+          "key": "timer_go",
+          "term": "గో"
+        }
+      ]
+    },
+    {
+      "locale": "th",
+      "iosLocale": "th",
+      "beforeCharacters": 88,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "แบดมินตัน,บาสเก็ตบอล,ฟุตบอล,เทเบิลเทนนิส,เทนนิส,วอลเลย์บอล,สนุกเกอร์,บิลเลียด,ฟุตบอลโต๊ะ,สควอช,พาเดล",
+      "added": [
+        {
+          "key": "game_squash",
+          "term": "สควอช"
+        },
+        {
+          "key": "game_padel",
+          "term": "พาเดล"
+        }
+      ]
+    },
+    {
+      "locale": "tr",
+      "iosLocale": "tr",
+      "beforeCharacters": 77,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Badminton,Basketbol,Futbol,Masa Tenisi,Tenis,Voleybol,Snooker,Bilardo,Langırt,Squash,Boks,Okçuluk,Go",
+      "added": [
+        {
+          "key": "game_squash",
+          "term": "Squash"
+        },
+        {
+          "key": "game_boxing",
+          "term": "Boks"
+        },
+        {
+          "key": "project_archery",
+          "term": "Okçuluk"
+        },
+        {
+          "key": "timer_go",
+          "term": "Go"
+        }
+      ]
+    },
+    {
+      "locale": "uk",
+      "iosLocale": "uk",
+      "beforeCharacters": 91,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Бадмінтон,Баскетбол,Футбол,Настільний теніс,Теніс,Волейбол,Снукер,Більярд,Настільний футбол,Сквош,Ґо",
+      "added": [
+        {
+          "key": "game_squash",
+          "term": "Сквош"
+        },
+        {
+          "key": "timer_go",
+          "term": "Ґо"
+        }
+      ]
+    },
+    {
+      "locale": "ur-PK",
+      "iosLocale": "ur",
+      "beforeCharacters": 69,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "بیڈمنٹن,باسکٹ بال,فٹ بال,ٹیبل ٹینس,ٹینس,والی بال,سنوکر,بلیئرڈ,فوس بال,پکل بال,اسکواش,باکسنگ,شطرنج,گو",
+      "added": [
+        {
+          "key": "game_pickleball",
+          "term": "پکل بال"
+        },
+        {
+          "key": "game_squash",
+          "term": "اسکواش"
+        },
+        {
+          "key": "game_boxing",
+          "term": "باکسنگ"
+        },
+        {
+          "key": "timer_chess",
+          "term": "شطرنج"
+        },
+        {
+          "key": "timer_go",
+          "term": "گو"
+        }
+      ]
+    },
+    {
+      "locale": "vi",
+      "iosLocale": "vi",
+      "beforeCharacters": 79,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "Cầu lông,Bóng rổ,Bóng đá,Bóng bàn,Quần vợt,Bóng chuyền,Snooker,Bi-a,Bóng đá bàn,Padel,Cờ vua,Kiến Tử",
+      "added": [
+        {
+          "key": "game_padel",
+          "term": "Padel"
+        },
+        {
+          "key": "timer_chess",
+          "term": "Cờ vua"
+        },
+        {
+          "key": "game_shuttlecock",
+          "term": "Kiến Tử"
+        }
+      ]
+    },
+    {
+      "locale": "zh-Hans",
+      "iosLocale": "zh-Hans",
+      "beforeCharacters": 31,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "羽毛球,篮球,足球,乒乓球,网球,排球,斯诺克,台球,桌上足球,匹克球,壁球,板网球,拳击,射箭,掼蛋,斗地主,升级,国际象棋,围棋,毽球,黑八追局,九球追分,投篮训练,象棋,多人计分,计数器,倒计时",
+      "added": [
+        {
+          "key": "game_pickleball",
+          "term": "匹克球"
+        },
+        {
+          "key": "game_squash",
+          "term": "壁球"
+        },
+        {
+          "key": "game_padel",
+          "term": "板网球"
+        },
+        {
+          "key": "game_boxing",
+          "term": "拳击"
+        },
+        {
+          "key": "project_archery",
+          "term": "射箭"
+        },
+        {
+          "key": "game_guandan",
+          "term": "掼蛋"
+        },
+        {
+          "key": "game_doudizhu",
+          "term": "斗地主"
+        },
+        {
+          "key": "game_shengji",
+          "term": "升级"
+        },
+        {
+          "key": "timer_chess",
+          "term": "国际象棋"
+        },
+        {
+          "key": "timer_go",
+          "term": "围棋"
+        },
+        {
+          "key": "game_shuttlecock",
+          "term": "毽球"
+        },
+        {
+          "key": "game_eight_ball",
+          "term": "黑八追局"
+        },
+        {
+          "key": "game_nine_ball",
+          "term": "九球追分"
+        },
+        {
+          "key": "game_basketball_training",
+          "term": "投篮训练"
+        },
+        {
+          "key": "timer_xiangqi",
+          "term": "象棋"
+        },
+        {
+          "key": "game_multi_scoreboard",
+          "term": "多人计分"
+        },
+        {
+          "key": "game_counter",
+          "term": "计数器"
+        },
+        {
+          "key": "timer_timeout",
+          "term": "倒计时"
+        }
+      ]
+    },
+    {
+      "locale": "zh-Hant",
+      "iosLocale": "zh-Hant",
+      "beforeCharacters": 31,
+      "characters": 100,
+      "remaining": 0,
+      "keywords": "羽毛球,籃球,足球,乒乓球,網球,排球,斯諾克,檯球,桌上足球,匹克球,壁球,板網球,拳擊,射箭,摜蛋,鬥地主,升級,國際象棋,圍棋,毽球,黑八追局,九球追分,投籃訓練,象棋,多人計分,計數器,倒計時",
+      "added": [
+        {
+          "key": "game_pickleball",
+          "term": "匹克球"
+        },
+        {
+          "key": "game_squash",
+          "term": "壁球"
+        },
+        {
+          "key": "game_padel",
+          "term": "板網球"
+        },
+        {
+          "key": "game_boxing",
+          "term": "拳擊"
+        },
+        {
+          "key": "project_archery",
+          "term": "射箭"
+        },
+        {
+          "key": "game_guandan",
+          "term": "摜蛋"
+        },
+        {
+          "key": "game_doudizhu",
+          "term": "鬥地主"
+        },
+        {
+          "key": "game_shengji",
+          "term": "升級"
+        },
+        {
+          "key": "timer_chess",
+          "term": "國際象棋"
+        },
+        {
+          "key": "timer_go",
+          "term": "圍棋"
+        },
+        {
+          "key": "game_shuttlecock",
+          "term": "毽球"
+        },
+        {
+          "key": "game_eight_ball",
+          "term": "黑八追局"
+        },
+        {
+          "key": "game_nine_ball",
+          "term": "九球追分"
+        },
+        {
+          "key": "game_basketball_training",
+          "term": "投籃訓練"
+        },
+        {
+          "key": "timer_xiangqi",
+          "term": "象棋"
+        },
+        {
+          "key": "game_multi_scoreboard",
+          "term": "多人計分"
+        },
+        {
+          "key": "game_counter",
+          "term": "計數器"
+        },
+        {
+          "key": "timer_timeout",
+          "term": "倒計時"
+        }
+      ]
+    }
+  ]
+}

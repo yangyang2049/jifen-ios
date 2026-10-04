@@ -1,0 +1,7 @@
+{
+  "status": 200,
+  "rateLimit": "user-hour-lim:3600;user-hour-rem:3460;",
+  "retryAfter": null,
+  "serverDate": "Fri, 02 Oct 2026 17:01:28 GMT",
+  "observedAt": "2026-10-02T17:01:28.969779+00:00"
+}

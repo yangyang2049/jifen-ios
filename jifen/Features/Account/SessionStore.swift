@@ -48,6 +48,7 @@ final class SessionStore {
     private let client: APIClient
     private let tokenStore: AuthTokenStore
     private let appleProvider: any AccountIdentityProviding
+    private let postAuthenticationWarmup: (@MainActor (String?) async -> Void)?
     private var didRestore = false
     /// 两步补偿：图片已传成功但 PATCH profile 失败时记住 URL，下次上传先补 PATCH，不重复传图。
     private var pendingAvatarURL: String?
@@ -56,18 +57,27 @@ final class SessionStore {
     private var uiTestFakeSessionActive = false
     #endif
     private var lastProfileReloadAt: Date?
+    private var sessionGeneration: UInt64 = 0
     private var sessionExpiredObserver: NSObjectProtocol?
 
-    init(client: APIClient = .shared, tokenStore: AuthTokenStore = .shared) {
+    init(
+        client: APIClient = .shared,
+        tokenStore: AuthTokenStore = .shared,
+        appleProvider: (any AccountIdentityProviding)? = nil,
+        postAuthenticationWarmup: (@MainActor (String?) async -> Void)? = nil
+    ) {
         self.client = client
         self.tokenStore = tokenStore
-        self.appleProvider = ProductionAppleAuthProvider(client: client)
+        self.appleProvider = appleProvider ?? ProductionAppleAuthProvider(client: client)
+        self.postAuthenticationWarmup = postAuthenticationWarmup
         sessionExpiredObserver = NotificationCenter.default.addObserver(
             forName: .apiSessionExpired,
             object: nil,
             queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in await self?.expireSession() }
+        ) { [weak self] notification in
+            let revision = (notification.userInfo?["authSessionRevision"] as? UInt64)
+                ?? (notification.userInfo?["authSessionRevision"] as? NSNumber)?.uint64Value
+            Task { @MainActor in await self?.expireSession(expectedAuthRevision: revision) }
         }
     }
 
@@ -99,17 +109,24 @@ final class SessionStore {
             return
         }
         #endif
-        guard await tokenStore.authToken() != nil else {
+        let generation = sessionGeneration
+        let snapshot = await tokenStore.authSnapshot()
+        guard generation == sessionGeneration else { return }
+        guard snapshot.token != nil else {
             state = .signedOut
             return
         }
         do {
             // 启动恢复走短超时且不重试：离线时快速失败，不占满 45s 资源超时把首屏挂住。
-            user = try await client.request("/api/auth/me", requiresAuth: true, timeout: 8, retries: 0)
+            let profile: AppUser = try await client.request("/api/auth/me", requiresAuth: true, timeout: 8, retries: 0,
+                                                         expectedAuthRevision: snapshot.revision)
+            try await ensureSession(revision: snapshot.revision, generation: generation)
+            user = profile
             state = .authenticated
             lastError = nil
             await runPostAuthenticationWarmup(userId: user?.id)
         } catch {
+            if error is CancellationError || generation != sessionGeneration { return }
             if error as? APIClientError == .sessionExpired {
                 await expireSession()
             } else {
@@ -146,9 +163,15 @@ final class SessionStore {
 
     func reloadProfile() async {
         guard isAuthenticated else { return }
+        let generation = sessionGeneration
+        let revision = await tokenStore.authSessionRevision()
         do {
-            user = try await client.request("/api/auth/me", requiresAuth: true)
+            try await ensureSession(revision: revision, generation: generation)
+            let profile: AppUser = try await client.request("/api/auth/me", requiresAuth: true, expectedAuthRevision: revision)
+            try await ensureSession(revision: revision, generation: generation)
+            user = profile
         } catch {
+            guard generation == sessionGeneration else { return }
             await handle(error)
         }
     }
@@ -165,13 +188,18 @@ final class SessionStore {
 
     func updateProfile(name: String) async -> ProfileUpdateOutcome {
         struct Body: Encodable, Sendable { var name: String }
+        let generation = sessionGeneration
+        let revision = await tokenStore.authSessionRevision()
         do {
+            try await ensureSession(revision: revision, generation: generation)
             let response: ProfileUpdateResponse = try await client.request(
                 "/api/auth/profile",
                 method: .patch,
                 body: Body(name: name),
-                requiresAuth: true
+                requiresAuth: true,
+                expectedAuthRevision: revision
             )
+            try await ensureSession(revision: revision, generation: generation)
             user = response.user
             lastError = nil
             if response.user.nameVisibility?.uppercased() == "OWNER_PREVIEW" {
@@ -179,6 +207,7 @@ final class SessionStore {
             }
             return .updated
         } catch {
+            if error is CancellationError || (error as? URLError)?.code == .cancelled || generation != sessionGeneration { return .cancelled }
             if error as? APIClientError == .sessionExpired {
                 await expireSession()
                 return .failed(lastError ?? error.localizedDescription)
@@ -236,7 +265,10 @@ final class SessionStore {
         isWorking = true
         lastError = nil
         defer { isWorking = false }
+        let generation = sessionGeneration
+        let revision = await tokenStore.authSessionRevision()
         do {
+            try await ensureSession(revision: revision, generation: generation)
             let appliedURL: String
             var uploadedJPEG: Data? = nil
             if let pendingAvatarURL {
@@ -245,8 +277,10 @@ final class SessionStore {
                     "/api/auth/profile",
                     method: .patch,
                     body: Body(avatarUrl: pendingAvatarURL),
-                    requiresAuth: true
+                    requiresAuth: true,
+                    expectedAuthRevision: revision
                 )
+                try await ensureSession(revision: revision, generation: generation)
                 appliedURL = pendingAvatarURL
                 self.pendingAvatarURL = nil
                 user = response.user
@@ -261,21 +295,26 @@ final class SessionStore {
                 let upload: UploadResponse = try await client.upload(
                     "/api/auth/upload-avatar",
                     multipartBody: multipart,
-                    boundary: boundary
+                    boundary: boundary,
+                    expectedAuthRevision: revision
                 )
+                try await ensureSession(revision: revision, generation: generation)
                 do {
                     let response: ProfileUpdateResponse = try await client.request(
                         "/api/auth/profile",
                         method: .patch,
                         body: Body(avatarUrl: upload.url),
-                        requiresAuth: true
+                        requiresAuth: true,
+                        expectedAuthRevision: revision
                     )
+                    try await ensureSession(revision: revision, generation: generation)
                     appliedURL = upload.url
                     user = response.user
                     uploadedJPEG = jpegData
                 } catch let patchError as APIClientError {
                     // 图已在服务端，记住 URL，下次点头像直接补 PATCH；仅会话失效不补偿。
                     if case .sessionExpired = patchError { throw patchError }
+                    try await ensureSession(revision: revision, generation: generation)
                     pendingAvatarURL = upload.url
                     throw patchError
                 }
@@ -291,6 +330,7 @@ final class SessionStore {
             }
             return .updated
         } catch {
+            if error is CancellationError || (error as? URLError)?.code == .cancelled || generation != sessionGeneration { return .cancelled }
             if error as? APIClientError == .sessionExpired {
                 pendingAvatarURL = nil
                 await expireSession()
@@ -303,14 +343,21 @@ final class SessionStore {
     }
 
     func logout() async {
+        sessionGeneration &+= 1
+        let generation = sessionGeneration
+        let revision = await tokenStore.authSessionRevision()
+        guard generation == sessionGeneration else { return }
         let _: SuccessResponse? = try? await client.request(
             "/api/auth/logout",
             method: .post,
             body: EmptyRequest(),
-            requiresAuth: isAuthenticated
+            requiresAuth: isAuthenticated,
+            expectedAuthRevision: revision
         )
-        await client.clearSession()
+        guard generation == sessionGeneration else { return }
+        guard await client.clearSession(expectedAuthRevision: revision), generation == sessionGeneration else { return }
         pendingAvatarURL = nil
+        lastProfileReloadAt = nil
         user = nil
         state = .signedOut
         // 登出即终止云端同步会话：发送 LEAVE、断开 WebSocket 并禁止自动重连（对齐安卓端会话随登出终止）。
@@ -318,12 +365,18 @@ final class SessionStore {
         await CommonDataCloudSyncManager.shared.sessionDidChange(userId: nil)
     }
 
-    private func expireSession() async {
+    private func expireSession(expectedAuthRevision: UInt64? = nil) async {
         #if DEBUG
         if uiTestFakeSessionActive { return }
         #endif
-        await client.clearSession()
+        let expectedUserID = user?.id
+        let snapshot = await tokenStore.authSnapshot()
+        // Network failures have already atomically expired the original token in APIClient.
+        // Read revision/token together and never clear a newer login from a delayed callback.
+        guard snapshot.token == nil, user?.id == expectedUserID,
+              expectedAuthRevision == nil || snapshot.revision == expectedAuthRevision else { return }
         pendingAvatarURL = nil
+        lastProfileReloadAt = nil
         user = nil
         state = .signedOut
         lastError = APIClientError.sessionExpired.localizedDescription
@@ -333,21 +386,27 @@ final class SessionStore {
     }
 
     func deleteAccount() async -> AccountDeletionOutcome? {
+        let generation = sessionGeneration
+        let revision = await tokenStore.authSessionRevision()
         do {
+            try await ensureSession(revision: revision, generation: generation)
             let response: AccountDeletionResponse = try await client.request(
                 "/api/account-deletion/request",
                 method: .post,
                 // Server contract: exact simplified literal, matched verbatim by the backend. Do not localize.
                 body: AccountDeletionRequestBody(confirmText: "注销账号"),
                 requiresAuth: true,
-                headers: ["Idempotency-Key": UUID().uuidString]
+                headers: ["Idempotency-Key": UUID().uuidString],
+                expectedAuthRevision: revision
             )
+            try await ensureSession(revision: revision, generation: generation)
             if response.success == false {
                 return AccountDeletionOutcome(success: false, status: response.status, message: response.message)
             }
             await logout()
             return AccountDeletionOutcome(success: true, status: response.status, message: response.message)
         } catch {
+            guard generation == sessionGeneration else { return nil }
             await handle(error)
             return nil
         }
@@ -355,26 +414,37 @@ final class SessionStore {
 
     private func performAuth(method: String, _ operation: () async throws -> AuthResponse) async {
         guard !isWorking else { return }
+        let interruptedRestore = state == .restoring
         isWorking = true
+        sessionGeneration &+= 1
+        let generation = sessionGeneration
         lastError = nil
         defer { isWorking = false }
+        let revision = await tokenStore.authSessionRevision()
         do {
+            guard generation == sessionGeneration else { throw CancellationError() }
             let response = try await operation()
+            guard generation == sessionGeneration else { throw CancellationError() }
             guard let expiry = APIDateParser.date(from: response.expiresAt) else {
                 #if DEBUG
                 print("[AccountAuth] local session rejected: invalid expiresAt=\(response.expiresAt)")
                 #endif
                 throw APIClientError.decoding
             }
-            try await tokenStore.setAuth(token: response.token, expiresAt: expiry)
+            guard try await tokenStore.setAuth(token: response.token, expiresAt: expiry, ifRevisionMatches: revision),
+                  generation == sessionGeneration else { throw CancellationError() }
+            pendingAvatarURL = nil
+            lastProfileReloadAt = nil
             user = response.user
             state = .authenticated
+            lastError = nil
             #if DEBUG
             print("[AccountAuth] local session authenticated")
             #endif
             await runPostAuthenticationWarmup(userId: response.user.id)
             AppAnalytics.trackLoginSuccess(method: method)
         } catch {
+            guard generation == sessionGeneration else { return }
             let outcome = Self.analyticsAuthOutcome(error)
             AppAnalytics.trackAuthResult(
                 method: method,
@@ -382,6 +452,13 @@ final class SessionStore {
                 errorCategory: outcome.category
             )
             await handle(error)
+            guard interruptedRestore, generation == sessionGeneration else { return }
+            // A failed or cancelled login superseded the launch-time restore,
+            // but did not replace its credentials. Retry with a fresh generation
+            // snapshot; the original restore must still be discarded.
+            didRestore = false
+            state = .signedOut
+            await restore()
         }
     }
 
@@ -407,6 +484,10 @@ final class SessionStore {
     }
 
     private func runPostAuthenticationWarmup(userId: String?) async {
+        if let postAuthenticationWarmup {
+            await postAuthenticationWarmup(userId)
+            return
+        }
         async let commonDataSync: Void = CommonDataCloudSyncManager.shared.sessionDidChange(
             userId: userId
         )
@@ -415,9 +496,16 @@ final class SessionStore {
     }
 
     private func handle(_ error: Error) async {
+        guard !(error is CancellationError) else { return }
         lastError = error.localizedDescription
         if error as? APIClientError == .sessionExpired {
             await expireSession()
+        }
+    }
+
+    private func ensureSession(revision: UInt64, generation: UInt64) async throws {
+        guard await tokenStore.authSessionRevision() == revision, sessionGeneration == generation else {
+            throw CancellationError()
         }
     }
 

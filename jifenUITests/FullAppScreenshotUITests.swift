@@ -20,7 +20,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         ("archery", "射箭"),
         ("boxing", "拳击"),
         ("billiards", "台球"),
-        ("eight_ball", "黑八"),
+        ("eight_ball", "黑八追局"),
         ("nine_ball", "追分"),
         ("snooker", "斯诺克"),
         ("doudizhu", "斗地主"),

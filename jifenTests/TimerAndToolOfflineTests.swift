@@ -85,6 +85,20 @@ final class TimerAndToolOfflineTests: XCTestCase {
         )
     }
 
+    func testAACalculationAcceptsLocalizedKeyboardAmounts() {
+        for (input, identifier) in [("12,50", "de_DE"), ("12,50", "fr_FR"), ("١٢٫٥٠", "ar_SA"), ("१२.५०", "hi_IN"), ("１２.５０", "ja_JP")] {
+            XCTAssertEqual(
+                AACalculationPolicy.amountPerPerson(totalText: input, participants: 2, locale: Locale(identifier: identifier)),
+                6.25,
+                "\(identifier): \(input)"
+            )
+        }
+        XCTAssertEqual(AACalculationPolicy.totalAmount(from: "12.50", locale: Locale(identifier: "de_DE")), 12.5)
+        XCTAssertNil(AACalculationPolicy.totalAmount(from: "12,50junk", locale: Locale(identifier: "de_DE")))
+        XCTAssertNil(AACalculationPolicy.totalAmount(from: "1.234,50", locale: Locale(identifier: "de_DE")))
+        XCTAssertNil(AACalculationPolicy.totalAmount(from: "١٢٫٫٥٠", locale: Locale(identifier: "ar_SA")))
+    }
+
     func testTenSecondChallengeDifferencePolicy() {
         XCTAssertEqual(TenSecondChallengePolicy.absoluteDifference(milliseconds: 10_000), 0)
         XCTAssertEqual(TenSecondChallengePolicy.absoluteDifference(milliseconds: 9_950), 50)

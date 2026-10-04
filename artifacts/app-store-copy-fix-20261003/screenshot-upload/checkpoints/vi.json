@@ -1,0 +1,12 @@
+{
+  "locale": "vi",
+  "startedAt": "2026-10-02T17:19:18.537539+00:00",
+  "status": "failed",
+  "images": [],
+  "deletedIds": [],
+  "setId": "b7e4a1ba-a319-4d3d-8d16-b9ff30d4c034",
+  "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/screenshot-upload/locale-backups/20261002T171841132002Z-vi.json",
+  "verified": false,
+  "error": "Screenshot did not finish with the expected MD5",
+  "completedAt": "2026-10-02T17:19:26.304860+00:00"
+}

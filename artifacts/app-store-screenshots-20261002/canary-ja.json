@@ -1,0 +1,29 @@
+{
+  "locale": "ja",
+  "setId": "9237d0e6-38af-4eeb-a9c6-c989ab343622",
+  "screenshot": {
+    "type": "appScreenshots",
+    "id": "59400019-2e9e-82d0-800e-82daa32b4479",
+    "attributes": {
+      "fileSize": 2144649,
+      "fileName": "01-slogan.png",
+      "sourceFileChecksum": "4fab4736d0b65500aa65e0dc22199ca3",
+      "imageAsset": {
+        "templateUrl": "https://is1-ssl.mzstatic.com/image/thumb/-R3kK417Hq4XyNhwTAl1Rg/{w}x{h}bb.{f}",
+        "width": 1284,
+        "height": 2778
+      },
+      "assetToken": "PurpleSource211/v4/07/74/15/077415a4-685d-4550-979b-c24061d2ff6c/01-slogan.png",
+      "assetType": "SortedD33ScreenShot",
+      "assetDeliveryState": {
+        "errors": [],
+        "warnings": null,
+        "state": "COMPLETE"
+      }
+    },
+    "links": {
+      "self": "https://api.appstoreconnect.apple.com/v1/appScreenshots/59400019-2e9e-82d0-800e-82daa32b4479"
+    }
+  },
+  "verified": true
+}

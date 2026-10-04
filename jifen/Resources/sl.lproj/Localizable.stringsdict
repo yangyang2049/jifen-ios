@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>match_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d tekma</string>
+			<key>two</key>
+			<string>%d tekmi</string>
+			<key>few</key>
+			<string>%d tekme</string>
+			<key>other</key>
+			<string>%d tekem</string>
+		</dict>
+	</dict>
+	<key>timer_byoyomi_periods_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Byoyomi %d obdobje</string>
+			<key>two</key>
+			<string>Byoyomi %d obdobji</string>
+			<key>few</key>
+			<string>Byoyomi %d obdobja</string>
+			<key>other</key>
+			<string>Byoyomi %d obdobij</string>
+		</dict>
+	</dict>
+	<key>display_training_fixed_points</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Met za %d t.</string>
+			<key>two</key>
+			<string>Meta za %d t.</string>
+			<key>few</key>
+			<string>Meti za %d t.</string>
+			<key>other</key>
+			<string>Meti za %d t.</string>
+		</dict>
+	</dict>
+	<key>record_format_sets_play_all</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Odigrati celoten %d niz</string>
+			<key>two</key>
+			<string>Odigrati %d niza v celoti</string>
+			<key>few</key>
+			<string>Odigrati vse %d nize</string>
+			<key>other</key>
+			<string>Odigrati vseh %d nizov</string>
+		</dict>
+	</dict>
+	<key>record_format_sets_play_all_tennis</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Odigrati celoten %d niz</string>
+			<key>two</key>
+			<string>Odigrati %d niza v celoti</string>
+			<key>few</key>
+			<string>Odigrati vse %d nize</string>
+			<key>other</key>
+			<string>Odigrati vseh %d nizov</string>
+		</dict>
+	</dict>
+	<key>record_format_points_per_set</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d točka na niz</string>
+			<key>two</key>
+			<string>%d točki na niz</string>
+			<key>few</key>
+			<string>%d točke na niz</string>
+			<key>other</key>
+			<string>%d točk na niz</string>
+		</dict>
+	</dict>
+	<key>record_format_pickleball_score</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Cilj: %d točka</string>
+			<key>two</key>
+			<string>Cilj: %d točki</string>
+			<key>few</key>
+			<string>Cilj: %d točke</string>
+			<key>other</key>
+			<string>Cilj: %d točk</string>
+		</dict>
+	</dict>
+	<key>players_count_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d igralec</string>
+			<key>two</key>
+			<string>%d igralca</string>
+			<key>few</key>
+			<string>%d igralci</string>
+			<key>other</key>
+			<string>%d igralcev</string>
+		</dict>
+	</dict>
+	<key>random_team_team_count_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d ekipa</string>
+			<key>two</key>
+			<string>%d ekipi</string>
+			<key>few</key>
+			<string>%d ekipe</string>
+			<key>other</key>
+			<string>%d ekip</string>
+		</dict>
+	</dict>
+	<key>common_names_batch_delete_confirm</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Želite izbrisati %d izbrano ime?</string>
+			<key>two</key>
+			<string>Želite izbrisati %d izbrani imeni?</string>
+			<key>few</key>
+			<string>Želite izbrisati %d izbrana imena?</string>
+			<key>other</key>
+			<string>Želite izbrisati %d izbranih imen?</string>
+		</dict>
+	</dict>
+	<key>records_batch_selected_n</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Izbrano: %d</string>
+			<key>two</key>
+			<string>Izbrano: %d</string>
+			<key>few</key>
+			<string>Izbrano: %d</string>
+			<key>other</key>
+			<string>Izbrano: %d</string>
+		</dict>
+	</dict>
+	<key>common_places_batch_delete_confirm</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Želite izbrisati %d izbrano mesto?</string>
+			<key>two</key>
+			<string>Želite izbrisati %d izbrana kraja?</string>
+			<key>few</key>
+			<string>Želite izbrisati %d izbrana mesta?</string>
+			<key>other</key>
+			<string>Želite izbrisati %d izbranih krajev?</string>
+		</dict>
+	</dict>
+	<key>schedule_reminder_hours_before</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d h prej</string>
+			<key>two</key>
+			<string>%d h prej</string>
+			<key>few</key>
+			<string>%d h prej</string>
+			<key>other</key>
+			<string>%d h prej</string>
+		</dict>
+	</dict>
+	<key>schedule_reminder_minutes_before</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d min prej</string>
+			<key>two</key>
+			<string>%d min prej</string>
+			<key>few</key>
+			<string>%d min prej</string>
+			<key>other</key>
+			<string>%d min prej</string>
+		</dict>
+	</dict>
+	<key>schedule_participants_limit</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Do %d osebe; podvojena imena se združijo</string>
+			<key>two</key>
+			<string>Do %d oseb; podvojena imena se združijo</string>
+			<key>few</key>
+			<string>Do %d oseb; podvojena imena se združijo</string>
+			<key>other</key>
+			<string>Do %d oseb; podvojena imena se združijo</string>
+		</dict>
+	</dict>
+	<key>schedule_batch_delete_message</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Želite izbrisati izbrano %d rezervacijo?</string>
+			<key>two</key>
+			<string>Želite izbrisati %d izbrani rezervaciji?</string>
+			<key>few</key>
+			<string>Želite izbrisati izbrane %d rezervacije?</string>
+			<key>other</key>
+			<string>Želite izbrisati %d izbranih rezervacij?</string>
+		</dict>
+	</dict>
+	<key>schedule_sets_summary</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d niz / igra biljarda</string>
+			<key>two</key>
+			<string>%d niza / igri biljarda</string>
+			<key>few</key>
+			<string>%d nizi / igre biljarda</string>
+			<key>other</key>
+			<string>%d nizov / iger biljarda</string>
+		</dict>
+	</dict>
+	<key>schedule_points_summary</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d točka na niz</string>
+			<key>two</key>
+			<string>%d točki na niz</string>
+			<key>few</key>
+			<string>%d točke na niz</string>
+			<key>other</key>
+			<string>%d točk na niz</string>
+		</dict>
+	</dict>
+	<key>sync_sets_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d niz</string>
+			<key>two</key>
+			<string>%d niza</string>
+			<key>few</key>
+			<string>%d nizi</string>
+			<key>other</key>
+			<string>%d nizov</string>
+		</dict>
+	</dict>
+	<key>sync_games_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d igra</string>
+			<key>two</key>
+			<string>%d igri</string>
+			<key>few</key>
+			<string>%d igre</string>
+			<key>other</key>
+			<string>%d iger</string>
+		</dict>
+	</dict>
+	<key>tennis_sync_sets_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d niz</string>
+			<key>two</key>
+			<string>%d niza</string>
+			<key>few</key>
+			<string>%d nizi</string>
+			<key>other</key>
+			<string>%d nizov</string>
+		</dict>
+	</dict>
+	<key>tennis_sync_games_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d igra</string>
+			<key>two</key>
+			<string>%d igri</string>
+			<key>few</key>
+			<string>%d igre</string>
+			<key>other</key>
+			<string>%d iger</string>
+		</dict>
+	</dict>
+	<key>sync_players_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d igralec</string>
+			<key>two</key>
+			<string>%d igralca</string>
+			<key>few</key>
+			<string>%d igralci</string>
+			<key>other</key>
+			<string>%d igralcev</string>
+		</dict>
+	</dict>
+	<key>home_sync_connected_devices</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Povezane naprave: %d</string>
+			<key>two</key>
+			<string>Povezane naprave: %d</string>
+			<key>few</key>
+			<string>Povezane naprave: %d</string>
+			<key>other</key>
+			<string>Povezane naprave: %d</string>
+		</dict>
+	</dict>
+	<key>feedback_time_days_ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Pred %d dnevom</string>
+			<key>two</key>
+			<string>Pred %d dnevoma</string>
+			<key>few</key>
+			<string>Pred %d dnevi</string>
+			<key>other</key>
+			<string>Pred %d dnevi</string>
+		</dict>
+	</dict>
+	<key>feedback_comment_count_label</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Komentar (%d)</string>
+			<key>two</key>
+			<string>Komentarja (%d)</string>
+			<key>few</key>
+			<string>Komentarji (%d)</string>
+			<key>other</key>
+			<string>Komentarji (%d)</string>
+		</dict>
+	</dict>
+	<key>feedback_image_prepare_failed</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Ni bilo mogoče obdelati %d slike. Poskusite z drugo.</string>
+			<key>two</key>
+			<string>Ni bilo mogoče obdelati %d slik. Poskusite z drugima.</string>
+			<key>few</key>
+			<string>Ni bilo mogoče obdelati %d slik. Poskusite z drugimi.</string>
+			<key>other</key>
+			<string>Ni bilo mogoče obdelati %d slik. Poskusite z drugimi.</string>
+		</dict>
+	</dict>
+	<key>basketball_fouls_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Prekršek %d</string>
+			<key>two</key>
+			<string>Prekrška %d</string>
+			<key>few</key>
+			<string>Prekrški %d</string>
+			<key>other</key>
+			<string>Prekrški %d</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

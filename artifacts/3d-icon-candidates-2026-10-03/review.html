@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>全能计分器 · 3D 图标候选</title>
+<style>
+:root{color-scheme:light;--page:#f5f5f2;--panel:#fff;--ink:#202521;--muted:#647068;--line:#dce1dc;--accent:#18764e;--preview:#f1f3ef;--tile:#e8ebe5}*{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}body.dark{color-scheme:dark;--page:#161a17;--panel:#202722;--ink:#f0f3ef;--muted:#a5b2a8;--line:#3b453e;--accent:#7bd5aa;--preview:#131915;--tile:#263129}main{max-width:1460px;margin:auto;padding:36px 28px 80px}h1{font-size:30px;letter-spacing:-.6px;margin:0 0 10px}p{line-height:1.65;margin:6px 0;color:var(--muted)}.eyebrow{font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--accent);margin-bottom:12px}.originals{display:flex;align-items:center;gap:10px;margin:22px 0}.originals img{width:70px;height:70px;object-fit:contain;border-radius:12px;background:var(--preview);padding:6px}.originals span{font-size:13px;color:var(--muted);margin-left:5px}.bar{position:sticky;top:0;z-index:2;display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:12px 0;background:var(--page);border-bottom:1px solid var(--line);margin:0 0 30px}button{font:inherit;cursor:pointer;border:1px solid var(--line);border-radius:9px;padding:8px 12px;background:var(--panel);color:var(--ink)}button:hover{border-color:var(--accent)}button.active,button[aria-pressed=true]{background:var(--accent);color:var(--panel);border-color:var(--accent)}.spacer{flex:1}.count{color:var(--muted);font-size:13px;padding:0 5px}h2{font-size:21px;margin:32px 0 14px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.item{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:20px;scroll-margin-top:80px}.item h3{margin:0 0 5px;font-size:18px}.note{font-size:12px;line-height:1.6;color:var(--muted);min-height:20px;margin-bottom:13px}.item[data-id="pickleball"] .options,.item[data-id="soft_tennis"] .options{grid-template-columns:repeat(3,minmax(0,1fr))}.options{display:grid;grid-template-columns:1fr 1fr;gap:12px}.originalLink{display:block;text-align:center;font-size:12px;padding:8px;text-decoration:none}.originalLink:hover{text-decoration:underline}.candidate{padding:0;border-radius:12px;overflow:hidden;text-align:left;background:transparent;width:100%;display:block;border:2px solid transparent}.candidate.selected{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent),transparent 82%)}.preview{aspect-ratio:1;background:var(--preview);display:flex;align-items:center;justify-content:center}.checker .preview{background-color:var(--preview);background-image:linear-gradient(45deg,var(--tile) 25%,transparent 25%),linear-gradient(-45deg,var(--tile) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,var(--tile) 75%),linear-gradient(-45deg,transparent 75%,var(--tile) 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}.preview img{width:94%;height:94%;object-fit:contain}.caption{padding:10px 12px;background:var(--panel);display:flex;align-items:center;gap:9px;min-height:58px}.letter{font-size:14px;font-weight:700;color:var(--accent);background:var(--preview);border-radius:7px;padding:5px 8px}.desc{font-size:12px;line-height:1.4;color:var(--ink)}.small-preview{display:flex;align-items:center;gap:10px;padding:7px 12px 12px;color:var(--muted);font-size:11px;background:var(--panel)}.small-preview img{object-fit:contain;background:var(--preview);border-radius:6px}.small-preview .s32{width:32px;height:32px}.small-preview .s48{width:48px;height:48px}.selected .letter{background:var(--accent);color:var(--panel)}.section[hidden],.item[hidden]{display:none}.footer{margin-top:32px;border-top:1px solid var(--line);padding-top:20px;font-size:12px;color:var(--muted)}a{color:var(--accent)}@media(max-width:760px){main{padding:22px 14px 50px}h1{font-size:25px}.grid{grid-template-columns:1fr}.item{padding:14px}.originals img{width:54px;height:54px}.originals span{font-size:11px}.bar{gap:6px}.bar button{font-size:12px;padding:7px 9px}.spacer{display:none}.count{margin-left:auto}.options{gap:8px}}
+</style>
+</head>
+<body class="checker"><main>
+<div class="eyebrow">JI FEN / 3D ICON STUDY · 2026.10.03</div>
+<h1>全能计分器 · 3D 图标候选</h1>
+<p>31 类，已记录你的选择；所有备选均保留。点击 A 或 B 选择；下方 32 / 48 px 预览用于检查缩小后的识别度。</p>
+<div class="originals"><img src="references/8Ball.png" alt="原库八球"><img src="references/Darts.png" alt="原库飞镖"><img src="references/Badbinton.png" alt="原库羽毛球"><img src="references/Pickleball.png" alt="原库匹克球"><span>原 Figma 库<br>材质、光线与造型参考</span></div>
+<div class="bar"><button class="filter active" data-filter="all">全部 31</button><button class="filter" data-filter="sports">体育 8</button><button class="filter" data-filter="tabletop">棋类与桌游 8</button><button class="filter" data-filter="tools">计分与工具 15</button><span class="spacer"></span><button id="theme">深色背景</button><button id="checker" aria-pressed="true">透明网格</button><button id="selectedOnly" aria-pressed="false">只看已选</button><span class="count" id="count">已选 0 / 31</span><button id="export">导出选择</button></div>
+<div id="content"></div>
+<p class="footer">所有候选均为独立 PNG。选项保存在当前浏览器；点击“导出选择”可保存 JSON，也可以直接告诉我“毽子 A、象棋 B……”来继续。<br>本页的跳棋 A 是国际跳棋，B 是中国跳棋，供核对项目里两种现有名称的实际含义。</p>
+</main><script>
+const sections=[
+  {
+    "id": "sports",
+    "title": "体育",
+    "items": [
+      [
+        "jianzi",
+        "毽子",
+        "踢毽子的加重底座和彩色羽毛。",
+        "sports",
+        "单毽主体",
+        "另一种羽毛构图"
+      ],
+      [
+        "pickleball",
+        "匹克球",
+        "已选下载原库的黄孔球；新候选仍保留。",
+        "sports",
+        "新单球",
+        "球拍与球",
+        [
+          [
+            "original",
+            "下载原库 · 已选"
+          ],
+          [
+            "a",
+            "新候选 A"
+          ],
+          [
+            "b",
+            "新候选 B"
+          ]
+        ]
+      ],
+      [
+        "archery",
+        "射箭",
+        "同心靶和弓箭两种构图。",
+        "sports",
+        "同心靶与箭",
+        "反曲弓与箭"
+      ],
+      [
+        "snooker",
+        "斯诺克",
+        "无编号红球与彩球。",
+        "sports",
+        "红球与黑球",
+        "三色球组合"
+      ],
+      [
+        "nineball",
+        "九球",
+        "白球身、黄色条纹、数字 9。",
+        "sports",
+        "只要球本身",
+        "球与球杆"
+      ],
+      [
+        "squash",
+        "壁球",
+        "双黄点单球为本次选择，球拍版保留。",
+        "sports",
+        "双黄点单球",
+        "球拍与球"
+      ],
+      [
+        "soft_tennis",
+        "软式网球",
+        "按你的决定复用原版网球，白球候选继续保存。",
+        "sports",
+        "白色球",
+        "白球与球拍",
+        [
+          [
+            "original",
+            "复用原版网球 · 已选"
+          ],
+          [
+            "a",
+            "白球候选 A"
+          ],
+          [
+            "b",
+            "球拍候选 B"
+          ]
+        ]
+      ],
+      [
+        "padel",
+        "板式网球",
+        "有孔的实心球拍与网球。",
+        "sports",
+        "红色球拍",
+        "蓝色球拍"
+      ]
+    ]
+  },
+  {
+    "id": "tabletop",
+    "title": "棋类与桌游",
+    "items": [
+      [
+        "go",
+        "围棋",
+        "重做：只有两枚黑白棋子。旧 A/B 已备份。",
+        "tabletop",
+        "黑子在前",
+        "白子在前",
+        [
+          [
+            "c",
+            "新第一款"
+          ],
+          [
+            "d",
+            "新第二款 · 已选"
+          ]
+        ]
+      ],
+      [
+        "xiangqi",
+        "象棋",
+        "传统圆木棋子「帥 / 將」。",
+        "tabletop",
+        "构图 A",
+        "深色将棋子"
+      ],
+      [
+        "chess",
+        "国际象棋",
+        "立体棋子，比较轮廓与留白。",
+        "tabletop",
+        "较大的双棋子",
+        "更简洁的双棋子"
+      ],
+      [
+        "checkers",
+        "跳棋",
+        "A 为国际跳棋，B 为中国跳棋。",
+        "tabletop",
+        "国际跳棋",
+        "中国跳棋"
+      ],
+      [
+        "playing-cards",
+        "扑克牌",
+        "普通扑克的花色与纸卡厚度。",
+        "tabletop",
+        "三张扇形纸牌",
+        "两张叠放纸牌"
+      ],
+      [
+        "mahjong",
+        "麻将",
+        "红中、绿發与筒条牌。",
+        "tabletop",
+        "两张字牌",
+        "三张牌组合"
+      ],
+      [
+        "uno",
+        "UNO",
+        "反转牌对应 B，已记录你的选择。",
+        "tabletop",
+        "四色数字牌",
+        "蓝色反转牌"
+      ],
+      [
+        "foosball",
+        "桌上足球",
+        "简洁球员与球桌两种构图；同杆队色已修正。",
+        "tabletop",
+        "球员与操纵杆",
+        "完整球桌"
+      ]
+    ]
+  },
+  {
+    "id": "tools",
+    "title": "计分与工具",
+    "items": [
+      [
+        "simple_score",
+        "通用计分",
+        "实体计分板与机械计数器。",
+        "tools",
+        "翻牌计分板",
+        "机械计数器"
+      ],
+      [
+        "multi_scoreboard",
+        "多人计分",
+        "三种颜色区分多个玩家。",
+        "tools",
+        "三色计分板",
+        "三色玩家组合"
+      ],
+      [
+        "cube",
+        "魔方",
+        "经典三阶魔方。",
+        "tools",
+        "红蓝黄",
+        "绿红黄"
+      ],
+      [
+        "stopwatch",
+        "秒表",
+        "模拟计时器，与十秒挑战区分。",
+        "tools",
+        "银色秒表",
+        "蓝色秒表"
+      ],
+      [
+        "timeout",
+        "倒计时",
+        "保留两种计时意象，本次选沙漏。",
+        "tools",
+        "时钟",
+        "沙漏"
+      ],
+      [
+        "flip_coin",
+        "抛硬币",
+        "实体硬币。",
+        "tools",
+        "单枚硬币",
+        "两枚硬币"
+      ],
+      [
+        "dice",
+        "掷骰子",
+        "有厚度的实体骰子，点数已核对。",
+        "tools",
+        "单骰子",
+        "双骰子"
+      ],
+      [
+        "whistle",
+        "哨子",
+        "裁判哨的吹口与共鸣腔。",
+        "tools",
+        "银色金属哨",
+        "红色运动哨"
+      ],
+      [
+        "random_team",
+        "随机分队",
+        "两种颜色区分队伍。",
+        "tools",
+        "红蓝人形棋子",
+        "球衣与人形子"
+      ],
+      [
+        "red_yellow_card",
+        "红黄牌",
+        "两张有厚度的裁判牌。",
+        "tools",
+        "黄牌在前",
+        "红牌在前"
+      ],
+      [
+        "fullscreen_barrage",
+        "全屏弹幕",
+        "有厚度的 LED 文字屏。",
+        "tools",
+        "构图 A",
+        "构图 B"
+      ],
+      [
+        "points_table",
+        "积分表",
+        "排名与分数行。",
+        "tools",
+        "构图 A",
+        "构图 B"
+      ],
+      [
+        "time",
+        "翻页时钟",
+        "翻页数字时钟。",
+        "tools",
+        "深色时钟",
+        "蓝色时钟"
+      ],
+      [
+        "aa_calculator",
+        "AA 计算器",
+        "计算器与分摊元素。",
+        "tools",
+        "构图 A",
+        "构图 B"
+      ],
+      [
+        "ten_second",
+        "十秒挑战",
+        "显示 10.00 的数字秒表。",
+        "tools",
+        "构图 A",
+        "构图 B"
+      ]
+    ]
+  }
+];
+const originalPaths={pickleball:'references/Pickleball.png',soft_tennis:'references/Tennis.png'};
+const key='jifen-3d-icon-candidates-2026-10-03';let choices={};try{choices=JSON.parse(localStorage.getItem(key)||'{}')}catch{}const confirmedChoices={"jianzi":"a","pickleball":"original","archery":"a","snooker":"b","nineball":"a","squash":"a","soft_tennis":"original","padel":"b","go":"d","xiangqi":"b","chess":"b","checkers":"a","playing-cards":"b","mahjong":"a","uno":"b","foosball":"a","simple_score":"a","multi_scoreboard":"a","cube":"b","stopwatch":"b","timeout":"b","flip_coin":"a","dice":"a","whistle":"a","random_team":"a","red_yellow_card":"b","fullscreen_barrage":"a","points_table":"b","time":"a","aa_calculator":"b","ten_second":"a"};try{if(localStorage.getItem(key+'-seed')!=='final-2026-10-03'){choices={...choices,...confirmedChoices};localStorage.setItem(key,JSON.stringify(choices));localStorage.setItem(key+'-seed','final-2026-10-03')}}catch{choices={...choices,...confirmedChoices}}let filter='all',only=false;
+const content=document.querySelector('#content');
+for(const section of sections){const wrap=document.createElement('section');wrap.className='section';wrap.dataset.category=section.id;const title=document.createElement('h2');title.textContent=section.title;wrap.append(title);const grid=document.createElement('div');grid.className='grid';for(const [id,name,note,folder,a,b,custom]of section.items){const item=document.createElement('article');item.className='item';item.dataset.id=id;const h=document.createElement('h3');h.textContent=name;item.append(h);const n=document.createElement('div');n.className='note';n.textContent=note;item.append(n);const options=document.createElement('div');options.className='options';for(const [v,desc]of (custom||[['a',a],['b',b]])){const button=document.createElement('button');button.className='candidate';button.dataset.variant=v;button.setAttribute('aria-label',name+' '+v.toUpperCase()+' '+desc);const src=v==='original'?originalPaths[id]:folder+'/'+id+'-'+v+'.png';const letter=v==='original'?'原版':v.toUpperCase();button.innerHTML='<div class="preview"><img src="'+src+'" alt="'+name+' '+v.toUpperCase()+'" loading="lazy"></div><div class="caption"><span class="letter">'+letter+'</span><span class="desc">'+desc+'</span></div><div class="small-preview"><img class="s32" src="'+src+'" alt="" loading="lazy"><span>32</span><img class="s48" src="'+src+'" alt="" loading="lazy"><span>48 px</span></div>';button.addEventListener('click',()=>{if(choices[id]===v)delete choices[id];else choices[id]=v;try{localStorage.setItem(key,JSON.stringify(choices))}catch{}update()});const block=document.createElement('div');block.className='option-block';block.append(button);const link=document.createElement('a');link.href=src;link.target='_blank';link.className='originalLink';link.textContent='查看原图';link.setAttribute('aria-label','查看'+name+' '+v.toUpperCase()+'原图');block.append(link);options.append(block)}item.append(options);grid.append(item)}wrap.append(grid);content.append(wrap)}
+function update(){for(const item of document.querySelectorAll('.item')){item.hidden=only&&!choices[item.dataset.id];for(const button of item.querySelectorAll('.candidate')){const selected=choices[item.dataset.id]===button.dataset.variant;button.classList.toggle('selected',selected);button.setAttribute('aria-pressed',String(selected))}}for(const section of document.querySelectorAll('.section'))section.hidden=(filter!=='all'&&filter!==section.dataset.category)||(only&&!Array.from(section.querySelectorAll('.item')).some(x=>!x.hidden));document.querySelector('#count').textContent='已选 '+Object.keys(choices).length+' / 31'}
+document.querySelectorAll('.filter').forEach(button=>button.addEventListener('click',()=>{filter=button.dataset.filter;document.querySelectorAll('.filter').forEach(x=>x.classList.toggle('active',x===button));update()}));
+document.querySelector('#theme').addEventListener('click',()=>{const dark=document.body.classList.toggle('dark');document.querySelector('#theme').textContent=dark?'浅色背景':'深色背景'});
+document.querySelector('#checker').addEventListener('click',e=>e.currentTarget.setAttribute('aria-pressed',String(document.body.classList.toggle('checker'))));
+document.querySelector('#selectedOnly').addEventListener('click',e=>{only=!only;e.currentTarget.setAttribute('aria-pressed',String(only));update()});
+document.querySelector('#export').addEventListener('click',()=>{const entries=sections.flatMap(section=>section.items.filter(item=>choices[item[0]]).map(item=>({id:item[0],name:item[1],variant:choices[item[0]].toUpperCase(),file:choices[item[0]]==='original'?originalPaths[item[0]]:item[3]+'/'+item[0]+'-'+choices[item[0]]+'.png'})));const blob=new Blob([JSON.stringify({collection:key,selected:entries},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='3d-icon-selections-2026-10-03.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});update();
+</script></body></html>

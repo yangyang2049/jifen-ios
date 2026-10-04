@@ -1,0 +1,68 @@
+{
+  "locale": "mr-IN",
+  "appleLanguage": "mr",
+  "appleLocale": "mr_IN",
+  "names": [
+    "अजय",
+    "राहुल",
+    "आदित्य",
+    "विवेक"
+  ],
+  "fontFamily": "Noto Sans Devanagari",
+  "basketballTeams": [
+    "यजमान",
+    "पाहुणे"
+  ],
+  "simulator": "5AC81D3A-D96A-4165-957E-F378FF101B69",
+  "cards": [
+    {
+      "index": 1,
+      "scene": "snooker",
+      "file": "exports/mr-IN/01-snooker.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "d80f06780e55f7f99c1e34e7cab04615c27e5dc17ffa588759e8acb799196ecc",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 2,
+      "scene": "basketball",
+      "file": "exports/mr-IN/02-basketball.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "c1d3db9795faee73ce540fda7dc51aa809e3ea0008955b53c07c9a15f40db160",
+      "capture": "production SwiftUI via simctl",
+      "teamNames": [
+        "यजमान",
+        "पाहुणे"
+      ]
+    },
+    {
+      "index": 3,
+      "scene": "record",
+      "file": "exports/mr-IN/03-record.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "da3b5023c0a64ec4724754a0954fdd7e40a045db2caef66a383c1256e5450a61",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 4,
+      "scene": "setup",
+      "file": "exports/mr-IN/04-setup.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "bf9024eb4495113d8dbd8279fff5bb964b21c752e605e5f14c37ea642d4b38b6",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 5,
+      "scene": "home",
+      "file": "exports/mr-IN/05-home.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "13be080142d66ed871ae0eb9cd1104b789ce34ca0d01a46c280b17dc796564fb",
+      "capture": "production SwiftUI via simctl"
+    }
+  ]
+}

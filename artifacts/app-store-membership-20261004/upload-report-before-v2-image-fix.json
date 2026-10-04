@@ -1,0 +1,302 @@
+{
+  "appId": "6759768784",
+  "bundleId": "com.douhua.jifen.ios",
+  "startedAt": "20261004T045157Z",
+  "localeCount": 50,
+  "submittedForReview": false,
+  "promotedPurchasesChanged": false,
+  "pricingChanged": false,
+  "targets": {
+    "lifetime": {
+      "productId": "iscoreboard_lifetime_vip",
+      "updates": [
+        {
+          "locale": "ar-SA",
+          "action": "unchanged"
+        },
+        {
+          "locale": "bn-BD",
+          "action": "unchanged"
+        },
+        {
+          "locale": "ca",
+          "action": "unchanged"
+        },
+        {
+          "locale": "zh-Hans",
+          "action": "PATCH"
+        },
+        {
+          "locale": "zh-Hant",
+          "action": "POST"
+        },
+        {
+          "locale": "hr",
+          "action": "POST"
+        },
+        {
+          "locale": "cs",
+          "action": "POST"
+        },
+        {
+          "locale": "da",
+          "action": "POST"
+        },
+        {
+          "locale": "nl-NL",
+          "action": "POST"
+        },
+        {
+          "locale": "en-AU",
+          "action": "POST"
+        },
+        {
+          "locale": "en-CA",
+          "action": "POST"
+        },
+        {
+          "locale": "en-GB",
+          "action": "POST"
+        },
+        {
+          "locale": "en-US",
+          "action": "PATCH"
+        },
+        {
+          "locale": "fi",
+          "action": "POST"
+        },
+        {
+          "locale": "fr-FR",
+          "action": "POST"
+        },
+        {
+          "locale": "fr-CA",
+          "action": "POST"
+        },
+        {
+          "locale": "de-DE",
+          "action": "POST"
+        },
+        {
+          "locale": "el",
+          "action": "POST"
+        },
+        {
+          "locale": "gu-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "he",
+          "action": "POST"
+        },
+        {
+          "locale": "hi",
+          "action": "POST"
+        },
+        {
+          "locale": "hu",
+          "action": "POST"
+        },
+        {
+          "locale": "id",
+          "action": "POST"
+        },
+        {
+          "locale": "it",
+          "action": "POST"
+        },
+        {
+          "locale": "ja",
+          "action": "POST"
+        },
+        {
+          "locale": "kn-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "ko",
+          "action": "POST"
+        },
+        {
+          "locale": "ms",
+          "action": "POST"
+        },
+        {
+          "locale": "ml-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "mr-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "no",
+          "action": "POST"
+        },
+        {
+          "locale": "or-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "pl",
+          "action": "POST"
+        },
+        {
+          "locale": "pt-BR",
+          "action": "POST"
+        },
+        {
+          "locale": "pt-PT",
+          "action": "POST"
+        },
+        {
+          "locale": "pa-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "ro",
+          "action": "POST"
+        },
+        {
+          "locale": "ru",
+          "action": "POST"
+        },
+        {
+          "locale": "sk",
+          "action": "POST"
+        },
+        {
+          "locale": "sl-SI",
+          "action": "POST"
+        },
+        {
+          "locale": "es-MX",
+          "action": "POST"
+        },
+        {
+          "locale": "es-ES",
+          "action": "POST"
+        },
+        {
+          "locale": "sv",
+          "action": "POST"
+        },
+        {
+          "locale": "ta-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "te-IN",
+          "action": "POST"
+        },
+        {
+          "locale": "th",
+          "action": "POST"
+        },
+        {
+          "locale": "tr",
+          "action": "POST"
+        },
+        {
+          "locale": "uk",
+          "action": "POST"
+        },
+        {
+          "locale": "ur-PK",
+          "action": "POST"
+        },
+        {
+          "locale": "vi",
+          "action": "POST"
+        }
+      ],
+      "image": null,
+      "draftId": "9d84e958-19e9-45db-b557-93e9915ce9ed",
+      "draftAction": "reused",
+      "error": "PATCH /v2/inAppPurchaseImages/ad6a3962-dec5-4424-a0df-5cbe06dceee0: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.UNKNOWN\", \"detail\": \"'sourceFileChecksum' is not an attribute on the resource 'inAppPurchaseImages'\", \"source\": {\"pointer\": \"/data/attributes/sourceFileChecksum\"}}]"
+    },
+    "monthly": {
+      "productId": "iscoreboard_monthly_vip",
+      "updates": [
+        {
+          "locale": "ar-SA",
+          "action": "POST"
+        },
+        {
+          "locale": "bn-BD",
+          "action": "POST"
+        },
+        {
+          "locale": "ca",
+          "action": "POST"
+        },
+        {
+          "locale": "zh-Hans",
+          "action": "PATCH"
+        },
+        {
+          "locale": "zh-Hant",
+          "action": "POST"
+        },
+        {
+          "locale": "hr",
+          "action": "POST"
+        },
+        {
+          "locale": "cs",
+          "action": "POST"
+        },
+        {
+          "locale": "da",
+          "action": "POST"
+        },
+        {
+          "locale": "nl-NL",
+          "action": "POST"
+        },
+        {
+          "locale": "en-AU",
+          "action": "POST"
+        },
+        {
+          "locale": "en-CA",
+          "action": "POST"
+        },
+        {
+          "locale": "en-GB",
+          "action": "POST"
+        },
+        {
+          "locale": "en-US",
+          "action": "PATCH"
+        },
+        {
+          "locale": "fi",
+          "action": "POST"
+        },
+        {
+          "locale": "fr-FR",
+          "action": "POST"
+        },
+        {
+          "locale": "fr-CA",
+          "action": "POST"
+        },
+        {
+          "locale": "de-DE",
+          "action": "POST"
+        }
+      ],
+      "image": null,
+      "draftId": "c1719b77-4aa3-41c2-bf36-50d837970d01",
+      "draftAction": "created"
+    }
+  },
+  "errors": [
+    {
+      "target": "lifetime",
+      "error": "PATCH /v2/inAppPurchaseImages/ad6a3962-dec5-4424-a0df-5cbe06dceee0: HTTP 409: [{\"code\": \"ENTITY_ERROR.ATTRIBUTE.UNKNOWN\", \"detail\": \"'sourceFileChecksum' is not an attribute on the resource 'inAppPurchaseImages'\", \"source\": {\"pointer\": \"/data/attributes/sourceFileChecksum\"}}]"
+    }
+  ]
+}

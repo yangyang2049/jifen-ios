@@ -286,6 +286,7 @@ private struct PasswordLoginView: View {
                     .background(RoundedRectangle(cornerRadius: 12).fill(Theme.accentColor.opacity(session.isWorking ? 0.48 : 1)))
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("password_login_submit")
                 .disabled(session.isWorking)
 
                 LoginAgreementBar(agreementAccepted: $agreementAccepted) { document in
@@ -458,6 +459,8 @@ private struct AccountProfileView: View {
                         ))
                     case .failed(let message):
                         showToastMessage(message)
+                    case .cancelled:
+                        break
                     }
                 }
 
@@ -500,7 +503,7 @@ private struct AccountProfileView: View {
                             value: profileMembershipLabel(session.user, isVIP: false),
                             valueColor: Theme.textPrimary,
                             showChevron: false
-                        ) {}
+                        )
                     }
                     ProfileThinDivider()
                     ProfileInfoRow(
@@ -510,19 +513,20 @@ private struct AccountProfileView: View {
                     ) {
                         copyAccountId()
                     }
+                    .disabled(displayUserId == "--")
                     ProfileThinDivider()
                     ProfileInfoRow(
                         label: NSLocalizedString("me_profile_registered_date_label", value: "注册时间", comment: ""),
                         value: profileRegisteredDate,
                         showChevron: false
-                    ) {}
+                    )
                     ProfileThinDivider()
                     ProfileInfoRow(
                         label: NSLocalizedString("me_profile_email_label", value: "电子邮箱", comment: ""),
                         value: session.user?.email?.nilIfBlank
                             ?? NSLocalizedString("me_profile_email_not_set", value: "无", comment: ""),
                         showChevron: false
-                    ) {}
+                    )
                 }
                 .background(RoundedRectangle(cornerRadius: 20).fill(Theme.appCardBackground))
             }
@@ -559,6 +563,7 @@ private struct AccountProfileView: View {
                 } label: {
                     Image(systemName: "ellipsis")
                 }
+                .disabled(!session.isAuthenticated || session.isWorking)
                 .accessibilityLabel(NSLocalizedString("more", value: "更多", comment: ""))
             }
         }
@@ -602,6 +607,8 @@ private struct AccountProfileView: View {
                         return nil
                     case .failed(let message):
                         return message
+                    case .cancelled:
+                        return nil
                     }
                 }
             )
@@ -1280,36 +1287,45 @@ private struct ProfileInfoRow: View {
     let value: String
     var valueColor: Color = Theme.textPrimary
     var showChevron: Bool
-    var onClick: () -> Void
+    var onClick: (() -> Void)? = nil
 
+    @ViewBuilder
     var body: some View {
-        Button(action: onClick) {
-            HStack(spacing: 12) {
-                Text(label)
-                    .font(.system(size: 14))
-                    .foregroundColor(Theme.textSecondary)
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                Text(value)
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(valueColor)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                if showChevron {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Theme.textSecondary)
-                        .frame(width: 18)
-                }
+        if let onClick {
+            Button(action: onClick) {
+                rowContent
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .frame(minHeight: 54)
-            .frame(maxWidth: .infinity)
-            .contentShape(Rectangle())
+            .buttonStyle(.plain)
+        } else {
+            rowContent
         }
-        .buttonStyle(.plain)
+    }
+
+    private var rowContent: some View {
+        HStack(spacing: 12) {
+            Text(label)
+                .font(.system(size: 14))
+                .foregroundColor(Theme.textSecondary)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Text(value)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(valueColor)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+            if showChevron {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(Theme.textSecondary)
+                    .frame(width: 18)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .frame(minHeight: 54)
+        .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
     }
 }
 

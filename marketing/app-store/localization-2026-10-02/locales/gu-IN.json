@@ -1,0 +1,58 @@
+{
+  "locale": "gu-IN",
+  "iosLocale": "gu",
+  "language": "Gujarati",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: સ્કોરબોર્ડ",
+  "subtitle": "સ્કોર, સમય અને મેચ રેકોર્ડ",
+  "description": "દરેક પોઇન્ટ મહત્વનો છે. મેચ, તાલીમ અને મિત્રો સાથે રમવા માટે તમારા iPhone અથવા iPadને સ્પષ્ટ અને સરળ સ્કોરબોર્ડમાં ફેરવો.\n\nટેનિસ, પિકલબોલ, બેડમિન્ટન, ટેબલ ટેનિસ, બાસ્કેટબોલ, ફૂટબોલ, વોલીબોલ અને બિલિયર્ડ્સ સહિત 26થી વધુ રમતોમાં સ્કોર રાખો. સમર્થિત રમતોમાં પોઇન્ટ ગણવાના નિયમો, મેચનું સ્વરૂપ અને ડબલ્સમાં સર્વિસનો ક્રમ ગોઠવો.\n\nમેચ સાચવો અને સ્કોરના ફેરફારો, ઘટનાક્રમ તથા વૉઇસ નોટ્સથી ફરી જુઓ. ચેસ અને ગોની ઘડિયાળો, ક્યુબ ટાઇમર અને સ્ટોપવૉચ વાપરો. મોટી સ્ક્રીન પર સ્કોરબોર્ડ બતાવો અને મેચ કોડ શેર કરો, જેથી મિત્રો દૂરથી સ્કોર જોઈ શકે.\n\nસિક્કો ઉછાળવા, રેન્ડમ ટીમ બનાવવા, લાલ અને પીળા કાર્ડ બતાવવા તથા ખર્ચ વહેંચવાનાં ઉપયોગી સાધનો એક જ ઍપમાં મેળવો. સ્કોર રાખવામાં ઓછો સમય, રમવાની વધુ મજા.\n\nઉપયોગની શરતો:\nhttps://jifenqi.com/terms\n\nગોપનીયતા નીતિ:\nhttps://jifenqi.com/privacy\n\nAppleનો માનક અંતિમ વપરાશકર્તા લાઇસન્સ કરાર:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "દરેક પોઇન્ટ\nમહત્વનો છે",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "બધો સ્કોર\nએક નજરમાં",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "એક સ્કોરબોર્ડ\n26થી વધુ રમતો માટે",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "દરેક મેચ\nફરી જુઓ",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "તમારા નિયમો\nતમારી રમત",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "માત્ર બોલની\nરમતો જ નહીં",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "તમારું સ્કોરબોર્ડ\nમોટી સ્ક્રીન પર",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "કાંડેથી\nસ્કોર રાખો",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "રેફરીનાં ઉપયોગી સાધનો\nએક જ ઍપમાં",
+      "enabled": true
+    }
+  ]
+}

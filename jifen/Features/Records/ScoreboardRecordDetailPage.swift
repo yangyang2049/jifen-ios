@@ -187,7 +187,7 @@ struct ScoreboardRecordDetailPage: View {
     private func overviewContent(_ record: ScoreboardRecord, dateText: String) -> some View {
         VStack(spacing: 16) {
             HStack(spacing: 8) {
-                Text(record.gameType.icon).font(.title)
+                AppCatalogIcon(gameType: record.gameType, size: 28)
                 Text(record.competitionDisplayName).font(.headline)
                 Spacer()
                 if record.isSyncedFromWatch {
@@ -1285,3 +1285,38 @@ private enum ShareQRCodeRenderer {
         }
     }
 }
+
+#if DEBUG
+/// Captures the production trend chart with the same record and translated labels.
+struct MarketingTrendScreenshotFixtureView: View {
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                Theme.backgroundColor
+                if let record = ScoreboardRecordManager.shared.getRecordById("ui-fixture-pingpong"),
+                   let tab = ScoreboardRecordPresentation(record: record).trendTabs.first {
+                    VStack(spacing: 12) {
+                        HStack {
+                            HStack(spacing: 6) {
+                                RoundedRectangle(cornerRadius: 2).fill(Theme.primary).frame(width: 3, height: 12)
+                                Text(NSLocalizedString("score_trend", value: "Score Trend", comment: ""))
+                                    .font(.subheadline.weight(.medium))
+                            }
+                            Spacer()
+                            Text(tab.title).font(.subheadline).foregroundStyle(Theme.primary)
+                        }
+                        ScoreTrendChart(tab: tab, leftName: record.team1Name, rightName: record.team2Name)
+                            .frame(height: 190)
+                    }
+                    .padding(16)
+                    .frame(width: geometry.size.width - 32, height: 260)
+                    .background(Theme.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
+            }
+            .frame(width: geometry.size.width, height: geometry.size.height)
+        }
+        .ignoresSafeArea()
+    }
+}
+#endif

@@ -1,0 +1,11 @@
+/* 
+  InfoPlist.strings
+  jifen
+
+  Localized privacy permission descriptions
+*/
+
+"NSPhotoLibraryAddUsageDescription" = "స్కోర్‌బోర్డ్ స్క్రీన్‌షాట్‌లను సేవ్ చేయడానికి మాకు మీ ఫోటో లైబ్రరీకి యాక్సెస్ అవసరం.";
+"CFBundleDisplayName" = "iScoreboard";
+"NSCameraUsageDescription" = "విశ్వసనీయ సైన్-ఇన్ QR కోడ్‌లను స్కాన్ చేయడానికి మరియు మీ అవతార్ కోసం ఫోటో తీయడానికి కెమెరా ఉపయోగించబడుతుంది.";
+"NSMicrophoneUsageDescription" = "వాయిస్ నోట్‌లను రికార్డ్ చేయడానికి మైక్రోఫోన్ ఉపయోగించబడుతుంది.";

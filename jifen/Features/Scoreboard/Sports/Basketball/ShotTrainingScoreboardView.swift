@@ -500,7 +500,7 @@ struct ShotTrainingScoreboardView: View {
                 title: NSLocalizedString("scoreboard_usage_hint_menu", value: "使用说明", comment: ""),
                 action: "usageHint",
                 group: .tools,
-                customText: "?",
+                icon: "info.circle",
                 keepDialogOpen: true
             )
         ]

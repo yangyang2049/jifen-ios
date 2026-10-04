@@ -94,7 +94,7 @@ enum GameType: String, Codable, CaseIterable, Sendable {
         case .checkers: return NSLocalizedString("game_checkers", comment: "Checkers")
         case .boxing: return NSLocalizedString("game_boxing", comment: "Boxing")
         case .billiards: return NSLocalizedString("game_billiards", comment: "Billiards")
-        case .eightBall: return NSLocalizedString("game_eight_ball", value: "黑八", comment: "Eight Ball")
+        case .eightBall: return NSLocalizedString("game_eight_ball", value: "黑八追局", comment: "Eight Ball")
         case .nineBall: return NSLocalizedString("game_nine_ball", value: "追分", comment: "Chase Points")
         case .snooker: return NSLocalizedString("game_snooker", value: "斯诺克", comment: "Snooker")
         case .pickleball: return NSLocalizedString("game_pickleball", comment: "Pickleball")

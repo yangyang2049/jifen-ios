@@ -21,6 +21,15 @@ final class MainFlowUITests: XCTestCase {
         continueAfterFailure = false
     }
 
+    private var ordinaryFlowOrientationArguments: [String] {
+        // These flows exercise controls after onboarding. The dedicated iPad
+        // opt-in tests construct their own launch arguments and keep the hint.
+        [
+            "-scoreboard_ipad_landscape_hint_shown_v1", "YES",
+            "-scoreboard_force_ipad_landscape", "NO"
+        ]
+    }
+
     @discardableResult
     private func launchApp() -> XCUIApplication {
         let app = XCUIApplication()
@@ -30,6 +39,7 @@ final class MainFlowUITests: XCTestCase {
             "-UITestSkipLegalConsent",
             "-UITestSkipScoreboardUsageHints"
         ]
+        app.launchArguments += ordinaryFlowOrientationArguments
         XCTAssertTrue(launchAndWait(app), "App failed to reach the foreground")
         return app
     }
@@ -44,6 +54,11 @@ final class MainFlowUITests: XCTestCase {
             guard app.wait(for: .notRunning, timeout: 5) else { return false }
         }
         RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        if !app.launchArguments.contains("-national_day_2026_last_shown_at") {
+            // Suppress the date-based campaign through the argument domain;
+            // it must not obscure unrelated flows or alter saved preferences.
+            app.launchArguments += ["-national_day_2026_last_shown_at", String(Date().timeIntervalSince1970)]
+        }
         app.launch()
         return app.wait(for: .runningForeground, timeout: timeout)
     }
@@ -66,6 +81,229 @@ final class MainFlowUITests: XCTestCase {
         }
     }
 
+    func testPingpongCardsAdvancePenaltiesAndConfirmForfeit() {
+        checkPingpongCards(doubles: false, advanceToForfeit: true)
+    }
+
+    func testPingpongDoublesCardsFitBothLandscapeDirections() {
+        checkPingpongCards(doubles: true, advanceToForfeit: false)
+    }
+
+    private func checkPingpongCards(doubles: Bool, advanceToForfeit: Bool) {
+        XCUIDevice.shared.orientation = .portrait
+        let app = launchApp()
+        defer {
+            XCUIDevice.shared.orientation = .portrait
+            app.terminate()
+        }
+        XCTAssertTrue(openPingPongSetup(in: app))
+        let mode = app.segmentedControls["singles_doubles_picker"]
+        mode.coordinate(withNormalizedOffset: CGVector(dx: doubles ? 0.75 : 0.25, dy: 0.5)).tap()
+        dismissServePopupIfNeeded(in: app)
+        app.buttons["Start"].tap()
+        let menu = app.buttons["scoreboard_menu_button"]
+        XCTAssertTrue(menu.waitForExistence(timeout: 8))
+
+        func openCards() {
+            menu.tap()
+            dismissServePopupIfNeeded(in: app)
+            let item = app.buttons["scoreboard_menu_action_pingpongCards"]
+            XCTAssertTrue(item.waitForExistence(timeout: 3))
+            item.tap()
+            XCTAssertTrue(app.buttons["pingpong_cards_side_left"].waitForExistence(timeout: 3))
+            XCTAssertFalse(app.buttons["pingpong_cards_confirm"].isEnabled)
+        }
+        func selectLeft() {
+            app.buttons["pingpong_cards_side_left"].tap()
+            XCTAssertTrue(app.buttons["pingpong_cards_confirm"].isEnabled)
+        }
+        func description() -> String {
+            app.staticTexts["pingpong_cards_next_action"].label
+        }
+        func checkPanelFits() {
+            let frame = app.descendants(matching: .any)["pingpong_cards_dialog"].firstMatch.frame
+            XCTAssertLessThanOrEqual(frame.maxY, app.frame.maxY + 1)
+            XCTAssertGreaterThanOrEqual(frame.minY, app.frame.minY - 1)
+            XCTAssertLessThan(frame.width, app.frame.width)
+        }
+
+        openCards()
+        checkPanelFits()
+        selectLeft()
+        XCTAssertEqual(description(), "Yellow Card")
+        addScreenshot(doubles ? "pingpong-doubles-cards-landscape-right" : "pingpong-cards-yellow")
+        if !advanceToForfeit {
+            XCUIDevice.shared.orientation = .landscapeLeft
+            RunLoop.current.run(until: Date().addingTimeInterval(0.7))
+            checkPanelFits()
+            XCTAssertTrue(app.buttons["pingpong_cards_confirm"].isHittable)
+            XCTAssertEqual(description(), "Yellow Card")
+            addScreenshot("pingpong-doubles-cards-landscape-left")
+            app.buttons["pingpong_cards_close"].tap()
+            XCTAssertTrue(menu.isHittable)
+            return
+        }
+        app.buttons["pingpong_cards_confirm"].tap()
+        openCards()
+        app.buttons["pingpong_cards_side_right"].tap()
+        XCTAssertEqual(description(), "Yellow Card", "Penalties must stay with the chosen participant")
+        selectLeft()
+        XCTAssertTrue(description().contains("opponent +1"))
+        addScreenshot("pingpong-cards-first-red")
+        app.buttons["pingpong_cards_confirm"].tap()
+        openCards()
+        selectLeft()
+        XCTAssertTrue(description().contains("opponent +2"))
+        addScreenshot("pingpong-cards-second-red")
+        app.buttons["pingpong_cards_confirm"].tap()
+        openCards()
+        selectLeft()
+        XCTAssertEqual(description(), "Report to referee and confirm forfeit")
+        app.buttons["pingpong_cards_confirm"].tap()
+        XCTAssertTrue(app.buttons["pingpong_cards_confirm"].waitForNonExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["Confirm forfeit"].waitForExistence(timeout: 3))
+        addScreenshot("pingpong-cards-forfeit-confirmation")
+        let cancel = app.buttons["Cancel"].firstMatch
+        if cancel.exists {
+            cancel.tap()
+        } else {
+            // A landscape confirmation popover dismisses by tapping its backdrop.
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.1)).tap()
+        }
+        XCTAssertTrue(app.buttons["Confirm forfeit"].waitForNonExistence(timeout: 3))
+        XCTAssertFalse(app.descendants(matching: .any)["game_over_dialog"].exists)
+        openCards()
+        selectLeft()
+        XCTAssertEqual(description(), "Report to referee and confirm forfeit")
+        app.buttons["pingpong_cards_confirm"].tap()
+        app.buttons["Confirm forfeit"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["game_over_dialog"].waitForExistence(timeout: 5))
+    }
+
+    func testPingpongServeOptionsFloatAndReopenWithoutResizingSetup() throws {
+        let app = launchApp()
+        XCTAssertTrue(openPingPongSetup(in: app))
+        let voice = app.descendants(matching: .any)["setup_feature_voice_announcement"]
+        XCTAssertTrue(voice.waitForExistence(timeout: 5))
+        let start = app.buttons["Start"]
+        let startFrame = start.frame
+        if voice.value as? String != "1" { voice.tap() }
+        let option = app.switches["setup_announce_server_toggle"]
+        if !option.waitForExistence(timeout: 3), app.alerts.count > 0 {
+            throw XCTSkip("Simulator voice data is unavailable")
+        }
+        XCTAssertTrue(option.exists)
+        XCTAssertEqual(start.frame, startFrame, "Popup must not resize the setup dialog")
+        let original = option.value as? String
+        addScreenshot("pingpong-setup-serve-popup")
+        option.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        let changed = option.value as? String
+        XCTAssertNotEqual(changed, original)
+        let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: option)
+        XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 8), .completed)
+        app.buttons["setup_voice_options"].tap()
+        XCTAssertTrue(option.waitForExistence(timeout: 2))
+        XCTAssertEqual(option.value as? String, changed)
+        option.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap() // Restore the existing preference.
+        XCTAssertEqual(option.value as? String, original)
+        let setupClosed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: option)
+        XCTAssertEqual(XCTWaiter.wait(for: [setupClosed], timeout: 8), .completed)
+        start.tap()
+        let menu = app.buttons["scoreboard_menu_button"]
+        XCTAssertTrue(menu.waitForExistence(timeout: 8))
+        menu.tap()
+        let menuOption = app.switches["scoreboard_announce_server_toggle"]
+        XCTAssertTrue(menuOption.waitForExistence(timeout: 3))
+        XCTAssertEqual(menuOption.value as? String, original)
+        let undo = app.buttons["scoreboard_menu_action_undo"]
+        let undoFrame = undo.frame
+        addScreenshot("pingpong-menu-serve-popup")
+        menuOption.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        let menuChanged = menuOption.value as? String
+        let menuClosed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: menuOption)
+        XCTAssertEqual(XCTWaiter.wait(for: [menuClosed], timeout: 8), .completed)
+        XCTAssertEqual(undo.frame, undoFrame, "Popup must not resize the operation menu")
+        let mainVoice = app.buttons["scoreboard_menu_action_voiceAnnouncement"]
+        mainVoice.tap() // Disabling voice keeps the child preference.
+        XCTAssertFalse(app.buttons["scoreboard_voice_options"].exists)
+        mainVoice.tap()
+        XCTAssertTrue(menuOption.waitForExistence(timeout: 3))
+        XCTAssertEqual(menuOption.value as? String, menuChanged)
+        menuOption.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        XCTAssertEqual(menuOption.value as? String, original)
+    }
+
+    func testPingpongCombinedPauseChoicesPreserveTimeoutLimits() {
+        checkPingpongCombinedPauseChoices(doubles: false)
+    }
+
+    func testPingpongDoublesCombinedPauseChoicesPreserveTimeoutLimits() {
+        checkPingpongCombinedPauseChoices(doubles: true)
+    }
+
+    private func checkPingpongCombinedPauseChoices(doubles: Bool) {
+        XCUIDevice.shared.orientation = .portrait
+        let app = launchApp()
+        defer { app.terminate() }
+        XCTAssertTrue(openPingPongSetup(in: app))
+        let mode = app.segmentedControls["singles_doubles_picker"]
+        mode.coordinate(withNormalizedOffset: CGVector(dx: doubles ? 0.75 : 0.25, dy: 0.5)).tap()
+        dismissServePopupIfNeeded(in: app)
+        app.buttons["Start"].tap()
+        let menu = app.buttons["scoreboard_menu_button"]
+        XCTAssertTrue(menu.waitForExistence(timeout: 8))
+        var capturedMenu = false
+
+        func openPauseChoices() {
+            menu.tap()
+            let pause = app.buttons["scoreboard_menu_action_pingpongPause"]
+            XCTAssertTrue(pause.waitForExistence(timeout: 3))
+            XCTAssertFalse(app.buttons["scoreboard_menu_action_pingpongMedical"].exists)
+            dismissServePopupIfNeeded(in: app)
+            if !capturedMenu {
+                addScreenshot(doubles ? "pingpong-doubles-merged-menu" : "pingpong-merged-menu")
+                capturedMenu = true
+            }
+            pause.tap()
+            XCTAssertTrue(app.buttons["pingpong_pause_regular_left"].waitForExistence(timeout: 3))
+            XCTAssertTrue(app.buttons["pingpong_pause_regular_right"].exists)
+            XCTAssertTrue(app.buttons["pingpong_pause_medical_left"].exists)
+            XCTAssertTrue(app.buttons["pingpong_pause_medical_right"].exists)
+        }
+
+        openPauseChoices()
+        addScreenshot(doubles ? "pingpong-doubles-combined-pause" : "pingpong-combined-pause")
+        XCTAssertTrue(app.buttons["pingpong_pause_regular_left"].isEnabled)
+        app.buttons["pingpong_pause_regular_left"].tap()
+        XCTAssertTrue(app.buttons["Resume"].waitForExistence(timeout: 3))
+        app.buttons["Resume"].tap()
+
+        openPauseChoices()
+        XCTAssertFalse(app.buttons["pingpong_pause_regular_left"].isEnabled)
+        XCTAssertTrue(app.buttons["pingpong_pause_regular_right"].isEnabled)
+        XCTAssertTrue(app.buttons["pingpong_pause_medical_left"].isEnabled)
+        XCTAssertTrue(app.buttons["pingpong_pause_medical_right"].isEnabled)
+        app.buttons["pingpong_pause_medical_right"].tap()
+        XCTAssertTrue(app.staticTexts["Medical Timeout"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["Resume"].exists)
+        app.buttons["Resume"].tap()
+
+        openPauseChoices()
+        app.buttons["pingpong_pause_close"].tap()
+        XCTAssertFalse(app.buttons["pingpong_pause_regular_left"].exists)
+        XCTAssertTrue(menu.isHittable)
+    }
+
+    private func dismissServePopupIfNeeded(in app: XCUIApplication) {
+        let popup = app.switches["scoreboard_announce_server_toggle"].exists
+            ? app.switches["scoreboard_announce_server_toggle"]
+            : app.switches["setup_announce_server_toggle"]
+        if popup.exists {
+            let closed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: popup)
+            XCTAssertEqual(XCTWaiter.wait(for: [closed], timeout: 8), .completed)
+        }
+    }
+
     func testHomeCastEntryOpensConnectionGuide() {
         let app = launchApp()
         let castButton = app.buttons["home_cast_button"]
@@ -73,6 +311,30 @@ final class MainFlowUITests: XCTestCase {
         castButton.tap()
         XCTAssertTrue(app.descendants(matching: .any)["cast_connection_page"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.descendants(matching: .any)["cast_status_disconnected"].exists)
+    }
+
+    func testQuickStartDefaultSportsFollowLanguageInsteadOfCountry() {
+        let cases = [
+            ("en", "en_IN", "Basketball", "Tennis", "Badminton"),
+            ("zh-Hans", "zh_US", "篮球", "羽毛球", "网球"),
+            ("ja", "ja_US", "バスケットボール", "バドミントン", "テニス"),
+            ("hi", "hi_GB", "बास्केटबॉल", "बैडमिंटन", "टेनिस"),
+            ("pt-BR", "pt_BR", "Basquete", "Tênis", "Badminton")
+        ]
+        for (language, locale, primaryTitle, secondaryTitle, tertiaryTitle) in cases {
+            // Shadow any real saved data in NSArgumentDomain without deleting it.
+            let app = launchLocalizedApp(language: language, locale: locale, arguments: ["-quickStartConfig", "unset"])
+            defer { app.terminate() }
+            let primary = app.buttons["home_quick_start_primary"]
+            let secondary = app.buttons["home_quick_start_secondary"]
+            XCTAssertTrue(primary.waitForExistence(timeout: 8), language)
+            XCTAssertTrue(primary.label.contains(primaryTitle), "\(language): \(primary.label)")
+            XCTAssertTrue(secondary.label.contains(secondaryTitle), "\(language): \(secondary.label)")
+            let tertiary = app.buttons["home_quick_start_tertiary"]
+            if tertiary.exists {
+                XCTAssertTrue(tertiary.label.contains(tertiaryTitle), "\(language): \(tertiary.label)")
+            }
+        }
     }
 
     func testCompactQuickStartShowsTwoSportsAndSavesTwoSlots() throws {
@@ -252,6 +514,10 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertTrue(help.waitForExistence(timeout: 5))
         help.tap()
         XCTAssertTrue(app.navigationBars["Official Breaks"].waitForExistence(timeout: 5))
+        let helpScreenshot = XCTAttachment(screenshot: app.screenshot())
+        helpScreenshot.name = "official-breaks-separate-sports-3d-icons"
+        helpScreenshot.lifetime = .keepAlways
+        add(helpScreenshot)
         XCTAssertTrue(app.staticTexts.matching(
             NSPredicate(format: "label CONTAINS %@", "Pickleball")
         ).firstMatch.exists)
@@ -274,6 +540,9 @@ final class MainFlowUITests: XCTestCase {
         let help = app.buttons["schedule_reminder_help"]
         for _ in 0..<6 where !help.isHittable { app.swipeUp() }
         XCTAssertTrue(help.isHittable)
+        for title in ["2 hr before", "30 min before", "15 min before"] {
+            XCTAssertTrue(app.buttons[title].exists, "Reminder chip must use its abbreviated plural resource: \(title)")
+        }
         help.tap()
         XCTAssertTrue(app.navigationBars["Reminders"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts.matching(
@@ -1017,6 +1286,176 @@ final class MainFlowUITests: XCTestCase {
         runPlayAllSetup(appearance: "dark")
     }
 
+    func testSetupCustomPointsFocusesOnFirstTapAndSurvivesClearing() {
+        let app = launchChineseApp()
+        defer { app.terminate() }
+        XCTAssertTrue(openPingPongSetup(in: app))
+        let customButton = app.buttons["setup_custom_points_button"]
+        revealSetupControl(customButton, in: app)
+        customButton.tap()
+        let field = app.textFields["setup_custom_points_field"]
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
+        let initialValue = field.value as? String ?? ""
+        app.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: initialValue.count))
+        XCTAssertTrue(field.exists, "Clearing custom input must preserve the focused field")
+        XCTAssertTrue(app.keyboards.firstMatch.exists)
+        app.typeText("18")
+        XCTAssertEqual(field.value as? String, "18")
+    }
+
+    func testSetupCustomRoundsFocusesOnFirstTap() {
+        let app = launchChineseApp()
+        defer { app.terminate() }
+        openSetupCatalogCardByScrolling("boxing", in: app)
+        let customButton = app.buttons["setup_custom_sets_button"]
+        revealSetupControl(customButton, in: app)
+        customButton.tap()
+        let field = app.textFields["setup_custom_sets_field"]
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
+        let initialValue = field.value as? String ?? ""
+        app.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: initialValue.count))
+        app.typeText("6")
+        XCTAssertEqual(field.value as? String, "6")
+        app.buttons["3"].tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 3))
+        XCTAssertTrue(customButton.waitForExistence(timeout: 3))
+        customButton.tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
+    }
+
+    func testBoxingRoundControlsStayBelowOperationMenuAndDialogs() {
+        let app = launchChineseApp()
+        defer {
+            app.terminate()
+            XCUIDevice.shared.orientation = .portrait
+        }
+        openSetupCatalogCardByScrolling("boxing", in: app)
+        app.buttons["开始"].tap()
+        XCUIDevice.shared.orientation = .landscapeLeft
+
+        let addRound = app.buttons["boxing_add_round"]
+        XCTAssertTrue(addRound.waitForExistence(timeout: 5))
+        let landscape = XCTNSPredicateExpectation(
+            predicate: NSPredicate { _, _ in
+                let frame = app.windows.firstMatch.frame
+                return frame.width > frame.height
+            },
+            object: app
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [landscape], timeout: 8), .completed)
+        XCTAssertTrue(addRound.isHittable)
+        XCTAssertEqual(addRound.label, "结束回合")
+        attachBoxingScreenshot(name: "boxing_plus_icon")
+
+        app.buttons["scoreboard_menu_button"].tap()
+        let menu = app.descendants(matching: .any)["scoreboard_menu_dialog"]
+        XCTAssertTrue(menu.waitForExistence(timeout: 3))
+        XCTAssertTrue(addRound.waitForNonExistence(timeout: 3), "Round controls must be inaccessible behind the menu")
+        attachBoxingScreenshot(name: "boxing_menu_above_round_controls")
+        app.buttons["scoreboard_menu_close_button"].tap()
+        XCTAssertTrue(menu.waitForNonExistence(timeout: 3))
+        XCTAssertTrue(addRound.isHittable)
+
+        app.buttons["scoreboard_edit_button"].tap()
+        XCTAssertFalse(addRound.exists, "Round controls must be hidden while editing")
+        app.buttons["scoreboard_edit_button"].tap()
+        XCTAssertTrue(addRound.waitForExistence(timeout: 3))
+        addRound.tap()
+        XCTAssertTrue(app.buttons["确认"].waitForExistence(timeout: 3))
+        XCTAssertTrue(addRound.waitForNonExistence(timeout: 3), "Round controls must be inaccessible behind round entry")
+        app.buttons["取消"].tap()
+
+        app.buttons["scoreboard_menu_button"].tap()
+        let finish = app.buttons["scoreboard_menu_action_endGame"]
+        XCTAssertTrue(finish.waitForExistence(timeout: 3))
+        finish.tap()
+        finish.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["game_over_dialog"].waitForExistence(timeout: 3))
+        XCTAssertTrue(addRound.waitForNonExistence(timeout: 3), "Round controls must be inaccessible behind game over")
+        attachBoxingScreenshot(name: "boxing_game_over_above_round_controls")
+    }
+
+    private func attachBoxingScreenshot(name: String) {
+        let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    func testSetupCustomSnookerFramesFocusesOnFirstTap() {
+        let app = launchChineseApp()
+        defer { app.terminate() }
+        openSetupCatalogCardByScrolling("snooker", in: app)
+        let customButton = app.buttons["setup_custom_sets_button"]
+        revealSetupControl(customButton, in: app)
+        customButton.tap()
+        let field = app.textFields["setup_custom_sets_field"]
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
+        let initialValue = field.value as? String ?? ""
+        app.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: initialValue.count))
+        app.typeText("3")
+        XCTAssertTrue(field.exists)
+        app.typeText("1")
+        XCTAssertEqual(field.value as? String, "31")
+    }
+
+    func testSetupUnoCustomTargetFocusesOnFirstTap() {
+        let app = launchChineseApp()
+        defer { app.terminate() }
+        openSetupCatalogCardByScrolling("uno", in: app)
+        let field = app.textFields["uno_custom_target_score_field"]
+        revealSetupControl(field, in: app)
+        field.tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
+        app.typeText("600")
+        XCTAssertEqual(field.value as? String, "600")
+    }
+
+    func testSetupCustomFoosballCapFocusesOnFirstTap() {
+        let app = launchChineseApp()
+        defer { app.terminate() }
+        openSetupCatalogCardByScrolling("foosball", in: app)
+        let winByTwo = app.switches["决胜局净胜 2 分"]
+        revealSetupControl(winByTwo, in: app)
+        if winByTwo.value as? String == "0" { winByTwo.tap() }
+        let customButton = app.buttons["setup_custom_foosballScoreCap_button"]
+        revealSetupControl(customButton, in: app)
+        customButton.tap()
+        let field = app.textFields["setup_custom_foosballScoreCap_field"]
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
+        let initialValue = field.value as? String ?? ""
+        app.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: initialValue.count))
+        XCTAssertTrue(field.exists)
+        app.typeText("14")
+        XCTAssertEqual(field.value as? String, "14")
+    }
+
+    private func revealSetupControl(_ control: XCUIElement, in app: XCUIApplication) {
+        for _ in 0..<6 {
+            if control.exists && control.isHittable { break }
+            app.swipeUp()
+        }
+        XCTAssertTrue(control.waitForExistence(timeout: 3))
+        XCTAssertTrue(control.isHittable)
+    }
+
+    private func openSetupCatalogCardByScrolling(_ gameID: String, in app: XCUIApplication) {
+        XCTAssertTrue(selectTab(named: "计分", in: app))
+        let card = app.descendants(matching: .any)["scoreboard_catalog_\(gameID)"]
+        for _ in 0..<8 {
+            if card.exists && card.isHittable { break }
+            app.swipeUp()
+        }
+        XCTAssertTrue(card.waitForExistence(timeout: 3))
+        XCTAssertTrue(card.isHittable)
+        card.tap()
+        XCTAssertTrue(app.buttons["开始"].waitForExistence(timeout: 5))
+    }
+
     func testNewTimerAndToolsParityFlow() {
         var app = launchChineseApp()
         defer { app.terminate() }
@@ -1348,6 +1787,7 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertTrue(newGame.waitForExistence(timeout: 5))
         newGame.tap()
         XCTAssertTrue(app.navigationBars["Select Game"].waitForExistence(timeout: 5))
+        addScreenshot("english-select-game-regional-catalog-order")
         XCTAssertFalse(
             app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Jianzi")).firstMatch.exists,
             "Jianzi must be hidden in the English New Game dialog"
@@ -1465,6 +1905,7 @@ final class MainFlowUITests: XCTestCase {
             "-UITestSkipLegalConsent",
             "-UITestSkipScoreboardUsageHints"
         ]
+        app.launchArguments += ordinaryFlowOrientationArguments
         if let appearance {
             app.launchArguments += ["-jifen-v2.appAppearanceMode", appearance]
         }
@@ -1579,9 +2020,14 @@ final class MainFlowUITests: XCTestCase {
         customSetsButton.tap()
         let customField = app.textFields["custom_max_sets_field"]
         XCTAssertTrue(customField.waitForExistence(timeout: 3))
-        customField.tap()
-        customField.typeText("8")
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3), "One custom-button tap must open the keyboard")
+        app.typeText("8")
         XCTAssertEqual(customField.value as? String, "8")
+        app.typeText(XCUIKeyboardKey.delete.rawValue + "3")
+        XCTAssertTrue(customField.exists, "Typing a preset value must not remove the active field")
+        XCTAssertTrue(app.keyboards.firstMatch.exists)
+        app.typeText("1")
+        XCTAssertEqual(customField.value as? String, "31")
 
         let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         screenshot.name = "Play all setup - \(appearance)"

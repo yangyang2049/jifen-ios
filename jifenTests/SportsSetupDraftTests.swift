@@ -77,6 +77,16 @@ final class SportsSetupDraftTests: XCTestCase {
         XCTAssertNil(stopwatchDraft.makeResult(gameType: .stopwatch, usesDoublesPlayerInputs: false).voiceAnnouncement)
     }
 
+    func testUnsupportedVoiceLanguageOnlyDisablesSportsWithVoiceFeatures() {
+        var draft = SportsSetupDraft()
+        draft.voiceAnnouncement = true
+        for gameType: jifen.GameType in [.snooker, .stopwatch, .boxing, .multiScoreboard] {
+            XCTAssertNil(draft.makeResult(gameType: gameType, usesDoublesPlayerInputs: false, voiceSupported: false).voiceAnnouncement)
+        }
+        XCTAssertEqual(draft.makeResult(gameType: .pingpong, usesDoublesPlayerInputs: false, voiceSupported: false).voiceAnnouncement, false)
+        XCTAssertEqual(draft.makeResult(gameType: .pingpong, usesDoublesPlayerInputs: false, voiceSupported: true).voiceAnnouncement, true)
+    }
+
     func testInitializationAppliesSportDefaults() {
         var draft = SportsSetupDraft()
 

@@ -1,0 +1,68 @@
+{
+  "locale": "fi",
+  "appleLanguage": "fi",
+  "appleLocale": "fi_FI",
+  "names": [
+    "Eero",
+    "Mikko",
+    "Aino",
+    "Leo"
+  ],
+  "fontFamily": "Poppins",
+  "basketballTeams": [
+    "Koti",
+    "Vieras"
+  ],
+  "simulator": "5AC81D3A-D96A-4165-957E-F378FF101B69",
+  "cards": [
+    {
+      "index": 1,
+      "scene": "snooker",
+      "file": "exports/fi/01-snooker.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "bb8c9b13aaab2ed81517ecf48e9a5b1f1b9955f9a3e31fcde0536f2f47447aec",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 2,
+      "scene": "basketball",
+      "file": "exports/fi/02-basketball.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "6579790ae8c58c5485e7dd69558169d0a41b993030a88a4a4cb16086475513c9",
+      "capture": "production SwiftUI via simctl",
+      "teamNames": [
+        "Koti",
+        "Vieras"
+      ]
+    },
+    {
+      "index": 3,
+      "scene": "record",
+      "file": "exports/fi/03-record.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "1005e8bd1bcaa7b063d3d714eeaa908546693b70a579c0b0da0d57ddedbddd3b",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 4,
+      "scene": "setup",
+      "file": "exports/fi/04-setup.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "abcaf9807e5d61e3fea209a83dbfe552d5f396935dc3c5d51a8ca048aa3aed2f",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 5,
+      "scene": "home",
+      "file": "exports/fi/05-home.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "0d8108c76c328c294c340d882006ad1f1b7af904d5143c0fb5d7f0bc9af432a9",
+      "capture": "production SwiftUI via simctl"
+    }
+  ]
+}

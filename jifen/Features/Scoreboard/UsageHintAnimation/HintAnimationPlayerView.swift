@@ -121,7 +121,9 @@ struct HintAnimationPlayerView: View {
         let dx = min(max((CGFloat(0.5 - camera.focus.x) * size.width) * scale, -maxOffsetX), maxOffsetX)
         let dy = min(max((CGFloat(0.5 - camera.focus.y) * size.height) * scale, -maxOffsetY), maxOffsetY)
         return ZStack {
-            RallyMiniScoreboard(state: state, time: time, leftName: "李明", rightName: "张伟")
+            // 示例名字跟随应用语言：与记分板缺省名同源（选手A/选手B…），见 DefaultParticipantNames。
+            let names = DefaultParticipantNames.resolve(for: .badminton)
+            RallyMiniScoreboard(state: state, time: time, leftName: names.left, rightName: names.right)
             gestureLayer(time: time, size: size)
         }
         .scaleEffect(scale)

@@ -94,6 +94,7 @@ struct RecordsTab: View {
                         } label: {
                             Label(NSLocalizedString("edit", comment: "Edit"), systemImage: "pencil")
                         }
+                        .disabled(filteredRecords().isEmpty)
                         Button(role: .destructive) {
                             showClearConfirm = true
                         } label: {
@@ -211,7 +212,8 @@ struct RecordsTab: View {
                             draftProjectFilter = filter
                         } label: {
                             HStack {
-                                Text("\(filter.icon) \(filter.title)")
+                                AppCatalogIcon(gameType: filter.gameType, size: 18)
+                                Text(filter.title)
                                     .foregroundStyle(Theme.textPrimary)
                                 Spacer()
                                 if draftProjectFilter == filter {
@@ -499,7 +501,7 @@ struct RecordsTab: View {
 
     private func scoreboardRowContent(_ record: ScoreboardRecordSummary) -> some View {
         HStack(spacing: 0) {
-            recordGameIcon(icon: record.gameType.icon, isSyncedFromWatch: record.isSyncedFromWatch)
+            recordGameIcon(gameType: record.gameType, isSyncedFromWatch: record.isSyncedFromWatch)
                 .padding(.trailing, Theme.sm)
 
             VStack(alignment: .leading, spacing: Theme.xs) {
@@ -544,11 +546,10 @@ struct RecordsTab: View {
         .accessibilityIdentifier("record_row_\(record.gameType.canonicalScoreboardIdentifier)")
     }
 
-    /// Game emoji with optional Watch-sync corner badge (aligned with HarmonyOS RecordsTab).
-    private func recordGameIcon(icon: String, isSyncedFromWatch: Bool) -> some View {
+    /// Game icon with optional Watch-sync corner badge (aligned with HarmonyOS RecordsTab).
+    private func recordGameIcon(gameType: GameType, isSyncedFromWatch: Bool) -> some View {
         ZStack(alignment: .bottomTrailing) {
-            Text(icon)
-                .font(.system(size: 26))
+            AppCatalogIcon(gameType: gameType, size: 30)
                 .frame(width: 40, height: 40)
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(0.5)
@@ -571,8 +572,7 @@ struct RecordsTab: View {
 
     private func timerRowContent(_ record: GameRecordSummary) -> some View {
         HStack(spacing: 0) {
-            Text(record.gameType.icon)
-                .font(.system(size: 26))
+            AppCatalogIcon(gameType: record.gameType, size: 30)
                 .frame(width: 40, height: 40)
                 .padding(.trailing, Theme.sm)
 

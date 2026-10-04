@@ -26,7 +26,6 @@ struct BoxingScoreboardView: View {
     @State private var showFinishedRecordDetail = false
     @State private var roundLeftPoints: Int = 10
     @State private var roundRightPoints: Int = 10
-    @State private var isEditing = false
     @State private var recordID: String
 
     init(
@@ -57,7 +56,7 @@ struct BoxingScoreboardView: View {
                     viewModel: viewModel,
                     nameType: ScoreboardCommonNamePolicy.nameType(for: .boxing),
                     scoreTextProvider: { _, team in "\(team.score)" },
-                    onEditModeChange: { isEditing = $0 },
+                    contentOverlayProvider: { _, _ in AnyView(roundControlsOverlay) },
                     showEndGame: true,
                     syncSportStateProvider: {
                         [
@@ -114,16 +113,6 @@ struct BoxingScoreboardView: View {
                         )
                     }
                 )
-            }
-
-            if !isEditing {
-                VStack(spacing: 0) {
-                    roundTitle
-                        .padding(.top, ScoreboardConstants.buttonPadding + 4)
-                    Spacer()
-                    centerAddRoundButton
-                        .padding(.bottom, ScoreboardConstants.buttonPadding)
-                }
             }
 
             if showRoundDialog {
@@ -208,6 +197,20 @@ struct BoxingScoreboardView: View {
         }
     }
 
+    private var roundControlsOverlay: some View {
+        Group {
+            if !showRoundDialog && !showGameOverDialog {
+                VStack(spacing: 0) {
+                    roundTitle
+                        .padding(.top, ScoreboardConstants.buttonPadding + 4)
+                    Spacer()
+                    centerAddRoundButton
+                        .padding(.bottom, ScoreboardConstants.buttonPadding)
+                }
+            }
+        }
+    }
+
     private var roundTitle: some View {
         let text = String(
             format: NSLocalizedString("boxing_round_progress", value: "%d / %d", comment: "Round N of max"),
@@ -249,7 +252,7 @@ struct BoxingScoreboardView: View {
             showRoundDialog = true
             controller.performVibration(type: .light)
         } label: {
-            Text("+")
+            Image(systemName: "plus")
                 .font(.system(size: 32, weight: .bold))
                 .foregroundColor(.white)
                 .frame(width: 64, height: 64)
@@ -258,6 +261,7 @@ struct BoxingScoreboardView: View {
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(NSLocalizedString("boxing_end_round", value: "结束回合", comment: ""))
         .accessibilityIdentifier("boxing_add_round")
         .disabled(viewModel.gameFinished)
         .opacity(viewModel.gameFinished ? 0.45 : 1)

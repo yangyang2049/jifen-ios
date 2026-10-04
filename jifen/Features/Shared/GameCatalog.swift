@@ -127,16 +127,41 @@ enum GameCatalog {
         ScoreboardCatalogItem(gameType: .multiScoreboard, emoji: "👥", section: .other)
     ]
 
-    /// 英文界面 Score Tab 运动分区靠前的项目：网球、匹克球、羽毛球、乒乓球，
-    /// 其余运动保持目录默认顺序；中文界面不受影响。
-    private static let englishLeadingSports: [GameType] = [.tennis, .pickleball, .badminton, .pingpong]
+    private static var uiLocalization: String {
+        Bundle.main.preferredLocalizations.first ?? "en"
+    }
+
+    /// 与快速开始默认项目一致，按 App 显示语言选择偏好，避免设备地区造成入口顺序不一致。
+    static func prefersBadminton(for localization: String) -> Bool {
+        let language = Locale(identifier: localization).language.languageCode?.identifier
+        let badmintonLanguages: Set<String> = [
+            "zh", "ja", "ko", "id", "ms", "th", "vi",
+            "hi", "bn", "gu", "kn", "ml", "mr", "or", "pa", "ta", "te", "ur"
+        ]
+        return language.map { badmintonLanguages.contains($0) } == true
+    }
 
     static func scoreboardItems(in section: ScoreboardCatalogSection) -> [ScoreboardCatalogItem] {
         let items = scoreboardItems.filter { $0.section == section && isSelectable($0.gameType) }
-        guard isEnglishUI, section == .sports else { return items }
-        let leading = englishLeadingSports.compactMap { type in items.first { $0.gameType == type } }
-        let rest = items.filter { !englishLeadingSports.contains($0.gameType) }
+        let leadingTypes: [GameType]
+        switch section {
+        case .sports:
+            leadingTypes = prefersBadminton(for: uiLocalization)
+                ? [.badminton, .tennis, .pingpong, .pickleball]
+                : [.tennis, .pickleball, .badminton, .pingpong]
+        case .cardGames:
+            leadingTypes = [.uno]
+        default:
+            return items
+        }
+        let leading = leadingTypes.compactMap { type in items.first { $0.gameType == type } }
+        let rest = items.filter { !leadingTypes.contains($0.gameType) }
         return leading + rest
+    }
+
+    /// 所有选择入口与计分页复用显示顺序；原始目录仍保留完整记录项目。
+    static var selectableScoreboardGameTypes: [GameType] {
+        ScoreboardCatalogSection.allCases.flatMap { scoreboardItems(in: $0).map(\.gameType) }
     }
 
     /// 英文界面隐藏的项目：毽球/气排球只在中文等其余语言展示，英文版不再提供入口。
@@ -177,9 +202,13 @@ enum GameCatalog {
 
     static let scoreboardGameTypes: [GameType] = scoreboardItems.map(\.gameType)
     static let timerSelectableGameTypes: [GameType] = timerAllItems.compactMap(\.mappedGameType)
-    static let quickStartSelectableGameTypes: [GameType] = unique(scoreboardGameTypes + timerSelectableGameTypes).filter { isSelectable($0) }
+    static var quickStartSelectableGameTypes: [GameType] {
+        unique(selectableScoreboardGameTypes + timerSelectableGameTypes)
+    }
     /// 新比赛弹窗展示的项目（不含秒表，秒表仅在计时 Tab 中使用）
-    static let newGameDialogGameTypes: [GameType] = quickStartSelectableGameTypes.filter { $0 != .stopwatch }
+    static var newGameDialogGameTypes: [GameType] {
+        quickStartSelectableGameTypes.filter { $0 != .stopwatch }
+    }
 
     static func timerDestination(for gameType: GameType) -> TimerDestination? {
         timerAllItems.first { $0.mappedGameType == gameType }

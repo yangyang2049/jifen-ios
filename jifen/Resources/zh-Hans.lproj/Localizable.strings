@@ -166,7 +166,7 @@
 "record_training_end_rate" = "训练结束 · 命中率 %1$d%%";
 "game_football" = "足球";
 "game_volleyball" = "排球";
-"game_checkers" = "跳棋";
+"game_checkers" = "国际跳棋";
 "timer_checkers" = "国际跳棋";
 "game_boxing" = "拳击";
 "game_billiards" = "台球";
@@ -450,7 +450,7 @@
 
 /* Records Tab */
 "clear_all_records" = "删除全部记录";
-"clear_records_tab_message" = "将删除“记录”中的计分记录和计时记录，此操作无法撤销。不会删除常用名称、常用地点或预约记录。";
+"clear_records_tab_message" = "将删除“记录”中的计分记录和计时记录，此操作无法撤销。不会删除已保存名称、已保存地点或预约记录。";
 "clear_data" = "清除数据";
 "clear_data_failed_title" = "清除失败";
 "clear_data_failed_format" = "部分数据未能清除，可安全重试：\n%@";
@@ -520,14 +520,14 @@
 "version" = "版本";
 "privacy_policy" = "隐私政策";
 "accessibility" = "辅助功能";
-"common_names_manage" = "常用名称管理";
+"common_names_manage" = "已保存名称管理";
 "common_names_team" = "队伍名称";
 "common_names_player" = "选手名称";
 "common_names_clear_current" = "清空当前分类";
-"common_names_clear_current_message" = "将清空%@的所有常用名称，此操作无法撤销。";
-"common_names_title" = "常用名称";
-"common_names_empty" = "暂无常用名称";
-"common_names_empty_hint" = "可在「设置」-「数据」-「常用名称管理」中添加队伍或选手名称，下次即可快速选择。";
+"common_names_clear_current_message" = "将清空%@的所有已保存名称，此操作无法撤销。";
+"common_names_title" = "已保存名称";
+"common_names_empty" = "暂无已保存名称";
+"common_names_empty_hint" = "可在「设置」-「数据」-「已保存名称管理」中添加队伍或选手名称，下次即可快速选择。";
 "common_names_management_empty_hint" = "计分时输入的队伍或选手名称会自动保存在这里，下次可以快速选择。";
 "common_names_search_placeholder" = "搜索名称";
 "common_names_no_search_results" = "无搜索结果";
@@ -556,15 +556,15 @@
 
 /* First-launch legal consent */
 "home_common_names_desc" = "队名、球员名";
-"common_places_title" = "常用地点";
+"common_places_title" = "已保存地点";
 "home_common_places_desc" = "球馆、球场、地点";
 "common_places_add" = "添加地点";
 "common_places_edit_title" = "编辑地点";
 "common_places_placeholder" = "输入地点";
 "common_places_clear" = "清空地点";
-"common_places_clear_message" = "将清空所有常用地点，此操作无法撤销。";
+"common_places_clear_message" = "将清空所有已保存地点，此操作无法撤销。";
 "common_places_search_placeholder" = "搜索地点";
-"common_places_no_records" = "暂无常用地点";
+"common_places_no_records" = "暂无已保存地点";
 "common_places_no_search_results" = "无搜索结果";
 "common_places_usage_desc" = "预约球局中输入的地点会自动保存在这里，下次可以快速选择。";
 "common_places_batch_hint" = "每行一个地点，或用逗号分隔";
@@ -573,13 +573,13 @@
 "common_places_save_failed" = "保存失败";
 "common_places_batch_empty" = "请输入至少一个有效地点";
 "common_places_batch_result" = "已添加 %d 个，跳过 %d 个";
-"common_places_empty_hint" = "可在首页的「常用地点」中添加";
+"common_places_empty_hint" = "可在首页的「已保存地点」中添加";
 "common_places_select" = "选择地点";
 "common_places_added" = "已添加";
 "common_places_updated" = "已更新";
 "common_places_deleted" = "已删除";
 "common_places_batch_delete_confirm" = "确认删除选中的 %d 个地点？";
-"schedule_pick_common_place" = "选择常用地点";
+"schedule_pick_common_place" = "选择已保存地点";
 "faq_question_1" = "怎么快速开始一场比赛？";
 "faq_answer_1" = "在首页选择项目，或进入「新比赛」挑选更多项目。常用的项目和配置可以加入「快速开始」，下次直接进入。\n\n需要队名、局数、赛制、发球规则的项目，会先打开「比赛设置」。确认后进入计分板，部分设置也可以在计分过程中继续调整。";
 "faq_question_2" = "比赛中怎么记分和改错？";
@@ -589,7 +589,7 @@
 "faq_question_4" = "怎么删除记录或清除数据？";
 "faq_answer_4" = "比赛进行中，优先用当前项目支持的撤销、回退或编辑入口修正误操作。\n\n已保存的比赛，请进入「记录」详情后删除。「我的 → 清除数据」会清空本机计分、计时、未完成比赛、历史记录和部分本地设置，且无法恢复。";
 "faq_question_5" = "怎么连接大屏或另一台手机？";
-"faq_answer_5" = "要把比分显示在另一台手机或平板上：在显示端进入「同步比分 → 加入比赛」，按页面提示生成短码/二维码；主控端进入比赛后连接，比分会同步到显示端。两端需保持网络稳定，尽量不要锁屏或切到后台；若同步卡住，请双方退出后重新连接。\n\n要把计分板投屏到电视或大屏：请使用手机系统的无线投屏（Miracast）。从系统控制中心开启无线投屏并连接电视，应用检测到已连接的屏幕后，计分板会自动显示到大屏。应用依赖系统投屏能力，不会自己搜索电视；在系统中断开投屏，本次投屏也会结束。不同品牌可能将无线投屏称为“无线显示”或“多屏互动”，请先在系统中完成连接。";
+"faq_answer_5" = "两台设备配合使用：分享端负责记分，显示端全屏展示比分。 分享端: 登录并开始同步，生成 6 位短码。 显示端: 登录并输入分享端提供的 6 位短码。 进入计分项目开始记分，比分会自动同步。\n\n建议优先使用系统“屏幕镜像”（AirPlay）。连接成功并被检测到后，计分板会自动显示到大屏。 从控制中心打开“屏幕镜像”（AirPlay）。 请先在系统里完成 AirPlay 连接；App 一次只能使用一块已连接的屏幕，不能直接搜索电视或投影仪。断开 AirPlay 后，本次投屏也会结束。";
 "faq_question_6" = "没有我想要的项目怎么办？";
 "faq_answer_6" = "先选择最接近的项目使用。如果只是名称、局数、队伍、先后手不同，优先在「比赛设置」中调整，并把常用配置加入「快速开始」。\n\n如果现有项目确实覆盖不了规则，请通过「意见反馈」说明项目名称、常用赛制、记分方式和期望的操作流程。";
 "faq_question_7" = "会员、登录和换设备怎么处理？";
@@ -597,9 +597,9 @@
 "faq_question_8" = "遇到问题或想提建议怎么办？";
 "faq_answer_8" = "进入「我的 → 意见反馈」，选择问题反馈或功能建议。描述时尽量写清项目名称、操作步骤、期望结果和实际结果；如果是显示端或会员问题，也请带上设备型号、系统版本和应用版本。";
 "faq_question_10" = "怎么备份数据或换手机时迁移数据？";
-"faq_answer_10" = "登录账号后，常用名称、常用地点和比赛记录等会绑定到你的账号。开通会员的「云端同步」后，数据可在不同设备间同步；换手机时用同一账号登录即可自动恢复。未登录时，数据仅保存在当前设备，不会上传。";
+"faq_answer_10" = "登录后，常用的队伍、选手名称和地点可在不同设备间同步。换手机时，用同一账号登录即可获取这些常用数据。比赛记录、计时记录和未完成的比赛保存在当前设备，暂不支持这些记录的云端备份和恢复。";
 "faq_question_11" = "我的数据和隐私是怎么处理的？";
-"faq_answer_11" = "《隐私政策》说明了数据的用途与范围。麦克风仅在录制语音笔记时使用，摄像头仅在扫描二维码登录时使用，均在本地处理。";
+"faq_answer_11" = "《隐私政策》说明了数据的用途与范围。录制语音笔记需要使用麦克风。扫描受信任的计分器登录二维码、拍照设置头像时需要使用相机。";
 "common_names_add" = "添加";
 "common_names_edit_title" = "编辑名称";
 "common_names_team_placeholder" = "输入队伍名称";
@@ -729,7 +729,7 @@
 "game_tennis_doubles" = "网球双打";
 "game_pingpong_doubles" = "乒乓球双打";
 "game_pickleball_doubles" = "匹克球双打";
-"game_eight_ball" = "黑八追分";
+"game_eight_ball" = "黑八追局";
 "game_nine_ball" = "九球追分";
 "game_snooker" = "斯诺克";
 "setup_serving_side" = "发球方";
@@ -847,6 +847,13 @@
 "scoreboard_double_tap_subtract_help_message" = "开启后，支持该手势的计分板可双击同一比分区或玩家格子减 1 分。关闭后，双击不再减分，仍可用下滑减分或左滑撤销。篮球、斯诺克等按钮型计分板不受影响。";
 "scoreboard_official_break_help_title" = "局间休息说明";
 "scoreboard_official_break_help_message" = "开启后，以下项目会按规则自动显示官方休息倒计时：\n\n乒乓球：局间60秒\n羽毛球：局中60秒、局间120秒\n壁球：局间90秒\n毽球：局间60秒\n网球：换边90秒、盘间120秒\n软式网球：换边60秒\n板网球：换边90秒、盘间120秒\n匹克球：决胜局局中60秒、局间120秒";
+"scoreboard_official_break_help_intro" = "开启后，以下项目会按规则自动显示官方休息倒计时：";
+"scoreboard_official_break_rule_between_games_60" = "局间60秒";
+"scoreboard_official_break_rule_badminton" = "局中60秒、局间120秒";
+"scoreboard_official_break_rule_squash" = "局间90秒";
+"scoreboard_official_break_rule_tennis" = "换边90秒、盘间120秒";
+"scoreboard_official_break_rule_soft_tennis" = "换边60秒";
+"scoreboard_official_break_rule_pickleball" = "决胜局局中60秒、局间120秒";
 "show_match_time" = "显示时间";
 "hide_match_time" = "隐藏时间";
 "scoreboard_match_time_this_game_only" = "仅影响本局；下次开局仍使用项目设置。";
@@ -1473,7 +1480,7 @@
 "account_deletion_impact_title" = "注销前请确认";
 "account_deletion_impact_account" = "你的账号资料和登录身份将被删除或匿名化处理。";
 "account_deletion_impact_feedback" = "你发布的反馈等账号相关内容可能被删除或匿名化处理。";
-"account_deletion_impact_local_data" = "本机计分记录、预约、常用名称和设置不会被删除。";
+"account_deletion_impact_local_data" = "本机计分记录、预约、已保存名称和设置不会被删除。";
 "account_deletion_impact_irreversible" = "注销完成后，该账号无法恢复。";
 "account_deletion_submitting" = "提交中...";
 "account_deletion_apply" = "注销账号";
@@ -1552,3 +1559,9 @@
 "game_short" = "局";
 "set_short" = "盘";
 "football_injury_title" = "伤停补时";
+
+"feedback_official" = "官方";
+
+"feedback_pinned" = "置顶";
+
+"voice_announce_server" = "播报发球方";

@@ -1,0 +1,274 @@
+[
+  {
+    "id": "d00157ba-127e-49f0-9bd1-deaad724dd0d",
+    "position": 1,
+    "file": "artifacts/app-store-screenshots-20261002/backup-originals/en-US/appstore-en01.png",
+    "fileName": "appstore-en01.png",
+    "sourceFileChecksum": "fb63fff2472e0e58e93e011a35b2816a",
+    "backupMD5": "eb8271c09ec360c50fab45e6d8cfed52",
+    "sha256": "7b69ae7faf28b42049728d7b0db53a4862c71a6be186eaf924ab2abf71f8a92b",
+    "size": [
+      1284,
+      2778
+    ],
+    "bytes": 1858131,
+    "restoreFile": "artifacts/app-store-screenshots-20261002/originals/d00157ba-127e-49f0-9bd1-deaad724dd0d.png",
+    "copyType": "apple-processed-png-at-original-dimensions"
+  },
+  {
+    "id": "5bbbe2b9-2c1a-4011-bc7e-acb50d29c8f8",
+    "position": 2,
+    "file": "artifacts/app-store-screenshots-20261002/backup-originals/en-US/appstore-en2.png",
+    "fileName": "appstore-en2.png",
+    "sourceFileChecksum": "e92e35d5c4495131f09fc152724078fb",
+    "backupMD5": "cb0ac9a40473f58d1bbbbe5396809b03",
+    "sha256": "7d31808610fb5f25dad3c0714b28410c9528de90939d60d3cd03987348aaa26e",
+    "size": [
+      1284,
+      2778
+    ],
+    "bytes": 118004,
+    "restoreFile": "artifacts/app-store-screenshots-20261002/originals/5bbbe2b9-2c1a-4011-bc7e-acb50d29c8f8.png",
+    "copyType": "apple-processed-png-at-original-dimensions"
+  },
+  {
+    "id": "fdaa3c7a-b7f0-4894-ad32-13bd11103cbb",
+    "position": 3,
+    "file": "artifacts/app-store-screenshots-20261002/backup-originals/en-US/appstore-en3.png",
+    "fileName": "appstore-en3.png",
+    "sourceFileChecksum": "f1dbb358a38a1b0b557e199be11698d3",
+    "backupMD5": "79e0bf27c1e0b4b77e10cdf7c807ec8b",
+    "sha256": "86dade19c357f86a4a459360168969561b8b70a3b99be1d38c2a512fd8aab3ec",
+    "size": [
+      1284,
+      2778
+    ],
+    "bytes": 124968,
+    "restoreFile": "artifacts/app-store-screenshots-20261002/originals/fdaa3c7a-b7f0-4894-ad32-13bd11103cbb.png",
+    "copyType": "apple-processed-png-at-original-dimensions"
+  },
+  {
+    "id": "f6801b63-78a9-41d1-a288-742d6b1f7864",
+    "position": 4,
+    "file": "artifacts/app-store-screenshots-20261002/backup-originals/en-US/appstore-en4.png",
+    "fileName": "appstore-en4.png",
+    "sourceFileChecksum": "2f497956ca020b97c13f111e36e6f20d",
+    "backupMD5": "b2be0f0f646ebad1e002cba4e3d3a54c",
+    "sha256": "e054906b64450d2d293ee4dbbcbc32ecc69c9fca62e7743eb542ce747ac8599d",
+    "size": [
+      1284,
+      2778
+    ],
+    "bytes": 428078,
+    "restoreFile": "artifacts/app-store-screenshots-20261002/originals/f6801b63-78a9-41d1-a288-742d6b1f7864.png",
+    "copyType": "apple-processed-png-at-original-dimensions"
+  },
+  {
+    "id": "3eb24b13-7e7b-4c87-9eec-e6fc5c81043c",
+    "position": 5,
+    "file": "artifacts/app-store-screenshots-20261002/backup-originals/en-US/appstore-en5.png",
+    "fileName": "appstore-en5.png",
+    "sourceFileChecksum": "60ba025655ea9da1663f6580259c9595",
+    "backupMD5": "9bb4d63bcf488b47573027d4a7a8cfdf",
+    "sha256": "0f9babd301ecaa733b16cac8c97055ac293856d5d59b189e556276539512d2df",
+    "size": [
+      1284,
+      2778
+    ],
+    "bytes": 688001,
+    "restoreFile": "artifacts/app-store-screenshots-20261002/originals/3eb24b13-7e7b-4c87-9eec-e6fc5c81043c.png",
+    "copyType": "apple-processed-png-at-original-dimensions"
+  },
+  {
+    "id": "2f0f1cff-6b82-4a8b-bda4-2cd8075ef8b0",
+    "position": 6,
+    "file": "artifacts/app-store-screenshots-20261002/backup-originals/en-US/appstore-en6.png",
+    "fileName": "appstore-en6.png",
+    "sourceFileChecksum": "e6f5347c3525385abffd907d8b215c8f",
+    "backupMD5": "bed9e56e9c28ae866f787b4973c32007",
+    "sha256": "c3e0787ea134c93128783f1afe60e706a6fd10146a6be036cef23d1b31c1f6b2",
+    "size": [
+      1284,
+      2778
+    ],
+    "bytes": 502451,
+    "restoreFile": "artifacts/app-store-screenshots-20261002/originals/2f0f1cff-6b82-4a8b-bda4-2cd8075ef8b0.png",
+    "copyType": "apple-processed-png-at-original-dimensions"
+  },
+  {
+    "id": "a92d7310-15e9-41d6-93b8-a72a7eb53ce6",
+    "position": 7,
+    "file": "artifacts/app-store-screenshots-20261002/backup-originals/en-US/appstore-en7.png",
+    "fileName": "appstore-en7.png",
+    "sourceFileChecksum": "b6946aa5e03473f8be19687354c632d0",
+    "backupMD5": "4990f5c9bb572b88251d2d44c9b7244c",
+    "sha256": "d578f5dcfed047a4c5197f3226be360a3f34cc3c5fda88eb21a9edaf8cecda2b",
+    "size": [
+      1284,
+      2778
+    ],
+    "bytes": 720181,
+    "restoreFile": "artifacts/app-store-screenshots-20261002/originals/a92d7310-15e9-41d6-93b8-a72a7eb53ce6.png",
+    "copyType": "apple-processed-png-at-original-dimensions"
+  },
+  {
+    "id": "7cc00019-2e9e-82d0-8010-2d8fa1b9abd3",
+    "position": 1,
+    "file": "artifacts/app-store-screenshots-20261002/originals/7cc00019-2e9e-82d0-8010-2d8fa1b9abd3.png",
+    "fileName": "zh-Hant-01-1b8e76825f1e4ae0.png",
+    "sourceFileChecksum": "1b8e76825f1e4ae0e0a87a3fc97805b5",
+    "backupMD5": "52cc9231ac1839d0413fd0a077f4ae17",
+    "sha256": "bad1121f76d8b053bcce1f12ee67954d8311779945f87a143830ea4a4a4980a3",
+    "size": [
+      1284,
+      2778
+    ],
+    "bytes": 1861477,
+    "restoreFile": "artifacts/app-store-screenshots-20261002/originals/7cc00019-2e9e-82d0-8010-2d8fa1b9abd3.png",
+    "copyType": "apple-processed-png-at-original-dimensions"
+  },
+  {
+    "id": "50000019-2e9e-82d0-8007-d7a0e5716f92",
+    "position": 2,
+    "file": "artifacts/app-store-screenshots-20261002/originals/50000019-2e9e-82d0-8007-d7a0e5716f92.png",
+    "fileName": "zh-Hant-02-5ab14486e0495800.png",
+    "sourceFileChecksum": "5ab14486e049580009c605e03f958e20",
+    "backupMD5": "12824c523c2d7a6c47226dc0b2b52b0c",
+    "sha256": "e90ba1df21dd731a0ef80492af51189c0ed4571cde3d77f9540b66da127bfabd",
+    "size": [
+      1284,
+      2778
+    ],
+    "bytes": 119401,
+    "restoreFile": "artifacts/app-store-screenshots-20261002/originals/50000019-2e9e-82d0-8007-d7a0e5716f92.png",
+    "copyType": "apple-processed-png-at-original-dimensions"
+  },
+  {
+    "id": "c6000019-2e9e-82d0-802e-bb6176175451",
+    "position": 3,
+    "file": "artifacts/app-store-screenshots-20261002/originals/c6000019-2e9e-82d0-802e-bb6176175451.png",
+    "fileName": "zh-Hant-03-6c2a8020bcb336cc.png",
+    "sourceFileChecksum": "6c2a8020bcb336cc147a3fc4a28f2695",
+    "backupMD5": "193962134946d209d1c1c76751bba43c",
+    "sha256": "55b89bb02858fc401f730b2de6b15420555663587459735450a3eb648f497099",
+    "size": [
+      1284,
+      2778
+    ],
+    "bytes": 135591,
+    "restoreFile": "artifacts/app-store-screenshots-20261002/originals/c6000019-2e9e-82d0-802e-bb6176175451.png",
+    "copyType": "apple-processed-png-at-original-dimensions"
+  },
+  {
+    "id": "b9c00019-2e9e-82d0-8030-af34495ea7eb",
+    "position": 4,
+    "file": "artifacts/app-store-screenshots-20261002/originals/b9c00019-2e9e-82d0-8030-af34495ea7eb.png",
+    "fileName": "zh-Hant-04-f0692f738c217e2d.png",
+    "sourceFileChecksum": "f0692f738c217e2d5f0d5d6932fba4d9",
+    "backupMD5": "da1118fcbbd7eae589061c063ad96c0a",
+    "sha256": "7eede9201f83e02b314f22e5414410f76c1295461d4d1c48b7a1ab42601570ec",
+    "size": [
+      1284,
+      2778
+    ],
+    "bytes": 461496,
+    "restoreFile": "artifacts/app-store-screenshots-20261002/originals/b9c00019-2e9e-82d0-8030-af34495ea7eb.png",
+    "copyType": "apple-processed-png-at-original-dimensions"
+  },
+  {
+    "id": "07000019-2e9e-82d0-8008-97e37ac148b5",
+    "position": 5,
+    "file": "artifacts/app-store-screenshots-20261002/originals/07000019-2e9e-82d0-8008-97e37ac148b5.png",
+    "fileName": "zh-Hant-05-1b6b6a94db0d4895.png",
+    "sourceFileChecksum": "1b6b6a94db0d4895c8cc85ced1a97454",
+    "backupMD5": "b762065072d829a0d7d36341d553130b",
+    "sha256": "176883926ce945ee9f2a00c7aa2e1e3063e18b986cf0428d52a90818f0780215",
+    "size": [
+      1284,
+      2778
+    ],
+    "bytes": 801418,
+    "restoreFile": "artifacts/app-store-screenshots-20261002/originals/07000019-2e9e-82d0-8008-97e37ac148b5.png",
+    "copyType": "apple-processed-png-at-original-dimensions"
+  },
+  {
+    "id": "c6c00019-2e9e-82d0-8022-b7c4b1ec5f7e",
+    "position": 6,
+    "file": "artifacts/app-store-screenshots-20261002/originals/c6c00019-2e9e-82d0-8022-b7c4b1ec5f7e.png",
+    "fileName": "zh-Hant-06-f7a4809cbb294a6b.png",
+    "sourceFileChecksum": "f7a4809cbb294a6b21f03dac7bc9294e",
+    "backupMD5": "582d7a79bbe9fa788b2be7c31744953e",
+    "sha256": "67f31d6c9e0b9a1c4e8d40dfe2f7bd6de8c8638b9e8ecd232b92e1b9fec023fe",
+    "size": [
+      1284,
+      2778
+    ],
+    "bytes": 411813,
+    "restoreFile": "artifacts/app-store-screenshots-20261002/originals/c6c00019-2e9e-82d0-8022-b7c4b1ec5f7e.png",
+    "copyType": "apple-processed-png-at-original-dimensions"
+  },
+  {
+    "id": "3f000019-2e9e-82d0-8017-c6e1fd18af9f",
+    "position": 7,
+    "file": "artifacts/app-store-screenshots-20261002/originals/3f000019-2e9e-82d0-8017-c6e1fd18af9f.png",
+    "fileName": "zh-Hant-07-db7b6d49e4824b42.png",
+    "sourceFileChecksum": "db7b6d49e4824b42da1ff60308be0986",
+    "backupMD5": "32f18afa10862d141f3b7fc403c3ecc2",
+    "sha256": "e593175ba9d3c3d19cf2410c4769262740bb52abf37afd6163814eee5e3f78d1",
+    "size": [
+      1284,
+      2778
+    ],
+    "bytes": 739043,
+    "restoreFile": "artifacts/app-store-screenshots-20261002/originals/3f000019-2e9e-82d0-8017-c6e1fd18af9f.png",
+    "copyType": "apple-processed-png-at-original-dimensions"
+  },
+  {
+    "id": "eb000019-2e9e-82d0-803c-da9211269e16",
+    "position": 1,
+    "file": "artifacts/app-store-screenshots-20261002/originals/eb000019-2e9e-82d0-803c-da9211269e16.png",
+    "fileName": "zh-Hant-01-878464dcb35d7ec8.png",
+    "sourceFileChecksum": "878464dcb35d7ec880a0d58f1a8a3d41",
+    "backupMD5": "5f59a9d99aa484b266eb0508f468756e",
+    "sha256": "9892322319403b6ec7de09da54e6da09a66b0a55871b405aa20341768257ab4e",
+    "size": [
+      1284,
+      2778
+    ],
+    "bytes": 1580523,
+    "restoreFile": "artifacts/app-store-screenshots-20261002/originals/eb000019-2e9e-82d0-803c-da9211269e16.png",
+    "copyType": "apple-processed-png-at-original-dimensions"
+  },
+  {
+    "id": "60800019-2e9e-82d0-8029-1fccd43bc633",
+    "position": 2,
+    "file": "artifacts/app-store-screenshots-20261002/originals/60800019-2e9e-82d0-8029-1fccd43bc633.png",
+    "fileName": "zh-Hant-02-65218ce1d4145b73.png",
+    "sourceFileChecksum": "65218ce1d4145b73eb3ece23db001821",
+    "backupMD5": "435d111befef2f5fa027dd8c51e2ee8a",
+    "sha256": "b89d9d96efbcb81600e0373ba86c6e06c420f6e60054d55986934747c1fe0b52",
+    "size": [
+      1284,
+      2778
+    ],
+    "bytes": 100601,
+    "restoreFile": "artifacts/app-store-screenshots-20261002/originals/60800019-2e9e-82d0-8029-1fccd43bc633.png",
+    "copyType": "apple-processed-png-at-original-dimensions"
+  },
+  {
+    "id": "3cc00019-2e9e-82d0-800e-1e1a10beb83b",
+    "position": 3,
+    "file": "artifacts/app-store-screenshots-20261002/originals/3cc00019-2e9e-82d0-800e-1e1a10beb83b.png",
+    "fileName": "zh-Hant-03-23df7eca9d115127.png",
+    "sourceFileChecksum": "23df7eca9d115127009bf0c45e598ee7",
+    "backupMD5": "5aa52f74fe0835a26b9a2f261d81f4a9",
+    "sha256": "025d73bcb2f314f0daa19a023a6e9adeec53d3ca059dc8455cb779de9938f121",
+    "size": [
+      1284,
+      2778
+    ],
+    "bytes": 116593,
+    "restoreFile": "artifacts/app-store-screenshots-20261002/originals/3cc00019-2e9e-82d0-800e-1e1a10beb83b.png",
+    "copyType": "apple-processed-png-at-original-dimensions"
+  }
+]

@@ -20,7 +20,7 @@ struct CommonDataSectionView: View {
     @ViewBuilder
     private func entries(keepLabelsOnOneLine: Bool) -> some View {
         entry(
-            title: NSLocalizedString("common_names_title", value: "常用名称", comment: ""),
+            title: NSLocalizedString("common_names_title", value: "已保存名称", comment: ""),
             subtitle: NSLocalizedString("home_common_names_desc", value: "队名、球员名", comment: ""),
             keepLabelsOnOneLine: keepLabelsOnOneLine,
             systemImage: "person.2",
@@ -29,7 +29,7 @@ struct CommonDataSectionView: View {
             action: onNamesTapped
         )
         entry(
-            title: NSLocalizedString("common_places_title", value: "常用地点", comment: ""),
+            title: NSLocalizedString("common_places_title", value: "已保存地点", comment: ""),
             subtitle: NSLocalizedString("home_common_places_desc", value: "球馆、球场、地点", comment: ""),
             keepLabelsOnOneLine: keepLabelsOnOneLine,
             systemImage: "mappin.and.ellipse",
@@ -75,7 +75,7 @@ struct CommonDataSectionView: View {
             .background(Theme.homeNeutralCardBackground)
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(CardButtonStyle())
         .accessibilityElement(children: .combine)
     }
 }

@@ -97,10 +97,9 @@ struct NineBallChaseScoreboardView: View {
         )
     }
 
-    private let nineBallActionOrder: [NineBallChaseKind] = [
-        .normalWin, .foul,
-        .bigGold, .smallGold,
-        .goldenNine, .ballInHand
+    private let nineBallActionRows: [[NineBallChaseKind]] = [
+        [.normalWin, .foul],
+        [.bigGold, .smallGold, .goldenNine, .ballInHand]
     ]
 
     init(
@@ -672,40 +671,13 @@ struct NineBallChaseScoreboardView: View {
                     .padding(.horizontal, 12)
                     .frame(height: 52)
 
-                    LazyVGrid(
-                        columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 2),
-                        spacing: 10
-                    ) {
-                        ForEach(nineBallActionOrder, id: \.self) { kind in
-                            Button {
-
-                                VibrationManager.shared.vibrateLight()
-                                send(.chaseEvent(player: player, kind: kind))
-                                activeChasePlayer = nil
-                            } label: {
-                                VStack(spacing: 0) {
-                                    Text(chaseTitle(kind))
-                                        .font(.system(size: 13, weight: .medium))
-                                        .lineLimit(1)
-                                        .minimumScaleFactor(0.7)
-                                        .frame(maxWidth: .infinity)
-                                        .frame(height: 26)
-                                        .background(nineBallActionBandColor(kind))
-                                    Text(chasePointDescription(kind, player: player))
-                                        .font(.system(size: 16, weight: .bold))
-                                        .lineLimit(1)
-                                        .minimumScaleFactor(0.7)
-                                        .frame(maxWidth: .infinity, minHeight: 32)
+                    VStack(spacing: 10) {
+                        ForEach(nineBallActionRows.indices, id: \.self) { rowIndex in
+                            HStack(spacing: 10) {
+                                ForEach(nineBallActionRows[rowIndex], id: \.self) { kind in
+                                    nineBallActionButton(kind, player: player)
                                 }
-                                .foregroundStyle(.white)
-                                .frame(maxWidth: .infinity, minHeight: 58)
-                                .background(nineBallActionBackground(kind))
-                                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                                .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             }
-                            .buttonStyle(.plain)
-                            .disabled(scoringLocked || state.finished)
-                            .accessibilityIdentifier("nine_ball_action_\(kind.rawValue)")
                         }
                     }
                     .padding(.horizontal, 16)
@@ -724,6 +696,40 @@ struct NineBallChaseScoreboardView: View {
                 .accessibilityIdentifier("nine_ball_action_dialog")
             }
         }
+    }
+
+    private func nineBallActionButton(_ kind: NineBallChaseKind, player: Int) -> some View {
+        Button {
+            VibrationManager.shared.vibrateLight()
+            send(.chaseEvent(player: player, kind: kind))
+            activeChasePlayer = nil
+        } label: {
+            VStack(spacing: 0) {
+                Text(chaseTitle(kind))
+                    .font(.system(size: 13, weight: .medium))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 26)
+                    .background(nineBallActionBandColor(kind))
+                Text(ScoreAdditionTypography.attributedLabel(
+                    chasePointDescription(kind, player: player),
+                    numberFontSize: 16
+                ))
+                    .font(.system(size: 16, weight: .bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .frame(maxWidth: .infinity, minHeight: 32)
+            }
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity, minHeight: 58)
+            .background(nineBallActionBackground(kind))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .disabled(scoringLocked || state.finished)
+        .accessibilityIdentifier("nine_ball_action_\(kind.rawValue)")
     }
 
     private func nineBallActionBackground(_ kind: NineBallChaseKind) -> Color {

@@ -1,0 +1,74 @@
+{
+  "locale": "ja",
+  "startedAt": "2026-10-02T17:19:18.536538+00:00",
+  "status": "failed",
+  "images": [
+    {
+      "index": 1,
+      "id": "98800019-2e9e-82d0-803b-4647b3b781d2",
+      "md5": "aae0bf8dff16127ce429dae7e6d72d67",
+      "action": "uploaded",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 2,
+      "id": "32400019-2e9e-82d0-800e-d8f58b40b17b",
+      "md5": "2d706f92cb4ecb2c37cb76abfb0f8f1f",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 3,
+      "id": "97400019-2e9e-82d0-8013-5d4b9aaf151d",
+      "md5": "7159ef9d7da2761bb8d4a2527a3d3032",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 4,
+      "id": "52400019-2e9e-82d0-8020-949b5f85c870",
+      "md5": "fe192a0f4dc4b5f1639ff8b8e18a2888",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 5,
+      "id": "47000019-2e9e-82d0-8016-1094d1b27879",
+      "md5": "19158c8e98d6a41b507db3334455ac47",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 6,
+      "id": "5b800019-2e9e-82d0-8007-80995305d5b2",
+      "md5": "ba79fe126dad21c4dd626a3ccd6d976f",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 7,
+      "id": "f6c00019-2e9e-82d0-803c-ad67e9fa8ec1",
+      "md5": "1dc058a4e092f25803e5a7ac8a1e2765",
+      "action": "reused",
+      "state": "COMPLETE"
+    }
+  ],
+  "deletedIds": [
+    "59400019-2e9e-82d0-800e-82daa32b4479"
+  ],
+  "setId": "9237d0e6-38af-4eeb-a9c6-c989ab343622",
+  "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/screenshot-upload/locale-backups/20261002T171841132002Z-ja.json",
+  "verified": false,
+  "error": "Target seven-screenshot order failed verification",
+  "completedAt": "2026-10-02T17:19:33.619049+00:00",
+  "restoredIds": [
+    "76400019-2e9e-82d0-803d-3f12221e80a1",
+    "32400019-2e9e-82d0-800e-d8f58b40b17b",
+    "97400019-2e9e-82d0-8013-5d4b9aaf151d",
+    "52400019-2e9e-82d0-8020-949b5f85c870",
+    "47000019-2e9e-82d0-8016-1094d1b27879",
+    "5b800019-2e9e-82d0-8007-80995305d5b2",
+    "f6c00019-2e9e-82d0-803c-ad67e9fa8ec1"
+  ],
+  "rollback": "verified"
+}

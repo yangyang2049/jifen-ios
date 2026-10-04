@@ -1,0 +1,11 @@
+/* 
+  InfoPlist.strings
+  jifen
+
+  Localized privacy permission descriptions
+*/
+
+"NSPhotoLibraryAddUsageDescription" = "Este nevoie de acces la fototecă pentru a salva capturi de ecran ale tabelei de scor.";
+"CFBundleDisplayName" = "iScoreboard";
+"NSCameraUsageDescription" = "Camera este folosită pentru scanarea codurilor QR de conectare de încredere și pentru a face o fotografie de profil.";
+"NSMicrophoneUsageDescription" = "Microfonul este folosit pentru a înregistra note vocale.";

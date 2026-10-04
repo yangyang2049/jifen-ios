@@ -1,0 +1,32 @@
+{
+  "game_type_badminton": [
+    "() \"Badminton\"",
+    "(he) \"בדמינטון\"",
+    "(ar) \"الريشة الطائرة\""
+  ],
+  "sports_setup_serving_side": [
+    "() \"First server\"",
+    "(he) \"מגיש ראשון\"",
+    "(ar) \"المرسل الأول\""
+  ],
+  "setup_match_completion_classic": [
+    "() \"Best of\"",
+    "(he) \"הטוב מתוך\"",
+    "(ar) \"الأفضل من\""
+  ],
+  "setup_set_unit": [
+    "() \"games\"",
+    "(he) \"משחקונים\"",
+    "(ar) \"أشواط\""
+  ],
+  "mahjong_setup_title": [
+    "() \"Mahjong Setup\"",
+    "(he) \"הגדרות מהג׳ונג\"",
+    "(ar) \"إعداد ماجونغ\""
+  ],
+  "mahjong_error_invalid": [
+    "() \"Complete the settlement details with valid values.\"",
+    "(he) \"השלימו את פרטי ההתחשבנות בערכים תקינים.\"",
+    "(ar) \"أكمل تفاصيل التسوية بقيم صالحة.\""
+  ]
+}

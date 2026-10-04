@@ -324,7 +324,7 @@ struct CloudSyncEntryPanel: View {
                 get: { codeInput.map(String.init).joined(separator: " ") },
                 set: { newValue in
                     joinError = nil
-                    codeInput = newValue.filter(\.isNumber).prefix(6).map(String.init).joined()
+                    codeInput = normalizedDecimalDigits(newValue, limit: 6)
                 }
             ),
             prompt: Text(NSLocalizedString("sync_code_input_placeholder", value: "0 0 0 0 0 0", comment: ""))

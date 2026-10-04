@@ -1,0 +1,58 @@
+{
+  "locale": "vi",
+  "iosLocale": "vi",
+  "language": "Vietnamese",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Bảng điểm",
+  "subtitle": "Điểm số, thời gian và trận đấu",
+  "description": "Mỗi điểm số đều quan trọng. Biến iPhone hoặc iPad thành bảng điểm rõ ràng, dễ dùng cho thi đấu, luyện tập và chơi cùng bạn bè.\n\nGhi điểm cho hơn 26 môn thể thao và trò chơi, gồm quần vợt, pickleball, cầu lông, bóng bàn, bóng rổ, bóng đá, bóng chuyền và bi-a. Với các môn được hỗ trợ, bạn có thể chỉnh luật tính điểm, thể thức thi đấu và thứ tự giao bóng đôi.\n\nLưu trận đấu và xem lại diễn biến điểm số, dòng thời gian cùng ghi chú giọng nói. Sử dụng đồng hồ cờ vua và cờ vây, bộ đếm giờ cho khối lập phương và đồng hồ bấm giờ. Hiển thị bảng điểm trên màn hình lớn, chia sẻ mã trận đấu để bạn bè theo dõi điểm số từ xa.\n\nTung đồng xu, chia đội ngẫu nhiên, thẻ đỏ và thẻ vàng, chia đều chi phí: các công cụ tiện ích đều ở một nơi. Bớt bận tính điểm, thêm thời gian tận hưởng trận đấu.\n\nĐiều khoản sử dụng:\nhttps://jifenqi.com/terms\n\nChính sách quyền riêng tư:\nhttps://jifenqi.com/privacy\n\nThỏa thuận cấp phép tiêu chuẩn của Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Mỗi điểm số\nđều quan trọng",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Toàn bộ điểm số\nchỉ trong một cái nhìn",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "Một bảng điểm\ncho hơn 26 môn thể thao",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Xem lại\ntừng trận đấu",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Luật của bạn\ncách chơi của bạn",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Không chỉ là\ntrò chơi với bóng",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Bảng điểm của bạn\ntrên màn hình lớn",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Ghi điểm\nngay trên cổ tay",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Công cụ trọng tài\ntrong một ứng dụng",
+      "enabled": true
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "locale": "ta-IN",
+  "localizationId": "d25c7dd0-0986-4d6c-95fa-3233426eeadc",
+  "display": "APP_IPHONE_65",
+  "originalSet": {
+    "set": {
+      "id": "5ce867f2-3b0b-4d63-be6e-63e932797b54",
+      "type": "appScreenshotSets",
+      "attributes": {
+        "screenshotDisplayType": "APP_IPHONE_65"
+      }
+    },
+    "screenshots": [
+      {
+        "id": "fa400019-2e9e-82d0-800f-4ce957008d9b",
+        "type": "appScreenshots",
+        "attributes": {
+          "fileName": "ta-IN-01-e09f645d0793c64b.png",
+          "fileSize": 2139981,
+          "sourceFileChecksum": "e09f645d0793c64bf7c15184b1a7aca1",
+          "assetDeliveryState": {
+            "state": "COMPLETE",
+            "errorCodes": []
+          },
+          "imageAsset": {
+            "width": 1284,
+            "height": 2778
+          }
+        }
+      },
+      {
+        "id": "24c00019-2e9e-82d0-8009-a7e477c042b9",
+        "type": "appScreenshots",
+        "attributes": {
+          "fileName": "02-score.png",
+          "fileSize": 152529,
+          "sourceFileChecksum": "24694c8dd60ded0b9cee21505bc92aa0",
+          "assetDeliveryState": {
+            "state": "COMPLETE",
+            "errorCodes": []
+          },
+          "imageAsset": {
+            "width": 1284,
+            "height": 2778
+          }
+        }
+      },
+      {
+        "id": "aac00019-2e9e-82d0-8017-2ae4afa1ae03",
+        "type": "appScreenshots",
+        "attributes": {
+          "fileName": "03-catalog.png",
+          "fileSize": 163151,
+          "sourceFileChecksum": "92a115d9fa4130c3ecbd0182a44f72f4",
+          "assetDeliveryState": {
+            "state": "COMPLETE",
+            "errorCodes": []
+          },
+          "imageAsset": {
+            "width": 1284,
+            "height": 2778
+          }
+        }
+      },
+      {
+        "id": "2ec00019-2e9e-82d0-802a-bc271a7cfc06",
+        "type": "appScreenshots",
+        "attributes": {
+          "fileName": "04-recap.png",
+          "fileSize": 547419,
+          "sourceFileChecksum": "57052139c78294d7a1006301b6dad4ff",
+          "assetDeliveryState": {
+            "state": "COMPLETE",
+            "errorCodes": []
+          },
+          "imageAsset": {
+            "width": 1284,
+            "height": 2778
+          }
+        }
+      },
+      {
+        "id": "3dc00019-2e9e-82d0-8014-dc594dd092bc",
+        "type": "appScreenshots",
+        "attributes": {
+          "fileName": "05-setup.png",
+          "fileSize": 974602,
+          "sourceFileChecksum": "36617fdf8862d8d7abd5414e38a482c5",
+          "assetDeliveryState": {
+            "state": "COMPLETE",
+            "errorCodes": []
+          },
+          "imageAsset": {
+            "width": 1284,
+            "height": 2778
+          }
+        }
+      },
+      {
+        "id": "de000019-2e9e-82d0-8031-0615b28b722f",
+        "type": "appScreenshots",
+        "attributes": {
+          "fileName": "06-multiplayer.png",
+          "fileSize": 470889,
+          "sourceFileChecksum": "8e003fda796824d6679db2a32c9f06fa",
+          "assetDeliveryState": {
+            "state": "COMPLETE",
+            "errorCodes": []
+          },
+          "imageAsset": {
+            "width": 1284,
+            "height": 2778
+          }
+        }
+      },
+      {
+        "id": "9d800019-2e9e-82d0-800a-4823bd9849b0",
+        "type": "appScreenshots",
+        "attributes": {
+          "fileName": "07-cast.png",
+          "fileSize": 830110,
+          "sourceFileChecksum": "2576fa56caedab0d4e66c57b7d03c735",
+          "assetDeliveryState": {
+            "state": "COMPLETE",
+            "errorCodes": []
+          },
+          "imageAsset": {
+            "width": 1284,
+            "height": 2778
+          }
+        }
+      }
+    ]
+  },
+  "restoreDir": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-screenshots-20261002/originals",
+  "createdAt": "2026-10-03T03:29:17.313867+00:00"
+}

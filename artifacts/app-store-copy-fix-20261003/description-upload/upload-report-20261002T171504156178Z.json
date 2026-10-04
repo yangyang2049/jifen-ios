@@ -1,0 +1,55 @@
+{
+  "appId": "6759768784",
+  "bundleId": "com.douhua.jifen.ios",
+  "versionId": "a118dc62-4303-4c03-ae92-b358c60438d5",
+  "startedAt": "20261002T171504156178Z",
+  "results": [
+    {
+      "locale": "da",
+      "id": "6737286b-6e9e-47b3-9b7d-45ad07573bb8",
+      "verified": true
+    },
+    {
+      "locale": "fr-CA",
+      "id": "743341b8-0974-4ee1-a5d7-437103beb358",
+      "verified": true
+    },
+    {
+      "locale": "fr-FR",
+      "id": "6af5e91b-cd20-4b9a-8382-f28e81a04e7e",
+      "verified": true
+    },
+    {
+      "locale": "id",
+      "id": "6de00144-7594-45fa-bcd7-9c8f820f37be",
+      "verified": true
+    },
+    {
+      "locale": "ms",
+      "id": "94959fb1-c974-45b2-9be1-a4cfc1ca984f",
+      "verified": true
+    },
+    {
+      "locale": "th",
+      "id": "5251e2b8-44bc-4ac1-be9f-c77cd9dd9e97",
+      "verified": true
+    },
+    {
+      "locale": "ur-PK",
+      "id": "9943ed65-b065-4b63-a18d-75986b50e0a6",
+      "verified": true
+    },
+    {
+      "locale": "vi",
+      "id": "597d392f-acda-430e-ba9b-bfec0d29481c",
+      "verified": true
+    }
+  ],
+  "submittedForReview": false,
+  "released": false,
+  "screenshotsChanged": false,
+  "unexpectedFieldChanges": [],
+  "descriptionMismatches": [],
+  "verified": true,
+  "completedAt": "2026-10-02T17:15:32.812871+00:00"
+}

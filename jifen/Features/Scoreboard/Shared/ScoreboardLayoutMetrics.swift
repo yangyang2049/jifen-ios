@@ -354,7 +354,7 @@ enum ScoreboardLayoutMetrics {
     }
 
     /// Reserves a two-character point-score column from the first frame so
-    /// 0 → 15 → 30 → 40 → AD never moves the adjacent game/set column.
+    /// 0 → 15 → 30 → 40 → Ad never moves the adjacent game/set column.
     static func tennisMainScoreColumnWidth(fontSize: CGFloat) -> CGFloat {
         Swift.min(520, Swift.max(108, fontSize * 1.78))
     }

@@ -63,13 +63,13 @@
     },
     {
       "key": "schedule_reminder_hours_before",
-      "one": "%d hour before",
-      "other": "%d hours before"
+      "one": "%d hr before",
+      "other": "%d hr before"
     },
     {
       "key": "schedule_reminder_minutes_before",
-      "one": "%d minute before",
-      "other": "%d minutes before"
+      "one": "%d min before",
+      "other": "%d min before"
     },
     {
       "key": "schedule_participants_limit",

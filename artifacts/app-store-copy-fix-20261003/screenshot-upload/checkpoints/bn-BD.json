@@ -1,0 +1,193 @@
+{
+  "locale": "bn-BD",
+  "startedAt": "2026-10-02T17:19:26.306401+00:00",
+  "status": "verified",
+  "images": [
+    {
+      "index": 1,
+      "id": "13000019-2e9e-82d0-801c-8319a4b24c6c",
+      "md5": "91fb99f81b013b12222a5bd32433569b",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 2,
+      "id": "0cc00019-2e9e-82d0-8017-0eb7e58c4a96",
+      "md5": "f015ca17d68089c82d01d3d8ca85a755",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 3,
+      "id": "ee800019-2e9e-82d0-8002-188488546cab",
+      "md5": "0e39a671561cef339872b1e4a03c6508",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 4,
+      "id": "f5800019-2e9e-82d0-803f-e3e2ae93f5e0",
+      "md5": "4755a7382c119dc20d68de030522ecb6",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 5,
+      "id": "0f000019-2e9e-82d0-8017-573b8241b15d",
+      "md5": "cef87f2ac556ea3de897b3569ecf03a5",
+      "action": "reused",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 6,
+      "id": "fe800019-2e9e-82d0-800f-9b6af5703b89",
+      "md5": "24fc0ba0824925538eb161e71f97579a",
+      "action": "uploaded",
+      "state": "COMPLETE"
+    },
+    {
+      "index": 7,
+      "id": "3f800019-2e9e-82d0-800d-204cee2d79e0",
+      "md5": "9dafe1264b622957ccaaa6d4f9670805",
+      "action": "reused",
+      "state": "COMPLETE"
+    }
+  ],
+  "deletedIds": [
+    "c8400019-2e9e-82d0-8028-d1ddd6f4d780"
+  ],
+  "setId": "1cd12c19-d18e-46e9-9fd3-eb39646bf738",
+  "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-fix-20261003/screenshot-upload/locale-backups/20261002T171841132002Z-bn-BD.json",
+  "verified": true,
+  "completedAt": "2026-10-02T17:19:41.517272+00:00",
+  "after": {
+    "set": {
+      "id": "1cd12c19-d18e-46e9-9fd3-eb39646bf738",
+      "type": "appScreenshotSets",
+      "attributes": {
+        "screenshotDisplayType": "APP_IPHONE_65"
+      }
+    },
+    "screenshots": [
+      {
+        "id": "13000019-2e9e-82d0-801c-8319a4b24c6c",
+        "type": "appScreenshots",
+        "attributes": {
+          "fileName": "01-slogan.png",
+          "fileSize": 2140122,
+          "sourceFileChecksum": "91fb99f81b013b12222a5bd32433569b",
+          "assetDeliveryState": {
+            "state": "COMPLETE",
+            "errorCodes": []
+          },
+          "imageAsset": {
+            "width": 1284,
+            "height": 2778
+          }
+        }
+      },
+      {
+        "id": "0cc00019-2e9e-82d0-8017-0eb7e58c4a96",
+        "type": "appScreenshots",
+        "attributes": {
+          "fileName": "02-score.png",
+          "fileSize": 124244,
+          "sourceFileChecksum": "f015ca17d68089c82d01d3d8ca85a755",
+          "assetDeliveryState": {
+            "state": "COMPLETE",
+            "errorCodes": []
+          },
+          "imageAsset": {
+            "width": 1284,
+            "height": 2778
+          }
+        }
+      },
+      {
+        "id": "ee800019-2e9e-82d0-8002-188488546cab",
+        "type": "appScreenshots",
+        "attributes": {
+          "fileName": "03-catalog.png",
+          "fileSize": 143595,
+          "sourceFileChecksum": "0e39a671561cef339872b1e4a03c6508",
+          "assetDeliveryState": {
+            "state": "COMPLETE",
+            "errorCodes": []
+          },
+          "imageAsset": {
+            "width": 1284,
+            "height": 2778
+          }
+        }
+      },
+      {
+        "id": "f5800019-2e9e-82d0-803f-e3e2ae93f5e0",
+        "type": "appScreenshots",
+        "attributes": {
+          "fileName": "04-recap.png",
+          "fileSize": 495103,
+          "sourceFileChecksum": "4755a7382c119dc20d68de030522ecb6",
+          "assetDeliveryState": {
+            "state": "COMPLETE",
+            "errorCodes": []
+          },
+          "imageAsset": {
+            "width": 1284,
+            "height": 2778
+          }
+        }
+      },
+      {
+        "id": "0f000019-2e9e-82d0-8017-573b8241b15d",
+        "type": "appScreenshots",
+        "attributes": {
+          "fileName": "05-setup.png",
+          "fileSize": 937081,
+          "sourceFileChecksum": "cef87f2ac556ea3de897b3569ecf03a5",
+          "assetDeliveryState": {
+            "state": "COMPLETE",
+            "errorCodes": []
+          },
+          "imageAsset": {
+            "width": 1284,
+            "height": 2778
+          }
+        }
+      },
+      {
+        "id": "fe800019-2e9e-82d0-800f-9b6af5703b89",
+        "type": "appScreenshots",
+        "attributes": {
+          "fileName": "bn-BD-06-24fc0ba082492553.png",
+          "fileSize": 432749,
+          "sourceFileChecksum": "24fc0ba0824925538eb161e71f97579a",
+          "assetDeliveryState": {
+            "state": "COMPLETE",
+            "errorCodes": []
+          },
+          "imageAsset": {
+            "width": 1284,
+            "height": 2778
+          }
+        }
+      },
+      {
+        "id": "3f800019-2e9e-82d0-800d-204cee2d79e0",
+        "type": "appScreenshots",
+        "attributes": {
+          "fileName": "07-cast.png",
+          "fileSize": 813745,
+          "sourceFileChecksum": "9dafe1264b622957ccaaa6d4f9670805",
+          "assetDeliveryState": {
+            "state": "COMPLETE",
+            "errorCodes": []
+          },
+          "imageAsset": {
+            "width": 1284,
+            "height": 2778
+          }
+        }
+      }
+    ]
+  }
+}

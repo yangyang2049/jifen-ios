@@ -1,0 +1,12 @@
+{
+  "sourceLocale": "fi",
+  "language": "fi-FI",
+  "languageName": "Finnish",
+  "direction": "ltr",
+  "reviewStatus": "adapted-draft",
+  "title": "iScoreboard: Tulostaulu",
+  "shortDescription": "Tulokset, ajastimet ja pelit",
+  "fullDescription": "Jokainen piste merkitsee. Muuta Android-laitteesi selkeäksi ja helppokäyttöiseksi tulostauluksi otteluihin, harjoitteluun ja peleihin ystävien kanssa.\n\nPidä kirjaa pisteistä yli 26 urheilulajissa ja pelissä, kuten tenniksessä, pickleballissa, sulkapallossa, pöytätenniksessä, koripallossa, jalkapallossa, lentopallossa ja biljardissa. Muokkaa tuetuissa lajeissa pistelaskun sääntöjä, ottelumuotoa ja nelinpelin syöttöjärjestystä.\n\nTallenna ottelut ja tarkastele pistetilanteen kehitystä, aikajanaa ja äänimuistiinpanoja. Käytä shakki- ja go-kelloja, kuutioajastinta ja sekuntikelloa. Näytä tulostaulu isolla näytöllä.\n\nKolikonheitto, satunnaiset joukkueet, punaiset ja keltaiset kortit sekä kulujen jakaminen löytyvät samasta paikasta. Vähemmän vaivaa pisteistä, enemmän iloa pelistä.\n\nKäyttöehdot:\nhttps://jifenqi.com/terms\n\nTietosuojakäytäntö:\nhttps://jifenqi.com/privacy",
+  "screenshotFolder": "exports/fi-FI",
+  "uploadEligible": true
+}

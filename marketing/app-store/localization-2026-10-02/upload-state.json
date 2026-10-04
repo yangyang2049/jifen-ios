@@ -1,0 +1,42 @@
+{
+  "uploadedAt": "2026-10-02T19:38:35.344243+08:00",
+  "platform": "app-store-connect",
+  "appId": "6759768784",
+  "version": "3.2.3",
+  "appInfoId": "1aa0ff31-d3d8-4d53-8b4e-983263bf8659",
+  "appStoreVersionId": "a118dc62-4303-4c03-ae92-b358c60438d5",
+  "storeState": "PREPARE_FOR_SUBMISSION",
+  "verified": true,
+  "localeCount": 50,
+  "fields": [
+    "name",
+    "subtitle",
+    "description"
+  ],
+  "submittedForReview": false,
+  "released": false,
+  "screenshotsUploaded": true,
+  "keywordsLocalized": true,
+  "report": "../../../artifacts/app-store-localization-20261002/upload-report.json",
+  "whatsNewLocalized": true,
+  "releaseFieldsReport": "../../../build/release-20261002/asc-release-fields-report.json",
+  "screenshotsUploadedAt": "2026-10-03T00:13:53.401812+08:00",
+  "screenshotsVerified": true,
+  "screenshotsLocaleCount": 49,
+  "screenshotCount": 343,
+  "screenshotsPerLocale": 7,
+  "screenshotDisplayType": "APP_IPHONE_65",
+  "screenshotsExcludedLocales": [
+    "zh-Hans"
+  ],
+  "screenshotsSource": "../ios-screenshots-pen-2026-10-02/export-manifest.json",
+  "screenshotsReport": "../../../artifacts/app-store-copy-fix-20261003/final-verification.json",
+  "screenshotsVerifiedAt": "2026-10-03T11:54:18.304440+08:00",
+  "copyCorrectionsVerified": true,
+  "copyCorrectionsDescriptionCount": 8,
+  "copyCorrectionsScreenshotCount": 23,
+  "copyCorrectionsReport": "../../../artifacts/app-store-copy-fix-20261003/final-verification.json",
+  "chineseNamesCorrected": true,
+  "chineseNamesVerifiedAt": "2026-10-03T18:51:11.390554+08:00",
+  "chineseNamesReport": "../../../artifacts/app-store-chinese-name-fix-20261003/verification.json"
+}

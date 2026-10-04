@@ -14,6 +14,10 @@ enum WhistleLayoutPolicy {
     static let cardSpacing: CGFloat = 24
     static let compactCardSize: CGFloat = 240
 
+    static func iconSize(for cardSize: CGFloat) -> CGFloat {
+        min(128, cardSize * 112 / compactCardSize)
+    }
+
     static func expandedCardSize(in containerSize: CGSize) -> CGFloat {
         let availableWidth = max(
             0,
@@ -75,9 +79,12 @@ struct WhistleToolView: View {
     ) -> some View {
         Button(action: playShortWhistle) {
             VStack(spacing: 12) {
-                Image(systemName: "bell.fill")
-                    .font(.system(size: 80))
-                    .foregroundColor(Color(hex: "4CAF50"))
+                Image("icon_3d_whistle")
+                    .renderingMode(.original)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: WhistleLayoutPolicy.iconSize(for: cardSize), height: WhistleLayoutPolicy.iconSize(for: cardSize))
+                    .accessibilityHidden(true)
                     .opacity(isPlayingShort ? 0.6 : 1.0)
                     .scaleEffect(isPlayingShort ? 1.2 : 1.0)
                     .animation(.easeInOut(duration: isPlayingShort ? 0.2 : 0.3), value: isPlayingShort)
@@ -112,8 +119,12 @@ struct WhistleToolView: View {
     ) -> some View {
         Button(action: playLongWhistle) {
             VStack(spacing: 12) {
-                Text("📯")
-                    .font(.system(size: 60))
+                Image("icon_3d_buzzer")
+                    .renderingMode(.original)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: WhistleLayoutPolicy.iconSize(for: cardSize), height: WhistleLayoutPolicy.iconSize(for: cardSize))
+                    .accessibilityHidden(true)
                     .opacity(isPlayingLong ? 0.6 : 1.0)
                     .scaleEffect(isPlayingLong ? 1.2 : 1.0)
                     .animation(.easeInOut(duration: isPlayingLong ? 1.0 : 0.3), value: isPlayingLong)

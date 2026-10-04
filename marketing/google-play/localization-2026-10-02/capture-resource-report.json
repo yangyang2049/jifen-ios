@@ -1,0 +1,247 @@
+{
+  "en-US": {
+    "source": "en",
+    "androidLocale": "en-US",
+    "resources": 0
+  },
+  "ja-JP": {
+    "source": "ja",
+    "androidLocale": "ja-JP",
+    "resources": 1622
+  },
+  "ko-KR": {
+    "source": "ko",
+    "androidLocale": "ko-KR",
+    "resources": 1622
+  },
+  "de-DE": {
+    "source": "de",
+    "androidLocale": "de-DE",
+    "resources": 1622
+  },
+  "fr-FR": {
+    "source": "fr",
+    "androidLocale": "fr-FR",
+    "resources": 1622
+  },
+  "es-ES": {
+    "source": "es-ES",
+    "androidLocale": "es-ES",
+    "resources": 1622
+  },
+  "pt-BR": {
+    "source": "pt-BR",
+    "androidLocale": "pt-BR",
+    "resources": 1622
+  },
+  "it-IT": {
+    "source": "it",
+    "androidLocale": "it-IT",
+    "resources": 962
+  },
+  "ru-RU": {
+    "source": "ru",
+    "androidLocale": "ru-RU",
+    "resources": 1622
+  },
+  "ar": {
+    "source": "ar",
+    "androidLocale": "ar",
+    "resources": 1622
+  },
+  "hi-IN": {
+    "source": "hi",
+    "androidLocale": "hi-IN",
+    "resources": 965
+  },
+  "nl-NL": {
+    "source": "nl",
+    "androidLocale": "nl-NL",
+    "resources": 962
+  },
+  "tr-TR": {
+    "source": "tr",
+    "androidLocale": "tr-TR",
+    "resources": 962
+  },
+  "id": {
+    "source": "id",
+    "androidLocale": "id",
+    "resources": 962
+  },
+  "vi": {
+    "source": "vi",
+    "androidLocale": "vi",
+    "resources": 965
+  },
+  "th": {
+    "source": "th",
+    "androidLocale": "th",
+    "resources": 965
+  },
+  "bn-BD": {
+    "source": "bn",
+    "androidLocale": "bn-BD",
+    "resources": 965
+  },
+  "ca": {
+    "source": "ca",
+    "androidLocale": "ca",
+    "resources": 962
+  },
+  "cs-CZ": {
+    "source": "cs",
+    "androidLocale": "cs-CZ",
+    "resources": 962
+  },
+  "da-DK": {
+    "source": "da",
+    "androidLocale": "da-DK",
+    "resources": 962
+  },
+  "el-GR": {
+    "source": "el",
+    "androidLocale": "el-GR",
+    "resources": 965
+  },
+  "en-AU": {
+    "source": "en",
+    "androidLocale": "en-AU",
+    "resources": 0
+  },
+  "en-CA": {
+    "source": "en",
+    "androidLocale": "en-CA",
+    "resources": 0
+  },
+  "en-GB": {
+    "source": "en",
+    "androidLocale": "en-GB",
+    "resources": 0
+  },
+  "es-419": {
+    "source": "es-MX",
+    "androidLocale": "es-419",
+    "resources": 1622
+  },
+  "fi-FI": {
+    "source": "fi",
+    "androidLocale": "fi-FI",
+    "resources": 962
+  },
+  "fr-CA": {
+    "source": "fr-CA",
+    "androidLocale": "fr-CA",
+    "resources": 1622
+  },
+  "gu": {
+    "source": "gu",
+    "androidLocale": "gu",
+    "resources": 965
+  },
+  "iw-IL": {
+    "source": "he",
+    "androidLocale": "he-IL",
+    "resources": 1622
+  },
+  "hr": {
+    "source": "hr",
+    "androidLocale": "hr",
+    "resources": 962
+  },
+  "hu-HU": {
+    "source": "hu",
+    "androidLocale": "hu-HU",
+    "resources": 962
+  },
+  "kn-IN": {
+    "source": "kn",
+    "androidLocale": "kn-IN",
+    "resources": 965
+  },
+  "ml-IN": {
+    "source": "ml",
+    "androidLocale": "ml-IN",
+    "resources": 965
+  },
+  "mr-IN": {
+    "source": "mr",
+    "androidLocale": "mr-IN",
+    "resources": 965
+  },
+  "ms-MY": {
+    "source": "ms",
+    "androidLocale": "ms-MY",
+    "resources": 962
+  },
+  "no-NO": {
+    "source": "nb",
+    "androidLocale": "nb-NO",
+    "resources": 964
+  },
+  "unsupported-or-IN": {
+    "source": "or",
+    "androidLocale": "or-IN",
+    "resources": 962
+  },
+  "pa": {
+    "source": "pa",
+    "androidLocale": "pa",
+    "resources": 965
+  },
+  "pl-PL": {
+    "source": "pl",
+    "androidLocale": "pl-PL",
+    "resources": 962
+  },
+  "pt-PT": {
+    "source": "pt-PT",
+    "androidLocale": "pt-PT",
+    "resources": 1622
+  },
+  "ro": {
+    "source": "ro",
+    "androidLocale": "ro",
+    "resources": 962
+  },
+  "sk": {
+    "source": "sk",
+    "androidLocale": "sk",
+    "resources": 962
+  },
+  "sl": {
+    "source": "sl",
+    "androidLocale": "sl",
+    "resources": 962
+  },
+  "sv-SE": {
+    "source": "sv",
+    "androidLocale": "sv-SE",
+    "resources": 962
+  },
+  "ta-IN": {
+    "source": "ta",
+    "androidLocale": "ta-IN",
+    "resources": 965
+  },
+  "te-IN": {
+    "source": "te",
+    "androidLocale": "te-IN",
+    "resources": 965
+  },
+  "uk": {
+    "source": "uk",
+    "androidLocale": "uk",
+    "resources": 1622
+  },
+  "ur": {
+    "source": "ur",
+    "androidLocale": "ur",
+    "resources": 1622
+  },
+  "zh-TW": {
+    "source": "zh-Hant",
+    "androidLocale": "zh-TW",
+    "resources": 1622
+  }
+}

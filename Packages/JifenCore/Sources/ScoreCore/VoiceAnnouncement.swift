@@ -99,6 +99,9 @@ public struct VoiceAnnouncementPayload: Equatable, Sendable {
     public var secondServer: Bool
     public var starPointReturnedAdvantages: Int
     public var maxSets: Int?
+    /// The reducer normalizes a lost advantage back to 3:3. Preserve that
+    /// transition for calls such as French "égalité" and soft-tennis "deuce again".
+    public var returnedToDeuce: Bool
 
     public init(
         gameType: GameType,
@@ -132,7 +135,8 @@ public struct VoiceAnnouncementPayload: Equatable, Sendable {
         breakDurationSeconds: Int? = nil,
         secondServer: Bool = false,
         starPointReturnedAdvantages: Int = 0,
-        maxSets: Int? = nil
+        maxSets: Int? = nil,
+        returnedToDeuce: Bool = false
     ) {
         self.gameType = gameType
         self.phase = phase
@@ -166,6 +170,7 @@ public struct VoiceAnnouncementPayload: Equatable, Sendable {
         self.secondServer = secondServer
         self.starPointReturnedAdvantages = starPointReturnedAdvantages
         self.maxSets = maxSets
+        self.returnedToDeuce = returnedToDeuce
     }
 }
 
@@ -502,7 +507,7 @@ public enum VoiceAnnouncementMessageBuilder {
             return "Time. Game \(payload.currentSet ?? 1). \(resolveServerName(payload)) to serve, love all"
         }
         if payload.gameType == .shuttlecock {
-            return "Time. Game \(payload.currentSet ?? 1), \(resolveServerName(payload)) serves, 0-0"
+            return "Time. Game \(payload.currentSet ?? 1), \(resolveServerName(payload)) serves, 0, 0"
         }
         if VoiceAnnouncementSupport.isPickleball(payload.gameType) {
             return "Time in, \(buildPickleballScoreChangeEn(payload))"
@@ -572,7 +577,7 @@ public enum VoiceAnnouncementMessageBuilder {
 
     private static func buildShuttlecockEn(_ payload: VoiceAnnouncementPayload) -> String {
         switch payload.phase {
-        case .opening: return "\(resolveServerName(payload)) serves, 0-0"
+        case .opening: return "\(resolveServerName(payload)) serves, 0, 0"
         case .scoreChange: return sideFirstNumericEn(payload, resolveServerSide(payload))
         case .setEnd: return buildBadmintonSetEndEn(payload)
         case .matchEnd: return buildBadmintonMatchEndEn(payload)
@@ -620,7 +625,7 @@ public enum VoiceAnnouncementMessageBuilder {
             }
             return sideFirstNumericEn(payload, resolveServerSide(payload))
         case .gameEnd:
-            return "Game \(winnerNameEn(payload)). \(payload.leftScore)-\(payload.rightScore)"
+            return "Game \(winnerNameEn(payload)). \(payload.leftScore), \(payload.rightScore)"
         case .setEnd, .matchEnd:
             return "Game set. Match to \(winnerNameEn(payload)), \(formatGameScoreByWinnerEn(.init(leftGames: payload.leftScore, rightGames: payload.rightScore), resolveWinnerSide(payload)))"
         case .sideChange: return "Change ends"
@@ -815,9 +820,11 @@ public enum VoiceAnnouncementMessageBuilder {
         let second = scoreOf(payload, server.opposite)
         let line: String
         if let criticalPoint = payload.criticalPoint {
-            line = "\(first), \(criticalPoint == .matchPoint ? "match point" : "game point"), \(second)"
+            let firstLabel = VoiceAnnouncementSupport.isBadminton(payload.gameType) && first == 0 ? "love" : String(first)
+            let secondLabel = VoiceAnnouncementSupport.isBadminton(payload.gameType) && second == 0 ? "love" : String(second)
+            line = "\(firstLabel), \(criticalPoint == .matchPoint ? "match point" : "game point"), \(secondLabel)"
         } else {
-            line = numericScoreEn(first, second) + (payload.isInterval ? ", interval" : "")
+            line = sideFirstNumericEn(payload, server) + (payload.isInterval ? ", interval" : "")
         }
         return payload.serviceOver ? "Service over, \(line)" : line
     }
@@ -996,9 +1003,9 @@ public enum VoiceAnnouncementMessageBuilder {
         let serverLabel = tennisPointLabelEn(scoreOf(payload, serverSide))
         let receiverLabel = tennisPointLabelEn(scoreOf(payload, serverSide.opposite))
         if serverLabel == receiverLabel {
-            return "\(capitalizeFirst(serverLabel))-all"
+            return "\(capitalizeFirst(serverLabel)) all"
         }
-        return "\(capitalizeFirst(serverLabel))-\(receiverLabel)"
+        return "\(capitalizeFirst(serverLabel)), \(receiverLabel)"
     }
 
     private static func buildTennisTieBreakZh(_ payload: VoiceAnnouncementPayload) -> String {
@@ -1013,14 +1020,14 @@ public enum VoiceAnnouncementMessageBuilder {
 
     private static func buildTennisTieBreakEn(_ payload: VoiceAnnouncementPayload) -> String {
         if payload.leftScore == payload.rightScore {
-            return "\(payload.leftScore)-all"
+            return "\(payload.leftScore) all"
         }
         let leaderSide: MatchSide = payload.leftScore > payload.rightScore ? .left : .right
         let leader = scoreOf(payload, leaderSide)
         let trailer = scoreOf(payload, leaderSide.opposite)
         let leaderLabel = leader == 0 ? "zero" : String(leader)
         let trailerLabel = trailer == 0 ? "zero" : String(trailer)
-        return "\(leaderLabel)-\(trailerLabel) \(teamNameEn(payload, leaderSide))"
+        return "\(leaderLabel), \(trailerLabel), \(teamNameEn(payload, leaderSide))"
     }
 
     private static func buildTennisGameEndZh(_ payload: VoiceAnnouncementPayload) -> String {
@@ -1179,7 +1186,7 @@ public enum VoiceAnnouncementMessageBuilder {
     }
 
     private static func numericScoreEn(_ first: Int, _ second: Int) -> String {
-        first == second ? "\(first)-all" : "\(first)-\(second)"
+        first == second ? "\(first) all" : "\(first), \(second)"
     }
 
     private static func sideFirstNumericZh(_ payload: VoiceAnnouncementPayload, _ side: MatchSide) -> String {
@@ -1187,7 +1194,17 @@ public enum VoiceAnnouncementMessageBuilder {
     }
 
     private static func sideFirstNumericEn(_ payload: VoiceAnnouncementPayload, _ side: MatchSide) -> String {
-        numericScoreEn(scoreOf(payload, side), scoreOf(payload, side.opposite))
+        let first = scoreOf(payload, side)
+        let second = scoreOf(payload, side.opposite)
+        return VoiceAnnouncementSupport.isBadminton(payload.gameType)
+            ? badmintonScoreEn(first, second)
+            : numericScoreEn(first, second)
+    }
+
+    private static func badmintonScoreEn(_ first: Int, _ second: Int) -> String {
+        let firstLabel = first == 0 ? "love" : String(first)
+        let secondLabel = second == 0 ? "love" : String(second)
+        return first == second ? "\(firstLabel) all" : "\(firstLabel), \(secondLabel)"
     }
 
     private static func formatSetNumberZh(_ setNumber: Int) -> String {
@@ -1231,7 +1248,14 @@ public enum VoiceAnnouncementMessageBuilder {
 
     private static func buildMatchScoreListEn(_ payload: VoiceAnnouncementPayload, _ winnerSide: MatchSide) -> String {
         resolveSetScoreList(payload)
-            .map { formatGameScoreByWinnerEn($0, winnerSide) }
+            .map { score in
+                if VoiceAnnouncementSupport.isBadminton(payload.gameType) {
+                    return winnerSide == .right
+                        ? badmintonScoreEn(score.rightGames, score.leftGames)
+                        : badmintonScoreEn(score.leftGames, score.rightGames)
+                }
+                return formatGameScoreByWinnerEn(score, winnerSide)
+            }
             .joined(separator: ", ")
     }
 
@@ -1686,7 +1710,7 @@ public enum TennisVoiceAnnouncementMapper {
             ? before.rules.padelDeuceMode.rawValue
             : (before.rules.usesNoAdScoring ? "no_ad" : "advantage")
 
-        let main: VoiceAnnouncementPayload
+        var main: VoiceAnnouncementPayload
         if matchFinished {
             let leftScore = setEnd?.2 ?? gameEnd?.1 ?? point?.1 ?? after.leftPoints
             let rightScore = setEnd?.3 ?? gameEnd?.2 ?? point?.2 ?? after.rightPoints
@@ -1760,6 +1784,12 @@ public enum TennisVoiceAnnouncementMapper {
             return []
         }
 
+        if main.phase == .scoreChange, !before.isTieBreak,
+           main.leftScore == 3, main.rightScore == 3,
+           max(before.leftPoints, before.rightPoints) == 4,
+           min(before.leftPoints, before.rightPoints) == 3 {
+            main.returnedToDeuce = true
+        }
         var result = [main]
         if (sideChanged || sideReminder), !matchFinished {
             result.append(

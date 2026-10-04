@@ -199,9 +199,7 @@ struct SportsSetupParticipantSection: View {
         HStack {
             servingSideButton(.left)
             Text(servingSideTitle)
-                .font(.system(size: 12))
-                .foregroundStyle(Theme.textSecondary)
-                .frame(maxWidth: .infinity)
+                .settingsLabelStyle()
             servingSideButton(.right)
         }
         .padding(.vertical, 4)

@@ -1,0 +1,256 @@
+{
+  "verifiedAt": "2026-10-02",
+  "source": "https://support.google.com/googleplay/android-developer/answer/9844778?hl=en",
+  "locales": [
+    {
+      "appStoreLocale": "en-US",
+      "googlePlayLocale": "en-US",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "ja",
+      "googlePlayLocale": "ja-JP",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "ko",
+      "googlePlayLocale": "ko-KR",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "de-DE",
+      "googlePlayLocale": "de-DE",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "fr-FR",
+      "googlePlayLocale": "fr-FR",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "es-ES",
+      "googlePlayLocale": "es-ES",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "pt-BR",
+      "googlePlayLocale": "pt-BR",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "it",
+      "googlePlayLocale": "it-IT",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "ru",
+      "googlePlayLocale": "ru-RU",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "ar-SA",
+      "googlePlayLocale": "ar",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "hi",
+      "googlePlayLocale": "hi-IN",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "nl-NL",
+      "googlePlayLocale": "nl-NL",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "tr",
+      "googlePlayLocale": "tr-TR",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "id",
+      "googlePlayLocale": "id",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "vi",
+      "googlePlayLocale": "vi",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "th",
+      "googlePlayLocale": "th",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "bn-BD",
+      "googlePlayLocale": "bn-BD",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "ca",
+      "googlePlayLocale": "ca",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "cs",
+      "googlePlayLocale": "cs-CZ",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "da",
+      "googlePlayLocale": "da-DK",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "el",
+      "googlePlayLocale": "el-GR",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "en-AU",
+      "googlePlayLocale": "en-AU",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "en-CA",
+      "googlePlayLocale": "en-CA",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "en-GB",
+      "googlePlayLocale": "en-GB",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "es-MX",
+      "googlePlayLocale": "es-419",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "fi",
+      "googlePlayLocale": "fi-FI",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "fr-CA",
+      "googlePlayLocale": "fr-CA",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "gu-IN",
+      "googlePlayLocale": "gu",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "he",
+      "googlePlayLocale": "iw-IL",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "hr",
+      "googlePlayLocale": "hr",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "hu",
+      "googlePlayLocale": "hu-HU",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "kn-IN",
+      "googlePlayLocale": "kn-IN",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "ml-IN",
+      "googlePlayLocale": "ml-IN",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "mr-IN",
+      "googlePlayLocale": "mr-IN",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "ms",
+      "googlePlayLocale": "ms-MY",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "no",
+      "googlePlayLocale": "no-NO",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "or-IN",
+      "googlePlayLocale": null,
+      "uploadEligible": false
+    },
+    {
+      "appStoreLocale": "pa-IN",
+      "googlePlayLocale": "pa",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "pl",
+      "googlePlayLocale": "pl-PL",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "pt-PT",
+      "googlePlayLocale": "pt-PT",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "ro",
+      "googlePlayLocale": "ro",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "sk",
+      "googlePlayLocale": "sk",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "sl-SI",
+      "googlePlayLocale": "sl",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "sv",
+      "googlePlayLocale": "sv-SE",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "ta-IN",
+      "googlePlayLocale": "ta-IN",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "te-IN",
+      "googlePlayLocale": "te-IN",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "uk",
+      "googlePlayLocale": "uk",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "ur-PK",
+      "googlePlayLocale": "ur",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "zh-Hant",
+      "googlePlayLocale": "zh-TW",
+      "uploadEligible": true
+    },
+    {
+      "appStoreLocale": "zh-Hans",
+      "googlePlayLocale": "zh-CN",
+      "uploadEligible": true
+    }
+  ]
+}

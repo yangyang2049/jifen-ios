@@ -1,6 +1,12 @@
 import Foundation
 import Security
 
+nonisolated struct AuthSessionSnapshot: Sendable {
+    let revision: UInt64
+    let token: String?
+    let expiresAt: Date?
+}
+
 actor AuthTokenStore {
     static let shared = AuthTokenStore()
 
@@ -13,7 +19,43 @@ actor AuthTokenStore {
         case pendingIap = "pending-apple-iap"
     }
 
-    private let service = "com.douhua.jifen.ios.secure"
+    private let service: String
+    private var sessionRevision: UInt64 = 0
+
+    init(service: String = "com.douhua.jifen.ios.secure") {
+        self.service = service
+    }
+
+    func authSessionRevision() -> UInt64 { sessionRevision }
+
+    func authSnapshot() -> AuthSessionSnapshot {
+        AuthSessionSnapshot(revision: sessionRevision, token: authToken(), expiresAt: authExpiry())
+    }
+
+    private func matches(_ snapshot: AuthSessionSnapshot) -> Bool {
+        sessionRevision == snapshot.revision && authToken() == snapshot.token
+    }
+
+    /// Refresh changes credentials inside one login session; it may not replace a later login.
+    func setRefreshedAuth(token: String, expiresAt: Date, ifMatching snapshot: AuthSessionSnapshot) throws -> AuthSessionSnapshot? {
+        guard matches(snapshot) else { return nil }
+        try writeString(token, key: .authToken)
+        try writeString(String(expiresAt.timeIntervalSince1970), key: .authExpiry)
+        return authSnapshot()
+    }
+
+    /// Compare and clear atomically so an old request cannot log out another account.
+    func clearAuth(ifMatching snapshot: AuthSessionSnapshot) -> UInt64? {
+        guard matches(snapshot) else { return nil }
+        clearAuth()
+        return sessionRevision
+    }
+
+    func clearAuth(ifRevisionMatches revision: UInt64) -> UInt64? {
+        guard sessionRevision == revision else { return nil }
+        clearAuth()
+        return sessionRevision
+    }
 
     func authToken() -> String? { readString(.authToken) }
 
@@ -23,11 +65,19 @@ actor AuthTokenStore {
     }
 
     func setAuth(token: String, expiresAt: Date) throws {
+        sessionRevision &+= 1
         try writeString(token, key: .authToken)
         try writeString(String(expiresAt.timeIntervalSince1970), key: .authExpiry)
     }
 
+    func setAuth(token: String, expiresAt: Date, ifRevisionMatches revision: UInt64) throws -> Bool {
+        guard sessionRevision == revision else { return false }
+        try setAuth(token: token, expiresAt: expiresAt)
+        return true
+    }
+
     func clearAuth() {
+        sessionRevision &+= 1
         delete(.authToken)
         delete(.authExpiry)
     }
@@ -106,4 +156,3 @@ enum KeychainError: LocalizedError {
         }
     }
 }
-

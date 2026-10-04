@@ -1,0 +1,441 @@
+{
+  "appId": "6759768784",
+  "version": "3.3",
+  "appInfoId": "1aa0ff31-d3d8-4d53-8b4e-983263bf8659",
+  "appStoreVersionId": "a118dc62-4303-4c03-ae92-b358c60438d5",
+  "startedAt": "20261002T113644868896Z",
+  "backup": "before-20261002T113644868896Z.json",
+  "results": [
+    {
+      "locale": "ar-SA",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "bn-BD",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "ca",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "cs",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "da",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "de-DE",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "el",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "en-AU",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "en-CA",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "en-GB",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "en-US",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged"
+    },
+    {
+      "locale": "es-ES",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "es-MX",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "fi",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "fr-CA",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "fr-FR",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "gu-IN",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "he",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "hi",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "hr",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "hu",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "id",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "it",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "ja",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "kn-IN",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "ko",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "ml-IN",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "mr-IN",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "ms",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "nl-NL",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "no",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "or-IN",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "pa-IN",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "pl",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "pt-BR",
+      "nameAndSubtitle": "unchanged",
+      "description": "PATCH"
+    },
+    {
+      "locale": "pt-PT",
+      "nameAndSubtitle": "POST",
+      "description": "PATCH"
+    },
+    {
+      "locale": "ro",
+      "nameAndSubtitle": "POST",
+      "description": "PATCH"
+    },
+    {
+      "locale": "ru",
+      "nameAndSubtitle": "POST",
+      "description": "PATCH"
+    },
+    {
+      "locale": "sk",
+      "nameAndSubtitle": "POST",
+      "description": "PATCH"
+    },
+    {
+      "locale": "sl-SI",
+      "nameAndSubtitle": "POST",
+      "description": "PATCH"
+    },
+    {
+      "locale": "sv",
+      "nameAndSubtitle": "POST",
+      "description": "PATCH"
+    },
+    {
+      "locale": "ta-IN",
+      "nameAndSubtitle": "POST",
+      "description": "PATCH"
+    },
+    {
+      "locale": "te-IN",
+      "nameAndSubtitle": "POST",
+      "description": "PATCH"
+    },
+    {
+      "locale": "th",
+      "nameAndSubtitle": "POST",
+      "description": "PATCH"
+    },
+    {
+      "locale": "tr",
+      "nameAndSubtitle": "POST",
+      "description": "PATCH"
+    },
+    {
+      "locale": "uk",
+      "nameAndSubtitle": "POST",
+      "description": "PATCH"
+    },
+    {
+      "locale": "ur-PK",
+      "nameAndSubtitle": "POST",
+      "description": "PATCH"
+    },
+    {
+      "locale": "vi",
+      "nameAndSubtitle": "POST",
+      "description": "PATCH"
+    },
+    {
+      "locale": "zh-Hans",
+      "nameAndSubtitle": "PATCH",
+      "description": "PATCH"
+    },
+    {
+      "locale": "zh-Hant",
+      "nameAndSubtitle": "POST",
+      "description": "PATCH"
+    }
+  ],
+  "submittedForReview": false,
+  "released": false,
+  "screenshotUpload": false,
+  "verified": false,
+  "mismatches": [],
+  "unexpectedFieldChanges": [
+    {
+      "locale": "cs",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "nl-NL",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "pa-IN",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "da",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "ko",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "or-IN",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "pl",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "de-DE",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "es-MX",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "id",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "fr-FR",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "hu",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "fr-CA",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "he",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "en-CA",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "fi",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "es-ES",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "pt-BR",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "en-AU",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "el",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "ja",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "hr",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "mr-IN",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "ms",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "en-GB",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "kn-IN",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "ca",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "no",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "ar-SA",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "ml-IN",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "bn-BD",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "gu-IN",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "hi",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    },
+    {
+      "locale": "it",
+      "kind": "appStoreVersionLocalizations",
+      "field": "supportUrl"
+    }
+  ],
+  "appInfoLocaleCount": 50,
+  "versionLocaleCount": 50,
+  "localeSetsEqual": true,
+  "completedAt": "2026-10-02T11:37:36.093007+00:00"
+}

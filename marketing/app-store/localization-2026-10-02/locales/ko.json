@@ -1,0 +1,58 @@
+{
+  "locale": "ko",
+  "iosLocale": "ko",
+  "language": "Korean",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: 만능 점수판",
+  "subtitle": "스포츠 점수 기록과 경기 타이머",
+  "description": "모든 득점을 소중하게 기록하세요. iPhone과 iPad를 경기, 훈련, 친구들과의 게임에 쓰기 좋은 선명하고 간편한 점수판으로 바꿔 보세요.\n\n테니스, 피클볼, 배드민턴, 탁구, 농구, 축구, 배구, 당구 등 26가지 이상의 스포츠와 게임 점수를 기록할 수 있습니다. 지원 종목에서는 득점 규칙, 경기 방식, 복식 서브 순서를 설정할 수 있습니다.\n\n경기 기록을 저장하고 점수 추이, 타임라인, 음성 메모로 돌아보세요. 체스와 바둑 대국 시계, 큐브 타이머, 스톱워치도 제공합니다. 점수판을 큰 화면에 표시하거나 경기 코드를 공유해 멀리 있는 친구에게 실시간 점수를 보여 주세요.\n\n동전 던지기, 무작위 팀 나누기, 레드·옐로 카드, 비용 나누기 도구까지 한곳에 모았습니다. 기록에 드는 수고는 줄이고 경기의 즐거움은 더하세요.\n\n이용 약관:\nhttps://jifenqi.com/terms\n\n개인정보 처리방침:\nhttps://jifenqi.com/privacy\n\nApple 표준 최종 사용자 사용권 계약:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "모든 득점이\n소중하니까",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "경기 점수를\n한눈에",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "26가지 이상의 종목을\n하나의 점수판으로",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "모든 경기를\n다시 돌아보기",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "규칙은 직접\n경기는 원하는 대로",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "공을 쓰는 경기\n그 이상으로",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "큰 화면으로\n함께 보는 점수판",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "손목에서\n간편하게 점수 기록",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "심판에게 필요한 도구를\n하나의 앱에",
+      "enabled": true
+    }
+  ]
+}

@@ -165,8 +165,8 @@
 "record_training_end_rate" = "Träningen klar · %1$d%% träffsäkerhet";
 "game_football" = "Fotboll";
 "game_volleyball" = "Volleyboll";
-"game_checkers" = "Kinesisk dam";
-"timer_checkers" = "Dam";
+"game_checkers" = "Internationell dam";
+"timer_checkers" = "Internationell dam";
 "game_boxing" = "Boxning";
 "game_billiards" = "Biljard";
 "game_pickleball" = "Pickleball";
@@ -589,7 +589,7 @@
 "faq_question_4" = "Hur tar jag bort poster eller rensar data?";
 "faq_answer_4" = "Under en match: använd Ångra, Tillbaka eller redigeringsknappen om sporten stöder det.\n\nFör sparade matcher: öppna posten i Historik och radera den där. Jag → Rensa data tar bort lokal poängdata, timerdata, oavslutade matcher, sparade poster och vissa inställningar. Detta kan inte ångras.";
 "faq_question_5" = "Hur ansluter jag en skärm eller en annan telefon?";
-"faq_answer_5" = "För att visa poäng på en annan telefon eller surfplatta, öppna Synkronisera poäng → Gå med i matchen på displayen och följ sidan för att skapa en kod eller QR-kod; anslut från kontrollsidan efter att ha gått in i en match och poängen synkroniseras med displayen. Håll båda enheterna online och undvik att låsa skärmen eller flytta appen till bakgrunden; om synkroniseringen fastnar, lämna på båda sidor och anslut igen.\n\n För att casta resultattavlan till en TV eller stor skärm, använd telefonens trådlösa display (Miracast). Öppna den trådlösa skärmen från systemets kontrollcenter och anslut till TV: n; när appen upptäcker den anslutna skärmen visas resultattavlan automatiskt på den. Appen förlitar sig på systemcasten och kan inte söka efter TV-apparater på egen hand, och om du kopplar bort systemcasten avslutas även projektionen. Olika märken kan namnge det olika (t. ex. trådlös skärm eller interaktion med flera skärmar); slutför anslutningen i systemet först.";
+"faq_answer_5" = "Använd två enheter tillsammans: en håller poäng, den andra visar den i helskärm. Delningsenhet: Logga in och börja synkronisera för att få en 6-siffrig kod. Visningsenhet: Logga in och ange den sexsiffriga koden från delningsenheten. Börja registrera poäng — poängen synkas automatiskt.\n\nAirPlay-skärmspegling rekommenderas. När anslutningen har upptäckts visas resultattavlan automatiskt på den stora skärmen. Öppna Kontrollcenter och tryck på Skärmspegling (AirPlay). Gör AirPlay-anslutningen i systeminställningarna först; appen kan bara använda en ansluten skärm i taget och kan inte själv söka efter TV-apparater eller projektorer. Kopplas AirPlay från avslutas även castningen.";
 "faq_question_6" = "Jag kan inte hitta min sport. Vad ska jag göra?";
 "faq_answer_6" = "Börja med den sport som ligger närmast. Om bara namn, set, lag eller startordning skiljer sig, justera det i Spelinställningar och lägg till inställningen i Snabbstart.\n\nOm sporterna inte täcker reglerna, skicka feedback med sportnamn, vanligt format, poängmetod och förväntat förlopp.";
 "faq_question_7" = "Hur fungerar medlemskap, inloggning och nya enheter?";
@@ -597,9 +597,9 @@
 "faq_question_8" = "Hur rapporterar jag ett problem eller föreslår en funktion?";
 "faq_answer_8" = "Öppna Jag → Feedback och välj felrapport eller funktionsförslag. Ange sport, steg, förväntat resultat och faktiskt resultat. Vid skärm- eller medlemskapsproblem, ange även enhetsmodell, systemversion och appversion.";
 "faq_question_10" = "Hur säkerhetskopierar jag min data eller flyttar den till en ny telefon?";
-"faq_answer_10" = "Logga in på ditt konto så att dina vanliga namn, platser och matchposter är kopplade till det. Med molnsynkroniseringen synkas dina data mellan enheter. På en ny telefon: logga in med samma konto så återställs dina data automatiskt. Utan inloggning lagras data bara på den aktuella enheten.";
+"faq_answer_10" = "Logga in för att synkronisera sparade lag- och spelarnamn samt platser mellan enheter. Logga in med samma konto på en ny telefon för att hämta dessa gemensamma uppgifter. Match- och timerhistorik samt pågående matcher stannar på den nuvarande enheten; säkerhetskopiering och återställning av dessa uppgifter i molnet är inte tillgänglig.";
 "faq_question_11" = "Hur hanteras min data och integritet?";
-"faq_answer_11" = "Integritetspolicyn förklarar vilka data som används och varför. Mikrofonen används bara för att spela in röstmeddelanden och kameran bara när du skannar en QR-kod för inloggning; båda behandlas lokalt på din enhet.";
+"faq_answer_11" = "Integritetspolicyn förklarar vilka data som används och varför. Mikrofonen används för att spela in röstmeddelanden. Kameran används för att skanna betrodda QR-koder för inloggning och för att ta ett foto till din avatar.";
 "common_names_add" = "Lägg till";
 "common_names_edit_title" = "Redigera namn";
 "common_names_team_placeholder" = "Ange lagnamn";
@@ -653,8 +653,8 @@
 "schedule_location" = "Plats";
 "schedule_location_placeholder" = "Ange plats";
 "schedule_reminders" = "Påminnelser";
-"schedule_reminder_hours_before" = "%d timmar innan";
-"schedule_reminder_minutes_before" = "%d minuter innan";
+"schedule_reminder_hours_before" = "%d tim innan";
+"schedule_reminder_minutes_before" = "%d min innan";
 "schedule_reminder_help_title" = "Påminnelser";
 "schedule_reminder_help_message" = "Påminnelser är lokala aviseringar. Aktivera aviseringar för att ta del av dem. De kan missas om appen tas bort eller iOS begränsar leveransen. Ändras eller avbokas en match uppdateras påminnelserna.";
 "schedule_notes" = "Anteckningar";
@@ -844,6 +844,13 @@
 "scoreboard_double_tap_subtract_help_message" = "När aktiverad: dubbeltryck samma poängområde eller spelarruta för att dra av 1. När av: svep nedåt för att dra av eller svep åt vänster för att ångra. Knappresultattavlor som basket och snooker ändras inte.";
 "scoreboard_official_break_help_title" = "Officiella pauser";
 "scoreboard_official_break_help_message" = "När aktiverat pausar officiella pauser poängsättningen. Du kan hoppa över eller ångra en paus.\n\nBordtennis och Jianzi: 60 s mellan spel\nBadminton: 60 s under match, 120 s mellan spel\nSquash: 90 s mellan spel\nTennis och padel: 90 s sidbyten, 120 s mellan set\nMjuk tennis: 60 s sidbyten\nPickleball: 60 s i avgörande spel, 120 s mellan spel";
+"scoreboard_official_break_help_intro" = "När aktiverat pausar officiella pauser poängsättningen. Du kan hoppa över eller ångra en paus.";
+"scoreboard_official_break_rule_between_games_60" = "60 s mellan spel";
+"scoreboard_official_break_rule_badminton" = "60 s under match, 120 s mellan spel";
+"scoreboard_official_break_rule_squash" = "90 s mellan spel";
+"scoreboard_official_break_rule_tennis" = "90 s sidbyten, 120 s mellan set";
+"scoreboard_official_break_rule_soft_tennis" = "60 s sidbyten";
+"scoreboard_official_break_rule_pickleball" = "60 s i avgörande spel, 120 s mellan spel";
 "show_match_time" = "Visa tid";
 "hide_match_time" = "Göm tid";
 "scoreboard_match_time_this_game_only" = "Endast den här matchen; nästa match återgår till sportens standardinställning.";
@@ -978,7 +985,7 @@
 "timer_custom_seconds" = "Sek";
 "timer_countdown_notification_title" = "Nedräkningen avslutad";
 "timer_countdown_notification_content" = "Din nedräkning har avslutats. Tryck för att återgå.";
-"scoreboard_usage_hint_menu" = "Hur man använder";
+"scoreboard_usage_hint_menu" = "Guide";
 "scoreboard_usage_hint_title" = "Hur man använder";
 "scoreboard_usage_hint_got_it" = "Jag förstår";
 "scoreboard_usage_hint_football" = "👆 Tryck på vänster/höger poängyta för att lägga till 1 mål\n⬆️ Svep uppåt för att lägga till\n⬇️ Svep nedåt för att dra av\n↩️ Svep åt vänster för att ångra\n⏱️ Öppna skadetid från menyn längst ned till höger, välj en tid och ångra eller bekräfta sedan\n🏁 Efter andra halvlek och skadetid kan en oavgjord match gå till två förlängningsperioder à 15 minuter";
@@ -1036,7 +1043,7 @@
 "scoreboard_key_point_volleyball_set" = "SP";
 "scoreboard_key_point_set" = "SP";
 "scoreboard_key_point_match" = "MP";
-"record_recap_set_format" = "Spel %d";
+"record_recap_set_format" = "Set %d";
 "record_recap_tennis_set_format" = "Set %d";
 "record_recap_period_format" = "Period %d";
 "record_recap_round_format" = "Omgång %d";
@@ -1094,7 +1101,7 @@
 "doudizhu_role_landlord" = "Jordägare";
 "doudizhu_role_farmer" = "Bonde";
 "doudizhu_player_role_format" = "%@ (%@)";
-"doudizhu_winner_separator" = ",";
+"doudizhu_winner_separator" = ", ";
 "draw_result" = "Oavgjort";
 "filter" = "Filter";
 "flip_coin_recent" = "Senaste myntkasten";
@@ -1130,7 +1137,7 @@
 "timeout" = "Time-out";
 "timer_record_time" = "Registrerad kl";
 "undo" = "Ångra";
-"scoreboard_set_end_format" = "Spelet %d avslutat";
+"scoreboard_set_end_format" = "Set %d avslutat";
 "winner_named_format" = "%@ vinner";
 "basketball_fouls_count" = "Fel %d";
 "basketball_timeout_remaining" = "Time-out (%d)";
@@ -1183,8 +1190,8 @@
 "official_break" = "Officiell paus";
 "official_break_prepare" = "Gör dig redo";
 "official_breaks" = "Officiella pauser";
-"official_break_mid_game" = "Paus i mitten av spelet";
-"official_break_game" = "Speluppehåll";
+"official_break_mid_game" = "Paus mitt i setet";
+"official_break_game" = "Paus mellan set";
 "official_break_set" = "Setpaus";
 "official_break_changeover" = "Bytespaus";
 "official_break_continue" = "Återuppta";
@@ -1552,3 +1559,9 @@
 "game_short" = "Spel";
 "set_short" = "Set";
 "football_injury_title" = "Stopptid";
+
+"feedback_official" = "Officiellt";
+
+"feedback_pinned" = "Fäst";
+
+"voice_announce_server" = "Annonsera servaren";

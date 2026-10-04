@@ -388,6 +388,9 @@ struct jifenApp: App {
     @State private var sessionStore = SessionStore.shared
     @State private var hasAcceptedLegal: Bool
     @State private var showPersistenceFailure = false
+    @State private var showVoiceDownloadGuide = false
+    @State private var voiceDownloadTitle = ""
+    @State private var voiceDownloadMessage = ""
     @StateObject private var screenshotSaveCoordinator = ScreenshotSaveCoordinator.shared
 
     init() {
@@ -428,11 +431,22 @@ struct jifenApp: App {
             .onReceive(NotificationCenter.default.publisher(for: .scoreboardPersistenceFailed)) { _ in
                 showPersistenceFailure = true
             }
+            .onReceive(NotificationCenter.default.publisher(for: .sportsVoiceNeedsDownload)) { notification in
+                voiceDownloadTitle = notification.userInfo?["title"] as? String ?? ""
+                voiceDownloadMessage = notification.userInfo?["message"] as? String ?? ""
+                showVoiceDownloadGuide = true
+            }
             .onChange(of: scenePhase) { _, phase in
-                guard phase == .active else { return }
+                if phase != .active { ScoreVoiceAnnouncer.shared.stop(); return }
+                ScoreVoiceAnnouncer.shared.refreshAfterForeground()
                 Task {
                     await StoreKitPurchaseManager.shared.refreshLocalEntitlement()
                 }
+            }
+            .alert(voiceDownloadTitle, isPresented: $showVoiceDownloadGuide) {
+                Button(NSLocalizedString("confirm", value: "确定", comment: ""), role: .cancel) { }
+            } message: {
+                Text(voiceDownloadMessage).accessibilityIdentifier("sports_voice_download_guide")
             }
             .alert(
                 NSLocalizedString("save_failed", value: "保存失败", comment: ""),
@@ -451,6 +465,8 @@ struct jifenApp: App {
         let arguments = ProcessInfo.processInfo.arguments
         if let fixtureName = DisplaySnapshotFixture.requestedName {
             DisplaySnapshotFixtureView(name: fixtureName)
+        } else if let fixtureName = MarketingScreenshotFixture.requestedName {
+            MarketingScreenshotFixtureView(name: fixtureName)
         } else if let index = arguments.firstIndex(of: "-UITestRecordDetail"),
                   arguments.indices.contains(index + 1) {
             NavigationStack {

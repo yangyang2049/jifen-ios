@@ -1,0 +1,799 @@
+{
+  "device": "iPad Pro 13-inch (M5)",
+  "runtime": "iOS 26.5",
+  "width": 2752,
+  "height": 2064,
+  "scenes": [
+    "snooker",
+    "basketball",
+    "record",
+    "setup",
+    "home"
+  ],
+  "localizations": [
+    {
+      "locale": "en-US",
+      "appleLanguage": "en",
+      "appleLocale": "en_US",
+      "names": [
+        "Ethan",
+        "Liam",
+        "Emma",
+        "Mia"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Home",
+        "Away"
+      ]
+    },
+    {
+      "locale": "ja",
+      "appleLanguage": "ja",
+      "appleLocale": "ja_JP",
+      "names": [
+        "伊達政宗",
+        "真田幸村",
+        "武田信玄",
+        "上杉謙信"
+      ],
+      "fontFamily": "Noto Sans JP",
+      "basketballTeams": [
+        "ホーム",
+        "アウェイ"
+      ]
+    },
+    {
+      "locale": "ko",
+      "appleLanguage": "ko",
+      "appleLocale": "ko_KR",
+      "names": [
+        "민준",
+        "서준",
+        "지훈",
+        "수빈"
+      ],
+      "fontFamily": "Noto Sans KR",
+      "basketballTeams": [
+        "홈팀",
+        "원정팀"
+      ]
+    },
+    {
+      "locale": "de-DE",
+      "appleLanguage": "de",
+      "appleLocale": "de_DE",
+      "names": [
+        "Max",
+        "Paul",
+        "Anna",
+        "Lena"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Heim",
+        "Gast"
+      ]
+    },
+    {
+      "locale": "fr-FR",
+      "appleLanguage": "fr",
+      "appleLocale": "fr_FR",
+      "names": [
+        "Louis",
+        "Hugo",
+        "Emma",
+        "Jules"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Domicile",
+        "Extérieur"
+      ]
+    },
+    {
+      "locale": "es-ES",
+      "appleLanguage": "es-ES",
+      "appleLocale": "es_ES",
+      "names": [
+        "Pablo",
+        "Álvaro",
+        "Lucía",
+        "Mateo"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Local",
+        "Visitante"
+      ]
+    },
+    {
+      "locale": "pt-BR",
+      "appleLanguage": "pt-BR",
+      "appleLocale": "pt_BR",
+      "names": [
+        "Lucas",
+        "Pedro",
+        "Ana",
+        "Gabriel"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Mandante",
+        "Visitante"
+      ]
+    },
+    {
+      "locale": "it",
+      "appleLanguage": "it",
+      "appleLocale": "it_IT",
+      "names": [
+        "Luca",
+        "Marco",
+        "Giulia",
+        "Andrea"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Casa",
+        "Trasferta"
+      ]
+    },
+    {
+      "locale": "ru",
+      "appleLanguage": "ru",
+      "appleLocale": "ru_RU",
+      "names": [
+        "Алексей",
+        "Иван",
+        "Анна",
+        "Мария"
+      ],
+      "fontFamily": "Montserrat",
+      "basketballTeams": [
+        "Хозяева",
+        "Гости"
+      ]
+    },
+    {
+      "locale": "ar-SA",
+      "appleLanguage": "ar",
+      "appleLocale": "ar_SA",
+      "names": [
+        "أحمد",
+        "عمر",
+        "علي",
+        "يوسف"
+      ],
+      "fontFamily": "Noto Sans Arabic",
+      "basketballTeams": [
+        "المضيف",
+        "الضيف"
+      ]
+    },
+    {
+      "locale": "hi",
+      "appleLanguage": "hi",
+      "appleLocale": "hi_IN",
+      "names": [
+        "अर्जुन",
+        "राहुल",
+        "आदित्य",
+        "विवेक"
+      ],
+      "fontFamily": "Noto Sans Devanagari",
+      "basketballTeams": [
+        "मेज़बान",
+        "मेहमान"
+      ]
+    },
+    {
+      "locale": "nl-NL",
+      "appleLanguage": "nl",
+      "appleLocale": "nl_NL",
+      "names": [
+        "Daan",
+        "Bram",
+        "Lotte",
+        "Finn"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Thuis",
+        "Uit"
+      ]
+    },
+    {
+      "locale": "tr",
+      "appleLanguage": "tr",
+      "appleLocale": "tr_TR",
+      "names": [
+        "Emre",
+        "Deniz",
+        "Ece",
+        "Can"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Ev Sahibi",
+        "Deplasman"
+      ]
+    },
+    {
+      "locale": "id",
+      "appleLanguage": "id",
+      "appleLocale": "id_ID",
+      "names": [
+        "Andi",
+        "Budi",
+        "Dewi",
+        "Rina"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Tuan Rumah",
+        "Tandang"
+      ]
+    },
+    {
+      "locale": "vi",
+      "appleLanguage": "vi",
+      "appleLocale": "vi_VN",
+      "names": [
+        "Minh",
+        "An",
+        "Linh",
+        "Nam"
+      ],
+      "fontFamily": "Noto Sans",
+      "basketballTeams": [
+        "Chủ nhà",
+        "Khách"
+      ]
+    },
+    {
+      "locale": "th",
+      "appleLanguage": "th",
+      "appleLocale": "th_TH",
+      "names": [
+        "นนท์",
+        "ภูมิ",
+        "เมย์",
+        "พลอย"
+      ],
+      "fontFamily": "Noto Sans Thai",
+      "basketballTeams": [
+        "เหย้า",
+        "เยือน"
+      ]
+    },
+    {
+      "locale": "bn-BD",
+      "appleLanguage": "bn",
+      "appleLocale": "bn_BD",
+      "names": [
+        "আরিফ",
+        "হাসান",
+        "রাহুল",
+        "সুমন"
+      ],
+      "fontFamily": "Noto Sans Bengali",
+      "basketballTeams": [
+        "স্বাগতিক",
+        "অতিথি"
+      ]
+    },
+    {
+      "locale": "ca",
+      "appleLanguage": "ca",
+      "appleLocale": "ca_ES",
+      "names": [
+        "Marc",
+        "Pau",
+        "Laia",
+        "Joan"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Local",
+        "Visitant"
+      ]
+    },
+    {
+      "locale": "cs",
+      "appleLanguage": "cs",
+      "appleLocale": "cs_CZ",
+      "names": [
+        "Jakub",
+        "Tomáš",
+        "Anna",
+        "Petr"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Domácí",
+        "Hosté"
+      ]
+    },
+    {
+      "locale": "da",
+      "appleLanguage": "da",
+      "appleLocale": "da_DK",
+      "names": [
+        "Mads",
+        "Emil",
+        "Freja",
+        "Noah"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Hjemme",
+        "Ude"
+      ]
+    },
+    {
+      "locale": "el",
+      "appleLanguage": "el",
+      "appleLocale": "el_GR",
+      "names": [
+        "Νίκος",
+        "Γιάννης",
+        "Μαρία",
+        "Ελένη"
+      ],
+      "fontFamily": "Noto Sans",
+      "basketballTeams": [
+        "Γηπεδούχοι",
+        "Φιλοξενούμενοι"
+      ]
+    },
+    {
+      "locale": "en-AU",
+      "appleLanguage": "en",
+      "appleLocale": "en_AU",
+      "names": [
+        "Jack",
+        "Oliver",
+        "Charlotte",
+        "Amelia"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Home",
+        "Away"
+      ]
+    },
+    {
+      "locale": "en-CA",
+      "appleLanguage": "en",
+      "appleLocale": "en_CA",
+      "names": [
+        "Noah",
+        "Lucas",
+        "Olivia",
+        "Emma"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Home",
+        "Away"
+      ]
+    },
+    {
+      "locale": "en-GB",
+      "appleLanguage": "en",
+      "appleLocale": "en_GB",
+      "names": [
+        "Harry",
+        "Oliver",
+        "George",
+        "Arthur"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Home",
+        "Away"
+      ]
+    },
+    {
+      "locale": "es-MX",
+      "appleLanguage": "es-MX",
+      "appleLocale": "es_MX",
+      "names": [
+        "Diego",
+        "Luis",
+        "Sofía",
+        "Mateo"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Local",
+        "Visitante"
+      ]
+    },
+    {
+      "locale": "fi",
+      "appleLanguage": "fi",
+      "appleLocale": "fi_FI",
+      "names": [
+        "Eero",
+        "Mikko",
+        "Aino",
+        "Leo"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Koti",
+        "Vieras"
+      ]
+    },
+    {
+      "locale": "fr-CA",
+      "appleLanguage": "fr-CA",
+      "appleLocale": "fr_CA",
+      "names": [
+        "Émile",
+        "Félix",
+        "Alice",
+        "Léa"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Domicile",
+        "Visiteurs"
+      ]
+    },
+    {
+      "locale": "gu-IN",
+      "appleLanguage": "gu",
+      "appleLocale": "gu_IN",
+      "names": [
+        "જય",
+        "અર્જુન",
+        "કિરણ",
+        "રાહુલ"
+      ],
+      "fontFamily": "Noto Sans Gujarati",
+      "basketballTeams": [
+        "યજમાન",
+        "મહેમાન"
+      ]
+    },
+    {
+      "locale": "he",
+      "appleLanguage": "he",
+      "appleLocale": "he_IL",
+      "names": [
+        "דניאל",
+        "יונתן",
+        "נועם",
+        "מאיה"
+      ],
+      "fontFamily": "Noto Sans Hebrew",
+      "basketballTeams": [
+        "בית",
+        "חוץ"
+      ]
+    },
+    {
+      "locale": "hr",
+      "appleLanguage": "hr",
+      "appleLocale": "hr_HR",
+      "names": [
+        "Luka",
+        "Ivan",
+        "Ana",
+        "Marko"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Domaći",
+        "Gosti"
+      ]
+    },
+    {
+      "locale": "hu",
+      "appleLanguage": "hu",
+      "appleLocale": "hu_HU",
+      "names": [
+        "Bence",
+        "Máté",
+        "Anna",
+        "Lili"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Hazai",
+        "Vendég"
+      ]
+    },
+    {
+      "locale": "kn-IN",
+      "appleLanguage": "kn",
+      "appleLocale": "kn_IN",
+      "names": [
+        "ಅರ್ಜುನ್",
+        "ಕಿರಣ್",
+        "ರಾಹುಲ್",
+        "ವಿಕಾಸ್"
+      ],
+      "fontFamily": "Noto Sans Kannada",
+      "basketballTeams": [
+        "ಆತಿಥೇಯ",
+        "ಅತಿಥಿ"
+      ]
+    },
+    {
+      "locale": "ml-IN",
+      "appleLanguage": "ml",
+      "appleLocale": "ml_IN",
+      "names": [
+        "അർജുൻ",
+        "കിരൺ",
+        "രാഹുൽ",
+        "അനിൽ"
+      ],
+      "fontFamily": "Noto Sans Malayalam",
+      "basketballTeams": [
+        "ആതിഥേയ",
+        "അതിഥി"
+      ]
+    },
+    {
+      "locale": "mr-IN",
+      "appleLanguage": "mr",
+      "appleLocale": "mr_IN",
+      "names": [
+        "अजय",
+        "राहुल",
+        "आदित्य",
+        "विवेक"
+      ],
+      "fontFamily": "Noto Sans Devanagari",
+      "basketballTeams": [
+        "यजमान",
+        "पाहुणे"
+      ]
+    },
+    {
+      "locale": "ms",
+      "appleLanguage": "ms",
+      "appleLocale": "ms_MY",
+      "names": [
+        "Amir",
+        "Hakim",
+        "Aiman",
+        "Farah"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Tuan Rumah",
+        "Pelawat"
+      ]
+    },
+    {
+      "locale": "no",
+      "appleLanguage": "nb",
+      "appleLocale": "nb_NO",
+      "names": [
+        "Ola",
+        "Emil",
+        "Ingrid",
+        "Lars"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Hjemme",
+        "Borte"
+      ]
+    },
+    {
+      "locale": "or-IN",
+      "appleLanguage": "or",
+      "appleLocale": "or_IN",
+      "names": [
+        "ଅର୍ଜୁନ",
+        "ରାହୁଲ",
+        "କିରଣ",
+        "ସୁମନ"
+      ],
+      "fontFamily": "Noto Sans Oriya",
+      "basketballTeams": [
+        "ଆୟୋଜକ",
+        "ଅତିଥି"
+      ]
+    },
+    {
+      "locale": "pa-IN",
+      "appleLanguage": "pa",
+      "appleLocale": "pa_IN",
+      "names": [
+        "ਅਮਨ",
+        "ਅਰਜੁਨ",
+        "ਰਾਹੁਲ",
+        "ਕਿਰਨ"
+      ],
+      "fontFamily": "Noto Sans Gurmukhi",
+      "basketballTeams": [
+        "ਮੇਜ਼ਬਾਨ",
+        "ਮਹਿਮਾਨ"
+      ]
+    },
+    {
+      "locale": "pl",
+      "appleLanguage": "pl",
+      "appleLocale": "pl_PL",
+      "names": [
+        "Jan",
+        "Piotr",
+        "Anna",
+        "Tomasz"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Gospodarze",
+        "Goście"
+      ]
+    },
+    {
+      "locale": "pt-PT",
+      "appleLanguage": "pt-PT",
+      "appleLocale": "pt_PT",
+      "names": [
+        "João",
+        "Miguel",
+        "Maria",
+        "Tiago"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Casa",
+        "Visitante"
+      ]
+    },
+    {
+      "locale": "ro",
+      "appleLanguage": "ro",
+      "appleLocale": "ro_RO",
+      "names": [
+        "Andrei",
+        "Mihai",
+        "Ana",
+        "Elena"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Gazde",
+        "Oaspeți"
+      ]
+    },
+    {
+      "locale": "sk",
+      "appleLanguage": "sk",
+      "appleLocale": "sk_SK",
+      "names": [
+        "Martin",
+        "Tomáš",
+        "Anna",
+        "Peter"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Domáci",
+        "Hostia"
+      ]
+    },
+    {
+      "locale": "sl-SI",
+      "appleLanguage": "sl",
+      "appleLocale": "sl_SI",
+      "names": [
+        "Luka",
+        "Jan",
+        "Ana",
+        "Miha"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Domači",
+        "Gostje"
+      ]
+    },
+    {
+      "locale": "sv",
+      "appleLanguage": "sv",
+      "appleLocale": "sv_SE",
+      "names": [
+        "Erik",
+        "Johan",
+        "Anna",
+        "Elsa"
+      ],
+      "fontFamily": "Poppins",
+      "basketballTeams": [
+        "Hemma",
+        "Borta"
+      ]
+    },
+    {
+      "locale": "ta-IN",
+      "appleLanguage": "ta",
+      "appleLocale": "ta_IN",
+      "names": [
+        "அருண்",
+        "கவின்",
+        "விஜய்",
+        "சூர்யா"
+      ],
+      "fontFamily": "Noto Sans Tamil",
+      "basketballTeams": [
+        "உள்ளூர்",
+        "விருந்தினர்"
+      ]
+    },
+    {
+      "locale": "te-IN",
+      "appleLanguage": "te",
+      "appleLocale": "te_IN",
+      "names": [
+        "అర్జున్",
+        "కిరణ్",
+        "రాహుల్",
+        "వికాస్"
+      ],
+      "fontFamily": "Noto Sans Telugu",
+      "basketballTeams": [
+        "ఆతిథ్య",
+        "అతిథి"
+      ]
+    },
+    {
+      "locale": "uk",
+      "appleLanguage": "uk",
+      "appleLocale": "uk_UA",
+      "names": [
+        "Андрій",
+        "Тарас",
+        "Олена",
+        "Іван"
+      ],
+      "fontFamily": "Montserrat",
+      "basketballTeams": [
+        "Господарі",
+        "Гості"
+      ]
+    },
+    {
+      "locale": "ur-PK",
+      "appleLanguage": "ur",
+      "appleLocale": "ur_PK",
+      "names": [
+        "احمد",
+        "علی",
+        "عمر",
+        "حسن"
+      ],
+      "fontFamily": "Noto Sans Arabic",
+      "basketballTeams": [
+        "میزبان",
+        "مہمان"
+      ]
+    },
+    {
+      "locale": "zh-Hant",
+      "appleLanguage": "zh-Hant",
+      "appleLocale": "zh_TW",
+      "names": [
+        "陳冠廷",
+        "林雅婷",
+        "王宗翰",
+        "黃淑芬"
+      ],
+      "fontFamily": "Noto Sans TC",
+      "basketballTeams": [
+        "主隊",
+        "客隊"
+      ]
+    }
+  ]
+}

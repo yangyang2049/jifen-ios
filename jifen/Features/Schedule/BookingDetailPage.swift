@@ -80,7 +80,8 @@ struct BookingDetailPage: View {
         Section {
             infoRow(
                 title: NSLocalizedString("schedule_sport", value: "项目", comment: ""),
-                value: "\(currentBooking.sportType.icon) \(currentBooking.displayName)"
+                value: currentBooking.displayName,
+                bookingSport: currentBooking.sportType
             )
             infoRow(
                 title: NSLocalizedString("schedule_status", value: "状态", comment: ""),
@@ -319,13 +320,18 @@ struct BookingDetailPage: View {
         .joined(separator: " / ")
     }
 
-    private func infoRow(title: String, value: String) -> some View {
+    private func infoRow(title: String, value: String, bookingSport: BookingSportType? = nil) -> some View {
         HStack(alignment: .top, spacing: Theme.md) {
             Text(title).foregroundColor(Theme.textSecondary)
             Spacer(minLength: Theme.md)
-            Text(value)
-                .multilineTextAlignment(.trailing)
-                .foregroundColor(Theme.textPrimary)
+            HStack(alignment: .top, spacing: 4) {
+                if let bookingSport {
+                    AppCatalogIcon(bookingSport: bookingSport, size: 17)
+                }
+                Text(value)
+                    .multilineTextAlignment(.trailing)
+                    .foregroundColor(Theme.textPrimary)
+            }
         }
     }
 }

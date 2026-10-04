@@ -1,0 +1,25 @@
+{
+  "images": 336,
+  "changedImages": 23,
+  "unchangedImages": 313,
+  "selectedLocales": [
+    "bn-BD",
+    "el",
+    "gu-IN",
+    "hi",
+    "ja",
+    "ml-IN",
+    "mr-IN",
+    "ms",
+    "pa-IN",
+    "pl",
+    "ro",
+    "ta-IN",
+    "uk",
+    "ur-PK",
+    "vi"
+  ],
+  "backedUpImages": 105,
+  "allSourceHashesMatchManifest": true,
+  "unchangedHashesMatchOriginalUpload": true
+}

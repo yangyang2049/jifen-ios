@@ -1,0 +1,221 @@
+{
+  "tool": "built-in image_gen",
+  "records": [
+    {
+      "id": "go-c",
+      "folder": "tabletop",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: Go / Weiqi board-game icon. EXACTLY TWO authentic smooth slightly domed lenticular Go stones only: ONE deep black stone and ONE warm ivory white stone. Black stone in front lower left, white stone behind upper right, compact modest overlap with both stones fully recognizable. No chessboard, grid, third stone, bowl, pedestal, flat dot graphics, symbols or writing. They are low curved polished ceramic/resin disks, not spheres or tall cylinders. Their satin fine texture and round highlights match reference black 8-ball; near frontal elevated three-quarter view with visible shallow thickness.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-12ffe29b-3e2a-4cfb-a759-e5059049dc7a.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/go-c.png"
+    },
+    {
+      "id": "go-d",
+      "folder": "tabletop",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: Go / Weiqi board-game icon. EXACTLY TWO authentic low curved biconvex Go stones: ONE rich black and ONE creamy white. Two similarly sized domed lenticular disks side-by-side with very slight overlap, white in left foreground, black offset right behind, alternate compact clean arrangement. No board, grid, bowl, extra stones, stand, text or symbols. Shallow ceramic/resin stone thickness, tactile fine satin finish matching reference eight-ball. Not billiard spheres and not chess pawns.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-d3f703c2-f899-46c9-9e6f-0d39543f0012.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/go-d.png"
+    },
+    {
+      "id": "squash-a",
+      "folder": "sports",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: squash sport. ONE large charcoal-black real squash rubber ball, visibly round sphere with two small golden-yellow circular dots on the upper-front surface, subtle molded rubber micrograin and very faint seam. The TWO yellow dots are its sport-identifying feature and are clearly visible. Single ball only; no racket, tennis seam, numerals, logo or extra ball. Matches the isolated black eight-ball reference size, lighting, material quality and central framing.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-5e312ce0-ffbc-4ebd-ac57-032b83286a32.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/squash-a.png"
+    },
+    {
+      "id": "squash-b",
+      "folder": "sports",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: squash sport. ONE dark squash rubber ball in foreground with exactly two small yellow dots on front, paired with ONE slim teardrop-shaped squash racket behind it, blue frame, tightly woven straight strings, thin neck and black wrapped handle. Racket clearly smaller/narrower elongated teardrop head than tennis, compact diagonal arrangement, ball remains prominent. Fine satin rubber/painted metal materials matching the supplied sports icons. No court, text, logo or other props.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-dcbc3aed-8e75-4b4a-b91c-248fc5249622.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/squash-b.png"
+    },
+    {
+      "id": "soft_tennis-a",
+      "folder": "sports",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: soft tennis sport. ONE simple white/ivory SOFT TENNIS rubber ball, smooth inflatable-looking sphere with a very subtle molded equatorial seam and fine satin rubber grain. No lime green felt, no curved white tennis seam, no holes, no dots, no numbering, no lettering. Single ball only. Enough gentle shading and soft upper-left light to remain readable on both white and dark app backgrounds; maintain reference sports ball realism.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-29031157-b0a5-4128-a34e-adfa3a914f68.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/soft_tennis-a.png"
+    },
+    {
+      "id": "soft_tennis-b",
+      "folder": "sports",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: soft tennis sport. ONE ivory white smooth rubber soft-tennis ball in foreground plus a small blue lightweight strung tennis-style racket behind, visible white intersecting strings and black handle. White rubber ball, not yellow felt, no curved tennis felt seam, no holes or text. Compact balanced group in reference realistic satin fine-grain 3D style, no other equipment.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-bc3aa788-7a4b-4c7a-94b4-ae796aed561c.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/soft_tennis-b.png"
+    },
+    {
+      "id": "padel-a",
+      "folder": "sports",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: padel / paddle tennis sport. ONE clear teardrop-round PADEL RACKET with a SOLID coral red face perforated by about 12 round holes, thick black rounded frame, a short narrow neck and black wrapped handle. Exactly no strings. A small yellow tennis ball beside the lower racket face. Compact physical racket-and-ball grouping in precise reference sports 3D material and lighting, no wordmark, text, additional rackets or floor.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-b8ceb37d-81a2-4b10-be5b-76cd578d390a.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/padel-a.png"
+    },
+    {
+      "id": "padel-b",
+      "folder": "sports",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: padel / paddle tennis sport. ONE blue round-faced padel racket, thick solid matte face with evenly spaced round perforation holes, short black wrapped handle, black rounded edge frame. ONE small yellow tennis ball resting visually in front without a ground plane. Alternate diagonal orientation and clear compact group. Real manufactured perforated racket, NOT tennis strings and NOT solid pickleball paddle. No logos or captions.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-60558ef2-fed3-43ab-ac8b-e6d5e4b9e555.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/sports/padel-b.png"
+    },
+    {
+      "id": "simple_score-a",
+      "folder": "tools",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: simple two-side scorekeeping utility. A compact real manual FLIP SCOREBOARD, dark green frame, two separate thick hanging number panels reading exactly '0' and '0', each cream numeral on a dark charcoal flap with small visible metal top rings and physical card thickness. Near-front view slight three-quarter, simple sturdy portable object with no floor. No timer digits, extra numbers, app screen, word labels or pedestal.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-0209db1c-a7cd-422a-b227-dcfe05f6fc7b.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/simple_score-a.png"
+    },
+    {
+      "id": "simple_score-b",
+      "folder": "tools",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: simple scorekeeping utility. A compact handheld mechanical click counter / tally counter, satin silver rounded metal body, one small four-digit number window reading exactly '0000', a round top thumb button and a small rear finger loop. Recognizable physical tally counter in close-up, manufactured smooth edge and finely textured metal matching reference brass darts. No numbers elsewhere, text labels, ground or scene.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-84191734-38f8-4c97-ad9d-1c85e0a1c533.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/simple_score-b.png"
+    },
+    {
+      "id": "multi_scoreboard-a",
+      "folder": "tools",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: multiple-player scorekeeping utility. A compact physical three-column tabletop flip score counter, columns RED, BLUE, GOLD, each column one dark rectangular flip card with big white numeral '0', three equal columns and simple narrow dark frame. Physical thick flip cards and tiny top rings, visible depth. Three columns signify three players. No words, tiny details, fourth column, timer or UI screen. Fine satin plastic material matching sports reference.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-5c9e969d-b004-40d1-b7e6-b5a6bc07658c.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/multi_scoreboard-a.png"
+    },
+    {
+      "id": "multi_scoreboard-b",
+      "folder": "tools",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: multiple-player scorekeeping utility. THREE colored generic real pawn-shaped person tokens, red, blue, gold, each in front of a small matching upright score plate reading white numeral '0'. Real miniature physical objects, circular heads and simple rounded torsos, three distinct players, compact close-together group. No fourth person, text labels, flat emoji graphics, phone screen, floor or extra decoration. Maintain reference fine-grain realistic 3D style.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-8d5af721-a685-4e40-b72b-537ff223bf51.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/multi_scoreboard-b.png"
+    },
+    {
+      "id": "cube-a",
+      "folder": "tools",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: cube puzzle timing utility. ONE classic 3-by-3 Rubik-style twisty cube, solved state, three visible faces: red front, blue right, yellow top, exactly three rows by three columns per face, thin dark gaps separating nine softly rounded square tiles. Natural bright solid colors, believable fine satin plastic, square cube geometry. No logo, writing, extra cube, stand or cartoon face.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-3d44c6f1-0643-4dc3-8b2a-2d93fd9c9203.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/cube-a.png"
+    },
+    {
+      "id": "cube-b",
+      "folder": "tools",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: cube puzzle timing utility. ONE classic 3-by-3 twisty puzzle cube at an alternate gentle diagonal orientation, top yellow, front green, side red, exactly nine square tiles in each visible face, thin dark gaps and realistic smoothly rounded manufactured corners. Solved-color monochrome faces make a clear silhouette. Fine tactile satin plastic matching reference sports equipment. No logos, text, other objects, pedestal or motion trails.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-d1ed7fc5-6051-4069-a879-a0f4ec2d0df0.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/cube-b.png"
+    },
+    {
+      "id": "stopwatch-a",
+      "folder": "tools",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: stopwatch timer utility. ONE traditional circular physical sports stopwatch, satin silver metal rim, ivory face, bold black hour-style tick marks, one prominent dark pointer centered at twelve o'clock, short blue push button on top, small side button. Minimal analog timer with no numerals or brand; clearly a circular stopwatch, not a flip clock or ten-second digital timer. Real product, subtle fine material grain, no chain, stand or floor.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-bb348a19-c1b9-49f7-a702-8421f8975c91.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/stopwatch-a.png"
+    },
+    {
+      "id": "stopwatch-b",
+      "folder": "tools",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: stopwatch timer utility. ONE circular physical sport stopwatch with dark navy blue satin rubber case, pale ivory analog dial, simple dark ticks, dark pointer at twelve o'clock, red top push button and one small side button. Alternate modest three-quarter angle. A recognizable standalone timer, no digital 10.00, words, logo, chain, platform, floor or decorative elements.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-a3419c49-3079-4067-95cb-be6a6271cd9f.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/stopwatch-b.png"
+    },
+    {
+      "id": "timeout-a",
+      "folder": "tools",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: sports timeout / break countdown timer utility. ONE small real ivory circular analog timer with a visible broad red wedge segment representing remaining time and two short raised red pause bars at the center, restrained dark tick marks around perimeter and small dark top button. A simple physical timeout clock, compact readable silhouette, reference 3D satin product realism. No writing, numerals, extra symbols, floor, base or watermark.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-5cdfc98b-0eed-4ff8-96d4-e14b3811dfc0.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/timeout-a.png"
+    },
+    {
+      "id": "timeout-b",
+      "folder": "tools",
+      "prompt": "Use case: stylized-concept. Asset type: a single 3D object icon for the Jifen sports utility app. Input images are STYLE REFERENCES only, not edit targets. Match this supplied Figma sports icon library exactly in visual language: detailed physically rendered miniature real objects, subtle satin and matte micrograin materials, softly rounded but realistic geometry, diffuse upper-left studio light, restrained highlights, natural saturated object colors. Not clay, not cartoon emoji, not flat vector. Mostly front view with a subtle three-quarter tilt and clear physical depth. Square 1024x1024 composition, one centered coherent object/group occupying about 78% of the canvas with ample transparent edge padding. A genuinely transparent RGBA background, no ground plane, no cast shadow outside the object, no pedestal, no scene, no text labels, no border, no watermark. Keep a clear silhouette legible at small app icon size. Subject: sports timeout / break countdown utility. ONE miniature traditional hourglass: clear softly reflective glass with visible golden sand flowing down, compact satin dark-green top and bottom end caps joined by two slim supports. Small physical object with believable thickness, natural soft lighting and fine satin material matching supplied sports equipment. No ground plane or additional pedestal, no writing, numbers, clock face, extra icons or scene.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd67-73d4-7022-8fd4-dd8a5285ae9d/exec-b7a49b88-2710-47f8-b9b1-53e7fc488703.png",
+      "references": [
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png",
+        "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Pickleball.png"
+      ],
+      "output": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tools/timeout-b.png"
+    }
+  ]
+}

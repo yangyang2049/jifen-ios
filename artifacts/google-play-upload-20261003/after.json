@@ -1,0 +1,71 @@
+{
+  "kind": "androidpublisher#listingsListResponse",
+  "listings": [
+    {
+      "language": "en-US",
+      "title": "iScoreboard",
+      "fullDescription": "iScoreboard brings scoring, game clocks and match records together for sports, board games and game nights. Set up a match, keep track of the action and save the result on your phone.\n\nChoose a scoreboard for your sport\nKeep score for tennis, pickleball, badminton, table tennis, basketball, volleyball, football, snooker, pool and more. Dedicated scoreboards provide controls suited to each sport, from points and sets to periods, fouls and game clocks. Set player or team names and choose from the available match formats and scoring rules.\n\nKeep game nights organized\nTrack round scores for UNO and other card games, or use Simple Score and Multi-Score for your own games. Add player names, adjust points and follow the totals as you play. Undo the last action when you need to correct a mistake.\n\nManage the time\nUse two-player clocks for chess, Go, Xiangqi and checkers. Choose countdown, increment, delay or byo-yomi timing where supported. Stopwatch, countdown and cube timers also help with practice and timed activities.\n\nSave and review your matches\nResume an unfinished match from Home, then save the result when you finish. Review match records and scoring history, and add text or voice notes to capture details you want to remember. Voice notes are saved on your device and require microphone permission.\n\nShow scores on a larger screen\nDisplay your scoreboard on a compatible TV or monitor through Android's supported wired or wireless external display connections. Support depends on your phone, display and connection.\n\nUseful tools between games\nFlip a coin, roll dice, create random teams or use the whistle and referee cards. Keep your favorite games close at hand with customizable quick-start shortcuts.\n\nStart scoring without creating an account. Match records, notes and saved names stay on your device.",
+      "shortDescription": "Keep score for sports and games with scoreboards, timers and match records."
+    },
+    {
+      "language": "de-DE",
+      "title": "iScoreboard: Punktetafel",
+      "fullDescription": "Jeder Punkt zählt. Verwandle dein Android-Gerät in eine übersichtliche, einfach bedienbare Punktetafel für Spiele, Training und gemeinsame Partien.\n\nErfasse Punkte für über 26 Sportarten und Spiele, darunter Tennis, Pickleball, Badminton, Tischtennis, Basketball, Fußball, Volleyball und Billard. Passe bei unterstützten Sportarten die Zählweise, das Spielformat und die Aufschlagreihenfolge im Doppel an.\n\nSpeichere Partien und sieh dir Spielstandverläufe, Zeitleisten und Sprachnotizen an. Nutze Schach- und Go-Uhren, einen Timer für Zauberwürfel und eine Stoppuhr. Zeige die Punktetafel auf einem großen Bildschirm.\n\nMünzwurf, zufällige Teams, rote und gelbe Karten sowie das Aufteilen von Kosten sind ebenfalls dabei. Weniger Aufwand beim Zählen, mehr Freude am Spiel.\n\nNutzungsbedingungen:\nhttps://jifenqi.com/terms\n\nDatenschutzerklärung:\nhttps://jifenqi.com/privacy",
+      "shortDescription": "Spielstand, Timer & Ergebnisse"
+    },
+    {
+      "language": "fr-FR",
+      "title": "iScoreboard: Tableau de scores",
+      "fullDescription": "Chaque point compte. Transformez votre téléphone ou tablette Android en tableau de scores clair et facile à utiliser pour vos matchs, entraînements et parties entre amis.\n\nComptez les points pour plus de 26 sports et jeux : tennis, pickleball, badminton, tennis de table, basket, football, volley et billard. Pour les sports compatibles, adaptez les règles de score, le format du match et l'ordre de service en double.\n\nEnregistrez vos matchs et revivez-les grâce à l'évolution du score, à la chronologie et aux notes vocales. Profitez des pendules d'échecs et de go, du minuteur pour cube et du chronomètre. Affichez le score sur grand écran.\n\nPile ou face, équipes aléatoires, cartons rouges et jaunes, partage des frais : vos outils pratiques sont réunis. Moins de temps à compter, plus de plaisir à jouer.\n\nConditions d’utilisation :\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité :\nhttps://jifenqi.com/privacy",
+      "shortDescription": "Scores, chronos et matchs"
+    },
+    {
+      "language": "ru-RU",
+      "title": "iScoreboard: Табло",
+      "fullDescription": "Каждое очко важно. Превратите свой телефон или планшет Android в удобное и наглядное табло для матчей, тренировок и игр с друзьями.\n\nВедите счёт в более чем 26 видах спорта и играх: теннис, пиклбол, бадминтон, настольный теннис, баскетбол, футбол, волейбол и бильярд. Для поддерживаемых видов спорта можно настроить правила подсчёта, формат матча и порядок подачи в парной игре.\n\nСохраняйте матчи и просматривайте динамику счёта, хронологию событий и голосовые заметки. Пользуйтесь шахматными часами, часами для го, таймером для кубика и секундомером. Показывайте табло на большом экране.\n\nПодбрасывание монеты, случайное распределение по командам, красные и жёлтые карточки, разделение расходов — всё в одном приложении. Меньше хлопот со счётом, больше удовольствия от игры.\n\nУсловия использования:\nhttps://jifenqi.com/terms\n\nПолитика конфиденциальности:\nhttps://jifenqi.com/privacy",
+      "shortDescription": "Счёт, таймеры и история игр"
+    },
+    {
+      "language": "fr-CA",
+      "title": "iScoreboard: Tableau de scores",
+      "fullDescription": "Chaque point compte. Transformez votre téléphone ou tablette Android en tableau de pointage clair et facile à utiliser pour vos matchs, entraînements et parties entre amis.\n\nComptez les points pour plus de 26 sports et jeux : tennis, pickleball, badminton, tennis de table, basketball, soccer, volleyball et billard. Pour les sports compatibles, adaptez les règles de pointage, le format du match et l'ordre de service en double.\n\nEnregistrez vos matchs et revivez-les grâce à l'évolution du pointage, à la chronologie et aux notes vocales. Profitez des pendules d'échecs et de go, du minuteur pour cube et du chronomètre. Affichez le pointage sur grand écran.\n\nPile ou face, équipes aléatoires, cartons rouges et jaunes, partage des frais : vos outils pratiques sont réunis. Moins de temps à compter, plus de plaisir à jouer.\n\nConditions d’utilisation :\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité :\nhttps://jifenqi.com/privacy",
+      "shortDescription": "Pointage, chronos et matchs"
+    },
+    {
+      "language": "ml-IN",
+      "title": "iScoreboard: സ്കോർബോർഡ്",
+      "fullDescription": "ഓരോ പോയിന്റും പ്രധാനമാണ്. മത്സരങ്ങൾക്കും പരിശീലനത്തിനും സുഹൃത്തുക്കളോടൊപ്പമുള്ള കളികൾക്കും നിങ്ങളുടെ Android ഉപകരണം വ്യക്തവും എളുപ്പത്തിൽ ഉപയോഗിക്കാവുന്നതുമായ സ്കോർബോർഡാക്കി മാറ്റൂ.\n\nടെന്നീസ്, പിക്കിൾബോൾ, ബാഡ്മിന്റൺ, ടേബിൾ ടെന്നീസ്, ബാസ്കറ്റ്ബോൾ, ഫുട്ബോൾ, വോളിബോൾ, ബില്യാർഡ്സ് എന്നിവ ഉൾപ്പെടെ 26-ലധികം കായിക ഇനങ്ങളിലും കളികളിലും സ്കോർ രേഖപ്പെടുത്തൂ. പിന്തുണയ്ക്കുന്ന ഇനങ്ങളിൽ സ്കോറിങ് നിയമങ്ങൾ, മത്സരരീതി, ഡബിൾസ് സർവിന്റെ ക്രമം എന്നിവ ക്രമീകരിക്കാം.\n\nമത്സരങ്ങൾ സേവ് ചെയ്ത് സ്കോറിലെ മാറ്റങ്ങൾ, സംഭവക്രമം, വോയ്സ് നോട്ടുകൾ എന്നിവയിലൂടെ വീണ്ടും പരിശോധിക്കൂ. ചെസ്, ഗോ ക്ലോക്കുകൾ, ക്യൂബ് ടൈമർ, സ്റ്റോപ്പ്വാച്ച് എന്നിവ ഉപയോഗിക്കൂ. വലിയ സ്ക്രീനിൽ സ്കോർബോർഡ് കാണിക്കൂ.\n\nനാണയം ടോസ് ചെയ്യൽ, ക്രമരഹിതമായി ടീമുകൾ തിരിക്കൽ, ചുവപ്പും മഞ്ഞയും കാർഡുകൾ, ചെലവ് പങ്കിടൽ എന്നിവയ്ക്കുള്ള ഉപകരണങ്ങൾ ഒരേ ആപ്പിൽ. സ്കോർ രേഖപ്പെടുത്താൻ കുറച്ച് സമയം, കളി ആസ്വദിക്കാൻ കൂടുതൽ സമയം.\n\nഉപയോഗ നിബന്ധനകൾ:\nhttps://jifenqi.com/terms\n\nസ്വകാര്യതാ നയം:\nhttps://jifenqi.com/privacy",
+      "shortDescription": "സ്കോർ, സമയം, മത്സര രേഖകൾ"
+    },
+    {
+      "language": "ms-MY",
+      "title": "iScoreboard: Papan Skor",
+      "fullDescription": "Setiap mata bermakna. Jadikan peranti Android anda papan skor yang jelas dan mudah digunakan untuk perlawanan, latihan dan permainan bersama rakan.\n\nCatat skor untuk lebih 26 sukan dan permainan, termasuk tenis, pickleball, badminton, ping pong, bola keranjang, bola sepak, bola tampar dan biliard. Laraskan peraturan mata, format perlawanan dan urutan servis beregu bagi sukan yang menyokongnya.\n\nSimpan perlawanan dan semak perubahan skor, garis masa serta nota suara. Gunakan jam catur dan go, pemasa kiub dan jam randik. Paparkan papan skor pada skrin besar.\n\nLambungan syiling, pembahagian pasukan secara rawak, kad merah dan kuning serta pembahagian belanja — semuanya dalam satu aplikasi. Kurangkan kerja mengira, nikmati permainan dengan lebih lagi.\n\nSyarat penggunaan:\nhttps://jifenqi.com/terms\n\nDasar privasi:\nhttps://jifenqi.com/privacy",
+      "shortDescription": "Skor, masa dan rekod sukan"
+    },
+    {
+      "language": "pl-PL",
+      "title": "iScoreboard: Tablica wyników",
+      "fullDescription": "Każdy punkt się liczy. Zamień telefon lub tablet z Androidem w czytelną, wygodną tablicę wyników na mecze, treningi i rozgrywki ze znajomymi.\n\nZapisuj punkty w ponad 26 dyscyplinach i grach, takich jak tenis, pickleball, badminton, tenis stołowy, koszykówka, piłka nożna, siatkówka i bilard. W obsługiwanych dyscyplinach dostosuj zasady punktacji, format meczu i kolejność serwowania w deblu.\n\nZachowuj mecze i przeglądaj zmiany wyniku, oś czasu oraz notatki głosowe. Korzystaj z zegarów szachowych i do go, timera do kostki oraz stopera. Wyświetlaj wynik na dużym ekranie.\n\nRzut monetą, losowanie drużyn, czerwone i żółte kartki oraz dzielenie kosztów — wszystko w jednym miejscu. Mniej liczenia, więcej przyjemności z gry.\n\nWarunki użytkowania:\nhttps://jifenqi.com/terms\n\nPolityka prywatności:\nhttps://jifenqi.com/privacy",
+      "shortDescription": "Wyniki, zegary i historia gier"
+    },
+    {
+      "language": "ta-IN",
+      "title": "iScoreboard: ஸ்கோர்போர்டு",
+      "fullDescription": "ஒவ்வொரு புள்ளியும் முக்கியம். போட்டிகள், பயிற்சி மற்றும் நண்பர்களுடன் விளையாட உங்கள் Android சாதனத்தை தெளிவான, எளிதான ஸ்கோர்போர்டாக மாற்றுங்கள்.\n\nடென்னிஸ், பிக்கிள்பால், பேட்மிண்டன், டேபிள் டென்னிஸ், கூடைப்பந்து, கால்பந்து, கைப்பந்து, பில்லியர்ட்ஸ் உள்ளிட்ட 26-க்கும் மேற்பட்ட விளையாட்டுகளில் புள்ளிகளைப் பதிவு செய்யுங்கள். ஆதரிக்கப்படும் விளையாட்டுகளில் புள்ளி விதிகள், போட்டி முறை, இரட்டையர் சர்வ் வரிசை ஆகியவற்றை அமைக்கலாம்.\n\nபோட்டிகளைச் சேமித்து, புள்ளி மாற்றங்கள், நிகழ்வுகளின் வரிசை, குரல் குறிப்புகள் மூலம் மீண்டும் பாருங்கள். சதுரங்கம் மற்றும் கோ கடிகாரங்கள், கியூப் டைமர், ஸ்டாப்வாட்ச் ஆகியவற்றைப் பயன்படுத்துங்கள். பெரிய திரையில் ஸ்கோர்போர்டைக் காட்டுங்கள்.\n\nநாணயச் சுண்டல், சீரற்ற அணி பிரித்தல், சிவப்பு மற்றும் மஞ்சள் அட்டைகள், செலவுப் பகிர்வு ஆகியவற்றுக்கான கருவிகள் ஒரே செயலியில். புள்ளிகளைப் பதிவு செய்யும் வேலையைக் குறைத்து, விளையாட்டை அதிகம் ரசிக்கலாம்.\n\nபயன்பாட்டு விதிமுறைகள்:\nhttps://jifenqi.com/terms\n\nதனியுரிமைக் கொள்கை:\nhttps://jifenqi.com/privacy",
+      "shortDescription": "புள்ளிகள், நேரம், போட்டிகள்"
+    },
+    {
+      "language": "zh-TW",
+      "title": "全能計分器",
+      "fullDescription": "每一分都值得認真記錄。把 Android 手機或平板變成清楚、好用的計分板，輕鬆記錄比賽、訓練和朋友間的對局。\n\n支援 26+ 種運動與遊戲計分，包括網球、匹克球、羽毛球、桌球、籃球、足球、排球和撞球。依照項目調整計分規則、比賽局數與雙打發球順序，讓計分方式符合你的比賽。\n\n儲存比賽紀錄，透過比分趨勢、時間軸和語音筆記回顧精彩時刻。內建西洋棋與圍棋計時、魔術方塊計時和碼錶，球類之外也能用。將計分板顯示在大螢幕上。\n\n擲硬幣、隨機分隊、紅黃牌和費用分攤等實用工具集中在一處。少一點記分的忙亂，多一點比賽的樂趣。\n\n使用條款:\nhttps://jifenqi.com/terms\n\n隱私權政策:\nhttps://jifenqi.com/privacy",
+      "shortDescription": "運動計分、比賽計時與賽後回顧"
+    },
+    {
+      "language": "zh-CN",
+      "title": "全能计分器",
+      "fullDescription": "每一分都值得认真记录。把 Android 手机或平板变成清楚、好用的计分板，轻松记录比赛、训练和朋友间的对局。\n\n支持 26+ 种运动与游戏计分，包括网球、匹克球、羽毛球、乒乓球、篮球、足球、排球和台球。依照项目调整计分规则、比赛局数与双打发球顺序，让计分方式符合你的比赛。\n\n保存比赛记录，通过比分趋势、时间轴和语音笔记回顾精彩时刻。内置国际象棋与围棋计时、魔方计时和秒表，球类之外也能用。将计分板显示在大屏幕上。\n\n掷硬币、随机分队、红黄牌和费用分摊等实用工具集中在一处。少一点记分的忙乱，多一点比赛的乐趣。\n\n使用条款:\nhttps://jifenqi.com/terms\n\n隐私政策:\nhttps://jifenqi.com/privacy",
+      "shortDescription": "运动计分、比赛计时与赛后回顾"
+    }
+  ]
+}

@@ -1,0 +1,976 @@
+{
+  "locale": "bn",
+  "authoring": "Native sports sentence frames, separately authored and reviewed by Codex; no external translation provider.",
+  "entries": {
+    " and ": {
+      "source_hash": "e3ee915a8e8c7aa02d2fced443314522b20824abd2535d5959c41dc8ab8a09e4",
+      "value": " এবং ",
+      "status": "reviewed"
+    },
+    "%1$@": {
+      "source_hash": "b992096d3b038360746437102823a55339b6c27b2bd26281ffbb89c33784c9ee",
+      "value": "%1$@",
+      "status": "reviewed"
+    },
+    "%1$@ %2$@": {
+      "source_hash": "0fd7ca00fd8247e38dc8242ad269d5182412b7e0a399e10d0db50352ea91a21a",
+      "value": "%1$@ %2$@",
+      "status": "reviewed"
+    },
+    "%1$@ games to %2$@": {
+      "source_hash": "5d442a9c2f1924c0cdd208f7c410071e639f97c076a7a646b370629682e46059",
+      "value": "গেম: %1$@, %2$@",
+      "status": "reviewed"
+    },
+    "%1$@ serves, 0-0": {
+      "source_hash": "f2e13ba4292f47e290519f31d5dd60c154c62eaea2ca237288216e6376d64c21",
+      "value": "%1$@ সার্ভ করবেন, 0–0",
+      "status": "reviewed"
+    },
+    "%1$@ to serve to %2$@, love all, play": {
+      "source_hash": "ee578946d289dbdee97eca4e40a3cc045800a854c59103b8d70ee197d2b9bfae",
+      "value": "%1$@ সার্ভ করবেন, %2$@ রিসিভ করবেন, 0–0",
+      "status": "reviewed"
+    },
+    "%1$@ to serve, %2$@ to receive, best of %3$@ games, love all": {
+      "source_hash": "9fb03203b8568aa6be92fd93fa7e0e065fd4e25c62b48ca9b2b7e2ae6f2e8f3b",
+      "value": "%1$@ সার্ভ করবেন, %2$@ রিসিভ করবেন, সর্বোচ্চ %3$@ গেম, শূন্য সমান",
+      "status": "reviewed"
+    },
+    "%1$@ to serve, love all": {
+      "source_hash": "ee26fd62bb6ffdc3cd4ea1bae9750e7b9b80df2705a8587625e9fc5a3ae23634",
+      "value": "%1$@ সার্ভ করবেন, 0–0",
+      "status": "reviewed"
+    },
+    "%1$@ to serve, love all, play": {
+      "source_hash": "29811b69a9bbb26a663dde3f4e16dbec698ac42b614c663a47807eb744c7d17a",
+      "value": "%1$@ সার্ভ করবেন, খেলা শুরু, 0–0",
+      "status": "reviewed"
+    },
+    "%1$@ to serve, play": {
+      "source_hash": "3fa1490d91273b0050854b883daf215fee1853812654f1bbf57c6393cce6b23f",
+      "value": "%1$@ সার্ভ করবেন, খেলা শুরু",
+      "status": "reviewed"
+    },
+    "%1$@, %2$@": {
+      "source_hash": "b41da2237a299d09ad1ca40676455fc9a97d88fcd729c8ee55da02959fb86464",
+      "value": "%1$@, %2$@",
+      "status": "reviewed"
+    },
+    "%1$@, %2$@, %3$@": {
+      "source_hash": "9776ef65762cb0292ede08ffcdb5653a117e86771647d7adbcd86164fdcd2599",
+      "value": "%1$@, %2$@, %3$@",
+      "status": "reviewed"
+    },
+    "%1$@, play": {
+      "source_hash": "20b70093eaa8e0fce72249e8a2f77285eae0e3a9512e70ad98841b50364ab22c",
+      "value": "%1$@. খেলা আবার শুরু",
+      "status": "reviewed"
+    },
+    "%1$@-%2$@": {
+      "source_hash": "b41da2237a299d09ad1ca40676455fc9a97d88fcd729c8ee55da02959fb86464",
+      "value": "%1$@, %2$@",
+      "status": "reviewed"
+    },
+    "%1$@-%2$@ %3$@": {
+      "source_hash": "9776ef65762cb0292ede08ffcdb5653a117e86771647d7adbcd86164fdcd2599",
+      "value": "%1$@, %2$@, %3$@",
+      "status": "reviewed"
+    },
+    "%1$@-all": {
+      "source_hash": "810990c6e1c078f1eb7e0bb0ce71cb23b330af262dcc44e2e0f466acdf8341ae",
+      "value": "%1$@ সমান",
+      "status": "reviewed"
+    },
+    "%1$@ to %2$@": {
+      "source_hash": "b41da2237a299d09ad1ca40676455fc9a97d88fcd729c8ee55da02959fb86464",
+      "value": "%1$@, %2$@",
+      "status": "reviewed"
+    },
+    "%1$@-game match, play ball": {
+      "source_hash": "4bc97de0e1ff33e4de64e32add7157490982cb8ab6a518227c25900bcaccaba0",
+      "value": "%1$@ গেমের ম্যাচ, খেলা শুরু",
+      "status": "reviewed"
+    },
+    "%1$@. %2$@ to serve": {
+      "source_hash": "c337f86cddd49ced91b61dd0afc2cd5662455590d9b95bf1f5fd49d06349e8e7",
+      "value": "%1$@. %2$@ সার্ভ করবেন",
+      "status": "reviewed"
+    },
+    "%1$@. Game and match to %2$@. %3$@ wins %4$@ games to %5$@": {
+      "source_hash": "c708e8bbb660b47c86c127047882dcc5ec1aef28e94bd1008a7b7e9ffbc9d26b",
+      "value": "%1$@. গেম শেষ. %2$@ জিতেছেন. ম্যাচ শেষ. %3$@ জিতেছেন. গেম: %4$@, %5$@",
+      "status": "reviewed"
+    },
+    "%1$@. Game to %2$@": {
+      "source_hash": "ef4cf593539d21c45fabd51e487ba2cab57391fdd473ba8710bb4e6582bba607",
+      "value": "%1$@. গেম শেষ. %2$@ জিতেছেন",
+      "status": "reviewed"
+    },
+    "%1$@th": {
+      "source_hash": "8b5e52fd568bbdb4b3576e03c331ecbb2cdf06171a58b70f4c1d699a10cbffdb",
+      "value": "%1$@",
+      "status": "reviewed"
+    },
+    ", ": {
+      "source_hash": "0a07f659461970d8d8dcefe4fff96a1745599810dc7d47391e95c803b7b2072c",
+      "value": ", ",
+      "status": "reviewed"
+    },
+    ", %1$@": {
+      "source_hash": "4a0621431dd6a9a6dd4f7d4a23788752c33348f5ca3c6c34aa19928643c448fc",
+      "value": ", %1$@",
+      "status": "reviewed"
+    },
+    ", a player must win by 2 points": {
+      "source_hash": "7a2ac2a305bb39f8e9074c21165a206bd80f1773efbdece80494a1529a6f6068",
+      "value": ", জিততে দুই পয়েন্টের ব্যবধান প্রয়োজন",
+      "status": "reviewed"
+    },
+    ", change ends": {
+      "source_hash": "1d52814fed5f454850545b0862ce650d2dc6c643f85cc640542061388e765a90",
+      "value": ", পাশ বদলান",
+      "status": "reviewed"
+    },
+    ", interval": {
+      "source_hash": "f26ed60a03aa7a36cdb089a1e19323fba8b252a915ff3c00d955d854310d3355",
+      "value": ", বিরতি",
+      "status": "reviewed"
+    },
+    ". ": {
+      "source_hash": "8dccf256f6d5783e62bba717ef04a6cfcea41d9befffa5ade55235e0b6a0eeb0",
+      "value": ". ",
+      "status": "reviewed"
+    },
+    ". %1$@ games all": {
+      "source_hash": "8da8b0edb76c52698d201b95cf7cb074e7bcd6c4366dbc550b88449121d7605d",
+      "value": ". গেম: %1$@ সমান",
+      "status": "reviewed"
+    },
+    ". One game all": {
+      "source_hash": "2a7ea15ac4a039fb8109403a44df4d370776c9bb9ad665b43d3486e173a77d51",
+      "value": ". গেম: 1 সমান",
+      "status": "reviewed"
+    },
+    "10-point match tie-break": {
+      "source_hash": "99c27ada16139088f5d96d629fc5999413b8381fc43426f6b6a514b14bbadfed",
+      "value": "10 পয়েন্ট পর্যন্ত নির্ণায়ক টাই ব্রেক",
+      "status": "reviewed"
+    },
+    "15 seconds": {
+      "source_hash": "218ffc0593c1daaed29e9a040b7ddcc3706dab7d424bf18d45a6b1c81853381a",
+      "value": "15 সেকেন্ড",
+      "status": "reviewed"
+    },
+    "20 seconds": {
+      "source_hash": "f22796541a454510dedfa94b3cf6fca5a1b742f699ef18f7ac6d8a8729f74827",
+      "value": "20 সেকেন্ড",
+      "status": "reviewed"
+    },
+    "7-point tie-break match": {
+      "source_hash": "eff8f9935b55fc009a5edc356ad7ebfd4324c3c50270668d78837f2db7c7a847",
+      "value": "7 পয়েন্ট পর্যন্ত টাই ব্রেক ম্যাচ",
+      "status": "reviewed"
+    },
+    "Advantage %1$@": {
+      "source_hash": "f0c6e4516b122ceb55b74403892fcccd06e8985138f689ea95cc40f0249f6946",
+      "value": "অ্যাডভান্টেজ %1$@",
+      "status": "reviewed"
+    },
+    "Change ends": {
+      "source_hash": "12ace709f37e25358373d8715253e85e3250553dd0fd390c72341dc374db3457",
+      "value": "পাশ বদলান",
+      "status": "reviewed"
+    },
+    "Deciding point, receiver's choice": {
+      "source_hash": "eea188fa62e15d90cf5ec2c81bfda3b05be08c2a9db59a25fb604e233bcf995d",
+      "value": "নির্ণায়ক পয়েন্ট, রিসিভারের পছন্দ",
+      "status": "reviewed"
+    },
+    "Deuce": {
+      "source_hash": "ec263f69e2839c762ff6eb3ec87ce68ce61b99bd5ed4fd423268f9db9dff29b2",
+      "value": "ডিউস",
+      "status": "reviewed"
+    },
+    "Deuce 1": {
+      "source_hash": "acde86e687da411f847592fe38d7dfb0e78f4cea33db6057033f196be593cdf5",
+      "value": "ডিউস 1",
+      "status": "reviewed"
+    },
+    "Deuce 2": {
+      "source_hash": "d755710979d79431443a8d58da6b5b49e9d2d6cc1069699c6f6ed1adfd9c5a47",
+      "value": "ডিউস 2",
+      "status": "reviewed"
+    },
+    "Deuce 3, Star point": {
+      "source_hash": "303b4c40dec111032b5b5fcfd32bfecbf9d0e3bdfbf5f064c35d9e71746e5bfd",
+      "value": "ডিউস 3, স্টার পয়েন্ট",
+      "status": "reviewed"
+    },
+    "Game": {
+      "source_hash": "5c412a262086b9701cda06302f6667f9265b1807d0368fcec6cc03bf64fc250b",
+      "value": "গেম শেষ",
+      "status": "reviewed"
+    },
+    "Game %1$@. %2$@ games all": {
+      "source_hash": "103d36993bb2e09d795789ad91fc47ba44790022a5d12c1d26367c2bd45e7925",
+      "value": "গেম শেষ. %1$@ জিতেছেন. গেম: %2$@ সমান",
+      "status": "reviewed"
+    },
+    "Game %1$@. %2$@ games all. Tie-break": {
+      "source_hash": "793e02ef5f9e62b1479231eac8b397f8b1b5c1bf70eb03b74e650adcd3f38aa5",
+      "value": "গেম শেষ. %1$@ জিতেছেন. গেম: %2$@ সমান. টাই ব্রেক",
+      "status": "reviewed"
+    },
+    "Game %1$@. %2$@ leads %3$@ games to %4$@, %5$@ set": {
+      "source_hash": "48756dadc1c9da0d8db8de86857904d2d92734c6cc5834a455c550fbd8880a13",
+      "value": "গেম শেষ. %1$@ জিতেছেন. %2$@ এগিয়ে, গেম %3$@ বনাম %4$@. সেট %5$@",
+      "status": "reviewed"
+    },
+    "Game %1$@. %2$@-%3$@": {
+      "source_hash": "955ad11595c355bf9739abd76c299a3b24df7f12b94090f89d26beeb1e6fcfac",
+      "value": "গেম শেষ. %1$@ জিতেছেন. %2$@, %3$@",
+      "status": "reviewed"
+    },
+    "Game and %1$@ set %2$@, %3$@": {
+      "source_hash": "e749780fe4ad76672e458f338539538aca134b0c46b4e21afc1abce03e4919e7",
+      "value": "গেম শেষ. সেট %1$@. %2$@ জিতেছেন, %3$@",
+      "status": "reviewed"
+    },
+    "Game ball": {
+      "source_hash": "ccb8c7cf357f8b1b7df9bf7e6d4c5cc440d1873f4c49168afc91cd9380bd7b20",
+      "value": "গেম বল",
+      "status": "reviewed"
+    },
+    "Game over": {
+      "source_hash": "8690cf739f1a2d492ee173746103948986c9f09f2bbc6e74a6168eb571a2c1ae",
+      "value": "গেম শেষ",
+      "status": "reviewed"
+    },
+    "Game set. Match to %1$@, %2$@": {
+      "source_hash": "7b78b0912960fbff9ffd99993676278883d6ddb55db3a82317a45a448284468f",
+      "value": "গেম শেষ. সেট শেষ. ম্যাচ শেষ. %1$@ জিতেছেন, %2$@",
+      "status": "reviewed"
+    },
+    "Game, set and match %1$@, %2$@ sets to %3$@, %4$@": {
+      "source_hash": "2915205b0184a3bed3cd47be2c6cbaeedc7e2cc18790f33da598330cb38b6180",
+      "value": "গেম শেষ. সেট শেষ. ম্যাচ শেষ. %1$@ জিতেছেন. সেট: %2$@, %3$@, %4$@",
+      "status": "reviewed"
+    },
+    "Game. %1$@ game won by %2$@, %3$@": {
+      "source_hash": "259c7e1c344873b8055c01c857a7cc8355c47453d0b819215e13c19ba9f563d5",
+      "value": "গেম %1$@. %2$@ জিতেছেন, %3$@",
+      "status": "reviewed"
+    },
+    "Game. Match won by %1$@, %2$@": {
+      "source_hash": "cd153f44a0d3443b7c1608041044958574288bf85fb1d0a6c270eb6b4ed59a9a",
+      "value": "গেম শেষ. ম্যাচ শেষ. %1$@ জিতেছেন, %2$@",
+      "status": "reviewed"
+    },
+    "Golden point, receiver's choice": {
+      "source_hash": "b7502aac758ba8315b392f16019e9eeed7f7c8fb3f688cc92e96def85dcc6fb2",
+      "value": "গোল্ডেন পয়েন্ট, রিসিভারের পছন্দ",
+      "status": "reviewed"
+    },
+    "Half-time": {
+      "source_hash": "1a7d5c10539f335b1a37beca0d03552ef86a0bf28f192326d759381486edb203",
+      "value": "বিরতির অর্ধেক সময়",
+      "status": "reviewed"
+    },
+    "Hand out, %1$@": {
+      "source_hash": "799303bafeaadac2bcba79affdea5d1e190ed026be402a07febf86904df458d3",
+      "value": "সার্ভিস বদল, %1$@",
+      "status": "reviewed"
+    },
+    "Interval, %1$@": {
+      "source_hash": "9869e4a1c836be5fb7d2bca4b0ca59426dc16e2202e355e99b785c40390a93a1",
+      "value": "বিরতি, %1$@",
+      "status": "reviewed"
+    },
+    "Match %1$@, %2$@": {
+      "source_hash": "8b4ef03ef05f64ff5d139caebb46d20e841266456172fa840a6c6dfece1fa7bc",
+      "value": "ম্যাচ শেষ. %1$@ জিতেছেন, %2$@",
+      "status": "reviewed"
+    },
+    "Match %1$@, %2$@ %3$@ to %4$@": {
+      "source_hash": "c6fb9c299d02613a1baa2e63f03fcb59ac095ee60639413c8335de6be47555e1",
+      "value": "ম্যাচ শেষ. %1$@ জিতেছেন. %2$@ %3$@, %4$@",
+      "status": "reviewed"
+    },
+    "Match ball": {
+      "source_hash": "27606a7c8319912f435c5b1d3ad69d312ad9465e8443166a07fe2969e19d009c",
+      "value": "ম্যাচ বল",
+      "status": "reviewed"
+    },
+    "Match over": {
+      "source_hash": "583505f7471820fb8673c5bd41f1164f774d199cba871dbf762744702d3bd70e",
+      "value": "ম্যাচ শেষ",
+      "status": "reviewed"
+    },
+    "Match start, %1$@ to serve": {
+      "source_hash": "cc51ef27981ad3cb0f3846a8ef392cff6071a622a102736bb00ba714ca02febd",
+      "value": "%1$@ সার্ভ করবেন, খেলা শুরু",
+      "status": "reviewed"
+    },
+    "Match to %1$@. %2$@ wins %3$@ games to %4$@": {
+      "source_hash": "22c705b1ec42376d7fc7fb66b6496343ed36f0056b962755bc4f064f1743559b",
+      "value": "ম্যাচ শেষ. %1$@ জিতেছেন. %2$@ জিতেছেন. গেম: %3$@, %4$@",
+      "status": "reviewed"
+    },
+    "Match won by %1$@": {
+      "source_hash": "022e170142ea5522513bc2894e958fe86454dc912d32648f98d8dc219531979e",
+      "value": "ম্যাচ শেষ. %1$@ জিতেছেন",
+      "status": "reviewed"
+    },
+    "Match. %1$@ wins": {
+      "source_hash": "14d1b9e30bb36410499b3693f421ff6b539b727b678587ed7bcc5811d7b2dd74",
+      "value": "ম্যাচ শেষ. %1$@ জিতেছেন",
+      "status": "reviewed"
+    },
+    "Point. Game. %1$@. %2$@ wins": {
+      "source_hash": "4df1de82ea1d3ba8e448083830f83fd32963b8668a262ceedae58ab163d857a7",
+      "value": "পয়েন্ট. গেম শেষ. %1$@. %2$@ জিতেছেন",
+      "status": "reviewed"
+    },
+    "Point. Game. Match. %1$@. %2$@ wins": {
+      "source_hash": "ac5883461be012125a514857b5c8525492ce2a2f32056b0aff1d332384d22b68",
+      "value": "পয়েন্ট. গেম শেষ. ম্যাচ শেষ. %1$@. %2$@ জিতেছেন",
+      "status": "reviewed"
+    },
+    "Second server, %1$@": {
+      "source_hash": "ac982b667f42414e97252a4bfb087133123687bcde535727939d4efcffb7fce2",
+      "value": "দ্বিতীয় সার্ভার, %1$@",
+      "status": "reviewed"
+    },
+    "Service over, %1$@": {
+      "source_hash": "22b62c1602aba92e73363a38abaa847e381b2de98a8eba6ef82214aeccc0f58c",
+      "value": "সার্ভিস বদল, %1$@",
+      "status": "reviewed"
+    },
+    "Set over": {
+      "source_hash": "beca92477cf5d9d7d3674c93815b14b8a073e2ec9cde46418e7fe622928972c0",
+      "value": "সেট শেষ",
+      "status": "reviewed"
+    },
+    "Side out, %1$@": {
+      "source_hash": "9a0e75dc76d204899a1ca9bb7f795642072755c3fe57c197246849314298f615",
+      "value": "সার্ভিস বদল, %1$@",
+      "status": "reviewed"
+    },
+    "Time": {
+      "source_hash": "33b93476cf597a3330653b66a658983d892ac264b5d6029a2dc642b9b1f30870",
+      "value": "সময়",
+      "status": "reviewed"
+    },
+    "Time in, %1$@": {
+      "source_hash": "1c4af2a731d340ab976071ce53e5a230277c293f77250b07e284a48a51e28d66",
+      "value": "খেলা আবার শুরু, %1$@",
+      "status": "reviewed"
+    },
+    "Time-out": {
+      "source_hash": "6c4bbdd6721e626729f7fad76799bacccfcec14c2bd6d759fa65c6a8f0057b47",
+      "value": "টাইম আউট",
+      "status": "reviewed"
+    },
+    "Time. Game %1$@, %2$@ serves, 0-0": {
+      "source_hash": "5bf289d2118b397073c1bb9e97522fd8d5dd7cc36e507c06226bef6b6ef47964",
+      "value": "সময়. গেম %1$@. %2$@ সার্ভ করবেন, 0–0",
+      "status": "reviewed"
+    },
+    "Time. Game %1$@. %2$@ serves, love all": {
+      "source_hash": "3643c7a06fcfa888c8f1a8d90175259b2ef4482421c13f4c1c383d8342f23935",
+      "value": "সময়. গেম %1$@. %2$@ সার্ভ করবেন, 0–0",
+      "status": "reviewed"
+    },
+    "Time. Game %1$@. %2$@ to serve, love all": {
+      "source_hash": "bb4091ff4659930424ee806c92eb50554b53d6fd80d08048d70cfbe182f11d0c",
+      "value": "সময়. গেম %1$@. %2$@ সার্ভ করবেন, 0–0",
+      "status": "reviewed"
+    },
+    "game point": {
+      "source_hash": "e8dfad93ac81fd8e63703cc307a5b03b83823033e5aa51dbb3640f524bf49b81",
+      "value": "গেম পয়েন্ট",
+      "status": "reviewed"
+    },
+    "love": {
+      "source_hash": "686f746a95b6f836d7d70567c302c3f9ebb5ee0def3d1220ee9d4e9f34f5e131",
+      "value": "0",
+      "status": "reviewed"
+    },
+    "match point": {
+      "source_hash": "7a34db3aabec0a97bda804db6693799a05dfef1d4c3e6c0c344045db4d4b1034",
+      "value": "ম্যাচ পয়েন্ট",
+      "status": "reviewed"
+    },
+    "minute": {
+      "source_hash": "28cdd20eaf134a05f18369414cb2df5e36c6a4e4f551b8c9cff8548029c41d6c",
+      "value": "মিনিট",
+      "status": "reviewed"
+    },
+    "minutes": {
+      "source_hash": "90e63d85fa1ab2c8ed65222f3ebd794b1e524b4b7cf84bec451542d0451b2985",
+      "value": "মিনিট",
+      "status": "reviewed"
+    },
+    "set": {
+      "source_hash": "6ee0eb490ff832101cf82a3d387c35f29e4230be786978f7acf9e811febf6723",
+      "value": "সেট",
+      "status": "reviewed"
+    },
+    "sets": {
+      "source_hash": "82c6db3dbf4ab47132dfd1d9d1bf8525edccb48512c8647b7a2067e0417537c0",
+      "value": "সেট",
+      "status": "reviewed"
+    },
+    "first": {
+      "source_hash": "a7937b64b8caa58f03721bb6bacf5c78cb235febe0e70b1b84cd99541461a08e",
+      "value": "1",
+      "status": "reviewed"
+    },
+    "second": {
+      "source_hash": "16367aacb67a4a017c8da8ab95682ccb390863780f7114dda0a0e0c55644c7c4",
+      "value": "2",
+      "status": "reviewed"
+    },
+    "third": {
+      "source_hash": "b1e99324505bd32da0e1f85dcf5e19a09db0481e8a15f62c41eb320304a8e927",
+      "value": "3",
+      "status": "reviewed"
+    },
+    "fourth": {
+      "source_hash": "dc81b1d371a4072be7fcfc3e1939f5bddae8bdc168846a50a78face975b9af63",
+      "value": "4",
+      "status": "reviewed"
+    },
+    "fifth": {
+      "source_hash": "1774b8eebdec58c5f11998669e983f81e3d2c1d1a63649113096ddef143a7c2b",
+      "value": "5",
+      "status": "reviewed"
+    },
+    "thirty": {
+      "source_hash": "aca5fb59db69e5dffeda36ff0bd65205f16720b7fa1893c4557e9216dfc276d5",
+      "value": "30",
+      "status": "reviewed"
+    },
+    "forty": {
+      "source_hash": "9cee2304bd633d42c35db17c1427a273668bd3166487f924216d807a566a8e73",
+      "value": "40",
+      "status": "reviewed"
+    },
+    "voice_download_title": {
+      "source_hash": "c9f3d1926a64b81cf6e2a08528a2a64062cf2328b462e43b4d88da7126e16321",
+      "value": "কণ্ঠ ডাউনলোড করুন",
+      "status": "reviewed"
+    },
+    "voice_download_guide": {
+      "source_hash": "52581cac3135831be3d9cd0e77b55e77ed518d189baa01268f20b1eec5f005fa",
+      "value": "এই ভাষার জন্য কোনো কণ্ঠ উপলব্ধ নেই। সেটিংস → অ্যাক্সেসিবিলিটি → VoiceOver → স্পিচ খুলে সংশ্লিষ্ট ভাষা ও অঞ্চল নির্বাচন করুন এবং একটি কণ্ঠ ডাউনলোড করুন। VoiceOver চালু করার প্রয়োজন নেই। iScoreboard-এ ফিরে ভয়েস ঘোষণা আবার চালু করুন।",
+      "status": "reviewed"
+    },
+    "zero": {
+      "source_hash": "f9194e73f9e9459e3450ea10a179cdf77aafa695beecd3b9344a98d111622243",
+      "value": "0",
+      "status": "reviewed"
+    },
+    "one": {
+      "source_hash": "7692c3ad3540bb803c020b3aee66cd8887123234ea0c6e7143c0add73ff431ed",
+      "value": "1",
+      "status": "reviewed"
+    },
+    "two": {
+      "source_hash": "3fc4ccfe745870e2c0d99f71f30ff0656c8dedd41cc1d7d3d376b0dbe685e2f3",
+      "value": "2",
+      "status": "reviewed"
+    },
+    "three": {
+      "source_hash": "8b5b9db0c13db24256c829aa364aa90c6d2eba318b9232a4ab9313b954d3555f",
+      "value": "3",
+      "status": "reviewed"
+    },
+    "four": {
+      "source_hash": "04efaf080f5a3e74e1c29d1ca6a48569382cbbcd324e8d59d2b83ef21c039f00",
+      "value": "4",
+      "status": "reviewed"
+    },
+    "five": {
+      "source_hash": "222b0bd51fcef7e65c2e62db2ed65457013bab56be6fafeb19ee11d453153c80",
+      "value": "5",
+      "status": "reviewed"
+    },
+    "six": {
+      "source_hash": "44778d82365e4af681c40d5f0eef5cf6f5899d3f0ac335050a7ed6779cf3f674",
+      "value": "6",
+      "status": "reviewed"
+    },
+    "seven": {
+      "source_hash": "3ba8d02b16fd2a01c1a8ba1a1f036d7ce386ed953696fa57331c2ac48a80b255",
+      "value": "7",
+      "status": "reviewed"
+    },
+    "eight": {
+      "source_hash": "c195d2d8756234367242ba7616c5c60369bc25ced2dcb5b92808d31b58ef217a",
+      "value": "8",
+      "status": "reviewed"
+    },
+    "nine": {
+      "source_hash": "edcd8e701a2df0cd66a39bae6aa156cf16fe2b9653ef65f7d31742e2352421e4",
+      "value": "9",
+      "status": "reviewed"
+    },
+    "ten": {
+      "source_hash": "e4432baa90819aaef51d2a7f8e148bf7e679610f3173752fabb4dcb2d0f418d3",
+      "value": "10",
+      "status": "reviewed"
+    },
+    "eleven": {
+      "source_hash": "e979074ebd5633a7263aa48c4b7dea055a769115fbc0a7de459f8a74cd2efd2b",
+      "value": "11",
+      "status": "reviewed"
+    },
+    "twelve": {
+      "source_hash": "d1a749ad879b6c07e1f356b260ba81f9cb5b4376072280c9994a5c125165b701",
+      "value": "12",
+      "status": "reviewed"
+    },
+    "thirteen": {
+      "source_hash": "9ecc81f0a4b6dfb0c30e78370c42a1e0c118d2b426ec4dd1ee06c9f62a832040",
+      "value": "13",
+      "status": "reviewed"
+    },
+    "fourteen": {
+      "source_hash": "fef8f41cdcd2038663b027a0cfbe252d39510bc162b599d1d4aa683873cc21d7",
+      "value": "14",
+      "status": "reviewed"
+    },
+    "fifteen": {
+      "source_hash": "c463967e5708cab7f980855e14042ddbcfd1c3556d520ad4dacdfb4a115c67a5",
+      "value": "15",
+      "status": "reviewed"
+    },
+    "set_unit.zero": {
+      "source_hash": "82c6db3dbf4ab47132dfd1d9d1bf8525edccb48512c8647b7a2067e0417537c0",
+      "value": "সেট",
+      "status": "reviewed"
+    },
+    "set_unit.one": {
+      "source_hash": "6ee0eb490ff832101cf82a3d387c35f29e4230be786978f7acf9e811febf6723",
+      "value": "সেট",
+      "status": "reviewed"
+    },
+    "set_unit.two": {
+      "source_hash": "82c6db3dbf4ab47132dfd1d9d1bf8525edccb48512c8647b7a2067e0417537c0",
+      "value": "সেট",
+      "status": "reviewed"
+    },
+    "set_unit.few": {
+      "source_hash": "82c6db3dbf4ab47132dfd1d9d1bf8525edccb48512c8647b7a2067e0417537c0",
+      "value": "সেট",
+      "status": "reviewed"
+    },
+    "set_unit.many": {
+      "source_hash": "82c6db3dbf4ab47132dfd1d9d1bf8525edccb48512c8647b7a2067e0417537c0",
+      "value": "সেট",
+      "status": "reviewed"
+    },
+    "set_unit.other": {
+      "source_hash": "82c6db3dbf4ab47132dfd1d9d1bf8525edccb48512c8647b7a2067e0417537c0",
+      "value": "সেট",
+      "status": "reviewed"
+    },
+    "tennis.point.love": {
+      "source_hash": "686f746a95b6f836d7d70567c302c3f9ebb5ee0def3d1220ee9d4e9f34f5e131",
+      "value": "0",
+      "status": "reviewed"
+    },
+    "tennis.point.fifteen": {
+      "source_hash": "c463967e5708cab7f980855e14042ddbcfd1c3556d520ad4dacdfb4a115c67a5",
+      "value": "15",
+      "status": "reviewed"
+    },
+    "tennis.point.thirty": {
+      "source_hash": "aca5fb59db69e5dffeda36ff0bd65205f16720b7fa1893c4557e9216dfc276d5",
+      "value": "30",
+      "status": "reviewed"
+    },
+    "tennis.point.forty": {
+      "source_hash": "9cee2304bd633d42c35db17c1427a273668bd3166487f924216d807a566a8e73",
+      "value": "40",
+      "status": "reviewed"
+    },
+    "tennis.score.all": {
+      "source_hash": "810990c6e1c078f1eb7e0bb0ce71cb23b330af262dcc44e2e0f466acdf8341ae",
+      "value": "%1$@ সমান",
+      "status": "reviewed"
+    },
+    "badminton.number.0": {
+      "source_hash": "686f746a95b6f836d7d70567c302c3f9ebb5ee0def3d1220ee9d4e9f34f5e131",
+      "value": "0",
+      "status": "reviewed"
+    },
+    "badminton.number.1": {
+      "source_hash": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+      "value": "1",
+      "status": "reviewed"
+    },
+    "badminton.number.2": {
+      "source_hash": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
+      "value": "2",
+      "status": "reviewed"
+    },
+    "badminton.number.3": {
+      "source_hash": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
+      "value": "3",
+      "status": "reviewed"
+    },
+    "badminton.number.4": {
+      "source_hash": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+      "value": "4",
+      "status": "reviewed"
+    },
+    "badminton.number.5": {
+      "source_hash": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",
+      "value": "5",
+      "status": "reviewed"
+    },
+    "badminton.number.6": {
+      "source_hash": "e7f6c011776e8db7cd330b54174fd76f7d0216b612387a5ffcfb81e6f0919683",
+      "value": "6",
+      "status": "reviewed"
+    },
+    "badminton.number.7": {
+      "source_hash": "7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451",
+      "value": "7",
+      "status": "reviewed"
+    },
+    "badminton.number.8": {
+      "source_hash": "2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3",
+      "value": "8",
+      "status": "reviewed"
+    },
+    "badminton.number.9": {
+      "source_hash": "19581e27de7ced00ff1ce50b2047e7a567c76b1cbaebabe5ef03f7c3017bb5b7",
+      "value": "9",
+      "status": "reviewed"
+    },
+    "badminton.number.10": {
+      "source_hash": "4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5",
+      "value": "10",
+      "status": "reviewed"
+    },
+    "badminton.number.11": {
+      "source_hash": "4fc82b26aecb47d2868c4efbe3581732a3e7cbcc6c2efb32062c08170a05eeb8",
+      "value": "11",
+      "status": "reviewed"
+    },
+    "badminton.number.12": {
+      "source_hash": "6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918",
+      "value": "12",
+      "status": "reviewed"
+    },
+    "badminton.number.13": {
+      "source_hash": "3fdba35f04dc8c462986c992bcf875546257113072a909c162f7e470e581e278",
+      "value": "13",
+      "status": "reviewed"
+    },
+    "badminton.number.14": {
+      "source_hash": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+      "value": "14",
+      "status": "reviewed"
+    },
+    "badminton.number.15": {
+      "source_hash": "e629fa6598d732768f7c726b4b621285f9c3b85303900aa912017db7617d8bdb",
+      "value": "15",
+      "status": "reviewed"
+    },
+    "badminton.number.16": {
+      "source_hash": "b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9",
+      "value": "16",
+      "status": "reviewed"
+    },
+    "badminton.number.17": {
+      "source_hash": "4523540f1504cd17100c4835e85b7eefd49911580f8efff0599a8f283be6b9e3",
+      "value": "17",
+      "status": "reviewed"
+    },
+    "badminton.number.18": {
+      "source_hash": "4ec9599fc203d176a301536c2e091a19bc852759b255bd6818810a42c5fed14a",
+      "value": "18",
+      "status": "reviewed"
+    },
+    "badminton.number.19": {
+      "source_hash": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767",
+      "value": "19",
+      "status": "reviewed"
+    },
+    "badminton.number.20": {
+      "source_hash": "f5ca38f748a1d6eaf726b8a42fb575c3c71f1864a8143301782de13da2d9202b",
+      "value": "20",
+      "status": "reviewed"
+    },
+    "badminton.number.21": {
+      "source_hash": "6f4b6612125fb3a0daecd2799dfd6c9c299424fd920f9b308110a2c1fbd8f443",
+      "value": "21",
+      "status": "reviewed"
+    },
+    "badminton.number.22": {
+      "source_hash": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09",
+      "value": "22",
+      "status": "reviewed"
+    },
+    "badminton.number.23": {
+      "source_hash": "535fa30d7e25dd8a49f1536779734ec8286108d115da5045d77f3b4185d8f790",
+      "value": "23",
+      "status": "reviewed"
+    },
+    "badminton.number.24": {
+      "source_hash": "c2356069e9d1e79ca924378153cfbbfb4d4416b1f99d41a2940bfdb66c5319db",
+      "value": "24",
+      "status": "reviewed"
+    },
+    "badminton.number.25": {
+      "source_hash": "b7a56873cd771f2c446d369b649430b65a756ba278ff97ec81bb6f55b2e73569",
+      "value": "25",
+      "status": "reviewed"
+    },
+    "badminton.number.26": {
+      "source_hash": "5f9c4ab08cac7457e9111a30e4664920607ea2c115a1433d7be98e97e64244ca",
+      "value": "26",
+      "status": "reviewed"
+    },
+    "badminton.number.27": {
+      "source_hash": "670671cd97404156226e507973f2ab8330d3022ca96e0c93bdbdb320c41adcaf",
+      "value": "27",
+      "status": "reviewed"
+    },
+    "badminton.number.28": {
+      "source_hash": "59e19706d51d39f66711c2653cd7eb1291c94d9b55eb14bda74ce4dc636d015a",
+      "value": "28",
+      "status": "reviewed"
+    },
+    "badminton.number.29": {
+      "source_hash": "35135aaa6cc23891b40cb3f378c53a17a1127210ce60e125ccf03efcfdaec458",
+      "value": "29",
+      "status": "reviewed"
+    },
+    "badminton.number.30": {
+      "source_hash": "624b60c58c9d8bfb6ff1886c2fd605d2adeb6ea4da576068201b6c6958ce93f4",
+      "value": "30",
+      "status": "reviewed"
+    },
+    "pingpong.love.all": {
+      "source_hash": "203a1b519bbadcb23c32d1dbb300959a65e40a71a5e906d04f4dcccf2f9e2a6a",
+      "status": "reviewed",
+      "value": "Love all"
+    },
+    "score.numbers": {
+      "source_hash": "b41da2237a299d09ad1ca40676455fc9a97d88fcd729c8ee55da02959fb86464",
+      "status": "reviewed",
+      "value": "%1$@, %2$@"
+    },
+    "score.numbers.three": {
+      "source_hash": "9776ef65762cb0292ede08ffcdb5653a117e86771647d7adbcd86164fdcd2599",
+      "status": "reviewed",
+      "value": "%1$@, %2$@, %3$@"
+    },
+    "badminton.critical.all": {
+      "source_hash": "6a33344caea80fd1386a0d61f535a19244cf2c6c3888fce6de111c84afe677cb",
+      "status": "reviewed",
+      "value": "%1$@, %2$@, all"
+    },
+    "softtennis.opening": {
+      "source_hash": "4972590dc9a1720d6f702644c0af8731a8526aec79709d5abfb6de50a5e7c0ca",
+      "status": "reviewed",
+      "value": "%1$@ game match, play ball"
+    },
+    "softtennis.score.all": {
+      "source_hash": "810990c6e1c078f1eb7e0bb0ce71cb23b330af262dcc44e2e0f466acdf8341ae",
+      "status": "reviewed",
+      "value": "%1$@ all"
+    },
+    "softtennis.deuce": {
+      "source_hash": "ec263f69e2839c762ff6eb3ec87ce68ce61b99bd5ed4fd423268f9db9dff29b2",
+      "status": "reviewed",
+      "value": "Deuce"
+    },
+    "softtennis.deuce.again": {
+      "source_hash": "98246cd6b2497ba887793431aef00d43ed3bace067cf62f7573f1f5b0bb99479",
+      "status": "reviewed",
+      "value": "Deuce again"
+    },
+    "softtennis.advantage.server": {
+      "source_hash": "5f084bb47ed867e091dd117a2f348d2d2972823006e1f4ebdfaa7b5f201bd0d2",
+      "status": "reviewed",
+      "value": "Advantage, server"
+    },
+    "softtennis.advantage.receiver": {
+      "source_hash": "f33376d466ba10b90c6fa3bb8816988fece0becc588be9321961cd22330296c6",
+      "status": "reviewed",
+      "value": "Advantage, receiver"
+    },
+    "softtennis.game.set": {
+      "source_hash": "4d68a5afb9c338705b611f9c57cf5682b75cc7fb4ab915f8ac556430ef51784e",
+      "status": "reviewed",
+      "value": "Game set"
+    },
+    "softtennis.change.sides": {
+      "source_hash": "5ce9e35134980f4aa16a0b984198b73b7e5763f717587adffe9576c646375f15",
+      "status": "reviewed",
+      "value": "Change sides"
+    },
+    "softtennis.no.time": {
+      "source_hash": "95f75fb91c3cb06d2c2f8d280648f5cfabc4cce5b56f30f8fe59ec175aae815c",
+      "status": "reviewed",
+      "value": "No time"
+    },
+    "softtennis.time": {
+      "source_hash": "33b93476cf597a3330653b66a658983d892ac264b5d6029a2dc642b9b1f30870",
+      "status": "reviewed",
+      "value": "Time"
+    },
+    "squash.game.to": {
+      "source_hash": "e17d126ba415ffe8d67d4f8b1a47fef661d8e7f0410e23ac90dc03e241600c28",
+      "status": "reviewed",
+      "value": "%1$@, game to %2$@"
+    },
+    "squash.games.all": {
+      "source_hash": "c6b6b8da4ec5b0c99a020e86fc9e31ba13e4b79620c8513a9c9aa8e11c687a1f",
+      "status": "reviewed",
+      "value": "%1$@ games all"
+    },
+    "squash.leads": {
+      "source_hash": "af6ef0f64903783533e0603ee04530c49140b46c4c6081c09f36c67c1ec64fc7",
+      "status": "reviewed",
+      "value": "%1$@ leads %2$@ %3$@ to %4$@"
+    },
+    "squash.game.unit": {
+      "source_hash": "6ca5cab77e702c787b4c14b3d3bf26bad43da606be6eed04ab0b9720120ae081",
+      "status": "reviewed",
+      "value": "game"
+    },
+    "squash.games.unit": {
+      "source_hash": "cd7ac4c61fd8bd3e76fe77e03b810a442d82f21d7dd08be0f82a58e2ad17a4e5",
+      "status": "reviewed",
+      "value": "games"
+    },
+    "squash.match.to": {
+      "source_hash": "e1ff6a0f2f50e6c6a3f9ed84a076879c9028ec5f9fa183c0858d6e734a5a5f3a",
+      "status": "reviewed",
+      "value": "%1$@, match to %2$@, %3$@ games to %4$@, %5$@"
+    },
+    "padel.advantage.number": {
+      "source_hash": "14970789433212f650e54b752e59c76a77483df3f1b8c208ed6860d81512d910",
+      "status": "reviewed",
+      "value": "Advantage %1$@, %2$@"
+    },
+    "softtennis.number.0": {
+      "source_hash": "f9194e73f9e9459e3450ea10a179cdf77aafa695beecd3b9344a98d111622243",
+      "status": "reviewed",
+      "value": "zero"
+    },
+    "softtennis.number.1": {
+      "source_hash": "7692c3ad3540bb803c020b3aee66cd8887123234ea0c6e7143c0add73ff431ed",
+      "status": "reviewed",
+      "value": "one"
+    },
+    "softtennis.number.2": {
+      "source_hash": "3fc4ccfe745870e2c0d99f71f30ff0656c8dedd41cc1d7d3d376b0dbe685e2f3",
+      "status": "reviewed",
+      "value": "two"
+    },
+    "softtennis.number.3": {
+      "source_hash": "8b5b9db0c13db24256c829aa364aa90c6d2eba318b9232a4ab9313b954d3555f",
+      "status": "reviewed",
+      "value": "three"
+    },
+    "softtennis.number.4": {
+      "source_hash": "04efaf080f5a3e74e1c29d1ca6a48569382cbbcd324e8d59d2b83ef21c039f00",
+      "status": "reviewed",
+      "value": "four"
+    },
+    "softtennis.number.5": {
+      "source_hash": "222b0bd51fcef7e65c2e62db2ed65457013bab56be6fafeb19ee11d453153c80",
+      "status": "reviewed",
+      "value": "five"
+    },
+    "softtennis.number.6": {
+      "source_hash": "44778d82365e4af681c40d5f0eef5cf6f5899d3f0ac335050a7ed6779cf3f674",
+      "status": "reviewed",
+      "value": "six"
+    },
+    "tennis.deuce.first": {
+      "source_hash": "ec263f69e2839c762ff6eb3ec87ce68ce61b99bd5ed4fd423268f9db9dff29b2",
+      "status": "reviewed",
+      "value": "Deuce"
+    },
+    "tennis.deuce.again": {
+      "source_hash": "ec263f69e2839c762ff6eb3ec87ce68ce61b99bd5ed4fd423268f9db9dff29b2",
+      "status": "reviewed",
+      "value": "Deuce"
+    },
+    "tennis.advantage.name": {
+      "source_hash": "f0c6e4516b122ceb55b74403892fcccd06e8985138f689ea95cc40f0249f6946",
+      "status": "reviewed",
+      "value": "Advantage %1$@"
+    },
+    "tennis.deciding.point": {
+      "source_hash": "eea188fa62e15d90cf5ec2c81bfda3b05be08c2a9db59a25fb604e233bcf995d",
+      "status": "reviewed",
+      "value": "Deciding point, receiver's choice"
+    },
+    "pingpong.score.all": {
+      "source_hash": "810990c6e1c078f1eb7e0bb0ce71cb23b330af262dcc44e2e0f466acdf8341ae",
+      "status": "reviewed",
+      "value": "%1$@ all"
+    },
+    "softtennis.game": {
+      "source_hash": "5c412a262086b9701cda06302f6667f9265b1807d0368fcec6cc03bf64fc250b",
+      "status": "reviewed",
+      "value": "Game"
+    },
+    "squash.zero": {
+      "source_hash": "686f746a95b6f836d7d70567c302c3f9ebb5ee0def3d1220ee9d4e9f34f5e131",
+      "status": "reviewed",
+      "value": "love"
+    },
+    "squash.score.all": {
+      "source_hash": "810990c6e1c078f1eb7e0bb0ce71cb23b330af262dcc44e2e0f466acdf8341ae",
+      "status": "reviewed",
+      "value": "%1$@ all"
+    },
+    "squash.hand.out": {
+      "source_hash": "799303bafeaadac2bcba79affdea5d1e190ed026be402a07febf86904df458d3",
+      "status": "reviewed",
+      "value": "Hand out, %1$@"
+    },
+    "squash.two.clear": {
+      "source_hash": "6ce3e75da2785c6df6d48bef138f4b890b78b1568ae1188d89c6509e6d1a3a60",
+      "status": "reviewed",
+      "value": "a player must win by 2 points"
+    },
+    "squash.game.ball": {
+      "source_hash": "ccb8c7cf357f8b1b7df9bf7e6d4c5cc440d1873f4c49168afc91cd9380bd7b20",
+      "status": "reviewed",
+      "value": "Game ball"
+    },
+    "squash.match.ball": {
+      "source_hash": "27606a7c8319912f435c5b1d3ad69d312ad9465e8443166a07fe2969e19d009c",
+      "status": "reviewed",
+      "value": "Match ball"
+    },
+    "tennis.opening": {
+      "source_hash": "3fa1490d91273b0050854b883daf215fee1853812654f1bbf57c6393cce6b23f",
+      "status": "reviewed",
+      "value": "%1$@ to serve, play"
+    },
+    "softtennis.match.games.7": {
+      "source_hash": "7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451",
+      "status": "reviewed",
+      "value": "7"
+    },
+    "softtennis.match.games.9": {
+      "source_hash": "19581e27de7ced00ff1ce50b2047e7a567c76b1cbaebabe5ef03f7c3017bb5b7",
+      "status": "reviewed",
+      "value": "9"
+    }
+  }
+}

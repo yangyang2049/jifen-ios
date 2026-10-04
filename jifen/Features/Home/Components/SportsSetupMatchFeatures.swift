@@ -37,7 +37,12 @@ enum SportsSetupMatchFeature: Equatable, CaseIterable {
     }
 
     /// 返回项目在当前模式下可用的比赛功能列表；无功能项目返回空数组。
-    static func features(for gameType: GameType, isSingles: Bool) -> [SportsSetupMatchFeature] {
+    static func features(for gameType: GameType, isSingles: Bool, voiceSupported: Bool = true) -> [SportsSetupMatchFeature] {
+        let available = baseFeatures(for: gameType, isSingles: isSingles)
+        return voiceSupported ? available : available.filter { $0 != .voiceAnnouncement }
+    }
+
+    private static func baseFeatures(for gameType: GameType, isSingles: Bool) -> [SportsSetupMatchFeature] {
         switch gameType {
         case .pingpong:
             return isSingles
@@ -60,11 +65,14 @@ struct SportsSetupMatchFeaturesSection: View {
 
     let gameType: GameType
     @Binding var draft: SportsSetupDraft
+    @AppStorage("pingpongAnnounceServer") private var announceServer = true
+    @State private var showServePopup = false
+    @State private var servePopupRevision = 0
 
     private let featureCardSpacing: CGFloat = 8
 
     private var features: [SportsSetupMatchFeature] {
-        SportsSetupMatchFeature.features(for: gameType, isSingles: draft.isSingles)
+        SportsSetupMatchFeature.features(for: gameType, isSingles: draft.isSingles, voiceSupported: SportsVoiceSupport.isSupported)
     }
 
     var body: some View {
@@ -73,28 +81,62 @@ struct SportsSetupMatchFeaturesSection: View {
                 if features.count == 1 {
                     singleSwitch(features[0])
                 } else {
-                    GeometryReader { proxy in
-                        let cardWidth = SportsSetupFeatureCardLayout.cardWidth(
-                            availableWidth: proxy.size.width,
-                            itemCount: features.count,
-                            preferredMaxWidth: preferredFeatureCardWidth,
-                            spacing: featureCardSpacing
-                        )
-
-                        HStack(spacing: featureCardSpacing) {
-                            ForEach(features, id: \.self) { feature in
-                                SportsSetupFeatureCard(
-                                    feature: feature,
-                                    isOn: isOn(feature)
-                                ) {
-                                    toggle(feature)
+                    SportsSetupFeatureCardsLayout(
+                        preferredMaxWidth: preferredFeatureCardWidth,
+                        spacing: featureCardSpacing
+                    ) {
+                        ForEach(features, id: \.self) { feature in
+                            SportsSetupFeatureCard(
+                                feature: feature,
+                                isOn: isOn(feature)
+                            ) {
+                                toggle(feature)
+                            }
+                            .overlay(alignment: .topTrailing) {
+                                if feature == .voiceAnnouncement, gameType == .pingpong, draft.voiceAnnouncement {
+                                    Button {
+                                        servePopupRevision += 1
+                                        showServePopup = true
+                                    } label: {
+                                        Image(systemName: "chevron.down")
+                                            .font(.system(size: 10, weight: .semibold))
+                                            .frame(width: 24, height: 28)
+                                    }
+                                    .accessibilityLabel(NSLocalizedString("voice_announce_server", comment: ""))
+                                    .accessibilityIdentifier("setup_voice_options")
                                 }
-                                .frame(width: cardWidth)
+                            }
+                            .popover(isPresented: Binding(
+                                get: { feature == .voiceAnnouncement && showServePopup },
+                                set: { showServePopup = $0 }
+                            ), arrowEdge: .bottom) {
+                                Toggle(NSLocalizedString("voice_announce_server", comment: ""), isOn: $announceServer)
+                                    .font(.system(size: 15))
+                                    .foregroundStyle(Theme.textPrimary)
+                                    .tint(Theme.primary)
+                                    .frame(width: 248)
+                                    .padding(16)
+                                    .presentationCompactAdaptation(.popover)
+                                    .accessibilityIdentifier("setup_announce_server_toggle")
+                                    .onChange(of: announceServer) { _, _ in servePopupRevision += 1 }
+                                    .task(id: servePopupRevision) {
+                                        try? await Task.sleep(for: .seconds(5))
+                                        if !Task.isCancelled { showServePopup = false }
+                                    }
                             }
                         }
-                        .frame(maxWidth: .infinity)
                     }
-                    .frame(height: SportsSetupFeatureCardLayout.cardHeight)
+                }
+            }
+            .onChange(of: draft.voiceAnnouncement) { _, enabled in
+                guard gameType == .pingpong else { return }
+                showServePopup = enabled
+                servePopupRevision += 1
+            }
+            .onAppear {
+                if gameType == .pingpong && draft.voiceAnnouncement {
+                    showServePopup = true
+                    servePopupRevision += 1
                 }
             }
         }
@@ -116,7 +158,10 @@ struct SportsSetupMatchFeaturesSection: View {
             settingsToggleRow("show_match_time", fallback: "显示时间", value: $draft.showMatchTime)
                 .accessibilityIdentifier("sports_setup_show_match_time")
         case .voiceAnnouncement:
-            settingsToggleRow("voice_announcement", fallback: "语音播报", value: $draft.voiceAnnouncement)
+            settingsToggleRow("voice_announcement", fallback: "语音播报", value: Binding(
+                get: { draft.voiceAnnouncement },
+                set: { value in draft.voiceAnnouncement = value && ScoreVoiceAnnouncer.shared.prepareToEnable() }
+            ))
         }
     }
 
@@ -127,6 +172,7 @@ struct SportsSetupMatchFeaturesSection: View {
                 .foregroundStyle(Theme.textPrimary)
         }
         .tint(Theme.primary)
+        .accessibilityIdentifier("setup_feature_\(key)")
     }
 
     private func isOn(_ feature: SportsSetupMatchFeature) -> Bool {
@@ -141,13 +187,15 @@ struct SportsSetupMatchFeaturesSection: View {
         switch feature {
         case .autoChangeSides: draft.autoChangeSides.toggle()
         case .showMatchTime: draft.showMatchTime.toggle()
-        case .voiceAnnouncement: draft.voiceAnnouncement.toggle()
+        case .voiceAnnouncement:
+            if draft.voiceAnnouncement { draft.voiceAnnouncement = false }
+            else { draft.voiceAnnouncement = ScoreVoiceAnnouncer.shared.prepareToEnable() }
         }
     }
 }
 
 enum SportsSetupFeatureCardLayout {
-    static let cardHeight: CGFloat = 74
+    static let minimumCardHeight: CGFloat = 74
 
     static func cardWidth(
         availableWidth: CGFloat,
@@ -162,8 +210,45 @@ enum SportsSetupFeatureCardLayout {
     }
 }
 
+/// Measure labels at the actual card width, then give every card the height
+/// of the tallest one. Long translations can wrap without a fixed-height clip.
+private struct SportsSetupFeatureCardsLayout: Layout {
+    let preferredMaxWidth: CGFloat
+    let spacing: CGFloat
+
+    private func cardWidth(_ availableWidth: CGFloat, count: Int) -> CGFloat {
+        SportsSetupFeatureCardLayout.cardWidth(
+            availableWidth: availableWidth, itemCount: count,
+            preferredMaxWidth: preferredMaxWidth, spacing: spacing
+        )
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        guard !subviews.isEmpty else { return .zero }
+        let idealWidth = preferredMaxWidth * CGFloat(subviews.count) + spacing * CGFloat(subviews.count - 1)
+        let width = proposal.width.flatMap { $0.isFinite ? $0 : nil } ?? idealWidth
+        let itemWidth = cardWidth(width, count: subviews.count)
+        let height = subviews.map { $0.sizeThatFits(ProposedViewSize(width: itemWidth, height: nil)).height }.max() ?? 0
+        return CGSize(width: width, height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        guard !subviews.isEmpty else { return }
+        let width = cardWidth(bounds.width, count: subviews.count)
+        let totalWidth = width * CGFloat(subviews.count) + spacing * CGFloat(subviews.count - 1)
+        let startX = bounds.minX + (bounds.width - totalWidth) / 2
+        for (index, subview) in subviews.enumerated() {
+            subview.place(
+                at: CGPoint(x: startX + CGFloat(index) * (width + spacing), y: bounds.minY),
+                anchor: .topLeading,
+                proposal: ProposedViewSize(width: width, height: bounds.height)
+            )
+        }
+    }
+}
+
 /// 功能切换卡片（对齐安卓 SportsSetupFeatureCard）：
-/// 74pt 高卡片（中文宽 74pt，其他语言最多 96pt）、圆角 14、图标 22 + 12pt 两行文字；
+/// 最低 74pt 高卡片（中文宽 74pt，其他语言最多 96pt），完整显示多行标签；
 /// 选中浅绿底 + 描边 1.5 + 强调色内容，未选中中性底，无勾选标记。
 struct SportsSetupFeatureCard: View {
     let feature: SportsSetupMatchFeature
@@ -175,17 +260,18 @@ struct SportsSetupFeatureCard: View {
         Button(action: action) {
             VStack(spacing: 6) {
                 Image(systemName: feature.iconSystemName)
-                    .font(.system(size: 22))
+                    .font(.system(size: feature == .voiceAnnouncement ? 24 : 22))
+                    .frame(width: 32, height: 28)
                 Text(NSLocalizedString(feature.labelKey, value: feature.fallbackLabel, comment: ""))
                     .font(.system(size: 12, weight: isOn ? .medium : .regular))
-                    .lineLimit(2)
                     .multilineTextAlignment(.center)
-                    // 英文长词在最窄对话框内仍可能回落到接近 74pt，允许轻微缩字兜底。
-                    .minimumScaleFactor(0.85)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 2)
             }
             .foregroundStyle(contentColor)
             .frame(maxWidth: .infinity)
-            .frame(height: SportsSetupFeatureCardLayout.cardHeight)
+            .padding(.vertical, 10)
+            .frame(minHeight: SportsSetupFeatureCardLayout.minimumCardHeight, maxHeight: .infinity, alignment: .top)
             .background(containerColor, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -195,6 +281,7 @@ struct SportsSetupFeatureCard: View {
         }
         .buttonStyle(.plain)
         .disabled(!isEnabled)
+        .accessibilityIdentifier("setup_feature_\(feature.labelKey)")
         .accessibilityAddTraits(isOn ? [.isToggle] : [])
         .accessibilityValue(isOn ? "1" : "0")
     }

@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 import importlib.util
 import json
+import plistlib
 import re
+import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -18,6 +21,41 @@ SPEC.loader.exec_module(localize)
 
 
 class LocalizationPipelineTests(unittest.TestCase):
+    def run_hant_generator(self, directory, overrides):
+        directory = Path(directory)
+        (directory / "hans.strings").write_text('"voice_announce_server" = "播报发球方";\n')
+        (directory / "android.xml").write_text('<resources/>')
+        (directory / "terms.json").write_text(json.dumps({
+            "replacements": [], "platformKeyPrefixes": ["^ios_"], "simplifiedResidue": []
+        }))
+        (directory / "overrides.json").write_text(json.dumps(overrides))
+        return subprocess.run([
+            shutil.which("node"), str(MODULE_PATH.with_name("gen_zh_hant.mjs")),
+            "--converter", "identity", "--ios-hans", str(directory / "hans.strings"),
+            "--android-cn", str(directory / "android.xml"), "--android-tw", str(directory / "android.xml"),
+            "--terms", str(directory / "terms.json"), "--overrides", str(directory / "overrides.json"),
+            "--out", str(directory / "output.strings"), "--report", str(directory / "report.md")
+        ], capture_output=True, text=True)
+
+    @unittest.skipUnless(shutil.which("node"), "Node is required for generator regression")
+    def test_hant_generator_preserves_reviewed_override(self):
+        with tempfile.TemporaryDirectory() as directory:
+            result = self.run_hant_generator(directory, {"voice_announce_server": {"value": "播報發球方"}})
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn('"voice_announce_server" = "播報發球方";', (Path(directory) / "output.strings").read_text())
+
+    @unittest.skipUnless(shutil.which("node"), "Node is required for generator regression")
+    def test_hant_generator_rejects_malformed_override_before_writing(self):
+        for value in ["播報發球方", None, {}, {"value": 1}]:
+            with self.subTest(value=value), tempfile.TemporaryDirectory() as directory:
+                output = Path(directory) / "output.strings"
+                output.write_text("previous reviewed output")
+                result = self.run_hant_generator(directory, {"voice_announce_server": value})
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("Invalid override for voice_announce_server", result.stderr)
+                self.assertEqual(output.read_text(), "previous reviewed output")
+                self.assertFalse((Path(directory) / "report.md").exists())
+
     def test_manifest_has_expected_matrix(self):
         payload = localize.manifest()
         locales = payload["locales"]
@@ -28,9 +66,37 @@ class LocalizationPipelineTests(unittest.TestCase):
 
     def test_source_inventory(self):
         entries = localize.source_entries()
-        self.assertEqual(len([entry for entry in entries if entry.table == "Localizable"]), 1439)
+        self.assertEqual(len([entry for entry in entries if entry.table == "Localizable"]), 1449)
         self.assertEqual(len([entry for entry in entries if entry.table == "InfoPlist"]), 4)
-        self.assertEqual(len({entry.identity for entry in entries}), 1443)
+        self.assertEqual(len({entry.identity for entry in entries}), 1453)
+        self.assertTrue({("Localizable", "feedback_official"), ("Localizable", "feedback_pinned"),
+                         ("Localizable", "voice_announce_server"),
+                         ("Localizable", "scoreboard_official_break_help_intro"),
+                         ("Localizable", "scoreboard_official_break_rule_between_games_60"),
+                         ("Localizable", "scoreboard_official_break_rule_badminton"),
+                         ("Localizable", "scoreboard_official_break_rule_squash"),
+                         ("Localizable", "scoreboard_official_break_rule_tennis"),
+                         ("Localizable", "scoreboard_official_break_rule_soft_tennis"),
+                         ("Localizable", "scoreboard_official_break_rule_pickleball")}
+                        .issubset({entry.identity for entry in entries}))
+
+    def test_promoted_resources_match_reviewed_catalogs(self):
+        # A reviewed catalog and the app can both validate separately yet carry
+        # different text when only one side of a correction is saved.
+        for spec in localize.manifest()["locales"]:
+            locale = spec["ios"]
+            folder = localize.RESOURCE_ROOT / (locale + ".lproj")
+            if spec["existing"] or not folder.exists():
+                continue
+            catalog = localize.load_catalog(locale)
+            for table in ["Localizable", "InfoPlist"]:
+                actual = {entry.key: entry.value for entry in localize.parse_strings(folder / (table + ".strings"), table)}
+                expected = {entry.key: localize.value_for_row(catalog[entry.identity])
+                            for entry in localize.source_entries() if entry.table == table}
+                self.assertEqual(actual, expected, f"{locale}/{table} differs from the reviewed catalog")
+            actual_plurals = plistlib.loads((folder / "Localizable.stringsdict").read_bytes())
+            expected_plurals = plistlib.loads(localize.render_stringsdict(locale, catalog))
+            self.assertEqual(actual_plurals, expected_plurals, f"{locale} plurals differ from the reviewed catalog")
 
     def test_plural_inventory_uses_locale_categories(self):
         plural_count = len(localize.plural_manifest()["keys"])
@@ -133,6 +199,8 @@ class LocalizationPipelineTests(unittest.TestCase):
             "vip_agreement_plain_prefix": "J’ai lu et j’accepte : ",
             "vip_agreement_link_separator": " et ",
             "vip_agreement_link_middle_separator": ", ",
+            "setup_suffix": " Configuration",
+            "doudizhu_winner_separator": ", ",
         }
         for key, value in fragments.items():
             catalog[("Localizable", key)]["final"] = value
@@ -147,6 +215,8 @@ class LocalizationPipelineTests(unittest.TestCase):
                 values = {entry.key: entry.value for entry in localize.parse_strings(resource, "Localizable")}
                 for key, value in fragments.items():
                     self.assertEqual(values[key], value)
+                self.assertEqual("Échecs" + values["setup_suffix"], "Échecs Configuration")
+                self.assertEqual(values["doudizhu_winner_separator"].join(["Alice", "Bob"]), "Alice, Bob")
                 # Check the same four combinations as the membership page:
                 # signed in/out, subscription/lifetime.
                 for signed_out in [False, True]:
@@ -170,6 +240,10 @@ class LocalizationPipelineTests(unittest.TestCase):
             ("vip_agreement_link_separator", "  et ", True),
             ("vip_agreement_link_separator", "\tet ", True),
             ("vip_agreement_plain_prefix", "Texte\n", True),
+            ("setup_suffix", " Configuration", False),
+            ("setup_suffix", "  Configuration", True),
+            ("doudizhu_winner_separator", ", ", False),
+            ("doudizhu_winner_separator", ",\t", True),
             ("cancel", " Annuler ", True),
         ]
         for key, value, should_block in cases:
@@ -179,6 +253,26 @@ class LocalizationPipelineTests(unittest.TestCase):
                 with patch.object(localize, "load_catalog", return_value=catalog):
                     blockers = localize.validate_locale("fr", True)["blockers"]
                 self.assertEqual(any(row["code"] == "edge-whitespace" and row["key"] == key for row in blockers), should_block)
+
+    def test_source_urls_survive_translation_and_sentence_cleanup(self):
+        identity = ("Localizable", "sync_intro_note")
+        cases = [
+            ("Consultez (https://jifenqi.com).", False),
+            ("Consultez «https://jifenqi.com».", False),
+            ("ウェブサイト（https://jifenqi.com）を開きます。", False),
+            ("웹사이트(https://jifenqi.com)를 여세요.", False),
+            ("موقعنا (https://jifenqi.com)،", False),
+            ("Consultez (https://jifenqi. com).", True),
+            ("Consultez (https://jifenqi.com.example).", True),
+            ("Consultez notre site.", True),
+        ]
+        for value, should_block in cases:
+            with self.subTest(value=value):
+                catalog = localize.load_catalog("fr")
+                catalog[identity]["final"] = value
+                with patch.object(localize, "load_catalog", return_value=catalog):
+                    blockers = localize.validate_locale("fr", True)["blockers"]
+                self.assertEqual(any(row["code"] == "protected-url" and row["key"] == identity[1] for row in blockers), should_block)
 
     def test_pipe_residue_is_a_blocking_provider_artifact(self):
         catalog = localize.load_catalog("fr")

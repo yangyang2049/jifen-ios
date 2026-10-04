@@ -69,8 +69,10 @@ nonisolated enum APIRetryPolicy {
     static func maxRetries(method: HTTPMethod) -> Int { method == .get ? maxRetries : 0 }
 
     static func retryDelay(attempt: Int, retryAfterSeconds: Double?) -> Double {
-        if let retryAfterSeconds { return min(max(retryAfterSeconds, 0), maxRetryAfterSeconds) }
-        return baseBackoffSeconds * pow(2.0, Double(max(attempt - 1, 0)))
+        if let retryAfterSeconds, retryAfterSeconds.isFinite {
+            return min(max(retryAfterSeconds, 0), maxRetryAfterSeconds)
+        }
+        return min(baseBackoffSeconds * pow(2.0, Double(max(attempt - 1, 0))), maxRetryAfterSeconds)
     }
 
     static func isRetryableTransport(_ error: URLError) -> Bool {
@@ -79,7 +81,7 @@ nonisolated enum APIRetryPolicy {
 
     static func retryAfterSeconds(from headerValue: String?) -> Double? {
         guard let raw = headerValue?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else { return nil }
-        if let seconds = Double(raw) { return seconds }
+        if let seconds = Double(raw) { return seconds.isFinite ? seconds : nil }
         let formatter = HTTPDateFormatter.shared
         guard let date = formatter.date(from: raw) else { return nil }
         return date.timeIntervalSinceNow
@@ -107,7 +109,12 @@ actor APIClient {
     let environment: APIEnvironment
     private let session: URLSession
     private let tokenStore: AuthTokenStore
-    private var refreshTask: Task<String, Error>?
+    private nonisolated struct ActiveRefresh: Sendable {
+        let id: UUID
+        let snapshot: AuthSessionSnapshot
+        let task: Task<AuthSessionSnapshot, Error>
+    }
+    private var refreshTask: ActiveRefresh?
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
 
@@ -135,7 +142,8 @@ actor APIClient {
         requiresAuth: Bool = false,
         headers: [String: String] = [:],
         timeout: TimeInterval? = nil,
-        retries: Int? = nil
+        retries: Int? = nil,
+        expectedAuthRevision: UInt64? = nil
     ) async throws -> Response {
         let data = try await execute(
             path,
@@ -146,7 +154,8 @@ actor APIClient {
             requiresAuth: requiresAuth,
             headers: headers,
             timeout: timeout,
-            retries: retries
+            retries: retries,
+            expectedAuthRevision: expectedAuthRevision
         )
         if Response.self == EmptyResponse.self, data.isEmpty {
             return try decoder.decode(Response.self, from: Data("{}".utf8))
@@ -166,7 +175,8 @@ actor APIClient {
         multipartBody: Data,
         boundary: String,
         requiresAuth: Bool = true,
-        headers: [String: String] = [:]
+        headers: [String: String] = [:],
+        expectedAuthRevision: UInt64? = nil
     ) async throws -> Response {
         let data = try await execute(
             path,
@@ -177,7 +187,8 @@ actor APIClient {
             requiresAuth: requiresAuth,
             headers: headers,
             timeout: nil,
-            retries: nil
+            retries: nil,
+            expectedAuthRevision: expectedAuthRevision
         )
         do {
             return try decoder.decode(Response.self, from: data)
@@ -186,13 +197,46 @@ actor APIClient {
         }
     }
 
+    func authSessionRevision() async -> UInt64 {
+        await tokenStore.authSessionRevision()
+    }
+
     func clearSession() async {
-        refreshTask?.cancel()
+        refreshTask?.task.cancel()
         refreshTask = nil
         await tokenStore.clearAuth()
     }
 
-    /// 统一发送口：幂等 GET 退避重试 ≤2 次（retries 可覆盖）；401 先刷新 token 重放一次，重放仍 401 才判定会话失效。
+    /// A delayed logout may clear only the session that initiated it.
+    @discardableResult
+    func clearSession(expectedAuthRevision: UInt64) async -> Bool {
+        guard await tokenStore.clearAuth(ifRevisionMatches: expectedAuthRevision) != nil else { return false }
+        if refreshTask?.snapshot.revision == expectedAuthRevision {
+            refreshTask?.task.cancel()
+            refreshTask = nil
+        }
+        return true
+    }
+
+    /// Requests and refreshes remain bound to the login session that started them.
+    private func ensureCurrent(_ snapshot: AuthSessionSnapshot) async throws {
+        guard await tokenStore.authSessionRevision() == snapshot.revision else { throw CancellationError() }
+    }
+
+    private func expireSession(_ snapshot: AuthSessionSnapshot) async throws -> Never {
+        guard let clearedRevision = await tokenStore.clearAuth(ifMatching: snapshot) else { throw CancellationError() }
+        if refreshTask?.snapshot.revision == snapshot.revision {
+            refreshTask?.task.cancel()
+            refreshTask = nil
+        }
+        await MainActor.run {
+            NotificationCenter.default.post(name: .apiSessionExpired, object: nil,
+                userInfo: ["authSessionRevision": clearedRevision])
+        }
+        throw APIClientError.sessionExpired
+    }
+
+    /// GET retry and 401 replay never cross a logout/login boundary.
     private func execute(
         _ path: String,
         method: HTTPMethod,
@@ -202,101 +246,106 @@ actor APIClient {
         requiresAuth: Bool,
         headers: [String: String],
         timeout: TimeInterval?,
-        retries: Int?
+        retries: Int?,
+        expectedAuthRevision: UInt64?
     ) async throws -> Data {
-        var token: String?
-        if requiresAuth {
-            token = try await validToken()
-        }
+        var auth = requiresAuth ? try await validAuthSnapshot(expectedRevision: expectedAuthRevision) : nil
         let retryBudget = retries ?? APIRetryPolicy.maxRetries(method: method)
         var attemptsMade = 0
         var unauthorizedHandled = false
         while true {
+            if let auth { try await ensureCurrent(auth) }
             do {
-                return try await perform(
-                    path,
-                    method: method,
-                    query: query,
-                    bodyData: bodyData,
-                    contentType: contentType,
-                    token: token,
-                    headers: headers,
-                    timeout: timeout
+                let data = try await perform(
+                    path, method: method, query: query, bodyData: bodyData, contentType: contentType,
+                    token: auth?.token, headers: headers, timeout: timeout
                 )
+                if let auth { try await ensureCurrent(auth) }
+                return data
             } catch APIRetryTerminalError.retryable(let underlying, let retryAfterSeconds) {
+                if let auth { try await ensureCurrent(auth) }
                 guard attemptsMade < retryBudget else { throw underlying }
                 attemptsMade += 1
-                let delay = retryAfterSeconds
-                    ?? APIRetryPolicy.retryDelay(attempt: attemptsMade, retryAfterSeconds: nil)
-                if delay > 0 {
-                    try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
-                }
+                let delay = APIRetryPolicy.retryDelay(attempt: attemptsMade, retryAfterSeconds: retryAfterSeconds)
+                if delay > 0 { try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000)) }
             } catch let error as APIClientError {
+                if let auth { try await ensureCurrent(auth) }
                 guard case .unauthorized = error else { throw error }
-                guard requiresAuth, !unauthorizedHandled else {
-                    await clearSession()
-                    await MainActor.run {
-                        NotificationCenter.default.post(name: .apiSessionExpired, object: nil)
-                    }
-                    throw APIClientError.sessionExpired
-                }
+                guard requiresAuth, let snapshot = auth else { throw error }
+                guard !unauthorizedHandled else { try await expireSession(snapshot) }
                 unauthorizedHandled = true
-                token = try await refresh(existingToken: token ?? "")
+                auth = try await refresh(existing: snapshot)
+            } catch {
+                if let auth { try await ensureCurrent(auth) }
+                throw error
             }
         }
     }
 
-    private func validToken() async throws -> String {
-        guard let token = await tokenStore.authToken() else { throw APIClientError.sessionExpired }
-        let expiry = await tokenStore.authExpiry() ?? jwtExpiration(token)
+    private func validAuthSnapshot(expectedRevision: UInt64?) async throws -> AuthSessionSnapshot {
+        let snapshot = await tokenStore.authSnapshot()
+        if let expectedRevision, expectedRevision != snapshot.revision { throw CancellationError() }
+        guard let token = snapshot.token else { throw APIClientError.sessionExpired }
+        let expiry = snapshot.expiresAt ?? jwtExpiration(token)
         if let expiry, expiry.timeIntervalSinceNow < 5 * 60 {
-            return try await refresh(existingToken: token)
+            return try await refresh(existing: snapshot)
         }
-        return token
+        return snapshot
     }
 
-    private func refresh(existingToken: String) async throws -> String {
-        if let refreshTask { return try await refreshTask.value }
-        let task = Task<String, Error> { [session, environment, tokenStore, encoder, decoder] in
+    private func refresh(existing snapshot: AuthSessionSnapshot) async throws -> AuthSessionSnapshot {
+        let current = await tokenStore.authSnapshot()
+        guard current.revision == snapshot.revision, current.token != nil else { throw CancellationError() }
+        // Another request may have refreshed this same session while this request was in flight.
+        if current.token != snapshot.token { return current }
+        if let active = refreshTask, active.snapshot.revision == snapshot.revision, active.snapshot.token == snapshot.token {
+            let result = try await active.task.value
+            try await ensureCurrent(result)
+            return result
+        }
+        refreshTask?.task.cancel()
+        let id = UUID()
+        let task = Task<AuthSessionSnapshot, Error> { [session, environment, tokenStore, encoder, decoder] in
             var request = URLRequest(url: environment.restBaseURL.appending(path: "/api/auth/refresh"))
             request.httpMethod = HTTPMethod.post.rawValue
-            request.setValue("Bearer \(existingToken)", forHTTPHeaderField: "Authorization")
+            request.setValue("Bearer \(snapshot.token ?? "")", forHTTPHeaderField: "Authorization")
             APIClient.applyDefaultHeaders(to: &request)
             request.httpBody = try encoder.encode(EmptyRequest())
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            let (data, response) = try await session.data(for: request)
-            guard let http = response as? HTTPURLResponse else {
-                throw APIClientError.invalidResponse
+            let data: Data
+            let response: URLResponse
+            do {
+                (data, response) = try await session.data(for: request)
+            } catch {
+                guard await tokenStore.authSessionRevision() == snapshot.revision else { throw CancellationError() }
+                throw error
             }
+            guard await tokenStore.authSessionRevision() == snapshot.revision else { throw CancellationError() }
+            guard let http = response as? HTTPURLResponse else { throw APIClientError.invalidResponse }
             guard (200..<300).contains(http.statusCode) else {
                 let payload = try? decoder.decode(APIErrorPayload.self, from: data)
-                if http.statusCode == 401 || http.statusCode == 403 {
-                    await tokenStore.clearAuth()
+                if http.statusCode == 401 {
+                    guard let clearedRevision = await tokenStore.clearAuth(ifMatching: snapshot) else { throw CancellationError() }
                     await MainActor.run {
-                        NotificationCenter.default.post(name: .apiSessionExpired, object: nil)
+                        NotificationCenter.default.post(name: .apiSessionExpired, object: nil,
+                            userInfo: ["authSessionRevision": clearedRevision])
                     }
                     throw APIClientError.sessionExpired
                 }
-                throw APIClientError.server(
-                    status: http.statusCode,
-                    code: payload?.error,
-                    message: payload?.message,
-                    nextAvailableAt: payload?.nextAvailableAt
-                )
+                throw APIClientError.server(status: http.statusCode, code: payload?.error,
+                    message: payload?.message, nextAvailableAt: payload?.nextAvailableAt)
             }
             let payload = try decoder.decode(RefreshResponse.self, from: data)
-            guard let expiry = APIDateParser.date(from: payload.expiresAt) else {
-                #if DEBUG
-                print("[APIClient] refresh rejected: invalid expiresAt=\(payload.expiresAt)")
-                #endif
-                throw APIClientError.decoding
-            }
-            try await tokenStore.setAuth(token: payload.token, expiresAt: expiry)
-            return payload.token
+            guard let expiry = APIDateParser.date(from: payload.expiresAt) else { throw APIClientError.decoding }
+            guard let refreshed = try await tokenStore.setRefreshedAuth(token: payload.token, expiresAt: expiry, ifMatching: snapshot)
+            else { throw CancellationError() }
+            return refreshed
         }
-        refreshTask = task
-        defer { refreshTask = nil }
-        return try await task.value
+        refreshTask = ActiveRefresh(id: id, snapshot: snapshot, task: task)
+        defer { if refreshTask?.id == id { refreshTask = nil } }
+        let result = try await task.value
+        try await ensureCurrent(result)
+        return result
     }
 
     private func perform(

@@ -67,6 +67,7 @@ nonisolated struct ProfileUpdateResponse: Decodable, Sendable {
 nonisolated enum ProfileUpdateOutcome: Equatable, Sendable {
     case updated
     case submittedForReview
+    case cancelled
     case failed(String)
 }
 

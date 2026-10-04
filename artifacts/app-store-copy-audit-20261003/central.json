@@ -1,0 +1,693 @@
+{
+  "locales": [
+    {
+      "locale": "ar-SA",
+      "sourceFile": "marketing/app-store/localization-2026-10-02/locales/ar-SA.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "reviewedChecks": {
+        "individuallyRead": [
+          "description",
+          "subtitle",
+          "screenshotTitles.slogan",
+          "all enabled screenshotTitles",
+          "7 actual copy.json cards"
+        ],
+        "featureScope": "Reviewed against en-US and zh-Hans descriptions; supported-sport customization scope checked.",
+        "urls": [
+          "https://jifenqi.com/terms",
+          "https://jifenqi.com/privacy",
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+        ],
+        "urlIntegrity": "PASS",
+        "urlSeparateLines": true,
+        "paragraphs": "PASS: four feature paragraphs and three separately labeled URL paragraphs; actual newlines, no literal backslash-n.",
+        "subtitleLength": 27,
+        "direction": "rtl",
+        "manualBreaks": "PASS: no words split by manual newline; optional phrase-grouping suggestions are separate findings.",
+        "actualTitlePngsReviewed": [
+          "02-score.png",
+          "03-catalog.png",
+          "04-recap.png",
+          "05-setup.png",
+          "06-multiplayer.png",
+          "07-cast.png"
+        ],
+        "actualTitleEvidence": "artifacts/app-store-copy-audit-20261003/titles-ar-SA.jpg"
+      },
+      "findings": []
+    },
+    {
+      "locale": "he",
+      "sourceFile": "marketing/app-store/localization-2026-10-02/locales/he.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "reviewedChecks": {
+        "individuallyRead": [
+          "description",
+          "subtitle",
+          "screenshotTitles.slogan",
+          "all enabled screenshotTitles",
+          "7 actual copy.json cards"
+        ],
+        "featureScope": "Reviewed against en-US and zh-Hans descriptions; supported-sport customization scope checked.",
+        "urls": [
+          "https://jifenqi.com/terms",
+          "https://jifenqi.com/privacy",
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+        ],
+        "urlIntegrity": "PASS",
+        "urlSeparateLines": true,
+        "paragraphs": "PASS: four feature paragraphs and three separately labeled URL paragraphs; actual newlines, no literal backslash-n.",
+        "subtitleLength": 27,
+        "direction": "rtl",
+        "manualBreaks": "PASS: no words split by manual newline; optional phrase-grouping suggestions are separate findings.",
+        "actualTitlePngsReviewed": [
+          "02-score.png",
+          "03-catalog.png",
+          "04-recap.png",
+          "05-setup.png",
+          "06-multiplayer.png",
+          "07-cast.png"
+        ],
+        "actualTitleEvidence": "artifacts/app-store-copy-audit-20261003/titles-he.jpg"
+      },
+      "findings": []
+    },
+    {
+      "locale": "ur-PK",
+      "sourceFile": "marketing/app-store/localization-2026-10-02/locales/ur-PK.json",
+      "descriptionStatus": "FAIL",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "FAIL_RENDERED_RTL",
+      "reviewedChecks": {
+        "individuallyRead": [
+          "description",
+          "subtitle",
+          "screenshotTitles.slogan",
+          "all enabled screenshotTitles",
+          "7 actual copy.json cards"
+        ],
+        "featureScope": "Reviewed against en-US and zh-Hans descriptions; supported-sport customization scope checked.",
+        "urls": [
+          "https://jifenqi.com/terms",
+          "https://jifenqi.com/privacy",
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+        ],
+        "urlIntegrity": "PASS",
+        "urlSeparateLines": true,
+        "paragraphs": "PASS: four feature paragraphs and three separately labeled URL paragraphs; actual newlines, no literal backslash-n.",
+        "subtitleLength": 25,
+        "direction": "rtl",
+        "manualBreaks": "PASS: no words split by manual newline; optional phrase-grouping suggestions are separate findings.",
+        "actualTitlePngsReviewed": [
+          "02-score.png",
+          "03-catalog.png",
+          "04-recap.png",
+          "05-setup.png",
+          "06-multiplayer.png",
+          "07-cast.png"
+        ],
+        "actualTitleEvidence": "artifacts/app-store-copy-audit-20261003/titles-ur-PK.jpg"
+      },
+      "findings": [
+        {
+          "severity": "P2",
+          "field": "description",
+          "source": "marketing/app-store/localization-2026-10-02/locales/ur-PK.json",
+          "old": "معاون کھیلوں میں پوائنٹس کے اصول، میچ کا طریقہ اور ڈبلز میں سروس کی ترتیب طے کریں۔",
+          "new": "جن کھیلوں میں یہ سہولت دستیاب ہے، ان میں پوائنٹس کے اصول، میچ کا طریقہ اور ڈبلز میں سروس کی ترتیب طے کریں۔",
+          "reason": "معاون意为协助者/辅助者（主动义），不能准确表达supported sports（支持该功能的项目）；改为“在这些功能可用的运动中”以保留功能支持范围。",
+          "confidence": "certain",
+          "reference": "https://www.rekhtadictionary.com/meaning-of-muaavin?lang=ur"
+        },
+        {
+          "severity": "P2",
+          "field": "renderedTitles.catalog",
+          "source": "marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ur-PK/03-catalog.png",
+          "old": "ایک اسکور بورڈ\n26 سے زیادہ کھیلوں کے لیے",
+          "new": "ایک اسکور بورڈ\n‏26 سے زیادہ کھیلوں کے لیے",
+          "reason": "源第二行逻辑顺序正确，但实际PNG的26落在整行最左端；从右往左读时“多于26”的数词与سے زیادہ被分开。须设置该段落为RTL，或尝试行前U+200F；保留数字内部26的LTR顺序，修复后再验PNG。",
+          "confidence": "certain",
+          "issueGroup": "ur-PK-catalog-rtl-number"
+        }
+      ]
+    },
+    {
+      "locale": "ru",
+      "sourceFile": "marketing/app-store/localization-2026-10-02/locales/ru.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "reviewedChecks": {
+        "individuallyRead": [
+          "description",
+          "subtitle",
+          "screenshotTitles.slogan",
+          "all enabled screenshotTitles",
+          "7 actual copy.json cards"
+        ],
+        "featureScope": "Reviewed against en-US and zh-Hans descriptions; supported-sport customization scope checked.",
+        "urls": [
+          "https://jifenqi.com/terms",
+          "https://jifenqi.com/privacy",
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+        ],
+        "urlIntegrity": "PASS",
+        "urlSeparateLines": true,
+        "paragraphs": "PASS: four feature paragraphs and three separately labeled URL paragraphs; actual newlines, no literal backslash-n.",
+        "subtitleLength": 27,
+        "direction": "ltr",
+        "manualBreaks": "PASS: no words split by manual newline; optional phrase-grouping suggestions are separate findings.",
+        "actualTitlePngsReviewed": [
+          "02-score.png",
+          "03-catalog.png",
+          "04-recap.png",
+          "05-setup.png",
+          "06-multiplayer.png",
+          "07-cast.png"
+        ],
+        "actualTitleEvidence": "artifacts/app-store-copy-audit-20261003/titles-ru.jpg"
+      },
+      "findings": []
+    },
+    {
+      "locale": "uk",
+      "sourceFile": "marketing/app-store/localization-2026-10-02/locales/uk.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "FAIL_RENDERED_WORD_BREAK",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "reviewedChecks": {
+        "individuallyRead": [
+          "description",
+          "subtitle",
+          "screenshotTitles.slogan",
+          "all enabled screenshotTitles",
+          "7 actual copy.json cards"
+        ],
+        "featureScope": "Reviewed against en-US and zh-Hans descriptions; supported-sport customization scope checked.",
+        "urls": [
+          "https://jifenqi.com/terms",
+          "https://jifenqi.com/privacy",
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+        ],
+        "urlIntegrity": "PASS",
+        "urlSeparateLines": true,
+        "paragraphs": "PASS: four feature paragraphs and three separately labeled URL paragraphs; actual newlines, no literal backslash-n.",
+        "subtitleLength": 27,
+        "direction": "ltr",
+        "manualBreaks": "PASS: no words split by manual newline; optional phrase-grouping suggestions are separate findings.",
+        "actualTitlePngsReviewed": [
+          "02-score.png",
+          "03-catalog.png",
+          "04-recap.png",
+          "05-setup.png",
+          "06-multiplayer.png",
+          "07-cast.png"
+        ],
+        "actualTitleEvidence": "artifacts/app-store-copy-audit-20261003/titles-uk.jpg",
+        "actualSloganPng": "Personally visually inspected full 01-slogan.png; manualBreakPass=true, renderedPass=false."
+      },
+      "findings": [
+        {
+          "severity": "P2",
+          "field": "renderedSlogan",
+          "source": "marketing/app-store/ios-screenshots-pen-2026-10-02/exports/uk/01-slogan.png",
+          "old": "КОЖНЕ\nОЧКО\nВАЖЛИВ\nЕ",
+          "new": "КОЖНЕ\nОЧКО\nВАЖЛИВЕ",
+          "reason": "源copy为КОЖНЕ ОЧКО\\nВАЖЛИВЕ，人工换行没有拆词；实际PNG因标题宽度/字号把ВАЖЛИВЕ自动拆为ВАЖЛИВ和孤立Е。保留现有文案，缩小字号或增大文字容器至完整单词可放下。",
+          "confidence": "certain",
+          "issueGroup": "uk-slogan-word-break"
+        }
+      ]
+    },
+    {
+      "locale": "pl",
+      "sourceFile": "marketing/app-store/localization-2026-10-02/locales/pl.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS_WITH_LAYOUT_SUGGESTION",
+      "reviewedChecks": {
+        "individuallyRead": [
+          "description",
+          "subtitle",
+          "screenshotTitles.slogan",
+          "all enabled screenshotTitles",
+          "7 actual copy.json cards"
+        ],
+        "featureScope": "Reviewed against en-US and zh-Hans descriptions; supported-sport customization scope checked.",
+        "urls": [
+          "https://jifenqi.com/terms",
+          "https://jifenqi.com/privacy",
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+        ],
+        "urlIntegrity": "PASS",
+        "urlSeparateLines": true,
+        "paragraphs": "PASS: four feature paragraphs and three separately labeled URL paragraphs; actual newlines, no literal backslash-n.",
+        "subtitleLength": 30,
+        "direction": "ltr",
+        "manualBreaks": "PASS: no words split by manual newline; optional phrase-grouping suggestions are separate findings.",
+        "actualTitlePngsReviewed": [
+          "02-score.png",
+          "03-catalog.png",
+          "04-recap.png",
+          "05-setup.png",
+          "06-multiplayer.png",
+          "07-cast.png"
+        ],
+        "actualTitleEvidence": "artifacts/app-store-copy-audit-20261003/titles-pl.jpg",
+        "brandNote": "iPhone'a and iPada are Polish inflected brand forms, not brand mistranslations."
+      },
+      "findings": [
+        {
+          "severity": "P3",
+          "field": "screenshotTitles.recap and cards.recap.text",
+          "source": "marketing/app-store/localization-2026-10-02/locales/pl.json; marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+          "old": "Wróć do\nkażdego meczu",
+          "new": "Wróć\ndo każdego meczu",
+          "reason": "文意和语法正确，但手动换行把介词do留在上一行，建议让do与każdego meczu同一行以保持短语完整；当前PNG也这样断行，调整后须测量行宽。实际cards应保留全大写形式。",
+          "confidence": "high"
+        }
+      ]
+    },
+    {
+      "locale": "cs",
+      "sourceFile": "marketing/app-store/localization-2026-10-02/locales/cs.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "reviewedChecks": {
+        "individuallyRead": [
+          "description",
+          "subtitle",
+          "screenshotTitles.slogan",
+          "all enabled screenshotTitles",
+          "7 actual copy.json cards"
+        ],
+        "featureScope": "Reviewed against en-US and zh-Hans descriptions; supported-sport customization scope checked.",
+        "urls": [
+          "https://jifenqi.com/terms",
+          "https://jifenqi.com/privacy",
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+        ],
+        "urlIntegrity": "PASS",
+        "urlSeparateLines": true,
+        "paragraphs": "PASS: four feature paragraphs and three separately labeled URL paragraphs; actual newlines, no literal backslash-n.",
+        "subtitleLength": 27,
+        "direction": "ltr",
+        "manualBreaks": "PASS: no words split by manual newline; optional phrase-grouping suggestions are separate findings.",
+        "actualTitlePngsReviewed": [
+          "02-score.png",
+          "03-catalog.png",
+          "04-recap.png",
+          "05-setup.png",
+          "06-multiplayer.png",
+          "07-cast.png"
+        ],
+        "actualTitleEvidence": "artifacts/app-store-copy-audit-20261003/titles-cs.jpg"
+      },
+      "findings": []
+    },
+    {
+      "locale": "sk",
+      "sourceFile": "marketing/app-store/localization-2026-10-02/locales/sk.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "reviewedChecks": {
+        "individuallyRead": [
+          "description",
+          "subtitle",
+          "screenshotTitles.slogan",
+          "all enabled screenshotTitles",
+          "7 actual copy.json cards"
+        ],
+        "featureScope": "Reviewed against en-US and zh-Hans descriptions; supported-sport customization scope checked.",
+        "urls": [
+          "https://jifenqi.com/terms",
+          "https://jifenqi.com/privacy",
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+        ],
+        "urlIntegrity": "PASS",
+        "urlSeparateLines": true,
+        "paragraphs": "PASS: four feature paragraphs and three separately labeled URL paragraphs; actual newlines, no literal backslash-n.",
+        "subtitleLength": 28,
+        "direction": "ltr",
+        "manualBreaks": "PASS: no words split by manual newline; optional phrase-grouping suggestions are separate findings.",
+        "actualTitlePngsReviewed": [
+          "02-score.png",
+          "03-catalog.png",
+          "04-recap.png",
+          "05-setup.png",
+          "06-multiplayer.png",
+          "07-cast.png"
+        ],
+        "actualTitleEvidence": "artifacts/app-store-copy-audit-20261003/titles-sk.jpg"
+      },
+      "findings": []
+    },
+    {
+      "locale": "hr",
+      "sourceFile": "marketing/app-store/localization-2026-10-02/locales/hr.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "reviewedChecks": {
+        "individuallyRead": [
+          "description",
+          "subtitle",
+          "screenshotTitles.slogan",
+          "all enabled screenshotTitles",
+          "7 actual copy.json cards"
+        ],
+        "featureScope": "Reviewed against en-US and zh-Hans descriptions; supported-sport customization scope checked.",
+        "urls": [
+          "https://jifenqi.com/terms",
+          "https://jifenqi.com/privacy",
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+        ],
+        "urlIntegrity": "PASS",
+        "urlSeparateLines": true,
+        "paragraphs": "PASS: four feature paragraphs and three separately labeled URL paragraphs; actual newlines, no literal backslash-n.",
+        "subtitleLength": 29,
+        "direction": "ltr",
+        "manualBreaks": "PASS: no words split by manual newline; optional phrase-grouping suggestions are separate findings.",
+        "actualTitlePngsReviewed": [
+          "02-score.png",
+          "03-catalog.png",
+          "04-recap.png",
+          "05-setup.png",
+          "06-multiplayer.png",
+          "07-cast.png"
+        ],
+        "actualTitleEvidence": "artifacts/app-store-copy-audit-20261003/titles-hr.jpg"
+      },
+      "findings": []
+    },
+    {
+      "locale": "sl-SI",
+      "sourceFile": "marketing/app-store/localization-2026-10-02/locales/sl-SI.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "reviewedChecks": {
+        "individuallyRead": [
+          "description",
+          "subtitle",
+          "screenshotTitles.slogan",
+          "all enabled screenshotTitles",
+          "7 actual copy.json cards"
+        ],
+        "featureScope": "Reviewed against en-US and zh-Hans descriptions; supported-sport customization scope checked.",
+        "urls": [
+          "https://jifenqi.com/terms",
+          "https://jifenqi.com/privacy",
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+        ],
+        "urlIntegrity": "PASS",
+        "urlSeparateLines": true,
+        "paragraphs": "PASS: four feature paragraphs and three separately labeled URL paragraphs; actual newlines, no literal backslash-n.",
+        "subtitleLength": 23,
+        "direction": "ltr",
+        "manualBreaks": "PASS: no words split by manual newline; optional phrase-grouping suggestions are separate findings.",
+        "actualTitlePngsReviewed": [
+          "02-score.png",
+          "03-catalog.png",
+          "04-recap.png",
+          "05-setup.png",
+          "06-multiplayer.png",
+          "07-cast.png"
+        ],
+        "actualTitleEvidence": "artifacts/app-store-copy-audit-20261003/titles-sl-SI.jpg"
+      },
+      "findings": []
+    },
+    {
+      "locale": "ro",
+      "sourceFile": "marketing/app-store/localization-2026-10-02/locales/ro.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS_WITH_LAYOUT_SUGGESTION",
+      "reviewedChecks": {
+        "individuallyRead": [
+          "description",
+          "subtitle",
+          "screenshotTitles.slogan",
+          "all enabled screenshotTitles",
+          "7 actual copy.json cards"
+        ],
+        "featureScope": "Reviewed against en-US and zh-Hans descriptions; supported-sport customization scope checked.",
+        "urls": [
+          "https://jifenqi.com/terms",
+          "https://jifenqi.com/privacy",
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+        ],
+        "urlIntegrity": "PASS",
+        "urlSeparateLines": true,
+        "paragraphs": "PASS: four feature paragraphs and three separately labeled URL paragraphs; actual newlines, no literal backslash-n.",
+        "subtitleLength": 24,
+        "direction": "ltr",
+        "manualBreaks": "PASS: no words split by manual newline; optional phrase-grouping suggestions are separate findings.",
+        "actualTitlePngsReviewed": [
+          "02-score.png",
+          "03-catalog.png",
+          "04-recap.png",
+          "05-setup.png",
+          "06-multiplayer.png",
+          "07-cast.png"
+        ],
+        "actualTitleEvidence": "artifacts/app-store-copy-audit-20261003/titles-ro.jpg"
+      },
+      "findings": [
+        {
+          "severity": "P3",
+          "field": "screenshotTitles.recap and cards.recap.text",
+          "source": "marketing/app-store/localization-2026-10-02/locales/ro.json; marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+          "old": "Revino la\nfiecare meci",
+          "new": "Revino\nla fiecare meci",
+          "reason": "文意和语法正确，但手动换行把介词la留在上一行，建议与fiecare meci同一行。实际cards应保留全大写形式。",
+          "confidence": "high"
+        },
+        {
+          "severity": "P3",
+          "field": "renderedTitles.catalog",
+          "source": "marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ro/03-catalog.png",
+          "old": "O SINGURĂ TABELĂ\nPENTRU PESTE 26 DE\nSPORTURI",
+          "new": "O SINGURĂ TABELĂ\nPENTRU PESTE 26 DE SPORTURI",
+          "reason": "copy人工第二行完整；实际PNG自动扩为三行并把de与sporturi分开，数词短语中介词悬空。建议缩小该标题字号/调整框宽，使26 de sporturi连续显示；非语义硬错。",
+          "confidence": "high"
+        }
+      ]
+    },
+    {
+      "locale": "hu",
+      "sourceFile": "marketing/app-store/localization-2026-10-02/locales/hu.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "reviewedChecks": {
+        "individuallyRead": [
+          "description",
+          "subtitle",
+          "screenshotTitles.slogan",
+          "all enabled screenshotTitles",
+          "7 actual copy.json cards"
+        ],
+        "featureScope": "Reviewed against en-US and zh-Hans descriptions; supported-sport customization scope checked.",
+        "urls": [
+          "https://jifenqi.com/terms",
+          "https://jifenqi.com/privacy",
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+        ],
+        "urlIntegrity": "PASS",
+        "urlSeparateLines": true,
+        "paragraphs": "PASS: four feature paragraphs and three separately labeled URL paragraphs; actual newlines, no literal backslash-n.",
+        "subtitleLength": 29,
+        "direction": "ltr",
+        "manualBreaks": "PASS: no words split by manual newline; optional phrase-grouping suggestions are separate findings.",
+        "actualTitlePngsReviewed": [
+          "02-score.png",
+          "03-catalog.png",
+          "04-recap.png",
+          "05-setup.png",
+          "06-multiplayer.png",
+          "07-cast.png"
+        ],
+        "actualTitleEvidence": "artifacts/app-store-copy-audit-20261003/titles-hu.jpg",
+        "terminologyNote": "TÖBBSZEREPLŐS is valid multiplayer terminology: Xbox official Hungarian page uses it; no false-positive translation finding.",
+        "terminologyReference": "https://www.xbox.com/hu-HU/games/browse/pc"
+      },
+      "findings": []
+    },
+    {
+      "locale": "el",
+      "sourceFile": "marketing/app-store/localization-2026-10-02/locales/el.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "FAIL_ACTUAL_COPY_ORTHOGRAPHY",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "FAIL_ACTUAL_COPY_ORTHOGRAPHY",
+      "reviewedChecks": {
+        "individuallyRead": [
+          "description",
+          "subtitle",
+          "screenshotTitles.slogan",
+          "all enabled screenshotTitles",
+          "7 actual copy.json cards"
+        ],
+        "featureScope": "Reviewed against en-US and zh-Hans descriptions; supported-sport customization scope checked.",
+        "urls": [
+          "https://jifenqi.com/terms",
+          "https://jifenqi.com/privacy",
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+        ],
+        "urlIntegrity": "PASS",
+        "urlSeparateLines": true,
+        "paragraphs": "PASS: four feature paragraphs and three separately labeled URL paragraphs; actual newlines, no literal backslash-n.",
+        "subtitleLength": 23,
+        "direction": "ltr",
+        "manualBreaks": "PASS: no words split by manual newline; optional phrase-grouping suggestions are separate findings.",
+        "actualTitlePngsReviewed": [
+          "02-score.png",
+          "03-catalog.png",
+          "04-recap.png",
+          "05-setup.png",
+          "06-multiplayer.png",
+          "07-cast.png"
+        ],
+        "actualTitleEvidence": "artifacts/app-store-copy-audit-20261003/titles-el.jpg"
+      },
+      "findings": [
+        {
+          "severity": "P2",
+          "field": "cards.slogan.text",
+          "source": "marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+          "old": "ΚΆΘΕ ΠΌΝΤΟΣ\nΜΕΤΡΆΕΙ",
+          "new": "ΚΑΘΕ ΠΟΝΤΟΣ\nΜΕΤΡΑΕΙ",
+          "reason": "源metadata中的普通大小写希腊文重音正确；实际截图全大写标题保留了普通重音。希腊官方现代语法3.2明确全大写词通常不加重音；保持文案和换行，仅删除tonos，不删除需要的分音符。",
+          "confidence": "certain",
+          "reference": "https://ebooks.edu.gr/ebooks/v/html/8547/2334/Grammatiki-Neas-Ellinikis-Glossas_A-B-G-Gymnasiou_html-apli/index_B_03.html",
+          "issueGroup": "el-uppercase-tonos"
+        },
+        {
+          "severity": "P2",
+          "field": "cards.score.text",
+          "source": "marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+          "old": "ΌΛΑ ΤΑ ΣΚΟΡ\nΜΕ ΜΙΑ ΜΑΤΙΆ",
+          "new": "ΟΛΑ ΤΑ ΣΚΟΡ\nΜΕ ΜΙΑ ΜΑΤΙΑ",
+          "reason": "源metadata中的普通大小写希腊文重音正确；实际截图全大写标题保留了普通重音。希腊官方现代语法3.2明确全大写词通常不加重音；保持文案和换行，仅删除tonos，不删除需要的分音符。",
+          "confidence": "certain",
+          "reference": "https://ebooks.edu.gr/ebooks/v/html/8547/2334/Grammatiki-Neas-Ellinikis-Glossas_A-B-G-Gymnasiou_html-apli/index_B_03.html",
+          "issueGroup": "el-uppercase-tonos"
+        },
+        {
+          "severity": "P2",
+          "field": "cards.catalog.text",
+          "source": "marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+          "old": "ΈΝΑΣ ΠΊΝΑΚΑΣ ΣΚΟΡ\nΓΙΑ ΠΆΝΩ ΑΠΌ 26 ΑΘΛΉΜΑΤΑ",
+          "new": "ΕΝΑΣ ΠΙΝΑΚΑΣ ΣΚΟΡ\nΓΙΑ ΠΑΝΩ ΑΠΟ 26 ΑΘΛΗΜΑΤΑ",
+          "reason": "源metadata中的普通大小写希腊文重音正确；实际截图全大写标题保留了普通重音。希腊官方现代语法3.2明确全大写词通常不加重音；保持文案和换行，仅删除tonos，不删除需要的分音符。",
+          "confidence": "certain",
+          "reference": "https://ebooks.edu.gr/ebooks/v/html/8547/2334/Grammatiki-Neas-Ellinikis-Glossas_A-B-G-Gymnasiou_html-apli/index_B_03.html",
+          "issueGroup": "el-uppercase-tonos"
+        },
+        {
+          "severity": "P2",
+          "field": "cards.recap.text",
+          "source": "marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+          "old": "ΞΑΝΑΔΕΊΤΕ\nΚΆΘΕ ΑΓΏΝΑ",
+          "new": "ΞΑΝΑΔΕΙΤΕ\nΚΑΘΕ ΑΓΩΝΑ",
+          "reason": "源metadata中的普通大小写希腊文重音正确；实际截图全大写标题保留了普通重音。希腊官方现代语法3.2明确全大写词通常不加重音；保持文案和换行，仅删除tonos，不删除需要的分音符。",
+          "confidence": "certain",
+          "reference": "https://ebooks.edu.gr/ebooks/v/html/8547/2334/Grammatiki-Neas-Ellinikis-Glossas_A-B-G-Gymnasiou_html-apli/index_B_03.html",
+          "issueGroup": "el-uppercase-tonos"
+        },
+        {
+          "severity": "P2",
+          "field": "cards.setup.text",
+          "source": "marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+          "old": "ΟΙ ΚΑΝΌΝΕΣ ΣΑΣ\nΤΟ ΠΑΙΧΝΊΔΙ ΣΑΣ",
+          "new": "ΟΙ ΚΑΝΟΝΕΣ ΣΑΣ\nΤΟ ΠΑΙΧΝΙΔΙ ΣΑΣ",
+          "reason": "源metadata中的普通大小写希腊文重音正确；实际截图全大写标题保留了普通重音。希腊官方现代语法3.2明确全大写词通常不加重音；保持文案和换行，仅删除tonos，不删除需要的分音符。",
+          "confidence": "certain",
+          "reference": "https://ebooks.edu.gr/ebooks/v/html/8547/2334/Grammatiki-Neas-Ellinikis-Glossas_A-B-G-Gymnasiou_html-apli/index_B_03.html",
+          "issueGroup": "el-uppercase-tonos"
+        },
+        {
+          "severity": "P2",
+          "field": "cards.multiplayer.text",
+          "source": "marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+          "old": "ΠΑΙΧΝΊΔΙΑ ΓΙΑ ΠΟΛΛΟΎΣ\nΚΑΙ ΕΠΙΤΡΑΠΈΖΙΑ",
+          "new": "ΠΑΙΧΝΙΔΙΑ ΓΙΑ ΠΟΛΛΟΥΣ\nΚΑΙ ΕΠΙΤΡΑΠΕΖΙΑ",
+          "reason": "源metadata中的普通大小写希腊文重音正确；实际截图全大写标题保留了普通重音。希腊官方现代语法3.2明确全大写词通常不加重音；保持文案和换行，仅删除tonos，不删除需要的分音符。",
+          "confidence": "certain",
+          "reference": "https://ebooks.edu.gr/ebooks/v/html/8547/2334/Grammatiki-Neas-Ellinikis-Glossas_A-B-G-Gymnasiou_html-apli/index_B_03.html",
+          "issueGroup": "el-uppercase-tonos"
+        },
+        {
+          "severity": "P2",
+          "field": "cards.cast.text",
+          "source": "marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+          "old": "ΤΟ ΣΚΟΡ ΣΑΣ\nΣΤΗ ΜΕΓΆΛΗ ΟΘΌΝΗ",
+          "new": "ΤΟ ΣΚΟΡ ΣΑΣ\nΣΤΗ ΜΕΓΑΛΗ ΟΘΟΝΗ",
+          "reason": "源metadata中的普通大小写希腊文重音正确；实际截图全大写标题保留了普通重音。希腊官方现代语法3.2明确全大写词通常不加重音；保持文案和换行，仅删除tonos，不删除需要的分音符。",
+          "confidence": "certain",
+          "reference": "https://ebooks.edu.gr/ebooks/v/html/8547/2334/Grammatiki-Neas-Ellinikis-Glossas_A-B-G-Gymnasiou_html-apli/index_B_03.html",
+          "issueGroup": "el-uppercase-tonos"
+        }
+      ]
+    },
+    {
+      "locale": "tr",
+      "sourceFile": "marketing/app-store/localization-2026-10-02/locales/tr.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "reviewedChecks": {
+        "individuallyRead": [
+          "description",
+          "subtitle",
+          "screenshotTitles.slogan",
+          "all enabled screenshotTitles",
+          "7 actual copy.json cards"
+        ],
+        "featureScope": "Reviewed against en-US and zh-Hans descriptions; supported-sport customization scope checked.",
+        "urls": [
+          "https://jifenqi.com/terms",
+          "https://jifenqi.com/privacy",
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+        ],
+        "urlIntegrity": "PASS",
+        "urlSeparateLines": true,
+        "paragraphs": "PASS: four feature paragraphs and three separately labeled URL paragraphs; actual newlines, no literal backslash-n.",
+        "subtitleLength": 27,
+        "direction": "ltr",
+        "manualBreaks": "PASS: no words split by manual newline; optional phrase-grouping suggestions are separate findings.",
+        "actualTitlePngsReviewed": [
+          "02-score.png",
+          "03-catalog.png",
+          "04-recap.png",
+          "05-setup.png",
+          "06-multiplayer.png",
+          "07-cast.png"
+        ],
+        "actualTitleEvidence": "artifacts/app-store-copy-audit-20261003/titles-tr.jpg"
+      },
+      "findings": []
+    }
+  ]
+}

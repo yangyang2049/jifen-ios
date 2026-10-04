@@ -165,8 +165,8 @@
 "record_training_end_rate" = "Treinamento concluído · %1$d%% de precisão";
 "game_football" = "Futebol";
 "game_volleyball" = "Vôlei";
-"game_checkers" = "Damas chinesas";
-"timer_checkers" = "Damas";
+"game_checkers" = "Damas internacionais";
+"timer_checkers" = "Damas internacionais";
 "game_boxing" = "Boxe";
 "game_billiards" = "Bilhar";
 "game_pickleball" = "Pickleball";
@@ -450,7 +450,7 @@
 
 /* Records Tab */
 "clear_all_records" = "Limpar todos os registros";
-"clear_records_tab_message" = "Os registros de placar e cronômetro da aba Registros serão excluídos. Isso não pode ser desfeito. Nomes frequentes, locais frequentes e reservas não serão excluídos.";
+"clear_records_tab_message" = "Os registros de placar e cronômetro da aba Registros serão excluídos. Isso não pode ser desfeito. Nomes salvos, locais salvos e reservas não serão excluídos.";
 "clear_data" = "Limpar dados";
 "clear_data_failed_title" = "Falha na limpeza";
 "clear_data_failed_format" = "Alguns dados não puderam ser apagados. É seguro tentar novamente:\n%@";
@@ -520,14 +520,14 @@
 "version" = "Versão";
 "privacy_policy" = "Política de Privacidade";
 "accessibility" = "Acessibilidade";
-"common_names_manage" = "Nomes frequentes";
+"common_names_manage" = "Nomes salvos";
 "common_names_team" = "Nomes de equipes";
 "common_names_player" = "Nomes de jogadores";
 "common_names_clear_current" = "Limpar categoria atual";
-"common_names_clear_current_message" = "Todos os nomes frequentes em %@ serão excluídos. Isso não pode ser desfeito.";
-"common_names_title" = "Nomes frequentes";
-"common_names_empty" = "Nenhum nome frequente";
-"common_names_empty_hint" = "Adicione nomes de equipes ou jogadores em Configurações > Dados > Nomes frequentes para reutilizá-los aqui.";
+"common_names_clear_current_message" = "Todos os nomes salvos em %@ serão excluídos. Isso não pode ser desfeito.";
+"common_names_title" = "Nomes salvos";
+"common_names_empty" = "Nenhum nome salvo";
+"common_names_empty_hint" = "Adicione nomes de equipes ou jogadores em Configurações > Dados > Nomes salvos para reutilizá-los aqui.";
 "common_names_management_empty_hint" = "Os nomes de equipes e jogadores inseridos durante a marcação do placar ficam salvos aqui para seleção rápida na próxima vez.";
 "common_names_search_placeholder" = "Pesquisar nomes";
 "common_names_no_search_results" = "Sem resultados";
@@ -556,15 +556,15 @@
 
 /* First-launch legal consent */
 "home_common_names_desc" = "Equipes e jogadores";
-"common_places_title" = "Locais frequentes";
+"common_places_title" = "Locais salvos";
 "home_common_places_desc" = "Quadras e locais";
 "common_places_add" = "Adicionar local";
 "common_places_edit_title" = "Editar local";
 "common_places_placeholder" = "Insira um lugar";
 "common_places_clear" = "Limpar locais";
-"common_places_clear_message" = "Todos os locais frequentes serão excluídos. Isso não pode ser desfeito.";
+"common_places_clear_message" = "Todos os locais salvos serão excluídos. Isso não pode ser desfeito.";
 "common_places_search_placeholder" = "Pesquisar lugares";
-"common_places_no_records" = "Nenhum local frequente";
+"common_places_no_records" = "Nenhum local salvo";
 "common_places_no_search_results" = "Sem resultados";
 "common_places_usage_desc" = "Os lugares inseridos nas reservas são salvos aqui para seleção rápida na próxima vez.";
 "common_places_batch_hint" = "Um local por linha ou separado por vírgulas";
@@ -573,13 +573,13 @@
 "common_places_save_failed" = "Falha ao salvar";
 "common_places_batch_empty" = "Insira pelo menos um local válido";
 "common_places_batch_result" = "%d adicionados, %d ignorados";
-"common_places_empty_hint" = "Adicione locais em Locais frequentes na tela inicial";
+"common_places_empty_hint" = "Adicione locais em Locais salvos na tela inicial";
 "common_places_select" = "Selecionar local";
 "common_places_added" = "Adicionado";
 "common_places_updated" = "Atualizado";
 "common_places_deleted" = "Excluído";
 "common_places_batch_delete_confirm" = "Excluir %d locais selecionados?";
-"schedule_pick_common_place" = "Selecionar um local frequente";
+"schedule_pick_common_place" = "Selecionar um local salvo";
 "faq_question_1" = "Como inicio uma partida rapidamente?";
 "faq_answer_1" = "Na tela inicial, escolha um esporte ou abra “Nova partida” para ver mais opções. Adicione os esportes e as configurações mais usados ao “Início rápido” para abrir a próxima partida mais depressa.\n\nOs esportes que exigem nomes das equipes, sets, formato ou regras de saque abrem primeiro a tela “Configuração da partida”. Depois da confirmação, o placar será aberto; algumas configurações ainda poderão ser ajustadas durante a marcação dos pontos.";
 "faq_question_2" = "Como faço para pontuar e corrigir erros?";
@@ -589,7 +589,7 @@
 "faq_question_4" = "Como excluo registros ou apago dados?";
 "faq_answer_4" = "Durante uma partida, use “Desfazer”, “Voltar” ou a opção de edição, se o esporte atual permitir.\n\nPara partidas salvas, abra o item em Registros e exclua-o ali. “Perfil → Limpar dados” remove do aparelho os placares, os registros do cronômetro, as partidas inacabadas, os registros salvos e algumas configurações locais. Isso não pode ser desfeito.";
 "faq_question_5" = "Como conecto uma tela ou outro celular?";
-"faq_answer_5" = "Para mostrar o placar em outro celular ou tablet, no dispositivo de exibição abra “Sincronizar placar → Entrar na partida” e siga as instruções para gerar um código curto ou QR code. Depois de entrar em uma partida no dispositivo principal, conecte-o e o placar será sincronizado com a tela. Mantenha os dois dispositivos on-line e evite bloquear a tela ou deixar o app em segundo plano. Se a sincronização travar, saia nos dois dispositivos e conecte novamente.\n\nPara transmitir o placar para uma TV ou tela grande, use a exibição sem fio do sistema (Miracast). Abra a exibição sem fio na Central de Controle e conecte-se à TV; quando o app detectar a tela conectada, o placar aparecerá automaticamente. O app depende da transmissão do sistema e não procura TVs sozinho. Ao desconectar a transmissão no sistema, a projeção também termina. O nome desse recurso varia por fabricante, como “exibição sem fio” ou “interação multitela”; faça primeiro a conexão no sistema.";
+"faq_answer_5" = "Use dois dispositivos juntos: um registra a pontuação e o outro mostra em tela cheia. Dispositivo principal: Faça login e inicie a sincronização para obter um código de 6 dígitos. Dispositivo de exibição: Faça login e digite o código de 6 dígitos do dispositivo principal. Comece a marcar os pontos — o placar será sincronizado automaticamente.\n\nRecomendamos o Espelhamento de Tela do AirPlay. Quando a conexão for detectada, o placar aparecerá automaticamente na tela grande. Abra a Central de Controle e toque em Espelhamento de Tela (AirPlay). Primeiro, conecte o AirPlay nas configurações do sistema. O app pode usar apenas uma tela conectada por vez e não procura TVs ou projetores sozinho. Desconectar o AirPlay também encerra a transmissão.";
 "faq_question_6" = "Não encontro meu esporte. O que devo fazer?";
 "faq_answer_6" = "Comece pelo esporte mais parecido. Se apenas os nomes, os sets, as equipes ou a ordem inicial forem diferentes, ajuste-os em “Configuração da partida” e adicione essa configuração ao “Início rápido”.\n\nSe nenhum esporte disponível contemplar as regras, envie um Feedback com o nome do esporte, o formato mais usado, o método de pontuação e o fluxo esperado.";
 "faq_question_7" = "Como funcionam a assinatura, o login e a troca de dispositivo?";
@@ -597,9 +597,9 @@
 "faq_question_8" = "Como relato um problema ou sugiro um recurso?";
 "faq_answer_8" = "Abra “Perfil → Feedback” e escolha “Relatar bug” ou “Sugerir recurso”. Informe o esporte, as etapas, o resultado esperado e o resultado obtido. Para problemas de exibição ou assinatura, inclua também o modelo do dispositivo e as versões do sistema e do app.";
 "faq_question_10" = "Como faço backup dos meus dados ou movo-os para um novo telefone?";
-"faq_answer_10" = "Entre na sua conta para vincular a ela seus nomes frequentes, locais e registros de partidas. Com a sincronização na nuvem da assinatura, os dados são sincronizados entre os dispositivos. No celular novo, entre com a mesma conta para restaurar os dados automaticamente. Sem iniciar sessão, os dados ficam armazenados apenas no dispositivo atual.";
+"faq_answer_10" = "Entre na sua conta para sincronizar os nomes de equipes e jogadores e os locais salvos entre dispositivos. Em um celular novo, entre com a mesma conta para recuperar esses dados comuns. Os registros de partidas e cronômetros e as partidas em andamento ficam no dispositivo atual; o backup e a restauração desses registros na nuvem não estão disponíveis.";
 "faq_question_11" = "Como são tratados meus dados e privacidade?";
-"faq_answer_11" = "A Política de Privacidade explica quais dados são usados e por quê. O microfone é usado apenas para gravar notas de voz, e a câmera apenas para ler um código QR de login; ambos são processados localmente no dispositivo.";
+"faq_answer_11" = "A Política de Privacidade explica quais dados são usados e por quê. O microfone é usado para gravar notas de voz. A câmera é usada para ler códigos QR confiáveis de login e tirar uma foto de perfil.";
 "common_names_add" = "Adicionar";
 "common_names_edit_title" = "Editar nome";
 "common_names_team_placeholder" = "Digite o nome da equipe";
@@ -653,8 +653,8 @@
 "schedule_location" = "Local";
 "schedule_location_placeholder" = "Digite o local";
 "schedule_reminders" = "Lembretes";
-"schedule_reminder_hours_before" = "%d horas antes";
-"schedule_reminder_minutes_before" = "%d minutos antes";
+"schedule_reminder_hours_before" = "%d h antes";
+"schedule_reminder_minutes_before" = "%d min antes";
 "schedule_reminder_help_title" = "Lembretes";
 "schedule_reminder_help_message" = "Os lembretes são notificações locais. Ative as notificações para recebê-los. Eles podem não ser entregues se o app for removido ou se o iOS restringir as notificações. Editar ou cancelar uma partida também os atualiza.";
 "schedule_notes" = "Notas";
@@ -844,6 +844,13 @@
 "scoreboard_double_tap_subtract_help_message" = "Quando ativado, toque duas vezes na mesma área de pontuação ou no cartão do jogador para subtrair 1. Quando desativado, deslize para baixo para subtrair ou para a esquerda para desfazer. Placares com botões, como os de basquete e sinuca, não são alterados.";
 "scoreboard_official_break_help_title" = "Intervalos oficiais";
 "scoreboard_official_break_help_message" = "Quando ativados, os intervalos oficiais pausam a pontuação. Você pode pular ou desfazer um intervalo.\n\nTênis de mesa e jianzi: 60 s entre games\nBadminton: 60 s no meio do game e 120 s entre games\nSquash: 90 s entre games\nTênis e padel: 90 s nas trocas de lado e 120 s entre sets\nTênis de campo macio: 60 s nas trocas de lado\nPickleball: 60 s no meio do game decisivo e 120 s entre games";
+"scoreboard_official_break_help_intro" = "Quando ativados, os intervalos oficiais pausam a pontuação. Você pode pular ou desfazer um intervalo.";
+"scoreboard_official_break_rule_between_games_60" = "60 s entre games";
+"scoreboard_official_break_rule_badminton" = "60 s no meio do game e 120 s entre games";
+"scoreboard_official_break_rule_squash" = "90 s entre games";
+"scoreboard_official_break_rule_tennis" = "90 s nas trocas de lado e 120 s entre sets";
+"scoreboard_official_break_rule_soft_tennis" = "60 s nas trocas de lado";
+"scoreboard_official_break_rule_pickleball" = "60 s no meio do game decisivo e 120 s entre games";
 "show_match_time" = "Mostrar tempo";
 "hide_match_time" = "Ocultar tempo";
 "scoreboard_match_time_this_game_only" = "Somente nesta partida; a próxima voltará à configuração padrão do esporte.";
@@ -978,7 +985,7 @@
 "timer_custom_seconds" = "Seg.";
 "timer_countdown_notification_title" = "Contagem regressiva concluída";
 "timer_countdown_notification_content" = "Sua contagem regressiva terminou. Toque para voltar.";
-"scoreboard_usage_hint_menu" = "Como usar";
+"scoreboard_usage_hint_menu" = "Guia";
 "scoreboard_usage_hint_title" = "Como usar";
 "scoreboard_usage_hint_got_it" = "Entendi";
 "scoreboard_usage_hint_football" = "👆 Toque na área de pontuação esquerda/direita para adicionar 1 gol\n⬆️ Deslize para cima para adicionar\n⬇️ Deslize para baixo para subtrair\n↩️ Deslize para a esquerda para desfazer\n⏱️ Abra Acréscimos no menu inferior direito, escolha uma duração e desfaça ou confirme\n🏁 Após o segundo tempo e os acréscimos, um empate pode continuar com dois tempos de 15 minutos de prorrogação";
@@ -1036,7 +1043,7 @@
 "scoreboard_key_point_volleyball_set" = "SP";
 "scoreboard_key_point_set" = "SP";
 "scoreboard_key_point_match" = "MP";
-"record_recap_set_format" = "Jogo %d";
+"record_recap_set_format" = "Set %d";
 "record_recap_tennis_set_format" = "Set %d";
 "record_recap_period_format" = "Período %d";
 "record_recap_round_format" = "Rodada %d";
@@ -1094,7 +1101,7 @@
 "doudizhu_role_landlord" = "Senhorio";
 "doudizhu_role_farmer" = "Camponês";
 "doudizhu_player_role_format" = "%@ (%@)";
-"doudizhu_winner_separator" = ",";
+"doudizhu_winner_separator" = ", ";
 "draw_result" = "Empate";
 "filter" = "Filtro";
 "flip_coin_recent" = "Lançamentos recentes";
@@ -1130,7 +1137,7 @@
 "timeout" = "Tempo técnico";
 "timer_record_time" = "Gravado em";
 "undo" = "Desfazer";
-"scoreboard_set_end_format" = "Game %d concluído";
+"scoreboard_set_end_format" = "Set %d concluído";
 "winner_named_format" = "%@ vence";
 "basketball_fouls_count" = "Faltas %d";
 "basketball_timeout_remaining" = "Tempo técnico (%d)";
@@ -1183,8 +1190,8 @@
 "official_break" = "Intervalo oficial";
 "official_break_prepare" = "Prepare-se";
 "official_breaks" = "Intervalos oficiais";
-"official_break_mid_game" = "Pausa no meio do jogo";
-"official_break_game" = "Pausa no jogo";
+"official_break_mid_game" = "Intervalo no meio do jogo";
+"official_break_game" = "Intervalo entre jogos";
 "official_break_set" = "Intervalo entre sets";
 "official_break_changeover" = "Intervalo para troca de lado";
 "official_break_continue" = "Retomar";
@@ -1473,7 +1480,7 @@
 "account_deletion_impact_title" = "Antes de continuar";
 "account_deletion_impact_account" = "Seu perfil e sua identidade de login serão excluídos ou anonimizados.";
 "account_deletion_impact_feedback" = "Feedback e outros conteúdos relacionados à conta que você postou podem ser excluídos ou anonimizados.";
-"account_deletion_impact_local_data" = "Os registros locais de pontuação, as reservas, os nomes frequentes e as configurações serão mantidos.";
+"account_deletion_impact_local_data" = "Os registros locais de pontuação, as reservas, os nomes salvos e as configurações serão mantidos.";
 "account_deletion_impact_irreversible" = "Uma vez excluída, a conta não poderá ser recuperada.";
 "account_deletion_submitting" = "Enviando...";
 "account_deletion_apply" = "Excluir conta";
@@ -1552,3 +1559,9 @@
 "game_short" = "Games";
 "set_short" = "Sets";
 "football_injury_title" = "Acréscimos";
+
+"feedback_official" = "Oficial";
+
+"feedback_pinned" = "Fixado";
+
+"voice_announce_server" = "Anunciar quem saca";

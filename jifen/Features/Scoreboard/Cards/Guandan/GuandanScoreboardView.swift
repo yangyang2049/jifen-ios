@@ -659,7 +659,7 @@ struct GuandanScoreboardView: View {
         if state.phase != .finished {
             HStack(spacing: Theme.usesPadLayout ? 24 : 20) {
                 ForEach([1, 2, 3], id: \.self) { step in
-                    scoreboardCardActionButton("+\(step)") {
+                    scoreboardCardActionButton("\(step)", isAddition: true) {
                         applyGuandanRound(side: side, step: step)
                     }
                     .accessibilityIdentifier("guandan_round_\(side.rawValue)_plus_\(step)")

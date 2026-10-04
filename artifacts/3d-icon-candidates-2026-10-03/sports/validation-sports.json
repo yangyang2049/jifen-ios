@@ -1,0 +1,192 @@
+[
+  {
+    "name": "archery-a.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 697364,
+    "opaque_pixels": 868,
+    "partial_alpha_pixels": 874284,
+    "alpha_bbox": [
+      83,
+      49,
+      1225,
+      1190
+    ]
+  },
+  {
+    "name": "archery-b.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 1410286,
+    "opaque_pixels": 1428,
+    "partial_alpha_pixels": 160802,
+    "alpha_bbox": [
+      41,
+      21,
+      1230,
+      1228
+    ]
+  },
+  {
+    "name": "jianzi-a.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 941796,
+    "opaque_pixels": 509,
+    "partial_alpha_pixels": 630211,
+    "alpha_bbox": [
+      0,
+      46,
+      1222,
+      1207
+    ]
+  },
+  {
+    "name": "jianzi-b.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 1056366,
+    "opaque_pixels": 540,
+    "partial_alpha_pixels": 515610,
+    "alpha_bbox": [
+      81,
+      31,
+      1174,
+      1188
+    ]
+  },
+  {
+    "name": "nineball-a.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 781734,
+    "opaque_pixels": 736,
+    "partial_alpha_pixels": 790046,
+    "alpha_bbox": [
+      0,
+      113,
+      1136,
+      1182
+    ]
+  },
+  {
+    "name": "nineball-b.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 844958,
+    "opaque_pixels": 1034,
+    "partial_alpha_pixels": 726524,
+    "alpha_bbox": [
+      35,
+      44,
+      1222,
+      1230
+    ]
+  },
+  {
+    "name": "pickleball-a.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 850441,
+    "opaque_pixels": 819,
+    "partial_alpha_pixels": 721256,
+    "alpha_bbox": [
+      49,
+      53,
+      1109,
+      1150
+    ]
+  },
+  {
+    "name": "pickleball-b.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 846185,
+    "opaque_pixels": 1105,
+    "partial_alpha_pixels": 725226,
+    "alpha_bbox": [
+      105,
+      31,
+      1238,
+      1213
+    ]
+  },
+  {
+    "name": "snooker-a.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 919563,
+    "opaque_pixels": 876,
+    "partial_alpha_pixels": 652077,
+    "alpha_bbox": [
+      96,
+      222,
+      1182,
+      1206
+    ]
+  },
+  {
+    "name": "snooker-b.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 938259,
+    "opaque_pixels": 863,
+    "partial_alpha_pixels": 633394,
+    "alpha_bbox": [
+      94,
+      53,
+      1158,
+      1254
+    ]
+  }
+]

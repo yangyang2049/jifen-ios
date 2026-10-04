@@ -21,6 +21,9 @@ struct SystemHelpButton: View {
     var preferredArrowEdge: Edge? = nil
     /// 较长的说明使用可滚动页面，避免紧凑屏幕上的 popover 裁切正文。
     var showsDetailSheet = false
+    /// 图文说明可复用同一套系统 Sheet、标题和完成按钮。
+    var detailSheetContent: AnyView? = nil
+    var detailSheetDetents: Set<PresentationDetent> = [.medium, .large]
 
     @State private var isPopoverPresented = false
     @State private var isSheetPresented = false
@@ -75,10 +78,16 @@ struct SystemHelpButton: View {
         .sheet(isPresented: $isSheetPresented) {
             NavigationStack {
                 ScrollView {
-                    Text(message)
-                        .font(.body)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(20)
+                    Group {
+                        if let detailSheetContent {
+                            detailSheetContent
+                        } else {
+                            Text(message)
+                                .font(.body)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(20)
                 }
                 .navigationTitle(title)
                 .navigationBarTitleDisplayMode(.inline)
@@ -90,7 +99,7 @@ struct SystemHelpButton: View {
                     }
                 }
             }
-            .presentationDetents([.medium, .large])
+            .presentationDetents(detailSheetDetents)
         }
     }
 

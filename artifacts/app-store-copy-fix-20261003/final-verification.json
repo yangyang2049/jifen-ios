@@ -1,0 +1,183 @@
+{
+  "completedAt": "2026-10-03T12:01:59.145783+08:00",
+  "liveCheckedAt": "2026-10-03T11:54:18.304440+08:00",
+  "platform": "app-store-connect",
+  "appId": "6759768784",
+  "bundleId": "com.douhua.jifen.ios",
+  "versionId": "a118dc62-4303-4c03-ae92-b358c60438d5",
+  "version": "3.2.3",
+  "storeState": "PREPARE_FOR_SUBMISSION",
+  "verified": true,
+  "descriptions": {
+    "matching": 50,
+    "total": 50,
+    "correctedInThisTask": 8,
+    "locales": [
+      "da",
+      "fr-CA",
+      "fr-FR",
+      "id",
+      "ms",
+      "th",
+      "ur-PK",
+      "vi"
+    ]
+  },
+  "screenshots": {
+    "matchingLocales": 49,
+    "localeCount": 49,
+    "matchingImages": 343,
+    "screenshotCount": 343,
+    "perLocale": 7,
+    "displayType": "APP_IPHONE_65",
+    "correctedInThisTask": 23,
+    "correctedLocalesInThisTask": 15,
+    "checks": [
+      "COMPLETE",
+      "MD5",
+      "fileSize",
+      "1284x2778",
+      "order"
+    ],
+    "allCurrentSourceSHA256MatchManifest": true
+  },
+  "sourcePreservation": {
+    "originalScopeImages": 336,
+    "correctionsInThisTask": 23,
+    "outsideCorrectionImages": 313,
+    "stillEqualToHistoricalSource": 289,
+    "laterSourceChanges": [
+      {
+        "locale": "de-DE",
+        "card": "catalog",
+        "file": "exports/de-DE/03-catalog.png"
+      },
+      {
+        "locale": "fr-FR",
+        "card": "catalog",
+        "file": "exports/fr-FR/03-catalog.png"
+      },
+      {
+        "locale": "es-ES",
+        "card": "catalog",
+        "file": "exports/es-ES/03-catalog.png"
+      },
+      {
+        "locale": "pt-BR",
+        "card": "catalog",
+        "file": "exports/pt-BR/03-catalog.png"
+      },
+      {
+        "locale": "ru",
+        "card": "catalog",
+        "file": "exports/ru/03-catalog.png"
+      },
+      {
+        "locale": "nl-NL",
+        "card": "catalog",
+        "file": "exports/nl-NL/03-catalog.png"
+      },
+      {
+        "locale": "id",
+        "card": "catalog",
+        "file": "exports/id/03-catalog.png"
+      },
+      {
+        "locale": "vi",
+        "card": "catalog",
+        "file": "exports/vi/03-catalog.png"
+      },
+      {
+        "locale": "th",
+        "card": "catalog",
+        "file": "exports/th/03-catalog.png"
+      },
+      {
+        "locale": "ca",
+        "card": "catalog",
+        "file": "exports/ca/03-catalog.png"
+      },
+      {
+        "locale": "cs",
+        "card": "catalog",
+        "file": "exports/cs/03-catalog.png"
+      },
+      {
+        "locale": "da",
+        "card": "catalog",
+        "file": "exports/da/03-catalog.png"
+      },
+      {
+        "locale": "es-MX",
+        "card": "catalog",
+        "file": "exports/es-MX/03-catalog.png"
+      },
+      {
+        "locale": "fr-CA",
+        "card": "catalog",
+        "file": "exports/fr-CA/03-catalog.png"
+      },
+      {
+        "locale": "hr",
+        "card": "catalog",
+        "file": "exports/hr/03-catalog.png"
+      },
+      {
+        "locale": "hu",
+        "card": "catalog",
+        "file": "exports/hu/03-catalog.png"
+      },
+      {
+        "locale": "ml-IN",
+        "card": "catalog",
+        "file": "exports/ml-IN/03-catalog.png"
+      },
+      {
+        "locale": "ms",
+        "card": "catalog",
+        "file": "exports/ms/03-catalog.png"
+      },
+      {
+        "locale": "pl",
+        "card": "catalog",
+        "file": "exports/pl/03-catalog.png"
+      },
+      {
+        "locale": "pt-PT",
+        "card": "catalog",
+        "file": "exports/pt-PT/03-catalog.png"
+      },
+      {
+        "locale": "sk",
+        "card": "catalog",
+        "file": "exports/sk/03-catalog.png"
+      },
+      {
+        "locale": "sl-SI",
+        "card": "catalog",
+        "file": "exports/sl-SI/03-catalog.png"
+      },
+      {
+        "locale": "ta-IN",
+        "card": "catalog",
+        "file": "exports/ta-IN/03-catalog.png"
+      },
+      {
+        "locale": "uk",
+        "card": "catalog",
+        "file": "exports/uk/03-catalog.png"
+      }
+    ],
+    "note": "Historical correction verification preserved all 313 other source images. Since then, separate workspace work changed these 24 catalog cards and added zh-Hant. The latest current source and live App Store assets all match; those later changes were retained."
+  },
+  "originalFailuresResolved": [
+    "vi",
+    "ja",
+    "pa-IN"
+  ],
+  "verificationEvidence": "current-live-check.json",
+  "historicalFirstBatchReport": "screenshot-upload/upload-report.json",
+  "submittedForReview": false,
+  "released": false,
+  "googlePlay": "Independent task owns Google Play; no duplicate upload performed."
+}

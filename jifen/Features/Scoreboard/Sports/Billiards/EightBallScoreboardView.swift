@@ -270,13 +270,19 @@ struct EightBallScoreboardView: View {
             panelAccessory: { isLeft in
                 AnyView(
                     Group {
-                        if state.handicapRacks > 0, state.handicapBeneficiary == screenSide(isLeft ? .left : .right) {
-                            Text("+\(state.handicapRacks)")
+                        if state.handicapRacks > 0, let beneficiary = state.handicapBeneficiary {
+                            let isBeneficiary = beneficiary == screenSide(isLeft ? .left : .right)
+                            Text(ScoreAdditionTypography.attributedLabel(
+                                "+\(state.handicapRacks)", numberFontSize: 28
+                            ))
                                 .font(typographyPreference.font.swiftUIFont(
                                     size: 28,
                                     weight: .bold
                                 ))
                                 .foregroundStyle(ScoreboardAppearanceSnapshot.current().theme.palette.foreground.opacity(0.6))
+                                // Keep the same row height on both halves when a handicap is active.
+                                .opacity(isBeneficiary ? 1 : 0)
+                                .accessibilityHidden(!isBeneficiary)
                                 .accessibilityIdentifier(isLeft ? "eight_ball_left_handicap" : "eight_ball_right_handicap")
                         }
                     }

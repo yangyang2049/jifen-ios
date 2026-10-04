@@ -186,13 +186,24 @@ struct QuickStartConfig: Codable, Equatable {
         GameCatalog.quickStartSelectableGameTypes.filter { $0 != .stopwatch }
     }
 
-    static let defaultPhoneConfig = QuickStartConfig(
-        primarySport: .basketball,
-        secondarySport: .badminton,
-        tertiarySport: .tennis
-    )
-    static let defaultTabletConfig = defaultPhoneConfig
-    static let default2In1Config = defaultPhoneConfig
+    /// Product defaults follow the displayed language, never the device's region.
+    /// East, Southeast and South Asian languages prefer badminton; English and
+    /// other languages prefer tennis. Persisted choices are handled separately.
+    static func defaults(for localization: String) -> QuickStartConfig {
+        let secondary: GameType = GameCatalog.prefersBadminton(for: localization)
+            ? .badminton : .tennis
+        return QuickStartConfig(
+            primarySport: .basketball,
+            secondarySport: secondary,
+            tertiarySport: secondary == .tennis ? .badminton : .tennis
+        )
+    }
+
+    static var defaultPhoneConfig: QuickStartConfig {
+        defaults(for: Bundle.main.preferredLocalizations.first ?? "en")
+    }
+    static var defaultTabletConfig: QuickStartConfig { defaultPhoneConfig }
+    static var default2In1Config: QuickStartConfig { defaultPhoneConfig }
 }
 
 enum QuickStartLayoutPolicy {

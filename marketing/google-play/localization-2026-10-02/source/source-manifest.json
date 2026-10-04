@@ -1,0 +1,58 @@
+[
+  {
+    "card": 1,
+    "sourceFile": "/Users/yangyang/Downloads/鸿蒙 (6) 2/GP-SCREENSHOTS01.png",
+    "file": "GP-SCREENSHOTS01.png",
+    "width": 1080,
+    "height": 1920,
+    "sha256": "370ab7ab374cb090cf2648bda8d8a7594bb91790824c9fcd7fcd3e5ee496d280"
+  },
+  {
+    "card": 2,
+    "sourceFile": "/Users/yangyang/Downloads/鸿蒙 (6) 2/GP-SCREENSHOTS2.png",
+    "file": "GP-SCREENSHOTS2.png",
+    "width": 1080,
+    "height": 1920,
+    "sha256": "d46dd4e8d1d6b72864f9b386b76ccf9d6056ba2b1812406207c608e541102978"
+  },
+  {
+    "card": 3,
+    "sourceFile": "/Users/yangyang/Downloads/鸿蒙 (6) 2/GP-SCREENSHOTS3.png",
+    "file": "GP-SCREENSHOTS3.png",
+    "width": 1080,
+    "height": 1920,
+    "sha256": "079301f40277df5ba3a66565e732170d752ae3868aed96072ba9156228970e15"
+  },
+  {
+    "card": 4,
+    "sourceFile": "/Users/yangyang/Downloads/鸿蒙 (6) 2/GP-SCREENSHOTS4.png",
+    "file": "GP-SCREENSHOTS4.png",
+    "width": 1080,
+    "height": 1920,
+    "sha256": "aabb3f8169cc9340ad938f0ed4f6c9c4d8ef88f9a4c7d8c0e986492edb249e73"
+  },
+  {
+    "card": 5,
+    "sourceFile": "/Users/yangyang/Downloads/鸿蒙 (6) 2/GP-SCREENSHOTS5.png",
+    "file": "GP-SCREENSHOTS5.png",
+    "width": 1080,
+    "height": 1920,
+    "sha256": "dd30ffec87e5a73c4f32e70ce61c2e9f86518a85b3fa22d426007caba7e614bf"
+  },
+  {
+    "card": 6,
+    "sourceFile": "/Users/yangyang/Downloads/鸿蒙 (6) 2/GP-SCREENSHOTS6.png",
+    "file": "GP-SCREENSHOTS6.png",
+    "width": 1080,
+    "height": 1920,
+    "sha256": "aec97fe2d6944b0a7a93189f0893f385d5411f8c07d57f793b04e5fda1670442"
+  },
+  {
+    "card": 7,
+    "sourceFile": "/Users/yangyang/Downloads/鸿蒙 (6) 2/GP-SCREENSHOTS7.png",
+    "file": "GP-SCREENSHOTS7.png",
+    "width": 1080,
+    "height": 1920,
+    "sha256": "de959a84554245f35e33a3fabd8c838adaca57d63f52b3594355b84c14f39f1f"
+  }
+]

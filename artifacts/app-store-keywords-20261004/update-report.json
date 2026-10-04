@@ -1,0 +1,363 @@
+{
+  "appId": "6759768784",
+  "version": "3.2.3",
+  "appStoreVersionId": "a118dc62-4303-4c03-ae92-b358c60438d5",
+  "startedAt": "20261004T070250840718Z",
+  "backup": "before-apply-20261004T070250840718Z.json",
+  "sourceSHA256": "a05494527b548dd20170fb8fd0947e258700e026e8938ce23780ec0361c1fde9",
+  "results": [
+    {
+      "locale": "ar-SA",
+      "action": "PATCH",
+      "beforeCharacters": 90,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "bn-BD",
+      "action": "PATCH",
+      "beforeCharacters": 77,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "ca",
+      "action": "PATCH",
+      "beforeCharacters": 79,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "cs",
+      "action": "PATCH",
+      "beforeCharacters": 85,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "da",
+      "action": "PATCH",
+      "beforeCharacters": 85,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "de-DE",
+      "action": "PATCH",
+      "beforeCharacters": 87,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "el",
+      "action": "PATCH",
+      "beforeCharacters": 95,
+      "characters": 99,
+      "remaining": 1
+    },
+    {
+      "locale": "en-AU",
+      "action": "PATCH",
+      "beforeCharacters": 87,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "en-CA",
+      "action": "PATCH",
+      "beforeCharacters": 87,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "en-GB",
+      "action": "PATCH",
+      "beforeCharacters": 87,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "en-US",
+      "action": "PATCH",
+      "beforeCharacters": 87,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "es-ES",
+      "action": "PATCH",
+      "beforeCharacters": 80,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "es-MX",
+      "action": "PATCH",
+      "beforeCharacters": 80,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "fi",
+      "action": "PATCH",
+      "beforeCharacters": 94,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "fr-CA",
+      "action": "PATCH",
+      "beforeCharacters": 87,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "fr-FR",
+      "action": "PATCH",
+      "beforeCharacters": 91,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "gu-IN",
+      "action": "PATCH",
+      "beforeCharacters": 77,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "he",
+      "action": "PATCH",
+      "beforeCharacters": 72,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "hi",
+      "action": "PATCH",
+      "beforeCharacters": 78,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "hr",
+      "action": "PATCH",
+      "beforeCharacters": 82,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "hu",
+      "action": "PATCH",
+      "beforeCharacters": 86,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "id",
+      "action": "PATCH",
+      "beforeCharacters": 92,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "it",
+      "action": "PATCH",
+      "beforeCharacters": 93,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "ja",
+      "action": "PATCH",
+      "beforeCharacters": 55,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "kn-IN",
+      "action": "PATCH",
+      "beforeCharacters": 97,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "ko",
+      "action": "PATCH",
+      "beforeCharacters": 34,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "ml-IN",
+      "action": "unchanged",
+      "beforeCharacters": 98,
+      "characters": 98,
+      "remaining": 2
+    },
+    {
+      "locale": "mr-IN",
+      "action": "PATCH",
+      "beforeCharacters": 80,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "ms",
+      "action": "PATCH",
+      "beforeCharacters": 86,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "nl-NL",
+      "action": "PATCH",
+      "beforeCharacters": 85,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "no",
+      "action": "PATCH",
+      "beforeCharacters": 85,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "or-IN",
+      "action": "PATCH",
+      "beforeCharacters": 83,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "pa-IN",
+      "action": "PATCH",
+      "beforeCharacters": 72,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "pl",
+      "action": "PATCH",
+      "beforeCharacters": 88,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "pt-BR",
+      "action": "PATCH",
+      "beforeCharacters": 75,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "pt-PT",
+      "action": "PATCH",
+      "beforeCharacters": 86,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "ro",
+      "action": "PATCH",
+      "beforeCharacters": 81,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "ru",
+      "action": "PATCH",
+      "beforeCharacters": 93,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "sk",
+      "action": "PATCH",
+      "beforeCharacters": 84,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "sl-SI",
+      "action": "PATCH",
+      "beforeCharacters": 85,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "sv",
+      "action": "PATCH",
+      "beforeCharacters": 82,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "ta-IN",
+      "action": "PATCH",
+      "beforeCharacters": 90,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "te-IN",
+      "action": "PATCH",
+      "beforeCharacters": 90,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "th",
+      "action": "PATCH",
+      "beforeCharacters": 88,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "tr",
+      "action": "PATCH",
+      "beforeCharacters": 77,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "uk",
+      "action": "PATCH",
+      "beforeCharacters": 91,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "ur-PK",
+      "action": "PATCH",
+      "beforeCharacters": 69,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "vi",
+      "action": "PATCH",
+      "beforeCharacters": 79,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "zh-Hans",
+      "action": "PATCH",
+      "beforeCharacters": 31,
+      "characters": 100,
+      "remaining": 0
+    },
+    {
+      "locale": "zh-Hant",
+      "action": "PATCH",
+      "beforeCharacters": 31,
+      "characters": 100,
+      "remaining": 0
+    }
+  ],
+  "errors": [],
+  "submittedForReview": false,
+  "verified": true
+}

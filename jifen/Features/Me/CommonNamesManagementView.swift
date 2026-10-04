@@ -186,6 +186,7 @@ struct CommonNamesManagementView: View {
                     } label: {
                         Label(NSLocalizedString("edit", comment: ""), systemImage: "pencil")
                     }
+                    .disabled(filteredNames.isEmpty)
                     Button(role: .destructive) {
                         showClearConfirm = true
                     } label: {

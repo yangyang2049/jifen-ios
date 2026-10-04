@@ -1,0 +1,86 @@
+{
+  "locale": "zh-CN",
+  "listingFieldsVerified": true,
+  "imageCount": 7,
+  "fontFamily": "Noto Sans SC",
+  "nativeUIAndUnicodeNamesVerified": true,
+  "dimensions": [
+    1080,
+    1920
+  ],
+  "mode": "RGB",
+  "penBoundsVerified": true,
+  "visualReviewPassed": true,
+  "images": [
+    {
+      "language": "zh-CN",
+      "card": 1,
+      "file": "exports/zh-CN/01.png",
+      "width": 1080,
+      "height": 1920,
+      "mode": "RGB",
+      "bytes": 1151585,
+      "sha256": "96ce667bf35fb0f99cde2ce09a7c832df89995d1c2d278b377f7d8b59266fbe3"
+    },
+    {
+      "language": "zh-CN",
+      "card": 2,
+      "file": "exports/zh-CN/02.png",
+      "width": 1080,
+      "height": 1920,
+      "mode": "RGB",
+      "bytes": 41920,
+      "sha256": "82d652df9c475122e6d75abe16a2236184187ebbfc8d6aea152c1eea6b1f8cca"
+    },
+    {
+      "language": "zh-CN",
+      "card": 3,
+      "file": "exports/zh-CN/03.png",
+      "width": 1080,
+      "height": 1920,
+      "mode": "RGB",
+      "bytes": 49431,
+      "sha256": "e321e629c8f95c40eb8e200a7676aafce878b685ce57252af7ee43ae876e1716"
+    },
+    {
+      "language": "zh-CN",
+      "card": 4,
+      "file": "exports/zh-CN/04.png",
+      "width": 1080,
+      "height": 1920,
+      "mode": "RGB",
+      "bytes": 153355,
+      "sha256": "00e01000ec7fdb8059ea18316370c131b439ff9393dc7574734771e9c7f05918"
+    },
+    {
+      "language": "zh-CN",
+      "card": 5,
+      "file": "exports/zh-CN/05.png",
+      "width": 1080,
+      "height": 1920,
+      "mode": "RGB",
+      "bytes": 173963,
+      "sha256": "7a8f719881272ed8ca401a928c5243cea0cd48762e628fab308896397cea1054"
+    },
+    {
+      "language": "zh-CN",
+      "card": 6,
+      "file": "exports/zh-CN/06.png",
+      "width": 1080,
+      "height": 1920,
+      "mode": "RGB",
+      "bytes": 131613,
+      "sha256": "6b5797967881472f31f23665195f5200e581c26140528d17ffbc514f4508da5e"
+    },
+    {
+      "language": "zh-CN",
+      "card": 7,
+      "file": "exports/zh-CN/07.png",
+      "width": 1080,
+      "height": 1920,
+      "mode": "RGB",
+      "bytes": 403983,
+      "sha256": "da0665afd5bb5a0670bb8cf1feb629104b11fe18dbff3d8cb1ae046f270c7494"
+    }
+  ]
+}

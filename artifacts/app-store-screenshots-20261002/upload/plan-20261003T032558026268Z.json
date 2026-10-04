@@ -1,0 +1,2144 @@
+{
+  "appId": "6759768784",
+  "bundleId": "com.douhua.jifen.ios",
+  "version": "3.2.3",
+  "versionId": "a118dc62-4303-4c03-ae92-b358c60438d5",
+  "display": "APP_IPHONE_65",
+  "apply": true,
+  "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-screenshots-20261002/upload/before-20261003T032558026268Z.json",
+  "locales": [
+    {
+      "locale": "de-DE",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/de-DE/01-slogan.png",
+          "sha256": "ec4d94d5f4c6b4e09ac00f9dbcc8b30bb30c9ee4a44a76c8c7f8298cb9a45459",
+          "md5": "6ef60ef42d4f2d640517adc0568d60c5",
+          "fileSize": 2103357,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "de-DE-01-6ef60ef42d4f2d64.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/de-DE/02-score.png",
+          "sha256": "87800b5ba760fbe001b8357065e9fed72c09533175a07156e529846828a3da13",
+          "md5": "96e33140be8c4134191b48f4bfe74276",
+          "fileSize": 141899,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "de-DE-02-96e33140be8c4134.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/de-DE/03-catalog.png",
+          "sha256": "f8ebca4c3ee040785972656cad441dab38a754473e0cd226042423973a076a69",
+          "md5": "ddf4d0e2491469dd5b7f477f77486436",
+          "fileSize": 64450,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "de-DE-03-ddf4d0e2491469dd.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/de-DE/04-recap.png",
+          "sha256": "0ab3a406b527a4e2b79e4e9290acfe5a16b2c9452eba45b6bc898ea001a1cf92",
+          "md5": "70997ae179c46f99e4034cd93d8485cd",
+          "fileSize": 503060,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "de-DE-04-70997ae179c46f99.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/de-DE/05-setup.png",
+          "sha256": "d763311b5e144d1da9fa6fdd127468bf242ac1479d6a0cc1c7a8c89d6262458f",
+          "md5": "30a53e801715d213150ddd2945d53321",
+          "fileSize": 930945,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "de-DE-05-30a53e801715d213.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/de-DE/06-multiplayer.png",
+          "sha256": "ccef97000eed16071455e2e04122589097238452bc16d5974b8765f09fe19c73",
+          "md5": "4e84f639c3130162a31e9d8fceb5ba81",
+          "fileSize": 430453,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "de-DE-06-4e84f639c3130162.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/de-DE/07-cast.png",
+          "sha256": "7150f50625afcfaea9b6bb95363502939a36a091ff5dd50ea8226b66ad850510",
+          "md5": "027ae05cffb690255d46cfc4981f1217",
+          "fileSize": 823977,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "de-DE-07-027ae05cffb69025.png"
+        }
+      ]
+    },
+    {
+      "locale": "fr-FR",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-FR/01-slogan.png",
+          "sha256": "3c3def135cb353e5e01ce64b223a5c03b3d6b5e4040a28027b3d5bb68014f2ca",
+          "md5": "138797d8961ee4b8ab536b47dd208d1b",
+          "fileSize": 2118976,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "fr-FR-01-138797d8961ee4b8.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-FR/02-score.png",
+          "sha256": "78f368e58b593a377e0c9235f26be0b6130023d0c072992d4f6dbb071f70bb59",
+          "md5": "eab0be226547922a279125d5f6fb59a2",
+          "fileSize": 147677,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "fr-FR-02-eab0be226547922a.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-FR/03-catalog.png",
+          "sha256": "c172a8488446c6d8bde17f4d7892db415c0842432eac189d098532c08868f3e4",
+          "md5": "7f3766e5c289b180bdc32a7b20539f8d",
+          "fileSize": 66628,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "fr-FR-03-7f3766e5c289b180.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-FR/04-recap.png",
+          "sha256": "96a06b9c3ae7c5f5ab3e22846210dfbc8cdf6bce89edd9dbfdc3fb19a526bc9d",
+          "md5": "73ba030bd19e2b06645f98af09a8200f",
+          "fileSize": 510478,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "fr-FR-04-73ba030bd19e2b06.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-FR/05-setup.png",
+          "sha256": "134238012afd9ccd0118b88d2ee07a8830870414d8dea1584af6f28539a5badb",
+          "md5": "516cb4a3553af2ff1e9b5a952b56a1db",
+          "fileSize": 954204,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "fr-FR-05-516cb4a3553af2ff.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-FR/06-multiplayer.png",
+          "sha256": "cf7dad00aa5b342d14218991c92b2524fdce1351ee76732447ed4942342f213b",
+          "md5": "0a52d0b645b02172d8c0ca7da6105b5d",
+          "fileSize": 443860,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "fr-FR-06-0a52d0b645b02172.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-FR/07-cast.png",
+          "sha256": "76aece4f982acc8c4767d3f1b4261aa07afd14cb8e1ab2600bf646619897f63f",
+          "md5": "33f5be53b49f647e83635b2a190d2a9e",
+          "fileSize": 823281,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "fr-FR-07-33f5be53b49f647e.png"
+        }
+      ]
+    },
+    {
+      "locale": "es-ES",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-ES/01-slogan.png",
+          "sha256": "0e60305ea4e8271e8d0863eb1e5044d7d8ee2d0a6fe98ef4152a64ab213f0155",
+          "md5": "8c177576e45d06c6435a631479ac0881",
+          "fileSize": 2115841,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "es-ES-01-8c177576e45d06c6.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-ES/02-score.png",
+          "sha256": "92c6f6200991969954076e9a540f4e826ee12e80d8db8677472f0405693c7747",
+          "md5": "3f85b7387a5bb6a6afc320d60631f943",
+          "fileSize": 147501,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "es-ES-02-3f85b7387a5bb6a6.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-ES/03-catalog.png",
+          "sha256": "06e8ce176d1926d785f61d97c790cb21c67bc0c2b241d4b28a6c31f76d46a45f",
+          "md5": "209d6dae88ebe9dd209b36534f748d44",
+          "fileSize": 67693,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "es-ES-03-209d6dae88ebe9dd.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-ES/04-recap.png",
+          "sha256": "b50fa7a74be1ee62ee98b49b97938f7cd188bad59393de58f11d59a2f72a9f2a",
+          "md5": "758f2528381e3ad05f9ff9189d66a2ff",
+          "fileSize": 521670,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "es-ES-04-758f2528381e3ad0.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-ES/05-setup.png",
+          "sha256": "1fbff9ed8efce97cfad5fbc69f897a110bcb5c77d613abfde761b1c63561f83b",
+          "md5": "a4fe17e8e400889a718d034033a7e425",
+          "fileSize": 942720,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "es-ES-05-a4fe17e8e400889a.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-ES/06-multiplayer.png",
+          "sha256": "c14376f4732d3f58f829f68d6eefcc35c6d0f523f27f569d35560197611a56d0",
+          "md5": "312acd0ea4a72c8c791973b7bf6a4eaf",
+          "fileSize": 443467,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "es-ES-06-312acd0ea4a72c8c.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-ES/07-cast.png",
+          "sha256": "1da3e506c297b67308baddcf46185307eb162e5baab28ed737984efd82c3c044",
+          "md5": "a4de27e49034eb70a0f0bf42ece06dda",
+          "fileSize": 824631,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "es-ES-07-a4de27e49034eb70.png"
+        }
+      ]
+    },
+    {
+      "locale": "pt-BR",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-BR/01-slogan.png",
+          "sha256": "c0cef275f412f6f45d98072d49c5ce79e10798a73bcb7bef03cdbddd39ea2674",
+          "md5": "f41b869ab1e9d8a3907b6e173fe8babf",
+          "fileSize": 2120091,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pt-BR-01-f41b869ab1e9d8a3.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-BR/02-score.png",
+          "sha256": "34af22bca1d64aa8807df7d8a7c3c49f47ffc0aeb794549daa4b0252149f0f95",
+          "md5": "d7db3be17828096b83858d09020cb84c",
+          "fileSize": 149240,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pt-BR-02-d7db3be17828096b.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-BR/03-catalog.png",
+          "sha256": "e72840fe53ff2c7f025c65a65fef0e0f619a496170191362a353a15b8cde5f85",
+          "md5": "acab8d234b39dd293543a20b926328b0",
+          "fileSize": 62700,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pt-BR-03-acab8d234b39dd29.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-BR/04-recap.png",
+          "sha256": "5194792facaa52ff6d10aac3d63732d50c588906d6e6605ab2685ece542b48cb",
+          "md5": "86e10d989846171c069d4b826b8625e4",
+          "fileSize": 525007,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pt-BR-04-86e10d989846171c.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-BR/05-setup.png",
+          "sha256": "3ef2cbfe55e8ecef16381ab715a79e3b0172d86bc96318f3c676acd5690d6dfb",
+          "md5": "59dcfbc451a62a1fc6a169f2fa157031",
+          "fileSize": 945865,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pt-BR-05-59dcfbc451a62a1f.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-BR/06-multiplayer.png",
+          "sha256": "16d0bd1b42381c18299600182850737e6e3b5963b92bf19677b9e915c448b1b7",
+          "md5": "8694a44171ca2cde3de23f3debff61a1",
+          "fileSize": 444373,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pt-BR-06-8694a44171ca2cde.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-BR/07-cast.png",
+          "sha256": "6e006587db01777abcf6d21ae3d2cfbb2af656aae2ba99b75faa078ce6e16753",
+          "md5": "b7521065a2c64c9bcde42adc9820dd79",
+          "fileSize": 816199,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pt-BR-07-b7521065a2c64c9b.png"
+        }
+      ]
+    },
+    {
+      "locale": "ru",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ru/01-slogan.png",
+          "sha256": "4007030bba9823e2aff90b0be8857f0bbe3d2ceb23b862649ea878b73276eccc",
+          "md5": "21813e5836801c2d1735b058bab755ad",
+          "fileSize": 2129347,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ru-01-21813e5836801c2d.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ru/02-score.png",
+          "sha256": "05a702181dd40b5ad719d7e4f2d6e2e4c1fa85c04aa151fde4b63f2a99c20274",
+          "md5": "a60ef6064e0599c66ea27237eb3af87c",
+          "fileSize": 140244,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ru-02-a60ef6064e0599c6.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ru/03-catalog.png",
+          "sha256": "4b11957a919657b6a7b3e83cf4f2ccfbe7c78db679ff1707ae5485edf7c6fc87",
+          "md5": "10c6a3594c70c27f27daf66553120b7a",
+          "fileSize": 66830,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ru-03-10c6a3594c70c27f.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ru/04-recap.png",
+          "sha256": "d1eb0d014f17304f23643b6923272008a3cfb616bf56986b8c4021116ddd4f23",
+          "md5": "49fffa387bb75fe68d6b6eb50f534f0f",
+          "fileSize": 527557,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ru-04-49fffa387bb75fe6.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ru/05-setup.png",
+          "sha256": "ddcbb5f61ba700b5ad1729aa8b2bad6aec6a6d56c14069a5ef4acc10c08a6108",
+          "md5": "b44ca8b620e1bb74f1d0424141980b64",
+          "fileSize": 969639,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ru-05-b44ca8b620e1bb74.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ru/06-multiplayer.png",
+          "sha256": "6b7cc5623e7f74000c2a6648d688c453f2b13c69de57621e6b01d695b4552892",
+          "md5": "3a59dc07530704eddd534b2a9b39040f",
+          "fileSize": 442345,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ru-06-3a59dc07530704ed.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ru/07-cast.png",
+          "sha256": "bb46d3f04490c72edc29098b9121fc9f065a46ef7a8f6f168c20df5057c60714",
+          "md5": "e7b919a16f6313fa6a6599df522229ef",
+          "fileSize": 809622,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ru-07-e7b919a16f6313fa.png"
+        }
+      ]
+    },
+    {
+      "locale": "nl-NL",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/nl-NL/01-slogan.png",
+          "sha256": "83c9951fdf35f5b1b21ec52971091454ec833a74bc221eea676c5b5264f0122b",
+          "md5": "cc34dfb1216307b9ad6225422d6fa042",
+          "fileSize": 2088416,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "nl-NL-01-cc34dfb1216307b9.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/nl-NL/02-score.png",
+          "sha256": "5c26bf721a00c22581597a8115c63c28246e686c8b71cf6ce5185aa9086d3f01",
+          "md5": "3adc9bb9b9cc27373c3fd59a091b9d21",
+          "fileSize": 146080,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "nl-NL-02-3adc9bb9b9cc2737.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/nl-NL/03-catalog.png",
+          "sha256": "c1ca050a1c8bb99af8b7795de5f9df301e277092d741a2fad613e22fcd1b1d1d",
+          "md5": "4858c38cb0144d4d6c10a6d07ac5dcaf",
+          "fileSize": 65457,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "nl-NL-03-4858c38cb0144d4d.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/nl-NL/04-recap.png",
+          "sha256": "39849ac7c0d20baee0c4044e3915090cd704099d04fcc0793ff6c49017f4cbcc",
+          "md5": "122b6156b11b6243b21d19488323e3b3",
+          "fileSize": 506564,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "nl-NL-04-122b6156b11b6243.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/nl-NL/05-setup.png",
+          "sha256": "5a21281a2569426fc71a3895f9b3562510cfaf9bebca38e2ff2cc42e26e918fe",
+          "md5": "bac853a8a06e8b7c3790aa68e7d6109b",
+          "fileSize": 942337,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "nl-NL-05-bac853a8a06e8b7c.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/nl-NL/06-multiplayer.png",
+          "sha256": "779a5e979eae989294c5f26a52abe3f9e1e69ffcb1001d02f27a6f7618172dc2",
+          "md5": "94f5adb653d3dcc9ff7b8deaf37c7178",
+          "fileSize": 426302,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "nl-NL-06-94f5adb653d3dcc9.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/nl-NL/07-cast.png",
+          "sha256": "2ad3c8de1e174ee2543740fdcc9f9762679df8370d3b5600116fa6cd32eb3342",
+          "md5": "78033f76d238ef7219d20fe33124ff01",
+          "fileSize": 828680,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "nl-NL-07-78033f76d238ef72.png"
+        }
+      ]
+    },
+    {
+      "locale": "id",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/id/01-slogan.png",
+          "sha256": "6cb3fda61695885abb0738d8240a515f0bcf5c8bec02e701ec11e66d5e230f3c",
+          "md5": "73780c210c3720d04f200a1ecd8fbd0a",
+          "fileSize": 2110494,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "id-01-73780c210c3720d0.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/id/02-score.png",
+          "sha256": "f833bafcae4da0765e6b648992969d34bbeaaa95177b629ab78409df9b1dadde",
+          "md5": "5be1f4a11bf3e812daff1211618503cf",
+          "fileSize": 140839,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "id-02-5be1f4a11bf3e812.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/id/03-catalog.png",
+          "sha256": "d24e1522fe17add7dce89ff300d12f43a50066be80066b347590f13d04506d70",
+          "md5": "de94f6c476a8aa6123539e9c9e11ec30",
+          "fileSize": 68520,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "id-03-de94f6c476a8aa61.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/id/04-recap.png",
+          "sha256": "9304accd0a537919811db6deebbe31f3dc8b929cc1a817945b5d82ae938c3aad",
+          "md5": "7cec8db499d64a7c30945ed2ff7a7164",
+          "fileSize": 512451,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "id-04-7cec8db499d64a7c.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/id/05-setup.png",
+          "sha256": "0fd029cdb789c370d7bc3822f9bf0a83c22521c61f2619709f32f043cca49544",
+          "md5": "e6fb2cdac2b58efaf840130fa399a23b",
+          "fileSize": 939768,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "id-05-e6fb2cdac2b58efa.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/id/06-multiplayer.png",
+          "sha256": "7895847b34094302810076b96199b5bdb9f90ca3a4807277570f34f756dc57af",
+          "md5": "e93f4ff4e68cf0732a4eb4271ee1e00f",
+          "fileSize": 438111,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "id-06-e93f4ff4e68cf073.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/id/07-cast.png",
+          "sha256": "2843763f28a2ba5c7fb051067710a458d870ca812530abb2d88a6323f3565700",
+          "md5": "7e8ec03136c8df15c223212a8bbb7b72",
+          "fileSize": 824627,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "id-07-7e8ec03136c8df15.png"
+        }
+      ]
+    },
+    {
+      "locale": "vi",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/vi/01-slogan.png",
+          "sha256": "12286731a1866dd971bba4f7cfa8fb1403eb4febd430ad17d4c5d2f18536a14f",
+          "md5": "9eab1c2e0d7d59d4f0efe238b690fef2",
+          "fileSize": 2118516,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "vi-01-9eab1c2e0d7d59d4.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/vi/02-score.png",
+          "sha256": "7715f6235d7db21c50bd26fbfe961a87f7bdeb51678a5850c7623a4fbe56b465",
+          "md5": "3f7974d5a70c2dd256642d4136e2cfa2",
+          "fileSize": 153459,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "vi-02-3f7974d5a70c2dd2.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/vi/03-catalog.png",
+          "sha256": "6935225ea33907e1be7ef0719606e81314f03983145402bdad0bde24495470f9",
+          "md5": "c57677465ba4e37ca96fc40ab69e1226",
+          "fileSize": 70240,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "vi-03-c57677465ba4e37c.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/vi/04-recap.png",
+          "sha256": "b359dcd7ed340479decec1f631ab7faa69ee4a79df8ea3d2b2f2af77d406021b",
+          "md5": "10b0a2386a381ea63ac082b4d1ff4ee6",
+          "fileSize": 510703,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "vi-04-10b0a2386a381ea6.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/vi/05-setup.png",
+          "sha256": "4efbcdcc3e3e5a1fa8b60752ae8b759eec6d4dd2507d474d431e6d755d919cf2",
+          "md5": "de1d57c37815f709e3d662e8213b8267",
+          "fileSize": 948360,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "vi-05-de1d57c37815f709.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/vi/06-multiplayer.png",
+          "sha256": "91066e9b251de9ce080f4abf8043e4164a002763aa571c1708849dda97dbf913",
+          "md5": "41724aae771fb57596f51bda3c96ae15",
+          "fileSize": 437490,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "vi-06-41724aae771fb575.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/vi/07-cast.png",
+          "sha256": "b72404b0d3935369f04474db13d511262aa0dd0036ef874cadf08cea410d8401",
+          "md5": "51ae3446877457a70c4b8b0a57735687",
+          "fileSize": 835459,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "vi-07-51ae3446877457a7.png"
+        }
+      ]
+    },
+    {
+      "locale": "th",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/th/01-slogan.png",
+          "sha256": "7cb7abffcc175cad2871fcd3f30da22cd74c67f5dd3c35162eb5a5b9781112ba",
+          "md5": "c077c92bf405e33260bc956550948123",
+          "fileSize": 2108818,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "th-01-c077c92bf405e332.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/th/02-score.png",
+          "sha256": "284a3cc10f44cb1544b24adc0196fb04839d1349c2a4d1b927db637154e7deb3",
+          "md5": "4e6c5dd97da7b80139b95d9ce2805cd3",
+          "fileSize": 124143,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "th-02-4e6c5dd97da7b801.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/th/03-catalog.png",
+          "sha256": "439de218566b2fe968d6e79b60f9f1f4efbcaba8b503e0673b7ad6920e6d64dd",
+          "md5": "9de2754708308d59b3b4b7559026a7b6",
+          "fileSize": 58438,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "th-03-9de2754708308d59.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/th/04-recap.png",
+          "sha256": "0951c79540e6ed93a8892f2b15ec828e7cef6c0bfdad376dac7e592f1ca05304",
+          "md5": "7cc677cafe4c7e0054ea968745d7c896",
+          "fileSize": 488365,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "th-04-7cc677cafe4c7e00.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/th/05-setup.png",
+          "sha256": "85eee54ebf3f2e922e21bfeb5668a3875df52aa635fd72cd7d0994c05debdd95",
+          "md5": "e1ab4bfe2f217f9f06b6df6a7319292e",
+          "fileSize": 911403,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "th-05-e1ab4bfe2f217f9f.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/th/06-multiplayer.png",
+          "sha256": "53397447c3e52b8818ee90413985b71b34abe591e7c15b8f2c0f748b938dbea3",
+          "md5": "0447ad1fb8a7cf76b8acd29598d5a8d2",
+          "fileSize": 412574,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "th-06-0447ad1fb8a7cf76.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/th/07-cast.png",
+          "sha256": "b6c16a36beaafdea4e3c78b33aa75e128d11119180fa95086ae8ff0124d06306",
+          "md5": "bc4afe542be5c88293d0f0882205e861",
+          "fileSize": 800459,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "th-07-bc4afe542be5c882.png"
+        }
+      ]
+    },
+    {
+      "locale": "ca",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ca/01-slogan.png",
+          "sha256": "c764d38e56607c290b696da80ec8cb2e11607cc703a764c31394424aca08048d",
+          "md5": "e464449aafda3b7f1ae69d281715cd73",
+          "fileSize": 2115831,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ca-01-e464449aafda3b7f.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ca/02-score.png",
+          "sha256": "6f03c29f2136d1380a49654f9fa93908943fdddbba78e21c294127b72d465a2b",
+          "md5": "c040460375b66df44d39d8274bd5720a",
+          "fileSize": 144012,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ca-02-c040460375b66df4.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ca/03-catalog.png",
+          "sha256": "eec71ee5fb0ce532fddc409c971a8ced5e78548f366b101305d75363af04f252",
+          "md5": "03f42cd0f19e292109ad6f5403ddd823",
+          "fileSize": 63983,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ca-03-03f42cd0f19e2921.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ca/04-recap.png",
+          "sha256": "a0e57c13d8997be1c6bbb86c4823cf1bd8cbcde799b4255fa8898b9784b90f85",
+          "md5": "eb50bcc3eed684b87d82a021cec7ebe0",
+          "fileSize": 514619,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ca-04-eb50bcc3eed684b8.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ca/05-setup.png",
+          "sha256": "45e3076a466124e9e909dfd30c5b3a88d9db954c0edf6aff04e0327dff9b9531",
+          "md5": "94b05aa8a04c4a5d70250598ce8c939a",
+          "fileSize": 938917,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ca-05-94b05aa8a04c4a5d.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ca/06-multiplayer.png",
+          "sha256": "80cc1a08c7b4a2b05f36bdb5ae4581a0bec3678840507232118439f399f29b5f",
+          "md5": "363c6502b95ee284ba46a459dc9713f8",
+          "fileSize": 432624,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ca-06-363c6502b95ee284.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ca/07-cast.png",
+          "sha256": "8a0cfe4350b2e74071852983d83eb8d5232adef7380e647e89e3fd29ea5966a0",
+          "md5": "4c3a3610d8126b5bafc9e77a40a02949",
+          "fileSize": 824656,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ca-07-4c3a3610d8126b5b.png"
+        }
+      ]
+    },
+    {
+      "locale": "cs",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/cs/01-slogan.png",
+          "sha256": "b415e754beb06876847dcaad9d128f5b462f502773683b0d8c32ec0470404f54",
+          "md5": "7463aa53d138dcbe0f7838c9148712e2",
+          "fileSize": 2126632,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "cs-01-7463aa53d138dcbe.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/cs/02-score.png",
+          "sha256": "10fd128dea8c5e1c0b83edeed78895824c5ac375a54e1befc9d6f284f177fc15",
+          "md5": "5758f1d97d79569c9b4f1329321801f6",
+          "fileSize": 148621,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "cs-02-5758f1d97d79569c.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/cs/03-catalog.png",
+          "sha256": "5756a85d68535165b1b60d2b498461e409d669f987d5645a7950feda703c2589",
+          "md5": "853c012b2808ac85bf78795996e74404",
+          "fileSize": 63324,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "cs-03-853c012b2808ac85.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/cs/04-recap.png",
+          "sha256": "d040c2471fd437b0ab718ada8e9680ef2eaf1dccaf5971b5d847fa80f81eccda",
+          "md5": "238e37a3289f89deac1de1a362988ad1",
+          "fileSize": 521394,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "cs-04-238e37a3289f89de.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/cs/05-setup.png",
+          "sha256": "a75fcb4b05d078c37fd94c2b540ce0a8c08f8359294038105df1e7ed61276578",
+          "md5": "c97f5e6fe9c409ef4f4432d92a837ee3",
+          "fileSize": 942011,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "cs-05-c97f5e6fe9c409ef.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/cs/06-multiplayer.png",
+          "sha256": "332757fee083c447cf70f9d14c4f7e54be006d83c5f85165ce6c7969b8911ef0",
+          "md5": "460fb77cdf973140155647d77f5aecee",
+          "fileSize": 441957,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "cs-06-460fb77cdf973140.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/cs/07-cast.png",
+          "sha256": "c2dd78702fa649543715571a3cd3c4c17247bea9eaeababef2a50648e70486c1",
+          "md5": "c9d971077f4f6efd49592c607af86bad",
+          "fileSize": 823712,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "cs-07-c9d971077f4f6efd.png"
+        }
+      ]
+    },
+    {
+      "locale": "da",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/da/01-slogan.png",
+          "sha256": "2d299a23fb56c7f0abaca825d48a03e3a86c7512ccb7d578e23b67d7c0ade601",
+          "md5": "502e8f5b72f7ba25b6d6d88e0d2a134e",
+          "fileSize": 2101557,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "da-01-502e8f5b72f7ba25.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/da/02-score.png",
+          "sha256": "83d2b8fb193ecb5871f6bbd56a326174039118da4ef11c91bc29d5d5bb6ebbd3",
+          "md5": "e98d35d2f7b778ca23cd76c207b3ad53",
+          "fileSize": 134825,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "da-02-e98d35d2f7b778ca.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/da/03-catalog.png",
+          "sha256": "0640fc4720a7c49300b2517a3d08089c8f48aef9a443bc9fd648c57b0e5b5697",
+          "md5": "36341251c755b4f31e76c08ad3641c48",
+          "fileSize": 63801,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "da-03-36341251c755b4f3.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/da/04-recap.png",
+          "sha256": "0d30951cbe1b712fc3cdb8c0083ea24629057af1a6627e924110ec5cf061f80a",
+          "md5": "ea2dbb3915ef5944743d205e37f121f4",
+          "fileSize": 499898,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "da-04-ea2dbb3915ef5944.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/da/05-setup.png",
+          "sha256": "e792f31ee8b89f2f15b2b6f8218266a7976ca99b20e654f95f1d4582a1b22b9c",
+          "md5": "fc6b51e70ceefd4b7252cb5c6861f4e4",
+          "fileSize": 902367,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "da-05-fc6b51e70ceefd4b.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/da/06-multiplayer.png",
+          "sha256": "210356dc5509d9021320991558cd0fde6268777caf5f5360c424d0297a4d3c44",
+          "md5": "093b396e511136de1f389948b536611d",
+          "fileSize": 431458,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "da-06-093b396e511136de.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/da/07-cast.png",
+          "sha256": "092f805e4bb743f2cacfd468be41f43627f5fc902faba7a69872ba6ceb106333",
+          "md5": "bb1e1d9cdedf7b820a93bf365c04c1e2",
+          "fileSize": 824130,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "da-07-bb1e1d9cdedf7b82.png"
+        }
+      ]
+    },
+    {
+      "locale": "el",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/el/01-slogan.png",
+          "sha256": "772c4e461cf7d1d7d799d21c60027787798432a436fa15c1daa4542a6f4a16a6",
+          "md5": "168e44482fa38713a8bbcaf3dbbe5009",
+          "fileSize": 2106901,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "el-01-168e44482fa38713.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/el/02-score.png",
+          "sha256": "a92b102f524f09cd203dc5e1b88c9a13a2639fbd0ba122f7d912fb15d0d6fafe",
+          "md5": "cace9a57380f04473cdc2292877cadda",
+          "fileSize": 137677,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "el-02-cace9a57380f0447.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/el/03-catalog.png",
+          "sha256": "4d8b93cfacd14de5d5f7b8839c7cbea93a459247e047d646e4accaa105f70914",
+          "md5": "fe2a3e6faea03cad4d48536ea256b041",
+          "fileSize": 72656,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "el-03-fe2a3e6faea03cad.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/el/04-recap.png",
+          "sha256": "deb7e107bf4355d753b04ed43887ca208cc98354049ac338ed5a11d1ccc42d3f",
+          "md5": "cccab93b37bd0b95d137bb4aebcfd04e",
+          "fileSize": 526473,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "el-04-cccab93b37bd0b95.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/el/05-setup.png",
+          "sha256": "49625977e0eddbb725bee0f52047d9b8e23db26e841f95cb886b78c27dfcb0d0",
+          "md5": "e73667a4797cd9019e6404c083848091",
+          "fileSize": 961841,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "el-05-e73667a4797cd901.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/el/06-multiplayer.png",
+          "sha256": "947451f9ebc1234bb8beee9d0403112c530a1974ef744d7e71ea39b0f609b851",
+          "md5": "8dece775dd6aaa010e606d58d0b23c38",
+          "fileSize": 443430,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "el-06-8dece775dd6aaa01.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/el/07-cast.png",
+          "sha256": "c3fa700d4a2855f99abf53b7b1603ba64bec18fd213716a109403bcf1f5a76fc",
+          "md5": "59f38a0329dff48d6bd3859ea9c8963e",
+          "fileSize": 821502,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "el-07-59f38a0329dff48d.png"
+        }
+      ]
+    },
+    {
+      "locale": "es-MX",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-MX/01-slogan.png",
+          "sha256": "0e60305ea4e8271e8d0863eb1e5044d7d8ee2d0a6fe98ef4152a64ab213f0155",
+          "md5": "8c177576e45d06c6435a631479ac0881",
+          "fileSize": 2115841,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "es-MX-01-8c177576e45d06c6.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-MX/02-score.png",
+          "sha256": "6634bcafe46cccc3ad4920aab54e8172368e890a6d432c8d7cf19fea3702c827",
+          "md5": "8e43e11ec5e744a548b6e95f0adb0763",
+          "fileSize": 148663,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "es-MX-02-8e43e11ec5e744a5.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-MX/03-catalog.png",
+          "sha256": "d4293330fd09ca3ecdba4451430a75870b4367f169ca48aac2f50f10aa843964",
+          "md5": "d59f4dbb121bc2cf0309c22e803eaf09",
+          "fileSize": 64299,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "es-MX-03-d59f4dbb121bc2cf.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-MX/04-recap.png",
+          "sha256": "2854bda1d033d1a0d165305e633cee01f58760974af146167f735273e374844f",
+          "md5": "879b2c421e3833eee397fc09b88e39a9",
+          "fileSize": 519470,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "es-MX-04-879b2c421e3833ee.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-MX/05-setup.png",
+          "sha256": "dc5eda52ba11aad6c0c1360375e571ced5be9120e50be2852f3cfeeb187689a1",
+          "md5": "63ab01176b3cc1ec182fc66a9da95f13",
+          "fileSize": 940915,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "es-MX-05-63ab01176b3cc1ec.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-MX/06-multiplayer.png",
+          "sha256": "3f71002fc8693c87cc3ae354e7e7397e192b28defc3d37d687de74fa25be2780",
+          "md5": "c4a0a117390c1e4036f612fce544b398",
+          "fileSize": 436455,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "es-MX-06-c4a0a117390c1e40.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-MX/07-cast.png",
+          "sha256": "9629fbe5b86be4df426732501e5c8d000550977dc39dfe54990d8844f45b33f1",
+          "md5": "17b4bb081ce3e8cf9f1a333fdc399ce8",
+          "fileSize": 827546,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "es-MX-07-17b4bb081ce3e8cf.png"
+        }
+      ]
+    },
+    {
+      "locale": "fr-CA",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-CA/01-slogan.png",
+          "sha256": "3c3def135cb353e5e01ce64b223a5c03b3d6b5e4040a28027b3d5bb68014f2ca",
+          "md5": "138797d8961ee4b8ab536b47dd208d1b",
+          "fileSize": 2118976,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "fr-CA-01-138797d8961ee4b8.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-CA/02-score.png",
+          "sha256": "cd339e8896faa3d92c587289006e15584e79cdef95c0941b0bd51584f16ce819",
+          "md5": "3cc134930add9e094de56689cba852fe",
+          "fileSize": 145101,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "fr-CA-02-3cc134930add9e09.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-CA/03-catalog.png",
+          "sha256": "e241356f6f2e25d7842e6e4f4e997b082f92d6bcd0c49340c9280f1b53e81efe",
+          "md5": "465d23ae22c7d721a8783d04fea023fd",
+          "fileSize": 63923,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "fr-CA-03-465d23ae22c7d721.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-CA/04-recap.png",
+          "sha256": "ed0d7574e8f0beb7df7502ba5ffeb9bd80ee4e16e4cddd45fa5e4cb697ad84a8",
+          "md5": "8cacfd3df50fdc86dffc5a6a98274f44",
+          "fileSize": 508702,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "fr-CA-04-8cacfd3df50fdc86.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-CA/05-setup.png",
+          "sha256": "3e192c009789b3620eb9429f6c44a7f318432086482369a5a6b1abfca669a4b1",
+          "md5": "3c7616c3a92ab35196084853fb889d71",
+          "fileSize": 946409,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "fr-CA-05-3c7616c3a92ab351.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-CA/06-multiplayer.png",
+          "sha256": "796de39604ca098cba8460cff95ad9b12e48e08f2726c9f6d62a7ddc4fae8435",
+          "md5": "51dd8cdca4575ab2c6ba77de5f68d5f6",
+          "fileSize": 441914,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "fr-CA-06-51dd8cdca4575ab2.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-CA/07-cast.png",
+          "sha256": "87356b44c23bd2b5785cd8b5d21c5b200025465b76b6874914062bd55a312018",
+          "md5": "5ec5ae9291bae4b67d2a79d2a7f55cbd",
+          "fileSize": 828126,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "fr-CA-07-5ec5ae9291bae4b6.png"
+        }
+      ]
+    },
+    {
+      "locale": "hr",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/hr/01-slogan.png",
+          "sha256": "3a6d604696148bd64f1e0803dd7e7c0ae24eec0c65015094e668d4d5c0ca8561",
+          "md5": "9f71b5bc1f383a576f9f72d6f61e9d67",
+          "fileSize": 2110251,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "hr-01-9f71b5bc1f383a57.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/hr/02-score.png",
+          "sha256": "eb2a59f4d224168c82c70542c36c0c8f8e3b452ec6113c8defa3611184080889",
+          "md5": "5e0a5cea5e60274b6a15957db1f5f5cc",
+          "fileSize": 137163,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "hr-02-5e0a5cea5e60274b.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/hr/03-catalog.png",
+          "sha256": "a39dc32aa8b1ed6dcffa9fd3e948b0777e9624e7f471ece6cb463595985071fb",
+          "md5": "baaca32ecb1f3e1abeeb71b2916f9927",
+          "fileSize": 66866,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "hr-03-baaca32ecb1f3e1a.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/hr/04-recap.png",
+          "sha256": "51ccce21d6dcd72b89540f26536be2525eca24fef11815453487931503da65d6",
+          "md5": "3b157d6f4bc2cfd290cc133b13cf0de7",
+          "fileSize": 516450,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "hr-04-3b157d6f4bc2cfd2.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/hr/05-setup.png",
+          "sha256": "f9ce382756b0b0793d2eb130a62e49745a4e6428c5e9924a337b4942e2063607",
+          "md5": "a5201345255547e5341aa0238d8a3f9e",
+          "fileSize": 948191,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "hr-05-a5201345255547e5.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/hr/06-multiplayer.png",
+          "sha256": "db56f61ffbae21f278d9116b9fb073672b704c36ef0b92bfa52ae535e47639e4",
+          "md5": "7f85ba5f7a5b9f96b2923840c6ce60df",
+          "fileSize": 445929,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "hr-06-7f85ba5f7a5b9f96.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/hr/07-cast.png",
+          "sha256": "5874208320c93f266d89624646b2f259828f24f92e8f8845653fac602423c5d4",
+          "md5": "8f56df47277af32fdd255ea6799f6a49",
+          "fileSize": 831886,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "hr-07-8f56df47277af32f.png"
+        }
+      ]
+    },
+    {
+      "locale": "hu",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/hu/01-slogan.png",
+          "sha256": "b796844bcbb8527a3bb4df683bf295ca245a88c18e926323142d3b8b2df484cb",
+          "md5": "27a44116cbfa2727ae34e740aa50ab2d",
+          "fileSize": 2113473,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "hu-01-27a44116cbfa2727.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/hu/02-score.png",
+          "sha256": "d468850d569072936a56c0c8426f2e57116cf98aacf66760f09dcc6e58547696",
+          "md5": "60d5e4e8072b4c35014cd557ac2e3e59",
+          "fileSize": 148733,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "hu-02-60d5e4e8072b4c35.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/hu/03-catalog.png",
+          "sha256": "708a0208a972e288071195a7747335206bc5142511caa22d617026c4b1e40e97",
+          "md5": "712243bc80b99f879038c1b145facc84",
+          "fileSize": 71460,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "hu-03-712243bc80b99f87.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/hu/04-recap.png",
+          "sha256": "3ae1e67b17549acb1ced4a45b37e84436ea9d07993a8b610c18df3d6482de30b",
+          "md5": "25b3a4149cdc89bbd8d3a570bf7b770a",
+          "fileSize": 526939,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "hu-04-25b3a4149cdc89bb.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/hu/05-setup.png",
+          "sha256": "27772edef35a09e8b1676c72a08e02af6eaea7bca06184ac7f7ec39c35e21f61",
+          "md5": "e9b7c896b8d7a29f3a59aea312e6306b",
+          "fileSize": 958254,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "hu-05-e9b7c896b8d7a29f.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/hu/06-multiplayer.png",
+          "sha256": "2e7a503b6718aac430c2e858f54513b56430faeeee48c7157b350278572a683b",
+          "md5": "92705a9ecf01e0fae785bb7dbbd53af8",
+          "fileSize": 455284,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "hu-06-92705a9ecf01e0fa.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/hu/07-cast.png",
+          "sha256": "0006d4c4c47f6bae33988700f2abd55b9e98ba67f882f2613ac8160de789d07c",
+          "md5": "df7d0630f768ed8963ba7fc69cbaac33",
+          "fileSize": 839869,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "hu-07-df7d0630f768ed89.png"
+        }
+      ]
+    },
+    {
+      "locale": "ml-IN",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ml-IN/01-slogan.png",
+          "sha256": "8d454843fbf59a26ae705980fdb3690ff53241f679350d3e89c5f561857f28ec",
+          "md5": "588be9c8ddfb88a0399452acfc9db0a6",
+          "fileSize": 2146024,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ml-IN-01-588be9c8ddfb88a0.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ml-IN/02-score.png",
+          "sha256": "06f043ec7528c90361f3fa5da66e747996d01ca115e1d727f1a71f370641b91d",
+          "md5": "032d0d9f33ea54d1d7e00997773697d3",
+          "fileSize": 172014,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ml-IN-02-032d0d9f33ea54d1.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ml-IN/03-catalog.png",
+          "sha256": "6ee345726134d8ca3312244da362955c131cb94de8c6e189c57e923e5ef01563",
+          "md5": "6671b29039d4809c69a9c66ae73a198f",
+          "fileSize": 89462,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ml-IN-03-6671b29039d4809c.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ml-IN/04-recap.png",
+          "sha256": "bcf19c6f194fec9fdc36e48e78b68605e0f317c90875ea3e01162f4f44cc89e0",
+          "md5": "63714ec343911b6e856c47efc58d1a88",
+          "fileSize": 573465,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ml-IN-04-63714ec343911b6e.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ml-IN/05-setup.png",
+          "sha256": "b670f52da09b998ba337b9f088ea9effa91907c9b99b2620b4b66656f03ee3c2",
+          "md5": "273a57658b17db03c7a7be8881d69612",
+          "fileSize": 1006283,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ml-IN-05-273a57658b17db03.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ml-IN/06-multiplayer.png",
+          "sha256": "439c29779711c132b03ec47ff918c34d3c303011b1abbe44ae2846290f72f0f1",
+          "md5": "59921e98d571cf134f6d02a706424b48",
+          "fileSize": 491474,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ml-IN-06-59921e98d571cf13.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ml-IN/07-cast.png",
+          "sha256": "554695d31ea21a89168d17393f19a79c2a061a89312aa04573c362e438751422",
+          "md5": "596033192c30a083b0381c24bb621316",
+          "fileSize": 840304,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ml-IN-07-596033192c30a083.png"
+        }
+      ]
+    },
+    {
+      "locale": "ms",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ms/01-slogan.png",
+          "sha256": "16c41e9f1a0049f772ec5ac0f2c496eb960c9b2ffa90814a9d5c6308210aa169",
+          "md5": "af24015a020b9c4026ddbfe059e96a15",
+          "fileSize": 2116242,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ms-01-af24015a020b9c40.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ms/02-score.png",
+          "sha256": "1ed89f3b906014898db4231d6b539355e50cf0716bbd1abcbf5953b68ac92992",
+          "md5": "73ca30d12439e696510fa5bb20013031",
+          "fileSize": 145030,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ms-02-73ca30d12439e696.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ms/03-catalog.png",
+          "sha256": "db89178e3736a588a64f93b01fb8e7c9cf5fccf0589f610d66dd1537a4435836",
+          "md5": "6d5bbad0f23d6cddfaba134b0ef0087f",
+          "fileSize": 66169,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ms-03-6d5bbad0f23d6cdd.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ms/04-recap.png",
+          "sha256": "e7f93a1c89c8ce9023fdf128f31ae0d661dbe11c9d1850caaaef23bdc8f74e65",
+          "md5": "abe6dc95b97fce1d0b1a6dbe4749c085",
+          "fileSize": 517523,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ms-04-abe6dc95b97fce1d.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ms/05-setup.png",
+          "sha256": "7daa0727ad391406194524cdf0167bb7ed14b478c5b907e29f32d510d10d8e3d",
+          "md5": "7e5a48727715e7e6d3c6f77ebc1e9d46",
+          "fileSize": 958489,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ms-05-7e5a48727715e7e6.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ms/06-multiplayer.png",
+          "sha256": "6c17db287aaa5ceed2ca7aa2834cc095d479f9d041ea636dedc3b6a1a49dd180",
+          "md5": "c9a5c80a8958f26495370a9dcd7f9068",
+          "fileSize": 443188,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ms-06-c9a5c80a8958f264.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ms/07-cast.png",
+          "sha256": "2c2662a8555c7551c5ab8d77244b5d812a0966bc30e7c11888fabec8097f673d",
+          "md5": "489be9f0aee86091f7e54d87d2cb3544",
+          "fileSize": 833235,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ms-07-489be9f0aee86091.png"
+        }
+      ]
+    },
+    {
+      "locale": "pl",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pl/01-slogan.png",
+          "sha256": "7a86db31970a4c181eaae18afa55c033480da941c61e47cee2cdd5b0a7fa678f",
+          "md5": "462f7a574b790a8a4fd51d9765262e0a",
+          "fileSize": 2118439,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pl-01-462f7a574b790a8a.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pl/02-score.png",
+          "sha256": "420e6a1b2dc746ca6bdf9b028120652d8006f8e820082f207ef91b7a9bb9e189",
+          "md5": "f3691e1e056021f3698cdd1376135732",
+          "fileSize": 150521,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pl-02-f3691e1e056021f3.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pl/03-catalog.png",
+          "sha256": "01d7fb3adc24470fc5aeb2b742c27bc9ab847c474a353323b95ecd9909f4656d",
+          "md5": "bf5c46bc3cdce48329ad78eaa3e82b31",
+          "fileSize": 67214,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pl-03-bf5c46bc3cdce483.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pl/04-recap.png",
+          "sha256": "78cd4de2533673a5055d34e507bf938e03ad9d10d211d9386e97e170ce60d4b7",
+          "md5": "5604187bb7a23a631c37135d5e1ade8f",
+          "fileSize": 522785,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pl-04-5604187bb7a23a63.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pl/05-setup.png",
+          "sha256": "3928121658ae65ca93113c1b1815a123a2f6117d7c158e984d2ecb273e71e3b1",
+          "md5": "c1f6729ae18498b59960692727b3ef04",
+          "fileSize": 965318,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pl-05-c1f6729ae18498b5.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pl/06-multiplayer.png",
+          "sha256": "d0ad854e52f64c645cbe546908513b0360d135f4f1ea93f1522b906fcd4f1b7c",
+          "md5": "6a45d45c718c32fc6c74b7a76090399e",
+          "fileSize": 441599,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pl-06-6a45d45c718c32fc.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pl/07-cast.png",
+          "sha256": "beee3a041ce1962bef4188775082b18d883b25e25412f0b15661d89af2c65516",
+          "md5": "0aacf50cf5ccf17ce8c24a05b1658f14",
+          "fileSize": 824175,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pl-07-0aacf50cf5ccf17c.png"
+        }
+      ]
+    },
+    {
+      "locale": "pt-PT",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-PT/01-slogan.png",
+          "sha256": "c0cef275f412f6f45d98072d49c5ce79e10798a73bcb7bef03cdbddd39ea2674",
+          "md5": "f41b869ab1e9d8a3907b6e173fe8babf",
+          "fileSize": 2120091,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pt-PT-01-f41b869ab1e9d8a3.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-PT/02-score.png",
+          "sha256": "4af3480bdfb616fcb0bc88f7afaaafbc4f194df3e9282d0d2e780752139490cf",
+          "md5": "3b0f55523dec56d3b2e6e46effd9a234",
+          "fileSize": 147324,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pt-PT-02-3b0f55523dec56d3.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-PT/03-catalog.png",
+          "sha256": "17dc45811ab88aeff3157464f11d1f9edf801089ffd86237e9b5388e958d6476",
+          "md5": "55e5c0606b60946bfca2b99313ee1834",
+          "fileSize": 70824,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pt-PT-03-55e5c0606b60946b.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-PT/04-recap.png",
+          "sha256": "965b78fdde55737b0d44a43b3240ae3885dce31776085846d0f3548b0c1a8704",
+          "md5": "c9adb54456449b101ecee4e142fa1a8d",
+          "fileSize": 523059,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pt-PT-04-c9adb54456449b10.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-PT/05-setup.png",
+          "sha256": "0ad8f2c3723623b713e0b73deecc3c215ba4fd98c9abe17cf70bbf5ce3ddac5f",
+          "md5": "91a164ce933f4fb988207a759c586f2c",
+          "fileSize": 950615,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pt-PT-05-91a164ce933f4fb9.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-PT/06-multiplayer.png",
+          "sha256": "15d39ddb058b2997bdb65395e3ce5c430a171268f081cd51155b10303c2e00f4",
+          "md5": "15574b9668c1886feb3f0b58f8b67376",
+          "fileSize": 445880,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pt-PT-06-15574b9668c1886f.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-PT/07-cast.png",
+          "sha256": "e60d95f924f464b08d82f9558b84b143e24907d9fce22d8e3aa458b86e7fb005",
+          "md5": "58b737bb3dcb05a744e35e9061b0d363",
+          "fileSize": 831585,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "pt-PT-07-58b737bb3dcb05a7.png"
+        }
+      ]
+    },
+    {
+      "locale": "ro",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ro/01-slogan.png",
+          "sha256": "3cbf1d592925feb70166da9063acbec10f218882396aabc28b2d5538deac7911",
+          "md5": "3ab93db160063324d6e19d6a49ab02b9",
+          "fileSize": 2122058,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ro-01-3ab93db160063324.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ro/02-score.png",
+          "sha256": "5a68ae7718ccac444808e0274f445b975af4bf0b4344ef43076970efc454694b",
+          "md5": "78103e541c45c01411fed2a226dcab6c",
+          "fileSize": 145465,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ro-02-78103e541c45c014.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ro/03-catalog.png",
+          "sha256": "a769169a43492209bda504f7aacd21009f3ea571116c26aac1ae8e4e10bcc476",
+          "md5": "516b4a80aeaca9651a9b5ec35008e444",
+          "fileSize": 70910,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ro-03-516b4a80aeaca965.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ro/04-recap.png",
+          "sha256": "473a2f4af2a9df9400ca043fbf2f4ac07b7702d0a154f6532c74ce03746f1a1f",
+          "md5": "258d23508f2a51960dc9dd61499c6269",
+          "fileSize": 501102,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ro-04-258d23508f2a5196.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ro/05-setup.png",
+          "sha256": "8e6a0cffb11522f3c9413a832387b376cc1ecf57172a24c730207ee70d10d882",
+          "md5": "741d2e4aa30efff1b155603a55bd7a3c",
+          "fileSize": 935409,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ro-05-741d2e4aa30efff1.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ro/06-multiplayer.png",
+          "sha256": "6e1f399b97d348da02f27db049dbc0a7d3edd537cdf7bf4df002d301461c28b8",
+          "md5": "94e710c9710441912126bcec23cdccbe",
+          "fileSize": 446293,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ro-06-94e710c971044191.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ro/07-cast.png",
+          "sha256": "3c5a32e5ad80280823b0fe2a125fa9027fc5652189202518f732efdbfe6f8f13",
+          "md5": "3cb1b25b91666d8c3c8d373b328b44ee",
+          "fileSize": 811852,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ro-07-3cb1b25b91666d8c.png"
+        }
+      ]
+    },
+    {
+      "locale": "sk",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sk/01-slogan.png",
+          "sha256": "368453e13af45d7f92727558ff20ecf3244a9ed68018f298880095c0551f26ce",
+          "md5": "284482e749a60459fee8d0a15a4e5b75",
+          "fileSize": 2128120,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "sk-01-284482e749a60459.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sk/02-score.png",
+          "sha256": "2758ef2bc6c2983a3881290e12d2c6276e7c3b83039f6148f715b97d593a1090",
+          "md5": "348201b0c911625789aa71a2560dd3a6",
+          "fileSize": 146031,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "sk-02-348201b0c9116257.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sk/03-catalog.png",
+          "sha256": "ccee65362d490aa732c27bb70f9736453a6d905b7037c85941a95f164305b7ba",
+          "md5": "755fec276d848b50021b23a3413db92a",
+          "fileSize": 66730,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "sk-03-755fec276d848b50.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sk/04-recap.png",
+          "sha256": "70754c4b70c3397a59c80491bac75912f61eee3e2f37ffd117f11cc0986c1003",
+          "md5": "c78dcfb9256424a061a0839c35c7e5d9",
+          "fileSize": 519968,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "sk-04-c78dcfb9256424a0.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sk/05-setup.png",
+          "sha256": "e792539f4c422d9aa0a58eb65434bec6a41b0049bc931ad09b4ac825b5fd541b",
+          "md5": "476c5d76f479f74ee5dde7e0f0b73d4e",
+          "fileSize": 947959,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "sk-05-476c5d76f479f74e.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sk/06-multiplayer.png",
+          "sha256": "52b5409eb21870faaac5655d749d0c6cf954a35e42f1a71f6242c9ef824f487b",
+          "md5": "88ab5b4dd1f73de54ee82fe203a83c2b",
+          "fileSize": 443631,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "sk-06-88ab5b4dd1f73de5.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sk/07-cast.png",
+          "sha256": "481366e946779ea044742003ab549784c611ab03582f12a6ad00b554a5aeb237",
+          "md5": "6946f38184d83d949a847509d2979584",
+          "fileSize": 826058,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "sk-07-6946f38184d83d94.png"
+        }
+      ]
+    },
+    {
+      "locale": "sl-SI",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sl-SI/01-slogan.png",
+          "sha256": "c25156b09bbffe27034d2b1df88e23fd61da17c3c4f4887de63aba47e5280324",
+          "md5": "252fd09a61b3f40f71d8a82759efac8d",
+          "fileSize": 2121551,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "sl-SI-01-252fd09a61b3f40f.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sl-SI/02-score.png",
+          "sha256": "cd0764fb0bd73d8d6bc56c6341758a4c51e0dd73365ae101401816c76afa4ce9",
+          "md5": "95f260ccbed537db2d0d6848042467ad",
+          "fileSize": 136973,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "sl-SI-02-95f260ccbed537db.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sl-SI/03-catalog.png",
+          "sha256": "b8efa0f25778ace79674067d47b411831c3431108ab7ba2cd5ca8110d98fd01e",
+          "md5": "868172db1e126083e8732bd845925e8a",
+          "fileSize": 61828,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "sl-SI-03-868172db1e126083.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sl-SI/04-recap.png",
+          "sha256": "25d9d9b5d0386dc60390a6e112a1e6ede1c2747796d247eaa0f4b550121c6569",
+          "md5": "6dc6fc848cdc01f34fdc20535ace83cd",
+          "fileSize": 514553,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "sl-SI-04-6dc6fc848cdc01f3.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sl-SI/05-setup.png",
+          "sha256": "8792502e4d04892bfbcb9a30f1342b31ae68f160947fc7e28a2ee5344d38c4f2",
+          "md5": "159c757d984a60952617e6776ba90e1d",
+          "fileSize": 950292,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "sl-SI-05-159c757d984a6095.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sl-SI/06-multiplayer.png",
+          "sha256": "25e51b91dd476366be5e49bad94b28f38665e865da267abd267663a5254a951e",
+          "md5": "f2f18e940ce0253129f66aec510e0e8f",
+          "fileSize": 433974,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "sl-SI-06-f2f18e940ce02531.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sl-SI/07-cast.png",
+          "sha256": "283dd1317a37a2d37fd6ca90f3735744194196e712b456d79f6c42b0eb6530e7",
+          "md5": "747cdd7961d5ae91ef280b40dfe14dc7",
+          "fileSize": 831091,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "sl-SI-07-747cdd7961d5ae91.png"
+        }
+      ]
+    },
+    {
+      "locale": "ta-IN",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ta-IN/01-slogan.png",
+          "sha256": "2e6561d8b9357cd572b675e6a8d451819a88086167d33766a338e6aa9c6dcda6",
+          "md5": "e09f645d0793c64bf7c15184b1a7aca1",
+          "fileSize": 2139981,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ta-IN-01-e09f645d0793c64b.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ta-IN/02-score.png",
+          "sha256": "1fd9aed1431b8de5c3f5886ae2e276ced6a7560ff2f46cff1b8f43caa6f75833",
+          "md5": "24694c8dd60ded0b9cee21505bc92aa0",
+          "fileSize": 152529,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ta-IN-02-24694c8dd60ded0b.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ta-IN/03-catalog.png",
+          "sha256": "a5c6435cc9ef68be56e284666a7040c619c6ba22cf054a09ef6a32c93983e204",
+          "md5": "45e6f7bce085691d6105c235f89b51e2",
+          "fileSize": 79168,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ta-IN-03-45e6f7bce085691d.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ta-IN/04-recap.png",
+          "sha256": "3486ede65bd63c5c6815764fcf932df49fae96e1f5548dff4e61e575e1df032f",
+          "md5": "57052139c78294d7a1006301b6dad4ff",
+          "fileSize": 547419,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ta-IN-04-57052139c78294d7.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ta-IN/05-setup.png",
+          "sha256": "4393c07ae25b61f13041517da1da9420bd70c91809378a0a5562adb119abbc65",
+          "md5": "36617fdf8862d8d7abd5414e38a482c5",
+          "fileSize": 974602,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ta-IN-05-36617fdf8862d8d7.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ta-IN/06-multiplayer.png",
+          "sha256": "e5da671e3f9e6f2b17fda8012ec0db1d1df44112dacd0657db0b119b26510d04",
+          "md5": "8e003fda796824d6679db2a32c9f06fa",
+          "fileSize": 470889,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ta-IN-06-8e003fda796824d6.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ta-IN/07-cast.png",
+          "sha256": "29582bf2827316811c148a0a799bfadb2a0b847f4500515074f511d0548bee05",
+          "md5": "2576fa56caedab0d4e66c57b7d03c735",
+          "fileSize": 830110,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ta-IN-07-2576fa56caedab0d.png"
+        }
+      ]
+    },
+    {
+      "locale": "uk",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/uk/01-slogan.png",
+          "sha256": "bc88b5249b14d0626650d7d75f59d7981cc31c2c21df784d878b73e549cb56c9",
+          "md5": "6e56746c57e4a29bba7eb0ea5111cecc",
+          "fileSize": 2122864,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "uk-01-6e56746c57e4a29b.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/uk/02-score.png",
+          "sha256": "f48577bcc33e3506acde2e888c6171e8775d161389f26303c97a388ea814b336",
+          "md5": "ffc3cea8ba5fca3088f7d5c0d63f85bf",
+          "fileSize": 146803,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "uk-02-ffc3cea8ba5fca30.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/uk/03-catalog.png",
+          "sha256": "bcbb52b10ead1c3b53b541ee98985ff8a1d48b9ae3cb0d38386b5c339915bc68",
+          "md5": "0f578335a0769843e0c34b4c755fd70f",
+          "fileSize": 68370,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "uk-03-0f578335a0769843.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/uk/04-recap.png",
+          "sha256": "e983bf259c1543f8f2871d08e7c88303ba248f03caaf55b9b2221bf0de5c9d31",
+          "md5": "8c5ed220d1c328434b6dc2372bcba755",
+          "fileSize": 512484,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "uk-04-8c5ed220d1c32843.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/uk/05-setup.png",
+          "sha256": "33c53a1d8ed672cdef598ed4c691398d83fbc5c5749bfc723dfa3c7fe11f9f14",
+          "md5": "057185548835914d807165efbed63a92",
+          "fileSize": 954697,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "uk-05-057185548835914d.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/uk/06-multiplayer.png",
+          "sha256": "7dfe163fc7558b8a93f1d00056baeb30c9dc0bdf6b9e55e537dc3f7759dadbfd",
+          "md5": "9c9c76a417b308133c7ac9a5f1f3baf2",
+          "fileSize": 439752,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "uk-06-9c9c76a417b30813.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/uk/07-cast.png",
+          "sha256": "cd2462885227ae380a0ad5976870dff4176c69b55403732cd76abfc6bfca53e1",
+          "md5": "d2a9c3de54044583d47b1bb8050aabe6",
+          "fileSize": 809189,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "uk-07-d2a9c3de54044583.png"
+        }
+      ]
+    },
+    {
+      "locale": "ur-PK",
+      "targetCount": 7,
+      "existingCount": 7,
+      "reusableCount": 6,
+      "uploadCount": 1,
+      "images": [
+        {
+          "index": 1,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ur-PK/01-slogan.png",
+          "sha256": "ab1d116c3bee6d092989449debd1f83cda5a1b46d3d51137521a92c2798f0d6f",
+          "md5": "b6ea4a895829799d98c76f36a7d9dc22",
+          "fileSize": 2114332,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ur-PK-01-b6ea4a895829799d.png"
+        },
+        {
+          "index": 2,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ur-PK/02-score.png",
+          "sha256": "ccac8ef3b68809b644fcc6fdd582152693634f1ca85de6a6541fa992229b359c",
+          "md5": "77558b84077fa7e0421ce1d9d0210301",
+          "fileSize": 129210,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ur-PK-02-77558b84077fa7e0.png"
+        },
+        {
+          "index": 3,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ur-PK/03-catalog.png",
+          "sha256": "b0c65fad310363645c05a4db7c4c86928d74ea80fd77d67f2aec6936d8b231df",
+          "md5": "9f72cf65cd755e646742a52ec9c834ee",
+          "fileSize": 58485,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ur-PK-03-9f72cf65cd755e64.png"
+        },
+        {
+          "index": 4,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ur-PK/04-recap.png",
+          "sha256": "ed7603ad1615bb6f0b7bbd4f06187524082358b041cad7498608df0bd7f32cab",
+          "md5": "2f09847abe321088cdb6720716f39a6d",
+          "fileSize": 473212,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ur-PK-04-2f09847abe321088.png"
+        },
+        {
+          "index": 5,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ur-PK/05-setup.png",
+          "sha256": "f0dc25658a9d527dff52ad37f35042085968640c7c2f68d9730cf6c556b53726",
+          "md5": "56f9507e6276d46baa2be2c711069c85",
+          "fileSize": 895575,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ur-PK-05-56f9507e6276d46b.png"
+        },
+        {
+          "index": 6,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ur-PK/06-multiplayer.png",
+          "sha256": "bc129f4e5e2a7dcbe1d8edf063f10d28bb09e433236b4b541aa24382cd89f06f",
+          "md5": "0e56293523f7658e4c921332ff54d65d",
+          "fileSize": 429246,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ur-PK-06-0e56293523f7658e.png"
+        },
+        {
+          "index": 7,
+          "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ur-PK/07-cast.png",
+          "sha256": "772fbc241de43d08565ce6c2377937d562cd4e2a4aaac2fb62317c8ac817c85f",
+          "md5": "574ad5e977ccb873055b78200eb3436a",
+          "fileSize": 821150,
+          "width": 1284,
+          "height": 2778,
+          "fileName": "ur-PK-07-574ad5e977ccb873.png"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,207 @@
+{
+  "appId": "6759768784",
+  "bundleId": "com.douhua.jifen.ios",
+  "version": "3.2.3",
+  "versionId": "a118dc62-4303-4c03-ae92-b358c60438d5",
+  "startedAt": "2026-10-03T04:33:34.396629+00:00",
+  "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-screenshots-20261002/upload/before-20261003T043300906074Z.json",
+  "results": [
+    {
+      "locale": "zh-Hant",
+      "startedAt": "2026-10-03T04:33:34.397273+00:00",
+      "status": "verified",
+      "images": [
+        {
+          "index": 1,
+          "id": "eb000019-2e9e-82d0-803c-da9211269e16",
+          "md5": "878464dcb35d7ec880a0d58f1a8a3d41",
+          "action": "uploaded",
+          "state": "COMPLETE"
+        },
+        {
+          "index": 2,
+          "id": "60800019-2e9e-82d0-8029-1fccd43bc633",
+          "md5": "65218ce1d4145b73eb3ece23db001821",
+          "action": "uploaded",
+          "state": "COMPLETE"
+        },
+        {
+          "index": 3,
+          "id": "3cc00019-2e9e-82d0-800e-1e1a10beb83b",
+          "md5": "23df7eca9d115127009bf0c45e598ee7",
+          "action": "uploaded",
+          "state": "COMPLETE"
+        },
+        {
+          "index": 4,
+          "id": "b9c00019-2e9e-82d0-8030-af34495ea7eb",
+          "md5": "f0692f738c217e2d5f0d5d6932fba4d9",
+          "action": "reused",
+          "state": "COMPLETE"
+        },
+        {
+          "index": 5,
+          "id": "07000019-2e9e-82d0-8008-97e37ac148b5",
+          "md5": "1b6b6a94db0d4895c8cc85ced1a97454",
+          "action": "reused",
+          "state": "COMPLETE"
+        },
+        {
+          "index": 6,
+          "id": "c6c00019-2e9e-82d0-8022-b7c4b1ec5f7e",
+          "md5": "f7a4809cbb294a6b21f03dac7bc9294e",
+          "action": "reused",
+          "state": "COMPLETE"
+        },
+        {
+          "index": 7,
+          "id": "3f000019-2e9e-82d0-8017-c6e1fd18af9f",
+          "md5": "db7b6d49e4824b42da1ff60308be0986",
+          "action": "reused",
+          "state": "COMPLETE"
+        }
+      ],
+      "deletedIds": [
+        "7cc00019-2e9e-82d0-8010-2d8fa1b9abd3",
+        "50000019-2e9e-82d0-8007-d7a0e5716f92",
+        "c6000019-2e9e-82d0-802e-bb6176175451"
+      ],
+      "setId": "e252830f-4569-4181-854b-176d34066974",
+      "backup": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-screenshots-20261002/upload/locale-backups/20261003T043300906074Z-zh-Hant.json",
+      "verified": true,
+      "completedAt": "2026-10-03T04:34:08.939175+00:00",
+      "after": {
+        "set": {
+          "id": "e252830f-4569-4181-854b-176d34066974",
+          "type": "appScreenshotSets",
+          "attributes": {
+            "screenshotDisplayType": "APP_IPHONE_65"
+          }
+        },
+        "screenshots": [
+          {
+            "id": "eb000019-2e9e-82d0-803c-da9211269e16",
+            "type": "appScreenshots",
+            "attributes": {
+              "fileName": "zh-Hant-01-878464dcb35d7ec8.png",
+              "fileSize": 1405598,
+              "sourceFileChecksum": "878464dcb35d7ec880a0d58f1a8a3d41",
+              "assetDeliveryState": {
+                "state": "COMPLETE",
+                "errorCodes": []
+              },
+              "imageAsset": {
+                "width": 1284,
+                "height": 2778
+              }
+            }
+          },
+          {
+            "id": "60800019-2e9e-82d0-8029-1fccd43bc633",
+            "type": "appScreenshots",
+            "attributes": {
+              "fileName": "zh-Hant-02-65218ce1d4145b73.png",
+              "fileSize": 55891,
+              "sourceFileChecksum": "65218ce1d4145b73eb3ece23db001821",
+              "assetDeliveryState": {
+                "state": "COMPLETE",
+                "errorCodes": []
+              },
+              "imageAsset": {
+                "width": 1284,
+                "height": 2778
+              }
+            }
+          },
+          {
+            "id": "3cc00019-2e9e-82d0-800e-1e1a10beb83b",
+            "type": "appScreenshots",
+            "attributes": {
+              "fileName": "zh-Hant-03-23df7eca9d115127.png",
+              "fileSize": 67783,
+              "sourceFileChecksum": "23df7eca9d115127009bf0c45e598ee7",
+              "assetDeliveryState": {
+                "state": "COMPLETE",
+                "errorCodes": []
+              },
+              "imageAsset": {
+                "width": 1284,
+                "height": 2778
+              }
+            }
+          },
+          {
+            "id": "b9c00019-2e9e-82d0-8030-af34495ea7eb",
+            "type": "appScreenshots",
+            "attributes": {
+              "fileName": "zh-Hant-04-f0692f738c217e2d.png",
+              "fileSize": 376717,
+              "sourceFileChecksum": "f0692f738c217e2d5f0d5d6932fba4d9",
+              "assetDeliveryState": {
+                "state": "COMPLETE",
+                "errorCodes": []
+              },
+              "imageAsset": {
+                "width": 1284,
+                "height": 2778
+              }
+            }
+          },
+          {
+            "id": "07000019-2e9e-82d0-8008-97e37ac148b5",
+            "type": "appScreenshots",
+            "attributes": {
+              "fileName": "zh-Hant-05-1b6b6a94db0d4895.png",
+              "fileSize": 660719,
+              "sourceFileChecksum": "1b6b6a94db0d4895c8cc85ced1a97454",
+              "assetDeliveryState": {
+                "state": "COMPLETE",
+                "errorCodes": []
+              },
+              "imageAsset": {
+                "width": 1284,
+                "height": 2778
+              }
+            }
+          },
+          {
+            "id": "c6c00019-2e9e-82d0-8022-b7c4b1ec5f7e",
+            "type": "appScreenshots",
+            "attributes": {
+              "fileName": "zh-Hant-06-f7a4809cbb294a6b.png",
+              "fileSize": 316585,
+              "sourceFileChecksum": "f7a4809cbb294a6b21f03dac7bc9294e",
+              "assetDeliveryState": {
+                "state": "COMPLETE",
+                "errorCodes": []
+              },
+              "imageAsset": {
+                "width": 1284,
+                "height": 2778
+              }
+            }
+          },
+          {
+            "id": "3f000019-2e9e-82d0-8017-c6e1fd18af9f",
+            "type": "appScreenshots",
+            "attributes": {
+              "fileName": "zh-Hant-07-db7b6d49e4824b42.png",
+              "fileSize": 581909,
+              "sourceFileChecksum": "db7b6d49e4824b42da1ff60308be0986",
+              "assetDeliveryState": {
+                "state": "COMPLETE",
+                "errorCodes": []
+              },
+              "imageAsset": {
+                "width": 1284,
+                "height": 2778
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "submittedForReview": false,
+  "released": false
+}

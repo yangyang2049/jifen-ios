@@ -230,11 +230,14 @@ struct CubeTimerView: View {
         alignment: Alignment
     ) -> some View {
         VStack {
-            Image(handAssetName(isLeft: isLeft, isDown: isDown))
-                .renderingMode(.original)
-                .resizable()
-                .scaledToFit()
+            CubeTimerHandShape()
+                .fill(isDown
+                    ? Color(red: 0, green: 167.0 / 255, blue: 4.0 / 255)
+                    : Color(red: 70.0 / 255, green: 70.0 / 255, blue: 70.0 / 255))
+                .aspectRatio(1184.0 / 1310, contentMode: .fit)
+                .scaleEffect(x: isLeft ? 1 : -1, y: 1)
                 .frame(width: handIconSize, height: handIconSize)
+                .accessibilityHidden(true)
                 .animation(.easeInOut(duration: 0.2), value: isDown)
         }
         .frame(maxWidth: .infinity, maxHeight: handAreaHeight, alignment: alignment)
@@ -248,14 +251,6 @@ struct CubeTimerView: View {
                     onHandUp(isLeft: isLeft)
                 }
         )
-    }
-
-    private func handAssetName(isLeft: Bool, isDown: Bool) -> String {
-        if isLeft {
-            return isDown ? "ic_hand_left_touched" : "ic_hand_left_light"
-        } else {
-            return isDown ? "ic_hand_right_touched" : "ic_hand_right_light"
-        }
     }
 
     private func responsiveTimeFontSize(width: CGFloat) -> CGFloat {
@@ -461,6 +456,46 @@ struct CubeTimerView: View {
 
             ScreenshotSaveCoordinator.shared.submitCapturedImage(image)
         }
+    }
+}
+
+/// One smooth outline shared by both hands and both touch states.
+private struct CubeTimerHandShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: 590, y: 1248))
+        path.addCurve(to: CGPoint(x: 236, y: 1074), control1: CGPoint(x: 403, y: 1248), control2: CGPoint(x: 294, y: 1160))
+        path.addCurve(to: CGPoint(x: 151, y: 823), control1: CGPoint(x: 179, y: 996), control2: CGPoint(x: 168, y: 919))
+        path.addCurve(to: CGPoint(x: 66, y: 514), control1: CGPoint(x: 135, y: 735), control2: CGPoint(x: 98, y: 623))
+        path.addCurve(to: CGPoint(x: 90, y: 408), control1: CGPoint(x: 48, y: 465), control2: CGPoint(x: 60, y: 425))
+        path.addCurve(to: CGPoint(x: 183, y: 487), control1: CGPoint(x: 128, y: 390), control2: CGPoint(x: 160, y: 433))
+        path.addLine(to: CGPoint(x: 267, y: 675))
+        path.addCurve(to: CGPoint(x: 294, y: 687), control1: CGPoint(x: 276, y: 700), control2: CGPoint(x: 301, y: 714))
+        path.addLine(to: CGPoint(x: 212, y: 371))
+        path.addCurve(to: CGPoint(x: 239, y: 205), control1: CGPoint(x: 189, y: 292), control2: CGPoint(x: 204, y: 231))
+        path.addCurve(to: CGPoint(x: 344, y: 258), control1: CGPoint(x: 285, y: 172), control2: CGPoint(x: 326, y: 204))
+        path.addCurve(to: CGPoint(x: 432, y: 610), control1: CGPoint(x: 389, y: 371), control2: CGPoint(x: 416, y: 492))
+        path.addCurve(to: CGPoint(x: 461, y: 631), control1: CGPoint(x: 438, y: 637), control2: CGPoint(x: 466, y: 665))
+        path.addLine(to: CGPoint(x: 407, y: 260))
+        path.addCurve(to: CGPoint(x: 409, y: 90), control1: CGPoint(x: 395, y: 205), control2: CGPoint(x: 389, y: 128))
+        path.addCurve(to: CGPoint(x: 464, y: 58), control1: CGPoint(x: 422, y: 65), control2: CGPoint(x: 442, y: 55))
+        path.addCurve(to: CGPoint(x: 553, y: 153), control1: CGPoint(x: 507, y: 61), control2: CGPoint(x: 540, y: 102))
+        path.addCurve(to: CGPoint(x: 606, y: 544), control1: CGPoint(x: 591, y: 276), control2: CGPoint(x: 605, y: 414))
+        path.addCurve(to: CGPoint(x: 639, y: 580), control1: CGPoint(x: 606, y: 578), control2: CGPoint(x: 639, y: 614))
+        path.addLine(to: CGPoint(x: 641, y: 256))
+        path.addCurve(to: CGPoint(x: 704, y: 139), control1: CGPoint(x: 643, y: 198), control2: CGPoint(x: 672, y: 145))
+        path.addCurve(to: CGPoint(x: 790, y: 233), control1: CGPoint(x: 748, y: 135), control2: CGPoint(x: 786, y: 172))
+        path.addCurve(to: CGPoint(x: 797, y: 559), control1: CGPoint(x: 796, y: 351), control2: CGPoint(x: 799, y: 449))
+        path.addCurve(to: CGPoint(x: 842, y: 792), control1: CGPoint(x: 791, y: 668), control2: CGPoint(x: 803, y: 728))
+        path.addCurve(to: CGPoint(x: 872, y: 794), control1: CGPoint(x: 850, y: 805), control2: CGPoint(x: 854, y: 817))
+        path.addLine(to: CGPoint(x: 999, y: 635))
+        path.addCurve(to: CGPoint(x: 1101, y: 588), control1: CGPoint(x: 1028, y: 592), control2: CGPoint(x: 1065, y: 571))
+        path.addCurve(to: CGPoint(x: 1109, y: 681), control1: CGPoint(x: 1147, y: 608), control2: CGPoint(x: 1138, y: 639))
+        path.addLine(to: CGPoint(x: 967, y: 890))
+        path.addCurve(to: CGPoint(x: 817, y: 1123), control1: CGPoint(x: 917, y: 966), control2: CGPoint(x: 883, y: 1059))
+        path.addCurve(to: CGPoint(x: 590, y: 1248), control1: CGPoint(x: 743, y: 1195), control2: CGPoint(x: 664, y: 1248))
+        path.closeSubpath()
+        return path.applying(CGAffineTransform(scaleX: rect.width / 1184, y: rect.height / 1310))
     }
 }
 

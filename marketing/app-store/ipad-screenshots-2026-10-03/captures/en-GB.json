@@ -1,0 +1,68 @@
+{
+  "locale": "en-GB",
+  "appleLanguage": "en",
+  "appleLocale": "en_GB",
+  "names": [
+    "Harry",
+    "Oliver",
+    "George",
+    "Arthur"
+  ],
+  "fontFamily": "Poppins",
+  "basketballTeams": [
+    "Home",
+    "Away"
+  ],
+  "simulator": "5AC81D3A-D96A-4165-957E-F378FF101B69",
+  "cards": [
+    {
+      "index": 1,
+      "scene": "snooker",
+      "file": "exports/en-GB/01-snooker.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "d65adb47bdaaf3469f2c7addb964b74b17facbb966151618e3093a263c4c3427",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 2,
+      "scene": "basketball",
+      "file": "exports/en-GB/02-basketball.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "2afa87db166a8f74c8e3a295161471eafd2377e27bd3df8a70814408d1d3735f",
+      "capture": "production SwiftUI via simctl",
+      "teamNames": [
+        "Home",
+        "Away"
+      ]
+    },
+    {
+      "index": 3,
+      "scene": "record",
+      "file": "exports/en-GB/03-record.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "8a54ef205b68f2f75d2cdefa151a5fe85151e4b86067da24d67db31c2e0e6baa",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 4,
+      "scene": "setup",
+      "file": "exports/en-GB/04-setup.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "a88e47d6ef14cbbdfa16fc2193921cd4b5bf3b1492f3562e61c526d063412b87",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 5,
+      "scene": "home",
+      "file": "exports/en-GB/05-home.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "dcda32189a760bb0951d2f8720f1c11666b450280d43c59883c8fac799dd2b84",
+      "capture": "production SwiftUI via simctl"
+    }
+  ]
+}

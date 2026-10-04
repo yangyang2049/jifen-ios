@@ -1,0 +1,320 @@
+{
+  "appId": "6759768784",
+  "version": "3.3",
+  "appInfoId": "1aa0ff31-d3d8-4d53-8b4e-983263bf8659",
+  "appStoreVersionId": "a118dc62-4303-4c03-ae92-b358c60438d5",
+  "startedAt": "20261002T113834528922Z",
+  "backup": "before-20261002T113834528922Z.json",
+  "results": [
+    {
+      "locale": "ar-SA",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "bn-BD",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "ca",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "cs",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "da",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "de-DE",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "el",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "en-AU",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "en-CA",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "en-GB",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "en-US",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "es-ES",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "es-MX",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "fi",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "fr-CA",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "fr-FR",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "gu-IN",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "he",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "hi",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "hr",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "hu",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "id",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "it",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "ja",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "kn-IN",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "ko",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "ml-IN",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "mr-IN",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "ms",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "nl-NL",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "no",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "or-IN",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "pa-IN",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "pl",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "pt-BR",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "pt-PT",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "ro",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "ru",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "sk",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "sl-SI",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "sv",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "ta-IN",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "te-IN",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "th",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "tr",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "uk",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "ur-PK",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "vi",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "zh-Hans",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    },
+    {
+      "locale": "zh-Hant",
+      "nameAndSubtitle": "unchanged",
+      "description": "unchanged",
+      "filledVersionUrls": {}
+    }
+  ],
+  "submittedForReview": false,
+  "released": false,
+  "screenshotUpload": false,
+  "verified": true,
+  "mismatches": [],
+  "unexpectedFieldChanges": [],
+  "appInfoLocaleCount": 50,
+  "versionLocaleCount": 50,
+  "localeSetsEqual": true,
+  "completedAt": "2026-10-02T11:38:35.344243+00:00"
+}

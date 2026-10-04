@@ -1,0 +1,15 @@
+{
+  "bundleId": "com.douhua.jifen.ios",
+  "version": "3.3",
+  "build": "61",
+  "configuration": "Debug",
+  "captureSourceSnapshot": "/tmp/jifen-ipad-store-capture-20261003",
+  "modificationsForCapture": [
+    "Localized deterministic XCTest fixture data",
+    "Hide the OS status bar in the isolated capture snapshot"
+  ],
+  "binarySHA256": {
+    "jifen": "f957e6561f68922301fef5c0458a3e662ce02aed49e93405381d5d7f94648509",
+    "jifen.debug.dylib": "ce000d59bcde81fe12b51f61379dbab8f98c9b7576378a966d7d48f18cc73b1c"
+  }
+}

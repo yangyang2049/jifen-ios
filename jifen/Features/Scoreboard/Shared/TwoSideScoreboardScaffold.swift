@@ -638,7 +638,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                     if inlineSecondaryScore, !Theme.usesPadLayout, let detail {
                         // 同行布局：副分数与大分数底端基线对齐（lastTextBaseline 消除
                         // 行高差异造成的错位），置于屏幕外侧——左侧面板在左、右侧面板在右。
-                        HStack(alignment: .lastTextBaseline, spacing: 8) {
+                        HStack(alignment: .lastTextBaseline, spacing: 24) {
                             if isLeft {
                                 inlineDetailText(detail, fontSize: setSize, isLeftScreen: isLeft)
                                 inlineMainScoreText(score, fontSize: mainSize, isLeftScreen: isLeft)
@@ -760,13 +760,21 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
 @ViewBuilder
 func scoreboardCardActionButton(
     _ title: String,
+    isAddition: Bool = false,
     width: CGFloat? = nil,
     action: @escaping () -> Void
 ) -> some View {
     let size: CGFloat = Theme.usesPadLayout ? 64 : 56
+    let fontSize: CGFloat = Theme.usesPadLayout ? 20 : 16
     Button(action: action) {
-        Text(title)
-            .font(.system(size: Theme.usesPadLayout ? 20 : 16, weight: .bold))
+        Group {
+            if isAddition {
+                AddValueLabel(value: title, numberFontSize: fontSize)
+            } else {
+                Text(title)
+            }
+        }
+            .font(.system(size: fontSize, weight: .bold))
             .foregroundStyle(ScoreboardAppearanceSnapshot.current().theme.palette.foreground)
             .lineLimit(2)
             .multilineTextAlignment(.center)

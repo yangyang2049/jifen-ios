@@ -3,6 +3,49 @@ import XCTest
 
 @MainActor
 final class BoardTimerConfigTests: XCTestCase {
+    func testNewBoardSessionsUseLocalizedSideNamesInEveryLanguage() throws {
+        let sides: [(GameType, [String])] = [
+            (.go, ["timer_black_player", "timer_white_player"]),
+            (.xiangqi, ["timer_red_player", "timer_black_player"]),
+            (.chess, ["timer_white_player", "timer_black_player"]),
+            (.checkers, ["timer_red_player", "timer_black_player"])
+        ]
+        for locale in LocalizationTestSupport.promotedLocales {
+            let bundle = try localizedBundle(locale)
+            let values = try LocalizationTestSupport.valuesByKey(
+                relativePath: LocalizationTestSupport.localizablePaths[locale]!
+            )
+            for (game, keys) in sides {
+                for (index, key) in keys.enumerated() {
+                    XCTAssertEqual(BoardTimerParticipantNames.name(for: game, playerID: index + 1, bundle: bundle),
+                                   values[key], "\(locale) \(game) player \(index + 1)")
+                }
+            }
+        }
+    }
+
+    func testLanguageChangeUsesNewDefaultsAndPreservesSavedRecordNames() throws {
+        let chinese = try localizedBundle("zh-Hans")
+        let english = try localizedBundle("en")
+        let oldName = BoardTimerParticipantNames.name(for: .checkers, playerID: 1, bundle: chinese)
+        let oldRecord = GameRecordSummary(
+            id: "old", gameType: .checkers, timestamp: 0, duration: 10, winner: oldName,
+            actions: [TimerActionRecord(id: "move", elapsed: 1, type: .move, actor: oldName)]
+        )
+        let data = try JSONEncoder().encode(oldRecord)
+        let newName = BoardTimerParticipantNames.name(for: .checkers, playerID: 1, bundle: english)
+        XCTAssertEqual(newName, "Red")
+        XCTAssertEqual(BoardTimerParticipantNames.name(for: .checkers, playerID: 2, bundle: english), "Black")
+        let restored = try JSONDecoder().decode(GameRecordSummary.self, from: data)
+        XCTAssertEqual(restored.winner, "红方")
+        XCTAssertEqual(restored.actions?.first?.actor, "红方")
+    }
+
+    private func localizedBundle(_ locale: String) throws -> Bundle {
+        let path = try XCTUnwrap(Bundle.main.path(forResource: locale, ofType: "lproj"))
+        return try XCTUnwrap(Bundle(path: path))
+    }
+
     func testAvailableModesMatchHarmony() {
         XCTAssertEqual(BoardTimerConfig.availableModes(for: .go), [.countdown, .byoyomi])
         XCTAssertEqual(BoardTimerConfig.availableModes(for: .xiangqi), [.countdown, .increment])

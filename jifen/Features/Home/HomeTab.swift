@@ -1163,8 +1163,7 @@ struct HomeTab: View {
                         path.append(NavigationDestination.bookingDetail(bookingId: booking.id))
                     } label: {
                         HStack(spacing: 12) {
-                            Text(booking.sportType.icon)
-                                .font(.system(size: 28))
+                            AppCatalogIcon(bookingSport: booking.sportType, size: 28)
                                 .frame(width: 42, height: 42)
 
                             VStack(alignment: .leading, spacing: 6) {

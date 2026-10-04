@@ -1,20 +1,31 @@
 import Foundation
 
+/// Numeric keyboards may emit Arabic, Persian, Indic or full-width digits.
+/// Keep decimal digits only and normalize them before passing input to Int.
+func normalizedDecimalDigits(_ rawValue: String, limit: Int) -> String {
+    String(rawValue.lazy.compactMap { character -> Character? in
+        guard character.unicodeScalars.count == 1,
+              let scalar = character.unicodeScalars.first,
+              scalar.properties.generalCategory == .decimalNumber,
+              let digit = character.wholeNumberValue,
+              (0...9).contains(digit) else { return nil }
+        return Character(String(digit))
+    }.prefix(max(0, limit)))
+}
+
 // MARK: - Formatting Helpers
 
-func formatScoreboardDuration(_ duration: TimeInterval) -> String {
-    let totalSeconds = Int(duration)
-    let hours = totalSeconds / 3600
-    let minutes = (totalSeconds % 3600) / 60
-    let seconds = totalSeconds % 60
-    
-    if hours > 0 {
-        return "\(hours)h \(minutes)m \(seconds)s"
-    } else if minutes > 0 {
-        return "\(minutes)m \(seconds)s"
-    } else {
-        return "\(seconds)s"
-    }
+func formatScoreboardDuration(_ duration: TimeInterval, locale: Locale = .current) -> String {
+    // Use the system's localized units, grammar and separators for every app
+    // language. Record durations display whole seconds, as before.
+    // A finite imported value can still overflow Duration's integer storage.
+    let seconds = duration.isFinite
+        ? min(max(0, duration.rounded(.down)), Double(Int64.max).nextDown)
+        : 0
+    return Duration.seconds(seconds).formatted(
+        .units(allowed: [.hours, .minutes, .seconds], width: .abbreviated)
+            .locale(locale)
+    )
 }
 
 func formatDuration(_ duration: TimeInterval) -> String {

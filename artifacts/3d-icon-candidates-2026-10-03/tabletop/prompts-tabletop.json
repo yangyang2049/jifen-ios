@@ -1,0 +1,376 @@
+{
+  "created_date": "2026-10-03",
+  "mode": "built-in image_gen",
+  "references": [
+    "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/8Ball.png",
+    "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Bowling.png",
+    "/Users/yangyang/Downloads/20 Sport 3D Icons – AI Icons (Community) (Copy)/Darts.png"
+  ],
+  "records": [
+    {
+      "slug": "chess-a",
+      "prompt": "Use case: stylized-concept. Asset type: single 3D icon for a sports scorekeeping iOS app.\nEdit the supplied reference icon style into the subject described below, replacing the original sports equipment entirely. The references are style/material/lighting guides: match their realistic subtly grainy satin materials, rounded manufactured edges, premium studio product render, restrained bright natural colors, soft upper-left lighting, small soft specular highlights, clean uncluttered silhouette. Avoid glossy candy/plastic cartoon exaggeration. Match the 8-ball/Bowling/Darts icon family.\nSquare composition, one centered isolated object group occupying about 80% of the canvas, roughly 10% safe transparent margin all around. Near frontal camera with mild three-quarter perspective and coherent physical depth. True transparent alpha background. No ground plane, podium, pedestal, container shape, backdrop, floating decorative shapes, extra sporting objects, cast shadow outside the object group, captions or watermarks.\nSubject: a dark charcoal chess knight in front-left and a warm ivory white chess king behind-right. Realistic recognizable classic Staunton chess pieces with tactile satin surfaces, a well-defined horse head silhouette, simple clean small cross finial on the king. Both self-standing piece bases belong naturally to the pieces, but no chess board or separate podium. Composition large and legible at app icon size, dark and light pieces slightly overlapping.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd6b-5620-7b90-b9d3-743f3c66681b/exec-d53b4d6c-2996-4d5a-86b1-fe74c2f0723b.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/chess-a.png",
+      "qa": {
+        "size": [
+          1254,
+          1254
+        ],
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_pixels": 934280,
+        "opaque_pixels": 1756,
+        "alpha_bounds": [
+          57,
+          39,
+          1227,
+          1236
+        ]
+      }
+    },
+    {
+      "slug": "chess-b",
+      "prompt": "Use case: stylized-concept. Asset type: single 3D icon for a sports scorekeeping iOS app.\nEdit the supplied reference icon style into the subject described below, replacing the original sports equipment entirely. The references are style/material/lighting guides: match their realistic subtly grainy satin materials, rounded manufactured edges, premium studio product render, restrained bright natural colors, soft upper-left lighting, small soft specular highlights, clean uncluttered silhouette. Avoid glossy candy/plastic cartoon exaggeration. Match the 8-ball/Bowling/Darts icon family.\nSquare composition, one centered isolated object group occupying about 80% of the canvas, roughly 10% safe transparent margin all around. Near frontal camera with mild three-quarter perspective and coherent physical depth. True transparent alpha background. No ground plane, podium, pedestal, container shape, backdrop, floating decorative shapes, extra sporting objects, cast shadow outside the object group, captions or watermarks.\nSubject: two realistic classic Staunton chess pieces: an ivory white king in front-right and a dark charcoal pawn behind-left. The king is dominant, slightly taller, with a clear small cross finial; the pawn has a simple round head. Match softly rounded subtly textured satin materials in the source icon family. Both natural built-in round piece bases, no chess board or separate podium. Distinct compact triangular silhouette and readable pair of contrasting pieces.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd6b-5620-7b90-b9d3-743f3c66681b/exec-b55fd620-c308-4353-a365-fa3eb2f032f4.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/chess-b.png",
+      "qa": {
+        "size": [
+          1254,
+          1254
+        ],
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_pixels": 1103860,
+        "opaque_pixels": 1461,
+        "alpha_bounds": [
+          97,
+          82,
+          1057,
+          1254
+        ]
+      }
+    },
+    {
+      "slug": "playing-cards-a",
+      "prompt": "Use case: stylized-concept. Asset type: single 3D icon for a sports scorekeeping iOS app.\nEdit the supplied reference icon style into the subject described below, replacing the original sports equipment entirely. The references are style/material/lighting guides: match their realistic subtly grainy satin materials, rounded manufactured edges, premium studio product render, restrained bright natural colors, soft upper-left lighting, small soft specular highlights, clean uncluttered silhouette. Avoid glossy candy/plastic cartoon exaggeration. Match the 8-ball/Bowling/Darts icon family.\nSquare composition, one centered isolated object group occupying about 80% of the canvas, roughly 10% safe transparent margin all around. Near frontal camera with mild three-quarter perspective and coherent physical depth. True transparent alpha background. No ground plane, podium, pedestal, container shape, backdrop, floating decorative shapes, extra sporting objects, cast shadow outside the object group, captions or watermarks.\nSubject: three realistic white playing cards arranged in a compact fan, gently rotated relative to one another, all with visible paper stock thickness, rounded corners, subtly fibrous premium paper. The front card is the Ace of hearts with one large red heart and clear red A corner index; the adjacent card is Ace of spades with one large black spade and black A corner index. Third card has a small simple red diamond. Authentic flat paper cards with physical 3D depth and soft shadows only between overlapping cards. Typography only A, traditional card suit symbols; no other words. Cards dominate the canvas, fan opens upward.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd6b-5620-7b90-b9d3-743f3c66681b/exec-6d7df6e8-6eb6-498b-8eb3-b06a94da91b1.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/playing-cards-a.png",
+      "qa": {
+        "size": [
+          1254,
+          1254
+        ],
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_pixels": 752816,
+        "opaque_pixels": 1299,
+        "alpha_bounds": [
+          95,
+          120,
+          1192,
+          1182
+        ]
+      }
+    },
+    {
+      "slug": "playing-cards-b",
+      "prompt": "Use case: stylized-concept. Asset type: single 3D icon for a sports scorekeeping iOS app.\nEdit the supplied reference icon style into the subject described below, replacing the original sports equipment entirely. The references are style/material/lighting guides: match their realistic subtly grainy satin materials, rounded manufactured edges, premium studio product render, restrained bright natural colors, soft upper-left lighting, small soft specular highlights, clean uncluttered silhouette. Avoid glossy candy/plastic cartoon exaggeration. Match the 8-ball/Bowling/Darts icon family.\nSquare composition, one centered isolated object group occupying about 80% of the canvas, roughly 10% safe transparent margin all around. Near frontal camera with mild three-quarter perspective and coherent physical depth. True transparent alpha background. No ground plane, podium, pedestal, container shape, backdrop, floating decorative shapes, extra sporting objects, cast shadow outside the object group, captions or watermarks.\nSubject: two realistic premium white poker playing cards in a compact staggered overlapping composition, front Ace of spades slightly tilted clockwise, back Ace of hearts offset up-left and slightly counterclockwise. Physical paper card thickness visible on lower and right edges, rounded corners, subtle paper texture. Each card displays a single clear large suit emblem in the center, black spade front and red heart back, with an authentic A and matching small suit at the top-left corner. Soft studio shading and tiny shadows only between cards. No deck box, no table, no card holder, no extra text. Broad face-on framing with mild 3D perspective.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd6b-5620-7b90-b9d3-743f3c66681b/exec-2b388a47-b9d1-424b-bc83-3b6d4e46013d.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/playing-cards-b.png",
+      "qa": {
+        "size": [
+          1254,
+          1254
+        ],
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_pixels": 861301,
+        "opaque_pixels": 1223,
+        "alpha_bounds": [
+          91,
+          130,
+          1128,
+          1150
+        ]
+      }
+    },
+    {
+      "slug": "uno-a",
+      "prompt": "Use case: stylized-concept. Asset type: single 3D icon for a sports scorekeeping iOS app.\nEdit the supplied reference icon style into the subject described below, replacing the original sports equipment entirely. The references are style/material/lighting guides: match their realistic subtly grainy satin materials, rounded manufactured edges, premium studio product render, restrained bright natural colors, soft upper-left lighting, small soft specular highlights, clean uncluttered silhouette. Avoid glossy candy/plastic cartoon exaggeration. Match the 8-ball/Bowling/Darts icon family.\nSquare composition, one centered isolated object group occupying about 80% of the canvas, roughly 10% safe transparent margin all around. Near frontal camera with mild three-quarter perspective and coherent physical depth. True transparent alpha background. No ground plane, podium, pedestal, container shape, backdrop, floating decorative shapes, extra sporting objects, cast shadow outside the object group, captions or watermarks.\nSubject: four real UNO paper playing cards arranged in a clean compact fan, with clearly visible physical card thickness and rounded paper corners. Front card vivid red with authentic UNO white tilted oval and large numeral 7, green/blue/yellow cards fanned behind it with visible color faces and tiny 7 corner indices. Accurate UNO visual vocabulary, white border, solid colored faces, printed flat graphics on cards, NOT raised toy plaques and not poker suits. Front red card dominates, pale cream paper edges. Only number 7, no invented words. No box or extra objects.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd6b-5620-7b90-b9d3-743f3c66681b/exec-5e742519-5630-4c89-a2a1-021f3b3cdd6a.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/uno-a.png",
+      "qa": {
+        "size": [
+          1254,
+          1254
+        ],
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_pixels": 722639,
+        "opaque_pixels": 1519,
+        "alpha_bounds": [
+          2,
+          53,
+          1190,
+          1174
+        ]
+      }
+    },
+    {
+      "slug": "uno-b",
+      "prompt": "Use case: stylized-concept. Asset type: single 3D icon for a sports scorekeeping iOS app.\nEdit the supplied reference icon style into the subject described below, replacing the original sports equipment entirely. The references are style/material/lighting guides: match their realistic subtly grainy satin materials, rounded manufactured edges, premium studio product render, restrained bright natural colors, soft upper-left lighting, small soft specular highlights, clean uncluttered silhouette. Avoid glossy candy/plastic cartoon exaggeration. Match the 8-ball/Bowling/Darts icon family.\nSquare composition, one centered isolated object group occupying about 80% of the canvas, roughly 10% safe transparent margin all around. Near frontal camera with mild three-quarter perspective and coherent physical depth. True transparent alpha background. No ground plane, podium, pedestal, container shape, backdrop, floating decorative shapes, extra sporting objects, cast shadow outside the object group, captions or watermarks.\nSubject: a staggered overlapping set of four real UNO paper cards. Foreground dominant blue Reverse card with white diagonally tilted oval and two clear curved white opposing reverse arrows printed flat; behind it a yellow 7 card, green 7 card and red 7 card. Physical matte coated paper depth and rounded corners visible. White borders and authentic UNO visual vocabulary, all four red/yellow/blue/green colors easy to see. Compact layered square silhouette with slightly rotated cards. Printed graphics, not embossed symbols. No poker suits, no box, no extra words.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd6b-5620-7b90-b9d3-743f3c66681b/exec-46e28ba9-ba05-4b4a-8b1a-a989b86ff95b.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/uno-b.png",
+      "qa": {
+        "size": [
+          1254,
+          1254
+        ],
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_pixels": 752299,
+        "opaque_pixels": 1145,
+        "alpha_bounds": [
+          82,
+          71,
+          1193,
+          1145
+        ]
+      }
+    },
+    {
+      "slug": "foosball-a",
+      "prompt": "Use case: stylized-concept. Asset type: single 3D icon for a sports scorekeeping iOS app.\nEdit the supplied reference icon style into the subject described below, replacing the original sports equipment entirely. The references are style/material/lighting guides: match their realistic subtly grainy satin materials, rounded manufactured edges, premium studio product render, restrained bright natural colors, soft upper-left lighting, small soft specular highlights, clean uncluttered silhouette. Avoid glossy candy/plastic cartoon exaggeration. Match the 8-ball/Bowling/Darts icon family.\nSquare composition, one centered isolated object group occupying about 80% of the canvas, roughly 10% safe transparent margin all around. Near frontal camera with mild three-quarter perspective and coherent physical depth. True transparent alpha background. No ground plane, podium, pedestal, container shape, backdrop, floating decorative shapes, extra sporting objects, cast shadow outside the object group, captions or watermarks.\nSubject: a close-up isolated tabletop football equipment icon: two realistic classic foosball player figurines, one red and one blue, mounted on one horizontal slim silver metal rod through their torsos, plus one small white foosball ball in front between them. Players have rounded heads, compact block torsos and long rectangular flat striking feet; not human anatomy, truly recognizable molded table football figures. Rod passes physically through each torso, natural matte molded texture, slim end section with one black rubber handle. Figurines large, ball small. No full table or pitch, no separate base. Near frontal three-quarter view, clean compact readable silhouette.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd6b-5620-7b90-b9d3-743f3c66681b/exec-9f9155b7-df11-457b-ae0d-708557e45eb8.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/foosball-a.png",
+      "qa": {
+        "size": [
+          1254,
+          1254
+        ],
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_pixels": 1143244,
+        "opaque_pixels": 1133,
+        "alpha_bounds": [
+          0,
+          21,
+          1228,
+          1254
+        ]
+      }
+    },
+    {
+      "slug": "foosball-b",
+      "prompt": "Use case: stylized-concept. Asset type: single 3D icon for a sports scorekeeping iOS app.\nEdit the supplied reference icon style into the subject described below, replacing the original sports equipment entirely. The references are style/material/lighting guides: match their realistic subtly grainy satin materials, rounded manufactured edges, premium studio product render, restrained bright natural colors, soft upper-left lighting, small soft specular highlights, clean uncluttered silhouette. Avoid glossy candy/plastic cartoon exaggeration. Match the 8-ball/Bowling/Darts icon family.\nSquare composition, one centered isolated object group occupying about 80% of the canvas, roughly 10% safe transparent margin all around. Near frontal camera with mild three-quarter perspective and coherent physical depth. True transparent alpha background. No ground plane, podium, pedestal, container shape, backdrop, floating decorative shapes, extra sporting objects, cast shadow outside the object group, captions or watermarks.\nSubject: a complete miniature realistic tabletop football table in compact three-quarter view, recognizable green playfield with crisp small white center line/circle, warm natural light wood body, dark short corner legs, four or six silver control rods with black rubber handles extending out of the table and small red and blue foosball figures on the rods, one small white ball. Scale simplification appropriate to a UI icon, clean believable foosball mechanism, tabletop football NOT a normal football pitch. Avoid visual clutter and excessive tiny details. Table is the main isolated object, no separate floor or podium, natural satin textures matching reference icons.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd6b-5620-7b90-b9d3-743f3c66681b/exec-818503bd-e818-4952-baec-38295e8cc9f4.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/foosball-b.png",
+      "qa": {
+        "size": [
+          1254,
+          1254
+        ],
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_pixels": 848204,
+        "opaque_pixels": 1437,
+        "alpha_bounds": [
+          0,
+          53,
+          1241,
+          1214
+        ]
+      }
+    },
+    {
+      "slug": "go-a",
+      "subject": "围棋，局部木质棋盘黑白棋子",
+      "prompt": "Use case: stylized-concept. Asset type: single 3D icon for a sports scorekeeping iOS app.\nEdit the supplied reference icon style into the subject described below, replacing the original sports equipment entirely. The references are style/material/lighting guides: match their realistic subtly grainy satin materials, rounded manufactured edges, premium studio product render, restrained bright natural colors, soft upper-left lighting, small soft specular highlights, clean uncluttered silhouette. Avoid glossy candy/plastic cartoon exaggeration. Match the 8-ball/Bowling/Darts icon family.\nSquare composition, one centered isolated object group occupying about 80% of the canvas, roughly 10% safe transparent margin all around. Near frontal camera with mild three-quarter perspective and coherent physical depth. True transparent alpha background. No ground plane, podium, pedestal, container shape, backdrop, floating decorative shapes, extra sporting objects, cast shadow outside the object group, captions or watermarks.\nSubject: Go (Weiqi) game equipment: a compact square corner section of a pale warm maple wooden Go board with fine accurate orthogonal black grid lines, gently beveled edges and physical board thickness; two large smooth low convex Go stones placed on grid intersections, one dark charcoal black in front-left, one ivory white behind-right, and one smaller black stone farther back. No chess/checkers pieces. Slightly elevated three-quarter angle showing grid and stones. Most of the icon is large readable black/white stones plus a small local board section. Matte-satin rounded natural stone texture, subtle realistic wood grain.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd6b-5620-7b90-b9d3-743f3c66681b/exec-9d30abec-b82c-469a-a4b0-aec096f506a5.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/go-a.png",
+      "qa": {
+        "size": [
+          1254,
+          1254
+        ],
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_pixels": 908684,
+        "opaque_pixels": 856,
+        "alpha_bounds": [
+          59,
+          13,
+          1202,
+          1200
+        ]
+      }
+    },
+    {
+      "slug": "go-b",
+      "subject": "围棋，黑白棋子为主与斜置小棋盘",
+      "prompt": "Use case: stylized-concept. Asset type: single 3D icon for a sports scorekeeping iOS app.\nEdit the supplied reference icon style into the subject described below, replacing the original sports equipment entirely. The references are style/material/lighting guides: match their realistic subtly grainy satin materials, rounded manufactured edges, premium studio product render, restrained bright natural colors, soft upper-left lighting, small soft specular highlights, clean uncluttered silhouette. Avoid glossy candy/plastic cartoon exaggeration. Match the 8-ball/Bowling/Darts icon family.\nSquare composition, one centered isolated object group occupying about 80% of the canvas, roughly 10% safe transparent margin all around. Near frontal camera with mild three-quarter perspective and coherent physical depth. True transparent alpha background. No ground plane, podium, pedestal, container shape, backdrop, floating decorative shapes, extra sporting objects, cast shadow outside the object group, captions or watermarks.\nSubject: Go (Weiqi) game equipment. Two overlapping large low convex lens-shaped Go stones, black stone in foreground right and ivory white stone behind left, placed on a small diagonal pale honey maple wooden Go board corner with thin dark grid lines. Show another small white stone on the far grid intersection. Calm compact diagonal composition, stones dominate. Correct Go stones: flattened convex disks with smoothly rounded lens profile, absolutely no chess figurines and no checkers groove or crowns. Slight elevated mild three-quarter camera, fine satin stone surface and subtle wood board grain, clean premium product render.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd6b-5620-7b90-b9d3-743f3c66681b/exec-fcc9602b-023f-445e-99bd-09684272a411.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/go-b.png",
+      "qa": {
+        "size": [
+          1254,
+          1254
+        ],
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_pixels": 857271,
+        "opaque_pixels": 654,
+        "alpha_bounds": [
+          0,
+          21,
+          1222,
+          1254
+        ]
+      }
+    },
+    {
+      "slug": "xiangqi-a",
+      "subject": "象棋，红帅黑将圆木棋子",
+      "prompt": "Use case: stylized-concept. Asset type: single 3D icon for a sports scorekeeping iOS app.\nEdit the supplied reference icon style into the subject described below, replacing the original sports equipment entirely. The references are style/material/lighting guides: match their realistic subtly grainy satin materials, rounded manufactured edges, premium studio product render, restrained bright natural colors, soft upper-left lighting, small soft specular highlights, clean uncluttered silhouette. Avoid glossy candy/plastic cartoon exaggeration. Match the 8-ball/Bowling/Darts icon family.\nSquare composition, one centered isolated object group occupying about 80% of the canvas, roughly 10% safe transparent margin all around. Near frontal camera with mild three-quarter perspective and coherent physical depth. True transparent alpha background. No ground plane, podium, pedestal, container shape, backdrop, floating decorative shapes, extra sporting objects, cast shadow outside the object group, captions or watermarks.\nSubject: two authentic Chinese Xiangqi wooden round disk chess pieces, thick pale honey-wood cylinders with rounded rim edges and circular inset face. Front-left piece stands slightly tipped toward viewer and shows exactly the single red Chinese character \"帅\" centered, carved into the wood and filled with red paint. Behind-right piece similarly displays exactly the single black Chinese character \"将\". Accurate clean legible traditional Xiangqi characters with all strokes, no Latin text, no other symbols. The discs overlap compactly, faces mostly oriented toward camera so characters easy to identify. Real wood subtle grain, premium satin texture. No board, no pedestal.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd6b-5620-7b90-b9d3-743f3c66681b/exec-b4583473-2747-41ed-af16-db7de1e30f64.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/xiangqi-a.png",
+      "qa": {
+        "size": [
+          1254,
+          1254
+        ],
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_pixels": 851089,
+        "opaque_pixels": 884,
+        "alpha_bounds": [
+          99,
+          171,
+          1196,
+          1238
+        ]
+      }
+    },
+    {
+      "slug": "xiangqi-b",
+      "subject": "象棋，叠放红帅黑将圆木棋子",
+      "prompt": "Use case: stylized-concept. Asset type: single 3D icon for a sports scorekeeping iOS app.\nEdit the supplied reference icon style into the subject described below, replacing the original sports equipment entirely. The references are style/material/lighting guides: match their realistic subtly grainy satin materials, rounded manufactured edges, premium studio product render, restrained bright natural colors, soft upper-left lighting, small soft specular highlights, clean uncluttered silhouette. Avoid glossy candy/plastic cartoon exaggeration. Match the 8-ball/Bowling/Darts icon family.\nSquare composition, one centered isolated object group occupying about 80% of the canvas, roughly 10% safe transparent margin all around. Near frontal camera with mild three-quarter perspective and coherent physical depth. True transparent alpha background. No ground plane, podium, pedestal, container shape, backdrop, floating decorative shapes, extra sporting objects, cast shadow outside the object group, captions or watermarks.\nSubject: two authentic thick round Chinese Xiangqi wooden disk pieces in a different compact composition: front-right pale maple piece leans backward slightly with its round face visible, exactly one central red Chinese character \"帅\"; back-left darker warm wood piece is partly visible behind it, exactly one central black Chinese character \"将\". Carved circular border rings and subtly recessed printed or engraved characters, true natural wood grain, fine matte-satin finish. Faces oriented toward camera, legible complete Chinese character strokes, no extra words or symbols. Three-quarter perspective shows rounded thick wooden sidewalls. No chess board or separate base.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd6b-5620-7b90-b9d3-743f3c66681b/exec-9315f73b-1a9e-4a71-b868-8e2ef47fd497.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/xiangqi-b.png",
+      "qa": {
+        "size": [
+          1254,
+          1254
+        ],
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_pixels": 825546,
+        "opaque_pixels": 856,
+        "alpha_bounds": [
+          0,
+          113,
+          1192,
+          1254
+        ]
+      }
+    },
+    {
+      "slug": "checkers-a",
+      "subject": "国际跳棋，红黑扁圆棋子与方格棋盘",
+      "prompt": "Use case: stylized-concept. Asset type: single 3D icon for a sports scorekeeping iOS app.\nEdit the supplied reference icon style into the subject described below, replacing the original sports equipment entirely. The references are style/material/lighting guides: match their realistic subtly grainy satin materials, rounded manufactured edges, premium studio product render, restrained bright natural colors, soft upper-left lighting, small soft specular highlights, clean uncluttered silhouette. Avoid glossy candy/plastic cartoon exaggeration. Match the 8-ball/Bowling/Darts icon family.\nSquare composition, one centered isolated object group occupying about 80% of the canvas, roughly 10% safe transparent margin all around. Near frontal camera with mild three-quarter perspective and coherent physical depth. True transparent alpha background. No ground plane, podium, pedestal, container shape, backdrop, floating decorative shapes, extra sporting objects, cast shadow outside the object group, captions or watermarks.\nSubject: international draughts / Western checkers equipment: a small neat square portion of an ivory and dark charcoal checkerboard with rounded physical edges, three classic flat round checkers pieces, two vivid red disk pieces stacked in foreground to signify a crowned king, one dark charcoal black disk behind it. Checkers disks have subtle concentric round beveled grooves. NOT chess figurines, NOT Chinese star board, NOT marbles. Near frontal slightly elevated three-quarter view. Compact readable red/black disks dominate over the small chessboard portion, subtle satin manufactured materials matching reference icons.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd6b-5620-7b90-b9d3-743f3c66681b/exec-349fc81c-9eb4-4f1d-a0ef-c324cb3a5159.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/checkers-a.png",
+      "qa": {
+        "size": [
+          1254,
+          1254
+        ],
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_pixels": 945007,
+        "opaque_pixels": 836,
+        "alpha_bounds": [
+          0,
+          48,
+          1220,
+          1212
+        ]
+      }
+    },
+    {
+      "slug": "checkers-b",
+      "subject": "中国跳棋，彩色球形棋子与六角星棋盘",
+      "prompt": "Use case: stylized-concept. Asset type: single 3D icon for a sports scorekeeping iOS app.\nEdit the supplied reference icon style into the subject described below, replacing the original sports equipment entirely. The references are style/material/lighting guides: match their realistic subtly grainy satin materials, rounded manufactured edges, premium studio product render, restrained bright natural colors, soft upper-left lighting, small soft specular highlights, clean uncluttered silhouette. Avoid glossy candy/plastic cartoon exaggeration. Match the 8-ball/Bowling/Darts icon family.\nSquare composition, one centered isolated object group occupying about 80% of the canvas, roughly 10% safe transparent margin all around. Near frontal camera with mild three-quarter perspective and coherent physical depth. True transparent alpha background. No ground plane, podium, pedestal, container shape, backdrop, floating decorative shapes, extra sporting objects, cast shadow outside the object group, captions or watermarks.\nSubject: Chinese Checkers equipment: a compact small natural pale wood circular board with a clean clearly visible six-pointed star arrangement of small peg holes, and several simple colored round ball-topped pegs / marbles in red blue green yellow occupying the star points. Six-pointed Chinese checkers star MUST be unmistakable, no square checkerboard, no Western draughts disks. Simplify tiny holes and pieces while preserving genuine game recognition. Dominant two or three larger red/blue/green ball-top pegs in foreground, with remaining small pieces on the board. Slight elevated three-quarter camera lets board star and rounded physical thickness show, subtle satin finish and fine wood grain.",
+      "source": "/Users/yangyang/.codex/generated_images/01a0fd6b-5620-7b90-b9d3-743f3c66681b/exec-26087d26-a226-42fe-ab65-c84e61935d90.png",
+      "destination": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/3d-icon-candidates-2026-10-03/tabletop/checkers-b.png",
+      "qa": {
+        "size": [
+          1254,
+          1254
+        ],
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_pixels": 800860,
+        "opaque_pixels": 552,
+        "alpha_bounds": [
+          0,
+          23,
+          1240,
+          1254
+        ]
+      }
+    }
+  ],
+  "notes": [
+    "checkers-a is Western international draughts; checkers-b is Chinese Checkers. These are different games, reflecting inconsistent game/timer naming in source.",
+    "Xiangqi graphics show traditional Chinese character forms 帥 and 將, valid classic Xiangqi labels.",
+    "Parent agent is handling structural correction of original foosball A/B. Initial sources are kept in these records."
+  ],
+  "intermediate_foosball_b_colorfix": {
+    "source": "/Users/yangyang/.codex/generated_images/01a0fd6b-5620-7b90-b9d3-743f3c66681b/exec-b506a2e0-c642-4187-99df-3cf25c867fe1.png",
+    "prompt": "Use case: precise-object-edit. Asset type: tabletop football 3D app icon.\nEdit only the colors of the foosball player figures on the supplied image. Keep table, green pitch, white ball, wood, rods, handles, camera, lighting, scale, material textures and true transparency exactly unchanged.\nMake every player on each single horizontal rod belong to one team: ALL figurines attached to first/frontmost rod are blue; ALL figurines attached to second rod are red; ALL on third rod are blue; ALL on back/fourth rod are red. Each rod must carry only one consistent team color; no red/blue mixing on a single rod. Preserve the current glossy-satin red/blue materials and rounded toy figurine shape. No added objects or captions."
+  }
+}

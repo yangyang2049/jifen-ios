@@ -1,0 +1,68 @@
+{
+  "locale": "uk",
+  "appleLanguage": "uk",
+  "appleLocale": "uk_UA",
+  "names": [
+    "Андрій",
+    "Тарас",
+    "Олена",
+    "Іван"
+  ],
+  "fontFamily": "Montserrat",
+  "basketballTeams": [
+    "Господарі",
+    "Гості"
+  ],
+  "simulator": "5AC81D3A-D96A-4165-957E-F378FF101B69",
+  "cards": [
+    {
+      "index": 1,
+      "scene": "snooker",
+      "file": "exports/uk/01-snooker.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "989742d09b8772efd16d3a8c0833437e756fcf6b46797eb41427e332a4d62468",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 2,
+      "scene": "basketball",
+      "file": "exports/uk/02-basketball.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "4f1dcbcd5878733972fc33dca92bb5f9ba89401dc098502839c2647cb827216e",
+      "capture": "production SwiftUI via simctl",
+      "teamNames": [
+        "Господарі",
+        "Гості"
+      ]
+    },
+    {
+      "index": 3,
+      "scene": "record",
+      "file": "exports/uk/03-record.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "aac1143b9f5e198d17632058288a8839d34f1f3a198d90f22d0b6bb9c5a74158",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 4,
+      "scene": "setup",
+      "file": "exports/uk/04-setup.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "b6f6b7fa644d1a32bc23c9e46d9500853e2f0ae04c45ab2a85cb645579aaaff9",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 5,
+      "scene": "home",
+      "file": "exports/uk/05-home.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "fbab3cdcfdffa7b2c8e6a52a86b20e9105ab2e13bb49f027e324c9b8ae277a37",
+      "capture": "production SwiftUI via simctl"
+    }
+  ]
+}

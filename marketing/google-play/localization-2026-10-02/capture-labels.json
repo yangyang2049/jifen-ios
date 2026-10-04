@@ -1,0 +1,352 @@
+{
+  "en-US": {
+    "tab_score": "Score",
+    "tab_records": "Records",
+    "tab_badminton": "Badminton",
+    "cancel": "Cancel",
+    "record_detail_score_trend": "Score trend"
+  },
+  "ja-JP": {
+    "tab_score": "スコア",
+    "tab_records": "記録",
+    "tab_badminton": "バドミントン",
+    "cancel": "キャンセル",
+    "record_detail_score_trend": "得点の推移"
+  },
+  "ko-KR": {
+    "tab_score": "점수",
+    "tab_records": "기록",
+    "tab_badminton": "배드민턴",
+    "cancel": "취소",
+    "record_detail_score_trend": "점수 추이"
+  },
+  "de-DE": {
+    "tab_score": "Punkte",
+    "tab_records": "Verlauf",
+    "tab_badminton": "Badminton",
+    "cancel": "Abbrechen",
+    "record_detail_score_trend": "Punkteverlauf"
+  },
+  "fr-FR": {
+    "tab_score": "Score",
+    "tab_records": "Historique",
+    "tab_badminton": "Badminton",
+    "cancel": "Annuler",
+    "record_detail_score_trend": "Évolution du score"
+  },
+  "es-ES": {
+    "tab_score": "Marcador",
+    "tab_records": "Registros",
+    "tab_badminton": "Badminton",
+    "cancel": "Cancelar",
+    "record_detail_score_trend": "Evolución de puntuación"
+  },
+  "pt-BR": {
+    "tab_score": "Placar",
+    "tab_records": "Registros",
+    "tab_badminton": "Badminton",
+    "cancel": "Cancelar",
+    "record_detail_score_trend": "Evolução da pontuação"
+  },
+  "it-IT": {
+    "tab_score": "Punteggio",
+    "tab_records": "Cronologia",
+    "tab_badminton": "Badminton",
+    "cancel": "Annulla",
+    "record_detail_score_trend": "Andamento del punteggio"
+  },
+  "ru-RU": {
+    "tab_score": "Счёт",
+    "tab_records": "Записи",
+    "tab_badminton": "Бадминтон",
+    "cancel": "Отмена",
+    "record_detail_score_trend": "Изменение счёта"
+  },
+  "ar": {
+    "tab_score": "النتيجة",
+    "tab_records": "السجلات",
+    "tab_badminton": "الريشة الطائرة",
+    "cancel": "إلغاء",
+    "record_detail_score_trend": "تطور النتيجة"
+  },
+  "hi-IN": {
+    "tab_score": "स्कोर",
+    "tab_records": "रिकॉर्ड्स",
+    "tab_badminton": "बैडमिंटन",
+    "cancel": "रद्द करें",
+    "record_detail_score_trend": "स्कोर रुझान"
+  },
+  "nl-NL": {
+    "tab_score": "Score",
+    "tab_records": "Historie",
+    "tab_badminton": "Badminton",
+    "cancel": "Annuleren",
+    "record_detail_score_trend": "Scoretrend"
+  },
+  "tr-TR": {
+    "tab_score": "Skor",
+    "tab_records": "Kayıtlar",
+    "tab_badminton": "Badminton",
+    "cancel": "İptal",
+    "record_detail_score_trend": "Puan Trendi"
+  },
+  "id": {
+    "tab_score": "Skor",
+    "tab_records": "Catatan",
+    "tab_badminton": "Bulutangkis",
+    "cancel": "Batal",
+    "record_detail_score_trend": "Tren Skor"
+  },
+  "vi": {
+    "tab_score": "Điểm",
+    "tab_records": "Bản ghi",
+    "tab_badminton": "Cầu lông",
+    "cancel": "Hủy",
+    "record_detail_score_trend": "Xu hướng điểm số"
+  },
+  "th": {
+    "tab_score": "คะแนน",
+    "tab_records": "บันทึก",
+    "tab_badminton": "แบดมินตัน",
+    "cancel": "ยกเลิก",
+    "record_detail_score_trend": "แนวโน้มคะแนน"
+  },
+  "bn-BD": {
+    "tab_score": "স্কোর",
+    "tab_records": "রেকর্ড",
+    "tab_badminton": "ব্যাডমিন্টন",
+    "cancel": "বাতিল করুন",
+    "record_detail_score_trend": "স্কোর ট্রেন্ড"
+  },
+  "ca": {
+    "tab_score": "Puntuació",
+    "tab_records": "Historial",
+    "tab_badminton": "Bàdminton",
+    "cancel": "Cancel·la",
+    "record_detail_score_trend": "Tendència de la puntuació"
+  },
+  "cs-CZ": {
+    "tab_score": "Skóre",
+    "tab_records": "Záznamy",
+    "tab_badminton": "Badminton",
+    "cancel": "Zrušit",
+    "record_detail_score_trend": "Trend skóre"
+  },
+  "da-DK": {
+    "tab_score": "Resultat",
+    "tab_records": "Historik",
+    "tab_badminton": "Badminton",
+    "cancel": "Annuller",
+    "record_detail_score_trend": "Resultattrend"
+  },
+  "el-GR": {
+    "tab_score": "Σκορ",
+    "tab_records": "Ιστορικό",
+    "tab_badminton": "Μπάντμιντον",
+    "cancel": "Ακύρωση",
+    "record_detail_score_trend": "Τάση βαθμολογίας"
+  },
+  "en-AU": {
+    "tab_score": "Score",
+    "tab_records": "Records",
+    "tab_badminton": "Badminton",
+    "cancel": "Cancel",
+    "record_detail_score_trend": "Score trend"
+  },
+  "en-CA": {
+    "tab_score": "Score",
+    "tab_records": "Records",
+    "tab_badminton": "Badminton",
+    "cancel": "Cancel",
+    "record_detail_score_trend": "Score trend"
+  },
+  "en-GB": {
+    "tab_score": "Score",
+    "tab_records": "Records",
+    "tab_badminton": "Badminton",
+    "cancel": "Cancel",
+    "record_detail_score_trend": "Score trend"
+  },
+  "es-419": {
+    "tab_score": "Marcador",
+    "tab_records": "Registros",
+    "tab_badminton": "Badminton",
+    "cancel": "Cancelar",
+    "record_detail_score_trend": "Evolución de puntuación"
+  },
+  "fi-FI": {
+    "tab_score": "Pisteet",
+    "tab_records": "Historia",
+    "tab_badminton": "Sulkapallo",
+    "cancel": "Peruuta",
+    "record_detail_score_trend": "Tulostrendi"
+  },
+  "fr-CA": {
+    "tab_score": "Score",
+    "tab_records": "Historique",
+    "tab_badminton": "Badminton",
+    "cancel": "Annuler",
+    "record_detail_score_trend": "Évolution du score"
+  },
+  "gu": {
+    "tab_score": "સ્કોર",
+    "tab_records": "રેકોર્ડ્સ",
+    "tab_badminton": "બેડમિન્ટન",
+    "cancel": "રદ કરો",
+    "record_detail_score_trend": "સ્કોર ટ્રેન્ડ"
+  },
+  "iw-IL": {
+    "tab_score": "תוצאה",
+    "tab_records": "רשומות",
+    "tab_badminton": "בדמינטון",
+    "cancel": "בטל",
+    "record_detail_score_trend": "מגמת הניקוד"
+  },
+  "hr": {
+    "tab_score": "Rezultat",
+    "tab_records": "Zapisi",
+    "tab_badminton": "Badminton",
+    "cancel": "Odustani",
+    "record_detail_score_trend": "Trend rezultata"
+  },
+  "hu-HU": {
+    "tab_score": "Pontszám",
+    "tab_records": "Előzmények",
+    "tab_badminton": "Tollaslabda",
+    "cancel": "Mégse",
+    "record_detail_score_trend": "Ponttrend"
+  },
+  "kn-IN": {
+    "tab_score": "ಸ್ಕೋರ್",
+    "tab_records": "ದಾಖಲೆಗಳು",
+    "tab_badminton": "ಬ್ಯಾಡ್ಮಿಂಟನ್",
+    "cancel": "ರದ್ದು",
+    "record_detail_score_trend": "ಸ್ಕೋರ್ ಟ್ರೆಂಡ್"
+  },
+  "ml-IN": {
+    "tab_score": "സ്കോർ",
+    "tab_records": "രേഖകൾ",
+    "tab_badminton": "ബാഡ്മിൻ്റൺ",
+    "cancel": "റദ്ദാക്കുക",
+    "record_detail_score_trend": "സ്കോർ ട്രെൻഡ്"
+  },
+  "mr-IN": {
+    "tab_score": "स्कोअर",
+    "tab_records": "रेकॉर्ड",
+    "tab_badminton": "बॅडमिंटन",
+    "cancel": "रद्द करा",
+    "record_detail_score_trend": "स्कोअर ट्रेंड"
+  },
+  "ms-MY": {
+    "tab_score": "Skor",
+    "tab_records": "Rekod",
+    "tab_badminton": "Badminton",
+    "cancel": "Batal",
+    "record_detail_score_trend": "Aliran Skor"
+  },
+  "no-NO": {
+    "tab_score": "Poengsum",
+    "tab_records": "Historikk",
+    "tab_badminton": "Badminton",
+    "cancel": "Avbryt",
+    "record_detail_score_trend": "Resultattrend"
+  },
+  "unsupported-or-IN": {
+    "tab_score": "ସ୍କୋର",
+    "tab_records": "ରେକର୍ଡଗୁଡିକ",
+    "tab_badminton": "ବ୍ୟାଡମିଣ୍ଟନ୍",
+    "cancel": "ବାତିଲ୍ କରନ୍ତୁ",
+    "record_detail_score_trend": "ସ୍କୋର ଟ୍ରେଣ୍ଡ"
+  },
+  "pa": {
+    "tab_score": "ਸਕੋਰ",
+    "tab_records": "ਰਿਕਾਰਡ",
+    "tab_badminton": "ਬੈਡਮਿੰਟਨ",
+    "cancel": "ਰੱਦ ਕਰੋ",
+    "record_detail_score_trend": "ਸਕੋਰ ਰੁਝਾਨ"
+  },
+  "pl-PL": {
+    "tab_score": "Wynik",
+    "tab_records": "Historia",
+    "tab_badminton": "Badminton",
+    "cancel": "Anuluj",
+    "record_detail_score_trend": "Trend punktacji"
+  },
+  "pt-PT": {
+    "tab_score": "Marcador",
+    "tab_records": "Registos",
+    "tab_badminton": "Badminton",
+    "cancel": "Cancelar",
+    "record_detail_score_trend": "Evolução da pontuação"
+  },
+  "ro": {
+    "tab_score": "Scor",
+    "tab_records": "Istoric",
+    "tab_badminton": "Badminton",
+    "cancel": "Anulează",
+    "record_detail_score_trend": "Tendință scor"
+  },
+  "sk": {
+    "tab_score": "Skóre",
+    "tab_records": "Záznamy",
+    "tab_badminton": "Bedminton",
+    "cancel": "Zrušiť",
+    "record_detail_score_trend": "Trend skóre"
+  },
+  "sl": {
+    "tab_score": "Rezultat",
+    "tab_records": "Zapisi",
+    "tab_badminton": "Badminton",
+    "cancel": "Prekliči",
+    "record_detail_score_trend": "Trend rezultatov"
+  },
+  "sv-SE": {
+    "tab_score": "Poäng",
+    "tab_records": "Historik",
+    "tab_badminton": "Badminton",
+    "cancel": "Avbryt",
+    "record_detail_score_trend": "Resultattrend"
+  },
+  "ta-IN": {
+    "tab_score": "மதிப்பெண்",
+    "tab_records": "பதிவுகள்",
+    "tab_badminton": "பூப்பந்து",
+    "cancel": "ரத்துசெய்",
+    "record_detail_score_trend": "மதிப்பெண் போக்கு"
+  },
+  "te-IN": {
+    "tab_score": "స్కోర్",
+    "tab_records": "రికార్డులు",
+    "tab_badminton": "బ్యాడ్మింటన్",
+    "cancel": "రద్దు",
+    "record_detail_score_trend": "స్కోర్ ట్రెండ్"
+  },
+  "uk": {
+    "tab_score": "Рахунок",
+    "tab_records": "Записи",
+    "tab_badminton": "Бадмінтон",
+    "cancel": "Скасувати",
+    "record_detail_score_trend": "Зміна рахунку"
+  },
+  "ur": {
+    "tab_score": "سکور",
+    "tab_records": "ریکارڈز",
+    "tab_badminton": "بیڈمنٹن",
+    "cancel": "منسوخ کریں۔",
+    "record_detail_score_trend": "اسکور کا رجحان"
+  },
+  "zh-TW": {
+    "tab_score": "計分",
+    "tab_records": "記錄",
+    "tab_badminton": "羽球",
+    "cancel": "取消",
+    "record_detail_score_trend": "比分走勢"
+  },
+  "zh-CN": {
+    "tab_score": "计分",
+    "tab_records": "记录",
+    "tab_badminton": "羽毛球",
+    "cancel": "取消",
+    "record_detail_score_trend": "比分走势"
+  }
+}

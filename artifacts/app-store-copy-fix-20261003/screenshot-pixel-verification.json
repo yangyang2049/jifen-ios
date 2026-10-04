@@ -1,0 +1,143 @@
+{
+  "checks": [
+    {
+      "locale": "bn-BD",
+      "card": "multiplayer",
+      "changesOutsideTitle": null,
+      "sha256": "8dafdd67e4238d4a2b8c135ac9a7dc76cc1a958c640a96170eef1454c54274a8"
+    },
+    {
+      "locale": "el",
+      "card": "slogan",
+      "changesOutsideTitle": null,
+      "sha256": "772c4e461cf7d1d7d799d21c60027787798432a436fa15c1daa4542a6f4a16a6"
+    },
+    {
+      "locale": "el",
+      "card": "score",
+      "changesOutsideTitle": null,
+      "sha256": "a92b102f524f09cd203dc5e1b88c9a13a2639fbd0ba122f7d912fb15d0d6fafe"
+    },
+    {
+      "locale": "el",
+      "card": "catalog",
+      "changesOutsideTitle": null,
+      "sha256": "c480b9135a7a8acd61f057296a3269cd464b604f91e3e326616af5a8ed551ab2"
+    },
+    {
+      "locale": "el",
+      "card": "recap",
+      "changesOutsideTitle": null,
+      "sha256": "deb7e107bf4355d753b04ed43887ca208cc98354049ac338ed5a11d1ccc42d3f"
+    },
+    {
+      "locale": "el",
+      "card": "setup",
+      "changesOutsideTitle": null,
+      "sha256": "49625977e0eddbb725bee0f52047d9b8e23db26e841f95cb886b78c27dfcb0d0"
+    },
+    {
+      "locale": "el",
+      "card": "multiplayer",
+      "changesOutsideTitle": null,
+      "sha256": "947451f9ebc1234bb8beee9d0403112c530a1974ef744d7e71ea39b0f609b851"
+    },
+    {
+      "locale": "el",
+      "card": "cast",
+      "changesOutsideTitle": null,
+      "sha256": "c3fa700d4a2855f99abf53b7b1603ba64bec18fd213716a109403bcf1f5a76fc"
+    },
+    {
+      "locale": "gu-IN",
+      "card": "multiplayer",
+      "changesOutsideTitle": null,
+      "sha256": "f2f36116417ea79728185e7e2676dfa80cf85f9059a8fe4ace17e02c22ce10e0"
+    },
+    {
+      "locale": "hi",
+      "card": "slogan",
+      "changesOutsideTitle": null,
+      "sha256": "7bb8ed6c329b5e012d613eca78bc57309bd683eff91e2c51938e638cc3f23b48"
+    },
+    {
+      "locale": "hi",
+      "card": "multiplayer",
+      "changesOutsideTitle": null,
+      "sha256": "3ee3f0f2e997ae2c63bbc879f30b34b512c349c8450349f6b6941abc732508de"
+    },
+    {
+      "locale": "ja",
+      "card": "slogan",
+      "changesOutsideTitle": null,
+      "sha256": "9a210977429e3e0b57998e9f788a8e21477d5c3158ea44a76e9e8d4947b9beeb"
+    },
+    {
+      "locale": "ml-IN",
+      "card": "slogan",
+      "changesOutsideTitle": null,
+      "sha256": "8d454843fbf59a26ae705980fdb3690ff53241f679350d3e89c5f561857f28ec"
+    },
+    {
+      "locale": "mr-IN",
+      "card": "slogan",
+      "changesOutsideTitle": null,
+      "sha256": "6339c92c522702b43e45cb752064bcf80cdccfde321b76cc6b473f9f4d4ca012"
+    },
+    {
+      "locale": "ms",
+      "card": "slogan",
+      "changesOutsideTitle": null,
+      "sha256": "16c41e9f1a0049f772ec5ac0f2c496eb960c9b2ffa90814a9d5c6308210aa169"
+    },
+    {
+      "locale": "pa-IN",
+      "card": "slogan",
+      "changesOutsideTitle": null,
+      "sha256": "0d0269a254ff7df1bfd3aa6a35c2fc8b7745d1278282749bb1d69a3e3382d132"
+    },
+    {
+      "locale": "pl",
+      "card": "recap",
+      "changesOutsideTitle": null,
+      "sha256": "78cd4de2533673a5055d34e507bf938e03ad9d10d211d9386e97e170ce60d4b7"
+    },
+    {
+      "locale": "ro",
+      "card": "recap",
+      "changesOutsideTitle": null,
+      "sha256": "473a2f4af2a9df9400ca043fbf2f4ac07b7702d0a154f6532c74ce03746f1a1f"
+    },
+    {
+      "locale": "ro",
+      "card": "catalog",
+      "changesOutsideTitle": null,
+      "sha256": "a2cc62c01b23018cf24950dcd8b5d03f865cc86c4e210ed7600a767093872ad6"
+    },
+    {
+      "locale": "ta-IN",
+      "card": "slogan",
+      "changesOutsideTitle": null,
+      "sha256": "2e6561d8b9357cd572b675e6a8d451819a88086167d33766a338e6aa9c6dcda6"
+    },
+    {
+      "locale": "uk",
+      "card": "slogan",
+      "changesOutsideTitle": null,
+      "sha256": "bc88b5249b14d0626650d7d75f59d7981cc31c2c21df784d878b73e549cb56c9"
+    },
+    {
+      "locale": "ur-PK",
+      "card": "catalog",
+      "changesOutsideTitle": null,
+      "sha256": "df82a65336ca94f93ba92a7e6ed704cc2fd52783d2989089c28c0347544ab4bd"
+    },
+    {
+      "locale": "vi",
+      "card": "slogan",
+      "changesOutsideTitle": null,
+      "sha256": "12286731a1866dd971bba4f7cfa8fb1403eb4febd430ad17d4c5d2f18536a14f"
+    }
+  ],
+  "allOutsideTitlePreserved": true
+}

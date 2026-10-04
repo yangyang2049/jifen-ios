@@ -1,0 +1,58 @@
+{
+  "locale": "sk",
+  "iosLocale": "sk",
+  "language": "Slovak",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Výsledková tabuľa",
+  "subtitle": "Skóre, čas a záznamy zápasov",
+  "description": "Každý bod sa počíta. Premeňte iPhone alebo iPad na prehľadnú a ľahko ovládateľnú výsledkovú tabuľu na zápasy, tréningy aj hry s priateľmi.\n\nZapisujte skóre pre viac ako 26 športov a hier vrátane tenisu, pickleballu, bedmintonu, stolného tenisu, basketbalu, futbalu, volejbalu a biliardu. Pri podporovaných športoch upravte pravidlá bodovania, formát zápasu a poradie podania vo štvorhre.\n\nUkladajte zápasy a prezerajte si vývoj skóre, časovú os a hlasové poznámky. Používajte šachové hodiny, hodiny na go, časovač na kocku a stopky. Zobrazte tabuľu na veľkej obrazovke a zdieľajte kód zápasu, aby priatelia mohli sledovať skóre na diaľku.\n\nHod mincou, náhodné rozdelenie do tímov, červené a žlté karty aj rozdelenie nákladov — všetko na jednom mieste. Menej starostí s počítaním, viac radosti z hry.\n\nPodmienky používania:\nhttps://jifenqi.com/terms\n\nZásady ochrany osobných údajov:\nhttps://jifenqi.com/privacy\n\nŠtandardná licenčná zmluva Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Každý bod\nsa počíta",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Všetky skóre\nna prvý pohľad",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "Jedna tabuľa\npre viac ako 26 športov",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Vráťte sa\nku každému zápasu",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Vaše pravidlá\nvaša hra",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Viac než\nloptové hry",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Vaša tabuľa\nna veľkej obrazovke",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Zapisujte skóre\nzo zápästia",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Nástroje rozhodcu\nv jednej aplikácii",
+      "enabled": true
+    }
+  ]
+}

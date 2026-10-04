@@ -1,0 +1,68 @@
+{
+  "locale": "it",
+  "appleLanguage": "it",
+  "appleLocale": "it_IT",
+  "names": [
+    "Luca",
+    "Marco",
+    "Giulia",
+    "Andrea"
+  ],
+  "fontFamily": "Poppins",
+  "basketballTeams": [
+    "Casa",
+    "Trasferta"
+  ],
+  "simulator": "7230B956-03E3-4A0B-9322-B555C35F76F0",
+  "cards": [
+    {
+      "index": 1,
+      "scene": "snooker",
+      "file": "exports/it/01-snooker.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "58ad6a0166b7ccbf3959945cf5e68a2739f3e996b52f14257d7d734eb8cbb2d0",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 2,
+      "scene": "basketball",
+      "file": "exports/it/02-basketball.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "90eae553ae480ba859a35556cceecf85024cfcb9981d4f0a631927342022a167",
+      "capture": "production SwiftUI via simctl",
+      "teamNames": [
+        "Casa",
+        "Trasferta"
+      ]
+    },
+    {
+      "index": 3,
+      "scene": "record",
+      "file": "exports/it/03-record.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "78f204e0075c4a5cfdf6535b8bc8cf53a4211a3e886be6bb2364176486cf3d60",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 4,
+      "scene": "setup",
+      "file": "exports/it/04-setup.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "861841ab46b47f60ffd4283a4ee02f1ca58388223a0f11965dd05f6079b4470c",
+      "capture": "production SwiftUI via simctl"
+    },
+    {
+      "index": 5,
+      "scene": "home",
+      "file": "exports/it/05-home.png",
+      "width": 2752,
+      "height": 2064,
+      "sha256": "9c1c8e4a502cbc47f796151872be9678715e76db0dc398a0e67ca9043acd5eab",
+      "capture": "production SwiftUI via simctl"
+    }
+  ]
+}

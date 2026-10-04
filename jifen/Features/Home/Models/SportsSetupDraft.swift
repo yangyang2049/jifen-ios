@@ -301,7 +301,7 @@ extension SportsSetupDraft {
         return matchCompletionMode == .playAll || !selectedMaxSets.isMultiple(of: 2)
     }
 
-    func makeResult(gameType: GameType, usesDoublesPlayerInputs: Bool) -> SportsSetupResult {
+    func makeResult(gameType: GameType, usesDoublesPlayerInputs: Bool, voiceSupported: Bool = SportsVoiceSupport.isSupported) -> SportsSetupResult {
         let usesTeamPlayerInputs = gameType == .shuttlecock && competitionFormat == .team
         let usesNamedPlayerInputs = usesDoublesPlayerInputs || usesTeamPlayerInputs
         let resolvedTeam1Name = usesTeamPlayerInputs
@@ -475,7 +475,7 @@ extension SportsSetupDraft {
         // 语音播报开关统一写入：矩阵包含该功能的项目才输出（对齐安卓）。
         if SportsSetupMatchFeature.features(for: gameType, isSingles: isSingles)
             .contains(.voiceAnnouncement) {
-            result.voiceAnnouncement = voiceAnnouncement
+            result.voiceAnnouncement = voiceSupported && voiceAnnouncement
         }
 
         return result

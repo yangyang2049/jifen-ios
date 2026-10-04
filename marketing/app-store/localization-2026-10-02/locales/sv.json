@@ -1,0 +1,58 @@
+{
+  "locale": "sv",
+  "iosLocale": "sv",
+  "language": "Swedish",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Resultattavla",
+  "subtitle": "Resultat, tid och matcher",
+  "description": "Varje poäng räknas. Gör din iPhone eller iPad till en tydlig och lättanvänd resultattavla för matcher, träning och spel med vänner.\n\nHåll koll på poängen i över 26 sporter och spel, bland annat tennis, pickleball, badminton, bordtennis, basket, fotboll, volleyboll och biljard. Anpassa poängregler, matchformat och serveordning i dubbel för de sporter som stöder det.\n\nSpara matcher och se poängutveckling, tidslinjer och röstanteckningar. Använd schack- och go-klockor, en kubtimer och ett stoppur. Visa resultattavlan på en stor skärm och dela en matchkod så att vänner kan följa ställningen på distans.\n\nSlantsingling, slumpmässiga lag, röda och gula kort och delning av kostnader — allt på ett ställe. Mindre tid på att räkna, mer glädje i spelet.\n\nAnvändarvillkor:\nhttps://jifenqi.com/terms\n\nIntegritetspolicy:\nhttps://jifenqi.com/privacy\n\nApples standardlicensavtal:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Varje poäng\nräknas",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Alla resultat\nmed en blick",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "En resultattavla\nför över 26 sporter",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Se tillbaka på\nvarje match",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Dina regler\nditt spel",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Mer än\nbollspel",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Din resultattavla\npå storskärmen",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Räkna poäng\nfrån handleden",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Domarverktyg\ni en app",
+      "enabled": true
+    }
+  ]
+}

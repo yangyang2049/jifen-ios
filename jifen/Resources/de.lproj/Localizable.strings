@@ -165,8 +165,8 @@
 "record_training_end_rate" = "Training beendet · %1$d%% Trefferquote";
 "game_football" = "Fußball";
 "game_volleyball" = "Volleyball";
-"game_checkers" = "Chinesische Dame";
-"timer_checkers" = "Dame";
+"game_checkers" = "Internationale Dame";
+"timer_checkers" = "Internationale Dame";
 "game_boxing" = "Boxen";
 "game_billiards" = "Billard";
 "game_pickleball" = "Pickleball";
@@ -589,7 +589,7 @@
 "faq_question_4" = "Wie lösche ich Einträge oder lokale Daten?";
 "faq_answer_4" = "Verwenden Sie während eines Spiels „Rückgängig“, „Zurück“ oder – sofern die Sportart dies unterstützt – die Bearbeitungsfunktion.\n\nGespeicherte Spiele können Sie im Verlauf öffnen und dort löschen. Unter Profil → Daten löschen werden lokale Punktestände, Timerdaten, nicht beendete Spiele, gespeicherte Einträge und einige lokale Einstellungen entfernt. Dies kann nicht rückgängig gemacht werden.";
 "faq_question_5" = "Wie verbinde ich einen Bildschirm oder ein anderes Smartphone?";
-"faq_answer_5" = "Um Punktestände auf einem anderen Smartphone oder Tablet anzuzeigen, öffnen Sie auf dem Anzeigegerät „Punktestand synchronisieren“ → „Spiel beitreten“ und folgen Sie den Anweisungen, um einen Code oder QR-Code zu erstellen. Stellen Sie anschließend auf dem steuernden Gerät innerhalb eines Spiels die Verbindung her; der Punktestand wird dann synchronisiert. Lassen Sie beide Geräte online und sperren Sie weder den Bildschirm noch die App im Hintergrund. Falls die Synchronisierung hängt, verlassen Sie die Verbindung auf beiden Geräten und verbinden Sie sie erneut.\n\nUm den Punktestand auf einen Fernseher oder großen Bildschirm zu übertragen, verwenden Sie die drahtlose Anzeige des Smartphones (Miracast). Öffnen Sie sie im Kontrollzentrum des Systems und verbinden Sie den Fernseher. Sobald die App den angeschlossenen Bildschirm erkennt, erscheint der Punktestand dort automatisch. Die App verwendet die Systemübertragung und kann nicht selbst nach Fernsehern suchen; beim Trennen der Systemübertragung endet auch die Projektion. Je nach Hersteller heißt die Funktion beispielsweise „Drahtlose Anzeige“ oder „Bildschirmübertragung“. Stellen Sie die Verbindung zuerst im System her.";
+"faq_answer_5" = "Zwei Geräte gemeinsam verwenden: Eines zählt die Punkte, das andere zeigt den Punktestand im Vollbild. Teilendes Gerät: Anmelden und Synchronisierung starten, um einen 6-stelligen Code zu erhalten. Anzeigegerät: Anmelden und den 6-stelligen Code des teilenden Geräts eingeben. Mit dem Zählen beginnen – der Punktestand wird automatisch synchronisiert.\n\nAirPlay-Bildschirmsynchronisierung wird empfohlen. Nach dem Verbinden und Erkennen erscheint der Punktestand automatisch auf dem großen Bildschirm. Kontrollzentrum öffnen und auf „Bildschirmsynchronisierung“ (AirPlay) tippen. Stellen Sie die AirPlay-Verbindung zuerst in den Systemeinstellungen her. Die App kann jeweils nur einen verbundenen Bildschirm verwenden und nicht selbst nach Fernsehern oder Projektoren suchen. Beim Trennen von AirPlay endet auch die Übertragung.";
 "faq_question_6" = "Was kann ich tun, wenn meine Sportart fehlt?";
 "faq_answer_6" = "Beginnen Sie mit der ähnlichsten Sportart. Unterscheiden sich nur Namen, Sätze, Teams oder Startreihenfolge, passen Sie diese in den Spieleinstellungen an und fügen Sie die Konfiguration zum Schnellstart hinzu.\n\nFalls keine vorhandene Sportart die Regeln abbildet, senden Sie uns über „Feedback“ den Namen der Sportart, das übliche Format, die Zählweise und den gewünschten Ablauf.";
 "faq_question_7" = "Wie funktionieren Mitgliedschaft, Anmeldung und neue Geräte?";
@@ -597,9 +597,9 @@
 "faq_question_8" = "Wie melde ich ein Problem oder schlage eine Funktion vor?";
 "faq_answer_8" = "Öffnen Sie Profil → Feedback und wählen Sie „Fehler melden“ oder „Funktion vorschlagen“. Geben Sie Sportart, Schritte, erwartetes Ergebnis und tatsächliches Ergebnis an. Bei Anzeige- oder Mitgliedschaftsproblemen nennen Sie außerdem Gerätemodell, Systemversion und App-Version.";
 "faq_question_10" = "Wie sichere ich meine Daten oder übertrage sie auf ein neues Smartphone?";
-"faq_answer_10" = "Melden Sie sich bei Ihrem Konto an, damit gespeicherte Namen, Orte und Spielverläufe damit verknüpft werden. Mit der Cloud-Synchronisierung der Mitgliedschaft werden Ihre Daten geräteübergreifend synchronisiert. Melden Sie sich auf einem neuen Smartphone mit demselben Konto an; Ihre Daten werden automatisch wiederhergestellt. Ohne Anmeldung werden die Daten nur auf dem aktuellen Gerät gespeichert.";
+"faq_answer_10" = "Melde dich an, um gespeicherte Team- und Spielernamen sowie Orte zwischen Geräten zu synchronisieren. Auf einem neuen Handy kannst du diese Stammdaten mit demselben Konto abrufen. Spielaufzeichnungen, Timer-Aufzeichnungen und laufende Spiele bleiben auf dem aktuellen Gerät; eine Cloud-Sicherung und Wiederherstellung dieser Aufzeichnungen ist nicht verfügbar.";
 "faq_question_11" = "Wie werden meine Daten und meine Privatsphäre geschützt?";
-"faq_answer_11" = "Die Datenschutzerklärung erläutert, welche Daten zu welchem Zweck verwendet werden. Das Mikrofon wird nur für Sprachaufzeichnungen und die Kamera nur zum Scannen eines QR-Codes bei der Anmeldung verwendet. Beides wird lokal auf Ihrem Gerät verarbeitet.";
+"faq_answer_11" = "Die Datenschutzerklärung erläutert, welche Daten zu welchem Zweck verwendet werden. Das Mikrofon dient zum Aufzeichnen von Sprachnotizen. Die Kamera wird zum Scannen vertrauenswürdiger Anmelde-QR-Codes und zum Aufnehmen eines Profilfotos verwendet.";
 "common_names_add" = "Hinzufügen";
 "common_names_edit_title" = "Name bearbeiten";
 "common_names_team_placeholder" = "Teamnamen eingeben";
@@ -653,8 +653,8 @@
 "schedule_location" = "Ort";
 "schedule_location_placeholder" = "Ort eingeben";
 "schedule_reminders" = "Erinnerungen";
-"schedule_reminder_hours_before" = "%d Stunden vorher";
-"schedule_reminder_minutes_before" = "%d Minuten vorher";
+"schedule_reminder_hours_before" = "%d Std. vorher";
+"schedule_reminder_minutes_before" = "%d Min. vorher";
 "schedule_reminder_help_title" = "Erinnerungen";
 "schedule_reminder_help_message" = "Erinnerungen werden als lokale Mitteilungen zugestellt. Aktivieren Sie Mitteilungen, um sie zu erhalten. Sie können ausbleiben, wenn die App entfernt wurde oder iOS die Zustellung einschränkt. Beim Bearbeiten oder Stornieren eines Spiels werden die Erinnerungen aktualisiert.";
 "schedule_notes" = "Notizen";
@@ -844,6 +844,13 @@
 "scoreboard_double_tap_subtract_help_message" = "Wenn aktiviert, ziehen Sie durch Doppeltippen auf denselben Punktebereich oder dieselbe Spielerkachel 1 Punkt ab. Wenn deaktiviert, wischen Sie zum Abziehen nach unten oder zum Rückgängigmachen nach links. Punktestände mit Schaltflächen, etwa für Basketball und Snooker, bleiben unverändert.";
 "scoreboard_official_break_help_title" = "Offizielle Pausen";
 "scoreboard_official_break_help_message" = "Wenn aktiviert, unterbrechen offizielle Pausen die Punktezählung. Eine Pause kann übersprungen oder rückgängig gemacht werden.\n\nTischtennis und Jianzi: 60 s zwischen den Sätzen\nBadminton: 60 s in der Satzmitte, 120 s zwischen den Sätzen\nSquash: 90 s zwischen den Sätzen\nTennis und Padel: 90 s beim Seitenwechsel, 120 s zwischen den Sätzen\nSofttennis: 60 s beim Seitenwechsel\nPickleball: 60 s in der Mitte des Entscheidungssatzes, 120 s zwischen den Sätzen";
+"scoreboard_official_break_help_intro" = "Wenn aktiviert, unterbrechen offizielle Pausen die Punktezählung. Eine Pause kann übersprungen oder rückgängig gemacht werden.";
+"scoreboard_official_break_rule_between_games_60" = "60 s zwischen den Sätzen";
+"scoreboard_official_break_rule_badminton" = "60 s in der Satzmitte, 120 s zwischen den Sätzen";
+"scoreboard_official_break_rule_squash" = "90 s zwischen den Sätzen";
+"scoreboard_official_break_rule_tennis" = "90 s beim Seitenwechsel, 120 s zwischen den Sätzen";
+"scoreboard_official_break_rule_soft_tennis" = "60 s beim Seitenwechsel";
+"scoreboard_official_break_rule_pickleball" = "60 s in der Mitte des Entscheidungssatzes, 120 s zwischen den Sätzen";
 "show_match_time" = "Spielzeit anzeigen";
 "hide_match_time" = "Spielzeit ausblenden";
 "scoreboard_match_time_this_game_only" = "Nur für dieses Spiel; beim nächsten gilt wieder die Standardeinstellung der Sportart.";
@@ -978,7 +985,7 @@
 "timer_custom_seconds" = "Sek";
 "timer_countdown_notification_title" = "Countdown beendet";
 "timer_countdown_notification_content" = "Ihr Countdown ist abgelaufen. Tippen Sie, um zurückzukehren.";
-"scoreboard_usage_hint_menu" = "Bedienung";
+"scoreboard_usage_hint_menu" = "Hilfe";
 "scoreboard_usage_hint_title" = "Bedienung";
 "scoreboard_usage_hint_got_it" = "Verstanden";
 "scoreboard_usage_hint_football" = "👆 Zum Hinzufügen eines Tors in den linken oder rechten Punktebereich tippen\n⬆️ Zum Hinzufügen nach oben wischen\n⬇️ Zum Abziehen nach unten wischen\n↩️ Zum Rückgängigmachen nach links wischen\n⏱️ Unten rechts im Menü „Nachspielzeit“ öffnen, Dauer wählen und anschließend rückgängig machen oder bestätigen\n🏁 Nach der zweiten Halbzeit und der Nachspielzeit kann ein Unentschieden mit zwei 15-minütigen Verlängerungshalbzeiten fortgesetzt werden";
@@ -1036,7 +1043,7 @@
 "scoreboard_key_point_volleyball_set" = "SP";
 "scoreboard_key_point_set" = "SP";
 "scoreboard_key_point_match" = "MP";
-"record_recap_set_format" = "Spiel %d";
+"record_recap_set_format" = "Satz %d";
 "record_recap_tennis_set_format" = "Satz %d";
 "record_recap_period_format" = "Periode %d";
 "record_recap_round_format" = "Runde %d";
@@ -1094,7 +1101,7 @@
 "doudizhu_role_landlord" = "Landlord";
 "doudizhu_role_farmer" = "Bauer";
 "doudizhu_player_role_format" = "%@ (%@)";
-"doudizhu_winner_separator" = ",";
+"doudizhu_winner_separator" = ", ";
 "draw_result" = "Unentschieden";
 "filter" = "Filter";
 "flip_coin_recent" = "Letzte Münzwürfe";
@@ -1130,7 +1137,7 @@
 "timeout" = "Auszeit";
 "timer_record_time" = "Aufgenommen am";
 "undo" = "Rückgängig";
-"scoreboard_set_end_format" = "Spiel %d beendet";
+"scoreboard_set_end_format" = "Satz %d beendet";
 "winner_named_format" = "%@ gewinnt";
 "basketball_fouls_count" = "Fouls %d";
 "basketball_timeout_remaining" = "Auszeiten (%d)";
@@ -1184,7 +1191,7 @@
 "official_break_prepare" = "Bereit machen";
 "official_breaks" = "Offizielle Pausen";
 "official_break_mid_game" = "Pause zur Satzmitte";
-"official_break_game" = "Spielpause";
+"official_break_game" = "Pause zwischen den Sätzen";
 "official_break_set" = "Satzpause";
 "official_break_changeover" = "Seitenwechselpause";
 "official_break_continue" = "Fortsetzen";
@@ -1552,3 +1559,9 @@
 "game_short" = "Spiele";
 "set_short" = "Sätze";
 "football_injury_title" = "Nachspielzeit";
+
+"feedback_official" = "Offiziell";
+
+"feedback_pinned" = "Angeheftet";
+
+"voice_announce_server" = "Aufschläger ansagen";

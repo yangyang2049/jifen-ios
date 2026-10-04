@@ -1,0 +1,114 @@
+[
+  {
+    "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_whistle.imageset/whistle@1x.png",
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 15472
+  },
+  {
+    "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_whistle.imageset/whistle@2x.png",
+    "size": [
+      256,
+      256
+    ],
+    "bytes": 46768
+  },
+  {
+    "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_whistle.imageset/whistle@3x.png",
+    "size": [
+      384,
+      384
+    ],
+    "bytes": 93186
+  },
+  {
+    "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/res/drawable-nodpi/jf3d_whistle.webp",
+    "size": [
+      384,
+      384
+    ],
+    "bytes": 53788
+  },
+  {
+    "path": "/Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/res/drawable-nodpi/jf3d_whistle.webp",
+    "size": [
+      384,
+      384
+    ],
+    "bytes": 53788
+  },
+  {
+    "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/resources/base/media/icon3d_whistle.png",
+    "size": [
+      384,
+      384
+    ],
+    "bytes": 93186
+  },
+  {
+    "path": "/Users/yangyang/Desktop/jifenqi/jifen-wechat/assets/icons/3d/whistle.webp",
+    "size": [
+      384,
+      384
+    ],
+    "bytes": 53788
+  },
+  {
+    "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_buzzer.imageset/buzzer@1x.png",
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 20057
+  },
+  {
+    "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_buzzer.imageset/buzzer@2x.png",
+    "size": [
+      256,
+      256
+    ],
+    "bytes": 62314
+  },
+  {
+    "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets/icon_3d_buzzer.imageset/buzzer@3x.png",
+    "size": [
+      384,
+      384
+    ],
+    "bytes": 130839
+  },
+  {
+    "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/res/drawable-nodpi/jf3d_buzzer.webp",
+    "size": [
+      384,
+      384
+    ],
+    "bytes": 82308
+  },
+  {
+    "path": "/Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/res/drawable-nodpi/jf3d_buzzer.webp",
+    "size": [
+      384,
+      384
+    ],
+    "bytes": 82308
+  },
+  {
+    "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/resources/base/media/icon3d_buzzer.png",
+    "size": [
+      384,
+      384
+    ],
+    "bytes": 130839
+  },
+  {
+    "path": "/Users/yangyang/Desktop/jifenqi/jifen-wechat/assets/icons/3d/buzzer.webp",
+    "size": [
+      384,
+      384
+    ],
+    "bytes": 82308
+  }
+]

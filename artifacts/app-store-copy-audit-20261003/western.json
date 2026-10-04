@@ -1,0 +1,1372 @@
+{
+  "locales": [
+    {
+      "locale": "ca",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/ca.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ca/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ca/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ca/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ca/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ca/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/ca/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/ca.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 22,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "The go term occurs in a chess-clock context and retains the intended board-game meaning; no mistranslation into the English verb go found."
+      ]
+    },
+    {
+      "locale": "de-DE",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/de-DE.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/de-DE/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/de-DE/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/de-DE/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/de-DE/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/de-DE/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/de-DE/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/de-DE.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 30,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "The hyphen in MEHRSPIELER- / UND BRETTSPIELE is an acceptable suspended-compound hyphen. GROSSEN with uppercase SS is also acceptable. Actual cast PNG wraps to three complete-word lines, with no clipping."
+      ]
+    },
+    {
+      "locale": "en-AU",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-AU.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS_WITH_SUGGESTION",
+      "findings": [
+        {
+          "severity": "high_confidence_suggestion",
+          "field": "screenshotTitles.score.title",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-AU.json",
+          "old": "Keep every score\nat a glance",
+          "new": "See every score\nat a glance",
+          "reason": "At a glance describes seeing information quickly; Keep every score is an unnatural collocation here. The uploaded PNG copy already uses SEE EVERY SCORE / AT A GLANCE. Synchronize this unused metadata title with the existing natural PNG wording; this finding does not require redoing the current PNG.",
+          "confidence": "high"
+        }
+      ],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-AU/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-AU/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-AU/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-AU/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-AU/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-AU/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/en-AU.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 30,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "The uploaded slogan EVERY / POINT / COUNTS is deliberate three-line emphasis. MULTI-PLAYER & / BOARD GAMES remains legible, with complete words; no mandatory spelling or layout correction proposed."
+      ]
+    },
+    {
+      "locale": "en-CA",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-CA.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS_WITH_SUGGESTION",
+      "findings": [
+        {
+          "severity": "high_confidence_suggestion",
+          "field": "screenshotTitles.score.title",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-CA.json",
+          "old": "Keep every score\nat a glance",
+          "new": "See every score\nat a glance",
+          "reason": "At a glance describes seeing information quickly; Keep every score is an unnatural collocation here. The uploaded PNG copy already uses SEE EVERY SCORE / AT A GLANCE. Synchronize this unused metadata title with the existing natural PNG wording; this finding does not require redoing the current PNG.",
+          "confidence": "high"
+        }
+      ],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-CA/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-CA/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-CA/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-CA/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-CA/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-CA/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/en-CA.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 30,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "The uploaded slogan EVERY / POINT / COUNTS is deliberate three-line emphasis. MULTI-PLAYER & / BOARD GAMES remains legible, with complete words; no mandatory spelling or layout correction proposed."
+      ]
+    },
+    {
+      "locale": "en-GB",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-GB.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS_WITH_SUGGESTION",
+      "findings": [
+        {
+          "severity": "high_confidence_suggestion",
+          "field": "screenshotTitles.score.title",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-GB.json",
+          "old": "Keep every score\nat a glance",
+          "new": "See every score\nat a glance",
+          "reason": "At a glance describes seeing information quickly; Keep every score is an unnatural collocation here. The uploaded PNG copy already uses SEE EVERY SCORE / AT A GLANCE. Synchronize this unused metadata title with the existing natural PNG wording; this finding does not require redoing the current PNG.",
+          "confidence": "high"
+        }
+      ],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-GB/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-GB/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-GB/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-GB/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-GB/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-GB/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/en-GB.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 30,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "The uploaded slogan EVERY / POINT / COUNTS is deliberate three-line emphasis. MULTI-PLAYER & / BOARD GAMES remains legible, with complete words; no mandatory spelling or layout correction proposed."
+      ]
+    },
+    {
+      "locale": "en-US",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-US.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS_WITH_SUGGESTION",
+      "findings": [
+        {
+          "severity": "high_confidence_suggestion",
+          "field": "screenshotTitles.score.title",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/en-US.json",
+          "old": "Keep every score\nat a glance",
+          "new": "See every score\nat a glance",
+          "reason": "At a glance describes seeing information quickly; Keep every score is an unnatural collocation here. The uploaded PNG copy already uses SEE EVERY SCORE / AT A GLANCE. Synchronize this unused metadata title with the existing natural PNG wording; this finding does not require redoing the current PNG.",
+          "confidence": "high"
+        }
+      ],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-US/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-US/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-US/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-US/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-US/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/en-US/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/en-US.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 30,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "The uploaded slogan EVERY / POINT / COUNTS is deliberate three-line emphasis. MULTI-PLAYER & / BOARD GAMES remains legible, with complete words; no mandatory spelling or layout correction proposed."
+      ]
+    },
+    {
+      "locale": "es-ES",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/es-ES.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-ES/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-ES/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-ES/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-ES/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-ES/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-ES/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/es-ES.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 26,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "The go term occurs in a chess-clock context and retains the intended board-game meaning; no mistranslation into the English verb go found."
+      ]
+    },
+    {
+      "locale": "es-MX",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/es-MX.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-MX/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-MX/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-MX/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-MX/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-MX/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/es-MX/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/es-MX.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 26,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "The Mexican regional forms futbol and basquetbol, and the region-specific recap verb, are acceptable. Lowercase go names the board game, not the English motion verb.",
+        "The go term occurs in a chess-clock context and retains the intended board-game meaning; no mistranslation into the English verb go found."
+      ]
+    },
+    {
+      "locale": "fr-FR",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/fr-FR.json",
+      "descriptionStatus": "NEEDS_FIX",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [
+        {
+          "severity": "definite_error",
+          "field": "description.footerLabels",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/fr-FR.json",
+          "old": "Conditions d’utilisation:\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité:\nhttps://jifenqi.com/privacy\n\nContrat de licence standard Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+          "new": "Conditions d’utilisation :\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité :\nhttps://jifenqi.com/privacy\n\nContrat de licence standard Apple :\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+          "reason": "All three URL labels omit the required French space before a colon. Insert a nonbreaking space U+00A0 while preserving the three complete URLs on independent lines and the existing paragraphs. The two inline body colons already have ordinary spaces; these may also be normalized to nonbreaking spaces, but the definite error is the three missing label spaces.",
+          "confidence": "high",
+          "reference": "https://vitrinelinguistique.oqlf.gouv.qc.ca/23325/la-ponctuation/deux-points/emplois-courants-du-deux-points"
+        }
+      ],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-FR/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-FR/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-FR/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-FR/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-FR/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-FR/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/fr-FR.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 25,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "The go term occurs in a chess-clock context and retains the intended board-game meaning; no mistranslation into the English verb go found."
+      ]
+    },
+    {
+      "locale": "fr-CA",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/fr-CA.json",
+      "descriptionStatus": "NEEDS_FIX",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [
+        {
+          "severity": "definite_error",
+          "field": "description.footerLabels",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/fr-CA.json",
+          "old": "Conditions d’utilisation:\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité:\nhttps://jifenqi.com/privacy\n\nContrat de licence standard Apple:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+          "new": "Conditions d’utilisation :\nhttps://jifenqi.com/terms\n\nPolitique de confidentialité :\nhttps://jifenqi.com/privacy\n\nContrat de licence standard Apple :\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+          "reason": "All three URL labels omit the required French space before a colon. Insert a nonbreaking space U+00A0 while preserving the three complete URLs on independent lines and the existing paragraphs. The two inline body colons already have ordinary spaces; these may also be normalized to nonbreaking spaces, but the definite error is the three missing label spaces.",
+          "confidence": "high",
+          "reference": "https://vitrinelinguistique.oqlf.gouv.qc.ca/23325/la-ponctuation/deux-points/emplois-courants-du-deux-points"
+        }
+      ],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-CA/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-CA/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-CA/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-CA/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-CA/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fr-CA/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/fr-CA.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 27,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "Regional vocabulary pointage, soccer, basketball and volleyball is appropriate and need not be changed to the French-France variants.",
+        "The go term occurs in a chess-clock context and retains the intended board-game meaning; no mistranslation into the English verb go found."
+      ]
+    },
+    {
+      "locale": "it",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/it.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/it/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/it/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/it/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/it/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/it/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/it/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/it.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 22,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "The go term occurs in a chess-clock context and retains the intended board-game meaning; no mistranslation into the English verb go found."
+      ]
+    },
+    {
+      "locale": "nl-NL",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/nl-NL.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/nl-NL/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/nl-NL/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/nl-NL/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/nl-NL/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/nl-NL/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/nl-NL/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/nl-NL.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 29,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "Suspended-compound hyphens in the multiplayer/board-games title are acceptable and not word-internal splitting.",
+        "The go term occurs in a chess-clock context and retains the intended board-game meaning; no mistranslation into the English verb go found."
+      ]
+    },
+    {
+      "locale": "pt-BR",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/pt-BR.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-BR/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-BR/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-BR/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-BR/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-BR/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-BR/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/pt-BR.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 25,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "The go term occurs in a chess-clock context and retains the intended board-game meaning; no mistranslation into the English verb go found."
+      ]
+    },
+    {
+      "locale": "pt-PT",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/pt-PT.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-PT/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-PT/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-PT/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-PT/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-PT/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/pt-PT/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/pt-PT.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 22,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "The go term occurs in a chess-clock context and retains the intended board-game meaning; no mistranslation into the English verb go found."
+      ]
+    },
+    {
+      "locale": "da",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/da.json",
+      "descriptionStatus": "PASS_WITH_SUGGESTION",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [
+        {
+          "severity": "high_confidence_suggestion",
+          "field": "description.cubeTimer",
+          "source": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/da.json",
+          "old": "en terningetimer",
+          "new": "en timer til professorterninger",
+          "reason": "The bare word terning can mean a die or cube and this compound does not clearly identify the twisty puzzle being timed. Den Danske Ordbog records professorterning as the puzzle name. This is a terminology-clarity suggestion, not a definite spelling error; a Danish native speaker may confirm the full phrase before changing it.",
+          "confidence": "high",
+          "reference": "https://ordnet.dk/ddo/ordbog/professorterning"
+        }
+      ],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/da/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/da/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/da/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/da/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/da/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/da/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/da.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 24,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "Suspended-compound hyphens in the multiplayer/board-games title are acceptable and not word-internal splitting."
+      ]
+    },
+    {
+      "locale": "fi",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/fi.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fi/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fi/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fi/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fi/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fi/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/fi/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/fi.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 28,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "The go term occurs in a chess-clock context and retains the intended board-game meaning; no mistranslation into the English verb go found."
+      ]
+    },
+    {
+      "locale": "no",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/no.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/no/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/no/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/no/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/no/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/no/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/no/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/no.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 25,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "Suspended-compound hyphens in the multiplayer/board-games title are acceptable and not word-internal splitting.",
+        "The go term occurs in a chess-clock context and retains the intended board-game meaning; no mistranslation into the English verb go found."
+      ]
+    },
+    {
+      "locale": "sv",
+      "sourceFile": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/localization-2026-10-02/locales/sv.json",
+      "descriptionStatus": "PASS",
+      "sloganStatus": "PASS",
+      "subtitleStatus": "PASS",
+      "otherTitlesStatus": "PASS",
+      "findings": [],
+      "checked": {
+        "enabledMetadataTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "timer",
+          "cast",
+          "tools"
+        ],
+        "actualPngTitles": [
+          "slogan",
+          "score",
+          "catalog",
+          "recap",
+          "setup",
+          "multiplayer",
+          "cast"
+        ],
+        "actualPngSource": "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/copy.json",
+        "visuallyReviewedPngs": [
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sv/02-score.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sv/03-catalog.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sv/04-recap.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sv/05-setup.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sv/06-multiplayer.png",
+          "/Users/yangyang/Desktop/jifenqi/jifen-ios/marketing/app-store/ios-screenshots-pen-2026-10-02/exports/sv/07-cast.png"
+        ],
+        "titleCropMontage": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/app-store-copy-audit-20261003/visual-western/sv.png",
+        "titleCropCoordinates": [
+          0,
+          100,
+          1284,
+          730
+        ],
+        "actualTitleRenderingStatus": "PASS_NO_WORD_SPLITS_OR_CLIPPING",
+        "descriptionParagraphCount": 7,
+        "subtitleLength": 25,
+        "urls": {
+          "https://jifenqi.com/terms": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://jifenqi.com/privacy": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          },
+          "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/": {
+            "exactOccurrences": 1,
+            "isStandaloneLine": true
+          }
+        }
+      },
+      "reviewNotes": [
+        "Read each description, subtitle, all 8 enabled metadata titles, and all 7 actual PNG text strings independently; did not inspect the Pen file.",
+        "All fact groups retain the intended meaning: supported sports and scoring formats, doubles serving order, saved trends/timelines/voice notes, chess/Go/cube/stopwatch timers, big-screen display/remote match code, and practical tools.",
+        "No misspelled sport or Apple device names found; local possessive or inflected endings around Apple are not treated as spelling errors.",
+        "Slogan manual line breaks have no word-internal split or stranded article/preposition.",
+        "The go term occurs in a chess-clock context and retains the intended board-game meaning; no mistranslation into the English verb go found."
+      ]
+    }
+  ],
+  "summary": {
+    "localeCount": 18,
+    "descriptionCount": 18,
+    "subtitleCount": 18,
+    "sloganLocaleCount": 18,
+    "metadataEnabledTitleCount": 144,
+    "actualPngTitleCount": 126,
+    "visuallyReviewedOtherTitlePngCount": 108,
+    "definiteErrorLocaleCount": 2,
+    "highConfidenceSuggestionLocaleCount": 5,
+    "all54UrlChecksPassed": true,
+    "mutations": "Only this audit report and read-only review crops were generated. Source copy, original PNGs and remote metadata were not modified."
+  },
+  "references": [
+    {
+      "url": "https://vitrinelinguistique.oqlf.gouv.qc.ca/23325/la-ponctuation/deux-points/emplois-courants-du-deux-points",
+      "use": "French nonbreaking-space rule before colons."
+    },
+    {
+      "url": "https://ordnet.dk/ddo/ordbog/professorterning",
+      "use": "Danish name for the twisty cube puzzle."
+    },
+    {
+      "url": "https://dle.rae.es/docs/Novedades_DLE_23.6-Seleccion.pdf",
+      "use": "Spanish lowercase go is the board-game noun."
+    },
+    {
+      "url": "https://a-sport.dk/shop/haludstyr/scoringstavler-maaltavler/",
+      "use": "Danish sports-equipment supplier uses the existing board-name term for sports scoreboards; this term is not marked as wrong."
+    }
+  ]
+}

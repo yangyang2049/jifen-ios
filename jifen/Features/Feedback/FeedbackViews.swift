@@ -184,6 +184,23 @@ private struct FeedbackPlatformChipView: View {
     }
 }
 
+private struct FeedbackPostBadges: View {
+    let item: FeedbackItem
+    var body: some View {
+        HStack(spacing: 6) {
+            if item.isOfficial == true { badge("feedback_official", fallback: "Official") }
+            if item.isPinned == true { badge("feedback_pinned", fallback: "Pinned") }
+        }
+    }
+    private func badge(_ key: String, fallback: String) -> some View {
+        Text(NSLocalizedString(key, value: fallback, comment: "Feedback post badge"))
+            .font(.system(size: 11, weight: .medium))
+            .foregroundColor(Theme.textSecondary)
+            .padding(.horizontal, 6).padding(.vertical, 3)
+            .background(RoundedRectangle(cornerRadius: 4).fill(Color.secondary.opacity(0.12)))
+    }
+}
+
 private struct FeedbackModerationNotice: View {
     let label: String?
     let reason: String?
@@ -317,6 +334,12 @@ private struct FeedbackEmptyStateView: View {
 // MARK: - 反馈列表（对齐安卓 FeedbackListScreen）
 
 struct FeedbackListView: View {
+    @Environment(\.locale) private var locale
+    @State private var loadGeneration = 0
+    @State private var loadedLanguage: String?
+    private var feedbackLanguage: String {
+        FeedbackLanguage.normalize(Bundle.main.preferredLocalizations.first ?? locale.identifier)
+    }
     @Environment(SessionStore.self) private var session
     @State private var items: [FeedbackItem] = []
     @State private var page = 1
@@ -407,7 +430,10 @@ struct FeedbackListView: View {
                     .allowsHitTesting(false)
             }
         }
-        .task { if items.isEmpty { await load(reset: true) } }
+        .task(id: feedbackLanguage) { await load(reset: true) }
+        .onReceive(NotificationCenter.default.publisher(for: NSLocale.currentLocaleDidChangeNotification)) { _ in
+            Task { await load(reset: true) }
+        }
         .onAppear {
             // 从详情/发布返回时刷新（对齐安卓 ON_RESUME 刷新）。
             if hasAppearedOnce { Task { await load(reset: true) } }
@@ -479,18 +505,31 @@ struct FeedbackListView: View {
     }
 
     private func load(reset: Bool) async {
-        guard !isLoading else { return }
+        guard reset || !isLoading else { return }
+        let language = feedbackLanguage
+        loadGeneration += 1
+        let generation = loadGeneration
+        if loadedLanguage != language {
+            items = []
+            page = 1
+            hasMore = false
+            errorMessage = nil
+            loadedLanguage = language
+        }
         isLoading = true
-        defer { isLoading = false }
+        defer { if generation == loadGeneration { isLoading = false } }
         do {
             let next = reset ? 1 : page + 1
-            let result = try await FeedbackAPI.shared.list(page: next, type: filterType)
+            let result = try await FeedbackAPI.shared.list(page: next, type: filterType, language: language)
+            guard generation == loadGeneration, language == feedbackLanguage, !Task.isCancelled else { return }
             items = reset ? result.items : items + result.items
             page = result.page
             hasMore = result.hasMore
             errorMessage = nil
+        } catch where error is CancellationError || (error as? URLError)?.code == .cancelled {
+            return
         } catch {
-            if items.isEmpty { errorMessage = error.localizedDescription }
+            if generation == loadGeneration && !Task.isCancelled && items.isEmpty { errorMessage = error.localizedDescription }
         }
     }
 
@@ -509,6 +548,10 @@ private struct FeedbackListCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
+            if item.isOfficial == true || item.isPinned == true {
+                FeedbackPostBadges(item: item)
+                    .padding(.bottom, 8)
+            }
             Text(item.title)
                 .font(.system(size: 16, weight: .bold))
                 .foregroundColor(Theme.textPrimary)
@@ -589,6 +632,11 @@ struct FeedbackDetailView: View {
         !isAuthor && session.isAuthenticated && item?.authorId.isNullableNonBlank == true
     }
 
+    private var canSendComment: Bool {
+        session.isAuthenticated && !isActing
+            && !commentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     var body: some View {
         Group {
             if item == nil && isActing == false {
@@ -612,7 +660,8 @@ struct FeedbackDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .toolbar {
-            if item != nil {
+            // 没有菜单内容时隐藏入口，避免空菜单点击后没有响应。
+            if isAuthor || canShowReportAction {
                 ToolbarItem(placement: .topBarTrailing) {
                     overflowMenu
                 }
@@ -687,7 +736,8 @@ struct FeedbackDetailView: View {
                 }
             } else if canShowReportAction {
                 if item?.isReported == true {
-                    Text(NSLocalizedString("feedback_reported_badge", value: "已举报", comment: ""))
+                    Button(NSLocalizedString("feedback_reported_badge", value: "已举报", comment: "")) { }
+                        .disabled(true)
                 } else {
                     Button {
                         showReport = true
@@ -702,6 +752,7 @@ struct FeedbackDetailView: View {
         } label: {
             Image(systemName: "ellipsis")
         }
+        .disabled(isActing)
         .accessibilityLabel(NSLocalizedString("more", value: "更多", comment: ""))
     }
 
@@ -709,6 +760,14 @@ struct FeedbackDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 mainCard(item)
+                if let errorMessage {
+                    Text(errorMessage)
+                        .font(.system(size: 13))
+                        .foregroundStyle(.red)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                }
                 commentsSection(comments)
             }
             .frame(maxWidth: Theme.focusedContentMaxWidth)
@@ -731,6 +790,10 @@ struct FeedbackDetailView: View {
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(Theme.textPrimary)
                             .lineLimit(1)
+                        if item.isOfficial == true || item.isPinned == true {
+                            FeedbackPostBadges(item: item)
+                                .padding(.top, 6)
+                        }
                         HStack(spacing: 8) {
                             Text(FeedbackTimeFormatter.format(item.createdAt))
                                 .font(.system(size: 13))
@@ -740,7 +803,7 @@ struct FeedbackDetailView: View {
                                 FeedbackPlatformChipView(platform: platform)
                             }
                         }
-                        .padding(.top, 4)
+                        .padding(.top, item.isOfficial == true || item.isPinned == true ? 6 : 4)
                     }
                     Spacer(minLength: 0)
                 }
@@ -798,7 +861,8 @@ struct FeedbackDetailView: View {
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .disabled(isActing)
+                    .disabled(isActing || !session.isAuthenticated)
+                    .opacity(session.isAuthenticated ? 1 : 0.45)
 
                     HStack(spacing: 6) {
                         Image(systemName: "bubble.left")
@@ -891,6 +955,7 @@ struct FeedbackDetailView: View {
             .padding(.horizontal, 14)
             .frame(height: 44)
             .background(Capsule().fill(Theme.inputFieldBackground))
+            .disabled(!session.isAuthenticated)
             .onChange(of: commentText) { _, value in
                 if value.count > 2_000 { commentText = String(value.prefix(2_000)) }
             }
@@ -900,13 +965,13 @@ struct FeedbackDetailView: View {
             } label: {
                 Text(NSLocalizedString("feedback_comment_send", value: "发送", comment: ""))
                     .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(commentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Theme.textSecondary : .white)
+                    .foregroundColor(canSendComment ? .white : Theme.textSecondary)
                     .padding(.horizontal, 18)
                     .frame(height: 44)
-                    .background(Capsule().fill(commentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Theme.controlBackground : Theme.accentColor))
+                    .background(Capsule().fill(canSendComment ? Theme.accentColor : Theme.controlBackground))
             }
             .buttonStyle(.plain)
-            .disabled(commentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isActing)
+            .disabled(!canSendComment)
         }
         .padding(.horizontal, 16)
         .padding(.top, 12)
@@ -921,18 +986,23 @@ struct FeedbackDetailView: View {
             item = try await detail
             comments = try await loadedComments
             errorMessage = nil
+        } catch where error is CancellationError || (error as? URLError)?.code == .cancelled {
+            return
         } catch {
             if item == nil { errorMessage = error.localizedDescription }
         }
     }
 
     private func toggleLike() async {
-        guard let item, !isActing else { return }
+        guard let item, session.isAuthenticated, !isActing else { return }
+        errorMessage = nil
         isActing = true
         defer { isActing = false }
         do {
             self.item = try await FeedbackAPI.shared.setLiked(!item.isLiked, feedbackId: feedbackId)
             AppAnalytics.trackFeedbackAction(item.isLiked ? "unlike" : "like", result: .success)
+        } catch where error is CancellationError || (error as? URLError)?.code == .cancelled {
+            return
         } catch {
             AppAnalytics.trackFeedbackAction(item.isLiked ? "unlike" : "like", result: .failed)
             errorMessage = error.localizedDescription
@@ -941,7 +1011,8 @@ struct FeedbackDetailView: View {
 
     private func sendComment() async {
         let value = commentText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !value.isEmpty, !isActing else { return }
+        guard !value.isEmpty, session.isAuthenticated, !isActing else { return }
+        errorMessage = nil
         isActing = true
         defer { isActing = false }
         do {
@@ -949,6 +1020,8 @@ struct FeedbackDetailView: View {
             comments.insert(comment, at: 0)
             commentText = ""
             AppAnalytics.trackFeedbackAction("comment", result: .success)
+        } catch where error is CancellationError || (error as? URLError)?.code == .cancelled {
+            return
         } catch {
             AppAnalytics.trackFeedbackAction("comment", result: .failed)
             errorMessage = error.localizedDescription
@@ -957,6 +1030,7 @@ struct FeedbackDetailView: View {
 
     private func deleteItem() async {
         guard !isActing else { return }
+        errorMessage = nil
         isActing = true
         defer { isActing = false }
         do {
@@ -965,6 +1039,9 @@ struct FeedbackDetailView: View {
             showDeleteConfirm = false
             onDeleted()
             dismiss()
+        } catch where error is CancellationError || (error as? URLError)?.code == .cancelled {
+            showDeleteConfirm = false
+            return
         } catch {
             AppAnalytics.trackFeedbackAction("delete", result: .failed)
             showDeleteConfirm = false
@@ -1181,6 +1258,8 @@ private struct FeedbackReportDialog: View {
             AppAnalytics.trackFeedbackAction("report", result: .success)
             onDismiss()
             onSubmitted()
+        } catch where error is CancellationError || (error as? URLError)?.code == .cancelled {
+            return
         } catch {
             AppAnalytics.trackFeedbackAction("report", result: .failed)
             errorText = error.localizedDescription
@@ -1230,6 +1309,9 @@ private struct CreateFeedbackView: View {
     @State private var content = ""
     @State private var selectedPhotos: [PhotosPickerItem] = []
     @State private var images: [UIImage] = []
+    @State private var loadedPhotoSelections: [PhotosPickerItem] = []
+    @State private var imageLoadGeneration = 0
+    @State private var isLoadingImages = false
     @State private var isSubmitting = false
     @State private var errorMessage: String?
     @State private var validationMessage: String?
@@ -1276,7 +1358,7 @@ private struct CreateFeedbackView: View {
                 Button(NSLocalizedString("publish", value: "发布", comment: "")) {
                     Task { await submit() }
                 }
-                .disabled(isSubmitting)
+                .disabled(isSubmitting || isLoadingImages)
             }
         }
         .onChange(of: selectedPhotos) { _, items in
@@ -1385,8 +1467,8 @@ private struct CreateFeedbackView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .overlay(alignment: .topTrailing) {
                             Button {
-                                images.remove(at: index)
-                                selectedPhotos.remove(at: min(index, selectedPhotos.count - 1))
+                                let removed = loadedPhotoSelections[index]
+                                selectedPhotos.removeAll { $0 == removed }
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
                                     .font(.system(size: 16))
@@ -1423,15 +1505,23 @@ private struct CreateFeedbackView: View {
     }
 
     private func loadImages(_ items: [PhotosPickerItem]) async {
+        imageLoadGeneration += 1
+        let generation = imageLoadGeneration
+        isLoadingImages = true
+        defer { if generation == imageLoadGeneration { isLoadingImages = false } }
         var loaded: [UIImage] = []
+        var loadedSelections: [PhotosPickerItem] = []
         var failed = 0
-        for item in items.prefix(Self.maxImages - images.count) {
+        for item in items.prefix(Self.maxImages) {
             guard let source = try? await item.loadTransferable(type: Data.self),
                   let image = UIImage(data: source)
             else { failed += 1; continue }
             loaded.append(image)
+            loadedSelections.append(item)
         }
-        images.append(contentsOf: loaded)
+        guard generation == imageLoadGeneration, selectedPhotos == items, !Task.isCancelled else { return }
+        images = loaded
+        loadedPhotoSelections = loadedSelections
         if failed > 0 {
             errorMessage = String.localizedStringWithFormat(
                 NSLocalizedString("feedback_image_prepare_failed", value: "%d 张图片无法处理，请换一张后重试", comment: ""),
@@ -1441,7 +1531,7 @@ private struct CreateFeedbackView: View {
     }
 
     private func submit() async {
-        guard !isSubmitting else { return }
+        guard !isSubmitting, !isLoadingImages else { return }
         let normalizedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let normalizedContent = content.trimmingCharacters(in: .whitespacesAndNewlines)
         guard normalizedTitle.count >= 5 else {
@@ -1456,21 +1546,25 @@ private struct CreateFeedbackView: View {
         errorMessage = nil
         defer { isSubmitting = false }
         do {
+            let revision = await FeedbackAPI.shared.authSessionRevision()
             var urls: [String] = []
             for image in images {
                 // 压缩只做一次：走 FeedbackImageCompressor（限制尺寸 + ≤2MB）。
                 guard let data = FeedbackImageCompressor.prepareJPEG(image) else { continue }
-                urls.append(try await FeedbackAPI.shared.uploadJPEG(data))
+                urls.append(try await FeedbackAPI.shared.uploadJPEG(data, expectedAuthRevision: revision))
             }
             _ = try await FeedbackAPI.shared.create(
                 type: type,
                 title: normalizedTitle,
                 content: normalizedContent,
-                imageURLs: urls
+                imageURLs: urls,
+                expectedAuthRevision: revision
             )
             AppAnalytics.trackFeedbackAction("create", contentType: type.rawValue, result: .success)
             onCreated()
             dismiss()
+        } catch where error is CancellationError || (error as? URLError)?.code == .cancelled {
+            return
         } catch {
             AppAnalytics.trackFeedbackAction("create", contentType: type.rawValue, result: .failed)
             errorMessage = error.localizedDescription
@@ -1547,7 +1641,8 @@ enum FeedbackImageCompressor {
     static func prepareJPEG(_ source: UIImage) -> Data? {
         guard source.size.width > 0, source.size.height > 0 else { return nil }
         var maximumSide: CGFloat = min(2_560, max(source.size.width, source.size.height))
-        while maximumSide >= 640 {
+        let minimumSide = min(640, maximumSide)
+        while maximumSide >= minimumSide {
             let image = resized(source, maximumSide: maximumSide)
             for quality in stride(from: CGFloat(0.88), through: CGFloat(0.20), by: -0.08) {
                 if let data = image.jpegData(compressionQuality: quality), data.count <= maximumBytes {

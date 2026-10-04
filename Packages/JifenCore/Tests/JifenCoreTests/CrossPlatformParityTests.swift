@@ -90,7 +90,7 @@ import SessionCore
     advantage.leftPoints = 3
     advantage.rightPoints = 3
     advantage = reducer.reduce(state: advantage, intent: .pointWon(.left), at: 1).state
-    #expect(advantage.scoreDisplay(for: .left) == "AD")
+    #expect(advantage.scoreDisplay(for: .left) == "Ad")
     advantage = reducer.reduce(state: advantage, intent: .pointWon(.right), at: 2).state
     #expect(advantage.scoreDisplay(for: .left) == "40")
     #expect(advantage.scoreDisplay(for: .right) == "40")

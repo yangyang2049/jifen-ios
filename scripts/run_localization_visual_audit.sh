@@ -8,7 +8,7 @@ result_dir="$audit_dir/results"
 
 iphone_destination="${IPHONE_DESTINATION:-platform=iOS Simulator,name=iPhone 17e,OS=26.5}"
 ipad_destination="${IPAD_DESTINATION:-platform=iOS Simulator,name=iPad Pro 11-inch (M5),OS=26.5}"
-locales=(ja ko de it nl sv fr fr-CA es-MX es-ES pt-BR pt-PT ru uk ar he ur)
+locales=(ja ko de it nl sv fr fr-CA es-MX es-ES pt-BR pt-PT ru uk ar he ur ca pl ro cs sk sl hr da nb fi hu el hi bn mr gu pa ta te kn ml or tr vi th id ms)
 
 if [[ -n "${LOCALIZATION_VISUAL_AUDIT_LOCALES:-}" ]]; then
   IFS=',' read -r -a locales <<< "$LOCALIZATION_VISUAL_AUDIT_LOCALES"
@@ -48,6 +48,33 @@ for locale in "${locales[@]}"; do
     ar) test_method="testCaptureAr" ;;
     he) test_method="testCaptureHe" ;;
     ur) test_method="testCaptureUr" ;;
+    ca) test_method="testCaptureCa" ;;
+    pl) test_method="testCapturePl" ;;
+    ro) test_method="testCaptureRo" ;;
+    cs) test_method="testCaptureCs" ;;
+    sk) test_method="testCaptureSk" ;;
+    sl) test_method="testCaptureSl" ;;
+    hr) test_method="testCaptureHr" ;;
+    da) test_method="testCaptureDa" ;;
+    nb) test_method="testCaptureNb" ;;
+    fi) test_method="testCaptureFi" ;;
+    hu) test_method="testCaptureHu" ;;
+    el) test_method="testCaptureEl" ;;
+    hi) test_method="testCaptureHi" ;;
+    bn) test_method="testCaptureBn" ;;
+    mr) test_method="testCaptureMr" ;;
+    gu) test_method="testCaptureGu" ;;
+    pa) test_method="testCapturePa" ;;
+    ta) test_method="testCaptureTa" ;;
+    te) test_method="testCaptureTe" ;;
+    kn) test_method="testCaptureKn" ;;
+    ml) test_method="testCaptureMl" ;;
+    or) test_method="testCaptureOr" ;;
+    tr) test_method="testCaptureTr" ;;
+    vi) test_method="testCaptureVi" ;;
+    th) test_method="testCaptureTh" ;;
+    id) test_method="testCaptureId" ;;
+    ms) test_method="testCaptureMs" ;;
     *)
       echo "Visual audit blocked: no XCTest entry point for $locale." >&2
       exit 2

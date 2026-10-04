@@ -20,7 +20,10 @@ enum UITestRecordFixtures {
         let gameTypes = GameCatalog.scoreboardItems.map(\.gameType)
 
         for (index, gameType) in gameTypes.enumerated() {
-            let start = Date().addingTimeInterval(TimeInterval(-index * 60))
+            let reference = arguments.contains("-MarketingScreenshotFixture")
+                ? Date(timeIntervalSince1970: 1_788_321_600)
+                : Date()
+            let start = reference.addingTimeInterval(TimeInterval(-index * 60))
             var actions: [DetailedScoreAction] = [
                 .init(type: .matchStarted, epochMilliseconds: Int64(start.timeIntervalSince1970 * 1_000), scores: [0, 0]),
                 .init(type: .scoreChanged, epochMilliseconds: Int64(start.addingTimeInterval(5).timeIntervalSince1970 * 1_000), team: .team1, scores: [1, 0], setNumber: 1, roundNumber: 1, periodNumber: 1, scoreChange: 1, operationCode: "fixture_score"),

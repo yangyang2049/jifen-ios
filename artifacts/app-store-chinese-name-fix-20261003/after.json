@@ -1,0 +1,754 @@
+{
+  "localizations": [
+    {
+      "type": "appInfoLocalizations",
+      "id": "ea34bae1-08f6-46e4-b07a-ea34c2e6b8c4",
+      "attributes": {
+        "locale": "kn-IN",
+        "name": "iScoreboard: ಸ್ಕೋರ್‌ಬೋರ್ಡ್",
+        "subtitle": "ಅಂಕ, ಸಮಯ ಮತ್ತು ಪಂದ್ಯದ ದಾಖಲೆ",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/ea34bae1-08f6-46e4-b07a-ea34c2e6b8c4"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "ea228a2a-7dda-41bc-bd98-20a2fe0044de",
+      "attributes": {
+        "locale": "no",
+        "name": "iScoreboard: Resultattavle",
+        "subtitle": "Resultater, tid og kamper",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/ea228a2a-7dda-41bc-bd98-20a2fe0044de"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "b401da77-5a2d-4021-b8bf-570248ba63d6",
+      "attributes": {
+        "locale": "te-IN",
+        "name": "iScoreboard: స్కోర్‌బోర్డ్",
+        "subtitle": "స్కోరు, సమయం, మ్యాచ్‌లు",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/b401da77-5a2d-4021-b8bf-570248ba63d6"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "fc6e1b5f-b382-4210-8ca7-fcde2953c2e4",
+      "attributes": {
+        "locale": "ca",
+        "name": "iScoreboard: Marcador",
+        "subtitle": "Punts, temps i partits",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/fc6e1b5f-b382-4210-8ca7-fcde2953c2e4"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "2dbdf5c1-4c84-4d5c-991e-dcf47b1a89c5",
+      "attributes": {
+        "locale": "mr-IN",
+        "name": "iScoreboard: स्कोअरबोर्ड",
+        "subtitle": "गुण, वेळ आणि सामन्याच्या नोंदी",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/2dbdf5c1-4c84-4d5c-991e-dcf47b1a89c5"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "dcdaad22-ce4d-411d-b303-1850ae128dd0",
+      "attributes": {
+        "locale": "sl-SI",
+        "name": "iScoreboard: Semafor",
+        "subtitle": "Rezultati, čas in tekme",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/dcdaad22-ce4d-411d-b303-1850ae128dd0"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "fee67cba-9f62-4f7e-a459-aa0ae5c452f8",
+      "attributes": {
+        "locale": "en-GB",
+        "name": "iScoreboard: Sports Scoreboard",
+        "subtitle": "Scores, timers & match records",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/fee67cba-9f62-4f7e-a459-aa0ae5c452f8"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "b548aded-6a0f-488d-83a1-ae15d7b6e0ed",
+      "attributes": {
+        "locale": "th",
+        "name": "iScoreboard: กระดานคะแนน",
+        "subtitle": "คะแนน เวลา และบันทึกการแข่งขัน",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/b548aded-6a0f-488d-83a1-ae15d7b6e0ed"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "971cc295-755a-45d3-a4bc-8a232f8f8a17",
+      "attributes": {
+        "locale": "ur-PK",
+        "name": "iScoreboard: اسکور بورڈ",
+        "subtitle": "اسکور، وقت اور میچ ریکارڈ",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/971cc295-755a-45d3-a4bc-8a232f8f8a17"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "e12c91b0-c35b-40a9-bf5d-a468b4a2cec6",
+      "attributes": {
+        "locale": "da",
+        "name": "iScoreboard: Måltavle",
+        "subtitle": "Resultater, tid og kampe",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/e12c91b0-c35b-40a9-bf5d-a468b4a2cec6"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "1d713152-7798-45c6-956d-60d117055af3",
+      "attributes": {
+        "locale": "fr-FR",
+        "name": "iScoreboard: Tableau de scores",
+        "subtitle": "Scores, chronos et matchs",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/1d713152-7798-45c6-956d-60d117055af3"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "756ccc66-4169-46a5-a785-bd14ae7e638f",
+      "attributes": {
+        "locale": "hu",
+        "name": "iScoreboard: Eredményjelző",
+        "subtitle": "Eredmények, időmérés, meccsek",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/756ccc66-4169-46a5-a785-bd14ae7e638f"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "41b0e764-9f8d-4dc7-b04f-0959a430483c",
+      "attributes": {
+        "locale": "id",
+        "name": "iScoreboard: Papan Skor",
+        "subtitle": "Skor, waktu dan catatan laga",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/41b0e764-9f8d-4dc7-b04f-0959a430483c"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "01d356b2-1b8a-4a24-a7c0-f5470b144faf",
+      "attributes": {
+        "locale": "hr",
+        "name": "iScoreboard: Semafor",
+        "subtitle": "Rezultati, vrijeme i utakmice",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/01d356b2-1b8a-4a24-a7c0-f5470b144faf"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "7dbb5e10-c416-4cb5-8aa2-82bf9b9b913a",
+      "attributes": {
+        "locale": "cs",
+        "name": "iScoreboard: Výsledková tabule",
+        "subtitle": "Skóre, čas a záznamy zápasů",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/7dbb5e10-c416-4cb5-8aa2-82bf9b9b913a"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "fd532838-dcb4-488a-96ef-046443dd38a2",
+      "attributes": {
+        "locale": "pl",
+        "name": "iScoreboard: Tablica wyników",
+        "subtitle": "Wyniki, zegary i historia gier",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/fd532838-dcb4-488a-96ef-046443dd38a2"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "d7393a42-bf8b-402f-8b09-44426626246a",
+      "attributes": {
+        "locale": "nl-NL",
+        "name": "iScoreboard: Scorebord",
+        "subtitle": "Scores, timers en wedstrijden",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/d7393a42-bf8b-402f-8b09-44426626246a"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "ae25defd-df09-41f5-866d-2186c45e1b7b",
+      "attributes": {
+        "locale": "pa-IN",
+        "name": "iScoreboard: ਸਕੋਰਬੋਰਡ",
+        "subtitle": "ਸਕੋਰ, ਸਮਾਂ ਤੇ ਮੈਚ ਰਿਕਾਰਡ",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/ae25defd-df09-41f5-866d-2186c45e1b7b"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "199ddc4d-1439-42ad-ad2f-9ea6870f2c10",
+      "attributes": {
+        "locale": "ta-IN",
+        "name": "iScoreboard: ஸ்கோர்போர்டு",
+        "subtitle": "புள்ளிகள், நேரம், போட்டிகள்",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/199ddc4d-1439-42ad-ad2f-9ea6870f2c10"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "7fc45c55-e08b-4d8d-8acb-6bac04a79e1a",
+      "attributes": {
+        "locale": "tr",
+        "name": "iScoreboard: Skor Tahtası",
+        "subtitle": "Skor, süre ve maç kayıtları",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/7fc45c55-e08b-4d8d-8acb-6bac04a79e1a"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "fc2778f3-13f6-4aa3-9204-f128c22609f0",
+      "attributes": {
+        "locale": "es-MX",
+        "name": "iScoreboard: Marcador",
+        "subtitle": "Puntos, tiempos y partidos",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/fc2778f3-13f6-4aa3-9204-f128c22609f0"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "c9dec964-b626-446a-a4ce-9d210c5da7c2",
+      "attributes": {
+        "locale": "ko",
+        "name": "iScoreboard: 만능 점수판",
+        "subtitle": "스포츠 점수 기록과 경기 타이머",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/c9dec964-b626-446a-a4ce-9d210c5da7c2"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "77a6768f-7e81-4101-9fa2-50bcd63e4572",
+      "attributes": {
+        "locale": "ms",
+        "name": "iScoreboard: Papan Skor",
+        "subtitle": "Skor, masa dan rekod sukan",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/77a6768f-7e81-4101-9fa2-50bcd63e4572"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "1cd2f675-7102-4006-b11a-2e6022503376",
+      "attributes": {
+        "locale": "ro",
+        "name": "iScoreboard: Tabelă de scor",
+        "subtitle": "Scoruri, timp și meciuri",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/1cd2f675-7102-4006-b11a-2e6022503376"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "3c97042d-732c-49c0-90c7-9dc664266532",
+      "attributes": {
+        "locale": "fr-CA",
+        "name": "iScoreboard: Tableau de scores",
+        "subtitle": "Pointage, chronos et matchs",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/3c97042d-732c-49c0-90c7-9dc664266532"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "5024de6f-28ec-4c46-80ab-0ad7d9b0565f",
+      "attributes": {
+        "locale": "de-DE",
+        "name": "iScoreboard: Punktetafel",
+        "subtitle": "Spielstand, Timer & Ergebnisse",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/5024de6f-28ec-4c46-80ab-0ad7d9b0565f"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "fc3efd71-d07c-4d2e-baeb-575e845af09f",
+      "attributes": {
+        "locale": "ru",
+        "name": "iScoreboard: Табло",
+        "subtitle": "Счёт, таймеры и история игр",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/fc3efd71-d07c-4d2e-baeb-575e845af09f"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "a40b5316-4225-4cf2-ae66-a2eafeb9da83",
+      "attributes": {
+        "locale": "uk",
+        "name": "iScoreboard: Табло",
+        "subtitle": "Рахунок, час та записи ігор",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/a40b5316-4225-4cf2-ae66-a2eafeb9da83"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "6f5fe13c-fb87-4df3-b121-043a58920487",
+      "attributes": {
+        "locale": "or-IN",
+        "name": "iScoreboard: ସ୍କୋରବୋର୍ଡ",
+        "subtitle": "ସ୍କୋର, ସମୟ ଓ ମ୍ୟାଚ୍ ରେକର୍ଡ",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/6f5fe13c-fb87-4df3-b121-043a58920487"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "b9945d9b-e964-43b2-afd8-70156a0ae7a2",
+      "attributes": {
+        "locale": "zh-Hant",
+        "name": "全能計分器",
+        "subtitle": "運動計分、比賽計時與賽後回顧",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/b9945d9b-e964-43b2-afd8-70156a0ae7a2"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "9070eead-9d2e-4500-95c1-5cafb055ef35",
+      "attributes": {
+        "locale": "ml-IN",
+        "name": "iScoreboard: സ്കോർബോർഡ്",
+        "subtitle": "സ്കോർ, സമയം, മത്സര രേഖകൾ",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/9070eead-9d2e-4500-95c1-5cafb055ef35"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "8603f24c-2375-4ffb-a9be-aa36ae5b0a3c",
+      "attributes": {
+        "locale": "bn-BD",
+        "name": "iScoreboard: স্কোরবোর্ড",
+        "subtitle": "স্কোর, সময় ও ম্যাচের রেকর্ড",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/8603f24c-2375-4ffb-a9be-aa36ae5b0a3c"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "c9071bb2-c549-4a1c-b2aa-7f63206c3660",
+      "attributes": {
+        "locale": "gu-IN",
+        "name": "iScoreboard: સ્કોરબોર્ડ",
+        "subtitle": "સ્કોર, સમય અને મેચ રેકોર્ડ",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/c9071bb2-c549-4a1c-b2aa-7f63206c3660"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "4d053bf8-ff39-4e3d-8471-3b7e2d511bfd",
+      "attributes": {
+        "locale": "vi",
+        "name": "iScoreboard: Bảng điểm",
+        "subtitle": "Điểm số, thời gian và trận đấu",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/4d053bf8-ff39-4e3d-8471-3b7e2d511bfd"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "3a1c0fae-8e1d-44fb-aafa-b82a4f641fcf",
+      "attributes": {
+        "locale": "pt-BR",
+        "name": "iScoreboard: Placar esportivo",
+        "subtitle": "Pontos, tempos e partidas",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/3a1c0fae-8e1d-44fb-aafa-b82a4f641fcf"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "5aed708b-19e8-48c7-9e44-418fc51bc7af",
+      "attributes": {
+        "locale": "el",
+        "name": "iScoreboard: Πίνακας σκορ",
+        "subtitle": "Σκορ, χρόνοι και αγώνες",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/5aed708b-19e8-48c7-9e44-418fc51bc7af"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "02cd30d8-8e3f-400a-b1b7-5fd3459b859d",
+      "attributes": {
+        "locale": "en-AU",
+        "name": "iScoreboard: Sports Scoreboard",
+        "subtitle": "Scores, timers & match records",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/02cd30d8-8e3f-400a-b1b7-5fd3459b859d"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "fb542348-b106-4e3f-bb8c-ab62f3f3f1f0",
+      "attributes": {
+        "locale": "en-US",
+        "name": "iScoreboard: Sports Scoreboard",
+        "subtitle": "Scores, timers & match records",
+        "privacyPolicyUrl": "https://jifenqi.com/en/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/fb542348-b106-4e3f-bb8c-ab62f3f3f1f0"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "f9f82bd0-a359-4821-aaf2-43ee2efb0096",
+      "attributes": {
+        "locale": "zh-Hans",
+        "name": "全能计分器",
+        "subtitle": "运动计分、比赛计时与赛后复盘",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/f9f82bd0-a359-4821-aaf2-43ee2efb0096"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "aa2e7309-8ac3-4f01-ba9c-5f8684bf3d6f",
+      "attributes": {
+        "locale": "it",
+        "name": "iScoreboard: Segnapunti",
+        "subtitle": "Punti, tempi e partite",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/aa2e7309-8ac3-4f01-ba9c-5f8684bf3d6f"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "1cb5597c-71e9-415c-9f6b-f2f58555ce81",
+      "attributes": {
+        "locale": "ar-SA",
+        "name": "iScoreboard: لوحة النتائج",
+        "subtitle": "النتائج والتوقيت وسجل اللعب",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/1cb5597c-71e9-415c-9f6b-f2f58555ce81"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "fd988dee-dd65-4e90-aa02-b59922c167bb",
+      "attributes": {
+        "locale": "hi",
+        "name": "iScoreboard: स्कोरबोर्ड",
+        "subtitle": "स्कोर, समय और मैच रिकॉर्ड",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/fd988dee-dd65-4e90-aa02-b59922c167bb"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "4fedcc67-1f01-496c-914a-75eaeaae003e",
+      "attributes": {
+        "locale": "sv",
+        "name": "iScoreboard: Resultattavla",
+        "subtitle": "Resultat, tid och matcher",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/4fedcc67-1f01-496c-914a-75eaeaae003e"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "534c3c2c-c415-44be-ba58-f88e67bc8fd6",
+      "attributes": {
+        "locale": "en-CA",
+        "name": "iScoreboard: Sports Scoreboard",
+        "subtitle": "Scores, timers & match records",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/534c3c2c-c415-44be-ba58-f88e67bc8fd6"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "165f2ffa-267f-4c7b-81df-8b36bee80ab9",
+      "attributes": {
+        "locale": "fi",
+        "name": "iScoreboard: Tulostaulu",
+        "subtitle": "Tulokset, ajastimet ja pelit",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/165f2ffa-267f-4c7b-81df-8b36bee80ab9"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "f9630fc6-8cec-4af4-a049-c8f8c92e0643",
+      "attributes": {
+        "locale": "ja",
+        "name": "iScoreboard: 万能スコアボード",
+        "subtitle": "得点記録・試合タイマー・振り返り",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/f9630fc6-8cec-4af4-a049-c8f8c92e0643"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "c83de246-5ea6-478d-9dcf-1071d61a4ee3",
+      "attributes": {
+        "locale": "he",
+        "name": "iScoreboard: לוח תוצאות",
+        "subtitle": "תוצאות, זמנים ותיעוד משחקים",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/c83de246-5ea6-478d-9dcf-1071d61a4ee3"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "69597d72-c0fd-4613-9fff-e9b9d6b985c2",
+      "attributes": {
+        "locale": "pt-PT",
+        "name": "iScoreboard: Marcador",
+        "subtitle": "Pontos, tempos e jogos",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/69597d72-c0fd-4613-9fff-e9b9d6b985c2"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "349f9965-1c96-44ba-b1d9-5e3aafeb0a8f",
+      "attributes": {
+        "locale": "es-ES",
+        "name": "iScoreboard: Marcador",
+        "subtitle": "Puntos, tiempos y partidos",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/349f9965-1c96-44ba-b1d9-5e3aafeb0a8f"
+      }
+    },
+    {
+      "type": "appInfoLocalizations",
+      "id": "dc7f0736-c220-4a0e-a873-181eedd58d65",
+      "attributes": {
+        "locale": "sk",
+        "name": "iScoreboard: Výsledková tabuľa",
+        "subtitle": "Skóre, čas a záznamy zápasov",
+        "privacyPolicyUrl": "https://jifenqi.com/privacy",
+        "privacyChoicesUrl": null,
+        "privacyPolicyText": null
+      },
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appInfoLocalizations/dc7f0736-c220-4a0e-a873-181eedd58d65"
+      }
+    }
+  ]
+}

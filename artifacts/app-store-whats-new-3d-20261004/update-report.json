@@ -1,0 +1,40 @@
+{
+  "appId": "6759768784",
+  "version": "3.2.3",
+  "backup": "before-20261004T055419234640Z.json",
+  "results": [
+    {
+      "locale": "en-US",
+      "id": "7311b82f-a2d7-4248-abc7-1a365f69182a",
+      "action": "PATCH"
+    },
+    {
+      "locale": "en-GB",
+      "id": "89e9aa93-cda7-492e-82bc-e81e6cfba17c",
+      "action": "PATCH"
+    },
+    {
+      "locale": "en-CA",
+      "id": "8cb9b429-0be7-4354-a308-f0fb8372dda0",
+      "action": "PATCH"
+    },
+    {
+      "locale": "en-AU",
+      "id": "2da11e9b-526e-4305-87b5-0657f0539304",
+      "action": "PATCH"
+    },
+    {
+      "locale": "zh-Hans",
+      "id": "8ab55f71-a695-4970-b9f5-8ceca760d178",
+      "action": "PATCH"
+    },
+    {
+      "locale": "zh-Hant",
+      "id": "9e475e44-84b1-4a95-a115-fb1521e986a8",
+      "action": "PATCH"
+    }
+  ],
+  "errors": [],
+  "submittedForReview": false,
+  "verified": true
+}

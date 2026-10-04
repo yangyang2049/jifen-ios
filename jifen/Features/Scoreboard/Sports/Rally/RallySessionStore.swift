@@ -59,7 +59,7 @@ final class RallySessionStore {
         resumeRepository: ResumeSessionRepository? = nil
     ) {
         let providedParticipants = participants?.filter { !$0.name.isEmpty }
-        let initial = RallyMatchEngine.initial(
+        var initial = RallyMatchEngine.initial(
             leftName: leftName,
             rightName: rightName,
             rules: rules,
@@ -72,6 +72,12 @@ final class RallySessionStore {
             competitionFormat: competitionFormat,
             competitionPlayerNames: competitionPlayerNames
         )
+        #if DEBUG
+        if MarketingScreenshotFixture.isRequested("rally") {
+            initial.leftPoints = 23
+            initial.rightPoints = 23
+        }
+        #endif
         self.init(
             gameType: gameType,
             state: initial,

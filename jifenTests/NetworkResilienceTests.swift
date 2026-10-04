@@ -37,6 +37,17 @@ final class NetworkResilienceTests: XCTestCase {
         XCTAssertNil(APIRetryPolicy.retryAfterSeconds(from: nil))
         XCTAssertNil(APIRetryPolicy.retryAfterSeconds(from: ""))
         XCTAssertNil(APIRetryPolicy.retryAfterSeconds(from: "not-a-date"))
+        XCTAssertNil(APIRetryPolicy.retryAfterSeconds(from: "NaN"))
+        XCTAssertNil(APIRetryPolicy.retryAfterSeconds(from: "inf"))
+        XCTAssertNil(APIRetryPolicy.retryAfterSeconds(from: "1e999"))
+    }
+
+    func testRetryDelayAlwaysStaysWithinFiniteBudget() {
+        XCTAssertEqual(APIRetryPolicy.retryDelay(attempt: 1, retryAfterSeconds: -10), 0)
+        for value in [Double.nan, .infinity, -.infinity] {
+            XCTAssertEqual(APIRetryPolicy.retryDelay(attempt: 1, retryAfterSeconds: value), 0.4, accuracy: 0.001)
+        }
+        XCTAssertEqual(APIRetryPolicy.retryDelay(attempt: 10_000, retryAfterSeconds: nil), 10)
     }
 
     func testTransportErrorRetryability() {

@@ -1,0 +1,58 @@
+{
+  "locale": "fi",
+  "iosLocale": "fi",
+  "language": "Finnish",
+  "direction": "ltr",
+  "reviewStatus": "draft",
+  "name": "iScoreboard: Tulostaulu",
+  "subtitle": "Tulokset, ajastimet ja pelit",
+  "description": "Jokainen piste merkitsee. Muuta iPhone tai iPad selkeäksi ja helppokäyttöiseksi tulostauluksi otteluihin, harjoitteluun ja peleihin ystävien kanssa.\n\nPidä kirjaa pisteistä yli 26 urheilulajissa ja pelissä, kuten tenniksessä, pickleballissa, sulkapallossa, pöytätenniksessä, koripallossa, jalkapallossa, lentopallossa ja biljardissa. Muokkaa tuetuissa lajeissa pistelaskun sääntöjä, ottelumuotoa ja nelinpelin syöttöjärjestystä.\n\nTallenna ottelut ja tarkastele pistetilanteen kehitystä, aikajanaa ja äänimuistiinpanoja. Käytä shakki- ja go-kelloja, kuutioajastinta ja sekuntikelloa. Näytä tulostaulu isolla näytöllä ja jaa ottelukoodi, jotta ystävät voivat seurata tulosta etänä.\n\nKolikonheitto, satunnaiset joukkueet, punaiset ja keltaiset kortit sekä kulujen jakaminen löytyvät samasta paikasta. Vähemmän vaivaa pisteistä, enemmän iloa pelistä.\n\nKäyttöehdot:\nhttps://jifenqi.com/terms\n\nTietosuojakäytäntö:\nhttps://jifenqi.com/privacy\n\nApplen vakiolisenssisopimus:\nhttps://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "screenshotTitles": [
+    {
+      "id": "slogan",
+      "title": "Jokainen piste\nmerkitsee",
+      "enabled": true
+    },
+    {
+      "id": "score",
+      "title": "Kaikki tulokset\nyhdellä silmäyksellä",
+      "enabled": true
+    },
+    {
+      "id": "catalog",
+      "title": "Yksi tulostaulu\nyli 26 urheilulajiin",
+      "enabled": true
+    },
+    {
+      "id": "recap",
+      "title": "Palaa\njokaiseen otteluun",
+      "enabled": true
+    },
+    {
+      "id": "setup",
+      "title": "Sinun sääntösi\nsinun pelisi",
+      "enabled": true
+    },
+    {
+      "id": "timer",
+      "title": "Enemmän kuin\npallopelejä",
+      "enabled": true
+    },
+    {
+      "id": "cast",
+      "title": "Tulostaulusi\nisolla näytöllä",
+      "enabled": true
+    },
+    {
+      "id": "watch",
+      "title": "Kirjaa pisteet\nranteesta",
+      "enabled": false,
+      "note": "Legacy copy only: Apple Watch is not included in the current iOS target."
+    },
+    {
+      "id": "tools",
+      "title": "Erotuomarin työkalut\nyhdessä sovelluksessa",
+      "enabled": true
+    }
+  ]
+}

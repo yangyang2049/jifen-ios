@@ -221,9 +221,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d minuut voor aanvang</string>
+			<string>%d min voor aanvang</string>
 			<key>other</key>
-			<string>%d minuten voor aanvang</string>
+			<string>%d min voor aanvang</string>
 		</dict>
 	</dict>
 	<key>schedule_participants_limit</key>

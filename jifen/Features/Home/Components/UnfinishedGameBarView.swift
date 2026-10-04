@@ -188,8 +188,7 @@ struct UnfinishedGameBarView: View {
         HStack(spacing: 0) {
             HStack(spacing: 0) {
                 ZStack(alignment: .bottomTrailing) {
-                    Text(record.gameType.icon)
-                        .font(.system(size: 36))
+                    AppCatalogIcon(gameType: record.gameType, size: 36, artworkSize: 40)
                         .frame(width: iconSize, height: iconSize)
                 }
                 .padding(.trailing, 16)

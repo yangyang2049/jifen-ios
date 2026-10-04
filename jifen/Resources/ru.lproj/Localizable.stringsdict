@@ -253,13 +253,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>За %d час</string>
+			<string>За %d ч</string>
 			<key>few</key>
-			<string>За %d часа</string>
+			<string>За %d ч</string>
 			<key>many</key>
-			<string>За %d часов</string>
+			<string>За %d ч</string>
 			<key>other</key>
-			<string>За %d часа</string>
+			<string>За %d ч</string>
 		</dict>
 	</dict>
 	<key>schedule_reminder_minutes_before</key>
@@ -273,13 +273,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>За %d минуту</string>
+			<string>За %d мин</string>
 			<key>few</key>
-			<string>За %d минуты</string>
+			<string>За %d мин</string>
 			<key>many</key>
-			<string>За %d минут</string>
+			<string>За %d мин</string>
 			<key>other</key>
-			<string>За %d минуты</string>
+			<string>За %d мин</string>
 		</dict>
 	</dict>
 	<key>schedule_participants_limit</key>
