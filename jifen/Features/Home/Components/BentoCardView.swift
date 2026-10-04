@@ -4,7 +4,10 @@ struct BentoCardView: View {
     let title: String
     var subtitle: String = ""
     let gameType: GameType
-    var gradientColors: [Color] = [Theme.surface, Theme.surface] // Default to Theme.surface
+    /// 标题固定白字，因此底色必须由调用方给出饱和渐变；
+    /// 此前默认 `[Theme.surface, Theme.surface]`（自适应近白/近黑）配白字，
+    /// 浅色模式下会变成白字白底，故取消默认值强制显式传入。
+    let gradientColors: [Color]
     var showDecorativeBars: Bool = false
     var artworkSize: CGFloat = 64
     
@@ -34,7 +37,7 @@ struct BentoCardView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .cornerRadius(Theme.xxl)
-        .shadow(color: Theme.homeButtonShadow, radius: 10, x: 0, y: 5)
+        .shadow(color: Theme.lightModeShadow(0.2), radius: 10, x: 0, y: 5)
     }
 }
 

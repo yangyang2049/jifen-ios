@@ -755,7 +755,7 @@ struct MembershipView: View {
             } label: {
                 Image(systemName: acceptedTerms ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(acceptedTerms ? Color(hex: "30D158") : Theme.textSecondary)
+                    .foregroundStyle(acceptedTerms ? Theme.accentColor : Theme.textSecondary)
                     .frame(width: 44, height: 44)
                     .contentShape(Rectangle())
             }

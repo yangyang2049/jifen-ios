@@ -136,7 +136,9 @@ private struct FeedbackAuthorAvatarView: View {
 
     private var placeholderGlyph: some View {
         ZStack {
-            Circle().fill(Color(hex: "E5E7EB"))
+            // 圆底必须与人形图标同源着色：此前固定浅灰 E5E7EB 配自适应次要字色，
+            // 深色下图标解析为浅灰白，叠在浅灰底上对比不足 1.5:1 几乎隐形。
+            Circle().fill(Theme.tintedFill(Theme.textSecondary, lightAlpha: 0.12, darkAlpha: 0.16))
             Image(systemName: "person.crop.circle")
                 .font(.system(size: size <= 20 ? size * 0.7 : size * 0.52))
                 .foregroundColor(Theme.textSecondary)
@@ -210,7 +212,7 @@ private struct FeedbackModerationNotice: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(label)
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(Color(hex: "B45309"))
+                    .foregroundColor(Theme.moderationNoticeText)
                 if let reason = reason?.trimmingCharacters(in: .whitespacesAndNewlines), !reason.isEmpty {
                     Text(reason)
                         .font(.system(size: 12))
@@ -219,7 +221,7 @@ private struct FeedbackModerationNotice: View {
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 8)
-            .background(RoundedRectangle(cornerRadius: 8).fill(Color(hex: "FEF3C7")))
+            .background(RoundedRectangle(cornerRadius: 8).fill(Theme.moderationNoticeBackground))
         }
     }
 }

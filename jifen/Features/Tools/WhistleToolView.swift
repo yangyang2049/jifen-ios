@@ -100,12 +100,12 @@ struct WhistleToolView: View {
                 RoundedRectangle(cornerRadius: 16)
                     .fill(
                         isPlayingShort
-                            ? Color(uiColor: .systemGreen).opacity(0.18)
+                            ? Theme.accentColor.opacity(0.18)
                             : Theme.appCardBackground
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
-                            .stroke(isPlayingShort ? Color(hex: "4CAF50") : Color(hex: "4CAF50").opacity(0.3), lineWidth: isPlayingShort ? 3 : 1)
+                            .stroke(isPlayingShort ? Theme.accentColor : Theme.accentColor.opacity(0.3), lineWidth: isPlayingShort ? 3 : 1)
                     )
             )
         }
@@ -140,12 +140,12 @@ struct WhistleToolView: View {
                 RoundedRectangle(cornerRadius: 16)
                     .fill(
                         isPlayingLong
-                            ? Color(uiColor: .systemRed).opacity(0.18)
+                            ? Theme.toolWhistleRed.opacity(0.18)
                             : Theme.appCardBackground
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
-                            .stroke(isPlayingLong ? Color(hex: "F44336") : Color(hex: "F44336").opacity(0.3), lineWidth: isPlayingLong ? 3 : 1)
+                            .stroke(isPlayingLong ? Theme.toolWhistleRed : Theme.toolWhistleRed.opacity(0.3), lineWidth: isPlayingLong ? 3 : 1)
                     )
             )
         }

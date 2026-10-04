@@ -488,7 +488,10 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
     }
 
     private func chromeButton(_ systemName: String, action: @escaping () -> Void) -> some View {
-        let background = systemName == "checkmark" ? Theme.primary : Color.black.opacity(0.25)
+        // 原先写死 black 0.25：压在白底主题（wrb）面板上只剩 ≈1.6:1，按钮形同隐身。
+        // palette.chrome 是每个主题自己的 chrome 底色（wrb 为 black 0.72），
+        // 白 icon 在所有主题下都保持可见。
+        let background = systemName == "checkmark" ? Theme.primary : appearance.palette.chrome
         return Button(action: {
             action()
             revealImmersiveChrome()

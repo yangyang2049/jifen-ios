@@ -209,11 +209,11 @@ struct ScoreboardRecordDetailPage: View {
                 if record.status == .finished {
                     Text(NSLocalizedString("finished", value: "已结束", comment: ""))
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(.green)
+                        .foregroundStyle(Theme.positiveText)
                 } else {
                     Text(NSLocalizedString("record_unfinished", value: "未完成", comment: ""))
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(Theme.warningText)
                 }
             }
             if record.isSyncedFromWatch {
@@ -282,7 +282,7 @@ struct ScoreboardRecordDetailPage: View {
     private func scoreSide(_ name: String, score: Int, isWinner: Bool) -> some View {
         VStack(spacing: 6) {
             Text(name).font(.subheadline).lineLimit(1)
-            Text("\(score)").font(.system(size: 42, weight: .bold, design: .rounded)).foregroundStyle(isWinner ? .green : Theme.textPrimary)
+            Text("\(score)").font(.system(size: 42, weight: .bold, design: .rounded)).foregroundStyle(isWinner ? Theme.positiveText : Theme.textPrimary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -439,7 +439,7 @@ struct ScoreboardRecordDetailPage: View {
                     Spacer()
                     Text("\(entry.element.score)").font(.headline.monospacedDigit())
                 }
-                .foregroundStyle(isWinner ? Color.green : Theme.textPrimary)
+                .foregroundStyle(isWinner ? Theme.positiveText : Theme.textPrimary)
                 .padding(.vertical, 4)
             }
         }
@@ -762,7 +762,7 @@ struct ScoreboardRecordDetailPage: View {
                             }
                         }
                         .font(.caption)
-                        .foregroundStyle(detail.isWinner ? Color.green : Theme.textSecondary)
+                        .foregroundStyle(detail.isWinner ? Theme.positiveText : Theme.textSecondary)
                     }
                 }
                 .padding(.leading, 52)

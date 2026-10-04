@@ -122,6 +122,10 @@ struct Theme {
     static let positiveText = Color("PositiveText")
     static let warningText = Color("WarningText")
     static let destructiveText = Color("DestructiveText")
+    /// 审核/驳回提示横幅（反馈页与个人资料页共用同款）：浅色为奶油底 + 深棕字，
+    /// 深色改为暗棕底 + 琥珀字，避免固定浅奶油色在深色卡片里突兀亮起一条。
+    static var moderationNoticeBackground: Color { adaptive(Color(hex: "FEF3C7"), Color(hex: "3A2E0A")) }
+    static var moderationNoticeText: Color { adaptive(Color(hex: "B45309"), Color(hex: "FBBF24")) }
 
     // Additional colors derived from HarmonyOS UI
     static let primary = accentColor // Map HarmonyOS 'primary' to existing accentColor

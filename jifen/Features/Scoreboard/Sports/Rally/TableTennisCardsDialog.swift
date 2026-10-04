@@ -134,11 +134,12 @@ struct TableTennisCardsDialog: View {
         status: PingPongAdministrativeStatus
     ) -> some View {
         let selected = selectedSide == side
+        let nameColor = Self.nameStripTextColor(panelColor: color, selected: selected)
         return Button { selectedSide = side } label: {
             VStack(spacing: 0) {
                 Text(name)
                     .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(nameColor)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                     .padding(.horizontal, 6)
@@ -157,13 +158,52 @@ struct TableTennisCardsDialog: View {
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay {
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(selected ? Color.white.opacity(0.8) : .clear, lineWidth: 1.5)
+                    .stroke(selected ? nameColor.opacity(0.85) : .clear, lineWidth: 1.5)
             }
         }
         .buttonStyle(.plain)
         .accessibilityLabel(name)
         .accessibilityAddTraits(selected ? .isSelected : [])
         .accessibilityIdentifier("pingpong_cards_side_\(side == .left ? "left" : "right")")
+    }
+
+    // MARK: - 名条字色
+
+    /// 名条底色是「面板主题色」叠在固定深色弹层（scoreboardDialogSurface #2C2C2E）之上。
+    /// 默认主题（红/蓝面板）配白字没问题，但 wrb（白红蓝）的面板色是纯白，
+    /// 白底白字对比只有 ≈1.6:1 完全不可读。这里按合成底色的 WCAG 相对亮度自动在
+    /// 黑/白之间选字色，既保留主题色辨认度，也能覆盖用户自定义面板色（V2 样式配置）。
+    private static func nameStripTextColor(panelColor: Color, selected: Bool) -> Color {
+        let composited = compositeOverDialogSurface(panelColor, alpha: selected ? 0.75 : 0.42)
+        return readableTextColor(on: composited)
+    }
+
+    private static func compositeOverDialogSurface(_ color: Color, alpha: Double) -> Color {
+        let surface = UIColor(red: 44 / 255, green: 44 / 255, blue: 46 / 255, alpha: 1)
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        UIColor(color).getRed(&r, green: &g, blue: &b, alpha: &a)
+        var sr: CGFloat = 0, sg: CGFloat = 0, sb: CGFloat = 0, sa: CGFloat = 0
+        surface.getRed(&sr, green: &sg, blue: &sb, alpha: &sa)
+        let weight = CGFloat(alpha) * a
+        return Color(
+            red: Double(r * weight + sr * (1 - weight)),
+            green: Double(g * weight + sg * (1 - weight)),
+            blue: Double(b * weight + sb * (1 - weight))
+        )
+    }
+
+    /// 取对比度更高的一侧（口径与 ScoreboardStyleColorMath.contrastRatio 一致）。
+    private static func readableTextColor(on color: Color) -> Color {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        UIColor(color).getRed(&r, green: &g, blue: &b, alpha: &a)
+        func linear(_ component: CGFloat) -> Double {
+            let value = Double(component)
+            return value <= 0.03928 ? value / 12.92 : pow((value + 0.055) / 1.055, 2.4)
+        }
+        let luminance = 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b)
+        let whiteContrast = 1.05 / (luminance + 0.05)
+        let blackContrast = (luminance + 0.05) / 0.05
+        return whiteContrast >= blackContrast ? .white : Color(hex: "111111")
     }
 
     private func penaltyCard(_ color: Color, compact: Bool) -> some View {

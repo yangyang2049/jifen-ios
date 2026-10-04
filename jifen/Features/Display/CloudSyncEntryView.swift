@@ -337,7 +337,7 @@ struct CloudSyncEntryPanel: View {
         .frame(maxWidth: .infinity)
         .frame(height: 56)
         .padding(.horizontal, 16)
-        .background(Theme.appCardBackground, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .background(Theme.inputFieldBackground, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .strokeBorder(

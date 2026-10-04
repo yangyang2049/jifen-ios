@@ -278,7 +278,9 @@ struct MenuDialog: View {
     private let secondaryText = Color(hex: "C7C7CC")
     private let sectionDivider = Color.white.opacity(0.12)
     private let menuScrim = Color.black.opacity(0.54)
-    private let confirmBackground = Color(hex: "4CAF50").opacity(0.55)
+    /// 与 .tint(Theme.primary) 同源，避免确认态写死浅色 #4CAF50、
+    /// 与强制 dark 环境下的 accent #30D158 形成同一弹层里的两种绿。
+    private let confirmBackground = Theme.accentColor.opacity(0.55)
 
     private var resolvedItems: [ScoreboardMenuItem] {
         items ?? ScoreboardMenuItemBuilder.defaultItems(
@@ -402,6 +404,10 @@ struct MenuDialog: View {
                         .accessibilityIdentifier("scoreboard_menu_dialog")
                 }
             }
+            // 弹层表面固定深色（dialogBackground #202124），但内部仍引用 Theme.primary 等
+            // 动态色；不强制 dark 会让同一个绿色随系统外观在 #4CAF50/#30D158 之间跳。
+            // 与 GameOverDialog 对齐：固定深色面板一律锁定 dark 环境。
+            .environment(\.colorScheme, .dark)
             .onAppear {
                 revealServePopup()
                 var parameters: AnalyticsParameters = [.actionName: .string("menu_open")]

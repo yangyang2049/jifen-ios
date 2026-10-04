@@ -45,7 +45,7 @@ struct SchedulePage: View {
                             if isEditMode {
                                 Image(systemName: selectedBookingIDs.contains(booking.id) ? "checkmark.circle.fill" : "circle")
                                     .font(.system(size: 22))
-                                    .foregroundStyle(selectedBookingIDs.contains(booking.id) ? Theme.primaryDark : Theme.textSecondary)
+                                    .foregroundStyle(selectedBookingIDs.contains(booking.id) ? Theme.accentColor : Theme.textSecondary)
                                     .frame(width: 30)
                             }
                             bookingRow(booking)

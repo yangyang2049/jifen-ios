@@ -194,7 +194,7 @@ struct CommonPlacesManagementView: View {
             Spacer()
             Image(systemName: "mappin.and.ellipse")
                 .font(.system(size: 44))
-                .foregroundColor(Theme.primaryDark)
+                .foregroundColor(Theme.accentColor)
             Text(places.isEmpty
                  ? NSLocalizedString("common_places_no_records", value: "暂无常用地点", comment: "")
                  : NSLocalizedString("common_places_no_search_results", value: "无搜索结果", comment: ""))

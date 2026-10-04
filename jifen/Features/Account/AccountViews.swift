@@ -468,7 +468,7 @@ private struct AccountProfileView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text(moderationLabel)
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(Color(hex: "B45309"))
+                            .foregroundColor(Theme.moderationNoticeText)
                         if let reason = profileModerationReason {
                             Text(reason)
                                 .font(.system(size: 13))
@@ -477,7 +477,7 @@ private struct AccountProfileView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(14)
-                    .background(RoundedRectangle(cornerRadius: 12).fill(Color(hex: "FEF3C7")))
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Theme.moderationNoticeBackground))
                     .accessibilityIdentifier("profile_moderation_banner")
                 }
 

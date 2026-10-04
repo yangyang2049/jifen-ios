@@ -245,7 +245,7 @@ struct CreateBookingPage: View {
                 )
                 Button { showCommonPlaces = true } label: {
                     Image(systemName: "location.circle")
-                        .foregroundColor(Theme.primaryDark)
+                        .foregroundColor(Theme.accentColor)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(NSLocalizedString("schedule_pick_common_place", value: "选择常用地点", comment: ""))
@@ -441,7 +441,7 @@ struct CreateBookingPage: View {
         } label: {
             Image(systemName: systemName)
                 .font(.system(size: 26))
-                .foregroundStyle(enabled ? Theme.primaryDark : Theme.textSecondary.opacity(0.5))
+                .foregroundStyle(enabled ? Theme.accentColor : Theme.textSecondary.opacity(0.5))
         }
         .buttonStyle(.plain)
         .disabled(!enabled)

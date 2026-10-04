@@ -423,7 +423,7 @@ struct ScoreboardTemplate: View {
                                 .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
                                 .background(
                                     Circle()
-                                        .fill(isEditMode ? Color(hex: "00C853") : Color.black.opacity(0.25))
+                                        .fill(isEditMode ? Color(hex: "00C853") : appearance.palette.chrome)
                                 )
                             }
                             .accessibilityIdentifier("scoreboard_edit_button")
@@ -463,7 +463,7 @@ struct ScoreboardTemplate: View {
                                     .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
                                     .background(
                                         Circle()
-                                            .fill(Color.black.opacity(0.25))
+                                            .fill(appearance.palette.chrome)
                                     )
                             }
                             .modifier(ScoreboardBackButtonAccessibility(isBack: true))
@@ -483,7 +483,7 @@ struct ScoreboardTemplate: View {
                                     .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
                                     .background(
                                         Circle()
-                                            .fill(Color.black.opacity(0.25))
+                                            .fill(appearance.palette.chrome)
                                     )
                             }
                             .accessibilityIdentifier("scoreboard_menu_button")

@@ -132,7 +132,9 @@ private struct ScoreboardMatchTimeDisplay: View {
                 .foregroundStyle(.white)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 6)
-                .background(Color.black.opacity(0.32), in: Capsule())
+                // 胶囊悬浮在任意主题面板上；black 0.32 压 wrb 白面板只剩 ≈2.2:1，
+                // 加深到 0.55 后白字在各主题下都 ≥4.5:1。
+                .background(Color.black.opacity(0.55), in: Capsule())
         }
         .accessibilityIdentifier("scoreboard_match_time")
         .allowsHitTesting(false)
