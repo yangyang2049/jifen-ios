@@ -471,29 +471,43 @@ struct GroupDetailView: View {
         GroupSurface { GroupResultLink(result: result) }.buttonStyle(.plain)
     }
 
-    /// 对齐安卓 GroupDetailRecordsTab：榜非空才画筛选与表格；加载失败给「重试」而不是假装没比赛；
-    /// 有比赛却没榜时给出带赛制的空态文案。
+    /// 对齐安卓 GroupDetailRecordsTab：
+    /// - 榜非空或任一赛制加载失败才画筛选与表格（失败时用户仍可切换赛制重试，而不是整块消失）；
+    /// - 加载失败给「重试」而不是假装没比赛；有比赛却没榜时给出带赛制的空态文案；
+    /// - 胜率门槛 5 场，不足显示「场次不足」（安卓 `winRate ?: insufficientText`）；
+    /// - 本人行名后缀「（我）」（安卓 `meSuffix`）。
     @ViewBuilder private func rankingSection(_ d: GroupDetailCache, recordsEmpty: Bool) -> some View {
-        if !d.rankings.isEmpty {
-            Picker(groupText("rankings", "Rankings"), selection: $rankFormat) { ForEach(GroupFormat.allCases) { Text($0.title).tag($0) } }.pickerStyle(.segmented)
-                .accessibilityIdentifier("group_rank_format")
-            GroupSectionTitle(title: String(format: groupText("ranking_title", "%@ rankings"), rankFormat.title))
-            ForEach(d.rankings) { row in
-                NavigationLink { GroupMemberResultsView(groupID: groupID, memberID: row.memberId, name: row.displayName, format: rankFormat) } label: {
-                    GroupSurface {
-                        HStack { Text("\(row.rank)").foregroundStyle(.secondary); Text(row.displayName)
-                            Spacer()
-                            Text("\(row.games)\(groupText("ranking_games", "P")) \(row.wins)\(groupText("ranking_wins", "W")) \(row.losses)\(groupText("ranking_losses", "L"))" + (row.draws.map { " \($0)\(groupText("ranking_draws", "D"))" } ?? "") + " · \(groupText("ranking_sets", "Sets")) \(row.setsWon)-\(row.setsLost)").font(.caption).foregroundStyle(.secondary)
-                            Text(row.winRateText).font(.caption); Image(systemName: "chevron.right") }
-                    }
-                }.buttonStyle(.plain)
+        let rankingError = store.rankErrors[GroupStore.rankKey(groupID, format: .singles)] != nil
+            || store.rankErrors[GroupStore.rankKey(groupID, format: .doubles)] != nil
+        if !recordsEmpty || rankingError {
+            Picker(groupText("rankings", "Rankings"), selection: $rankFormat) {
+                ForEach(GroupFormat.allCases) { Text(groupText("filter_" + $0.rawValue, $0.title)).tag($0) }
+            }.pickerStyle(.segmented).accessibilityIdentifier("group_rank_format")
+            if d.rankings.isEmpty {
+                if let failure = store.rankErrors[GroupStore.rankKey(groupID, format: rankFormat)] {
+                    GroupEmptyCard(text: failure, actionTitle: groupText("retry", "Retry")) { Task { await store.loadRankings(groupID, format: rankFormat) } }
+                        .accessibilityIdentifier("group_rank_error")
+                } else {
+                    GroupEmptyCard(text: String(format: groupText("ranking_empty", "No %@ leaderboard yet"), groupText("filter_" + rankFormat.rawValue, rankFormat.title)))
+                        .accessibilityIdentifier("group_rank_empty")
+                }
+            } else {
+                GroupSectionTitle(title: String(format: groupText("ranking_title", "%@ rankings"), groupText("filter_" + rankFormat.rawValue, rankFormat.title)))
+                ForEach(d.rankings) { row in
+                    NavigationLink { GroupMemberResultsView(groupID: groupID, memberID: row.memberId, name: row.displayName, format: rankFormat) } label: {
+                        GroupSurface {
+                            HStack {
+                                Text("\(row.rank)").foregroundStyle(.secondary)
+                                Text(row.displayName + (row.memberId == me?.id ? groupText("ranking_me_suffix", " (me)") : ""))
+                                Spacer()
+                                Text("\(row.games)\(groupText("ranking_games", "P")) \(row.wins)\(groupText("ranking_wins", "W")) \(row.losses)\(groupText("ranking_losses", "L"))" + (row.draws.map { " \($0)\(groupText("ranking_draws", "D"))" } ?? "") + " · \(groupText("ranking_sets", "Sets")) \(row.setsWon)-\(row.setsLost)").font(.caption).foregroundStyle(.secondary)
+                                Text(row.games >= 5 ? row.winRateText : groupText("ranking_insufficient_matches", "Too few matches")).font(.caption)
+                                Image(systemName: "chevron.right")
+                            }
+                        }
+                    }.buttonStyle(.plain)
+                }
             }
-        } else if let failure = store.rankErrors[GroupStore.rankKey(groupID, format: rankFormat)] {
-            GroupEmptyCard(text: failure, actionTitle: groupText("retry", "Retry")) { Task { await store.loadRankings(groupID, format: rankFormat) } }
-                .accessibilityIdentifier("group_rank_error")
-        } else if !recordsEmpty {
-            GroupEmptyCard(text: String(format: groupText("ranking_empty", "No %@ leaderboard yet"), rankFormat.title))
-                .accessibilityIdentifier("group_rank_empty")
         }
     }
 

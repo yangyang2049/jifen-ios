@@ -212,13 +212,22 @@ struct GroupShareView: View {
                 if let shareError { GroupNotice(text: shareError) }
                 if canInvite, let url = GroupInvitationLink.joinURL(groupNo: group.groupNo) {
                     ShareLink(item: url, subject: Text(group.name), message: Text("\(group.name)\n#\(group.groupNo)")) {
-                        Label(groupText("share", "Share group"), systemImage: "link")
+                        Label(groupText("audit_ui_share_invitation", "Share invitation"), systemImage: "link")
                     }
                     .accessibilityIdentifier("group_share_invitation_link")
-                }
-                if canInvite, let card = inviteCard {
-                    ShareLink(item: Image(uiImage: card), preview: SharePreview(group.name, image: Image(uiImage: card))) { Label(groupText("share_qr", "Share QR image"), systemImage: "square.and.arrow.up") }
-                        .accessibilityIdentifier("group_share_invitation_card")
+                    if let card = inviteCard {
+                        ShareLink(item: Image(uiImage: card), preview: SharePreview(group.name, image: Image(uiImage: card))) { Label(groupText("audit_ui_share_qr", "Share QR code"), systemImage: "square.and.arrow.up") }
+                            .accessibilityIdentifier("group_share_invitation_card")
+                    } else if livePreview != nil {
+                        // 对齐安卓 shareGroupQr 失败路径：卡片合成失败要可感知，而不是按钮悄悄消失。
+                        GroupNotice(text: groupText("audit_ui_share_failed", "Sharing failed. Try again."))
+                    }
+                } else if livePreview != nil {
+                    // 对齐安卓：不可加入时仍可把小组号以文案形式分享出去。
+                    ShareLink(item: String(format: groupText("audit_ui_group_number_message", "Group: %@\nGroup number: %@ (not accepting members)"), group.name, group.groupNo)) {
+                        Label(groupText("audit_ui_share_number", "Share group number"), systemImage: "square.and.arrow.up")
+                    }
+                    .accessibilityIdentifier("group_share_number")
                 }
                 Button(groupText("copy_number", "Copy group number")) { UIPasteboard.general.string = group.groupNo }
             }.padding(24).frame(maxWidth: .infinity)
