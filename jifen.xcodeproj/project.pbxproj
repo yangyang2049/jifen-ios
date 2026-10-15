@@ -57,6 +57,10 @@
 		FE1000000000000000000002 /* ScoreboardDisplayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE1000000000000000000001 /* ScoreboardDisplayTests.swift */; };
 		FEE320261003000000000002 /* FeedbackLanguageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE320261003000000000001 /* FeedbackLanguageTests.swift */; };
 		FF1000000000000000000002 /* ResumeSessionLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */; };
+		76E3C9919DBC4F7AAB4D90D0 /* GroupContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FD1719554A44229EC4AEAA /* GroupContractTests.swift */; };
+		F530CC64174A44D0981AE32E /* GroupPreviewDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68621CE31D5740DBAF6A4FDF /* GroupPreviewDecodingTests.swift */; };
+		04B923BF21624627AB1BCC66 /* GroupRedesignUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1273C47DF445F6918C0C49 /* GroupRedesignUITests.swift */; };
+		BB8112B0BEAB4E949E9E82DB /* GroupPortParityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911E22E26F6E46118B7955CE /* GroupPortParityTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -122,6 +126,10 @@
 		FE1000000000000000000001 /* ScoreboardDisplayTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardDisplayTests.swift; sourceTree = "<group>"; };
 		FEE320261003000000000001 /* FeedbackLanguageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackLanguageTests.swift; sourceTree = "<group>"; };
 		FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ResumeSessionLifecycleTests.swift; sourceTree = "<group>"; };
+		72FD1719554A44229EC4AEAA /* GroupContractTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GroupContractTests.swift; sourceTree = "<group>"; };
+		68621CE31D5740DBAF6A4FDF /* GroupPreviewDecodingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GroupPreviewDecodingTests.swift; sourceTree = "<group>"; };
+		2D1273C47DF445F6918C0C49 /* GroupRedesignUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GroupRedesignUITests.swift; sourceTree = "<group>"; };
+		911E22E26F6E46118B7955CE /* GroupPortParityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPortParityTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -192,6 +200,9 @@
 		4BEAA1146F45CAF74810C41D /* jifenTests */ = {
 			isa = PBXGroup;
 			children = (
+				68621CE31D5740DBAF6A4FDF /* GroupPreviewDecodingTests.swift */,
+				72FD1719554A44229EC4AEAA /* GroupContractTests.swift */,
+				911E22E26F6E46118B7955CE /* GroupPortParityTests.swift */,
 				AB1000000000000000000001 /* AccountPasswordLoginTests.swift */,
 				D42000000000000000000001 /* LocalDataResetCoordinatorTests.swift */,
 				D43000000000000000000001 /* OfflineReleaseBoundaryTests.swift */,
@@ -237,6 +248,7 @@
 		CB5A5C00CFDC9B30D0B4EDFC /* jifenUITests */ = {
 			isa = PBXGroup;
 			children = (
+				2D1273C47DF445F6918C0C49 /* GroupRedesignUITests.swift */,
 				BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */,
 				E20000000000000000000001 /* RecordRecapUITests.swift */,
 				AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */,
@@ -451,6 +463,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04B923BF21624627AB1BCC66 /* GroupRedesignUITests.swift in Sources */,
 				D987C048DDD2CFB6D1560D48 /* jifenUITests.swift in Sources */,
 				E20000000000000000000002 /* RecordRecapUITests.swift in Sources */,
 				A9C0600ED82342CDBF1AAF6E /* MainFlowUITests.swift in Sources */,
@@ -475,6 +488,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F530CC64174A44D0981AE32E /* GroupPreviewDecodingTests.swift in Sources */,
+				76E3C9919DBC4F7AAB4D90D0 /* GroupContractTests.swift in Sources */,
+				BB8112B0BEAB4E949E9E82DB /* GroupPortParityTests.swift in Sources */,
 				AB1000000000000000000002 /* AccountPasswordLoginTests.swift in Sources */,
 				D42000000000000000000002 /* LocalDataResetCoordinatorTests.swift in Sources */,
 				D43000000000000000000002 /* OfflineReleaseBoundaryTests.swift in Sources */,

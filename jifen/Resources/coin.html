@@ -1,0 +1,329 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'">
+<title>Coin</title>
+<style>
+html,body { margin:0; width:100%; height:100%; overflow:hidden; background:transparent; }
+body { position:relative; }
+canvas { position:absolute; inset:0; display:block; width:100%; height:100%; pointer-events:none; }
+.shadow { position:absolute; width:50%; height:7%; left:25%; bottom:12%; border-radius:50%; background:#000; filter:blur(13px); opacity:.7; }
+[hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<div class="shadow" aria-hidden="true"></div>
+<canvas id="coin" aria-hidden="true"></canvas>
+<canvas id="fallback" aria-hidden="true" hidden></canvas>
+<script>
+(() => {
+  'use strict';
+  // Identical local renderer on Google Android, domestic Android, iOS, and HarmonyOS.
+  // The native page owns result selection, animation timing, sound, and history.
+  const canvas=document.getElementById('coin');
+  const fallback=document.getElementById('fallback');
+  const ctx=fallback.getContext('2d');
+  const gl=canvas.getContext('webgl',{alpha:true,antialias:true,premultipliedAlpha:false});
+  let angle=0, pendingFrame=0;
+      const vertices = [];
+      const motifs = [];
+      const gold = [0.89, 0.65, 0.24], rimGold = [0.98, 0.76, 0.34], reliefGold = [0.92, 0.68, 0.26], recess = [0.52, 0.32, 0.085];
+      function triangle(a, b, c, color, normals) {
+        const u = b.map((v, i) => v - a[i]), v = c.map((x, i) => x - a[i]);
+        const n = [u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0]];
+        const length = Math.hypot(...n) || 1;
+        [a,b,c].forEach((p,i) => vertices.push(...p, ...(normals ? normals[i] : n.map(x => x / length)), ...color));
+      }
+      function quad(a, b, c, d, color, normals) {
+        triangle(a,b,c,color,normals && [normals[0],normals[1],normals[2]]);
+        triangle(a,c,d,color,normals && [normals[0],normals[2],normals[3]]);
+      }
+      // Rounded concentric profiles form the inset field, raised lip, and real thickness.
+      function lathe(profile, color, segments = 192) {
+        function normal(j,a) {
+          const before=profile[Math.max(0,j-1)], after=profile[Math.min(profile.length-1,j+1)];
+          const dr=after[0]-before[0], dz=after[1]-before[1], length=Math.hypot(dr,dz)||1;
+          return [-dz*Math.cos(a)/length,-dz*Math.sin(a)/length,dr/length];
+        }
+        for (let j = 0; j < profile.length - 1; j++) {
+          for (let i = 0; i < segments; i++) {
+            const a = i / segments * Math.PI * 2, b = (i + 1) / segments * Math.PI * 2;
+            const [r,z] = profile[j], [s,w] = profile[j+1];
+            const q=[[r*Math.cos(a),r*Math.sin(a),z],[s*Math.cos(a),s*Math.sin(a),w],[s*Math.cos(b),s*Math.sin(b),w],[r*Math.cos(b),r*Math.sin(b),z]];
+            const normals=[normal(j,a),normal(j+1,a),normal(j+1,b),normal(j,b)];
+            triangle(q[0],q[1],q[2],color,[normals[0],normals[1],normals[2]]);
+            triangle(q[0],q[2],q[3],color,[normals[0],normals[2],normals[3]]);
+          }
+        }
+      }
+      for (const side of [1, -1]) {
+        const profile = [[0,.091],[.81,.091],[.845,.098],[.855,.105]];
+        const rim = [[.855,.105],[.863,.11],[.883,.122],[.91,.129],[.962,.129],[.995,.118],[1.018,.095],[1.027,.062]];
+        const groove = [[.845,.098],[.851,.10],[.86,.105]];
+        const faceProfile = p => side === 1 ? p.map(([r,z])=>[r,z]) : p.map(([r,z])=>[r,-z]).reverse();
+        lathe(faceProfile(profile), gold);
+        lathe(faceProfile(rim), rimGold);
+        lathe(faceProfile(groove), recess);
+      }
+      // A continuous rounded sidewall keeps the silhouette smooth at every angle.
+      lathe([[1.027,.062],[1.032,.04],[1.034,0],[1.032,-.04],[1.027,-.062]], rimGold);
+      function relief(points, side, height = .137) {
+        motifs.push({ points, side, height });
+        // Shallow stamped relief blends into the field with a rounded shoulder.
+        const base = .0918, depth = height - base;
+        const levels = [[1.025,base],[1.015,base+depth*.025],[1,base+depth*.14],[.977,base+depth*.38],[.943,base+depth*.68],[.91,base+depth*.91],[.885,base+depth*.985],[.87,height]];
+        const center = [0,1].map(k => points.reduce((sum,p)=>sum+p[k],0)/points.length);
+        function point(i, scale, z) { return [center[0]+(points[i][0]-center[0])*scale, center[1]+(points[i][1]-center[1])*scale, z*side]; }
+        function normal(j,i) {
+          if(j===0 || j===levels.length-1) return [0,0,side];
+          const [scale,z]=levels[j];
+          const before=point((i+points.length-1)%points.length,scale,z), after=point((i+1)%points.length,scale,z);
+          const lower=point(i,...levels[j-1]), upper=point(i,...levels[j+1]);
+          const tangent=after.map((v,k)=>v-before[k]), slope=upper.map((v,k)=>v-lower[k]);
+          const n=[tangent[1]*slope[2],-tangent[0]*slope[2],tangent[0]*slope[1]-tangent[1]*slope[0]];
+          const length=Math.hypot(...n)||1;
+          return n.map(v=>v*side/length);
+        }
+        for (let j = 0; j < levels.length-1; j++) {
+          const [s,z] = levels[j], [t,w] = levels[j+1];
+          for (let i = 0; i < points.length; i++) {
+            const next = (i+1)%points.length;
+            let q = [point(i,s,z),point(next,s,z),point(next,t,w),point(i,t,w)];
+            let normals = [normal(j,i),normal(j,next),normal(j+1,next),normal(j+1,i)];
+            if (side < 0) { q=q.reverse(); normals=normals.reverse(); }
+            quad(...q,reliefGold,normals);
+          }
+        }
+        for (let i = 0; i < points.length; i++) {
+          const a = point(i,.87,height), b = point((i+1)%points.length,.87,height);
+          triangle([...center,height*side], side > 0 ? a : b, side > 0 ? b : a, reliefGold);
+        }
+      }
+      const star = Array.from({length:10}, (_,i) => {
+        const a = Math.PI/2 + i*Math.PI/5, r = i%2 ? .26 : .59;
+        return [Math.cos(a)*r,Math.sin(a)*r];
+      });
+      function roundedOutline(points) {
+        for(let pass=0;pass<3;pass++) {
+          const rounded=[];
+          points.forEach((p,i)=> {
+            const next=points[(i+1)%points.length];
+            rounded.push(p.map((v,k)=>v*.85+next[k]*.15),p.map((v,k)=>v*.15+next[k]*.85));
+          });
+          points=rounded;
+        }
+        return points;
+      }
+      relief(roundedOutline(star), 1);
+      // Two laurel branches give the reverse an open circular silhouette.
+      // Reverse local Y so the wreath is upright after the coin's 180-degree flip.
+      function reverseRelief(points, height) {
+        relief(points.map(([x,y])=>[x,-y]).reverse(),-1,height);
+      }
+      function oval(cx,cy,length,width,rotation) {
+        return Array.from({length:32},(_,i)=> {
+          const a=i*Math.PI*2/32, x=length*Math.cos(a), y=width*Math.sin(a);
+          return [cx+x*Math.cos(rotation)-y*Math.sin(rotation),cy+x*Math.sin(rotation)+y*Math.cos(rotation)];
+        });
+      }
+      for(const mirror of [1,-1]) {
+        for(let i=0;i<36;i++) {
+          const a=-Math.PI/2+i/36*2.67, b=-Math.PI/2+(i+1)/36*2.67;
+          const start=[mirror*.52*Math.cos(a),.52*Math.sin(a)], end=[mirror*.52*Math.cos(b),.52*Math.sin(b)];
+          reverseRelief(oval((start[0]+end[0])/2,(start[1]+end[1])/2,Math.hypot(end[0]-start[0],end[1]-start[1])*.65,.012,Math.atan2(end[1]-start[1],end[0]-start[0])),.104);
+        }
+        for(let i=0;i<8;i++) {
+          const a=-1.12+i*.3;
+          for(const outward of [1,-1]) {
+            const r=.52+outward*.055, rotation=a+Math.PI/2-outward*.72;
+            const leaf=oval(r*Math.cos(a),r*Math.sin(a),.105,.041,rotation).map(([x,y])=>[x*mirror,y]);
+            reverseRelief(mirror<0 ? leaf.reverse() : leaf,.12);
+          }
+        }
+      }
+      reverseRelief(oval(0,-.555,.082,.024,-.25),.113);
+
+  function drawFallback() {
+    if(!ctx) return;
+    const width=fallback.width, height=fallback.height;
+    const radius=Math.min(width,height)*.26657;
+    const cosine=Math.cos(angle), side=cosine<0 ? -1 : 1;
+    ctx.clearRect(0,0,width,height);
+    ctx.save();
+    ctx.translate(width/2,height/2-height*.01289);
+    ctx.scale(1,Math.max(Math.abs(cosine),.055));
+    const metal=ctx.createRadialGradient(-radius*.35,-radius*.45,0,0,0,radius*1.2);
+    metal.addColorStop(0,'#ffdf86'); metal.addColorStop(.6,'#edc468'); metal.addColorStop(1,'#a77b2c');
+    ctx.beginPath(); ctx.arc(0,0,radius,0,Math.PI*2); ctx.fillStyle=metal; ctx.fill();
+    ctx.beginPath(); ctx.arc(0,0,radius*.918,0,Math.PI*2);
+    ctx.strokeStyle='#f7d77c'; ctx.lineWidth=radius*.105; ctx.stroke();
+    ctx.beginPath(); ctx.arc(0,0,radius*.853,0,Math.PI*2);
+    ctx.strokeStyle='rgba(123,85,26,.3)'; ctx.lineWidth=Math.max(1,radius*.009); ctx.stroke();
+    const scale=radius/1.034;
+    for(const motif of motifs) {
+      if(motif.side!==side) continue;
+      ctx.beginPath();
+      motif.points.forEach(([x,y],i)=> {
+        const px=x*scale, py=-y*scale*side;
+        if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+      });
+      ctx.closePath(); ctx.fillStyle='#efca72';
+      ctx.shadowColor='rgba(115,78,23,.3)'; ctx.shadowBlur=scale*.009;
+      ctx.shadowOffsetX=scale*.004; ctx.shadowOffsetY=scale*.007;
+      ctx.fill(); ctx.shadowColor='transparent';
+      ctx.strokeStyle='rgba(151,111,38,.4)'; ctx.lineWidth=Math.max(.5,scale*.004); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  let render=drawFallback;
+  function enableFallback() {
+    canvas.hidden=true; fallback.hidden=false; render=drawFallback;
+  }
+  function initializeGL() {
+    if(!gl || gl.isContextLost()) { enableFallback(); return; }
+    try {
+      const vertexSource = `
+        attribute vec3 aPosition;
+        attribute vec3 aNormal;
+        attribute vec3 aColor;
+        uniform mat3 uRotation;
+        uniform float uAspect;
+        uniform float uLift;
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+        varying vec3 vLocal;
+        varying vec3 vColor;
+        void main() {
+          vec3 p = uRotation * aPosition + vec3(0.0, uLift + 0.05, -6.4);
+          float f = 3.3;
+          gl_Position = vec4(p.x * f / uAspect, p.y * f, -1.0202 * p.z - 0.20202, -p.z);
+          vNormal = uRotation * aNormal;
+          vPosition = p;
+          vLocal = aPosition;
+          vColor = aColor;
+        }`;
+      const fragmentSource = `
+        precision mediump float;
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+        varying vec3 vLocal;
+        varying vec3 vColor;
+        void main() {
+          vec3 n = normalize(vNormal);
+          vec3 view = normalize(-vPosition);
+          vec3 key = normalize(vec3(-0.65, 0.9, 1.5));
+          vec3 fill = normalize(vec3(0.8, -0.15, 0.9));
+          float diffuse = max(dot(n, key), 0.0);
+          float bounce = max(dot(n, fill), 0.0);
+          float spec = pow(max(dot(n, normalize(key + view)), 0.0), 46.0);
+          float soft = pow(max(dot(n, normalize(key + view)), 0.0), 6.0);
+          float rim = pow(1.0 - max(dot(n, view), 0.0), 3.0);
+          // Very fine satin finish, kept subtle so the raised relief remains clear.
+          float grain = fract(sin(dot(vLocal.xy, vec2(127.1, 311.7))) * 437.58);
+          vec3 c = vColor * (0.43 + diffuse * 0.58 + bounce * 0.18);
+          c += vec3(1.0, 0.84, 0.48) * (spec * 0.48 + soft * 0.14 + rim * 0.07);
+          c += (grain - 0.5) * 0.012;
+          gl_FragColor = vec4(c, 1.0);
+        }`;
+      function shader(type, source) {
+        const s = gl.createShader(type);
+        gl.shaderSource(s, source); gl.compileShader(s);
+        if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+        return s;
+      }
+      const program = gl.createProgram();
+      gl.attachShader(program, shader(gl.VERTEX_SHADER, vertexSource));
+      gl.attachShader(program, shader(gl.FRAGMENT_SHADER, fragmentSource));
+      gl.linkProgram(program);
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program));
+      gl.useProgram(program);
+      const buffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+      for (const [name, offset] of [['aPosition',0],['aNormal',12],['aColor',24]]) {
+        const loc = gl.getAttribLocation(program,name);
+        gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc,3,gl.FLOAT,false,36,offset);
+      }
+      gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE);
+      gl.clearColor(0,0,0,0);
+      const rotationLocation = gl.getUniformLocation(program,'uRotation');
+      const aspectLocation = gl.getUniformLocation(program,'uAspect');
+      const liftLocation = gl.getUniformLocation(program,'uLift');
+
+      render=() => {
+        const sx=Math.sin(angle),cx=Math.cos(angle);
+        gl.viewport(0,0,canvas.width,canvas.height);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.uniformMatrix3fv(rotationLocation,false,new Float32Array([1,0,0,0,cx,sx,0,-sx,cx]));
+        gl.uniform1f(aspectLocation,canvas.width/canvas.height);
+        gl.uniform1f(liftLocation,0);
+        gl.drawArrays(gl.TRIANGLES,0,vertices.length/9);
+      };
+      canvas.hidden=false; fallback.hidden=true;
+    } catch(error) {
+      console.warn('[Coin3D] Using local canvas fallback:',String(error));
+      enableFallback();
+    }
+  }
+  function scheduleDraw() {
+    if(pendingFrame) return;
+    pendingFrame=requestAnimationFrame(()=> { pendingFrame=0; render(); });
+  }
+  function resize() {
+    const dpr=Math.min(window.devicePixelRatio || 1,2);
+    const cssWidth=Math.max(1,window.innerWidth || document.documentElement.clientWidth || 1);
+    const cssHeight=Math.max(1,window.innerHeight || document.documentElement.clientHeight || 1);
+    // Embedded WebViews can resolve percentage/vh heights to zero on first attachment.
+    // Bind the CSS box to the measured viewport as well as sizing the drawing buffer.
+    for(const element of [document.documentElement,document.body]) {
+      const w=cssWidth+'px', h=cssHeight+'px';
+      if(element.style.width!==w) element.style.width=w;
+      if(element.style.height!==h) element.style.height=h;
+    }
+    const width=Math.max(1,Math.round(cssWidth*dpr));
+    const height=Math.max(1,Math.round(cssHeight*dpr));
+    for(const target of [canvas,fallback]) {
+      if(target.width!==width) target.width=width;
+      if(target.height!==height) target.height=height;
+    }
+    scheduleDraw();
+  }
+  let destroyed=false;
+  const onContextLost=event=> { event.preventDefault(); enableFallback(); scheduleDraw(); };
+  const onContextRestored=()=> { initializeGL(); scheduleDraw(); };
+  const onVisibilityChange=()=> { if(!document.hidden) resize(); };
+  const observer=typeof ResizeObserver!=='undefined' ? new ResizeObserver(resize) : null;
+  window.coin3d={
+    setRotation(degrees) {
+      if(destroyed || typeof degrees!=='number' || !Number.isFinite(degrees)) return;
+      angle=((degrees%360)+360)%360*Math.PI/180;
+      scheduleDraw();
+    },
+    destroy() {
+      if(destroyed) return;
+      destroyed=true;
+      cancelAnimationFrame(pendingFrame); pendingFrame=0;
+      if(observer) observer.disconnect();
+      canvas.removeEventListener('webglcontextlost',onContextLost);
+      canvas.removeEventListener('webglcontextrestored',onContextRestored);
+      window.removeEventListener('resize',resize);
+      document.removeEventListener('visibilitychange',onVisibilityChange);
+      render=()=>{};
+      if(gl) {
+        const release=gl.getExtension('WEBGL_lose_context');
+        if(release) release.loseContext();
+      }
+    }
+  };
+  canvas.addEventListener('webglcontextlost',onContextLost);
+  canvas.addEventListener('webglcontextrestored',onContextRestored);
+  window.addEventListener('resize',resize);
+  document.addEventListener('visibilitychange',onVisibilityChange);
+  if(observer) observer.observe(document.documentElement);
+  initializeGL(); resize();
+})();
+</script>
+</body>
+</html>

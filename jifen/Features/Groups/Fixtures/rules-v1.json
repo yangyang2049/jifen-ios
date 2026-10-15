@@ -1,0 +1,536 @@
+[
+  {
+    "name": "standard badminton",
+    "rules": {
+      "version": 1,
+      "sport": "badminton",
+      "maxSets": 3,
+      "matchCompletionMode": "best_of",
+      "pointsToWinSet": 21,
+      "pointCap": 30,
+      "winByTwo": true,
+      "useRallyScoring": false,
+      "gamesPerSet": 6,
+      "tieBreakPoints": 7,
+      "setScoringMode": "regular",
+      "usesNoAdScoring": false
+    },
+    "setScore": {
+      "a": 2,
+      "b": 1
+    },
+    "sets": [
+      {
+        "a": 21,
+        "b": 18
+      },
+      {
+        "a": 18,
+        "b": 21
+      },
+      {
+        "a": 30,
+        "b": 29
+      }
+    ],
+    "valid": true
+  },
+  {
+    "name": "negative match",
+    "rules": {
+      "version": 1,
+      "sport": "badminton",
+      "maxSets": 3,
+      "matchCompletionMode": "best_of",
+      "pointsToWinSet": 21,
+      "pointCap": 30,
+      "winByTwo": true,
+      "useRallyScoring": false,
+      "gamesPerSet": 6,
+      "tieBreakPoints": 7,
+      "setScoringMode": "regular",
+      "usesNoAdScoring": false
+    },
+    "setScore": {
+      "a": 2,
+      "b": -1
+    },
+    "sets": null,
+    "valid": false
+  },
+  {
+    "name": "negative set",
+    "rules": {
+      "version": 1,
+      "sport": "badminton",
+      "maxSets": 3,
+      "matchCompletionMode": "best_of",
+      "pointsToWinSet": 21,
+      "pointCap": 30,
+      "winByTwo": true,
+      "useRallyScoring": false,
+      "gamesPerSet": 6,
+      "tieBreakPoints": 7,
+      "setScoringMode": "regular",
+      "usesNoAdScoring": false
+    },
+    "setScore": {
+      "a": 2,
+      "b": 0
+    },
+    "sets": [
+      {
+        "a": 21,
+        "b": -1
+      },
+      {
+        "a": 21,
+        "b": 0
+      }
+    ],
+    "valid": false
+  },
+  {
+    "name": "cap tied",
+    "rules": {
+      "version": 1,
+      "sport": "badminton",
+      "maxSets": 3,
+      "matchCompletionMode": "best_of",
+      "pointsToWinSet": 21,
+      "pointCap": 30,
+      "winByTwo": true,
+      "useRallyScoring": false,
+      "gamesPerSet": 6,
+      "tieBreakPoints": 7,
+      "setScoringMode": "regular",
+      "usesNoAdScoring": false
+    },
+    "setScore": {
+      "a": 2,
+      "b": 0
+    },
+    "sets": [
+      {
+        "a": 30,
+        "b": 30
+      },
+      {
+        "a": 21,
+        "b": 0
+      }
+    ],
+    "valid": false
+  },
+  {
+    "name": "overshot set",
+    "rules": {
+      "version": 1,
+      "sport": "badminton",
+      "maxSets": 3,
+      "matchCompletionMode": "best_of",
+      "pointsToWinSet": 21,
+      "pointCap": 30,
+      "winByTwo": true,
+      "useRallyScoring": false,
+      "gamesPerSet": 6,
+      "tieBreakPoints": 7,
+      "setScoringMode": "regular",
+      "usesNoAdScoring": false
+    },
+    "setScore": {
+      "a": 2,
+      "b": 0
+    },
+    "sets": [
+      {
+        "a": 29,
+        "b": 0
+      },
+      {
+        "a": 21,
+        "b": 0
+      }
+    ],
+    "valid": false
+  },
+  {
+    "name": "custom badminton target",
+    "rules": {
+      "version": 1,
+      "sport": "badminton",
+      "maxSets": 3,
+      "matchCompletionMode": "best_of",
+      "pointsToWinSet": 11,
+      "pointCap": 15,
+      "winByTwo": true,
+      "useRallyScoring": false,
+      "gamesPerSet": 6,
+      "tieBreakPoints": 7,
+      "setScoringMode": "regular",
+      "usesNoAdScoring": false
+    },
+    "setScore": {
+      "a": 2,
+      "b": 0
+    },
+    "sets": [
+      {
+        "a": 11,
+        "b": 7
+      },
+      {
+        "a": 15,
+        "b": 14
+      }
+    ],
+    "valid": true
+  },
+  {
+    "name": "custom table tennis target",
+    "rules": {
+      "version": 1,
+      "sport": "table_tennis",
+      "maxSets": 1,
+      "matchCompletionMode": "best_of",
+      "pointsToWinSet": 50,
+      "pointCap": null,
+      "winByTwo": true,
+      "useRallyScoring": false,
+      "gamesPerSet": 6,
+      "tieBreakPoints": 7,
+      "setScoringMode": "regular",
+      "usesNoAdScoring": false
+    },
+    "setScore": {
+      "a": 1,
+      "b": 0
+    },
+    "sets": [
+      {
+        "a": 51,
+        "b": 49
+      }
+    ],
+    "valid": true
+  },
+  {
+    "name": "fixed four draw",
+    "rules": {
+      "version": 1,
+      "sport": "badminton",
+      "maxSets": 4,
+      "matchCompletionMode": "play_all",
+      "pointsToWinSet": 21,
+      "pointCap": 30,
+      "winByTwo": true,
+      "useRallyScoring": false,
+      "gamesPerSet": 6,
+      "tieBreakPoints": 7,
+      "setScoringMode": "regular",
+      "usesNoAdScoring": false
+    },
+    "setScore": {
+      "a": 2,
+      "b": 2
+    },
+    "sets": [
+      {
+        "a": 21,
+        "b": 0
+      },
+      {
+        "a": 0,
+        "b": 21
+      },
+      {
+        "a": 21,
+        "b": 0
+      },
+      {
+        "a": 0,
+        "b": 21
+      }
+    ],
+    "valid": true
+  },
+  {
+    "name": "fixed four win",
+    "rules": {
+      "version": 1,
+      "sport": "badminton",
+      "maxSets": 4,
+      "matchCompletionMode": "play_all",
+      "pointsToWinSet": 21,
+      "pointCap": 30,
+      "winByTwo": true,
+      "useRallyScoring": false,
+      "gamesPerSet": 6,
+      "tieBreakPoints": 7,
+      "setScoringMode": "regular",
+      "usesNoAdScoring": false
+    },
+    "setScore": {
+      "a": 4,
+      "b": 0
+    },
+    "sets": [
+      {
+        "a": 21,
+        "b": 0
+      },
+      {
+        "a": 21,
+        "b": 0
+      },
+      {
+        "a": 21,
+        "b": 0
+      },
+      {
+        "a": 21,
+        "b": 0
+      }
+    ],
+    "valid": true
+  },
+  {
+    "name": "fixed four unfinished",
+    "rules": {
+      "version": 1,
+      "sport": "badminton",
+      "maxSets": 4,
+      "matchCompletionMode": "play_all",
+      "pointsToWinSet": 21,
+      "pointCap": 30,
+      "winByTwo": true,
+      "useRallyScoring": false,
+      "gamesPerSet": 6,
+      "tieBreakPoints": 7,
+      "setScoringMode": "regular",
+      "usesNoAdScoring": false
+    },
+    "setScore": {
+      "a": 2,
+      "b": 1
+    },
+    "sets": null,
+    "valid": false
+  },
+  {
+    "name": "post victory set",
+    "rules": {
+      "version": 1,
+      "sport": "badminton",
+      "maxSets": 3,
+      "matchCompletionMode": "best_of",
+      "pointsToWinSet": 21,
+      "pointCap": 30,
+      "winByTwo": true,
+      "useRallyScoring": false,
+      "gamesPerSet": 6,
+      "tieBreakPoints": 7,
+      "setScoringMode": "regular",
+      "usesNoAdScoring": false
+    },
+    "setScore": {
+      "a": 2,
+      "b": 1
+    },
+    "sets": [
+      {
+        "a": 21,
+        "b": 0
+      },
+      {
+        "a": 21,
+        "b": 0
+      },
+      {
+        "a": 0,
+        "b": 21
+      }
+    ],
+    "valid": false
+  },
+  {
+    "name": "pickleball no cap",
+    "rules": {
+      "version": 1,
+      "sport": "pickleball",
+      "maxSets": 1,
+      "matchCompletionMode": "best_of",
+      "pointsToWinSet": 11,
+      "pointCap": null,
+      "winByTwo": true,
+      "useRallyScoring": false,
+      "gamesPerSet": 6,
+      "tieBreakPoints": 7,
+      "setScoringMode": "regular",
+      "usesNoAdScoring": false
+    },
+    "setScore": {
+      "a": 1,
+      "b": 0
+    },
+    "sets": [
+      {
+        "a": 22,
+        "b": 20
+      }
+    ],
+    "valid": true
+  },
+  {
+    "name": "pickleball sudden win",
+    "rules": {
+      "version": 1,
+      "sport": "pickleball",
+      "maxSets": 1,
+      "matchCompletionMode": "best_of",
+      "pointsToWinSet": 11,
+      "pointCap": null,
+      "winByTwo": false,
+      "useRallyScoring": true,
+      "gamesPerSet": 6,
+      "tieBreakPoints": 7,
+      "setScoringMode": "regular",
+      "usesNoAdScoring": false
+    },
+    "setScore": {
+      "a": 1,
+      "b": 0
+    },
+    "sets": [
+      {
+        "a": 11,
+        "b": 10
+      }
+    ],
+    "valid": true
+  },
+  {
+    "name": "tennis regular",
+    "rules": {
+      "version": 1,
+      "sport": "tennis",
+      "maxSets": 3,
+      "matchCompletionMode": "best_of",
+      "pointsToWinSet": 6,
+      "pointCap": null,
+      "winByTwo": true,
+      "useRallyScoring": false,
+      "gamesPerSet": 6,
+      "tieBreakPoints": 7,
+      "setScoringMode": "regular",
+      "usesNoAdScoring": false
+    },
+    "setScore": {
+      "a": 2,
+      "b": 1
+    },
+    "sets": [
+      {
+        "a": 6,
+        "b": 4
+      },
+      {
+        "a": 5,
+        "b": 7
+      },
+      {
+        "a": 7,
+        "b": 6
+      }
+    ],
+    "valid": true
+  },
+  {
+    "name": "tennis impossible",
+    "rules": {
+      "version": 1,
+      "sport": "tennis",
+      "maxSets": 3,
+      "matchCompletionMode": "best_of",
+      "pointsToWinSet": 6,
+      "pointCap": null,
+      "winByTwo": true,
+      "useRallyScoring": false,
+      "gamesPerSet": 6,
+      "tieBreakPoints": 7,
+      "setScoringMode": "regular",
+      "usesNoAdScoring": false
+    },
+    "setScore": {
+      "a": 2,
+      "b": 0
+    },
+    "sets": [
+      {
+        "a": 7,
+        "b": 0
+      },
+      {
+        "a": 6,
+        "b": 0
+      }
+    ],
+    "valid": false
+  },
+  {
+    "name": "tennis short sets",
+    "rules": {
+      "version": 1,
+      "sport": "tennis",
+      "maxSets": 1,
+      "matchCompletionMode": "best_of",
+      "pointsToWinSet": 4,
+      "pointCap": null,
+      "winByTwo": true,
+      "useRallyScoring": false,
+      "gamesPerSet": 4,
+      "tieBreakPoints": 7,
+      "setScoringMode": "regular",
+      "usesNoAdScoring": false
+    },
+    "setScore": {
+      "a": 1,
+      "b": 0
+    },
+    "sets": [
+      {
+        "a": 5,
+        "b": 4
+      }
+    ],
+    "valid": true
+  },
+  {
+    "name": "tennis tiebreak only",
+    "rules": {
+      "version": 1,
+      "sport": "tennis",
+      "maxSets": 1,
+      "matchCompletionMode": "best_of",
+      "pointsToWinSet": 10,
+      "pointCap": null,
+      "winByTwo": true,
+      "useRallyScoring": false,
+      "gamesPerSet": 6,
+      "tieBreakPoints": 10,
+      "setScoringMode": "tiebreak_only",
+      "usesNoAdScoring": false
+    },
+    "setScore": {
+      "a": 1,
+      "b": 0
+    },
+    "sets": [
+      {
+        "a": 12,
+        "b": 10
+      }
+    ],
+    "valid": true
+  }
+]

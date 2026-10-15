@@ -18,6 +18,38 @@
 			<string>%d wedstrijden</string>
 		</dict>
 	</dict>
+	<key>activity_direct_match_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+		<key>one</key>
+		<string>%d match · all group members</string>
+		<key>other</key>
+		<string>%d matches · all group members</string>
+		</dict>
+	</dict>
+	<key>archived_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+		<key>one</key>
+		<string>%d group</string>
+		<key>other</key>
+		<string>%d groups</string>
+		</dict>
+	</dict>
 	<key>timer_byoyomi_periods_format</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
