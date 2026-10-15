@@ -1886,7 +1886,6 @@
 "group_server_version" = "Остання версія";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "Відкрити групу";
 "group_notice_end" = "Більше немає сповіщень";
 "group_notice_join_requested" = "Отримано запит на приєднання";
 "group_notice_join_approved" = "Запит на приєднання схвалено";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "Скануйте, щоб приєднатися";
 "group_qr_apply_short" = "Скануйте, щоб надіслати запит";
 "group_update_report" = "Оновити скаргу";
+"group_ranking_rate" = "Відсоток перемог";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "Приєднуйтеся до нашої групи з %@: грайте й ведіть рахунок разом!";
+"group_share_message" = "%@\n\nНазва групи: %@\nНомер групи %@\n\nПриєднатися до групи: %@\n\nЗавантажте iScoreboard і введіть номер групи, щоб приєднатися:\n%@";
+"group_entry_set_winners" = "Переможці партій";
+"group_activity_lineup_incomplete" = "Виберіть усіх гравців цього матчу";
+"group_activity_lineup_duplicate" = "Кожен гравець може бути в цьому матчі лише один раз";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "Ввести вручну";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "Позначити всі як прочитані";

@@ -464,6 +464,11 @@ nonisolated enum GroupCaptureFixture {
             let stats = GroupStats(confirmedMatchCount: confirmed.count, currentMonthMatchCount: group.currentMonthMatchCount ?? 0, activeMemberCount30d: group.activeMemberCount30d ?? 0, lastCompletedAt: confirmed.map(\.playedAt).max() ?? 0)
             cache.details[group.id] = GroupDetailCache(group: group, members: data.members.filter { $0.groupId == group.id && $0.status == "active" }, activities: data.activities.filter { $0.groupId == group.id }, results: results, rankings: try rankings(group.id, format: .singles), stats: stats, nextCursor: nil, syncedAt: referenceDate, trainingPlans: plans, leaveNotices: data.leaveNotices.filter { $0.groupId == group.id }, pendingResults: results.filter { $0.status == "pending_confirmation" }, removedMembers: data.members.filter { $0.groupId == group.id && $0.status == "removed" }, trainingNotices: data.trainingNotices.filter { $0.groupId == group.id }, activityLineups: group.id == "seed_group_badminton" ? [data.activityLineup.activityId: data.activityLineup] : [:])
         }
+        for id in cache.details.keys {
+            for format in GroupFormat.allCases {
+                cache.details[id]?.setRankings(try rankings(id, format: format), format: format)
+            }
+        }
         return cache
     }
 

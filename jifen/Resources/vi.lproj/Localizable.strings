@@ -1886,7 +1886,6 @@
 "group_server_version" = "Phiên bản mới nhất";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "Mở nhóm";
 "group_notice_end" = "Không còn thông báo nào";
 "group_notice_join_requested" = "Đã nhận yêu cầu tham gia";
 "group_notice_join_approved" = "Yêu cầu tham gia đã được duyệt";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "Quét để tham gia";
 "group_qr_apply_short" = "Quét để yêu cầu tham gia";
 "group_update_report" = "Cập nhật báo cáo";
+"group_ranking_rate" = "Tỷ lệ thắng";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "Tham gia nhóm %@ của chúng tôi để cùng chơi và ghi điểm!";
+"group_share_message" = "%@\n\nTên nhóm: %@\nSố nhóm %@\n\nTham gia nhóm: %@\n\nTải iScoreboard và nhập số nhóm để tham gia:\n%@";
+"group_entry_set_winners" = "Người thắng từng ván";
+"group_activity_lineup_incomplete" = "Chọn đủ người chơi cho trận này";
+"group_activity_lineup_duplicate" = "Mỗi người chơi chỉ được xuất hiện một lần trong trận này";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "Nhập thủ công";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "Đánh dấu tất cả đã đọc";

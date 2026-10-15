@@ -1886,7 +1886,6 @@
 "group_server_version" = "Nieuwste versie";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "Groep openen";
 "group_notice_end" = "Geen meldingen meer";
 "group_notice_join_requested" = "Verzoek om deel te nemen ontvangen";
 "group_notice_join_approved" = "Verzoek om deel te nemen goedgekeurd";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "Scan om deel te nemen";
 "group_qr_apply_short" = "Scan om toegang aan te vragen";
 "group_update_report" = "Melding bijwerken";
+"group_ranking_rate" = "Winstpercentage";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "Doe mee met onze %@-groep om samen te spelen en scores bij te houden!";
+"group_share_message" = "%@\n\nGroepsnaam: %@\nGroepsnr. %@\n\nDeelnemen aan groep: %@\n\nDownload iScoreboard en voer het groepsnummer in om lid te worden:\n%@";
+"group_entry_set_winners" = "Winnaars per game";
+"group_activity_lineup_incomplete" = "Selecteer alle spelers voor deze wedstrijd";
+"group_activity_lineup_duplicate" = "Elke speler mag maar één keer in deze wedstrijd voorkomen";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "Handmatig invoeren";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "Alles als gelezen markeren";

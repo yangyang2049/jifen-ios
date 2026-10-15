@@ -2,7 +2,7 @@
 //  FlipCoinView.swift
 //  jifen
 //
-//  Flip coin tool - pixel perfect copy from HarmonyOS
+//  Native flip coin tool with the shared 3D coin renderer
 //
 
 import ScoreCore
@@ -23,12 +23,6 @@ struct FlipCoinView: View {
     @State private var flipTimer: Timer?
 
     private let hintShownKey = "flip_coin_hint_shown"
-    /// Chinese: "666"; other languages: "8" (avoid religious connotations of 666 outside Chinese)
-    private var headsText: String {
-        NSLocalizedString("coin_heads_text", value: "8", comment: "Coin heads label")
-    }
-
-
     var body: some View {
         ZStack {
             Theme.backgroundColor.ignoresSafeArea()
@@ -37,75 +31,18 @@ struct FlipCoinView: View {
                     flipCoin()
                 }
 
-            // Always centered coin display (style aligned with Watch: radial gradient, rim, text shadow)
+            // Keep the native toss position and size; the renderer draws both faces.
             GeometryReader { geometry in
                 ZStack {
-                    // Coin display - Watch-style: outer/middle/inner ratio 120/110/104 → 180/165/156
                     ZStack {
-                        // Outer ring - radial gradient metallic look
-                        Circle()
-                            .fill(
-                                RadialGradient(
-                                    colors: [
-                                        Color(hex: "E8C84A"),
-                                        Color(hex: "D4AF37"),
-                                        Color(hex: "B8962E")
-                                    ],
-                                    center: .center,
-                                    startRadius: 0,
-                                    endRadius: 90
-                                )
-                            )
-                            .frame(width: 180, height: 180)
-                            .shadow(color: .black.opacity(0.28), radius: 8, x: 0, y: 4)
-
-                        // Middle ring - darker gold depth
-                        Circle()
-                            .fill(Color(hex: "C5A03C"))
-                            .frame(width: 165, height: 165)
-
-                        // Inner face - bright gold surface
-                        Circle()
-                            .fill(
-                                RadialGradient(
-                                    colors: [
-                                        Color(hex: "F0D060"),
-                                        Color(hex: "E5C158")
-                                    ],
-                                    center: UnitPoint(x: 0.35, y: 0.35),
-                                    startRadius: 0,
-                                    endRadius: 78
-                                )
-                            )
-                            .frame(width: 156, height: 156)
-
-                        coinFaceContent
-
-                        // Rim highlight
-                        Circle()
-                            .strokeBorder(
-                                LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(0.4),
-                                        Color.clear,
-                                        Color.black.opacity(0.2)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 2
-                            )
-                            .frame(width: 178, height: 178)
+                        CoinWebView(rotationAngle: rotationAngle)
+                            .allowsHitTesting(false)
                     }
+                    .frame(width: 336, height: 336)
                     .contentShape(Circle())
                     .onTapGesture {
                         flipCoin()
                     }
-                    .rotation3DEffect(
-                        .degrees(rotationAngle),
-                        axis: (x: 1, y: 0, z: 0),
-                        perspective: 0.6
-                    )
                     .offset(y: coinPositionY)
                     .scaleEffect(coinScale)
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
@@ -186,8 +123,8 @@ struct FlipCoinView: View {
                                                     .frame(width: 32, height: 32)
                                                     .opacity(0.8)
 
-                                                Text(result.side == .heads ? headsText : "❀")
-                                                    .font(.system(size: headsText.count > 1 ? 12 : 16, weight: .bold, design: .rounded))
+                                                Image(systemName: result.side == .heads ? "star.fill" : "laurel.leading")
+                                                    .font(.system(size: 16, weight: .semibold))
                                                     .foregroundColor(Color(hex: "8B6914"))
                                             }
                                         }
@@ -243,25 +180,6 @@ struct FlipCoinView: View {
             defaults.set(true, forKey: hintShownKey)
         } else {
             showHint = false
-        }
-    }
-    
-    @ViewBuilder
-    private var coinFaceContent: some View {
-        let normalizedAngle = (rotationAngle.truncatingRemainder(dividingBy: 360) + 360).truncatingRemainder(dividingBy: 360)
-        let isShowingTails = normalizedAngle > 90 && normalizedAngle < 270
-
-        if isShowingTails {
-            Text("❀")
-                .font(.system(size: 78))
-                .foregroundColor(Color(hex: "8B6914"))
-                .shadow(color: Color(hex: "6B5210").opacity(0.3), radius: 1, x: 1, y: 1)
-                .rotationEffect(.degrees(180))
-        } else {
-            Text(headsText)
-                .font(.system(size: headsText.count > 1 ? 57 : 78, weight: .bold, design: .rounded))
-                .foregroundColor(Color(hex: "8B6914"))
-                .shadow(color: Color(hex: "6B5210").opacity(0.3), radius: 1, x: 1, y: 1)
         }
     }
     

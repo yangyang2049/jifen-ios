@@ -13,7 +13,7 @@ struct GroupScheduleEditor: View {
     @State private var store = GroupStore.shared
     @Environment(\.dismiss) private var dismiss
     @State private var sessions: [GroupTrainingDraftSession] = []
-    @State private var minutes = 45
+    @State private var minutes = 30
     @State private var timingMode = "estimated"
     @State private var place = ""
     @State private var note = ""
@@ -34,7 +34,7 @@ struct GroupScheduleEditor: View {
     private var currentLineup: GroupActivityLineup? { latestLineup ?? lineup }
     /// 直接排赛活动的候选人取自全部在组成员（对齐安卓 `allowed`：direct 用活跃成员、报名活动用已报名成员）。
     private var members: [GroupMember] { detail.members.filter { $0.status == "active" && (activity == nil || activity!.isDirect || activity!.registeredMemberIds.contains($0.id)) } }
-    private var limit: Int { activity == nil ? store.capabilities?.trainingSessionMax ?? 12 : store.capabilities?.activitySessionMax ?? 100 }
+    private var limit: Int { activity == nil ? store.capabilities?.trainingSessionMax ?? 12 : store.capabilities?.activitySessionMax ?? 12 }
     /// 排赛时间模式：`sequence` 不设具体时间（按顺序）、`estimated` 预计时间（对齐安卓 `timingMode`）。
     private var sequenced: Bool { activity != nil && timingMode == "sequence" }
     private var venueLocked: Bool { currentPlan?.placeLocked ?? sessions.contains { $0.frozen == true } }
@@ -49,11 +49,15 @@ struct GroupScheduleEditor: View {
     }
     private var issue: String? {
         if !changedSessions && currentPlan?.sessionMinutes == minutes { return nil }
-        if sessions.count > limit { return groupText("too_many_sessions", "Too many matches in this schedule.") }
+        if let lineup = currentLineup, lineup.sessions.contains(where: \.frozen),
+           (minutes != lineup.sessionMinutes || timingMode != (lineup.timingMode ?? "estimated")) {
+            return groupText("frozen_match_hint", "This match has already started and cannot be changed.")
+        }
         if !otherConflicts.isEmpty { return groupText("lineup_conflict", "Overlapping matches need different courts and participants.") }
         return GroupTrainingValidation.lineupIssue(sessions, minutes: minutes, maximumSessions: limit,
             maximumPerMember: (activity == nil ? store.capabilities?.trainingMemberSessionMax : store.capabilities?.activityMemberSessionMax) ?? 8,
-            skipsConflicts: sequenced)
+            skipsConflicts: sequenced, allowsEmpty: activity != nil, originals: currentLineup?.sessions ?? [],
+            allowedMemberIDs: activity == nil ? nil : Set(members.map(\.id)))
     }
     var body: some View {
         NavigationStack {
@@ -77,7 +81,16 @@ struct GroupScheduleEditor: View {
                             .disabled(sessions.contains { $0.frozen == true })
                     }
                     if activity == nil || timingMode == "estimated" {
-                        Stepper(groupText("session_minutes", "Minutes per match") + ": \(minutes)", value: $minutes, in: 5...240, step: 5).disabled(sessions.contains { $0.frozen == true })
+                        if activity == nil {
+                            Stepper(groupText("session_minutes", "Minutes per match") + ": \(minutes)", value: $minutes, in: 5...240, step: 5).disabled(sessions.contains { $0.frozen == true })
+                        } else {
+                            Picker(groupText("activity_lineup_duration", "Match duration"), selection: $minutes) {
+                                ForEach(GroupActivityPolicy.durationOptions(current: minutes), id: \.self) { amount in
+                                    Text(String(format: groupText("activity_lineup_minutes", "%d min"), amount)).tag(amount)
+                                }
+                            }.pickerStyle(.segmented).disabled(sessions.contains { $0.frozen == true })
+                                .accessibilityIdentifier("group_schedule_duration")
+                        }
                     }
                     if venueLocked { Label(groupText("place", "Location"), systemImage: "lock.fill").font(.caption).foregroundStyle(.secondary) }
                 }
@@ -96,7 +109,7 @@ struct GroupScheduleEditor: View {
                             }
                         }
                         Button(groupText("shift_following", "Shift this and following matches")) { shiftPreview = GroupTrainingValidation.shifted(sessions, from: session.id, minutes: minutes) }.accessibilityIdentifier("group_schedule_shift_" + (session.serverID ?? session.id.uuidString))
-                        if sessions.count > 1 { Button(groupText("remove_session", "Remove session"), role: .destructive) { sessions.removeAll { $0.id == session.id } } }
+                        if sessions.count > 1 || activity != nil { Button(groupText("remove_session", "Remove session"), role: .destructive) { sessions.removeAll { $0.id == session.id } }.accessibilityIdentifier("group_schedule_remove_" + (session.serverID ?? session.id.uuidString)) }
                     }.disabled(session.frozen == true)
                 }
                 Button { var next = GroupTrainingDraftSession(); next.startsAt = (sessions.last?.startsAt ?? activity?.date ?? date).addingTimeInterval(Double(minutes) * 60); sessions.append(next) } label: { Label(groupText("add_session", "Add a session"), systemImage: "plus") }.disabled(sessions.count >= limit)
@@ -117,7 +130,7 @@ struct GroupScheduleEditor: View {
                         Button(groupText("keep_draft", "Keep my edits")) { latestPlan = conflictPlan; latestLineup = conflictLineup; revision = conflictPlan?.revision ?? conflictLineup?.revision; conflictPlan = nil; conflictLineup = nil; error = nil; store.error = nil }.disabled(!canKeepDraft)
                     }
                 }
-                Button(groupText("preview_schedule", "Review schedule")) { preview = true }.disabled(sessions.isEmpty || issue != nil || note.unicodeScalars.count > 200 || busy || conflictPlan != nil || conflictLineup != nil)
+                Button(groupText("preview_schedule", "Review schedule")) { preview = true }.disabled(issue != nil || note.unicodeScalars.count > 200 || busy || conflictPlan != nil || conflictLineup != nil || (activity != nil && !store.allows("update_activity")))
                     .accessibilityIdentifier("group_training_publish")
             }.disabled(busy).navigationTitle(groupText(activity == nil ? "training_schedule" : "activity_lineup", "Match schedule")).groupAccountBoundary()
                 .toolbar { ToolbarItem(placement: .cancellationAction) { Button(groupText("close", "Close")) { dismiss() }.disabled(busy) } }
@@ -137,7 +150,8 @@ struct GroupScheduleEditor: View {
                 .navigationDestination(isPresented: $preview) {
                     List {
                         Text(place); Text(note)
-                        ForEach(sessions) { row in VStack(alignment: .leading) { Text(row.startsAt, format: .dateTime); Text(row.court); Text(row.selectedIDs.map { id in detail.members.first(where: { $0.id == id })?.displayName ?? groupText("former_member", "Former member") }.joined(separator: " / ")) } }
+                        if sessions.isEmpty { GroupNotice(text: groupText("no_sessions", "No matches arranged yet.")).accessibilityIdentifier("group_schedule_empty_preview") }
+                        ForEach(sessions) { row in VStack(alignment: .leading) { Text(row.startsAt, format: .dateTime); Text(row.court); Text(row.selectedIDs.map { id in id.isEmpty ? groupText("choose_member", "Choose a member") : detail.members.first(where: { $0.id == id })?.displayName ?? groupText("former_member", "Former member") }.joined(separator: " / ")) } }
                         if let error { GroupNotice(text: error) }
                         if error != nil, plan != nil || activity != nil { Button(groupText("reload_version", "Load latest version")) { preview = false; reloadConfirmation = true } }
                         Button(activity != nil || plan != nil ? groupText("save", "Save") : groupText("publish_schedule", "Publish schedule")) { Task { await submit() } }.disabled(busy).accessibilityIdentifier("group_schedule_confirm")
@@ -148,7 +162,7 @@ struct GroupScheduleEditor: View {
     private func initialize() {
         guard !initialized else { return }
         let plan = currentPlan, lineup = currentLineup
-        minutes = plan?.sessionMinutes ?? lineup?.sessionMinutes ?? 45; place = plan?.place ?? activity?.place ?? ""; note = plan?.note ?? ""
+        minutes = plan?.sessionMinutes ?? lineup?.sessionMinutes ?? (activity == nil ? 45 : 30); place = plan?.place ?? activity?.place ?? ""; note = plan?.note ?? ""
         revision = plan?.revision ?? lineup?.revision
         timingMode = lineup?.timingMode == "sequence" ? "sequence" : "estimated"
         let bodies = initialBodies
@@ -160,11 +174,11 @@ struct GroupScheduleEditor: View {
             return row
         }
         date = Date(timeIntervalSince1970: Double(plan?.trainingDate ?? Int64((sessions.first?.startsAt ?? activity?.date ?? Date()).timeIntervalSince1970 * 1000)) / 1000)
-        if sessions.isEmpty { var first = GroupTrainingDraftSession(); first.startsAt = activity?.date ?? Date().addingTimeInterval(3600); sessions = [first] }
+        if sessions.isEmpty && activity == nil { var first = GroupTrainingDraftSession(); first.startsAt = Date().addingTimeInterval(3600); sessions = [first] }
         initialized = true
     }
     private func bodyForSession(_ row: GroupTrainingDraftSession) -> GroupTrainingSessionBody {
-        .init(orderNo: (sessions.firstIndex(where: { $0.id == row.id }) ?? 0) + 1, court: row.court, startsAt: Int64(row.startsAt.timeIntervalSince1970 * 1000), format: row.format, seats: row.selectedIDs.enumerated().map { index, id in .init(memberId: id, side: index < row.format.seatsPerSide ? "A" : "B", seat: index % row.format.seatsPerSide) }, id: row.serverID)
+        row.body(orderNo: (sessions.firstIndex(where: { $0.id == row.id }) ?? 0) + 1)
     }
     private func reloadLatest() async {
         guard let account = store.accountID else { return }
@@ -192,7 +206,7 @@ struct GroupScheduleEditor: View {
         initialized = false; initialize(); error = nil; store.error = nil
     }
     private func submit() async {
-        guard issue == nil else { return }; busy = true; defer { busy = false }
+        guard issue == nil, !busy, activity == nil || store.allows("update_activity") else { return }; busy = true; defer { busy = false }
         let bodies = sessions.map(bodyForSession)
         if await store.perform({
             if let activity {

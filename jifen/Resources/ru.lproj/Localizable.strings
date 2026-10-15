@@ -1886,7 +1886,6 @@
 "group_server_version" = "Последняя версия";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "Открыть группу";
 "group_notice_end" = "Уведомлений больше нет";
 "group_notice_join_requested" = "Получена заявка на вступление";
 "group_notice_join_approved" = "Заявка на вступление одобрена";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "Сканируйте, чтобы вступить";
 "group_qr_apply_short" = "Сканируйте, чтобы отправить заявку";
 "group_update_report" = "Обновить жалобу";
+"group_ranking_rate" = "Процент побед";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "Присоединяйтесь к нашей группе по %@: играйте и ведите счёт вместе!";
+"group_share_message" = "%@\n\nНазвание группы: %@\nНомер группы %@\n\nВступить в группу: %@\n\nСкачайте iScoreboard и введите номер группы, чтобы присоединиться:\n%@";
+"group_entry_set_winners" = "Победители партий";
+"group_activity_lineup_incomplete" = "Выберите всех игроков этого матча";
+"group_activity_lineup_duplicate" = "Каждый игрок может участвовать в этом матче только один раз";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "Ввести вручную";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "Отметить все как прочитанные";

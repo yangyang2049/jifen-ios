@@ -21,7 +21,7 @@ struct GroupPreviewReportView: View {
                 // 对齐安卓 GroupReportForm：已经举报过就不是「举报」而是「更新举报」。
                 .navigationTitle(groupText(current == nil ? "report" : "update_report", current == nil ? "Report group" : "Update report"))
                 .groupAccountBoundary().interactiveDismissDisabled(busy)
-                .toolbar { ToolbarItem(placement: .cancellationAction) { Button(groupText("close", "Close")) { dismiss() }.disabled(busy) } }
+                .toolbar { ToolbarItem(placement: .cancellationAction) { Button(NSLocalizedString("cancel", comment: "")) { dismiss() }.disabled(busy) } }
                 .task { await reload() }
         }
     }

@@ -211,6 +211,8 @@ final class MainFlowUITests: XCTestCase {
         start.tap()
         let menu = app.buttons["scoreboard_menu_button"]
         XCTAssertTrue(menu.waitForExistence(timeout: 8))
+        XCTAssertEqual(menu.value as? String, "Voice: On")
+        addScreenshot("pingpong-scoreboard-voice-menu-badge")
         menu.tap()
         let menuOption = app.switches["scoreboard_announce_server_toggle"]
         XCTAssertTrue(menuOption.waitForExistence(timeout: 3))
@@ -224,9 +226,12 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertEqual(XCTWaiter.wait(for: [menuClosed], timeout: 8), .completed)
         XCTAssertEqual(undo.frame, undoFrame, "Popup must not resize the operation menu")
         let mainVoice = app.buttons["scoreboard_menu_action_voiceAnnouncement"]
+        XCTAssertTrue(mainVoice.label.contains("Voice: On"), "Opening more must keep voice enabled")
         mainVoice.tap() // Disabling voice keeps the child preference.
+        XCTAssertTrue(mainVoice.label.contains("Voice: Off"))
         XCTAssertFalse(app.buttons["scoreboard_voice_options"].exists)
         mainVoice.tap()
+        XCTAssertTrue(mainVoice.label.contains("Voice: On"))
         XCTAssertTrue(menuOption.waitForExistence(timeout: 3))
         XCTAssertEqual(menuOption.value as? String, menuChanged)
         menuOption.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()

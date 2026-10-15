@@ -32,6 +32,82 @@ final class GroupRedesignUITests: XCTestCase {
         let attachment = XCTAttachment(screenshot: fullScreen ? XCUIScreen.main.screenshot() : app.screenshot())
         attachment.name = name; attachment.lifetime = .keepAlways; add(attachment)
     }
+    func testCreateDoesNotOfferCoachingWhenServerAdvertisesIt() {
+        let app = openGroup(["-UITestGroupsAllTypes"])
+        app.navigationBars.buttons.firstMatch.tap()
+        let create = app.buttons["group_create"]
+        XCTAssertTrue(create.waitForExistence(timeout: 5))
+        capture(app, "groups-list-width")
+        create.tap()
+        XCTAssertTrue(app.textFields["group_name"].waitForExistence(timeout: 5))
+        XCTAssertEqual(app.descendants(matching: .any)["group_create_policy"].firstMatch.value as? String, "持小组号可直接加入")
+        XCTAssertFalse(app.staticTexts["训练组"].exists)
+        XCTAssertFalse(app.buttons["训练组"].exists)
+        XCTAssertFalse(app.staticTexts["小组类型"].exists)
+        capture(app, "groups-peer-only-create")
+    }
+
+    func testRuleOptionsUseSelectableChips() {
+        let app = openGroup()
+        app.buttons["group_overview_addResult"].tap()
+        let rules = app.buttons["比赛规则"]
+        XCTAssertTrue(rules.waitForExistence(timeout: 5)); rules.tap()
+        let eleven = app.buttons["11"].firstMatch
+        XCTAssertTrue(eleven.waitForExistence(timeout: 5)); eleven.tap()
+        XCTAssertTrue(eleven.isSelected)
+        XCTAssertTrue(app.buttons["21"].firstMatch.exists)
+        capture(app, "groups-rule-options")
+    }
+
+    func testReportUsesCancelAndKeepsReasons() {
+        let app = openGroup()
+        app.buttons["小组管理"].tap()
+        app.buttons["group_menu_report"].tap()
+        XCTAssertTrue(app.navigationBars["举报小组"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["取消"].exists)
+        capture(app, "groups-report-cancel")
+        app.buttons["取消"].tap()
+        XCTAssertTrue(app.buttons["group_tab_0"].waitForExistence(timeout: 5))
+    }
+
+    func testRankingTableShowsMeAndInsufficientGamesAndKeepsFormatFilters() {
+        let app = openGroup()
+        app.buttons["group_tab_2"].tap()
+        let table = app.scrollViews["group_rank_table"]
+        XCTAssertTrue(table.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["甲（我）"].exists)
+        capture(app, "groups-ranking-identity")
+        table.swipeLeft()
+        XCTAssertTrue(app.staticTexts["胜率"].exists)
+        XCTAssertTrue(app.staticTexts["场次不足"].exists)
+        capture(app, "groups-ranking-six-columns")
+        app.buttons["group_rank_format_doubles"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["group_rank_empty"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["group_rank_format_singles"].exists)
+        XCTAssertFalse(app.buttons["group_rank_row_ui-a"].exists)
+        app.buttons["group_rank_format_singles"].tap()
+        XCTAssertTrue(app.buttons["group_rank_row_ui-a"].waitForExistence(timeout: 5))
+    }
+
+    func testRankingErrorKeepsBothFiltersAndRetry() {
+        let app = openGroup(["-UITestGroupsRankError"])
+        app.buttons["group_tab_2"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["group_rank_error"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["group_rank_format_singles"].exists)
+        app.buttons["group_rank_format_doubles"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["group_rank_error"].firstMatch.exists)
+        XCTAssertTrue(app.buttons["重试"].exists)
+        capture(app, "groups-ranking-error-filters")
+    }
+
+    func testMatchHistoryWithoutRankingsDoesNotShowRankingFilters() {
+        let app = openGroup(["-UITestGroupsNoRankings"])
+        app.buttons["group_tab_2"].tap()
+        XCTAssertTrue(app.buttons["group_record_filter"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["group_rank_format_singles"].exists)
+        XCTAssertFalse(app.buttons["group_rank_format_doubles"].exists)
+    }
+
     func testOverviewTabsRecordFilterAndSecondaryQR() {
         let app = openGroup()
         capture(app, "groups-overview")
@@ -164,6 +240,67 @@ final class GroupRedesignUITests: XCTestCase {
         XCTAssertTrue(app.buttons["group_schedule_confirm"].isEnabled)
         capture(app, "groups-native-lineup-review")
     }
+
+    func testActivityFormAllowsAutomaticTitleAndRejectsOversizedTitle() {
+        let app = openGroup()
+        app.buttons["group_tab_1"].tap()
+        app.buttons["group_activity_create"].tap()
+        let title = app.textFields["group_activity_title"]
+        XCTAssertTrue(title.waitForExistence(timeout: 5))
+        let save = app.buttons["group_activity_save"]
+        XCTAssertTrue(save.isEnabled, "An empty title should use the server's automatic name")
+        title.tap(); title.typeText(String(repeating: "x", count: 41))
+        XCTAssertFalse(save.isEnabled)
+        title.typeText(XCUIKeyboardKey.delete.rawValue)
+        XCTAssertTrue(save.isEnabled)
+        app.swipeUp()
+        capture(app, "groups-activity-contract-limits")
+    }
+
+    func testDisabledActivityCapabilitiesDisableCreateAndEditControls() {
+        let app = openGroup(["-UITestGroupsActivitiesDisabled", "-UITestGroupsMulti"])
+        app.buttons["group_tab_1"].tap()
+        XCTAssertFalse(app.buttons["group_activity_create"].isEnabled)
+        XCTAssertFalse(app.buttons["group_activity_direct"].isEnabled)
+        app.staticTexts["周末羽毛球"].firstMatch.tap()
+        let edit = app.buttons["编排场次"]
+        for _ in 0..<6 where !edit.isHittable { app.swipeUp() }
+        XCTAssertTrue(edit.exists)
+        XCTAssertFalse(edit.isEnabled)
+        capture(app, "groups-activity-disabled-capabilities")
+    }
+
+    func testExistingLineupCanRemoveItsLastUnstartedMatchAndReachSave() {
+        let app = openGroup(["-UITestGroupsMulti"])
+        app.staticTexts["周末羽毛球"].firstMatch.tap()
+        let edit = app.buttons["编排场次"]
+        for _ in 0..<6 where !edit.isHittable { app.swipeUp() }
+        edit.tap()
+        let remove = app.buttons["group_schedule_remove_ui-activity-session"]
+        for _ in 0..<6 where !remove.isHittable { app.swipeUp() }
+        XCTAssertTrue(remove.exists); remove.tap()
+        let review = app.buttons["group_training_publish"]
+        for _ in 0..<6 where !review.isHittable { app.swipeUp() }
+        XCTAssertTrue(review.isEnabled); review.tap()
+        XCTAssertTrue(app.buttons["group_schedule_confirm"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["group_schedule_confirm"].isEnabled)
+        XCTAssertTrue(app.descendants(matching: .any)["group_schedule_empty_preview"].firstMatch.exists)
+        capture(app, "groups-existing-lineup-cleared")
+    }
+
+    func testUnchangedMissingLineupCanReachReviewWithoutAddingAPlayer() {
+        let app = openGroup(["-UITestGroupsMulti", "-UITestGroupsMissingLineup"])
+        app.staticTexts["周末羽毛球"].firstMatch.tap()
+        let edit = app.buttons["编排场次"]
+        for _ in 0..<6 where !edit.isHittable { app.swipeUp() }
+        edit.tap()
+        let review = app.buttons["group_training_publish"]
+        for _ in 0..<8 where !review.isHittable { app.swipeUp() }
+        XCTAssertTrue(review.isEnabled); review.tap()
+        XCTAssertTrue(app.buttons["group_schedule_confirm"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "选择成员")).firstMatch.exists)
+        capture(app, "groups-lineup-missing-seat-retained")
+    }
     func testNativeMemberSearchAndTemporaryBatchForm() {
         let app = openGroup()
         app.buttons["group_tab_3"].tap()
@@ -202,13 +339,46 @@ final class GroupRedesignUITests: XCTestCase {
             let player = app.buttons["group_member_pick_" + member]
             XCTAssertTrue(player.waitForExistence(timeout: 5), app.debugDescription); player.tap()
         }
+        let manual = app.buttons["group_result_manual"]
+        for _ in 0..<5 where !manual.isHittable { form.swipeUp() }
+        XCTAssertTrue(manual.isHittable, app.debugDescription); manual.tap()
         for (id, score) in [("group_score_A", "2"), ("group_score_B", "0")] {
             let field = app.textFields[id]
             for _ in 0..<5 where !field.isHittable || (app.keyboards.firstMatch.exists && field.frame.maxY >= app.keyboards.firstMatch.frame.minY) { form.swipeUp() }
             field.tap(); XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3)); field.typeText(score)
+            let done = app.buttons["group_result_keyboard_done"]
+            XCTAssertTrue(done.waitForExistence(timeout: 3)); done.tap()
         }
         for _ in 0..<3 where !submit.isHittable { app.swipeUp() }
         XCTAssertTrue(submit.isEnabled); capture(app, "groups-native-manual-valid-seats")
+        let disclosure = app.buttons["group_result_sets_toggle"]
+        for _ in 0..<5 where !disclosure.isHittable { form.swipeUp() }
+        disclosure.tap()
+        for _ in 0..<6 where !submit.isHittable { form.swipeUp() }
+        XCTAssertTrue(submit.isEnabled, "Opening blank details must keep a valid total submittable")
+        for index in 0..<2 {
+            for (side, value) in [("A", "21"), ("B", "0")] {
+                let field = app.textFields["group_detail_\(index)_\(side)"]
+                for _ in 0..<8 {
+                    if field.exists && field.isHittable && field.frame.minY >= navigationBottom + 4 { break }
+                    if (field.exists && field.frame.minY < navigationBottom + 4) || (!field.exists && index == 0 && side == "A") { form.swipeDown() }
+                    else { form.swipeUp() }
+                }
+                XCTAssertTrue(field.isHittable, app.debugDescription)
+                XCTAssertNotEqual(field.value as? String, "0", "Untouched scores must be blank")
+                field.tap(); field.typeText(value)
+                let done = app.buttons["group_result_keyboard_done"]
+                XCTAssertTrue(done.waitForExistence(timeout: 3)); done.tap()
+            }
+        }
+        for _ in 0..<4 where !submit.isHittable { form.swipeUp() }
+        XCTAssertTrue(submit.isEnabled)
+        let clear = app.buttons["group_result_clear_total"]
+        for _ in 0..<6 where !clear.isHittable { form.swipeDown() }
+        XCTAssertTrue(clear.isHittable, app.debugDescription); clear.tap()
+        for _ in 0..<6 where !submit.isHittable { form.swipeUp() }
+        XCTAssertTrue(submit.isEnabled, "Completed details can supply the overall score")
+        capture(app, "groups-manual-details-without-total")
     }
     func testTemporaryBatchFormValidatesNamesWithoutSubmitting() {
         let app = openGroup(); app.buttons["group_tab_3"].tap()

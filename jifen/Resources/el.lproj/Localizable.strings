@@ -1886,7 +1886,6 @@
 "group_server_version" = "Τελευταία έκδοση";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "Άνοιγμα ομάδας";
 "group_notice_end" = "Δεν υπάρχουν άλλες ειδοποιήσεις";
 "group_notice_join_requested" = "Λήφθηκε αίτημα συμμετοχής";
 "group_notice_join_approved" = "Το αίτημα συμμετοχής εγκρίθηκε";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "Σαρώστε για συμμετοχή";
 "group_qr_apply_short" = "Σαρώτε για αίτημα συμμετοχής";
 "group_update_report" = "Ενημέρωση αναφοράς";
+"group_ranking_rate" = "Ποσοστό νικών";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "Γίνετε μέλος της ομάδας μας για %@ για να παίζουμε και να μετράμε μαζί το σκορ!";
+"group_share_message" = "%@\n\nΌνομα ομάδας: %@\nΑρ. ομάδας %@\n\nΣυμμετοχή σε ομάδα: %@\n\nΚατεβάστε το iScoreboard και εισαγάγετε τον αριθμό της ομάδας για συμμετοχή:\n%@";
+"group_entry_set_winners" = "Νικητές ανά παιχνίδι";
+"group_activity_lineup_incomplete" = "Επιλέξτε όλους τους παίκτες αυτού του αγώνα";
+"group_activity_lineup_duplicate" = "Κάθε παίκτης μπορεί να εμφανίζεται μόνο μία φορά σε αυτόν τον αγώνα";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "Χειροκίνητη εισαγωγή";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "Σήμανση όλων ως αναγνωσμένα";

@@ -32,7 +32,9 @@ struct GroupManagementView: View {
         }
     }
     private var valid: Bool {
-        switch action.kind {
+        let capability = ["temporary", "member"].contains(action.kind) ? "manage_members" : "manage_group"
+        guard action.kind == "leave" || store.allows(capability) else { return false }
+        return switch action.kind {
         case "profile": GroupInputValidation.validName(name, minimum: store.capabilities?.nameMin ?? 2, maximum: store.capabilities?.nameMax ?? 24) && description.unicodeScalars.count <= (store.capabilities?.descriptionMax ?? 200)
         case "temporary": !names.isEmpty && names.allSatisfy { GroupInputValidation.validName($0) } && names.count + (detail?.members.count ?? 0) <= (detail?.group.memberLimit ?? 50)
         case "member": action.member?.kind == "temporary" ? GroupInputValidation.validName(name) : isOwner && detail?.group.isCoaching != true

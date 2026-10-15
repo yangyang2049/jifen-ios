@@ -1578,7 +1578,7 @@
 "group_album" = "从相册识别";
 "group_approval" = "需要审批";
 "group_approve" = "同意";
-"group_archive" = "归档小组";
+"group_archive" = "归档";
 "group_archive_hint" = "归档后保留历史，暂停活动与修改。之后可以恢复。";
 "group_archive_readonly" = "小组已归档，历史记录可查看。";
 "group_archived" = "已归档";
@@ -1597,7 +1597,7 @@
 "group_close" = "关闭";
 "group_closed" = "暂不开放加入";
 "group_completed" = "已完成";
-"group_confirm_join" = "加入这个小组";
+"group_confirm_join" = "加入";
 "group_confirm_result" = "确认结果";
 "group_confirmed" = "已确认";
 "group_confirmed_by" = "确认人";
@@ -1675,8 +1675,8 @@
 "group_register" = "报名";
 "group_registered_members" = "报名成员";
 "group_reject" = "拒绝";
-"group_remove_member" = "移除成员";
-"group_restore" = "恢复小组";
+"group_remove_member" = "移除";
+"group_restore" = "恢复";
 "group_restore_hint" = "恢复后可继续活动和计分。";
 "group_results" = "战绩";
 "group_retry" = "重试";
@@ -1741,16 +1741,16 @@
 "group_add_session" = "添加一场";
 "group_edit_schedule" = "修改排期";
 "group_cancel_schedule" = "取消排期";
-"group_leave_training" = "通知请假";
+"group_leave_training" = "请假";
 "group_session_minutes" = "每场时长（分钟）";
 "group_court" = "场地";
-"group_remove_session" = "删除场次";
+"group_remove_session" = "删除";
 "group_publish_schedule" = "发布排期";
 "group_leave_reason" = "请假说明（选填，最多 100 字）";
 "group_report" = "举报小组";
 "group_report_reason" = "举报原因";
 "group_report_detail" = "补充说明（选填，最多 500 字）";
-"group_report_submit" = "提交举报";
+"group_report_submit" = "提交";
 "group_report_spam" = "垃圾广告";
 "group_report_harassment" = "骚扰辱骂";
 "group_report_inappropriate" = "色情或违规内容";
@@ -1816,7 +1816,7 @@
 "group_activity_lineup" = "活动排阵";
 "group_activity_mode" = "战绩";
 "group_activity_reminder" = "提前15分钟提醒我";
-"group_add_set" = "添加每局比分";
+"group_add_set" = "添加一局";
 "group_added_members" = "已添加";
 "group_authority_confirm" = "组长权威确认";
 "group_batch_names_hint" = "每行一个称呼，每个称呼1～24个字符。";
@@ -1888,7 +1888,6 @@
 "group_single_match_hint" = "从报名成员中选择 2 名队员进行单打，或选择 4 名队员进行双打。";
 
 "group_banner_dissolving" = "小组将于 %@ 解散\n7 天冷静期，期间仅可查看";
-"group_notice_open" = "查看小组";
 "group_notice_end" = "没有更多通知";
 "group_notice_join_requested" = "收到入组申请";
 "group_notice_join_approved" = "入组申请已通过";
@@ -1921,3 +1920,16 @@
 "group_qr_join_short" = "扫码加入小组";
 "group_qr_apply_short" = "扫码申请加入";
 "group_update_report" = "补充举报";
+"group_ranking_rate" = "胜率";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "加入我们的%@小组，一起约球、计分！";
+"group_share_message" = "%@\n\n小组：%@\n小组号：%@\n\n加入小组：%@\n\n下载「全能计分器」，输入小组号加入：\n%@";
+"group_entry_set_winners" = "各局胜方";
+"group_activity_lineup_incomplete" = "请为本场比赛选齐成员";
+"group_activity_lineup_duplicate" = "同一成员不能在本场比赛中重复出场";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "手动输入";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "全部已读";

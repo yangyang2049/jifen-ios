@@ -13,6 +13,7 @@ struct SportsSetupDialogView: View {
     var initialTieBreakPoints: Int?
     var initialSetup: SportsSetupResult? = nil
     /// 整张 Setup 卡片的可用高度；标题、内容和操作区会分别测量。
+    var showParticipants = true
     var maxDialogHeight: CGFloat = 680
     var onConfirm: ((SportsSetupResult) -> Void)?
     var onCancel: (() -> Void)?
@@ -37,12 +38,14 @@ struct SportsSetupDialogView: View {
         } content: { maxContentHeight in
             AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight) {
                 VStack(spacing: 20) {
+                    if showParticipants {
                     SportsSetupParticipantSection(
                         gameType: gameType,
                         defaultTeam1Name: defaultTeam1Name,
                         defaultTeam2Name: defaultTeam2Name,
                         draft: $draft
                     )
+                    }
 
                     SportsSetupSettingsSection(gameType: gameType, draft: $draft)
                 }

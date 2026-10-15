@@ -20,6 +20,11 @@ nonisolated struct GroupUploadTombstone: Codable, Sendable {
     var id: String; var accountID: String; var groupID: String; var resultID: String?
 }
 
+nonisolated struct GroupPendingDirectLineup: Codable, Sendable {
+    var key: String; var accountID: String; var groupID: String
+    var fingerprint: Data; var body: GroupDirectLineupBody
+}
+
 /// Durable association is indexed by the engine session UUID, never names or timestamps.
 /// The record keeps its own copy so an interrupted outbox write can be repaired.
 nonisolated final class GroupLocalPersistence: @unchecked Sendable {
@@ -54,6 +59,29 @@ nonisolated final class GroupLocalPersistence: @unchecked Sendable {
         return rows.filter { !$0.uploaded }
     }
     private func tombstones() -> [GroupUploadTombstone] { read([GroupUploadTombstone].self, "tombstones.json") ?? [] }
+    private func pendingDirectLineups() throws -> [GroupPendingDirectLineup] {
+        let url = root.appendingPathComponent("pending-direct-lineups.json")
+        guard FileManager.default.fileExists(atPath: url.path) else { return [] }
+        return try JSONDecoder().decode([GroupPendingDirectLineup].self, from: Data(contentsOf: url))
+    }
+    /// Persist the first anchored request, so a retry cannot change either its time or its key.
+    func pendingDirectLineup(accountID: String, groupID: String, body: GroupDirectLineupBody,
+                             now: Date = Date()) throws -> GroupPendingDirectLineup {
+        lock.lock(); defer { lock.unlock() }
+        guard !(read([String].self, "deleted-accounts.json") ?? []).contains(accountID) else { throw GroupFlowError.staleSession }
+        let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
+        let fingerprint = try encoder.encode(body)
+        var pending = try pendingDirectLineups()
+        if let previous = pending.first(where: { $0.accountID == accountID && $0.groupID == groupID && $0.fingerprint == fingerprint }) { return previous }
+        let next = GroupPendingDirectLineup(key: UUID().uuidString, accountID: accountID, groupID: groupID,
+            fingerprint: fingerprint, body: body.anchored(now: now))
+        pending.append(next); try write(pending, "pending-direct-lineups.json")
+        return next
+    }
+    func completeDirectLineup(key: String, accountID: String) throws {
+        lock.lock(); defer { lock.unlock() }
+        try write(try pendingDirectLineups().filter { !($0.accountID == accountID && $0.key == key) }, "pending-direct-lineups.json")
+    }
     func saveContext(_ context: GroupMatchContext, sessionID: String) throws {
         lock.lock(); defer { lock.unlock() }
         var all = read([String: GroupMatchContext].self, "contexts.json") ?? [:]
@@ -194,6 +222,9 @@ nonisolated final class GroupLocalPersistence: @unchecked Sendable {
     func deleteAccountData(accountID: String) {
         lock.lock(); defer { lock.unlock() }; removeCache(accountID: accountID)
         var deleted = read([String].self, "deleted-accounts.json") ?? []; if !deleted.contains(accountID) { deleted.append(accountID) }; try? write(deleted, "deleted-accounts.json")
+        if let pending = try? pendingDirectLineups() {
+            try? write(pending.filter { $0.accountID != accountID }, "pending-direct-lineups.json")
+        }
         guard let existingRows = try? readOutbox() else { return }
         let rows = existingRows.filter { $0.accountID != accountID }
         let contexts = (read([String: GroupMatchContext].self, "contexts.json") ?? [:]).filter { $0.value.accountID != accountID }

@@ -20,10 +20,7 @@ struct GroupMatchEditor: View {
     @State private var frozenLoadFailed = false
     @State private var showRules = false
     @State private var busy = false
-    @State private var scoreA = ""
-    @State private var scoreB = ""
-    @State private var setDetails: [GroupScore] = []
-    @State private var includesSets = false
+    @State private var resultDraft = GroupResultEntryDraft()
     @State private var frozenSeats: [GroupSeat]?
     @State private var initialized = false
     @State private var playedAt = Date()
@@ -35,14 +32,7 @@ struct GroupMatchEditor: View {
     private var boundGameID: String? { activitySession?.gameID ?? trainingSession?.startedGameId.flatMap { $0.isEmpty ? nil : $0 } ?? activity.flatMap { $0.gameId.isEmpty ? nil : $0.gameId } }
     private var seatIDs: [String] { format == .singles ? [ids[0],ids[2]] : ids }
     private var ready: Bool { seatIDs.allSatisfy { !$0.isEmpty } && Set(seatIDs).count == seatIDs.count }
-    /// 对齐安卓 GroupResultDraft.hasDetailInput：明细行只是占位，没填任何分数时按总分校验，
-    /// 不能因为「展开了明细」就把一个合法的总分判成错误。
-    private var scoredDetails: [GroupScore]? { GroupInputValidation.scoredDetails(includesSets: includesSets, sets: setDetails) }
-    private var validManualResult: Bool {
-        guard manual else { return true }
-        guard let a = Int(scoreA), let b = Int(scoreB), playedAt <= Date() else { return false }
-        return currentRules.validResult(.init(a: a, b: b), sets: scoredDetails)
-    }
+    private var validManualResult: Bool { !manual || (playedAt <= Date() && resultDraft.isValid(currentRules)) }
     private var currentRules: GroupMatchRules {
         if let frozenRules { return frozenRules }
         if let capability = store.capabilities?.sport(detail.group.sport), capability.supportsCustomRules == false, let defaults = capability.defaultRules { return defaults }
@@ -70,12 +60,8 @@ struct GroupMatchEditor: View {
                 }
                 if manual {
                     Section(groupText("overall_score", "Overall set score")) {
-                        LabeledContent("A") { TextField("A", text: $scoreA).keyboardType(.numberPad).multilineTextAlignment(.trailing).accessibilityIdentifier("group_score_A") }
-                        LabeledContent("B") { TextField("B", text: $scoreB).keyboardType(.numberPad).multilineTextAlignment(.trailing).accessibilityIdentifier("group_score_B") }
+                        GroupResultScoreControls(draft: $resultDraft, rules: currentRules)
                         DatePicker(groupText("played_at", "Played at"), selection: $playedAt, in: ...Date()).accessibilityIdentifier("group_result_played_at")
-                        quickScores
-                        Toggle(groupText("set_details", "Set details"), isOn: $includesSets).accessibilityIdentifier("group_result_sets_toggle")
-                        if includesSets { GroupSetDetailsEditor(sets: $setDetails, maximum: currentRules.maxSets) }
                     }
                 }
                 if let error { GroupNotice(text: error) }
@@ -89,38 +75,14 @@ struct GroupMatchEditor: View {
                 .toolbar { ToolbarItem(placement: .cancellationAction) { Button(groupText("close", "Close")) { dismiss() }.disabled(busy) } }
                 .onChange(of: store.identityRevision) { _, _ in dismiss() }
                 .task { await initialize() }
+                .onChange(of: resultDraft.detailsExpanded) { _, value in if value { resultDraft.reconcileDetails(currentRules) } }
+                .onChange(of: resultDraft.total) { _, _ in resultDraft.reconcileDetails(currentRules) }
+                .onChange(of: currentRules) { _, _ in resultDraft.victoryOrder = nil }
                 .sheet(isPresented: $showRules) {
                     GroupRulesEditor(rules: Binding(get: { GroupMatchRules(sport: detail.group.sport, setup: setup) }, set: { setup = $0.setup(format: format) }), capability: store.capabilities?.sport(detail.group.sport))
                 }
 
         }.groupAdaptiveOrientation()
-    }
-    /// 对齐安卓 GroupQuickResultColumn：快捷比分按「A 胜 / B 胜」分列，平局单独一行
-    /// （安卓新实现把 a == b 的比分漏掉了，这里保留，避免平局项目无法一键填分）。
-    @ViewBuilder private var quickScores: some View {
-        let scores = currentRules.overallScores
-        VStack(alignment: .leading, spacing: Theme.sm) {
-            HStack(alignment: .top, spacing: Theme.sm) {
-                quickColumn(title: groupText("entry_a_wins", "A wins"), scores: scores.filter { $0.a > $0.b })
-                quickColumn(title: groupText("entry_b_wins", "B wins"), scores: scores.filter { $0.b > $0.a })
-            }
-            let draws = scores.filter { $0.a == $0.b }
-            if !draws.isEmpty { quickColumn(title: groupText("result_draw", "Draw"), scores: draws) }
-        }
-    }
-    private func quickColumn(title: String, scores: [GroupScore]) -> some View {
-        VStack(alignment: .leading, spacing: Theme.xs) {
-            Text(title).font(.caption).foregroundStyle(.secondary)
-            ForEach(Array(scores.enumerated()), id: \.offset) { _, score in
-                quickButton(score, chosen: Int(scoreA) == score.a && Int(scoreB) == score.b)
-            }
-        }.frame(maxWidth: .infinity, alignment: .leading)
-    }
-    @ViewBuilder private func quickButton(_ score: GroupScore, chosen: Bool) -> some View {
-        let label = Text("\(score.a):\(score.b)").font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity)
-        let action = { scoreA = String(score.a); scoreB = String(score.b) }
-        if chosen { Button(action: action) { label }.buttonStyle(.borderedProminent).controlSize(.small).accessibilityIdentifier("group_quick_score_\(score.a)_\(score.b)") }
-        else { Button(action: action) { label }.buttonStyle(.bordered).controlSize(.small).accessibilityIdentifier("group_quick_score_\(score.a)_\(score.b)") }
     }
     private func initialize() async {
         guard !initialized else { return }; initialized = true; presentedAccountID = store.accountID
@@ -176,10 +138,8 @@ struct GroupMatchEditor: View {
             if let activity { let me = detail.members.first { $0.accountId == accountID }; guard GroupPermissions.canScore(activity, me: me, seats: seats) || (manual && activitySession?.canCorrectResult == true) || (frozenCreatorMemberID != nil && frozenCreatorMemberID == me?.id) else { throw GroupFlowError.gameUnavailable } }
             if detail.group.isCoaching { guard GroupPermissions.coach(detail.group, member: detail.members.first(where: { $0.accountId == accountID })) else { throw GroupFlowError.gameUnavailable } }
             if manual {
-                guard let a = Int(scoreA), let b = Int(scoreB) else { throw GroupFormError.invalidResult }
-                let score = GroupScore(a: a, b: b)
-                guard rules.validResult(score, sets: scoredDetails) else { throw GroupFormError.invalidResult }
-                let body = GroupResultBody(gameId: boundGameID, clientSessionId: sessionID, clientRecordId: nil, activityId: activity?.id, format: format, bestOf: rules.maxSets, rules: rules, setScore: score, sets: details, playedAt: Int64(playedAt.timeIntervalSince1970 * 1000), source: "manual", participants: seats, trainingSessionId: trainingSession?.id, activitySessionId: activitySession?.id)
+                guard resultDraft.isValid(rules), let score = resultDraft.score, playedAt <= Date() else { throw GroupFormError.invalidResult }
+                let body = GroupResultBody(gameId: boundGameID, clientSessionId: sessionID, clientRecordId: nil, activityId: activity?.id, format: format, bestOf: rules.maxSets, rules: rules, setScore: score, sets: resultDraft.details, playedAt: Int64(playedAt.timeIntervalSince1970 * 1000), source: "manual", participants: seats, trainingSessionId: trainingSession?.id, activitySessionId: activitySession?.id)
                 guard await store.repository.client.authSessionRevision() == authRevision else { throw GroupFlowError.staleSession }
                 try store.queuedResult(body, groupID: detail.group.id, id: uploadKey, key: uploadKey)
                 dismiss(); return

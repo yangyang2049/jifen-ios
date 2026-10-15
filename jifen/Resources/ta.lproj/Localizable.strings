@@ -1886,7 +1886,6 @@
 "group_server_version" = "சமீபத்திய பதிப்பு";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "குழுவைத் திறக்கவும்";
 "group_notice_end" = "மேலும் அறிவிப்புகள் இல்லை";
 "group_notice_join_requested" = "இணையும் கோரிக்கை பெறப்பட்டது";
 "group_notice_join_approved" = "இணையும் கோரிக்கை ஏற்கப்பட்டது";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "சேர ஸ்கேன் செய்யவும்";
 "group_qr_apply_short" = "சேர விண்ணப்பிக்க ஸ்கேன் செய்யவும்";
 "group_update_report" = "புகாரைப் புதுப்பிக்கவும்";
+"group_ranking_rate" = "வெற்றி விகிதம்";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "ஒன்றாக விளையாடி ஸ்கோரைப் பதிவு செய்ய எங்கள் %@ குழுவில் சேருங்கள்!";
+"group_share_message" = "%@\n\nகுழுவின் பெயர்: %@\nகுழு எண் %@\n\nகுழுவில் இணை: %@\n\niScoreboard ஐப் பதிவிறக்கி, சேர்வதற்குக் குழு எண்ணை உள்ளிடுங்கள்:\n%@";
+"group_entry_set_winners" = "ஒவ்வொரு ஆட்டத்தின் வெற்றியாளர்கள்";
+"group_activity_lineup_incomplete" = "இந்தப் போட்டிக்கான அனைத்து வீரர்களையும் தேர்ந்தெடுக்கவும்";
+"group_activity_lineup_duplicate" = "ஒவ்வொரு வீரரும் இந்தப் போட்டியில் ஒருமுறை மட்டுமே இடம்பெறலாம்";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "கைமுறையாக உள்ளிடவும்";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "அனைத்தையும் படித்ததாகக் குறி";

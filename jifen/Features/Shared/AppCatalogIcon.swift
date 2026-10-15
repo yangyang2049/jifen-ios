@@ -48,7 +48,7 @@ enum AppCatalogIconAssets {
     }
 }
 
-/// Keep the emoji's layout footprint while allowing artwork to grow independently.
+/// Shared artwork keeps a stable layout footprint; missing assets use a local court icon.
 struct AppCatalogIcon: View {
     let assetName: String
     let fallbackEmoji: String
@@ -86,21 +86,12 @@ struct AppCatalogIcon: View {
     var body: some View {
         Group {
             if let image = UIImage(named: assetName) {
-                Text(fallbackEmoji)
-                    .font(.system(size: size))
-                    .hidden()
-                    .overlay {
-                        Image(uiImage: image)
-                            .renderingMode(.original)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: artworkSize, height: artworkSize)
-                    }
+                Image(uiImage: image).renderingMode(.original).resizable().scaledToFit()
+                    .frame(width: artworkSize, height: artworkSize)
+                    .frame(width: size, height: size)
             } else {
-                Text(fallbackEmoji)
-                    .font(.system(size: size))
+                EmptyStateCourtIcon(size: size)
             }
-        }
-        .accessibilityHidden(true)
+        }.accessibilityHidden(true)
     }
 }

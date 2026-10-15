@@ -48,17 +48,17 @@ struct GroupRulesEditor: View {
         NavigationStack {
             Form {
                 if let options = capability?.ruleOptions {
-                    Picker(groupText("completion_mode", "Match completion"), selection: $rules.matchCompletionMode) { ForEach(options.matchCompletionModes ?? ["best_of"], id: \.self) { Text(groupText($0, $0)).tag($0) } }
+                    GroupRuleChoices(title: groupText("completion_mode", "Match completion"), values: options.matchCompletionModes ?? [rules.matchCompletionMode], selection: $rules.matchCompletionMode, label: { groupText($0, $0) })
                     if capability?.supportsCustomRules == true { Stepper(groupText("max_sets", "Games per match") + ": \(rules.maxSets)", value: $rules.maxSets, in: 1...99) }
-                    else { Picker(groupText("max_sets", "Games per match"), selection: $rules.maxSets) { ForEach(options.maxSets ?? [rules.maxSets], id: \.self) { Text("\($0)").tag($0) } } }
+                    GroupRuleChoices(title: groupText("max_sets", "Games per match"), values: options.maxSets ?? [rules.maxSets], selection: $rules.maxSets, label: { String($0) })
                     if rules.sport == .tennis {
-                        Picker(groupText("tennis_scoring", "Set scoring"), selection: $rules.setScoringMode) { ForEach(options.setScoringModes ?? ["regular"], id: \.self) { Text(groupText($0, $0)).tag($0) } }
-                        Picker(groupText("games_per_set", "Games per set"), selection: $rules.gamesPerSet) { ForEach(options.gamesPerSet ?? [6], id: \.self) { Text("\($0)").tag($0) } }
-                        Picker(groupText("tie_break", "Tie-break points"), selection: $rules.tieBreakPoints) { ForEach(options.tieBreakPoints ?? [7], id: \.self) { Text("\($0)").tag($0) } }
+                        GroupRuleChoices(title: groupText("tennis_scoring", "Set scoring"), values: options.setScoringModes ?? [rules.setScoringMode], selection: $rules.setScoringMode, label: { groupText($0, $0) })
+                        GroupRuleChoices(title: groupText("games_per_set", "Games per set"), values: options.gamesPerSet ?? [rules.gamesPerSet], selection: $rules.gamesPerSet, label: { String($0) })
+                        GroupRuleChoices(title: groupText("tie_break", "Tie-break points"), values: options.tieBreakPoints ?? [rules.tieBreakPoints], selection: $rules.tieBreakPoints, label: { String($0) })
                         Toggle(groupText("no_ad", "No-ad scoring"), isOn: $rules.usesNoAdScoring).disabled(Set(options.usesNoAdScoring ?? []).count < 2)
                     } else {
                         if capability?.supportsCustomRules == true { Stepper(groupText("target_points", "Points to win") + ": \(rules.pointsToWinSet)", value: $rules.pointsToWinSet, in: 1...999) }
-                        else { Picker(groupText("target_points", "Points to win"), selection: $rules.pointsToWinSet) { ForEach(options.pointsToWinSet ?? [rules.pointsToWinSet], id: \.self) { Text("\($0)").tag($0) } } }
+                        GroupRuleChoices(title: groupText("target_points", "Points to win"), values: options.pointsToWinSet ?? [rules.pointsToWinSet], selection: $rules.pointsToWinSet, label: { String($0) })
                         Toggle(groupText("win_by_two", "Win by two"), isOn: $rules.winByTwo).disabled(Set(options.winByTwo ?? []).count < 2)
                         Toggle(groupText("rally_scoring", "Rally scoring"), isOn: $rules.useRallyScoring).disabled(Set(options.useRallyScoring ?? []).count < 2)
                         if capability?.supportsCustomRules == true {
@@ -104,7 +104,7 @@ struct GroupNoticeInbox: View {
             if let error = store.noticeError {
                 Section {
                     GroupNotice(text: error)
-                    Button(groupText("retry", "Retry")) { Task { await store.loadNotices(more: store.notices.isEmpty ? false : store.hasMoreNotices) } }.disabled(store.noticesLoading)
+                    Button(groupText("retry", "Retry")) { Task { await store.loadNotices(more: store.notices.isEmpty ? false : store.hasMoreNotices) } }.disabled(store.noticesLoading || store.noticesMarkingAll)
                 }.accessibilityIdentifier("group_notices_error")
             }
             if store.notices.isEmpty, !store.noticesLoading, store.noticeError == nil {
@@ -116,7 +116,7 @@ struct GroupNoticeInbox: View {
             if store.noticesLoading {
                 HStack { ProgressView() }.frame(maxWidth: .infinity).accessibilityIdentifier("group_notices_loading")
             } else if store.hasMoreNotices {
-                Button(groupText("load_more", "Load more")) { Task { await store.loadNotices(more: true) } }.frame(maxWidth: .infinity).buttonStyle(.borderless)
+                Button(groupText("load_more", "Load more")) { Task { await store.loadNotices(more: true) } }.frame(maxWidth: .infinity).buttonStyle(.borderless).disabled(store.noticesMarkingAll)
             } else if !store.notices.isEmpty, store.noticeError == nil {
                 Text(groupText("notice_end", "No more notifications")).font(.footnote).foregroundStyle(Theme.textSecondary).frame(maxWidth: .infinity)
                     .accessibilityIdentifier("group_notices_end")
@@ -124,38 +124,65 @@ struct GroupNoticeInbox: View {
         }
         .navigationTitle(groupText("notices", "Notifications")).groupAccountBoundary()
         .accessibilityIdentifier("group_notice_inbox")
-        .task { await store.loadNotices() }.refreshable { await store.loadNotices() }
+        .toolbar {
+            // 右上「全部已读」：与鸿蒙/安卓一致，顺序补齐所有未读（含翻页），无未读时隐藏。
+            if store.unreadCount > 0 || store.noticesMarkingAll {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        Task { await store.markAllNoticesSeen() }
+                    } label: { Image(systemName: "checkmark.double") }
+                        .disabled(store.noticesMarkingAll || store.noticesLoading)
+                        .accessibilityIdentifier("group_notices_mark_all")
+                        .accessibilityLabel(groupText("notice_mark_all", "Mark all read"))
+                }
+            }
+        }
+        .task { await store.loadNotices() }.refreshable { if !store.noticesMarkingAll { await store.loadNotices() } }
         .navigationDestination(item: $opened) { notice in
             GroupNoticeDestinationView(notice: notice, onStart: onStart).task { await store.markNoticeSeen(notice) }
         }
     }
     private func noticeRow(_ notice: GroupNotification) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 6) {
-                Text(notice.groupName + " · " + notice.label).font(.headline).fixedSize(horizontal: false, vertical: true)
-                Spacer(minLength: 0)
-                if notice.seenAt == nil { Image(systemName: "circle.fill").font(.caption2).foregroundStyle(Theme.primary) }
-            }
-            if !notice.title.isEmpty { Text(notice.title) }
-            if let reason = notice.reason, !reason.isEmpty {
-                Text(notice.kind == "role_changed" ? groupText(reason, reason) : reason).font(.footnote).foregroundStyle(Theme.textSecondary)
-            }
-            Text(Date(timeIntervalSince1970: Double(notice.createdAt) / 1000), format: .dateTime).font(.caption).foregroundStyle(Theme.textSecondary)
-            HStack(spacing: 16) {
-                if notice.seenAt == nil {
-                    Button(groupText("notice_seen", "Mark as read")) {
-                        Task { busy.insert(notice.id); defer { busy.remove(notice.id) }; await store.markNoticeSeen(notice) }
-                    }.disabled(busy.contains(notice.id)).accessibilityIdentifier("group_notice_seen_" + notice.id)
-                } else {
-                    Text(groupText("read_notices", "Read")).font(.footnote).foregroundStyle(Theme.textSecondary)
+        HStack(alignment: .top, spacing: 8) {
+            // 方案 B：左列整块可点 = 查看小组（未读时进入详情页自动回执）；右侧只保留单条已读控件。
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 6) {
+                    if notice.seenAt == nil { Circle().fill(Theme.primary).frame(width: 8, height: 8) }
+                    Text(notice.groupName + " · " + notice.label)
+                        .font(.headline)
+                        .foregroundStyle(notice.seenAt == nil ? Theme.textPrimary : Theme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                if notice.opensGroup {
-                    Button(groupText("notice_open", "Open group")) {
-                        if notice.seenAt == nil { Task { await store.markNoticeSeen(notice) } }
-                        opened = notice
-                    }.accessibilityIdentifier("group_notice_open_" + notice.id)
+                if !notice.title.isEmpty { Text(notice.title) }
+                if let reason = notice.reason, !reason.isEmpty {
+                    Text(notice.kind == "role_changed" ? groupText(reason, reason) : reason).font(.footnote).foregroundStyle(Theme.textSecondary)
                 }
-            }.buttonStyle(.borderless)
+                Text(Date(timeIntervalSince1970: Double(notice.createdAt) / 1000), format: .dateTime).font(.caption).foregroundStyle(Theme.textSecondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+            .onTapGesture { if notice.opensGroup && !store.noticesMarkingAll { opened = notice } }
+            .accessibilityIdentifier("group_notice_open_" + notice.id)
+            if notice.seenAt == nil {
+                Button {
+                    Task { busy.insert(notice.id); defer { busy.remove(notice.id) }; await store.markNoticeSeen(notice) }
+                } label: {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Theme.primary)
+                        .frame(width: 30, height: 30)
+                        .background(Circle().fill(Theme.controlBackground))
+                }
+                .buttonStyle(.plain)
+                .disabled(busy.contains(notice.id) || store.noticesMarkingAll)
+                .accessibilityIdentifier("group_notice_seen_" + notice.id)
+                .accessibilityLabel(groupText("notice_seen", "Mark as read"))
+            } else {
+                Text(groupText("read_notices", "Read")).font(.caption2).foregroundStyle(Theme.textSecondary)
+                    .padding(.horizontal, 8).padding(.vertical, 3)
+                    .background(Capsule().fill(Theme.controlBackground))
+                    .accessibilityIdentifier("group_notice_read_" + notice.id)
+            }
         }
     }
 }

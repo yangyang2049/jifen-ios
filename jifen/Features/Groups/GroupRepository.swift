@@ -15,9 +15,11 @@ nonisolated struct GroupResultBody: Codable, Sendable {
 }
 nonisolated enum GroupRequestIdentity {
     @TaskLocal static var authRevision: UInt64?
+    @TaskLocal static var capabilities: GroupCapabilities?
 }
 nonisolated struct GroupRepository: Sendable {
     var client: APIClient = .shared
+    var persistence: GroupLocalPersistence = .shared
     private func requestRevision(_ expected: UInt64?) async -> UInt64 {
         if let revision = expected ?? GroupRequestIdentity.authRevision { return revision }
         return await client.authSessionRevision()
@@ -33,10 +35,18 @@ nonisolated struct GroupRepository: Sendable {
         #if DEBUG
         if GroupCaptureFixture.enabled { try GroupCaptureFixture.rejectWrite(path) }
         #endif
+        let authRevision = await requestRevision(expectedAuthRevision)
+        if let action = GroupWriteCapability.required(for: path, method: method) {
+            let catalog: GroupCapabilities
+            if let current = GroupRequestIdentity.capabilities { catalog = current }
+            else { catalog = try await read("/capabilities", expectedAuthRevision: authRevision) }
+            guard catalog.allows(action) else {
+                throw APIClientError.server(status: 409, code: "ACTION_DISABLED", message: nil, nextAvailableAt: nil)
+            }
+        }
         var headers: [String: String] = [:]
         if let key { headers["Idempotency-Key"] = key }
         if let revision { headers["If-Match"] = "\"\(revision)\"" }
-        let authRevision = await requestRevision(expectedAuthRevision)
         return try await client.request("/api/groups" + path, method: method, body: body ?? EmptyRequest(), requiresAuth: true, headers: headers, expectedAuthRevision: authRevision)
     }
     func action(_ path: String, body: GroupActionBody = .init(), method: HTTPMethod = .post, revision: Int64? = nil, expectedAuthRevision: UInt64? = nil) async throws {
@@ -51,8 +61,13 @@ nonisolated struct GroupRepository: Sendable {
         return try await read("/\(groupID)/results", query: query, expectedAuthRevision: expectedAuthRevision)
     }
     /// 直接排赛（安卓 `createDirectLineup`）：一次请求建 `activityType=direct` 活动并落对阵场次。
-    func createDirectLineup(groupID: String, body: GroupDirectLineupBody) async throws -> GroupDirectLineupResponse {
-        try await write("/\(groupID)/direct-lineups", body: body, key: UUID().uuidString)
+    func createDirectLineup(groupID: String, body: GroupDirectLineupBody, accountID: String) async throws -> GroupDirectLineupResponse {
+        let authRevision = await requestRevision(nil)
+        let pending = try persistence.pendingDirectLineup(accountID: accountID, groupID: groupID, body: body)
+        let response: GroupDirectLineupResponse = try await write("/\(groupID)/direct-lineups", body: pending.body,
+            key: pending.key, expectedAuthRevision: authRevision)
+        try? persistence.completeDirectLineup(key: pending.key, accountID: accountID)
+        return response
     }
     func activityLineup(groupID: String, activityID: String) async throws -> GroupActivityLineup {
         try await read("/\(groupID)/activities/\(activityID)/lineup")
@@ -71,6 +86,19 @@ nonisolated struct GroupDetailCache: Codable, Sendable {
     var removedMembers: [GroupMember]? = nil
     var trainingNotices: [GroupTrainingNotice]? = nil
     var activityLineups: [String: GroupActivityLineup]? = nil
+    var rankingsByFormat: [String: [GroupRanking]]? = nil
+
+    func rankings(for format: GroupFormat) -> [GroupRanking] {
+        // Legacy snapshots have no format; refresh them rather than guessing singles or doubles.
+        rankingsByFormat?[format.rawValue] ?? []
+    }
+    var hasAnyRanking: Bool {
+        rankingsByFormat?.values.contains { !$0.isEmpty } ?? false
+    }
+    mutating func setRankings(_ rows: [GroupRanking], format: GroupFormat) {
+        if rankingsByFormat == nil { rankingsByFormat = [:] }
+        rankingsByFormat?[format.rawValue] = rows
+    }
 }
 nonisolated struct GroupAccountCache: Codable, Sendable {
     var groups: [ScoreGroup] = []; var pending: [GroupJoinRequest] = []; var details: [String: GroupDetailCache] = [:]; var syncedAt: Date? = nil
@@ -112,10 +140,11 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
     private(set) var unreadCount = 0
     private(set) var noticeError: String? = nil
     private(set) var noticesLoading = false
+    private(set) var noticesMarkingAll = false
     private var noticeCursor: String?
     var hasMoreNotices: Bool { noticeCursor != nil }
     private var noticeRequest = 0
-    private var seenNoticeIDs = Set<String>()
+    private var confirmedSeen = GroupNoticeReadReceipts()
     #if DEBUG
     private var preparedUITestDrafts = false
     #endif
@@ -150,12 +179,12 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
         if let previous = accountID { GroupLocalPersistence.shared.removeCache(accountID: previous) }
         retryTask?.cancel(); retryTask = nil
         historyRequests.removeAll(); historyRows.removeAll(); historyCursors.removeAll()
-        noticeRequest += 1; notices = []; unreadCount = 0; noticeCursor = nil; seenNoticeIDs.removeAll()
-        noticeError = nil; noticesLoading = false
+        noticeRequest += 1; notices = []; unreadCount = 0; noticeCursor = nil; confirmedSeen.removeAll()
+        noticeError = nil; noticesLoading = false; noticesMarkingAll = false
         mutationCount = 0; mutating = false
         GroupActivityReminder.shared.clearAccount(previous: accountID)
         identityRevision &+= 1
-        detailErrors.removeAll(); rankErrors.removeAll()
+        detailErrors.removeAll(); rankErrors.removeAll(); rankRequests.removeAll(); requestedRankFormats.removeAll()
         accountID = userID
         capabilities = nil
         defaults.set(userID, forKey: "groups.lastAccountID")
@@ -166,6 +195,8 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
     func matchesIdentity(_ id: String, revision: Int) -> Bool {
         accountID == id && identityRevision == revision
     }
+
+    func allows(_ action: String) -> Bool { enabled && capabilities?.allows(action) == true }
     private func restoreIdentity() async {
         if let id = SessionStore.shared.user?.id { sessionDidChange(userID: id) }
         else if accountID == nil, await AuthTokenStore.shared.authToken() != nil, let id = defaults.string(forKey: "groups.lastAccountID") {
@@ -236,7 +267,7 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
             guard matchesIdentity(id, revision: revision), detailRequests[groupID] == sequence, !Task.isCancelled,
                   await repository.client.authSessionRevision() == authRevision else { return }
             let old = cache.details[groupID]
-            cache.details[groupID] = .init(group: g, members: m ?? old?.members ?? [], activities: a ?? old?.activities ?? [], results: r?.items ?? old?.results ?? [], rankings: old?.rankings ?? [], stats: s ?? old?.stats, nextCursor: r?.nextCursor, syncedAt: Date(), trainingPlans: old?.trainingPlans, leaveNotices: old?.leaveNotices, pendingResults: p ?? old?.pendingResults, removedMembers: old?.removedMembers, trainingNotices: old?.trainingNotices)
+            cache.details[groupID] = .init(group: g, members: m ?? old?.members ?? [], activities: a ?? old?.activities ?? [], results: r?.items ?? old?.results ?? [], rankings: old?.rankings ?? [], stats: s ?? old?.stats, nextCursor: r?.nextCursor, syncedAt: Date(), trainingPlans: old?.trainingPlans, leaveNotices: old?.leaveNotices, pendingResults: p ?? old?.pendingResults, removedMembers: old?.removedMembers, trainingNotices: old?.trainingNotices, rankingsByFormat: old?.rankingsByFormat)
             if let role = g.myRole, let index = cache.details[groupID]?.members.firstIndex(where: { $0.accountId == id }) { cache.details[groupID]?.members[index].role = role }
             error = [m == nil, a == nil, r == nil, p == nil, s == nil].contains(true) ? groupText("partial_load", "Some sections could not refresh. Pull to retry.") : nil
             detailErrors[groupID] = error
@@ -265,7 +296,12 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
                 detailErrors[groupID] = error
                 saveCache()
             }
-            if requestedRankFormats[groupID] == nil || requestedRankFormats[groupID] == format { await loadRankings(groupID, format: format) }
+            let selected = requestedRankFormats[groupID] ?? format
+            await loadRankings(groupID, format: selected, select: false)
+            guard matchesIdentity(id, revision: revision), !Task.isCancelled else { return }
+            for other in GroupFormat.allCases where other != selected {
+                await loadRankings(groupID, format: other, select: false)
+            }
         } catch {
             guard matchesIdentity(id, revision: revision), detailRequests[groupID] == sequence else { return }
             self.error = groupErrorMessage(error); cached = cache.details[groupID] != nil
@@ -275,10 +311,10 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
             }
         }
     }
-    func loadRankings(_ groupID: String, format: GroupFormat) async {
+    func loadRankings(_ groupID: String, format: GroupFormat, select: Bool = true) async {
         #if DEBUG
         if GroupCaptureFixture.enabled {
-            do { cache.details[groupID]?.rankings = try GroupCaptureFixture.rankings(groupID, format: format) }
+            do { cache.details[groupID]?.setRankings(try GroupCaptureFixture.rankings(groupID, format: format), format: format) }
             catch { self.error = error.localizedDescription }
             return
         }
@@ -288,17 +324,18 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
         #endif
         guard enabled, let id = accountID, SessionStore.shared.user?.id == id else { return }
         let revision = identityRevision
-        requestedRankFormats[groupID] = format
+        if select { requestedRankFormats[groupID] = format }
         let key = Self.rankKey(groupID, format: format)
-        let sequence = (rankRequests[groupID] ?? 0) + 1
-        rankRequests[groupID] = sequence
+        let sequence = (rankRequests[key] ?? 0) + 1
+        rankRequests[key] = sequence
         do {
             let ranks: GroupPage<GroupRanking> = try await repository.read("/\(groupID)/rankings", query: [.init(name: "format", value: format.rawValue)])
-            guard matchesIdentity(id, revision: revision), rankRequests[groupID] == sequence, !Task.isCancelled else { return }
-            cache.details[groupID]?.rankings = ranks.items
+            guard matchesIdentity(id, revision: revision), rankRequests[key] == sequence, !Task.isCancelled else { return }
+            cache.details[groupID]?.setRankings(ranks.items, format: format)
+            if (requestedRankFormats[groupID] ?? .singles) == format { cache.details[groupID]?.rankings = ranks.items }
             rankErrors[key] = nil; saveCache()
         } catch {
-            guard matchesIdentity(id, revision: revision), rankRequests[groupID] == sequence else { return }
+            guard matchesIdentity(id, revision: revision), rankRequests[key] == sequence else { return }
             // 排行榜失败不该污染整页 error：安卓只把失败记在该 section 上。
             rankErrors[key] = groupErrorMessage(error)
         }
@@ -329,7 +366,9 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
         do {
             let authRevision = await repository.client.authSessionRevision()
             guard matchesIdentity(id, revision: revision) else { return false }
-            try await GroupRequestIdentity.$authRevision.withValue(authRevision) { try await operation() }
+            try await GroupRequestIdentity.$authRevision.withValue(authRevision) {
+                try await GroupRequestIdentity.$capabilities.withValue(capabilities) { try await operation() }
+            }
             guard matchesIdentity(id, revision: revision), await repository.client.authSessionRevision() == authRevision else { return false }
             error = nil; return true
         } catch {
@@ -432,48 +471,74 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
             historyRows[key] = rows; historyCursors[key] = page.nextCursor
         } catch { if matchesIdentity(id, revision: revision), historyRequests[groupID] == sequence { self.error = groupErrorMessage(error) } }
     }
-    func loadNotices(more: Bool = false) async {
+    @discardableResult func loadNotices(more: Bool = false) async -> Bool {
         #if DEBUG
-        if ProcessInfo.processInfo.arguments.contains("-UITestGroupsFixture") { return }
+        if ProcessInfo.processInfo.arguments.contains("-UITestGroupsFixture") { return true }
         #endif
-        guard enabled, let id = accountID, SessionStore.shared.user?.id == id else { return }
+        guard !Task.isCancelled, enabled, let id = accountID, SessionStore.shared.user?.id == id else { return false }
         let revision = identityRevision; noticeRequest += 1; let sequence = noticeRequest
         noticesLoading = true
         do {
             var query = [URLQueryItem(name: "limit", value: "50")]
             if more, let noticeCursor { query.append(.init(name: "cursor", value: noticeCursor)) }
             let page: GroupNoticePage = try await repository.read("/notices", query: query)
-            guard matchesIdentity(id, revision: revision), noticeRequest == sequence else { return }
+            guard matchesIdentity(id, revision: revision), noticeRequest == sequence else { return false }
             if more, page.nextCursor != nil, page.nextCursor == noticeCursor { throw GroupFlowError.repeatedCursor }
             var rows = more ? notices : []; let ids = Set(rows.map(\.id))
-            rows.append(contentsOf: page.items.filter { !ids.contains($0.id) }.map { item in var item = item; if seenNoticeIDs.contains(item.id) { item.seenAt = item.seenAt ?? Int64(Date().timeIntervalSince1970 * 1000) }; return item })
+            rows.append(contentsOf: page.items.filter { !ids.contains($0.id) }.map { confirmedSeen.applying(to: $0) })
             notices = rows; noticeCursor = page.nextCursor
-            let pageUnread = max(0, page.unreadCount - page.items.filter { $0.seenAt == nil && seenNoticeIDs.contains($0.id) }.count)
+            let pageUnread = max(0, page.unreadCount - confirmedSeen.staleUnreadCount(in: page.items))
             unreadCount = more ? min(unreadCount, pageUnread) : pageUnread
             cache.notices = notices; cache.unreadCount = unreadCount; saveCache()
             noticeError = nil; noticesLoading = false
+            return true
         } catch {
-            guard matchesIdentity(id, revision: revision), noticeRequest == sequence else { return }
+            guard matchesIdentity(id, revision: revision), noticeRequest == sequence else { return false }
             noticeError = groupErrorMessage(error); noticesLoading = false
+            return false
         }
     }
     /// Mirrors the Android inbox: the response has to echo the acknowledged notice and carry a server
     /// timestamp, and the row is replaced with what the server returned rather than a local estimate.
-    func markNoticeSeen(_ notice: GroupNotification) async {
-        guard enabled, let id = accountID, SessionStore.shared.user?.id == id else { return }
-        guard (capabilities?.minClientContractVersion ?? 1) <= 1 else { noticeError = groupText("capabilities_missing", "Match rules are unavailable. Connect and retry."); return }
+    @discardableResult func markNoticeSeen(_ notice: GroupNotification) async -> Bool {
+        guard !Task.isCancelled, enabled, let id = accountID, SessionStore.shared.user?.id == id else { return false }
         let revision = identityRevision
         do {
             let updated: GroupNotification = try await repository.write("/notices/\(notice.id)/seen")
-            guard matchesIdentity(id, revision: revision) else { return }
+            guard matchesIdentity(id, revision: revision) else { return false }
             guard updated.isReceipt(for: notice) else { throw GroupFlowError.invalidReceipt }
             // Reads already in flight predate this acknowledgement and cannot restore its badge.
-            noticeRequest += 1; seenNoticeIDs.insert(updated.id)
-            if notices.first(where: { $0.id == updated.id })?.seenAt == nil { unreadCount = max(0, unreadCount - 1) }
+            noticeRequest += 1; noticesLoading = false; confirmedSeen.record(updated)
+            if notices.contains(where: { $0.id == updated.id && $0.seenAt == nil }) { unreadCount = max(0, unreadCount - 1) }
             notices = notices.map { $0.id == updated.id ? updated : $0 }
             cache.notices = notices; cache.unreadCount = unreadCount; saveCache()
             noticeError = nil
-        } catch { if matchesIdentity(id, revision: revision) { noticeError = groupErrorMessage(error) } }
+            return true
+        } catch {
+            if matchesIdentity(id, revision: revision) { noticeError = groupErrorMessage(error) }
+            return false
+        }
+    }
+    /// 单一批次固定发起时的账号与会话版本；失败即停，按游标处理到末页。
+    func markAllNoticesSeen() async {
+        guard !noticesMarkingAll, !noticesLoading, enabled, let id = accountID,
+              SessionStore.shared.user?.id == id else { return }
+        let revision = identityRevision
+        noticesMarkingAll = true
+        defer { if matchesIdentity(id, revision: revision) { noticesMarkingAll = false } }
+        var visitedCursors = Set<String>()
+        while !Task.isCancelled, enabled, matchesIdentity(id, revision: revision), SessionStore.shared.user?.id == id {
+            if let target = notices.first(where: { $0.seenAt == nil }) {
+                guard await markNoticeSeen(target) else { return }
+                continue
+            }
+            guard let cursor = noticeCursor, !noticesLoading else { return }
+            guard visitedCursors.insert(cursor).inserted else {
+                noticeError = groupErrorMessage(GroupFlowError.repeatedCursor)
+                return
+            }
+            guard await loadNotices(more: true) else { return }
+        }
     }
 
 }
@@ -513,7 +578,11 @@ extension GroupStore {
         let activity = GroupActivity(id: "ui-activity", groupId: group.id, title: "周末羽毛球", startsAt: now + 86400000, place: "体育馆", capacity: 8, note: "欢迎报名", format: .doubles, status: "recruiting", creatorMemberId: "ui-a", registeredMemberIds: members.map(\.id), gameId: "", createdAt: now, revision: 1)
         let rules = GroupMatchRules(sport: .badminton, maxSets: 2, matchCompletionMode: "play_all", pointsToWinSet: 21, pointCap: 30, winByTwo: true, useRallyScoring: false, gamesPerSet: 6, tieBreakPoints: 7, setScoringMode: "regular", usesNoAdScoring: false)
         capabilities = .init(groupNoLength: 6, nameMin: 2, nameMax: 24, descriptionMax: 200, memberLimitDefault: 30, memberLimitMax: 50, ruleSchemaVersion: 1, supportsDraws: true)
-        capabilities?.groupTypes = ["peer"]; capabilities?.supportsActivityLineup = true
+        capabilities?.groupTypes = ProcessInfo.processInfo.arguments.contains("-UITestGroupsAllTypes") ? ["peer", "coaching"] : ["peer"]
+        capabilities?.supportsActivityLineup = true
+        if ProcessInfo.processInfo.arguments.contains("-UITestGroupsActivitiesDisabled") {
+            capabilities?.allowedActions = ["create_group", "join_group", "start_game", "submit_result", "confirm_result", "void_result", "manage_group", "manage_members", "register_activity"]
+        }
         capabilities?.sports = GroupSport.allCases.map { sport in
             var value = rules; value.sport = sport; value.maxSets = sport == .tableTennis ? 5 : 3; value.matchCompletionMode = "best_of"
             value.pointsToWinSet = sport == .badminton ? 21 : sport == .tennis ? 6 : 11
@@ -530,17 +599,30 @@ extension GroupStore {
         if ProcessInfo.processInfo.arguments.contains("-UITestGroupsMulti") {
             var multi = activity; multi.matchMode = "multi"; multi.sessionCount = 1
             cache.details[group.id]?.activities = [multi]
-            let session = GroupActivitySession(id: "ui-activity-session", activityId: multi.id, groupId: group.id, orderNo: 1, court: "1 号场", startsAt: multi.startsAt, endsAt: multi.startsAt + 1800000, format: .doubles, status: "scheduled", seats: members.enumerated().map { i, m in .init(memberId: m.id, side: i < 2 ? "A" : "B", seat: i % 2, displayName: m.displayName) }, resultId: "", startedGameId: "", frozenGameId: "", mySide: "A", needsLineup: false, isFrozen: false, canCorrectResult: false)
+            var session = GroupActivitySession(id: "ui-activity-session", activityId: multi.id, groupId: group.id, orderNo: 1, court: "1 号场", startsAt: multi.startsAt, endsAt: multi.startsAt + 1800000, format: .doubles, status: "scheduled", seats: members.enumerated().map { i, m in .init(memberId: m.id, side: i < 2 ? "A" : "B", seat: i % 2, displayName: m.displayName) }, resultId: "", startedGameId: "", frozenGameId: "", mySide: "A", needsLineup: false, isFrozen: false, canCorrectResult: false)
+            if ProcessInfo.processInfo.arguments.contains("-UITestGroupsMissingLineup") {
+                session.seats.removeLast(); session.needsLineup = true
+                multi.registeredMemberIds.removeLast(); cache.details[group.id]?.activities = [multi]
+            }
             cache.details[group.id]?.activityLineups = [multi.id: .init(activityId: multi.id, matchMode: "multi", sessionMinutes: 30, revision: 1, canManage: true, sessions: [session])]
         }
+        let fixtureRanks = cache.details[group.id]?.rankings ?? []
+        cache.details[group.id]?.setRankings(fixtureRanks, format: .singles)
+        cache.details[group.id]?.setRankings([], format: .doubles)
         if group.isCoaching {
             let session = GroupTrainingSession(id: "ui-training", planId: "ui-plan", groupId: group.id, orderNo: 1, court: "1 号场", startsAt: now + 3600000, endsAt: now + 6300000, format: .doubles, status: "scheduled", resultId: "", seats: members.enumerated().map { index, member in .init(memberId: member.id, side: index < 2 ? "A" : "B", seat: index % 2, displayName: member.displayName) }, mySide: "A")
             cache.details[group.id]?.trainingPlans = [.init(id: "ui-plan", groupId: group.id, creatorMemberId: "ui-a", trainingDate: now, startsAt: session.startsAt, endsAt: session.endsAt, sessionMinutes: 45, place: "体育馆", note: "训练排期", status: "published", cancelReason: "", publishedAt: now, sessionCount: 1, mySessionCount: 1, sessions: [session], createdAt: now, revision: 1)]
             cache.details[group.id]?.leaveNotices = [.init(id: "ui-leave", groupId: group.id, planId: "ui-plan", sessionId: session.id, memberId: "ui-b", reason: "临时有事", status: "open", createdAt: now)]
         }
         if ProcessInfo.processInfo.arguments.contains("-UITestGroupsEmpty") {
-            cache.details[group.id]?.activities = []; cache.details[group.id]?.results = []; cache.details[group.id]?.rankings = []
+            cache.details[group.id]?.activities = []; cache.details[group.id]?.results = []; cache.details[group.id]?.rankings = []; cache.details[group.id]?.rankingsByFormat = [:]
             cache.details[group.id]?.trainingPlans = []; cache.details[group.id]?.leaveNotices = []
+        }
+        if ProcessInfo.processInfo.arguments.contains("-UITestGroupsNoRankings") || ProcessInfo.processInfo.arguments.contains("-UITestGroupsRankError") {
+            cache.details[group.id]?.rankings = []; cache.details[group.id]?.rankingsByFormat = [:]
+        }
+        if ProcessInfo.processInfo.arguments.contains("-UITestGroupsRankError") {
+            for format in GroupFormat.allCases { rankErrors[Self.rankKey(group.id, format: format)] = groupText("load_failed", "Could not load the group") }
         }
         if ProcessInfo.processInfo.arguments.contains("-UITestGroupsInviteOnly") {
             cache.details[group.id]?.members = Array(members.prefix(1)); cache.details[group.id]?.group.memberCount = 1

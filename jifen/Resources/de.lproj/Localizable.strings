@@ -1886,7 +1886,6 @@
 "group_server_version" = "Neueste Version";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "Gruppe öffnen";
 "group_notice_end" = "Keine weiteren Mitteilungen";
 "group_notice_join_requested" = "Beitrittsanfrage erhalten";
 "group_notice_join_approved" = "Beitrittsanfrage angenommen";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "Scannen, um beizutreten";
 "group_qr_apply_short" = "Scannen, um die Aufnahme zu beantragen";
 "group_update_report" = "Meldung aktualisieren";
+"group_ranking_rate" = "Siegquote";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "Spiele mit uns in unserer %@-Gruppe und halte die Ergebnisse fest!";
+"group_share_message" = "%@\n\nGruppenname: %@\nGruppen-Nr. %@\n\nGruppe beitreten: %@\n\niScoreboard herunterladen und die Gruppennummer zum Beitreten eingeben:\n%@";
+"group_entry_set_winners" = "Gewinner je Spiel";
+"group_activity_lineup_incomplete" = "Wähle alle Spieler für dieses Spiel aus";
+"group_activity_lineup_duplicate" = "Jeder Spieler darf in diesem Spiel nur einmal vorkommen";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "Manuelle Eingabe";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "Alle als gelesen markieren";

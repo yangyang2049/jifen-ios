@@ -534,9 +534,10 @@ struct CommonPlacesManagementView: View {
 
 struct CommonPlacePickerView: View {
     @Environment(\.dismiss) private var dismiss
+    var providedPlaces: [CommonPlace]? = nil
     let onSelect: (CommonPlace) -> Void
 
-    private var places: [CommonPlace] { CommonPlacesManager.shared.getAllPlaces() }
+    private var places: [CommonPlace] { providedPlaces ?? CommonPlacesManager.shared.getAllPlaces() }
 
     var body: some View {
         NavigationStack {

@@ -1886,7 +1886,6 @@
 "group_server_version" = "เวอร์ชันล่าสุด";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "เปิดกลุ่ม";
 "group_notice_end" = "ไม่มีการแจ้งเตือนเพิ่มเติม";
 "group_notice_join_requested" = "ได้รับคำขอเข้าร่วม";
 "group_notice_join_approved" = "อนุมัติคำขอเข้าร่วมแล้ว";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "สแกนเพื่อเข้าร่วม";
 "group_qr_apply_short" = "สแกนเพื่อขอเข้าร่วม";
 "group_update_report" = "อัปเดตการรายงาน";
+"group_ranking_rate" = "อัตราชนะ";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "เข้าร่วมกลุ่ม%@ของเราเพื่อเล่นและบันทึกคะแนนด้วยกัน!";
+"group_share_message" = "%@\n\nชื่อกลุ่ม: %@\nหมายเลขกลุ่ม %@\n\nเข้าร่วมกลุ่ม: %@\n\nดาวน์โหลด iScoreboard แล้วกรอกหมายเลขกลุ่มเพื่อเข้าร่วม:\n%@";
+"group_entry_set_winners" = "ผู้ชนะในแต่ละเกม";
+"group_activity_lineup_incomplete" = "เลือกผู้เล่นให้ครบสำหรับการแข่งขันนี้";
+"group_activity_lineup_duplicate" = "ผู้เล่นแต่ละคนลงได้เพียงครั้งเดียวในการแข่งขันนี้";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "ป้อนเอง";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "ทำเครื่องหมายว่าอ่านทั้งหมดแล้ว";

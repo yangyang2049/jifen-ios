@@ -663,7 +663,7 @@ struct RallyScoreboardView: View {
                         rightName: store.state.rightName,
                         leftScore: displayScores.left,
                         rightScore: displayScores.right,
-                        newGameLabel: nil,
+                        newGameLabel: GroupLocalPersistence.shared.context(sessionID: store.sessionId.uuidString) == nil ? nil : groupText("return_group", "Return to group"),
                         newGameDisabled: scoringLocked || isStartingNewMatch,
                         onNewGame: {
                             startNewMatch()
@@ -1736,6 +1736,11 @@ struct RallyScoreboardView: View {
                         chromeButton(systemName: "line.3.horizontal") {
                             showMenu = true
                         }
+                        .modifier(ScoreboardMenuVoiceStatus(
+                            isEnabled: voiceAnnouncementEnabled
+                                && VoiceAnnouncementSupport.isSupported(gameType)
+                                && SportsVoiceSupport.isSupported
+                        ))
                         .padding(.trailing, ScoreboardConstants.buttonPadding)
                         .padding(.bottom, ScoreboardConstants.buttonPadding)
                     }
@@ -3003,6 +3008,12 @@ struct RallyScoreboardView: View {
     }
 
     private func startNewMatch() {
+        if GroupLocalPersistence.shared.context(sessionID: store.sessionId.uuidString) != nil {
+            store.persistSnapshot { success in
+                if success { performScoreboardExit(onNavigationBack: onNavigationBack, dismiss: dismiss) }
+            }
+            return
+        }
         guard !scoringLocked, !isStartingNewMatch else { return }
         cancelTerminalSetPresentation()
         isStartingNewMatch = true

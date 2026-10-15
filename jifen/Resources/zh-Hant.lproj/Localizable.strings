@@ -1578,7 +1578,7 @@
 "group_album" = "從相冊識別";
 "group_approval" = "需要審批";
 "group_approve" = "同意";
-"group_archive" = "歸檔小組";
+"group_archive" = "歸檔";
 "group_archive_hint" = "歸檔後保留歷史，暫停活動與修改。之後可以恢復。";
 "group_archive_readonly" = "小組已歸檔，歷史記錄可查看。";
 "group_archived" = "已歸檔";
@@ -1597,7 +1597,7 @@
 "group_close" = "關閉";
 "group_closed" = "暫不開放加入";
 "group_completed" = "已完成";
-"group_confirm_join" = "加入這個小組";
+"group_confirm_join" = "加入";
 "group_confirm_result" = "確認結果";
 "group_confirmed" = "已確認";
 "group_confirmed_by" = "確認人";
@@ -1675,8 +1675,8 @@
 "group_register" = "報名";
 "group_registered_members" = "報名成員";
 "group_reject" = "拒絕";
-"group_remove_member" = "移除成員";
-"group_restore" = "恢復小組";
+"group_remove_member" = "移除";
+"group_restore" = "恢復";
 "group_restore_hint" = "恢復後可繼續活動和計分。";
 "group_results" = "戰績";
 "group_retry" = "重試";
@@ -1741,16 +1741,16 @@
 "group_add_session" = "添加一場";
 "group_edit_schedule" = "修改排期";
 "group_cancel_schedule" = "取消排期";
-"group_leave_training" = "通知請假";
+"group_leave_training" = "請假";
 "group_session_minutes" = "每場時長（分鐘）";
 "group_court" = "場地";
-"group_remove_session" = "刪除場次";
+"group_remove_session" = "刪除";
 "group_publish_schedule" = "發佈排期";
 "group_leave_reason" = "請假說明（選填，最多 100 字）";
 "group_report" = "舉報小組";
 "group_report_reason" = "舉報原因";
 "group_report_detail" = "補充說明（選填，最多 500 字）";
-"group_report_submit" = "提交舉報";
+"group_report_submit" = "提交";
 "group_report_spam" = "垃圾廣告";
 "group_report_harassment" = "騷擾辱罵";
 "group_report_inappropriate" = "色情或違規內容";
@@ -1817,7 +1817,7 @@
 "group_activity_lineup" = "活動排陣";
 "group_activity_mode" = "戰績";
 "group_activity_reminder" = "提前15分鐘提醒我";
-"group_add_set" = "新增每局比分";
+"group_add_set" = "新增一局";
 "group_added_members" = "已新增";
 "group_authority_confirm" = "組長權威確認";
 "group_batch_names_hint" = "每行一個稱呼，每個稱呼1～24個字元。";
@@ -1886,7 +1886,6 @@
 "group_server_version" = "最新版本";
 
 "group_banner_dissolving" = "小組將於 %@ 解散\n7 天冷靜期，期間僅供查看";
-"group_notice_open" = "查看小組";
 "group_notice_end" = "沒有更多通知";
 "group_notice_join_requested" = "收到入組申請";
 "group_notice_join_approved" = "入組申請已通過";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "掃描加入小組";
 "group_qr_apply_short" = "掃描申請加入";
 "group_update_report" = "補充檢舉";
+"group_ranking_rate" = "勝率";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "加入我們的%@小組，一起約球、計分！";
+"group_share_message" = "%@\n\n小組：%@\n小組號：%@\n\n加入小組：%@\n\n下載「全能計分器」，輸入小組號加入：\n%@";
+"group_entry_set_winners" = "各局勝方";
+"group_activity_lineup_incomplete" = "請為本場比賽選齊成員";
+"group_activity_lineup_duplicate" = "同一成員不能在本場比賽中重複出場";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "手動輸入";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "全部已讀";

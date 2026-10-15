@@ -140,6 +140,16 @@
       "key": "basketball_fouls_count",
       "one": "Foul %d",
       "other": "Fouls %d"
+    },
+    {
+      "key": "activity_direct_match_count",
+      "one": "%d match · all group members",
+      "other": "%d matches · all group members"
+    },
+    {
+      "key": "archived_count",
+      "one": "%d group",
+      "other": "%d groups"
     }
   ]
 }

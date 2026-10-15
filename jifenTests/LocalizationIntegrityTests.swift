@@ -281,6 +281,20 @@ final class LocalizationIntegrityTests: XCTestCase {
         }
     }
 
+    /// Swift 的 String(format:) 把 `%s` 当 C 字符串读取，传入 Swift String 会段错误（exit 139）。
+    /// 安卓资源里的 `%1$s` 一旦整段搬进来就是必崩，这里钉死在资源层。
+    func testLocalizableValuesNeverUseCStringPlaceholders() throws {
+        for locale in LocalizationTestSupport.promotedLocales + ["en", "zh-Hans", "zh-Hant"] {
+            let url = repositoryRoot.appendingPathComponent("jifen/Resources/\(locale).lproj/Localizable.strings")
+            guard FileManager.default.fileExists(atPath: url.path) else { continue }
+            let text = try String(contentsOf: url, encoding: .utf8)
+            let offenders = text.split(separator: "\n").filter { line in
+                line.contains("%s") && !line.contains("%@") && !line.contains("%d")
+            }
+            XCTAssertTrue(offenders.isEmpty, "\(locale) uses a C-string placeholder: \(offenders.prefix(3))")
+        }
+    }
+
     func testLocalizationManifestDefinesTheFullAppMatrix() throws {
         let url = repositoryRoot.appendingPathComponent("scripts/localization/locales.json")
         let data = try Data(contentsOf: url)

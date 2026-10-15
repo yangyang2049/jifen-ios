@@ -1886,7 +1886,6 @@
 "group_server_version" = "नवीनतम संस्करण";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "समूह खोलें";
 "group_notice_end" = "अधिक सूचनाएँ नहीं";
 "group_notice_join_requested" = "शामिल होने का अनुरोध प्राप्त हुआ";
 "group_notice_join_approved" = "शामिल होने का अनुरोध स्वीकृत";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "शामिल होने के लिए स्कैन करें";
 "group_qr_apply_short" = "शामिल होने का अनुरोध करने के लिए स्कैन करें";
 "group_update_report" = "रिपोर्ट अपडेट करें";
+"group_ranking_rate" = "जीत का प्रतिशत";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "साथ खेलने और स्कोर रखने के लिए हमारे %@ समूह से जुड़ें!";
+"group_share_message" = "%@\n\nसमूह का नाम: %@\nसमूह संख्या %@\n\nसमूह से जुड़ें: %@\n\niScoreboard डाउनलोड करें और जुड़ने के लिए समूह नंबर दर्ज करें:\n%@";
+"group_entry_set_winners" = "हर गेम के विजेता";
+"group_activity_lineup_incomplete" = "इस मैच के सभी खिलाड़ी चुनें";
+"group_activity_lineup_duplicate" = "इस मैच में हर खिलाड़ी केवल एक बार आ सकता है";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "खुद दर्ज करें";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "सभी को पढ़ा हुआ मार्क करें";

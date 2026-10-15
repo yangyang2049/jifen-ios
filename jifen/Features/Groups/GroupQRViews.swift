@@ -26,9 +26,13 @@ struct GroupJoinView: View {
     @State private var key = UUID().uuidString
     @State private var photo: PhotosPickerItem?
     @State private var localError: String?
+    /// 邀请链接带号进入：已是成员时直接进详情，不停留加入页（对齐微信「已在群聊直接进群」）。
+    @State private var seededEntry = false
+    @State private var seededAutoOpened = false
     init(initialGroupNo: String = "", onStart: @escaping (GameType, SportsSetupResult, String) -> Void) {
         self.onStart = onStart
         _number = State(initialValue: GroupInvitationLink.validNumber(initialGroupNo) ? initialGroupNo : "")
+        _seededEntry = State(initialValue: GroupInvitationLink.validNumber(initialGroupNo))
     }
     var body: some View {
         NavigationStack {
@@ -37,10 +41,14 @@ struct GroupJoinView: View {
                 else { Form {
                 Section {
                     TextField(groupText("number", "6–8 digit group number"), text: $number).keyboardType(.numberPad).focused($focusedInput, equals: .number).accessibilityIdentifier("group_number")
-                    HStack {
-                        Button { scanner = true } label: { Label(groupText("scan", "Scan QR code"), systemImage: "qrcode.viewfinder") }
-                        PhotosPicker(selection: $photo, matching: .images) { Label(groupText("album", "Choose photo"), systemImage: "photo") }
-                    }.buttonStyle(.borderless)
+                    // 邀请链接带号进入：隐藏扫码/相册入口，页面聚焦小组卡片；输入框保留、号码可改。
+                    // 手动编辑号码后 onChange 会把 seededEntry 复位，扫码入口恢复（三端一致）。
+                    if !seededEntry {
+                        HStack {
+                            Button { scanner = true } label: { Label(groupText("scan", "Scan QR code"), systemImage: "qrcode.viewfinder") }
+                            PhotosPicker(selection: $photo, matching: .images) { Label(groupText("album", "Choose photo"), systemImage: "photo") }
+                        }.buttonStyle(.borderless)
+                    }
                     Button(groupText("preview", "Preview group")) { focusedInput = nil; Task { await loadPreview() } }.disabled(busy || !GroupQRPayload.validNumber(number))
                 }
                 if let preview {
@@ -94,7 +102,7 @@ struct GroupJoinView: View {
             .sheet(isPresented: $reporting) { GroupPreviewReportView(groupNo: number) }
             .sheet(isPresented: $login, onDismiss: { if SessionStore.shared.isAuthenticated { Task { await store.refresh(); await loadPreview(); if loginTarget == number, preview?.effectiveAvailability == "available", preview?.groupNo == number { await join() }; loginTarget = nil } } }) { AccountLoginSheet() }
 
-            .onChange(of: number) { _, value in previewRevision &+= 1; photoGeneration += 1; busy = false; if preview?.groupNo != value { preview = nil }; waiting = false; message = ""; localError = nil; loginTarget = nil; key = UUID().uuidString }
+            .onChange(of: number) { _, value in seededEntry = false; previewRevision &+= 1; photoGeneration += 1; busy = false; if preview?.groupNo != value { preview = nil }; waiting = false; message = ""; localError = nil; loginTarget = nil; key = UUID().uuidString }
             .onChange(of: store.identityRevision) { _, _ in
                 previewRevision &+= 1; busy = false; preview = nil; waiting = false; joinedID = nil; localError = nil; key = UUID().uuidString
                 if GroupQRPayload.validNumber(number) { Task { await loadPreview() } }
@@ -117,6 +125,14 @@ struct GroupJoinView: View {
             let loaded: GroupPreview = try await store.repository.read("/by-number/\(requestedNumber)/preview", authenticated: authenticated)
             guard number == requestedNumber, previewRevision == requestRevision, store.identityRevision == accountRevision else { return }
             preview = loaded; waiting = loaded.effectiveAvailability == "pending_approval"
+            if seededEntry, !seededAutoOpened, loaded.effectiveAvailability == "already_member" {
+                // 与「打开小组」按钮同一条路径：先刷新成员列表，再按 groupId / 号码兜底定位。
+                seededAutoOpened = true
+                await store.refresh()
+                if let groupID = loaded.groupId ?? store.groups.first(where: { $0.groupNo == loaded.groupNo })?.id {
+                    joinedID = groupID
+                }
+            }
         } catch {
             if number == requestedNumber, previewRevision == requestRevision, store.identityRevision == accountRevision { localError = groupErrorMessage(error) }
         }
@@ -211,12 +227,12 @@ struct GroupShareView: View {
                 if shareError == nil { Text(canInvite ? groupText(group.joinPolicy == "open" ? "qr_direct_hint" : "qr_hint", "Scan to preview and join.") : groupText("unavailable", "This group cannot accept new members.")).multilineTextAlignment(.center).font(.footnote).foregroundStyle(Theme.textSecondary) }
                 if let shareError { GroupNotice(text: shareError) }
                 if canInvite, let url = GroupInvitationLink.joinURL(groupNo: group.groupNo) {
-                    ShareLink(item: url, subject: Text(group.name), message: Text("\(group.name)\n#\(group.groupNo)")) {
+                    ShareLink(item: url, subject: Text(group.name), message: Text(GroupInvitationText.message(group: group))) {
                         Label(groupText("audit_ui_share_invitation", "Share invitation"), systemImage: "link")
                     }
                     .accessibilityIdentifier("group_share_invitation_link")
                     if let card = inviteCard {
-                        ShareLink(item: Image(uiImage: card), preview: SharePreview(group.name, image: Image(uiImage: card))) { Label(groupText("audit_ui_share_qr", "Share QR code"), systemImage: "square.and.arrow.up") }
+                        ShareLink(item: Image(uiImage: card), subject: Text(group.name), message: Text(GroupInvitationText.message(group: group)), preview: SharePreview(group.name, image: Image(uiImage: card))) { Label(groupText("audit_ui_share_qr", "Share QR code"), systemImage: "square.and.arrow.up") }
                             .accessibilityIdentifier("group_share_invitation_card")
                     } else if livePreview != nil {
                         // 对齐安卓 shareGroupQr 失败路径：卡片合成失败要可感知，而不是按钮悄悄消失。

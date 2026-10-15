@@ -1886,7 +1886,6 @@
 "group_server_version" = "Najnovija verzija";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "Otvori grupu";
 "group_notice_end" = "Nema više obavijesti";
 "group_notice_join_requested" = "Primljen je zahtjev za pridruživanje";
 "group_notice_join_approved" = "Zahtjev za pridruživanje je odobren";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "Skenirajte za pridruživanje";
 "group_qr_apply_short" = "Skenirajte za zahtjev za pridruživanje";
 "group_update_report" = "Ažurirajte prijavu";
+"group_ranking_rate" = "Postotak pobjeda";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "Pridružite se našoj grupi za %@ da zajedno igramo i bilježimo bodove!";
+"group_share_message" = "%@\n\nNaziv grupe: %@\nBr. grupe %@\n\nPridruži se grupi: %@\n\nPreuzmite iScoreboard i unesite broj grupe za pridruživanje:\n%@";
+"group_entry_set_winners" = "Pobjednici gemova";
+"group_activity_lineup_incomplete" = "Odaberite sve igrače za ovaj meč";
+"group_activity_lineup_duplicate" = "Svaki igrač može se pojaviti samo jednom u ovom meču";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "Ručni unos";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "Označi sve kao pročitano";

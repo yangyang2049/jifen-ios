@@ -201,6 +201,164 @@ import CoreImage
     }
 }
 
+private nonisolated final class GroupWriteAttempts: @unchecked Sendable {
+    private let lock = NSLock()
+    private var rows: [(String, Data)] = []
+    func append(key: String, body: Data) -> Int { lock.lock(); defer { lock.unlock() }; rows.append((key, body)); return rows.count }
+    func snapshot() -> [(String, Data)] { lock.lock(); defer { lock.unlock() }; return rows }
+}
+
+extension GroupPortParityTests {
+    private func directBody() -> GroupDirectLineupBody {
+        .init(title: "", startsAt: 1_000_000, place: "Gym", format: .singles, timingMode: "sequence", sessionMinutes: 30,
+              sessions: [.init(orderNo: 1, court: "1", startsAt: 1_000_000, format: .singles,
+                               seats: [.init(memberId: "a", side: "A", seat: 0), .init(memberId: "b", side: "B", seat: 0)])])
+    }
+    private func lineupOriginal(id: String = "existing", seats: [GroupSeat], needsLineup: Bool = false, frozen: Bool = false) -> GroupActivitySession {
+        .init(id: id, activityId: "activity", groupId: "group", orderNo: 1, court: "1", startsAt: 1_000_000,
+              endsAt: 2_800_000, format: .doubles, status: frozen ? "started" : "scheduled", seats: seats,
+              needsLineup: needsLineup, isFrozen: frozen)
+    }
+    private func lineupDraft(_ original: GroupActivitySession) -> GroupTrainingDraftSession {
+        var row = GroupTrainingDraftSession(startsAt: original.date, court: original.court, format: original.format)
+        row.serverID = original.id; row.frozen = original.frozen
+        for seat in original.seats { row.memberIDs[(seat.side == "A" ? 0 : 2) + seat.seat] = seat.memberId }
+        return row
+    }
+
+    func testActivityTextLimitsMatchTheServerIncludingAutomaticTitles() {
+        XCTAssertTrue(GroupActivityPolicy.validText(title: "", place: "", note: ""))
+        XCTAssertTrue(GroupActivityPolicy.validText(title: "  ", place: ""))
+        XCTAssertTrue(GroupActivityPolicy.validText(title: String(repeating: "球", count: 40), place: String(repeating: "馆", count: 80), note: String(repeating: "注", count: 300)))
+        XCTAssertFalse(GroupActivityPolicy.validText(title: String(repeating: "球", count: 41), place: ""))
+        XCTAssertFalse(GroupActivityPolicy.validText(title: "", place: String(repeating: "馆", count: 81)))
+        XCTAssertFalse(GroupActivityPolicy.validText(title: "", place: "", note: String(repeating: "注", count: 301)))
+        XCTAssertTrue(GroupActivityPolicy.validText(title: String(repeating: "🏸", count: 40), place: String(repeating: "🏸", count: 40)))
+        XCTAssertFalse(GroupActivityPolicy.validText(title: "", place: String(repeating: "🏸", count: 41)))
+        for count in [200, 201, 300] { XCTAssertTrue(GroupActivityPolicy.validText(title: "", place: "", note: String(repeating: "x", count: count))) }
+    }
+    func testActivityCapacityUsesFormatAndRegistrationsInsteadOfGroupCapacity() {
+        XCTAssertEqual(GroupActivityPolicy.defaultJoinPolicy, "open")
+        XCTAssertEqual(GroupActivityPolicy.minimumCapacity(format: .singles), 2)
+        XCTAssertEqual(GroupActivityPolicy.minimumCapacity(format: .doubles), 4)
+        XCTAssertEqual(GroupActivityPolicy.minimumCapacity(format: .doubles, registeredCount: 8), 8)
+        XCTAssertTrue(GroupActivityPolicy.validCapacity(100, format: .doubles))
+        XCTAssertFalse(GroupActivityPolicy.validCapacity(101, format: .singles))
+        XCTAssertFalse(GroupActivityPolicy.validCapacity(3, format: .doubles))
+        XCTAssertFalse(GroupActivityPolicy.validCapacity(4, format: .doubles, registeredCount: 5))
+        XCTAssertFalse(GroupActivityPolicy.validCapacity(100, format: .singles, registeredCount: 101))
+        XCTAssertEqual(GroupActivityPolicy.durationOptions(current: 30), [20,30,45,60])
+        XCTAssertEqual(GroupActivityPolicy.durationOptions(current: 35), [20,30,35,45,60])
+    }
+    func testExistingLineupCanBeClearedButNewSchedulesCannotBeEmpty() {
+        XCTAssertNil(GroupTrainingValidation.lineupProblem([], minutes: 30, allowsEmpty: true))
+        XCTAssertEqual(GroupTrainingValidation.lineupProblem([], minutes: 30), .incomplete)
+        let frozen = lineupOriginal(seats: [], frozen: true)
+        XCTAssertEqual(GroupTrainingValidation.lineupProblem([], minutes: 30, allowsEmpty: true, originals: [frozen]), .frozen)
+    }
+    func testUnchangedMissingLineupPreservesSeatPositionsAndAllowsOtherEdits() {
+        let seats: [GroupSeat] = [.init(memberId: "a", side: "A", seat: 1), .init(memberId: "b", side: "B", seat: 0)]
+        let original = lineupOriginal(seats: seats, needsLineup: true)
+        let row = lineupDraft(original)
+        XCTAssertEqual(row.body(orderNo: 1).seats, seats)
+        var other = GroupTrainingDraftSession(startsAt: original.date.addingTimeInterval(3600), court: "2")
+        other.memberIDs = ["c", "", "d", ""]
+        XCTAssertNil(GroupTrainingValidation.lineupProblem([row, other], minutes: 30, originals: [original], allowedMemberIDs: ["a","b","c","d"]))
+        var changed = row; changed.court = "New court"
+        XCTAssertEqual(GroupTrainingValidation.lineupProblem([changed], minutes: 30, originals: [original]), .incomplete)
+        XCTAssertEqual(GroupTrainingValidation.lineupProblem([row], minutes: 30), .incomplete)
+        XCTAssertEqual(GroupTrainingValidation.lineupProblem([other], minutes: 30, allowedMemberIDs: ["c"]), .incomplete)
+    }
+    func testFrozenLineupCannotBeChangedRemovedOrReordered() {
+        let original = lineupOriginal(seats: [.init(memberId: "a", side: "A", seat: 0), .init(memberId: "a2", side: "A", seat: 1), .init(memberId: "b", side: "B", seat: 0), .init(memberId: "b2", side: "B", seat: 1)], frozen: true)
+        let row = lineupDraft(original)
+        XCTAssertNil(GroupTrainingValidation.lineupProblem([row], minutes: 30, originals: [original], allowedMemberIDs: []))
+        var changed = row; changed.startsAt.addTimeInterval(60)
+        XCTAssertEqual(GroupTrainingValidation.lineupProblem([changed], minutes: 30, originals: [original]), .frozen)
+        var first = GroupTrainingDraftSession(); first.memberIDs = ["c", "", "d", ""]
+        XCTAssertEqual(GroupTrainingValidation.lineupProblem([first, row], minutes: 30, originals: [original]), .frozen)
+    }
+    func testDirectLineupRetryPersistsKeyAndFirstAnchoredPayloadPerAccountAndGroup() throws {
+        try withPersistence { persistence, root in
+            let raw = directBody(), now = Date(timeIntervalSince1970: 10_000)
+            let first = try persistence.pendingDirectLineup(accountID: "a", groupID: "group", body: raw, now: now)
+            XCTAssertEqual(first.body.startsAt, 10_060_000)
+            XCTAssertEqual(first.body.sessions[0].startsAt, first.body.startsAt)
+            let restarted = GroupLocalPersistence(root: root)
+            let retry = try restarted.pendingDirectLineup(accountID: "a", groupID: "group", body: raw, now: now.addingTimeInterval(600))
+            XCTAssertEqual(first.key, retry.key); XCTAssertEqual(first.body.startsAt, retry.body.startsAt)
+            let otherAccount = try restarted.pendingDirectLineup(accountID: "b", groupID: "group", body: raw)
+            let otherGroup = try restarted.pendingDirectLineup(accountID: "a", groupID: "other", body: raw)
+            XCTAssertNotEqual(first.key, otherAccount.key); XCTAssertNotEqual(first.key, otherGroup.key)
+            var edited = raw; edited.place = "Other gym"
+            XCTAssertNotEqual(try restarted.pendingDirectLineup(accountID: "a", groupID: "group", body: edited).key, first.key)
+            try restarted.completeDirectLineup(key: first.key, accountID: "b")
+            XCTAssertEqual(try restarted.pendingDirectLineup(accountID: "a", groupID: "group", body: raw).key, first.key)
+            try restarted.completeDirectLineup(key: first.key, accountID: "a")
+            XCTAssertNotEqual(try restarted.pendingDirectLineup(accountID: "a", groupID: "group", body: raw).key, first.key)
+            restarted.deleteAccountData(accountID: "a")
+            XCTAssertThrowsError(try restarted.pendingDirectLineup(accountID: "a", groupID: "group", body: raw))
+            XCTAssertEqual(try restarted.pendingDirectLineup(accountID: "b", groupID: "group", body: raw).key, otherAccount.key)
+        }
+    }
+    func testDirectLineupLostResponseReusesTheSameWireRequestAfterRestart() async throws {
+        let (tokens, originalRepository, session, token) = wireFixture()
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { session.invalidateAndCancel(); GroupWireProtocol.remove(token); try? FileManager.default.removeItem(at: root) }
+        try await tokens.setAuth(token: token, expiresAt: Date().addingTimeInterval(3600))
+        let attempts = GroupWriteAttempts()
+        GroupWireProtocol.register(token) { proto in
+            if proto.request.url!.path.hasSuffix("/capabilities") { proto.replyCapabilities(actions: ["create_activity"]); return }
+            let index = attempts.append(key: proto.request.value(forHTTPHeaderField: "Idempotency-Key") ?? "", body: proto.bodyData())
+            if index == 1 { proto.client?.urlProtocol(proto, didFailWithError: URLError(.networkConnectionLost)) }
+            else { proto.reply("{\"activityId\":\"created-once\",\"groupId\":\"group\"}") }
+        }
+        var repository = originalRepository; repository.persistence = GroupLocalPersistence(root: root)
+        do { _ = try await repository.createDirectLineup(groupID: "group", body: directBody(), accountID: "account"); XCTFail("Expected the lost response") }
+        catch { XCTAssertTrue(error is URLError, "Unexpected transport failure: \(error)") }
+        repository.persistence = GroupLocalPersistence(root: root)
+        let result = try await repository.createDirectLineup(groupID: "group", body: directBody(), accountID: "account")
+        XCTAssertEqual(result.activityId, "created-once")
+        let rows = attempts.snapshot(); XCTAssertEqual(rows.count, 2)
+        XCTAssertFalse(rows[0].0.isEmpty); XCTAssertEqual(rows[0].0, rows[1].0)
+        XCTAssertEqual(try JSONSerialization.jsonObject(with: rows[0].1) as? NSDictionary,
+                       try JSONSerialization.jsonObject(with: rows[1].1) as? NSDictionary)
+        await tokens.clearAuth()
+    }
+    func testWriteCapabilityMappingCoversActivityAndManagementOperations() {
+        let cases: [(String, HTTPMethod, String?)] = [
+            ("/g/activities", .post, "create_activity"), ("/g/direct-lineups", .post, "create_activity"),
+            ("/g/activities/a", .patch, "update_activity"), ("/g/activities/a/lineup", .put, "update_activity"),
+            ("/g/activities/a/cancel", .post, "update_activity"), ("/g/activities/a/register", .post, "register_activity"),
+            ("/g/results/r/confirm", .post, "confirm_result"), ("/g/results/r/void", .post, "void_result"),
+            ("/g/members/m", .patch, "manage_members"), ("/g/members/m/remove", .post, "manage_members"),
+            ("/g", .patch, "manage_group"), ("/g/dissolve/cancel", .post, "manage_group"),
+            ("/g/leave", .post, nil), ("/g/report", .post, nil), ("/g/activities", .get, nil)
+        ]
+        for (path, method, expected) in cases { XCTAssertEqual(GroupWriteCapability.required(for: path, method: method), expected, path) }
+    }
+    func testDisabledActivityCapabilityDoesNotSendAWriteRequest() async throws {
+        let (tokens, repository, session, token) = wireFixture()
+        defer { session.invalidateAndCancel(); GroupWireProtocol.remove(token) }
+        try await tokens.setAuth(token: token, expiresAt: Date().addingTimeInterval(3600))
+        GroupWireProtocol.register(token) { proto in
+            XCTAssertEqual(proto.request.httpMethod, "GET", "A disabled action must never send a write")
+            XCTAssertTrue(proto.request.url!.path.hasSuffix("/capabilities"))
+            proto.replyCapabilities(actions: ["join_group"])
+        }
+        do { let _: EmptyResponse = try await repository.write("/group/activities", body: EmptyRequest()); XCTFail("Expected disabled action") }
+        catch { guard case APIClientError.server(status: 409, code: "ACTION_DISABLED", message: _, nextAvailableAt: _) = error else { return XCTFail("Unexpected error: \(error)") } }
+        await tokens.clearAuth()
+    }
+    func testInvitationDownloadFallbackUsesTheSameRegionAsTheJoinLink() {
+        for (region, domain) in [("CN", "https://jifenqi.com"), ("US", "https://iscoreboard.live"), ("HK", "https://iscoreboard.live")] {
+            let text = GroupInvitationText.message(group: group(), regionCode: region, localization: "en")
+            XCTAssertTrue(text.contains(domain + "/groups/join?groupNo=123456"))
+            XCTAssertTrue(text.contains(domain + "/download"))
+        }
+    }
+}
+
 private nonisolated final class GroupWireProtocol: URLProtocol, @unchecked Sendable {
     private nonisolated final class Registry: @unchecked Sendable {
         let lock = NSLock()
@@ -218,6 +376,19 @@ private nonisolated final class GroupWireProtocol: URLProtocol, @unchecked Senda
     func reply(_ body: String, status: Int = 200) {
         client?.urlProtocol(self, didReceive: HTTPURLResponse(url: request.url!, statusCode: status, httpVersion: "HTTP/1.1", headerFields: ["Content-Type": "application/json"])!, cacheStoragePolicy: .notAllowed)
         client?.urlProtocol(self, didLoad: Data(body.utf8)); client?.urlProtocolDidFinishLoading(self)
+    }
+    func replyCapabilities(actions: [String]) {
+        let value: [String: Any] = ["groupNoLength": 6, "nameMin": 2, "nameMax": 24, "descriptionMax": 200,
+            "memberLimitDefault": 30, "memberLimitMax": 50, "allowedActions": actions]
+        reply(String(data: try! JSONSerialization.data(withJSONObject: value), encoding: .utf8)!)
+    }
+    func bodyData() -> Data {
+        if let body = request.httpBody { return body }
+        guard let stream = request.httpBodyStream else { return Data() }
+        stream.open(); defer { stream.close() }
+        var data = Data(), buffer = [UInt8](repeating: 0, count: 4096)
+        while stream.hasBytesAvailable { let count = stream.read(&buffer, maxLength: buffer.count); if count <= 0 { break }; data.append(contentsOf: buffer.prefix(count)) }
+        return data
     }
 }
 private nonisolated final class GroupWireGate: @unchecked Sendable {
@@ -275,6 +446,7 @@ extension GroupPortParityTests {
         defer { session.invalidateAndCancel(); GroupWireProtocol.remove(token) }
         try await tokens.setAuth(token: token, expiresAt: Date().addingTimeInterval(3600))
         GroupWireProtocol.register(token) { proto in
+            if proto.request.url!.path.hasSuffix("/capabilities") { proto.replyCapabilities(actions: ["manage_group"]); return }
             XCTAssertEqual(proto.request.value(forHTTPHeaderField: "If-Match"), "\"7\"")
             XCTAssertEqual(proto.request.httpMethod, "PATCH")
             proto.reply("{\"error\":\"REVISION_CONFLICT\",\"message\":\"reload\"}", status: 409)
@@ -341,6 +513,10 @@ extension GroupPortParityTests {
         XCTAssertEqual(GroupInputValidation.temporaryNames("A  B、a b\n王，王"), ["A B", "王"])
     }
     func testNoticeKindsUseTheAndroidLabelsAndOpenRules() {
+        // UI runs persist their app language on the simulator; assert that language's copy.
+        let chinese = ["收到入组申请", "入组申请已通过", "入组申请未通过", "新增活动", "活动已修改", "活动已取消", "赛果待确认", "赛果已确认", "赛果已作废", "你的角色已变更", "你已被移出小组", "组长已变更"]
+        let traditional = ["收到入組申請", "入組申請已通過", "入組申請未通過", "新增活動", "活動已修改", "活動已取消", "賽果待確認", "賽果已確認", "賽果已作廢", "你的角色已變更", "你已被移出小組", "組長已變更"]
+        let localization = Bundle.main.preferredLocalizations.first ?? "en"
         let expectations: [(kind: String, label: String, opens: Bool)] = [
             ("join_requested", "Join request received", true),
             ("join_approved", "Join request approved", true),
@@ -355,9 +531,17 @@ extension GroupPortParityTests {
             ("member_removed", "You were removed from the group", false),
             ("ownership_transferred", "Group owner changed", true)
         ]
-        for item in expectations {
+        for (index, item) in expectations.enumerated() {
             let notice = self.notice(item.kind)
-            XCTAssertEqual(notice.label, item.label, item.kind)
+            switch localization {
+            case "en": XCTAssertEqual(notice.label, item.label, item.kind)
+            case "zh-Hans": XCTAssertEqual(notice.label, chinese[index], item.kind)
+            case "zh-Hant": XCTAssertEqual(notice.label, traditional[index], item.kind)
+            default:
+                // The full locale matrix is validated by LocalizationIntegrityTests.
+                XCTAssertFalse(notice.label.isEmpty, item.kind)
+                XCTAssertFalse(notice.label.hasPrefix("group_notice_"), item.kind)
+            }
             XCTAssertEqual(notice.opensGroup, item.opens, item.kind)
         }
         XCTAssertEqual(notice("legacy_kind").label, "Notification")
@@ -398,6 +582,73 @@ extension GroupPortParityTests {
         // 零位移与非有限位移都不动（DatePicker 的 onChange 不该制造 NaN 漂移）
         XCTAssertEqual(GroupTrainingValidation.shiftAll([first, second], by: 0), [first, second])
         XCTAssertEqual(GroupTrainingValidation.shiftAll([first, second], by: .nan), [first, second])
+    }
+
+    func testDirectEditorPastDateOnlyShiftsOnceOnSubmission() {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        for mode in ["sequence", "estimated"] {
+            var draft = GroupDirectScheduleDraft(date: now.addingTimeInterval(600))
+            draft.timingMode = mode
+            draft.add(format: .singles)
+            draft.date = now.addingTimeInterval(-86_400)
+            XCTAssertEqual(draft.sessions[0].startsAt, draft.date)
+            let saved = draft.scheduled(now: now)
+            XCTAssertEqual(saved.startsAt, now.addingTimeInterval(60))
+            XCTAssertEqual(saved.sessions.map(\.startsAt), [now.addingTimeInterval(60), now.addingTimeInterval(1860)])
+        }
+    }
+
+    func testDirectEditorPreservesCustomTimesWhenChangingModeDurationAndAdding() {
+        let date = Date(timeIntervalSince1970: 1_800_000_000)
+        var draft = GroupDirectScheduleDraft(date: date)
+        draft.timingMode = "estimated"
+        draft.add(format: .singles)
+        draft.sessions[0].startsAt = date.addingTimeInterval(4000)
+        let originals = draft.sessions.map(\.startsAt)
+        draft.timingMode = "sequence"; draft.minutes = 45
+        XCTAssertEqual(draft.sessions.map(\.startsAt), originals)
+        draft.add(format: .doubles)
+        XCTAssertEqual(draft.sessions.last?.startsAt, date.addingTimeInterval(6700))
+        XCTAssertEqual(Array(draft.sessions.prefix(2)).map(\.startsAt), originals)
+        draft.date = date.addingTimeInterval(86_400)
+        XCTAssertEqual(draft.sessions.map(\.startsAt), (originals + [date.addingTimeInterval(6700)]).map { $0.addingTimeInterval(86_400) })
+    }
+
+    func testRankingRateRequiresFiveGamesAndNonblankServerText() {
+        var row = GroupRanking(memberId: "member", displayName: " ", games: 4, wins: 4, losses: 0, draws: nil, setsWon: 8, setsLost: 0, winRateText: "100%", rank: 1)
+        XCTAssertNil(row.qualifiedWinRate)
+        XCTAssertEqual(row.name, "member")
+        row.games = 5
+        XCTAssertEqual(row.qualifiedWinRate, "100%")
+        row.winRateText = " \n "
+        XCTAssertNil(row.qualifiedWinRate)
+    }
+
+    func testRankingsRemainScopedByFormatAcrossSwitchesAndCacheRoundTrip() throws {
+        var cache = GroupDetailCache(group: group(), members: [], activities: [], results: [], rankings: [], stats: nil, nextCursor: nil, syncedAt: Date())
+        let row = GroupRanking(memberId: "singles-only", displayName: "A", games: 5, wins: 5, losses: 0, draws: 0, setsWon: 10, setsLost: 0, winRateText: "100%", rank: 1)
+        cache.rankings = [row]
+        XCTAssertTrue(cache.rankings(for: .singles).isEmpty, "Legacy snapshots must not guess the format")
+        XCTAssertTrue(cache.rankings(for: .doubles).isEmpty)
+        cache.setRankings([row], format: .singles)
+        cache.setRankings([], format: .doubles)
+        let restored = try JSONDecoder().decode(GroupDetailCache.self, from: JSONEncoder().encode(cache))
+        XCTAssertTrue(restored.hasAnyRanking, "An empty doubles tab must retain the singles filter entry")
+        XCTAssertEqual(restored.rankings(for: .singles).map(\.memberId), ["singles-only"])
+        XCTAssertTrue(restored.rankings(for: .doubles).isEmpty, "Never display singles rows as doubles")
+    }
+
+    func testNoticeRefreshKeepsServerReceiptTimeAndUnreadCorrection() {
+        let unread = notice("activity_changed")
+        var receipt = unread; receipt.seenAt = 123_456
+        var receipts = GroupNoticeReadReceipts(); receipts.record(receipt)
+        XCTAssertEqual(receipts.applying(to: unread).seenAt, 123_456)
+        XCTAssertEqual(receipts.staleUnreadCount(in: [unread]), 1)
+        XCTAssertEqual(receipts.staleUnreadCount(in: [receipt]), 0)
+        var unrelated = unread; unrelated.id = "unrelated"
+        XCTAssertNil(receipts.applying(to: unrelated).seenAt)
+        receipts.removeAll()
+        XCTAssertNil(receipts.applying(to: unread).seenAt, "Account switches must clear receipts")
     }
 
     private func notice(_ kind: String) -> GroupNotification {
@@ -468,7 +719,10 @@ extension GroupPortParityTests {
         let (tokens, repository, session, token) = wireFixture()
         defer { session.invalidateAndCancel(); GroupWireProtocol.remove(token) }
         try await tokens.setAuth(token: token, expiresAt: Date().addingTimeInterval(3600))
-        GroupWireProtocol.register(token) { $0.reply("{\"error\":\"RESULT_CONFLICT\",\"message\":\"existing result\",\"currentResultId\":\"cloud-result\"}", status: 409) }
+        GroupWireProtocol.register(token) { proto in
+            if proto.request.url!.path.hasSuffix("/capabilities") { proto.replyCapabilities(actions: ["submit_result"]); return }
+            proto.reply("{\"error\":\"RESULT_CONFLICT\",\"message\":\"existing result\",\"currentResultId\":\"cloud-result\"}", status: 409)
+        }
         do { let _: GroupResult = try await repository.write("/g/results", body: body(), key: "stable"); XCTFail("Expected conflict") }
         catch {
             let context = try XCTUnwrap(error as? APIClientServerContextError)
@@ -547,6 +801,92 @@ extension GroupPortParityTests {
         XCTAssertNotNil(image)
         XCTAssertEqual(image?.size.width, 640)
         XCTAssertEqual(image?.scale, 1)
+    }
+
+    func testPeerCreationStaysPeerWhenServerOffersCoaching() throws {
+        var capability = GroupCapabilities(groupNoLength: 6, nameMin: 2, nameMax: 24, descriptionMax: 200, memberLimitDefault: 30, memberLimitMax: 50)
+        capability.groupTypes = ["peer", "coaching"]
+        XCTAssertTrue(capability.allowsPeerCreation)
+        let body = GroupCreateBody(name: "Friends", description: "", sport: .badminton, joinPolicy: "approval")
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(body)) as? [String: Any])
+        XCTAssertEqual(json["groupType"] as? String, "peer")
+        capability.groupTypes = ["coaching"]; XCTAssertFalse(capability.allowsPeerCreation)
+        capability.groupTypes = ["peer"]; capability.allowedActions = ["join_group"]
+        XCTAssertFalse(capability.allowsPeerCreation)
+    }
+
+    func testInvitationContainsSportNameNumberJoinAndDownloadOnBothDomains() {
+        for sport in GroupSport.allCases {
+            var value = group(); value.sport = sport
+            for region in ["CN", "US"] {
+                let text = GroupInvitationText.message(group: value, regionCode: region, localization: "en")
+                XCTAssertTrue(text.contains(value.name)); XCTAssertTrue(text.contains(sport.title))
+                XCTAssertTrue(text.contains(value.groupNo))
+                XCTAssertTrue(text.contains(GroupInvitationLink.joinURL(groupNo: value.groupNo, regionCode: region, localization: "en")!.absoluteString))
+                XCTAssertTrue(text.contains(GroupInvitationLink.website(regionCode: region, localization: "en") + "/download")); XCTAssertFalse(text.contains("%@"))
+            }
+        }
+    }
+
+    func testEntryDraftBlankDetailsAreOptionalAndZeroIsRealInput() {
+        var draft = GroupResultEntryDraft()
+        draft.selectTotal(.init(a: 2, b: 0), rules: rules())
+        draft.detailsExpanded = true; draft.reconcileDetails(rules())
+        XCTAssertEqual(draft.sets.count, 2)
+        XCTAssertFalse(draft.hasDetailInput); XCTAssertNil(draft.details)
+        XCTAssertTrue(draft.isValid(rules()))
+        draft.sets[0].b = "0"
+        XCTAssertTrue(draft.hasDetailInput); XCTAssertFalse(draft.isValid(rules()))
+        draft.sets = [.init(a: "21", b: "0"), .init(a: "21", b: "19")]
+        XCTAssertTrue(draft.isValid(rules()))
+        draft.clearTotal()
+        XCTAssertEqual(draft.score, .init(a: 2, b: 0)); XCTAssertTrue(draft.isValid(rules()))
+        draft.clearDetails(); XCTAssertNil(draft.score); XCTAssertFalse(draft.isValid(rules()))
+    }
+
+    func testEntryDraftVictoryOrderAndRulesNeverRewriteEnteredPoints() {
+        var draft = GroupResultEntryDraft()
+        draft.selectTotal(.init(a: 2, b: 1), rules: rules())
+        draft.detailsExpanded = true; draft.reconcileDetails(rules())
+        XCTAssertEqual(GroupResultEntryDraft.orders(rules(), total: draft.total.score), ["ABA", "BAA"])
+        draft.selectOrder("ABA", rules: rules())
+        XCTAssertEqual(draft.sets, [.init(a: "21"), .init(b: "21"), .init(a: "21")])
+        draft.sets = [.init(a: "21", b: "19"), .init(a: "19", b: "21"), .init(a: "21", b: "18")]
+        XCTAssertTrue(draft.isValid(rules()))
+        var otherRules = rules(); otherRules.pointsToWinSet = 11; otherRules.pointCap = nil
+        let entered = draft.sets
+        draft.reconcileDetails(otherRules)
+        XCTAssertEqual(draft.sets, entered); XCTAssertFalse(draft.isValid(otherRules))
+        draft.victoryOrder = "BAA"
+        XCTAssertFalse(draft.isValid(rules()))
+    }
+
+    func testEntryDraftRejectsPartialTotalsInvalidNumbersAndExtraGames() {
+        var draft = GroupResultEntryDraft()
+        draft.total = .init(a: "2")
+        draft.sets = [.init(a: "21", b: "0"), .init(a: "21", b: "0")]
+        XCTAssertFalse(draft.isValid(rules()))
+        draft.total = .init(a: "-2", b: "0"); XCTAssertNil(draft.score)
+        draft.total = .init(a: "999999999999999999999999", b: "0"); XCTAssertNil(draft.score)
+        draft.total = .init(); draft.sets.append(.init(a: "0", b: "21"))
+        XCTAssertFalse(draft.isValid(rules()), "No games after the match has already ended")
+        var long = rules(); long.maxSets = 99
+        XCTAssertTrue(GroupResultEntryDraft.orders(long, total: .init(a: 50, b: 49)).isEmpty)
+    }
+
+    func testLineupDistinguishesAllFiveAndroidValidationCases() {
+        var row = GroupTrainingDraftSession(startsAt: Date(timeIntervalSince1970: 1000))
+        XCTAssertEqual(GroupTrainingValidation.lineupProblem([row], minutes: 30), .incomplete)
+        row.memberIDs = ["a", "", "a", ""]
+        XCTAssertEqual(GroupTrainingValidation.lineupProblem([row], minutes: 30), .duplicate)
+        row.memberIDs = ["a", "", "b", ""]
+        XCTAssertEqual(GroupTrainingValidation.lineupProblem([row, row], minutes: 30, maximumSessions: 1), .sessions)
+        XCTAssertEqual(GroupTrainingValidation.lineupProblem([row, row], minutes: 30, maximumPerMember: 1), .memberLimit)
+        XCTAssertEqual(GroupTrainingValidation.lineupProblem([row, row], minutes: 30), .conflict)
+        XCTAssertNil(GroupTrainingValidation.lineupProblem([row, row], minutes: 30, skipsConflicts: true))
+        var later = row; later.startsAt = row.startsAt.addingTimeInterval(1800)
+        XCTAssertNil(GroupTrainingValidation.lineupProblem([row, later], minutes: 30))
+        XCTAssertNil(GroupTrainingValidation.lineupProblem([later, row], minutes: 30, skipsConflicts: true), "Sequence mode ignores draft timestamps")
     }
 
     private func preview(status: String?, policy: String, availability: String, count: Int, limit: Int?) -> GroupPreview {

@@ -63,7 +63,7 @@ nonisolated struct GroupLineupBody: Encodable, Sendable {
 }
 
 /// 直接排赛（安卓 `CreateDirectLineupBody`）：一次请求建活动 + 建对阵场次。
-nonisolated struct GroupDirectLineupBody: Encodable, Sendable {
+nonisolated struct GroupDirectLineupBody: Codable, Sendable {
     var title: String
     var startsAt: Int64
     var place: String
@@ -337,5 +337,20 @@ nonisolated extension GroupMatchRules {
         if matchCompletionMode == "play_all" { return (0...max(0, maxSets)).map { .init(a: $0, b: maxSets - $0) } }
         let need = maxSets / 2 + 1
         return (0..<max(1,need)).flatMap { [GroupScore(a: need, b: $0), GroupScore(a: $0, b: need)] }
+    }
+}
+
+/// Preserve acknowledged server timestamps when an eventually consistent page still says unread.
+nonisolated struct GroupNoticeReadReceipts {
+    private var confirmed: [String: GroupNotification] = [:]
+    mutating func record(_ receipt: GroupNotification) { confirmed[receipt.id] = receipt }
+    mutating func removeAll() { confirmed.removeAll() }
+    func applying(to notice: GroupNotification) -> GroupNotification {
+        guard let timestamp = confirmed[notice.id]?.seenAt else { return notice }
+        var updated = notice; updated.seenAt = timestamp
+        return updated
+    }
+    func staleUnreadCount(in items: [GroupNotification]) -> Int {
+        items.filter { $0.seenAt == nil && confirmed[$0.id]?.seenAt != nil }.count
     }
 }

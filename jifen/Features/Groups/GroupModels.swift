@@ -122,6 +122,8 @@ nonisolated struct GroupRanking: Codable, Identifiable, Sendable {
     var memberId: String; var displayName: String; var games: Int; var wins: Int; var losses: Int; var draws: Int?
     var setsWon: Int; var setsLost: Int; var winRateText: String; var rank: Int
     var id: String { memberId }
+    var qualifiedWinRate: String? { games >= 5 && !winRateText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? winRateText : nil }
+    var name: String { displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? memberId : displayName }
 }
 nonisolated struct GroupStats: Codable, Sendable { var confirmedMatchCount: Int; var currentMonthMatchCount: Int; var activeMemberCount30d: Int; var lastCompletedAt: Int64 }
 nonisolated struct GroupPage<Item: Codable & Sendable>: Codable, Sendable { var items: [Item]; var nextCursor: String? }
@@ -154,6 +156,8 @@ nonisolated struct GroupCapabilities: Codable, Sendable {
     var trainingSessionMax: Int? = nil
     var trainingMemberSessionMax: Int? = nil
     func allows(_ action: String) -> Bool { (minClientContractVersion ?? 1) <= 1 && (allowedActions?.contains(action) ?? true) }
+    /// This release creates peer groups only, even if the server later exposes coaching.
+    var allowsPeerCreation: Bool { allows("create_group") && (groupTypes?.contains("peer") ?? true) }
     func sport(_ sport: GroupSport) -> GroupSportCapability? { guard (minClientContractVersion ?? 1) <= 1, (ruleSchemaVersion ?? 1) == 1 else { return nil }; return sports?.first { $0.sport == sport } }
 }
 

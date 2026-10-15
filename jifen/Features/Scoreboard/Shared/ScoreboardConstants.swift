@@ -54,3 +54,29 @@ struct ScoreboardBackButtonAccessibility: ViewModifier {
         }
     }
 }
+
+/// Voice status belongs to the menu; the badge never owns a separate action.
+struct ScoreboardMenuVoiceStatus: ViewModifier {
+    let isEnabled: Bool
+
+    func body(content: Content) -> some View {
+        content
+            .overlay(alignment: .topTrailing) {
+                if isEnabled {
+                    Image(systemName: "speaker.wave.2")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color(hex: "42EE9B"))
+                        .frame(width: 24, height: 24)
+                        .background(Color(hex: "155E46"), in: Circle())
+                        .offset(x: 4, y: -4)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                }
+            }
+            .accessibilityValue(NSLocalizedString(
+                isEnabled ? "voice_announcement_on" : "voice_announcement_off",
+                value: isEnabled ? "语音：开" : "语音：关",
+                comment: ""
+            ))
+    }
+}

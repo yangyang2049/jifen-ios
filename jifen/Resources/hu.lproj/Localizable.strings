@@ -1886,7 +1886,6 @@
 "group_server_version" = "Legújabb verzió";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "Csoport megnyitása";
 "group_notice_end" = "Nincs több értesítés";
 "group_notice_join_requested" = "Csatlakozási kérelem érkezett";
 "group_notice_join_approved" = "A csatlakozási kérelmet jóváhagyták";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "Beolvasás a csatlakozáshoz";
 "group_qr_apply_short" = "Beolvasás a csatlakozási kérelemhez";
 "group_update_report" = "Jelentés frissítése";
+"group_ranking_rate" = "Győzelmi arány";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "Csatlakozz a %@-csoportunkhoz, játsszunk és számoljuk a pontokat együtt!";
+"group_share_message" = "%@\n\nCsoport neve: %@\nCsoportszám: %@\n\nCsatlakozás csoporthoz: %@\n\nTöltsd le az iScoreboardot, és add meg a csoport számát a csatlakozáshoz:\n%@";
+"group_entry_set_winners" = "Játszmák győztesei";
+"group_activity_lineup_incomplete" = "Válaszd ki a mérkőzés összes játékosát";
+"group_activity_lineup_duplicate" = "Egy játékos csak egyszer szerepelhet ebben a mérkőzésben";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "Kézi bevitel";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "Mindet olvasottnak jelöl";

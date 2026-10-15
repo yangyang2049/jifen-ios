@@ -12,6 +12,7 @@ struct GroupActivityCreateView: View {
     @State private var starts = Date().addingTimeInterval(3600)
     @State private var closes = Date().addingTimeInterval(3600)
     @State private var capacity = 8
+    @State private var registeredCount = 0
     @State private var format = GroupFormat.doubles
     @State private var matchMode = "multi"
     @State private var busy = false
@@ -21,26 +22,32 @@ struct GroupActivityCreateView: View {
     @State private var initialized = false
     @State private var error: String?
     @State private var conflictActivity: GroupActivity?
+    private var minimumCapacity: Int { GroupActivityPolicy.minimumCapacity(format: format, registeredCount: registeredCount) }
     private var valid: Bool {
-        GroupInputValidation.validName(title, maximum: 60) && starts > Date() && closes <= starts && (closes > Date() || Int64(closes.timeIntervalSince1970 * 1000) == (initial?.registrationClosesAt ?? initial?.startsAt)) && note.unicodeScalars.count <= 200 && place.unicodeScalars.count <= 100 && capacity >= format.seatsPerSide * 2
+        GroupActivityPolicy.validText(title: title, place: place, note: note) && starts > Date() && closes <= starts
+            && (closes > Date() || Int64(closes.timeIntervalSince1970 * 1000) == (initial?.registrationClosesAt ?? initial?.startsAt))
+            && GroupActivityPolicy.validCapacity(capacity, format: format, registeredCount: registeredCount)
+            && store.allows(initial == nil ? "create_activity" : "update_activity")
     }
     var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    TextField(groupText("activity_title", "Activity title"), text: $title).accessibilityIdentifier("group_activity_title")
+                    TextField(groupText("activity_field_title_optional", "Activity name (optional)"), text: $title).accessibilityIdentifier("group_activity_title")
+                    Text(groupText("activity_title_auto_hint", "If left empty, the name is generated from the date.")).font(.caption).foregroundStyle(.secondary)
                     DatePicker(groupText("starts_at", "Starts at"), selection: $starts, in: Date()...).accessibilityIdentifier("group_activity_starts")
                     DatePicker(groupText("registration_closes", "Registration closes"), selection: $closes, in: ...starts).accessibilityIdentifier("group_activity_closes")
                     HStack {
-                        TextField(groupText("place", "Location"), text: $place)
+                        TextField(groupText("place", "Location"), text: $place).accessibilityIdentifier("group_activity_place")
                         Button { showCommonPlaces = true } label: { Image(systemName: "location.circle").foregroundStyle(Theme.primary) }
                             .buttonStyle(.plain).accessibilityLabel(NSLocalizedString("schedule_pick_common_place", value: "Choose a saved place", comment: ""))
                             .accessibilityIdentifier("group_activity_place_picker")
                     }
-                    TextField(groupText("note", "Note"), text: $note, axis: .vertical)
-                    Stepper(groupText("capacity", "Registration limit") + ": \(capacity)", value: $capacity, in: 2...max(4, store.cache.details[groupID]?.group.memberLimit ?? 50))
+                    TextField(groupText("note", "Note"), text: $note, axis: .vertical).accessibilityIdentifier("group_activity_note")
+                    Stepper(groupText("capacity", "Registration limit") + ": \(capacity)", value: $capacity, in: min(minimumCapacity, 100)...100)
+                        .accessibilityIdentifier("group_activity_capacity").accessibilityValue(String(capacity))
                     if initial == nil {
-                        Picker(groupText("format", "Format"), selection: $format) { ForEach(GroupFormat.allCases) { Text($0.title).tag($0) } }
+                        Picker(groupText("format", "Format"), selection: $format) { ForEach(GroupFormat.allCases) { Text($0.title).tag($0) } }.accessibilityIdentifier("group_activity_format")
                         if store.capabilities?.supportsActivityLineup == true {
                             Picker(groupText("activity_mode", "Matches"), selection: $matchMode) { Text(groupText("multi_matches", "Multiple matches")).tag("multi"); Text(groupText("single_match", "One match")).tag("single") }
                         }
@@ -61,22 +68,23 @@ struct GroupActivityCreateView: View {
                 .toolbar { ToolbarItem(placement: .cancellationAction) { Button(groupText("close", "Close")) { dismiss() }.disabled(busy) } }
                 .interactiveDismissDisabled(busy)
                 .sheet(isPresented: $showCommonPlaces) {
-                    CommonPlacePickerView(providedPlaces: groupCaptureCommonPlaces()) { selected in place = String(selected.name.prefix(100)); showCommonPlaces = false }
+                    CommonPlacePickerView(providedPlaces: groupCaptureCommonPlaces()) { selected in place = selected.name; showCommonPlaces = false }
                 }
                 .onChange(of: starts) { old, new in if closes == old { closes = new } }
+                .onChange(of: format) { _, _ in capacity = max(minimumCapacity, min(capacity, 100)) }
                 .onChange(of: signature) { _, _ in key = UUID().uuidString }
                 .task { guard !initialized else { return }; initialized = true; if let initial { apply(initial) } else { closes = starts }; if store.capabilities?.supportsActivityLineup != true { matchMode = "single" } }
         }
     }
     private var signature: String { "\(title)|\(place)|\(note)|\(starts)|\(closes)|\(capacity)|\(format)|\(matchMode)" }
-    private func apply(_ activity: GroupActivity) { title = activity.pendingTitle ?? activity.title; place = activity.place; note = activity.note; starts = activity.date; closes = Date(timeIntervalSince1970: Double(activity.registrationClosesAt ?? activity.startsAt) / 1000); capacity = activity.capacity; format = activity.format; matchMode = activity.matchMode ?? "single"; revision = activity.revision }
+    private func apply(_ activity: GroupActivity) { title = activity.pendingTitle ?? activity.title; place = activity.place; note = activity.note; starts = activity.date; closes = Date(timeIntervalSince1970: Double(activity.registrationClosesAt ?? activity.startsAt) / 1000); registeredCount = activity.registeredMemberIds.count; capacity = activity.capacity; format = activity.format; matchMode = activity.matchMode ?? "single"; revision = activity.revision }
     private func loadLatest() async {
         guard let initial, let account = store.accountID else { return }; let identity = store.identityRevision
         do { let latest: GroupActivity = try await store.repository.read("/\(groupID)/activities/\(initial.id)"); if store.matchesIdentity(account, revision: identity) { conflictActivity = latest } }
         catch { if store.matchesIdentity(account, revision: identity) { self.error = groupErrorMessage(error) } }
     }
     private func submit() async {
-        guard valid else { return }; busy = true; defer { busy = false }
+        guard valid, !busy else { return }; busy = true; defer { busy = false }
         let body = GroupActivityBody(title: title.trimmingCharacters(in: .whitespacesAndNewlines), startsAt: Int64(starts.timeIntervalSince1970 * 1000), place: place, capacity: capacity, note: note, format: format, matchMode: matchMode, registrationClosesAt: Int64(closes.timeIntervalSince1970 * 1000))
         if await store.perform({ let _: GroupActivity = try await store.repository.write("/\(groupID)/activities" + (initial.map { "/\($0.id)" } ?? ""), body: body, method: initial == nil ? .post : .patch, key: initial == nil ? key : nil, revision: revision) }) { CommonPlacesManager.shared.savePlaceIfNeeded(place); dismiss() }
         else { error = store.error }
@@ -133,15 +141,15 @@ struct GroupActivityView: View {
                     Text(groupText("registration_closes", "Registration closes") + " · " + Date(timeIntervalSince1970: Double(current.registrationClosesAt ?? current.startsAt) / 1000).formatted())
                 }
                 if current.titleModerationStatus == "pending" { GroupNotice(text: groupText("moderation_pending", "Your changes are awaiting review.")) }
-                if manager && current.canEdit(at: now) { Button(groupText("edit_activity", "Edit activity")) { editing = true }.disabled(!writable) }
+                if manager && current.canEdit(at: now) { Button(groupText("edit_activity", "Edit activity")) { editing = true }.disabled(!writable || !store.allows("update_activity")) }
             }
             if !current.isDirect { Section(groupText("registered_members", "Registered members")) {
                 ForEach(latest.members.filter { current.registeredMemberIds.contains($0.id) }) { Text($0.displayName) }
                 if current.registrationOpen(at: now), let me {
-                    Button(current.registeredMemberIds.contains(me.id) ? groupText("unregister", "Cancel registration") : groupText("register", "Sign up")) { registration(me.id) }.disabled(busy || !writable || (!current.registeredMemberIds.contains(me.id) && current.registeredMemberIds.count >= current.capacity))
+                    Button(current.registeredMemberIds.contains(me.id) ? groupText("unregister", "Cancel registration") : groupText("register", "Sign up")) { registration(me.id) }.disabled(busy || !writable || !store.allows("register_activity") || (!current.registeredMemberIds.contains(me.id) && current.registeredMemberIds.count >= current.capacity))
                     if GroupPermissions.manager(me) {
                         Button { registrationEditing = true } label: { Label(NSLocalizedString("edit", value: "Edit", comment: ""), systemImage: "person.2.badge.gearshape") }
-                            .disabled(busy || !writable).accessibilityIdentifier("group_activity_registration_manage")
+                            .disabled(busy || !writable || !store.allows("register_activity")).accessibilityIdentifier("group_activity_registration_manage")
                     }
                 }
                 if let account = store.accountID, let me, current.registeredMemberIds.contains(me.id), current.status == "recruiting" {
@@ -151,7 +159,7 @@ struct GroupActivityView: View {
             if current.isMulti {
                 Section(groupText("activity_lineup", "Match schedule")) {
                     if let lineup {
-                        if lineup.canManage { Button(groupText(current.isDirect ? "activity_lineup_title" : "edit_lineup", current.isDirect ? "Activity matches" : "Arrange matches")) { editingLineup = true }.disabled(!writable || ["completed", "cancelled"].contains(current.status)) }
+                        if lineup.canManage { Button(groupText(current.isDirect ? "activity_lineup_title" : "edit_lineup", current.isDirect ? "Activity matches" : "Arrange matches")) { editingLineup = true }.disabled(!writable || !store.allows("update_activity") || ["completed", "cancelled"].contains(current.status)) }
                         ForEach(lineup.sessions) { session in
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("\(session.orderNo) · \(session.court) · \(session.format.title)").font(.headline).accessibilityIdentifier("group_activity_session_\(session.orderNo)")
@@ -268,30 +276,26 @@ struct GroupDirectScheduleView: View {
     var detail: GroupDetailCache
     @State private var store = GroupStore.shared
     @Environment(\.dismiss) private var dismiss
+    @State private var draft = GroupDirectScheduleDraft()
     @State private var title = ""
     @State private var place = ""
-    @State private var date = Date().addingTimeInterval(600)
     @State private var format = GroupFormat.singles
-    @State private var timingMode = "sequence"
-    @State private var minutes = 30
-    @State private var sessions: [GroupTrainingDraftSession] = []
     @State private var busy = false
     @State private var error: String?
     @State private var showCommonPlaces = false
-    @State private var initialized = false
     private var members: [GroupMember] { detail.members.filter { $0.status == "active" } }
-    private var limit: Int { store.capabilities?.activitySessionMax ?? 100 }
+    private var limit: Int { store.capabilities?.activitySessionMax ?? 12 }
     private var memberMax: Int { store.capabilities?.activityMemberSessionMax ?? 8 }
     private var enoughMembers: Bool { members.count >= format.seatsPerSide * 2 }
-    private var issue: String? { GroupTrainingValidation.lineupIssue(sessions, minutes: minutes, maximumSessions: limit, maximumPerMember: memberMax, skipsConflicts: timingMode == "sequence") }
-    private var anchor: Date { let now = Date(); return date <= now ? now.addingTimeInterval(60) : date }
+    private var issue: String? { GroupTrainingValidation.lineupIssue(draft.sessions, minutes: draft.minutes, maximumSessions: limit, maximumPerMember: memberMax, skipsConflicts: draft.timingMode == "sequence") }
+    private var valid: Bool { issue == nil && !draft.sessions.isEmpty && GroupActivityPolicy.validText(title: title, place: place) && store.allows("create_activity") }
     var body: some View {
         NavigationStack {
             Form {
                 Section {
                     TextField(groupText("activity_field_title_optional", "Activity name (optional)"), text: $title)
                     Text(groupText("activity_title_auto_hint", "If left empty, the name is generated from the date.")).font(.caption).foregroundStyle(.secondary)
-                    DatePicker(groupText("starts_at", "Starts at"), selection: $date)
+                    DatePicker(groupText("starts_at", "Starts at"), selection: $draft.date)
                     HStack {
                         TextField(groupText("place", "Location"), text: $place)
                         Button { showCommonPlaces = true } label: { Image(systemName: "location.circle").foregroundStyle(Theme.primary) }
@@ -300,56 +304,48 @@ struct GroupDirectScheduleView: View {
                     Picker(groupText("format", "Format"), selection: $format) { ForEach(GroupFormat.allCases) { Text($0.title).tag($0) } }
                 }
                 Section {
-                    Picker(groupText("activity_timing", "Timing"), selection: $timingMode) {
+                    Picker(groupText("activity_timing", "Timing"), selection: $draft.timingMode) {
                         Text(groupText("activity_timing_sequence", "No fixed time")).tag("sequence")
                         Text(groupText("activity_timing_estimated", "Set estimated times")).tag("estimated")
                     }.pickerStyle(.segmented).accessibilityIdentifier("group_activity_direct_timing")
-                    if timingMode == "estimated" {
-                        Picker(groupText("activity_lineup_duration", "Minutes per match"), selection: $minutes) {
+                    if draft.timingMode == "estimated" {
+                        Picker(groupText("activity_lineup_duration", "Minutes per match"), selection: $draft.minutes) {
                             ForEach([20, 30, 45, 60], id: \.self) { Text(String(format: groupText("activity_lineup_minutes", "%d min"), $0)).tag($0) }
-                        }.pickerStyle(.segmented)
+                    }.pickerStyle(.segmented)
                     }
                 } footer: { Text(groupText("activity_direct_hint", "Pick from all active members; no sign-up needed.")) }
                 Section {
-                    ForEach($sessions) { $session in sessionRow($session) }
+                    ForEach($draft.sessions) { $session in sessionRow($session) }
                     Button { addSession() } label: { Label(groupText("activity_lineup_add", "Add a match"), systemImage: "plus") }
-                        .disabled(sessions.count >= limit || !enoughMembers)
+                        .disabled(draft.sessions.count >= limit || !enoughMembers)
                     if !enoughMembers { Text(String(format: groupText("activity_lineup_add_need_members", "At least %d active members are needed to add a match."), format.seatsPerSide * 2)).font(.caption).foregroundStyle(.secondary) }
                 } header: {
-                    HStack { Text(groupText("activity_lineup_section_matches", "Matches")); Spacer(); Text(String(format: groupText("activity_lineup_match_count", "%d matches"), sessions.count)).font(.caption).foregroundStyle(.secondary) }
+                    HStack { Text(groupText("activity_lineup_section_matches", "Matches")); Spacer(); Text(String(format: groupText("activity_lineup_match_count", "%d matches"), draft.sessions.count)).font(.caption).foregroundStyle(.secondary) }
                 }
                 if let issue { GroupNotice(text: issue) }
                 if let error = error ?? store.error { GroupNotice(text: error) }
                 Button(groupText("activity_direct_save", "Save matches")) { Task { await submit() } }
-                    .disabled(busy || issue != nil || sessions.isEmpty || title.unicodeScalars.count > 40).accessibilityIdentifier("group_activity_direct_save")
+                    .disabled(busy || !valid).accessibilityIdentifier("group_activity_direct_save")
             }.disabled(busy).scrollDismissesKeyboard(.interactively)
                 .navigationTitle(groupText("activity_direct_title", "Direct match")).groupAccountBoundary()
                 .toolbar { ToolbarItem(placement: .cancellationAction) { Button(groupText("close", "Close")) { dismiss() }.disabled(busy) } }
                 .interactiveDismissDisabled(busy)
                 .sheet(isPresented: $showCommonPlaces) {
-                    CommonPlacePickerView(providedPlaces: groupCaptureCommonPlaces()) { selected in place = String(selected.name.prefix(100)); showCommonPlaces = false }
+                    CommonPlacePickerView(providedPlaces: groupCaptureCommonPlaces()) { selected in place = selected.name; showCommonPlaces = false }
                 }
-                .onChange(of: timingMode) { _, value in if value == "sequence" { resequence() } }
-                .onChange(of: minutes) { _, _ in if timingMode == "sequence" { resequence() } }
-                .onChange(of: date) { old, new in
-                    // 安卓 setDirectDate：所有场次跟着活动日期整体平移，保留场间间隔。
-                    if timingMode == "sequence" { resequence() }
-                    else { sessions = GroupTrainingValidation.shiftAll(sessions, by: new.timeIntervalSince(old)) }
-                }
-                .onChange(of: format) { _, value in for index in sessions.indices { sessions[index].format = value; sessions[index].memberIDs = ["", "", "", ""] } }
-                .task { guard !initialized else { return }; initialized = true; var first = GroupTrainingDraftSession(); first.format = format; first.startsAt = anchor; sessions = [first] }
+                .onChange(of: format) { _, value in for index in draft.sessions.indices { draft.sessions[index].format = value; draft.sessions[index].memberIDs = ["", "", "", ""] } }
         }
     }
     @ViewBuilder private func sessionRow(_ session: Binding<GroupTrainingDraftSession>) -> some View {
         let row = session.wrappedValue
-        let index = sessions.firstIndex(where: { $0.id == row.id }) ?? 0
+        let index = draft.sessions.firstIndex(where: { $0.id == row.id }) ?? 0
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(String(format: groupText("activity_lineup_session", "Match %d"), index + 1)).font(.headline)
                 Spacer()
-                if sessions.count > 1 { Button(groupText("activity_lineup_remove", "Remove"), role: .destructive) { sessions.removeAll { $0.id == row.id } } }
+                if draft.sessions.count > 1 { Button(groupText("activity_lineup_remove", "Remove"), role: .destructive) { draft.sessions.removeAll { $0.id == row.id } } }
             }
-            if timingMode == "estimated" {
+            if draft.timingMode == "estimated" {
                 DatePicker(groupText("starts_at", "Start time"), selection: session.startsAt).onChange(of: row.startsAt) { _, _ in reorder() }
             } else {
                 Text(index == 0 ? groupText("activity_time_unspecified", "Time to be decided") : groupText("activity_time_after_previous", "After the previous match")).font(.caption).foregroundStyle(.secondary)
@@ -362,30 +358,19 @@ struct GroupDirectScheduleView: View {
             }
         }
     }
-    private func addSession() {
-        var next = GroupTrainingDraftSession(); next.format = format
-        next.startsAt = (sessions.last?.startsAt ?? anchor).addingTimeInterval(Double(minutes) * 60)
-        sessions.append(next)
-        if timingMode == "sequence" { resequence() }
-    }
-    private func resequence() {
-        let base = anchor
-        for index in sessions.indices { sessions[index].startsAt = base.addingTimeInterval(Double(minutes * index) * 60) }
-    }
-    private func reorder() { guard timingMode == "estimated" else { return }; sessions.sort { $0.startsAt < $1.startsAt } }
+    private func addSession() { draft.add(format: format) }
+    private func reorder() { guard draft.timingMode == "estimated" else { return }; draft.sessions.sort { $0.startsAt < $1.startsAt } }
     private func body(_ row: GroupTrainingDraftSession, order: Int) -> GroupTrainingSessionBody {
         .init(orderNo: order, court: row.court, startsAt: Int64(row.startsAt.timeIntervalSince1970 * 1000), format: row.format,
               seats: row.selectedIDs.enumerated().map { index, id in .init(memberId: id, side: index < row.format.seatsPerSide ? "A" : "B", seat: index % row.format.seatsPerSide) })
     }
     private func submit() async {
-        guard issue == nil, !sessions.isEmpty, !busy else { return }
+        guard valid, !busy, let accountID = store.accountID else { return }
         busy = true; defer { busy = false }
-        // 选了过去的时间时，活动与场次必须一起被推到「一分钟后」，否则两者会脱节。
-        let scheduled = GroupTrainingValidation.anchored(sessions, startsAt: date, now: Date())
-        let bodies = scheduled.sessions.enumerated().map { body($0.element, order: $0.offset + 1) }
-        let payload = GroupDirectLineupBody(title: title.trimmingCharacters(in: .whitespacesAndNewlines), startsAt: Int64(scheduled.startsAt.timeIntervalSince1970 * 1000),
-                                            place: place, format: format, timingMode: timingMode, sessionMinutes: minutes, sessions: bodies)
-        if await store.perform({ let _: GroupDirectLineupResponse = try await store.repository.createDirectLineup(groupID: detail.group.id, body: payload) }) {
+        let bodies = draft.sessions.enumerated().map { body($0.element, order: $0.offset + 1) }
+        let payload = GroupDirectLineupBody(title: title.trimmingCharacters(in: .whitespacesAndNewlines), startsAt: Int64(draft.date.timeIntervalSince1970 * 1000),
+                                            place: place, format: format, timingMode: draft.timingMode, sessionMinutes: draft.minutes, sessions: bodies)
+        if await store.perform({ let _: GroupDirectLineupResponse = try await store.repository.createDirectLineup(groupID: detail.group.id, body: payload, accountID: accountID) }) {
             CommonPlacesManager.shared.savePlaceIfNeeded(place); dismiss()
         } else { error = store.error }
     }

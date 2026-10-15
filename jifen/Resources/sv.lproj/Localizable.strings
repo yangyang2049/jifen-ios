@@ -1886,7 +1886,6 @@
 "group_server_version" = "Senaste versionen";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "Öppna gruppen";
 "group_notice_end" = "Inga fler aviseringar";
 "group_notice_join_requested" = "Anslutningsförfrågan mottagen";
 "group_notice_join_approved" = "Anslutningsförfrågan godkänd";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "Skanna för att gå med";
 "group_qr_apply_short" = "Skanna för att begära medlemskap";
 "group_update_report" = "Uppdatera rapport";
+"group_ranking_rate" = "Vinstprocent";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "Gå med i vår %@-grupp för att spela och hålla poäng tillsammans!";
+"group_share_message" = "%@\n\nGruppnamn: %@\nGruppnummer %@\n\nGå med i grupp: %@\n\nLadda ner iScoreboard och ange gruppnumret för att gå med:\n%@";
+"group_entry_set_winners" = "Vinnare per delspel";
+"group_activity_lineup_incomplete" = "Välj alla spelare för denna match";
+"group_activity_lineup_duplicate" = "Varje spelare får bara förekomma en gång i denna match";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "Manuell inmatning";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "Markera alla som lästa";

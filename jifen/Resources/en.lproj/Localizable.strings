@@ -1578,7 +1578,7 @@
 "group_album" = "Choose photo";
 "group_approval" = "Approval required";
 "group_approve" = "Approve";
-"group_archive" = "Archive group";
+"group_archive" = "Archive";
 "group_archive_hint" = "Archiving keeps all history and pauses group changes. You can restore it later.";
 "group_archive_readonly" = "This group is archived. Its history is read-only.";
 "group_archived" = "Archived";
@@ -1597,7 +1597,7 @@
 "group_close" = "Close";
 "group_closed" = "Joining closed";
 "group_completed" = "Completed";
-"group_confirm_join" = "Join this group";
+"group_confirm_join" = "Join";
 "group_confirm_result" = "Confirm result";
 "group_confirmed" = "Confirmed";
 "group_confirmed_by" = "Confirmed by";
@@ -1675,8 +1675,8 @@
 "group_register" = "Sign up";
 "group_registered_members" = "Registered members";
 "group_reject" = "Reject";
-"group_remove_member" = "Remove member";
-"group_restore" = "Restore group";
+"group_remove_member" = "Remove";
+"group_restore" = "Restore";
 "group_restore_hint" = "Restore this group to allow activities and scoring.";
 "group_results" = "Matches";
 "group_retry" = "Retry";
@@ -1741,16 +1741,16 @@
 "group_add_session" = "Add a session";
 "group_edit_schedule" = "Edit schedule";
 "group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
+"group_leave_training" = "Request absence";
 "group_session_minutes" = "Minutes per match";
 "group_court" = "Court";
-"group_remove_session" = "Remove session";
+"group_remove_session" = "Remove";
 "group_publish_schedule" = "Publish schedule";
 "group_leave_reason" = "Optional absence note (up to 100 characters)";
 "group_report" = "Report group";
 "group_report_reason" = "Reason";
 "group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
+"group_report_submit" = "Submit";
 "group_report_spam" = "Spam";
 "group_report_harassment" = "Harassment";
 "group_report_inappropriate" = "Inappropriate content";
@@ -1818,7 +1818,7 @@
 "group_activity_lineup" = "Match schedule";
 "group_activity_mode" = "Matches";
 "group_activity_reminder" = "Remind me 15 minutes before";
-"group_add_set" = "Add game score";
+"group_add_set" = "Add game";
 "group_added_members" = "Added";
 "group_authority_confirm" = "Confirm as group owner";
 "group_batch_names_hint" = "One name per line, 1–24 characters per name.";
@@ -1887,7 +1887,6 @@
 "group_server_version" = "Latest version";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "Open group";
 "group_notice_end" = "No more notifications";
 "group_notice_join_requested" = "Join request received";
 "group_notice_join_approved" = "Join request approved";
@@ -1920,3 +1919,16 @@
 "group_qr_join_short" = "Scan to join";
 "group_qr_apply_short" = "Scan to request to join";
 "group_update_report" = "Update report";
+"group_ranking_rate" = "Win rate";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "Join our %@ group to play and keep score together!";
+"group_share_message" = "%@\n\nGroup: %@\nGroup No.: %@\n\nJoin group: %@\n\nDownload iScoreboard and enter the group number to join:\n%@";
+"group_entry_set_winners" = "Game winners";
+"group_activity_lineup_incomplete" = "Select all players for this match";
+"group_activity_lineup_duplicate" = "Each player can appear only once in this match";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "Manual entry";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "Mark all read";

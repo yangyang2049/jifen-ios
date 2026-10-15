@@ -1886,7 +1886,6 @@
 "group_server_version" = "ಇತ್ತೀಚಿನ ಆವೃತ್ತಿ";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "ಗುಂಪನ್ನು ತೆರೆಯಿರಿ";
 "group_notice_end" = "ಇನ್ನು ಹೆಚ್ಚಿನ ಅಧಿಸೂಚನೆಗಳಿಲ್ಲ";
 "group_notice_join_requested" = "ಸೇರುವ ವಿನಂತಿ ಬಂದಿದೆ";
 "group_notice_join_approved" = "ಸೇರುವ ವಿನಂತಿ ಅನುಮೋದಿಸಲಾಗಿದೆ";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "ಸೇರಲು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ";
 "group_qr_apply_short" = "ಸೇರಲು ವಿನಂತಿಸಲು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ";
 "group_update_report" = "ವರದಿ ನವೀಕರಿಸಿ";
+"group_ranking_rate" = "ಗೆಲುವಿನ ಪ್ರಮಾಣ";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "ಒಟ್ಟಿಗೆ ಆಡಲು ಮತ್ತು ಸ್ಕೋರ್ ದಾಖಲಿಸಲು ನಮ್ಮ %@ ಗುಂಪಿಗೆ ಸೇರಿ!";
+"group_share_message" = "%@\n\nಗುಂಪಿನ ಹೆಸರು: %@\nಗುಂಪು ಸಂಖ್ಯೆ %@\n\nಗುಂಪಿಗೆ ಸೇರಿ: %@\n\niScoreboard ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ, ಸೇರಲು ಗುಂಪಿನ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ:\n%@";
+"group_entry_set_winners" = "ಪ್ರತಿ ಆಟದ ವಿಜೇತರು";
+"group_activity_lineup_incomplete" = "ಈ ಪಂದ್ಯಕ್ಕೆ ಎಲ್ಲ ಆಟಗಾರರನ್ನು ಆಯ್ಕೆಮಾಡಿ";
+"group_activity_lineup_duplicate" = "ಪ್ರತಿಯೊಬ್ಬ ಆಟಗಾರ ಈ ಪಂದ್ಯದಲ್ಲಿ ಒಮ್ಮೆ ಮಾತ್ರ ಇರಬಹುದು";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "ಕೈಯಾರೆ ನಮೂದಿಸಿ";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "ಎಲ್ಲವನ್ನೂ ಓದಿದಂತೆ ಗುರ್ತಿಸಿ";

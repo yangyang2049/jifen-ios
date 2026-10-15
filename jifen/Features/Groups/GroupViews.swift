@@ -11,6 +11,12 @@ struct GroupListView: View {
     @State private var pendingCreate = false
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    /// 测试版说明卡关闭态（版本号记忆，对齐安卓/鸿蒙口径）：
+    /// 只存关闭时的版本号，`stored == 当前版本` 即视为已关闭；升级后自动重现一次。
+    @AppStorage("group_beta_notice_dismissed_version") private var betaNoticeDismissedVersion = ""
+    private var appVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+    }
     var body: some View {
         List {
             if let error = store.error { Section { GroupNotice(text: error); Button(groupText("retry", "Retry")) { Task { await store.refresh() } } } }
@@ -59,16 +65,34 @@ struct GroupListView: View {
                     }.padding(.vertical, 5)
                 }.accessibilityIdentifier("group_card_\(group.id)")
             }
-            Section {
-                Label(groupText("beta_notice", "Groups are in beta. Share your feedback to help improve them."), systemImage: "sparkles")
-                GroupBetaSportTags()
-                if AppFeatureFlags.feedbackEntryEnabled {
-                    NavigationLink(groupText("feedback", "Send feedback")) {
-                        FeedbackListView(initiallyCreate: true, initialCreateTitle: "#\(groupText("groups", "Groups"))# ")
-                    }.accessibilityIdentifier("group_beta_feedback")
-                }
-            }.accessibilityIdentifier("group_beta_notice")
+            if betaNoticeDismissedVersion != appVersion {
+                Section {
+                    HStack(spacing: 12) {
+                        Label(groupText("beta_notice", "Groups are in beta. Share your feedback to help improve them."), systemImage: "sparkles")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Button {
+                            betaNoticeDismissedVersion = appVersion
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(Theme.textSecondary)
+                                .frame(width: 28, height: 28)
+                                .background(Theme.tintedFill(Theme.textSecondary, lightAlpha: 0.08, darkAlpha: 0.14), in: Circle())
+                        }.buttonStyle(.plain)
+                            .accessibilityLabel(groupText("close", "Close"))
+                            .accessibilityIdentifier("group_beta_notice_close")
+                    }
+                    GroupBetaSportTags()
+                    if AppFeatureFlags.feedbackEntryEnabled {
+                        NavigationLink(groupText("feedback", "Send feedback")) {
+                            FeedbackListView(initiallyCreate: true, initialCreateTitle: "#\(groupText("groups", "Groups"))# ")
+                        }.accessibilityIdentifier("group_beta_feedback")
+                    }
+                }.accessibilityIdentifier("group_beta_notice")
+            }
         }
+        .frame(maxWidth: 960).frame(maxWidth: .infinity)
+        .background(Color(uiColor: .systemGroupedBackground))
         .safeAreaInset(edge: .bottom, spacing: 0) {
             VStack(spacing: 0) {
                 entryActions.padding(.horizontal, 20).padding(.vertical, 12)
@@ -243,9 +267,8 @@ struct GroupCreateView: View {
     @State private var store = GroupStore.shared
     @State private var name = ""
     @State private var description = ""
-    @State private var groupType = "peer"
     @State private var sport = GroupSport.badminton
-    @State private var policy = "approval"
+    @State private var policy = GroupActivityPolicy.defaultJoinPolicy
     @State private var busy = false
     @State private var key = UUID().uuidString
     @State private var created: ScoreGroup?
@@ -257,9 +280,8 @@ struct GroupCreateView: View {
                 Section {
                     TextField(groupText("name", "Group name"), text: $name).accessibilityIdentifier("group_name")
                     TextField(groupText("description", "Description (optional)"), text: $description, axis: .vertical).lineLimit(2...5)
-                    Picker(groupText("group_type", "Group type"), selection: $groupType) { ForEach(store.capabilities?.groupTypes ?? ["peer"], id: \.self) { type in Text(groupText(type, type)).tag(type) } }
                     Picker(groupText("sport", "Sport"), selection: $sport) { ForEach(GroupSport.allCases) { Text($0.title).tag($0) } }
-                    Picker(groupText("join_policy", "Joining"), selection: $policy) { Text(groupText("approval", "Approval required")).tag("approval"); Text(groupText("open", "Anyone with the number can join")).tag("open") }.accessibilityIdentifier("group_create_policy")
+                    Picker(groupText("join_policy", "Joining"), selection: $policy) { Text(groupText("open", "Anyone with the number can join")).tag("open"); Text(groupText("approval", "Approval required")).tag("approval") }.accessibilityIdentifier("group_create_policy").accessibilityValue(groupText(policy, policy))
                 }
                 if let error = store.error { GroupNotice(text: error) }
                 Button(groupText("create", "Create group")) { Task { await submit() } }.disabled(busy || !valid).accessibilityIdentifier("group_create_submit")
@@ -270,17 +292,18 @@ struct GroupCreateView: View {
             .navigationTitle(created == nil ? groupText("create", "Create group") : created?.name ?? "").groupAccountBoundary()
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(groupText("close", "Close")) { dismiss() }.disabled(busy) } }
             .onChange(of: name) { _,_ in key = UUID().uuidString }.onChange(of: description) { _,_ in key = UUID().uuidString }
-            .onChange(of: groupType) { _,_ in key = UUID().uuidString }.onChange(of: sport) { _,_ in key = UUID().uuidString }.onChange(of: policy) { _,_ in key = UUID().uuidString }
+            .onChange(of: sport) { _,_ in key = UUID().uuidString }.onChange(of: policy) { _,_ in key = UUID().uuidString }
             .interactiveDismissDisabled(busy)
         }
     }
-    private var valid: Bool { GroupInputValidation.validName(name, minimum: store.capabilities?.nameMin ?? 2, maximum: store.capabilities?.nameMax ?? 24) && description.unicodeScalars.count <= (store.capabilities?.descriptionMax ?? 200) && (store.capabilities?.allows("create_group") ?? false) }
+    private var valid: Bool { GroupInputValidation.validName(name, minimum: store.capabilities?.nameMin ?? 2, maximum: store.capabilities?.nameMax ?? 24) && description.unicodeScalars.count <= (store.capabilities?.descriptionMax ?? 200) && (store.capabilities?.allowsPeerCreation ?? false) }
     private func submit() async {
+        guard valid, !busy else { return }
         busy = true; defer { busy = false }
         guard let accountID = store.accountID else { return }
         let revision = store.identityRevision
         _ = await store.perform {
-            let group: ScoreGroup = try await store.repository.write("", body: GroupCreateBody(name: name, description: description, sport: sport, joinPolicy: policy, groupType: groupType), key: key)
+            let group: ScoreGroup = try await store.repository.write("", body: GroupCreateBody(name: name, description: description, sport: sport, joinPolicy: policy), key: key)
             guard store.matchesIdentity(accountID, revision: revision) else { return }
             created = group; await store.refresh()
         }

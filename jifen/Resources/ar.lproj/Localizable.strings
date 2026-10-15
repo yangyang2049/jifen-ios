@@ -1886,7 +1886,6 @@
 "group_server_version" = "أحدث إصدار";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "فتح المجموعة";
 "group_notice_end" = "لا توجد إشعارات أخرى";
 "group_notice_join_requested" = "تم استلام طلب انضمام";
 "group_notice_join_approved" = "تمت الموافقة على طلب الانضمام";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "امسح للانضمام";
 "group_qr_apply_short" = "امسح لطلب الانضمام";
 "group_update_report" = "تحديث البلاغ";
+"group_ranking_rate" = "نسبة الفوز";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "انضم إلى مجموعتنا للعب %@ وتسجيل النقاط معًا!";
+"group_share_message" = "%@\n\nاسم المجموعة: %@\nرقم المجموعة %@\n\nالانضمام إلى مجموعة: %@\n\nنزّل iScoreboard وأدخل رقم المجموعة للانضمام:\n%@";
+"group_entry_set_winners" = "الفائزون بالأشواط";
+"group_activity_lineup_incomplete" = "اختر جميع لاعبي هذه المباراة";
+"group_activity_lineup_duplicate" = "لا يمكن أن يظهر اللاعب نفسه أكثر من مرة في هذه المباراة";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "إدخال يدوي";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "وضع علامة مقروء على الكل";

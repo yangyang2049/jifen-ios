@@ -61,7 +61,7 @@ struct GroupRegistrationEditor: View {
     private var writable: Bool {
         guard let account = presentedAccountID else { return false }
         return store.matchesIdentity(account, revision: presentedIdentityRevision)
-            && SessionStore.shared.user?.id == account && store.enabled && !store.cached
+            && SessionStore.shared.user?.id == account && store.allows("register_activity") && !store.cached
             && group.isActive && GroupPermissions.manager(me) && current.registrationOpen(at: Int64(Date().timeIntervalSince1970 * 1000))
     }
 

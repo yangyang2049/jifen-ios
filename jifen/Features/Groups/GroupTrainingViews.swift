@@ -137,27 +137,54 @@ nonisolated struct GroupTrainingDraftSession: Identifiable, Equatable, Codable, 
 }
 
 nonisolated enum GroupTrainingValidation {
-    static func lineupIssue(_ sessions: [GroupTrainingDraftSession], minutes: Int, maximumSessions: Int = 100, maximumPerMember: Int = 8, skipsConflicts: Bool = false) -> String? {
-        guard !sessions.isEmpty && sessions.count <= maximumSessions else { return groupText("lineup_invalid", "Check the match times and participants.") }
+    enum LineupIssue: Equatable { case incomplete, duplicate, sessions, memberLimit, conflict, invalid, frozen }
+    static func lineupIssue(_ sessions: [GroupTrainingDraftSession], minutes: Int, maximumSessions: Int = 12, maximumPerMember: Int = 8,
+                            skipsConflicts: Bool = false, allowsEmpty: Bool = false,
+                            originals: [GroupActivitySession] = [], allowedMemberIDs: Set<String>? = nil) -> String? {
+        switch lineupProblem(sessions, minutes: minutes, maximumSessions: maximumSessions, maximumPerMember: maximumPerMember,
+                             skipsConflicts: skipsConflicts, allowsEmpty: allowsEmpty, originals: originals, allowedMemberIDs: allowedMemberIDs) {
+        case nil: return nil
+        case .incomplete: return groupText("activity_lineup_incomplete", "Select all players for this match")
+        case .duplicate: return groupText("activity_lineup_duplicate", "Each player can appear only once in this match")
+        case .sessions: return "≤ " + String(format: groupText("activity_lineup_match_count", "%d matches"), maximumSessions)
+        case .memberLimit: return groupText("lineup_member_limit", "A member can play at most eight matches per schedule.") + " (≤ \(maximumPerMember))"
+        case .conflict: return groupText("lineup_conflict", "Overlapping matches need different courts and participants.")
+        case .invalid: return groupText("lineup_invalid", "Check the match times and participants.")
+        case .frozen: return groupText("frozen_match_hint", "This match has already started and cannot be changed.")
+        }
+    }
+    static func lineupProblem(_ sessions: [GroupTrainingDraftSession], minutes: Int, maximumSessions: Int = 12, maximumPerMember: Int = 8,
+                              skipsConflicts: Bool = false, allowsEmpty: Bool = false,
+                              originals: [GroupActivitySession] = [], allowedMemberIDs: Set<String>? = nil) -> LineupIssue? {
+        for original in originals where original.frozen {
+            guard let index = sessions.firstIndex(where: { $0.serverID == original.id }),
+                  sessions[index].matches(original, orderNo: index + 1) else { return .frozen }
+        }
+        guard !sessions.isEmpty else { return allowsEmpty ? nil : .incomplete }
+        guard sessions.count <= maximumSessions else { return .sessions }
         let duration = Double(minutes < 5 ? 30 : min(minutes, 240)) * 60
         var countByMember: [String: Int] = [:]
         for (index, session) in sessions.enumerated() {
-            if !validSeats(session.selectedIDs, format: session.format) || session.court.trimmingCharacters(in: .whitespacesAndNewlines).count > 16 || !session.startsAt.timeIntervalSince1970.isFinite || (index > 0 && session.startsAt < sessions[index - 1].startsAt) {
-                return groupText("lineup_invalid", "Check the match times and participants.")
-            }
-            for id in session.selectedIDs { countByMember[id, default: 0] += 1 }
+            let unchangedMissing = originals.contains { $0.needsLineup == true && session.matches($0, orderNo: index + 1) }
+            if session.frozen != true && !unchangedMissing &&
+                (session.selectedIDs.count != session.format.seatsPerSide * 2 || session.selectedIDs.contains(where: { $0.isEmpty || allowedMemberIDs?.contains($0) == false })) { return .incomplete }
+            let selected = session.selectedIDs.filter { !$0.isEmpty }
+            if Set(selected).count != selected.count { return .duplicate }
+            if session.court.trimmingCharacters(in: .whitespacesAndNewlines).count > 16 || !session.startsAt.timeIntervalSince1970.isFinite || (!skipsConflicts && index > 0 && session.startsAt < sessions[index - 1].startsAt) { return .invalid }
+            for id in selected { countByMember[id, default: 0] += 1 }
         }
-        if countByMember.values.contains(where: { $0 > maximumPerMember }) { return groupText("lineup_member_limit", "A member can play at most eight matches per schedule.") + " (≤ \(maximumPerMember))" }
+        if countByMember.values.contains(where: { $0 > maximumPerMember }) { return .memberLimit }
         // 顺序模式（time-unspecified）没有具体开赛时间，安卓同样跳过重叠冲突校验。
         guard !skipsConflicts else { return nil }
         for i in sessions.indices {
             for j in sessions.indices where j > i {
                 let a = sessions[i], b = sessions[j]
+                if originals.contains(where: { $0.status == "cancelled" && ($0.id == a.serverID || $0.id == b.serverID) }) { continue }
                 guard a.startsAt < b.startsAt.addingTimeInterval(duration), b.startsAt < a.startsAt.addingTimeInterval(duration) else { continue }
                 let courtA = a.court.trimmingCharacters(in: .whitespacesAndNewlines)
                 let courtB = b.court.trimmingCharacters(in: .whitespacesAndNewlines)
-                if courtA.isEmpty || courtB.isEmpty || courtA == courtB || !Set(a.selectedIDs).isDisjoint(with: Set(b.selectedIDs)) {
-                    return groupText("lineup_conflict", "Overlapping matches need different courts and participants.")
+                if courtA.isEmpty || courtB.isEmpty || courtA == courtB || !Set(a.selectedIDs.filter { !$0.isEmpty }).isDisjoint(with: Set(b.selectedIDs.filter { !$0.isEmpty })) {
+                    return .conflict
                 }
             }
         }
@@ -251,8 +278,9 @@ struct GroupReportView: View {
                     nonisolated struct Body: Encodable, Sendable { var reason: String; var detail: String }
                     let _: EmptyResponse = try await store.repository.write("/\(groupID)/report", body: Body(reason: reason.rawValue, detail: detail))
                 }) { dismiss() } } }.disabled(busy)
-            }.navigationTitle(groupText("report", "Report group")).groupAccountBoundary()
-                .toolbar { ToolbarItem(placement: .cancellationAction) { Button(groupText("close", "Close")) { dismiss() } } }
+            }.disabled(busy).navigationTitle(groupText("report", "Report group")).groupAccountBoundary()
+                .interactiveDismissDisabled(busy)
+                .toolbar { ToolbarItem(placement: .cancellationAction) { Button(NSLocalizedString("cancel", comment: "")) { dismiss() }.disabled(busy) } }
         }
     }
 }

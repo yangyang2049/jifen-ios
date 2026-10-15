@@ -66,6 +66,20 @@ struct ScoreboardRecordDetailPage: View {
         .navigationTitle(record?.gameType.recordDetailTitle ?? GameType.defaultRecordDetailTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                if record != nil {
+                    Menu {
+                        Button(role: .destructive) { showingDeleteConfirm = true } label: {
+                            Label(NSLocalizedString("delete", comment: ""), systemImage: "trash")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                    }
+                    .accessibilityLabel(NSLocalizedString("more", value: "更多", comment: ""))
+                }
+            }
+        }
         .onAppear(perform: loadRecord)
         .alert(NSLocalizedString("confirm_delete", comment: ""), isPresented: $showingDeleteConfirm) {
             Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
@@ -107,7 +121,6 @@ struct ScoreboardRecordDetailPage: View {
         return ScrollView {
             VStack(spacing: 16) {
                 overviewCard(record)
-                primaryActions(record, presentation: presentation)
                 RecordNotesSectionView(
                     recordId: record.id,
                     note: record.note,
@@ -173,6 +186,16 @@ struct ScoreboardRecordDetailPage: View {
                         self.recordNoteToast = nil
                     }
             }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            primaryActions(record, presentation: presentation)
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
+                .padding(.bottom, 16)
+                .frame(maxWidth: 720)
+                .frame(maxWidth: .infinity)
+                .background(Theme.backgroundColor)
+                .overlay(alignment: .top) { Divider() }
         }
     }
 
@@ -289,18 +312,6 @@ struct ScoreboardRecordDetailPage: View {
 
     private func primaryActions(_ record: ScoreboardRecord, presentation: ScoreboardRecordPresentation) -> some View {
         HStack(spacing: 12) {
-            Button { handleReplay(record, presentation: presentation) } label: {
-                Label(
-                    NSLocalizedString("play_again", value: "再来一场", comment: ""),
-                    systemImage: "arrow.clockwise"
-                )
-                .font(.system(size: 17, weight: .semibold))
-                .imageScale(.medium)
-                .frame(maxWidth: .infinity)
-                .frame(minHeight: 48)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.borderedProminent)
             Button { noteSheetMode = .menu } label: {
                 Image(systemName: "square.and.pencil")
                     .font(.system(size: 22, weight: .medium))
@@ -319,15 +330,18 @@ struct ScoreboardRecordDetailPage: View {
             }
                 .buttonStyle(.plain)
                 .accessibilityLabel(NSLocalizedString("share", comment: ""))
-            Button(role: .destructive) { showingDeleteConfirm = true } label: {
-                Image(systemName: "trash")
-                    .font(.system(size: 22, weight: .medium))
-                    .foregroundStyle(.red)
-                    .frame(width: 48, height: 48)
-                    .contentShape(Rectangle())
+            Button { handleReplay(record, presentation: presentation) } label: {
+                Label(
+                    NSLocalizedString("play_again", value: "再来一场", comment: ""),
+                    systemImage: "arrow.clockwise"
+                )
+                .font(.system(size: 17, weight: .semibold))
+                .imageScale(.medium)
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: 48)
+                .contentShape(Rectangle())
             }
-                .buttonStyle(.plain)
-                .accessibilityLabel(NSLocalizedString("delete", comment: ""))
+            .buttonStyle(.borderedProminent)
         }
     }
 

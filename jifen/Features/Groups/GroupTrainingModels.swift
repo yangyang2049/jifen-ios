@@ -65,3 +65,27 @@ nonisolated enum GroupReportReason: String, CaseIterable, Identifiable, Sendable
     var id: String { rawValue }
     var title: String { groupText("report_" + rawValue.lowercased(), rawValue.capitalized) }
 }
+
+/// The direct editor and submission share raw draft times; only submission clamps a past date.
+nonisolated struct GroupDirectScheduleDraft {
+    var date: Date {
+        didSet { sessions = GroupTrainingValidation.shiftAll(sessions, by: date.timeIntervalSince(oldValue)) }
+    }
+    var timingMode = "sequence"
+    var minutes = 30
+    var sessions: [GroupTrainingDraftSession]
+
+    init(date: Date = Date().addingTimeInterval(600)) {
+        self.date = date
+        var first = GroupTrainingDraftSession(); first.startsAt = date
+        sessions = [first]
+    }
+    mutating func add(format: GroupFormat) {
+        var next = GroupTrainingDraftSession(); next.format = format
+        next.startsAt = sessions.map { $0.startsAt.addingTimeInterval(Double(minutes) * 60) }.max() ?? date
+        sessions.append(next)
+    }
+    func scheduled(now: Date) -> (startsAt: Date, sessions: [GroupTrainingDraftSession]) {
+        GroupTrainingValidation.anchored(sessions, startsAt: date, now: now)
+    }
+}

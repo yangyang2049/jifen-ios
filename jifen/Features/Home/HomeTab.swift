@@ -139,9 +139,18 @@ struct HomeResumeSessionScanner<Candidate> {
 
 struct HomeTab: View {
     var onNavigateToTab: ((Int, GameType?) -> Void)? = nil
+    @Binding var groupInvitation: GroupInvitation?
+
+    init(onNavigateToTab: ((Int, GameType?) -> Void)? = nil,
+         groupInvitation: Binding<GroupInvitation?> = .constant(nil)) {
+        self.onNavigateToTab = onNavigateToTab
+        _groupInvitation = groupInvitation
+    }
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.scenePhase) private var scenePhase
+    @State private var groups = GroupStore.shared
+    @State private var groupReminders = GroupActivityReminder.shared
     @State private var recentActivities: [RecentActivity] = []
     @State private var upcomingBookings: [LocalBooking] = []
     @State private var unfinishedRecord: UnfinishedGameSummary?
@@ -154,6 +163,9 @@ struct HomeTab: View {
     @State private var resumeLoadErrorMessage: String?
     @State private var resumeLoadTask: Task<Void, Never>?
     @State private var resumeLoadGeneration = UUID()
+    #if DEBUG
+    @State private var groupCaptureHomePrepared = false
+    #endif
     /// A scoreboard saves its final live snapshot from `onDisappear`, after the
     /// navigation path has already returned to Home. Only that transition may
     /// consume the next repository notification; ordinary background saves
@@ -196,6 +208,7 @@ struct HomeTab: View {
         case scoreboard(ScoreboardNavigationTarget)
         case toolsList
         case schedule
+        case groups
         case commonNames
         case commonPlaces
         case bookingDetail(bookingId: String)
@@ -339,6 +352,22 @@ struct HomeTab: View {
                 case .toolsList:
                     ToolsListPageView(onToolTap: { path.append($0) })
                         .toolbar(.hidden, for: .tabBar)
+                case .groups:
+                    #if DEBUG
+                    if GroupCaptureFixture.enabled {
+                    GroupCaptureRoot { type, _, sessionID in
+                        path.append(NavigationDestination.scoreboard(.init(gameType: type, recordId: sessionID, setupResult: nil, analyticsEntryPoint: .bookingDetail)))
+                    }
+                    } else {
+                    GroupListView { type, _, sessionID in
+                        path.append(NavigationDestination.scoreboard(.init(gameType: type, recordId: sessionID, setupResult: nil, analyticsEntryPoint: .bookingDetail)))
+                    }
+                    }
+                    #else
+                    GroupListView { type, _, sessionID in
+                        path.append(NavigationDestination.scoreboard(.init(gameType: type, recordId: sessionID, setupResult: nil, analyticsEntryPoint: .bookingDetail)))
+                    }
+                    #endif
                 case .schedule:
                     SchedulePage(
                         onStartBooking: { request in
@@ -380,6 +409,27 @@ struct HomeTab: View {
         .sheet(item: $homeSheet) { destination in
             HomeFormSheet(destination: destination)
         }
+        .sheet(item: $groupReminders.destination) { destination in
+            GroupReminderDestinationView(destination: destination) { type, _, sessionID in
+                groupReminders.destination = nil
+                path.append(NavigationDestination.scoreboard(.init(gameType: type, recordId: sessionID, setupResult: nil, analyticsEntryPoint: .bookingDetail)))
+            }
+        }
+        .sheet(item: $groupInvitation) { invitation in
+            GroupJoinView(initialGroupNo: invitation.groupNo) { type, _, sessionID in
+                groupInvitation = nil
+                path.append(NavigationDestination.scoreboard(.init(gameType: type, recordId: sessionID, setupResult: nil, analyticsEntryPoint: .bookingDetail)))
+            }
+            .id(invitation.id)
+        }
+        .onChange(of: groupInvitation) { _, invitation in
+            guard invitation != nil else { return }
+            homeSheet = nil
+            showNewGameDialog = false
+            showCreateBookingSheet = false
+            showQuickStartEditSheet = false
+            showNationalDayCampaign = false
+        }
         .sheet(isPresented: $showNationalDayCampaign) {
             NationalDayMembershipSheet(
                 onDismiss: { showNationalDayCampaign = false },
@@ -389,7 +439,36 @@ struct HomeTab: View {
                 }
             )
         }
+        #if DEBUG
+        .overlay(alignment: .topLeading) {
+            if GroupCaptureFixture.enabled && GroupCaptureFixture.nativeScene == "home" {
+                Color.clear.frame(width: 1, height: 1).accessibilityElement(children: .ignore)
+                    .accessibilityIdentifier("group_capture_identity").accessibilityLabel("group_capture_identity")
+                    .accessibilityValue(GroupCaptureFixture.metadata + ";ready=\(groups.groups.count == 3 && groupCaptureHomePrepared)").allowsHitTesting(false)
+            }
+        }
+        #endif
+        .task {
+            await groups.refresh()
+            #if DEBUG
+            if GroupCaptureFixture.enabled && GroupCaptureFixture.nativeScene == "home" && !groupCaptureHomePrepared {
+                do {
+                    try await GroupCaptureFixture.prepareNativeResume()
+                    // Do not remove or hide an unrelated native game just to make the fixture look empty.
+                    guard try await ResumeSessionRepository().liveEntries().isEmpty else {
+                        throw GroupCaptureFailure.invalidFixture("home contains an unrelated live game; preserving it")
+                    }
+                    unfinishedRecord = nil; resumeLoadErrorMessage = nil; groupCaptureHomePrepared = true
+                } catch { resumeLoadErrorMessage = error.localizedDescription }
+            }
+            #endif
+        }
+        .onChange(of: SessionStore.shared.user?.id) { _, id in
+            groups.sessionDidChange(userID: id)
+            Task { await groups.refresh() }
+        }
         .onChange(of: scenePhase) { _, phase in
+            if phase == .active { Task { await groups.refresh() } }
             // 首页恢复前台时评估活动（对齐安卓：前台 → 方向/弹窗合适 → 先活动后评分）。
             evaluateNationalDayCampaign()
         }
@@ -410,6 +489,10 @@ struct HomeTab: View {
             loadUpcomingBookings()
             loadUnfinishedRecord()
             #if DEBUG
+            if !didHandleUITestRoute, (ProcessInfo.processInfo.arguments.contains("-UITestGroupsFixture") || (GroupCaptureFixture.enabled && GroupCaptureFixture.nativeScene != "home")) {
+                didHandleUITestRoute = true
+                path.append(NavigationDestination.groups)
+            }
             if !didHandleUITestRoute,
                ProcessInfo.processInfo.arguments.contains("-UITestOpenTools") {
                 didHandleUITestRoute = true
@@ -623,6 +706,10 @@ struct HomeTab: View {
     }
 
     private func loadUnfinishedRecord() {
+        #if DEBUG
+        // Capture preparation owns its exact synthetic sessions. Home's normal scanner may archive older live games.
+        if GroupCaptureFixture.enabled { return }
+        #endif
         resumeLoadTask?.cancel()
         let generation = UUID()
         resumeLoadGeneration = generation
@@ -981,6 +1068,7 @@ struct HomeTab: View {
 
                 VStack(alignment: .leading, spacing: Theme.sectionSpacing) {
                     buildCommonDataSection()
+                    buildGroupsSection()
                     buildScheduleSection()
                     buildRecentRecordsSection()
                 }
@@ -989,6 +1077,7 @@ struct HomeTab: View {
         } else {
             VStack(spacing: Theme.sectionSpacing) {
                 buildQuickStartSection()
+                buildGroupsSection()
                 buildScheduleSection()
                 buildCommonDataSection()
                 ProToolsSectionView(
@@ -1003,6 +1092,35 @@ struct HomeTab: View {
                     }
                 )
                 buildRecentRecordsSection()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func buildGroupsSection() -> some View {
+        if groups.enabled {
+            VStack(alignment: .leading, spacing: 12) {
+                Button { path.append(NavigationDestination.groups) } label: {
+                    HStack {
+                        Text(groupText("my_groups", "My groups")).font(.headline)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                    }.contentShape(Rectangle())
+                }.buttonStyle(.plain).accessibilityIdentifier("home_groups")
+                Button { path.append(NavigationDestination.groups) } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "person.3").foregroundStyle(Theme.primary)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(groups.groups.first?.name ?? groupText("list_add_title", "Create or join a group"))
+                                .font(.subheadline.weight(.medium))
+                            Text(groups.groups.isEmpty ? groupText("join_hint", "Join with a group number or QR code.") : "\(groups.groups.count) " + groupText("groups", "groups"))
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right").foregroundStyle(.secondary)
+                    }.padding(16).frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 16))
+                }.buttonStyle(.plain)
             }
         }
     }

@@ -1886,7 +1886,6 @@
 "group_server_version" = "Versi terkini";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "Buka kumpulan";
 "group_notice_end" = "Tiada lagi pemberitahuan";
 "group_notice_join_requested" = "Permintaan sertai kumpulan diterima";
 "group_notice_join_approved" = "Permintaan sertai kumpulan diluluskan";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "Imbas untuk menyertai";
 "group_qr_apply_short" = "Imbas untuk memohon menyertai";
 "group_update_report" = "Kemas kini laporan";
+"group_ranking_rate" = "Kadar kemenangan";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "Sertai kumpulan %@ kami untuk bermain dan mencatat skor bersama!";
+"group_share_message" = "%@\n\nNama kumpulan: %@\nNo. Kumpulan %@\n\nSertai kumpulan: %@\n\nMuat turun iScoreboard dan masukkan nombor kumpulan untuk menyertai:\n%@";
+"group_entry_set_winners" = "Pemenang setiap permainan";
+"group_activity_lineup_incomplete" = "Pilih semua pemain untuk perlawanan ini";
+"group_activity_lineup_duplicate" = "Setiap pemain hanya boleh muncul sekali dalam perlawanan ini";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "Masukkan secara manual";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "Tandakan semua sebagai dibaca";

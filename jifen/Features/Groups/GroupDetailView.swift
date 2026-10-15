@@ -75,7 +75,7 @@ struct GroupDetailView: View {
                             Label(groupText("new_activity", "Plan an activity"), systemImage: "plus").font(.subheadline.weight(.semibold))
                                 .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true).frame(maxWidth: .infinity, minHeight: 32)
                         }.buttonStyle(.borderedProminent).frame(maxWidth: .infinity).accessibilityIdentifier("group_activity_create")
-                    }.disabled(!writable).tint(Theme.primary).padding(.horizontal, 20).padding(.vertical, 12)
+                    }.disabled(!writable || !store.allows("create_activity")).tint(Theme.primary).padding(.horizontal, 20).padding(.vertical, 12)
                         .frame(maxWidth: 960).frame(maxWidth: .infinity)
                 }
             }
@@ -84,7 +84,9 @@ struct GroupDetailView: View {
         .navigationTitle(detail?.group.name ?? groupText("group", "Group"))
         .navigationBarTitleDisplayMode(.inline).groupAccountBoundary()
         .toolbar(.visible, for: .navigationBar)
-        .toolbar { ToolbarItem(placement: .topBarTrailing) { managementMenu } }
+        .toolbar { ToolbarItem(placement: .topBarTrailing) {
+            HStack { if store.mutating { ProgressView() }; managementMenu }
+        } }
         .task {
             let shouldShare = initiallyShare && !initialDestinationHandled
             if !initialDestinationHandled { tab = initialTab; initialDestinationHandled = true }
@@ -139,7 +141,7 @@ struct GroupDetailView: View {
             ForEach(menuPolicy.entries, id: \.self) { entry in
                 if let key = entry.titleKey {
                     Button(groupText(key, key), role: entry.isDestructive ? .destructive : nil) { menuAction(entry) }
-                        .disabled(entry == .report ? !store.hasIdentity : !canManage)
+                        .disabled(entry == .report ? !store.hasIdentity : !canManage || (entry != .leave && !store.allows("manage_group")))
                         .accessibilityIdentifier("group_menu_" + entry.rawValue)
                 } else {
                     Divider()
@@ -345,7 +347,9 @@ struct GroupDetailView: View {
             Label(groupText(key, key), systemImage: icon).font(.subheadline.weight(.semibold))
                 .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, minHeight: 32)
-        }.frame(maxWidth: .infinity).accessibilityIdentifier("group_overview_" + action.rawValue)
+        }.frame(maxWidth: .infinity)
+            .disabled(action == .start ? !store.allows("start_game") : action == .addResult ? !store.allows("submit_result") : false)
+            .accessibilityIdentifier("group_overview_" + action.rawValue)
     }
 
     @ViewBuilder private func activities(_ d: GroupDetailCache) -> some View {
@@ -434,7 +438,7 @@ struct GroupDetailView: View {
                 GroupSurface {
                     GroupResultLink(result: row)
                     let permission = GroupPermissions.confirmation(row, group: d.group, me: me)
-                    if permission.allowed { Button(groupText(permission.authority ? "authority_confirm" : "confirm_result", "Confirm result")) { confirmResult = row }.buttonStyle(.borderedProminent).disabled(!writable || busyResults.contains(row.id)) }
+                    if permission.allowed { Button(groupText(permission.authority ? "authority_confirm" : "confirm_result", "Confirm result")) { confirmResult = row }.buttonStyle(.borderedProminent).disabled(!writable || !store.allows("confirm_result") || busyResults.contains(row.id)) }
                     else {
                         let names = GroupPermissions.waitingNames(row, members: d.members)
                         Text(groupText("pending_confirmation", "Waiting for confirmation") + (names.isEmpty ? "" : " · " + names.joined(separator: " / "))).font(.caption).foregroundStyle(.secondary)
@@ -442,8 +446,8 @@ struct GroupDetailView: View {
                 }
             }
         }
-        let recordsEmpty = d.rankings.isEmpty && d.results.isEmpty && allPending.isEmpty && uploads.isEmpty && recordFormat == nil
-        rankingSection(d, recordsEmpty: recordsEmpty)
+        let recordsEmpty = !d.hasAnyRanking && d.results.isEmpty && allPending.isEmpty && uploads.isEmpty && recordFormat == nil
+        rankingSection(d)
         let historyKey = groupID + ":" + (recordFormat?.rawValue ?? "all")
         let rows = GroupPermissions.resultHistory(store.historyRows[historyKey] ?? d.results,
             pending: allPending, tasks: pending, format: recordFormat)
@@ -476,14 +480,23 @@ struct GroupDetailView: View {
     /// - 加载失败给「重试」而不是假装没比赛；有比赛却没榜时给出带赛制的空态文案；
     /// - 胜率门槛 5 场，不足显示「场次不足」（安卓 `winRate ?: insufficientText`）；
     /// - 本人行名后缀「（我）」（安卓 `meSuffix`）。
-    @ViewBuilder private func rankingSection(_ d: GroupDetailCache, recordsEmpty: Bool) -> some View {
-        let rankingError = store.rankErrors[GroupStore.rankKey(groupID, format: .singles)] != nil
-            || store.rankErrors[GroupStore.rankKey(groupID, format: .doubles)] != nil
-        if !recordsEmpty || rankingError {
-            Picker(groupText("rankings", "Rankings"), selection: $rankFormat) {
-                ForEach(GroupFormat.allCases) { Text(groupText("filter_" + $0.rawValue, $0.title)).tag($0) }
-            }.pickerStyle(.segmented).accessibilityIdentifier("group_rank_format")
-            if d.rankings.isEmpty {
+    @ViewBuilder private func rankingSection(_ d: GroupDetailCache) -> some View {
+        let rankingError = GroupFormat.allCases.contains { store.rankErrors[GroupStore.rankKey(groupID, format: $0)] != nil }
+        let rows = d.rankings(for: rankFormat)
+        if d.hasAnyRanking || rankingError {
+            HStack(spacing: 8) {
+                ForEach(GroupFormat.allCases) { option in
+                    Button { rankFormat = option } label: {
+                        Text(groupText("filter_" + option.rawValue, option.title)).font(.subheadline.weight(.semibold))
+                            .padding(.horizontal, 16).padding(.vertical, 10)
+                            .foregroundStyle(rankFormat == option ? Theme.primary : Theme.textSecondary)
+                            .background((rankFormat == option ? Theme.primary : Theme.textSecondary).opacity(0.12), in: Capsule())
+                    }.buttonStyle(.plain).accessibilityAddTraits(rankFormat == option ? .isSelected : [])
+                        .accessibilityIdentifier("group_rank_format_" + option.rawValue)
+                }
+                Spacer(minLength: 0)
+            }
+            if rows.isEmpty {
                 if let failure = store.rankErrors[GroupStore.rankKey(groupID, format: rankFormat)] {
                     GroupEmptyCard(text: failure, actionTitle: groupText("retry", "Retry")) { Task { await store.loadRankings(groupID, format: rankFormat) } }
                         .accessibilityIdentifier("group_rank_error")
@@ -492,21 +505,7 @@ struct GroupDetailView: View {
                         .accessibilityIdentifier("group_rank_empty")
                 }
             } else {
-                GroupSectionTitle(title: String(format: groupText("ranking_title", "%@ rankings"), groupText("filter_" + rankFormat.rawValue, rankFormat.title)))
-                ForEach(d.rankings) { row in
-                    NavigationLink { GroupMemberResultsView(groupID: groupID, memberID: row.memberId, name: row.displayName, format: rankFormat) } label: {
-                        GroupSurface {
-                            HStack {
-                                Text("\(row.rank)").foregroundStyle(.secondary)
-                                Text(row.displayName + (row.memberId == me?.id ? groupText("ranking_me_suffix", " (me)") : ""))
-                                Spacer()
-                                Text("\(row.games)\(groupText("ranking_games", "P")) \(row.wins)\(groupText("ranking_wins", "W")) \(row.losses)\(groupText("ranking_losses", "L"))" + (row.draws.map { " \($0)\(groupText("ranking_draws", "D"))" } ?? "") + " · \(groupText("ranking_sets", "Sets")) \(row.setsWon)-\(row.setsLost)").font(.caption).foregroundStyle(.secondary)
-                                Text(row.games >= 5 ? row.winRateText : groupText("ranking_insufficient_matches", "Too few matches")).font(.caption)
-                                Image(systemName: "chevron.right")
-                            }
-                        }
-                    }.buttonStyle(.plain)
-                }
+                GroupRankingTable(rows: rows, members: d.members, myMemberID: me?.id, groupID: groupID, format: rankFormat)
             }
         }
     }
@@ -517,13 +516,27 @@ struct GroupDetailView: View {
         if manager && !requests.isEmpty {
             GroupSectionTitle(title: groupText("join_requests", "Join requests"), count: requests.count)
             ForEach(requests) { request in
+                // 两段式审批卡：信息行（头像+名字+右侧时间）→ 留言完整展示 → 等宽拒绝/通过（对齐安卓/鸿蒙）。
                 GroupSurface {
-                    HStack(spacing: 10) {
-                        GroupAvatar(name: request.displayName, url: request.avatarUrl)
-                        VStack(alignment: .leading, spacing: 5) { Text(request.displayName).font(.subheadline.weight(.semibold)); Text(request.message).font(.caption).foregroundStyle(.secondary).lineLimit(1) }.frame(maxWidth: .infinity, alignment: .leading)
-                        Button(groupText("approve", "Approve")) { decide(request, approve: true) }.buttonStyle(.borderedProminent).controlSize(.small)
-                        Button(groupText("reject", "Reject")) { decide(request, approve: false) }.buttonStyle(.bordered).controlSize(.small)
-                    }.disabled(!writable || busyRequests.contains(request.id))
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 10) {
+                            GroupAvatar(name: request.displayName, url: request.avatarUrl)
+                            Text(request.displayName).font(.subheadline.weight(.semibold)).lineLimit(1)
+                            Spacer(minLength: 8)
+                            Text(Date(timeIntervalSince1970: Double(request.createdAt) / 1000), format: .dateTime).font(.caption2).foregroundStyle(.secondary)
+                        }
+                        if !request.message.isEmpty {
+                            Text(request.message).font(.caption).foregroundStyle(.secondary).padding(.leading, 48)
+                        }
+                        HStack(spacing: 8) {
+                            Button(groupText("reject", "Reject")) { decide(request, approve: false) }
+                                .buttonStyle(.bordered).frame(maxWidth: .infinity)
+                            Button(groupText("approve", "Approve")) { decide(request, approve: true) }
+                                .buttonStyle(.borderedProminent).frame(maxWidth: .infinity)
+                        }
+                        .padding(.leading, 48)
+                    }
+                    .disabled(!writable || busyRequests.contains(request.id))
                 }
             }
         }
@@ -616,5 +629,6 @@ struct GroupEmptyCard: View {
 struct GroupAvatar: View {
     var name: String
     var url: String?
-    var body: some View { RemoteImage(url: APIAssetURLResolver.resolve(url)) { $0.resizable().scaledToFill() } placeholder: { Text(String(name.prefix(1))).font(.headline).frame(maxWidth: .infinity, maxHeight: .infinity).background(Theme.primary.opacity(0.12)).foregroundStyle(Theme.primary) }.frame(width: 40, height: 40).clipShape(Circle()) }
+    var size: CGFloat = 40
+    var body: some View { RemoteImage(url: APIAssetURLResolver.resolve(url)) { $0.resizable().scaledToFill() } placeholder: { Text(String(name.prefix(1))).font(.headline).frame(maxWidth: .infinity, maxHeight: .infinity).background(Theme.primary.opacity(0.12)).foregroundStyle(Theme.primary) }.frame(width: size, height: size).clipShape(Circle()) }
 }

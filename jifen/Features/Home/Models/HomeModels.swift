@@ -255,6 +255,8 @@ struct SportsSetupResult: Codable, Hashable {
     var voiceAnnouncement: Bool? = nil
     var targetScore: Int? = nil
     var winByTwo: Bool? = nil
+    /// Exact server rules for a group match, including a deliberately absent cap.
+    var groupMatchRules: GroupMatchRules? = nil
     var scoreCap: Int? = nil
     var useRallyScoring: Bool? = nil
     var maxRounds: Int? = nil
@@ -373,7 +375,7 @@ extension SportsSetupResult {
             pointsPerSet: target
         )
         rules.autoChangeSides = autoChangeSides ?? true
-        return rules
+        return applyingGroupRules(to: rules, sport: .tableTennis, coreType: coreType)
     }
 
     var badmintonRules: RallyRuleSet {
@@ -390,7 +392,7 @@ extension SportsSetupResult {
             pointsPerSet: target
         )
         rules.autoChangeSides = autoChangeSides ?? true
-        return rules
+        return applyingGroupRules(to: rules, sport: .badminton, coreType: coreType)
     }
 
     var pickleballRules: RallyRuleSet {
@@ -407,6 +409,16 @@ extension SportsSetupResult {
         rules.autoChangeSides = autoChangeSides ?? true
         rules.useRallyScoring = useRallyScoring ?? false
         rules.nextSetServerModel = isSingles == false ? .alternateFromOpening : .opening
+        return applyingGroupRules(to: rules, sport: .pickleball, coreType: isSingles == false ? .pickleballDoubles : .pickleball)
+    }
+
+    private func applyingGroupRules(to original: RallyRuleSet, sport: GroupSport, coreType: ScoreCore.GameType) -> RallyRuleSet {
+        guard let group = groupMatchRules, group.sport == sport, group.isValid else { return original }
+        var rules = original
+        rules.maxSets = group.maxSets; rules.matchCompletionMode = group.matchCompletionMode == "play_all" ? .playAll : .bestOf
+        rules.pointsToWinSet = group.pointsToWinSet; rules.pointCap = group.pointCap
+        rules.winByTwo = group.winByTwo; rules.useRallyScoring = group.useRallyScoring
+        rules.decidingSetSideSwitchPoint = RallyRuleSet.decidingSetSideSwitchPoint(for: coreType, pointsPerSet: group.pointsToWinSet)
         return rules
     }
 

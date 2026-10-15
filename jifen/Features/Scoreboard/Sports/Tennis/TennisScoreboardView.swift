@@ -284,7 +284,7 @@ struct TennisScoreboardView: View {
                         rightScore: store.state.rules.setScoringMode == .tiebreakOnly
                             ? store.state.rightPoints
                             : store.state.rightSets,
-                        newGameLabel: nil,
+                        newGameLabel: GroupLocalPersistence.shared.context(sessionID: store.sessionId.uuidString) == nil ? nil : groupText("return_group", "Return to group"),
                         newGameDisabled: scoringLocked || isStartingNewMatch,
                         onNewGame: {
                             startNewMatch()
@@ -356,6 +356,9 @@ struct TennisScoreboardView: View {
                             .buttonStyle(.plain)
                             .accessibilityLabel(NSLocalizedString("menu", value: "菜单", comment: "Menu"))
                             .accessibilityIdentifier("scoreboard_menu_button")
+                            .modifier(ScoreboardMenuVoiceStatus(
+                                isEnabled: store.voiceAnnouncementEnabled && SportsVoiceSupport.isSupported
+                            ))
                             .padding(.trailing, ScoreboardConstants.buttonPadding)
                             .padding(.bottom, ScoreboardConstants.buttonPadding)
                         }
@@ -2013,6 +2016,10 @@ struct TennisScoreboardView: View {
     }
 
     private func startNewMatch() {
+        if GroupLocalPersistence.shared.context(sessionID: store.sessionId.uuidString) != nil {
+            store.persistSnapshot { success in if success { goBack() } }
+            return
+        }
         guard !scoringLocked, !isStartingNewMatch else { return }
         isStartingNewMatch = true
         let finishedStore = store

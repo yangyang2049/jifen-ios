@@ -5,6 +5,18 @@ nonisolated struct GroupInvitation: Identifiable, Equatable, Sendable {
     let groupNo: String
 }
 
+/// Text and QR image sharing attach the same invitation, including the download fallback.
+nonisolated enum GroupInvitationText {
+    @MainActor static func message(group: ScoreGroup, regionCode: String? = Locale.current.region?.identifier,
+                                   localization: String = Bundle.main.preferredLocalizations.first ?? "en") -> String {
+        guard let url = GroupInvitationLink.joinURL(groupNo: group.groupNo, regionCode: regionCode, localization: localization) else { return "" }
+        let intro = String(format: groupText("invitation_intro_ball", "Join our %@ group to play and keep score together!"), group.sport.title)
+        return String(format: groupText("share_message", "%@\n\nGroup: %@\nGroup No.: %@\n\nJoin group: %@\n\nDownload iScoreboard and enter the group number to join:\n%@"),
+                      intro, group.name, group.groupNo, url.absoluteString,
+                      GroupInvitationLink.website(regionCode: regionCode, localization: localization) + "/download")
+    }
+}
+
 /// Both domains accept every invitation; region only chooses the shared URL.
 nonisolated enum GroupInvitationLink {
     static func website(regionCode: String?, localization: String = Bundle.main.preferredLocalizations.first ?? "en") -> String {

@@ -1886,7 +1886,6 @@
 "group_server_version" = "Cea mai recentă versiune";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "Deschide grupul";
 "group_notice_end" = "Nu mai sunt notificări";
 "group_notice_join_requested" = "Cerere de alăturare primită";
 "group_notice_join_approved" = "Cerere de alăturare aprobată";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "Scanează pentru a te alătura";
 "group_qr_apply_short" = "Scanează pentru a cere să te alături";
 "group_update_report" = "Actualizați raportul";
+"group_ranking_rate" = "Rata victoriilor";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "Alătură-te grupului nostru de %@ pentru a juca și a ține scorul împreună!";
+"group_share_message" = "%@\n\nNumele grupului: %@\nNr. grup %@\n\nAlătură-te unui grup: %@\n\nDescarcă iScoreboard și introdu numărul grupului pentru a te alătura:\n%@";
+"group_entry_set_winners" = "Câștigătorii jocurilor";
+"group_activity_lineup_incomplete" = "Selectează toți jucătorii acestui meci";
+"group_activity_lineup_duplicate" = "Fiecare jucător poate apărea o singură dată în acest meci";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "Introducere manuală";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "Marchează tot ca citit";

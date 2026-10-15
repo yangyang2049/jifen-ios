@@ -583,7 +583,7 @@ final class ScoreboardRecordManager {
             throw CocoaError(.fileWriteUnsupportedScheme)
         }
 
-        var record = input
+        var record = GroupLocalPersistence.shared.annotate(input)
         record.schemaVersion = ScoreboardRecord.currentSchemaVersion
         if record.winnerIdentity == nil {
             record.winnerIdentity = ScoreboardWinnerIdentity.fromStableLegacyToken(record.winner)
@@ -604,6 +604,13 @@ final class ScoreboardRecordManager {
 
         do {
             try store.save(record)
+            do {
+                try GroupLocalPersistence.shared.enqueue(record)
+                if record.groupMatchContext != nil { Task { @MainActor in await GroupStore.shared.sync() } }
+            } catch {
+                // The saved record retains the context so foreground repair can retry.
+                print("[Groups] Outbox write will be retried: \(error)")
+            }
         } catch {
             AppAnalytics.scoreboardRecordSaveFailed(record)
             throw error

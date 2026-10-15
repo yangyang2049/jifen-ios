@@ -1886,7 +1886,6 @@
 "group_server_version" = "最新の内容";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "グループを開く";
 "group_notice_end" = "これ以上の通知はありません";
 "group_notice_join_requested" = "参加申請が届きました";
 "group_notice_join_approved" = "参加申請が承認されました";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "スキャンして参加";
 "group_qr_apply_short" = "スキャンして参加申請";
 "group_update_report" = "通報を更新";
+"group_ranking_rate" = "勝率";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "%@グループで一緒にプレーしてスコアを記録しましょう！";
+"group_share_message" = "%@\n\nグループ名: %@\nグループ番号 %@\n\nグループに参加: %@\n\niScoreboardをダウンロードし、グループ番号を入力して参加：\n%@";
+"group_entry_set_winners" = "各ゲームの勝者";
+"group_activity_lineup_incomplete" = "この試合の全選手を選択してください";
+"group_activity_lineup_duplicate" = "同じ選手をこの試合に重複して登録できません";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "手動入力";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "すべて既読にする";

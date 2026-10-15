@@ -134,6 +134,30 @@ class OrientationLock {
         }
     }
     
+    /// Native group pages own their orientation while visible, using the same
+    /// transition ordering as scoreboards so neither page overrides the other.
+    func beginAdaptivePageOrientation(ownerID: UUID) {
+        beginScoreboardOrientation(ownerID: ownerID, orientation: .allButUpsideDown)
+    }
+    func updateAdaptivePageOrientation(ownerID: UUID, deviceOrientation: UIDeviceOrientation) {
+        performOnMain { [weak self] in
+            guard let self,
+                  self.scoreboardOrientationRequests.max(by: { $0.value.sequence < $1.value.sequence })?.key == ownerID else { return }
+            let mask: UIInterfaceOrientationMask
+            switch deviceOrientation {
+            case .portrait: mask = .portrait
+            case .portraitUpsideDown: guard UIDevice.current.userInterfaceIdiom == .pad else { return }; mask = .portraitUpsideDown
+            case .landscapeLeft: mask = .landscapeRight
+            case .landscapeRight: mask = .landscapeLeft
+            default: return
+            }
+            self.updateScoreboardOrientation(ownerID: ownerID, orientation: mask)
+        }
+    }
+    func endAdaptivePageOrientation(ownerID: UUID) {
+        endScoreboardOrientation(ownerID: ownerID)
+    }
+
     func lock(_ orientation: UIInterfaceOrientationMask) {
         performOnMain { [weak self] in
             self?.apply(orientation, requestsGeometryUpdate: false)
@@ -552,6 +576,12 @@ class ScoreboardAppDelegate: NSObject, UIApplicationDelegate, UNUserNotification
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
+        let groupInfo = response.notification.request.content.userInfo
+        if let account = groupInfo["groupAccountID"] as? String,
+           let group = groupInfo["groupID"] as? String,
+           let activity = groupInfo["groupActivityID"] as? String {
+            Task { @MainActor in GroupActivityReminder.shared.open(accountID: account, groupID: group, activityID: activity) }
+        }
         if response.notification.request.content.userInfo["bookingId"] != nil {
             AppAnalytics.track(.bookingReminderOpen, parameters: [
                 .contentType: .string("booking_reminder"),

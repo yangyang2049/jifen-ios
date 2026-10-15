@@ -336,6 +336,10 @@ private struct FeedbackEmptyStateView: View {
 // MARK: - 反馈列表（对齐安卓 FeedbackListScreen）
 
 struct FeedbackListView: View {
+    var initiallyCreate = false
+    var initialCreateTitle = ""
+    @State private var createInitialTitle = ""
+    @State private var handledInitialCreate = false
     @Environment(\.locale) private var locale
     @State private var loadGeneration = 0
     @State private var loadedLanguage: String?
@@ -399,6 +403,7 @@ struct FeedbackListView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
+                    createInitialTitle = ""
                     // 对齐安卓：未登录不置灰拦截，点击 Toast 提示 + 拉起登录，登录成功后自动进入发布页。
                     if session.isAuthenticated {
                         showCreate = true
@@ -417,8 +422,9 @@ struct FeedbackListView: View {
                 .accessibilityLabel(NSLocalizedString("feedback_new", value: "新建反馈", comment: ""))
             }
         }
-        .sheet(isPresented: $showCreate) {
-            NavigationStack { CreateFeedbackView { Task { await load(reset: true) } } }
+        .onAppear { if initiallyCreate && !handledInitialCreate { handledInitialCreate = true; createInitialTitle = initialCreateTitle; if session.isAuthenticated { showCreate = true } else { showLoginSheet = true } } }
+        .sheet(isPresented: $showCreate, onDismiss: { createInitialTitle = "" }) {
+            NavigationStack { CreateFeedbackView(initialTitle: createInitialTitle) { Task { await load(reset: true) } } }
         }
         .sheet(isPresented: $showLoginSheet, onDismiss: {
             if session.isAuthenticated { showCreate = true }
@@ -1317,6 +1323,11 @@ private struct CreateFeedbackView: View {
     @State private var isSubmitting = false
     @State private var errorMessage: String?
     @State private var validationMessage: String?
+
+    init(initialTitle: String = "", onCreated: @escaping () -> Void) {
+        self.onCreated = onCreated
+        _title = State(initialValue: String(initialTitle.prefix(200)))
+    }
 
     var body: some View {
         ZStack {

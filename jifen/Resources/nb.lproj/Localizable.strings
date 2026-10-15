@@ -1886,7 +1886,6 @@
 "group_server_version" = "Nyeste versjon";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "Åpne gruppen";
 "group_notice_end" = "Ikke flere varsler";
 "group_notice_join_requested" = "Forespørsel om medlemskap mottatt";
 "group_notice_join_approved" = "Forespørsel om medlemskap godkjent";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "Skann for å bli med";
 "group_qr_apply_short" = "Skann for å be om medlemskap";
 "group_update_report" = "Oppdater rapport";
+"group_ranking_rate" = "Seiersprosent";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "Bli med i %@-gruppen vår for å spille og føre poeng sammen!";
+"group_share_message" = "%@\n\nGruppenavn: %@\nGruppenr. %@\n\nBli med i gruppe: %@\n\nLast ned iScoreboard og skriv inn gruppenummeret for å bli med:\n%@";
+"group_entry_set_winners" = "Vinnere per delspill";
+"group_activity_lineup_incomplete" = "Velg alle spillere til denne kampen";
+"group_activity_lineup_duplicate" = "Hver spiller kan bare forekomme én gang i denne kampen";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "Manuell inntasting";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "Merk alle som lest";

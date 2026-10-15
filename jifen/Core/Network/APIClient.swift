@@ -25,6 +25,14 @@ nonisolated struct APIErrorPayload: Decodable, Sendable {
     var error: String?
     var message: String?
     var nextAvailableAt: String? = nil
+    var currentResultId: String? = nil
+}
+
+/// Carries actionable group conflict details without changing existing server errors.
+nonisolated struct APIClientServerContextError: LocalizedError, Sendable {
+    var underlying: APIClientError
+    var currentResultID: String
+    var errorDescription: String? { underlying.errorDescription }
 }
 
 nonisolated enum APIClientError: LocalizedError, Equatable {
@@ -249,6 +257,9 @@ actor APIClient {
         retries: Int?,
         expectedAuthRevision: UInt64?
     ) async throws -> Data {
+        #if DEBUG
+        if GroupCaptureFixture.enabled { throw GroupCaptureFailure.networkForbidden(path) }
+        #endif
         var auth = requiresAuth ? try await validAuthSnapshot(expectedRevision: expectedAuthRevision) : nil
         let retryBudget = retries ?? APIRetryPolicy.maxRetries(method: method)
         var attemptsMade = 0
@@ -405,6 +416,9 @@ actor APIClient {
                     )
                 }
                 throw APIRetryTerminalError.retryable(underlying: error, retryAfterSeconds: retryAfter)
+            }
+            if path.hasPrefix("/api/groups/"), let resultID = payload?.currentResultId, !resultID.isEmpty {
+                throw APIClientServerContextError(underlying: error, currentResultID: resultID)
             }
             throw error
         }

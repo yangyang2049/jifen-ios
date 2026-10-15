@@ -351,7 +351,7 @@ struct QRLoginApprovalView: View {
     }
 }
 
-private struct QRDataScannerView: UIViewControllerRepresentable {
+struct QRDataScannerView: UIViewControllerRepresentable {
     var paused: Bool
     var onValue: (String) -> Void
 

@@ -6,6 +6,8 @@ struct MainTabView: View {
     @State private var selectedGame: GameType? = nil
     @State private var navigatingFromTab: Int? = nil
     @State private var pendingTimerGameType: GameType? = nil
+    @State private var groupInvitation: GroupInvitation?
+    @State private var groupReminders = GroupActivityReminder.shared
 
     var body: some View {
         ZStack {
@@ -18,6 +20,11 @@ struct MainTabView: View {
             )
         }
         .tint(Theme.accentColor)
+        .onChange(of: groupReminders.destination) { _, value in if value != nil { selectedTab = 0 } }
+        .onOpenURL { receiveGroupInvitation($0) }
+        .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
+            if let url = activity.webpageURL { receiveGroupInvitation(url) }
+        }
         .onAppear {
             configureTabBarPresentation()
         }
@@ -45,7 +52,7 @@ struct MainTabView: View {
                         pendingTimerGameType.wrappedValue = nil
                         selectedGame.wrappedValue = game
                     }
-                })
+                }, groupInvitation: $groupInvitation)
             }
             tabItem(tag: 1, titleKey: "tab_records", systemImage: "list.bullet.clipboard.fill", screen: .recordsTab) {
                 RecordsTab()
@@ -88,6 +95,12 @@ struct MainTabView: View {
                 Label(NSLocalizedString(titleKey, comment: ""), systemImage: systemImage)
                     .accessibilityIdentifier("main_tab_\(tag)")
             }
+    }
+
+    private func receiveGroupInvitation(_ url: URL) {
+        guard let number = GroupInvitationLink.groupNumber(from: url) else { return }
+        selectedTab = 0
+        groupInvitation = GroupInvitation(groupNo: number)
     }
 
     private func configureTabBarPresentation() {

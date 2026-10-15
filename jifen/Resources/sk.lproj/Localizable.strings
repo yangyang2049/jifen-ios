@@ -1886,7 +1886,6 @@
 "group_server_version" = "Najnovšia verzia";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "Otvoriť skupinu";
 "group_notice_end" = "Žiadne ďalšie oznámenia";
 "group_notice_join_requested" = "Bola prijatá žiadosť o pripojenie";
 "group_notice_join_approved" = "Žiadosť o pripojenie bola schválená";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "Naskenujte pre pripojenie";
 "group_qr_apply_short" = "Naskenujte pre požiadanie o pripojenie";
 "group_update_report" = "Aktualizovať nahlásenie";
+"group_ranking_rate" = "Úspešnosť";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "Pridajte sa k našej skupine %@, hrajte a zapisujte skóre spoločne!";
+"group_share_message" = "%@\n\nNázov skupiny: %@\nČíslo skupiny %@\n\nPripojiť sa ku skupine: %@\n\nStiahnite si iScoreboard a pripojte sa zadaním čísla skupiny:\n%@";
+"group_entry_set_winners" = "Víťazi hier";
+"group_activity_lineup_incomplete" = "Vyberte všetkých hráčov tohto zápasu";
+"group_activity_lineup_duplicate" = "Každý hráč sa môže v tomto zápase objaviť len raz";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "Ručné zadanie";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "Označiť všetko ako prečítané";

@@ -6,13 +6,13 @@ import ScoreCore
 /// an app interruption immediately after launch still leaves a resumable game.
 @MainActor
 enum BookingStartPersistence {
-    static func persist(_ request: BookingStartRequest) async -> String? {
+    static func persist(_ request: BookingStartRequest, groupContext: GroupMatchContext? = nil) async -> String? {
         switch request.gameType {
         case .pingpong, .badminton, .volleyball, .airVolleyball,
              .beachVolleyball, .pickleball:
-            return await persistRally(request)
+            return await persistRally(request, groupContext: groupContext)
         case .tennis:
-            return await persistTennis(request)
+            return await persistTennis(request, groupContext: groupContext)
         case .basketball:
             return await persistBasketball(request)
         case .football:
@@ -30,7 +30,7 @@ enum BookingStartPersistence {
         }
     }
 
-    private static func persistRally(_ request: BookingStartRequest) async -> String? {
+    private static func persistRally(_ request: BookingStartRequest, groupContext: GroupMatchContext?) async -> String? {
         let setup = request.setup
         let isDoubles = setup.isSingles == false
         let names = resolvedNames(for: request.gameType, setup: setup, isSingles: !isDoubles)
@@ -96,10 +96,14 @@ enum BookingStartPersistence {
             openingServer: setup.servingSide == MatchSide.right.rawValue ? .right : .left,
             voiceAnnouncementEnabled: setup.voiceAnnouncement == true
         )
+        if let groupContext {
+            do { try GroupLocalPersistence.shared.saveContext(groupContext, sessionID: store.sessionId.uuidString) }
+            catch { return nil }
+        }
         return await persist(store)
     }
 
-    private static func persistTennis(_ request: BookingStartRequest) async -> String? {
+    private static func persistTennis(_ request: BookingStartRequest, groupContext: GroupMatchContext?) async -> String? {
         let setup = request.setup
         let isDoubles = setup.isSingles == false
         let scoreCoreType: ScoreCore.GameType = isDoubles ? .tennisDoubles : .tennis
@@ -135,6 +139,10 @@ enum BookingStartPersistence {
             state: state,
             voiceAnnouncementEnabled: setup.voiceAnnouncement == true
         )
+        if let groupContext {
+            do { try GroupLocalPersistence.shared.saveContext(groupContext, sessionID: store.sessionId.uuidString) }
+            catch { return nil }
+        }
         return await persist(store)
     }
 

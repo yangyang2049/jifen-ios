@@ -1886,7 +1886,6 @@
 "group_server_version" = "En son sürüm";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "Grubu aç";
 "group_notice_end" = "Başka bildirim yok";
 "group_notice_join_requested" = "Katılma isteği alındı";
 "group_notice_join_approved" = "Katılma isteği onaylandı";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "Katılmak için tara";
 "group_qr_apply_short" = "Katılma talebi için tara";
 "group_update_report" = "Bildirimi güncelle";
+"group_ranking_rate" = "Kazanma oranı";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "Birlikte oynamak ve skor tutmak için %@ grubumuza katılın!";
+"group_share_message" = "%@\n\nGrup adı: %@\nGrup No: %@\n\nGruba katıl: %@\n\niScoreboard uygulamasını indirin ve katılmak için grup numarasını girin:\n%@";
+"group_entry_set_winners" = "Oyun kazananları";
+"group_activity_lineup_incomplete" = "Bu maçın tüm oyuncularını seçin";
+"group_activity_lineup_duplicate" = "Her oyuncu bu maçta yalnızca bir kez yer alabilir";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "Elle giriş";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "Tümünü okundu işaretle";

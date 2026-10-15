@@ -1886,7 +1886,6 @@
 "group_server_version" = "Uusin versio";
 
 "group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
-"group_notice_open" = "Avaa ryhmä";
 "group_notice_end" = "Ei enempää ilmoituksia";
 "group_notice_join_requested" = "Liittymispyyntö vastaanotettu";
 "group_notice_join_approved" = "Liittymispyyntö hyväksytty";
@@ -1919,3 +1918,16 @@
 "group_qr_join_short" = "Skannaa liittyäksesi";
 "group_qr_apply_short" = "Skannaa lähettääksesi liittymispyynnön";
 "group_update_report" = "Päivitä ilmoitus";
+"group_ranking_rate" = "Voittoprosentti";
+
+/* Group parity alignment 2026-10-15 */
+"group_invitation_intro_ball" = "Liity %@-ryhmäämme pelaamaan ja kirjaamaan pisteitä yhdessä!";
+"group_share_message" = "%@\n\nRyhmän nimi: %@\nRyhmän nro %@\n\nLiity ryhmään: %@\n\nLataa iScoreboard ja liity antamalla ryhmän numero:\n%@";
+"group_entry_set_winners" = "Erien voittajat";
+"group_activity_lineup_incomplete" = "Valitse kaikki tämän ottelun pelaajat";
+"group_activity_lineup_duplicate" = "Kukin pelaaja voi esiintyä tässä ottelussa vain kerran";
+
+/* Group parity alignment 2026-10-15 */
+"group_entry_manual" = "Manuaalinen syöttö";
+/* Group notice plan-B 2026-10-15 */
+"group_notice_mark_all" = "Merkitse kaikki luetuiksi";

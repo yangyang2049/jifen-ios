@@ -91,6 +91,12 @@ final class SessionStore {
         guard !didRestore else { return }
         didRestore = true
         #if DEBUG
+        if GroupCaptureFixture.enabled {
+            NSTimeZone.default = TimeZone(identifier: "Asia/Shanghai")!
+            user = AppUser(uid: "cross-platform-capture", id: GroupCaptureFixture.accountID, name: GroupCaptureFixture.accountName, role: "FREE", plan: "FREE", createdAt: GroupCaptureFixture.referenceTime)
+            state = .authenticated; uiTestFakeSessionActive = true
+            return
+        }
         if ProcessInfo.processInfo.arguments.contains("-UITestFakeSession") {
             var stub = AppUser(
                 uid: "ui-test-uid",
@@ -362,6 +368,7 @@ final class SessionStore {
         state = .signedOut
         // 登出即终止云端同步会话：发送 LEAVE、断开 WebSocket 并禁止自动重连（对齐安卓端会话随登出终止）。
         CloudSyncSession.shared.end(reason: "logout")
+        GroupStore.shared.sessionDidChange(userID: nil)
         await CommonDataCloudSyncManager.shared.sessionDidChange(userId: nil)
     }
 
@@ -382,6 +389,7 @@ final class SessionStore {
         lastError = APIClientError.sessionExpired.localizedDescription
         // 凭证已失效（401），本地直接断开云端同步 WebSocket，不再发送 LEAVE。
         CloudSyncSession.shared.endFromServer()
+        GroupStore.shared.sessionDidChange(userID: nil)
         await CommonDataCloudSyncManager.shared.sessionDidChange(userId: nil)
     }
 
@@ -403,6 +411,7 @@ final class SessionStore {
             if response.success == false {
                 return AccountDeletionOutcome(success: false, status: response.status, message: response.message)
             }
+            if let accountID = user?.id { GroupLocalPersistence.shared.deleteAccountData(accountID: accountID) }
             await logout()
             return AccountDeletionOutcome(success: true, status: response.status, message: response.message)
         } catch {
@@ -488,6 +497,8 @@ final class SessionStore {
             await postAuthenticationWarmup(userId)
             return
         }
+        GroupStore.shared.sessionDidChange(userID: userId)
+        Task { await GroupStore.shared.refresh() }
         async let commonDataSync: Void = CommonDataCloudSyncManager.shared.sessionDidChange(
             userId: userId
         )
