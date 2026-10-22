@@ -40,6 +40,7 @@ def main():
     parser.add_argument('--root', type=Path, default=Path('build/duo/walkthrough-20261020'))
     parser.add_argument('--only', help='Comma-separated output chapter labels')
     parser.add_argument('--retry', action='store_true', help='Rerun failed chapters; passed ones stay intact')
+    parser.add_argument('--video-only', action='store_true', help='Record videos and checkpoint times without screenshots')
     args = parser.parse_args()
     repo = Path(__file__).resolve().parents[1]
     root = (repo / args.root).resolve()
@@ -86,11 +87,14 @@ def main():
             print(f'Archived previous attempt: {archived}', flush=True)
         command = [sys.executable, str(repo / 'scripts/capture_duo_layout.py'), args.device,
                    args.pose, '--label', label, '--record', '--output-root', str(root)] + options
+        if args.video_only:
+            command.append('--video-only')
         print(f'BEGIN {args.pose}/{label}', flush=True)
         result = subprocess.run(command, cwd=repo)
         statuses.append(dict(chapter=label, exit_code=result.returncode))
         print(f'END {args.pose}/{label}: {result.returncode}', flush=True)
-        subprocess.run([sys.executable, str(repo / 'scripts/build_duo_review.py'), str(root)], cwd=repo)
+        if not args.video_only:
+            subprocess.run([sys.executable, str(repo / 'scripts/build_duo_review.py'), str(root)], cwd=repo)
     (root / f'{args.pose}-run.json').write_text(json.dumps(statuses, indent=2) + '\n')
     return 1 if any(status['exit_code'] for status in statuses) else 0
 

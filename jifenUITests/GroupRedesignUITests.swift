@@ -2,6 +2,252 @@ import XCTest
 import UIKit
 
 final class GroupRedesignUITests: XCTestCase {
+    func testMeScannerGroupApprovalPreviewHidesTabBarAndRestoresHome() {
+        let app = openGroupFromMeScanner(["-UITestGroupScanApproval"])
+        XCTAssertTrue(app.staticTexts["group_preview_name"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["group_join_submit"].exists)
+        assertMainTabBarHidden(app)
+        capture(app, "scan-group-approval-without-tabbar")
+        returnFromScannedGroupToHome(app, title: "加入小组")
+    }
+
+    func testMeScannerOpenGroupJoinKeepsTabBarHidden() {
+        let app = openGroupFromMeScanner()
+        XCTAssertTrue(app.buttons["group_join_submit"].waitForExistence(timeout: 10))
+        assertMainTabBarHidden(app)
+        app.buttons["group_join_submit"].tap()
+        XCTAssertTrue(app.buttons["group_overview_addResult"].waitForExistence(timeout: 10))
+        assertMainTabBarHidden(app)
+        capture(app, "scan-group-joined-without-tabbar")
+        returnFromScannedGroupToHome(app, title: "球友小组")
+    }
+
+    func testMeScannerExistingMemberOpensGroupWithoutTabBar() {
+        let app = openGroupFromMeScanner(["-UITestGroupScanMember"])
+        XCTAssertTrue(app.buttons["group_overview_addResult"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["group_join_submit"].exists)
+        assertMainTabBarHidden(app)
+        capture(app, "scan-group-existing-member-without-tabbar")
+        returnFromScannedGroupToHome(app, title: "球友小组")
+    }
+
+    private func openGroupFromMeScanner(_ extra: [String] = []) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestSportsVoiceMissing",
+            "-UITestFakeSession", "-UITestGroupsFixture", "-UITestGroupScan",
+            "-UITestQRScanPayload", "https://jifenqi.com/groups/join?groupNo=12345678",
+            "-national_day_2026_10_autopopup_count", "99"
+        ] + extra
+        app.launch()
+        let groups = app.navigationBars["我的小组"]
+        XCTAssertTrue(groups.waitForExistence(timeout: 15))
+        groups.buttons.firstMatch.tap()
+        let me = app.tabBars.buttons["我的"]
+        XCTAssertTrue(me.waitForExistence(timeout: 5))
+        me.tap()
+        let scan = app.buttons["settings_qr_login_entry"]
+        XCTAssertTrue(scan.waitForExistence(timeout: 5))
+        scan.tap()
+        return app
+    }
+
+    private func assertMainTabBarHidden(_ app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
+        let hidden = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            !app.tabBars.allElementsBoundByIndex.contains { $0.exists && $0.isHittable }
+        }, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [hidden], timeout: 5), .completed, "Scanned group destinations must hide the main Tab Bar", file: file, line: line)
+    }
+
+    private func returnFromScannedGroupToHome(_ app: XCUIApplication, title: String) {
+        app.navigationBars[title].buttons.firstMatch.tap()
+        XCTAssertTrue(app.tabBars.buttons["首页"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.tabBars.buttons["首页"].isHittable)
+        app.tabBars.buttons["我的"].tap()
+        XCTAssertTrue(app.buttons["settings_qr_login_entry"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.navigationBars["扫码"].exists, "The original scanner must close after routing to the group")
+    }
+
+    func testGuestGroupPreviewOffersLoginChoicesAndCanCancel() throws {
+        let app = openGuestJoin()
+        enterGroupNumber("123456", app: app)
+        XCTAssertFalse(app.buttons["account_login_password"].exists, "Public previews must not require authentication")
+        app.buttons["group_join_scan"].tap()
+        XCTAssertTrue(app.buttons["group_scan_photo"].waitForExistence(timeout: 5))
+        app.buttons["modal_close_button"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["group_join_submit"].waitForExistence(timeout: 5))
+        app.buttons["group_join_submit"].tap()
+        XCTAssertTrue(app.buttons["account_login_password"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["account_login_apple"].exists)
+        XCTAssertEqual(app.buttons.matching(identifier: "account_login_password").count, 1)
+        XCTAssertTrue(app.buttons["account_login_password"].isHittable)
+        capture(app, "guest-group-login-choices")
+        app.buttons["account_login_password"].tap()
+        XCTAssertTrue(app.textFields["password_login_account"].waitForExistence(timeout: 5))
+        app.navigationBars.buttons.firstMatch.tap()
+        XCTAssertTrue(app.buttons["account_login_password"].waitForExistence(timeout: 5))
+        app.buttons["modal_close_button"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["group_join_submit"].waitForExistence(timeout: 5))
+        assertJoinFixture("authenticated=false;apple=0;join=0", app: app)
+        XCTAssertEqual(app.textFields["group_number"].value as? String, "123456")
+        XCTAssertTrue(app.staticTexts["group_preview_name"].exists)
+    }
+
+    func testGuestLoginReturnsToGroupWithoutAutomaticallyJoining() throws {
+        try verifyGuestLoginRequiresJoinConfirmation(approval: false)
+    }
+
+    func testGuestLoginPreservesApprovalMessageAndRequiresConfirmation() throws {
+        try verifyGuestLoginRequiresJoinConfirmation(approval: true)
+    }
+
+    func testGuestInvitationRefreshesAvailabilityAfterLogin() throws {
+        let app = openGuestJoin(["-UITestGroupJoinFull"])
+        app.open(try XCTUnwrap(URL(string: "https://iscoreboard.live/groups/join?groupNo=654321")))
+        XCTAssertTrue(app.staticTexts["group_preview_name"].waitForExistence(timeout: 10))
+        app.buttons["group_join_submit"].tap()
+        completeFixturePasswordLogin(app)
+        assertJoinFixture("authenticated=true;apple=0;join=0", app: app)
+        XCTAssertTrue(app.staticTexts["group_preview_name"].waitForExistence(timeout: 10))
+        XCTAssertEqual(app.textFields["group_number"].value as? String, "654321")
+        XCTAssertFalse(app.buttons["group_join_submit"].exists, "A group that became full while logging in must not accept a join")
+        capture(app, "guest-invitation-full-after-login")
+    }
+
+    func testSignedInGroupJoinDoesNotPresentLogin() {
+        let app = openGuestJoin(["-UITestFakeSession"])
+        enterGroupNumber("123456", app: app)
+        app.buttons["group_join_submit"].tap()
+        assertJoinFixture("authenticated=true;apple=0;join=1", app: app)
+        XCTAssertFalse(app.buttons["account_login_password"].exists)
+    }
+
+    func testGroupLoginOnlyRequestsAppleAfterExplicitConsentAndTap() {
+        let app = openGuestJoin()
+        enterGroupNumber("123456", app: app)
+        app.buttons["group_join_submit"].tap()
+        XCTAssertTrue(app.buttons["account_login_password"].waitForExistence(timeout: 5))
+        app.buttons["account_login_agreement"].tap()
+        app.buttons["account_login_apple"].tap()
+        XCTAssertTrue(app.staticTexts["已取消登录"].waitForExistence(timeout: 5))
+        app.buttons["modal_close_button"].firstMatch.tap()
+        assertJoinFixture("authenticated=false;apple=1;join=0", app: app)
+        XCTAssertTrue(app.staticTexts["group_preview_name"].exists)
+    }
+
+    private func verifyGuestLoginRequiresJoinConfirmation(approval: Bool) throws {
+        let app = openGuestJoin(approval ? ["-UITestGroupJoinApproval"] : [])
+        enterGroupNumber("123456", app: app)
+        if approval {
+            app.textFields["group_join_message"].tap()
+            app.textFields["group_join_message"].typeText("一起打球")
+            app.buttons["group_keyboard_done"].tap()
+        }
+        app.buttons["group_join_submit"].tap()
+        completeFixturePasswordLogin(app)
+        assertJoinFixture("authenticated=true;apple=0;join=0", app: app)
+        XCTAssertTrue(app.buttons["group_join_submit"].waitForExistence(timeout: 10))
+        XCTAssertEqual(app.textFields["group_number"].value as? String, "123456")
+        if approval { XCTAssertEqual(app.textFields["group_join_message"].value as? String, "一起打球") }
+        capture(app, approval ? "guest-approval-after-login" : "guest-open-group-after-login")
+        app.buttons["group_join_submit"].tap()
+        assertJoinFixture("authenticated=true;apple=0;join=1", app: app)
+    }
+
+    private func openGuestJoin(_ extra: [String] = []) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestSportsVoiceMissing", "-UITestGroupsFixture", "-UITestGroupJoinAuth", "-national_day_2026_10_autopopup_count", "99"] + extra
+        app.launch()
+        XCTAssertTrue(app.buttons["group_join"].waitForExistence(timeout: 15))
+        app.buttons["group_join"].tap()
+        XCTAssertTrue(app.textFields["group_number"].waitForExistence(timeout: 5))
+        return app
+    }
+
+    private func enterGroupNumber(_ number: String, app: XCUIApplication) {
+        app.textFields["group_number"].tap()
+        app.textFields["group_number"].typeText(number)
+        app.buttons["group_keyboard_done"].tap()
+        XCTAssertTrue(app.staticTexts["group_preview_name"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["group_join_submit"].waitForExistence(timeout: 5))
+    }
+
+    private func completeFixturePasswordLogin(_ app: XCUIApplication) {
+        XCTAssertTrue(app.buttons["account_login_password"].waitForExistence(timeout: 5))
+        app.buttons["account_login_password"].tap()
+        XCTAssertTrue(app.textFields["password_login_account"].waitForExistence(timeout: 5))
+        app.textFields["password_login_account"].tap()
+        app.textFields["password_login_account"].typeText("fixture@example.com")
+        app.secureTextFields["password_login_password"].tap()
+        app.secureTextFields["password_login_password"].typeText("fixture-password")
+        app.buttons["account_login_agreement"].tap()
+        app.buttons["password_login_submit"].tap()
+        dismissPasswordSavePrompt(app)
+    }
+
+    /// iOS offers to save the fixture password after the login sheet closes.
+    /// The prompt follows the device language, not the app's `-AppleLanguages`
+    /// override, and it can be hosted by either the app or SpringBoard.
+    private func dismissPasswordSavePrompt(_ app: XCUIApplication) {
+        let hosts = [app, XCUIApplication(bundleIdentifier: "com.apple.springboard")]
+        let declineLabels = ["以后", "稍后", "Not Now", "Not now"]
+        let acceptLabels = ["保存", "Save"]
+        for _ in 0..<4 {
+            var target: XCUIElement?
+            for host in hosts {
+                for label in declineLabels + acceptLabels {
+                    let button = host.buttons[label]
+                    if button.waitForExistence(timeout: 0.5), button.isHittable {
+                        target = button
+                        break
+                    }
+                }
+                if target != nil { break }
+            }
+            guard let button = target else { return }
+            button.tap()
+            let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: button)
+            if XCTWaiter.wait(for: [dismissed], timeout: 2) == .completed { return }
+        }
+        XCTFail("The system save-password prompt still covers the group action")
+    }
+
+    private func assertJoinFixture(_ value: String, app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
+        let fixture = app.descendants(matching: .any)["group_join_auth_fixture"].firstMatch
+        let expected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", value), object: fixture)
+        XCTAssertEqual(XCTWaiter.wait(for: [expected], timeout: 10), .completed, app.debugDescription, file: file, line: line)
+    }
+
+    func testEnglishGroupHeadingsAndHomeMemberCount() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestGroupsFixture", "-UITestGroupsFreshDrafts", "-national_day_2026_10_autopopup_count", "99"]
+        app.launch()
+        XCTAssertTrue(app.navigationBars["My Groups"].waitForExistence(timeout: 15))
+        XCTAssertEqual(app.buttons["group_create"].label, "Create Group")
+        XCTAssertEqual(app.buttons["group_join"].label, "Join Group")
+        app.navigationBars["My Groups"].buttons.firstMatch.tap()
+        let card = app.buttons["home_group_card_ui-group"]
+        for _ in 0..<6 where !card.isHittable { app.swipeUp() }
+        XCTAssertTrue(card.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["My Groups"].exists)
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "4 members")).firstMatch.exists)
+        capture(app, "english-home-group-heading-and-count")
+        card.tap()
+        let addResult = app.buttons["group_overview_addResult"]
+        XCTAssertTrue(addResult.waitForExistence(timeout: 10))
+        XCTAssertEqual(addResult.label, "Add Result")
+        addResult.tap()
+        XCTAssertTrue(app.navigationBars["Add Match Result"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Choose a Member"].firstMatch.exists)
+        let submit = app.buttons["group_match_submit"]
+        for _ in 0..<5 where !submit.isHittable { app.swipeUp() }
+        XCTAssertTrue(submit.exists)
+        XCTAssertEqual(submit.label, "Submit Result")
+        XCTAssertEqual(app.buttons["group_result_manual"].label, "Manual Entry")
+        capture(app, "english-group-result-headings")
+    }
+
     func testHomeGroupCardOpensDetailAndArrowOpensListWithoutRefresh() {
         let app = XCUIApplication()
         app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestGroupsFixture", "-national_day_2026_10_autopopup_count", "99"]
@@ -262,7 +508,7 @@ final class GroupRedesignUITests: XCTestCase {
         let number = app.textFields["group_number"]
         XCTAssertTrue(number.waitForExistence(timeout: 15))
         XCTAssertEqual(number.value as? String, "72856000")
-        let joinBar = app.navigationBars["Join group"]
+        let joinBar = app.navigationBars["Join Group"]
         XCTAssertTrue(joinBar.exists)
         XCTAssertFalse(joinBar.buttons["modal_close_button"].exists, "External invitations use the main navigation stack")
         capture(app, "group-invitation-cold-open")
@@ -328,6 +574,37 @@ final class GroupRedesignUITests: XCTestCase {
         XCTAssertTrue(eleven.isSelected)
         XCTAssertTrue(app.buttons["21"].firstMatch.exists)
         capture(app, "groups-rule-options")
+    }
+
+    func testFailedReportReadBlocksSubmissionUntilRetry() {
+        let app = openGroup(["-UITestReportReadFailureOnce"])
+        app.buttons["小组管理"].tap()
+        app.buttons["group_menu_report"].tap()
+        let error = app.staticTexts["group_report_error"]
+        XCTAssertTrue(error.waitForExistence(timeout: 5))
+        let submit = app.buttons["group_report_submit"]
+        XCTAssertTrue(submit.exists)
+        XCTAssertFalse(submit.isEnabled, "A failed read must not become a new report with empty attachments")
+        let refresh = app.buttons["刷新进度"]
+        for _ in 0..<5 where !refresh.isHittable { app.scrollViews.firstMatch.swipeUp() }
+        XCTAssertTrue(refresh.isHittable)
+        refresh.tap()
+        let loaded = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in submit.isEnabled }, object: nil)
+        let result = XCTWaiter.wait(for: [loaded], timeout: 10)
+        if result != .completed {
+            let snapshot = XCTAttachment(string: app.debugDescription)
+            snapshot.name = "Report state after retry"; snapshot.lifetime = .keepAlways
+            add(snapshot)
+            capture(app, "report-read-retry-failure")
+        }
+        XCTAssertEqual(result, .completed)
+        XCTAssertFalse(error.exists)
+        XCTAssertTrue(app.staticTexts["Original report evidence"].exists, "Retry must hydrate an existing case instead of preserving an unread empty draft")
+        submit.tap()
+        let detail = app.descendants(matching: .any).matching(identifier: "group_report_detail").firstMatch
+        XCTAssertTrue(detail.waitForExistence(timeout: 5))
+        XCTAssertEqual(detail.value as? String, "Original report evidence")
+        app.terminate()
     }
 
     func testReportUsesCloseIconAndKeepsReasons() {

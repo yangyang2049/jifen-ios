@@ -539,6 +539,9 @@ extension GroupPortParityTests {
             XCTAssertEqual(persistence.uploads(accountID: "a").first?.failure, "GROUP_ARCHIVED")
             try persistence.updateRetry("record", accountID: "a", code: "RATE_LIMITED", failure: nil, next: Date().addingTimeInterval(30))
             XCTAssertNil(persistence.uploads(accountID: "a").first?.failureMessage())
+            XCTAssertEqual(persistence.uploads(accountID: "a").first?.failureCode, "RATE_LIMITED", "Automatic retry retains the internal cause")
+            try persistence.updateRetry("record", accountID: "a", code: "RATE_LIMITED", failure: "RATE_LIMITED", next: nil)
+            XCTAssertNotNil(persistence.uploads(accountID: "a").first?.failureMessage(), "A stopped retry can show the reason again")
             try persistence.markFailure("record", accountID: "a", message: "旧的本地化失败文案")
             XCTAssertEqual(persistence.uploads(accountID: "a").first?.failure, "UPLOAD_FAILED")
             XCTAssertEqual(persistence.uploads(accountID: "a").first?.failureCode, "UPLOAD_FAILED")
@@ -1555,7 +1558,7 @@ extension GroupPortParityTests {
 
 
 @MainActor final class ThemeActionForegroundTests: XCTestCase {
-    func testLightGreenLabelsAreWhiteAndDarkModeKeepsContrast() {
+    func testPrimaryLabelsStayWhiteAndAdaptiveFillsKeepContrast() {
         XCTAssertNotNil(UIImage(systemName: "checkmark.circle"))
         let dynamicPrimaryLabel = UIColor(Theme.textOnPrimary)
         for appearance in [UIUserInterfaceStyle.light, .dark] {
@@ -1564,17 +1567,28 @@ extension GroupPortParityTests {
                 let background = UIColor(fill).resolvedColor(with: traits)
                 let foreground = UIColor(Theme.actionForeground(on: fill)).resolvedColor(with: traits)
                 if appearance == .light && (fill == Theme.primary || fill == Theme.primaryDark) {
-                    XCTAssertEqual(foreground, UIColor.white)
+                    assertRGBAEqual(foreground, UIColor.white)
                 } else {
                     let a = luminance(background), b = luminance(foreground)
                     XCTAssertGreaterThanOrEqual((max(a, b) + 0.05) / (min(a, b) + 0.05), 4.5)
                 }
             }
             let primaryLabel = dynamicPrimaryLabel.resolvedColor(with: traits)
-            XCTAssertEqual(primaryLabel, appearance == .light ? UIColor.white : UIColor.black)
+            assertRGBAEqual(primaryLabel, UIColor.white)
         }
-        XCTAssertEqual(Theme.actionForeground(on: UIColor.black), UIColor.white)
-        XCTAssertEqual(Theme.actionForeground(on: UIColor.white), UIColor.black)
+        assertRGBAEqual(Theme.actionForeground(on: UIColor.black), UIColor.white)
+        assertRGBAEqual(Theme.actionForeground(on: UIColor.white), UIColor.black)
+    }
+    private func assertRGBAEqual(_ actual: UIColor, _ expected: UIColor, file: StaticString = #filePath, line: UInt = #line) {
+        func rgba(_ color: UIColor) -> [CGFloat] {
+            var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+            XCTAssertTrue(color.getRed(&r, green: &g, blue: &b, alpha: &a), file: file, line: line)
+            return [r, g, b, a]
+        }
+        // Compare RGB components so gray-space and sRGB representations of white agree.
+        for (a, b) in zip(rgba(actual), rgba(expected)) {
+            XCTAssertEqual(a, b, accuracy: 0.0001, file: file, line: line)
+        }
     }
     private func luminance(_ color: UIColor) -> CGFloat {
         var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0

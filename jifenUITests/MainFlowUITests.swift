@@ -181,6 +181,63 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["game_over_dialog"].waitForExistence(timeout: 5))
     }
 
+    func testWhistleMediaVolumeHintAndControls() {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints",
+            "-UITestOpenTools"
+        ] + ordinaryFlowOrientationArguments
+        XCTAssertTrue(launchAndWait(app))
+        let card = app.descendants(matching: .any)["tool_card_whistle"].firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 8))
+        card.tap()
+        let hint = app.staticTexts["whistle_media_volume_hint"]
+        XCTAssertTrue(hint.waitForExistence(timeout: 5))
+        XCTAssertEqual(hint.label, "声音使用媒体音量，请按音量键调节。")
+        let whistle = app.buttons["哨声"]
+        let buzzer = app.buttons["蜂鸣"]
+        XCTAssertTrue(whistle.isHittable)
+        XCTAssertTrue(buzzer.isHittable)
+        whistle.tap()
+        let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: buzzer)
+        XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 3), .completed)
+        buzzer.tap()
+        XCTAssertTrue(hint.exists)
+        addScreenshot("whistle-media-volume-hint")
+    }
+
+    func testVoiceMediaVolumeHintOnEntryAndNoHintWhenDisabled() throws {
+        let app = launchApp()
+        XCTAssertTrue(openPingPongSetup(in: app))
+        let voice = app.descendants(matching: .any)["setup_feature_voice_announcement"]
+        XCTAssertTrue(voice.waitForExistence(timeout: 5))
+        if voice.value as? String != "1" { voice.tap() }
+        if app.alerts.firstMatch.waitForExistence(timeout: 1) {
+            throw XCTSkip("Simulator voice data is unavailable")
+        }
+        let serveOptions = app.switches["setup_announce_server_toggle"]
+        let optionsClosed = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == false"), object: serveOptions
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [optionsClosed], timeout: 8), .completed)
+        app.buttons["Start"].tap()
+        let hint = app.descendants(matching: .any)["voice_media_volume_hint"].firstMatch
+        XCTAssertTrue(hint.waitForExistence(timeout: 5))
+        addScreenshot("voice-media-volume-hint")
+        let disappeared = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: hint)
+        XCTAssertEqual(XCTWaiter.wait(for: [disappeared], timeout: 8), .completed)
+        app.buttons["scoreboard_menu_button"].tap()
+        let toggle = app.buttons["scoreboard_menu_action_voiceAnnouncement"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 3))
+        toggle.tap()
+        XCTAssertTrue(toggle.label.contains("Voice: Off"))
+        XCTAssertFalse(hint.exists)
+        toggle.tap()
+        XCTAssertTrue(toggle.label.contains("Voice: On"))
+        XCTAssertFalse(hint.exists, "The reminder appears once per visit, not after every toggle")
+    }
+
     func testPingpongServeOptionsFloatAndReopenWithoutResizingSetup() throws {
         let app = launchApp()
         XCTAssertTrue(openPingPongSetup(in: app))
@@ -1562,9 +1619,8 @@ final class MainFlowUITests: XCTestCase {
         let field = app.textFields["setup_custom_sets_field"]
         XCTAssertTrue(field.waitForExistence(timeout: 3))
         XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
-        let initialValue = field.value as? String ?? ""
-        app.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: initialValue.count))
         app.typeText("3")
+        XCTAssertEqual(field.value as? String, "3", "Typing must replace the selected initial value")
         XCTAssertTrue(field.exists)
         app.typeText("1")
         XCTAssertEqual(field.value as? String, "31")
@@ -1574,12 +1630,38 @@ final class MainFlowUITests: XCTestCase {
         let app = launchChineseApp()
         defer { app.terminate() }
         openSetupCatalogCardByScrolling("uno", in: app)
+        let initialPreset = app.buttons["uno_target_score_preset_500"]
+        revealSetupControl(initialPreset, in: app)
+        initialPreset.tap()
+        let customButton = app.buttons["uno_custom_target_score_button"]
+        revealSetupControl(customButton, in: app)
+        customButton.tap()
         let field = app.textFields["uno_custom_target_score_field"]
-        revealSetupControl(field, in: app)
-        field.tap()
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
         XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
         app.typeText("600")
         XCTAssertEqual(field.value as? String, "600")
+
+        let preset = app.buttons["uno_target_score_preset_1000"]
+        revealSetupControl(preset, in: app)
+        preset.tap()
+        XCTAssertTrue(customButton.waitForExistence(timeout: 3))
+        customButton.tap()
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        XCTAssertEqual(field.value as? String, "1000")
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
+        app.typeText("850")
+        XCTAssertEqual(field.value as? String, "850")
+
+        revealSetupControl(preset, in: app)
+        preset.tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 3))
+        let start = app.buttons["开始"]
+        XCTAssertTrue(start.isEnabled, "Selecting a preset after custom input must allow starting")
+        start.tap()
+        let target = app.descendants(matching: .any)["uno_target_badge"].firstMatch
+        XCTAssertTrue(target.waitForExistence(timeout: 5))
+        XCTAssertTrue(target.label.contains("1000"), "The match must use the selected preset: \(target.label)")
     }
 
     func testSetupCustomFoosballCapFocusesOnFirstTap() {
@@ -1595,9 +1677,6 @@ final class MainFlowUITests: XCTestCase {
         let field = app.textFields["setup_custom_foosballScoreCap_field"]
         XCTAssertTrue(field.waitForExistence(timeout: 3))
         XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
-        let initialValue = field.value as? String ?? ""
-        app.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: initialValue.count))
-        XCTAssertTrue(field.exists)
         app.typeText("14")
         XCTAssertEqual(field.value as? String, "14")
     }

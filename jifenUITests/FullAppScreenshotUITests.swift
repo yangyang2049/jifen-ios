@@ -1594,7 +1594,9 @@ final class FullAppScreenshotUITests: XCTestCase {
             "-UITestScreenshotMode", "1"
         ] + extraArguments
         if isDuoWalkthrough {
-            app.launchArguments += ["-national_day_2026_10_autopopup_count", "99"]
+            // Match the group/tool/timer walkthroughs: these runs validate UI,
+            // and cold simulator speech-voice discovery can block app startup.
+            app.launchArguments += ["-national_day_2026_10_autopopup_count", "99", "-UITestSportsVoiceMissing"]
         }
         XCTAssertTrue(launchAndWait(app), "Screenshot app failed to reach the foreground")
         // 夹具会把根视图换成详情页，此时没有 Tab Bar 可等

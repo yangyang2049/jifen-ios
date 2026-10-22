@@ -5,6 +5,47 @@ import ScoreCore
 import XCTest
 
 final class LocalizationIntegrityTests: XCTestCase {
+    func testMembershipMetadataUsesAppLanguageAcrossPromotedLocales() throws {
+        for locale in LocalizationTestSupport.promotedLocales {
+            let bundle = try XCTUnwrap(Bundle(path: repositoryRoot.appendingPathComponent("jifen/Resources/\(locale).lproj").path))
+            let values = try LocalizationTestSupport.valuesByKey(relativePath: LocalizationTestSupport.localizablePaths[locale]!)
+            for (cycles, key) in [
+                (["month", "monthly"], "membership_monthly_plan_title"),
+                (["year", "yearly", "annual"], "membership_yearly_plan_title"),
+                (["lifetime", "permanent", "permant"], "membership_lifetime_plan_title"),
+                (["quarter", "unknown"], "me_profile_vip_badge")
+            ] {
+                for cycle in cycles {
+                    var membership = AppMembership(memberNo: "000046", displayCode: "V-000046", numberLabel: "会员编号", tier: "vip", billingCycle: " \(cycle.uppercased()) ", purchaseChannel: "apple", purchasedAt: "", status: "active", identitySummary: "VIP年卡")
+                    let user = AppUser(id: "member", role: "VIP", plan: "VIP", createdAt: 0, membership: membership)
+                    XCTAssertEqual(membership.localizedTitle(bundle: bundle), values[key], "\(locale)/\(cycle)")
+                    XCTAssertEqual(user.localizedMembershipTitle(bundle: bundle), values[key], "\(locale)/\(cycle)")
+                    membership.status = "expired"
+                    let expired = AppUser(id: "member", role: "FREE", plan: "FREE", createdAt: 0, membership: membership)
+                    XCTAssertEqual(expired.localizedMembershipTitle(bundle: bundle), values["me_profile_vip_badge"], locale)
+                }
+            }
+            XCTAssertEqual(MembershipDisplayText.title(billingCycle: nil, bundle: bundle), values["me_profile_vip_badge"], locale)
+        }
+    }
+
+    func testServerMessagesDoNotOverrideLocalizedInterfaceCopy() throws {
+        for locale in LocalizationTestSupport.promotedLocales {
+            let bundle = try XCTUnwrap(Bundle(path: repositoryRoot.appendingPathComponent("jifen/Resources/\(locale).lproj").path))
+            let values = try LocalizationTestSupport.valuesByKey(relativePath: LocalizationTestSupport.localizablePaths[locale]!)
+            for (code, key) in [("NAME_COOLDOWN", "me_profile_nickname_cooldown_generic"), ("NAME_BLOCKED", "group_error_content_blocked"), ("ACCOUNT_DELETION_FAILED", "account_deletion_failed")] {
+                XCTAssertEqual(APIClientError.serverMessage(status: 400, code: code, message: "服务端中文", bundle: bundle), values[key], "\(locale)/\(code)")
+            }
+            if locale != "zh-Hans" {
+                XCTAssertEqual(APIClientError.serverMessage(status: 500, code: "UNKNOWN_CODE", message: "服务端中文", bundle: bundle), values["network_request_failed"], locale)
+                XCTAssertEqual(APIClientError.serverMessage(status: 429, code: nil, message: "服务端中文", bundle: bundle), values["group_rate_limited"], locale)
+            }
+            for (success, status, key) in [(true, "deleted", "account_deletion_success"), (true, "pending", "account_deletion_submitted"), (false, "failed", "account_deletion_failed")] {
+                XCTAssertEqual(AccountDeletionOutcome(success: success, status: status, message: "服务端中文").localizedMessage(bundle: bundle), values[key], locale)
+            }
+        }
+    }
+
     func testOptionalPingpongServerCallsKeepNamesAndOtherSportsUnchanged() throws {
         for code in LocalizationTestSupport.promotedLocales {
             guard let language = SportsVoiceLanguage.resolve(localization: code, iosMajorVersion: 27) else { continue }

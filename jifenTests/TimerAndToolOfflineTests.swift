@@ -1,8 +1,60 @@
 import XCTest
 import WebKit
+import AVFoundation
 @testable import jifen
 
 final class TimerAndToolOfflineTests: XCTestCase {
+    @MainActor
+    func testToolPlaybackIgnoresSilentModeAndMixesWithOtherAudio() throws {
+        let session = AVAudioSession.sharedInstance()
+        let original = (session.category, session.mode, session.categoryOptions)
+        defer {
+            try? session.setActive(false, options: .notifyOthersOnDeactivation)
+            try? session.setCategory(original.0, mode: original.1, options: original.2)
+        }
+        try session.setCategory(.ambient)
+        try AppAudioPlaybackSession.activate()
+        XCTAssertEqual(session.category, .playback)
+        XCTAssertTrue(session.categoryOptions.contains(.mixWithOthers))
+    }
+
+    @MainActor
+    func testPlaybackRestoresCategoryAfterVoiceNoteRecording() throws {
+        let session = AVAudioSession.sharedInstance()
+        let original = (session.category, session.mode, session.categoryOptions)
+        defer {
+            try? session.setActive(false, options: .notifyOthersOnDeactivation)
+            try? session.setCategory(original.0, mode: original.1, options: original.2)
+        }
+        // The shared session retains playAndRecord when a voice note ends.
+        XCTAssertFalse(RecordNoteAudioManager.shared.isRecording)
+        try session.setCategory(.playAndRecord, options: .defaultToSpeaker)
+        try AppAudioPlaybackSession.activate()
+        XCTAssertEqual(session.category, .playback)
+        XCTAssertTrue(session.categoryOptions.contains(.mixWithOthers))
+    }
+
+    @MainActor
+    func testDisabledToolSoundDoesNotActivatePlayback() throws {
+        let session = AVAudioSession.sharedInstance()
+        let original = (session.category, session.mode, session.categoryOptions)
+        let wasEnabled = PreferencesManager.shared.soundEnabled
+        defer {
+            PreferencesManager.shared.soundEnabled = wasEnabled
+            try? session.setCategory(original.0, mode: original.1, options: original.2)
+        }
+        PreferencesManager.shared.soundEnabled = false
+        try session.setCategory(.ambient)
+        for name in ["whistle", "buzzer", "dice", "flip_coin"] {
+            SoundManager.shared.playSound(name)
+            XCTAssertEqual(session.category, .ambient, name)
+        }
+        BoardTimerVoiceAnnouncer.shared.playControl(.start)
+        BoardTimerVoiceAnnouncer.shared.playByoyomiPhrase(periodsRemaining: 3)
+        BoardTimerVoiceAnnouncer.shared.playCountdownCompletion()
+        XCTAssertEqual(session.category, .ambient)
+    }
+
     private var defaults: UserDefaults!
     private var suiteName: String!
 

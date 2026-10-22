@@ -555,7 +555,7 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
         XCTAssertLessThanOrEqual(constrained.nameToScoreSpacing, short.nameToScoreSpacing)
     }
 
-    func testBasketballPanelCountsTheSafeEdgeAndButtonColumnOnce() {
+    func testBasketballButtonColumnsStaySymmetricWhileNamesRespectTheSafeEdge() {
         let panel = CGSize(width: 259, height: 466)
         let inset = ScoreboardLayoutMetrics.basketballTeamPanelLayout(
             panelSize: panel, outerSafeAreaInset: 61, isLargeScreen: false
@@ -565,13 +565,15 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
         )
 
         XCTAssertEqual(inset.scoreButtonSize, 50)
-        XCTAssertEqual(inset.outerPadding, 69)
-        XCTAssertEqual(inset.scoreContentWidth, 124)
+        XCTAssertEqual(inset.outerPadding, 8)
+        XCTAssertEqual(inset.outerPadding, clear.outerPadding)
+        XCTAssertEqual(inset.nameOuterPadding, 69)
+        XCTAssertEqual(inset.scoreContentWidth, 185)
         XCTAssertEqual(clear.scoreContentWidth, 185)
-        XCTAssertEqual(clear.scoreContentWidth - inset.scoreContentWidth, 61)
+        XCTAssertEqual(clear.scoreContentWidth, inset.scoreContentWidth)
         XCTAssertEqual(inset.nameContentWidth, 182)
         XCTAssertEqual(clear.nameContentWidth, 243)
-        XCTAssertEqual(inset.nameContentWidth - inset.scoreContentWidth, 58)
+        XCTAssertEqual(clear.nameOuterPadding, 8)
     }
 
     func testBasketballTeamsUseTheSameReadableScoreSizeWithAnAsymmetricSafeArea() {

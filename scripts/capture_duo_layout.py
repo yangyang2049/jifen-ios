@@ -11,6 +11,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import plistlib
 import re
 import signal
 import struct
@@ -28,6 +29,67 @@ def write_manifest(path, manifest):
     temporary.replace(path)
 
 
+def file_sha256(path):
+    digest = hashlib.sha256()
+    with path.open('rb') as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def binary_provenance(xctestrun):
+    """Resolve UI products from the selected v1/v2 XCTest configuration."""
+    xctestrun = xctestrun.resolve(strict=True)
+    configuration_bytes = xctestrun.read_bytes()
+    configuration = plistlib.loads(configuration_bytes)
+    if 'TestConfigurations' in configuration:
+        targets = [target for item in configuration['TestConfigurations']
+                   if item.get('IsEnabled', True) for target in item.get('TestTargets', [])
+                   if target.get('BlueprintName') == 'jifenUITests']
+    else:
+        targets = [target for name, target in configuration.items()
+                   if isinstance(target, dict)
+                   and target.get('BlueprintName', name) == 'jifenUITests']
+    if not targets:
+        raise ValueError(f'No enabled jifenUITests target in {xctestrun}')
+
+    def product_path(raw, host=None):
+        expanded = raw.replace('__TESTROOT__', str(xctestrun.parent))
+        if host is not None:
+            expanded = expanded.replace('__TESTHOST__', str(host))
+        if re.search(r'__[A-Z_]+__', expanded):
+            raise ValueError(f'Unresolved XCTest product path: {raw}')
+        path = Path(expanded)
+        return (path if path.is_absolute() else xctestrun.parent / path).resolve(strict=True)
+
+    def executable(bundle):
+        info = plistlib.loads((bundle / 'Info.plist').read_bytes())
+        name = info.get('CFBundleExecutable')
+        if not isinstance(name, str) or not name or Path(name).name != name:
+            raise ValueError(f'Missing or invalid CFBundleExecutable in {bundle}')
+        binary = (bundle / name).resolve(strict=True)
+        if not binary.is_file():
+            raise FileNotFoundError(f'Missing XCTest product executable: {binary}')
+        return binary
+
+    binaries = {}
+    products = []
+    for target in targets:
+        host = product_path(target['TestHostPath'])
+        app = product_path(target['UITargetAppPath'])
+        bundle = product_path(target['TestBundlePath'], host=host)
+        products.append(dict(app=str(app), host=str(host), test_bundle=str(bundle)))
+        for product in [app, host, bundle]:
+            binary = executable(product)
+            binaries[str(binary)] = file_sha256(binary)
+            debug_library = product / (binary.name + '.debug.dylib')
+            if debug_library.is_file():
+                binaries[str(debug_library.resolve())] = file_sha256(debug_library)
+    return dict(xctestrun=str(xctestrun),
+                xctestrun_sha256=hashlib.sha256(configuration_bytes).hexdigest(),
+                test_products=products, binary_sha256=binaries)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('device')
@@ -38,12 +100,16 @@ def main():
     parser.add_argument('--test-id', help='Explicit Suite/testMethod for an additional walkthrough')
     parser.add_argument('--label', help='Output chapter name, e.g. scoreboards-01')
     parser.add_argument('--record', action='store_true', help='Record actual simulator navigation to H.264 video')
+    parser.add_argument('--video-only', action='store_true', help='Keep video and checkpoint times without PNG screenshots')
+    parser.add_argument('--xctestrun', type=Path, help='Use an explicitly built XCTest configuration')
     parser.add_argument('--output-root', type=Path, default=Path('artifacts/iphone-duo-layout-20261020'))
     args = parser.parse_args()
     if not re.fullmatch(r'[a-z0-9-]+', args.pose):
         parser.error('Pose must contain lowercase letters, numbers or hyphens')
     root = Path(__file__).resolve().parents[1]
     os.chdir(root)
+    xctestrun = args.xctestrun or root / 'build/duo/DerivedData/Build/Products/jifen_iphonesimulator27.1-arm64.xctestrun'
+    provenance = binary_provenance(xctestrun)
     displays = []
     for block in re.split(r'\nPort:\n', output('xcrun', 'simctl', 'io', args.device, 'enumerate')):
         if not re.search(r'^    Display class: 0$', block, re.M):
@@ -52,8 +118,10 @@ def main():
         width = int(re.search(r'Default width: (\d+)', block).group(1))
         height = int(re.search(r'Default height: (\d+)', block).group(1))
         displays.append((uuid, max(width, height) / min(width, height), width * height))
-    if len(displays) != 2:
-        raise RuntimeError(f'Expected two native Duo displays, got {displays}')
+    if not displays:
+        raise RuntimeError('No simulator display is available')
+    if args.video_only and not args.record:
+        parser.error('--video-only requires --record')
     container = Path(output('xcrun', 'simctl', 'get_app_container', args.device,
                             'com.douhua.jifenUITests.xctrunner', 'data'))
     marker = container / 'tmp' / 'duo-capture.json'
@@ -72,7 +140,8 @@ def main():
     test = 'testFoldableDraftAndScoreSurviveLiveResize' if args.live else 'testCaptureFoldableWindowLayouts'
     test_id = args.test_id or f'FullAppScreenshotUITests/{"testWalkDuoReviewChapter" if args.chapter else test}'
     env = os.environ.copy()
-    env.update(TEST_RUNNER_DUO_POSE=args.pose, TEST_RUNNER_DUO_HOST_CAPTURE='1')
+    layout_expectation = args.pose if len(displays) == 2 else 'ordinary'
+    env.update(TEST_RUNNER_DUO_POSE=layout_expectation, TEST_RUNNER_DUO_HOST_CAPTURE='1')
     if args.live:
         env['TEST_RUNNER_DUO_LIVE_RESIZE'] = '1'
     if args.chapter:
@@ -80,7 +149,7 @@ def main():
     if args.items:
         env.update(TEST_RUNNER_DUO_ITEMS=args.items, TEST_RUNNER_AUDIT_GAME=args.items)
     command = ['xcodebuild', 'test-without-building', '-xctestrun',
-               str(root / 'build/duo/DerivedData/Build/Products/jifen_iphonesimulator27.1-arm64.xctestrun'),
+               provenance['xctestrun'],
                '-destination', f'platform=iOS Simulator,id={args.device}',
                f'-only-testing:jifenUITests/{test_id}',
                '-parallel-testing-enabled', 'NO', '-collect-test-diagnostics', 'never',
@@ -90,16 +159,13 @@ def main():
     started = time.monotonic()
     manifest = dict(pose=args.pose, chapter=label, test_id=test_id, items=args.items,
                     result=str(result), log=str(log), captures=[], status='running',
+                    device=args.device, layout_expectation=layout_expectation,
                     started_at=datetime.now(timezone.utc).isoformat())
-    products = root / 'build/duo/DerivedData/Build/Products/Debug-iphonesimulator'
-    manifest['binary_sha256'] = {}
-    for binary in [products / 'jifen.app/jifen',
-                   products / 'jifenUITests-Runner.app/PlugIns/jifenUITests.xctest/jifenUITests']:
-        if binary.is_file():
-            manifest['binary_sha256'][str(binary.relative_to(products))] = hashlib.sha256(binary.read_bytes()).hexdigest()
+    manifest.update(provenance)
     manifest_path = destination / 'session.json'
     video = None
     video_stream = None
+    video_started = None
     try:
         if args.record:
             if args.pose not in ['folded', 'unfolded']:
@@ -111,9 +177,17 @@ def main():
                                       f'--display={chosen[0]}', '--codec=h264', '--force', str(video_path)],
                                      stdout=video_stream, stderr=subprocess.STDOUT)
             manifest.update(video='walkthrough.mp4', video_display=chosen[0])
-            time.sleep(0.5)
-            if video.poll() is not None:
-                raise RuntimeError('Simulator recorder exited before the walkthrough')
+            ready_deadline = time.monotonic() + 20
+            while True:
+                if video.poll() is not None:
+                    raise RuntimeError('Simulator recorder exited before the walkthrough')
+                if 'Recording started' in (destination / 'recording.log').read_text():
+                    video_started = time.monotonic()
+                    manifest['video_time_basis'] = 'recordVideo-ready'
+                    break
+                if time.monotonic() >= ready_deadline:
+                    raise RuntimeError('Simulator recorder did not become ready')
+                time.sleep(0.05)
         write_manifest(manifest_path, manifest)
         with log.open('w') as stream:
             process = subprocess.Popen(command, env=env, stdout=stream, stderr=subprocess.STDOUT)
@@ -134,14 +208,17 @@ def main():
                     if not re.fullmatch(r'[A-Za-z0-9_-]+', name):
                         raise RuntimeError(f'Invalid capture name: {name}')
                     target = destination / f'{name}.png'
-                    subprocess.run(['xcrun', 'simctl', 'io', args.device, 'screenshot',
-                                    f'--display={display}', str(target)], check=True, capture_output=True)
-                    metadata.update(display=display, pixels=struct.unpack('>II', target.read_bytes()[16:24]))
-                    metadata.update(video_seconds=round(time.monotonic() - started, 3),
+                    if not args.video_only:
+                        subprocess.run(['xcrun', 'simctl', 'io', args.device, 'screenshot',
+                                        f'--display={display}', str(target)], check=True, capture_output=True)
+                        metadata['pixels'] = struct.unpack('>II', target.read_bytes()[16:24])
+                    metadata['display'] = display
+                    metadata.update(video_seconds=round(time.monotonic() - (video_started or started), 3),
                                     captured_at=datetime.now(timezone.utc).isoformat())
                     if args.record and display != manifest['video_display']:
                         raise RuntimeError('Active display changed during a fixed-surface recording')
-                    target.with_suffix('.json').write_text(json.dumps(metadata, indent=2) + '\n')
+                    if not args.video_only:
+                        target.with_suffix('.json').write_text(json.dumps(metadata, indent=2) + '\n')
                     manifest['captures'].append({key: value for key, value in metadata.items() if key != 'hierarchy'})
                     write_manifest(manifest_path, manifest)
                     print(f'Captured {name}: {width} x {height}', flush=True)
