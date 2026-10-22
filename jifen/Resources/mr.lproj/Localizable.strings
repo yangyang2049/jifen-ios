@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "प्रतिमा काढून टाका";
 "group_report_image_error" = "प्रतिमा तयार करता आली नाही. दुसरी JPG किंवा PNG प्रतिमा वापरून प्रयत्न करा.";
 "group_report_refresh" = "स्थिती रीफ्रेश करा";
+"group_manual_result_action" = "सामन्याचा निकाल जोडा";
+
+/* Media volume reminder */
+"media_volume_hint" = "आवाजासाठी मीडिया व्हॉल्यूम वापरला जातो. व्हॉल्यूम बटणांनी तो समायोजित करा.";

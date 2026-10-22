@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Kép eltávolítása";
 "group_report_image_error" = "Nem sikerült előkészíteni a képet. Próbáljon másik JPG- vagy PNG-képet.";
 "group_report_refresh" = "Állapot frissítése";
+"group_manual_result_action" = "Mérkőzéseredmény hozzáadása";
+
+/* Media volume reminder */
+"media_volume_hint" = "A hang a média hangerejét használja. A hangerőgombokkal módosíthatod.";

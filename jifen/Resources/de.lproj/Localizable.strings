@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Bild entfernen";
 "group_report_image_error" = "Das Bild konnte nicht vorbereitet werden. Versuche es mit einem anderen JPG- oder PNG-Bild.";
 "group_report_refresh" = "Status aktualisieren";
+"group_manual_result_action" = "Spielergebnis hinzufügen";
+
+/* Media volume reminder */
+"media_volume_hint" = "Die Wiedergabe nutzt die Medienlautstärke. Passe sie mit den Lautstärketasten an.";

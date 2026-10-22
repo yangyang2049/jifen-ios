@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "ചിത്രം നീക്കം ചെയ്യുക";
 "group_report_image_error" = "ചിത്രം തയ്യാറാക്കാനായില്ല. മറ്റൊരു JPG അല്ലെങ്കിൽ PNG ചിത്രം ഉപയോഗിച്ച് ശ്രമിക്കുക.";
 "group_report_refresh" = "സ്ഥിതി പുതുക്കുക";
+"group_manual_result_action" = "മത്സരഫലം ചേർക്കുക";
+
+/* Media volume reminder */
+"media_volume_hint" = "ശബ്ദത്തിന് മീഡിയ വോളിയം ഉപയോഗിക്കുന്നു. വോളിയം ബട്ടണുകൾ ഉപയോഗിച്ച് ക്രമീകരിക്കുക.";

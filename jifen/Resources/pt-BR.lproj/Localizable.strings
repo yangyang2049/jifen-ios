@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Remover imagem";
 "group_report_image_error" = "Não foi possível preparar a imagem. Tente outra imagem JPG ou PNG.";
 "group_report_refresh" = "Atualizar status";
+"group_manual_result_action" = "Adicionar resultado da partida";
+
+/* Media volume reminder */
+"media_volume_hint" = "O som usa o volume de mídia. Ajuste com os botões de volume.";

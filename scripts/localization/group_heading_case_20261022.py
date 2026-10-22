@@ -75,6 +75,7 @@ HEADINGS = {
     # Buttons and menu actions
     "create_activity": "Create Activity",
     "manual_result": "Add Match Result",
+    "manual_result_action": "Add Result",
     "start_score": "Start Scoring",
     "confirm_result": "Confirm Result",
     "audit_ui_share_number": "Share Group Number",
@@ -161,6 +162,56 @@ HEADINGS = {
     # Evidence-report sheet labels
     "report_evidence_title": "Image Evidence (Optional)",
     "report_preview": "Evidence Image",
+    # Follow-up: secondary actions, result sections and less common editors.
+    "request_join": "Apply to Join",
+    "choose_member": "Choose a Member",
+    "invite": "Invite Teammates",
+    "invite_students": "Invite Students",
+    "submit_result": "Submit Result",
+    "publish_schedule": "Publish Schedule",
+    "keep_draft": "Continue Editing Local Version",
+    "temp_import_names": "Import Saved Names",
+    "beta_feedback_action": "Send Feedback",
+    "registration_use_start": "Use Activity Start Time",
+    "activity_registration_save": "Save Registrations (%1$d)",
+    "view_schedule": "View Matches",
+    "join_message": "Join Request Message (Optional)",
+    "leave_reason": "Optional Absence Note",
+    "cancel_reason": "Reason for Cancelling",
+    "cancel_reason_optional": "Reason for Cancellation (Optional)",
+    "void_reason": "Reason for Voiding",
+    "session_minutes": "Minutes per Match",
+    "registered_members": "Registered Members",
+    "report_status": "Your Report",
+    "ranking_title": "%@ Leaderboard",
+    "ranking_rate": "Win Rate",
+    "month_matches": "This Month",
+    "submitted_by": "Submitted By",
+    "confirmed_by": "Confirmed By",
+    "result_actions": "Result Actions",
+    "entry_a_wins": "A Wins",
+    "entry_b_wins": "B Wins",
+    "entry_manual": "Manual Entry",
+    "copy_places_title": "Choose Saved Location",
+    # Dynamically selected policy and match-rule controls.
+    "open": "Join Directly",
+    "approval": "Approval Required",
+    "play_all": "Play All Sets",
+    "tiebreak_only": "Tie-Break Only",
+    "single_match": "One Match",
+    "multi_matches": "Multiple Matches",
+    "activity_timing_sequence": "No Exact Time",
+    "activity_timing_estimated": "Estimated Time",
+    "report_inappropriate": "Sexual or Inappropriate Content",
+    "report_fraud": "Fraud or Gambling",
+    "report_illegal": "Illegal or Dangerous Activities",
+    # Already correct labels are included so the check also protects them.
+    "common_names": "Saved Names",
+    "default_rules": "Sport Default",
+    "max_sets": "Sets / Frames",
+    "point_cap": "Score Cap",
+    "target_points": "Target Score",
+    "tie_break": "Tiebreak Points",
 }
 
 
@@ -183,7 +234,12 @@ def runtime_and_alias(prefix):
     key = "group_" + prefix
     mapping = alias_targets()
     target = mapping.get(key)
-    return [key] if target is None or target == key else [key, target]
+    # Several runtime keys can share a canonical resource (e.g. new_activity
+    # and create_activity). Keep all spellings synchronized, not just the one
+    # used to register this heading.
+    canonical = target or key
+    return sorted({key, canonical} | {alias for alias, value in mapping.items()
+                                     if value == canonical and alias.startswith("group_")})
 
 
 def plan_english(data):
@@ -195,6 +251,7 @@ def plan_english(data):
         present = [key for key in keys if key in english]
         assert present, "Missing group key for %r" % prefix
         for key in present:
+            assert key not in touched or touched[key] == value, (key, value, touched[key])
             touched[key] = value
     return english, touched
 
@@ -210,17 +267,26 @@ def rewritten_strings(text, edits):
 
 def updated_reviewed_sources(data, english):
     sources = dict(data["reviewed_sources"])
-    sources.update({key: value for key, value in english.items() if is_group_key(key)})
+    headings = {key for prefix in HEADINGS for key in runtime_and_alias(prefix)}
+    current = {key: value for key, value in english.items() if is_group_key(key)}
+    # A capitalization pass must never approve unrelated semantic source edits.
+    assert sources.keys() == current.keys(), "Group key inventory changed; review new copy separately"
+    for key, value in current.items():
+        if key in headings:
+            assert sources[key].casefold() == value.casefold(), (key, "Not a case-only heading edit")
+            sources[key] = value
+        else:
+            assert sources[key] == value, (key, "Unrelated group source changed after copy review")
     return sources
 
 
-def refreshed_catalog(locale, english):
+def refreshed_catalog(locale, english, edits):
     """Re-hash English-source changes; native wording and review status stay."""
     path = CATALOGS / (locale + ".jsonl")
     rows = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
     changed = 0
     for row in rows:
-        if row.get("table") != "Localizable" or not row.get("key", "").startswith("group_"):
+        if row.get("table") != "Localizable" or row.get("key") not in edits:
             continue
         source = english.get(row["key"])
         if source is None:
@@ -266,7 +332,7 @@ def main():
             data["reviewed_sources"] = expected_sources
             if reworded:
                 data.setdefault("overrides", {}).setdefault("en", {}).update(reworded)
-            DATA_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n")
+            DATA_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
 
     merged = {**english, **edits}
     review = json.loads(REVIEW_PATH.read_text())
@@ -317,7 +383,7 @@ def main():
         changes.append(str(DATA_PATH.relative_to(ROOT)))
         if not args.check:
             data["shared_terms"] = shared_terms
-            DATA_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n")
+            DATA_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
 
     catalog_total = 0
     for locale in sorted(localize.locale_map()):
@@ -326,7 +392,7 @@ def main():
             # English, Simplified and Traditional Chinese ship without a review
             # catalog; their resources are the reviewed source of truth.
             continue
-        text, changed = refreshed_catalog(locale, merged)
+        text, changed = refreshed_catalog(locale, merged, edits)
         catalog_total += changed
         if text != path.read_text():
             changes.append(str(path.relative_to(ROOT)))

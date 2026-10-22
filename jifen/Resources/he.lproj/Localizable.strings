@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "הסרת תמונה";
 "group_report_image_error" = "לא ניתן להכין את התמונה. יש לנסות תמונה אחרת מסוג JPG או PNG.";
 "group_report_refresh" = "רענון הסטטוס";
+"group_manual_result_action" = "הוספת תוצאת משחק";
+
+/* Media volume reminder */
+"media_volume_hint" = "הצליל משתמש בעוצמת המדיה. ניתן לכוונן אותה בעזרת לחצני עוצמת הקול.";

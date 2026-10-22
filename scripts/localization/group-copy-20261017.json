@@ -6043,7 +6043,8 @@
       "group_ranking_wins": "જીતની સંખ્યા",
       "group_ranking_losses": "હારની સંખ્યા",
       "group_ranking_draws": "ડ્રોની સંખ્યા",
-      "group_error_description_length": "ગ્રુપનું વર્ણન 200 અક્ષરથી વધુ ન હોવું જોઈએ."
+      "group_error_description_length": "ગ્રુપનું વર્ણન 200 અક્ષરથી વધુ ન હોવું જોઈએ.",
+      "group_manual_result_action": "મેચનું પરિણામ ઉમેરો"
     },
     "bn": {
       "group_archive_hint": "এই গ্রুপটি আর্কাইভ করবেন? এর বিষয়বস্তু শুধু পড়া যাবে।",
@@ -6240,7 +6241,8 @@
       "group_ranking_wins": "জয়ের সংখ্যা",
       "group_ranking_losses": "হারের সংখ্যা",
       "group_ranking_draws": "ড্রয়ের সংখ্যা",
-      "group_error_description_length": "গ্রুপের বিবরণ ২০০ অক্ষরের বেশি হতে পারবে না।"
+      "group_error_description_length": "গ্রুপের বিবরণ ২০০ অক্ষরের বেশি হতে পারবে না।",
+      "group_manual_result_action": "ম্যাচের ফল যোগ করুন"
     },
     "pa": {
       "group_archive_hint": "ਇਸ ਗਰੁੱਪ ਨੂੰ ਆਰਕਾਈਵ ਕਰਨਾ ਹੈ? ਇਸ ਦੀ ਸਮੱਗਰੀ ਸਿਰਫ਼ ਪੜ੍ਹੀ ਜਾ ਸਕੇਗੀ।",
@@ -6437,7 +6439,8 @@
       "group_ranking_wins": "ਜਿੱਤ ਦੀ ਗਿਣਤੀ",
       "group_ranking_losses": "ਹਾਰ ਦੀ ਗਿਣਤੀ",
       "group_ranking_draws": "ਡਰਾਅ ਦੀ ਗਿਣਤੀ",
-      "group_error_description_length": "ਗਰੁੱਪ ਦਾ ਵੇਰਵਾ 200 ਅੱਖਰਾਂ ਤੋਂ ਵੱਧ ਨਹੀਂ ਹੋਣਾ ਚਾਹੀਦਾ।"
+      "group_error_description_length": "ਗਰੁੱਪ ਦਾ ਵੇਰਵਾ 200 ਅੱਖਰਾਂ ਤੋਂ ਵੱਧ ਨਹੀਂ ਹੋਣਾ ਚਾਹੀਦਾ।",
+      "group_manual_result_action": "ਮੈਚ ਦਾ ਨਤੀਜਾ ਜੋੜੋ"
     },
     "or": {
       "group_archive_hint": "ଏହି ଗୋଷ୍ଠୀକୁ ଆର୍କାଇଭ୍ କରିବେ? ଏହାର ବିଷୟବସ୍ତୁ କେବଳ ପଢ଼ିହେବ।",
@@ -6634,7 +6637,8 @@
       "group_ranking_wins": "ଜିତ ସଂଖ୍ୟା",
       "group_ranking_losses": "ହାର ସଂଖ୍ୟା",
       "group_ranking_draws": "ଡ୍ର ସଂଖ୍ୟା",
-      "group_error_description_length": "ଗୋଷ୍ଠୀ ବିବରଣୀ 200 ଅକ୍ଷରରୁ ଅଧିକ ହେବା ଉଚିତ ନୁହେଁ।"
+      "group_error_description_length": "ଗୋଷ୍ଠୀ ବିବରଣୀ 200 ଅକ୍ଷରରୁ ଅଧିକ ହେବା ଉଚିତ ନୁହେଁ।",
+      "group_manual_result_action": "ମ୍ୟାଚ୍ ଫଳାଫଳ ଯୋଡ଼ନ୍ତୁ"
     },
     "en": {
       "group_error_registration_closed": "Registration has closed.",
@@ -6644,7 +6648,7 @@
       "group_welcome_back": "Welcome back",
       "group_transfer_none": "There are no other full members. Temporary members cannot become the leader.",
       "group_empty_activities_hint": "Create an activity for members to join. Sign-up closes when full.",
-      "group_temp_import_names": "Import saved names",
+      "group_temp_import_names": "Import Saved Names",
       "group_temp_import_count": "Import (%1$d)",
       "group_copy_reload_version": "Load Latest Version",
       "group_reload_version": "Load Latest Version",
@@ -6655,7 +6659,7 @@
       "group_error_session_completed": "This match is complete and you can no longer request absence. Refresh the schedule to view the result.",
       "group_error_server": "The group service is temporarily unavailable. Please try again later.",
       "group_error_name_length": "Group names must contain 2–24 characters.",
-      "group_view_schedule": "View matches",
+      "group_view_schedule": "View Matches",
       "group_notice_training_published": "Training published",
       "group_notice_training_changed": "Training updated",
       "group_notice_training_cancelled": "Training cancelled",
@@ -6663,7 +6667,8 @@
       "group_ranking_wins": "W",
       "group_ranking_losses": "L",
       "group_ranking_draws": "D",
-      "group_error_description_length": "Group descriptions must be no longer than 200 characters."
+      "group_error_description_length": "Group descriptions must be no longer than 200 characters.",
+      "group_manual_result_action": "Add Result"
     },
     "zh-Hans": {
       "group_error_registration_closed": "报名已截止。",
@@ -6688,7 +6693,8 @@
       "group_ranking_wins": "胜",
       "group_ranking_losses": "负",
       "group_ranking_draws": "平",
-      "group_error_description_length": "简介不能超过 200 字。"
+      "group_error_description_length": "简介不能超过 200 字。",
+      "group_manual_result_action": "补记赛果"
     },
     "zh-Hant": {
       "group_error_registration_closed": "報名已截止。",
@@ -6720,7 +6726,8 @@
       "group_ranking_wins": "勝",
       "group_ranking_losses": "負",
       "group_ranking_draws": "平",
-      "group_error_description_length": "簡介不能超過 200 字。"
+      "group_error_description_length": "簡介不能超過 200 字。",
+      "group_manual_result_action": "補記賽果"
     },
     "ja": {
       "group_error_registration_closed": "参加受付は終了しました。",
@@ -6884,7 +6891,8 @@
       "group_ranking_wins": "勝利数",
       "group_ranking_losses": "敗戦数",
       "group_ranking_draws": "引き分け数",
-      "group_error_description_length": "グループの説明は200文字以内で入力してください。"
+      "group_error_description_length": "グループの説明は200文字以内で入力してください。",
+      "group_manual_result_action": "試合結果を追加"
     },
     "ko": {
       "group_error_registration_closed": "참가 신청이 마감되었습니다.",
@@ -7048,7 +7056,8 @@
       "group_ranking_wins": "승리 수",
       "group_ranking_losses": "패배 수",
       "group_ranking_draws": "무승부 수",
-      "group_error_description_length": "그룹 소개는 200자 이하여야 합니다."
+      "group_error_description_length": "그룹 소개는 200자 이하여야 합니다.",
+      "group_manual_result_action": "경기 결과 추가"
     },
     "de": {
       "group_error_registration_closed": "Die Anmeldung ist geschlossen.",
@@ -7212,7 +7221,8 @@
       "group_ranking_wins": "Siege",
       "group_ranking_losses": "Niederlagen",
       "group_ranking_draws": "Unentschieden",
-      "group_error_description_length": "Gruppenbeschreibungen dürfen höchstens 200 Zeichen enthalten."
+      "group_error_description_length": "Gruppenbeschreibungen dürfen höchstens 200 Zeichen enthalten.",
+      "group_manual_result_action": "Spielergebnis hinzufügen"
     },
     "fr": {
       "group_error_registration_closed": "Les inscriptions sont closes.",
@@ -7376,7 +7386,8 @@
       "group_ranking_wins": "victoires",
       "group_ranking_losses": "défaites",
       "group_ranking_draws": "matchs nuls",
-      "group_error_description_length": "La description du groupe ne doit pas dépasser 200 caractères."
+      "group_error_description_length": "La description du groupe ne doit pas dépasser 200 caractères.",
+      "group_manual_result_action": "Ajouter un résultat de match"
     },
     "fr-CA": {
       "group_error_registration_closed": "Les inscriptions sont closes.",
@@ -7540,7 +7551,8 @@
       "group_ranking_wins": "victoires",
       "group_ranking_losses": "défaites",
       "group_ranking_draws": "matchs nuls",
-      "group_error_description_length": "La description du groupe ne doit pas dépasser 200 caractères."
+      "group_error_description_length": "La description du groupe ne doit pas dépasser 200 caractères.",
+      "group_manual_result_action": "Ajouter un résultat de match"
     },
     "es-ES": {
       "group_error_registration_closed": "Las inscripciones se han cerrado.",
@@ -7704,7 +7716,8 @@
       "group_ranking_wins": "victorias",
       "group_ranking_losses": "derrotas",
       "group_ranking_draws": "empates",
-      "group_error_description_length": "La descripción del grupo no puede superar los 200 caracteres."
+      "group_error_description_length": "La descripción del grupo no puede superar los 200 caracteres.",
+      "group_manual_result_action": "Añadir resultado de partido"
     },
     "es-MX": {
       "group_error_registration_closed": "Las inscripciones se han cerrado.",
@@ -7868,7 +7881,8 @@
       "group_ranking_wins": "victorias",
       "group_ranking_losses": "derrotas",
       "group_ranking_draws": "empates",
-      "group_error_description_length": "La descripción del grupo no puede superar los 200 caracteres."
+      "group_error_description_length": "La descripción del grupo no puede superar los 200 caracteres.",
+      "group_manual_result_action": "Añadir resultado de partido"
     },
     "it": {
       "group_error_registration_closed": "Le iscrizioni sono chiuse.",
@@ -8032,7 +8046,8 @@
       "group_ranking_wins": "vittorie",
       "group_ranking_losses": "sconfitte",
       "group_ranking_draws": "pareggi",
-      "group_error_description_length": "La descrizione del gruppo non può superare 200 caratteri."
+      "group_error_description_length": "La descrizione del gruppo non può superare 200 caratteri.",
+      "group_manual_result_action": "Aggiungi risultato della partita"
     },
     "pt-BR": {
       "group_error_registration_closed": "As inscrições foram encerradas.",
@@ -8196,7 +8211,8 @@
       "group_ranking_wins": "vitórias",
       "group_ranking_losses": "derrotas",
       "group_ranking_draws": "empates",
-      "group_error_description_length": "A descrição do grupo não pode ultrapassar 200 caracteres."
+      "group_error_description_length": "A descrição do grupo não pode ultrapassar 200 caracteres.",
+      "group_manual_result_action": "Adicionar resultado da partida"
     },
     "pt-PT": {
       "group_error_registration_closed": "As inscrições estão encerradas.",
@@ -8360,7 +8376,8 @@
       "group_ranking_wins": "vitórias",
       "group_ranking_losses": "derrotas",
       "group_ranking_draws": "empates",
-      "group_error_description_length": "A descrição do grupo não pode ultrapassar 200 caracteres."
+      "group_error_description_length": "A descrição do grupo não pode ultrapassar 200 caracteres.",
+      "group_manual_result_action": "Adicionar resultado da jogo"
     },
     "nl": {
       "group_error_registration_closed": "De inschrijving is gesloten.",
@@ -8525,7 +8542,8 @@
       "group_ranking_wins": "overwinningen",
       "group_ranking_losses": "nederlagen",
       "group_ranking_draws": "gelijke spelen",
-      "group_error_description_length": "Groepsbeschrijvingen mogen maximaal 200 tekens bevatten."
+      "group_error_description_length": "Groepsbeschrijvingen mogen maximaal 200 tekens bevatten.",
+      "group_manual_result_action": "Wedstrijdresultaat toevoegen"
     },
     "sv": {
       "group_error_registration_closed": "Anmälan är stängd.",
@@ -8689,7 +8707,8 @@
       "group_ranking_wins": "vinster",
       "group_ranking_losses": "förluster",
       "group_ranking_draws": "oavgjorda",
-      "group_error_description_length": "Gruppbeskrivningar får vara högst 200 tecken."
+      "group_error_description_length": "Gruppbeskrivningar får vara högst 200 tecken.",
+      "group_manual_result_action": "Lägg till matchresultat"
     },
     "da": {
       "group_error_registration_closed": "Tilmeldingen er lukket.",
@@ -8854,7 +8873,8 @@
       "group_ranking_wins": "sejre",
       "group_ranking_losses": "nederlag",
       "group_ranking_draws": "uafgjorte",
-      "group_error_description_length": "Gruppebeskrivelser må højst indeholde 200 tegn."
+      "group_error_description_length": "Gruppebeskrivelser må højst indeholde 200 tegn.",
+      "group_manual_result_action": "Tilføj kampresultat"
     },
     "nb": {
       "group_error_registration_closed": "Påmeldingen er stengt.",
@@ -9018,7 +9038,8 @@
       "group_ranking_wins": "seire",
       "group_ranking_losses": "tap",
       "group_ranking_draws": "uavgjorte",
-      "group_error_description_length": "Gruppebeskrivelser kan ikke være lengre enn 200 tegn."
+      "group_error_description_length": "Gruppebeskrivelser kan ikke være lengre enn 200 tegn.",
+      "group_manual_result_action": "Legg til kampresultat"
     },
     "fi": {
       "group_error_registration_closed": "Ilmoittautuminen on päättynyt.",
@@ -9182,7 +9203,8 @@
       "group_ranking_wins": "voitot",
       "group_ranking_losses": "tappiot",
       "group_ranking_draws": "tasapelit",
-      "group_error_description_length": "Ryhmän kuvauksessa saa olla enintään 200 merkkiä."
+      "group_error_description_length": "Ryhmän kuvauksessa saa olla enintään 200 merkkiä.",
+      "group_manual_result_action": "Lisää ottelutulos"
     },
     "pl": {
       "group_error_registration_closed": "Zapisy zostały zamknięte.",
@@ -9346,7 +9368,8 @@
       "group_ranking_wins": "zwycięstwa",
       "group_ranking_losses": "porażki",
       "group_ranking_draws": "remisy",
-      "group_error_description_length": "Opis grupy nie może przekraczać 200 znaków."
+      "group_error_description_length": "Opis grupy nie może przekraczać 200 znaków.",
+      "group_manual_result_action": "Dodaj wynik meczu"
     },
     "cs": {
       "group_error_registration_closed": "Přihlašování bylo uzavřeno.",
@@ -9510,7 +9533,8 @@
       "group_ranking_wins": "výhry",
       "group_ranking_losses": "prohry",
       "group_ranking_draws": "remízy",
-      "group_error_description_length": "Popis skupiny smí mít nejvýše 200 znaků."
+      "group_error_description_length": "Popis skupiny smí mít nejvýše 200 znaků.",
+      "group_manual_result_action": "Přidat výsledek zápasu"
     },
     "sk": {
       "group_error_registration_closed": "Prihlasovanie bolo uzavreté.",
@@ -9674,7 +9698,8 @@
       "group_ranking_wins": "výhry",
       "group_ranking_losses": "prehry",
       "group_ranking_draws": "remízy",
-      "group_error_description_length": "Opis skupiny môže mať najviac 200 znakov."
+      "group_error_description_length": "Opis skupiny môže mať najviac 200 znakov.",
+      "group_manual_result_action": "Pridať výsledok zápasu"
     },
     "hu": {
       "group_error_registration_closed": "A jelentkezés lezárult.",
@@ -9838,7 +9863,8 @@
       "group_ranking_wins": "győzelmek",
       "group_ranking_losses": "vereségek",
       "group_ranking_draws": "döntetlenek",
-      "group_error_description_length": "A csoportleírás legfeljebb 200 karakter lehet."
+      "group_error_description_length": "A csoportleírás legfeljebb 200 karakter lehet.",
+      "group_manual_result_action": "Mérkőzéseredmény hozzáadása"
     },
     "ro": {
       "group_error_registration_closed": "Înscrierile s-au încheiat.",
@@ -10002,7 +10028,8 @@
       "group_ranking_wins": "victorii",
       "group_ranking_losses": "înfrângeri",
       "group_ranking_draws": "egaluri",
-      "group_error_description_length": "Descrierea grupului nu poate depăși 200 de caractere."
+      "group_error_description_length": "Descrierea grupului nu poate depăși 200 de caractere.",
+      "group_manual_result_action": "Adaugă rezultatul unui meci"
     },
     "hr": {
       "group_error_registration_closed": "Prijave su zatvorene.",
@@ -10166,7 +10193,8 @@
       "group_ranking_wins": "pobjede",
       "group_ranking_losses": "porazi",
       "group_ranking_draws": "neriješene utakmice",
-      "group_error_description_length": "Opis grupe ne smije biti dulji od 200 znakova."
+      "group_error_description_length": "Opis grupe ne smije biti dulji od 200 znakova.",
+      "group_manual_result_action": "Dodaj rezultat meča"
     },
     "sl": {
       "group_error_registration_closed": "Prijave so zaprte.",
@@ -10330,7 +10358,8 @@
       "group_ranking_wins": "zmage",
       "group_ranking_losses": "porazi",
       "group_ranking_draws": "neodločene tekme",
-      "group_error_description_length": "Opis skupine ne sme presegati 200 znakov."
+      "group_error_description_length": "Opis skupine ne sme presegati 200 znakov.",
+      "group_manual_result_action": "Dodaj rezultat dvoboja"
     },
     "el": {
       "group_error_registration_closed": "Οι εγγραφές έκλεισαν.",
@@ -10494,7 +10523,8 @@
       "group_ranking_wins": "νίκες",
       "group_ranking_losses": "ήττες",
       "group_ranking_draws": "ισοπαλίες",
-      "group_error_description_length": "Η περιγραφή της ομάδας δεν πρέπει να ξεπερνά τους 200 χαρακτήρες."
+      "group_error_description_length": "Η περιγραφή της ομάδας δεν πρέπει να ξεπερνά τους 200 χαρακτήρες.",
+      "group_manual_result_action": "Προσθήκη αποτελέσματος αγώνα"
     },
     "tr": {
       "group_error_registration_closed": "Kayıt sona erdi.",
@@ -10658,7 +10688,8 @@
       "group_ranking_wins": "galibiyetler",
       "group_ranking_losses": "mağlubiyetler",
       "group_ranking_draws": "beraberlikler",
-      "group_error_description_length": "Grup açıklamaları 200 karakteri geçmemelidir."
+      "group_error_description_length": "Grup açıklamaları 200 karakteri geçmemelidir.",
+      "group_manual_result_action": "Maç sonucu ekle"
     },
     "ar": {
       "group_error_registration_closed": "أُغلق التسجيل.",
@@ -10822,7 +10853,8 @@
       "group_ranking_wins": "انتصارات",
       "group_ranking_losses": "خسائر",
       "group_ranking_draws": "تعادلات",
-      "group_error_description_length": "يجب ألا يتجاوز وصف المجموعة 200 حرف."
+      "group_error_description_length": "يجب ألا يتجاوز وصف المجموعة 200 حرف.",
+      "group_manual_result_action": "إضافة نتيجة مباراة"
     },
     "he": {
       "group_error_registration_closed": "ההרשמה נסגרה.",
@@ -10986,7 +11018,8 @@
       "group_ranking_wins": "ניצחונות",
       "group_ranking_losses": "הפסדים",
       "group_ranking_draws": "תוצאות תיקו",
-      "group_error_description_length": "תיאור הקבוצה מוגבל ל־200 תווים."
+      "group_error_description_length": "תיאור הקבוצה מוגבל ל־200 תווים.",
+      "group_manual_result_action": "הוספת תוצאת משחק"
     },
     "ur": {
       "group_error_registration_closed": "رجسٹریشن بند ہو گئی ہے۔",
@@ -11152,7 +11185,8 @@
       "group_ranking_wins": "جیت کی تعداد",
       "group_ranking_losses": "ہار کی تعداد",
       "group_ranking_draws": "ڈرا کی تعداد",
-      "group_error_description_length": "گروپ کی تفصیل 200 حروف سے زیادہ نہیں ہو سکتی۔"
+      "group_error_description_length": "گروپ کی تفصیل 200 حروف سے زیادہ نہیں ہو سکتی۔",
+      "group_manual_result_action": "میچ کا نتیجہ شامل کریں"
     },
     "hi": {
       "group_error_registration_closed": "पंजीकरण बंद हो गया है।",
@@ -11316,7 +11350,8 @@
       "group_ranking_wins": "जीत की संख्या",
       "group_ranking_losses": "हार की संख्या",
       "group_ranking_draws": "ड्रॉ की संख्या",
-      "group_error_description_length": "समूह का विवरण 200 अक्षरों से अधिक नहीं हो सकता।"
+      "group_error_description_length": "समूह का विवरण 200 अक्षरों से अधिक नहीं हो सकता।",
+      "group_manual_result_action": "मैच का परिणाम जोड़ें"
     },
     "mr": {
       "group_error_registration_closed": "नोंदणी बंद झाली आहे.",
@@ -11480,7 +11515,8 @@
       "group_ranking_wins": "विजयांची संख्या",
       "group_ranking_losses": "पराभवांची संख्या",
       "group_ranking_draws": "बरोबरीची संख्या",
-      "group_error_description_length": "गटाचे वर्णन 200 अक्षरांपेक्षा मोठे नसावे."
+      "group_error_description_length": "गटाचे वर्णन 200 अक्षरांपेक्षा मोठे नसावे.",
+      "group_manual_result_action": "सामन्याचा निकाल जोडा"
     },
     "ta": {
       "group_error_registration_closed": "பதிவு முடிந்துவிட்டது.",
@@ -11644,7 +11680,8 @@
       "group_ranking_wins": "வெற்றிகளின் எண்ணிக்கை",
       "group_ranking_losses": "தோல்விகளின் எண்ணிக்கை",
       "group_ranking_draws": "சமநிலைகளின் எண்ணிக்கை",
-      "group_error_description_length": "குழு விளக்கம் 200 எழுத்துகளுக்கு மிகாமல் இருக்க வேண்டும்."
+      "group_error_description_length": "குழு விளக்கம் 200 எழுத்துகளுக்கு மிகாமல் இருக்க வேண்டும்.",
+      "group_manual_result_action": "போட்டி முடிவைச் சேர்"
     },
     "te": {
       "group_error_registration_closed": "నమోదు ముగిసింది.",
@@ -11808,7 +11845,8 @@
       "group_ranking_wins": "విజయాల సంఖ్య",
       "group_ranking_losses": "ఓటముల సంఖ్య",
       "group_ranking_draws": "డ్రాల సంఖ్య",
-      "group_error_description_length": "గ్రూపు వివరణ 200 అక్షరాలకు మించకూడదు."
+      "group_error_description_length": "గ్రూపు వివరణ 200 అక్షరాలకు మించకూడదు.",
+      "group_manual_result_action": "మ్యాచ్ ఫలితం జోడించండి"
     },
     "kn": {
       "group_error_registration_closed": "ನೋಂದಣಿ ಮುಗಿದಿದೆ.",
@@ -11972,7 +12010,8 @@
       "group_ranking_wins": "ಗೆಲುವುಗಳ ಸಂಖ್ಯೆ",
       "group_ranking_losses": "ಸೋಲುಗಳ ಸಂಖ್ಯೆ",
       "group_ranking_draws": "ಡ್ರಾಗಳ ಸಂಖ್ಯೆ",
-      "group_error_description_length": "ಗುಂಪಿನ ವಿವರಣೆ 200 ಅಕ್ಷರಗಳನ್ನು ಮೀರಬಾರದು."
+      "group_error_description_length": "ಗುಂಪಿನ ವಿವರಣೆ 200 ಅಕ್ಷರಗಳನ್ನು ಮೀರಬಾರದು.",
+      "group_manual_result_action": "ಪಂದ್ಯದ ಫಲಿತಾಂಶ ಸೇರಿಸಿ"
     },
     "ml": {
       "group_error_registration_closed": "രജിസ്ട്രേഷൻ അവസാനിച്ചു.",
@@ -12136,7 +12175,8 @@
       "group_ranking_wins": "ജയങ്ങളുടെ എണ്ണം",
       "group_ranking_losses": "തോൽവികളുടെ എണ്ണം",
       "group_ranking_draws": "സമനിലകളുടെ എണ്ണം",
-      "group_error_description_length": "ഗ്രൂപ്പ് വിവരണം 200 അക്ഷരങ്ങളിൽ കൂടരുത്."
+      "group_error_description_length": "ഗ്രൂപ്പ് വിവരണം 200 അക്ഷരങ്ങളിൽ കൂടരുത്.",
+      "group_manual_result_action": "മത്സരഫലം ചേർക്കുക"
     },
     "id": {
       "group_error_registration_closed": "Pendaftaran telah ditutup.",
@@ -12300,7 +12340,8 @@
       "group_copy_activity_single_match_hint": "Setiap aktivitas adalah satu pertandingan. Pilih 2 anggota terdaftar untuk tunggal atau 4 untuk ganda.",
       "group_ranking_losses": "Jumlah kekalahan",
       "group_ranking_draws": "Jumlah seri",
-      "group_error_description_length": "Deskripsi grup tidak boleh melebihi 200 karakter."
+      "group_error_description_length": "Deskripsi grup tidak boleh melebihi 200 karakter.",
+      "group_manual_result_action": "Tambahkan hasil pertandingan"
     },
     "ms": {
       "group_error_registration_closed": "Pendaftaran telah ditutup.",
@@ -12466,7 +12507,8 @@
       "group_ranking_wins": "Bilangan kemenangan",
       "group_ranking_losses": "Bilangan kekalahan",
       "group_ranking_draws": "Bilangan seri",
-      "group_error_description_length": "Penerangan kumpulan tidak boleh melebihi 200 aksara."
+      "group_error_description_length": "Penerangan kumpulan tidak boleh melebihi 200 aksara.",
+      "group_manual_result_action": "Tambah keputusan perlawanan"
     },
     "vi": {
       "group_error_registration_closed": "Đã hết hạn đăng ký.",
@@ -12630,7 +12672,8 @@
       "group_ranking_wins": "Số trận thắng",
       "group_ranking_losses": "Số trận thua",
       "group_ranking_draws": "Số trận hòa",
-      "group_error_description_length": "Mô tả nhóm không được vượt quá 200 ký tự."
+      "group_error_description_length": "Mô tả nhóm không được vượt quá 200 ký tự.",
+      "group_manual_result_action": "Thêm kết quả trận đấu"
     },
     "th": {
       "group_error_registration_closed": "ปิดรับสมัครแล้ว",
@@ -12795,7 +12838,8 @@
       "group_ranking_wins": "จำนวนชนะ",
       "group_ranking_losses": "จำนวนแพ้",
       "group_ranking_draws": "จำนวนเสมอ",
-      "group_error_description_length": "คำอธิบายกลุ่มต้องไม่เกิน 200 อักขระ"
+      "group_error_description_length": "คำอธิบายกลุ่มต้องไม่เกิน 200 อักขระ",
+      "group_manual_result_action": "เพิ่มผลการแข่งขัน"
     },
     "ru": {
       "group_error_registration_closed": "Запись закрыта.",
@@ -12959,7 +13003,8 @@
       "group_ranking_wins": "победы",
       "group_ranking_losses": "поражения",
       "group_ranking_draws": "ничьи",
-      "group_error_description_length": "Описание группы не должно превышать 200 символов."
+      "group_error_description_length": "Описание группы не должно превышать 200 символов.",
+      "group_manual_result_action": "Добавить результат матча"
     },
     "uk": {
       "group_error_registration_closed": "Запис закрито.",
@@ -13123,7 +13168,8 @@
       "group_ranking_wins": "перемоги",
       "group_ranking_losses": "поразки",
       "group_ranking_draws": "нічиї",
-      "group_error_description_length": "Опис групи не має перевищувати 200 символів."
+      "group_error_description_length": "Опис групи не має перевищувати 200 символів.",
+      "group_manual_result_action": "Додати результат матчу"
     },
     "ca": {
       "group_error_registration_closed": "Les inscripcions s’han tancat.",
@@ -13287,7 +13333,8 @@
       "group_ranking_wins": "victòries",
       "group_ranking_losses": "derrotes",
       "group_ranking_draws": "empats",
-      "group_error_description_length": "La descripció del grup no pot superar els 200 caràcters."
+      "group_error_description_length": "La descripció del grup no pot superar els 200 caràcters.",
+      "group_manual_result_action": "Afegeix un resultat"
     }
   },
   "shared_terms": {
@@ -14144,7 +14191,85 @@
       "group_copy_lineup_reload_message": "Να απορριφθούν οι μη αποθηκευμένες αλλαγές στο πρόγραμμα αγώνων και να φορτωθεί το πιο πρόσφατο αποθηκευμένο πρόγραμμα;",
       "group_copy_void_action": "Ακύρωση αποτελέσματος"
     },
-    "en": {},
+    "en": {
+      "group_copy_transfer_title": "Transfer Ownership",
+      "group_copy_rename_title": "Edit Member Name",
+      "group_copy_result_confirm": "Confirm Result",
+      "group_copy_cancel_activity": "Cancel Activity",
+      "group_copy_abandon_action": "Abandon Match",
+      "group_copy_leave_action": "Leave Group",
+      "group_copy_dissolve_action": "Dissolve Group",
+      "group_copy_report_detail": "Details (Optional)",
+      "group_copy_edit_profile": "Edit Info",
+      "group_copy_entry_a_wins": "A Wins",
+      "group_copy_entry_b_wins": "B Wins",
+      "group_copy_activity_timing_sequence": "No Exact Time",
+      "group_copy_activity_registration_manage": "Temporary Member Registration",
+      "group_copy_report": "Report Group",
+      "group_copy_activity_direct_save": "Save Schedule",
+      "group_copy_all_formats": "All Formats",
+      "group_copy_audit_ui_share_number": "Share Group Number",
+      "group_copy_create": "Create Group",
+      "group_copy_join": "Join Group",
+      "group_copy_join_policy": "Joining Options",
+      "group_copy_activity_section_past": "Past Activities",
+      "group_copy_beta_feedback_action": "Send Feedback",
+      "group_copy_create_activity": "Create Activity",
+      "group_copy_note": "Note (Optional)",
+      "group_copy_activity_lineup_section_matches": "Match Schedule",
+      "group_copy_group_qr": "Group QR Code",
+      "group_copy_created": "Group Created",
+      "group_copy_archived_list_title": "Archived Groups",
+      "group_copy_removed_members": "Former Members",
+      "group_copy_mark_seen": "Mark as Read",
+      "group_copy_start_score": "Start Scoring",
+      "group_copy_pending_confirmation": "Awaiting Confirmation",
+      "group_copy_member_results_title": "Member Results",
+      "group_copy_my_groups": "My Groups",
+      "group_copy_activity_my_registration": "My Registration",
+      "group_copy_register": "Sign Up",
+      "group_copy_registration_closes": "Registration Deadline",
+      "group_copy_submitted_by": "Submitted By",
+      "group_copy_cancel_dissolve": "Cancel Dissolution",
+      "group_copy_latest_results": "Latest Results",
+      "group_copy_month_matches": "This Month",
+      "group_copy_open_group": "Open Group",
+      "group_copy_regular_members": "Registered Members",
+      "group_copy_rally_scoring": "Rally Scoring",
+      "group_copy_result_information": "Match Information",
+      "group_copy_match_score": "Match Score",
+      "group_copy_match_rules": "Match Rules",
+      "group_copy_activity_title": "Activity Name",
+      "group_copy_activity_field_title_optional": "Activity Name (Optional)",
+      "group_copy_activity_lineup": "Arrange Matches",
+      "group_copy_add_set": "Add Game",
+      "group_copy_add_temporary": "Add Temporary Member",
+      "group_copy_request_join": "Apply to Join",
+      "group_copy_join_message": "Join Request Message (Optional)",
+      "group_copy_open": "Join Directly",
+      "group_copy_activity_direct_title": "Arrange Now",
+      "group_copy_complete_activity": "End Activity",
+      "group_copy_keep_draft": "Continue Editing Local Version",
+      "group_copy_ranking_rate": "Win Rate",
+      "group_copy_report_inappropriate": "Sexual or Inappropriate Content",
+      "group_copy_manual_result": "Add Match Result",
+      "group_copy_set_admin": "Make Admin",
+      "group_copy_activity_timing_estimated": "Estimated Time",
+      "group_copy_result_actions": "Result Actions",
+      "group_copy_report_illegal": "Illegal or Dangerous Activities",
+      "group_copy_overdue_tasks": "Overdue Tasks",
+      "group_copy_invite": "Invite Teammates",
+      "group_copy_approval": "Approval Required",
+      "group_copy_places_title": "Choose Saved Location",
+      "common_places_select": "Choose saved location",
+      "group_copy_report_fraud": "Fraud or Gambling",
+      "group_copy_void_reason": "Reason for Voiding",
+      "group_copy_reload_version": "Load Latest Version",
+      "group_copy_activity_detail": "Activity Details",
+      "group_copy_registration_use_start": "Use Activity Start Time",
+      "group_copy_cancel_reason_optional": "Reason for Cancellation (Optional)",
+      "group_copy_audit_result_frozen_info": "View Players and Rules"
+    },
     "es-ES": {
       "group_copy_reload_version": "Recargar",
       "group_copy_lineup_reload_message": "¿Descartar los cambios sin guardar en la organización de los partidos y cargar el último calendario guardado?"
@@ -14313,7 +14438,7 @@
     "group_add_temporary": "Add Temporary Member",
     "group_admin": "Admin",
     "group_album": "Choose Photo",
-    "group_approval": "Approval required",
+    "group_approval": "Approval Required",
     "group_approve": "Approve",
     "group_archive": "Archive",
     "group_archive_hint": "Archive this group? Its content will be read-only.",
@@ -14327,17 +14452,17 @@
     "group_camera_hint": "Allow camera access in Settings, or choose a photo.",
     "group_camera_unavailable": "Camera unavailable",
     "group_cancel_activity": "Cancel Activity",
-    "group_cancel_reason": "Reason for cancelling",
+    "group_cancel_reason": "Reason for Cancelling",
     "group_cancelled": "Cancelled",
     "group_capacity": "Capacity",
-    "group_choose_member": "Choose a member",
+    "group_choose_member": "Choose a Member",
     "group_close": "Close",
     "group_closed": "Closed",
     "group_completed": "Completed",
     "group_confirm_join": "Join",
     "group_confirm_result": "Confirm Result",
     "group_confirmed": "Confirmed",
-    "group_confirmed_by": "Confirmed by",
+    "group_confirmed_by": "Confirmed By",
     "group_confirmed_matches": "Confirmed",
     "group_copy_number": "Copy group number",
     "group_create": "Create Group",
@@ -14361,10 +14486,10 @@
     "group_invalid_qr": "This is not a valid group QR code.",
     "group_invalid_result": "The recorded result needs review before upload.",
     "group_invalid_rules": "Please check the match rules.",
-    "group_invite": "Invite teammates",
+    "group_invite": "Invite Teammates",
     "group_join": "Join Group",
     "group_join_hint": "Join a friend's group using its number or QR code.",
-    "group_join_message": "Join request message (optional)",
+    "group_join_message": "Join Request Message (Optional)",
     "group_join_policy": "Joining Options",
     "group_leave": "Leave Group",
     "group_leave_hint": "After leaving, you will no longer be a member, and this group will be removed from “My groups”. You will no longer be able to access or participate in it. Existing group match records and personal records on this device will be kept. You must rejoin to access the group again.",
@@ -14379,12 +14504,12 @@
     "group_member": "Members",
     "group_member_name": "Member Name",
     "group_members": "Members",
-    "group_month_matches": "This month",
+    "group_month_matches": "This Month",
     "group_my_groups": "My Groups",
     "group_name": "Group Name",
     "group_need_login": "Please sign in to continue.",
     "group_need_members": "Invite friends or add temporary members before starting a match.",
-    "group_new_activity": "Create activity",
+    "group_new_activity": "Create Activity",
     "group_new_owner": "New owner",
     "group_no_activities": "No activities yet",
     "group_no_description": "No description yet",
@@ -14392,7 +14517,7 @@
     "group_no_set_details": "Only the overall result was recorded.",
     "group_note": "Note (Optional)",
     "group_number": "6–8 Digit Group Number",
-    "group_open": "Join directly",
+    "group_open": "Join Directly",
     "group_overall_score": "Overall Set Score",
     "group_overview": "Overview",
     "group_owner": "Owner",
@@ -14401,7 +14526,7 @@
     "group_pending_confirmation": "Awaiting Confirmation",
     "group_pending_upload": "Pending upload",
     "group_place": "Place",
-    "group_play_all": "Play all sets",
+    "group_play_all": "Play All Sets",
     "group_played_at": "Played At",
     "group_preview": "Preview group",
     "group_profile": "Group profile",
@@ -14410,7 +14535,7 @@
     "group_recruiting": "Registration open",
     "group_refresh": "Refresh",
     "group_register": "Sign Up",
-    "group_registered_members": "Registered members",
+    "group_registered_members": "Registered Members",
     "group_reject": "Reject",
     "group_remove_member": "Remove",
     "group_restore": "Restore",
@@ -14432,8 +14557,8 @@
     "group_start_score": "Start Scoring",
     "group_starts_at": "Start Time",
     "group_stats": "Group statistics",
-    "group_submit_result": "Submit result",
-    "group_submitted_by": "Submitted by",
+    "group_submit_result": "Submit Result",
+    "group_submitted_by": "Submitted By",
     "group_sync": "Sync Now",
     "group_temporary": "Temporary member",
     "group_transfer": "Transfer Ownership",
@@ -14442,7 +14567,7 @@
     "group_lookup_not_found": "Group not found, check the number.",
     "group_unfinished_match": "Resume or finish your existing match before starting another.",
     "group_unregister": "Cancel Registration",
-    "group_void_reason": "Reason for voiding",
+    "group_void_reason": "Reason for Voiding",
     "group_void_result": "Void",
     "group_voided": "Voided",
     "group_wins": "W",
@@ -14451,7 +14576,7 @@
     "group_already_member": "You are already a member.",
     "group_open_group": "Open Group",
     "group_groups": "Group",
-    "group_invite_students": "Invite students",
+    "group_invite_students": "Invite Students",
     "group_group_type": "Group type",
     "group_peer": "Friends group",
     "group_coaching": "Coaching group",
@@ -14461,7 +14586,7 @@
     "group_no_results": "No matches recorded yet",
     "group_no_training": "No training scheduled yet",
     "group_active_activities": "Active & recruiting",
-    "group_past_activities": "Past activities",
+    "group_past_activities": "Past Activities",
     "group_all_formats": "All Formats",
     "group_join_requests": "Join Requests",
     "group_regular_members": "Registered Members",
@@ -14478,20 +14603,20 @@
     "group_edit_schedule": "Edit Schedule",
     "group_cancel_schedule": "Cancel Schedule",
     "group_leave_training": "Request Absence",
-    "group_session_minutes": "Minutes per match",
+    "group_session_minutes": "Minutes per Match",
     "group_court": "Court",
     "group_remove_session": "Remove",
-    "group_publish_schedule": "Publish schedule",
-    "group_leave_reason": "Optional absence note",
+    "group_publish_schedule": "Publish Schedule",
+    "group_leave_reason": "Optional Absence Note",
     "group_report": "Report Group",
     "group_report_reason": "Reason",
     "group_report_detail": "Details (Optional)",
     "group_report_submit": "Submit",
     "group_report_spam": "Spam",
     "group_report_harassment": "Harassment",
-    "group_report_inappropriate": "Sexual or inappropriate content",
-    "group_report_fraud": "Fraud or gambling",
-    "group_report_illegal": "Illegal or dangerous activities",
+    "group_report_inappropriate": "Sexual or Inappropriate Content",
+    "group_report_fraud": "Fraud or Gambling",
+    "group_report_illegal": "Illegal or Dangerous Activities",
     "group_report_impersonation": "Impersonation",
     "group_report_other": "Other",
     "group_lineup_invalid": "Check the match times, courts and participants.",
@@ -14523,8 +14648,8 @@
     "group_activity_time_after_previous": "After the previous match",
     "group_activity_time_unspecified": "Time to be decided",
     "group_activity_timing": "Timing",
-    "group_activity_timing_estimated": "Estimated time",
-    "group_activity_timing_sequence": "No exact time",
+    "group_activity_timing_estimated": "Estimated Time",
+    "group_activity_timing_sequence": "No Exact Time",
     "group_activity_title_auto_hint": "If left blank, a name such as “November 10 activity” will be generated from the date.",
     "group_archived_empty": "No archived groups",
     "group_archived_list_title": "Archived Groups",
@@ -14534,7 +14659,7 @@
     "group_ranking_games": "GP",
     "group_ranking_losses": "L",
     "group_ranking_sets": "Score",
-    "group_ranking_title": "%@ leaderboard",
+    "group_ranking_title": "%@ Leaderboard",
     "group_ranking_wins": "W",
     "group_rate_limited": "Too many requests. Please try again later.",
     "group_create_daily_limit": "You've reached the 24-hour limit for creating groups. Try again later.",
@@ -14553,7 +14678,7 @@
     "group_activity_reminder": "Remind Me 15 Minutes Before",
     "group_add_set": "Add Game",
     "group_added_members": "Added",
-    "group_authority_confirm": "Confirm result",
+    "group_authority_confirm": "Confirm Result",
     "group_batch_names_hint": "One name per line",
     "group_beta_notice": "Groups is still being tested, so some parts may change. Thanks for trying it early.",
     "group_cancel_dissolve": "Cancel Dissolution",
@@ -14580,7 +14705,7 @@
     "group_invalid_member_name": "Names must contain 1–24 characters.",
     "group_max_sets": "Sets / Frames",
     "group_moderation_pending": "Awaiting review",
-    "group_multi_matches": "Multiple matches",
+    "group_multi_matches": "Multiple Matches",
     "group_no_ad": "No-Ad",
     "group_no_notices": "No notifications yet",
     "group_no_sessions": "No matches arranged yet",
@@ -14592,7 +14717,7 @@
     "group_qr_direct_hint": "Scan in iScoreboard to preview and join.",
     "group_quick_score": "Overall set score",
     "group_rally_scoring": "Rally Scoring",
-    "group_read_notices": "Read",
+    "group_read_notices": "Mark as Read",
     "group_registration_closes": "Registration Deadline",
     "group_regular": "Standard",
     "group_reload_version": "Load Latest Version",
@@ -14601,20 +14726,20 @@
     "group_reminder_too_late": "This activity starts in less than 15 minutes.",
     "group_removed_members": "Former Members",
     "group_repair_upload": "Correct Result",
-    "group_report_status": "Your report",
+    "group_report_status": "Your Report",
     "group_resume_score": "Continue This Device’s Match",
     "group_search_members": "Search names",
     "group_session_changed": "Account changed. Open the form again.",
     "group_shift_following": "Shift This and Following Matches",
-    "group_single_match": "One match",
+    "group_single_match": "One Match",
     "group_target_points": "Target Score",
     "group_tennis_scoring": "Set Scoring",
     "group_tie_break": "Tiebreak Points",
-    "group_tiebreak_only": "Tie-break only",
+    "group_tiebreak_only": "Tie-Break Only",
     "group_too_many_sessions": "Check the match times, courts and participants.",
     "group_training_date": "Training Date",
     "group_win_by_two": "Win by Two",
-    "group_keep_draft": "Continue editing local version",
+    "group_keep_draft": "Continue Editing Local Version",
     "group_server_version": "Latest version",
     "group_banner_dissolving": "Group will be dissolved on %@\n7-day cooling-off period; read-only until then",
     "group_notice_end": "No more notifications",
@@ -14637,8 +14762,8 @@
     "group_filter_doubles": "Doubles",
     "group_ranking_me_suffix": " (me)",
     "group_ranking_insufficient_matches": "Too few matches",
-    "group_entry_a_wins": "A wins",
-    "group_entry_b_wins": "B wins",
+    "group_entry_a_wins": "A Wins",
+    "group_entry_b_wins": "B Wins",
     "group_result_draw": "Draw",
     "group_share_no": "Group No. %@",
     "group_audit_ui_share_invitation": "Share Invitation",
@@ -14649,13 +14774,13 @@
     "group_qr_join_short": "Scan to join",
     "group_qr_apply_short": "Scan to request to join",
     "group_update_report": "Update report",
-    "group_ranking_rate": "Win rate",
+    "group_ranking_rate": "Win Rate",
     "group_invitation_intro_ball": "Join our %@ group to play and keep score together!",
     "group_share_message": "%@\n\nGroup: %@\nGroup No.: %@\n\nJoin group: %@\n\nDownload iScoreboard and enter the group number to join:\n%@",
     "group_entry_set_winners": "Game winners",
     "group_activity_lineup_incomplete": "Select all players for this match",
     "group_activity_lineup_duplicate": "Each player can appear only once in this match",
-    "group_entry_manual": "Manual entry",
+    "group_entry_manual": "Manual Entry",
     "group_notice_mark_all": "Mark All Read",
     "group_status_active": "Active",
     "group_dissolved": "Dissolved",
@@ -14691,11 +14816,11 @@
     "group_welcome_back": "Welcome back",
     "group_transfer_none": "There are no other full members. Temporary members cannot become the leader.",
     "group_empty_activities_hint": "Create an activity for members to join. Sign-up closes when full.",
-    "group_temp_import_names": "Import saved names",
+    "group_temp_import_names": "Import Saved Names",
     "group_temp_import_count": "Import (%1$d)",
     "group_notice_target_unavailable": "This content is unavailable or you no longer have access.",
     "group_result_information": "Match Information",
-    "group_result_actions": "Result actions",
+    "group_result_actions": "Result Actions",
     "group_peer_confirmation": "Opponent confirmation",
     "group_push_settings": "Notification Settings",
     "group_push_enabled": "Group Notifications",
@@ -14707,7 +14832,7 @@
     "group_activity_registration_scope": "Register temporary members on their behalf. Regular members register themselves.",
     "group_activity_registration_no_changes": "No unsaved changes",
     "group_activity_registration_changes": "Add %1$d · Cancel %2$d",
-    "group_activity_registration_save": "Save registrations (%1$d)",
+    "group_activity_registration_save": "Save Registrations (%1$d)",
     "group_activity_registration_manage": "Temporary Member Registration",
     "group_activity_registration_pending_add": "Pending registration",
     "group_activity_registration_pending_remove": "Pending cancellation",
@@ -14729,14 +14854,14 @@
     "group_lookup_unavailable_short": "Unavailable",
     "group_join_scan_hint": "Scan a group QR code",
     "group_join_number_hint": "6–8 digits. Ask the group owner.",
-    "group_request_join": "Apply to join",
+    "group_request_join": "Apply to Join",
     "group_member_count_single": "%d member",
     "group_member_count_short": "%d members",
     "group_overdue_tasks": "Overdue Tasks",
     "group_beta_badge": "Beta",
     "group_beta_supported_label": "Available now",
     "group_beta_feedback_prompt": "Found a problem or have an idea?",
-    "group_beta_feedback_action": "Send feedback",
+    "group_beta_feedback_action": "Send Feedback",
     "group_member_results_title": "Member Results",
     "group_removed_members_expand": "Expand",
     "group_removed_members_collapse": "Collapse",
@@ -14789,9 +14914,9 @@
     "group_copy_remove_message": "Remove %@? They will need to request to join again.",
     "group_copy_report_detail": "Details (Optional)",
     "group_copy_edit_profile": "Edit Info",
-    "group_copy_entry_a_wins": "A wins",
-    "group_copy_entry_b_wins": "B wins",
-    "group_copy_activity_timing_sequence": "No exact time",
+    "group_copy_entry_a_wins": "A Wins",
+    "group_copy_entry_b_wins": "B Wins",
+    "group_copy_activity_timing_sequence": "No Exact Time",
     "group_copy_activity_registration_manage": "Temporary Member Registration",
     "group_copy_temporary_hint": "Temporary members need no account and can be added when entering results.",
     "group_copy_activity_registration_scope": "Register temporary members on their behalf. Regular members register themselves.",
@@ -14814,7 +14939,7 @@
     "group_copy_filter_singles": "Singles",
     "group_copy_upcoming": "Upcoming",
     "group_copy_activity_section_past": "Past Activities",
-    "group_copy_beta_feedback_action": "Send feedback",
+    "group_copy_beta_feedback_action": "Send Feedback",
     "group_copy_doubles": "Doubles",
     "group_copy_create_activity": "Create Activity",
     "group_copy_benefit_activity": "Plan activities and sign up",
@@ -14872,7 +14997,7 @@
     "group_copy_registration_closes": "Registration Deadline",
     "group_copy_activity_time_after_previous": "After the previous match",
     "group_copy_report_submit": "Submit",
-    "group_copy_submitted_by": "Submitted by",
+    "group_copy_submitted_by": "Submitted By",
     "group_copy_cancel_dissolve": "Cancel Dissolution",
     "group_copy_notice_join_requested": "Join request received",
     "group_copy_removed_members_collapse": "Collapse",
@@ -14886,7 +15011,7 @@
     "group_copy_latest_results": "Latest Results",
     "group_copy_disputed": "Disputed",
     "group_copy_activity_registration_not_registered": "Not registered",
-    "group_copy_month_matches": "This month",
+    "group_copy_month_matches": "This Month",
     "group_copy_open_group": "Open Group",
     "group_copy_benefit_history": "Explore matches and rankings",
     "group_copy_overview": "Overview",
@@ -14908,44 +15033,44 @@
     "group_copy_add_set": "Add Game",
     "group_copy_add_temporary": "Add Temporary Member",
     "group_copy_benefit_score": "Keep score or add past results",
-    "group_copy_request_join": "Apply to join",
-    "group_copy_join_message": "Join request message (optional)",
+    "group_copy_request_join": "Apply to Join",
+    "group_copy_join_message": "Join Request Message (Optional)",
     "group_copy_beta_supported_label": "Available now",
-    "group_copy_open": "Join directly",
+    "group_copy_open": "Join Directly",
     "group_copy_activity_direct_title": "Arrange Now",
     "group_copy_admin": "Admin",
     "group_copy_confirmed_matches": "Confirmed",
     "group_copy_leader": "Owner",
     "group_copy_notice_ownership_transferred": "Group owner changed",
     "group_copy_complete_activity": "End Activity",
-    "group_copy_keep_draft": "Continue editing local version",
+    "group_copy_keep_draft": "Continue Editing Local Version",
     "group_copy_ranking_wins": "W",
-    "group_copy_ranking_rate": "Win rate",
-    "group_copy_report_inappropriate": "Sexual or inappropriate content",
+    "group_copy_ranking_rate": "Win Rate",
+    "group_copy_report_inappropriate": "Sexual or Inappropriate Content",
     "group_copy_update_report": "Update report",
     "group_copy_manual_result": "Add Match Result",
     "group_copy_set_admin": "Make Admin",
-    "group_copy_activity_timing_estimated": "Estimated time",
+    "group_copy_activity_timing_estimated": "Estimated Time",
     "group_copy_losses": "L",
     "group_copy_notice_result_voided": "Result voided",
     "group_copy_notice_result_confirmed": "Result confirmed",
     "group_copy_notice_result_pending": "Result awaiting confirmation",
-    "group_copy_result_actions": "Result actions",
+    "group_copy_result_actions": "Result Actions",
     "group_copy_empty_title": "No groups yet",
     "group_copy_in_progress": "In progress",
-    "group_copy_report_illegal": "Illegal or dangerous activities",
+    "group_copy_report_illegal": "Illegal or Dangerous Activities",
     "group_copy_join_hint": "Join a friend's group using its number or QR code.",
     "group_copy_overdue_tasks": "Overdue Tasks",
     "group_copy_beta_feedback_prompt": "Found a problem or have an idea?",
-    "group_copy_invite": "Invite teammates",
+    "group_copy_invite": "Invite Teammates",
     "group_copy_retry": "Retry",
-    "group_copy_approval": "Approval required",
+    "group_copy_approval": "Approval Required",
     "group_copy_sport": "Sport",
     "group_copy_report_harassment": "Harassment",
     "group_copy_ranking_me_suffix": " (me)",
-    "group_copy_places_title": "Choose saved location",
-    "group_copy_report_fraud": "Fraud or gambling",
-    "group_copy_void_reason": "Reason for voiding",
+    "group_copy_places_title": "Choose Saved Location",
+    "group_copy_report_fraud": "Fraud or Gambling",
+    "group_copy_void_reason": "Reason for Voiding",
     "group_copy_reload_version": "Load Latest Version",
     "group_copy_lineup_reload_message": "Discard unsaved match arrangements and load the latest version?",
     "group_copy_join_number_separator": "Or enter a group number",
@@ -14953,10 +15078,10 @@
     "group_copy_activity_single_match_hint": "Each activity is one match. Select 2 registered members for singles or 4 for doubles.",
     "group_copy_activity_detail": "Activity Details",
     "group_copy_registration_at_start": "At activity start",
-    "group_copy_registration_use_start": "Use activity start time",
-    "group_copy_cancel_reason_optional": "Reason for cancellation (optional)",
+    "group_copy_registration_use_start": "Use Activity Start Time",
+    "group_copy_cancel_reason_optional": "Reason for Cancellation (Optional)",
     "group_copy_audit_result_frozen_info": "View Players and Rules",
-    "group_view_schedule": "View matches",
+    "group_view_schedule": "View Matches",
     "group_notice_training_published": "Training published",
     "group_notice_training_changed": "Training updated",
     "group_notice_training_cancelled": "Training cancelled",
@@ -14970,6 +15095,7 @@
     "group_report_close": "Close",
     "group_report_remove_image": "Remove Image",
     "group_report_image_error": "Unable to prepare the image. Try another JPG or PNG image.",
-    "group_report_refresh": "Refresh Status"
+    "group_report_refresh": "Refresh Status",
+    "group_manual_result_action": "Add Result"
   }
 }

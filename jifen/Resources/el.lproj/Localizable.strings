@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Αφαίρεση εικόνας";
 "group_report_image_error" = "Δεν ήταν δυνατή η προετοιμασία της εικόνας. Δοκιμάστε άλλη εικόνα JPG ή PNG.";
 "group_report_refresh" = "Ανανέωση κατάστασης";
+"group_manual_result_action" = "Προσθήκη αποτελέσματος αγώνα";
+
+/* Media volume reminder */
+"media_volume_hint" = "Ο ήχος χρησιμοποιεί την ένταση πολυμέσων. Ρυθμίστε την με τα κουμπιά έντασης.";

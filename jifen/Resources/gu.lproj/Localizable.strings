@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "છબી દૂર કરો";
 "group_report_image_error" = "છબી તૈયાર કરી શકાઈ નથી. બીજી JPG અથવા PNG છબી સાથે પ્રયાસ કરો.";
 "group_report_refresh" = "સ્થિતિ તાજી કરો";
+"group_manual_result_action" = "મેચનું પરિણામ ઉમેરો";
+
+/* Media volume reminder */
+"media_volume_hint" = "અવાજ માટે મીડિયાના વૉલ્યૂમનો ઉપયોગ થાય છે. વૉલ્યૂમ બટનોથી તેને સમાયોજિત કરો.";

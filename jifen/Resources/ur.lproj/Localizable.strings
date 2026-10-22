@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "تصویر ہٹائیں";
 "group_report_image_error" = "تصویر تیار نہیں ہو سکی۔ کوئی دوسری JPG یا PNG تصویر آزمائیں۔";
 "group_report_refresh" = "حیثیت تازہ کریں";
+"group_manual_result_action" = "میچ کا نتیجہ شامل کریں";
+
+/* Media volume reminder */
+"media_volume_hint" = "آواز کے لیے میڈیا والیوم استعمال ہوتا ہے۔ اسے والیوم کے بٹنوں سے ایڈجسٹ کریں۔";

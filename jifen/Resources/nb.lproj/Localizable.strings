@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Fjern bilde";
 "group_report_image_error" = "Bildet kunne ikke klargjøres. Prøv et annet JPG- eller PNG-bilde.";
 "group_report_refresh" = "Oppdater status";
+"group_manual_result_action" = "Legg til kampresultat";
+
+/* Media volume reminder */
+"media_volume_hint" = "Lyden bruker medievolumet. Juster det med volumknappene.";

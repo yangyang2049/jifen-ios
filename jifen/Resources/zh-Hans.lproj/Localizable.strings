@@ -876,7 +876,7 @@
 "scoreboard_show_controls" = "显示计分板控制按钮";
 "apply" = "应用";
 "scoreboard_billiards" = "台球";
-"scoreboard_other" = "其他计分";
+"scoreboard_other" = "其他";
 "game_three_basketball" = "三人篮球";
 "game_beach_volleyball" = "沙滩排球";
 "game_air_volleyball" = "气排球";
@@ -2483,3 +2483,7 @@
 "group_report_remove_image" = "移除图片";
 "group_report_image_error" = "图片处理失败，请更换 JPG 或 PNG 图片重试。";
 "group_report_refresh" = "刷新进度";
+"group_manual_result_action" = "补记赛果";
+
+/* Media volume reminder */
+"media_volume_hint" = "声音使用媒体音量，请按音量键调节。";

@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "छवि हटाएँ";
 "group_report_image_error" = "छवि तैयार नहीं हो सकी। किसी दूसरी JPG या PNG छवि के साथ प्रयास करें।";
 "group_report_refresh" = "स्थिति ताज़ा करें";
+"group_manual_result_action" = "मैच का परिणाम जोड़ें";
+
+/* Media volume reminder */
+"media_volume_hint" = "ध्वनि के लिए मीडिया वॉल्यूम का उपयोग होता है। इसे वॉल्यूम बटन से समायोजित करें।";

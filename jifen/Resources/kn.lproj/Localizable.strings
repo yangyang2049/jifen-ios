@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "ಚಿತ್ರ ತೆಗೆದುಹಾಕಿ";
 "group_report_image_error" = "ಚಿತ್ರವನ್ನು ಸಿದ್ಧಪಡಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ಬೇರೆ JPG ಅಥವಾ PNG ಚಿತ್ರವನ್ನು ಬಳಸಿ ಪ್ರಯತ್ನಿಸಿ.";
 "group_report_refresh" = "ಸ್ಥಿತಿ ನವೀಕರಿಸಿ";
+"group_manual_result_action" = "ಪಂದ್ಯದ ಫಲಿತಾಂಶ ಸೇರಿಸಿ";
+
+/* Media volume reminder */
+"media_volume_hint" = "ಧ್ವನಿಗೆ ಮಾಧ್ಯಮದ ವಾಲ್ಯೂಮ್ ಬಳಸಲಾಗುತ್ತದೆ. ವಾಲ್ಯೂಮ್ ಬಟನ್‌ಗಳ ಮೂಲಕ ಹೊಂದಿಸಿ.";

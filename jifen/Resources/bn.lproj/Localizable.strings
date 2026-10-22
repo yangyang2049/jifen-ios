@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "ছবি সরান";
 "group_report_image_error" = "ছবিটি প্রস্তুত করা যায়নি। অন্য একটি JPG বা PNG ছবি দিয়ে চেষ্টা করুন।";
 "group_report_refresh" = "অবস্থা হালনাগাদ করুন";
+"group_manual_result_action" = "ম্যাচের ফল যোগ করুন";
+
+/* Media volume reminder */
+"media_volume_hint" = "শব্দের জন্য মিডিয়ার ভলিউম ব্যবহার করা হয়। ভলিউম বোতাম দিয়ে তা ঠিক করুন।";

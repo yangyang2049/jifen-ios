@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Elimină imaginea";
 "group_report_image_error" = "Imaginea nu a putut fi pregătită. Încercați o altă imagine JPG sau PNG.";
 "group_report_refresh" = "Actualizează starea";
+"group_manual_result_action" = "Adaugă rezultatul unui meci";
+
+/* Media volume reminder */
+"media_volume_hint" = "Sunetul folosește volumul media. Reglează-l cu butoanele de volum.";

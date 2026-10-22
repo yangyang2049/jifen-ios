@@ -124,10 +124,27 @@ python3 scripts/localization/group_copy_20261017.py --check
 python3 -m unittest discover -s scripts/localization -p test_group_localization.py
 ```
 
+English group navigation titles, section headings, buttons and short field labels
+follow the app's Title Case convention. Body copy, hints, notifications, status
+values and empty states retain sentence case. Native translations are unchanged.
+The heading writer covers every runtime alias of each reviewed label; the UI
+reference regression also checks dynamic policy, rule and report options.
+
+```sh
+python3 scripts/localization/group_heading_case_20261022.py --check
+python3 scripts/localization/group_audit_copy_20261020.py --check
+```
+
 These group gates include common keys referenced by group views and do not
 suppress unrelated failures in full-corpus validation.
 See [the dated recheck](../../docs/groups/group-recheck-and-localization-2026-10-17.md)
 for per-language results, backend error-code coverage and the existing baseline.
+
+The 2026-10-22 membership localization correction shortens the English
+`vip_feature_no_ads` benefit to `Ad-Free`. Its 44 catalog source snapshots were
+reviewed against the unchanged native translations, which retain the same
+meaning. Membership interface copy is generated from billing-cycle codes;
+legacy server `identitySummary` and `numberLabel` strings must not override it.
 
 The 2026-10-22 report-evidence follow-up adds the ten `group_report_*` image,
 supplement and receipt-action keys to the same authored pack and exact English

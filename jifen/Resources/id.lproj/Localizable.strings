@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Hapus gambar";
 "group_report_image_error" = "Gambar tidak dapat diproses. Coba gambar JPG atau PNG lain.";
 "group_report_refresh" = "Muat ulang status";
+"group_manual_result_action" = "Tambahkan hasil pertandingan";
+
+/* Media volume reminder */
+"media_volume_hint" = "Suara menggunakan volume media. Sesuaikan dengan tombol volume.";

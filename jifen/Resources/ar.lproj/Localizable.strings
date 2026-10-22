@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "إزالة الصورة";
 "group_report_image_error" = "تعذّر تجهيز الصورة. جرّب صورة أخرى بصيغة JPG أو PNG.";
 "group_report_refresh" = "تحديث الحالة";
+"group_manual_result_action" = "إضافة نتيجة مباراة";
+
+/* Media volume reminder */
+"media_volume_hint" = "يستخدم الصوت مستوى صوت الوسائط. استخدم أزرار الصوت لضبطه.";

@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "చిత్రాన్ని తీసివేయండి";
 "group_report_image_error" = "చిత్రాన్ని సిద్ధం చేయలేకపోయాము. మరో JPG లేదా PNG చిత్రంతో ప్రయత్నించండి.";
 "group_report_refresh" = "స్థితిని రిఫ్రెష్ చేయండి";
+"group_manual_result_action" = "మ్యాచ్ ఫలితం జోడించండి";
+
+/* Media volume reminder */
+"media_volume_hint" = "శబ్దం కోసం మీడియా వాల్యూమ్ ఉపయోగించబడుతుంది. వాల్యూమ్ బటన్‌లతో సర్దుబాటు చేయండి.";

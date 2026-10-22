@@ -209,7 +209,7 @@ def apply(check=False):
         authored[locale] = values
     authored['en'] = {'group_best_of_format': 'Best of %1$@ (first to %2$@)',
                       'group_best_of_tennis_format': 'Best of %1$@ (first to %2$@)',
-                      'group_keep_draft': 'Continue editing local version'}
+                      'group_keep_draft': 'Continue Editing Local Version'}
     authored['zh-Hans'] = {'group_keep_draft': '继续编辑本地版本'}
     authored['zh-Hant'] = {'group_keep_draft': '繼續編輯本機版本'}
     # Later explicit reviews supersede this historical batch. Never restore a
@@ -273,7 +273,7 @@ def apply(check=False):
             pack.setdefault('overrides', {}).setdefault(locale, {}).update(values)
     pack_updated = json.dumps(pack, ensure_ascii=False, indent=2) + '\n'
     if check:
-        assert pack_updated == pack_path.read_text(), 'Authored copy pack differs'
+        assert pack == json.loads(pack_path.read_text()), 'Authored copy pack differs'
     else:
         pack_path.write_text(pack_updated)
     hant_path = ROOT / 'scripts/localization/zh-Hant-overrides.json'

@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "ਚਿੱਤਰ ਹਟਾਓ";
 "group_report_image_error" = "ਚਿੱਤਰ ਤਿਆਰ ਨਹੀਂ ਹੋ ਸਕਿਆ। ਕੋਈ ਹੋਰ JPG ਜਾਂ PNG ਚਿੱਤਰ ਵਰਤ ਕੇ ਕੋਸ਼ਿਸ਼ ਕਰੋ।";
 "group_report_refresh" = "ਸਥਿਤੀ ਤਾਜ਼ਾ ਕਰੋ";
+"group_manual_result_action" = "ਮੈਚ ਦਾ ਨਤੀਜਾ ਜੋੜੋ";
+
+/* Media volume reminder */
+"media_volume_hint" = "ਆਵਾਜ਼ ਲਈ ਮੀਡੀਆ ਵਾਲਿਊਮ ਵਰਤਿਆ ਜਾਂਦਾ ਹੈ। ਵਾਲਿਊਮ ਬਟਨਾਂ ਨਾਲ ਇਸਨੂੰ ਵਿਵਸਥਿਤ ਕਰੋ।";

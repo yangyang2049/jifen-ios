@@ -42,6 +42,48 @@ class GroupLocalizationTests(unittest.TestCase):
         with self.assertRaisesRegex(AssertionError, 'source changed after copy review'):
             planned_tables(copy)
 
+    def test_english_group_actions_and_field_titles_use_title_case(self):
+        # Scan actual UI references independently of the writer's heading list.
+        # Hints, status values and whole sentences keep sentence case.
+        from group_heading_case_20261022 import alias_targets
+        aliases = alias_targets()
+        widgets = (r'(?:navigationTitle|Button|NavigationLink|GroupAlignedField|'
+                   r'Toggle|Stepper|DisclosureGroup|LabeledContent|accessibilityLabel|groupAlert)')
+        keys = set()
+        for path in (ROOT / 'jifen/Features/Groups').glob('*.swift'):
+            for expression in re.findall(widgets + r'\(\s*groupText\(([^,\n]+),', path.read_text()):
+                keys.update('group_' + key for key in re.findall(r'"([^"]+)"', expression))
+        # These labels live inside custom button/section builders or dynamic selectors.
+        keys.update('group_' + key for key in [
+            'request_join', 'choose_member', 'invite', 'invite_students', 'temp_import_names',
+            'beta_feedback_action', 'keep_draft', 'activity_registration_save',
+            'ranking_title', 'ranking_rate', 'registered_members', 'result_actions',
+            'entry_manual', 'entry_a_wins', 'entry_b_wins', 'report_status',
+            'join_message', 'registration_use_start', 'open', 'approval',
+            'play_all', 'tiebreak_only', 'single_match', 'multi_matches',
+            'activity_timing_sequence', 'activity_timing_estimated',
+            'report_inappropriate', 'report_fraud', 'report_illegal',
+        ])
+        minor = {'a', 'an', 'and', 'as', 'at', 'by', 'for', 'in', 'of', 'on', 'or', 'per', 'the', 'to', 'with'}
+        for key in sorted(keys):
+            if key == 'group_need_login' or key not in self.english:
+                continue
+            value = self.english[aliases.get(key, key)].value
+            self.assertEqual(self.english[key].value, value, (key, 'Runtime alias differs'))
+            value = re.sub(r'%(?:\d+\$)?[@d]', '', value)
+            for word in re.findall(r"[A-Za-z]+(?:[’'][A-Za-z]+)?", value):
+                if word.lower() in minor or word == 'd':  # 30d metric unit
+                    continue
+                self.assertTrue(word[0].isupper(), (key, value, word))
+
+    def test_heading_writer_cannot_approve_unreviewed_meaning_changes(self):
+        from group_heading_case_20261022 import updated_reviewed_sources
+        english = {key: entry.value for key, entry in self.english.items()}
+        for key, value in [('group_archive_hint', 'Unreviewed new message'),
+                           ('group_my_groups', 'Your Teams')]:
+            with self.assertRaises(AssertionError, msg=key):
+                updated_reviewed_sources(self.copy, {**english, key: value})
+
     def test_every_locale_explains_lineup_counts_and_has_view_and_notice_labels(self):
         for locale, entries in self.tables.items():
             for key in ['group_multi_match_hint', 'group_single_match_hint',

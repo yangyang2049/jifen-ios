@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Afbeelding verwijderen";
 "group_report_image_error" = "De afbeelding kan niet worden voorbereid. Probeer een andere JPG- of PNG-afbeelding.";
 "group_report_refresh" = "Status vernieuwen";
+"group_manual_result_action" = "Wedstrijdresultaat toevoegen";
+
+/* Media volume reminder */
+"media_volume_hint" = "Geluid gebruikt het mediavolume. Pas het aan met de volumeknoppen.";

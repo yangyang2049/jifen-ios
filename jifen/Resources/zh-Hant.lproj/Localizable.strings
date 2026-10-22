@@ -876,7 +876,7 @@
 "scoreboard_show_controls" = "顯示計分板控制按鈕";
 "apply" = "應用";
 "scoreboard_billiards" = "檯球";
-"scoreboard_other" = "其他計分";
+"scoreboard_other" = "其他";
 "game_three_basketball" = "三人籃球";
 "game_beach_volleyball" = "沙灘排球";
 "game_air_volleyball" = "氣排球";
@@ -2481,3 +2481,7 @@
 "group_report_remove_image" = "移除圖片";
 "group_report_image_error" = "圖片處理失敗，請更換 JPG 或 PNG 圖片重試。";
 "group_report_refresh" = "重新整理進度";
+"group_manual_result_action" = "補記賽果";
+
+/* Media volume reminder */
+"media_volume_hint" = "聲音使用媒體音量，請按音量鍵調整。";

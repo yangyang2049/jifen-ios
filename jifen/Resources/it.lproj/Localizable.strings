@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Rimuovi immagine";
 "group_report_image_error" = "Impossibile preparare l’immagine. Prova con un’altra immagine JPG o PNG.";
 "group_report_refresh" = "Aggiorna stato";
+"group_manual_result_action" = "Aggiungi risultato della partita";
+
+/* Media volume reminder */
+"media_volume_hint" = "L’audio usa il volume dei contenuti multimediali. Regolalo con i tasti del volume.";

@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "이미지 삭제";
 "group_report_image_error" = "이미지를 처리할 수 없습니다. 다른 JPG 또는 PNG 이미지로 다시 시도해 주세요.";
 "group_report_refresh" = "상태 새로고침";
+"group_manual_result_action" = "경기 결과 추가";
+
+/* Media volume reminder */
+"media_volume_hint" = "소리는 미디어 음량을 사용합니다. 음량 버튼으로 조절해 주세요.";

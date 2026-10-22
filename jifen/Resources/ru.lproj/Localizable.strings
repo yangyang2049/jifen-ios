@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Удалить изображение";
 "group_report_image_error" = "Не удалось подготовить изображение. Попробуйте другое изображение JPG или PNG.";
 "group_report_refresh" = "Обновить статус";
+"group_manual_result_action" = "Добавить результат матча";
+
+/* Media volume reminder */
+"media_volume_hint" = "Звук использует громкость мультимедиа. Настройте её кнопками громкости.";

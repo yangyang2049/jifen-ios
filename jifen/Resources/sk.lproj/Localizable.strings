@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Odstrániť obrázok";
 "group_report_image_error" = "Obrázok sa nepodarilo pripraviť. Skúste iný obrázok JPG alebo PNG.";
 "group_report_refresh" = "Obnoviť stav";
+"group_manual_result_action" = "Pridať výsledok zápasu";
+
+/* Media volume reminder */
+"media_volume_hint" = "Zvuk používa hlasitosť médií. Upravte ju tlačidlami hlasitosti.";

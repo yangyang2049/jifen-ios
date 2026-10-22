@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "ଛବି ହଟାନ୍ତୁ";
 "group_report_image_error" = "ଛବି ପ୍ରସ୍ତୁତ କରାଯାଇପାରିଲା ନାହିଁ। ଅନ୍ୟ ଏକ JPG କିମ୍ବା PNG ଛବି ସହିତ ଚେଷ୍ଟା କରନ୍ତୁ।";
 "group_report_refresh" = "ସ୍ଥିତି ଅଦ୍ୟତନ କରନ୍ତୁ";
+"group_manual_result_action" = "ମ୍ୟାଚ୍ ଫଳାଫଳ ଯୋଡ଼ନ୍ତୁ";
+
+/* Media volume reminder */
+"media_volume_hint" = "ଶବ୍ଦ ପାଇଁ ମିଡିଆ ଭଲ୍ୟୁମ୍ ବ୍ୟବହାର ହୁଏ। ଭଲ୍ୟୁମ୍ ବଟନ୍ ଦ୍ୱାରା ଏହାକୁ ସଜାଡ଼ନ୍ତୁ।";

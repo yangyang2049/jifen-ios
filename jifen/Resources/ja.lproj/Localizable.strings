@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "画像を削除";
 "group_report_image_error" = "画像を処理できませんでした。別のJPGまたはPNG画像をお試しください。";
 "group_report_refresh" = "状況を更新";
+"group_manual_result_action" = "試合結果を追加";
+
+/* Media volume reminder */
+"media_volume_hint" = "音声にはメディア音量が使われます。音量ボタンで調整してください。";

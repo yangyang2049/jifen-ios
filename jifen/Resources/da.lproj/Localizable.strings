@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Fjern billede";
 "group_report_image_error" = "Billedet kunne ikke klargøres. Prøv et andet JPG- eller PNG-billede.";
 "group_report_refresh" = "Opdater status";
+"group_manual_result_action" = "Tilføj kampresultat";
+
+/* Media volume reminder */
+"media_volume_hint" = "Lyden bruger medielydstyrken. Juster den med lydstyrkeknapperne.";

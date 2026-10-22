@@ -66,9 +66,13 @@ class LocalizationPipelineTests(unittest.TestCase):
 
     def test_source_inventory(self):
         entries = localize.source_entries()
-        self.assertEqual(len([entry for entry in entries if entry.table == "Localizable"]), 2106)
-        self.assertEqual(len([entry for entry in entries if entry.table == "InfoPlist"]), 4)
-        self.assertEqual(len({entry.identity for entry in entries}), 2110)
+        localizable = [entry for entry in entries if entry.table == "Localizable"]
+        info = [entry for entry in entries if entry.table == "InfoPlist"]
+        # Inventory follows actual source keys; a new shipped string must not require a magic-count update.
+        self.assertEqual({entry.identity for entry in localizable},
+                         {entry.identity for entry in localize.parse_strings(localize.SOURCE_LOCALIZABLE, "Localizable")})
+        self.assertEqual(len(info), 4)
+        self.assertEqual(len({entry.identity for entry in entries}), len(localizable) + len(info))
         self.assertTrue({("Localizable", "feedback_official"), ("Localizable", "feedback_pinned"),
                          ("Localizable", "voice_announce_server"),
                          ("Localizable", "scoreboard_official_break_help_intro"),

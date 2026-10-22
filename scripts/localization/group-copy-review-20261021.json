@@ -60,8 +60,8 @@
   "group_confirmed_matches": "Confirmed",
   "group_draws": "D",
   "group_edit_profile": "Edit Info",
-  "group_invite": "Invite teammates",
-  "group_join_message": "Join request message (optional)",
+  "group_invite": "Invite Teammates",
+  "group_join_message": "Join Request Message (Optional)",
   "group_join_policy": "Joining Options",
   "group_leave_hint": "After leaving, you will no longer be a member, and this group will be removed from “My groups”. You will no longer be able to access or participate in it. Existing group match records and personal records on this device will be kept. You must rejoin to access the group again.",
   "group_load_failed": "Could not load group",
@@ -69,11 +69,11 @@
   "group_losses": "L",
   "group_manual_result": "Add Match Result",
   "group_member": "Members",
-  "group_month_matches": "This month",
+  "group_month_matches": "This Month",
   "group_need_login": "Please sign in to continue.",
-  "group_new_activity": "Create activity",
+  "group_new_activity": "Create Activity",
   "group_note": "Note (Optional)",
-  "group_open": "Join directly",
+  "group_open": "Join Directly",
   "group_pending_confirmation": "Awaiting Confirmation",
   "group_pending_upload": "Pending upload",
   "group_place": "Place",
@@ -89,10 +89,10 @@
   "group_regular_members": "Registered Members",
   "group_leader": "Owner",
   "group_member_settings": "Member Settings",
-  "group_leave_reason": "Optional absence note",
+  "group_leave_reason": "Optional Absence Note",
   "group_report_detail": "Details (Optional)",
-  "group_report_inappropriate": "Sexual or inappropriate content",
-  "group_report_illegal": "Illegal or dangerous activities",
+  "group_report_inappropriate": "Sexual or Inappropriate Content",
+  "group_report_illegal": "Illegal or Dangerous Activities",
   "group_multi_match_hint": "An activity can include multiple matches. Members sign up for the activity; select 2 for each singles match or 4 for each doubles match when arranging the lineup.",
   "group_single_match_hint": "Each activity is one match. Select 2 registered members for singles or 4 for doubles.",
   "group_activity_lineup_section_matches": "Match Schedule",
@@ -101,7 +101,7 @@
   "group_abandon_game": "Abandon Match",
   "group_activity_lineup": "Arrange Matches",
   "group_activity_mode": "Records",
-  "group_authority_confirm": "Confirm result",
+  "group_authority_confirm": "Confirm Result",
   "group_batch_names_hint": "One name per line",
   "group_beta_notice": "Groups is still being tested, so some parts may change. Thanks for trying it early.",
   "group_complete_activity": "End Activity",
@@ -110,7 +110,7 @@
   "group_registration_closes": "Registration Deadline",
   "group_reload_version": "Load Latest Version",
   "group_training_date": "Training Date",
-  "group_keep_draft": "Continue editing local version",
+  "group_keep_draft": "Continue Editing Local Version",
   "group_error_session_completed": "This match is complete and you can no longer request absence. Refresh the schedule to view the result.",
   "group_error_server": "The group service is temporarily unavailable. Please try again later.",
   "group_error_name_length": "Group names must contain 2–24 characters.",
@@ -123,10 +123,10 @@
   "group_copy_join_number_separator": "Or enter a group number",
   "group_copy_activity_detail": "Activity Details",
   "group_copy_registration_at_start": "At activity start",
-  "group_copy_registration_use_start": "Use activity start time",
-  "group_copy_cancel_reason_optional": "Reason for cancellation (optional)",
+  "group_copy_registration_use_start": "Use Activity Start Time",
+  "group_copy_cancel_reason_optional": "Reason for Cancellation (Optional)",
   "group_copy_audit_result_frozen_info": "View Players and Rules",
-  "group_view_schedule": "View matches",
+  "group_view_schedule": "View Matches",
   "group_notice_training_published": "Training published",
   "group_notice_training_changed": "Training updated",
   "group_notice_training_cancelled": "Training cancelled",
@@ -158,26 +158,27 @@
   "group_copy_activity_mode": "Records",
   "group_copy_recruiting": "Registration open",
   "group_copy_registration_closes": "Registration Deadline",
-  "group_copy_month_matches": "This month",
+  "group_copy_month_matches": "This Month",
   "group_copy_regular_members": "Registered Members",
   "group_copy_rally_scoring": "Rally Scoring",
   "group_copy_activity_lineup": "Arrange Matches",
   "group_copy_add_temporary": "Add Temporary Member",
-  "group_copy_join_message": "Join request message (optional)",
-  "group_copy_open": "Join directly",
+  "group_copy_join_message": "Join Request Message (Optional)",
+  "group_copy_open": "Join Directly",
   "group_copy_admin": "Admin",
   "group_copy_confirmed_matches": "Confirmed",
   "group_copy_leader": "Owner",
   "group_copy_complete_activity": "End Activity",
-  "group_copy_keep_draft": "Continue editing local version",
+  "group_copy_keep_draft": "Continue Editing Local Version",
   "group_copy_ranking_wins": "W",
-  "group_copy_report_inappropriate": "Sexual or inappropriate content",
+  "group_copy_report_inappropriate": "Sexual or Inappropriate Content",
   "group_copy_manual_result": "Add Match Result",
   "group_copy_losses": "L",
-  "group_copy_report_illegal": "Illegal or dangerous activities",
-  "group_copy_invite": "Invite teammates",
+  "group_copy_report_illegal": "Illegal or Dangerous Activities",
+  "group_copy_invite": "Invite Teammates",
   "group_copy_activity_multi_match_hint": "An activity can include multiple matches. Members sign up for the activity; select 2 for each singles match or 4 for each doubles match when arranging the lineup.",
-  "group_copy_activity_single_match_hint": "Each activity is one match. Select 2 registered members for singles or 4 for doubles."
+  "group_copy_activity_single_match_hint": "Each activity is one match. Select 2 registered members for singles or 4 for doubles.",
+  "group_manual_result_action": "Add Result"
  },
  "locales": {
   "ar": {
@@ -296,7 +297,8 @@
    "group_copy_reload_version": "إعادة التحميل",
    "group_copy_activity_multi_match_hint": "يمكن أن يتضمن النشاط عدة مباريات. يسجل الأعضاء في النشاط؛ وعند ترتيب المباريات، اختر 2 من المسجلين لكل مباراة فردية أو 4 لكل مباراة زوجية.",
    "group_copy_activity_single_match_hint": "كل نشاط هو مباراة واحدة. اختر 2 من الأعضاء المسجلين للفردي أو 4 للزوجي.",
-   "group_reload_version_message": "هل تريد تجاهل ترتيبات المباريات غير المحفوظة وتحميل أحدث جدول محفوظ؟"
+   "group_reload_version_message": "هل تريد تجاهل ترتيبات المباريات غير المحفوظة وتحميل أحدث جدول محفوظ؟",
+   "group_manual_result_action": "إضافة نتيجة مباراة"
   },
   "ca": {
    "group_archive_hint": "Vols arxivar aquest grup? El contingut serà de només lectura.",
@@ -414,7 +416,8 @@
    "group_copy_reload_version": "Torna a carregar",
    "group_copy_activity_multi_match_hint": "Una activitat pot incloure diversos partits. Els membres s’inscriuen a l’activitat; en preparar els partits, tria 2 inscrits per a cada individual o 4 per a cada partit de dobles.",
    "group_copy_activity_single_match_hint": "Cada activitat és un partit. Tria 2 membres inscrits per a individuals o 4 per a dobles.",
-   "group_reload_version_message": "Vols descartar els canvis no desats en l'organització dels partits i carregar l'últim calendari desat?"
+   "group_reload_version_message": "Vols descartar els canvis no desats en l'organització dels partits i carregar l'últim calendari desat?",
+   "group_manual_result_action": "Afegeix un resultat"
   },
   "cs": {
    "group_archive_hint": "Archivovat tuto skupinu? Její obsah bude jen pro čtení.",
@@ -532,7 +535,8 @@
    "group_copy_reload_version": "Znovu načíst",
    "group_copy_activity_multi_match_hint": "Aktivita může zahrnovat více zápasů. Členové se přihlásí na aktivitu; při sestavování rozpisu vyberte pro každou dvouhru 2 přihlášené nebo pro čtyřhru 4.",
    "group_copy_activity_single_match_hint": "Každá aktivita představuje jeden zápas. Vyberte 2 přihlášené členy pro dvouhru nebo 4 pro čtyřhru.",
-   "group_reload_version_message": "Zahodit neuložené změny v rozpisu zápasů a načíst poslední uložený rozpis?"
+   "group_reload_version_message": "Zahodit neuložené změny v rozpisu zápasů a načíst poslední uložený rozpis?",
+   "group_manual_result_action": "Přidat výsledek zápasu"
   },
   "da": {
    "group_archive_hint": "Arkivér denne gruppe? Indholdet bliver skrivebeskyttet.",
@@ -650,7 +654,8 @@
    "group_copy_reload_version": "Genindlæs",
    "group_copy_activity_multi_match_hint": "En aktivitet kan indeholde flere kampe. Medlemmer tilmelder sig aktiviteten; vælg 2 tilmeldte til hver singlekamp eller 4 til hver doublekamp, når kampene planlægges.",
    "group_copy_activity_single_match_hint": "Hver aktivitet er én kamp. Vælg 2 tilmeldte medlemmer til single eller 4 til double.",
-   "group_reload_version_message": "Kassér ikke-gemte ændringer i kampplanen, og indlæs den senest gemte plan?"
+   "group_reload_version_message": "Kassér ikke-gemte ændringer i kampplanen, og indlæs den senest gemte plan?",
+   "group_manual_result_action": "Tilføj kampresultat"
   },
   "de": {
    "group_archive_hint": "Diese Gruppe archivieren? Ihr Inhalt ist danach schreibgeschützt.",
@@ -768,7 +773,8 @@
    "group_copy_reload_version": "Neu laden",
    "group_copy_activity_multi_match_hint": "Eine Aktivität kann mehrere Spiele umfassen. Mitglieder melden sich für die Aktivität an; wähle bei der Spielplanung für jedes Einzel 2 oder für jedes Doppel 4 angemeldete Mitglieder aus.",
    "group_copy_activity_single_match_hint": "Jede Aktivität entspricht einem Spiel. Wähle 2 angemeldete Mitglieder für ein Einzel oder 4 für ein Doppel aus.",
-   "group_reload_version_message": "Ungespeicherte Änderungen an der Spielplanung verwerfen und den zuletzt gespeicherten Spielplan laden?"
+   "group_reload_version_message": "Ungespeicherte Änderungen an der Spielplanung verwerfen und den zuletzt gespeicherten Spielplan laden?",
+   "group_manual_result_action": "Spielergebnis hinzufügen"
   },
   "el": {
    "group_archive_hint": "Αρχειοθέτηση αυτής της ομάδας; Το περιεχόμενό της θα είναι μόνο για ανάγνωση.",
@@ -886,7 +892,8 @@
    "group_copy_reload_version": "Επαναφόρτωση",
    "group_copy_activity_multi_match_hint": "Μια δραστηριότητα μπορεί να περιλαμβάνει πολλούς αγώνες. Τα μέλη δηλώνουν συμμετοχή στη δραστηριότητα· κατά τον προγραμματισμό επιλέξτε 2 εγγεγραμμένα μέλη για κάθε μονό ή 4 για κάθε διπλό.",
    "group_copy_activity_single_match_hint": "Κάθε δραστηριότητα αντιστοιχεί σε έναν αγώνα. Επιλέξτε 2 εγγεγραμμένα μέλη για μονό ή 4 για διπλό.",
-   "group_reload_version_message": "Να απορριφθούν οι μη αποθηκευμένες αλλαγές στο πρόγραμμα αγώνων και να φορτωθεί το πιο πρόσφατο αποθηκευμένο πρόγραμμα;"
+   "group_reload_version_message": "Να απορριφθούν οι μη αποθηκευμένες αλλαγές στο πρόγραμμα αγώνων και να φορτωθεί το πιο πρόσφατο αποθηκευμένο πρόγραμμα;",
+   "group_manual_result_action": "Προσθήκη αποτελέσματος αγώνα"
   },
   "es-ES": {
    "group_archive_hint": "¿Archivar este grupo? Su contenido quedará en modo de solo lectura.",
@@ -1004,7 +1011,8 @@
    "group_copy_reload_version": "Recargar",
    "group_copy_activity_multi_match_hint": "Una actividad puede incluir varios partidos. Los miembros se inscriben en la actividad; al organizar los partidos, elige 2 inscritos para cada individual o 4 para cada partido de dobles.",
    "group_copy_activity_single_match_hint": "Cada actividad corresponde a un partido. Elige 2 miembros inscritos para individuales o 4 para dobles.",
-   "group_reload_version_message": "¿Descartar los cambios sin guardar en la organización de los partidos y cargar el último calendario guardado?"
+   "group_reload_version_message": "¿Descartar los cambios sin guardar en la organización de los partidos y cargar el último calendario guardado?",
+   "group_manual_result_action": "Añadir resultado de partido"
   },
   "fi": {
    "group_archive_hint": "Arkistoidaanko tämä ryhmä? Sen sisältöä voi tämän jälkeen vain lukea.",
@@ -1124,7 +1132,8 @@
    "group_copy_reload_version": "Lataa uudelleen",
    "group_copy_activity_multi_match_hint": "Toiminta voi sisältää useita otteluita. Jäsenet ilmoittautuvat toimintaan; valitse otteluita järjestettäessä kuhunkin kaksinpeliin 2 tai nelinpeliin 4 ilmoittautunutta jäsentä.",
    "group_copy_activity_single_match_hint": "Jokainen toiminta vastaa yhtä ottelua. Valitse 2 ilmoittautunutta jäsentä kaksinpeliin tai 4 nelinpeliin.",
-   "group_reload_version_message": "Hylätäänkö otteluohjelman tallentamattomat muutokset ja ladataanko viimeksi tallennettu ohjelma?"
+   "group_reload_version_message": "Hylätäänkö otteluohjelman tallentamattomat muutokset ja ladataanko viimeksi tallennettu ohjelma?",
+   "group_manual_result_action": "Lisää ottelutulos"
   },
   "fr": {
    "group_archive_hint": "Archiver ce groupe ? Son contenu sera en lecture seule.",
@@ -1242,7 +1251,8 @@
    "group_copy_reload_version": "Recharger",
    "group_copy_activity_multi_match_hint": "Une activité peut comprendre plusieurs matchs. Les membres s’inscrivent à l’activité ; lors de la préparation des matchs, sélectionnez 2 inscrits pour chaque simple ou 4 pour chaque double.",
    "group_copy_activity_single_match_hint": "Chaque activité correspond à un match. Sélectionnez 2 membres inscrits pour un simple ou 4 pour un double.",
-   "group_reload_version_message": "Abandonner les modifications non enregistrées du programme des matchs et charger le dernier programme enregistré ?"
+   "group_reload_version_message": "Abandonner les modifications non enregistrées du programme des matchs et charger le dernier programme enregistré ?",
+   "group_manual_result_action": "Ajouter un résultat de match"
   },
   "he": {
    "group_archive_hint": "להעביר את הקבוצה לארכיון? התוכן שלה יהיה לקריאה בלבד.",
@@ -1360,7 +1370,8 @@
    "group_copy_reload_version": "טעינה מחדש",
    "group_copy_activity_multi_match_hint": "פעילות יכולה לכלול כמה משחקים. החברים נרשמים לפעילות; בסידור המשחקים יש לבחור 2 נרשמים לכל משחק יחידים או 4 לכל משחק זוגות.",
    "group_copy_activity_single_match_hint": "כל פעילות היא משחק אחד. יש לבחור 2 חברים רשומים ליחידים או 4 לזוגות.",
-   "group_reload_version_message": "לוותר על השינויים שלא נשמרו בסידור המשחקים ולטעון את לוח המשחקים האחרון שנשמר?"
+   "group_reload_version_message": "לוותר על השינויים שלא נשמרו בסידור המשחקים ולטעון את לוח המשחקים האחרון שנשמר?",
+   "group_manual_result_action": "הוספת תוצאת משחק"
   },
   "hr": {
    "group_archive_hint": "Arhivirati ovu grupu? Njezin će sadržaj biti samo za čitanje.",
@@ -1478,7 +1489,8 @@
    "group_copy_reload_version": "Učitaj ponovno",
    "group_copy_activity_multi_match_hint": "Aktivnost može sadržavati više mečeva. Članovi se prijavljuju za aktivnost; pri raspoređivanju odaberite 2 prijavljena člana za svaki pojedinačni meč ili 4 za parove.",
    "group_copy_activity_single_match_hint": "Svaka aktivnost odgovara jednom meču. Odaberite 2 prijavljena člana za pojedinačnu igru ili 4 za parove.",
-   "group_reload_version_message": "Odbaciti nespremljene izmjene u rasporedu mečeva i učitati posljednji spremljeni raspored?"
+   "group_reload_version_message": "Odbaciti nespremljene izmjene u rasporedu mečeva i učitati posljednji spremljeni raspored?",
+   "group_manual_result_action": "Dodaj rezultat meča"
   },
   "hu": {
    "group_archive_hint": "Archiválod ezt a csoportot? A tartalma csak olvasható lesz.",
@@ -1596,7 +1608,8 @@
    "group_copy_reload_version": "Újratöltés",
    "group_copy_activity_multi_match_hint": "Egy esemény több mérkőzést is tartalmazhat. A tagok az eseményre jelentkeznek; a beosztásnál minden egyéni mérkőzéshez 2, pároshoz 4 jelentkezőt válassz.",
    "group_copy_activity_single_match_hint": "Minden esemény egy mérkőzésnek felel meg. Egyénihez 2, pároshoz 4 jelentkező tagot válassz.",
-   "group_reload_version_message": "Elveted a mérkőzésbeosztás nem mentett módosításait, és betöltöd a legutóbb mentett beosztást?"
+   "group_reload_version_message": "Elveted a mérkőzésbeosztás nem mentett módosításait, és betöltöd a legutóbb mentett beosztást?",
+   "group_manual_result_action": "Mérkőzéseredmény hozzáadása"
   },
   "id": {
    "group_archive_hint": "Arsipkan grup ini? Kontennya akan menjadi hanya baca.",
@@ -1714,7 +1727,8 @@
    "group_copy_reload_version": "Muat ulang",
    "group_copy_activity_multi_match_hint": "Satu aktivitas dapat mencakup beberapa pertandingan. Anggota mendaftar ke aktivitas; saat menyusun pertandingan, pilih 2 pendaftar untuk setiap tunggal atau 4 untuk setiap ganda.",
    "group_copy_activity_single_match_hint": "Setiap aktivitas adalah satu pertandingan. Pilih 2 anggota terdaftar untuk tunggal atau 4 untuk ganda.",
-   "group_reload_version_message": "Buang perubahan pengaturan pertandingan yang belum disimpan dan muat jadwal terakhir yang disimpan?"
+   "group_reload_version_message": "Buang perubahan pengaturan pertandingan yang belum disimpan dan muat jadwal terakhir yang disimpan?",
+   "group_manual_result_action": "Tambahkan hasil pertandingan"
   },
   "it": {
    "group_archive_hint": "Archiviare questo gruppo? Il contenuto sarà di sola lettura.",
@@ -1832,7 +1846,8 @@
    "group_copy_reload_version": "Ricarica",
    "group_copy_activity_multi_match_hint": "Un’attività può includere più partite. I membri si iscrivono all’attività; quando organizzi le partite, scegli 2 iscritti per ogni singolare o 4 per ogni doppio.",
    "group_copy_activity_single_match_hint": "Ogni attività corrisponde a una partita. Scegli 2 membri iscritti per il singolare o 4 per il doppio.",
-   "group_reload_version_message": "Scartare le modifiche non salvate al programma degli incontri e caricare l'ultimo programma salvato?"
+   "group_reload_version_message": "Scartare le modifiche non salvate al programma degli incontri e caricare l'ultimo programma salvato?",
+   "group_manual_result_action": "Aggiungi risultato della partita"
   },
   "ja": {
    "group_archive_hint": "このグループをアーカイブしますか？内容は閲覧専用になります。",
@@ -1950,7 +1965,8 @@
    "group_copy_reload_version": "再読み込み",
    "group_copy_activity_multi_match_hint": "1つの活動で複数の試合を行えます。メンバーは活動に参加登録し、対戦を組む際に各シングルスは登録者から2人、各ダブルスは4人を選びます。",
    "group_copy_activity_single_match_hint": "1つの活動につき1試合を行います。登録済みメンバーからシングルスは2人、ダブルスは4人を選んでください。",
-   "group_reload_version_message": "未保存の対戦設定を破棄し、保存済みの最新設定を読み込みますか？"
+   "group_reload_version_message": "未保存の対戦設定を破棄し、保存済みの最新設定を読み込みますか？",
+   "group_manual_result_action": "試合結果を追加"
   },
   "ko": {
    "group_archive_hint": "이 그룹을 보관할까요? 콘텐츠는 읽기 전용이 됩니다.",
@@ -2068,7 +2084,8 @@
    "group_copy_reload_version": "새로고침",
    "group_copy_activity_multi_match_hint": "한 활동에서 여러 경기를 진행할 수 있습니다. 멤버가 활동에 참가 신청한 후, 경기 편성 시 각 단식은 신청자 2명, 각 복식은 4명을 선택하세요.",
    "group_copy_activity_single_match_hint": "각 활동은 한 경기입니다. 참가 신청한 멤버 중 단식은 2명, 복식은 4명을 선택하세요.",
-   "group_reload_version_message": "저장하지 않은 경기 편성을 버리고 최근 저장된 일정을 불러올까요?"
+   "group_reload_version_message": "저장하지 않은 경기 편성을 버리고 최근 저장된 일정을 불러올까요?",
+   "group_manual_result_action": "경기 결과 추가"
   },
   "ms": {
    "group_archive_hint": "Arkibkan kumpulan ini? Kandungannya akan menjadi baca sahaja.",
@@ -2186,7 +2203,8 @@
    "group_copy_reload_version": "Muat semula",
    "group_copy_activity_multi_match_hint": "Satu aktiviti boleh merangkumi beberapa perlawanan. Ahli mendaftar untuk aktiviti; semasa menyusun perlawanan, pilih 2 pendaftar bagi setiap perseorangan atau 4 bagi setiap beregu.",
    "group_copy_activity_single_match_hint": "Setiap aktiviti ialah satu perlawanan. Pilih 2 ahli berdaftar untuk perseorangan atau 4 untuk beregu.",
-   "group_reload_version_message": "Buang perubahan susunan perlawanan yang belum disimpan dan muatkan jadual terakhir yang disimpan?"
+   "group_reload_version_message": "Buang perubahan susunan perlawanan yang belum disimpan dan muatkan jadual terakhir yang disimpan?",
+   "group_manual_result_action": "Tambah keputusan perlawanan"
   },
   "nb": {
    "group_archive_hint": "Arkivere denne gruppen? Innholdet blir skrivebeskyttet.",
@@ -2304,7 +2322,8 @@
    "group_copy_reload_version": "Last inn på nytt",
    "group_copy_activity_multi_match_hint": "En aktivitet kan inneholde flere kamper. Medlemmer melder seg på aktiviteten; velg 2 påmeldte til hver singlekamp eller 4 til hver doublekamp når kampene settes opp.",
    "group_copy_activity_single_match_hint": "Hver aktivitet er én kamp. Velg 2 påmeldte medlemmer til single eller 4 til double.",
-   "group_reload_version_message": "Forkaste ulagrede endringer i kampoppsettet og laste inn den sist lagrede planen?"
+   "group_reload_version_message": "Forkaste ulagrede endringer i kampoppsettet og laste inn den sist lagrede planen?",
+   "group_manual_result_action": "Legg til kampresultat"
   },
   "nl": {
    "group_archive_hint": "Deze groep archiveren? De inhoud wordt alleen-lezen.",
@@ -2422,7 +2441,8 @@
    "group_copy_reload_version": "Opnieuw laden",
    "group_copy_activity_multi_match_hint": "Een activiteit kan meerdere wedstrijden omvatten. Leden melden zich aan voor de activiteit; kies bij het indelen 2 aangemelde leden voor elk enkelspel of 4 voor elk dubbelspel.",
    "group_copy_activity_single_match_hint": "Elke activiteit is één wedstrijd. Kies 2 aangemelde leden voor enkelspel of 4 voor dubbelspel.",
-   "group_reload_version_message": "Niet-opgeslagen wijzigingen in de wedstrijdplanning verwerpen en de laatst opgeslagen planning laden?"
+   "group_reload_version_message": "Niet-opgeslagen wijzigingen in de wedstrijdplanning verwerpen en de laatst opgeslagen planning laden?",
+   "group_manual_result_action": "Wedstrijdresultaat toevoegen"
   },
   "pl": {
    "group_archive_hint": "Zarchiwizować tę grupę? Jej zawartość będzie tylko do odczytu.",
@@ -2540,7 +2560,8 @@
    "group_copy_reload_version": "Wczytaj ponownie",
    "group_copy_activity_multi_match_hint": "Aktywność może obejmować wiele meczów. Członkowie zapisują się na aktywność; przy układaniu meczów wybierz po 2 zapisane osoby do każdego singla lub po 4 do każdego debla.",
    "group_copy_activity_single_match_hint": "Każda aktywność to jeden mecz. Wybierz 2 zapisanych członków do singla lub 4 do debla.",
-   "group_reload_version_message": "Odrzucić niezapisane zmiany w planie meczów i wczytać ostatnio zapisany plan?"
+   "group_reload_version_message": "Odrzucić niezapisane zmiany w planie meczów i wczytać ostatnio zapisany plan?",
+   "group_manual_result_action": "Dodaj wynik meczu"
   },
   "pt-BR": {
    "group_archive_hint": "Arquivar este grupo? O conteúdo ficará somente para leitura.",
@@ -2658,7 +2679,8 @@
    "group_copy_reload_version": "Recarregar",
    "group_copy_activity_multi_match_hint": "Uma atividade pode incluir várias partidas. Os membros se inscrevem na atividade; ao organizar as partidas, escolha 2 inscritos para cada jogo de simples ou 4 para cada jogo de duplas.",
    "group_copy_activity_single_match_hint": "Cada atividade corresponde a uma partida. Escolha 2 membros inscritos para simples ou 4 para duplas.",
-   "group_reload_version_message": "Descartar as alterações não salvas na organização das partidas e carregar a última programação salva?"
+   "group_reload_version_message": "Descartar as alterações não salvas na organização das partidas e carregar a última programação salva?",
+   "group_manual_result_action": "Adicionar resultado da partida"
   },
   "ro": {
    "group_archive_hint": "Arhivezi acest grup? Conținutul său va putea fi doar citit.",
@@ -2776,7 +2798,8 @@
    "group_copy_reload_version": "Reîncarcă",
    "group_copy_activity_multi_match_hint": "O activitate poate include mai multe meciuri. Membrii se înscriu la activitate; la stabilirea meciurilor, alege 2 înscriși pentru fiecare simplu sau 4 pentru fiecare dublu.",
    "group_copy_activity_single_match_hint": "Fiecare activitate corespunde unui meci. Alege 2 membri înscriși pentru simplu sau 4 pentru dublu.",
-   "group_reload_version_message": "Renunți la modificările nesalvate ale programului meciurilor și încarci ultimul program salvat?"
+   "group_reload_version_message": "Renunți la modificările nesalvate ale programului meciurilor și încarci ultimul program salvat?",
+   "group_manual_result_action": "Adaugă rezultatul unui meci"
   },
   "ru": {
    "group_archive_hint": "Архивировать эту группу? Её содержимое станет доступно только для чтения.",
@@ -2894,7 +2917,8 @@
    "group_copy_reload_version": "Обновить",
    "group_copy_activity_multi_match_hint": "В одном мероприятии может быть несколько матчей. Участники записываются на мероприятие; при составлении пар выберите по 2 записавшихся для каждого одиночного матча или по 4 для парного.",
    "group_copy_activity_single_match_hint": "Каждое мероприятие — один матч. Выберите 2 записавшихся участников для одиночного матча или 4 для парного.",
-   "group_reload_version_message": "Отменить несохранённые изменения в расписании матчей и загрузить последнее сохранённое расписание?"
+   "group_reload_version_message": "Отменить несохранённые изменения в расписании матчей и загрузить последнее сохранённое расписание?",
+   "group_manual_result_action": "Добавить результат матча"
   },
   "sk": {
    "group_archive_hint": "Archivovať túto skupinu? Jej obsah bude iba na čítanie.",
@@ -3012,7 +3036,8 @@
    "group_copy_reload_version": "Načítať znova",
    "group_copy_activity_multi_match_hint": "Aktivita môže zahŕňať viac zápasov. Členovia sa prihlásia na aktivitu; pri zostavovaní rozpisu vyberte pre každú dvojhru 2 prihlásených alebo pre štvorhru 4.",
    "group_copy_activity_single_match_hint": "Každá aktivita predstavuje jeden zápas. Vyberte 2 prihlásených členov pre dvojhru alebo 4 pre štvorhru.",
-   "group_reload_version_message": "Zahodiť neuložené zmeny v rozpise zápasov a načítať posledný uložený rozpis?"
+   "group_reload_version_message": "Zahodiť neuložené zmeny v rozpise zápasov a načítať posledný uložený rozpis?",
+   "group_manual_result_action": "Pridať výsledok zápasu"
   },
   "sl": {
    "group_archive_hint": "Arhiviram to skupino? Njena vsebina bo samo za branje.",
@@ -3130,7 +3155,8 @@
    "group_copy_reload_version": "Znova naloži",
    "group_copy_activity_multi_match_hint": "Dejavnost lahko vključuje več dvobojev. Člani se prijavijo na dejavnost; pri razporejanju izberite 2 prijavljena za vsak posamezni dvoboj ali 4 za dvojice.",
    "group_copy_activity_single_match_hint": "Vsaka dejavnost je en dvoboj. Izberite 2 prijavljena člana za posamezno igro ali 4 za dvojice.",
-   "group_reload_version_message": "Zavržete neshranjene spremembe razporeda dvobojev in naložite zadnji shranjeni razpored?"
+   "group_reload_version_message": "Zavržete neshranjene spremembe razporeda dvobojev in naložite zadnji shranjeni razpored?",
+   "group_manual_result_action": "Dodaj rezultat dvoboja"
   },
   "sv": {
    "group_archive_hint": "Arkivera den här gruppen? Innehållet blir skrivskyddat.",
@@ -3248,7 +3274,8 @@
    "group_copy_reload_version": "Läs in igen",
    "group_copy_activity_multi_match_hint": "En aktivitet kan innehålla flera matcher. Medlemmar anmäler sig till aktiviteten; välj 2 anmälda till varje singelmatch eller 4 till varje dubbelmatch när matcherna planeras.",
    "group_copy_activity_single_match_hint": "Varje aktivitet är en match. Välj 2 anmälda medlemmar till singel eller 4 till dubbel.",
-   "group_reload_version_message": "Vill du kasta osparade ändringar i matchschemat och läsa in det senast sparade schemat?"
+   "group_reload_version_message": "Vill du kasta osparade ändringar i matchschemat och läsa in det senast sparade schemat?",
+   "group_manual_result_action": "Lägg till matchresultat"
   },
   "tr": {
    "group_archive_hint": "Bu grup arşivlensin mi? İçeriği salt okunur olacak.",
@@ -3366,7 +3393,8 @@
    "group_copy_reload_version": "Yeniden yükle",
    "group_copy_activity_multi_match_hint": "Bir etkinlik birden fazla maç içerebilir. Üyeler etkinliğe kaydolur; maçları düzenlerken her tekler maçı için 2, her çiftler maçı için 4 kayıtlı üye seçin.",
    "group_copy_activity_single_match_hint": "Her etkinlik bir maçtır. Tekler için 2, çiftler için 4 kayıtlı üye seçin.",
-   "group_reload_version_message": "Maç düzenindeki kaydedilmemiş değişiklikler silinip son kaydedilen program yüklensin mi?"
+   "group_reload_version_message": "Maç düzenindeki kaydedilmemiş değişiklikler silinip son kaydedilen program yüklensin mi?",
+   "group_manual_result_action": "Maç sonucu ekle"
   },
   "uk": {
    "group_archive_hint": "Архівувати цю групу? Її вміст буде доступний лише для читання.",
@@ -3484,7 +3512,8 @@
    "group_copy_reload_version": "Оновити",
    "group_copy_activity_multi_match_hint": "Один захід може містити кілька матчів. Учасники реєструються на захід; під час складання пар виберіть по 2 зареєстрованих для кожного одиночного матчу або по 4 для парного.",
    "group_copy_activity_single_match_hint": "Кожен захід — один матч. Виберіть 2 зареєстрованих учасників для одиночного матчу або 4 для парного.",
-   "group_reload_version_message": "Відкинути незбережені зміни в розкладі матчів і завантажити останній збережений розклад?"
+   "group_reload_version_message": "Відкинути незбережені зміни в розкладі матчів і завантажити останній збережений розклад?",
+   "group_manual_result_action": "Додати результат матчу"
   },
   "bn": {
    "group_archive_hint": "এই গ্রুপটি আর্কাইভ করবেন? এর বিষয়বস্তু শুধু পড়া যাবে।",
@@ -3602,7 +3631,8 @@
    "group_copy_reload_version": "আবার লোড করুন",
    "group_copy_activity_multi_match_hint": "একটি কার্যক্রমে একাধিক ম্যাচ থাকতে পারে। সদস্যরা কার্যক্রমে নাম লেখান; ম্যাচ সাজানোর সময় প্রতিটি সিঙ্গলসের জন্য 2 জন বা ডাবলসের জন্য 4 জন নিবন্ধিত সদস্য বেছে নিন।",
    "group_copy_activity_single_match_hint": "প্রতিটি কার্যক্রম একটি ম্যাচ। সিঙ্গলসের জন্য 2 জন বা ডাবলসের জন্য 4 জন নিবন্ধিত সদস্য বেছে নিন।",
-   "group_reload_version_message": "সংরক্ষণ না করা ম্যাচের বিন্যাস বাদ দিয়ে সর্বশেষ সংরক্ষিত সূচি লোড করবেন?"
+   "group_reload_version_message": "সংরক্ষণ না করা ম্যাচের বিন্যাস বাদ দিয়ে সর্বশেষ সংরক্ষিত সূচি লোড করবেন?",
+   "group_manual_result_action": "ম্যাচের ফল যোগ করুন"
   },
   "gu": {
    "group_archive_hint": "આ જૂથને આર્કાઇવ કરવું છે? તેની સામગ્રી ફક્ત વાંચી શકાશે.",
@@ -3720,7 +3750,8 @@
    "group_copy_reload_version": "ફરી લોડ કરો",
    "group_copy_activity_multi_match_hint": "એક પ્રવૃત્તિમાં ઘણી મેચ હોઈ શકે છે. સભ્યો પ્રવૃત્તિ માટે નોંધણી કરે છે; મેચ ગોઠવતી વખતે દરેક સિંગલ્સ માટે 2 અથવા ડબલ્સ માટે 4 નોંધાયેલા સભ્યો પસંદ કરો.",
    "group_copy_activity_single_match_hint": "દરેક પ્રવૃત્તિ એક મેચ છે. સિંગલ્સ માટે 2 અથવા ડબલ્સ માટે 4 નોંધાયેલા સભ્યો પસંદ કરો.",
-   "group_reload_version_message": "સાચવ્યા વિનાની મેચની ગોઠવણો છોડીને તાજેતરનું સાચવેલું આયોજન લોડ કરવું છે?"
+   "group_reload_version_message": "સાચવ્યા વિનાની મેચની ગોઠવણો છોડીને તાજેતરનું સાચવેલું આયોજન લોડ કરવું છે?",
+   "group_manual_result_action": "મેચનું પરિણામ ઉમેરો"
   },
   "hi": {
    "group_archive_hint": "इस समूह को संग्रहित करें? इसकी सामग्री केवल पढ़ी जा सकेगी।",
@@ -3838,7 +3869,8 @@
    "group_copy_reload_version": "फिर लोड करें",
    "group_copy_activity_multi_match_hint": "एक गतिविधि में कई मैच हो सकते हैं। सदस्य गतिविधि के लिए पंजीकरण करते हैं; मैच तय करते समय प्रत्येक एकल के लिए 2 या युगल के लिए 4 पंजीकृत सदस्य चुनें।",
    "group_copy_activity_single_match_hint": "हर गतिविधि एक मैच है। एकल के लिए 2 या युगल के लिए 4 पंजीकृत सदस्य चुनें।",
-   "group_reload_version_message": "मैचों की बिना सहेजी गई व्यवस्था छोड़कर सबसे नया सहेजा गया शेड्यूल लोड करें?"
+   "group_reload_version_message": "मैचों की बिना सहेजी गई व्यवस्था छोड़कर सबसे नया सहेजा गया शेड्यूल लोड करें?",
+   "group_manual_result_action": "मैच का परिणाम जोड़ें"
   },
   "kn": {
    "group_archive_hint": "ಈ ಗುಂಪನ್ನು ಆರ್ಕೈವ್ ಮಾಡಬೇಕೇ? ಇದರ ವಿಷಯವನ್ನು ಓದಲು ಮಾತ್ರ ಸಾಧ್ಯವಾಗುತ್ತದೆ.",
@@ -3956,7 +3988,8 @@
    "group_copy_reload_version": "ಮತ್ತೆ ಲೋಡ್ ಮಾಡಿ",
    "group_copy_activity_multi_match_hint": "ಒಂದು ಚಟುವಟಿಕೆಯಲ್ಲಿ ಹಲವು ಪಂದ್ಯಗಳಿರಬಹುದು. ಸದಸ್ಯರು ಚಟುವಟಿಕೆಗೆ ನೋಂದಾಯಿಸುತ್ತಾರೆ; ಪಂದ್ಯಗಳನ್ನು ಜೋಡಿಸುವಾಗ ಪ್ರತಿ ಸಿಂಗಲ್ಸ್‌ಗೆ 2 ಅಥವಾ ಡಬಲ್ಸ್‌ಗೆ 4 ನೋಂದಾಯಿತ ಸದಸ್ಯರನ್ನು ಆಯ್ಕೆಮಾಡಿ.",
    "group_copy_activity_single_match_hint": "ಪ್ರತಿ ಚಟುವಟಿಕೆಯು ಒಂದು ಪಂದ್ಯ. ಸಿಂಗಲ್ಸ್‌ಗೆ 2 ಅಥವಾ ಡಬಲ್ಸ್‌ಗೆ 4 ನೋಂದಾಯಿತ ಸದಸ್ಯರನ್ನು ಆಯ್ಕೆಮಾಡಿ.",
-   "group_reload_version_message": "ಉಳಿಸದ ಪಂದ್ಯ ವ್ಯವಸ್ಥೆಗಳನ್ನು ಬಿಟ್ಟು ಇತ್ತೀಚೆಗೆ ಉಳಿಸಿದ ವೇಳಾಪಟ್ಟಿಯನ್ನು ಲೋಡ್ ಮಾಡಬೇಕೇ?"
+   "group_reload_version_message": "ಉಳಿಸದ ಪಂದ್ಯ ವ್ಯವಸ್ಥೆಗಳನ್ನು ಬಿಟ್ಟು ಇತ್ತೀಚೆಗೆ ಉಳಿಸಿದ ವೇಳಾಪಟ್ಟಿಯನ್ನು ಲೋಡ್ ಮಾಡಬೇಕೇ?",
+   "group_manual_result_action": "ಪಂದ್ಯದ ಫಲಿತಾಂಶ ಸೇರಿಸಿ"
   },
   "ml": {
    "group_archive_hint": "ഈ ഗ്രൂപ്പ് ആർക്കൈവ് ചെയ്യണോ? ഇതിലെ ഉള്ളടക്കം വായിക്കാൻ മാത്രമേ കഴിയൂ.",
@@ -4074,7 +4107,8 @@
    "group_copy_reload_version": "വീണ്ടും ലോഡ് ചെയ്യുക",
    "group_copy_activity_multi_match_hint": "ഒരു പ്രവർത്തനത്തിൽ ഒന്നിലധികം മത്സരങ്ങൾ ഉണ്ടാകാം. അംഗങ്ങൾ പ്രവർത്തനത്തിന് രജിസ്റ്റർ ചെയ്യുന്നു; മത്സരങ്ങൾ ക്രമീകരിക്കുമ്പോൾ ഓരോ സിംഗിൾസിനും 2 അല്ലെങ്കിൽ ഡബിൾസിന് 4 രജിസ്റ്റർ ചെയ്ത അംഗങ്ങളെ തിരഞ്ഞെടുക്കുക.",
    "group_copy_activity_single_match_hint": "ഓരോ പ്രവർത്തനവും ഒരു മത്സരമാണ്. സിംഗിൾസിന് 2 അല്ലെങ്കിൽ ഡബിൾസിന് 4 രജിസ്റ്റർ ചെയ്ത അംഗങ്ങളെ തിരഞ്ഞെടുക്കുക.",
-   "group_reload_version_message": "സേവ് ചെയ്യാത്ത മത്സര ക്രമീകരണങ്ങൾ ഉപേക്ഷിച്ച് ഒടുവിൽ സേവ് ചെയ്ത മത്സരപ്പട്ടിക ലോഡ് ചെയ്യണോ?"
+   "group_reload_version_message": "സേവ് ചെയ്യാത്ത മത്സര ക്രമീകരണങ്ങൾ ഉപേക്ഷിച്ച് ഒടുവിൽ സേവ് ചെയ്ത മത്സരപ്പട്ടിക ലോഡ് ചെയ്യണോ?",
+   "group_manual_result_action": "മത്സരഫലം ചേർക്കുക"
   },
   "mr": {
    "group_archive_hint": "हा गट संग्रहित करायचा? त्यातील मजकूर फक्त वाचता येईल.",
@@ -4192,7 +4226,8 @@
    "group_copy_reload_version": "पुन्हा लोड करा",
    "group_copy_activity_multi_match_hint": "एका उपक्रमात अनेक सामने असू शकतात. सदस्य उपक्रमासाठी नोंदणी करतात; सामने ठरवताना प्रत्येक एकेरीसाठी 2 किंवा दुहेरीसाठी 4 नोंदणीकृत सदस्य निवडा.",
    "group_copy_activity_single_match_hint": "प्रत्येक उपक्रम म्हणजे एक सामना. एकेरीसाठी 2 किंवा दुहेरीसाठी 4 नोंदणीकृत सदस्य निवडा.",
-   "group_reload_version_message": "सामन्यांच्या मांडणीतील न जतन केलेले बदल सोडून सर्वात अलीकडे जतन केलेले वेळापत्रक लोड करायचे?"
+   "group_reload_version_message": "सामन्यांच्या मांडणीतील न जतन केलेले बदल सोडून सर्वात अलीकडे जतन केलेले वेळापत्रक लोड करायचे?",
+   "group_manual_result_action": "सामन्याचा निकाल जोडा"
   },
   "or": {
    "group_archive_hint": "ଏହି ଗୋଷ୍ଠୀକୁ ଆର୍କାଇଭ୍ କରିବେ? ଏହାର ବିଷୟବସ୍ତୁ କେବଳ ପଢ଼ିହେବ।",
@@ -4310,7 +4345,8 @@
    "group_copy_reload_version": "ପୁଣି ଲୋଡ୍ କରନ୍ତୁ",
    "group_copy_activity_multi_match_hint": "ଗୋଟିଏ କାର୍ଯ୍ୟକ୍ରମରେ ଅନେକ ମ୍ୟାଚ୍ ହୋଇପାରେ। ସଦସ୍ୟମାନେ କାର୍ଯ୍ୟକ୍ରମରେ ନାମ ଲେଖାନ୍ତି; ମ୍ୟାଚ୍ ସଜାଇବାବେଳେ ପ୍ରତ୍ୟେକ ସିଙ୍ଗଲ୍ସ ପାଇଁ 2 କିମ୍ବା ଡବଲ୍ସ ପାଇଁ 4 ନାମ ଲେଖାଇଥିବା ସଦସ୍ୟ ବାଛନ୍ତୁ।",
    "group_copy_activity_single_match_hint": "ପ୍ରତ୍ୟେକ କାର୍ଯ୍ୟକ୍ରମ ଗୋଟିଏ ମ୍ୟାଚ୍। ସିଙ୍ଗଲ୍ସ ପାଇଁ 2 କିମ୍ବା ଡବଲ୍ସ ପାଇଁ 4 ନାମ ଲେଖାଇଥିବା ସଦସ୍ୟ ବାଛନ୍ତୁ।",
-   "group_reload_version_message": "ସଂରକ୍ଷଣ ହୋଇନଥିବା ମ୍ୟାଚ୍ ବ୍ୟବସ୍ଥା ଛାଡ଼ି ସର୍ବଶେଷ ସଂରକ୍ଷିତ ସୂଚୀ ଲୋଡ୍ କରିବେ?"
+   "group_reload_version_message": "ସଂରକ୍ଷଣ ହୋଇନଥିବା ମ୍ୟାଚ୍ ବ୍ୟବସ୍ଥା ଛାଡ଼ି ସର୍ବଶେଷ ସଂରକ୍ଷିତ ସୂଚୀ ଲୋଡ୍ କରିବେ?",
+   "group_manual_result_action": "ମ୍ୟାଚ୍ ଫଳାଫଳ ଯୋଡ଼ନ୍ତୁ"
   },
   "pa": {
    "group_archive_hint": "ਇਸ ਗਰੁੱਪ ਨੂੰ ਆਰਕਾਈਵ ਕਰਨਾ ਹੈ? ਇਸ ਦੀ ਸਮੱਗਰੀ ਸਿਰਫ਼ ਪੜ੍ਹੀ ਜਾ ਸਕੇਗੀ।",
@@ -4428,7 +4464,8 @@
    "group_copy_reload_version": "ਮੁੜ ਲੋਡ ਕਰੋ",
    "group_copy_activity_multi_match_hint": "ਇੱਕ ਸਰਗਰਮੀ ਵਿੱਚ ਕਈ ਮੈਚ ਹੋ ਸਕਦੇ ਹਨ। ਮੈਂਬਰ ਸਰਗਰਮੀ ਲਈ ਨਾਂ ਦਰਜ ਕਰਦੇ ਹਨ; ਮੈਚ ਤੈਅ ਕਰਦੇ ਸਮੇਂ ਹਰ ਸਿੰਗਲਜ਼ ਲਈ 2 ਜਾਂ ਡਬਲਜ਼ ਲਈ 4 ਦਰਜ ਮੈਂਬਰ ਚੁਣੋ।",
    "group_copy_activity_single_match_hint": "ਹਰ ਸਰਗਰਮੀ ਇੱਕ ਮੈਚ ਹੈ। ਸਿੰਗਲਜ਼ ਲਈ 2 ਜਾਂ ਡਬਲਜ਼ ਲਈ 4 ਦਰਜ ਮੈਂਬਰ ਚੁਣੋ।",
-   "group_reload_version_message": "ਮੈਚਾਂ ਦੀ ਨਾ ਸੰਭਾਲੀ ਵਿਵਸਥਾ ਛੱਡ ਕੇ ਤਾਜ਼ਾ ਸੰਭਾਲੀ ਸਮਾਂ-ਸਾਰਣੀ ਲੋਡ ਕਰਨੀ ਹੈ?"
+   "group_reload_version_message": "ਮੈਚਾਂ ਦੀ ਨਾ ਸੰਭਾਲੀ ਵਿਵਸਥਾ ਛੱਡ ਕੇ ਤਾਜ਼ਾ ਸੰਭਾਲੀ ਸਮਾਂ-ਸਾਰਣੀ ਲੋਡ ਕਰਨੀ ਹੈ?",
+   "group_manual_result_action": "ਮੈਚ ਦਾ ਨਤੀਜਾ ਜੋੜੋ"
   },
   "ta": {
    "group_archive_hint": "இந்தக் குழுவைக் காப்பகப்படுத்தவா? இதன் உள்ளடக்கத்தைப் படிக்க மட்டுமே முடியும்.",
@@ -4546,7 +4583,8 @@
    "group_copy_reload_version": "மீண்டும் ஏற்று",
    "group_copy_activity_multi_match_hint": "ஒரு நிகழ்வில் பல போட்டிகள் இருக்கலாம். உறுப்பினர்கள் நிகழ்வுக்குப் பதிவு செய்கிறார்கள்; போட்டிகளை அமைக்கும்போது ஒவ்வொரு ஒற்றையர் ஆட்டத்திற்கும் 2 அல்லது இரட்டையர் ஆட்டத்திற்கும் 4 பதிவுசெய்த உறுப்பினர்களைத் தேர்ந்தெடுக்கவும்.",
    "group_copy_activity_single_match_hint": "ஒவ்வொரு நிகழ்வும் ஒரு போட்டி. ஒற்றையர் ஆட்டத்திற்கு 2 அல்லது இரட்டையர் ஆட்டத்திற்கு 4 பதிவுசெய்த உறுப்பினர்களைத் தேர்ந்தெடுக்கவும்.",
-   "group_reload_version_message": "சேமிக்காத போட்டி ஏற்பாடுகளைக் கைவிட்டு, கடைசியாகச் சேமித்த அட்டவணையை ஏற்றவா?"
+   "group_reload_version_message": "சேமிக்காத போட்டி ஏற்பாடுகளைக் கைவிட்டு, கடைசியாகச் சேமித்த அட்டவணையை ஏற்றவா?",
+   "group_manual_result_action": "போட்டி முடிவைச் சேர்"
   },
   "te": {
    "group_archive_hint": "ఈ గ్రూప్‌ను ఆర్కైవ్ చేయాలా? ఇందులోని విషయాన్ని చదవడానికి మాత్రమే వీలుంటుంది.",
@@ -4664,7 +4702,8 @@
    "group_copy_reload_version": "మళ్లీ లోడ్ చేయండి",
    "group_copy_activity_multi_match_hint": "ఒక కార్యక్రమంలో అనేక మ్యాచ్‌లు ఉండవచ్చు. సభ్యులు కార్యక్రమానికి నమోదు చేసుకుంటారు; మ్యాచ్‌లు ఏర్పాటు చేసేటప్పుడు ప్రతి సింగిల్స్‌కు 2 లేదా డబుల్స్‌కు 4 నమోదైన సభ్యులను ఎంచుకోండి.",
    "group_copy_activity_single_match_hint": "ప్రతి కార్యక్రమం ఒక మ్యాచ్. సింగిల్స్‌కు 2 లేదా డబుల్స్‌కు 4 నమోదైన సభ్యులను ఎంచుకోండి.",
-   "group_reload_version_message": "సేవ్ చేయని మ్యాచ్ ఏర్పాట్లను వదిలేసి, తాజాగా సేవ్ చేసిన షెడ్యూల్‌ను లోడ్ చేయాలా?"
+   "group_reload_version_message": "సేవ్ చేయని మ్యాచ్ ఏర్పాట్లను వదిలేసి, తాజాగా సేవ్ చేసిన షెడ్యూల్‌ను లోడ్ చేయాలా?",
+   "group_manual_result_action": "మ్యాచ్ ఫలితం జోడించండి"
   },
   "th": {
    "group_archive_hint": "เก็บกลุ่มนี้เข้าคลังหรือไม่? เนื้อหาจะเป็นแบบอ่านอย่างเดียว",
@@ -4783,7 +4822,8 @@
    "group_copy_activity_multi_match_hint": "หนึ่งกิจกรรมมีได้หลายแมตช์ สมาชิกลงทะเบียนเข้าร่วมกิจกรรม แล้วตอนจัดแมตช์ให้เลือกผู้ลงทะเบียน 2 คนสำหรับประเภทเดี่ยว หรือ 4 คนสำหรับประเภทคู่ในแต่ละแมตช์",
    "group_copy_activity_single_match_hint": "แต่ละกิจกรรมคือหนึ่งแมตช์ เลือกสมาชิกที่ลงทะเบียน 2 คนสำหรับประเภทเดี่ยว หรือ 4 คนสำหรับประเภทคู่",
    "group_join_scan_hint": "สแกนรหัส QR ของกลุ่ม",
-   "group_reload_version_message": "ละทิ้งการจัดแมตช์ที่ยังไม่ได้บันทึก แล้วโหลดตารางล่าสุดที่บันทึกไว้หรือไม่?"
+   "group_reload_version_message": "ละทิ้งการจัดแมตช์ที่ยังไม่ได้บันทึก แล้วโหลดตารางล่าสุดที่บันทึกไว้หรือไม่?",
+   "group_manual_result_action": "เพิ่มผลการแข่งขัน"
   },
   "ur": {
    "group_archive_hint": "اس گروپ کو آرکائیو کریں؟ اس کا مواد صرف پڑھا جا سکے گا۔",
@@ -4902,7 +4942,8 @@
    "group_copy_reload_version": "دوبارہ لوڈ کریں",
    "group_copy_activity_multi_match_hint": "ایک سرگرمی میں کئی میچ ہو سکتے ہیں۔ اراکین سرگرمی کے لیے اندراج کرتے ہیں؛ میچ ترتیب دیتے وقت ہر سنگلز کے لیے 2 یا ڈبلز کے لیے 4 درج شدہ اراکین منتخب کریں۔",
    "group_copy_activity_single_match_hint": "ہر سرگرمی ایک میچ ہے۔ سنگلز کے لیے 2 یا ڈبلز کے لیے 4 درج شدہ اراکین منتخب کریں۔",
-   "group_reload_version_message": "میچوں کی محفوظ نہ کی گئی ترتیب ترک کر کے تازہ ترین محفوظ شیڈول لوڈ کریں؟"
+   "group_reload_version_message": "میچوں کی محفوظ نہ کی گئی ترتیب ترک کر کے تازہ ترین محفوظ شیڈول لوڈ کریں؟",
+   "group_manual_result_action": "میچ کا نتیجہ شامل کریں"
   },
   "vi": {
    "group_archive_hint": "Lưu trữ nhóm này? Nội dung sẽ chỉ có thể xem.",
@@ -5020,7 +5061,8 @@
    "group_copy_reload_version": "Tải lại",
    "group_copy_activity_multi_match_hint": "Một hoạt động có thể có nhiều trận đấu. Thành viên đăng ký hoạt động; khi xếp trận, chọn 2 người đã đăng ký cho mỗi trận đơn hoặc 4 người cho mỗi trận đôi.",
    "group_copy_activity_single_match_hint": "Mỗi hoạt động tương ứng với một trận đấu. Chọn 2 thành viên đã đăng ký cho đánh đơn hoặc 4 người cho đánh đôi.",
-   "group_reload_version_message": "Bỏ các thay đổi chưa lưu trong cách sắp xếp trận đấu và tải lịch thi đấu được lưu gần nhất?"
+   "group_reload_version_message": "Bỏ các thay đổi chưa lưu trong cách sắp xếp trận đấu và tải lịch thi đấu được lưu gần nhất?",
+   "group_manual_result_action": "Thêm kết quả trận đấu"
   },
   "es-MX": {
    "group_archive_hint": "¿Archivar este grupo? Su contenido quedará en modo de solo lectura.",
@@ -5138,7 +5180,8 @@
    "group_copy_reload_version": "Recargar",
    "group_copy_activity_multi_match_hint": "Una actividad puede incluir varios partidos. Los miembros se inscriben en la actividad; al organizar los partidos, elige 2 inscritos para cada individual o 4 para cada partido de dobles.",
    "group_copy_activity_single_match_hint": "Cada actividad corresponde a un partido. Elige 2 miembros inscritos para individuales o 4 para dobles.",
-   "group_reload_version_message": "¿Descartar los cambios sin guardar en la organización de los partidos y cargar el último calendario guardado?"
+   "group_reload_version_message": "¿Descartar los cambios sin guardar en la organización de los partidos y cargar el último calendario guardado?",
+   "group_manual_result_action": "Añadir resultado de partido"
   },
   "fr-CA": {
    "group_archive_hint": "Archiver ce groupe ? Son contenu sera en lecture seule.",
@@ -5256,7 +5299,8 @@
    "group_copy_reload_version": "Recharger",
    "group_copy_activity_multi_match_hint": "Une activité peut comprendre plusieurs matchs. Les membres s’inscrivent à l’activité ; lors de la préparation des matchs, sélectionnez 2 inscrits pour chaque simple ou 4 pour chaque double.",
    "group_copy_activity_single_match_hint": "Chaque activité correspond à un match. Sélectionnez 2 membres inscrits pour un simple ou 4 pour un double.",
-   "group_reload_version_message": "Abandonner les modifications non enregistrées du programme des matchs et charger le dernier programme enregistré ?"
+   "group_reload_version_message": "Abandonner les modifications non enregistrées du programme des matchs et charger le dernier programme enregistré ?",
+   "group_manual_result_action": "Ajouter un résultat de match"
   },
   "pt-PT": {
    "group_archive_hint": "Arquivar este grupo? O conteúdo ficará apenas para leitura.",
@@ -5374,7 +5418,8 @@
    "group_copy_reload_version": "Recarregar",
    "group_copy_activity_multi_match_hint": "Uma atividade pode incluir vários jogos. Os membros inscrevem-se na atividade; ao organizar os jogos, escolha 2 inscritos para cada jogo de singulares ou 4 para cada jogo de pares.",
    "group_copy_activity_single_match_hint": "Cada atividade corresponde a um jogo. Escolha 2 membros inscritos para singulares ou 4 para pares.",
-   "group_reload_version_message": "Descartar as alterações não guardadas na organização dos jogos e carregar a última programação guardada?"
+   "group_reload_version_message": "Descartar as alterações não guardadas na organização dos jogos e carregar a última programação guardada?",
+   "group_manual_result_action": "Adicionar resultado da jogo"
   },
   "en": {
    "group_save": "Save",
@@ -5382,7 +5427,7 @@
    "group_error_session_completed": "This match is complete and you can no longer request absence. Refresh the schedule to view the result.",
    "group_error_server": "The group service is temporarily unavailable. Please try again later.",
    "group_error_name_length": "Group names must contain 2–24 characters.",
-   "group_view_schedule": "View matches",
+   "group_view_schedule": "View Matches",
    "group_notice_training_published": "Training published",
    "group_notice_training_changed": "Training updated",
    "group_notice_training_cancelled": "Training cancelled",
@@ -5390,7 +5435,8 @@
    "group_reload_version": "Load Latest Version",
    "group_copy_reload_version": "Load Latest Version",
    "group_copy_lineup_reload_message": "Discard unsaved match arrangements and load the latest version?",
-   "group_reload_version_message": "Discard unsaved match arrangements and load the latest version?"
+   "group_reload_version_message": "Discard unsaved match arrangements and load the latest version?",
+   "group_manual_result_action": "Add Result"
   },
   "zh-Hans": {
    "group_save": "保存",
@@ -5408,7 +5454,8 @@
    "countdown_compact_ms": "%d分%d秒",
    "countdown_compact_m": "%d分",
    "countdown_compact_s": "%d秒",
-   "group_reload_version_message": "放弃未保存的场次安排，加载最新版本？"
+   "group_reload_version_message": "放弃未保存的场次安排，加载最新版本？",
+   "group_manual_result_action": "补记赛果"
   },
   "zh-Hant": {
    "group_save": "儲存",
@@ -5475,8 +5522,9 @@
    "group_need_login": "請先登入後繼續",
    "group_save_failed": "無法儲存比賽，請重試。",
    "group_member_settings": "成員設定",
-   "group_reload_version_message": "放棄未儲存的場次安排，載入最新版本？"
+   "group_reload_version_message": "放棄未儲存的場次安排，載入最新版本？",
+   "group_manual_result_action": "補記賽果"
   }
  },
- "retained_wording": "Abbreviations, capitalization, and semantically unchanged native copy were reviewed and retained. Existing 2026-10-20 translations are preserved when they already match the current source. English group headings moved to Title Case on 2026-10-22; native wording retained. English group headings moved to Title Case on 2026-10-22; native wording retained. English group headings moved to Title Case on 2026-10-22; native wording retained. English group headings moved to Title Case on 2026-10-22; native wording retained."
+ "retained_wording": "Abbreviations, capitalization, and semantically unchanged native copy were reviewed and retained. Existing 2026-10-20 translations are preserved when they already match the current source. English group headings moved to Title Case on 2026-10-22; native wording retained. English group headings moved to Title Case on 2026-10-22; native wording retained. English group headings moved to Title Case on 2026-10-22; native wording retained. English group headings moved to Title Case on 2026-10-22; native wording retained. English group headings moved to Title Case on 2026-10-22; native wording retained. English group headings moved to Title Case on 2026-10-22; native wording retained."
 }

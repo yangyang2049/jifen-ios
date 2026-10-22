@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "படத்தை அகற்றவும்";
 "group_report_image_error" = "படத்தைத் தயாரிக்க முடியவில்லை. வேறொரு JPG அல்லது PNG படத்தைப் பயன்படுத்தி முயற்சிக்கவும்.";
 "group_report_refresh" = "நிலையைப் புதுப்பிக்கவும்";
+"group_manual_result_action" = "போட்டி முடிவைச் சேர்";
+
+/* Media volume reminder */
+"media_volume_hint" = "ஒலி மீடியா ஒலியளவைப் பயன்படுத்துகிறது. ஒலியளவு பொத்தான்களால் அதைச் சரிசெய்யவும்.";

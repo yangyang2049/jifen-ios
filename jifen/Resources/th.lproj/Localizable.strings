@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "นำรูปภาพออก";
 "group_report_image_error" = "ไม่สามารถเตรียมรูปภาพได้ โปรดลองใช้รูปภาพ JPG หรือ PNG รูปอื่น";
 "group_report_refresh" = "รีเฟรชสถานะ";
+"group_manual_result_action" = "เพิ่มผลการแข่งขัน";
+
+/* Media volume reminder */
+"media_volume_hint" = "เสียงใช้ระดับเสียงสื่อ ปรับได้ด้วยปุ่มปรับระดับเสียง";

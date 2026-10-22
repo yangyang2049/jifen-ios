@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Usuń obraz";
 "group_report_image_error" = "Nie udało się przygotować obrazu. Spróbuj innego obrazu JPG lub PNG.";
 "group_report_refresh" = "Odśwież status";
+"group_manual_result_action" = "Dodaj wynik meczu";
+
+/* Media volume reminder */
+"media_volume_hint" = "Dźwięk korzysta z głośności multimediów. Dostosuj ją przyciskami głośności.";

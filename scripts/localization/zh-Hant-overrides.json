@@ -865,6 +865,10 @@
     "value": "圖片處理失敗，請更換 JPG 或 PNG 圖片重試。",
     "reason": "Preserve reviewed report evidence wording; 2026-10-22"
   },
+  "media_volume_hint": {
+    "value": "聲音使用媒體音量，請按音量鍵調整。",
+    "reason": "Media volume reminder; 2026-10-22"
+  },
   "group_report_refresh": {
     "value": "重新整理進度",
     "reason": "Preserve reviewed report evidence wording; 2026-10-22"

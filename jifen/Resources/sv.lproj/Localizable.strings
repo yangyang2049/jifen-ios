@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Ta bort bild";
 "group_report_image_error" = "Det gick inte att förbereda bilden. Prova en annan JPG- eller PNG-bild.";
 "group_report_refresh" = "Uppdatera status";
+"group_manual_result_action" = "Lägg till matchresultat";
+
+/* Media volume reminder */
+"media_volume_hint" = "Ljudet använder medievolymen. Justera den med volymknapparna.";

@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Odstrani sliko";
 "group_report_image_error" = "Slike ni bilo mogoče pripraviti. Poskusite z drugo sliko JPG ali PNG.";
 "group_report_refresh" = "Osveži stanje";
+"group_manual_result_action" = "Dodaj rezultat dvoboja";
+
+/* Media volume reminder */
+"media_volume_hint" = "Zvok uporablja glasnost predstavnosti. Prilagodite jo s tipkama za glasnost.";

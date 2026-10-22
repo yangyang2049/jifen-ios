@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Buang imej";
 "group_report_image_error" = "Imej tidak dapat disediakan. Cuba imej JPG atau PNG yang lain.";
 "group_report_refresh" = "Muat semula status";
+"group_manual_result_action" = "Tambah keputusan perlawanan";
+
+/* Media volume reminder */
+"media_volume_hint" = "Bunyi menggunakan kelantangan media. Laraskan dengan butang kelantangan.";

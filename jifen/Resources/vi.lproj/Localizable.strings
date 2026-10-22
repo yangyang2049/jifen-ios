@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Xóa hình ảnh";
 "group_report_image_error" = "Không thể xử lý hình ảnh. Hãy thử hình ảnh JPG hoặc PNG khác.";
 "group_report_refresh" = "Làm mới trạng thái";
+"group_manual_result_action" = "Thêm kết quả trận đấu";
+
+/* Media volume reminder */
+"media_volume_hint" = "Âm thanh sử dụng âm lượng phương tiện. Hãy điều chỉnh bằng các nút âm lượng.";

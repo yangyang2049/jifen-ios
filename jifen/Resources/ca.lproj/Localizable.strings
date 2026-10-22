@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Elimina la imatge";
 "group_report_image_error" = "No s’ha pogut preparar la imatge. Prova amb una altra imatge JPG o PNG.";
 "group_report_refresh" = "Actualitza l’estat";
+"group_manual_result_action" = "Afegeix un resultat";
+
+/* Media volume reminder */
+"media_volume_hint" = "El so fa servir el volum multimèdia. Ajusta’l amb els botons de volum.";

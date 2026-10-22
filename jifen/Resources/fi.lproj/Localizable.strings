@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Poista kuva";
 "group_report_image_error" = "Kuvan valmistelu epäonnistui. Kokeile toista JPG- tai PNG-kuvaa.";
 "group_report_refresh" = "Päivitä tila";
+"group_manual_result_action" = "Lisää ottelutulos";
+
+/* Media volume reminder */
+"media_volume_hint" = "Ääni käyttää median äänenvoimakkuutta. Säädä sitä äänenvoimakkuuspainikkeilla.";

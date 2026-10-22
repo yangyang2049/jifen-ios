@@ -2452,3 +2452,7 @@
 "group_report_remove_image" = "Görseli kaldır";
 "group_report_image_error" = "Görsel hazırlanamadı. Başka bir JPG veya PNG görsel deneyin.";
 "group_report_refresh" = "Durumu yenile";
+"group_manual_result_action" = "Maç sonucu ekle";
+
+/* Media volume reminder */
+"media_volume_hint" = "Ses, medya ses düzeyini kullanır. Ses düğmeleriyle ayarlayın.";
