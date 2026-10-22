@@ -45,6 +45,7 @@ struct AccountLoginSheet: View {
         .presentationDetents([.height(440), .large], selection: $selectedDetent)
         .presentationDragIndicator(.visible)
         .presentationSizing(.form)
+        .accessibilityIdentifier("account_login_sheet")
         .interactiveDismissDisabled(session.isWorking)
         .onChange(of: session.isAuthenticated) { _, isAuthenticated in
             if isAuthenticated && dismissOnAuthentication { dismiss() }
@@ -111,6 +112,7 @@ private struct AccountLoginView: View {
                     Task { await startAppleLogin() }
                 }
                 .frame(height: 50)
+                .accessibilityIdentifier("account_login_apple")
                 .disabled(session.isWorking)
 
                 // 登录入口例外：与上方原生 AppleIDButton 的 10pt 圆角一致，不使用胶囊。
@@ -127,6 +129,7 @@ private struct AccountLoginView: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(session.isWorking)
+                .accessibilityIdentifier("account_login_password")
 
                 loginAgreement
 
@@ -252,6 +255,7 @@ private struct PasswordLoginView: View {
                 .padding(.horizontal, 12)
                 .frame(height: 48)
                 .background(RoundedRectangle(cornerRadius: 12).fill(Theme.inputFieldBackground))
+                .accessibilityIdentifier("password_login_account")
 
                 SecureField(
                     NSLocalizedString("me_login_password_placeholder", value: "请输入密码", comment: ""),
@@ -266,6 +270,7 @@ private struct PasswordLoginView: View {
                 .padding(.horizontal, 12)
                 .frame(height: 48)
                 .background(RoundedRectangle(cornerRadius: 12).fill(Theme.inputFieldBackground))
+                .accessibilityIdentifier("password_login_password")
 
                 Button {
                     Task { await submit() }
@@ -376,6 +381,7 @@ private struct LoginAgreementBar: View {
                 comment: ""
             ))
             .accessibilityValue(agreementAccepted ? "1" : "0")
+            .accessibilityIdentifier("account_login_agreement")
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(NSLocalizedString(
@@ -925,29 +931,14 @@ struct AccountDeletionView: View {
         }
         showConfirm = false
         if outcome.success {
-            showToast(
-                outcome.message ?? (isCompletedStatus(outcome.status)
-                    ? NSLocalizedString("account_deletion_success", value: "账号已注销", comment: "")
-                    : NSLocalizedString("account_deletion_submitted", value: "注销申请已提交", comment: ""))
-            )
+            showToast(outcome.localizedMessage())
             try? await Task.sleep(nanoseconds: 600_000_000)
             dismiss()
         } else {
-            let message = outcome.message ?? NSLocalizedString(
-                "account_deletion_failed",
-                value: "账号注销失败，请稍后重试",
-                comment: ""
-            )
+            let message = outcome.localizedMessage()
             errorMessage = message
             showToast(message)
         }
-    }
-
-    /// 对齐安卓 isAccountDeletionCompletedStatus。
-    private func isCompletedStatus(_ status: String?) -> Bool {
-        let normalized = (status ?? "").trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        return normalized.isEmpty
-            || ["deleted", "completed", "complete", "success", "succeeded"].contains(normalized)
     }
 
     private func showToast(_ message: String) {
@@ -976,23 +967,7 @@ private func profileMembershipLabel(_ user: AppUser?, isVIP: Bool) -> String {
     guard user.isVIP else {
         return NSLocalizedString("me_profile_vip_badge", value: "VIP 会员", comment: "")
     }
-    if let summary = user.membership?.identitySummary.nilIfBlank {
-        return summary
-    }
-    let cycle = [user.membership?.billingCycle, user.plan]
-        .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfBlank }
-        .first?
-        .lowercased()
-    switch cycle {
-    case "month", "monthly":
-        return NSLocalizedString("membership_monthly_plan_title", value: "月卡会员", comment: "")
-    case "year", "yearly", "annual":
-        return NSLocalizedString("membership_yearly_plan_title", value: "年卡会员", comment: "")
-    case "lifetime", "permanent", "permant":
-        return NSLocalizedString("membership_lifetime_plan_title", value: "终身会员", comment: "")
-    default:
-        return NSLocalizedString("me_profile_vip_badge", value: "VIP 会员", comment: "")
-    }
+    return user.localizedMembershipTitle()
 }
 
 /// 头部卡（对齐安卓 ProfileHeaderCard）。登录态整个头像即入口（角标仅视觉提示）：

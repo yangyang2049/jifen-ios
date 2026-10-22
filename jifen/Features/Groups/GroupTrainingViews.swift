@@ -114,7 +114,7 @@ struct GroupTrainingTab: View {
                 HStack {
                     if coach {
                         Button(groupText((session.startedGameId ?? "").isEmpty ? "start_score" : "resume_score", "Start scoring")) { Task { await start(session) } }.buttonStyle(.borderedProminent).tint(Theme.primary).foregroundStyle(Theme.textOnPrimary)
-                        if (session.startedGameId ?? "").isEmpty { Button(groupText("manual_result", "Add a result")) { action = .init(kind: "manual", session: session) }.buttonStyle(.bordered).tint(Theme.textSecondary).foregroundStyle(Theme.primary) }
+                        if (session.startedGameId ?? "").isEmpty { Button(groupText("manual_result_action", "Add Result")) { action = .init(kind: "manual", session: session) }.buttonStyle(.bordered).tint(Theme.textSecondary).foregroundStyle(Theme.primary) }
                     } else if session.seats.contains(where: { $0.memberId == me?.id }) {
                         Button(groupText("leave_training", "Notify absence")) { action = .init(kind: "leave", session: session) }.buttonStyle(.bordered).tint(Theme.textSecondary).foregroundStyle(Theme.primary)
                         if let leave = detail.leaveNotices?.first(where: { $0.sessionId == session.id && $0.memberId == me?.id && $0.invalidated != true }) { Text(leave.reason); Text(GroupStatusText.leaveNotice(leave.status)).font(.caption).foregroundStyle(.secondary) }

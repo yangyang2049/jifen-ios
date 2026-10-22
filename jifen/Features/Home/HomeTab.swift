@@ -426,8 +426,12 @@ struct HomeTab: View {
                         path.append(NavigationDestination.scoreboard(.init(gameType: type, recordId: sessionID, setupResult: nil, analyticsEntryPoint: .bookingDetail)))
                     }, usesParentNavigation: true)
                     .id(invitation.id)
+                    .toolbar(.hidden, for: .tabBar)
                 }
             }
+            // The scanner pops in the Me tab while this destination is pushed.
+            // Own the invitation's visibility inside the active navigation stack.
+            .toolbar(groupInvitation == nil ? .automatic : .hidden, for: .tabBar)
         }
         .sheet(item: $homeSheet) { destination in
             HomeFormSheet(destination: destination)
@@ -1125,6 +1129,7 @@ struct HomeTab: View {
 
     @ViewBuilder
     private func buildGroupsSection() -> some View {
+        let visibleGroups = Array(groups.groups.lazy.filter(\.isActive).prefix(2))
         if groups.enabled {
             // 标题栏的 44pt 操作按钮已提供上下留白，避免重复叠加标题间距。
             VStack(alignment: .leading, spacing: 0) {
@@ -1158,38 +1163,50 @@ struct HomeTab: View {
                     }.buttonStyle(.plain).accessibilityLabel(groupText("my_groups", "My groups"))
                         .accessibilityIdentifier("home_groups")
                 }
-                Button {
-                    if let group = groups.groups.first {
-                        path.append(NavigationDestination.groupDetail(groupID: group.id))
+                VStack(spacing: 12) {
+                    if visibleGroups.isEmpty {
+                        homeGroupCard(nil)
                     } else {
-                        path.append(NavigationDestination.groups)
+                        ForEach(visibleGroups) { group in
+                            homeGroupCard(group)
+                        }
                     }
-                } label: {
-                    HStack(spacing: 12) {
-                        if let group = groups.groups.first {
-                            AppCatalogIcon(gameType: group.sport.gameType, size: 40)
-                        } else {
-                            Image(systemName: "person.3").foregroundStyle(Theme.primary)
-                        }
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(groups.groups.first?.name ?? groupText("list_add_title", "Create or join a group"))
-                                .font(.subheadline.weight(.medium))
-                            if let group = groups.groups.first {
-                                Text("\(group.sport.title) · \(group.memberCount ?? 0) " + groupText("members", "members"))
-                                    .font(.caption).foregroundStyle(.secondary)
-                            } else {
-                                Text(groupText("join_hint", "Join with a group number or QR code."))
-                                    .font(.caption).foregroundStyle(.secondary)
-                            }
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.right").foregroundStyle(.secondary)
-                    }.padding(16).frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 16))
-                }.buttonStyle(.plain)
-                    .accessibilityIdentifier(groups.groups.first.map { "home_group_card_\($0.id)" } ?? "home_group_empty")
+                }
             }
         }
+    }
+
+    private func homeGroupCard(_ group: ScoreGroup?) -> some View {
+        Button {
+            if let group {
+                path.append(NavigationDestination.groupDetail(groupID: group.id))
+            } else {
+                path.append(NavigationDestination.groups)
+            }
+        } label: {
+            HStack(spacing: 12) {
+                if let group {
+                    AppCatalogIcon(gameType: group.sport.gameType, size: 40)
+                } else {
+                    Image(systemName: "person.3").foregroundStyle(Theme.primary)
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(group?.name ?? groupText("list_add_title", "Create or join a group"))
+                        .font(.subheadline.weight(.medium))
+                    if let group {
+                        Text(group.sport.title + " · " + groupMemberCountText(group.memberCount ?? 0))
+                            .font(.caption).foregroundStyle(.secondary)
+                    } else {
+                        Text(groupText("join_hint", "Join with a group number or QR code."))
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+                Spacer()
+                Image(systemName: "chevron.right").foregroundStyle(.secondary)
+            }.padding(16).frame(maxWidth: .infinity, alignment: .leading)
+                .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 16))
+        }.buttonStyle(.plain)
+            .accessibilityIdentifier(group.map { "home_group_card_\($0.id)" } ?? "home_group_empty")
     }
 
     @ViewBuilder

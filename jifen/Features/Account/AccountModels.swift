@@ -13,6 +13,25 @@ nonisolated struct AppMembership: Codable, Equatable, Sendable {
     var identitySummary: String
 
     var isActive: Bool { status == "active" }
+
+    func localizedTitle(bundle: Bundle = .main) -> String {
+        MembershipDisplayText.title(billingCycle: billingCycle, bundle: bundle)
+    }
+}
+
+/// Server display strings are Chinese legacy metadata. Render interface copy
+/// from stable billing codes so it follows the app's selected language.
+nonisolated enum MembershipDisplayText {
+    static func title(billingCycle: String?, bundle: Bundle = .main) -> String {
+        let key: String
+        switch billingCycle?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "month", "monthly": key = "membership_monthly_plan_title"
+        case "year", "yearly", "annual": key = "membership_yearly_plan_title"
+        case "lifetime", "permanent", "permant": key = "membership_lifetime_plan_title"
+        default: key = "me_profile_vip_badge"
+        }
+        return bundle.localizedString(forKey: key, value: nil, table: nil)
+    }
 }
 
 nonisolated struct AppUser: Codable, Equatable, Identifiable, Sendable {
@@ -42,6 +61,13 @@ nonisolated struct AppUser: Codable, Equatable, Identifiable, Sendable {
     }
 
     var isVIP: Bool { role == "VIP" || plan == "VIP" || membership?.isActive == true }
+
+    func localizedMembershipTitle(bundle: Bundle = .main) -> String {
+        if let membership, membership.isActive {
+            return membership.localizedTitle(bundle: bundle)
+        }
+        return MembershipDisplayText.title(billingCycle: isVIP ? plan : nil, bundle: bundle)
+    }
 }
 
 nonisolated enum APIAssetURLResolver {

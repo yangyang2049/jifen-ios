@@ -483,7 +483,7 @@ struct GroupDetailView: View {
     }
 
     private func overviewButton(_ action: GroupOverviewActions.Action, group: ScoreGroup) -> some View {
-        let key = action == .invite ? (group.isCoaching ? "invite_students" : "invite") : action == .training ? "training" : action == .start ? "start_score" : "manual_result"
+        let key = action == .invite ? (group.isCoaching ? "invite_students" : "invite") : action == .training ? "training" : action == .start ? "start_score" : "manual_result_action"
         let icon = action == .invite ? "person.badge.plus" : action == .addResult ? "square.and.pencil" : "play.fill"
         return Button {
             switch action {
@@ -625,7 +625,7 @@ struct GroupDetailView: View {
             let canAddResult = d.group.isActive && me != nil && writable
                 && (!d.group.isCoaching || GroupPermissions.coach(d.group, member: me))
             if recordsEmpty && canAddResult {
-                GroupEmptyCard(text: groupText("no_results", "No matches recorded yet"), actionTitle: groupText("manual_result", "Add match result")) { manual = true }
+                GroupEmptyCard(text: groupText("no_results", "No matches recorded yet"), actionTitle: groupText("manual_result_action", "Add Result")) { manual = true }
                     .accessibilityIdentifier("group_records_empty")
             } else {
                 GroupEmptyCard(text: groupText("no_results", "No matches for this format"))
@@ -762,10 +762,9 @@ struct GroupDetailView: View {
     }
     private func memberRowContent(_ member: GroupMember) -> some View {
         HStack(spacing: Theme.spacing) {
-            GroupAvatar(name: member.displayName, url: member.avatarUrl)
+            GroupAvatar(name: member.displayName, url: member.avatarUrl, isVip: member.isVip == true)
             VStack(alignment: .leading) {
                 Text(member.displayName).font(.system(size: Theme.fontBody2)).foregroundStyle(Theme.textPrimary)
-                if member.isVip == true { Text("VIP").font(.caption).foregroundStyle(Theme.primary) }
                 if member.status == "removed", let date = member.removedAt, date > 0 {
                     Text(Date(timeIntervalSince1970: Double(date) / 1000), format: .dateTime)
                         .font(.caption).foregroundStyle(Theme.textSecondary)
@@ -892,7 +891,18 @@ struct GroupAvatar: View {
     var name: String
     var url: String?
     var size: CGFloat = 38
-    var body: some View { RemoteImage(url: APIAssetURLResolver.resolve(url)) { $0.resizable().scaledToFill() } placeholder: { Text(String(name.prefix(1))).font(.system(size: size <= 24 ? Theme.fontCaption : Theme.fontBody1, weight: .regular)).lineLimit(1).minimumScaleFactor(0.7).frame(maxWidth: .infinity, maxHeight: .infinity).background(GroupEditorColors.avatar).foregroundStyle(Theme.textSecondary) }.frame(width: size, height: size).clipShape(Circle()) }
+    var isVip = false
+
+    var body: some View {
+        RemoteImage(url: APIAssetURLResolver.resolve(url)) { $0.resizable().scaledToFill() } placeholder: {
+            Text(String(name.prefix(1))).font(.system(size: size <= 24 ? Theme.fontCaption : Theme.fontBody1, weight: .regular)).lineLimit(1).minimumScaleFactor(0.7).frame(maxWidth: .infinity, maxHeight: .infinity).background(GroupEditorColors.avatar).foregroundStyle(Theme.textSecondary)
+        }
+        .frame(width: size, height: size)
+        .clipShape(Circle())
+        .overlay(alignment: .bottomTrailing) {
+            if isVip { AvatarVIPBadge(avatarSize: size) }
+        }
+    }
 }
 
 /// 冲突对比保留系统表单分区；操作独立成组，长文案可以换行。

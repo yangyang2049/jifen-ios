@@ -126,6 +126,17 @@ struct QRLoginApprovalView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .appAnalyticsScreen(.qrLoginPage)
+        #if DEBUG
+        .task {
+            // Feed the real scanner callback on simulators without a camera.
+            let arguments = ProcessInfo.processInfo.arguments
+            guard arguments.contains("-UITestGroupsFixture"),
+                  let index = arguments.firstIndex(of: "-UITestQRScanPayload"),
+                  arguments.indices.contains(index + 1) else { return }
+            do { try await Task.sleep(for: .milliseconds(500)) } catch { return }
+            await receive(arguments[index + 1])
+        }
+        #endif
         .overlay { if isWorking { ProgressView().controlSize(.large) } }
         .overlay(alignment: .top) {
             if let errorMessage {

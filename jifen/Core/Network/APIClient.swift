@@ -47,9 +47,30 @@ nonisolated enum APIClientError: LocalizedError, Equatable {
         switch self {
         case .invalidResponse: NSLocalizedString("network_invalid_response", value: "服务器响应无效", comment: "")
         case .sessionExpired, .unauthorized: NSLocalizedString("login_expired", value: "登录已失效，请重新登录", comment: "")
-        case .server(_, let code, let message, _): message ?? code ?? NSLocalizedString("network_request_failed", value: "请求失败，请稍后重试", comment: "")
+        case .server(let status, let code, let message, _):
+            Self.serverMessage(status: status, code: code, message: message)
         case .decoding: NSLocalizedString("network_invalid_response", value: "服务器响应无效", comment: "")
         }
+    }
+
+    static func serverMessage(status: Int, code: String?, message: String?, bundle: Bundle = .main) -> String {
+        let key: String
+        switch code {
+        case "NAME_COOLDOWN": key = "me_profile_nickname_cooldown_generic"
+        case "NAME_BLOCKED": key = "group_error_content_blocked"
+        case "ACCOUNT_DELETION_FAILED": key = "account_deletion_failed"
+        case "SESSION_REVOKED", "ACCOUNT_DELETED": key = "login_expired"
+        default:
+            // Legacy server messages are authored in Simplified Chinese only.
+            // Keep their detail for that language; never leak them or raw codes
+            // into other app languages. Feature mappers handle business codes.
+            if bundle.preferredLocalizations.first == "zh-Hans",
+               let message, !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                return message
+            }
+            key = status == 429 ? "group_rate_limited" : "network_request_failed"
+        }
+        return bundle.localizedString(forKey: key, value: nil, table: nil)
     }
 }
 

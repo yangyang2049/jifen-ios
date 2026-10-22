@@ -69,6 +69,7 @@ struct SettingsView: View {
     @State private var showAppShareSheet = false
     @State private var showAccountLoginSheet = false
     @State private var showQRLogin = false
+    @State private var pendingGroupNumber: String?
     @State private var activeSheet: SettingsSheetDestination?
     @State private var clearDataErrorMessage: String?
     @State private var isClearingData = false
@@ -101,7 +102,15 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $showQRLogin) {
                 QRLoginApprovalView { number in
+                    // 只记录号码并关闭扫码页。跳转必须等这一页真正退出后再做：
+                    // 「pop + 切 Tab + push」落在同一帧时，新页面请求的隐藏 Tab Bar
+                    // 会被切换过程覆盖，加入页和小组页就会重新露出 Tab Bar。
+                    pendingGroupNumber = number
                     showQRLogin = false
+                }
+                .onDisappear {
+                    guard let number = pendingGroupNumber else { return }
+                    pendingGroupNumber = nil
                     onGroupInvitation(number)
                 }
             }
@@ -368,9 +377,7 @@ struct SettingsView: View {
                 guard user.isVIP else {
                     return NSLocalizedString("me_profile_vip_badge", value: "VIP", comment: "")
                 }
-                let summary = user.membership?.identitySummary.trimmingCharacters(in: .whitespacesAndNewlines)
-                if let summary, !summary.isEmpty { return summary }
-                return NSLocalizedString("me_profile_vip_badge", value: "VIP", comment: "")
+                return user.localizedMembershipTitle()
             }
             return NSLocalizedString("membership_basic_member_title", value: "普通用户", comment: "")
         }

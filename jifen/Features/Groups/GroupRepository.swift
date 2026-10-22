@@ -29,7 +29,16 @@ nonisolated struct GroupRepository: Sendable {
         if GroupCaptureFixture.enabled { return try GroupCaptureFixture.read(path, query: query) }
         if ProcessInfo.processInfo.arguments.contains("-UITestGroupsFixture") {
             // 保留 3.3 的证据举报夹具覆盖，其余路径走统一的离线夹具实现。
-            if path.hasSuffix("/report") { return try JSONDecoder().decode(T.self, from: Data("{\"report\":null}".utf8)) }
+            if path.hasSuffix("/report") {
+                if await GroupStore.shared.consumeUITestReportReadFailure(path) {
+                    throw APIClientError.server(status: 503, code: "NETWORK_FAILED", message: "fixture offline", nextAvailableAt: nil)
+                }
+                if ProcessInfo.processInfo.arguments.contains("-UITestReportReadFailureOnce") {
+                    let saved = #"{"report":{"reason":"OTHER","detail":"Original report evidence","status":"reviewing","reportId":"existing-case","version":3,"attachments":[{"uploadId":"original-image"}]}}"#
+                    return try JSONDecoder().decode(T.self, from: Data(saved.utf8))
+                }
+                return try JSONDecoder().decode(T.self, from: Data("{\"report\":null}".utf8))
+            }
             if path == "/capabilities", var catalog = await MainActor.run(body: { GroupStore.shared.capabilities }) {
                 catalog.groupReportEvidenceEnabled = true
                 return try JSONDecoder().decode(T.self, from: JSONEncoder().encode(catalog))
@@ -43,6 +52,13 @@ nonisolated struct GroupRepository: Sendable {
     func write<T: Decodable & Sendable>(_ path: String, body: (any Encodable & Sendable)? = nil, method: HTTPMethod = .post, key: String? = nil, revision: Int64? = nil, expectedAuthRevision: UInt64? = nil) async throws -> T {
         #if DEBUG
         if GroupCaptureFixture.enabled { try GroupCaptureFixture.rejectWrite(path) }
+        if ProcessInfo.processInfo.arguments.contains("-UITestGroupsFixture"),
+           ProcessInfo.processInfo.arguments.contains("-UITestGroupScan"), path.hasSuffix("/join") {
+            return try JSONDecoder().decode(T.self, from: Data(#"{"kind":"joined","groupId":"ui-group"}"#.utf8))
+        }
+        if GroupJoinAuthUITestFixture.enabled, path.hasSuffix("/join") {
+            await MainActor.run { GroupJoinAuthUITestFixture.shared.joinAttempts += 1 }
+        }
         if ProcessInfo.processInfo.arguments.contains("-UITestGroupsFixture") {
             throw GroupUITestFixtureError.blockedWrite(path)
         }
@@ -146,6 +162,12 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
 }
 
 @MainActor @Observable final class GroupStore {
+    #if DEBUG
+    private var reportReadFixtureFailures: Set<String> = []
+    func consumeUITestReportReadFailure(_ path: String) -> Bool {
+        ProcessInfo.processInfo.arguments.contains("-UITestReportReadFailureOnce") && reportReadFixtureFailures.insert(path).inserted
+    }
+    #endif
     static let shared = GroupStore()
     var repository = GroupRepository()
     private(set) var cache = GroupAccountCache()
@@ -653,6 +675,16 @@ extension GroupStore {
             payload = try page(cache.pending)
         } else if path == "/notices" {
             payload = try encoded(UITestNoticePage(items: notices, nextCursor: nil, unreadCount: unreadCount))
+        } else if ProcessInfo.processInfo.arguments.contains("-UITestGroupScan"), parts.count == 3, parts[0] == "by-number", parts[2] == "preview" {
+            let arguments = ProcessInfo.processInfo.arguments
+            let policy = arguments.contains("-UITestGroupScanApproval") ? "approval" : "open"
+            let availability = arguments.contains("-UITestGroupScanMember") ? "already_member" : "available"
+            payload = try JSONSerialization.data(withJSONObject: ["groupId": "ui-group", "groupNo": parts[1], "name": "扫码邀请小组", "sport": "badminton", "memberCount": 4, "joinPolicy": policy, "availability": availability])
+        } else if GroupJoinAuthUITestFixture.enabled, parts.count == 3, parts[0] == "by-number", parts[2] == "preview" {
+            let arguments = ProcessInfo.processInfo.arguments
+            let policy = arguments.contains("-UITestGroupJoinApproval") ? "approval" : "open"
+            let availability = SessionStore.shared.isAuthenticated && arguments.contains("-UITestGroupJoinFull") ? "full" : "available"
+            payload = try JSONSerialization.data(withJSONObject: ["groupNo": parts[1], "name": "扫码邀请小组", "description": "公开的小组简介", "sport": "badminton", "memberCount": 4, "joinPolicy": policy, "availability": availability])
         } else if let detail = cache.details[parts[0]] {
             let resource = parts.count > 1 ? parts[1] : ""
             if parts.count == 1 {
@@ -730,6 +762,12 @@ extension GroupStore {
             } catch { self.error = error.localizedDescription; return true }
         }
         guard ProcessInfo.processInfo.arguments.contains("-UITestGroupsFixture") else { return false }
+        if GroupJoinAuthUITestFixture.enabled {
+            sessionDidChange(userID: SessionStore.shared.user?.id)
+            enabled = true; cached = false; error = nil
+            capabilities = .init(groupNoLength: 6, nameMin: 2, nameMax: 24, descriptionMax: 200, memberLimitDefault: 30, memberLimitMax: 50, ruleSchemaVersion: 1, supportsDraws: true)
+            return true
+        }
         if !preparedUITestDrafts, ProcessInfo.processInfo.arguments.contains("-UITestGroupsFreshDrafts") {
             preparedUITestDrafts = true
             GroupLocalPersistence.shared.removeDraft(key: "match:ui-group:free:true", accountID: "ui-test-user")

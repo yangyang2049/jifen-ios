@@ -20,6 +20,8 @@ struct GroupEvidenceReportSheet: View {
     @State private var selectedPhotos: [PhotosPickerItem] = []
     @State private var busy = false
     @State private var loading = true
+    @State private var reportLoaded = false
+    @State private var legacyReport = false
     @State private var loadingPhotos = false
     @State private var receipt = false
     @State private var evidenceEnabled = false
@@ -40,7 +42,8 @@ struct GroupEvidenceReportSheet: View {
             reasons: GroupReportReason.allCases.map { .init(id: $0.rawValue, title: $0.title) },
             selectedReasonID: $reasonID, detail: $detail,
             isSubmitting: busy || loading,
-            canSubmit: !loadingPhotos && !images.contains { $0.uploading || $0.failed },
+            canSubmit: reportLoaded && !loadingPhotos && !images.contains { $0.uploading || $0.failed },
+            canEdit: reportLoaded,
             errorMessage: error,
             statusTitle: current.map { groupText("report_status", "Your report") + " · " + $0.statusLabel },
             statusDetail: current?.publicResolution,
@@ -66,7 +69,10 @@ struct GroupEvidenceReportSheet: View {
     }
 
     @ViewBuilder private var evidenceSection: some View {
-        if current != nil { Button(groupText("report_refresh", "Refresh status")) { Task { await reload(preserveDraft: !receipt) } } }
+        if current != nil || !reportLoaded {
+            Button(groupText("report_refresh", "Refresh status")) { Task { await reload(preserveDraft: !receipt) } }
+                .disabled(loading || busy)
+        }
         if receipt, let reportID = current?.reportId { Text(reportID).font(.caption).foregroundStyle(Theme.textSecondary) }
         if evidenceEnabled || !images.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
@@ -94,7 +100,7 @@ struct GroupEvidenceReportSheet: View {
                                     Image(systemName: "plus")
                                     Text(groupText("report_add_image", "Add image")).font(.caption)
                                 }.frame(width: 76, height: 76).background(Theme.inputFieldBackground, in: RoundedRectangle(cornerRadius: 10))
-                            }.disabled(loadingPhotos)
+                            }.disabled(loadingPhotos || !reportLoaded || busy)
                         }
                     }
                 }
@@ -116,21 +122,27 @@ struct GroupEvidenceReportSheet: View {
 
     private func reload(preserveDraft: Bool = false) async {
         let account = store.accountID, revision = store.identityRevision, epoch = generation
-        loading = true
+        let keepDraft = preserveDraft && current != nil
+        loading = true; reportLoaded = false
         defer { if generation == epoch { loading = false } }
         do {
-            let response: GroupCurrentReport = try await store.repository.read(reportPath)
+            let capabilities: GroupCapabilities = try await store.repository.read("/capabilities")
             guard generation == epoch, let account, store.matchesIdentity(account, revision: revision) else { return }
+            evidenceEnabled = capabilities.groupReportEvidenceEnabled == true
+            legacyReport = capabilities.groupReportEvidenceEnabled == nil
+            if legacyReport {
+                reportLoaded = true; error = nil
+                return
+            }
+            let response: GroupCurrentReport = try await store.repository.read(reportPath)
+            guard generation == epoch, store.matchesIdentity(account, revision: revision) else { return }
             current = response.report
-            if let saved = response.report, !preserveDraft {
+            if let saved = response.report, !keepDraft {
                 reasonID = saved.reason; detail = saved.detail ?? ""
                 images = (saved.attachments ?? []).filter { $0.purged != true }.map { .init(uploaded: $0) }
                 receipt = true
             }
-            let capabilities: GroupCapabilities = try await store.repository.read("/capabilities")
-            guard generation == epoch, store.matchesIdentity(account, revision: revision) else { return }
-            evidenceEnabled = capabilities.groupReportEvidenceEnabled == true
-            error = nil
+            reportLoaded = true; error = nil
         } catch { if generation == epoch, let account, store.matchesIdentity(account, revision: revision) { self.error = groupErrorMessage(error) } }
     }
 
@@ -171,12 +183,14 @@ struct GroupEvidenceReportSheet: View {
     }
 
     private func submit() async {
-        guard !busy, !loading, !loadingPhotos, !images.contains(where: { $0.uploading || $0.failed }), let reasonID,
+        guard reportLoaded, !busy, !loading, !loadingPhotos, !images.contains(where: { $0.uploading || $0.failed }), let reasonID,
               let account = store.accountID else { return }
         let identity = store.identityRevision, epoch = generation
-        nonisolated struct Body: Encodable, Sendable { var reason: String; var detail: String; var attachmentIds: [String]; var expectedVersion: Int? }
-        let body = Body(reason: reasonID, detail: detail, attachmentIds: images.compactMap { $0.uploaded?.uploadId }, expectedVersion: current?.version)
-        let fingerprint = reasonID + detail + body.attachmentIds.joined(separator: ",") + String(current?.version ?? 0)
+        nonisolated struct Body: Encodable, Sendable { var reason: String; var detail: String; var attachmentIds: [String]?; var expectedVersion: Int? }
+        let body = Body(reason: reasonID, detail: detail,
+                        attachmentIds: legacyReport ? nil : images.compactMap { $0.uploaded?.uploadId },
+                        expectedVersion: legacyReport ? nil : (current?.version ?? 0))
+        let fingerprint = reasonID + detail + (body.attachmentIds ?? []).joined(separator: ",") + String(body.expectedVersion ?? -1)
         if fingerprint != requestFingerprint { requestKey = UUID().uuidString; requestFingerprint = fingerprint }
         let authRevision = await APIClient.shared.authSessionRevision()
         guard generation == epoch, store.matchesIdentity(account, revision: identity) else { return }

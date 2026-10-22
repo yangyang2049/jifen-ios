@@ -42,6 +42,8 @@ nonisolated struct GroupPendingUpload: Codable, Identifiable, Sendable {
     }
 
     func failureMessage(bundle: Bundle = .main) -> String? {
+        // Keep the stable cause for retry classification, but hide it while automatic retry is scheduled.
+        guard nextAttemptAt == nil else { return nil }
         guard let code = resolvedFailureCode else { return nil }
         return groupErrorMessage(APIClientError.server(status: 422, code: code, message: nil, nextAvailableAt: nil), bundle: bundle)
     }

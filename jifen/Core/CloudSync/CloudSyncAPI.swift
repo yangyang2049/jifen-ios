@@ -164,7 +164,7 @@ enum CloudSyncGameTypes {
 
 enum CloudSyncErrorMapper {
     static func joinFailureMessage(_ error: Error) -> String {
-        if let apiError = error as? APIClientError, case .server(_, let code, let message, _) = apiError {
+        if let apiError = error as? APIClientError, case .server(_, let code, _, _) = apiError {
             switch code {
             case "CODE_EXPIRED":
                 return NSLocalizedString("sync_code_expired", value: "短码已过期，请让分享端重新生成短码", comment: "")
@@ -175,7 +175,7 @@ enum CloudSyncErrorMapper {
             case "DISPLAY_SLOTS_EXHAUSTED", "CONNECTION_LIMIT_REACHED":
                 return NSLocalizedString("sync_join_display_slots_full", value: "该比赛的显示端名额已满", comment: "")
             default:
-                if let message, !message.isEmpty { return message }
+                return apiError.localizedDescription
             }
         }
         return NSLocalizedString(

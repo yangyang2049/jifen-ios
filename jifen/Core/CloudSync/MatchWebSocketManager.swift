@@ -125,7 +125,7 @@ enum WsOfflineQueuePolicy {
 // MARK: - WebSocket 管理器（对齐安卓 MatchWebSocketManager）
 
 @MainActor
-final class MatchWebSocketManager: NSObject, ObservableObject {
+final class MatchWebSocketManager: NSObject, ObservableObject, URLSessionWebSocketDelegate {
     static let shared = MatchWebSocketManager()
 
     @Published private(set) var connectionState: WsConnectionState = .disconnected
@@ -143,11 +143,12 @@ final class MatchWebSocketManager: NSObject, ObservableObject {
     private var receiveLoopTask: Task<Void, Never>?
     private var reconnectTask: Task<Void, Never>?
     private var reconnectAttempts = 0
+    private var socketGeneration: UInt64 = 0
     private var autoReconnectDisabled = false
 
     private let maxReconnectAttempts = 5
     private let maxSentMessagesCache = 100
-    private lazy var session: URLSession = URLSession(configuration: .default)
+    private lazy var session: URLSession = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
 
     override private init() {
         super.init()
@@ -193,6 +194,7 @@ final class MatchWebSocketManager: NSObject, ObservableObject {
         if sendLeave {
             self.sendLeave(reason: leaveReason)
         }
+        socketGeneration &+= 1
         stopHeartbeat()
         reconnectTask?.cancel()
         reconnectTask = nil
@@ -214,40 +216,52 @@ final class MatchWebSocketManager: NSObject, ObservableObject {
             return
         }
         let task = session.webSocketTask(with: url)
+        socketGeneration &+= 1
         webSocket = task
         task.resume()
-        startReceiveLoop()
-        connectionState = .connected
-        reconnectAttempts = 0
-        sendJoin()
-        startHeartbeat()
-        flushQueue()
+        startReceiveLoop(task)
     }
 
-    private func startReceiveLoop() {
-        receiveLoopTask?.cancel()
-        receiveLoopTask = Task { [weak self] in
-            await self?.receiveLoop()
+    nonisolated func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
+        Task { @MainActor [weak self] in
+            guard let self, self.webSocket === webSocketTask else { return }
+            self.connectionState = .connected
+            self.reconnectAttempts = 0
+            self.sendJoin()
+            self.startHeartbeat()
+            self.flushQueue()
         }
     }
 
-    private func receiveLoop() async {
-        while !Task.isCancelled, let task = webSocket {
+    nonisolated func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
+        Task { @MainActor [weak self] in self?.handleClose(webSocketTask) }
+    }
+
+    private func startReceiveLoop(_ task: URLSessionWebSocketTask) {
+        receiveLoopTask?.cancel()
+        receiveLoopTask = Task { [weak self] in
+            await self?.receiveLoop(task)
+        }
+    }
+
+    private func receiveLoop(_ task: URLSessionWebSocketTask) async {
+        while !Task.isCancelled, webSocket === task {
             do {
                 let message = try await task.receive()
+                guard webSocket === task else { return }
                 switch message {
                 case .string(let text):
-                    await MainActor.run { self.handleText(text) }
+                    handleText(text)
                 case .data(let data):
                     if let text = String(data: data, encoding: .utf8) {
-                        await MainActor.run { self.handleText(text) }
+                        handleText(text)
                     }
                 @unknown default:
                     break
                 }
             } catch {
                 if !Task.isCancelled {
-                    await MainActor.run { self.handleClose() }
+                    handleClose(task)
                 }
                 return
             }
@@ -268,11 +282,13 @@ final class MatchWebSocketManager: NSObject, ObservableObject {
         dispatch(envelope)
     }
 
-    private func handleClose() {
+    private func handleClose(_ task: URLSessionWebSocketTask) {
+        guard webSocket === task else { return }
         stopHeartbeat()
         receiveLoopTask?.cancel()
         receiveLoopTask = nil
         webSocket = nil
+        task.cancel(with: .goingAway, reason: nil)
         connectionState = .disconnected
         guard !autoReconnectDisabled, reconnectAttempts < maxReconnectAttempts, matchId != nil else { return }
         scheduleReconnect()
@@ -420,9 +436,13 @@ final class MatchWebSocketManager: NSObject, ObservableObject {
               let text = String(data: data, encoding: .utf8) else {
             return
         }
+        let generation = socketGeneration
         webSocket.send(.string(text)) { [weak self] error in
             if error != nil {
-                Task { @MainActor [weak self] in self?.enqueuePending(envelope) }
+                Task { @MainActor [weak self] in
+                    guard let self, self.socketGeneration == generation else { return }
+                    self.enqueuePending(envelope)
+                }
             }
         }
     }

@@ -6,9 +6,14 @@ import CoreImage.CIFilterBuiltins
 
 struct GroupJoinView: View {
     private enum InputField: Hashable { case number, message }
+    private enum Sheet: String, Identifiable {
+        case scanner, report, login
+        var id: String { rawValue }
+    }
     var onStart: (GameType, SportsSetupResult, String) -> Void
     var usesParentNavigation = false
     @Environment(\.dismiss) private var dismiss
+    @Environment(SessionStore.self) private var session
     @State private var store = GroupStore.shared
     @State private var number = ""
     @State private var message = ""
@@ -18,10 +23,7 @@ struct GroupJoinView: View {
     @State private var joinedID: String?
     @State private var waiting = false
     @State private var busy = false
-    @State private var scanner = false
-    @State private var login = false
-    @State private var loginTarget: String?
-    @State private var reporting = false
+    @State private var sheet: Sheet?
     @State private var submitting = false
     @State private var photoGeneration = 0
     @State private var key = UUID().uuidString
@@ -40,6 +42,9 @@ struct GroupJoinView: View {
         if usesParentNavigation { destination }
         else { NavigationStack { destination } }
     }
+    private var previewTaskID: String {
+        "\(number):\(store.identityRevision):\(session.isAuthenticated):\(session.user?.id ?? "")"
+    }
     @ViewBuilder private var destination: some View {
         if let joinedID { GroupDetailView(groupID: joinedID, onStart: onStart, welcomeBack: preview?.effectiveAvailability == "already_member") }
         else { editor }
@@ -48,7 +53,7 @@ struct GroupJoinView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.padding) {
                 if !seededEntry {
-                    Button { scanner = true } label: {
+                    Button { focusedInput = nil; sheet = .scanner } label: {
                         HStack(spacing: Theme.spacing) {
                             Image(systemName: "qrcode.viewfinder").font(.system(size: Theme.fontH3)).foregroundStyle(Theme.textSecondary)
                             VStack(alignment: .leading, spacing: Theme.xs) {
@@ -83,7 +88,9 @@ struct GroupJoinView: View {
             }.padding(Theme.padding).frame(maxWidth: 720).expandedPhonePageContent(existingHorizontalInset: Theme.padding).frame(maxWidth: .infinity)
         }.scrollDismissesKeyboard(.interactively).background(Theme.backgroundColor)
             .disabled(submitting).interactiveDismissDisabled(submitting)
-            .navigationTitle(groupText("join", "Join group")).navigationBarTitleDisplayMode(.inline).groupAccountBoundary()
+            // This public invitation page survives sign-in; account-only detail pages keep their boundary.
+            .navigationTitle(groupText("join", "Join group")).navigationBarTitleDisplayMode(.inline)
+            .groupAdaptiveOrientation().toolbar(.hidden, for: .tabBar)
             .navigationBarBackButtonHidden(usesParentNavigation && submitting)
             .toolbar {
                 if !usesParentNavigation { ToolbarItem(placement: .cancellationAction) { ModalCloseButton { dismiss() } } }
@@ -93,18 +100,35 @@ struct GroupJoinView: View {
                         .tint(Theme.primary).accessibilityIdentifier("group_keyboard_done")
                 }
             }
-            .sheet(isPresented: $scanner) { NavigationStack { GroupScannerView(photo: $photo) { raw in scanner = false; receive(raw) } } }
-            .sheet(isPresented: $reporting) { GroupPreviewReportView(groupNo: number) }
-            .sheet(isPresented: $login, onDismiss: { if SessionStore.shared.isAuthenticated { Task { await store.refresh(); await loadPreview(); if loginTarget == number, preview?.effectiveAvailability == "available", preview?.groupNo == number { await join() }; loginTarget = nil } } }) { AccountLoginSheet() }
+            .sheet(item: $sheet) { destination in
+                switch destination {
+                case .scanner:
+                    NavigationStack { GroupScannerView(photo: $photo) { raw in sheet = nil; receive(raw) } }
+                case .report:
+                    GroupPreviewReportView(groupNo: number)
+                case .login:
+                    AccountLoginSheet()
+                }
+            }
+            #if DEBUG
+            .overlay(alignment: .bottom) {
+                if GroupJoinAuthUITestFixture.enabled {
+                    Color.clear.frame(width: 1, height: 1).accessibilityElement(children: .ignore)
+                        .accessibilityIdentifier("group_join_auth_fixture").accessibilityLabel("group_join_auth_fixture")
+                        .accessibilityValue(GroupJoinAuthUITestFixture.shared.metadata).allowsHitTesting(false)
+                }
+            }
+            #endif
 
-            .onChange(of: number) { _, value in seededEntry = false; previewRevision &+= 1; photoGeneration += 1; busy = false; if preview?.groupNo != value { preview = nil }; waiting = false; message = ""; localError = nil; loginTarget = nil; key = UUID().uuidString }
-            .onChange(of: store.identityRevision) { _, _ in
+            .onChange(of: number) { _, _ in seededEntry = false; message = "" }
+            .onChange(of: previewTaskID) { _, _ in
                 previewRevision &+= 1; busy = false; preview = nil; waiting = false; joinedID = nil; localError = nil; key = UUID().uuidString
-                if GroupQRPayload.validNumber(number, capabilities: store.capabilities) { Task { await loadPreview() } }
+                photoGeneration += 1; photo = nil; seededAutoOpened = false
+                if sheet == .report { sheet = nil }
             }
             .onChange(of: message) { _,_ in key = UUID().uuidString }
-            .onChange(of: photo) { _, item in if item != nil { scanner = false; Task { await decodePhoto(item) } } }
-            .task(id: number) {
+            .onChange(of: photo) { _, item in if item != nil { sheet = nil; Task { await decodePhoto(item) } } }
+            .task(id: previewTaskID) {
                 guard GroupQRPayload.validNumber(number, capabilities: store.capabilities) else { return }
                 do { try await Task.sleep(for: .milliseconds(350)) } catch { return }
                 guard !Task.isCancelled else { return }
@@ -129,9 +153,9 @@ struct GroupJoinView: View {
                         .padding(.horizontal, Theme.sm).padding(.vertical, Theme.xs)
                         .background(Theme.tintedFill(!waiting && preview.effectiveAvailability == "available" ? Theme.primary : Theme.textSecondary, lightAlpha: 0.10, darkAlpha: 0.16), in: Capsule())
                         .accessibilityIdentifier("group_join_availability")
-                    if SessionStore.shared.isAuthenticated {
+                    if session.isAuthenticated {
                         Menu {
-                            Button(groupText("report", "Report group")) { reporting = true }
+                            Button(groupText("report", "Report group")) { sheet = .report }
                                 .accessibilityIdentifier("group_join_preview_report")
                         } label: {
                             Image(systemName: "ellipsis").rotationEffect(.degrees(90))
@@ -154,8 +178,9 @@ struct GroupJoinView: View {
                         .padding(.horizontal, 14).padding(.vertical, Theme.spacing).frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
                         .background(GroupEditorColors.insetInput, in: RoundedRectangle(cornerRadius: 12)).focused($focusedInput, equals: .message).accessibilityIdentifier("group_join_message") }
                     Button(groupText(preview.joinPolicy == "approval" ? "request_join" : "confirm_join", preview.joinPolicy == "approval" ? "Request to join" : "Join")) {
-                        if SessionStore.shared.isAuthenticated { Task { await join() } } else { loginTarget = number; login = true }
+                        Task { await join() }
                     }.disabled(busy || !GroupInputValidation.validText(message, maximum: GroupInputValidation.joinMessageMax) || preview.groupNo != number || !(store.capabilities?.allows("join_group") ?? true))
+                        .accessibilityIdentifier("group_join_submit")
                 } else { GroupNotice(text: groupText("unavailable", "This group cannot accept new members.")) }
                 if preview.hasPendingRequest && preview.effectiveAvailability != "pending_approval", let requestID = preview.requestId {
                     Button(groupText("withdraw", "Withdraw request"), role: .destructive) { Task { if await store.perform({ try await store.repository.action("/join-requests/\(requestID)/withdraw") }) { waiting = false; await loadPreview(); await store.refresh() } } }.disabled(busy)
@@ -170,31 +195,42 @@ struct GroupJoinView: View {
         if number == code { Task { await loadPreview() } } else { number = code }
     }
     private func loadPreview() async {
-        let requestedNumber = number, accountRevision = store.identityRevision
+        let requestedNumber = number, requestedSession = previewTaskID
         previewRevision &+= 1; let requestRevision = previewRevision
         busy = true; defer { if previewRevision == requestRevision { busy = false } }; localError = nil
-        let authenticated = SessionStore.shared.isAuthenticated
+        let authenticated = session.isAuthenticated
         do {
             let loaded: GroupPreview = try await store.repository.read("/by-number/\(requestedNumber)/preview", authenticated: authenticated)
-            guard number == requestedNumber, previewRevision == requestRevision, store.identityRevision == accountRevision, !Task.isCancelled else { return }
+            guard previewTaskID == requestedSession, previewRevision == requestRevision, !Task.isCancelled else { return }
             preview = loaded; waiting = loaded.effectiveAvailability == "pending_approval"
             if seededEntry, !seededAutoOpened, loaded.effectiveAvailability == "already_member" {
                 // 与「打开小组」按钮同一条路径：先刷新成员列表，再按 groupId / 号码兜底定位。
                 seededAutoOpened = true
                 await store.refresh()
-                guard number == requestedNumber, previewRevision == requestRevision, store.identityRevision == accountRevision, !Task.isCancelled else { return }
+                guard previewTaskID == requestedSession, previewRevision == requestRevision, !Task.isCancelled else { return }
                 if let groupID = loaded.groupId ?? store.groups.first(where: { $0.groupNo == loaded.groupNo })?.id {
                     joinedID = groupID
                 }
             }
         } catch {
-            if number == requestedNumber, previewRevision == requestRevision, store.identityRevision == accountRevision { localError = groupErrorMessage(error) }
+            if previewTaskID == requestedSession, previewRevision == requestRevision, !Task.isCancelled { localError = groupErrorMessage(error) }
         }
     }
     private func join() async {
-        guard preview?.groupNo == number, preview?.effectiveAvailability == "available", GroupInputValidation.validText(message, maximum: GroupInputValidation.joinMessageMax) else { return }
-        busy = true; submitting = true; defer { busy = false; submitting = false }
+        guard !busy, !submitting, sheet == nil,
+              preview?.groupNo == number, preview?.effectiveAvailability == "available",
+              GroupInputValidation.validText(message, maximum: GroupInputValidation.joinMessageMax),
+              store.capabilities?.allows("join_group") ?? true else { return }
+        guard session.isAuthenticated else {
+            focusedInput = nil
+            photoGeneration += 1; photo = nil
+            sheet = .login
+            return
+        }
+        // 只要求账号已就绪；账号与当前登录身份是否一致由 store.perform 内部校验并给出
+        // 可见错误。这里若再静默 return，刚登录后身份尚未同步时点「加入」会毫无反应。
         guard let accountID = store.accountID else { return }
+        busy = true; submitting = true; defer { busy = false; submitting = false }
         let accountRevision = store.identityRevision, requestedNumber = number
         let requestMessage = message, requestKey = key
         let success = await store.perform {

@@ -7,6 +7,15 @@ struct AccountDeletionOutcome: Sendable {
     let success: Bool
     let status: String?
     let message: String?
+
+    func localizedMessage(bundle: Bundle = .main) -> String {
+        let normalized = (status ?? "").trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let completed = normalized.isEmpty || ["deleted", "completed", "complete", "success", "succeeded"].contains(normalized)
+        let key = success
+            ? (completed ? "account_deletion_success" : "account_deletion_submitted")
+            : "account_deletion_failed"
+        return bundle.localizedString(forKey: key, value: nil, table: nil)
+    }
 }
 
 nonisolated private struct AccountDeletionRequestBody: Encodable, Sendable {
@@ -32,7 +41,12 @@ nonisolated enum PasswordLoginEndpoint {
 @MainActor
 @Observable
 final class SessionStore {
-    static let shared = SessionStore()
+    static let shared: SessionStore = {
+        #if DEBUG
+        if GroupJoinAuthUITestFixture.enabled { return GroupJoinAuthUITestFixture.makeSession() }
+        #endif
+        return SessionStore()
+    }()
 
     enum State: Equatable {
         case restoring
@@ -169,6 +183,11 @@ final class SessionStore {
 
     func reloadProfile() async {
         guard isAuthenticated else { return }
+        #if DEBUG
+        // 假登录态没有真实 token，不能用 Keychain 里遗留的旧凭证打真实接口，
+        // 否则用户身份会被替换成别的账号，与夹具账号不一致后会报「请先登录」。
+        if uiTestFakeSessionActive { return }
+        #endif
         let generation = sessionGeneration
         let revision = await tokenStore.authSessionRevision()
         do {
@@ -226,7 +245,7 @@ final class SessionStore {
 
     private static func profileUpdateErrorMessage(_ error: Error) -> String {
         guard let apiError = error as? APIClientError,
-              case .server(_, let code, let message, let nextAvailableAt) = apiError,
+              case .server(_, let code, _, let nextAvailableAt) = apiError,
               code == "NAME_COOLDOWN"
         else {
             return error.localizedDescription
@@ -246,7 +265,7 @@ final class SessionStore {
                 formatter.string(from: date)
             )
         }
-        return message ?? NSLocalizedString(
+        return NSLocalizedString(
             "me_profile_nickname_cooldown_generic",
             value: "昵称修改后需要稍等一会儿，请稍后再试",
             comment: ""
@@ -544,6 +563,54 @@ final class SessionStore {
         return nil
     }
 }
+
+#if DEBUG
+/// Exercises the real login UI/session transition without Apple authorization or a server write.
+@MainActor @Observable final class GroupJoinAuthUITestFixture {
+    static let shared = GroupJoinAuthUITestFixture()
+    nonisolated static var enabled: Bool {
+        let arguments = ProcessInfo.processInfo.arguments
+        return arguments.contains("-UITestGroupsFixture") && arguments.contains("-UITestGroupJoinAuth")
+    }
+    var appleAttempts = 0
+    var joinAttempts = 0
+    var metadata: String { "authenticated=\(SessionStore.shared.isAuthenticated);apple=\(appleAttempts);join=\(joinAttempts)" }
+
+    static func makeSession() -> SessionStore {
+        let tokens = AuthTokenStore(service: "group-join-ui-test.\(UUID().uuidString)")
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [GroupJoinAuthUITestTransport.self]
+        let client = APIClient(session: URLSession(configuration: configuration), tokenStore: tokens)
+        return SessionStore(client: client, tokenStore: tokens, appleProvider: AppleProvider(), postAuthenticationWarmup: { id in
+            GroupStore.shared.sessionDidChange(userID: id)
+            await GroupStore.shared.refresh()
+        })
+    }
+
+    private struct AppleProvider: AccountIdentityProviding {
+        let providerID: AccountIdentityProviderID = .apple
+        func signIn() async throws -> AuthResponse {
+            GroupJoinAuthUITestFixture.shared.appleAttempts += 1
+            throw AppleAuthError.cancelled
+        }
+    }
+}
+
+private nonisolated final class GroupJoinAuthUITestTransport: URLProtocol, @unchecked Sendable {
+    override class func canInit(with request: URLRequest) -> Bool { true }
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+    override func startLoading() {
+        guard let url = request.url, url.path == PasswordLoginEndpoint.path else {
+            client?.urlProtocol(self, didFailWithError: URLError(.unsupportedURL)); return
+        }
+        let body = #"{"token":"ui-test-group-token","expiresAt":"2099-01-01T00:00:00Z","user":{"id":"ui-test-user","name":"UITestUser","role":"FREE","plan":"FREE","createdAt":1}}"#
+        client?.urlProtocol(self, didReceive: HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: ["Content-Type": "application/json"])!, cacheStoragePolicy: .notAllowed)
+        client?.urlProtocol(self, didLoad: Data(body.utf8))
+        client?.urlProtocolDidFinishLoading(self)
+    }
+    override func stopLoading() {}
+}
+#endif
 
 nonisolated private extension Data {
     mutating func appendUTF8(_ value: String) {

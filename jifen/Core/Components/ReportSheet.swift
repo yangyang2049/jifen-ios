@@ -41,6 +41,7 @@ struct ReportSheet: View {
     @Binding var detail: String
     var isSubmitting = false
     var canSubmit = true
+    var canEdit = true
     var errorMessage: String?
     var statusTitle: String?
     var statusDetail: String?
@@ -89,6 +90,7 @@ struct ReportSheet: View {
                     }
                     .accessibilityElement(children: .contain)
                     .accessibilityLabel(reasonTitle)
+                    .disabled(!canEdit)
 
                     VStack(alignment: .leading, spacing: 8) {
                         TextField(detailPlaceholder, text: $detail, axis: .vertical)
@@ -99,6 +101,7 @@ struct ReportSheet: View {
                             .frame(maxWidth: .infinity, minHeight: 90, alignment: .topLeading)
                             .background(Theme.inputFieldBackground, in: RoundedRectangle(cornerRadius: 12))
                             .accessibilityIdentifier(accessibilityPrefix + "_detail")
+                            .disabled(!canEdit)
                     }
 
                     } else if !detail.isEmpty {

@@ -128,7 +128,7 @@ private struct FeedbackAuthorAvatarView: View {
             .clipShape(Circle())
 
             if isVip {
-                vipBadge
+                AvatarVIPBadge(avatarSize: size)
             }
         }
         .frame(width: size, height: size)
@@ -144,17 +144,6 @@ private struct FeedbackAuthorAvatarView: View {
                 .foregroundColor(Theme.textSecondary)
                 .opacity(size <= 20 ? 0.75 : 1)
         }
-    }
-
-    private var vipBadge: some View {
-        let badgeSize: CGFloat = size >= 44 ? 15 : size >= 36 ? 13 : 8
-        let glyphSize: CGFloat = size >= 36 ? 9 : 6
-        return Text("v")
-            .font(.system(size: glyphSize, weight: .medium).italic())
-            .foregroundColor(Color(hex: "422006"))
-            .frame(width: badgeSize, height: badgeSize)
-            .background(Circle().fill(Color(hex: "FBBF24")))
-            .offset(x: 0.4, y: -0.2)
     }
 }
 

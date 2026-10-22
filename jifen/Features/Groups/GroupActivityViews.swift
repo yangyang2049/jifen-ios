@@ -464,16 +464,16 @@ struct GroupActivityView: View {
         if !GroupActivityPolicy.allowsMatchEntry(activityStatus: current.status, sessionStatus: session?.status) {
             EmptyView()
         } else if completed {
-            if correcting { Button(groupText("manual_result", "Add match result")) { match = .init(manual: true, session: session) }.disabled(!allowed || !writable) }
+            if correcting { Button(groupText("manual_result_action", "Add Result")) { match = .init(manual: true, session: session) }.disabled(!allowed || !writable) }
         } else if session?.status != "cancelled" && current.status != "cancelled" {
             if let gameID {
                 if localGameIDs.contains(gameID), snapshotStates[gameID] == "started" { Button(groupText("resume_score", "Continue this device’s match")) { Task { await resume(gameID) } }.disabled(!allowed || busy) }
                 GroupNotice(text: groupText("frozen_match_hint", "If scoring is on another device, continue there or add the result with the saved rules."))
-                Button(groupText("manual_result", "Add match result")) { match = .init(manual: true, session: session) }.disabled(!allowed || !writable).accessibilityIdentifier("group_activity_frozen_manual_\(session?.orderNo ?? 0)")
+                Button(groupText("manual_result_action", "Add Result")) { match = .init(manual: true, session: session) }.disabled(!allowed || !writable).accessibilityIdentifier("group_activity_frozen_manual_\(session?.orderNo ?? 0)")
                 if GroupPermissions.manager(me) || snapshotCreators[gameID] == me?.id && me != nil { Button(groupText("abandon_game", "Release match"), role: .destructive) { abandonID = gameID }.disabled(!writable || busy).accessibilityIdentifier("group_activity_abandon_" + gameID) }
             } else {
                 Button(groupText("start_score", "Start scoring")) { match = .init(manual: false, session: session) }.disabled(!allowed || !writable || session?.needsLineup == true)
-                Button(groupText("manual_result", "Add match result")) { match = .init(manual: true, session: session) }.disabled(!allowed || !writable || session?.needsLineup == true)
+                Button(groupText("manual_result_action", "Add Result")) { match = .init(manual: true, session: session) }.disabled(!allowed || !writable || session?.needsLineup == true)
             }
         }
     }
