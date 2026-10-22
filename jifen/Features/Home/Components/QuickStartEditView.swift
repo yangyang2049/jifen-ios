@@ -139,8 +139,9 @@ struct QuickStartEditView: View {
                                         onClickOption: {
                                             activeSport.wrappedValue = sport
                                         },
-                                        // 网格项目图标固定 28pt（鸿蒙为 24pt，iOS 网格列宽更大，取 28 视觉更均衡）。
-                                        fixedIconSize: 28
+                                        // 图标按卡片边长比例缩放：iPhone 卡片 84pt 时正好 28pt，
+                                        // iPad / Duo 展开内屏卡片放大到 129pt 时同步到约 43pt。
+                                        iconRatio: 28.0 / 84.0
                                     )
                                 }
                             }
@@ -177,33 +178,38 @@ struct QuickStartEditView: View {
         return Button {
             activeSlot = slot
         } label: {
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(spacing: 6) {
-                    Text(slot.badge)
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(Theme.textOnPrimary)
-                        .frame(width: 20, height: 20)
-                        .background(slot.tint, in: Circle())
+            // 卡片高度在 iPhone 是 87pt、iPad / Duo 展开内屏约 132pt；
+            // 卡内所有元素按同一比例缩放，避免宽屏下"框大内容小"。
+            GeometryReader { geo in
+                let scale = min(1.5, max(1, geo.size.height / 87))
+                VStack(alignment: .leading, spacing: 6 * scale) {
+                    HStack(spacing: 6 * scale) {
+                        Text(slot.badge)
+                            .font(.system(size: 12 * scale, weight: .bold))
+                            .foregroundStyle(Theme.textOnPrimary)
+                            .frame(width: 20 * scale, height: 20 * scale)
+                            .background(slot.tint, in: Circle())
 
-                    Text(slot.shortTitle)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(Theme.textPrimary)
-                        .lineLimit(1)
+                        Text(slot.shortTitle)
+                            .font(.system(size: 12 * scale, weight: .medium))
+                            .foregroundStyle(Theme.textPrimary)
+                            .lineLimit(1)
+                    }
+
+                    HStack(spacing: 6 * scale) {
+                        AppCatalogIcon(gameType: sport, size: 16 * scale)
+
+                        Text(getGameName(type: sport))
+                            .font(.system(size: 16 * scale, weight: .bold))
+                            .foregroundStyle(Theme.textPrimary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                    }
                 }
-
-                HStack(spacing: 6) {
-                    AppCatalogIcon(gameType: sport, size: 16)
-
-                    Text(getGameName(type: sport))
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(Theme.textPrimary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                }
+                .padding(.horizontal, 10 * scale)
+                .padding(.vertical, 8 * scale)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .aspectRatio(2, contentMode: .fit)
             .background(slotCardBackground(isSelected: isSelected))
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
