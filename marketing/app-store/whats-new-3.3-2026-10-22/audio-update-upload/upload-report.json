@@ -1,0 +1,19 @@
+{
+  "version": "3.3",
+  "versionId": "468e2fdc-fa21-4f06-b87c-3006c4d37aa7",
+  "field": "whatsNew",
+  "results": [
+    {
+      "locale": "en-US",
+      "action": "PATCH",
+      "id": "b41dff62-ded8-448d-a2a7-4e7aed2bae2d"
+    },
+    {
+      "locale": "zh-Hans",
+      "action": "PATCH",
+      "id": "d9831a32-9bce-499e-8614-26a593f9ff0d"
+    }
+  ],
+  "submittedForReview": false,
+  "released": false
+}

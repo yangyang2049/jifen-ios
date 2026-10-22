@@ -1,0 +1,26 @@
+{
+  "data": {
+    "type": "appAssetLibraries",
+    "id": "6759768784",
+    "relationships": {
+      "images": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6759768784/relationships/images",
+          "related": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6759768784/images"
+        }
+      },
+      "videos": {
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6759768784/relationships/videos",
+          "related": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6759768784/videos"
+        }
+      }
+    },
+    "links": {
+      "self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6759768784"
+    }
+  },
+  "links": {
+    "self": "https://api.appstoreconnect.apple.com/v1/apps/6759768784/assetLibrary"
+  }
+}

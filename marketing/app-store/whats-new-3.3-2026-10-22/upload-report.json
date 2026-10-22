@@ -1,0 +1,260 @@
+{
+  "appId": "6759768784",
+  "version": "3.3",
+  "versionId": "468e2fdc-fa21-4f06-b87c-3006c4d37aa7",
+  "startedAt": "2026-10-22T22:51:24.225722+08:00",
+  "results": [
+    {
+      "locale": "ar-SA",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "bn-BD",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "ca",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "cs",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "da",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "de-DE",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "el",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "en-AU",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "en-CA",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "en-GB",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "en-US",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "es-ES",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "es-MX",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "fi",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "fr-CA",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "fr-FR",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "gu-IN",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "he",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "hi",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "hr",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "hu",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "id",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "it",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "ja",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "kn-IN",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "ko",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "ml-IN",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "mr-IN",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "ms",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "nl-NL",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "no",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "or-IN",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "pa-IN",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "pl",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "pt-BR",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "pt-PT",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "ro",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "ru",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "sk",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "sl-SI",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "sv",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "ta-IN",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "te-IN",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "th",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "tr",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "uk",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "ur-PK",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "vi",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "zh-Hans",
+      "action": "PATCH",
+      "success": true
+    },
+    {
+      "locale": "zh-Hant",
+      "action": "PATCH",
+      "success": true
+    }
+  ],
+  "submittedForReview": false,
+  "released": false
+}

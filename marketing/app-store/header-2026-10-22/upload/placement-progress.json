@@ -1,0 +1,302 @@
+[
+  {
+    "locale": "it",
+    "placementId": "da800019-2e9e-82d0-8f3e-910520638764",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "ur-PK",
+    "placementId": "92400019-2e9e-82d0-8f06-afc95e1d8217",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "kn-IN",
+    "placementId": "fc800019-2e9e-82d0-8f23-2f09a48a52a2",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "sl-SI",
+    "placementId": "f8400019-2e9e-82d0-8f15-dca0f495339d",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "gu-IN",
+    "placementId": "bd000019-2e9e-82d0-8f33-a372bdf7669e",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "he",
+    "placementId": "cfc00019-2e9e-82d0-8f13-94f3ef535dc1",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "pl",
+    "placementId": "1b000019-2e9e-82d0-8f0e-301babf4363d",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "vi",
+    "placementId": "8c400019-2e9e-82d0-8f28-7fa38f906ae8",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "mr-IN",
+    "placementId": "79800019-2e9e-82d0-8f1b-dd6dd45d3d19",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "no",
+    "placementId": "ecc00019-2e9e-82d0-8f2d-ed414c34581e",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "fi",
+    "placementId": "ef000019-2e9e-82d0-8f2b-78ba20caffa9",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "te-IN",
+    "placementId": "93400019-2e9e-82d0-8f33-1dc7e14cf24e",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "hu",
+    "placementId": "48800019-2e9e-82d0-8f24-1681b9dcfe84",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "cs",
+    "placementId": "ebc00019-2e9e-82d0-8f2f-95fd9f828c07",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "ru",
+    "placementId": "a9400019-2e9e-82d0-8f19-f0821baf771b",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "ta-IN",
+    "placementId": "83c00019-2e9e-82d0-8f2c-77d2dc98a927",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "ko",
+    "placementId": "c2000019-2e9e-82d0-8f39-b83a52ced70a",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "ar-SA",
+    "placementId": "85800019-2e9e-82d0-8f25-331d87787da7",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "zh-Hant",
+    "placementId": "f2400019-2e9e-82d0-8f2a-747ee8c84492",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "hi",
+    "placementId": "16800019-2e9e-82d0-8f0d-b3e5ab9cc631",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "en-CA",
+    "placementId": "88400019-2e9e-82d0-8f3c-818f88316b60",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "de-DE",
+    "placementId": "ca800019-2e9e-82d0-8f3a-b25196eff5ce",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "es-ES",
+    "placementId": "d1800019-2e9e-82d0-8f1d-b2a58e22a9a5",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "sv",
+    "placementId": "56000019-2e9e-82d0-8f31-f7a2e40c61d3",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "tr",
+    "placementId": "23000019-2e9e-82d0-8f3a-0d97f51ba11d",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "ja",
+    "placementId": "14800019-2e9e-82d0-8f37-9aa88f77f5d4",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "hr",
+    "placementId": "71c00019-2e9e-82d0-8f1b-bc558380f830",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "en-GB",
+    "placementId": "c8400019-2e9e-82d0-8f1c-57018c63579f",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "en-US",
+    "placementId": "95c00019-2e9e-82d0-8f1a-d01e798d64eb",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "uk",
+    "placementId": "ad800019-2e9e-82d0-8f33-d4f9a899fb70",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "pt-BR",
+    "placementId": "12400019-2e9e-82d0-8f37-a3ff852a7d5f",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "pt-PT",
+    "placementId": "39000019-2e9e-82d0-8f3f-f9636e5d39aa",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "nl-NL",
+    "placementId": "f7800019-2e9e-82d0-8f09-7790c6bb8af2",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "pa-IN",
+    "placementId": "13000019-2e9e-82d0-8f01-d5ab08703857",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "fr-FR",
+    "placementId": "d4c00019-2e9e-82d0-8f09-8028c751c31f",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "ca",
+    "placementId": "03c00019-2e9e-82d0-8f0a-9b994aabb02d",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "th",
+    "placementId": "d4400019-2e9e-82d0-8f28-6bab3bbad84d",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "el",
+    "placementId": "57400019-2e9e-82d0-8f25-c23c34384983",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "bn-BD",
+    "placementId": "e5400019-2e9e-82d0-8f20-035deed2e0a6",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "or-IN",
+    "placementId": "d5400019-2e9e-82d0-8f19-ea478906d701",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "id",
+    "placementId": "86400019-2e9e-82d0-8f29-dcf65b11bba8",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "en-AU",
+    "placementId": "1d400019-2e9e-82d0-8f1f-7c20af92b86a",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "fr-CA",
+    "placementId": "6f400019-2e9e-82d0-8f34-b60ab1ebc789",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "ro",
+    "placementId": "5b000019-2e9e-82d0-8f2b-33a63d4945ad",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "sk",
+    "placementId": "a9800019-2e9e-82d0-8f3f-b423346335f9",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "zh-Hans",
+    "placementId": "f1000019-2e9e-82d0-8f13-61a419702298",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "da",
+    "placementId": "01c00019-2e9e-82d0-8f1e-9df821938c6c",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "es-MX",
+    "placementId": "18800019-2e9e-82d0-8f14-d88f83f50ae0",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "ml-IN",
+    "placementId": "4cc00019-2e9e-82d0-8f16-fcf02562e898",
+    "verified": true,
+    "state": "ACTIVE"
+  },
+  {
+    "locale": "ms",
+    "placementId": "b9000019-2e9e-82d0-8f2c-81e7139697ea",
+    "verified": true,
+    "state": "ACTIVE"
+  }
+]

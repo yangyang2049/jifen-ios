@@ -1,0 +1,252 @@
+[
+  {
+    "id": "0ad3394a-da2e-49dd-8ba6-f3e7071a0efe",
+    "locale": "it",
+    "placements": []
+  },
+  {
+    "id": "38c3747a-981a-484d-99c2-35a531c5e8df",
+    "locale": "ur-PK",
+    "placements": []
+  },
+  {
+    "id": "1b462797-6714-422b-bf33-b9b4d96a0c21",
+    "locale": "kn-IN",
+    "placements": []
+  },
+  {
+    "id": "3fc8cf44-36d0-422d-9cac-7a8a3978c6af",
+    "locale": "sl-SI",
+    "placements": []
+  },
+  {
+    "id": "4ce67522-6d80-4276-8933-b595fc9de3e4",
+    "locale": "gu-IN",
+    "placements": []
+  },
+  {
+    "id": "75548398-43d0-46e6-94db-918535e9ed15",
+    "locale": "he",
+    "placements": []
+  },
+  {
+    "id": "a1b40724-4f87-4bf7-932b-7a486ac07adf",
+    "locale": "pl",
+    "placements": []
+  },
+  {
+    "id": "63a361df-c230-4c59-b557-9634863b6b1a",
+    "locale": "vi",
+    "placements": []
+  },
+  {
+    "id": "763a4d31-461b-4627-8ebd-4e8a5793e1c7",
+    "locale": "mr-IN",
+    "placements": []
+  },
+  {
+    "id": "0ee8762c-d789-42df-9bd2-4e12a9b72fec",
+    "locale": "no",
+    "placements": []
+  },
+  {
+    "id": "fb0ce875-e30e-467e-be8d-f02e2985bee5",
+    "locale": "fi",
+    "placements": []
+  },
+  {
+    "id": "dcd62c84-dadf-4640-b027-ebcf81c9c455",
+    "locale": "zh-Hant",
+    "placements": []
+  },
+  {
+    "id": "c6ee6149-470c-455d-9dcf-e1bd7547e403",
+    "locale": "te-IN",
+    "placements": []
+  },
+  {
+    "id": "bc8b088c-3f9a-4c8c-ab5e-239874c2312c",
+    "locale": "cs",
+    "placements": []
+  },
+  {
+    "id": "0bf8c653-3748-4f86-a331-cb91ad7185e6",
+    "locale": "ru",
+    "placements": []
+  },
+  {
+    "id": "228c2661-8e84-479f-b901-059e0ab9c2fd",
+    "locale": "ta-IN",
+    "placements": []
+  },
+  {
+    "id": "8acd7227-c168-4cfd-8480-99b79ac9d427",
+    "locale": "ko",
+    "placements": []
+  },
+  {
+    "id": "edb1a247-3654-4d61-8654-382945912fe2",
+    "locale": "ar-SA",
+    "placements": []
+  },
+  {
+    "id": "e845f08f-0edd-4e19-bcdc-d29092abff70",
+    "locale": "hu",
+    "placements": []
+  },
+  {
+    "id": "dbc47ae4-07ab-4cad-ab7a-0e113f2b3925",
+    "locale": "hi",
+    "placements": []
+  },
+  {
+    "id": "1c0f0583-9b35-44fb-a21d-a2709572efeb",
+    "locale": "en-CA",
+    "placements": []
+  },
+  {
+    "id": "ab1e9320-14b8-4646-ae92-26b9244b1802",
+    "locale": "de-DE",
+    "placements": []
+  },
+  {
+    "id": "c964b755-cb70-4c56-9c2c-aa9aa8e1c188",
+    "locale": "es-ES",
+    "placements": []
+  },
+  {
+    "id": "f280da45-3da5-49e6-ab00-ecf2ce107d71",
+    "locale": "sv",
+    "placements": []
+  },
+  {
+    "id": "4c30a7de-b5fc-40f4-83b5-c349d1c98896",
+    "locale": "tr",
+    "placements": []
+  },
+  {
+    "id": "bc47c798-2fb9-42ff-a339-715ae64601cf",
+    "locale": "ja",
+    "placements": []
+  },
+  {
+    "id": "981c9758-3a9b-4606-b240-75c71c8d877e",
+    "locale": "hr",
+    "placements": []
+  },
+  {
+    "id": "702c1435-2362-46d2-a668-63ca6d7a082a",
+    "locale": "en-GB",
+    "placements": []
+  },
+  {
+    "id": "b41dff62-ded8-448d-a2a7-4e7aed2bae2d",
+    "locale": "en-US",
+    "placements": []
+  },
+  {
+    "id": "8a8326a7-b997-4487-863b-64cd5200dd3d",
+    "locale": "uk",
+    "placements": []
+  },
+  {
+    "id": "e23982d3-6711-45e2-9217-8e5a80440c13",
+    "locale": "pt-BR",
+    "placements": []
+  },
+  {
+    "id": "29f869fe-8a78-41fc-87e7-3a69c0c3917b",
+    "locale": "pt-PT",
+    "placements": []
+  },
+  {
+    "id": "adb59196-34bf-46b8-b1e3-0c66f9097903",
+    "locale": "nl-NL",
+    "placements": []
+  },
+  {
+    "id": "da2269bf-3747-47a4-812a-04a7b76a072b",
+    "locale": "pa-IN",
+    "placements": []
+  },
+  {
+    "id": "bec3bf51-57f1-4f85-bdef-c588dc0eb079",
+    "locale": "fr-FR",
+    "placements": []
+  },
+  {
+    "id": "97dd7223-e5bf-4184-9668-c4a3856f9feb",
+    "locale": "ca",
+    "placements": []
+  },
+  {
+    "id": "d9831a32-9bce-499e-8614-26a593f9ff0d",
+    "locale": "zh-Hans",
+    "placements": []
+  },
+  {
+    "id": "c9eb3b35-7fbd-426f-acf9-a6286284e91b",
+    "locale": "bn-BD",
+    "placements": []
+  },
+  {
+    "id": "f5debc86-0170-4af5-8599-e7775c5dd4cb",
+    "locale": "th",
+    "placements": []
+  },
+  {
+    "id": "5d05eba6-82fc-4153-acdb-713b775af166",
+    "locale": "or-IN",
+    "placements": []
+  },
+  {
+    "id": "27587727-706b-419b-9301-28bfdfaa30a1",
+    "locale": "id",
+    "placements": []
+  },
+  {
+    "id": "2e78ce1d-f712-424e-b1ba-4c6371add8a2",
+    "locale": "en-AU",
+    "placements": []
+  },
+  {
+    "id": "433c1de4-421c-41cb-b3d5-84b429d6a306",
+    "locale": "fr-CA",
+    "placements": []
+  },
+  {
+    "id": "355e6a2a-2ecb-467c-9c68-45b02c7f8c09",
+    "locale": "ro",
+    "placements": []
+  },
+  {
+    "id": "59320fe3-c3b6-4097-bc04-aef3d4cebee2",
+    "locale": "sk",
+    "placements": []
+  },
+  {
+    "id": "26bc69df-df68-4c8f-a3d5-d9dd895a3311",
+    "locale": "el",
+    "placements": []
+  },
+  {
+    "id": "e00a544f-2e93-445b-b648-c4b5b013ee5a",
+    "locale": "da",
+    "placements": []
+  },
+  {
+    "id": "485443eb-cd2c-42cc-992d-899e386b2559",
+    "locale": "es-MX",
+    "placements": []
+  },
+  {
+    "id": "ed8cf460-a1ed-4733-983a-f4d8d7645410",
+    "locale": "ml-IN",
+    "placements": []
+  },
+  {
+    "id": "19c87fe1-b1b9-45e9-addb-61f5cf311917",
+    "locale": "ms",
+    "placements": []
+  }
+]

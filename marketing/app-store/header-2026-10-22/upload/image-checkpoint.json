@@ -1,0 +1,31 @@
+{
+  "type": "appAssetLibraryImages",
+  "id": "45000019-2e9e-82d0-8030-9d03679950ff",
+  "attributes": {
+    "category": "CREATIVE_ASSETS",
+    "createdDate": "2026-10-22T15:11:06.45226Z",
+    "lastModifiedDate": "2026-10-22T15:13:11.866747Z",
+    "fileName": "02-sculpted-sports-v3-relaxed.png",
+    "fileSize": 4674824,
+    "imageAsset": {
+      "templateUrl": "https://is1-ssl.mzstatic.com/image/thumb/tz62vNsX0y8osh0tfEAebA/{w}x{h}bb.{f}",
+      "width": 3840,
+      "height": 1646
+    },
+    "referenceName": "iScoreboard header relaxed 8dbd4a9513904206",
+    "specId": "1eb43b80-e0b7-4d96-bd32-47a42a8c5fed",
+    "state": "PREPARE_FOR_SUBMISSION",
+    "stateDetails": null
+  },
+  "relationships": {
+    "placements": {
+      "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraryImages/45000019-2e9e-82d0-8030-9d03679950ff/relationships/placements",
+        "related": "https://api.appstoreconnect.apple.com/v1/appAssetLibraryImages/45000019-2e9e-82d0-8030-9d03679950ff/placements"
+      }
+    }
+  },
+  "links": {
+    "self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraryImages/45000019-2e9e-82d0-8030-9d03679950ff"
+  }
+}

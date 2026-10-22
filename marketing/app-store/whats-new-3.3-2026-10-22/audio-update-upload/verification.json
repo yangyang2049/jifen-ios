@@ -1,0 +1,18 @@
+{
+  "verifiedAt": "2026-10-22T23:28:17.495384+08:00",
+  "version": "3.3",
+  "appStoreVersionId": "468e2fdc-fa21-4f06-b87c-3006c4d37aa7",
+  "appStoreState": "PREPARE_FOR_SUBMISSION",
+  "updatedLocales": [
+    "en-US",
+    "zh-Hans"
+  ],
+  "updatedField": "whatsNew",
+  "targetCopyMatches": true,
+  "unchangedOtherLocales": 48,
+  "otherLocalizationAttributesUnchanged": true,
+  "versionAttributesUnchanged": true,
+  "mismatches": [],
+  "submittedForReview": false,
+  "released": false
+}

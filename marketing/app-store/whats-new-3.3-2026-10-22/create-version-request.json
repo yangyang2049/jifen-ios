@@ -1,0 +1,19 @@
+{
+  "data": {
+    "type": "appStoreVersions",
+    "attributes": {
+      "platform": "IOS",
+      "versionString": "3.3",
+      "releaseType": "AFTER_APPROVAL",
+      "copyright": "2026 重庆豆花科技有限公司"
+    },
+    "relationships": {
+      "app": {
+        "data": {
+          "type": "apps",
+          "id": "6759768784"
+        }
+      }
+    }
+  }
+}

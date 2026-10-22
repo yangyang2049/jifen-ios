@@ -1,0 +1,17 @@
+{
+  "appId": "6759768784",
+  "bundleId": "com.douhua.jifen.ios",
+  "version": "3.3",
+  "copyStatus": "approved_by_user",
+  "localizations": [
+    {
+      "locale": "en-US",
+      "whatsNew": "• Introducing Groups (Beta) for badminton, table tennis, tennis and pickleball. Invite friends, organize activities, arrange matches, and view group results and leaderboards.\n• Improved scoreboard layouts on iPhone and iPad.\n• Refined match setup, membership details and translations.\n• Improved live score syncing and overall stability."
+    },
+    {
+      "locale": "zh-Hans",
+      "whatsNew": "• 新增「小组」功能（试用），支持羽毛球、乒乓球、网球和匹克球。邀请好友、组织活动、安排对阵，集中查看赛果与排行榜。\n• 优化 iPhone 和 iPad 上的计分板布局。\n• 改进开赛设置、会员信息展示和多语言文案。\n• 提升实时比分同步稳定性，修复已知问题。"
+    }
+  ],
+  "approvedOn": "2026-10-22"
+}

@@ -1,0 +1,257 @@
+{
+  "versionId": "468e2fdc-fa21-4f06-b87c-3006c4d37aa7",
+  "version": "3.3",
+  "field": "whatsNew",
+  "locales": [
+    {
+      "locale": "ar-SA",
+      "id": "edb1a247-3654-4d61-8654-382945912fe2",
+      "sha256": "91f584ecede2570e6f1ef67cdc289d1b00c7c6d9d862d924ca05d7df3505ffaa"
+    },
+    {
+      "locale": "bn-BD",
+      "id": "c9eb3b35-7fbd-426f-acf9-a6286284e91b",
+      "sha256": "29e91dcb747573ee5b3d2322e1e9a7db2cb05ebdf5fafe489671672152354336"
+    },
+    {
+      "locale": "ca",
+      "id": "97dd7223-e5bf-4184-9668-c4a3856f9feb",
+      "sha256": "fae788c693417dcf78a8a6a297f202215d7e21b1a45c7c871e32c49f1ea5d2df"
+    },
+    {
+      "locale": "cs",
+      "id": "bc8b088c-3f9a-4c8c-ab5e-239874c2312c",
+      "sha256": "9f803de926fe9fad0e73a5a2f59d0df6825818e60bcf02fd1cbe6eed16aaca37"
+    },
+    {
+      "locale": "da",
+      "id": "e00a544f-2e93-445b-b648-c4b5b013ee5a",
+      "sha256": "bb445081054b5c7e5d8760dba0cd6c5a0ce8ed1a15b883f69fa273968c71fb91"
+    },
+    {
+      "locale": "de-DE",
+      "id": "ab1e9320-14b8-4646-ae92-26b9244b1802",
+      "sha256": "e8367b1e3522a3aa9fbd7ace62d37f3a20d481fec82de1b23e6b3cb411b09fd9"
+    },
+    {
+      "locale": "el",
+      "id": "26bc69df-df68-4c8f-a3d5-d9dd895a3311",
+      "sha256": "333884917111bb799af62e290b5d1290da447e7c301415a662b423d35099aaf1"
+    },
+    {
+      "locale": "en-AU",
+      "id": "2e78ce1d-f712-424e-b1ba-4c6371add8a2",
+      "sha256": "a768a86151be1c34efd483e136a9afd1c9397657bc2780322b39d8283b809c48"
+    },
+    {
+      "locale": "en-CA",
+      "id": "1c0f0583-9b35-44fb-a21d-a2709572efeb",
+      "sha256": "64a4aaf12b369ddc3423b07c98ba14e332a17617e457dd70ca0847b92b3e543a"
+    },
+    {
+      "locale": "en-GB",
+      "id": "702c1435-2362-46d2-a668-63ca6d7a082a",
+      "sha256": "a768a86151be1c34efd483e136a9afd1c9397657bc2780322b39d8283b809c48"
+    },
+    {
+      "locale": "en-US",
+      "id": "b41dff62-ded8-448d-a2a7-4e7aed2bae2d",
+      "sha256": "64a4aaf12b369ddc3423b07c98ba14e332a17617e457dd70ca0847b92b3e543a"
+    },
+    {
+      "locale": "es-ES",
+      "id": "c964b755-cb70-4c56-9c2c-aa9aa8e1c188",
+      "sha256": "cb4d2c863e7ad8cf63cf8926c6e99cb6f750d1b84a4175d54e7420928653a7c1"
+    },
+    {
+      "locale": "es-MX",
+      "id": "485443eb-cd2c-42cc-992d-899e386b2559",
+      "sha256": "aca84080e815c32d207ac3e46b282af5fdab5b9922247e1b8472e76683ee6e32"
+    },
+    {
+      "locale": "fi",
+      "id": "fb0ce875-e30e-467e-be8d-f02e2985bee5",
+      "sha256": "1b5d414eff43050b6bfb7581341064b8726ec2d2f604973e23aa59189bd49f5c"
+    },
+    {
+      "locale": "fr-CA",
+      "id": "433c1de4-421c-41cb-b3d5-84b429d6a306",
+      "sha256": "12027baafb75fd5054dcf38fa107ffcc394ca16bc0264555f167a6f03c371e30"
+    },
+    {
+      "locale": "fr-FR",
+      "id": "bec3bf51-57f1-4f85-bdef-c588dc0eb079",
+      "sha256": "ebe877594bce63a080152e33e6dda71005ece1993f37c051c45b2bbf25fa8527"
+    },
+    {
+      "locale": "gu-IN",
+      "id": "4ce67522-6d80-4276-8933-b595fc9de3e4",
+      "sha256": "d99ce3c8067166df2e8e668466c21ae26ff5b0d54e0c2eee222b897e7369ac93"
+    },
+    {
+      "locale": "he",
+      "id": "75548398-43d0-46e6-94db-918535e9ed15",
+      "sha256": "4a0e9c9e9bd630f1d3e144faa39cd267053a99ea2d4c7019b870f32e25159c87"
+    },
+    {
+      "locale": "hi",
+      "id": "dbc47ae4-07ab-4cad-ab7a-0e113f2b3925",
+      "sha256": "6458cb46c87c2b29a03de80495fcb27bc87f85dbd78ef9a6f89bba6af7baf01e"
+    },
+    {
+      "locale": "hr",
+      "id": "981c9758-3a9b-4606-b240-75c71c8d877e",
+      "sha256": "d0bbc87e15469979d8c96d0b2765b88e81acf53588a30cdf7495d2607ec452dc"
+    },
+    {
+      "locale": "hu",
+      "id": "e845f08f-0edd-4e19-bcdc-d29092abff70",
+      "sha256": "fbc562c483cc0dd515c80ef94d8b32bd828116f7b6f308d30551d1371180c93b"
+    },
+    {
+      "locale": "id",
+      "id": "27587727-706b-419b-9301-28bfdfaa30a1",
+      "sha256": "2d0e4c999145ac55a54bd2d5da9a76e4ee313d8860ba1e37b2498d7b0544bc62"
+    },
+    {
+      "locale": "it",
+      "id": "0ad3394a-da2e-49dd-8ba6-f3e7071a0efe",
+      "sha256": "2c8048fb3de7f8133b0f13f302ad73de2995a559b8da51e1be8c7eccf3a800eb"
+    },
+    {
+      "locale": "ja",
+      "id": "bc47c798-2fb9-42ff-a339-715ae64601cf",
+      "sha256": "58b83e9a4915a9a317ce0aab6cc2fabe9f9b079bb2920e7174ce87ed8d5822d1"
+    },
+    {
+      "locale": "kn-IN",
+      "id": "1b462797-6714-422b-bf33-b9b4d96a0c21",
+      "sha256": "e59ee66e3d62e12d0f3af31564ec18f04aa26a60619b528a2115473406ea6beb"
+    },
+    {
+      "locale": "ko",
+      "id": "8acd7227-c168-4cfd-8480-99b79ac9d427",
+      "sha256": "6dd621d79e6cf1c1af0add970bc5aa74c01340cd370c9b40241a647d6dc9dc47"
+    },
+    {
+      "locale": "ml-IN",
+      "id": "ed8cf460-a1ed-4733-983a-f4d8d7645410",
+      "sha256": "6e99b5bc144d02f8bfab9052939b5b51d9a1b06b2e3ba4b42803304a2359ef85"
+    },
+    {
+      "locale": "mr-IN",
+      "id": "763a4d31-461b-4627-8ebd-4e8a5793e1c7",
+      "sha256": "cb4029eec3c0ec0e3c5a809ea8d30e29533223be8feb343176dd072777636ab6"
+    },
+    {
+      "locale": "ms",
+      "id": "19c87fe1-b1b9-45e9-addb-61f5cf311917",
+      "sha256": "ac45cc2f25b8e63603b1967430364b21cbe075a00b95d68d37a560f8cfa61e94"
+    },
+    {
+      "locale": "nl-NL",
+      "id": "adb59196-34bf-46b8-b1e3-0c66f9097903",
+      "sha256": "4b19816379d26d12d1e8d623966212c28d622c11c2cb9c104afd64f3f522e842"
+    },
+    {
+      "locale": "no",
+      "id": "0ee8762c-d789-42df-9bd2-4e12a9b72fec",
+      "sha256": "75a804a8860f0ec63399618e89d8926f4f7c6caf6796ce47f51a6b67728925df"
+    },
+    {
+      "locale": "or-IN",
+      "id": "5d05eba6-82fc-4153-acdb-713b775af166",
+      "sha256": "b4b2483dbc15c1e8871b4ad89d6b5d39abf27db1985729b2a212602aedd647bb"
+    },
+    {
+      "locale": "pa-IN",
+      "id": "da2269bf-3747-47a4-812a-04a7b76a072b",
+      "sha256": "17ab90a8374444c8ed5df3a111848098d9d8c061242e720fc0f0e76a23a9091a"
+    },
+    {
+      "locale": "pl",
+      "id": "a1b40724-4f87-4bf7-932b-7a486ac07adf",
+      "sha256": "9cd8a3c965788c9f7af76c7cd8846976f861835c04bae8557708a1781e601e82"
+    },
+    {
+      "locale": "pt-BR",
+      "id": "e23982d3-6711-45e2-9217-8e5a80440c13",
+      "sha256": "ce867da40f31f5c6c7352b4b447bc86ac9b77aa2e7ff17334b32870be98898bf"
+    },
+    {
+      "locale": "pt-PT",
+      "id": "29f869fe-8a78-41fc-87e7-3a69c0c3917b",
+      "sha256": "42e85b549d67dd8b75514419c6d8db5d3b8a86561fa44afb68caf8ebb566b9d2"
+    },
+    {
+      "locale": "ro",
+      "id": "355e6a2a-2ecb-467c-9c68-45b02c7f8c09",
+      "sha256": "478c491b0f6ce05c98d7efeb28f282000cf2628f8c313efb3917401194f12b11"
+    },
+    {
+      "locale": "ru",
+      "id": "0bf8c653-3748-4f86-a331-cb91ad7185e6",
+      "sha256": "97df5f1e8395f9a9b57874d2536a24b2010394c36413a5717f80f49e6d1a1083"
+    },
+    {
+      "locale": "sk",
+      "id": "59320fe3-c3b6-4097-bc04-aef3d4cebee2",
+      "sha256": "f75edba554de5e3ffdab0d26dd27d41e7203792ae2dacc8ec14fc66e5e0ef6d5"
+    },
+    {
+      "locale": "sl-SI",
+      "id": "3fc8cf44-36d0-422d-9cac-7a8a3978c6af",
+      "sha256": "e61c07cb5195f7f911487b58452306eaf55cde7a7bdc2b4196ed1abb713b746c"
+    },
+    {
+      "locale": "sv",
+      "id": "f280da45-3da5-49e6-ab00-ecf2ce107d71",
+      "sha256": "0d189831c0ec881db84b48937184fa332cdab657be385b2912ac147ef29b8437"
+    },
+    {
+      "locale": "ta-IN",
+      "id": "228c2661-8e84-479f-b901-059e0ab9c2fd",
+      "sha256": "e1bb173e4808f151cc140a9b3c03ba14318d884f99e10fe474ba6d2c09af1970"
+    },
+    {
+      "locale": "te-IN",
+      "id": "c6ee6149-470c-455d-9dcf-e1bd7547e403",
+      "sha256": "57b1f5e1f8b45f912cd12d1099114bb8f259d6dd1eb6aadc639f07c810734f56"
+    },
+    {
+      "locale": "th",
+      "id": "f5debc86-0170-4af5-8599-e7775c5dd4cb",
+      "sha256": "d384138ad7facefc23655a4e61e8155a9a3de81088fc49ebe5084fbcb9671670"
+    },
+    {
+      "locale": "tr",
+      "id": "4c30a7de-b5fc-40f4-83b5-c349d1c98896",
+      "sha256": "2dd5392c3e180da55e5e03a5e9f10055b3a3b8a909ebf4da77004724a1e788c3"
+    },
+    {
+      "locale": "uk",
+      "id": "8a8326a7-b997-4487-863b-64cd5200dd3d",
+      "sha256": "66e1611a48e32b0643154f6e4cbf5f4c478557f74a51234d713a5afbff4a151f"
+    },
+    {
+      "locale": "ur-PK",
+      "id": "38c3747a-981a-484d-99c2-35a531c5e8df",
+      "sha256": "eaa4312e56dc276aed3ef375fb4479fac1d985c880f57ebad5f2d9b359976897"
+    },
+    {
+      "locale": "vi",
+      "id": "63a361df-c230-4c59-b557-9634863b6b1a",
+      "sha256": "6ca091e0b736cc16dec25829012c08246fcd17fca2f9178aedeeaae0c58ed68c"
+    },
+    {
+      "locale": "zh-Hans",
+      "id": "d9831a32-9bce-499e-8614-26a593f9ff0d",
+      "sha256": "aebc9a0cff27ff25ebf307e26c3873e3dbae0d77a69f10cb5e0960766e57995e"
+    },
+    {
+      "locale": "zh-Hant",
+      "id": "dcd62c84-dadf-4640-b027-ebcf81c9c455",
+      "sha256": "d710dd527c1835f3276d46d9c335b77af2cc1c65b0ea2f70b15f947eef6aa4d2"
+    }
+  ]
+}
