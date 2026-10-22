@@ -1,0 +1,486 @@
+{
+  "ar": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "bn": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "ca": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "cs": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "da": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "de": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "el": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "es-ES": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "es-MX": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "fi": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "fr-CA": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "fr": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "gu": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "he": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "hi": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "hr": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "hu": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "id": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "it": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "ja": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "kn": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "ko": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "ml": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "mr": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "ms": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "nb": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "nl": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "or": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "pa": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "pl": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "pt-BR": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "pt-PT": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "ro": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "ru": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "sk": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "sl": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "sv": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "ta": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "te": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "th": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "tr": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "uk": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "ur": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  },
+  "vi": {
+    "passed": false,
+    "blocker_count": 5,
+    "blocker_types": {
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'home_tool_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'missing-key', 'table': 'Localizable', 'key': 'setup_auto_odd_sets', 'detail': 'catalog row is missing'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tool_flip_coin', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'tap_to_flip', 'detail': 'source changed after translation'}": 1,
+      "{'code': 'stale-source', 'table': 'Localizable', 'key': 'flip_coin_recent', 'detail': 'source changed after translation'}": 1
+    }
+  }
+}

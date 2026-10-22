@@ -1,0 +1,75 @@
+{
+  "verifiedAt": "2026-10-22T23:24:18.946093+08:00",
+  "scope": "Guest group scan, public preview, join, and explicit authentication",
+  "flow": [
+    "Guest scanning and public preview remain available",
+    "Join opens one shared login sheet with explicit provider choice",
+    "Cancellation keeps the invitation and preview",
+    "Authentication refreshes the preview and preserves guest input; joining requires another explicit confirmation"
+  ],
+  "confirmedBefore": {
+    "automaticJoinAfterPasswordLogin": true,
+    "joinPageDismissedOnAuthentication": true,
+    "automaticAppleAuthorization": "Not reproduced; no direct automatic Apple authorization path found"
+  },
+  "backupDirectory": "/tmp/jifen-group-login-before-20261022",
+  "unitTests": {
+    "passed": 164,
+    "failed": 0,
+    "log": "/tmp/jifen-group-auth-after-20261022.log"
+  },
+  "uiTests": {
+    "passed": 7,
+    "failedAfterCorrections": 0,
+    "cases": {
+      "testGroupLoginOnlyRequestsAppleAfterExplicitConsentAndTap": "/tmp/jifen-group-auth-final-ui-20261022.log",
+      "testGuestGroupPreviewOffersLoginChoicesAndCanCancel": "/tmp/jifen-group-auth-final-ui-20261022.log",
+      "testGuestInvitationRefreshesAvailabilityAfterLogin": "/tmp/jifen-group-auth-final-ui-20261022.log",
+      "testGuestLoginReturnsToGroupWithoutAutomaticallyJoining": "/tmp/jifen-group-auth-final-ui-20261022.log",
+      "testInvitationColdAndWarmOpenPrefillsJoinPage": "/tmp/jifen-group-auth-final-ui-20261022.log",
+      "testSignedInGroupJoinDoesNotPresentLogin": "/tmp/jifen-group-auth-final-ui-20261022.log",
+      "testGuestLoginPreservesApprovalMessageAndRequiresConfirmation": "/tmp/jifen-group-auth-approval-final-20261022.log"
+    },
+    "results": [
+      "/tmp/jifen-group-auth-final-ui-20261022.xcresult",
+      "/tmp/jifen-group-auth-approval-final-20261022.xcresult"
+    ],
+    "harnessCorrections": [
+      "Return from password page before using the login-sheet close button",
+      "Dismiss iOS save-password prompts and wait for dismissal before checking group actions"
+    ]
+  },
+  "releaseBuild": {
+    "passed": true,
+    "log": "/tmp/jifen-group-auth-release-20261022.log",
+    "version": "3.3",
+    "build": "72",
+    "uiTestFixtureExcluded": true
+  },
+  "files": [
+    {
+      "path": "jifen/Features/Account/AccountViews.swift",
+      "sha256": "c012da6aee5c809639ecfb0c405b8c7c21051b1f1141845ca09123b646be88ef"
+    },
+    {
+      "path": "jifen/Features/Account/SessionStore.swift",
+      "sha256": "b40dc58b731ae9c6912377b3f5ea85e3119432c96c805667ad1701c2282beacc"
+    },
+    {
+      "path": "jifen/Features/Groups/GroupQRViews.swift",
+      "sha256": "d11f7766eceebf703f4245f6166bf9d3e8d95f85a29e561f564b56f13b31ee89"
+    },
+    {
+      "path": "jifen/Features/Groups/GroupRepository.swift",
+      "sha256": "7001c97b5db497378f5b2b04fa18df6ca1a015b0f2377ccd5374c449c3ec9625"
+    },
+    {
+      "path": "jifenUITests/GroupRedesignUITests.swift",
+      "sha256": "d56acd8a13c6f1ed4691587f2af908774bad8a70b87f8365634733a98272607f"
+    }
+  ],
+  "remainingVerification": [
+    "Recheck the original double-presentation symptom on the reporting iPhone; native camera and real Apple authorization were not exercised on hardware"
+  ],
+  "externalWrites": "No production group joins or real Apple authorization were performed by these tests"
+}

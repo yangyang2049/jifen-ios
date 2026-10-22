@@ -1,0 +1,60 @@
+.F......................EF.....E.F............
+======================================================================
+ERROR: test_promoted_resources_match_reviewed_catalogs (test_localize.LocalizationPipelineTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yangyang/Desktop/jifenqi/jifen-ios/scripts/localization/test_localize.py", line 94, in test_promoted_resources_match_reviewed_catalogs
+    expected = {entry.key: localize.value_for_row(catalog[entry.identity])
+  File "/Users/yangyang/Desktop/jifenqi/jifen-ios/scripts/localization/test_localize.py", line 94, in <dictcomp>
+    expected = {entry.key: localize.value_for_row(catalog[entry.identity])
+KeyError: ('Localizable', 'setup_auto_odd_sets')
+
+======================================================================
+ERROR: test_reviewed_sentence_spaces_survive_catalog_and_resource_round_trip (test_localize.LocalizationPipelineTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yangyang/Desktop/jifenqi/jifen-ios/scripts/localization/test_localize.py", line 215, in test_reviewed_sentence_spaces_survive_catalog_and_resource_round_trip
+    resource.write_text(localize.render_strings(localize.SOURCE_LOCALIZABLE, "Localizable", reloaded))
+  File "/Users/yangyang/Desktop/jifenqi/jifen-ios/scripts/localization/localize.py", line 1269, in render_strings
+    row = catalog[(table, key)]
+KeyError: ('Localizable', 'setup_auto_odd_sets')
+
+======================================================================
+FAIL: test_current_backend_business_errors_all_have_an_ios_mapping (test_group_localization.GroupLocalizationTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yangyang/Desktop/jifenqi/jifen-ios/scripts/localization/test_group_localization.py", line 149, in test_current_backend_business_errors_all_have_an_ios_mapping
+    self.assertEqual(codes - mapped, set())
+AssertionError: Items in the first set but not the second:
+'NOT_FOUND'
+'IMAGE_TOO_LARGE'
+'INVALID_EVIDENCE'
+'INVALID_IMAGE_TYPE'
+'INVALID_IMAGE'
+'IMAGE_REQUIRED'
+'IMAGE_DIMENSIONS_EXCEEDED'
+'INVALID_ATTACHMENTS'
+'EVIDENCE_BOUND'
+'REPORT_VERSION_CONFLICT'
+
+======================================================================
+FAIL: test_promoted_resources_never_ship_an_unreviewed_catalog_row (test_localize.LocalizationPipelineTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yangyang/Desktop/jifenqi/jifen-ios/scripts/localization/test_localize.py", line 373, in test_promoted_resources_never_ship_an_unreviewed_catalog_row
+    self.assertEqual(set(catalog), expected, "%s catalog keys must match source" % locale)
+AssertionError: Items in the second set but not the first:
+('Localizable', 'setup_auto_odd_sets') : ar catalog keys must match source
+
+======================================================================
+FAIL: test_source_inventory (test_localize.LocalizationPipelineTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yangyang/Desktop/jifenqi/jifen-ios/scripts/localization/test_localize.py", line 69, in test_source_inventory
+    self.assertEqual(len([entry for entry in entries if entry.table == "Localizable"]), 2106)
+AssertionError: 2117 != 2106
+
+----------------------------------------------------------------------
+Ran 46 tests in 13.295s
+
+FAILED (failures=3, errors=2)

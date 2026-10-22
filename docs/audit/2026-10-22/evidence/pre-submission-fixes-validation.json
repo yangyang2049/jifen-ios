@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-22",
+  "head": "474d0c614a8f0d5eafd6c941d6a97f1a11a8c589",
+  "all_three_findings_reconfirmed": true,
+  "all_three_fixes_verified": true,
+  "final_tests": {
+    "jifenTests": {
+      "passed": 714,
+      "skipped": 1
+    },
+    "jifenUITests": {
+      "passed": 9
+    }
+  },
+  "final_test_log": "/tmp/jifen-fix-final-20261022.log",
+  "final_xcresult": "/tmp/jifen-fix-final-20261022.xcresult",
+  "capture_script_regressions": {
+    "passed": 3,
+    "log": "/tmp/jifen-fix-capture-after-20261022.log"
+  },
+  "capture_audit": {
+    "capture_manifest": "/tmp/jifen-fix-capture-20261022/ordinary/provenance/session.json",
+    "status": "passed",
+    "checkpoints": 7,
+    "binary_hashes_match": true,
+    "xctestrun_hash_matches": true,
+    "default_build_directory_used": false
+  },
+  "release": {
+    "release_build_succeeded": true,
+    "warning_categories": 36,
+    "new_warning_messages": []
+  },
+  "edited_original_paths": [
+    "docs/audit/2026-10-22/pre-submission-review.md",
+    "jifen/Features/Home/Components/MultiScoreSetupDialogView.swift",
+    "jifenTests/GroupPortParityTests.swift",
+    "jifenUITests/MainFlowUITests.swift",
+    "scripts/capture_duo_layout.py"
+  ],
+  "final_source_sha256": {
+    "jifen/Features/Home/Components/MultiScoreSetupDialogView.swift": "78eb412245fce6392a70276a3a1c85794f9b51e314f30616942509c17810ec71",
+    "jifenTests/GroupPortParityTests.swift": "b4f5265fac1868012a9e04bc7548d6c4fd628052030a4a6c4a31aac55dedd038",
+    "jifenUITests/MainFlowUITests.swift": "946b7896a020085caaffa656f15bfd47e1af98ccfa97696806c60141697cada3",
+    "scripts/capture_duo_layout.py": "8067dd3355b2e875412eef8c13545e88b24de8bb1c582aa36054bcee667c53ca",
+    "scripts/test_capture_duo_layout.py": "aae0e7744355f7edef39f0bc0b1fb67a763e10e109efa06a207d2d8d043aad3a"
+  },
+  "backup": "/tmp/jifen-preflight-fix-backup-20261022",
+  "physical_device_validation": false,
+  "signed_archive_validation": false,
+  "concurrent_external_changes": {
+    "jifen/Features/Scoreboard/Shared/ScoreboardLayoutMetrics.swift": {
+      "sha256": "646035c40d1e86c85e69bcb104816fc51f1982c4f19e6dd14304d79719251cfe",
+      "modified_before_final_tests": true
+    },
+    "jifen/Features/Scoreboard/Sports/Basketball/BasketballScoreboardView.swift": {
+      "sha256": "3d551b9946a5d416ec988d2efd6207f350499ee5dbe4eaab0c284c7a96aeb86f",
+      "modified_before_final_tests": true
+    },
+    "jifenTests/LocalScoreboardDisplayStateTests.swift": {
+      "sha256": "35d294cf3beb7aebdb17d15836474d9a5501ca47ae99f9e3722d061f93c3a1ba",
+      "modified_before_final_tests": true
+    }
+  },
+  "concurrent_external_test_passed": "LocalScoreboardDisplayStateTests.testBasketballButtonColumnsStaySymmetricWhileNamesRespectTheSafeEdge"
+}

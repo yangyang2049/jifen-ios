@@ -1,0 +1,34 @@
+{
+  "initial_head": "658e8d67a6864a6596606037cfa1aa9ae23f4501",
+  "end_head": "474d0c614a8f0d5eafd6c941d6a97f1a11a8c589",
+  "note": "External commit captured original localization changes and some early audit evidence. This audit agent did not run git add/commit. Three additional production styling files reviewed, no extra build for isolated styling.",
+  "extra_source_files": [
+    {
+      "path": "jifen/Core/Theme/Theme.swift",
+      "sha256": "dfaa606c35d5653f907cba87579468ff447f846c7b4fca7e8e600c2c812bba6b"
+    },
+    {
+      "path": "jifen/Features/Home/Components/QuickStartEditView.swift",
+      "sha256": "c5bacfc83250eacea7fcf7e78ec027b3692e1345f88f609333aa014ce7611d01"
+    },
+    {
+      "path": "jifen/Features/Home/Components/SportOptionView.swift",
+      "sha256": "13f3fad4cf702ea5d78674af7739d3666ff3b24ac8c0979d0ee0c1e0ff03fae4"
+    }
+  ],
+  "end_status": [
+    " M docs/audit/2026-10-22/evidence/ios-initial-status.txt",
+    " M docs/audit/2026-10-22/evidence/ios-xcode-unit-tests.log",
+    "?? docs/audit/2026-10-22/evidence/ios-all-catalog-validation.json",
+    "?? docs/audit/2026-10-22/evidence/ios-heading-check.log",
+    "?? docs/audit/2026-10-22/evidence/ios-localization-tests.log",
+    "?? docs/audit/2026-10-22/evidence/ios-notice-tests.log",
+    "?? docs/audit/2026-10-22/evidence/ios-signed-targeted-tests.log",
+    "?? docs/audit/2026-10-22/evidence/ios-source-inventory.json",
+    "?? docs/audit/2026-10-22/evidence/ios-uncommitted-manifest.json",
+    "?? docs/audit/2026-10-22/evidence/ios-ws-reconnect-repro.py",
+    "?? docs/audit/2026-10-22/evidence/ios-ws-reconnect-script-check.json",
+    "?? docs/audit/2026-10-22/evidence/ios-xcode-first-run-summary.json",
+    "?? docs/audit/2026-10-22/ios-review.md"
+  ]
+}

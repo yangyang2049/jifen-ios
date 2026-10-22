@@ -1,0 +1,14 @@
+{
+  "handshake_attempts": 7,
+  "offsets_seconds": [
+    0.453,
+    1.504,
+    2.569,
+    3.621,
+    4.649,
+    5.697,
+    6.764
+  ],
+  "exit": 0,
+  "bug_observed": true
+}

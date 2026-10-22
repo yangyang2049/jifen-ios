@@ -1,0 +1,116 @@
+{
+  "pose": "ordinary",
+  "chapter": "provenance",
+  "test_id": "FullAppScreenshotUITests/testCaptureFoldableWindowLayouts",
+  "items": null,
+  "result": "/Users/yangyang/Desktop/jifenqi/jifen-ios/build/duo/host-ordinary-provenance-1792678651.xcresult",
+  "log": "/Users/yangyang/Desktop/jifenqi/jifen-ios/build/duo/host-ordinary-provenance-1792678651.log",
+  "captures": [
+    {
+      "width": 402,
+      "name": "duo_ordinary_home",
+      "height": 874,
+      "pixels": [
+        1206,
+        2622
+      ],
+      "display": "21EF7B62-EF52-42FD-B430-B93ADE2E7D76",
+      "video_seconds": 15.818,
+      "captured_at": "2026-10-22T14:17:47.240167+00:00"
+    },
+    {
+      "name": "duo_ordinary_records",
+      "width": 402,
+      "height": 874,
+      "pixels": [
+        1206,
+        2622
+      ],
+      "display": "21EF7B62-EF52-42FD-B430-B93ADE2E7D76",
+      "video_seconds": 19.463,
+      "captured_at": "2026-10-22T14:17:50.885018+00:00"
+    },
+    {
+      "width": 402,
+      "name": "duo_ordinary_timer",
+      "height": 874,
+      "pixels": [
+        1206,
+        2622
+      ],
+      "display": "21EF7B62-EF52-42FD-B430-B93ADE2E7D76",
+      "video_seconds": 24.033,
+      "captured_at": "2026-10-22T14:17:55.454995+00:00"
+    },
+    {
+      "name": "duo_ordinary_me",
+      "width": 402,
+      "height": 874,
+      "pixels": [
+        1206,
+        2622
+      ],
+      "display": "21EF7B62-EF52-42FD-B430-B93ADE2E7D76",
+      "video_seconds": 27.667,
+      "captured_at": "2026-10-22T14:17:59.088832+00:00"
+    },
+    {
+      "width": 402,
+      "name": "duo_ordinary_score",
+      "height": 874,
+      "pixels": [
+        1206,
+        2622
+      ],
+      "display": "21EF7B62-EF52-42FD-B430-B93ADE2E7D76",
+      "video_seconds": 31.159,
+      "captured_at": "2026-10-22T14:18:02.580599+00:00"
+    },
+    {
+      "name": "duo_ordinary_badminton_setup",
+      "width": 402,
+      "height": 874,
+      "pixels": [
+        1206,
+        2622
+      ],
+      "display": "21EF7B62-EF52-42FD-B430-B93ADE2E7D76",
+      "video_seconds": 34.486,
+      "captured_at": "2026-10-22T14:18:05.907483+00:00"
+    },
+    {
+      "name": "duo_ordinary_tools",
+      "height": 874,
+      "width": 402,
+      "pixels": [
+        1206,
+        2622
+      ],
+      "display": "21EF7B62-EF52-42FD-B430-B93ADE2E7D76",
+      "video_seconds": 40.293,
+      "captured_at": "2026-10-22T14:18:11.714515+00:00"
+    }
+  ],
+  "status": "passed",
+  "device": "5789C2C3-B714-41DC-8F19-23F44FDFE3F9",
+  "layout_expectation": "ordinary",
+  "started_at": "2026-10-22T14:17:31.421840+00:00",
+  "xctestrun": "/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/jifen_iphonesimulator27.1-arm64.xctestrun",
+  "xctestrun_sha256": "9343483c3e075dd84d8eb6afbc025d54468d88a2e8cbc2b85669b99f90eb163d",
+  "test_products": [
+    {
+      "app": "/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app",
+      "host": "/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifenUITests-Runner.app",
+      "test_bundle": "/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifenUITests-Runner.app/PlugIns/jifenUITests.xctest"
+    }
+  ],
+  "binary_sha256": {
+    "/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/jifen": "437b9b6868c91b3e9ff378fdfa023a81c79050871a7dcfc83fa3289e7ffab288",
+    "/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/jifen.debug.dylib": "02830fb7c1e196c0dfc4f9e641dde7359946ef6879b77f6277b586de39cb41dc",
+    "/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifenUITests-Runner.app/jifenUITests-Runner": "4864817e2f14f43211dc6815327976a6eee1dcc05bff45b5b4d53f24b301cf19",
+    "/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifenUITests-Runner.app/PlugIns/jifenUITests.xctest/jifenUITests": "66a5fd863dfa4ee08520f8aeb61665d00750d1d5beb9a24586671032d74eb707"
+  },
+  "exit_code": 0,
+  "elapsed_seconds": 41.23,
+  "finished_at": "2026-10-22T14:18:12.651413+00:00"
+}
