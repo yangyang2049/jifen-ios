@@ -1,0 +1,764 @@
+{
+  "catalog_inventory_mismatches": {
+    "ar": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "bn": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "ca": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "cs": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "da": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "de": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "el": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "es-ES": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "es-MX": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "fi": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "fr-CA": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "fr": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "gu": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "he": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "hi": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "hr": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "hu": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "id": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "it": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "ja": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "kn": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "ko": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "ml": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "mr": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "ms": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "nb": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "nl": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "or": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "pa": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "pl": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "pt-BR": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "pt-PT": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "ro": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "ru": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "sk": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "sl": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "sv": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "ta": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "te": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "th": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "tr": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "uk": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "ur": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    },
+    "vi": {
+      "missing": [
+        [
+          "Localizable",
+          "setup_auto_odd_sets"
+        ]
+      ],
+      "extra": []
+    }
+  },
+  "initial_status": [
+    " M jifen/Resources/en.lproj/Localizable.strings",
+    " M scripts/localization/catalogs/ar.jsonl",
+    " M scripts/localization/catalogs/bn.jsonl",
+    " M scripts/localization/catalogs/ca.jsonl",
+    " M scripts/localization/catalogs/cs.jsonl",
+    " M scripts/localization/catalogs/da.jsonl",
+    " M scripts/localization/catalogs/de.jsonl",
+    " M scripts/localization/catalogs/el.jsonl",
+    " M scripts/localization/catalogs/es-ES.jsonl",
+    " M scripts/localization/catalogs/es-MX.jsonl",
+    " M scripts/localization/catalogs/fi.jsonl",
+    " M scripts/localization/catalogs/fr-CA.jsonl",
+    " M scripts/localization/catalogs/fr.jsonl",
+    " M scripts/localization/catalogs/gu.jsonl",
+    " M scripts/localization/catalogs/he.jsonl",
+    " M scripts/localization/catalogs/hi.jsonl",
+    " M scripts/localization/catalogs/hr.jsonl",
+    " M scripts/localization/catalogs/hu.jsonl",
+    " M scripts/localization/catalogs/id.jsonl",
+    " M scripts/localization/catalogs/it.jsonl",
+    " M scripts/localization/catalogs/ja.jsonl",
+    " M scripts/localization/catalogs/kn.jsonl",
+    " M scripts/localization/catalogs/ko.jsonl",
+    " M scripts/localization/catalogs/ml.jsonl",
+    " M scripts/localization/catalogs/mr.jsonl",
+    " M scripts/localization/catalogs/ms.jsonl",
+    " M scripts/localization/catalogs/nb.jsonl",
+    " M scripts/localization/catalogs/nl.jsonl",
+    " M scripts/localization/catalogs/or.jsonl",
+    " M scripts/localization/catalogs/pa.jsonl",
+    " M scripts/localization/catalogs/pl.jsonl",
+    " M scripts/localization/catalogs/pt-BR.jsonl",
+    " M scripts/localization/catalogs/pt-PT.jsonl",
+    " M scripts/localization/catalogs/ro.jsonl",
+    " M scripts/localization/catalogs/ru.jsonl",
+    " M scripts/localization/catalogs/sk.jsonl",
+    " M scripts/localization/catalogs/sl.jsonl",
+    " M scripts/localization/catalogs/sv.jsonl",
+    " M scripts/localization/catalogs/ta.jsonl",
+    " M scripts/localization/catalogs/te.jsonl",
+    " M scripts/localization/catalogs/th.jsonl",
+    " M scripts/localization/catalogs/tr.jsonl",
+    " M scripts/localization/catalogs/uk.jsonl",
+    " M scripts/localization/catalogs/ur.jsonl",
+    " M scripts/localization/catalogs/vi.jsonl",
+    " M scripts/localization/group-copy-20261017.json",
+    " M scripts/localization/group-copy-review-20261021.json",
+    " M scripts/localization/group_audit_copy_20261020.py",
+    " M scripts/localization/group_heading_case_20261022.py"
+  ],
+  "head": "658e8d67a6864a6596606037cfa1aa9ae23f4501",
+  "locales": 47,
+  "swift_sources": 253,
+  "catalog_diffs": {
+    "ar": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "bn": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "ca": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "cs": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "da": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "de": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "el": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "es-ES": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "es-MX": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "fi": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "fr-CA": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "fr": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "gu": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "he": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "hi": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "hr": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "hu": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "id": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "it": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "ja": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "kn": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "ko": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "ml": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "mr": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "ms": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "nb": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "nl": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "or": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "pa": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "pl": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "pt-BR": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "pt-PT": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "ro": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "ru": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "sk": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "sl": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "sv": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "ta": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "te": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "th": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "tr": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "uk": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "ur": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    },
+    "vi": {
+      "changed_rows": 10,
+      "fields": [
+        "note",
+        "source_hash"
+      ]
+    }
+  }
+}

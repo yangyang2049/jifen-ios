@@ -98,7 +98,7 @@
   "group_activity_lineup_section_matches": "Match Schedule",
   "group_pending_request_limit": "Too many pending requests. Wait for approval or withdraw some requests.",
   "group_temporary_hint": "Temporary members need no account and can be added when entering results.",
-  "group_abandon_game": "Abandon match",
+  "group_abandon_game": "Abandon Match",
   "group_activity_lineup": "Arrange Matches",
   "group_activity_mode": "Records",
   "group_authority_confirm": "Confirm result",
@@ -125,7 +125,7 @@
   "group_copy_registration_at_start": "At activity start",
   "group_copy_registration_use_start": "Use activity start time",
   "group_copy_cancel_reason_optional": "Reason for cancellation (optional)",
-  "group_copy_audit_result_frozen_info": "View players and rules",
+  "group_copy_audit_result_frozen_info": "View Players and Rules",
   "group_view_schedule": "View matches",
   "group_notice_training_published": "Training published",
   "group_notice_training_changed": "Training updated",
@@ -134,7 +134,7 @@
   "group_copy_transfer_hint": "You will become a regular member after transfer",
   "group_copy_result_confirm": "Confirm Result",
   "group_copy_void_action": "Void",
-  "group_copy_abandon_action": "Abandon match",
+  "group_copy_abandon_action": "Abandon Match",
   "group_copy_leave_message": "After leaving, you will no longer be a member, and this group will be removed from “My groups”. You will no longer be able to access or participate in it. Existing group match records and personal records on this device will be kept. You must rejoin to access the group again.",
   "group_copy_archive_message": "Archive this group? Its content will be read-only.",
   "group_copy_dissolve_message": "The group will be read-only for 7 days, during which you can cancel dissolution. After that, the group and all its data will be permanently deleted.",
@@ -5478,5 +5478,5 @@
    "group_reload_version_message": "放棄未儲存的場次安排，載入最新版本？"
   }
  },
- "retained_wording": "Abbreviations, capitalization, and semantically unchanged native copy were reviewed and retained. Existing 2026-10-20 translations are preserved when they already match the current source. English group headings moved to Title Case on 2026-10-22; native wording retained. English group headings moved to Title Case on 2026-10-22; native wording retained."
+ "retained_wording": "Abbreviations, capitalization, and semantically unchanged native copy were reviewed and retained. Existing 2026-10-20 translations are preserved when they already match the current source. English group headings moved to Title Case on 2026-10-22; native wording retained. English group headings moved to Title Case on 2026-10-22; native wording retained. English group headings moved to Title Case on 2026-10-22; native wording retained. English group headings moved to Title Case on 2026-10-22; native wording retained."
 }

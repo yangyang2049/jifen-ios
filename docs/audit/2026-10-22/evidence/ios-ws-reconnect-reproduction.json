@@ -1,0 +1,22 @@
+{
+  "test": "actual iOS WS manager against loopback HTTP 401 handshake",
+  "harness_changes": [
+    "remove UIKit import and device-info helper",
+    "replace wall clock helper with Date milliseconds",
+    "append executable entry point; connection/retry/queue logic unchanged"
+  ],
+  "seconds": 7.62,
+  "handshake_attempts": 7,
+  "attempt_offsets_seconds": [
+    0.087,
+    1.161,
+    2.202,
+    3.276,
+    4.381,
+    5.431,
+    6.497
+  ],
+  "process_exit": 0,
+  "stdout": "audit finished\n",
+  "stderr": ""
+}

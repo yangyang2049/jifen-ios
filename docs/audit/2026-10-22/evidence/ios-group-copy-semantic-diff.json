@@ -1,0 +1,72 @@
+[
+  [
+    "/reviewed_sources/group_copy_abandon_action",
+    [
+      "Abandon match",
+      "Abandon Match"
+    ]
+  ],
+  [
+    "/reviewed_sources/group_copy_audit_result_frozen_info",
+    [
+      "View players and rules",
+      "View Players and Rules"
+    ]
+  ],
+  [
+    "/reviewed_sources/group_withdraw",
+    [
+      "Withdraw request",
+      "Withdraw Request"
+    ]
+  ],
+  [
+    "/reviewed_sources/group_number",
+    [
+      "6–8 digit group number",
+      "6–8 Digit Group Number"
+    ]
+  ],
+  [
+    "/reviewed_sources/group_notice_seen",
+    [
+      "Mark as read",
+      "Mark as Read"
+    ]
+  ],
+  [
+    "/reviewed_sources/group_list_add_title",
+    [
+      "Create or join a group",
+      "Create or Join a Group"
+    ]
+  ],
+  [
+    "/reviewed_sources/group_abandon_game",
+    [
+      "Abandon match",
+      "Abandon Match"
+    ]
+  ],
+  [
+    "/reviewed_sources/group_resume_score",
+    [
+      "Continue this device’s match",
+      "Continue This Device’s Match"
+    ]
+  ],
+  [
+    "/reviewed_sources/group_share",
+    [
+      "Share group",
+      "Share Group"
+    ]
+  ],
+  [
+    "/reviewed_sources/group_album",
+    [
+      "Choose photo",
+      "Choose Photo"
+    ]
+  ]
+]

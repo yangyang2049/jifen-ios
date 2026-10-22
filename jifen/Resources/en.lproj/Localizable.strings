@@ -1576,7 +1576,7 @@
 "group_activity_title" = "Activity Name";
 "group_add_temporary" = "Add Temporary Member";
 "group_admin" = "Admin";
-"group_album" = "Choose photo";
+"group_album" = "Choose Photo";
 "group_approval" = "Approval required";
 "group_approve" = "Approve";
 "group_archive" = "Archive";
@@ -1655,7 +1655,7 @@
 "group_no_rankings" = "Rankings appear after a match is confirmed.";
 "group_no_set_details" = "Only the overall result was recorded.";
 "group_note" = "Note (Optional)";
-"group_number" = "6–8 digit group number";
+"group_number" = "6–8 Digit Group Number";
 "group_open" = "Join directly";
 "group_overall_score" = "Overall Set Score";
 "group_overview" = "Overview";
@@ -1688,7 +1688,7 @@
 "group_scoreboard" = "Scoreboard";
 "group_set_details" = "Set Details";
 "group_set_input" = "Set details (optional), one score per line: 21:19";
-"group_share" = "Share group";
+"group_share" = "Share Group";
 "group_share_qr" = "Share QR image";
 "group_singles" = "Singles";
 "group_source" = "Source";
@@ -1710,7 +1710,7 @@
 "group_void_result" = "Void";
 "group_voided" = "Voided";
 "group_wins" = "W";
-"group_withdraw" = "Withdraw request";
+"group_withdraw" = "Withdraw Request";
 "group_return_group" = "Return to group";
 "group_already_member" = "You are already a member.";
 "group_open_group" = "Open Group";
@@ -1794,7 +1794,7 @@
 "group_archived_empty" = "No archived groups";
 "group_archived_list_title" = "Archived Groups";
 "group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
+"group_list_add_title" = "Create or Join a Group";
 "group_ranking_draws" = "D";
 "group_ranking_games" = "GP";
 "group_ranking_losses" = "L";
@@ -1815,7 +1815,7 @@
 "group_temporary_hint" = "Temporary members need no account and can be added when entering results.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "Abandon match";
+"group_abandon_game" = "Abandon Match";
 "group_activity_lineup" = "Arrange Matches";
 "group_activity_mode" = "Records";
 "group_activity_reminder" = "Remind Me 15 Minutes Before";
@@ -1870,7 +1870,7 @@
 "group_removed_members" = "Former Members";
 "group_repair_upload" = "Correct Result";
 "group_report_status" = "Your report";
-"group_resume_score" = "Continue this device’s match";
+"group_resume_score" = "Continue This Device’s Match";
 "group_search_members" = "Search names";
 "group_session_changed" = "Account changed. Open the form again.";
 "group_shift_following" = "Shift This and Following Matches";
@@ -1902,7 +1902,7 @@
 "group_notice_member_removed" = "You were removed from the group";
 "group_notice_ownership_transferred" = "Group owner changed";
 "group_notice_receipt_failed" = "Notification receipt was incomplete. Please retry.";
-"group_notice_seen" = "Mark as read";
+"group_notice_seen" = "Mark as Read";
 "group_ranking_empty" = "No %@ leaderboard yet";
 "group_filter_singles" = "Singles";
 "group_filter_doubles" = "Doubles";
@@ -2100,7 +2100,7 @@
 
 "group_copy_cancel_activity_message" = "Cancelling clears the sign-up list permanently. Activities in progress cannot be cancelled.";
 
-"group_copy_abandon_action" = "Abandon match";
+"group_copy_abandon_action" = "Abandon Match";
 
 "group_copy_abandon_message" = "Abandon this match to start another. Saved personal records will be kept.";
 
@@ -2464,7 +2464,7 @@
 
 "group_copy_cancel_reason_optional" = "Reason for cancellation (optional)";
 
-"group_copy_audit_result_frozen_info" = "View players and rules";
+"group_copy_audit_result_frozen_info" = "View Players and Rules";
 "group_view_schedule" = "View matches";
 "group_notice_training_published" = "Training published";
 "group_notice_training_changed" = "Training updated";

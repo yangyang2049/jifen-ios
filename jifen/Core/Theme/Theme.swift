@@ -204,6 +204,21 @@ struct Theme {
         if usesExpandedLayout, availableWidth >= 4 * 96 + 3 * gridSpacing { return 4 }
         return availableWidth + padding * 2 < 360 ? 2 : 3
     }
+
+    /// 快捷入口编辑弹窗网格图标边长：以两个锚点线性插值，
+    /// iPhone（卡片 84pt → 图标 28pt）、宽窗口（卡片 128pt → 图标 45pt）。
+    /// 纯按比例会让 iPhone 从 28pt 涨到 29.6pt，而 28pt 是 iPhone 上已确认的取值；
+    /// 纯固定值又会让 iPad / Duo 展开内屏的大卡片配小图标，故取双锚点。
+    /// 45pt 的图标框对应约 32pt 的可见图形（3D 图标素材自带约 28% 透明留白）。
+    static func quickStartGridIconSize(cardSide: CGFloat) -> CGFloat {
+        let phoneCard: CGFloat = 84
+        let phoneIcon: CGFloat = 28
+        let wideCard: CGFloat = 128
+        let wideIcon: CGFloat = 45
+        guard cardSide > phoneCard else { return phoneIcon }
+        let slope = (wideIcon - phoneIcon) / (wideCard - phoneCard)
+        return min(wideIcon, phoneIcon + (cardSide - phoneCard) * slope)
+    }
     /// 普通二、三级列表页在 iPad 上的正文宽度。
     static var secondaryPageContentMaxWidth: CGFloat { usesPadLayout ? 760 : .infinity }
     /// 表单、记录详情、积分表等需要保持阅读聚焦的内容宽度。

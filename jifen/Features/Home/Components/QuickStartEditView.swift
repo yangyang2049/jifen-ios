@@ -139,9 +139,9 @@ struct QuickStartEditView: View {
                                         onClickOption: {
                                             activeSport.wrappedValue = sport
                                         },
-                                        // 图标按卡片边长比例缩放：iPhone 卡片 84pt 时正好 28pt，
-                                        // iPad / Duo 展开内屏卡片放大到 129pt 时同步到约 43pt。
-                                        iconRatio: 28.0 / 84.0
+                                        // 图标按卡片边长插值：iPhone 卡片 84pt → 28pt（保持不变），
+                                        // iPad / Duo 展开内屏 128pt → 45pt（可见图形约 32pt）。
+                                        iconSizeProvider: Theme.quickStartGridIconSize(cardSide:)
                                     )
                                 }
                             }

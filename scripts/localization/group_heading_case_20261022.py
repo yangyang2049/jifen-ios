@@ -148,6 +148,16 @@ HEADINGS = {
     "set_details": "Set Details",
     "member_settings": "Member Settings",
     "settings": "Group Management",
+    # Buttons and controls that only appear as accessibility actions
+    "album": "Choose Photo",
+    "number": "6\u20138 Digit Group Number",
+    "withdraw": "Withdraw Request",
+    "share": "Share Group",
+    "notice_seen": "Mark as Read",
+    "resume_score": "Continue This Device\u2019s Match",
+    "list_add_title": "Create or Join a Group",
+    "audit_result_frozen_info": "View Players and Rules",
+    "abandon_game": "Abandon Match",
     # Evidence-report sheet labels
     "report_evidence_title": "Image Evidence (Optional)",
     "report_preview": "Evidence Image",
