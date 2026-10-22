@@ -4,6 +4,27 @@ import PersistenceCore
 @testable import jifen
 
 @MainActor final class GroupContractTests: XCTestCase {
+    func testGroupRuleFormatNamesAcrossSupportedSports() {
+        for sport in GroupSport.allCases {
+            var value = rules(); value.sport = sport
+            let unit = sport == .tennis ? "盘" : "局"
+            for (sets, title) in [(1, "一" + unit + "制"), (3, "三" + unit + "两胜"), (5, "五" + unit + "三胜"), (7, "七" + unit + "四胜"), (11, "十一" + unit + "六胜")] {
+                value.maxSets = sets
+                XCTAssertEqual(value.formatTitle, title, "\(sport.rawValue), \(sets)")
+            }
+            value.maxSets = 4; value.matchCompletionMode = "play_all"
+            XCTAssertEqual(value.formatTitle, "打满4" + unit)
+        }
+    }
+
+    func testTableTennisDefaultsToBestOfFiveAndNeedsThreeWins() {
+        let rules = GroupMatchRules(sport: .tableTennis, setup: SportsSetupResult(team1Name: "A", team2Name: "B"))
+        XCTAssertEqual(rules.maxSets, 5)
+        XCTAssertEqual(rules.matchCompletionMode, "best_of")
+        XCTAssertFalse(rules.validResult(.init(a: 2, b: 0), sets: nil))
+        XCTAssertTrue(rules.validResult(.init(a: 3, b: 2), sets: nil))
+    }
+
     func testInvitationDomainSelectionUsesRegion() {
         XCTAssertEqual(GroupInvitationLink.joinURL(groupNo: "72856000", regionCode: "CN")?.absoluteString, "https://jifenqi.com/groups/join?groupNo=72856000")
         for region in ["US", "JP", "HK", "TW", "", nil] {
@@ -224,5 +245,139 @@ import PersistenceCore
             XCTFail("Expected identity/role boundary failure")
         } catch { XCTAssertTrue(error is FixtureFailure) }
         XCTAssertEqual(writes, 0)
+    }
+}
+
+extension GroupContractTests {
+    func testUTF16TextLimitsRejectSupplementaryCharactersAtServerBoundary() {
+        for maximum in [16, 80, 100, 200, 300, 500] {
+            for unit in ["😀", "𠀀", "e\u{301}", "👨‍👩‍👧‍👦"] {
+                let value = String(repeating: unit, count: maximum / unit.utf16.count)
+                XCTAssertTrue(GroupInputValidation.validText(value, maximum: maximum))
+                XCTAssertFalse(GroupInputValidation.validText(value + unit, maximum: maximum))
+            }
+        }
+        XCTAssertTrue(GroupInputValidation.validName(String(repeating: "😀", count: 24)))
+        XCTAssertTrue(GroupActivityPolicy.validText(title: String(repeating: "😀", count: 40), place: ""))
+        XCTAssertTrue(GroupActivityPolicy.validCancellationReason(String(repeating: "😀", count: 150)))
+        XCTAssertFalse(GroupActivityPolicy.validCancellationReason(String(repeating: "😀", count: 151)))
+    }
+
+    func testUTF16TruncationPreservesGraphemesAtAndBeyondLimit() {
+        for unit in ["😀", "𠀀", "e\u{301}", "👨‍👩‍👧‍👦"] {
+            for maximum in [0, 1, 2, 100, 200, 300, 500] {
+                let input = String(repeating: "a", count: maximum) + unit
+                XCTAssertEqual(GroupInputValidation.limitedText(input, maximum: maximum), String(repeating: "a", count: maximum))
+                XCTAssertEqual(GroupInputValidation.limitedText(unit, maximum: unit.utf16.count), unit)
+                XCTAssertEqual(GroupInputValidation.limitedText(unit, maximum: unit.utf16.count - 1), "")
+            }
+        }
+    }
+
+    func testCapabilitiesNumberRangeDecodesAndFlowsThroughEveryInvitationFormat() throws {
+        let json = Data("""
+        {"groupNoLength":9,"groupNoMinLength":6,"groupNoMaxLength":9,"nameMin":2,"nameMax":24,
+         "descriptionMax":200,"memberLimitDefault":30,"memberLimitMax":50}
+        """.utf8)
+        var capabilities = try JSONDecoder().decode(GroupCapabilities.self, from: json)
+        XCTAssertEqual(capabilities.groupNumberLengths, 6...9)
+        for number in ["123456", "1234567", "12345678", "123456789"] {
+            XCTAssertTrue(GroupInvitationLink.validNumber(number, capabilities: capabilities))
+            let link = try XCTUnwrap(GroupInvitationLink.joinURL(groupNo: number, capabilities: capabilities))
+            XCTAssertEqual(GroupInvitationLink.groupNumber(from: link, capabilities: capabilities), number)
+            XCTAssertEqual(GroupQRPayload.parse(number, capabilities: capabilities), number)
+            XCTAssertEqual(GroupQRPayload.parse(link.absoluteString, capabilities: capabilities), number)
+            XCTAssertEqual(GroupQRPayload.parse("{\"type\":\"JIFEN_GROUP\",\"v\":1,\"groupNo\":\"\(number)\"}", capabilities: capabilities), number)
+            XCTAssertEqual(GroupQRPayload.parse(GroupQRPayload.encode(number, capabilities: capabilities), capabilities: capabilities), number)
+        }
+        for number in ["012345678", "1234567890", "１２３４５６", "12345", ""] {
+            XCTAssertFalse(GroupInvitationLink.validNumber(number, capabilities: capabilities))
+        }
+        capabilities.groupNoMinLength = 9; capabilities.groupNoMaxLength = 6
+        XCTAssertEqual(capabilities.groupNumberLengths, 6...8)
+        let legacy = try JSONDecoder().decode(GroupCapabilities.self, from: Data("""
+        {"groupNoLength":8,"nameMin":2,"nameMax":24,"descriptionMax":200,"memberLimitDefault":30,"memberLimitMax":50}
+        """.utf8))
+        XCTAssertEqual(legacy.groupNumberLengths, 6...8)
+        XCTAssertTrue(GroupInvitationLink.validNumber("123456", capabilities: legacy))
+        XCTAssertFalse(GroupInvitationLink.validNumber("123456789", capabilities: legacy))
+    }
+
+    func testOnlySixAndEightDigitGroupNumbersAreSplitForDisplay() {
+        XCTAssertEqual(GroupQRPayload.formatted("123456"), "123 456")
+        XCTAssertEqual(GroupQRPayload.formatted("12345678"), "1234 5678")
+        for number in ["", "123", "1234567", "123456789"] { XCTAssertEqual(GroupQRPayload.formatted(number), number) }
+    }
+
+    func testStatusMappingsNeverExposeUnknownWireValues() {
+        XCTAssertEqual(GroupStatusText.report("pending"), groupText("report_status_pending", "Pending"))
+        XCTAssertEqual(GroupStatusText.report("reviewing"), GroupStatusText.report("processing"))
+        XCTAssertEqual(GroupStatusText.report("resolved"), groupText("report_status_resolved", "Resolved"))
+        XCTAssertEqual(GroupStatusText.report("dismissed"), groupText("report_status_dismissed", "Dismissed"))
+        XCTAssertEqual(GroupStatusText.group("dissolved"), groupText("dissolved", "Dissolved"))
+        XCTAssertEqual(GroupStatusText.joinRequest("pending"), groupText("pending_approval", "Waiting for approval"))
+        XCTAssertEqual(GroupStatusText.joinRequest("rejected"), groupText("reject", "Reject"))
+        for label in [GroupStatusText.group("new_status"), GroupStatusText.activity("new_status"),
+                      GroupStatusText.result("new_status"), GroupStatusText.report("new_status"),
+                      GroupStatusText.trainingSession("new_status"), GroupStatusText.leaveNotice("new_status"),
+                      GroupStatusText.joinRequest("new_status")] {
+            XCTAssertEqual(label, NSLocalizedString("unknown", value: "Unknown", comment: ""))
+        }
+    }
+
+    func testStatusLocalizationKeysExistInEveryShippedLocale() throws {
+        let resources = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("jifen/Resources")
+        let locales = try FileManager.default.contentsOfDirectory(at: resources, includingPropertiesForKeys: nil).filter { $0.pathExtension == "lproj" }
+        XCTAssertEqual(locales.count, 47)
+        let keys = ["unknown", "group_status_active", "group_dissolved", "group_report_status_pending", "group_report_status_reviewing", "group_report_status_resolved", "group_report_status_dismissed", "group_pending_approval", "group_reject"]
+        for locale in locales {
+            let data = try Data(contentsOf: locale.appendingPathComponent("Localizable.strings"))
+            let values = try XCTUnwrap(PropertyListSerialization.propertyList(from: data, format: nil) as? [String: String])
+            let bundle = try XCTUnwrap(Bundle(path: locale.path))
+            for key in keys {
+                let value = try XCTUnwrap(values[key], "\(locale.lastPathComponent): \(key)")
+                XCTAssertFalse(value.isEmpty)
+                XCTAssertEqual(bundle.localizedString(forKey: key, value: "MISSING", table: "Localizable"), value)
+            }
+        }
+    }
+
+    func testTrainingVenueAndNoteUseUTF16Limits() {
+        XCTAssertTrue(GroupTrainingValidation.validText(place: String(repeating: "😀", count: 40), note: String(repeating: "😀", count: 100)))
+        XCTAssertFalse(GroupTrainingValidation.validText(place: String(repeating: "😀", count: 41), note: ""))
+        XCTAssertFalse(GroupTrainingValidation.validText(place: "", note: String(repeating: "😀", count: 101)))
+        var session = GroupTrainingDraftSession(court: String(repeating: "😀", count: 8), memberIDs: ["a", "", "b", ""])
+        XCTAssertNil(GroupTrainingValidation.lineupProblem([session], minutes: 30))
+        session.court += "😀"
+        XCTAssertEqual(GroupTrainingValidation.lineupProblem([session], minutes: 30), .invalid)
+    }
+}
+
+@MainActor
+extension GroupContractTests {
+    func testPushClickRequiresVersionAndAnonymousUUIDs() {
+        let message = UUID().uuidString, binding = UUID().uuidString
+        let valid: [AnyHashable: Any] = ["push": ["v": 1, "messageId": message, "bindingId": binding]]
+        XCTAssertEqual(GroupPushDestination.parse(valid)?.messageID, message)
+        XCTAssertNil(GroupPushDestination.parse(["push": ["v": 2, "messageId": message, "bindingId": binding]]))
+        XCTAssertNil(GroupPushDestination.parse(["push": ["v": 1, "messageId": "https://example.com", "bindingId": binding]]))
+        XCTAssertNil(GroupPushDestination.parse(["groupActivityID": message]))
+    }
+    func testPushTrainingAndAbsenceTargetsReuseTrainingTab() {
+        XCTAssertEqual(GroupNoticeTarget.resolve(kind: "training_changed", resourceID: "plan"), .group(tab: 1))
+        XCTAssertEqual(GroupNoticeTarget.resolve(kind: "leave_changed", resourceID: "plan"), .group(tab: 1))
+        XCTAssertEqual(GroupNoticeTarget.resolve(kind: "member_removed", resourceID: "member"), .message)
+    }
+}
+
+extension GroupContractTests {
+    func testReportEvidenceReadModelsRemainCompatible() throws {
+        let legacy = try JSONDecoder().decode(GroupReportStatus.self, from: Data(#"{"reason":"SPAM","detail":null,"status":"pending"}"#.utf8))
+        XCTAssertNil(legacy.attachments)
+        XCTAssertNil(legacy.version)
+        let current = try JSONDecoder().decode(GroupReportStatus.self, from: Data(#"{"reason":"FRAUD","detail":"Evidence","status":"resolved","version":3,"publicResolution":"Reviewed","attachments":[{"uploadId":"image-a","url":"/private/image-a","purged":false}]}"#.utf8))
+        XCTAssertEqual(current.version, 3)
+        XCTAssertEqual(current.publicResolution, "Reviewed")
+        XCTAssertEqual(current.attachments?.first?.uploadId, "image-a")
     }
 }

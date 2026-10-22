@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "Deskové hry";
 "search_team_or_game" = "Vyhledejte tým nebo hru";
 "match_count" = "%d zápasů";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d zápasů · všichni členové skupiny";
+"archived_count" = "%d skupin";
 
 /* Home Screen */
 "recent_records" = "Nedávné záznamy";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "např. hrát všech pět setů; zápas může skončit remízou";
 "match_completion_custom_placeholder" = "Zadejte 1-99";
 "match_completion_invalid_sets" = "Klasika vyžaduje lichý počet od 1 do 99; Odehrát vše dovoluje libovolný počet od 1 do 99.";
+"setup_auto_odd_sets" = "Povolena jsou jen lichá čísla – použije se %d";
 "has_been_reset" = "Resetování bylo dokončeno";
 "no_undo_available" = "Není možné vrátit zpět";
 "screenshot_failed" = "Snímek obrazovky se nezdařil";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "Aktivní synchronizační relace";
 "timer_status_running" = "Běží";
 "timer_status_paused" = "Pozastaveno";
-"membership_entry_summary_active" = "Jste členem VIP. Děkujeme za vaši podporu";
+"membership_entry_summary_active" = "VIP členství je aktivní";
 "sound_effects" = "Zvukové efekty";
 "vibration" = "Vibrace";
 "language" = "Jazyk";
@@ -1579,7 +1580,7 @@
 "group_approval" = "Vyžaduje schválení";
 "group_approve" = "Schválit";
 "group_archive" = "Archivovat skupinu";
-"group_archive_hint" = "Archivace zachová celou historii a pozastaví změny ve skupině. Později ji můžete obnovit.";
+"group_archive_hint" = "Archivovat tuto skupinu? Její obsah bude jen pro čtení.";
 "group_archive_readonly" = "Tato skupina je archivována. Historie je pouze pro čtení.";
 "group_archived" = "Archivováno";
 "group_benefit_activity" = "Plánovat aktivity a přihlašovat se";
@@ -1624,38 +1625,38 @@
 "group_invalid_qr" = "Toto není platný QR kód skupiny.";
 "group_invalid_result" = "Zaznamenaný výsledek je třeba před odesláním zkontrolovat.";
 "group_invalid_rules" = "Zkontrolujte pravidla zápasu.";
-"group_invite" = "Invite";
+"group_invite" = "Pozvat spoluhráče";
 "group_join" = "Připojit se ke skupině";
 "group_join_hint" = "Připojte se ke skupině přítele pomocí jejího čísla nebo QR kódu.";
-"group_join_message" = "Zpráva skupině (volitelné)";
-"group_join_policy" = "Připojení";
+"group_join_message" = "Zpráva k žádosti o přijetí (nepovinné)";
+"group_join_policy" = "Možnosti připojení";
 "group_leave" = "Opustit skupinu";
-"group_leave_hint" = "Ztratíte přístup k této skupině. Osobní záznamy zůstanou v tomto zařízení.";
+"group_leave_hint" = "Po opuštění skupiny už nebudete jejím členem a skupina se odebere ze seznamu „Moje skupiny“. Nebudete k ní mít přístup ani se účastnit jejího dění. Stávající záznamy zápasů skupiny i vaše osobní záznamy v tomto zařízení zůstanou zachovány. Pro obnovení přístupu se musíte znovu přidat.";
 "group_load_failed" = "Skupinu nelze načíst";
 "group_load_more" = "Načíst další";
 "group_losses" = "prohry";
 "group_manual" = "Ruční zadání";
-"group_manual_result" = "Přidat dřívější zápas";
+"group_manual_result" = "Přidat výsledek zápasu";
 "group_match_detail" = "Podrobnosti zápasu";
 "group_match_log" = "Historie zápasů";
 "group_match_rules" = "Pravidla zápasu";
 "group_member" = "Člen";
 "group_member_name" = "Jméno člena";
-"group_members" = "Členové";
+"group_members" = "Člen";
 "group_month_matches" = "Zápasy tento měsíc";
 "group_my_groups" = "Moje skupiny";
 "group_name" = "Název skupiny";
 "group_need_login" = "Pro pokračování se přihlaste.";
 "group_need_members" = "Před zahájením zápasu pozvěte přátele nebo přidejte dočasné členy.";
-"group_new_activity" = "Naplánovat aktivitu";
+"group_new_activity" = "Vytvořit aktivitu";
 "group_new_owner" = "Nový vlastník";
 "group_no_activities" = "Zatím žádné aktivity";
 "group_no_description" = "Zatím žádný popis";
 "group_no_rankings" = "Žebříčky se zobrazí po potvrzení zápasu.";
 "group_no_set_details" = "Byl zaznamenán pouze celkový výsledek.";
-"group_note" = "Poznámka k aktivitě (volitelné)";
-"group_number" = "6–8 digit group number";
-"group_open" = "Připojit se může každý, kdo zná číslo";
+"group_note" = "Poznámka (volitelné)";
+"group_number" = "Číslo skupiny o 6–8 číslicích";
+"group_open" = "Připojit se přímo";
 "group_overall_score" = "Celkové skóre setů";
 "group_overview" = "Přehled";
 "group_owner" = "Vlastník";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "Odebrat člena";
 "group_restore" = "Obnovit skupinu";
 "group_restore_hint" = "Obnovte skupinu, aby bylo možné pořádat aktivity a počítat skóre.";
-"group_results" = "Zápasy";
+"group_results" = "Záznamy";
 "group_retry" = "Zkuste to znovu";
 "group_rules_missing" = "Pravidla nebyla zaznamenána";
-"group_save" = "Potvrďte";
+"group_save" = "Uložit";
 "group_save_failed" = "Zápas se nepodařilo uložit. Zkuste to znovu.";
 "group_scan" = "Naskenovat QR kód";
 "group_scoreboard" = "Výsledková tabule";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "Před zahájením dalšího zápasu pokračujte v aktuálním nebo ho dokončete.";
 "group_unregister" = "Zrušit přihlášení";
 "group_void_reason" = "Důvod zneplatnění";
-"group_void_result" = "Zneplatnit výsledek";
+"group_void_result" = "Zneplatnit";
 "group_voided" = "Zneplatněno";
 "group_wins" = "výhry";
 "group_withdraw" = "Stáhnout žádost";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "Již jste členem.";
 "group_open_group" = "Otevřít skupinu";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
+"group_groups" = "Skupina";
+"group_invite_students" = "Pozvat žáky";
+"group_group_type" = "Typ skupiny";
+"group_peer" = "Skupina přátel";
+"group_coaching" = "Tréninková skupina";
+"group_training" = "Trénink";
+"group_upcoming" = "Nadcházející";
+"group_latest_results" = "Nejnovější výsledky";
+"group_no_results" = "Zatím nejsou zaznamenány žádné zápasy";
+"group_no_training" = "Zatím není naplánován žádný trénink";
+"group_active_activities" = "Probíhá · Přihlašování otevřeno";
+"group_past_activities" = "Minulé aktivity";
+"group_all_formats" = "Všechny formáty";
+"group_join_requests" = "Žádosti o vstup";
+"group_regular_members" = "Přihlášení členové";
+"group_temporary_members" = "Dočasní členové";
+"group_add" = "Přidat";
+"group_leader" = "Vlastník";
+"group_member_settings" = "Nastavení člena";
+"group_settings" = "Správa skupiny";
+"group_partial_load" = "Některé části se nepodařilo obnovit. Zkuste to tažením dolů.";
+"group_leave_notices" = "Omluvenky žáků";
+"group_mark_seen" = "Přečteno";
+"group_training_schedule" = "Tréninkový rozpis";
+"group_add_session" = "Přidat zápas";
+"group_edit_schedule" = "Upravit rozpis";
+"group_cancel_schedule" = "Zrušit rozpis";
+"group_leave_training" = "Omluvit nepřítomnost";
+"group_session_minutes" = "Minuty na zápas";
+"group_court" = "Kurt";
+"group_remove_session" = "Odebrat";
+"group_publish_schedule" = "Zveřejnit rozpis";
+"group_leave_reason" = "Důvod nepřítomnosti (nepovinné)";
+"group_report" = "Nahlásit skupinu";
+"group_report_reason" = "Důvod";
+"group_report_detail" = "Podrobnosti (nepovinné)";
+"group_report_submit" = "Odeslat";
 "group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
+"group_report_harassment" = "Obtěžování";
+"group_report_inappropriate" = "Sexuální nebo nevhodný obsah";
+"group_report_fraud" = "Podvod nebo hazard";
+"group_report_illegal" = "Nezákonná nebo nebezpečná činnost";
+"group_report_impersonation" = "Vydávání se za jiného";
+"group_report_other" = "Jiné";
+"group_lineup_invalid" = "Zkontrolujte časy zápasů, kurty a hráče.";
+"group_lineup_member_limit" = "Člen může v jednom rozpisu odehrát nejvýše osm zápasů.";
+"group_lineup_conflict" = "Souběžné zápasy musí mít různé kurty a hráče.";
+"group_multi_match_hint" = "Aktivita může zahrnovat více zápasů. Členové se přihlásí na aktivitu; při sestavování rozpisu vyberte pro každou dvouhru 2 přihlášené nebo pro čtyřhru 4.";
+"group_single_match_hint" = "Každá aktivita představuje jeden zápas. Vyberte 2 přihlášené členy pro dvouhru nebo 4 pro čtyřhru.";
+"group_rate_limited" = "Příliš mnoho požadavků. Zkuste to později.";
+"group_create_daily_limit" = "Dosáhli jste limitu vytváření skupin za 24 hodin. Zkuste to později.";
+"group_join_daily_limit" = "Dosáhli jste limitu vstupů do skupin za 24 hodin. Zkuste to později.";
+"group_pending_request_limit" = "Příliš mnoho žádostí čeká na schválení. Vyčkejte na rozhodnutí nebo některé stáhněte.";
+"group_request_daily_limit" = "Skupina dosáhla limitu žádostí o vstup za 24 hodin. Zkuste to později.";
+"group_join_cooldown" = "Po zamítnutí musíte před novou žádostí počkat 24 hodin.";
+"group_result_group_daily_limit" = "Skupina dosáhla limitu výsledků za 24 hodin. Zkuste to později.";
+"group_result_submitter_daily_limit" = "Dosáhli jste limitu odesílání výsledků za 24 hodin. Zkuste to později.";
+"group_not_coach" = "Tréninky může plánovat pouze trenér.";
+"group_activity_count" = "Přihlášeno: %1$d/%2$d";
+"group_activity_create_admin_hint" = "Aktivity vytváří vlastník skupiny nebo správce";
+"group_activity_direct_hint" = "Vybírejte přímo ze všech aktivních členů skupiny; přihlášení není nutné.";
+"group_activity_direct_save" = "Uložit rozpis";
+"group_activity_direct_title" = "Naplánovat nyní";
+"group_activity_field_title_optional" = "Název aktivity (nepovinné)";
+"group_activity_full" = "Obsazeno";
+"group_activity_lineup_add" = "Přidat zápas";
+"group_activity_lineup_add_need_members" = "Nedostatek hráčů. K přidání zápasu je potřeba alespoň %1$d aktivních členů skupiny.";
+"group_activity_lineup_court" = "Číslo kurtu";
+"group_activity_lineup_duration" = "Délka zápasu";
+"group_activity_lineup_match_count" = "Počet zápasů: %1$d";
 "group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_activity_lineup_remove" = "Odebrat";
+"group_activity_lineup_section_matches" = "Naplánovat zápasy";
+"group_activity_lineup_session" = "Zápas %1$d";
+"group_activity_registration_empty" = "Žádní dočasní členové";
+"group_activity_section_count" = "Počet aktivit: %1$d";
+"group_activity_section_past" = "Minulé aktivity";
+"group_activity_section_upcoming" = "Probíhá · Přihlašování otevřeno";
+"group_activity_status_scheduled" = "Připraveno ke startu";
+"group_activity_time_after_previous" = "Po předchozím zápase";
+"group_activity_time_unspecified" = "Čas bude upřesněn";
+"group_activity_timing" = "Časový plán";
+"group_activity_timing_estimated" = "Odhadovaný čas";
+"group_activity_timing_sequence" = "Bez přesného času";
+"group_activity_title_auto_hint" = "Pokud pole zůstane prázdné, název se vytvoří z data, například „Aktivita 10. listopadu“.";
+"group_archived_empty" = "Žádné archivované skupiny";
+"group_archived_list_title" = "Archivované skupiny";
+"group_empty_activities_title" = "Zatím žádné aktivity";
+"group_list_add_title" = "Vytvořit skupinu nebo se přidat";
+"group_ranking_draws" = "remízy";
+"group_ranking_games" = "Odehrané zápasy";
+"group_ranking_losses" = "prohry";
+"group_ranking_sets" = "Skóre";
+"group_ranking_title" = "Žebříček: %@";
+"group_ranking_wins" = "výhry";
+"group_training_results_locked" = "U rozpisů s výsledky zůstávají časy a hráči stejní. Místo a poznámku lze upravit.";
+"group_temporary_hint" = "Dočasní členové nepotřebují účet a lze je přidat při zadávání výsledků.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "Uvolnit zápas";
-"group_activity_lineup" = "Rozpis zápasů";
-"group_activity_mode" = "Zápasy";
+"group_abandon_game" = "Opustit zápas";
+"group_activity_lineup" = "Naplánovat zápasy";
+"group_activity_mode" = "Záznamy";
 "group_activity_reminder" = "Připomenout 15 minut předem";
 "group_add_set" = "Přidat skóre hry";
 "group_added_members" = "Přidáno";
-"group_authority_confirm" = "Potvrdit jako vlastník skupiny";
-"group_batch_names_hint" = "Jedno jméno na řádek, každé 1–24 znaků.";
-"group_beta_notice" = "Skupiny jsou v beta verzi. Uvítáme zpětnou vazbu.";
+"group_authority_confirm" = "Potvrdit výsledek";
+"group_batch_names_hint" = "Jedno jméno na řádek";
+"group_beta_notice" = "Skupiny jsou v beta verzi. Některé funkce se mohou změnit. Děkujeme za včasné vyzkoušení.";
 "group_cancel_dissolve" = "Zrušit rozpuštění";
 "group_cancel_dissolve_hint" = "Obnovte skupinu, aby bylo možné pořádat aktivity a počítat skóre.";
 "group_cancel_training_hint" = "Dokončené zápasy zůstanou v historii. Zahájené lze dokončit.";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "Sportovní výchozí";
 "group_discard_upload" = "Zahodit nahrávání";
 "group_dissolve" = "Rozpustit skupinu";
-"group_dissolve_hint" = "7 dní pouze pro čtení. Během této doby lze rozpuštění zrušit.";
+"group_dissolve_hint" = "Skupina bude 7 dní pouze pro čtení. Během této doby lze rozpuštění zrušit. Po 7 dnech se skupina i všechna její data trvale smažou.";
 "group_dissolving" = "Rozpouštění skupiny";
 "group_edit_activity" = "Upravit";
 "group_edit_lineup" = "Naplánovat zápasy";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "Zatím žádná oznámení";
 "group_no_sessions" = "Zatím žádné naplánované zápasy";
 "group_notices" = "Oznámení";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "Některé části se nepodařilo obnovit. Zkuste to tažením dolů.";
 "group_point_cap" = "Horní hranice skóre";
 "group_preview_schedule" = "Zkontrolovat rozpis";
 "group_published" = "Zveřejněno";
 "group_qr_direct_hint" = "Naskenujte v iScoreboard pro zobrazení skupiny a připojení.";
 "group_quick_score" = "Celkové skóre setů";
 "group_rally_scoring" = "Bod za každou výměnu";
-"group_read_notices" = "Read";
+"group_read_notices" = "Přečteno";
 "group_registration_closes" = "Uzávěrka registrace";
 "group_regular" = "Standardní";
-"group_reload_version" = "Načíst aktuální verzi";
+"group_reload_version" = "Znovu načíst";
 "group_reminder_body" = "Aktivita začne za 15 minut.";
 "group_reminder_permission" = "Povolte oznámení aplikace v Nastavení.";
 "group_reminder_too_late" = "Aktivita začne za méně než 15 minut.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "Bodování setu";
 "group_tie_break" = "Body v tiebreaku";
 "group_tiebreak_only" = "Pouze tie-break";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "Datum";
+"group_too_many_sessions" = "Zkontrolujte časy zápasů, kurty a hráče.";
+"group_training_date" = "Datum tréninku";
 "group_win_by_two" = "Výhra o dva body";
 
-"group_keep_draft" = "Ponechat moje změny";
+"group_keep_draft" = "Pokračovat v úpravách místní verze";
 
 "group_server_version" = "Nejnovější verze";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "Skupina bude rozpuštěna %@\n7denní lhůta na rozmyšlenou; do té doby pouze pro čtení";
 "group_notice_end" = "Žádná další oznámení";
 "group_notice_join_requested" = "Byla přijata žádost o připojení";
 "group_notice_join_approved" = "Žádost o připojení byla schválena";
@@ -1902,8 +1903,8 @@
 "group_notice_receipt_failed" = "Potvrzení o přečtení oznámení bylo neúplné. Zkuste to prosím znovu.";
 "group_notice_seen" = "Označit jako přečtené";
 "group_ranking_empty" = "Žebříček %@ zatím neexistuje";
-"group_filter_singles" = "Dvouhry";
-"group_filter_doubles" = "Čtyřhry";
+"group_filter_singles" = "Dvouhra";
+"group_filter_doubles" = "Čtyřhra";
 "group_ranking_me_suffix" = " (já)";
 "group_ranking_insufficient_matches" = "Příliš málo zápasů";
 "group_entry_a_wins" = "Vyhrává A";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "Ruční zadání";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "Označit vše jako přečtené";
+
+"group_status_active" = "Aktivní";
+"group_dissolved" = "Rozpuštěná";
+"group_report_status_pending" = "Čeká na vyřízení";
+"group_report_status_reviewing" = "Probíhá kontrola";
+"group_report_status_resolved" = "Vyřešeno";
+"group_report_status_dismissed" = "Zamítnuto";
+"group_error_permission" = "K této akci nemáte oprávnění.";
+"group_error_transfer_first" = "Před odchodem nebo smazáním účtu převeďte vlastnictví skupiny.";
+"group_error_target" = "Vyberte aktivního člena této skupiny s účtem.";
+"group_error_activity_locked" = "Aktivita již začala nebo skončila. Její rozpis nelze změnit ani zrušit.";
+"group_error_activity_pending" = "Nejprve dokončete nebo odeberte zbývající zápasy.";
+"group_error_registration_disabled" = "Přímo naplánované zápasy nevyžadují přihlášení.";
+"group_error_content_blocked" = "Text obsahuje nevhodný obsah. Upravte jej.";
+"group_error_request_invalid" = "Zkontrolujte zadané údaje a zkuste to znovu.";
+"group_error_reason_required" = "Před pokračováním zadejte důvod.";
+"group_error_result_state" = "Potvrdit lze pouze výsledky čekající na potvrzení.";
+"group_error_conflict" = "Data se změnila. Před dalším pokusem je obnovte a zkontrolujte.";
+"group_error_request_handled" = "Tato žádost již byla vyřízena. Obnovte seznam.";
+"group_error_place_locked" = "Místo nelze změnit po zahájení nebo dokončení zápasu.";
+"group_error_schedule_cancelled" = "Tento rozpis nebo zápas byl zrušen.";
+"group_error_session_completed" = "Tento zápas již skončil a nelze se z něj omluvit. Obnovte rozpis a zobrazte výsledek.";
+"group_error_session_has_result" = "Zápas již má výsledek. Před přidáním jiného jej zneplatněte.";
+"group_error_item_not_found" = "Tato aktivita, rozpis, zápas nebo oznámení již není dostupné. Obnovte seznam.";
+"group_error_server" = "Služba skupin je dočasně nedostupná. Zkuste to později.";
+"group_error_peer_only" = "Pro tréninkovou skupinu použijte plánování tréninků.";
+"group_error_name_length" = "Název skupiny musí mít 2–24 znaků.";
+"group_error_description_length" = "Popis skupiny smí mít nejvýše 200 znaků.";
+"group_error_activity_invalid" = "Zkontrolujte název, datum, místo a kapacitu aktivity.";
+"group_error_registration_closed" = "Přihlašování bylo uzavřeno.";
+"group_error_action_disabled" = "Tato akce nyní není dostupná.";
+"group_error_update_required" = "Pokračujte po aktualizaci aplikace.";
+"group_welcome_back" = "Vítejte zpět";
+"group_transfer_none" = "Nejsou zde žádní další řádní členové. Dočasní členové nemohou převzít vedení skupiny.";
+"group_empty_activities_hint" = "Vytvořte aktivitu pro členy. Přihlašování se uzavře po naplnění kapacity.";
+"group_temp_import_names" = "Importovat uložená jména";
+"group_temp_import_count" = "Importovat (%1$d)";
+"group_result_information" = "Informace o zápase";
+"group_result_actions" = "Akce s výsledkem";
+"group_peer_confirmation" = "Potvrzení soupeřem";
+"group_notice_target_unavailable" = "Tento obsah není dostupný nebo k němu již nemáte přístup.";
+"group_push_enabled" = "Oznámení skupiny";
+"group_push_group_enabled" = "Přijímat oznámení této skupiny";
+"group_push_inbox_kept" = "Vypnutím těchto možností zůstanou oznámení v aplikaci a stávající připomenutí aktivit zachována.";
+"group_push_permission" = "Povolit systémová oznámení";
+"group_push_settings" = "Nastavení oznámení";
+
+// Shared group form controls
+"group_inline_seat_hint" = "Vyberte místo a poté člena";
+"group_score_and_rules" = "Skóre a pravidla";
+"group_activity_registration_scope" = "Zde přihlaste dočasné členy. Členové s účtem se přihlašují sami.";
+"group_activity_registration_no_changes" = "Žádné neuložené změny";
+"group_activity_registration_changes" = "Přidat %1$d · Zrušit %2$d";
+"group_activity_registration_save" = "Uložit přihlášky (%1$d)";
+"group_activity_registration_manage" = "Přihlášení dočasných členů";
+"group_activity_registration_pending_add" = "K přihlášení";
+"group_activity_registration_pending_remove" = "Ke zrušení";
+"group_activity_registration_registered" = "Přihlášen";
+"group_activity_registration_not_registered" = "Nepřihlášen";
+"group_activity_detail" = "Podrobnosti aktivity";
+"group_activity_my_registration" = "Moje přihláška";
+"group_match_score" = "Skóre zápasu";
+
+"group_lookup_available" = "Otevřená";
+
+/* Group beta notice card. */
+"group_beta_badge" = "Beta";
+"group_beta_supported_label" = "Nyní k dispozici";
+"group_beta_feedback_prompt" = "Máte problém nebo nápad?";
+"group_beta_feedback_action" = "Poslat zpětnou vazbu";
+
+"group_member_results_title" = "Výsledky člena";
+
+"group_removed_members_expand" = "Rozbalit";
+"group_removed_members_collapse" = "Sbalit";
+"group_best_of_format" = "Na %2$@ vítězných z %1$@";
+"group_member_count_single" = "%d člen";
+"group_member_count_short" = "%d členů";
+"group_lookup_closed_short" = "Uzavřeno";
+"group_lookup_closing_short" = "Probíhá rozpuštění";
+"group_lookup_member_short" = "Jste členem";
+"group_lookup_unavailable_short" = "Nedostupné";
+"group_join_scan_hint" = "Naskenujte QR kód skupiny";
+"group_join_number_hint" = "6–8 číslic. Zeptejte se vlastníka skupiny.";
+"group_request_join" = "Požádat o připojení";
+"group_overdue_tasks" = "Úkoly po termínu";
+"group_apply_shift" = "Použít změny";
+"group_transfer_submit" = "Převést";
+"group_rename_member" = "Přejmenovat";
+"group_set_admin" = "Jmenovat správcem";
+"group_set_member" = "Odebrat roli správce";
+"group_confirm_authority_message" = "Všichni hráči jsou dočasní členové nebo na protější straně není hráč s účtem, který může potvrdit výsledek. Vlastník musí ověřit hráče a skóre. Po potvrzení se výsledek započítá do záznamů a vlastník bude uveden jako potvrzující.";
+"group_confirm_result_message" = "Po potvrzení se výsledek započítá do záznamů obou stran a nelze jej upravit. Pro opravu jej nejprve zneplatněte.";
+"group_confirm_member_message" = "Potvrďte hráče a skóre pro zahrnutí výsledku do záznamů. Pro opravu požádejte správce o zneplatnění původního výsledku.";
+"group_cancel_activity_message" = "Zrušení trvale vymaže seznam přihlášených. Probíhající aktivity nelze zrušit.";
+"group_abandon_game_message" = "Opusťte tento zápas a začněte jiný. Uložené osobní záznamy zůstanou zachovány.";
+"group_void_pending_message" = "Výsledek již nebude čekat na potvrzení ani se počítat do statistik. Původní skóre a důvod zůstanou viditelné členům skupiny. Hráči a odesílatel budou upozorněni.";
+"group_void_confirmed_message" = "Výsledek se již nebude počítat do statistik. Statistiky a žebříčky obou stran se přepočítají. Původní skóre a důvod zůstanou viditelné členům skupiny. Hráči a odesílatel budou upozorněni.";
+"group_remove_member_message" = "Odebrat %@? Bude muset znovu požádat o připojení.";
+"group_reload_version_message" = "Zahodit neuložené změny v rozpisu zápasů a načíst poslední uložený rozpis?";
+"group_transfer_confirmation" = "Převést vlastnictví na %@? Stanete se běžným členem.";
+"group_approve_confirmation" = "%@ se stane členem skupiny a uvidí aktivity i výsledky.";
+"group_reject_confirmation" = "Po zamítnutí musí %@ odeslat novou žádost.";
+"group_lookup_full_short" = "Obsazeno";
+"group_lookup_archived_short" = "Archivováno";
+"group_lookup_pending_short" = "Čeká na vyřízení";
+"group_temporary_member_count" = "%d členů";
+"group_best_of_tennis_format" = "Na %2$@ vítězných z %1$@";
+"group_rename_member_title" = "Přejmenovat";
+
+"group_copy_transfer_title" = "Převést vlastnictví";
+
+"group_copy_transfer_submit" = "Převést";
+
+"group_copy_transfer_message" = "Převést vlastnictví na %@? Stanete se běžným členem.";
+
+"group_copy_transfer_hint" = "Po převodu se stanete běžným členem.";
+
+"group_copy_rename_title" = "Přejmenovat";
+
+"group_copy_rename_action" = "Přejmenovat";
+
+"group_copy_result_confirm" = "Potvrdit výsledek";
+
+"group_copy_result_confirm_authority_message" = "Všichni hráči jsou dočasní členové nebo na protější straně není hráč s účtem, který může potvrdit výsledek. Vlastník musí ověřit hráče a skóre. Po potvrzení se výsledek započítá do záznamů a vlastník bude uveden jako potvrzující.";
+
+"group_copy_result_confirm_manager_message" = "Po potvrzení se výsledek započítá do záznamů obou stran a nelze jej upravit. Pro opravu jej nejprve zneplatněte.";
+
+"group_copy_result_confirm_member_message" = "Potvrďte hráče a skóre pro zahrnutí výsledku do záznamů. Pro opravu požádejte správce o zneplatnění původního výsledku.";
+
+"group_copy_void_action" = "Zneplatnit";
+
+"group_copy_void_pending_message" = "Výsledek již nebude čekat na potvrzení ani se počítat do statistik. Původní skóre a důvod zůstanou viditelné členům skupiny. Hráči a odesílatel budou upozorněni.";
+
+"group_copy_void_confirmed_message" = "Výsledek se již nebude počítat do statistik. Statistiky a žebříčky obou stran se přepočítají. Původní skóre a důvod zůstanou viditelné členům skupiny. Hráči a odesílatel budou upozorněni.";
+
+"group_copy_cancel_activity" = "Zrušit aktivitu";
+
+"group_copy_cancel_activity_message" = "Zrušení trvale vymaže seznam přihlášených. Probíhající aktivity nelze zrušit.";
+
+"group_copy_abandon_action" = "Opustit zápas";
+
+"group_copy_abandon_message" = "Opusťte tento zápas a začněte jiný. Uložené osobní záznamy zůstanou zachovány.";
+
+"group_copy_leave_action" = "Opustit skupinu";
+
+"group_copy_leave_message" = "Po opuštění skupiny už nebudete jejím členem a skupina se odebere ze seznamu „Moje skupiny“. Nebudete k ní mít přístup ani se účastnit jejího dění. Stávající záznamy zápasů skupiny i vaše osobní záznamy v tomto zařízení zůstanou zachovány. Pro obnovení přístupu se musíte znovu přidat.";
+
+"group_copy_archive_action" = "Archivovat skupinu";
+
+"group_copy_archive_message" = "Archivovat tuto skupinu? Její obsah bude jen pro čtení.";
+
+"group_copy_dissolve_action" = "Rozpustit skupinu";
+
+"group_copy_dissolve_message" = "Skupina bude 7 dní pouze pro čtení. Během této doby lze rozpuštění zrušit. Po 7 dnech se skupina i všechna její data trvale smažou.";
+
+"group_copy_approve_action" = "Schválit";
+
+"group_copy_approve_message" = "%@ se stane členem skupiny a uvidí aktivity i výsledky.";
+
+"group_copy_reject_action" = "Odmítnout";
+
+"group_copy_reject_message" = "Po zamítnutí musí %@ odeslat novou žádost.";
+
+"group_copy_remove_action" = "Odebrat člena";
+
+"group_copy_remove_message" = "Odebrat %@? Bude muset znovu požádat o připojení.";
+
+"group_copy_report_detail" = "Podrobnosti (nepovinné)";
+
+"group_copy_edit_profile" = "Upravit profil skupiny";
+
+"group_copy_entry_a_wins" = "Vyhrává A";
+
+"group_copy_entry_b_wins" = "Vyhrává B";
+
+"group_copy_activity_timing_sequence" = "Bez přesného času";
+
+"group_copy_activity_registration_manage" = "Přihlášení dočasných členů";
+
+"group_copy_temporary_hint" = "Dočasní členové nepotřebují účet a lze je přidat při zadávání výsledků.";
+
+"group_copy_activity_registration_scope" = "Zde přihlaste dočasné členy. Členové s účtem se přihlašují sami.";
+
+"group_copy_report" = "Nahlásit skupinu";
+
+"group_copy_notice_member_removed" = "Byli jste odebráni ze skupiny";
+
+"group_copy_notice_role_changed" = "Vaše role se změnila";
+
+"group_copy_activity_direct_save" = "Uložit rozpis";
+
+"group_copy_notice_join_approved" = "Žádost o připojení byla schválena";
+
+"group_copy_notice_join_rejected" = "Žádost o připojení byla zamítnuta";
+
+"group_copy_all_formats" = "Všechny formáty";
+
+"group_copy_closed" = "Připojování uzavřeno";
+
+"group_copy_report_other" = "Jiné";
+
+"group_copy_report_impersonation" = "Vydávání se za jiného";
+
+"group_copy_audit_ui_share_failed" = "Sdílení se nezdařilo. Zkuste to znovu.";
+
+"group_copy_audit_ui_share_number" = "Sdílet číslo skupiny";
+
+"group_copy_create" = "Vytvořit skupinu";
+
+"group_copy_confirm_join" = "Připojit se k této skupině";
+
+"group_copy_join" = "Připojit se ke skupině";
+
+"group_copy_join_policy" = "Možnosti připojení";
+
+"group_copy_filter_singles" = "Dvouhra";
+
+"group_copy_upcoming" = "Nadcházející";
+
+"group_copy_activity_section_past" = "Minulé aktivity";
+
+"group_copy_beta_feedback_action" = "Poslat zpětnou vazbu";
+
+"group_copy_doubles" = "Čtyřhra";
+
+"group_copy_create_activity" = "Vytvořit aktivitu";
+
+"group_copy_benefit_activity" = "Plánovat aktivity a přihlašovat se";
+
+"group_copy_empty_activities_hint" = "Vytvořte aktivitu pro členy. Přihlašování se uzavře po naplnění kapacity.";
+
+"group_copy_lookup_available" = "Otevřená";
+
+"group_copy_activity_direct_hint" = "Vybírejte přímo ze všech aktivních členů skupiny; přihlášení není nutné.";
+
+"group_copy_empty_intro" = "Spojte přátele pro plánování her, počítání skóre a vytváření společné historie zápasů.";
+
+"group_copy_place" = "Umístění";
+
+"group_copy_ranking_games" = "Odehrané zápasy";
+
+"group_copy_ranking_insufficient_matches" = "Příliš málo zápasů";
+
+"group_copy_report_spam" = "Spam";
+
+"group_copy_report_status_reviewing" = "Probíhá kontrola";
+
+"group_copy_note" = "Poznámka (volitelné)";
+
+"group_copy_peer_confirmation" = "Potvrzení soupeřem";
+
+"group_copy_activity_lineup_section_matches" = "Naplánovat zápasy";
+
+"group_copy_group" = "Skupina";
+
+"group_copy_group_qr" = "QR kód skupiny";
+
+"group_copy_beta_notice" = "Skupiny jsou v beta verzi. Některé funkce se mohou změnit. Děkujeme za včasné vyzkoušení.";
+
+"group_copy_created" = "Skupina vytvořena";
+
+"group_copy_ranking_sets" = "Skóre";
+
+"group_copy_removed_members_expand" = "Rozbalit";
+
+"group_copy_voided" = "Zneplatněno";
+
+"group_copy_cancelled" = "Zrušeno";
+
+"group_copy_report_status_resolved" = "Vyřešeno";
+
+"group_copy_completed" = "Dokončeno";
+
+"group_copy_archived" = "Archivováno";
+
+"group_copy_archived_list_title" = "Archivované skupiny";
+
+"group_copy_activity_registration_registered" = "Přihlášen";
+
+"group_copy_activity_full" = "Obsazeno";
+
+"group_copy_confirmed" = "Potvrzeno";
+
+"group_copy_removed_members" = "Bývalí členové";
+
+"group_copy_mark_seen" = "Přečteno";
+
+"group_copy_report_status_dismissed" = "Zamítnuto";
+
+"group_copy_draws" = "remízy";
+
+"group_copy_draw" = "Remíza";
+
+"group_copy_start_score" = "Začít počítat skóre";
+
+"group_copy_pending_upload" = "Čeká na odeslání";
+
+"group_copy_activity_registration_pending_remove" = "Ke zrušení";
+
+"group_copy_report_status_pending" = "Čeká na vyřízení";
+
+"group_copy_lookup_pending_short" = "Čeká na vyřízení";
+
+"group_copy_pending_request_limit" = "Příliš mnoho žádostí čeká na schválení. Vyčkejte na rozhodnutí nebo některé stáhněte.";
+
+"group_copy_activity_registration_pending_add" = "K přihlášení";
+
+"group_copy_pending_confirmation" = "Čeká na potvrzení";
+
+"group_copy_lookup_closing_short" = "Probíhá rozpuštění";
+
+"group_copy_restore" = "Obnovit skupinu";
+
+"group_copy_member" = "Člen";
+
+"group_copy_member_results_title" = "Výsledky člena";
+
+"group_copy_my_groups" = "Moje skupiny";
+
+"group_copy_activity_my_registration" = "Moje přihláška";
+
+"group_copy_activity_mode" = "Záznamy";
+
+"group_copy_qr_join_short" = "Naskenujte pro připojení";
+
+"group_copy_qr_apply_short" = "Naskenujte pro podání žádosti";
+
+"group_copy_register" = "Přihlásit se";
+
+"group_copy_recruiting" = "Přihlašování otevřeno";
+
+"group_copy_registration_closes" = "Uzávěrka registrace";
+
+"group_copy_activity_time_after_previous" = "Po předchozím zápase";
+
+"group_copy_report_submit" = "Odeslat";
+
+"group_copy_submitted_by" = "Odeslal";
+
+"group_copy_cancel_dissolve" = "Zrušit rozpuštění";
+
+"group_copy_notice_join_requested" = "Byla přijata žádost o připojení";
+
+"group_copy_removed_members_collapse" = "Sbalit";
+
+"group_copy_discard_upload" = "Zahodit nahrávání";
+
+"group_copy_notice_activity_created" = "Aktivita byla vytvořena";
+
+"group_copy_activity_time_unspecified" = "Čas bude upřesněn";
+
+"group_copy_activity_registration_empty" = "Žádní dočasní členové";
+
+"group_copy_transfer_none" = "Nejsou zde žádní další řádní členové. Dočasní členové nemohou převzít vedení skupiny.";
+
+"group_copy_archived_empty" = "Žádné archivované skupiny";
+
+"group_copy_empty_activities_title" = "Zatím žádné aktivity";
+
+"group_copy_latest_results" = "Nejnovější výsledky";
+
+"group_copy_disputed" = "Zpochybněno";
+
+"group_copy_activity_registration_not_registered" = "Nepřihlášen";
+
+"group_copy_month_matches" = "Zápasy tento měsíc";
+
+"group_copy_open_group" = "Otevřít skupinu";
+
+"group_copy_benefit_history" = "Prohlížet zápasy a žebříčky";
+
+"group_copy_overview" = "Přehled";
+
+"group_copy_welcome_back" = "Vítejte zpět";
+
+"group_copy_regular_members" = "Přihlášení členové";
+
+"group_copy_rally_scoring" = "Bod za každou výměnu";
+
+"group_copy_result_information" = "Informace o zápase";
+
+"group_copy_match_score" = "Skóre zápasu";
+
+"group_copy_match_rules" = "Pravidla zápasu";
+
+"group_copy_activity_registration_no_changes" = "Žádné neuložené změny";
+
+"group_copy_activities" = "Aktivity";
+
+"group_copy_activity_title" = "Název aktivity";
+
+"group_copy_activity_field_title_optional" = "Název aktivity (nepovinné)";
+
+"group_copy_notice_activity_changed" = "Aktivita byla aktualizována";
+
+"group_copy_notice_activity_cancelled" = "Aktivita byla zrušena";
+
+"group_copy_activity_lineup" = "Naplánovat zápasy";
+
+"group_copy_activity_create_admin_hint" = "Aktivity vytváří vlastník skupiny nebo správce";
+
+"group_copy_beta_badge" = "Beta";
+
+"group_copy_add_set" = "Přidat skóre hry";
+
+"group_copy_add_temporary" = "Přidat dočasného člena";
+
+"group_copy_benefit_score" = "Počítat skóre nebo přidat dřívější výsledky";
+
+"group_copy_request_join" = "Požádat o připojení";
+
+"group_copy_join_message" = "Zpráva k žádosti o přijetí (nepovinné)";
+
+"group_copy_beta_supported_label" = "Nyní k dispozici";
+
+"group_copy_open" = "Připojit se přímo";
+
+"group_copy_activity_direct_title" = "Naplánovat nyní";
+
+"group_copy_admin" = "Správce";
+
+"group_copy_confirmed_matches" = "Potvrzené zápasy";
+
+"group_copy_leader" = "Vlastník";
+
+"group_copy_notice_ownership_transferred" = "Vlastník skupiny se změnil";
+
+"group_copy_complete_activity" = "Ukončit aktivitu";
+
+"group_copy_keep_draft" = "Pokračovat v úpravách místní verze";
+
+"group_copy_ranking_wins" = "výhry";
+
+"group_copy_ranking_rate" = "Úspěšnost";
+
+"group_copy_report_inappropriate" = "Sexuální nebo nevhodný obsah";
+
+"group_copy_update_report" = "Aktualizovat nahlášení";
+
+"group_copy_manual_result" = "Přidat výsledek zápasu";
+
+"group_copy_set_admin" = "Jmenovat správcem";
+
+"group_copy_activity_timing_estimated" = "Odhadovaný čas";
+
+"group_copy_losses" = "prohry";
+
+"group_copy_notice_result_voided" = "Výsledek byl zneplatněn";
+
+"group_copy_notice_result_confirmed" = "Výsledek byl potvrzen";
+
+"group_copy_notice_result_pending" = "Výsledek čeká na potvrzení";
+
+"group_copy_result_actions" = "Akce s výsledkem";
+
+"group_copy_empty_title" = "Zatím žádné skupiny";
+
+"group_copy_in_progress" = "Probíhá";
+
+"group_copy_report_illegal" = "Nezákonná nebo nebezpečná činnost";
+
+"group_copy_join_hint" = "Připojte se ke skupině přítele pomocí jejího čísla nebo QR kódu.";
+
+"group_copy_overdue_tasks" = "Úkoly po termínu";
+
+"group_copy_beta_feedback_prompt" = "Máte problém nebo nápad?";
+
+"group_copy_invite" = "Pozvat spoluhráče";
+
+"group_copy_retry" = "Zkuste to znovu";
+
+"group_copy_approval" = "Vyžaduje schválení";
+
+"group_copy_sport" = "Sport";
+
+"group_copy_report_harassment" = "Obtěžování";
+
+"group_copy_ranking_me_suffix" = " (já)";
+
+"group_copy_places_title" = "Vyberte Místo";
+
+"group_copy_report_fraud" = "Podvod nebo hazard";
+
+"group_copy_void_reason" = "Důvod zneplatnění";
+
+"group_copy_reload_version" = "Znovu načíst";
+
+"group_copy_lineup_reload_message" = "Zahodit neuložené změny v rozpisu zápasů a načíst poslední uložený rozpis?";
+
+"group_copy_join_number_separator" = "Nebo zadejte číslo skupiny";
+
+"group_copy_activity_multi_match_hint" = "Aktivita může zahrnovat více zápasů. Členové se přihlásí na aktivitu; při sestavování rozpisu vyberte pro každou dvouhru 2 přihlášené nebo pro čtyřhru 4.";
+
+"group_copy_activity_single_match_hint" = "Každá aktivita představuje jeden zápas. Vyberte 2 přihlášené členy pro dvouhru nebo 4 pro čtyřhru.";
+
+"group_copy_activity_detail" = "Podrobnosti aktivity";
+
+"group_copy_registration_at_start" = "Při zahájení aktivity";
+
+"group_copy_registration_use_start" = "Použít čas zahájení aktivity";
+
+"group_copy_cancel_reason_optional" = "Důvod zrušení (nepovinné)";
+
+"group_copy_audit_result_frozen_info" = "Zobrazit hráče a pravidla";
+"group_view_schedule" = "Zobrazit zápasy";
+"group_notice_training_published" = "Trénink zveřejněn";
+"group_notice_training_changed" = "Trénink aktualizován";
+"group_notice_training_cancelled" = "Trénink zrušen";
+"group_notice_leave_changed" = "Omluva aktualizována";
+"group_report_evidence_title" = "Obrazové důkazy (nepovinné)";
+"group_report_evidence_hint" = "Až 3 obrázky JPG nebo PNG, každý do 2 MB. Uvidíte je pouze vy a platforma.";
+"group_report_add_image" = "Přidat obrázek";
+"group_report_retry" = "Zkusit znovu";
+"group_report_preview" = "Důkazní obrázek";
+"group_report_supplement" = "Doplnit informace";
+"group_report_close" = "Zavřít";
+"group_report_remove_image" = "Odebrat obrázek";
+"group_report_image_error" = "Obrázek se nepodařilo připravit. Zkuste jiný obrázek JPG nebo PNG.";
+"group_report_refresh" = "Obnovit stav";

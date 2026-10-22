@@ -349,7 +349,7 @@ struct BasketballScoreboardView: View {
         }) {
             Image(systemName: systemName)
                 .font(.system(size: ScoreboardConstants.buttonIconSize))
-                .foregroundColor(.white)
+                .foregroundColor((systemName == "checkmark" ? Theme.textOnPrimary : Color.white))
                 .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
                 .background(Circle().fill(systemName == "checkmark" ? Theme.primary : Color.black.opacity(0.25)))
         }
@@ -1428,7 +1428,7 @@ private struct BasketballCenterPanel: View {
                 .font(.system(size: 14, weight: .bold))
                 .foregroundStyle(.white)
                 .frame(width: 92, height: ScoreboardConstants.minimumTouchTarget)
-                .background(RoundedRectangle(cornerRadius: 8).fill(color))
+                .background(Capsule().fill(color))
         }
         .buttonStyle(.plain)
         .disabled(state.timeoutActiveSide != nil)

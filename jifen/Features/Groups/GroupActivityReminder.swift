@@ -9,14 +9,16 @@ nonisolated struct GroupReminderDestination: Identifiable, Equatable, Sendable {
 @MainActor @Observable final class GroupActivityReminder {
     static let shared = GroupActivityReminder()
     var destination: GroupReminderDestination?
+    private let defaults: UserDefaults
+    init(defaults: UserDefaults = .standard) { self.defaults = defaults }
     private struct Reminder: Codable {
         var accountID: String; var groupID: String; var activityID: String
         var title: String; var place: String; var startsAt: Int64
         var identifier: String { "group.activity." + Data("\(accountID):\(groupID):\(activityID)".utf8).base64EncodedString() }
     }
     private var rows: [Reminder] {
-        get { (UserDefaults.standard.data(forKey: "groups.activityReminders").flatMap { try? JSONDecoder().decode([Reminder].self, from: $0) }) ?? [] }
-        set { if let data = try? JSONEncoder().encode(newValue) { UserDefaults.standard.set(data, forKey: "groups.activityReminders") } }
+        get { (defaults.data(forKey: "groups.activityReminders").flatMap { try? JSONDecoder().decode([Reminder].self, from: $0) }) ?? [] }
+        set { if let data = try? JSONEncoder().encode(newValue) { defaults.set(data, forKey: "groups.activityReminders") } }
     }
     func enabled(accountID: String, activityID: String) -> Bool { rows.contains { $0.accountID == accountID && $0.activityID == activityID } }
     func set(enabled: Bool, accountID: String, groupID: String, activity: GroupActivity) async throws {
@@ -52,12 +54,15 @@ nonisolated struct GroupReminderDestination: Identifiable, Equatable, Sendable {
         try await UNUserNotificationCenter.current().add(.init(identifier: row.identifier, content: content, trigger: trigger))
         guard store.matchesIdentity(row.accountID, revision: revision) else { UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [row.identifier]); throw GroupFlowError.staleSession }
     }
-    func synchronize(accountID: String, group: ScoreGroup, memberID: String, activities: [GroupActivity]) {
+    func synchronize(accountID: String, group: ScoreGroup, memberID: String, activities: [GroupActivity]?) {
+        guard group.isActive else { clearGroup(group.id, accountID: accountID); return }
+        guard let activities else { return }
         let old = rows.filter { $0.accountID == accountID && $0.groupID == group.id }
         for row in old {
             guard group.isActive, let activity = activities.first(where: { $0.id == row.activityID }), activity.status == "recruiting", activity.startsAt > Int64(Date().timeIntervalSince1970 * 1000), activity.registeredMemberIds.contains(memberID) else { remove(row); continue }
             if activity.startsAt != row.startsAt || activity.place != row.place || activity.title != row.title {
-                var updated = row; updated.startsAt = activity.startsAt; updated.place = activity.place; updated.title = activity.title
+                let updated = Reminder(accountID: row.accountID, groupID: row.groupID, activityID: row.activityID,
+                    title: activity.title, place: activity.place, startsAt: activity.startsAt)
                 UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [row.identifier])
                 rows = rows.filter { $0.identifier != row.identifier } + [updated]
                 Task { try? await schedule(updated) }

@@ -88,7 +88,7 @@ struct TennisScoreboardView: View {
     private let doubleTapWindow: TimeInterval = 0.24
 
     /// 对齐安卓 TennisScoreScreen：网球/网球双打走 240ms 挂起窗口，双击 = 减 1 分；
-    /// 软式网球与板网球不在清单内，双击等价于两次加分。
+    /// 软式网球与板式网球不在清单内，双击等价于两次加分。
     private var onePointDoubleTapEnabled: Bool {
         appearance.doubleTapSubtract
             && !scoringLocked

@@ -140,7 +140,7 @@ struct BookingDetailPage: View {
                     Button { startBooking(currentBooking) } label: {
                         Text(NSLocalizedString("schedule_start_game", value: "一键开赛", comment: ""))
                             .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white)
+                            .foregroundColor(Theme.textOnPrimary)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
                             .background(Theme.primary)

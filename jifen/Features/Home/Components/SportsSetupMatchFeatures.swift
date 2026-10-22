@@ -4,7 +4,7 @@ import SwiftUI
 /// Setup「比赛功能」矩阵（对齐安卓 SportsSetupMatchFeatures.kt）。
 ///
 /// 功能卡片按固定顺序返回：自动换边 → 显示时间 → 语音播报。
-/// 严格对齐安卓：仅乒乓球、拍类（羽毛球/网球/匹克球/毽球/壁球/软网/板网球）
+/// 严格对齐安卓：仅乒乓球、拍类（羽毛球/网球/匹克球/毽球/壁球/软网/板式网球）
 /// 与排球类出现在矩阵中；篮球/拳击/射箭/桌上足球/台球/掼蛋/斗地主等
 /// 在安卓端无功能区块（else -> emptyList），此处同样返回空数组。
 enum SportsSetupMatchFeature: Equatable, CaseIterable {

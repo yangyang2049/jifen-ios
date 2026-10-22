@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "Društvene igre";
 "search_team_or_game" = "Traži tim ili igru";
 "match_count" = "%d utakmica";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d mečeva · svi članovi grupe";
+"archived_count" = "%d grupa";
 
 /* Home Screen */
 "recent_records" = "Nedavni zapisi";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "npr. odigrati svih pet setova; utakmica može završiti remijem";
 "match_completion_custom_placeholder" = "Unesite 1-99";
 "match_completion_invalid_sets" = "Klasično zahtijeva neparan broj od 1 do 99; Igraj sve prihvaća bilo koji broj od 1 do 99.";
+"setup_auto_odd_sets" = "Dopušteni su samo neparni brojevi — koristi se %d";
 "has_been_reset" = "Poništavanje dovršeno";
 "no_undo_available" = "Nije dostupno poništavanje";
 "screenshot_failed" = "Snimak zaslona nije uspio";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "Aktivna sesija sinkronizacije";
 "timer_status_running" = "Izvodi se";
 "timer_status_paused" = "Pauzirano";
-"membership_entry_summary_active" = "Vi ste VIP član. Hvala vam na podršci";
+"membership_entry_summary_active" = "VIP članstvo aktivno";
 "sound_effects" = "Zvučni efekti";
 "vibration" = "Vibracija";
 "language" = "Jezik";
@@ -1579,7 +1580,7 @@
 "group_approval" = "Potrebno odobrenje";
 "group_approve" = "Odobri";
 "group_archive" = "Arhiviraj grupu";
-"group_archive_hint" = "Arhiviranje čuva cijelu povijest i zaustavlja promjene u grupi. Grupu možete kasnije vratiti.";
+"group_archive_hint" = "Arhivirati ovu grupu? Njezin će sadržaj biti samo za čitanje.";
 "group_archive_readonly" = "Ova je grupa arhivirana. Povijest je dostupna samo za čitanje.";
 "group_archived" = "Arhivirano";
 "group_benefit_activity" = "Planiraj aktivnosti i prijavi se";
@@ -1624,38 +1625,38 @@
 "group_invalid_qr" = "Ovo nije valjan QR kod grupe.";
 "group_invalid_result" = "Zabilježeni rezultat treba provjeriti prije prijenosa.";
 "group_invalid_rules" = "Provjerite pravila utakmice.";
-"group_invite" = "Invite";
+"group_invite" = "Pozovi suigrače";
 "group_join" = "Pridruži se grupi";
 "group_join_hint" = "Pridružite se prijateljevoj grupi pomoću broja ili QR koda.";
-"group_join_message" = "Poruka grupi (neobavezno)";
-"group_join_policy" = "Pridruživanje";
+"group_join_message" = "Poruka uz zahtjev za pridruživanje (neobavezno)";
+"group_join_policy" = "Mogućnosti pridruživanja";
 "group_leave" = "Napusti grupu";
-"group_leave_hint" = "Izgubit ćete pristup ovoj grupi. Osobni zapisi ostaju na ovom uređaju.";
+"group_leave_hint" = "Nakon izlaska više nećete biti član, a grupa će se ukloniti iz odjeljka „Moje grupe”. Više joj nećete moći pristupati ni sudjelovati u njoj. Postojeći zapisi utakmica grupe i vaši osobni zapisi na ovom uređaju ostat će sačuvani. Za ponovni pristup morate se ponovno pridružiti grupi.";
 "group_load_failed" = "Grupa se nije mogla učitati";
 "group_load_more" = "Učitaj više";
 "group_losses" = "porazi";
 "group_manual" = "Ručni unos";
-"group_manual_result" = "Dodaj prošlu utakmicu";
+"group_manual_result" = "Dodaj rezultat meča";
 "group_match_detail" = "Detalji utakmice";
 "group_match_log" = "Povijest utakmica";
 "group_match_rules" = "Pravila utakmice";
 "group_member" = "Član";
 "group_member_name" = "Ime člana";
-"group_members" = "Članovi";
+"group_members" = "Član";
 "group_month_matches" = "Utakmice ovog mjeseca";
 "group_my_groups" = "Moje grupe";
 "group_name" = "Naziv grupe";
 "group_need_login" = "Prijavite se za nastavak.";
 "group_need_members" = "Pozovite prijatelje ili dodajte privremene članove prije početka utakmice.";
-"group_new_activity" = "Planiraj aktivnost";
+"group_new_activity" = "Izradi aktivnost";
 "group_new_owner" = "Novi vlasnik";
 "group_no_activities" = "Još nema aktivnosti";
 "group_no_description" = "Još nema opisa";
 "group_no_rankings" = "Ljestvice se pojavljuju nakon potvrde utakmice.";
 "group_no_set_details" = "Zabilježen je samo ukupni rezultat.";
-"group_note" = "Napomena za aktivnost (neobavezno)";
-"group_number" = "6–8 digit group number";
-"group_open" = "Svatko tko zna broj može se pridružiti";
+"group_note" = "Napomena (neobavezno)";
+"group_number" = "Broj grupe sa 6–8 znamenki";
+"group_open" = "Pridruži se izravno";
 "group_overall_score" = "Ukupan rezultat setova";
 "group_overview" = "Pregled";
 "group_owner" = "Vlasnik";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "Ukloni člana";
 "group_restore" = "Vrati grupu";
 "group_restore_hint" = "Vratite grupu kako biste omogućili aktivnosti i praćenje rezultata.";
-"group_results" = "Utakmice";
+"group_results" = "Zapisi";
 "group_retry" = "Pokušaj ponovo";
 "group_rules_missing" = "Pravila nisu zabilježena";
-"group_save" = "Potvrdite";
+"group_save" = "Spremi";
 "group_save_failed" = "Utakmica se nije mogla spremiti. Pokušajte ponovno.";
 "group_scan" = "Skeniraj QR kod";
 "group_scoreboard" = "Semafor";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "Nastavite ili završite postojeću utakmicu prije početka nove.";
 "group_unregister" = "Otkaži prijavu";
 "group_void_reason" = "Razlog poništavanja";
-"group_void_result" = "Poništi rezultat";
+"group_void_result" = "Poništi";
 "group_voided" = "Poništeno";
 "group_wins" = "pobjede";
 "group_withdraw" = "Povuci zahtjev";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "Već ste član.";
 "group_open_group" = "Otvori grupu";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
+"group_groups" = "Grupa";
+"group_invite_students" = "Pozovi učenike";
+"group_group_type" = "Vrsta grupe";
+"group_peer" = "Grupa prijatelja";
+"group_coaching" = "Trening grupa";
+"group_training" = "Trening";
+"group_upcoming" = "Nadolazeće";
+"group_latest_results" = "Najnoviji rezultati";
+"group_no_results" = "Još nema zabilježenih mečeva";
+"group_no_training" = "Još nema zakazanih treninga";
+"group_active_activities" = "U tijeku · Prijave otvorene";
+"group_past_activities" = "Prošle aktivnosti";
+"group_all_formats" = "Svi formati";
+"group_join_requests" = "Zahtjevi za pridruživanje";
+"group_regular_members" = "Prijavljeni članovi";
+"group_temporary_members" = "Privremeni članovi";
+"group_add" = "Dodaj";
+"group_leader" = "Vlasnik";
+"group_member_settings" = "Postavke člana";
+"group_settings" = "Upravljanje grupom";
+"group_partial_load" = "Neke odjeljke nije bilo moguće osvježiti. Povucite prema dolje za ponovni pokušaj.";
+"group_leave_notices" = "Obavijesti o izostancima učenika";
+"group_mark_seen" = "Pročitano";
+"group_training_schedule" = "Raspored treninga";
+"group_add_session" = "Dodaj meč";
+"group_edit_schedule" = "Uredi raspored";
+"group_cancel_schedule" = "Otkaži raspored";
+"group_leave_training" = "Prijavi izostanak";
+"group_session_minutes" = "Minute po meču";
+"group_court" = "Teren";
+"group_remove_session" = "Ukloni";
+"group_publish_schedule" = "Objavi raspored";
+"group_leave_reason" = "Razlog izostanka (neobavezno)";
+"group_report" = "Prijavi grupu";
+"group_report_reason" = "Razlog";
+"group_report_detail" = "Pojedinosti (neobavezno)";
+"group_report_submit" = "Pošalji";
 "group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
+"group_report_harassment" = "Uznemiravanje";
+"group_report_inappropriate" = "Seksualni ili neprikladan sadržaj";
+"group_report_fraud" = "Prijevara ili kockanje";
+"group_report_illegal" = "Nezakonita ili opasna aktivnost";
+"group_report_impersonation" = "Lažno predstavljanje";
+"group_report_other" = "Ostalo";
+"group_lineup_invalid" = "Provjerite vremena, terene i igrače.";
+"group_lineup_member_limit" = "Član može igrati najviše osam mečeva po rasporedu.";
+"group_lineup_conflict" = "Istodobni mečevi moraju imati različite terene i igrače.";
+"group_multi_match_hint" = "Aktivnost može sadržavati više mečeva. Članovi se prijavljuju za aktivnost; pri raspoređivanju odaberite 2 prijavljena člana za svaki pojedinačni meč ili 4 za parove.";
+"group_single_match_hint" = "Svaka aktivnost odgovara jednom meču. Odaberite 2 prijavljena člana za pojedinačnu igru ili 4 za parove.";
+"group_rate_limited" = "Previše zahtjeva. Pokušajte kasnije.";
+"group_create_daily_limit" = "Dosegnuli ste ograničenje izrade grupa u 24 sata. Pokušajte kasnije.";
+"group_join_daily_limit" = "Dosegnuli ste ograničenje pridruživanja grupama u 24 sata. Pokušajte kasnije.";
+"group_pending_request_limit" = "Previše zahtjeva čeka odobrenje. Pričekajte odluku ili povucite neke zahtjeve.";
+"group_request_daily_limit" = "Grupa je dosegnula ograničenje zahtjeva za pridruživanje u 24 sata. Pokušajte kasnije.";
+"group_join_cooldown" = "Nakon odbijanja morate pričekati 24 sata prije ponovne prijave.";
+"group_result_group_daily_limit" = "Grupa je dosegnula ograničenje rezultata u 24 sata. Pokušajte kasnije.";
+"group_result_submitter_daily_limit" = "Dosegnuli ste ograničenje slanja rezultata u 24 sata. Pokušajte kasnije.";
+"group_not_coach" = "Samo trener može zakazivati treninge.";
+"group_activity_count" = "Prijavljeno: %1$d/%2$d";
+"group_activity_create_admin_hint" = "Aktivnosti izrađuje vlasnik grupe ili administrator";
+"group_activity_direct_hint" = "Birajte izravno među svim aktivnim članovima grupe; prijava nije potrebna.";
+"group_activity_direct_save" = "Spremi raspored";
+"group_activity_direct_title" = "Rasporedi sada";
+"group_activity_field_title_optional" = "Naziv aktivnosti (neobavezno)";
+"group_activity_full" = "Popunjeno";
+"group_activity_lineup_add" = "Dodaj meč";
+"group_activity_lineup_add_need_members" = "Nema dovoljno igrača. Za dodavanje meča potrebno je najmanje %1$d aktivnih članova grupe.";
+"group_activity_lineup_court" = "Broj terena";
+"group_activity_lineup_duration" = "Trajanje meča";
+"group_activity_lineup_match_count" = "Broj mečeva: %1$d";
 "group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_activity_lineup_remove" = "Ukloni";
+"group_activity_lineup_section_matches" = "Rasporedi mečeve";
+"group_activity_lineup_session" = "Meč %1$d";
+"group_activity_registration_empty" = "Nema privremenih članova";
+"group_activity_section_count" = "Broj aktivnosti: %1$d";
+"group_activity_section_past" = "Prošle aktivnosti";
+"group_activity_section_upcoming" = "U tijeku · Prijave otvorene";
+"group_activity_status_scheduled" = "Spremno za početak";
+"group_activity_time_after_previous" = "Nakon prethodnog meča";
+"group_activity_time_unspecified" = "Vrijeme još nije određeno";
+"group_activity_timing" = "Vremenski raspored";
+"group_activity_timing_estimated" = "Procijenjeno vrijeme";
+"group_activity_timing_sequence" = "Bez točnog vremena";
+"group_activity_title_auto_hint" = "Ako ostane prazno, naziv će se izraditi iz datuma, primjerice „Aktivnost 10. studenoga”.";
+"group_archived_empty" = "Nema arhiviranih grupa";
+"group_archived_list_title" = "Arhivirane grupe";
+"group_empty_activities_title" = "Još nema aktivnosti";
+"group_list_add_title" = "Izradi grupu ili se pridruži";
+"group_ranking_draws" = "neriješene utakmice";
+"group_ranking_games" = "Odigrani mečevi";
+"group_ranking_losses" = "porazi";
+"group_ranking_sets" = "Rezultat";
+"group_ranking_title" = "Ljestvica: %@";
+"group_ranking_wins" = "pobjede";
+"group_training_results_locked" = "Rasporedi s rezultatima zadržavaju vrijeme i igrače. Mjesto i bilješka mogu se urediti.";
+"group_temporary_hint" = "Privremeni članovi ne trebaju račun i mogu se dodati pri unosu rezultata.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "Oslobodi meč";
-"group_activity_lineup" = "Raspored mečeva";
-"group_activity_mode" = "Utakmice";
+"group_abandon_game" = "Napusti meč";
+"group_activity_lineup" = "Rasporedi mečeve";
+"group_activity_mode" = "Zapisi";
 "group_activity_reminder" = "Podsjeti me 15 minuta prije";
 "group_add_set" = "Dodaj rezultat gema";
 "group_added_members" = "Dodano";
-"group_authority_confirm" = "Potvrdi kao vlasnik grupe";
-"group_batch_names_hint" = "Jedno ime po retku, svako 1–24 znaka.";
-"group_beta_notice" = "Grupe su u beta verziji. Povratne informacije su dobrodošle.";
+"group_authority_confirm" = "Potvrdi rezultat";
+"group_batch_names_hint" = "Jedno ime po retku";
+"group_beta_notice" = "Grupe su u beta fazi. Neke se značajke mogu promijeniti. Hvala što ih isprobavate među prvima.";
 "group_cancel_dissolve" = "Otkaži raspuštanje";
 "group_cancel_dissolve_hint" = "Vratite grupu kako biste omogućili aktivnosti i praćenje rezultata.";
 "group_cancel_training_hint" = "Završeni mečevi ostaju u povijesti. Započeti se mogu dovršiti.";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "Zadano za sport";
 "group_discard_upload" = "Odbaci prijenos";
 "group_dissolve" = "Raspusti grupu";
-"group_dissolve_hint" = "Samo čitanje 7 dana. U tom razdoblju možete otkazati raspuštanje.";
+"group_dissolve_hint" = "Grupa je 7 dana dostupna samo za čitanje i raspuštanje se u tom razdoblju može otkazati. Nakon 7 dana grupa i svi njezini podaci trajno se brišu.";
 "group_dissolving" = "Raspuštanje u tijeku";
 "group_edit_activity" = "Uredi";
 "group_edit_lineup" = "Rasporedi mečeve";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "Još nema obavijesti";
 "group_no_sessions" = "Još nema zakazanih mečeva";
 "group_notices" = "Obavijesti";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "Neke odjeljke nije bilo moguće osvježiti. Povucite prema dolje za ponovni pokušaj.";
 "group_point_cap" = "Gornja granica rezultata";
 "group_preview_schedule" = "Provjeri raspored";
 "group_published" = "Objavljeno";
 "group_qr_direct_hint" = "Skenirajte u aplikaciji iScoreboard za pregled i pridruživanje grupi.";
 "group_quick_score" = "Ukupan rezultat setova";
 "group_rally_scoring" = "Bod za svako nadigravanje";
-"group_read_notices" = "Read";
+"group_read_notices" = "Pročitano";
 "group_registration_closes" = "Zatvaranje prijava";
 "group_regular" = "Standardno";
-"group_reload_version" = "Učitaj najnoviju verziju";
+"group_reload_version" = "Učitaj ponovno";
 "group_reminder_body" = "Aktivnost počinje za 15 minuta.";
 "group_reminder_permission" = "Omogućite obavijesti aplikacije u Postavkama.";
 "group_reminder_too_late" = "Do početka je manje od 15 minuta.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "Bodovanje seta";
 "group_tie_break" = "Bodovi u tie-breaku";
 "group_tiebreak_only" = "Samo tie-break";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "Datum";
+"group_too_many_sessions" = "Provjerite vremena, terene i igrače.";
+"group_training_date" = "Datum treninga";
 "group_win_by_two" = "Pobjeda s dva boda razlike";
 
-"group_keep_draft" = "Zadrži moje izmjene";
+"group_keep_draft" = "Nastavi uređivati lokalnu verziju";
 
 "group_server_version" = "Najnovija verzija";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "Grupa će se raspustiti %@\nRok za predomišljanje od 7 dana; dotad samo čitanje";
 "group_notice_end" = "Nema više obavijesti";
 "group_notice_join_requested" = "Primljen je zahtjev za pridruživanje";
 "group_notice_join_approved" = "Zahtjev za pridruživanje je odobren";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "Ručni unos";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "Označi sve kao pročitano";
+
+"group_status_active" = "Aktivna";
+"group_dissolved" = "Raspuštena";
+"group_report_status_pending" = "Na čekanju";
+"group_report_status_reviewing" = "U pregledu";
+"group_report_status_resolved" = "Riješeno";
+"group_report_status_dismissed" = "Odbačeno";
+"group_error_permission" = "Nemate dopuštenje za ovu radnju.";
+"group_error_transfer_first" = "Prenesite vlasništvo grupe prije izlaska ili brisanja računa.";
+"group_error_target" = "Odaberite aktivnog člana ove grupe s računom.";
+"group_error_activity_locked" = "Aktivnost je započela ili završila. Njezin raspored nije moguće mijenjati ili otkazati.";
+"group_error_activity_pending" = "Najprije završite ili uklonite preostale mečeve.";
+"group_error_registration_disabled" = "Izravno zakazani mečevi ne zahtijevaju prijavu.";
+"group_error_content_blocked" = "Tekst sadrži neprimjeren sadržaj. Izmijenite ga.";
+"group_error_request_invalid" = "Provjerite unesene podatke i pokušajte ponovno.";
+"group_error_reason_required" = "Prije nastavka unesite razlog.";
+"group_error_result_state" = "Mogu se potvrditi samo rezultati koji čekaju potvrdu.";
+"group_error_conflict" = "Podaci su promijenjeni. Osvježite ih i provjerite prije ponovnog pokušaja.";
+"group_error_request_handled" = "Ovaj je zahtjev već obrađen. Osvježite popis.";
+"group_error_place_locked" = "Mjesto nije moguće promijeniti nakon početka ili završetka meča.";
+"group_error_schedule_cancelled" = "Ovaj raspored ili meč je otkazan.";
+"group_error_session_completed" = "Ovaj je meč završen i više nije moguće zatražiti izostanak. Osvježite raspored kako biste vidjeli rezultat.";
+"group_error_session_has_result" = "Meč već ima rezultat. Poništite ga prije dodavanja drugoga.";
+"group_error_item_not_found" = "Ova aktivnost, raspored, meč ili obavijest više nije dostupna. Osvježite popis.";
+"group_error_server" = "Usluga grupa privremeno nije dostupna. Pokušajte ponovno kasnije.";
+"group_error_peer_only" = "Za trening grupu koristite planiranje treninga.";
+"group_error_name_length" = "Naziv grupe mora sadržavati 2–24 znaka.";
+"group_error_description_length" = "Opis grupe ne smije biti dulji od 200 znakova.";
+"group_error_activity_invalid" = "Provjerite naziv, datum, mjesto i kapacitet aktivnosti.";
+"group_error_registration_closed" = "Prijave su zatvorene.";
+"group_error_action_disabled" = "Ova radnja trenutačno nije dostupna.";
+"group_error_update_required" = "Ažurirajte aplikaciju za nastavak.";
+"group_welcome_back" = "Dobro došli natrag";
+"group_transfer_none" = "Nema drugih stalnih članova. Privremeni članovi ne mogu postati voditelji grupe.";
+"group_empty_activities_hint" = "Izradite aktivnost za članove. Prijave se zatvaraju kada se popune sva mjesta.";
+"group_temp_import_names" = "Uvezi spremljena imena";
+"group_temp_import_count" = "Uvezi (%1$d)";
+"group_result_information" = "Podaci o meču";
+"group_result_actions" = "Radnje s rezultatom";
+"group_peer_confirmation" = "Potvrda protivnika";
+"group_notice_target_unavailable" = "Ovaj sadržaj nije dostupan ili mu više nemate pristup.";
+"group_push_enabled" = "Obavijesti grupe";
+"group_push_group_enabled" = "Primaj obavijesti ove grupe";
+"group_push_inbox_kept" = "Isključivanjem se zadržavaju obavijesti u aplikaciji i postojeći podsjetnici na aktivnosti.";
+"group_push_permission" = "Uključi obavijesti sustava";
+"group_push_settings" = "Postavke obavijesti";
+
+// Shared group form controls
+"group_inline_seat_hint" = "Odaberite mjesto, a zatim člana";
+"group_score_and_rules" = "Rezultat i pravila";
+"group_activity_registration_scope" = "Ovdje prijavite privremene članove. Članovi s računom prijavljuju se sami.";
+"group_activity_registration_no_changes" = "Nema nespremljenih promjena";
+"group_activity_registration_changes" = "Dodaj %1$d · Otkaži %2$d";
+"group_activity_registration_save" = "Spremi prijave (%1$d)";
+"group_activity_registration_manage" = "Prijava privremenih članova";
+"group_activity_registration_pending_add" = "Čeka prijavu";
+"group_activity_registration_pending_remove" = "Čeka otkazivanje";
+"group_activity_registration_registered" = "Prijavljen";
+"group_activity_registration_not_registered" = "Nije prijavljen";
+"group_activity_detail" = "Detalji aktivnosti";
+"group_activity_my_registration" = "Moja prijava";
+"group_match_score" = "Rezultat utakmice";
+
+"group_lookup_available" = "Otvorena";
+
+/* Group beta notice card. */
+"group_beta_badge" = "Beta";
+"group_beta_supported_label" = "Trenutačno podržano";
+"group_beta_feedback_prompt" = "Imate problem ili prijedlog?";
+"group_beta_feedback_action" = "Pošalji povratne informacije";
+
+"group_member_results_title" = "Rezultati člana";
+
+"group_removed_members_expand" = "Proširi";
+"group_removed_members_collapse" = "Sažmi";
+"group_best_of_format" = "Na %2$@ dobivenih od %1$@";
+"group_member_count_single" = "%d član";
+"group_member_count_short" = "%d članova";
+"group_lookup_closed_short" = "Zatvoreno";
+"group_lookup_closing_short" = "U raspuštanju";
+"group_lookup_member_short" = "Pridruženi ste";
+"group_lookup_unavailable_short" = "Nedostupno";
+"group_join_scan_hint" = "Skenirajte QR kod grupe";
+"group_join_number_hint" = "6–8 znamenki. Zatražite od vlasnika grupe.";
+"group_request_join" = "Zatraži pridruživanje";
+"group_overdue_tasks" = "Zakašnjeli zadaci";
+"group_apply_shift" = "Primijeni promjene";
+"group_transfer_submit" = "Prenesi";
+"group_rename_member" = "Preimenuj";
+"group_set_admin" = "Postavi administratora";
+"group_set_member" = "Ukloni ulogu administratora";
+"group_confirm_authority_message" = "Svi igrači su privremeni članovi ili na suprotnoj strani nema igrača s računom koji može potvrditi. Vlasnik mora provjeriti igrače i rezultat. Potvrda uključuje rezultat u evidenciju i navodi vlasnika kao osobu koja je potvrdila.";
+"group_confirm_result_message" = "Nakon potvrde rezultat ulazi u evidenciju obiju strana i ne može se uređivati. Za ispravak ga prvo poništite.";
+"group_confirm_member_message" = "Potvrdite igrače i rezultat za uključivanje u evidenciju. Za ispravak zatražite od upravitelja da poništi izvorni rezultat.";
+"group_cancel_activity_message" = "Otkazivanje trajno briše popis prijavljenih. Aktivnosti u tijeku ne mogu se otkazati.";
+"group_abandon_game_message" = "Napustite ovaj meč za početak drugog. Spremljeni osobni zapisi ostaju sačuvani.";
+"group_void_pending_message" = "Ovaj rezultat više neće čekati potvrdu niti ulaziti u statistiku. Izvorni rezultat i razlog ostaju vidljivi članovima grupe. Igrači i pošiljatelj bit će obaviješteni.";
+"group_void_confirmed_message" = "Ovaj rezultat više neće ulaziti u statistiku. Statistika i poredak obiju strana ponovno će se izračunati. Izvorni rezultat i razlog ostaju vidljivi članovima grupe. Igrači i pošiljatelj bit će obaviješteni.";
+"group_remove_member_message" = "Ukloniti %@? Morat će ponovno zatražiti pridruživanje.";
+"group_reload_version_message" = "Odbaciti nespremljene izmjene u rasporedu mečeva i učitati posljednji spremljeni raspored?";
+"group_transfer_confirmation" = "Prenijeti vlasništvo na %@? Postat ćete običan član.";
+"group_approve_confirmation" = "%@ postat će član grupe i moći će vidjeti aktivnosti i rezultate.";
+"group_reject_confirmation" = "Nakon odbijanja %@ mora poslati novi zahtjev.";
+"group_lookup_full_short" = "Popunjeno";
+"group_lookup_archived_short" = "Arhivirano";
+"group_lookup_pending_short" = "Na čekanju";
+"group_temporary_member_count" = "%d članova";
+"group_best_of_tennis_format" = "Na %2$@ dobivenih od %1$@";
+"group_rename_member_title" = "Preimenuj";
+
+"group_copy_transfer_title" = "Prenesi vlasništvo";
+
+"group_copy_transfer_submit" = "Prenesi";
+
+"group_copy_transfer_message" = "Prenijeti vlasništvo na %@? Postat ćete običan član.";
+
+"group_copy_transfer_hint" = "Nakon prijenosa postajete običan član.";
+
+"group_copy_rename_title" = "Preimenuj";
+
+"group_copy_rename_action" = "Preimenuj";
+
+"group_copy_result_confirm" = "Potvrdi rezultat";
+
+"group_copy_result_confirm_authority_message" = "Svi igrači su privremeni članovi ili na suprotnoj strani nema igrača s računom koji može potvrditi. Vlasnik mora provjeriti igrače i rezultat. Potvrda uključuje rezultat u evidenciju i navodi vlasnika kao osobu koja je potvrdila.";
+
+"group_copy_result_confirm_manager_message" = "Nakon potvrde rezultat ulazi u evidenciju obiju strana i ne može se uređivati. Za ispravak ga prvo poništite.";
+
+"group_copy_result_confirm_member_message" = "Potvrdite igrače i rezultat za uključivanje u evidenciju. Za ispravak zatražite od upravitelja da poništi izvorni rezultat.";
+
+"group_copy_void_action" = "Poništi";
+
+"group_copy_void_pending_message" = "Ovaj rezultat više neće čekati potvrdu niti ulaziti u statistiku. Izvorni rezultat i razlog ostaju vidljivi članovima grupe. Igrači i pošiljatelj bit će obaviješteni.";
+
+"group_copy_void_confirmed_message" = "Ovaj rezultat više neće ulaziti u statistiku. Statistika i poredak obiju strana ponovno će se izračunati. Izvorni rezultat i razlog ostaju vidljivi članovima grupe. Igrači i pošiljatelj bit će obaviješteni.";
+
+"group_copy_cancel_activity" = "Otkaži aktivnost";
+
+"group_copy_cancel_activity_message" = "Otkazivanje trajno briše popis prijavljenih. Aktivnosti u tijeku ne mogu se otkazati.";
+
+"group_copy_abandon_action" = "Napusti meč";
+
+"group_copy_abandon_message" = "Napustite ovaj meč za početak drugog. Spremljeni osobni zapisi ostaju sačuvani.";
+
+"group_copy_leave_action" = "Napusti grupu";
+
+"group_copy_leave_message" = "Nakon izlaska više nećete biti član, a grupa će se ukloniti iz odjeljka „Moje grupe”. Više joj nećete moći pristupati ni sudjelovati u njoj. Postojeći zapisi utakmica grupe i vaši osobni zapisi na ovom uređaju ostat će sačuvani. Za ponovni pristup morate se ponovno pridružiti grupi.";
+
+"group_copy_archive_action" = "Arhiviraj grupu";
+
+"group_copy_archive_message" = "Arhivirati ovu grupu? Njezin će sadržaj biti samo za čitanje.";
+
+"group_copy_dissolve_action" = "Raspusti grupu";
+
+"group_copy_dissolve_message" = "Grupa je 7 dana dostupna samo za čitanje i raspuštanje se u tom razdoblju može otkazati. Nakon 7 dana grupa i svi njezini podaci trajno se brišu.";
+
+"group_copy_approve_action" = "Odobri";
+
+"group_copy_approve_message" = "%@ postat će član grupe i moći će vidjeti aktivnosti i rezultate.";
+
+"group_copy_reject_action" = "Odbaci";
+
+"group_copy_reject_message" = "Nakon odbijanja %@ mora poslati novi zahtjev.";
+
+"group_copy_remove_action" = "Ukloni člana";
+
+"group_copy_remove_message" = "Ukloniti %@? Morat će ponovno zatražiti pridruživanje.";
+
+"group_copy_report_detail" = "Pojedinosti (neobavezno)";
+
+"group_copy_edit_profile" = "Uredi profil grupe";
+
+"group_copy_entry_a_wins" = "A pobjeđuje";
+
+"group_copy_entry_b_wins" = "B pobjeđuje";
+
+"group_copy_activity_timing_sequence" = "Bez točnog vremena";
+
+"group_copy_activity_registration_manage" = "Prijava privremenih članova";
+
+"group_copy_temporary_hint" = "Privremeni članovi ne trebaju račun i mogu se dodati pri unosu rezultata.";
+
+"group_copy_activity_registration_scope" = "Ovdje prijavite privremene članove. Članovi s računom prijavljuju se sami.";
+
+"group_copy_report" = "Prijavi grupu";
+
+"group_copy_notice_member_removed" = "Uklonjen si iz grupe";
+
+"group_copy_notice_role_changed" = "Tvoja uloga je promijenjena";
+
+"group_copy_activity_direct_save" = "Spremi raspored";
+
+"group_copy_notice_join_approved" = "Zahtjev za pridruživanje je odobren";
+
+"group_copy_notice_join_rejected" = "Zahtjev za pridruživanje je odbijen";
+
+"group_copy_all_formats" = "Svi formati";
+
+"group_copy_closed" = "Pridruživanje zatvoreno";
+
+"group_copy_report_other" = "Ostalo";
+
+"group_copy_report_impersonation" = "Lažno predstavljanje";
+
+"group_copy_audit_ui_share_failed" = "Dijeljenje nije uspjelo. Pokušajte ponovo.";
+
+"group_copy_audit_ui_share_number" = "Podijeli broj grupe";
+
+"group_copy_create" = "Izradi grupu";
+
+"group_copy_confirm_join" = "Pridruži se ovoj grupi";
+
+"group_copy_join" = "Pridruži se grupi";
+
+"group_copy_join_policy" = "Mogućnosti pridruživanja";
+
+"group_copy_filter_singles" = "Pojedinačno";
+
+"group_copy_upcoming" = "Nadolazeće";
+
+"group_copy_activity_section_past" = "Prošle aktivnosti";
+
+"group_copy_beta_feedback_action" = "Pošalji povratne informacije";
+
+"group_copy_doubles" = "Parovi";
+
+"group_copy_create_activity" = "Izradi aktivnost";
+
+"group_copy_benefit_activity" = "Planiraj aktivnosti i prijavi se";
+
+"group_copy_empty_activities_hint" = "Izradite aktivnost za članove. Prijave se zatvaraju kada se popune sva mjesta.";
+
+"group_copy_lookup_available" = "Otvorena";
+
+"group_copy_activity_direct_hint" = "Birajte izravno među svim aktivnim članovima grupe; prijava nije potrebna.";
+
+"group_copy_empty_intro" = "Okupite prijatelje za planiranje utakmica, praćenje rezultata i stvaranje zajedničke povijesti.";
+
+"group_copy_place" = "Lokacija";
+
+"group_copy_ranking_games" = "Odigrani mečevi";
+
+"group_copy_ranking_insufficient_matches" = "Premalo utakmica";
+
+"group_copy_report_spam" = "Spam";
+
+"group_copy_report_status_reviewing" = "U pregledu";
+
+"group_copy_note" = "Napomena (neobavezno)";
+
+"group_copy_peer_confirmation" = "Potvrda protivnika";
+
+"group_copy_activity_lineup_section_matches" = "Rasporedi mečeve";
+
+"group_copy_group" = "Grupa";
+
+"group_copy_group_qr" = "QR kod grupe";
+
+"group_copy_beta_notice" = "Grupe su u beta fazi. Neke se značajke mogu promijeniti. Hvala što ih isprobavate među prvima.";
+
+"group_copy_created" = "Grupa izrađena";
+
+"group_copy_ranking_sets" = "Rezultat";
+
+"group_copy_removed_members_expand" = "Proširi";
+
+"group_copy_voided" = "Poništeno";
+
+"group_copy_cancelled" = "Otkazano";
+
+"group_copy_report_status_resolved" = "Riješeno";
+
+"group_copy_completed" = "Dovršeno";
+
+"group_copy_archived" = "Arhivirano";
+
+"group_copy_archived_list_title" = "Arhivirane grupe";
+
+"group_copy_activity_registration_registered" = "Prijavljen";
+
+"group_copy_activity_full" = "Popunjeno";
+
+"group_copy_confirmed" = "Potvrđeno";
+
+"group_copy_removed_members" = "Bivši članovi";
+
+"group_copy_mark_seen" = "Pročitano";
+
+"group_copy_report_status_dismissed" = "Odbačeno";
+
+"group_copy_draws" = "neriješene utakmice";
+
+"group_copy_draw" = "Neriješeno";
+
+"group_copy_start_score" = "Počni pratiti rezultat";
+
+"group_copy_pending_upload" = "Čeka prijenos";
+
+"group_copy_activity_registration_pending_remove" = "Čeka otkazivanje";
+
+"group_copy_report_status_pending" = "Na čekanju";
+
+"group_copy_lookup_pending_short" = "Na čekanju";
+
+"group_copy_pending_request_limit" = "Previše zahtjeva čeka odobrenje. Pričekajte odluku ili povucite neke zahtjeve.";
+
+"group_copy_activity_registration_pending_add" = "Čeka prijavu";
+
+"group_copy_pending_confirmation" = "Čeka potvrdu";
+
+"group_copy_lookup_closing_short" = "U raspuštanju";
+
+"group_copy_restore" = "Vrati grupu";
+
+"group_copy_member" = "Član";
+
+"group_copy_member_results_title" = "Rezultati člana";
+
+"group_copy_my_groups" = "Moje grupe";
+
+"group_copy_activity_my_registration" = "Moja prijava";
+
+"group_copy_activity_mode" = "Zapisi";
+
+"group_copy_qr_join_short" = "Skenirajte za pridruživanje";
+
+"group_copy_qr_apply_short" = "Skenirajte za zahtjev za pridruživanje";
+
+"group_copy_register" = "Prijavi se";
+
+"group_copy_recruiting" = "Prijave otvorene";
+
+"group_copy_registration_closes" = "Zatvaranje prijava";
+
+"group_copy_activity_time_after_previous" = "Nakon prethodnog meča";
+
+"group_copy_report_submit" = "Pošalji";
+
+"group_copy_submitted_by" = "Poslao";
+
+"group_copy_cancel_dissolve" = "Otkaži raspuštanje";
+
+"group_copy_notice_join_requested" = "Primljen je zahtjev za pridruživanje";
+
+"group_copy_removed_members_collapse" = "Sažmi";
+
+"group_copy_discard_upload" = "Odbaci prijenos";
+
+"group_copy_notice_activity_created" = "Aktivnost je stvorena";
+
+"group_copy_activity_time_unspecified" = "Vrijeme još nije određeno";
+
+"group_copy_activity_registration_empty" = "Nema privremenih članova";
+
+"group_copy_transfer_none" = "Nema drugih stalnih članova. Privremeni članovi ne mogu postati voditelji grupe.";
+
+"group_copy_archived_empty" = "Nema arhiviranih grupa";
+
+"group_copy_empty_activities_title" = "Još nema aktivnosti";
+
+"group_copy_latest_results" = "Najnoviji rezultati";
+
+"group_copy_disputed" = "Osporeno";
+
+"group_copy_activity_registration_not_registered" = "Nije prijavljen";
+
+"group_copy_month_matches" = "Utakmice ovog mjeseca";
+
+"group_copy_open_group" = "Otvori grupu";
+
+"group_copy_benefit_history" = "Pregledaj utakmice i ljestvice";
+
+"group_copy_overview" = "Pregled";
+
+"group_copy_welcome_back" = "Dobro došli natrag";
+
+"group_copy_regular_members" = "Prijavljeni članovi";
+
+"group_copy_rally_scoring" = "Bod za svako nadigravanje";
+
+"group_copy_result_information" = "Podaci o meču";
+
+"group_copy_match_score" = "Rezultat utakmice";
+
+"group_copy_match_rules" = "Pravila utakmice";
+
+"group_copy_activity_registration_no_changes" = "Nema nespremljenih promjena";
+
+"group_copy_activities" = "Aktivnosti";
+
+"group_copy_activity_title" = "Naziv aktivnosti";
+
+"group_copy_activity_field_title_optional" = "Naziv aktivnosti (neobavezno)";
+
+"group_copy_notice_activity_changed" = "Aktivnost je ažurirana";
+
+"group_copy_notice_activity_cancelled" = "Aktivnost je otkazana";
+
+"group_copy_activity_lineup" = "Rasporedi mečeve";
+
+"group_copy_activity_create_admin_hint" = "Aktivnosti izrađuje vlasnik grupe ili administrator";
+
+"group_copy_beta_badge" = "Beta";
+
+"group_copy_add_set" = "Dodaj rezultat gema";
+
+"group_copy_add_temporary" = "Dodaj privremenog člana";
+
+"group_copy_benefit_score" = "Prati rezultat ili dodaj prošle rezultate";
+
+"group_copy_request_join" = "Zatraži pridruživanje";
+
+"group_copy_join_message" = "Poruka uz zahtjev za pridruživanje (neobavezno)";
+
+"group_copy_beta_supported_label" = "Trenutačno podržano";
+
+"group_copy_open" = "Pridruži se izravno";
+
+"group_copy_activity_direct_title" = "Rasporedi sada";
+
+"group_copy_admin" = "Administrator";
+
+"group_copy_confirmed_matches" = "Potvrđene utakmice";
+
+"group_copy_leader" = "Vlasnik";
+
+"group_copy_notice_ownership_transferred" = "Vlasnik grupe je promijenjen";
+
+"group_copy_complete_activity" = "Završi aktivnost";
+
+"group_copy_keep_draft" = "Nastavi uređivati lokalnu verziju";
+
+"group_copy_ranking_wins" = "pobjede";
+
+"group_copy_ranking_rate" = "Postotak pobjeda";
+
+"group_copy_report_inappropriate" = "Seksualni ili neprikladan sadržaj";
+
+"group_copy_update_report" = "Ažurirajte prijavu";
+
+"group_copy_manual_result" = "Dodaj rezultat meča";
+
+"group_copy_set_admin" = "Postavi administratora";
+
+"group_copy_activity_timing_estimated" = "Procijenjeno vrijeme";
+
+"group_copy_losses" = "porazi";
+
+"group_copy_notice_result_voided" = "Rezultat je poništen";
+
+"group_copy_notice_result_confirmed" = "Rezultat je potvrđen";
+
+"group_copy_notice_result_pending" = "Rezultat čeka potvrdu";
+
+"group_copy_result_actions" = "Radnje s rezultatom";
+
+"group_copy_empty_title" = "Još nema grupa";
+
+"group_copy_in_progress" = "U tijeku";
+
+"group_copy_report_illegal" = "Nezakonita ili opasna aktivnost";
+
+"group_copy_join_hint" = "Pridružite se prijateljevoj grupi pomoću broja ili QR koda.";
+
+"group_copy_overdue_tasks" = "Zakašnjeli zadaci";
+
+"group_copy_beta_feedback_prompt" = "Imate problem ili prijedlog?";
+
+"group_copy_invite" = "Pozovi suigrače";
+
+"group_copy_retry" = "Pokušaj ponovo";
+
+"group_copy_approval" = "Potrebno odobrenje";
+
+"group_copy_sport" = "Sport";
+
+"group_copy_report_harassment" = "Uznemiravanje";
+
+"group_copy_ranking_me_suffix" = " (ja)";
+
+"group_copy_places_title" = "Odaberite mjesto";
+
+"group_copy_report_fraud" = "Prijevara ili kockanje";
+
+"group_copy_void_reason" = "Razlog poništavanja";
+
+"group_copy_reload_version" = "Učitaj ponovno";
+
+"group_copy_lineup_reload_message" = "Odbaciti nespremljene izmjene u rasporedu mečeva i učitati posljednji spremljeni raspored?";
+
+"group_copy_join_number_separator" = "Ili unesite broj grupe";
+
+"group_copy_activity_multi_match_hint" = "Aktivnost može sadržavati više mečeva. Članovi se prijavljuju za aktivnost; pri raspoređivanju odaberite 2 prijavljena člana za svaki pojedinačni meč ili 4 za parove.";
+
+"group_copy_activity_single_match_hint" = "Svaka aktivnost odgovara jednom meču. Odaberite 2 prijavljena člana za pojedinačnu igru ili 4 za parove.";
+
+"group_copy_activity_detail" = "Detalji aktivnosti";
+
+"group_copy_registration_at_start" = "Na početku aktivnosti";
+
+"group_copy_registration_use_start" = "Koristi vrijeme početka aktivnosti";
+
+"group_copy_cancel_reason_optional" = "Razlog otkazivanja (neobavezno)";
+
+"group_copy_audit_result_frozen_info" = "Prikaži igrače i pravila";
+"group_view_schedule" = "Pogledaj mečeve";
+"group_notice_training_published" = "Trening objavljen";
+"group_notice_training_changed" = "Trening ažuriran";
+"group_notice_training_cancelled" = "Trening otkazan";
+"group_notice_leave_changed" = "Izostanak ažuriran";
+"group_report_evidence_title" = "Slikovni dokazi (neobavezno)";
+"group_report_evidence_hint" = "Do 3 slike u formatu JPG ili PNG, svaka do 2 MB. Vidljive su samo vama i platformi.";
+"group_report_add_image" = "Dodaj sliku";
+"group_report_retry" = "Pokušaj ponovo";
+"group_report_preview" = "Dokazna slika";
+"group_report_supplement" = "Dopuni informacije";
+"group_report_close" = "Zatvori";
+"group_report_remove_image" = "Ukloni sliku";
+"group_report_image_error" = "Sliku nije moguće pripremiti. Pokušajte s drugom slikom u formatu JPG ili PNG.";
+"group_report_refresh" = "Osvježi status";

@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "Gry planszowe";
 "search_team_or_game" = "Szukaj drużyny lub meczu";
 "match_count" = "%d meczów";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d meczu · wszyscy członkowie grupy";
+"archived_count" = "%d grupy";
 
 /* Home Screen */
 "recent_records" = "Ostatnie mecze";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "np. rozegraj wszystkie pięć setów; mecz może zakończyć się remisem";
 "match_completion_custom_placeholder" = "Wprowadź 1-99";
 "match_completion_invalid_sets" = "Tryb Klasyczny wymaga nieparzystej liczby od 1 do 99; Rozegraj wszystkie akceptuje liczbę od 1 do 99.";
+"setup_auto_odd_sets" = "Dozwolone są tylko liczby nieparzyste — użyto %d";
 "has_been_reset" = "Resetowanie zakończone";
 "no_undo_available" = "Brak możliwości cofnięcia";
 "screenshot_failed" = "Zrzut ekranu nie powiódł się";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "Aktywna sesja synchronizacji";
 "timer_status_running" = "Działa";
 "timer_status_paused" = "Wstrzymano";
-"membership_entry_summary_active" = "Masz członkostwo VIP. Dziękujemy za wsparcie";
+"membership_entry_summary_active" = "Aktywne członkostwo VIP";
 "sound_effects" = "Efekty dźwiękowe";
 "vibration" = "Wibracje";
 "language" = "Język";
@@ -1579,7 +1580,7 @@
 "group_approval" = "Wymagane zatwierdzenie";
 "group_approve" = "Zatwierdź";
 "group_archive" = "Archiwizuj grupę";
-"group_archive_hint" = "Archiwizacja zachowuje całą historię i wstrzymuje zmiany w grupie. Możesz przywrócić ją później.";
+"group_archive_hint" = "Zarchiwizować tę grupę? Jej zawartość będzie tylko do odczytu.";
 "group_archive_readonly" = "Ta grupa jest zarchiwizowana. Historia jest dostępna tylko do odczytu.";
 "group_archived" = "Zarchiwizowano";
 "group_benefit_activity" = "Planuj wydarzenia i zapisuj się";
@@ -1624,38 +1625,38 @@
 "group_invalid_qr" = "To nie jest prawidłowy kod QR grupy.";
 "group_invalid_result" = "Zapisany wynik wymaga sprawdzenia przed przesłaniem.";
 "group_invalid_rules" = "Sprawdź zasady meczu.";
-"group_invite" = "Invite";
+"group_invite" = "Zaproś członków drużyny";
 "group_join" = "Dołącz do grupy";
 "group_join_hint" = "Dołącz do grupy znajomego za pomocą jej numeru lub kodu QR.";
-"group_join_message" = "Wiadomość do grupy (opcjonalnie)";
-"group_join_policy" = "Dołączanie";
+"group_join_message" = "Wiadomość do prośby o dołączenie (opcjonalnie)";
+"group_join_policy" = "Opcje dołączania";
 "group_leave" = "Opuść grupę";
-"group_leave_hint" = "Utracisz dostęp do tej grupy. Twoje osobiste zapisy pozostaną na tym urządzeniu.";
+"group_leave_hint" = "Po opuszczeniu grupy przestaniesz być jej członkiem, a grupa zniknie z listy „Moje grupy”. Utracisz możliwość dostępu do niej i udziału w jej aktywnościach. Dotychczasowe zapisy meczów grupy i Twoje osobiste zapisy na tym urządzeniu zostaną zachowane. Aby odzyskać dostęp, musisz ponownie dołączyć do grupy.";
 "group_load_failed" = "Nie można wczytać grupy";
 "group_load_more" = "Wczytaj więcej";
 "group_losses" = "porażki";
 "group_manual" = "Wprowadzanie ręczne";
-"group_manual_result" = "Dodaj wcześniejszy mecz";
+"group_manual_result" = "Dodaj wynik meczu";
 "group_match_detail" = "Szczegóły meczu";
 "group_match_log" = "Historia meczów";
 "group_match_rules" = "Zasady meczu";
 "group_member" = "Członek";
 "group_member_name" = "Nazwa członka";
-"group_members" = "Członkowie";
+"group_members" = "Członek";
 "group_month_matches" = "Mecze w tym miesiącu";
 "group_my_groups" = "Moje grupy";
 "group_name" = "Nazwa grupy";
 "group_need_login" = "Zaloguj się, aby kontynuować.";
 "group_need_members" = "Przed rozpoczęciem meczu zaproś znajomych lub dodaj tymczasowych członków.";
-"group_new_activity" = "Zaplanuj wydarzenie";
+"group_new_activity" = "Utwórz wydarzenie";
 "group_new_owner" = "Nowy właściciel";
 "group_no_activities" = "Brak wydarzeń";
 "group_no_description" = "Brak opisu";
 "group_no_rankings" = "Rankingi pojawią się po potwierdzeniu meczu.";
 "group_no_set_details" = "Zapisano tylko wynik łączny.";
-"group_note" = "Uwaga do wydarzenia (opcjonalnie)";
-"group_number" = "6–8 digit group number";
-"group_open" = "Każdy znający numer może dołączyć";
+"group_note" = "Notatka (opcjonalnie)";
+"group_number" = "Numer grupy z 6–8 cyfr";
+"group_open" = "Dołącz bezpośrednio";
 "group_overall_score" = "Łączny wynik setów";
 "group_overview" = "Przegląd";
 "group_owner" = "Właściciel";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "Usuń członka";
 "group_restore" = "Przywróć grupę";
 "group_restore_hint" = "Przywróć grupę, aby umożliwić wydarzenia i liczenie punktów.";
-"group_results" = "Mecze";
+"group_results" = "Historia";
 "group_retry" = "Spróbuj ponownie";
 "group_rules_missing" = "Nie zapisano zasad";
-"group_save" = "Potwierdź";
+"group_save" = "Zapisz";
 "group_save_failed" = "Nie można zapisać meczu. Spróbuj ponownie.";
 "group_scan" = "Skanuj kod QR";
 "group_scoreboard" = "Tablica wyników";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "Wznów lub zakończ obecny mecz przed rozpoczęciem kolejnego.";
 "group_unregister" = "Anuluj zapis";
 "group_void_reason" = "Powód unieważnienia";
-"group_void_result" = "Unieważnij wynik";
+"group_void_result" = "Unieważnij";
 "group_voided" = "Unieważniono";
 "group_wins" = "zwycięstwa";
 "group_withdraw" = "Wycofaj prośbę";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "Jesteś już członkiem.";
 "group_open_group" = "Otwórz grupę";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
+"group_groups" = "Grupa";
+"group_invite_students" = "Zaproś uczniów";
+"group_group_type" = "Typ grupy";
+"group_peer" = "Grupa znajomych";
+"group_coaching" = "Grupa treningowa";
+"group_training" = "Trening";
+"group_upcoming" = "Nadchodzące";
+"group_latest_results" = "Ostatnie wyniki";
+"group_no_results" = "Nie zapisano jeszcze żadnych meczów";
+"group_no_training" = "Nie zaplanowano jeszcze treningów";
+"group_active_activities" = "W toku · Zapisy otwarte";
+"group_past_activities" = "Minione aktywności";
+"group_all_formats" = "Wszystkie formaty";
+"group_join_requests" = "Prośby o dołączenie";
+"group_regular_members" = "Zapisani członkowie";
+"group_temporary_members" = "Członkowie tymczasowi";
+"group_add" = "Dodaj";
+"group_leader" = "Właściciel";
+"group_member_settings" = "Ustawienia członka";
+"group_settings" = "Zarządzanie grupą";
+"group_partial_load" = "Nie udało się odświeżyć części sekcji. Przeciągnij w dół, aby ponowić.";
+"group_leave_notices" = "Zgłoszenia nieobecności uczniów";
+"group_mark_seen" = "Przeczytane";
+"group_training_schedule" = "Harmonogram treningów";
+"group_add_session" = "Dodaj mecz";
+"group_edit_schedule" = "Edytuj harmonogram";
+"group_cancel_schedule" = "Anuluj harmonogram";
+"group_leave_training" = "Zgłoś nieobecność";
+"group_session_minutes" = "Minuty na mecz";
+"group_court" = "Kort";
+"group_remove_session" = "Usuń";
+"group_publish_schedule" = "Opublikuj harmonogram";
+"group_leave_reason" = "Powód nieobecności (opcjonalnie)";
+"group_report" = "Zgłoś grupę";
+"group_report_reason" = "Powód";
+"group_report_detail" = "Szczegóły (opcjonalnie)";
+"group_report_submit" = "Wyślij";
 "group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
+"group_report_harassment" = "Nękanie";
+"group_report_inappropriate" = "Treści seksualne lub nieodpowiednie";
+"group_report_fraud" = "Oszustwo lub hazard";
+"group_report_illegal" = "Działalność nielegalna lub niebezpieczna";
+"group_report_impersonation" = "Podszywanie się";
+"group_report_other" = "Inne";
+"group_lineup_invalid" = "Sprawdź godziny meczów, korty i graczy.";
+"group_lineup_member_limit" = "Jeden członek może rozegrać najwyżej osiem meczów w jednym harmonogramie.";
+"group_lineup_conflict" = "Jednoczesne mecze wymagają różnych kortów i graczy.";
+"group_multi_match_hint" = "Aktywność może obejmować wiele meczów. Członkowie zapisują się na aktywność; przy układaniu meczów wybierz po 2 zapisane osoby do każdego singla lub po 4 do każdego debla.";
+"group_single_match_hint" = "Każda aktywność to jeden mecz. Wybierz 2 zapisanych członków do singla lub 4 do debla.";
+"group_rate_limited" = "Zbyt wiele żądań. Spróbuj później.";
+"group_create_daily_limit" = "Osiągnięto limit tworzenia grup w ciągu 24 godzin. Spróbuj później.";
+"group_join_daily_limit" = "Osiągnięto limit dołączania do grup w ciągu 24 godzin. Spróbuj później.";
+"group_pending_request_limit" = "Zbyt wiele próśb czeka na zatwierdzenie. Poczekaj na decyzję lub wycofaj część z nich.";
+"group_request_daily_limit" = "Grupa osiągnęła limit próśb o dołączenie w ciągu 24 godzin. Spróbuj później.";
+"group_join_cooldown" = "Po odrzuceniu wniosku należy odczekać 24 godziny przed ponownym złożeniem.";
+"group_result_group_daily_limit" = "Grupa osiągnęła limit wyników w ciągu 24 godzin. Spróbuj później.";
+"group_result_submitter_daily_limit" = "Osiągnięto limit przesyłania wyników w ciągu 24 godzin. Spróbuj później.";
+"group_not_coach" = "Tylko trener może planować sesje.";
+"group_activity_count" = "Zapisano: %1$d/%2$d";
+"group_activity_create_admin_hint" = "Aktywności tworzy właściciel grupy lub administrator";
+"group_activity_direct_hint" = "Wybieraj spośród wszystkich aktywnych członków grupy; zapisy nie są wymagane.";
+"group_activity_direct_save" = "Zapisz harmonogram";
+"group_activity_direct_title" = "Zaplanuj teraz";
+"group_activity_field_title_optional" = "Nazwa aktywności (opcjonalnie)";
+"group_activity_full" = "Brak miejsc";
+"group_activity_lineup_add" = "Dodaj mecz";
+"group_activity_lineup_add_need_members" = "Za mało graczy. Aby dodać mecz, potrzeba co najmniej %1$d aktywnych członków grupy.";
+"group_activity_lineup_court" = "Numer kortu";
+"group_activity_lineup_duration" = "Czas trwania meczu";
+"group_activity_lineup_match_count" = "Liczba meczów: %1$d";
 "group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_activity_lineup_remove" = "Usuń";
+"group_activity_lineup_section_matches" = "Zaplanuj mecze";
+"group_activity_lineup_session" = "Mecz %1$d";
+"group_activity_registration_empty" = "Brak członków tymczasowych";
+"group_activity_section_count" = "Liczba aktywności: %1$d";
+"group_activity_section_past" = "Minione aktywności";
+"group_activity_section_upcoming" = "W toku · Zapisy otwarte";
+"group_activity_status_scheduled" = "Gotowe do rozpoczęcia";
+"group_activity_time_after_previous" = "Po poprzednim meczu";
+"group_activity_time_unspecified" = "Godzina do ustalenia";
+"group_activity_timing" = "Czas rozgrywek";
+"group_activity_timing_estimated" = "Szacowana godzina";
+"group_activity_timing_sequence" = "Bez dokładnej godziny";
+"group_activity_title_auto_hint" = "Jeśli pole pozostanie puste, nazwa powstanie na podstawie daty, np. „Aktywność 10 listopada”.";
+"group_archived_empty" = "Brak zarchiwizowanych grup";
+"group_archived_list_title" = "Zarchiwizowane grupy";
+"group_empty_activities_title" = "Brak wydarzeń";
+"group_list_add_title" = "Utwórz grupę lub dołącz";
+"group_ranking_draws" = "remisy";
+"group_ranking_games" = "Rozegrane mecze";
+"group_ranking_losses" = "porażki";
+"group_ranking_sets" = "Wynik";
+"group_ranking_title" = "Ranking: %@";
+"group_ranking_wins" = "zwycięstwa";
+"group_training_results_locked" = "W harmonogramach z wynikami godziny i gracze pozostają bez zmian. Można edytować miejsce i notatkę.";
+"group_temporary_hint" = "Członkowie tymczasowi nie potrzebują konta i można ich dodać podczas wprowadzania wyników.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "Zwolnij mecz";
-"group_activity_lineup" = "Harmonogram meczów";
-"group_activity_mode" = "Mecze";
+"group_abandon_game" = "Porzuć mecz";
+"group_activity_lineup" = "Zaplanuj mecze";
+"group_activity_mode" = "Historia";
 "group_activity_reminder" = "Przypomnij 15 minut wcześniej";
 "group_add_set" = "Dodaj wynik gry";
 "group_added_members" = "Dodano";
-"group_authority_confirm" = "Potwierdź jako właściciel grupy";
-"group_batch_names_hint" = "Jedna nazwa w wierszu, każda od 1 do 24 znaków.";
-"group_beta_notice" = "Grupy są w wersji beta. Czekamy na opinie.";
+"group_authority_confirm" = "Potwierdź wynik";
+"group_batch_names_hint" = "Jedna nazwa w wierszu";
+"group_beta_notice" = "Grupy są w fazie beta. Niektóre funkcje mogą się zmienić. Dziękujemy za wczesne wypróbowanie.";
 "group_cancel_dissolve" = "Anuluj rozwiązanie";
 "group_cancel_dissolve_hint" = "Przywróć grupę, aby umożliwić wydarzenia i liczenie punktów.";
 "group_cancel_training_hint" = "Zakończone mecze pozostają w historii. Rozpoczęte można dokończyć.";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "Domyślne ustawienie sportowe";
 "group_discard_upload" = "Odrzuć przesyłanie";
 "group_dissolve" = "Rozwiąż grupę";
-"group_dissolve_hint" = "Tylko odczyt przez 7 dni. W tym czasie możesz anulować rozwiązanie.";
+"group_dissolve_hint" = "Grupa będzie tylko do odczytu przez 7 dni. W tym czasie można anulować rozwiązanie. Po 7 dniach grupa i wszystkie jej dane zostaną trwale usunięte.";
 "group_dissolving" = "Rozwiązywanie grupy";
 "group_edit_activity" = "Edytuj";
 "group_edit_lineup" = "Zaplanuj mecze";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "Brak powiadomień";
 "group_no_sessions" = "Brak zaplanowanych meczów";
 "group_notices" = "Powiadomienia";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "Nie udało się odświeżyć części sekcji. Przeciągnij w dół, aby ponowić.";
 "group_point_cap" = "Limit punktów";
 "group_preview_schedule" = "Sprawdź harmonogram";
 "group_published" = "Opublikowano";
 "group_qr_direct_hint" = "Zeskanuj w iScoreboard, aby zobaczyć grupę i do niej dołączyć.";
 "group_quick_score" = "Łączny wynik setów";
 "group_rally_scoring" = "Punkt za każdą wymianę";
-"group_read_notices" = "Read";
+"group_read_notices" = "Przeczytane";
 "group_registration_closes" = "Koniec zapisów";
 "group_regular" = "Standard";
-"group_reload_version" = "Wczytaj najnowszą wersję";
+"group_reload_version" = "Wczytaj ponownie";
 "group_reminder_body" = "Aktywność rozpocznie się za 15 minut.";
 "group_reminder_permission" = "Włącz powiadomienia aplikacji w Ustawieniach.";
 "group_reminder_too_late" = "Do rozpoczęcia zostało mniej niż 15 minut.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "Punktacja seta";
 "group_tie_break" = "Punkty w tie-breaku";
 "group_tiebreak_only" = "Tylko tie-break";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "Data";
+"group_too_many_sessions" = "Sprawdź godziny meczów, korty i graczy.";
+"group_training_date" = "Data treningu";
 "group_win_by_two" = "Wygrana przewagą dwóch punktów";
 
-"group_keep_draft" = "Zachowaj moje zmiany";
+"group_keep_draft" = "Kontynuuj edycję wersji lokalnej";
 
 "group_server_version" = "Najnowsza wersja";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "Grupa zostanie rozwiązana %@\n7 dni na zmianę decyzji; do tego czasu tylko odczyt";
 "group_notice_end" = "Brak większej liczby powiadomień";
 "group_notice_join_requested" = "Otrzymano prośbę o dołączenie";
 "group_notice_join_approved" = "Prośba o dołączenie została zatwierdzona";
@@ -1902,8 +1903,8 @@
 "group_notice_receipt_failed" = "Potwierdzenie odczytu powiadomienia było niepełne. Spróbuj ponownie.";
 "group_notice_seen" = "Oznacz jako przeczytane";
 "group_ranking_empty" = "Brak jeszcze rankingu %@";
-"group_filter_singles" = "Pojedyncze";
-"group_filter_doubles" = "Podwójne";
+"group_filter_singles" = "Gra pojedyncza";
+"group_filter_doubles" = "Gra podwójna";
 "group_ranking_me_suffix" = " (ja)";
 "group_ranking_insufficient_matches" = "Zbyt mało meczów";
 "group_entry_a_wins" = "Wygrywa A";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "Wpisz ręcznie";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "Oznacz wszystkie jako przeczytane";
+
+"group_status_active" = "Aktywna";
+"group_dissolved" = "Rozwiązana";
+"group_report_status_pending" = "Oczekuje";
+"group_report_status_reviewing" = "W trakcie weryfikacji";
+"group_report_status_resolved" = "Rozpatrzone";
+"group_report_status_dismissed" = "Odrzucone";
+"group_error_permission" = "Nie masz uprawnień do tej czynności.";
+"group_error_transfer_first" = "Przekaż własność grupy przed jej opuszczeniem lub usunięciem konta.";
+"group_error_target" = "Wybierz aktywnego członka tej grupy z kontem.";
+"group_error_activity_locked" = "Aktywność już się rozpoczęła lub zakończyła. Nie można zmienić ani anulować jej harmonogramu.";
+"group_error_activity_pending" = "Najpierw zakończ lub usuń pozostałe mecze.";
+"group_error_registration_disabled" = "Mecze planowane bezpośrednio nie wymagają zapisów.";
+"group_error_content_blocked" = "Tekst zawiera nieodpowiednie treści. Popraw go.";
+"group_error_request_invalid" = "Sprawdź podane dane i spróbuj ponownie.";
+"group_error_reason_required" = "Podaj powód przed kontynuowaniem.";
+"group_error_result_state" = "Można potwierdzić tylko wyniki oczekujące na potwierdzenie.";
+"group_error_conflict" = "Dane się zmieniły. Odśwież i sprawdź je przed ponowną próbą.";
+"group_error_request_handled" = "Ta prośba została już rozpatrzona. Odśwież listę.";
+"group_error_place_locked" = "Nie można zmienić obiektu, gdy mecz już się rozpoczął lub zakończył.";
+"group_error_schedule_cancelled" = "Ten harmonogram lub mecz został anulowany.";
+"group_error_session_completed" = "Ten mecz już się zakończył i nie można zgłosić nieobecności. Odśwież terminarz, aby zobaczyć wynik.";
+"group_error_session_has_result" = "Ten mecz ma już wynik. Unieważnij go przed dodaniem innego.";
+"group_error_item_not_found" = "Ta aktywność, harmonogram, mecz lub powiadomienie nie jest już dostępne. Odśwież listę.";
+"group_error_server" = "Usługa grup jest tymczasowo niedostępna. Spróbuj ponownie później.";
+"group_error_peer_only" = "Dla grupy treningowej użyj planowania treningów.";
+"group_error_name_length" = "Nazwa grupy musi mieć 2–24 znaki.";
+"group_error_description_length" = "Opis grupy nie może przekraczać 200 znaków.";
+"group_error_activity_invalid" = "Sprawdź nazwę, datę, miejsce i limit uczestników aktywności.";
+"group_error_registration_closed" = "Zapisy zostały zamknięte.";
+"group_error_action_disabled" = "Ta czynność jest obecnie niedostępna.";
+"group_error_update_required" = "Zaktualizuj aplikację, aby kontynuować.";
+"group_welcome_back" = "Witaj ponownie";
+"group_transfer_none" = "Nie ma innych pełnoprawnych członków. Członkowie tymczasowi nie mogą zostać liderami grupy.";
+"group_empty_activities_hint" = "Utwórz aktywność, na którą mogą zapisywać się członkowie. Zapisy kończą się po zapełnieniu miejsc.";
+"group_temp_import_names" = "Importuj zapisane nazwy";
+"group_temp_import_count" = "Importuj (%1$d)";
+"group_result_information" = "Informacje o meczu";
+"group_result_actions" = "Działania na wyniku";
+"group_peer_confirmation" = "Potwierdzenie przez przeciwnika";
+"group_notice_target_unavailable" = "Ta treść jest niedostępna lub nie masz już do niej dostępu.";
+"group_push_enabled" = "Powiadomienia grupy";
+"group_push_group_enabled" = "Odbieraj powiadomienia tej grupy";
+"group_push_inbox_kept" = "Wyłączenie zachowuje powiadomienia w aplikacji i istniejące przypomnienia o aktywnościach.";
+"group_push_permission" = "Włącz powiadomienia systemowe";
+"group_push_settings" = "Ustawienia powiadomień";
+
+// Shared group form controls
+"group_inline_seat_hint" = "Wybierz miejsce, a potem uczestnika";
+"group_score_and_rules" = "Wynik i zasady";
+"group_activity_registration_scope" = "Tutaj zapisz członków tymczasowych. Członkowie z kontem zapisują się sami.";
+"group_activity_registration_no_changes" = "Brak niezapisanych zmian";
+"group_activity_registration_changes" = "Dodaj %1$d · Anuluj %2$d";
+"group_activity_registration_save" = "Zapisz zgłoszenia (%1$d)";
+"group_activity_registration_manage" = "Zapisy członków tymczasowych";
+"group_activity_registration_pending_add" = "Do zapisania";
+"group_activity_registration_pending_remove" = "Do anulowania";
+"group_activity_registration_registered" = "Zapisany";
+"group_activity_registration_not_registered" = "Niezapisany";
+"group_activity_detail" = "Szczegóły wydarzenia";
+"group_activity_my_registration" = "Moje zgłoszenie";
+"group_match_score" = "Wynik meczu";
+
+"group_lookup_available" = "Otwarta";
+
+/* Group beta notice card. */
+"group_beta_badge" = "Beta";
+"group_beta_supported_label" = "Dostępne teraz";
+"group_beta_feedback_prompt" = "Problem lub sugestia?";
+"group_beta_feedback_action" = "Prześlij opinię";
+
+"group_member_results_title" = "Wyniki członka";
+
+"group_removed_members_expand" = "Rozwiń";
+"group_removed_members_collapse" = "Zwiń";
+"group_best_of_format" = "Do %2$@ zwycięstw z %1$@";
+"group_member_count_single" = "%d członek";
+"group_member_count_short" = "%d członków";
+"group_lookup_closed_short" = "Zamknięta";
+"group_lookup_closing_short" = "W trakcie rozwiązania";
+"group_lookup_member_short" = "Dołączono";
+"group_lookup_unavailable_short" = "Niedostępna";
+"group_join_scan_hint" = "Zeskanuj kod QR grupy";
+"group_join_number_hint" = "6–8 cyfr. Poproś właściciela grupy.";
+"group_request_join" = "Poproś o dołączenie";
+"group_overdue_tasks" = "Zaległe zadania";
+"group_apply_shift" = "Zastosuj zmiany";
+"group_transfer_submit" = "Przekaż";
+"group_rename_member" = "Zmień nazwę";
+"group_set_admin" = "Nadaj rolę administratora";
+"group_set_member" = "Odbierz rolę administratora";
+"group_confirm_authority_message" = "Wszyscy gracze są członkami tymczasowymi lub po przeciwnej stronie nie ma gracza z kontem, który może potwierdzić. Właściciel musi sprawdzić graczy i wynik. Potwierdzenie wliczy wynik do historii i wskaże właściciela jako potwierdzającego.";
+"group_confirm_result_message" = "Po potwierdzeniu wynik wlicza się do historii obu stron i nie można go edytować. Aby go poprawić, najpierw go unieważnij.";
+"group_confirm_member_message" = "Potwierdź graczy i wynik, aby wliczyć go do historii. Jeśli wymaga poprawy, poproś zarządzającego o unieważnienie pierwotnego wyniku.";
+"group_cancel_activity_message" = "Anulowanie trwale usuwa listę zapisanych. Nie można anulować trwającej aktywności.";
+"group_abandon_game_message" = "Porzuć ten mecz, aby rozpocząć inny. Zapisane dane osobiste zostaną zachowane.";
+"group_void_pending_message" = "Wynik nie będzie już oczekiwać na potwierdzenie ani wliczać się do statystyk. Pierwotny wynik i powód pozostaną widoczne dla członków grupy. Gracze i zgłaszający otrzymają powiadomienie.";
+"group_void_confirmed_message" = "Wynik nie będzie już wliczać się do statystyk. Statystyki i rankingi obu stron zostaną przeliczone. Pierwotny wynik i powód pozostaną widoczne dla członków grupy. Gracze i zgłaszający otrzymają powiadomienie.";
+"group_remove_member_message" = "Usunąć %@? Konieczne będzie ponowne zgłoszenie chęci dołączenia.";
+"group_reload_version_message" = "Odrzucić niezapisane zmiany w planie meczów i wczytać ostatnio zapisany plan?";
+"group_transfer_confirmation" = "Przekazać własność użytkownikowi %@? Zostaniesz zwykłym członkiem.";
+"group_approve_confirmation" = "%@ zostanie członkiem grupy i zobaczy aktywności oraz wyniki.";
+"group_reject_confirmation" = "Po odrzuceniu %@ musi wysłać nową prośbę.";
+"group_lookup_full_short" = "Brak miejsc";
+"group_lookup_archived_short" = "Zarchiwizowano";
+"group_lookup_pending_short" = "Oczekuje";
+"group_temporary_member_count" = "%d członków";
+"group_best_of_tennis_format" = "Do %2$@ zwycięstw z %1$@";
+"group_rename_member_title" = "Zmień nazwę";
+
+"group_copy_transfer_title" = "Przekaż własność";
+
+"group_copy_transfer_submit" = "Przekaż";
+
+"group_copy_transfer_message" = "Przekazać własność użytkownikowi %@? Zostaniesz zwykłym członkiem.";
+
+"group_copy_transfer_hint" = "Po przekazaniu własności zostaniesz zwykłym członkiem.";
+
+"group_copy_rename_title" = "Zmień nazwę";
+
+"group_copy_rename_action" = "Zmień nazwę";
+
+"group_copy_result_confirm" = "Potwierdź wynik";
+
+"group_copy_result_confirm_authority_message" = "Wszyscy gracze są członkami tymczasowymi lub po przeciwnej stronie nie ma gracza z kontem, który może potwierdzić. Właściciel musi sprawdzić graczy i wynik. Potwierdzenie wliczy wynik do historii i wskaże właściciela jako potwierdzającego.";
+
+"group_copy_result_confirm_manager_message" = "Po potwierdzeniu wynik wlicza się do historii obu stron i nie można go edytować. Aby go poprawić, najpierw go unieważnij.";
+
+"group_copy_result_confirm_member_message" = "Potwierdź graczy i wynik, aby wliczyć go do historii. Jeśli wymaga poprawy, poproś zarządzającego o unieważnienie pierwotnego wyniku.";
+
+"group_copy_void_action" = "Unieważnij";
+
+"group_copy_void_pending_message" = "Wynik nie będzie już oczekiwać na potwierdzenie ani wliczać się do statystyk. Pierwotny wynik i powód pozostaną widoczne dla członków grupy. Gracze i zgłaszający otrzymają powiadomienie.";
+
+"group_copy_void_confirmed_message" = "Wynik nie będzie już wliczać się do statystyk. Statystyki i rankingi obu stron zostaną przeliczone. Pierwotny wynik i powód pozostaną widoczne dla członków grupy. Gracze i zgłaszający otrzymają powiadomienie.";
+
+"group_copy_cancel_activity" = "Anuluj wydarzenie";
+
+"group_copy_cancel_activity_message" = "Anulowanie trwale usuwa listę zapisanych. Nie można anulować trwającej aktywności.";
+
+"group_copy_abandon_action" = "Porzuć mecz";
+
+"group_copy_abandon_message" = "Porzuć ten mecz, aby rozpocząć inny. Zapisane dane osobiste zostaną zachowane.";
+
+"group_copy_leave_action" = "Opuść grupę";
+
+"group_copy_leave_message" = "Po opuszczeniu grupy przestaniesz być jej członkiem, a grupa zniknie z listy „Moje grupy”. Utracisz możliwość dostępu do niej i udziału w jej aktywnościach. Dotychczasowe zapisy meczów grupy i Twoje osobiste zapisy na tym urządzeniu zostaną zachowane. Aby odzyskać dostęp, musisz ponownie dołączyć do grupy.";
+
+"group_copy_archive_action" = "Archiwizuj grupę";
+
+"group_copy_archive_message" = "Zarchiwizować tę grupę? Jej zawartość będzie tylko do odczytu.";
+
+"group_copy_dissolve_action" = "Rozwiąż grupę";
+
+"group_copy_dissolve_message" = "Grupa będzie tylko do odczytu przez 7 dni. W tym czasie można anulować rozwiązanie. Po 7 dniach grupa i wszystkie jej dane zostaną trwale usunięte.";
+
+"group_copy_approve_action" = "Zatwierdź";
+
+"group_copy_approve_message" = "%@ zostanie członkiem grupy i zobaczy aktywności oraz wyniki.";
+
+"group_copy_reject_action" = "Odrzuć";
+
+"group_copy_reject_message" = "Po odrzuceniu %@ musi wysłać nową prośbę.";
+
+"group_copy_remove_action" = "Usuń członka";
+
+"group_copy_remove_message" = "Usunąć %@? Konieczne będzie ponowne zgłoszenie chęci dołączenia.";
+
+"group_copy_report_detail" = "Szczegóły (opcjonalnie)";
+
+"group_copy_edit_profile" = "Edytuj profil grupy";
+
+"group_copy_entry_a_wins" = "Wygrywa A";
+
+"group_copy_entry_b_wins" = "Wygrywa B";
+
+"group_copy_activity_timing_sequence" = "Bez dokładnej godziny";
+
+"group_copy_activity_registration_manage" = "Zapisy członków tymczasowych";
+
+"group_copy_temporary_hint" = "Członkowie tymczasowi nie potrzebują konta i można ich dodać podczas wprowadzania wyników.";
+
+"group_copy_activity_registration_scope" = "Tutaj zapisz członków tymczasowych. Członkowie z kontem zapisują się sami.";
+
+"group_copy_report" = "Zgłoś grupę";
+
+"group_copy_notice_member_removed" = "Zostałeś usunięty z grupy";
+
+"group_copy_notice_role_changed" = "Twoja rola uległa zmianie";
+
+"group_copy_activity_direct_save" = "Zapisz harmonogram";
+
+"group_copy_notice_join_approved" = "Prośba o dołączenie została zatwierdzona";
+
+"group_copy_notice_join_rejected" = "Prośba o dołączenie została odrzucona";
+
+"group_copy_all_formats" = "Wszystkie formaty";
+
+"group_copy_closed" = "Dołączanie zamknięte";
+
+"group_copy_report_other" = "Inne";
+
+"group_copy_report_impersonation" = "Podszywanie się";
+
+"group_copy_audit_ui_share_failed" = "Udostępnianie nie powiodło się. Spróbuj ponownie.";
+
+"group_copy_audit_ui_share_number" = "Udostępnij numer grupy";
+
+"group_copy_create" = "Utwórz grupę";
+
+"group_copy_confirm_join" = "Dołącz do tej grupy";
+
+"group_copy_join" = "Dołącz do grupy";
+
+"group_copy_join_policy" = "Opcje dołączania";
+
+"group_copy_filter_singles" = "Gra pojedyncza";
+
+"group_copy_upcoming" = "Nadchodzące";
+
+"group_copy_activity_section_past" = "Minione aktywności";
+
+"group_copy_beta_feedback_action" = "Prześlij opinię";
+
+"group_copy_doubles" = "Gra podwójna";
+
+"group_copy_create_activity" = "Utwórz wydarzenie";
+
+"group_copy_benefit_activity" = "Planuj wydarzenia i zapisuj się";
+
+"group_copy_empty_activities_hint" = "Utwórz aktywność, na którą mogą zapisywać się członkowie. Zapisy kończą się po zapełnieniu miejsc.";
+
+"group_copy_lookup_available" = "Otwarta";
+
+"group_copy_activity_direct_hint" = "Wybieraj spośród wszystkich aktywnych członków grupy; zapisy nie są wymagane.";
+
+"group_copy_empty_intro" = "Zbierz znajomych, aby planować mecze, liczyć punkty i tworzyć wspólną historię.";
+
+"group_copy_place" = "Lokalizacja";
+
+"group_copy_ranking_games" = "Rozegrane mecze";
+
+"group_copy_ranking_insufficient_matches" = "Zbyt mało meczów";
+
+"group_copy_report_spam" = "Spam";
+
+"group_copy_report_status_reviewing" = "W trakcie weryfikacji";
+
+"group_copy_note" = "Notatka (opcjonalnie)";
+
+"group_copy_peer_confirmation" = "Potwierdzenie przez przeciwnika";
+
+"group_copy_activity_lineup_section_matches" = "Zaplanuj mecze";
+
+"group_copy_group" = "Grupa";
+
+"group_copy_group_qr" = "Kod QR grupy";
+
+"group_copy_beta_notice" = "Grupy są w fazie beta. Niektóre funkcje mogą się zmienić. Dziękujemy za wczesne wypróbowanie.";
+
+"group_copy_created" = "Grupa utworzona";
+
+"group_copy_ranking_sets" = "Wynik";
+
+"group_copy_removed_members_expand" = "Rozwiń";
+
+"group_copy_voided" = "Unieważniono";
+
+"group_copy_cancelled" = "Anulowano";
+
+"group_copy_report_status_resolved" = "Rozpatrzone";
+
+"group_copy_completed" = "Ukończono";
+
+"group_copy_archived" = "Zarchiwizowano";
+
+"group_copy_archived_list_title" = "Zarchiwizowane grupy";
+
+"group_copy_activity_registration_registered" = "Zapisany";
+
+"group_copy_activity_full" = "Brak miejsc";
+
+"group_copy_confirmed" = "Potwierdzono";
+
+"group_copy_removed_members" = "Byli członkowie";
+
+"group_copy_mark_seen" = "Przeczytane";
+
+"group_copy_report_status_dismissed" = "Odrzucone";
+
+"group_copy_draws" = "remisy";
+
+"group_copy_draw" = "Remis";
+
+"group_copy_start_score" = "Zacznij liczyć punkty";
+
+"group_copy_pending_upload" = "Oczekuje na przesłanie";
+
+"group_copy_activity_registration_pending_remove" = "Do anulowania";
+
+"group_copy_report_status_pending" = "Oczekuje";
+
+"group_copy_lookup_pending_short" = "Oczekuje";
+
+"group_copy_pending_request_limit" = "Zbyt wiele próśb czeka na zatwierdzenie. Poczekaj na decyzję lub wycofaj część z nich.";
+
+"group_copy_activity_registration_pending_add" = "Do zapisania";
+
+"group_copy_pending_confirmation" = "Oczekuje na potwierdzenie";
+
+"group_copy_lookup_closing_short" = "W trakcie rozwiązania";
+
+"group_copy_restore" = "Przywróć grupę";
+
+"group_copy_member" = "Członek";
+
+"group_copy_member_results_title" = "Wyniki członka";
+
+"group_copy_my_groups" = "Moje grupy";
+
+"group_copy_activity_my_registration" = "Moje zgłoszenie";
+
+"group_copy_activity_mode" = "Historia";
+
+"group_copy_qr_join_short" = "Zeskanuj, aby dołączyć";
+
+"group_copy_qr_apply_short" = "Zeskanuj, aby poprosić o dołączenie";
+
+"group_copy_register" = "Zapisz się";
+
+"group_copy_recruiting" = "Zapisy otwarte";
+
+"group_copy_registration_closes" = "Koniec zapisów";
+
+"group_copy_activity_time_after_previous" = "Po poprzednim meczu";
+
+"group_copy_report_submit" = "Wyślij";
+
+"group_copy_submitted_by" = "Przesłał";
+
+"group_copy_cancel_dissolve" = "Anuluj rozwiązanie";
+
+"group_copy_notice_join_requested" = "Otrzymano prośbę o dołączenie";
+
+"group_copy_removed_members_collapse" = "Zwiń";
+
+"group_copy_discard_upload" = "Odrzuć przesyłanie";
+
+"group_copy_notice_activity_created" = "Wydarzenie zostało utworzone";
+
+"group_copy_activity_time_unspecified" = "Godzina do ustalenia";
+
+"group_copy_activity_registration_empty" = "Brak członków tymczasowych";
+
+"group_copy_transfer_none" = "Nie ma innych pełnoprawnych członków. Członkowie tymczasowi nie mogą zostać liderami grupy.";
+
+"group_copy_archived_empty" = "Brak zarchiwizowanych grup";
+
+"group_copy_empty_activities_title" = "Brak wydarzeń";
+
+"group_copy_latest_results" = "Ostatnie wyniki";
+
+"group_copy_disputed" = "Zakwestionowano";
+
+"group_copy_activity_registration_not_registered" = "Niezapisany";
+
+"group_copy_month_matches" = "Mecze w tym miesiącu";
+
+"group_copy_open_group" = "Otwórz grupę";
+
+"group_copy_benefit_history" = "Przeglądaj mecze i rankingi";
+
+"group_copy_overview" = "Przegląd";
+
+"group_copy_welcome_back" = "Witaj ponownie";
+
+"group_copy_regular_members" = "Zapisani członkowie";
+
+"group_copy_rally_scoring" = "Punkt za każdą wymianę";
+
+"group_copy_result_information" = "Informacje o meczu";
+
+"group_copy_match_score" = "Wynik meczu";
+
+"group_copy_match_rules" = "Zasady meczu";
+
+"group_copy_activity_registration_no_changes" = "Brak niezapisanych zmian";
+
+"group_copy_activities" = "Wydarzenia";
+
+"group_copy_activity_title" = "Nazwa wydarzenia";
+
+"group_copy_activity_field_title_optional" = "Nazwa aktywności (opcjonalnie)";
+
+"group_copy_notice_activity_changed" = "Wydarzenie zostało zaktualizowane";
+
+"group_copy_notice_activity_cancelled" = "Wydarzenie zostało anulowane";
+
+"group_copy_activity_lineup" = "Zaplanuj mecze";
+
+"group_copy_activity_create_admin_hint" = "Aktywności tworzy właściciel grupy lub administrator";
+
+"group_copy_beta_badge" = "Beta";
+
+"group_copy_add_set" = "Dodaj wynik gry";
+
+"group_copy_add_temporary" = "Dodaj tymczasowego członka";
+
+"group_copy_benefit_score" = "Licz punkty lub dodawaj wcześniejsze wyniki";
+
+"group_copy_request_join" = "Poproś o dołączenie";
+
+"group_copy_join_message" = "Wiadomość do prośby o dołączenie (opcjonalnie)";
+
+"group_copy_beta_supported_label" = "Dostępne teraz";
+
+"group_copy_open" = "Dołącz bezpośrednio";
+
+"group_copy_activity_direct_title" = "Zaplanuj teraz";
+
+"group_copy_admin" = "Administrator";
+
+"group_copy_confirmed_matches" = "Potwierdzone mecze";
+
+"group_copy_leader" = "Właściciel";
+
+"group_copy_notice_ownership_transferred" = "Właściciel grupy uległ zmianie";
+
+"group_copy_complete_activity" = "Zakończ aktywność";
+
+"group_copy_keep_draft" = "Kontynuuj edycję wersji lokalnej";
+
+"group_copy_ranking_wins" = "zwycięstwa";
+
+"group_copy_ranking_rate" = "Odsetek zwycięstw";
+
+"group_copy_report_inappropriate" = "Treści seksualne lub nieodpowiednie";
+
+"group_copy_update_report" = "Zaktualizuj zgłoszenie";
+
+"group_copy_manual_result" = "Dodaj wynik meczu";
+
+"group_copy_set_admin" = "Nadaj rolę administratora";
+
+"group_copy_activity_timing_estimated" = "Szacowana godzina";
+
+"group_copy_losses" = "porażki";
+
+"group_copy_notice_result_voided" = "Wynik unieważniony";
+
+"group_copy_notice_result_confirmed" = "Wynik potwierdzony";
+
+"group_copy_notice_result_pending" = "Wynik czeka na potwierdzenie";
+
+"group_copy_result_actions" = "Działania na wyniku";
+
+"group_copy_empty_title" = "Brak grup";
+
+"group_copy_in_progress" = "W toku";
+
+"group_copy_report_illegal" = "Działalność nielegalna lub niebezpieczna";
+
+"group_copy_join_hint" = "Dołącz do grupy znajomego za pomocą jej numeru lub kodu QR.";
+
+"group_copy_overdue_tasks" = "Zaległe zadania";
+
+"group_copy_beta_feedback_prompt" = "Problem lub sugestia?";
+
+"group_copy_invite" = "Zaproś członków drużyny";
+
+"group_copy_retry" = "Spróbuj ponownie";
+
+"group_copy_approval" = "Wymagane zatwierdzenie";
+
+"group_copy_sport" = "Sport";
+
+"group_copy_report_harassment" = "Nękanie";
+
+"group_copy_ranking_me_suffix" = " (ja)";
+
+"group_copy_places_title" = "Wybierz miejsce";
+
+"group_copy_report_fraud" = "Oszustwo lub hazard";
+
+"group_copy_void_reason" = "Powód unieważnienia";
+
+"group_copy_reload_version" = "Wczytaj ponownie";
+
+"group_copy_lineup_reload_message" = "Odrzucić niezapisane zmiany w planie meczów i wczytać ostatnio zapisany plan?";
+
+"group_copy_join_number_separator" = "Lub wpisz numer grupy";
+
+"group_copy_activity_multi_match_hint" = "Aktywność może obejmować wiele meczów. Członkowie zapisują się na aktywność; przy układaniu meczów wybierz po 2 zapisane osoby do każdego singla lub po 4 do każdego debla.";
+
+"group_copy_activity_single_match_hint" = "Każda aktywność to jeden mecz. Wybierz 2 zapisanych członków do singla lub 4 do debla.";
+
+"group_copy_activity_detail" = "Szczegóły wydarzenia";
+
+"group_copy_registration_at_start" = "Na początku aktywności";
+
+"group_copy_registration_use_start" = "Użyj godziny rozpoczęcia aktywności";
+
+"group_copy_cancel_reason_optional" = "Powód odwołania (opcjonalnie)";
+
+"group_copy_audit_result_frozen_info" = "Zobacz graczy i zasady";
+"group_view_schedule" = "Zobacz mecze";
+"group_notice_training_published" = "Trening opublikowany";
+"group_notice_training_changed" = "Trening zaktualizowany";
+"group_notice_training_cancelled" = "Trening odwołany";
+"group_notice_leave_changed" = "Nieobecność zaktualizowana";
+"group_report_evidence_title" = "Dowody w postaci zdjęć (opcjonalnie)";
+"group_report_evidence_hint" = "Do 3 obrazów JPG lub PNG, po maks. 2 MB każdy. Widoczne tylko dla Ciebie i platformy.";
+"group_report_add_image" = "Dodaj obraz";
+"group_report_retry" = "Spróbuj ponownie";
+"group_report_preview" = "Obraz z dowodem";
+"group_report_supplement" = "Uzupełnij informacje";
+"group_report_close" = "Zamknij";
+"group_report_remove_image" = "Usuń obraz";
+"group_report_image_error" = "Nie udało się przygotować obrazu. Spróbuj innego obrazu JPG lub PNG.";
+"group_report_refresh" = "Odśwież status";

@@ -1,0 +1,775 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project jifen.xcodeproj -scheme jifen -configuration Debug -destination "platform=iOS Simulator,id=86871B65-E0ED-4FBD-9F93-F3FB6246A895" -derivedDataPath /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl -disableAutomaticPackageResolution build
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  Firebase: https://github.com/firebase/firebase-ios-sdk.git @ 12.19.2
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 5.3.1
+  AppCheck: https://github.com/google/app-check.git @ 11.3.2
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.3
+  GoogleAppMeasurement: https://github.com/google/GoogleAppMeasurement.git @ 12.19.2
+  nanopb: https://github.com/firebase/nanopb.git @ 2.30910.1
+  GoogleDataTransport: https://github.com/google/GoogleDataTransport.git @ 10.1.1
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  gRPC: https://github.com/google/grpc-binary.git @ 1.69.1
+  abseil: https://github.com/google/abseil-cpp-binary.git @ 1.2024072200.0
+  JifenCore: /Users/yangyang/Desktop/jifenqi/jifen-ios/Packages/JifenCore @ local
+  leveldb: https://github.com/firebase/leveldb.git @ 1.22.5
+  GoogleAdsOnDeviceConversion: https://github.com/googleads/google-ads-on-device-conversion-ios-sdk @ 3.7.0
+  Promises: https://github.com/google/promises.git @ 2.4.1
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (56 targets)
+    Target 'jifen' in project 'jifen'
+        ➜ Explicit dependency on target 'ScoreCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'SessionCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'RecordCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'PersistenceCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'LinkCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'TimerCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'FirebaseCore-product' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAnalyticsCore-product' in project 'Firebase'
+    Target 'FirebaseAnalyticsCore-product' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAnalyticsCoreTarget' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAnalyticsCoreWrapper' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'FBLPromises-product' in project 'Promises'
+        ➜ Explicit dependency on target 'GULUserDefaults-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleAppMeasurementCore-product' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULMethodSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNetwork-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'nanopb-product' in project 'nanopb'
+    Target 'FirebaseAnalyticsCoreTarget' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAnalyticsCoreWrapper' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'FBLPromises-product' in project 'Promises'
+        ➜ Explicit dependency on target 'GULUserDefaults-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleAppMeasurementCore-product' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULMethodSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNetwork-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'nanopb-product' in project 'nanopb'
+    Target 'FirebaseAnalyticsCoreWrapper' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'FBLPromises-product' in project 'Promises'
+        ➜ Explicit dependency on target 'GULUserDefaults-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleAppMeasurementCore-product' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULMethodSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNetwork-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'nanopb-product' in project 'nanopb'
+    Target 'GoogleAppMeasurementCore-product' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GoogleAppMeasurementCoreTarget' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULMethodSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNetwork-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'nanopb-product' in project 'nanopb'
+    Target 'GoogleAppMeasurementCoreTarget' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULMethodSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNetwork-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'nanopb-product' in project 'nanopb'
+    Target 'nanopb-product' in project 'nanopb'
+        ➜ Explicit dependency on target 'nanopb' in project 'nanopb'
+        ➜ Explicit dependency on target 'nanopb_nanopb' in project 'nanopb'
+    Target 'nanopb' in project 'nanopb'
+        ➜ Explicit dependency on target 'nanopb_nanopb' in project 'nanopb'
+    Target 'nanopb_nanopb' in project 'nanopb' (no dependencies)
+    Target 'GULNetwork-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Network' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+    Target 'GULMethodSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-MethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-MethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-MethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-MethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-MethodSwizzler' in project 'GoogleUtilities' (no dependencies)
+    Target 'GULAppDelegateSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Network' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-Network' in project 'GoogleUtilities' (no dependencies)
+    Target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-Reachability' in project 'GoogleUtilities' (no dependencies)
+    Target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities' (no dependencies)
+    Target 'FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'FBLPromises-product' in project 'Promises'
+        ➜ Explicit dependency on target 'GULUserDefaults-product' in project 'GoogleUtilities'
+    Target 'GULUserDefaults-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-UserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-UserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-UserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-UserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-UserDefaults' in project 'GoogleUtilities' (no dependencies)
+    Target 'FBLPromises-product' in project 'Promises'
+        ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+        ➜ Explicit dependency on target 'Promises_FBLPromises' in project 'Promises'
+    Target 'FBLPromises' in project 'Promises'
+        ➜ Explicit dependency on target 'Promises_FBLPromises' in project 'Promises'
+    Target 'Promises_FBLPromises' in project 'Promises' (no dependencies)
+    Target 'Firebase_FirebaseInstallations' in project 'Firebase' (no dependencies)
+    Target 'FirebaseCore-product' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger-product' in project 'GoogleUtilities'
+    Target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger-product' in project 'GoogleUtilities'
+    Target 'GULLogger-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-Logger' in project 'GoogleUtilities' (no dependencies)
+    Target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+    Target 'third-party-IsAppEncrypted' in project 'GoogleUtilities' (no dependencies)
+    Target 'GoogleUtilities_GoogleUtilities-Environment' in project 'GoogleUtilities' (no dependencies)
+    Target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+    Target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-NSData' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-NSData' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-NSData' in project 'GoogleUtilities' (no dependencies)
+    Target 'Firebase_FirebaseCoreInternal' in project 'Firebase' (no dependencies)
+    Target 'Firebase' in project 'Firebase' (no dependencies)
+    Target 'Firebase_FirebaseCore' in project 'Firebase' (no dependencies)
+    Target 'TimerCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'TimerCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+    Target 'TimerCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+    Target 'LinkCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'LinkCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'SessionCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'RecordCore' in project 'JifenCore'
+    Target 'LinkCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'SessionCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'RecordCore' in project 'JifenCore'
+    Target 'PersistenceCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'PersistenceCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'SessionCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'RecordCore' in project 'JifenCore'
+    Target 'PersistenceCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'SessionCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'RecordCore' in project 'JifenCore'
+    Target 'RecordCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'RecordCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'SessionCore' in project 'JifenCore'
+    Target 'RecordCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'SessionCore' in project 'JifenCore'
+    Target 'SessionCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'SessionCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+    Target 'SessionCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+    Target 'ScoreCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+    Target 'ScoreCore' in project 'JifenCore' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -x objective-c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+Build description signature: 8d1911e38b155d98fdefc176809bb789
+Build description path: /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/XCBuildData/8d1911e38b155d98fdefc176809bb789.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -o /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache
+
+ProcessInfoPlistFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/Firebase_FirebaseCoreInternal.bundle/Info.plist /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/Firebase.build/Debug-iphonesimulator/Firebase_FirebaseCoreInternal-b.build/empty-Firebase_FirebaseCoreInternal.plist (in target 'Firebase_FirebaseCoreInternal' from project 'Firebase')
+    cd /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk
+    builtin-infoPlistUtility /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/Firebase.build/Debug-iphonesimulator/Firebase_FirebaseCoreInternal-b.build/empty-Firebase_FirebaseCoreInternal.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/Firebase_FirebaseCoreInternal.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-MethodSwizzler.bundle/Info.plist /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-MethodSwizzler-b.build/empty-GoogleUtilities_GoogleUtilities-MethodSwizzler.plist (in target 'GoogleUtilities_GoogleUtilities-MethodSwizzler' from project 'GoogleUtilities')
+    cd /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-MethodSwizzler-b.build/empty-GoogleUtilities_GoogleUtilities-MethodSwizzler.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-MethodSwizzler.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Logger.bundle/Info.plist /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Logger-b.build/empty-GoogleUtilities_GoogleUtilities-Logger.plist (in target 'GoogleUtilities_GoogleUtilities-Logger' from project 'GoogleUtilities')
+    cd /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Logger-b.build/empty-GoogleUtilities_GoogleUtilities-Logger.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Logger.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/nanopb_nanopb.bundle/Info.plist /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/nanopb.build/Debug-iphonesimulator/nanopb_nanopb-b.build/empty-nanopb_nanopb.plist (in target 'nanopb_nanopb' from project 'nanopb')
+    cd /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/nanopb
+    builtin-infoPlistUtility /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/nanopb.build/Debug-iphonesimulator/nanopb_nanopb-b.build/empty-nanopb_nanopb.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/nanopb_nanopb.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/Promises_FBLPromises.bundle/Info.plist /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/Promises.build/Debug-iphonesimulator/Promises_FBLPromises-b.build/empty-Promises_FBLPromises.plist (in target 'Promises_FBLPromises' from project 'Promises')
+    cd /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/promises
+    builtin-infoPlistUtility /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/Promises.build/Debug-iphonesimulator/Promises_FBLPromises-b.build/empty-Promises_FBLPromises.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/Promises_FBLPromises.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-UserDefaults.bundle/Info.plist /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-UserDefaults-b.build/empty-GoogleUtilities_GoogleUtilities-UserDefaults.plist (in target 'GoogleUtilities_GoogleUtilities-UserDefaults' from project 'GoogleUtilities')
+    cd /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-UserDefaults-b.build/empty-GoogleUtilities_GoogleUtilities-UserDefaults.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-UserDefaults.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Reachability.bundle/Info.plist /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Reachability-b.build/empty-GoogleUtilities_GoogleUtilities-Reachability.plist (in target 'GoogleUtilities_GoogleUtilities-Reachability' from project 'GoogleUtilities')
+    cd /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Reachability-b.build/empty-GoogleUtilities_GoogleUtilities-Reachability.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Reachability.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-NSData.bundle/Info.plist /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-NSData-b.build/empty-GoogleUtilities_GoogleUtilities-NSData.plist (in target 'GoogleUtilities_GoogleUtilities-NSData' from project 'GoogleUtilities')
+    cd /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-NSData-b.build/empty-GoogleUtilities_GoogleUtilities-NSData.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-NSData.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Network.bundle/Info.plist /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Network-b.build/empty-GoogleUtilities_GoogleUtilities-Network.plist (in target 'GoogleUtilities_GoogleUtilities-Network' from project 'GoogleUtilities')
+    cd /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Network-b.build/empty-GoogleUtilities_GoogleUtilities-Network.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Network.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Environment.bundle/Info.plist /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Environment-b.build/empty-GoogleUtilities_GoogleUtilities-Environment.plist (in target 'GoogleUtilities_GoogleUtilities-Environment' from project 'GoogleUtilities')
+    cd /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Environment-b.build/empty-GoogleUtilities_GoogleUtilities-Environment.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Environment.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle/Info.plist /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler-b.build/empty-GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.plist (in target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' from project 'GoogleUtilities')
+    cd /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler-b.build/empty-GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/Firebase_FirebaseInstallations.bundle/Info.plist /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/Firebase.build/Debug-iphonesimulator/Firebase_FirebaseInstallations-b.build/empty-Firebase_FirebaseInstallations.plist (in target 'Firebase_FirebaseInstallations' from project 'Firebase')
+    cd /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk
+    builtin-infoPlistUtility /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/Firebase.build/Debug-iphonesimulator/Firebase_FirebaseInstallations-b.build/empty-Firebase_FirebaseInstallations.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/Firebase_FirebaseInstallations.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/Firebase_FirebaseCore.bundle/Info.plist /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/Firebase.build/Debug-iphonesimulator/Firebase_FirebaseCore-b.build/empty-Firebase_FirebaseCore.plist (in target 'Firebase_FirebaseCore' from project 'Firebase')
+    cd /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk
+    builtin-infoPlistUtility /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/Firebase.build/Debug-iphonesimulator/Firebase_FirebaseCore-b.build/empty-Firebase_FirebaseCore.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/Firebase_FirebaseCore.bundle/Info.plist
+
+note: Disabling hardened runtime with ad-hoc codesigning. (in target 'jifen' from project 'jifen')
+SwiftDriver jifen normal arm64 com.apple.xcode.tools.swift.compiler (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name jifen -Onone @/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.SwiftFileList -DDEBUG -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/promises/Sources/FBLPromises/include/module.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-UserDefaults.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleAppMeasurementCoreTarget.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-AppDelegateSwizzler.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-MethodSwizzler.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Reachability.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-NSData.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Logger.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Environment.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/third-party-IsAppEncrypted.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Network.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/nanopb.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreWrapper.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseInstallations.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseCore.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources/module.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreTarget.modulemap -default-isolation\=MainActor -enable-bare-slash-regex -enable-upcoming-feature DisableOutwardActorInference -enable-upcoming-feature InferSendableFromCaptures -enable-upcoming-feature GlobalActorIsolatedTypesUsability -enable-upcoming-feature MemberImportVisibility -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator -F /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator -emit-localized-strings -emit-localized-strings-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64 -c -j12 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/ModuleCache.noindex -sdk-module-cache-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen_const_extract_protocols.json -Xcc -iquote -Xcc /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-generated-files.hmap -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-own-target-headers.hmap -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen-bd9621345967a26baad30e5e8e3a08f0-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-project-headers.hmap -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/promises/Sources/FBLPromises/include -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/UserDefaults/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleAppMeasurement/GoogleAppMeasurementCoreWrapper/include -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/AppDelegateSwizzler/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/MethodSwizzler/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Reachability/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/NSData+zlib/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Logger/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Environment/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/third_party/IsAppEncrypted/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Network/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/nanopb/spm_headers -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/FirebaseAnalyticsCoreWrapper/include -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/FirebaseInstallations/Source/Library/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/FirebaseCore/Sources/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/SwiftPM-PlatformExclude/FirebaseAnalyticsCoreWrap/include -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources-normal/arm64 -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources/arm64 -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-Swift.h -working-directory /Users/yangyang/Desktop/jifenqi/jifen-ios -experimental-emit-module-separately -disable-cmo
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ar.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ar.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ar.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ar.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ar.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+ProcessInfoPlistFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/Info.plist /Users/yangyang/Desktop/jifenqi/jifen-ios/Info.plist (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-infoPlistUtility /Users/yangyang/Desktop/jifenqi/jifen-ios/Info.plist -producttype com.apple.product-type.application -genpkginfo /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/assetcatalog_generated_info.plist -scanforprivacyfile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/Firebase_FirebaseCore.bundle -scanforprivacyfile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/Firebase_FirebaseCoreInternal.bundle -scanforprivacyfile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/Firebase_FirebaseInstallations.bundle -scanforprivacyfile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/Frameworks/FirebaseAnalytics.framework -scanforprivacyfile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/Frameworks/GoogleAppMeasurement.framework -scanforprivacyfile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle -scanforprivacyfile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/GoogleUtilities_GoogleUtilities-Environment.bundle -scanforprivacyfile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/GoogleUtilities_GoogleUtilities-Logger.bundle -scanforprivacyfile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/GoogleUtilities_GoogleUtilities-MethodSwizzler.bundle -scanforprivacyfile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/GoogleUtilities_GoogleUtilities-NSData.bundle -scanforprivacyfile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/GoogleUtilities_GoogleUtilities-Network.bundle -scanforprivacyfile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/GoogleUtilities_GoogleUtilities-Reachability.bundle -scanforprivacyfile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/GoogleUtilities_GoogleUtilities-UserDefaults.bundle -scanforprivacyfile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/Promises_FBLPromises.bundle -scanforprivacyfile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/nanopb_nanopb.bundle -o /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/Info.plist
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/cs.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/cs.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/cs.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/cs.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/cs.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ca.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ca.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ca.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ca.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ca.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/da.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/da.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/da.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/da.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/da.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/fi.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/fi.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/fi.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/fi.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/fi.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/es-MX.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/es-MX.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/es-MX.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/es-MX.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/es-MX.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/es-ES.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/es-ES.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/es-ES.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/es-ES.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/es-ES.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/el.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/el.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/el.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/el.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/el.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/de.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/de.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/de.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/de.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/de.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/bn.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/bn.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/bn.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/bn.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/bn.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/hi.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/hi.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/hi.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/hi.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/hi.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/he.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/he.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/he.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/he.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/he.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/vi.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/vi.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/vi.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/vi.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/vi.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ur.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ur.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ur.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ur.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ur.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/uk.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/uk.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/uk.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/uk.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/uk.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/tr.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/tr.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/tr.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/tr.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/tr.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/th.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/th.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/th.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/th.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/th.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/te.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/te.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/te.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/te.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/te.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ta.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ta.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ta.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ta.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ta.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/sv.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/sv.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/sv.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/sv.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/sv.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/sl.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/sl.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/sl.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/sl.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/sl.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/sk.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/sk.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/sk.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/sk.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/sk.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ru.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ru.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ru.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ru.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ru.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ro.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ro.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ro.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ro.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ro.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/pt-PT.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/pt-PT.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/pt-PT.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/pt-PT.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/pt-PT.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/pt-BR.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/pt-BR.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/pt-BR.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/pt-BR.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/pt-BR.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/pl.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/pl.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/pl.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/pl.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/pl.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/pa.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/pa.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/pa.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/pa.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/pa.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/or.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/or.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/or.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/or.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/or.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/nl.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/nl.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/nl.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/nl.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/nl.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/nb.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/nb.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/nb.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/nb.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/nb.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ms.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ms.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ms.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ms.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ms.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/mr.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/mr.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/mr.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/mr.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/mr.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ml.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ml.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ml.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ml.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ml.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ko.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ko.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ko.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ko.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ko.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/kn.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/kn.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/kn.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/kn.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/kn.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ja.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ja.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/ja.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ja.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/ja.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/it.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/it.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/it.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/it.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/it.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/id.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/id.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/id.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/id.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/id.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/hu.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/hu.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/hu.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/hu.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/hu.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/hr.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/hr.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/hr.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/hr.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/hr.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/gu.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/gu.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/gu.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/gu.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/gu.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/fr.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/fr.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/fr.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/fr.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/fr.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+CopyStringsFile /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/fr-CA.lproj/Localizable.strings /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/fr-CA.lproj/Localizable.strings (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/fr-CA.lproj -- /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/fr-CA.lproj/Localizable.strings
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/fr-CA.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 Compiling\ AppFeatureFlags.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/AppFeatureFlags.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/AppFeatureFlags.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile AppFeatureFlags.swift
+
+SwiftCompile normal arm64 Compiling\ GroupDetailView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupDetailView.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupDetailView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile GroupDetailView.swift
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ jifen (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    
+
+SwiftCompile normal arm64 Compiling\ GroupSupportViews.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupSupportViews.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupSupportViews.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile GroupSupportViews.swift
+
+SwiftCompile normal arm64 Compiling\ GroupPushManager.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupPushManager.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupPushManager.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile GroupPushManager.swift
+
+SwiftCompile normal arm64 Compiling\ AppleAuthProvider.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Account/AppleAuthProvider.swift (in target 'jifen' from project 'jifen')
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Account/AppleAuthProvider.swift:132:45: warning: 'init()' was deprecated in iOS 26.0: Use init(windowScene:) instead. [#DeprecatedDeclaration]
+130 |             .compactMap { $0 as? UIWindowScene }
+131 |             .flatMap(\.windows)
+132 |             .first(where: \.isKeyWindow) ?? ASPresentationAnchor()
+    |                                             `- warning: 'init()' was deprecated in iOS 26.0: Use init(windowScene:) instead. [#DeprecatedDeclaration]
+133 |     }
+134 | 
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Account/AppleAuthProvider.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile AppleAuthProvider.swift
+
+SwiftCompile normal arm64 Compiling\ GroupPushViews.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupPushViews.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupPushViews.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile GroupPushViews.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling AppFeatureFlags.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 Compiling\ jifenApp.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/jifenApp.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/jifenApp.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile jifenApp.swift
+
+SwiftCompile normal arm64 Compiling\ GroupViews.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupViews.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupViews.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile GroupViews.swift
+
+SwiftCompile normal arm64 Compiling\ LocalPeerRoomManager.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Link/LocalPeerRoomManager.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Link/LocalPeerRoomManager.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile LocalPeerRoomManager.swift
+
+SwiftCompile normal arm64 Compiling\ SettingsView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Me/SettingsView.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Me/SettingsView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile SettingsView.swift
+
+SwiftCompile normal arm64 Compiling\ RecordSyncOutbox.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Link/RecordSyncOutbox.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Link/RecordSyncOutbox.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile RecordSyncOutbox.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling RecordSyncOutbox.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling AppleAuthProvider.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling LocalPeerRoomManager.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling GroupPushViews.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling GroupPushManager.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling jifenApp.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling GroupSupportViews.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling SettingsView.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling GroupViews.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling GroupDetailView.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for jifen (in target 'jifen' from project 'jifen')
+
+SwiftDriver\ Compilation\ Requirements jifen normal arm64 com.apple.xcode.tools.swift.compiler (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name jifen -Onone @/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.SwiftFileList -DDEBUG -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/promises/Sources/FBLPromises/include/module.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-UserDefaults.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleAppMeasurementCoreTarget.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-AppDelegateSwizzler.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-MethodSwizzler.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Reachability.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-NSData.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Logger.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Environment.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/third-party-IsAppEncrypted.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Network.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/nanopb.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreWrapper.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseInstallations.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseCore.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources/module.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreTarget.modulemap -default-isolation\=MainActor -enable-bare-slash-regex -enable-upcoming-feature DisableOutwardActorInference -enable-upcoming-feature InferSendableFromCaptures -enable-upcoming-feature GlobalActorIsolatedTypesUsability -enable-upcoming-feature MemberImportVisibility -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator -F /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator -emit-localized-strings -emit-localized-strings-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64 -c -j12 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/ModuleCache.noindex -sdk-module-cache-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen_const_extract_protocols.json -Xcc -iquote -Xcc /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-generated-files.hmap -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-own-target-headers.hmap -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen-bd9621345967a26baad30e5e8e3a08f0-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-project-headers.hmap -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/promises/Sources/FBLPromises/include -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/UserDefaults/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleAppMeasurement/GoogleAppMeasurementCoreWrapper/include -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/AppDelegateSwizzler/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/MethodSwizzler/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Reachability/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/NSData+zlib/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Logger/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Environment/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/third_party/IsAppEncrypted/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Network/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/nanopb/spm_headers -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/FirebaseAnalyticsCoreWrapper/include -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/FirebaseInstallations/Source/Library/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/FirebaseCore/Sources/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/SwiftPM-PlatformExclude/FirebaseAnalyticsCoreWrap/include -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources-normal/arm64 -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources/arm64 -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-Swift.h -working-directory /Users/yangyang/Desktop/jifenqi/jifen-ios -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver\ Compilation jifen normal arm64 com.apple.xcode.tools.swift.compiler (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name jifen -Onone @/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.SwiftFileList -DDEBUG -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/promises/Sources/FBLPromises/include/module.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-UserDefaults.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleAppMeasurementCoreTarget.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-AppDelegateSwizzler.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-MethodSwizzler.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Reachability.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-NSData.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Logger.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Environment.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/third-party-IsAppEncrypted.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Network.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/nanopb.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreWrapper.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseInstallations.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseCore.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources/module.modulemap -Xcc -fmodule-map-file\=/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreTarget.modulemap -default-isolation\=MainActor -enable-bare-slash-regex -enable-upcoming-feature DisableOutwardActorInference -enable-upcoming-feature InferSendableFromCaptures -enable-upcoming-feature GlobalActorIsolatedTypesUsability -enable-upcoming-feature MemberImportVisibility -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator -F /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator -emit-localized-strings -emit-localized-strings-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64 -c -j12 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/ModuleCache.noindex -sdk-module-cache-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen_const_extract_protocols.json -Xcc -iquote -Xcc /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-generated-files.hmap -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-own-target-headers.hmap -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen-bd9621345967a26baad30e5e8e3a08f0-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-project-headers.hmap -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/promises/Sources/FBLPromises/include -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/UserDefaults/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleAppMeasurement/GoogleAppMeasurementCoreWrapper/include -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/AppDelegateSwizzler/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/MethodSwizzler/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Reachability/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/NSData+zlib/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Logger/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Environment/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/third_party/IsAppEncrypted/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Network/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/nanopb/spm_headers -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/FirebaseAnalyticsCoreWrapper/include -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/FirebaseInstallations/Source/Library/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/FirebaseCore/Sources/Public -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SourcePackages/checkouts/firebase-ios-sdk/SwiftPM-PlatformExclude/FirebaseAnalyticsCoreWrap/include -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources-normal/arm64 -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources/arm64 -Xcc -I/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-Swift.h -working-directory /Users/yangyang/Desktop/jifenqi/jifen-ios -experimental-emit-module-separately -disable-cmo
+
+Copy /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.swiftmodule/arm64-apple-ios-simulator.swiftmodule /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.swiftmodule (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.swiftmodule /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.swiftmodule/arm64-apple-ios-simulator.swiftmodule
+
+Copy /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.swiftmodule/arm64-apple-ios-simulator.abi.json /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.abi.json (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.abi.json /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.swiftmodule/arm64-apple-ios-simulator.abi.json
+
+Copy /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.swiftsourceinfo (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.swiftsourceinfo /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo
+
+Ld /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/jifen.debug.dylib normal (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.0-simulator -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -L/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator -F/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/PackageFrameworks -F/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator -filelist /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.LinkFileList -install_name @rpath/jifen.debug.dylib -Xlinker -rpath -Xlinker @loader_path -Xlinker -rpath -Xlinker /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/PackageFrameworks -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.swiftmodule -ObjC -framework UIKit -framework Security -framework StoreKit -lsqlite3 -lc++ -lz -lz -framework StoreKit -lsqlite3 -lc++ -lz -Xlinker -alias -Xlinker _main -Xlinker ___debug_main_executable_dylib_entry_point -framework FirebaseAnalytics -framework GoogleAppMeasurement -Xlinker -no_adhoc_codesign -o /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/jifen.debug.dylib
+
+ConstructStubExecutorLinkFileList /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-ExecutorLinkFileList-normal-arm64.txt (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    construct-stub-executor-link-file-list /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/jifen.debug.dylib /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor_no_swift_entry_point.a /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor.a --output /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-ExecutorLinkFileList-normal-arm64.txt
+note: Using stub executor library with Swift entry point. (in target 'jifen' from project 'jifen')
+
+Ld /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/jifen normal (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator -F/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/PackageFrameworks -F/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator -Xlinker -rpath -Xlinker @executable_path -Xlinker -rpath -Xlinker @loader_path -Xlinker -rpath -Xlinker /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/PackageFrameworks -Xlinker -rpath -Xlinker @executable_path/Frameworks -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -e ___debug_blank_executor_main -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_dylib -Xlinker /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-DebugDylibPath-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_instlnm -Xlinker /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-DebugDylibInstallName-normal-arm64.txt -Xlinker -filelist -Xlinker /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-ExecutorLinkFileList-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __entitlements -Xlinker /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen.app-Simulated.xcent -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __ents_der -Xlinker /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen.app-Simulated.xcent.der /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/jifen.debug.dylib -Xlinker -no_adhoc_codesign -o /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/jifen
+
+CopySwiftLibs /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/jifen.debug.dylib --scan-folder /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/Frameworks --scan-folder /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns --scan-folder /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/SystemExtensions --scan-folder /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/Extensions --platform iphonesimulator --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+ExtractAppIntentsMetadata (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name jifen --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk --xcode-version 27A9275 --platform-family iOS --deployment-target 26.0 --bundle-identifier com.douhua.jifen.ios --output /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app --target-triple arm64-apple-ios26.0-simulator --binary-file /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/jifen --dependency-file /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen_dependency_info.dat --stringsdata-file /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.SwiftFileList --metadata-file-list /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen.DependencyMetadataFileList --static-metadata-file-list /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen.DependencyStaticMetadataFileList --swift-const-vals-list /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-10-19 00:40:31.565 appintentsmetadataprocessor[93045:683507] Starting appintentsmetadataprocessor export
+2026-10-19 00:40:31.569 appintentsmetadataprocessor[93045:683507] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+
+AppIntentsSSUTraining (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/Info.plist --temp-dir-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/ssu --bundle-id com.douhua.jifen.ios --product-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app --extracted-metadata-path /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/Metadata.appintents --metadata-file-list /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen.DependencyMetadataFileList --source-file /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/Info.plist --archive-ssu-assets
+2026-10-19 00:40:31.595 appintentsnltrainingprocessor[93047:683530] Parsing options for appintentsnltrainingprocessor
+2026-10-19 00:40:31.595 appintentsnltrainingprocessor[93047:683530] Starting AppIntents SSU YAML Generation
+2026-10-19 00:40:31.597 appintentsnltrainingprocessor[93047:683530] No AppShortcuts found - Skipping.
+
+CodeSign /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/jifen.debug.dylib (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/jifen.debug.dylib
+
+CodeSign /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/__preview.dylib (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/__preview.dylib
+/Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app/__preview.dylib: replacing existing signature
+
+CodeSign /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --entitlements /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen.app.xcent --timestamp\=none --generate-entitlement-der /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app
+
+Validate /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-validationUtility /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Products/Debug-iphonesimulator/jifen.app -shallow-bundle -infoplist-subpath Info.plist
+
+PruneExplicitPrecompiledModules /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/SDKExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/yangyang/Library/Developer/Xcode/DerivedData/jifen-egwftqixeblfcjgeickwopmwemnl/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+** BUILD SUCCEEDED **
+

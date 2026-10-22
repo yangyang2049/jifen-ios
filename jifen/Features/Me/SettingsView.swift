@@ -64,6 +64,7 @@ struct SettingsView: View {
     @Environment(AppAppearanceStore.self) private var appearance
     @Environment(SessionStore.self) private var session
     var isTabRoot: Bool = false
+    var onGroupInvitation: (String) -> Void = { _ in }
     @State private var showClearConfirm = false
     @State private var showAppShareSheet = false
     @State private var showAccountLoginSheet = false
@@ -98,7 +99,10 @@ struct SettingsView: View {
             .navigationTitle(NSLocalizedString(isTabRoot ? "tab_me" : "settings", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $showQRLogin) {
-                QRLoginApprovalView()
+                QRLoginApprovalView { number in
+                    showQRLogin = false
+                    onGroupInvitation(number)
+                }
             }
             // Use `.automatic` on the Me tab root so pushed pages can hide the tab bar.
             .toolbar(isTabRoot ? .automatic : .hidden, for: .tabBar)
@@ -187,7 +191,7 @@ struct SettingsView: View {
                             ? NSLocalizedString("membership_entry_title_active", value: "VIP 会员", comment: "")
                             : NSLocalizedString("membership_title", value: "会员", comment: ""),
                         subtitle: session.isVIP
-                            ? NSLocalizedString("membership_entry_summary_active", value: "您已是 VIP 会员，感谢您的支持", comment: "")
+                            ? NSLocalizedString("membership_entry_summary_active", value: "VIP 已开通", comment: "")
                             : NSLocalizedString("membership_entry_summary", value: "月卡、年卡或终身 VIP", comment: "")
                     )
                 }
@@ -514,8 +518,9 @@ private extension SettingsSheetDestination {
 }
 
 struct MeTab: View {
+    var onGroupInvitation: (String) -> Void
     var body: some View {
-        SettingsView(isTabRoot: true)
+        SettingsView(isTabRoot: true, onGroupInvitation: onGroupInvitation)
             // 宿主必须挂在读 openInAppWebLink 的那个视图之上：挂在 SettingsView 自己
             // body 的输出上等于自我注入，它本身读到的仍是默认空 action（点了没反应）。
             .inAppWebLinks()
@@ -838,7 +843,7 @@ private struct ScoreboardToggleSettingRow: View {
                     title: help.title,
                     message: help.message,
                     accessibilityIdentifier: "\(toggleAccessibilityIdentifier)_help",
-                    showsDetailSheet: help == .officialBreak || help == .doubleTapSubtract,
+                    showsDetailSheet: help == .officialBreak,
                     detailSheetContent: help == .officialBreak ? AnyView(OfficialBreakHelpContent()) : nil,
                     detailSheetDetents: help == .officialBreak ? [.large] : [.medium, .large]
                 )

@@ -435,7 +435,7 @@ struct ArcheryScoreboardView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity, minHeight: 44)
                         .background(Color.white.opacity(0.14))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
             }

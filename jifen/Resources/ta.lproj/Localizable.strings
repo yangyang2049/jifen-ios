@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "பலகை விளையாட்டுகள்";
 "search_team_or_game" = "குழு அல்லது விளையாட்டைத் தேடுங்கள்";
 "match_count" = "%d போட்டிகள்";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d போட்டிகள் · குழுவின் அனைத்து உறுப்பினர்கள்";
+"archived_count" = "%d குழுக்கள்";
 
 /* Home Screen */
 "recent_records" = "சமீபத்திய பதிவுகள்";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "எ. கா. ஐந்து செட்களையும் விளையாடுங்கள்; போட்டி டிராவில் முடியும்";
 "match_completion_custom_placeholder" = "1-99 ஐ உள்ளிடவும்";
 "match_completion_invalid_sets" = "கிளாசிக் முறையில் 1-99 வரை ஓர் ஒற்றைப்படை எண் தேவை; அனைத்தையும் விளையாடு முறையில் 1-99 வரை எந்த எண்ணையும் பயன்படுத்தலாம்.";
+"setup_auto_odd_sets" = "ஒற்றை எண்கள் மட்டுமே அனுமதிக்கப்படும் — %d பயன்படுத்தப்படுகிறது";
 "has_been_reset" = "மீட்டமைப்பு முடிந்தது";
 "no_undo_available" = "செயல்தவிர்க்க முடியாது";
 "screenshot_failed" = "ஸ்கிரீன்ஷாட் தோல்வியடைந்தது";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "செயலில் ஒத்திசைவு அமர்வு";
 "timer_status_running" = "இயங்குகிறது";
 "timer_status_paused" = "இடைநிறுத்தப்பட்டது";
-"membership_entry_summary_active" = "நீங்கள் ஒரு VIP உறுப்பினர். உங்கள் ஆதரவுக்கு நன்றி";
+"membership_entry_summary_active" = "நீங்கள் VIP உறுப்பினர்";
 "sound_effects" = "ஒலி விளைவுகள்";
 "vibration" = "அதிர்வு";
 "language" = "மொழி";
@@ -1579,7 +1580,7 @@
 "group_approval" = "ஒப்புதல் தேவை";
 "group_approve" = "ஒப்புதல் அளி";
 "group_archive" = "குழுவைக் காப்பகப்படுத்து";
-"group_archive_hint" = "காப்பகப்படுத்தினால் வரலாறு முழுவதும் இருக்கும், குழுவில் மாற்றங்கள் நிறுத்தப்படும். பின்னர் மீட்டமைக்கலாம்.";
+"group_archive_hint" = "இந்தக் குழுவைக் காப்பகப்படுத்தவா? இதன் உள்ளடக்கத்தைப் படிக்க மட்டுமே முடியும்.";
 "group_archive_readonly" = "இந்தக் குழு காப்பகத்தில் உள்ளது. வரலாற்றைப் படிக்க மட்டுமே முடியும்.";
 "group_archived" = "காப்பகத்தில் உள்ளது";
 "group_benefit_activity" = "நிகழ்வுகளைத் திட்டமிட்டு பதிவு செய்க";
@@ -1624,38 +1625,38 @@
 "group_invalid_qr" = "இது செல்லுபடியான குழு QR குறியீடு அல்ல.";
 "group_invalid_result" = "பதிவேற்றும்முன் பதிவு செய்த முடிவைச் சரிபார்க்க வேண்டும்.";
 "group_invalid_rules" = "போட்டி விதிகளைச் சரிபார்க்கவும்.";
-"group_invite" = "Invite";
+"group_invite" = "அணி வீரர்களை அழை";
 "group_join" = "குழுவில் இணை";
 "group_join_hint" = "எண் அல்லது QR குறியீட்டால் நண்பரின் குழுவில் இணையவும்.";
-"group_join_message" = "குழுவுக்கான செய்தி (விருப்பம்)";
-"group_join_policy" = "இணையும் முறை";
+"group_join_message" = "சேர்க்கை விண்ணப்பச் செய்தி (விருப்பம்)";
+"group_join_policy" = "சேரும் முறைகள்";
 "group_leave" = "குழுவிலிருந்து வெளியேறு";
-"group_leave_hint" = "இந்தக் குழுவை அணுக முடியாமல் போகும். தனிப்பட்ட பதிவுகள் இந்தச் சாதனத்தில் இருக்கும்.";
+"group_leave_hint" = "வெளியேறிய பிறகு நீங்கள் குழுவின் உறுப்பினராக இருக்க மாட்டீர்கள். குழு “என் குழுக்கள்” பட்டியலிலிருந்து அகற்றப்படும்; அதை அணுகவோ அதில் பங்கேற்கவோ முடியாது. குழுவின் ஏற்கெனவே உள்ள போட்டிப் பதிவுகளும் இந்தச் சாதனத்தில் உள்ள உங்கள் தனிப்பட்ட பதிவுகளும் தக்கவைக்கப்படும். மீண்டும் அணுக குழுவில் மறுபடியும் சேர வேண்டும்.";
 "group_load_failed" = "குழுவை ஏற்ற முடியவில்லை";
 "group_load_more" = "மேலும் ஏற்று";
 "group_losses" = "தோல்விகளின் எண்ணிக்கை";
 "group_manual" = "கையால் பதிவு";
-"group_manual_result" = "பழைய போட்டியைச் சேர்";
+"group_manual_result" = "போட்டி முடிவைச் சேர்";
 "group_match_detail" = "போட்டி விவரங்கள்";
 "group_match_log" = "போட்டி வரலாறு";
 "group_match_rules" = "போட்டி விதிகள்";
 "group_member" = "உறுப்பினர்";
 "group_member_name" = "உறுப்பினர் பெயர்";
-"group_members" = "உறுப்பினர்கள்";
+"group_members" = "உறுப்பினர்";
 "group_month_matches" = "இந்த மாதப் போட்டிகள்";
 "group_my_groups" = "என் குழுக்கள்";
 "group_name" = "குழுவின் பெயர்";
 "group_need_login" = "தொடர உள்நுழையவும்.";
 "group_need_members" = "போட்டி தொடங்கும்முன் நண்பர்களை அழைக்கவும் அல்லது தற்காலிக உறுப்பினர்களைச் சேர்க்கவும்.";
-"group_new_activity" = "நிகழ்வைத் திட்டமிடு";
+"group_new_activity" = "நிகழ்வை உருவாக்கு";
 "group_new_owner" = "புதிய உரிமையாளர்";
 "group_no_activities" = "இன்னும் நிகழ்வுகள் இல்லை";
 "group_no_description" = "இன்னும் விளக்கம் இல்லை";
 "group_no_rankings" = "போட்டி முடிவு உறுதிசெய்யப்பட்டதும் தரவரிசை காட்டப்படும்.";
 "group_no_set_details" = "ஒட்டுமொத்த முடிவு மட்டுமே பதிவானது.";
-"group_note" = "நிகழ்வின் குறிப்பு (விருப்பம்)";
-"group_number" = "6–8 digit group number";
-"group_open" = "எண்ணை அறிந்த யாரும் இணையலாம்";
+"group_note" = "குறிப்பு (விருப்பம்)";
+"group_number" = "6–8 இலக்கக் குழு எண்";
+"group_open" = "நேரடியாகச் சேர்";
 "group_overall_score" = "ஒட்டுமொத்த செட் ஸ்கோர்";
 "group_overview" = "கண்ணோட்டம்";
 "group_owner" = "உரிமையாளர்";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "உறுப்பினரை நீக்கு";
 "group_restore" = "குழுவை மீட்டமை";
 "group_restore_hint" = "நிகழ்வுகளுக்கும் புள்ளிப் பதிவுக்கும் குழுவை மீட்டமைக்கவும்.";
-"group_results" = "போட்டிகள்";
+"group_results" = "பதிவுகள்";
 "group_retry" = "மீண்டும் முயற்சிக்கவும்";
 "group_rules_missing" = "விதிகள் பதிவாகவில்லை";
-"group_save" = "உறுதிப்படுத்தவும்";
+"group_save" = "சேமி";
 "group_save_failed" = "போட்டியைச் சேமிக்க முடியவில்லை. மீண்டும் முயலவும்.";
 "group_scan" = "QR குறியீட்டை ஸ்கேன் செய்";
 "group_scoreboard" = "ஸ்கோர் பலகை";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "புதிய போட்டி தொடங்கும்முன் நடப்பு போட்டியைத் தொடரவும் அல்லது முடிக்கவும்.";
 "group_unregister" = "பதிவை ரத்து செய்";
 "group_void_reason" = "செல்லாததாக்கும் காரணம்";
-"group_void_result" = "முடிவைச் செல்லாததாக்கு";
+"group_void_result" = "செல்லாததாக்கு";
 "group_voided" = "செல்லாததாக்கப்பட்டது";
 "group_wins" = "வெற்றிகளின் எண்ணிக்கை";
 "group_withdraw" = "கோரிக்கையைத் திரும்பப்பெறு";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "ஏற்கனவே உறுப்பினராக உள்ளீர்கள்.";
 "group_open_group" = "குழுவைத் திற";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
-"group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
-"group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_groups" = "குழு";
+"group_invite_students" = "மாணவர்களை அழை";
+"group_group_type" = "குழு வகை";
+"group_peer" = "நண்பர்கள் குழு";
+"group_coaching" = "பயிற்சிக் குழு";
+"group_training" = "பயிற்சி";
+"group_upcoming" = "வரவிருப்பவை";
+"group_latest_results" = "சமீபத்திய முடிவுகள்";
+"group_no_results" = "இன்னும் போட்டிகள் பதிவாகவில்லை";
+"group_no_training" = "இன்னும் பயிற்சி திட்டமிடப்படவில்லை";
+"group_active_activities" = "நடைபெறுகிறது · பதிவு திறந்துள்ளது";
+"group_past_activities" = "கடந்த நிகழ்வுகள்";
+"group_all_formats" = "அனைத்து வடிவங்கள்";
+"group_join_requests" = "சேர்க்கைக் கோரிக்கைகள்";
+"group_regular_members" = "பதிவு செய்த உறுப்பினர்கள்";
+"group_temporary_members" = "தற்காலிக உறுப்பினர்கள்";
+"group_add" = "சேர்";
+"group_leader" = "உரிமையாளர்";
+"group_member_settings" = "உறுப்பினர் அமைப்புகள்";
+"group_settings" = "குழு நிர்வாகம்";
+"group_partial_load" = "சில பகுதிகளைப் புதுப்பிக்க முடியவில்லை. மீண்டும் முயல கீழே இழுக்கவும்.";
+"group_leave_notices" = "மாணவர்களின் விடுப்பு அறிவிப்புகள்";
+"group_mark_seen" = "படிக்கப்பட்டது";
+"group_training_schedule" = "பயிற்சி அட்டவணை";
+"group_add_session" = "போட்டியைச் சேர்";
+"group_edit_schedule" = "அட்டவணையைத் திருத்து";
+"group_cancel_schedule" = "அட்டவணையை ரத்துசெய்";
+"group_leave_training" = "விடுப்புக் கோரிக்கை";
+"group_session_minutes" = "போட்டிக்கான நிமிடங்கள்";
+"group_court" = "ஆடுகளம்";
+"group_remove_session" = "அகற்று";
+"group_publish_schedule" = "அட்டவணையை வெளியிடு";
+"group_leave_reason" = "விடுப்புக் காரணம் (விருப்பம்)";
+"group_report" = "குழுவைப் புகாரளி";
+"group_report_reason" = "காரணம்";
+"group_report_detail" = "விவரங்கள் (விருப்பம்)";
+"group_report_submit" = "அனுப்பு";
+"group_report_spam" = "ஸ்பேம்";
+"group_report_harassment" = "துன்புறுத்தல்";
+"group_report_inappropriate" = "பாலியல் அல்லது பொருத்தமற்ற உள்ளடக்கம்";
+"group_report_fraud" = "மோசடி அல்லது சூதாட்டம்";
+"group_report_illegal" = "சட்டவிரோத அல்லது ஆபத்தான செயல்";
+"group_report_impersonation" = "ஆள்மாறாட்டம்";
+"group_report_other" = "மற்றவை";
+"group_lineup_invalid" = "போட்டி நேரம், ஆடுகளம், வீரர்களைச் சரிபார்க்கவும்.";
+"group_lineup_member_limit" = "ஒரு உறுப்பினர் ஓர் அட்டவணையில் அதிகபட்சம் எட்டுப் போட்டிகள் விளையாடலாம்.";
+"group_lineup_conflict" = "ஒரே நேரப் போட்டிகளின் ஆடுகளங்களும் வீரர்களும் வேறாக இருக்க வேண்டும்.";
+"group_multi_match_hint" = "ஒரு நிகழ்வில் பல போட்டிகள் இருக்கலாம். உறுப்பினர்கள் நிகழ்வுக்குப் பதிவு செய்கிறார்கள்; போட்டிகளை அமைக்கும்போது ஒவ்வொரு ஒற்றையர் ஆட்டத்திற்கும் 2 அல்லது இரட்டையர் ஆட்டத்திற்கும் 4 பதிவுசெய்த உறுப்பினர்களைத் தேர்ந்தெடுக்கவும்.";
+"group_single_match_hint" = "ஒவ்வொரு நிகழ்வும் ஒரு போட்டி. ஒற்றையர் ஆட்டத்திற்கு 2 அல்லது இரட்டையர் ஆட்டத்திற்கு 4 பதிவுசெய்த உறுப்பினர்களைத் தேர்ந்தெடுக்கவும்.";
+"group_rate_limited" = "கோரிக்கைகள் அதிகம். பின்னர் முயலவும்.";
+"group_create_daily_limit" = "24 மணிநேரத்தில் குழு உருவாக்கும் வரம்பை அடைந்துவிட்டீர்கள். பின்னர் முயலவும்.";
+"group_join_daily_limit" = "24 மணிநேரத்தில் குழுக்களில் சேரும் வரம்பை அடைந்துவிட்டீர்கள். பின்னர் முயலவும்.";
+"group_pending_request_limit" = "அதிக சேர்க்கைக் கோரிக்கைகள் ஒப்புதலுக்காகக் காத்திருக்கின்றன. முடிவுக்குக் காத்திருக்கவும் அல்லது சிலவற்றைத் திரும்பப் பெறவும்.";
+"group_request_daily_limit" = "இந்தக் குழுவின் 24 மணிநேரச் சேர்க்கைக் கோரிக்கை வரம்பு எட்டப்பட்டது. பின்னர் முயலவும்.";
+"group_join_cooldown" = "நிராகரிக்கப்பட்ட பிறகு 24 மணிநேரத்திற்கு மீண்டும் விண்ணப்பிக்க முடியாது.";
+"group_result_group_daily_limit" = "இந்தக் குழுவின் 24 மணிநேர முடிவு வரம்பு எட்டப்பட்டது. பின்னர் முயலவும்.";
+"group_result_submitter_daily_limit" = "24 மணிநேரத்தில் முடிவுகளை அனுப்பும் வரம்பை அடைந்துவிட்டீர்கள். பின்னர் முயலவும்.";
+"group_not_coach" = "பயிற்சியாளர் மட்டுமே பயிற்சி அமர்வுகளைத் திட்டமிடலாம்.";
+"group_activity_count" = "%1$d/%2$d பேர் பதிவு செய்துள்ளனர்";
+"group_activity_create_admin_hint" = "குழு உரிமையாளர் அல்லது நிர்வாகி நிகழ்வுகளை உருவாக்குவார்";
+"group_activity_direct_hint" = "குழுவின் செயலில் உள்ள உறுப்பினர்களிலிருந்து நேரடியாகத் தேர்ந்தெடுக்கலாம்; பதிவு தேவையில்லை.";
+"group_activity_direct_save" = "அட்டவணையைச் சேமி";
+"group_activity_direct_title" = "இப்போதே திட்டமிடு";
+"group_activity_field_title_optional" = "நிகழ்வின் பெயர் (விருப்பம்)";
+"group_activity_full" = "இடங்கள் நிரம்பின";
+"group_activity_lineup_add" = "போட்டியைச் சேர்";
+"group_activity_lineup_add_need_members" = "வீரர்கள் போதவில்லை. போட்டியைச் சேர்க்க குறைந்தது %1$d செயலில் உள்ள உறுப்பினர்கள் தேவை.";
+"group_activity_lineup_court" = "ஆடுகள எண்";
+"group_activity_lineup_duration" = "போட்டிக் கால அளவு";
+"group_activity_lineup_match_count" = "%1$d போட்டிகள்";
+"group_activity_lineup_minutes" = "%1$d நிமிடம்";
+"group_activity_lineup_remove" = "அகற்று";
+"group_activity_lineup_section_matches" = "போட்டிகளை ஏற்பாடு செய்";
+"group_activity_lineup_session" = "போட்டி %1$d";
+"group_activity_registration_empty" = "தற்காலிக உறுப்பினர்கள் இல்லை";
+"group_activity_section_count" = "%1$d நிகழ்வுகள்";
+"group_activity_section_past" = "கடந்த நிகழ்வுகள்";
+"group_activity_section_upcoming" = "நடைபெறுகிறது · பதிவு திறந்துள்ளது";
+"group_activity_status_scheduled" = "தொடங்கத் தயார்";
+"group_activity_time_after_previous" = "முந்தைய போட்டிக்குப் பிறகு";
+"group_activity_time_unspecified" = "நேரம் இன்னும் முடிவாகவில்லை";
+"group_activity_timing" = "நேர அமைப்பு";
+"group_activity_timing_estimated" = "உத்தேச நேரம்";
+"group_activity_timing_sequence" = "குறிப்பிட்ட நேரமின்றி";
+"group_activity_title_auto_hint" = "காலியாக விட்டால், தேதியிலிருந்து “நவம்பர் 10 நிகழ்வு” போன்ற பெயர் உருவாகும்.";
+"group_archived_empty" = "காப்பகக் குழுக்கள் இல்லை";
+"group_archived_list_title" = "காப்பகக் குழுக்கள்";
+"group_empty_activities_title" = "இன்னும் நிகழ்வுகள் இல்லை";
+"group_list_add_title" = "குழுவை உருவாக்கு அல்லது சேர்";
+"group_ranking_draws" = "சமநிலைகளின் எண்ணிக்கை";
+"group_ranking_games" = "விளையாடிய போட்டிகள்";
+"group_ranking_losses" = "தோல்விகளின் எண்ணிக்கை";
+"group_ranking_sets" = "மதிப்பெண்";
+"group_ranking_title" = "%@ தரவரிசை";
+"group_ranking_wins" = "வெற்றிகளின் எண்ணிக்கை";
+"group_training_results_locked" = "முடிவுகள் உள்ள அட்டவணைகளின் நேரம், வீரர்களை மாற்ற முடியாது. இடம் மற்றும் குறிப்பைத் திருத்தலாம்.";
+"group_temporary_hint" = "தற்காலிக உறுப்பினர்களுக்குக் கணக்கு தேவையில்லை. முடிவுகளைப் பதிவிடும்போது சேர்க்கலாம்.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "போட்டியின் முன்பதிவை விடுவி";
-"group_activity_lineup" = "போட்டி அட்டவணை";
-"group_activity_mode" = "போட்டிகள்";
+"group_abandon_game" = "போட்டியைக் கைவிடு";
+"group_activity_lineup" = "போட்டிகளை ஏற்பாடு செய்";
+"group_activity_mode" = "பதிவுகள்";
 "group_activity_reminder" = "15 நிமிடங்களுக்கு முன் நினைவூட்டு";
 "group_add_set" = "கேம் புள்ளிகளைச் சேர்க்கவும்";
 "group_added_members" = "சேர்க்கப்பட்டது";
-"group_authority_confirm" = "குழு உரிமையாளராக உறுதிசெய்";
-"group_batch_names_hint" = "ஒவ்வொரு வரியிலும் ஒரு பெயர், ஒவ்வொன்றும் 1–24 எழுத்துகள்.";
-"group_beta_notice" = "குழு வசதி பீட்டா நிலையில் உள்ளது. கருத்துகள் வரவேற்கப்படுகின்றன.";
+"group_authority_confirm" = "முடிவை உறுதிசெய்";
+"group_batch_names_hint" = "ஒவ்வொரு வரியிலும் ஒரு பெயர்";
+"group_beta_notice" = "குழுக்கள் சோதனை நிலையில் உள்ளன. சில அம்சங்கள் மாறலாம். முன்கூட்டியே முயன்றதற்கு நன்றி.";
 "group_cancel_dissolve" = "குழு கலைப்பை ரத்துசெய்";
 "group_cancel_dissolve_hint" = "நிகழ்வுகளுக்கும் புள்ளிப் பதிவுக்கும் குழுவை மீட்டமைக்கவும்.";
 "group_cancel_training_hint" = "முடிந்த போட்டிகள் வரலாற்றில் இருக்கும். தொடங்கிய போட்டிகளை முடிக்கலாம்.";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "விளையாட்டு இயல்புநிலை";
 "group_discard_upload" = "பதிவேற்றத்தை கைவிடு";
 "group_dissolve" = "குழுவைக் கலை";
-"group_dissolve_hint" = "7 நாட்கள் படிக்க மட்டும். இந்தக் காலத்தில் கலைப்பை ரத்துசெய்யலாம்.";
+"group_dissolve_hint" = "குழுவை 7 நாட்கள் பார்க்க மட்டுமே முடியும். இந்த நேரத்தில் கலைப்பை ரத்துசெய்யலாம். 7 நாட்களுக்குப் பிறகு குழுவும் அனைத்து தரவும் நிரந்தரமாக அழிக்கப்படும்.";
 "group_dissolving" = "குழு கலைக்கப்படுகிறது";
 "group_edit_activity" = "திருத்து";
 "group_edit_lineup" = "போட்டிகளை ஏற்பாடு செய்";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "இன்னும் அறிவிப்புகள் இல்லை";
 "group_no_sessions" = "இன்னும் போட்டிகள் திட்டமிடப்படவில்லை";
 "group_notices" = "அறிவிப்புகள்";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "சில பகுதிகளைப் புதுப்பிக்க முடியவில்லை. மீண்டும் முயல கீழே இழுக்கவும்.";
 "group_point_cap" = "ஸ்கோர் கேப்";
 "group_preview_schedule" = "அட்டவணையைச் சரிபார்";
 "group_published" = "வெளியிடப்பட்டது";
 "group_qr_direct_hint" = "iScoreboard-இல் ஸ்கேன் செய்து குழுவைப் பார்த்து இணையவும்.";
 "group_quick_score" = "ஒட்டுமொத்த செட் ஸ்கோர்";
 "group_rally_scoring" = "ரேலி ஸ்கோரிங்";
-"group_read_notices" = "Read";
+"group_read_notices" = "படிக்கப்பட்டது";
 "group_registration_closes" = "பதிவு முடியும் நேரம்";
 "group_regular" = "தரநிலை";
-"group_reload_version" = "சமீபத்திய பதிப்பை ஏற்று";
+"group_reload_version" = "மீண்டும் ஏற்று";
 "group_reminder_body" = "செயல்பாடு 15 நிமிடங்களில் தொடங்கும்.";
 "group_reminder_permission" = "அமைப்புகளில் செயலி அறிவிப்புகளை இயக்கவும்.";
 "group_reminder_too_late" = "தொடங்க 15 நிமிடங்களுக்கும் குறைவாக உள்ளது.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "செட் புள்ளிக் கணக்கீடு";
 "group_tie_break" = "டைபிரேக் புள்ளிகள்";
 "group_tiebreak_only" = "டை-பிரேக் மட்டும்";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "தேதி";
+"group_too_many_sessions" = "போட்டி நேரம், ஆடுகளம், வீரர்களைச் சரிபார்க்கவும்.";
+"group_training_date" = "பயிற்சித் தேதி";
 "group_win_by_two" = "இரண்டு புள்ளி வித்தியாசத்தில் வெற்றி";
 
-"group_keep_draft" = "என் மாற்றங்களை வைத்திரு";
+"group_keep_draft" = "உள்ளூர் பதிப்பைத் திருத்துவதைத் தொடரவும்";
 
 "group_server_version" = "சமீபத்திய பதிப்பு";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "%@ அன்று குழு கலைக்கப்படும்\n7 நாள் மறுபரிசீலனைக் காலம்; அதுவரை பார்க்க மட்டும் முடியும்";
 "group_notice_end" = "மேலும் அறிவிப்புகள் இல்லை";
 "group_notice_join_requested" = "இணையும் கோரிக்கை பெறப்பட்டது";
 "group_notice_join_approved" = "இணையும் கோரிக்கை ஏற்கப்பட்டது";
@@ -1902,13 +1903,13 @@
 "group_notice_receipt_failed" = "அறிவிப்பின் படித்த ரசீது முழுமையாக இல்லை. மீண்டும் முயற்சிக்கவும்.";
 "group_notice_seen" = "படித்ததாகக் குறி";
 "group_ranking_empty" = "%@ தரவரிசை இன்னும் இல்லை";
-"group_filter_singles" = "ஒற்றை";
-"group_filter_doubles" = "இரட்டை";
+"group_filter_singles" = "ஒற்றையர்";
+"group_filter_doubles" = "இரட்டையர்";
 "group_ranking_me_suffix" = " (நான்)";
 "group_ranking_insufficient_matches" = "மிகக் குறைவான போட்டிகள்";
 "group_entry_a_wins" = "A வெல்லும்";
 "group_entry_b_wins" = "B வெல்லும்";
-"group_result_draw" = "சமநிலை";
+"group_result_draw" = "சமன்";
 "group_share_no" = "குழு எண் %@";
 "group_audit_ui_share_invitation" = "அழைப்பைப் பகிர்";
 "group_audit_ui_share_qr" = "QR குறியீட்டைப் பகிர்";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "கைமுறையாக உள்ளிடவும்";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "அனைத்தையும் படித்ததாகக் குறி";
+
+"group_status_active" = "செயலில் உள்ளது";
+"group_dissolved" = "குழு கலைக்கப்பட்டது";
+"group_report_status_pending" = "நிலுவையில்";
+"group_report_status_reviewing" = "மதிப்பாய்வில்";
+"group_report_status_resolved" = "தீர்க்கப்பட்டது";
+"group_report_status_dismissed" = "நிராகரிக்கப்பட்டது";
+"group_error_permission" = "இந்தச் செயலைச் செய்ய உங்களுக்கு அனுமதி இல்லை.";
+"group_error_transfer_first" = "குழுவிலிருந்து வெளியேறும் அல்லது கணக்கை நீக்கும் முன் குழு உரிமையை மாற்றவும்.";
+"group_error_target" = "இந்தக் குழுவில் கணக்குள்ள செயலில் உள்ள உறுப்பினரைத் தேர்ந்தெடுக்கவும்.";
+"group_error_activity_locked" = "நிகழ்வு தொடங்கிவிட்டது அல்லது முடிந்துவிட்டது. அதன் அட்டவணையை மாற்றவோ ரத்துசெய்யவோ முடியாது.";
+"group_error_activity_pending" = "முதலில் மீதமுள்ள போட்டிகளை முடிக்கவும் அல்லது அகற்றவும்.";
+"group_error_registration_disabled" = "நேரடியாகத் திட்டமிட்ட போட்டிகளுக்குப் பதிவு தேவையில்லை.";
+"group_error_content_blocked" = "உரையில் பொருத்தமற்ற உள்ளடக்கம் உள்ளது. திருத்தவும்.";
+"group_error_request_invalid" = "உள்ளிட்ட தகவலைச் சரிபார்த்து மீண்டும் முயலவும்.";
+"group_error_reason_required" = "தொடரும் முன் காரணத்தை உள்ளிடவும்.";
+"group_error_result_state" = "உறுதிப்படுத்தலுக்குக் காத்திருக்கும் முடிவுகளை மட்டுமே உறுதிப்படுத்த முடியும்.";
+"group_error_conflict" = "தரவு மாறிவிட்டது. மீண்டும் முயலும் முன் புதுப்பித்துச் சரிபார்க்கவும்.";
+"group_error_request_handled" = "இந்தக் கோரிக்கை ஏற்கெனவே கையாளப்பட்டது. பட்டியலைப் புதுப்பிக்கவும்.";
+"group_error_place_locked" = "போட்டி தொடங்கிய அல்லது முடிந்த பிறகு மைதானத்தை மாற்ற முடியாது.";
+"group_error_schedule_cancelled" = "இந்த அட்டவணை அல்லது போட்டி ரத்துசெய்யப்பட்டது.";
+"group_error_session_completed" = "இந்தப் போட்டி முடிந்துவிட்டதால் விடுப்பு கோர முடியாது. முடிவைக் காண அட்டவணையைப் புதுப்பிக்கவும்.";
+"group_error_session_has_result" = "இந்தப் போட்டிக்கு ஏற்கெனவே முடிவு உள்ளது. வேறொன்றைச் சேர்க்கும் முன் அதைச் செல்லாததாக்கவும்.";
+"group_error_item_not_found" = "இந்த நிகழ்வு, அட்டவணை, போட்டி அல்லது அறிவிப்பு இனி கிடைக்காது. பட்டியலைப் புதுப்பிக்கவும்.";
+"group_error_server" = "குழுச் சேவை தற்காலிகமாகக் கிடைக்கவில்லை. பிறகு மீண்டும் முயலவும்.";
+"group_error_peer_only" = "பயிற்சிக் குழுவுக்குப் பயிற்சி அட்டவணையைப் பயன்படுத்தவும்.";
+"group_error_name_length" = "குழுப் பெயரில் 2–24 எழுத்துகள் இருக்க வேண்டும்.";
+"group_error_description_length" = "குழு விளக்கம் 200 எழுத்துகளுக்கு மிகாமல் இருக்க வேண்டும்.";
+"group_error_activity_invalid" = "நிகழ்வின் பெயர், தேதி, இடம், கொள்ளளவைச் சரிபார்க்கவும்.";
+"group_error_registration_closed" = "பதிவு முடிந்துவிட்டது.";
+"group_error_action_disabled" = "இந்தச் செயல் தற்போது கிடைக்காது.";
+"group_error_update_required" = "தொடர செயலியைப் புதுப்பிக்கவும்.";
+"group_welcome_back" = "மீண்டும் வருக";
+"group_transfer_none" = "வேறு நிரந்தர உறுப்பினர்கள் இல்லை. தற்காலிக உறுப்பினர்கள் குழுத் தலைவராக முடியாது.";
+"group_empty_activities_hint" = "உறுப்பினர்கள் சேர ஒரு நிகழ்வை உருவாக்கவும். இடங்கள் நிரம்பியதும் பதிவு முடிவடையும்.";
+"group_temp_import_names" = "சேமித்த பெயர்களை இறக்குமதி செய்";
+"group_temp_import_count" = "இறக்குமதி செய் (%1$d)";
+"group_result_information" = "போட்டித் தகவல்";
+"group_result_actions" = "முடிவுக்கான செயல்கள்";
+"group_peer_confirmation" = "எதிரணியின் உறுதிப்படுத்தல்";
+"group_notice_target_unavailable" = "இந்த உள்ளடக்கம் கிடைக்கவில்லை அல்லது இதைப் பார்க்க உங்களுக்கு இனி அனுமதி இல்லை.";
+"group_push_enabled" = "குழு அறிவிப்புகள்";
+"group_push_group_enabled" = "இந்தக் குழுவின் அறிவிப்புகளைப் பெறவும்";
+"group_push_inbox_kept" = "இவற்றை முடக்கினாலும் செயலியில் உள்ள அறிவிப்புகளும் ஏற்கெனவே உள்ள செயல்பாட்டு நினைவூட்டல்களும் இருக்கும்.";
+"group_push_permission" = "சிஸ்டம் அறிவிப்புகளை இயக்கவும்";
+"group_push_settings" = "அறிவிப்பு அமைப்புகள்";
+
+// Shared group form controls
+"group_inline_seat_hint" = "முதலில் இடத்தையும் பின்னர் உறுப்பினரையும் தேர்ந்தெடுக்கவும்";
+"group_score_and_rules" = "ஸ்கோர் மற்றும் விதிகள்";
+"group_activity_registration_scope" = "தற்காலிக உறுப்பினர்களை இங்கே பதிவு செய்யவும். கணக்குள்ள உறுப்பினர்கள் தாங்களே பதிவு செய்ய வேண்டும்.";
+"group_activity_registration_no_changes" = "சேமிக்கப்படாத மாற்றங்கள் இல்லை";
+"group_activity_registration_changes" = "சேர் %1$d · ரத்துசெய் %2$d";
+"group_activity_registration_save" = "பதிவுகளைச் சேமி (%1$d)";
+"group_activity_registration_manage" = "தற்காலிக உறுப்பினர் பதிவு";
+"group_activity_registration_pending_add" = "பதிவு செய்ய வேண்டும்";
+"group_activity_registration_pending_remove" = "ரத்துசெய்ய வேண்டும்";
+"group_activity_registration_registered" = "பதிவு செய்யப்பட்டது";
+"group_activity_registration_not_registered" = "பதிவு செய்யவில்லை";
+"group_activity_detail" = "நிகழ்வு விவரங்கள்";
+"group_activity_my_registration" = "எனது பதிவு";
+"group_match_score" = "போட்டி ஸ்கோர்";
+
+"group_lookup_available" = "கிடைக்கும்";
+
+/* Group beta notice card. */
+"group_beta_badge" = "பீட்டா";
+"group_beta_supported_label" = "தற்போது கிடைப்பவை";
+"group_beta_feedback_prompt" = "சிக்கல் அல்லது பரிந்துரை உள்ளதா?";
+"group_beta_feedback_action" = "கருத்து தெரிவிக்கவும்";
+
+"group_member_results_title" = "உறுப்பினர் முடிவுகள்";
+
+"group_removed_members_expand" = "விரிவாக்கு";
+"group_removed_members_collapse" = "சுருக்கு";
+"group_best_of_format" = "%1$@ இல் சிறந்தது (%2$@ வெற்றிகள் தேவை)";
+"group_member_count_single" = "%d உறுப்பினர்";
+"group_member_count_short" = "%d உறுப்பினர்கள்";
+"group_lookup_closed_short" = "மூடப்பட்டது";
+"group_lookup_closing_short" = "கலைக்கப்படுகிறது";
+"group_lookup_member_short" = "இணைந்துள்ளீர்கள்";
+"group_lookup_unavailable_short" = "கிடைக்கவில்லை";
+"group_join_scan_hint" = "குழுவின் QR குறியீட்டை ஸ்கேன் செய்யவும்";
+"group_join_number_hint" = "6–8 இலக்கங்கள். குழு உரிமையாளரிடம் பெறவும்.";
+"group_request_join" = "சேரக் கோரவும்";
+"group_overdue_tasks" = "காலக்கெடு கடந்த பணிகள்";
+"group_apply_shift" = "மாற்றங்களைப் பயன்படுத்து";
+"group_transfer_submit" = "மாற்று";
+"group_rename_member" = "பெயரை மாற்று";
+"group_set_admin" = "நிர்வாகியாக்கு";
+"group_set_member" = "நிர்வாகிப் பொறுப்பை நீக்கு";
+"group_confirm_authority_message" = "அனைத்து வீரர்களும் தற்காலிக உறுப்பினர்கள் அல்லது எதிரணியில் உறுதிப்படுத்தக்கூடிய கணக்குள்ள வீரர் இல்லை. உரிமையாளர் வீரர்களையும் ஸ்கோரையும் சரிபார்க்க வேண்டும். உறுதிப்படுத்தியதும் முடிவு பதிவுகளில் சேரும்; உரிமையாளர் உறுதிப்படுத்தியவராகப் பதிவாவார்.";
+"group_confirm_result_message" = "உறுதிப்படுத்தியதும் முடிவு இரு தரப்பினரின் பதிவுகளில் சேரும்; திருத்த முடியாது. திருத்துவதற்கு முதலில் செல்லாததாக்கவும்.";
+"group_confirm_member_message" = "பதிவுகளில் சேர்க்க வீரர்களையும் ஸ்கோரையும் உறுதிப்படுத்தவும். திருத்தம் தேவைப்பட்டால் மூல முடிவைச் செல்லாததாக்க மேலாளரிடம் கேட்கவும்.";
+"group_cancel_activity_message" = "ரத்துசெய்தால் பதிவுசெய்தோர் பட்டியல் நிரந்தரமாக அழியும். நடந்துகொண்டிருக்கும் நிகழ்வுகளை ரத்துசெய்ய முடியாது.";
+"group_abandon_game_message" = "வேறு போட்டியைத் தொடங்க இந்தப் போட்டியைக் கைவிடவும். சேமித்த தனிப்பட்ட பதிவுகள் இருக்கும்.";
+"group_void_pending_message" = "இந்த முடிவு உறுதிப்படுத்தலுக்குக் காத்திருக்காது; போட்டிப் புள்ளிவிவரங்களில் சேராது. மூல ஸ்கோரும் காரணமும் குழு உறுப்பினர்களுக்குத் தொடர்ந்து தெரியும். வீரர்களுக்கும் சமர்ப்பித்தவருக்கும் அறிவிக்கப்படும்.";
+"group_void_confirmed_message" = "இந்த முடிவு போட்டிப் புள்ளிவிவரங்களில் சேராது. இரு தரப்பினரின் புள்ளிவிவரங்களும் தரவரிசையும் மீண்டும் கணக்கிடப்படும். மூல ஸ்கோரும் காரணமும் உறுப்பினர்களுக்குத் தொடர்ந்து தெரியும். வீரர்களுக்கும் சமர்ப்பித்தவருக்கும் அறிவிக்கப்படும்.";
+"group_remove_member_message" = "%@ என்பவரை நீக்கவா? மீண்டும் சேரக் கோர வேண்டும்.";
+"group_reload_version_message" = "சேமிக்காத போட்டி ஏற்பாடுகளைக் கைவிட்டு, கடைசியாகச் சேமித்த அட்டவணையை ஏற்றவா?";
+"group_transfer_confirmation" = "உரிமையை %@ என்பவருக்கு மாற்றவா? நீங்கள் சாதாரண உறுப்பினராவீர்கள்.";
+"group_approve_confirmation" = "%@ குழு உறுப்பினராகி நிகழ்வுகளையும் முடிவுகளையும் பார்க்க முடியும்.";
+"group_reject_confirmation" = "நிராகரித்த பிறகு %@ புதிய கோரிக்கையைச் சமர்ப்பிக்க வேண்டும்.";
+"group_lookup_full_short" = "இடங்கள் நிரம்பின";
+"group_lookup_archived_short" = "காப்பகத்தில் உள்ளது";
+"group_lookup_pending_short" = "நிலுவையில்";
+"group_temporary_member_count" = "%d உறுப்பினர்கள்";
+"group_best_of_tennis_format" = "%1$@ இல் சிறந்தது (%2$@ வெற்றிகள் தேவை)";
+"group_rename_member_title" = "பெயரை மாற்று";
+
+"group_copy_transfer_title" = "உரிமையை மாற்று";
+
+"group_copy_transfer_submit" = "மாற்று";
+
+"group_copy_transfer_message" = "உரிமையை %@ என்பவருக்கு மாற்றவா? நீங்கள் சாதாரண உறுப்பினராவீர்கள்.";
+
+"group_copy_transfer_hint" = "மாற்றிய பிறகு சாதாரண உறுப்பினராக இருப்பீர்கள்.";
+
+"group_copy_rename_title" = "பெயரை மாற்று";
+
+"group_copy_rename_action" = "பெயரை மாற்று";
+
+"group_copy_result_confirm" = "முடிவை உறுதிசெய்";
+
+"group_copy_result_confirm_authority_message" = "அனைத்து வீரர்களும் தற்காலிக உறுப்பினர்கள் அல்லது எதிரணியில் உறுதிப்படுத்தக்கூடிய கணக்குள்ள வீரர் இல்லை. உரிமையாளர் வீரர்களையும் ஸ்கோரையும் சரிபார்க்க வேண்டும். உறுதிப்படுத்தியதும் முடிவு பதிவுகளில் சேரும்; உரிமையாளர் உறுதிப்படுத்தியவராகப் பதிவாவார்.";
+
+"group_copy_result_confirm_manager_message" = "உறுதிப்படுத்தியதும் முடிவு இரு தரப்பினரின் பதிவுகளில் சேரும்; திருத்த முடியாது. திருத்துவதற்கு முதலில் செல்லாததாக்கவும்.";
+
+"group_copy_result_confirm_member_message" = "பதிவுகளில் சேர்க்க வீரர்களையும் ஸ்கோரையும் உறுதிப்படுத்தவும். திருத்தம் தேவைப்பட்டால் மூல முடிவைச் செல்லாததாக்க மேலாளரிடம் கேட்கவும்.";
+
+"group_copy_void_action" = "செல்லாததாக்கு";
+
+"group_copy_void_pending_message" = "இந்த முடிவு உறுதிப்படுத்தலுக்குக் காத்திருக்காது; போட்டிப் புள்ளிவிவரங்களில் சேராது. மூல ஸ்கோரும் காரணமும் குழு உறுப்பினர்களுக்குத் தொடர்ந்து தெரியும். வீரர்களுக்கும் சமர்ப்பித்தவருக்கும் அறிவிக்கப்படும்.";
+
+"group_copy_void_confirmed_message" = "இந்த முடிவு போட்டிப் புள்ளிவிவரங்களில் சேராது. இரு தரப்பினரின் புள்ளிவிவரங்களும் தரவரிசையும் மீண்டும் கணக்கிடப்படும். மூல ஸ்கோரும் காரணமும் உறுப்பினர்களுக்குத் தொடர்ந்து தெரியும். வீரர்களுக்கும் சமர்ப்பித்தவருக்கும் அறிவிக்கப்படும்.";
+
+"group_copy_cancel_activity" = "நிகழ்வை ரத்து செய்";
+
+"group_copy_cancel_activity_message" = "ரத்துசெய்தால் பதிவுசெய்தோர் பட்டியல் நிரந்தரமாக அழியும். நடந்துகொண்டிருக்கும் நிகழ்வுகளை ரத்துசெய்ய முடியாது.";
+
+"group_copy_abandon_action" = "போட்டியைக் கைவிடு";
+
+"group_copy_abandon_message" = "வேறு போட்டியைத் தொடங்க இந்தப் போட்டியைக் கைவிடவும். சேமித்த தனிப்பட்ட பதிவுகள் இருக்கும்.";
+
+"group_copy_leave_action" = "குழுவிலிருந்து வெளியேறு";
+
+"group_copy_leave_message" = "வெளியேறிய பிறகு நீங்கள் குழுவின் உறுப்பினராக இருக்க மாட்டீர்கள். குழு “என் குழுக்கள்” பட்டியலிலிருந்து அகற்றப்படும்; அதை அணுகவோ அதில் பங்கேற்கவோ முடியாது. குழுவின் ஏற்கெனவே உள்ள போட்டிப் பதிவுகளும் இந்தச் சாதனத்தில் உள்ள உங்கள் தனிப்பட்ட பதிவுகளும் தக்கவைக்கப்படும். மீண்டும் அணுக குழுவில் மறுபடியும் சேர வேண்டும்.";
+
+"group_copy_archive_action" = "குழுவைக் காப்பகப்படுத்து";
+
+"group_copy_archive_message" = "இந்தக் குழுவைக் காப்பகப்படுத்தவா? இதன் உள்ளடக்கத்தைப் படிக்க மட்டுமே முடியும்.";
+
+"group_copy_dissolve_action" = "குழுவைக் கலை";
+
+"group_copy_dissolve_message" = "குழுவை 7 நாட்கள் பார்க்க மட்டுமே முடியும். இந்த நேரத்தில் கலைப்பை ரத்துசெய்யலாம். 7 நாட்களுக்குப் பிறகு குழுவும் அனைத்து தரவும் நிரந்தரமாக அழிக்கப்படும்.";
+
+"group_copy_approve_action" = "ஒப்புதல் அளி";
+
+"group_copy_approve_message" = "%@ குழு உறுப்பினராகி நிகழ்வுகளையும் முடிவுகளையும் பார்க்க முடியும்.";
+
+"group_copy_reject_action" = "நிராகரி";
+
+"group_copy_reject_message" = "நிராகரித்த பிறகு %@ புதிய கோரிக்கையைச் சமர்ப்பிக்க வேண்டும்.";
+
+"group_copy_remove_action" = "உறுப்பினரை நீக்கு";
+
+"group_copy_remove_message" = "%@ என்பவரை நீக்கவா? மீண்டும் சேரக் கோர வேண்டும்.";
+
+"group_copy_report_detail" = "விவரங்கள் (விருப்பம்)";
+
+"group_copy_edit_profile" = "குழு விவரங்களைத் திருத்து";
+
+"group_copy_entry_a_wins" = "A வெல்லும்";
+
+"group_copy_entry_b_wins" = "B வெல்லும்";
+
+"group_copy_activity_timing_sequence" = "குறிப்பிட்ட நேரமின்றி";
+
+"group_copy_activity_registration_manage" = "தற்காலிக உறுப்பினர் பதிவு";
+
+"group_copy_temporary_hint" = "தற்காலிக உறுப்பினர்களுக்குக் கணக்கு தேவையில்லை. முடிவுகளைப் பதிவிடும்போது சேர்க்கலாம்.";
+
+"group_copy_activity_registration_scope" = "தற்காலிக உறுப்பினர்களை இங்கே பதிவு செய்யவும். கணக்குள்ள உறுப்பினர்கள் தாங்களே பதிவு செய்ய வேண்டும்.";
+
+"group_copy_report" = "குழுவைப் புகாரளி";
+
+"group_copy_notice_member_removed" = "நீங்கள் குழுவிலிருந்து நீக்கப்பட்டீர்கள்";
+
+"group_copy_notice_role_changed" = "உங்கள் பங்கு மாறியது";
+
+"group_copy_activity_direct_save" = "அட்டவணையைச் சேமி";
+
+"group_copy_notice_join_approved" = "இணையும் கோரிக்கை ஏற்கப்பட்டது";
+
+"group_copy_notice_join_rejected" = "இணையும் கோரிக்கை நிராகரிக்கப்பட்டது";
+
+"group_copy_all_formats" = "அனைத்து வடிவங்கள்";
+
+"group_copy_closed" = "சேர்க்கை மூடப்பட்டது";
+
+"group_copy_report_other" = "மற்றவை";
+
+"group_copy_report_impersonation" = "ஆள்மாறாட்டம்";
+
+"group_copy_audit_ui_share_failed" = "பகிர்தல் தோல்வி. மீண்டும் முயற்சிக்கவும்.";
+
+"group_copy_audit_ui_share_number" = "குழு எண்ணைப் பகிர்";
+
+"group_copy_create" = "குழுவை உருவாக்கு";
+
+"group_copy_confirm_join" = "இந்தக் குழுவில் இணை";
+
+"group_copy_join" = "குழுவில் இணை";
+
+"group_copy_join_policy" = "சேரும் முறைகள்";
+
+"group_copy_filter_singles" = "ஒற்றையர்";
+
+"group_copy_upcoming" = "வரவிருப்பவை";
+
+"group_copy_activity_section_past" = "கடந்த நிகழ்வுகள்";
+
+"group_copy_beta_feedback_action" = "கருத்து தெரிவிக்கவும்";
+
+"group_copy_doubles" = "இரட்டையர்";
+
+"group_copy_create_activity" = "நிகழ்வை உருவாக்கு";
+
+"group_copy_benefit_activity" = "நிகழ்வுகளைத் திட்டமிட்டு பதிவு செய்க";
+
+"group_copy_empty_activities_hint" = "உறுப்பினர்கள் சேர ஒரு நிகழ்வை உருவாக்கவும். இடங்கள் நிரம்பியதும் பதிவு முடிவடையும்.";
+
+"group_copy_lookup_available" = "கிடைக்கும்";
+
+"group_copy_activity_direct_hint" = "குழுவின் செயலில் உள்ள உறுப்பினர்களிலிருந்து நேரடியாகத் தேர்ந்தெடுக்கலாம்; பதிவு தேவையில்லை.";
+
+"group_copy_empty_intro" = "நண்பர்களுடன் ஆட்டம் திட்டமிட்டு, புள்ளிகளைப் பதிவு செய்து, பொதுவான போட்டி வரலாற்றை உருவாக்குங்கள்.";
+
+"group_copy_place" = "இடம்";
+
+"group_copy_ranking_games" = "விளையாடிய போட்டிகள்";
+
+"group_copy_ranking_insufficient_matches" = "மிகக் குறைவான போட்டிகள்";
+
+"group_copy_report_spam" = "ஸ்பேம்";
+
+"group_copy_report_status_reviewing" = "மதிப்பாய்வில்";
+
+"group_copy_note" = "குறிப்பு (விருப்பம்)";
+
+"group_copy_peer_confirmation" = "எதிரணியின் உறுதிப்படுத்தல்";
+
+"group_copy_activity_lineup_section_matches" = "போட்டிகளை ஏற்பாடு செய்";
+
+"group_copy_group" = "குழு";
+
+"group_copy_group_qr" = "குழுவின் QR குறியீடு";
+
+"group_copy_beta_notice" = "குழுக்கள் சோதனை நிலையில் உள்ளன. சில அம்சங்கள் மாறலாம். முன்கூட்டியே முயன்றதற்கு நன்றி.";
+
+"group_copy_created" = "குழு உருவானது";
+
+"group_copy_ranking_sets" = "மதிப்பெண்";
+
+"group_copy_removed_members_expand" = "விரிவாக்கு";
+
+"group_copy_voided" = "செல்லாததாக்கப்பட்டது";
+
+"group_copy_cancelled" = "ரத்துசெய்யப்பட்டது";
+
+"group_copy_report_status_resolved" = "தீர்க்கப்பட்டது";
+
+"group_copy_completed" = "முடிந்தது";
+
+"group_copy_archived" = "காப்பகத்தில் உள்ளது";
+
+"group_copy_archived_list_title" = "காப்பகக் குழுக்கள்";
+
+"group_copy_activity_registration_registered" = "பதிவு செய்யப்பட்டது";
+
+"group_copy_activity_full" = "இடங்கள் நிரம்பின";
+
+"group_copy_confirmed" = "உறுதிசெய்யப்பட்டது";
+
+"group_copy_removed_members" = "முன்னாள் உறுப்பினர்கள்";
+
+"group_copy_mark_seen" = "படிக்கப்பட்டது";
+
+"group_copy_report_status_dismissed" = "நிராகரிக்கப்பட்டது";
+
+"group_copy_draws" = "சமநிலைகளின் எண்ணிக்கை";
+
+"group_copy_draw" = "சமன்";
+
+"group_copy_start_score" = "இப்போது புள்ளிகளைப் பதிவு செய்";
+
+"group_copy_pending_upload" = "பதிவேற்றத்திற்காகக் காத்திருக்கிறது";
+
+"group_copy_activity_registration_pending_remove" = "ரத்துசெய்ய வேண்டும்";
+
+"group_copy_report_status_pending" = "நிலுவையில்";
+
+"group_copy_lookup_pending_short" = "நிலுவையில்";
+
+"group_copy_pending_request_limit" = "அதிக சேர்க்கைக் கோரிக்கைகள் ஒப்புதலுக்காகக் காத்திருக்கின்றன. முடிவுக்குக் காத்திருக்கவும் அல்லது சிலவற்றைத் திரும்பப் பெறவும்.";
+
+"group_copy_activity_registration_pending_add" = "பதிவு செய்ய வேண்டும்";
+
+"group_copy_pending_confirmation" = "உறுதிப்படுத்தலுக்காகக் காத்திருக்கிறது";
+
+"group_copy_lookup_closing_short" = "கலைக்கப்படுகிறது";
+
+"group_copy_restore" = "குழுவை மீட்டமை";
+
+"group_copy_member" = "உறுப்பினர்";
+
+"group_copy_member_results_title" = "உறுப்பினர் முடிவுகள்";
+
+"group_copy_my_groups" = "என் குழுக்கள்";
+
+"group_copy_activity_my_registration" = "எனது பதிவு";
+
+"group_copy_activity_mode" = "பதிவுகள்";
+
+"group_copy_qr_join_short" = "சேர ஸ்கேன் செய்யவும்";
+
+"group_copy_qr_apply_short" = "சேர விண்ணப்பிக்க ஸ்கேன் செய்யவும்";
+
+"group_copy_register" = "பதிவு செய்";
+
+"group_copy_recruiting" = "பதிவு திறந்துள்ளது";
+
+"group_copy_registration_closes" = "பதிவு முடியும் நேரம்";
+
+"group_copy_activity_time_after_previous" = "முந்தைய போட்டிக்குப் பிறகு";
+
+"group_copy_report_submit" = "அனுப்பு";
+
+"group_copy_submitted_by" = "சமர்ப்பித்தவர்";
+
+"group_copy_cancel_dissolve" = "குழு கலைப்பை ரத்துசெய்";
+
+"group_copy_notice_join_requested" = "இணையும் கோரிக்கை பெறப்பட்டது";
+
+"group_copy_removed_members_collapse" = "சுருக்கு";
+
+"group_copy_discard_upload" = "பதிவேற்றத்தை கைவிடு";
+
+"group_copy_notice_activity_created" = "நிகழ்வு உருவாக்கப்பட்டது";
+
+"group_copy_activity_time_unspecified" = "நேரம் இன்னும் முடிவாகவில்லை";
+
+"group_copy_activity_registration_empty" = "தற்காலிக உறுப்பினர்கள் இல்லை";
+
+"group_copy_transfer_none" = "வேறு நிரந்தர உறுப்பினர்கள் இல்லை. தற்காலிக உறுப்பினர்கள் குழுத் தலைவராக முடியாது.";
+
+"group_copy_archived_empty" = "காப்பகக் குழுக்கள் இல்லை";
+
+"group_copy_empty_activities_title" = "இன்னும் நிகழ்வுகள் இல்லை";
+
+"group_copy_latest_results" = "சமீபத்திய முடிவுகள்";
+
+"group_copy_disputed" = "ஆட்சேபனை உள்ளது";
+
+"group_copy_activity_registration_not_registered" = "பதிவு செய்யவில்லை";
+
+"group_copy_month_matches" = "இந்த மாதப் போட்டிகள்";
+
+"group_copy_open_group" = "குழுவைத் திற";
+
+"group_copy_benefit_history" = "போட்டிகளையும் தரவரிசையையும் காண்க";
+
+"group_copy_overview" = "கண்ணோட்டம்";
+
+"group_copy_welcome_back" = "மீண்டும் வருக";
+
+"group_copy_regular_members" = "பதிவு செய்த உறுப்பினர்கள்";
+
+"group_copy_rally_scoring" = "ரேலி ஸ்கோரிங்";
+
+"group_copy_result_information" = "போட்டித் தகவல்";
+
+"group_copy_match_score" = "போட்டி ஸ்கோர்";
+
+"group_copy_match_rules" = "போட்டி விதிகள்";
+
+"group_copy_activity_registration_no_changes" = "சேமிக்கப்படாத மாற்றங்கள் இல்லை";
+
+"group_copy_activities" = "நிகழ்வுகள்";
+
+"group_copy_activity_title" = "நிகழ்வின் பெயர்";
+
+"group_copy_activity_field_title_optional" = "நிகழ்வின் பெயர் (விருப்பம்)";
+
+"group_copy_notice_activity_changed" = "நிகழ்வு புதுப்பிக்கப்பட்டது";
+
+"group_copy_notice_activity_cancelled" = "நிகழ்வு ரத்து செய்யப்பட்டது";
+
+"group_copy_activity_lineup" = "போட்டிகளை ஏற்பாடு செய்";
+
+"group_copy_activity_create_admin_hint" = "குழு உரிமையாளர் அல்லது நிர்வாகி நிகழ்வுகளை உருவாக்குவார்";
+
+"group_copy_beta_badge" = "பீட்டா";
+
+"group_copy_add_set" = "கேம் புள்ளிகளைச் சேர்க்கவும்";
+
+"group_copy_add_temporary" = "தற்காலிக உறுப்பினரைச் சேர்";
+
+"group_copy_benefit_score" = "புள்ளிகளைப் பதிவு செய்க அல்லது பழைய முடிவுகளைச் சேர்க்கவும்";
+
+"group_copy_request_join" = "சேரக் கோரவும்";
+
+"group_copy_join_message" = "சேர்க்கை விண்ணப்பச் செய்தி (விருப்பம்)";
+
+"group_copy_beta_supported_label" = "தற்போது கிடைப்பவை";
+
+"group_copy_open" = "நேரடியாகச் சேர்";
+
+"group_copy_activity_direct_title" = "இப்போதே திட்டமிடு";
+
+"group_copy_admin" = "நிர்வாகி";
+
+"group_copy_confirmed_matches" = "உறுதிசெய்த போட்டிகள்";
+
+"group_copy_leader" = "உரிமையாளர்";
+
+"group_copy_notice_ownership_transferred" = "குழுவின் உரிமையாளர் மாறிவிட்டார்";
+
+"group_copy_complete_activity" = "செயல்பாட்டை முடி";
+
+"group_copy_keep_draft" = "உள்ளூர் பதிப்பைத் திருத்துவதைத் தொடரவும்";
+
+"group_copy_ranking_wins" = "வெற்றிகளின் எண்ணிக்கை";
+
+"group_copy_ranking_rate" = "வெற்றி விகிதம்";
+
+"group_copy_report_inappropriate" = "பாலியல் அல்லது பொருத்தமற்ற உள்ளடக்கம்";
+
+"group_copy_update_report" = "புகாரைப் புதுப்பிக்கவும்";
+
+"group_copy_manual_result" = "போட்டி முடிவைச் சேர்";
+
+"group_copy_set_admin" = "நிர்வாகியாக்கு";
+
+"group_copy_activity_timing_estimated" = "உத்தேச நேரம்";
+
+"group_copy_losses" = "தோல்விகளின் எண்ணிக்கை";
+
+"group_copy_notice_result_voided" = "முடிவு செல்லாததாக்கப்பட்டது";
+
+"group_copy_notice_result_confirmed" = "முடிவு உறுதிப்படுத்தப்பட்டது";
+
+"group_copy_notice_result_pending" = "முடிவு உறுதிப்படுத்தலுக்காக காத்திருக்கிறது";
+
+"group_copy_result_actions" = "முடிவுக்கான செயல்கள்";
+
+"group_copy_empty_title" = "இன்னும் குழுக்கள் இல்லை";
+
+"group_copy_in_progress" = "நடைபெறுகிறது";
+
+"group_copy_report_illegal" = "சட்டவிரோத அல்லது ஆபத்தான செயல்";
+
+"group_copy_join_hint" = "எண் அல்லது QR குறியீட்டால் நண்பரின் குழுவில் இணையவும்.";
+
+"group_copy_overdue_tasks" = "காலக்கெடு கடந்த பணிகள்";
+
+"group_copy_beta_feedback_prompt" = "சிக்கல் அல்லது பரிந்துரை உள்ளதா?";
+
+"group_copy_invite" = "அணி வீரர்களை அழை";
+
+"group_copy_retry" = "மீண்டும் முயற்சிக்கவும்";
+
+"group_copy_approval" = "ஒப்புதல் தேவை";
+
+"group_copy_sport" = "விளையாட்டு";
+
+"group_copy_report_harassment" = "துன்புறுத்தல்";
+
+"group_copy_ranking_me_suffix" = " (நான்)";
+
+"group_copy_places_title" = "இடத்தைத் தேர்ந்தெடுக்கவும்";
+
+"group_copy_report_fraud" = "மோசடி அல்லது சூதாட்டம்";
+
+"group_copy_void_reason" = "செல்லாததாக்கும் காரணம்";
+
+"group_copy_reload_version" = "மீண்டும் ஏற்று";
+
+"group_copy_lineup_reload_message" = "சேமிக்காத போட்டி ஏற்பாடுகளைக் கைவிட்டு, கடைசியாகச் சேமித்த அட்டவணையை ஏற்றவா?";
+
+"group_copy_join_number_separator" = "அல்லது குழு எண்ணை உள்ளிடவும்";
+
+"group_copy_activity_multi_match_hint" = "ஒரு நிகழ்வில் பல போட்டிகள் இருக்கலாம். உறுப்பினர்கள் நிகழ்வுக்குப் பதிவு செய்கிறார்கள்; போட்டிகளை அமைக்கும்போது ஒவ்வொரு ஒற்றையர் ஆட்டத்திற்கும் 2 அல்லது இரட்டையர் ஆட்டத்திற்கும் 4 பதிவுசெய்த உறுப்பினர்களைத் தேர்ந்தெடுக்கவும்.";
+
+"group_copy_activity_single_match_hint" = "ஒவ்வொரு நிகழ்வும் ஒரு போட்டி. ஒற்றையர் ஆட்டத்திற்கு 2 அல்லது இரட்டையர் ஆட்டத்திற்கு 4 பதிவுசெய்த உறுப்பினர்களைத் தேர்ந்தெடுக்கவும்.";
+
+"group_copy_activity_detail" = "நிகழ்வு விவரங்கள்";
+
+"group_copy_registration_at_start" = "நிகழ்வு தொடங்கும்போது";
+
+"group_copy_registration_use_start" = "நிகழ்வின் தொடக்க நேரத்தைப் பயன்படுத்தவும்";
+
+"group_copy_cancel_reason_optional" = "ரத்து செய்வதற்கான காரணம் (விருப்பத்தேர்வு)";
+
+"group_copy_audit_result_frozen_info" = "வீரர்கள் மற்றும் விதிகளைப் பார்க்கவும்";
+"group_view_schedule" = "போட்டிகளைக் காண்";
+"group_notice_training_published" = "பயிற்சி வெளியிடப்பட்டது";
+"group_notice_training_changed" = "பயிற்சி புதுப்பிக்கப்பட்டது";
+"group_notice_training_cancelled" = "பயிற்சி ரத்துசெய்யப்பட்டது";
+"group_notice_leave_changed" = "விடுப்பு புதுப்பிக்கப்பட்டது";
+"group_report_evidence_title" = "படச் சான்று (விருப்பம்)";
+"group_report_evidence_hint" = "அதிகபட்சம் 3 JPG அல்லது PNG படங்கள், ஒவ்வொன்றும் 2 MB வரை. நீங்களும் தள நிர்வாகமும் மட்டுமே பார்க்க முடியும்.";
+"group_report_add_image" = "படத்தைச் சேர்க்கவும்";
+"group_report_retry" = "மீண்டும் முயற்சிக்கவும்";
+"group_report_preview" = "சான்றுப் படம்";
+"group_report_supplement" = "தகவலைச் சேர்க்கவும்";
+"group_report_close" = "மூடு";
+"group_report_remove_image" = "படத்தை அகற்றவும்";
+"group_report_image_error" = "படத்தைத் தயாரிக்க முடியவில்லை. வேறொரு JPG அல்லது PNG படத்தைப் பயன்படுத்தி முயற்சிக்கவும்.";
+"group_report_refresh" = "நிலையைப் புதுப்பிக்கவும்";

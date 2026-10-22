@@ -104,7 +104,7 @@ struct ScoreCustomAdjustPanel: View {
                         Button {
                             showCustomInput = true
                         } label: {
-                            Text("…")
+                            Image(systemName: "ellipsis")
                                 .font(.system(size: 24, weight: .bold))
                                 .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                                 .frame(maxWidth: .infinity)
@@ -114,6 +114,7 @@ struct ScoreCustomAdjustPanel: View {
                                 .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel(Text(NSLocalizedString("score_custom_adjust_custom_value_placeholder", value: "自定义分值", comment: "")))
                     }
 
                     if showCustomInput {
@@ -141,11 +142,11 @@ struct ScoreCustomAdjustPanel: View {
                             Button(action: applyCustomInput) {
                                 Text(NSLocalizedString("score_custom_adjust_apply", value: "应用", comment: ""))
                                     .font(.system(size: 16, weight: .medium))
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(Theme.textOnPrimary)
                                     .padding(.horizontal, 20)
                                     .frame(height: 50)
                                     .background(Theme.primary)
-                                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                    .clipShape(Capsule())
                             }
                             .buttonStyle(.plain)
                         }

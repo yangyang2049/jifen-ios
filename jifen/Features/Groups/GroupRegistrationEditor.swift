@@ -43,11 +43,8 @@ struct GroupRegistrationEditor: View {
     @State private var remoteMembers: [GroupMember]?
     @State private var presentedAccountID: String?
     @State private var presentedIdentityRevision = 0
-    @State private var baselineRevision: Int64 = 0
     @State private var busy = false
     @State private var initialized = false
-    @State private var preview = false
-    @State private var discardConfirmation = false
     @State private var error: String?
 
     private var current: GroupActivity { remoteActivity ?? activity }
@@ -65,71 +62,93 @@ struct GroupRegistrationEditor: View {
             && group.isActive && GroupPermissions.manager(me) && current.registrationOpen(at: Int64(Date().timeIntervalSince1970 * 1000))
     }
 
+    private var addedCount: Int { plan.changes.filter(\.registered).count }
+    private var removedCount: Int { plan.changes.count - addedCount }
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    Text(current.title)
-                    Text("\(plan.projectedCount)/\(current.capacity)")
-                    Text(groupText("temporary_members", "Temporary members")).font(.caption).foregroundStyle(.secondary)
+            ScrollView {
+                VStack(alignment: .leading, spacing: Theme.sm) {
+                    Text(groupText("activity_registration_scope", "Register temporary members on their behalf; account members register themselves."))
+                        .font(.system(size: Theme.fontBody2)).foregroundStyle(Theme.textSecondary).padding(.bottom, Theme.sm)
+                    if temporaryMembers.isEmpty { GroupNotice(text: groupText("activity_registration_empty", "No temporary members")) }
+                    ForEach(temporaryMembers) { member in registrationRow(member) }
+                    if let error {
+                        GroupNotice(text: error)
+                    }
+                }.padding(Theme.padding).frame(maxWidth: Theme.focusedContentMaxWidth).frame(maxWidth: .infinity)
+            }
+            .background(Theme.backgroundColor)
+            .navigationTitle(groupText("activity_registration_manage", "Temporary member registration"))
+            .navigationBarTitleDisplayMode(.inline).groupAccountBoundary()
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    ModalCloseButton { requestClose() }.disabled(busy).accessibilityIdentifier("group_registration_close")
                 }
-                Section(groupText("temporary_members", "Temporary members")) {
-                    if temporaryMembers.isEmpty { Text(groupText("activity_registration_empty", "No temporary members")) }
-                    ForEach(temporaryMembers) { member in
-                        Toggle(isOn: Binding(get: { desired.contains(member.id) }, set: { checked in
-                            guard writable, !busy, checked == false || plan.projectedCount < current.capacity else { return }
-                            if checked { desired.insert(member.id) } else { desired.remove(member.id) }
-                            error = nil
-                        })) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(member.displayName)
-                                if desired.contains(member.id) != baseline.contains(member.id) {
-                                    Text((desired.contains(member.id) ? "+ " : "− ") + groupText(desired.contains(member.id) ? "register" : "unregister", "Registration"))
-                                        .font(.caption).foregroundStyle(Theme.primary)
-                                }
-                            }
-                        }.disabled(!writable || busy || (!desired.contains(member.id) && plan.projectedCount >= current.capacity))
-                            .tint(Theme.primary).accessibilityIdentifier("group_registration_member_" + member.id)
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                GroupAlignedFooter {
+                    VStack(spacing: Theme.sm) {
+                        HStack(spacing: Theme.sm) {
+                            Text(dirty ? String(format: groupText("activity_registration_changes", "Added %d · Removed %d"), addedCount, removedCount)
+                                 : groupText("activity_registration_no_changes", "No unsaved changes"))
+                            Spacer(minLength: 4)
+                            Text("\(plan.projectedCount)/\(current.capacity)").monospacedDigit()
+                        }.font(.system(size: Theme.fontCaption)).foregroundStyle(Theme.textSecondary)
+                        Button {
+                            if dirty { Task { await submit() } } else { dismiss() }
+                        } label: {
+                            Text(dirty ? String(format: groupText("activity_registration_save", "Save registrations (%d)"), plan.changes.count)
+                                 : NSLocalizedString("done", value: "Done", comment: ""))
+                        }
+                        .buttonStyle(GroupAlignedActionStyle(secondary: !dirty))
+                        .disabled(busy || (dirty && (!writable || plan.projectedCount > current.capacity)))
+                        .accessibilityIdentifier("group_registration_save")
                     }
                 }
-                if let error { GroupNotice(text: error); Button(groupText("reload_version", "Load latest version")) { Task { await reloadBaseline(keepingChanges: true) } }.disabled(busy) }
-                Button(groupText("save", "Confirm")) { preview = true }
-                    .disabled(!writable || !dirty || busy || plan.projectedCount > current.capacity)
-                    .accessibilityIdentifier("group_registration_preview")
-            }.navigationTitle(groupText("registered_members", "Registered members")).groupAccountBoundary()
-                .toolbar { ToolbarItem(placement: .cancellationAction) { Button(groupText("close", "Close")) { requestClose() }.disabled(busy).accessibilityIdentifier("group_registration_close") } }
-                .confirmationDialog(groupText("keep_draft", "Keep my edits"), isPresented: $discardConfirmation, titleVisibility: .visible) {
-                    Button(NSLocalizedString("unfinished_discard_button", value: "Discard", comment: ""), role: .destructive) { dismiss() }
-                        .accessibilityIdentifier("group_registration_discard")
-                    Button(groupText("keep_draft", "Keep my edits"), role: .cancel) { }
-                } message: {
-                    Text(plan.changes.map { change in (change.registered ? "+ " : "− ") + (members.first { $0.id == change.memberID }?.displayName ?? "") }.joined(separator: "\n"))
+            }
+            .onChange(of: store.identityRevision) { _, _ in dismiss() }
+            .task {
+                guard !initialized else { return }; initialized = true
+                presentedAccountID = store.accountID; presentedIdentityRevision = store.identityRevision
+                baseline = Set(activity.registeredMemberIds); desired = baseline
+                await reloadBaseline(keepingChanges: false)
+            }
+        }.presentationDetents([.fraction(0.82), .large]).presentationDragIndicator(.visible)
+            .interactiveDismissDisabled(busy)
+    }
+    private func registrationRow(_ member: GroupMember) -> some View {
+        let selected = desired.contains(member.id)
+        let changed = selected != baseline.contains(member.id)
+        let enabled = writable && !busy && (selected || plan.projectedCount < current.capacity)
+        return Button {
+            guard enabled else { return }
+            if selected { desired.remove(member.id) } else { desired.insert(member.id) }
+            error = nil
+        } label: {
+            HStack(spacing: Theme.sm) {
+                Image(systemName: selected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 22)).foregroundStyle(selected ? Theme.primary : Theme.textSecondary)
+                GroupAvatar(name: member.displayName, url: member.avatarUrl, size: 38)
+                VStack(alignment: .leading, spacing: Theme.xs) {
+                    Text(member.displayName).font(.system(size: Theme.fontBody2)).foregroundStyle(Theme.textPrimary)
+                    Text(groupText(changed ? (selected ? "activity_registration_pending_add" : "activity_registration_pending_remove")
+                                   : (selected ? "activity_registration_registered" : "activity_registration_not_registered"),
+                                   changed ? (selected ? "Pending registration" : "Pending removal") : (selected ? "Registered" : "Not registered")))
+                        .font(.system(size: Theme.fontCaption)).foregroundStyle(changed ? Theme.primary : Theme.textSecondary)
                 }
-                .navigationDestination(isPresented: $preview) {
-                    List {
-                        ForEach([false, true], id: \.self) { registered in
-                            Section(groupText(registered ? "register" : "unregister", "Registration")) {
-                                ForEach(plan.changes.filter { $0.registered == registered }, id: \.memberID) { change in Text(members.first { $0.id == change.memberID }?.displayName ?? "") }
-                            }
-                        }
-                        Text("\(plan.projectedCount)/\(current.capacity)")
-                        if let error { GroupNotice(text: error) }
-                        Button(NSLocalizedString("save", value: "Save", comment: "")) { Task { await submit() } }
-                            .disabled(!writable || busy || !dirty || plan.projectedCount > current.capacity)
-                            .accessibilityIdentifier("group_registration_save")
-                    }.navigationTitle(groupText("registered_members", "Registered members")).navigationBarBackButtonHidden(busy)
-                }
-                .onChange(of: store.identityRevision) { _, _ in dismiss() }
-                .task {
-                    guard !initialized else { return }; initialized = true
-                    presentedAccountID = store.accountID; presentedIdentityRevision = store.identityRevision
-                    baseline = Set(activity.registeredMemberIds); desired = baseline; baselineRevision = activity.revision
-                    await reloadBaseline(keepingChanges: false)
-                }
-        }.interactiveDismissDisabled(dirty || busy)
+                Spacer(minLength: 0)
+            }
+            .padding(Theme.sm).frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
+            .background(selected ? Theme.tintedFill(Theme.primary, lightAlpha: 0.1, darkAlpha: 0.16) : .clear,
+                        in: RoundedRectangle(cornerRadius: 8))
+            .contentShape(Rectangle())
+        }.buttonStyle(.plain).disabled(!enabled)
+            .accessibilityIdentifier("group_registration_member_" + member.id)
+            .accessibilityValue(selected ? groupText("activity_registration_registered", "Registered") : groupText("activity_registration_not_registered", "Not registered"))
+            .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
-    private func requestClose() { if dirty { discardConfirmation = true } else { dismiss() } }
+    private func requestClose() { guard !busy else { return }; dismiss() }
     private func authorize(_ account: String) throws {
         guard store.matchesIdentity(account, revision: presentedIdentityRevision), presentedAccountID == account,
               SessionStore.shared.user?.id == account, writable else { throw GroupFlowError.staleSession }
@@ -157,7 +176,7 @@ struct GroupRegistrationEditor: View {
         } catch { if store.matchesIdentity(account, revision: presentedIdentityRevision) { self.error = groupErrorMessage(error) } }
     }
     private func acceptConfirmed(_ fresh: GroupActivity) {
-        remoteActivity = fresh; baseline = Set(fresh.registeredMemberIds); baselineRevision = fresh.revision
+        remoteActivity = fresh; baseline = Set(fresh.registeredMemberIds)
     }
     private func refreshParent(_ account: String, authRevision: UInt64) async {
         guard store.matchesIdentity(account, revision: presentedIdentityRevision), SessionStore.shared.user?.id == account,
@@ -177,9 +196,6 @@ struct GroupRegistrationEditor: View {
             guard await store.repository.client.authSessionRevision() == authRevision else { throw GroupFlowError.staleSession }
             remoteGroup = freshGroup; remoteMembers = freshMembers; remoteActivity = fresh
             try authorize(account)
-            guard fresh.revision == baselineRevision, Set(fresh.registeredMemberIds) == baseline else {
-                throw APIClientError.server(status: 409, code: "REVISION_CONFLICT", message: nil, nextAvailableAt: nil)
-            }
             let submittedPlan = plan
             try await submittedPlan.apply(authorize: { try authorize(account) }, write: { change in
                 guard await store.repository.client.authSessionRevision() == authRevision,
@@ -212,7 +228,6 @@ struct GroupRegistrationEditor: View {
             }
             // The existing parent reload owns its cache writes and preserves successful prefixes after dismissal.
             await refreshParent(account, authRevision: authRevision)
-            preview = false
         }
     }
 }

@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>全能计分器 · 小组系统完整 Demo</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --canvas: #080909;
+      --panel: #101112;
+      --surface: #151617;
+      --card: #1c1d1f;
+      --card-strong: #242628;
+      --control: #2c2c2e;
+      --line: rgba(255,255,255,.09);
+      --line-strong: rgba(255,255,255,.16);
+      --text: #f7f8f8;
+      --text-2: #c9cdca;
+      --text-3: #8e938f;
+      --green: #30d158;
+      --green-soft: rgba(48,209,88,.13);
+      --orange: #ff9f43;
+      --blue: #4d8dff;
+      --purple: #9b7bff;
+      --red: #ff5c63;
+      --shadow: 0 28px 70px rgba(0,0,0,.45);
+      --phone-w: 390px;
+      --phone-h: 844px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--canvas); color: var(--text); }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Microsoft YaHei", sans-serif;
+      letter-spacing: .01em;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, input:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+    .workspace {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 286px minmax(430px, 1fr) 310px;
+      gap: 22px;
+      padding: 22px;
+    }
+    .left-rail, .right-rail {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 22px;
+      min-height: calc(100vh - 44px);
+    }
+    .left-rail { display: flex; flex-direction: column; }
+    .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .brand-mark {
+      width: 40px; height: 40px; display: grid; place-items: center;
+      border-radius: 12px; background: var(--green); color: #06120a; font-weight: 900;
+    }
+    .brand h1 { font-size: 16px; margin: 0 0 3px; }
+    .brand p { font-size: 11px; color: var(--text-3); margin: 0; }
+    .rail-kicker { font-size: 10px; letter-spacing: .14em; color: var(--green); text-transform: uppercase; }
+    .left-rail > h2 { font-size: 27px; line-height: 1.14; margin: 10px 0 10px; }
+    .rail-intro { margin: 0 0 22px; color: var(--text-3); font-size: 12px; line-height: 1.65; }
+    .journey-group { margin: 0 0 18px; }
+    .journey-label { margin: 0 0 8px; color: var(--text-3); font-size: 10px; letter-spacing: .1em; }
+    .journey-button {
+      width: 100%; border: 0; border-left: 2px solid transparent; background: transparent;
+      padding: 10px 10px 10px 12px; text-align: left; cursor: pointer; color: var(--text-2);
+      display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: center;
+    }
+    .journey-button:hover { background: rgba(255,255,255,.035); }
+    .journey-button.active { color: var(--text); border-left-color: var(--green); background: var(--green-soft); }
+    .journey-button b { width: 20px; color: var(--text-3); font-size: 11px; }
+    .journey-button.active b { color: var(--green); }
+    .journey-button span { font-size: 12px; font-weight: 680; }
+    .decision-note {
+      margin-top: auto; padding-top: 18px; border-top: 1px solid var(--line);
+      font-size: 11px; line-height: 1.65; color: var(--text-3);
+    }
+    .decision-note strong { color: var(--green); display: block; margin-bottom: 4px; }
+
+    .stage { min-height: calc(100vh - 44px); display: grid; place-items: center; position: relative; }
+    .phone-wrap { position: relative; }
+    .phone-caption {
+      position: absolute; top: 72px; right: calc(100% + 22px); width: 110px;
+      color: var(--text-3); font-size: 9px; text-align: right; letter-spacing: .12em;
+    }
+    .phone-caption::after {
+      content: ""; display: block; width: 68px; height: 1px; background: var(--line-strong);
+      margin: 8px 0 0 auto;
+    }
+    .phone {
+      width: var(--phone-w); height: var(--phone-h); position: relative; overflow: hidden;
+      border-radius: 46px; background: #000; border: 9px solid #202224; box-shadow: var(--shadow);
+    }
+    .phone::before {
+      content: ""; position: absolute; z-index: 20; top: 8px; left: 50%; transform: translateX(-50%);
+      width: 110px; height: 26px; border-radius: 99px; background: #090909;
+    }
+    .statusbar {
+      height: 43px; padding: 12px 23px 0; display: flex; justify-content: space-between;
+      font-size: 11px; font-weight: 750; position: relative; z-index: 12; background: #000;
+    }
+    .app-screen { height: calc(100% - 43px); display: flex; flex-direction: column; background: #000; position: relative; }
+    .appbar {
+      min-height: 54px; display: grid; grid-template-columns: 48px 1fr 48px; align-items: center;
+      padding: 0 8px; border-bottom: 1px solid var(--line); background: rgba(0,0,0,.96); z-index: 4;
+    }
+    .appbar h2 { margin: 0; font-size: 17px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .appbar-button {
+      border: 0; background: transparent; min-width: 42px; height: 42px; cursor: pointer;
+      display: grid; place-items: center; color: var(--text-2); font-size: 22px;
+    }
+    .appbar-button.text { font-size: 12px; color: var(--green); font-weight: 700; }
+    .screen-scroll { flex: 1; overflow-y: auto; scrollbar-width: none; padding: 16px 16px 102px; }
+    .screen-scroll::-webkit-scrollbar { display: none; }
+    .bottom-nav {
+      height: 74px; position: absolute; z-index: 5; left: 0; right: 0; bottom: 0;
+      display: grid; grid-template-columns: repeat(4, 1fr); background: rgba(13,13,13,.96);
+      border-top: 1px solid var(--line); padding-bottom: 8px; backdrop-filter: blur(18px);
+    }
+    .bottom-nav button {
+      border: 0; background: transparent; display: grid; place-content: center; gap: 3px;
+      color: var(--text-3); cursor: pointer; font-size: 9px;
+    }
+    .bottom-nav b { font-size: 18px; font-weight: 500; }
+    .bottom-nav button.active { color: var(--green); }
+
+    .section-head { display: flex; justify-content: space-between; align-items: center; margin: 18px 0 10px; }
+    .section-head:first-child { margin-top: 0; }
+    .section-head h3 { margin: 0; font-size: 14px; }
+    .section-head span, .section-head button { color: var(--text-3); font-size: 10px; }
+    .section-head button { border: 0; background: transparent; cursor: pointer; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 15px; }
+    .subtle { color: var(--text-3); }
+    .badge {
+      display: inline-flex; align-items: center; min-height: 22px; padding: 3px 8px;
+      border-radius: 99px; background: var(--control); color: var(--text-2); font-size: 9px; font-weight: 700;
+    }
+    .badge.green { color: var(--green); background: var(--green-soft); }
+    .badge.orange { color: var(--orange); background: rgba(255,159,67,.13); }
+    .badge.blue { color: #75a6ff; background: rgba(77,141,255,.14); }
+    .badge.purple { color: #b59fff; background: rgba(155,123,255,.14); }
+
+    .group-card { width: 100%; border: 1px solid var(--line); background: var(--card); border-radius: 16px; padding: 14px; text-align: left; cursor: pointer; margin-bottom: 10px; }
+    .group-card:hover { border-color: var(--line-strong); }
+    .group-title-row { display: grid; grid-template-columns: 44px 1fr 18px; gap: 11px; align-items: center; }
+    .sport-mark { width: 44px; height: 44px; display: grid; place-items: center; background: var(--control); border-radius: 13px; font-size: 22px; }
+    .group-name strong { display: block; font-size: 14px; }
+    .group-name span { display: block; color: var(--text-3); font-size: 10px; margin-top: 4px; }
+    .chevron { color: var(--text-3); font-size: 20px; }
+    .group-facts { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .fact { text-align: center; border-right: 1px solid var(--line); }
+    .fact:last-child { border-right: 0; }
+    .fact strong { display: block; font-size: 14px; }
+    .fact span { display: block; color: var(--text-3); font-size: 9px; margin-top: 3px; }
+    .empty-action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 14px; }
+    .button {
+      border: 0; min-height: 43px; border-radius: 12px; background: var(--control); color: var(--text);
+      font-size: 12px; font-weight: 750; cursor: pointer; padding: 0 14px;
+    }
+    .button.primary { background: var(--green); color: #06140a; }
+    .button.ghost { background: transparent; border: 1px solid var(--line-strong); }
+    .button.danger { color: var(--red); }
+    .button:disabled { opacity: .45; cursor: default; }
+
+    .group-hero { padding: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; }
+    .hero-line { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .hero-kicker { color: var(--green); font-size: 10px; font-weight: 750; }
+    .group-hero h3 { font-size: 21px; margin: 6px 0 5px; }
+    .group-hero p { margin: 0; color: var(--text-3); font-size: 10px; }
+    .hero-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
+    .hero-stat { background: #131415; padding: 10px 8px; border-radius: 10px; }
+    .hero-stat strong { display: block; font-size: 15px; }
+    .hero-stat span { display: block; color: var(--text-3); font-size: 8px; margin-top: 3px; }
+
+    .group-tabs { display: flex; gap: 20px; overflow-x: auto; margin: 13px -16px 0; padding: 0 16px; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+    .group-tabs::-webkit-scrollbar { display: none; }
+    .group-tabs button { border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--text-3); font-size: 11px; font-weight: 700; padding: 11px 0 10px; white-space: nowrap; cursor: pointer; }
+    .group-tabs button.active { color: var(--text); border-bottom-color: var(--green); }
+    .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .quick-button { border: 1px solid var(--line); background: var(--card); min-height: 76px; border-radius: 14px; text-align: left; padding: 13px; cursor: pointer; }
+    .quick-button.primary { background: var(--green); color: #06140a; border-color: transparent; }
+    .quick-button b { display: block; font-size: 13px; margin-bottom: 5px; }
+    .quick-button span { font-size: 9px; opacity: .68; line-height: 1.4; }
+
+    .activity-card { padding: 13px; margin-bottom: 9px; cursor: pointer; width: 100%; text-align: left; }
+    .activity-top { display: flex; align-items: center; gap: 9px; }
+    .activity-icon { width: 34px; height: 34px; border-radius: 10px; background: var(--control); display: grid; place-items: center; }
+    .activity-copy { flex: 1; min-width: 0; }
+    .activity-copy strong { font-size: 12px; display: block; }
+    .activity-copy span { font-size: 9px; color: var(--text-3); display: block; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .activity-actions { display: flex; gap: 7px; margin-top: 11px; }
+    .small-button { border: 0; min-height: 32px; padding: 0 11px; border-radius: 9px; background: var(--control); font-size: 9px; font-weight: 700; cursor: pointer; }
+    .small-button.primary { background: var(--green); color: #06140a; }
+
+    .rank-table { overflow: hidden; }
+    .rank-row { display: grid; grid-template-columns: 26px 34px 1fr 54px; gap: 8px; align-items: center; padding: 11px 12px; border-bottom: 1px solid var(--line); }
+    .rank-row:last-child { border-bottom: 0; }
+    .rank-no { color: var(--text-3); font-size: 11px; font-weight: 800; }
+    .rank-no.medal { color: var(--orange); }
+    .avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: #335d40; color: #d8ffe3; font-size: 10px; font-weight: 800; }
+    .avatar.blue { background: #29436d; color: #dce9ff; }
+    .avatar.orange { background: #68462a; color: #ffe5d0; }
+    .rank-name strong { display: block; font-size: 11px; }
+    .rank-name span { display: block; color: var(--text-3); font-size: 8px; margin-top: 3px; }
+    .rank-value { text-align: right; }
+    .rank-value strong { display: block; font-size: 12px; }
+    .rank-value span { display: block; color: var(--text-3); font-size: 8px; margin-top: 3px; }
+
+    .member-card { display: grid; grid-template-columns: 38px 1fr auto; gap: 10px; align-items: center; padding: 11px 12px; border-bottom: 1px solid var(--line); }
+    .member-card:last-child { border-bottom: 0; }
+    .member-info strong { display: block; font-size: 11px; }
+    .member-info span { display: block; color: var(--text-3); font-size: 8px; margin-top: 3px; }
+
+    .invite-hero { padding: 18px; text-align: center; }
+    .invite-logo { width: 62px; height: 62px; border-radius: 18px; background: var(--control); display: grid; place-items: center; font-size: 30px; margin: 2px auto 13px; }
+    .invite-hero h3 { margin: 0; font-size: 19px; }
+    .invite-hero p { color: var(--text-3); font-size: 10px; line-height: 1.6; margin: 8px 0 0; }
+    .privacy-line { display: flex; gap: 9px; padding: 12px; margin: 10px 0 14px; align-items: flex-start; }
+    .privacy-line b { color: var(--green); }
+    .privacy-line span { color: var(--text-3); font-size: 9px; line-height: 1.55; }
+    .flow-steps { margin-top: 14px; }
+    .flow-step { display: grid; grid-template-columns: 24px 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .flow-step:last-child { border-bottom: 0; }
+    .flow-step > b { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--control); color: var(--text-3); font-size: 9px; }
+    .flow-step.done > b { background: var(--green); color: #06140a; }
+    .flow-step strong { display: block; font-size: 11px; }
+    .flow-step span { display: block; color: var(--text-3); font-size: 8px; line-height: 1.5; margin-top: 3px; }
+
+    .form-card { padding: 13px; margin-bottom: 10px; }
+    .field-label { color: var(--text-3); font-size: 9px; margin-bottom: 8px; }
+    .field-help { margin: 9px 0 0; color: var(--text-3); font-size: 9px; line-height: 1.55; }
+    .field-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .field-row strong { font-size: 12px; }
+    .stepper { display: flex; align-items: center; gap: 10px; }
+    .stepper button { border: 0; width: 30px; height: 30px; border-radius: 9px; background: var(--control); cursor: pointer; }
+    .stepper b { min-width: 18px; text-align: center; }
+    .segmented { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; border-radius: 11px; background: #0f1011; }
+    .segmented button { border: 0; background: transparent; border-radius: 8px; min-height: 32px; color: var(--text-3); font-size: 9px; font-weight: 700; cursor: pointer; }
+    .segmented button.active { color: var(--text); background: var(--control); }
+    .constraint-list { display: grid; gap: 7px; }
+    .constraint { display: flex; justify-content: space-between; gap: 8px; color: var(--text-2); font-size: 9px; }
+    .constraint b { color: var(--green); font-weight: 700; }
+
+    .live-head { padding: 15px; margin-bottom: 10px; }
+    .live-title { display: flex; justify-content: space-between; align-items: center; }
+    .live-title strong { font-size: 18px; }
+    .live-meta { display: flex; justify-content: space-between; margin-top: 11px; font-size: 9px; color: var(--text-3); }
+    .timer { font-variant-numeric: tabular-nums; color: var(--green); font-weight: 800; }
+    .court-card { padding: 12px; margin-bottom: 9px; }
+    .court-head { display: flex; justify-content: space-between; margin-bottom: 10px; }
+    .court-head strong { font-size: 11px; }
+    .court-head span { font-size: 9px; color: var(--text-3); }
+    .court-match { display: grid; grid-template-columns: 1fr 38px 1fr; gap: 5px; align-items: center; }
+    .court-side { padding: 9px 7px; background: #131415; border-radius: 9px; text-align: center; font-size: 9px; line-height: 1.45; }
+    .court-vs { text-align: center; color: var(--text-3); font-size: 9px; }
+    .waiting { display: flex; flex-wrap: wrap; gap: 6px; }
+    .waiting span { padding: 6px 8px; border-radius: 8px; background: var(--control); color: var(--text-2); font-size: 8px; }
+
+    .league-hero { padding: 15px; }
+    .league-title { display: grid; grid-template-columns: 42px 1fr; gap: 11px; align-items: center; }
+    .league-title strong { display: block; font-size: 14px; }
+    .league-title span { display: block; color: var(--text-3); font-size: 9px; margin-top: 4px; }
+    .progress { height: 5px; background: var(--control); margin-top: 13px; overflow: hidden; border-radius: 99px; }
+    .progress i { display: block; width: 46%; height: 100%; background: var(--green); }
+    .standings-head, .standing-row { display: grid; grid-template-columns: 20px 1fr 26px 26px 34px; gap: 4px; align-items: center; }
+    .standings-head { padding: 9px 11px; color: var(--text-3); font-size: 8px; border-bottom: 1px solid var(--line); }
+    .standing-row { padding: 11px; font-size: 9px; border-bottom: 1px solid var(--line); }
+    .standing-row:last-child { border-bottom: 0; }
+    .standing-row strong { font-size: 10px; }
+    .standing-row .points { color: var(--green); font-weight: 850; text-align: right; }
+    .fixture { padding: 11px 12px; border-bottom: 1px solid var(--line); }
+    .fixture:last-child { border-bottom: 0; }
+    .fixture-top { display: flex; justify-content: space-between; color: var(--text-3); font-size: 8px; }
+    .fixture-match { display: grid; grid-template-columns: 1fr 42px 1fr; align-items: center; margin-top: 8px; font-size: 10px; }
+    .fixture-match span:nth-child(2) { text-align: center; color: var(--green); font-weight: 800; }
+    .fixture-match span:last-child { text-align: right; }
+    .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .metric { padding: 12px 8px; text-align: center; }
+    .metric strong { display: block; font-size: 16px; }
+    .metric span { display: block; color: var(--text-3); font-size: 8px; margin-top: 4px; }
+    .bars { height: 110px; display: flex; align-items: flex-end; gap: 9px; padding: 12px; }
+    .bar-item { flex: 1; display: grid; grid-template-rows: 1fr 12px; align-items: end; gap: 5px; color: var(--text-3); font-size: 7px; text-align: center; height: 100%; }
+    .bar-item i { width: 100%; min-height: 4px; background: var(--green); border-radius: 4px 4px 1px 1px; opacity: .75; }
+
+    .sheet-backdrop { position: absolute; z-index: 30; inset: 0; background: rgba(0,0,0,.62); display: grid; align-items: end; }
+    .sheet { background: #191a1b; border-top: 1px solid var(--line-strong); border-radius: 22px 22px 0 0; padding: 8px 16px 24px; box-shadow: 0 -22px 50px rgba(0,0,0,.42); }
+    .sheet-handle { width: 38px; height: 4px; border-radius: 99px; background: #55595b; margin: 0 auto 14px; }
+    .sheet h3 { margin: 0 0 5px; font-size: 15px; }
+    .sheet > p { margin: 0 0 13px; color: var(--text-3); font-size: 9px; line-height: 1.5; }
+    .action-option { width: 100%; display: grid; grid-template-columns: 38px 1fr 16px; gap: 10px; align-items: center; border: 0; border-bottom: 1px solid var(--line); background: transparent; padding: 11px 0; text-align: left; cursor: pointer; }
+    .action-option:last-of-type { border-bottom: 0; }
+    .action-option b:first-child { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--control); }
+    .action-option strong { display: block; font-size: 11px; }
+    .action-option span { display: block; color: var(--text-3); font-size: 8px; margin-top: 4px; }
+    .action-option em { color: var(--text-3); font-style: normal; }
+
+    .toast {
+      position: absolute; z-index: 50; left: 50%; bottom: 88px; transform: translate(-50%, 12px);
+      opacity: 0; pointer-events: none; padding: 9px 13px; border-radius: 99px; background: #e9ecea;
+      color: #111; font-size: 9px; font-weight: 800; white-space: nowrap; transition: .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    .right-rail { position: sticky; top: 22px; align-self: start; }
+    .context-kicker { color: var(--green); font-size: 10px; letter-spacing: .12em; }
+    .right-rail h2 { font-size: 21px; margin: 10px 0 9px; }
+    .context-copy { color: var(--text-3); font-size: 11px; line-height: 1.7; margin: 0 0 18px; }
+    .context-points { display: grid; gap: 10px; }
+    .context-point { padding: 11px 0 11px 13px; border-left: 2px solid var(--line-strong); }
+    .context-point strong { display: block; font-size: 11px; }
+    .context-point span { display: block; margin-top: 4px; color: var(--text-3); font-size: 9px; line-height: 1.55; }
+    .platforms { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+    .platforms h3 { margin: 0 0 10px; font-size: 11px; }
+    .platform-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .platform-list span { padding: 6px 8px; border-radius: 8px; background: var(--control); color: var(--text-2); font-size: 8px; }
+    .sync-note { margin-top: 14px; padding: 12px; background: var(--green-soft); color: #bdf6ca; font-size: 9px; line-height: 1.6; border-radius: 11px; }
+
+    .mobile-scene-bar { display: none; }
+    @media (max-width: 1100px) {
+      .workspace { grid-template-columns: 250px 1fr; }
+      .right-rail { grid-column: 1 / -1; position: static; min-height: auto; }
+      .context-points { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 760px) {
+      .workspace { display: block; padding: 0; }
+      .left-rail, .right-rail, .phone-caption { display: none; }
+      .stage { min-height: 100vh; display: block; padding: 58px 0 0; }
+      .phone-wrap { width: 100%; }
+      .phone { width: 100%; height: calc(100vh - 58px); min-height: 640px; border: 0; border-radius: 0; box-shadow: none; }
+      .phone::before { display: none; }
+      .mobile-scene-bar { display: flex; position: fixed; z-index: 70; left: 0; right: 0; top: 0; height: 58px; background: #111213; border-bottom: 1px solid var(--line); overflow-x: auto; padding: 9px; gap: 7px; }
+      .mobile-scene-bar button { border: 0; border-radius: 9px; background: var(--control); color: var(--text-3); padding: 0 11px; white-space: nowrap; font-size: 9px; }
+      .mobile-scene-bar button.active { background: var(--green); color: #06140a; font-weight: 800; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="mobile-scene-bar" id="mobile-scene-bar"></div>
+  <main class="workspace">
+    <aside class="left-rail">
+      <div class="brand"><div class="brand-mark">分</div><div><h1>全能计分器</h1><p>小组系统 · PRD v1.0</p></div></div>
+      <div class="rail-kicker">Interactive product flow</div>
+      <h2>松散是基础<br>组织能力按需叠加</h2>
+      <p class="rail-intro">从小组入口、加入、自由比赛，到多人轮转与正式联赛。所有场景固定为同一个项目，并共享成员和长期战绩。</p>
+
+      <div class="journey-group">
+        <p class="journey-label">基础闭环</p>
+        <button class="journey-button active" data-action="scene" data-target="groups" data-scene="groups"><b>01</b><span>我的小组</span></button>
+        <button class="journey-button" data-action="scene" data-target="overview" data-scene="overview"><b>02</b><span>小组完整闭环</span></button>
+        <button class="journey-button" data-action="scene" data-target="join" data-scene="join"><b>03</b><span>跨端邀请加入</span></button>
+      </div>
+      <div class="journey-group">
+        <p class="journey-label">组织活动</p>
+        <button class="journey-button" data-action="scene" data-target="rotation-setup" data-scene="rotation-setup"><b>04</b><span>发起羽毛球轮转</span></button>
+        <button class="journey-button" data-action="scene" data-target="rotation-live" data-scene="rotation-live"><b>05</b><span>轮转主控现场</span></button>
+        <button class="journey-button" data-action="scene" data-target="league" data-scene="league"><b>06</b><span>小组联赛</span></button>
+      </div>
+      <div class="journey-group">
+        <p class="journey-label">治理与数据</p>
+        <button class="journey-button" data-action="scene" data-target="records" data-scene="records"><b>07</b><span>长期战绩</span></button>
+        <button class="journey-button" data-action="scene" data-target="members" data-scene="members"><b>08</b><span>成员与权限</span></button>
+      </div>
+
+      <div class="decision-note"><strong>硬规则</strong>一个小组只绑定一个运动或棋牌项目；联赛与轮转是小组内部模块，不是独立小组类型。</div>
+    </aside>
+
+    <section class="stage">
+      <div class="phone-wrap">
+        <span class="phone-caption">FULL FLOW<br>390 × 844</span>
+        <div class="phone" aria-label="小组系统交互原型">
+          <div class="statusbar"><span>10:43</span><span>● ◒ 5G ▰</span></div>
+          <div class="app-screen" id="app-screen"></div>
+          <div class="toast" id="toast" role="status"></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="right-rail">
+      <div class="context-kicker">PRODUCT INTENT</div>
+      <h2 id="context-title">小组列表是入口</h2>
+      <p class="context-copy" id="context-copy">用户可以加入多个不同项目的小组，但每个小组内部只允许一个固定项目。列表只负责进入，不承担完整业务。</p>
+      <div class="context-points" id="context-points"></div>
+      <div class="platforms">
+        <h3>统一覆盖端</h3>
+        <div class="platform-list"><span>Android</span><span>HarmonyOS</span><span>iOS</span><span>微信小程序</span><span>服务端</span></div>
+        <div class="sync-note">服务端 `userId` 是成员身份唯一依据；各端缓存仅用于体验，排名与积分榜由服务端派生。</div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    const appScreen = document.getElementById('app-screen');
+    const toast = document.getElementById('toast');
+    const mobileSceneBar = document.getElementById('mobile-scene-bar');
+
+    const state = {
+      scene: 'groups',
+      groupTab: 'overview',
+      leagueTab: 'standings',
+      joinStage: 'preview',
+      joined: false,
+      rotationRound: 3,
+      courtCount: 3,
+      rotationStrategy: 'pending',
+      online: true,
+      sheet: null
+    };
+
+    const scenes = [
+      ['groups', '小组列表'], ['overview', '完整闭环'], ['join', '跨端加入'],
+      ['rotation-setup', '轮转设置'], ['rotation-live', '轮转现场'], ['league', '联赛'],
+      ['records', '长期战绩'], ['members', '成员']
+    ];
+
+    const context = {
+      groups: {
+        title: '小组列表是入口',
+        copy: '用户可以加入多个不同项目的小组，但每个小组内部只允许一个固定项目。列表只负责进入，不承担完整业务。',
+        points: [['B 不再是独立方案', '卡片列表与 A 详情同时存在。'], ['项目不混组', '羽毛球、篮球、掼蛋分别是三个小组。'], ['展示个人相关信息', '优先下一场、本月出场、个人排名。']]
+      },
+      overview: {
+        title: '松散小组是默认态',
+        copy: '创建小组后无需选择“自由型”或“联赛型”。立即计分和约一场是基础能力，轮转和联赛从组织活动入口按需启用。',
+        points: [['项目固定', '页面始终标明羽毛球，不提供项目切换。'], ['业务分层', '普通约球、轮转、联赛共享成员和比赛。'], ['控制首页复杂度', '两个高频动作直接展示，进阶能力收进发起面板。']]
+      },
+      join: {
+        title: '邀请由小程序优先承接',
+        copy: '微信分享先打开小程序；登录后恢复邀请上下文并以统一 userId 加入。之后用户在任意已登录端都能看到同一个小组。',
+        points: [['登录前最小预览', '只显示名称、项目、成员数和邀请人。'], ['服务端二次校验', '登录后重新判断有效期、名额和审批策略。'], ['身份可归并', 'openid/unionid 只用于认证，不进入小组表。']]
+      },
+      'rotation-setup': {
+        title: '轮转是一种活动',
+        copy: '轮转不是联赛，也不是新的小组类型。它围绕一次多人、多场地活动，负责签到、排阵、候场和连续多轮。',
+        points: [['硬约束优先', '场地、人数、固定搭档先满足。'], ['公平可解释', '再减少连续休息、重复搭档和重复对手。'], ['允许人工调整', '发布前可以换人，调整进入审计。']]
+      },
+      'rotation-live': {
+        title: '现场采用单主控',
+        copy: '一台设备负责发布轮次与生成下一轮，其他端实时查看并可提交单场结果。主控短时离线仍可继续，恢复后同步事件日志。',
+        points: [['租约防双主控', '接管后旧主控不能覆盖新轮次。'], ['每场独立落库', '完成的场地比赛进入长期战绩。'], ['异常不丢现场', '离线、迟到、早退只影响后续轮次。']]
+      },
+      league: {
+        title: '联赛是小组内的赛季模块',
+        copy: '同一小组可以平时自由打，也可以创建一个或多个赛季。赛季锁定赛制和参赛单位，并拥有独立积分榜、赛程与统计。',
+        points: [['范围不同', '长期战绩统计全部比赛，积分榜只统计当前赛季。'], ['规则锁定', '开赛后不静默修改赛制或积分规则。'], ['结果可追溯', '确认、修正和重算都有审计版本。']]
+      },
+      records: {
+        title: '比赛记录是唯一事实',
+        copy: '自由比赛、轮转小局和联赛场次最终都关联标准比赛记录。小组排行榜由记录派生，不让客户端各自累计。',
+        points: [['固定项目榜', '不提供跨项目“综合排行榜”。'], ['不同赛制可筛选', '单打与双打不伪装成同一公平口径。'], ['最低场次门槛', '满 5 场后才显示胜率。']]
+      },
+      members: {
+        title: '账号成员与临时成员并存',
+        copy: '注册不是参加计分的前提。管理员可先添加临时球友；对方以后登录并认领，历史会合并到真实账号成员。',
+        points: [['角色与身份分开', 'OWNER/ADMIN/MEMBER 不等于账号/临时身份。'], ['删除不抹历史', '比赛保留当时的参赛快照。'], ['所有者唯一', '退出或注销前必须转让或归档。']]
+      }
+    };
+
+    function bottomNav(active) {
+      return `<nav class="bottom-nav">
+        <button class="${active === 'home' ? 'active' : ''}" data-action="scene" data-target="groups"><b>⌂</b><span>首页</span></button>
+        <button class="${active === 'records' ? 'active' : ''}" data-action="group-tab" data-target="records"><b>▤</b><span>记录</span></button>
+        <button data-action="toast" data-message="进入项目计分列表"><b>▣</b><span>计分</span></button>
+        <button class="${active === 'group' ? 'active' : ''}" data-action="scene" data-target="overview"><b>♧</b><span>小组</span></button>
+      </nav>`;
+    }
+
+    function appbar(title, backTarget, action) {
+      const left = backTarget ? `<button class="appbar-button" data-action="scene" data-target="${backTarget}" aria-label="返回">‹</button>` : '<span></span>';
+      const right = action || '<span></span>';
+      return `<header class="appbar">${left}<h2>${title}</h2>${right}</header>`;
+    }
+
+    function groupsScreen() {
+      return `${appbar('我的小组', '', '<button class="appbar-button text" data-action="toast" data-message="输入邀请码加入小组">加入</button>')}
+        <div class="screen-scroll">
+          <div class="section-head"><h3>最近使用</h3><span>3 个小组</span></div>
+          <button class="group-card" data-action="scene" data-target="overview">
+            <div class="group-title-row"><span class="sport-mark">🏸</span><span class="group-name"><strong>周六羽毛球</strong><span>羽毛球 · 18 位成员 · 项目固定</span></span><span class="chevron">›</span></div>
+            <div class="group-facts"><div class="fact"><strong>明天</strong><span>下一场</span></div><div class="fact"><strong>8</strong><span>本月比赛</span></div><div class="fact"><strong>第 2</strong><span>我的排名</span></div></div>
+          </button>
+          <button class="group-card" data-action="toast" data-message="篮球小组使用相同基础结构">
+            <div class="group-title-row"><span class="sport-mark">🏀</span><span class="group-name"><strong>园区篮球局</strong><span>篮球 · 24 位成员 · 项目固定</span></span><span class="chevron">›</span></div>
+            <div class="group-facts"><div class="fact"><strong>周三</strong><span>下一场</span></div><div class="fact"><strong>12</strong><span>我的出场</span></div><div class="fact"><strong>7.8</strong><span>场均得分</span></div></div>
+          </button>
+          <button class="group-card" data-action="toast" data-message="掼蛋小组使用项目专属统计">
+            <div class="group-title-row"><span class="sport-mark">🃏</span><span class="group-name"><strong>晚饭后掼蛋</strong><span>掼蛋 · 12 位成员 · 项目固定</span></span><span class="chevron">›</span></div>
+            <div class="group-facts"><div class="fact"><strong>周五</strong><span>下一场</span></div><div class="fact"><strong>A</strong><span>我的级牌</span></div><div class="fact"><strong>9</strong><span>获胜场次</span></div></div>
+          </button>
+          <div class="empty-action-row"><button class="button primary" data-action="toast" data-message="创建时先选择固定项目">创建小组</button><button class="button" data-action="scene" data-target="join">体验邀请加入</button></div>
+        </div>${bottomNav('group')}`;
+    }
+
+    function groupTabs(active) {
+      const tabs = [['overview','概览'], ['activities','活动'], ['records','战绩'], ['members','成员']];
+      return `<div class="group-tabs">${tabs.map(([key,label]) => `<button class="${active === key ? 'active' : ''}" data-action="group-tab" data-target="${key}">${label}</button>`).join('')}</div>`;
+    }
+
+    function groupHeader(active) {
+      return `<article class="group-hero">
+        <div class="hero-line"><div><span class="hero-kicker">羽毛球小组 · 项目固定</span><h3>周六羽毛球</h3><p>18 位成员 · 每周六下午活动</p></div><span class="badge green">已同步</span></div>
+        <div class="hero-stats"><div class="hero-stat"><strong>46</strong><span>累计比赛</span></div><div class="hero-stat"><strong>13</strong><span>近 30 天活跃</span></div><div class="hero-stat"><strong>62%</strong><span>我的胜率</span></div></div>
+      </article>${groupTabs(active)}`;
+    }
+
+    function overviewContent() {
+      return `${groupHeader('overview')}
+        <div class="section-head"><h3>开始一场</h3><span>只使用羽毛球</span></div>
+        <div class="quick-grid"><button class="quick-button primary" data-action="toast" data-message="进入羽毛球计分板并带入小组成员"><b>立即计分</b><span>现在开打，完赛自动写入小组战绩</span></button><button class="quick-button" data-action="toast" data-message="创建普通约球并同步各端"><b>约一场</b><span>设置时间、地点、赛制和参与成员</span></button></div>
+        <div class="section-head"><h3>组织活动</h3><button data-action="sheet" data-target="actions">全部方式 ›</button></div>
+        <button class="card activity-card" data-action="scene" data-target="rotation-live"><div class="activity-top"><span class="activity-icon">↻</span><span class="activity-copy"><strong>周六 12 人轮转</strong><span>进行中 · 第 3 轮 · 3 块场地</span></span><span class="badge orange">现场</span></div></button>
+        <button class="card activity-card" data-action="scene" data-target="league"><div class="activity-top"><span class="activity-icon">🏆</span><span class="activity-copy"><strong>2026 夏季单打联赛</strong><span>第 4/8 周 · 已完成 11/24 场</span></span><span class="badge purple">赛季</span></div></button>
+        <div class="section-head"><h3>下一场</h3><span>明天 19:30</span></div>
+        <article class="card activity-card"><div class="activity-top"><span class="activity-icon">🏸</span><span class="activity-copy"><strong>杨扬 / 林启 vs 陈鹏 / 小北</strong><span>奥体中心 1 号场 · 3/4 已确认</span></span></div><div class="activity-actions"><button class="small-button" data-action="toast" data-message="打开约球编辑页，可修改时间、地点与成员">编辑</button><button class="small-button primary" data-action="toast" data-message="已带入双打成员，准备开始计分">开始计分</button></div></article>`;
+    }
+
+    function activitiesContent() {
+      return `${groupHeader('activities')}
+        <div class="section-head"><h3>进行中</h3><button data-action="sheet" data-target="actions">＋ 发起</button></div>
+        <button class="card activity-card" data-action="scene" data-target="rotation-live"><div class="activity-top"><span class="activity-icon">↻</span><span class="activity-copy"><strong>周六 12 人轮转</strong><span>第 3 轮 · 3 块场地 · 2 人候场</span></span><span class="badge orange">进行中</span></div></button>
+        <button class="card activity-card" data-action="scene" data-target="league"><div class="activity-top"><span class="activity-icon">🏆</span><span class="activity-copy"><strong>2026 夏季单打联赛</strong><span>第 4/8 周 · 下一场明晚</span></span><span class="badge purple">联赛</span></div></button>
+        <div class="section-head"><h3>普通约球</h3><span>2 场</span></div>
+        <article class="card activity-card"><div class="activity-top"><span class="activity-icon">◷</span><span class="activity-copy"><strong>周三晚间双打</strong><span>9月2日 19:30 · 江湾羽毛球馆</span></span><span class="badge blue">招募中</span></div></article>
+        <article class="card activity-card"><div class="activity-top"><span class="activity-icon">✓</span><span class="activity-copy"><strong>上周六自由练习</strong><span>已完成 · 4 场比赛已写入战绩</span></span><span class="badge">已结束</span></div></article>`;
+    }
+
+    function recordsContent() {
+      return `${groupHeader('records')}
+        <div class="section-head"><h3>长期排行榜</h3><span>羽毛球 · 全部历史</span></div>
+        <div class="card rank-table">
+          <div class="rank-row"><span class="rank-no medal">1</span><span class="avatar">陈</span><span class="rank-name"><strong>陈鹏</strong><span>32 场 · 24 胜</span></span><span class="rank-value"><strong>75%</strong><span>胜率</span></span></div>
+          <div class="rank-row"><span class="rank-no medal">2</span><span class="avatar blue">杨</span><span class="rank-name"><strong>杨扬（我）</strong><span>30 场 · 19 胜</span></span><span class="rank-value"><strong>63%</strong><span>胜率</span></span></div>
+          <div class="rank-row"><span class="rank-no medal">3</span><span class="avatar orange">林</span><span class="rank-name"><strong>林启</strong><span>27 场 · 17 胜</span></span><span class="rank-value"><strong>63%</strong><span>胜率</span></span></div>
+          <div class="rank-row"><span class="rank-no">4</span><span class="avatar">北</span><span class="rank-name"><strong>小北</strong><span>4 场 · 3 胜</span></span><span class="rank-value"><strong>—</strong><span>未满 5 场</span></span></div>
+        </div>
+        <div class="section-head"><h3>最近比赛</h3><span>全部来源</span></div>
+        <article class="card activity-card"><div class="activity-top"><span class="activity-icon">↻</span><span class="activity-copy"><strong>杨扬 / 林启 21:17 陈鹏 / 小北</strong><span>来自轮转 · 第 2 轮 · 今天</span></span></div></article>
+        <article class="card activity-card"><div class="activity-top"><span class="activity-icon">🏆</span><span class="activity-copy"><strong>陈鹏 2:1 杨扬</strong><span>来自夏季联赛 · 第 4 轮 · 昨天</span></span></div></article>
+        <article class="card activity-card"><div class="activity-top"><span class="activity-icon">🏸</span><span class="activity-copy"><strong>林启 21:15 小北</strong><span>自由比赛 · 8月29日</span></span></div></article>`;
+    }
+
+    function membersContent() {
+      return `${groupHeader('members')}
+        <div class="empty-action-row"><button class="button primary" data-action="sheet" data-target="invite">邀请成员</button><button class="button" data-action="toast" data-message="添加未注册球友，后续可认领历史">添加临时成员</button></div>
+        <div class="section-head"><h3>加入申请</h3><span>1 条待处理</span></div>
+        <article class="card activity-card"><div class="activity-top"><span class="avatar orange">周</span><span class="activity-copy"><strong>老周</strong><span>通过小程序邀请申请 · 3 分钟前</span></span></div><div class="activity-actions"><button class="small-button" data-action="toast" data-message="已拒绝加入申请并记录审核结果">拒绝</button><button class="small-button primary" data-action="toast" data-message="已通过加入申请，各端将收到刷新事件">通过</button></div></article>
+        <div class="section-head"><h3>全部成员</h3><span>18 人</span></div>
+        <div class="card">
+          <div class="member-card"><span class="avatar blue">杨</span><span class="member-info"><strong>杨扬</strong><span>账号成员 · 30 场</span></span><span class="badge green">所有者</span></div>
+          <div class="member-card"><span class="avatar">陈</span><span class="member-info"><strong>陈鹏</strong><span>账号成员 · 32 场</span></span><span class="badge blue">管理员</span></div>
+          <div class="member-card"><span class="avatar orange">林</span><span class="member-info"><strong>林启</strong><span>账号成员 · 27 场</span></span><span class="badge">成员</span></div>
+          <div class="member-card"><span class="avatar">北</span><span class="member-info"><strong>小北</strong><span>账号成员 · 4 场</span></span><span class="badge">成员</span></div>
+          <div class="member-card"><span class="avatar orange">客</span><span class="member-info"><strong>老吴</strong><span>临时成员 · 8 场 · 可认领</span></span><button class="small-button" data-action="toast" data-message="已生成临时成员认领邀请">认领</button></div>
+        </div>`;
+    }
+
+    function groupScreen(tab) {
+      const map = { overview: overviewContent, activities: activitiesContent, records: recordsContent, members: membersContent };
+      return `${appbar('小组详情', 'groups', '<button class="appbar-button" data-action="toast" data-message="小组设置与权限">•••</button>')}<div class="screen-scroll">${map[tab]()}</div>${bottomNav(tab === 'records' ? 'records' : 'group')}`;
+    }
+
+    function joinScreen() {
+      if (state.joinStage === 'auth') {
+        return `${appbar('微信登录', 'join')}<div class="screen-scroll">
+          <article class="card invite-hero"><div class="invite-logo">微信</div><h3>登录后继续加入</h3><p>登录用于确认成员身份，并让 Android、HarmonyOS、iOS 与小程序看到同一个小组。</p></article>
+          <div class="flow-steps"><div class="flow-step done"><b>1</b><div><strong>邀请凭证已验证</strong><span>周六羽毛球 · 剩余 32 个名额</span></div></div><div class="flow-step"><b>2</b><div><strong>微信快捷登录</strong><span>通过现有小程序登录换取统一服务端账号</span></div></div><div class="flow-step"><b>3</b><div><strong>重新校验并加入</strong><span>登录后服务端再次检查邀请有效期和成员关系</span></div></div></div>
+          <button class="button primary" style="width:100%;margin-top:18px" data-action="join-auth">微信快捷登录</button>
+          <button class="button ghost" style="width:100%;margin-top:9px" data-action="join-reset">取消</button>
+        </div>`;
+      }
+      if (state.joinStage === 'success') {
+        return `${appbar('加入成功', 'groups')}<div class="screen-scroll">
+          <article class="card invite-hero"><div class="invite-logo">✓</div><h3>已加入“周六羽毛球”</h3><p>成员关系已绑定统一账号。你现在可以在小程序查看活动，也可以在其他已登录端继续。</p></article>
+          <div class="flow-steps"><div class="flow-step done"><b>1</b><div><strong>微信小程序</strong><span>当前端已加入，可报名、查看轮转和联赛</span></div></div><div class="flow-step done"><b>2</b><div><strong>服务端 userId</strong><span>成员关系只存统一业务账号，不存 openid</span></div></div><div class="flow-step done"><b>3</b><div><strong>其他客户端</strong><span>下次登录或收到刷新事件后出现同一小组</span></div></div></div>
+          <button class="button primary" style="width:100%;margin-top:18px" data-action="scene" data-target="overview">进入小组</button>
+          <button class="button" style="width:100%;margin-top:9px" data-action="join-reset">重新体验流程</button>
+        </div>`;
+      }
+      return `${appbar('小组邀请', 'groups')}<div class="screen-scroll">
+        <article class="card invite-hero"><div class="invite-logo">🏸</div><h3>周六羽毛球</h3><p>陈鹏邀请你加入 · 羽毛球 · 18 位成员<br>每周六下午活动</p></article>
+        <div class="card privacy-line"><b>●</b><span>登录前只展示最小预览。成员名单、活动地点和战绩需要加入后才能查看。</span></div>
+        <div class="section-head"><h3>加入方式</h3><span>邀请自动加入</span></div>
+        <div class="flow-steps"><div class="flow-step done"><b>1</b><div><strong>邀请仍然有效</strong><span>7 天有效 · 还可使用 32 次</span></div></div><div class="flow-step"><b>2</b><div><strong>确认账号身份</strong><span>未登录时先完成微信快捷登录</span></div></div><div class="flow-step"><b>3</b><div><strong>加入并跨端同步</strong><span>相同服务端账号在所有端共享成员关系</span></div></div></div>
+        <button class="button primary" style="width:100%;margin-top:18px" data-action="join-start">登录并加入</button>
+        <button class="button ghost" style="width:100%;margin-top:9px" data-action="toast" data-message="已婉拒本次邀请">暂不加入</button>
+      </div>`;
+    }
+
+    function rotationSetupScreen() {
+      return `${appbar('发起轮转', 'overview')}<div class="screen-scroll">
+        <article class="card form-card"><div class="field-label">固定项目</div><div class="field-row"><strong>🏸 羽毛球 · 双打</strong><span class="badge green">由小组限定</span></div></article>
+        <article class="card form-card"><div class="field-label">参与成员</div><div class="field-row"><strong>12 人已签到</strong><button class="small-button" data-action="toast" data-message="选择成员、标记迟到或临时成员">调整</button></div><div class="waiting" style="margin-top:11px"><span>杨扬</span><span>陈鹏</span><span>林启</span><span>小北</span><span>老周</span><span>+7</span></div></article>
+        <article class="card form-card"><div class="field-label">场地数量</div><div class="field-row"><strong>同时开打 ${state.courtCount} 场</strong><div class="stepper"><button data-action="court-minus">−</button><b>${state.courtCount}</b><button data-action="court-plus">＋</button></div></div></article>
+        <article class="card form-card"><div class="field-label">排阵策略 · 轮转专项待定</div><div class="segmented"><button class="${state.rotationStrategy === 'queue' ? 'active' : ''}" data-action="strategy" data-target="queue">队列</button><button class="${state.rotationStrategy === 'balanced' ? 'active' : ''}" data-action="strategy" data-target="balanced">均衡</button></div><p class="field-help">本页只演示两个首版候选，不代表已经选择某种算法。</p></article>
+        <article class="card form-card"><div class="field-label">单轮结束方式</div><div class="field-row"><strong>15 分钟或管理员手动结束</strong><span class="badge">可修改</span></div></article>
+        <article class="card form-card"><div class="field-label">公平约束</div><div class="constraint-list"><div class="constraint"><span>避免连续休息</span><b>优先</b></div><div class="constraint"><span>减少连续搭档</span><b>开启</b></div><div class="constraint"><span>减少重复对手</span><b>开启</b></div><div class="constraint"><span>参考历史实力</span><b>${state.rotationStrategy === 'balanced' ? '开启' : '关闭'}</b></div></div></article>
+        <button class="button primary" style="width:100%;margin-top:7px" data-action="start-rotation">生成第 1 轮并开始</button>
+      </div>`;
+    }
+
+    const roundPlayers = [
+      [['杨扬 / 林启','陈鹏 / 小北'],['老周 / 可可','莫凡 / 乔安'],['乐言 / 川子','远航 / 老吴']],
+      [['杨扬 / 陈鹏','老周 / 小北'],['林启 / 莫凡','可可 / 川子'],['乐言 / 乔安','远航 / 老吴']],
+      [['杨扬 / 小北','乐言 / 老周'],['陈鹏 / 可可','林启 / 远航'],['莫凡 / 老吴','乔安 / 川子']]
+    ];
+
+    function rotationLiveScreen() {
+      const pairings = roundPlayers[(state.rotationRound - 1) % roundPlayers.length];
+      return `${appbar('周六 12 人轮转', 'overview', `<button class="appbar-button text" data-action="toggle-network">${state.online ? '在线' : '离线'}</button>`)}<div class="screen-scroll">
+        <article class="card live-head"><div class="live-title"><strong>第 ${state.rotationRound} 轮</strong><span class="badge ${state.online ? 'green' : 'orange'}">${state.online ? '主控在线' : '本机离线继续'}</span></div><div class="live-meta"><span>${state.courtCount} 块场地 · 12 人</span><span class="timer">08:42</span></div></article>
+        ${pairings.map((pair, index) => `<article class="card court-card"><div class="court-head"><strong>${index + 1} 号场</strong><span>${index === 0 ? '比分待确认' : '进行中'}</span></div><div class="court-match"><div class="court-side">${pair[0]}</div><div class="court-vs">VS</div><div class="court-side">${pair[1]}</div></div><div class="activity-actions"><button class="small-button" data-action="toast" data-message="交换场地或调整本轮人员">调整</button><button class="small-button primary" data-action="toast" data-message="记录本场比分，完成后写入小组战绩">记录比分</button></div></article>`).join('')}
+        <div class="section-head"><h3>候场</h3><span>优先安排休息轮次少的人</span></div><div class="waiting"><span>阿杰 · 休 1</span><span>小吴 · 休 1</span></div>
+        <button class="button primary" style="width:100%;margin-top:16px" data-action="next-round">结束本轮并生成下一轮</button>
+        <button class="button" style="width:100%;margin-top:8px" data-action="toast" data-message="轮转已暂停，当前结果仍可记录">暂停轮转</button>
+      </div>`;
+    }
+
+    function leagueTabs() {
+      return `<div class="group-tabs">${[['standings','积分榜'],['schedule','赛程'],['stats','统计']].map(([key,label]) => `<button class="${state.leagueTab === key ? 'active' : ''}" data-action="league-tab" data-target="${key}">${label}</button>`).join('')}</div>`;
+    }
+
+    function leagueContent() {
+      if (state.leagueTab === 'schedule') {
+        return `<div class="section-head"><h3>第 4 轮</h3><span>完成 2/4 场</span></div><div class="card">
+          <div class="fixture"><div class="fixture-top"><span>昨天 · 已确认</span><span>第 4 轮</span></div><div class="fixture-match"><span>陈鹏</span><span>2 : 1</span><span>杨扬</span></div></div>
+          <div class="fixture"><div class="fixture-top"><span>今天 · 待确认</span><span>第 4 轮</span></div><div class="fixture-match"><span>林启</span><span>2 : 0</span><span>小北</span></div><div class="activity-actions"><button class="small-button" data-action="toast" data-message="打开比赛详情与结果证据">查看</button><button class="small-button primary" data-action="toast" data-message="结果已确认，服务端重算积分榜">确认结果</button></div></div>
+          <div class="fixture"><div class="fixture-top"><span>明天 19:30</span><span>第 4 轮</span></div><div class="fixture-match"><span>莫凡</span><span>VS</span><span>乐言</span></div></div>
+        </div><div class="section-head"><h3>第 5 轮</h3><span>下周</span></div><article class="card activity-card"><div class="activity-top"><span class="activity-icon">◷</span><span class="activity-copy"><strong>4 场待赛</strong><span>时间与场地由参赛人确认</span></span></div></article>`;
+      }
+      if (state.leagueTab === 'stats') {
+        return `<div class="section-head"><h3>赛季进度</h3><span>只统计联赛场次</span></div><div class="metric-grid"><div class="card metric"><strong>11</strong><span>已完成</span></div><div class="card metric"><strong>24</strong><span>总场次</span></div><div class="card metric"><strong>46%</strong><span>完成率</span></div></div><div class="section-head"><h3>每周场次</h3><span>第 1～4 周</span></div><div class="card bars"><div class="bar-item"><i style="height:36%"></i>W1</div><div class="bar-item"><i style="height:58%"></i>W2</div><div class="bar-item"><i style="height:45%"></i>W3</div><div class="bar-item"><i style="height:82%"></i>W4</div><div class="bar-item"><i style="height:10%;opacity:.25"></i>W5</div><div class="bar-item"><i style="height:10%;opacity:.25"></i>W6</div></div><div class="section-head"><h3>数据口径</h3></div><article class="card form-card"><div class="constraint-list"><div class="constraint"><span>项目 / 赛制</span><b>羽毛球单打</b></div><div class="constraint"><span>积分规则</span><b>胜 3 · 负 0</b></div><div class="constraint"><span>同分排序</span><b>胜场 → 净胜局</b></div><div class="constraint"><span>规则版本</span><b>v1 · 已锁定</b></div></div></article>`;
+      }
+      return `<div class="section-head"><h3>积分榜</h3><span>11 场已确认</span></div><div class="card"><div class="standings-head"><span>#</span><span>成员</span><span>赛</span><span>胜</span><span>分</span></div><div class="standing-row"><b>1</b><strong>陈鹏</strong><span>4</span><span>4</span><span class="points">12</span></div><div class="standing-row"><b>2</b><strong>杨扬</strong><span>4</span><span>3</span><span class="points">9</span></div><div class="standing-row"><b>3</b><strong>林启</strong><span>3</span><span>2</span><span class="points">6</span></div><div class="standing-row"><b>4</b><strong>小北</strong><span>3</span><span>1</span><span class="points">3</span></div><div class="standing-row"><b>5</b><strong>莫凡</strong><span>2</span><span>0</span><span class="points">0</span></div></div><div class="section-head"><h3>下一场</h3><span>明天 19:30</span></div><article class="card activity-card"><div class="activity-top"><span class="activity-icon">🏸</span><span class="activity-copy"><strong>莫凡 vs 乐言</strong><span>第 4 轮 · 奥体中心 2 号场</span></span><span class="badge purple">联赛</span></div></article>`;
+    }
+
+    function leagueScreen() {
+      return `${appbar('小组联赛', 'overview', '<button class="appbar-button" data-action="toast" data-message="联赛设置、规则版本和归档">•••</button>')}<div class="screen-scroll"><article class="card league-hero"><div class="league-title"><span class="sport-mark">🏆</span><div><strong>2026 夏季单打联赛</strong><span>羽毛球单打 · 单循环 · 第 4/8 周</span></div></div><div class="progress"><i></i></div></article>${leagueTabs()}${leagueContent()}</div>`;
+    }
+
+    function actionSheet(type) {
+      if (type === 'invite') {
+        return `<div class="sheet-backdrop" data-action="close-sheet"><div class="sheet" onclick="event.stopPropagation()"><div class="sheet-handle"></div><h3>邀请成员</h3><p>四种入口共用同一服务端邀请凭证，默认 7 天有效。</p><button class="action-option" data-action="toast" data-message="已生成微信小程序分享卡片"><b>微信</b><span><strong>分享到微信</strong><span>微信内优先由小程序承接</span></span><em>›</em></button><button class="action-option" data-action="scene" data-target="join"><b>码</b><span><strong>预览加入流程</strong><span>二维码、小程序码或 8 位邀请码</span></span><em>›</em></button><button class="button" style="width:100%;margin-top:8px" data-action="close-sheet">取消</button></div></div>`;
+      }
+      return `<div class="sheet-backdrop" data-action="close-sheet"><div class="sheet" onclick="event.stopPropagation()"><div class="sheet-handle"></div><h3>发起</h3><p>基础能力直接使用；轮转和联赛按需要创建。</p><button class="action-option" data-action="toast" data-message="进入羽毛球计分板并关联小组"><b>＋</b><span><strong>立即计分</strong><span>自由比赛，完赛进入长期战绩</span></span><em>›</em></button><button class="action-option" data-action="toast" data-message="创建普通约球，各端同步报名"><b>◷</b><span><strong>约一场</strong><span>设置时间、地点、赛制与提醒</span></span><em>›</em></button><button class="action-option" data-action="scene" data-target="rotation-setup"><b>↻</b><span><strong>轮转活动</strong><span>多人、多场地、连续多轮自动排阵</span></span><em>›</em></button><button class="action-option" data-action="scene" data-target="league"><b>🏆</b><span><strong>创建或进入联赛</strong><span>赛程、积分榜和赛季统计</span></span><em>›</em></button><button class="button" style="width:100%;margin-top:8px" data-action="close-sheet">取消</button></div></div>`;
+    }
+
+    function render() {
+      const sceneRenderers = {
+        groups: groupsScreen,
+        overview: () => groupScreen(state.groupTab),
+        join: joinScreen,
+        'rotation-setup': rotationSetupScreen,
+        'rotation-live': rotationLiveScreen,
+        league: leagueScreen,
+        records: () => groupScreen('records'),
+        members: () => groupScreen('members')
+      };
+      appScreen.innerHTML = sceneRenderers[state.scene]() + (state.sheet ? actionSheet(state.sheet) : '');
+
+      document.querySelectorAll('.journey-button').forEach(button => button.classList.toggle('active', button.dataset.scene === state.scene));
+      mobileSceneBar.querySelectorAll('button').forEach(button => button.classList.toggle('active', button.dataset.scene === state.scene));
+      const detail = context[state.scene] || context.overview;
+      document.getElementById('context-title').textContent = detail.title;
+      document.getElementById('context-copy').textContent = detail.copy;
+      document.getElementById('context-points').innerHTML = detail.points.map(point => `<div class="context-point"><strong>${point[0]}</strong><span>${point[1]}</span></div>`).join('');
+    }
+
+    function navigate(scene) {
+      state.scene = scene;
+      state.sheet = null;
+      if (scene === 'overview') state.groupTab = 'overview';
+      if (scene === 'records') state.groupTab = 'records';
+      if (scene === 'members') state.groupTab = 'members';
+      render();
+    }
+
+    let toastTimer;
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    document.addEventListener('click', event => {
+      const target = event.target.closest('[data-action]');
+      if (!target) return;
+      const action = target.dataset.action;
+      if (action === 'scene') navigate(target.dataset.target);
+      if (action === 'toast') showToast(target.dataset.message || '操作成功');
+      if (action === 'sheet') { state.sheet = target.dataset.target; render(); }
+      if (action === 'close-sheet') { state.sheet = null; render(); }
+      if (action === 'group-tab') {
+        const tab = target.dataset.target;
+        state.groupTab = tab;
+        state.scene = tab === 'records' || tab === 'members' ? tab : 'overview';
+        render();
+      }
+      if (action === 'join-start') { state.joinStage = 'auth'; render(); }
+      if (action === 'join-auth') { state.joinStage = 'success'; state.joined = true; showToast('微信登录成功，已使用统一账号加入'); render(); }
+      if (action === 'join-reset') { state.joinStage = 'preview'; state.joined = false; render(); }
+      if (action === 'court-minus') { state.courtCount = Math.max(1, state.courtCount - 1); render(); }
+      if (action === 'court-plus') { state.courtCount = Math.min(5, state.courtCount + 1); render(); }
+      if (action === 'strategy') { state.rotationStrategy = target.dataset.target; render(); }
+      if (action === 'start-rotation') {
+        if (state.rotationStrategy === 'pending') {
+          showToast('请先选择一个候选策略；首版默认策略仍由轮转专项评审');
+        } else {
+          state.rotationRound = 1;
+          navigate('rotation-live');
+          showToast('第 1 轮已发布，当前设备成为主控');
+        }
+      }
+      if (action === 'toggle-network') { state.online = !state.online; render(); showToast(state.online ? '网络已恢复，待同步操作已上传' : '已模拟离线，主控可在本机继续'); }
+      if (action === 'next-round') { state.rotationRound += 1; render(); showToast(state.online ? `第 ${state.rotationRound} 轮已同步到所有端` : `第 ${state.rotationRound} 轮已保存在本机，联网后同步`); }
+      if (action === 'league-tab') { state.leagueTab = target.dataset.target; render(); }
+    });
+
+    mobileSceneBar.innerHTML = scenes.map(([key, label]) => `<button data-action="scene" data-target="${key}" data-scene="${key}">${label}</button>`).join('');
+    render();
+  </script>
+</body>
+</html>

@@ -149,6 +149,20 @@ def native_table(pack):
     result.update({'badminton.number.'+str(n):str(n) for n in range(31)})
     # Semantic IDs for documented calls and the universal numeric fallback.
     result.update(DOCUMENTED_CALLS)
+    # Semantic IDs need native frames too. DOCUMENTED_CALLS is the English
+    # inventory, not a fallback to ship over a locale's reviewed vocabulary.
+    result.update({
+        'squash.game.to': '%1$@. ' + game_end + w(2),
+        'squash.games.all': t['games'] + ': ' + p['tied'],
+        'squash.leads': lead(1, 2, 4) + '. %3$@',
+        'squash.game.unit': t['game'],
+        'squash.games.unit': t['games'],
+        'squash.match.to': '%1$@. ' + match_end + w(2) + '. ' + t['games'] + ': %3$@, %4$@. %5$@',
+        'tennis.deciding.point': p['deciding'],
+        'squash.game.ball': t['game_ball'],
+        'squash.match.ball': t['match_ball'],
+        'pingpong.score.all': p['tied'],
+    })
     result.update(pack.get('standard_templates',{}))
     # Do not hand a written score separator to speech synthesis.
     result={key:re.sub(r'(%\d+\$@)[–-](%\d+\$@)', r'\1, \2', value) for key,value in result.items()}

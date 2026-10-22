@@ -69,7 +69,7 @@ struct ShotTrainingSetupDialogView: View {
                         } label: {
                             Text(option.title)
                                 .font(.system(size: 13, weight: .medium))
-                                .foregroundStyle(mode == option ? .white : Theme.textPrimary)
+                                .foregroundStyle(mode == option ? Theme.textOnPrimary : Theme.textPrimary)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 40)
                                 .background(
@@ -110,7 +110,7 @@ struct ShotTrainingSetupDialogView: View {
                 } label: {
                     Text(NSLocalizedString("start_game", value: "开始", comment: ""))
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Theme.textOnPrimary)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
                         .background(Theme.primary, in: Capsule())

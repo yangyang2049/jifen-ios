@@ -245,6 +245,7 @@ struct UnfinishedGameBarView: View {
                     .clipShape(Circle())
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier("unfinished_game_continue")
         }
         .padding(barPadding)
         .frame(height: barHeight)
@@ -252,6 +253,7 @@ struct UnfinishedGameBarView: View {
         .clipShape(Capsule())
         .shadow(color: Theme.lightModeShadow(0.22), radius: 8, x: 0, y: 0)
         .animation(.easeInOut(duration: 0.44), value: isClosePending)
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("unfinished_game_bar")
     }
 

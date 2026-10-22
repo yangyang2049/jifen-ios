@@ -381,7 +381,7 @@ struct FootballScoreboardView: View {
             Button(action: action) {
                 Text(buttonTitle)
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(Theme.textOnPrimary)
                     .padding(.horizontal, 20)
                     .frame(height: 36)
                     .background(Capsule().fill(Theme.primary))
@@ -558,8 +558,16 @@ struct FootballScoreboardView: View {
             Theme.scoreboardDialogScrim.ignoresSafeArea()
                 .onTapGesture { showStoppageSettings = false }
             VStack(spacing: 20) {
-                Text(NSLocalizedString("football_injury_title", value: "伤停补时", comment: ""))
-                    .font(.headline)
+                HStack {
+                    Text(NSLocalizedString("football_injury_title", value: "伤停补时", comment: ""))
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.leading, 44)
+                    ScoreboardDialogCloseButton(
+                        action: { showStoppageSettings = false },
+                        accessibilityIdentifier: "football_stoppage_close"
+                    )
+                }
                 Text("+\(viewModel.clockSession.currentStoppageSeconds / 60):\(String(format: "%02d", viewModel.clockSession.currentStoppageSeconds % 60))")
                     .font(.system(size: 32, weight: .bold)).monospacedDigit()
                 HStack(spacing: 12) {
@@ -583,9 +591,6 @@ struct FootballScoreboardView: View {
                     }.disabled(!viewModel.canUndoLastStoppage)
                         .accessibilityIdentifier("football_stoppage_undo")
                     Spacer()
-                    Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                        showStoppageSettings = false
-                    }
                 }
             }
             .padding(24).frame(maxWidth: 440)

@@ -36,18 +36,18 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
-		<key>zero</key>
-		<string>%d matches · all group members</string>
-		<key>one</key>
-		<string>%d match · all group members</string>
-		<key>two</key>
-		<string>%d matches · all group members</string>
-		<key>few</key>
-		<string>%d matches · all group members</string>
-		<key>many</key>
-		<string>%d matches · all group members</string>
-		<key>other</key>
-		<string>%d matches · all group members</string>
+			<key>zero</key>
+			<string>المباريات: %d · جميع أعضاء المجموعة</string>
+			<key>one</key>
+			<string>المباريات: %d · جميع أعضاء المجموعة</string>
+			<key>two</key>
+			<string>المباريات: %d · جميع أعضاء المجموعة</string>
+			<key>few</key>
+			<string>المباريات: %d · جميع أعضاء المجموعة</string>
+			<key>many</key>
+			<string>المباريات: %d · جميع أعضاء المجموعة</string>
+			<key>other</key>
+			<string>المباريات: %d · جميع أعضاء المجموعة</string>
 		</dict>
 	</dict>
 	<key>archived_count</key>
@@ -60,18 +60,18 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
-		<key>zero</key>
-		<string>%d groups</string>
-		<key>one</key>
-		<string>%d group</string>
-		<key>two</key>
-		<string>%d groups</string>
-		<key>few</key>
-		<string>%d groups</string>
-		<key>many</key>
-		<string>%d groups</string>
-		<key>other</key>
-		<string>%d groups</string>
+			<key>zero</key>
+			<string>المجموعات: %d</string>
+			<key>one</key>
+			<string>المجموعات: %d</string>
+			<key>two</key>
+			<string>المجموعات: %d</string>
+			<key>few</key>
+			<string>المجموعات: %d</string>
+			<key>many</key>
+			<string>المجموعات: %d</string>
+			<key>other</key>
+			<string>المجموعات: %d</string>
 		</dict>
 	</dict>
 	<key>timer_byoyomi_periods_format</key>

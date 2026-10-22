@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "보드게임";
 "search_team_or_game" = "팀 또는 게임 검색";
 "match_count" = "%d 경기";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d경기 · 모든 그룹 회원";
+"archived_count" = "%d개 그룹";
 
 /* Home Screen */
 "recent_records" = "최근 기록";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "예: 5세트를 모두 진행합니다. 경기가 무승부로 끝날 수 있습니다";
 "match_completion_custom_placeholder" = "1~99를 입력하세요";
 "match_completion_invalid_sets" = "승자 결정 방식은 1~99의 홀수만, 전체 진행 방식은 1~99를 입력할 수 있습니다.";
+"setup_auto_odd_sets" = "홀수만 입력할 수 있습니다 — %d(으)로 시작합니다";
 "has_been_reset" = "재설정 완료";
 "no_undo_available" = "실행 취소 불가";
 "screenshot_failed" = "스크린샷 실패";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "활성 동기화 세션";
 "timer_status_running" = "실행 중";
 "timer_status_paused" = "일시 정지";
-"membership_entry_summary_active" = "VIP 회원입니다. 이용해 주셔서 감사합니다";
+"membership_entry_summary_active" = "VIP 이용 중";
 "sound_effects" = "음향 효과";
 "vibration" = "진동";
 "language" = "언어";
@@ -1579,7 +1580,7 @@
 "group_approval" = "승인 필요";
 "group_approve" = "승인";
 "group_archive" = "그룹 보관";
-"group_archive_hint" = "모든 기록을 유지하고 그룹 변경을 중단합니다. 나중에 복원할 수 있습니다.";
+"group_archive_hint" = "이 그룹을 보관할까요? 콘텐츠는 읽기 전용이 됩니다.";
 "group_archive_readonly" = "보관된 그룹입니다. 기록은 읽기만 가능합니다.";
 "group_archived" = "보관됨";
 "group_benefit_activity" = "활동 계획 및 참가 신청";
@@ -1624,18 +1625,18 @@
 "group_invalid_qr" = "올바른 그룹 QR 코드가 아닙니다.";
 "group_invalid_result" = "업로드하기 전에 기록된 결과를 검토해야 합니다.";
 "group_invalid_rules" = "경기 규칙을 확인하세요.";
-"group_invite" = "Invite";
+"group_invite" = "팀원 초대";
 "group_join" = "그룹 가입";
 "group_join_hint" = "번호나 QR 코드로 친구의 그룹에 가입하세요.";
-"group_join_message" = "그룹에 보내는 메시지(선택)";
+"group_join_message" = "가입 신청 메시지(선택)";
 "group_join_policy" = "가입 방식";
 "group_leave" = "그룹 탈퇴";
-"group_leave_hint" = "이 그룹에 접근할 수 없게 됩니다. 개인 기록은 이 기기에 남습니다.";
+"group_leave_hint" = "탈퇴하면 그룹 멤버 자격이 없어지고 “내 그룹”에서 해당 그룹이 삭제됩니다. 더 이상 그룹에 접근하거나 참여할 수 없습니다. 그룹의 기존 경기 기록과 이 기기에 저장된 개인 기록은 유지됩니다. 다시 접근하려면 그룹에 재가입해야 합니다.";
 "group_load_failed" = "그룹을 불러올 수 없음";
 "group_load_more" = "더 불러오기";
 "group_losses" = "패배 수";
 "group_manual" = "수동 입력";
-"group_manual_result" = "지난 경기 추가";
+"group_manual_result" = "경기 결과 추가";
 "group_match_detail" = "경기 상세";
 "group_match_log" = "경기 이력";
 "group_match_rules" = "경기 규칙";
@@ -1647,15 +1648,15 @@
 "group_name" = "그룹 이름";
 "group_need_login" = "계속하려면 로그인하세요.";
 "group_need_members" = "경기 시작 전에 친구를 초대하거나 임시 회원을 추가하세요.";
-"group_new_activity" = "활동 계획";
+"group_new_activity" = "활동 만들기";
 "group_new_owner" = "새 그룹장";
 "group_no_activities" = "아직 활동이 없음";
 "group_no_description" = "아직 설명이 없음";
 "group_no_rankings" = "경기 결과를 확인하면 순위가 표시됩니다.";
 "group_no_set_details" = "전체 결과만 기록되었습니다.";
-"group_note" = "활동 메모(선택)";
-"group_number" = "6–8 digit group number";
-"group_open" = "번호를 아는 누구나 가입 가능";
+"group_note" = "메모(선택)";
+"group_number" = "6~8자리 그룹 번호";
+"group_open" = "바로 가입";
 "group_overall_score" = "전체 세트 스코어";
 "group_overview" = "개요";
 "group_owner" = "그룹장";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "회원 제거";
 "group_restore" = "그룹 복원";
 "group_restore_hint" = "그룹을 복원하면 활동과 점수 기록을 다시 할 수 있습니다.";
-"group_results" = "경기";
+"group_results" = "기록";
 "group_retry" = "재시도";
 "group_rules_missing" = "규칙이 기록되지 않음";
-"group_save" = "확인";
+"group_save" = "저장";
 "group_save_failed" = "경기를 저장하지 못했습니다. 다시 시도하세요.";
 "group_scan" = "QR 코드 스캔";
 "group_scoreboard" = "점수판";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "새 경기를 시작하기 전에 진행 중인 경기를 재개하거나 종료하세요.";
 "group_unregister" = "참가 신청 취소";
 "group_void_reason" = "무효 처리 이유";
-"group_void_result" = "결과 무효 처리";
+"group_void_result" = "무효화";
 "group_voided" = "무효 처리됨";
 "group_wins" = "승리 수";
 "group_withdraw" = "가입 요청 철회";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "이미 그룹 회원입니다.";
 "group_open_group" = "그룹 열기";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
-"group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
-"group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_groups" = "그룹";
+"group_invite_students" = "수강생 초대";
+"group_group_type" = "그룹 유형";
+"group_peer" = "친구 그룹";
+"group_coaching" = "코칭 그룹";
+"group_training" = "훈련";
+"group_upcoming" = "예정";
+"group_latest_results" = "최근 결과";
+"group_no_results" = "아직 기록된 경기가 없습니다";
+"group_no_training" = "아직 훈련 일정이 없습니다";
+"group_active_activities" = "진행 중 · 참가 신청 중";
+"group_past_activities" = "지난 활동";
+"group_all_formats" = "모든 경기 방식";
+"group_join_requests" = "가입 신청";
+"group_regular_members" = "신청한 회원";
+"group_temporary_members" = "임시 회원";
+"group_add" = "추가";
+"group_leader" = "그룹장";
+"group_member_settings" = "회원 설정";
+"group_settings" = "그룹 관리";
+"group_partial_load" = "일부 항목을 새로 고치지 못했습니다. 아래로 당겨 다시 시도하세요.";
+"group_leave_notices" = "수강생 결석 알림";
+"group_mark_seen" = "읽음";
+"group_training_schedule" = "훈련 일정";
+"group_add_session" = "경기 추가";
+"group_edit_schedule" = "일정 편집";
+"group_cancel_schedule" = "일정 취소";
+"group_leave_training" = "결석 신청";
+"group_session_minutes" = "경기당 시간(분)";
+"group_court" = "코트";
+"group_remove_session" = "삭제";
+"group_publish_schedule" = "일정 게시";
+"group_leave_reason" = "결석 사유(선택)";
+"group_report" = "그룹 신고";
+"group_report_reason" = "사유";
+"group_report_detail" = "상세 내용(선택)";
+"group_report_submit" = "제출";
+"group_report_spam" = "스팸";
+"group_report_harassment" = "괴롭힘";
+"group_report_inappropriate" = "성적이거나 부적절한 콘텐츠";
+"group_report_fraud" = "사기 또는 도박";
+"group_report_illegal" = "불법 또는 위험한 활동";
+"group_report_impersonation" = "사칭";
+"group_report_other" = "기타";
+"group_lineup_invalid" = "경기 시간, 코트, 참가자를 확인하세요.";
+"group_lineup_member_limit" = "한 회원은 일정 하나에 최대 8경기까지 배정할 수 있습니다.";
+"group_lineup_conflict" = "시간이 겹치는 경기는 코트와 참가자가 달라야 합니다.";
+"group_multi_match_hint" = "한 활동에서 여러 경기를 진행할 수 있습니다. 멤버가 활동에 참가 신청한 후, 경기 편성 시 각 단식은 신청자 2명, 각 복식은 4명을 선택하세요.";
+"group_single_match_hint" = "각 활동은 한 경기입니다. 참가 신청한 멤버 중 단식은 2명, 복식은 4명을 선택하세요.";
+"group_rate_limited" = "요청이 너무 많습니다. 나중에 다시 시도하세요.";
+"group_create_daily_limit" = "최근 24시간 동안의 그룹 생성 한도에 도달했습니다. 나중에 다시 시도하세요.";
+"group_join_daily_limit" = "최근 24시간 동안의 그룹 가입 한도에 도달했습니다. 나중에 다시 시도하세요.";
+"group_pending_request_limit" = "승인 대기 중인 가입 신청이 너무 많습니다. 처리를 기다리거나 일부 신청을 철회하세요.";
+"group_request_daily_limit" = "이 그룹의 가입 신청이 최근 24시간 한도에 도달했습니다. 나중에 다시 시도하세요.";
+"group_join_cooldown" = "거절된 후 24시간 동안은 다시 신청할 수 없습니다.";
+"group_result_group_daily_limit" = "이 그룹의 경기 결과가 최근 24시간 한도에 도달했습니다. 나중에 다시 시도하세요.";
+"group_result_submitter_daily_limit" = "최근 24시간 동안의 결과 제출 한도에 도달했습니다. 나중에 다시 시도하세요.";
+"group_not_coach" = "코치만 훈련 일정을 편성할 수 있습니다.";
+"group_activity_count" = "%1$d/%2$d명 신청";
+"group_activity_create_admin_hint" = "활동은 그룹 소유자나 관리자만 만들 수 있습니다";
+"group_activity_direct_hint" = "참가 신청 없이 활동 중인 모든 그룹 회원 중에서 선택하세요.";
+"group_activity_direct_save" = "일정 저장";
+"group_activity_direct_title" = "바로 경기 편성";
+"group_activity_field_title_optional" = "활동 이름(선택)";
+"group_activity_full" = "정원 마감";
+"group_activity_lineup_add" = "경기 추가";
+"group_activity_lineup_add_need_members" = "선수가 부족합니다. 경기를 추가하려면 활동 중인 그룹 회원이 최소 %1$d명 필요합니다.";
+"group_activity_lineup_court" = "코트 번호";
+"group_activity_lineup_duration" = "경기 시간";
+"group_activity_lineup_match_count" = "%1$d경기";
+"group_activity_lineup_minutes" = "%1$d분";
+"group_activity_lineup_remove" = "삭제";
+"group_activity_lineup_section_matches" = "경기 편성";
+"group_activity_lineup_session" = "%1$d번째 경기";
+"group_activity_registration_empty" = "임시 회원이 없습니다";
+"group_activity_section_count" = "활동 %1$d개";
+"group_activity_section_past" = "지난 활동";
+"group_activity_section_upcoming" = "진행 중 · 참가 신청 중";
+"group_activity_status_scheduled" = "시작 대기";
+"group_activity_time_after_previous" = "이전 경기 후";
+"group_activity_time_unspecified" = "시간 미정";
+"group_activity_timing" = "시간 설정";
+"group_activity_timing_estimated" = "예상 시간";
+"group_activity_timing_sequence" = "정확한 시간 미지정";
+"group_activity_title_auto_hint" = "비워 두면 날짜를 기준으로 ‘11월 10일 활동’ 같은 이름이 자동 생성됩니다.";
+"group_archived_empty" = "보관된 그룹이 없습니다";
+"group_archived_list_title" = "보관된 그룹";
+"group_empty_activities_title" = "아직 활동이 없음";
+"group_list_add_title" = "그룹 생성 또는 가입";
+"group_ranking_draws" = "무승부 수";
+"group_ranking_games" = "경기 수";
+"group_ranking_losses" = "패배 수";
+"group_ranking_sets" = "점수";
+"group_ranking_title" = "%@ 순위";
+"group_ranking_wins" = "승리 수";
+"group_training_results_locked" = "결과가 있는 일정의 시간과 참가자는 변경할 수 없습니다. 장소와 메모는 수정할 수 있습니다.";
+"group_temporary_hint" = "임시 멤버는 계정이 필요 없으며 결과 입력 시 추가할 수 있습니다.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "경기 점유 해제";
-"group_activity_lineup" = "경기 일정";
-"group_activity_mode" = "경기";
+"group_abandon_game" = "경기 포기";
+"group_activity_lineup" = "경기 편성";
+"group_activity_mode" = "기록";
 "group_activity_reminder" = "15분 전에 알림";
 "group_add_set" = "게임 점수 추가";
 "group_added_members" = "추가됨";
-"group_authority_confirm" = "그룹 소유자로 확인";
-"group_batch_names_hint" = "한 줄에 이름 하나씩, 각 1~24자로 입력하세요.";
-"group_beta_notice" = "그룹 기능은 베타 버전입니다. 의견을 보내주세요.";
+"group_authority_confirm" = "결과 확인";
+"group_batch_names_hint" = "한 줄에 이름 하나를 입력하세요.";
+"group_beta_notice" = "그룹 기능은 베타 버전입니다. 일부 기능이 변경될 수 있습니다. 미리 체험해 주셔서 감사합니다.";
 "group_cancel_dissolve" = "해산 취소";
 "group_cancel_dissolve_hint" = "그룹을 복원하면 활동과 점수 기록을 다시 할 수 있습니다.";
 "group_cancel_training_hint" = "완료된 경기는 기록에 남고 시작된 경기는 마칠 수 있습니다.";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "종목 기본값";
 "group_discard_upload" = "업로드 포기";
 "group_dissolve" = "그룹 해산";
-"group_dissolve_hint" = "7일간 읽기 전용이 됩니다. 이 기간에 해산을 취소할 수 있습니다.";
+"group_dissolve_hint" = "그룹은 7일 동안 읽기 전용이며 이 기간에 해산을 취소할 수 있습니다. 7일 후 그룹과 모든 데이터가 영구 삭제됩니다.";
 "group_dissolving" = "해산 대기 중";
 "group_edit_activity" = "편집";
 "group_edit_lineup" = "경기 편성";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "알림이 없습니다";
 "group_no_sessions" = "편성된 경기가 없습니다";
 "group_notices" = "알림";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "일부 항목을 새로 고치지 못했습니다. 아래로 당겨 다시 시도하세요.";
 "group_point_cap" = "최대 점수";
 "group_preview_schedule" = "일정 확인";
 "group_published" = "게시됨";
 "group_qr_direct_hint" = "iScoreboard에서 스캔하여 미리 보고 가입하세요.";
 "group_quick_score" = "전체 세트 스코어";
 "group_rally_scoring" = "랠리 득점";
-"group_read_notices" = "Read";
+"group_read_notices" = "읽음";
 "group_registration_closes" = "등록 마감";
 "group_regular" = "표준";
-"group_reload_version" = "최신 버전 불러오기";
+"group_reload_version" = "새로고침";
 "group_reminder_body" = "활동이 15분 후 시작됩니다.";
 "group_reminder_permission" = "설정에서 앱 알림을 허용하세요.";
 "group_reminder_too_late" = "시작까지 15분 미만입니다.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "세트 득점 방식";
 "group_tie_break" = "타이브레이크 점수";
 "group_tiebreak_only" = "타이브레이크만";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "날짜";
+"group_too_many_sessions" = "경기 시간, 코트, 참가자를 확인하세요.";
+"group_training_date" = "훈련 날짜";
 "group_win_by_two" = "2점 차 승리";
 
-"group_keep_draft" = "내 변경 사항 유지";
+"group_keep_draft" = "로컬 버전 계속 편집";
 
 "group_server_version" = "최신 버전";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "%@에 그룹이 해산됩니다\n7일 유예 기간 동안은 조회만 가능합니다";
 "group_notice_end" = "더 이상 알림이 없습니다";
 "group_notice_join_requested" = "가입 신청이 도착했습니다";
 "group_notice_join_approved" = "가입 신청이 승인되었습니다";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "직접 입력";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "모두 읽음으로 표시";
+
+"group_status_active" = "활성";
+"group_dissolved" = "해산됨";
+"group_report_status_pending" = "처리 대기";
+"group_report_status_reviewing" = "검토 중";
+"group_report_status_resolved" = "처리 완료";
+"group_report_status_dismissed" = "기각됨";
+"group_error_permission" = "이 작업을 수행할 권한이 없습니다.";
+"group_error_transfer_first" = "그룹을 탈퇴하거나 계정을 삭제하기 전에 그룹 소유권을 이전하세요.";
+"group_error_target" = "이 그룹에서 활동 중인 계정 회원을 선택하세요.";
+"group_error_activity_locked" = "이미 시작되거나 종료된 활동은 일정을 변경하거나 취소할 수 없습니다.";
+"group_error_activity_pending" = "남은 경기를 먼저 완료하거나 삭제하세요.";
+"group_error_registration_disabled" = "직접 편성한 경기는 참가 신청이 필요하지 않습니다.";
+"group_error_content_blocked" = "부적절한 내용이 포함되어 있습니다. 문구를 수정하세요.";
+"group_error_request_invalid" = "입력한 정보를 확인하고 다시 시도하세요.";
+"group_error_reason_required" = "계속하려면 사유를 입력하세요.";
+"group_error_result_state" = "확인 대기 중인 결과만 확정할 수 있습니다.";
+"group_error_conflict" = "데이터가 변경되었습니다. 새로 고친 후 내용을 확인하고 다시 시도하세요.";
+"group_error_request_handled" = "이미 처리된 가입 신청입니다. 목록을 새로 고치세요.";
+"group_error_place_locked" = "시작되거나 완료된 경기가 있어 장소를 변경할 수 없습니다.";
+"group_error_schedule_cancelled" = "이 일정 또는 경기가 취소되었습니다.";
+"group_error_session_completed" = "이미 종료된 경기라 결석을 신청할 수 없습니다. 일정을 새로고침하여 결과를 확인하세요.";
+"group_error_session_has_result" = "이미 결과가 있는 경기입니다. 다른 결과를 추가하려면 기존 결과를 무효화하세요.";
+"group_error_item_not_found" = "이 활동, 일정, 경기 또는 알림을 더 이상 사용할 수 없습니다. 목록을 새로 고치세요.";
+"group_error_server" = "그룹 서비스를 일시적으로 사용할 수 없습니다. 나중에 다시 시도하세요.";
+"group_error_peer_only" = "코칭 그룹에서는 훈련 일정 기능을 사용하세요.";
+"group_error_name_length" = "그룹 이름은 2~24자여야 합니다.";
+"group_error_description_length" = "그룹 소개는 200자 이하여야 합니다.";
+"group_error_activity_invalid" = "활동 이름, 날짜, 장소, 정원을 확인하세요.";
+"group_error_registration_closed" = "참가 신청이 마감되었습니다.";
+"group_error_action_disabled" = "현재 이 작업을 사용할 수 없습니다.";
+"group_error_update_required" = "앱을 업데이트한 후 계속하세요.";
+"group_welcome_back" = "다시 오신 것을 환영해요";
+"group_transfer_none" = "양도할 수 있는 다른 정식 멤버가 없습니다. 임시 멤버는 그룹장이 될 수 없습니다.";
+"group_empty_activities_hint" = "활동을 만들어 멤버의 참가 신청을 받으세요. 정원이 차면 신청이 마감됩니다.";
+"group_temp_import_names" = "저장된 이름 가져오기";
+"group_temp_import_count" = "가져오기 (%1$d)";
+"group_result_information" = "경기 정보";
+"group_result_actions" = "경기 결과 관리";
+"group_peer_confirmation" = "상대방 확인";
+"group_notice_target_unavailable" = "이 콘텐츠를 사용할 수 없거나 더 이상 접근 권한이 없습니다.";
+"group_push_enabled" = "그룹 알림";
+"group_push_group_enabled" = "이 그룹의 알림 받기";
+"group_push_inbox_kept" = "꺼도 앱 내 알림과 기존 활동 미리 알림은 유지됩니다.";
+"group_push_permission" = "시스템 알림 켜기";
+"group_push_settings" = "알림 설정";
+
+// Shared group form controls
+"group_inline_seat_hint" = "자리를 선택한 다음 멤버를 선택하세요";
+"group_score_and_rules" = "점수 및 규칙";
+"group_activity_registration_scope" = "여기서 임시 멤버의 참가를 신청하세요. 계정이 있는 멤버는 직접 신청합니다.";
+"group_activity_registration_no_changes" = "저장하지 않은 변경 사항 없음";
+"group_activity_registration_changes" = "추가 %1$d명 · 취소 %2$d명";
+"group_activity_registration_save" = "참가 신청 저장(%1$d건)";
+"group_activity_registration_manage" = "임시 멤버 참가 신청";
+"group_activity_registration_pending_add" = "신청 예정";
+"group_activity_registration_pending_remove" = "취소 예정";
+"group_activity_registration_registered" = "신청 완료";
+"group_activity_registration_not_registered" = "미신청";
+"group_activity_detail" = "활동 상세";
+"group_activity_my_registration" = "내 참가 신청";
+"group_match_score" = "경기 점수";
+
+"group_lookup_available" = "가입 가능";
+
+/* Group beta notice card. */
+"group_beta_badge" = "베타";
+"group_beta_supported_label" = "현재 지원";
+"group_beta_feedback_prompt" = "문제나 제안이 있나요?";
+"group_beta_feedback_action" = "의견 보내기";
+
+"group_member_results_title" = "멤버 전적";
+
+"group_removed_members_expand" = "펼치기";
+"group_removed_members_collapse" = "접기";
+"group_best_of_format" = "%1$@전 %2$@선승";
+"group_member_count_single" = "멤버 %d명";
+"group_member_count_short" = "멤버 %d명";
+"group_lookup_closed_short" = "가입 마감";
+"group_lookup_closing_short" = "해산 진행 중";
+"group_lookup_member_short" = "가입됨";
+"group_lookup_unavailable_short" = "가입 불가";
+"group_join_scan_hint" = "그룹 QR 코드 스캔";
+"group_join_number_hint" = "6~8자리 번호입니다. 그룹 소유자에게 문의하세요.";
+"group_request_join" = "가입 신청";
+"group_overdue_tasks" = "기한이 지난 작업";
+"group_apply_shift" = "변경 사항 적용";
+"group_transfer_submit" = "양도";
+"group_rename_member" = "이름 변경";
+"group_set_admin" = "관리자로 지정";
+"group_set_member" = "관리자 권한 해제";
+"group_confirm_authority_message" = "모든 선수가 임시 멤버이거나 상대편에 확인할 수 있는 계정 보유 선수가 없습니다. 소유자가 선수와 점수를 검토해야 합니다. 확정하면 전적에 반영되며 소유자가 확인자로 기록됩니다.";
+"group_confirm_result_message" = "확정하면 양측 전적에 반영되고 수정할 수 없습니다. 정정하려면 먼저 결과를 무효로 처리하세요.";
+"group_confirm_member_message" = "선수와 점수를 확인해 전적에 반영하세요. 정정이 필요하면 관리자에게 원래 결과의 무효 처리를 요청하세요.";
+"group_cancel_activity_message" = "취소하면 신청 명단이 영구 삭제됩니다. 진행 중인 활동은 취소할 수 없습니다.";
+"group_abandon_game_message" = "이 경기를 포기하면 다른 경기를 시작할 수 있습니다. 저장된 개인 기록은 유지됩니다.";
+"group_void_pending_message" = "이 결과는 더 이상 확인을 기다리지 않으며 전적 통계에 반영되지 않습니다. 원래 점수와 사유는 그룹 멤버에게 계속 표시됩니다. 선수와 제출자에게 알림이 전송됩니다.";
+"group_void_confirmed_message" = "이 결과는 더 이상 전적 통계에 반영되지 않습니다. 양측 통계와 순위가 다시 계산됩니다. 원래 점수와 사유는 그룹 멤버에게 계속 표시됩니다. 선수와 제출자에게 알림이 전송됩니다.";
+"group_remove_member_message" = "%@ 님을 내보낼까요? 다시 가입 신청을 해야 합니다.";
+"group_reload_version_message" = "저장하지 않은 경기 편성을 버리고 최근 저장된 일정을 불러올까요?";
+"group_transfer_confirmation" = "%@ 님에게 소유권을 양도할까요? 일반 멤버가 됩니다.";
+"group_approve_confirmation" = "%@ 님은 그룹 멤버가 되어 활동과 결과를 볼 수 있습니다.";
+"group_reject_confirmation" = "거절 후 %@ 님은 새 신청을 제출해야 합니다.";
+"group_lookup_full_short" = "정원 마감";
+"group_lookup_archived_short" = "보관됨";
+"group_lookup_pending_short" = "처리 대기";
+"group_temporary_member_count" = "멤버 %d명";
+"group_best_of_tennis_format" = "%1$@전 %2$@선승";
+"group_rename_member_title" = "이름 변경";
+
+"group_copy_transfer_title" = "그룹장 권한 양도";
+
+"group_copy_transfer_submit" = "양도";
+
+"group_copy_transfer_message" = "%@ 님에게 소유권을 양도할까요? 일반 멤버가 됩니다.";
+
+"group_copy_transfer_hint" = "양도 후 일반 회원이 됩니다.";
+
+"group_copy_rename_title" = "이름 변경";
+
+"group_copy_rename_action" = "이름 변경";
+
+"group_copy_result_confirm" = "결과 확인";
+
+"group_copy_result_confirm_authority_message" = "모든 선수가 임시 멤버이거나 상대편에 확인할 수 있는 계정 보유 선수가 없습니다. 소유자가 선수와 점수를 검토해야 합니다. 확정하면 전적에 반영되며 소유자가 확인자로 기록됩니다.";
+
+"group_copy_result_confirm_manager_message" = "확정하면 양측 전적에 반영되고 수정할 수 없습니다. 정정하려면 먼저 결과를 무효로 처리하세요.";
+
+"group_copy_result_confirm_member_message" = "선수와 점수를 확인해 전적에 반영하세요. 정정이 필요하면 관리자에게 원래 결과의 무효 처리를 요청하세요.";
+
+"group_copy_void_action" = "무효화";
+
+"group_copy_void_pending_message" = "이 결과는 더 이상 확인을 기다리지 않으며 전적 통계에 반영되지 않습니다. 원래 점수와 사유는 그룹 멤버에게 계속 표시됩니다. 선수와 제출자에게 알림이 전송됩니다.";
+
+"group_copy_void_confirmed_message" = "이 결과는 더 이상 전적 통계에 반영되지 않습니다. 양측 통계와 순위가 다시 계산됩니다. 원래 점수와 사유는 그룹 멤버에게 계속 표시됩니다. 선수와 제출자에게 알림이 전송됩니다.";
+
+"group_copy_cancel_activity" = "활동 취소";
+
+"group_copy_cancel_activity_message" = "취소하면 신청 명단이 영구 삭제됩니다. 진행 중인 활동은 취소할 수 없습니다.";
+
+"group_copy_abandon_action" = "경기 포기";
+
+"group_copy_abandon_message" = "이 경기를 포기하면 다른 경기를 시작할 수 있습니다. 저장된 개인 기록은 유지됩니다.";
+
+"group_copy_leave_action" = "그룹 탈퇴";
+
+"group_copy_leave_message" = "탈퇴하면 그룹 멤버 자격이 없어지고 “내 그룹”에서 해당 그룹이 삭제됩니다. 더 이상 그룹에 접근하거나 참여할 수 없습니다. 그룹의 기존 경기 기록과 이 기기에 저장된 개인 기록은 유지됩니다. 다시 접근하려면 그룹에 재가입해야 합니다.";
+
+"group_copy_archive_action" = "그룹 보관";
+
+"group_copy_archive_message" = "이 그룹을 보관할까요? 콘텐츠는 읽기 전용이 됩니다.";
+
+"group_copy_dissolve_action" = "그룹 해산";
+
+"group_copy_dissolve_message" = "그룹은 7일 동안 읽기 전용이며 이 기간에 해산을 취소할 수 있습니다. 7일 후 그룹과 모든 데이터가 영구 삭제됩니다.";
+
+"group_copy_approve_action" = "승인";
+
+"group_copy_approve_message" = "%@ 님은 그룹 멤버가 되어 활동과 결과를 볼 수 있습니다.";
+
+"group_copy_reject_action" = "거절";
+
+"group_copy_reject_message" = "거절 후 %@ 님은 새 신청을 제출해야 합니다.";
+
+"group_copy_remove_action" = "회원 제거";
+
+"group_copy_remove_message" = "%@ 님을 내보낼까요? 다시 가입 신청을 해야 합니다.";
+
+"group_copy_report_detail" = "상세 내용(선택)";
+
+"group_copy_edit_profile" = "그룹 정보 편집";
+
+"group_copy_entry_a_wins" = "A 승";
+
+"group_copy_entry_b_wins" = "B 승";
+
+"group_copy_activity_timing_sequence" = "정확한 시간 미지정";
+
+"group_copy_activity_registration_manage" = "임시 멤버 참가 신청";
+
+"group_copy_temporary_hint" = "임시 멤버는 계정이 필요 없으며 결과 입력 시 추가할 수 있습니다.";
+
+"group_copy_activity_registration_scope" = "여기서 임시 멤버의 참가를 신청하세요. 계정이 있는 멤버는 직접 신청합니다.";
+
+"group_copy_report" = "그룹 신고";
+
+"group_copy_notice_member_removed" = "그룹에서 제외되었습니다";
+
+"group_copy_notice_role_changed" = "내 역할이 변경되었습니다";
+
+"group_copy_activity_direct_save" = "일정 저장";
+
+"group_copy_notice_join_approved" = "가입 신청이 승인되었습니다";
+
+"group_copy_notice_join_rejected" = "가입 신청이 거절되었습니다";
+
+"group_copy_all_formats" = "모든 경기 방식";
+
+"group_copy_closed" = "가입 중단";
+
+"group_copy_report_other" = "기타";
+
+"group_copy_report_impersonation" = "사칭";
+
+"group_copy_audit_ui_share_failed" = "공유하지 못했습니다. 다시 시도해 주세요.";
+
+"group_copy_audit_ui_share_number" = "그룹 번호 공유";
+
+"group_copy_create" = "그룹 만들기";
+
+"group_copy_confirm_join" = "이 그룹 가입";
+
+"group_copy_join" = "그룹 가입";
+
+"group_copy_join_policy" = "가입 방식";
+
+"group_copy_filter_singles" = "단식";
+
+"group_copy_upcoming" = "예정";
+
+"group_copy_activity_section_past" = "지난 활동";
+
+"group_copy_beta_feedback_action" = "의견 보내기";
+
+"group_copy_doubles" = "복식";
+
+"group_copy_create_activity" = "활동 만들기";
+
+"group_copy_benefit_activity" = "활동 계획 및 참가 신청";
+
+"group_copy_empty_activities_hint" = "활동을 만들어 멤버의 참가 신청을 받으세요. 정원이 차면 신청이 마감됩니다.";
+
+"group_copy_lookup_available" = "가입 가능";
+
+"group_copy_activity_direct_hint" = "참가 신청 없이 활동 중인 모든 그룹 회원 중에서 선택하세요.";
+
+"group_copy_empty_intro" = "친구들과 경기를 계획하고 점수를 기록하며 함께 경기 이력을 쌓아 보세요.";
+
+"group_copy_place" = "위치";
+
+"group_copy_ranking_games" = "경기 수";
+
+"group_copy_ranking_insufficient_matches" = "경기 수 부족";
+
+"group_copy_report_spam" = "스팸";
+
+"group_copy_report_status_reviewing" = "검토 중";
+
+"group_copy_note" = "메모(선택)";
+
+"group_copy_peer_confirmation" = "상대방 확인";
+
+"group_copy_activity_lineup_section_matches" = "경기 편성";
+
+"group_copy_group" = "그룹";
+
+"group_copy_group_qr" = "그룹 QR 코드";
+
+"group_copy_beta_notice" = "그룹 기능은 베타 버전입니다. 일부 기능이 변경될 수 있습니다. 미리 체험해 주셔서 감사합니다.";
+
+"group_copy_created" = "그룹을 만들었습니다";
+
+"group_copy_ranking_sets" = "점수";
+
+"group_copy_removed_members_expand" = "펼치기";
+
+"group_copy_voided" = "무효 처리됨";
+
+"group_copy_cancelled" = "취소됨";
+
+"group_copy_report_status_resolved" = "처리 완료";
+
+"group_copy_completed" = "완료";
+
+"group_copy_archived" = "보관됨";
+
+"group_copy_archived_list_title" = "보관된 그룹";
+
+"group_copy_activity_registration_registered" = "신청 완료";
+
+"group_copy_activity_full" = "정원 마감";
+
+"group_copy_confirmed" = "확인됨";
+
+"group_copy_removed_members" = "이전 멤버";
+
+"group_copy_mark_seen" = "읽음";
+
+"group_copy_report_status_dismissed" = "기각됨";
+
+"group_copy_draws" = "무승부 수";
+
+"group_copy_draw" = "무승부";
+
+"group_copy_start_score" = "지금 점수 기록";
+
+"group_copy_pending_upload" = "업로드 대기 중";
+
+"group_copy_activity_registration_pending_remove" = "취소 예정";
+
+"group_copy_report_status_pending" = "처리 대기";
+
+"group_copy_lookup_pending_short" = "처리 대기";
+
+"group_copy_pending_request_limit" = "승인 대기 중인 가입 신청이 너무 많습니다. 처리를 기다리거나 일부 신청을 철회하세요.";
+
+"group_copy_activity_registration_pending_add" = "신청 예정";
+
+"group_copy_pending_confirmation" = "확인 대기 중";
+
+"group_copy_lookup_closing_short" = "해산 진행 중";
+
+"group_copy_restore" = "그룹 복원";
+
+"group_copy_member" = "회원";
+
+"group_copy_member_results_title" = "멤버 전적";
+
+"group_copy_my_groups" = "내 그룹";
+
+"group_copy_activity_my_registration" = "내 참가 신청";
+
+"group_copy_activity_mode" = "기록";
+
+"group_copy_qr_join_short" = "스캔하여 가입";
+
+"group_copy_qr_apply_short" = "스캔하여 가입 신청";
+
+"group_copy_register" = "참가 신청";
+
+"group_copy_recruiting" = "참가 신청 가능";
+
+"group_copy_registration_closes" = "등록 마감";
+
+"group_copy_activity_time_after_previous" = "이전 경기 후";
+
+"group_copy_report_submit" = "제출";
+
+"group_copy_submitted_by" = "제출한 사람";
+
+"group_copy_cancel_dissolve" = "해산 취소";
+
+"group_copy_notice_join_requested" = "가입 신청이 도착했습니다";
+
+"group_copy_removed_members_collapse" = "접기";
+
+"group_copy_discard_upload" = "업로드 포기";
+
+"group_copy_notice_activity_created" = "활동이 생성되었습니다";
+
+"group_copy_activity_time_unspecified" = "시간 미정";
+
+"group_copy_activity_registration_empty" = "임시 회원이 없습니다";
+
+"group_copy_transfer_none" = "양도할 수 있는 다른 정식 멤버가 없습니다. 임시 멤버는 그룹장이 될 수 없습니다.";
+
+"group_copy_archived_empty" = "보관된 그룹이 없습니다";
+
+"group_copy_empty_activities_title" = "아직 활동이 없음";
+
+"group_copy_latest_results" = "최근 결과";
+
+"group_copy_disputed" = "이의 제기됨";
+
+"group_copy_activity_registration_not_registered" = "미신청";
+
+"group_copy_month_matches" = "이번 달 경기";
+
+"group_copy_open_group" = "그룹 열기";
+
+"group_copy_benefit_history" = "경기 기록과 순위 보기";
+
+"group_copy_overview" = "개요";
+
+"group_copy_welcome_back" = "다시 오신 것을 환영해요";
+
+"group_copy_regular_members" = "신청한 회원";
+
+"group_copy_rally_scoring" = "랠리 득점";
+
+"group_copy_result_information" = "경기 정보";
+
+"group_copy_match_score" = "경기 점수";
+
+"group_copy_match_rules" = "경기 규칙";
+
+"group_copy_activity_registration_no_changes" = "저장하지 않은 변경 사항 없음";
+
+"group_copy_activities" = "활동";
+
+"group_copy_activity_title" = "활동 이름";
+
+"group_copy_activity_field_title_optional" = "활동 이름(선택)";
+
+"group_copy_notice_activity_changed" = "활동이 수정되었습니다";
+
+"group_copy_notice_activity_cancelled" = "활동이 취소되었습니다";
+
+"group_copy_activity_lineup" = "경기 편성";
+
+"group_copy_activity_create_admin_hint" = "활동은 그룹 소유자나 관리자만 만들 수 있습니다";
+
+"group_copy_beta_badge" = "베타";
+
+"group_copy_add_set" = "게임 점수 추가";
+
+"group_copy_add_temporary" = "임시 회원 추가";
+
+"group_copy_benefit_score" = "점수 기록 또는 지난 결과 추가";
+
+"group_copy_request_join" = "가입 신청";
+
+"group_copy_join_message" = "가입 신청 메시지(선택)";
+
+"group_copy_beta_supported_label" = "현재 지원";
+
+"group_copy_open" = "바로 가입";
+
+"group_copy_activity_direct_title" = "바로 경기 편성";
+
+"group_copy_admin" = "관리자";
+
+"group_copy_confirmed_matches" = "확인된 경기";
+
+"group_copy_leader" = "그룹장";
+
+"group_copy_notice_ownership_transferred" = "그룹장이 변경되었습니다";
+
+"group_copy_complete_activity" = "활동 종료";
+
+"group_copy_keep_draft" = "로컬 버전 계속 편집";
+
+"group_copy_ranking_wins" = "승리 수";
+
+"group_copy_ranking_rate" = "승률";
+
+"group_copy_report_inappropriate" = "성적이거나 부적절한 콘텐츠";
+
+"group_copy_update_report" = "신고 업데이트";
+
+"group_copy_manual_result" = "경기 결과 추가";
+
+"group_copy_set_admin" = "관리자로 지정";
+
+"group_copy_activity_timing_estimated" = "예상 시간";
+
+"group_copy_losses" = "패배 수";
+
+"group_copy_notice_result_voided" = "결과가 무효 처리되었습니다";
+
+"group_copy_notice_result_confirmed" = "결과가 확인되었습니다";
+
+"group_copy_notice_result_pending" = "결과 확인 대기 중";
+
+"group_copy_result_actions" = "경기 결과 관리";
+
+"group_copy_empty_title" = "아직 그룹이 없음";
+
+"group_copy_in_progress" = "진행 중";
+
+"group_copy_report_illegal" = "불법 또는 위험한 활동";
+
+"group_copy_join_hint" = "번호나 QR 코드로 친구의 그룹에 가입하세요.";
+
+"group_copy_overdue_tasks" = "기한이 지난 작업";
+
+"group_copy_beta_feedback_prompt" = "문제나 제안이 있나요?";
+
+"group_copy_invite" = "팀원 초대";
+
+"group_copy_retry" = "재시도";
+
+"group_copy_approval" = "승인 필요";
+
+"group_copy_sport" = "스포츠";
+
+"group_copy_report_harassment" = "괴롭힘";
+
+"group_copy_ranking_me_suffix" = "(나)";
+
+"group_copy_places_title" = "장소 선택";
+
+"group_copy_report_fraud" = "사기 또는 도박";
+
+"group_copy_void_reason" = "무효 처리 이유";
+
+"group_copy_reload_version" = "새로고침";
+
+"group_copy_lineup_reload_message" = "저장하지 않은 경기 편성을 버리고 최근 저장된 일정을 불러올까요?";
+
+"group_copy_join_number_separator" = "또는 그룹 번호 입력";
+
+"group_copy_activity_multi_match_hint" = "한 활동에서 여러 경기를 진행할 수 있습니다. 멤버가 활동에 참가 신청한 후, 경기 편성 시 각 단식은 신청자 2명, 각 복식은 4명을 선택하세요.";
+
+"group_copy_activity_single_match_hint" = "각 활동은 한 경기입니다. 참가 신청한 멤버 중 단식은 2명, 복식은 4명을 선택하세요.";
+
+"group_copy_activity_detail" = "활동 상세";
+
+"group_copy_registration_at_start" = "활동 시작 시";
+
+"group_copy_registration_use_start" = "활동 시작 시간으로 되돌리기";
+
+"group_copy_cancel_reason_optional" = "취소 사유 (선택 사항)";
+
+"group_copy_audit_result_frozen_info" = "참가자와 규칙 보기";
+"group_view_schedule" = "경기 보기";
+"group_notice_training_published" = "훈련이 게시됨";
+"group_notice_training_changed" = "훈련이 변경됨";
+"group_notice_training_cancelled" = "훈련이 취소됨";
+"group_notice_leave_changed" = "결석 정보가 변경됨";
+"group_report_evidence_title" = "증거 이미지(선택)";
+"group_report_evidence_hint" = "JPG 또는 PNG 이미지를 최대 3장, 장당 2 MB까지 첨부할 수 있습니다. 본인과 플랫폼 운영자만 볼 수 있습니다.";
+"group_report_add_image" = "이미지 추가";
+"group_report_retry" = "재시도";
+"group_report_preview" = "증거 이미지";
+"group_report_supplement" = "정보 추가";
+"group_report_close" = "닫기";
+"group_report_remove_image" = "이미지 삭제";
+"group_report_image_error" = "이미지를 처리할 수 없습니다. 다른 JPG 또는 PNG 이미지로 다시 시도해 주세요.";
+"group_report_refresh" = "상태 새로고침";

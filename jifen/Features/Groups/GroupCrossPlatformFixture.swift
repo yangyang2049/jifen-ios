@@ -172,6 +172,21 @@ nonisolated enum GroupCaptureFixture {
             value.groups.append(visitor)
             value.members.append(.init(id: visitor.ownerMemberId, groupId: visitor.id, kind: "account", role: "owner", status: "active", displayName: "我", accountId: "fixture-host-account", joinedAt: referenceTime))
         }
+        if nativeScene == "archived-list" {
+            for index in value.groups.indices where value.groups[index].id != "seed_group_badminton" {
+                value.groups[index].status = "archived"
+            }
+        }
+        if nativeScene == "members-removed", let index = value.members.firstIndex(where: { $0.id == "seed_m_seed_group_badminton_4" }) {
+            value.members[index].status = "removed"
+        }
+        if nativeScene == "members-removed", let index = value.members.firstIndex(where: { $0.id == "seed_m_seed_group_badminton_5" }) {
+            value.members[index].displayName = "临时球友 小陈"
+            var second = value.members[index]
+            second.id = "fixture_management_temp_2"
+            second.displayName = "临时球友 小林"
+            value.members.append(second)
+        }
         if nativeScene == "detail-empty", let baseline = value.groups.first(where: { $0.id == "seed_group_badminton" }) {
             var empty = baseline
             empty.id = "compare_group_empty"; empty.groupNo = "82603163"
@@ -199,6 +214,21 @@ nonisolated enum GroupCaptureFixture {
         if nativeScene == "result-detail-pending" { value.results = value.results.filter { $0.status == "pending_confirmation" } }
         if nativeScene == "result-detail-voided", !value.results.isEmpty { value.results[0].status = "voided"; value.results[0].reason = "重复记录" }
         applyExpansionVariants(&value)
+        if ["activity-edit", "activity-registration", "registration-draft", "activity-conflict"].contains(nativeScene), !value.activities.isEmpty {
+            let captureStart = Int64(argument("-GroupCaptureActivityStart") ?? "") ?? 1792492200000
+            value.activities[0].startsAt = captureStart
+            value.activities[0].registrationClosesAt = captureStart - 3600000
+        }
+        if nativeScene == "training-leave", !value.trainingPlans.isEmpty {
+            let delta: Int64 = 1792492200000 - value.trainingPlans[0].startsAt
+            value.trainingPlans[0].trainingDate += delta
+            value.trainingPlans[0].startsAt += delta
+            value.trainingPlans[0].endsAt += delta
+            for index in value.trainingPlans[0].sessions.indices {
+                value.trainingPlans[0].sessions[index].startsAt += delta
+                value.trainingPlans[0].sessions[index].endsAt += delta
+            }
+        }
         // Mirror the production listResults API (createdAt DESC, id DESC); cache and public reads share this order.
         value.results.sort { left, right in left.createdAt == right.createdAt ? left.id > right.id : left.createdAt > right.createdAt }
         try validateExpansionState(value)
@@ -231,6 +261,11 @@ nonisolated enum GroupCaptureFixture {
                     value.results.append(result)
                 }
             }
+        }
+        // 编辑冲突场景保持为未来活动；其他场景继续使用原始固定时间基准。
+        if nativeScene == "activity-conflict", !value.activities.isEmpty {
+            value.activities[0].startsAt = scenarioCreatedAt + 86400000
+            value.activities[0].registrationClosesAt = value.activities[0].startsAt - 3600000
         }
         if nativeScene == "activity-abandon", var activity = value.activities.first {
             activity.id = "compare_single_activity"; activity.title = "单场计分续局"
@@ -501,12 +536,14 @@ nonisolated enum GroupCaptureFixture {
         func encoded<U: Encodable>(_ object: U) throws -> Data { try JSONEncoder().encode(object) }
         func page<U: Codable & Sendable>(_ items: [U]) throws -> Data { try encoded(GroupPage(items: items, nextCursor: nil)) }
         if parts.isEmpty { payload = try page(value.listGroupIds.compactMap { id in value.groups.first { $0.id == id } }) }
-        else if path == "/capabilities" { payload = try encoded(value.capabilities) }
+        else if path == "/capabilities" { var catalog = value.capabilities; catalog.groupReportEvidenceEnabled = true; payload = try encoded(catalog) }
         else if path == "/join-requests/mine" { payload = try page([GroupJoinRequest]()) }
         else if path == "/notices" {
             payload = try encoded(NoticeResponse(items: value.notices, nextCursor: nil, unreadCount: value.notices.filter { $0.seenAt == nil }.count))
         } else if parts.count == 3, parts[0] == "by-number", parts[2] == "preview", let group = value.groups.first(where: { $0.groupNo == parts[1] }) {
             payload = try encoded(PreviewResponse(groupNo: group.groupNo, name: group.name, description: group.description, sport: group.sport, memberCount: group.memberCount ?? 0, joinPolicy: group.joinPolicy, availability: group.isActive ? "available" : "archived", groupType: group.groupType, groupId: group.id, status: group.status, memberLimit: group.memberLimit))
+        } else if parts.count == 2, parts[1] == "report", value.groups.contains(where: { $0.id == parts[0] }) {
+            payload = Data("{\"report\":null}".utf8)
         } else if parts.count == 3, parts[0] == "by-number", parts[2] == "report", value.groups.contains(where: { $0.groupNo == parts[1] }) {
             payload = Data("{\"report\":null}".utf8)
         } else if let group = value.groups.first(where: { $0.id == parts[0] }) {

@@ -68,7 +68,7 @@ struct HomeHeaderView: View {
                         .lineLimit(1)
                         .fixedSize(horizontal: true, vertical: false)
                 }
-                .foregroundStyle(externalDisplay.status == .dedicated ? Color.white : Theme.primary)
+                .foregroundStyle(externalDisplay.status == .dedicated ? Theme.textOnPrimary : Theme.primary)
                 .padding(.horizontal, 12)
                 .frame(height: 34)
                 .background(
@@ -226,7 +226,7 @@ struct HomeSharingActiveHeaderView: View {
                     .foregroundColor(.white)
                     .padding(.horizontal, 12)
                     .frame(height: 32)
-                    .background(Color.white.opacity(0.16), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .background(Color.white.opacity(0.16), in: Capsule())
             }
             .buttonStyle(.plain)
         }

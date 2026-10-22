@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "Bordspellen";
 "search_team_or_game" = "Zoek team of spel";
 "match_count" = "%d wedstrijden";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d wedstrijden · alle groepsleden";
+"archived_count" = "%d groepen";
 
 /* Home Screen */
 "recent_records" = "Recente records";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "Bijv. alle vijf de sets spelen; de wedstrijd kan in een gelijkspel eindigen";
 "match_completion_custom_placeholder" = "Voer 1-99 in";
 "match_completion_invalid_sets" = "Klassiek vereist een oneven getal van 1-99; alles spelen accepteert 1-99.";
+"setup_auto_odd_sets" = "Alleen oneven getallen zijn toegestaan — %d wordt gebruikt";
 "has_been_reset" = "Reset voltooid";
 "no_undo_available" = "Ongedaan maken is niet mogelijk";
 "screenshot_failed" = "Schermafbeelding mislukt";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "Actieve synchronisatiesessie";
 "timer_status_running" = "Actief";
 "timer_status_paused" = "Gepauzeerd";
-"membership_entry_summary_active" = "U bent VIP-lid. Bedankt voor uw ondersteuning.";
+"membership_entry_summary_active" = "VIP actief";
 "sound_effects" = "Geluidseffecten";
 "vibration" = "Trillingen";
 "language" = "Taal";
@@ -1579,7 +1580,7 @@
 "group_approval" = "Goedkeuring vereist";
 "group_approve" = "Goedkeuren";
 "group_archive" = "Groep archiveren";
-"group_archive_hint" = "Archiveren bewaart de volledige geschiedenis en pauzeert wijzigingen in de groep. Je kunt de groep later herstellen.";
+"group_archive_hint" = "Deze groep archiveren? De inhoud wordt alleen-lezen.";
 "group_archive_readonly" = "Deze groep is gearchiveerd. De geschiedenis kan alleen worden gelezen.";
 "group_archived" = "Gearchiveerd";
 "group_benefit_activity" = "Activiteiten plannen en aanmelden";
@@ -1624,38 +1625,38 @@
 "group_invalid_qr" = "Dit is geen geldige QR-code voor een groep.";
 "group_invalid_result" = "Het opgeslagen resultaat moet vóór het uploaden worden gecontroleerd.";
 "group_invalid_rules" = "Controleer de wedstrijdregels.";
-"group_invite" = "Invite";
+"group_invite" = "Teamgenoten uitnodigen";
 "group_join" = "Deelnemen aan groep";
 "group_join_hint" = "Neem deel aan de groep van een vriend met het nummer of de QR-code.";
-"group_join_message" = "Bericht aan de groep (optioneel)";
-"group_join_policy" = "Toetreden";
+"group_join_message" = "Bericht bij lidmaatschapsverzoek (optioneel)";
+"group_join_policy" = "Lidmaatschapsopties";
 "group_leave" = "Groep verlaten";
-"group_leave_hint" = "Je verliest toegang tot deze groep. Je persoonlijke wedstrijdgegevens blijven op dit apparaat.";
+"group_leave_hint" = "Na het verlaten ben je geen lid meer en wordt de groep uit ‘Mijn groepen’ verwijderd. Je kunt de groep niet meer bekijken of eraan deelnemen. Bestaande wedstrijdgegevens van de groep en je persoonlijke wedstrijdgegevens op dit apparaat blijven bewaard. Voor toegang moet je opnieuw lid worden.";
 "group_load_failed" = "Groep kan niet worden geladen";
 "group_load_more" = "Meer laden";
 "group_losses" = "nederlagen";
 "group_manual" = "Handmatige invoer";
-"group_manual_result" = "Eerdere wedstrijd toevoegen";
+"group_manual_result" = "Wedstrijdresultaat toevoegen";
 "group_match_detail" = "Wedstrijddetails";
 "group_match_log" = "Wedstrijdgeschiedenis";
 "group_match_rules" = "Wedstrijdregels";
 "group_member" = "Lid";
 "group_member_name" = "Naam van lid";
-"group_members" = "Leden";
+"group_members" = "Lid";
 "group_month_matches" = "Wedstrijden deze maand";
 "group_my_groups" = "Mijn groepen";
 "group_name" = "Groepsnaam";
 "group_need_login" = "Log in om door te gaan.";
 "group_need_members" = "Nodig vrienden uit of voeg tijdelijke leden toe voordat je een wedstrijd begint.";
-"group_new_activity" = "Activiteit plannen";
+"group_new_activity" = "Activiteit maken";
 "group_new_owner" = "Nieuwe eigenaar";
 "group_no_activities" = "Nog geen activiteiten";
 "group_no_description" = "Nog geen beschrijving";
 "group_no_rankings" = "Ranglijsten verschijnen nadat een wedstrijd is bevestigd.";
 "group_no_set_details" = "Alleen het totale resultaat is opgeslagen.";
-"group_note" = "Opmerking bij activiteit (optioneel)";
-"group_number" = "6–8 digit group number";
-"group_open" = "Iedereen met het nummer kan deelnemen";
+"group_note" = "Opmerking (optioneel)";
+"group_number" = "Groepsnummer van 6–8 cijfers";
+"group_open" = "Direct lid worden";
 "group_overall_score" = "Totale setstand";
 "group_overview" = "Overzicht";
 "group_owner" = "Eigenaar";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "Lid verwijderen";
 "group_restore" = "Groep herstellen";
 "group_restore_hint" = "Herstel deze groep om activiteiten en score bijhouden toe te staan.";
-"group_results" = "Wedstrijden";
+"group_results" = "Historie";
 "group_retry" = "Opnieuw proberen";
 "group_rules_missing" = "Regels niet opgeslagen";
-"group_save" = "Bevestigen";
+"group_save" = "Opslaan";
 "group_save_failed" = "De wedstrijd kon niet worden opgeslagen. Probeer het opnieuw.";
 "group_scan" = "QR-code scannen";
 "group_scoreboard" = "Scorebord";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "Hervat of beëindig je huidige wedstrijd voordat je een nieuwe begint.";
 "group_unregister" = "Aanmelding annuleren";
 "group_void_reason" = "Reden voor ongeldigverklaring";
-"group_void_result" = "Resultaat ongeldig verklaren";
+"group_void_result" = "Ongeldig maken";
 "group_voided" = "Ongeldig verklaard";
 "group_wins" = "overwinningen";
 "group_withdraw" = "Verzoek intrekken";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "Je bent al lid.";
 "group_open_group" = "Groep openen";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
+"group_groups" = "Groep";
+"group_invite_students" = "Leerlingen uitnodigen";
+"group_group_type" = "Groepstype";
+"group_peer" = "Vriendengroep";
+"group_coaching" = "Trainingsgroep";
 "group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
+"group_upcoming" = "Binnenkort";
+"group_latest_results" = "Laatste resultaten";
+"group_no_results" = "Nog geen wedstrijden vastgelegd";
+"group_no_training" = "Nog geen training gepland";
+"group_active_activities" = "Actief · Inschrijving open";
+"group_past_activities" = "Eerdere activiteiten";
+"group_all_formats" = "Alle spelvormen";
+"group_join_requests" = "Lidmaatschapsaanvragen";
+"group_regular_members" = "Aangemelde leden";
+"group_temporary_members" = "Tijdelijke leden";
+"group_add" = "Toevoegen";
+"group_leader" = "Eigenaar";
+"group_member_settings" = "Lidinstellingen";
+"group_settings" = "Groepsbeheer";
+"group_partial_load" = "Sommige onderdelen konden niet worden vernieuwd. Trek omlaag om opnieuw te proberen.";
+"group_leave_notices" = "Afwezigheidsmeldingen van leerlingen";
+"group_mark_seen" = "Gelezen";
+"group_training_schedule" = "Trainingsplanning";
+"group_add_session" = "Wedstrijd toevoegen";
+"group_edit_schedule" = "Planning bewerken";
+"group_cancel_schedule" = "Planning annuleren";
+"group_leave_training" = "Afwezigheid melden";
+"group_session_minutes" = "Minuten per wedstrijd";
+"group_court" = "Baan";
+"group_remove_session" = "Verwijderen";
+"group_publish_schedule" = "Planning publiceren";
+"group_leave_reason" = "Reden voor afwezigheid (optioneel)";
+"group_report" = "Groep rapporteren";
+"group_report_reason" = "Reden";
+"group_report_detail" = "Details (optioneel)";
+"group_report_submit" = "Verzenden";
 "group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
+"group_report_harassment" = "Intimidatie";
+"group_report_inappropriate" = "Seksuele of ongepaste inhoud";
+"group_report_fraud" = "Fraude of gokken";
+"group_report_illegal" = "Illegale of gevaarlijke activiteit";
+"group_report_impersonation" = "Identiteitsmisbruik";
+"group_report_other" = "Overig";
+"group_lineup_invalid" = "Controleer de tijden, banen en spelers.";
+"group_lineup_member_limit" = "Een lid mag per planning maximaal acht wedstrijden spelen.";
+"group_lineup_conflict" = "Gelijktijdige wedstrijden moeten verschillende banen en spelers hebben.";
+"group_multi_match_hint" = "Een activiteit kan meerdere wedstrijden omvatten. Leden melden zich aan voor de activiteit; kies bij het indelen 2 aangemelde leden voor elk enkelspel of 4 voor elk dubbelspel.";
+"group_single_match_hint" = "Elke activiteit is één wedstrijd. Kies 2 aangemelde leden voor enkelspel of 4 voor dubbelspel.";
+"group_rate_limited" = "Te veel verzoeken. Probeer het later opnieuw.";
+"group_create_daily_limit" = "Je hebt de limiet voor het maken van groepen binnen 24 uur bereikt. Probeer het later opnieuw.";
+"group_join_daily_limit" = "Je hebt de limiet voor groepslidmaatschappen binnen 24 uur bereikt. Probeer het later opnieuw.";
+"group_pending_request_limit" = "Er wachten te veel aanvragen op goedkeuring. Wacht op een beslissing of trek enkele aanvragen in.";
+"group_request_daily_limit" = "Deze groep heeft de limiet voor aanvragen binnen 24 uur bereikt. Probeer het later opnieuw.";
+"group_join_cooldown" = "Na een afwijzing kun je 24 uur lang geen nieuwe aanvraag indienen.";
+"group_result_group_daily_limit" = "Deze groep heeft de limiet voor resultaten binnen 24 uur bereikt. Probeer het later opnieuw.";
+"group_result_submitter_daily_limit" = "Je hebt de limiet voor het indienen van resultaten binnen 24 uur bereikt. Probeer het later opnieuw.";
+"group_not_coach" = "Alleen de trainer kan trainingen plannen.";
+"group_activity_count" = "%1$d/%2$d ingeschreven";
+"group_activity_create_admin_hint" = "Activiteiten worden door de groepseigenaar of een beheerder aangemaakt";
+"group_activity_direct_hint" = "Kies direct uit alle actieve groepsleden; inschrijven is niet nodig.";
+"group_activity_direct_save" = "Planning opslaan";
+"group_activity_direct_title" = "Nu indelen";
+"group_activity_field_title_optional" = "Activiteitsnaam (optioneel)";
+"group_activity_full" = "Vol";
+"group_activity_lineup_add" = "Wedstrijd toevoegen";
+"group_activity_lineup_add_need_members" = "Te weinig spelers. Er zijn minstens %1$d actieve groepsleden nodig om een wedstrijd toe te voegen.";
+"group_activity_lineup_court" = "Baannummer";
+"group_activity_lineup_duration" = "Wedstrijdduur";
+"group_activity_lineup_match_count" = "%1$d wedstrijden";
 "group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
+"group_activity_lineup_remove" = "Verwijderen";
+"group_activity_lineup_section_matches" = "Wedstrijden plannen";
+"group_activity_lineup_session" = "Wedstrijd %1$d";
+"group_activity_registration_empty" = "Geen tijdelijke leden";
+"group_activity_section_count" = "%1$d activiteiten";
+"group_activity_section_past" = "Eerdere activiteiten";
+"group_activity_section_upcoming" = "Bezig · Inschrijving open";
+"group_activity_status_scheduled" = "Klaar om te starten";
+"group_activity_time_after_previous" = "Na de vorige wedstrijd";
+"group_activity_time_unspecified" = "Tijd nog te bepalen";
+"group_activity_timing" = "Tijdschema";
+"group_activity_timing_estimated" = "Geschatte tijd";
+"group_activity_timing_sequence" = "Zonder vaste tijd";
+"group_activity_title_auto_hint" = "Als dit leeg blijft, wordt een naam zoals ‘Activiteit op 10 november’ op basis van de datum gemaakt.";
+"group_archived_empty" = "Geen gearchiveerde groepen";
+"group_archived_list_title" = "Gearchiveerde groepen";
+"group_empty_activities_title" = "Nog geen activiteiten";
+"group_list_add_title" = "Groep maken of lid worden";
+"group_ranking_draws" = "gelijke spelen";
+"group_ranking_games" = "Gespeeld";
+"group_ranking_losses" = "nederlagen";
 "group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_ranking_title" = "Ranglijst %@";
+"group_ranking_wins" = "overwinningen";
+"group_training_results_locked" = "Bij planningen met resultaten blijven tijden en spelers vaststaan. Je kunt de locatie en notitie bewerken.";
+"group_temporary_hint" = "Tijdelijke leden hebben geen account nodig en kunnen bij het invoeren van resultaten worden toegevoegd.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "Wedstrijd vrijgeven";
-"group_activity_lineup" = "Wedstrijdplanning";
-"group_activity_mode" = "Wedstrijden";
+"group_abandon_game" = "Wedstrijd opgeven";
+"group_activity_lineup" = "Wedstrijden plannen";
+"group_activity_mode" = "Historie";
 "group_activity_reminder" = "15 minuten vooraf herinneren";
 "group_add_set" = "Gamescore toevoegen";
 "group_added_members" = "Toegevoegd";
-"group_authority_confirm" = "Bevestigen als groepseigenaar";
-"group_batch_names_hint" = "Eén naam per regel, elk 1–24 tekens.";
-"group_beta_notice" = "Groepen zijn in bèta. Feedback is welkom.";
+"group_authority_confirm" = "Resultaat bevestigen";
+"group_batch_names_hint" = "Eén naam per regel";
+"group_beta_notice" = "Groepen zijn in bèta. Sommige functies kunnen veranderen. Bedankt voor het vroegtijdig uitproberen.";
 "group_cancel_dissolve" = "Ontbinding annuleren";
 "group_cancel_dissolve_hint" = "Herstel deze groep om activiteiten en score bijhouden toe te staan.";
 "group_cancel_training_hint" = "Afgeronde wedstrijden blijven in de geschiedenis. Gestarte wedstrijden kunnen worden voltooid.";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "Sportstandaard";
 "group_discard_upload" = "Upload weggooien";
 "group_dissolve" = "Groep ontbinden";
-"group_dissolve_hint" = "7 dagen alleen-lezen. Je kunt de ontbinding in die periode annuleren.";
+"group_dissolve_hint" = "De groep is 7 dagen alleen-lezen. Tijdens die periode kan de opheffing worden geannuleerd. Na 7 dagen worden de groep en alle gegevens permanent verwijderd.";
 "group_dissolving" = "Ontbinding bezig";
 "group_edit_activity" = "Bewerken";
 "group_edit_lineup" = "Wedstrijden plannen";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "Nog geen meldingen";
 "group_no_sessions" = "Nog geen wedstrijden gepland";
 "group_notices" = "Meldingen";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "Sommige onderdelen konden niet worden vernieuwd. Trek omlaag om opnieuw te proberen.";
 "group_point_cap" = "Scorelimiet";
 "group_preview_schedule" = "Planning controleren";
 "group_published" = "Gepubliceerd";
 "group_qr_direct_hint" = "Scan in iScoreboard om de groep te bekijken en lid te worden.";
 "group_quick_score" = "Totale setstand";
 "group_rally_scoring" = "Rallyscore";
-"group_read_notices" = "Read";
+"group_read_notices" = "Gelezen";
 "group_registration_closes" = "Inschrijving sluit";
 "group_regular" = "Standaard";
-"group_reload_version" = "Nieuwste versie laden";
+"group_reload_version" = "Opnieuw laden";
 "group_reminder_body" = "De activiteit begint over 15 minuten.";
 "group_reminder_permission" = "Schakel appmeldingen in bij Instellingen.";
 "group_reminder_too_late" = "De activiteit begint over minder dan 15 minuten.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "Settelling";
 "group_tie_break" = "Tiebreakpunten";
 "group_tiebreak_only" = "Alleen tiebreak";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "Datum";
+"group_too_many_sessions" = "Controleer de tijden, banen en spelers.";
+"group_training_date" = "Trainingsdatum";
 "group_win_by_two" = "Winnen met twee punten verschil";
 
-"group_keep_draft" = "Mijn wijzigingen behouden";
+"group_keep_draft" = "Lokale versie verder bewerken";
 
 "group_server_version" = "Nieuwste versie";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "De groep wordt op %@ opgeheven\n7 dagen bedenktijd; tot die tijd alleen lezen";
 "group_notice_end" = "Geen meldingen meer";
 "group_notice_join_requested" = "Verzoek om deel te nemen ontvangen";
 "group_notice_join_approved" = "Verzoek om deel te nemen goedgekeurd";
@@ -1902,8 +1903,8 @@
 "group_notice_receipt_failed" = "De leesbevestiging van de melding was onvolledig. Probeer het opnieuw.";
 "group_notice_seen" = "Markeren als gelezen";
 "group_ranking_empty" = "Nog geen %@-ranglijst";
-"group_filter_singles" = "Enkel";
-"group_filter_doubles" = "Dubbel";
+"group_filter_singles" = "Enkelspel";
+"group_filter_doubles" = "Dubbelspel";
 "group_ranking_me_suffix" = " (ik)";
 "group_ranking_insufficient_matches" = "Te weinig wedstrijden";
 "group_entry_a_wins" = "A wint";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "Handmatig invoeren";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "Alles als gelezen markeren";
+
+"group_status_active" = "Actief";
+"group_dissolved" = "Opgeheven";
+"group_report_status_pending" = "In behandeling";
+"group_report_status_reviewing" = "Wordt beoordeeld";
+"group_report_status_resolved" = "Afgehandeld";
+"group_report_status_dismissed" = "Afgewezen";
+"group_error_permission" = "Je hebt geen toestemming om dit te doen.";
+"group_error_transfer_first" = "Draag het groepseigendom over voordat je de groep verlaat of je account verwijdert.";
+"group_error_target" = "Kies een actief lid van deze groep met een account.";
+"group_error_activity_locked" = "Deze activiteit is begonnen of afgelopen. De planning kan niet worden gewijzigd of geannuleerd.";
+"group_error_activity_pending" = "Rond eerst de overige wedstrijden af of verwijder ze.";
+"group_error_registration_disabled" = "Direct geplande wedstrijden vereisen geen inschrijving.";
+"group_error_content_blocked" = "Deze tekst bevat ongepaste inhoud. Pas de tekst aan.";
+"group_error_request_invalid" = "Controleer de ingevulde gegevens en probeer het opnieuw.";
+"group_error_reason_required" = "Vul een reden in voordat je doorgaat.";
+"group_error_result_state" = "Alleen resultaten die op bevestiging wachten, kunnen worden bevestigd.";
+"group_error_conflict" = "De gegevens zijn gewijzigd. Vernieuw en controleer ze voordat je het opnieuw probeert.";
+"group_error_request_handled" = "Deze aanvraag is al behandeld. Vernieuw de lijst.";
+"group_error_place_locked" = "De locatie kan niet worden gewijzigd nadat een wedstrijd is begonnen of afgelopen.";
+"group_error_schedule_cancelled" = "Deze planning of wedstrijd is geannuleerd.";
+"group_error_session_completed" = "Deze wedstrijd is afgelopen en afwezigheid aanvragen is niet meer mogelijk. Vernieuw het schema om het resultaat te bekijken.";
+"group_error_session_has_result" = "Deze wedstrijd heeft al een resultaat. Maak dit ongeldig voordat je een ander toevoegt.";
+"group_error_item_not_found" = "Deze activiteit, planning, wedstrijd of melding is niet meer beschikbaar. Vernieuw de lijst.";
+"group_error_server" = "De groepsdienst is tijdelijk niet beschikbaar. Probeer het later opnieuw.";
+"group_error_peer_only" = "Gebruik de trainingsplanning voor een trainingsgroep.";
+"group_error_name_length" = "Groepsnamen moeten 2–24 tekens bevatten.";
+"group_error_description_length" = "Groepsbeschrijvingen mogen maximaal 200 tekens bevatten.";
+"group_error_activity_invalid" = "Controleer naam, datum, locatie en capaciteit van de activiteit.";
+"group_error_registration_closed" = "De inschrijving is gesloten.";
+"group_error_action_disabled" = "Deze actie is momenteel niet beschikbaar.";
+"group_error_update_required" = "Werk de app bij om door te gaan.";
+"group_welcome_back" = "Welkom terug";
+"group_transfer_none" = "Er zijn geen andere vaste leden. Tijdelijke leden kunnen geen groepsleider worden.";
+"group_empty_activities_hint" = "Maak een activiteit waar leden zich voor kunnen aanmelden. De inschrijving sluit zodra alle plaatsen bezet zijn.";
+"group_temp_import_names" = "Opgeslagen namen importeren";
+"group_temp_import_count" = "Importeren (%1$d)";
+"group_result_information" = "Wedstrijdinformatie";
+"group_result_actions" = "Resultaatacties";
+"group_peer_confirmation" = "Bevestiging door tegenstander";
+"group_notice_target_unavailable" = "Deze inhoud is niet beschikbaar of je hebt geen toegang meer.";
+"group_push_enabled" = "Groepsmeldingen";
+"group_push_group_enabled" = "Meldingen van deze groep ontvangen";
+"group_push_inbox_kept" = "Bij uitschakelen blijven meldingen in de app en bestaande activiteitsherinneringen behouden.";
+"group_push_permission" = "Systeemmeldingen inschakelen";
+"group_push_settings" = "Meldingsinstellingen";
+
+// Shared group form controls
+"group_inline_seat_hint" = "Kies een plek en daarna een lid";
+"group_score_and_rules" = "Score en regels";
+"group_activity_registration_scope" = "Schrijf hier tijdelijke leden in. Leden met een account schrijven zichzelf in.";
+"group_activity_registration_no_changes" = "Geen niet-opgeslagen wijzigingen";
+"group_activity_registration_changes" = "Toevoegen %1$d · Afmelden %2$d";
+"group_activity_registration_save" = "Inschrijvingen opslaan (%1$d)";
+"group_activity_registration_manage" = "Tijdelijke leden inschrijven";
+"group_activity_registration_pending_add" = "Nog inschrijven";
+"group_activity_registration_pending_remove" = "Nog afmelden";
+"group_activity_registration_registered" = "Ingeschreven";
+"group_activity_registration_not_registered" = "Niet ingeschreven";
+"group_activity_detail" = "Activiteitsdetails";
+"group_activity_my_registration" = "Mijn inschrijving";
+"group_match_score" = "Wedstrijdscore";
+
+"group_lookup_available" = "Toegankelijk";
+
+/* Group beta notice card. */
+"group_beta_badge" = "Bèta";
+"group_beta_supported_label" = "Nu beschikbaar";
+"group_beta_feedback_prompt" = "Problemen of suggesties?";
+"group_beta_feedback_action" = "Feedback sturen";
+
+"group_member_results_title" = "Lidresultaten";
+
+"group_removed_members_expand" = "Uitklappen";
+"group_removed_members_collapse" = "Inklappen";
+"group_best_of_format" = "Best of %1$@ (%2$@ keer winnen)";
+"group_member_count_single" = "%d lid";
+"group_member_count_short" = "%d leden";
+"group_lookup_closed_short" = "Gesloten";
+"group_lookup_closing_short" = "Wordt opgeheven";
+"group_lookup_member_short" = "Lid geworden";
+"group_lookup_unavailable_short" = "Niet beschikbaar";
+"group_join_scan_hint" = "Scan de QR-code van een groep";
+"group_join_number_hint" = "6–8 cijfers. Vraag het aan de groepseigenaar.";
+"group_request_join" = "Lidmaatschap aanvragen";
+"group_overdue_tasks" = "Achterstallige taken";
+"group_apply_shift" = "Wijzigingen toepassen";
+"group_transfer_submit" = "Overdragen";
+"group_rename_member" = "Naam wijzigen";
+"group_set_admin" = "Beheerder maken";
+"group_set_member" = "Beheerdersrol intrekken";
+"group_confirm_authority_message" = "Alle spelers zijn tijdelijke leden, of er is aan de andere kant geen speler met een account die kan bevestigen. De eigenaar moet spelers en score controleren. Na bevestiging telt het resultaat mee in de wedstrijdgegevens en wordt de eigenaar als bevestiger vermeld.";
+"group_confirm_result_message" = "Na bevestiging telt het resultaat mee voor beide partijen en kan het niet worden bewerkt. Verklaar het eerst ongeldig om het te corrigeren.";
+"group_confirm_member_message" = "Bevestig spelers en score om het resultaat op te nemen. Vraag bij een correctie een beheerder het oorspronkelijke resultaat ongeldig te verklaren.";
+"group_cancel_activity_message" = "Annuleren wist de inschrijflijst permanent. Lopende activiteiten kunnen niet worden geannuleerd.";
+"group_abandon_game_message" = "Geef deze wedstrijd op om een andere te starten. Opgeslagen persoonlijke gegevens blijven behouden.";
+"group_void_pending_message" = "Dit resultaat wacht niet meer op bevestiging en telt niet mee in de statistieken. De oorspronkelijke score en reden blijven zichtbaar voor groepsleden. Spelers en de indiener krijgen bericht.";
+"group_void_confirmed_message" = "Dit resultaat telt niet meer mee in de statistieken. De statistieken en ranglijsten van beide partijen worden herberekend. De oorspronkelijke score en reden blijven zichtbaar voor groepsleden. Spelers en de indiener krijgen bericht.";
+"group_remove_member_message" = "%@ verwijderen? Opnieuw lidmaatschap aanvragen is dan nodig.";
+"group_reload_version_message" = "Niet-opgeslagen wijzigingen in de wedstrijdplanning verwerpen en de laatst opgeslagen planning laden?";
+"group_transfer_confirmation" = "Eigendom overdragen aan %@? Je wordt een gewoon lid.";
+"group_approve_confirmation" = "%@ wordt groepslid en kan activiteiten en resultaten zien.";
+"group_reject_confirmation" = "Na afwijzing moet %@ een nieuw verzoek indienen.";
+"group_lookup_full_short" = "Vol";
+"group_lookup_archived_short" = "Gearchiveerd";
+"group_lookup_pending_short" = "In behandeling";
+"group_temporary_member_count" = "%d leden";
+"group_best_of_tennis_format" = "Best of %1$@ (%2$@ keer winnen)";
+"group_rename_member_title" = "Naam wijzigen";
+
+"group_copy_transfer_title" = "Eigendom overdragen";
+
+"group_copy_transfer_submit" = "Overdragen";
+
+"group_copy_transfer_message" = "Eigendom overdragen aan %@? Je wordt een gewoon lid.";
+
+"group_copy_transfer_hint" = "Na de overdracht word je een gewoon lid.";
+
+"group_copy_rename_title" = "Naam wijzigen";
+
+"group_copy_rename_action" = "Naam wijzigen";
+
+"group_copy_result_confirm" = "Resultaat bevestigen";
+
+"group_copy_result_confirm_authority_message" = "Alle spelers zijn tijdelijke leden, of er is aan de andere kant geen speler met een account die kan bevestigen. De eigenaar moet spelers en score controleren. Na bevestiging telt het resultaat mee in de wedstrijdgegevens en wordt de eigenaar als bevestiger vermeld.";
+
+"group_copy_result_confirm_manager_message" = "Na bevestiging telt het resultaat mee voor beide partijen en kan het niet worden bewerkt. Verklaar het eerst ongeldig om het te corrigeren.";
+
+"group_copy_result_confirm_member_message" = "Bevestig spelers en score om het resultaat op te nemen. Vraag bij een correctie een beheerder het oorspronkelijke resultaat ongeldig te verklaren.";
+
+"group_copy_void_action" = "Ongeldig maken";
+
+"group_copy_void_pending_message" = "Dit resultaat wacht niet meer op bevestiging en telt niet mee in de statistieken. De oorspronkelijke score en reden blijven zichtbaar voor groepsleden. Spelers en de indiener krijgen bericht.";
+
+"group_copy_void_confirmed_message" = "Dit resultaat telt niet meer mee in de statistieken. De statistieken en ranglijsten van beide partijen worden herberekend. De oorspronkelijke score en reden blijven zichtbaar voor groepsleden. Spelers en de indiener krijgen bericht.";
+
+"group_copy_cancel_activity" = "Activiteit annuleren";
+
+"group_copy_cancel_activity_message" = "Annuleren wist de inschrijflijst permanent. Lopende activiteiten kunnen niet worden geannuleerd.";
+
+"group_copy_abandon_action" = "Wedstrijd opgeven";
+
+"group_copy_abandon_message" = "Geef deze wedstrijd op om een andere te starten. Opgeslagen persoonlijke gegevens blijven behouden.";
+
+"group_copy_leave_action" = "Groep verlaten";
+
+"group_copy_leave_message" = "Na het verlaten ben je geen lid meer en wordt de groep uit ‘Mijn groepen’ verwijderd. Je kunt de groep niet meer bekijken of eraan deelnemen. Bestaande wedstrijdgegevens van de groep en je persoonlijke wedstrijdgegevens op dit apparaat blijven bewaard. Voor toegang moet je opnieuw lid worden.";
+
+"group_copy_archive_action" = "Groep archiveren";
+
+"group_copy_archive_message" = "Deze groep archiveren? De inhoud wordt alleen-lezen.";
+
+"group_copy_dissolve_action" = "Groep ontbinden";
+
+"group_copy_dissolve_message" = "De groep is 7 dagen alleen-lezen. Tijdens die periode kan de opheffing worden geannuleerd. Na 7 dagen worden de groep en alle gegevens permanent verwijderd.";
+
+"group_copy_approve_action" = "Goedkeuren";
+
+"group_copy_approve_message" = "%@ wordt groepslid en kan activiteiten en resultaten zien.";
+
+"group_copy_reject_action" = "Afwijzen";
+
+"group_copy_reject_message" = "Na afwijzing moet %@ een nieuw verzoek indienen.";
+
+"group_copy_remove_action" = "Lid verwijderen";
+
+"group_copy_remove_message" = "%@ verwijderen? Opnieuw lidmaatschap aanvragen is dan nodig.";
+
+"group_copy_report_detail" = "Details (optioneel)";
+
+"group_copy_edit_profile" = "Groepsprofiel bewerken";
+
+"group_copy_entry_a_wins" = "A wint";
+
+"group_copy_entry_b_wins" = "B wint";
+
+"group_copy_activity_timing_sequence" = "Zonder vaste tijd";
+
+"group_copy_activity_registration_manage" = "Tijdelijke leden inschrijven";
+
+"group_copy_temporary_hint" = "Tijdelijke leden hebben geen account nodig en kunnen bij het invoeren van resultaten worden toegevoegd.";
+
+"group_copy_activity_registration_scope" = "Schrijf hier tijdelijke leden in. Leden met een account schrijven zichzelf in.";
+
+"group_copy_report" = "Groep rapporteren";
+
+"group_copy_notice_member_removed" = "Je bent uit de groep verwijderd";
+
+"group_copy_notice_role_changed" = "Je rol is gewijzigd";
+
+"group_copy_activity_direct_save" = "Planning opslaan";
+
+"group_copy_notice_join_approved" = "Verzoek om deel te nemen goedgekeurd";
+
+"group_copy_notice_join_rejected" = "Verzoek om deel te nemen geweigerd";
+
+"group_copy_all_formats" = "Alle spelvormen";
+
+"group_copy_closed" = "Aanmelden gesloten";
+
+"group_copy_report_other" = "Overig";
+
+"group_copy_report_impersonation" = "Identiteitsmisbruik";
+
+"group_copy_audit_ui_share_failed" = "Delen mislukt. Probeer het opnieuw.";
+
+"group_copy_audit_ui_share_number" = "Groepsnummer delen";
+
+"group_copy_create" = "Groep maken";
+
+"group_copy_confirm_join" = "Deelnemen aan deze groep";
+
+"group_copy_join" = "Deelnemen aan groep";
+
+"group_copy_join_policy" = "Lidmaatschapsopties";
+
+"group_copy_filter_singles" = "Enkelspel";
+
+"group_copy_upcoming" = "Binnenkort";
+
+"group_copy_activity_section_past" = "Eerdere activiteiten";
+
+"group_copy_beta_feedback_action" = "Feedback sturen";
+
+"group_copy_doubles" = "Dubbelspel";
+
+"group_copy_create_activity" = "Activiteit maken";
+
+"group_copy_benefit_activity" = "Activiteiten plannen en aanmelden";
+
+"group_copy_empty_activities_hint" = "Maak een activiteit waar leden zich voor kunnen aanmelden. De inschrijving sluit zodra alle plaatsen bezet zijn.";
+
+"group_copy_lookup_available" = "Toegankelijk";
+
+"group_copy_activity_direct_hint" = "Kies direct uit alle actieve groepsleden; inschrijven is niet nodig.";
+
+"group_copy_empty_intro" = "Breng je vrienden samen om wedstrijden te plannen, de score bij te houden en een gezamenlijke geschiedenis op te bouwen.";
+
+"group_copy_place" = "Locatie";
+
+"group_copy_ranking_games" = "Gespeeld";
+
+"group_copy_ranking_insufficient_matches" = "Te weinig wedstrijden";
+
+"group_copy_report_spam" = "Spam";
+
+"group_copy_report_status_reviewing" = "Wordt beoordeeld";
+
+"group_copy_note" = "Opmerking (optioneel)";
+
+"group_copy_peer_confirmation" = "Bevestiging door tegenstander";
+
+"group_copy_activity_lineup_section_matches" = "Wedstrijden plannen";
+
+"group_copy_group" = "Groep";
+
+"group_copy_group_qr" = "QR-code van de groep";
+
+"group_copy_beta_notice" = "Groepen zijn in bèta. Sommige functies kunnen veranderen. Bedankt voor het vroegtijdig uitproberen.";
+
+"group_copy_created" = "Groep gemaakt";
+
+"group_copy_ranking_sets" = "Score";
+
+"group_copy_removed_members_expand" = "Uitklappen";
+
+"group_copy_voided" = "Ongeldig verklaard";
+
+"group_copy_cancelled" = "Geannuleerd";
+
+"group_copy_report_status_resolved" = "Afgehandeld";
+
+"group_copy_completed" = "Voltooid";
+
+"group_copy_archived" = "Gearchiveerd";
+
+"group_copy_archived_list_title" = "Gearchiveerde groepen";
+
+"group_copy_activity_registration_registered" = "Ingeschreven";
+
+"group_copy_activity_full" = "Vol";
+
+"group_copy_confirmed" = "Bevestigd";
+
+"group_copy_removed_members" = "Voormalige leden";
+
+"group_copy_mark_seen" = "Gelezen";
+
+"group_copy_report_status_dismissed" = "Afgewezen";
+
+"group_copy_draws" = "gelijke spelen";
+
+"group_copy_draw" = "Gelijkspel";
+
+"group_copy_start_score" = "Nu score bijhouden";
+
+"group_copy_pending_upload" = "Wachten op upload";
+
+"group_copy_activity_registration_pending_remove" = "Nog afmelden";
+
+"group_copy_report_status_pending" = "In behandeling";
+
+"group_copy_lookup_pending_short" = "In behandeling";
+
+"group_copy_pending_request_limit" = "Er wachten te veel aanvragen op goedkeuring. Wacht op een beslissing of trek enkele aanvragen in.";
+
+"group_copy_activity_registration_pending_add" = "Nog inschrijven";
+
+"group_copy_pending_confirmation" = "Wachten op bevestiging";
+
+"group_copy_lookup_closing_short" = "Wordt opgeheven";
+
+"group_copy_restore" = "Groep herstellen";
+
+"group_copy_member" = "Lid";
+
+"group_copy_member_results_title" = "Lidresultaten";
+
+"group_copy_my_groups" = "Mijn groepen";
+
+"group_copy_activity_my_registration" = "Mijn inschrijving";
+
+"group_copy_activity_mode" = "Historie";
+
+"group_copy_qr_join_short" = "Scan om deel te nemen";
+
+"group_copy_qr_apply_short" = "Scan om toegang aan te vragen";
+
+"group_copy_register" = "Aanmelden";
+
+"group_copy_recruiting" = "Aanmelding geopend";
+
+"group_copy_registration_closes" = "Inschrijving sluit";
+
+"group_copy_activity_time_after_previous" = "Na de vorige wedstrijd";
+
+"group_copy_report_submit" = "Verzenden";
+
+"group_copy_submitted_by" = "Ingediend door";
+
+"group_copy_cancel_dissolve" = "Ontbinding annuleren";
+
+"group_copy_notice_join_requested" = "Verzoek om deel te nemen ontvangen";
+
+"group_copy_removed_members_collapse" = "Inklappen";
+
+"group_copy_discard_upload" = "Upload weggooien";
+
+"group_copy_notice_activity_created" = "Activiteit gemaakt";
+
+"group_copy_activity_time_unspecified" = "Tijd nog te bepalen";
+
+"group_copy_activity_registration_empty" = "Geen tijdelijke leden";
+
+"group_copy_transfer_none" = "Er zijn geen andere vaste leden. Tijdelijke leden kunnen geen groepsleider worden.";
+
+"group_copy_archived_empty" = "Geen gearchiveerde groepen";
+
+"group_copy_empty_activities_title" = "Nog geen activiteiten";
+
+"group_copy_latest_results" = "Laatste resultaten";
+
+"group_copy_disputed" = "Betwist";
+
+"group_copy_activity_registration_not_registered" = "Niet ingeschreven";
+
+"group_copy_month_matches" = "Wedstrijden deze maand";
+
+"group_copy_open_group" = "Groep openen";
+
+"group_copy_benefit_history" = "Wedstrijden en ranglijsten bekijken";
+
+"group_copy_overview" = "Overzicht";
+
+"group_copy_welcome_back" = "Welkom terug";
+
+"group_copy_regular_members" = "Aangemelde leden";
+
+"group_copy_rally_scoring" = "Rallyscore";
+
+"group_copy_result_information" = "Wedstrijdinformatie";
+
+"group_copy_match_score" = "Wedstrijdscore";
+
+"group_copy_match_rules" = "Wedstrijdregels";
+
+"group_copy_activity_registration_no_changes" = "Geen niet-opgeslagen wijzigingen";
+
+"group_copy_activities" = "Activiteiten";
+
+"group_copy_activity_title" = "Naam van de activiteit";
+
+"group_copy_activity_field_title_optional" = "Activiteitsnaam (optioneel)";
+
+"group_copy_notice_activity_changed" = "Activiteit bijgewerkt";
+
+"group_copy_notice_activity_cancelled" = "Activiteit geannuleerd";
+
+"group_copy_activity_lineup" = "Wedstrijden plannen";
+
+"group_copy_activity_create_admin_hint" = "Activiteiten worden door de groepseigenaar of een beheerder aangemaakt";
+
+"group_copy_beta_badge" = "Bèta";
+
+"group_copy_add_set" = "Gamescore toevoegen";
+
+"group_copy_add_temporary" = "Tijdelijk lid toevoegen";
+
+"group_copy_benefit_score" = "Score bijhouden of eerdere resultaten toevoegen";
+
+"group_copy_request_join" = "Lidmaatschap aanvragen";
+
+"group_copy_join_message" = "Bericht bij lidmaatschapsverzoek (optioneel)";
+
+"group_copy_beta_supported_label" = "Nu beschikbaar";
+
+"group_copy_open" = "Direct lid worden";
+
+"group_copy_activity_direct_title" = "Nu indelen";
+
+"group_copy_admin" = "Beheerder";
+
+"group_copy_confirmed_matches" = "Bevestigde wedstrijden";
+
+"group_copy_leader" = "Eigenaar";
+
+"group_copy_notice_ownership_transferred" = "De eigenaar van de groep is gewijzigd";
+
+"group_copy_complete_activity" = "Activiteit beëindigen";
+
+"group_copy_keep_draft" = "Lokale versie verder bewerken";
+
+"group_copy_ranking_wins" = "overwinningen";
+
+"group_copy_ranking_rate" = "Winstpercentage";
+
+"group_copy_report_inappropriate" = "Seksuele of ongepaste inhoud";
+
+"group_copy_update_report" = "Melding bijwerken";
+
+"group_copy_manual_result" = "Wedstrijdresultaat toevoegen";
+
+"group_copy_set_admin" = "Beheerder maken";
+
+"group_copy_activity_timing_estimated" = "Geschatte tijd";
+
+"group_copy_losses" = "nederlagen";
+
+"group_copy_notice_result_voided" = "Resultaat ongeldig verklaard";
+
+"group_copy_notice_result_confirmed" = "Resultaat bevestigd";
+
+"group_copy_notice_result_pending" = "Resultaat wacht op bevestiging";
+
+"group_copy_result_actions" = "Resultaatacties";
+
+"group_copy_empty_title" = "Nog geen groepen";
+
+"group_copy_in_progress" = "Bezig";
+
+"group_copy_report_illegal" = "Illegale of gevaarlijke activiteit";
+
+"group_copy_join_hint" = "Neem deel aan de groep van een vriend met het nummer of de QR-code.";
+
+"group_copy_overdue_tasks" = "Achterstallige taken";
+
+"group_copy_beta_feedback_prompt" = "Problemen of suggesties?";
+
+"group_copy_invite" = "Teamgenoten uitnodigen";
+
+"group_copy_retry" = "Opnieuw proberen";
+
+"group_copy_approval" = "Goedkeuring vereist";
+
+"group_copy_sport" = "Sport";
+
+"group_copy_report_harassment" = "Intimidatie";
+
+"group_copy_ranking_me_suffix" = " (ik)";
+
+"group_copy_places_title" = "Selecteer Plaats";
+
+"group_copy_report_fraud" = "Fraude of gokken";
+
+"group_copy_void_reason" = "Reden voor ongeldigverklaring";
+
+"group_copy_reload_version" = "Opnieuw laden";
+
+"group_copy_lineup_reload_message" = "Niet-opgeslagen wijzigingen in de wedstrijdplanning verwerpen en de laatst opgeslagen planning laden?";
+
+"group_copy_join_number_separator" = "Of voer een groepsnummer in";
+
+"group_copy_activity_multi_match_hint" = "Een activiteit kan meerdere wedstrijden omvatten. Leden melden zich aan voor de activiteit; kies bij het indelen 2 aangemelde leden voor elk enkelspel of 4 voor elk dubbelspel.";
+
+"group_copy_activity_single_match_hint" = "Elke activiteit is één wedstrijd. Kies 2 aangemelde leden voor enkelspel of 4 voor dubbelspel.";
+
+"group_copy_activity_detail" = "Activiteitsdetails";
+
+"group_copy_registration_at_start" = "Bij de start van de activiteit";
+
+"group_copy_registration_use_start" = "Starttijd van de activiteit gebruiken";
+
+"group_copy_cancel_reason_optional" = "Reden voor annulering (optioneel)";
+
+"group_copy_audit_result_frozen_info" = "Spelers en regels bekijken";
+"group_view_schedule" = "Wedstrijden bekijken";
+"group_notice_training_published" = "Training gepubliceerd";
+"group_notice_training_changed" = "Training bijgewerkt";
+"group_notice_training_cancelled" = "Training geannuleerd";
+"group_notice_leave_changed" = "Afwezigheid bijgewerkt";
+"group_report_evidence_title" = "Afbeeldingen als bewijs (optioneel)";
+"group_report_evidence_hint" = "Maximaal 3 JPG- of PNG-afbeeldingen van elk maximaal 2 MB. Alleen zichtbaar voor jou en het platform.";
+"group_report_add_image" = "Afbeelding toevoegen";
+"group_report_retry" = "Opnieuw proberen";
+"group_report_preview" = "Afbeelding als bewijs";
+"group_report_supplement" = "Informatie toevoegen";
+"group_report_close" = "Sluiten";
+"group_report_remove_image" = "Afbeelding verwijderen";
+"group_report_image_error" = "De afbeelding kan niet worden voorbereid. Probeer een andere JPG- of PNG-afbeelding.";
+"group_report_refresh" = "Status vernieuwen";

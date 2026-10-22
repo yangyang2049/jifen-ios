@@ -8,6 +8,7 @@ struct GroupMatchEditor: View {
     var activitySession: GroupActivitySession? = nil
     var trainingSession: GroupTrainingSession? = nil
     let manual: Bool
+    var usesParentNavigation = false
     var onStart: (GameType, SportsSetupResult, String) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var store = GroupStore.shared
@@ -18,7 +19,7 @@ struct GroupMatchEditor: View {
     @State private var frozenRules: GroupMatchRules?
     @State private var frozenLoading = false
     @State private var frozenLoadFailed = false
-    @State private var showRules = false
+    @State private var rulesExpanded = false
     @State private var busy = false
     @State private var resultDraft = GroupResultEntryDraft()
     @State private var frozenSeats: [GroupSeat]?
@@ -28,7 +29,8 @@ struct GroupMatchEditor: View {
     @State private var frozenCreatorMemberID: String?
     @State private var sessionID = "ios-" + UUID().uuidString
     @State private var uploadKey = UUID().uuidString
-    private var choices: [GroupMember] { detail.members.filter { $0.status == "active" && (activity == nil || activity!.registeredMemberIds.contains($0.id)) } }
+    private var currentDetail: GroupDetailCache { store.cache.details[detail.group.id] ?? detail }
+    private var choices: [GroupMember] { currentDetail.members.filter { $0.status == "active" && (activity == nil || activity!.registeredMemberIds.contains($0.id)) } }
     private var boundGameID: String? { activitySession?.gameID ?? trainingSession?.startedGameId.flatMap { $0.isEmpty ? nil : $0 } ?? activity.flatMap { $0.gameId.isEmpty ? nil : $0.gameId } }
     private var seatIDs: [String] { format == .singles ? [ids[0],ids[2]] : ids }
     private var ready: Bool { seatIDs.allSatisfy { !$0.isEmpty } && Set(seatIDs).count == seatIDs.count }
@@ -39,50 +41,102 @@ struct GroupMatchEditor: View {
         return GroupMatchRules(sport: detail.group.sport, setup: setup)
     }
     private var seats: [GroupSeat] { seatIDs.enumerated().map { i,id in .init(memberId: id, side: i < format.seatsPerSide ? "A" : "B", seat: i % format.seatsPerSide, displayName: frozenSeats?.first(where: { $0.memberId == id })?.displayName ?? activitySession?.seats.first(where: { $0.memberId == id })?.displayName ?? trainingSession?.seats.first(where: { $0.memberId == id })?.displayName ?? choices.first { $0.id == id }?.displayName) } }
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    if activity == nil && trainingSession == nil { Picker(groupText("format", "Format"), selection: $format) { ForEach(GroupFormat.allCases) { Text($0.title).tag($0) } } }
-                    else { Text((activity?.title ?? trainingSession?.court ?? "") + " · " + format.title) }
-                    if choices.count < format.seatsPerSide * 2 { GroupNotice(text: groupText("need_members", "Invite friends or add temporary members before starting a match.")) }
-                    ForEach([0,1], id: \.self) { side in
-                        ForEach(0..<format.seatsPerSide, id: \.self) { seat in
-                            GroupSeatPicker(title: "\(side == 0 ? "A" : "B")\(seat + 1)", selectedID: $ids[side * 2 + seat], members: choices, excluded: Set(seatIDs), frozen: trainingSession != nil || activitySession != nil || frozenRules != nil, frozenName: seats.first(where: { $0.side == (side == 0 ? "A" : "B") && $0.seat == seat })?.displayName)
+    private var rosterFrozen: Bool { trainingSession != nil || activitySession != nil || frozenRules != nil }
+    private var editableRules: Bool {
+        !rosterFrozen && !frozenLoading && !frozenLoadFailed &&
+        store.capabilities?.sport(detail.group.sport) != nil &&
+        store.capabilities?.sport(detail.group.sport)?.supportsCustomRules != false
+    }
+    private var rulesBinding: Binding<GroupMatchRules> {
+        Binding(get: { currentRules }, set: { setup = $0.setup(format: format) })
+    }
+    private var canSubmit: Bool {
+        ready && validManualResult && !busy && store.enabled && currentDetail.group.isActive && !frozenLoading && !frozenLoadFailed
+    }
 
-                        }
-                    }
-                } header: { Text(groupText("participants", "Participants")) }.disabled(frozenLoading || frozenLoadFailed)
-                Section {
-                    Button(groupText("match_rules", "Match rules")) { showRules = true }.disabled(frozenRules != nil || frozenLoading || frozenLoadFailed || store.capabilities?.sport(detail.group.sport) == nil)
-                    let rules = currentRules
-                    Text("\(rules.maxSets) · " + groupText(rules.matchCompletionMode, rules.matchCompletionMode) + " · \(rules.pointsToWinSet)").font(.caption).foregroundStyle(.secondary)
+    var body: some View {
+        Group {
+            if usesParentNavigation { editorContent }
+            else { NavigationStack { editorContent } }
+        }.groupAccountBoundary()
+    }
+
+    private var editorContent: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.lg) {
+                if activity == nil && trainingSession == nil {
+                    GroupMatchFormatChoices(format: $format)
+                        .disabled(rosterFrozen || frozenLoading || frozenLoadFailed)
+                        .accessibilityIdentifier("group_match_format")
+                } else {
+                    Text((activity?.title ?? trainingSession?.court ?? "") + " · " + format.title)
+                        .font(GroupTypography.body).foregroundStyle(Theme.textSecondary)
+                }
+                if choices.count < format.seatsPerSide * 2 && !rosterFrozen {
+                    GroupNotice(text: groupText("need_members", "Invite friends or add temporary members before starting a match.") + " (\(choices.count) / \(format.seatsPerSide * 2))")
+                }
+                GroupInlineMatchRoster(format: format, ids: $ids, members: choices, frozen: rosterFrozen,
+                                       frozenSeats: frozenSeats ?? activitySession?.seats ?? trainingSession?.seats ?? [])
+                    .disabled(frozenLoading || frozenLoadFailed)
+                if activity == nil && trainingSession == nil && frozenRules == nil {
+                    GroupRosterAddButton(groupID: detail.group.id)
                 }
                 if manual {
-                    Section(groupText("overall_score", "Overall set score")) {
+                    GroupActivityDateField(selection: $playedAt, maximum: Date(), compact: true)
+                        .accessibilityLabel(groupText("played_at", "Played at"))
+                        .accessibilityIdentifier("group_result_played_at")
+                }
+                Text(manual ? groupText("score_and_rules", "Score and rules") : groupText("match_rules", "Match rules"))
+                    .font(.system(size: Theme.fontBody1, weight: .medium)).foregroundStyle(Theme.textPrimary)
+                VStack(alignment: .leading, spacing: Theme.sm) {
+                    if manual { Text(groupText("match_rules", "Match rules")).font(.system(size: Theme.fontBody2, weight: .medium)) }
+                    GroupMatchRuleSummary(rules: currentRules, expanded: rulesExpanded, editable: editableRules) {
+                        rulesExpanded.toggle()
+                    }
+                    if rulesExpanded && editableRules {
+                        GroupRulesFields(rules: rulesBinding, capability: store.capabilities?.sport(detail.group.sport))
+                    }
+                    if manual {
+                        Divider().padding(.vertical, Theme.sm)
+                        Text(groupText("match_score", "Match score")).font(.system(size: Theme.fontBody2, weight: .medium))
                         GroupResultScoreControls(draft: $resultDraft, rules: currentRules)
-                        DatePicker(groupText("played_at", "Played at"), selection: $playedAt, in: ...Date()).accessibilityIdentifier("group_result_played_at")
                     }
                 }
+                .padding(Theme.padding).frame(maxWidth: .infinity, alignment: .leading)
+                .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 12))
                 if let error { GroupNotice(text: error) }
-                if frozenLoadFailed { Button(groupText("retry", "Retry")) { Task { await loadFrozenGame() } }.disabled(frozenLoading) }
-                if frozenLoading { ProgressView() }
-                Button(manual ? groupText("submit_result", "Submit result") : groupText("start_score", "Start scoring")) { Task { await submit() } }.disabled(!ready || !validManualResult || busy || !store.enabled || !detail.group.isActive || frozenLoading || frozenLoadFailed).accessibilityIdentifier("group_match_submit")
-            }.scrollDismissesKeyboard(.interactively).navigationTitle(manual ? groupText("manual_result", "Add a past match") : groupText("start_score", "Start scoring"))
-                .navigationBarTitleDisplayMode(.inline)
-                .disabled(busy)
-                .interactiveDismissDisabled(busy)
-                .toolbar { ToolbarItem(placement: .cancellationAction) { Button(groupText("close", "Close")) { dismiss() }.disabled(busy) } }
-                .onChange(of: store.identityRevision) { _, _ in dismiss() }
-                .task { await initialize() }
-                .onChange(of: resultDraft.detailsExpanded) { _, value in if value { resultDraft.reconcileDetails(currentRules) } }
-                .onChange(of: resultDraft.total) { _, _ in resultDraft.reconcileDetails(currentRules) }
-                .onChange(of: currentRules) { _, _ in resultDraft.victoryOrder = nil }
-                .sheet(isPresented: $showRules) {
-                    GroupRulesEditor(rules: Binding(get: { GroupMatchRules(sport: detail.group.sport, setup: setup) }, set: { setup = $0.setup(format: format) }), capability: store.capabilities?.sport(detail.group.sport))
+                if frozenLoadFailed {
+                    Button(groupText("retry", "Retry")) { Task { await loadFrozenGame() } }.disabled(frozenLoading)
                 }
-
-        }.groupAdaptiveOrientation()
+                if frozenLoading { ProgressView().frame(maxWidth: .infinity) }
+            }
+            .padding(.horizontal, Theme.padding).padding(.top, Theme.padding).padding(.bottom, Theme.lg)
+            .frame(maxWidth: 680).frame(maxWidth: .infinity)
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .background(Theme.backgroundColor)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            GroupAlignedFooter {
+                Button(manual ? groupText("submit_result", "Submit result") : groupText("start_score", "Start scoring")) {
+                    Task { await submit() }
+                }
+                .buttonStyle(GroupAlignedActionStyle()).disabled(!canSubmit)
+                .accessibilityIdentifier("group_match_submit")
+            }
+        }
+        .navigationTitle(manual ? groupText("manual_result", "Add match result") : groupText("start_score", "Start scoring"))
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(busy)
+        .tint(Theme.primary).disabled(busy).interactiveDismissDisabled(busy)
+        .toolbar {
+            if !usesParentNavigation {
+                ToolbarItem(placement: .cancellationAction) { ModalCloseButton { dismiss() }.disabled(busy) }
+            }
+        }
+        .onChange(of: store.identityRevision) { _, _ in dismiss() }
+        .task { await initialize() }
+        .onChange(of: resultDraft.detailsExpanded) { _, value in if value { resultDraft.reconcileDetails(currentRules) } }
+        .onChange(of: resultDraft.total) { _, _ in resultDraft.reconcileDetails(currentRules) }
     }
     private func initialize() async {
         guard !initialized else { return }; initialized = true; presentedAccountID = store.accountID
@@ -131,10 +185,12 @@ struct GroupMatchEditor: View {
         do {
             let authRevision = await store.repository.client.authSessionRevision()
             guard store.matchesIdentity(accountID, revision: revision), SessionStore.shared.user?.id == accountID else { return }
+            guard ready, Set(choices.map(\.id)).isSuperset(of: seatIDs) || frozenSeats != nil || activitySession != nil || trainingSession != nil else { throw GroupFlowError.gameUnavailable }
             guard rules.isValid else { throw GroupFormError.invalidRules }
             guard frozenRules != nil || store.capabilities?.sport(detail.group.sport)?.defaultRules?.isValid == true else { throw GroupFlowError.noCapabilities }
             if let count = store.capabilities?.sport(detail.group.sport)?.seats?[format.rawValue], count != format.seatsPerSide * 2 { throw GroupFlowError.noCapabilities }
             guard store.capabilities?.allows(manual ? "submit_result" : "start_game") ?? false else { throw GroupFlowError.noCapabilities }
+            guard GroupActivityPolicy.allowsMatchEntry(activityStatus: activity?.status ?? "", sessionStatus: activitySession?.status) else { throw GroupFlowError.gameUnavailable }
             if let activity { let me = detail.members.first { $0.accountId == accountID }; guard GroupPermissions.canScore(activity, me: me, seats: seats) || (manual && activitySession?.canCorrectResult == true) || (frozenCreatorMemberID != nil && frozenCreatorMemberID == me?.id) else { throw GroupFlowError.gameUnavailable } }
             if detail.group.isCoaching { guard GroupPermissions.coach(detail.group, member: detail.members.first(where: { $0.accountId == accountID })) else { throw GroupFlowError.gameUnavailable } }
             if manual {

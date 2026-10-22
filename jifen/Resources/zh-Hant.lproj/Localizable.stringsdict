@@ -26,8 +26,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
-		<key>other</key>
-		<string>%d 場 · 全組成員</string>
+			<key>other</key>
+			<string>%d 場 · 全組成員</string>
 		</dict>
 	</dict>
 	<key>archived_count</key>
@@ -40,8 +40,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
-		<key>other</key>
-		<string>%d 個小組</string>
+			<key>other</key>
+			<string>%d 個小組</string>
 		</dict>
 	</dict>
 	<key>timer_byoyomi_periods_format</key>

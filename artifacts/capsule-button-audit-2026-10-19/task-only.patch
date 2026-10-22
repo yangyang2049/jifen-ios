@@ -1,0 +1,397 @@
+--- a/jifen/Features/Account/AccountViews.swift
++++ b/jifen/Features/Account/AccountViews.swift
+@@ -123,7 +123,7 @@
+                         .foregroundColor(Theme.textPrimary)
+                         .frame(maxWidth: .infinity)
+                         .frame(height: 50)
+-                        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.controlBackground))
++                        .background(Capsule().fill(Theme.controlBackground))
+                 }
+                 .buttonStyle(.plain)
+                 .disabled(session.isWorking)
+@@ -284,7 +284,7 @@
+                     .foregroundColor(Theme.textOnPrimary)
+                     .frame(maxWidth: .infinity)
+                     .frame(height: 50)
+-                    .background(RoundedRectangle(cornerRadius: 12).fill(Theme.accentColor.opacity(session.isWorking ? 0.48 : 1)))
++                    .background(Capsule().fill(Theme.accentColor.opacity(session.isWorking ? 0.48 : 1)))
+                 }
+                 .buttonStyle(.plain)
+                 .accessibilityIdentifier("password_login_submit")
+@@ -902,7 +902,7 @@
+             .foregroundColor(Theme.actionForeground(on: whistleRed))
+             .frame(maxWidth: .infinity)
+             .frame(height: 52)
+-            .background(RoundedRectangle(cornerRadius: 12).fill(whistleRed.opacity(submitting ? 0.48 : 1)))
++            .background(Capsule().fill(whistleRed.opacity(submitting ? 0.48 : 1)))
+         }
+         .disabled(submitting)
+     }
+--- a/jifen/Features/Home/Components/HomeHeaderView.swift
++++ b/jifen/Features/Home/Components/HomeHeaderView.swift
+@@ -226,7 +226,7 @@
+                     .foregroundColor(.white)
+                     .padding(.horizontal, 12)
+                     .frame(height: 32)
+-                    .background(Color.white.opacity(0.16), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
++                    .background(Color.white.opacity(0.16), in: Capsule())
+             }
+             .buttonStyle(.plain)
+         }
+--- a/jifen/Features/Home/Components/QuickStartEditView.swift
++++ b/jifen/Features/Home/Components/QuickStartEditView.swift
+@@ -234,7 +234,7 @@
+                     .frame(maxWidth: .infinity)
+                     .frame(height: 48)
+                     .background(Theme.dialogControlBackground)
+-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
++                    .clipShape(Capsule())
+             }
+             .buttonStyle(.plain)
+ 
+@@ -252,7 +252,7 @@
+                     .frame(maxWidth: .infinity)
+                     .frame(height: 48)
+                     .background(Theme.homeEditButtonGreen)
+-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
++                    .clipShape(Capsule())
+             }
+             .buttonStyle(.plain)
+         }
+--- a/jifen/Features/Membership/NationalDayMembershipSheet.swift
++++ b/jifen/Features/Membership/NationalDayMembershipSheet.swift
+@@ -197,7 +197,7 @@
+                 .foregroundColor(.white)
+                 .frame(maxWidth: .infinity)
+                 .frame(height: 52)
+-                .background(RoundedRectangle(cornerRadius: 13).fill(ndGreen))
++                .background(Capsule().fill(ndGreen))
+         }
+         .buttonStyle(.plain)
+         .disabled(isBusy || lifetimeProduct == nil)
+@@ -326,7 +326,7 @@
+                 .foregroundColor(.white)
+                 .frame(maxWidth: .infinity)
+                 .frame(height: 52)
+-                .background(RoundedRectangle(cornerRadius: 13).fill(ndGreen))
++                .background(Capsule().fill(ndGreen))
+         }
+         .buttonStyle(.plain)
+         .padding(.bottom, 4)
+--- a/jifen/Features/Scoreboard/MultiScore/MultiScoreboardView.swift
++++ b/jifen/Features/Scoreboard/MultiScore/MultiScoreboardView.swift
+@@ -827,8 +827,8 @@
+                                 .foregroundStyle(.white.opacity(0.6))
+                                 .frame(maxWidth: .infinity)
+                                 .frame(height: 44)
+-                                .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.08)))
+-                                .contentShape(RoundedRectangle(cornerRadius: 12))
++                                .background(Capsule().fill(Color.white.opacity(0.08)))
++                                .contentShape(Capsule())
+                         }
+                         .buttonStyle(.plain)
+ 
+@@ -840,8 +840,8 @@
+                                 .foregroundStyle(Theme.textOnPrimary)
+                                 .frame(maxWidth: .infinity)
+                                 .frame(height: 44)
+-                                .background(RoundedRectangle(cornerRadius: 12).fill(Theme.primary))
+-                                .contentShape(RoundedRectangle(cornerRadius: 12))
++                                .background(Capsule().fill(Theme.primary))
++                                .contentShape(Capsule())
+                         }
+                         .buttonStyle(.plain)
+                     }
+--- a/jifen/Features/Scoreboard/Shared/GameOverDialog.swift
++++ b/jifen/Features/Scoreboard/Shared/GameOverDialog.swift
+@@ -275,7 +275,7 @@
+                         .buttonStyle(.plain)
+                         .frame(height: usesTabletSpacing ? 52 : 44)
+                         .background(newGameDisabled ? disabledBackground : Theme.primary)
+-                        .clipShape(RoundedRectangle(cornerRadius: 12))
++                        .clipShape(Capsule())
+                         .disabled(newGameDisabled)
+                         .accessibilityIdentifier("game_over_action_new_game")
+ 
+@@ -515,7 +515,7 @@
+         .buttonStyle(.plain)
+         .frame(height: usesTabletSpacing ? 46 : ScoreboardConstants.minimumTouchTarget)
+         .background(cardBackground)
+-        .clipShape(RoundedRectangle(cornerRadius: 12))
++        .clipShape(Capsule())
+         .accessibilityIdentifier(identifier)
+     }
+ }
+--- a/jifen/Features/Scoreboard/Shared/ScoreCustomAdjustPanel.swift
++++ b/jifen/Features/Scoreboard/Shared/ScoreCustomAdjustPanel.swift
+@@ -146,7 +146,7 @@
+                                     .padding(.horizontal, 20)
+                                     .frame(height: 50)
+                                     .background(Theme.primary)
+-                                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
++                                    .clipShape(Capsule())
+                             }
+                             .buttonStyle(.plain)
+                         }
+--- a/jifen/Features/Scoreboard/Shared/ScoreboardAppearance.swift
++++ b/jifen/Features/Scoreboard/Shared/ScoreboardAppearance.swift
+@@ -1724,7 +1724,7 @@
+                         .frame(maxWidth: .infinity)
+                         .frame(height: isLargeScreen ? 56 : 48)
+                         .background(Color.white.opacity(0.14))
+-                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
++                        .clipShape(Capsule())
+                 }
+                 .buttonStyle(.plain)
+ 
+@@ -1735,7 +1735,7 @@
+                         .frame(maxWidth: .infinity)
+                         .frame(height: isLargeScreen ? 56 : 48)
+                         .background(Theme.primary)
+-                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
++                        .clipShape(Capsule())
+                 }
+                 .buttonStyle(.plain)
+             }
+--- a/jifen/Features/Scoreboard/Shared/ScoreboardStyleEditOverlay.swift
++++ b/jifen/Features/Scoreboard/Shared/ScoreboardStyleEditOverlay.swift
+@@ -1309,7 +1309,7 @@
+                         .frame(maxWidth: .infinity)
+                         .frame(height: 50)
+                         .background(Color.white.opacity(0.14))
+-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
++                        .clipShape(Capsule())
+                     }
+                     .buttonStyle(.plain)
+ 
+@@ -1324,7 +1324,7 @@
+                         .frame(maxWidth: .infinity)
+                         .frame(height: 50)
+                         .background(StyleEditPalette.accentGreen)
+-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
++                        .clipShape(Capsule())
+                     }
+                     .buttonStyle(.plain)
+                 }
+--- a/jifen/Features/Scoreboard/Sports/Archery/ArcheryScoreboardView.swift
++++ b/jifen/Features/Scoreboard/Sports/Archery/ArcheryScoreboardView.swift
+@@ -435,7 +435,7 @@
+                         .foregroundColor(.white)
+                         .frame(maxWidth: .infinity, minHeight: 44)
+                         .background(Color.white.opacity(0.14))
+-                        .clipShape(RoundedRectangle(cornerRadius: 10))
++                        .clipShape(Capsule())
+                 }
+                 .buttonStyle(.plain)
+             }
+--- a/jifen/Features/Scoreboard/Sports/Basketball/BasketballScoreboardView.swift
++++ b/jifen/Features/Scoreboard/Sports/Basketball/BasketballScoreboardView.swift
+@@ -1428,7 +1428,7 @@
+                 .font(.system(size: 14, weight: .bold))
+                 .foregroundStyle(.white)
+                 .frame(width: 92, height: ScoreboardConstants.minimumTouchTarget)
+-                .background(RoundedRectangle(cornerRadius: 8).fill(color))
++                .background(Capsule().fill(color))
+         }
+         .buttonStyle(.plain)
+         .disabled(state.timeoutActiveSide != nil)
+--- a/jifen/Features/Scoreboard/Sports/Billiards/SnookerScoreboardView.swift
++++ b/jifen/Features/Scoreboard/Sports/Billiards/SnookerScoreboardView.swift
+@@ -659,7 +659,7 @@
+                     .foregroundStyle(Color(hex: "FF453A"))
+                     .frame(minWidth: controlSize, minHeight: controlSize)
+                     .padding(.horizontal, actionHorizontalPadding)
+-                    .background(RoundedRectangle(cornerRadius: 10).fill(Color.white.opacity(0.14)))
++                    .background(Capsule().fill(Color.white.opacity(0.14)))
+             }
+             .buttonStyle(.plain)
+             .accessibilityIdentifier("snooker_foul_button")
+@@ -673,7 +673,7 @@
+                     .foregroundStyle(.white)
+                     .frame(minWidth: controlSize, minHeight: controlSize)
+                     .padding(.horizontal, actionHorizontalPadding)
+-                    .background(RoundedRectangle(cornerRadius: 10).fill(Color.white.opacity(0.14)))
++                    .background(Capsule().fill(Color.white.opacity(0.14)))
+             }
+             .buttonStyle(.plain)
+             .accessibilityLabel(NSLocalizedString("snooker_handover", value: "交杆", comment: ""))
+--- a/jifen/Features/Scoreboard/Sports/Boxing/BoxingScoreboardView.swift
++++ b/jifen/Features/Scoreboard/Sports/Boxing/BoxingScoreboardView.swift
+@@ -448,7 +448,7 @@
+                 .foregroundColor(.white)
+                 .frame(maxWidth: .infinity, minHeight: 44)
+                 .background(background)
+-                .cornerRadius(22)
++                .clipShape(Capsule())
+                 .contentShape(Rectangle())
+         }
+         .buttonStyle(.plain)
+--- a/jifen/Features/Scoreboard/Sports/Rally/TableTennisCardsDialog.swift
++++ b/jifen/Features/Scoreboard/Sports/Rally/TableTennisCardsDialog.swift
+@@ -114,7 +114,7 @@
+                     .frame(maxWidth: .infinity)
+                     .frame(height: 46)
+                     .background(selectedStage == .report ? Color.red : Theme.primary,
+-                                in: RoundedRectangle(cornerRadius: 12))
++                                in: Capsule())
+             }
+             .buttonStyle(.plain)
+             .disabled(selectedSide == nil)
+--- a/jifen/Features/Tools/AACalculatorView.swift
++++ b/jifen/Features/Tools/AACalculatorView.swift
+@@ -258,7 +258,7 @@
+                                 .frame(height: 50)
+                                 .frame(maxWidth: .infinity)
+                                 .background(
+-                                    RoundedRectangle(cornerRadius: 12)
++                                    Capsule()
+                                         .fill(Color(hex: "FF6B6B").opacity(0.15))
+                                 )
+                         }
+@@ -270,7 +270,7 @@
+                                 .frame(height: 50)
+                                 .frame(maxWidth: .infinity)
+                                 .background(
+-                                    RoundedRectangle(cornerRadius: 12)
++                                    Capsule()
+                                         .fill(Color(hex: "4CAF50"))
+                                 )
+                         }
+--- a/jifen/Features/Tools/FullscreenBarrageView.swift
++++ b/jifen/Features/Tools/FullscreenBarrageView.swift
+@@ -399,7 +399,7 @@
+                 .frame(maxWidth: .infinity)
+                 .frame(height: 54)
+                 .background(isDisabled ? Theme.controlBackground : color)
+-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
++                .clipShape(Capsule())
+         }
+         .buttonStyle(.plain)
+         .accessibilityIdentifier(mode == .scroll ? "barrage_start_scroll" : "barrage_start_static")
+--- a/jifen/Features/Tools/PointsTable/PointsTableView.swift
++++ b/jifen/Features/Tools/PointsTable/PointsTableView.swift
+@@ -408,7 +408,7 @@
+             .frame(maxWidth: .infinity)
+             .frame(height: 48)
+             .background(Theme.primary)
+-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
++            .clipShape(Capsule())
+         }
+         .buttonStyle(.plain)
+         .padding(.top, 4)
+--- a/jifen/Features/Tools/RandomTeamView.swift
++++ b/jifen/Features/Tools/RandomTeamView.swift
+@@ -208,7 +208,7 @@
+                 .frame(maxWidth: .infinity)
+                 .frame(height: 42)
+                 .background(primary ? Theme.primary : Theme.controlBackground)
+-                .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
++                .clipShape(Capsule())
+         }
+         .buttonStyle(.plain)
+         .disabled(!enabled)
+--- a/jifen/Features/Display/CloudSyncEntryView.swift
++++ b/jifen/Features/Display/CloudSyncEntryView.swift
+@@ -170,10 +170,11 @@
+                         .foregroundStyle(Theme.primary)
+                         .frame(maxWidth: .infinity)
+                         .frame(height: 44)
+-                }
+-                .background(Theme.appCardBackground, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
++                        .contentShape(Capsule())
++                }
++                .background(Theme.appCardBackground, in: Capsule())
+                 .overlay(
+-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
++                    Capsule()
+                         .strokeBorder(Theme.primary, lineWidth: 1)
+                 )
+             } else {
+@@ -233,8 +234,9 @@
+             }
+             .frame(maxWidth: .infinity)
+             .frame(height: 56)
+-        }
+-        .background(Theme.primary, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
++            .contentShape(Capsule())
++        }
++        .background(Theme.primary, in: Capsule())
+         .disabled(creatingRoom)
+     }
+ 
+@@ -309,8 +311,9 @@
+                     }
+                     .frame(maxWidth: .infinity)
+                     .frame(height: 56)
+-                }
+-                .background(Theme.primary, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
++                    .contentShape(Capsule())
++                }
++                .background(Theme.primary, in: Capsule())
+                 .disabled(joining || codeInput.count != 6)
+                 .opacity(codeInput.count == 6 || joining ? 1 : 0.5)
+             }
+@@ -400,10 +403,11 @@
+                 .lineLimit(1)
+                 .frame(maxWidth: .infinity)
+                 .frame(height: 44)
+-        }
+-        .background(Theme.appCardBackground, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
++                .contentShape(Capsule())
++        }
++        .background(Theme.appCardBackground, in: Capsule())
+         .overlay(
+-            RoundedRectangle(cornerRadius: 12, style: .continuous)
++            Capsule()
+                 .strokeBorder(color, lineWidth: 1)
+         )
+         .disabled(!enabled)
+@@ -867,8 +871,9 @@
+                         .foregroundStyle(.white)
+                         .frame(maxWidth: .infinity)
+                         .frame(height: 44)
+-                }
+-                .background(color, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
++                        .contentShape(Capsule())
++                }
++                .background(color, in: Capsule())
+             } else {
+                 Button(action: action) {
+                     Text(title)
+@@ -876,9 +881,10 @@
+                         .foregroundStyle(color)
+                         .frame(maxWidth: .infinity)
+                         .frame(height: 44)
++                        .contentShape(Capsule())
+                 }
+                 .overlay(
+-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
++                    Capsule()
+                         .strokeBorder(color, lineWidth: 1)
+                 )
+             }
+@@ -894,9 +900,10 @@
+                 .lineLimit(1)
+                 .frame(maxWidth: .infinity)
+                 .frame(height: 44)
++                .contentShape(Capsule())
+         }
+         .overlay(
+-            RoundedRectangle(cornerRadius: 12, style: .continuous)
++            Capsule()
+                 .strokeBorder(color, lineWidth: 1)
+         )
+         .disabled(!enabled)
+--- a/jifen/Features/Groups/GroupViews.swift
++++ b/jifen/Features/Groups/GroupViews.swift
+@@ -496,8 +496,8 @@
+                                     .textFieldStyle(.roundedBorder).disabled(busy).onChange(of: reason) { _, value in reason = GroupInputValidation.limitedText(value, maximum: 300) }
+                                 Button(role: .destructive) { action("void") } label: {
+                                     Text(groupText("void_result", "Void result")).foregroundStyle(.red).frame(maxWidth: .infinity, minHeight: 48)
+-                                        .contentShape(RoundedRectangle(cornerRadius: 12))
+-                                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.red, lineWidth: 1))
++                                        .contentShape(Capsule())
++                                        .overlay(Capsule().stroke(Color.red, lineWidth: 1))
+                                 }.buttonStyle(.plain).disabled(reason.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || busy || store.cached)
+                             }
+                         }

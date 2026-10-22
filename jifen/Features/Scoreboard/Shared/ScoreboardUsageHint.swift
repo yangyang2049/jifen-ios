@@ -387,7 +387,7 @@ struct ScoreboardUsageHintDialog: View {
                             comment: ""
                         ))
                         .font(.system(size: metrics.buttonFontSize, weight: .semibold))
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(Theme.textOnPrimary)
                         .frame(maxWidth: .infinity)
                         .frame(height: metrics.buttonHeight)
                         .background(Theme.accentColor)

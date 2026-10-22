@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "Masa Oyunları";
 "search_team_or_game" = "Takım veya oyun arayın";
 "match_count" = "%d maç";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d maç · tüm grup üyeleri";
+"archived_count" = "%d grup";
 
 /* Home Screen */
 "recent_records" = "Son Kayıtlar";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "ör. beş setin tamamını oynayın; maç berabere bitebilir";
 "match_completion_custom_placeholder" = "1-99'u girin";
 "match_completion_invalid_sets" = "Klasik, 1-99 arasında tek sayı gerektirir; Hepsini Oyna, 1-99 kabul eder.";
+"setup_auto_odd_sets" = "Yalnızca tek sayılara izin verilir — %d kullanılıyor";
 "has_been_reset" = "Sıfırlama tamamlandı";
 "no_undo_available" = "Geri alma mümkün değil";
 "screenshot_failed" = "Ekran görüntüsü başarısız oldu";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "Aktif senkronizasyon oturumu";
 "timer_status_running" = "Çalışıyor";
 "timer_status_paused" = "Duraklatıldı";
-"membership_entry_summary_active" = "VIP üyesisiniz. Desteğiniz için teşekkür ederiz";
+"membership_entry_summary_active" = "VIP üyeliği etkin";
 "sound_effects" = "Ses Efektleri";
 "vibration" = "Titreşim";
 "language" = "Dil";
@@ -1579,7 +1580,7 @@
 "group_approval" = "Onay gerekli";
 "group_approve" = "Onayla";
 "group_archive" = "Grubu arşivle";
-"group_archive_hint" = "Arşivleme tüm geçmişi korur ve grup değişikliklerini durdurur. Grubu daha sonra geri yükleyebilirsiniz.";
+"group_archive_hint" = "Bu grup arşivlensin mi? İçeriği salt okunur olacak.";
 "group_archive_readonly" = "Bu grup arşivlenmiş. Geçmişi salt okunurdur.";
 "group_archived" = "Arşivlendi";
 "group_benefit_activity" = "Etkinlik planla ve kaydol";
@@ -1624,38 +1625,38 @@
 "group_invalid_qr" = "Bu geçerli bir grup QR kodu değil.";
 "group_invalid_result" = "Kaydedilen sonuç yüklenmeden önce kontrol edilmelidir.";
 "group_invalid_rules" = "Lütfen maç kurallarını kontrol edin.";
-"group_invite" = "Invite";
+"group_invite" = "Takım arkadaşlarını davet et";
 "group_join" = "Gruba katıl";
 "group_join_hint" = "Numarası veya QR koduyla bir arkadaşınızın grubuna katılın.";
-"group_join_message" = "Gruba mesaj (isteğe bağlı)";
-"group_join_policy" = "Katılım";
+"group_join_message" = "Katılma isteği mesajı (isteğe bağlı)";
+"group_join_policy" = "Katılma seçenekleri";
 "group_leave" = "Gruptan ayrıl";
-"group_leave_hint" = "Bu gruba erişiminizi kaybedeceksiniz. Kişisel kayıtlarınız bu cihazda kalır.";
+"group_leave_hint" = "Ayrıldıktan sonra üyeliğiniz sona erer ve grup “Gruplarım” listesinden kaldırılır. Artık gruba erişemez veya etkinliklerine katılamazsınız. Grubun mevcut maç kayıtları ve bu cihazdaki kişisel kayıtlarınız korunur. Yeniden erişmek için gruba tekrar katılmanız gerekir.";
 "group_load_failed" = "Grup yüklenemedi";
 "group_load_more" = "Daha fazla yükle";
 "group_losses" = "mağlubiyetler";
 "group_manual" = "Elle giriş";
-"group_manual_result" = "Geçmiş maç ekle";
+"group_manual_result" = "Maç sonucu ekle";
 "group_match_detail" = "Maç ayrıntıları";
 "group_match_log" = "Maç geçmişi";
 "group_match_rules" = "Maç kuralları";
 "group_member" = "Üye";
 "group_member_name" = "Üye adı";
-"group_members" = "Üyeler";
+"group_members" = "Üye";
 "group_month_matches" = "Bu ayki maçlar";
 "group_my_groups" = "Gruplarım";
 "group_name" = "Grup adı";
 "group_need_login" = "Devam etmek için giriş yapın.";
 "group_need_members" = "Maç başlatmadan önce arkadaşlarınızı davet edin veya geçici üyeler ekleyin.";
-"group_new_activity" = "Etkinlik planla";
+"group_new_activity" = "Etkinlik oluştur";
 "group_new_owner" = "Yeni sahip";
 "group_no_activities" = "Henüz etkinlik yok";
 "group_no_description" = "Henüz açıklama yok";
 "group_no_rankings" = "Sıralamalar bir maç doğrulandıktan sonra görünür.";
 "group_no_set_details" = "Yalnızca toplam sonuç kaydedildi.";
-"group_note" = "Etkinlik notu (isteğe bağlı)";
-"group_number" = "6–8 digit group number";
-"group_open" = "Numarayı bilen herkes katılabilir";
+"group_note" = "Not (isteğe bağlı)";
+"group_number" = "6–8 haneli grup numarası";
+"group_open" = "Doğrudan katıl";
 "group_overall_score" = "Toplam set skoru";
 "group_overview" = "Genel bakış";
 "group_owner" = "Sahip";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "Üyeyi çıkar";
 "group_restore" = "Grubu geri yükle";
 "group_restore_hint" = "Etkinlik ve skor tutmaya izin vermek için grubu geri yükleyin.";
-"group_results" = "Maçlar";
+"group_results" = "Kayıtlar";
 "group_retry" = "Tekrar Dene";
 "group_rules_missing" = "Kurallar kaydedilmedi";
-"group_save" = "Onayla";
+"group_save" = "Kaydet";
 "group_save_failed" = "Maç kaydedilemedi. Lütfen yeniden deneyin.";
 "group_scan" = "QR kodunu tara";
 "group_scoreboard" = "Skor tablosu";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "Başka bir maç başlatmadan önce mevcut maçınıza devam edin veya bitirin.";
 "group_unregister" = "Kaydı iptal et";
 "group_void_reason" = "Geçersiz kılma nedeni";
-"group_void_result" = "Sonucu geçersiz kıl";
+"group_void_result" = "Geçersiz kıl";
 "group_voided" = "Geçersiz kılındı";
 "group_wins" = "galibiyetler";
 "group_withdraw" = "İsteği geri çek";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "Zaten üyesiniz.";
 "group_open_group" = "Grubu aç";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
+"group_groups" = "Grup";
+"group_invite_students" = "Öğrencileri davet et";
+"group_group_type" = "Grup türü";
+"group_peer" = "Arkadaş grubu";
+"group_coaching" = "Antrenman grubu";
+"group_training" = "Antrenman";
+"group_upcoming" = "Yaklaşan";
+"group_latest_results" = "Son sonuçlar";
+"group_no_results" = "Henüz kaydedilmiş maç yok";
+"group_no_training" = "Henüz planlanmış antrenman yok";
+"group_active_activities" = "Sürüyor · Kayıt açık";
+"group_past_activities" = "Geçmiş etkinlikler";
+"group_all_formats" = "Tüm biçimler";
+"group_join_requests" = "Katılma istekleri";
+"group_regular_members" = "Kayıtlı üyeler";
+"group_temporary_members" = "Geçici üyeler";
+"group_add" = "Ekle";
+"group_leader" = "Sahip";
+"group_member_settings" = "Üye ayarları";
+"group_settings" = "Grup yönetimi";
+"group_partial_load" = "Bazı bölümler yenilenemedi. Yeniden denemek için aşağı çekin.";
+"group_leave_notices" = "Öğrenci devamsızlık bildirimleri";
+"group_mark_seen" = "Okundu";
+"group_training_schedule" = "Antrenman programı";
+"group_add_session" = "Maç ekle";
+"group_edit_schedule" = "Programı düzenle";
+"group_cancel_schedule" = "Programı iptal et";
+"group_leave_training" = "Devamsızlık bildir";
+"group_session_minutes" = "Maç başına dakika";
+"group_court" = "Kort";
+"group_remove_session" = "Kaldır";
+"group_publish_schedule" = "Programı yayımla";
+"group_leave_reason" = "Devamsızlık nedeni (isteğe bağlı)";
+"group_report" = "Grubu bildir";
+"group_report_reason" = "Neden";
+"group_report_detail" = "Ayrıntılar (isteğe bağlı)";
+"group_report_submit" = "Gönder";
 "group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
-"group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_report_harassment" = "Taciz";
+"group_report_inappropriate" = "Cinsel veya uygunsuz içerik";
+"group_report_fraud" = "Dolandırıcılık veya kumar";
+"group_report_illegal" = "Yasa dışı veya tehlikeli etkinlik";
+"group_report_impersonation" = "Kimliğe bürünme";
+"group_report_other" = "Diğer";
+"group_lineup_invalid" = "Maç saatlerini, kortları ve oyuncuları kontrol edin.";
+"group_lineup_member_limit" = "Bir üye her programda en fazla sekiz maç oynayabilir.";
+"group_lineup_conflict" = "Aynı saate denk gelen maçlarda farklı kortlar ve oyuncular olmalıdır.";
+"group_multi_match_hint" = "Bir etkinlik birden fazla maç içerebilir. Üyeler etkinliğe kaydolur; maçları düzenlerken her tekler maçı için 2, her çiftler maçı için 4 kayıtlı üye seçin.";
+"group_single_match_hint" = "Her etkinlik bir maçtır. Tekler için 2, çiftler için 4 kayıtlı üye seçin.";
+"group_rate_limited" = "Çok fazla istek. Daha sonra tekrar deneyin.";
+"group_create_daily_limit" = "24 saat içinde grup oluşturma sınırına ulaştınız. Daha sonra tekrar deneyin.";
+"group_join_daily_limit" = "24 saat içinde gruplara katılma sınırına ulaştınız. Daha sonra tekrar deneyin.";
+"group_pending_request_limit" = "Çok fazla katılma isteği onay bekliyor. Karar verilmesini bekleyin veya bazılarını geri çekin.";
+"group_request_daily_limit" = "Bu grup 24 saatlik katılma isteği sınırına ulaştı. Daha sonra tekrar deneyin.";
+"group_join_cooldown" = "Reddedildikten sonra 24 saat geçmeden yeniden başvuramazsınız.";
+"group_result_group_daily_limit" = "Bu grup 24 saatlik sonuç sınırına ulaştı. Daha sonra tekrar deneyin.";
+"group_result_submitter_daily_limit" = "24 saatlik sonuç gönderme sınırına ulaştınız. Daha sonra tekrar deneyin.";
+"group_not_coach" = "Yalnızca antrenör seans planlayabilir.";
+"group_activity_count" = "%1$d/%2$d kişi kaydoldu";
+"group_activity_create_admin_hint" = "Etkinlikleri grup sahibi veya bir yönetici oluşturur";
+"group_activity_direct_hint" = "Kayıt gerektirmeden tüm etkin grup üyeleri arasından doğrudan seçin.";
+"group_activity_direct_save" = "Programı kaydet";
+"group_activity_direct_title" = "Şimdi düzenle";
+"group_activity_field_title_optional" = "Etkinlik adı (isteğe bağlı)";
+"group_activity_full" = "Dolu";
+"group_activity_lineup_add" = "Maç ekle";
+"group_activity_lineup_add_need_members" = "Yeterli oyuncu yok. Maç eklemek için en az %1$d etkin grup üyesi gerekir.";
+"group_activity_lineup_court" = "Kort numarası";
+"group_activity_lineup_duration" = "Maç süresi";
+"group_activity_lineup_match_count" = "%1$d maç";
+"group_activity_lineup_minutes" = "%1$d dk";
+"group_activity_lineup_remove" = "Kaldır";
+"group_activity_lineup_section_matches" = "Maçları planla";
+"group_activity_lineup_session" = "Maç %1$d";
+"group_activity_registration_empty" = "Geçici üye yok";
+"group_activity_section_count" = "%1$d etkinlik";
+"group_activity_section_past" = "Geçmiş etkinlikler";
+"group_activity_section_upcoming" = "Sürüyor · Kayıt açık";
+"group_activity_status_scheduled" = "Başlamaya hazır";
+"group_activity_time_after_previous" = "Önceki maçtan sonra";
+"group_activity_time_unspecified" = "Saat belirlenecek";
+"group_activity_timing" = "Zamanlama";
+"group_activity_timing_estimated" = "Tahmini saat";
+"group_activity_timing_sequence" = "Kesin saat yok";
+"group_activity_title_auto_hint" = "Boş bırakılırsa tarihten “10 Kasım etkinliği” gibi bir ad oluşturulur.";
+"group_archived_empty" = "Arşivlenmiş grup yok";
+"group_archived_list_title" = "Arşivlenmiş gruplar";
+"group_empty_activities_title" = "Henüz etkinlik yok";
+"group_list_add_title" = "Grup oluştur veya katıl";
+"group_ranking_draws" = "beraberlikler";
+"group_ranking_games" = "Oynanan maçlar";
+"group_ranking_losses" = "mağlubiyetler";
+"group_ranking_sets" = "Skor";
+"group_ranking_title" = "%@ sıralaması";
+"group_ranking_wins" = "galibiyetler";
+"group_training_results_locked" = "Sonuç bulunan programların saatleri ve oyuncuları değişmez. Konum ve not düzenlenebilir.";
+"group_temporary_hint" = "Geçici üyelerin hesaba ihtiyacı yoktur ve sonuç girerken eklenebilirler.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "Maç kilidini kaldır";
-"group_activity_lineup" = "Maç programı";
-"group_activity_mode" = "Maçlar";
+"group_abandon_game" = "Maçtan vazgeç";
+"group_activity_lineup" = "Maçları planla";
+"group_activity_mode" = "Kayıtlar";
 "group_activity_reminder" = "15 dakika önce hatırlat";
 "group_add_set" = "Oyun skoru ekle";
 "group_added_members" = "Eklendi";
-"group_authority_confirm" = "Grup sahibi olarak onayla";
-"group_batch_names_hint" = "Her satıra bir ad, her ad 1–24 karakter.";
-"group_beta_notice" = "Gruplar beta sürümündedir. Görüşlerinizi bekliyoruz.";
+"group_authority_confirm" = "Sonucu doğrula";
+"group_batch_names_hint" = "Her satıra bir ad";
+"group_beta_notice" = "Gruplar beta aşamasındadır. Bazı özellikler değişebilir. Erken denediğiniz için teşekkürler.";
 "group_cancel_dissolve" = "Dağılmayı iptal et";
 "group_cancel_dissolve_hint" = "Etkinlik ve skor tutmaya izin vermek için grubu geri yükleyin.";
 "group_cancel_training_hint" = "Tamamlanan maçlar geçmişte kalır. Başlayan maçlar bitirilebilir.";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "Spor Varsayılanı";
 "group_discard_upload" = "Yüklemeyi sil";
 "group_dissolve" = "Grubu dağıt";
-"group_dissolve_hint" = "7 gün salt okunur. Bu sürede dağılmayı iptal edebilirsiniz.";
+"group_dissolve_hint" = "Grup 7 gün salt okunur olur ve bu sürede dağıtma iptal edilebilir. 7 gün sonra grup ve tüm verileri kalıcı olarak silinir.";
 "group_dissolving" = "Dağılıyor";
 "group_edit_activity" = "Düzenle";
 "group_edit_lineup" = "Maçları planla";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "Henüz bildirim yok";
 "group_no_sessions" = "Henüz maç planlanmadı";
 "group_notices" = "Bildirimler";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "Bazı bölümler yenilenemedi. Yeniden denemek için aşağı çekin.";
 "group_point_cap" = "Puan Sınırı";
 "group_preview_schedule" = "Programı gözden geçir";
 "group_published" = "Yayımlandı";
 "group_qr_direct_hint" = "Grubu önizlemek ve katılmak için iScoreboard ile tarayın.";
 "group_quick_score" = "Toplam set skoru";
 "group_rally_scoring" = "Ralli Skoru";
-"group_read_notices" = "Read";
+"group_read_notices" = "Okundu";
 "group_registration_closes" = "Kayıt bitişi";
 "group_regular" = "Standart";
-"group_reload_version" = "Son sürümü yükle";
+"group_reload_version" = "Yeniden yükle";
 "group_reminder_body" = "Etkinlik 15 dakika sonra başlıyor.";
 "group_reminder_permission" = "Ayarlar’dan uygulama bildirimlerini açın.";
 "group_reminder_too_late" = "Etkinliğin başlamasına 15 dakikadan az kaldı.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "Set puanlaması";
 "group_tie_break" = "Tie-break Puanı";
 "group_tiebreak_only" = "Yalnızca tie-break";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "Tarih";
+"group_too_many_sessions" = "Maç saatlerini, kortları ve oyuncuları kontrol edin.";
+"group_training_date" = "Antrenman tarihi";
 "group_win_by_two" = "İki sayı farkla kazan";
 
-"group_keep_draft" = "Değişikliklerimi koru";
+"group_keep_draft" = "Yerel sürümü düzenlemeye devam et";
 
 "group_server_version" = "En son sürüm";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "Grup %@ tarihinde dağıtılacak\n7 günlük düşünme süresi; o zamana kadar salt okunur";
 "group_notice_end" = "Başka bildirim yok";
 "group_notice_join_requested" = "Katılma isteği alındı";
 "group_notice_join_approved" = "Katılma isteği onaylandı";
@@ -1908,7 +1909,7 @@
 "group_ranking_insufficient_matches" = "Çok az maç";
 "group_entry_a_wins" = "A kazanır";
 "group_entry_b_wins" = "B kazanır";
-"group_result_draw" = "Beraberlik";
+"group_result_draw" = "Berabere";
 "group_share_no" = "Grup No: %@";
 "group_audit_ui_share_invitation" = "Davetiyeyi paylaş";
 "group_audit_ui_share_qr" = "QR kodu paylaş";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "Elle giriş";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "Tümünü okundu işaretle";
+
+"group_status_active" = "Aktif";
+"group_dissolved" = "Dağıtıldı";
+"group_report_status_pending" = "Bekliyor";
+"group_report_status_reviewing" = "İnceleniyor";
+"group_report_status_resolved" = "Çözüldü";
+"group_report_status_dismissed" = "Reddedildi";
+"group_error_permission" = "Bu işlemi yapma izniniz yok.";
+"group_error_transfer_first" = "Gruptan ayrılmadan veya hesabınızı silmeden önce grup sahipliğini devredin.";
+"group_error_target" = "Bu gruptan hesabı olan etkin bir üye seçin.";
+"group_error_activity_locked" = "Bu etkinlik başladı veya sona erdi. Programı değiştirilemez ya da iptal edilemez.";
+"group_error_activity_pending" = "Önce kalan maçları tamamlayın veya kaldırın.";
+"group_error_registration_disabled" = "Doğrudan planlanan maçlar kayıt gerektirmez.";
+"group_error_content_blocked" = "Bu metin uygunsuz içerik barındırıyor. Lütfen düzenleyin.";
+"group_error_request_invalid" = "Girilen bilgileri kontrol edip tekrar deneyin.";
+"group_error_reason_required" = "Devam etmeden önce bir neden girin.";
+"group_error_result_state" = "Yalnızca onay bekleyen sonuçlar onaylanabilir.";
+"group_error_conflict" = "Veriler değişti. Tekrar denemeden önce yenileyip kontrol edin.";
+"group_error_request_handled" = "Bu katılma isteği zaten işlendi. Listeyi yenileyin.";
+"group_error_place_locked" = "Bir maç başladıktan veya bittikten sonra tesis değiştirilemez.";
+"group_error_schedule_cancelled" = "Bu program veya maç iptal edildi.";
+"group_error_session_completed" = "Bu maç sona erdiği için devamsızlık talep edilemez. Sonucu görmek için programı yenileyin.";
+"group_error_session_has_result" = "Bu maçın zaten bir sonucu var. Başka bir sonuç eklemeden önce onu geçersiz kılın.";
+"group_error_item_not_found" = "Bu etkinlik, program, maç veya bildirim artık kullanılamıyor. Listeyi yenileyin.";
+"group_error_server" = "Grup hizmeti geçici olarak kullanılamıyor. Daha sonra tekrar deneyin.";
+"group_error_peer_only" = "Antrenman grupları için antrenman planlamasını kullanın.";
+"group_error_name_length" = "Grup adları 2–24 karakter olmalıdır.";
+"group_error_description_length" = "Grup açıklamaları 200 karakteri geçmemelidir.";
+"group_error_activity_invalid" = "Etkinlik adını, tarihi, konumu ve kapasiteyi kontrol edin.";
+"group_error_registration_closed" = "Kayıt sona erdi.";
+"group_error_action_disabled" = "Bu işlem şu anda kullanılamıyor.";
+"group_error_update_required" = "Devam etmek için uygulamayı güncelleyin.";
+"group_welcome_back" = "Tekrar hoş geldiniz";
+"group_transfer_none" = "Başka kalıcı üye yok. Geçici üyeler grup lideri olamaz.";
+"group_empty_activities_hint" = "Üyelerin katılabileceği bir etkinlik oluşturun. Kontenjan dolunca kayıt kapanır.";
+"group_temp_import_names" = "Kayıtlı adları içe aktar";
+"group_temp_import_count" = "İçe aktar (%1$d)";
+"group_result_information" = "Maç bilgileri";
+"group_result_actions" = "Sonuç işlemleri";
+"group_peer_confirmation" = "Rakip onayı";
+"group_notice_target_unavailable" = "Bu içerik kullanılamıyor veya artık erişim izniniz yok.";
+"group_push_enabled" = "Grup bildirimleri";
+"group_push_group_enabled" = "Bu grubun bildirimlerini al";
+"group_push_inbox_kept" = "Kapatıldığında uygulama içi bildirimler ve mevcut etkinlik hatırlatıcıları korunur.";
+"group_push_permission" = "Sistem bildirimlerini etkinleştir";
+"group_push_settings" = "Bildirim ayarları";
+
+// Shared group form controls
+"group_inline_seat_hint" = "Önce bir yer, ardından bir üye seçin";
+"group_score_and_rules" = "Skor ve kurallar";
+"group_activity_registration_scope" = "Geçici üyeleri buradan kaydedin. Hesabı olan üyeler kendileri kaydolur.";
+"group_activity_registration_no_changes" = "Kaydedilmemiş değişiklik yok";
+"group_activity_registration_changes" = "Ekle %1$d · İptal et %2$d";
+"group_activity_registration_save" = "Kayıtları kaydet (%1$d)";
+"group_activity_registration_manage" = "Geçici üye kaydı";
+"group_activity_registration_pending_add" = "Kaydedilecek";
+"group_activity_registration_pending_remove" = "İptal edilecek";
+"group_activity_registration_registered" = "Kayıtlı";
+"group_activity_registration_not_registered" = "Kayıtlı değil";
+"group_activity_detail" = "Etkinlik ayrıntıları";
+"group_activity_my_registration" = "Kaydım";
+"group_match_score" = "Maç skoru";
+
+"group_lookup_available" = "Açık";
+
+/* Group beta notice card. */
+"group_beta_badge" = "Beta";
+"group_beta_supported_label" = "Şimdi kullanılabilir";
+"group_beta_feedback_prompt" = "Sorun veya öneriniz mi var?";
+"group_beta_feedback_action" = "Geri bildirim gönder";
+
+"group_member_results_title" = "Üye sonuçları";
+
+"group_removed_members_expand" = "Genişlet";
+"group_removed_members_collapse" = "Daralt";
+"group_best_of_format" = "%1$@ üzerinden %2$@ galibiyet";
+"group_member_count_single" = "%d üye";
+"group_member_count_short" = "%d üye";
+"group_lookup_closed_short" = "Kapalı";
+"group_lookup_closing_short" = "Dağıtılıyor";
+"group_lookup_member_short" = "Katıldınız";
+"group_lookup_unavailable_short" = "Kullanılamıyor";
+"group_join_scan_hint" = "Grubun QR kodunu tarayın";
+"group_join_number_hint" = "6–8 rakam. Grup sahibinden isteyin.";
+"group_request_join" = "Katılma isteği gönder";
+"group_overdue_tasks" = "Gecikmiş görevler";
+"group_apply_shift" = "Değişiklikleri uygula";
+"group_transfer_submit" = "Devret";
+"group_rename_member" = "Yeniden adlandır";
+"group_set_admin" = "Yönetici yap";
+"group_set_member" = "Yönetici rolünü kaldır";
+"group_confirm_authority_message" = "Tüm oyuncular geçici üyedir veya karşı tarafta onay verebilecek hesap sahibi oyuncu yoktur. Grup sahibi oyuncuları ve skoru kontrol etmelidir. Onaydan sonra sonuç kayıtlara katılır ve grup sahibi onaylayan kişi olarak belirtilir.";
+"group_confirm_result_message" = "Onaydan sonra sonuç her iki tarafın kayıtlarına katılır ve düzenlenemez. Düzeltmek için önce geçersiz kılın.";
+"group_confirm_member_message" = "Sonucun kayıtlara katılması için oyuncuları ve skoru onaylayın. Düzeltme gerekiyorsa bir yöneticiden asıl sonucu geçersiz kılmasını isteyin.";
+"group_cancel_activity_message" = "İptal, kayıt listesini kalıcı olarak siler. Devam eden etkinlikler iptal edilemez.";
+"group_abandon_game_message" = "Başka bir maç başlatmak için bu maçtan vazgeçin. Kaydedilen kişisel kayıtlar korunur.";
+"group_void_pending_message" = "Bu sonuç artık onay beklemez ve maç istatistiklerine katılmaz. Asıl skor ve gerekçe grup üyelerine görünür kalır. Oyunculara ve gönderen kişiye bildirim iletilir.";
+"group_void_confirmed_message" = "Bu sonuç artık maç istatistiklerine katılmaz. Her iki tarafın istatistikleri ve sıralamaları yeniden hesaplanır. Asıl skor ve gerekçe grup üyelerine görünür kalır. Oyunculara ve gönderen kişiye bildirim iletilir.";
+"group_remove_member_message" = "%@ kaldırılsın mı? Yeniden katılma isteği göndermesi gerekir.";
+"group_reload_version_message" = "Maç düzenindeki kaydedilmemiş değişiklikler silinip son kaydedilen program yüklensin mi?";
+"group_transfer_confirmation" = "Sahiplik %@ kişisine devredilsin mi? Normal üye olacaksınız.";
+"group_approve_confirmation" = "%@ grup üyesi olacak ve etkinlikleri ve sonuçları görebilecek.";
+"group_reject_confirmation" = "Retten sonra %@ yeni bir istek göndermelidir.";
+"group_lookup_full_short" = "Dolu";
+"group_lookup_archived_short" = "Arşivlendi";
+"group_lookup_pending_short" = "Bekliyor";
+"group_temporary_member_count" = "%d üye";
+"group_best_of_tennis_format" = "%1$@ üzerinden %2$@ galibiyet";
+"group_rename_member_title" = "Yeniden adlandır";
+
+"group_copy_transfer_title" = "Sahipliği devret";
+
+"group_copy_transfer_submit" = "Devret";
+
+"group_copy_transfer_message" = "Sahiplik %@ kişisine devredilsin mi? Normal üye olacaksınız.";
+
+"group_copy_transfer_hint" = "Devirden sonra normal üye olursunuz.";
+
+"group_copy_rename_title" = "Yeniden adlandır";
+
+"group_copy_rename_action" = "Yeniden adlandır";
+
+"group_copy_result_confirm" = "Sonucu doğrula";
+
+"group_copy_result_confirm_authority_message" = "Tüm oyuncular geçici üyedir veya karşı tarafta onay verebilecek hesap sahibi oyuncu yoktur. Grup sahibi oyuncuları ve skoru kontrol etmelidir. Onaydan sonra sonuç kayıtlara katılır ve grup sahibi onaylayan kişi olarak belirtilir.";
+
+"group_copy_result_confirm_manager_message" = "Onaydan sonra sonuç her iki tarafın kayıtlarına katılır ve düzenlenemez. Düzeltmek için önce geçersiz kılın.";
+
+"group_copy_result_confirm_member_message" = "Sonucun kayıtlara katılması için oyuncuları ve skoru onaylayın. Düzeltme gerekiyorsa bir yöneticiden asıl sonucu geçersiz kılmasını isteyin.";
+
+"group_copy_void_action" = "Geçersiz kıl";
+
+"group_copy_void_pending_message" = "Bu sonuç artık onay beklemez ve maç istatistiklerine katılmaz. Asıl skor ve gerekçe grup üyelerine görünür kalır. Oyunculara ve gönderen kişiye bildirim iletilir.";
+
+"group_copy_void_confirmed_message" = "Bu sonuç artık maç istatistiklerine katılmaz. Her iki tarafın istatistikleri ve sıralamaları yeniden hesaplanır. Asıl skor ve gerekçe grup üyelerine görünür kalır. Oyunculara ve gönderen kişiye bildirim iletilir.";
+
+"group_copy_cancel_activity" = "Etkinliği iptal et";
+
+"group_copy_cancel_activity_message" = "İptal, kayıt listesini kalıcı olarak siler. Devam eden etkinlikler iptal edilemez.";
+
+"group_copy_abandon_action" = "Maçtan vazgeç";
+
+"group_copy_abandon_message" = "Başka bir maç başlatmak için bu maçtan vazgeçin. Kaydedilen kişisel kayıtlar korunur.";
+
+"group_copy_leave_action" = "Gruptan ayrıl";
+
+"group_copy_leave_message" = "Ayrıldıktan sonra üyeliğiniz sona erer ve grup “Gruplarım” listesinden kaldırılır. Artık gruba erişemez veya etkinliklerine katılamazsınız. Grubun mevcut maç kayıtları ve bu cihazdaki kişisel kayıtlarınız korunur. Yeniden erişmek için gruba tekrar katılmanız gerekir.";
+
+"group_copy_archive_action" = "Grubu arşivle";
+
+"group_copy_archive_message" = "Bu grup arşivlensin mi? İçeriği salt okunur olacak.";
+
+"group_copy_dissolve_action" = "Grubu dağıt";
+
+"group_copy_dissolve_message" = "Grup 7 gün salt okunur olur ve bu sürede dağıtma iptal edilebilir. 7 gün sonra grup ve tüm verileri kalıcı olarak silinir.";
+
+"group_copy_approve_action" = "Onayla";
+
+"group_copy_approve_message" = "%@ grup üyesi olacak ve etkinlikleri ve sonuçları görebilecek.";
+
+"group_copy_reject_action" = "Reddet";
+
+"group_copy_reject_message" = "Retten sonra %@ yeni bir istek göndermelidir.";
+
+"group_copy_remove_action" = "Üyeyi çıkar";
+
+"group_copy_remove_message" = "%@ kaldırılsın mı? Yeniden katılma isteği göndermesi gerekir.";
+
+"group_copy_report_detail" = "Ayrıntılar (isteğe bağlı)";
+
+"group_copy_edit_profile" = "Grup profilini düzenle";
+
+"group_copy_entry_a_wins" = "A kazanır";
+
+"group_copy_entry_b_wins" = "B kazanır";
+
+"group_copy_activity_timing_sequence" = "Kesin saat yok";
+
+"group_copy_activity_registration_manage" = "Geçici üye kaydı";
+
+"group_copy_temporary_hint" = "Geçici üyelerin hesaba ihtiyacı yoktur ve sonuç girerken eklenebilirler.";
+
+"group_copy_activity_registration_scope" = "Geçici üyeleri buradan kaydedin. Hesabı olan üyeler kendileri kaydolur.";
+
+"group_copy_report" = "Grubu bildir";
+
+"group_copy_notice_member_removed" = "Gruptan çıkarıldınız";
+
+"group_copy_notice_role_changed" = "Rolünüz değişti";
+
+"group_copy_activity_direct_save" = "Programı kaydet";
+
+"group_copy_notice_join_approved" = "Katılma isteği onaylandı";
+
+"group_copy_notice_join_rejected" = "Katılma isteği reddedildi";
+
+"group_copy_all_formats" = "Tüm biçimler";
+
+"group_copy_closed" = "Katılım kapalı";
+
+"group_copy_report_other" = "Diğer";
+
+"group_copy_report_impersonation" = "Kimliğe bürünme";
+
+"group_copy_audit_ui_share_failed" = "Paylaşma başarısız oldu. Tekrar deneyin.";
+
+"group_copy_audit_ui_share_number" = "Grup numarasını paylaş";
+
+"group_copy_create" = "Grup oluştur";
+
+"group_copy_confirm_join" = "Bu gruba katıl";
+
+"group_copy_join" = "Gruba katıl";
+
+"group_copy_join_policy" = "Katılma seçenekleri";
+
+"group_copy_filter_singles" = "Tekler";
+
+"group_copy_upcoming" = "Yaklaşan";
+
+"group_copy_activity_section_past" = "Geçmiş etkinlikler";
+
+"group_copy_beta_feedback_action" = "Geri bildirim gönder";
+
+"group_copy_doubles" = "Çiftler";
+
+"group_copy_create_activity" = "Etkinlik oluştur";
+
+"group_copy_benefit_activity" = "Etkinlik planla ve kaydol";
+
+"group_copy_empty_activities_hint" = "Üyelerin katılabileceği bir etkinlik oluşturun. Kontenjan dolunca kayıt kapanır.";
+
+"group_copy_lookup_available" = "Açık";
+
+"group_copy_activity_direct_hint" = "Kayıt gerektirmeden tüm etkin grup üyeleri arasından doğrudan seçin.";
+
+"group_copy_empty_intro" = "Maç planlamak, skor tutmak ve ortak bir maç geçmişi oluşturmak için arkadaşlarınızı bir araya getirin.";
+
+"group_copy_place" = "Konum";
+
+"group_copy_ranking_games" = "Oynanan maçlar";
+
+"group_copy_ranking_insufficient_matches" = "Çok az maç";
+
+"group_copy_report_spam" = "Spam";
+
+"group_copy_report_status_reviewing" = "İnceleniyor";
+
+"group_copy_note" = "Not (isteğe bağlı)";
+
+"group_copy_peer_confirmation" = "Rakip onayı";
+
+"group_copy_activity_lineup_section_matches" = "Maçları planla";
+
+"group_copy_group" = "Grup";
+
+"group_copy_group_qr" = "Grup QR kodu";
+
+"group_copy_beta_notice" = "Gruplar beta aşamasındadır. Bazı özellikler değişebilir. Erken denediğiniz için teşekkürler.";
+
+"group_copy_created" = "Grup oluşturuldu";
+
+"group_copy_ranking_sets" = "Skor";
+
+"group_copy_removed_members_expand" = "Genişlet";
+
+"group_copy_voided" = "Geçersiz kılındı";
+
+"group_copy_cancelled" = "İptal edildi";
+
+"group_copy_report_status_resolved" = "Çözüldü";
+
+"group_copy_completed" = "Tamamlandı";
+
+"group_copy_archived" = "Arşivlendi";
+
+"group_copy_archived_list_title" = "Arşivlenmiş gruplar";
+
+"group_copy_activity_registration_registered" = "Kayıtlı";
+
+"group_copy_activity_full" = "Dolu";
+
+"group_copy_confirmed" = "Doğrulandı";
+
+"group_copy_removed_members" = "Eski üyeler";
+
+"group_copy_mark_seen" = "Okundu";
+
+"group_copy_report_status_dismissed" = "Reddedildi";
+
+"group_copy_draws" = "beraberlikler";
+
+"group_copy_draw" = "Berabere";
+
+"group_copy_start_score" = "Skor tutmaya başla";
+
+"group_copy_pending_upload" = "Yükleme bekleniyor";
+
+"group_copy_activity_registration_pending_remove" = "İptal edilecek";
+
+"group_copy_report_status_pending" = "Bekliyor";
+
+"group_copy_lookup_pending_short" = "Bekliyor";
+
+"group_copy_pending_request_limit" = "Çok fazla katılma isteği onay bekliyor. Karar verilmesini bekleyin veya bazılarını geri çekin.";
+
+"group_copy_activity_registration_pending_add" = "Kaydedilecek";
+
+"group_copy_pending_confirmation" = "Doğrulama bekleniyor";
+
+"group_copy_lookup_closing_short" = "Dağıtılıyor";
+
+"group_copy_restore" = "Grubu geri yükle";
+
+"group_copy_member" = "Üye";
+
+"group_copy_member_results_title" = "Üye sonuçları";
+
+"group_copy_my_groups" = "Gruplarım";
+
+"group_copy_activity_my_registration" = "Kaydım";
+
+"group_copy_activity_mode" = "Kayıtlar";
+
+"group_copy_qr_join_short" = "Katılmak için tara";
+
+"group_copy_qr_apply_short" = "Katılma talebi için tara";
+
+"group_copy_register" = "Kaydol";
+
+"group_copy_recruiting" = "Kayıtlar açık";
+
+"group_copy_registration_closes" = "Kayıt bitişi";
+
+"group_copy_activity_time_after_previous" = "Önceki maçtan sonra";
+
+"group_copy_report_submit" = "Gönder";
+
+"group_copy_submitted_by" = "Gönderen";
+
+"group_copy_cancel_dissolve" = "Dağılmayı iptal et";
+
+"group_copy_notice_join_requested" = "Katılma isteği alındı";
+
+"group_copy_removed_members_collapse" = "Daralt";
+
+"group_copy_discard_upload" = "Yüklemeyi sil";
+
+"group_copy_notice_activity_created" = "Etkinlik oluşturuldu";
+
+"group_copy_activity_time_unspecified" = "Saat belirlenecek";
+
+"group_copy_activity_registration_empty" = "Geçici üye yok";
+
+"group_copy_transfer_none" = "Başka kalıcı üye yok. Geçici üyeler grup lideri olamaz.";
+
+"group_copy_archived_empty" = "Arşivlenmiş grup yok";
+
+"group_copy_empty_activities_title" = "Henüz etkinlik yok";
+
+"group_copy_latest_results" = "Son sonuçlar";
+
+"group_copy_disputed" = "İtiraz edildi";
+
+"group_copy_activity_registration_not_registered" = "Kayıtlı değil";
+
+"group_copy_month_matches" = "Bu ayki maçlar";
+
+"group_copy_open_group" = "Grubu aç";
+
+"group_copy_benefit_history" = "Maçları ve sıralamaları incele";
+
+"group_copy_overview" = "Genel bakış";
+
+"group_copy_welcome_back" = "Tekrar hoş geldiniz";
+
+"group_copy_regular_members" = "Kayıtlı üyeler";
+
+"group_copy_rally_scoring" = "Ralli Skoru";
+
+"group_copy_result_information" = "Maç bilgileri";
+
+"group_copy_match_score" = "Maç skoru";
+
+"group_copy_match_rules" = "Maç kuralları";
+
+"group_copy_activity_registration_no_changes" = "Kaydedilmemiş değişiklik yok";
+
+"group_copy_activities" = "Etkinlikler";
+
+"group_copy_activity_title" = "Etkinlik adı";
+
+"group_copy_activity_field_title_optional" = "Etkinlik adı (isteğe bağlı)";
+
+"group_copy_notice_activity_changed" = "Etkinlik güncellendi";
+
+"group_copy_notice_activity_cancelled" = "Etkinlik iptal edildi";
+
+"group_copy_activity_lineup" = "Maçları planla";
+
+"group_copy_activity_create_admin_hint" = "Etkinlikleri grup sahibi veya bir yönetici oluşturur";
+
+"group_copy_beta_badge" = "Beta";
+
+"group_copy_add_set" = "Oyun skoru ekle";
+
+"group_copy_add_temporary" = "Geçici üye ekle";
+
+"group_copy_benefit_score" = "Skor tut veya geçmiş sonuçları ekle";
+
+"group_copy_request_join" = "Katılma isteği gönder";
+
+"group_copy_join_message" = "Katılma isteği mesajı (isteğe bağlı)";
+
+"group_copy_beta_supported_label" = "Şimdi kullanılabilir";
+
+"group_copy_open" = "Doğrudan katıl";
+
+"group_copy_activity_direct_title" = "Şimdi düzenle";
+
+"group_copy_admin" = "Yönetici";
+
+"group_copy_confirmed_matches" = "Doğrulanmış maçlar";
+
+"group_copy_leader" = "Sahip";
+
+"group_copy_notice_ownership_transferred" = "Grup sahibi değişti";
+
+"group_copy_complete_activity" = "Etkinliği bitir";
+
+"group_copy_keep_draft" = "Yerel sürümü düzenlemeye devam et";
+
+"group_copy_ranking_wins" = "galibiyetler";
+
+"group_copy_ranking_rate" = "Kazanma oranı";
+
+"group_copy_report_inappropriate" = "Cinsel veya uygunsuz içerik";
+
+"group_copy_update_report" = "Bildirimi güncelle";
+
+"group_copy_manual_result" = "Maç sonucu ekle";
+
+"group_copy_set_admin" = "Yönetici yap";
+
+"group_copy_activity_timing_estimated" = "Tahmini saat";
+
+"group_copy_losses" = "mağlubiyetler";
+
+"group_copy_notice_result_voided" = "Sonuç geçersiz kılındı";
+
+"group_copy_notice_result_confirmed" = "Sonuç doğrulandı";
+
+"group_copy_notice_result_pending" = "Sonuç onayı bekliyor";
+
+"group_copy_result_actions" = "Sonuç işlemleri";
+
+"group_copy_empty_title" = "Henüz grup yok";
+
+"group_copy_in_progress" = "Devam ediyor";
+
+"group_copy_report_illegal" = "Yasa dışı veya tehlikeli etkinlik";
+
+"group_copy_join_hint" = "Numarası veya QR koduyla bir arkadaşınızın grubuna katılın.";
+
+"group_copy_overdue_tasks" = "Gecikmiş görevler";
+
+"group_copy_beta_feedback_prompt" = "Sorun veya öneriniz mi var?";
+
+"group_copy_invite" = "Takım arkadaşlarını davet et";
+
+"group_copy_retry" = "Tekrar Dene";
+
+"group_copy_approval" = "Onay gerekli";
+
+"group_copy_sport" = "Spor";
+
+"group_copy_report_harassment" = "Taciz";
+
+"group_copy_ranking_me_suffix" = " (ben)";
+
+"group_copy_places_title" = "Yer Seç";
+
+"group_copy_report_fraud" = "Dolandırıcılık veya kumar";
+
+"group_copy_void_reason" = "Geçersiz kılma nedeni";
+
+"group_copy_reload_version" = "Yeniden yükle";
+
+"group_copy_lineup_reload_message" = "Maç düzenindeki kaydedilmemiş değişiklikler silinip son kaydedilen program yüklensin mi?";
+
+"group_copy_join_number_separator" = "Veya grup numarasını girin";
+
+"group_copy_activity_multi_match_hint" = "Bir etkinlik birden fazla maç içerebilir. Üyeler etkinliğe kaydolur; maçları düzenlerken her tekler maçı için 2, her çiftler maçı için 4 kayıtlı üye seçin.";
+
+"group_copy_activity_single_match_hint" = "Her etkinlik bir maçtır. Tekler için 2, çiftler için 4 kayıtlı üye seçin.";
+
+"group_copy_activity_detail" = "Etkinlik ayrıntıları";
+
+"group_copy_registration_at_start" = "Etkinlik başlangıcında";
+
+"group_copy_registration_use_start" = "Etkinlik başlangıç saatini kullan";
+
+"group_copy_cancel_reason_optional" = "İptal nedeni (isteğe bağlı)";
+
+"group_copy_audit_result_frozen_info" = "Oyuncuları ve kuralları görüntüle";
+"group_view_schedule" = "Maçları görüntüle";
+"group_notice_training_published" = "Antrenman yayımlandı";
+"group_notice_training_changed" = "Antrenman güncellendi";
+"group_notice_training_cancelled" = "Antrenman iptal edildi";
+"group_notice_leave_changed" = "Devamsızlık güncellendi";
+"group_report_evidence_title" = "Görsel kanıt (isteğe bağlı)";
+"group_report_evidence_hint" = "Her biri en fazla 2 MB olan en çok 3 JPG veya PNG görsel. Yalnızca siz ve platform görebilirsiniz.";
+"group_report_add_image" = "Görsel ekle";
+"group_report_retry" = "Tekrar dene";
+"group_report_preview" = "Kanıt görseli";
+"group_report_supplement" = "Bilgi ekle";
+"group_report_close" = "Kapat";
+"group_report_remove_image" = "Görseli kaldır";
+"group_report_image_error" = "Görsel hazırlanamadı. Başka bir JPG veya PNG görsel deneyin.";
+"group_report_refresh" = "Durumu yenile";

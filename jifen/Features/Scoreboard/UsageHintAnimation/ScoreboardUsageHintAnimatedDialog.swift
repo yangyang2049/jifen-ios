@@ -75,7 +75,7 @@ struct ScoreboardUsageHintAnimatedDialog: View {
                                 comment: ""
                             ))
                             .font(.system(size: metrics.buttonFontSize, weight: .semibold))
-                            .foregroundStyle(Color.white)
+                            .foregroundStyle(Theme.textOnPrimary)
                             .frame(maxWidth: .infinity)
                             .frame(height: metrics.buttonHeight)
                             .background(Theme.accentColor)
@@ -154,7 +154,7 @@ struct ScoreboardUsageHintAnimatedDialog: View {
                         comment: ""
                     ))
                     .font(.system(size: metrics.buttonFontSize, weight: .semibold))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(Theme.textOnPrimary)
                     .padding(.horizontal, 18)
                     .frame(height: metrics.buttonHeight * 0.86)
                     .background(Theme.accentColor)

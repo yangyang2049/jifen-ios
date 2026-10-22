@@ -54,6 +54,31 @@ final class AccountPasswordLoginTests: XCTestCase {
         ))
         XCTAssertThrowsError(try QRLoginPayload.parse(String(repeating: "x", count: 8_193)))
     }
+
+    func testMeScannerRoutesGroupInvitationsSeparatelyFromLogin() throws {
+        for (raw, number) in [
+            ("https://jifenqi.com/groups/join?groupNo=123456", "123456"),
+            ("https://iscoreboard.live/groups/join?groupNo=1234567", "1234567"),
+            (#"{"type":"JIFEN_GROUP","v":1,"groupNo":"72856000"}"#, "72856000"),
+            (" 72856000 ", "72856000")
+        ] {
+            XCTAssertEqual(try MeQRPayload.parse(raw), .group(number))
+        }
+        let token = "qrl_scan_" + String(repeating: "a", count: 43)
+        let login = "https://jifenqi.com/auth/qr#sid=session-0002&st=\(token)"
+        XCTAssertEqual(try MeQRPayload.parse(login), .login(try QRLoginPayload.parse(login)))
+    }
+
+    func testMeScannerRejectsInvalidGroupInvitations() {
+        for raw in [
+            "https://iscoreboard.live.evil.test/groups/join?groupNo=72856000",
+            "https://jifenqi.com/groups/join?groupNo=72856000&groupNo=123456",
+            "https://jifenqi.com/groups/join?groupNo=012345",
+            #"{"type":"JIFEN_GROUP","v":2,"groupNo":"72856000"}"#
+        ] {
+            XCTAssertThrowsError(try MeQRPayload.parse(raw))
+        }
+    }
 }
 
 /// 头像裁剪数学 + 上传前压缩的纯函数覆盖（裁剪视图/上传链路共用同一层）。

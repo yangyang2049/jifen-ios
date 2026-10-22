@@ -1724,18 +1724,18 @@ struct ScoreboardDisplaySettingsView: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: isLargeScreen ? 56 : 48)
                         .background(Color.white.opacity(0.14))
-                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
 
                 Button(action: apply) {
                     Text(NSLocalizedString("apply", value: "应用", comment: ""))
                         .font(.system(size: isLargeScreen ? 20 : 17, weight: .medium))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Theme.textOnPrimary)
                         .frame(maxWidth: .infinity)
                         .frame(height: isLargeScreen ? 56 : 48)
                         .background(Theme.primary)
-                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
             }

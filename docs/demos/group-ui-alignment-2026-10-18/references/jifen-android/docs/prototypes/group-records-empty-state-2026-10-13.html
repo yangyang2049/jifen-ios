@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>小组战绩空状态方案</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page:#edf2ef; --panel:rgba(255,255,255,.82); --phone:#fff; --card:#f5f5f5;
+      --text:#111827; --secondary:#5b6472; --tertiary:#8a93a3; --divider:#e2e6e3;
+      --green:#17873b; --green-soft:#e7f5ea; --green-faint:#f1f8f3; --danger:#c74545;
+      --shadow:0 30px 80px rgba(24,38,31,.14),0 3px 12px rgba(24,38,31,.08);
+      --phone-width:390px;
+    }
+    * { box-sizing:border-box }
+    body {
+      margin:0; min-height:100vh; color:var(--text);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+      background:
+        radial-gradient(circle at 10% 4%,rgba(23,135,59,.11),transparent 30rem),
+        radial-gradient(circle at 88% 96%,rgba(72,113,179,.08),transparent 33rem),var(--page);
+    }
+    button,select { font:inherit }
+    button { cursor:pointer }
+    .topbar { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; padding:28px 32px 18px }
+    .eyebrow { color:var(--green); font-size:12px; font-weight:850; letter-spacing:.12em; text-transform:uppercase }
+    h1 { margin:8px 0 6px; font-size:clamp(24px,3vw,38px); letter-spacing:-.04em }
+    .intro { margin:0; max-width:730px; color:var(--secondary); line-height:1.65 }
+    .toolbar { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px }
+    .tool,.variant-button {
+      border:1px solid rgba(17,24,39,.10); background:rgba(255,255,255,.74); color:var(--secondary);
+      border-radius:999px; padding:9px 13px; transition:.16s ease;
+    }
+    .tool:hover,.variant-button:hover { transform:translateY(-1px); border-color:rgba(23,135,59,.34) }
+    .tool.on,.variant-button.on { color:var(--green); background:var(--green-soft); border-color:rgba(23,135,59,.22); font-weight:760 }
+    .scenario-select { border:1px solid rgba(17,24,39,.10); border-radius:999px; padding:9px 30px 9px 13px; background:rgba(255,255,255,.74); color:var(--text) }
+    .workspace {
+      display:grid; grid-template-columns:minmax(230px,292px) minmax(360px,1fr) minmax(250px,320px);
+      align-items:start; gap:24px; padding:12px 32px 42px; max-width:1450px; margin:0 auto;
+    }
+    .sidebar,.notes {
+      position:sticky; top:18px; padding:18px; border:1px solid rgba(255,255,255,.8); border-radius:22px;
+      background:var(--panel); backdrop-filter:blur(20px); box-shadow:0 14px 38px rgba(25,38,32,.07);
+    }
+    .sidebar h2,.notes h2 { margin:0 0 14px; font-size:15px }
+    .variant-button {
+      width:100%; display:grid; grid-template-columns:34px 1fr; gap:10px; align-items:center; text-align:left;
+      border-radius:16px; margin-top:8px; padding:11px;
+    }
+    .variant-button .letter { display:grid; place-items:center; width:32px; height:32px; border-radius:10px; background:#e8edf2; color:var(--text); font-size:12px; font-weight:900 }
+    .variant-button.on .letter { color:#fff; background:var(--green) }
+    .variant-button strong,.variant-button small { display:block }
+    .variant-button strong { color:var(--text); font-size:13px }
+    .variant-button small { margin-top:3px; color:var(--tertiary); font-size:11px; line-height:1.35 }
+    .side-caption { margin:16px 2px 0; color:var(--secondary); font-size:12px; line-height:1.65 }
+    .stage { min-width:0; display:grid; place-items:start center }
+    .phone {
+      width:min(100%,var(--phone-width)); height:770px; overflow:hidden; position:relative; background:var(--phone);
+      border:8px solid #202522; border-radius:38px; box-shadow:var(--shadow); transition:width .2s ease,background .2s ease;
+    }
+    .status { display:flex; justify-content:space-between; padding:12px 20px 6px; font-size:11px; font-weight:760 }
+    .appbar { display:grid; grid-template-columns:42px 1fr 42px; align-items:center; padding:6px 12px 12px }
+    .icon-button { width:40px; height:40px; display:grid; place-items:center; border:0; border-radius:20px; color:var(--text); background:transparent }
+    .icon-button svg { width:21px; height:21px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round }
+    .appbar h2 { margin:0; text-align:center; font-size:18px; letter-spacing:-.02em }
+    .tabs { margin:0 16px 12px; padding:3px; display:grid; grid-template-columns:repeat(4,1fr); background:var(--card); border-radius:14px }
+    .tabs span { position:relative; padding:9px 2px; color:var(--secondary); text-align:center; font-size:12px; border-radius:11px }
+    .tabs .active { background:var(--phone); color:var(--text); font-weight:760; box-shadow:0 2px 7px rgba(20,31,26,.09) }
+    .tabs .active::after { content:""; position:absolute; left:50%; bottom:3px; width:13px; height:2px; border-radius:2px; background:var(--green); transform:translateX(-50%) }
+    .content { height:648px; overflow:auto; padding:4px 16px 36px; scrollbar-width:none }
+    .content::-webkit-scrollbar { display:none }
+    .format { display:flex; align-items:center; gap:8px; margin-bottom:12px }
+    .format button { border:0; border-radius:999px; padding:8px 14px; background:var(--card); color:var(--secondary); font-size:12px }
+    .format button.on { background:var(--green-soft); color:var(--green); font-weight:800 }
+    .card { border-radius:16px; background:var(--card) }
+    .ranking { padding:12px }
+    .ranking-title { margin:0 0 9px; color:var(--secondary); font-size:13px; font-weight:750 }
+    .section-head { display:flex; align-items:center; min-height:36px; gap:8px; margin-top:12px }
+    .section-head h3 { margin:0; font-size:15px }
+    .section-head .spacer { flex:1 }
+    .filter-pill { border:0; border-radius:999px; padding:6px 10px; color:var(--secondary); background:var(--card); font-size:11px }
+    .court-empty { padding:38px 20px 46px; text-align:center }
+    .court-icon { width:68px; height:68px; margin:0 auto 13px; color:var(--tertiary) }
+    .court-icon svg { width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round }
+    .court-empty h3 { margin:0; color:var(--secondary); font-size:14px; font-weight:500 }
+    .court-empty p { margin:7px auto 0; max-width:280px; color:var(--secondary); font-size:12px; line-height:1.55 }
+    .primary { margin-top:16px; border:0; border-radius:999px; padding:10px 16px; color:#fff; background:var(--green); font-size:12px; font-weight:800 }
+    .record-card { margin-top:8px; padding:12px; background:var(--card); border-radius:14px }
+    .record-meta { display:flex; justify-content:space-between; color:var(--tertiary); font-size:10px }
+    .record-score { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; margin-top:10px; font-size:12px; font-weight:720 }
+    .record-score span:last-child { text-align:right }
+    .score { color:var(--green); font-size:18px }
+    .rank-table { overflow:hidden; border-radius:11px; background:var(--phone) }
+    .rank-row { display:grid; grid-template-columns:24px minmax(0,1fr) 34px 38px; gap:6px; align-items:center; min-height:39px; padding:0 9px; font-size:11px }
+    .rank-row + .rank-row { border-top:1px solid var(--divider) }
+    .rank-head { color:var(--tertiary); font-size:9px; min-height:28px }
+    .rank-avatar { width:23px; height:23px; display:grid; place-items:center; border-radius:50%; background:#dce1e5; color:#404b55; font-size:9px; font-weight:800 }
+    .rank-name { display:flex; align-items:center; gap:7px; min-width:0 }
+    .rank-name b { overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+    .rate { text-align:right; color:var(--green); font-weight:800 }
+
+    /* A: binary state — render what the rankings API actually returns. */
+    .variant-a .global-empty { margin-top:8px }
+    .zero-format { display:flex; align-items:center; gap:9px; min-height:48px; padding:9px 12px; border:1px solid var(--divider); border-radius:14px; color:var(--tertiary); font-size:11px }
+    .zero-format svg { width:20px; height:20px; flex:0 0 auto; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round }
+
+    /* B: compact inline message. */
+    .variant-b .compact-empty { display:flex; align-items:center; gap:10px; min-height:58px; padding:10px 12px; border:1px solid var(--divider); border-radius:14px; background:var(--green-faint) }
+    .variant-b .compact-empty svg { width:24px; height:24px; flex:0 0 auto; fill:none; stroke:var(--green); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round }
+    .variant-b .compact-empty strong,.variant-b .compact-empty span { display:block }
+    .variant-b .compact-empty strong { color:var(--secondary); font-size:12px }
+    .variant-b .compact-empty span { margin-top:2px; color:var(--tertiary); font-size:10px }
+
+    /* C: intentional full ranking empty card. */
+    .variant-c .ranking { padding:12px 12px 22px }
+    .variant-c .rich-empty { min-height:190px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center }
+    .variant-c .medal-icon { width:54px; height:54px; color:var(--tertiary) }
+    .variant-c .medal-icon svg { width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round }
+    .variant-c .rich-empty strong { margin-top:5px; color:var(--secondary); font-size:13px; font-weight:600 }
+    .variant-c .rich-empty span { max-width:250px; margin-top:6px; color:var(--tertiary); font-size:11px; line-height:1.5 }
+    .variant-c .rich-empty .primary { margin-top:13px }
+
+    .notes .recommend { display:inline-flex; padding:6px 9px; background:var(--green-soft); color:var(--green); border-radius:999px; font-size:11px; font-weight:850 }
+    .notes h2 { margin-top:13px; font-size:18px }
+    .notes p { color:var(--secondary); font-size:13px; line-height:1.65 }
+    .notes ul { margin:12px 0 0; padding-left:18px; color:var(--secondary); font-size:12px; line-height:1.65 }
+    .notes li + li { margin-top:5px }
+    .logic { margin-top:16px; padding-top:14px; border-top:1px solid rgba(17,24,39,.08) }
+    .logic-row { display:grid; grid-template-columns:76px 1fr; gap:8px; padding:6px 0; font-size:11px }
+    .logic-row span { color:var(--tertiary) }
+    .logic-row strong { line-height:1.45 }
+    body.dark {
+      color-scheme:dark; --page:#121513; --panel:rgba(33,37,34,.86); --phone:#101311; --card:#242825;
+      --text:#f4f7f4; --secondary:#b8c0ba; --tertiary:#858f88; --divider:#3a403c;
+      --green:#54d875; --green-soft:#17421f; --green-faint:#17291c;
+    }
+    body.dark .phone { border-color:#353b37 }
+    body.dark .tool,body.dark .variant-button,body.dark .scenario-select { background:rgba(36,40,37,.76); border-color:rgba(255,255,255,.08) }
+    body.dark .sidebar,body.dark .notes { border-color:rgba(255,255,255,.06) }
+    body.dark .variant-button .letter { background:#3a3a3c }
+    body.dark .rank-avatar { background:#464c48; color:#eef3ef }
+    @media (max-width:1030px) {
+      .workspace { grid-template-columns:220px minmax(340px,1fr) }
+      .notes { position:static; grid-column:1/-1 }
+    }
+    @media (max-width:720px) {
+      .topbar { padding:22px 18px 14px; flex-direction:column }
+      .toolbar { justify-content:flex-start }
+      .workspace { grid-template-columns:1fr; padding:8px 14px 34px }
+      .stage { grid-row:1 }.sidebar { position:static; grid-row:2 }.notes { grid-column:auto; grid-row:3 }
+      .phone { height:720px }.content { height:598px }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">全能计分器 · 小组战绩</div>
+      <h1>排行榜只保留有与没有两种状态</h1>
+      <p class="intro">客户端不猜需要几场比赛。接口返回排行榜就展示，没有返回就隐藏或给一句极简提示，未来门槛改变也不需要改页面逻辑。</p>
+    </div>
+    <div class="toolbar">
+      <select class="scenario-select" id="scenario" aria-label="数据场景">
+        <option value="empty">无排行榜 / 无比赛记录</option>
+        <option value="recordsOnly">无排行榜 / 已有比赛记录</option>
+        <option value="singleRank">单打有排行 / 双打无排行</option>
+        <option value="bothRank">单打、双打都有排行</option>
+      </select>
+      <button class="tool" data-action="width">320px 窄屏</button>
+      <button class="tool" data-action="dark">深色</button>
+    </div>
+  </header>
+  <main class="workspace">
+    <aside class="sidebar">
+      <h2>选择方案</h2>
+      <button class="variant-button on" data-variant="a"><span class="letter">A</span><span><strong>没有就收起</strong><small>无排行时不生成空卡片 · 推荐</small></span></button>
+      <button class="variant-button" data-variant="b"><span class="letter">B</span><span><strong>保留一句提示</strong><small>赛制入口固定，只显示极简说明</small></span></button>
+      <button class="variant-button" data-variant="c"><span class="letter">C</span><span><strong>完整排行榜空态</strong><small>图标 + 说明 + 补记入口</small></span></button>
+      <p class="side-caption">重点查看“已有比赛记录但没有排行榜”，以及“单打有排行、双打没有排行”。排行榜门槛由数据层决定，页面只展示结果。</p>
+    </aside>
+    <section class="stage">
+      <div class="phone variant-a" id="phone">
+        <div class="status"><span>12:06</span><span>▮▮▮ ◔ ▰</span></div>
+        <div class="appbar">
+          <button class="icon-button" aria-label="返回"><svg viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button>
+          <h2>周末羽毛球</h2>
+          <button class="icon-button" aria-label="更多"><svg viewBox="0 0 24 24"><path d="M6 12h.01M12 12h.01M18 12h.01"/></svg></button>
+        </div>
+        <div class="tabs"><span>概览</span><span>活动</span><span class="active">战绩</span><span>成员</span></div>
+        <div class="content" id="content"></div>
+      </div>
+    </section>
+    <aside class="notes" id="notes"></aside>
+  </main>
+  <script>
+    const $ = s => document.querySelector(s);
+    const state = {variant:'a',scenario:'empty',format:'singles',narrow:false};
+    const variants = {
+      a:{title:'推荐 A：没有就收起',body:'排行榜是否存在完全以接口返回为准。单打、双打都没有排行时，整个排行榜区域不显示；只有一个赛制有排行时保留切换，空的那个赛制只显示一句极简提示。',bullets:['不引入 5 场或其他客户端门槛','以后改成首场成榜、多场成榜都不需要调整 UI','比赛记录与排行榜彼此独立','消除现在那张又短又空的排行榜卡片'],logic:[['无排行','收起排行榜区域'],['部分有排行','保留切换；空赛制一句提示'],['有排行','正常显示表格']]},
+      b:{title:'备选 B：保留一句提示',body:'无论有没有排行榜都保留单打、双打入口；没有数据时只显示一条轻量提示，不再套排行榜卡片。结构稳定，但完全空白时仍会多展示一组暂时无用的筛选。',bullets:['比当前短卡片更简单','切换入口位置始终稳定','完全没有排行时略显多余','不解释门槛，也不承诺需要几场'],logic:[['无排行','显示极简提示'],['有排行','替换为排行榜表格'],['门槛变化','页面无需修改']]},
+      c:{title:'备选 C：完整排行榜空态',body:'没有排行榜时保留完整卡片，用奖牌图标、说明和补记入口填满层级。它是明确的空态，但会与下方比赛记录竞争注意力。',bullets:['排行榜用途表达最清楚','可以在战绩页直接补记比赛','已有比赛记录但尚无排行时仍显得偏重','只有需要强引导时才值得采用'],logic:[['无排行','完整空态 + 补记入口'],['有排行','正常显示表格'],['门槛变化','文案保持中性']]}
+    };
+    const courtIcon = `<div class="court-icon" aria-hidden="true"><svg viewBox="0 0 72 72"><rect x="8" y="16" width="56" height="40" rx="4"/><path d="M36 16v40M8 29h9a7 7 0 0 1 0 14H8M64 29h-9a7 7 0 0 0 0 14h9"/><circle cx="36" cy="36" r="2"/></svg></div>`;
+    const medalIcon = `<div class="medal-icon" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M23 7h18l-3 16H26L23 7Z"/><circle cx="32" cy="36" r="13"/><path d="m32 28 2.4 5 5.6.8-4 3.9.9 5.5-4.9-2.6-4.9 2.6.9-5.5-4-3.9 5.6-.8L32 28Z"/></svg></div>`;
+    const compactIcon = `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M10 5h12l-2 9h-8l-2-9Z"/><circle cx="16" cy="21" r="7"/></svg>`;
+    function formatControls() { return `<div class="format"><button data-format="singles" class="${state.format==='singles'?'on':''}">单打</button><button data-format="doubles" class="${state.format==='doubles'?'on':''}">双打</button></div>` }
+    const scenarios={
+      empty:{records:0,rankings:{singles:false,doubles:false}},
+      recordsOnly:{records:1,rankings:{singles:false,doubles:false}},
+      singleRank:{records:3,rankings:{singles:true,doubles:false}},
+      bothRank:{records:8,rankings:{singles:true,doubles:true}}
+    };
+    function hasRanking(format) { return scenarios[state.scenario].rankings[format] }
+    function anyRanking() { return hasRanking('singles')||hasRanking('doubles') }
+    function rankTable() {
+      const people = state.format==='singles' ? [['1','林晓宇','3','场次不足'],['2','陈飞','3','场次不足'],['3','王佳佳','2','场次不足']] : [['1','林晓宇 / 陈飞','7','71%'],['2','王佳佳 / 小周','6','67%'],['3','李教练 / 乐乐','5','40%']];
+      return `<div class="rank-table"><div class="rank-row rank-head"><span>#</span><span>成员</span><span>场次</span><span class="rate">胜率</span></div>${people.map((p,i)=>`<div class="rank-row"><b>${p[0]}</b><span class="rank-name"><i class="rank-avatar">${p[1][0]}</i><b>${p[1]}</b></span><span>${p[2]}</span><span class="rate">${p[3]}</span></div>`).join('')}</div>`;
+    }
+    function rankingCard() {
+      const label = state.format==='singles'?'单打':'双打';
+      if(hasRanking(state.format))return `<div class="card ranking"><h3 class="ranking-title">${label}排行榜</h3>${rankTable()}</div>`;
+      if(state.variant==='a')return `<div class="zero-format">${compactIcon}<span>暂无${label}排行榜</span></div>`;
+      if(state.variant==='b')return `<div class="compact-empty">${compactIcon}<span><strong>暂无${label}排行榜</strong></span></div>`;
+      return `<div class="card ranking"><h3 class="ranking-title">${label}排行榜</h3><div class="rich-empty">${medalIcon}<strong>暂无${label}排行榜</strong><span>排行榜生成后会显示在这里。</span><button class="primary">补记赛果</button></div></div>`;
+    }
+    function recordsSection(globalEmpty) {
+      const hasRecords = scenarios[state.scenario].records>0;
+      if (globalEmpty) return `<div class="global-empty">${courtIcon}<h3>暂无比赛</h3><p>从小组开局或补记赛果，确认后自动生成比赛记录和排行榜。</p></div>`;
+      const recordFormat=state.scenario==='bothRank'?'双打':'单打';
+      return `<div class="section-head"><h3>比赛记录</h3><span class="spacer"></span><button class="filter-pill">全部赛制⌄</button></div>${hasRecords?`<div class="record-card"><div class="record-meta"><span>10月12日 19:36</span><span>已确认 · ${recordFormat}</span></div><div class="record-score"><span>林晓宇</span><b class="score">2 : 1</b><span>陈飞</span></div></div>`:`<div class="court-empty">${courtIcon}<h3>暂无比赛</h3><p>从小组开局或补记赛果，确认后自动计入战绩榜。</p></div>`}`;
+    }
+    function renderContent() {
+      const hasRecords=scenarios[state.scenario].records>0;
+      if(state.variant==='a'&&!anyRanking()){
+        if(!hasRecords)return `<div class="court-empty global-empty">${courtIcon}<h3>暂无比赛</h3><p>从小组开局或补记赛果，确认后自动生成比赛记录和排行榜。</p><button class="primary">补记赛果</button></div>`;
+        return recordsSection(false);
+      }
+      return `${formatControls()}${rankingCard()}${recordsSection(false)}`;
+    }
+    function render() {
+      $('#phone').className=`phone variant-${state.variant}`;
+      document.documentElement.style.setProperty('--phone-width',state.narrow?'320px':'390px');
+      $('#content').innerHTML=renderContent();
+      document.querySelectorAll('[data-variant]').forEach(b=>b.classList.toggle('on',b.dataset.variant===state.variant));
+      document.querySelector('[data-action="width"]').classList.toggle('on',state.narrow);
+      $('#scenario').value=state.scenario;
+      const v=variants[state.variant];
+      $('#notes').innerHTML=`${state.variant==='a'?'<span class="recommend">● 当前推荐</span>':'<span class="recommend" style="background:var(--card);color:var(--secondary)">对比方案</span>'}<h2>${v.title}</h2><p>${v.body}</p><ul>${v.bullets.map(x=>`<li>${x}</li>`).join('')}</ul><div class="logic">${v.logic.map(([a,b])=>`<div class="logic-row"><span>${a}</span><strong>${b}</strong></div>`).join('')}</div>`;
+    }
+    document.addEventListener('click',event=>{
+      const b=event.target.closest('button'); if(!b)return;
+      if(b.dataset.variant)state.variant=b.dataset.variant;
+      if(b.dataset.format)state.format=b.dataset.format;
+      if(b.dataset.action==='width')state.narrow=!state.narrow;
+      if(b.dataset.action==='dark'){document.body.classList.toggle('dark');b.classList.toggle('on')}
+      render();
+    });
+    $('#scenario').addEventListener('change',event=>{state.scenario=event.target.value;state.format='singles';render()});
+    render();
+  </script>
+</body>
+</html>

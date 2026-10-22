@@ -47,7 +47,7 @@ struct CommonDataCategoryChip: View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: Theme.fontBody2, weight: selected ? .semibold : .medium))
-                .foregroundColor(selected ? .white : Theme.textPrimary)
+                .foregroundColor(selected ? Theme.textOnPrimary : Theme.textPrimary)
                 .padding(.horizontal, Theme.cardPadding)
                 .padding(.vertical, 8)
                 .background(selected ? Theme.accentColor : Theme.surface)
@@ -73,7 +73,7 @@ struct CommonDataFloatingAddButton: View {
                 Text(title)
                     .font(.system(size: 16, weight: .semibold))
             }
-            .foregroundColor(.white)
+            .foregroundColor(Theme.textOnPrimary)
             .frame(maxWidth: .infinity)
             .frame(height: CommonDataManagementChrome.floatingButtonHeight)
             .background(Theme.accentColor)

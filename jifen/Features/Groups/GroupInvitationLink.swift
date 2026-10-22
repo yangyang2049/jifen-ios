@@ -8,8 +8,8 @@ nonisolated struct GroupInvitation: Identifiable, Equatable, Sendable {
 /// Text and QR image sharing attach the same invitation, including the download fallback.
 nonisolated enum GroupInvitationText {
     @MainActor static func message(group: ScoreGroup, regionCode: String? = Locale.current.region?.identifier,
-                                   localization: String = Bundle.main.preferredLocalizations.first ?? "en") -> String {
-        guard let url = GroupInvitationLink.joinURL(groupNo: group.groupNo, regionCode: regionCode, localization: localization) else { return "" }
+                                   localization: String = Bundle.main.preferredLocalizations.first ?? "en", capabilities: GroupCapabilities? = nil) -> String {
+        guard let url = GroupInvitationLink.joinURL(groupNo: group.groupNo, regionCode: regionCode, localization: localization, capabilities: capabilities) else { return "" }
         let intro = String(format: groupText("invitation_intro_ball", "Join our %@ group to play and keep score together!"), group.sport.title)
         return String(format: groupText("share_message", "%@\n\nGroup: %@\nGroup No.: %@\n\nJoin group: %@\n\nDownload iScoreboard and enter the group number to join:\n%@"),
                       intro, group.name, group.groupNo, url.absoluteString,
@@ -26,18 +26,18 @@ nonisolated enum GroupInvitationLink {
         return domestic ? "https://jifenqi.com" : "https://iscoreboard.live"
     }
 
-    static func validNumber(_ number: String) -> Bool {
-        (6...8).contains(number.count) && number.first != "0"
+    static func validNumber(_ number: String, capabilities: GroupCapabilities? = nil) -> Bool {
+        (capabilities?.groupNumberLengths ?? 6...8).contains(number.count) && number.first != "0"
             && number.utf8.allSatisfy { (48...57).contains($0) }
     }
 
-    static func joinURL(groupNo: String, regionCode: String? = Locale.current.region?.identifier, localization: String = Bundle.main.preferredLocalizations.first ?? "en") -> URL? {
+    static func joinURL(groupNo: String, regionCode: String? = Locale.current.region?.identifier, localization: String = Bundle.main.preferredLocalizations.first ?? "en", capabilities: GroupCapabilities? = nil) -> URL? {
         let number = groupNo.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard validNumber(number) else { return nil }
+        guard validNumber(number, capabilities: capabilities) else { return nil }
         return URL(string: "\(website(regionCode: regionCode, localization: localization))/groups/join?groupNo=\(number)")
     }
 
-    static func groupNumber(from url: URL) -> String? {
+    static func groupNumber(from url: URL, capabilities: GroupCapabilities? = nil) -> String? {
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
               components.user == nil, components.password == nil, components.port == nil else { return nil }
         let scheme = components.scheme?.lowercased()
@@ -47,7 +47,7 @@ nonisolated enum GroupInvitationLink {
             && ["/groups/join", "/groups/join/"].contains(path)
         guard webLink else { return nil }
         let numbers = components.queryItems?.filter { $0.name == "groupNo" } ?? []
-        guard numbers.count == 1, let number = numbers.first?.value, validNumber(number) else { return nil }
+        guard numbers.count == 1, let number = numbers.first?.value, validNumber(number, capabilities: capabilities) else { return nil }
         return number
     }
 }

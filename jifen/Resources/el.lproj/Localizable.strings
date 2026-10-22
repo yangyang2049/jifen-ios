@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "Επιτραπέζια παιχνίδια";
 "search_team_or_game" = "Αναζήτηση ομάδας ή παιχνιδιού";
 "match_count" = "%d αγώνες";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d αγώνες · όλα τα μέλη της ομάδας";
+"archived_count" = "%d ομάδες";
 
 /* Home Screen */
 "recent_records" = "Πρόσφατο ιστορικό";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "π.χ. παίξτε και τα πέντε σετ· ο αγώνας μπορεί να λήξει ισόπαλος";
 "match_completion_custom_placeholder" = "Πληκτρολογήστε 1-99";
 "match_completion_invalid_sets" = "Η Κλασική λειτουργία απαιτεί περιττό αριθμό από 1–99· η λειτουργία Παίξτε όλα δέχεται 1–99.";
+"setup_auto_odd_sets" = "Επιτρέπονται μόνο μονοί αριθμοί — θα χρησιμοποιηθεί το %d";
 "has_been_reset" = "Η επαναφορά ολοκληρώθηκε";
 "no_undo_available" = "Δεν υπάρχει διαθέσιμη αναίρεση";
 "screenshot_failed" = "Το στιγμιότυπο οθόνης απέτυχε";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "Ενεργή περίοδος συγχρονισμού";
 "timer_status_running" = "Σε εξέλιξη";
 "timer_status_paused" = "Σε παύση";
-"membership_entry_summary_active" = "Είστε μέλος του VIP. Σας ευχαριστούμε για την υποστήριξή σας";
+"membership_entry_summary_active" = "Ενεργή συνδρομή VIP";
 "sound_effects" = "Ηχητικά εφέ";
 "vibration" = "Δόνηση";
 "language" = "Γλώσσα";
@@ -1579,7 +1580,7 @@
 "group_approval" = "Απαιτείται έγκριση";
 "group_approve" = "Έγκριση";
 "group_archive" = "Αρχειοθέτηση ομάδας";
-"group_archive_hint" = "Η αρχειοθέτηση διατηρεί όλο το ιστορικό και αναστέλλει τις αλλαγές στην ομάδα. Μπορείτε να την επαναφέρετε αργότερα.";
+"group_archive_hint" = "Αρχειοθέτηση αυτής της ομάδας; Το περιεχόμενό της θα είναι μόνο για ανάγνωση.";
 "group_archive_readonly" = "Αυτή η ομάδα έχει αρχειοθετηθεί. Το ιστορικό της είναι μόνο για ανάγνωση.";
 "group_archived" = "Αρχειοθετήθηκε";
 "group_benefit_activity" = "Σχεδιασμός δραστηριοτήτων και εγγραφή";
@@ -1624,38 +1625,38 @@
 "group_invalid_qr" = "Αυτός δεν είναι έγκυρος κωδικός QR ομάδας.";
 "group_invalid_result" = "Το καταγεγραμμένο αποτέλεσμα χρειάζεται έλεγχο πριν από την αποστολή.";
 "group_invalid_rules" = "Ελέγξτε τους κανόνες του αγώνα.";
-"group_invite" = "Invite";
+"group_invite" = "Πρόσκληση συμπαικτών";
 "group_join" = "Συμμετοχή σε ομάδα";
 "group_join_hint" = "Συμμετάσχετε στην ομάδα ενός φίλου με τον αριθμό ή τον κωδικό QR της.";
-"group_join_message" = "Μήνυμα προς την ομάδα (προαιρετικό)";
-"group_join_policy" = "Συμμετοχή";
+"group_join_message" = "Μήνυμα αίτησης συμμετοχής (προαιρετικό)";
+"group_join_policy" = "Επιλογές συμμετοχής";
 "group_leave" = "Αποχώρηση από την ομάδα";
-"group_leave_hint" = "Θα χάσετε την πρόσβαση σε αυτή την ομάδα. Οι προσωπικές σας καταγραφές παραμένουν στη συσκευή.";
+"group_leave_hint" = "Αν αποχωρήσετε, δεν θα είστε πλέον μέλος και η ομάδα θα αφαιρεθεί από το «Οι ομάδες μου». Δεν θα μπορείτε να έχετε πρόσβαση ή να συμμετέχετε σε αυτή. Τα υπάρχοντα αρχεία αγώνων της ομάδας και τα προσωπικά σας αρχεία σε αυτή τη συσκευή θα διατηρηθούν. Για να αποκτήσετε ξανά πρόσβαση, πρέπει να συμμετάσχετε ξανά στην ομάδα.";
 "group_load_failed" = "Δεν ήταν δυνατή η φόρτωση της ομάδας";
 "group_load_more" = "Φόρτωση περισσότερων";
 "group_losses" = "ήττες";
 "group_manual" = "Χειροκίνητη καταχώριση";
-"group_manual_result" = "Προσθήκη παλαιού αγώνα";
+"group_manual_result" = "Προσθήκη αποτελέσματος αγώνα";
 "group_match_detail" = "Λεπτομέρειες αγώνα";
 "group_match_log" = "Ιστορικό αγώνων";
 "group_match_rules" = "Κανόνες αγώνα";
 "group_member" = "Μέλος";
 "group_member_name" = "Όνομα μέλους";
-"group_members" = "Μέλη";
+"group_members" = "Μέλος";
 "group_month_matches" = "Αγώνες αυτόν τον μήνα";
 "group_my_groups" = "Οι ομάδες μου";
 "group_name" = "Όνομα ομάδας";
 "group_need_login" = "Συνδεθείτε για να συνεχίσετε.";
 "group_need_members" = "Προσκαλέστε φίλους ή προσθέστε προσωρινά μέλη πριν ξεκινήσετε αγώνα.";
-"group_new_activity" = "Προγραμματισμός δραστηριότητας";
+"group_new_activity" = "Δημιουργία δραστηριότητας";
 "group_new_owner" = "Νέος ιδιοκτήτης";
 "group_no_activities" = "Δεν υπάρχουν ακόμα δραστηριότητες";
 "group_no_description" = "Δεν υπάρχει ακόμα περιγραφή";
 "group_no_rankings" = "Οι κατατάξεις εμφανίζονται μετά την επιβεβαίωση ενός αγώνα.";
 "group_no_set_details" = "Καταγράφηκε μόνο το συνολικό αποτέλεσμα.";
-"group_note" = "Σημείωση δραστηριότητας (προαιρετική)";
-"group_number" = "6–8 digit group number";
-"group_open" = "Όποιος γνωρίζει τον αριθμό μπορεί να συμμετάσχει";
+"group_note" = "Σημείωση (προαιρετική)";
+"group_number" = "Αριθμός ομάδας με 6–8 ψηφία";
+"group_open" = "Άμεση συμμετοχή";
 "group_overall_score" = "Συνολικό σκορ σετ";
 "group_overview" = "Επισκόπηση";
 "group_owner" = "Ιδιοκτήτης";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "Αφαίρεση μέλους";
 "group_restore" = "Επαναφορά ομάδας";
 "group_restore_hint" = "Επαναφέρετε αυτή την ομάδα για να επιτρέψετε δραστηριότητες και καταγραφή σκορ.";
-"group_results" = "Αγώνες";
+"group_results" = "Ιστορικό";
 "group_retry" = "Δοκιμάστε ξανά";
 "group_rules_missing" = "Οι κανόνες δεν καταγράφηκαν";
-"group_save" = "Επιβεβαίωση";
+"group_save" = "Αποθήκευση";
 "group_save_failed" = "Δεν ήταν δυνατή η αποθήκευση του αγώνα. Δοκιμάστε ξανά.";
 "group_scan" = "Σάρωση κωδικού QR";
 "group_scoreboard" = "Πίνακας σκορ";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "Είστε ήδη μέλος.";
 "group_open_group" = "Άνοιγμα ομάδας";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
-"group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
-"group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_groups" = "Ομάδα";
+"group_invite_students" = "Πρόσκληση μαθητών";
+"group_group_type" = "Τύπος ομάδας";
+"group_peer" = "Ομάδα φίλων";
+"group_coaching" = "Ομάδα προπόνησης";
+"group_training" = "Προπόνηση";
+"group_upcoming" = "Προσεχώς";
+"group_latest_results" = "Πρόσφατα αποτελέσματα";
+"group_no_results" = "Δεν έχουν καταγραφεί αγώνες";
+"group_no_training" = "Δεν έχει προγραμματιστεί προπόνηση";
+"group_active_activities" = "Σε εξέλιξη · Ανοιχτές εγγραφές";
+"group_past_activities" = "Προηγούμενες δραστηριότητες";
+"group_all_formats" = "Όλες οι μορφές";
+"group_join_requests" = "Αιτήσεις συμμετοχής";
+"group_regular_members" = "Εγγεγραμμένα μέλη";
+"group_temporary_members" = "Προσωρινά μέλη";
+"group_add" = "Προσθήκη";
+"group_leader" = "Ιδιοκτήτης";
+"group_member_settings" = "Ρυθμίσεις μέλους";
+"group_settings" = "Διαχείριση ομάδας";
+"group_partial_load" = "Δεν ήταν δυνατή η ανανέωση ορισμένων ενοτήτων. Σύρετε προς τα κάτω για νέα προσπάθεια.";
+"group_leave_notices" = "Ειδοποιήσεις απουσίας μαθητών";
+"group_mark_seen" = "Αναγνωσμένο";
+"group_training_schedule" = "Πρόγραμμα προπόνησης";
+"group_add_session" = "Προσθήκη αγώνα";
+"group_edit_schedule" = "Επεξεργασία προγράμματος";
+"group_cancel_schedule" = "Ακύρωση προγράμματος";
+"group_leave_training" = "Δήλωση απουσίας";
+"group_session_minutes" = "Λεπτά ανά αγώνα";
+"group_court" = "Γήπεδο";
+"group_remove_session" = "Αφαίρεση";
+"group_publish_schedule" = "Δημοσίευση προγράμματος";
+"group_leave_reason" = "Αιτία απουσίας (προαιρετική)";
+"group_report" = "Αναφορά ομάδας";
+"group_report_reason" = "Αιτία";
+"group_report_detail" = "Λεπτομέρειες (προαιρετικές)";
+"group_report_submit" = "Αποστολή";
+"group_report_spam" = "Ανεπιθύμητα";
+"group_report_harassment" = "Παρενόχληση";
+"group_report_inappropriate" = "Σεξουαλικό ή ακατάλληλο περιεχόμενο";
+"group_report_fraud" = "Απάτη ή τυχερά παιχνίδια";
+"group_report_illegal" = "Παράνομη ή επικίνδυνη δραστηριότητα";
+"group_report_impersonation" = "Πλαστοπροσωπία";
+"group_report_other" = "Άλλο";
+"group_lineup_invalid" = "Ελέγξτε τις ώρες, τα γήπεδα και τους παίκτες.";
+"group_lineup_member_limit" = "Ένα μέλος μπορεί να παίξει έως οκτώ αγώνες ανά πρόγραμμα.";
+"group_lineup_conflict" = "Οι ταυτόχρονοι αγώνες πρέπει να έχουν διαφορετικά γήπεδα και παίκτες.";
+"group_multi_match_hint" = "Μια δραστηριότητα μπορεί να περιλαμβάνει πολλούς αγώνες. Τα μέλη δηλώνουν συμμετοχή στη δραστηριότητα· κατά τον προγραμματισμό επιλέξτε 2 εγγεγραμμένα μέλη για κάθε μονό ή 4 για κάθε διπλό.";
+"group_single_match_hint" = "Κάθε δραστηριότητα αντιστοιχεί σε έναν αγώνα. Επιλέξτε 2 εγγεγραμμένα μέλη για μονό ή 4 για διπλό.";
+"group_rate_limited" = "Πάρα πολλά αιτήματα. Δοκιμάστε αργότερα.";
+"group_create_daily_limit" = "Φτάσατε το όριο δημιουργίας ομάδων σε 24 ώρες. Δοκιμάστε αργότερα.";
+"group_join_daily_limit" = "Φτάσατε το όριο συμμετοχής σε ομάδες σε 24 ώρες. Δοκιμάστε αργότερα.";
+"group_pending_request_limit" = "Εκκρεμούν πάρα πολλές αιτήσεις. Περιμένετε απόφαση ή αποσύρετε ορισμένες.";
+"group_request_daily_limit" = "Η ομάδα έφτασε το όριο αιτήσεων συμμετοχής σε 24 ώρες. Δοκιμάστε αργότερα.";
+"group_join_cooldown" = "Μετά από απόρριψη πρέπει να περιμένετε 24 ώρες για νέα αίτηση.";
+"group_result_group_daily_limit" = "Η ομάδα έφτασε το όριο αποτελεσμάτων σε 24 ώρες. Δοκιμάστε αργότερα.";
+"group_result_submitter_daily_limit" = "Φτάσατε το όριο αποστολής αποτελεσμάτων σε 24 ώρες. Δοκιμάστε αργότερα.";
+"group_not_coach" = "Μόνο ο προπονητής μπορεί να προγραμματίσει συναντήσεις.";
+"group_activity_count" = "%1$d/%2$d εγγεγραμμένοι";
+"group_activity_create_admin_hint" = "Οι δραστηριότητες δημιουργούνται από τον ιδιοκτήτη της ομάδας ή διαχειριστή";
+"group_activity_direct_hint" = "Επιλέξτε απευθείας από όλα τα ενεργά μέλη της ομάδας, χωρίς εγγραφή.";
+"group_activity_direct_save" = "Αποθήκευση προγράμματος";
+"group_activity_direct_title" = "Προγραμματισμός τώρα";
+"group_activity_field_title_optional" = "Όνομα δραστηριότητας (προαιρετικό)";
+"group_activity_full" = "Πλήρες";
+"group_activity_lineup_add" = "Προσθήκη αγώνα";
+"group_activity_lineup_add_need_members" = "Δεν υπάρχουν αρκετοί παίκτες. Χρειάζονται τουλάχιστον %1$d ενεργά μέλη για την προσθήκη αγώνα.";
+"group_activity_lineup_court" = "Αριθμός γηπέδου";
+"group_activity_lineup_duration" = "Διάρκεια αγώνα";
+"group_activity_lineup_match_count" = "%1$d αγώνες";
+"group_activity_lineup_minutes" = "%1$d λεπτά";
+"group_activity_lineup_remove" = "Αφαίρεση";
+"group_activity_lineup_section_matches" = "Προγραμματισμός αγώνων";
+"group_activity_lineup_session" = "Αγώνας %1$d";
+"group_activity_registration_empty" = "Δεν υπάρχουν προσωρινά μέλη";
+"group_activity_section_count" = "%1$d δραστηριότητες";
+"group_activity_section_past" = "Προηγούμενες δραστηριότητες";
+"group_activity_section_upcoming" = "Σε εξέλιξη · Ανοιχτές εγγραφές";
+"group_activity_status_scheduled" = "Έτοιμο για έναρξη";
+"group_activity_time_after_previous" = "Μετά τον προηγούμενο αγώνα";
+"group_activity_time_unspecified" = "Ώρα προς ορισμό";
+"group_activity_timing" = "Χρονισμός";
+"group_activity_timing_estimated" = "Εκτιμώμενη ώρα";
+"group_activity_timing_sequence" = "Χωρίς ακριβή ώρα";
+"group_activity_title_auto_hint" = "Αν μείνει κενό, θα δημιουργηθεί όνομα από την ημερομηνία, όπως «Δραστηριότητα 10 Νοεμβρίου».";
+"group_archived_empty" = "Δεν υπάρχουν αρχειοθετημένες ομάδες";
+"group_archived_list_title" = "Αρχειοθετημένες ομάδες";
+"group_empty_activities_title" = "Δεν υπάρχουν ακόμα δραστηριότητες";
+"group_list_add_title" = "Δημιουργία ή συμμετοχή σε ομάδα";
+"group_ranking_draws" = "ισοπαλίες";
+"group_ranking_games" = "Αγώνες";
+"group_ranking_losses" = "ήττες";
+"group_ranking_sets" = "Σκορ";
+"group_ranking_title" = "Κατάταξη %@";
+"group_ranking_wins" = "νίκες";
+"group_training_results_locked" = "Τα προγράμματα με αποτελέσματα διατηρούν ώρες και παίκτες. Η τοποθεσία και η σημείωση αλλάζουν.";
+"group_temporary_hint" = "Τα προσωρινά μέλη δεν χρειάζονται λογαριασμό και προστίθενται κατά την καταχώριση αποτελεσμάτων.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "Αποδέσμευση αγώνα";
-"group_activity_lineup" = "Πρόγραμμα αγώνων";
-"group_activity_mode" = "Αγώνες";
+"group_abandon_game" = "Εγκατάλειψη αγώνα";
+"group_activity_lineup" = "Προγραμματισμός αγώνων";
+"group_activity_mode" = "Ιστορικό";
 "group_activity_reminder" = "Υπενθύμιση 15 λεπτά πριν";
 "group_add_set" = "Προσθήκη σκορ γκέιμ";
 "group_added_members" = "Προστέθηκε";
-"group_authority_confirm" = "Επιβεβαίωση ως ιδιοκτήτης ομάδας";
-"group_batch_names_hint" = "Ένα όνομα ανά γραμμή, 1–24 χαρακτήρες το καθένα.";
-"group_beta_notice" = "Οι ομάδες είναι σε δοκιμαστική έκδοση. Τα σχόλιά σας είναι ευπρόσδεκτα.";
+"group_authority_confirm" = "Επιβεβαίωση αποτελέσματος";
+"group_batch_names_hint" = "Ένα όνομα ανά γραμμή";
+"group_beta_notice" = "Οι ομάδες είναι σε δοκιμαστική έκδοση. Κάποιες λειτουργίες μπορεί να αλλάξουν. Ευχαριστούμε που τις δοκιμάζετε από νωρίς.";
 "group_cancel_dissolve" = "Ακύρωση διάλυσης";
 "group_cancel_dissolve_hint" = "Επαναφέρετε αυτή την ομάδα για να επιτρέψετε δραστηριότητες και καταγραφή σκορ.";
 "group_cancel_training_hint" = "Οι ολοκληρωμένοι αγώνες μένουν στο ιστορικό. Οι αγώνες που άρχισαν μπορούν να ολοκληρωθούν.";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "Προεπιλογή σπορ";
 "group_discard_upload" = "Απόρριψη μεταφόρτωσης";
 "group_dissolve" = "Διάλυση ομάδας";
-"group_dissolve_hint" = "Μόνο ανάγνωση για 7 ημέρες. Μπορείτε να ακυρώσετε τη διάλυση σε αυτό το διάστημα.";
+"group_dissolve_hint" = "Η ομάδα θα είναι μόνο για ανάγνωση για 7 ημέρες και η διάλυση μπορεί να ακυρωθεί σε αυτό το διάστημα. Μετά τις 7 ημέρες, η ομάδα και όλα τα δεδομένα της διαγράφονται οριστικά.";
 "group_dissolving" = "Διάλυση σε εξέλιξη";
 "group_edit_activity" = "Επεξεργασία";
 "group_edit_lineup" = "Προγραμματισμός αγώνων";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "Δεν υπάρχουν ειδοποιήσεις";
 "group_no_sessions" = "Δεν έχουν προγραμματιστεί αγώνες";
 "group_notices" = "Ειδοποιήσεις";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "Δεν ήταν δυνατή η ανανέωση ορισμένων ενοτήτων. Σύρετε προς τα κάτω για νέα προσπάθεια.";
 "group_point_cap" = "Ανώτατο όριο πόντων";
 "group_preview_schedule" = "Έλεγχος προγράμματος";
 "group_published" = "Δημοσιεύτηκε";
 "group_qr_direct_hint" = "Σαρώστε στο iScoreboard για προεπισκόπηση και συμμετοχή στην ομάδα.";
 "group_quick_score" = "Συνολικό σκορ σετ";
 "group_rally_scoring" = "Πόντος σε κάθε φάση";
-"group_read_notices" = "Read";
+"group_read_notices" = "Αναγνωσμένο";
 "group_registration_closes" = "Λήξη εγγραφών";
 "group_regular" = "Τυπικό";
-"group_reload_version" = "Φόρτωση τελευταίας έκδοσης";
+"group_reload_version" = "Επαναφόρτωση";
 "group_reminder_body" = "Η δραστηριότητα αρχίζει σε 15 λεπτά.";
 "group_reminder_permission" = "Ενεργοποιήστε τις ειδοποιήσεις της εφαρμογής στις Ρυθμίσεις.";
 "group_reminder_too_late" = "Απομένουν λιγότερα από 15 λεπτά.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "Βαθμολογία σετ";
 "group_tie_break" = "Πόντοι τάι μπρέικ";
 "group_tiebreak_only" = "Μόνο τάι μπρέικ";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "Ημερομηνία";
+"group_too_many_sessions" = "Ελέγξτε τις ώρες, τα γήπεδα και τους παίκτες.";
+"group_training_date" = "Ημερομηνία προπόνησης";
 "group_win_by_two" = "Νίκη με διαφορά δύο πόντων";
 
-"group_keep_draft" = "Διατήρηση των αλλαγών μου";
+"group_keep_draft" = "Συνέχεια επεξεργασίας της τοπικής έκδοσης";
 
 "group_server_version" = "Τελευταία έκδοση";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "Η ομάδα θα διαλυθεί στις %@\nΠερίοδος αναμονής 7 ημερών· έως τότε μόνο ανάγνωση";
 "group_notice_end" = "Δεν υπάρχουν άλλες ειδοποιήσεις";
 "group_notice_join_requested" = "Λήφθηκε αίτημα συμμετοχής";
 "group_notice_join_approved" = "Το αίτημα συμμετοχής εγκρίθηκε";
@@ -1902,8 +1903,8 @@
 "group_notice_receipt_failed" = "Η απόδειξη ανάγνωσης της ειδοποίησης ήταν ελλιπής. Δοκιμάστε ξανά.";
 "group_notice_seen" = "Επισήμανση ως αναγνωσμένης";
 "group_ranking_empty" = "Δεν υπάρχει ακόμη κατάταξη %@";
-"group_filter_singles" = "Μονοί";
-"group_filter_doubles" = "Διπλοί";
+"group_filter_singles" = "Μονά";
+"group_filter_doubles" = "Διπλά";
 "group_ranking_me_suffix" = " (εγώ)";
 "group_ranking_insufficient_matches" = "Υπερβολικά λίγοι αγώνες";
 "group_entry_a_wins" = "Κερδίζει ο A";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "Χειροκίνητη εισαγωγή";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "Σήμανση όλων ως αναγνωσμένα";
+
+"group_status_active" = "Ενεργή";
+"group_dissolved" = "Διαλύθηκε";
+"group_report_status_pending" = "Σε εκκρεμότητα";
+"group_report_status_reviewing" = "Υπό εξέταση";
+"group_report_status_resolved" = "Επιλύθηκε";
+"group_report_status_dismissed" = "Απορρίφθηκε";
+"group_error_permission" = "Δεν έχετε άδεια για αυτή την ενέργεια.";
+"group_error_transfer_first" = "Μεταβιβάστε την ιδιοκτησία της ομάδας πριν αποχωρήσετε ή διαγράψετε τον λογαριασμό σας.";
+"group_error_target" = "Επιλέξτε ένα ενεργό μέλος αυτής της ομάδας με λογαριασμό.";
+"group_error_activity_locked" = "Η δραστηριότητα έχει αρχίσει ή ολοκληρωθεί. Το πρόγραμμά της δεν αλλάζει ούτε ακυρώνεται.";
+"group_error_activity_pending" = "Ολοκληρώστε ή αφαιρέστε πρώτα τους υπόλοιπους αγώνες.";
+"group_error_registration_disabled" = "Οι απευθείας προγραμματισμένοι αγώνες δεν απαιτούν εγγραφή.";
+"group_error_content_blocked" = "Το κείμενο περιέχει ακατάλληλο περιεχόμενο. Τροποποιήστε το.";
+"group_error_request_invalid" = "Ελέγξτε τα στοιχεία και δοκιμάστε ξανά.";
+"group_error_reason_required" = "Δώστε μια αιτία πριν συνεχίσετε.";
+"group_error_result_state" = "Επιβεβαιώνονται μόνο αποτελέσματα που αναμένουν επιβεβαίωση.";
+"group_error_conflict" = "Τα δεδομένα άλλαξαν. Ανανεώστε και ελέγξτε τα πριν δοκιμάσετε ξανά.";
+"group_error_request_handled" = "Η αίτηση έχει ήδη διεκπεραιωθεί. Ανανεώστε τη λίστα.";
+"group_error_place_locked" = "Ο χώρος δεν αλλάζει αφού αρχίσει ή τελειώσει ένας αγώνας.";
+"group_error_schedule_cancelled" = "Το πρόγραμμα ή ο αγώνας έχει ακυρωθεί.";
+"group_error_session_completed" = "Ο αγώνας έχει ολοκληρωθεί και δεν μπορείτε να δηλώσετε απουσία. Ανανεώστε το πρόγραμμα για να δείτε το αποτέλεσμα.";
+"group_error_session_has_result" = "Ο αγώνας έχει ήδη αποτέλεσμα. Ακυρώστε το πριν προσθέσετε άλλο.";
+"group_error_item_not_found" = "Αυτή η δραστηριότητα, πρόγραμμα, αγώνας ή ειδοποίηση δεν είναι πλέον διαθέσιμα. Ανανεώστε τη λίστα.";
+"group_error_server" = "Η υπηρεσία ομάδων δεν είναι προσωρινά διαθέσιμη. Δοκιμάστε ξανά αργότερα.";
+"group_error_peer_only" = "Για ομάδα προπόνησης χρησιμοποιήστε τον προγραμματισμό προπονήσεων.";
+"group_error_name_length" = "Το όνομα της ομάδας πρέπει να έχει 2–24 χαρακτήρες.";
+"group_error_description_length" = "Η περιγραφή της ομάδας δεν πρέπει να ξεπερνά τους 200 χαρακτήρες.";
+"group_error_activity_invalid" = "Ελέγξτε όνομα, ημερομηνία, τοποθεσία και χωρητικότητα δραστηριότητας.";
+"group_error_registration_closed" = "Οι εγγραφές έκλεισαν.";
+"group_error_action_disabled" = "Αυτή η ενέργεια δεν είναι διαθέσιμη τώρα.";
+"group_error_update_required" = "Ενημερώστε την εφαρμογή για να συνεχίσετε.";
+"group_welcome_back" = "Καλώς ήρθατε ξανά";
+"group_transfer_none" = "Δεν υπάρχουν άλλα τακτικά μέλη. Τα προσωρινά μέλη δεν μπορούν να γίνουν αρχηγοί της ομάδας.";
+"group_empty_activities_hint" = "Δημιουργήστε μια δραστηριότητα για τα μέλη. Οι εγγραφές κλείνουν όταν συμπληρωθούν οι θέσεις.";
+"group_temp_import_names" = "Εισαγωγή αποθηκευμένων ονομάτων";
+"group_temp_import_count" = "Εισαγωγή (%1$d)";
+"group_result_information" = "Πληροφορίες αγώνα";
+"group_result_actions" = "Ενέργειες αποτελέσματος";
+"group_peer_confirmation" = "Επιβεβαίωση αντιπάλου";
+"group_notice_target_unavailable" = "Αυτό το περιεχόμενο δεν είναι διαθέσιμο ή δεν έχετε πλέον πρόσβαση.";
+"group_push_enabled" = "Ειδοποιήσεις ομάδας";
+"group_push_group_enabled" = "Λήψη ειδοποιήσεων αυτής της ομάδας";
+"group_push_inbox_kept" = "Η απενεργοποίηση διατηρεί τις ειδοποιήσεις στην εφαρμογή και τις υπάρχουσες υπενθυμίσεις δραστηριοτήτων.";
+"group_push_permission" = "Ενεργοποίηση ειδοποιήσεων συστήματος";
+"group_push_settings" = "Ρυθμίσεις ειδοποιήσεων";
+
+// Shared group form controls
+"group_inline_seat_hint" = "Επίλεξε θέση και μετά μέλος";
+"group_score_and_rules" = "Σκορ και κανόνες";
+"group_activity_registration_scope" = "Δήλωσε εδώ τα προσωρινά μέλη. Τα μέλη με λογαριασμό δηλώνουν μόνα τους συμμετοχή.";
+"group_activity_registration_no_changes" = "Δεν υπάρχουν μη αποθηκευμένες αλλαγές";
+"group_activity_registration_changes" = "Προσθήκη %1$d · Ακύρωση %2$d";
+"group_activity_registration_save" = "Αποθήκευση συμμετοχών (%1$d)";
+"group_activity_registration_manage" = "Δήλωση προσωρινών μελών";
+"group_activity_registration_pending_add" = "Προς εγγραφή";
+"group_activity_registration_pending_remove" = "Προς ακύρωση";
+"group_activity_registration_registered" = "Εγγεγραμμένος";
+"group_activity_registration_not_registered" = "Μη εγγεγραμμένος";
+"group_activity_detail" = "Λεπτομέρειες δραστηριότητας";
+"group_activity_my_registration" = "Η συμμετοχή μου";
+"group_match_score" = "Σκορ αγώνα";
+
+"group_lookup_available" = "Ανοιχτή";
+
+/* Group beta notice card. */
+"group_beta_badge" = "Δοκιμαστικό";
+"group_beta_supported_label" = "Διαθέσιμα τώρα";
+"group_beta_feedback_prompt" = "Πρόβλημα ή πρόταση;";
+"group_beta_feedback_action" = "Αποστολή σχολίων";
+
+"group_member_results_title" = "Αποτελέσματα μέλους";
+
+"group_removed_members_expand" = "Ανάπτυξη";
+"group_removed_members_collapse" = "Σύμπτυξη";
+"group_best_of_format" = "Στα %2$@ νικηφόρα από %1$@";
+"group_member_count_single" = "%d μέλος";
+"group_member_count_short" = "%d μέλη";
+"group_lookup_closed_short" = "Κλειστή";
+"group_lookup_closing_short" = "Υπό διάλυση";
+"group_lookup_member_short" = "Έχετε εγγραφεί";
+"group_lookup_unavailable_short" = "Μη διαθέσιμη";
+"group_join_scan_hint" = "Σαρώστε τον κωδικό QR μιας ομάδας";
+"group_join_number_hint" = "6–8 ψηφία. Ζητήστε τον από τον ιδιοκτήτη της ομάδας.";
+"group_request_join" = "Αίτημα συμμετοχής";
+"group_overdue_tasks" = "Εκπρόθεσμες εργασίες";
+"group_apply_shift" = "Εφαρμογή αλλαγών";
+"group_transfer_submit" = "Μεταβίβαση";
+"group_rename_member" = "Μετονομασία";
+"group_set_admin" = "Ορισμός διαχειριστή";
+"group_set_member" = "Αφαίρεση ρόλου διαχειριστή";
+"group_confirm_authority_message" = "Όλοι οι παίκτες είναι προσωρινά μέλη ή δεν υπάρχει παίκτης με λογαριασμό στην αντίπαλη πλευρά που να μπορεί να επιβεβαιώσει. Ο ιδιοκτήτης πρέπει να ελέγξει παίκτες και σκορ. Η επιβεβαίωση προσμετρά το αποτέλεσμα στα αρχεία και καταγράφει τον ιδιοκτήτη ως επιβεβαιωτή.";
+"group_confirm_result_message" = "Μετά την επιβεβαίωση, το αποτέλεσμα προσμετράται στα αρχεία και των δύο πλευρών και δεν αλλάζει. Για διόρθωση, ακυρώστε πρώτα το αποτέλεσμα.";
+"group_confirm_member_message" = "Επιβεβαιώστε παίκτες και σκορ για καταχώριση στα αρχεία. Αν χρειάζεται διόρθωση, ζητήστε από διαχειριστή να ακυρώσει το αρχικό αποτέλεσμα.";
+"group_cancel_activity_message" = "Η ακύρωση διαγράφει οριστικά τη λίστα συμμετοχών. Οι δραστηριότητες σε εξέλιξη δεν ακυρώνονται.";
+"group_abandon_game_message" = "Εγκαταλείψτε αυτόν τον αγώνα για να ξεκινήσετε άλλον. Τα αποθηκευμένα προσωπικά αρχεία διατηρούνται.";
+"group_void_pending_message" = "Το αποτέλεσμα δεν θα αναμένει επιβεβαίωση ούτε θα προσμετράται στα στατιστικά. Το αρχικό σκορ και η αιτία παραμένουν ορατά στα μέλη. Θα ειδοποιηθούν οι παίκτες και ο υποβάλλων.";
+"group_void_confirmed_message" = "Το αποτέλεσμα δεν θα προσμετράται στα στατιστικά. Τα στατιστικά και οι κατατάξεις και των δύο πλευρών θα επανυπολογιστούν. Το αρχικό σκορ και η αιτία παραμένουν ορατά στα μέλη. Θα ειδοποιηθούν οι παίκτες και ο υποβάλλων.";
+"group_remove_member_message" = "Αφαίρεση του %@; Θα χρειαστεί νέο αίτημα συμμετοχής.";
+"group_reload_version_message" = "Να απορριφθούν οι μη αποθηκευμένες αλλαγές στο πρόγραμμα αγώνων και να φορτωθεί το πιο πρόσφατο αποθηκευμένο πρόγραμμα;";
+"group_transfer_confirmation" = "Μεταβίβαση ιδιοκτησίας στον %@; Θα γίνετε απλό μέλος.";
+"group_approve_confirmation" = "Ο %@ θα γίνει μέλος και θα βλέπει δραστηριότητες και αποτελέσματα.";
+"group_reject_confirmation" = "Μετά την απόρριψη, ο %@ πρέπει να υποβάλει νέο αίτημα.";
+"group_lookup_full_short" = "Πλήρες";
+"group_lookup_archived_short" = "Αρχειοθετήθηκε";
+"group_lookup_pending_short" = "Σε εκκρεμότητα";
+"group_temporary_member_count" = "%d μέλη";
+"group_best_of_tennis_format" = "Στα %2$@ νικηφόρα από %1$@";
+"group_rename_member_title" = "Μετονομασία";
+
+"group_copy_transfer_title" = "Μεταβίβαση ιδιοκτησίας";
+
+"group_copy_transfer_submit" = "Μεταβίβαση";
+
+"group_copy_transfer_message" = "Μεταβίβαση ιδιοκτησίας στον %@; Θα γίνετε απλό μέλος.";
+
+"group_copy_transfer_hint" = "Μετά τη μεταβίβαση γίνεστε απλό μέλος.";
+
+"group_copy_rename_title" = "Μετονομασία";
+
+"group_copy_rename_action" = "Μετονομασία";
+
+"group_copy_result_confirm" = "Επιβεβαίωση αποτελέσματος";
+
+"group_copy_result_confirm_authority_message" = "Όλοι οι παίκτες είναι προσωρινά μέλη ή δεν υπάρχει παίκτης με λογαριασμό στην αντίπαλη πλευρά που να μπορεί να επιβεβαιώσει. Ο ιδιοκτήτης πρέπει να ελέγξει παίκτες και σκορ. Η επιβεβαίωση προσμετρά το αποτέλεσμα στα αρχεία και καταγράφει τον ιδιοκτήτη ως επιβεβαιωτή.";
+
+"group_copy_result_confirm_manager_message" = "Μετά την επιβεβαίωση, το αποτέλεσμα προσμετράται στα αρχεία και των δύο πλευρών και δεν αλλάζει. Για διόρθωση, ακυρώστε πρώτα το αποτέλεσμα.";
+
+"group_copy_result_confirm_member_message" = "Επιβεβαιώστε παίκτες και σκορ για καταχώριση στα αρχεία. Αν χρειάζεται διόρθωση, ζητήστε από διαχειριστή να ακυρώσει το αρχικό αποτέλεσμα.";
+
+"group_copy_void_action" = "Ακύρωση αποτελέσματος";
+
+"group_copy_void_pending_message" = "Το αποτέλεσμα δεν θα αναμένει επιβεβαίωση ούτε θα προσμετράται στα στατιστικά. Το αρχικό σκορ και η αιτία παραμένουν ορατά στα μέλη. Θα ειδοποιηθούν οι παίκτες και ο υποβάλλων.";
+
+"group_copy_void_confirmed_message" = "Το αποτέλεσμα δεν θα προσμετράται στα στατιστικά. Τα στατιστικά και οι κατατάξεις και των δύο πλευρών θα επανυπολογιστούν. Το αρχικό σκορ και η αιτία παραμένουν ορατά στα μέλη. Θα ειδοποιηθούν οι παίκτες και ο υποβάλλων.";
+
+"group_copy_cancel_activity" = "Ακύρωση δραστηριότητας";
+
+"group_copy_cancel_activity_message" = "Η ακύρωση διαγράφει οριστικά τη λίστα συμμετοχών. Οι δραστηριότητες σε εξέλιξη δεν ακυρώνονται.";
+
+"group_copy_abandon_action" = "Εγκατάλειψη αγώνα";
+
+"group_copy_abandon_message" = "Εγκαταλείψτε αυτόν τον αγώνα για να ξεκινήσετε άλλον. Τα αποθηκευμένα προσωπικά αρχεία διατηρούνται.";
+
+"group_copy_leave_action" = "Αποχώρηση από την ομάδα";
+
+"group_copy_leave_message" = "Αν αποχωρήσετε, δεν θα είστε πλέον μέλος και η ομάδα θα αφαιρεθεί από το «Οι ομάδες μου». Δεν θα μπορείτε να έχετε πρόσβαση ή να συμμετέχετε σε αυτή. Τα υπάρχοντα αρχεία αγώνων της ομάδας και τα προσωπικά σας αρχεία σε αυτή τη συσκευή θα διατηρηθούν. Για να αποκτήσετε ξανά πρόσβαση, πρέπει να συμμετάσχετε ξανά στην ομάδα.";
+
+"group_copy_archive_action" = "Αρχειοθέτηση ομάδας";
+
+"group_copy_archive_message" = "Αρχειοθέτηση αυτής της ομάδας; Το περιεχόμενό της θα είναι μόνο για ανάγνωση.";
+
+"group_copy_dissolve_action" = "Διάλυση ομάδας";
+
+"group_copy_dissolve_message" = "Η ομάδα θα είναι μόνο για ανάγνωση για 7 ημέρες και η διάλυση μπορεί να ακυρωθεί σε αυτό το διάστημα. Μετά τις 7 ημέρες, η ομάδα και όλα τα δεδομένα της διαγράφονται οριστικά.";
+
+"group_copy_approve_action" = "Έγκριση";
+
+"group_copy_approve_message" = "Ο %@ θα γίνει μέλος και θα βλέπει δραστηριότητες και αποτελέσματα.";
+
+"group_copy_reject_action" = "Απόρριψη";
+
+"group_copy_reject_message" = "Μετά την απόρριψη, ο %@ πρέπει να υποβάλει νέο αίτημα.";
+
+"group_copy_remove_action" = "Αφαίρεση μέλους";
+
+"group_copy_remove_message" = "Αφαίρεση του %@; Θα χρειαστεί νέο αίτημα συμμετοχής.";
+
+"group_copy_report_detail" = "Λεπτομέρειες (προαιρετικές)";
+
+"group_copy_edit_profile" = "Επεξεργασία προφίλ ομάδας";
+
+"group_copy_entry_a_wins" = "Κερδίζει ο A";
+
+"group_copy_entry_b_wins" = "Κερδίζει ο B";
+
+"group_copy_activity_timing_sequence" = "Χωρίς ακριβή ώρα";
+
+"group_copy_activity_registration_manage" = "Δήλωση προσωρινών μελών";
+
+"group_copy_temporary_hint" = "Τα προσωρινά μέλη δεν χρειάζονται λογαριασμό και προστίθενται κατά την καταχώριση αποτελεσμάτων.";
+
+"group_copy_activity_registration_scope" = "Δήλωσε εδώ τα προσωρινά μέλη. Τα μέλη με λογαριασμό δηλώνουν μόνα τους συμμετοχή.";
+
+"group_copy_report" = "Αναφορά ομάδας";
+
+"group_copy_notice_member_removed" = "Αφαιρέθηκατε από την ομάδα";
+
+"group_copy_notice_role_changed" = "Ο ρόλος σας άλλαξε";
+
+"group_copy_activity_direct_save" = "Αποθήκευση προγράμματος";
+
+"group_copy_notice_join_approved" = "Το αίτημα συμμετοχής εγκρίθηκε";
+
+"group_copy_notice_join_rejected" = "Το αίτημα συμμετοχής απορρίφθηκε";
+
+"group_copy_all_formats" = "Όλες οι μορφές";
+
+"group_copy_closed" = "Οι εγγραφές έκλεισαν";
+
+"group_copy_report_other" = "Άλλο";
+
+"group_copy_report_impersonation" = "Πλαστοπροσωπία";
+
+"group_copy_audit_ui_share_failed" = "Η κοινοποίηση απέτυχε. Δοκιμάστε ξανά.";
+
+"group_copy_audit_ui_share_number" = "Κοινοποίηση αριθμού ομάδας";
+
+"group_copy_create" = "Δημιουργία ομάδας";
+
+"group_copy_confirm_join" = "Συμμετοχή σε αυτή την ομάδα";
+
+"group_copy_join" = "Συμμετοχή σε ομάδα";
+
+"group_copy_join_policy" = "Επιλογές συμμετοχής";
+
+"group_copy_filter_singles" = "Μονά";
+
+"group_copy_upcoming" = "Προσεχώς";
+
+"group_copy_activity_section_past" = "Προηγούμενες δραστηριότητες";
+
+"group_copy_beta_feedback_action" = "Αποστολή σχολίων";
+
+"group_copy_doubles" = "Διπλά";
+
+"group_copy_create_activity" = "Δημιουργία δραστηριότητας";
+
+"group_copy_benefit_activity" = "Σχεδιασμός δραστηριοτήτων και εγγραφή";
+
+"group_copy_empty_activities_hint" = "Δημιουργήστε μια δραστηριότητα για τα μέλη. Οι εγγραφές κλείνουν όταν συμπληρωθούν οι θέσεις.";
+
+"group_copy_lookup_available" = "Ανοιχτή";
+
+"group_copy_activity_direct_hint" = "Επιλέξτε απευθείας από όλα τα ενεργά μέλη της ομάδας, χωρίς εγγραφή.";
+
+"group_copy_empty_intro" = "Συγκεντρώστε τους φίλους σας για να οργανώσετε αγώνες, να καταγράφετε το σκορ και να δημιουργήσετε κοινό ιστορικό.";
+
+"group_copy_place" = "Τοποθεσία";
+
+"group_copy_ranking_games" = "Αγώνες";
+
+"group_copy_ranking_insufficient_matches" = "Υπερβολικά λίγοι αγώνες";
+
+"group_copy_report_spam" = "Ανεπιθύμητα";
+
+"group_copy_report_status_reviewing" = "Υπό εξέταση";
+
+"group_copy_note" = "Σημείωση (προαιρετική)";
+
+"group_copy_peer_confirmation" = "Επιβεβαίωση αντιπάλου";
+
+"group_copy_activity_lineup_section_matches" = "Προγραμματισμός αγώνων";
+
+"group_copy_group" = "Ομάδα";
+
+"group_copy_group_qr" = "Κωδικός QR ομάδας";
+
+"group_copy_beta_notice" = "Οι ομάδες είναι σε δοκιμαστική έκδοση. Κάποιες λειτουργίες μπορεί να αλλάξουν. Ευχαριστούμε που τις δοκιμάζετε από νωρίς.";
+
+"group_copy_created" = "Η ομάδα δημιουργήθηκε";
+
+"group_copy_ranking_sets" = "Σκορ";
+
+"group_copy_removed_members_expand" = "Ανάπτυξη";
+
+"group_copy_voided" = "Το αποτέλεσμα ακυρώθηκε";
+
+"group_copy_cancelled" = "Ακυρώθηκε";
+
+"group_copy_report_status_resolved" = "Επιλύθηκε";
+
+"group_copy_completed" = "Ολοκληρώθηκε";
+
+"group_copy_archived" = "Αρχειοθετήθηκε";
+
+"group_copy_archived_list_title" = "Αρχειοθετημένες ομάδες";
+
+"group_copy_activity_registration_registered" = "Εγγεγραμμένος";
+
+"group_copy_activity_full" = "Πλήρες";
+
+"group_copy_confirmed" = "Επιβεβαιώθηκε";
+
+"group_copy_removed_members" = "Πρώην μέλη";
+
+"group_copy_mark_seen" = "Αναγνωσμένο";
+
+"group_copy_report_status_dismissed" = "Απορρίφθηκε";
+
+"group_copy_draws" = "ισοπαλίες";
+
+"group_copy_draw" = "Ισοπαλία";
+
+"group_copy_start_score" = "Έναρξη καταγραφής σκορ";
+
+"group_copy_pending_upload" = "Αναμονή αποστολής";
+
+"group_copy_activity_registration_pending_remove" = "Προς ακύρωση";
+
+"group_copy_report_status_pending" = "Σε εκκρεμότητα";
+
+"group_copy_lookup_pending_short" = "Σε εκκρεμότητα";
+
+"group_copy_pending_request_limit" = "Εκκρεμούν πάρα πολλές αιτήσεις. Περιμένετε απόφαση ή αποσύρετε ορισμένες.";
+
+"group_copy_activity_registration_pending_add" = "Προς εγγραφή";
+
+"group_copy_pending_confirmation" = "Αναμονή επιβεβαίωσης";
+
+"group_copy_lookup_closing_short" = "Υπό διάλυση";
+
+"group_copy_restore" = "Επαναφορά ομάδας";
+
+"group_copy_member" = "Μέλος";
+
+"group_copy_member_results_title" = "Αποτελέσματα μέλους";
+
+"group_copy_my_groups" = "Οι ομάδες μου";
+
+"group_copy_activity_my_registration" = "Η συμμετοχή μου";
+
+"group_copy_activity_mode" = "Ιστορικό";
+
+"group_copy_qr_join_short" = "Σαρώστε για συμμετοχή";
+
+"group_copy_qr_apply_short" = "Σαρώτε για αίτημα συμμετοχής";
+
+"group_copy_register" = "Εγγραφή";
+
+"group_copy_recruiting" = "Ανοιχτές εγγραφές";
+
+"group_copy_registration_closes" = "Λήξη εγγραφών";
+
+"group_copy_activity_time_after_previous" = "Μετά τον προηγούμενο αγώνα";
+
+"group_copy_report_submit" = "Αποστολή";
+
+"group_copy_submitted_by" = "Υποβλήθηκε από";
+
+"group_copy_cancel_dissolve" = "Ακύρωση διάλυσης";
+
+"group_copy_notice_join_requested" = "Λήφθηκε αίτημα συμμετοχής";
+
+"group_copy_removed_members_collapse" = "Σύμπτυξη";
+
+"group_copy_discard_upload" = "Απόρριψη μεταφόρτωσης";
+
+"group_copy_notice_activity_created" = "Δημιουργήθηκε δραστηριότητα";
+
+"group_copy_activity_time_unspecified" = "Ώρα προς ορισμό";
+
+"group_copy_activity_registration_empty" = "Δεν υπάρχουν προσωρινά μέλη";
+
+"group_copy_transfer_none" = "Δεν υπάρχουν άλλα τακτικά μέλη. Τα προσωρινά μέλη δεν μπορούν να γίνουν αρχηγοί της ομάδας.";
+
+"group_copy_archived_empty" = "Δεν υπάρχουν αρχειοθετημένες ομάδες";
+
+"group_copy_empty_activities_title" = "Δεν υπάρχουν ακόμα δραστηριότητες";
+
+"group_copy_latest_results" = "Πρόσφατα αποτελέσματα";
+
+"group_copy_disputed" = "Αμφισβητείται";
+
+"group_copy_activity_registration_not_registered" = "Μη εγγεγραμμένος";
+
+"group_copy_month_matches" = "Αγώνες αυτόν τον μήνα";
+
+"group_copy_open_group" = "Άνοιγμα ομάδας";
+
+"group_copy_benefit_history" = "Προβολή αγώνων και κατατάξεων";
+
+"group_copy_overview" = "Επισκόπηση";
+
+"group_copy_welcome_back" = "Καλώς ήρθατε ξανά";
+
+"group_copy_regular_members" = "Εγγεγραμμένα μέλη";
+
+"group_copy_rally_scoring" = "Πόντος σε κάθε φάση";
+
+"group_copy_result_information" = "Πληροφορίες αγώνα";
+
+"group_copy_match_score" = "Σκορ αγώνα";
+
+"group_copy_match_rules" = "Κανόνες αγώνα";
+
+"group_copy_activity_registration_no_changes" = "Δεν υπάρχουν μη αποθηκευμένες αλλαγές";
+
+"group_copy_activities" = "Δραστηριότητες";
+
+"group_copy_activity_title" = "Όνομα δραστηριότητας";
+
+"group_copy_activity_field_title_optional" = "Όνομα δραστηριότητας (προαιρετικό)";
+
+"group_copy_notice_activity_changed" = "Η δραστηριότητα ενημερώθηκε";
+
+"group_copy_notice_activity_cancelled" = "Η δραστηριότητα ακυρώθηκε";
+
+"group_copy_activity_lineup" = "Προγραμματισμός αγώνων";
+
+"group_copy_activity_create_admin_hint" = "Οι δραστηριότητες δημιουργούνται από τον ιδιοκτήτη της ομάδας ή διαχειριστή";
+
+"group_copy_beta_badge" = "Δοκιμαστικό";
+
+"group_copy_add_set" = "Προσθήκη σκορ γκέιμ";
+
+"group_copy_add_temporary" = "Προσθήκη προσωρινού μέλους";
+
+"group_copy_benefit_score" = "Καταγραφή σκορ ή προσθήκη παλαιών αποτελεσμάτων";
+
+"group_copy_request_join" = "Αίτημα συμμετοχής";
+
+"group_copy_join_message" = "Μήνυμα αίτησης συμμετοχής (προαιρετικό)";
+
+"group_copy_beta_supported_label" = "Διαθέσιμα τώρα";
+
+"group_copy_open" = "Άμεση συμμετοχή";
+
+"group_copy_activity_direct_title" = "Προγραμματισμός τώρα";
+
+"group_copy_admin" = "Διαχειριστής";
+
+"group_copy_confirmed_matches" = "Επιβεβαιωμένοι αγώνες";
+
+"group_copy_leader" = "Ιδιοκτήτης";
+
+"group_copy_notice_ownership_transferred" = "Ο ιδιοκτήτης της ομάδας άλλαξε";
+
+"group_copy_complete_activity" = "Τέλος δραστηριότητας";
+
+"group_copy_keep_draft" = "Συνέχεια επεξεργασίας της τοπικής έκδοσης";
+
+"group_copy_ranking_wins" = "νίκες";
+
+"group_copy_ranking_rate" = "Ποσοστό νικών";
+
+"group_copy_report_inappropriate" = "Σεξουαλικό ή ακατάλληλο περιεχόμενο";
+
+"group_copy_update_report" = "Ενημέρωση αναφοράς";
+
+"group_copy_manual_result" = "Προσθήκη αποτελέσματος αγώνα";
+
+"group_copy_set_admin" = "Ορισμός διαχειριστή";
+
+"group_copy_activity_timing_estimated" = "Εκτιμώμενη ώρα";
+
+"group_copy_losses" = "ήττες";
+
+"group_copy_notice_result_voided" = "Το αποτέλεσμα ακυρώθηκε";
+
+"group_copy_notice_result_confirmed" = "Το αποτέλεσμα επιβεβαιώθηκε";
+
+"group_copy_notice_result_pending" = "Το αποτέλεσμα αναμένει επιβεβαίωση";
+
+"group_copy_result_actions" = "Ενέργειες αποτελέσματος";
+
+"group_copy_empty_title" = "Δεν υπάρχουν ακόμα ομάδες";
+
+"group_copy_in_progress" = "Σε εξέλιξη";
+
+"group_copy_report_illegal" = "Παράνομη ή επικίνδυνη δραστηριότητα";
+
+"group_copy_join_hint" = "Συμμετάσχετε στην ομάδα ενός φίλου με τον αριθμό ή τον κωδικό QR της.";
+
+"group_copy_overdue_tasks" = "Εκπρόθεσμες εργασίες";
+
+"group_copy_beta_feedback_prompt" = "Πρόβλημα ή πρόταση;";
+
+"group_copy_invite" = "Πρόσκληση συμπαικτών";
+
+"group_copy_retry" = "Δοκιμάστε ξανά";
+
+"group_copy_approval" = "Απαιτείται έγκριση";
+
+"group_copy_sport" = "Αθλητισμός";
+
+"group_copy_report_harassment" = "Παρενόχληση";
+
+"group_copy_ranking_me_suffix" = " (εγώ)";
+
+"group_copy_places_title" = "Επιλέξτε Θέση";
+
+"group_copy_report_fraud" = "Απάτη ή τυχερά παιχνίδια";
+
+"group_copy_void_reason" = "Λόγος ακύρωσης αποτελέσματος";
+
+"group_copy_reload_version" = "Επαναφόρτωση";
+
+"group_copy_lineup_reload_message" = "Να απορριφθούν οι μη αποθηκευμένες αλλαγές στο πρόγραμμα αγώνων και να φορτωθεί το πιο πρόσφατο αποθηκευμένο πρόγραμμα;";
+
+"group_copy_join_number_separator" = "Ή εισαγάγετε αριθμό ομάδας";
+
+"group_copy_activity_multi_match_hint" = "Μια δραστηριότητα μπορεί να περιλαμβάνει πολλούς αγώνες. Τα μέλη δηλώνουν συμμετοχή στη δραστηριότητα· κατά τον προγραμματισμό επιλέξτε 2 εγγεγραμμένα μέλη για κάθε μονό ή 4 για κάθε διπλό.";
+
+"group_copy_activity_single_match_hint" = "Κάθε δραστηριότητα αντιστοιχεί σε έναν αγώνα. Επιλέξτε 2 εγγεγραμμένα μέλη για μονό ή 4 για διπλό.";
+
+"group_copy_activity_detail" = "Λεπτομέρειες δραστηριότητας";
+
+"group_copy_registration_at_start" = "Στην έναρξη της δραστηριότητας";
+
+"group_copy_registration_use_start" = "Χρήση της ώρας έναρξης της δραστηριότητας";
+
+"group_copy_cancel_reason_optional" = "Λόγος ακύρωσης (προαιρετικό)";
+
+"group_copy_audit_result_frozen_info" = "Προβολή παικτών και κανόνων";
+"group_view_schedule" = "Προβολή αγώνων";
+"group_notice_training_published" = "Η προπόνηση δημοσιεύτηκε";
+"group_notice_training_changed" = "Η προπόνηση ενημερώθηκε";
+"group_notice_training_cancelled" = "Η προπόνηση ακυρώθηκε";
+"group_notice_leave_changed" = "Η απουσία ενημερώθηκε";
+"group_report_evidence_title" = "Αποδεικτικές εικόνες (προαιρετικά)";
+"group_report_evidence_hint" = "Έως 3 εικόνες JPG ή PNG, έως 2 MB η καθεμία. Είναι ορατές μόνο σε εσάς και στην πλατφόρμα.";
+"group_report_add_image" = "Προσθήκη εικόνας";
+"group_report_retry" = "Δοκιμάστε ξανά";
+"group_report_preview" = "Αποδεικτική εικόνα";
+"group_report_supplement" = "Προσθήκη πληροφοριών";
+"group_report_close" = "Κλείσιμο";
+"group_report_remove_image" = "Αφαίρεση εικόνας";
+"group_report_image_error" = "Δεν ήταν δυνατή η προετοιμασία της εικόνας. Δοκιμάστε άλλη εικόνα JPG ή PNG.";
+"group_report_refresh" = "Ανανέωση κατάστασης";

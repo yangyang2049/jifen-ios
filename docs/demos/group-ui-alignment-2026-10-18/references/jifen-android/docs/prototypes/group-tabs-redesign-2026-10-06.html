@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>全能计分器 · 小组详情四页签专项设计（2026-10-06）</title>
+<style>
+  /* ============ Design Tokens —— 对齐 ui/theme/Theme.kt 浅色 AppColors（沿袭 group-feature-redesign-2026-10-05） ============ */
+  :root {
+    --bg: #FFFFFF;
+    --card: #F6F7F9;
+    --elevated: #FFFFFF;
+    --control: #F2F4F7;
+    --chip: #E8EDF2;
+    --divider: #E5E7EB;
+    --text: #111827;
+    --text-2: #5B6472;
+    --text-3: #8A93A3;
+    --primary: #4CAF50;
+    --primary-dark: #2E7D32;
+    --primary-soft: rgba(76,175,80,.12);
+    --team-a: #C62828;
+    --team-b: #007AFF;
+    --warn: #E8862E;
+    --danger: #D43030;
+    --danger-soft: rgba(212,48,48,.08);
+    --canvas: #EEF1F4;
+    --panel: #FFFFFF;
+    --shadow: 0 24px 60px rgba(17,24,39,.14);
+    --r-card: 16px;
+    --r-btn: 12px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: var(--canvas); color: var(--text); }
+  body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Microsoft YaHei", sans-serif; letter-spacing: .01em; }
+  button, input { font: inherit; }
+  button { color: inherit; cursor: pointer; }
+
+  .workspace { min-height: 100vh; display: grid; grid-template-columns: 272px minmax(430px, 1fr) 300px; gap: 20px; padding: 20px; }
+
+  /* ============ 左栏（状态切换） ============ */
+  .rail { background: var(--panel); border: 1px solid var(--divider); border-radius: 18px; padding: 20px; min-height: calc(100vh - 40px); align-self: start; position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .brand-mark { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; background: var(--primary); color: #fff; font-weight: 800; font-size: 15px; }
+  .brand h1 { font-size: 15px; margin: 0 0 2px; }
+  .brand p { font-size: 11px; color: var(--text-3); margin: 0; }
+  .nav-group { margin: 12px 0 2px; }
+  .nav-label { font-size: 10px; letter-spacing: .12em; color: var(--text-3); margin: 0 0 6px; text-transform: uppercase; }
+  .nav-btn { width: 100%; border: 0; background: transparent; text-align: left; padding: 8px 10px; border-radius: 9px; color: var(--text-2); font-size: 12.5px; font-weight: 560; display: flex; gap: 8px; align-items: center; border-left: 2px solid transparent; }
+  .nav-btn:hover { background: var(--control); }
+  .nav-btn.active { color: var(--text); background: var(--primary-soft); border-left-color: var(--primary); }
+  .nav-btn .idx { color: var(--text-3); font-size: 10.5px; width: 20px; }
+  .nav-btn.active .idx { color: var(--primary); }
+  .nav-badge { margin-left: auto; font-size: 10px; background: var(--chip); color: var(--text-2); border-radius: 99px; padding: 1px 7px; }
+  .tip { background: var(--card); border-radius: 10px; padding: 10px 12px; font-size: 11px; line-height: 1.65; color: var(--text-2); margin-top: 14px; }
+  .tip strong { color: var(--text); }
+
+  /* ============ 手机框 ============ */
+  .stage { display: grid; place-items: start center; min-height: calc(100vh - 40px); }
+  .phone { width: 390px; height: 800px; position: relative; overflow: hidden; border-radius: 44px; background: var(--bg); border: 9px solid #1B1D1F; box-shadow: var(--shadow); }
+  .phone::before { content: ""; position: absolute; z-index: 30; top: 9px; left: 50%; transform: translateX(-50%); width: 104px; height: 24px; border-radius: 99px; background: #1B1D1F; }
+  .statusbar { height: 42px; padding: 13px 26px 0; display: flex; justify-content: space-between; align-items: flex-start; font-size: 11px; font-weight: 700; position: relative; z-index: 12; background: var(--bg); }
+  .app-screen { height: calc(100% - 42px); display: flex; flex-direction: column; background: var(--bg); position: relative; }
+  .appbar { min-height: 52px; display: grid; grid-template-columns: 52px 1fr 52px; align-items: center; padding: 0 6px; border-bottom: 1px solid var(--divider); background: var(--bg); z-index: 6; flex: none; }
+  .appbar h2 { margin: 0; font-size: 17px; font-weight: 650; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .appbar-btn { border: 0; background: transparent; min-width: 44px; height: 44px; display: grid; place-items: center; color: var(--text); border-radius: 10px; }
+  .scroll { flex: 1; overflow-y: auto; scrollbar-width: none; padding: 14px 16px 24px; }
+  .scroll::-webkit-scrollbar { display: none; }
+  .scroll.has-fab { padding-bottom: 92px; }
+
+  /* ============ 通用组件 ============ */
+  .card { background: var(--card); border-radius: var(--r-card); padding: 14px; }
+  .card.white { background: var(--bg); border: 1px solid var(--divider); }
+  .card + .card, .card + .section, .section + .card, .section + .section { margin-top: 12px; }
+  .section { margin-top: 18px; }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .grow { flex: 1; min-width: 0; }
+  .t1 { font-size: 14px; font-weight: 600; color: var(--text); }
+  .t2 { font-size: 12px; color: var(--text-2); }
+  .t3 { font-size: 11px; color: var(--text-3); }
+  .ellip { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* 区块标题：对齐 App 的 SectionTitleWithBar（绿条）+ 右侧 chevron icon，无「全部」文字 */
+  .appx-title { display: flex; align-items: center; gap: 8px; margin: 0 2px 10px; font-size: 15px; font-weight: 600; color: var(--text); }
+  .appx-title::before { content: ""; width: 3px; height: 14px; border-radius: 2px; background: var(--primary); flex: none; }
+  .appx-title .sub { font-size: 11px; color: var(--text-3); font-weight: 500; }
+  .chev-btn { margin-left: auto; border: 0; background: transparent; padding: 2px; display: grid; place-items: center; color: var(--text-3); border-radius: 8px; }
+  .chev-btn:hover { color: var(--text-2); }
+  .filter-chip { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--divider); background: var(--bg); color: var(--text-2); border-radius: 99px; padding: 3px 10px; font-size: 11.5px; font-weight: 600; }
+  .filter-chip:hover { color: var(--text); }
+  /* 行内紧凑操作 pill：通过/拒绝/已读 */
+  .pill-btn { flex: none; border: 1px solid var(--divider); border-radius: 99px; background: var(--bg); color: var(--text-2); padding: 7px 15px; font-size: 12.5px; font-weight: 600; }
+  .pill-btn.primary { border-color: transparent; background: var(--primary); color: #fff; font-weight: 650; }
+
+  .chip { display: inline-flex; align-items: center; gap: 4px; background: var(--chip); color: var(--text-2); border-radius: 99px; padding: 3px 9px; font-size: 11px; font-weight: 600; flex: none; }
+  .chip.green { background: var(--primary-soft); color: var(--primary-dark); }
+  .chip.orange { background: rgba(232,134,46,.14); color: var(--warn); }
+  .chip.red { background: var(--danger-soft); color: var(--danger); }
+  .chip.blue { background: rgba(0,122,255,.1); color: var(--team-b); }
+  .chip.grey { background: var(--chip); color: var(--text-3); }
+
+  .fchip { border: 1px solid var(--divider); background: var(--bg); color: var(--text-2); border-radius: 99px; padding: 6px 14px; font-size: 12.5px; font-weight: 600; }
+  .fchip.on { background: var(--primary-soft); border-color: var(--primary); color: var(--primary-dark); }
+
+  .btn { display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: var(--r-btn); padding: 12px 16px; font-size: 14px; font-weight: 650; width: 100%; }
+  .btn.primary { background: var(--primary); color: #fff; }
+  .btn.ghost { background: var(--control); color: var(--text); }
+  .btn.outline { background: transparent; border: 1px solid var(--divider); color: var(--text); }
+  .btn.sm { padding: 8px 12px; font-size: 12.5px; width: auto; }
+  .btn-row { display: flex; gap: 10px; }
+  .btn-row .btn { flex: 1; }
+
+  .list { background: var(--card); border-radius: var(--r-card); overflow: hidden; }
+  .list-row { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--divider); width: 100%; background: transparent; text-align: left; border-left: 0; border-right: 0; border-top: 0; }
+  .list-row:last-child { border-bottom: 0; }
+  .list-row.clickable:hover { background: rgba(0,0,0,.02); }
+  .list-row .chev { color: var(--text-3); flex: none; display: grid; place-items: center; }
+
+  .seg { flex: none; display: flex; gap: 2px; background: var(--control); border-radius: 12px; padding: 3px; margin: 10px 16px 2px; }
+  .seg button { flex: 1; border: 0; background: transparent; border-radius: 9px; padding: 7px 0; font-size: 13px; font-weight: 600; color: var(--text-2); }
+  .seg button.on { background: var(--primary); color: #fff; box-shadow: 0 1px 4px rgba(76,175,80,.35); }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat { background: var(--card); border-radius: 12px; padding: 12px 8px; text-align: center; }
+  .stat b { display: block; font-size: 19px; font-weight: 750; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 10.5px; color: var(--text-3); }
+
+  .banner { display: flex; gap: 10px; align-items: flex-start; background: var(--primary-soft); border-radius: 12px; padding: 10px 12px; font-size: 11.5px; color: var(--primary-dark); line-height: 1.55; }
+  .banner.warn { background: rgba(232,134,46,.12); color: var(--warn); }
+  .banner.grey { background: var(--control); color: var(--text-2); }
+
+  .fab { position: absolute; right: 16px; bottom: 20px; z-index: 8; border: 0; border-radius: 99px; background: var(--primary); color: #fff; padding: 13px 20px; font-size: 14px; font-weight: 700; box-shadow: 0 8px 20px rgba(76,175,80,.35); display: flex; align-items: center; gap: 6px; }
+
+  .avatar { width: 38px; height: 38px; border-radius: 50%; flex: none; background: var(--chip); color: var(--text-2); display: grid; place-items: center; font-size: 14px; font-weight: 700; }
+  .avatar.green { background: var(--primary-soft); color: var(--primary-dark); }
+
+  .toast { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 60; background: rgba(17,24,39,.92); color: #fff; font-size: 12.5px; font-weight: 600; border-radius: 99px; padding: 10px 18px; white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+
+  /* ============ 概览：合并大卡（信息 + 统计 + 操作） ============ */
+  .hero-card {
+    background: linear-gradient(160deg, var(--primary-soft), rgba(76,175,80,0) 60%) 0 0 / 100% 150px no-repeat, var(--card);
+    padding: 14px;
+  }
+  .group-head { display: flex; gap: 12px; align-items: center; }
+  .group-badge { width: 52px; height: 52px; border-radius: 14px; flex: none; display: grid; place-items: center; font-size: 24px; background: var(--primary-soft); }
+  /* 迷你码不带外框/白底：码本身就是区域，静区由 SVG margin 提供；不放说明文字 */
+  .mini-qr { flex: none; border: 0; background: transparent; padding: 0; display: grid; place-items: center; }
+  .mini-qr .cap { font-size: 8.5px; color: var(--text-3); line-height: 1; display: none; }
+  .qr-real { display: block; }
+  .qr-real svg { display: block; width: 100%; height: auto; }
+
+  .hero-sep { height: 1px; background: var(--divider); margin: 12px -14px; }
+  .statline { display: flex; }
+  .statline .st { flex: 1; text-align: center; }
+  .statline .st + .st { border-left: 1px solid var(--divider); }
+  .statline b { display: block; font-size: 19px; font-weight: 750; font-variant-numeric: tabular-nums; }
+  .statline span { font-size: 10.5px; color: var(--text-3); }
+
+  /* 操作行：邀请在前、单行紧凑、无小字 */
+  .tiles3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .tile3 { border: 0; border-radius: 12px; padding: 12px 0; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; font-weight: 650; }
+  .tile3.main { background: var(--primary); color: #fff; box-shadow: 0 6px 16px rgba(76,175,80,.28); }
+  .tile3.soft { background: var(--bg); color: var(--text); border: 1px solid var(--divider); }
+
+  /* 区块内空态：court 线条图标 + 引导 + CTA（对齐 App 空态规范） */
+  .empty-mini { display: flex; flex-direction: column; align-items: center; padding: 26px 20px 22px; text-align: center; }
+  .empty-mini svg { margin-bottom: 10px; }
+  .empty-mini h4 { margin: 0 0 4px; font-size: 13.5px; font-weight: 650; }
+  .empty-mini p { margin: 0 0 12px; font-size: 11px; color: var(--text-3); line-height: 1.6; }
+
+  .score-big { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .score-big .a { color: var(--team-a); }
+  .score-big .b { color: var(--team-b); }
+
+  .rank-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .rank-table th { font-size: 10.5px; color: var(--text-3); font-weight: 600; padding: 6px 4px; text-align: right; }
+  .rank-table th:first-child, .rank-table td:first-child { text-align: left; }
+  .rank-table td { padding: 8px 4px; border-top: 1px solid var(--divider); text-align: right; font-variant-numeric: tabular-nums; }
+  .rank-table td.name { font-weight: 600; }
+  .rank-no { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; background: var(--chip); font-size: 10.5px; font-weight: 700; color: var(--text-2); margin-right: 6px; }
+  .rank-no.top { background: var(--primary-soft); color: var(--primary-dark); }
+
+  .qr-box { display: grid; place-items: center; }
+  .qr-grid { display: grid; grid-template-columns: repeat(21, 1fr); gap: 1.5px; width: 200px; height: 200px; }
+  .qr-grid.mini { width: 44px; height: 44px; gap: 1px; }
+  .qr-grid i { background: #111; border-radius: .5px; }
+  .qr-grid i.o { background: transparent; }
+
+  .session-card { border: 1.5px solid var(--divider); border-radius: 14px; padding: 12px; background: var(--bg); }
+  .session-card.conflict { border-color: var(--danger); background: var(--danger-soft); }
+  .session-card + .session-card { margin-top: 10px; }
+
+  .stage-title { text-align: center; margin: 0 0 14px; }
+  .stage-title h2 { margin: 0 0 4px; font-size: 18px; }
+  .stage-title p { margin: 0; font-size: 12px; color: var(--text-3); }
+
+  /* 右栏 */
+  .note-rail { background: var(--panel); border: 1px solid var(--divider); border-radius: 18px; padding: 20px; min-height: calc(100vh - 40px); align-self: start; position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; }
+  .note-rail h3 { font-size: 13px; margin: 0 0 8px; }
+  .note-rail .note { font-size: 11.5px; line-height: 1.7; color: var(--text-2); margin: 0 0 14px; }
+  .fixlist { margin: 0; padding: 0; list-style: none; counter-reset: fix; }
+  .fixlist li { counter-increment: fix; position: relative; padding: 0 0 10px 26px; font-size: 11.5px; line-height: 1.65; color: var(--text-2); }
+  .fixlist li::before { content: counter(fix); position: absolute; left: 0; top: 1px; width: 17px; height: 17px; border-radius: 6px; background: var(--primary-soft); color: var(--primary-dark); font-size: 10px; font-weight: 700; display: grid; place-items: center; }
+  .fixlist b { color: var(--text); }
+  .screen-changes { background: var(--card); border-radius: 12px; padding: 12px 14px; margin-top: 4px; }
+  .screen-changes h4 { margin: 0 0 6px; font-size: 12px; }
+  .screen-changes ul { margin: 0; padding-left: 16px; }
+  .screen-changes li { font-size: 11px; line-height: 1.7; color: var(--text-2); }
+</style>
+</head>
+<body>
+<div class="workspace">
+  <!-- ================= 左栏：状态导航 ================= -->
+  <nav class="rail">
+    <div class="brand">
+      <div class="brand-mark">计</div>
+      <div><h1>小组详情 · 专项设计</h1><p>四页签 × 多状态 · 2026-10-06</p></div>
+    </div>
+    <div id="navList"></div>
+    <div class="tip"><strong>用法：</strong>左栏切换状态，右栏是设计说明。手机内按钮可点（toast 反馈），仅示意交互去向。</div>
+  </nav>
+
+  <!-- ================= 中栏：手机 ================= -->
+  <main class="stage">
+    <div>
+      <div class="stage-title"><h2 id="stageTitle"></h2><p id="stageSub"></p></div>
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span>▸▮▮ ⌁ ▉</span></div>
+        <div class="app-screen" id="screen"></div>
+        <div class="toast" id="toast" style="display:none"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= 右栏：设计说明 ================= -->
+  <aside class="note-rail">
+    <h3>本次全局修改点</h3>
+    <ol class="fixlist">
+      <li><b>概览收成一张大卡</b>：信息 + 统计（行内数字、竖线分隔）+ 操作行合并，细分隔线分区；右上角放<b>真二维码</b>（同 App GroupQrCodec 协议，扫出即加入），码旁不放说明文字、无外框白底；独立二维码按钮删除；加入方式（需审批/直接）属编辑资料细节，不上概览卡。</li>
+      <li><b>操作行精简</b>：单行三格、无小字，顺序 = <b>邀请 → 开始计分 → 补记比分</b>（新组先把人拉进来）。</li>
+      <li><b>区块标题统一</b>：绿条 + 标题（对齐 App 的 SectionTitleWithBar）；右侧只留箭头 icon，<b>「全部」二字全部去掉</b>；「即将到来的活动」精简为「即将开始」。</li>
+      <li><b>箭头全部用 icon</b>：统一 chevron SVG，不再用「›」等文本字符。</li>
+      <li><b>空状态升级</b>：court 线条图标（同首页/我的球局）+ 一句引导 + CTA，不再只给一行灰字。</li>
+      <li><b>成员角色标签瘦身</b>：普通成员不标；组主标<b>「组长」</b>（不叫组主/管理员）；<b>临时成员单独分组</b>并注明用途。</li>
+      <li><b>该分组的分组</b>：活动按「进行中/报名中」与「历史」分两段；战绩把「待确认」独立成段置顶。</li>
+      <li><b>顶栏</b>：标题显示小组名（超长省略）+ 竖向三点 ⋮ icon（已同步 App 实现）。</li>
+      <li><b>行动语义化</b>：段落右侧只放一种动作——导航 = ›，筛选 = ⇅，新增 = ＋；分段页签选中态绿色（对齐投屏与同步，已同步 App）。</li>
+    </ol>
+    <div class="screen-changes">
+      <h4 id="noteTitle"></h4>
+      <div id="noteBody" class="note" style="margin:0"></div>
+    </div>
+    <div class="tip" style="margin-top:14px"><strong>说明：</strong>本 demo 只定布局与信息层级；文案、间距最终以 App 内实现为准。深色模式与平板双列布局沿用现有适配。</div>
+  </aside>
+</div>
+
+<script src="lib/qrcode.min.js"></script>
+<script>
+/* qrcode-generator@1.4.4（MIT），本地引用保证离线可渲染真码 */
+const svgWrap = (inner, size = 18, stroke = true, fill = 'none') =>
+  `<svg width="${size}" height="${size}" viewBox="${stroke ? '0 0 24 24' : '0 0 32 32'}" fill="${fill}" ${stroke ? 'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"' : ''}>${inner}</svg>`;
+
+const IC = {
+  chev: (s = 18) => svgWrap('<path d="m9 6 6 6-6 6"/>', s),
+  more: () => svgWrap('<circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none"/>', 20),
+  play: (s = 16) => svgWrap('<path d="M7 5.5v13l11-6.5z" fill="currentColor" stroke="none"/>', s),
+  pencil: (s = 16) => svgWrap('<path d="M21.17 6.81a1 1 0 0 0-3.98-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5z"/><path d="m15 5 4 4"/>', s),
+  share: (s = 16) => svgWrap('<path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M12 3v13"/><path d="m7 8 5-5 5 5"/>', s),
+  plus: (s = 16) => svgWrap('<path d="M12 5v14M5 12h14"/>', s),
+  back: () => svgWrap('<path d="m15 6-6 6 6 6"/>', 22),
+  copy: (s = 12) => svgWrap('<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>', s),
+  updown: (s = 12) => svgWrap('<path d="m7 9 5-5 5 5"/><path d="m7 15 5 5 5-5"/>', s),
+  court: (s = 40) => svgWrap('<path d="M28,6H4C3.4696,6 2.9609,6.2107 2.5858,6.5858C2.2107,6.9609 2,7.4696 2,8V24C2,24.5304 2.2107,25.0391 2.5858,25.4142C2.9609,25.7893 3.4696,26 4,26H28C28.5304,26 29.0391,25.7893 29.4142,25.4142C29.7893,25.0391 30,24.5304 30,24V8C30,7.4696 29.7893,6.9609 29.4142,6.5858C29.0391,6.2107 28,6 28,6ZM28,20H27C25.9391,20 24.9217,19.5786 24.1716,18.8284C23.4214,18.0783 23,17.0609 23,16C23,14.9391 23.4214,13.9217 24.1716,13.1716C24.9217,12.4214 25.9391,12 27,12H28V20ZM4,12H5C6.0609,12 7.0783,12.4214 7.8284,13.1716C8.5786,13.9217 9,14.9391 9,16C9,17.0609 8.5786,18.0783 7.8284,18.8284C7.0783,19.5786 6.0609,20 5,20H4V12ZM4,22H5C6.5913,22 8.1174,21.3679 9.2426,20.2426C10.3679,19.1174 11,17.5913 11,16C11,14.4087 10.3679,12.8826 9.2426,11.7574C8.1174,10.6321 6.5913,10 5,10H4V8H15V24H4V22ZM28,24H17V8H28V10H27C25.4087,10 23.8826,10.6321 22.7574,11.7574C21.6321,12.8826 21,14.4087 21,16C21,17.5913 21.6321,19.1174 22.7574,20.2426C23.8826,21.3679 25.4087,22 27,22H28V24Z"/>', s, false, 'currentColor'),
+};
+
+/* 二维码示意格 */
+function qrGrid(cls = '') {
+  let cells = '';
+  for (let i = 0; i < 441; i++) {
+    const r = Math.floor(i / 21), c = i % 21;
+    const finder = (r < 7 && c < 7) || (r < 7 && c > 13) || (r > 13 && c < 7);
+    let on;
+    if (finder) {
+      const lr = r % 14 > 6 ? r - 14 : r, lc = c % 14 > 6 ? c - 14 : c;
+      on = lr === 0 || lr === 6 || lc === 0 || lc === 6 || (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4);
+    } else {
+      on = ((i * 2654435761) >>> 0) % 100 < 46;
+    }
+    cells += `<i class="${on ? '' : 'o'}"></i>`;
+  }
+  return `<div class="qr-grid ${cls}">${cells}</div>`;
+}
+
+/* =========================================================
+ * 数据（沿袭 2026-10-05 原型）
+ * ========================================================= */
+const PEER = { name: '周三羽毛球局', no: '823456', sport: '羽毛球', policy: '需要审批', desc: '每周三晚固定局，双打轮转，欢迎新球友。进群请先打招呼～' };
+const COACH = { name: '青云羽毛球训练营 · 周三班', no: '47411763', sport: '羽毛球', desc: '周三晚基础班，教练带教 + 分组对抗，成绩计入训练档案。' };
+const ME = '陈晨';
+const MEMBERS = [
+  { name: ME, owner: true, me: true },
+  { name: '阿豪' }, { name: '林珊' }, { name: '老周' }, { name: '阿紫' },
+  { name: '大伟' }, { name: '小北' }, { name: '阿Ken' }, { name: '天一' }, { name: '七喜' }, { name: '阿杜' },
+];
+const TEMP_MEMBERS = [{ name: '沫沫' }, { name: 'Temp-P1' }];
+const JOIN_REQUESTS = [
+  { name: '煎饼狗子', msg: '球友介绍来的，中级水平', time: '2 小时前' },
+  { name: 'Yuki', msg: '', time: '昨天 22:14' },
+];
+const ACTIVITIES = [
+  { id: 2, title: '周六对抗赛', time: '本周六 14:00', place: '奥体中心 · 2 号馆', cap: 8, joined: 8, status: 'in_progress', format: '双打' },
+  { id: 1, title: '周三例行局', time: '今晚 19:30', place: '城东羽毛球馆 · 3/4 号场', cap: 12, joined: 8, status: 'recruiting', format: '双打', note: '自带球，AA 场地费' },
+  { id: 3, title: '国庆友谊赛', time: '10 月 1 日 15:00', place: '城东羽毛球馆', cap: 16, joined: 14, status: 'completed', format: '单打' },
+  { id: 4, title: '新人体验活动', time: '9 月 27 日 10:00', place: '未定', cap: 10, joined: 3, status: 'cancelled', format: '双打', cancelReason: '场地临时检修' },
+];
+const RANKING = [
+  { name: '阿豪', games: 12, w: 9, l: 3, d: 0, sets: '+11', rate: '75%' },
+  { name: '陈晨', games: 11, w: 7, l: 3, d: 1, sets: '+6', rate: '64%' },
+  { name: '林珊', games: 10, w: 6, l: 4, d: 0, sets: '+3', rate: '60%' },
+  { name: '老周', games: 12, w: 5, l: 6, d: 1, sets: '-2', rate: '42%' },
+  { name: '阿紫', games: 8, w: 3, l: 5, d: 0, sets: '-4', rate: '38%' },
+];
+const RESULTS = [
+  { id: 1, a: ['阿豪', '林珊'], b: ['老周', '阿紫'], sets: [[21, 18], [19, 21], [21, 15]], status: 'pending', time: '今晚 20:42', bo: 'BO3', by: '阿豪', fmt: '双打' },
+  { id: 2, a: ['陈晨'], b: ['大伟'], sets: [[21, 12], [21, 16]], status: 'confirmed', time: '10 月 1 日', bo: 'BO3', fmt: '单打' },
+  { id: 5, a: ['小北', '沫沫'], b: ['天一', '七喜'], sets: [[21, 14], [19, 21], [21, 18]], status: 'confirmed', time: '9 月 28 日', bo: 'BO3', fmt: '双打' },
+  { id: 4, a: ['七喜'], b: ['阿杜'], sets: [[21, 21]], status: 'voided', time: '9 月 27 日', bo: 'BO1', reason: '误录入，重赛', fmt: '单打' },
+];
+const RANKING_D = [
+  { name: '阿豪', games: 10, w: 8, l: 2, d: 0, sets: '+9', rate: '80%' },
+  { name: '陈晨', games: 9, w: 6, l: 3, d: 0, sets: '+4', rate: '67%' },
+  { name: '林珊', games: 10, w: 5, l: 5, d: 0, sets: '0', rate: '50%' },
+  { name: '老周', games: 9, w: 3, l: 6, d: 0, sets: '-6', rate: '33%' },
+  { name: '大伟', games: 10, w: 2, l: 8, d: 0, sets: '-10', rate: '20%' },
+];
+const TRAINING = {
+  date: '10 月 8 日（周三）', place: '城东羽毛球馆',
+  sessions: [
+    { no: 1, time: '19:00–19:50', court: '1 号场', a: ['小北'], b: ['沫沫'], status: 'done', score: '21:16' },
+    { no: 2, time: '19:00–19:50', court: '2 号场', a: ['天一'], b: ['七喜'], status: 'open' },
+    { no: 3, time: '20:00–20:50', court: '1 号场', a: ['阿杜'], b: [], status: 'open' },
+    { no: 4, time: '20:00–20:50', court: '1 号场', a: ['小北'], b: ['天一'], status: 'conflict' },
+  ],
+  leaves: [
+    { name: '小北', msg: '加班，20:00 那场赶不上', time: '今天 17:20', seen: false },
+    { name: '沫沫', msg: '', time: '昨天', seen: true },
+  ],
+};
+
+/* =========================================================
+ * 小部件
+ * ========================================================= */
+function appbar(title, { menu = true } = {}) {
+  return `<div class="appbar">
+    <div><button class="appbar-btn" data-action="toast|返回">${IC.back()}</button></div>
+    <h2>${title}</h2>
+    <div style="display:flex;justify-content:flex-end">${menu ? `<button class="appbar-btn" data-action="toast|小组管理菜单（编辑/转让/归档/退出）">${IC.more()}</button>` : ''}</div>
+  </div>`;
+}
+function seg(tabs, active) {
+  return `<div class="seg">${tabs.map(t => `<button class="${t === active ? 'on' : ''}" data-action="toast|切换到「${t}」页签">${t}</button>`).join('')}</div>`;
+}
+const PEER_TABS = ['概览', '活动', '战绩', '成员'];
+const COACH_TABS = ['概览', '训练', '战绩', '成员'];
+
+/* 区块标题：绿条 + 标题 + 右侧行动（语义化：导航=›，筛选=⇅，新增=＋） */
+function secTitle(title, { arrow = false, action = '', sub = '', filter = '', add = '' } = {}) {
+  return `<div class="appx-title"><span>${title}</span>${sub ? `<span class="sub">${sub}</span>` : ''}
+    ${filter ? `<button class="filter-chip" data-action="cycle-fmt"><span>${filter}</span>${IC.updown(12)}</button>` : ''}
+    ${add ? `<button class="filter-chip" data-action="${action}">${IC.plus(12)} ${add}</button>` : ''}
+    ${arrow ? `<button class="chev-btn" data-action="${action || `toast|进入「${title}」页签`}">${IC.chev(20)}</button>` : ''}</div>`;
+}
+/* 区块内空态：court 图标 + 引导 + CTA */
+function emptyMini(title, hint, ctaLabel, ctaAction, ctaStyle = 'ghost') {
+  return `<div class="card"><div class="empty-mini">
+    ${IC.court(40)}
+    <h4>${title}</h4><p>${hint}</p>
+    ${ctaLabel ? `<button class="btn ${ctaStyle} sm" data-action="${ctaAction}">${IC.plus(14)} ${ctaLabel}</button>` : ''}
+  </div></div>`;
+}
+/* 真二维码：与 App 同协议 payload（GroupQrCodec），扫出来即可识别小组号 */
+function groupQrPayload(groupNo) {
+  return `{"type":"JIFEN_GROUP","v":1,"groupNo":"${groupNo}"}`;
+}
+function realQr(groupNo, sizePx) {
+  if (typeof qrcode !== 'undefined') {
+    try {
+      const qr = qrcode(0, 'M');
+      qr.addData(groupQrPayload(groupNo));
+      qr.make();
+      return `<div class="qr-real" style="width:${sizePx}px">${qr.createSvgTag({ cellSize: 2, margin: 2, scalable: true })}</div>`;
+    } catch (e) { /* 库不可用时退回示意格 */ }
+  }
+  return qrGrid('mini');
+}
+/* 概览合并大卡：信息 + 统计 + 操作（邀请在前）收进一张卡，不再三段堆叠 */
+function mergedCard(g, { coaching = false, archived = false, emoji = '🏸', stats = [26, 6, 9] } = {}) {
+  return `<div class="card hero-card">
+    <div class="group-head">
+      <div class="group-badge">${emoji}</div>
+      <div class="grow">
+        <div class="t1 ellip" style="font-size:16px">${g.name}</div>
+        <div class="row" style="flex-wrap:wrap;gap:5px;margin-top:6px">
+          <span class="chip green" data-action="toast|复制小组号">${g.no} ${IC.copy(11)}</span>
+          <span class="chip grey">${g.sport}</span>
+          ${coaching ? '<span class="chip blue">训练组</span>' : ''}
+          ${archived ? '<span class="chip grey">已归档</span>' : ''}
+        </div>
+      </div>
+      <button class="mini-qr" data-action="toast|打开「小组二维码」页（大码 + 系统分享）">
+        ${realQr(g.no, 72)}
+      </button>
+    </div>
+    ${g.desc ? `<div class="t2" style="margin-top:10px;line-height:1.6">${g.desc}</div>` : ''}
+    <div class="hero-sep"></div>
+    <div class="statline">
+      <div class="st"><b>${stats[0]}</b><span>已确认场次</span></div>
+      <div class="st"><b>${stats[1]}</b><span>本月场次</span></div>
+      <div class="st"><b>${stats[2]}</b><span>30 天活跃</span></div>
+    </div>
+    ${archived ? '' : `<div class="tiles3">${coaching
+      ? `<button class="tile3 soft" data-action="toast|打开「小组二维码」页">${IC.share(15)} 邀请学员</button>
+         <button class="tile3 main" data-action="toast|去训练页签（排期/记结果）">${IC.play(15)} 去训练</button>
+         <button class="tile3 soft" data-action="toast|记训练赛果">${IC.pencil(15)} 记赛果</button>`
+      : `<button class="tile3 soft" data-action="toast|打开「小组二维码」页">${IC.share(15)} 邀请队友</button>
+         <button class="tile3 main" data-action="toast|开始计分（选人 + 规则）">${IC.play(15)} 开始计分</button>
+         <button class="tile3 soft" data-action="toast|补记赛果">${IC.pencil(15)} 补记比分</button>`}</div>`}
+  </div>`;
+}
+function resultCard(r) {
+  const stMap = { pending: ['orange', '待确认'], confirmed: ['green', '已确认'], voided: ['red', '已作废'] };
+  const [c, t] = stMap[r.status];
+  const total = r.sets.reduce((acc, s) => [acc[0] + (s[0] > s[1] ? 1 : 0), acc[1] + (s[1] > s[0] ? 1 : 0)], [0, 0]);
+  return `<div class="card" style="margin-top:10px">
+    <div class="row" style="margin-bottom:8px"><span class="t3">${r.time} · ${r.bo}</span><span style="margin-left:auto" class="chip ${c}">${t}</span></div>
+    <div class="row">
+      <div class="grow" style="text-align:right"><div class="t1 ellip">${r.a.join(' / ')}</div></div>
+      <div class="score-big" style="padding:0 12px"><span class="a">${total[0]}</span><span style="color:var(--text-3);font-size:15px"> : </span><span class="b">${total[1]}</span></div>
+      <div class="grow"><div class="t1 ellip">${r.b.join(' / ')}</div></div>
+    </div>
+    <div class="t3" style="text-align:center;margin-top:6px">${r.sets.map((s, i) => `第${i + 1}局 ${s[0]}:${s[1]}`).join(' · ')}</div>
+    ${r.status === 'pending' ? `<div class="t3" style="margin-top:8px">由 ${r.by} 提交 · 你是对方参赛者，可以确认或作废</div>
+      <div class="btn-row" style="margin-top:10px"><button class="btn primary sm grow" data-action="toast|确认赛果">确认</button><button class="btn ghost sm grow" data-action="toast|作废（必填原因）">作废</button></div>` : ''}
+    ${r.status === 'voided' ? `<div class="t3" style="margin-top:8px;color:var(--danger)">作废原因：${r.reason}</div>` : ''}
+  </div>`;
+}
+function activityCard(a) {
+  const stMap = { recruiting: ['green', '报名中'], in_progress: ['orange', '进行中'], completed: ['grey', '已完成'], cancelled: ['red', '已取消'] };
+  const [c, t] = stMap[a.status];
+  return `<button class="card clickable" style="display:block;width:100%;text-align:left;border:0;margin-bottom:10px" data-action="toast|活动详情：${a.title}">
+    <div class="row">
+      <div class="grow">
+        <div class="t1 ellip">${a.title} <span class="chip grey" style="font-size:10px;padding:1px 7px">${a.format}</span></div>
+        <div class="t3" style="margin-top:3px">${a.time} · ${a.place}</div>
+        <div class="t3" style="margin-top:2px">${a.joined}/${a.cap} 人报名${a.joined >= a.cap && a.status === 'recruiting' ? ' · 已满' : ''}</div>
+      </div>
+      <span class="chip ${c}">${t}</span>
+      <span class="chev" style="color:var(--text-3);display:grid;place-items:center">${IC.chev(16)}</span>
+    </div>
+  </button>`;
+}
+function rankTable(rows) {
+  return `<table class="rank-table">
+    <tr><th></th><th>场次</th><th>胜</th><th>负</th><th>平</th><th>局分</th><th>胜率</th></tr>
+    ${rows.map((r, i) => `<tr><td class="name"><span class="rank-no ${i < 3 ? 'top' : ''}">${i + 1}</span>${r.name}${r.name === ME ? ' <span class="t3">(我)</span>' : ''}</td>
+      <td>${r.games}</td><td>${r.w}</td><td>${r.l}</td><td>${r.d}</td><td>${r.sets}</td>
+      <td style="font-weight:700;color:${i < 3 ? 'var(--primary-dark)' : 'var(--text)'}">${r.rate}</td></tr>`).join('')}
+  </table>`;
+}
+function memberRow(m) {
+  return `<button class="list-row clickable" data-action="toast|成员操作：${m.name}（改名/移除等）">
+    ${`<div class="avatar ${m.me ? 'green' : ''}">${m.name[0]}</div>`}
+    <div class="grow">
+      <div class="t1">${m.name}${m.me ? ' <span class="chip green" style="font-size:10px;padding:1px 7px">我</span>' : ''}${m.owner ? ' <span class="chip green" style="font-size:10px;padding:1px 7px">组长</span>' : ''}</div>
+      ${m.sub ? `<div class="t3" style="margin-top:2px">${m.sub}</div>` : ''}
+    </div>
+    <span class="chev">${IC.chev(16)}</span>
+  </button>`;
+}
+
+/* =========================================================
+ * 屏幕
+ * ========================================================= */
+const R = {};
+
+/* ---------- 概览 · 熟人组（满内容） ---------- */
+R['ov-full'] = {
+  title: '概览 · 熟人组（内容齐）', sub: '一张大卡说完这个组 · 真码可扫 · 邀请在前',
+  note: `<b>变化：</b>①信息卡 + 统计 + 操作合并为一张大卡（细分隔线分区），不再三段碎块；②右上角是<b>真二维码</b>（与 App 同协议 payload，扫出即小组号），点击进大码页；③操作单行无小字，顺序 = 邀请 → 开始计分 → 补记比分；④区块标题精简为「即将开始」。`,
+  render() {
+    return `${appbar(PEER.name)}${seg(PEER_TABS, '概览')}
+    <div class="scroll">
+      ${mergedCard(PEER)}
+      <div class="section">
+        ${secTitle('即将开始', { arrow: true, action: 'toast|进入「活动」页签' })}
+        <div class="card clickable" data-action="toast|活动详情：周三例行局">
+          <div class="row">
+            <div class="grow">
+              <div class="t1 ellip">周三例行局 <span class="chip grey" style="font-size:10px;padding:1px 7px">双打</span></div>
+              <div class="t3" style="margin-top:3px">今晚 19:30 · 城东羽毛球馆 · 8/12 人报名</div>
+            </div>
+            <span class="chip green">报名中</span>
+            <span class="chev" style="color:var(--text-3);display:grid;place-items:center">${IC.chev(16)}</span>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        ${secTitle('最新赛果', { arrow: true, action: 'toast|进入「战绩」页签' })}
+        ${resultCard(RESULTS[1])}
+      </div>
+    </div>`;
+  }
+};
+
+/* ---------- 概览 · 刚建组（空态） ---------- */
+R['ov-empty'] = {
+  title: '概览 · 刚建组（空态）', sub: '同一张大卡 · 统计为零 · 空态带 CTA',
+  note: `<b>变化：</b>刚建组同一张合并大卡照常成立（统计为零可见），邀请排第一位——新组最需要的就是拉人；空活动 = court 图标 + 「去约一场」CTA；空赛果<b>不再放补记 CTA</b>（合并卡里已有「补记比分」，同一动作不重复入口），文案直接指过去。`,
+  render() {
+    const g = { ...PEER, name: '周五乒乓小队', no: '38950412', sport: '乒乓球', policy: '直接加入', desc: '' };
+    return `${appbar(g.name)}${seg(PEER_TABS, '概览')}
+    <div class="scroll">
+      ${mergedCard(g, { emoji: '🏓', stats: [0, 0, 1] })}
+      <div class="section">
+        ${secTitle('即将开始', { arrow: true, action: 'toast|进入「活动」页签' })}
+        ${emptyMini('还没有活动', '发一个活动，组员报名后战绩自动汇总', '去约一场', 'toast|创建第一个活动')}
+      </div>
+      <div class="section">
+        ${secTitle('最新赛果', { arrow: true, action: 'toast|进入「战绩」页签' })}
+        ${emptyMini('还没有赛果', '点上方「补记比分」录入第一场，<br>胜率、局分和战绩榜都会自动生成')}
+      </div>
+    </div>`;
+  }
+};
+
+/* ---------- 概览 · 训练组（教练） ---------- */
+R['ov-coach'] = {
+  title: '概览 · 训练组（教练）', sub: '同款合并大卡 · 邀请学员在前',
+  note: `<b>变化：</b>训练组用同一张合并大卡：右上真码邀学员，操作行 = 邀请学员 → 去训练 → 记赛果（个人局操作不出现，避免语义混淆）；教练横幅移到大卡下方；「下一场训练」直达卡保留。`,
+  render() {
+    return `${appbar(COACH.name)}${seg(COACH_TABS, '概览')}
+    <div class="scroll">
+      ${mergedCard(COACH, { coaching: true, stats: [18, 4, 12] })}
+      <div class="banner" style="margin-top:12px">你是教练，发布排期与记训练赛果即刻生效；学员只读。</div>
+      <div class="section">
+        ${secTitle('下一场训练', { arrow: true, action: 'toast|进入「训练」页签' })}
+        <div class="card clickable" data-action="toast|排期详情">
+          <div class="row">
+            <div class="grow">
+              <div class="t1 ellip">${TRAINING.date} · ${TRAINING.place}</div>
+              <div class="t3" style="margin-top:3px">4 场对练 · 1 场待补结果 · 1 条请假未读</div>
+            </div>
+            <span class="chip blue">排期中</span>
+            <span class="chev" style="color:var(--text-3);display:grid;place-items:center">${IC.chev(16)}</span>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        ${secTitle('最新赛果', { arrow: true, action: 'toast|进入「战绩」页签' })}
+        ${resultCard(RESULTS[1])}
+      </div>
+    </div>`;
+  }
+};
+
+/* ---------- 活动 · 状态分组 ---------- */
+R['act-full'] = {
+  title: '活动 · 状态分组', sub: '「进行中/报名中」与「历史」两段',
+  note: `<b>变化：</b>原来四种状态卡片平铺一列（堆砌感），现在分两段：<b>进行中 · 报名中</b>（可操作）在前，<b>历史活动</b>（已完成/已取消）在后。每行加 chevron icon。FAB 保留「＋ 创建活动」。`,
+  render() {
+    const upcoming = ACTIVITIES.filter(a => a.status === 'in_progress' || a.status === 'recruiting');
+    const past = ACTIVITIES.filter(a => a.status === 'completed' || a.status === 'cancelled');
+    return `${appbar(PEER.name)}${seg(PEER_TABS, '活动')}
+    <div class="scroll has-fab">
+      <div class="section" style="margin-top:2px">
+        ${secTitle('进行中 · 报名中', { sub: upcoming.length + ' 场' })}
+        ${upcoming.map(activityCard).join('')}
+      </div>
+      <div class="section">
+        ${secTitle('历史活动', { sub: past.length + ' 场' })}
+        ${past.map(activityCard).join('')}
+      </div>
+      <div class="banner grey" style="margin-top:4px">活动结束后记得补记比分，战绩榜才会更新。</div>
+    </div>
+    <button class="fab" data-action="toast|创建活动">${IC.plus(16)} 创建活动</button>`;
+  }
+};
+
+/* ---------- 活动 · 空 ---------- */
+R['act-empty'] = {
+  title: '活动 · 空', sub: 'court 图标 + 引导文案 · 创建入口只在右下角 FAB',
+  note: `<b>变化：</b>空状态 = 居中空态卡（court 图标 + 一句价值说明），<b>卡里不再放「创建」按钮</b>——右下角 FAB 已是唯一创建入口，避免同一动作两个入口。`,
+  render() {
+    return `${appbar(PEER.name)}${seg(PEER_TABS, '活动')}
+    <div class="scroll has-fab">
+      <div class="section" style="margin-top:8px">
+        <div class="card"><div class="empty-mini" style="padding:52px 24px 46px">
+          ${IC.court(52)}
+          <h4 style="font-size:15px">还没有活动</h4>
+          <p>点右下角「创建活动」发一个局，组员在线报名；<br>比分自动汇总成战绩榜，不用再挨个发消息</p>
+        </div></div>
+      </div>
+    </div>
+    <button class="fab" data-action="toast|创建活动">${IC.plus(16)} 创建活动</button>`;
+  }
+};
+
+/* ---------- 战绩 · 有内容 ---------- */
+R['rec-full'] = {
+  title: '战绩 · 有内容', sub: '待确认独立分组置顶 · 排行榜 · 比赛记录',
+  note: `<b>变化：</b>①「待确认」独立成段置顶；②筛选各管各的：顶部<b>单打/双打 chip 只作用于排行榜</b>，「比赛记录」右侧 <b>⇅ chip 只作用于记录列表</b>（点击真实过滤，demo 数据可切）；③标题绿条统一。`,
+  render() {
+    const records = RESULTS.filter(r => S.recordsFmt === '全部赛制' || r.fmt === S.recordsFmt);
+    return `${appbar(PEER.name)}${seg(PEER_TABS, '战绩')}
+    <div class="scroll">
+      <div class="row" style="gap:8px;margin-bottom:4px">
+        <button class="fchip ${S.rankFmt === '单打' ? 'on' : ''}" data-action="rank|单打">单打</button>
+        <button class="fchip ${S.rankFmt === '双打' ? 'on' : ''}" data-action="rank|双打">双打</button>
+        <span class="t3" style="margin-left:auto">近 30 天</span>
+      </div>
+      <div class="section" style="margin-top:10px">
+        ${secTitle('待确认', { sub: RESULTS.filter(r => r.status === 'pending').length + ' 条' })}
+        ${resultCard(RESULTS[0])}
+      </div>
+      <div class="section">
+        <div class="card">
+          <div class="appx-title" style="margin:0 0 8px"><span>${S.rankFmt}排行榜</span></div>
+          ${rankTable(S.rankFmt === '单打' ? RANKING : RANKING_D)}
+        </div>
+      </div>
+      <div class="section">
+        ${secTitle('比赛记录', { filter: S.recordsFmt })}
+        ${records.length
+          ? records.filter(r => r.status !== 'pending').map(resultCard).join('')
+          : `<div class="card"><div class="empty-mini" style="padding:26px 20px 22px">${IC.court(36)}<h4>没有${S.recordsFmt}记录</h4><p>切回「全部赛制」看看，或打一场${S.recordsFmt}再来看</p></div></div>`}
+      </div>
+    </div>`;
+  }
+};
+
+/* ---------- 战绩 · 空 ---------- */
+R['rec-empty'] = {
+  title: '战绩 · 空', sub: 'court 图标 + 补记引导',
+  note: `<b>变化：</b>空战绩从「空排行榜表头 + 空记录」变成一张居中空态卡（court 图标 + CTA）。过滤器在无数据时置灰，避免「点了也没反应」的假交互。`,
+  render() {
+    return `${appbar(PEER.name)}${seg(PEER_TABS, '战绩')}
+    <div class="scroll">
+      <div class="row" style="gap:8px;margin-bottom:4px">
+        <button class="fchip on" style="opacity:.45">单打</button><button class="fchip" style="opacity:.45">双打</button>
+        <span class="t3" style="margin-left:auto">近 30 天</span>
+      </div>
+      <div class="section" style="margin-top:10px">
+        <div class="card"><div class="empty-mini" style="padding:44px 24px 40px">
+          ${IC.court(52)}
+          <h4 style="font-size:15px">还没有赛果</h4>
+          <p>打完球补记比分，或从「开始计分」直接开局；胜率、局分、排行榜都会自动生成</p>
+          <div class="btn-row" style="margin-top:2px">
+            <button class="btn primary sm grow" data-action="toast|开始计分">开始计分</button>
+            <button class="btn ghost sm grow" data-action="toast|补记赛果">补记一场</button>
+          </div>
+        </div></div>
+      </div>
+    </div>`;
+  }
+};
+
+/* ---------- 成员 · 角色标签 ---------- */
+R['mem'] = {
+  title: '成员 · 角色标签瘦身', sub: '组长标签 · 普通成员不标 · 临时成员单独分组',
+  note: `<b>变化：</b>①普通成员行不再挂「成员」chip；②组主标<b>「组长」</b>（不用「组主」「管理员」字样）；③<b>临时成员单独分组</b>，注明用途，添加入口放段落标题右侧；④加入申请独立分段（绿条标题 + 列表），<b>去掉橙色警示框</b>——常规审批流不是告警，按钮改紧凑 pill，消息行省略不换行。成员操作（改名/移除/转让）收进行内弹层，行尾 chevron icon。`,
+  render() {
+    return `${appbar(PEER.name)}${seg(PEER_TABS, '成员')}
+    <div class="scroll">
+      <div class="section" style="margin-top:2px">
+        ${secTitle('加入申请', { sub: JOIN_REQUESTS.length + ' 条待处理' })}
+        <div class="list">
+          ${JOIN_REQUESTS.map(j => `
+            <div class="list-row">
+              <div class="avatar">${j.name[0]}</div>
+              <div class="grow">
+                <div class="t1">${j.name}</div>
+                <div class="t3 ellip" style="margin-top:2px">${j.msg ? j.msg + ' · ' : ''}${j.time}</div>
+              </div>
+              <button class="pill-btn primary" data-action="toast|通过 ${j.name}">通过</button>
+              <button class="pill-btn" data-action="toast|拒绝 ${j.name}">拒绝</button>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="section">
+        ${secTitle('正式成员', { sub: MEMBERS.length + ' 人' })}
+        <div class="list">${MEMBERS.map(memberRow).join('')}</div>
+      </div>
+      <div class="section">
+        ${secTitle('临时成员', { sub: TEMP_MEMBERS.length + ' 人',
+          add: '添加', action: 'toast|添加临时成员' })}
+        <div class="list">${TEMP_MEMBERS.map(m => memberRow({ ...m, sub: '线下球友 · 未注册' })).join('')}</div>
+        <div class="banner grey" style="margin-top:8px">临时成员不占用小组席位，也可以在录赛果时快速创建。</div>
+      </div>
+    </div>`;
+  }
+};
+
+/* ---------- 训练 · 教练排期 ---------- */
+R['train'] = {
+  title: '训练 · 教练排期', sub: '请假独立分组 · 排期分段 · ＋添加一场',
+  note: `<b>变化：</b>①「学员请假」与排期分成两段（绿条标题 + 列表，同加入申请结构，去橙框），未读用 chip 高亮，「已读」改紧凑 pill；②「＋ 添加一场」收进段落标题右侧（＋=新增语义）；③排期场次按状态着色，冲突卡红底。`,
+  render() {
+    return `${appbar(COACH.name)}${seg(COACH_TABS, '训练')}
+    <div class="scroll">
+      <div class="section" style="margin-top:2px">
+        ${secTitle('学员请假', { sub: '1 条未读' })}
+        <div class="list">
+          ${TRAINING.leaves.map(l => `
+            <div class="list-row">
+              <div class="avatar">${l.name[0]}</div>
+              <div class="grow">
+                <div class="t1">${l.name}${l.seen ? '' : ' <span class="chip orange" style="font-size:10px;padding:1px 7px">未读</span>'}</div>
+                <div class="t3 ellip" style="margin-top:2px">${l.msg ? l.msg + ' · ' : ''}${l.time}</div>
+              </div>
+              <button class="pill-btn" data-action="toast|标记已读">已读</button>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="section">
+        ${secTitle('训练排期', { sub: TRAINING.date, add: '添加一场', action: 'toast|添加一场排期' })}
+        <div class="session-card"><div class="row" style="margin-bottom:6px"><span class="t3">第 1 场 · ${TRAINING.sessions[0].time} · ${TRAINING.sessions[0].court}</span><span class="chip green" style="margin-left:auto">已出结果</span></div>
+          <div class="t1">小北 <span class="t3">21 : 16</span> 沫沫</div></div>
+        <div class="session-card"><div class="row" style="margin-bottom:6px"><span class="t3">第 2 场 · ${TRAINING.sessions[1].time} · ${TRAINING.sessions[1].court}</span><span class="chip grey" style="margin-left:auto">待打</span></div>
+          <div class="t1">天一 <span class="t3">vs</span> 七喜</div></div>
+        <div class="session-card"><div class="row" style="margin-bottom:6px"><span class="t3">第 3 场 · ${TRAINING.sessions[2].time} · ${TRAINING.sessions[2].court}</span><span class="chip grey" style="margin-left:auto">待打</span></div>
+          <div class="t1">阿杜 <span class="t3">待定对手</span></div></div>
+        <div class="session-card conflict"><div class="row" style="margin-bottom:6px"><span class="t3">第 4 场 · ${TRAINING.sessions[3].time} · ${TRAINING.sessions[3].court}</span><span class="chip red" style="margin-left:auto">时间冲突</span></div>
+          <div class="t1">小北 <span class="t3">vs</span> 天一</div>
+          <div class="t3" style="margin-top:4px;color:var(--danger)">小北已请假，请调整对阵或换人</div></div>
+      </div>
+    </div>`;
+  }
+};
+
+/* ---------- 二维码页（入口已收进概览信息卡） ---------- */
+R['qr'] = {
+  title: '小组二维码页', sub: '大码 + 小组号 + 系统分享（入口 = 信息卡迷你码）',
+  note: `<b>变化：</b>本页不再承担「概览里的一个按钮」，入口收敛为概览信息卡右上角的迷你码（+操作区的「邀请队友」行）。页面本身保留：扫码加入、大字小组号（口头报号）、系统分享。`,
+  render() {
+    return `${appbar('小组二维码', { menu: false })}
+    <div class="scroll">
+      <div style="text-align:center;margin:8px 0 16px">
+        <div class="group-badge" style="margin:0 auto 10px">🏸</div>
+        <div class="t1" style="font-size:17px">${PEER.name}</div>
+        <div class="t3" style="margin-top:3px">小组号 <b style="font-size:15px;letter-spacing:2px;color:var(--text)">${PEER.no}</b></div>
+      </div>
+      <div class="qr-box">${realQr(PEER.no, 200)}</div>
+      <p class="t2" style="text-align:center;line-height:1.7;margin:16px 24px">真码：与 App 同协议（type=JIFEN_GROUP · v=1 · groupNo=${PEER.no}）<br>App 内扫码 / 微信扫一扫均可识别，也可以直接把小组号告诉他们</p>
+      <button class="btn primary" data-action="toast|已调起系统分享（原型略）">分享</button>
+    </div>`;
+  }
+};
+
+/* =========================================================
+ * 导航与渲染
+ * ========================================================= */
+const NAV = [
+  ['概览页签', [['ov-full', '满内容'], ['ov-empty', '刚建组 · 空态'], ['ov-coach', '训练组 · 教练']]],
+  ['活动页签', [['act-full', '状态分组'], ['act-empty', '空态']]],
+  ['战绩页签', [['rec-full', '待确认分组'], ['rec-empty', '空态']]],
+  ['成员页签', [['mem', '角色标签 · 临时分组']]],
+  ['训练页签（训练组）', [['train', '教练排期']]],
+  ['其他', [['qr', '小组二维码页']]],
+];
+const S = {
+  recordsFmt: '全部赛制',   // 比赛记录右侧 ⇅ 筛选
+  rankFmt: '单打',          // 顶部 chip：作用于排行榜
+};
+let current = 'ov-full';
+
+function renderNav() {
+  document.getElementById('navList').innerHTML = NAV.map(([label, items]) => `
+    <div class="nav-group"><div class="nav-label">${label}</div>
+      ${items.map(([k, t]) => `<button class="nav-btn ${k === current ? 'active' : ''}" data-nav="${k}"><span class="idx">${R[k].idx}</span>${t}</button>`).join('')}
+    </div>`).join('');
+}
+let navIdx = 0;
+for (const [, items] of NAV) for (const [k] of items) R[k].idx = ++navIdx;
+
+function render() {
+  const r = R[current];
+  document.getElementById('stageTitle').textContent = r.title;
+  document.getElementById('stageSub').textContent = r.sub;
+  document.getElementById('screen').innerHTML = r.render();
+  document.getElementById('noteTitle').textContent = '本屏说明 · ' + r.title;
+  document.getElementById('noteBody').innerHTML = r.note;
+  renderNav();
+}
+
+let toastTimer = null;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.style.display = 'none'; }, 1500);
+}
+
+document.addEventListener('click', e => {
+  const nav = e.target.closest('[data-nav]');
+  if (nav) { current = nav.dataset.nav; render(); return; }
+  const act = e.target.closest('[data-action]');
+  if (act) {
+    if (act.dataset.action === 'cycle-fmt') {
+      const seq = ['全部赛制', '单打', '双打'];
+      S.recordsFmt = seq[(seq.indexOf(S.recordsFmt) + 1) % seq.length];
+      render();
+      toast('赛制筛选：' + S.recordsFmt + '（作用于比赛记录列表）');
+      return;
+    }
+    if (act.dataset.action.startsWith('rank|')) {
+      S.rankFmt = act.dataset.action.split('|')[1];
+      render();
+      toast(S.rankFmt + '排行榜');
+      return;
+    }
+    const [, msg] = act.dataset.action.split('|');
+    if (msg) toast(msg);
+  }
+});
+
+render();
+</script>
+</body>
+</html>

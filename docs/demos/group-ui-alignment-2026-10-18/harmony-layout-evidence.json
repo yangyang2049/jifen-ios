@@ -1,0 +1,977 @@
+{
+  "date": "2026-10-19",
+  "repo": "/Users/yangyang/Desktop/jifenqi/jifen-hos",
+  "verification": "Read-only current working-tree source and zh_CN string inspection. No edits, build or app launch. Values are source vp/fp, not measured rendered pixels. Existing uncommitted UI and push changes preserved.",
+  "common": {
+    "tokensSource": [
+      "entry/src/main/ets/common/DesignTokens.ts:186-232,262-270",
+      "entry/src/main/ets/common/GroupDesignTokens.ts:10-15"
+    ],
+    "units": "vp for layout, fp for font. minHeight includes the whole control constraint; do not blindly add its padding to minHeight.",
+    "page": {
+      "titlebarHeight": 56,
+      "statusInset": "add runtime inset",
+      "titleFont": 20,
+      "titleWeight": "Bold",
+      "titleAlignment": "center",
+      "titlebarHorizontalPadding": 16,
+      "backTarget": 40,
+      "contentMaxWidth": 680,
+      "formMaxWidth": 560,
+      "rootBottom": "runtime bottom inset",
+      "titlebarFullWindow": true
+    },
+    "fonts": {
+      "h3": 24,
+      "h4": 20,
+      "h5": 18,
+      "h6": 16,
+      "body1": 16,
+      "body2": 14,
+      "caption": 12,
+      "overline": 10
+    },
+    "space": {
+      "xs": 4,
+      "sm": 8,
+      "md": 16,
+      "lg": 24,
+      "titleContentGap": 12,
+      "sectionGap": 24
+    },
+    "controls": {
+      "controlHeight": 48,
+      "choiceMinHeight": 44,
+      "compactTarget": 40,
+      "fieldHeight": 48,
+      "icon": 20,
+      "avatar": 38,
+      "inlineAvatar": 22
+    },
+    "radii": {
+      "control": 8,
+      "option": 12,
+      "panel": 16,
+      "dialogToken": 20,
+      "actions": "Capsule, no explicit radius"
+    },
+    "dialog": {
+      "width": "90%",
+      "maxWidth": 560,
+      "maxHeight": "90%",
+      "padding": 24,
+      "radius": 16,
+      "alignment": "Center",
+      "bodyMaxHeight": "max(120,min(390,screenHeight*0.85-172))",
+      "source": "entry/src/main/ets/helpers/groupDialogPresentation.ets:5-25"
+    },
+    "globalDelete": [
+      "Do not use card(title,body) for every field group. Most forms put plain labeled fields directly on page background.",
+      "Do not add generic form-intro explanatory copy. Keep only existing field hints or state-specific messages.",
+      "Do not add a universal bottom CTA to all 13 scenes. Join CTA sits in preview card; members/records tabs have no persistent bottom action."
+    ],
+    "latestDrift": "Current dirty code has changed several former caption(12) field labels and error/hint text to body2(14). Use this current file state, not the 2026-10-18 analysis."
+  },
+  "scenes": {
+    "create": {
+      "source": [
+        "entry/src/main/ets/pages/group/GroupCreatePage.ets:157-244"
+      ],
+      "container": "Plain scrolling form. No parent cards or named business sections.",
+      "order": [
+        "名称",
+        "简介（选填）",
+        "项目",
+        "加入方式"
+      ],
+      "sections": [],
+      "removeFromOldPreview": [
+        "form-intro",
+        "基本信息 section title/card",
+        "运动项目 section title/card",
+        "加入方式 outer section/card; keep the field label",
+        "小组名称/小组简介 duplicated expanded wording; actual labels are 名称/简介（选填）"
+      ],
+      "keepLabels": [
+        "名称",
+        "简介（选填）",
+        "项目",
+        "加入方式"
+      ],
+      "metrics": {
+        "contentPadding": [
+          16,
+          16,
+          16,
+          16
+        ],
+        "outerGap": 16,
+        "labelFont": 14,
+        "labelWeight": "Medium",
+        "labelBottomMargin": 8,
+        "name": {
+          "height": 52,
+          "font": 16,
+          "weight": "Medium",
+          "radius": 12,
+          "border": 1,
+          "horizontalPadding": 16
+        },
+        "description": {
+          "height": 88,
+          "font": 14,
+          "radius": 12,
+          "padding": 16,
+          "border": 1,
+          "topMarginFromNameGroup": 16
+        },
+        "sport": {
+          "tileWidth": "clamp((available-24)/3.35,88,112)",
+          "tileVerticalPadding": 16,
+          "icon": 34,
+          "labelFont": 12,
+          "internalGap": 4,
+          "tileGap": 8,
+          "radius": 12,
+          "border": "selected1.5/normal1"
+        },
+        "joinPolicy": {
+          "topMargin": 16,
+          "options": [
+            "直接加入",
+            "需要审批"
+          ],
+          "heightMin": 44,
+          "font": 14,
+          "radius": 12,
+          "border": 0.5
+        },
+        "footer": {
+          "button": "创建",
+          "font": 16,
+          "heightMin": 48,
+          "horizontalPadding": 16,
+          "buttonMarginY": 8,
+          "singleButton": true
+        }
+      }
+    },
+    "edit": {
+      "source": [
+        "entry/src/main/ets/pages/group/components/GroupEditInfoDialog.ets:97-193"
+      ],
+      "container": "Phone page form, tablet/2in1 centered dialog. Plain fields, no business-section cards.",
+      "sections": [],
+      "order": [
+        "名称",
+        "简介（选填）",
+        "加入方式（仅组主）",
+        "关闭加入说明（仅组主）"
+      ],
+      "removeFromOldPreview": [
+        "form-intro",
+        "基本信息 outer title/card",
+        "加入方式 outer title/card; retain one field label",
+        "运动项目: editing does not expose sport selector"
+      ],
+      "keepLabels": [
+        "名称",
+        "简介（选填）",
+        "加入方式"
+      ],
+      "metrics": {
+        "pageBodyPadding": 16,
+        "groupGap": 16,
+        "labelToFieldGap": 8,
+        "labelFont": 14,
+        "labelWeight": "Medium for name/description",
+        "nameHeight": 48,
+        "nameFont": 16,
+        "descriptionHeight": 100,
+        "descriptionFont": 14,
+        "fieldRadius": 8,
+        "border": 1,
+        "joinOptions": [
+          "任何人可加入",
+          "需要审批",
+          "关闭加入"
+        ],
+        "joinLabelToControlGap": 16,
+        "joinControlHeightMin": 44,
+        "footer": {
+          "phoneSingleSave": true,
+          "button": "保存",
+          "height": 48,
+          "font": 14,
+          "padding": [
+            8,
+            16,
+            16,
+            16
+          ],
+          "dialogButtons": [
+            "取消",
+            "保存"
+          ],
+          "dialogGap": 8
+        }
+      }
+    },
+    "activity": {
+      "source": [
+        "entry/src/main/ets/pages/group/GroupActivityPage.ets:735-844,1048-1100"
+      ],
+      "container": "Plain page form; no cards or section headings.",
+      "sections": [],
+      "order": [
+        "活动名称（选填）",
+        "auto-name hint",
+        "日期",
+        "时间",
+        "报名截止时间",
+        "地点（可选）",
+        "单打/双打（无字段标题）",
+        "报名人数（候选）与步进同排",
+        "match-mode helper",
+        "备注（选填）"
+      ],
+      "removeFromOldPreview": [
+        "form-intro",
+        "活动信息 title/card",
+        "报名设置 title/card",
+        "比赛类型 subheading",
+        "补充说明 title/card",
+        "活动备注 duplicate label",
+        "开始时间 combined label: source separates 日期 and 时间",
+        "场地 wording: source uses 地点（可选）"
+      ],
+      "keepLabels": [
+        "活动名称（选填）",
+        "日期",
+        "时间",
+        "报名截止时间",
+        "地点（可选）",
+        "报名人数（候选）",
+        "备注（选填）"
+      ],
+      "metrics": {
+        "pagePadding": [
+          0,
+          16,
+          32,
+          16
+        ],
+        "bodyGap": 16,
+        "labelToFieldGap": 8,
+        "labelFont": 14,
+        "inputFont": 16,
+        "controlHeight": 48,
+        "fieldRadius": 8,
+        "fieldBorder": 1,
+        "fieldHorizontalPadding": 16,
+        "dateChevronTarget": 48,
+        "format": {
+          "noLabel": true,
+          "heightMin": 44,
+          "radius": 12,
+          "font": 14
+        },
+        "capacity": {
+          "labelFont": 14,
+          "buttonWidth": 40,
+          "height": 44,
+          "numberWidth": 56,
+          "numberFont": "not explicitly set in source",
+          "radius": 8,
+          "helperFont": 12
+        },
+        "noteHeight": 100,
+        "noteFont": 14,
+        "footer": {
+          "buttons": [
+            "取消",
+            "创建 / 保存"
+          ],
+          "weights": [
+            1,
+            1
+          ],
+          "gap": 16,
+          "padding": 16,
+          "height": 48,
+          "font": 14
+        }
+      }
+    },
+    "detail": {
+      "source": [
+        "entry/src/main/ets/pages/group/GroupActivityPage.ets:866-987,1055-1091"
+      ],
+      "container": "Activity title and more menu are outside cards. First info card has no title. Second roster card has one internal roster-count label.",
+      "sections": [
+        "报名 · n/capacity (internal roster label only)"
+      ],
+      "order": [
+        "activity title + more",
+        "info card: status + singles/doubles chips",
+        "date/place/note plain multiline text",
+        "报名截止时间 helper",
+        "活动提醒 switch",
+        "roster card: 报名 · n/capacity + 管理临时成员报名 action",
+        "avatar grid",
+        "我的报名 divider block for eligible manager"
+      ],
+      "removeFromOldPreview": [
+        "top-level form intro",
+        "活动信息 heading",
+        "比赛场次 heading/card: source opens separate lineup route via footer",
+        "standalone 报名中 notice above info card",
+        "per-row 已报名 repeated beside each member: source uses avatar grid"
+      ],
+      "keepLabels": [
+        "报名 · n/capacity",
+        "我的报名",
+        "活动提醒"
+      ],
+      "metrics": {
+        "pagePadding": [
+          0,
+          16,
+          32,
+          16
+        ],
+        "bodyGap": 16,
+        "activityTitleFont": 16,
+        "titleWeight": "Medium",
+        "moreTarget": 40,
+        "infoCardPadding": 16,
+        "infoCardRadius": 12,
+        "infoCardInternalGap": 16,
+        "chipFont": 12,
+        "chipPadding": 4,
+        "chipRadius": 8,
+        "metadataFont": 14,
+        "deadlineFont": 12,
+        "rosterCardPadding": 16,
+        "rosterCardRadius": 12,
+        "rosterHeaderFont": 14,
+        "rosterHeaderWeight": "Medium",
+        "gridItemWidth": 64,
+        "avatar": 38,
+        "nameFont": 12,
+        "gridGapX": 16,
+        "gridGapY": 8,
+        "footer": {
+          "layout": "vertical role/status-dependent actions",
+          "padding": 16,
+          "gap": 8,
+          "heightMin": 48,
+          "font": 14,
+          "examples": [
+            "多场管理者:活动排赛",
+            "普通未报名:报名 + 查看场次",
+            "已完成:战绩"
+          ]
+        }
+      }
+    },
+    "start": {
+      "source": [
+        "entry/src/main/ets/pages/group/GroupResultPage.ets:1009-1084",
+        "entry/src/main/ets/pages/group/components/GroupMatchSeats.ets:57-111"
+      ],
+      "container": "Plain format/seat area; one card for rules. No participants card or heading.",
+      "sections": [
+        "比赛规则 (16, outside rule card)"
+      ],
+      "order": [
+        "无标签单打/双打 segmented",
+        "A1/B1 or A1,A2/B1,B2 seats",
+        "点选席位，再选择成员 (12 instruction)",
+        "inline roster chips",
+        "添加临时成员 action if allowed",
+        "比赛规则 heading",
+        "rule summary card"
+      ],
+      "removeFromOldPreview": [
+        "form-intro",
+        "参赛队员 heading/card",
+        "A 队/B 队 headings",
+        "比赛信息 heading/card",
+        "manual score/date controls: start mode has none"
+      ],
+      "keepLabels": [
+        "比赛规则",
+        "点选席位，再选择成员",
+        "A1/A2/B1/B2 badges"
+      ],
+      "metrics": {
+        "bodyPadding": [
+          16,
+          16,
+          24,
+          16
+        ],
+        "majorGap": 24,
+        "segmentedMinHeight": 44,
+        "segmentedFont": 14,
+        "seatColumnGap": 16,
+        "seatRowGap": 4,
+        "seatMinHeight": 44,
+        "seatPadding": 8,
+        "seatRadius": 8,
+        "seatAvatar": 28,
+        "seatNameFont": 14,
+        "seatBadgeFont": 12,
+        "rosterInstructionFont": 12,
+        "rosterPillMinHeight": 44,
+        "rosterPillMinWidth": 96,
+        "rosterPillPadding": 8,
+        "rosterPillMarginRightBottom": 4,
+        "rosterAvatar": 22,
+        "rosterNameFont": 14,
+        "ruleTitleFont": 16,
+        "ruleCardPadding": 16,
+        "ruleCardRadius": 12,
+        "ruleCardGap": 8,
+        "summaryPadding": 16,
+        "summaryRadius": 8,
+        "summaryFont": 14,
+        "summarySecondaryFont": 12,
+        "footer": {
+          "padding": 16,
+          "heightMin": 48,
+          "font": 16,
+          "label": "开始计分 / 继续本机比赛"
+        }
+      }
+    },
+    "result": {
+      "source": [
+        "entry/src/main/ets/pages/group/GroupResultPage.ets:818-941,955-1084"
+      ],
+      "container": "Same uncarded format/seat/roster as start; date row without label; one combined rule/score card.",
+      "sections": [
+        "比分与规则 (16 outside card)",
+        "比赛规则 (14 inside card)",
+        "比赛比分 (14 inside card)"
+      ],
+      "order": [
+        "无标签单打/双打",
+        "seats + inline roster",
+        "添加临时成员 action",
+        "date row (no 比赛信息 wrapper)",
+        "比分与规则",
+        "combined card: 比赛规则, rule summary/expanded chips, divider, 比赛比分, A/B result choices, 手动输入局分 disclosure, 比分明细（选填） disclosure"
+      ],
+      "removeFromOldPreview": [
+        "form-intro",
+        "参赛队员 heading/card",
+        "A 队/B 队 headings",
+        "整场局分 separate card",
+        "比赛信息 heading/card",
+        "standalone 比赛规则 outer card: combine it with score card under 比分与规则"
+      ],
+      "keepLabels": [
+        "比分与规则",
+        "比赛规则",
+        "比赛比分",
+        "手动输入局分",
+        "比分明细（选填） / 逐盘比分（选填）"
+      ],
+      "metrics": {
+        "majorGap": 24,
+        "bodyPadding": [
+          16,
+          16,
+          24,
+          16
+        ],
+        "dateMinHeight": 44,
+        "dateFont": 14,
+        "dateRadius": 8,
+        "dateHorizontalPadding": 16,
+        "outerTitleFont": 16,
+        "combinedCardPadding": 16,
+        "combinedCardRadius": 12,
+        "combinedGap": 8,
+        "innerLabelsFont": 14,
+        "summaryPadding": 16,
+        "summaryRadius": 8,
+        "scoreColumnGap": 8,
+        "scoreColumnPadding": 8,
+        "scoreColumnRadius": 8,
+        "scoreChoiceMinHeight": 44,
+        "scoreChoiceFont": 18,
+        "scoreChoiceRadius": 8,
+        "scoreChoicePadding": 8,
+        "manualDisclosureMinHeight": 44,
+        "manualDisclosureRadius": 8,
+        "manualDisclosureFont": 14,
+        "detailInputHeight": 44,
+        "detailInputRadius": 8,
+        "detailInputFont": 14,
+        "footer": {
+          "button": "提交",
+          "padding": 16,
+          "heightMin": 48,
+          "font": 16
+        }
+      }
+    },
+    "schedule": {
+      "source": [
+        "entry/src/main/ets/pages/group/GroupActivityLineupPage.ets:564-608,625-699,725-819"
+      ],
+      "container": "Plain direct-creation header fields and timing controls; only individual match cards. One actual 对阵安排 section heading.",
+      "sections": [
+        "对阵安排"
+      ],
+      "order": [
+        "direct only: activity-name placeholder (no label) + auto-name hint",
+        "direct only: date/place same row (no labels)",
+        "direct only: 单打/双打 outlined options (no heading)",
+        "不设具体时间 / 设置预计时间 outlined options (no heading)",
+        "estimated only: 每场时长 + 20/30/45/60 chips",
+        "divider",
+        "green-bar 对阵安排 + n 场",
+        "第 n 场 cards",
+        "添加场次"
+      ],
+      "removeFromOldPreview": [
+        "form-intro",
+        "排赛方式 title/card",
+        "场地 field label: direct header uses placeholder",
+        "每场里的预计时长 row: duration is one global control only in estimated mode",
+        "per-match singles/doubles duplicated: direct mode global format is above matches",
+        "第 n 场 as exterior section title: it belongs inside match card"
+      ],
+      "keepLabels": [
+        "每场时长",
+        "对阵安排",
+        "第 n 场"
+      ],
+      "metrics": {
+        "bodyPadding": [
+          16,
+          16,
+          24,
+          16
+        ],
+        "bodyGap": 16,
+        "nameHeight": 48,
+        "nameFont": 16,
+        "nameRadius": 8,
+        "autoNameHintFont": 14,
+        "datePlaceRowGap": 8,
+        "datePlaceHeight": 48,
+        "datePlaceRadius": 8,
+        "formatHeight": 44,
+        "formatRadius": 12,
+        "timingHeight": 44,
+        "timingRadius": 12,
+        "durationLabelFont": 14,
+        "durationHeight": 44,
+        "durationRadius": 12,
+        "section": {
+          "font": 16,
+          "weight": "Medium",
+          "bar": [
+            3,
+            14
+          ],
+          "gap": 8,
+          "countFont": 12
+        },
+        "matchCard": {
+          "padding": [
+            8,
+            16,
+            8,
+            16
+          ],
+          "radius": 16,
+          "border": 1,
+          "gap": 8,
+          "titleFont": 16,
+          "titleWeight": "Bold",
+          "deleteTarget": 40,
+          "timeCourtHeight": 44,
+          "timeCourtFont": 14,
+          "timeCourtRadius": 8,
+          "seatLabels": false,
+          "seatNameFont": 16,
+          "seatAvatar": 28,
+          "seatMinHeight": 44,
+          "rosterNameFont": 16,
+          "rosterMinHeight": 44,
+          "rosterNameMaxWidth": 130,
+          "rosterInstructionFont": 12
+        },
+        "addMatchHeight": 44,
+        "addMatchFont": 14,
+        "footer": {
+          "button": "保存排赛 / 保存",
+          "height": 48,
+          "font": 16,
+          "padding": 16
+        }
+      }
+    },
+    "registration": {
+      "source": [
+        "entry/src/main/ets/pages/group/GroupActivityPage.ets:989-1045,1057-1091"
+      ],
+      "container": "Plain page list. No enclosing card or 临时成员 heading.",
+      "sections": [],
+      "order": [
+        "为临时成员代报名，正式成员自行报名。",
+        "temporary-member selectable rows",
+        "bottom summary: 没有未保存的变更 / n项变更 + 报名 n/capacity",
+        "完成 / 保存报名（n 项）"
+      ],
+      "removeFromOldPreview": [
+        "临时成员 section/card",
+        "top 已报名 notice: count is in bottom summary",
+        "下一步预览 explanatory paragraph for HOS alignment; source saves directly"
+      ],
+      "keepLabels": [
+        "为临时成员代报名，正式成员自行报名。"
+      ],
+      "metrics": {
+        "bodyPadding": [
+          0,
+          16,
+          32,
+          16
+        ],
+        "rowsGap": 8,
+        "scopeFont": 14,
+        "rowMinHeight": 48,
+        "rowPadding": 8,
+        "rowRadius": 8,
+        "rowGap": 8,
+        "rowAvatar": 38,
+        "nameFont": 14,
+        "stateFont": 12,
+        "selectedBackground": "app_primary_subtle",
+        "unselectedBackground": "transparent",
+        "footer": {
+          "padding": 16,
+          "gap": 8,
+          "summaryFont": 12,
+          "buttonHeightMin": 48,
+          "buttonFont": 14,
+          "label": "完成 / 保存报名（n 项）",
+          "noPreviewStep": true
+        }
+      }
+    },
+    "join": {
+      "source": [
+        "entry/src/main/ets/pages/group/GroupJoinPage.ets:375-438,483-556"
+      ],
+      "container": "Optional scan entry + number field on page; one preview card. No section headings or fixed bottom action.",
+      "sections": [],
+      "order": [
+        "non-seeded: 扫一扫 entry card",
+        "non-seeded: separator 小组号",
+        "centered number input",
+        "number range/source hint",
+        "preview card: sport icon + group name + status, sport/member/no meta, description, optional join-message input, join CTA",
+        "举报 small text action"
+      ],
+      "removeFromOldPreview": [
+        "查找小组 section/card",
+        "小组号 extra field label if separator already renders it",
+        "小组预览 heading",
+        "申请信息 section/card",
+        "加入附言 field label: actual input uses placeholder",
+        "universal fixed bottom 申请加入 button: actual CTA is inside preview card"
+      ],
+      "keepLabels": [
+        "扫一扫 entry and number separator as resources",
+        "join-message placeholder only"
+      ],
+      "metrics": {
+        "bodyPadding": [
+          16,
+          16,
+          24,
+          16
+        ],
+        "bodyMaxWidth": 560,
+        "gap": 16,
+        "scanEntryMinHeight": 88,
+        "scanPadding": 16,
+        "scanRadius": 12,
+        "scanTitleFont": 16,
+        "scanHintFont": 14,
+        "numberHeight": 64,
+        "numberFont": 24,
+        "numberWeight": "Bold",
+        "numberRadius": 12,
+        "numberBorder": 1,
+        "hintFont": 10,
+        "previewPadding": 16,
+        "previewRadius": 16,
+        "previewGap": 8,
+        "sportIcon": 44,
+        "groupNameFont": 14,
+        "metaFont": 10,
+        "statusFont": 10,
+        "descriptionFont": 14,
+        "joinMessageHeight": 48,
+        "joinMessageFont": 14,
+        "joinMessageRadius": 12,
+        "cardButtonHeightMin": 48,
+        "cardButtonFont": 16,
+        "reportFont": 12,
+        "reportPadding": 8,
+        "fixedFooter": false
+      }
+    },
+    "temporary": {
+      "source": [
+        "entry/src/main/ets/pages/group/components/GroupTemporaryMemberDialog.ets:68-108"
+      ],
+      "container": "Actual HOS is centered dialog; for proposed independent iOS page retain body arrangement only, clearly label container as intentional divergence.",
+      "sections": [],
+      "order": [
+        "添加临时成员 dialog title",
+        "temporary-member explanatory hint",
+        "textarea placeholder 输入成员姓名",
+        "parsed count + 常用名称 button same row",
+        "取消 / 确定"
+      ],
+      "removeFromOldPreview": [
+        "输入姓名 section/card",
+        "每行一位成员 duplicate label",
+        "extra capacity notice if strict source matching: source shows parsed count only",
+        "full-width 常用名称 button: actual sits at right of count"
+      ],
+      "keepLabels": [
+        "输入成员姓名 placeholder",
+        "常用名称 action",
+        "parsed count"
+      ],
+      "metrics": {
+        "dialogPadding": 24,
+        "gap": 16,
+        "titleFont": 20,
+        "hintFont": 14,
+        "textareaHeight": 140,
+        "textareaFont": 14,
+        "textareaRadius": 8,
+        "textareaMaxChars": 4000,
+        "countFont": 12,
+        "commonNamesHeight": 48,
+        "commonNamesFont": 14,
+        "commonNamesPaddingLeftRight": [
+          16,
+          8
+        ],
+        "commonNamesRadius": "Capsule",
+        "buttonsGap": 8,
+        "buttonsHeight": 48,
+        "buttonsFont": 14
+      }
+    },
+    "members": {
+      "source": [
+        "entry/src/main/ets/pages/group/GroupDetailPage.ets:1674-1708,2489-2519,2535-2591"
+      ],
+      "container": "Real section headings outside roster cards: pending, formal, temporary. No persistent tab footer.",
+      "sections": [
+        "待审批申请 n",
+        "正式成员 n",
+        "临时 n + 添加临时成员 action"
+      ],
+      "order": [
+        "待审批申请 + application cards",
+        "正式成员 + list card",
+        "临时 + add action + list card",
+        "temporary explanation banner",
+        "已移除成员 disclosure"
+      ],
+      "removeFromOldPreview": [
+        "临时 repeated on every temporary row: section establishes type",
+        "任何额外 成员管理/成员名单 header",
+        "universal 添加临时成员 bottom CTA"
+      ],
+      "keepLabels": [
+        "待审批申请",
+        "正式成员",
+        "临时",
+        "组主 / 管理员 badges only; ordinary members no role badge"
+      ],
+      "metrics": {
+        "bodyPadding": [
+          16,
+          16,
+          24,
+          16
+        ],
+        "bodyGap": 16,
+        "sectionFont": 16,
+        "sectionWeight": "Medium",
+        "sectionBar": [
+          3,
+          14
+        ],
+        "sectionGap": 8,
+        "sectionCountFont": 12,
+        "pendingCardPadding": 8,
+        "pendingCardRadius": 12,
+        "pendingAvatar": 38,
+        "pendingColumnGap": 8,
+        "pendingNameFont": 14,
+        "pendingTimeFont": 12,
+        "pendingMessageFont": 12,
+        "pendingInternalGap": 4,
+        "approvalButtonsHeight": 36,
+        "approvalButtonsFont": 12,
+        "approvalButtonsGap": 8,
+        "approvalButtonsTopMargin": 4,
+        "rosterCardRadius": 12,
+        "memberRowPadding": 16,
+        "memberAvatar": 38,
+        "memberRowGap": 8,
+        "memberNameFont": 14,
+        "dividerLeftInset": 62,
+        "dividerRightInset": 16,
+        "fixedFooter": false
+      }
+    },
+    "records": {
+      "source": [
+        "entry/src/main/ets/pages/group/GroupDetailPage.ets:2222-2267,2342-2375,2406-2425"
+      ],
+      "container": "No true child tabs. Rankings format chips then pending/results areas; rankings and each result use cards. No persistent footer.",
+      "sections": [
+        "待确认 n (when needed)",
+        "单打排行榜 / 双打排行榜 (inside ranking card)",
+        "比赛结果 + independent record-format filter"
+      ],
+      "order": [
+        "单打/双打 chips controlling ranking only",
+        "待确认 cards when applicable",
+        "ranking card",
+        "pending-upload block when applicable",
+        "比赛结果 + filter menu",
+        "result cards"
+      ],
+      "removeFromOldPreview": [
+        "standalone 排行榜 heading if ranking card already says 单打排行榜",
+        "比赛记录/排行榜 child tabs when showing source baseline",
+        "待处理 generic replacement: actual says 待确认",
+        "universal 补记比赛 bottom CTA"
+      ],
+      "keepLabels": [
+        "单打/双打",
+        "待确认",
+        "单打排行榜 / 双打排行榜",
+        "比赛结果"
+      ],
+      "metrics": {
+        "bodyPadding": [
+          8,
+          16,
+          24,
+          16
+        ],
+        "bodyGap": 16,
+        "filterGap": 8,
+        "filterFont": 14,
+        "filterPadding": [
+          8,
+          16,
+          8,
+          16
+        ],
+        "filterRadius": 8,
+        "sectionFont": 16,
+        "sectionCountFont": 12,
+        "rankingCardPadding": 16,
+        "rankingCardRadius": 12,
+        "rankingCardGap": 8,
+        "rankingLabelFont": 14,
+        "resultCardGap": 8,
+        "resultMetaFont": 12,
+        "resultFooterFont": 12,
+        "stateActionHintFont": 14,
+        "fixedFooter": false
+      }
+    },
+    "report": {
+      "source": [
+        "entry/src/main/ets/pages/group/components/GroupReportDialog.ets:36-75",
+        "entry/src/main/ets/pages/group/components/GroupJoinReportDialog.ets:85-123"
+      ],
+      "container": "Actual HOS is centered dialog. No titled business sections, no cards around reasons or explanation.",
+      "sections": [],
+      "order": [
+        "举报小组 title",
+        "seven stacked radio reasons",
+        "补充说明 textarea placeholder",
+        "取消 / 提交"
+      ],
+      "removeFromOldPreview": [
+        "form-intro",
+        "举报原因 section/card",
+        "补充说明 section/card",
+        "具体情况 field label",
+        "2x2 reason chips: actual is seven stacked radio options"
+      ],
+      "keepLabels": [
+        "垃圾广告",
+        "骚扰辱骂",
+        "色情或违规内容",
+        "诈骗赌博",
+        "违法或危险活动",
+        "冒充他人或官方",
+        "其他",
+        "补充说明（选填，最多 500 字） placeholder"
+      ],
+      "metrics": {
+        "dialogPadding": 24,
+        "bodyGap": 16,
+        "titleFont": 20,
+        "reasonGap": 4,
+        "reasonRowGap": 8,
+        "reasonFont": 14,
+        "reasonRowHeight": "not explicitly fixed",
+        "textareaHeight": 90,
+        "textareaFont": 14,
+        "textareaRadius": 12,
+        "textareaMaxChars": 500,
+        "footerGap": 8,
+        "buttonHeightMin": 48,
+        "buttonFont": "not explicitly fixed in GroupReportDialog",
+        "joinPreviewVariant": {
+          "reasonGap": 16,
+          "textareaHeight": 112,
+          "textareaRadius": 4,
+          "footerGap": 16,
+          "buttonFont": 16,
+          "textAreaNote": "GroupJoinReportDialog differs; do not claim exact same component"
+        }
+      }
+    }
+  },
+  "strings": {
+    "group_training_add_session": "添加一场",
+    "group_common_confirm": "确认",
+    "group_action_submit_create": "创建",
+    "group_detail_add_temp_title": "添加临时成员",
+    "group_hint_join_message": "申请留言（选填）",
+    "group_join_input_hint": "输入小组号",
+    "group_join_scan_hint": "扫小组二维码",
+    "group_join_scan_title": "扫码加入",
+    "group_ui_a_wins": "A 方获胜",
+    "group_ui_b_wins": "B 方获胜",
+    "group_temp_batch_count": "%1$d 个名称",
+    "group_activity_registration_save": "保存报名（%1$d 项）",
+    "group_join_number_separator": "或输入小组号"
+  }
+}

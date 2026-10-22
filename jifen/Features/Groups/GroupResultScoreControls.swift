@@ -5,11 +5,12 @@ struct GroupResultScoreControls: View {
     let rules: GroupMatchRules
 
     var body: some View {
+        VStack(alignment: .leading, spacing: Theme.sm) {
         let quick = rules.maxSets <= 5 ? rules.overallScores : []
         if !quick.isEmpty {
             HStack(alignment: .top, spacing: Theme.sm) {
-                quickColumn(groupText("entry_a_wins", "A wins"), scores: quick.filter { $0.a > $0.b })
-                quickColumn(groupText("entry_b_wins", "B wins"), scores: quick.filter { $0.b > $0.a })
+                quickColumn(groupText("entry_a_wins", "A wins"), scores: quick.filter { $0.a > $0.b }, tone: .red)
+                quickColumn(groupText("entry_b_wins", "B wins"), scores: quick.filter { $0.b > $0.a }, tone: .blue)
             }
             let draws = quick.filter { $0.a == $0.b }
             if !draws.isEmpty { quickColumn(groupText("result_draw", "Draw"), scores: draws) }
@@ -28,11 +29,6 @@ struct GroupResultScoreControls: View {
                 Button { draft.clearTotal() } label: {
                     Label(NSLocalizedString("clear", comment: "") + ": " + groupText("overall_score", "Match score"), systemImage: "xmark.circle")
                 }.accessibilityIdentifier("group_result_clear_total")
-                let orders = GroupResultEntryDraft.orders(rules, total: draft.total.score)
-                if orders.count > 1 {
-                    GroupRuleChoices(title: groupText("entry_set_winners", "Game winners"), values: orders,
-                                     selection: Binding(get: { draft.victoryOrder ?? "" }, set: { draft.selectOrder($0, rules: rules) }), label: { $0.map(String.init).joined(separator: " › ") })
-                }
             }
             ForEach(draft.sets.indices, id: \.self) { index in
                 HStack {
@@ -40,8 +36,8 @@ struct GroupResultScoreControls: View {
                     GroupResultNumericField(text: $draft.sets[index].a, title: "\(groupText("set_details", "Set details")) \(index + 1) A", identifier: "group_detail_\(index)_A")
                     Text(":")
                     GroupResultNumericField(text: $draft.sets[index].b, title: "\(groupText("set_details", "Set details")) \(index + 1) B", identifier: "group_detail_\(index)_B")
-                    if !draft.total.hasInput {
-                        Button(role: .destructive) { draft.sets.remove(at: index) } label: { Image(systemName: "minus.circle") }
+                    if !draft.total.hasInput || draft.hasExcessDetailRows {
+                        Button(role: .destructive) { draft.removeSet(at: index, rules: rules) } label: { Image(systemName: "minus.circle") }
                             .buttonStyle(.borderless).accessibilityLabel(NSLocalizedString("delete", comment: ""))
                     }
                 }
@@ -57,28 +53,41 @@ struct GroupResultScoreControls: View {
         if (draft.total.hasInput || draft.hasDetailInput) && !draft.isValid(rules) {
             GroupNotice(text: groupText("invalid_result", "The result must match the completed match and its rules."))
         }
+        }
+        .onChange(of: draft.sets) { _, _ in draft.reconcileDetails(rules) }
     }
     private func disclosure(_ title: String, expanded: Binding<Bool>, identifier: String) -> some View {
         Button { expanded.wrappedValue.toggle() } label: {
-            HStack {
-                Text(title)
-                Spacer()
-                Image(systemName: expanded.wrappedValue ? "chevron.up" : "chevron.down").font(.caption)
-            }.contentShape(Rectangle())
-        }.accessibilityIdentifier(identifier)
+            HStack(spacing: Theme.sm) {
+                Text(title).font(.system(size: Theme.fontBody2))
+                Spacer(minLength: 8)
+                Image(systemName: expanded.wrappedValue ? "chevron.up" : "chevron.right").font(.system(size: Theme.fontBody2))
+            }
+            .padding(.horizontal, Theme.padding).padding(.vertical, Theme.sm).frame(maxWidth: .infinity, minHeight: 44)
+            .foregroundStyle(Theme.textPrimary)
+            .background(GroupEditorColors.input, in: RoundedRectangle(cornerRadius: 8))
+            .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Color(uiColor: .separator), lineWidth: 1))
+        }.buttonStyle(.plain).accessibilityIdentifier(identifier)
     }
-    private func quickColumn(_ title: String, scores: [GroupScore]) -> some View {
-        VStack(alignment: .leading, spacing: Theme.xs) {
-            Text(title).font(.caption).foregroundStyle(.secondary)
+    private func quickColumn(_ title: String, scores: [GroupScore], tone: Color = Theme.textSecondary) -> some View {
+        VStack(alignment: .leading, spacing: Theme.sm) {
+            Text(title).font(.system(size: Theme.fontCaption, weight: .medium)).foregroundStyle(tone).frame(maxWidth: .infinity)
             ForEach(Array(scores.enumerated()), id: \.offset) { _, score in
                 let chosen = draft.total.score == score
                 Button { draft.selectTotal(score, rules: rules) } label: {
-                    Text("\(score.a):\(score.b)").font(.subheadline).monospacedDigit().frame(maxWidth: .infinity, minHeight: 32)
-                }.buttonStyle(.bordered).tint(chosen ? Theme.primary : Theme.textSecondary)
+                    Text("\(score.a) : \(score.b)").font(.system(size: Theme.fontH5, weight: .medium)).monospacedDigit()
+                        .padding(Theme.sm).frame(maxWidth: .infinity, minHeight: 44)
+                        .foregroundStyle(chosen ? Theme.primary : Theme.textPrimary)
+                        .background(chosen ? Theme.primary.opacity(0.12) : Theme.cardBackground, in: RoundedRectangle(cornerRadius: 8))
+                        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(chosen ? Theme.primary : Color(uiColor: .separator), lineWidth: chosen ? 1.5 : 1))
+                }.buttonStyle(.plain)
                     .accessibilityAddTraits(chosen ? .isSelected : [])
                     .accessibilityIdentifier("group_quick_score_\(score.a)_\(score.b)")
             }
-        }.frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(Theme.sm).frame(maxWidth: .infinity, alignment: .leading)
+        .background(GroupEditorColors.input, in: RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Color(uiColor: .separator), lineWidth: 1))
     }
 }
 
@@ -90,7 +99,10 @@ struct GroupResultNumericField: View {
     var body: some View {
         TextField(title, text: $text).keyboardType(.numberPad).multilineTextAlignment(.center)
             .focused($focused)
-            .textFieldStyle(.roundedBorder).accessibilityLabel(title).accessibilityIdentifier(identifier)
+            .textFieldStyle(.plain).font(.system(size: Theme.fontBody2)).padding(.horizontal, Theme.sm).frame(minHeight: 44)
+            .background(GroupEditorColors.input, in: RoundedRectangle(cornerRadius: 8))
+            .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Color(uiColor: .separator), lineWidth: 1))
+            .accessibilityLabel(title).accessibilityIdentifier(identifier)
             .onChange(of: text) { _, value in
                 let cleaned = String(value.filter { $0.isASCII && $0.isNumber }.prefix(4))
                 if cleaned != value { text = cleaned }
@@ -113,17 +125,20 @@ struct GroupRuleChoices<Value: Hashable>: View {
     @Binding var selection: Value
     let label: (Value) -> String
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title).font(.caption).foregroundStyle(.secondary)
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 100), spacing: 8)], alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Theme.sm) {
+            if !title.isEmpty { Text(title).font(.system(size: Theme.fontBody2)).foregroundStyle(Theme.textSecondary) }
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 100), spacing: Theme.sm)], alignment: .leading, spacing: Theme.sm) {
                 ForEach(Array(values.enumerated()), id: \.offset) { _, value in
                     Button { selection = value } label: {
-                        Text(label(value)).font(.subheadline).multilineTextAlignment(.center)
-                            .fixedSize(horizontal: false, vertical: true).frame(maxWidth: .infinity, minHeight: 32)
-                    }.buttonStyle(.bordered).tint(selection == value ? Theme.primary : Theme.textSecondary)
+                        Text(label(value)).font(.system(size: Theme.fontBody2)).multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true).padding(Theme.sm).frame(maxWidth: .infinity, minHeight: 44)
+                            .foregroundStyle(selection == value ? Theme.primary : Theme.textPrimary)
+                            .background(selection == value ? Theme.primary.opacity(0.12) : Theme.cardBackground, in: RoundedRectangle(cornerRadius: 8))
+                            .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(selection == value ? Theme.primary : Color(uiColor: .separator), lineWidth: 1))
+                    }.buttonStyle(.plain)
                         .accessibilityAddTraits(selection == value ? .isSelected : [])
                 }
             }
-        }.padding(10).background(Color(uiColor: .tertiarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12))
+        }.padding(Theme.sm).background(GroupEditorColors.input, in: RoundedRectangle(cornerRadius: 8))
     }
 }

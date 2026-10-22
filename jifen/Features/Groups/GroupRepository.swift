@@ -2,8 +2,8 @@ import Foundation
 import Observation
 import Network
 
-nonisolated struct GroupCreateBody: Encodable, Sendable { var name: String; var description: String; var sport: GroupSport; var joinPolicy: String; var groupType = "peer" }
-nonisolated struct GroupActivityBody: Encodable, Sendable { var title: String; var startsAt: Int64; var place: String; var capacity: Int; var note: String; var format: GroupFormat; var matchMode = "multi"; var activityType = "signup"; var timingMode = "estimated"; var registrationClosesAt: Int64? = nil }
+nonisolated struct GroupCreateBody: Codable, Sendable { var name: String; var description: String; var sport: GroupSport; var joinPolicy: String; var groupType = "peer" }
+nonisolated struct GroupActivityBody: Codable, Sendable { var title: String; var startsAt: Int64; var place: String; var capacity: Int; var note: String; var format: GroupFormat; var matchMode = "multi"; var activityType = "signup"; var timingMode = "estimated"; var registrationClosesAt: Int64? = nil }
 nonisolated struct GroupActionBody: Encodable, Sendable { var message: String? = nil; var memberId: String? = nil; var displayName: String? = nil; var targetMemberId: String? = nil; var role: String? = nil; var name: String? = nil; var description: String? = nil; var joinPolicy: String? = nil; var reason: String? = nil }
 nonisolated struct GroupGameBody: Encodable, Sendable { var clientSessionId: String; var activityId: String?; var format: GroupFormat; var rules: GroupMatchRules; var participants: [GroupSeat]; var trainingSessionId: String? = nil; var activitySessionId: String? = nil }
 nonisolated struct GroupResultBody: Codable, Sendable {
@@ -27,6 +27,13 @@ nonisolated struct GroupRepository: Sendable {
     func read<T: Decodable & Sendable>(_ path: String, authenticated: Bool = true, query: [URLQueryItem] = [], expectedAuthRevision: UInt64? = nil) async throws -> T {
         #if DEBUG
         if GroupCaptureFixture.enabled { return try GroupCaptureFixture.read(path, query: query) }
+        if ProcessInfo.processInfo.arguments.contains("-UITestGroupsFixture") {
+            if path.hasSuffix("/report") { return try JSONDecoder().decode(T.self, from: Data("{\"report\":null}".utf8)) }
+            if path == "/capabilities", var catalog = await MainActor.run(body: { GroupStore.shared.capabilities }) {
+                catalog.groupReportEvidenceEnabled = true
+                return try JSONDecoder().decode(T.self, from: JSONEncoder().encode(catalog))
+            }
+        }
         #endif
         let revision: UInt64? = authenticated ? await requestRevision(expectedAuthRevision) : nil
         return try await client.request("/api/groups" + path, query: query, requiresAuth: authenticated, expectedAuthRevision: revision)
@@ -59,6 +66,32 @@ nonisolated struct GroupRepository: Sendable {
         if let format { query.append(.init(name: "format", value: format.rawValue)) }
         if let status { query.append(.init(name: "status", value: status)) }
         return try await read("/\(groupID)/results", query: query, expectedAuthRevision: expectedAuthRevision)
+    }
+    func createGroup(body: GroupCreateBody, accountID: String) async throws -> ScoreGroup {
+        try await create("", body: body, accountID: accountID)
+    }
+    func createActivity(groupID: String, body: GroupActivityBody, accountID: String) async throws -> GroupActivity {
+        try await create("/\(groupID)/activities", body: body, accountID: accountID)
+    }
+    private func create<Body: Codable & Sendable, Response: Decodable & Sendable>(_ path: String, body: Body, accountID: String) async throws -> Response {
+        let authRevision = await requestRevision(nil)
+        let pending = try persistence.pendingWrite(accountID: accountID, path: path, body: body)
+        do {
+            let original = try JSONDecoder().decode(Body.self, from: pending.body)
+            let response: Response = try await write(path, body: original, key: pending.key, expectedAuthRevision: authRevision)
+            try? persistence.completeWrite(key: pending.key, accountID: accountID)
+            return response
+        } catch {
+            let underlying = (error as? APIClientServerContextError)?.underlying ?? error
+            if case APIClientError.server(let status, let code, _, _) = underlying,
+               [400, 403, 404, 405, 410, 413, 414, 415, 422, 426].contains(status),
+               code != "NEED_LOGIN", code != "INVALID_RESPONSE" {
+                try? persistence.completeWrite(key: pending.key, accountID: accountID)
+            }
+            // Authentication failures, lost responses, malformed successes and stale-session cancellation
+            // retain their exact payload and key for the original account.
+            throw error
+        }
     }
     /// 直接排赛（安卓 `createDirectLineup`）：一次请求建 `activityType=direct` 活动并落对阵场次。
     func createDirectLineup(groupID: String, body: GroupDirectLineupBody, accountID: String) async throws -> GroupDirectLineupResponse {
@@ -150,8 +183,10 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
     #endif
     private let defaults = UserDefaults.standard
     private let connectivity = NWPathMonitor()
+    private let signedInAccountID: @MainActor () -> String?
 
-    init(observeConnectivity: Bool = true) {
+    init(observeConnectivity: Bool = true, signedInAccountID: @escaping @MainActor () -> String? = { SessionStore.shared.user?.id }) {
+        self.signedInAccountID = signedInAccountID
         guard observeConnectivity else { return }
         #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-UITestGroupsFixture") { return }
@@ -230,6 +265,8 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
         guard enabled, let id = accountID, SessionStore.shared.user?.id == id else { return }
         let revision = identityRevision
         loading = true; defer { loading = false }
+        // 首页铃铛独立更新，列表或申请读取失败也不阻塞通知提醒。
+        async let noticeRefresh = loadNotices()
         do {
             let authRevision = await repository.client.authSessionRevision()
             guard matchesIdentity(id, revision: revision) else { return }
@@ -241,12 +278,43 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
             cache.groups = groups.items.sorted { lhs, rhs in lhs.isActive != rhs.isActive ? lhs.isActive : lhs.updatedAt > rhs.updatedAt }; cache.pending = pending.items; cache.syncedAt = Date()
             cached = false; error = nil; saveCache()
             capabilities = flagsValue; cache.capabilities = flagsValue; saveCache()
-            await sync(); await loadNotices()
+            await sync()
         } catch {
             guard matchesIdentity(id, revision: revision) else { return }
             self.error = groupErrorMessage(error); cached = cache.syncedAt != nil
         }
+        _ = await noticeRefresh
     }
+    /// Refresh only the group profile while moderation is pending; keep roster and scroll state intact.
+    func refreshModeration(_ groupID: String) async {
+        guard enabled, let id = accountID, id == SessionStore.shared.user?.id,
+              let before = cache.details[groupID]?.group,
+              !(before.pendingName ?? "").isEmpty || !(before.pendingDescription ?? "").isEmpty else { return }
+        let revision = identityRevision, sequence = detailRequests[groupID]
+        do {
+            let authRevision = await repository.client.authSessionRevision()
+            let updated: ScoreGroup = try await repository.read("/\(groupID)", expectedAuthRevision: authRevision)
+            guard !Task.isCancelled, matchesIdentity(id, revision: revision), enabled, !mutating,
+                  detailRequests[groupID] == sequence, cache.details[groupID]?.group.revision == before.revision,
+                  updated.revision >= before.revision, await repository.client.authSessionRevision() == authRevision else { return }
+            cache.details[groupID]?.group = updated
+            if let index = cache.groups.firstIndex(where: { $0.id == groupID }) { cache.groups[index] = updated }
+            saveCache()
+        } catch { /* The visible page remains usable; retries have a fixed budget. */ }
+    }
+
+    /// Publish confirmed additions without reinitializing the match or schedule draft.
+    func acceptTemporaryMember(_ member: GroupMember, groupID: String, accountID: String, identity: Int) -> Bool {
+        guard matchesIdentity(accountID, revision: identity), member.groupId == groupID,
+              member.kind == "temporary", cache.details[groupID] != nil else { return false }
+        if cache.details[groupID]?.members.contains(where: { $0.id == member.id }) == false {
+            detailRequests[groupID] = (detailRequests[groupID] ?? 0) + 1
+            cache.details[groupID]?.members.append(member)
+            saveCache()
+        }
+        return true
+    }
+
     func loadDetail(_ groupID: String, format: GroupFormat = .singles) async {
         #if DEBUG
         if loadUITestFixtureIfRequested() { return }
@@ -273,8 +341,9 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
             detailErrors[groupID] = error
             cached = false; saveCache()
             if let index = cache.groups.firstIndex(where: { $0.id == groupID }) { cache.groups[index] = g }
+            if !g.isActive { GroupActivityReminder.shared.clearGroup(groupID, accountID: id) }
             if let me = m?.first(where: { $0.accountId == id }) {
-                GroupActivityReminder.shared.synchronize(accountID: id, group: g, memberID: me.id, activities: a ?? [])
+                GroupActivityReminder.shared.synchronize(accountID: id, group: g, memberID: me.id, activities: a)
                 if GroupPermissions.manager(me) {
                     let removed: [GroupMember]? = try? await repository.allPages("/\(groupID)/members", query: [.init(name: "status", value: "removed")], expectedAuthRevision: authRevision)
                     guard matchesIdentity(id, revision: revision), detailRequests[groupID] == sequence else { return }
@@ -359,10 +428,14 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
     private func saveCache() { if let accountID { try? GroupLocalPersistence.shared.saveCache(cache, accountID: accountID) } }
     func perform(_ operation: () async throws -> Void) async -> Bool {
         guard (capabilities?.minClientContractVersion ?? 1) <= 1 else { error = groupText("capabilities_missing", "Match rules are unavailable. Connect and retry."); return false }
-        guard enabled, let id = accountID, SessionStore.shared.user?.id == id else { error = groupText("need_login", "Please sign in to continue."); return false }
+        guard enabled, let id = accountID, signedInAccountID() == id else { error = groupText("need_login", "Please sign in to continue."); return false }
         let revision = identityRevision
         mutationCount += 1; mutating = true
-        defer { mutationCount -= 1; if mutationCount <= 0 { mutationCount = 0; mutating = false } }
+        defer {
+            if matchesIdentity(id, revision: revision) {
+                mutationCount = max(0, mutationCount - 1); mutating = mutationCount > 0
+            }
+        }
         do {
             let authRevision = await repository.client.authSessionRevision()
             guard matchesIdentity(id, revision: revision) else { return false }
@@ -412,7 +485,7 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
                         if let available { next = APIDateParser.date(from: available) }
                     }
                     let delay = min(300.0, pow(2.0, Double(min(upload.attempts ?? 0, 6))) * 5)
-                    try? GroupLocalPersistence.shared.updateRetry(upload.id, accountID: id, code: code, failure: terminal ? groupErrorMessage(error) : nil, next: terminal ? nil : next ?? Date().addingTimeInterval(delay), existingResultID: context?.currentResultID)
+                    try? GroupLocalPersistence.shared.updateRetry(upload.id, accountID: id, code: code, failure: terminal ? code ?? "UPLOAD_FAILED" : nil, next: terminal ? nil : next ?? Date().addingTimeInterval(delay), existingResultID: context?.currentResultID)
                     self.error = groupErrorMessage(error)
                 }
             }
@@ -433,11 +506,6 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
     func retryUpload(_ id: String) async {
         if let accountID { try? GroupLocalPersistence.shared.updateRetry(id, accountID: accountID, code: nil, failure: nil, next: nil) }
         await sync()
-    }
-    func discardUpload(_ id: String) {
-        guard let accountID else { return }
-        do { try GroupLocalPersistence.shared.finishUpload(id, accountID: accountID); uploadRevision += 1 }
-        catch { self.error = groupErrorMessage(error) }
     }
     func queuedResult(_ body: GroupResultBody, groupID: String, id: String, key: String) throws {
         guard enabled, let accountID, SessionStore.shared.user?.id == accountID else { throw GroupFlowError.staleSession }
@@ -627,6 +695,10 @@ extension GroupStore {
         if ProcessInfo.processInfo.arguments.contains("-UITestGroupsInviteOnly") {
             cache.details[group.id]?.members = Array(members.prefix(1)); cache.details[group.id]?.group.memberCount = 1
         }
+        if ProcessInfo.processInfo.arguments.contains("-UITestGroupsOnlyTemporary") {
+            cache.details[group.id]?.members = Array(members.prefix(1)) + [GroupMember(id: "ui-temp", groupId: group.id, kind: "temporary", role: "member", status: "active", displayName: "临时队友", accountId: "", joinedAt: now)]
+            cache.details[group.id]?.group.memberCount = 2
+        }
         if ProcessInfo.processInfo.arguments.contains("-UITestGroupsNoHistory") {
             cache.details[group.id]?.results = []; cache.details[group.id]?.pendingResults = []
             cache.details[group.id]?.stats?.confirmedMatchCount = 0
@@ -636,7 +708,7 @@ extension GroupStore {
         }
         if ProcessInfo.processInfo.arguments.contains("-UITestGroupsArchived") { cache.details[group.id]?.group.status = "archived" }
         if ProcessInfo.processInfo.arguments.contains("-UITestGroupsDissolving") { cache.details[group.id]?.group.status = "dissolving"; cache.details[group.id]?.group.dissolveAt = now + 604800000 }
-        cache.groups = [cache.details[group.id]?.group ?? group]
+        cache.groups = ProcessInfo.processInfo.arguments.contains("-UITestGroupsListEmpty") ? [] : [cache.details[group.id]?.group ?? group]
         return true
     }
 }

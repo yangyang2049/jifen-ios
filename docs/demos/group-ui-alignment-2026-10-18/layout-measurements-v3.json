@@ -1,0 +1,192 @@
+{
+  "normal": [
+    {
+      "footer": 1,
+      "overflow": false,
+      "scene": "create",
+      "sheet": 0,
+      "width": 402
+    },
+    {
+      "footer": 1,
+      "overflow": false,
+      "scene": "edit",
+      "sheet": 0,
+      "width": 402
+    },
+    {
+      "footer": 1,
+      "overflow": false,
+      "scene": "activity",
+      "sheet": 0,
+      "width": 402
+    },
+    {
+      "footer": 1,
+      "overflow": false,
+      "scene": "start",
+      "sheet": 0,
+      "width": 402
+    },
+    {
+      "footer": 1,
+      "overflow": false,
+      "scene": "result",
+      "sheet": 0,
+      "width": 402
+    },
+    {
+      "footer": 1,
+      "overflow": false,
+      "scene": "schedule",
+      "sheet": 0,
+      "width": 402
+    },
+    {
+      "footer": 1,
+      "overflow": false,
+      "scene": "registration",
+      "sheet": 1,
+      "width": 402
+    },
+    {
+      "footer": 1,
+      "overflow": false,
+      "scene": "temporary",
+      "sheet": 1,
+      "width": 402
+    },
+    {
+      "footer": 1,
+      "overflow": false,
+      "scene": "report",
+      "sheet": 1,
+      "width": 402
+    },
+    {
+      "footer": 0,
+      "overflow": false,
+      "scene": "join",
+      "sheet": 0,
+      "width": 402
+    },
+    {
+      "footer": 1,
+      "overflow": false,
+      "scene": "detail",
+      "sheet": 0,
+      "width": 402
+    },
+    {
+      "footer": 0,
+      "overflow": false,
+      "scene": "members",
+      "sheet": 0,
+      "width": 402
+    },
+    {
+      "footer": 0,
+      "overflow": false,
+      "scene": "records",
+      "sheet": 0,
+      "width": 402
+    }
+  ],
+  "compactDarkLarge": [
+    {
+      "overflow": false,
+      "scene": "create",
+      "sheet": 0,
+      "width": 320
+    },
+    {
+      "overflow": false,
+      "scene": "edit",
+      "sheet": 0,
+      "width": 320
+    },
+    {
+      "overflow": false,
+      "scene": "activity",
+      "sheet": 0,
+      "width": 320
+    },
+    {
+      "overflow": false,
+      "scene": "start",
+      "sheet": 0,
+      "width": 320
+    },
+    {
+      "overflow": false,
+      "scene": "result",
+      "sheet": 0,
+      "width": 320
+    },
+    {
+      "overflow": false,
+      "scene": "schedule",
+      "sheet": 0,
+      "width": 320
+    },
+    {
+      "overflow": false,
+      "scene": "registration",
+      "sheet": 1,
+      "width": 320
+    },
+    {
+      "overflow": false,
+      "scene": "temporary",
+      "sheet": 1,
+      "width": 320
+    },
+    {
+      "overflow": false,
+      "scene": "report",
+      "sheet": 1,
+      "width": 320
+    },
+    {
+      "overflow": false,
+      "scene": "join",
+      "sheet": 0,
+      "width": 320
+    },
+    {
+      "overflow": false,
+      "scene": "detail",
+      "sheet": 0,
+      "width": 320
+    },
+    {
+      "overflow": false,
+      "scene": "members",
+      "sheet": 0,
+      "width": 320
+    },
+    {
+      "overflow": false,
+      "scene": "records",
+      "sheet": 0,
+      "width": 320
+    }
+  ],
+  "sheetClose": [
+    {
+      "from": "temporary",
+      "to": "members",
+      "dialogs": 0
+    },
+    {
+      "from": "registration",
+      "to": "detail",
+      "dialogs": 0
+    },
+    {
+      "from": "report",
+      "to": "join",
+      "dialogs": 0
+    }
+  ]
+}

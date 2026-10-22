@@ -1,5 +1,10 @@
 """Rename the "Common names/places" feature copy to "Saved names/places".
 
+⚠️ 历史一次性脚本（勿再执行）：2026-10-17 起 zh-Hans / zh-Hant 的
+common_names_* 与 common_places_* 文案已回退为「常用名称 / 常用地点」
+（与安卓、鸿蒙对齐），英文及其它语言仍为 Saved Names / Saved Places。
+重跑本脚本会把中文文案再改回「已保存名称 / 已保存地点」。
+
 Applies only inside the common_names_* / common_places_* key families plus the
 two clear-records/account-deletion strings that reference the feature. Languages
 with a leftover old-term fragment after replacement are reverted to the original

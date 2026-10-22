@@ -5,6 +5,13 @@ resources shipped in the app. A new locale is not written to `jifen/Resources`
 until every ordinary, Info.plist, and plural row has a fresh reviewed source
 hash and passes `validate`.
 
+Group copy also keeps the exact reviewed English source snapshot in
+`group-copy-20261017.json` (`reviewed_sources`). Both group copy writers reject
+source changes before any writes. Review the affected native wording and update
+the explicit review data before changing that snapshot; updating catalog hashes
+alone does not constitute a translation review. The 2026-10-21 corrections and
+deliberately retained native wording are recorded in `group-copy-review-20261021.json`.
+
 ## Credentials
 
 Create an Azure Translator F0 resource, then export credentials in the current
@@ -100,6 +107,36 @@ control. Azure/Google caches, generated review packets, and reports are written
 under `build/localization/` and are disposable. Spanish locales share the Azure
 `es` cache but retain separate review catalogs. App naming is fixed by policy:
 all new locales use `iScoreboard`; existing Chinese names remain unchanged.
+
+The 2026-10-17 group copy correction is maintained in
+`group-copy-20261017.json`: all 47 locales have explicit sentence translations,
+shared terminology aliases, and reviewed exceptions for words such as French
+`Source` or Dutch `Training`. It also replaces Hindi fallbacks in Bengali,
+Punjabi and Odia. The shared `activity_direct_match_count` and `archived_count`
+counters include every locale's plural forms and are written to `.stringsdict`
+as well as the catalogs. The writer updates only group and shared-counter
+resources and catalog rows. The 25 new Traditional Chinese error messages are preserved in
+`zh-Hant-overrides.json`.
+
+```sh
+python3 scripts/localization/group_copy_20261017.py
+python3 scripts/localization/group_copy_20261017.py --check
+python3 -m unittest discover -s scripts/localization -p test_group_localization.py
+```
+
+These group gates include common keys referenced by group views and do not
+suppress unrelated failures in full-corpus validation.
+See [the dated recheck](../../docs/groups/group-recheck-and-localization-2026-10-17.md)
+for per-language results, backend error-code coverage and the existing baseline.
+
+The 2026-10-22 report-evidence follow-up adds the ten `group_report_*` image,
+supplement and receipt-action keys to the same authored pack and exact English
+source snapshot. All 44 additional locales have reviewed resource and catalog
+rows; existing English and Chinese wording is preserved. Traditional Chinese
+overrides retain its reviewed evidence wording when regenerated. The evidence
+hint keeps the three-image limit, JPG/PNG formats, 2 MB per image and visibility
+limited to the reporter and platform. Backend business-error mapping parity is
+an independent gate and is not waived by this copy update.
 
 `bootstrap-plurals` regenerates the checked-in plural resources for the three
 existing locales after `plural-keys.json` changes:

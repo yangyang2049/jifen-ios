@@ -83,7 +83,7 @@ struct RecentRowView: View {
                     if activity.isSyncedFromWatch {
                         Image(systemName: "applewatch")
                             .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Theme.textOnPrimary)
                             .padding(3)
                             .background(Circle().fill(Theme.accentColor))
                             .offset(x: 2, y: 2)

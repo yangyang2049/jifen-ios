@@ -13,7 +13,7 @@ nonisolated enum GroupFormat: String, Codable, CaseIterable, Identifiable, Senda
     var seatsPerSide: Int { self == .singles ? 1 : 2 }
     var title: String { groupText(rawValue, self == .singles ? "Singles" : "Doubles") }
 }
-nonisolated func groupText(_ key: String, _ fallback: String) -> String { NSLocalizedString("group_" + key, value: fallback, comment: "Groups") }
+nonisolated func groupText(_ key: String, _ fallback: String) -> String { NSLocalizedString(GroupCopyKey.resolve("group_" + key), value: fallback, comment: "Groups") }
 
 nonisolated struct ScoreGroup: Codable, Identifiable, Sendable, Hashable {
     var id: String; var groupNo: String; var name: String; var description: String; var sport: GroupSport
@@ -144,6 +144,7 @@ nonisolated extension GroupGameSnapshot {
 }
 nonisolated struct GroupGameResponse: Decodable, Sendable { var gameId: String; var clientSessionId: String }
 nonisolated struct GroupCapabilities: Codable, Sendable {
+    var groupReportEvidenceEnabled: Bool? = nil
     var groupNoLength: Int; var nameMin: Int; var nameMax: Int; var descriptionMax: Int
     var memberLimitDefault: Int; var memberLimitMax: Int; var ruleSchemaVersion: Int?; var supportsDraws: Bool?
     var sports: [GroupSportCapability]? = nil
@@ -155,6 +156,15 @@ nonisolated struct GroupCapabilities: Codable, Sendable {
     var activityMemberSessionMax: Int? = nil
     var trainingSessionMax: Int? = nil
     var trainingMemberSessionMax: Int? = nil
+    var groupNoMinLength: Int? = nil
+    var groupNoMaxLength: Int? = nil
+    /// Older responses and offline entry keep accepting every issued 6–8 digit number.
+    var groupNumberLengths: ClosedRange<Int> {
+        let minimum = groupNoMinLength ?? 6
+        let maximum = groupNoMaxLength ?? 8
+        guard minimum > 0, maximum >= minimum else { return 6...8 }
+        return minimum...maximum
+    }
     func allows(_ action: String) -> Bool { (minClientContractVersion ?? 1) <= 1 && (allowedActions?.contains(action) ?? true) }
     /// This release creates peer groups only, even if the server later exposes coaching.
     var allowsPeerCreation: Bool { allows("create_group") && (groupTypes?.contains("peer") ?? true) }
@@ -186,6 +196,23 @@ nonisolated struct GroupMatchRules: Codable, Hashable, Sendable {
         try c.encode(winByTwo, forKey: .winByTwo); try c.encode(useRallyScoring, forKey: .useRallyScoring)
         try c.encode(gamesPerSet, forKey: .gamesPerSet); try c.encode(tieBreakPoints, forKey: .tieBreakPoints)
         try c.encode(setScoringMode, forKey: .setScoringMode); try c.encode(usesNoAdScoring, forKey: .usesNoAdScoring)
+    }
+
+    var formatTitle: String {
+        if matchCompletionMode == "play_all" {
+            let key = sport == .tennis ? "record_format_sets_play_all_tennis" : "record_format_sets_play_all"
+            return String(format: NSLocalizedString(key, value: "Play all %d sets", comment: ""), maxSets)
+        }
+        if maxSets == 1 {
+            return NSLocalizedString(sport == .tennis ? "tennis_set_option_best_of_1" : "pingpong_set_option_best_of_1", value: "Best of 1", comment: "")
+        }
+        let formatter = NumberFormatter()
+        let language = Bundle.main.preferredLocalizations.first ?? "en"
+        formatter.locale = Locale(identifier: language)
+        formatter.numberStyle = language.hasPrefix("zh") ? .spellOut : .decimal
+        let total = formatter.string(from: NSNumber(value: maxSets)) ?? String(maxSets)
+        let wins = language.hasPrefix("zh") && maxSets == 3 ? (language.contains("Hant") ? "兩" : "两") : formatter.string(from: NSNumber(value: maxSets / 2 + 1)) ?? String(maxSets / 2 + 1)
+        return String(format: groupText(sport == .tennis ? "best_of_tennis_format" : "best_of_format", "Best of %1$@ (first to %2$@)"), total, wins)
     }
 
     var isValid: Bool {
@@ -258,19 +285,20 @@ extension GroupMatchRules {
 
 nonisolated enum GroupQRPayload {
     struct Payload: Codable { var type = "JIFEN_GROUP"; var v = 1; var groupNo: String }
-    static func validNumber(_ raw: String) -> Bool { GroupInvitationLink.validNumber(raw) }
+    static func validNumber(_ raw: String, capabilities: GroupCapabilities? = nil) -> Bool { GroupInvitationLink.validNumber(raw, capabilities: capabilities) }
     static func formatted(_ number: String) -> String {
+        guard number.count == 6 || number.count == 8 else { return number }
         let split = number.count / 2
         return String(number.prefix(split)) + " " + String(number.dropFirst(split))
     }
-    static func encode(_ number: String, regionCode: String? = Locale.current.region?.identifier, localization: String = Bundle.main.preferredLocalizations.first ?? "en") -> String {
-        GroupInvitationLink.joinURL(groupNo: number, regionCode: regionCode, localization: localization)?.absoluteString ?? ""
+    static func encode(_ number: String, regionCode: String? = Locale.current.region?.identifier, localization: String = Bundle.main.preferredLocalizations.first ?? "en", capabilities: GroupCapabilities? = nil) -> String {
+        GroupInvitationLink.joinURL(groupNo: number, regionCode: regionCode, localization: localization, capabilities: capabilities)?.absoluteString ?? ""
     }
-    static func parse(_ raw: String) -> String? {
+    static func parse(_ raw: String, capabilities: GroupCapabilities? = nil) -> String? {
         let text = raw.trimmingCharacters(in: .whitespacesAndNewlines)
-        if validNumber(text) { return text }
-        if let url = URL(string: text), let number = GroupInvitationLink.groupNumber(from: url) { return number }
-        guard let data = text.data(using: .utf8), let p = try? JSONDecoder().decode(Payload.self, from: data), p.type == "JIFEN_GROUP", p.v == 1, validNumber(p.groupNo) else { return nil }
+        if validNumber(text, capabilities: capabilities) { return text }
+        if let url = URL(string: text), let number = GroupInvitationLink.groupNumber(from: url, capabilities: capabilities) { return number }
+        guard let data = text.data(using: .utf8), let p = try? JSONDecoder().decode(Payload.self, from: data), p.type == "JIFEN_GROUP", p.v == 1, validNumber(p.groupNo, capabilities: capabilities) else { return nil }
         return p.groupNo
     }
 }

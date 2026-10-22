@@ -205,7 +205,8 @@
       "tennis.deuce.first": "平分",
       "tennis.deuce.again": "平分",
       "tennis.advantage.name": "%1$@占先",
-      "pingpong.score.all": "%1$@平"
+      "pingpong.score.all": "%1$@平",
+      "tennis.deciding.point": "决胜分，接发球方选择接发球区"
     }
   },
   "zh-Hant": {
@@ -322,7 +323,8 @@
       "tennis.deuce.first": "平分",
       "tennis.deuce.again": "平分",
       "tennis.advantage.name": "%1$@占先",
-      "pingpong.score.all": "%1$@平"
+      "pingpong.score.all": "%1$@平",
+      "tennis.deciding.point": "決勝分，接發球方選擇接發球區"
     }
   },
   "fr": {
@@ -390,7 +392,13 @@
       "fourth": "quatrième",
       "fifth": "cinquième",
       "set_unit.one": "manche",
-      "set_unit.other": "manches"
+      "set_unit.other": "manches",
+      "squash.game.to": "%1$@, jeu pour %2$@",
+      "squash.games.all": "%1$@ jeux partout",
+      "squash.leads": "%1$@ mène %2$@ %3$@ à %4$@",
+      "squash.game.unit": "jeu",
+      "squash.games.unit": "jeux",
+      "squash.match.to": "%1$@, match pour %2$@, %3$@ jeux à %4$@, %5$@"
     }
   },
   "fr-CA": {
@@ -458,7 +466,13 @@
       "fourth": "quatrième",
       "fifth": "cinquième",
       "set_unit.one": "manche",
-      "set_unit.other": "manches"
+      "set_unit.other": "manches",
+      "squash.game.to": "%1$@, jeu pour %2$@",
+      "squash.games.all": "%1$@ jeux partout",
+      "squash.leads": "%1$@ mène %2$@ %3$@ à %4$@",
+      "squash.game.unit": "jeu",
+      "squash.games.unit": "jeux",
+      "squash.match.to": "%1$@, match pour %2$@, %3$@ jeux à %4$@, %5$@"
     }
   },
   "es-ES": {
@@ -526,7 +540,13 @@
       "fourth": "cuarto",
       "fifth": "quinto",
       "set_unit.one": "set",
-      "set_unit.other": "sets"
+      "set_unit.other": "sets",
+      "squash.game.to": "%1$@, juego para %2$@",
+      "squash.games.all": "%1$@ juegos iguales",
+      "squash.leads": "%1$@ gana por %2$@ %3$@ a %4$@",
+      "squash.game.unit": "juego",
+      "squash.games.unit": "juegos",
+      "squash.match.to": "%1$@, partido para %2$@, %3$@ juegos a %4$@, %5$@"
     }
   },
   "es-MX": {
@@ -594,7 +614,13 @@
       "fourth": "cuarto",
       "fifth": "quinto",
       "set_unit.one": "set",
-      "set_unit.other": "sets"
+      "set_unit.other": "sets",
+      "squash.game.to": "%1$@, juego para %2$@",
+      "squash.games.all": "%1$@ juegos iguales",
+      "squash.leads": "%1$@ gana por %2$@ %3$@ a %4$@",
+      "squash.game.unit": "juego",
+      "squash.games.unit": "juegos",
+      "squash.match.to": "%1$@, partido para %2$@, %3$@ juegos a %4$@, %5$@"
     }
   },
   "pt-PT": {
@@ -636,8 +662,14 @@
       "squash.score.all": "%1$@ iguais",
       "squash.hand.out": "Troca, %1$@",
       "squash.two.clear": "um jogador deve vencer por 2 pontos",
-      "squash.game.ball": "Game ball",
-      "squash.match.ball": "Match ball"
+      "squash.game.to": "%1$@, jogo para %2$@",
+      "squash.games.all": "%1$@ jogos iguais",
+      "squash.leads": "%1$@ lidera por %2$@ %3$@ a %4$@",
+      "squash.game.unit": "jogo",
+      "squash.games.unit": "jogos",
+      "squash.match.to": "%1$@, encontro para %2$@, %3$@ jogos a %4$@, %5$@",
+      "squash.game.ball": "Ponto para fechar o jogo",
+      "squash.match.ball": "Ponto para vencer o encontro"
     }
   },
   "pt-BR": {
@@ -679,8 +711,14 @@
       "squash.score.all": "%1$@ iguais",
       "squash.hand.out": "Troca, %1$@",
       "squash.two.clear": "um jogador deve vencer por 2 pontos",
-      "squash.game.ball": "Game ball",
-      "squash.match.ball": "Match ball"
+      "squash.game.to": "%1$@, game para %2$@",
+      "squash.games.all": "%1$@ games iguais",
+      "squash.leads": "%1$@ lidera por %2$@ %3$@ a %4$@",
+      "squash.game.unit": "game",
+      "squash.games.unit": "games",
+      "squash.match.to": "%1$@, partida para %2$@, %3$@ games a %4$@, %5$@",
+      "squash.game.ball": "Ponto para fechar o game",
+      "squash.match.ball": "Ponto para vencer a partida"
     }
   },
   "de": {
@@ -1600,7 +1638,9 @@
       "score.numbers.three": "%1$@, %2$@, %3$@",
       "tennis.deuce.first": "듀스",
       "tennis.deuce.again": "듀스",
-      "tennis.advantage.name": "어드밴티지, %1$@"
+      "tennis.advantage.name": "어드밴티지, %1$@",
+      "tennis.deciding.point": "결정 포인트, 리시버가 리시브 코트를 선택합니다",
+      "pingpong.score.all": "%1$@ 대 %1$@"
     }
   },
   "tr": {

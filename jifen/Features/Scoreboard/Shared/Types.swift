@@ -82,7 +82,7 @@ enum GameType: String, Codable, CaseIterable, Sendable {
         case .squash: return NSLocalizedString("game_squash", value: "壁球", comment: "Squash")
         case .tennis: return NSLocalizedString("game_tennis", comment: "Tennis")
         case .softTennis: return NSLocalizedString("game_soft_tennis", value: "软式网球", comment: "Soft Tennis")
-        case .padel: return NSLocalizedString("game_padel", value: "板网球", comment: "Padel")
+        case .padel: return NSLocalizedString("game_padel", value: "板式网球", comment: "Padel")
         case .basketball: return NSLocalizedString("game_basketball", comment: "Basketball")
         case .basketballTraining: return NSLocalizedString("game_basketball_training", value: "投篮训练", comment: "Basketball training")
         case .threeBasketball: return NSLocalizedString("game_three_basketball", value: "三人篮球", comment: "3x3 Basketball")

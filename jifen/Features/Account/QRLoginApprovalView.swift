@@ -62,6 +62,17 @@ nonisolated struct QRLoginPayload: Decodable, Equatable, Sendable {
     }
 }
 
+/// The Me scanner accepts both invitations and login requests.
+nonisolated enum MeQRPayload: Equatable {
+    case group(String)
+    case login(QRLoginPayload)
+
+    static func parse(_ raw: String, capabilities: GroupCapabilities? = nil) throws -> MeQRPayload {
+        if let number = GroupQRPayload.parse(raw, capabilities: capabilities) { return .group(number) }
+        return .login(try QRLoginPayload.parse(raw))
+    }
+}
+
 nonisolated enum QRLoginError: LocalizedError {
     case invalidPayload
     case untrustedServer
@@ -90,6 +101,7 @@ nonisolated private struct QRConfirmResponse: Decodable, Sendable {
 }
 
 struct QRLoginApprovalView: View {
+    var onGroupInvitation: (String) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var parsed: QRLoginPayload?
     @State private var scanResponse: QRScanResponse?
@@ -110,7 +122,7 @@ struct QRLoginApprovalView: View {
                 cameraUnavailablePlaceholder
             }
         }
-        .navigationTitle(NSLocalizedString("qr_login_title", value: "扫码登录", comment: ""))
+        .navigationTitle(groupText("scan", "Scan QR code"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .appAnalyticsScreen(.qrLoginPage)
@@ -158,7 +170,7 @@ struct QRLoginApprovalView: View {
     }
 
     private var scanHintBanner: some View {
-        Text(NSLocalizedString("qr_login_scan_hint", value: "对准网页上的登录二维码", comment: ""))
+        Text(groupText("group_qr", "Group QR code") + " · " + NSLocalizedString("qr_login_title", value: "扫码登录", comment: ""))
             .font(.system(size: 16, weight: .semibold))
             .foregroundStyle(.white)
             .multilineTextAlignment(.center)
@@ -210,7 +222,7 @@ struct QRLoginApprovalView: View {
                 } label: {
                     Text(NSLocalizedString("approve", value: "确认登录", comment: ""))
                         .font(.system(size: 16.5, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Theme.textOnPrimary)
                         .frame(maxWidth: .infinity, minHeight: 54)
                         .background(Theme.accentColor, in: Capsule())
                 }
@@ -293,7 +305,15 @@ struct QRLoginApprovalView: View {
         errorMessage = nil
         defer { isWorking = false }
         do {
-            let payload = try QRLoginPayload.parse(raw)
+            let payload: QRLoginPayload
+            switch try MeQRPayload.parse(raw, capabilities: GroupStore.shared.capabilities) {
+            case .group(let number):
+                blockedScanValue = raw
+                onGroupInvitation(number)
+                return
+            case .login(let login):
+                payload = login
+            }
             struct Body: Encodable, Sendable { var scanToken: String }
             let response: QRScanResponse = try await APIClient.shared.request(
                 "/api/auth/qr/sessions/\(payload.sessionId)/scan",

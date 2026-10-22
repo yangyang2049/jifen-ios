@@ -132,7 +132,7 @@ struct CubeTimerView: View {
                         } label: {
                             Text(NSLocalizedString("confirm", comment: ""))
                                 .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(.white)
+                                .foregroundColor(Theme.textOnPrimary)
                                 .frame(
                                     minWidth: isTablet ? 240 : 200,
                                     minHeight: isTablet ? 56 : 52

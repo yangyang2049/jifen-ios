@@ -336,6 +336,12 @@ struct RecordNoteSheet: View {
         .padding(.bottom, 28)
         .navigationTitle(NSLocalizedString("record_note_title", value: "笔记", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                ModalCloseButton { sheetMode = .none }
+                    .accessibilityIdentifier("record_note_close")
+            }
+        }
     }
 
     private var textTitle: String { NSLocalizedString("record_note_text_title", value: "文字笔记", comment: "") }
@@ -382,10 +388,6 @@ struct RecordNoteSheet: View {
                         .allowsHitTesting(false)
                 }
             }
-            Text("\(textDraft.unicodeScalars.count)/\(maxTextNoteLength)")
-                .font(.caption)
-                .foregroundStyle(Theme.textSecondary)
-                .frame(maxWidth: .infinity, alignment: .trailing)
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 20)
@@ -395,7 +397,7 @@ struct RecordNoteSheet: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button(NSLocalizedString("cancel", value: "取消", comment: "")) {
+                ModalCloseButton {
                     sheetMode = .none
                 }
             }
@@ -435,14 +437,21 @@ struct RecordNoteSheet: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button(NSLocalizedString("delete", value: "删除", comment: ""), role: .destructive) {
-                    confirmDelete = .text
-                }
+                ModalCloseButton { sheetMode = .none }
+                    .accessibilityIdentifier("record_note_close")
             }
-            ToolbarItem(placement: .confirmationAction) {
+            ToolbarItemGroup(placement: .confirmationAction) {
+                Button(role: .destructive) {
+                    confirmDelete = .text
+                } label: {
+                    Image(systemName: "trash")
+                }
+                .accessibilityLabel(NSLocalizedString("delete", value: "删除", comment: ""))
+                .accessibilityIdentifier("record_note_delete")
                 Button(NSLocalizedString("edit", comment: "")) {
                     sheetMode = .editText
                 }
+                .accessibilityIdentifier("record_note_edit")
             }
         }
     }

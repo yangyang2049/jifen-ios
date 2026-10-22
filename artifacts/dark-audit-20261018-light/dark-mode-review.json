@@ -1,0 +1,76 @@
+{
+  "appearance": "light",
+  "validSceneCount": 10,
+  "captures": [
+    {
+      "scene": "activity-create",
+      "image": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/dark-audit-20261018-light/activity-create.png",
+      "sha256": "318d5ee6adefa70fa1f85d5332c32b83e36f2bb746dccb245ae2be77d68d5971",
+      "productionSourceSHA256": "ebd88f12ecbfcb788a0ec75d4960674af44e9b2dbebd38bfe06d54ded511c08c",
+      "darkModeVisualReview": "passed"
+    },
+    {
+      "scene": "create",
+      "image": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/dark-audit-20261018-light/create.png",
+      "sha256": "062f9a0890dfa43eb6a5bf9db98c5467dfe0276088fc5a80e99a67c5dfa3ce6a",
+      "productionSourceSHA256": "ebd88f12ecbfcb788a0ec75d4960674af44e9b2dbebd38bfe06d54ded511c08c",
+      "darkModeVisualReview": "passed"
+    },
+    {
+      "scene": "detail-activities",
+      "image": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/dark-audit-20261018-light/detail-activities.png",
+      "sha256": "5d29c86f79d76671dd1b17cc35423d813e4ac7e2cfbf00fe290e2d2dcfcb0022",
+      "productionSourceSHA256": "ebd88f12ecbfcb788a0ec75d4960674af44e9b2dbebd38bfe06d54ded511c08c",
+      "darkModeVisualReview": "passed"
+    },
+    {
+      "scene": "detail-overview",
+      "image": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/dark-audit-20261018-light/detail-overview.png",
+      "sha256": "da8b81e1a425cf856b1e3bc3c87345bf38fe4dbe3865030ae7bc5be595c665d6",
+      "productionSourceSHA256": "ebd88f12ecbfcb788a0ec75d4960674af44e9b2dbebd38bfe06d54ded511c08c",
+      "darkModeVisualReview": "passed"
+    },
+    {
+      "scene": "inventory-activity-date-time",
+      "image": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/dark-audit-20261018-light/inventory-activity-date-time.png",
+      "sha256": "c45ccf25a27b21fa18e3675ed967aaa4de06919cb44afde9984495765dc36454",
+      "productionSourceSHA256": "ebd88f12ecbfcb788a0ec75d4960674af44e9b2dbebd38bfe06d54ded511c08c",
+      "darkModeVisualReview": "passed"
+    },
+    {
+      "scene": "inventory-approve-join-confirm",
+      "image": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/dark-audit-20261018-light/inventory-approve-join-confirm.png",
+      "sha256": "745ac7d8017684d3ab9a7a28a5c7736049fdf2a102785a153b31c4441ae143a4",
+      "productionSourceSHA256": "ebd88f12ecbfcb788a0ec75d4960674af44e9b2dbebd38bfe06d54ded511c08c",
+      "darkModeVisualReview": "passed"
+    },
+    {
+      "scene": "inventory-training-conflict-review",
+      "image": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/dark-audit-20261018-light/inventory-training-conflict-review.png",
+      "sha256": "0e5a67e9ea4297d390b4f11ab3758832b7e4373575777fb2f9d7b1cdcf58102c",
+      "productionSourceSHA256": "ebd88f12ecbfcb788a0ec75d4960674af44e9b2dbebd38bfe06d54ded511c08c",
+      "darkModeVisualReview": "passed"
+    },
+    {
+      "scene": "notices",
+      "image": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/dark-audit-20261018-light/notices.png",
+      "sha256": "db1a94d89492d06e066e3dfafdcabc6632c1d1009b81b8b9bc4d4b806cfd92ef",
+      "productionSourceSHA256": "1a9e8fb7df1c1dc8ac001b8ae51771c74c22c35a45de0cff633dd0b527434f89",
+      "darkModeVisualReview": "passed"
+    },
+    {
+      "scene": "share",
+      "image": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/dark-audit-20261018-light/share.png",
+      "sha256": "fc5eb3c8f2107111acff5590148c97082093c79937ec92ee0253a7b9fe9ad89e",
+      "productionSourceSHA256": "ebd88f12ecbfcb788a0ec75d4960674af44e9b2dbebd38bfe06d54ded511c08c",
+      "darkModeVisualReview": "passed"
+    },
+    {
+      "scene": "training-plan",
+      "image": "/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/dark-audit-20261018-light/training-plan.png",
+      "sha256": "ec9ab839c59d6bcfcca6c78ca2d66ece055e60aa9d6052c9b850364848d54355",
+      "productionSourceSHA256": "ebd88f12ecbfcb788a0ec75d4960674af44e9b2dbebd38bfe06d54ded511c08c",
+      "darkModeVisualReview": "passed"
+    }
+  ]
+}

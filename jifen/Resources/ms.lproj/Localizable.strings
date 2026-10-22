@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "Permainan Papan";
 "search_team_or_game" = "Cari pasukan atau permainan";
 "match_count" = "%d perlawanan";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d perlawanan · semua ahli kumpulan";
+"archived_count" = "%d kumpulan";
 
 /* Home Screen */
 "recent_records" = "Rekod Terbaharu";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "cth. bermain semua lima set; perlawanan mungkin berakhir dengan seri";
 "match_completion_custom_placeholder" = "Masukkan 1-99";
 "match_completion_invalid_sets" = "Klasik memerlukan nombor ganjil dari 1-99; Main semua menerima 1-99.";
+"setup_auto_odd_sets" = "Hanya nombor ganjil dibenarkan — menggunakan %d";
 "has_been_reset" = "Tetapan semula selesai";
 "no_undo_available" = "Tiada buat asal tersedia";
 "screenshot_failed" = "Tangkapan skrin gagal";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "Sesi penyegerakan aktif";
 "timer_status_running" = "Sedang Berjalan";
 "timer_status_paused" = "Dijeda";
-"membership_entry_summary_active" = "Anda ialah ahli VIP. Terima kasih atas sokongan anda";
+"membership_entry_summary_active" = "VIP aktif";
 "sound_effects" = "Kesan Bunyi";
 "vibration" = "Getaran";
 "language" = "Bahasa";
@@ -1579,7 +1580,7 @@
 "group_approval" = "Perlu kelulusan";
 "group_approve" = "Luluskan";
 "group_archive" = "Arkibkan kumpulan";
-"group_archive_hint" = "Pengarkiban menyimpan semua sejarah dan menghentikan perubahan kumpulan. Anda boleh memulihkannya kemudian.";
+"group_archive_hint" = "Arkibkan kumpulan ini? Kandungannya akan menjadi baca sahaja.";
 "group_archive_readonly" = "Kumpulan ini diarkibkan. Sejarahnya hanya boleh dibaca.";
 "group_archived" = "Diarkibkan";
 "group_benefit_activity" = "Rancang aktiviti dan daftar";
@@ -1624,18 +1625,18 @@
 "group_invalid_qr" = "Ini bukan kod QR kumpulan yang sah.";
 "group_invalid_result" = "Keputusan yang direkodkan perlu disemak sebelum dimuat naik.";
 "group_invalid_rules" = "Sila semak peraturan perlawanan.";
-"group_invite" = "Invite";
+"group_invite" = "Jemput rakan sepasukan";
 "group_join" = "Sertai kumpulan";
 "group_join_hint" = "Sertai kumpulan rakan menggunakan nombor atau kod QR.";
-"group_join_message" = "Mesej kepada kumpulan (pilihan)";
-"group_join_policy" = "Cara menyertai";
+"group_join_message" = "Mesej permohonan menyertai (pilihan)";
+"group_join_policy" = "Pilihan penyertaan";
 "group_leave" = "Keluar daripada kumpulan";
-"group_leave_hint" = "Anda akan kehilangan akses kepada kumpulan ini. Rekod peribadi kekal pada peranti ini.";
+"group_leave_hint" = "Selepas keluar, anda bukan lagi ahli dan kumpulan ini akan dialih keluar daripada “Kumpulan saya”. Anda tidak lagi boleh mengakses atau menyertainya. Rekod perlawanan kumpulan yang sedia ada dan rekod peribadi pada peranti ini akan dikekalkan. Untuk mengaksesnya semula, anda perlu menyertai kumpulan ini sekali lagi.";
 "group_load_failed" = "Tidak dapat memuatkan kumpulan";
 "group_load_more" = "Muatkan lagi";
 "group_losses" = "Bilangan kekalahan";
 "group_manual" = "Entri manual";
-"group_manual_result" = "Tambah perlawanan terdahulu";
+"group_manual_result" = "Tambah keputusan perlawanan";
 "group_match_detail" = "Butiran perlawanan";
 "group_match_log" = "Sejarah perlawanan";
 "group_match_rules" = "Peraturan perlawanan";
@@ -1647,15 +1648,15 @@
 "group_name" = "Nama kumpulan";
 "group_need_login" = "Sila log masuk untuk meneruskan.";
 "group_need_members" = "Jemput rakan atau tambah ahli sementara sebelum memulakan perlawanan.";
-"group_new_activity" = "Rancang aktiviti";
+"group_new_activity" = "Cipta aktiviti";
 "group_new_owner" = "Pemilik baharu";
 "group_no_activities" = "Belum ada aktiviti";
 "group_no_description" = "Belum ada penerangan";
 "group_no_rankings" = "Kedudukan muncul selepas keputusan perlawanan disahkan.";
 "group_no_set_details" = "Hanya keputusan keseluruhan direkodkan.";
-"group_note" = "Nota aktiviti (pilihan)";
-"group_number" = "6–8 digit group number";
-"group_open" = "Sesiapa yang mengetahui nombor boleh menyertai";
+"group_note" = "Nota (pilihan)";
+"group_number" = "Nombor kumpulan 6–8 digit";
+"group_open" = "Sertai terus";
 "group_overall_score" = "Skor set keseluruhan";
 "group_overview" = "Gambaran keseluruhan";
 "group_owner" = "Pemilik";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "Buang ahli";
 "group_restore" = "Pulihkan kumpulan";
 "group_restore_hint" = "Pulihkan kumpulan ini untuk membolehkan aktiviti dan perekodan mata.";
-"group_results" = "Perlawanan";
+"group_results" = "Rekod";
 "group_retry" = "Cuba semula";
 "group_rules_missing" = "Peraturan belum direkodkan";
-"group_save" = "Sahkan";
+"group_save" = "Simpan";
 "group_save_failed" = "Tidak dapat menyimpan perlawanan. Sila cuba lagi.";
 "group_scan" = "Imbas kod QR";
 "group_scoreboard" = "Papan skor";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "Sambung atau tamatkan perlawanan semasa sebelum memulakan yang baharu.";
 "group_unregister" = "Batalkan pendaftaran";
 "group_void_reason" = "Sebab membatalkan keputusan";
-"group_void_result" = "Batalkan kesahan keputusan";
+"group_void_result" = "Batalkan";
 "group_voided" = "Keputusan dibatalkan";
 "group_wins" = "Bilangan kemenangan";
 "group_withdraw" = "Tarik balik permohonan";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "Anda sudah menjadi ahli.";
 "group_open_group" = "Buka kumpulan";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
+"group_groups" = "Kumpulan";
+"group_invite_students" = "Jemput pelajar";
+"group_group_type" = "Jenis kumpulan";
+"group_peer" = "Kumpulan rakan";
+"group_coaching" = "Kumpulan latihan";
+"group_training" = "Latihan";
+"group_upcoming" = "Akan datang";
+"group_latest_results" = "Keputusan terkini";
+"group_no_results" = "Belum ada perlawanan direkodkan";
+"group_no_training" = "Belum ada latihan dijadualkan";
+"group_active_activities" = "Sedang berlangsung · Pendaftaran dibuka";
+"group_past_activities" = "Aktiviti lalu";
+"group_all_formats" = "Semua format";
+"group_join_requests" = "Permohonan menyertai";
+"group_regular_members" = "Ahli berdaftar";
+"group_temporary_members" = "Ahli sementara";
+"group_add" = "Tambah";
+"group_leader" = "Pemilik";
+"group_member_settings" = "Tetapan ahli";
+"group_settings" = "Pengurusan kumpulan";
+"group_partial_load" = "Sesetengah bahagian tidak dapat dimuat semula. Tarik ke bawah untuk mencuba lagi.";
+"group_leave_notices" = "Notis ketidakhadiran pelajar";
+"group_mark_seen" = "Dibaca";
+"group_training_schedule" = "Jadual latihan";
+"group_add_session" = "Tambah perlawanan";
+"group_edit_schedule" = "Sunting jadual";
+"group_cancel_schedule" = "Batalkan jadual";
+"group_leave_training" = "Mohon tidak hadir";
+"group_session_minutes" = "Minit setiap perlawanan";
+"group_court" = "Gelanggang";
+"group_remove_session" = "Buang";
+"group_publish_schedule" = "Terbitkan jadual";
+"group_leave_reason" = "Sebab tidak hadir (pilihan)";
+"group_report" = "Laporkan kumpulan";
+"group_report_reason" = "Sebab";
+"group_report_detail" = "Butiran (pilihan)";
+"group_report_submit" = "Hantar";
 "group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
+"group_report_harassment" = "Gangguan";
+"group_report_inappropriate" = "Kandungan seksual atau tidak sesuai";
+"group_report_fraud" = "Penipuan atau perjudian";
+"group_report_illegal" = "Aktiviti haram atau berbahaya";
+"group_report_impersonation" = "Penyamaran identiti";
+"group_report_other" = "Lain-lain";
+"group_lineup_invalid" = "Semak masa perlawanan, gelanggang dan pemain.";
+"group_lineup_member_limit" = "Seorang ahli boleh bermain paling banyak lapan perlawanan bagi setiap jadual.";
+"group_lineup_conflict" = "Perlawanan serentak mesti menggunakan gelanggang dan pemain yang berbeza.";
+"group_multi_match_hint" = "Satu aktiviti boleh merangkumi beberapa perlawanan. Ahli mendaftar untuk aktiviti; semasa menyusun perlawanan, pilih 2 pendaftar bagi setiap perseorangan atau 4 bagi setiap beregu.";
+"group_single_match_hint" = "Setiap aktiviti ialah satu perlawanan. Pilih 2 ahli berdaftar untuk perseorangan atau 4 untuk beregu.";
+"group_rate_limited" = "Terlalu banyak permintaan. Cuba lagi kemudian.";
+"group_create_daily_limit" = "Anda telah mencapai had penciptaan kumpulan dalam 24 jam. Cuba lagi kemudian.";
+"group_join_daily_limit" = "Anda telah mencapai had penyertaan kumpulan dalam 24 jam. Cuba lagi kemudian.";
+"group_pending_request_limit" = "Terlalu banyak permohonan menunggu kelulusan. Tunggu keputusan atau tarik balik sebahagiannya.";
+"group_request_daily_limit" = "Kumpulan ini telah mencapai had permohonan menyertai dalam 24 jam. Cuba lagi kemudian.";
+"group_join_cooldown" = "Anda perlu menunggu 24 jam selepas ditolak sebelum memohon semula.";
+"group_result_group_daily_limit" = "Kumpulan ini telah mencapai had keputusan dalam 24 jam. Cuba lagi kemudian.";
+"group_result_submitter_daily_limit" = "Anda telah mencapai had penghantaran keputusan dalam 24 jam. Cuba lagi kemudian.";
+"group_not_coach" = "Hanya jurulatih boleh menjadualkan sesi.";
+"group_activity_count" = "%1$d/%2$d berdaftar";
+"group_activity_create_admin_hint" = "Aktiviti dicipta oleh pemilik kumpulan atau pentadbir";
+"group_activity_direct_hint" = "Pilih terus daripada semua ahli kumpulan aktif; pendaftaran tidak diperlukan.";
+"group_activity_direct_save" = "Simpan jadual";
+"group_activity_direct_title" = "Atur sekarang";
+"group_activity_field_title_optional" = "Nama aktiviti (pilihan)";
+"group_activity_full" = "Penuh";
+"group_activity_lineup_add" = "Tambah perlawanan";
+"group_activity_lineup_add_need_members" = "Pemain tidak mencukupi. Sekurang-kurangnya %1$d ahli aktif diperlukan untuk menambah perlawanan.";
+"group_activity_lineup_court" = "Nombor gelanggang";
+"group_activity_lineup_duration" = "Tempoh perlawanan";
+"group_activity_lineup_match_count" = "%1$d perlawanan";
 "group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_activity_lineup_remove" = "Buang";
+"group_activity_lineup_section_matches" = "Susun perlawanan";
+"group_activity_lineup_session" = "Perlawanan %1$d";
+"group_activity_registration_empty" = "Tiada ahli sementara";
+"group_activity_section_count" = "%1$d aktiviti";
+"group_activity_section_past" = "Aktiviti lalu";
+"group_activity_section_upcoming" = "Sedang berlangsung · Pendaftaran dibuka";
+"group_activity_status_scheduled" = "Sedia bermula";
+"group_activity_time_after_previous" = "Selepas perlawanan sebelumnya";
+"group_activity_time_unspecified" = "Masa belum ditentukan";
+"group_activity_timing" = "Penetapan masa";
+"group_activity_timing_estimated" = "Anggaran masa";
+"group_activity_timing_sequence" = "Tanpa masa tepat";
+"group_activity_title_auto_hint" = "Jika dibiarkan kosong, nama dijana daripada tarikh, contohnya “Aktiviti 10 November”.";
+"group_archived_empty" = "Tiada kumpulan diarkibkan";
+"group_archived_list_title" = "Kumpulan diarkibkan";
+"group_empty_activities_title" = "Belum ada aktiviti";
+"group_list_add_title" = "Cipta atau sertai kumpulan";
+"group_ranking_draws" = "Bilangan seri";
+"group_ranking_games" = "Perlawanan dimainkan";
+"group_ranking_losses" = "Bilangan kekalahan";
+"group_ranking_sets" = "Skor";
+"group_ranking_title" = "Kedudukan %@";
+"group_ranking_wins" = "Bilangan kemenangan";
+"group_training_results_locked" = "Jadual dengan keputusan mengekalkan masa dan pemain. Lokasi dan nota boleh diedit.";
+"group_temporary_hint" = "Ahli sementara tidak memerlukan akaun dan boleh ditambah semasa memasukkan keputusan.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "Lepaskan perlawanan";
-"group_activity_lineup" = "Jadual perlawanan";
-"group_activity_mode" = "Perlawanan";
+"group_abandon_game" = "Tinggalkan perlawanan";
+"group_activity_lineup" = "Susun perlawanan";
+"group_activity_mode" = "Rekod";
 "group_activity_reminder" = "Ingatkan 15 minit lebih awal";
 "group_add_set" = "Tambah skor permainan";
 "group_added_members" = "Ditambah";
-"group_authority_confirm" = "Sahkan sebagai pemilik kumpulan";
-"group_batch_names_hint" = "Satu nama setiap baris, 1–24 aksara setiap nama.";
-"group_beta_notice" = "Kumpulan dalam versi beta. Maklum balas dialu-alukan.";
+"group_authority_confirm" = "Sahkan keputusan";
+"group_batch_names_hint" = "Satu nama setiap baris";
+"group_beta_notice" = "Kumpulan masih dalam peringkat beta. Sesetengah ciri mungkin berubah. Terima kasih kerana mencubanya lebih awal.";
 "group_cancel_dissolve" = "Batalkan pembubaran";
 "group_cancel_dissolve_hint" = "Pulihkan kumpulan ini untuk membolehkan aktiviti dan perekodan mata.";
 "group_cancel_training_hint" = "Perlawanan selesai kekal dalam sejarah. Perlawanan yang bermula boleh diselesaikan.";
@@ -1834,9 +1835,9 @@
 "group_default_rules" = "Lalai Sukan";
 "group_discard_upload" = "Buang muat naik";
 "group_dissolve" = "Bubarkan kumpulan";
-"group_dissolve_hint" = "Baca sahaja selama 7 hari. Pembubaran boleh dibatalkan dalam tempoh ini.";
+"group_dissolve_hint" = "Kumpulan hanya boleh dibaca selama 7 hari dan pembubaran boleh dibatalkan dalam tempoh itu. Selepas 7 hari, kumpulan dan semua datanya dipadam secara kekal.";
 "group_dissolving" = "Sedang dibubarkan";
-"group_edit_activity" = "Edit";
+"group_edit_activity" = "Sunting";
 "group_edit_lineup" = "Susun perlawanan";
 "group_existing_result" = "Lihat keputusan di awan";
 "group_feedback" = "Maklum balas";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "Belum ada pemberitahuan";
 "group_no_sessions" = "Belum ada perlawanan dijadualkan";
 "group_notices" = "Pemberitahuan";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "Sesetengah bahagian tidak dapat dimuat semula. Tarik ke bawah untuk mencuba lagi.";
 "group_point_cap" = "Had Skor";
 "group_preview_schedule" = "Semak jadual";
 "group_published" = "Diterbitkan";
 "group_qr_direct_hint" = "Imbas dalam iScoreboard untuk pratonton dan menyertai.";
 "group_quick_score" = "Skor set keseluruhan";
 "group_rally_scoring" = "Pemarkahan Rali";
-"group_read_notices" = "Read";
+"group_read_notices" = "Dibaca";
 "group_registration_closes" = "Pendaftaran ditutup";
 "group_regular" = "Standard";
-"group_reload_version" = "Muatkan versi terkini";
+"group_reload_version" = "Muat semula";
 "group_reminder_body" = "Aktiviti bermula dalam 15 minit.";
 "group_reminder_permission" = "Dayakan pemberitahuan aplikasi dalam Tetapan.";
 "group_reminder_too_late" = "Aktiviti bermula dalam masa kurang daripada 15 minit.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "Pemarkahan set";
 "group_tie_break" = "Mata Tiebreak";
 "group_tiebreak_only" = "Tie-break sahaja";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "Tarikh";
+"group_too_many_sessions" = "Semak masa perlawanan, gelanggang dan pemain.";
+"group_training_date" = "Tarikh latihan";
 "group_win_by_two" = "Menang dengan beza dua mata";
 
-"group_keep_draft" = "Kekalkan perubahan saya";
+"group_keep_draft" = "Teruskan menyunting versi setempat";
 
 "group_server_version" = "Versi terkini";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "Kumpulan akan dibubarkan pada %@\nTempoh bertenang 7 hari; baca sahaja sehingga itu";
 "group_notice_end" = "Tiada lagi pemberitahuan";
 "group_notice_join_requested" = "Permintaan sertai kumpulan diterima";
 "group_notice_join_approved" = "Permintaan sertai kumpulan diluluskan";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "Masukkan secara manual";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "Tandakan semua sebagai dibaca";
+
+"group_status_active" = "Aktif";
+"group_dissolved" = "Dibubarkan";
+"group_report_status_pending" = "Menunggu";
+"group_report_status_reviewing" = "Dalam semakan";
+"group_report_status_resolved" = "Diselesaikan";
+"group_report_status_dismissed" = "Ditolak";
+"group_error_permission" = "Anda tidak mempunyai kebenaran untuk tindakan ini.";
+"group_error_transfer_first" = "Pindahkan pemilikan kumpulan sebelum keluar atau memadam akaun.";
+"group_error_target" = "Pilih ahli aktif kumpulan ini yang mempunyai akaun.";
+"group_error_activity_locked" = "Aktiviti ini sudah bermula atau tamat. Jadualnya tidak boleh diubah atau dibatalkan.";
+"group_error_activity_pending" = "Selesaikan atau buang perlawanan yang tinggal dahulu.";
+"group_error_registration_disabled" = "Perlawanan yang dijadualkan terus tidak memerlukan pendaftaran.";
+"group_error_content_blocked" = "Teks ini mengandungi kandungan tidak sesuai. Sila sunting.";
+"group_error_request_invalid" = "Semak maklumat yang dimasukkan dan cuba lagi.";
+"group_error_reason_required" = "Masukkan sebab sebelum meneruskan.";
+"group_error_result_state" = "Hanya keputusan yang menunggu pengesahan boleh disahkan.";
+"group_error_conflict" = "Data telah berubah. Muat semula dan semak sebelum mencuba lagi.";
+"group_error_request_handled" = "Permohonan ini sudah diproses. Muat semula senarai.";
+"group_error_place_locked" = "Tempat tidak boleh diubah selepas perlawanan bermula atau tamat.";
+"group_error_schedule_cancelled" = "Jadual atau perlawanan ini telah dibatalkan.";
+"group_error_session_completed" = "Perlawanan ini telah tamat dan ketidakhadiran tidak boleh dimohon. Muat semula jadual untuk melihat keputusan.";
+"group_error_session_has_result" = "Perlawanan ini sudah mempunyai keputusan. Batalkannya sebelum menambah keputusan lain.";
+"group_error_item_not_found" = "Aktiviti, jadual, perlawanan atau notifikasi ini tidak lagi tersedia. Muat semula senarai.";
+"group_error_server" = "Perkhidmatan kumpulan tidak tersedia buat sementara waktu. Cuba lagi kemudian.";
+"group_error_peer_only" = "Gunakan penjadualan latihan untuk kumpulan latihan.";
+"group_error_name_length" = "Nama kumpulan mesti mengandungi 2–24 aksara.";
+"group_error_description_length" = "Penerangan kumpulan tidak boleh melebihi 200 aksara.";
+"group_error_activity_invalid" = "Semak nama, tarikh, lokasi dan kapasiti aktiviti.";
+"group_error_registration_closed" = "Pendaftaran telah ditutup.";
+"group_error_action_disabled" = "Tindakan ini tidak tersedia buat masa ini.";
+"group_error_update_required" = "Kemas kini aplikasi untuk meneruskan.";
+"group_welcome_back" = "Selamat kembali";
+"group_transfer_none" = "Tiada ahli tetap lain. Ahli sementara tidak boleh menjadi ketua kumpulan.";
+"group_empty_activities_hint" = "Cipta aktiviti untuk disertai ahli. Pendaftaran ditutup apabila kuota penuh.";
+"group_temp_import_names" = "Import nama tersimpan";
+"group_temp_import_count" = "Import (%1$d)";
+"group_result_information" = "Maklumat perlawanan";
+"group_result_actions" = "Tindakan keputusan";
+"group_peer_confirmation" = "Pengesahan lawan";
+"group_notice_target_unavailable" = "Kandungan ini tidak tersedia atau anda tidak lagi mempunyai akses.";
+"group_push_enabled" = "Pemberitahuan kumpulan";
+"group_push_group_enabled" = "Terima pemberitahuan kumpulan ini";
+"group_push_inbox_kept" = "Mematikannya mengekalkan pemberitahuan dalam aplikasi dan peringatan aktiviti sedia ada.";
+"group_push_permission" = "Dayakan pemberitahuan sistem";
+"group_push_settings" = "Tetapan pemberitahuan";
+
+// Shared group form controls
+"group_inline_seat_hint" = "Pilih tempat, kemudian pilih ahli";
+"group_score_and_rules" = "Skor dan peraturan";
+"group_activity_registration_scope" = "Daftarkan ahli sementara di sini. Ahli yang mempunyai akaun mendaftar sendiri.";
+"group_activity_registration_no_changes" = "Tiada perubahan yang belum disimpan";
+"group_activity_registration_changes" = "Tambah %1$d · Batal %2$d";
+"group_activity_registration_save" = "Simpan pendaftaran (%1$d)";
+"group_activity_registration_manage" = "Pendaftaran ahli sementara";
+"group_activity_registration_pending_add" = "Menunggu pendaftaran";
+"group_activity_registration_pending_remove" = "Menunggu pembatalan";
+"group_activity_registration_registered" = "Berdaftar";
+"group_activity_registration_not_registered" = "Belum berdaftar";
+"group_activity_detail" = "Butiran aktiviti";
+"group_activity_my_registration" = "Pendaftaran saya";
+"group_match_score" = "Skor perlawanan";
+
+"group_lookup_available" = "Terbuka";
+
+/* Group beta notice card. */
+"group_beta_badge" = "Beta";
+"group_beta_supported_label" = "Tersedia sekarang";
+"group_beta_feedback_prompt" = "Ada masalah atau cadangan?";
+"group_beta_feedback_action" = "Hantar maklum balas";
+
+"group_member_results_title" = "Keputusan ahli";
+
+"group_removed_members_expand" = "Kembangkan";
+"group_removed_members_collapse" = "Runtuhkan";
+"group_best_of_format" = "Terbaik daripada %1$@ (perlu %2$@ kemenangan)";
+"group_member_count_single" = "%d ahli";
+"group_member_count_short" = "%d ahli";
+"group_lookup_closed_short" = "Ditutup";
+"group_lookup_closing_short" = "Sedang dibubarkan";
+"group_lookup_member_short" = "Sudah menyertai";
+"group_lookup_unavailable_short" = "Tidak tersedia";
+"group_join_scan_hint" = "Imbas kod QR kumpulan";
+"group_join_number_hint" = "6–8 digit. Minta daripada pemilik kumpulan.";
+"group_request_join" = "Mohon menyertai";
+"group_overdue_tasks" = "Tugas lewat tempoh";
+"group_apply_shift" = "Gunakan perubahan";
+"group_transfer_submit" = "Pindahkan";
+"group_rename_member" = "Namakan semula";
+"group_set_admin" = "Jadikan pentadbir";
+"group_set_member" = "Buang peranan pentadbir";
+"group_confirm_authority_message" = "Semua pemain ialah ahli sementara, atau tiada pemain berakaun di pihak lawan yang boleh mengesahkan. Pemilik mesti menyemak pemain dan skor. Selepas disahkan, keputusan dikira dalam rekod perlawanan dan pemilik dicatat sebagai pengesah.";
+"group_confirm_result_message" = "Selepas disahkan, keputusan dikira dalam rekod kedua-dua pihak dan tidak boleh disunting. Batalkan keputusan untuk membetulkannya.";
+"group_confirm_member_message" = "Sahkan pemain dan skor untuk memasukkan keputusan ke dalam rekod. Jika perlu dibetulkan, minta pengurus membatalkan keputusan asal.";
+"group_cancel_activity_message" = "Pembatalan memadam senarai pendaftaran secara kekal. Aktiviti yang sedang berlangsung tidak boleh dibatalkan.";
+"group_abandon_game_message" = "Tinggalkan perlawanan ini untuk memulakan yang lain. Rekod peribadi yang disimpan akan dikekalkan.";
+"group_void_pending_message" = "Keputusan ini tidak lagi menunggu pengesahan dan tidak dikira dalam statistik perlawanan. Skor asal dan sebab kekal kelihatan kepada ahli kumpulan. Pemain dan penghantar akan dimaklumkan.";
+"group_void_confirmed_message" = "Keputusan ini tidak lagi dikira dalam statistik perlawanan. Statistik dan kedudukan kedua-dua pihak dikira semula. Skor asal dan sebab kekal kelihatan kepada ahli kumpulan. Pemain dan penghantar akan dimaklumkan.";
+"group_remove_member_message" = "Buang %@? Ahli tersebut perlu memohon untuk menyertai semula.";
+"group_reload_version_message" = "Buang perubahan susunan perlawanan yang belum disimpan dan muatkan jadual terakhir yang disimpan?";
+"group_transfer_confirmation" = "Pindahkan pemilikan kepada %@? Anda akan menjadi ahli biasa.";
+"group_approve_confirmation" = "%@ akan menjadi ahli kumpulan dan boleh melihat aktiviti serta keputusan.";
+"group_reject_confirmation" = "Selepas ditolak, %@ perlu menghantar permohonan baharu.";
+"group_lookup_full_short" = "Penuh";
+"group_lookup_archived_short" = "Diarkibkan";
+"group_lookup_pending_short" = "Menunggu";
+"group_temporary_member_count" = "%d ahli";
+"group_best_of_tennis_format" = "Terbaik daripada %1$@ (perlu %2$@ kemenangan)";
+"group_rename_member_title" = "Namakan semula";
+
+"group_copy_transfer_title" = "Pindah pemilikan";
+
+"group_copy_transfer_submit" = "Pindahkan";
+
+"group_copy_transfer_message" = "Pindahkan pemilikan kepada %@? Anda akan menjadi ahli biasa.";
+
+"group_copy_transfer_hint" = "Selepas pemindahan, anda menjadi ahli biasa.";
+
+"group_copy_rename_title" = "Namakan semula";
+
+"group_copy_rename_action" = "Namakan semula";
+
+"group_copy_result_confirm" = "Sahkan keputusan";
+
+"group_copy_result_confirm_authority_message" = "Semua pemain ialah ahli sementara, atau tiada pemain berakaun di pihak lawan yang boleh mengesahkan. Pemilik mesti menyemak pemain dan skor. Selepas disahkan, keputusan dikira dalam rekod perlawanan dan pemilik dicatat sebagai pengesah.";
+
+"group_copy_result_confirm_manager_message" = "Selepas disahkan, keputusan dikira dalam rekod kedua-dua pihak dan tidak boleh disunting. Batalkan keputusan untuk membetulkannya.";
+
+"group_copy_result_confirm_member_message" = "Sahkan pemain dan skor untuk memasukkan keputusan ke dalam rekod. Jika perlu dibetulkan, minta pengurus membatalkan keputusan asal.";
+
+"group_copy_void_action" = "Batalkan";
+
+"group_copy_void_pending_message" = "Keputusan ini tidak lagi menunggu pengesahan dan tidak dikira dalam statistik perlawanan. Skor asal dan sebab kekal kelihatan kepada ahli kumpulan. Pemain dan penghantar akan dimaklumkan.";
+
+"group_copy_void_confirmed_message" = "Keputusan ini tidak lagi dikira dalam statistik perlawanan. Statistik dan kedudukan kedua-dua pihak dikira semula. Skor asal dan sebab kekal kelihatan kepada ahli kumpulan. Pemain dan penghantar akan dimaklumkan.";
+
+"group_copy_cancel_activity" = "Batalkan aktiviti";
+
+"group_copy_cancel_activity_message" = "Pembatalan memadam senarai pendaftaran secara kekal. Aktiviti yang sedang berlangsung tidak boleh dibatalkan.";
+
+"group_copy_abandon_action" = "Tinggalkan perlawanan";
+
+"group_copy_abandon_message" = "Tinggalkan perlawanan ini untuk memulakan yang lain. Rekod peribadi yang disimpan akan dikekalkan.";
+
+"group_copy_leave_action" = "Keluar daripada kumpulan";
+
+"group_copy_leave_message" = "Selepas keluar, anda bukan lagi ahli dan kumpulan ini akan dialih keluar daripada “Kumpulan saya”. Anda tidak lagi boleh mengakses atau menyertainya. Rekod perlawanan kumpulan yang sedia ada dan rekod peribadi pada peranti ini akan dikekalkan. Untuk mengaksesnya semula, anda perlu menyertai kumpulan ini sekali lagi.";
+
+"group_copy_archive_action" = "Arkibkan kumpulan";
+
+"group_copy_archive_message" = "Arkibkan kumpulan ini? Kandungannya akan menjadi baca sahaja.";
+
+"group_copy_dissolve_action" = "Bubarkan kumpulan";
+
+"group_copy_dissolve_message" = "Kumpulan hanya boleh dibaca selama 7 hari dan pembubaran boleh dibatalkan dalam tempoh itu. Selepas 7 hari, kumpulan dan semua datanya dipadam secara kekal.";
+
+"group_copy_approve_action" = "Luluskan";
+
+"group_copy_approve_message" = "%@ akan menjadi ahli kumpulan dan boleh melihat aktiviti serta keputusan.";
+
+"group_copy_reject_action" = "Tolak";
+
+"group_copy_reject_message" = "Selepas ditolak, %@ perlu menghantar permohonan baharu.";
+
+"group_copy_remove_action" = "Buang ahli";
+
+"group_copy_remove_message" = "Buang %@? Ahli tersebut perlu memohon untuk menyertai semula.";
+
+"group_copy_report_detail" = "Butiran (pilihan)";
+
+"group_copy_edit_profile" = "Sunting profil kumpulan";
+
+"group_copy_entry_a_wins" = "A menang";
+
+"group_copy_entry_b_wins" = "B menang";
+
+"group_copy_activity_timing_sequence" = "Tanpa masa tepat";
+
+"group_copy_activity_registration_manage" = "Pendaftaran ahli sementara";
+
+"group_copy_temporary_hint" = "Ahli sementara tidak memerlukan akaun dan boleh ditambah semasa memasukkan keputusan.";
+
+"group_copy_activity_registration_scope" = "Daftarkan ahli sementara di sini. Ahli yang mempunyai akaun mendaftar sendiri.";
+
+"group_copy_report" = "Laporkan kumpulan";
+
+"group_copy_notice_member_removed" = "Anda telah dialih keluar daripada kumpulan";
+
+"group_copy_notice_role_changed" = "Peranan anda berubah";
+
+"group_copy_activity_direct_save" = "Simpan jadual";
+
+"group_copy_notice_join_approved" = "Permintaan sertai kumpulan diluluskan";
+
+"group_copy_notice_join_rejected" = "Permintaan sertai kumpulan ditolak";
+
+"group_copy_all_formats" = "Semua format";
+
+"group_copy_closed" = "Penyertaan ditutup";
+
+"group_copy_report_other" = "Lain-lain";
+
+"group_copy_report_impersonation" = "Penyamaran identiti";
+
+"group_copy_audit_ui_share_failed" = "Gagal berkongsi. Cuba lagi.";
+
+"group_copy_audit_ui_share_number" = "Kongsi nombor kumpulan";
+
+"group_copy_create" = "Cipta kumpulan";
+
+"group_copy_confirm_join" = "Sertai kumpulan ini";
+
+"group_copy_join" = "Sertai kumpulan";
+
+"group_copy_join_policy" = "Pilihan penyertaan";
+
+"group_copy_filter_singles" = "Perseorangan";
+
+"group_copy_upcoming" = "Akan datang";
+
+"group_copy_activity_section_past" = "Aktiviti lalu";
+
+"group_copy_beta_feedback_action" = "Hantar maklum balas";
+
+"group_copy_doubles" = "Beregu";
+
+"group_copy_create_activity" = "Cipta aktiviti";
+
+"group_copy_benefit_activity" = "Rancang aktiviti dan daftar";
+
+"group_copy_empty_activities_hint" = "Cipta aktiviti untuk disertai ahli. Pendaftaran ditutup apabila kuota penuh.";
+
+"group_copy_lookup_available" = "Terbuka";
+
+"group_copy_activity_direct_hint" = "Pilih terus daripada semua ahli kumpulan aktif; pendaftaran tidak diperlukan.";
+
+"group_copy_empty_intro" = "Kumpulkan rakan untuk merancang permainan, merekod mata dan membina sejarah perlawanan bersama.";
+
+"group_copy_place" = "Lokasi";
+
+"group_copy_ranking_games" = "Perlawanan dimainkan";
+
+"group_copy_ranking_insufficient_matches" = "Terlalu sedikit perlawanan";
+
+"group_copy_report_spam" = "Spam";
+
+"group_copy_report_status_reviewing" = "Dalam semakan";
+
+"group_copy_note" = "Nota (pilihan)";
+
+"group_copy_peer_confirmation" = "Pengesahan lawan";
+
+"group_copy_activity_lineup_section_matches" = "Susun perlawanan";
+
+"group_copy_group" = "Kumpulan";
+
+"group_copy_group_qr" = "Kod QR kumpulan";
+
+"group_copy_beta_notice" = "Kumpulan masih dalam peringkat beta. Sesetengah ciri mungkin berubah. Terima kasih kerana mencubanya lebih awal.";
+
+"group_copy_created" = "Kumpulan dicipta";
+
+"group_copy_ranking_sets" = "Skor";
+
+"group_copy_removed_members_expand" = "Kembangkan";
+
+"group_copy_voided" = "Keputusan dibatalkan";
+
+"group_copy_cancelled" = "Dibatalkan";
+
+"group_copy_report_status_resolved" = "Diselesaikan";
+
+"group_copy_completed" = "Selesai";
+
+"group_copy_archived" = "Diarkibkan";
+
+"group_copy_archived_list_title" = "Kumpulan diarkibkan";
+
+"group_copy_activity_registration_registered" = "Berdaftar";
+
+"group_copy_activity_full" = "Penuh";
+
+"group_copy_confirmed" = "Disahkan";
+
+"group_copy_removed_members" = "Bekas ahli";
+
+"group_copy_mark_seen" = "Dibaca";
+
+"group_copy_report_status_dismissed" = "Ditolak";
+
+"group_copy_draws" = "Bilangan seri";
+
+"group_copy_draw" = "Seri";
+
+"group_copy_start_score" = "Rekod mata sekarang";
+
+"group_copy_pending_upload" = "Menunggu muat naik";
+
+"group_copy_activity_registration_pending_remove" = "Menunggu pembatalan";
+
+"group_copy_report_status_pending" = "Menunggu";
+
+"group_copy_lookup_pending_short" = "Menunggu";
+
+"group_copy_pending_request_limit" = "Terlalu banyak permohonan menunggu kelulusan. Tunggu keputusan atau tarik balik sebahagiannya.";
+
+"group_copy_activity_registration_pending_add" = "Menunggu pendaftaran";
+
+"group_copy_pending_confirmation" = "Menunggu pengesahan";
+
+"group_copy_lookup_closing_short" = "Sedang dibubarkan";
+
+"group_copy_restore" = "Pulihkan kumpulan";
+
+"group_copy_member" = "Ahli";
+
+"group_copy_member_results_title" = "Keputusan ahli";
+
+"group_copy_my_groups" = "Kumpulan saya";
+
+"group_copy_activity_my_registration" = "Pendaftaran saya";
+
+"group_copy_activity_mode" = "Rekod";
+
+"group_copy_qr_join_short" = "Imbas untuk menyertai";
+
+"group_copy_qr_apply_short" = "Imbas untuk memohon menyertai";
+
+"group_copy_register" = "Daftar";
+
+"group_copy_recruiting" = "Pendaftaran dibuka";
+
+"group_copy_registration_closes" = "Pendaftaran ditutup";
+
+"group_copy_activity_time_after_previous" = "Selepas perlawanan sebelumnya";
+
+"group_copy_report_submit" = "Hantar";
+
+"group_copy_submitted_by" = "Dihantar oleh";
+
+"group_copy_cancel_dissolve" = "Batalkan pembubaran";
+
+"group_copy_notice_join_requested" = "Permintaan sertai kumpulan diterima";
+
+"group_copy_removed_members_collapse" = "Runtuhkan";
+
+"group_copy_discard_upload" = "Buang muat naik";
+
+"group_copy_notice_activity_created" = "Aktiviti dicipta";
+
+"group_copy_activity_time_unspecified" = "Masa belum ditentukan";
+
+"group_copy_activity_registration_empty" = "Tiada ahli sementara";
+
+"group_copy_transfer_none" = "Tiada ahli tetap lain. Ahli sementara tidak boleh menjadi ketua kumpulan.";
+
+"group_copy_archived_empty" = "Tiada kumpulan diarkibkan";
+
+"group_copy_empty_activities_title" = "Belum ada aktiviti";
+
+"group_copy_latest_results" = "Keputusan terkini";
+
+"group_copy_disputed" = "Dipertikaikan";
+
+"group_copy_activity_registration_not_registered" = "Belum berdaftar";
+
+"group_copy_month_matches" = "Perlawanan bulan ini";
+
+"group_copy_open_group" = "Buka kumpulan";
+
+"group_copy_benefit_history" = "Lihat perlawanan dan kedudukan";
+
+"group_copy_overview" = "Gambaran keseluruhan";
+
+"group_copy_welcome_back" = "Selamat kembali";
+
+"group_copy_regular_members" = "Ahli berdaftar";
+
+"group_copy_rally_scoring" = "Pemarkahan Rali";
+
+"group_copy_result_information" = "Maklumat perlawanan";
+
+"group_copy_match_score" = "Skor perlawanan";
+
+"group_copy_match_rules" = "Peraturan perlawanan";
+
+"group_copy_activity_registration_no_changes" = "Tiada perubahan yang belum disimpan";
+
+"group_copy_activities" = "Aktiviti";
+
+"group_copy_activity_title" = "Nama aktiviti";
+
+"group_copy_activity_field_title_optional" = "Nama aktiviti (pilihan)";
+
+"group_copy_notice_activity_changed" = "Aktiviti dikemas kini";
+
+"group_copy_notice_activity_cancelled" = "Aktiviti dibatalkan";
+
+"group_copy_activity_lineup" = "Susun perlawanan";
+
+"group_copy_activity_create_admin_hint" = "Aktiviti dicipta oleh pemilik kumpulan atau pentadbir";
+
+"group_copy_beta_badge" = "Beta";
+
+"group_copy_add_set" = "Tambah skor permainan";
+
+"group_copy_add_temporary" = "Tambah ahli sementara";
+
+"group_copy_benefit_score" = "Rekod mata atau tambah keputusan terdahulu";
+
+"group_copy_request_join" = "Mohon menyertai";
+
+"group_copy_join_message" = "Mesej permohonan menyertai (pilihan)";
+
+"group_copy_beta_supported_label" = "Tersedia sekarang";
+
+"group_copy_open" = "Sertai terus";
+
+"group_copy_activity_direct_title" = "Atur sekarang";
+
+"group_copy_admin" = "Pentadbir";
+
+"group_copy_confirmed_matches" = "Perlawanan yang disahkan";
+
+"group_copy_leader" = "Pemilik";
+
+"group_copy_notice_ownership_transferred" = "Pemilik kumpulan berubah";
+
+"group_copy_complete_activity" = "Tamatkan aktiviti";
+
+"group_copy_keep_draft" = "Teruskan menyunting versi setempat";
+
+"group_copy_ranking_wins" = "Bilangan kemenangan";
+
+"group_copy_ranking_rate" = "Kadar kemenangan";
+
+"group_copy_report_inappropriate" = "Kandungan seksual atau tidak sesuai";
+
+"group_copy_update_report" = "Kemas kini laporan";
+
+"group_copy_manual_result" = "Tambah keputusan perlawanan";
+
+"group_copy_set_admin" = "Jadikan pentadbir";
+
+"group_copy_activity_timing_estimated" = "Anggaran masa";
+
+"group_copy_losses" = "Bilangan kekalahan";
+
+"group_copy_notice_result_voided" = "Keputusan dibatalkan";
+
+"group_copy_notice_result_confirmed" = "Keputusan disahkan";
+
+"group_copy_notice_result_pending" = "Keputusan menunggu pengesahan";
+
+"group_copy_result_actions" = "Tindakan keputusan";
+
+"group_copy_empty_title" = "Belum ada kumpulan";
+
+"group_copy_in_progress" = "Sedang berlangsung";
+
+"group_copy_report_illegal" = "Aktiviti haram atau berbahaya";
+
+"group_copy_join_hint" = "Sertai kumpulan rakan menggunakan nombor atau kod QR.";
+
+"group_copy_overdue_tasks" = "Tugas lewat tempoh";
+
+"group_copy_beta_feedback_prompt" = "Ada masalah atau cadangan?";
+
+"group_copy_invite" = "Jemput rakan sepasukan";
+
+"group_copy_retry" = "Cuba semula";
+
+"group_copy_approval" = "Perlu kelulusan";
+
+"group_copy_sport" = "Sukan";
+
+"group_copy_report_harassment" = "Gangguan";
+
+"group_copy_ranking_me_suffix" = " (saya)";
+
+"group_copy_places_title" = "Pilih Tempat";
+
+"group_copy_report_fraud" = "Penipuan atau perjudian";
+
+"group_copy_void_reason" = "Sebab membatalkan keputusan";
+
+"group_copy_reload_version" = "Muat semula";
+
+"group_copy_lineup_reload_message" = "Buang perubahan susunan perlawanan yang belum disimpan dan muatkan jadual terakhir yang disimpan?";
+
+"group_copy_join_number_separator" = "Atau masukkan nombor kumpulan";
+
+"group_copy_activity_multi_match_hint" = "Satu aktiviti boleh merangkumi beberapa perlawanan. Ahli mendaftar untuk aktiviti; semasa menyusun perlawanan, pilih 2 pendaftar bagi setiap perseorangan atau 4 bagi setiap beregu.";
+
+"group_copy_activity_single_match_hint" = "Setiap aktiviti ialah satu perlawanan. Pilih 2 ahli berdaftar untuk perseorangan atau 4 untuk beregu.";
+
+"group_copy_activity_detail" = "Butiran aktiviti";
+
+"group_copy_registration_at_start" = "Apabila aktiviti bermula";
+
+"group_copy_registration_use_start" = "Gunakan waktu mula aktiviti";
+
+"group_copy_cancel_reason_optional" = "Sebab pembatalan (pilihan)";
+
+"group_copy_audit_result_frozen_info" = "Lihat pemain dan peraturan";
+"group_view_schedule" = "Lihat perlawanan";
+"group_notice_training_published" = "Latihan diterbitkan";
+"group_notice_training_changed" = "Latihan dikemas kini";
+"group_notice_training_cancelled" = "Latihan dibatalkan";
+"group_notice_leave_changed" = "Ketidakhadiran dikemas kini";
+"group_report_evidence_title" = "Imej bukti (pilihan)";
+"group_report_evidence_hint" = "Maksimum 3 imej JPG atau PNG, sehingga 2 MB setiap satu. Hanya anda dan pihak platform boleh melihatnya.";
+"group_report_add_image" = "Tambah imej";
+"group_report_retry" = "Cuba semula";
+"group_report_preview" = "Imej bukti";
+"group_report_supplement" = "Tambah maklumat";
+"group_report_close" = "Tutup";
+"group_report_remove_image" = "Buang imej";
+"group_report_image_error" = "Imej tidak dapat disediakan. Cuba imej JPG atau PNG yang lain.";
+"group_report_refresh" = "Muat semula status";

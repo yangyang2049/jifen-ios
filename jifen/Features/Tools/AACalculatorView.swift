@@ -83,7 +83,7 @@ struct AACalculatorView: View {
                                     }) {
                                         Text("¥\(amount)")
                                             .font(.system(size: 14))
-                                            .foregroundColor(totalAmount == "\(amount)" ? .white : Theme.textSecondary)
+                                            .foregroundColor(totalAmount == "\(amount)" ? Theme.actionForeground(on: Color(hex: "4CAF50")) : Theme.textSecondary)
                                             .frame(maxWidth: .infinity)
                                             .frame(height: 40)
                                             .background(
@@ -104,7 +104,7 @@ struct AACalculatorView: View {
                                     }) {
                                         Text("¥\(amount)")
                                             .font(.system(size: 14))
-                                            .foregroundColor(totalAmount == "\(amount)" ? .white : Theme.textSecondary)
+                                            .foregroundColor(totalAmount == "\(amount)" ? Theme.actionForeground(on: Color(hex: "4CAF50")) : Theme.textSecondary)
                                             .frame(maxWidth: .infinity)
                                             .frame(height: 40)
                                             .background(
@@ -258,7 +258,7 @@ struct AACalculatorView: View {
                                 .frame(height: 50)
                                 .frame(maxWidth: .infinity)
                                 .background(
-                                    RoundedRectangle(cornerRadius: 12)
+                                    Capsule()
                                         .fill(Color(hex: "FF6B6B").opacity(0.15))
                                 )
                         }
@@ -266,11 +266,11 @@ struct AACalculatorView: View {
                         Button(action: calculate) {
                             Text(NSLocalizedString("calculate", comment: "Calculate"))
                                 .font(.system(size: 16))
-                                .foregroundColor(.white)
+                                .foregroundColor(Theme.actionForeground(on: Color(hex: "4CAF50")))
                                 .frame(height: 50)
                                 .frame(maxWidth: .infinity)
                                 .background(
-                                    RoundedRectangle(cornerRadius: 12)
+                                    Capsule()
                                         .fill(Color(hex: "4CAF50"))
                                 )
                         }

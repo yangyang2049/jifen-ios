@@ -1,0 +1,44 @@
+{
+  "artifact": "Group iOS page and form alignment review v1",
+  "sourceReviewDate": "2026-10-19",
+  "nativeCodeChanged": false,
+  "nativeBuild": "skipped: documentation and HTML prototype only",
+  "staticChecks": {
+    "javascriptSyntax": "node --check: review.js, review-data.js, sources.js passed",
+    "reviewedFlows": 30,
+    "originalHTMLCopies": 23,
+    "originalHTMLSHA256": "all matched source snapshot",
+    "copiedScreenshots": 5,
+    "requiredScriptImageStyleDependencies": "all present",
+    "nativeCallsiteCounts": {
+      "sheet": 27,
+      "Form": 15,
+      "fullScreenCover": 0
+    },
+    "knownHistoricalDocumentLink": [
+      {
+        "file": "references/jifen-hos/docs/groups/reference/group-system-review.html",
+        "link": "../groups/README.md",
+        "status": "\u539f\u6587\u4ef6\u5f15\u7528\u5df2\u5931\u6548\uff1b\u4fdd\u7559\u539f HTML\uff0c\u4e0d\u628a\u5386\u53f2\u6587\u6863\u94fe\u63a5\u5f53\u4f5c\u672c\u8f6e\u8d44\u6e90\u4f9d\u8d56\u3002"
+      }
+    ],
+    "sourceDriftSinceEvidenceSnapshot": [],
+    "concurrentSourceUpdate": "GroupViews.swift callsites re-read; references after line 132 updated by +3."
+  },
+  "browserChecks": {
+    "allSuggestedPageTypesRendered": 13,
+    "checked": [
+      "page analysis and evidence table",
+      "embedded original form prototype",
+      "inline roster and occupied seats",
+      "rules and legal quick-score options",
+      "per-set expansion",
+      "date selection and disabled future demo dates",
+      "registration multi-select",
+      "optional record/ranking sub-tabs",
+      "dark mode, 320 preview, large text",
+      "desktop and narrow viewport"
+    ],
+    "limitations": "Native apps were not rebuilt or relaunched. Prototype submit controls only show local demo feedback."
+  }
+}

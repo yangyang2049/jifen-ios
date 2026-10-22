@@ -329,7 +329,7 @@ struct CommonPlacesManagementView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button(NSLocalizedString("cancel", comment: "")) {
+                    ModalCloseButton {
                         closeAddSheet()
                     }
                 }
@@ -374,7 +374,7 @@ struct CommonPlacesManagementView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button(NSLocalizedString("cancel", comment: "")) {
+                    ModalCloseButton {
                         closeEditSheet()
                     }
                 }

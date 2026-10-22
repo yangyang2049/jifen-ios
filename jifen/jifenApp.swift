@@ -466,6 +466,12 @@ struct jifenApp: App {
                 Task {
                     await StoreKitPurchaseManager.shared.refreshLocalEntitlement()
                 }
+                if LegalConsent.hasAcceptedCurrentDocuments(), AppFeatureFlags.accountFeaturesEnabled {
+                    Task {
+                        await sessionStore.restore()
+                        GroupPushManager.shared.sessionDidChange(userID: sessionStore.user?.id)
+                    }
+                }
             }
             .alert(voiceDownloadTitle, isPresented: $showVoiceDownloadGuide) {
                 Button(NSLocalizedString("confirm", value: "确定", comment: ""), role: .cancel) { }
@@ -532,6 +538,22 @@ class ScoreboardAppDelegate: NSObject, UIApplicationDelegate, UNUserNotification
         return true
     }
 
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        Task { @MainActor in GroupPushManager.shared.receivedToken(deviceToken) }
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        Task { @MainActor in GroupPushManager.shared.registrationFailed() }
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        if GroupPushDestination.parse(notification.request.content.userInfo) != nil {
+            Task { @MainActor in GroupPushManager.shared.refreshFromPush(notification.request.content.userInfo) }
+            completionHandler([])
+        } else { completionHandler([.banner, .sound]) }
+    }
+
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
         return OrientationLock.shared.currentOrientation
     }
@@ -577,6 +599,9 @@ class ScoreboardAppDelegate: NSObject, UIApplicationDelegate, UNUserNotification
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
         let groupInfo = response.notification.request.content.userInfo
+        if let destination = GroupPushDestination.parse(groupInfo) {
+            Task { @MainActor in GroupPushManager.shared.open(destination) }
+        }
         if let account = groupInfo["groupAccountID"] as? String,
            let group = groupInfo["groupID"] as? String,
            let activity = groupInfo["groupActivityID"] as? String {

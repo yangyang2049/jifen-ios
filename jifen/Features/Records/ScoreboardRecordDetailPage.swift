@@ -71,7 +71,12 @@ struct ScoreboardRecordDetailPage: View {
                 if record != nil {
                     Menu {
                         Button(role: .destructive) { showingDeleteConfirm = true } label: {
-                            Label(NSLocalizedString("delete", comment: ""), systemImage: "trash")
+                            // Menu 只染文字不染图标，图标会跟 App 绿色 tint；预先烘焙红色保证与文字一致。
+                            Label {
+                                Text(NSLocalizedString("delete", comment: ""))
+                            } icon: {
+                                Image(uiImage: Theme.redTrashIcon)
+                            }
                         }
                     } label: {
                         Image(systemName: "ellipsis")
@@ -211,9 +216,13 @@ struct ScoreboardRecordDetailPage: View {
         VStack(spacing: 16) {
             HStack(spacing: 8) {
                 AppCatalogIcon(gameType: record.gameType, size: 28)
-                Text(record.competitionDisplayName).font(.headline)
-                Spacer()
-                if record.isSyncedFromWatch {
+                Text(record.competitionDisplayName)
+                    .font(.headline)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+            if record.isSyncedFromWatch {
+                VStack(spacing: 6) {
                     Label(
                         NSLocalizedString(
                             "record_detail_synced_from_watch_badge",
@@ -228,26 +237,16 @@ struct ScoreboardRecordDetailPage: View {
                     .padding(.vertical, 4)
                     .background(Theme.accentColor.opacity(0.12))
                     .clipShape(Capsule())
+                    Text(NSLocalizedString(
+                        "record_detail_synced_from_watch_hint",
+                        value: "这条记录已从手表同步到手机",
+                        comment: ""
+                    ))
+                    .font(.caption)
+                    .foregroundStyle(Theme.textSecondary)
+                    .multilineTextAlignment(.center)
                 }
-                if record.status == .finished {
-                    Text(NSLocalizedString("finished", value: "已结束", comment: ""))
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Theme.positiveText)
-                } else {
-                    Text(NSLocalizedString("record_unfinished", value: "未完成", comment: ""))
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Theme.warningText)
-                }
-            }
-            if record.isSyncedFromWatch {
-                Text(NSLocalizedString(
-                    "record_detail_synced_from_watch_hint",
-                    value: "这条记录已从手表同步到手机",
-                    comment: ""
-                ))
-                .font(.caption)
-                .foregroundStyle(Theme.textSecondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity)
             }
             if let matchTitle = record.configuredMatchTitle {
                 Text(matchTitle)
@@ -341,7 +340,7 @@ struct ScoreboardRecordDetailPage: View {
                 .frame(minHeight: 48)
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.borderedProminent).tint(Theme.primary).foregroundStyle(Theme.textOnPrimary)
         }
     }
 
@@ -393,7 +392,7 @@ struct ScoreboardRecordDetailPage: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(NSLocalizedString("cancel", value: "取消", comment: "")) { showingScoreCorrection = false }
+                    ModalCloseButton { showingScoreCorrection = false }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(NSLocalizedString("save", value: "保存", comment: "")) { submitScoreCorrection(record) }
@@ -568,7 +567,7 @@ struct ScoreboardRecordDetailPage: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .foregroundStyle(selected ? Color.white : Theme.textPrimary)
+        .foregroundStyle(selected ? Theme.textOnPrimary : Theme.textPrimary)
         .background(selected ? Theme.accentColor : Theme.surface)
         .clipShape(Capsule())
         .accessibilityIdentifier(

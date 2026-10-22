@@ -107,7 +107,7 @@ struct RandomTeamView: View {
         } label: {
             Text(String.localizedStringWithFormat(NSLocalizedString("players_count_format", comment: ""), count))
                 .font(.system(size: isPad ? 21 : 18, weight: .medium))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.textOnPrimary)
                 .frame(maxWidth: .infinity)
                 .frame(height: isPad ? 64 : 56)
                 .background(Theme.primary)
@@ -204,11 +204,11 @@ struct RandomTeamView: View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 15, weight: primary ? .semibold : .regular))
-                .foregroundStyle(primary ? Color.white : Theme.textPrimary)
+                .foregroundStyle(primary ? Theme.textOnPrimary : Theme.textPrimary)
                 .frame(maxWidth: .infinity)
                 .frame(height: 42)
                 .background(primary ? Theme.primary : Theme.controlBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+                .clipShape(Capsule())
         }
         .buttonStyle(.plain)
         .disabled(!enabled)

@@ -106,6 +106,10 @@ nonisolated struct GroupTrainingNotice: Codable, Identifiable, Sendable {
 
 nonisolated struct GroupReportStatus: Codable, Sendable {
     var reason: String; var detail: String?; var status: String
+    var reportId: String? = nil
+    var version: Int? = nil
+    var publicResolution: String? = nil
+    var attachments: [GroupReportEvidence]? = nil
 }
 nonisolated struct GroupCurrentReport: Decodable, Sendable { var report: GroupReportStatus? }
 nonisolated struct GroupConfirmBody: Encodable, Sendable { var authority: Bool }
@@ -121,11 +125,10 @@ nonisolated struct GroupOverviewActions: Sendable {
 
     init(group: ScoreGroup, memberCount: Int, hasResults: Bool, confirmedMatchCount: Int, isCoach: Bool) {
         canInvite = group.isActive && ["open", "approval"].contains(group.joinPolicy) && memberCount < group.memberLimit
-        showSecondaryInvite = memberCount >= 2 && canInvite
+        showSecondaryInvite = canInvite
         showStats = confirmedMatchCount > 0
         showLatestResults = hasResults || confirmedMatchCount > 0
         guard group.isActive else { actions = []; return }
-        guard memberCount >= 2 else { actions = [.invite]; return }
         let hasHistory = hasResults || confirmedMatchCount > 0
         let primary: Action = group.isCoaching ? .training : .start
         actions = hasHistory && (!group.isCoaching || isCoach) ? [.addResult, primary] : [primary]
@@ -138,6 +141,17 @@ nonisolated struct GroupOverviewActions: Sendable {
 nonisolated struct GroupManagementMenu: Sendable, Equatable {
     enum Entry: String, Sendable {
         case editProfile, transfer, archive, restore, cancelDissolve, dissolve, leave, report, divider
+        /// Confirmation-only group operations use a system alert; editors and pickers keep their own presentation.
+        var confirmationHintKey: String? {
+            switch self {
+            case .archive: "archive_hint"
+            case .restore: "restore_hint"
+            case .cancelDissolve: "cancel_dissolve_hint"
+            case .dissolve: "dissolve_hint"
+            case .leave: "leave_hint"
+            default: nil
+            }
+        }
         /// 安卓把解散 / 退出 / 举报三条目统一画成红字（ToolWhistleRed）。
         var isDestructive: Bool { [Self.dissolve, .leave, .report].contains(self) }
         /// 分隔线没有标题，视图据此渲染 `Divider()` 而不是按钮。
@@ -221,7 +235,7 @@ nonisolated enum GroupPermissions {
     static func confirmation(_ result: GroupResult, group: ScoreGroup?, me: GroupMember?) -> (allowed: Bool, authority: Bool) {
         guard group?.isActive == true, let me, me.kind == "account", me.status == "active", result.status == "pending_confirmation" else { return (false, false) }
         if let group, group.isCoaching && !coach(group, member: me) { return (false, false) }
-        if me.role == "owner", result.canAuthorityConfirm == true { return (true, true) }
+        if group?.isCoaching != true, me.role == "owner", result.canAuthorityConfirm == true { return (true, true) }
         guard me.id != result.submitterMemberId else { return (false, false) }
         if manager(me) { return (true, false) }
         guard let mine = result.participants.first(where: { $0.memberId == me.id }) else { return (false, false) }
@@ -254,7 +268,32 @@ nonisolated enum GroupPermissions {
 }
 
 nonisolated enum GroupInputValidation {
-    static func validName(_ value: String, minimum: Int = 1, maximum: Int = 24) -> Bool {
+    // Server z.string().max(...) limits use UTF-16; names deliberately use scalars.
+    static let joinMessageMax = 200
+    static let reportDetailMax = 500
+    static let absenceReasonMax = 100
+
+    static func validText(_ value: String, maximum: Int) -> Bool {
+        value.utf16.count <= maximum
+    }
+
+    /// Keep whole graphemes when limiting input, including joined emoji and combining marks.
+    static func limitedText(_ value: String, maximum: Int) -> String {
+        var result = ""
+        var length = 0
+        for character in value {
+            let nextLength = String(character).utf16.count
+            if length + nextLength > maximum { break }
+            result.append(character)
+            length += nextLength
+        }
+        return result
+    }
+
+    /// Group and temporary-member names use Unicode scalars, matching the server's Array.from(value).
+    static let memberNameMax = 24
+
+    static func validName(_ value: String, minimum: Int = 1, maximum: Int = memberNameMax) -> Bool {
         (minimum...maximum).contains(value.trimmingCharacters(in: .whitespacesAndNewlines).unicodeScalars.count)
     }
     static func temporaryNames(_ input: String) -> [String] {
@@ -353,4 +392,11 @@ nonisolated struct GroupNoticeReadReceipts {
     func staleUnreadCount(in items: [GroupNotification]) -> Int {
         items.filter { $0.seenAt == nil && confirmed[$0.id]?.seenAt != nil }.count
     }
+}
+
+nonisolated struct GroupReportEvidence: Codable, Sendable, Identifiable {
+    var uploadId: String
+    var url: String?
+    var purged: Bool? = nil
+    var id: String { uploadId }
 }

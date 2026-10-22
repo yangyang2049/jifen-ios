@@ -119,8 +119,9 @@ final class SportsSetupDraftTests: XCTestCase {
         XCTAssertEqual(draft.matchCompletionPresets(for: .foosball), [1, 3, 5, 7])
 
         draft.matchCompletionMode = .playAll
+        // 对齐安卓 setupMaxSetsPresets：每个分支固定 4 个预设，第 5 局改由自定义输入承接。
         XCTAssertEqual(draft.matchCompletionPresets(for: .tennis), [1, 2, 3, 4])
-        XCTAssertEqual(draft.matchCompletionPresets(for: .badminton), [1, 2, 3, 4, 5])
+        XCTAssertEqual(draft.matchCompletionPresets(for: .badminton), [1, 2, 3, 4])
         XCTAssertEqual(draft.matchCompletionPresets(for: .foosball), [1, 3, 5, 7])
     }
 
@@ -484,6 +485,59 @@ final class SportsSetupDraftTests: XCTestCase {
         XCTAssertFalse(draft.hasValidFoosballScoreCap(for: .foosball))
         draft.foosballScoreCap = 15
         XCTAssertTrue(draft.hasValidFoosballScoreCap(for: .foosball))
+    }
+
+    /// 对齐安卓 SetupInputCorrection：越界输入在开赛时被夹到合法区间，
+    /// 而不是红字报错阻断「开始」。
+    func testSetupInputCorrectionClampsInsteadOfBlockingStart() {
+        // 通用区间：空 / 非数字 / 0 回落到 fallback，0 不被当作最小值 1。
+        XCTAssertEqual(SetupInputCorrection.numberInRange(nil, 1...99, fallback: 3), 3)
+        XCTAssertEqual(SetupInputCorrection.numberInRange("", 1...99, fallback: 3), 3)
+        XCTAssertEqual(SetupInputCorrection.numberInRange("0", 1...99, fallback: 3), 3)
+        XCTAssertEqual(SetupInputCorrection.numberInRange("abc", 1...99, fallback: 3), 3)
+        XCTAssertEqual(SetupInputCorrection.numberInRange("150", 1...99, fallback: 3), 99)
+        XCTAssertEqual(SetupInputCorrection.numberInRange("7", 1...99, fallback: 3), 7)
+
+        // 局数：经典模式向上取奇数，99 已是上限时保持 99。
+        XCTAssertEqual(SetupInputCorrection.sets("4", oddOnly: true, fallback: 3), 5)
+        XCTAssertEqual(SetupInputCorrection.sets("4", oddOnly: false, fallback: 3), 4)
+        XCTAssertEqual(SetupInputCorrection.sets("99", oddOnly: true, fallback: 3), 99)
+        XCTAssertEqual(SetupInputCorrection.sets(nil, oddOnly: true, fallback: 3), 3)
+
+        // 每局分数与封顶分：上限随项目变化，封顶分不低于每局分数。
+        XCTAssertEqual(SetupInputCorrection.pointsPerSet("1500", max: 999, fallback: 21), 999)
+        XCTAssertEqual(SetupInputCorrection.pointsPerSet("0", max: 99, fallback: 5), 5)
+        XCTAssertNil(SetupInputCorrection.scoreCap("10", pointsPerSet: 11, enabled: false))
+        XCTAssertEqual(SetupInputCorrection.scoreCap("10", pointsPerSet: 11, enabled: true), 11)
+        XCTAssertEqual(SetupInputCorrection.scoreCap(nil, pointsPerSet: 11, enabled: true), 11)
+        XCTAssertEqual(SetupInputCorrection.scoreCap("99", pointsPerSet: 11, enabled: true), 99)
+    }
+
+    /// 偶数局在开赛时被纠正为奇数，并能识别出「需要提示一次」的场景。
+    func testOddSetCorrectionReportsCorrectedValue() {
+        var draft = SportsSetupDraft()
+        draft.matchCompletionMode = .bestOf
+        draft.selectedMaxSets = 4
+        XCTAssertEqual(draft.correctedMaxSets(for: .badminton), 5)
+        XCTAssertEqual(draft.oddSetsCorrectionApplied(for: .badminton)?.corrected, 5)
+
+        draft.selectedMaxSets = 3
+        XCTAssertEqual(draft.correctedMaxSets(for: .badminton), 3)
+        XCTAssertNil(draft.oddSetsCorrectionApplied(for: .badminton))
+
+        // 打满模式没有奇数约束，偶数保持原值。
+        draft.matchCompletionMode = .playAll
+        draft.selectedMaxSets = 4
+        XCTAssertEqual(draft.correctedMaxSets(for: .badminton), 4)
+        XCTAssertNil(draft.oddSetsCorrectionApplied(for: .badminton))
+
+        // 网球抢七制只用 1 盘，不读局数，不纠正也不提示。
+        var tiebreak = SportsSetupDraft()
+        tiebreak.matchCompletionMode = .bestOf
+        tiebreak.tennisSetScoringMode = "tiebreak_only"
+        tiebreak.selectedMaxSets = 4
+        XCTAssertFalse(tiebreak.requiresOddSets(for: .tennis))
+        XCTAssertNil(tiebreak.oddSetsCorrectionApplied(for: .tennis))
     }
 
     func testResultMappingPreservesRallyAndEightBallRules() {

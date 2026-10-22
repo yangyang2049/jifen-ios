@@ -7,6 +7,10 @@ nonisolated struct GroupMatchContext: Codable, Sendable {
     var trainingSessionID: String? = nil
     var activitySessionID: String? = nil
 }
+nonisolated enum GroupUploadPrimaryAction: Equatable, Sendable {
+    case retry, repair, viewFrozenConfiguration, viewCloudResult
+}
+
 nonisolated struct GroupPendingUpload: Codable, Identifiable, Sendable {
     var id: String; var accountID: String; var groupID: String; var key: String; var body: GroupResultBody
     var failure: String? = nil; var uploaded = false
@@ -14,6 +18,38 @@ nonisolated struct GroupPendingUpload: Codable, Identifiable, Sendable {
     var nextAttemptAt: Date? = nil
     var attempts: Int? = nil
     var existingResultID: String? = nil
+
+    var resolvedFailureCode: String? {
+        // Older queues contain translated sentences; classification and copy use the same stable code.
+        if let failureCode, !failureCode.isEmpty { return failureCode }
+        guard let failure, !failure.isEmpty else { return nil }
+        if failure.range(of: "^[A-Z][A-Z0-9_]*$", options: .regularExpression) != nil { return failure }
+        return body.rules.validResult(body.setScore, sets: body.sets) ? "UPLOAD_FAILED" : "INVALID_RESULT"
+    }
+
+    var primaryAction: GroupUploadPrimaryAction? {
+        guard !uploaded else { return nil }
+        if existingResultID?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false { return .viewCloudResult }
+        let frozen = body.gameId?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+        switch resolvedFailureCode {
+        case "RULES_REVIEW_REQUIRED", "INVALID_RESULT", "INVALID_MATCH_RESULT", "INVALID_SET_SCORE", "INVALID_SET_DETAILS", "INVALID_RULES", "RULES_CONFLICT":
+            return frozen ? .viewFrozenConfiguration : .repair
+        case "RESULT_CONFLICT", "GAME_EXISTS", "GAME_ABANDONED":
+            return frozen ? .viewFrozenConfiguration : nil
+        case nil, "UPLOAD_FAILED", "NETWORK_FAILED", "OFFLINE", "GROUP_ARCHIVED": return .retry
+        default: return nil
+        }
+    }
+
+    func failureMessage(bundle: Bundle = .main) -> String? {
+        guard let code = resolvedFailureCode else { return nil }
+        return groupErrorMessage(APIClientError.server(status: 422, code: code, message: nil, nextAvailableAt: nil), bundle: bundle)
+    }
+}
+
+nonisolated struct GroupPendingWrite: Codable, Sendable {
+    var accountID: String; var path: String; var body: Data; var key: String
+    var lastUsedAt: Date? = nil
 }
 
 nonisolated struct GroupUploadTombstone: Codable, Sendable {
@@ -29,6 +65,8 @@ nonisolated struct GroupPendingDirectLineup: Codable, Sendable {
 /// The record keeps its own copy so an interrupted outbox write can be repaired.
 nonisolated final class GroupLocalPersistence: @unchecked Sendable {
     static let shared = GroupLocalPersistence()
+    // Match the backend's 30-day receipt retention; never evict the request being retried.
+    static let pendingWriteRetention: TimeInterval = 30 * 24 * 60 * 60
     private let lock = NSRecursiveLock()
     let root: URL
     init(root: URL? = nil) {
@@ -59,6 +97,37 @@ nonisolated final class GroupLocalPersistence: @unchecked Sendable {
         return rows.filter { !$0.uploaded }
     }
     private func tombstones() -> [GroupUploadTombstone] { read([GroupUploadTombstone].self, "tombstones.json") ?? [] }
+    private func pendingWrites() throws -> [GroupPendingWrite] {
+        let url = root.appendingPathComponent("pending-writes.json")
+        guard FileManager.default.fileExists(atPath: url.path) else { return [] }
+        // A damaged registry may contain a dispatched key: do not replace it silently.
+        return try JSONDecoder().decode([GroupPendingWrite].self, from: Data(contentsOf: url))
+    }
+    func pendingWrite<T: Encodable>(accountID: String, path: String, body: T, now: Date = Date()) throws -> GroupPendingWrite {
+        lock.lock(); defer { lock.unlock() }
+        guard !accountID.isEmpty, !(read([String].self, "deleted-accounts.json") ?? []).contains(accountID) else { throw GroupFlowError.staleSession }
+        let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
+        let data = try encoder.encode(body)
+        var rows = try pendingWrites()
+        // Legacy rows have no timestamp. Give them a full retention window on migration.
+        for index in rows.indices where rows[index].lastUsedAt == nil { rows[index].lastUsedAt = now }
+        rows.removeAll { row in
+            let isRetry = row.accountID == accountID && row.path == path && row.body == data
+            return !isRetry && now.timeIntervalSince(row.lastUsedAt ?? now) >= Self.pendingWriteRetention
+        }
+        if let index = rows.firstIndex(where: { $0.accountID == accountID && $0.path == path && $0.body == data }) {
+            rows[index].lastUsedAt = now
+            try write(rows, "pending-writes.json")
+            return rows[index]
+        }
+        let row = GroupPendingWrite(accountID: accountID, path: path, body: data, key: UUID().uuidString, lastUsedAt: now)
+        rows.append(row); try write(rows, "pending-writes.json")
+        return row
+    }
+    func completeWrite(key: String, accountID: String) throws {
+        lock.lock(); defer { lock.unlock() }
+        try write(try pendingWrites().filter { !($0.key == key && $0.accountID == accountID) }, "pending-writes.json")
+    }
     private func pendingDirectLineups() throws -> [GroupPendingDirectLineup] {
         let url = root.appendingPathComponent("pending-direct-lineups.json")
         guard FileManager.default.fileExists(atPath: url.path) else { return [] }
@@ -137,7 +206,7 @@ nonisolated final class GroupLocalPersistence: @unchecked Sendable {
             format: context.format, bestOf: context.rules.maxSets, rules: context.rules, setScore: score, sets: details,
             playedAt: Int64((record.endTime ?? record.startTime).timeIntervalSince1970 * 1000), source: "scoreboard", participants: context.participants.map { .init(memberId: $0.memberId, side: $0.side, seat: $0.seat) }, trainingSessionId: context.trainingSessionID, activitySessionId: context.activitySessionID
         ))
-        if !context.rules.validResult(score, sets: details) { pending.failure = groupText("invalid_result", "The recorded result needs review before upload.") }
+        if !context.rules.validResult(score, sets: details) { pending.failure = "INVALID_RESULT"; pending.failureCode = "INVALID_RESULT" }
         all.append(pending); try write(all, "outbox.json")
     }
     func repairOutbox(from records: [ScoreboardRecord]) { for record in records { try? enqueue(annotate(record)) } }
@@ -150,7 +219,11 @@ nonisolated final class GroupLocalPersistence: @unchecked Sendable {
     }
     func markFailure(_ id: String, accountID: String, message: String?) throws {
         lock.lock(); defer { lock.unlock() }; var rows = try readOutbox()
-        if let i = rows.firstIndex(where: { $0.id == id && $0.accountID == accountID }) { rows[i].failure = message; try write(rows, "outbox.json") }
+        if let i = rows.firstIndex(where: { $0.id == id && $0.accountID == accountID }) {
+            let code = message.map { $0.range(of: "^[A-Z][A-Z0-9_]*$", options: .regularExpression) != nil ? $0 : "UPLOAD_FAILED" }
+            rows[i].failure = code; rows[i].failureCode = code
+            try write(rows, "outbox.json")
+        }
     }
     func enqueueManual(_ body: GroupResultBody, id: String, accountID: String, groupID: String, key: String) throws {
         lock.lock(); defer { lock.unlock() }
@@ -165,7 +238,8 @@ nonisolated final class GroupLocalPersistence: @unchecked Sendable {
     func updateRetry(_ id: String, accountID: String, code: String?, failure: String?, next: Date?, existingResultID: String? = nil) throws {
         lock.lock(); defer { lock.unlock() }; var rows = try readOutbox()
         guard let i = rows.firstIndex(where: { $0.id == id && $0.accountID == accountID }) else { return }
-        rows[i].failure = failure; rows[i].failureCode = code; rows[i].nextAttemptAt = next
+        rows[i].failure = failure == nil ? nil : code.flatMap { $0.isEmpty ? nil : $0 } ?? "UPLOAD_FAILED"
+        rows[i].failureCode = code; rows[i].nextAttemptAt = next
         rows[i].attempts = (rows[i].attempts ?? 0) + 1; rows[i].existingResultID = existingResultID
         try write(rows, "outbox.json")
     }
@@ -224,6 +298,9 @@ nonisolated final class GroupLocalPersistence: @unchecked Sendable {
         var deleted = read([String].self, "deleted-accounts.json") ?? []; if !deleted.contains(accountID) { deleted.append(accountID) }; try? write(deleted, "deleted-accounts.json")
         if let pending = try? pendingDirectLineups() {
             try? write(pending.filter { $0.accountID != accountID }, "pending-direct-lineups.json")
+        }
+        if let pending = try? pendingWrites() {
+            try? write(pending.filter { $0.accountID != accountID }, "pending-writes.json")
         }
         guard let existingRows = try? readOutbox() else { return }
         let rows = existingRows.filter { $0.accountID != accountID }

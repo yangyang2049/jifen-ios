@@ -70,6 +70,8 @@ SENTENCE_FRAGMENT_KEYS = {
     "vip_agreement_link_middle_separator",
     "setup_suffix",
     "doudizhu_winner_separator",
+    "group_ranking_me_suffix",
+    "group_copy_ranking_me_suffix",
 }
 # Web translation providers return several candidates separated by " | " when they are
 # unsure. The separator survives into the draft (measured on 1,306 Odia rows, including
@@ -86,6 +88,9 @@ GLUE_ORDINALS = "ºª°"
 def punctuation_glue(value: str) -> List[str]:
     """Return the sentence-punctuation sites that are missing their trailing space."""
     stripped = GLUE_SKIP_RE.sub(" ", value)
+    # Finnish attaches case endings to a number with a colon, including a
+    # formatted number: e.g. "Paras %1$@:stä". This is not sentence punctuation.
+    stripped = re.sub(r'%(?:\d+\$)?[@diu]:(?:stä|sta|ssä|ssa|llä|lla|ltä|lta|lle|ksi|tta|ttä|ine|nä|na|tä|ta|ä|a|n)\b', ' ', stripped)
     sites: List[str] = []
     for match in re.finditer(r"[.;:!?](?=[^\W\d_])", stripped):
         index = match.start()

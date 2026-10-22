@@ -211,10 +211,8 @@ enum QuickStartLayoutPolicy {
         horizontalSizeClass: UserInterfaceSizeClass?,
         isPad: Bool
     ) -> Bool {
-        if let horizontalSizeClass {
-            return horizontalSizeClass == .regular
-        }
-        return isPad
+        // All window sizes use two sports plus New Game: one left card, two right cards.
+        return false
     }
 }
 

@@ -1,0 +1,901 @@
+{
+  "date": "2026-10-19",
+  "repository": "/Users/yangyang/Desktop/jifenqi/jifen-android",
+  "verification": "只读当前工作区Kotlin和中文资源；未改应用代码，未构建。数值dp/sp在fontScale=1映射CSS逻辑px，未做设备截图实测；Material默认高度未当作实测值。",
+  "shared": {
+    "spacing": {
+      "xxs": 2,
+      "xs": 4,
+      "sm": 8,
+      "md": 12,
+      "lg": 16,
+      "xl": 24,
+      "xxl": 32,
+      "sheetGap": 10,
+      "actionGap": 10,
+      "chipGap": 6
+    },
+    "radius": {
+      "xs": 8,
+      "sm": 10,
+      "md": 12,
+      "lg": 16,
+      "section": 20,
+      "pill": 999,
+      "sheetTop": 28
+    },
+    "font": {
+      "micro": 11,
+      "label": 12,
+      "labelLg": 13,
+      "bodySm": 14,
+      "body": 16,
+      "bodyLg": 18,
+      "title": 20,
+      "titleLg": 22
+    },
+    "button": {
+      "standardHeight": 48,
+      "compactHeight": 40,
+      "inlineHeight": 44,
+      "font": 16,
+      "compactFont": 14,
+      "radius": 999
+    },
+    "segmented": {
+      "height": 44,
+      "radius": 12,
+      "font": 13,
+      "lineHeight": 18,
+      "padding": 8,
+      "border": 0.5,
+      "selected": "整格绿色，文字按对比度适配；窄宽度可纵排"
+    },
+    "card": {
+      "radius": 16,
+      "padding": 16,
+      "lightBg": "#F5F5F5",
+      "outlinedBg": "#FFFFFF",
+      "border": 1
+    },
+    "sectionTitle": {
+      "font": 18,
+      "weight": 500,
+      "lineHeight": 24,
+      "barWidth": 3,
+      "barHeight": 16,
+      "barRadius": 1.5,
+      "barGap": 8,
+      "outerPaddingHorizontal": 2,
+      "subtitleFont": 11
+    },
+    "sectionHeader": {
+      "font": 13,
+      "weight": 600,
+      "greenBar": false,
+      "outerPaddingHorizontal": 2
+    },
+    "pageSurface": {
+      "paddingHorizontal": 16,
+      "paddingVertical": 8,
+      "gap": 10,
+      "headerFooterFixed": true,
+      "bodyScroll": true
+    },
+    "stickyCta": {
+      "paddingHorizontal": 16,
+      "paddingVertical": 10,
+      "height": 48,
+      "font": 16,
+      "safeArea": "navigationBarsPadding",
+      "divider": false,
+      "backgroundSlab": false
+    },
+    "roster": {
+      "alwaysVisibleWhenEditable": true,
+      "heading": null,
+      "sideLabels": [
+        "A 方",
+        "B 方"
+      ],
+      "sideLabelFont": 11,
+      "sideGap": 12,
+      "seatGap": 5,
+      "seatMinHeight": 44,
+      "seatRadius": 10,
+      "seatPaddingHorizontal": 8,
+      "seatPaddingVertical": 7,
+      "seatNameFont": 13,
+      "seatNameMaxLines": 2,
+      "seatKeyFont": 10,
+      "seatAvatar": 22,
+      "outerGap": 10,
+      "poolMinItemWidth": 78,
+      "poolMinItemHeight": 44,
+      "poolRadius": 24,
+      "poolAvatar": 18,
+      "poolNameFont": 12,
+      "poolGap": 6,
+      "poolPaddingHorizontal": 8,
+      "poolPaddingVertical": 7,
+      "searchOnlyAbove": 12,
+      "searchHeight": 36,
+      "searchFont": 12,
+      "scheduleOverrides": {
+        "showAB": false,
+        "showSeatKeys": false,
+        "seatNameFont": 16,
+        "poolNameFont": 14,
+        "whiteSurfaces": true
+      }
+    },
+    "palette": {
+      "primary": "#4CAF50",
+      "surface": "#FFFFFF",
+      "neutral": "#F5F5F5",
+      "textPrimary": "#111827",
+      "avatarBg": "#DCE1E5",
+      "avatarText": "#404B55",
+      "leftScore": "#C62828",
+      "rightScore": "#007AFF"
+    },
+    "sources": [
+      "app/src/main/java/com/douhua/jifen/ui/theme/DesignSystem.kt:14-40,51-115,126-147,188-200",
+      "app/src/main/java/com/douhua/jifen/ui/theme/Type.kt:11-40",
+      "app/src/main/java/com/douhua/jifen/ui/components/SharedComponents.kt:232-256",
+      "app/src/main/java/com/douhua/jifen/ui/components/group/GroupCards.kt:48-76,240-260",
+      "app/src/main/java/com/douhua/jifen/ui/components/group/GroupFeedback.kt:192-217,364-405",
+      "app/src/main/java/com/douhua/jifen/ui/components/FormSegmentedControl.kt:60,73-120,130-143",
+      "app/src/main/java/com/douhua/jifen/ui/components/group/GroupInlinePlayerSelector.kt:76-210",
+      "app/src/main/java/com/douhua/jifen/ui/components/group/GroupColors.kt:6-24"
+    ]
+  },
+  "pages": {
+    "result": {
+      "sectionTitles": [
+        "规则与比分（外部13sp无绿条）"
+      ],
+      "insideCardTitles": [
+        "规则设置（14sp）",
+        "比赛比分（14sp）"
+      ],
+      "order": [
+        "单双打segmented",
+        "条件添加临时成员文字入口",
+        "席位+始终可见姓名池",
+        "比赛时间行",
+        "规则与比分小标题",
+        "一个白底描边卡：规则摘要→16dp→比赛比分→A胜/B胜两列→手动输入→比分明细"
+      ],
+      "metrics": {
+        "bodyPadding": 16,
+        "bodyGap": 16,
+        "cardPadding": 12,
+        "cardRadius": 16,
+        "quickColumnGap": 8,
+        "quickColumnPadding": 8,
+        "quickColumnRadius": 12,
+        "quickColumnTitleFont": 12,
+        "quickOptionHeight": 48,
+        "quickOptionNumberFont": 18,
+        "quickOptionPadding": 8,
+        "disclosureHeight": 44,
+        "disclosureFont": 12
+      },
+      "footer": {
+        "type": "sticky",
+        "buttons": [
+          "提交赛果"
+        ],
+        "height": 48,
+        "font": 16,
+        "paddingHorizontal": 16,
+        "paddingVertical": 10
+      },
+      "removeHtml": [
+        "补记整场局分介绍",
+        "参赛队员section与卡",
+        "整场局分section与独立卡",
+        "比赛信息section卡",
+        "App校验讲解",
+        "为A1选择队员标题/清空/收起名单",
+        "少于等于12人时搜索"
+      ],
+      "sources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/result/GroupResultEntryScreen.kt:280-286,321-332,357-403,411-421",
+        "app/src/main/java/com/douhua/jifen/screen/group/result/GroupResultScoreControls.kt:82-125,157-209,268-310"
+      ]
+    },
+    "start": {
+      "sectionTitles": [
+        "规则设置（外部13sp无绿条）"
+      ],
+      "order": [
+        "单双打segmented",
+        "条件添加临时成员",
+        "席位+常驻姓名池",
+        "规则设置标题",
+        "白底描边卡内规则摘要"
+      ],
+      "metrics": {
+        "bodyPadding": 16,
+        "bodyGap": 16,
+        "cardPadding": 12,
+        "cardRadius": 16
+      },
+      "footer": {
+        "type": "sticky",
+        "buttons": [
+          "开始计分（冻结比赛为继续计分）"
+        ],
+        "height": 48,
+        "font": 16,
+        "paddingHorizontal": 16,
+        "paddingVertical": 10
+      },
+      "removeHtml": [
+        "页面介绍",
+        "参赛队员标题和卡",
+        "比赛信息/比赛时间/比分"
+      ],
+      "sources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/result/GroupResultEntryScreen.kt:321-403,411-421"
+      ]
+    },
+    "create": {
+      "sectionTitles": [],
+      "fieldLabels": [
+        "名称",
+        "简介（选填）",
+        "项目",
+        "加入方式"
+      ],
+      "order": [
+        "名称",
+        "简介",
+        "项目图标选项横向滚动",
+        "直接加入/需要审批"
+      ],
+      "metrics": {
+        "bodyPadding": 16,
+        "bodyGap": 16,
+        "labelFont": 12,
+        "labelWeight": 600,
+        "labelToField": 6,
+        "nameFont": 18,
+        "nameWeight": 600,
+        "descriptionFont": 14,
+        "descriptionMinLines": 2,
+        "fieldRadius": 12,
+        "fieldHeight": "Material OutlinedTextField默认测量，源码未固定高度",
+        "sportTileWidth": "((contentWidth-24)/3.35) clamp80..112",
+        "sportTilePaddingVertical": 12,
+        "sportTileRadius": 12,
+        "sportArtwork": 34,
+        "sportLabelFont": 11,
+        "sportLabelTop": 4,
+        "sportGap": 8
+      },
+      "footer": {
+        "type": "sticky",
+        "buttons": [
+          "创建小组"
+        ],
+        "height": 48,
+        "font": 16,
+        "paddingHorizontal": 16,
+        "paddingVertical": 10
+      },
+      "removeHtml": [
+        "创建搭档小组介绍",
+        "基本信息section和卡",
+        "项目外层卡（保留字段标签）",
+        "加入方式外层卡（保留字段标签）",
+        "名称校验说明",
+        "200字App接入讲解",
+        "创建后可调整加入方式提示"
+      ],
+      "sources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/create/GroupCreateScreen.kt:187-265,305-355"
+      ]
+    },
+    "join": {
+      "sectionTitles": [],
+      "fieldLabels": [
+        "输入小组号（placeholder，无外部label）",
+        "申请留言（选填）（placeholder，单行）"
+      ],
+      "order": [
+        "手动进入时扫码卡，深链带号隐藏",
+        "或输入小组号分隔线",
+        "居中22sp数字输入",
+        "11sp取号说明",
+        "唯一预览结果卡：44dp项目图标+名称/人数/号+状态→简介→申请留言单行→加入按钮",
+        "卡外举报文字入口"
+      ],
+      "metrics": {
+        "bodyPadding": 16,
+        "bodyGap": 16,
+        "scanMinHeight": 88,
+        "scanPadding": 16,
+        "fieldRadius": 12,
+        "numberFont": 22,
+        "numberWeight": 700,
+        "numberLetterSpacing": 4,
+        "numberAlign": "center",
+        "resultCardPadding": 16,
+        "nameFont": 14,
+        "metadataFont": 11,
+        "descriptionFont": 12,
+        "cardInnerTopGap": 10,
+        "messageSingleLine": true
+      },
+      "footer": {
+        "type": "none",
+        "action": "预览卡内部满宽48dp加入/申请按钮，字号16；不是页面sticky footer"
+      },
+      "removeHtml": [
+        "查找小组section/卡",
+        "小组预览section标题",
+        "申请信息section/卡",
+        "加入附言外部label",
+        "统一底部固定申请加入按钮"
+      ],
+      "sources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/join/GroupJoinScreen.kt:430-508,563-594,624-718",
+        "app/src/main/java/com/douhua/jifen/screen/group/join/GroupJoinScanEntry.kt:36-57"
+      ]
+    },
+    "activity": {
+      "sectionTitles": [],
+      "fieldLabels": [
+        "活动名称（选填）",
+        "日期",
+        "开始时间",
+        "报名截止时间",
+        "地点（选填）",
+        "报名人数上限",
+        "备注（选填）"
+      ],
+      "order": [
+        "名称+自动命名说明",
+        "日期/时间并排",
+        "报名截止",
+        "地点+常用地点箭头",
+        "单双打segmented（无比赛类型标题）",
+        "左人数标签右步进器",
+        "多场活动业务说明",
+        "备注"
+      ],
+      "metrics": {
+        "bodyPadding": 16,
+        "bodyGap": 16,
+        "labelFont": 12,
+        "labelToField": 8,
+        "fieldMinHeight": 48,
+        "fieldPadding": 12,
+        "fieldFont": 16,
+        "fieldLineHeight": 20,
+        "multilineMinHeight": 84,
+        "fieldRadius": 12,
+        "dateTimeGap": 12,
+        "narrow": "内容宽<320dp或fontScale>1.25改纵排",
+        "capacityValueWidth": 52,
+        "capacityFont": 16
+      },
+      "footer": {
+        "type": "two",
+        "buttons": [
+          "取消",
+          "创建"
+        ],
+        "weights": [
+          1,
+          1.7
+        ],
+        "height": 48,
+        "font": 16,
+        "padding": 16,
+        "gap": 12,
+        "divider": false
+      },
+      "removeHtml": [
+        "先约好时间地点介绍",
+        "活动信息section/卡",
+        "报名设置section/卡",
+        "补充说明section/卡",
+        "比赛类型标题"
+      ],
+      "changeHtml": [
+        "名称变选填并恢复自动命名提示",
+        "分开日期与开始时间",
+        "截止在日期时间后地点前",
+        "底部双按钮"
+      ],
+      "sources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityCreateScreen.kt:185-312,321-353,383-432"
+      ]
+    },
+    "detail": {
+      "sectionTitles": [],
+      "insideCardTitles": [
+        "已报名x/y（13sp）",
+        "我的报名（管理员，14sp）"
+      ],
+      "order": [
+        "固定16sp活动标题+更多",
+        "信息卡：状态与单双打chip→合并日期地点备注→截止→条件提醒开关",
+        "报名卡：已报名x/y+临时成员报名→头像姓名FlowRow→管理员我的报名行",
+        "按角色固定主操作"
+      ],
+      "metrics": {
+        "bodyPaddingHorizontal": 16,
+        "bodyPaddingVertical": 8,
+        "bodyGap": 10,
+        "activityTitleFont": 16,
+        "activityTitleWeight": 600,
+        "cardPadding": 16,
+        "cardRadius": 16,
+        "cardGap": 12,
+        "infoFont": 12,
+        "infoLineHeight": 16,
+        "rosterTitleFont": 13,
+        "rosterAvatar": 38,
+        "rosterNameFont": 11,
+        "rosterNameTop": 2,
+        "rosterGap": 12
+      },
+      "footer": {
+        "type": "roleDependent",
+        "admin": [
+          "活动排赛/查看场次"
+        ],
+        "height": 48,
+        "font": 16,
+        "buttonTop": 4,
+        "bodyPaddingHorizontal": 16
+      },
+      "removeHtml": [
+        "活动信息section标题",
+        "逐行开始时间/地点/赛制label",
+        "固定三局两胜规则",
+        "比赛场次卡及安排对阵介绍",
+        "名单每人重复已报名",
+        "顶部大notice人数"
+      ],
+      "changeHtml": [
+        "名单使用头像+姓名流式排列",
+        "临时成员报名入口在已报名人数右侧",
+        "恢复报名截止和状态相关提醒"
+      ],
+      "sources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailActivitiesTab.kt:368-399,506-566,595-647",
+        "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupPageSurface.kt:17-31"
+      ]
+    },
+    "schedule": {
+      "sectionTitles": [
+        "对阵安排（真实绿色条，右N场）"
+      ],
+      "order": [
+        "新直接排赛：名称placeholder+自动命名提示→日期地点并排→单双打；已有活动：标题日期地点摘要",
+        "不设具体时间/设置预计时间（无标题）",
+        "仅预计模式显示全局每场时长和20/30/45/60分钟选项",
+        "分割线→对阵安排+N场",
+        "第N场卡：标题+移除→时间/场地→对阵+常驻姓名池",
+        "添加一场"
+      ],
+      "metrics": {
+        "bodyPadding": 16,
+        "bodyGap": 12,
+        "topFieldHeight": 48,
+        "topFieldRadius": 12,
+        "topFieldFont": 14,
+        "nameFont": 16,
+        "topRowGap": 8,
+        "choiceMinHeight": 44,
+        "choicePaddingHorizontal": 12,
+        "choicePaddingVertical": 10,
+        "choiceFont": 14,
+        "cardRadius": 16,
+        "cardBorder": 1,
+        "cardPaddingHorizontal": 10,
+        "cardPaddingVertical": 8,
+        "cardGap": 8,
+        "sessionTitleFont": 16,
+        "sessionTitleWeight": 600,
+        "sessionTimeCourtHeight": 44,
+        "courtWeight": 0.65,
+        "timeWeight": 1
+      },
+      "footer": {
+        "type": "sticky",
+        "buttons": [
+          "保存排赛 / 保存"
+        ],
+        "height": 48,
+        "font": 16,
+        "paddingHorizontal": 16,
+        "paddingVertical": 10
+      },
+      "removeHtml": [
+        "无需报名介绍",
+        "排赛方式section/卡",
+        "按先后进行及App模型讲解",
+        "每场预计时长（实际是全局）",
+        "第二场是排版示例说明",
+        "移除最后一场页尾按钮",
+        "预览排赛步骤"
+      ],
+      "changeHtml": [
+        "排赛卡不显示A/B/A1/B1",
+        "每场独立点选和编辑",
+        "补名称、日期、单双打和对阵安排标题"
+      ],
+      "sources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupScreen.kt:172-235,276-307,314-370,428-440,477-525,649-670"
+      ]
+    },
+    "registration": {
+      "sectionTitles": [],
+      "order": [
+        "固定16sp临时成员报名标题",
+        "12sp范围说明",
+        "直接勾选行：checkbox→38头像→姓名+状态",
+        "固定底栏：分隔线→新增/取消与报名x/y→保存报名N项，无变更完成"
+      ],
+      "metrics": {
+        "bodyPaddingHorizontal": 16,
+        "bodyPaddingVertical": 8,
+        "bodyGap": 10,
+        "titleFont": 16,
+        "titleWeight": 600,
+        "scopeFont": 12,
+        "rowMinHeight": 48,
+        "rowPadding": 8,
+        "rowGap": 8,
+        "rowRadius": 12,
+        "avatar": 38,
+        "nameFont": 14,
+        "statusFont": 12,
+        "nameStatusGap": 2,
+        "footerStatsFont": 12
+      },
+      "footer": {
+        "type": "directSave",
+        "buttons": [
+          "保存报名（N项）/完成"
+        ],
+        "height": 48,
+        "font": 16,
+        "divider": true,
+        "noPreviewStep": true
+      },
+      "removeHtml": [
+        "顶部已报名与本次选择大notice",
+        "临时成员section/卡",
+        "下一步预览变更讲解",
+        "预览报名变更按钮"
+      ],
+      "changeHtml": [
+        "每行报名/未报名/待报名/待取消副文案",
+        "统计移到底部",
+        "保存前可撤回，离开确认"
+      ],
+      "sources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityRegistrationSheet.kt:91-189",
+        "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupPageSurface.kt:17-31"
+      ]
+    },
+    "edit": {
+      "sectionTitles": [],
+      "fieldLabels": [
+        "名称placeholder",
+        "简介placeholder",
+        "加入方式（唯一外部12sp标签）"
+      ],
+      "order": [
+        "名称",
+        "简介至少两行",
+        "组长加入方式：直接加入/需要审批/关闭加入",
+        "11sp关闭加入提示",
+        "条件冲突/错误"
+      ],
+      "metrics": {
+        "bodyPadding": 16,
+        "bodyGap": 12,
+        "inputRadius": 12,
+        "inputFont": 16,
+        "placeholderFont": 14,
+        "descriptionMinLines": 2,
+        "fieldHeight": "Material默认测量，源码未固定",
+        "joinLabelFont": 12,
+        "joinLabelWeight": 600,
+        "joinHintFont": 11
+      },
+      "footer": {
+        "type": "twoEqual",
+        "buttons": [
+          "取消",
+          "保存"
+        ],
+        "height": 48,
+        "font": 16,
+        "gap": 10,
+        "topPadding": 8,
+        "pagePadding": 16
+      },
+      "removeHtml": [
+        "修改资料介绍",
+        "基本信息section/卡",
+        "加入方式section/卡",
+        "校验与接入讲解"
+      ],
+      "changeHtml": [
+        "增加关闭加入第三项",
+        "项目不能编辑",
+        "若保留名称简介外部标签，应标为三端改进而不是Android原样"
+      ],
+      "sources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailScreen.kt:665-765"
+      ]
+    },
+    "temporary": {
+      "sectionTitles": [],
+      "fieldLabels": [
+        "输入名称，以换行或逗号分隔（placeholder）"
+      ],
+      "order": [
+        "20sp居中Dialog标题",
+        "临时成员用途说明",
+        "3-5行批量输入",
+        "左N个名称右常用名称同一行",
+        "错误",
+        "取消/添加"
+      ],
+      "metrics": {
+        "container": "居中自定义Dialog，非独立页",
+        "dialogRadius": 20,
+        "maxWidth": 560,
+        "screenMarginHorizontal": 16,
+        "dialogPadding": 16,
+        "titleFont": 20,
+        "messageFont": 16,
+        "messageTop": 8,
+        "inputTop": 12,
+        "inputMinLines": 3,
+        "inputMaxLines": 5,
+        "inputRadius": 12,
+        "placeholderFont": 14,
+        "inputFooterTop": 8,
+        "countFont": 12,
+        "actionsTop": 12,
+        "actionsGap": 10,
+        "compact": "可用高<240dp时input32高1行，button44高"
+      },
+      "footer": {
+        "type": "twoEqualDialog",
+        "buttons": [
+          "取消",
+          "添加"
+        ],
+        "height": 48,
+        "font": 16,
+        "gap": 10
+      },
+      "removeHtml": [
+        "当前6/30可再添加24大notice",
+        "输入姓名section/卡",
+        "每行一位成员外label",
+        "已解析N姓名提交按现有规则讲解"
+      ],
+      "changeHtml": [
+        "保留真实用途说明",
+        "常用名称和N个名称同一行",
+        "placeholder注明逗号或换行"
+      ],
+      "sources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupTemporaryMemberEditor.kt:58-109",
+        "app/src/main/java/com/douhua/jifen/ui/components/group/GroupOverlays.kt:252-281,454-542"
+      ]
+    },
+    "members": {
+      "sectionTitles": [
+        "加入申请（条件）",
+        "正式成员",
+        "临时（含人数与右侧添加临时成员）"
+      ],
+      "order": [
+        "加入申请标题+人数→申请卡",
+        "正式成员标题+人数→整组列表卡",
+        "临时标题+人数+添加入口→临时整组卡→用途提示",
+        "条件已移除成员入口"
+      ],
+      "metrics": {
+        "bodyPadding": 16,
+        "bodyGap": 12,
+        "sectionTitleFont": 18,
+        "sectionSubtitleFont": 11,
+        "requestCardPadding": 8,
+        "requestRowPaddingHorizontal": 4,
+        "requestRowPaddingVertical": "首4/其余8，非末行额外bottom4",
+        "requestGap": 8,
+        "requestAvatar": 38,
+        "requestRightGap": 2,
+        "requestNameFont": 14,
+        "requestDateFont": 11,
+        "requestMessageFont": 12,
+        "requestActionsTop": 8,
+        "requestActionsGap": 8,
+        "requestButtonHeight": 40,
+        "requestButtonFont": 14,
+        "memberCardPadding": 0,
+        "memberRowPadding": 12,
+        "memberRowGap": 10,
+        "memberAvatar": 38,
+        "memberNameFont": 14,
+        "memberDividerInsetLeft": 60,
+        "memberDividerInsetRight": 12
+      },
+      "footer": {
+        "type": "none",
+        "addPlacement": "临时段标题右侧，非底部sticky"
+      },
+      "removeHtml": [
+        "行尾临时身份重复标签",
+        "固定添加临时成员底栏"
+      ],
+      "changeHtml": [
+        "组主改组长",
+        "Section真实绿色条要留",
+        "申请时间与姓名同一行，完整留言，等宽40dp拒绝通过",
+        "组长/管理员badge，普通成员不标"
+      ],
+      "sources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailMembersTab.kt:88-101,127-186,191-271,436-456",
+        "app/src/main/java/com/douhua/jifen/ui/components/group/GroupResultComponents.kt:329-375"
+      ]
+    },
+    "records": {
+      "sectionTitles": [
+        "待确认（有我待办）",
+        "战绩（右侧独立记录筛选）"
+      ],
+      "insideCardTitles": [
+        "单打排行榜/双打排行榜（13sp）",
+        "待上传N条（12sp）"
+      ],
+      "order": [
+        "有榜单才显示顶部单双打排名筛选",
+        "待确认标题+待办赛果卡",
+        "排行榜卡",
+        "条件待上传卡",
+        "战绩标题+记录筛选→赛果列表",
+        "完全空时补记CTA"
+      ],
+      "metrics": {
+        "bodyPadding": 16,
+        "bodyGap": 12,
+        "rankingCardPadding": 12,
+        "rankingTitleFont": 13,
+        "rankingTitleWeight": 600,
+        "rankingTitleBottom": 8,
+        "rankingColumnBaseWidth": 40,
+        "rankingHeaderFont": 11,
+        "rankingBodyFont": 12,
+        "resultCardPadding": 16,
+        "resultCardRadius": 16,
+        "resultMetadataFont": 11,
+        "resultMatchupTop": 8,
+        "resultAvatar": 24,
+        "resultNameFont": 13,
+        "resultNumberFont": 48,
+        "resultNumberWeight": 700,
+        "resultDashFont": 32,
+        "resultMiddleWidth": 24
+      },
+      "footer": {
+        "type": "none",
+        "emptyOnlyAction": true
+      },
+      "removeHtml": [
+        "待确认1待上传1大notice",
+        "排行榜外部大section",
+        "统计校验/点击记录详情讲解",
+        "有内容仍固定补记比赛底栏"
+      ],
+      "changeHtml": [
+        "真实待确认与待上传卡",
+        "排行完整场胜负平局差胜率列",
+        "赛果红蓝48sp数字和头像姓名",
+        "保留真实绿色待确认/战绩标题",
+        "双子tab仅可选对比，非Android现状"
+      ],
+      "sources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailRecordsTab.kt:143-198,236-281,287-372,491-572",
+        "app/src/main/java/com/douhua/jifen/ui/components/group/GroupResultComponents.kt:72-103,167-180,215-234"
+      ]
+    },
+    "report": {
+      "sectionTitles": [],
+      "fieldLabels": [
+        "补充说明（选填）（placeholder）"
+      ],
+      "reasons": [
+        "垃圾广告",
+        "骚扰辱骂",
+        "色情或违规内容",
+        "诈骗或赌博",
+        "违法或危险活动",
+        "冒充他人或官方",
+        "其他"
+      ],
+      "order": [
+        "20sp举报小组标题",
+        "条件已有举报状态",
+        "七个纵向单选原因",
+        "4行补充说明",
+        "错误",
+        "取消/提交"
+      ],
+      "metrics": {
+        "container": "居中Dialog，非独立页",
+        "radius": 16,
+        "screenMarginHorizontal": 24,
+        "panelPadding": 16,
+        "maxHeight": "屏高85%",
+        "titleFont": 20,
+        "reasonsTop": 16,
+        "reasonGap": 12,
+        "reasonRadius": 8,
+        "reasonPadding": 16,
+        "reasonFont": 14,
+        "selectedCheck": 22,
+        "detailTop": 16,
+        "detailMinLines": 4,
+        "detailRadius": 12,
+        "detailFont": 16,
+        "actionsTop": 16,
+        "actionsGap": 12
+      },
+      "footer": {
+        "type": "twoEqualDialog",
+        "buttons": [
+          "取消",
+          "提交"
+        ],
+        "height": 48,
+        "font": 16,
+        "note": "整块内容滚动，不是页面safe-area sticky footer"
+      },
+      "removeHtml": [
+        "说明问题提交后查看状态介绍",
+        "举报原因section/外卡",
+        "补充说明section/外卡",
+        "具体情况label"
+      ],
+      "changeHtml": [
+        "4枚chip改7个真实枚举纵向单选",
+        "补充说明选填",
+        "当前Android为Dialog；承载若与鸿蒙合并需标决策"
+      ],
+      "sources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupReportForm.kt:42-50,85-188",
+        "app/src/main/java/com/douhua/jifen/screen/feedback/FeedbackUi.kt:415-443"
+      ]
+    }
+  },
+  "actualTextHints": {
+    "group_activity_title_auto_hint": "不填写时，将按日期自动生成，例如“11月10日活动”。",
+    "group_audit_result_activity_multi_match": "一个活动可安排多场比赛。成员先报名活动，再在排阵时为每场单打选择 2 人、每场双打选择 4 人参赛。",
+    "group_activity_registration_scope": "为临时成员代报名，正式成员自行报名。",
+    "group_add_temp_hint": "临时成员无需注册，可参赛并记录战绩，之后可由本人认领。",
+    "group_edit_policy_closed_hint": "关闭后新成员无法加入，已有成员不受影响。",
+    "group_temp_batch_placeholder": "输入名称，以换行或逗号分隔",
+    "group_member_role_owner": "组长",
+    "group_activity_direct_save": "保存排赛",
+    "group_entry_match_score": "比赛比分",
+    "group_entry_a_wins": "A 方获胜",
+    "group_entry_b_wins": "B 方获胜"
+  }
+}

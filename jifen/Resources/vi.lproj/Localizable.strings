@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "Trò chơi cờ bàn";
 "search_team_or_game" = "Tìm kiếm đội hoặc trò chơi";
 "match_count" = "%d trận đấu";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d trận · tất cả thành viên nhóm";
+"archived_count" = "%d nhóm";
 
 /* Home Screen */
 "recent_records" = "Bản ghi gần đây";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "Ví dụ: chơi đủ 5 set; trận đấu có thể hòa";
 "match_completion_custom_placeholder" = "Nhập 1-99";
 "match_completion_invalid_sets" = "Cổ điển cần số lẻ từ 1-99; Chơi tất cả nhận 1-99.";
+"setup_auto_odd_sets" = "Chỉ cho phép số lẻ — dùng %d";
 "has_been_reset" = "Đặt lại hoàn tất";
 "no_undo_available" = "Không thể hoàn tác";
 "screenshot_failed" = "Ảnh chụp màn hình không thành công";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "Phiên đồng bộ hóa đang hoạt động";
 "timer_status_running" = "Đang chạy";
 "timer_status_paused" = "Đã tạm dừng";
-"membership_entry_summary_active" = "Bạn là thành viên VIP. Cảm ơn sự hỗ trợ của bạn";
+"membership_entry_summary_active" = "VIP còn hiệu lực";
 "sound_effects" = "Hiệu ứng âm thanh";
 "vibration" = "Rung";
 "language" = "Ngôn ngữ";
@@ -1579,7 +1580,7 @@
 "group_approval" = "Cần phê duyệt";
 "group_approve" = "Phê duyệt";
 "group_archive" = "Lưu trữ nhóm";
-"group_archive_hint" = "Lưu trữ giữ lại toàn bộ lịch sử và tạm dừng thay đổi nhóm. Bạn có thể khôi phục sau.";
+"group_archive_hint" = "Lưu trữ nhóm này? Nội dung sẽ chỉ có thể xem.";
 "group_archive_readonly" = "Nhóm đã được lưu trữ. Chỉ có thể xem lịch sử.";
 "group_archived" = "Đã lưu trữ";
 "group_benefit_activity" = "Lên lịch hoạt động và đăng ký";
@@ -1624,18 +1625,18 @@
 "group_invalid_qr" = "Đây không phải mã QR nhóm hợp lệ.";
 "group_invalid_result" = "Kết quả đã ghi cần được xem lại trước khi tải lên.";
 "group_invalid_rules" = "Vui lòng kiểm tra luật của trận.";
-"group_invite" = "Invite";
+"group_invite" = "Mời đồng đội";
 "group_join" = "Tham gia nhóm";
 "group_join_hint" = "Dùng số nhóm hoặc mã QR để tham gia nhóm của bạn bè.";
-"group_join_message" = "Tin nhắn gửi nhóm (tùy chọn)";
+"group_join_message" = "Lời nhắn xin tham gia (không bắt buộc)";
 "group_join_policy" = "Cách tham gia";
 "group_leave" = "Rời nhóm";
-"group_leave_hint" = "Bạn sẽ mất quyền truy cập nhóm. Bản ghi cá nhân vẫn ở trên thiết bị này.";
+"group_leave_hint" = "Sau khi rời nhóm, bạn sẽ không còn là thành viên và nhóm sẽ bị xóa khỏi “Nhóm của tôi”. Bạn không thể tiếp tục truy cập hoặc tham gia nhóm. Các bản ghi trận đấu hiện có của nhóm và bản ghi cá nhân trên thiết bị này vẫn được giữ lại. Để truy cập lại, bạn cần tham gia lại nhóm.";
 "group_load_failed" = "Không thể tải nhóm";
 "group_load_more" = "Tải thêm";
 "group_losses" = "Số trận thua";
 "group_manual" = "Nhập thủ công";
-"group_manual_result" = "Thêm trận đã chơi";
+"group_manual_result" = "Thêm kết quả trận đấu";
 "group_match_detail" = "Chi tiết trận";
 "group_match_log" = "Lịch sử trận";
 "group_match_rules" = "Luật trận";
@@ -1647,15 +1648,15 @@
 "group_name" = "Tên nhóm";
 "group_need_login" = "Vui lòng đăng nhập để tiếp tục.";
 "group_need_members" = "Mời bạn bè hoặc thêm thành viên tạm thời trước khi bắt đầu trận.";
-"group_new_activity" = "Lên lịch hoạt động";
+"group_new_activity" = "Tạo hoạt động";
 "group_new_owner" = "Chủ nhóm mới";
 "group_no_activities" = "Chưa có hoạt động";
 "group_no_description" = "Chưa có mô tả";
 "group_no_rankings" = "Bảng xếp hạng xuất hiện sau khi kết quả trận được xác nhận.";
 "group_no_set_details" = "Chỉ ghi kết quả tổng thể.";
-"group_note" = "Ghi chú hoạt động (tùy chọn)";
-"group_number" = "6–8 digit group number";
-"group_open" = "Ai có số nhóm đều có thể tham gia";
+"group_note" = "Ghi chú (tùy chọn)";
+"group_number" = "Số nhóm gồm 6–8 chữ số";
+"group_open" = "Tham gia trực tiếp";
 "group_overall_score" = "Tỉ số hiệp tổng thể";
 "group_overview" = "Tổng quan";
 "group_owner" = "Chủ nhóm";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "Xóa thành viên";
 "group_restore" = "Khôi phục nhóm";
 "group_restore_hint" = "Khôi phục nhóm để có thể tổ chức hoạt động và ghi điểm.";
-"group_results" = "Các trận";
+"group_results" = "Bản ghi";
 "group_retry" = "Thử lại";
 "group_rules_missing" = "Chưa ghi luật";
-"group_save" = "Xác nhận";
+"group_save" = "Lưu";
 "group_save_failed" = "Không thể lưu trận. Vui lòng thử lại.";
 "group_scan" = "Quét mã QR";
 "group_scoreboard" = "Bảng điểm";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "Tiếp tục hoặc kết thúc trận hiện có trước khi bắt đầu trận khác.";
 "group_unregister" = "Hủy đăng ký";
 "group_void_reason" = "Lý do hủy kết quả";
-"group_void_result" = "Hủy hiệu lực kết quả";
+"group_void_result" = "Hủy kết quả";
 "group_voided" = "Đã hủy hiệu lực";
 "group_wins" = "Số trận thắng";
 "group_withdraw" = "Rút yêu cầu";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "Bạn đã là thành viên.";
 "group_open_group" = "Mở nhóm";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
-"group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
-"group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_groups" = "Nhóm";
+"group_invite_students" = "Mời học viên";
+"group_group_type" = "Loại nhóm";
+"group_peer" = "Nhóm bạn bè";
+"group_coaching" = "Nhóm huấn luyện";
+"group_training" = "Tập luyện";
+"group_upcoming" = "Sắp tới";
+"group_latest_results" = "Kết quả mới nhất";
+"group_no_results" = "Chưa có trận được ghi lại";
+"group_no_training" = "Chưa có lịch tập";
+"group_active_activities" = "Đang diễn ra · Đang nhận đăng ký";
+"group_past_activities" = "Hoạt động đã qua";
+"group_all_formats" = "Tất cả thể thức";
+"group_join_requests" = "Yêu cầu tham gia";
+"group_regular_members" = "Thành viên đã đăng ký";
+"group_temporary_members" = "Thành viên tạm thời";
+"group_add" = "Thêm";
+"group_leader" = "Chủ nhóm";
+"group_member_settings" = "Cài đặt thành viên";
+"group_settings" = "Quản lý nhóm";
+"group_partial_load" = "Không thể làm mới một số mục. Kéo xuống để thử lại.";
+"group_leave_notices" = "Thông báo nghỉ của học viên";
+"group_mark_seen" = "Đã đọc";
+"group_training_schedule" = "Lịch tập";
+"group_add_session" = "Thêm trận";
+"group_edit_schedule" = "Sửa lịch";
+"group_cancel_schedule" = "Hủy lịch";
+"group_leave_training" = "Xin nghỉ";
+"group_session_minutes" = "Số phút mỗi trận";
+"group_court" = "Sân";
+"group_remove_session" = "Xóa";
+"group_publish_schedule" = "Đăng lịch";
+"group_leave_reason" = "Lý do nghỉ (không bắt buộc)";
+"group_report" = "Báo cáo nhóm";
+"group_report_reason" = "Lý do";
+"group_report_detail" = "Chi tiết (không bắt buộc)";
+"group_report_submit" = "Gửi";
+"group_report_spam" = "Thư rác";
+"group_report_harassment" = "Quấy rối";
+"group_report_inappropriate" = "Nội dung tình dục hoặc không phù hợp";
+"group_report_fraud" = "Lừa đảo hoặc cờ bạc";
+"group_report_illegal" = "Hoạt động bất hợp pháp hoặc nguy hiểm";
+"group_report_impersonation" = "Mạo danh";
+"group_report_other" = "Khác";
+"group_lineup_invalid" = "Kiểm tra giờ đấu, sân và người chơi.";
+"group_lineup_member_limit" = "Mỗi thành viên được chơi tối đa tám trận trong một lịch.";
+"group_lineup_conflict" = "Các trận trùng giờ phải dùng sân và người chơi khác nhau.";
+"group_multi_match_hint" = "Một hoạt động có thể có nhiều trận đấu. Thành viên đăng ký hoạt động; khi xếp trận, chọn 2 người đã đăng ký cho mỗi trận đơn hoặc 4 người cho mỗi trận đôi.";
+"group_single_match_hint" = "Mỗi hoạt động tương ứng với một trận đấu. Chọn 2 thành viên đã đăng ký cho đánh đơn hoặc 4 người cho đánh đôi.";
+"group_rate_limited" = "Quá nhiều yêu cầu. Hãy thử lại sau.";
+"group_create_daily_limit" = "Bạn đã đạt giới hạn tạo nhóm trong 24 giờ. Hãy thử lại sau.";
+"group_join_daily_limit" = "Bạn đã đạt giới hạn tham gia nhóm trong 24 giờ. Hãy thử lại sau.";
+"group_pending_request_limit" = "Có quá nhiều yêu cầu chờ duyệt. Hãy đợi quyết định hoặc rút bớt yêu cầu.";
+"group_request_daily_limit" = "Nhóm này đã đạt giới hạn yêu cầu tham gia trong 24 giờ. Hãy thử lại sau.";
+"group_join_cooldown" = "Bạn phải đợi 24 giờ sau khi bị từ chối mới có thể xin tham gia lại.";
+"group_result_group_daily_limit" = "Nhóm này đã đạt giới hạn kết quả trong 24 giờ. Hãy thử lại sau.";
+"group_result_submitter_daily_limit" = "Bạn đã đạt giới hạn gửi kết quả trong 24 giờ. Hãy thử lại sau.";
+"group_not_coach" = "Chỉ huấn luyện viên mới được xếp lịch tập.";
+"group_activity_count" = "%1$d/%2$d người đăng ký";
+"group_activity_create_admin_hint" = "Chủ nhóm hoặc quản trị viên tạo hoạt động";
+"group_activity_direct_hint" = "Chọn trực tiếp từ tất cả thành viên đang hoạt động, không cần đăng ký.";
+"group_activity_direct_save" = "Lưu lịch";
+"group_activity_direct_title" = "Xếp lịch ngay";
+"group_activity_field_title_optional" = "Tên hoạt động (không bắt buộc)";
+"group_activity_full" = "Đã đầy";
+"group_activity_lineup_add" = "Thêm trận";
+"group_activity_lineup_add_need_members" = "Không đủ người chơi. Cần ít nhất %1$d thành viên đang hoạt động để thêm trận.";
+"group_activity_lineup_court" = "Số sân";
+"group_activity_lineup_duration" = "Thời lượng trận";
+"group_activity_lineup_match_count" = "%1$d trận";
+"group_activity_lineup_minutes" = "%1$d phút";
+"group_activity_lineup_remove" = "Xóa";
+"group_activity_lineup_section_matches" = "Sắp xếp trận đấu";
+"group_activity_lineup_session" = "Trận %1$d";
+"group_activity_registration_empty" = "Không có thành viên tạm thời";
+"group_activity_section_count" = "%1$d hoạt động";
+"group_activity_section_past" = "Hoạt động đã qua";
+"group_activity_section_upcoming" = "Đang diễn ra · Đang nhận đăng ký";
+"group_activity_status_scheduled" = "Sẵn sàng bắt đầu";
+"group_activity_time_after_previous" = "Sau trận trước";
+"group_activity_time_unspecified" = "Chưa xác định giờ";
+"group_activity_timing" = "Thời gian";
+"group_activity_timing_estimated" = "Giờ dự kiến";
+"group_activity_timing_sequence" = "Không có giờ cụ thể";
+"group_activity_title_auto_hint" = "Nếu để trống, tên sẽ được tạo từ ngày, ví dụ “Hoạt động ngày 10 tháng 11”.";
+"group_archived_empty" = "Chưa có nhóm lưu trữ";
+"group_archived_list_title" = "Nhóm đã lưu trữ";
+"group_empty_activities_title" = "Chưa có hoạt động";
+"group_list_add_title" = "Tạo hoặc tham gia nhóm";
+"group_ranking_draws" = "Số trận hòa";
+"group_ranking_games" = "Số trận đã chơi";
+"group_ranking_losses" = "Số trận thua";
+"group_ranking_sets" = "Điểm";
+"group_ranking_title" = "Bảng xếp hạng %@";
+"group_ranking_wins" = "Số trận thắng";
+"group_training_results_locked" = "Lịch đã có kết quả giữ nguyên giờ và người chơi. Bạn có thể sửa địa điểm và ghi chú.";
+"group_temporary_hint" = "Thành viên tạm thời không cần tài khoản và có thể được thêm khi nhập kết quả.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "Giải phóng trận đấu";
-"group_activity_lineup" = "Lịch thi đấu";
-"group_activity_mode" = "Các trận";
+"group_abandon_game" = "Bỏ trận đấu";
+"group_activity_lineup" = "Sắp xếp trận đấu";
+"group_activity_mode" = "Bản ghi";
 "group_activity_reminder" = "Nhắc trước 15 phút";
 "group_add_set" = "Thêm điểm game";
 "group_added_members" = "Đã thêm";
-"group_authority_confirm" = "Xác nhận với tư cách chủ nhóm";
-"group_batch_names_hint" = "Mỗi dòng một tên, mỗi tên từ 1 đến 24 ký tự.";
-"group_beta_notice" = "Tính năng nhóm đang thử nghiệm. Rất mong nhận được góp ý.";
+"group_authority_confirm" = "Xác nhận kết quả";
+"group_batch_names_hint" = "Mỗi dòng một tên";
+"group_beta_notice" = "Nhóm đang trong giai đoạn thử nghiệm. Một số tính năng có thể thay đổi. Cảm ơn bạn đã trải nghiệm sớm.";
 "group_cancel_dissolve" = "Hủy giải tán";
 "group_cancel_dissolve_hint" = "Khôi phục nhóm để có thể tổ chức hoạt động và ghi điểm.";
 "group_cancel_training_hint" = "Trận đã hoàn tất được giữ trong lịch sử. Trận đã bắt đầu vẫn có thể kết thúc.";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "Thể thao mặc định";
 "group_discard_upload" = "Bỏ tải lên";
 "group_dissolve" = "Giải tán nhóm";
-"group_dissolve_hint" = "Chỉ đọc trong 7 ngày. Có thể hủy giải tán trong thời gian này.";
+"group_dissolve_hint" = "Nhóm ở chế độ chỉ xem trong 7 ngày và có thể hủy giải tán trong thời gian này. Sau 7 ngày, nhóm và toàn bộ dữ liệu sẽ bị xóa vĩnh viễn.";
 "group_dissolving" = "Đang giải tán";
 "group_edit_activity" = "Chỉnh sửa";
 "group_edit_lineup" = "Sắp xếp trận đấu";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "Chưa có thông báo";
 "group_no_sessions" = "Chưa có trận nào được lên lịch";
 "group_notices" = "Thông báo";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "Không thể làm mới một số mục. Kéo xuống để thử lại.";
 "group_point_cap" = "Giới hạn điểm";
 "group_preview_schedule" = "Xem lại lịch";
 "group_published" = "Đã đăng";
 "group_qr_direct_hint" = "Quét trong iScoreboard để xem trước và tham gia.";
 "group_quick_score" = "Tỉ số hiệp tổng thể";
 "group_rally_scoring" = "Tính điểm mỗi lượt bóng";
-"group_read_notices" = "Read";
+"group_read_notices" = "Đã đọc";
 "group_registration_closes" = "Hạn đăng ký";
 "group_regular" = "Tiêu chuẩn";
-"group_reload_version" = "Tải phiên bản mới nhất";
+"group_reload_version" = "Tải lại";
 "group_reminder_body" = "Hoạt động bắt đầu sau 15 phút.";
 "group_reminder_permission" = "Bật thông báo ứng dụng trong Cài đặt.";
 "group_reminder_too_late" = "Còn dưới 15 phút trước khi bắt đầu.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "Cách tính điểm set";
 "group_tie_break" = "Điểm tie-break";
 "group_tiebreak_only" = "Chỉ tie-break";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "Ngày";
+"group_too_many_sessions" = "Kiểm tra giờ đấu, sân và người chơi.";
+"group_training_date" = "Ngày tập luyện";
 "group_win_by_two" = "Thắng cách biệt hai điểm";
 
-"group_keep_draft" = "Giữ thay đổi của tôi";
+"group_keep_draft" = "Tiếp tục chỉnh sửa bản cục bộ";
 
 "group_server_version" = "Phiên bản mới nhất";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "Nhóm sẽ giải tán vào %@\nThời gian cân nhắc 7 ngày; chỉ được xem trong thời gian này";
 "group_notice_end" = "Không còn thông báo nào";
 "group_notice_join_requested" = "Đã nhận yêu cầu tham gia";
 "group_notice_join_approved" = "Yêu cầu tham gia đã được duyệt";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "Nhập thủ công";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "Đánh dấu tất cả đã đọc";
+
+"group_status_active" = "Đang hoạt động";
+"group_dissolved" = "Đã giải tán";
+"group_report_status_pending" = "Chờ xử lý";
+"group_report_status_reviewing" = "Đang xem xét";
+"group_report_status_resolved" = "Đã xử lý";
+"group_report_status_dismissed" = "Đã bác bỏ";
+"group_error_permission" = "Bạn không có quyền thực hiện thao tác này.";
+"group_error_transfer_first" = "Chuyển quyền sở hữu nhóm trước khi rời nhóm hoặc xóa tài khoản.";
+"group_error_target" = "Chọn thành viên đang hoạt động có tài khoản trong nhóm này.";
+"group_error_activity_locked" = "Hoạt động đã bắt đầu hoặc kết thúc. Không thể đổi hay hủy lịch.";
+"group_error_activity_pending" = "Hoàn thành hoặc xóa các trận còn lại trước.";
+"group_error_registration_disabled" = "Các trận được xếp trực tiếp không cần đăng ký.";
+"group_error_content_blocked" = "Văn bản có nội dung không phù hợp. Hãy sửa lại.";
+"group_error_request_invalid" = "Kiểm tra thông tin đã nhập rồi thử lại.";
+"group_error_reason_required" = "Nhập lý do trước khi tiếp tục.";
+"group_error_result_state" = "Chỉ có thể xác nhận kết quả đang chờ xác nhận.";
+"group_error_conflict" = "Dữ liệu đã thay đổi. Làm mới và kiểm tra trước khi thử lại.";
+"group_error_request_handled" = "Yêu cầu tham gia này đã được xử lý. Hãy làm mới danh sách.";
+"group_error_place_locked" = "Không thể đổi địa điểm khi đã có trận bắt đầu hoặc kết thúc.";
+"group_error_schedule_cancelled" = "Lịch hoặc trận này đã bị hủy.";
+"group_error_session_completed" = "Trận đấu này đã kết thúc nên không thể xin nghỉ. Làm mới lịch để xem kết quả.";
+"group_error_session_has_result" = "Trận này đã có kết quả. Hủy hiệu lực kết quả cũ trước khi thêm kết quả khác.";
+"group_error_item_not_found" = "Hoạt động, lịch, trận hoặc thông báo này không còn khả dụng. Hãy làm mới danh sách.";
+"group_error_server" = "Dịch vụ nhóm tạm thời không khả dụng. Vui lòng thử lại sau.";
+"group_error_peer_only" = "Dùng chức năng xếp lịch tập cho nhóm huấn luyện.";
+"group_error_name_length" = "Tên nhóm phải có từ 2 đến 24 ký tự.";
+"group_error_description_length" = "Mô tả nhóm không được vượt quá 200 ký tự.";
+"group_error_activity_invalid" = "Kiểm tra tên, ngày, địa điểm và sức chứa của hoạt động.";
+"group_error_registration_closed" = "Đã hết hạn đăng ký.";
+"group_error_action_disabled" = "Hiện không thể thực hiện thao tác này.";
+"group_error_update_required" = "Cập nhật ứng dụng để tiếp tục.";
+"group_welcome_back" = "Chào mừng trở lại";
+"group_transfer_none" = "Không có thành viên chính thức nào khác. Thành viên tạm thời không thể làm trưởng nhóm.";
+"group_empty_activities_hint" = "Tạo hoạt động để thành viên đăng ký. Đăng ký sẽ đóng khi đủ người.";
+"group_temp_import_names" = "Nhập tên đã lưu";
+"group_temp_import_count" = "Nhập (%1$d)";
+"group_result_information" = "Thông tin trận đấu";
+"group_result_actions" = "Thao tác kết quả";
+"group_peer_confirmation" = "Đối thủ xác nhận";
+"group_notice_target_unavailable" = "Nội dung này không khả dụng hoặc bạn không còn quyền truy cập.";
+"group_push_enabled" = "Thông báo nhóm";
+"group_push_group_enabled" = "Nhận thông báo của nhóm này";
+"group_push_inbox_kept" = "Tắt các tùy chọn này vẫn giữ thông báo trong ứng dụng và lời nhắc hoạt động hiện có.";
+"group_push_permission" = "Bật thông báo hệ thống";
+"group_push_settings" = "Cài đặt thông báo";
+
+// Shared group form controls
+"group_inline_seat_hint" = "Chọn vị trí rồi chọn thành viên";
+"group_score_and_rules" = "Tỉ số và luật";
+"group_activity_registration_scope" = "Đăng ký cho thành viên tạm thời tại đây. Thành viên có tài khoản tự đăng ký.";
+"group_activity_registration_no_changes" = "Không có thay đổi chưa lưu";
+"group_activity_registration_changes" = "Thêm %1$d · Hủy %2$d";
+"group_activity_registration_save" = "Lưu đăng ký (%1$d)";
+"group_activity_registration_manage" = "Đăng ký thành viên tạm thời";
+"group_activity_registration_pending_add" = "Chờ đăng ký";
+"group_activity_registration_pending_remove" = "Chờ hủy";
+"group_activity_registration_registered" = "Đã đăng ký";
+"group_activity_registration_not_registered" = "Chưa đăng ký";
+"group_activity_detail" = "Chi tiết hoạt động";
+"group_activity_my_registration" = "Đăng ký của tôi";
+"group_match_score" = "Tỉ số trận đấu";
+
+"group_lookup_available" = "Còn chỗ";
+
+/* Group beta notice card. */
+"group_beta_badge" = "Beta";
+"group_beta_supported_label" = "Hiện đã hỗ trợ";
+"group_beta_feedback_prompt" = "Có vấn đề hay góp ý?";
+"group_beta_feedback_action" = "Gửi góp ý";
+
+"group_member_results_title" = "Thành tích thành viên";
+
+"group_removed_members_expand" = "Mở rộng";
+"group_removed_members_collapse" = "Thu gọn";
+"group_best_of_format" = "Đấu tối đa %1$@ (thắng %2$@ để thắng trận)";
+"group_member_count_single" = "%d thành viên";
+"group_member_count_short" = "%d thành viên";
+"group_lookup_closed_short" = "Đã đóng";
+"group_lookup_closing_short" = "Đang giải tán";
+"group_lookup_member_short" = "Đã tham gia";
+"group_lookup_unavailable_short" = "Không khả dụng";
+"group_join_scan_hint" = "Quét mã QR của nhóm";
+"group_join_number_hint" = "6–8 chữ số. Hỏi chủ nhóm để lấy mã.";
+"group_request_join" = "Yêu cầu tham gia";
+"group_overdue_tasks" = "Việc quá hạn";
+"group_apply_shift" = "Áp dụng thay đổi";
+"group_transfer_submit" = "Chuyển";
+"group_rename_member" = "Đổi tên";
+"group_set_admin" = "Đặt làm quản trị viên";
+"group_set_member" = "Gỡ quyền quản trị viên";
+"group_confirm_authority_message" = "Tất cả người chơi là thành viên tạm thời hoặc phía đối phương không có người chơi có tài khoản có thể xác nhận. Chủ nhóm phải kiểm tra người chơi và điểm số. Khi xác nhận, kết quả được tính vào thành tích và chủ nhóm được ghi là người xác nhận.";
+"group_confirm_result_message" = "Sau khi xác nhận, kết quả được tính vào thành tích hai bên và không thể sửa. Muốn sửa, hãy vô hiệu hóa kết quả trước.";
+"group_confirm_member_message" = "Xác nhận người chơi và điểm số để tính kết quả vào thành tích. Nếu cần sửa, hãy nhờ người quản lý vô hiệu hóa kết quả gốc.";
+"group_cancel_activity_message" = "Hủy sẽ xóa vĩnh viễn danh sách đăng ký. Không thể hủy hoạt động đang diễn ra.";
+"group_abandon_game_message" = "Bỏ trận này để bắt đầu trận khác. Hồ sơ cá nhân đã lưu vẫn được giữ.";
+"group_void_pending_message" = "Kết quả này sẽ không chờ xác nhận và không được tính vào thống kê. Điểm gốc và lý do vẫn hiển thị cho thành viên nhóm. Người chơi và người gửi sẽ được thông báo.";
+"group_void_confirmed_message" = "Kết quả này sẽ không được tính vào thống kê. Thống kê và thứ hạng của hai bên được tính lại. Điểm gốc và lý do vẫn hiển thị cho thành viên nhóm. Người chơi và người gửi sẽ được thông báo.";
+"group_remove_member_message" = "Xóa %@? Người này phải yêu cầu tham gia lại.";
+"group_reload_version_message" = "Bỏ các thay đổi chưa lưu trong cách sắp xếp trận đấu và tải lịch thi đấu được lưu gần nhất?";
+"group_transfer_confirmation" = "Chuyển quyền sở hữu cho %@? Bạn sẽ trở thành thành viên thường.";
+"group_approve_confirmation" = "%@ sẽ trở thành thành viên nhóm và có thể xem hoạt động và kết quả.";
+"group_reject_confirmation" = "Sau khi bị từ chối, %@ phải gửi yêu cầu mới.";
+"group_lookup_full_short" = "Đã đầy";
+"group_lookup_archived_short" = "Đã lưu trữ";
+"group_lookup_pending_short" = "Chờ xử lý";
+"group_temporary_member_count" = "%d thành viên";
+"group_best_of_tennis_format" = "Đấu tối đa %1$@ (thắng %2$@ để thắng trận)";
+"group_rename_member_title" = "Đổi tên";
+
+"group_copy_transfer_title" = "Chuyển quyền chủ nhóm";
+
+"group_copy_transfer_submit" = "Chuyển";
+
+"group_copy_transfer_message" = "Chuyển quyền sở hữu cho %@? Bạn sẽ trở thành thành viên thường.";
+
+"group_copy_transfer_hint" = "Sau khi chuyển, bạn trở thành thành viên thường.";
+
+"group_copy_rename_title" = "Đổi tên";
+
+"group_copy_rename_action" = "Đổi tên";
+
+"group_copy_result_confirm" = "Xác nhận kết quả";
+
+"group_copy_result_confirm_authority_message" = "Tất cả người chơi là thành viên tạm thời hoặc phía đối phương không có người chơi có tài khoản có thể xác nhận. Chủ nhóm phải kiểm tra người chơi và điểm số. Khi xác nhận, kết quả được tính vào thành tích và chủ nhóm được ghi là người xác nhận.";
+
+"group_copy_result_confirm_manager_message" = "Sau khi xác nhận, kết quả được tính vào thành tích hai bên và không thể sửa. Muốn sửa, hãy vô hiệu hóa kết quả trước.";
+
+"group_copy_result_confirm_member_message" = "Xác nhận người chơi và điểm số để tính kết quả vào thành tích. Nếu cần sửa, hãy nhờ người quản lý vô hiệu hóa kết quả gốc.";
+
+"group_copy_void_action" = "Hủy kết quả";
+
+"group_copy_void_pending_message" = "Kết quả này sẽ không chờ xác nhận và không được tính vào thống kê. Điểm gốc và lý do vẫn hiển thị cho thành viên nhóm. Người chơi và người gửi sẽ được thông báo.";
+
+"group_copy_void_confirmed_message" = "Kết quả này sẽ không được tính vào thống kê. Thống kê và thứ hạng của hai bên được tính lại. Điểm gốc và lý do vẫn hiển thị cho thành viên nhóm. Người chơi và người gửi sẽ được thông báo.";
+
+"group_copy_cancel_activity" = "Hủy hoạt động";
+
+"group_copy_cancel_activity_message" = "Hủy sẽ xóa vĩnh viễn danh sách đăng ký. Không thể hủy hoạt động đang diễn ra.";
+
+"group_copy_abandon_action" = "Bỏ trận đấu";
+
+"group_copy_abandon_message" = "Bỏ trận này để bắt đầu trận khác. Hồ sơ cá nhân đã lưu vẫn được giữ.";
+
+"group_copy_leave_action" = "Rời nhóm";
+
+"group_copy_leave_message" = "Sau khi rời nhóm, bạn sẽ không còn là thành viên và nhóm sẽ bị xóa khỏi “Nhóm của tôi”. Bạn không thể tiếp tục truy cập hoặc tham gia nhóm. Các bản ghi trận đấu hiện có của nhóm và bản ghi cá nhân trên thiết bị này vẫn được giữ lại. Để truy cập lại, bạn cần tham gia lại nhóm.";
+
+"group_copy_archive_action" = "Lưu trữ nhóm";
+
+"group_copy_archive_message" = "Lưu trữ nhóm này? Nội dung sẽ chỉ có thể xem.";
+
+"group_copy_dissolve_action" = "Giải tán nhóm";
+
+"group_copy_dissolve_message" = "Nhóm ở chế độ chỉ xem trong 7 ngày và có thể hủy giải tán trong thời gian này. Sau 7 ngày, nhóm và toàn bộ dữ liệu sẽ bị xóa vĩnh viễn.";
+
+"group_copy_approve_action" = "Phê duyệt";
+
+"group_copy_approve_message" = "%@ sẽ trở thành thành viên nhóm và có thể xem hoạt động và kết quả.";
+
+"group_copy_reject_action" = "Từ chối";
+
+"group_copy_reject_message" = "Sau khi bị từ chối, %@ phải gửi yêu cầu mới.";
+
+"group_copy_remove_action" = "Xóa thành viên";
+
+"group_copy_remove_message" = "Xóa %@? Người này phải yêu cầu tham gia lại.";
+
+"group_copy_report_detail" = "Chi tiết (không bắt buộc)";
+
+"group_copy_edit_profile" = "Sửa thông tin nhóm";
+
+"group_copy_entry_a_wins" = "A thắng";
+
+"group_copy_entry_b_wins" = "B thắng";
+
+"group_copy_activity_timing_sequence" = "Không có giờ cụ thể";
+
+"group_copy_activity_registration_manage" = "Đăng ký thành viên tạm thời";
+
+"group_copy_temporary_hint" = "Thành viên tạm thời không cần tài khoản và có thể được thêm khi nhập kết quả.";
+
+"group_copy_activity_registration_scope" = "Đăng ký cho thành viên tạm thời tại đây. Thành viên có tài khoản tự đăng ký.";
+
+"group_copy_report" = "Báo cáo nhóm";
+
+"group_copy_notice_member_removed" = "Bạn đã bị xóa khỏi nhóm";
+
+"group_copy_notice_role_changed" = "Vai trò của bạn đã thay đổi";
+
+"group_copy_activity_direct_save" = "Lưu lịch";
+
+"group_copy_notice_join_approved" = "Yêu cầu tham gia đã được duyệt";
+
+"group_copy_notice_join_rejected" = "Yêu cầu tham gia bị từ chối";
+
+"group_copy_all_formats" = "Tất cả thể thức";
+
+"group_copy_closed" = "Đã đóng tham gia";
+
+"group_copy_report_other" = "Khác";
+
+"group_copy_report_impersonation" = "Mạo danh";
+
+"group_copy_audit_ui_share_failed" = "Chia sẻ không thành công. Hãy thử lại.";
+
+"group_copy_audit_ui_share_number" = "Chia sẻ số nhóm";
+
+"group_copy_create" = "Tạo nhóm";
+
+"group_copy_confirm_join" = "Tham gia nhóm này";
+
+"group_copy_join" = "Tham gia nhóm";
+
+"group_copy_join_policy" = "Cách tham gia";
+
+"group_copy_filter_singles" = "Đơn";
+
+"group_copy_upcoming" = "Sắp tới";
+
+"group_copy_activity_section_past" = "Hoạt động đã qua";
+
+"group_copy_beta_feedback_action" = "Gửi góp ý";
+
+"group_copy_doubles" = "Đôi";
+
+"group_copy_create_activity" = "Tạo hoạt động";
+
+"group_copy_benefit_activity" = "Lên lịch hoạt động và đăng ký";
+
+"group_copy_empty_activities_hint" = "Tạo hoạt động để thành viên đăng ký. Đăng ký sẽ đóng khi đủ người.";
+
+"group_copy_lookup_available" = "Còn chỗ";
+
+"group_copy_activity_direct_hint" = "Chọn trực tiếp từ tất cả thành viên đang hoạt động, không cần đăng ký.";
+
+"group_copy_empty_intro" = "Tập hợp bạn bè để lên lịch chơi, ghi điểm và cùng lưu lịch sử các trận.";
+
+"group_copy_place" = "Vị trí";
+
+"group_copy_ranking_games" = "Số trận đã chơi";
+
+"group_copy_ranking_insufficient_matches" = "Quá ít trận đấu";
+
+"group_copy_report_spam" = "Thư rác";
+
+"group_copy_report_status_reviewing" = "Đang xem xét";
+
+"group_copy_note" = "Ghi chú (tùy chọn)";
+
+"group_copy_peer_confirmation" = "Đối thủ xác nhận";
+
+"group_copy_activity_lineup_section_matches" = "Sắp xếp trận đấu";
+
+"group_copy_group" = "Nhóm";
+
+"group_copy_group_qr" = "Mã QR của nhóm";
+
+"group_copy_beta_notice" = "Nhóm đang trong giai đoạn thử nghiệm. Một số tính năng có thể thay đổi. Cảm ơn bạn đã trải nghiệm sớm.";
+
+"group_copy_created" = "Đã tạo nhóm";
+
+"group_copy_ranking_sets" = "Điểm";
+
+"group_copy_removed_members_expand" = "Mở rộng";
+
+"group_copy_voided" = "Đã hủy hiệu lực";
+
+"group_copy_cancelled" = "Đã hủy";
+
+"group_copy_report_status_resolved" = "Đã xử lý";
+
+"group_copy_completed" = "Đã hoàn thành";
+
+"group_copy_archived" = "Đã lưu trữ";
+
+"group_copy_archived_list_title" = "Nhóm đã lưu trữ";
+
+"group_copy_activity_registration_registered" = "Đã đăng ký";
+
+"group_copy_activity_full" = "Đã đầy";
+
+"group_copy_confirmed" = "Đã xác nhận";
+
+"group_copy_removed_members" = "Thành viên cũ";
+
+"group_copy_mark_seen" = "Đã đọc";
+
+"group_copy_report_status_dismissed" = "Đã bác bỏ";
+
+"group_copy_draws" = "Số trận hòa";
+
+"group_copy_draw" = "Hòa";
+
+"group_copy_start_score" = "Ghi điểm ngay";
+
+"group_copy_pending_upload" = "Chờ tải lên";
+
+"group_copy_activity_registration_pending_remove" = "Chờ hủy";
+
+"group_copy_report_status_pending" = "Chờ xử lý";
+
+"group_copy_lookup_pending_short" = "Chờ xử lý";
+
+"group_copy_pending_request_limit" = "Có quá nhiều yêu cầu chờ duyệt. Hãy đợi quyết định hoặc rút bớt yêu cầu.";
+
+"group_copy_activity_registration_pending_add" = "Chờ đăng ký";
+
+"group_copy_pending_confirmation" = "Chờ xác nhận";
+
+"group_copy_lookup_closing_short" = "Đang giải tán";
+
+"group_copy_restore" = "Khôi phục nhóm";
+
+"group_copy_member" = "Thành viên";
+
+"group_copy_member_results_title" = "Thành tích thành viên";
+
+"group_copy_my_groups" = "Nhóm của tôi";
+
+"group_copy_activity_my_registration" = "Đăng ký của tôi";
+
+"group_copy_activity_mode" = "Bản ghi";
+
+"group_copy_qr_join_short" = "Quét để tham gia";
+
+"group_copy_qr_apply_short" = "Quét để yêu cầu tham gia";
+
+"group_copy_register" = "Đăng ký";
+
+"group_copy_recruiting" = "Đang nhận đăng ký";
+
+"group_copy_registration_closes" = "Hạn đăng ký";
+
+"group_copy_activity_time_after_previous" = "Sau trận trước";
+
+"group_copy_report_submit" = "Gửi";
+
+"group_copy_submitted_by" = "Người gửi";
+
+"group_copy_cancel_dissolve" = "Hủy giải tán";
+
+"group_copy_notice_join_requested" = "Đã nhận yêu cầu tham gia";
+
+"group_copy_removed_members_collapse" = "Thu gọn";
+
+"group_copy_discard_upload" = "Bỏ tải lên";
+
+"group_copy_notice_activity_created" = "Đã tạo hoạt động";
+
+"group_copy_activity_time_unspecified" = "Chưa xác định giờ";
+
+"group_copy_activity_registration_empty" = "Không có thành viên tạm thời";
+
+"group_copy_transfer_none" = "Không có thành viên chính thức nào khác. Thành viên tạm thời không thể làm trưởng nhóm.";
+
+"group_copy_archived_empty" = "Chưa có nhóm lưu trữ";
+
+"group_copy_empty_activities_title" = "Chưa có hoạt động";
+
+"group_copy_latest_results" = "Kết quả mới nhất";
+
+"group_copy_disputed" = "Có tranh chấp";
+
+"group_copy_activity_registration_not_registered" = "Chưa đăng ký";
+
+"group_copy_month_matches" = "Số trận tháng này";
+
+"group_copy_open_group" = "Mở nhóm";
+
+"group_copy_benefit_history" = "Xem các trận và bảng xếp hạng";
+
+"group_copy_overview" = "Tổng quan";
+
+"group_copy_welcome_back" = "Chào mừng trở lại";
+
+"group_copy_regular_members" = "Thành viên đã đăng ký";
+
+"group_copy_rally_scoring" = "Tính điểm mỗi lượt bóng";
+
+"group_copy_result_information" = "Thông tin trận đấu";
+
+"group_copy_match_score" = "Tỉ số trận đấu";
+
+"group_copy_match_rules" = "Luật trận";
+
+"group_copy_activity_registration_no_changes" = "Không có thay đổi chưa lưu";
+
+"group_copy_activities" = "Hoạt động";
+
+"group_copy_activity_title" = "Tên hoạt động";
+
+"group_copy_activity_field_title_optional" = "Tên hoạt động (không bắt buộc)";
+
+"group_copy_notice_activity_changed" = "Hoạt động đã được cập nhật";
+
+"group_copy_notice_activity_cancelled" = "Hoạt động đã bị hủy";
+
+"group_copy_activity_lineup" = "Sắp xếp trận đấu";
+
+"group_copy_activity_create_admin_hint" = "Chủ nhóm hoặc quản trị viên tạo hoạt động";
+
+"group_copy_beta_badge" = "Beta";
+
+"group_copy_add_set" = "Thêm điểm game";
+
+"group_copy_add_temporary" = "Thêm thành viên tạm thời";
+
+"group_copy_benefit_score" = "Ghi điểm hoặc thêm kết quả trước đây";
+
+"group_copy_request_join" = "Yêu cầu tham gia";
+
+"group_copy_join_message" = "Lời nhắn xin tham gia (không bắt buộc)";
+
+"group_copy_beta_supported_label" = "Hiện đã hỗ trợ";
+
+"group_copy_open" = "Tham gia trực tiếp";
+
+"group_copy_activity_direct_title" = "Xếp lịch ngay";
+
+"group_copy_admin" = "Quản trị viên";
+
+"group_copy_confirmed_matches" = "Các trận đã xác nhận";
+
+"group_copy_leader" = "Chủ nhóm";
+
+"group_copy_notice_ownership_transferred" = "Chủ nhóm đã thay đổi";
+
+"group_copy_complete_activity" = "Kết thúc hoạt động";
+
+"group_copy_keep_draft" = "Tiếp tục chỉnh sửa bản cục bộ";
+
+"group_copy_ranking_wins" = "Số trận thắng";
+
+"group_copy_ranking_rate" = "Tỷ lệ thắng";
+
+"group_copy_report_inappropriate" = "Nội dung tình dục hoặc không phù hợp";
+
+"group_copy_update_report" = "Cập nhật báo cáo";
+
+"group_copy_manual_result" = "Thêm kết quả trận đấu";
+
+"group_copy_set_admin" = "Đặt làm quản trị viên";
+
+"group_copy_activity_timing_estimated" = "Giờ dự kiến";
+
+"group_copy_losses" = "Số trận thua";
+
+"group_copy_notice_result_voided" = "Kết quả đã bị hủy hiệu lực";
+
+"group_copy_notice_result_confirmed" = "Kết quả đã được xác nhận";
+
+"group_copy_notice_result_pending" = "Kết quả đang chờ xác nhận";
+
+"group_copy_result_actions" = "Thao tác kết quả";
+
+"group_copy_empty_title" = "Chưa có nhóm";
+
+"group_copy_in_progress" = "Đang diễn ra";
+
+"group_copy_report_illegal" = "Hoạt động bất hợp pháp hoặc nguy hiểm";
+
+"group_copy_join_hint" = "Dùng số nhóm hoặc mã QR để tham gia nhóm của bạn bè.";
+
+"group_copy_overdue_tasks" = "Việc quá hạn";
+
+"group_copy_beta_feedback_prompt" = "Có vấn đề hay góp ý?";
+
+"group_copy_invite" = "Mời đồng đội";
+
+"group_copy_retry" = "Thử lại";
+
+"group_copy_approval" = "Cần phê duyệt";
+
+"group_copy_sport" = "Thể thao";
+
+"group_copy_report_harassment" = "Quấy rối";
+
+"group_copy_ranking_me_suffix" = " (tôi)";
+
+"group_copy_places_title" = "Chọn địa điểm";
+
+"group_copy_report_fraud" = "Lừa đảo hoặc cờ bạc";
+
+"group_copy_void_reason" = "Lý do hủy kết quả";
+
+"group_copy_reload_version" = "Tải lại";
+
+"group_copy_lineup_reload_message" = "Bỏ các thay đổi chưa lưu trong cách sắp xếp trận đấu và tải lịch thi đấu được lưu gần nhất?";
+
+"group_copy_join_number_separator" = "Hoặc nhập mã nhóm";
+
+"group_copy_activity_multi_match_hint" = "Một hoạt động có thể có nhiều trận đấu. Thành viên đăng ký hoạt động; khi xếp trận, chọn 2 người đã đăng ký cho mỗi trận đơn hoặc 4 người cho mỗi trận đôi.";
+
+"group_copy_activity_single_match_hint" = "Mỗi hoạt động tương ứng với một trận đấu. Chọn 2 thành viên đã đăng ký cho đánh đơn hoặc 4 người cho đánh đôi.";
+
+"group_copy_activity_detail" = "Chi tiết hoạt động";
+
+"group_copy_registration_at_start" = "Khi hoạt động bắt đầu";
+
+"group_copy_registration_use_start" = "Dùng thời gian bắt đầu hoạt động";
+
+"group_copy_cancel_reason_optional" = "Lý do hủy (không bắt buộc)";
+
+"group_copy_audit_result_frozen_info" = "Xem người chơi và luật";
+"group_view_schedule" = "Xem trận đấu";
+"group_notice_training_published" = "Đã công bố buổi tập";
+"group_notice_training_changed" = "Đã cập nhật buổi tập";
+"group_notice_training_cancelled" = "Đã hủy buổi tập";
+"group_notice_leave_changed" = "Đã cập nhật thông tin nghỉ";
+"group_report_evidence_title" = "Hình ảnh bằng chứng (không bắt buộc)";
+"group_report_evidence_hint" = "Tối đa 3 hình ảnh JPG hoặc PNG, mỗi ảnh không quá 2 MB. Chỉ bạn và nền tảng mới xem được.";
+"group_report_add_image" = "Thêm hình ảnh";
+"group_report_retry" = "Thử lại";
+"group_report_preview" = "Hình ảnh bằng chứng";
+"group_report_supplement" = "Bổ sung thông tin";
+"group_report_close" = "Đóng";
+"group_report_remove_image" = "Xóa hình ảnh";
+"group_report_image_error" = "Không thể xử lý hình ảnh. Hãy thử hình ảnh JPG hoặc PNG khác.";
+"group_report_refresh" = "Làm mới trạng thái";

@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "如五盘全部打完，可能出现平局";
 "match_completion_custom_placeholder" = "输入 1-99";
 "match_completion_invalid_sets" = "经典模式请输入 1-99 的奇数；打满模式请输入 1-99。";
+"setup_auto_odd_sets" = "只能填奇数，已自动改为 %d";
 "has_been_reset" = "已重置";
 "no_undo_available" = "没有可撤销的操作";
 "screenshot_failed" = "截图失败";
@@ -452,7 +453,7 @@
 
 /* Records Tab */
 "clear_all_records" = "删除全部记录";
-"clear_records_tab_message" = "将删除“记录”中的计分记录和计时记录，此操作无法撤销。不会删除已保存名称、已保存地点或预约记录。";
+"clear_records_tab_message" = "将删除“记录”中的计分记录和计时记录，此操作无法撤销。不会删除常用名称、常用地点或预约记录。";
 "clear_data" = "清除数据";
 "clear_data_failed_title" = "清除失败";
 "clear_data_failed_format" = "部分数据未能清除，可安全重试：\n%@";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "当前同步会话";
 "timer_status_running" = "运行中";
 "timer_status_paused" = "已暂停";
-"membership_entry_summary_active" = "您已是 VIP 会员，感谢您的支持";
+"membership_entry_summary_active" = "VIP 已开通";
 "sound_effects" = "音效";
 "vibration" = "振动";
 "language" = "语言";
@@ -522,14 +523,14 @@
 "version" = "版本";
 "privacy_policy" = "隐私政策";
 "accessibility" = "辅助功能";
-"common_names_manage" = "已保存名称管理";
+"common_names_manage" = "常用名称管理";
 "common_names_team" = "队伍名称";
 "common_names_player" = "选手名称";
 "common_names_clear_current" = "清空当前分类";
-"common_names_clear_current_message" = "将清空%@的所有已保存名称，此操作无法撤销。";
-"common_names_title" = "已保存名称";
-"common_names_empty" = "暂无已保存名称";
-"common_names_empty_hint" = "可在「设置」-「数据」-「已保存名称管理」中添加队伍或选手名称，下次即可快速选择。";
+"common_names_clear_current_message" = "将清空%@的所有常用名称，此操作无法撤销。";
+"common_names_title" = "常用名称";
+"common_names_empty" = "暂无常用名称";
+"common_names_empty_hint" = "可在「设置」-「数据」-「常用名称管理」中添加队伍或选手名称，下次即可快速选择。";
 "common_names_management_empty_hint" = "计分时输入的队伍或选手名称会自动保存在这里，下次可以快速选择。";
 "common_names_search_placeholder" = "搜索名称";
 "common_names_no_search_results" = "无搜索结果";
@@ -558,15 +559,15 @@
 
 /* First-launch legal consent */
 "home_common_names_desc" = "队名、球员名";
-"common_places_title" = "已保存地点";
+"common_places_title" = "常用地点";
 "home_common_places_desc" = "球馆、球场、地点";
 "common_places_add" = "添加地点";
 "common_places_edit_title" = "编辑地点";
 "common_places_placeholder" = "输入地点";
 "common_places_clear" = "清空地点";
-"common_places_clear_message" = "将清空所有已保存地点，此操作无法撤销。";
+"common_places_clear_message" = "将清空所有常用地点，此操作无法撤销。";
 "common_places_search_placeholder" = "搜索地点";
-"common_places_no_records" = "暂无已保存地点";
+"common_places_no_records" = "暂无常用地点";
 "common_places_no_search_results" = "无搜索结果";
 "common_places_usage_desc" = "预约球局中输入的地点会自动保存在这里，下次可以快速选择。";
 "common_places_batch_hint" = "每行一个地点，或用逗号分隔";
@@ -575,13 +576,13 @@
 "common_places_save_failed" = "保存失败";
 "common_places_batch_empty" = "请输入至少一个有效地点";
 "common_places_batch_result" = "已添加 %d 个，跳过 %d 个";
-"common_places_empty_hint" = "可在首页的「已保存地点」中添加";
-"common_places_select" = "选择地点";
+"common_places_empty_hint" = "可在首页的「常用地点」中添加";
+"common_places_select" = "选择常用地点";
 "common_places_added" = "已添加";
 "common_places_updated" = "已更新";
 "common_places_deleted" = "已删除";
 "common_places_batch_delete_confirm" = "确认删除选中的 %d 个地点？";
-"schedule_pick_common_place" = "选择已保存地点";
+"schedule_pick_common_place" = "选择常用地点";
 "faq_question_1" = "怎么快速开始一场比赛？";
 "faq_answer_1" = "在首页选择项目，或进入「新比赛」挑选更多项目。常用的项目和配置可以加入「快速开始」，下次直接进入。\n\n需要队名、局数、赛制、发球规则的项目，会先打开「比赛设置」。确认后进入计分板，部分设置也可以在计分过程中继续调整。";
 "faq_question_2" = "比赛中怎么记分和改错？";
@@ -848,7 +849,7 @@
 "scoreboard_double_tap_help_title" = "双击减分";
 "scoreboard_double_tap_subtract_help_message" = "开启后，支持该手势的计分板可双击同一比分区或玩家格子减 1 分。关闭后，双击不再减分，仍可用下滑减分或左滑撤销。篮球、斯诺克等按钮型计分板不受影响。";
 "scoreboard_official_break_help_title" = "局间休息说明";
-"scoreboard_official_break_help_message" = "开启后，以下项目会按规则自动显示官方休息倒计时：\n\n乒乓球：局间60秒\n羽毛球：局中60秒、局间120秒\n壁球：局间90秒\n毽球：局间60秒\n网球：换边90秒、盘间120秒\n软式网球：换边60秒\n板网球：换边90秒、盘间120秒\n匹克球：决胜局局中60秒、局间120秒";
+"scoreboard_official_break_help_message" = "开启后，以下项目会按规则自动显示官方休息倒计时：\n\n乒乓球：局间60秒\n羽毛球：局中60秒、局间120秒\n壁球：局间90秒\n毽球：局间60秒\n网球：换边90秒、盘间120秒\n软式网球：换边60秒\n板式网球：换边90秒、盘间120秒\n匹克球：决胜局局中60秒、局间120秒";
 "scoreboard_official_break_help_intro" = "开启后，以下项目会按规则自动显示官方休息倒计时：";
 "scoreboard_official_break_rule_between_games_60" = "局间60秒";
 "scoreboard_official_break_rule_badminton" = "局中60秒、局间120秒";
@@ -961,11 +962,11 @@
 "timer_countdown_chip_3m" = "3 分钟";
 "timer_countdown_chip_5m" = "5 分钟";
 "timer_countdown_chip_10m" = "10 分钟";
-"countdown_compact_hm" = "%d h %d min";
-"countdown_compact_h" = "%d h";
-"countdown_compact_ms" = "%d min %d s";
-"countdown_compact_m" = "%d min";
-"countdown_compact_s" = "%d s";
+"countdown_compact_hm" = "%d小时%d分";
+"countdown_compact_h" = "%d小时";
+"countdown_compact_ms" = "%d分%d秒";
+"countdown_compact_m" = "%d分";
+"countdown_compact_s" = "%d秒";
 "timer_sport_tab_ping_pong" = "乒乓球";
 "timer_sport_tab_badminton" = "羽毛球";
 "timer_sport_tab_tennis" = "网球";
@@ -1158,7 +1159,7 @@
 "game_shuttlecock" = "毽球";
 "game_squash" = "壁球";
 "game_soft_tennis" = "软式网球";
-"game_padel" = "板网球";
+"game_padel" = "板式网球";
 "game_football_5v5" = "5×5 足球";
 "padel_deuce_mode" = "平分规则";
 "padel_advantage" = "占先";
@@ -1482,7 +1483,7 @@
 "account_deletion_impact_title" = "注销前请确认";
 "account_deletion_impact_account" = "你的账号资料和登录身份将被删除或匿名化处理。";
 "account_deletion_impact_feedback" = "你发布的反馈等账号相关内容可能被删除或匿名化处理。";
-"account_deletion_impact_local_data" = "本机计分记录、预约、已保存名称和设置不会被删除。";
+"account_deletion_impact_local_data" = "本机计分记录、预约、常用名称和设置不会被删除。";
 "account_deletion_impact_irreversible" = "注销完成后，该账号无法恢复。";
 "account_deletion_submitting" = "提交中...";
 "account_deletion_apply" = "注销账号";
@@ -1570,22 +1571,22 @@
 
 // Restored group feature resources.
 "group_account" = "账号成员";
-"group_active_30d" = "近三十天活跃成员";
+"group_active_30d" = "30天活跃";
 "group_activities" = "活动";
 "group_activity_title" = "活动名称";
 "group_add_temporary" = "添加临时成员";
 "group_admin" = "管理员";
 "group_album" = "从相册识别";
 "group_approval" = "需要审批";
-"group_approve" = "同意";
+"group_approve" = "通过";
 "group_archive" = "归档";
-"group_archive_hint" = "归档后保留历史，暂停活动与修改。之后可以恢复。";
+"group_archive_hint" = "归档后小组仅可查看，确定归档？";
 "group_archive_readonly" = "小组已归档，历史记录可查看。";
 "group_archived" = "已归档";
-"group_benefit_activity" = "创建活动与报名";
+"group_benefit_activity" = "发起活动与报名";
 "group_benefit_history" = "查看战绩与排行";
 "group_benefit_score" = "现场计分或补记比赛";
-"group_best_of" = "先胜过半";
+"group_best_of" = "多数局胜制";
 "group_cached" = "当前显示缓存数据，联网后可刷新。";
 "group_camera_hint" = "请在设置中允许相机访问，或从相册识别。";
 "group_camera_unavailable" = "相机不可用";
@@ -1595,19 +1596,19 @@
 "group_capacity" = "报名容量";
 "group_choose_member" = "选择成员";
 "group_close" = "关闭";
-"group_closed" = "暂不开放加入";
+"group_closed" = "关闭加入";
 "group_completed" = "已完成";
 "group_confirm_join" = "加入";
 "group_confirm_result" = "确认结果";
 "group_confirmed" = "已确认";
 "group_confirmed_by" = "确认人";
-"group_confirmed_matches" = "已确认比赛";
+"group_confirmed_matches" = "累计场次";
 "group_copy_number" = "复制小组号";
 "group_create" = "创建小组";
-"group_create_activity" = "创建活动";
+"group_create_activity" = "发起活动";
 "group_created" = "小组已创建";
 "group_created_hint" = "分享小组号或二维码，然后从“我的小组”进入。";
-"group_description" = "小组简介（选填）";
+"group_description" = "简介";
 "group_disputed" = "有争议";
 "group_doubles" = "双打";
 "group_draw" = "平局";
@@ -1630,32 +1631,32 @@
 "group_join_message" = "申请留言（选填）";
 "group_join_policy" = "加入方式";
 "group_leave" = "退出小组";
-"group_leave_hint" = "退出后无法访问小组，本机个人记录保留。";
+"group_leave_hint" = "退出后，你将不再是小组成员，该小组也会从“我的小组”中移除，无法继续访问或参与。小组已有比赛记录及本机个人记录会保留，再次访问需重新加入。";
 "group_load_failed" = "无法加载小组";
 "group_load_more" = "加载更多";
 "group_losses" = "负";
 "group_manual" = "补记";
-"group_manual_result" = "补记比赛";
+"group_manual_result" = "补记赛果";
 "group_match_detail" = "比赛详情";
 "group_match_log" = "比赛记录";
 "group_match_rules" = "比赛规则";
 "group_member" = "成员";
 "group_member_name" = "成员姓名";
 "group_members" = "成员";
-"group_month_matches" = "本月比赛";
+"group_month_matches" = "本月场次";
 "group_my_groups" = "我的小组";
 "group_name" = "小组名称";
 "group_need_login" = "请先登录后继续";
 "group_need_members" = "先邀请球友或添加临时成员，再开始比赛。";
-"group_new_activity" = "创建活动";
+"group_new_activity" = "发起活动";
 "group_new_owner" = "新组主";
 "group_no_activities" = "暂无活动";
 "group_no_description" = "暂无简介";
 "group_no_rankings" = "比赛确认后将显示排行。";
 "group_no_set_details" = "仅记录了整场局分。";
-"group_note" = "活动备注（选填）";
+"group_note" = "备注（选填）";
 "group_number" = "6–8 位数字小组号";
-"group_open" = "持小组号可直接加入";
+"group_open" = "直接加入";
 "group_overall_score" = "整场局分";
 "group_overview" = "概览";
 "group_owner" = "组主";
@@ -1681,7 +1682,7 @@
 "group_results" = "战绩";
 "group_retry" = "重试";
 "group_rules_missing" = "规则未记录";
-"group_save" = "确认";
+"group_save" = "保存";
 "group_save_failed" = "无法保存比赛，请重试。";
 "group_scan" = "扫描二维码";
 "group_scoreboard" = "现场计分";
@@ -1691,22 +1692,22 @@
 "group_share_qr" = "分享二维码图片";
 "group_singles" = "单打";
 "group_source" = "来源";
-"group_sport" = "运动项目";
-"group_start_score" = "立即计分";
+"group_sport" = "项目";
+"group_start_score" = "开始计分";
 "group_starts_at" = "开始时间";
 "group_stats" = "小组统计";
 "group_submit_result" = "提交结果";
 "group_submitted_by" = "提交人";
 "group_sync" = "同步赛果";
 "group_temporary" = "临时成员";
-"group_transfer" = "转让小组";
-"group_transfer_hint" = "转让后，你将成为普通成员。";
+"group_transfer" = "转让组长";
+"group_transfer_hint" = "转让后你将成为普通成员";
 "group_unavailable" = "这个小组暂时无法加入。";
 "group_lookup_not_found" = "小组不存在，请确认号码。";
 "group_unfinished_match" = "请先续打或处理已有的未结束比赛。";
 "group_unregister" = "取消报名";
 "group_void_reason" = "作废原因";
-"group_void_result" = "作废结果";
+"group_void_result" = "作废";
 "group_voided" = "已作废";
 "group_wins" = "胜";
 "group_withdraw" = "撤回申请";
@@ -1746,15 +1747,15 @@
 "group_court" = "场地";
 "group_remove_session" = "删除";
 "group_publish_schedule" = "发布排期";
-"group_leave_reason" = "请假说明（选填，最多 100 字）";
+"group_leave_reason" = "请假说明（选填）";
 "group_report" = "举报小组";
 "group_report_reason" = "举报原因";
-"group_report_detail" = "补充说明（选填，最多 500 字）";
+"group_report_detail" = "补充说明（选填）";
 "group_report_submit" = "提交";
 "group_report_spam" = "垃圾广告";
 "group_report_harassment" = "骚扰辱骂";
 "group_report_inappropriate" = "色情或违规内容";
-"group_report_fraud" = "诈骗赌博";
+"group_report_fraud" = "诈骗或赌博";
 "group_report_illegal" = "违法或危险活动";
 "group_report_impersonation" = "冒充他人或官方";
 "group_report_other" = "其他";
@@ -1809,31 +1810,31 @@
 "group_result_submitter_daily_limit" = "已达24小时内提交赛果上限，请稍后再试";
 "group_not_coach" = "只有教练可以排期";
 "group_training_results_locked" = "已有赛果的排期保留原有时间和对阵，仅可修改地点和说明。";
-"group_temporary_hint" = "临时成员无需注册账号即可参与比赛。";
+"group_temporary_hint" = "临时成员无需注册，可在录入赛果时添加。";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "释放比赛占位";
+"group_abandon_game" = "放弃本场";
 "group_activity_lineup" = "活动排阵";
 "group_activity_mode" = "战绩";
 "group_activity_reminder" = "提前15分钟提醒我";
 "group_add_set" = "添加一局";
 "group_added_members" = "已添加";
-"group_authority_confirm" = "组长权威确认";
-"group_batch_names_hint" = "每行一个称呼，每个称呼1～24个字符。";
-"group_beta_notice" = "小组功能处于测试阶段，欢迎反馈。";
+"group_authority_confirm" = "确认结果";
+"group_batch_names_hint" = "每行一个称呼";
+"group_beta_notice" = "小组功能还在测试中，部分体验会持续调整，欢迎提前体验。";
 "group_cancel_dissolve" = "撤销解散";
 "group_cancel_dissolve_hint" = "恢复后可继续活动和计分。";
 "group_cancel_training_hint" = "已完成比赛保留历史，已开局比赛仍可完成。";
 "group_capabilities_missing" = "请联网加载比赛规则。";
 "group_changed" = "已变更";
 "group_clear_seat" = "清空";
-"group_common_names" = "已保存名称";
+"group_common_names" = "常用名称";
 "group_complete_activity" = "结束活动";
 "group_completion_mode" = "比赛结束方式";
 "group_default_rules" = "项目默认";
 "group_discard_upload" = "放弃上传";
 "group_dissolve" = "解散小组";
-"group_dissolve_hint" = "小组将只读7天，期间可以撤销解散。";
+"group_dissolve_hint" = "解散有 7 天冷静期，期间小组仅可查看，可随时撤销。7 天后小组及全部数据将永久删除。";
 "group_dissolving" = "解散冷静期";
 "group_edit_activity" = "编辑";
 "group_edit_lineup" = "编排场次";
@@ -1864,7 +1865,7 @@
 "group_reminder_body" = "活动将在15分钟后开始。";
 "group_reminder_permission" = "请在系统设置中开启应用通知。";
 "group_reminder_too_late" = "活动距离开始已不足15分钟。";
-"group_removed_members" = "历史成员";
+"group_removed_members" = "已离组成员";
 "group_repair_upload" = "修正赛果";
 "group_report_status" = "我的举报";
 "group_resume_score" = "继续本机计分";
@@ -1877,15 +1878,15 @@
 "group_tie_break" = "抢七分数";
 "group_tiebreak_only" = "仅抢七";
 "group_too_many_sessions" = "请检查场次时间、场号和对阵成员。";
-"group_training_date" = "日期";
+"group_training_date" = "训练日期";
 "group_win_by_two" = "净胜两分";
 
-"group_keep_draft" = "保留我的修改";
+"group_keep_draft" = "继续编辑本地版本";
 
 "group_server_version" = "最新版本";
 
-"group_multi_match_hint" = "已报名的成员可以参加多场比赛。";
-"group_single_match_hint" = "从报名成员中选择 2 名队员进行单打，或选择 4 名队员进行双打。";
+"group_multi_match_hint" = "一个活动可安排多场比赛。成员先报名活动，再在排阵时为每场单打选择 2 人、每场双打选择 4 人参赛。";
+"group_single_match_hint" = "每个活动对应一场比赛。从报名成员中选择单打 2 人或双打 4 人参赛。";
 
 "group_banner_dissolving" = "小组将于 %@ 解散\n7 天冷静期，期间仅可查看";
 "group_notice_end" = "没有更多通知";
@@ -1933,3 +1934,552 @@
 "group_entry_manual" = "手动输入";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "全部已读";
+
+"group_status_active" = "正常";
+"group_dissolved" = "已解散";
+"group_report_status_pending" = "待处理";
+"group_report_status_reviewing" = "处理中";
+"group_report_status_resolved" = "已处理";
+"group_report_status_dismissed" = "已驳回";
+"group_error_permission" = "你没有执行此操作的权限。";
+"group_error_transfer_first" = "退出小组或注销账号前，请先转让小组所有权。";
+"group_error_target" = "请选择本组中有效的账号成员。";
+"group_error_activity_locked" = "活动已开始或已结束，不能修改或取消排期。";
+"group_error_activity_pending" = "请先完成或移除剩余待打场次。";
+"group_error_registration_disabled" = "直接排赛不需要报名。";
+"group_error_content_blocked" = "内容包含不合适信息，请修改后重试。";
+"group_error_request_invalid" = "请检查填写的信息后重试。";
+"group_error_reason_required" = "请填写原因后继续。";
+"group_error_result_state" = "只有待确认的赛果可以确认。";
+"group_error_conflict" = "数据已变更，请刷新并核对后重试。";
+"group_error_request_handled" = "该入组申请已处理，请刷新列表。";
+"group_error_place_locked" = "已有开局或完赛场次，不能修改场馆。";
+"group_error_schedule_cancelled" = "该排期或场次已取消。";
+"group_error_session_completed" = "该场次已完成，无法请假。请刷新排期查看赛果。";
+"group_error_session_has_result" = "该场已有赛果，请先作废原赛果再补记。";
+"group_error_item_not_found" = "该活动、排期、场次或通知已不可用，请刷新列表。";
+"group_error_server" = "小组服务暂时不可用，请稍后重试。";
+"group_error_peer_only" = "训练组请使用训练排期。";
+"group_error_name_length" = "小组名称需为 2–24 个字符。";
+"group_error_description_length" = "简介不能超过 200 字。";
+"group_error_activity_invalid" = "请检查活动名称、日期、地点和人数上限。";
+"group_error_registration_closed" = "报名已截止。";
+"group_error_action_disabled" = "此操作暂不可用。";
+"group_error_update_required" = "请更新应用后继续。";
+"group_welcome_back" = "欢迎回来";
+"group_transfer_none" = "暂无可转让的正式成员，临时成员不能接任组长。";
+"group_empty_activities_hint" = "发起活动，邀请成员报名，满员后停止报名";
+"group_temp_import_names" = "常用名称";
+"group_temp_import_count" = "导入（%1$d）";
+"group_notice_target_unavailable" = "通知对应的内容已不可用，或你已没有查看权限。";
+"group_result_information" = "比赛信息";
+"group_result_actions" = "赛果操作";
+"group_peer_confirmation" = "对方确认";
+
+/* Group system notifications */
+"group_push_settings" = "通知设置";
+"group_push_enabled" = "小组系统通知";
+"group_push_group_enabled" = "接收本组通知";
+"group_push_inbox_kept" = "关闭后仍保留站内消息和已设置的活动提醒。";
+"group_push_permission" = "开启系统通知";
+
+// Shared group form controls
+"group_inline_seat_hint" = "点选席位，再选择成员";
+"group_score_and_rules" = "比分与规则";
+"group_activity_registration_scope" = "为临时成员代报名，正式成员自行报名。";
+"group_activity_registration_no_changes" = "没有未保存的变更";
+"group_activity_registration_changes" = "新增 %1$d 人 · 取消 %2$d 人";
+"group_activity_registration_save" = "保存报名（%1$d 项）";
+"group_activity_registration_manage" = "临时成员报名";
+"group_activity_registration_pending_add" = "待报名";
+"group_activity_registration_pending_remove" = "待取消";
+"group_activity_registration_registered" = "已报名";
+"group_activity_registration_not_registered" = "未报名";
+"group_activity_detail" = "活动详情";
+"group_activity_my_registration" = "我的报名";
+"group_match_score" = "比赛比分";
+
+"group_best_of_format" = "%1$@局%2$@胜";
+
+"group_best_of_tennis_format" = "%1$@盘%2$@胜";
+
+"group_temporary_member_count" = "%d 个成员";
+
+"group_lookup_available" = "可加入";
+
+"group_lookup_full_short" = "已满";
+
+"group_lookup_closed_short" = "已关闭";
+
+"group_lookup_archived_short" = "已归档";
+
+"group_lookup_closing_short" = "待解散";
+
+"group_lookup_pending_short" = "待审批";
+
+"group_lookup_member_short" = "已加入";
+
+"group_lookup_unavailable_short" = "不可加入";
+
+"group_join_scan_hint" = "扫描小组二维码";
+
+"group_join_number_hint" = "小组号为 6–8 位，可向组长获取";
+
+"group_request_join" = "申请加入";
+
+"group_member_count_single" = "%d 人";
+
+"group_member_count_short" = "%d 人";
+
+"group_overdue_tasks" = "逾期待处理";
+
+/* Group beta notice card. */
+"group_beta_badge" = "测试版";
+"group_beta_supported_label" = "目前已支持";
+"group_beta_feedback_prompt" = "遇到问题或有建议？";
+"group_beta_feedback_action" = "去反馈";
+
+"group_member_results_title" = "成员战绩";
+
+"group_removed_members_expand" = "展开";
+"group_removed_members_collapse" = "收起";
+
+"group_confirm_authority_message" = "参赛者全是临时成员，或对方没有正式参赛者可确认。请组长核对对阵和比分，确认后计入战绩，并记录组长为确认人。";
+"group_confirm_result_message" = "确认后计入双方战绩，不能修改；如需更正，请先作废。";
+"group_confirm_member_message" = "确认对阵和比分后计入战绩；如需更正，请联系管理者作废原赛果。";
+"group_cancel_activity_message" = "取消后报名名单将清空，无法恢复。进行中的活动不能取消。";
+"group_abandon_game_message" = "放弃本场后可重新开局，已保存的个人记录仍会保留。";
+"group_void_pending_message" = "作废后不再等待确认，也不会计入战绩。原始比分和作废原因会保留，组内成员可查看；相关参赛者和提交者会收到通知。";
+"group_void_confirmed_message" = "作废后不计入战绩，双方战绩和榜单会重新计算。原始比分和作废原因会保留，组内成员可查看；相关参赛者和提交者会收到通知。";
+"group_remove_member_message" = "确定移除 %@？移除后需重新申请加入。";
+"group_reload_version_message" = "放弃未保存的场次安排，加载最新版本？";
+"group_apply_shift" = "应用调整";
+
+"group_transfer_submit" = "转让";
+
+"group_transfer_confirmation" = "确定将组长身份转让给 %@？转让后你将成为普通成员。";
+
+"group_approve_confirmation" = "%@ 将成为小组成员，可以看到活动与战绩。";
+
+"group_reject_confirmation" = "拒绝后 %@ 需要重新提交申请。";
+
+"group_rename_member" = "改名";
+
+"group_set_admin" = "设为管理员";
+
+"group_set_member" = "取消管理员";
+
+"group_rename_member_title" = "修改成员名称";
+
+"group_copy_transfer_title" = "转让组长";
+
+"group_copy_transfer_submit" = "转让";
+
+"group_copy_transfer_message" = "确定将组长身份转让给 %@？转让后你将成为普通成员。";
+
+"group_copy_transfer_hint" = "转让后你将成为普通成员";
+
+"group_copy_rename_title" = "修改成员名称";
+
+"group_copy_rename_action" = "改名";
+
+"group_copy_result_confirm" = "确认结果";
+
+"group_copy_result_confirm_authority_message" = "参赛者全是临时成员，或对方没有正式参赛者可确认。请组长核对对阵和比分，确认后计入战绩，并记录组长为确认人。";
+
+"group_copy_result_confirm_manager_message" = "确认后计入双方战绩，不能修改；如需更正，请先作废。";
+
+"group_copy_result_confirm_member_message" = "确认对阵和比分后计入战绩；如需更正，请联系管理者作废原赛果。";
+
+"group_copy_void_action" = "作废";
+
+"group_copy_void_pending_message" = "作废后不再等待确认，也不会计入战绩。原始比分和作废原因会保留，组内成员可查看；相关参赛者和提交者会收到通知。";
+
+"group_copy_void_confirmed_message" = "作废后不计入战绩，双方战绩和榜单会重新计算。原始比分和作废原因会保留，组内成员可查看；相关参赛者和提交者会收到通知。";
+
+"group_copy_cancel_activity" = "取消活动";
+
+"group_copy_cancel_activity_message" = "取消后报名名单将清空，无法恢复。进行中的活动不能取消。";
+
+"group_copy_abandon_action" = "放弃本场";
+
+"group_copy_abandon_message" = "放弃本场后可重新开局，已保存的个人记录仍会保留。";
+
+"group_copy_leave_action" = "退出小组";
+
+"group_copy_leave_message" = "退出后，你将不再是小组成员，该小组也会从“我的小组”中移除，无法继续访问或参与。小组已有比赛记录及本机个人记录会保留，再次访问需重新加入。";
+
+"group_copy_archive_action" = "归档";
+
+"group_copy_archive_message" = "归档后小组仅可查看，确定归档？";
+
+"group_copy_dissolve_action" = "解散小组";
+
+"group_copy_dissolve_message" = "解散有 7 天冷静期，期间小组仅可查看，可随时撤销。7 天后小组及全部数据将永久删除。";
+
+"group_copy_approve_action" = "通过";
+
+"group_copy_approve_message" = "%@ 将成为小组成员，可以看到活动与战绩。";
+
+"group_copy_reject_action" = "拒绝";
+
+"group_copy_reject_message" = "拒绝后 %@ 需要重新提交申请。";
+
+"group_copy_remove_action" = "移除";
+
+"group_copy_remove_message" = "确定移除 %@？移除后需重新申请加入。";
+
+"group_copy_report_detail" = "补充说明（选填）";
+
+"group_copy_edit_profile" = "修改小组资料";
+
+"group_copy_entry_a_wins" = "A 方获胜";
+
+"group_copy_entry_b_wins" = "B 方获胜";
+
+"group_copy_activity_timing_sequence" = "不设具体时间";
+
+"group_copy_activity_registration_manage" = "临时成员报名";
+
+"group_copy_temporary_hint" = "临时成员无需注册，可在录入赛果时添加。";
+
+"group_copy_activity_registration_scope" = "为临时成员代报名，正式成员自行报名。";
+
+"group_copy_report" = "举报小组";
+
+"group_copy_notice_member_removed" = "你已被移出小组";
+
+"group_copy_notice_role_changed" = "你的角色已变更";
+
+"group_copy_activity_direct_save" = "保存排赛";
+
+"group_copy_notice_join_approved" = "入组申请已通过";
+
+"group_copy_notice_join_rejected" = "入组申请未通过";
+
+"group_copy_all_formats" = "全部赛制";
+
+"group_copy_closed" = "关闭加入";
+
+"group_copy_report_other" = "其他";
+
+"group_copy_report_impersonation" = "冒充他人或官方";
+
+"group_copy_audit_ui_share_failed" = "分享失败，请重试";
+
+"group_copy_audit_ui_share_number" = "分享小组号";
+
+"group_copy_create" = "创建小组";
+
+"group_copy_confirm_join" = "加入";
+
+"group_copy_join" = "加入小组";
+
+"group_copy_join_policy" = "加入方式";
+
+"group_copy_filter_singles" = "单打";
+
+"group_copy_upcoming" = "即将开始";
+
+"group_copy_activity_section_past" = "历史活动";
+
+"group_copy_beta_feedback_action" = "去反馈";
+
+"group_copy_doubles" = "双打";
+
+"group_copy_create_activity" = "发起活动";
+
+"group_copy_benefit_activity" = "发起活动与报名";
+
+"group_copy_empty_activities_hint" = "发起活动，邀请成员报名，满员后停止报名";
+
+"group_copy_lookup_available" = "可加入";
+
+"group_copy_activity_direct_hint" = "可直接从全部在组成员中选人，无需先报名。";
+
+"group_copy_empty_intro" = "和球友一起安排活动、现场计分，积累共同战绩。";
+
+"group_copy_place" = "地点";
+
+"group_copy_ranking_games" = "场次";
+
+"group_copy_ranking_insufficient_matches" = "场次不足";
+
+"group_copy_report_spam" = "垃圾广告";
+
+"group_copy_report_status_reviewing" = "处理中";
+
+"group_copy_note" = "备注（选填）";
+
+"group_copy_peer_confirmation" = "对方确认";
+
+"group_copy_activity_lineup_section_matches" = "对阵安排";
+
+"group_copy_group" = "小组";
+
+"group_copy_group_qr" = "小组二维码";
+
+"group_copy_beta_notice" = "小组功能还在测试中，部分体验会持续调整，欢迎提前体验。";
+
+"group_copy_created" = "小组已创建";
+
+"group_copy_ranking_sets" = "局分";
+
+"group_copy_removed_members_expand" = "展开";
+
+"group_copy_voided" = "已作废";
+
+"group_copy_cancelled" = "已取消";
+
+"group_copy_report_status_resolved" = "已处理";
+
+"group_copy_completed" = "已完成";
+
+"group_copy_archived" = "已归档";
+
+"group_copy_archived_list_title" = "已归档小组";
+
+"group_copy_activity_registration_registered" = "已报名";
+
+"group_copy_activity_full" = "已满";
+
+"group_copy_confirmed" = "已确认";
+
+"group_copy_removed_members" = "已离组成员";
+
+"group_copy_mark_seen" = "已读";
+
+"group_copy_report_status_dismissed" = "已驳回";
+
+"group_copy_draws" = "平";
+
+"group_copy_draw" = "平局";
+
+"group_copy_start_score" = "开始计分";
+
+"group_copy_pending_upload" = "待上传";
+
+"group_copy_activity_registration_pending_remove" = "待取消";
+
+"group_copy_report_status_pending" = "待处理";
+
+"group_copy_lookup_pending_short" = "待审批";
+
+"group_copy_pending_request_limit" = "待审批申请已达上限，请等待审批或撤回部分申请";
+
+"group_copy_activity_registration_pending_add" = "待报名";
+
+"group_copy_pending_confirmation" = "待确认";
+
+"group_copy_lookup_closing_short" = "待解散";
+
+"group_copy_restore" = "恢复";
+
+"group_copy_member" = "成员";
+
+"group_copy_member_results_title" = "成员战绩";
+
+"group_copy_my_groups" = "我的小组";
+
+"group_copy_activity_my_registration" = "我的报名";
+
+"group_copy_activity_mode" = "战绩";
+
+"group_copy_qr_join_short" = "扫码加入小组";
+
+"group_copy_qr_apply_short" = "扫码申请加入";
+
+"group_copy_register" = "报名";
+
+"group_copy_recruiting" = "报名中";
+
+"group_copy_registration_closes" = "报名截止时间";
+
+"group_copy_activity_time_after_previous" = "接上一场";
+
+"group_copy_report_submit" = "提交";
+
+"group_copy_submitted_by" = "提交人";
+
+"group_copy_cancel_dissolve" = "撤销解散";
+
+"group_copy_notice_join_requested" = "收到入组申请";
+
+"group_copy_removed_members_collapse" = "收起";
+
+"group_copy_discard_upload" = "放弃上传";
+
+"group_copy_notice_activity_created" = "新增活动";
+
+"group_copy_activity_time_unspecified" = "时间待定";
+
+"group_copy_activity_registration_empty" = "暂无临时成员";
+
+"group_copy_transfer_none" = "暂无可转让的正式成员，临时成员不能接任组长。";
+
+"group_copy_archived_empty" = "暂无已归档小组";
+
+"group_copy_empty_activities_title" = "暂无活动";
+
+"group_copy_latest_results" = "最新赛果";
+
+"group_copy_disputed" = "有争议";
+
+"group_copy_activity_registration_not_registered" = "未报名";
+
+"group_copy_month_matches" = "本月场次";
+
+"group_copy_open_group" = "查看小组";
+
+"group_copy_benefit_history" = "查看战绩与排行";
+
+"group_copy_overview" = "概览";
+
+"group_copy_welcome_back" = "欢迎回来";
+
+"group_copy_regular_members" = "正式成员";
+
+"group_copy_rally_scoring" = "每球得分";
+
+"group_copy_result_information" = "比赛信息";
+
+"group_copy_match_score" = "比赛比分";
+
+"group_copy_match_rules" = "比赛规则";
+
+"group_copy_activity_registration_no_changes" = "没有未保存的变更";
+
+"group_copy_activities" = "活动";
+
+"group_copy_activity_title" = "活动名称";
+
+"group_copy_activity_field_title_optional" = "活动名称（选填）";
+
+"group_copy_notice_activity_changed" = "活动已修改";
+
+"group_copy_notice_activity_cancelled" = "活动已取消";
+
+"group_copy_activity_lineup" = "活动排阵";
+
+"group_copy_activity_create_admin_hint" = "活动由组长或管理员创建";
+
+"group_copy_beta_badge" = "测试版";
+
+"group_copy_add_set" = "添加一局";
+
+"group_copy_add_temporary" = "添加临时成员";
+
+"group_copy_benefit_score" = "现场计分或补记比赛";
+
+"group_copy_request_join" = "申请加入";
+
+"group_copy_join_message" = "申请留言（选填）";
+
+"group_copy_beta_supported_label" = "目前已支持";
+
+"group_copy_open" = "直接加入";
+
+"group_copy_activity_direct_title" = "直接排赛";
+
+"group_copy_admin" = "管理员";
+
+"group_copy_confirmed_matches" = "累计场次";
+
+"group_copy_leader" = "组长";
+
+"group_copy_notice_ownership_transferred" = "组长已变更";
+
+"group_copy_complete_activity" = "结束活动";
+
+"group_copy_keep_draft" = "继续编辑本地版本";
+
+"group_copy_ranking_wins" = "胜";
+
+"group_copy_ranking_rate" = "胜率";
+
+"group_copy_report_inappropriate" = "色情或违规内容";
+
+"group_copy_update_report" = "补充举报";
+
+"group_copy_manual_result" = "补记赛果";
+
+"group_copy_set_admin" = "设为管理员";
+
+"group_copy_activity_timing_estimated" = "设置预计时间";
+
+"group_copy_losses" = "负";
+
+"group_copy_notice_result_voided" = "赛果已作废";
+
+"group_copy_notice_result_confirmed" = "赛果已确认";
+
+"group_copy_notice_result_pending" = "赛果待确认";
+
+"group_copy_result_actions" = "赛果操作";
+
+"group_copy_empty_title" = "还没有小组";
+
+"group_copy_in_progress" = "进行中";
+
+"group_copy_report_illegal" = "违法或危险活动";
+
+"group_copy_join_hint" = "通过小组号或二维码加入球友的小组。";
+
+"group_copy_overdue_tasks" = "逾期待处理";
+
+"group_copy_beta_feedback_prompt" = "遇到问题或有建议？";
+
+"group_copy_invite" = "邀请队友";
+
+"group_copy_retry" = "重试";
+
+"group_copy_approval" = "需要审批";
+
+"group_copy_sport" = "项目";
+
+"group_copy_report_harassment" = "骚扰辱骂";
+
+"group_copy_ranking_me_suffix" = "（我）";
+
+"group_copy_places_title" = "选择常用地点";
+
+"group_copy_report_fraud" = "诈骗或赌博";
+
+"group_copy_void_reason" = "作废原因";
+
+"group_copy_reload_version" = "加载最新版本";
+
+"group_copy_lineup_reload_message" = "放弃未保存的场次安排，加载最新版本？";
+
+"group_copy_join_number_separator" = "或输入小组号";
+
+"group_copy_activity_multi_match_hint" = "一个活动可安排多场比赛。成员先报名活动，再在排阵时为每场单打选择 2 人、每场双打选择 4 人参赛。";
+
+"group_copy_activity_single_match_hint" = "每个活动对应一场比赛。从报名成员中选择单打 2 人或双打 4 人参赛。";
+
+"group_copy_activity_detail" = "活动详情";
+
+"group_copy_registration_at_start" = "活动开始时";
+
+"group_copy_registration_use_start" = "恢复为活动开始时";
+
+"group_copy_cancel_reason_optional" = "取消原因（选填）";
+
+"group_copy_audit_result_frozen_info" = "查看对阵与规则";
+"group_view_schedule" = "查看场次";
+"group_notice_training_published" = "训练已发布";
+"group_notice_training_changed" = "训练已更新";
+"group_notice_training_cancelled" = "训练已取消";
+"group_notice_leave_changed" = "请假已更新";
+
+/* Group report evidence */
+"group_report_evidence_title" = "图片证据（选填）";
+"group_report_evidence_hint" = "最多 3 张 JPG、PNG，每张 2 MB。仅你与平台可查看。";
+"group_report_add_image" = "添加图片";
+"group_report_retry" = "重试";
+"group_report_preview" = "证据图片";
+"group_report_supplement" = "补充证据";
+"group_report_close" = "关闭";
+"group_report_remove_image" = "移除图片";
+"group_report_image_error" = "图片处理失败，请更换 JPG 或 PNG 图片重试。";
+"group_report_refresh" = "刷新进度";

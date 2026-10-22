@@ -1,0 +1,39 @@
+{
+  "version": 3,
+  "implementation": "iOS source updated; Android and HarmonyOS reference only",
+  "nativeScreenshots": 13,
+  "uniqueUnitAndContractTests": 127,
+  "uniqueUITestFlows": 6,
+  "testResults": {
+    "logicAndFirstUI": {
+      "result": "Passed",
+      "passedTests": 131,
+      "failedTests": 0,
+      "skippedTests": 0,
+      "totalTestCount": 131,
+      "resultBundle": "/tmp/jifen-ios-ui-v3-tests-final.xcresult"
+    },
+    "allFinalUI": {
+      "result": "Passed",
+      "passedTests": 6,
+      "failedTests": 0,
+      "skippedTests": 0,
+      "totalTestCount": 6,
+      "resultBundle": "/tmp/jifen-ios-ui-v3-ui-final.xcresult"
+    },
+    "memberCopyFinal": {
+      "result": "Passed",
+      "passedTests": 2,
+      "failedTests": 0,
+      "skippedTests": 0,
+      "totalTestCount": 2,
+      "resultBundle": "/tmp/jifen-ios-ui-v3-member-final.xcresult"
+    }
+  },
+  "browserChecks": "layout-measurements-v3.json",
+  "nativeScreenshotIndex": "ios-native-v3.json",
+  "device": "iPhone 17 Pro simulator",
+  "realDeviceValidation": false,
+  "businessWritesSubmitted": false,
+  "scope": "Own incremental changes, baseline preserved at /tmp/jifen-ios-ui-v3-before"
+}

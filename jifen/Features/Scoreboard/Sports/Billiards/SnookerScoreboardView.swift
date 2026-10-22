@@ -303,7 +303,7 @@ struct SnookerScoreboardView: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.borderedProminent).tint(Theme.primary).foregroundStyle(Theme.textOnPrimary)
                 .accessibilityIdentifier("snooker_next_frame_button")
             }
             .foregroundStyle(.primary)
@@ -659,7 +659,7 @@ struct SnookerScoreboardView: View {
                     .foregroundStyle(Color(hex: "FF453A"))
                     .frame(minWidth: controlSize, minHeight: controlSize)
                     .padding(.horizontal, actionHorizontalPadding)
-                    .background(RoundedRectangle(cornerRadius: 10).fill(Color.white.opacity(0.14)))
+                    .background(Capsule().fill(Color.white.opacity(0.14)))
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("snooker_foul_button")
@@ -673,7 +673,7 @@ struct SnookerScoreboardView: View {
                     .foregroundStyle(.white)
                     .frame(minWidth: controlSize, minHeight: controlSize)
                     .padding(.horizontal, actionHorizontalPadding)
-                    .background(RoundedRectangle(cornerRadius: 10).fill(Color.white.opacity(0.14)))
+                    .background(Capsule().fill(Color.white.opacity(0.14)))
             }
             .buttonStyle(.plain)
             .accessibilityLabel(NSLocalizedString("snooker_handover", value: "交杆", comment: ""))
@@ -882,7 +882,7 @@ struct SnookerScoreboardView: View {
                     settleCurrentFrame(winner: settleWinner)
                     showSettlePanel = false
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.borderedProminent).tint(Theme.primary).foregroundStyle(Theme.textOnPrimary)
                 Spacer()
             }
             .padding(24)
@@ -890,7 +890,7 @@ struct SnookerScoreboardView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(NSLocalizedString("cancel", value: "取消", comment: "")) { showSettlePanel = false }
+                    ModalCloseButton { showSettlePanel = false }
                         .font(.system(size: 17, weight: .semibold))
                 }
             }

@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>小组成员列表方案</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #eef2f1;
+      --panel: rgba(255,255,255,.82);
+      --phone: #fff;
+      --card: #f5f5f5;
+      --card-hover: #ededed;
+      --chip: #e8edf2;
+      --text: #111827;
+      --secondary: #5b6472;
+      --tertiary: #8a93a3;
+      --divider: #e1e4e8;
+      --green: #17873b;
+      --green-soft: #e7f5ea;
+      --blue: #3468c0;
+      --blue-soft: #e8effb;
+      --amber: #9a6618;
+      --amber-soft: #f8edd9;
+      --shadow: 0 30px 80px rgba(24,38,31,.14),0 3px 12px rgba(24,38,31,.08);
+      --phone-width: 390px;
+    }
+    * { box-sizing: border-box }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 13% 4%, rgba(23,135,59,.11), transparent 31rem),
+        radial-gradient(circle at 88% 92%, rgba(52,104,192,.08), transparent 34rem),
+        var(--page);
+    }
+    button { font: inherit }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      padding: 28px 32px 18px;
+    }
+    .eyebrow { color: var(--green); font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase }
+    h1 { margin: 8px 0 6px; font-size: clamp(24px, 3vw, 38px); letter-spacing: -.04em }
+    .intro { margin: 0; color: var(--secondary); max-width: 710px; line-height: 1.65 }
+    .toolbar { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px }
+    .tool, .variant-button {
+      border: 1px solid rgba(17,24,39,.10);
+      background: rgba(255,255,255,.74);
+      color: var(--secondary);
+      border-radius: 999px;
+      padding: 9px 13px;
+      cursor: pointer;
+      transition: .16s ease;
+    }
+    .tool:hover, .variant-button:hover { transform: translateY(-1px); border-color: rgba(23,135,59,.36) }
+    .tool.on, .variant-button.on { color: var(--green); background: var(--green-soft); border-color: rgba(23,135,59,.22); font-weight: 750 }
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(230px, 292px) minmax(360px, 1fr) minmax(250px, 320px);
+      align-items: start;
+      gap: 24px;
+      padding: 12px 32px 42px;
+      max-width: 1450px;
+      margin: 0 auto;
+    }
+    .sidebar, .notes {
+      position: sticky;
+      top: 18px;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,.8);
+      border-radius: 22px;
+      background: var(--panel);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 14px 38px rgba(25,38,32,.07);
+    }
+    .sidebar h2, .notes h2 { margin: 0 0 14px; font-size: 15px }
+    .variant-button {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: center;
+      text-align: left;
+      border-radius: 16px;
+      margin-top: 8px;
+      padding: 11px;
+    }
+    .variant-button .letter {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: var(--chip);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .variant-button.on .letter { color: #fff; background: var(--green) }
+    .variant-button strong, .variant-button small { display: block }
+    .variant-button strong { color: var(--text); font-size: 13px }
+    .variant-button small { margin-top: 3px; color: var(--tertiary); font-size: 11px; line-height: 1.35 }
+    .side-caption { margin: 16px 2px 0; color: var(--secondary); font-size: 12px; line-height: 1.6 }
+    .stage { min-width: 0; display: grid; place-items: start center }
+    .phone {
+      width: min(100%, var(--phone-width));
+      height: 770px;
+      overflow: hidden;
+      background: var(--phone);
+      border: 8px solid #202522;
+      border-radius: 38px;
+      box-shadow: var(--shadow);
+      position: relative;
+      transition: width .2s ease, background .2s ease;
+    }
+    .status { display: flex; justify-content: space-between; padding: 12px 20px 6px; font-size: 11px; font-weight: 750 }
+    .appbar { display: grid; grid-template-columns: 42px 1fr 42px; align-items: center; padding: 6px 12px 12px }
+    .icon-button { width: 40px; height: 40px; display: grid; place-items: center; border: 0; border-radius: 20px; color: var(--text); background: transparent }
+    .icon-button svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
+    .appbar h2 { margin: 0; text-align: center; font-size: 18px; letter-spacing: -.02em }
+    .tabs { margin: 0 16px 12px; padding: 3px; display: grid; grid-template-columns: repeat(4,1fr); background: var(--card); border-radius: 14px }
+    .tabs span { position: relative; padding: 9px 2px; color: var(--secondary); text-align: center; font-size: 12px; border-radius: 11px }
+    .tabs .active { background: var(--phone); color: var(--text); font-weight: 750; box-shadow: 0 2px 7px rgba(20,31,26,.09) }
+    .tabs .active::after { content:""; position:absolute; left:50%; bottom:3px; width:13px; height:2px; border-radius:2px; background:var(--green); transform:translateX(-50%) }
+    .content { height: 648px; overflow: auto; padding: 3px 16px 34px; scrollbar-width: none }
+    .content::-webkit-scrollbar { display: none }
+    .section { margin-top: 16px }
+    .section-head { display: flex; align-items: center; min-height: 32px; gap: 8px; margin-bottom: 8px }
+    .section-head h3 { margin: 0; font-size: 15px; letter-spacing: -.01em }
+    .count { color: var(--tertiary); font-size: 12px }
+    .spacer { flex: 1 }
+    .add { border: 0; background: var(--green-soft); color: var(--green); padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 750 }
+    .member { min-height: 62px; display: flex; align-items: center; gap: 11px; padding: 11px 12px; position: relative }
+    .avatar { flex: 0 0 auto; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: #404b55; background: #dce1e5; font-size: 13px; font-weight: 800; overflow: hidden }
+    .avatar.pic-1 { background: linear-gradient(140deg,#9ab7a2,#335942); color:#fff }
+    .avatar.pic-2 { background: linear-gradient(140deg,#a8b7cf,#40546f); color:#fff }
+    .avatar.pic-3 { background: linear-gradient(140deg,#d7b6a0,#765140); color:#fff }
+    .identity { min-width: 0; flex: 1 }
+    .name-line { display: flex; min-width: 0; align-items: center; gap: 6px }
+    .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 720 }
+    .you { color: var(--green); font-size: 10px; font-weight: 800 }
+    .meta { margin-top: 3px; color: var(--tertiary); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+    .badges { display: flex; flex: 0 0 auto; gap: 4px; align-items: center }
+    .badge { padding: 4px 7px; border-radius: 999px; font-size: 10px; line-height: 1; font-weight: 800 }
+    .badge.owner { color: var(--green); background: var(--green-soft) }
+    .badge.admin { color: var(--blue); background: var(--blue-soft) }
+    .badge.coach { color: var(--amber); background: var(--amber-soft) }
+    .chevron { width: 16px; height: 16px; color: var(--tertiary); flex: 0 0 auto }
+    .chevron path { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
+    .footnote { margin: 8px 4px 0; color: var(--tertiary); font-size: 11px; line-height: 1.55 }
+
+    /* A — recommended: one roster card, inset separators. */
+    .variant-a .roster { border-radius: 16px; background: var(--card); overflow: hidden }
+    .variant-a .member + .member::before { content:""; position:absolute; top:0; left:61px; right:12px; height:1px; background:var(--divider) }
+    .variant-a .member:hover { background: var(--card-hover) }
+
+    /* B — individual soft rows. */
+    .variant-b .roster { display: grid; gap: 8px }
+    .variant-b .member { border-radius: 14px; background: var(--card) }
+    .variant-b .member::after { content:""; position:absolute; inset:0; border:1px solid transparent; border-radius:inherit; pointer-events:none }
+    .variant-b .member:hover::after { border-color:var(--divider) }
+
+    /* C — role bands. */
+    .variant-c .role-group + .role-group { margin-top: 10px }
+    .variant-c .role-label { padding: 0 4px 6px; color: var(--tertiary); font-size: 10px; font-weight: 800; letter-spacing: .09em }
+    .variant-c .role-members { border-radius: 14px; background: var(--card); overflow: hidden; border-left: 3px solid var(--green) }
+    .variant-c .role-group.standard .role-members { border-left-color: #b6bdc6 }
+    .variant-c .member + .member::before { content:""; position:absolute; top:0; left:58px; right:12px; height:1px; background:var(--divider) }
+    .variant-c .badges .owner, .variant-c .badges .admin { display:none }
+
+    .notes .recommend { display: inline-flex; align-items:center; gap:6px; padding:6px 9px; background:var(--green-soft); color:var(--green); border-radius:999px; font-size:11px; font-weight:850 }
+    .notes h2 { margin-top: 13px; font-size: 18px }
+    .notes p { color: var(--secondary); font-size: 13px; line-height: 1.65 }
+    .notes ul { margin: 12px 0 0; padding-left: 18px; color: var(--secondary); font-size: 12px; line-height: 1.65 }
+    .notes li + li { margin-top: 5px }
+    .spec { margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(17,24,39,.08) }
+    .spec-row { display:flex; justify-content:space-between; gap:12px; padding:5px 0; font-size:11px }
+    .spec-row span:first-child { color:var(--tertiary) }
+    .spec-row strong { text-align:right }
+
+    body.dark {
+      color-scheme: dark;
+      --page: #121513; --panel: rgba(33,37,34,.86); --phone:#101311; --card:#242825; --card-hover:#2e332f;
+      --chip:#3a3a3c; --text:#f4f7f4; --secondary:#b8c0ba; --tertiary:#858f88; --divider:#3a403c;
+      --green:#54d875; --green-soft:#17421f; --blue:#8fb7ff; --blue-soft:#23344f; --amber:#f0bd64; --amber-soft:#46351b;
+    }
+    body.dark .phone { border-color:#353b37 }
+    body.dark .avatar { color:#eef3ef; background:#464c48 }
+    body.dark .avatar.pic-1, body.dark .avatar.pic-2, body.dark .avatar.pic-3 { filter:saturate(.75) brightness(.8) }
+    body.dark .tool, body.dark .variant-button { background:rgba(36,40,37,.76); border-color:rgba(255,255,255,.08) }
+    body.dark .sidebar, body.dark .notes { border-color:rgba(255,255,255,.06) }
+
+    @media (max-width: 1030px) {
+      .workspace { grid-template-columns: 220px minmax(340px,1fr) }
+      .notes { position: static; grid-column: 1/-1 }
+    }
+    @media (max-width: 720px) {
+      .topbar { padding:22px 18px 14px; flex-direction:column }
+      .toolbar { justify-content:flex-start }
+      .workspace { grid-template-columns:1fr; padding:8px 14px 34px }
+      .sidebar { position:static }
+      .stage { grid-row:1 }
+      .sidebar { grid-row:2 }
+      .notes { grid-column:auto; grid-row:3 }
+      .phone { height:720px }
+      .content { height:598px }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">全能计分器 · 小组成员</div>
+      <h1>保留列表结构，把层级补完整</h1>
+      <p class="intro">不是头像宫格。三个方案都以“头像 + 姓名 + 可扩展标识”的横向成员行为基础，只比较容器、分割和角色分组方式。</p>
+    </div>
+    <div class="toolbar">
+      <button class="tool" data-action="width">320px 窄屏</button>
+      <button class="tool" data-action="badges">隐藏扩展标识</button>
+      <button class="tool" data-action="names">长名字</button>
+      <button class="tool" data-action="dark">深色</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <aside class="sidebar">
+      <h2>选择方案</h2>
+      <button class="variant-button on" data-variant="a"><span class="letter">A</span><span><strong>整组列表卡</strong><small>浅底容器 + 缩进分割线 · 推荐</small></span></button>
+      <button class="variant-button" data-variant="b"><span class="letter">B</span><span><strong>独立浅底行</strong><small>每位成员一块，不使用分割线</small></span></button>
+      <button class="variant-button" data-variant="c"><span class="letter">C</span><span><strong>按角色分段</strong><small>管理成员与普通成员分组</small></span></button>
+      <p class="side-caption">切换窄屏、长名字、深色和扩展标识，观察未来增加“教练 / 队长 / 已报名”等标签后是否仍然稳定。</p>
+    </aside>
+
+    <section class="stage">
+      <div class="phone variant-a" id="phone">
+        <div class="status"><span>12:06</span><span>▮▮▮ ◔ ▰</span></div>
+        <div class="appbar">
+          <button class="icon-button" aria-label="返回"><svg viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button>
+          <h2>周末羽毛球</h2>
+          <button class="icon-button" aria-label="更多"><svg viewBox="0 0 24 24"><path d="M6 12h.01M12 12h.01M18 12h.01"/></svg></button>
+        </div>
+        <div class="tabs"><span>概览</span><span>活动</span><span>战绩</span><span class="active">成员</span></div>
+        <div class="content" id="content"></div>
+      </div>
+    </section>
+
+    <aside class="notes" id="notes"></aside>
+  </main>
+
+  <script>
+    const $ = s => document.querySelector(s);
+    const members = [
+      {name:'李教练', initial:'李', role:'owner', roleText:'组长', extra:'教练', meta:'创建者 · 2026年8月加入', pic:'pic-1', you:true},
+      {name:'林晓宇', initial:'林', role:'admin', roleText:'管理员', extra:'队长', meta:'管理员 · 2026年8月加入', pic:'pic-2'},
+      {name:'陈飞', initial:'陈', meta:'成员 · 2026年9月加入', pic:'pic-3'},
+      {name:'王佳佳', initial:'王', extra:'已报名', meta:'成员 · 最近活跃 2 小时前'},
+      {name:'Christopher Alexander', initial:'C', meta:'成员 · 最近活跃 昨天'}
+    ];
+    const temporary = [
+      {name:'小周', initial:'周', meta:'临时成员 · 仅用于占位与记分'},
+      {name:'乐乐', initial:'乐', meta:'临时成员 · 仅用于占位与记分'}
+    ];
+    const variants = {
+      a: {
+        title:'推荐 A：整组列表卡',
+        body:'把同一类别的成员放进一个浅灰圆角容器，头像之后才开始分割线。它最像一个完整名单，同时给姓名和未来标识留出了稳定的横向空间。',
+        bullets:['只新增一层列表容器和行间分割线，改动范围最小','少量成员不会显得零散；人数增加后依然能顺序扫描','组长、管理员、教练、队长、报名状态都可继续靠右扩展','点击态只需给当前行增加轻微深色反馈'],
+        specs:[['容器','16dp 圆角 / #F5F5F5'],['成员行','约 62dp'],['分割线','1dp，从头像右侧缩进'],['实现','GroupCard(0) + Row + Divider']]
+      },
+      b: {
+        title:'备选 B：独立浅底行',
+        body:'每位成员都是一块独立浅灰行，不需要分割线，单行点击区域最明确。但成员少时会比较松散，成员多时纵向高度也增长最快。',
+        bullets:['视觉问题修复最直接，每行自带背景','触控边界明确，适合每行后续出现较多操作','连续的小卡片会让页面比其他 Tab 更碎','不建议再增加描边或阴影，否则会有“卡片套卡片”感'],
+        specs:[['单行','14dp 圆角 / #F5F5F5'],['行间距','8dp'],['分割线','无'],['实现','Row 背景 + spacedBy']]
+      },
+      c: {
+        title:'备选 C：按角色分段',
+        body:'把管理角色与普通成员分开，并用左侧色条建立组别。信息层级最强，但对目前人数少的小组略显正式，也会重复表达“组长 / 管理员”。',
+        bullets:['管理结构一眼可见，适合以后权限体系明显变复杂时','角色标签可以移到分组标题，减少每行尾部占用','成员变动后分组位置会跳动，名单连续性较弱','当前只有一两位管理员时，分组标题带来的收益有限'],
+        specs:[['分组','管理成员 / 普通成员'],['强调','左侧 3dp 色条'],['分割线','1dp，组内使用'],['实现','groupBy(role) + 2 个容器']]
+      }
+    };
+    const state = {variant:'a', narrow:false, badges:true, long:false};
+    const chevron = '<svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+    const escaped = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    function memberRow(member) {
+      const displayName = state.long && member.name === 'Christopher Alexander' ? 'Christopher Alexander Montgomery' : member.name;
+      return `<div class="member" tabindex="0" role="button" aria-label="${escaped(displayName)}">
+        <span class="avatar ${member.pic || ''}">${escaped(member.initial)}</span>
+        <span class="identity"><span class="name-line"><span class="name">${escaped(displayName)}</span>${member.you ? '<span class="you">我</span>' : ''}</span><span class="meta">${escaped(member.meta)}</span></span>
+        <span class="badges">${state.badges && member.extra ? `<span class="badge ${member.extra === '教练' ? 'coach' : member.extra === '队长' ? 'admin' : 'owner'}">${member.extra}</span>` : ''}${member.role ? `<span class="badge ${member.role}">${member.roleText}</span>` : ''}</span>${chevron}
+      </div>`;
+    }
+    function roster(list) { return `<div class="roster">${list.map(memberRow).join('')}</div>` }
+    function grouped(list) {
+      const managers = list.filter(m => m.role);
+      const standard = list.filter(m => !m.role);
+      return `<div class="role-group"><div class="role-label">管理成员 · ${managers.length}</div><div class="role-members">${managers.map(memberRow).join('')}</div></div>
+        <div class="role-group standard"><div class="role-label">普通成员 · ${standard.length}</div><div class="role-members">${standard.map(memberRow).join('')}</div></div>`;
+    }
+    function section(title, list, temporarySection=false) {
+      const body = state.variant === 'c' && !temporarySection ? grouped(list) : roster(list);
+      return `<section class="section"><div class="section-head"><h3>${title}</h3><span class="count">${list.length} 人</span><span class="spacer"></span>${temporarySection ? '<button class="add">＋ 添加</button>' : ''}</div>${body}${temporarySection ? '<p class="footnote">临时成员只用于占席位和记录成绩，不需要注册账号。</p>' : ''}</section>`;
+    }
+    function render() {
+      const phone = $('#phone');
+      phone.className = `phone variant-${state.variant}`;
+      document.documentElement.style.setProperty('--phone-width', state.narrow ? '320px' : '390px');
+      $('#content').innerHTML = section('正式成员', members) + section('临时成员', temporary, true);
+      document.querySelectorAll('[data-variant]').forEach(button => button.classList.toggle('on', button.dataset.variant === state.variant));
+      document.querySelector('[data-action="width"]').classList.toggle('on', state.narrow);
+      document.querySelector('[data-action="badges"]').classList.toggle('on', !state.badges);
+      document.querySelector('[data-action="names"]').classList.toggle('on', state.long);
+      const copy = variants[state.variant];
+      $('#notes').innerHTML = `${state.variant === 'a' ? '<span class="recommend">● 当前推荐</span>' : '<span class="recommend" style="background:var(--chip);color:var(--secondary)">对比方案</span>'}<h2>${copy.title}</h2><p>${copy.body}</p><ul>${copy.bullets.map(x=>`<li>${x}</li>`).join('')}</ul><div class="spec">${copy.specs.map(([a,b])=>`<div class="spec-row"><span>${a}</span><strong>${b}</strong></div>`).join('')}</div>`;
+    }
+    document.addEventListener('click', event => {
+      const button = event.target.closest('button');
+      if (!button) return;
+      if (button.dataset.variant) state.variant = button.dataset.variant;
+      if (button.dataset.action === 'width') state.narrow = !state.narrow;
+      if (button.dataset.action === 'badges') state.badges = !state.badges;
+      if (button.dataset.action === 'names') state.long = !state.long;
+      if (button.dataset.action === 'dark') {
+        document.body.classList.toggle('dark');
+        button.classList.toggle('on');
+      }
+      render();
+    });
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1760 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>全能计分器 · 小组功能原型（重设计 2026-10-05）</title>
+<style>
+  /* ============ Design Tokens —— 对齐 ui/theme/Theme.kt 浅色 AppColors ============ */
+  :root {
+    --bg: #FFFFFF;            /* background / surface */
+    --card: #F6F7F9;          /* card */
+    --elevated: #FFFFFF;      /* elevatedCard / dialog */
+    --control: #F2F4F7;       /* controlBackground */
+    --chip: #E8EDF2;          /* chipBackground */
+    --divider: #E5E7EB;       /* divider */
+    --text: #111827;          /* textPrimary */
+    --text-2: #5B6472;        /* textSecondary */
+    --text-3: #8A93A3;        /* textTertiary */
+    --primary: #4CAF50;       /* PrimaryLight */
+    --primary-dark: #2E7D32;
+    --primary-soft: rgba(76,175,80,.12);
+    --team-a: #C62828;        /* 计分左队 */
+    --team-b: #007AFF;        /* 计分右队 */
+    --warn: #E8862E;
+    --danger: #D43030;
+    --danger-soft: rgba(212,48,48,.08);
+    --canvas: #EEF1F4;
+    --panel: #FFFFFF;
+    --phone-w: 390px;
+    --phone-h: 800px;
+    --shadow: 0 24px 60px rgba(17,24,39,.14);
+    --r-card: 16px;
+    --r-btn: 12px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: var(--canvas); color: var(--text); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Microsoft YaHei", sans-serif;
+    letter-spacing: .01em;
+  }
+  button, input, textarea { font: inherit; }
+  button { color: inherit; cursor: pointer; }
+
+  .workspace {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 272px minmax(430px, 1fr) 292px;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  /* ============ 左右栏 ============ */
+  .rail {
+    background: var(--panel);
+    border: 1px solid var(--divider);
+    border-radius: 18px;
+    padding: 20px;
+    min-height: calc(100vh - 40px);
+    align-self: start;
+    position: sticky; top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .brand-mark {
+    width: 36px; height: 36px; display: grid; place-items: center;
+    border-radius: 10px; background: var(--primary); color: #fff; font-weight: 800; font-size: 15px;
+  }
+  .brand h1 { font-size: 15px; margin: 0 0 2px; }
+  .brand p { font-size: 11px; color: var(--text-3); margin: 0; }
+  .nav-group { margin: 14px 0 4px; }
+  .nav-label { font-size: 10px; letter-spacing: .12em; color: var(--text-3); margin: 0 0 6px; text-transform: uppercase; }
+  .nav-btn {
+    width: 100%; border: 0; background: transparent; text-align: left;
+    padding: 8px 10px; border-radius: 9px; color: var(--text-2); font-size: 12.5px; font-weight: 560;
+    display: flex; gap: 8px; align-items: center; border-left: 2px solid transparent;
+  }
+  .nav-btn:hover { background: var(--control); }
+  .nav-btn.active { color: var(--text); background: var(--primary-soft); border-left-color: var(--primary); }
+  .nav-btn .idx { color: var(--text-3); font-size: 10.5px; width: 20px; }
+  .nav-btn.active .idx { color: var(--primary); }
+  .nav-badge { margin-left: auto; font-size: 10px; background: var(--chip); color: var(--text-2); border-radius: 99px; padding: 1px 7px; }
+
+  .rail h3 { font-size: 13px; margin: 0 0 6px; }
+  .rail .note { font-size: 11.5px; line-height: 1.7; color: var(--text-2); margin: 0 0 14px; }
+  .token-table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+  .token-table td { padding: 4px 0; border-bottom: 1px dashed var(--divider); color: var(--text-2); }
+  .token-table td:first-child { color: var(--text-3); width: 44%; }
+  .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; border: 1px solid rgba(0,0,0,.08); }
+  .tip { background: var(--card); border-radius: 10px; padding: 10px 12px; font-size: 11px; line-height: 1.65; color: var(--text-2); margin-top: 14px; }
+  .tip strong { color: var(--text); }
+
+  /* ============ 手机框 ============ */
+  .stage { display: grid; place-items: start center; min-height: calc(100vh - 40px); }
+  .phone {
+    width: var(--phone-w); height: var(--phone-h); position: relative; overflow: hidden;
+    border-radius: 44px; background: var(--bg); border: 9px solid #1B1D1F; box-shadow: var(--shadow);
+  }
+  .phone::before {
+    content: ""; position: absolute; z-index: 30; top: 9px; left: 50%; transform: translateX(-50%);
+    width: 104px; height: 24px; border-radius: 99px; background: #1B1D1F;
+  }
+  .statusbar {
+    height: 42px; padding: 13px 26px 0; display: flex; justify-content: space-between; align-items: flex-start;
+    font-size: 11px; font-weight: 700; position: relative; z-index: 12; background: var(--bg);
+  }
+  .statusbar .icons { display: flex; gap: 5px; align-items: center; color: var(--text); }
+  .app-screen { height: calc(100% - 42px); display: flex; flex-direction: column; background: var(--bg); position: relative; }
+  .appbar {
+    min-height: 52px; display: grid; grid-template-columns: 52px 1fr 52px; align-items: center;
+    padding: 0 6px; border-bottom: 1px solid var(--divider); background: var(--bg); z-index: 6; flex: none;
+  }
+  .appbar h2 { margin: 0; font-size: 17px; font-weight: 650; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .appbar-btn {
+    border: 0; background: transparent; min-width: 44px; height: 44px;
+    display: grid; place-items: center; color: var(--text); font-size: 20px; border-radius: 10px;
+  }
+  .appbar-btn.text { font-size: 13px; color: var(--primary); font-weight: 650; width: auto; padding: 0 10px; }
+  .scroll { flex: 1; overflow-y: auto; scrollbar-width: none; padding: 14px 16px 24px; }
+  .scroll::-webkit-scrollbar { display: none; }
+  .scroll.has-nav { padding-bottom: 12px; }
+  .scroll.has-fab { padding-bottom: 92px; }
+
+  .bottom-nav {
+    flex: none; height: 64px; border-top: 1px solid var(--divider); background: var(--bg);
+    display: grid; grid-template-columns: repeat(5, 1fr); padding: 6px 4px 12px;
+  }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--text-3); font-size: 10px; }
+  .nav-item .ico { font-size: 19px; line-height: 1; }
+  .nav-item.active { color: var(--primary); font-weight: 650; }
+
+  /* ============ 通用组件 ============ */
+  .card { background: var(--card); border-radius: var(--r-card); padding: 14px; }
+  .card + .card, .card + .section, .section + .card { margin-top: 12px; }
+  .card.white { background: var(--bg); border: 1px solid var(--divider); }
+  .section { margin-top: 18px; }
+  .section-title { font-size: 13px; font-weight: 650; color: var(--text-2); margin: 0 2px 8px; display: flex; align-items: center; }
+  .section-title .more { margin-left: auto; font-size: 11px; color: var(--text-3); font-weight: 500; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--chip); color: var(--text-2);
+    border-radius: 99px; padding: 3px 9px; font-size: 11px; font-weight: 600;
+  }
+  .chip.green { background: var(--primary-soft); color: var(--primary-dark); }
+  .chip.orange { background: rgba(232,134,46,.14); color: var(--warn); }
+  .chip.red { background: var(--danger-soft); color: var(--danger); }
+  .chip.blue { background: rgba(0,122,255,.1); color: var(--team-b); }
+  .chip.grey { background: var(--chip); color: var(--text-3); }
+
+  .fchip {
+    border: 1px solid var(--divider); background: var(--bg); color: var(--text-2);
+    border-radius: 99px; padding: 6px 14px; font-size: 12.5px; font-weight: 600;
+  }
+  .fchip.on { background: var(--primary-soft); border-color: var(--primary); color: var(--primary-dark); }
+
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    border: 0; border-radius: var(--r-btn); padding: 12px 16px;
+    font-size: 14px; font-weight: 650; width: 100%;
+  }
+  .btn.primary { background: var(--primary); color: #fff; }
+  .btn.ghost { background: var(--control); color: var(--text); }
+  .btn.outline { background: transparent; border: 1px solid var(--divider); color: var(--text); }
+  .btn.danger-soft { background: var(--danger-soft); color: var(--danger); }
+  .btn.sm { padding: 8px 12px; font-size: 12.5px; width: auto; }
+  .btn:disabled, .btn.disabled { background: var(--control); color: var(--text-3); pointer-events: none; }
+  .btn-row { display: flex; gap: 10px; }
+  .btn-row .btn { flex: 1; }
+
+  .row { display: flex; align-items: center; gap: 10px; }
+  .grow { flex: 1; min-width: 0; }
+  .t1 { font-size: 14px; font-weight: 600; color: var(--text); }
+  .t2 { font-size: 12px; color: var(--text-2); }
+  .t3 { font-size: 11px; color: var(--text-3); }
+  .ellip { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%; flex: none;
+    background: var(--chip); color: var(--text-2);
+    display: grid; place-items: center; font-size: 14px; font-weight: 700;
+  }
+  .avatar.lg { width: 46px; height: 46px; font-size: 16px; }
+  .avatar.sm { width: 28px; height: 28px; font-size: 11px; }
+  .avatar.green { background: var(--primary-soft); color: var(--primary-dark); }
+
+  .list { background: var(--card); border-radius: var(--r-card); overflow: hidden; }
+  .list-row {
+    display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+    border-bottom: 1px solid var(--divider); width: 100%; border-top: 0; border-left: 0; border-right: 0;
+    background: transparent; text-align: left;
+  }
+  .list-row:last-child { border-bottom: 0; }
+  .list-row.clickable:hover { background: rgba(0,0,0,.02); }
+  .arrow { color: var(--text-3); font-size: 15px; }
+
+  .divider { height: 1px; background: var(--divider); margin: 12px 0; }
+
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12.5px; font-weight: 600; color: var(--text-2); margin: 0 2px 7px; }
+  .field .req { color: var(--danger); }
+  .input, .textarea {
+    width: 100%; border: 1px solid var(--divider); background: var(--bg); border-radius: var(--r-btn);
+    padding: 12px 13px; font-size: 14px; color: var(--text); outline: none;
+  }
+  .input:focus, .textarea:focus { border-color: var(--primary); }
+  .input::placeholder, .textarea::placeholder { color: var(--text-3); }
+  .textarea { min-height: 76px; resize: none; }
+  .field .hint { font-size: 11px; color: var(--text-3); margin: 6px 2px 0; display: flex; }
+  .field .hint .count { margin-left: auto; }
+  .field.err .input { border-color: var(--danger); }
+  .field .err-text { font-size: 11px; color: var(--danger); margin: 6px 2px 0; }
+
+  .opt-card {
+    display: flex; gap: 10px; align-items: flex-start; width: 100%; text-align: left;
+    background: var(--card); border: 1.5px solid transparent; border-radius: var(--r-card); padding: 12px;
+  }
+  .opt-card.on { border-color: var(--primary); background: var(--primary-soft); }
+  .opt-card .radio {
+    width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--text-3); flex: none; margin-top: 2px;
+    display: grid; place-items: center;
+  }
+  .opt-card.on .radio { border-color: var(--primary); }
+  .opt-card.on .radio::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--primary); }
+
+  .seg {
+    flex: none; display: flex; gap: 2px; background: var(--control); border-radius: 12px; padding: 3px; margin: 10px 16px 2px;
+  }
+  .seg button {
+    flex: 1; border: 0; background: transparent; border-radius: 9px; padding: 7px 0;
+    font-size: 13px; font-weight: 600; color: var(--text-2);
+  }
+  .seg button.on { background: var(--bg); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat { background: var(--card); border-radius: 12px; padding: 12px 8px; text-align: center; }
+  .stat b { display: block; font-size: 19px; font-weight: 750; }
+  .stat span { font-size: 10.5px; color: var(--text-3); }
+
+  .fab {
+    position: absolute; right: 16px; bottom: 20px; z-index: 8;
+    border: 0; border-radius: 99px; background: var(--primary); color: #fff;
+    padding: 13px 20px; font-size: 14px; font-weight: 700;
+    box-shadow: 0 8px 20px rgba(76,175,80,.35);
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* ============ 对话框 / 底部弹层 ============ */
+  .overlay {
+    position: absolute; inset: 0; z-index: 40; background: rgba(15,18,22,.42);
+    display: grid; place-items: center; padding: 28px;
+  }
+  .overlay.sheet-mode { place-items: end center; padding: 0; }
+  .dialog {
+    background: var(--elevated); border-radius: 20px; width: 100%; max-width: 320px;
+    padding: 20px 18px 14px; box-shadow: 0 20px 50px rgba(0,0,0,.2);
+  }
+  .dialog h3 { margin: 0 0 8px; font-size: 16px; font-weight: 700; text-align: center; }
+  .dialog .msg { font-size: 13px; line-height: 1.65; color: var(--text-2); text-align: center; margin: 0 0 16px; }
+  .dialog .msg.left { text-align: left; }
+  .dialog .btn-row { margin-top: 6px; }
+  .dialog .btn + .btn-row, .dialog .btn-row + .btn { margin-top: 8px; }
+  .dialog .stack .btn { margin-top: 8px; }
+  .sheet {
+    background: var(--elevated); border-radius: 22px 22px 0 0; width: 100%;
+    padding: 10px 16px 22px; max-height: 78%; overflow-y: auto; scrollbar-width: none;
+  }
+  .sheet::-webkit-scrollbar { display: none; }
+  .sheet-grip { width: 36px; height: 4px; border-radius: 99px; background: var(--divider); margin: 4px auto 12px; }
+  .sheet h3 { margin: 0 0 12px; font-size: 16px; font-weight: 700; }
+  .sheet .action-row {
+    display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+    padding: 13px 4px; background: transparent; border: 0; border-bottom: 1px solid var(--divider); font-size: 14px; font-weight: 600;
+  }
+  .sheet .action-row:last-of-type { border-bottom: 0; }
+  .sheet .action-row.danger { color: var(--danger); }
+  .sheet .action-row .sub { font-size: 11px; color: var(--text-3); font-weight: 500; display: block; }
+
+  .toast {
+    position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 60;
+    background: rgba(17,24,39,.92); color: #fff; font-size: 12.5px; font-weight: 600;
+    border-radius: 99px; padding: 10px 18px; white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  }
+
+  /* ============ 业务组件 ============ */
+  .group-head { display: flex; gap: 12px; align-items: center; }
+  .group-badge {
+    width: 52px; height: 52px; border-radius: 14px; flex: none;
+    display: grid; place-items: center; font-size: 24px;
+    background: var(--primary-soft);
+  }
+  .seat {
+    flex: 1; border: 1.5px dashed var(--divider); border-radius: 14px; background: var(--card);
+    padding: 14px 8px; text-align: center; color: var(--text-3); font-size: 12.5px; min-height: 92px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; width: 100%;
+  }
+  .seat.filled { border-style: solid; border-color: var(--divider); color: var(--text); }
+  .seat .side-tag { font-size: 10.5px; font-weight: 700; }
+  .seat.side-a .side-tag { color: var(--team-a); }
+  .seat.side-b .side-tag { color: var(--team-b); }
+  .vs { font-size: 12px; font-weight: 800; color: var(--text-3); padding: 0 4px; }
+
+  .score-big { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .score-big .a { color: var(--team-a); }
+  .score-big .b { color: var(--team-b); }
+
+  .stepper { display: inline-flex; align-items: center; gap: 0; border: 1px solid var(--divider); border-radius: 10px; overflow: hidden; }
+  .stepper button { border: 0; background: var(--bg); width: 34px; height: 34px; font-size: 16px; color: var(--text-2); }
+  .stepper b { min-width: 40px; text-align: center; font-size: 14px; }
+
+  .rank-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .rank-table th { font-size: 10.5px; color: var(--text-3); font-weight: 600; padding: 6px 4px; text-align: right; }
+  .rank-table th:first-child, .rank-table td:first-child { text-align: left; }
+  .rank-table td { padding: 8px 4px; border-top: 1px solid var(--divider); text-align: right; font-variant-numeric: tabular-nums; }
+  .rank-table td.name { font-weight: 600; }
+  .rank-no { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; background: var(--chip); font-size: 10.5px; font-weight: 700; color: var(--text-2); margin-right: 6px; }
+  .rank-no.top { background: var(--primary-soft); color: var(--primary-dark); }
+
+  .empty { display: flex; flex-direction: column; align-items: center; padding: 44px 24px; text-align: center; }
+  .empty .art {
+    width: 84px; height: 84px; border-radius: 24px; background: var(--card);
+    display: grid; place-items: center; margin-bottom: 14px;
+  }
+  .empty h4 { margin: 0 0 6px; font-size: 14.5px; font-weight: 650; }
+  .empty p { margin: 0 0 16px; font-size: 12px; color: var(--text-3); line-height: 1.6; }
+
+  .timeline-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex: none; }
+  .qr-box { background: #fff; border: 1px solid var(--divider); border-radius: 20px; padding: 22px; display: grid; place-items: center; }
+  .qr-grid { display: grid; grid-template-columns: repeat(21, 1fr); gap: 1.5px; width: 200px; height: 200px; }
+  .qr-grid i { background: #111; border-radius: .5px; }
+  .qr-grid i.o { background: transparent; }
+
+  .session-card { border: 1.5px solid var(--divider); border-radius: 14px; padding: 12px; background: var(--bg); }
+  .session-card.conflict { border-color: var(--danger); background: var(--danger-soft); }
+  .session-card + .session-card { margin-top: 10px; }
+
+  .banner {
+    display: flex; gap: 10px; align-items: flex-start;
+    background: var(--primary-soft); border-radius: 12px; padding: 10px 12px;
+    font-size: 11.5px; color: var(--primary-dark); line-height: 1.55;
+  }
+  .banner.warn { background: rgba(232,134,46,.12); color: var(--warn); }
+  .banner.grey { background: var(--control); color: var(--text-2); }
+
+  .sticky-cta {
+    flex: none; padding: 10px 16px 22px; border-top: 1px solid var(--divider); background: var(--bg);
+  }
+
+  .caption { position: absolute; top: 64px; left: calc(50% + 215px); width: 150px; font-size: 10px; color: var(--text-3); line-height: 1.6; }
+  .stage-title { text-align: center; margin: 0 0 14px; }
+  .stage-title h2 { margin: 0 0 4px; font-size: 18px; }
+  .stage-title p { margin: 0; font-size: 12px; color: var(--text-3); }
+</style>
+</head>
+<body>
+<div class="workspace">
+  <!-- ================= 左栏：导航 ================= -->
+  <nav class="rail" id="navRail">
+    <div class="brand">
+      <div class="brand-mark">分</div>
+      <div>
+        <h1>小组功能原型</h1>
+        <p>全能计分器 · 浅色 Design Tokens · 2026-10-05</p>
+      </div>
+    </div>
+    <div id="navList"></div>
+    <div class="tip">
+      <strong>操作提示</strong><br>
+      手机里的按钮大多可点：Tab 切换、报名、确认/作废、成员操作、归档/退出等都会弹出对应二级对话框。
+    </div>
+  </nav>
+
+  <!-- ================= 中间：手机舞台 ================= -->
+  <main class="stage">
+    <div>
+      <div class="stage-title">
+        <h2 id="stageTitle"></h2>
+        <p id="stageSub"></p>
+      </div>
+      <div class="phone">
+        <div class="statusbar">
+          <span>9:41</span>
+          <span class="icons">
+            <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="4.5" width="3" height="6.5" rx="1"/><rect x="9" y="2" width="3" height="9" rx="1"/><rect x="13" y="0" width="3" height="11" rx="1" opacity=".35"/></svg>
+            <svg width="15" height="11" viewBox="0 0 15 11" fill="currentColor"><path d="M7.5 9.2 5.6 7.1a2.8 2.8 0 0 1 3.8 0L7.5 9.2zM3.4 5a5.2 5.2 0 0 1 8.2 0L10.3 6.4a3.6 3.6 0 0 0-5.6 0L3.4 5zM1.2 2.8a8.6 8.6 0 0 1 12.6 0l-1.3 1.4a7 7 0 0 0-10 0L1.2 2.8z"/></svg>
+            <svg width="22" height="11" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="19" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="13" height="8" rx="1.6" fill="currentColor"/><path d="M22 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity=".4"/></svg>
+          </span>
+        </div>
+        <div class="app-screen" id="appScreen"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= 右栏：说明 ================= -->
+  <aside class="rail">
+    <h3 id="noteTitle">设计说明</h3>
+    <p class="note" id="noteBody"></p>
+    <h3>Design Tokens（浅色）</h3>
+    <table class="token-table">
+      <tr><td><span class="swatch" style="background:#4CAF50"></span>primary</td><td>#4CAF50</td></tr>
+      <tr><td><span class="swatch" style="background:#F6F7F9"></span>card</td><td>#F6F7F9</td></tr>
+      <tr><td><span class="swatch" style="background:#F2F4F7"></span>control</td><td>#F2F4F7</td></tr>
+      <tr><td><span class="swatch" style="background:#E8EDF2"></span>chip</td><td>#E8EDF2</td></tr>
+      <tr><td><span class="swatch" style="background:#E5E7EB"></span>divider</td><td>#E5E7EB</td></tr>
+      <tr><td><span class="swatch" style="background:#111827"></span>text 1/2/3</td><td>#111827 / #5B6472 / #8A93A3</td></tr>
+      <tr><td><span class="swatch" style="background:#C62828"></span>A 方 / 左队</td><td>#C62828</td></tr>
+      <tr><td><span class="swatch" style="background:#007AFF"></span>B 方 / 右队</td><td>#007AFF</td></tr>
+    </table>
+    <div class="tip" style="margin-top:16px">
+      <strong>字号规范（对齐 M3）</strong><br>
+      标题 17 · 区块标题 13 · 正文 14 · 辅助 12 · 说明 11 · 强调数字 19/22<br>
+      正文基准 14/16，18 仅作强调档，不使用 15/17 填充值。
+    </div>
+  </aside>
+</div>
+
+<script>
+/* =========================================================
+ * Mock 数据
+ * ========================================================= */
+const ME = '陈晨';
+const GROUP = {
+  name: '周三羽毛球局', no: '823456', sport: '羽毛球', type: 'peer',
+  members: 12, policy: '需要审批', desc: '每周三晚固定局，双打轮转，欢迎新球友。进群请先打招呼～',
+};
+const TRAIN_GROUP = { name: '星羽青训营', no: '901217', sport: '羽毛球', type: 'coaching', members: 9 };
+
+const MEMBERS = [
+  { name: '陈晨', role: '组主', tag: '我', active: true },
+  { name: '阿豪', role: '管理员' },
+  { name: '林珊', role: '成员' },
+  { name: '老周', role: '成员' },
+  { name: '阿紫', role: '成员' },
+  { name: '大伟', role: '成员' },
+  { name: '小北', role: '成员' },
+  { name: '阿Ken', role: '成员' },
+  { name: '沫沫', role: '成员', temp: true },
+  { name: '天一', role: '成员' },
+  { name: '七喜', role: '成员' },
+  { name: '阿杜', role: '成员' },
+];
+const JOIN_REQUESTS = [
+  { name: '煎饼狗子', msg: '球友介绍来的，中级水平', time: '2 小时前' },
+  { name: 'Yuki', msg: '', time: '昨天 22:14' },
+];
+const ACTIVITIES = [
+  { id: 1, title: '周三例行局', time: '今晚 19:30', place: '城东羽毛球馆 · 3/4 号场', cap: 12, joined: 8, status: 'recruiting', format: '双打', meJoined: false, note: '自带球，AA 场地费' },
+  { id: 2, title: '周六对抗赛', time: '本周六 14:00', place: '奥体中心 · 2 号馆', cap: 8, joined: 8, status: 'in_progress', format: '双打', meJoined: true },
+  { id: 3, title: '国庆友谊赛', time: '10 月 1 日 15:00', place: '城东羽毛球馆', cap: 16, joined: 14, status: 'completed', format: '单打' },
+  { id: 4, title: '新人体验活动', time: '9 月 27 日 10:00', place: '未定', cap: 10, joined: 3, status: 'cancelled', format: '双打', cancelReason: '场地临时检修' },
+];
+const RANKING = [
+  { name: '阿豪', games: 12, w: 9, l: 3, d: 0, sets: '+11', rate: '75%' },
+  { name: '陈晨', games: 11, w: 7, l: 3, d: 1, sets: '+6', rate: '64%' },
+  { name: '林珊', games: 10, w: 6, l: 4, d: 0, sets: '+3', rate: '60%' },
+  { name: '老周', games: 12, w: 5, l: 6, d: 1, sets: '-2', rate: '42%' },
+  { name: '阿紫', games: 8,  w: 3, l: 5, d: 0, sets: '-4', rate: '38%' },
+  { name: '大伟', games: 9,  w: 2, l: 7, d: 0, sets: '-9', rate: '22%' },
+];
+const RESULTS = [
+  { id: 1, a: ['阿豪','林珊'], b: ['老周','阿紫'], sets: [[21,18],[19,21],[21,15]], status: 'pending', time: '今晚 20:42', bo: 'BO3', by: '阿豪' },
+  { id: 2, a: ['陈晨'], b: ['大伟'], sets: [[21,12],[21,16]], status: 'confirmed', time: '10 月 1 日', bo: 'BO3' },
+  { id: 3, a: ['阿Ken'], b: ['天一'], sets: [[18,21],[21,19],[18,21]], status: 'confirmed', time: '10 月 1 日', bo: 'BO3' },
+  { id: 4, a: ['七喜'], b: ['阿杜'], sets: [[21,21]], status: 'voided', time: '9 月 27 日', bo: 'BO1', reason: '误录入，重赛' },
+  { id: 5, a: ['陈晨'], b: ['阿豪'], sets: [[21,17]], status: 'upload', time: '刚刚', bo: 'BO1' },
+];
+const TRAINING = {
+  date: '10 月 8 日（周三）', place: '城东羽毛球馆', sessions: [
+    { no: 1, time: '19:00–19:50', court: '1 号场', a: ['小北'], b: ['沫沫'], status: 'done', score: '21:16' },
+    { no: 2, time: '19:00–19:50', court: '2 号场', a: ['天一'], b: ['七喜'], status: 'open' },
+    { no: 3, time: '20:00–20:50', court: '1 号场', a: ['阿杜'], b: [], status: 'open' },
+    { no: 4, time: '20:00–20:50', court: '1 号场', a: ['小北'], b: ['天一'], status: 'conflict' },
+  ],
+  leaves: [
+    { name: '小北', msg: '加班，20:00 那场赶不上', time: '今天 17:20', seen: false },
+    { name: '沫沫', msg: '', time: '昨天', seen: true },
+  ],
+};
+
+/* =========================================================
+ * 全局状态
+ * ========================================================= */
+const S = {
+  screen: 'home',
+  detailTab: 'overview',
+  recordsFormat: 'singles',
+  joinStep: 'input',       // input | preview | notfound
+  joinTarget: 'peer',      // peer | coach | full
+  lastNo: '',
+  overlay: null,           // 当前弹层 html
+  toast: null,
+  activityId: 1,
+  memberTarget: null,
+  seatTarget: null,        // 'a' | 'b'
+  seats: { a: ['阿豪'], b: [] },
+  trainView: 'coach',
+};
+
+/* =========================================================
+ * 小部件
+ * ========================================================= */
+const esc = s => s;
+function avatar(name, cls='') {
+  return `<div class="avatar ${cls}">${name[0]}</div>`;
+}
+function appbar(title, {back=false, right=''}={}) {
+  return `<div class="appbar">
+    <div>${back ? `<button class="appbar-btn" data-action="back">‹</button>` : ''}</div>
+    <h2>${title}</h2>
+    <div style="display:flex;justify-content:flex-end">${right}</div>
+  </div>`;
+}
+function bottomNav(active='home') {
+  const items = [
+    ['home','⌂','首页'], ['records','▤','记录'], ['score','✚','计分'], ['timer','⏱','计时'], ['me','☺','我的'],
+  ];
+  return `<div class="bottom-nav">${items.map(([k,i,t]) =>
+    `<div class="nav-item ${k===active?'active':''}"><span class="ico">${i}</span>${t}</div>`).join('')}</div>`;
+}
+function emptyArt(svg) {
+  return `<div class="art"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#8A93A3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${svg}</svg></div>`;
+}
+const ICONS = {
+  group: '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3 2.8-4.5 5.5-4.5s4.9 1.5 5.5 4.5"/><circle cx="16.5" cy="9.5" r="2.4"/><path d="M15.5 14.6c2.4.2 4.2 1.6 4.8 4"/>',
+  racket: '<circle cx="9" cy="9" r="5.5"/><path d="m13 13 6.5 6.5"/><path d="M6.5 7.5l5 5M6.5 10.5l5 5M9 6l4 4"/>',
+  trophy: '<path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 5H4.5a2.5 2.5 0 0 0 2.6 4M17 5h2.5a2.5 2.5 0 0 1-2.6 4"/><path d="M12 14v3m-3.5 3.5h7L12 17.5 8.5 20.5z"/>',
+  calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/>',
+  login: '<circle cx="12" cy="8" r="3.5"/><path d="M5.5 19.5c.8-3.4 3.4-5 6.5-5s5.7 1.6 6.5 5"/>',
+  qr: '<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M17 20h3M14 17.5v2.5"/>',
+};
+function qrGrid() {
+  let cells = '';
+  for (let i = 0; i < 441; i++) {
+    const r = Math.floor(i / 21), c = i % 21;
+    const finder = (r < 7 && c < 7) || (r < 7 && c > 13) || (r > 13 && c < 7);
+    let on;
+    if (finder) {
+      const lr = r % 14 > 6 ? r - 14 : r, lc = c % 14 > 6 ? c - 14 : c;
+      on = lr === 0 || lr === 6 || lc === 0 || lc === 6 || (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4);
+    } else {
+      on = ((i * 2654435761) >>> 0) % 100 < 46;
+    }
+    cells += `<i class="${on ? '' : 'o'}"></i>`;
+  }
+  return `<div class="qr-grid">${cells}</div>`;
+}
+
+/* =========================================================
+ * 屏幕渲染
+ * ========================================================= */
+const R = {};
+
+/* ---------- 1. 首页 · 小组区 ---------- */
+R['home'] = {
+  title: '首页 · 小组区', sub: '首页中段的小组模块：我的小组 + 快捷操作',
+  note: '首页小组区是小组功能的主入口：最多展示 2 个小组卡片，含项目、成员数、待审批红点；下方「创建 / 加入」两个快捷入口。空状态见「首页 · 空状态」。',
+  render() {
+    return `
+      ${appbar('全能计分器')}
+      <div class="scroll has-nav">
+        <div class="section-title" style="margin-top:2px">继续游戏</div>
+        <div class="card row clickable">
+          <div class="group-badge" style="width:42px;height:42px;font-size:19px">🏸</div>
+          <div class="grow">
+            <div class="t1">羽毛球 · 单打 <span class="chip green" style="margin-left:4px">进行中</span></div>
+            <div class="t3" style="margin-top:3px"><span style="color:var(--team-a);font-weight:700">陈晨 21</span> : <span style="color:var(--team-b);font-weight:700">17 大伟</span> · 第 2 局</div>
+          </div>
+          <span class="arrow">›</span>
+        </div>
+
+        <div class="section-title" style="margin-top:18px">我的小组
+          <span class="more" data-nav="list">全部 ›</span>
+        </div>
+        <div class="card clickable" data-nav="detail">
+          <div class="group-head">
+            <div class="group-badge">🏸</div>
+            <div class="grow">
+              <div class="t1">周三羽毛球局 <span class="chip green" style="margin-left:2px">报名中</span></div>
+              <div class="t3" style="margin-top:3px">羽毛球 · 12 名成员 · 今晚 19:30 例行局</div>
+            </div>
+            <span class="arrow">›</span>
+          </div>
+        </div>
+        <div class="card clickable" data-nav="training-coach">
+          <div class="group-head">
+            <div class="group-badge" style="background:rgba(0,122,255,.1)">🎓</div>
+            <div class="grow">
+              <div class="t1">星羽青训营 <span class="chip blue" style="margin-left:2px">训练组</span></div>
+              <div class="t3" style="margin-top:3px">羽毛球 · 9 名成员 · 下次排期 10 月 8 日</div>
+            </div>
+            <span class="chip orange">2 条请假</span>
+          </div>
+        </div>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn ghost" data-nav="create">＋ 创建小组</button>
+          <button class="btn ghost" data-nav="join">⊕ 加入小组</button>
+        </div>
+
+        <div class="section-title" style="margin-top:18px">常用计分</div>
+        <div class="card row" style="justify-content:space-around;text-align:center">
+          ${['🏸 羽毛球','🏓 乒乓球','🎾 网球','🏐 匹克球'].map(x=>`<div style="font-size:12px;color:var(--text-2)">${x}</div>`).join('')}
+        </div>
+      </div>
+      ${bottomNav('home')}`;
+  }
+};
+
+/* ---------- 2. 首页 · 空状态 ---------- */
+R['home-empty'] = {
+  title: '首页 · 小组空状态', sub: '没有任何小组时的引导',
+  note: '空状态不只一句文案：给出「为什么要建组」的一句话价值说明 + 创建/加入双按钮，降低首次决策成本。',
+  render() {
+    return `
+      ${appbar('全能计分器')}
+      <div class="scroll has-nav">
+        <div class="section-title" style="margin-top:2px">我的小组</div>
+        <div class="card">
+          <div class="empty" style="padding:26px 16px">
+            ${emptyArt(ICONS.group)}
+            <h4>还没有小组，创建或加入一个吧</h4>
+            <p>小组里的比分会自动汇总成战绩榜，<br>约局报名也不用再挨个发消息</p>
+            <div class="btn-row" style="width:100%">
+              <button class="btn primary" data-nav="create">创建小组</button>
+              <button class="btn outline" data-nav="join">加入小组</button>
+            </div>
+          </div>
+        </div>
+        <div class="section-title" style="margin-top:18px">常用计分</div>
+        <div class="card row" style="justify-content:space-around;text-align:center">
+          ${['🏸 羽毛球','🏓 乒乓球','🎾 网球','🏐 匹克球'].map(x=>`<div style="font-size:12px;color:var(--text-2)">${x}</div>`).join('')}
+        </div>
+      </div>
+      ${bottomNav('home')}`;
+  }
+};
+
+/* ---------- 3. 我的小组列表 ---------- */
+R['list'] = {
+  title: '我的小组', sub: '全部小组 + 待审批申请',
+  note: '列表按「最近活跃」排序；待审批的申请置顶显示，点进去是对方视角的小组预览。已归档的小组沉底并置灰。点右上角 ＋ 弹出创建/加入选择。',
+  render() {
+    return `
+      ${appbar('我的小组', {back:true, right:'<button class="appbar-btn" data-action="list-add">＋</button>'})}
+      <div class="scroll">
+        <div class="card" style="border:1.5px solid rgba(232,134,46,.4);background:rgba(232,134,46,.06)">
+          <div class="row">
+            <div class="avatar" style="background:rgba(232,134,46,.15);color:var(--warn)">等</div>
+            <div class="grow">
+              <div class="t1">待审批：阳光乒乓俱乐部</div>
+              <div class="t3" style="margin-top:2px">申请已提交 2 天，管理员通过后即可查看小组</div>
+            </div>
+            <span class="chip orange">审批中</span>
+          </div>
+        </div>
+        <div class="section">
+          <div class="list">
+            <button class="list-row clickable" data-nav="detail">
+              <div class="group-badge" style="width:44px;height:44px;font-size:20px">🏸</div>
+              <div class="grow">
+                <div class="t1">周三羽毛球局</div>
+                <div class="t3" style="margin-top:2px">羽毛球 · 12 名成员 · 今晚 19:30 有活动</div>
+              </div>
+              <span class="chip green">报名中</span>
+            </button>
+            <button class="list-row clickable" data-nav="training-coach">
+              <div class="group-badge" style="width:44px;height:44px;font-size:20px;background:rgba(0,122,255,.1)">🎓</div>
+              <div class="grow">
+                <div class="t1">星羽青训营 <span class="chip blue" style="font-size:10px;padding:1px 7px">训练组</span></div>
+                <div class="t3" style="margin-top:2px">羽毛球 · 9 名成员 · 我是教练</div>
+              </div>
+              <span class="arrow">›</span>
+            </button>
+            <button class="list-row clickable" data-nav="detail">
+              <div class="group-badge" style="width:44px;height:44px;font-size:20px;background:rgba(155,123,255,.12)">🎾</div>
+              <div class="grow">
+                <div class="t1">周末网球搭子</div>
+                <div class="t3" style="margin-top:2px">网球 · 6 名成员 · 最近活动 9 月 20 日</div>
+              </div>
+              <span class="arrow">›</span>
+            </button>
+            <button class="list-row clickable" style="opacity:.55" data-action="archived-group">
+              <div class="group-badge" style="width:44px;height:44px;font-size:20px;background:var(--chip)">🏓</div>
+              <div class="grow">
+                <div class="t1">公司乒乓球社</div>
+                <div class="t3" style="margin-top:2px">乒乓球 · 18 名成员</div>
+              </div>
+              <span class="chip grey">已归档</span>
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }
+};
+
+/* ---------- 4. 未登录 ---------- */
+R['login'] = {
+  title: '未登录空状态', sub: '登录后才能使用小组',
+  note: '小组依赖云端同步，未登录时首页小组区和列表页都落到这个状态。「去登录」跳账号体系；登录后回到原页面。',
+  render() {
+    return `
+      ${appbar('我的小组', {back:true})}
+      <div class="scroll">
+        <div class="empty" style="padding-top:80px">
+          ${emptyArt(ICONS.login)}
+          <h4>登录后使用小组</h4>
+          <p>小组的战绩、约局和报名都需要云端同步<br>登录后自动恢复你的小组数据</p>
+          <button class="btn primary" style="max-width:220px" data-action="toast|登录流程（原型略）">去登录</button>
+        </div>
+      </div>`;
+  }
+};
+
+/* ---------- 5. 创建小组 ---------- */
+R['create'] = {
+  title: '创建小组', sub: '名称 / 简介 / 项目 / 组建类型 / 加入方式',
+  note: '「组建类型」是 PRD §6.14 的关键决策：熟人组=成员自助报名互相确认；训练组=教练统一排期。创建后不可修改，所以用卡片式单选把差异讲清楚。加入方式建组时只给「直接加入 / 需要审批」两项——「关闭加入」是成熟小组的收敛动作，建组后通过 ⋯ → 编辑资料修改（对齐线上实现与鸿蒙）。',
+  render() {
+    return `
+      ${appbar('创建小组', {back:true})}
+      <div class="scroll" style="padding-bottom:110px">
+        <div class="field">
+          <label>名称 <span class="req">*</span></label>
+          <input class="input" value="周三羽毛球局" placeholder="2–24 个字">
+          <div class="hint"><span>好记的名字方便队友搜索</span><span class="count">6/24</span></div>
+        </div>
+        <div class="field">
+          <label>简介</label>
+          <textarea class="textarea" placeholder="选填，最多 200 字">每周三晚固定局，双打轮转，欢迎新球友。</textarea>
+          <div class="hint"><span class="count" style="margin-left:auto">22/200</span></div>
+        </div>
+        <div class="field">
+          <label>项目 <span class="req">*</span></label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="fchip on">🏸 羽毛球</button>
+            <button class="fchip">🏓 乒乓球</button>
+            <button class="fchip">🎾 网球</button>
+            <button class="fchip">🏐 匹克球</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>组建类型 <span class="req">*</span></label>
+          <div style="display:grid;gap:10px">
+            <button class="opt-card on">
+              <span class="radio"></span>
+              <span class="grow">
+                <div class="t1">熟人组</div>
+                <div class="t3" style="margin-top:3px">成员自助报名，互相确认成绩</div>
+              </span>
+            </button>
+            <button class="opt-card">
+              <span class="radio"></span>
+              <span class="grow">
+                <div class="t1">训练组</div>
+                <div class="t3" style="margin-top:3px">由你统一排期，学员按时到场</div>
+              </span>
+            </button>
+          </div>
+          <div class="hint">创建后不可修改组建类型</div>
+        </div>
+        <div class="field">
+          <label>加入方式</label>
+          <div style="display:flex;gap:8px">
+            <button class="fchip">直接加入</button>
+            <button class="fchip on">需要审批</button>
+          </div>
+          <div class="hint">建组时不提供「关闭加入」，创建后可在 ⋯ → 编辑资料 中改为关闭</div>
+        </div>
+      </div>
+      <div class="sticky-cta">
+        <button class="btn primary" data-action="create-done">创建</button>
+      </div>`;
+  }
+};
+
+/* ---------- 6. 加入小组 ---------- */
+R['join'] = {
+  title: '加入小组', sub: '扫码 / 输号两条路，精确匹配，一次至多一张结果卡',
+  note: '小组号是 6–8 位数字精确匹配，不开放名称模糊搜索（避免陌生人乱入），所以查询结果至多一张卡片。扫码和输号殊途同归，落到同一张预览卡，按 availability 渲染：可加入→绿 chip+「加入」；需审批→留言+「申请加入」；已是成员/待审批→「打开小组」；已满/已关闭/已归档→状态 chip、不给按钮；小组不存在不出卡片，直接在输入区下方红字报错。训练组必须在加入前用主色说明「每场都由教练统一排期」。原型可真实输入：823456=熟人组(需审批)，901217=训练组(直接加入)，555555=已满，其他号码=不存在。',
+  render() {
+    const step = S.joinStep, t = S.joinTarget;
+    let result = '';
+    if (step === 'notfound') {
+      result = `<div class="err-text" style="font-size:12px;color:var(--danger);margin-top:10px">小组不存在，请核对小组号后重试</div>`;
+    } else if (step === 'preview' && t === 'peer') {
+      result = `
+        <div class="card white" style="margin-top:14px">
+          <div class="group-head">
+            <div class="group-badge">🏸</div>
+            <div class="grow">
+              <div class="t1">周三羽毛球局</div>
+              <div class="t3" style="margin-top:3px">小组号 823456 · 羽毛球 · 12 名成员</div>
+            </div>
+            <span class="chip orange">需要审批</span>
+          </div>
+          <div class="t2" style="margin-top:10px;line-height:1.6">每周三晚固定局，双打轮转，欢迎新球友。进群请先打招呼～</div>
+          <textarea class="textarea" style="min-height:56px;margin-top:12px" placeholder="申请留言（选填）"></textarea>
+          <button class="btn primary" style="margin-top:10px" data-action="join-apply-done">申请加入</button>
+        </div>`;
+    } else if (step === 'preview' && t === 'coach') {
+      result = `
+        <div class="card white" style="margin-top:14px">
+          <div class="group-head">
+            <div class="group-badge" style="background:rgba(0,122,255,.1)">🎓</div>
+            <div class="grow">
+              <div class="t1">星羽青训营 <span class="chip blue" style="font-size:10px;padding:1px 7px">训练组</span></div>
+              <div class="t3" style="margin-top:3px">小组号 901217 · 羽毛球 · 9 名成员</div>
+            </div>
+            <span class="chip green">可加入</span>
+          </div>
+          <div class="banner" style="margin-top:10px">这是训练组，每场都由教练统一排期。</div>
+          <button class="btn primary" style="margin-top:12px" data-action="join-done">加入</button>
+        </div>`;
+    } else if (step === 'preview' && t === 'full') {
+      result = `
+        <div class="card white" style="margin-top:14px">
+          <div class="group-head">
+            <div class="group-badge" style="background:var(--chip)">🏓</div>
+            <div class="grow">
+              <div class="t1">阳光乒乓俱乐部</div>
+              <div class="t3" style="margin-top:3px">小组号 555555 · 乒乓球 · 22 名成员</div>
+            </div>
+            <span class="chip red">小组已满</span>
+          </div>
+          <button class="btn disabled" style="margin-top:12px">加入</button>
+        </div>`;
+    }
+    return `
+      ${appbar('加入小组', {back:true})}
+      <div class="scroll">
+        <button class="card white clickable" style="width:100%;text-align:left;border:1.5px dashed var(--divider)" data-action="join-scan">
+          <div class="row">
+            <div class="group-badge" style="width:46px;height:46px">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="1.7" stroke-linecap="round">${ICONS.qr}</svg>
+            </div>
+            <div class="grow">
+              <div class="t1">扫码加入</div>
+              <div class="t3" style="margin-top:2px">扫队友的「小组二维码」，自动识别小组号</div>
+            </div>
+            <span class="arrow">›</span>
+          </div>
+        </button>
+        <div class="row" style="margin:18px 0 14px;gap:10px">
+          <div class="divider grow" style="margin:0"></div><span class="t3">或输入小组号</span><div class="divider grow" style="margin:0"></div>
+        </div>
+        <input id="groupNoInput" class="input" style="text-align:center;font-size:20px;font-weight:750;letter-spacing:8px;padding:14px" placeholder="······" maxlength="8" inputmode="numeric" value="${S.lastNo}">
+        <div class="hint" style="margin-top:8px"><span>6–8 位数字，精确匹配，一次只会有一个结果</span></div>
+        <button class="btn primary" style="margin-top:12px" data-action="join-preview">查询</button>
+        ${result}
+        <div class="banner grey" style="margin-top:16px">小组号可以问组主要，在「小组 ⋯ → 二维码」页也能看到。</div>
+      </div>`;
+  }
+};
+
+/* ---------- 7. 小组详情（容器 + 4 Tab） ---------- */
+function detailShell(activeTab, content) {
+  const tabs = [['overview','概览'],['activities','活动'],['records','战绩'],['members','成员']];
+  return `
+    ${appbar(GROUP.name, {back:true, right:'<button class="appbar-btn" data-action="group-menu">⋯</button>'})}
+    <div class="seg">
+      ${tabs.map(([k,t]) => `<button class="${activeTab===k?'on':''}" data-action="tab|${k}">${t}${k==='members'&&activeTab!=='members'?' <span style="color:var(--warn)">●</span>':''}</button>`).join('')}
+    </div>
+    ${content}`;
+}
+R['detail'] = {
+  title: '小组详情 · 概览', sub: '统计 + 快捷操作 + 管理菜单（点 ⋯）',
+  note: '概览承载三件事：①小组基本信息（号/项目/加入方式）②三项核心统计 ③高频操作（开始计分/补记/二维码）。右上角 ⋯ 是管理菜单：编辑资料、归档、退出小组、转让所有权（组主退出前必须先转让）。',
+  render() {
+    S.detailTab = 'overview';
+    return detailShell('overview', `
+      <div class="scroll">
+        <div class="card">
+          <div class="group-head">
+            <div class="group-badge">🏸</div>
+            <div class="grow">
+              <div class="t1" style="font-size:16px">周三羽毛球局</div>
+              <div class="t3" style="margin-top:3px">小组号 823456 · 羽毛球 · 需要审批</div>
+            </div>
+          </div>
+          <div class="t2" style="margin-top:10px;line-height:1.6">每周三晚固定局，双打轮转，欢迎新球友。进群请先打招呼～</div>
+        </div>
+        <div class="stat-grid" style="margin-top:12px">
+          <div class="stat"><b>26</b><span>已确认场次</span></div>
+          <div class="stat"><b>6</b><span>本月场次</span></div>
+          <div class="stat"><b>9</b><span>30 天活跃</span></div>
+        </div>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn primary" data-nav="start-match">▶ 开始计分</button>
+          <button class="btn ghost" data-nav="result-entry">补记</button>
+        </div>
+        <button class="btn outline" style="margin-top:10px" data-nav="qr">⬚ 小组二维码</button>
+
+        <div class="section">
+          <div class="section-title">即将到来的活动
+            <span class="more" data-action="tab|activities">全部 ›</span></div>
+          <div class="card clickable" data-action="tab|activities">
+            <div class="row">
+              <div class="grow">
+                <div class="t1">周三例行局</div>
+                <div class="t3" style="margin-top:3px">今晚 19:30 · 城东羽毛球馆 · 8/12 人报名</div>
+              </div>
+              <span class="chip green">报名中</span>
+            </div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-title">最新赛果 <span class="more" data-action="tab|records">全部 ›</span></div>
+          ${resultCard(RESULTS[0])}
+        </div>
+      </div>`);
+  }
+};
+
+function activityCard(a) {
+  const stMap = {
+    recruiting: ['green','报名中'], in_progress: ['orange','进行中'],
+    completed: ['grey','已完成'], cancelled: ['red','已取消'],
+  };
+  const [c, t] = stMap[a.status];
+  return `
+    <button class="card clickable" style="display:block;width:100%;text-align:left;border:0;margin-bottom:10px" data-action="activity|${a.id}">
+      <div class="row">
+        <div class="grow">
+          <div class="t1">${a.title} <span class="chip grey" style="font-size:10px;padding:1px 7px">${a.format}</span></div>
+          <div class="t3" style="margin-top:3px">${a.time} · ${a.place}</div>
+          <div class="t3" style="margin-top:2px">${a.joined}/${a.cap} 人报名${a.joined >= a.cap && a.status==='recruiting' ? ' · 已满' : ''}</div>
+          ${a.cancelReason ? `<div class="t3" style="margin-top:2px;color:var(--danger)">取消原因：${a.cancelReason}</div>` : ''}
+        </div>
+        <span class="chip ${c}">${t}</span>
+      </div>
+    </button>`;
+}
+
+R['activities'] = {
+  title: '小组详情 · 活动', sub: '活动列表 · 点卡片看详情弹层 · 右下 ＋ 创建活动',
+  note: '活动卡片按状态着色：报名中(绿)/进行中(橙)/已完成(灰)/已取消(红)。点开底部弹层按身份与状态给操作：报名/退出报名/开始比赛/补记比分/取消活动。已满的活动报名按钮禁用。「进行中」的活动允许补记比分。',
+  render() {
+    S.detailTab = 'activities';
+    return detailShell('activities', `
+      <div class="scroll has-fab">
+        ${ACTIVITIES.map(activityCard).join('')}
+        <div class="banner grey" style="margin-top:4px">活动结束后记得补记比分，战绩榜才会更新。</div>
+      </div>
+      <button class="fab" data-action="create-activity">＋ 创建活动</button>`);
+  }
+};
+
+function resultCard(r) {
+  const stMap = {
+    pending: ['orange','待确认'], confirmed: ['green','已确认'],
+    voided: ['red','已作废'], upload: ['blue','待上传'],
+  };
+  const [c, t] = stMap[r.status];
+  const nameOf = arr => arr.join(' / ');
+  const total = r.sets.reduce((acc, s) => [acc[0] + (s[0]>s[1]?1:0), acc[1] + (s[1]>s[0]?1:0)], [0,0]);
+  return `
+    <div class="card" style="margin-bottom:10px">
+      <div class="row" style="margin-bottom:8px">
+        <span class="t3">${r.time} · ${r.bo}</span>
+        <span style="margin-left:auto" class="chip ${c}">${t}</span>
+      </div>
+      <div class="row">
+        <div class="grow" style="text-align:right">
+          <div class="t1">${nameOf(r.a)}</div>
+        </div>
+        <div class="score-big" style="padding:0 12px"><span class="a">${total[0]}</span><span style="color:var(--text-3);font-size:15px"> : </span><span class="b">${total[1]}</span></div>
+        <div class="grow"><div class="t1">${nameOf(r.b)}</div></div>
+      </div>
+      <div class="t3" style="text-align:center;margin-top:6px">${r.sets.map((s,i)=>`第${i+1}局 ${s[0]}:${s[1]}`).join(' · ')}</div>
+      ${r.reason ? `<div class="t3" style="margin-top:8px;color:var(--danger)">作废原因：${r.reason}</div>` : ''}
+      ${r.status === 'pending' ? `
+        <div class="t3" style="margin-top:8px">由 ${r.by} 提交 · 你是对方参赛者，可以确认或作废</div>
+        <div class="btn-row" style="margin-top:10px">
+          <button class="btn primary sm grow" data-action="confirm-result|${r.id}">确认</button>
+          <button class="btn ghost sm grow" data-action="void-result|${r.id}">作废</button>
+        </div>` : ''}
+      ${r.status === 'upload' ? `
+        <div class="banner warn" style="margin-top:10px">网络不可用，赛果已保存到待上传列表</div>
+        <button class="btn ghost sm" style="margin-top:8px" data-action="retry-upload">重试同步</button>` : ''}
+    </div>`;
+}
+
+R['records'] = {
+  title: '小组详情 · 战绩', sub: '单/双打过滤 · 排行榜 · 比赛记录',
+  note: '赛制过滤 chip 同时作用于排行榜和比赛列表。待确认的赛果置顶，对方参赛者或管理员可「确认 / 作废」（作废必须填原因）；同队成员与旁观者无操作。待上传的赛果保留本地标记，网络恢复后重试同步。',
+  render() {
+    S.detailTab = 'records';
+    const f = S.recordsFormat;
+    return detailShell('records', `
+      <div class="scroll">
+        <div class="row" style="gap:8px;margin-bottom:12px">
+          <button class="fchip ${f==='singles'?'on':''}" data-action="fmt|singles">单打</button>
+          <button class="fchip ${f==='doubles'?'on':''}" data-action="fmt|doubles">双打</button>
+          <span class="t3" style="margin-left:auto">近 30 天</span>
+        </div>
+        <div class="card">
+          <div class="section-title" style="margin:0 0 6px">${f==='singles'?'单打':'双打'}排行榜</div>
+          <table class="rank-table">
+            <tr><th></th><th>场次</th><th>胜</th><th>负</th><th>平</th><th>局分</th><th>胜率</th></tr>
+            ${RANKING.map((r,i) => `
+              <tr>
+                <td class="name"><span class="rank-no ${i<3?'top':''}">${i+1}</span>${r.name}${r.name===ME?' <span class="t3">(我)</span>':''}</td>
+                <td>${r.games}</td><td>${r.w}</td><td>${r.l}</td><td>${r.d}</td><td>${r.sets}</td>
+                <td style="font-weight:700;color:${i<3?'var(--primary-dark)':'var(--text)'}">${r.rate}</td>
+              </tr>`).join('')}
+          </table>
+        </div>
+        <div class="section">
+          <div class="section-title">比赛记录</div>
+          ${RESULTS.map(resultCard).join('')}
+        </div>
+      </div>`);
+  }
+};
+
+R['members'] = {
+  title: '小组详情 · 成员', sub: '加入申请审批 · 角色管理 · 临时成员',
+  note: '管理员视角：顶部是待处理的加入申请（通过/拒绝）。成员行点开操作弹层：改名、设为管理员/成员、移除（需二次确认）；组主可转让所有权。临时成员（未注册球友）单独标记，仅用于占席位和记成绩。点成员行试试看。',
+  render() {
+    S.detailTab = 'members';
+    return detailShell('members', `
+      <div class="scroll">
+        ${JOIN_REQUESTS.length ? `
+        <div class="card" style="border:1.5px solid rgba(232,134,46,.4)">
+          <div class="section-title" style="margin:0 0 4px">加入申请 · ${JOIN_REQUESTS.length}</div>
+          ${JOIN_REQUESTS.map(j => `
+            <div class="row" style="padding:10px 0;border-bottom:1px solid var(--divider)">
+              ${avatar(j.name)}
+              <div class="grow">
+                <div class="t1">${j.name}</div>
+                <div class="t3" style="margin-top:2px">${j.msg ? j.msg + ' · ' : ''}${j.time}</div>
+              </div>
+              <button class="btn primary sm" data-action="approve|${j.name}">通过</button>
+              <button class="btn ghost sm" data-action="reject|${j.name}">拒绝</button>
+            </div>`).join('').replace(/border-bottom:1px solid var\(--divider\)(?![\s\S]*border-bottom)/, 'border-bottom:0')}
+        </div>` : ''}
+        <div class="section">
+          <div class="section-title">成员 · ${MEMBERS.length}
+            <span class="more" data-action="add-temp">＋ 添加临时成员</span></div>
+          <div class="list">
+            ${MEMBERS.map(m => `
+              <button class="list-row clickable" data-action="member|${m.name}">
+                ${avatar(m.name, m.name===ME?'green':'')}
+                <div class="grow">
+                  <div class="t1">${m.name} ${m.tag?`<span class="chip green" style="font-size:10px;padding:1px 7px">${m.tag}</span>`:''} ${m.temp?`<span class="chip grey" style="font-size:10px;padding:1px 7px">临时</span>`:''}</div>
+                  <div class="t3" style="margin-top:2px">${m.role}${m.temp ? ' · 仅用于占席位' : ''}</div>
+                </div>
+                <span class="chip ${m.role==='组主'?'green':m.role==='管理员'?'blue':'grey'}">${m.role}</span>
+              </button>`).join('')}
+          </div>
+        </div>
+      </div>`);
+  }
+};
+
+/* ---------- 8. 开始计分（席位 + 规则） ---------- */
+R['start-match'] = {
+  title: '开始计分', sub: '选择参赛成员（点席位）+ 规则设置',
+  note: '从小组开局必须选择已报名的有效成员（点席位弹成员选择器）。规则跟随小组项目默认值：局制 BO1/BO3/BO5、每局分数、封顶分数（21 分制默认 30 封顶，>21 无封顶）。双打要 4 人，成员重复会报错。开局前会检查是否有未完成的个人比赛。',
+  render() {
+    const seat = (side, arr) => `
+      <button class="seat side-${side} ${arr.length?'filled':''}" data-action="seat|${side}">
+        <span class="side-tag">${side==='a'?'A 方':'B 方'}</span>
+        ${arr.length ? arr.map(n=>`<div class="row" style="gap:6px">${avatar(n,'sm')}<span class="t1">${n}</span></div>`).join('')
+                     : '<span style="font-size:20px">＋</span><span>点击选择成员</span>'}
+      </button>`;
+    return `
+      ${appbar('开始计分', {back:true})}
+      <div class="scroll" style="padding-bottom:110px">
+        <div class="section-title" style="margin-top:0">参赛成员 · 双打</div>
+        <div class="row" style="align-items:stretch">
+          ${seat('a', S.seats.a)}
+          <div class="vs" style="align-self:center">VS</div>
+          ${seat('b', S.seats.b)}
+        </div>
+        <div class="t3" style="margin:8px 2px 0">单打选 2 人，双打选 4 人；只能从活动报名成员中选择</div>
+
+        <div class="section">
+          <div class="section-title">规则设置 <span class="more">沿用活动赛制</span></div>
+          <div class="list">
+            <div class="list-row"><span class="grow t1">局制</span>
+              <div class="row" style="gap:6px"><button class="fchip">BO1</button><button class="fchip on">BO3</button><button class="fchip">BO5</button></div>
+            </div>
+            <div class="list-row"><span class="grow t1">每局分数</span>
+              <div class="row" style="gap:6px"><button class="fchip">11</button><button class="fchip on">21</button></div>
+            </div>
+            <div class="list-row"><span class="grow t1">封顶分数</span><span class="t2">30</span></div>
+            <div class="list-row"><span class="grow t1">赛制</span>
+              <div class="row" style="gap:6px"><button class="fchip">单打</button><button class="fchip on">双打</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="banner" style="margin-top:14px">开局后席位与规则会冻结为快照，赛果按快照校验。</div>
+      </div>
+      <div class="sticky-cta">
+        <button class="btn ${S.seats.a.length && S.seats.b.length ? 'primary' : 'disabled'}" data-action="begin-match">开局</button>
+      </div>`;
+  }
+};
+
+/* ---------- 9. 赛果录入 ---------- */
+R['result-entry'] = {
+  title: '赛果录入（补记）', sub: '局分 + 逐局比分 + 比赛时间',
+  note: '补记同样要选双方成员并受规则校验（比分不符合所选规则会报红）。逐局比分选填，但局分必填。已开赛的活动补记会锁定参赛席位与规则快照，不可更换。提交后对方参赛者或管理员确认才计入战绩。',
+  render() {
+    return `
+      ${appbar('赛果录入', {back:true})}
+      <div class="scroll" style="padding-bottom:110px">
+        <div class="banner grey">补记给「周三例行局」· 席位与规则已按活动快照锁定</div>
+        <div class="section" style="margin-top:12px">
+          <div class="row" style="align-items:stretch">
+            <button class="seat side-a filled" data-action="seat|a">
+              <span class="side-tag">A 方</span>
+              <div class="row" style="gap:6px">${avatar('陈晨','sm')}<span class="t1">陈晨</span></div>
+            </button>
+            <div class="vs" style="align-self:center">VS</div>
+            <button class="seat side-b filled" data-action="seat|b">
+              <span class="side-tag">B 方</span>
+              <div class="row" style="gap:6px">${avatar('大伟','sm')}<span class="t1">大伟</span></div>
+            </button>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-title">局分 (A–B) · BO3</div>
+          <div class="card row" style="justify-content:center;gap:18px">
+            <div class="stepper"><button>−</button><b style="color:var(--team-a)">2</b><button>＋</button></div>
+            <span style="font-weight:800;color:var(--text-3)">:</span>
+            <div class="stepper"><button>−</button><b style="color:var(--team-b)">0</b><button>＋</button></div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-title">逐局比分（选填）</div>
+          <div class="card">
+            <div class="row" style="justify-content:space-between;padding:4px 0">
+              <span class="t2">第 1 局</span>
+              <div class="row" style="gap:8px">
+                <input class="input" style="width:64px;padding:8px;text-align:center" value="21">
+                <span class="t3">:</span>
+                <input class="input" style="width:64px;padding:8px;text-align:center" value="12">
+              </div>
+              <button class="btn ghost sm">删除</button>
+            </div>
+            <div class="row" style="justify-content:space-between;padding:4px 0">
+              <span class="t2">第 2 局</span>
+              <div class="row" style="gap:8px">
+                <input class="input" style="width:64px;padding:8px;text-align:center" value="21">
+                <span class="t3">:</span>
+                <input class="input" style="width:64px;padding:8px;text-align:center" value="16">
+              </div>
+              <button class="btn ghost sm">删除</button>
+            </div>
+            <button class="btn outline sm" style="margin-top:8px">＋ 添加一局</button>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-title">比赛时间</div>
+          <button class="card row clickable" style="width:100%;border:0;text-align:left">
+            <span class="grow t1">今晚 19:48</span><span class="t3">修改 ›</span>
+          </button>
+        </div>
+      </div>
+      <div class="sticky-cta">
+        <button class="btn primary" data-action="submit-result">提交赛果</button>
+      </div>`;
+  }
+};
+
+/* ---------- 10. 二维码 ---------- */
+R['qr'] = {
+  title: '小组二维码', sub: '扫码加入 + 小组号 + 系统分享',
+  note: '队友用 App 内扫码或微信扫一扫都能识别（跳转加入页）。小组号同时大字展示，方便口头报号。「分享」走系统分享面板。',
+  render() {
+    return `
+      ${appbar('小组二维码', {back:true})}
+      <div class="scroll">
+        <div style="text-align:center;margin:8px 0 16px">
+          <div class="group-badge" style="margin:0 auto 10px">🏸</div>
+          <div class="t1" style="font-size:17px">周三羽毛球局</div>
+          <div class="t3" style="margin-top:3px">小组号 <b style="font-size:15px;letter-spacing:2px;color:var(--text)">823456</b></div>
+        </div>
+        <div class="qr-box">${qrGrid()}</div>
+        <p class="t2" style="text-align:center;line-height:1.7;margin:16px 24px">队友扫码即可申请加入<br>也可以直接把小组号告诉他们</p>
+        <button class="btn primary" data-action="toast|已调起系统分享（原型略）">分享</button>
+      </div>`;
+  }
+};
+
+/* ---------- 11. 训练组 · 教练视图 ---------- */
+R['training-coach'] = {
+  title: '训练组 · 教练视图', sub: '排期管理 + 学员请假（点排期/请假交互）',
+  note: '训练组的第 5 个 Tab「训练」。教练视图：排期卡片含场次（时间/场地/对阵/状态），可发布、修改、取消排期；学员请假单独成卡，未读高亮，可标记已读。已出结果的场次保留，取消排期只作废未赛场次。',
+  render() {
+    return `
+      ${appbar(TRAIN_GROUP.name, {back:true, right:'<button class="appbar-btn" data-action="group-menu">⋯</button>'})}
+      <div class="seg">
+        ${['概览','战绩','成员','训练'].map(t => `<button class="${t==='训练'?'on':''}">${t}</button>`).join('')}
+      </div>
+      <div class="scroll">
+        <div class="banner">你是教练，发布即刻生效</div>
+        <div class="section">
+          <div class="section-title">学员请假 · 1 条未读</div>
+          <div class="card">
+            ${TRAINING.leaves.map(l => `
+              <div class="row" style="padding:9px 0;border-bottom:1px solid var(--divider)">
+                ${avatar(l.name)}
+                <div class="grow">
+                  <div class="t1">${l.name} ${l.seen ? '<span class="chip grey" style="font-size:10px;padding:1px 7px">已读</span>' : '<span class="chip orange" style="font-size:10px;padding:1px 7px">未读</span>'}</div>
+                  <div class="t3" style="margin-top:2px">${l.msg || '（未填原因）'} · ${l.time}</div>
+                </div>
+                ${l.seen ? '' : `<button class="btn ghost sm" data-action="toast|已标记已读">标记已读</button>`}
+              </div>`).join('').replace(/border-bottom:1px solid var\(--divider\)(?![\s\S]*border-bottom)/, 'border-bottom:0')}
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-title">训练排期
+            <span class="more" data-nav="training-publish">＋ 发布排期</span></div>
+          <div class="card">
+            <div class="row" style="margin-bottom:10px">
+              <div class="grow">
+                <div class="t1">${TRAINING.date}</div>
+                <div class="t3" style="margin-top:2px">${TRAINING.place} · ${TRAINING.sessions.length} 场</div>
+              </div>
+              <span class="chip green">已发布</span>
+            </div>
+            ${TRAINING.sessions.map(sn => `
+              <div class="row" style="padding:8px 0;border-top:1px solid var(--divider)">
+                <span class="chip grey" style="flex:none">第 ${sn.no} 场</span>
+                <div class="grow">
+                  <div class="t2" style="font-weight:600">${sn.time} · ${sn.court}</div>
+                  <div class="t3" style="margin-top:1px">${sn.a.join('/') || '未定'} vs ${sn.b.join('/') || '<span style="color:var(--warn)">待排</span>'}</div>
+                </div>
+                ${sn.status==='done' ? `<span class="chip green">${sn.score}</span>` :
+                  sn.status==='conflict' ? `<span class="chip red">冲突</span>` :
+                  `<button class="btn ghost sm" data-action="toast|进入录入（原型略）">录入结果</button>`}
+              </div>`).join('')}
+            <div class="btn-row" style="margin-top:12px">
+              <button class="btn ghost sm grow" data-nav="training-publish">修改排期</button>
+              <button class="btn danger-soft sm grow" data-action="cancel-training">取消排期</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+};
+
+/* ---------- 12. 发布排期 ---------- */
+R['training-publish'] = {
+  title: '发布排期', sub: '场次编辑 · 冲突标红 · 席位选人',
+  note: '教练排期编辑器：日期、第一场开始时间、每场时长、地点；逐场排场地和对阵（点席位弹成员选择器）。冲突实时校验并标红：同一人时间重叠、同场地同时段；有冲突不能发布。一次最多排 12 场。',
+  render() {
+    return `
+      ${appbar('发布排期', {back:true})}
+      <div class="scroll" style="padding-bottom:110px">
+        <div class="row" style="gap:10px">
+          <div class="field grow" style="margin-bottom:10px">
+            <label>训练日期</label>
+            <button class="input" style="text-align:left">10 月 8 日（周三）</button>
+          </div>
+          <div class="field" style="margin-bottom:10px;width:120px">
+            <label>每场时长</label>
+            <button class="input" style="text-align:left">50 分钟</button>
+          </div>
+        </div>
+        <div class="row" style="gap:10px">
+          <div class="field grow" style="margin-bottom:10px">
+            <label>第一场开始时间</label>
+            <button class="input" style="text-align:left">19:00</button>
+          </div>
+          <div class="field grow" style="margin-bottom:10px">
+            <label>训练地点</label>
+            <input class="input" value="城东羽毛球馆" placeholder="如：城东羽毛球馆">
+          </div>
+        </div>
+        <div class="field">
+          <label>备注</label>
+          <input class="input" placeholder="选填，给学员的说明">
+        </div>
+        <div class="banner warn">有冲突的场次已标红，调整后再发布</div>
+        <div class="section" style="margin-top:12px">
+          <div class="section-title">场次 · 4 <span class="more" data-action="toast|已添加第 5 场">＋ 添加一场</span></div>
+          ${TRAINING.sessions.map(sn => `
+            <div class="session-card ${sn.status==='conflict'?'conflict':''}">
+              <div class="row" style="margin-bottom:8px">
+                <span class="t1">第 ${sn.no} 场</span>
+                <span class="t3">${sn.time}</span>
+                <button class="fchip ${sn.status==='conflict'?'':''}" style="margin-left:auto;padding:4px 10px;font-size:11px">${sn.court}</button>
+              </div>
+              <div class="row" style="align-items:stretch">
+                <button class="seat side-a ${sn.a.length?'filled':''}" style="min-height:64px" data-action="seat|a">
+                  ${sn.a.length ? `<div class="row" style="gap:6px">${avatar(sn.a[0],'sm')}<span class="t1">${sn.a[0]}</span></div>` : '<span>＋ 点击选人</span>'}
+                </button>
+                <div class="vs" style="align-self:center">VS</div>
+                <button class="seat side-b ${sn.b.length?'filled':''}" style="min-height:64px" data-action="seat|b">
+                  ${sn.b.length ? `<div class="row" style="gap:6px">${avatar(sn.b[0],'sm')}<span class="t1">${sn.b[0]}</span></div>` : '<span>＋ 点击选人</span>'}
+                </button>
+              </div>
+              ${sn.status==='conflict' ? `<div class="t3" style="margin-top:8px;color:var(--danger)">小北在第 1、4 场时间重叠 · 第 3、4 场同时段同场地</div>` : ''}
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="sticky-cta">
+        <button class="btn disabled">发布（存在冲突）</button>
+      </div>`;
+  }
+};
+
+/* ---------- 13. 训练组 · 学员视图 ---------- */
+R['training-student'] = {
+  title: '训练组 · 学员视图', sub: '我的场次 + 请假（点请假看弹窗）',
+  note: '学员看到的训练 Tab 是只读的：「我接下来的场次」+ 完整排期。请假只是通知教练，不会自动改排期——弹窗里明确说明这一点，避免学员误以为请假=换场。',
+  render() {
+    return `
+      ${appbar(TRAIN_GROUP.name, {back:true})}
+      <div class="seg">
+        ${['概览','战绩','成员','训练'].map(t => `<button class="${t==='训练'?'on':''}">${t}</button>`).join('')}
+      </div>
+      <div class="scroll">
+        <div class="banner grey">训练组由教练排期，你按时到场即可</div>
+        <div class="section">
+          <div class="section-title">我接下来的场次</div>
+          <div class="card">
+            <div class="row">
+              <span class="chip green" style="flex:none">第 1 场</span>
+              <div class="grow">
+                <div class="t1">10 月 8 日 19:00–19:50 · 1 号场</div>
+                <div class="t3" style="margin-top:2px">小北（我） vs 沫沫 · 城东羽毛球馆</div>
+              </div>
+            </div>
+            <button class="btn outline sm" style="margin-top:10px" data-action="leave-request">请假</button>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-title">完整排期 · ${TRAINING.date}</div>
+          <div class="list">
+            ${TRAINING.sessions.filter(s=>s.status!=='conflict').map(sn => `
+              <div class="list-row">
+                <span class="chip grey" style="flex:none">第 ${sn.no} 场</span>
+                <div class="grow">
+                  <div class="t2" style="font-weight:600">${sn.time} · ${sn.court}</div>
+                  <div class="t3" style="margin-top:1px">${sn.a.join('/') || '未定'} vs ${sn.b.join('/') || '待排'}</div>
+                </div>
+                ${sn.status==='done' ? `<span class="chip green">${sn.score}</span>` : ''}
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
+};
+
+/* ---------- 14~17. 空状态 ---------- */
+R['empty-states'] = {
+  title: '空状态 · 活动 / 战绩 / 训练', sub: '详情各 Tab 的空态引导',
+  note: '空态三原则：①一句话说清这里会有什么 ②给出主行动按钮 ③插画区用 card 底色块+线性图标，不用彩色装饰。训练组区分教练（去发布）和学员（等通知）两种文案。',
+  render() {
+    return `
+      ${appbar('周末网球搭子', {back:true})}
+      <div class="seg"><button class="">概览</button><button class="on">活动</button><button>战绩</button><button>成员</button></div>
+      <div class="scroll">
+        <div class="empty" style="padding-top:36px">
+          ${emptyArt(ICONS.calendar)}
+          <h4>暂无活动</h4>
+          <p>发起一场约局，组里会收到通知<br>报满自动截止，不用再挨个统计</p>
+          <button class="btn primary" style="max-width:200px" data-action="create-activity">＋ 创建活动</button>
+        </div>
+        <div class="divider"></div>
+        <div class="empty" style="padding-top:10px">
+          ${emptyArt(ICONS.trophy)}
+          <h4>暂无比赛</h4>
+          <p>从小组开局或补记一场<br>确认后的比分会自动汇总成排行榜</p>
+          <div class="btn-row" style="width:100%;max-width:280px">
+            <button class="btn primary" data-nav="start-match">开始计分</button>
+            <button class="btn outline" data-nav="result-entry">补记</button>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="empty" style="padding-top:10px">
+          ${emptyArt(ICONS.racket)}
+          <h4>教练还没有发布排期</h4>
+          <p>教练排好后会出现在这里<br>（学员视角，无操作按钮）</p>
+        </div>
+      </div>`;
+  }
+};
+
+/* =========================================================
+ * 弹层（二级对话框 / 底部弹层）
+ * ========================================================= */
+function dialog({title, msg, msgLeft=false, body='', buttons=''}) {
+  return `<div class="overlay" data-action="close-ol">
+    <div class="dialog" onclick="event.stopPropagation()">
+      <h3>${title}</h3>
+      ${msg ? `<p class="msg ${msgLeft?'left':''}">${msg}</p>` : ''}
+      ${body}
+      <div class="stack">${buttons}</div>
+    </div>
+  </div>`;
+}
+function sheet({title, body}) {
+  return `<div class="overlay sheet-mode" data-action="close-ol">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-grip"></div>
+      <h3>${title}</h3>
+      ${body}
+    </div>
+  </div>`;
+}
+
+const D = {
+  /* 小组管理菜单 */
+  'group-menu': () => sheet({
+    title: '小组管理',
+    body: `
+      <button class="action-row" data-action="edit-info">✎ 编辑资料<span class="sub" style="margin-left:auto">名称 / 简介 / 加入方式</span></button>
+      <button class="action-row" data-action="transfer">⇄ 转让所有权</button>
+      <button class="action-row" data-action="archive">🗄 归档小组<span class="sub" style="margin-left:auto">归档后只读</span></button>
+      <button class="action-row danger" data-action="leave-group">⎋ 退出小组</button>
+      <button class="btn ghost" style="margin-top:14px" data-action="close-ol">取消</button>`,
+  }),
+  /* 编辑资料（含「关闭加入」，对齐 GroupDetailScreen 编辑弹窗） */
+  'edit-info': () => dialog({
+    title: '编辑资料',
+    msgLeft: true, msg: '',
+    body: `
+      <div class="field"><label>名称 <span class="req">*</span></label><input class="input" value="周三羽毛球局"></div>
+      <div class="field"><label>简介</label><textarea class="textarea" style="min-height:56px">每周三晚固定局，双打轮转，欢迎新球友。</textarea></div>
+      <div class="field" style="margin-bottom:4px"><label>加入方式</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="fchip">直接加入</button>
+          <button class="fchip on">需要审批</button>
+          <button class="fchip">关闭加入</button>
+        </div>
+        <div class="hint">关闭后新成员无法加入，已有成员不受影响</div>
+      </div>`,
+    buttons: `<div class="btn-row"><button class="btn ghost" data-action="close-ol">取消</button><button class="btn primary" data-action="toast|已保存">保存</button></div>`,
+  }),
+  'archive': () => dialog({
+    title: '归档小组？',
+    msg: '归档后小组将变为只读：不能报名、开局、补记或修改资料。随时可以恢复。',
+    buttons: `<div class="btn-row"><button class="btn ghost" data-action="close-ol">取消</button><button class="btn danger-soft" data-action="toast|已归档">归档</button></div>`,
+  }),
+  'leave-group': () => dialog({
+    title: '退出小组？',
+    msg: '退出后你将看不到小组的活动和战绩，需要重新加入。组主需先转让所有权才能退出。',
+    buttons: `<div class="btn-row"><button class="btn ghost" data-action="close-ol">取消</button><button class="btn danger-soft" data-action="toast|已退出小组">退出小组</button></div>`,
+  }),
+  'transfer': () => sheet({
+    title: '转让组主',
+    body: `
+      <p class="t3" style="margin:0 0 10px">转让后你将成为普通成员</p>
+      ${['阿豪','林珊','老周'].map(n => `
+        <button class="action-row" data-action="transfer-confirm|${n}">${avatar(n)}<span>${n}</span><span class="sub" style="margin-left:auto">管理员</span></button>`).join('')}
+      <button class="btn ghost" style="margin-top:14px" data-action="close-ol">取消</button>`,
+  }),
+  /* 活动详情 */
+  'activity': (id) => {
+    const a = ACTIVITIES.find(x => x.id === id);
+    const roster = ['陈晨','阿豪','林珊','老周','阿紫','大伟','小北','阿Ken'].slice(0, a.joined);
+    let actions = '';
+    if (a.status === 'recruiting') {
+      actions = a.meJoined
+        ? `<button class="btn ghost" data-action="toast|已退出报名">退出报名</button>`
+        : (a.joined >= a.cap
+            ? `<button class="btn disabled">已满</button>`
+            : `<button class="btn primary" data-action="toast|报名成功">报名</button>`);
+      actions += `<button class="btn outline" data-action="toast|已调起系统分享">分享给队友</button>
+                  <button class="action-row danger" style="margin-top:6px" data-action="cancel-activity">取消活动</button>`;
+    } else if (a.status === 'in_progress') {
+      actions = `<button class="btn primary" data-nav="start-match">开始比赛</button>
+                 <button class="btn ghost" data-nav="result-entry">补记比分</button>`;
+    } else if (a.status === 'completed') {
+      actions = `<button class="btn ghost" data-action="tab|records">查看赛果</button>`;
+    } else {
+      actions = `<div class="banner grey">活动已取消${a.cancelReason ? '：' + a.cancelReason : ''}</div>`;
+    }
+    return sheet({
+      title: a.title,
+      body: `
+        <div class="row" style="margin-bottom:6px">
+          <span class="chip ${ {recruiting:'green',in_progress:'orange',completed:'grey',cancelled:'red'}[a.status] }">${ {recruiting:'报名中',in_progress:'进行中',completed:'已完成',cancelled:'已取消'}[a.status] }</span>
+          <span class="chip grey">${a.format}</span>
+        </div>
+        <div class="t2" style="line-height:1.9">🕐 ${a.time}<br>📍 ${a.place}<br>📝 ${a.note || '无备注'}</div>
+        <div class="divider"></div>
+        <div class="section-title" style="margin:0 0 8px">报名 · ${a.joined}/${a.cap}</div>
+        <div class="row" style="flex-wrap:wrap;gap:8px;margin-bottom:14px">
+          ${roster.map(n => `<div style="text-align:center;width:44px">${avatar(n)}<div class="t3" style="margin-top:3px">${n}</div></div>`).join('')}
+        </div>
+        <div class="stack">${actions}</div>`,
+    });
+  },
+  'create-activity': () => dialog({
+    title: '创建活动',
+    msgLeft: true, msg: '',
+    body: `
+      <div class="field"><label>标题</label><input class="input" value="周三例行局"></div>
+      <div class="row" style="gap:10px">
+        <div class="field grow"><label>开始时间</label><button class="input" style="text-align:left">今天 19:30</button></div>
+        <div class="field" style="width:110px"><label>人数上限</label><input class="input" value="12" inputmode="numeric"></div>
+      </div>
+      <div class="field"><label>地点</label><input class="input" value="城东羽毛球馆 · 3/4 号场"></div>
+      <div class="field"><label>赛制</label>
+        <div style="display:flex;gap:8px"><button class="fchip">单打</button><button class="fchip on">双打</button></div>
+      </div>
+      <div class="field" style="margin-bottom:4px"><label>备注</label><input class="input" placeholder="选填" value="自带球，AA 场地费"></div>`,
+    buttons: `<div class="btn-row"><button class="btn ghost" data-action="close-ol">取消</button><button class="btn primary" data-action="toast|活动已创建，组内已通知">创建</button></div>`,
+  }),
+  'cancel-activity': () => dialog({
+    title: '取消活动？',
+    msg: '取消后报名名单将清空，且不可恢复。已经开始的活动不能取消。',
+    buttons: `<div class="btn-row"><button class="btn ghost" data-action="close-ol">再想想</button><button class="btn danger-soft" data-action="toast|活动已取消">取消活动</button></div>`,
+  }),
+  /* 赛果 */
+  'confirm-result': (id) => dialog({
+    title: '确认这条赛果？',
+    msg: '确认后计入双方战绩，不可再修改。如有问题可以选择作废。',
+    buttons: `<div class="btn-row"><button class="btn ghost" data-action="close-ol">取消</button><button class="btn primary" data-action="toast|已确认，战绩已更新">确认</button></div>`,
+  }),
+  'void-result': (id) => dialog({
+    title: '作废这条赛果？',
+    msgLeft: true, msg: '作废后不计入战绩。请填写作废原因，组内成员可见。',
+    body: `<textarea class="textarea" placeholder="作废原因（必填）" style="margin-bottom:4px"></textarea>`,
+    buttons: `<div class="btn-row"><button class="btn ghost" data-action="close-ol">取消</button><button class="btn danger-soft" data-action="toast|已作废">作废</button></div>`,
+  }),
+  /* 成员 */
+  'member': (name) => {
+    const m = MEMBERS.find(x => x.name === name) || {name, role:'成员'};
+    if (name === ME) return sheet({ title: name, body: `<div class="banner grey" style="margin-bottom:12px">这是你自己</div><button class="action-row" data-action="toast|修改我的显示名">✎ 修改我的显示名</button><button class="btn ghost" style="margin-top:14px" data-action="close-ol">取消</button>` });
+    return sheet({
+      title: `${name} · ${m.role}${m.temp ? '（临时成员）' : ''}`,
+      body: `
+        <button class="action-row" data-action="rename|${name}">✎ 改名</button>
+        ${m.role === '成员' ? `<button class="action-row" data-action="toast|已设为管理员">★ 设为管理员</button>`
+                           : `<button class="action-row" data-action="toast|已设为成员">☆ 设为成员</button>`}
+        <button class="action-row danger" data-action="remove-member|${name}">✕ 移除</button>
+        <button class="btn ghost" style="margin-top:14px" data-action="close-ol">取消</button>`,
+    });
+  },
+  'rename': (name) => dialog({
+    title: '改名',
+    msgLeft: true, msg: `给「${name}」设置新的显示名，仅组内生效。`,
+    body: `<input class="input" value="${name}" placeholder="1–24 个字" style="margin-bottom:4px">`,
+    buttons: `<div class="btn-row"><button class="btn ghost" data-action="close-ol">取消</button><button class="btn primary" data-action="toast|已保存">保存</button></div>`,
+  }),
+  'add-temp': () => dialog({
+    title: '添加临时成员',
+    msgLeft: true, msg: '临时成员不需要注册，仅用于占席位和记成绩，之后可以由本人认领。',
+    body: `<input class="input" placeholder="显示名，如：沫沫" style="margin-bottom:4px">`,
+    buttons: `<div class="btn-row"><button class="btn ghost" data-action="close-ol">取消</button><button class="btn primary" data-action="toast|已添加">添加</button></div>`,
+  }),
+  'remove-member': (name) => dialog({
+    title: '移除成员？',
+    msg: `确定移除成员 ${name}？该成员需要重新加入小组。`,
+    buttons: `<div class="btn-row"><button class="btn ghost" data-action="close-ol">取消</button><button class="btn danger-soft" data-action="toast|已移除">移除</button></div>`,
+  }),
+  'transfer-confirm': (name) => dialog({
+    title: '转让组主',
+    msg: `确定把组主转让给 ${name}？转让后你将成为普通成员。`,
+    buttons: `<div class="btn-row"><button class="btn ghost" data-action="close-ol">取消</button><button class="btn primary" data-action="toast|已转让">确定</button></div>`,
+  }),
+  'approve': (name) => dialog({
+    title: '通过申请？',
+    msg: `${name} 将成为小组成员，可以看到活动与战绩。`,
+    buttons: `<div class="btn-row"><button class="btn ghost" data-action="close-ol">取消</button><button class="btn primary" data-action="toast|已通过">通过</button></div>`,
+  }),
+  'reject': (name) => dialog({
+    title: '拒绝申请？',
+    msg: `拒绝后 ${name} 需要重新提交申请。`,
+    buttons: `<div class="btn-row"><button class="btn ghost" data-action="close-ol">取消</button><button class="btn danger-soft" data-action="toast|已拒绝">拒绝</button></div>`,
+  }),
+  /* 席位选人 */
+  'seat': (side) => sheet({
+    title: `选择成员 · ${side === 'a' ? 'A 方' : 'B 方'}`,
+    body: `
+      <p class="t3" style="margin:0 0 10px">仅显示已报名的有效成员</p>
+      ${MEMBERS.slice(0, 8).map(m => `
+        <button class="action-row" data-action="pick-seat|${m.name}">
+          ${avatar(m.name)}<span>${m.name}</span>
+          ${S.seats.a.includes(m.name) || S.seats.b.includes(m.name) ? '<span class="sub" style="margin-left:auto;color:var(--primary-dark)">当前</span>' : ''}
+        </button>`).join('')}
+      <button class="btn ghost" style="margin-top:14px" data-action="close-ol">取消</button>`,
+  }),
+  /* 训练 */
+  'leave-request': () => dialog({
+    title: '向教练请假',
+    msgLeft: true, msg: '请假只是通知教练，不会自动改动排期。',
+    body: `<textarea class="textarea" placeholder="说明原因（选填）" style="margin-bottom:4px"></textarea>`,
+    buttons: `<div class="btn-row"><button class="btn ghost" data-action="close-ol">取消</button><button class="btn primary" data-action="toast|已通知教练">提交</button></div>`,
+  }),
+  'cancel-training': () => dialog({
+    title: '取消这次排期？',
+    msg: '已出结果的场次会保留，其余场次作废。',
+    body: `<input class="input" placeholder="取消原因" style="margin-bottom:4px">`,
+    buttons: `<div class="btn-row"><button class="btn ghost" data-action="close-ol">再想想</button><button class="btn danger-soft" data-action="toast|排期已取消">取消排期</button></div>`,
+  }),
+  'list-add': () => sheet({
+    title: '要开始哪个？',
+    body: `
+      <button class="action-row" data-nav="create">＋ 创建小组<span class="sub" style="margin-left:auto">我来当组主</span></button>
+      <button class="action-row" data-nav="join">⊕ 加入小组<span class="sub" style="margin-left:auto">有小组号或二维码</span></button>
+      <button class="btn ghost" style="margin-top:14px" data-action="close-ol">取消</button>`,
+  }),
+};
+
+/* =========================================================
+ * 路由 & 交互
+ * ========================================================= */
+const NAV = [
+  ['入口与列表', [
+    ['home', '首页 · 小组区'],
+    ['home-empty', '首页 · 空状态'],
+    ['list', '我的小组'],
+    ['login', '未登录空状态'],
+  ]],
+  ['创建与加入', [
+    ['create', '创建小组'],
+    ['join', '加入小组'],
+  ]],
+  ['小组详情（熟人组）', [
+    ['detail', '概览'],
+    ['activities', '活动'],
+    ['records', '战绩'],
+    ['members', '成员'],
+    ['empty-states', '空状态合集'],
+  ]],
+  ['计分与赛果', [
+    ['start-match', '开始计分'],
+    ['result-entry', '赛果录入（补记）'],
+  ]],
+  ['训练组', [
+    ['training-coach', '教练视图 · 排期'],
+    ['training-publish', '发布排期（含冲突）'],
+    ['training-student', '学员视图'],
+  ]],
+  ['分享', [
+    ['qr', '小组二维码'],
+  ]],
+];
+
+function renderNav() {
+  let i = 0;
+  document.getElementById('navList').innerHTML = NAV.map(([label, items]) => `
+    <div class="nav-group">
+      <p class="nav-label">${label}</p>
+      ${items.map(([id, t]) => {
+        i++;
+        const meta = R[id];
+        return `<button class="nav-btn ${S.screen===id?'active':''}" data-nav="${id}">
+          <span class="idx">${String(i).padStart(2,'0')}</span>${t}</button>`;
+      }).join('')}
+    </div>`).join('');
+}
+
+function render() {
+  const meta = R[S.screen];
+  document.getElementById('stageTitle').textContent = meta.title;
+  document.getElementById('stageSub').textContent = meta.sub;
+  document.getElementById('noteBody').textContent = meta.note;
+  document.getElementById('appScreen').innerHTML = meta.render() + (S.overlay || '') + (S.toast ? `<div class="toast">${S.toast}</div>` : '');
+  renderNav();
+}
+
+function show(id) {
+  S.screen = id; S.overlay = null;
+  render();
+}
+function openOverlay(html) { S.overlay = html; render(); }
+function closeOverlay() { S.overlay = null; render(); }
+function toast(msg) {
+  S.toast = msg; S.overlay = null; render();
+  clearTimeout(S._tt);
+  S._tt = setTimeout(() => { S.toast = null; render(); }, 1800);
+}
+
+/* 返回逻辑：返回上一个“逻辑上级”页面 */
+const BACK = {
+  list: 'home', create: 'home', join: 'home', detail: 'list', qr: 'detail',
+  'start-match': 'detail', 'result-entry': 'detail',
+  'training-coach': 'list', 'training-publish': 'training-coach', 'training-student': 'training-coach',
+  login: 'home',
+};
+
+document.addEventListener('click', (e) => {
+  const navEl = e.target.closest('[data-nav]');
+  if (navEl) { e.stopPropagation(); show(navEl.dataset.nav); return; }
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const [act, arg] = el.dataset.action.split('|');
+
+  if (act === 'back') { show(BACK[S.screen] || 'home'); return; }
+  if (act === 'close-ol') {
+    /* 点遮罩关闭，点内容不关闭（内容里 stopPropagation） */
+    if (el.classList.contains('overlay') || el.tagName === 'BUTTON') closeOverlay();
+    return;
+  }
+  if (act === 'toast') { toast(arg); return; }
+  if (act === 'tab') { S.detailTab = arg; show(arg); return; }
+  if (act === 'fmt') { S.recordsFormat = arg; render(); return; }
+
+  /* 弹层类 */
+  if (act === 'group-menu') return openOverlay(D['group-menu']());
+  if (act === 'edit-info') return openOverlay(D['edit-info']());
+  if (act === 'archive') return openOverlay(D['archive']());
+  if (act === 'leave-group') return openOverlay(D['leave-group']());
+  if (act === 'transfer') return openOverlay(D['transfer']());
+  if (act === 'transfer-confirm') return openOverlay(D['transfer-confirm'](arg));
+  if (act === 'activity') { S.activityId = +arg; return openOverlay(D['activity'](+arg)); }
+  if (act === 'create-activity') return openOverlay(D['create-activity']());
+  if (act === 'cancel-activity') return openOverlay(D['cancel-activity']());
+  if (act === 'confirm-result') return openOverlay(D['confirm-result'](arg));
+  if (act === 'void-result') return openOverlay(D['void-result'](arg));
+  if (act === 'member') return openOverlay(D['member'](arg));
+  if (act === 'rename') return openOverlay(D['rename'](arg));
+  if (act === 'add-temp') return openOverlay(D['add-temp']());
+  if (act === 'remove-member') return openOverlay(D['remove-member'](arg));
+  if (act === 'approve') return openOverlay(D['approve'](arg));
+  if (act === 'reject') return openOverlay(D['reject'](arg));
+  if (act === 'seat') { S.seatTarget = arg; return openOverlay(D['seat'](arg)); }
+  if (act === 'leave-request') return openOverlay(D['leave-request']());
+  if (act === 'cancel-training') return openOverlay(D['cancel-training']());
+  if (act === 'list-add') return openOverlay(D['list-add']());
+  if (act === 'archived-group') return toast('已归档小组为只读');
+
+  /* 状态流转 */
+  if (act === 'join-scan') {
+    /* 原型：模拟扫到队友二维码 → 识别出小组号并直接查询 */
+    S.lastNo = '823456'; S.joinStep = 'preview'; S.joinTarget = 'peer';
+    render(); toast('已识别小组二维码');
+    return;
+  }
+  if (act === 'join-preview') {
+    const v = ((document.getElementById('groupNoInput') || {}).value || '').trim();
+    S.lastNo = v;
+    if (v === '823456')      { S.joinStep = 'preview'; S.joinTarget = 'peer'; }
+    else if (v === '901217') { S.joinStep = 'preview'; S.joinTarget = 'coach'; }
+    else if (v === '555555') { S.joinStep = 'preview'; S.joinTarget = 'full'; }
+    else                     { S.joinStep = 'notfound'; }
+    render(); return;
+  }
+  if (act === 'join-done') { toast('已加入'); setTimeout(() => show('detail'), 700); return; }
+  if (act === 'join-apply-done') { toast('申请已提交，等待审批'); return; }
+  if (act === 'create-done') { toast('小组已创建'); setTimeout(() => show('detail'), 700); return; }
+  if (act === 'pick-seat') {
+    const side = S.seatTarget || 'a';
+    const other = side === 'a' ? 'b' : 'a';
+    S.seats[other] = S.seats[other].filter(n => n !== arg);
+    S.seats[side] = [arg];
+    closeOverlay(); toast(`${arg} 已加入 ${side === 'a' ? 'A' : 'B'} 方`); return;
+  }
+  if (act === 'begin-match') {
+    if (!S.seats.a.length || !S.seats.b.length) return toast('请为双方选择参赛成员');
+    return toast('开局成功，跳转计分板（原型略）');
+  }
+  if (act === 'submit-result') { toast('赛果已提交，等待对方确认'); setTimeout(() => show('records'), 800); return; }
+  if (act === 'retry-upload') return toast('同步中… 已上传 1 条赛果');
+});
+
+render();
+</script>
+</body>
+</html>

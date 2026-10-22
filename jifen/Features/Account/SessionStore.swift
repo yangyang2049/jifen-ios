@@ -349,6 +349,7 @@ final class SessionStore {
     }
 
     func logout() async {
+        GroupPushManager.shared.sessionDidChange(userID: nil)
         sessionGeneration &+= 1
         let generation = sessionGeneration
         let revision = await tokenStore.authSessionRevision()
@@ -368,6 +369,7 @@ final class SessionStore {
         state = .signedOut
         // 登出即终止云端同步会话：发送 LEAVE、断开 WebSocket 并禁止自动重连（对齐安卓端会话随登出终止）。
         CloudSyncSession.shared.end(reason: "logout")
+        GroupPushManager.shared.sessionDidChange(userID: nil)
         GroupStore.shared.sessionDidChange(userID: nil)
         await CommonDataCloudSyncManager.shared.sessionDidChange(userId: nil)
     }
@@ -389,6 +391,7 @@ final class SessionStore {
         lastError = APIClientError.sessionExpired.localizedDescription
         // 凭证已失效（401），本地直接断开云端同步 WebSocket，不再发送 LEAVE。
         CloudSyncSession.shared.endFromServer()
+        GroupPushManager.shared.sessionDidChange(userID: nil)
         GroupStore.shared.sessionDidChange(userID: nil)
         await CommonDataCloudSyncManager.shared.sessionDidChange(userId: nil)
     }
@@ -498,7 +501,8 @@ final class SessionStore {
             return
         }
         GroupStore.shared.sessionDidChange(userID: userId)
-        Task { await GroupStore.shared.refresh() }
+        GroupPushManager.shared.sessionDidChange(userID: userId)
+        Task { await GroupStore.shared.refresh(); GroupPushManager.shared.synchronize() }
         async let commonDataSync: Void = CommonDataCloudSyncManager.shared.sessionDidChange(
             userId: userId
         )

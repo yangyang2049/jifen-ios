@@ -115,7 +115,7 @@ struct SchedulePage: View {
                                 Text(NSLocalizedString("schedule_create_title", value: "预约新球局", comment: ""))
                             }
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Theme.textOnPrimary)
                             .frame(maxWidth: .infinity)
                             .frame(height: 48)
                             .background(Theme.accentColor)

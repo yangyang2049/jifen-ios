@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小组审批条方案对比 · 2026-10-15</title>
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --card: #F6F7F9;
+    --control: #F2F4F7;
+    --divider: #E5E7EB;
+    --text-1: #111827;
+    --text-2: #5B6472;
+    --text-3: #647084;
+    --primary: #4CAF50;
+    --primary-press: #43A047;
+    --primary-soft: #E6F4E7;
+    --orange: #F59E0B;
+    --danger: #C62828;
+    --danger-soft: #FDECEC;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+    background: #EEF1F4;
+    color: var(--text-1);
+    padding: 32px 16px 64px;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .sub { font-size: 13px; color: var(--text-3); margin-bottom: 28px; line-height: 1.6; }
+
+  /* ---------- 方案区块 ---------- */
+  .scheme {
+    background: var(--bg);
+    border: 1px solid var(--divider);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+  .scheme-note { flex: 1; min-width: 220px; }
+  .scheme-tag {
+    display: inline-block; font-size: 12px; font-weight: 700;
+    padding: 3px 10px; border-radius: 999px; margin-bottom: 8px;
+  }
+  .tag-ref   { background: #EEF1F4; color: var(--text-2); }
+  .tag-rec   { background: var(--primary-soft); color: var(--primary-press); }
+  .tag-alt   { background: #EAF2FE; color: #2563EB; }
+  .scheme-note h2 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .scheme-note p { font-size: 13px; color: var(--text-2); line-height: 1.7; margin-bottom: 6px; }
+  .pros-cons { font-size: 12.5px; line-height: 1.8; margin-top: 10px; }
+  .pros-cons b.good { color: #1B7F24; font-weight: 600; }
+  .pros-cons b.bad  { color: var(--danger); font-weight: 600; }
+
+  /* ---------- 手机画布 ---------- */
+  .phone {
+    width: 360px; flex-shrink: 0;
+    background: var(--bg);
+    border: 1px solid var(--divider);
+    border-radius: 20px;
+    padding: 14px 14px 18px;
+  }
+  .phone-title {
+    font-size: 12px; color: var(--text-3); text-align: center; margin-bottom: 12px;
+  }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--text-2); margin: 2px 2px 8px; }
+  .section-title small { font-weight: 400; color: var(--text-3); margin-left: 6px; font-size: 11px; }
+
+  /* ---------- 审批卡通用 ---------- */
+  .app-card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 8px;
+    margin-bottom: 10px;
+  }
+  .row { display: flex; align-items: center; }
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: #DCE3EA; color: var(--text-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; flex-shrink: 0;
+  }
+  .col-text { flex: 1; min-width: 0; margin: 0 8px; }
+  .name {
+    font-size: 14px; font-weight: 600; color: var(--text-1);
+    line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .meta {
+    font-size: 11px; color: var(--text-3); line-height: 16px;
+    margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .divider { height: 1px; background: var(--divider); margin: 4px 2px; }
+
+  /* ---------- 现状参照 ---------- */
+  .ref-meta { line-height: 19px; }   /* 模拟安卓默认行高未锁定时的偏大空隙 */
+  .pill {
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+    padding: 6px 12px; border-radius: 999px;
+    white-space: nowrap; cursor: pointer; user-select: none;
+  }
+  .pill-primary { background: var(--primary); color: #fff; }
+  .pill-plain { background: #fff; color: var(--text-2); border: 1px solid var(--divider); }
+  .ref-btns { display: flex; flex-shrink: 0; }
+  .ref-btns .pill-plain { margin-left: 4px; }
+
+  /* ---------- 方案 A：勾 / 叉图标钮 ---------- */
+  .icon-btn {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; user-select: none; flex-shrink: 0;
+  }
+  .icon-btn svg { display: block; }
+  .btn-approve { background: var(--primary); }
+  .btn-reject { background: #fff; border: 1px solid var(--divider); }
+  .btn-reject svg path { stroke: var(--text-2); }
+
+  /* ---------- 方案 B：通过 + 下拉 ---------- */
+  .dropdown-wrap { position: relative; flex-shrink: 0; display: flex; align-items: center; gap: 4px; }
+  .caret-btn {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #fff; border: 1px solid var(--divider);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .menu {
+    position: absolute; top: 34px; right: 0; z-index: 20;
+    background: #fff; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 6px 24px rgba(17, 24, 39, .14);
+    min-width: 128px; display: none;
+  }
+  .menu.open { display: block; }
+  .menu-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 11px 14px; font-size: 13px; color: var(--text-1); cursor: pointer;
+  }
+  .menu-item:active { background: var(--control); }
+  .menu-item.danger { color: var(--danger); }
+  .menu-item + .menu-item { border-top: 1px solid #F0F2F5; }
+
+  /* ---------- 方案 C：右侧纵向 ---------- */
+  .stack { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+  .stack .pill { padding: 4px 12px; font-size: 12px; }
+
+  /* ---------- 方案 D：两段式 ---------- */
+  .msg { font-size: 13px; color: var(--text-2); line-height: 19px; margin: 6px 2px 0 46px; }
+  .time-inline { font-size: 11px; color: var(--text-3); flex-shrink: 0; }
+  .action-bar { display: flex; gap: 8px; margin: 10px 2px 2px 46px; }
+  .action-bar .pill { flex: 1; justify-content: center; padding: 8px 0; }
+
+  /* ---------- 方案 E：紧凑图标 pill ---------- */
+  .pill-compact { padding: 5px 10px; font-size: 12px; }
+  .pill-compact svg { margin-right: 3px; vertical-align: -2px; }
+
+  /* ---------- 对比表 ---------- */
+  .compare { background: var(--bg); border: 1px solid var(--divider); border-radius: 16px; padding: 20px; }
+  .compare h2 { font-size: 16px; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #F0F2F5; line-height: 1.5; }
+  th { color: var(--text-3); font-weight: 600; font-size: 12px; background: #FAFBFC; }
+  td { color: var(--text-2); }
+  td:first-child { font-weight: 600; color: var(--text-1); white-space: nowrap; }
+  .yes { color: #1B7F24; font-weight: 600; }
+  .no  { color: var(--danger); font-weight: 600; }
+  .mid { color: #B45309; font-weight: 600; }
+  .final {
+    margin-top: 14px; background: var(--primary-soft); border-radius: 12px;
+    padding: 14px 16px; font-size: 13.5px; line-height: 1.8; color: #14532D;
+  }
+  .final b { font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>小组审批条 · 5 个方案对比</h1>
+  <p class="sub">场景：成员页签顶部「加入申请」审批卡（管理员视角，通常同时 1–3 条）。均为浅色模式，尺寸按 App 现有 token 1px≈1dp 还原。交互 demo：方案 B 的下拉可以点。</p>
+
+  <!-- ========== 现状参照 ========== -->
+  <div class="scheme">
+    <div class="phone">
+      <div class="phone-title">现状（参照）：两 pill 并排 + 文字行高未锁定</div>
+      <div class="section-title">加入申请 <small>2 条待审批</small></div>
+      <div class="app-card">
+        <div class="row">
+          <div class="avatar">李</div>
+          <div class="col-text">
+            <div class="name">李好和</div>
+            <div class="meta ref-meta">想加入打羽毛球 · 2026-10-15 12:0</div>
+          </div>
+          <div class="ref-btns">
+            <div class="pill pill-primary">通过</div>
+            <div class="pill pill-plain">拒绝</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+          <div class="avatar">王</div>
+          <div class="col-text">
+            <div class="name">王小鹏</div>
+            <div class="meta ref-meta">朋友介绍来的 · 2026-10-15 11:4</div>
+          </div>
+          <div class="ref-btns">
+            <div class="pill pill-primary">通过</div>
+            <div class="pill pill-plain">拒绝</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="scheme-note">
+      <span class="scheme-tag tag-ref">现状</span>
+      <h2>两个文字 pill 并排</h2>
+      <p>问题复现：<b>①</b> 副标题 11sp 未锁 lineHeight（安卓默认 fontPadding），两行之间空隙偏大；<b>②</b> 右侧「通过+拒绝」固定占约 130dp，长名字/长留言被压到只剩一行省略号，视觉上很挤。</p>
+      <div class="pros-cons">
+        <b class="bad">缺点</b>：按钮区挤压信息区；两行文字空隙不紧凑<br>
+        <b class="good">优点</b>：单条最矮，列表密度最高
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 方案 A ========== -->
+  <div class="scheme">
+    <div class="phone">
+      <div class="phone-title">方案 A：✓ / ✗ 圆形图标钮</div>
+      <div class="section-title">加入申请 <small>2 条待审批</small></div>
+      <div class="app-card">
+        <div class="row">
+          <div class="avatar">李</div>
+          <div class="col-text">
+            <div class="name">李好和</div>
+            <div class="meta">想加入打羽毛球 · 2026-10-15 12:03</div>
+          </div>
+          <div class="icon-btn btn-approve" title="通过">
+            <svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 8.5L6.5 12L13 4.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+          </div>
+          <div class="icon-btn btn-reject" style="margin-left:8px" title="拒绝">
+            <svg width="14" height="14" viewBox="0 0 14 14"><path d="M3.5 3.5L10.5 10.5M10.5 3.5L3.5 10.5" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+          <div class="avatar">王</div>
+          <div class="col-text">
+            <div class="name">王小鹏</div>
+            <div class="meta">朋友介绍来的 · 2026-10-15 11:47</div>
+          </div>
+          <div class="icon-btn btn-approve" title="通过">
+            <svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 8.5L6.5 12L13 4.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+          </div>
+          <div class="icon-btn btn-reject" style="margin-left:8px" title="拒绝">
+            <svg width="14" height="14" viewBox="0 0 14 14"><path d="M3.5 3.5L10.5 10.5M10.5 3.5L3.5 10.5" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="scheme-note">
+      <span class="scheme-tag tag-alt">你提出的方案 ①</span>
+      <h2>A · 勾 / 叉图标按钮</h2>
+      <p>右侧从两个文字 pill 换成 34dp 圆形图标钮（✓ 绿底、✗ 白底描边），右侧占地从 ~130dp 缩到 ~76dp，信息区立刻宽出 50dp+。行高锁定 20/16，两行间隙收紧。</p>
+      <div class="pros-cons">
+        <b class="good">优点</b>：单行结构不变、最省空间、扫读快；✓✗ 语义全球通用<br>
+        <b class="bad">缺点</b>：无文字，首次使用者需要反应一下；有二次确认兜底，误触风险可控
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 方案 B ========== -->
+  <div class="scheme">
+    <div class="phone">
+      <div class="phone-title">方案 B：「通过」主按钮 + 下拉（点 ▾ 拒绝）</div>
+      <div class="section-title">加入申请 <small>2 条待审批</small></div>
+      <div class="app-card">
+        <div class="row">
+          <div class="avatar">李</div>
+          <div class="col-text">
+            <div class="name">李好和</div>
+            <div class="meta">想加入打羽毛球 · 2026-10-15 12:03</div>
+          </div>
+          <div class="dropdown-wrap">
+            <div class="pill pill-primary">通过</div>
+            <div class="caret-btn" onclick="toggleMenu(this)">
+              <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5L8 3.5" stroke="#5B6472" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+            </div>
+            <div class="menu">
+              <div class="menu-item danger" onclick="closeMenus()">
+                <svg width="13" height="13" viewBox="0 0 14 14"><path d="M3.5 3.5L10.5 10.5M10.5 3.5L3.5 10.5" stroke="#C62828" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+                拒绝申请
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+          <div class="avatar">王</div>
+          <div class="col-text">
+            <div class="name">王小鹏</div>
+            <div class="meta">朋友介绍来的 · 2026-10-15 11:47</div>
+          </div>
+          <div class="dropdown-wrap">
+            <div class="pill pill-primary">通过</div>
+            <div class="caret-btn" onclick="toggleMenu(this)">
+              <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5L8 3.5" stroke="#5B6472" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+            </div>
+            <div class="menu">
+              <div class="menu-item danger" onclick="closeMenus()">
+                <svg width="13" height="13" viewBox="0 0 14 14"><path d="M3.5 3.5L10.5 10.5M10.5 3.5L3.5 10.5" stroke="#C62828" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+                拒绝申请
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="scheme-note">
+      <span class="scheme-tag tag-alt">你提出的方案 ②</span>
+      <h2>B · 通过 + 下拉箭头</h2>
+      <p>「通过」保持显性主按钮，「拒绝」收进 ▾ 菜单（点旁边的 caret 展开）。适合未来还要挂更多动作（如「查看资料」）的场景。</p>
+      <div class="pros-cons">
+        <b class="good">优点</b>：主次分明、扩展性最好<br>
+        <b class="bad">缺点</b>：拒绝是<b>非低频动作</b>，多一层点击；菜单浮层在列表滚动时容易误关；两端（安卓/鸿蒙）都要补浮层组件
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 方案 C ========== -->
+  <div class="scheme">
+    <div class="phone">
+      <div class="phone-title">方案 C：通过 / 拒绝 右侧纵向排列</div>
+      <div class="section-title">加入申请 <small>2 条待审批</small></div>
+      <div class="app-card">
+        <div class="row">
+          <div class="avatar">李</div>
+          <div class="col-text">
+            <div class="name">李好和</div>
+            <div class="meta">想加入打羽毛球 · 2026-10-15 12:03</div>
+          </div>
+          <div class="stack">
+            <div class="pill pill-primary">通过</div>
+            <div class="pill pill-plain">拒绝</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+          <div class="avatar">王</div>
+          <div class="col-text">
+            <div class="name">王小鹏</div>
+            <div class="meta">朋友介绍来的 · 2026-10-15 11:47</div>
+          </div>
+          <div class="stack">
+            <div class="pill pill-primary">通过</div>
+            <div class="pill pill-plain">拒绝</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="scheme-note">
+      <span class="scheme-tag tag-alt">你提出的方案 ③</span>
+      <h2>C · 纵向排列双 pill</h2>
+      <p>右侧竖排两个小 pill（缩小 padding），单条高度约 +14dp。文字区宽度与 A 相同。</p>
+      <div class="pros-cons">
+        <b class="good">优点</b>：保留全部文字语义，信息区也宽了<br>
+        <b class="bad">缺点</b>：两行按钮和左侧两行文字互相「打架」，对不齐显得碎；列表密度下降后反而不如 A 紧凑
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 方案 D ========== -->
+  <div class="scheme">
+    <div class="phone">
+      <div class="phone-title">方案 D：两段式（信息行 + 底部等宽双按钮）</div>
+      <div class="section-title">加入申请 <small>2 条待审批</small></div>
+      <div class="app-card">
+        <div class="row">
+          <div class="avatar">李</div>
+          <div class="col-text">
+            <div class="name">李好和</div>
+          </div>
+          <div class="time-inline">2026-10-15 12:03</div>
+        </div>
+        <div class="msg">想加入打羽毛球，周六常一起约</div>
+        <div class="action-bar">
+          <div class="pill pill-plain">拒绝</div>
+          <div class="pill pill-primary">通过</div>
+        </div>
+        <div class="divider" style="margin-top:10px"></div>
+        <div class="row" style="padding-top:8px">
+          <div class="avatar">王</div>
+          <div class="col-text">
+            <div class="name">王小鹏</div>
+          </div>
+          <div class="time-inline">2026-10-15 11:47</div>
+        </div>
+        <div class="msg">朋友介绍来的</div>
+        <div class="action-bar">
+          <div class="pill pill-plain">拒绝</div>
+          <div class="pill pill-primary">通过</div>
+        </div>
+      </div>
+    </div>
+    <div class="scheme-note">
+      <span class="scheme-tag tag-rec">推荐 ⭐</span>
+      <h2>D · 两段式（微信 / 钉钉同款结构）</h2>
+      <p>第一行：头像 + 名字 + 右侧时间；第二行：申请留言完整展示（可换行，这是现状压成一行省略号损失最大的信息）；第三行：「拒绝」描边 +「通过」绿色等宽胶囊按钮，触达面积最大。留言为空时该行自动隐藏。</p>
+      <div class="pros-cons">
+        <b class="good">优点</b>：信息最完整（留言看得全）；按钮大不易误触；行距全部锁定；微信/钉钉审批都是这个结构，用户零学习成本；三端好对齐<br>
+        <b class="bad">缺点</b>：单条高约 96dp（现状 ~54dp），但审批列表通常只有 1–3 条，高度不是稀缺资源
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 方案 E ========== -->
+  <div class="scheme">
+    <div class="phone">
+      <div class="phone-title">方案 E：保持单行，pill 加勾叉图标 + 行高收紧</div>
+      <div class="section-title">加入申请 <small>2 条待审批</small></div>
+      <div class="app-card">
+        <div class="row">
+          <div class="avatar">李</div>
+          <div class="col-text">
+            <div class="name">李好和</div>
+            <div class="meta">想加入打羽毛球 · 2026-10-15 12:03</div>
+          </div>
+          <div class="pill pill-primary pill-compact">
+            <svg width="11" height="11" viewBox="0 0 16 16"><path d="M3 8.5L6.5 12L13 4.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>通过
+          </div>
+          <div class="pill pill-plain pill-compact" style="margin-left:6px">
+            <svg width="10" height="10" viewBox="0 0 14 14"><path d="M3.5 3.5L10.5 10.5M10.5 3.5L3.5 10.5" stroke="#5B6472" stroke-width="2" stroke-linecap="round" fill="none"/></svg>拒绝
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+          <div class="avatar">王</div>
+          <div class="col-text">
+            <div class="name">王小鹏</div>
+            <div class="meta">朋友介绍来的 · 2026-10-15 11:47</div>
+          </div>
+          <div class="pill pill-primary pill-compact">
+            <svg width="11" height="11" viewBox="0 0 16 16"><path d="M3 8.5L6.5 12L13 4.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>通过
+          </div>
+          <div class="pill pill-plain pill-compact" style="margin-left:6px">
+            <svg width="10" height="10" viewBox="0 0 14 14"><path d="M3.5 3.5L10.5 10.5M10.5 3.5L3.5 10.5" stroke="#5B6472" stroke-width="2" stroke-linecap="round" fill="none"/></svg>拒绝
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="scheme-note">
+      <span class="scheme-tag tag-alt">补充方案 ④（改动最小）</span>
+      <h2>E · 紧凑修正版（现状微调）</h2>
+      <p>结构完全不动，只做三件事：① 标题/副标题行高锁定 20/16（治「两行空隙大」）；② pill 内加 ✓✗ 小图标、padding 收到 5×10（治「挤」，右侧 ~118dp）；③ 通过在左、拒绝在右的顺序不变。</p>
+      <div class="pros-cons">
+        <b class="good">优点</b>：三端改动最小，风格不变；图标辅助扫读<br>
+        <b class="bad">缺点</b>：挤压本质没解决，长留言仍只有一行省略号
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 对比表 ========== -->
+  <div class="compare">
+    <h2>方案对比</h2>
+    <table>
+      <tr><th>方案</th><th>信息区宽度</th><th>留言展示</th><th>单条高度</th><th>操作步数</th><th>两端改造量</th><th>综合</th></tr>
+      <tr><td>现状</td><td>被压到 ~150dp</td><td class="no">一行省略</td><td>~54dp（最低）</td><td>1 步</td><td>—</td><td>挤</td></tr>
+      <tr><td>A 勾叉图标</td><td>宽出 ~50dp</td><td class="mid">仍一行省略</td><td>~54dp</td><td>1 步</td><td>小</td><td>紧凑场景首选</td></tr>
+      <tr><td>B 通过+下拉</td><td>宽出 ~40dp</td><td class="mid">仍一行省略</td><td>~54dp</td><td class="no">拒绝 2 步</td><td class="no">要补浮层</td><td>扩展性好但过度设计</td></tr>
+      <tr><td>C 纵向双 pill</td><td>宽出 ~50dp</td><td class="mid">仍一行省略</td><td>~68dp</td><td>1 步</td><td>小</td><td class="no">按钮与文字对不齐</td></tr>
+      <tr><td>D 两段式 ⭐</td><td class="yes">独占整行</td><td class="yes">完整多行</td><td>~96dp（最高）</td><td>1 步</td><td>中（复用现有 pill）</td><td class="yes">推荐</td></tr>
+      <tr><td>E 紧凑修正</td><td>宽出 ~10dp</td><td class="no">一行省略</td><td>~54dp</td><td>1 步</td><td class="yes">最小（只调样式）</td><td>保底方案</td></tr>
+    </table>
+    <div class="final">
+      <b>推荐：方案 D（两段式）</b>。理由：①「挤」的根因是审批动作和申请信息抢同一行，D 把两者分层，一次治本；② 申请留言是审批的核心依据，现在被压成一行省略号是最大的信息损失，D 里完整可读、可换行；③ 拒绝/通过等宽大按钮 + 既有二次确认，误触风险最低；④ 微信、钉钉的入群/加好友审批都是这个结构，用户零学习成本。<br>
+      <b>备选：方案 A（勾叉图标）</b>——如果之后出现「一次十几条申请」的高密度场景，再用 A 替换 D 也只是换一个组件内部布局的事。<b>不建议 B</b>：只有两个动作却引入浮层菜单，属于过度设计。
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleMenu(btn) {
+  const menu = btn.nextElementSibling;
+  const wasOpen = menu.classList.contains('open');
+  closeMenus();
+  if (!wasOpen) menu.classList.add('open');
+}
+function closeMenus() {
+  document.querySelectorAll('.menu.open').forEach(m => m.classList.remove('open'));
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.dropdown-wrap')) closeMenus();
+});
+</script>
+</body>
+</html>

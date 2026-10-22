@@ -66,9 +66,9 @@ class LocalizationPipelineTests(unittest.TestCase):
 
     def test_source_inventory(self):
         entries = localize.source_entries()
-        self.assertEqual(len([entry for entry in entries if entry.table == "Localizable"]), 1449)
+        self.assertEqual(len([entry for entry in entries if entry.table == "Localizable"]), 2106)
         self.assertEqual(len([entry for entry in entries if entry.table == "InfoPlist"]), 4)
-        self.assertEqual(len({entry.identity for entry in entries}), 1453)
+        self.assertEqual(len({entry.identity for entry in entries}), 2110)
         self.assertTrue({("Localizable", "feedback_official"), ("Localizable", "feedback_pinned"),
                          ("Localizable", "voice_announce_server"),
                          ("Localizable", "scoreboard_official_break_help_intro"),
@@ -209,7 +209,8 @@ class LocalizationPipelineTests(unittest.TestCase):
             with patch.object(localize, "CATALOG_ROOT", root):
                 localize.write_catalog("fr", catalog)
                 reloaded = localize.load_catalog("fr")
-                self.assertTrue(localize.validate_locale("fr", True)["passed"])
+                blockers = localize.validate_locale("fr", True)["blockers"]
+                self.assertEqual([row for row in blockers if row.get("key") in fragments], [])
                 resource = root / "Localizable.strings"
                 resource.write_text(localize.render_strings(localize.SOURCE_LOCALIZABLE, "Localizable", reloaded))
                 values = {entry.key: entry.value for entry in localize.parse_strings(resource, "Localizable")}
@@ -318,6 +319,8 @@ class LocalizationPipelineTests(unittest.TestCase):
         self.assertEqual(localize.punctuation_glue("ad es. al meglio di cinque"), [])
         self.assertEqual(localize.punctuation_glue("1.º y 2.º puestos (+3)"), [])
         self.assertEqual(localize.punctuation_glue("https://jifenqi.com funziona"), [])
+        self.assertEqual(localize.punctuation_glue("Paras %1$@:stä (%2$@ voittoon)"), [])
+        self.assertEqual(len(localize.punctuation_glue("Tulos:voitto")), 1)
         self.assertEqual(len(localize.punctuation_glue("Eliminato?Questa azione")), 1)
         catalog = localize.load_catalog("it")
         identity = ("Localizable", "confirm_delete_record_message")

@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>小组活动与直接排赛 Demo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page:#eef2f1; --panel:rgba(255,255,255,.84); --phone:#fff; --card:#f5f6f5;
+      --text:#151a17; --secondary:#606963; --tertiary:#89918c; --divider:#e1e5e2;
+      --green:#17873b; --green-strong:#0f7330; --green-soft:#e7f5ea; --orange:#9a6217;
+      --orange-soft:#faeedb; --blue:#315f9f; --blue-soft:#e9f0fa; --danger:#a73535;
+      --shadow:0 30px 80px rgba(24,38,31,.15),0 3px 12px rgba(24,38,31,.08);
+      --phone-width:390px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);background:radial-gradient(circle at 12% 4%,rgba(23,135,59,.11),transparent 30rem),radial-gradient(circle at 89% 94%,rgba(49,95,159,.08),transparent 34rem),var(--page)}
+    button{font:inherit}
+    .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;padding:28px 32px 18px}
+    .eyebrow{color:var(--green);font-size:12px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
+    h1{margin:8px 0 6px;font-size:clamp(24px,3vw,38px);letter-spacing:-.04em}
+    .intro{margin:0;color:var(--secondary);max-width:760px;line-height:1.65}
+    .toolbar{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}.toolbar-group{display:flex;align-items:center;gap:5px;padding:3px;border-radius:999px;background:rgba(255,255,255,.38)}.toolbar-label{padding:0 5px;color:var(--tertiary);font-size:11px;font-weight:750}
+    .tool,.nav-button{border:1px solid rgba(17,24,39,.1);background:rgba(255,255,255,.76);color:var(--secondary);border-radius:999px;padding:9px 13px;cursor:pointer;transition:.16s ease}
+    .tool:hover,.nav-button:hover{transform:translateY(-1px);border-color:rgba(23,135,59,.34)}
+    .tool.on,.nav-button.on{color:var(--green);background:var(--green-soft);border-color:rgba(23,135,59,.23);font-weight:800}
+    .workspace{display:grid;grid-template-columns:minmax(225px,285px) minmax(360px,1fr) minmax(255px,325px);align-items:start;gap:24px;padding:12px 32px 42px;max-width:1450px;margin:0 auto}
+    .sidebar,.notes{position:sticky;top:18px;padding:18px;border:1px solid rgba(255,255,255,.8);border-radius:22px;background:var(--panel);backdrop-filter:blur(20px);box-shadow:0 14px 38px rgba(25,38,32,.07)}
+    .sidebar h2,.notes h2{margin:0 0 14px;font-size:15px}
+    .nav-button{width:100%;display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:center;text-align:left;border-radius:16px;margin-top:8px;padding:11px}
+    .nav-button .number{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#e8ede9;color:var(--text);font-size:12px;font-weight:900}
+    .nav-button.on .number{color:#fff;background:var(--green)}
+    .nav-button strong,.nav-button small{display:block}.nav-button strong{color:var(--text);font-size:13px}.nav-button small{margin-top:3px;color:var(--tertiary);font-size:11px;line-height:1.35}
+    .side-caption{margin:16px 2px 0;color:var(--secondary);font-size:12px;line-height:1.6}
+    .stage{min-width:0;display:grid;place-items:start center}
+    .phone{width:min(100%,var(--phone-width));height:790px;overflow:hidden;background:var(--phone);border:8px solid #202522;border-radius:38px;box-shadow:var(--shadow);position:relative;transition:width .2s ease,background .2s ease}
+    .status{display:flex;justify-content:space-between;padding:12px 20px 6px;font-size:11px;font-weight:750}
+    .appbar{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;padding:6px 12px 12px}
+    .appbar h2{margin:0;text-align:center;font-size:18px;letter-spacing:-.02em}
+    .icon-button{width:40px;height:40px;display:grid;place-items:center;border:0;border-radius:20px;color:var(--text);background:transparent;cursor:pointer}
+    .icon-button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .tabs{margin:0 16px 12px;padding:3px;display:grid;grid-template-columns:repeat(4,1fr);background:var(--card);border-radius:14px}
+    .tabs button{position:relative;border:0;background:transparent;padding:9px 2px;color:var(--secondary);text-align:center;font-size:12px;border-radius:11px;cursor:pointer}
+    .tabs button.active{background:var(--phone);color:var(--text);font-weight:780;box-shadow:0 2px 7px rgba(20,31,26,.09)}
+    .tabs button.active::after{content:"";position:absolute;left:50%;bottom:3px;width:13px;height:2px;border-radius:2px;background:var(--green);transform:translateX(-50%)}
+    .screen{height:640px;display:flex;flex-direction:column}
+    .content{flex:1;min-height:0;overflow:auto;padding:3px 16px 24px;scrollbar-width:none}.content::-webkit-scrollbar{display:none}
+    .hero,.card,.schedule-card{background:var(--card);border-radius:16px;padding:14px}
+    .hero{display:flex;align-items:center;gap:12px}
+    .sport{width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:var(--green-soft);font-size:23px}
+    .grow{min-width:0;flex:1}.hero h3,.card h3{margin:0;font-size:15px}.sub{margin-top:4px;color:var(--tertiary);font-size:11px;line-height:1.45}
+    .section-head{display:flex;align-items:center;margin:17px 2px 8px;gap:8px}.section-head h3{margin:0;font-size:14px}.section-head::before{content:"";width:3px;height:14px;border-radius:3px;background:var(--green)}
+    .arrow{margin-left:auto;color:var(--tertiary)}
+    .meta-row,.title-row{display:flex;align-items:center;gap:7px}.title-row h3{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.meta-row{margin-top:8px;color:var(--secondary);font-size:11px}
+    .chip{display:inline-flex;align-items:center;padding:4px 7px;border-radius:999px;background:#e6eae7;color:var(--secondary);font-size:10px;font-weight:800;white-space:nowrap}
+    .chip.green{background:var(--green-soft);color:var(--green-strong)}.chip.orange{background:var(--orange-soft);color:var(--orange)}.chip.blue{background:var(--blue-soft);color:var(--blue)}
+    .score{margin-top:12px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;text-align:center;font-size:13px}.score b{font-size:22px}
+    .actionbar{flex:0 0 auto;display:flex;gap:10px;padding:10px 16px 14px;border-top:1px solid var(--divider);background:var(--phone)}
+    .button{min-height:48px;border:1px solid var(--divider);border-radius:13px;background:var(--phone);color:var(--text);font-weight:780;cursor:pointer;padding:10px 13px}.button.secondary{flex:1}.button.primary{flex:1.7;background:var(--green);border-color:var(--green);color:#fff}.button.full{flex:1}
+    .button:focus-visible,.tool:focus-visible,.nav-button:focus-visible,.mode button:focus-visible,.tabs button:focus-visible{outline:3px solid rgba(23,135,59,.28);outline-offset:2px}
+    .activity-list{display:grid;gap:10px}.activity-card{background:var(--card);border-radius:16px;padding:14px;cursor:pointer;border:1px solid transparent}.activity-card:hover{border-color:rgba(23,135,59,.25)}
+    .activity-card .detail{margin-top:8px;color:var(--secondary);font-size:12px}.activity-card .hint{margin-top:8px;color:var(--tertiary);font-size:11px}
+    .empty{padding:44px 22px;text-align:center;color:var(--secondary)}.empty .icon{font-size:34px}.empty h3{margin:12px 0 6px;color:var(--text);font-size:16px}.empty p{margin:0;font-size:12px;line-height:1.6}
+    .sheet-wrap{position:absolute;inset:0;z-index:5;display:flex;align-items:flex-end;background:rgba(0,0,0,.38)}
+    .sheet{width:100%;padding:12px 16px 20px;background:var(--phone);border-radius:24px 24px 0 0;box-shadow:0 -12px 30px rgba(0,0,0,.12)}
+    .grabber{width:36px;height:4px;border-radius:4px;background:var(--divider);margin:0 auto 16px}.sheet h3{margin:0 0 10px;font-size:17px}
+    .choice{width:100%;display:flex;align-items:center;gap:12px;border:0;border-top:1px solid var(--divider);background:transparent;text-align:left;padding:14px 2px;cursor:pointer;color:var(--text)}
+    .choice:first-of-type{border-top:0}.choice-icon{width:40px;height:40px;display:grid;place-items:center;border-radius:13px;background:var(--green-soft);font-size:19px}.choice:nth-of-type(2) .choice-icon{background:var(--blue-soft)}
+    .choice strong{display:block;color:var(--text);font-size:14px}.choice>span:last-child>span{display:block;margin-top:3px;color:var(--tertiary);font-size:11px;line-height:1.45}
+    .editor-form{display:grid;gap:10px}.compact-field{width:100%;height:48px;border:1px solid var(--divider);border-radius:12px;background:var(--phone);color:var(--text);padding:0 12px;font:inherit;font-size:14px;outline:none}.compact-field:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(23,135,59,.1)}
+    .field-hint{margin:-3px 2px 1px;color:var(--tertiary);font-size:11px;line-height:1.45}.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.select-field,.input-with-action{height:48px;border:1px solid var(--divider);border-radius:12px;background:var(--phone);display:flex;align-items:center;min-width:0}.select-field{width:100%;padding:0 10px 0 12px;color:var(--text);font-size:14px;cursor:pointer}.select-field span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chevron{width:17px;height:17px;margin-left:auto;flex:0 0 auto;fill:none;stroke:var(--tertiary);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.input-with-action input{height:46px;min-width:0;width:100%;border:0;background:transparent;color:var(--text);padding:0 4px 0 12px;font:inherit;font-size:14px;outline:none}.field-action{width:42px;height:46px;display:grid;place-items:center;border:0;background:transparent;cursor:pointer}
+    .mode{display:grid;grid-template-columns:1fr 1fr;padding:3px;border-radius:12px;background:var(--card)}.mode button{min-height:42px;border:0;border-radius:9px;background:transparent;color:var(--secondary);padding:8px 6px;font-size:14px;cursor:pointer}.mode button.on{background:var(--phone);color:var(--text);font-weight:780;box-shadow:0 2px 7px rgba(20,31,26,.08)}
+    .match-head{display:flex;align-items:center;gap:8px;margin:18px 2px 9px}.match-head::before{content:"";width:3px;height:16px;border-radius:3px;background:var(--green)}.match-head h3{margin:0;font-size:16px}.match-count{margin-left:auto;color:var(--tertiary);font-size:12px;font-weight:700}
+    .schedule-list{display:grid;gap:10px}.schedule-list.cards .schedule-card{padding:11px 10px;background:var(--card);border:1px solid rgba(110,122,114,.11);border-radius:15px}.schedule-list.dividers{gap:0}.schedule-list.dividers .schedule-card{padding:13px 2px;background:transparent;border-radius:0;border-bottom:1px solid var(--divider)}
+    .session-title{display:flex;align-items:center;gap:8px;min-height:40px}.session-title b{font-size:16px}.delete-session{margin-left:auto;width:40px;height:40px;display:grid;place-items:center;border:0;border-radius:999px;background:transparent;color:var(--secondary);cursor:pointer;overflow:hidden;white-space:nowrap;font-size:12px;font-weight:750;transition:width .44s cubic-bezier(.4,0,.2,1),background-color .3s ease,color .24s ease}.delete-session.armed{width:80px;background:var(--danger);color:#fff}.delete-session svg,.inline-icon{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.delete-session svg{animation:delete-content .24s ease}.delete-session span{animation:delete-content .24s ease}@keyframes delete-content{from{opacity:0}to{opacity:1}}
+    .session-meta{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.8fr);gap:8px;margin-top:7px}.mini-field{height:44px;border:1px solid var(--divider);border-radius:11px;background:var(--phone);display:flex;align-items:center;padding:0 10px;font-size:13px;color:var(--text)}.mini-field span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .team-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.team-column{min-width:0}.team-label{margin:0 2px 6px;font-size:14px;font-weight:800}.team-label.a{color:#2670b8}.team-label.b{color:#b94a51}.seat-stack{display:grid;gap:6px}.seat{height:46px;border:1px solid var(--divider);border-radius:11px;background:var(--phone);display:flex;align-items:center;gap:7px;padding:0 9px;font-size:14px;min-width:0}.seat>span:not(.avatar):not(.seat-key):not(.seat-badge){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.avatar{width:26px;height:26px;flex:0 0 auto;border-radius:999px;background:var(--green-soft);display:grid;place-items:center;color:var(--green-strong);font-size:11px;font-weight:850}.seat-key{margin-left:auto;color:var(--tertiary);font-size:11px;font-weight:700}.seat-key.number{font-variant-numeric:tabular-nums;font-weight:650}.seat-key.subtle{font-size:10px;font-weight:650;opacity:.72}.seat-badge{width:25px;height:25px;flex:0 0 auto;display:grid;place-items:center;border-radius:8px;font-size:10px;font-weight:850}.seat-badge.a{color:#2670b8;background:rgba(38,112,184,.1)}.seat-badge.b{color:#b94a51;background:rgba(185,74,81,.1)}.team-grid.seat-first{margin-top:10px}.team-grid.seat-first .team-label{display:none}.member-pool{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.member-chip{display:inline-flex;align-items:center;gap:5px;padding:7px 9px;border-radius:999px;background:var(--phone);font-size:13px}.member-chip.on{background:var(--green-soft);color:var(--green-strong);font-weight:750}
+    .collapsed-versus{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-top:8px}.collapsed-side{font-size:14px;color:var(--secondary)}.collapsed-side:last-child{text-align:right}.versus{color:var(--tertiary);font-size:12px}.summary{margin-top:6px;color:var(--tertiary);font-size:12px}.duration-row{display:flex;align-items:center;gap:6px}.duration-row>span{color:var(--secondary);font-size:12px;margin-right:2px}.duration-row button{height:34px;flex:1;border:1px solid var(--divider);border-radius:10px;background:var(--phone);color:var(--secondary);font-size:12px}.duration-row button.on{border-color:var(--green);color:var(--green);background:var(--green-soft);font-weight:780}
+    .add-session{width:100%;min-height:44px;margin-top:10px;border:1px dashed rgba(23,135,59,.38);border-radius:12px;background:transparent;color:var(--green);display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:760;cursor:pointer}.add-session svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+    .notes .recommend{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;background:var(--green-soft);color:var(--green);border-radius:999px;font-size:11px;font-weight:850}.notes h2{margin-top:13px;font-size:18px}.notes p{color:var(--secondary);font-size:13px;line-height:1.65}.notes ul{margin:12px 0 0;padding-left:18px;color:var(--secondary);font-size:12px;line-height:1.65}.notes li+li{margin-top:5px}
+    .flow{margin-top:16px;padding-top:14px;border-top:1px solid rgba(17,24,39,.08)}.flow-row{display:grid;grid-template-columns:72px 1fr;gap:8px;padding:5px 0;font-size:11px}.flow-row span{color:var(--tertiary)}
+    .toast{position:absolute;left:50%;bottom:82px;transform:translateX(-50%);padding:9px 13px;border-radius:999px;background:rgba(20,27,23,.9);color:#fff;font-size:11px;z-index:8;white-space:nowrap;animation:toast 2s both}@keyframes toast{0%,100%{opacity:0;transform:translate(-50%,8px)}15%,80%{opacity:1;transform:translate(-50%,0)}}
+    body.dark{color-scheme:dark;--page:#121513;--panel:rgba(33,37,34,.87);--phone:#101311;--card:#242825;--text:#f4f7f4;--secondary:#b8c0ba;--tertiary:#87918a;--divider:#3a403c;--green:#54d875;--green-strong:#8ce7a1;--green-soft:#173f20;--orange:#f0bd64;--orange-soft:#46351b;--blue:#9bbcff;--blue-soft:#263750}
+    body.dark .phone{border-color:#353b37}body.dark .tool,body.dark .nav-button{background:rgba(36,40,37,.78);border-color:rgba(255,255,255,.08)}body.dark .sidebar,body.dark .notes{border-color:rgba(255,255,255,.06)}
+    @media(max-width:1030px){.workspace{grid-template-columns:220px minmax(340px,1fr)}.notes{position:static;grid-column:1/-1}}
+    @media(max-width:720px){.topbar{padding:22px 18px 14px;flex-direction:column}.toolbar{justify-content:flex-start}.workspace{grid-template-columns:1fr;padding:8px 14px 34px}.stage{grid-row:1}.sidebar{position:static;grid-row:2}.notes{grid-column:auto;grid-row:3}.phone{height:735px}.screen{height:585px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation-duration:.01ms!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">全能计分器 · 小组活动</div>
+      <h1>快速开赛不动，直接排赛归到活动</h1>
+      <p class="intro">概览底栏继续负责临时开一场；活动页底部直接展示“直接排赛”和“发起活动”。排赛时间默认不设具体时间，需要时才补预计时间。</p>
+    </div>
+    <div class="toolbar">
+      <button class="tool on" data-entry="split">双按钮入口</button>
+      <button class="tool" data-entry="sheet">新建菜单入口</button>
+      <button class="tool on" data-layout="cards">轻卡片</button>
+      <button class="tool" data-layout="dividers">仅分割线</button>
+      <span class="toolbar-group">
+        <span class="toolbar-label">座位标记</span>
+        <button class="tool on" data-seat="adaptive">卡片无标记</button>
+        <button class="tool" data-seat="headers">仅列头</button>
+        <button class="tool" data-seat="seats">仅座位</button>
+        <button class="tool" data-seat="subtle">弱化并存</button>
+      </span>
+      <button class="tool" data-action="width">320px 窄屏</button>
+      <button class="tool" data-action="dark">深色</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <aside class="sidebar">
+      <h2>体验流程</h2>
+      <button class="nav-button on" data-screen="overview"><span class="number">1</span><span><strong>概览 · 快速开赛</strong><small>沿用现有“开始计分”</small></span></button>
+      <button class="nav-button" data-screen="activities"><span class="number">2</span><span><strong>活动 · 两种组织方式</strong><small>两个入口直接展示在底部</small></span></button>
+      <button class="nav-button" data-screen="sequence"><span class="number">3</span><span><strong>排赛 · 按顺序</strong><small>时间待定，不做硬约束</small></span></button>
+      <button class="nav-button" data-screen="estimated"><span class="number">4</span><span><strong>排赛 · 预计时间</strong><small>任意分钟，仅用于提示</small></span></button>
+      <p class="side-caption">也可以直接点击手机里的页签、底部按钮和时间模式；顶部可切换两种入口方案进行对比。</p>
+    </aside>
+
+    <section class="stage">
+      <div class="phone" id="phone">
+        <div class="status"><span>10:14</span><span>▮▮▮ ◔ ▰</span></div>
+        <div id="phone-root"></div>
+      </div>
+    </section>
+
+    <aside class="notes" id="notes"></aside>
+  </main>
+
+  <script>
+    const $=s=>document.querySelector(s);
+    const params=new URLSearchParams(location.search);
+    const state={screen:params.get('screen')||'overview',entry:params.get('entry')||'split',layout:params.get('layout')||'cards',seat:params.get('seat')||'adaptive',format:params.get('format')||'singles',sheet:params.get('sheet')==='1',estimated:false,narrow:params.get('narrow')==='1',deleteArmed:-1,removedSessions:[],toast:''};
+    let deleteTimer=0;
+    const back=`<svg viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg>`;
+    const more=`<svg viewBox="0 0 24 24"><path d="M6 12h.01M12 12h.01M18 12h.01"/></svg>`;
+    const chevron=`<svg class="chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg>`;
+    const trash=`<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5"/></svg>`;
+    const plus=`<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>`;
+    const copy={
+      overview:{title:'现有快速开赛保留',body:'概览底部的“开始计分”就是最快路径，不需要活动，也不需要预先排赛。它只负责现在马上打一场。',bullets:['不增加新的“快速开赛”按钮','现有开始计分直接进入规则与成员选择','补记赛果仍留在左侧','与活动页的组织型操作明确分工'],flow:[['适用','临时打一场'],['前置条件','无'],['时间','不需要']]},
+      activitiesSplit:{title:'推荐：两个入口直接外露',body:'现在只有“发起活动”和“直接排赛”两种明确操作，而且都需要被看见。直接放在活动页底部只需一步，也延续了概览页的双按钮结构。',bullets:['发起活动：需要召集、报名、时间地点','直接排赛：组员已确定，直接安排对阵','主按钮给更完整的“发起活动”流程','两类内容仍统一出现在活动页'],flow:[['发起活动','先报名再排赛'],['直接排赛','直接选择小组成员'],['快速开赛','仍在概览']]},
+      activitiesMenu:{title:'备选：统一新建菜单',body:'统一入口更容易容纳未来第三、第四种组织方式，但当前只有两个选项，会多一次点击，也会让“直接排赛”不容易被发现。',bullets:['适合未来入口增多后的扩展','底栏视觉更简单','当前路径比双按钮多一步','可作为对比方案，不建议现在默认'],flow:[['入口数量','1 个新建按钮'],['完成选择','需要再打开菜单'],['适用时机','出现 3 种以上类型']]},
+      sequence:{title:'推荐：48dp 表单 + 轻卡片',body:'顶部使用应用已有的 48dp 紧凑字段，不照搬 Material 3 默认 56dp。每场用浅底、细描边和紧凑内距形成明确边界，选人区仍保留足够宽度。',bullets:['名称、日期、地点统一为 48dp','时间模式无需重复标题','对阵标题左对齐，场次数量推到最右','轻卡片只负责场次边界，不再叠加装饰'],flow:[['字段高度','48dp'],['场次容器','可切换对比'],['卡片内距','横向 10px']]},
+      estimated:{title:'预计时间：只增加必要设置',body:'切换预计时间后才显示紧凑的每场时长选择。场次卡片结构不变，时间仍是提示信息，不成为实际开赛门槛。',bullets:['预计时间与场地并排','每场时长压缩成一行','任意分钟仍可点击时间修改','不增加新的说明卡片'],flow:[['字段高度','48dp'],['时间控件','44dp'],['场次容器','可切换对比']]}
+    };
+    const seatCopy={
+      adaptive:{title:'推荐：排赛卡片不显示 A/B',body:'排赛卡片依靠左右分组、座位边界和选中状态表达对阵，不再显示 A 方、B 方、A1 或 B1。A/B 仍保留在数据、无障碍描述以及其他文本和列表形式中。',bullets:['单打和双打卡片都不显示 A/B','名字选择框不显示 A1/B1','成员池只用选中底色表达已上场','其他列表和无障碍描述仍可保留席位身份'],flow:[['排赛卡片','无 A/B 标记'],['成员池','仅选中底色'],['推荐度','最高']]},
+      headers:{title:'方案二：仅保留列头',body:'无论单双打都只显示 A 方、B 方，座位靠上下顺序区分。视觉最干净，但双打点选和交换成员时，第二个座位缺少明确称呼。',bullets:['界面最简洁','单打完全够用','双打只能依靠上下顺序','无障碍播报也较难精确定位'],flow:[['重复信息','最少'],['双打定位','偏弱'],['推荐度','适合单打优先']]},
+      seats:{title:'方案三：仅保留座位标签',body:'删除 A 方、B 方列头，把 A/B 或 A1/A2 直接做成座位内的小色块。更紧凑，但 A1/B1 这类内部编号会成为主要视觉语言。',bullets:['减少一行纵向空间','每个座位定位最明确','标签更像排赛工具而非普通成员选择','双打表现好，单打略显技术化'],flow:[['单打','座位内 A / B'],['双打','座位内 A1 / A2'],['推荐度','次选']]},
+      subtle:{title:'方案四：弱化并存',body:'保留 A 方、B 方，同时把 A1/B1 缩小、降对比度。它解决了抢眼问题，却没有解决信息重复，整体仍比其他方案琐碎。',bullets:['改动最小','双打定位清晰','重复关系依然存在','弱化后仍占据阅读注意力'],flow:[['列头','保留'],['座位编号','10px 低对比度'],['推荐度','不建议']]}
+    };
+    function appbar(title,backable=false){return `<div class="appbar"><button class="icon-button" data-action="${backable?'back':'noop'}" aria-label="${backable?'返回':'返回'}">${back}</button><h2>${title}</h2><button class="icon-button" aria-label="更多">${more}</button></div>`}
+    function tabs(active){return `<div class="tabs"><button data-tab="overview" class="${active==='overview'?'active':''}">概览</button><button data-tab="activities" class="${active==='activities'?'active':''}">活动</button><button>战绩</button><button>成员</button></div>`}
+    function overview(){return `${appbar('周末羽毛球')}${tabs('overview')}<div class="screen"><div class="content"><div class="hero"><div class="sport">🏸</div><div class="grow"><h3>周末羽毛球</h3><div class="sub">小组号 683 271 · 18 名成员</div></div><span class="chip green">活跃</span></div><div class="section-head"><h3>接下来</h3><span class="arrow">›</span></div><div class="card"><div class="title-row"><h3>周三队内赛</h3><span class="chip blue">直接排赛</span></div><div class="meta-row"><span>3 场</span><span>·</span><span>不设具体时间</span></div><div class="sub">林晓宇、陈飞、王佳佳、小周等 6 人</div></div><div class="section-head"><h3>最新赛果</h3><span class="arrow">›</span></div><div class="card"><div class="meta-row" style="margin-top:0"><span>10月13日 20:36</span><span>·</span><span>已确认</span></div><div class="score"><span>林晓宇</span><b>2 : 1</b><span>陈飞</span></div></div></div><div class="actionbar"><button class="button secondary" data-action="result">补记赛果</button><button class="button primary" data-action="quick">▶ 开始计分</button></div></div>`}
+    function activities(){const action=state.entry==='split'?`<div class="actionbar"><button class="button secondary" data-action="direct">▦ 直接排赛</button><button class="button primary" data-action="event">＋ 发起活动</button></div>`:`<div class="actionbar"><button class="button primary full" data-action="new">＋ 新建</button></div>`;return `${appbar('周末羽毛球')}${tabs('activities')}<div class="screen"><div class="content"><div class="section-head"><h3>进行中 · 待开始</h3></div><div class="activity-list"><div class="activity-card" data-open="sequence"><div class="title-row"><h3>周三队内赛</h3><span class="chip blue">直接排赛</span><span class="chip green">待开始</span></div><div class="detail">3 场 · 不设具体时间</div><div class="hint">直接从小组成员排对阵，无需报名</div></div><div class="activity-card"><div class="title-row"><h3>周六羽毛球活动</h3><span class="chip orange">报名活动</span><span class="chip green">报名中</span></div><div class="detail">10月17日 19:30 · 城北体育馆</div><div class="hint">12 / 16 人报名 · 报名后统一排赛</div></div></div><div class="section-head"><h3>历史活动</h3><span class="arrow">›</span></div><div class="activity-card"><div class="title-row"><h3>国庆友谊赛</h3><span class="chip">直接排赛</span><span class="chip">已完成</span></div><div class="detail">5 场 · 10月6日完成</div></div></div>${action}</div>${state.entry==='sheet'&&state.sheet?newSheet():''}`}
+    function newSheet(){return `<div class="sheet-wrap" data-action="close-sheet"><div class="sheet" role="dialog" aria-label="新建"><div class="grabber"></div><h3>想怎样组织比赛？</h3><button class="choice" data-action="event"><span class="choice-icon">📣</span><span><strong>发起活动</strong><span>先发布活动、邀请成员报名，再统一排赛</span></span></button><button class="choice" data-action="direct"><span class="choice-icon">▦</span><span><strong>直接排赛</strong><span>不需要报名，直接从小组成员中安排对阵</span></span></button><button class="button full" style="width:100%;margin-top:4px" data-action="close-sheet">取消</button></div></div>`}
+    function seatCell(side,index,name,total){
+      const fullKey=side+(index+1);
+      const key=state.seat==='subtle'?`<span class="seat-key subtle">${fullKey}</span>`:'';
+      const badge=state.seat==='seats'?`<span class="seat-badge ${side.toLowerCase()}">${total>1?fullKey:side}</span>`:'';
+      return `<div class="seat" aria-label="${fullKey} ${name}">${badge}<span class="avatar">${name.slice(0,1)}</span><span>${name}</span>${key}</div>`;
+    }
+    function teamColumn(side,names){
+      const label=state.seat==='adaptive'?'':`<div class="team-label ${side.toLowerCase()}">${side} 方</div>`;
+      return `<div class="team-column">${label}<div class="seat-stack">${names.map((name,index)=>seatCell(side,index,name,names.length)).join('')}</div></div>`;
+    }
+    function schedule(estimated){
+      const rows=estimated?
+        [['预计 19:17','林晓宇','陈飞','1号场'],['预计 20:05','王佳佳','小周','2号场'],['预计 20:48','赵磊','孙倩','1号场']]:
+        [['时间待定','林晓宇','陈飞','1号场'],['接上一场','王佳佳','小周','2号场'],['接上一场','赵磊','孙倩','1号场']];
+      const visibleRows=rows.map((r,id)=>({r,id})).filter(({id})=>!state.removedSessions.includes(id));
+      const sessions=visibleRows.map(({r,id},i)=>{
+        const active=i===0;
+        const deleteArmed=state.deleteArmed===id;
+        const doublesA=[['林晓宇','王佳佳'],['王佳佳','赵磊'],['赵磊','林晓宇']][id];
+        const doublesB=[['陈飞','小周'],['小周','孙倩'],['孙倩','陈飞']][id];
+        const teamA=state.format==='doubles'?doublesA:[r[1]];
+        const teamB=state.format==='doubles'?doublesB:[r[2]];
+        const selected=[...teamA,...teamB];
+        return `<article class="schedule-card">
+          <div class="session-title">
+            <b>第 ${i+1} 场</b>
+            <button class="delete-session ${deleteArmed?'armed':''}" data-action="delete-session" data-index="${id}" aria-label="${deleteArmed?'确认删除':'删除'}第 ${i+1} 场">${deleteArmed?'<span>确认删除</span>':trash}</button>
+          </div>
+          ${active?`
+            <div class="session-meta">
+              <button class="mini-field" data-action="cycle-time"><span>${r[0]}</span>${chevron}</button>
+              <div class="mini-field"><span>${r[3]}</span></div>
+            </div>
+            <div class="team-grid ${state.seat==='seats'?'seat-first':''}">${teamColumn('A',teamA)}${teamColumn('B',teamB)}</div>
+            <div class="member-pool">${selected.map(name=>`<span class="member-chip on">${name}</span>`).join('')}<span class="member-chip">赵磊</span><span class="member-chip">孙倩</span></div>
+          `:`
+            <div class="collapsed-versus"><span class="collapsed-side">${teamA.join(' / ')}</span><span class="versus">VS</span><span class="collapsed-side">${teamB.join(' / ')}</span></div>
+            <div class="summary">${r[0]} · ${r[3]}</div>
+          `}
+        </article>`;
+      }).join('');
+      return `${appbar('直接排赛',true)}<div class="screen"><div class="content">
+        <div class="editor-form">
+          <input class="compact-field" placeholder="活动名称（选填）" aria-label="活动名称（选填）">
+          <div class="field-hint">留空将自动命名为“10月14日活动”</div>
+          <div class="meta-grid">
+            <button class="select-field" data-action="date"><span>10月14日</span>${chevron}</button>
+            <div class="input-with-action"><input placeholder="地点" aria-label="地点"><button class="field-action" data-action="places" aria-label="选择常用地点">${chevron}</button></div>
+          </div>
+          <div class="mode"><button data-format="singles" class="${state.format==='singles'?'on':''}">单打</button><button data-format="doubles" class="${state.format==='doubles'?'on':''}">双打</button></div>
+          <div class="mode"><button data-mode="sequence" class="${!estimated?'on':''}">不设具体时间</button><button data-mode="estimated" class="${estimated?'on':''}">设置预计时间</button></div>
+          ${estimated?`<div class="duration-row"><span>每场</span><button>20 分钟</button><button class="on">30 分钟</button><button>45 分钟</button></div>`:''}
+        </div>
+        <div class="match-head"><h3>对阵安排</h3><span class="match-count">${visibleRows.length} 场</span></div>
+        <div class="schedule-list ${state.layout}">${sessions}</div>
+        <button class="add-session" data-action="add-session">${plus}<span>添加场次</span></button>
+      </div><div class="actionbar"><button class="button primary full" data-action="save">保存排赛</button></div></div>`
+    }
+    function render(){state.estimated=state.screen==='estimated';let html=state.screen==='overview'?overview():state.screen==='activities'?activities():schedule(state.estimated);$('#phone-root').innerHTML=html;if(state.toast){$('#phone').insertAdjacentHTML('beforeend',`<div class="toast">${state.toast}</div>`);setTimeout(()=>{state.toast='';render()},2050)}document.querySelectorAll('[data-screen]').forEach(b=>b.classList.toggle('on',b.dataset.screen===state.screen));document.querySelectorAll('[data-entry]').forEach(b=>b.classList.toggle('on',b.dataset.entry===state.entry));document.querySelectorAll('[data-layout]').forEach(b=>b.classList.toggle('on',b.dataset.layout===state.layout));document.querySelectorAll('[data-seat]').forEach(b=>b.classList.toggle('on',b.dataset.seat===state.seat));document.querySelectorAll('[data-format]').forEach(b=>b.classList.toggle('on',b.dataset.format===state.format));document.documentElement.style.setProperty('--phone-width',state.narrow?'320px':'390px');const key=state.screen==='activities'?(state.entry==='split'?'activitiesSplit':'activitiesMenu'):state.screen;const c=(key==='sequence'||key==='estimated')?seatCopy[state.seat]:copy[key];$('#notes').innerHTML=`<span class="recommend">● ${state.seat==='adaptive'&&c===seatCopy.adaptive?'推荐方案':key==='activitiesMenu'?'备选结构':'方案对比'}</span><h2>${c.title}</h2><p>${c.body}</p><ul>${c.bullets.map(x=>`<li>${x}</li>`).join('')}</ul><div class="flow">${c.flow.map(([a,b])=>`<div class="flow-row"><span>${a}</span><strong>${b}</strong></div>`).join('')}</div>`}
+    document.addEventListener('click',e=>{if(e.target.classList.contains('sheet-wrap')){state.sheet=false;render();return}const b=e.target.closest('button,[data-open]');if(!b)return;if(b.dataset.entry){state.entry=b.dataset.entry;state.screen='activities';state.sheet=false}if(b.dataset.layout){state.layout=b.dataset.layout;state.screen='sequence'}if(b.dataset.seat){state.seat=b.dataset.seat;if(state.screen!=='sequence'&&state.screen!=='estimated')state.screen='sequence'}if(b.dataset.format){state.format=b.dataset.format}if(b.dataset.screen){state.screen=b.dataset.screen;state.sheet=false}if(b.dataset.tab){state.screen=b.dataset.tab;state.sheet=false}if(b.dataset.open){state.screen=b.dataset.open}if(b.dataset.mode){state.screen=b.dataset.mode}if(b.dataset.action==='new')state.sheet=true;if(b.dataset.action==='close-sheet')state.sheet=false;if(b.dataset.action==='event'){state.sheet=false;state.toast='进入现有发起活动表单'}if(b.dataset.action==='direct'){state.sheet=false;state.screen='sequence'}if(b.dataset.action==='back')state.screen='activities';if(b.dataset.action==='quick'){state.toast='快速开赛：进入现有计分设置'}if(b.dataset.action==='result'){state.toast='进入现有补记赛果'}if(b.dataset.action==='save'){state.toast='排赛已保存到活动页'}if(b.dataset.action==='date'){state.toast='打开日期选择'}if(b.dataset.action==='places'){state.toast='打开常用地点'}if(b.dataset.action==='add-session'){state.toast='添加一场'}if(b.dataset.action==='delete-session'){const index=Number(b.dataset.index);clearTimeout(deleteTimer);if(state.deleteArmed===index){state.removedSessions=[...state.removedSessions,index];state.deleteArmed=-1}else{state.deleteArmed=index;deleteTimer=setTimeout(()=>{if(state.deleteArmed===index){state.deleteArmed=-1;render()}},3000)}}if(b.dataset.action==='cycle-time'){if(!state.estimated){state.screen='estimated'}else{state.toast='打开预计时间选择'}}if(b.dataset.action==='width'){state.narrow=!state.narrow;b.classList.toggle('on',state.narrow)}if(b.dataset.action==='dark'){document.body.classList.toggle('dark');b.classList.toggle('on')}render()});
+    render();
+  </script>
+</body>
+</html>

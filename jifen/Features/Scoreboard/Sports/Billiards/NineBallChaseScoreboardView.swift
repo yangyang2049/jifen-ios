@@ -237,7 +237,7 @@ struct NineBallChaseScoreboardView: View {
                         }) {
                             Image(systemName: showEditPanel ? "checkmark" : "pencil")
                                 .font(.system(size: ScoreboardConstants.buttonIconSize))
-                                .foregroundColor(.white)
+                                .foregroundColor((showEditPanel ? Theme.textOnPrimary : Color.white))
                                 .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
                                 .background(Circle().fill(
                                     showEditPanel ? Theme.primary : Color.black.opacity(0.25)

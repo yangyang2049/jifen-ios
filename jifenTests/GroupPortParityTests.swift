@@ -1,8 +1,53 @@
 import XCTest
 import CoreImage
+import SwiftUI
+import UIKit
 @testable import jifen
 
 @MainActor final class GroupPortParityTests: XCTestCase {
+    func testProfileChangesOmitUnchangedFieldsAndAllowClearingDescription() throws {
+        let original = GroupProfileFields(name: "周六羽毛球", description: "固定球友", joinPolicy: "open")
+        var edited = original
+        edited.description = " 新简介 "
+        let data = try JSONEncoder().encode(edited.changes(from: original, canEditJoinPolicy: true))
+        XCTAssertEqual(try JSONSerialization.jsonObject(with: data) as? [String: String], ["description": "新简介"])
+        edited.description = " "
+        XCTAssertEqual(edited.changes(from: original, canEditJoinPolicy: true).description, "")
+        edited = original
+        edited.name = " 周六羽毛球 "
+        edited.joinPolicy = "closed"
+        let unchanged = edited.changes(from: original, canEditJoinPolicy: false)
+        XCTAssertNil(unchanged.name); XCTAssertNil(unchanged.description); XCTAssertNil(unchanged.joinPolicy)
+    }
+
+    func testCancelledActivityOrSessionCannotEnterResults() {
+        XCTAssertFalse(GroupActivityPolicy.allowsMatchEntry(activityStatus: "cancelled", sessionStatus: nil))
+        XCTAssertFalse(GroupActivityPolicy.allowsMatchEntry(activityStatus: "recruiting", sessionStatus: "cancelled"))
+        XCTAssertTrue(GroupActivityPolicy.allowsMatchEntry(activityStatus: "completed", sessionStatus: "completed"))
+        XCTAssertTrue(GroupActivityPolicy.allowsMatchEntry(activityStatus: "recruiting", sessionStatus: "scheduled"))
+    }
+
+    func testNotificationTargetsFollowTheEventAndKeepLegacyFallbacks() {
+        for kind in ["activity_created", "activity_changed", "activity_cancelled"] {
+            XCTAssertEqual(GroupNoticeTarget.resolve(kind: kind, resourceID: " activity "), .activity("activity"))
+        }
+        for kind in ["result_pending", "result_confirmed", "result_voided"] {
+            XCTAssertEqual(GroupNoticeTarget.resolve(kind: kind, resourceID: "result"), .result("result"))
+        }
+        for kind in ["join_requested", "role_changed", "ownership_transferred"] {
+            XCTAssertEqual(GroupNoticeTarget.resolve(kind: kind, resourceID: "request"), .group(tab: 3))
+        }
+        for kind in ["member_removed", "join_rejected"] {
+            XCTAssertEqual(GroupNoticeTarget.resolve(kind: kind, resourceID: "member"), .message)
+        }
+        for id in [nil, "", " \n"] as [String?] {
+            XCTAssertEqual(GroupNoticeTarget.resolve(kind: "result_pending", resourceID: id), .group(tab: 0))
+        }
+        XCTAssertEqual(GroupNoticeTarget.resolve(kind: "join_approved", resourceID: "request"), .group(tab: 0))
+        XCTAssertEqual(GroupNoticeTarget.resolve(kind: "result_future_kind", resourceID: "resource"), .group(tab: 0))
+        XCTAssertEqual(GroupNoticeTarget.resolve(kind: "training_changed", resourceID: "plan"), .group(tab: 1))
+    }
+
     private func rules() -> GroupMatchRules { .init(sport: .badminton, maxSets: 3, matchCompletionMode: "best_of", pointsToWinSet: 21, pointCap: 30, winByTwo: true, useRallyScoring: true, gamesPerSet: 6, tieBreakPoints: 7, setScoringMode: "regular", usesNoAdScoring: false) }
     private func group() -> ScoreGroup { .init(id: "group", groupNo: "123456", name: "Test", description: "", sport: .badminton, status: "active", joinPolicy: "approval", ownerMemberId: "owner", memberLimit: 30, createdAt: 1, updatedAt: 1, revision: 3) }
     private func member(_ id: String, role: String = "member", kind: String = "account") -> GroupMember { .init(id: id, groupId: "group", kind: kind, role: role, status: "active", displayName: id, accountId: id, joinedAt: 1) }
@@ -170,10 +215,35 @@ import CoreImage
         XCTAssertTrue(GroupInputValidation.validName("王")); XCTAssertFalse(GroupInputValidation.validName(" "))
         XCTAssertEqual(GroupInputValidation.temporaryNames("王\nA，王; B"), ["王","A","B"])
     }
-    func testOverviewInvitationIsTheOnlyActionUntilTwoMembers() {
+    func testTemporaryAdditionPublishesOnceAndRejectsOldIdentityWithoutResettingDetail() throws {
+        let account = "roster-test-" + UUID().uuidString
+        let previous = UserDefaults.standard.object(forKey: "groups.lastAccountID")
+        defer {
+            GroupLocalPersistence.shared.removeCache(accountID: account)
+            UserDefaults.standard.set(previous, forKey: "groups.lastAccountID")
+        }
+        let detail = GroupDetailCache(group: group(), members: [member("owner", role: "owner")], activities: [], results: [], rankings: [], stats: nil, nextCursor: nil, syncedAt: Date())
+        var cache = GroupAccountCache(); cache.groups = [group()]; cache.details["group"] = detail
+        try GroupLocalPersistence.shared.saveCache(cache, accountID: account)
+        let store = GroupStore(observeConnectivity: false, signedInAccountID: { account })
+        store.sessionDidChange(userID: account)
+        let identity = store.identityRevision
+        let added = member("new-player", kind: "temporary")
+        XCTAssertTrue(store.acceptTemporaryMember(added, groupID: "group", accountID: account, identity: identity))
+        XCTAssertTrue(store.acceptTemporaryMember(added, groupID: "group", accountID: account, identity: identity))
+        XCTAssertEqual(store.cache.details["group"]?.members.map(\.id), ["owner", "new-player"])
+        XCTAssertEqual(store.cache.details["group"]?.group, detail.group)
+        XCTAssertFalse(store.acceptTemporaryMember(added, groupID: "other-group", accountID: account, identity: identity))
+        XCTAssertFalse(store.acceptTemporaryMember(member("formal"), groupID: "group", accountID: account, identity: identity))
+        store.sessionDidChange(userID: nil)
+        XCTAssertFalse(store.acceptTemporaryMember(added, groupID: "group", accountID: account, identity: identity))
+        XCTAssertTrue(store.cache.details.isEmpty)
+    }
+
+    func testOverviewCanOpenSetupBeforeTwoMembers() {
         for count in [0, 1] {
             let policy = GroupOverviewActions(group: group(), memberCount: count, hasResults: true, confirmedMatchCount: 2, isCoach: false)
-            XCTAssertEqual(policy.actions, [.invite]); XCTAssertFalse(policy.showSecondaryInvite)
+            XCTAssertEqual(policy.actions, [.addResult, .start]); XCTAssertTrue(policy.showSecondaryInvite)
         }
     }
     func testOverviewStartsWithOneActionAndAddsManualEntryAfterHistory() {
@@ -208,6 +278,304 @@ private nonisolated final class GroupWriteAttempts: @unchecked Sendable {
     func snapshot() -> [(String, Data)] { lock.lock(); defer { lock.unlock() }; return rows }
 }
 
+@MainActor private final class GroupOperationGate {
+    private var continuation: CheckedContinuation<Void, Never>?
+    func wait() async { await withCheckedContinuation { continuation = $0 } }
+    func release() { continuation?.resume(); continuation = nil }
+}
+
+@MainActor private final class GroupTestAccount {
+    var id: String?
+    init(_ id: String) { self.id = id }
+}
+
+extension GroupPortParityTests {
+    private func createBody() -> GroupCreateBody { .init(name: "Club", description: "", sport: .badminton, joinPolicy: "open") }
+    private func reminderActivity() -> GroupActivity {
+        .init(id: "activity", groupId: "group", title: "Match", startsAt: Int64(Date().addingTimeInterval(3600).timeIntervalSince1970 * 1000), place: "Court", capacity: 4, note: "", format: .singles, status: "recruiting", creatorMemberId: "owner", registeredMemberIds: ["me"], gameId: "", createdAt: 1, revision: 1)
+    }
+    func testPendingCreationSurvivesRestartInterleavingAndStaysScoped() throws {
+        try withPersistence { persistence, root in
+            let body = createBody()
+            let first = try persistence.pendingWrite(accountID: "a", path: "", body: body)
+            let other = try persistence.pendingWrite(accountID: "a", path: "/group/activities", body: body)
+            let accountB = try persistence.pendingWrite(accountID: "b", path: "", body: body)
+            let restarted = GroupLocalPersistence(root: root)
+            XCTAssertEqual(first.key, try restarted.pendingWrite(accountID: "a", path: "", body: body).key)
+            XCTAssertNotEqual(first.key, other.key); XCTAssertNotEqual(first.key, accountB.key)
+            var changed = body; changed.name = "Other club"
+            XCTAssertNotEqual(first.key, try restarted.pendingWrite(accountID: "a", path: "", body: changed).key)
+            try restarted.completeWrite(key: first.key, accountID: "b")
+            XCTAssertEqual(first.key, try restarted.pendingWrite(accountID: "a", path: "", body: body).key)
+            try restarted.completeWrite(key: first.key, accountID: "a")
+            XCTAssertNotEqual(first.key, try restarted.pendingWrite(accountID: "a", path: "", body: body).key)
+            XCTAssertEqual(other.key, try restarted.pendingWrite(accountID: "a", path: "/group/activities", body: body).key)
+            restarted.deleteAccountData(accountID: "a")
+            XCTAssertThrowsError(try restarted.pendingWrite(accountID: "a", path: "", body: body))
+            XCTAssertEqual(accountB.key, try restarted.pendingWrite(accountID: "b", path: "", body: body).key)
+        }
+    }
+    func testDamagedPendingCreationRegistryFailsClosed() throws {
+        try withPersistence { persistence, root in
+            try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+            let url = root.appendingPathComponent("pending-writes.json"), bad = Data("broken registry".utf8)
+            try bad.write(to: url)
+            XCTAssertThrowsError(try persistence.pendingWrite(accountID: "a", path: "", body: createBody()))
+            XCTAssertEqual(try Data(contentsOf: url), bad)
+        }
+    }
+    func testPendingCreationPrunesOnlyExpiredInactiveRequests() throws {
+        try withPersistence { persistence, root in
+            let start = Date(timeIntervalSince1970: 1_000_000)
+            let body = createBody()
+            let stale = try persistence.pendingWrite(accountID: "a", path: "", body: body, now: start)
+            let recent = try persistence.pendingWrite(accountID: "b", path: "", body: body, now: start.addingTimeInterval(1))
+            let active = try persistence.pendingWrite(accountID: "a", path: "/group/activities", body: body, now: start)
+            let expiry = start.addingTimeInterval(GroupLocalPersistence.pendingWriteRetention)
+            let restarted = GroupLocalPersistence(root: root)
+            XCTAssertEqual(active.key, try restarted.pendingWrite(accountID: "a", path: "/group/activities", body: body, now: expiry).key)
+            let rows = try JSONDecoder().decode([GroupPendingWrite].self, from: Data(contentsOf: root.appendingPathComponent("pending-writes.json")))
+            XCTAssertFalse(rows.contains { $0.key == stale.key })
+            XCTAssertEqual(Set(rows.map(\.key)), [recent.key, active.key])
+            XCTAssertEqual(rows.first { $0.key == active.key }?.lastUsedAt, expiry)
+            XCTAssertEqual(active.key, try restarted.pendingWrite(accountID: "a", path: "/group/activities", body: body, now: expiry.addingTimeInterval(GroupLocalPersistence.pendingWriteRetention + 1)).key,
+                           "Even an old matching retry must keep its original key")
+        }
+    }
+    func testLegacyPendingCreationGetsAFullRetentionWindowWithoutChangingIdentity() throws {
+        try withPersistence { persistence, root in
+            let body = createBody(), encoder = JSONEncoder()
+            encoder.outputFormatting = [.sortedKeys]
+            let legacy = GroupPendingWrite(accountID: "a", path: "", body: try encoder.encode(body), key: "legacy-key")
+            try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+            let url = root.appendingPathComponent("pending-writes.json")
+            try encoder.encode([legacy]).write(to: url)
+            let migration = Date(timeIntervalSince1970: 1_000_000)
+            _ = try persistence.pendingWrite(accountID: "b", path: "", body: body, now: migration)
+            let rows = try JSONDecoder().decode([GroupPendingWrite].self, from: Data(contentsOf: url))
+            XCTAssertEqual(rows.first { $0.key == legacy.key }?.lastUsedAt, migration)
+            let restarted = GroupLocalPersistence(root: root)
+            XCTAssertEqual(legacy.key, try restarted.pendingWrite(accountID: "a", path: "", body: body, now: migration.addingTimeInterval(1)).key)
+            _ = try restarted.pendingWrite(accountID: "b", path: "", body: body, now: migration.addingTimeInterval(GroupLocalPersistence.pendingWriteRetention + 1))
+            let pruned = try JSONDecoder().decode([GroupPendingWrite].self, from: Data(contentsOf: url))
+            XCTAssertFalse(pruned.contains { $0.key == legacy.key })
+        }
+    }
+    func testGroupCreationLostResponseReplaysAfterRestart() async throws { try await assertCreationRetry(activity: false, malformed: false) }
+    func testActivityCreationLostResponseReplaysAfterRestart() async throws { try await assertCreationRetry(activity: true, malformed: false) }
+    func testGroupCreationMalformedSuccessRetainsOriginalRequest() async throws { try await assertCreationRetry(activity: false, malformed: true) }
+    func testActivityCreationMalformedSuccessRetainsOriginalRequest() async throws { try await assertCreationRetry(activity: true, malformed: true) }
+    private func assertCreationRetry(activity: Bool, malformed: Bool) async throws {
+        let (tokens, original, session, token) = wireFixture()
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { session.invalidateAndCancel(); GroupWireProtocol.remove(token); try? FileManager.default.removeItem(at: root) }
+        try await tokens.setAuth(token: token, expiresAt: Date().addingTimeInterval(3600))
+        let reply = String(decoding: try activity ? JSONEncoder().encode(reminderActivity()) : JSONEncoder().encode(group()), as: UTF8.self)
+        let attempts = GroupWriteAttempts()
+        GroupWireProtocol.register(token) { proto in
+            if proto.request.url!.path.hasSuffix("/capabilities") { proto.replyCapabilities(actions: ["create_group", "create_activity"]); return }
+            let index = attempts.append(key: proto.request.value(forHTTPHeaderField: "Idempotency-Key") ?? "", body: proto.bodyData())
+            if index == 1 {
+                if malformed { proto.reply("{}") }
+                else { proto.client?.urlProtocol(proto, didFailWithError: URLError(.networkConnectionLost)) }
+            } else { proto.reply(reply) }
+        }
+        var repository = original; repository.persistence = GroupLocalPersistence(root: root)
+        let body = GroupActivityBody(title: "Match", startsAt: 10_000_000, place: "Court", capacity: 4, note: "", format: .singles)
+        func submit(_ repository: GroupRepository) async throws {
+            if activity { _ = try await repository.createActivity(groupID: "group", body: body, accountID: "a") }
+            else { _ = try await repository.createGroup(body: createBody(), accountID: "a") }
+        }
+        do { try await submit(repository); XCTFail("Expected an uncertain result") }
+        catch { if malformed { XCTAssertEqual(error as? APIClientError, .decoding) } else { XCTAssertTrue(error is URLError) } }
+        repository.persistence = GroupLocalPersistence(root: root)
+        try await submit(repository)
+        try await submit(repository) // A separately confirmed new creation gets a fresh key.
+        let rows = attempts.snapshot(); XCTAssertEqual(rows.count, 3)
+        XCTAssertFalse(rows[0].0.isEmpty); XCTAssertEqual(rows[0].0, rows[1].0); XCTAssertNotEqual(rows[1].0, rows[2].0)
+        XCTAssertEqual(try JSONSerialization.jsonObject(with: rows[0].1) as? NSDictionary, try JSONSerialization.jsonObject(with: rows[1].1) as? NSDictionary)
+        await tokens.clearAuth()
+    }
+    func testRejectedCreationClearsOnlyItsOwnPendingRequest() async throws {
+        let (tokens, original, session, token) = wireFixture()
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { session.invalidateAndCancel(); GroupWireProtocol.remove(token); try? FileManager.default.removeItem(at: root) }
+        try await tokens.setAuth(token: token, expiresAt: Date().addingTimeInterval(3600))
+        var repository = original; repository.persistence = GroupLocalPersistence(root: root)
+        let first = try repository.persistence.pendingWrite(accountID: "a", path: "", body: createBody())
+        let other = try repository.persistence.pendingWrite(accountID: "b", path: "", body: createBody())
+        GroupWireProtocol.register(token) { proto in
+            if proto.request.url!.path.hasSuffix("/capabilities") { proto.replyCapabilities(actions: ["create_group"]); return }
+            proto.reply("{\"error\":\"INVALID_GROUP_NAME\"}", status: 422)
+        }
+        do { _ = try await repository.createGroup(body: createBody(), accountID: "a"); XCTFail("Expected rejection") } catch {}
+        XCTAssertNotEqual(first.key, try repository.persistence.pendingWrite(accountID: "a", path: "", body: createBody()).key)
+        XCTAssertEqual(other.key, try repository.persistence.pendingWrite(accountID: "b", path: "", body: createBody()).key)
+        await tokens.clearAuth()
+    }
+    func testCreationCannotDispatchBeforeItsRetryIdentityIsPersisted() async throws {
+        let (tokens, original, session, token) = wireFixture()
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { session.invalidateAndCancel(); GroupWireProtocol.remove(token); try? FileManager.default.removeItem(at: root) }
+        try await tokens.setAuth(token: token, expiresAt: Date().addingTimeInterval(3600))
+        try Data("not a directory".utf8).write(to: root)
+        var repository = original; repository.persistence = GroupLocalPersistence(root: root)
+        let requests = GroupWriteAttempts()
+        GroupWireProtocol.register(token) { proto in _ = requests.append(key: "unexpected", body: proto.bodyData()); proto.reply("{}") }
+        do { _ = try await repository.createGroup(body: createBody(), accountID: "a"); XCTFail("Persistence must fail before dispatch") }
+        catch { XCTAssertTrue(error is CocoaError) }
+        XCTAssertTrue(requests.snapshot().isEmpty)
+        await tokens.clearAuth()
+    }
+    func testUnauthorizedCreationRetainsKeyAcrossExpiredSessionAndSignIn() async throws {
+        let (tokens, original, session, token) = wireFixture()
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { session.invalidateAndCancel(); GroupWireProtocol.remove(token); try? FileManager.default.removeItem(at: root) }
+        try await tokens.setAuth(token: token, expiresAt: Date().addingTimeInterval(3600))
+        var repository = original; repository.persistence = GroupLocalPersistence(root: root)
+        let pending = try repository.persistence.pendingWrite(accountID: "a", path: "", body: createBody())
+        let attempts = GroupWriteAttempts()
+        GroupWireProtocol.register(token) { proto in
+            if proto.request.url!.path.hasSuffix("/capabilities") { proto.replyCapabilities(actions: ["create_group"]); return }
+            if proto.request.url!.path.hasSuffix("/auth/refresh") { proto.reply("{\"error\":\"TOKEN_EXPIRED\"}", status: 401); return }
+            _ = attempts.append(key: proto.request.value(forHTTPHeaderField: "Idempotency-Key") ?? "", body: proto.bodyData())
+            proto.reply("{\"error\":\"TOKEN_EXPIRED\"}", status: 401)
+        }
+        do { _ = try await repository.createGroup(body: createBody(), accountID: "a"); XCTFail("Expected expired session") }
+        catch { XCTAssertEqual(error as? APIClientError, .sessionExpired) }
+        repository.persistence = GroupLocalPersistence(root: root)
+        XCTAssertEqual(pending.key, try repository.persistence.pendingWrite(accountID: "a", path: "", body: createBody()).key)
+        try await tokens.setAuth(token: token, expiresAt: Date().addingTimeInterval(3600))
+        let reply = String(decoding: try JSONEncoder().encode(group()), as: UTF8.self)
+        GroupWireProtocol.register(token) { proto in
+            if proto.request.url!.path.hasSuffix("/capabilities") { proto.replyCapabilities(actions: ["create_group"]); return }
+            _ = attempts.append(key: proto.request.value(forHTTPHeaderField: "Idempotency-Key") ?? "", body: proto.bodyData())
+            proto.reply(reply)
+        }
+        _ = try await repository.createGroup(body: createBody(), accountID: "a")
+        let rows = attempts.snapshot()
+        XCTAssertEqual(rows.count, 2)
+        XCTAssertEqual(rows.map { $0.0 }, [pending.key, pending.key])
+        await tokens.clearAuth()
+    }
+    func testAccountSwitchDuringCreationRetainsOriginalRetryIdentity() async throws {
+        let (tokens, original, session, token) = wireFixture()
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { session.invalidateAndCancel(); GroupWireProtocol.remove(token); try? FileManager.default.removeItem(at: root) }
+        try await tokens.setAuth(token: token, expiresAt: Date().addingTimeInterval(3600))
+        var fixtureRepository = original; fixtureRepository.persistence = GroupLocalPersistence(root: root)
+        let repository = fixtureRepository, requested = expectation(description: "create dispatched"), gate = GroupWireGate()
+        let reply = String(decoding: try JSONEncoder().encode(group()), as: UTF8.self), attempts = GroupWriteAttempts()
+        GroupWireProtocol.register(token) { proto in
+            if proto.request.url!.path.hasSuffix("/capabilities") { proto.replyCapabilities(actions: ["create_group"]); return }
+            _ = attempts.append(key: proto.request.value(forHTTPHeaderField: "Idempotency-Key") ?? "", body: proto.bodyData())
+            requested.fulfill(); gate.hold { proto.reply(reply) }
+        }
+        let body = createBody()
+        let task = Task { try await repository.createGroup(body: body, accountID: "a") }
+        await fulfillment(of: [requested], timeout: 3)
+        try await tokens.setAuth(token: "new-" + token, expiresAt: Date().addingTimeInterval(3600))
+        gate.release()
+        do { _ = try await task.value; XCTFail("Old session must not accept a response") } catch { XCTAssertTrue(error is CancellationError) }
+        let rows = attempts.snapshot(); XCTAssertEqual(rows.count, 1)
+        let pending = try GroupLocalPersistence(root: root).pendingWrite(accountID: "a", path: "", body: body)
+        XCTAssertEqual(rows.first?.0, pending.key)
+        XCTAssertNotEqual(pending.key, try repository.persistence.pendingWrite(accountID: "b", path: "", body: body).key)
+        await tokens.clearAuth()
+    }
+    func testFailedActivityRefreshPreservesReminderAndSuccessfulEmptyRefreshRemovesIt() throws {
+        try withReminder { manager, activity in
+            manager.synchronize(accountID: "a", group: group(), memberID: "me", activities: nil)
+            XCTAssertTrue(manager.enabled(accountID: "a", activityID: activity.id))
+            manager.synchronize(accountID: "a", group: group(), memberID: "me", activities: [activity])
+            XCTAssertTrue(manager.enabled(accountID: "a", activityID: activity.id))
+            manager.synchronize(accountID: "a", group: group(), memberID: "me", activities: [])
+            XCTAssertFalse(manager.enabled(accountID: "a", activityID: activity.id))
+        }
+    }
+    func testReadOnlyGroupClearsRemindersEvenWhenActivitiesFailed() throws {
+        for status in ["archived", "dissolving"] {
+            try withReminder { manager, activity in
+                var current = group(); current.status = status
+                manager.synchronize(accountID: "a", group: current, memberID: "me", activities: nil)
+                XCTAssertFalse(manager.enabled(accountID: "a", activityID: activity.id), status)
+            }
+        }
+    }
+    func testSuccessfulCancelledActivityOrUnregistrationStillRemovesReminder() throws {
+        for cancelled in [false, true] {
+            try withReminder { manager, initial in
+                var activity = initial
+                if cancelled { activity.status = "cancelled" } else { activity.registeredMemberIds = [] }
+                manager.synchronize(accountID: "a", group: group(), memberID: "me", activities: [activity])
+                XCTAssertFalse(manager.enabled(accountID: "a", activityID: activity.id))
+            }
+        }
+    }
+    private func withReminder(_ work: (GroupActivityReminder, GroupActivity) throws -> Void) throws {
+        let suite = "group-reminder-review-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite)); defer { defaults.removePersistentDomain(forName: suite) }
+        let activity = reminderActivity()
+        let row: [String: Any] = ["accountID": "a", "groupID": "group", "activityID": activity.id, "title": activity.title, "place": activity.place, "startsAt": activity.startsAt]
+        defaults.set(try JSONSerialization.data(withJSONObject: [row]), forKey: "groups.activityReminders")
+        try work(GroupActivityReminder(defaults: defaults), activity)
+    }
+    func testPersistedUploadFailuresResolveCurrentCopyInAll47Languages() throws {
+        try withPersistence { persistence, root in
+            let legacy = GroupPendingUpload(id: "record", accountID: "a", groupID: "group", key: "key", body: body(), failure: "小组已归档", failureCode: "GROUP_ARCHIVED")
+            try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+            try JSONEncoder().encode([legacy]).write(to: root.appendingPathComponent("outbox.json"))
+            let restored = try XCTUnwrap(GroupLocalPersistence(root: root).uploads(accountID: "a").first)
+            XCTAssertEqual(LocalizationTestSupport.promotedLocales.count, 47)
+            for locale in LocalizationTestSupport.promotedLocales {
+                let bundle = try XCTUnwrap(Bundle(path: try XCTUnwrap(Bundle.main.path(forResource: locale, ofType: "lproj"))))
+                XCTAssertEqual(restored.failureMessage(bundle: bundle), bundle.localizedString(forKey: "group_archive_readonly", value: nil, table: nil), locale)
+                var uncoded = restored; uncoded.failureCode = nil
+                XCTAssertEqual(uncoded.failureMessage(bundle: bundle), bundle.localizedString(forKey: "group_save_failed", value: nil, table: nil), locale)
+                uncoded.body.setScore = .init(a: 0, b: 0)
+                XCTAssertEqual(uncoded.failureMessage(bundle: bundle), bundle.localizedString(forKey: "group_invalid_result", value: nil, table: nil), locale)
+            }
+            try persistence.updateRetry("record", accountID: "a", code: "GROUP_ARCHIVED", failure: "小组已归档", next: nil)
+            XCTAssertEqual(persistence.uploads(accountID: "a").first?.failure, "GROUP_ARCHIVED")
+            try persistence.updateRetry("record", accountID: "a", code: "RATE_LIMITED", failure: nil, next: Date().addingTimeInterval(30))
+            XCTAssertNil(persistence.uploads(accountID: "a").first?.failureMessage())
+            try persistence.markFailure("record", accountID: "a", message: "旧的本地化失败文案")
+            XCTAssertEqual(persistence.uploads(accountID: "a").first?.failure, "UPLOAD_FAILED")
+            XCTAssertEqual(persistence.uploads(accountID: "a").first?.failureCode, "UPLOAD_FAILED")
+        }
+    }
+    func testOldAccountCompletionCannotUnlockCurrentAccount() async throws { try await assertMutationIsolation(returnToOriginalAccount: false) }
+    func testOldLoginCompletionCannotUnlockLaterLoginOfSameAccount() async throws { try await assertMutationIsolation(returnToOriginalAccount: true) }
+    private func assertMutationIsolation(returnToOriginalAccount: Bool) async throws {
+        let (tokens, repository, session, token) = wireFixture()
+        defer { session.invalidateAndCancel(); GroupWireProtocol.remove(token) }
+        let defaults = UserDefaults.standard, oldLast = defaults.object(forKey: "groups.lastAccountID"), oldEnabled = defaults.object(forKey: "groups.enabled")
+        defaults.set(true, forKey: "groups.enabled")
+        defer { defaults.set(oldLast, forKey: "groups.lastAccountID"); defaults.set(oldEnabled, forKey: "groups.enabled") }
+        let a = "review-a-" + UUID().uuidString, b = "review-b-" + UUID().uuidString
+        let account = GroupTestAccount(a)
+        let store = GroupStore(observeConnectivity: false, signedInAccountID: { account.id }); store.repository = repository
+        defer { store.sessionDidChange(userID: nil) }
+        store.sessionDidChange(userID: a)
+        try await tokens.setAuth(token: token, expiresAt: Date().addingTimeInterval(3600))
+        let gateA = GroupOperationGate(), gateB = GroupOperationGate()
+        let startedA = expectation(description: "A writing"), startedB = expectation(description: "current account writing")
+        let taskA = Task { await store.perform { startedA.fulfill(); await gateA.wait() } }
+        await fulfillment(of: [startedA], timeout: 3)
+        account.id = b; store.sessionDidChange(userID: b)
+        if returnToOriginalAccount { account.id = a; store.sessionDidChange(userID: a) }
+        try await tokens.setAuth(token: "later-" + token, expiresAt: Date().addingTimeInterval(3600))
+        let taskB = Task { await store.perform { startedB.fulfill(); await gateB.wait() } }
+        await fulfillment(of: [startedB], timeout: 3)
+        XCTAssertTrue(store.mutating)
+        gateA.release(); let acceptedA = await taskA.value
+        XCTAssertFalse(acceptedA); XCTAssertTrue(store.mutating, "Old completion must leave the current write locked")
+        gateB.release(); let acceptedB = await taskB.value
+        XCTAssertTrue(acceptedB); XCTAssertFalse(store.mutating)
+        await tokens.clearAuth()
+    }
+}
+
 extension GroupPortParityTests {
     private func directBody() -> GroupDirectLineupBody {
         .init(title: "", startsAt: 1_000_000, place: "Gym", format: .singles, timingMode: "sequence", sessionMinutes: 30,
@@ -224,6 +592,125 @@ extension GroupPortParityTests {
         row.serverID = original.id; row.frozen = original.frozen
         for seat in original.seats { row.memberIDs[(seat.side == "A" ? 0 : 2) + seat.seat] = seat.memberId }
         return row
+    }
+
+    func testCancellationReasonLimitsMatchServerUTF16WithoutSplittingCharacters() {
+        for reason in ["", " \n\t", String(repeating: "球", count: 300), String(repeating: "😀", count: 150)] {
+            XCTAssertTrue(GroupActivityPolicy.validCancellationReason(reason))
+            XCTAssertEqual(GroupActivityPolicy.limitedCancellationReason(reason), reason)
+        }
+        for reason in [String(repeating: "球", count: 301), String(repeating: "😀", count: 151)] {
+            XCTAssertFalse(GroupActivityPolicy.validCancellationReason(reason))
+        }
+        XCTAssertEqual(GroupActivityPolicy.limitedCancellationReason(String(repeating: "球", count: 301)), String(repeating: "球", count: 300))
+        XCTAssertEqual(GroupActivityPolicy.limitedCancellationReason(String(repeating: "😀", count: 151)), String(repeating: "😀", count: 150))
+        let nearLimit = String(repeating: "A", count: 299)
+        XCTAssertEqual(GroupActivityPolicy.limitedCancellationReason(nearLimit + "😀"), nearLimit)
+        XCTAssertEqual(GroupActivityPolicy.limitedCancellationReason(nearLimit + "e\u{301}"), nearLimit)
+    }
+
+    func testRegistrationDeadlineFollowsStartUnlessCustomAndCanFollowAgain() {
+        let start = Date(timeIntervalSince1970: 2_000_000)
+        let later = start.addingTimeInterval(3600)
+        XCTAssertTrue(GroupActivityPolicy.registrationFollowsStart(closes: start, starts: start))
+        XCTAssertEqual(GroupActivityPolicy.registrationCloseAfterStartChange(closes: start, previousStart: start, newStart: later), later)
+        let custom = start.addingTimeInterval(-1800)
+        XCTAssertFalse(GroupActivityPolicy.registrationFollowsStart(closes: custom, starts: start))
+        XCTAssertEqual(GroupActivityPolicy.registrationCloseAfterStartChange(closes: custom, previousStart: start, newStart: later), custom)
+        // Restoring the current start time re-enables following subsequent start-time edits.
+        XCTAssertEqual(GroupActivityPolicy.registrationCloseAfterStartChange(closes: later, previousStart: later, newStart: later.addingTimeInterval(600)), later.addingTimeInterval(600))
+    }
+
+    func testConfirmedRegistrationDeadlineUsesExactStartForTheSameLocalMinute() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = try XCTUnwrap(TimeZone(secondsFromGMT: 8 * 3600))
+        let start = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 10, day: 20, hour: 19, minute: 30, second: 37))).addingTimeInterval(0.456)
+        let minuteSelection = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 10, day: 20, hour: 19, minute: 30)))
+        let confirmed = GroupActivityPolicy.registrationCloseAfterSelection(minuteSelection, starts: start, calendar: calendar)
+        XCTAssertEqual(confirmed, start, "Minute-only pickers must recover the start's seconds and subsecond precision")
+        XCTAssertTrue(GroupActivityPolicy.registrationFollowsStart(closes: confirmed, starts: start))
+        let nextStart = start.addingTimeInterval(3600)
+        XCTAssertEqual(GroupActivityPolicy.registrationCloseAfterStartChange(closes: confirmed, previousStart: start, newStart: nextStart), nextStart)
+        for custom in [minuteSelection.addingTimeInterval(-60), minuteSelection.addingTimeInterval(60), minuteSelection.addingTimeInterval(-86400)] {
+            XCTAssertEqual(GroupActivityPolicy.registrationCloseAfterSelection(custom, starts: start, calendar: calendar), custom,
+                "Different minutes and dates keep the selected deadline")
+        }
+        var utc = Calendar(identifier: .gregorian)
+        utc.timeZone = try XCTUnwrap(TimeZone(secondsFromGMT: 0))
+        XCTAssertEqual(GroupActivityPolicy.registrationCloseAfterSelection(minuteSelection, starts: start, calendar: utc), start)
+    }
+
+    func testRegistrationDeadlineModeDoesNotChangeBeforePickerConfirmation() {
+        let start = Date(timeIntervalSince1970: 2_000_017.456)
+        let custom = start.addingTimeInterval(-17.456)
+        let later = start.addingTimeInterval(3600)
+        // Opening or cancelling the picker does not assign its pending value to the binding.
+        // Existing data remains an exact-date comparison until a selection is confirmed.
+        XCTAssertFalse(GroupActivityPolicy.registrationFollowsStart(closes: custom, starts: start))
+        XCTAssertEqual(GroupActivityPolicy.registrationCloseAfterStartChange(closes: custom, previousStart: start, newStart: later), custom)
+        XCTAssertTrue(GroupActivityPolicy.registrationFollowsStart(closes: start, starts: start))
+        XCTAssertEqual(GroupActivityPolicy.registrationCloseAfterStartChange(closes: start, previousStart: start, newStart: later), later)
+    }
+
+    func testPendingUploadShowsOnlyAnApplicableActionAndNeedsARealCloudIdentity() {
+        var row = GroupPendingUpload(id: "record", accountID: "a", groupID: "group", key: "stable-key", body: body())
+        XCTAssertEqual(row.primaryAction, .retry)
+        row.failureCode = "INVALID_SET_SCORE"; row.failure = nil; row.body.gameId = nil
+        XCTAssertEqual(row.primaryAction, .repair, "Stable codes also classify records without a legacy failure string")
+        row.failure = "NETWORK_FAILED"; XCTAssertEqual(row.primaryAction, .repair, "The stable code takes precedence over legacy text")
+        row.failureCode = nil; row.body.gameId = "game"
+        XCTAssertEqual(row.primaryAction, .retry)
+        for code in ["RULES_REVIEW_REQUIRED", "INVALID_RESULT", "INVALID_MATCH_RESULT", "INVALID_SET_SCORE", "INVALID_SET_DETAILS", "INVALID_RULES", "RULES_CONFLICT"] {
+            row.failure = code; row.body.gameId = "game"
+            XCTAssertEqual(row.primaryAction, .viewFrozenConfiguration, code)
+            row.body.gameId = nil
+            XCTAssertEqual(row.primaryAction, .repair, code)
+        }
+        for code in ["RESULT_CONFLICT", "GAME_EXISTS", "GAME_ABANDONED"] {
+            row.failure = code; row.body.gameId = "game"
+            XCTAssertEqual(row.primaryAction, .viewFrozenConfiguration, code)
+            row.body.gameId = nil; XCTAssertNil(row.primaryAction, "A conflict alone does not identify a cloud result")
+        }
+        row.failure = "GROUP_DISSOLVING"; XCTAssertNil(row.primaryAction)
+        row.failure = "GROUP_ARCHIVED"; XCTAssertEqual(row.primaryAction, .retry)
+        row.failure = "RESULT_CONFLICT"; row.existingResultID = "  "
+        XCTAssertNil(row.primaryAction)
+        row.existingResultID = "cloud-result"; XCTAssertEqual(row.primaryAction, .viewCloudResult)
+        row.uploaded = true; XCTAssertNil(row.primaryAction)
+    }
+
+    func testPendingUploadActionClassificationDoesNotChangeDurableRecord() throws {
+        try withPersistence { persistence, root in
+            try persistence.enqueueManual(body(), id: "record", accountID: "a", groupID: "group", key: "stable-key")
+            try persistence.updateRetry("record", accountID: "a", code: "INVALID_RESULT", failure: "invalid", next: nil)
+            let path = root.appendingPathComponent("outbox.json")
+            let original = try Data(contentsOf: path)
+            let row = try XCTUnwrap(GroupLocalPersistence(root: root).uploads(accountID: "a").first)
+            XCTAssertEqual(row.primaryAction, .viewFrozenConfiguration)
+            XCTAssertEqual(row.id, "record"); XCTAssertEqual(row.key, "stable-key")
+            XCTAssertEqual(row.body.gameId, "game"); XCTAssertEqual(row.body.clientSessionId, "session")
+            XCTAssertEqual(try Data(contentsOf: path), original)
+            XCTAssertEqual(GroupLocalPersistence(root: root).uploads(accountID: "a").count, 1)
+        }
+    }
+
+    func testMemberNameLimitStaysAt24ScalarsIndependentlyOfGroupNames() {
+        XCTAssertEqual(GroupInputValidation.memberNameMax, 24)
+        for unit in ["球", "😀"] {
+            XCTAssertTrue(GroupInputValidation.validName(" " + String(repeating: unit, count: 24) + " "))
+            XCTAssertFalse(GroupInputValidation.validName(String(repeating: unit, count: 25)))
+        }
+    }
+
+    func testGroupNameUsesServerScalarLimitsWhileDescriptionUsesUTF16() {
+        for unit in ["球", "😀"] {
+            XCTAssertTrue(GroupInputValidation.validName(" " + String(repeating: unit, count: 24) + " ", minimum: 2, maximum: 24))
+            XCTAssertFalse(GroupInputValidation.validName(unit, minimum: 2, maximum: 24))
+            XCTAssertFalse(GroupInputValidation.validName(String(repeating: unit, count: 25), minimum: 2, maximum: 24))
+        }
+        XCTAssertTrue(GroupInputValidation.validName("e\u{301}", minimum: 2, maximum: 24), "Two Unicode scalars, one grapheme")
+        XCTAssertTrue(GroupInputValidation.validText(String(repeating: "😀", count: 100), maximum: 200))
+        XCTAssertFalse(GroupInputValidation.validText(String(repeating: "😀", count: 101), maximum: 200))
     }
 
     func testActivityTextLimitsMatchTheServerIncludingAutomaticTitles() {
@@ -441,18 +928,38 @@ extension GroupPortParityTests {
         catch { XCTAssertTrue(error is CancellationError, "Unexpected error: \(error)") }
         await tokens.clearAuth()
     }
-    func testVersionConflictIncludesIfMatchAndDoesNotMutateInput() async throws {
+    func testProfilePatchSendsOnlyChangedFieldsWithoutIfMatch() async throws {
         let (tokens, repository, session, token) = wireFixture()
         defer { session.invalidateAndCancel(); GroupWireProtocol.remove(token) }
         try await tokens.setAuth(token: token, expiresAt: Date().addingTimeInterval(3600))
         GroupWireProtocol.register(token) { proto in
             if proto.request.url!.path.hasSuffix("/capabilities") { proto.replyCapabilities(actions: ["manage_group"]); return }
+            XCTAssertNil(proto.request.value(forHTTPHeaderField: "If-Match"))
+            XCTAssertEqual(proto.request.httpMethod, "PATCH")
+            XCTAssertEqual(try? JSONSerialization.jsonObject(with: proto.bodyData()) as? [String: String], ["description": "新简介"])
+            proto.reply("""
+                {"id":"g","groupNo":"82603158","name":"其他管理员的新名称","description":"新简介","sport":"badminton","status":"active","joinPolicy":"closed","ownerMemberId":"owner","memberLimit":30,"createdAt":1,"updatedAt":2,"revision":9}
+                """)
+        }
+        let original = GroupProfileFields(name: "原名称", description: "原简介", joinPolicy: "open")
+        var edited = original; edited.description = "新简介"
+        let saved: ScoreGroup = try await repository.write("/g", body: edited.changes(from: original, canEditJoinPolicy: true), method: .patch)
+        XCTAssertEqual(saved.name, "其他管理员的新名称"); XCTAssertEqual(saved.joinPolicy, "closed")
+        await tokens.clearAuth()
+    }
+
+    func testOtherConditionalActionsIncludeIfMatchAndDoNotMutateInput() async throws {
+        let (tokens, repository, session, token) = wireFixture()
+        defer { session.invalidateAndCancel(); GroupWireProtocol.remove(token) }
+        try await tokens.setAuth(token: token, expiresAt: Date().addingTimeInterval(3600))
+        GroupWireProtocol.register(token) { proto in
+            if proto.request.url!.path.hasSuffix("/capabilities") { proto.replyCapabilities(actions: ["manage_group", "restore_group"]); return }
             XCTAssertEqual(proto.request.value(forHTTPHeaderField: "If-Match"), "\"7\"")
             XCTAssertEqual(proto.request.httpMethod, "PATCH")
             proto.reply("{\"error\":\"REVISION_CONFLICT\",\"message\":\"reload\"}", status: 409)
         }
         let input = GroupActionBody(name: "Preserve this input", description: "draft", joinPolicy: "approval")
-        do { let _: ScoreGroup = try await repository.write("/g", body: input, method: .patch, revision: 7); XCTFail("Expected conflict") }
+        do { let _: ScoreGroup = try await repository.write("/g/restore", body: input, method: .patch, revision: 7); XCTFail("Expected conflict") }
         catch { guard case APIClientError.server(status: 409, code: _, message: _, nextAvailableAt: _) = error else { return XCTFail("Unexpected error: \(error)") } }
         XCTAssertEqual(input.name, "Preserve this input"); XCTAssertEqual(input.description, "draft"); await tokens.clearAuth()
     }
@@ -682,6 +1189,15 @@ extension GroupPortParityTests {
         }
     }
 
+    func testOnlySimpleGroupConfirmationsUseSystemAlerts() {
+        for entry in [GroupManagementMenu.Entry.archive, .restore, .cancelDissolve, .dissolve, .leave] {
+            XCTAssertNotNil(entry.confirmationHintKey)
+        }
+        for entry in [GroupManagementMenu.Entry.editProfile, .transfer, .report, .divider] {
+            XCTAssertNil(entry.confirmationHintKey)
+        }
+    }
+
     func testManagementMenuGatesTransferAndDissolveByStatus() {
         // 安卓 canTransferOwnership = isOwner && status ∈ {active, archived}（冷静期服务端直接 409）。
         for status in ["active", "archived"] {
@@ -794,6 +1310,8 @@ extension GroupPortParityTests {
         XCTAssertNotNil(card, "二维码生成失败时不应返回卡片")
         XCTAssertEqual(card?.size, GroupInviteCard.size)
         XCTAssertEqual(card?.scale, 1)
+        XCTAssertEqual(card?.cgImage?.width, 720)
+        XCTAssertEqual(card?.cgImage?.height, 920)
     }
 
     func testGroupQrRendersAtTheAndroidModuleSize() {
@@ -844,21 +1362,77 @@ extension GroupPortParityTests {
         draft.clearDetails(); XCTAssertNil(draft.score); XCTAssertFalse(draft.isValid(rules()))
     }
 
-    func testEntryDraftVictoryOrderAndRulesNeverRewriteEnteredPoints() {
+    func testEntryDraftDetailsNeedNoWinnerOrderAndNeverRewriteEnteredPoints() {
         var draft = GroupResultEntryDraft()
         draft.selectTotal(.init(a: 2, b: 1), rules: rules())
         draft.detailsExpanded = true; draft.reconcileDetails(rules())
-        XCTAssertEqual(GroupResultEntryDraft.orders(rules(), total: draft.total.score), ["ABA", "BAA"])
-        draft.selectOrder("ABA", rules: rules())
-        XCTAssertEqual(draft.sets, [.init(a: "21"), .init(b: "21"), .init(a: "21")])
-        draft.sets = [.init(a: "21", b: "19"), .init(a: "19", b: "21"), .init(a: "21", b: "18")]
-        XCTAssertTrue(draft.isValid(rules()))
-        var otherRules = rules(); otherRules.pointsToWinSet = 11; otherRules.pointCap = nil
+        XCTAssertEqual(draft.sets, Array(repeating: .init(), count: 3), "Show empty detail rows without guessing any actual points")
+        XCTAssertTrue(draft.isValid(rules()), "Simply expanding optional details preserves fast total-only entry")
+        draft.sets = [.init(a: "19", b: "21"), .init(a: "21", b: "19"), .init(a: "21", b: "18")]
+        XCTAssertTrue(draft.isValid(rules()), "Actual points determine each game winner")
         let entered = draft.sets
+        draft.selectTotal(.init(a: 2, b: 0), rules: rules())
+        XCTAssertEqual(draft.sets, entered); XCTAssertFalse(draft.isValid(rules()))
+        draft.clearTotal()
+        XCTAssertEqual(draft.score, .init(a: 2, b: 1)); XCTAssertTrue(draft.isValid(rules()))
+        var otherRules = rules(); otherRules.pointsToWinSet = 11; otherRules.pointCap = nil
         draft.reconcileDetails(otherRules)
         XCTAssertEqual(draft.sets, entered); XCTAssertFalse(draft.isValid(otherRules))
-        draft.victoryOrder = "BAA"
-        XCTAssertFalse(draft.isValid(rules()))
+    }
+
+    func testEntryDraftPreservesPartialDetailsWhenChangingTotal() {
+        var draft = GroupResultEntryDraft()
+        draft.selectTotal(.init(a: 2, b: 1), rules: rules())
+        draft.detailsExpanded = true; draft.reconcileDetails(rules())
+        draft.sets[0].a = "19"
+        let entered = draft.sets[0]
+        draft.selectTotal(.init(a: 2, b: 0), rules: rules())
+        XCTAssertEqual(draft.sets.count, 2, "Only the unused trailing placeholder is reclaimed")
+        XCTAssertEqual(draft.sets[0], entered); XCTAssertFalse(draft.isValid(rules()))
+    }
+
+    func testEntryDraftCanShrinkTotalAndExplicitlyRemoveAnExcessScoredGame() {
+        var draft = GroupResultEntryDraft(); draft.detailsExpanded = true
+        draft.selectTotal(.init(a: 2, b: 1), rules: rules())
+        draft.sets = [.init(a: "19", b: "21"), .init(a: "21", b: "19"), .init(a: "21", b: "18")]
+        let entered = draft.sets
+        draft.selectTotal(.init(a: 2, b: 0), rules: rules())
+        XCTAssertEqual(draft.sets, entered, "An entered extra game is not silently dropped")
+        XCTAssertTrue(draft.hasExcessDetailRows); XCTAssertFalse(draft.isValid(rules()))
+        draft.removeSet(at: 0, rules: rules())
+        XCTAssertEqual(draft.sets, Array(entered.dropFirst()))
+        XCTAssertFalse(draft.hasExcessDetailRows); XCTAssertTrue(draft.isValid(rules()))
+    }
+
+    func testEntryDraftGrowthAppendsBlankRowsAndPreservesEnteredPoints() {
+        var draft = GroupResultEntryDraft(); draft.detailsExpanded = true
+        draft.selectTotal(.init(a: 2, b: 0), rules: rules())
+        draft.sets[0] = .init(a: "21", b: "19")
+        let entered = draft.sets
+        draft.selectTotal(.init(a: 2, b: 1), rules: rules())
+        XCTAssertEqual(draft.sets.count, 3)
+        XCTAssertEqual(Array(draft.sets.prefix(2)), entered)
+        XCTAssertEqual(draft.sets[2], .init(), "New detail rows never guess actual points")
+        draft.sets[1] = .init(a: "19", b: "21"); draft.sets[2] = .init(a: "21", b: "18")
+        XCTAssertTrue(draft.isValid(rules()), "The larger total can be completed directly")
+    }
+
+    func testEntryDraftClearingAnExcessTrailingGameReclaimsOnlyItsBlankRow() {
+        var draft = GroupResultEntryDraft(); draft.detailsExpanded = true
+        draft.selectTotal(.init(a: 2, b: 1), rules: rules())
+        draft.sets = [.init(a: "21", b: "19"), .init(a: "21", b: "18"), .init(a: "0", b: "21")]
+        draft.selectTotal(.init(a: 2, b: 0), rules: rules())
+        XCTAssertEqual(draft.sets.count, 3)
+        draft.sets[2] = .init(); draft.reconcileDetails(rules())
+        XCTAssertEqual(draft.sets, [.init(a: "21", b: "19"), .init(a: "21", b: "18")])
+        XCTAssertTrue(draft.isValid(rules()))
+    }
+
+    func testEntryDraftCanDeriveTotalFromDirectGameScores() {
+        var draft = GroupResultEntryDraft()
+        draft.detailsExpanded = true
+        draft.sets = [.init(a: "21", b: "19"), .init(a: "21", b: "18")]
+        XCTAssertEqual(draft.score, .init(a: 2, b: 0)); XCTAssertTrue(draft.isValid(rules()))
     }
 
     func testEntryDraftRejectsPartialTotalsInvalidNumbersAndExtraGames() {
@@ -871,7 +1445,10 @@ extension GroupPortParityTests {
         draft.total = .init(); draft.sets.append(.init(a: "0", b: "21"))
         XCTAssertFalse(draft.isValid(rules()), "No games after the match has already ended")
         var long = rules(); long.maxSets = 99
-        XCTAssertTrue(GroupResultEntryDraft.orders(long, total: .init(a: 50, b: 49)).isEmpty)
+        var longDraft = GroupResultEntryDraft(); longDraft.detailsExpanded = true
+        longDraft.selectTotal(.init(a: 50, b: 49), rules: long)
+        XCTAssertEqual(longDraft.sets.count, 99)
+        XCTAssertFalse(longDraft.hasDetailInput); XCTAssertTrue(longDraft.isValid(long))
     }
 
     func testLineupDistinguishesAllFiveAndroidValidationCases() {
@@ -903,5 +1480,106 @@ extension GroupPortParityTests {
               participants: participants.map { .init(memberId: $0.0, side: $0.1, seat: 0) },
               playedAt: playedAt, submitterMemberId: submitter, confirmedByMemberId: "", status: status,
               source: "manual", reason: "", createdAt: 1, revision: 1)
+    }
+}
+
+extension GroupPortParityTests {
+    func testCoachingConfirmationRequiresCoachAndNeverUsesPeerAuthority() {
+        var training = group(); training.groupType = "coaching"
+        for me in [member("b"), member("admin", role: "admin")] {
+            XCTAssertFalse(GroupPermissions.confirmation(result(), group: training, me: me).allowed)
+            XCTAssertTrue(GroupPermissions.confirmationTasks([result()], group: training, me: me).isEmpty)
+        }
+        let owner = member("owner", role: "owner")
+        var pending = result(); pending.canAuthorityConfirm = true
+        training.isCoach = false
+        XCTAssertFalse(GroupPermissions.confirmation(pending, group: training, me: owner).allowed)
+        for coach in [true, nil] as [Bool?] {
+            training.isCoach = coach
+            let permission = GroupPermissions.confirmation(pending, group: training, me: owner)
+            XCTAssertTrue(permission.allowed); XCTAssertFalse(permission.authority)
+            XCTAssertFalse(GroupPermissions.confirmation(result(submitter: "owner"), group: training, me: owner).allowed)
+        }
+    }
+    func testEveryBackendGroupRejectionHasLocalizedCopy() {
+        // Captured independently from api-server GroupError call sites on 2026-10-17.
+        let codes = """
+        ACCOUNT_NOT_ACTIVE ACTION_DISABLED ACTIVITY_FULL ACTIVITY_HAS_PENDING_SESSIONS ACTIVITY_NOT_CANCELLABLE ACTIVITY_NOT_EDITABLE ACTIVITY_NOT_FOUND ACTIVITY_NOT_OPEN ACTIVITY_REGISTRATION_DISABLED ACTIVITY_SESSION_REQUIRED ACTIVITY_TITLE_BLOCKED COACHING_GROUP_NO_ADMIN FORMAT_MISMATCH GAME_ABANDONED GAME_EXISTS GAME_HAS_RESULT GAME_NOT_FOUND GAME_NOT_OPEN GROUP_ARCHIVED GROUP_DISSOLVING GROUP_FULL GROUP_JOIN_CLOSED GROUP_JOIN_MESSAGE_BLOCKED GROUP_MEMBER_NAME_BLOCKED GROUP_MODERATION_CONFLICT GROUP_NOT_DISSOLVING GROUP_NOT_FOUND GROUP_NUMBER_ALLOCATION_FAILED IDEMPOTENCY_KEY_REUSED INVALID_ACTIVITY INVALID_ACTIVITY_CAPACITY INVALID_CURSOR INVALID_DISPLAY_NAME INVALID_FORMAT INVALID_GROUP_DESCRIPTION INVALID_GROUP_NAME INVALID_GROUP_NUMBER INVALID_GROUP_TYPE INVALID_INITIAL_JOIN_POLICY INVALID_JOIN_POLICY INVALID_LEAVE_REASON INVALID_LIMIT INVALID_LINEUP INVALID_MEMBER_STATUS INVALID_PERIOD INVALID_PLAN_NOTE INVALID_REASON INVALID_REQUEST INVALID_RESULT INVALID_RESULT_STATE INVALID_ROLE INVALID_RULES INVALID_TARGET INVALID_TRANSFER_TARGET JOIN_REQUEST_COOLDOWN LINEUP_CONFLICT NEED_LOGIN NOTICE_NOT_FOUND NOT_COACH NOT_PEER_GROUP OWNER_TRANSFER_REQUIRED PLACE_LOCKED PLAN_CANCELLED PLAN_NOT_FOUND REASON_REQUIRED REGISTRATION_CLOSED REQUEST_NOT_PENDING RESULT_CONFLICT REVISION_CONFLICT REVISION_REQUIRED ROLE_FORBIDDEN RULES_CONFLICT SESSION_CANCELLED SESSION_COMPLETED SESSION_HAS_RESULT SESSION_NOT_FOUND UNSUPPORTED_FORMAT UNSUPPORTED_SPORT
+        """.split(separator: " ").map(String.init)
+        let fallback = NSLocalizedString("network_request_failed", value: "Request failed. Please try again.", comment: "")
+        for code in codes {
+            let error = APIClientError.server(status: 409, code: code, message: "UNLOCALIZED_SERVER_MESSAGE", nextAvailableAt: nil)
+            let message = groupErrorMessage(error)
+            XCTAssertFalse(message.isEmpty, code)
+            XCTAssertNotEqual(message, fallback, code)
+            XCTAssertNotEqual(message, "UNLOCALIZED_SERVER_MESSAGE", code)
+            XCTAssertNotEqual(message, code, code)
+        }
+    }
+
+    func testGroupRejectionCopyDistinguishesPermissionConflictAndRegistration() {
+        for (code, key) in [("ROLE_FORBIDDEN", "error_permission"),
+                            ("RESULT_CONFLICT", "error_conflict"),
+                            ("REGISTRATION_CLOSED", "error_registration_closed"),
+                            ("ACTION_DISABLED", "error_action_disabled"),
+                            ("UPDATE_REQUIRED", "error_update_required")] {
+            let error = APIClientError.server(status: 409, code: code, message: nil, nextAvailableAt: nil)
+            XCTAssertEqual(groupErrorMessage(error), groupText(key, "MISSING_COPY"), code)
+            XCTAssertNotEqual(groupErrorMessage(error), "MISSING_COPY", code)
+            let wrapped = APIClientServerContextError(underlying: error, currentResultID: "existing-result")
+            XCTAssertEqual(groupErrorMessage(wrapped), groupErrorMessage(error), code)
+        }
+    }
+
+    func testGroupCountersResolvePluralCopyInEveryShippedLanguage() throws {
+        let locales = ["en", "zh-Hans", "zh-Hant", "ja", "ko", "de", "fr", "fr-CA", "es-MX", "es-ES", "pt-BR", "pt-PT", "ar", "he", "ur", "ru", "uk", "pl", "tr", "it", "nl", "id", "vi", "th", "hi", "bn", "gu", "kn", "ml", "mr", "or", "pa", "ta", "te", "ca", "hr", "cs", "da", "fi", "el", "hu", "ms", "nb", "ro", "sk", "sl", "sv"]
+        for locale in locales {
+            let path = try XCTUnwrap(Bundle.main.path(forResource: locale, ofType: "lproj"), locale)
+            let bundle = try XCTUnwrap(Bundle(path: path), locale)
+            for key in ["activity_direct_match_count", "archived_count"] {
+                let format = bundle.localizedString(forKey: key, value: nil, table: nil)
+                for count in [0, 1, 2, 3, 5, 11, 21, 100] {
+                    let rendered = String.localizedStringWithFormat(format, count)
+                    XCTAssertFalse(rendered.isEmpty, "\(locale) \(key)")
+                    XCTAssertFalse(rendered.contains("%"), "\(locale) \(key): \(rendered)")
+                    if locale != "en" {
+                        XCTAssertFalse(rendered.contains("all group members"), "\(locale): \(rendered)")
+                        XCTAssertFalse(rendered.contains(" groups"), "\(locale): \(rendered)")
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+
+@MainActor final class ThemeActionForegroundTests: XCTestCase {
+    func testLightGreenLabelsAreWhiteAndDarkModeKeepsContrast() {
+        XCTAssertNotNil(UIImage(systemName: "checkmark.circle"))
+        let dynamicPrimaryLabel = UIColor(Theme.textOnPrimary)
+        for appearance in [UIUserInterfaceStyle.light, .dark] {
+            let traits = UITraitCollection(userInterfaceStyle: appearance)
+            for fill in [Theme.primary, Theme.primaryDark, Theme.toolWhistleRed, Color.black, Color.white] {
+                let background = UIColor(fill).resolvedColor(with: traits)
+                let foreground = UIColor(Theme.actionForeground(on: fill)).resolvedColor(with: traits)
+                if appearance == .light && (fill == Theme.primary || fill == Theme.primaryDark) {
+                    XCTAssertEqual(foreground, UIColor.white)
+                } else {
+                    let a = luminance(background), b = luminance(foreground)
+                    XCTAssertGreaterThanOrEqual((max(a, b) + 0.05) / (min(a, b) + 0.05), 4.5)
+                }
+            }
+            let primaryLabel = dynamicPrimaryLabel.resolvedColor(with: traits)
+            XCTAssertEqual(primaryLabel, appearance == .light ? UIColor.white : UIColor.black)
+        }
+        XCTAssertEqual(Theme.actionForeground(on: UIColor.black), UIColor.white)
+        XCTAssertEqual(Theme.actionForeground(on: UIColor.white), UIColor.black)
+    }
+    private func luminance(_ color: UIColor) -> CGFloat {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        XCTAssertTrue(color.getRed(&r, green: &g, blue: &b, alpha: &a))
+        func linear(_ c: CGFloat) -> CGFloat { c <= 0.04045 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4) }
+        return 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b)
     }
 }

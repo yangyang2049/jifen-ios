@@ -223,7 +223,7 @@ struct MultiScoreSetupDialogView: View {
                 Button(action: confirmSetup) {
                     Text(NSLocalizedString("start_game", comment: "Start Game button"))
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(canConfirmSetup ? .white : Theme.textSecondary)
+                        .foregroundColor(canConfirmSetup ? Theme.textOnPrimary : Theme.textSecondary)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
                         .background(canConfirmSetup ? Theme.primary : Theme.dialogControlBackground)
@@ -265,7 +265,7 @@ struct MultiScoreSetupDialogView: View {
                     Button(action: { selectedPlayerCount = count }) {
                         Text(playerCountText(count))
                             .font(.system(size: 15, weight: selectedPlayerCount == count ? .semibold : .medium))
-                            .foregroundColor(selectedPlayerCount == count ? .white : Theme.textPrimary)
+                            .foregroundColor(selectedPlayerCount == count ? Theme.textOnPrimary : Theme.textPrimary)
                             .frame(minWidth: 80, minHeight: 44)
                             .background(selectedPlayerCount == count ? Theme.primary : Theme.dialogControlBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -396,7 +396,7 @@ struct MultiScoreSetupDialogView: View {
                         } label: {
                             Text(rank)
                                 .font(.system(size: 14, weight: guandanFallbackRank == rank ? .medium : .regular))
-                                .foregroundStyle(guandanFallbackRank == rank ? Color.white : Theme.textPrimary)
+                                .foregroundStyle(guandanFallbackRank == rank ? Theme.textOnPrimary : Theme.textPrimary)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 36)
                                 .background(guandanFallbackRank == rank ? Theme.primary : Theme.dialogControlBackground)
@@ -415,7 +415,7 @@ struct MultiScoreSetupDialogView: View {
         } label: {
             Text(title)
                 .font(.system(size: 13, weight: guandanPassACondition == id ? .medium : .regular))
-                .foregroundStyle(guandanPassACondition == id ? Color.white : Theme.textPrimary)
+                .foregroundStyle(guandanPassACondition == id ? Theme.textOnPrimary : Theme.textPrimary)
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
                 .background(guandanPassACondition == id ? Theme.primary : Theme.dialogControlBackground)
@@ -439,7 +439,7 @@ struct MultiScoreSetupDialogView: View {
                     } label: {
                         Text("\(score)")
                             .font(.system(size: 14, weight: isSelected ? .medium : .regular))
-                            .foregroundStyle(isSelected ? Color.white : Theme.textPrimary)
+                            .foregroundStyle(isSelected ? Theme.textOnPrimary : Theme.textPrimary)
                             .frame(maxWidth: .infinity)
                             .frame(height: 40)
                             .background(isSelected ? Theme.primary : Theme.dialogControlBackground)
@@ -463,7 +463,7 @@ struct MultiScoreSetupDialogView: View {
                 .keyboardType(.numberPad)
                 .multilineTextAlignment(.center)
                 .font(.system(size: 14, weight: unoCustomTargetScoreText.isEmpty ? .regular : .medium))
-                .foregroundStyle(unoCustomTargetScoreText.isEmpty ? Theme.textPrimary : Color.white)
+                .foregroundStyle(unoCustomTargetScoreText.isEmpty ? Theme.textPrimary : Theme.textOnPrimary)
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
                 .background(unoCustomTargetScoreText.isEmpty ? Theme.dialogControlBackground : Theme.primary)

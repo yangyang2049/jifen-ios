@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>小组 · 测试版标识 + 说明卡 方案对比</title>
+<style>
+  :root{
+    color-scheme: light;
+    /* —— App 浅色基线（ui/theme/Theme.kt） —— */
+    --bg:#FFFFFF;
+    --card:#F5F5F5;            /* groupCardBackground（浅） */
+    --control:#F5F5F5;          /* groupControlBackground（浅） */
+    --divider:#E5E7EB;
+    --text1:#111827;
+    --text2:#5B6472;            /* textSecondary */
+    --text3:#8A93A3;            /* textTertiary */
+    --helper:#647084;           /* textHelper */
+    --primary:#4CAF50;
+    --primary-dark:#2E7D32;
+    --primary-soft:rgba(76,175,80,.12);
+    --blue:#007AFF;
+    --blue-soft:rgba(0,122,255,.10);
+    --orange:#F59E0B;
+    --orange-soft:rgba(245,158,11,.14);
+    /* —— 文档外壳 —— */
+    --shell:#F7F8FA;
+    --shell-line:#E3E6EA;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--shell);color:var(--text1);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:14px;line-height:1.65;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4,p{margin:0}
+  .shell{max-width:1240px;margin:0 auto;padding:40px 32px 72px}
+
+  /* ============ 文档头部 ============ */
+  .masthead{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+  .logo{width:30px;height:30px;border-radius:9px;background:var(--primary);color:#fff;
+    display:grid;place-items:center;font-weight:700;font-size:16px}
+  .masthead b{font-size:14px;font-weight:650}
+  .masthead span{font-size:11px;color:var(--text3);letter-spacing:.6px}
+  .intro h1{font-size:32px;font-weight:650;letter-spacing:-.8px;line-height:1.3}
+  .intro .sub{color:var(--text2);font-size:13.5px;margin-top:10px;max-width:820px;line-height:1.9}
+  .verdict{margin-top:24px;background:#fff;border:1px solid var(--shell-line);border-radius:14px;
+    padding:18px 20px;display:grid;gap:10px}
+  .verdict .row{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--text2);line-height:1.7}
+  .verdict .row b{color:var(--text1);font-weight:600}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--primary);margin-top:9px;flex:none}
+  .dot.grey{background:var(--text3)}
+
+  /* ============ 分区 ============ */
+  section{margin-top:52px}
+  .sec-head{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--shell-line);
+    padding-bottom:12px;margin-bottom:24px}
+  .sec-head .idx{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--primary-dark)}
+  .sec-head h2{font-size:19px;font-weight:650;letter-spacing:-.3px}
+  .sec-head .note{font-size:12px;color:var(--text3);margin-left:auto}
+
+  .grid{display:grid;gap:20px}
+  .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  @media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+  .opt{background:#fff;border:1px solid var(--shell-line);border-radius:14px;padding:0;overflow:hidden;
+    display:flex;flex-direction:column}
+  .opt.pick{border-color:var(--primary);box-shadow:0 0 0 3px rgba(76,175,80,.12)}
+  .opt-h{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--shell-line);
+    background:#FCFCFD}
+  .opt-h .name{font-size:13.5px;font-weight:650}
+  .badge-pick{font-size:10px;font-weight:700;letter-spacing:.5px;color:#1B5E20;background:var(--primary-soft);
+    border-radius:999px;padding:2px 8px}
+  .badge-plain{font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--text2);background:#EEF0F3;
+    border-radius:999px;padding:2px 8px}
+  .opt-b{padding:20px 16px;display:flex;flex-direction:column;align-items:center;gap:16px;
+    background:#FBFBFC;flex:1}
+  .opt-f{padding:12px 16px;border-top:1px solid var(--shell-line);font-size:12px;color:var(--text2);
+    line-height:1.8;background:#fff}
+  .opt-f b{color:var(--text1)}
+  .opt-f .minus{color:#B3261E}
+
+  /* ============ App 内部真实组件还原 ============ */
+  .stage{width:100%;max-width:390px;background:var(--bg);border-radius:18px;
+    border:1px solid var(--divider);padding:16px;display:flex;flex-direction:column;gap:12px}
+
+  /* section 标题：绿条 + 文字 +（chip）+ 箭头 */
+  .sec-title{display:flex;align-items:center;gap:8px;width:100%}
+  .bar{width:3px;height:16px;border-radius:2px;background:var(--primary);flex:none}
+  .sec-title .t{font-size:18px;font-weight:500;color:var(--text1);letter-spacing:-.2px}
+  .sec-title .sp{flex:1}
+  .chev{width:8px;height:14px;flex:none;color:var(--text3)}
+  .chev svg{display:block}
+  .beta{font-size:11px;font-weight:600;line-height:1;border-radius:999px;padding:4px 8px;white-space:nowrap}
+  .beta.green{background:var(--primary-soft);color:var(--primary-dark)}
+  .beta.grey{background:var(--control);color:var(--helper)}
+  .beta.blue{background:var(--blue-soft);color:var(--blue)}
+  .beta.plain{background:none;color:var(--text3);padding:4px 0;font-weight:400}
+
+  /* 小组卡片 */
+  .gcard{background:var(--card);border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:12px}
+  .gcard.dim{opacity:.55}
+  .gicon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none}
+  .gicon svg{width:22px;height:22px;display:block}
+  .gi-green{background:var(--primary-soft)}
+  .gi-blue{background:var(--blue-soft)}
+  .gi-orange{background:var(--orange-soft)}
+  .gc-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .gc-line1{display:flex;align-items:center;gap:4px}
+  .gc-name{font-size:16px;font-weight:600;line-height:20px;color:var(--text1);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .gc-sub{font-size:13px;line-height:18px;color:var(--helper);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .stchip{font-size:11px;font-weight:600;line-height:1;border-radius:999px;padding:4px 8px;white-space:nowrap;flex:none}
+  .stchip.blue{background:var(--blue-soft);color:var(--blue)}
+  .stchip.grey{background:var(--control);color:var(--helper)}
+
+  /* 按钮 */
+  .btnrow{display:flex;gap:10px}
+  .btn{flex:1;height:48px;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:6px;
+    font-size:16px;font-weight:500}
+  .btn.primary{background:var(--primary);color:#fff}
+  .btn.ghost{background:var(--bg);border:1px solid var(--divider);color:var(--text1)}
+  .btn.soft{background:var(--control);color:var(--text1)}
+
+  /* 说明条（GroupBanner 形态：11sp / r12 / primary-soft） */
+  .banner{border-radius:12px;padding:10px 12px;font-size:11px;line-height:16px;width:100%}
+  .banner.info{background:var(--primary-soft);color:var(--primary-dark)}
+  .banner.grey{background:var(--control);color:var(--text2)}
+
+  /* 说明卡 */
+  .noticard{background:var(--card);border-radius:16px;padding:16px;width:100%;display:flex;flex-direction:column;gap:12px}
+  .noticard.outline{background:var(--bg);border:1px solid var(--divider)}
+  .nc-title{display:flex;align-items:center;gap:8px}
+  .nc-title .t{font-size:16px;font-weight:600;color:var(--text1);line-height:20px}
+  .nc-body{font-size:14px;line-height:22px;color:var(--helper)}
+  .nc-label{font-size:13px;line-height:18px;color:var(--text3)}
+  .sportchips{display:flex;flex-wrap:wrap;gap:6px}
+  .schip{font-size:12px;font-weight:500;line-height:1;border-radius:999px;padding:6px 10px;
+    background:var(--bg);border:1px solid var(--divider);color:var(--text2)}
+  .schip.on{background:var(--primary-soft);border-color:transparent;color:var(--primary-dark)}
+  .nc-hr{height:1px;background:var(--divider)}
+  .nc-foot{display:flex;align-items:center;gap:8px}
+  .nc-foot .q{font-size:14px;color:var(--helper);flex:1}
+  .linkbtn{font-size:14px;font-weight:600;color:var(--primary-dark);display:flex;align-items:center;gap:2px}
+  .miniline{font-size:14px;line-height:22px;color:var(--helper);text-align:center;width:100%}
+
+  /* 手机框（整页串联预览） */
+  .phone{width:390px;max-width:100%;background:var(--bg);border:1px solid var(--divider);border-radius:26px;
+    overflow:hidden;display:flex;flex-direction:column;box-shadow:0 12px 32px rgba(17,24,39,.06)}
+  .phone-top{height:36px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;
+    font-size:11px;color:var(--text2);border-bottom:1px solid var(--divider)}
+  .phone-top .r{display:flex;gap:5px;align-items:center;font-size:11px;color:var(--text3)}
+  .navtop{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--divider)}
+  .navtop .back{width:18px;height:18px;color:var(--text1)}
+  .phone-body{padding:16px;display:flex;flex-direction:column;gap:12px;flex:1;overflow:hidden}
+  .phone-foot{border-top:1px solid var(--divider);padding:12px 16px;display:flex;gap:10px}
+  .ph-title{font-size:12px;color:var(--text3);letter-spacing:.4px}
+
+  /* 表格 */
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--shell-line);
+    border-radius:14px;overflow:hidden;font-size:13px}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--shell-line);vertical-align:top}
+  th{background:#FCFCFD;font-weight:600;font-size:12px;color:var(--text2);letter-spacing:.3px}
+  tr:last-child td{border-bottom:none}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;
+    background:#F2F4F7;border-radius:5px;padding:1px 5px;color:#374151}
+  .cn{color:var(--text1);font-weight:500}
+  .en{color:var(--text2);font-size:12.5px}
+
+  .checklist{background:#fff;border:1px solid var(--shell-line);border-radius:14px;padding:18px 20px;
+    display:flex;flex-direction:column;gap:10px;font-size:13.5px;color:var(--text2);line-height:1.85}
+  .checklist .h{font-size:13.5px;font-weight:650;color:var(--text1);margin-bottom:2px}
+  .checklist ul{margin:0;padding-left:20px}
+  .checklist li{margin:3px 0}
+  .warn{background:#FFF7ED;border:1px solid #FED7AA;border-radius:12px;padding:14px 16px;font-size:13px;
+    color:#7C2D12;line-height:1.85}
+  .foot{margin-top:56px;padding-top:18px;border-top:1px solid var(--shell-line);font-size:12px;color:var(--text3)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="masthead">
+    <div class="logo">分</div>
+    <b>全能计分器 · Android</b>
+    <span>docs/prototypes · 2026-10-12</span>
+  </div>
+
+  <div class="intro">
+    <h1>小组功能「测试版」标识 + 底部说明 · 方案对比</h1>
+    <p class="sub">
+      共 3 处改动：① 首页「我的小组」标题加测试版标识；② 小组列表页加测试版标识；③ 列表底部加测试版说明（含支持运动 / 即将接入 / 反馈引导）。
+      下方所有尺寸、颜色、字号均按 App 现行浅色 token 还原（1dp = 1px），可直接对照 Compose 落地。
+    </p>
+  </div>
+
+  <div class="verdict">
+    <div class="row"><span class="dot"></span><span><b>首页标识</b>：推荐「绿色 soft 胶囊 chip」——与小组功能主色同源，18sp 标题后不抢戏，且能统一控制中英文长度。</span></div>
+    <div class="row"><span class="dot"></span><span><b>列表页标识</b>：列表页标题来自全局顶栏（<code>MainActivity.titleResIdForRoute → group_list_title</code>），<b>不是</b>页面内渲染，所以标识加在顶栏标题之后（已按此落地）。</span></div>
+    <div class="row"><span class="dot"></span><span><b>底部说明</b>：采用<b>方案 D 卡片</b>（不是条）。信息量三段（测试说明 + 支持运动 + 即将接入 + 反馈入口），一条 <code>GroupBanner</code> 装不下；卡片还能承载「去反馈」这个可点操作。<b>空态下同样展示</b>——新用户最需要这份说明。</span></div>
+    <div class="row"><span class="dot grey"></span><span><b>文案口径</b>：只说「测试版 + 欢迎反馈」，不承诺时间点、不写成免责声明；运动清单必须与小组契约 <code>GroupSports</code>（badminton / table_tennis / tennis / pickleball）逐字一致。</span></div>
+  </div>
+
+  <!-- ================= 1. 三处改动总览 ================= -->
+  <section>
+    <div class="sec-head">
+      <span class="idx">01</span><h2>三处改动在哪</h2>
+      <span class="note">首页 Section / 小组列表页 / 列表底部</span>
+    </div>
+    <div class="grid g3">
+      <div class="opt">
+        <div class="opt-h"><span class="name">① 首页「我的小组」标题</span></div>
+        <div class="opt-b">
+          <div class="stage">
+            <div class="sec-title">
+              <span class="bar"></span><span class="t">我的小组</span>
+              <span class="beta green">测试版</span>
+              <span class="sp"></span>
+              <span class="chev"><svg viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+          </div>
+        </div>
+        <div class="opt-f"><b>HomeGroupSection.kt:239</b> — 标题行加一个 chip，整行仍可点进小组列表。</div>
+      </div>
+
+      <div class="opt">
+        <div class="opt-h"><span class="name">② 小组列表页标识</span></div>
+        <div class="opt-b">
+          <div class="stage" style="padding:0;overflow:hidden">
+            <div class="navtop">
+              <span class="back"><svg viewBox="0 0 18 18" fill="none"><path d="M11.5 3.5L6 9l5.5 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="t" style="font-size:16px;font-weight:600">我的小组</span>
+              <span class="beta green">测试版</span>
+            </div>
+            <div style="padding:16px"><div class="gcard"><span class="gicon gi-green"></span><div class="gc-main"><span class="gc-name">周末羽球局</span><span class="gc-sub">羽毛球 · 12 人 · 本月 8 场</span></div></div></div>
+          </div>
+        </div>
+        <div class="opt-f"><b>需新增</b>顶部标题行（现页面无标题栏）。若不想加标题行，见 §03 落点 2。</div>
+      </div>
+
+      <div class="opt">
+        <div class="opt-h"><span class="name">③ 列表底部说明</span></div>
+        <div class="opt-b">
+          <div class="stage">
+            <div class="noticard">
+              <div class="nc-title"><span class="beta green">测试版</span><span class="t">小组功能测试版</span></div>
+              <div class="nc-body">小组功能还在测试中，部分体验会持续调整。</div>
+              <div class="nc-label">目前已支持</div>
+              <div class="sportchips">
+                <span class="schip on">羽毛球</span><span class="schip on">乒乓球</span>
+                <span class="schip on">网球</span><span class="schip on">匹克球</span>
+              </div>
+              <div class="nc-body">棋牌项目、台球等更多运动即将接入。</div>
+            </div>
+          </div>
+        </div>
+        <div class="opt-f"><b>GroupListScreen.kt LazyColumn</b> 末尾追加 <code>item { GroupBetaNotice() }</code>。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 2. 首页标识样式候选 ================= -->
+  <section>
+    <div class="sec-head">
+      <span class="idx">02</span><h2>首页标题的「测试版」用哪种样式</h2>
+      <span class="note">18sp Medium 标题 + 不同标识</span>
+    </div>
+    <div class="grid g3">
+      <div class="opt pick">
+        <div class="opt-h"><span class="name">候选 1 · 绿色 soft 胶囊</span><span class="badge-pick">推荐</span></div>
+        <div class="opt-b">
+          <div class="stage">
+            <div class="sec-title">
+              <span class="bar"></span><span class="t">我的小组</span>
+              <span class="beta green">测试版</span>
+              <span class="sp"></span>
+              <span class="chev"><svg viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+          </div>
+        </div>
+        <div class="opt-f">
+          与小组功能主色同源，复用现成 <code>GroupStatusChip(tone = Green)</code> 即可，零新增样式。<br>
+          英文 <span class="en">Beta</span> 更短，中英文都不会挤到箭头。
+        </div>
+      </div>
+
+      <div class="opt">
+        <div class="opt-h"><span class="name">候选 2 · 中性灰胶囊</span><span class="badge-plain">备选</span></div>
+        <div class="opt-b">
+          <div class="stage">
+            <div class="sec-title">
+              <span class="bar"></span><span class="t">我的小组</span>
+              <span class="beta grey">测试版</span>
+              <span class="sp"></span>
+              <span class="chev"><svg viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+          </div>
+        </div>
+        <div class="opt-f">
+          最克制，不与卡片里的蓝色「训练组」chip 抢注意力。<br>
+          <span class="minus">注意</span>：<code>textHelper #647084</code> 用于「承载信息的文字」合规，作为标签底灰是允许的（同 <code>GroupChipTone.Grey</code>）。
+        </div>
+      </div>
+
+      <div class="opt">
+        <div class="opt-h"><span class="name">候选 3 · 纯文字括号</span><span class="badge-plain">备选</span></div>
+        <div class="opt-b">
+          <div class="stage">
+            <div class="sec-title">
+              <span class="bar"></span><span class="t">我的小组（测试版）</span>
+              <span class="sp"></span>
+              <span class="chev"><svg viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+          </div>
+        </div>
+        <div class="opt-f">
+          改动最小（一个字符串就能上线）。<br>
+          <span class="minus">代价</span>：18sp 全黑，「测试版」没有视觉层级；英文 <span class="en">My groups (Beta)</span> 更长，窄屏可能截断。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3. 列表页标识落点 ================= -->
+  <section>
+    <div class="sec-head">
+      <span class="idx">03</span><h2>小组列表页的标识放哪</h2>
+      <span class="note">当前页面无标题栏，需二选一</span>
+    </div>
+    <div class="grid g2">
+      <div class="opt pick">
+        <div class="opt-h"><span class="name">落点 1 · 顶栏标题「我的小组 [测试版]」</span><span class="badge-pick">已采用</span></div>
+        <div class="opt-b">
+          <div class="stage" style="padding:0;overflow:hidden">
+            <div class="navtop">
+              <span class="back"><svg viewBox="0 0 18 18" fill="none"><path d="M11.5 3.5L6 9l5.5 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="t" style="font-size:16px;font-weight:600">我的小组</span>
+              <span class="beta green">测试版</span>
+            </div>
+            <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+              <div class="gcard"><span class="gicon gi-green"></span><div class="gc-main"><span class="gc-name">周末羽球局</span><span class="gc-sub">羽毛球 · 12 人 · 本月 8 场</span></div><span class="chev" style="width:8px;height:14px"><svg viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+              <div class="gcard"><span class="gicon gi-blue"></span><div class="gc-main"><span class="gc-name">公司乒乓球俱乐部</span><span class="gc-sub">乒乓球 · 24 人 · 本月 3 场</span></div><span class="chev" style="width:8px;height:14px"><svg viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="opt-f">
+          实测：小组列表页**有**全局顶栏标题（MainActivity 的 <code>titleResIdForRoute</code>），
+          无需新增页面内标题行，直接在顶栏标题后挂同一个 chip 即可。
+        </div>
+      </div>
+
+      <div class="opt">
+        <div class="opt-h"><span class="name">落点 2 · 列表首项上方一条 banner</span><span class="badge-plain">未采用</span></div>
+        <div class="opt-b">
+          <div class="stage" style="padding:0;overflow:hidden">
+            <div class="navtop">
+              <span class="back"><svg viewBox="0 0 18 18" fill="none"><path d="M11.5 3.5L6 9l5.5 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="t" style="font-size:16px;font-weight:600">我的小组</span>
+            </div>
+            <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+              <div class="banner info">小组功能处于测试版，欢迎体验并反馈问题。</div>
+              <div class="gcard"><span class="gicon gi-green"></span><div class="gc-main"><span class="gc-name">周末羽球局</span><span class="gc-sub">羽毛球 · 12 人 · 本月 8 场</span></div></div>
+              <div class="gcard"><span class="gicon gi-blue"></span><div class="gc-main"><span class="gc-name">公司乒乓球俱乐部</span><span class="gc-sub">乒乓球 · 24 人 · 本月 3 场</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="opt-f">
+          <span class="minus">问题</span>：首屏顶部放提示条会挤走一屏能看到的第一个小组；且 11sp 条内写不下运动清单，最终仍要配一个底部卡片 → <b>两处重复</b>。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 4. 底部说明形态 ================= -->
+  <section>
+    <div class="sec-head">
+      <span class="idx">04</span><h2>列表底部说明：卡片还是条</h2>
+      <span class="note">同一套文案，四种形态</span>
+    </div>
+
+    <div class="grid g4">
+      <div class="opt pick">
+        <div class="opt-h"><span class="name">方案 D · 卡片（含运动 chip + 反馈入口）</span><span class="badge-pick">推荐</span></div>
+        <div class="opt-b">
+          <div class="stage">
+            <div class="noticard">
+              <div class="nc-title"><span class="beta green">测试版</span><span class="t">小组功能测试版</span></div>
+              <div class="nc-body">小组功能还在测试中，部分体验会持续调整，欢迎提前体验。</div>
+              <div class="nc-label">目前已支持</div>
+              <div class="sportchips">
+                <span class="schip on">羽毛球</span><span class="schip on">乒乓球</span>
+                <span class="schip on">网球</span><span class="schip on">匹克球</span>
+              </div>
+              <div class="nc-body">棋牌项目、台球等更多运动即将接入。</div>
+              <div class="nc-hr"></div>
+              <div class="nc-foot">
+                <span class="q">遇到问题或有建议？</span>
+                <span class="linkbtn">去反馈 <svg viewBox="0 0 8 14" width="8" height="14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="opt-f">
+          <b>三段信息各得其所</b>：测试说明（14sp helper）/ 支持运动（chip 可扫读）/ 即将接入 + 反馈一条线。<br>
+          复用现成 <code>GroupCard</code> + <code>GroupStatusChip</code> + <code>GroupPillButton</code>，零新增样式。
+        </div>
+      </div>
+
+      <div class="opt">
+        <div class="opt-h"><span class="name">方案 A · 卡片（纯文字，无 chip）</span><span class="badge-plain">备选</span></div>
+        <div class="opt-b">
+          <div class="stage">
+            <div class="noticard">
+              <div class="nc-title"><span class="beta green">测试版</span><span class="t">小组功能测试版</span></div>
+              <div class="nc-body">
+                小组功能还在测试中，部分体验会持续调整。<br>
+                目前已支持羽毛球、乒乓球、网球、匹克球；棋牌项目、台球等更多运动即将接入。
+              </div>
+              <div class="nc-hr"></div>
+              <div class="nc-foot"><span class="q">遇到问题或有建议？</span><span class="linkbtn">去反馈</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="opt-f">
+          <b>最省空间</b>，一段文字说清。缺点是运动名称埋在句子里，扫读性弱；运动变多后这段会越来越长。
+        </div>
+      </div>
+
+      <div class="opt">
+        <div class="opt-h"><span class="name">方案 B · 一条（GroupBanner 形态）</span><span class="badge-plain">不推荐</span></div>
+        <div class="opt-b">
+          <div class="stage">
+            <div class="banner info">
+              小组功能处于测试版。目前已支持羽毛球、乒乓球、网球、匹克球；棋牌项目、台球等更多运动即将接入。
+            </div>
+            <div class="miniline" style="color:var(--primary-dark);font-weight:600">去反馈 ›</div>
+          </div>
+        </div>
+        <div class="opt-f">
+          <span class="minus">问题</span>：banner 是 11sp / 行高 16 的信息条，四行文字挤成一坨；「去反馈」还得另起一行，反而比卡片更占地方。
+        </div>
+      </div>
+
+      <div class="opt">
+        <div class="opt-h"><span class="name">方案 C · 极简居中一行</span><span class="badge-plain">不推荐</span></div>
+        <div class="opt-b">
+          <div class="stage">
+            <div class="miniline">小组功能处于测试版，更多运动即将接入。</div>
+          </div>
+        </div>
+        <div class="opt-f">
+          <span class="minus">问题</span>：放不下运动清单，也放不下反馈入口——用户看完仍不知道「现在能玩什么、有问题找谁」。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 5. 文案候选 ================= -->
+  <section>
+    <div class="sec-head">
+      <span class="idx">05</span><h2>文案候选与建议字符串</h2>
+      <span class="note">可直接落 <code>group_strings.xml</code></span>
+    </div>
+    <table>
+      <thead>
+        <tr><th style="width:210px">用途 / 键名</th><th style="width:38%">中文（zh-CN）</th><th>英文（values / en）</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>group_beta_badge</code><br><span class="en">标题上的标识</span></td>
+          <td class="cn">测试版</td>
+          <td class="en">Beta</td>
+        </tr>
+        <tr>
+          <td><code>group_beta_notice_title</code></td>
+          <td class="cn">小组功能测试版</td>
+          <td class="en">Groups is in beta</td>
+        </tr>
+        <tr>
+          <td><code>group_beta_notice_body</code></td>
+          <td class="cn">小组功能还在测试中，部分体验会持续调整，欢迎提前体验。</td>
+          <td class="en">Groups is still being tested, so some parts may change. Thanks for trying it early.</td>
+        </tr>
+        <tr>
+          <td><code>group_beta_supported_label</code></td>
+          <td class="cn">目前已支持</td>
+          <td class="en">Available now</td>
+        </tr>
+        <tr>
+          <td><code>group_beta_upcoming</code></td>
+          <td class="cn">棋牌项目、台球等更多运动即将接入。</td>
+          <td class="en">Card games, billiards and more sports are coming soon.</td>
+        </tr>
+        <tr>
+          <td><code>group_beta_upcoming_detail</code><br><span class="en">（可选，展开写全）</span></td>
+          <td class="cn">棋牌项目（掼蛋、升级、斗地主、麻将等）、台球（八球、九球、斯诺克）等更多运动即将接入。</td>
+          <td class="en">Card games (Guandan, Shengji, Dou Dizhu, Mahjong and more) and billiards (8-ball, 9-ball, Snooker) are coming soon.</td>
+        </tr>
+        <tr>
+          <td><code>group_beta_feedback_prompt</code></td>
+          <td class="cn">遇到问题或有建议？</td>
+          <td class="en">Found a problem or have an idea?</td>
+        </tr>
+        <tr>
+          <td><code>group_beta_feedback_action</code></td>
+          <td class="cn">去反馈</td>
+          <td class="en">Send feedback</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="grid g2" style="margin-top:20px">
+      <div class="opt">
+        <div class="opt-h"><span class="name">文案口径 · 建议</span></div>
+        <div class="opt-f" style="border-top:none;padding-top:16px">
+          <b>要说的三件事</b>：① 这是测试版、体验会变；② 现在能玩什么；③ 有问题去哪说。<br>
+          <b>不要说的</b>：<br>
+          <span class="minus">✕</span> 「敬请期待」「即将上线，敬请关注」——空话<br>
+          <span class="minus">✕</span> 具体时间（「11 月上线」）——做不到就是负体验<br>
+          <span class="minus">✕</span> 「不承担任何责任」类免责措辞——测试版不需要法律腔
+        </div>
+      </div>
+      <div class="opt">
+        <div class="opt-h"><span class="name">运动清单口径 · 必须对齐契约</span></div>
+        <div class="opt-f" style="border-top:none;padding-top:16px">
+          小组 <code>GroupSports</code> 当前<b>只有 4 种</b>：<code>badminton</code> / <code>table_tennis</code> / <code>tennis</code> / <code>pickleball</code>。<br>
+          所以「目前已支持」只能写这 4 项，写羽毛球、乒乓球、网球、匹克球。<br>
+          棋牌 / 台球在 <code>GameType</code> 里已有单项计分（掼蛋、升级、斗地主、麻将、UNO、象棋、围棋、八球/九球/斯诺克），但<b>尚未进小组契约</b>，只能放在「即将接入」里，并与后端 / 鸿蒙 / iOS 同步后再改文案。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 6. 整页串联预览 ================= -->
+  <section>
+    <div class="sec-head">
+      <span class="idx">06</span><h2>按推荐方案串联后的真实样子</h2>
+      <span class="note">首页 → 小组列表页</span>
+    </div>
+    <div style="display:flex;gap:28px;flex-wrap:wrap;justify-content:center">
+
+      <!-- 首页 -->
+      <div>
+        <div class="ph-title" style="margin-bottom:10px">① 首页 · 我的小组（改后）</div>
+        <div class="phone">
+          <div class="phone-top"><span>19:06</span><span class="r">5G ▮▮▮ 80%</span></div>
+          <div class="phone-body">
+            <div style="height:56px;border-radius:14px;background:#F3F4F6;display:grid;place-items:center;
+                        font-size:12px;color:var(--text3)">首页上方其他内容</div>
+            <div class="sec-title" style="margin-top:4px">
+              <span class="bar"></span><span class="t">我的小组</span>
+              <span class="beta green">测试版</span>
+              <span class="sp"></span>
+              <span class="chev"><svg viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+            <div class="gcard">
+              <span class="gicon gi-green"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#4CAF50" stroke-width="1.6"/><path d="M3.4 9.6h17.2M3.4 14.4h17.2" stroke="#4CAF50" stroke-width="1.2"/></svg></span>
+              <div class="gc-main">
+                <div class="gc-line1"><span class="gc-name">周末羽球局</span></div>
+                <span class="gc-sub">羽毛球 · 12 人 · 本月 8 场</span>
+              </div>
+              <span class="chev"><svg viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+            <div class="gcard">
+              <span class="gicon gi-orange"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#F59E0B" stroke-width="1.6"/><path d="M12 3v18M3 12h18" stroke="#F59E0B" stroke-width="1.2"/></svg></span>
+              <div class="gc-main">
+                <div class="gc-line1"><span class="gc-name">公司乒乓球俱乐部</span><span class="stchip blue">训练组</span></div>
+                <span class="gc-sub">乒乓球 · 24 人 · 本月 3 场</span>
+              </div>
+              <span class="chev"><svg viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+            <div class="btnrow" style="margin-top:2px">
+              <div class="btn soft">＋ 创建小组</div>
+              <div class="btn soft">加入小组</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 列表页 -->
+      <div>
+        <div class="ph-title" style="margin-bottom:10px">② 小组列表页（改后）</div>
+        <div class="phone">
+          <div class="phone-top"><span>19:06</span><span class="r">5G ▮▮▮ 80%</span></div>
+          <div class="navtop">
+            <span class="back"><svg viewBox="0 0 18 18" fill="none"><path d="M11.5 3.5L6 9l5.5 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="t" style="font-size:16px;font-weight:600">我的小组</span>
+            <span class="beta green">测试版</span>
+          </div>
+          <div class="phone-body">
+            <div class="gcard">
+              <span class="gicon gi-green"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#4CAF50" stroke-width="1.6"/><path d="M3.4 9.6h17.2M3.4 14.4h17.2" stroke="#4CAF50" stroke-width="1.2"/></svg></span>
+              <div class="gc-main"><div class="gc-line1"><span class="gc-name">周末羽球局</span></div><span class="gc-sub">羽毛球 · 12 人 · 本月 8 场</span></div>
+              <span class="chev"><svg viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+            <div class="gcard">
+              <span class="gicon gi-orange"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#F59E0B" stroke-width="1.6"/><path d="M12 3v18M3 12h18" stroke="#F59E0B" stroke-width="1.2"/></svg></span>
+              <div class="gc-main"><div class="gc-line1"><span class="gc-name">公司乒乓球俱乐部</span><span class="stchip blue">训练组</span></div><span class="gc-sub">乒乓球 · 24 人 · 本月 3 场</span></div>
+              <span class="chev"><svg viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+            <div class="gcard dim">
+              <span class="gicon gi-blue"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#007AFF" stroke-width="1.6"/><path d="M4 12h16" stroke="#007AFF" stroke-width="1.2"/></svg></span>
+              <div class="gc-main"><div class="gc-line1"><span class="gc-name">2025 秋季网球班</span></div><span class="gc-sub">网球 · 8 人 · 本月 0 场</span></div>
+              <span class="stchip grey">已归档</span>
+            </div>
+
+            <div class="noticard" style="margin-top:4px">
+              <div class="nc-title"><span class="beta green">测试版</span><span class="t">小组功能测试版</span></div>
+              <div class="nc-body">小组功能还在测试中，部分体验会持续调整，欢迎提前体验。</div>
+              <div class="nc-label">目前已支持</div>
+              <div class="sportchips">
+                <span class="schip on">羽毛球</span><span class="schip on">乒乓球</span>
+                <span class="schip on">网球</span><span class="schip on">匹克球</span>
+              </div>
+              <div class="nc-body">棋牌项目、台球等更多运动即将接入。</div>
+              <div class="nc-hr"></div>
+              <div class="nc-foot">
+                <span class="q">遇到问题或有建议？</span>
+                <span class="linkbtn">去反馈 <svg viewBox="0 0 8 14" width="8" height="14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              </div>
+            </div>
+          </div>
+          <div class="phone-foot">
+            <div class="btn primary">＋ 创建小组</div>
+            <div class="btn ghost">加入小组</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= 7. 落地清单 ================= -->
+  <section>
+    <div class="sec-head">
+      <span class="idx">07</span><h2>落地记录（已实现并实机验证）</h2>
+      <span class="note">6 文件 / 编译 + 单测 + 双主题截图</span>
+    </div>
+
+    <div class="grid g2">
+      <div class="checklist">
+        <div class="h">✅ 已改动（代码）</div>
+        <ul>
+          <li><code>HomeGroupSection.kt</code> — <code>HomeSectionTitle</code> 后追 <code>GroupStatusChip(测试版, Green)</code>，标题行仍整行可点。</li>
+          <li><code>MainActivity.kt</code> — 全局顶栏 title slot：<code>shellRoute == GROUP_LIST</code> 时在标题后挂同一 chip，其余路由不变。</li>
+          <li><code>ui/components/group/GroupBetaNotice.kt</code>（新增）— <code>GroupCard</code> + chip 标题 + 正文 + 4 个运动 pill + 即将接入 + 分隔线 + 「去反馈」；反馈行受 <code>FEEDBACK_ENABLED</code> 控制。</li>
+          <li><code>GroupListScreen.kt</code> — 新增 <code>onOpenFeedback</code> 参数；LazyColumn 尾部 + <b>空态</b>都挂说明卡。</li>
+          <li><code>GroupGraph.kt</code> — <code>onOpenFeedback</code> 接到 <code>FeedbackRoutes.FEEDBACK_CREATE</code>。</li>
+          <li><code>GroupDesignTokens.kt</code> — 加 <code>GroupTypography.noticeLabelLineHeight</code>。</li>
+        </ul>
+      </div>
+
+      <div class="checklist">
+        <div class="h">✅ 已改动（资源）+ 验证</div>
+        <ul>
+          <li><code>group_strings.xml</code> × 3 语言，新增 7 个 <code>group_beta_*</code> 键；硬链接原地改写，inode 未变。</li>
+          <li>运动名复用既有 <code>group_sport_*</code>，未新造第二套。</li>
+          <li>编译：<code>:app:compileOfficialDebugKotlin</code> + <code>:app:assembleOfficialDebug</code> BUILD SUCCESSFUL。</li>
+          <li>定向单测：<code>:app:testOfficialDebugUnitTest --tests 'com.douhua.jifen.group.*'</code> = <b>620 通过 / 0 失败 / 0 跳过</b>。</li>
+          <li>实机（Pixel_10 / 411dp）：浅色 + 深色两套截图，含空态与「去反馈」跳转。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="warn" style="margin-top:20px">
+      <b>与提案的两处偏差（都已按实际落地）：</b><br>
+      1）列表页标识：实测<b>有</b>全局顶栏标题，改为挂在顶栏标题后，未新增页面内标题行。<br>
+      2）说明卡展示范围：<b>空态也展示</b>——未加入任何小组的新用户最需要「这是测试版 + 现在支持什么 + 去哪反馈」。<br>
+      <b>仍待你确认：</b>「即将接入」目前用简版（棋牌项目、台球等）。是否要展开成「掼蛋、升级、斗地主、麻将 / 八球、九球、斯诺克」，需与鸿蒙 / iOS / 后端同批改。
+    </div>
+  </section>
+
+  <div class="foot">
+    全能计分器 Android · 小组测试版标识 · 2026-10-12 · 实机截图见 docs/ui-review-2026-10-12-group-beta/
+  </div>
+</div>
+</body>
+</html>

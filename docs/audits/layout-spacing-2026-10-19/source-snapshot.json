@@ -1,0 +1,3044 @@
+{
+  "date": "2026-10-19",
+  "repositories": [
+    {
+      "platform": "iOS",
+      "root": "/Users/yangyang/Desktop/jifenqi/jifen-ios",
+      "head": "66c2cc55a3868a5ae847bab1b39276cd6831727f",
+      "branch": "3.3",
+      "basis": "Current working tree including existing uncommitted changes"
+    },
+    {
+      "platform": "Android",
+      "root": "/Users/yangyang/Desktop/jifenqi/jifen-android",
+      "head": "385fcb757ebc16f683428a6696bbe46e0026e3c0",
+      "branch": "3.3",
+      "basis": "Current working tree including existing uncommitted changes"
+    },
+    {
+      "platform": "HarmonyOS",
+      "root": "/Users/yangyang/Desktop/jifenqi/jifen-hos",
+      "head": "9a744e4e7ac02ff788beaacf3291320a1326f024",
+      "branch": "3.3",
+      "basis": "Current working tree including existing uncommitted changes"
+    }
+  ],
+  "uiSourceHashes": [
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/ContentView.swift",
+      "sha256": "85e8dae63ac5158027c295bec7f8aa9153c99b6bf115013de6d99933f93c5c81"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Analytics/AppAnalytics.swift",
+      "sha256": "dd0e2cfc79cc0ed580db7f63fa70ee230aed47cf6ce43064fdd58aa2cdb05ad6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/AppReviewPrompt.swift",
+      "sha256": "6e19e89cffee92404d930f7480dc7b1be3ec45133f6927ab7940783101ca99aa"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/AppScreen.swift",
+      "sha256": "ef7d910beea7c224030c9f58e09f6e9a520c0f5654b134e97818d6c05d22d756"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/CloudSync/CloudSyncSession.swift",
+      "sha256": "451912d187baf7cf4b4f7038e966d9b6f9de9cd6dd88a5909872ef1b3f989c76"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/CloudSync/MatchWebSocketManager.swift",
+      "sha256": "9c68be087a9e033eba6a520294597cd12caaa5224216e9b6fbb2e456575e2cf2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Components/AddValueLabel.swift",
+      "sha256": "55f845185a7a04a7d8e088c44085397b53523fe89c16e498fa418c46d0e98273"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Components/AppLogoImage.swift",
+      "sha256": "8d38ac5ce347e996bd87abc30613ccb880192f2ac8b7fd4ef082464a82eeed00"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Components/CustomDialogs.swift",
+      "sha256": "c26a2b3af5fb5e8d5e5039894bfe081295b4244ba943f16ea8f669a4ed295457"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Components/EmptyStateCourtIcon.swift",
+      "sha256": "33b829496554bab560ffd1674bf0e227e13c8b63b34d167b6f660772a2770aa3"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Components/FloatingBackButton.swift",
+      "sha256": "570e1e31e0dacd0bd1a6ad6d6d9f1111e075120d2513cb15f5751ab61d78d2b3"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Components/GridCardTitleStyle.swift",
+      "sha256": "1bd4e43b10b35f607454acd484765c67136ab8e5778fe01d6a1163daf5e282d2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Components/ModalCloseButton.swift",
+      "sha256": "232ab0521e9191521a9c40fda380755e48cbd477f462190c406d91dab349bcec"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Components/RemoteImage.swift",
+      "sha256": "459d6eaa2940ba9b68463b79e5954d50a70a6e446ca23b55de77d853f83c9864"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Components/SectionTitleView.swift",
+      "sha256": "1c6e13c4ce0e61560fedb70c6f02b73111b6eb2bee382d0572e31a6b6ce4924d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Display/ExternalDisplaySceneDelegate.swift",
+      "sha256": "6173d691cfbfb43b82ceac41805ec5bb14438eed7bf31fa78190fff1ff151b0c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Display/ScoreboardDisplayOutputs.swift",
+      "sha256": "278170cd2d649910664efa9e5fa50ee156c49b93ece04ae22d4fec8dc588e2bf"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Link/AnonymousIdentityProvider.swift",
+      "sha256": "82b703572856c214ef2f0b27ac6239a315ec4e47379166f4022b9971c734867d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Managers/VibrationManager.swift",
+      "sha256": "20f97b84cd8c2168a8f147d892d9cc9b09597e553c2c091c105ffa21a4f43340"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Theme/AppAppearance.swift",
+      "sha256": "8c723b0bc086226e396c313334ce126c4b4ced14e7110200a9f384c57be4abf3"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Theme/Theme.swift",
+      "sha256": "1611f97e28a19157561c5d559f06fad1ffbf60c0b10f0d57126254c44123a3aa"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Account/AccountViews.swift",
+      "sha256": "f98b981c195a932bf37185c27dc46c307ead2141312d75ae86fed626f487ba4f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Account/AppleAuthProvider.swift",
+      "sha256": "5a0ff757e900cdb74e9d417917a8df6ea925baac2c916be13323a707f929d3d5"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Account/AvatarCropView.swift",
+      "sha256": "47d259d24a8a241aad183c2e5ac9687fe41971808104e8d7542cdf71d0ba92c7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Account/QRLoginApprovalView.swift",
+      "sha256": "d2c7c8d10c79d75fceea38831608c72a9063be0aea462332cf717f9872adca30"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Account/SessionStore.swift",
+      "sha256": "b51b63c177e0d6dc15eba83e435f476ddd80af871ca5c4486e7a802e239f6a8f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Activity/RecentActivityPage.swift",
+      "sha256": "9bf3c3581d079abe63482a087f8de7a5392e242fccc89d45629107681fe7831a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Activity/TimerRecordDetailPage.swift",
+      "sha256": "08b9b0eca629ff33d77c35440612e7f10894b9ed5c05d9017194c342c5a73a82"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Display/CastConnectionView.swift",
+      "sha256": "42f449c40e6bb7ed925211f26b774ba4da87e31f5379c7837c011bf5b0b5a2ce"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Display/CloudSyncEntryView.swift",
+      "sha256": "a94c926e694ce70fcf3a02b024393cccbd4c2e6a86ee3652fff8ef44756fab3b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Display/DisplaySnapshotFixture.swift",
+      "sha256": "59b180e410f2a5beb1995ab14fa93e2a1c82ea2da45d54278b1cb0d13d364956"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Display/MarketingScreenshotFixture.swift",
+      "sha256": "81f92ca3d74ba73544203e81c3444022f42b43c57724f4fa24f4d5be2426e1a4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Display/RemoteDisplayView.swift",
+      "sha256": "72dd4a2092f1e81c8004122ee642a347f1f40b405f9e32931098d11d3bd25529"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Display/ScoreboardExternalDisplayView.swift",
+      "sha256": "56eeab569b5f82bcb826bbd009d11eabe5f8e25165f31476875be588c909eacb"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Feedback/FeedbackViews.swift",
+      "sha256": "c092af5ae8b199e0d56c46afcc499c1182d1416c3e3e14e7e53f003f676f5383"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupActivityViews.swift",
+      "sha256": "87ed349353e21dba403ff1d61cc25b527013c74101ae79f9c5e5d09e843dfec0"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupCaptureRoot.swift",
+      "sha256": "ac869729303a90385c035e41e564cc712e6a5dd840fc288963ff08bb5fae6a68"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupDetailView.swift",
+      "sha256": "c1490ea73f6aa990a37ce8bd9194931c077f3af1bc329c988761ab9de98d83e4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupForms.swift",
+      "sha256": "7de0ed4510400a8c88330395e1943b594671b84ab3c8b89c03c309733189c563"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupManagementView.swift",
+      "sha256": "e068f50e74b8a8e6afc384d2fdf68e68e8e27e2497aab3c778419dd80f8a9ea0"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupPreviewReportView.swift",
+      "sha256": "eb5e27b1a3b8b32697d6e5702b24b52d47114109257af536272c89e87afc9007"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupPushManager.swift",
+      "sha256": "4ce3775c237dcb7eca424dd4347376b2d6f1f5169cda1c344bee16a2f67a6169"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupPushViews.swift",
+      "sha256": "3b4a966e86686376997109d92018f4b53b7f7926bfdc2440effb56be9818e502"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupQRViews.swift",
+      "sha256": "6ddd51d401660bb0b0ae77c9f1b56989ba20312aeb14ecf372e51ee513d28317"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupRankingTable.swift",
+      "sha256": "d8c4b3e4f6a8171a25e3e3d60e7eef8076fd7639b35ea614db4ce93d1e17edb4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupRegistrationEditor.swift",
+      "sha256": "c3fa1ddd8a7747117eed296270330e5226cb13d83f455c5de317a72902b1aba6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupResultScoreControls.swift",
+      "sha256": "ad721a86eaa379c716470268ae900f4627eb37b08fbf17103a64736102c236bb"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupScheduleEditor.swift",
+      "sha256": "96b67dd30cfe42250447aa2257a40325ab3311356b214b28452180ea328f5320"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupSupportViews.swift",
+      "sha256": "c9dcfa42713ec01284e78dd74898a7065d185d46cdf2b819a2b3c7ba40dc5653"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupTrainingNoticesView.swift",
+      "sha256": "5973207fe6245130a206fb0d4161362a12a841d418a493886385cb19435f5cbc"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupTrainingViews.swift",
+      "sha256": "e57666364262c491bfdd73a09fbea580ba8ff6bbc232e5b5edbca176031ac169"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupViews.swift",
+      "sha256": "48f8696c2530f8c454bac274e429e8794cd5933e2be88c69135b48513f05c469"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/BentoCardView.swift",
+      "sha256": "a8d517475751c86c2f8a13c1028da7b1d5006fcc86ae61731fc59b59e6282086"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/CenteredSetupDialogContainer.swift",
+      "sha256": "73ab897b84e0d7c75e0c596a1ef5a813876f39048d811a5c3af1041876ca6e3b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/CommonDataManagementShared.swift",
+      "sha256": "e134f5dd9e31da082e3ccf3f99bc4ec8ee7ff80fdf73faa1cfb353afc510c4bb"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/CommonDataSectionView.swift",
+      "sha256": "99d13f5971a1c8a293a41f578a330b06c2f2be0eb6bca5ad251220a9bdeabc67"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/HomeHeaderView.swift",
+      "sha256": "06266f85171267addd3391da83f55aeef82514ddb6dd1282e2922f183e47835b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/MultiScoreSetupDialogView.swift",
+      "sha256": "e2ab206c98ae9ba950b7165e62b633c9dd993e0d22f56f5d5a545495fef20f68"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/NewGameDialogView.swift",
+      "sha256": "fa03fe1f8f164a95b72875e00d731a955f06ef8b3bfa8761d0f3315bc1308204"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/NineBallSetupDialogView.swift",
+      "sha256": "ded22b5ef58d956b17dbcf05d435502b399d1731d4032c03ec212f49ce6b049c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/ProToolsSectionView.swift",
+      "sha256": "bd85088ca2bd17bde0173a853f56ece431ad8842de7f93453d7e3792f465312b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/QuickStartEditView.swift",
+      "sha256": "436d179fb3bb70c3b7159de2357e1b4f2cab72e415d843af540bda366042fd3e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/QuickStartGridView.swift",
+      "sha256": "c7ff91f65997f494b3716e361449272165ad627706e80a66f49515846f6283c1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/RecentRecordsSectionView.swift",
+      "sha256": "9e3c50f13b294093216fab3f137043dcad1e624b1dcb7cc12b2376d959cb739b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/ShotTrainingSetupDialogView.swift",
+      "sha256": "3d697851910df72c3c3f17d525a02b33527ec98716bc3033f4b8674671664bfb"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/SportOptionView.swift",
+      "sha256": "1c8151f998ea24b7f964a66562717c5117d43dd25c654782189c09a02395255f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/SportsSetupCommonNameViews.swift",
+      "sha256": "ee36432c65ce043636f2d94a1b68c73b9cd3e114799afec4949f7fdf7af60a63"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/SportsSetupDialogView.swift",
+      "sha256": "35ce05af66052d0c0bbe74930314b6a7166061c5cda08cd310aee199e65480b8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/SportsSetupMatchFeatures.swift",
+      "sha256": "6839e2f69df3e349e2546b9c3faf3bc81525bba8165b64e8e906d5a4cfa4ebcb"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/SportsSetupParticipantSection.swift",
+      "sha256": "b01d6f5d0994aca39c32743de8ea62aa0ae3439e82567a21f03cd2bc9f2b0a5d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/SportsSetupSettingsSection.swift",
+      "sha256": "7c217ea10759c1b10f579ccdbc4cd504e6869563a2d4088c0cccc2d0977685d5"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/UnfinishedGameBarView.swift",
+      "sha256": "9e3c564364fa5fe8ee026c54fceeb83a7bac8c0b6a36a74a57525dd92551ebde"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/HomeTab.swift",
+      "sha256": "214b7f180aeb65373436e9b02ea78f8b99586b761aa2314702928ad917ebb848"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/HomeUtils.swift",
+      "sha256": "ac59f0571446049b97eb515d1bf6efa9c5b1d6ccd1f8b4df5d59f21b3ec8f8cb"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Models/HomeModels.swift",
+      "sha256": "15efc7ec8c0d9ee62b6d84e7cd779205f47216122f328b02d3f756b711c2ab94"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/MainTabView.swift",
+      "sha256": "01b10f990a901116f39411a9d848e18bac190d6be011106d3f42fb1be17bc51e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Me/CommonNamesManagementView.swift",
+      "sha256": "086b4fd654f2e5c7a87640d1195bbb2fdd82c04874bf3a3dde59afa4de8c2404"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Me/CommonPlacesManagementView.swift",
+      "sha256": "038a65d6d3a40edfdba4c54d17a49a88c57403edf5f5f20d9910b8235ac393d1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Me/SettingsView.swift",
+      "sha256": "8a078c8ce36e312f81f809adf4a41d98944be55d27cc9e0a14cd573264097266"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Membership/MembershipView.swift",
+      "sha256": "0cf80551dadf2bb60ff8d1e4f148b0102884388cb19a484c513632fbc78cbbd6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Membership/NationalDayMembershipSheet.swift",
+      "sha256": "eb339a6d3edc609429fcba9c10729f8fb69794ff89b2e02a11f9e565d9d130f4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Records/RecordNotesCard.swift",
+      "sha256": "84a1885cd92dd3d772abbf93f1cfbc436989772db044da5007dcfce15fda92b7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Records/RecordsTab.swift",
+      "sha256": "e20d119cd39098bc44b928bcc7ed7e11f2a188e354bf837797b06171e1691546"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Records/ScoreboardRecordDetailPage.swift",
+      "sha256": "b29334e3a6361d0bc6812397fd3258aa7081fcb3da779797ba9d86c7b21741eb"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Records/ScoreboardRecordsViewModel.swift",
+      "sha256": "6a376193c548aa96c17eccc3f4c25e865742f13d693682f0bd10b08e59b18575"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Schedule/BookingDetailPage.swift",
+      "sha256": "f0db35046d78972acbda211551d63de5333c60468420beebc75154816c6688ce"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Schedule/CreateBookingPage.swift",
+      "sha256": "6cad6e5350cff93eb742d58a59bb49531522cf9e16f5b4a2e2c28aa9da6c4634"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Schedule/SchedulePage.swift",
+      "sha256": "51ed2c3ba555b38e294d5d546de8b78d1bf10f8d5193190080f2c69e1a234637"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Schedule/ScheduleTimeStatusHelper.swift",
+      "sha256": "e34d3a94d9eaec8d149630a48caa5cfbe8977d68c32a5acbcb0493e12725c1a5"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Cards/Doudizhu/DoudizhuScoreboardView.swift",
+      "sha256": "1a283f39409c8ca5290063b5ba4de7dcf16803420b62f831443a00a56cbdd1c4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Cards/Guandan/GuandanScoreboardView.swift",
+      "sha256": "6436a44d58434878d84dadc80700ab35ac8e949895ca82b66b4c727a4d1ae305"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Cards/Shengji/ShengjiScoreboardView.swift",
+      "sha256": "11c2bc3ae9f865991719cba830257358317517b380a244344f6178c214a826fe"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/MultiScore/MultiScoreboardView.swift",
+      "sha256": "1f3d25d012a3d898923c9a943ea4626842b401e1c0d4368327aba8423362241d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/ScoreboardTab.swift",
+      "sha256": "2a802bf833ac63d294a7ced8c140c7ce7bff2a3cd9fef633916ace7afbccd59c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/BaseScoreboardController.swift",
+      "sha256": "071b28066aeeadd073a5d7af4863f3b085bbef63b999a33b6030cc4b05996ce8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/GameOverDialog.swift",
+      "sha256": "adc9c29e394f4deebd0574420c9440b688e0073197ec01606fac5aa4006ee410"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/MenuDialog.swift",
+      "sha256": "b5aee2afe977dcef1abc61d3fa96c4200cddf35ad2730497b3d0659cf9a30e06"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/ScoreCustomAdjustPanel.swift",
+      "sha256": "6dc810ba8873e2955e37939cae0e766f2a4a16535d2b1716b8d5af09bc7ad69b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/ScoreboardAppearance.swift",
+      "sha256": "6d6dfff98e7b7c6d89524186aadf65788ca2a2030b48a5831f1b60c8753cd8a2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/ScoreboardConstants.swift",
+      "sha256": "fa1e231c9456e93288fe6c28f89e8ae1c69c798228a1b435ce84d9fb486d0852"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/ScoreboardKeyPointBadge.swift",
+      "sha256": "b7d4a85d2208a082343f7223a164fa78fa5c2ce29e38728efecd483f25001988"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/ScoreboardLaunchView.swift",
+      "sha256": "4c9ee949572d52a50156ada84e1944f08beedd5b5d6c0e2ec7b883c759da7bee"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/ScoreboardLayoutMetrics.swift",
+      "sha256": "2003be0f3c3ddb4b2981200ecbd37a7be4a3bb6809cd72e877c3e6e7d150091e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/ScoreboardStyleEditOverlay.swift",
+      "sha256": "dd7a17ea3049f2addbd42570f3948b3141fd4f4241c04283a7dd8a936ac3b215"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/ScoreboardStyleEditorController.swift",
+      "sha256": "3c37b645a1298568f08512be60afd611fbaf8b2082a8796f7947be4803e02fcf"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/ScoreboardStyleEditorEntry.swift",
+      "sha256": "165c444205da2b9269c6917c6b758a3c100595088d15b9818d080acfa3098b68"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/ScoreboardTemplate.swift",
+      "sha256": "f47e46c1edc702c6dc854534fcac03b3a8e45f9ff8af6eee8a80e50c447577e1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/ScoreboardUsageHint.swift",
+      "sha256": "2163060fb4df1649ab3b02b94c4e346b5ca7341c119136ba9a13984bdce79363"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/ScreenshotSaveCoordinator.swift",
+      "sha256": "88f5e6a71cf7da67b22c76ff10c17922cfbb2345a72882e7ad9e419a8e365f0b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/ServeTriangleIndicator.swift",
+      "sha256": "cf33b143362e252981f36aa19f667c54ff115d436b654dd31db1ad5e4120681c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/TwoSideScoreboardScaffold.swift",
+      "sha256": "c4d944fb2d22a74339ffb8c8d136859bc4723817e94d763d68df1d80b0e972df"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/Types.swift",
+      "sha256": "feb06b81c20a44132c22f68135c8a22db1b9b333abc022c251f945b064b9c273"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/UIViewControllerExtensions.swift",
+      "sha256": "3ef0e383173bca6b10df8d1ef88ccba90bc2239c5ffd4bb400280828b8aef725"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/SimpleScore/SimpleScoreboardView.swift",
+      "sha256": "39806c5c8a170028daa945e505003121f1a380066bfa4f1e1a0a49f6874daeca"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Archery/ArcheryScoreboardView.swift",
+      "sha256": "e2fdeffcc16885def9fd528261834d0472c0dc5cbce1c05bf12b859da4b3ebdc"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Badminton/BadmintonScoreboardView.swift",
+      "sha256": "13f7e8fd1daf670218586621ecf54ac24336664c066b291ae38858c93aa72661"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Basketball/BasketballScoreboardView.swift",
+      "sha256": "ca2cccdf66da0c39b07a6f5d5b390ab5008ed763cdc10dfb03da631c73588a8a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Basketball/ShotTrainingScoreboardView.swift",
+      "sha256": "95c03dd6fffc97cca6ead854627cb6a8c39c59523c23e621c6bd074fa02f4584"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Billiards/BilliardsScoreboardView.swift",
+      "sha256": "76259c6436c21442456988830c8743f7ee2fd7ae5efd9af78f1dc3209d185f42"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Billiards/EightBallScoreboardView.swift",
+      "sha256": "7b923b9df46ef1452b12c829bf05f470ae05310677490fe2738fc0c67e806665"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Billiards/NineBallChaseScoreboardView.swift",
+      "sha256": "0206a5560d8c90ab74cfab0d90d5540a89d8eccdf77d72479457ce9622826ab3"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Billiards/SnookerScoreboardView.swift",
+      "sha256": "7bd790218e2a134926ef287e6ce1ef5a0eaff29922d8ef193c75c06bb7f003a3"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Boxing/BoxingScoreboardView.swift",
+      "sha256": "4adbf5a372e053cf1a900f38e599dfd9f0f303e4fac17eb4a84851908505b040"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Foosball/FoosballScoreboardView.swift",
+      "sha256": "ed184ab91700727758f1896c3c92884e77e115cecf92a900014270c7c9c3ab6f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Football/FootballScoreboardView.swift",
+      "sha256": "17a5bb94cd992581f3ab2404960783ef719e24abf68f104a3b30d21f7e395e38"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Pickleball/PickleballScoreboardView.swift",
+      "sha256": "a1449fe557e89b5274bfe69592643ba3d864e8d36215c7b09abc689a2e5aa120"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/PingPong/PingPongScoreboardView.swift",
+      "sha256": "67e88423759803fb4ed452d746e170130dd96421fd5e2eb4a3e7fba299d9f70c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Rally/RallyScoreboardView.swift",
+      "sha256": "9bd1484df5a454261f697dfbf20b90414b29e98515c8b62e69db4b6a552532ff"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Rally/TableTennisCardsDialog.swift",
+      "sha256": "9e41d5f1ed51300c1298546c8506f1e7176739327f179a3caf90f76c1eea2aca"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Tennis/TennisScoreboardView.swift",
+      "sha256": "f698cdf9052366cd07298e628ae193469130b0bb2498ffd21ac41624fc5f0baa"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Volleyball/VolleyballScoreboardView.swift",
+      "sha256": "a39e36e11dc5f0d30190aa9c2c0a1f2e8bd50c095f14bfc541248d44ebdf7d3d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/UsageHintAnimation/HintAnimationPlayerView.swift",
+      "sha256": "76b1818d993f9bbafa2c11f7816ff0784ea77971b99b8b7666be7ed9c042d6a6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/UsageHintAnimation/ScoreboardUsageHintAnimatedDialog.swift",
+      "sha256": "ddd004be4f6a24a83682a5ba2515a53e3350d9bf53686bcae1a6d27bcc9489c9"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/UsageHintAnimation/UsageHintAnimatedPages.swift",
+      "sha256": "38ac959905e40ee7ea186b99f551f8c6fcd5cc69b34be992326e1dd1db9da964"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Shared/AppCatalogIcon.swift",
+      "sha256": "83224c43cc34153cf026b4bef09f623bef2e6dd028386eb8be544469f26f92ee"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Shared/InAppWebLink.swift",
+      "sha256": "c0ee2901839f940d4fc672d5bcd2cdaa842215b01d45c181b65178070331921f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/CubeTimerView.swift",
+      "sha256": "dc97485b11ea490b3516672b4ed6d4eb84d26d301f27815e9c48e6ecbcc4e511"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/DualPlayerTimerView.swift",
+      "sha256": "ce5624f833b9ba4dccc49c0f2d8a755b883aade5fd4e649b38e656ac5715087b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/DualTimerSetupView.swift",
+      "sha256": "6a4f3e16fddabe1909b2e955569ee02467064fe553083d382ae09406953c72cf"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/TimeoutCountdownView.swift",
+      "sha256": "b1dc9538b808f67d94fa2728c2bf239e09b17eaf45a09501554f9c2de8cfb7b3"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/TimerTab.swift",
+      "sha256": "8b87e1516fb445dffdbd26281a17538b6f5627a0ac90f3734ae462464a94c94a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/AACalculatorView.swift",
+      "sha256": "30b10765b870cce7022951f9e86970046b253195831af3bab7050217792f953e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/CoinWebEngine.swift",
+      "sha256": "58412dea07f7e262d3082b4dd5fab10f40450fd4a36f8c87502568c91837aa12"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/DateTimeToolView.swift",
+      "sha256": "db54a559df9e00684797aff25389e9db0eba4bd8a9aeec411bcba8f98044ac9c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/DiceToolView.swift",
+      "sha256": "7a5c7ba5d4fc35375021a8aeb9669459e33069ef8612cab837bfab25fa2ba5aa"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/DiceWebEngine.swift",
+      "sha256": "d3a74b665f976efc97be590ea3eb0750030ced4977e1c0beccd874092aed5e7f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/FlipCoinView.swift",
+      "sha256": "9ddce22c7ced8c99ed4b88c0c8b33f4649a2fb30b77d5c35e53ac25854e1548f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/FullscreenBarrageView.swift",
+      "sha256": "054ec9e9d0ece76b9ea55534b6f3dee555b38e55051a7c59ab46b39ee1ff97d1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/PointsTable/PointsTableView.swift",
+      "sha256": "2e63aa85a307c43166cbdc43b243126eb959d7d0cdf988755f3ca5a30476ae3e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/RandomTeamView.swift",
+      "sha256": "6508ae53c0327fa29a27cb4e0922285587c70440f8b5e9b9a6e2e842def6f842"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/RedYellowCardView.swift",
+      "sha256": "5acae557fac35421403447b5ea08bc1c77db0b9c99f53f5bc4eecd521a324f30"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/StopwatchView.swift",
+      "sha256": "b006be43fe5f4b28c4094609a1b9e31d7ef157ebe272e9e994764033234f6c27"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/TenSecondChallengeView.swift",
+      "sha256": "8bffa772bc0f7d43aadcab5b4f8da8330cff3d49e06f56b6fe36f0c0e7397729"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/ToolDefinitions.swift",
+      "sha256": "3e18fca5769d781adcc2ebdde3eb68c813016141e2698f8c5cdf38240ccac9ba"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/ToolsTab.swift",
+      "sha256": "95e1329f4754c060c68645ff090b90c8e2dcbcba18a8433b5504c3b94d4a5107"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/WhistleToolView.swift",
+      "sha256": "8ffb75bb72f8ccc7548e9a106d7cb11d415c078b31cdf8cbd7b896c7de0f10f0"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/jifenApp.swift",
+      "sha256": "6788a61078a221c8aa2db6e32165918681fe21f705036eae74a15029d2a6f5ea"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/coin.html",
+      "sha256": "dace3f2f9c8958b78f7e4ead40b96eb11db30e8c076b8324b8685d88c82ee2ad"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Resources/dice.html",
+      "sha256": "67b5018c9e40eee0481ba9a2ef1c284ca775495926b28ea1d2e5a72a991796c8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/MainActivity.kt",
+      "sha256": "8f5f5cad34731c06cc925c706b68df0d5a3a8b5d23fdca2ea17b59f5668d84da"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/auth/LoginDialog.kt",
+      "sha256": "f20f54eb31bc74121822edfbf99d8549a67285faa8217236df90b0c8a1ff8370"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/cloudsync/ui/RemoteDisplayScreen.kt",
+      "sha256": "9e5eefd2afcf8ee1e84bc8eb17713399e7c4f68746841f3f7186af79bd9d25df"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/cloudsync/ui/RemoteSyncEntryPanel.kt",
+      "sha256": "d6832faf71987416819466670ce39153c631fa193cde7d240ebce67581092b54"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/cloudsync/ui/RemoteSyncSharedUi.kt",
+      "sha256": "729c89c73925c10d833727a53883d16416188f52c91a5d9d9010e91b8cbeca59"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/display/connection/DisplayConnectionScreen.kt",
+      "sha256": "fd4fef6418866aadeda4ecc2fb13c678f1f5e7b48a5ea9f2ffbf17aeefcdd99a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/display/output/ScoreboardDisplayEffects.kt",
+      "sha256": "dfa0085885bb509e50edaefa3515a27006b2e141f394fae475ef3f6511dc0e84"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/display/ui/DisplayIdleWaitingPanel.kt",
+      "sha256": "e8c086a497bb060cb24c03dada9f73c34dc0b633fbd810b5ad4a80cc9b02dc5c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/display/ui/DisplayScoreboardView.kt",
+      "sha256": "611f3621cd29fc9c5248794c6fa56d898c78d9bd7ea4729562cdfaa63e71f8c6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/display/ui/DisplaySurfaceHost.kt",
+      "sha256": "1950df7a4b026e6b2e629fb154abc6ad8a9377109add1d6385c3905fdcb2f49e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/display/ui/MatchTimeDisplay.kt",
+      "sha256": "e074d047ef1c5acfdcad8b59c2c92aa802db0d2301cd608205658ec3ee50944a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/helpers/DeviceLayout.kt",
+      "sha256": "4b80f2f7601e8a6539ea16e69e25c161fd3c9a78252cccfc37b74e266e6135ac"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/legal/LegalWebActivity.kt",
+      "sha256": "d776ee524ee1acf9265d541f0f7f06409f2775a7064fb4a649d90f5283214ff4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/legal/OpenSourceLicensesActivity.kt",
+      "sha256": "c1aa661f5b1469a9fc73d074a3611fab3c0df6c441862c874817aa8200d069d8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/navigation/GroupGraph.kt",
+      "sha256": "98d2382212bc4c942406387595ef9bc9d35474b62e1d1bcbc92fbd76d0c2da87"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/navigation/GroupInvitationIntent.kt",
+      "sha256": "95f76ead99234cfdafcca42a13879b32b48ca1902f2190875d3e1b98d950952b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/navigation/GroupResultEntryTitle.kt",
+      "sha256": "7a817a89d945928948840af8fff2886b609567223bb13e9140a95056f051f78e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/navigation/MainNavGraph.kt",
+      "sha256": "9e46e90dfab0bf6b9b3744a9bfb429f568b131d608abec34c428327108b51e77"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/navigation/MeGraph.kt",
+      "sha256": "1565057c210a0997a994fe8677131b733f051927c7bbec6ee3fec92e36c28605"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/navigation/ScoreRecordTimerGraph.kt",
+      "sha256": "c181ad168a8333d9609e9fe619b1dd2f1d1f96e0ef9dcf5b076319b814605719"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/navigation/ScoreRouteRegistry.kt",
+      "sha256": "24b0f7a81bc3f4d8ff077cbcdae717a4072969777938aa4a5149947373301a53"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/feedback/CreateFeedbackScreen.kt",
+      "sha256": "41ac2b82d0378d9f8818a53ab955fe51fe78d4df8175c7209ad0603fc1506d3b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/feedback/FeedbackDetailScreen.kt",
+      "sha256": "49e82fe082f905e5f62b274b7e6f0be40492066fb1e580462ef8da4c7a1dc7dd"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/feedback/FeedbackFlowDialog.kt",
+      "sha256": "b1e08632c32b549e47f6bceb19616fd8cc51a00a3cdaef1f47cd3a217f62dccb"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/feedback/FeedbackListScreen.kt",
+      "sha256": "7847d11753ea3fa680ec730f19f463ec76bfe340fef01a4d947ab67a02696084"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/feedback/FeedbackUi.kt",
+      "sha256": "54306fff5cdf5dc5d1426edd7cd01419595b08aad5e5ef2f3404050c130b1957"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/GroupEditConflictReview.kt",
+      "sha256": "a735867952289650fd768485b6166882da26c370fe91bd8c8be2237c6fb6f3ea"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/GroupRosterAddTemporary.kt",
+      "sha256": "c6f529e0f81727bc5f9ed004e56ee9926e1415c28dcd7a292bebaf98e2017e84"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/GroupUserIdentity.kt",
+      "sha256": "0e23ea57f17433509868aec0889f5de87b3fab9651768c863df3f1473dfad374"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityCreateScreen.kt",
+      "sha256": "a431ced6b34862cc5352506606fa9f5baf45650d2fd5961e7984dc3548f239b8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityFormPolicy.kt",
+      "sha256": "c1cff90823fd6c0d51317b00343a1776c38b37ee8e260e47d82443abfb693f74"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupScreen.kt",
+      "sha256": "74fa3204a82a5a75a2fdbe7986b43a3d87b39757f53b53e1edb6295f3a3da78d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityRegistrationSheet.kt",
+      "sha256": "e0e27148215cf3b891952819482c51eb0d10bb0f0dde1ffbbe2b7c482a8b6301"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/create/GroupCreateScreen.kt",
+      "sha256": "6e24f87b2982d07a075cf0f13fda48955eae0318e8b10f8712231819e4f05d93"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupActivityDetailScreen.kt",
+      "sha256": "0bf8f13f8733c961e7ebb27a2f9cebddf12be5f2f98f1918cddf142443ab90f7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupBrowseScreens.kt",
+      "sha256": "d4d2003de611ea042809d16083db724ce464dcd03fe5106cbd21545be05f9531"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupCommonNameImportDialog.kt",
+      "sha256": "d757b6191bb54d6484854ed18a2dd167b65ef55fe544e3290cdcd2a190597ac2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailActivitiesTab.kt",
+      "sha256": "701f3f93410b5038b75afef1142f9237cc134348fa22d98cb236cdc0cd22596d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailMembersTab.kt",
+      "sha256": "f91cc360a3f00e0a379d1d1cfd0107bf11e4a09a036d386cec4dea60c4805392"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailOverviewTab.kt",
+      "sha256": "5107b69813a7a68ab5127a40153554c5acebbe7bbf26cc2195e62ac2f593617c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailRecordsTab.kt",
+      "sha256": "27bbe15d2314aab2c2815098831ea887dd9e0721f802cbf92c6546af6dcd18d1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailScreen.kt",
+      "sha256": "888629f5485e788dbe2d691964f4ea9f445e0c9a4dfb0472a1087693dc47fb99"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupEditInfoScreen.kt",
+      "sha256": "47f429c8cd41a21d7beca468409555169a449e945eb301297b04be0ee8a677f2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupPageSurface.kt",
+      "sha256": "b991f7d5c392753758d19c6e2c7d55eabcb8e5b5b88bfc8cfff28615a414002c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupRemovedMembersSection.kt",
+      "sha256": "8bcd1af47ea927ad7f7386834c459a22d86d7480bb6669c84ad465f00eb64781"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupReportForm.kt",
+      "sha256": "6acfbdeed36b5bd7321a4b799422a2466d6b30a522ae3ff8727c9ea19686ae44"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupResultInformation.kt",
+      "sha256": "72d05737f41d82b6ed60f9cae8a0db14c684255c0b6d62cfbf20f0779d1f287f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupResultReviewActions.kt",
+      "sha256": "a4eaf3dd0c901f8f4e92fd0e46b1f7ea9ea8b2b0f58865c1780eabebfe694a80"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupTemporaryMemberEditor.kt",
+      "sha256": "044c706374feb651d9fadfcdd5690ae8ba0992007dbdc3b12b898b3d9bdd0924"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/home/HomeGroupSection.kt",
+      "sha256": "7b607b3a06c9a8c833d59662c1f28c9037bc65629ae74e852ca9f9accced9469"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/join/GroupJoinScanEntry.kt",
+      "sha256": "29c2588de27c041acbf8340ece9775300611afb3addc07b5d35d54958bbc9805"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/join/GroupJoinScreen.kt",
+      "sha256": "419397ab7c661595a5c953b19b773f848bec2d6715d5fe03b70169906f7506e2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/list/GroupJoinRequestCard.kt",
+      "sha256": "e1a4d71f79297bbedbe0710a5ad1f8a8cdc823e2848ba10834a14d7ed9389f4a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/list/GroupListScreen.kt",
+      "sha256": "3400dd9dae07182585e136f4dbca1ada71cd527f914dc860ea81465a5b0c99b7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/notice/GroupNoticeInbox.kt",
+      "sha256": "083a8f3a7aebbd88adbccc24d942ed43ea7e5f9c3701a7e3fc90bc27fa206df0"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/notice/GroupReminderScreen.kt",
+      "sha256": "fbae03bf1f88af45b43444637241ec2d51bd395fad050d9fc85a85b48d7d206f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/result/GroupResultEntryScreen.kt",
+      "sha256": "32805b9620568c81c4a41a97062e1b604ce30724301637ebd21189fbb34671c8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/result/GroupResultScoreControls.kt",
+      "sha256": "0384842bce661c62f5a7e27862c71975052e18ea48560dfc5e9179827424b925"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/share/GroupShareScreen.kt",
+      "sha256": "bc31482ea40c56b65dc06eb42cd7828d673cea41f93ece2d64185e22e0e462b2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/training/GroupTrainingPlanScreen.kt",
+      "sha256": "62322dc20d906a5a0345a7b7d5180d84c26a87dd26c0711d8ac4638b8a8b2102"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/training/GroupTrainingTab.kt",
+      "sha256": "ee95d00f74231893ca20b803d1eec8d6594f15d8627c232a8d65d9c9b675f0b5"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/home/HomeCommonDataComponents.kt",
+      "sha256": "a025599794f6511a1654d110a0e20789e4acc7df3f5c27a71c9addc41a714e5e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/home/HomeHeaderComponents.kt",
+      "sha256": "6220dc67a94bc976f34f0c12b958b05ddd5000c7c62c29af7d4f8d057e708dcd"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/home/HomeQuickStartComponents.kt",
+      "sha256": "78ac68b396612e35cb8f81b6a89b2a2f687fda44f35044f6464d0ac73879f0a7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/home/HomeScheduleToolsComponents.kt",
+      "sha256": "a7c77f9a27ab548c8b893a35c3bc444fdb51d828166bb9d41709ca3da2373415"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/home/HomeTabContent.kt",
+      "sha256": "0545c91ed833f2e45e2b0be02c199e0adf97e073256d882b3648fac8eac681aa"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/home/HomeTabScreen.kt",
+      "sha256": "91d8ffd4f6d14308b7bf51fd139a5fdaa4290bfaf409db15be033d7b299b3157"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/home/HomeUnfinishedRecentComponents.kt",
+      "sha256": "592145a2d774e8205e7bd48c7d4d40cf413ef60359b849ab99a604f66bd70b64"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/legal/FirstLaunchLegalScreen.kt",
+      "sha256": "68c7be3f7622a4fc11b028b4337fc7fd1ef0e2dd963222d02cd1f916bb9c9f40"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/AboutUsScreen.kt",
+      "sha256": "6a53dd53dbcec20e08d560c1fae3e55aa3c93d9eb6d732f114140a4a1405435c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/AccountLayoutSupport.kt",
+      "sha256": "3c8b1aa98fbc1976a6ce5cabea70759a7f7cb3efa62d2b4e125883320aa46666"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/CameraPermissionExplanationDialog.kt",
+      "sha256": "f89d0eb9f72738c9804310cc04fe8723c31a72037cd7c5db6428d4b861c3f1b5"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/CommonDataUsageCard.kt",
+      "sha256": "c64898923a83f7dcd74a4710742ee687158cd15d93fcddd72ec3930755500456"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/CommonNamesScreen.kt",
+      "sha256": "937f6d8d0130f378b5f2e6ce1e69fe15414383b37e458b5c763591a92b96b9ab"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/CommonPlacesScreen.kt",
+      "sha256": "0ebd45b5aa54afef17e5110d45e3e2943f740e51821ce3890fb62e39a5935759"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/FaqScreen.kt",
+      "sha256": "90df37f8dcf0b815d1b53b3525fb13c7feb0cee4cce213a9f75aa62f2702faab"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/MeTabScreen.kt",
+      "sha256": "c38f9556b4e0b1488801dcbcc0bb91a0d4bb8e79cd39010dda3d51629a1306e9"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/QrLoginTopBarAction.kt",
+      "sha256": "81fcf0df812bd9aa7143a95de2688cffe64320a3717d12c8ba0e8d2325970161"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/ScoreboardSettingsScreen.kt",
+      "sha256": "21af055aa2d1d477148715514915ab4b57f50aa8b7015f12b0887e3cec44fd67"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/deletion/AccountDeletionScreens.kt",
+      "sha256": "ab5d4b98ccf37637040cc93247bad9ef5cd8ecf06bad8d89033a82d8f2139306"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/login/AccountLoginScreens.kt",
+      "sha256": "240b32be2e39b144fb519720de665750b39e5b596cc6950ec6f0f86769fb75da"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/membership/AccountMembershipFormatters.kt",
+      "sha256": "23c35fc699d72af8ff2cace01ea63fc5c40c1c35f6b27f98e93082c06e41bfe9"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/membership/AccountMembershipScreens.kt",
+      "sha256": "f4c0e278082f28a2357428d13769d51ff7087802e5cf5a8c975b8408451f3ef7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/membership/GuestMembershipBindingDialog.kt",
+      "sha256": "f852679985f7a86076d35cd4be5ea40c815f880c9b0fd554500fe173a57c2365"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/membership/WeekendMembershipArtwork.kt",
+      "sha256": "61b10d0628506f91509d4aba29bef066da5b3c4c985fc9588acd141ada00051a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/membership/WeekendMembershipSheet.kt",
+      "sha256": "f7b3552edc165c1d8f44d13aa4e0b6097aee316490911e21ba6594bb15dc2f56"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/profile/AccountProfileFormatters.kt",
+      "sha256": "5bb42ad983b9627b07141a83c606cedff7e128107b7c4c88cbbc6397d6777875"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/profile/AccountProfileScreens.kt",
+      "sha256": "69e8c21fba0aaf943dc278d6e314c882d67d11d3a40086a5d3f229e2459ad609"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/me/profile/ProfileAvatarEditor.kt",
+      "sha256": "31305eb0fe24de0cd35a7a4d7c097afdf5f6d55b3a97088e9cf0c26e4575a704"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/records/RecordNotesCard.kt",
+      "sha256": "a36287f3598ccd169c007df0d542f3f0c951c3aaebdab688b06b339cce3e173a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/records/RecordsFilterDialog.kt",
+      "sha256": "c968b230daaf4043d1595f9c115ba3548d7912cb52e7e87c00956a9a2d17d295"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/records/RecordsTabScreen.kt",
+      "sha256": "bb4a68a93840ea66252e99a9f67b5f5792816c844878425f04f15b732b11d7a9"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/records/ScoreboardDetailScreen.kt",
+      "sha256": "33bbfdc576438d835deabc859df0bf0c9a3260374660311b81f8f1e48e1a25b0"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/records/ScoreboardDetailTrendChart.kt",
+      "sha256": "e73d052dc69dd9d4934e1f3862000167e266d9aba45fe6268e6d170cefc2aebf"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/records/ScoreboardRecordShare.kt",
+      "sha256": "8ead5d78348e7fe3835e85f6ef960d7a9cbf2cff9c1163f0e5ececf7e06a2337"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/records/TimerDetailScreen.kt",
+      "sha256": "901ccb13da8954ff39f57b3fa08e54ddb6c0547b133190138a986890ded61585"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/scan/QrScannerActivity.kt",
+      "sha256": "6e9b96a9e83c986dc942df7c3cdd9928b2867fb41ec8cbb53048e13b4f1e0806"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/schedule/BookingDetailScreen.kt",
+      "sha256": "99a0bd0a0fbe582e39b6dfe4eada151ab8022225d6fb68ce54909d8f49efec1c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/schedule/CommonPlacePickerDialog.kt",
+      "sha256": "fde430223f05cf327b6f6ae4cb430033ddc62cb489d592c9407f28c0eb8921f5"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/schedule/CreateBookingScreen.kt",
+      "sha256": "c2376ba4579e61002688214c7905ad688ffcc9cd5407ab0c132e39b62b4e6a02"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/schedule/ScheduleScreen.kt",
+      "sha256": "580cb37c1ae4820d383dd782bc27123a4c6ab82fd5fbc13bf3ca8b0c7ffa20c8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/BilliardsSetupComponents.kt",
+      "sha256": "130a7f69427da69b5378d2b02bd4d449567f922a0449f69109563fe9a5f59970"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/EditCommonNamePicker.kt",
+      "sha256": "3835c703aabd720375863a1cb48cc8f5866c6fc4bacdf4f26e7d629c8601d7ca"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/GameOverDialog.kt",
+      "sha256": "539645619291757ff90b0bf96ebc34ed3fbe8d4d27ba19dd7aca95becfcec2e7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/MultiScoreResultGrid.kt",
+      "sha256": "6efe87532eb854ee88aebbc1215b7bd0087c4d8e7eb904113bc5567aed7bbce4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/OfficialBreakPill.kt",
+      "sha256": "c41b6d2e677f1fbb9c7fc14a0e9528210019c5b0c266bb227d469f3c4d756b5e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/RacketSetupComponents.kt",
+      "sha256": "396d327346ab9978f9a6f3eb023092a185694faf446888e0e47e1b721ccb99df"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/ScoreCustomAdjustDialog.kt",
+      "sha256": "7a63cbaaf69fb2943e6dbae134d4545b69632dbd3ab1536cb74d7b31f645db77"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/ScoreEditAdjustRows.kt",
+      "sha256": "8501a175f29b64d15a5f9a53873223bc06d210b4957574b22c6c9fee077748ba"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/ScorePanelGestures.kt",
+      "sha256": "606deaf077b7293fac3a8bf04683ce9ffd15ecdad24341b36d9ee2f65d3a7e5c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/ScoreTabScreen.kt",
+      "sha256": "1273f8e02c3711ff155292ab5e44bfb264df1e471e21a1cd9df4143d32516a90"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/ScoreTouchGuard.kt",
+      "sha256": "9384b3f74c0caaf904a0b0ccdebb773a6520e8e5fac774bfc92a9bdc4c99466b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/ScoreboardAutoFitText.kt",
+      "sha256": "db58e6971ed1d6e79b453812adeffeb721c3856982c9c35566b53670e588eb84"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/ScoreboardDoubleTapSubtractHandler.kt",
+      "sha256": "a4a63f519aaa9c391af0c678597d204101c99207df2891a7214c2bf6e03bdbeb"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/ScoreboardKeyPointBadge.kt",
+      "sha256": "52eafa959256482d2f7651dc8305b0f76504e4c63819f19dd24c690087474ba7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/ScoreboardOperationMenuDialog.kt",
+      "sha256": "14530315756187d40792423a003855967bba82f846b4c3666665f0f7033b0034"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/ScoreboardPopupAppearance.kt",
+      "sha256": "df401db00ca0180902d2f4ea8b52059791bfa4c43133afe170a6ac787f1d09e4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/ScoreboardScreenshot.kt",
+      "sha256": "a9c1c983313fa5c55849b733574c89ca8a7af0e9a1d4d184a44c2b8b36b552a3"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/ScoreboardTeamPanel.kt",
+      "sha256": "2a5291d1796041132a2eb95506e7fdff1d5bb14c5245ec0e8f8fb081a6846433"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/ScoreboardTemplate.kt",
+      "sha256": "ef18de2c1b09284b8f25891527dc27fbb351df707d3417f7fb82ba7826a6602d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/ScoreboardTemplateMenu.kt",
+      "sha256": "d20e76b5c1e827046a6b0ff3833314094280442a1aa7028253e75a7eed72b9a1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/ScoreboardUsageHintDialog.kt",
+      "sha256": "9011f9afa3901a3716facab22caadc4d0655cedf1e3864ea4928ea4b8274137f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/SetBasedScoreboardHalfContent.kt",
+      "sha256": "882dadf44a24fa83d5f313fdd4456246eeba0cdbb7902a46edc416982e2dad67"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/SportsSetupComponents.kt",
+      "sha256": "4278a22967a3827fa3d004e05ce74f8eda48c00cabf9319aa751562a8a72fe5a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/SportsSetupMatchFeatures.kt",
+      "sha256": "5b6dbf5be62519ec8206e8eb1c8ba6ba84b5677382986c4b0a7b0200d4d81ea0"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/SportsSetupScreen.kt",
+      "sha256": "3e40b76f00bb19438eb7127068e890f15c1ae752ace71403e7b42322c9bdb42f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/TabletScoreboardLandscapeHint.kt",
+      "sha256": "1678fcba2cf62a64b099cbe0b2af3bcc996ea5249c4106c512615530c8a39c32"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/billiards/BilliardsScoreAdjustRow.kt",
+      "sha256": "345518b96f7b4c3b16ab2aa044acbe577d1e5b576f642535e39a455a3223e0d7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/billiards/EightBallScoreScreen.kt",
+      "sha256": "9989ecbe65adb07d05d5ebd60af170b804caff205afe08952cb90545511ff2d1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/billiards/NineBallScoreScreen.kt",
+      "sha256": "ec4e5530db5ebd22f246481b9e5d2ca5a557e1cd04e3766fb2a5cbbad3463a5e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/billiards/SnookerScoreScreen.kt",
+      "sha256": "1312a863696b89b841b44f8f70651888a6d5bf73c0eec05d13bbdc1d3ea06802"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/boxing/BoxingScoreDialog.kt",
+      "sha256": "f6fdf0b5a498daa8ed517475dcd27611ca517b419e7ed48b7d5f8dd30a7c8ab3"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/boxing/BoxingScoreRouteScreen.kt",
+      "sha256": "f26aa847539f049453d1806b1152d4cb1573b90a8db5b77bb4312c4f2875b3fa"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/cards/CardScoreScreens.kt",
+      "sha256": "5ab2b2ab961bbad68d512a5b032571fe61aebae87899919f94768d3a21249994"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/cards/DoudizhuScoreScreen.kt",
+      "sha256": "af1094dbbd2c48181f6cfa0201788a8efca38ceb24a4a1bea9a62a381e1acd3f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/cards/GuandanScoreboardScreen.kt",
+      "sha256": "6bf9331161cae94683fef264528ec242de394803b55783e234250a6adb57c4c4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/cards/MultiScoreGrid.kt",
+      "sha256": "429ea9b26b3a659f9fea8a825087a57a9f496f26a40dbfc47446ed3dfd792c00"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/cards/MultiScoreScreen.kt",
+      "sha256": "c4d5c235c7ec7de31cfdbee157b89fb5639c44c2c8f701fcc57bbb7812a584f4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/cards/ScoreboardFontSizePanel.kt",
+      "sha256": "95005e55fc68fe8f8ec20556a5091afbfa00e5f01a355a5d70518efc4bae9566"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/cards/ShengjiScoreScreen.kt",
+      "sha256": "397bdb9ed553b604358786281ebf8883a2e952e84a0e27d33ca3800446ff227f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/mahjong/MahjongAlertDialog.kt",
+      "sha256": "a5fb696a9d7ca594eca370260285d44ff55d9321feb9fa05d892898dd941953e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/mahjong/MahjongScoreScreen.kt",
+      "sha256": "c4135bef438cc8a114b1c9708969adfd144eb9472e8bd782906683309da51e15"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/mahjong/MahjongSeatChangeDialog.kt",
+      "sha256": "40f27932f5d020f8c1059cf63318f97a25a38c4a152fd59e2ed93d900e08903c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/mahjong/MahjongV4Dialogs.kt",
+      "sha256": "f0bfee9d346f0305845cf4b44b3c085801fd49d04f8eb22146d6a9357a74c202"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/setup/CardGameSetupDialog.kt",
+      "sha256": "06b51eaa3156f1c872c99a62e8379f38feaee40ae661cc28108879422922b761"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/setup/CommonNamePickerDialog.kt",
+      "sha256": "ad1a3be0bfb421e6cafd26935467c258d1aa96fb22632bbe7381984edaaba68e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/setup/MahjongSetupDialog.kt",
+      "sha256": "654fbe234b2a167b993e4a1d03bf8e31bdc3d23f8d73dd3aec53ff870a6bd414"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/setup/MahjongSetupEditors.kt",
+      "sha256": "d688f0c93020a083b46311a3064e633fe6d0f22387c726ab652779c6f61347cd"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/setup/ScoreSetupLauncher.kt",
+      "sha256": "dc46fe4d06e5bebd7b8a6d79b6daabce284bf0d33cb1caa7ab490a4543615c73"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/setup/SetupControls.kt",
+      "sha256": "ff90b243393a996605261025c848274efda0c5a34956e06a4bcb919718f32036"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/setup/SetupDialogTitle.kt",
+      "sha256": "9a4a348051f7974d0acc4adc6daf0f95fec87ccef2f9a2371c247033c8611ed9"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/setup/ShotTrainingSetupDialog.kt",
+      "sha256": "d56fd9696619ce19f6ff8d04125bbe192410b388828fa92cba07587e6028481f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/shared/ScoreboardBackgroundCheckpointEffect.kt",
+      "sha256": "f8c539de09806427015b8815ce58e660e02644b44a2a664b4ea513492c9d5f18"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/shared/TableTennisCardMarkers.kt",
+      "sha256": "dd388f940f7a01446f826fc36985eccbc1f394f7975b57d9cf11326a606b9ff2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/sports/ArcheryScoreRouteScreen.kt",
+      "sha256": "7ffc07163356018b54e5a40b34c3e534c1a7b1d3b04586466adc20c55ef75e5e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/sports/BasketballScoreRouteScreen.kt",
+      "sha256": "2df3c1e72b335187cabf76b007e3d249bfa1e4c5fc0e53b83099e2b564b4eac1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/sports/DoublesScoreboardLayouts.kt",
+      "sha256": "3b4ab8bae2ecc3407bd811e6489030c71e3683f465a86ee2b076607e29b074af"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/sports/FoosballScoreRouteScreen.kt",
+      "sha256": "e4dbab3d65dcc7e91e26cd3f268134a4dc588b673d4cbc4c70d1227c3eded176"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/sports/FootballClockPanel.kt",
+      "sha256": "e31514cd785ec59aad0a00a0dff1e17f7196151d83b104e117fe6fa88cf6527b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/sports/PickleballScoreRouteScreen.kt",
+      "sha256": "e8036a94365e8acf72742d7489de24344eae1533dad4946adc12e75108065355"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/sports/RacketDedicatedScoreRouteScreens.kt",
+      "sha256": "9277ff98f37fcf8128fc3777e265eae7a192a88e6db48c8e54b664a3d3569c85"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/sports/S1DualSideScoreRouteScreen.kt",
+      "sha256": "92a7ad16480b821c37be86a0ab95cb7eb2e232b78c7474dc3814aecb60bf6f07"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/sports/TennisScoreScreen.kt",
+      "sha256": "ca4106954a13a658239c99a868d1c9b750dead77fd54b55a69529b76546e1768"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/style/CircularColorPickerOverlay.kt",
+      "sha256": "894bf62a78655ea9bfda6a4efa827395e5e34f853c997542e540ac3fe9e1df95"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/style/ScoreboardStyleEditOverlay.kt",
+      "sha256": "658292a3608fbaee2b1f113b742a7818f8021b50dea2bbe146b47a7b6ebf903b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/style/ScoreboardStyleEditorController.kt",
+      "sha256": "c0937f466e4455fbcff2a1dfb105a9334a6cb35be9441450aab0cf9f170d6e81"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/style/ScoreboardStyleRuntime.kt",
+      "sha256": "e8ce11e20a405dcb99ffbd963ead8edaf037e0c6adda4db3873dd93c44d7e2ea"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/score/training/ShotTrainingScreen.kt",
+      "sha256": "d1678ffbb4321977e67a53d96c819d11411a4fe073ababd399ba82a21c44ca7f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/timer/CubeTimerHand.kt",
+      "sha256": "094d79effff85d98d252134449d39bdb37c4caaf78cf18589486593d4131ae45"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/timer/CubeTimerScreen.kt",
+      "sha256": "a631e7fd50173255e37f5d9839f94241d2ebadd350f9f22ff0a8e1276f166fe7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/timer/TimeoutTimerScreen.kt",
+      "sha256": "ef0172023dd5429944bfe287e28fb53c9759565dd3b1e724ad3e552dadfbdee7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/timer/TimerGameScreen.kt",
+      "sha256": "e4b6aa57edae0f6b4be0ffbafa5d2ff4a1ef954c8b3adb8451c22817722cfc80"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/timer/TimerSettingsSheet.kt",
+      "sha256": "c13272a2a2612b19a7cd1ed3836727be9c2f154f441fa51d38d6afceac71fc40"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/timer/TimerTabScreen.kt",
+      "sha256": "a8145a8ec9df8654a202e6ab2dd9ec288c2688b8860628f8b745f3d7a47e2a08"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/tools/AaCalculatorScreen.kt",
+      "sha256": "3e997fe7ce05e0dc7d1e1c80e2beb2f081e720e461de745a098a36a5d054519d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/tools/CountdownToolScreen.kt",
+      "sha256": "6d8cfd8ef4255f457ddc02b9983810078a4453f7d8009017f6541e91526f02b6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/tools/DateTimeToolScreen.kt",
+      "sha256": "6f4977ad674a6d420f974b1a22d5d4ba116e82dbb75a7810d8486e53720b9c6f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/tools/DiceToolScreen.kt",
+      "sha256": "9d46eb4a47290997c6412d46c62be27b05b178cb25fac64ad12f33e575e33c07"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/tools/FlipCoinScreen.kt",
+      "sha256": "be8b1c31b4cc4e6adbd9f01cd48716f5e7610411b016d3c45cd74df31fdc759c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/tools/FullscreenBarrageScreen.kt",
+      "sha256": "6c9f055552bc07cfb5ef1b8f4f9edc23c2925b1f7b2c4168ba6bcd0dee05203a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/tools/PointsTableDetailScreen.kt",
+      "sha256": "a16b1b21793d50ac421e07636c81a43d61b4d3cfb5746163f1cb16fdbca4d4cd"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/tools/PointsTableScreen.kt",
+      "sha256": "ecaa1b18d9a4655ac5d38a4fc7ee0dab65eecf39662fd34daf5a9e2671d04c04"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/tools/RandomTeamScreen.kt",
+      "sha256": "0f1862d5b649c5ae829a4b310bb7c917cfe8714ec2290aa4cf622a0901f599a9"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/tools/RedYellowCardScreen.kt",
+      "sha256": "1d25ae398c7ec8da396207d55d567792599d439374f4c42da339313e59cf4a5f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/tools/StopwatchToolScreen.kt",
+      "sha256": "6b37939ee76f6256f8e1c1125c250bf944089ae95ca71f88a13488657d7dfb76"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/tools/TenSecondChallengeScreen.kt",
+      "sha256": "07b051bc25da1536f60d67fe9b706f7f57c4024527091c0f404185ee335f1e2c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/tools/ToolUi.kt",
+      "sha256": "2da9705311dd62b0a866cd274250da007d4f930c94e8c690fb17bc910502a347"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/tools/ToolsScreen.kt",
+      "sha256": "8d6a0437b71b0884fc30d6987b73ebf8ad2027162f889fdd1b7a6cffff710661"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/tools/WhistleToolScreen.kt",
+      "sha256": "9b242cbbfafa28488cf94af0731f2556880005d41c5808acad1f8410d3f185b6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/DeviceFormFactor.kt",
+      "sha256": "43c77a2d0bcdc8b02ce4a512c6412212df18943aa8c4d8b8276132ba5faf9f64"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/component/CatalogIcon.kt",
+      "sha256": "2196e1b2b274b33085aec6d8252d6d0d5696747fd9dace8109eb1c94588ee6cb"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/component/SquareItemCard.kt",
+      "sha256": "065cc86b89563c78141119cb1020cd65f1e613ac7a2ba4a38d69fdade4e53657"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/AppControlComponents.kt",
+      "sha256": "cf38e015d8d4b411781e19c39f4767a26bbb8223948542e8169abbe1b200973d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/FlipClock.kt",
+      "sha256": "663a086f7befbd0903bc364f2fe3e8a57e029e6b66bc22448e40d54c638ebf46"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/FormSegmentedControl.kt",
+      "sha256": "901751db4149b72549b7c1a4f57a3d26c6d9a2e23c458baf204c8a031ca2298a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/HomeSectionCard.kt",
+      "sha256": "e0c8b1aa08807cfa0dea53b7242b7025a672a567f6e728b78d053a971f5ed286"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/SharedComponents.kt",
+      "sha256": "dcea7eee570fee783de8607a12a9a591d63b77d658058a9f74ae7441101ec279"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/WideScreenPageDialog.kt",
+      "sha256": "45fb2929d64011837eb148f548f9e681c8ae6ac0cb593c4f140fd561ec3d3a55"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/group/GroupBetaNotice.kt",
+      "sha256": "49af123bc56ceb5e9b36b180adc692bcd424c6af99c369142c5d4c2f70991beb"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/group/GroupCards.kt",
+      "sha256": "2896642c8702bc78f5c626014166606c61350770675dae6971724cbc1ccef88f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/group/GroupChips.kt",
+      "sha256": "f4f428c7824020ff29dc2721f820732349fbcfd3dffcf2aa90b5cc79639d2969"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/group/GroupDateTimeDialog.kt",
+      "sha256": "8cb829657bd5b7433b53b9e901a1afe7fc7b9f363c214120cc9b76909fc6ef87"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/group/GroupEntryActions.kt",
+      "sha256": "00ebd366bea98126160f7fb67982f8308bf416f8e40434877623118a563dfd0d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/group/GroupFeedback.kt",
+      "sha256": "c2b90b51f946a23865e133c4ee88b068f2993a7b1b676d4450220a32d3cdd3d7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/group/GroupFormAction.kt",
+      "sha256": "0a08c03a32507c818b184519eaa91dedede17e6f2cbf9a2fa4b364a18afad69d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/group/GroupInlinePlayerSelector.kt",
+      "sha256": "76e080a9ef3e7c5123eb315dcc95bf83b033e27a8c072a6621f57828c2dcdf8a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/group/GroupOverlays.kt",
+      "sha256": "6177fa72ea537e6f03842fb552566872fd80af1a69441d9d1fd919bbdbe6fd22"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/group/GroupResultComponents.kt",
+      "sha256": "e7511d248e3d4da5a9f9e31c31703037d9ea305595022b068279131f2a24b675"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/group/GroupSeats.kt",
+      "sha256": "479486176c12a5dc10e0f75071b04d4c66ae8fa2b668dbd813224b6be1e351e6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/group/GroupUserColumn.kt",
+      "sha256": "e62f65f9a84069f8a398b853c39611b7591eeecbe16b048a4ecc14fd8148cd44"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/dialog/AppDialogDim.kt",
+      "sha256": "04df5f324e869fcba7e46f6baa044be3f188ff940a24c844e389b849f7a19aad"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/dialog/CustomConfirmDialog.kt",
+      "sha256": "e5586e4c0ce9e32c1e50ab4298800a73356190aedd1435b417f5b589811dffaa"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/dialog/DialogWidth.kt",
+      "sha256": "9f9a2e75fb4ebae4b40b6281c93bd2684e68fcb0b85634b0e8ad1790f70250e0"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/dialog/NicknameEditDialog.kt",
+      "sha256": "4ff32edb0d5e45f4791fcbd47da4991a34748c24ed25215a05c7517b44d2fbb7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/dialog/RateInviteDialog.kt",
+      "sha256": "35f4ebf040be3c26f4d0931c837d236b4fcdea3e8b191677fa2693987c25914f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/theme/ActionForeground.kt",
+      "sha256": "fe74471b261732f968931b359f4de852d059b8f2d5e324af60d707e8c8f97c4e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/theme/CachedClipboardManager.kt",
+      "sha256": "085faee4d8c8beff38149716d04cea328162821e531c9466d1d2d5dd74baddee"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/theme/ScoreboardTheme.kt",
+      "sha256": "7f8cdafe901c5008e63051ef809d53d036d25afe22a97b4b5c916d6f31d783c7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/theme/Theme.kt",
+      "sha256": "70bc34569534bfa3046d312fbc13db61a986bf62e9825696aff62bccc4e58111"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/util/FeedbackLinkify.kt",
+      "sha256": "51f781c28de3777144b4d7ab19d9239e651fa9d4a238ea787ac86df7f5e7f522"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/util/SoundPreferenceHelper.kt",
+      "sha256": "061a571c5a55d742740d119c08f0e2ea3c93f9d0ef33d100229a41a5e7b8b491"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/HomeActivity.kt",
+      "sha256": "f8578debb055c58e1cc23ca5a4b29ba780027f7cbb1da9848eaabc589463d8b1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/MainActivity.kt",
+      "sha256": "5dc70ab98d13c63ce571233ca2452a2bc1162846e3cc1a66fe793497d31ba12c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/OppoBaseActivity.kt",
+      "sha256": "a859165cd4ce299f2a19f78f5f5c66ad43c2194412489477aa842e34744ca93d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/SubPageActivity.kt",
+      "sha256": "8b0faa75355352c958418f5caaad6b0b75967474fa020a856fc515ea3019acbc"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearApp.kt",
+      "sha256": "526d4ead6422e8414f324ed81eb8150f269da35c2e4abf364208271cc9502d9f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearArcheryScoreScreen.kt",
+      "sha256": "66bf7f9bfff340803bec18edd0c2c3c3fbd1f946f0ccd209560a728f4a57aa76"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearBadmintonDoublesScoreScreen.kt",
+      "sha256": "44e18d60a679e3577ab1694710aa82f7b723ff62b87cf646b5f1a25fc4d6f9d6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearBadmintonScoreScreen.kt",
+      "sha256": "cfbcc7281ffece07c20bcb597374d53539215898b288e69f392a370c54140b86"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearBasketballTrainingScreen.kt",
+      "sha256": "41d01e6b4511bcaaf2e7622a7feeddc798164a64b8f5ca05f35096a6c273aa8c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearBilliardsShared.kt",
+      "sha256": "6539e792e6bf7112a49179e4e89ff49eac2b0c4be23d9b38b6a8129dc622eb05"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearChrome.kt",
+      "sha256": "425ad70eed80f6efc14ea7289d24263b2cd3c2e7958be6f5388653699bb13f81"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearCommonNamePickerDialog.kt",
+      "sha256": "643bbf5316df8f0694db90fd71307dcfb7636b6553ee20ea86e6ab8d26b8b206"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearCommonNamesScreen.kt",
+      "sha256": "a258b96203dc8f67e5e042faa269013e113daf279ccc7ba3196677f0921a7cdb"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearContactPage.kt",
+      "sha256": "0a792aec2070c56f17a4154431ff8fb61e79ba2370656ad8c2bd9618f146a409"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearCounterScreen.kt",
+      "sha256": "1166c0fec923374f0de9e950b25e574552af50f8de3e9248772a8316281ff710"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearDoublesScoreShared.kt",
+      "sha256": "d9714cb321e487c334b31661eb5d7552b6dda6ef9746f3aa633af75996f97f8f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearEightBallScoreScreen.kt",
+      "sha256": "e523815750ef7e79506727ad6d264476997cdfdcad6b9f8dbfc10d3a91bb118f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearFirstLaunchLegalScreen.kt",
+      "sha256": "3f4a55b06d6110887d484243e2694f2235fa7376c7b808ec649cb57f4aadcac8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearFlipCoinScreen.kt",
+      "sha256": "9d5616ddabd7fbe8ffffb598922c3111a556a373a9b3697c8826535fdc829bb3"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearFoosballScoreScreen.kt",
+      "sha256": "edc1f474b28537ed3fdd90d56e9d4c46e506584a8f526f28b64a754ef953e1c7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearFootballScoreScreen.kt",
+      "sha256": "fe63fc4113e37bad0effe46bfe6ae8435c1bf022ab89f48f3b6b5ab11e240dd7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearHaptics.kt",
+      "sha256": "556ac058d41f8f3f8c18f5e39b931cfb8ded1e56b204b2e90f798d31c1f7d34c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearNativeEditText.kt",
+      "sha256": "60c8b0234e9a58048cdaeeae1988212f1ea7564c8a710c0fe722ee63a7cbe41d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearNineBallScoreScreen.kt",
+      "sha256": "81bc91fcf6a9168f96b3655cd0459828e8d36d85b6098989adbe1de322450422"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearParityComponents.kt",
+      "sha256": "6a2885ef5f2fabb8eff81bea19aa884aa1b18b39ccf273bc20d03c3ae834ff4d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearPickleballDoublesScoreScreen.kt",
+      "sha256": "a695d9a8ffec5a12459921db7994026d253a0081b1fde0435cfaaeeb78dd772a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearPickleballScoreScreen.kt",
+      "sha256": "668e25139a9486db30c7ceb0dc35c577f95bb3e79d481d023c381fb420be70aa"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearPingPongDoublesScoreScreen.kt",
+      "sha256": "59c12fb90e66ee7f24426fa75d34a31e2581d59a5f5ce728625e6bb32f55f4b1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearPingPongScoreScreen.kt",
+      "sha256": "8d8eb061916df75f3b4cd7a188f6b5af46a05a16b1d8aa40986a72c0ca7098dc"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearRallyScoreShared.kt",
+      "sha256": "cfd99e3a3c8686d69fe305bf59c7b69849e93989b2dcc1c6cf1c59477a6904b1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearRandomNumberScreen.kt",
+      "sha256": "6f083a04ea02473cf79766149eacb488546f8bfd863462d4c14a20759edb5a14"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearRecordDetailScreen.kt",
+      "sha256": "100381ceadefef2074681e3900ac26d17fee2246f862a1753a58ac971fc29af3"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearRecordsPage.kt",
+      "sha256": "c11c5a873389b8dbb8ff7f9b81de41be99f16695aa3d180d6d7e9da0e20de8b5"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearRotaryScroll.kt",
+      "sha256": "bc75acbd7c424bf4bb12524a80f5af2129afd368293746214dad71a5b0b3ea82"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearScoreShared.kt",
+      "sha256": "4bc7c0fddf12e4f65f3627fc1dcc7c83a6e3a33858b6ac2333a842f85316cd83"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearSettingsPage.kt",
+      "sha256": "ceb7d38d18e6c0b27832145d66da7bdef5175ca5a108cb04d8e952fa6778c11d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearSetupFormComponents.kt",
+      "sha256": "c72a2034491b5e505487eee1643015bec09c2adcaa7c6e19e7f1d4ba6a56af6b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearSnookerScoreScreen.kt",
+      "sha256": "d587a3c8fd883bfdd2120e89af2ddcab02ca30df0f2e2eeccd10a2a980e8e018"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearSportsSetupPage.kt",
+      "sha256": "f24b34dadf9e0fbcb9cc33654097584158617ef160f018f9d77771179fb16161"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearTenSecondChallengeScreen.kt",
+      "sha256": "d7cbc37a5f291ac7b7223ea341bc64a98cc67bebc5e6372f1cd3d854607ee909"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearTennisDoublesScoreScreen.kt",
+      "sha256": "74c7d36142fecf2fcf51527d880d94d66c8f43b02d4d6e8469eacca05b8752b7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearTennisScoreScreen.kt",
+      "sha256": "1e550469bec201e7a9ca8f6f86bdd334560166741e5adcf07812f71ce923efd2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/wear-oppo/src/main/java/com/douhua/jifen/oppowatch/ui/WearToolShared.kt",
+      "sha256": "77e1d9312af27cee97c621f1dd596d458a9e57cdbdd2856d548592650a03d81d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/assets/tools/coin.html",
+      "sha256": "dace3f2f9c8958b78f7e4ead40b96eb11db30e8c076b8324b8685d88c82ee2ad"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/assets/tools/dice.html",
+      "sha256": "cf10997bae3e7ae4f86d8292d3a43a3902acaadd10c30d0db6660aa79aa318c9"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/cloudsync/ui/CloudSyncSharingDialog.ets",
+      "sha256": "b79519a27c53db9ede773a6debda64c91579f317735fb0a8d13698b0bfc2d799"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/cloudsync/ui/DisplayConnectionDialogRequestHost.ets",
+      "sha256": "a58f81b06fbf8bc48313c37ddd635c17c50e76ebebce356b5db99fa3b94daf55"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/cloudsync/ui/ScoreboardSharingIndicatorPill.ets",
+      "sha256": "4aa29beb0d916fac5ed914fbaabcb2ae8753c9305a8879691d4f81ee36138ec9"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/AboutUsDialog.ets",
+      "sha256": "570e3f2a86f8a0bbfcdd3e6e174c04a11dee24549a33653c58dd2ed75954a214"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/AppRecommendationHost.ets",
+      "sha256": "153b0ce2712a656828964883806783c720ae066bb8d6229a3594624f0f6af017"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/AppRecommendationSheet.ets",
+      "sha256": "b6a2bb3fec71190fe7ccf19f4952bcc28d96b77f8df2ba9021ee2453dffacb30"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/AvatarCropDialog.ets",
+      "sha256": "862b5eb8a90bbcd1d81ea72dc71ef5e9a99e26a9e433c2c7b95bc12b6b6245f2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/BoardTimerSettingsView.ets",
+      "sha256": "23ee0c7b86595738ae8cb2ddb1e6f8671756c45069fc5dd377bd1becf343e466"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/BoxingScoreDialog.ets",
+      "sha256": "88d42fd4a5a1178f67d640f8daa96fad6cfc7ac29e463638f75edd6f0324e841"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/CasualGameSetupDialog.ets",
+      "sha256": "3f924e633aa66baeb0950beb2a6265be33435b16e1cd688afb8333aab50f29d8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/CheckersSettingsView.ets",
+      "sha256": "0e738870cf5ded3615267e79d79d123bc465081ab75179e3095c26fa35981561"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/ChessSettingsView.ets",
+      "sha256": "6210effd6071fb5188421e7cc73f36998013c4fb2592cc11af99a6eeb9685739"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/CommonDataSyncStatusRow.ets",
+      "sha256": "01be093962dad833033d6f0771716fe17274efdbd85318b5ea8c3614032d6c2f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/CommonNameSelectorDialog.ets",
+      "sha256": "ed1847aea57f5ec6066dc07968e0617bf19d9ab43691869452781d4bc5a7470b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/CommonPlaceDialogs.ets",
+      "sha256": "455cb204a32c19c35ed69f01cfe9da62f2dd627d8ac71de7ea594bb24f491787"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/CommonPlaceSelectorDialog.ets",
+      "sha256": "3c628b54c3af96da7a1e4cce8151b7f926b3b79915a022b857a4babf768a4d9a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/CreateBookingPresetDialog.ets",
+      "sha256": "bc249948a0664a9f1232bb77431b35c7ad0f1359980aef83fbc421b6bad5f4a7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/CustomConfirmDialog.ets",
+      "sha256": "18185c881e703c2dd52081a6ddb601979f9ea5198a17e41731366e89eaaeffb8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/Entry3DIcon.ets",
+      "sha256": "5986c76306b99082359f28f3d20386fa2f9036806794e5494a5ebdfd2acb916e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/FaqDialog.ets",
+      "sha256": "da0d48d271b22ad1f3ec4ab5aee46a6b48ec234b0b0e57ab61014c502ba8db06"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/FeatureAnnouncementSheet.ets",
+      "sha256": "147a94d36a58427ceec48d9b44ba1aca075783caec44121789d193d368f5f73b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/FeedbackAuthorBadgeStar.ets",
+      "sha256": "fe94f214f8591f35b4440bbb9a0619ffb2dcc6b3ee2847a7dacdb2afc0f8a3cd"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/FirstLaunchLegalScreen.ets",
+      "sha256": "1b29fe0a186b54aaf0bb83787d113aba37ec7dd68c5f10b2b74795cc731ad45b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/FlipClockFace.ets",
+      "sha256": "26c14f811b9ef70f71d04c1ade1ee008c3c996f0de249850693e2bd97d08523a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/FlipDigit.ets",
+      "sha256": "240b8039c03b0452fd38ad89eab553af187d5e0656ff7079d46d25e6bc925b6b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/GameOverDialog.ets",
+      "sha256": "e1c26cc4c26c8439142308268fe0fd871587d5c940f44d0f58bddbb05063d2ac"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/GoSettingsView.ets",
+      "sha256": "06db20ed68b7e55de817e07c066713feeadbd2aba725b79ca377f3961ecd9e74"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/LegalDocumentDialog.ets",
+      "sha256": "d5a900711b9f47ed7ef43e233c31519a437a1c7933e9a6b7e065b2fb43f59321"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/LinkedScoreboardConfirmDialog.ets",
+      "sha256": "f85fecf16ecc8e5db1e4553a6977053ff7ad2a64c38c4ea9ead50b9b58dfb7e0"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/LinkedScoreboardStatusBanner.ets",
+      "sha256": "da50f1cc8d49752352983d9d7ba7d45e9ec6064a4262ddb0ca861c9f02d389e8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/LoginDialog.ets",
+      "sha256": "78c973e9a765ae21de3b0f027c4ff90024b6adfe1df017bb4a0c7eda75a6f06b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/LoginDialogRequestHost.ets",
+      "sha256": "747eb932c80cca43d724f8627094735944d9d9adc829059c3c68add06af5a82d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/MahjongSetupDialog.ets",
+      "sha256": "9a087885a19e1a44392301071d4032c696b4eb15a01810ee01ee443bb455f009"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/MenuDialog.ets",
+      "sha256": "4bb72f821b8d6ddfc130705666f6c0a275c27b98d2c9fc4ad7553903952092ff"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/MultiRoundHistoryDialog.ets",
+      "sha256": "ad77fbb78e87933c4b53253f54539a77630649847ecc546d26b0f3dd649462c7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/MultiRoundSettlementDialog.ets",
+      "sha256": "d6a1824e6502410ff78ca888506d1ba9b04e3a60b526f865c63fa0ea42a4df1c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/NewGameDialog.ets",
+      "sha256": "f3e386f9b00c7bbc3478eacb9685d509c692de9821d0a1311a2dda369f28edcb"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/NicknameEditDialog.ets",
+      "sha256": "977a84ba16ba8180504d3cd603a560b26a7672ddc34ddccbb87bd49cfefc999b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/OfficialBreakHelpDialog.ets",
+      "sha256": "75ba42add68635c27be82b9dab6794fa4fbe351de8090dd96a9f0dc81f109f0a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/PlayerCard.ets",
+      "sha256": "44e835e178217fb40ff082afb1f9ae6c16d84d909d151933ee0cb5cc4021bec1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/PlayerEditDialog.ets",
+      "sha256": "909281cdfaa5c5eb90740ae2117a20588cc36d0575288a9d7a74865805b52ee6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/PlayerIndicator.ets",
+      "sha256": "2c932612a73e4f5062f542103408932f77387ee0824e37433a3c1a2f1233fc16"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/RateInviteDialog.ets",
+      "sha256": "e621adc7dff8a70a922533f2003cd0bd2073fc4d54571d9a9530f8525a09cd20"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/RateInviteStarSwipe.ets",
+      "sha256": "8a6e7b5cfc16348b21565325723405147ab2cf1e9cb7bbfc505ed3aa29b8f67c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/RecentActivityCard.ets",
+      "sha256": "99a6f81bdbad2c8386a453dbcb6a6b27bba9871ac25dd44b7a79e52d9cb7f4af"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/RecordsFilterSheet.ets",
+      "sha256": "51950e8e62d6fd67a6e33c0e11aab23b180c2c0e63f643f33cda3899697fa081"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/RemoteWebView.ets",
+      "sha256": "2b37492dae430fca9c552c5d3bc568512735887f941f5c224991d682eb26f93b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/SaveScreenshotDialog.ets",
+      "sha256": "72aec7f3333d216566005a53fb9d30f2bd5a28a56675d762b2c7d3fc33ae130f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/SavedDataManagementDialog.ets",
+      "sha256": "4bc1cdaf4b40f2e338f06f5b6819bda48dfb600359ce88bed486553b65be6106"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/ScheduleConfirmDialog.ets",
+      "sha256": "e421762cbdc4e2611fc52c4cbff6eb2c9f449ad0a984e60b8e5ca60b80f51e02"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/ScheduleDatePickerDialog.ets",
+      "sha256": "1fcaeb193f7517fdb60646e2e297aa41da204fd3dc2489db4cc7e35ad8bda57b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/ScoreboardUsageHintDialog.ets",
+      "sha256": "135fe8ef884c1c73bfb4ab92c1c39c2d7638307f29820b0c3d4bb0f66a115964"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/SectionTitle.ets",
+      "sha256": "6f1aa3dfe6450291087a352366fa31e0e528f8dd61d990cab4fc485812544d6e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/SharePromotionFooter.ets",
+      "sha256": "b2c6dca94adca655987153f51d41fd3d322ef336b122fc5d9a6ba08991eb4611"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/ShotTrainingLaunchDialog.ets",
+      "sha256": "ce82b43f0be0dfcc165df3e7a27f4df59f7b8412133c2d0cac8ab94dc46faeb5"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/SportsSetupDialog.ets",
+      "sha256": "b2594f6985c453a67c0b1738c9b852ce8ea3b6462a0ec0b1c4eabd9b41740954"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/SquareItemCard.ets",
+      "sha256": "af6c1aa085e3f6104d040e60c6a6835553c42244bd70b0bc96e543e50b9c9609"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/TabletLandscapeHintDialog.ets",
+      "sha256": "d9487cd6540846eddfbd8907087c147fddbb8a94a3b1e03bb0dfcc40bfe9582a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/ThemeSelectionDialog.ets",
+      "sha256": "3e3bc3eed97c912d075d90f90e85bb3b3e525842eb7e1253811db2d8665e9538"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/TitleBarBackButton.ets",
+      "sha256": "45786e29ba3d31adacc12f541f5c891f79730e17938ec92c725c790771c621e4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/WideScreenPageDialogs.ets",
+      "sha256": "41c34428e5956f618e412298fabfd9e3e3f8d03d2b8d3c4cd0ee0ac05ccfdc9c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/XiangqiSettingsView.ets",
+      "sha256": "50d4614655648633d959c59d49b88070484448d31b0f7847686506d7c49aedef"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/scoreboard/name/MatchTitleEditDialog.ets",
+      "sha256": "74e5ea89d5eb84e1edf75872116659a82878e5e8f83f083894cfbc750eb8f957"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/scoreboard/name/TeamNameDisplay.ets",
+      "sha256": "39fb866b2af2a9030c05ed936d666f0e816115324507bb0e990a2ac6b3ca12f1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/scoreboard/name/TeamNameEditDialog.ets",
+      "sha256": "300e10b050b18e61784db0f8a1128100415b4330f2a7bacd009a481f022b619a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/scoreboard/name/TeamNameField.ets",
+      "sha256": "abbf7406e5c6acf17179d1331ea15e8ea7ecb044dd5e5504ec4ae664f722149a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/scoreboard/style/CircularColorPickerOverlay.ets",
+      "sha256": "31a124967ae0fc3d8950a8d3b257069acf7f2ee44179f917b58b58aa1051b0f6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/scoreboard/style/ColorPickerPanel.ets",
+      "sha256": "5f3ad4e469a8d35e57e36b38fc2f41886184f66c3c725e1a47836130ebf86c85"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/setup/SetupControls.ets",
+      "sha256": "5aa70a8673ce39cd08979e96862178d79ffa193d10e1ee9adee3293e892a3e3b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/sportsSetup/dialogs/ChasePointsEditorDialog.ets",
+      "sha256": "cbba853f1420d6f87cab80aaf2e67953db5cf883c12bb6c216298a0ab997f2e4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/sportsSetup/dialogs/SetupSendExitConfirmDialog.ets",
+      "sha256": "035846c666df9422f2cf9ac3c437f649b6e3569501bfc283e006cba2778671a3"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/sportsSetup/sections/BasketballSettingsSection.ets",
+      "sha256": "7e9f7ce52d5f441423445bdf30240c06d8f1082c3891fc2414ffae1419a4f55a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/sportsSetup/sections/Football5v5SettingsSection.ets",
+      "sha256": "fbf28fe4a276fbe6b77d47843c34938ae6f5add64072fbff759c6c9d99ca9d7c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/sportsSetup/sections/LinkedWatchStartButton.ets",
+      "sha256": "de132b82bf5cab09401425e1e0a28331e36b1a10df2f5619d19bbf8adec0ddb6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/sportsSetup/sections/MatchCompletionModeSelector.ets",
+      "sha256": "3a6df981e0957edeb6e43cfcaddd2780dcb14a3ae79d52cd006a65b72c53cb2c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/sportsSetup/sections/NewSportsSettingsSection.ets",
+      "sha256": "8cb122ebaee67d7910bed2239f493705dd593f78b8cfb0c0d4f9972c5284f3ee"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/sportsSetup/sections/NineBallSettingsSection.ets",
+      "sha256": "547340dd0437efff12fba462f4c6ff5c14f3b3425e4f053e13e421724283181d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/sportsSetup/sections/PickleballSettingsSection.ets",
+      "sha256": "88e4c2bf82c6f293496db43355d430bc4433cdba0eed958ebb42d9244a1bca5f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/sportsSetup/sections/ServingSideSelector.ets",
+      "sha256": "5082c3a89eb2e8f7d692634ef12c043d40f9b062c488767a2f95c4e911dab506"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/sportsSetup/sections/SinglesDoublesCapsule.ets",
+      "sha256": "928ee13add49c31028e8c0e767cb692c36a0812f7300c2919902efc9c1509fac"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/sportsSetup/sections/SportsSetupDialogActions.ets",
+      "sha256": "a3655cb52425950ec9e25adac74e886adeffb1ede47ca20975587ccfb86a912a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/sportsSetup/sections/SportsSetupFeatureToggleCard.ets",
+      "sha256": "941942e0bdd8d112a581b0df4dec8bcd92bbff823ce2c5a626231b9ab4415028"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/components/sportsSetup/sections/TennisSettingsSection.ets",
+      "sha256": "895711f5810fd242fda2712f0f0e901e77b6d0b11c7be8c1dd1117f70c021a79"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/helpers/scoreboardRecordShare.ets",
+      "sha256": "50e31deb14c11f8d442d1b4811deb47099d8fe89a163543e7ff6fa63a0311610"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/helpers/setupDialogsPromptAction.ets",
+      "sha256": "22550be0a52819f84ba296de5f01f551f5af4752ae351fdb63b3da8b80f7f25d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/helpers/tabletScoreboardLandscapeHint.ets",
+      "sha256": "19399f9ea1036015f3a9aa08de03dfd3ba652b0e526cb6773958ca8e6c7fb07c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/Index.ets",
+      "sha256": "1a645a1011ad645b7163c21f4fd6ce752c42b318e508052d70aa8e1225c170c5"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/CastDisplayPage.ets",
+      "sha256": "68eedaa345be3dfadd8f030f007740b1ab7dd264f7acf77b2ee25792061a1bf2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/DisplayConnectionPage.ets",
+      "sha256": "d83b89e2978a13c1d0263de66ef57795865784d122b667e81b61a5fbd8967f01"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/DisplayScoreboardHost.ets",
+      "sha256": "a651ddefeb2c77dcc133c5a22a443559b1a4c01fd6c92379639e36c806fa44aa"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/RemoteDisplayPage.ets",
+      "sha256": "6bc56f370f56fc274934a5167c0584ef02fdadb8792adc39081c969ea531f0a8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/RemoteSyncEntryPanel.ets",
+      "sha256": "9a1e1b140aa8de13d80ac06ce01233801357636330b737aa6a39e9f35e8b536a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/components/BasketballDisplayClockPill.ets",
+      "sha256": "eefb24cac94ea64b2e084badaec8d4f045ce29f8353985f248716d87db593caf"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/components/CardGameDisplayHost.ets",
+      "sha256": "67430e0529706fe7eac95f15d0afc6b0836e04f27f87ad7fc9ad64ce19d5824d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/components/CastEntryPanel.ets",
+      "sha256": "caf636e3da057c1219fb01630c8a9bb32beeae0214f7cc211733a8d9860feb8f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/components/DisplayIdleWaitingPanel.ets",
+      "sha256": "fdcfb24cb1741f6415df8762e16616ce116cbf4522c35bd11aafd3acf07f6f97"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/components/DisplayProjectionWaitingPanel.ets",
+      "sha256": "3f5938b18e502eeba69d0347bb181aed51711da8238c753c2e2684f56306dec6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/components/DisplayScoreboardView.ets",
+      "sha256": "383a42dac07124df67023f307c49658a224f0441a6f83d9a0ba7251052eee735"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/components/DisplaySurfaceHost.ets",
+      "sha256": "4857070016b5685bd3abd06b45fc01fb43e2fe039519e0c742c2fa78da5b048b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/components/DoublesCourtScoreboardView.ets",
+      "sha256": "b0fcb944152e573cf063230b03774a2d643564f1887dc3baee33974e2e0b2ff8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/components/MultiGridScoreboardView.ets",
+      "sha256": "2c4efeaacc456a89bd9f078b3c788dc98e1eae77177a13cd5adf910274e58082"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/components/ShotTrainingGridDisplayHost.ets",
+      "sha256": "04687488c6ee768568f8ccc41a17ac562b8c96efa3efb3183f490a1c1d197366"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/components/TeamCourtDisplayHost.ets",
+      "sha256": "867eb37c5f3727f578e1d5c7afeb45a4fcfdc9f73c76d46983c04f5fc8c4692f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/components/TrainingDisplayHost.ets",
+      "sha256": "c9819678b7ff4075969a10e337ae26b7056e77c9a8c13557baffbf0a378689a1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/display/components/TwoSideScoreboardView.ets",
+      "sha256": "5171371fca68a7adde3fe790f5781f5d2f042e8243575f29d6b9836abdde4012"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/feedback/CreateFeedbackPage.ets",
+      "sha256": "5a51b9b814781639c9ee277720c6169c267a9a08d0f650e0023a271cdaea3859"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/feedback/FeedbackDetailPage.ets",
+      "sha256": "a870e69845ffde37948e61d2ba025972302bf6ac583fc8f8d77e01ffbbe280f1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/feedback/FeedbackTab.ets",
+      "sha256": "68140177b0a414a85c468eb1a23aac09e3fa646038bbff31d8233bfa320518a2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupActivityLineupPage.ets",
+      "sha256": "d8ec216e189af68bf6ead4ee5d944fde8589b5d22b08564266e22fca6c3396f7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupActivityPage.ets",
+      "sha256": "b2334cdd8b0dff98255ac37e402179b119f6cac036a4047e2df55e7e3acb41ef"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupCreatePage.ets",
+      "sha256": "9c8ea7dbc6912f02b721d111130569616fd03d6b2ca5d59ac1572aaf2530b201"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupDetailPage.ets",
+      "sha256": "79f455678a8bd7e57a38cd95799d5a141062ed3b447bae27f7a7d894c32532d2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupEditInfoPage.ets",
+      "sha256": "b842f92bcdbae16d4ba98da4386fe3804162d337a8432d6a405d2a2d00930ba4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupJoinPage.ets",
+      "sha256": "128567fe4db545932bb8b6bf4c4057b50ab182419a739496b345fb6e061e06d0"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupListPage.ets",
+      "sha256": "15ff413ef8de5167f87f0ff43fd153496e2e0762f77848824d2dfc555e9fdd37"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupMemberResultsPage.ets",
+      "sha256": "0dde64c0d721e213bc786ed49de58772123ec2d0a034658a5227226392e9b750"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupNoticePage.ets",
+      "sha256": "5755588ebacc17459f640a4d8d71d32ed516af2406f415d80bef9ecfba7ff1bb"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupPushPage.ets",
+      "sha256": "82d14c19df35053d52fdd7478699cc9d84e352ddb322054a1f3829e174a927a5"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupPushSettingsPage.ets",
+      "sha256": "f74e25b362e56c46b922b2141f263089f03a084919da35958d53a422220251be"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupResultDetailPage.ets",
+      "sha256": "4eb3011a06d37784b02a85849c13b7e16505cea3486f955ee8ef353c73b19775"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupResultPage.ets",
+      "sha256": "dbd3361f99e5d8e0635d35694ae63e621e410d75a732d038463f1f86d08d26e4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupSharePage.ets",
+      "sha256": "966b648cacaedc9877304d1e91035c6588e2ef7eb233cbb9f6710ed16a9d8803"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupTrainingPlanPage.ets",
+      "sha256": "2396b482947e70c5d8c21cd68aa48d275657c972ebe32a4c90079d9d36bea4f1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupActivityDateTimeDialog.ets",
+      "sha256": "49a2407441aebb5f42c531f18a19d2926688141546f574ab4b78be260b2de815"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupAvatar.ets",
+      "sha256": "c054b604c09aabb611fe86b2e0f4ceb4ae63e4b586419e021b194128f6ab1be8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupBetaBadge.ets",
+      "sha256": "650c12bfa97b994b821253586e626ccac0a278b97379624defd916afeb7453c3"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupBetaNotice.ets",
+      "sha256": "aba5a3e4e429ec136a683bacd57eee76906c561ee059a0de9ab2867ef356bf86"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupBrowseView.ets",
+      "sha256": "59e50db35e55e3eb0eca8e5634262b05d145a4ae979cfe74202c7b52f9b958b4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupCommonNameImportDialog.ets",
+      "sha256": "f9e2520f59568c9e45d587204f7130142dac8b81d6fa16c12af3b8e3018dcef7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupConfirmDialog.ets",
+      "sha256": "9943c2e050a8cf3dc9ac0f1ac933e8737ace7586141f03598a63d6c86ace1c9f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupEditInfoDialog.ets",
+      "sha256": "4b9add13fdfd4685b85cd0a63d357120380de7ed1d363b6a39559ef0480d2375"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupEmptyState.ets",
+      "sha256": "1dd54af387239ed7f03c41532c933de3ba126c9c00a95bc3949fc2c2d435dd03"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupEntryActions.ets",
+      "sha256": "526ba8f8a216e4433fc5ff4c0d5a606f209d041ed664822db6136e06608d5859"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupJoinReportDialog.ets",
+      "sha256": "268ca657a7d5489cbbc1ce344d4f709a9bfe0fc421ee5cfa1ed950e61ef3bbbd"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupListActionsDialog.ets",
+      "sha256": "3eb870407823d6895f377fb84bb3493c21da70e924af9c64e7047d41a55c4381"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupMatchSeats.ets",
+      "sha256": "e38807d5742b63e31158f9eb964896f66afa8801c8b3068ca2a21fd03351ad64"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupMemberPickerDialog.ets",
+      "sha256": "a90316789e3a362484ae6991a4d579d8144ba8e01aefba48a0a10d2b4a331f2f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupPendingApprovalCard.ets",
+      "sha256": "ea8e330d8a275fabd0bdb488ed5665d1dfaa56685b7ff1e2ce223ba3dbed6d6b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupQrCode.ets",
+      "sha256": "d720e76d0ed3af9b7fc88bfc87a25175e3195c70f06eab90f9f01ba83fc5b7ff"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupRankingTable.ets",
+      "sha256": "871690dc57e820302c655e27294fbd68629328766140709450955f07da59533f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupRegistrationDiscardDialog.ets",
+      "sha256": "57895f14d623f1a40ba5810661e2aa503039e5b5e267a2e4e213c2be0561c08f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupRenameMemberDialog.ets",
+      "sha256": "a1cb73c7a72d08775bce36d2c3945f9be5196e964c177ec2157010bf3c16b5ac"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupReportDialog.ets",
+      "sha256": "c46a832c5945ad38b5422c5312a589a40735ce772c1497d5974c49492bba97ff"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupResultMatchup.ets",
+      "sha256": "81eaab3fa341961cf1f9420de531b4c186f68eb981515833db612cb5c6cf7f79"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupRosterAddTemporary.ets",
+      "sha256": "a0587c88323c72f92be44c94817ee825e4d0b38f26426df612d315d81bf646f4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupSegmentedControl.ets",
+      "sha256": "af1f19df9d405d48bbbd7f9c813508a48910f8cb503e4d4a77d72ff4e610cde6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupSheetHandle.ets",
+      "sha256": "d1c6e057a91317f6a510bcc6d733a3709236235227c0ee7908bd25e1f82b1fa5"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupTemporaryMemberDialog.ets",
+      "sha256": "e0f15414ab7bbd45cffd74737df743e3e8a4eb29a7ef040753f86a97e976e26e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupTextPromptDialog.ets",
+      "sha256": "99688cea8c3085dc94fa78a36c3cdf79904ecc314c751fe31219d8552d9f6b56"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupUserColumn.ets",
+      "sha256": "74167ae542be8c3ad2505e25897d24f0f22d95f6de801672d8f952c87aa1f952"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/home/HomeTab.ets",
+      "sha256": "200fa388934a05f4908134245dc7013b5cb861c9087acf3a491b07401a22faac"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/home/components/BentoCard.ets",
+      "sha256": "2ee3615f479d176071a588f61094e175dddd2747fdefcce0d829cdf363702abe"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/home/components/HomeCommonDataSection.ets",
+      "sha256": "47aae90dd526effe60da0a9a5ae6e371c9f691d0b7efca0bc69261941c3ab206"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/home/components/HomeContentLayout.ets",
+      "sha256": "2c9f8fa76b1b7f69e9265920b85f8a9ebf621ae7b7bef8d6bbed5105ccaa7f3b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/home/components/HomeGroupSection.ets",
+      "sha256": "782fcbeb2337816ff85ef8e7bd5025f62fb4c491d898985aaa13905bd873f49e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/home/components/HomeHeader.ets",
+      "sha256": "20caefed6eba2a4a182011b62b95e29cc54cb4c588a3905989e1008f34eab45f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/home/components/LinkedResumeDialog.ets",
+      "sha256": "fbf3f0a6335835dfb4985807c55fde6a92aa925a57fe3f201e95ecfc60d0233e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/home/components/ProToolsSection.ets",
+      "sha256": "edc67c81cd18a4d6fd6a34e04fe576d8ded00f0c7558f93ccc709fd3a612662d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/home/components/QuickStartEditDialog.ets",
+      "sha256": "470cefb008f123cefcfdc991e3ef177818d7c6ebcb4e2b01f997b0ae09f5dbdb"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/home/components/QuickStartGrid.ets",
+      "sha256": "8584eb9e6431892bb3fb37e2be35d629a8db2efc7f9be2072c713d0655fb5b2a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/home/components/RecentRecordsSection.ets",
+      "sha256": "192a65ae88b760e18b4a1aaf2679e207c2d281e37665bfd35d7c6fbea7eb10ce"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/home/components/ScheduleEntrySection.ets",
+      "sha256": "a65808bdf71cda2f18b0572d1254c1194f84fbd2c9874ae395e717b6b2898e0f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/home/components/TimerSettingsSheet.ets",
+      "sha256": "1e26b26e9531d06e2160cf2c4f35909a84ad98e6ba2753172c5d08cb4b68c788"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/home/components/UnfinishedGameBar.ets",
+      "sha256": "c1c8a5d226534c0fce54df103914b7d5739600a488cdf468f02fa33043595725"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/home/components/UnfinishedGameDock.ets",
+      "sha256": "179d72807a5609c03d1396d922ae80b0ff78846c140dfd54f4648d9030250220"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/legal/LegalWebPage.ets",
+      "sha256": "9ed5d8f15c04d670d8df39c905709e430b628b311c3a4e20190ca679a3bcd53e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/me/AboutUsPage.ets",
+      "sha256": "9f5f7b6888bf01a0560c1bf2761bd9d9efabdb38e5271c4fcd0f3e877873528d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/me/AccountDeletionPage.ets",
+      "sha256": "0bbcffecc121ec392a1af3f116b09d44484a956cc1a064671bd14f0ecaaf8280"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/me/AppFamilyPage.ets",
+      "sha256": "970a4478aaf5750ac52f1ab3211fb124d62ef2abcb895dfed66b7ad349033854"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/me/FaqPage.ets",
+      "sha256": "da563e8a556ba3a859d6f7c902fb65175963c0b8de89c5878216aab9c718c1cc"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/me/LoginPage.ets",
+      "sha256": "2df757f7050c23f233b2221e1e9ccdd965e69524772685195d02f352a7700fc8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/me/MeTab.ets",
+      "sha256": "759b1ef40c1f829a64b577e6834228e436a946cb3bb3e9f6c8c25f50ef9f58c9"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/me/PasswordLoginPage.ets",
+      "sha256": "efb2740b478caa370c047948c06759b0bdaeede31bc2be090a9bad1ff036f5d4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/me/ProfilePage.ets",
+      "sha256": "8223f899279fc26c215e9c1ccf3bf9caf59ec219db2c8836aea57df62c753eee"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/me/QrLoginConfirmPage.ets",
+      "sha256": "35924581499c9c2f20ddfbd81b29e52e3d95b933700cd77355b8d75f52809f3b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/me/SavedNamesPage.ets",
+      "sha256": "76ea9a124a5f2378d429a0a405f9f5eaf0de6f89c3ee90913f3238a00246bdf6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/me/SavedPlacesPage.ets",
+      "sha256": "a85eaba56ed395fec29b4eda24b6db92fbb597ddc08bef3f4587b56d6cbc0b9a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/me/ScoreboardSettingsPage.ets",
+      "sha256": "8c403e691bb8b140cc9f6502df594f3f7a4e9d5295022c645255072cdf12a3df"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/me/SettingsToggleRow.ets",
+      "sha256": "6efe5891167fee54529dbc8b131400b6fcb19719f6f8bcb07fa4e177709d5aac"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/me/VipPage.ets",
+      "sha256": "9aeec56d4b6805afb183cb8a79b3c86c227ed9fa9508a87acde6a01e992324fa"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/me/WatchSyncPage.ets",
+      "sha256": "57f99c313f39991efa85d3686d504f7f3b762b640682cf570b6416493c1063be"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/records/RecordsTab.ets",
+      "sha256": "c8915a844dd58f840b5a66ce54e4dc5aaa9b2ac931b66592f295893a75c1358f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/schedule/BookingDetailPage.ets",
+      "sha256": "faa5b9d166ab28ecfa404bd615ee5f48cbf6bc5610e626568ca0286aa8e04a31"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/schedule/CreateBookingPage.ets",
+      "sha256": "63c66b5e55dc4b84948d184d703dbd49976de5b27fdacf87230a79714da6f41e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/schedule/SchedulePage.ets",
+      "sha256": "ed3ef6474bb2fe52c069e7aef641d5f4fbaee99ff69c70db75c897bef29b390e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/MultiGroupRecordDetailPage.ets",
+      "sha256": "1642906d0e61699b03b0f7bd24fa3c7047848e59a6b34505e920329e5a50f953"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/ScoreTab.ets",
+      "sha256": "c75a9f5697515a30d48ed092d296d12fdd69a83a53ffb70c4f26fb4702b98243"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/ScoreboardRecordDetailPage.ets",
+      "sha256": "7aa0159869471439829c3177632c202d09625a435c58d3ecca3c68801e9e9d47"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/cards/DoudizhuScore.ets",
+      "sha256": "254d57d84c8f479b6663313195915c56a483ccc513f1c8d42032e759bfb2624f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/cards/FoosballScorePage.ets",
+      "sha256": "a7206b9e6e999b6c0c73a2720e64fc1d643e00ef8b3590638a22b51da5c45826"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/cards/GuandanScore.ets",
+      "sha256": "000b23e611af61163a96cdd1d3493566ced2428342d7d434bcb45da942120b9f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/cards/MahjongScore.ets",
+      "sha256": "6d3269ba817be28652fdd7896dcf7cb7d3cef73aa4b3588b2244c66f0f3a2d10"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/cards/MultiGroupScore.ets",
+      "sha256": "7f1830271a122498cd8c62a6c7d21d62924acf709239126e002ae868007548c5"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/cards/ShengjiScore.ets",
+      "sha256": "3dcb07c75c3a5cb217d6cf415e08f50a4c02984d87b24c2f25b255542faa48b7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/cards/SimpleScorePage.ets",
+      "sha256": "2f27b414c6fa86f16bdbd803ba7519d976ee5463ef409546800c65837f85cd21"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/cards/UnoScore.ets",
+      "sha256": "f9f22589352202992905e846feb4159b2bfcd7de6913455b3ca07d8c0a5a8dfc"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/cards/mahjong/MahjongBoard.ets",
+      "sha256": "5dcbeafbe57a8e6d2a0dcce667facb6a446da14cc85f4bb4ed6912f4b7f4f69b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/cards/mahjong/MahjongChip.ets",
+      "sha256": "5a69b2573fec86b256d04dfda63c5053aa07aa45c88a26d8c305ad6753a32c63"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/cards/mahjong/MahjongDrawSettlement.ets",
+      "sha256": "38bef0c3a4f2bdd092435e24f9a1fceafa1b21c7845d0ca699cda6f25a00d482"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/cards/mahjong/MahjongLedgerList.ets",
+      "sha256": "402b7ba84a041e341e3d3f35c9ecc03fd65859d4d740dace2d7a52b9c049daf1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/cards/mahjong/MahjongSeatChangeDialog.ets",
+      "sha256": "f0dabdb3721f8916b3e19fcf2f035b256c19842ae9b1874bb89259d240051803"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/cards/mahjong/MahjongSettlementForm.ets",
+      "sha256": "d52f82c8f9e6b7371e299179f9ecafedea77e6ca16b7570d864af6eed90e5644"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/recordDetail/MahjongRecordInsights.ets",
+      "sha256": "91c0b45622f84a98d6fa180f524762f9cb4eb7a8aa4d393227e1a370c094a656"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/recordDetail/RecordActionBar.ets",
+      "sha256": "42d59c66eeb1839f83de55688b2f5224e4af588e0a6c48038b42cc23f6baab1a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/recordDetail/RecordNotesAndActions.ets",
+      "sha256": "9ef528861e9c3debd5d9c3aa301ca393db91a5f265592111506e472cb7a183a2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/recordDetail/RecordRecapSection.ets",
+      "sha256": "7c19c323c0df0c605434a1894e44a15f59b9e00106fa723101256c1dc7103b0d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/recordDetail/RecordSummaryCard.ets",
+      "sha256": "2feb1dce7fc4e77459221ffd060711241a56ba3d356050ef8b98f3a12687125d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/recordDetail/RecordTimelineSection.ets",
+      "sha256": "9936d0f322e5c68fb939e148f99b0e6a1f3d04c3e26698cec0d4a1cffb8a28c1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/recordDetail/RecordTrendChart.ets",
+      "sha256": "a11cce487a1bcc8e5a8f892bfc0ec30847b0bf0968a3dc3b2f862e9199d24eae"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/recordDetail/RecordViewSwitch.ets",
+      "sha256": "f31ddcabe1c45395f435e2725e538074698d6cce5ca3d38d87e78aa3952d8cc8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/recordDetail/ScoreboardRecordShareCard.ets",
+      "sha256": "0b9c92cf45ffe2188ab208d2196518b1cfcd5ba58a8e674ddb7c5b2e324a6822"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/AirVolleyballScoreboard.ets",
+      "sha256": "4c9091cb66575c2160f8725944a752ff557fa79fccce62c24fc2e6eb36b9b6d2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/ArcheryScoreboard.ets",
+      "sha256": "7289ca6301ad7a0e985f5f0364dd17f08f2d8d3403f478e0435c74b304b06b2e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/BadmintonDoublesScoreboard.ets",
+      "sha256": "df0ab1eb5de669c04806bfa3ded4b6a5d387bbdee5f730d09b5b92507fbbff19"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/BadmintonScoreboard.ets",
+      "sha256": "f29f0783e04185d31194447ce927c7e37d88a5e98c54ab90987199a507d14ddb"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/BasketballScoreboard.ets",
+      "sha256": "2aaa78301c811b18b868fc40c649678d621c7160ce0b41a9cde69d7cec063b54"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/BeachVolleyballScoreboard.ets",
+      "sha256": "757ce8fe0a81d136d10639dacf18ef0238d8f2c8b2f726d97a32359986ec17c1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/BilliardsScoreboard.ets",
+      "sha256": "b8e35fe05ae9e6aced9f83c404431f06e20912d1a5fd4adbf0d07d6206b98e9d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/BoxingScoreboard.ets",
+      "sha256": "e548ac532264a9f8396e8e09e79d2b803bbc35b8d9cc3e4d13b3e426b0998b61"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/EightBallScoreboard.ets",
+      "sha256": "685ab3fee5d75407292a75c627d301c4ec8d704ef17a2065a1dae80769a601fd"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/Football5v5Scoreboard.ets",
+      "sha256": "3b19680e6ea7a1c10fb8a1c13785a34f01e6256a7402ce8f85b7315ae4f166f9"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/FootballScoreboard.ets",
+      "sha256": "787c1df63c992b2246f81174d4a034aec9c34ee466cb35ffdb114b9cdcdfce99"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/NineBallScoreboard.ets",
+      "sha256": "2785f7f83990decbd231cf6c20a03ba81fa19fe25e803abcc875bfbcf948b442"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/PickleballDoublesScoreboard.ets",
+      "sha256": "8fef2b96735efcfa53a38e005a5e15314134f0ae9e922aa6b1c0c73778d46030"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/PickleballScoreboard.ets",
+      "sha256": "5f62b61536bc7012c1ce96e530f6d774a209cdbba422fd5eb1e48d27d55ac411"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/PingPongDoublesScoreboard.ets",
+      "sha256": "8f53d8f5bc8386756fd2e4d4e1e0f4cede4c3f22f4054765ec1caba55699752c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/PingPongScoreboard.ets",
+      "sha256": "27fb5f1170208c0e4171e2b9ed1eeb2f41467442901e4532d7a6b4b975608d4f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/ShotTrainingScoreboard.ets",
+      "sha256": "5531e2c323f221174af2ad38a29fddf1bfeffebb28dd8102ae04dcba4df0fbd7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/ShuttlecockScoreboard.ets",
+      "sha256": "9b386ee7d4191ddb1bbd0e45c509959e83e2a831592b26fda5721f85ad044947"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/SnookerScoreboard.ets",
+      "sha256": "c68fd0586f65f928780889afdb73bb9b2cadf203c07a3867c5b97fc513e6f948"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/SquashScoreboard.ets",
+      "sha256": "4929644b737cf92cac8415883d07d327e39db92ed99f22e54c8fd092f9bc1e38"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/TennisDoublesScoreboard.ets",
+      "sha256": "6e0775ac1f7b634437c70a35bfaa60e80518b23ad895144212e136dc6ee71907"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/TennisScoreboard.ets",
+      "sha256": "bddefa34c81222180d6cf110faa8d0c7a11f579907f1ad338417224610ea7f21"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/scoreboard/sports/VolleyballScoreboard.ets",
+      "sha256": "26514fc3bc8240d04a678f97782cba20d0f98456679d850fa89e683808b5c4a8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/test/ScoreboardTestHarness.ets",
+      "sha256": "7ef974eabf23785ebef33bf67d7643694d1ecf47f34cd80915c68db79f554a8a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/timer/CheckersTimer.ets",
+      "sha256": "cc7bf3f46f70969e0facd0d30035c7aeb1c2795933df92bbfb8fd958fd337a84"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/timer/ChessTimer.ets",
+      "sha256": "36a546fdb84db2e32fd1bf1e575c1dbeead10f82bd4cdc1cab0199eb7a4fc845"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/timer/CountdownPage.ets",
+      "sha256": "8915460ec1eacf780ae13dae4b090645bf3094f11f5e1b3d7c9fc31bb622694c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/timer/CubeTimer.ets",
+      "sha256": "89a4529ddbfb6cbc7d9e9c6a9fe8a2b530806d7865b0df84c8b4e54ccddc9b60"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/timer/GoTimer.ets",
+      "sha256": "ad9c90263c75cd510ae44068f0f98e1c47c3415e837fb7d43a6133b2e45a9722"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/timer/StopwatchPage.ets",
+      "sha256": "cf702dab8f7d273b60e086dbc1c08bfeda578e5e85f0ca59e5ddbf1b3c8ef320"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/timer/TimerRecordDetailPage.ets",
+      "sha256": "f7a3f852eab32b23745f37cd6a0eb5683a0f9c610ddc6a515cf7ea85c3b2973d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/timer/TimerTab.ets",
+      "sha256": "cbb4e1b2d58998d7a54cc80498fa28d897abf20b7eaaaa12fbb6601f30ab9e00"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/timer/XiangqiTimer.ets",
+      "sha256": "98efb0145394c8af0c97af9aea24043ec57c00473a3211fbb16ddee2a2609160"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/tools/AACalculator.ets",
+      "sha256": "a129edc7bf377d93e652a0d793d2fd80bd12d56bc3291a033711851c3f61a4c9"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/tools/DateTimeTool.ets",
+      "sha256": "6fa4a7b0e512dac9272b01528316d4eca21f7401acc1790f52b5d02a26894f2f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/tools/DiceTool.ets",
+      "sha256": "bc27e2c7d689a7f131a9f1fe5d117c154575b2db6de549f3a48e090bd4a41145"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/tools/FlipCoin.ets",
+      "sha256": "dcf813fbd6336c34c63ecb86a51219ce2381e973e99aa00dfa22965135a15620"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/tools/FullscreenBarrage.ets",
+      "sha256": "204f380c799ab2dfe888e1723e32d414b6a6fd8360dc69d1ce1517ba736f9ed5"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/tools/PointsTable.ets",
+      "sha256": "50df4ae69b2cf2aa9244e0ec9baebe005ad47c1d921fd652c58e47b082654b00"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/tools/PointsTableDetail.ets",
+      "sha256": "d75bad83d48a05f5a781df624ad4a7b1fd9e6dac4c6d2ad73a7ba46fdcec4904"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/tools/RandomTeam.ets",
+      "sha256": "af2625ec629f7c9e0cea191f500506e92b3fffb88ac875feff394156c77ddeb8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/tools/RedYellowCard.ets",
+      "sha256": "0dc49e88e7b25fd97822541378f8227cb5a9839fa607fd358cc4ac1d1db0a5d8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/tools/TenSecondChallenge.ets",
+      "sha256": "e66a0d0150673de1258e9e15b3dc54b9e84ba5d35bdb763a89f1e15fa529d667"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/tools/ToolsPage.ets",
+      "sha256": "742b557b9ff14e3d63a28168f9a6a7a5270694850609f7fd68c1c1d826724f29"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/tools/WhistleTool.ets",
+      "sha256": "103c43778bbbe73c000b356e9cc915a7fc09aaa730c65d9b4396421983882ac8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/scoreboard/badminton/BadmintonCardMarkers.ets",
+      "sha256": "6b8c66292324573a12e3621c195c768b01db4a94f07be132e6fc607d16b340a9"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/scoreboard/badminton/BadmintonMisconductDialog.ets",
+      "sha256": "bdcfb7b7cdb39076192f881876dc288bd636182ff3246026783fe3baaaa3419f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/scoreboard/football/FootballClockPanel.ets",
+      "sha256": "9106da87fc4db41c7c99d0ae7e7053f0d078a1a3a8a8f899ce946826037b541a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/scoreboard/football/FootballInjuryDialog.ets",
+      "sha256": "e0b145b99fbe3f00ab1982c235909788a2a9589fef423892462880943d436302"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/scoreboard/pingpong/TableTennisCardMarkers.ets",
+      "sha256": "1346aefd060ab39c9e333b0c3906ea986112ea3cd86cd9b6235d45d30fa7f032"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/scoreboard/pingpong/TableTennisOfficialDialog.ets",
+      "sha256": "582ee36c956b8409e1b91ed4cf49a03d069ca3f72177f85df66da2c26af89f15"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/scoreboard/shared/OfficialBreakPill.ets",
+      "sha256": "4bf686e3e0fdb1e1abad7b6a335864d0ea85c30a2dba2771cb708c163ee51173"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/scoreboard/shared/ScoreTouchGuardZone.ets",
+      "sha256": "c53929c8f7630b97a62c9fd81f9b2c05992d00d1ba2f6ee66e72e60984c08978"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/scoreboard/shared/ScoreboardDisplaySettingsPanel.ets",
+      "sha256": "fd983effe15198f6153b1cc40f62f50d79d5b3e5b38c738fb502fbcc7d8e4c1b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/scoreboard/shared/ScoreboardPageTemplate.ets",
+      "sha256": "78528574641ded40b838a4d0ff4b1cd100853dcfdb3882627b0505e634eff366"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/scoreboard/shared/ScoreboardScreenshotSaveFlow.ets",
+      "sha256": "283650b171c5f11e21191b0fd348061aa4a856dba715924cd88ae096956f585b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/scoreboard/shared/ScoreboardScreenshotSavedFeedback.ets",
+      "sha256": "cb1d79d104b19b11bffcf40245d8574e6d058e2ec8184e0a9ad50af542f00c4c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/scoreboard/shared/ScoreboardStyleEditOverlay.ets",
+      "sha256": "566cc98b68827cf435eb22faea8fa009d98fb2f4f382a7a65be7ffc57c76c9f5"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/scoreboard/shared/ScoreboardTimeDisplay.ets",
+      "sha256": "044839913e341ec7e64adfc13931928f6e8f3eec1d8eb5274b6506b0b7581969"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/components/LinkedScoreboardWatchResumeDialog.ets",
+      "sha256": "9748f5b52e803a8591e18e9756b76e50937e384eed0511aaa8daf5248cc2d2b5"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/components/PlayerIndicator.ets",
+      "sha256": "26156bebe54fb008b87b2e983a441f6bdb88790a828530b488bdd9d6b6bea591"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/components/WatchBasketballTrainingGuideDialog.ets",
+      "sha256": "1cdb83967ec77710b9c8bdcc6de4808cb386d947d667e3a6e674bbc53942b206"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/components/WatchCommonNameSelectorOverlay.ets",
+      "sha256": "39b46d0de6106f5eaa0f2b001cdbf23a112144bf5d531893949fc360547acedc"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/components/WatchFeatureAnnouncementScreen.ets",
+      "sha256": "a60e1e51dcf0326c6ab5b1a499f686049c65f130c485f330444f42c1b1425059"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/components/WatchNumberKeypadOverlay.ets",
+      "sha256": "8849f241e067dab0b1c9e5358d9ec34ec0931bd636006d36c5cf9e296ec9e8e4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/components/WatchPageTitleBar.ets",
+      "sha256": "87387ee458fc3eb89799c50355995c26c2a09f9f9665f149b47aa4692af0087c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/components/WatchProjectIcon.ets",
+      "sha256": "b9a905370370ea86d6bfe81c361d3edaa11e21826432cc2e393dc0225d8a666d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/components/WatchResumeGameBar.ets",
+      "sha256": "1f10654bcfd7287e007ac12e0e2ff290219674f2b467dbe9d36a0a4783f2de56"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/components/WatchScoreNameBadge.ets",
+      "sha256": "2b6f1411e0c671238a063807b8260fe035b0cc5c2cc07e44cb7ee78e83bb56ed"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/components/WatchSetsPickerDialog.ets",
+      "sha256": "e48fede040e5fd398526b734d766877de935cd47bdd1c6a5433600f93e056b57"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/components/WatchSupportQrContent.ets",
+      "sha256": "0102d84b5813a8bd126a5dc54926c40799fd49c9ab0026157d6ef2ecf12b42d3"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/components/WatchTenSecondGuideDialog.ets",
+      "sha256": "95fd0da31b792e320ee6fb1dbd7eecb150828f5382684c5499a68fc72c782216"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/components/WatchUndoRingButton.ets",
+      "sha256": "307e6ebbe5662ce9d1492c1434f6e89ecac8ce5c54847be0dcd137cb44e3cf63"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/WatchIndex.ets",
+      "sha256": "6cd9b7d2d72a44f40b57dcc674ee385d58202308243ba2d74a12bca2a2179d14"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/WatchPrivacyAgreement.ets",
+      "sha256": "6f481433265d9ff786da4cb86570ff1db6e11c986a6f0d0005685683140cc33f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchArcheryScore.ets",
+      "sha256": "aa0cd3dbb6f4aad35ab3e97f8729f89706002a9046fdb37ab78e7a0f99104221"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchBadmintonDoublesScore.ets",
+      "sha256": "40e6ab0f0f4311ddab0e8446d2684bc3b94a372637948885f3e9bfdfb9dc1a4f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchBadmintonScore.ets",
+      "sha256": "09f824d134a03a50e317c1ce362373347c310d2583ef5956e38dd788b6bc8fa3"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchBasketballTraining.ets",
+      "sha256": "cc2b4d63733fe266574e8fd8632add9fc72a6fbba58e1e2167f118517934a169"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchBasketballTrainingFree.ets",
+      "sha256": "9fda4c54760afe71acbe5829031686d1f7d898135de70b4927c0c2dc00081eef"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchDualSportSetupPage.ets",
+      "sha256": "dfc2a4ebc383e0a065b9bb261f22daa0efd498d0306eb2167b87d7e64f7b8195"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchEightBallScore.ets",
+      "sha256": "16c5319192cd9369397534206da73b277a0db0b1f68ab11548c943569bd667e3"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchFoosballScore.ets",
+      "sha256": "a97fb65feaff653d8fd3a7b84351f714a3f3f2ddd1716b5aec8261149543079d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchFootballScore.ets",
+      "sha256": "12a7e7ce62d6121d425948dcbe6b2b4c92dabe5445df28b6a3eb4a82ff896d6e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchFootballSetupPage.ets",
+      "sha256": "520e0bca8a7637a13f591e153414f96915cee510844547f96343f57f9b2b698a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchGuidePage.ets",
+      "sha256": "e1ae8342a1ff248d72845f273fcbc15a5773f64f2bd5ad7e121efc94007aea4b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchHomeTab.ets",
+      "sha256": "51a672c844575a91708a5f9dbd90e6fe7c7bf88abaa976c25b03afa6394ec7c8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchNewSportsSetupPage.ets",
+      "sha256": "d6e4b361824ec7465c746f0328b7ece40ef85dc717a4f018770cca032e3b4d29"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchNineBallChaseScore.ets",
+      "sha256": "e94f41e4d76e47d62eb57eed754d34e78a21b36bc8bba4a253c3da6c451d17a1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchPickleballDoublesScore.ets",
+      "sha256": "faafe1e0457baac84dd5616a08cd3ab549b2753da5d1709fd6effa468e824e94"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchPickleballScore.ets",
+      "sha256": "bff78db1d38f7ea2d5b84419d8bc31f62ca50b2c873f91440a2e0a2a72da49ff"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchPingPongDoublesScore.ets",
+      "sha256": "f4895156e92dce44bc87d8315ff9ca271b58f6c79e443fdaba4aafabfd00bb6c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchPingPongScore.ets",
+      "sha256": "fed77dd1a42b1142d74d7a30798bcc84f45420513741253f4eef6d7e5a9c3684"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchShuttlecockScore.ets",
+      "sha256": "da5bbd3a6c30db9eb11992fd5caae0157523fdca82e1cc35cd8480e3cdedda72"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchSnookerScore.ets",
+      "sha256": "94a8c2fefa3c7f76caea60bd2791c05f5157bc84d7b48c584c6604348e86367c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchSquashScore.ets",
+      "sha256": "2835707a6737603cbada271ac134c552ca7fe3980eb04a03fa7c6e34960e7324"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchTennisDoublesScore.ets",
+      "sha256": "c0d8b9e812707deb4a0d12544033603765dc2050434061368de93498a6263e2c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/home/WatchTennisScore.ets",
+      "sha256": "9eeb5a0c7111208a646e80acb8cfd0108bfb8afe1e0751d7fab82e3fcb56f38e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/records/WatchRecordDetail.ets",
+      "sha256": "c88caf81e20c96191c80a36d5a3fe1216055b4e3f06e04fc4da34bb3ab6276ea"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/records/WatchRecordTab.ets",
+      "sha256": "7ad0f1a0b7328c2a05941876370b1fea9a3ba0f693cdf684b5d09fd80af99223"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/settings/WatchAboutPage.ets",
+      "sha256": "aed3a8fa516a2f8b70a0651956290265e5ed2ac356730e08fdd4fa5e30ef0772"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/settings/WatchCommonNamesPage.ets",
+      "sha256": "61f571bb5d802590a65a7ccd803f24849ee41078bd665832a11374dc8042ee1b"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/settings/WatchCommonNamesSyncPage.ets",
+      "sha256": "392594b59fc9d740935e4e37df7e0230b80cdf78eeed283144026cfa0096d950"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/settings/WatchContactPage.ets",
+      "sha256": "bffb3159727d4f0493e3d85e46cffaa37d1c8ba88d51ce0f9d0edbf847021202"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/settings/WatchFeedbackPage.ets",
+      "sha256": "7df5893e37ecc239576aa0ad77190e2d2bc38b93e97564618959a3132dbef3db"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/settings/WatchPhoneLinkPage.ets",
+      "sha256": "612b43ae45f74205bb5310659015225856aa4726654f4674ef7a6593d851b157"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/settings/WatchSettingsTab.ets",
+      "sha256": "cc5eee23925545d145b887f579d184662f859c868741b4025825a6cfc6feace6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/settings/WatchWechatGroupPage.ets",
+      "sha256": "dd0d6392770d93f4d889858a5574471648f5e66136f727c991e378e8372032be"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/tools/WatchCounter.ets",
+      "sha256": "e79904b8172ba10b1b25ac894d07a87070157c6f7905f8732f5e5de58a067067"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/tools/WatchCounterRecords.ets",
+      "sha256": "7512936a205cd5e9078afe37ff6e470cedb22e133ab613ea256b148c40f108d9"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/tools/WatchFlipCoin.ets",
+      "sha256": "59d1fbb8af2d5950cfb7dc6413274bf19a5ea3fe6aa19397be7bb343183ae515"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/tools/WatchRandomNumber.ets",
+      "sha256": "4df5e9a7520d3228c1b2e2b8bfff94405ed6ab0ddd8a257a397898d9bdfaeaa3"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/tools/WatchRandomNumberHistory.ets",
+      "sha256": "400567bb24700d81e99aa09f9b06277178f17c46e79d4e3e56c47d38d5c351c6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/tools/WatchTenSecondChallenge.ets",
+      "sha256": "4e8536713c4d99a12caba280dfa338763c28513321fda9c7a550d45278230e06"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/tools/WatchTenSecondHistory.ets",
+      "sha256": "084b2b20df6eb45ab04ee03b5c4f718b1df02e1cc8d9005c3fd66ec3c32285f9"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/wearable/src/main/ets/pages/tools/WatchToolsTab.ets",
+      "sha256": "f534dc457086b75ea1340353db1e44ab9f1cd7221e5919fec6625e432fd7088a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/resources/rawfile/coin.html",
+      "sha256": "dace3f2f9c8958b78f7e4ead40b96eb11db30e8c076b8324b8685d88c82ee2ad"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/resources/rawfile/dice.html",
+      "sha256": "84cfb364165b4be1d617b2c27cd8355f89fef4dd19a3f0de2a37242eb888f56c"
+    }
+  ]
+}

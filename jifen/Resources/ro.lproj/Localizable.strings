@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "Jocuri de societate";
 "search_team_or_game" = "Caută o echipă sau un meci";
 "match_count" = "%d meciuri";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d de meciuri · toți membrii grupului";
+"archived_count" = "%d de grupuri";
 
 /* Home Screen */
 "recent_records" = "Meciuri recente";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "de ex. se joacă toate cele cinci seturi; meciul se poate încheia la egalitate";
 "match_completion_custom_placeholder" = "Introduceți 1-99";
 "match_completion_invalid_sets" = "Clasic necesită un număr impar între 1 și 99; Joacă toate seturile acceptă orice număr între 1 și 99.";
+"setup_auto_odd_sets" = "Sunt permise doar numere impare — se folosește %d";
 "has_been_reset" = "Resetare finalizată";
 "no_undo_available" = "Nu este disponibilă nicio anulare";
 "screenshot_failed" = "Captura de ecran a eșuat";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "Sesiune de sincronizare activă";
 "timer_status_running" = "Rulează";
 "timer_status_paused" = "Întrerupt";
-"membership_entry_summary_active" = "Ești membru VIP. Îți mulțumim pentru sprijin";
+"membership_entry_summary_active" = "VIP activ";
 "sound_effects" = "Efecte sonore";
 "vibration" = "Vibrație";
 "language" = "Limbă";
@@ -1579,7 +1580,7 @@
 "group_approval" = "Necesită aprobare";
 "group_approve" = "Aprobă";
 "group_archive" = "Arhivează grupul";
-"group_archive_hint" = "Arhivarea păstrează întregul istoric și suspendă modificările grupului. Îl poți restaura mai târziu.";
+"group_archive_hint" = "Arhivezi acest grup? Conținutul său va putea fi doar citit.";
 "group_archive_readonly" = "Acest grup este arhivat. Istoricul poate fi doar citit.";
 "group_archived" = "Arhivat";
 "group_benefit_activity" = "Planifică activități și înscrie-te";
@@ -1624,38 +1625,38 @@
 "group_invalid_qr" = "Acesta nu este un cod QR valid pentru un grup.";
 "group_invalid_result" = "Rezultatul înregistrat trebuie verificat înainte de încărcare.";
 "group_invalid_rules" = "Verifică regulile meciului.";
-"group_invite" = "Invite";
+"group_invite" = "Invită coechipieri";
 "group_join" = "Alătură-te unui grup";
 "group_join_hint" = "Alătură-te grupului unui prieten folosind numărul sau codul QR.";
-"group_join_message" = "Mesaj pentru grup (opțional)";
-"group_join_policy" = "Aderare";
+"group_join_message" = "Mesaj pentru cererea de aderare (opțional)";
+"group_join_policy" = "Opțiuni de aderare";
 "group_leave" = "Părăsește grupul";
-"group_leave_hint" = "Vei pierde accesul la acest grup. Înregistrările personale rămân pe acest dispozitiv.";
+"group_leave_hint" = "După ce ieși, nu vei mai fi membru, iar grupul va fi eliminat din „Grupurile mele”. Nu vei mai putea accesa grupul sau participa la activitățile sale. Înregistrările existente ale meciurilor grupului și înregistrările tale personale de pe acest dispozitiv vor fi păstrate. Pentru a avea din nou acces, trebuie să te alături din nou grupului.";
 "group_load_failed" = "Grupul nu a putut fi încărcat";
 "group_load_more" = "Încarcă mai mult";
 "group_losses" = "înfrângeri";
 "group_manual" = "Introducere manuală";
-"group_manual_result" = "Adaugă un meci anterior";
+"group_manual_result" = "Adaugă rezultatul unui meci";
 "group_match_detail" = "Detaliile meciului";
 "group_match_log" = "Istoricul meciurilor";
 "group_match_rules" = "Regulile meciului";
 "group_member" = "Membru";
 "group_member_name" = "Numele membrului";
-"group_members" = "Membri";
+"group_members" = "Membru";
 "group_month_matches" = "Meciuri luna aceasta";
 "group_my_groups" = "Grupurile mele";
 "group_name" = "Numele grupului";
 "group_need_login" = "Autentifică-te pentru a continua.";
 "group_need_members" = "Invită prieteni sau adaugă membri temporari înainte de a începe un meci.";
-"group_new_activity" = "Planifică o activitate";
+"group_new_activity" = "Creează activitate";
 "group_new_owner" = "Proprietar nou";
 "group_no_activities" = "Încă nu există activități";
 "group_no_description" = "Încă nu există descriere";
 "group_no_rankings" = "Clasamentele apar după confirmarea unui meci.";
 "group_no_set_details" = "A fost înregistrat doar rezultatul general.";
-"group_note" = "Notă pentru activitate (opțională)";
-"group_number" = "6–8 digit group number";
-"group_open" = "Oricine are numărul se poate alătura";
+"group_note" = "Notă (opțională)";
+"group_number" = "Număr de grup din 6–8 cifre";
+"group_open" = "Alătură-te direct";
 "group_overall_score" = "Scor total pe seturi";
 "group_overview" = "Prezentare generală";
 "group_owner" = "Proprietar";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "Elimină membrul";
 "group_restore" = "Restaurează grupul";
 "group_restore_hint" = "Restaurează acest grup pentru a permite activități și ținerea scorului.";
-"group_results" = "Meciuri";
+"group_results" = "Istoric";
 "group_retry" = "Reîncearcă";
 "group_rules_missing" = "Regulile nu au fost înregistrate";
-"group_save" = "Confirmă";
+"group_save" = "Salvează";
 "group_save_failed" = "Meciul nu a putut fi salvat. Încearcă din nou.";
 "group_scan" = "Scanează codul QR";
 "group_scoreboard" = "Tabela de scor";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "Reia sau încheie meciul existent înainte de a începe altul.";
 "group_unregister" = "Anulează înscrierea";
 "group_void_reason" = "Motivul invalidării";
-"group_void_result" = "Invalidează rezultatul";
+"group_void_result" = "Invalidează";
 "group_voided" = "Invalidat";
 "group_wins" = "victorii";
 "group_withdraw" = "Retrage cererea";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "Ești deja membru.";
 "group_open_group" = "Deschide grupul";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
+"group_groups" = "Grup";
+"group_invite_students" = "Invită cursanți";
+"group_group_type" = "Tipul grupului";
+"group_peer" = "Grup de prieteni";
+"group_coaching" = "Grup de antrenament";
+"group_training" = "Antrenament";
+"group_upcoming" = "Urmează";
+"group_latest_results" = "Ultimele rezultate";
+"group_no_results" = "Niciun meci înregistrat încă";
+"group_no_training" = "Niciun antrenament programat încă";
+"group_active_activities" = "În desfășurare · Înscrieri deschise";
+"group_past_activities" = "Activități trecute";
+"group_all_formats" = "Toate formatele";
+"group_join_requests" = "Cereri de aderare";
+"group_regular_members" = "Membri înscriși";
+"group_temporary_members" = "Membri temporari";
+"group_add" = "Adaugă";
+"group_leader" = "Proprietar";
+"group_member_settings" = "Setările membrului";
+"group_settings" = "Administrarea grupului";
+"group_partial_load" = "Unele secțiuni nu au putut fi actualizate. Trage în jos pentru a reîncerca.";
+"group_leave_notices" = "Absențele cursanților";
+"group_mark_seen" = "Citit";
+"group_training_schedule" = "Program de antrenament";
+"group_add_session" = "Adaugă meci";
+"group_edit_schedule" = "Editează programul";
+"group_cancel_schedule" = "Anulează programul";
+"group_leave_training" = "Anunță absența";
+"group_session_minutes" = "Minute pe meci";
+"group_court" = "Teren";
+"group_remove_session" = "Elimină";
+"group_publish_schedule" = "Publică programul";
+"group_leave_reason" = "Motivul absenței (opțional)";
+"group_report" = "Raportează grupul";
+"group_report_reason" = "Motiv";
+"group_report_detail" = "Detalii (opțional)";
+"group_report_submit" = "Trimite";
 "group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
+"group_report_harassment" = "Hărțuire";
+"group_report_inappropriate" = "Conținut sexual sau neadecvat";
+"group_report_fraud" = "Fraudă sau jocuri de noroc";
+"group_report_illegal" = "Activitate ilegală sau periculoasă";
+"group_report_impersonation" = "Uzurparea identității";
+"group_report_other" = "Altele";
+"group_lineup_invalid" = "Verifică orele, terenurile și jucătorii.";
+"group_lineup_member_limit" = "Un membru poate juca cel mult opt meciuri într-un program.";
+"group_lineup_conflict" = "Meciurile simultane trebuie să aibă terenuri și jucători diferiți.";
+"group_multi_match_hint" = "O activitate poate include mai multe meciuri. Membrii se înscriu la activitate; la stabilirea meciurilor, alege 2 înscriși pentru fiecare simplu sau 4 pentru fiecare dublu.";
+"group_single_match_hint" = "Fiecare activitate corespunde unui meci. Alege 2 membri înscriși pentru simplu sau 4 pentru dublu.";
+"group_rate_limited" = "Prea multe solicitări. Încearcă mai târziu.";
+"group_create_daily_limit" = "Ai atins limita de creare a grupurilor în 24 de ore. Încearcă mai târziu.";
+"group_join_daily_limit" = "Ai atins limita de aderare la grupuri în 24 de ore. Încearcă mai târziu.";
+"group_pending_request_limit" = "Prea multe cereri așteaptă aprobarea. Așteaptă o decizie sau retrage unele cereri.";
+"group_request_daily_limit" = "Grupul a atins limita cererilor de aderare în 24 de ore. Încearcă mai târziu.";
+"group_join_cooldown" = "După un refuz, trebuie să aștepți 24 de ore pentru a solicita din nou.";
+"group_result_group_daily_limit" = "Grupul a atins limita rezultatelor în 24 de ore. Încearcă mai târziu.";
+"group_result_submitter_daily_limit" = "Ai atins limita trimiterii rezultatelor în 24 de ore. Încearcă mai târziu.";
+"group_not_coach" = "Doar antrenorul poate programa sesiuni.";
+"group_activity_count" = "%1$d/%2$d înscriși";
+"group_activity_create_admin_hint" = "Activitățile sunt create de proprietarul grupului sau de un administrator";
+"group_activity_direct_hint" = "Alege direct dintre toți membrii activi ai grupului; înscrierea nu este necesară.";
+"group_activity_direct_save" = "Salvează programul";
+"group_activity_direct_title" = "Planifică acum";
+"group_activity_field_title_optional" = "Numele activității (opțional)";
+"group_activity_full" = "Complet";
+"group_activity_lineup_add" = "Adaugă meci";
+"group_activity_lineup_add_need_members" = "Nu sunt destui jucători. Sunt necesari cel puțin %1$d membri activi pentru a adăuga un meci.";
+"group_activity_lineup_court" = "Nr. terenului";
+"group_activity_lineup_duration" = "Durata meciului";
+"group_activity_lineup_match_count" = "%1$d meciuri";
 "group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_activity_lineup_remove" = "Elimină";
+"group_activity_lineup_section_matches" = "Programează meciuri";
+"group_activity_lineup_session" = "Meciul %1$d";
+"group_activity_registration_empty" = "Niciun membru temporar";
+"group_activity_section_count" = "%1$d activități";
+"group_activity_section_past" = "Activități trecute";
+"group_activity_section_upcoming" = "În desfășurare · Înscrieri deschise";
+"group_activity_status_scheduled" = "Gata de start";
+"group_activity_time_after_previous" = "După meciul anterior";
+"group_activity_time_unspecified" = "Ora urmează să fie stabilită";
+"group_activity_timing" = "Orar";
+"group_activity_timing_estimated" = "Oră estimată";
+"group_activity_timing_sequence" = "Fără oră exactă";
+"group_activity_title_auto_hint" = "Dacă lași câmpul gol, numele va fi generat din dată, de exemplu „Activitate din 10 noiembrie”.";
+"group_archived_empty" = "Niciun grup arhivat";
+"group_archived_list_title" = "Grupuri arhivate";
+"group_empty_activities_title" = "Încă nu există activități";
+"group_list_add_title" = "Creează un grup sau alătură-te";
+"group_ranking_draws" = "egaluri";
+"group_ranking_games" = "Meciuri jucate";
+"group_ranking_losses" = "înfrângeri";
+"group_ranking_sets" = "Scor";
+"group_ranking_title" = "Clasament %@";
+"group_ranking_wins" = "victorii";
+"group_training_results_locked" = "Programele cu rezultate își păstrează orele și jucătorii. Poți edita locul și nota.";
+"group_temporary_hint" = "Membrii temporari nu au nevoie de cont și pot fi adăugați la introducerea rezultatelor.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "Eliberează meciul";
-"group_activity_lineup" = "Programul meciurilor";
-"group_activity_mode" = "Meciuri";
+"group_abandon_game" = "Abandonează meciul";
+"group_activity_lineup" = "Programează meciuri";
+"group_activity_mode" = "Istoric";
 "group_activity_reminder" = "Amintește-mi cu 15 minute înainte";
 "group_add_set" = "Adaugă scorul unui game";
 "group_added_members" = "Adăugat";
-"group_authority_confirm" = "Confirmă ca proprietar al grupului";
-"group_batch_names_hint" = "Un nume pe rând, fiecare cu 1–24 de caractere.";
-"group_beta_notice" = "Grupurile sunt în versiune beta. Feedbackul este binevenit.";
+"group_authority_confirm" = "Confirmă rezultatul";
+"group_batch_names_hint" = "Un nume pe rând";
+"group_beta_notice" = "Grupurile sunt în faza beta. Unele funcții se pot schimba. Mulțumim că le încerci de la început.";
 "group_cancel_dissolve" = "Anulează dizolvarea";
 "group_cancel_dissolve_hint" = "Restaurează acest grup pentru a permite activități și ținerea scorului.";
 "group_cancel_training_hint" = "Meciurile încheiate rămân în istoric. Cele începute pot fi finalizate.";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "Regulile sportului";
 "group_discard_upload" = "Renunță la încărcare";
 "group_dissolve" = "Dizolvă grupul";
-"group_dissolve_hint" = "Doar citire timp de 7 zile. Poți anula dizolvarea în această perioadă.";
+"group_dissolve_hint" = "Grupul va putea fi doar citit timp de 7 zile, perioadă în care dizolvarea poate fi anulată. După 7 zile, grupul și toate datele sale vor fi șterse definitiv.";
 "group_dissolving" = "Dizolvare în curs";
 "group_edit_activity" = "Editează";
 "group_edit_lineup" = "Programează meciuri";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "Nicio notificare";
 "group_no_sessions" = "Niciun meci programat";
 "group_notices" = "Notificări";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "Unele secțiuni nu au putut fi actualizate. Trage în jos pentru a reîncerca.";
 "group_point_cap" = "Limită de puncte";
 "group_preview_schedule" = "Verifică programul";
 "group_published" = "Publicat";
 "group_qr_direct_hint" = "Scanați în iScoreboard pentru a vedea grupul și a vă alătura.";
 "group_quick_score" = "Scor total pe seturi";
 "group_rally_scoring" = "Punct la fiecare schimb";
-"group_read_notices" = "Read";
+"group_read_notices" = "Citit";
 "group_registration_closes" = "Încheierea înscrierilor";
 "group_regular" = "Standard";
-"group_reload_version" = "Încarcă ultima versiune";
+"group_reload_version" = "Reîncarcă";
 "group_reminder_body" = "Activitatea începe în 15 minute.";
 "group_reminder_permission" = "Activează notificările aplicației în Configurări.";
 "group_reminder_too_late" = "Activitatea începe în mai puțin de 15 minute.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "Punctajul setului";
 "group_tie_break" = "Puncte de departajare";
 "group_tiebreak_only" = "Doar tie-break";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "Data";
+"group_too_many_sessions" = "Verifică orele, terenurile și jucătorii.";
+"group_training_date" = "Data antrenamentului";
 "group_win_by_two" = "Victorie la două puncte diferență";
 
-"group_keep_draft" = "Păstrează modificările mele";
+"group_keep_draft" = "Continuă editarea versiunii locale";
 
 "group_server_version" = "Cea mai recentă versiune";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "Grupul va fi dizolvat pe %@\nPerioadă de răzgândire de 7 zile; până atunci doar citire";
 "group_notice_end" = "Nu mai sunt notificări";
 "group_notice_join_requested" = "Cerere de alăturare primită";
 "group_notice_join_approved" = "Cerere de alăturare aprobată";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "Introducere manuală";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "Marchează tot ca citit";
+
+"group_status_active" = "Activ";
+"group_dissolved" = "Dizolvat";
+"group_report_status_pending" = "În așteptare";
+"group_report_status_reviewing" = "În curs de examinare";
+"group_report_status_resolved" = "Rezolvat";
+"group_report_status_dismissed" = "Respins";
+"group_error_permission" = "Nu ai permisiunea să faci asta.";
+"group_error_transfer_first" = "Transferă proprietatea grupului înainte de a-l părăsi sau de a șterge contul.";
+"group_error_target" = "Alege un membru activ al grupului care are cont.";
+"group_error_activity_locked" = "Activitatea a început sau s-a încheiat. Programul ei nu poate fi modificat ori anulat.";
+"group_error_activity_pending" = "Finalizează sau elimină mai întâi meciurile rămase.";
+"group_error_registration_disabled" = "Meciurile programate direct nu necesită înscriere.";
+"group_error_content_blocked" = "Textul conține conținut nepotrivit. Modifică-l.";
+"group_error_request_invalid" = "Verifică informațiile introduse și încearcă din nou.";
+"group_error_reason_required" = "Introdu un motiv înainte de a continua.";
+"group_error_result_state" = "Pot fi confirmate doar rezultatele care așteaptă confirmarea.";
+"group_error_conflict" = "Datele s-au schimbat. Actualizează-le și verifică-le înainte de a reîncerca.";
+"group_error_request_handled" = "Această cerere a fost deja procesată. Actualizează lista.";
+"group_error_place_locked" = "Locul nu poate fi schimbat după începerea sau încheierea unui meci.";
+"group_error_schedule_cancelled" = "Acest program sau meci a fost anulat.";
+"group_error_session_completed" = "Acest meci s-a încheiat și nu mai poți solicita absență. Reîmprospătează programul pentru a vedea rezultatul.";
+"group_error_session_has_result" = "Meciul are deja un rezultat. Anulează-l înainte de a adăuga altul.";
+"group_error_item_not_found" = "Această activitate, program, meci sau notificare nu mai este disponibilă. Actualizează lista.";
+"group_error_server" = "Serviciul de grupuri este temporar indisponibil. Încearcă din nou mai târziu.";
+"group_error_peer_only" = "Folosește planificarea antrenamentelor pentru un grup de antrenament.";
+"group_error_name_length" = "Numele grupului trebuie să aibă 2–24 de caractere.";
+"group_error_description_length" = "Descrierea grupului nu poate depăși 200 de caractere.";
+"group_error_activity_invalid" = "Verifică numele, data, locul și capacitatea activității.";
+"group_error_registration_closed" = "Înscrierile s-au încheiat.";
+"group_error_action_disabled" = "Această acțiune nu este disponibilă momentan.";
+"group_error_update_required" = "Actualizează aplicația pentru a continua.";
+"group_welcome_back" = "Bine ai revenit";
+"group_transfer_none" = "Nu există alți membri permanenți. Membrii temporari nu pot deveni lideri de grup.";
+"group_empty_activities_hint" = "Creează o activitate la care membrii se pot înscrie. Înscrierile se închid când se ocupă toate locurile.";
+"group_temp_import_names" = "Importă numele salvate";
+"group_temp_import_count" = "Importă (%1$d)";
+"group_result_information" = "Informații despre meci";
+"group_result_actions" = "Acțiuni pentru rezultat";
+"group_peer_confirmation" = "Confirmarea adversarului";
+"group_notice_target_unavailable" = "Acest conținut nu este disponibil sau nu mai aveți acces.";
+"group_push_enabled" = "Notificări de grup";
+"group_push_group_enabled" = "Primește notificările acestui grup";
+"group_push_inbox_kept" = "Dezactivarea păstrează notificările din aplicație și mementourile de activități existente.";
+"group_push_permission" = "Activează notificările sistemului";
+"group_push_settings" = "Setări de notificări";
+
+// Shared group form controls
+"group_inline_seat_hint" = "Alege un loc, apoi un membru";
+"group_score_and_rules" = "Scor și reguli";
+"group_activity_registration_scope" = "Înscrie aici membrii temporari. Membrii cu cont se înscriu singuri.";
+"group_activity_registration_no_changes" = "Nu există modificări nesalvate";
+"group_activity_registration_changes" = "Adaugă %1$d · Anulează %2$d";
+"group_activity_registration_save" = "Salvează înscrierile (%1$d)";
+"group_activity_registration_manage" = "Înscrierea membrilor temporari";
+"group_activity_registration_pending_add" = "De înscris";
+"group_activity_registration_pending_remove" = "De anulat";
+"group_activity_registration_registered" = "Înscris";
+"group_activity_registration_not_registered" = "Neînscris";
+"group_activity_detail" = "Detaliile activității";
+"group_activity_my_registration" = "Înscrierea mea";
+"group_match_score" = "Scorul meciului";
+
+"group_lookup_available" = "Deschis";
+
+/* Group beta notice card. */
+"group_beta_badge" = "Beta";
+"group_beta_supported_label" = "Disponibil acum";
+"group_beta_feedback_prompt" = "Probleme sau sugestii?";
+"group_beta_feedback_action" = "Trimite feedback";
+
+"group_member_results_title" = "Rezultatele membrului";
+
+"group_removed_members_expand" = "Extinde";
+"group_removed_members_collapse" = "Restrânge";
+"group_best_of_format" = "Cel mai bun din %1$@ (sunt necesare %2$@ victorii)";
+"group_member_count_single" = "%d membru";
+"group_member_count_short" = "%d membri";
+"group_lookup_closed_short" = "Închis";
+"group_lookup_closing_short" = "În curs de dizolvare";
+"group_lookup_member_short" = "Te-ai alăturat";
+"group_lookup_unavailable_short" = "Indisponibil";
+"group_join_scan_hint" = "Scanează codul QR al unui grup";
+"group_join_number_hint" = "6–8 cifre. Cere-l proprietarului grupului.";
+"group_request_join" = "Solicită înscrierea";
+"group_overdue_tasks" = "Sarcini restante";
+"group_apply_shift" = "Aplică modificările";
+"group_transfer_submit" = "Transferă";
+"group_rename_member" = "Redenumește";
+"group_set_admin" = "Numește administrator";
+"group_set_member" = "Retrage rolul de administrator";
+"group_confirm_authority_message" = "Toți jucătorii sunt membri temporari sau adversarii nu au un jucător cu cont care poate confirma. Proprietarul trebuie să verifice jucătorii și scorul. Confirmarea include rezultatul în evidențe și îl indică pe proprietar ca persoană care a confirmat.";
+"group_confirm_result_message" = "După confirmare, rezultatul intră în evidențele ambelor părți și nu poate fi modificat. Pentru corectare, anulează-l mai întâi.";
+"group_confirm_member_message" = "Confirmă jucătorii și scorul pentru a include rezultatul în evidențe. Pentru corectare, cere unui gestionar să anuleze rezultatul inițial.";
+"group_cancel_activity_message" = "Anularea șterge definitiv lista de înscrieri. Activitățile în curs nu pot fi anulate.";
+"group_abandon_game_message" = "Abandonează acest meci pentru a începe altul. Înregistrările personale salvate se păstrează.";
+"group_void_pending_message" = "Rezultatul nu va mai aștepta confirmarea și nu va conta în statistici. Scorul inițial și motivul rămân vizibile membrilor grupului. Jucătorii și expeditorul vor fi notificați.";
+"group_void_confirmed_message" = "Rezultatul nu va mai conta în statistici. Statisticile și clasamentele ambelor părți vor fi recalculate. Scorul inițial și motivul rămân vizibile membrilor grupului. Jucătorii și expeditorul vor fi notificați.";
+"group_remove_member_message" = "Elimini %@? Va trebui să solicite din nou înscrierea.";
+"group_reload_version_message" = "Renunți la modificările nesalvate ale programului meciurilor și încarci ultimul program salvat?";
+"group_transfer_confirmation" = "Transferi proprietatea către %@? Vei deveni membru obișnuit.";
+"group_approve_confirmation" = "%@ va deveni membru al grupului și va putea vedea activitățile și rezultatele.";
+"group_reject_confirmation" = "După respingere, %@ va trebui să trimită o nouă cerere.";
+"group_lookup_full_short" = "Complet";
+"group_lookup_archived_short" = "Arhivat";
+"group_lookup_pending_short" = "În așteptare";
+"group_temporary_member_count" = "%d membri";
+"group_best_of_tennis_format" = "Cel mai bun din %1$@ (sunt necesare %2$@ victorii)";
+"group_rename_member_title" = "Redenumește";
+
+"group_copy_transfer_title" = "Transferă proprietatea";
+
+"group_copy_transfer_submit" = "Transferă";
+
+"group_copy_transfer_message" = "Transferi proprietatea către %@? Vei deveni membru obișnuit.";
+
+"group_copy_transfer_hint" = "După transfer, devii membru obișnuit.";
+
+"group_copy_rename_title" = "Redenumește";
+
+"group_copy_rename_action" = "Redenumește";
+
+"group_copy_result_confirm" = "Confirmă rezultatul";
+
+"group_copy_result_confirm_authority_message" = "Toți jucătorii sunt membri temporari sau adversarii nu au un jucător cu cont care poate confirma. Proprietarul trebuie să verifice jucătorii și scorul. Confirmarea include rezultatul în evidențe și îl indică pe proprietar ca persoană care a confirmat.";
+
+"group_copy_result_confirm_manager_message" = "După confirmare, rezultatul intră în evidențele ambelor părți și nu poate fi modificat. Pentru corectare, anulează-l mai întâi.";
+
+"group_copy_result_confirm_member_message" = "Confirmă jucătorii și scorul pentru a include rezultatul în evidențe. Pentru corectare, cere unui gestionar să anuleze rezultatul inițial.";
+
+"group_copy_void_action" = "Invalidează";
+
+"group_copy_void_pending_message" = "Rezultatul nu va mai aștepta confirmarea și nu va conta în statistici. Scorul inițial și motivul rămân vizibile membrilor grupului. Jucătorii și expeditorul vor fi notificați.";
+
+"group_copy_void_confirmed_message" = "Rezultatul nu va mai conta în statistici. Statisticile și clasamentele ambelor părți vor fi recalculate. Scorul inițial și motivul rămân vizibile membrilor grupului. Jucătorii și expeditorul vor fi notificați.";
+
+"group_copy_cancel_activity" = "Anulează activitatea";
+
+"group_copy_cancel_activity_message" = "Anularea șterge definitiv lista de înscrieri. Activitățile în curs nu pot fi anulate.";
+
+"group_copy_abandon_action" = "Abandonează meciul";
+
+"group_copy_abandon_message" = "Abandonează acest meci pentru a începe altul. Înregistrările personale salvate se păstrează.";
+
+"group_copy_leave_action" = "Părăsește grupul";
+
+"group_copy_leave_message" = "După ce ieși, nu vei mai fi membru, iar grupul va fi eliminat din „Grupurile mele”. Nu vei mai putea accesa grupul sau participa la activitățile sale. Înregistrările existente ale meciurilor grupului și înregistrările tale personale de pe acest dispozitiv vor fi păstrate. Pentru a avea din nou acces, trebuie să te alături din nou grupului.";
+
+"group_copy_archive_action" = "Arhivează grupul";
+
+"group_copy_archive_message" = "Arhivezi acest grup? Conținutul său va putea fi doar citit.";
+
+"group_copy_dissolve_action" = "Dizolvă grupul";
+
+"group_copy_dissolve_message" = "Grupul va putea fi doar citit timp de 7 zile, perioadă în care dizolvarea poate fi anulată. După 7 zile, grupul și toate datele sale vor fi șterse definitiv.";
+
+"group_copy_approve_action" = "Aprobă";
+
+"group_copy_approve_message" = "%@ va deveni membru al grupului și va putea vedea activitățile și rezultatele.";
+
+"group_copy_reject_action" = "Respinge";
+
+"group_copy_reject_message" = "După respingere, %@ va trebui să trimită o nouă cerere.";
+
+"group_copy_remove_action" = "Elimină membrul";
+
+"group_copy_remove_message" = "Elimini %@? Va trebui să solicite din nou înscrierea.";
+
+"group_copy_report_detail" = "Detalii (opțional)";
+
+"group_copy_edit_profile" = "Editează profilul grupului";
+
+"group_copy_entry_a_wins" = "Câștigă A";
+
+"group_copy_entry_b_wins" = "Câștigă B";
+
+"group_copy_activity_timing_sequence" = "Fără oră exactă";
+
+"group_copy_activity_registration_manage" = "Înscrierea membrilor temporari";
+
+"group_copy_temporary_hint" = "Membrii temporari nu au nevoie de cont și pot fi adăugați la introducerea rezultatelor.";
+
+"group_copy_activity_registration_scope" = "Înscrie aici membrii temporari. Membrii cu cont se înscriu singuri.";
+
+"group_copy_report" = "Raportează grupul";
+
+"group_copy_notice_member_removed" = "Ai fost eliminat din grup";
+
+"group_copy_notice_role_changed" = "Rolul tău s-a schimbat";
+
+"group_copy_activity_direct_save" = "Salvează programul";
+
+"group_copy_notice_join_approved" = "Cerere de alăturare aprobată";
+
+"group_copy_notice_join_rejected" = "Cerere de alăturare respinsă";
+
+"group_copy_all_formats" = "Toate formatele";
+
+"group_copy_closed" = "Înscriere închisă";
+
+"group_copy_report_other" = "Altele";
+
+"group_copy_report_impersonation" = "Uzurparea identității";
+
+"group_copy_audit_ui_share_failed" = "Partajarea a eșuat. Încearcă din nou.";
+
+"group_copy_audit_ui_share_number" = "Partajează numărul grupului";
+
+"group_copy_create" = "Creează grup";
+
+"group_copy_confirm_join" = "Alătură-te acestui grup";
+
+"group_copy_join" = "Alătură-te unui grup";
+
+"group_copy_join_policy" = "Opțiuni de aderare";
+
+"group_copy_filter_singles" = "Simplu";
+
+"group_copy_upcoming" = "Urmează";
+
+"group_copy_activity_section_past" = "Activități trecute";
+
+"group_copy_beta_feedback_action" = "Trimite feedback";
+
+"group_copy_doubles" = "Dublu";
+
+"group_copy_create_activity" = "Creează activitate";
+
+"group_copy_benefit_activity" = "Planifică activități și înscrie-te";
+
+"group_copy_empty_activities_hint" = "Creează o activitate la care membrii se pot înscrie. Înscrierile se închid când se ocupă toate locurile.";
+
+"group_copy_lookup_available" = "Deschis";
+
+"group_copy_activity_direct_hint" = "Alege direct dintre toți membrii activi ai grupului; înscrierea nu este necesară.";
+
+"group_copy_empty_intro" = "Reunește-ți prietenii pentru a planifica meciuri, a ține scorul și a crea un istoric comun.";
+
+"group_copy_place" = "Locație";
+
+"group_copy_ranking_games" = "Meciuri jucate";
+
+"group_copy_ranking_insufficient_matches" = "Prea puține meciuri";
+
+"group_copy_report_spam" = "Spam";
+
+"group_copy_report_status_reviewing" = "În curs de examinare";
+
+"group_copy_note" = "Notă (opțională)";
+
+"group_copy_peer_confirmation" = "Confirmarea adversarului";
+
+"group_copy_activity_lineup_section_matches" = "Programează meciuri";
+
+"group_copy_group" = "Grup";
+
+"group_copy_group_qr" = "Codul QR al grupului";
+
+"group_copy_beta_notice" = "Grupurile sunt în faza beta. Unele funcții se pot schimba. Mulțumim că le încerci de la început.";
+
+"group_copy_created" = "Grup creat";
+
+"group_copy_ranking_sets" = "Scor";
+
+"group_copy_removed_members_expand" = "Extinde";
+
+"group_copy_voided" = "Invalidat";
+
+"group_copy_cancelled" = "Anulat";
+
+"group_copy_report_status_resolved" = "Rezolvat";
+
+"group_copy_completed" = "Finalizat";
+
+"group_copy_archived" = "Arhivat";
+
+"group_copy_archived_list_title" = "Grupuri arhivate";
+
+"group_copy_activity_registration_registered" = "Înscris";
+
+"group_copy_activity_full" = "Complet";
+
+"group_copy_confirmed" = "Confirmat";
+
+"group_copy_removed_members" = "Foști membri";
+
+"group_copy_mark_seen" = "Citit";
+
+"group_copy_report_status_dismissed" = "Respins";
+
+"group_copy_draws" = "egaluri";
+
+"group_copy_draw" = "Egalitate";
+
+"group_copy_start_score" = "Începe punctajul acum";
+
+"group_copy_pending_upload" = "În așteptarea încărcării";
+
+"group_copy_activity_registration_pending_remove" = "De anulat";
+
+"group_copy_report_status_pending" = "În așteptare";
+
+"group_copy_lookup_pending_short" = "În așteptare";
+
+"group_copy_pending_request_limit" = "Prea multe cereri așteaptă aprobarea. Așteaptă o decizie sau retrage unele cereri.";
+
+"group_copy_activity_registration_pending_add" = "De înscris";
+
+"group_copy_pending_confirmation" = "În așteptarea confirmării";
+
+"group_copy_lookup_closing_short" = "În curs de dizolvare";
+
+"group_copy_restore" = "Restaurează grupul";
+
+"group_copy_member" = "Membru";
+
+"group_copy_member_results_title" = "Rezultatele membrului";
+
+"group_copy_my_groups" = "Grupurile mele";
+
+"group_copy_activity_my_registration" = "Înscrierea mea";
+
+"group_copy_activity_mode" = "Istoric";
+
+"group_copy_qr_join_short" = "Scanează pentru a te alătura";
+
+"group_copy_qr_apply_short" = "Scanează pentru a cere să te alături";
+
+"group_copy_register" = "Înscrie-te";
+
+"group_copy_recruiting" = "Înscrieri deschise";
+
+"group_copy_registration_closes" = "Încheierea înscrierilor";
+
+"group_copy_activity_time_after_previous" = "După meciul anterior";
+
+"group_copy_report_submit" = "Trimite";
+
+"group_copy_submitted_by" = "Trimis de";
+
+"group_copy_cancel_dissolve" = "Anulează dizolvarea";
+
+"group_copy_notice_join_requested" = "Cerere de alăturare primită";
+
+"group_copy_removed_members_collapse" = "Restrânge";
+
+"group_copy_discard_upload" = "Renunță la încărcare";
+
+"group_copy_notice_activity_created" = "Activitate creată";
+
+"group_copy_activity_time_unspecified" = "Ora urmează să fie stabilită";
+
+"group_copy_activity_registration_empty" = "Niciun membru temporar";
+
+"group_copy_transfer_none" = "Nu există alți membri permanenți. Membrii temporari nu pot deveni lideri de grup.";
+
+"group_copy_archived_empty" = "Niciun grup arhivat";
+
+"group_copy_empty_activities_title" = "Încă nu există activități";
+
+"group_copy_latest_results" = "Ultimele rezultate";
+
+"group_copy_disputed" = "Contestat";
+
+"group_copy_activity_registration_not_registered" = "Neînscris";
+
+"group_copy_month_matches" = "Meciuri luna aceasta";
+
+"group_copy_open_group" = "Deschide grupul";
+
+"group_copy_benefit_history" = "Vezi meciurile și clasamentele";
+
+"group_copy_overview" = "Prezentare generală";
+
+"group_copy_welcome_back" = "Bine ai revenit";
+
+"group_copy_regular_members" = "Membri înscriși";
+
+"group_copy_rally_scoring" = "Punct la fiecare schimb";
+
+"group_copy_result_information" = "Informații despre meci";
+
+"group_copy_match_score" = "Scorul meciului";
+
+"group_copy_match_rules" = "Regulile meciului";
+
+"group_copy_activity_registration_no_changes" = "Nu există modificări nesalvate";
+
+"group_copy_activities" = "Activități";
+
+"group_copy_activity_title" = "Numele activității";
+
+"group_copy_activity_field_title_optional" = "Numele activității (opțional)";
+
+"group_copy_notice_activity_changed" = "Activitate actualizată";
+
+"group_copy_notice_activity_cancelled" = "Activitate anulată";
+
+"group_copy_activity_lineup" = "Programează meciuri";
+
+"group_copy_activity_create_admin_hint" = "Activitățile sunt create de proprietarul grupului sau de un administrator";
+
+"group_copy_beta_badge" = "Beta";
+
+"group_copy_add_set" = "Adaugă scorul unui game";
+
+"group_copy_add_temporary" = "Adaugă un membru temporar";
+
+"group_copy_benefit_score" = "Ține scorul sau adaugă rezultate anterioare";
+
+"group_copy_request_join" = "Solicită înscrierea";
+
+"group_copy_join_message" = "Mesaj pentru cererea de aderare (opțional)";
+
+"group_copy_beta_supported_label" = "Disponibil acum";
+
+"group_copy_open" = "Alătură-te direct";
+
+"group_copy_activity_direct_title" = "Planifică acum";
+
+"group_copy_admin" = "Administrator";
+
+"group_copy_confirmed_matches" = "Meciuri confirmate";
+
+"group_copy_leader" = "Proprietar";
+
+"group_copy_notice_ownership_transferred" = "Proprietarul grupului s-a schimbat";
+
+"group_copy_complete_activity" = "Încheie activitatea";
+
+"group_copy_keep_draft" = "Continuă editarea versiunii locale";
+
+"group_copy_ranking_wins" = "victorii";
+
+"group_copy_ranking_rate" = "Rata victoriilor";
+
+"group_copy_report_inappropriate" = "Conținut sexual sau neadecvat";
+
+"group_copy_update_report" = "Actualizați raportul";
+
+"group_copy_manual_result" = "Adaugă rezultatul unui meci";
+
+"group_copy_set_admin" = "Numește administrator";
+
+"group_copy_activity_timing_estimated" = "Oră estimată";
+
+"group_copy_losses" = "înfrângeri";
+
+"group_copy_notice_result_voided" = "Rezultat invalidat";
+
+"group_copy_notice_result_confirmed" = "Rezultat confirmat";
+
+"group_copy_notice_result_pending" = "Rezultatul așteaptă confirmare";
+
+"group_copy_result_actions" = "Acțiuni pentru rezultat";
+
+"group_copy_empty_title" = "Încă nu există grupuri";
+
+"group_copy_in_progress" = "În desfășurare";
+
+"group_copy_report_illegal" = "Activitate ilegală sau periculoasă";
+
+"group_copy_join_hint" = "Alătură-te grupului unui prieten folosind numărul sau codul QR.";
+
+"group_copy_overdue_tasks" = "Sarcini restante";
+
+"group_copy_beta_feedback_prompt" = "Probleme sau sugestii?";
+
+"group_copy_invite" = "Invită coechipieri";
+
+"group_copy_retry" = "Reîncearcă";
+
+"group_copy_approval" = "Necesită aprobare";
+
+"group_copy_sport" = "Sport";
+
+"group_copy_report_harassment" = "Hărțuire";
+
+"group_copy_ranking_me_suffix" = " (eu)";
+
+"group_copy_places_title" = "Alege un loc";
+
+"group_copy_report_fraud" = "Fraudă sau jocuri de noroc";
+
+"group_copy_void_reason" = "Motivul invalidării";
+
+"group_copy_reload_version" = "Reîncarcă";
+
+"group_copy_lineup_reload_message" = "Renunți la modificările nesalvate ale programului meciurilor și încarci ultimul program salvat?";
+
+"group_copy_join_number_separator" = "Sau introdu numărul grupului";
+
+"group_copy_activity_multi_match_hint" = "O activitate poate include mai multe meciuri. Membrii se înscriu la activitate; la stabilirea meciurilor, alege 2 înscriși pentru fiecare simplu sau 4 pentru fiecare dublu.";
+
+"group_copy_activity_single_match_hint" = "Fiecare activitate corespunde unui meci. Alege 2 membri înscriși pentru simplu sau 4 pentru dublu.";
+
+"group_copy_activity_detail" = "Detaliile activității";
+
+"group_copy_registration_at_start" = "La începutul activității";
+
+"group_copy_registration_use_start" = "Folosește ora de început a activității";
+
+"group_copy_cancel_reason_optional" = "Motivul anulării (opțional)";
+
+"group_copy_audit_result_frozen_info" = "Vezi jucătorii și regulile";
+"group_view_schedule" = "Vezi meciurile";
+"group_notice_training_published" = "Antrenament publicat";
+"group_notice_training_changed" = "Antrenament actualizat";
+"group_notice_training_cancelled" = "Antrenament anulat";
+"group_notice_leave_changed" = "Absență actualizată";
+"group_report_evidence_title" = "Dovezi în imagini (opțional)";
+"group_report_evidence_hint" = "Cel mult 3 imagini JPG sau PNG, de maximum 2 MB fiecare. Sunt vizibile doar pentru dvs. și platformă.";
+"group_report_add_image" = "Adaugă imagine";
+"group_report_retry" = "Reîncearcă";
+"group_report_preview" = "Imagine cu dovezi";
+"group_report_supplement" = "Adaugă informații";
+"group_report_close" = "Închide";
+"group_report_remove_image" = "Elimină imaginea";
+"group_report_image_error" = "Imaginea nu a putut fi pregătită. Încercați o altă imagine JPG sau PNG.";
+"group_report_refresh" = "Actualizează starea";

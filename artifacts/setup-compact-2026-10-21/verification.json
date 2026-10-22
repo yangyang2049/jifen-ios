@@ -1,0 +1,295 @@
+{
+  "status": "passed",
+  "changed_files": [
+    "jifen/Features/Home/Components/SportsSetupSettingsSection.swift",
+    "jifen/Features/Home/Components/SportsSetupDialogView.swift",
+    "jifenUITests/MainFlowUITests.swift"
+  ],
+  "numeric_chip_points": 44,
+  "custom_input_points": [
+    64,
+    44
+  ],
+  "unit_tests_passed": 22,
+  "ui_tests_passed": 14,
+  "screenshots": [
+    "iPad_setup_compact_badminton_dark.png",
+    "iPad_setup_compact_badminton_light.png",
+    "iPad_setup_compact_boxing_light.png",
+    "iPad_setup_compact_custom_points.png",
+    "iPad_setup_compact_custom_sets.png",
+    "iPad_setup_compact_eight_ball_light.png",
+    "iPad_setup_compact_pickleball_dark.png",
+    "iPad_setup_compact_pickleball_light.png",
+    "iPad_setup_compact_pingpong_light.png",
+    "iPad_setup_compact_return_to_preset.png",
+    "iPad_setup_compact_snooker_light.png",
+    "iPad_setup_compact_tennis_light.png",
+    "iPhone_setup_compact_badminton_dark.png",
+    "iPhone_setup_compact_badminton_light.png",
+    "iPhone_setup_compact_boxing_light.png",
+    "iPhone_setup_compact_custom_points.png",
+    "iPhone_setup_compact_custom_sets.png",
+    "iPhone_setup_compact_eight_ball_light.png",
+    "iPhone_setup_compact_pickleball_dark.png",
+    "iPhone_setup_compact_pickleball_light.png",
+    "iPhone_setup_compact_pingpong_light.png",
+    "iPhone_setup_compact_return_to_preset.png",
+    "iPhone_setup_compact_snooker_light.png",
+    "iPhone_setup_compact_tennis_light.png"
+  ],
+  "checks": [
+    {
+      "device": "iPhone",
+      "suite": "jifenUITests.MainFlowUITests",
+      "test": "testSetupCompactCustomSetsAndPointsEditInline",
+      "status": "passed",
+      "log": "iPhone-scroll-verified.log"
+    },
+    {
+      "device": "iPad",
+      "suite": "jifenUITests.MainFlowUITests",
+      "test": "testPlayAllSetupSupportsEvenAndCustomSetCounts",
+      "status": "passed",
+      "log": "iPad-scroll-verified.log"
+    },
+    {
+      "device": "iPad",
+      "suite": "jifenUITests.MainFlowUITests",
+      "test": "testSetupCompactCustomSetsAndPointsEditInline",
+      "status": "passed",
+      "log": "iPad-input-verified.log"
+    },
+    {
+      "device": "iPad",
+      "suite": "jifenUITests.MainFlowUITests",
+      "test": "testSetupNumberChoicesInDarkMode",
+      "status": "passed",
+      "log": "iPad-scroll-verified.log"
+    },
+    {
+      "device": "iPad",
+      "suite": "jifenUITests.MainFlowUITests",
+      "test": "testSetupNumberChoicesUseCompactSquares",
+      "status": "passed",
+      "log": "iPad.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testAndroid31PickleballTargetCapAndRallyScoringReachTheEngineUnchanged",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testAndroid31SetupPresetOrderAndSportSpecificSetChoices",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testBoxingCustomRoundCountRestoresFromDedicatedField",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testInitializationAppliesSportDefaults",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testInitializationRestoresTennisConfiguration",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testInMatchClockToggleDoesNotPersistAndFormatsElapsedTime",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testMakeResultWritesVoiceAnnouncementOnlyWhenFeaturePresent",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testMatchFeatureMatrixMirrorsAndroid",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testMatchTimeDraftUsesProjectPreferenceAndExplicitSetupWins",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testMatchTimePreferencesStayIndependentAndDedicatedClocksAreExcluded",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testMatchTimeResultIsLimitedToSupportedSportsAndModes",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testModeSwitchUsesDefaultDoublesMembersAndSportSeparator",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testNewSportDefaultsAndExplicitSetupProjectionMatchAndroid31",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testPadelIsFixedDoublesAndPreservesFourNamedPlayers",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testPickleballPresetSetSelectionUpdatesTargetLikeAndroid31",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testPickleballRestoreKeepsAndroid31TargetAndCapInsteadOfReapplyingDefaults",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testRacketSetupResultProjectsIntoExactScoreCoreRules",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testResultMappingPreservesRallyAndEightBallRules",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testShuttlecockTeamFormatBuildsThreePlayerTeamNames",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testSnookerMatchTitleNormalizesWhitespaceAndFortyCodePointLimit",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testUnsupportedVoiceLanguageOnlyDisablesSportsWithVoiceFeatures",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenTests.SportsSetupDraftTests",
+      "test": "testValidationCoversCompletionPointsAndFoosballCap",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenUITests.MainFlowUITests",
+      "test": "testPlayAllSetupInDarkMode",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenUITests.MainFlowUITests",
+      "test": "testPlayAllSetupSupportsEvenAndCustomSetCounts",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenUITests.MainFlowUITests",
+      "test": "testSetupCustomFoosballCapFocusesOnFirstTap",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenUITests.MainFlowUITests",
+      "test": "testSetupCustomPointsFocusesOnFirstTapAndSurvivesClearing",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenUITests.MainFlowUITests",
+      "test": "testSetupCustomRoundsFocusesOnFirstTap",
+      "status": "passed",
+      "log": "iPhone-scroll-verified.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenUITests.MainFlowUITests",
+      "test": "testSetupCustomSnookerFramesFocusesOnFirstTap",
+      "status": "passed",
+      "log": "iPhone-final.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenUITests.MainFlowUITests",
+      "test": "testSetupNumberChoicesInDarkMode",
+      "status": "passed",
+      "log": "iPhone.log"
+    },
+    {
+      "device": "iPhone",
+      "suite": "jifenUITests.MainFlowUITests",
+      "test": "testSetupNumberChoicesUseCompactSquares",
+      "status": "passed",
+      "log": "iPhone-scroll-verified.log"
+    },
+    {
+      "device": "iPad",
+      "suite": "jifenUITests.MainFlowUITests",
+      "test": "testSetupCustomFoosballCapFocusesOnFirstTap",
+      "status": "passed",
+      "log": "iPad-scroll-verified.log"
+    }
+  ]
+}

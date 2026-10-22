@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "משחקי לוח";
 "search_team_or_game" = "חפש קבוצה או משחק";
 "match_count" = "%d משחקים";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "משחקים: %d · כל חברי הקבוצה";
+"archived_count" = "קבוצות: %d";
 
 /* Home Screen */
 "recent_records" = "רשומות אחרונות";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "לדוגמה: משחקים את כל חמש המערכות; המשחק עשוי להסתיים בתיקו";
 "match_completion_custom_placeholder" = "יש להזין מספר בין 1 ל-99";
 "match_completion_invalid_sets" = "במצב הקלאסי נדרש מספר אי-זוגי בין 1 ל-99; במצב „לשחק הכול” אפשר לבחור כל מספר בין 1 ל-99.";
+"setup_auto_odd_sets" = "רק מספרים אי-זוגיים מותרים — ישתמש ב-%d";
 "has_been_reset" = "האיפוס הושלם";
 "no_undo_available" = "אין פעולה שאפשר לבטל";
 "screenshot_failed" = "שמירת צילום המסך נכשלה";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "הפעלת סנכרון פעילה";
 "timer_status_running" = "פועל";
 "timer_status_paused" = "מושהה";
-"membership_entry_summary_active" = "יש לך מינוי VIP. תודה על התמיכה";
+"membership_entry_summary_active" = "מינוי VIP פעיל";
 "sound_effects" = "אפקטים קוליים";
 "vibration" = "רטט";
 "language" = "שפה";
@@ -1579,7 +1580,7 @@
 "group_approval" = "נדרש אישור";
 "group_approve" = "אישור";
 "group_archive" = "העברת הקבוצה לארכיון";
-"group_archive_hint" = "העברה לארכיון שומרת את כל ההיסטוריה ומשהה שינויים בקבוצה. אפשר לשחזר אותה בהמשך.";
+"group_archive_hint" = "להעביר את הקבוצה לארכיון? התוכן שלה יהיה לקריאה בלבד.";
 "group_archive_readonly" = "קבוצה זו הועברה לארכיון. ההיסטוריה שלה מיועדת לקריאה בלבד.";
 "group_archived" = "בארכיון";
 "group_benefit_activity" = "תכנון פעילויות והרשמה";
@@ -1624,38 +1625,38 @@
 "group_invalid_qr" = "זה אינו קוד QR תקין של קבוצה.";
 "group_invalid_result" = "יש לבדוק את התוצאה הרשומה לפני ההעלאה.";
 "group_invalid_rules" = "יש לבדוק את כללי המשחק.";
-"group_invite" = "Invite";
+"group_invite" = "הזמנת חברים לקבוצה";
 "group_join" = "הצטרפות לקבוצה";
 "group_join_hint" = "הצטרפו לקבוצה של חבר באמצעות המספר או קוד ה־QR שלה.";
-"group_join_message" = "הודעה לקבוצה (לא חובה)";
-"group_join_policy" = "הצטרפות";
+"group_join_message" = "הודעה לבקשת הצטרפות (לא חובה)";
+"group_join_policy" = "אפשרויות הצטרפות";
 "group_leave" = "עזיבת הקבוצה";
-"group_leave_hint" = "תאבדו את הגישה לקבוצה זו. הרשומות האישיות יישארו במכשיר זה.";
+"group_leave_hint" = "לאחר היציאה לא תהיה לך עוד חברות בקבוצה, והיא תוסר מתוך ״הקבוצות שלי״. לא תהיה לך עוד גישה לקבוצה או אפשרות להשתתף בה. רישומי המשחקים הקיימים של הקבוצה והרישומים האישיים שלך במכשיר זה יישמרו. כדי לקבל שוב גישה, יש להצטרף לקבוצה מחדש.";
 "group_load_failed" = "לא ניתן לטעון את הקבוצה";
 "group_load_more" = "טעינת פריטים נוספים";
 "group_losses" = "הפסדים";
 "group_manual" = "הזנה ידנית";
-"group_manual_result" = "הוספת משחק קודם";
+"group_manual_result" = "הוספת תוצאת משחק";
 "group_match_detail" = "פרטי המשחק";
 "group_match_log" = "היסטוריית משחקים";
 "group_match_rules" = "כללי המשחק";
 "group_member" = "חבר";
 "group_member_name" = "שם החבר";
-"group_members" = "חברים";
+"group_members" = "חבר";
 "group_month_matches" = "משחקים החודש";
 "group_my_groups" = "הקבוצות שלי";
 "group_name" = "שם הקבוצה";
 "group_need_login" = "יש להתחבר כדי להמשיך.";
 "group_need_members" = "לפני תחילת המשחק, הזמינו חברים או הוסיפו חברים זמניים.";
-"group_new_activity" = "תכנון פעילות";
+"group_new_activity" = "יצירת פעילות";
 "group_new_owner" = "בעלים חדש";
 "group_no_activities" = "אין עדיין פעילויות";
 "group_no_description" = "אין עדיין תיאור";
 "group_no_rankings" = "הדירוגים מופיעים לאחר אישור משחק.";
 "group_no_set_details" = "נרשמה רק התוצאה הכוללת.";
-"group_note" = "הערה לפעילות (לא חובה)";
-"group_number" = "6–8 digit group number";
-"group_open" = "כל מי שיודע את המספר יכול להצטרף";
+"group_note" = "הערה (לא חובה)";
+"group_number" = "מספר קבוצה בן 6–8 ספרות";
+"group_open" = "הצטרפות ישירה";
 "group_overall_score" = "תוצאה כוללת במערכות";
 "group_overview" = "סקירה";
 "group_owner" = "בעלים";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "הסרת חבר";
 "group_restore" = "שחזור הקבוצה";
 "group_restore_hint" = "שחזרו קבוצה זו כדי לאפשר פעילויות ורישום ניקוד.";
-"group_results" = "משחקים";
+"group_results" = "רשומות";
 "group_retry" = "נסה שוב";
 "group_rules_missing" = "הכללים לא נרשמו";
-"group_save" = "אשר";
+"group_save" = "שמור";
 "group_save_failed" = "לא ניתן לשמור את המשחק. נסו שוב.";
 "group_scan" = "סריקת קוד QR";
 "group_scoreboard" = "לוח תוצאות";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "המשיכו או סיימו את המשחק הקיים לפני תחילת משחק אחר.";
 "group_unregister" = "ביטול הרשמה";
 "group_void_reason" = "סיבה לפסילת התוצאה";
-"group_void_result" = "פסילת התוצאה";
+"group_void_result" = "ביטול תוצאה";
 "group_voided" = "התוצאה נפסלה";
 "group_wins" = "ניצחונות";
 "group_withdraw" = "משיכת הבקשה";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "אתם כבר חברים בקבוצה.";
 "group_open_group" = "פתיחת הקבוצה";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
-"group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
-"group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_groups" = "קבוצה";
+"group_invite_students" = "הזמנת תלמידים";
+"group_group_type" = "סוג קבוצה";
+"group_peer" = "קבוצת חברים";
+"group_coaching" = "קבוצת אימון";
+"group_training" = "אימון";
+"group_upcoming" = "בקרוב";
+"group_latest_results" = "תוצאות אחרונות";
+"group_no_results" = "עדיין לא תועדו משחקים";
+"group_no_training" = "עדיין לא נקבע אימון";
+"group_active_activities" = "בתהליך · ההרשמה פתוחה";
+"group_past_activities" = "פעילויות קודמות";
+"group_all_formats" = "כל המתכונות";
+"group_join_requests" = "בקשות הצטרפות";
+"group_regular_members" = "חברים רשומים";
+"group_temporary_members" = "חברים זמניים";
+"group_add" = "הוסף";
+"group_leader" = "בעלים";
+"group_member_settings" = "הגדרות חבר";
+"group_settings" = "ניהול הקבוצה";
+"group_partial_load" = "לא ניתן היה לרענן חלק מהאזורים. יש למשוך למטה כדי לנסות שוב.";
+"group_leave_notices" = "הודעות היעדרות של תלמידים";
+"group_mark_seen" = "נקרא";
+"group_training_schedule" = "לוח אימונים";
+"group_add_session" = "הוספת משחק";
+"group_edit_schedule" = "עריכת לוח המשחקים";
+"group_cancel_schedule" = "ביטול לוח המשחקים";
+"group_leave_training" = "דיווח על היעדרות";
+"group_session_minutes" = "דקות למשחק";
+"group_court" = "מגרש";
+"group_remove_session" = "הסרה";
+"group_publish_schedule" = "פרסום לוח המשחקים";
+"group_leave_reason" = "סיבת היעדרות (רשות)";
+"group_report" = "דיווח על קבוצה";
+"group_report_reason" = "סיבה";
+"group_report_detail" = "פרטים (רשות)";
+"group_report_submit" = "שליחה";
+"group_report_spam" = "ספאם";
+"group_report_harassment" = "הטרדה";
+"group_report_inappropriate" = "תוכן מיני או בלתי הולם";
+"group_report_fraud" = "הונאה או הימורים";
+"group_report_illegal" = "פעילות לא חוקית או מסוכנת";
+"group_report_impersonation" = "התחזות";
+"group_report_other" = "אחר";
+"group_lineup_invalid" = "יש לבדוק את זמני המשחקים, המגרשים והשחקנים.";
+"group_lineup_member_limit" = "כל חבר יכול לשחק עד שמונה משחקים בכל לוח משחקים.";
+"group_lineup_conflict" = "במשחקים חופפים חייבים להיות מגרשים ושחקנים שונים.";
+"group_multi_match_hint" = "פעילות יכולה לכלול כמה משחקים. החברים נרשמים לפעילות; בסידור המשחקים יש לבחור 2 נרשמים לכל משחק יחידים או 4 לכל משחק זוגות.";
+"group_single_match_hint" = "כל פעילות היא משחק אחד. יש לבחור 2 חברים רשומים ליחידים או 4 לזוגות.";
+"group_rate_limited" = "יותר מדי בקשות. יש לנסות מאוחר יותר.";
+"group_create_daily_limit" = "הגעת למגבלת יצירת הקבוצות ב־24 שעות. יש לנסות מאוחר יותר.";
+"group_join_daily_limit" = "הגעת למגבלת ההצטרפות לקבוצות ב־24 שעות. יש לנסות מאוחר יותר.";
+"group_pending_request_limit" = "יותר מדי בקשות ממתינות לאישור. יש להמתין להחלטה או לבטל חלק מהבקשות.";
+"group_request_daily_limit" = "קבוצה זו הגיעה למגבלת בקשות ההצטרפות ב־24 שעות. יש לנסות מאוחר יותר.";
+"group_join_cooldown" = "לא ניתן להגיש בקשה מחדש במשך 24 שעות לאחר דחייה.";
+"group_result_group_daily_limit" = "קבוצה זו הגיעה למגבלת התוצאות ב־24 שעות. יש לנסות מאוחר יותר.";
+"group_result_submitter_daily_limit" = "הגעת למגבלת שליחת התוצאות ב־24 שעות. יש לנסות מאוחר יותר.";
+"group_not_coach" = "רק המאמן יכול לתכנן אימונים.";
+"group_activity_count" = "נרשמו: %1$d/%2$d";
+"group_activity_create_admin_hint" = "בעל הקבוצה או מנהל יוצרים את הפעילויות";
+"group_activity_direct_hint" = "אפשר לבחור ישירות מכל חברי הקבוצה הפעילים; אין צורך בהרשמה.";
+"group_activity_direct_save" = "שמירת לוח המשחקים";
+"group_activity_direct_title" = "תכנון עכשיו";
+"group_activity_field_title_optional" = "שם הפעילות (רשות)";
+"group_activity_full" = "מלא";
+"group_activity_lineup_add" = "הוספת משחק";
+"group_activity_lineup_add_need_members" = "אין מספיק שחקנים. נדרשים לפחות %1$d חברי קבוצה פעילים להוספת משחק.";
+"group_activity_lineup_court" = "מספר מגרש";
+"group_activity_lineup_duration" = "משך המשחק";
+"group_activity_lineup_match_count" = "מספר משחקים: %1$d";
+"group_activity_lineup_minutes" = "%1$d דקות";
+"group_activity_lineup_remove" = "הסרה";
+"group_activity_lineup_section_matches" = "תכנון משחקים";
+"group_activity_lineup_session" = "משחק %1$d";
+"group_activity_registration_empty" = "אין חברים זמניים";
+"group_activity_section_count" = "מספר פעילויות: %1$d";
+"group_activity_section_past" = "פעילויות קודמות";
+"group_activity_section_upcoming" = "בתהליך · ההרשמה פתוחה";
+"group_activity_status_scheduled" = "מוכן להתחלה";
+"group_activity_time_after_previous" = "אחרי המשחק הקודם";
+"group_activity_time_unspecified" = "השעה תיקבע בהמשך";
+"group_activity_timing" = "תזמון";
+"group_activity_timing_estimated" = "שעה משוערת";
+"group_activity_timing_sequence" = "ללא שעה מדויקת";
+"group_activity_title_auto_hint" = "אם השדה ריק, ייווצר שם לפי התאריך, למשל ״פעילות ב־10 בנובמבר״.";
+"group_archived_empty" = "אין קבוצות בארכיון";
+"group_archived_list_title" = "קבוצות בארכיון";
+"group_empty_activities_title" = "אין עדיין פעילויות";
+"group_list_add_title" = "יצירת קבוצה או הצטרפות";
+"group_ranking_draws" = "תוצאות תיקו";
+"group_ranking_games" = "משחקים ששוחקו";
+"group_ranking_losses" = "הפסדים";
+"group_ranking_sets" = "תוצאה";
+"group_ranking_title" = "טבלת הדירוג של %@";
+"group_ranking_wins" = "ניצחונות";
+"group_training_results_locked" = "בלוחות עם תוצאות אי אפשר לשנות זמנים ושחקנים. אפשר לערוך את המיקום וההערה.";
+"group_temporary_hint" = "חברים זמניים אינם זקוקים לחשבון וניתן להוסיף אותם בעת הזנת תוצאות.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "שחרור המשחק";
-"group_activity_lineup" = "לוח המשחקים";
-"group_activity_mode" = "משחקים";
+"group_abandon_game" = "נטישת המשחק";
+"group_activity_lineup" = "תכנון משחקים";
+"group_activity_mode" = "רשומות";
 "group_activity_reminder" = "תזכורת 15 דקות לפני";
 "group_add_set" = "הוספת תוצאת משחקון";
 "group_added_members" = "נוסף";
-"group_authority_confirm" = "אישור כבעלי הקבוצה";
-"group_batch_names_hint" = "שם אחד בכל שורה, 1–24 תווים לכל שם.";
-"group_beta_notice" = "הקבוצות בגרסת בטא. נשמח למשוב.";
+"group_authority_confirm" = "אישור התוצאה";
+"group_batch_names_hint" = "שם אחד בכל שורה";
+"group_beta_notice" = "הקבוצות בגרסת בטא. חלק מהתכונות עשויות להשתנות. תודה על ההתנסות המוקדמת.";
 "group_cancel_dissolve" = "ביטול פירוק הקבוצה";
 "group_cancel_dissolve_hint" = "שחזרו קבוצה זו כדי לאפשר פעילויות ורישום ניקוד.";
 "group_cancel_training_hint" = "משחקים שהסתיימו נשארים בהיסטוריה. ניתן לסיים משחקים שכבר התחילו.";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "ברירת המחדל של הענף";
 "group_discard_upload" = "ביטול ההעלאה";
 "group_dissolve" = "פירוק הקבוצה";
-"group_dissolve_hint" = "קריאה בלבד למשך 7 ימים. ניתן לבטל את הפירוק בתקופה זו.";
+"group_dissolve_hint" = "הקבוצה תהיה לקריאה בלבד למשך 7 ימים, ובמהלכם ניתן לבטל את הפירוק. לאחר 7 ימים הקבוצה וכל נתוניה יימחקו לצמיתות.";
 "group_dissolving" = "הקבוצה בתהליך פירוק";
 "group_edit_activity" = "ערוך";
 "group_edit_lineup" = "תכנון משחקים";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "אין התראות עדיין";
 "group_no_sessions" = "אין משחקים מתוכננים עדיין";
 "group_notices" = "התראות";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "לא ניתן היה לרענן חלק מהאזורים. יש למשוך למטה כדי לנסות שוב.";
 "group_point_cap" = "תקרת ניקוד";
 "group_preview_schedule" = "בדיקת לוח הזמנים";
 "group_published" = "פורסם";
 "group_qr_direct_hint" = "יש לסרוק ב-iScoreboard כדי לצפות בקבוצה ולהצטרף אליה.";
 "group_quick_score" = "תוצאה כוללת במערכות";
 "group_rally_scoring" = "ניקוד בכל מהלך";
-"group_read_notices" = "Read";
+"group_read_notices" = "נקרא";
 "group_registration_closes" = "סגירת ההרשמה";
 "group_regular" = "רגיל";
-"group_reload_version" = "טעינת הגרסה העדכנית";
+"group_reload_version" = "טעינה מחדש";
 "group_reminder_body" = "הפעילות מתחילה בעוד 15 דקות.";
 "group_reminder_permission" = "יש לאפשר התראות של האפליקציה בהגדרות.";
 "group_reminder_too_late" = "הפעילות מתחילה בעוד פחות מ־15 דקות.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "ניקוד המערכה";
 "group_tie_break" = "נקודות שובר שוויון";
 "group_tiebreak_only" = "שובר שוויון בלבד";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "תאריך";
+"group_too_many_sessions" = "יש לבדוק את זמני המשחקים, המגרשים והשחקנים.";
+"group_training_date" = "תאריך האימון";
 "group_win_by_two" = "ניצחון בהפרש שתי נקודות";
 
-"group_keep_draft" = "שמירת השינויים שלי";
+"group_keep_draft" = "המשך עריכת הגרסה המקומית";
 
 "group_server_version" = "הגרסה האחרונה";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "הקבוצה תפורק בתאריך %@\nתקופת המתנה של 7 ימים; עד אז לקריאה בלבד";
 "group_notice_end" = "אין התראות נוספות";
 "group_notice_join_requested" = "התקבלה בקשת הצטרפות";
 "group_notice_join_approved" = "בקשת ההצטרפות אושרה";
@@ -1908,7 +1909,7 @@
 "group_ranking_insufficient_matches" = "מעט מדי משחקים";
 "group_entry_a_wins" = "A מנצח";
 "group_entry_b_wins" = "B מנצח";
-"group_result_draw" = "תיקו";
+"group_result_draw" = "צייר";
 "group_share_no" = "מספר קבוצה %@";
 "group_audit_ui_share_invitation" = "שיתוף הזמנה";
 "group_audit_ui_share_qr" = "שיתוף קוד QR";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "הזנה ידנית";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "סימון הכול כנקרא";
+
+"group_status_active" = "פעילה";
+"group_dissolved" = "פורקה";
+"group_report_status_pending" = "ממתין לטיפול";
+"group_report_status_reviewing" = "בבדיקה";
+"group_report_status_resolved" = "טופל";
+"group_report_status_dismissed" = "נדחה";
+"group_error_permission" = "אין לך הרשאה לבצע פעולה זו.";
+"group_error_transfer_first" = "יש להעביר את הבעלות על הקבוצה לפני עזיבה או מחיקת החשבון.";
+"group_error_target" = "יש לבחור חבר פעיל בקבוצה זו בעל חשבון.";
+"group_error_activity_locked" = "הפעילות כבר התחילה או הסתיימה. לא ניתן לשנות או לבטל את לוח המשחקים שלה.";
+"group_error_activity_pending" = "יש לסיים או להסיר קודם את המשחקים שנותרו.";
+"group_error_registration_disabled" = "משחקים שתוכננו ישירות אינם דורשים הרשמה.";
+"group_error_content_blocked" = "הטקסט מכיל תוכן לא הולם. יש לערוך אותו.";
+"group_error_request_invalid" = "יש לבדוק את הפרטים שהוזנו ולנסות שוב.";
+"group_error_reason_required" = "יש להזין סיבה לפני ההמשך.";
+"group_error_result_state" = "ניתן לאשר רק תוצאות שממתינות לאישור.";
+"group_error_conflict" = "הנתונים השתנו. יש לרענן ולבדוק אותם לפני ניסיון נוסף.";
+"group_error_request_handled" = "בקשת ההצטרפות כבר טופלה. יש לרענן את הרשימה.";
+"group_error_place_locked" = "לא ניתן לשנות את המקום לאחר שמשחק התחיל או הסתיים.";
+"group_error_schedule_cancelled" = "לוח המשחקים או המשחק בוטל.";
+"group_error_session_completed" = "המשחק כבר הסתיים ולא ניתן לבקש היעדרות. יש לרענן את לוח המשחקים כדי לראות את התוצאה.";
+"group_error_session_has_result" = "למשחק כבר יש תוצאה. יש לפסול אותה לפני הוספת תוצאה אחרת.";
+"group_error_item_not_found" = "הפעילות, לוח המשחקים, המשחק או ההתראה אינם זמינים עוד. יש לרענן את הרשימה.";
+"group_error_server" = "שירות הקבוצות אינו זמין זמנית. נסו שוב מאוחר יותר.";
+"group_error_peer_only" = "בקבוצת אימון יש להשתמש בתכנון אימונים.";
+"group_error_name_length" = "שם הקבוצה חייב להכיל 2–24 תווים.";
+"group_error_description_length" = "תיאור הקבוצה מוגבל ל־200 תווים.";
+"group_error_activity_invalid" = "יש לבדוק את שם הפעילות, התאריך, המיקום ומספר המשתתפים המותר.";
+"group_error_registration_closed" = "ההרשמה נסגרה.";
+"group_error_action_disabled" = "פעולה זו אינה זמינה כעת.";
+"group_error_update_required" = "יש לעדכן את היישומון כדי להמשיך.";
+"group_welcome_back" = "ברוכים השבים";
+"group_transfer_none" = "אין חברים קבועים נוספים. חברים זמניים אינם יכולים להיות ראש הקבוצה.";
+"group_empty_activities_hint" = "צרו פעילות שהחברים יוכלו להירשם אליה. ההרשמה נסגרת כשכל המקומות מתמלאים.";
+"group_temp_import_names" = "ייבוא שמות שמורים";
+"group_temp_import_count" = "ייבוא (%1$d)";
+"group_result_information" = "פרטי המשחק";
+"group_result_actions" = "פעולות בתוצאה";
+"group_peer_confirmation" = "אישור היריב";
+"group_notice_target_unavailable" = "התוכן הזה אינו זמין או שאין לך עוד הרשאת גישה אליו.";
+"group_push_enabled" = "התראות קבוצה";
+"group_push_group_enabled" = "קבלת התראות מקבוצה זו";
+"group_push_inbox_kept" = "כיבוי האפשרויות שומר על ההתראות בתוך האפליקציה ועל תזכורות הפעילות הקיימות.";
+"group_push_permission" = "הפעלת התראות מערכת";
+"group_push_settings" = "הגדרות התראות";
+
+// Shared group form controls
+"group_inline_seat_hint" = "בחרו מקום ואז חבר";
+"group_score_and_rules" = "תוצאה וכללים";
+"group_activity_registration_scope" = "רשמו כאן חברים זמניים. חברים עם חשבון נרשמים בעצמם.";
+"group_activity_registration_no_changes" = "אין שינויים שלא נשמרו";
+"group_activity_registration_changes" = "הוספה %1$d · ביטול %2$d";
+"group_activity_registration_save" = "שמירת הרשמות (%1$d)";
+"group_activity_registration_manage" = "רישום חברים זמניים";
+"group_activity_registration_pending_add" = "ממתין לרישום";
+"group_activity_registration_pending_remove" = "ממתין לביטול";
+"group_activity_registration_registered" = "רשום";
+"group_activity_registration_not_registered" = "לא רשום";
+"group_activity_detail" = "פרטי הפעילות";
+"group_activity_my_registration" = "ההרשמה שלי";
+"group_match_score" = "תוצאת המשחק";
+
+"group_lookup_available" = "פתוח";
+
+/* Group beta notice card. */
+"group_beta_badge" = "בטא";
+"group_beta_supported_label" = "זמין כעת";
+"group_beta_feedback_prompt" = "יש בעיה או הצעה?";
+"group_beta_feedback_action" = "שליחת משוב";
+
+"group_member_results_title" = "תוצאות החבר";
+
+"group_removed_members_expand" = "הרחבה";
+"group_removed_members_collapse" = "צמצום";
+"group_best_of_format" = "הטוב מ־%1$@ (נדרשים %2$@ ניצחונות)";
+"group_member_count_single" = "חבר %d";
+"group_member_count_short" = "%d חברים";
+"group_lookup_closed_short" = "סגור";
+"group_lookup_closing_short" = "בתהליך פירוק";
+"group_lookup_member_short" = "כבר הצטרפת";
+"group_lookup_unavailable_short" = "לא זמין";
+"group_join_scan_hint" = "סריקת קוד QR של קבוצה";
+"group_join_number_hint" = "6–8 ספרות. אפשר לבקש מבעלי הקבוצה.";
+"group_request_join" = "בקשת הצטרפות";
+"group_overdue_tasks" = "משימות באיחור";
+"group_apply_shift" = "החלת השינויים";
+"group_transfer_submit" = "העברה";
+"group_rename_member" = "שינוי שם";
+"group_set_admin" = "מינוי למנהל";
+"group_set_member" = "הסרת תפקיד מנהל";
+"group_confirm_authority_message" = "כל השחקנים חברים זמניים, או שאין בצד היריב שחקן בעל חשבון שיכול לאשר. בעלי הקבוצה חייבים לבדוק את השחקנים והתוצאה. לאחר האישור התוצאה תיכלל ברישומי המשחקים, ובעלי הקבוצה יירשמו כמאשרים.";
+"group_confirm_result_message" = "לאחר האישור, התוצאה נכללת ברישומים של שני הצדדים ואינה ניתנת לעריכה. לתיקון יש לבטל את התוצאה תחילה.";
+"group_confirm_member_message" = "יש לאשר את השחקנים והתוצאה כדי לכלול אותה ברישומים. אם נדרש תיקון, יש לבקש ממנהל לבטל את התוצאה המקורית.";
+"group_cancel_activity_message" = "ביטול מוחק לצמיתות את רשימת הנרשמים. אי אפשר לבטל פעילות שכבר החלה.";
+"group_abandon_game_message" = "יש לנטוש משחק זה כדי להתחיל משחק אחר. הרישומים האישיים שנשמרו יישארו.";
+"group_void_pending_message" = "התוצאה לא תמתין עוד לאישור ולא תיכלל בסטטיסטיקת המשחקים. התוצאה המקורית והסיבה יישארו גלויות לחברי הקבוצה. הודעה תישלח לשחקנים ולמי ששלח את התוצאה.";
+"group_void_confirmed_message" = "התוצאה לא תיכלל עוד בסטטיסטיקת המשחקים. הנתונים והדירוגים של שני הצדדים יחושבו מחדש. התוצאה המקורית והסיבה יישארו גלויות לחברי הקבוצה. הודעה תישלח לשחקנים ולמי ששלח את התוצאה.";
+"group_remove_member_message" = "להסיר את %@? יהיה צורך לבקש להצטרף מחדש.";
+"group_reload_version_message" = "לוותר על השינויים שלא נשמרו בסידור המשחקים ולטעון את לוח המשחקים האחרון שנשמר?";
+"group_transfer_confirmation" = "להעביר את הבעלות אל %@? מעמדך ישתנה לחבר רגיל.";
+"group_approve_confirmation" = "%@ יצטרף לקבוצה ויוכל לראות פעילויות ותוצאות.";
+"group_reject_confirmation" = "לאחר הדחייה, %@ יצטרך לשלוח בקשה חדשה.";
+"group_lookup_full_short" = "מלא";
+"group_lookup_archived_short" = "בארכיון";
+"group_lookup_pending_short" = "ממתין לטיפול";
+"group_temporary_member_count" = "%d חברים";
+"group_best_of_tennis_format" = "הטוב מ־%1$@ (נדרשים %2$@ ניצחונות)";
+"group_rename_member_title" = "שינוי שם";
+
+"group_copy_transfer_title" = "העברת בעלות";
+
+"group_copy_transfer_submit" = "העברה";
+
+"group_copy_transfer_message" = "להעביר את הבעלות אל %@? מעמדך ישתנה לחבר רגיל.";
+
+"group_copy_transfer_hint" = "לאחר העברת הבעלות, תהפכו לחבר רגיל.";
+
+"group_copy_rename_title" = "שינוי שם";
+
+"group_copy_rename_action" = "שינוי שם";
+
+"group_copy_result_confirm" = "אישור התוצאה";
+
+"group_copy_result_confirm_authority_message" = "כל השחקנים חברים זמניים, או שאין בצד היריב שחקן בעל חשבון שיכול לאשר. בעלי הקבוצה חייבים לבדוק את השחקנים והתוצאה. לאחר האישור התוצאה תיכלל ברישומי המשחקים, ובעלי הקבוצה יירשמו כמאשרים.";
+
+"group_copy_result_confirm_manager_message" = "לאחר האישור, התוצאה נכללת ברישומים של שני הצדדים ואינה ניתנת לעריכה. לתיקון יש לבטל את התוצאה תחילה.";
+
+"group_copy_result_confirm_member_message" = "יש לאשר את השחקנים והתוצאה כדי לכלול אותה ברישומים. אם נדרש תיקון, יש לבקש ממנהל לבטל את התוצאה המקורית.";
+
+"group_copy_void_action" = "ביטול תוצאה";
+
+"group_copy_void_pending_message" = "התוצאה לא תמתין עוד לאישור ולא תיכלל בסטטיסטיקת המשחקים. התוצאה המקורית והסיבה יישארו גלויות לחברי הקבוצה. הודעה תישלח לשחקנים ולמי ששלח את התוצאה.";
+
+"group_copy_void_confirmed_message" = "התוצאה לא תיכלל עוד בסטטיסטיקת המשחקים. הנתונים והדירוגים של שני הצדדים יחושבו מחדש. התוצאה המקורית והסיבה יישארו גלויות לחברי הקבוצה. הודעה תישלח לשחקנים ולמי ששלח את התוצאה.";
+
+"group_copy_cancel_activity" = "ביטול פעילות";
+
+"group_copy_cancel_activity_message" = "ביטול מוחק לצמיתות את רשימת הנרשמים. אי אפשר לבטל פעילות שכבר החלה.";
+
+"group_copy_abandon_action" = "נטישת המשחק";
+
+"group_copy_abandon_message" = "יש לנטוש משחק זה כדי להתחיל משחק אחר. הרישומים האישיים שנשמרו יישארו.";
+
+"group_copy_leave_action" = "עזיבת הקבוצה";
+
+"group_copy_leave_message" = "לאחר היציאה לא תהיה לך עוד חברות בקבוצה, והיא תוסר מתוך ״הקבוצות שלי״. לא תהיה לך עוד גישה לקבוצה או אפשרות להשתתף בה. רישומי המשחקים הקיימים של הקבוצה והרישומים האישיים שלך במכשיר זה יישמרו. כדי לקבל שוב גישה, יש להצטרף לקבוצה מחדש.";
+
+"group_copy_archive_action" = "העברת הקבוצה לארכיון";
+
+"group_copy_archive_message" = "להעביר את הקבוצה לארכיון? התוכן שלה יהיה לקריאה בלבד.";
+
+"group_copy_dissolve_action" = "פירוק הקבוצה";
+
+"group_copy_dissolve_message" = "הקבוצה תהיה לקריאה בלבד למשך 7 ימים, ובמהלכם ניתן לבטל את הפירוק. לאחר 7 ימים הקבוצה וכל נתוניה יימחקו לצמיתות.";
+
+"group_copy_approve_action" = "אישור";
+
+"group_copy_approve_message" = "%@ יצטרף לקבוצה ויוכל לראות פעילויות ותוצאות.";
+
+"group_copy_reject_action" = "דחה";
+
+"group_copy_reject_message" = "לאחר הדחייה, %@ יצטרך לשלוח בקשה חדשה.";
+
+"group_copy_remove_action" = "הסרת חבר";
+
+"group_copy_remove_message" = "להסיר את %@? יהיה צורך לבקש להצטרף מחדש.";
+
+"group_copy_report_detail" = "פרטים (רשות)";
+
+"group_copy_edit_profile" = "עריכת פרופיל הקבוצה";
+
+"group_copy_entry_a_wins" = "A מנצח";
+
+"group_copy_entry_b_wins" = "B מנצח";
+
+"group_copy_activity_timing_sequence" = "ללא שעה מדויקת";
+
+"group_copy_activity_registration_manage" = "רישום חברים זמניים";
+
+"group_copy_temporary_hint" = "חברים זמניים אינם זקוקים לחשבון וניתן להוסיף אותם בעת הזנת תוצאות.";
+
+"group_copy_activity_registration_scope" = "רשמו כאן חברים זמניים. חברים עם חשבון נרשמים בעצמם.";
+
+"group_copy_report" = "דיווח על קבוצה";
+
+"group_copy_notice_member_removed" = "הוסרת מהקבוצה";
+
+"group_copy_notice_role_changed" = "התפקיד שלך השתנה";
+
+"group_copy_activity_direct_save" = "שמירת לוח המשחקים";
+
+"group_copy_notice_join_approved" = "בקשת ההצטרפות אושרה";
+
+"group_copy_notice_join_rejected" = "בקשת ההצטרפות נדחתה";
+
+"group_copy_all_formats" = "כל המתכונות";
+
+"group_copy_closed" = "ההצטרפות סגורה";
+
+"group_copy_report_other" = "אחר";
+
+"group_copy_report_impersonation" = "התחזות";
+
+"group_copy_audit_ui_share_failed" = "השיתוף נכשל. נסו שוב.";
+
+"group_copy_audit_ui_share_number" = "שיתוף מספר הקבוצה";
+
+"group_copy_create" = "יצירת קבוצה";
+
+"group_copy_confirm_join" = "הצטרפות לקבוצה זו";
+
+"group_copy_join" = "הצטרפות לקבוצה";
+
+"group_copy_join_policy" = "אפשרויות הצטרפות";
+
+"group_copy_filter_singles" = "יחידים";
+
+"group_copy_upcoming" = "בקרוב";
+
+"group_copy_activity_section_past" = "פעילויות קודמות";
+
+"group_copy_beta_feedback_action" = "שליחת משוב";
+
+"group_copy_doubles" = "זוגות";
+
+"group_copy_create_activity" = "יצירת פעילות";
+
+"group_copy_benefit_activity" = "תכנון פעילויות והרשמה";
+
+"group_copy_empty_activities_hint" = "צרו פעילות שהחברים יוכלו להירשם אליה. ההרשמה נסגרת כשכל המקומות מתמלאים.";
+
+"group_copy_lookup_available" = "פתוח";
+
+"group_copy_activity_direct_hint" = "אפשר לבחור ישירות מכל חברי הקבוצה הפעילים; אין צורך בהרשמה.";
+
+"group_copy_empty_intro" = "כנסו את החברים כדי לתכנן משחקים, לרשום ניקוד וליצור היסטוריית משחקים משותפת.";
+
+"group_copy_place" = "מיקום";
+
+"group_copy_ranking_games" = "משחקים ששוחקו";
+
+"group_copy_ranking_insufficient_matches" = "מעט מדי משחקים";
+
+"group_copy_report_spam" = "ספאם";
+
+"group_copy_report_status_reviewing" = "בבדיקה";
+
+"group_copy_note" = "הערה (לא חובה)";
+
+"group_copy_peer_confirmation" = "אישור היריב";
+
+"group_copy_activity_lineup_section_matches" = "תכנון משחקים";
+
+"group_copy_group" = "קבוצה";
+
+"group_copy_group_qr" = "קוד QR של הקבוצה";
+
+"group_copy_beta_notice" = "הקבוצות בגרסת בטא. חלק מהתכונות עשויות להשתנות. תודה על ההתנסות המוקדמת.";
+
+"group_copy_created" = "הקבוצה נוצרה";
+
+"group_copy_ranking_sets" = "תוצאה";
+
+"group_copy_removed_members_expand" = "הרחבה";
+
+"group_copy_voided" = "התוצאה נפסלה";
+
+"group_copy_cancelled" = "בוטל";
+
+"group_copy_report_status_resolved" = "טופל";
+
+"group_copy_completed" = "הושלם";
+
+"group_copy_archived" = "בארכיון";
+
+"group_copy_archived_list_title" = "קבוצות בארכיון";
+
+"group_copy_activity_registration_registered" = "רשום";
+
+"group_copy_activity_full" = "מלא";
+
+"group_copy_confirmed" = "אושר";
+
+"group_copy_removed_members" = "חברים לשעבר";
+
+"group_copy_mark_seen" = "נקרא";
+
+"group_copy_report_status_dismissed" = "נדחה";
+
+"group_copy_draws" = "תוצאות תיקו";
+
+"group_copy_draw" = "צייר";
+
+"group_copy_start_score" = "התחלת רישום ניקוד";
+
+"group_copy_pending_upload" = "ממתין להעלאה";
+
+"group_copy_activity_registration_pending_remove" = "ממתין לביטול";
+
+"group_copy_report_status_pending" = "ממתין לטיפול";
+
+"group_copy_lookup_pending_short" = "ממתין לטיפול";
+
+"group_copy_pending_request_limit" = "יותר מדי בקשות ממתינות לאישור. יש להמתין להחלטה או לבטל חלק מהבקשות.";
+
+"group_copy_activity_registration_pending_add" = "ממתין לרישום";
+
+"group_copy_pending_confirmation" = "ממתין לאישור תוצאה";
+
+"group_copy_lookup_closing_short" = "בתהליך פירוק";
+
+"group_copy_restore" = "שחזור הקבוצה";
+
+"group_copy_member" = "חבר";
+
+"group_copy_member_results_title" = "תוצאות החבר";
+
+"group_copy_my_groups" = "הקבוצות שלי";
+
+"group_copy_activity_my_registration" = "ההרשמה שלי";
+
+"group_copy_activity_mode" = "רשומות";
+
+"group_copy_qr_join_short" = "סרוק כדי להצטרף";
+
+"group_copy_qr_apply_short" = "סרוק כדי לבקש הצטרפות";
+
+"group_copy_register" = "הרשמה";
+
+"group_copy_recruiting" = "ההרשמה פתוחה";
+
+"group_copy_registration_closes" = "סגירת ההרשמה";
+
+"group_copy_activity_time_after_previous" = "אחרי המשחק הקודם";
+
+"group_copy_report_submit" = "שליחה";
+
+"group_copy_submitted_by" = "נשלח על ידי";
+
+"group_copy_cancel_dissolve" = "ביטול פירוק הקבוצה";
+
+"group_copy_notice_join_requested" = "התקבלה בקשת הצטרפות";
+
+"group_copy_removed_members_collapse" = "צמצום";
+
+"group_copy_discard_upload" = "ביטול ההעלאה";
+
+"group_copy_notice_activity_created" = "נוצרה פעילות";
+
+"group_copy_activity_time_unspecified" = "השעה תיקבע בהמשך";
+
+"group_copy_activity_registration_empty" = "אין חברים זמניים";
+
+"group_copy_transfer_none" = "אין חברים קבועים נוספים. חברים זמניים אינם יכולים להיות ראש הקבוצה.";
+
+"group_copy_archived_empty" = "אין קבוצות בארכיון";
+
+"group_copy_empty_activities_title" = "אין עדיין פעילויות";
+
+"group_copy_latest_results" = "תוצאות אחרונות";
+
+"group_copy_disputed" = "התוצאה במחלוקת";
+
+"group_copy_activity_registration_not_registered" = "לא רשום";
+
+"group_copy_month_matches" = "משחקים החודש";
+
+"group_copy_open_group" = "פתיחת הקבוצה";
+
+"group_copy_benefit_history" = "צפייה במשחקים ובדירוגים";
+
+"group_copy_overview" = "סקירה";
+
+"group_copy_welcome_back" = "ברוכים השבים";
+
+"group_copy_regular_members" = "חברים רשומים";
+
+"group_copy_rally_scoring" = "ניקוד בכל מהלך";
+
+"group_copy_result_information" = "פרטי המשחק";
+
+"group_copy_match_score" = "תוצאת המשחק";
+
+"group_copy_match_rules" = "כללי המשחק";
+
+"group_copy_activity_registration_no_changes" = "אין שינויים שלא נשמרו";
+
+"group_copy_activities" = "פעילויות";
+
+"group_copy_activity_title" = "שם הפעילות";
+
+"group_copy_activity_field_title_optional" = "שם הפעילות (רשות)";
+
+"group_copy_notice_activity_changed" = "הפעילות עודכנה";
+
+"group_copy_notice_activity_cancelled" = "הפעילות בוטלה";
+
+"group_copy_activity_lineup" = "תכנון משחקים";
+
+"group_copy_activity_create_admin_hint" = "בעל הקבוצה או מנהל יוצרים את הפעילויות";
+
+"group_copy_beta_badge" = "בטא";
+
+"group_copy_add_set" = "הוספת תוצאת משחקון";
+
+"group_copy_add_temporary" = "הוספת חבר זמני";
+
+"group_copy_benefit_score" = "רישום ניקוד או הוספת תוצאות קודמות";
+
+"group_copy_request_join" = "בקשת הצטרפות";
+
+"group_copy_join_message" = "הודעה לבקשת הצטרפות (לא חובה)";
+
+"group_copy_beta_supported_label" = "זמין כעת";
+
+"group_copy_open" = "הצטרפות ישירה";
+
+"group_copy_activity_direct_title" = "תכנון עכשיו";
+
+"group_copy_admin" = "מנהל";
+
+"group_copy_confirmed_matches" = "משחקים מאושרים";
+
+"group_copy_leader" = "בעלים";
+
+"group_copy_notice_ownership_transferred" = "בעל הקבוצה השתנה";
+
+"group_copy_complete_activity" = "סיום הפעילות";
+
+"group_copy_keep_draft" = "המשך עריכת הגרסה המקומית";
+
+"group_copy_ranking_wins" = "ניצחונות";
+
+"group_copy_ranking_rate" = "אחוז ניצחונות";
+
+"group_copy_report_inappropriate" = "תוכן מיני או בלתי הולם";
+
+"group_copy_update_report" = "עדכון דיווח";
+
+"group_copy_manual_result" = "הוספת תוצאת משחק";
+
+"group_copy_set_admin" = "מינוי למנהל";
+
+"group_copy_activity_timing_estimated" = "שעה משוערת";
+
+"group_copy_losses" = "הפסדים";
+
+"group_copy_notice_result_voided" = "התוצאה נפסלה";
+
+"group_copy_notice_result_confirmed" = "התוצאה אושרה";
+
+"group_copy_notice_result_pending" = "התוצאה ממתינה לאישור";
+
+"group_copy_result_actions" = "פעולות בתוצאה";
+
+"group_copy_empty_title" = "אין עדיין קבוצות";
+
+"group_copy_in_progress" = "בתהליך";
+
+"group_copy_report_illegal" = "פעילות לא חוקית או מסוכנת";
+
+"group_copy_join_hint" = "הצטרפו לקבוצה של חבר באמצעות המספר או קוד ה־QR שלה.";
+
+"group_copy_overdue_tasks" = "משימות באיחור";
+
+"group_copy_beta_feedback_prompt" = "יש בעיה או הצעה?";
+
+"group_copy_invite" = "הזמנת חברים לקבוצה";
+
+"group_copy_retry" = "נסה שוב";
+
+"group_copy_approval" = "נדרש אישור";
+
+"group_copy_sport" = "ספורט";
+
+"group_copy_report_harassment" = "הטרדה";
+
+"group_copy_ranking_me_suffix" = " (אני)";
+
+"group_copy_places_title" = "בחר מקום";
+
+"group_copy_report_fraud" = "הונאה או הימורים";
+
+"group_copy_void_reason" = "סיבה לפסילת התוצאה";
+
+"group_copy_reload_version" = "טעינה מחדש";
+
+"group_copy_lineup_reload_message" = "לוותר על השינויים שלא נשמרו בסידור המשחקים ולטעון את לוח המשחקים האחרון שנשמר?";
+
+"group_copy_join_number_separator" = "או הזינו מספר קבוצה";
+
+"group_copy_activity_multi_match_hint" = "פעילות יכולה לכלול כמה משחקים. החברים נרשמים לפעילות; בסידור המשחקים יש לבחור 2 נרשמים לכל משחק יחידים או 4 לכל משחק זוגות.";
+
+"group_copy_activity_single_match_hint" = "כל פעילות היא משחק אחד. יש לבחור 2 חברים רשומים ליחידים או 4 לזוגות.";
+
+"group_copy_activity_detail" = "פרטי הפעילות";
+
+"group_copy_registration_at_start" = "בתחילת הפעילות";
+
+"group_copy_registration_use_start" = "שימוש בשעת תחילת הפעילות";
+
+"group_copy_cancel_reason_optional" = "סיבת הביטול (לא חובה)";
+
+"group_copy_audit_result_frozen_info" = "הצגת שחקנים וכללים";
+"group_view_schedule" = "הצגת משחקים";
+"group_notice_training_published" = "האימון פורסם";
+"group_notice_training_changed" = "האימון עודכן";
+"group_notice_training_cancelled" = "האימון בוטל";
+"group_notice_leave_changed" = "ההיעדרות עודכנה";
+"group_report_evidence_title" = "ראיות בתמונות (רשות)";
+"group_report_evidence_hint" = "עד 3 תמונות מסוג JPG או PNG, בגודל של עד 2 MB לכל תמונה. רק לך ולפלטפורמה יש גישה אליהן.";
+"group_report_add_image" = "הוספת תמונה";
+"group_report_retry" = "נסה שוב";
+"group_report_preview" = "תמונת ראיה";
+"group_report_supplement" = "הוספת מידע";
+"group_report_close" = "סגור";
+"group_report_remove_image" = "הסרת תמונה";
+"group_report_image_error" = "לא ניתן להכין את התמונה. יש לנסות תמונה אחרת מסוג JPG או PNG.";
+"group_report_refresh" = "רענון הסטטוס";

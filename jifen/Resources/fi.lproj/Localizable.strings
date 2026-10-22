@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "Lautapelit";
 "search_team_or_game" = "Etsi joukkuetta tai peliä";
 "match_count" = "%d ottelua";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d ottelua · kaikki ryhmän jäsenet";
+"archived_count" = "%d ryhmää";
 
 /* Home Screen */
 "recent_records" = "Viimeisimmät tallenteet";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "esim. pelaa kaikki viisi erää; ottelu voi päättyä tasapeliin";
 "match_completion_custom_placeholder" = "Syötä 1-99";
 "match_completion_invalid_sets" = "Klassinen vaatii parittoman luvun 1–99; Pelaa kaikki hyväksyy 1–99.";
+"setup_auto_odd_sets" = "Vain parittomat luvut sallitaan — käytetään %d";
 "has_been_reset" = "Nollaus valmis";
 "no_undo_available" = "Ei kumottavia toimintoja";
 "screenshot_failed" = "Kuvakaappaus epäonnistui";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "Aktiivinen synkronointiistunto";
 "timer_status_running" = "Käynnissä";
 "timer_status_paused" = "Keskeytetty";
-"membership_entry_summary_active" = "Olet VIP-jäsen. Kiitos tuestanne";
+"membership_entry_summary_active" = "VIP-jäsenyys voimassa";
 "sound_effects" = "Äänitehosteet";
 "vibration" = "Tärinä";
 "language" = "Kieli";
@@ -1579,7 +1580,7 @@
 "group_approval" = "Hyväksyntä vaaditaan";
 "group_approve" = "Hyväksy";
 "group_archive" = "Arkistoi ryhmä";
-"group_archive_hint" = "Arkistointi säilyttää koko historian ja keskeyttää ryhmän muutokset. Voit palauttaa ryhmän myöhemmin.";
+"group_archive_hint" = "Arkistoidaanko tämä ryhmä? Sen sisältöä voi tämän jälkeen vain lukea.";
 "group_archive_readonly" = "Tämä ryhmä on arkistoitu. Historia on vain luettavissa.";
 "group_archived" = "Arkistoitu";
 "group_benefit_activity" = "Suunnittele tapahtumia ja ilmoittaudu";
@@ -1624,38 +1625,38 @@
 "group_invalid_qr" = "Tämä ei ole kelvollinen ryhmän QR-koodi.";
 "group_invalid_result" = "Tallennettu tulos on tarkistettava ennen lähettämistä.";
 "group_invalid_rules" = "Tarkista ottelun säännöt.";
-"group_invite" = "Invite";
+"group_invite" = "Kutsu joukkuetovereita";
 "group_join" = "Liity ryhmään";
 "group_join_hint" = "Liity ystävän ryhmään sen numerolla tai QR-koodilla.";
-"group_join_message" = "Viesti ryhmälle (valinnainen)";
-"group_join_policy" = "Liittyminen";
+"group_join_message" = "Liittymispyynnön viesti (valinnainen)";
+"group_join_policy" = "Liittymisvaihtoehdot";
 "group_leave" = "Poistu ryhmästä";
-"group_leave_hint" = "Menetät pääsyn tähän ryhmään. Henkilökohtaiset ottelutietosi säilyvät tällä laitteella.";
+"group_leave_hint" = "Kun poistut, et enää ole ryhmän jäsen, ja ryhmä poistetaan ”Omat ryhmät”-luettelosta. Et voi enää käyttää ryhmää tai osallistua sen toimintaan. Ryhmän aiemmat ottelutiedot ja tälle laitteelle tallennetut henkilökohtaiset ottelutietosi säilyvät. Päästäksesi ryhmään uudelleen sinun on liityttävä siihen uudestaan.";
 "group_load_failed" = "Ryhmää ei voitu ladata";
 "group_load_more" = "Lataa lisää";
 "group_losses" = "tappiot";
 "group_manual" = "Manuaalinen syöttö";
-"group_manual_result" = "Lisää aiempi ottelu";
+"group_manual_result" = "Lisää ottelutulos";
 "group_match_detail" = "Ottelun tiedot";
 "group_match_log" = "Otteluhistoria";
 "group_match_rules" = "Ottelun säännöt";
 "group_member" = "Jäsen";
 "group_member_name" = "Jäsenen nimi";
-"group_members" = "Jäsenet";
+"group_members" = "Jäsen";
 "group_month_matches" = "Ottelut tässä kuussa";
 "group_my_groups" = "Omat ryhmät";
 "group_name" = "Ryhmän nimi";
 "group_need_login" = "Kirjaudu sisään jatkaaksesi.";
 "group_need_members" = "Kutsu ystäviä tai lisää tilapäisiä jäseniä ennen ottelun aloittamista.";
-"group_new_activity" = "Suunnittele tapahtuma";
+"group_new_activity" = "Luo tapahtuma";
 "group_new_owner" = "Uusi omistaja";
 "group_no_activities" = "Ei vielä tapahtumia";
 "group_no_description" = "Ei vielä kuvausta";
 "group_no_rankings" = "Sijoitukset näkyvät ottelun vahvistamisen jälkeen.";
 "group_no_set_details" = "Vain kokonaistulos tallennettiin.";
-"group_note" = "Tapahtuman huomautus (valinnainen)";
-"group_number" = "6–8 digit group number";
-"group_open" = "Kuka tahansa numeron tietävä voi liittyä";
+"group_note" = "Muistiinpano (valinnainen)";
+"group_number" = "6–8-numeroinen ryhmänumero";
+"group_open" = "Liity suoraan";
 "group_overall_score" = "Erien yhteistulos";
 "group_overview" = "Yleiskatsaus";
 "group_owner" = "Omistaja";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "Poista jäsen";
 "group_restore" = "Palauta ryhmä";
 "group_restore_hint" = "Palauta tämä ryhmä salliaksesi tapahtumat ja pisteiden laskun.";
-"group_results" = "Ottelut";
+"group_results" = "Historia";
 "group_retry" = "Yritä uudelleen";
 "group_rules_missing" = "Sääntöjä ei tallennettu";
-"group_save" = "Vahvista";
+"group_save" = "Tallenna";
 "group_save_failed" = "Ottelua ei voitu tallentaa. Yritä uudelleen.";
 "group_scan" = "Skannaa QR-koodi";
 "group_scoreboard" = "Tulostaulu";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "Jatka tai päätä nykyinen ottelusi ennen uuden aloittamista.";
 "group_unregister" = "Peru ilmoittautuminen";
 "group_void_reason" = "Mitätöinnin syy";
-"group_void_result" = "Mitätöi tulos";
+"group_void_result" = "Mitätöi";
 "group_voided" = "Mitätöity";
 "group_wins" = "voitot";
 "group_withdraw" = "Peru hakemus";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "Olet jo jäsen.";
 "group_open_group" = "Avaa ryhmä";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
-"group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
+"group_groups" = "Ryhmä";
+"group_invite_students" = "Kutsu oppilaita";
+"group_group_type" = "Ryhmän tyyppi";
+"group_peer" = "Kaveriryhmä";
+"group_coaching" = "Valmennusryhmä";
+"group_training" = "Harjoittelu";
+"group_upcoming" = "Tulossa";
+"group_latest_results" = "Uusimmat tulokset";
+"group_no_results" = "Ei vielä kirjattuja otteluita";
+"group_no_training" = "Ei vielä suunniteltua harjoittelua";
+"group_active_activities" = "Käynnissä · Ilmoittautuminen avoinna";
+"group_past_activities" = "Aiemmat tapahtumat";
+"group_all_formats" = "Kaikki pelimuodot";
+"group_join_requests" = "Liittymispyynnöt";
+"group_regular_members" = "Ilmoittautuneet jäsenet";
+"group_temporary_members" = "Tilapäiset jäsenet";
+"group_add" = "Lisää";
+"group_leader" = "Omistaja";
+"group_member_settings" = "Jäsenen asetukset";
+"group_settings" = "Ryhmän hallinta";
+"group_partial_load" = "Joitakin osioita ei voitu päivittää. Yritä uudelleen vetämällä alaspäin.";
+"group_leave_notices" = "Oppilaiden poissaoloilmoitukset";
+"group_mark_seen" = "Luettu";
+"group_training_schedule" = "Harjoitusohjelma";
+"group_add_session" = "Lisää ottelu";
+"group_edit_schedule" = "Muokkaa otteluohjelmaa";
+"group_cancel_schedule" = "Peruuta otteluohjelma";
+"group_leave_training" = "Ilmoita poissaolosta";
+"group_session_minutes" = "Minuuttia ottelua kohden";
+"group_court" = "Kenttä";
+"group_remove_session" = "Poista";
+"group_publish_schedule" = "Julkaise otteluohjelma";
+"group_leave_reason" = "Poissaolon syy (valinnainen)";
+"group_report" = "Ilmianna ryhmä";
+"group_report_reason" = "Syy";
+"group_report_detail" = "Lisätiedot (valinnainen)";
+"group_report_submit" = "Lähetä";
+"group_report_spam" = "Roskaposti";
+"group_report_harassment" = "Häirintä";
+"group_report_inappropriate" = "Seksuaalinen tai sopimaton sisältö";
+"group_report_fraud" = "Petos tai rahapelit";
+"group_report_illegal" = "Laiton tai vaarallinen toiminta";
+"group_report_impersonation" = "Toisena esiintyminen";
+"group_report_other" = "Muu";
+"group_lineup_invalid" = "Tarkista otteluajat, kentät ja pelaajat.";
+"group_lineup_member_limit" = "Jäsen voi pelata enintään kahdeksan ottelua yhdessä otteluohjelmassa.";
+"group_lineup_conflict" = "Päällekkäisissä otteluissa on oltava eri kentät ja pelaajat.";
+"group_multi_match_hint" = "Toiminta voi sisältää useita otteluita. Jäsenet ilmoittautuvat toimintaan; valitse otteluita järjestettäessä kuhunkin kaksinpeliin 2 tai nelinpeliin 4 ilmoittautunutta jäsentä.";
+"group_single_match_hint" = "Jokainen toiminta vastaa yhtä ottelua. Valitse 2 ilmoittautunutta jäsentä kaksinpeliin tai 4 nelinpeliin.";
+"group_rate_limited" = "Liian monta pyyntöä. Yritä myöhemmin uudelleen.";
+"group_create_daily_limit" = "Olet saavuttanut ryhmien luomisen 24 tunnin rajan. Yritä myöhemmin uudelleen.";
+"group_join_daily_limit" = "Olet saavuttanut ryhmiin liittymisen 24 tunnin rajan. Yritä myöhemmin uudelleen.";
+"group_pending_request_limit" = "Liian monta liittymispyyntöä odottaa hyväksyntää. Odota päätöksiä tai peruuta osa pyynnöistä.";
+"group_request_daily_limit" = "Ryhmä on saavuttanut liittymispyyntöjen 24 tunnin rajan. Yritä myöhemmin uudelleen.";
+"group_join_cooldown" = "Hylkäyksen jälkeen voit hakea uudelleen vasta 24 tunnin kuluttua.";
+"group_result_group_daily_limit" = "Ryhmä on saavuttanut tulosten 24 tunnin rajan. Yritä myöhemmin uudelleen.";
+"group_result_submitter_daily_limit" = "Olet saavuttanut tulosten lähettämisen 24 tunnin rajan. Yritä myöhemmin uudelleen.";
+"group_not_coach" = "Vain valmentaja voi suunnitella harjoituskertoja.";
+"group_activity_count" = "%1$d/%2$d ilmoittautunut";
+"group_activity_create_admin_hint" = "Ryhmän omistaja tai ylläpitäjä luo tapahtumat";
+"group_activity_direct_hint" = "Valitse suoraan kaikista aktiivisista ryhmän jäsenistä; ilmoittautumista ei tarvita.";
+"group_activity_direct_save" = "Tallenna otteluohjelma";
+"group_activity_direct_title" = "Järjestä nyt";
+"group_activity_field_title_optional" = "Tapahtuman nimi (valinnainen)";
+"group_activity_full" = "Täynnä";
+"group_activity_lineup_add" = "Lisää ottelu";
+"group_activity_lineup_add_need_members" = "Liian vähän pelaajia. Ottelun lisäämiseen tarvitaan vähintään %1$d aktiivista ryhmän jäsentä.";
+"group_activity_lineup_court" = "Kentän numero";
+"group_activity_lineup_duration" = "Ottelun kesto";
+"group_activity_lineup_match_count" = "%1$d ottelua";
 "group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_activity_lineup_remove" = "Poista";
+"group_activity_lineup_section_matches" = "Järjestä ottelut";
+"group_activity_lineup_session" = "Ottelu %1$d";
+"group_activity_registration_empty" = "Ei tilapäisiä jäseniä";
+"group_activity_section_count" = "%1$d tapahtumaa";
+"group_activity_section_past" = "Aiemmat tapahtumat";
+"group_activity_section_upcoming" = "Käynnissä · Ilmoittautuminen avoinna";
+"group_activity_status_scheduled" = "Valmis alkamaan";
+"group_activity_time_after_previous" = "Edellisen ottelun jälkeen";
+"group_activity_time_unspecified" = "Aika päätetään myöhemmin";
+"group_activity_timing" = "Ajoitus";
+"group_activity_timing_estimated" = "Arvioitu aika";
+"group_activity_timing_sequence" = "Ei tarkkaa aikaa";
+"group_activity_title_auto_hint" = "Jos kenttä jätetään tyhjäksi, nimi muodostetaan päivämäärästä, esimerkiksi ”Tapahtuma 10. marraskuuta”.";
+"group_archived_empty" = "Ei arkistoituja ryhmiä";
+"group_archived_list_title" = "Arkistoidut ryhmät";
+"group_empty_activities_title" = "Ei vielä tapahtumia";
+"group_list_add_title" = "Luo ryhmä tai liity ryhmään";
+"group_ranking_draws" = "tasapelit";
+"group_ranking_games" = "Pelatut ottelut";
+"group_ranking_losses" = "tappiot";
+"group_ranking_sets" = "Pisteet";
+"group_ranking_title" = "%@ – sijoitukset";
+"group_ranking_wins" = "voitot";
+"group_training_results_locked" = "Tuloksia sisältävien ohjelmien ajat ja pelaajat säilyvät. Paikkaa ja muistiinpanoa voi muokata.";
+"group_temporary_hint" = "Tilapäiset jäsenet eivät tarvitse tiliä, ja heidät voi lisätä tuloksia syötettäessä.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "Vapauta ottelu";
-"group_activity_lineup" = "Otteluaikataulu";
-"group_activity_mode" = "Ottelut";
+"group_abandon_game" = "Luovu ottelusta";
+"group_activity_lineup" = "Järjestä ottelut";
+"group_activity_mode" = "Historia";
 "group_activity_reminder" = "Muistuta 15 minuuttia ennen";
 "group_add_set" = "Lisää pelin tulos";
 "group_added_members" = "Lisätty";
-"group_authority_confirm" = "Vahvista ryhmän omistajana";
-"group_batch_names_hint" = "Yksi nimi riville, jokaisessa 1–24 merkkiä.";
-"group_beta_notice" = "Ryhmät ovat beetaversiossa. Palaute on tervetullutta.";
+"group_authority_confirm" = "Vahvista tulos";
+"group_batch_names_hint" = "Yksi nimi riville";
+"group_beta_notice" = "Ryhmät ovat beetavaiheessa. Jotkin toiminnot voivat muuttua. Kiitos varhaisesta kokeilusta.";
 "group_cancel_dissolve" = "Peru ryhmän purkaminen";
 "group_cancel_dissolve_hint" = "Palauta tämä ryhmä salliaksesi tapahtumat ja pisteiden laskun.";
 "group_cancel_training_hint" = "Päättyneet ottelut säilyvät historiassa. Aloitetut voi pelata loppuun.";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "Urheiluoletus";
 "group_discard_upload" = "Hylkää lähetys";
 "group_dissolve" = "Pura ryhmä";
-"group_dissolve_hint" = "Vain luku 7 päivän ajan. Voit perua purkamisen tänä aikana.";
+"group_dissolve_hint" = "Ryhmä on vain luettavissa 7 päivää. Purkamisen voi perua tänä aikana. Seitsemän päivän jälkeen ryhmä ja kaikki sen tiedot poistetaan pysyvästi.";
 "group_dissolving" = "Purkaminen käynnissä";
 "group_edit_activity" = "Muokkaa";
 "group_edit_lineup" = "Järjestä ottelut";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "Ei vielä ilmoituksia";
 "group_no_sessions" = "Ei vielä aikataulutettuja otteluita";
 "group_notices" = "Ilmoitukset";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "Joitakin osioita ei voitu päivittää. Yritä uudelleen vetämällä alaspäin.";
 "group_point_cap" = "Pisteiden yläraja";
 "group_preview_schedule" = "Tarkista aikataulu";
 "group_published" = "Julkaistu";
 "group_qr_direct_hint" = "Skannaa iScoreboardissa esikatsellaksesi ryhmää ja liittyäksesi siihen.";
 "group_quick_score" = "Erien yhteistulos";
 "group_rally_scoring" = "Piste jokaisesta pallosta";
-"group_read_notices" = "Read";
+"group_read_notices" = "Luettu";
 "group_registration_closes" = "Ilmoittautuminen päättyy";
 "group_regular" = "Vakio";
-"group_reload_version" = "Lataa uusin versio";
+"group_reload_version" = "Lataa uudelleen";
 "group_reminder_body" = "Tapahtuma alkaa 15 minuutin kuluttua.";
 "group_reminder_permission" = "Ota sovelluksen ilmoitukset käyttöön Asetuksissa.";
 "group_reminder_too_late" = "Alkuun on alle 15 minuuttia.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "Erän pisteytys";
 "group_tie_break" = "Tie-break-pisteet";
 "group_tiebreak_only" = "Vain katkaisupeli";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "Päivämäärä";
+"group_too_many_sessions" = "Tarkista otteluajat, kentät ja pelaajat.";
+"group_training_date" = "Harjoituspäivä";
 "group_win_by_two" = "Voitto kahden pisteen erolla";
 
-"group_keep_draft" = "Säilytä muutokseni";
+"group_keep_draft" = "Jatka paikallisen version muokkaamista";
 
 "group_server_version" = "Uusin versio";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "Ryhmä lakkautetaan %@\n7 päivän harkinta-aika; siihen asti vain lukuoikeus";
 "group_notice_end" = "Ei enempää ilmoituksia";
 "group_notice_join_requested" = "Liittymispyyntö vastaanotettu";
 "group_notice_join_approved" = "Liittymispyyntö hyväksytty";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "Manuaalinen syöttö";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "Merkitse kaikki luetuiksi";
+
+"group_status_active" = "Aktiivinen";
+"group_dissolved" = "Hajotettu";
+"group_report_status_pending" = "Odottaa käsittelyä";
+"group_report_status_reviewing" = "Tarkistettavana";
+"group_report_status_resolved" = "Käsitelty";
+"group_report_status_dismissed" = "Hylätty";
+"group_error_permission" = "Sinulla ei ole oikeutta tähän toimintoon.";
+"group_error_transfer_first" = "Siirrä ryhmän omistajuus ennen poistumista tai tilin poistamista.";
+"group_error_target" = "Valitse ryhmän aktiivinen jäsen, jolla on tili.";
+"group_error_activity_locked" = "Tapahtuma on alkanut tai päättynyt. Sen ohjelmaa ei voi muuttaa tai peruuttaa.";
+"group_error_activity_pending" = "Päätä tai poista jäljellä olevat ottelut ensin.";
+"group_error_registration_disabled" = "Suoraan järjestetyt ottelut eivät vaadi ilmoittautumista.";
+"group_error_content_blocked" = "Tekstissä on sopimatonta sisältöä. Muokkaa sitä.";
+"group_error_request_invalid" = "Tarkista annetut tiedot ja yritä uudelleen.";
+"group_error_reason_required" = "Anna syy ennen jatkamista.";
+"group_error_result_state" = "Vain vahvistusta odottavat tulokset voi vahvistaa.";
+"group_error_conflict" = "Tiedot ovat muuttuneet. Päivitä ja tarkista ne ennen uutta yritystä.";
+"group_error_request_handled" = "Liittymispyyntö on jo käsitelty. Päivitä luettelo.";
+"group_error_place_locked" = "Pelipaikkaa ei voi muuttaa ottelun alettua tai päätyttyä.";
+"group_error_schedule_cancelled" = "Tämä ohjelma tai ottelu on peruutettu.";
+"group_error_session_completed" = "Tämä ottelu on jo päättynyt, eikä poissaoloa voi enää pyytää. Päivitä otteluohjelma nähdäksesi tuloksen.";
+"group_error_session_has_result" = "Ottelulla on jo tulos. Mitätöi se ennen uuden lisäämistä.";
+"group_error_item_not_found" = "Tapahtuma, ohjelma, ottelu tai ilmoitus ei ole enää saatavilla. Päivitä luettelo.";
+"group_error_server" = "Ryhmäpalvelu ei ole tilapäisesti käytettävissä. Yritä myöhemmin uudelleen.";
+"group_error_peer_only" = "Käytä valmennusryhmälle harjoitusohjelmaa.";
+"group_error_name_length" = "Ryhmän nimessä on oltava 2–24 merkkiä.";
+"group_error_description_length" = "Ryhmän kuvauksessa saa olla enintään 200 merkkiä.";
+"group_error_activity_invalid" = "Tarkista tapahtuman nimi, päivä, paikka ja osallistujaraja.";
+"group_error_registration_closed" = "Ilmoittautuminen on päättynyt.";
+"group_error_action_disabled" = "Toiminto ei ole nyt käytettävissä.";
+"group_error_update_required" = "Jatka päivittämällä sovellus.";
+"group_welcome_back" = "Tervetuloa takaisin";
+"group_transfer_none" = "Muita varsinaisia jäseniä ei ole. Väliaikaiset jäsenet eivät voi ryhtyä ryhmän johtajaksi.";
+"group_empty_activities_hint" = "Luo aktiviteetti, johon jäsenet voivat ilmoittautua. Ilmoittautuminen sulkeutuu paikkojen täyttyessä.";
+"group_temp_import_names" = "Tuo tallennetut nimet";
+"group_temp_import_count" = "Tuo (%1$d)";
+"group_result_information" = "Ottelun tiedot";
+"group_result_actions" = "Tuloksen toiminnot";
+"group_peer_confirmation" = "Vastustajan vahvistus";
+"group_notice_target_unavailable" = "Tämä sisältö ei ole saatavilla tai sinulla ei enää ole siihen pääsyä.";
+"group_push_enabled" = "Ryhmän ilmoitukset";
+"group_push_group_enabled" = "Vastaanota tämän ryhmän ilmoituksia";
+"group_push_inbox_kept" = "Näiden poistaminen käytöstä säilyttää sovelluksen sisäiset ilmoitukset ja nykyiset toimintamuistutukset.";
+"group_push_permission" = "Ota järjestelmäilmoitukset käyttöön";
+"group_push_settings" = "Ilmoitusasetukset";
+
+// Shared group form controls
+"group_inline_seat_hint" = "Valitse paikka ja sitten jäsen";
+"group_score_and_rules" = "Tulos ja säännöt";
+"group_activity_registration_scope" = "Ilmoita tilapäiset jäsenet tässä. Tilin omaavat jäsenet ilmoittautuvat itse.";
+"group_activity_registration_no_changes" = "Ei tallentamattomia muutoksia";
+"group_activity_registration_changes" = "Lisää %1$d · Peru %2$d";
+"group_activity_registration_save" = "Tallenna ilmoittautumiset (%1$d)";
+"group_activity_registration_manage" = "Tilapäisten jäsenten ilmoittautuminen";
+"group_activity_registration_pending_add" = "Ilmoitettavana";
+"group_activity_registration_pending_remove" = "Peruttavana";
+"group_activity_registration_registered" = "Ilmoittautunut";
+"group_activity_registration_not_registered" = "Ei ilmoittautunut";
+"group_activity_detail" = "Aktiviteetin tiedot";
+"group_activity_my_registration" = "Oma ilmoittautuminen";
+"group_match_score" = "Ottelutulos";
+
+"group_lookup_available" = "Avoin";
+
+/* Group beta notice card. */
+"group_beta_badge" = "Beeta";
+"group_beta_supported_label" = "Saatavilla nyt";
+"group_beta_feedback_prompt" = "Ongelmia tai ehdotuksia?";
+"group_beta_feedback_action" = "Lähetä palautetta";
+
+"group_member_results_title" = "Jäsenen tulokset";
+
+"group_removed_members_expand" = "Laajenna";
+"group_removed_members_collapse" = "Supista";
+"group_best_of_format" = "Paras %1$@:stä (%2$@ voittoa tarvitaan)";
+"group_member_count_single" = "%d jäsen";
+"group_member_count_short" = "%d jäsentä";
+"group_lookup_closed_short" = "Suljettu";
+"group_lookup_closing_short" = "Puretaan";
+"group_lookup_member_short" = "Liitytty";
+"group_lookup_unavailable_short" = "Ei saatavilla";
+"group_join_scan_hint" = "Skannaa ryhmän QR-koodi";
+"group_join_number_hint" = "6–8 numeroa. Pyydä ryhmän omistajalta.";
+"group_request_join" = "Pyydä liittymistä";
+"group_overdue_tasks" = "Myöhässä olevat tehtävät";
+"group_apply_shift" = "Ota muutokset käyttöön";
+"group_transfer_submit" = "Siirrä";
+"group_rename_member" = "Nimeä uudelleen";
+"group_set_admin" = "Nimitä ylläpitäjäksi";
+"group_set_member" = "Poista ylläpitäjän rooli";
+"group_confirm_authority_message" = "Kaikki pelaajat ovat tilapäisiä jäseniä tai vastapuolella ei ole tilillistä pelaajaa, joka voisi vahvistaa. Omistajan on tarkistettava pelaajat ja pisteet. Vahvistus lisää tuloksen ottelutietoihin ja merkitsee omistajan vahvistajaksi.";
+"group_confirm_result_message" = "Vahvistettu tulos lasketaan molempien osapuolten ottelutietoihin, eikä sitä voi muokata. Korjaus edellyttää tuloksen mitätöimistä.";
+"group_confirm_member_message" = "Vahvista pelaajat ja pisteet, jotta tulos lisätään ottelutietoihin. Pyydä ylläpitäjää mitätöimään alkuperäinen tulos, jos se vaatii korjausta.";
+"group_cancel_activity_message" = "Peruminen poistaa ilmoittautumislistan pysyvästi. Käynnissä olevia tapahtumia ei voi perua.";
+"group_abandon_game_message" = "Luovu tästä ottelusta aloittaaksesi uuden. Tallennetut henkilökohtaiset tiedot säilyvät.";
+"group_void_pending_message" = "Tulos ei enää odota vahvistusta eikä sitä lasketa ottelutilastoihin. Alkuperäiset pisteet ja syy näkyvät edelleen ryhmän jäsenille. Pelaajille ja lähettäjälle ilmoitetaan.";
+"group_void_confirmed_message" = "Tulosta ei enää lasketa ottelutilastoihin. Molempien osapuolten tilastot ja sijoitukset lasketaan uudelleen. Alkuperäiset pisteet ja syy näkyvät edelleen ryhmän jäsenille. Pelaajille ja lähettäjälle ilmoitetaan.";
+"group_remove_member_message" = "Poistetaanko %@? Hänen on pyydettävä liittymistä uudelleen.";
+"group_reload_version_message" = "Hylätäänkö otteluohjelman tallentamattomat muutokset ja ladataanko viimeksi tallennettu ohjelma?";
+"group_transfer_confirmation" = "Siirretäänkö omistajuus käyttäjälle %@? Sinusta tulee tavallinen jäsen.";
+"group_approve_confirmation" = "%@ liittyy ryhmän jäseneksi ja voi nähdä tapahtumat ja tulokset.";
+"group_reject_confirmation" = "Hylkäyksen jälkeen käyttäjän %@ on lähetettävä uusi pyyntö.";
+"group_lookup_full_short" = "Täynnä";
+"group_lookup_archived_short" = "Arkistoitu";
+"group_lookup_pending_short" = "Odottaa käsittelyä";
+"group_temporary_member_count" = "%d jäsentä";
+"group_best_of_tennis_format" = "Paras %1$@:stä (%2$@ voittoa tarvitaan)";
+"group_rename_member_title" = "Nimeä uudelleen";
+
+"group_copy_transfer_title" = "Siirrä omistajuus";
+
+"group_copy_transfer_submit" = "Siirrä";
+
+"group_copy_transfer_message" = "Siirretäänkö omistajuus käyttäjälle %@? Sinusta tulee tavallinen jäsen.";
+
+"group_copy_transfer_hint" = "Siirron jälkeen sinusta tulee tavallinen jäsen.";
+
+"group_copy_rename_title" = "Nimeä uudelleen";
+
+"group_copy_rename_action" = "Nimeä uudelleen";
+
+"group_copy_result_confirm" = "Vahvista tulos";
+
+"group_copy_result_confirm_authority_message" = "Kaikki pelaajat ovat tilapäisiä jäseniä tai vastapuolella ei ole tilillistä pelaajaa, joka voisi vahvistaa. Omistajan on tarkistettava pelaajat ja pisteet. Vahvistus lisää tuloksen ottelutietoihin ja merkitsee omistajan vahvistajaksi.";
+
+"group_copy_result_confirm_manager_message" = "Vahvistettu tulos lasketaan molempien osapuolten ottelutietoihin, eikä sitä voi muokata. Korjaus edellyttää tuloksen mitätöimistä.";
+
+"group_copy_result_confirm_member_message" = "Vahvista pelaajat ja pisteet, jotta tulos lisätään ottelutietoihin. Pyydä ylläpitäjää mitätöimään alkuperäinen tulos, jos se vaatii korjausta.";
+
+"group_copy_void_action" = "Mitätöi";
+
+"group_copy_void_pending_message" = "Tulos ei enää odota vahvistusta eikä sitä lasketa ottelutilastoihin. Alkuperäiset pisteet ja syy näkyvät edelleen ryhmän jäsenille. Pelaajille ja lähettäjälle ilmoitetaan.";
+
+"group_copy_void_confirmed_message" = "Tulosta ei enää lasketa ottelutilastoihin. Molempien osapuolten tilastot ja sijoitukset lasketaan uudelleen. Alkuperäiset pisteet ja syy näkyvät edelleen ryhmän jäsenille. Pelaajille ja lähettäjälle ilmoitetaan.";
+
+"group_copy_cancel_activity" = "Peru tapahtuma";
+
+"group_copy_cancel_activity_message" = "Peruminen poistaa ilmoittautumislistan pysyvästi. Käynnissä olevia tapahtumia ei voi perua.";
+
+"group_copy_abandon_action" = "Luovu ottelusta";
+
+"group_copy_abandon_message" = "Luovu tästä ottelusta aloittaaksesi uuden. Tallennetut henkilökohtaiset tiedot säilyvät.";
+
+"group_copy_leave_action" = "Poistu ryhmästä";
+
+"group_copy_leave_message" = "Kun poistut, et enää ole ryhmän jäsen, ja ryhmä poistetaan ”Omat ryhmät”-luettelosta. Et voi enää käyttää ryhmää tai osallistua sen toimintaan. Ryhmän aiemmat ottelutiedot ja tälle laitteelle tallennetut henkilökohtaiset ottelutietosi säilyvät. Päästäksesi ryhmään uudelleen sinun on liityttävä siihen uudestaan.";
+
+"group_copy_archive_action" = "Arkistoi ryhmä";
+
+"group_copy_archive_message" = "Arkistoidaanko tämä ryhmä? Sen sisältöä voi tämän jälkeen vain lukea.";
+
+"group_copy_dissolve_action" = "Pura ryhmä";
+
+"group_copy_dissolve_message" = "Ryhmä on vain luettavissa 7 päivää. Purkamisen voi perua tänä aikana. Seitsemän päivän jälkeen ryhmä ja kaikki sen tiedot poistetaan pysyvästi.";
+
+"group_copy_approve_action" = "Hyväksy";
+
+"group_copy_approve_message" = "%@ liittyy ryhmän jäseneksi ja voi nähdä tapahtumat ja tulokset.";
+
+"group_copy_reject_action" = "Hylkää";
+
+"group_copy_reject_message" = "Hylkäyksen jälkeen käyttäjän %@ on lähetettävä uusi pyyntö.";
+
+"group_copy_remove_action" = "Poista jäsen";
+
+"group_copy_remove_message" = "Poistetaanko %@? Hänen on pyydettävä liittymistä uudelleen.";
+
+"group_copy_report_detail" = "Lisätiedot (valinnainen)";
+
+"group_copy_edit_profile" = "Muokkaa ryhmän profiilia";
+
+"group_copy_entry_a_wins" = "A voittaa";
+
+"group_copy_entry_b_wins" = "B voittaa";
+
+"group_copy_activity_timing_sequence" = "Ei tarkkaa aikaa";
+
+"group_copy_activity_registration_manage" = "Tilapäisten jäsenten ilmoittautuminen";
+
+"group_copy_temporary_hint" = "Tilapäiset jäsenet eivät tarvitse tiliä, ja heidät voi lisätä tuloksia syötettäessä.";
+
+"group_copy_activity_registration_scope" = "Ilmoita tilapäiset jäsenet tässä. Tilin omaavat jäsenet ilmoittautuvat itse.";
+
+"group_copy_report" = "Ilmianna ryhmä";
+
+"group_copy_notice_member_removed" = "Sinut on poistettu ryhmästä";
+
+"group_copy_notice_role_changed" = "Roolisi on muuttunut";
+
+"group_copy_activity_direct_save" = "Tallenna otteluohjelma";
+
+"group_copy_notice_join_approved" = "Liittymispyyntö hyväksytty";
+
+"group_copy_notice_join_rejected" = "Liittymispyyntö hylätty";
+
+"group_copy_all_formats" = "Kaikki pelimuodot";
+
+"group_copy_closed" = "Liittyminen suljettu";
+
+"group_copy_report_other" = "Muu";
+
+"group_copy_report_impersonation" = "Toisena esiintyminen";
+
+"group_copy_audit_ui_share_failed" = "Jakaminen epäonnistui. Yritä uudelleen.";
+
+"group_copy_audit_ui_share_number" = "Jaa ryhmän numero";
+
+"group_copy_create" = "Luo ryhmä";
+
+"group_copy_confirm_join" = "Liity tähän ryhmään";
+
+"group_copy_join" = "Liity ryhmään";
+
+"group_copy_join_policy" = "Liittymisvaihtoehdot";
+
+"group_copy_filter_singles" = "Kaksinpeli";
+
+"group_copy_upcoming" = "Tulossa";
+
+"group_copy_activity_section_past" = "Aiemmat tapahtumat";
+
+"group_copy_beta_feedback_action" = "Lähetä palautetta";
+
+"group_copy_doubles" = "Nelinpeli";
+
+"group_copy_create_activity" = "Luo tapahtuma";
+
+"group_copy_benefit_activity" = "Suunnittele tapahtumia ja ilmoittaudu";
+
+"group_copy_empty_activities_hint" = "Luo aktiviteetti, johon jäsenet voivat ilmoittautua. Ilmoittautuminen sulkeutuu paikkojen täyttyessä.";
+
+"group_copy_lookup_available" = "Avoin";
+
+"group_copy_activity_direct_hint" = "Valitse suoraan kaikista aktiivisista ryhmän jäsenistä; ilmoittautumista ei tarvita.";
+
+"group_copy_empty_intro" = "Kokoa ystäväsi suunnittelemaan otteluita, pitämään pisteitä ja luomaan yhteistä otteluhistoriaa.";
+
+"group_copy_place" = "Sijainti";
+
+"group_copy_ranking_games" = "Pelatut ottelut";
+
+"group_copy_ranking_insufficient_matches" = "Liian vähän pelejä";
+
+"group_copy_report_spam" = "Roskaposti";
+
+"group_copy_report_status_reviewing" = "Tarkistettavana";
+
+"group_copy_note" = "Muistiinpano (valinnainen)";
+
+"group_copy_peer_confirmation" = "Vastustajan vahvistus";
+
+"group_copy_activity_lineup_section_matches" = "Järjestä ottelut";
+
+"group_copy_group" = "Ryhmä";
+
+"group_copy_group_qr" = "Ryhmän QR-koodi";
+
+"group_copy_beta_notice" = "Ryhmät ovat beetavaiheessa. Jotkin toiminnot voivat muuttua. Kiitos varhaisesta kokeilusta.";
+
+"group_copy_created" = "Ryhmä luotu";
+
+"group_copy_ranking_sets" = "Pisteet";
+
+"group_copy_removed_members_expand" = "Laajenna";
+
+"group_copy_voided" = "Mitätöity";
+
+"group_copy_cancelled" = "Peruutettu";
+
+"group_copy_report_status_resolved" = "Käsitelty";
+
+"group_copy_completed" = "Valmis";
+
+"group_copy_archived" = "Arkistoitu";
+
+"group_copy_archived_list_title" = "Arkistoidut ryhmät";
+
+"group_copy_activity_registration_registered" = "Ilmoittautunut";
+
+"group_copy_activity_full" = "Täynnä";
+
+"group_copy_confirmed" = "Vahvistettu";
+
+"group_copy_removed_members" = "Entiset jäsenet";
+
+"group_copy_mark_seen" = "Luettu";
+
+"group_copy_report_status_dismissed" = "Hylätty";
+
+"group_copy_draws" = "tasapelit";
+
+"group_copy_draw" = "Tasapeli";
+
+"group_copy_start_score" = "Aloita pisteiden lasku";
+
+"group_copy_pending_upload" = "Odottaa lähettämistä";
+
+"group_copy_activity_registration_pending_remove" = "Peruttavana";
+
+"group_copy_report_status_pending" = "Odottaa käsittelyä";
+
+"group_copy_lookup_pending_short" = "Odottaa käsittelyä";
+
+"group_copy_pending_request_limit" = "Liian monta liittymispyyntöä odottaa hyväksyntää. Odota päätöksiä tai peruuta osa pyynnöistä.";
+
+"group_copy_activity_registration_pending_add" = "Ilmoitettavana";
+
+"group_copy_pending_confirmation" = "Odottaa vahvistusta";
+
+"group_copy_lookup_closing_short" = "Puretaan";
+
+"group_copy_restore" = "Palauta ryhmä";
+
+"group_copy_member" = "Jäsen";
+
+"group_copy_member_results_title" = "Jäsenen tulokset";
+
+"group_copy_my_groups" = "Omat ryhmät";
+
+"group_copy_activity_my_registration" = "Oma ilmoittautuminen";
+
+"group_copy_activity_mode" = "Historia";
+
+"group_copy_qr_join_short" = "Skannaa liittyäksesi";
+
+"group_copy_qr_apply_short" = "Skannaa lähettääksesi liittymispyynnön";
+
+"group_copy_register" = "Ilmoittaudu";
+
+"group_copy_recruiting" = "Ilmoittautuminen avoinna";
+
+"group_copy_registration_closes" = "Ilmoittautuminen päättyy";
+
+"group_copy_activity_time_after_previous" = "Edellisen ottelun jälkeen";
+
+"group_copy_report_submit" = "Lähetä";
+
+"group_copy_submitted_by" = "Lähettäjä";
+
+"group_copy_cancel_dissolve" = "Peru ryhmän purkaminen";
+
+"group_copy_notice_join_requested" = "Liittymispyyntö vastaanotettu";
+
+"group_copy_removed_members_collapse" = "Supista";
+
+"group_copy_discard_upload" = "Hylkää lähetys";
+
+"group_copy_notice_activity_created" = "Tapahtuma luotu";
+
+"group_copy_activity_time_unspecified" = "Aika päätetään myöhemmin";
+
+"group_copy_activity_registration_empty" = "Ei tilapäisiä jäseniä";
+
+"group_copy_transfer_none" = "Muita varsinaisia jäseniä ei ole. Väliaikaiset jäsenet eivät voi ryhtyä ryhmän johtajaksi.";
+
+"group_copy_archived_empty" = "Ei arkistoituja ryhmiä";
+
+"group_copy_empty_activities_title" = "Ei vielä tapahtumia";
+
+"group_copy_latest_results" = "Uusimmat tulokset";
+
+"group_copy_disputed" = "Kiistetty";
+
+"group_copy_activity_registration_not_registered" = "Ei ilmoittautunut";
+
+"group_copy_month_matches" = "Ottelut tässä kuussa";
+
+"group_copy_open_group" = "Avaa ryhmä";
+
+"group_copy_benefit_history" = "Katso ottelut ja sijoitukset";
+
+"group_copy_overview" = "Yleiskatsaus";
+
+"group_copy_welcome_back" = "Tervetuloa takaisin";
+
+"group_copy_regular_members" = "Ilmoittautuneet jäsenet";
+
+"group_copy_rally_scoring" = "Piste jokaisesta pallosta";
+
+"group_copy_result_information" = "Ottelun tiedot";
+
+"group_copy_match_score" = "Ottelutulos";
+
+"group_copy_match_rules" = "Ottelun säännöt";
+
+"group_copy_activity_registration_no_changes" = "Ei tallentamattomia muutoksia";
+
+"group_copy_activities" = "Tapahtumat";
+
+"group_copy_activity_title" = "Tapahtuman nimi";
+
+"group_copy_activity_field_title_optional" = "Tapahtuman nimi (valinnainen)";
+
+"group_copy_notice_activity_changed" = "Tapahtuma päivitetty";
+
+"group_copy_notice_activity_cancelled" = "Tapahtuma peruttu";
+
+"group_copy_activity_lineup" = "Järjestä ottelut";
+
+"group_copy_activity_create_admin_hint" = "Ryhmän omistaja tai ylläpitäjä luo tapahtumat";
+
+"group_copy_beta_badge" = "Beeta";
+
+"group_copy_add_set" = "Lisää pelin tulos";
+
+"group_copy_add_temporary" = "Lisää tilapäinen jäsen";
+
+"group_copy_benefit_score" = "Pidä pisteitä tai lisää aiempia tuloksia";
+
+"group_copy_request_join" = "Pyydä liittymistä";
+
+"group_copy_join_message" = "Liittymispyynnön viesti (valinnainen)";
+
+"group_copy_beta_supported_label" = "Saatavilla nyt";
+
+"group_copy_open" = "Liity suoraan";
+
+"group_copy_activity_direct_title" = "Järjestä nyt";
+
+"group_copy_admin" = "Ylläpitäjä";
+
+"group_copy_confirmed_matches" = "Vahvistetut ottelut";
+
+"group_copy_leader" = "Omistaja";
+
+"group_copy_notice_ownership_transferred" = "Ryhmän omistaja on vaihtunut";
+
+"group_copy_complete_activity" = "Päätä tapahtuma";
+
+"group_copy_keep_draft" = "Jatka paikallisen version muokkaamista";
+
+"group_copy_ranking_wins" = "voitot";
+
+"group_copy_ranking_rate" = "Voittoprosentti";
+
+"group_copy_report_inappropriate" = "Seksuaalinen tai sopimaton sisältö";
+
+"group_copy_update_report" = "Päivitä ilmoitus";
+
+"group_copy_manual_result" = "Lisää ottelutulos";
+
+"group_copy_set_admin" = "Nimitä ylläpitäjäksi";
+
+"group_copy_activity_timing_estimated" = "Arvioitu aika";
+
+"group_copy_losses" = "tappiot";
+
+"group_copy_notice_result_voided" = "Tulos mitätöity";
+
+"group_copy_notice_result_confirmed" = "Tulos vahvistettu";
+
+"group_copy_notice_result_pending" = "Tulos odottaa vahvistusta";
+
+"group_copy_result_actions" = "Tuloksen toiminnot";
+
+"group_copy_empty_title" = "Ei vielä ryhmiä";
+
+"group_copy_in_progress" = "Käynnissä";
+
+"group_copy_report_illegal" = "Laiton tai vaarallinen toiminta";
+
+"group_copy_join_hint" = "Liity ystävän ryhmään sen numerolla tai QR-koodilla.";
+
+"group_copy_overdue_tasks" = "Myöhässä olevat tehtävät";
+
+"group_copy_beta_feedback_prompt" = "Ongelmia tai ehdotuksia?";
+
+"group_copy_invite" = "Kutsu joukkuetovereita";
+
+"group_copy_retry" = "Yritä uudelleen";
+
+"group_copy_approval" = "Hyväksyntä vaaditaan";
+
+"group_copy_sport" = "Urheilu";
+
+"group_copy_report_harassment" = "Häirintä";
+
+"group_copy_ranking_me_suffix" = " (minä)";
+
+"group_copy_places_title" = "Valitse paikka";
+
+"group_copy_report_fraud" = "Petos tai rahapelit";
+
+"group_copy_void_reason" = "Mitätöinnin syy";
+
+"group_copy_reload_version" = "Lataa uudelleen";
+
+"group_copy_lineup_reload_message" = "Hylätäänkö otteluohjelman tallentamattomat muutokset ja ladataanko viimeksi tallennettu ohjelma?";
+
+"group_copy_join_number_separator" = "Tai anna ryhmän numero";
+
+"group_copy_activity_multi_match_hint" = "Toiminta voi sisältää useita otteluita. Jäsenet ilmoittautuvat toimintaan; valitse otteluita järjestettäessä kuhunkin kaksinpeliin 2 tai nelinpeliin 4 ilmoittautunutta jäsentä.";
+
+"group_copy_activity_single_match_hint" = "Jokainen toiminta vastaa yhtä ottelua. Valitse 2 ilmoittautunutta jäsentä kaksinpeliin tai 4 nelinpeliin.";
+
+"group_copy_activity_detail" = "Aktiviteetin tiedot";
+
+"group_copy_registration_at_start" = "Aktiviteetin alkaessa";
+
+"group_copy_registration_use_start" = "Käytä aktiviteetin alkamisaikaa";
+
+"group_copy_cancel_reason_optional" = "Peruutuksen syy (valinnainen)";
+
+"group_copy_audit_result_frozen_info" = "Näytä pelaajat ja säännöt";
+"group_view_schedule" = "Näytä ottelut";
+"group_notice_training_published" = "Harjoitus julkaistu";
+"group_notice_training_changed" = "Harjoitus päivitetty";
+"group_notice_training_cancelled" = "Harjoitus peruttu";
+"group_notice_leave_changed" = "Poissaolo päivitetty";
+"group_report_evidence_title" = "Kuvatodisteet (valinnainen)";
+"group_report_evidence_hint" = "Enintään 3 JPG- tai PNG-kuvaa, enintään 2 MB kukin. Vain sinä ja alusta voitte nähdä ne.";
+"group_report_add_image" = "Lisää kuva";
+"group_report_retry" = "Yritä uudelleen";
+"group_report_preview" = "Todistekuva";
+"group_report_supplement" = "Lisää tietoja";
+"group_report_close" = "Sulje";
+"group_report_remove_image" = "Poista kuva";
+"group_report_image_error" = "Kuvan valmistelu epäonnistui. Kokeile toista JPG- tai PNG-kuvaa.";
+"group_report_refresh" = "Päivitä tila";

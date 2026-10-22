@@ -165,7 +165,7 @@ private struct FeedbackTypeChipView: View {
     var body: some View {
         Text(type.title)
             .font(.system(size: 11, weight: .medium))
-            .foregroundColor(.white)
+            .foregroundColor(Theme.actionForeground(on: feedbackTypeColor(type)))
             .padding(.horizontal, 8)
             .padding(.vertical, 2)
             .background(RoundedRectangle(cornerRadius: 4).fill(feedbackTypeColor(type)))
@@ -297,7 +297,7 @@ private struct FeedbackErrorStateView: View {
             Button(action: retry) {
                 Text(NSLocalizedString("feedback_reload", value: "重新加载", comment: ""))
                     .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(Theme.textOnPrimary)
                     .padding(.horizontal, 20)
                     .frame(height: 40)
                     .background(Capsule().fill(Theme.accentColor))
@@ -709,13 +709,11 @@ struct FeedbackDetailView: View {
             Text(pendingExternalURL?.absoluteString ?? "")
         }
         .sheet(isPresented: $showReport) {
-            NavigationStack {
-                FeedbackReportDialog(
-                    feedbackId: feedbackId,
-                    onSubmitted: { Task { await load() } },
-                    onDismiss: { showReport = false }
-                )
-            }
+            FeedbackReportDialog(
+                feedbackId: feedbackId,
+                onSubmitted: { Task { await load() } },
+                onDismiss: { showReport = false }
+            )
         }
         .fullScreenCover(isPresented: Binding(
             get: { !previewImages.isEmpty },
@@ -842,7 +840,7 @@ struct FeedbackDetailView: View {
                 if !showsFeedbackStamp(item.statusValue) && item.statusValue != .pending {
                     Text(feedbackStatusLabel(item.statusValue))
                         .font(.system(size: 12))
-                        .foregroundColor(.white)
+                        .foregroundColor(Theme.actionForeground(on: feedbackStatusColor(item.statusValue)))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)
                         .background(RoundedRectangle(cornerRadius: 6).fill(feedbackStatusColor(item.statusValue)))
@@ -973,7 +971,7 @@ struct FeedbackDetailView: View {
             } label: {
                 Text(NSLocalizedString("feedback_comment_send", value: "发送", comment: ""))
                     .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(canSendComment ? .white : Theme.textSecondary)
+                    .foregroundColor(canSendComment ? Theme.textOnPrimary : Theme.textSecondary)
                     .padding(.horizontal, 18)
                     .frame(height: 44)
                     .background(Capsule().fill(canSendComment ? Theme.accentColor : Theme.controlBackground))
@@ -1156,111 +1154,51 @@ private struct FeedbackImagePreviewPage: View {
     }
 }
 
-/// 举报表单使用系统 Sheet：原因单选 + 补充说明 + 取消/提交。
+/// Feedback-specific reasons and API behavior share the same sheet as group reports.
 private struct FeedbackReportDialog: View {
     let feedbackId: String
     let onSubmitted: () -> Void
     let onDismiss: () -> Void
 
-    private struct ReportReason: Identifiable, Hashable {
-        let apiValue: String
-        let label: String
-        var id: String { apiValue }
-    }
-
-    @State private var reason: ReportReason?
+    @State private var reasonID: String?
     @State private var detail = ""
     @State private var isSubmitting = false
     @State private var errorText: String?
 
-    private let reasons: [ReportReason] = [
-        ReportReason(apiValue: "IMAGE_VIOLATION", label: NSLocalizedString("feedback_report_image", value: "图片违规", comment: "")),
-        ReportReason(apiValue: "SPAM", label: NSLocalizedString("feedback_report_spam", value: "垃圾广告", comment: "")),
-        ReportReason(apiValue: "HARASSMENT", label: NSLocalizedString("feedback_report_harassment", value: "骚扰或辱骂", comment: "")),
-        ReportReason(apiValue: "OTHER", label: NSLocalizedString("feedback_report_other", value: "其他问题", comment: "")),
+    private let reasons: [ReportReasonOption] = [
+        .init(id: "IMAGE_VIOLATION", title: NSLocalizedString("feedback_report_image", value: "图片违规", comment: "")),
+        .init(id: "SPAM", title: NSLocalizedString("feedback_report_spam", value: "垃圾广告", comment: "")),
+        .init(id: "HARASSMENT", title: NSLocalizedString("feedback_report_harassment", value: "骚扰或辱骂", comment: "")),
+        .init(id: "OTHER", title: NSLocalizedString("feedback_report_other", value: "其他问题", comment: "")),
     ]
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                Text(NSLocalizedString("feedback_report_reason_hint", value: "请选择举报原因", comment: ""))
-                    .font(.system(size: 13))
-                    .foregroundColor(Theme.textSecondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                VStack(spacing: 12) {
-                    ForEach(reasons) { item in
-                        FeedbackReportReasonRow(label: item.label, isSelected: reason == item) {
-                            reason = item
-                        }
-                    }
-                }
-                .padding(.top, 16)
-
-                TextField(
-                    NSLocalizedString("feedback_report_detail_placeholder", value: "补充说明（选填）", comment: ""),
-                    text: $detail,
-                    axis: .vertical
-                )
-                .font(.system(size: 15))
-                .lineLimit(4...6)
-                .padding(12)
-                .background(RoundedRectangle(cornerRadius: 8).fill(Theme.inputFieldBackground))
-                .padding(.top, 16)
-                .onChange(of: detail) { _, value in
-                    if value.count > 500 { detail = String(value.prefix(500)) }
-                }
-
-                if let errorText {
-                    Text(errorText)
-                        .font(.system(size: 13))
-                        .foregroundColor(.red)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.top, 10)
-                }
-                Button {
-                    Task { await submit() }
-                } label: {
-                    Text(isSubmitting
-                        ? NSLocalizedString("feedback_report_submitting", value: "提交中…", comment: "")
-                        : NSLocalizedString("feedback_report_submit", value: "提交", comment: ""))
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 48)
-                        .background(Capsule().fill(Theme.accentColor.opacity(isSubmitting ? 0.5 : 1)))
-                }
-                .buttonStyle(.plain)
-                .disabled(reason == nil || isSubmitting)
-                .padding(.top, 20)
-            }
-            .padding(20)
-            .frame(maxWidth: 520)
-            .frame(maxWidth: .infinity)
-        }
-        .hideKeyboardOnTap()
-        .navigationTitle(NSLocalizedString("feedback_report_btn", value: "举报", comment: ""))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button(NSLocalizedString("cancel", value: "取消", comment: ""), action: onDismiss)
-                    .disabled(isSubmitting)
-            }
-        }
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.visible)
-        .interactiveDismissDisabled(isSubmitting)
+        ReportSheet(
+            title: NSLocalizedString("feedback_report_btn", value: "举报", comment: ""),
+            reasonTitle: NSLocalizedString("feedback_report_reason_hint", value: "请选择举报原因", comment: ""),
+            detailPlaceholder: NSLocalizedString("feedback_report_detail_placeholder", value: "补充说明（选填）", comment: ""),
+            submitTitle: NSLocalizedString("feedback_report_submit", value: "提交", comment: ""),
+            reasons: reasons,
+            selectedReasonID: $reasonID,
+            detail: $detail,
+            isSubmitting: isSubmitting,
+            errorMessage: errorText,
+            accessibilityPrefix: "feedback_report",
+            onCancel: onDismiss,
+            onSubmit: { Task { await submit() } }
+        )
     }
 
     private func submit() async {
-        guard let reason, !isSubmitting else { return }
+        guard let reasonID, reasons.contains(where: { $0.id == reasonID }), !isSubmitting else { return }
         isSubmitting = true
+        errorText = nil
         defer { isSubmitting = false }
         do {
             let trimmed = detail.trimmingCharacters(in: .whitespacesAndNewlines)
             try await FeedbackAPI.shared.report(
                 feedbackId: feedbackId,
-                reason: reason.apiValue,
+                reason: reasonID,
                 detail: trimmed.isEmpty ? nil : trimmed
             )
             AppAnalytics.trackFeedbackAction("report", result: .success)
@@ -1272,35 +1210,6 @@ private struct FeedbackReportDialog: View {
             AppAnalytics.trackFeedbackAction("report", result: .failed)
             errorText = error.localizedDescription
         }
-    }
-}
-
-/// 举报原因行（对齐安卓 FeedbackSelectionRow）：8 圆角、控制底色、行尾绿勾。
-private struct FeedbackReportReasonRow: View {
-    let label: String
-    let isSelected: Bool
-    let onTap: () -> Void
-
-    var body: some View {
-        Button(action: onTap) {
-            HStack {
-                Text(label)
-                    .font(.system(size: 15))
-                    .foregroundColor(Theme.textPrimary)
-                Spacer()
-                if isSelected {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(feedbackStampColor)
-                        .frame(width: 22, height: 22)
-                }
-            }
-            .padding(16)
-            .frame(maxWidth: .infinity)
-            .background(RoundedRectangle(cornerRadius: 8).fill(Theme.controlBackground))
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
     }
 }
 
@@ -1363,9 +1272,10 @@ private struct CreateFeedbackView: View {
         .hideKeyboardOnTap()
         .navigationTitle(NSLocalizedString("feedback_create", value: "发布反馈", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
+        .interactiveDismissDisabled(isSubmitting)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button(NSLocalizedString("cancel", value: "取消", comment: "")) { dismiss() }
+                ModalCloseButton { dismiss() }.disabled(isSubmitting)
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button(NSLocalizedString("publish", value: "发布", comment: "")) {
@@ -1386,26 +1296,30 @@ private struct CreateFeedbackView: View {
         ) {}
     }
 
-    /// 类型选择行：💬 一般反馈 / 🚀 功能建议 / 🐛 问题反馈，选中用类型色底 + 白字（对齐安卓 CreateTypeButton）。
+    /// 类型选择行：一般反馈 / 功能建议 / 问题反馈，选中用类型色底 + 白字（对齐安卓 CreateTypeButton）。
+    /// 图标统一用 SF Symbols（系统图标族），不再用 emoji：字形随字号/字重对齐，选中态可用同一套符号换色。
     private var typeButtonRow: some View {
         HStack(spacing: 8) {
-            createTypeButton(.feedback, emoji: "\u{1F4AC}")
-            createTypeButton(.featureRequest, emoji: "\u{1F680}")
-            createTypeButton(.bugReport, emoji: "\u{1F41B}")
+            createTypeButton(.feedback, systemImage: "text.bubble")
+            createTypeButton(.featureRequest, systemImage: "lightbulb")
+            createTypeButton(.bugReport, systemImage: "ladybug")
         }
     }
 
-    private func createTypeButton(_ feedbackType: FeedbackType, emoji: String) -> some View {
+    private func createTypeButton(_ feedbackType: FeedbackType, systemImage: String) -> some View {
         let isSelected = type == feedbackType
         return Button {
             withAnimation(.easeInOut(duration: 0.15)) { type = feedbackType }
         } label: {
             VStack(spacing: 8) {
-                Text(emoji)
-                    .font(.system(size: 24))
+                Image(systemName: systemImage)
+                    .font(.system(size: 22, weight: .regular))
+                    .symbolRenderingMode(.monochrome)
+                    .foregroundColor(isSelected ? Theme.actionForeground(on: feedbackTypeColor(feedbackType)) : Theme.textPrimary)
+                    .frame(height: 24)
                 Text(feedbackType.title)
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(isSelected ? .white : Theme.textPrimary)
+                    .foregroundColor(isSelected ? Theme.actionForeground(on: feedbackTypeColor(feedbackType)) : Theme.textPrimary)
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity)

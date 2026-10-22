@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小组「测试版」说明卡关闭方案 · 探索 Demo</title>
+<style>
+  :root {
+    --bg: #F2F3F5;
+    --surface: #FFFFFF;
+    --card: #F6F7F9;
+    --control: #F2F4F7;
+    --chip: #E8EDF2;
+    --divider: #E5E7EB;
+    --t1: #111827;
+    --t2: #5B6472;
+    --helper: #647084;
+    --t3: #8A93A3;
+    --primary: #4CAF50;
+    --primary-text: #2E7D32;
+    --primary-soft: #E8F3E9;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--t1);
+    padding: 32px 20px 80px; -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 700; }
+  .sub { color: var(--t2); font-size: 14px; margin-top: 6px; line-height: 1.7; }
+  .sub b { color: var(--t1); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(470px, 1fr)); gap: 24px; margin-top: 28px; }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+
+  .scheme {
+    background: var(--surface); border: 1px solid var(--divider);
+    border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;
+  }
+  .scheme-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .scheme-head h2 { font-size: 16px; font-weight: 700; }
+  .tag { font-size: 11px; padding: 3px 8px; border-radius: 999px; font-weight: 600; white-space: nowrap; }
+  .tag.rec { background: var(--primary-soft); color: var(--primary-text); }
+  .tag.alt { background: var(--chip); color: var(--t2); }
+  .scheme-desc { font-size: 13px; color: var(--t2); line-height: 1.65; }
+  .scheme-desc code { background: var(--control); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+
+  /* ===== 列表页尾部 mock ===== */
+  .phone {
+    background: var(--bg); border-radius: 18px; padding: 16px;
+    border: 1px solid var(--divider);
+  }
+  .list-end-hint {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+    color: var(--t3); font-size: 11px;
+  }
+  .list-end-hint::before, .list-end-hint::after {
+    content: ""; flex: 1; height: 1px; background: var(--divider);
+  }
+
+  /* GroupCard 复刻：灰底卡 */
+  .beta-card {
+    background: var(--card); border-radius: 14px; padding: 14px;
+    position: relative;
+  }
+  .beta-inner > * + * { margin-top: 10px; }
+  .beta-body { color: var(--helper); font-size: 13px; line-height: 20px; }
+  .beta-label { color: var(--helper); font-size: 12px; font-weight: 500; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    display: flex; align-items: center; gap: 5px;
+    background: var(--surface); border: 1px solid var(--divider);
+    border-radius: 999px; padding: 5px 11px;
+    font-size: 12px; font-weight: 600; color: var(--t2);
+  }
+  .pill .dot { width: 14px; height: 14px; border-radius: 4px; flex: none; }
+  .fb-divider { height: 1px; background: var(--divider); }
+  .fb-row {
+    display: flex; align-items: center; gap: 4px; min-height: 40px; cursor: pointer;
+  }
+  .fb-row:active { opacity: .6; }
+  .fb-prompt { flex: 1; color: var(--helper); font-size: 13px; }
+  .fb-action { color: var(--primary-text); font-size: 13px; font-weight: 600; }
+  .fb-chev { color: var(--primary-text); font-size: 12px; }
+
+  /* A / E：× 按钮 */
+  .close-x {
+    position: absolute; top: 8px; right: 8px;
+    width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--t3); font-size: 13px; cursor: pointer; transition: background .15s;
+  }
+  .close-x:hover { background: rgba(0,0,0,.06); }
+
+  /* 收起动画 */
+  .collapse { transition: max-height .3s ease, opacity .3s ease, margin .3s ease, padding .3s ease; overflow: hidden; }
+  .collapse.gone { max-height: 0 !important; opacity: 0; padding-top: 0 !important; padding-bottom: 0 !important; margin: 0 !important; border: 0; }
+
+  .toastline {
+    margin-top: 10px; background: rgba(17,24,39,.88); color: #fff; font-size: 12px;
+    border-radius: 8px; padding: 9px 14px; display: none;
+    justify-content: space-between; align-items: center; gap: 12px; line-height: 1.5;
+  }
+  .toastline.show { display: flex; }
+  .toastline span.act { color: #7DE38B; cursor: pointer; font-weight: 500; white-space: nowrap; }
+
+  /* B：长按 */
+  .longpress { cursor: pointer; position: relative; }
+  .longpress .press-hint { color: var(--t3); font-size: 11px; }
+  .longpress.progress::after {
+    content: ""; position: absolute; left: 0; bottom: 0; height: 2px;
+    background: var(--t3); width: var(--p, 0%); border-radius: 2px;
+  }
+
+  /* C：折叠 chip 态 */
+  .chip-row-card {
+    background: var(--card); border-radius: 14px; padding: 11px 14px;
+    display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 13px; color: var(--helper);
+  }
+  .chip-row-card:active { background: var(--control); }
+  .chip-row-card .arrow { margin-left: auto; color: var(--t3); font-size: 11px; transition: transform .2s; }
+  .chip-row-card.open .arrow { transform: rotate(180deg); }
+  .chip-expand { max-height: 0; overflow: hidden; transition: max-height .28s ease; }
+  .chip-expand.open { max-height: 400px; }
+  .chip-expand .beta-card { margin-top: 8px; border-radius: 14px; }
+  .forever-link {
+    text-align: right; font-size: 12px; color: var(--t3); cursor: pointer; margin-top: 8px;
+  }
+  .forever-link:hover { color: var(--t2); }
+
+  /* D：底部不再显示 */
+  .dismiss-row {
+    display: flex; justify-content: flex-end; margin-top: 10px;
+  }
+  .dismiss-row span {
+    font-size: 12px; color: var(--t3); cursor: pointer; padding: 4px 6px;
+    min-height: 24px; display: inline-flex; align-items: center;
+  }
+  .dismiss-row span:hover { color: var(--t2); }
+
+  /* E：残留 footer 一行 */
+  .footer-remnant {
+    display: none; align-items: center; justify-content: center; gap: 6px;
+    padding: 12px 0 2px; color: var(--t3); font-size: 12px; cursor: pointer;
+  }
+  .footer-remnant.show { display: flex; }
+  .footer-remnant:hover { color: var(--helper); }
+
+  .reset-btn {
+    align-self: flex-start; border: 1px solid var(--divider); background: var(--surface);
+    border-radius: 8px; padding: 6px 12px; font-size: 12px; color: var(--t2);
+    cursor: pointer; font-family: inherit;
+  }
+  .reset-btn:hover { background: var(--card); }
+
+  /* 结论表 */
+  .table-wrap { margin-top: 48px; background: var(--surface); border: 1px solid var(--divider); border-radius: 16px; overflow: hidden; }
+  .table-wrap h2 { font-size: 17px; padding: 18px 20px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 14px; }
+  th, td { padding: 11px 14px; text-align: left; border-top: 1px solid var(--divider); vertical-align: top; line-height: 1.55; }
+  th { background: var(--card); font-weight: 600; color: var(--t2); font-size: 12px; white-space: nowrap; }
+  td b.ok { color: var(--primary-text); font-weight: 600; }
+  td b.no { color: #C62828; font-weight: 600; }
+  .rec-row td { background: #F4FAF5; }
+  .foot-tip { margin-top: 14px; font-size: 12.5px; color: var(--t2); line-height: 1.75; padding: 0 20px 18px; }
+  .foot-tip b { color: var(--t1); }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>小组「测试版」说明卡 · 关闭方案探索</h1>
+  <p class="sub">
+    对象：小组列表页底部的 <b>GroupBetaNotice</b> 说明卡（测试期告知 + 「目前已支持」运动清单 + 「去反馈」入口），常驻不可关。<br>
+    下面 5 个方案全部可交互，关闭后点卡片下方的 <b>「重置（模拟版本更新）」</b> 可以看它怎么回来。
+  </p>
+
+  <div class="grid">
+
+    <!-- ============ 方案 A ============ -->
+    <section class="scheme">
+      <div class="scheme-head">
+        <h2>方案 A · 右上角 ×</h2>
+        <span class="tag rec">推荐</span>
+      </div>
+      <p class="scheme-desc">
+        卡片右上角一个小 ×（12dp 内边距，不挤正文——正文首行右侧留 24dp 呼吸位即可）。
+        点击整卡收起。<b>记忆策略：DataStore 存「关闭时的版本号」，版本更新后自动重置、再显示一次</b>——测试期说明更新了本来就该重新告知。
+      </p>
+      <div class="phone">
+        <div class="list-end-hint">列表结尾</div>
+        <div class="beta-card" id="aCard">
+          <span class="close-x" onclick="dismissA()">✕</span>
+          <div class="beta-inner" style="padding-right:22px;">
+            <div class="beta-body">小组功能还在测试中，部分体验会持续调整，欢迎提前体验。</div>
+            <div class="beta-label">目前已支持</div>
+            <div class="pills">
+              <span class="pill"><span class="dot" style="background:#FFB300;"></span>羽毛球</span>
+              <span class="pill"><span class="dot" style="background:#42A5F5;"></span>乒乓球</span>
+              <span class="pill"><span class="dot" style="background:#66BB6A;"></span>网球</span>
+              <span class="pill"><span class="dot" style="background:#EC407A;"></span>匹克球</span>
+            </div>
+            <div class="fb-divider"></div>
+            <div class="fb-row" onclick="toastG('跳转反馈（同关于页入口）')">
+              <span class="fb-prompt">遇到问题或有建议？</span>
+              <span class="fb-action">去反馈</span><span class="fb-chev">›</span>
+            </div>
+          </div>
+        </div>
+        <div class="toastline" id="aToast"><span>已关闭，版本更新后会再提醒一次</span><span class="act" onclick="resetA()">撤销</span></div>
+        <button class="reset-btn" style="margin-top:10px;" onclick="resetA()">重置（模拟版本更新）</button>
+      </div>
+      <p class="scheme-desc">
+        ✅ 最标准的模式，用户零学习成本；× 不新增新形态，就贴 GroupCard 右上。<br>
+        ✅ 版本号记忆是点睛之笔：不需要任何设置入口，「不再显示」和「新版本重新告知」天然同时满足。<br>
+        ⚠️ 「去反馈」入口会随卡片一起消失——但「我的」tab 有同源反馈入口（FEEDBACK_ENABLED 同一开关），不形成死路。
+      </p>
+    </section>
+
+    <!-- ============ 方案 B ============ -->
+    <section class="scheme">
+      <div class="scheme-head">
+        <h2>方案 B · 长按卡片收起</h2>
+        <span class="tag alt">零占位</span>
+      </div>
+      <p class="scheme-desc">
+        卡片不增加任何视觉元素，长按 600ms 收起（进度线 + 震动），首次展示时正文句尾跟一个一次性灰字提示。
+        注意长按手势与卡片内「去反馈」点击行共存没问题，但 pill 区将来若要加点击会冲突。
+      </p>
+      <div class="phone">
+        <div class="list-end-hint">列表结尾</div>
+        <div class="beta-card longpress" id="bCard">
+          <div class="beta-inner">
+            <div class="beta-body">小组功能还在测试中，部分体验会持续调整，欢迎提前体验。<span class="press-hint" id="bHint">　长按可收起</span></div>
+            <div class="beta-label">目前已支持</div>
+            <div class="pills">
+              <span class="pill"><span class="dot" style="background:#FFB300;"></span>羽毛球</span>
+              <span class="pill"><span class="dot" style="background:#42A5F5;"></span>乒乓球</span>
+              <span class="pill"><span class="dot" style="background:#66BB6A;"></span>网球</span>
+              <span class="pill"><span class="dot" style="background:#EC407A;"></span>匹克球</span>
+            </div>
+            <div class="fb-divider"></div>
+            <div class="fb-row" onclick="toastG('跳转反馈（同关于页入口）')">
+              <span class="fb-prompt">遇到问题或有建议？</span>
+              <span class="fb-action">去反馈</span><span class="fb-chev">›</span>
+            </div>
+          </div>
+        </div>
+        <div class="toastline" id="bToast"><span>已收起，版本更新后会再提醒一次</span><span class="act" onclick="resetB()">撤销</span></div>
+        <button class="reset-btn" style="margin-top:10px;" onclick="resetB()">重置（模拟版本更新）</button>
+      </div>
+      <p class="scheme-desc">
+        ✅ 卡片保持纯内容形态，右上角不用抠一块呼吸位。<br>
+        ⚠️ 可发现性最低，不提示就没人知道；提示文案用完还要处理「不再显示提示」。<br>
+        ⚠️ Compose 长按 + 进度动画 + 与内部点击行的事件仲裁，实现成本比 × 高一档。
+      </p>
+    </section>
+
+    <!-- ============ 方案 C ============ -->
+    <section class="scheme">
+      <div class="scheme-head">
+        <h2>方案 C · 默认折叠成一行</h2>
+        <span class="tag alt">先矮后全</span>
+      </div>
+      <p class="scheme-desc">
+        反过来想：不是「关闭」，而是<b>默认只给一行</b>——「ⓘ 小组功能测试中 ›」，点开才展开完整卡片（运动清单 + 反馈）。
+        展开态里给「不再显示」。信息永远找得到，高度从 ~150dp 降到 ~40dp。
+      </p>
+      <div class="phone">
+        <div class="list-end-hint">列表结尾</div>
+        <div class="chip-row-card" id="cChip" onclick="toggleC(event)">
+          <span>ⓘ</span><span>小组功能测试中</span><span class="arrow">▼</span>
+        </div>
+        <div class="chip-expand" id="cExpand">
+          <div class="beta-card">
+            <div class="beta-inner">
+              <div class="beta-body">小组功能还在测试中，部分体验会持续调整，欢迎提前体验。</div>
+              <div class="beta-label">目前已支持</div>
+              <div class="pills">
+                <span class="pill"><span class="dot" style="background:#FFB300;"></span>羽毛球</span>
+                <span class="pill"><span class="dot" style="background:#42A5F5;"></span>乒乓球</span>
+                <span class="pill"><span class="dot" style="background:#66BB6A;"></span>网球</span>
+                <span class="pill"><span class="dot" style="background:#EC407A;"></span>匹克球</span>
+              </div>
+              <div class="fb-divider"></div>
+              <div class="fb-row" onclick="toastG('跳转反馈（同关于页入口）')">
+                <span class="fb-prompt">遇到问题或有建议？</span>
+                <span class="fb-action">去反馈</span><span class="fb-chev">›</span>
+              </div>
+              <div class="forever-link" onclick="dismissC(event)">不再显示</div>
+            </div>
+          </div>
+        </div>
+        <div class="toastline" id="cToast"><span>已关闭，版本更新后会再提醒一次</span><span class="act" onclick="resetC()">撤销</span></div>
+        <button class="reset-btn" style="margin-top:10px;" onclick="resetC()">重置（模拟版本更新）</button>
+      </div>
+      <p class="scheme-desc">
+        ✅ 测试期信息长期在场，新用户一定看得到；嫌多的老用户一行也不吵。<br>
+        ✅ 展开态本来就是完整卡片，实现只是「外面包一层折叠容器」。<br>
+        ⚠️ 严格说没解决「关掉」的诉求——还是常驻一行。
+      </p>
+    </section>
+
+    <!-- ============ 方案 D ============ -->
+    <section class="scheme">
+      <div class="scheme-head">
+        <h2>方案 D · 底部「不再显示」文字链</h2>
+        <span class="tag alt">你提的底部方案</span>
+      </div>
+      <p class="scheme-desc">
+        不在卡片上放 ×，而是在反馈行下方加一行右对齐的灰色小字「不再显示」——放在卡片<b>最底部、视觉最轻的位置</b>，和反馈行动作区天然分离，不会误触。
+      </p>
+      <div class="phone">
+        <div class="list-end-hint">列表结尾</div>
+        <div class="beta-card" id="dCard">
+          <div class="beta-inner">
+            <div class="beta-body">小组功能还在测试中，部分体验会持续调整，欢迎提前体验。</div>
+            <div class="beta-label">目前已支持</div>
+            <div class="pills">
+              <span class="pill"><span class="dot" style="background:#FFB300;"></span>羽毛球</span>
+              <span class="pill"><span class="dot" style="background:#42A5F5;"></span>乒乓球</span>
+              <span class="pill"><span class="dot" style="background:#66BB6A;"></span>网球</span>
+              <span class="pill"><span class="dot" style="background:#EC407A;"></span>匹克球</span>
+            </div>
+            <div class="fb-divider"></div>
+            <div class="fb-row" onclick="toastG('跳转反馈（同关于页入口）')">
+              <span class="fb-prompt">遇到问题或有建议？</span>
+              <span class="fb-action">去反馈</span><span class="fb-chev">›</span>
+            </div>
+            <div class="dismiss-row"><span onclick="dismissD()">不再显示</span></div>
+          </div>
+        </div>
+        <div class="toastline" id="dToast"><span>已关闭，版本更新后会再提醒一次</span><span class="act" onclick="resetD()">撤销</span></div>
+        <button class="reset-btn" style="margin-top:10px;" onclick="resetD()">重置（模拟版本更新）</button>
+      </div>
+      <p class="scheme-desc">
+        ✅ 完全避开「右上角挤不挤」的问题，误触率最低。<br>
+        ⚠️ 卡片因此<b>更高了</b>（多一行），和「卡片已经很满」的现状有点反向而行。<br>
+        ⚠️ 关闭入口藏在最底下，不把卡看完发现不了。
+      </p>
+    </section>
+
+    <!-- ============ 方案 E ============ -->
+    <section class="scheme">
+      <div class="scheme-head">
+        <h2>方案 E · × 关闭后留一行残留</h2>
+        <span class="tag rec">稳妥</span>
+      </div>
+      <p class="scheme-desc">
+        关闭交互同方案 A（右上角 ×），区别是<b>不留白</b>：收起后原位留一行 12px 灰字「小组功能测试中 · ⓘ」，点它可随时展开完整卡片。
+        等于 A 和 C 的合体：能彻底关，但关了也有个钩子找回。
+      </p>
+      <div class="phone">
+        <div class="list-end-hint">列表结尾</div>
+        <div class="beta-card" id="eCard">
+          <span class="close-x" onclick="dismissE()">✕</span>
+          <div class="beta-inner" style="padding-right:22px;">
+            <div class="beta-body">小组功能还在测试中，部分体验会持续调整，欢迎提前体验。</div>
+            <div class="beta-label">目前已支持</div>
+            <div class="pills">
+              <span class="pill"><span class="dot" style="background:#FFB300;"></span>羽毛球</span>
+              <span class="pill"><span class="dot" style="background:#42A5F5;"></span>乒乓球</span>
+              <span class="pill"><span class="dot" style="background:#66BB6A;"></span>网球</span>
+              <span class="pill"><span class="dot" style="background:#EC407A;"></span>匹克球</span>
+            </div>
+            <div class="fb-divider"></div>
+            <div class="fb-row" onclick="toastG('跳转反馈（同关于页入口）')">
+              <span class="fb-prompt">遇到问题或有建议？</span>
+              <span class="fb-action">去反馈</span><span class="fb-chev">›</span>
+            </div>
+          </div>
+        </div>
+        <div class="footer-remnant" id="eRemnant" onclick="restoreE()">小组功能测试中 · ⓘ</div>
+        <div class="toastline" id="eToast"><span>已收起，点下方一行小字可随时找回</span><span class="act" onclick="resetE()">撤销</span></div>
+        <button class="reset-btn" style="margin-top:10px;" onclick="resetE()">重置（模拟版本更新）</button>
+      </div>
+      <p class="scheme-desc">
+        ✅ 「关闭自由」和「信息可达」兼得，测试期不怕有人彻底错过反馈入口。<br>
+        ⚠️ 多一个残留态 UI，实现比 A 多一层状态；残留行本身也是占位（虽然极轻）。
+      </p>
+    </section>
+
+  </div>
+
+  <!-- ============ 结论表 ============ -->
+  <div class="table-wrap">
+    <h2>方案对比</h2>
+    <table>
+      <thead><tr><th>方案</th><th>关闭后占位</th><th>可发现性</th><th>实现成本</th><th>信息可达性</th><th>备注</th></tr></thead>
+      <tbody>
+        <tr class="rec-row"><td><b>A 右上角 ×</b></td><td>0</td><td><b class="ok">高</b></td><td><b class="ok">低</b>（× + DataStore 版本号）</td><td>版本更新重现一次</td><td>最标准；反馈入口在「我的」有兜底</td></tr>
+        <tr><td><b>B 长按收起</b></td><td>0</td><td><b class="no">低</b></td><td>中（长按+进度+事件仲裁）</td><td>版本更新重现一次</td><td>形态最干净，教学成本高</td></tr>
+        <tr><td><b>C 默认折叠一行</b></td><td>一行 40dp</td><td><b class="ok">高</b></td><td><b class="ok">低</b></td><td><b class="ok">永远在场</b></td><td>不叫"关闭"，是"变矮"</td></tr>
+        <tr><td><b>D 底部文字链</b></td><td>0</td><td>中</td><td><b class="ok">低</b></td><td>版本更新重现一次</td><td>卡片反而变高一行</td></tr>
+        <tr class="rec-row"><td><b>E × + 一行残留</b></td><td>一行 24dp</td><td><b class="ok">高</b></td><td>中（A + 残留态）</td><td><b class="ok">永远可找回</b></td><td>A 与 C 的合体，最稳妥</td></tr>
+      </tbody>
+    </table>
+    <p class="foot-tip">
+      建议：<b>首选 A（右上角 ×）+ 版本号记忆</b>——DataStore 只存一个字符串（关闭时的 versionName），判断 <code>stored != current → 显示</code>，
+      一个 key 同时实现「不再显示」和「版本更新重新告知」，不需要设置页入口，两张列表（GroupListScreen:326 与空态 :501）共用同一状态。
+      若担心测试期有人关掉后彻底错过反馈入口，<b>升级到 E</b>（关后留一行小字），多 ~20 行代码。
+      B 教学成本高不推荐；D 会让卡片更高，与"卡片已经很满"的痛点相反；C 适合作为测试期结束前的过渡形态。
+      无论选哪个：<b>两张列表两处 GroupBetaNotice 调用点共用同一 dismissed 状态</b>，别只在主列表生效。
+    </p>
+  </div>
+</div>
+
+<div id="globalToast" style="position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:rgba(17,24,39,.88);color:#fff;font-size:13px;padding:10px 18px;border-radius:10px;display:none;z-index:99;"></div>
+
+<script>
+  let toastTimer;
+  function toastG(msg) {
+    const el = document.getElementById("globalToast");
+    el.textContent = msg; el.style.display = "block";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.style.display = "none", 1600);
+  }
+  function showLine(id) { document.getElementById(id).classList.add("show"); }
+  function hideLine(id) { document.getElementById(id).classList.remove("show"); }
+
+  /* A */
+  function dismissA() {
+    document.getElementById("aCard").classList.add("collapse");
+    requestAnimationFrame(() => document.getElementById("aCard").classList.add("gone"));
+    showLine("aToast");
+  }
+  function resetA() {
+    document.getElementById("aCard").classList.remove("collapse", "gone");
+    hideLine("aToast");
+  }
+
+  /* B 长按 */
+  (function () {
+    const b = document.getElementById("bCard");
+    let timer = null, start = 0;
+    function setP(p) { b.style.setProperty("--p", p + "%"); }
+    function begin(e) {
+      if (e.target.closest(".fb-row")) return;
+      b.classList.add("progress");
+      start = Date.now();
+      timer = setInterval(() => {
+        const p = Math.min(100, (Date.now() - start) / 600 * 100);
+        setP(p);
+        if (p >= 100) finish();
+      }, 30);
+    }
+    function finish() {
+      clearInterval(timer); timer = null; setP(0);
+      b.classList.remove("progress");
+      if (navigator.vibrate) navigator.vibrate(10);
+      b.classList.add("collapse");
+      requestAnimationFrame(() => b.classList.add("gone"));
+      showLine("bToast");
+    }
+    function cancel() {
+      if (timer) { clearInterval(timer); timer = null; }
+      setP(0); b.classList.remove("progress");
+    }
+    b.addEventListener("mousedown", begin);
+    b.addEventListener("touchstart", begin, { passive: true });
+    ["mouseup", "mouseleave", "touchend", "touchcancel"].forEach(ev => b.addEventListener(ev, cancel));
+  })();
+  function resetB() {
+    document.getElementById("bCard").classList.remove("collapse", "gone");
+    hideLine("bToast");
+  }
+
+  /* C */
+  function toggleC(e) {
+    e.stopPropagation();
+    document.getElementById("cChip").classList.toggle("open");
+    document.getElementById("cExpand").classList.toggle("open");
+    hideLine("cToast");
+  }
+  function dismissC(e) {
+    e.stopPropagation();
+    document.getElementById("cChip").style.display = "none";
+    document.getElementById("cExpand").classList.remove("open");
+    showLine("cToast");
+  }
+  function resetC() {
+    document.getElementById("cChip").style.display = "";
+    document.getElementById("cChip").classList.remove("open");
+    document.getElementById("cExpand").classList.remove("open");
+    hideLine("cToast");
+  }
+
+  /* D */
+  function dismissD() {
+    document.getElementById("dCard").classList.add("collapse");
+    requestAnimationFrame(() => document.getElementById("dCard").classList.add("gone"));
+    showLine("dToast");
+  }
+  function resetD() {
+    document.getElementById("dCard").classList.remove("collapse", "gone");
+    hideLine("dToast");
+  }
+
+  /* E */
+  function dismissE() {
+    document.getElementById("eCard").classList.add("collapse");
+    requestAnimationFrame(() => {
+      document.getElementById("eCard").classList.add("gone");
+      document.getElementById("eRemnant").classList.add("show");
+    });
+    showLine("eToast");
+  }
+  function restoreE() {
+    document.getElementById("eCard").classList.remove("collapse", "gone");
+    document.getElementById("eRemnant").classList.remove("show");
+    hideLine("eToast");
+  }
+  function resetE() {
+    document.getElementById("eCard").classList.remove("collapse", "gone");
+    document.getElementById("eRemnant").classList.remove("show");
+    hideLine("eToast");
+  }
+</script>
+</body>
+</html>

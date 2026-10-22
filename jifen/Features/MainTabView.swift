@@ -20,6 +20,7 @@ struct MainTabView: View {
             )
         }
         .tint(Theme.accentColor)
+        .onChange(of: GroupPushManager.shared.destination) { _, value in if value != nil { selectedTab = 0 } }
         .onChange(of: groupReminders.destination) { _, value in if value != nil { selectedTab = 0 } }
         .onOpenURL { receiveGroupInvitation($0) }
         .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
@@ -68,7 +69,10 @@ struct MainTabView: View {
             tabItem(tag: 3, titleKey: "tab_timer", systemImage: "timer", screen: .timerTab) {
                 TimerTab(pendingTimerGameType: pendingTimerGameType)
             }
-            MeTab()
+            MeTab { number in
+                selectedTab.wrappedValue = 0
+                groupInvitation = GroupInvitation(groupNo: number)
+            }
                 .appAnalyticsScreen(.meTab)
                 .tag(4)
                 .tabItem {
@@ -98,7 +102,7 @@ struct MainTabView: View {
     }
 
     private func receiveGroupInvitation(_ url: URL) {
-        guard let number = GroupInvitationLink.groupNumber(from: url) else { return }
+        guard let number = GroupInvitationLink.groupNumber(from: url, capabilities: GroupStore.shared.capabilities) else { return }
         selectedTab = 0
         groupInvitation = GroupInvitation(groupNo: number)
     }

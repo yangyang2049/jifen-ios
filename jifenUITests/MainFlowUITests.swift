@@ -1,5 +1,6 @@
 import UIKit
 import XCTest
+import UIKit
 
 final class MainFlowUITests: XCTestCase {
     private let tabNames = ["Home", "Records", "Score", "Timer", "Me"]
@@ -360,14 +361,14 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertFalse(app.buttons["quick_start_edit_slot_3"].exists)
     }
 
-    func testRegularQuickStartShowsThreeSportsAndThreeEditorSlots() throws {
+    func testRegularQuickStartShowsTwoSportsAndTwoEditorSlots() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
             throw XCTSkip("Regular quick-start coverage runs on iPad")
         }
         let app = launchApp()
         XCTAssertTrue(app.buttons["home_quick_start_primary"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.buttons["home_quick_start_secondary"].exists)
-        XCTAssertTrue(app.buttons["home_quick_start_tertiary"].exists)
+        XCTAssertFalse(app.buttons["home_quick_start_tertiary"].exists)
         XCTAssertTrue(app.buttons["home_quick_start_new_game"].exists)
 
         let edit = app.buttons["home_quick_start_edit"]
@@ -375,7 +376,7 @@ final class MainFlowUITests: XCTestCase {
         edit.tap()
         XCTAssertTrue(app.buttons["quick_start_edit_slot_1"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["quick_start_edit_slot_2"].exists)
-        XCTAssertTrue(app.buttons["quick_start_edit_slot_3"].exists)
+        XCTAssertFalse(app.buttons["quick_start_edit_slot_3"].exists)
     }
 
     func testEnglishLocalizationSmokeHasNoChineseOrRawKeys() {
@@ -505,6 +506,56 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Common Names"].exists)
     }
 
+    func testRecordNoteSheetsHaveCloseControlsAndKeepSavedTextOnCancel() {
+        let app = launchLocalizedApp(language: "en", locale: "en_US", arguments: ["-UITestRecordFixtures", "-UITestRecordDetail", "basketball"])
+        defer { app.terminate() }
+        let openNotes = app.buttons["Note"]
+        XCTAssertTrue(openNotes.waitForExistence(timeout: 8))
+        openNotes.tap()
+        let menuClose = app.navigationBars["Notes"].buttons["record_note_close"]
+        XCTAssertTrue(menuClose.waitForExistence(timeout: 5))
+        XCTAssertEqual(menuClose.label, "Close")
+        menuClose.tap()
+        XCTAssertTrue(openNotes.isHittable)
+
+        openNotes.tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Text Note")).firstMatch.tap()
+        let editor = app.textViews.firstMatch
+        XCTAssertTrue(editor.waitForExistence(timeout: 5))
+        editor.tap()
+        let note = "Modal controls review note"
+        editor.typeText(note)
+        app.navigationBars["Add text note"].buttons["Save"].tap()
+        let saved = app.staticTexts[note].firstMatch
+        XCTAssertTrue(scrollUntilExists(saved, in: app))
+        saved.tap()
+        let viewer = app.navigationBars["Text Note"]
+        let close = viewer.buttons["record_note_close"]
+        XCTAssertTrue(close.waitForExistence(timeout: 5))
+        XCTAssertTrue(viewer.buttons["record_note_edit"].exists)
+        XCTAssertTrue(viewer.buttons["record_note_delete"].exists)
+        XCTAssertLessThan(close.frame.midX, viewer.buttons["record_note_edit"].frame.midX)
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "modal-note-viewer-controls"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+
+        viewer.buttons["record_note_delete"].tap()
+        XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 3))
+        app.alerts.firstMatch.buttons["Cancel"].tap()
+        XCTAssertTrue(close.isHittable, "Cancelling deletion keeps the viewer open")
+        viewer.buttons["record_note_edit"].tap()
+        XCTAssertTrue(editor.waitForExistence(timeout: 5))
+        editor.tap(); editor.typeText(" unsaved")
+        app.navigationBars.buttons["modal_close_button"].firstMatch.tap()
+        XCTAssertTrue(saved.waitForExistence(timeout: 5), "Closing an edit must preserve the saved note")
+        XCTAssertFalse(app.staticTexts[note + " unsaved"].exists)
+        saved.tap()
+        XCTAssertTrue(close.waitForExistence(timeout: 5))
+        close.tap()
+        XCTAssertTrue(openNotes.isHittable)
+    }
+
     func testEnglishOfficialBreakHelpOpensReadableSheet() {
         let app = launchApp()
         defer { app.terminate() }
@@ -526,8 +577,13 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts.matching(
             NSPredicate(format: "label CONTAINS %@", "Pickleball")
         ).firstMatch.exists)
-        app.buttons["Done"].tap()
+        let close = app.navigationBars["Official Breaks"].buttons["modal_close_button"]
+        XCTAssertTrue(close.isHittable)
+        XCTAssertEqual(close.label, "Close")
+        close.tap()
         XCTAssertFalse(app.navigationBars["Official Breaks"].exists)
+        XCTAssertTrue(app.navigationBars["Scoreboard Settings"].waitForExistence(timeout: 5))
+        XCTAssertTrue(help.isHittable, "Closing the help must preserve the settings page or sheet")
     }
 
     func testEnglishBookingReminderHelpOpensReadableSheet() {
@@ -553,8 +609,12 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts.matching(
             NSPredicate(format: "label CONTAINS %@", "local notifications")
         ).firstMatch.exists)
-        app.buttons["Done"].tap()
+        let close = app.navigationBars["Reminders"].buttons["modal_close_button"]
+        XCTAssertTrue(close.isHittable)
+        XCTAssertEqual(close.label, "Close")
+        close.tap()
         XCTAssertFalse(app.navigationBars["Reminders"].exists)
+        XCTAssertTrue(app.navigationBars["Book New Match"].exists, "Closing reminder help must preserve the booking form")
     }
 
     func testMeSecondaryPagesUseExpectedPresentation() {
@@ -870,6 +930,27 @@ final class MainFlowUITests: XCTestCase {
         let back = app.descendants(matching: .any)["scoreboard_back_button"]
         XCTAssertTrue(back.waitForExistence(timeout: 8), "Scoreboard missing bottom-left back button")
         XCUIDevice.shared.orientation = .portrait
+    }
+
+    func testStartingAnotherMatchOpensScoreboardWithoutConfirmation() {
+        XCUIDevice.shared.orientation = .portrait
+        let app = launchApp()
+        defer { XCUIDevice.shared.orientation = .portrait; app.terminate() }
+        XCTAssertTrue(openPingPongSetup(in: app))
+        let start = app.buttons["Start"].firstMatch
+        XCTAssertTrue(start.waitForExistence(timeout: 5)); start.tap()
+        let back = app.descendants(matching: .any)["scoreboard_back_button"]
+        XCTAssertTrue(back.waitForExistence(timeout: 10))
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.45)).tap()
+        back.tap()
+        if back.waitForExistence(timeout: 1) { back.tap() }
+        let homeTab = app.tabBars.buttons["Home"].exists ? app.tabBars.buttons["Home"] : app.buttons["main_tab_0"]
+        XCTAssertTrue(homeTab.waitForExistence(timeout: 10)); homeTab.tap()
+        XCTAssertTrue(app.buttons["unfinished_game_continue"].waitForExistence(timeout: 10))
+        XCTAssertTrue(openPingPongSetup(in: app))
+        start.tap()
+        XCTAssertTrue(back.waitForExistence(timeout: 10), "Starting another match should open its scoreboard directly")
+        XCTAssertFalse(app.descendants(matching: .any)["new_match_confirmation"].exists)
     }
 
     func testHomeShowsUnfinishedGameBarImmediatelyAfterScoreboardExit() {
@@ -1289,6 +1370,88 @@ final class MainFlowUITests: XCTestCase {
 
     func testPlayAllSetupInDarkMode() {
         runPlayAllSetup(appearance: "dark")
+    }
+
+    func testSetupNumberChoicesUseCompactSquares() {
+        for gameID in ["pingpong", "badminton", "tennis", "boxing", "snooker", "eight_ball", "pickleball"] {
+            let app = launchChineseApp(arguments: ["-jifen-v2.appAppearanceMode", "light"])
+            openSetupCatalogCardByScrolling(gameID, in: app)
+            assertCompactSetupNumberChoices(in: app)
+            UITestScreenshotStore.capture(app, name: "setup_compact_\(gameID)_light", testCase: self)
+            app.terminate()
+        }
+    }
+
+    func testSetupNumberChoicesInDarkMode() {
+        for gameID in ["badminton", "pickleball"] {
+            let app = launchChineseApp(arguments: ["-jifen-v2.appAppearanceMode", "dark"])
+            openSetupCatalogCardByScrolling(gameID, in: app)
+            assertCompactSetupNumberChoices(in: app)
+            UITestScreenshotStore.capture(app, name: "setup_compact_\(gameID)_dark", testCase: self)
+            app.terminate()
+        }
+    }
+
+    func testSetupCompactCustomSetsAndPointsEditInline() {
+        let app = launchChineseApp(arguments: ["-jifen-v2.appAppearanceMode", "light"])
+        defer { app.terminate() }
+        XCTAssertTrue(openPingPongSetup(in: app))
+        let customSets = app.buttons["custom_match_sets_button"]
+        XCTAssertTrue(customSets.waitForExistence(timeout: 3))
+        customSets.tap()
+        let setsField = app.textFields["custom_max_sets_field"]
+        XCTAssertTrue(setsField.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
+        app.typeText("31")
+        XCTAssertEqual(setsField.value as? String, "31")
+        XCTAssertEqual(setsField.frame.width, 64, accuracy: 1)
+        XCTAssertEqual(setsField.frame.height, 44, accuracy: 1)
+        XCTAssertEqual(setsField.frame.midY, app.buttons["setup_match_sets_1"].frame.midY, accuracy: 1)
+        UITestScreenshotStore.capture(app, name: "setup_compact_custom_sets", testCase: self)
+        app.buttons["setup_match_sets_1"].tap()
+        UITestScreenshotStore.capture(app, name: "setup_compact_after_preset_tap", testCase: self)
+        // iPad's floating number pad consumes the first outside tap to dismiss its popover.
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            app.buttons["setup_match_sets_1"].tap()
+        }
+        XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 3))
+        UITestScreenshotStore.capture(app, name: "setup_compact_return_to_preset", testCase: self)
+        XCTAssertTrue(customSets.waitForExistence(timeout: 3))
+
+        let customPoints = app.buttons["setup_custom_points_button"]
+        revealSetupControl(customPoints, in: app)
+        customPoints.tap()
+        let pointsField = app.textFields["setup_custom_points_field"]
+        XCTAssertTrue(pointsField.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
+        let initialValue = pointsField.value as? String ?? ""
+        app.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: initialValue.count))
+        app.typeText("999")
+        XCTAssertEqual(pointsField.value as? String, "999")
+        let pointsScroll = app.scrollViews.containing(.textField, identifier: "setup_custom_points_field").firstMatch
+        XCTAssertGreaterThanOrEqual(pointsField.frame.minY, pointsScroll.frame.minY - 1)
+        XCTAssertLessThanOrEqual(pointsField.frame.maxY, pointsScroll.frame.maxY + 1)
+        XCTAssertEqual(pointsField.frame.width, 64, accuracy: 1)
+        XCTAssertEqual(pointsField.frame.height, 44, accuracy: 1)
+        XCTAssertEqual(pointsField.frame.midY, app.buttons["11"].firstMatch.frame.midY, accuracy: 1)
+        UITestScreenshotStore.capture(app, name: "setup_compact_custom_points", testCase: self)
+    }
+
+    private func assertCompactSetupNumberChoices(in app: XCUIApplication) {
+        let numericChoices = app.buttons.matching(NSPredicate(format: "label MATCHES %@", "^[0-9]{1,2}$"))
+            .allElementsBoundByIndex.filter { $0.isHittable }
+        XCTAssertFalse(numericChoices.isEmpty)
+        for choice in numericChoices {
+            XCTAssertEqual(choice.frame.width, 44, accuracy: 1, "Unexpected width for \(choice.label)")
+            XCTAssertEqual(choice.frame.height, 44, accuracy: 1, "Unexpected height for \(choice.label)")
+        }
+        for identifier in ["custom_match_sets_button", "setup_custom_sets_button", "setup_custom_points_button"] {
+            let choice = app.buttons[identifier]
+            if choice.exists && choice.isHittable {
+                XCTAssertEqual(choice.frame.width, 44, accuracy: 1)
+                XCTAssertEqual(choice.frame.height, 44, accuracy: 1)
+            }
+        }
     }
 
     func testSetupCustomPointsFocusesOnFirstTapAndSurvivesClearing() {

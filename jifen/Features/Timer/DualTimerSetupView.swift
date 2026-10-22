@@ -80,7 +80,7 @@ struct DualTimerSetupView: View {
                         .accessibilityAddTraits(.isHeader)
                 }
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(NSLocalizedString("cancel", value: "取消", comment: "")) {
+                    ModalCloseButton {
                         onCancel?()
                     }
                     .foregroundStyle(Theme.textPrimary)

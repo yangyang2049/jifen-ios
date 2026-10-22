@@ -395,11 +395,11 @@ struct FullscreenBarrageView: View {
         } label: {
             Text(title)
                 .font(.headline)
-                .foregroundStyle(isDisabled ? Theme.textSecondary : .white)
+                .foregroundStyle(isDisabled ? Theme.textSecondary : Theme.actionForeground(on: color))
                 .frame(maxWidth: .infinity)
                 .frame(height: 54)
                 .background(isDisabled ? Theme.controlBackground : color)
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .clipShape(Capsule())
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(mode == .scroll ? "barrage_start_scroll" : "barrage_start_static")
@@ -550,7 +550,7 @@ private struct BarrageModeButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.subheadline.weight(.semibold))
-            .foregroundStyle(.white)
+            .foregroundStyle(Theme.actionForeground(on: color))
             .frame(maxWidth: .infinity)
             .padding(.horizontal, 12)
             .frame(height: 44)

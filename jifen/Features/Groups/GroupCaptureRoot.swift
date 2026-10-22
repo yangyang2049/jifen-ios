@@ -10,8 +10,13 @@ struct GroupCaptureRoot: View {
     @State private var preparationStarted = false
     @State private var failure: String?
     private let scene = GroupCaptureFixture.scene
-    private var nativeScene: String { GroupCaptureFixture.nativeScene }
+    private var nativeScene: String {
+        let native = GroupCaptureFixture.nativeScene
+        if GroupCaptureFixture.argument("-GroupCaptureRealActivityNavigation") == "true", ["activity", "activity-edit", "activity-registration", "lineup", "lineup-review", "lineup-frozen", "lineup-correction", "result-frozen", "activity-cancel", "activity-abandon", "result-abandon", "registration-draft", "lineup-clock", "lineup-finish", "lineup-conflict-reload", "activity-conflict"].contains(native) { return "detail-activities" }
+        return native
+    }
     static let supportedScenes: Set<String> = [
+        "archived-list", "activity-registration", "lineup-direct", "members-removed",
         "activity",
         "activity-create",
         "activity-edit",
@@ -125,9 +130,9 @@ struct GroupCaptureRoot: View {
             else if !ready { ProgressView() }
             else { destination }
         }
-        .preferredColorScheme(.light)
+        .preferredColorScheme(GroupCaptureFixture.argument("-GroupCaptureAppearance") == "Dark" ? .dark : .light)
         .environment(\.dynamicTypeSize, .large)
-        .environment(\.locale, Locale(identifier: "zh_CN"))
+        .environment(\.locale, Locale(identifier: GroupCaptureFixture.argument("-GroupCaptureLocale") ?? "zh_CN"))
         .environment(\.timeZone, TimeZone(identifier: "Asia/Shanghai")!)
         .overlay(alignment: .topLeading) {
             // The identity is accessibility metadata only; no diagnostic text is drawn into screenshots.
@@ -151,12 +156,12 @@ struct GroupCaptureRoot: View {
 
     @ViewBuilder private var destination: some View {
         let groupID = GroupCaptureFixture.groupID
-        if ["list", "create", "create-approval-selected", "join", "join-approval", "join-empty", "visitor-report"].contains(nativeScene) {
+        if ["list", "create", "create-approval-selected", "join", "join-approval", "join-empty", "visitor-report", "archived-list"].contains(nativeScene) {
             GroupListView(onStart: onStart)
         } else if nativeScene == "detail-failure" {
             GroupDetailView(groupID: groupID, onStart: onStart)
         } else if let detail = store.cache.details[groupID] {
-            if ["activity", "activity-edit", "lineup", "lineup-review", "lineup-frozen", "lineup-correction", "result-frozen", "activity-cancel", "activity-abandon", "result-abandon", "registration-draft", "lineup-clock", "lineup-finish", "lineup-conflict-reload", "activity-conflict"].contains(nativeScene), let activity = detail.activities.first {
+            if ["activity", "activity-edit", "activity-registration", "lineup", "lineup-review", "lineup-frozen", "lineup-correction", "result-frozen", "activity-cancel", "activity-abandon", "result-abandon", "registration-draft", "lineup-clock", "lineup-finish", "lineup-conflict-reload", "activity-conflict"].contains(nativeScene), let activity = detail.activities.first {
                 GroupActivityView(detail: detail, activity: activity, onStart: onStart)
             } else if ["result-detail", "result-detail-confirmed", "result-detail-pending", "result-detail-voided"].contains(nativeScene) || ["result-authority", "result-normal", "result-void-pending", "result-void-confirmed", "result-void-list", "result-actions"].contains(nativeScene) {
                 // A detail capture addresses its intended result, independently of the API list's newest-first order.
@@ -167,12 +172,12 @@ struct GroupCaptureRoot: View {
             } else if nativeScene == "share" || nativeScene == "share-readonly" {
                 GroupShareView(group: detail.group)
             } else if nativeScene == "notices" {
-                GroupNoticeInbox(onStart: onStart)
+                GroupDetailView(groupID: groupID, onStart: onStart, initialTab: 2)
             } else {
                 let training = GroupCaptureFixture.trainingScene
-                let activities = ["detail-activities", "activity-create", "activity-date", "activity-deadline", "activity-place"].contains(nativeScene)
+                let activities = ["detail-activities", "lineup-direct", "activity-create", "activity-date", "activity-deadline", "activity-place"].contains(nativeScene)
                 let records = ["detail-records", "detail-records-doubles", "records-authority", "upload-discard"].contains(nativeScene)
-                let members = ["detail-members", "dialog-temporary-member", "dialog-rename-member", "dialog-common-name-import", "member-actions", "member-rename", "member-remove", "request-approve", "request-reject"].contains(nativeScene)
+                let members = ["detail-members", "members-removed", "dialog-temporary-member", "dialog-rename-member", "dialog-common-name-import", "member-actions", "member-rename", "member-remove", "request-approve", "request-reject"].contains(nativeScene)
                 GroupDetailView(groupID: groupID, onStart: onStart, initialTab: training || activities ? 1 : records ? 2 : members ? 3 : 0)
             }
         } else { GroupNotice(text: "Capture group missing: \(groupID)") }

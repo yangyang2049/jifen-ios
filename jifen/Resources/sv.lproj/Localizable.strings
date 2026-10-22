@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "Brädspel";
 "search_team_or_game" = "Sök efter lag eller spel";
 "match_count" = "%d matcher";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d matcher · alla gruppmedlemmar";
+"archived_count" = "%d grupper";
 
 /* Home Screen */
 "recent_records" = "Senaste poster";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "t.ex. spela alla fem seten; matchen kan sluta oavgjort";
 "match_completion_custom_placeholder" = "Ange 1-99";
 "match_completion_invalid_sets" = "Klassiskt kräver udda antal mellan 1-99; Spela alla accepterar 1-99.";
+"setup_auto_odd_sets" = "Endast udda tal tillåts — använder %d";
 "has_been_reset" = "Återställning klar";
 "no_undo_available" = "Inget att ångra";
 "screenshot_failed" = "Skärmdump misslyckades";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "Aktiv synkroniseringssession";
 "timer_status_running" = "Körs";
 "timer_status_paused" = "Pausad";
-"membership_entry_summary_active" = "Du är VIP-medlem. Tack för ditt stöd";
+"membership_entry_summary_active" = "VIP-medlemskap aktivt";
 "sound_effects" = "Ljudeffekter";
 "vibration" = "Vibration";
 "language" = "Språk";
@@ -1579,7 +1580,7 @@
 "group_approval" = "Godkännande krävs";
 "group_approve" = "Godkänn";
 "group_archive" = "Arkivera grupp";
-"group_archive_hint" = "Arkivering sparar hela historiken och pausar ändringar i gruppen. Du kan återställa den senare.";
+"group_archive_hint" = "Arkivera den här gruppen? Innehållet blir skrivskyddat.";
 "group_archive_readonly" = "Den här gruppen är arkiverad. Historiken är skrivskyddad.";
 "group_archived" = "Arkiverad";
 "group_benefit_activity" = "Planera aktiviteter och anmäl dig";
@@ -1624,38 +1625,38 @@
 "group_invalid_qr" = "Det här är ingen giltig QR-kod för en grupp.";
 "group_invalid_result" = "Det sparade resultatet måste granskas före uppladdning.";
 "group_invalid_rules" = "Kontrollera matchreglerna.";
-"group_invite" = "Invite";
+"group_invite" = "Bjud in lagkamrater";
 "group_join" = "Gå med i grupp";
 "group_join_hint" = "Gå med i en väns grupp med dess nummer eller QR-kod.";
-"group_join_message" = "Meddelande till gruppen (valfritt)";
-"group_join_policy" = "Anslutning";
+"group_join_message" = "Meddelande i medlemsansökan (valfritt)";
+"group_join_policy" = "Alternativ för att gå med";
 "group_leave" = "Lämna grupp";
-"group_leave_hint" = "Du förlorar tillgången till den här gruppen. Dina personliga uppgifter finns kvar på den här enheten.";
+"group_leave_hint" = "När du lämnar är du inte längre medlem och gruppen tas bort från ”Mina grupper”. Du kan inte längre öppna eller delta i gruppen. Gruppens befintliga matchregistreringar och dina personliga registreringar på den här enheten sparas. Du måste gå med i gruppen igen för att få åtkomst.";
 "group_load_failed" = "Kunde inte läsa in gruppen";
 "group_load_more" = "Läs in fler";
 "group_losses" = "förluster";
 "group_manual" = "Manuell inmatning";
-"group_manual_result" = "Lägg till tidigare match";
+"group_manual_result" = "Lägg till matchresultat";
 "group_match_detail" = "Matchdetaljer";
 "group_match_log" = "Matchhistorik";
 "group_match_rules" = "Matchregler";
 "group_member" = "Medlem";
 "group_member_name" = "Medlemsnamn";
-"group_members" = "Medlemmar";
+"group_members" = "Medlem";
 "group_month_matches" = "Matcher denna månad";
 "group_my_groups" = "Mina grupper";
 "group_name" = "Gruppnamn";
 "group_need_login" = "Logga in för att fortsätta.";
 "group_need_members" = "Bjud in vänner eller lägg till tillfälliga medlemmar innan du börjar en match.";
-"group_new_activity" = "Planera en aktivitet";
+"group_new_activity" = "Skapa aktivitet";
 "group_new_owner" = "Ny ägare";
 "group_no_activities" = "Inga aktiviteter ännu";
 "group_no_description" = "Ingen beskrivning ännu";
 "group_no_rankings" = "Rankningar visas när en match har bekräftats.";
 "group_no_set_details" = "Endast det sammanlagda resultatet sparades.";
-"group_note" = "Aktivitetsanteckning (valfritt)";
-"group_number" = "6–8 digit group number";
-"group_open" = "Alla med numret kan gå med";
+"group_note" = "Notering (valfritt)";
+"group_number" = "Gruppnummer med 6–8 siffror";
+"group_open" = "Gå med direkt";
 "group_overall_score" = "Sammanlagt setresultat";
 "group_overview" = "Översikt";
 "group_owner" = "Ägare";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "Ta bort medlem";
 "group_restore" = "Återställ grupp";
 "group_restore_hint" = "Återställ gruppen för att tillåta aktiviteter och poängräkning.";
-"group_results" = "Matcher";
+"group_results" = "Historik";
 "group_retry" = "Försök igen";
 "group_rules_missing" = "Reglerna sparades inte";
-"group_save" = "Bekräfta";
+"group_save" = "Spara";
 "group_save_failed" = "Kunde inte spara matchen. Försök igen.";
 "group_scan" = "Skanna QR-kod";
 "group_scoreboard" = "Resultattavla";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "Återuppta eller avsluta din pågående match innan du börjar en ny.";
 "group_unregister" = "Avanmäl";
 "group_void_reason" = "Orsak till ogiltigförklaring";
-"group_void_result" = "Ogiltigförklara resultat";
+"group_void_result" = "Ogiltigförklara";
 "group_voided" = "Ogiltigförklarat";
 "group_wins" = "vinster";
 "group_withdraw" = "Dra tillbaka begäran";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "Du är redan medlem.";
 "group_open_group" = "Öppna grupp";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
-"group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
+"group_groups" = "Grupp";
+"group_invite_students" = "Bjud in elever";
+"group_group_type" = "Grupptyp";
+"group_peer" = "Vängrupp";
+"group_coaching" = "Träningsgrupp";
+"group_training" = "Träning";
+"group_upcoming" = "Kommande";
+"group_latest_results" = "Senaste resultat";
+"group_no_results" = "Inga matcher registrerade ännu";
+"group_no_training" = "Ingen träning planerad ännu";
+"group_active_activities" = "Pågår · Anmälan öppen";
+"group_past_activities" = "Tidigare aktiviteter";
+"group_all_formats" = "Alla spelformer";
+"group_join_requests" = "Medlemsansökningar";
+"group_regular_members" = "Anmälda medlemmar";
+"group_temporary_members" = "Tillfälliga medlemmar";
+"group_add" = "Lägg till";
+"group_leader" = "Ägare";
+"group_member_settings" = "Medlemsinställningar";
+"group_settings" = "Grupphantering";
+"group_partial_load" = "Vissa delar kunde inte uppdateras. Dra nedåt för att försöka igen.";
+"group_leave_notices" = "Elevernas frånvaroanmälningar";
+"group_mark_seen" = "Läst";
+"group_training_schedule" = "Träningsschema";
+"group_add_session" = "Lägg till match";
+"group_edit_schedule" = "Redigera spelschema";
+"group_cancel_schedule" = "Avboka spelschema";
+"group_leave_training" = "Anmäl frånvaro";
+"group_session_minutes" = "Minuter per match";
+"group_court" = "Bana";
+"group_remove_session" = "Ta bort";
+"group_publish_schedule" = "Publicera spelschema";
+"group_leave_reason" = "Frånvaroorsak (valfritt)";
+"group_report" = "Anmäl grupp";
+"group_report_reason" = "Orsak";
+"group_report_detail" = "Detaljer (valfritt)";
+"group_report_submit" = "Skicka";
+"group_report_spam" = "Skräppost";
+"group_report_harassment" = "Trakasserier";
+"group_report_inappropriate" = "Sexuellt eller olämpligt innehåll";
+"group_report_fraud" = "Bedrägeri eller hasardspel";
+"group_report_illegal" = "Olaglig eller farlig verksamhet";
+"group_report_impersonation" = "Identitetsmissbruk";
+"group_report_other" = "Annat";
+"group_lineup_invalid" = "Kontrollera matchtider, banor och spelare.";
+"group_lineup_member_limit" = "En medlem får spela högst åtta matcher per spelschema.";
+"group_lineup_conflict" = "Samtidiga matcher måste ha olika banor och spelare.";
+"group_multi_match_hint" = "En aktivitet kan innehålla flera matcher. Medlemmar anmäler sig till aktiviteten; välj 2 anmälda till varje singelmatch eller 4 till varje dubbelmatch när matcherna planeras.";
+"group_single_match_hint" = "Varje aktivitet är en match. Välj 2 anmälda medlemmar till singel eller 4 till dubbel.";
+"group_rate_limited" = "För många förfrågningar. Försök igen senare.";
+"group_create_daily_limit" = "Du har nått gränsen för att skapa grupper under 24 timmar. Försök igen senare.";
+"group_join_daily_limit" = "Du har nått gränsen för att gå med i grupper under 24 timmar. Försök igen senare.";
+"group_pending_request_limit" = "För många medlemsansökningar väntar på godkännande. Vänta på besked eller återkalla några.";
+"group_request_daily_limit" = "Gruppen har nått gränsen för medlemsansökningar under 24 timmar. Försök igen senare.";
+"group_join_cooldown" = "Du måste vänta 24 timmar efter ett avslag innan du kan ansöka igen.";
+"group_result_group_daily_limit" = "Gruppen har nått resultatgränsen under 24 timmar. Försök igen senare.";
+"group_result_submitter_daily_limit" = "Du har nått gränsen för att skicka resultat under 24 timmar. Försök igen senare.";
+"group_not_coach" = "Endast tränaren kan planera pass.";
+"group_activity_count" = "%1$d/%2$d anmälda";
+"group_activity_create_admin_hint" = "Aktiviteter skapas av gruppägaren eller en administratör";
+"group_activity_direct_hint" = "Välj direkt bland alla aktiva gruppmedlemmar; ingen anmälan krävs.";
+"group_activity_direct_save" = "Spara spelschema";
+"group_activity_direct_title" = "Planera nu";
+"group_activity_field_title_optional" = "Aktivitetsnamn (valfritt)";
+"group_activity_full" = "Fullt";
+"group_activity_lineup_add" = "Lägg till match";
+"group_activity_lineup_add_need_members" = "För få spelare. Minst %1$d aktiva gruppmedlemmar krävs för att lägga till en match.";
+"group_activity_lineup_court" = "Bannummer";
+"group_activity_lineup_duration" = "Matchlängd";
+"group_activity_lineup_match_count" = "%1$d matcher";
 "group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
+"group_activity_lineup_remove" = "Ta bort";
+"group_activity_lineup_section_matches" = "Planera matcher";
 "group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_activity_registration_empty" = "Inga tillfälliga medlemmar";
+"group_activity_section_count" = "%1$d aktiviteter";
+"group_activity_section_past" = "Tidigare aktiviteter";
+"group_activity_section_upcoming" = "Pågår · Anmälan öppen";
+"group_activity_status_scheduled" = "Redo att börja";
+"group_activity_time_after_previous" = "Efter föregående match";
+"group_activity_time_unspecified" = "Tid bestäms senare";
+"group_activity_timing" = "Tidsplanering";
+"group_activity_timing_estimated" = "Beräknad tid";
+"group_activity_timing_sequence" = "Utan exakt tid";
+"group_activity_title_auto_hint" = "Om fältet lämnas tomt skapas ett namn utifrån datumet, till exempel ”Aktivitet den 10 november”.";
+"group_archived_empty" = "Inga arkiverade grupper";
+"group_archived_list_title" = "Arkiverade grupper";
+"group_empty_activities_title" = "Inga aktiviteter ännu";
+"group_list_add_title" = "Skapa eller gå med i en grupp";
+"group_ranking_draws" = "oavgjorda";
+"group_ranking_games" = "Spelade matcher";
+"group_ranking_losses" = "förluster";
+"group_ranking_sets" = "Poäng";
+"group_ranking_title" = "%@ – topplista";
+"group_ranking_wins" = "vinster";
+"group_training_results_locked" = "Scheman med resultat behåller tider och spelare. Plats och anteckning kan ändras.";
+"group_temporary_hint" = "Tillfälliga medlemmar behöver inget konto och kan läggas till när resultat registreras.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "Frigör match";
-"group_activity_lineup" = "Matchschema";
-"group_activity_mode" = "Matcher";
+"group_abandon_game" = "Överge match";
+"group_activity_lineup" = "Planera matcher";
+"group_activity_mode" = "Historik";
 "group_activity_reminder" = "Påminn mig 15 minuter innan";
 "group_add_set" = "Lägg till gameresultat";
 "group_added_members" = "Tillagd";
-"group_authority_confirm" = "Bekräfta som gruppägare";
-"group_batch_names_hint" = "Ett namn per rad, 1–24 tecken vardera.";
-"group_beta_notice" = "Grupper är i betaversion. Synpunkter är välkomna.";
+"group_authority_confirm" = "Bekräfta resultat";
+"group_batch_names_hint" = "Ett namn per rad";
+"group_beta_notice" = "Grupper är i beta. Vissa funktioner kan ändras. Tack för att du provar dem tidigt.";
 "group_cancel_dissolve" = "Avbryt upplösning";
 "group_cancel_dissolve_hint" = "Återställ gruppen för att tillåta aktiviteter och poängräkning.";
 "group_cancel_training_hint" = "Avslutade matcher finns kvar i historiken. Påbörjade matcher kan avslutas.";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "Sport Standard";
 "group_discard_upload" = "Kassera uppladdning";
 "group_dissolve" = "Lös upp grupp";
-"group_dissolve_hint" = "Skrivskyddat i 7 dagar. Du kan avbryta upplösningen under denna tid.";
+"group_dissolve_hint" = "Gruppen är skrivskyddad i 7 dagar. Under den tiden kan upplösningen avbrytas. Efter 7 dagar raderas gruppen och alla dess data permanent.";
 "group_dissolving" = "Upplösning pågår";
 "group_edit_activity" = "Redigera";
 "group_edit_lineup" = "Planera matcher";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "Inga aviseringar ännu";
 "group_no_sessions" = "Inga matcher planerade ännu";
 "group_notices" = "Aviseringar";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "Vissa delar kunde inte uppdateras. Dra nedåt för att försöka igen.";
 "group_point_cap" = "Poängtak";
 "group_preview_schedule" = "Granska schema";
 "group_published" = "Publicerad";
 "group_qr_direct_hint" = "Skanna i iScoreboard för att förhandsvisa gruppen och gå med.";
 "group_quick_score" = "Sammanlagt setresultat";
 "group_rally_scoring" = "Rallypoäng";
-"group_read_notices" = "Read";
+"group_read_notices" = "Läst";
 "group_registration_closes" = "Anmälan stänger";
 "group_regular" = "Standard";
-"group_reload_version" = "Hämta senaste versionen";
+"group_reload_version" = "Läs in igen";
 "group_reminder_body" = "Aktiviteten börjar om 15 minuter.";
 "group_reminder_permission" = "Aktivera appens aviseringar i Inställningar.";
 "group_reminder_too_late" = "Aktiviteten börjar om mindre än 15 minuter.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "Seträkning";
 "group_tie_break" = "Tiebreak-poäng";
 "group_tiebreak_only" = "Endast tiebreak";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "Datum";
+"group_too_many_sessions" = "Kontrollera matchtider, banor och spelare.";
+"group_training_date" = "Träningsdatum";
 "group_win_by_two" = "Vinn med två poängs marginal";
 
-"group_keep_draft" = "Behåll mina ändringar";
+"group_keep_draft" = "Fortsätt redigera den lokala versionen";
 
 "group_server_version" = "Senaste versionen";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "Gruppen upplöses %@\n7 dagars betänketid; endast läsning fram till dess";
 "group_notice_end" = "Inga fler aviseringar";
 "group_notice_join_requested" = "Anslutningsförfrågan mottagen";
 "group_notice_join_approved" = "Anslutningsförfrågan godkänd";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "Manuell inmatning";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "Markera alla som lästa";
+
+"group_status_active" = "Aktiv";
+"group_dissolved" = "Upplöst";
+"group_report_status_pending" = "Väntande";
+"group_report_status_reviewing" = "Under granskning";
+"group_report_status_resolved" = "Åtgärdad";
+"group_report_status_dismissed" = "Avvisad";
+"group_error_permission" = "Du har inte behörighet att göra detta.";
+"group_error_transfer_first" = "Överlåt gruppägandet innan du lämnar gruppen eller raderar ditt konto.";
+"group_error_target" = "Välj en aktiv medlem i gruppen med ett konto.";
+"group_error_activity_locked" = "Aktiviteten har börjat eller avslutats. Schemat kan inte ändras eller avbokas.";
+"group_error_activity_pending" = "Slutför eller ta bort de återstående matcherna först.";
+"group_error_registration_disabled" = "Direkt planerade matcher kräver ingen anmälan.";
+"group_error_content_blocked" = "Texten innehåller olämpligt innehåll. Ändra den.";
+"group_error_request_invalid" = "Kontrollera uppgifterna och försök igen.";
+"group_error_reason_required" = "Ange en orsak innan du fortsätter.";
+"group_error_result_state" = "Endast resultat som väntar på bekräftelse kan bekräftas.";
+"group_error_conflict" = "Uppgifterna har ändrats. Uppdatera och kontrollera dem innan du försöker igen.";
+"group_error_request_handled" = "Den här ansökan har redan behandlats. Uppdatera listan.";
+"group_error_place_locked" = "Platsen kan inte ändras när en match har börjat eller avslutats.";
+"group_error_schedule_cancelled" = "Det här schemat eller den här matchen har avbokats.";
+"group_error_session_completed" = "Matchen är avslutad och det går inte att begära frånvaro. Uppdatera schemat för att se resultatet.";
+"group_error_session_has_result" = "Matchen har redan ett resultat. Ogiltigförklara det innan du lägger till ett annat.";
+"group_error_item_not_found" = "Aktiviteten, schemat, matchen eller aviseringen är inte längre tillgänglig. Uppdatera listan.";
+"group_error_server" = "Grupptjänsten är tillfälligt otillgänglig. Försök igen senare.";
+"group_error_peer_only" = "Använd träningsplaneringen för träningsgrupper.";
+"group_error_name_length" = "Gruppnamn måste innehålla 2–24 tecken.";
+"group_error_description_length" = "Gruppbeskrivningar får vara högst 200 tecken.";
+"group_error_activity_invalid" = "Kontrollera aktivitetens namn, datum, plats och deltagargräns.";
+"group_error_registration_closed" = "Anmälan är stängd.";
+"group_error_action_disabled" = "Åtgärden är inte tillgänglig just nu.";
+"group_error_update_required" = "Uppdatera appen för att fortsätta.";
+"group_welcome_back" = "Välkommen tillbaka";
+"group_transfer_none" = "Det finns inga andra ordinarie medlemmar. Tillfälliga medlemmar kan inte bli gruppledare.";
+"group_empty_activities_hint" = "Skapa en aktivitet som medlemmarna kan anmäla sig till. Anmälan stängs när alla platser är fyllda.";
+"group_temp_import_names" = "Importera sparade namn";
+"group_temp_import_count" = "Importera (%1$d)";
+"group_result_information" = "Matchinformation";
+"group_result_actions" = "Resultatåtgärder";
+"group_peer_confirmation" = "Motståndarens bekräftelse";
+"group_notice_target_unavailable" = "Det här innehållet är inte tillgängligt eller så har du inte längre åtkomst.";
+"group_push_enabled" = "Gruppnotiser";
+"group_push_group_enabled" = "Ta emot notiser från den här gruppen";
+"group_push_inbox_kept" = "Om du stänger av dessa behålls notiser i appen och befintliga aktivitetspåminnelser.";
+"group_push_permission" = "Aktivera systemnotiser";
+"group_push_settings" = "Notisinställningar";
+
+// Shared group form controls
+"group_inline_seat_hint" = "Välj en plats och sedan en medlem";
+"group_score_and_rules" = "Resultat och regler";
+"group_activity_registration_scope" = "Anmäl tillfälliga medlemmar här. Medlemmar med konto anmäler sig själva.";
+"group_activity_registration_no_changes" = "Inga osparade ändringar";
+"group_activity_registration_changes" = "Lägg till %1$d · Avanmäl %2$d";
+"group_activity_registration_save" = "Spara anmälningar (%1$d)";
+"group_activity_registration_manage" = "Anmälan av tillfälliga medlemmar";
+"group_activity_registration_pending_add" = "Ska anmälas";
+"group_activity_registration_pending_remove" = "Ska avanmälas";
+"group_activity_registration_registered" = "Anmäld";
+"group_activity_registration_not_registered" = "Inte anmäld";
+"group_activity_detail" = "Aktivitetsdetaljer";
+"group_activity_my_registration" = "Min anmälan";
+"group_match_score" = "Matchresultat";
+
+"group_lookup_available" = "Öppen";
+
+/* Group beta notice card. */
+"group_beta_badge" = "Beta";
+"group_beta_supported_label" = "Tillgängligt nu";
+"group_beta_feedback_prompt" = "Problem eller förslag?";
+"group_beta_feedback_action" = "Skicka feedback";
+
+"group_member_results_title" = "Medlemsresultat";
+
+"group_removed_members_expand" = "Visa";
+"group_removed_members_collapse" = "Dölj";
+"group_best_of_format" = "Bäst av %1$@ (först till %2$@)";
+"group_member_count_single" = "%d medlem";
+"group_member_count_short" = "%d medlemmar";
+"group_lookup_closed_short" = "Stängd";
+"group_lookup_closing_short" = "Upplöses";
+"group_lookup_member_short" = "Du är medlem";
+"group_lookup_unavailable_short" = "Inte tillgänglig";
+"group_join_scan_hint" = "Skanna en grupps QR-kod";
+"group_join_number_hint" = "6–8 siffror. Fråga gruppens ägare.";
+"group_request_join" = "Ansök om att gå med";
+"group_overdue_tasks" = "Förfallna uppgifter";
+"group_apply_shift" = "Tillämpa ändringar";
+"group_transfer_submit" = "Överför";
+"group_rename_member" = "Byt namn";
+"group_set_admin" = "Gör till administratör";
+"group_set_member" = "Ta bort administratörsroll";
+"group_confirm_authority_message" = "Alla spelare är tillfälliga medlemmar, eller motståndarsidan saknar en spelare med konto som kan bekräfta. Ägaren måste kontrollera spelare och resultat. Efter bekräftelsen räknas resultatet i matchhistoriken och ägaren anges som den som bekräftat.";
+"group_confirm_result_message" = "Efter bekräftelsen räknas resultatet i båda sidors historik och kan inte redigeras. Ogiltigförklara det först om det behöver rättas.";
+"group_confirm_member_message" = "Bekräfta spelare och resultat för att ta med det i historiken. Be en administratör ogiltigförklara det ursprungliga resultatet om en rättelse behövs.";
+"group_cancel_activity_message" = "Avbokning raderar anmälningslistan permanent. Pågående aktiviteter kan inte avbokas.";
+"group_abandon_game_message" = "Överge den här matchen för att starta en annan. Sparade personliga uppgifter finns kvar.";
+"group_void_pending_message" = "Resultatet väntar inte längre på bekräftelse och räknas inte i matchstatistiken. Ursprungligt resultat och orsak förblir synliga för gruppmedlemmarna. Spelarna och den som skickat in får ett meddelande.";
+"group_void_confirmed_message" = "Resultatet räknas inte längre i matchstatistiken. Båda sidors statistik och rankningar räknas om. Ursprungligt resultat och orsak förblir synliga för gruppmedlemmarna. Spelarna och den som skickat in får ett meddelande.";
+"group_remove_member_message" = "Ta bort %@? Personen måste ansöka om att gå med igen.";
+"group_reload_version_message" = "Vill du kasta osparade ändringar i matchschemat och läsa in det senast sparade schemat?";
+"group_transfer_confirmation" = "Överföra ägarskapet till %@? Du blir en vanlig medlem.";
+"group_approve_confirmation" = "%@ blir gruppmedlem och kan se aktiviteter och resultat.";
+"group_reject_confirmation" = "Efter avslag måste %@ skicka en ny ansökan.";
+"group_lookup_full_short" = "Fullt";
+"group_lookup_archived_short" = "Arkiverad";
+"group_lookup_pending_short" = "Väntande";
+"group_temporary_member_count" = "%d medlemmar";
+"group_best_of_tennis_format" = "Bäst av %1$@ (först till %2$@)";
+"group_rename_member_title" = "Byt namn";
+
+"group_copy_transfer_title" = "Överför ägarskap";
+
+"group_copy_transfer_submit" = "Överför";
+
+"group_copy_transfer_message" = "Överföra ägarskapet till %@? Du blir en vanlig medlem.";
+
+"group_copy_transfer_hint" = "Efter överföringen blir du en vanlig medlem.";
+
+"group_copy_rename_title" = "Byt namn";
+
+"group_copy_rename_action" = "Byt namn";
+
+"group_copy_result_confirm" = "Bekräfta resultat";
+
+"group_copy_result_confirm_authority_message" = "Alla spelare är tillfälliga medlemmar, eller motståndarsidan saknar en spelare med konto som kan bekräfta. Ägaren måste kontrollera spelare och resultat. Efter bekräftelsen räknas resultatet i matchhistoriken och ägaren anges som den som bekräftat.";
+
+"group_copy_result_confirm_manager_message" = "Efter bekräftelsen räknas resultatet i båda sidors historik och kan inte redigeras. Ogiltigförklara det först om det behöver rättas.";
+
+"group_copy_result_confirm_member_message" = "Bekräfta spelare och resultat för att ta med det i historiken. Be en administratör ogiltigförklara det ursprungliga resultatet om en rättelse behövs.";
+
+"group_copy_void_action" = "Ogiltigförklara";
+
+"group_copy_void_pending_message" = "Resultatet väntar inte längre på bekräftelse och räknas inte i matchstatistiken. Ursprungligt resultat och orsak förblir synliga för gruppmedlemmarna. Spelarna och den som skickat in får ett meddelande.";
+
+"group_copy_void_confirmed_message" = "Resultatet räknas inte längre i matchstatistiken. Båda sidors statistik och rankningar räknas om. Ursprungligt resultat och orsak förblir synliga för gruppmedlemmarna. Spelarna och den som skickat in får ett meddelande.";
+
+"group_copy_cancel_activity" = "Avboka aktivitet";
+
+"group_copy_cancel_activity_message" = "Avbokning raderar anmälningslistan permanent. Pågående aktiviteter kan inte avbokas.";
+
+"group_copy_abandon_action" = "Överge match";
+
+"group_copy_abandon_message" = "Överge den här matchen för att starta en annan. Sparade personliga uppgifter finns kvar.";
+
+"group_copy_leave_action" = "Lämna grupp";
+
+"group_copy_leave_message" = "När du lämnar är du inte längre medlem och gruppen tas bort från ”Mina grupper”. Du kan inte längre öppna eller delta i gruppen. Gruppens befintliga matchregistreringar och dina personliga registreringar på den här enheten sparas. Du måste gå med i gruppen igen för att få åtkomst.";
+
+"group_copy_archive_action" = "Arkivera grupp";
+
+"group_copy_archive_message" = "Arkivera den här gruppen? Innehållet blir skrivskyddat.";
+
+"group_copy_dissolve_action" = "Lös upp grupp";
+
+"group_copy_dissolve_message" = "Gruppen är skrivskyddad i 7 dagar. Under den tiden kan upplösningen avbrytas. Efter 7 dagar raderas gruppen och alla dess data permanent.";
+
+"group_copy_approve_action" = "Godkänn";
+
+"group_copy_approve_message" = "%@ blir gruppmedlem och kan se aktiviteter och resultat.";
+
+"group_copy_reject_action" = "Avvisa";
+
+"group_copy_reject_message" = "Efter avslag måste %@ skicka en ny ansökan.";
+
+"group_copy_remove_action" = "Ta bort medlem";
+
+"group_copy_remove_message" = "Ta bort %@? Personen måste ansöka om att gå med igen.";
+
+"group_copy_report_detail" = "Detaljer (valfritt)";
+
+"group_copy_edit_profile" = "Redigera gruppprofil";
+
+"group_copy_entry_a_wins" = "A vinner";
+
+"group_copy_entry_b_wins" = "B vinner";
+
+"group_copy_activity_timing_sequence" = "Utan exakt tid";
+
+"group_copy_activity_registration_manage" = "Anmälan av tillfälliga medlemmar";
+
+"group_copy_temporary_hint" = "Tillfälliga medlemmar behöver inget konto och kan läggas till när resultat registreras.";
+
+"group_copy_activity_registration_scope" = "Anmäl tillfälliga medlemmar här. Medlemmar med konto anmäler sig själva.";
+
+"group_copy_report" = "Anmäl grupp";
+
+"group_copy_notice_member_removed" = "Du har tagits bort från gruppen";
+
+"group_copy_notice_role_changed" = "Din roll har ändrats";
+
+"group_copy_activity_direct_save" = "Spara spelschema";
+
+"group_copy_notice_join_approved" = "Anslutningsförfrågan godkänd";
+
+"group_copy_notice_join_rejected" = "Anslutningsförfrågan avslogs";
+
+"group_copy_all_formats" = "Alla spelformer";
+
+"group_copy_closed" = "Anslutning stängd";
+
+"group_copy_report_other" = "Annat";
+
+"group_copy_report_impersonation" = "Identitetsmissbruk";
+
+"group_copy_audit_ui_share_failed" = "Delningen misslyckades. Försök igen.";
+
+"group_copy_audit_ui_share_number" = "Dela gruppenummer";
+
+"group_copy_create" = "Skapa grupp";
+
+"group_copy_confirm_join" = "Gå med i denna grupp";
+
+"group_copy_join" = "Gå med i grupp";
+
+"group_copy_join_policy" = "Alternativ för att gå med";
+
+"group_copy_filter_singles" = "Singel";
+
+"group_copy_upcoming" = "Kommande";
+
+"group_copy_activity_section_past" = "Tidigare aktiviteter";
+
+"group_copy_beta_feedback_action" = "Skicka feedback";
+
+"group_copy_doubles" = "Dubbel";
+
+"group_copy_create_activity" = "Skapa aktivitet";
+
+"group_copy_benefit_activity" = "Planera aktiviteter och anmäl dig";
+
+"group_copy_empty_activities_hint" = "Skapa en aktivitet som medlemmarna kan anmäla sig till. Anmälan stängs när alla platser är fyllda.";
+
+"group_copy_lookup_available" = "Öppen";
+
+"group_copy_activity_direct_hint" = "Välj direkt bland alla aktiva gruppmedlemmar; ingen anmälan krävs.";
+
+"group_copy_empty_intro" = "Samla dina vänner för att planera matcher, räkna poäng och bygga en gemensam matchhistorik.";
+
+"group_copy_place" = "Plats";
+
+"group_copy_ranking_games" = "Spelade matcher";
+
+"group_copy_ranking_insufficient_matches" = "För få matcher";
+
+"group_copy_report_spam" = "Skräppost";
+
+"group_copy_report_status_reviewing" = "Under granskning";
+
+"group_copy_note" = "Notering (valfritt)";
+
+"group_copy_peer_confirmation" = "Motståndarens bekräftelse";
+
+"group_copy_activity_lineup_section_matches" = "Planera matcher";
+
+"group_copy_group" = "Grupp";
+
+"group_copy_group_qr" = "Gruppens QR-kod";
+
+"group_copy_beta_notice" = "Grupper är i beta. Vissa funktioner kan ändras. Tack för att du provar dem tidigt.";
+
+"group_copy_created" = "Grupp skapad";
+
+"group_copy_ranking_sets" = "Poäng";
+
+"group_copy_removed_members_expand" = "Visa";
+
+"group_copy_voided" = "Ogiltigförklarat";
+
+"group_copy_cancelled" = "Avbruten";
+
+"group_copy_report_status_resolved" = "Åtgärdad";
+
+"group_copy_completed" = "Slutförd";
+
+"group_copy_archived" = "Arkiverad";
+
+"group_copy_archived_list_title" = "Arkiverade grupper";
+
+"group_copy_activity_registration_registered" = "Anmäld";
+
+"group_copy_activity_full" = "Fullt";
+
+"group_copy_confirmed" = "Bekräftad";
+
+"group_copy_removed_members" = "Tidigare medlemmar";
+
+"group_copy_mark_seen" = "Läst";
+
+"group_copy_report_status_dismissed" = "Avvisad";
+
+"group_copy_draws" = "oavgjorda";
+
+"group_copy_draw" = "Oavgjort";
+
+"group_copy_start_score" = "Börja räkna poäng";
+
+"group_copy_pending_upload" = "Väntar på uppladdning";
+
+"group_copy_activity_registration_pending_remove" = "Ska avanmälas";
+
+"group_copy_report_status_pending" = "Väntande";
+
+"group_copy_lookup_pending_short" = "Väntande";
+
+"group_copy_pending_request_limit" = "För många medlemsansökningar väntar på godkännande. Vänta på besked eller återkalla några.";
+
+"group_copy_activity_registration_pending_add" = "Ska anmälas";
+
+"group_copy_pending_confirmation" = "Väntar på bekräftelse";
+
+"group_copy_lookup_closing_short" = "Upplöses";
+
+"group_copy_restore" = "Återställ grupp";
+
+"group_copy_member" = "Medlem";
+
+"group_copy_member_results_title" = "Medlemsresultat";
+
+"group_copy_my_groups" = "Mina grupper";
+
+"group_copy_activity_my_registration" = "Min anmälan";
+
+"group_copy_activity_mode" = "Historik";
+
+"group_copy_qr_join_short" = "Skanna för att gå med";
+
+"group_copy_qr_apply_short" = "Skanna för att begära medlemskap";
+
+"group_copy_register" = "Anmäl dig";
+
+"group_copy_recruiting" = "Öppet för anmälan";
+
+"group_copy_registration_closes" = "Anmälan stänger";
+
+"group_copy_activity_time_after_previous" = "Efter föregående match";
+
+"group_copy_report_submit" = "Skicka";
+
+"group_copy_submitted_by" = "Skickat av";
+
+"group_copy_cancel_dissolve" = "Avbryt upplösning";
+
+"group_copy_notice_join_requested" = "Anslutningsförfrågan mottagen";
+
+"group_copy_removed_members_collapse" = "Dölj";
+
+"group_copy_discard_upload" = "Kassera uppladdning";
+
+"group_copy_notice_activity_created" = "Aktiviteten skapades";
+
+"group_copy_activity_time_unspecified" = "Tid bestäms senare";
+
+"group_copy_activity_registration_empty" = "Inga tillfälliga medlemmar";
+
+"group_copy_transfer_none" = "Det finns inga andra ordinarie medlemmar. Tillfälliga medlemmar kan inte bli gruppledare.";
+
+"group_copy_archived_empty" = "Inga arkiverade grupper";
+
+"group_copy_empty_activities_title" = "Inga aktiviteter ännu";
+
+"group_copy_latest_results" = "Senaste resultat";
+
+"group_copy_disputed" = "Bestridd";
+
+"group_copy_activity_registration_not_registered" = "Inte anmäld";
+
+"group_copy_month_matches" = "Matcher denna månad";
+
+"group_copy_open_group" = "Öppna grupp";
+
+"group_copy_benefit_history" = "Visa matcher och rankningar";
+
+"group_copy_overview" = "Översikt";
+
+"group_copy_welcome_back" = "Välkommen tillbaka";
+
+"group_copy_regular_members" = "Anmälda medlemmar";
+
+"group_copy_rally_scoring" = "Rallypoäng";
+
+"group_copy_result_information" = "Matchinformation";
+
+"group_copy_match_score" = "Matchresultat";
+
+"group_copy_match_rules" = "Matchregler";
+
+"group_copy_activity_registration_no_changes" = "Inga osparade ändringar";
+
+"group_copy_activities" = "Aktiviteter";
+
+"group_copy_activity_title" = "Aktivitetens namn";
+
+"group_copy_activity_field_title_optional" = "Aktivitetsnamn (valfritt)";
+
+"group_copy_notice_activity_changed" = "Aktiviteten uppdaterades";
+
+"group_copy_notice_activity_cancelled" = "Aktiviteten avbokades";
+
+"group_copy_activity_lineup" = "Planera matcher";
+
+"group_copy_activity_create_admin_hint" = "Aktiviteter skapas av gruppägaren eller en administratör";
+
+"group_copy_beta_badge" = "Beta";
+
+"group_copy_add_set" = "Lägg till gameresultat";
+
+"group_copy_add_temporary" = "Lägg till tillfällig medlem";
+
+"group_copy_benefit_score" = "Räkna poäng eller lägg till tidigare resultat";
+
+"group_copy_request_join" = "Ansök om att gå med";
+
+"group_copy_join_message" = "Meddelande i medlemsansökan (valfritt)";
+
+"group_copy_beta_supported_label" = "Tillgängligt nu";
+
+"group_copy_open" = "Gå med direkt";
+
+"group_copy_activity_direct_title" = "Planera nu";
+
+"group_copy_admin" = "Administratör";
+
+"group_copy_confirmed_matches" = "Bekräftade matcher";
+
+"group_copy_leader" = "Ägare";
+
+"group_copy_notice_ownership_transferred" = "Gruppens ägare har ändrats";
+
+"group_copy_complete_activity" = "Avsluta aktivitet";
+
+"group_copy_keep_draft" = "Fortsätt redigera den lokala versionen";
+
+"group_copy_ranking_wins" = "vinster";
+
+"group_copy_ranking_rate" = "Vinstprocent";
+
+"group_copy_report_inappropriate" = "Sexuellt eller olämpligt innehåll";
+
+"group_copy_update_report" = "Uppdatera rapport";
+
+"group_copy_manual_result" = "Lägg till matchresultat";
+
+"group_copy_set_admin" = "Gör till administratör";
+
+"group_copy_activity_timing_estimated" = "Beräknad tid";
+
+"group_copy_losses" = "förluster";
+
+"group_copy_notice_result_voided" = "Resultatet ogiltigförklarades";
+
+"group_copy_notice_result_confirmed" = "Resultatet bekräftades";
+
+"group_copy_notice_result_pending" = "Resultatet väntar på bekräftelse";
+
+"group_copy_result_actions" = "Resultatåtgärder";
+
+"group_copy_empty_title" = "Inga grupper ännu";
+
+"group_copy_in_progress" = "Pågår";
+
+"group_copy_report_illegal" = "Olaglig eller farlig verksamhet";
+
+"group_copy_join_hint" = "Gå med i en väns grupp med dess nummer eller QR-kod.";
+
+"group_copy_overdue_tasks" = "Förfallna uppgifter";
+
+"group_copy_beta_feedback_prompt" = "Problem eller förslag?";
+
+"group_copy_invite" = "Bjud in lagkamrater";
+
+"group_copy_retry" = "Försök igen";
+
+"group_copy_approval" = "Godkännande krävs";
+
+"group_copy_sport" = "Sport";
+
+"group_copy_report_harassment" = "Trakasserier";
+
+"group_copy_ranking_me_suffix" = " (jag)";
+
+"group_copy_places_title" = "Välj plats";
+
+"group_copy_report_fraud" = "Bedrägeri eller hasardspel";
+
+"group_copy_void_reason" = "Orsak till ogiltigförklaring";
+
+"group_copy_reload_version" = "Läs in igen";
+
+"group_copy_lineup_reload_message" = "Vill du kasta osparade ändringar i matchschemat och läsa in det senast sparade schemat?";
+
+"group_copy_join_number_separator" = "Eller ange gruppnummer";
+
+"group_copy_activity_multi_match_hint" = "En aktivitet kan innehålla flera matcher. Medlemmar anmäler sig till aktiviteten; välj 2 anmälda till varje singelmatch eller 4 till varje dubbelmatch när matcherna planeras.";
+
+"group_copy_activity_single_match_hint" = "Varje aktivitet är en match. Välj 2 anmälda medlemmar till singel eller 4 till dubbel.";
+
+"group_copy_activity_detail" = "Aktivitetsdetaljer";
+
+"group_copy_registration_at_start" = "När aktiviteten börjar";
+
+"group_copy_registration_use_start" = "Använd aktivitetens starttid";
+
+"group_copy_cancel_reason_optional" = "Orsak till avbokning (valfritt)";
+
+"group_copy_audit_result_frozen_info" = "Visa spelare och regler";
+"group_view_schedule" = "Visa matcher";
+"group_notice_training_published" = "Träning publicerad";
+"group_notice_training_changed" = "Träning uppdaterad";
+"group_notice_training_cancelled" = "Träning inställd";
+"group_notice_leave_changed" = "Frånvaro uppdaterad";
+"group_report_evidence_title" = "Bildbevis (valfritt)";
+"group_report_evidence_hint" = "Upp till 3 JPG- eller PNG-bilder på högst 2 MB vardera. Bara du och plattformen kan se dem.";
+"group_report_add_image" = "Lägg till bild";
+"group_report_retry" = "Försök igen";
+"group_report_preview" = "Bevisbild";
+"group_report_supplement" = "Lägg till information";
+"group_report_close" = "Stäng";
+"group_report_remove_image" = "Ta bort bild";
+"group_report_image_error" = "Det gick inte att förbereda bilden. Prova en annan JPG- eller PNG-bild.";
+"group_report_refresh" = "Uppdatera status";

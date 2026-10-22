@@ -26,8 +26,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
-		<key>other</key>
-		<string>%d matches · all group members</string>
+			<key>other</key>
+			<string>%d การแข่งขัน · สมาชิกกลุ่มทุกคน</string>
 		</dict>
 	</dict>
 	<key>archived_count</key>
@@ -40,8 +40,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
-		<key>other</key>
-		<string>%d groups</string>
+			<key>other</key>
+			<string>%d กลุ่ม</string>
 		</dict>
 	</dict>
 	<key>timer_byoyomi_periods_format</key>

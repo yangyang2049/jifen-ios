@@ -128,7 +128,7 @@ struct NineBallSetupDialogView: View {
         } label: {
             Text(NSLocalizedString("start_game", comment: ""))
                 .fontWeight(.medium)
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.textOnPrimary)
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)
                 .background(Theme.primary)

@@ -170,10 +170,11 @@ struct CloudSyncEntryPanel: View {
                         .foregroundStyle(Theme.primary)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
+                        .contentShape(Capsule())
                 }
-                .background(Theme.appCardBackground, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .background(Theme.appCardBackground, in: Capsule())
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    Capsule()
                         .strokeBorder(Theme.primary, lineWidth: 1)
                 )
             } else {
@@ -228,13 +229,14 @@ struct CloudSyncEntryPanel: View {
                         ? NSLocalizedString("sync_login_create_room", value: "生成同步码", comment: "")
                         : NSLocalizedString("sync_login_and_create_room", value: "登录并生成同步码", comment: ""))
                         .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(Theme.textOnPrimary)
                 }
             }
             .frame(maxWidth: .infinity)
             .frame(height: 56)
+            .contentShape(Capsule())
         }
-        .background(Theme.primary, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .background(Theme.primary, in: Capsule())
         .disabled(creatingRoom)
     }
 
@@ -304,13 +306,14 @@ struct CloudSyncEntryPanel: View {
                                 ? NSLocalizedString("sync_login_join_display", value: "加入同步", comment: "")
                                 : NSLocalizedString("sync_login_and_join_display", value: "登录并加入同步", comment: ""))
                                 .font(.system(size: 15, weight: .medium))
-                                .foregroundStyle(Color.white)
+                                .foregroundStyle(Theme.textOnPrimary)
                         }
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 56)
+                    .contentShape(Capsule())
                 }
-                .background(Theme.primary, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .background(Theme.primary, in: Capsule())
                 .disabled(joining || codeInput.count != 6)
                 .opacity(codeInput.count == 6 || joining ? 1 : 0.5)
             }
@@ -400,10 +403,11 @@ struct CloudSyncEntryPanel: View {
                 .lineLimit(1)
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)
+                .contentShape(Capsule())
         }
-        .background(Theme.appCardBackground, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .background(Theme.appCardBackground, in: Capsule())
         .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            Capsule()
                 .strokeBorder(color, lineWidth: 1)
         )
         .disabled(!enabled)
@@ -867,8 +871,9 @@ struct RemoteSyncSharingDialog: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
+                        .contentShape(Capsule())
                 }
-                .background(color, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .background(color, in: Capsule())
             } else {
                 Button(action: action) {
                     Text(title)
@@ -876,9 +881,10 @@ struct RemoteSyncSharingDialog: View {
                         .foregroundStyle(color)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
+                        .contentShape(Capsule())
                 }
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    Capsule()
                         .strokeBorder(color, lineWidth: 1)
                 )
             }
@@ -894,9 +900,10 @@ struct RemoteSyncSharingDialog: View {
                 .lineLimit(1)
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)
+                .contentShape(Capsule())
         }
         .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            Capsule()
                 .strokeBorder(color, lineWidth: 1)
         )
         .disabled(!enabled)

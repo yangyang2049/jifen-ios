@@ -830,32 +830,38 @@
     "squash.game.to": {
       "source_hash": "e17d126ba415ffe8d67d4f8b1a47fef661d8e7f0410e23ac90dc03e241600c28",
       "status": "reviewed",
-      "value": "%1$@, game to %2$@"
+      "value": "%1$@. Permainan tamat. %2$@ menang",
+      "note": "Native semantic announcement frame reviewed by Codex 2026-10-21"
     },
     "squash.games.all": {
       "source_hash": "c6b6b8da4ec5b0c99a020e86fc9e31ba13e4b79620c8513a9c9aa8e11c687a1f",
       "status": "reviewed",
-      "value": "%1$@ games all"
+      "value": "Permainan: %1$@ sama",
+      "note": "Native semantic announcement frame reviewed by Codex 2026-10-21"
     },
     "squash.leads": {
       "source_hash": "af6ef0f64903783533e0603ee04530c49140b46c4c6081c09f36c67c1ec64fc7",
       "status": "reviewed",
-      "value": "%1$@ leads %2$@ %3$@ to %4$@"
+      "value": "%1$@ mendahului, permainan %2$@ berbanding %4$@. %3$@",
+      "note": "Native semantic announcement frame reviewed by Codex 2026-10-21"
     },
     "squash.game.unit": {
       "source_hash": "6ca5cab77e702c787b4c14b3d3bf26bad43da606be6eed04ab0b9720120ae081",
       "status": "reviewed",
-      "value": "game"
+      "value": "Permainan tamat",
+      "note": "Native semantic announcement frame reviewed by Codex 2026-10-21"
     },
     "squash.games.unit": {
       "source_hash": "cd7ac4c61fd8bd3e76fe77e03b810a442d82f21d7dd08be0f82a58e2ad17a4e5",
       "status": "reviewed",
-      "value": "games"
+      "value": "Permainan",
+      "note": "Native semantic announcement frame reviewed by Codex 2026-10-21"
     },
     "squash.match.to": {
       "source_hash": "e1ff6a0f2f50e6c6a3f9ed84a076879c9028ec5f9fa183c0858d6e734a5a5f3a",
       "status": "reviewed",
-      "value": "%1$@, match to %2$@, %3$@ games to %4$@, %5$@"
+      "value": "%1$@. Perlawanan tamat. %2$@ menang. Permainan: %3$@, %4$@. %5$@",
+      "note": "Native semantic announcement frame reviewed by Codex 2026-10-21"
     },
     "padel.advantage.number": {
       "source_hash": "14970789433212f650e54b752e59c76a77483df3f1b8c208ed6860d81512d910",
@@ -915,12 +921,14 @@
     "tennis.deciding.point": {
       "source_hash": "eea188fa62e15d90cf5ec2c81bfda3b05be08c2a9db59a25fb604e233bcf995d",
       "status": "reviewed",
-      "value": "Deciding point, receiver's choice"
+      "value": "Mata penentu, penerima memilih",
+      "note": "Native semantic announcement frame reviewed by Codex 2026-10-21"
     },
     "pingpong.score.all": {
       "source_hash": "810990c6e1c078f1eb7e0bb0ce71cb23b330af262dcc44e2e0f466acdf8341ae",
       "status": "reviewed",
-      "value": "%1$@ all"
+      "value": "%1$@ sama",
+      "note": "Native semantic announcement frame reviewed by Codex 2026-10-21"
     },
     "softtennis.game": {
       "source_hash": "5c412a262086b9701cda06302f6667f9265b1807d0368fcec6cc03bf64fc250b",
@@ -950,12 +958,14 @@
     "squash.game.ball": {
       "source_hash": "ccb8c7cf357f8b1b7df9bf7e6d4c5cc440d1873f4c49168afc91cd9380bd7b20",
       "status": "reviewed",
-      "value": "Game ball"
+      "value": "Bola penentu permainan",
+      "note": "Native semantic announcement frame reviewed by Codex 2026-10-21"
     },
     "squash.match.ball": {
       "source_hash": "27606a7c8319912f435c5b1d3ad69d312ad9465e8443166a07fe2969e19d009c",
       "status": "reviewed",
-      "value": "Match ball"
+      "value": "Bola penentu perlawanan",
+      "note": "Native semantic announcement frame reviewed by Codex 2026-10-21"
     },
     "tennis.opening": {
       "source_hash": "3fa1490d91273b0050854b883daf215fee1853812654f1bbf57c6393cce6b23f",

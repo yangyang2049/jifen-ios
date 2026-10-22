@@ -32,14 +32,14 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
-		<key>one</key>
-		<string>%d match · all group members</string>
-		<key>two</key>
-		<string>%d matches · all group members</string>
-		<key>few</key>
-		<string>%d matches · all group members</string>
-		<key>other</key>
-		<string>%d matches · all group members</string>
+			<key>one</key>
+			<string>%d tekma · vsi člani skupine</string>
+			<key>two</key>
+			<string>%d tekmi · vsi člani skupine</string>
+			<key>few</key>
+			<string>%d tekme · vsi člani skupine</string>
+			<key>other</key>
+			<string>%d tekem · vsi člani skupine</string>
 		</dict>
 	</dict>
 	<key>archived_count</key>
@@ -52,14 +52,14 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
-		<key>one</key>
-		<string>%d group</string>
-		<key>two</key>
-		<string>%d groups</string>
-		<key>few</key>
-		<string>%d groups</string>
-		<key>other</key>
-		<string>%d groups</string>
+			<key>one</key>
+			<string>%d skupina</string>
+			<key>two</key>
+			<string>%d skupini</string>
+			<key>few</key>
+			<string>%d skupine</string>
+			<key>other</key>
+			<string>%d skupin</string>
 		</dict>
 	</dict>
 	<key>timer_byoyomi_periods_format</key>

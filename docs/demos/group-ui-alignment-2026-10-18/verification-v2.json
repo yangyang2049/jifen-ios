@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "date": "2026-10-19",
+  "scope": "13 HTML preview layouts and their review evidence only",
+  "nativeSourceChanged": false,
+  "nativeBuild": "Skipped Xcode/hvigor: no native app source changes.",
+  "verification": {
+    "standard402Scenes": 13,
+    "narrow320Dark130PercentScenes": 13,
+    "horizontalOverflow": false,
+    "developmentCopyInPhone": false,
+    "nativeImageCopiesSHA256": 20,
+    "originalHTMLSHA256Unchanged": 23,
+    "sourceFilesSnapshotted": 32,
+    "sourceDriftSinceSnapshot": [],
+    "realSectionTitlesAndFooterPresence": "passed",
+    "sevenReportReasonsAndFullRankingColumns": "passed",
+    "independentScheduleTimeCourtAndDeadline": "passed",
+    "directRegistrationSaveAndRuleModes": "passed",
+    "geometry": "labels14, actions48, seats44, scores44, sportIcons34, sportTiles88; browser DOM measured",
+    "javascriptSyntax": "node --check passed",
+    "measurements": "layout-measurements-v2.json",
+    "previewScreenshot": "preview-v2-activity.png"
+  },
+  "boundary": "Source dp/sp and vp/fp are mapped to CSS logical pixels. Native screenshots are dated 2026-10-18 fixtures, not fresh native captures or a current-build raster diff."
+}

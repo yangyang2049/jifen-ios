@@ -7,6 +7,7 @@ import CoreImage.CIFilterBuiltins
 struct GroupJoinView: View {
     private enum InputField: Hashable { case number, message }
     var onStart: (GameType, SportsSetupResult, String) -> Void
+    var usesParentNavigation = false
     @Environment(\.dismiss) private var dismiss
     @State private var store = GroupStore.shared
     @State private var number = ""
@@ -29,92 +30,144 @@ struct GroupJoinView: View {
     /// 邀请链接带号进入：已是成员时直接进详情，不停留加入页（对齐微信「已在群聊直接进群」）。
     @State private var seededEntry = false
     @State private var seededAutoOpened = false
-    init(initialGroupNo: String = "", onStart: @escaping (GameType, SportsSetupResult, String) -> Void) {
+    init(initialGroupNo: String = "", onStart: @escaping (GameType, SportsSetupResult, String) -> Void, usesParentNavigation: Bool = false) {
         self.onStart = onStart
-        _number = State(initialValue: GroupInvitationLink.validNumber(initialGroupNo) ? initialGroupNo : "")
-        _seededEntry = State(initialValue: GroupInvitationLink.validNumber(initialGroupNo))
+        self.usesParentNavigation = usesParentNavigation
+        _number = State(initialValue: GroupInvitationLink.validNumber(initialGroupNo, capabilities: GroupStore.shared.capabilities) ? initialGroupNo : "")
+        _seededEntry = State(initialValue: GroupInvitationLink.validNumber(initialGroupNo, capabilities: GroupStore.shared.capabilities))
     }
     var body: some View {
-        NavigationStack {
-            Group {
-                if let joinedID { GroupDetailView(groupID: joinedID, onStart: onStart) }
-                else { Form {
-                Section {
-                    TextField(groupText("number", "6–8 digit group number"), text: $number).keyboardType(.numberPad).focused($focusedInput, equals: .number).accessibilityIdentifier("group_number")
-                    // 邀请链接带号进入：隐藏扫码/相册入口，页面聚焦小组卡片；输入框保留、号码可改。
-                    // 手动编辑号码后 onChange 会把 seededEntry 复位，扫码入口恢复（三端一致）。
-                    if !seededEntry {
-                        HStack {
-                            Button { scanner = true } label: { Label(groupText("scan", "Scan QR code"), systemImage: "qrcode.viewfinder") }
-                            PhotosPicker(selection: $photo, matching: .images) { Label(groupText("album", "Choose photo"), systemImage: "photo") }
-                        }.buttonStyle(.borderless)
-                    }
-                    Button(groupText("preview", "Preview group")) { focusedInput = nil; Task { await loadPreview() } }.disabled(busy || !GroupQRPayload.validNumber(number))
+        if usesParentNavigation { destination }
+        else { NavigationStack { destination } }
+    }
+    @ViewBuilder private var destination: some View {
+        if let joinedID { GroupDetailView(groupID: joinedID, onStart: onStart, welcomeBack: preview?.effectiveAvailability == "already_member") }
+        else { editor }
+    }
+    private var editor: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.padding) {
+                if !seededEntry {
+                    Button { scanner = true } label: {
+                        HStack(spacing: Theme.spacing) {
+                            Image(systemName: "qrcode.viewfinder").font(.system(size: Theme.fontH3)).foregroundStyle(Theme.textSecondary)
+                            VStack(alignment: .leading, spacing: Theme.xs) {
+                                Text(groupText("scan", "Scan QR code")).font(.system(size: Theme.fontBody2, weight: .semibold)).foregroundStyle(Theme.textPrimary)
+                                Text(groupText("join_scan_hint", "Scan a group QR code")).font(.system(size: Theme.fontCaption)).foregroundStyle(Theme.textSecondary)
+                            }.frame(maxWidth: .infinity, alignment: .leading)
+                            Image(systemName: "chevron.right").font(.system(size: Theme.fontCaption)).foregroundStyle(Theme.textSecondary)
+                        }.padding(Theme.md).frame(minHeight: 64)
+                            .background(GroupEditorColors.control, in: RoundedRectangle(cornerRadius: 12))
+                    }.buttonStyle(.plain).accessibilityIdentifier("group_join_scan")
+                    HStack(spacing: Theme.md) {
+                        Rectangle().fill(Color(uiColor: .separator)).frame(height: 1)
+                        Text(groupText("join_number_separator", "Or enter a group number"))
+                            .font(.system(size: Theme.fontBody2)).foregroundStyle(Theme.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true).layoutPriority(1)
+                        Rectangle().fill(Color(uiColor: .separator)).frame(height: 1)
+                    }.accessibilityIdentifier("group_join_number_separator")
                 }
-                if let preview {
-                    Section {
-                        Text(preview.name).font(.headline).accessibilityIdentifier("group_preview_name")
-                        Text(preview.description)
-                        if preview.groupType == "coaching" { Text(groupText("coaching", "Coaching group")).foregroundStyle(Theme.primary) }
-                        Text("#\(preview.groupNo) · \(preview.memberCount) " + groupText("members", "members"))
-                        Text(preview.joinPolicy == "approval" ? groupText("approval", "Approval required") : groupText("open", "Anyone with the number can join"))
-                        if waiting || preview.effectiveAvailability == "pending_approval" {
-                            Label(groupText("pending_approval", "Waiting for approval"), systemImage: "hourglass")
-                            if let requestID = preview.requestId { Button(groupText("withdraw", "Withdraw request"), role: .destructive) { Task { if await store.perform({ try await store.repository.action("/join-requests/\(requestID)/withdraw") }) { waiting = false; await loadPreview(); await store.refresh() } } }.disabled(busy) }
-                        }
-                        else if preview.effectiveAvailability == "already_member" {
-                            Text(groupText("already_member", "You are already a member."))
-                            Button(groupText("open_group", "Open group")) {
-                                Task {
-                                    await store.refresh()
-                                    joinedID = preview.groupId ?? store.groups.first(where: { $0.groupNo == preview.groupNo })?.id
-                                }
-                            }
-                        }
-                        else if preview.effectiveAvailability == "available" {
-                            if preview.joinPolicy == "approval" { TextField(groupText("join_message", "Message to the group (optional)"), text: $message).focused($focusedInput, equals: .message).accessibilityIdentifier("group_join_message") }
-                            Button(groupText("confirm_join", "Join this group")) { if SessionStore.shared.isAuthenticated { Task { await join() } } else { loginTarget = number; login = true } }.disabled(busy || preview.groupNo != number || !(store.capabilities?.allows("join_group") ?? true))
-                        } else if preview.effectiveAvailability == "not_found" {
-                            GroupNotice(text: groupText("lookup_not_found", "Group not found, check the number"))
-                        } else { GroupNotice(text: groupText("unavailable", "This group cannot accept new members.")) }
-                        if preview.hasPendingRequest && preview.effectiveAvailability != "pending_approval", let requestID = preview.requestId {
-                            Button(groupText("withdraw", "Withdraw request"), role: .destructive) { Task { if await store.perform({ try await store.repository.action("/join-requests/\(requestID)/withdraw") }) { waiting = false; await loadPreview(); await store.refresh() } } }.disabled(busy)
-                        }
-                    }
-                }
-                if let preview, preview.availability != "not_found", SessionStore.shared.isAuthenticated { Button(groupText("report", "Report group"), role: .destructive) { reporting = true } }
+                TextField("", text: $number, prompt: Text(groupText("number", "6–8 digit group number"))
+                    .font(.system(size: Theme.fontBody1, weight: .regular))).keyboardType(.numberPad)
+                    .font(.system(size: Theme.fontH3, weight: .semibold)).monospacedDigit().multilineTextAlignment(.center)
+                    .accessibilityLabel(groupText("number", "6–8 digit group number"))
+                    .padding(Theme.md).frame(minHeight: 56)
+                    .background(GroupEditorColors.control, in: RoundedRectangle(cornerRadius: 12))
+                    .focused($focusedInput, equals: .number).accessibilityIdentifier("group_number")
+                Text(groupText("join_number_hint", "6–8 digits. Ask the group owner."))
+                    .font(.system(size: Theme.fontCaption)).foregroundStyle(Theme.textSecondary).multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                if let preview { previewCard(preview) }
                 if let error = localError ?? store.error { GroupNotice(text: error) }
-                if busy { ProgressView() }
-            }.scrollDismissesKeyboard(.interactively)
-                }
-            }
+                if busy { ProgressView().frame(maxWidth: .infinity) }
+            }.padding(Theme.padding).frame(maxWidth: 720).frame(maxWidth: .infinity)
+        }.scrollDismissesKeyboard(.interactively).background(Theme.backgroundColor)
             .disabled(submitting).interactiveDismissDisabled(submitting)
-            .navigationTitle(joinedID == nil ? groupText("join", "Join group") : "").groupAdaptiveOrientation()
+            .navigationTitle(groupText("join", "Join group")).navigationBarTitleDisplayMode(.inline).groupAccountBoundary()
+            .navigationBarBackButtonHidden(usesParentNavigation && submitting)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button(groupText("close", "Close")) { dismiss() } }
+                if !usesParentNavigation { ToolbarItem(placement: .cancellationAction) { ModalCloseButton { dismiss() } } }
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
                     Button(NSLocalizedString("done", value: "完成", comment: "")) { focusedInput = nil }
                         .tint(Theme.primary).accessibilityIdentifier("group_keyboard_done")
                 }
             }
-            .sheet(isPresented: $scanner) { NavigationStack { GroupScannerView { raw in scanner = false; receive(raw) } } }
+            .sheet(isPresented: $scanner) { NavigationStack { GroupScannerView(photo: $photo) { raw in scanner = false; receive(raw) } } }
             .sheet(isPresented: $reporting) { GroupPreviewReportView(groupNo: number) }
             .sheet(isPresented: $login, onDismiss: { if SessionStore.shared.isAuthenticated { Task { await store.refresh(); await loadPreview(); if loginTarget == number, preview?.effectiveAvailability == "available", preview?.groupNo == number { await join() }; loginTarget = nil } } }) { AccountLoginSheet() }
 
             .onChange(of: number) { _, value in seededEntry = false; previewRevision &+= 1; photoGeneration += 1; busy = false; if preview?.groupNo != value { preview = nil }; waiting = false; message = ""; localError = nil; loginTarget = nil; key = UUID().uuidString }
             .onChange(of: store.identityRevision) { _, _ in
                 previewRevision &+= 1; busy = false; preview = nil; waiting = false; joinedID = nil; localError = nil; key = UUID().uuidString
-                if GroupQRPayload.validNumber(number) { Task { await loadPreview() } }
+                if GroupQRPayload.validNumber(number, capabilities: store.capabilities) { Task { await loadPreview() } }
             }
             .onChange(of: message) { _,_ in key = UUID().uuidString }
-            .onChange(of: photo) { _, item in Task { await decodePhoto(item) } }
-            .task { if GroupQRPayload.validNumber(number) { await loadPreview() } }
-        }
+            .onChange(of: photo) { _, item in if item != nil { scanner = false; Task { await decodePhoto(item) } } }
+            .task(id: number) {
+                guard GroupQRPayload.validNumber(number, capabilities: store.capabilities) else { return }
+                do { try await Task.sleep(for: .milliseconds(350)) } catch { return }
+                guard !Task.isCancelled else { return }
+                await loadPreview()
+            }
+    }
+    private func previewCard(_ preview: GroupPreview) -> some View {
+        VStack(alignment: .leading, spacing: Theme.spacing) {
+            if preview.effectiveAvailability == "not_found" {
+                GroupNotice(text: groupText("lookup_not_found", "Group not found, check the number"))
+            } else {
+                HStack(alignment: .center, spacing: Theme.spacing) {
+                    if let sport = preview.sport { AppCatalogIcon(gameType: sport.gameType, size: 40) }
+                    VStack(alignment: .leading, spacing: Theme.xs) {
+                        Text(preview.name).font(.system(size: Theme.fontBody1, weight: .semibold)).lineLimit(2).accessibilityIdentifier("group_preview_name")
+                        Text([preview.sport?.title, groupMemberCountText(preview.memberCount), GroupQRPayload.formatted(preview.groupNo)].compactMap { $0 }.joined(separator: " · "))
+                            .font(.system(size: Theme.fontCaption)).foregroundStyle(Theme.textSecondary).lineLimit(2)
+                    }.frame(maxWidth: .infinity, alignment: .leading)
+                    Text(GroupStatusText.joinAvailability(waiting ? "pending_approval" : preview.effectiveAvailability))
+                        .font(.system(size: Theme.fontCaption, weight: .medium)).foregroundStyle(!waiting && preview.effectiveAvailability == "available" ? Theme.primary : Theme.textSecondary)
+                        .multilineTextAlignment(.center).lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, Theme.sm).padding(.vertical, Theme.xs)
+                        .background(Theme.tintedFill(!waiting && preview.effectiveAvailability == "available" ? Theme.primary : Theme.textSecondary, lightAlpha: 0.10, darkAlpha: 0.16), in: Capsule())
+                        .accessibilityIdentifier("group_join_availability")
+                    if SessionStore.shared.isAuthenticated {
+                        Menu {
+                            Button(groupText("report", "Report group")) { reporting = true }
+                                .accessibilityIdentifier("group_join_preview_report")
+                        } label: {
+                            Image(systemName: "ellipsis").rotationEffect(.degrees(90))
+                                .foregroundStyle(Theme.textSecondary).frame(width: 44, height: 44)
+                        }.buttonStyle(.plain).disabled(busy)
+                            .accessibilityLabel(NSLocalizedString("more", comment: ""))
+                            .accessibilityIdentifier("group_join_preview_more")
+                    }
+                }
+                if !preview.description.isEmpty { Text(preview.description).font(.system(size: Theme.fontBody2)).foregroundStyle(Theme.textSecondary) }
+                if preview.groupType == "coaching" { Text(groupText("coaching", "Coaching group")).font(.system(size: Theme.fontCaption)).foregroundStyle(Theme.textSecondary) }
+                if waiting || preview.effectiveAvailability == "pending_approval" {
+                    if let requestID = preview.requestId { Button(groupText("withdraw", "Withdraw request"), role: .destructive) { Task { if await store.perform({ try await store.repository.action("/join-requests/\(requestID)/withdraw") }) { waiting = false; await loadPreview(); await store.refresh() } } }.disabled(busy) }
+                } else if preview.effectiveAvailability == "already_member" {
+                    Button(groupText("open_group", "Open group")) {
+                        Task { await store.refresh(); joinedID = preview.groupId ?? store.groups.first(where: { $0.groupNo == preview.groupNo })?.id }
+                    }
+                } else if preview.effectiveAvailability == "available" {
+                    if preview.joinPolicy == "approval" { TextField(groupText("join_message", "Message to the group (optional)"), text: $message).font(.system(size: Theme.fontBody2)).tint(Theme.primary)
+                        .padding(.horizontal, 14).padding(.vertical, Theme.spacing).frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
+                        .background(GroupEditorColors.insetInput, in: RoundedRectangle(cornerRadius: 12)).focused($focusedInput, equals: .message).accessibilityIdentifier("group_join_message") }
+                    Button(groupText(preview.joinPolicy == "approval" ? "request_join" : "confirm_join", preview.joinPolicy == "approval" ? "Request to join" : "Join")) {
+                        if SessionStore.shared.isAuthenticated { Task { await join() } } else { loginTarget = number; login = true }
+                    }.disabled(busy || !GroupInputValidation.validText(message, maximum: GroupInputValidation.joinMessageMax) || preview.groupNo != number || !(store.capabilities?.allows("join_group") ?? true))
+                } else { GroupNotice(text: groupText("unavailable", "This group cannot accept new members.")) }
+                if preview.hasPendingRequest && preview.effectiveAvailability != "pending_approval", let requestID = preview.requestId {
+                    Button(groupText("withdraw", "Withdraw request"), role: .destructive) { Task { if await store.perform({ try await store.repository.action("/join-requests/\(requestID)/withdraw") }) { waiting = false; await loadPreview(); await store.refresh() } } }.disabled(busy)
+                }
+            }
+        }.padding(Theme.md).frame(maxWidth: .infinity, alignment: .leading)
+            .background(GroupEditorColors.control, in: RoundedRectangle(cornerRadius: 12))
+            .buttonStyle(GroupAlignedActionStyle())
     }
     private func receive(_ raw: String) {
-        guard let code = GroupQRPayload.parse(raw) else { localError = groupText("invalid_qr", "This is not a valid group QR code."); return }
-        number = code; Task { await loadPreview() }
+        guard let code = GroupQRPayload.parse(raw, capabilities: store.capabilities) else { localError = groupText("invalid_qr", "This is not a valid group QR code."); return }
+        if number == code { Task { await loadPreview() } } else { number = code }
     }
     private func loadPreview() async {
         let requestedNumber = number, accountRevision = store.identityRevision
@@ -123,12 +176,13 @@ struct GroupJoinView: View {
         let authenticated = SessionStore.shared.isAuthenticated
         do {
             let loaded: GroupPreview = try await store.repository.read("/by-number/\(requestedNumber)/preview", authenticated: authenticated)
-            guard number == requestedNumber, previewRevision == requestRevision, store.identityRevision == accountRevision else { return }
+            guard number == requestedNumber, previewRevision == requestRevision, store.identityRevision == accountRevision, !Task.isCancelled else { return }
             preview = loaded; waiting = loaded.effectiveAvailability == "pending_approval"
             if seededEntry, !seededAutoOpened, loaded.effectiveAvailability == "already_member" {
                 // 与「打开小组」按钮同一条路径：先刷新成员列表，再按 groupId / 号码兜底定位。
                 seededAutoOpened = true
                 await store.refresh()
+                guard number == requestedNumber, previewRevision == requestRevision, store.identityRevision == accountRevision, !Task.isCancelled else { return }
                 if let groupID = loaded.groupId ?? store.groups.first(where: { $0.groupNo == loaded.groupNo })?.id {
                     joinedID = groupID
                 }
@@ -138,7 +192,7 @@ struct GroupJoinView: View {
         }
     }
     private func join() async {
-        guard preview?.groupNo == number, preview?.effectiveAvailability == "available", message.unicodeScalars.count <= 200 else { return }
+        guard preview?.groupNo == number, preview?.effectiveAvailability == "available", GroupInputValidation.validText(message, maximum: GroupInputValidation.joinMessageMax) else { return }
         busy = true; submitting = true; defer { busy = false; submitting = false }
         guard let accountID = store.accountID else { return }
         let accountRevision = store.identityRevision, requestedNumber = number
@@ -158,7 +212,7 @@ struct GroupJoinView: View {
             guard photoGeneration == generation, store.identityRevision == identity, previewRevision == inputRevision, !submitting else { return }
             let candidates = await Task.detached(priority: .userInitiated) { GroupPhotoQRDecoder.candidates(in: data) }.value
             guard photoGeneration == generation, store.identityRevision == identity, previewRevision == inputRevision, !submitting else { return }
-            guard let raw = candidates.first(where: { GroupQRPayload.parse($0) != nil }) else { throw GroupFormError.invalidQR }
+            guard let raw = candidates.first(where: { GroupQRPayload.parse($0, capabilities: store.capabilities) != nil }) else { throw GroupFormError.invalidQR }
             receive(raw)
         } catch { if photoGeneration == generation, store.identityRevision == identity, previewRevision == inputRevision { localError = groupErrorMessage(error) } }
         if photoGeneration == generation { photo = nil }
@@ -186,6 +240,7 @@ private nonisolated enum GroupPhotoQRDecoder {
 }
 
 struct GroupScannerView: View {
+    @Binding var photo: PhotosPickerItem?
     var onValue: (String) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var paused = false
@@ -195,7 +250,13 @@ struct GroupScannerView: View {
                 QRDataScannerView(paused: paused) { value in guard !paused else { return }; paused = true; onValue(value) }
             } else { ContentUnavailableView(groupText("camera_unavailable", "Camera unavailable"), systemImage: "camera", description: Text(groupText("camera_hint", "Allow camera access in Settings, or choose a photo."))) }
         }.navigationTitle(groupText("scan", "Scan QR code"))
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(groupText("close", "Close")) { dismiss() } } }
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { ModalCloseButton { dismiss() } }
+                ToolbarItem(placement: .topBarTrailing) {
+                    PhotosPicker(selection: $photo, matching: .images) { Image(systemName: "photo") }
+                        .accessibilityLabel(groupText("album", "Choose photo")).accessibilityIdentifier("group_scan_photo")
+                }
+            }
     }
 }
 
@@ -218,22 +279,22 @@ struct GroupShareView: View {
         ScrollView {
             VStack(spacing: 20) {
                 // 对齐安卓：小组名与小组号合成一个安静的标题块，不再分散在二维码上下。
-                VStack(spacing: 4) {
+                VStack(spacing: Theme.xs) {
                     Text(group.name).font(.title2.weight(.semibold)).multilineTextAlignment(.center).lineLimit(2)
                     Text(String(format: groupText("share_no", "Group No. %@"), group.groupNo))
-                        .font(.subheadline.weight(.medium)).foregroundStyle(Theme.textSecondary)
+                        .font(GroupTypography.body.weight(.medium)).foregroundStyle(Theme.textSecondary)
                 }.frame(maxWidth: .infinity)
                 if let image = qrImage { Image(uiImage: image).resizable().interpolation(.none).scaledToFit().frame(maxWidth: min(300, max(120, geometry.size.height * 0.45))).background(.white).accessibilityLabel(groupText("group_qr", "Group QR code")).accessibilityIdentifier("group_qr") }
-                if shareError == nil { Text(canInvite ? groupText(group.joinPolicy == "open" ? "qr_direct_hint" : "qr_hint", "Scan to preview and join.") : groupText("unavailable", "This group cannot accept new members.")).multilineTextAlignment(.center).font(.footnote).foregroundStyle(Theme.textSecondary) }
+                if shareError == nil { Text(canInvite ? (group.joinPolicy == "open" ? groupText("qr_join_short", "Scan to join") : groupText("qr_apply_short", "Scan to request to join") + " · " + groupText("pending_approval", "Awaiting approval")) : groupText("unavailable", "This group cannot accept new members.")).multilineTextAlignment(.center).font(GroupTypography.body).foregroundStyle(Theme.textSecondary) }
                 if let shareError { GroupNotice(text: shareError) }
-                if canInvite, let url = GroupInvitationLink.joinURL(groupNo: group.groupNo) {
-                    ShareLink(item: url, subject: Text(group.name), message: Text(GroupInvitationText.message(group: group))) {
-                        Label(groupText("audit_ui_share_invitation", "Share invitation"), systemImage: "link")
+                if canInvite, let url = GroupInvitationLink.joinURL(groupNo: group.groupNo, capabilities: GroupStore.shared.capabilities) {
+                    ShareLink(item: url, subject: Text(group.name), message: Text(GroupInvitationText.message(group: group, capabilities: GroupStore.shared.capabilities))) {
+                        Text(groupText("audit_ui_share_invitation", "Share invitation")).frame(maxWidth: .infinity)
                     }
-                    .accessibilityIdentifier("group_share_invitation_link")
+                    .buttonStyle(GroupAlignedActionStyle()).accessibilityIdentifier("group_share_invitation_link")
                     if let card = inviteCard {
-                        ShareLink(item: Image(uiImage: card), subject: Text(group.name), message: Text(GroupInvitationText.message(group: group)), preview: SharePreview(group.name, image: Image(uiImage: card))) { Label(groupText("audit_ui_share_qr", "Share QR code"), systemImage: "square.and.arrow.up") }
-                            .accessibilityIdentifier("group_share_invitation_card")
+                        ShareLink(item: Image(uiImage: card), subject: Text(group.name), message: Text(GroupInvitationText.message(group: group, capabilities: GroupStore.shared.capabilities)), preview: SharePreview(group.name, image: Image(uiImage: card))) { Text(groupText("audit_ui_share_qr", "Share QR code")).frame(maxWidth: .infinity) }
+                            .buttonStyle(GroupAlignedActionStyle(secondary: true, secondaryForeground: Theme.textPrimary)).accessibilityIdentifier("group_share_invitation_card")
                     } else if livePreview != nil {
                         // 对齐安卓 shareGroupQr 失败路径：卡片合成失败要可感知，而不是按钮悄悄消失。
                         GroupNotice(text: groupText("audit_ui_share_failed", "Sharing failed. Try again."))
@@ -243,12 +304,13 @@ struct GroupShareView: View {
                     ShareLink(item: String(format: groupText("audit_ui_group_number_message", "Group: %@\nGroup number: %@ (not accepting members)"), group.name, group.groupNo)) {
                         Label(groupText("audit_ui_share_number", "Share group number"), systemImage: "square.and.arrow.up")
                     }
+                    .buttonStyle(GroupAlignedActionStyle(secondary: true, secondaryForeground: Theme.textPrimary))
                     .accessibilityIdentifier("group_share_number")
                 }
-                Button(groupText("copy_number", "Copy group number")) { UIPasteboard.general.string = group.groupNo }
-            }.padding(24).frame(maxWidth: .infinity)
+            }.padding(Theme.lg).frame(maxWidth: .infinity)
         }
-        }.navigationTitle(groupText("group_qr", "Group QR code")).navigationBarTitleDisplayMode(.inline).groupAccountBoundary()
+        }.background(Theme.backgroundColor)
+            .navigationTitle(groupText("group_qr", "Group QR code")).navigationBarTitleDisplayMode(.inline).groupAccountBoundary()
             .task {
                 #if DEBUG
                 if ProcessInfo.processInfo.arguments.contains("-UITestGroupsFixture") { return }
@@ -273,7 +335,7 @@ struct GroupQRCode: View {
         if let image = Self.image(number) { Image(uiImage: image).resizable().interpolation(.none).scaledToFit().frame(width: size, height: size) }
     }
     static func image(_ number: String) -> UIImage? {
-        let filter = CIFilter.qrCodeGenerator(); filter.message = Data(GroupQRPayload.encode(number).utf8)
+        let filter = CIFilter.qrCodeGenerator(); filter.message = Data(GroupQRPayload.encode(number, capabilities: GroupStore.shared.capabilities).utf8)
         // 对齐安卓 ErrorCorrectionLevel.H：中心要盖住一块 App 图标，必须把容错提到 30%。
         filter.correctionLevel = "H"
         guard let output = filter.outputImage, let cg = CIContext().createCGImage(output, from: output.extent) else { return nil }

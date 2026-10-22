@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>小组 · iOS 页面与表单改造评审 v3</title>
+  <link rel="stylesheet" href="review.css?v=3.0">
+  <link rel="stylesheet" href="preview-v2.css?v=3.0">
+  <script defer src="sources.js?v=3.0"></script>
+  <script defer src="review-data.js?v=3.0"></script>
+  <script defer src="layout-review.js?v=3.0"></script>
+  <script defer src="native-references.js?v=3.0"></script>
+  <script defer src="ios-native-v3.js?v=3.0"></script>
+  <script defer src="review.js?v=3.0"></script>
+</head>
+<body>
+  <header class="site-head">
+    <div class="heading"><div><p class="eyebrow">全能计分器 / 跨端 UI 评审 / 2026.10.19</p><h1>小组，从页面到表单。</h1><p class="lede">对照 Android、鸿蒙的当前实现，梳理 iOS 现状、改造建议与 Sheet 承载复核。</p></div><span class="version">实施 v3 · Sheet 策略已复核</span></div>
+    <nav class="view-tabs" aria-label="评审内容">
+      <button data-view="audit" class="active">逐页分析</button>
+      <button data-view="preview">表单与页面预览</button>
+      <button data-view="references">原有 HTML <span>23</span></button>
+      <button data-view="decisions">分歧与改造顺序</button>
+      <button data-view="screenshots">iOS 原生截图</button>
+    </nav>
+  </header>
+  <main id="main"></main>
+  <footer class="site-foot">依据 2026-10-19 本地开发工作区；包含已有未提交代码。原 HTML 是设计探索，采用情况以逐页源码核对为准。HTML 使用演示数据；对应 iOS 源码已按本轮方案调整，构建与原生验证结果单独记录。</footer>
+  <div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

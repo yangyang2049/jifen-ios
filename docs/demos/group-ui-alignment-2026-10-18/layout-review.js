@@ -1,0 +1,553 @@
+window.LAYOUT_REVIEW = {
+  "version": 3,
+  "date": "2026-10-19",
+  "scope": "13 reviewed previews: approved page/sheet presentation policy; native implementation is verified separately.",
+  "measurementBoundary": "Source dp/sp and vp/fp mapped to CSS logical pixels. Existing screenshots are dated native references, not current-build pixel-diff proof.",
+  "scenes": {
+    "create": {
+      "adoptedMetrics": {
+        "页边距": "16",
+        "字段间距": "16",
+        "标签 / 间距": "14 / 8",
+        "名称 / 简介高度": "52 / 88",
+        "项目图标 / 间距": "34 / 8",
+        "分段 / 底部按钮": "44 / 48"
+      },
+      "choice": "顺序和无分组结构两端一致；名称52、简介88按鸿蒙明确值，项目保留横滑3D卡。输入动态色沿用iOS主题。",
+      "androidSources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/create/GroupCreateScreen.kt:187-265,305-355"
+      ],
+      "harmonySources": [
+        "entry/src/main/ets/pages/group/GroupCreatePage.ets:157-244"
+      ],
+      "removed": [
+        "form-intro",
+        "基本信息 section title/card",
+        "运动项目 section title/card",
+        "加入方式 outer section/card; keep the field label",
+        "小组名称/小组简介 duplicated expanded wording; actual labels are 名称/简介（选填）"
+      ],
+      "kept": [],
+      "presentation": "page"
+    },
+    "edit": {
+      "adoptedMetrics": {
+        "页边距 / 间距": "16 / 16",
+        "标签 / 间距": "14 / 8",
+        "名称 / 简介高度": "48 / 100",
+        "输入圆角": "8",
+        "分段 / 保存按钮": "44 / 48",
+        "底栏内边距": "8 16 16"
+      },
+      "choice": "采用鸿蒙的明确字段标签和单保存底栏；Android当前placeholder布局及双按钮作为分歧保留。",
+      "androidSources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailScreen.kt:665-765"
+      ],
+      "harmonySources": [
+        "entry/src/main/ets/pages/group/components/GroupEditInfoDialog.ets:97-193"
+      ],
+      "removed": [
+        "form-intro",
+        "基本信息 outer title/card",
+        "加入方式 outer title/card; retain one field label",
+        "运动项目: editing does not expose sport selector"
+      ],
+      "kept": [],
+      "presentation": "page"
+    },
+    "activity": {
+      "adoptedMetrics": {
+        "页边距 / 间距": "16 / 16",
+        "标签 / 间距": "14 / 8",
+        "字段 / 备注高度": "48 / 100",
+        "赛制 / 人数控件": "44 / 44",
+        "底栏按钮 / 间距": "48 / 16",
+        "底栏内边距": "16"
+      },
+      "choice": "平铺顺序两端一致；日期/时间按Android宽屏并排、窄屏纵排；字段48、标签14。",
+      "androidSources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityCreateScreen.kt:185-312,321-353,383-432"
+      ],
+      "harmonySources": [
+        "entry/src/main/ets/pages/group/GroupActivityPage.ets:735-844,1048-1100"
+      ],
+      "removed": [
+        "form-intro",
+        "活动信息 title/card",
+        "报名设置 title/card",
+        "比赛类型 subheading",
+        "补充说明 title/card",
+        "活动备注 duplicate label",
+        "开始时间 combined label: source separates 日期 and 时间",
+        "场地 wording: source uses 地点（可选）"
+      ],
+      "kept": [],
+      "presentation": "page"
+    },
+    "detail": {
+      "adoptedMetrics": {
+        "页边距 / 卡片间距": "16 / 16",
+        "卡片内边距 / 圆角": "16 / 12",
+        "活动标题 / 正文": "16 / 14",
+        "头像 / 名单列宽": "38 / 64",
+        "底部按钮": "48",
+        "底栏内边距": "16"
+      },
+      "choice": "按共同信息卡与报名卡结构；采用鸿蒙16/14/12层级和头像网格，删除虚构场次卡。",
+      "androidSources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailActivitiesTab.kt:368-399,506-566,595-647",
+        "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupPageSurface.kt:17-31"
+      ],
+      "harmonySources": [
+        "entry/src/main/ets/pages/group/GroupActivityPage.ets:866-987,1055-1091"
+      ],
+      "removed": [
+        "top-level form intro",
+        "活动信息 heading",
+        "比赛场次 heading/card: source opens separate lineup route via footer",
+        "standalone 报名中 notice above info card",
+        "per-row 已报名 repeated beside each member: source uses avatar grid"
+      ],
+      "kept": [
+        "报名 · n/capacity (internal roster label only)"
+      ],
+      "presentation": "page"
+    },
+    "result": {
+      "adoptedMetrics": {
+        "页边距 / 主间距": "16 / 24",
+        "席位 / 姓名池高度": "≥44 / ≥44",
+        "大组 / 卡内标签": "16 / 14",
+        "卡片内边距 / 圆角": "16 / 12",
+        "比分选项 / 字号": "44 / 18",
+        "日期 / 提交按钮": "44 / 48",
+        "底栏内边距": "16",
+        "标题至卡片": "24"
+      },
+      "choice": "采用鸿蒙一个“比分与规则”主标题和卡内14号标签，Android称“规则与比分”；快捷比分采用44高（Android为48）。 局制采用单局/三局/五局及打满模式，不虚构七局选项。",
+      "androidSources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/result/GroupResultEntryScreen.kt:280-286,321-332,357-403,411-421",
+        "app/src/main/java/com/douhua/jifen/screen/group/result/GroupResultScoreControls.kt:82-125,157-209,268-310"
+      ],
+      "harmonySources": [
+        "entry/src/main/ets/pages/group/GroupResultPage.ets:818-941,955-1084",
+        "entry/src/main/ets/model/group/GroupParity.ts:17-20",
+        "entry/src/main/ets/pages/group/GroupResultPage.ets:531-540"
+      ],
+      "removed": [
+        "form-intro",
+        "参赛队员 heading/card",
+        "A 队/B 队 headings",
+        "整场局分 separate card",
+        "比赛信息 heading/card",
+        "standalone 比赛规则 outer card: combine it with score card under 比分与规则"
+      ],
+      "kept": [
+        "比分与规则 (16 outside card)",
+        "比赛规则 (14 inside card)",
+        "比赛比分 (14 inside card)"
+      ],
+      "presentation": "page"
+    },
+    "start": {
+      "adoptedMetrics": {
+        "页边距 / 主间距": "16 / 24",
+        "席位 / 姓名池高度": "≥44 / ≥44",
+        "姓名 / 席位角标": "14 / 12",
+        "规则标题 / 内边距": "16 / 16",
+        "规则圆角 / 开始按钮": "12 / 48",
+        "底栏内边距": "16",
+        "标题至卡片": "24"
+      },
+      "choice": "鸿蒙已去除A/B方标题，用席位角标；Android仍有11号A/B侧别。采用较少重复信息的鸿蒙处理。",
+      "androidSources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/result/GroupResultEntryScreen.kt:321-403,411-421"
+      ],
+      "harmonySources": [
+        "entry/src/main/ets/pages/group/GroupResultPage.ets:1009-1084",
+        "entry/src/main/ets/pages/group/components/GroupMatchSeats.ets:57-111"
+      ],
+      "removed": [
+        "form-intro",
+        "参赛队员 heading/card",
+        "A 队/B 队 headings",
+        "比赛信息 heading/card",
+        "manual score/date controls: start mode has none"
+      ],
+      "kept": [
+        "比赛规则 (16, outside rule card)"
+      ],
+      "presentation": "page"
+    },
+    "schedule": {
+      "adoptedMetrics": {
+        "页边距 / 间距": "16 / 16",
+        "分段标题": "16，绿条 3×14",
+        "场次内边距": "8 16",
+        "场次圆角": "16",
+        "席位 / 姓名字号": "≥44 / 16",
+        "添加 / 保存高度": "44 / 48",
+        "底栏内边距": "16"
+      },
+      "choice": "两端均只保留“对阵安排”；无具体时间默认模式。场次姓名16和卡片padding按当前鸿蒙明确值。 每场均保留独立场地；只展开选中场次，其他显示摘要。",
+      "androidSources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupScreen.kt:172-235,276-307,314-370,428-440,477-525,649-670"
+      ],
+      "harmonySources": [
+        "entry/src/main/ets/pages/group/GroupActivityLineupPage.ets:564-608,625-699,725-819"
+      ],
+      "removed": [
+        "form-intro",
+        "排赛方式 title/card",
+        "场地 field label: direct header uses placeholder",
+        "每场里的预计时长 row: duration is one global control only in estimated mode",
+        "per-match singles/doubles duplicated: direct mode global format is above matches",
+        "第 n 场 as exterior section title: it belongs inside match card"
+      ],
+      "kept": [
+        "对阵安排"
+      ],
+      "presentation": "page"
+    },
+    "registration": {
+      "adoptedMetrics": {
+        "页边距 / 行间距": "16 / 8",
+        "姓名 / 状态字号": "14 / 12",
+        "行最小高 / 内边距": "48 / 8",
+        "头像": "38",
+        "底栏摘要 / 保存": "12 / 48",
+        "底栏内边距": "16"
+      },
+      "choice": "按用户确认保留 sheet；名单直接保存，底部显示新增/取消计数和容量，关闭回到活动详情。",
+      "androidSources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityRegistrationSheet.kt:91-189",
+        "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupPageSurface.kt:17-31"
+      ],
+      "harmonySources": [
+        "entry/src/main/ets/pages/group/GroupActivityPage.ets:989-1045,1057-1091"
+      ],
+      "removed": [
+        "临时成员 section/card",
+        "top 已报名 notice: count is in bottom summary",
+        "下一步预览 explanatory paragraph for HOS alignment; source saves directly"
+      ],
+      "kept": [],
+      "presentation": "sheet"
+    },
+    "join": {
+      "adoptedMetrics": {
+        "页边距 / 间距": "16 / 16",
+        "扫码入口 / 组号高度": "88 / 64",
+        "组号字号": "24",
+        "预览内边距 / 圆角": "16 / 16",
+        "留言 / 卡内按钮": "48 / 48",
+        "固定底栏": "无"
+      },
+      "choice": "两端均无分组标题、无固定底栏；留言与加入CTA在同一预览卡。",
+      "androidSources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/join/GroupJoinScreen.kt:430-508,563-594,624-718",
+        "app/src/main/java/com/douhua/jifen/screen/group/join/GroupJoinScanEntry.kt:36-57"
+      ],
+      "harmonySources": [
+        "entry/src/main/ets/pages/group/GroupJoinPage.ets:375-438,483-556"
+      ],
+      "removed": [
+        "查找小组 section/card",
+        "小组号 extra field label if separator already renders it",
+        "小组预览 heading",
+        "申请信息 section/card",
+        "加入附言 field label: actual input uses placeholder",
+        "universal fixed bottom 申请加入 button: actual CTA is inside preview card"
+      ],
+      "kept": [],
+      "presentation": "page"
+    },
+    "temporary": {
+      "adoptedMetrics": {
+        "页边距 / 间距": "16 / 16",
+        "说明 / 输入字号": "14 / 14",
+        "多行输入高度": "140",
+        "计数 / 常用名称": "12 / 48",
+        "按钮 / 间距": "48 / 8"
+      },
+      "choice": "按用户确认保留 sheet；输入、数量和常用名称的已审布局保持，关闭后返回成员列表或原计分设置。",
+      "androidSources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupTemporaryMemberEditor.kt:58-109",
+        "app/src/main/java/com/douhua/jifen/ui/components/group/GroupOverlays.kt:252-281,454-542"
+      ],
+      "harmonySources": [
+        "entry/src/main/ets/pages/group/components/GroupTemporaryMemberDialog.ets:68-108"
+      ],
+      "removed": [
+        "输入姓名 section/card",
+        "每行一位成员 duplicate label",
+        "extra capacity notice if strict source matching: source shows parsed count only",
+        "full-width 常用名称 button: actual sits at right of count"
+      ],
+      "kept": [],
+      "presentation": "sheet"
+    },
+    "members": {
+      "adoptedMetrics": {
+        "页边距 / 间距": "16 / 16",
+        "真实分组标题": "16，绿条 3×14",
+        "头像 / 姓名字号": "38 / 14",
+        "审批操作高 / 字号": "36 / 12",
+        "成员行内边距": "16",
+        "固定底栏": "无"
+      },
+      "choice": "保留真实名单分组，采用鸿蒙16号分组及36高审批按钮；Android的组标题18号是已记录分歧。 姓名/时间同排，角色文案采用“组长”。",
+      "androidSources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailMembersTab.kt:88-101,127-186,191-271,436-456",
+        "app/src/main/java/com/douhua/jifen/ui/components/group/GroupResultComponents.kt:329-375"
+      ],
+      "harmonySources": [
+        "entry/src/main/ets/pages/group/GroupDetailPage.ets:1674-1708,2489-2519,2535-2591"
+      ],
+      "removed": [
+        "临时 repeated on every temporary row: section establishes type",
+        "任何额外 成员管理/成员名单 header",
+        "universal 添加临时成员 bottom CTA"
+      ],
+      "kept": [
+        "待审批申请 n",
+        "正式成员 n",
+        "临时 n + 添加临时成员 action"
+      ],
+      "presentation": "page"
+    },
+    "records": {
+      "adoptedMetrics": {
+        "页边距 / 间距": "16 / 16",
+        "真实分组标题": "16，绿条 3×14",
+        "榜单卡内标题": "14",
+        "卡片内边距 / 圆角": "16 / 12",
+        "榜单 / 记录筛选": "各自独立",
+        "固定底栏": "无",
+        "统计列": "场次 / 胜 / 负 / 平 / 局分 / 胜率",
+        "结果比分 / 分隔号": "48 / 32"
+      },
+      "choice": "默认只显示两端当前分段；采用Android“战绩”文字及鸿蒙16号分段尺寸，不新增子tab。",
+      "androidSources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailRecordsTab.kt:143-198,236-281,287-372,491-572",
+        "app/src/main/java/com/douhua/jifen/ui/components/group/GroupResultComponents.kt:72-103,167-180,215-234"
+      ],
+      "harmonySources": [
+        "entry/src/main/ets/pages/group/GroupDetailPage.ets:2222-2267,2342-2375,2406-2425",
+        "entry/src/main/ets/pages/group/components/GroupRankingTable.ets:25-38,95-119",
+        "entry/src/main/ets/pages/group/components/GroupResultMatchup.ets:16-30"
+      ],
+      "removed": [
+        "standalone 排行榜 heading if ranking card already says 单打排行榜",
+        "比赛记录/排行榜 child tabs when showing source baseline",
+        "待处理 generic replacement: actual says 待确认",
+        "universal 补记比赛 bottom CTA"
+      ],
+      "kept": [
+        "待确认 n (when needed)",
+        "单打排行榜 / 双打排行榜 (inside ranking card)",
+        "比赛结果 + independent record-format filter"
+      ],
+      "presentation": "page"
+    },
+    "report": {
+      "adoptedMetrics": {
+        "页边距 / 主间距": "16 / 16",
+        "原因 / 选项间距": "14 / 4",
+        "单选数量": "7",
+        "说明高度 / 圆角": "90 / 12",
+        "操作高 / 间距": "48 / 8",
+        "原因行最小高": "44，保留可点击区域"
+      },
+      "choice": "按用户确认保留 sheet；小组和反馈举报共用 ReportSheet。小组七项原因、反馈四项原因及各自API保留，说明输入与取消/提交共用。",
+      "androidSources": [
+        "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupReportForm.kt:42-50,85-188",
+        "app/src/main/java/com/douhua/jifen/screen/feedback/FeedbackUi.kt:415-443"
+      ],
+      "harmonySources": [
+        "entry/src/main/ets/pages/group/components/GroupReportDialog.ets:36-75",
+        "entry/src/main/ets/pages/group/components/GroupJoinReportDialog.ets:85-123"
+      ],
+      "removed": [
+        "form-intro",
+        "举报原因 section/card",
+        "补充说明 section/card",
+        "具体情况 field label",
+        "2x2 reason chips: actual is seven stacked radio options"
+      ],
+      "kept": [
+        "Sheet presentation and shared reporting component; no additional visible section title."
+      ],
+      "presentation": "sheet"
+    }
+  },
+  "sourceSnapshots": [
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/feedback/FeedbackUi.kt",
+      "sha256": "54306fff5cdf5dc5d1426edd7cd01419595b08aad5e5ef2f3404050c130b1957"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityCreateScreen.kt",
+      "sha256": "a431ced6b34862cc5352506606fa9f5baf45650d2fd5961e7984dc3548f239b8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupScreen.kt",
+      "sha256": "74fa3204a82a5a75a2fdbe7986b43a3d87b39757f53b53e1edb6295f3a3da78d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityRegistrationSheet.kt",
+      "sha256": "e0e27148215cf3b891952819482c51eb0d10bb0f0dde1ffbbe2b7c482a8b6301"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/create/GroupCreateScreen.kt",
+      "sha256": "6e24f87b2982d07a075cf0f13fda48955eae0318e8b10f8712231819e4f05d93"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailActivitiesTab.kt",
+      "sha256": "701f3f93410b5038b75afef1142f9237cc134348fa22d98cb236cdc0cd22596d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailMembersTab.kt",
+      "sha256": "f91cc360a3f00e0a379d1d1cfd0107bf11e4a09a036d386cec4dea60c4805392"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailRecordsTab.kt",
+      "sha256": "27bbe15d2314aab2c2815098831ea887dd9e0721f802cbf92c6546af6dcd18d1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailScreen.kt",
+      "sha256": "888629f5485e788dbe2d691964f4ea9f445e0c9a4dfb0472a1087693dc47fb99"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupPageSurface.kt",
+      "sha256": "b991f7d5c392753758d19c6e2c7d55eabcb8e5b5b88bfc8cfff28615a414002c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupReportForm.kt",
+      "sha256": "6acfbdeed36b5bd7321a4b799422a2466d6b30a522ae3ff8727c9ea19686ae44"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupTemporaryMemberEditor.kt",
+      "sha256": "044c706374feb651d9fadfcdd5690ae8ba0992007dbdc3b12b898b3d9bdd0924"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/join/GroupJoinScanEntry.kt",
+      "sha256": "29c2588de27c041acbf8340ece9775300611afb3addc07b5d35d54958bbc9805"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/join/GroupJoinScreen.kt",
+      "sha256": "419397ab7c661595a5c953b19b773f848bec2d6715d5fe03b70169906f7506e2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/result/GroupResultEntryScreen.kt",
+      "sha256": "32805b9620568c81c4a41a97062e1b604ce30724301637ebd21189fbb34671c8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/result/GroupResultScoreControls.kt",
+      "sha256": "0384842bce661c62f5a7e27862c71975052e18ea48560dfc5e9179827424b925"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/group/GroupOverlays.kt",
+      "sha256": "6177fa72ea537e6f03842fb552566872fd80af1a69441d9d1fd919bbdbe6fd22"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/group/GroupResultComponents.kt",
+      "sha256": "e7511d248e3d4da5a9f9e31c31703037d9ea305595022b068279131f2a24b675"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/model/group/GroupParity.ts",
+      "sha256": "ad30d5ffb18e77a87df77f6401d357acb92677d7d03b25282b93811e970ffda5"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupActivityLineupPage.ets",
+      "sha256": "d8ec216e189af68bf6ead4ee5d944fde8589b5d22b08564266e22fca6c3396f7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupActivityPage.ets",
+      "sha256": "b2334cdd8b0dff98255ac37e402179b119f6cac036a4047e2df55e7e3acb41ef"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupCreatePage.ets",
+      "sha256": "9c8ea7dbc6912f02b721d111130569616fd03d6b2ca5d59ac1572aaf2530b201"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupDetailPage.ets",
+      "sha256": "79f455678a8bd7e57a38cd95799d5a141062ed3b447bae27f7a7d894c32532d2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupJoinPage.ets",
+      "sha256": "128567fe4db545932bb8b6bf4c4057b50ab182419a739496b345fb6e061e06d0"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupResultPage.ets",
+      "sha256": "dbd3361f99e5d8e0635d35694ae63e621e410d75a732d038463f1f86d08d26e4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupEditInfoDialog.ets",
+      "sha256": "4b9add13fdfd4685b85cd0a63d357120380de7ed1d363b6a39559ef0480d2375"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupJoinReportDialog.ets",
+      "sha256": "268ca657a7d5489cbbc1ce344d4f709a9bfe0fc421ee5cfa1ed950e61ef3bbbd"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupMatchSeats.ets",
+      "sha256": "e38807d5742b63e31158f9eb964896f66afa8801c8b3068ca2a21fd03351ad64"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupRankingTable.ets",
+      "sha256": "871690dc57e820302c655e27294fbd68629328766140709450955f07da59533f"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupReportDialog.ets",
+      "sha256": "c46a832c5945ad38b5422c5312a589a40735ce772c1497d5974c49492bba97ff"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupResultMatchup.ets",
+      "sha256": "81eaab3fa341961cf1f9420de531b4c186f68eb981515833db612cb5c6cf7f79"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupTemporaryMemberDialog.ets",
+      "sha256": "e0f15414ab7bbd45cffd74737df743e3e8a4eb29a7ef040753f86a97e976e26e"
+    }
+  ],
+  "presentationPolicy": {
+    "pageScenes": [
+      "create",
+      "join",
+      "activity",
+      "detail",
+      "schedule",
+      "start",
+      "result",
+      "edit",
+      "members",
+      "records"
+    ],
+    "sheetScenes": [
+      "temporary",
+      "registration",
+      "report"
+    ],
+    "additionalSheetTasks": [
+      "成员设置",
+      "转让组长",
+      "比赛规则",
+      "常用地点",
+      "扫码",
+      "相册识别"
+    ],
+    "reportComponent": "ReportSheet shared by group and feedback reporting; wrappers keep their own reasons, limits, permission and API contracts."
+  },
+  "sheetPresentationMetrics": {
+    "上圆角": "24",
+    "拖动指示条": "36 × 5",
+    "标题字号": "17",
+    "关闭按钮点击区": "40",
+    "添加临时成员高度": "66%",
+    "报名管理高度": "82%",
+    "举报高度": "87%",
+    "大字号高度": "92%",
+    "说明": "预览展示有遮罩的实际 sheet 层级；原生平台自适应高度由系统 sheet 管理。"
+  }
+};

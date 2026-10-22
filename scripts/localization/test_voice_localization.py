@@ -9,6 +9,17 @@ import voice_localization as voice
 import sync_reviewed_voice_catalogs as exporter
 
 class SportsVoicePipelineTests(unittest.TestCase):
+    def test_reachable_semantic_announcements_do_not_use_english_inventory(self):
+        packs = json.loads(voice.PACKS.read_text())
+        for locale in ['fr', 'fr-CA', 'es-ES', 'es-MX', 'pt-BR', 'pt-PT']:
+            native = voice.native_table(packs[locale])
+            for key in ['squash.game.to', 'squash.match.to', 'squash.leads', 'squash.games.all',
+                        'squash.game.ball', 'squash.match.ball']:
+                self.assertNotEqual(native[key], voice.DOCUMENTED_CALLS[key], (locale, key))
+        for locale in ['zh-Hans', 'zh-Hant', 'ko']:
+            self.assertNotEqual(voice.native_table(packs[locale])['tennis.deciding.point'], voice.DOCUMENTED_CALLS['tennis.deciding.point'])
+        self.assertEqual(voice.native_table(packs['ko'])['pingpong.score.all'], '%1$@ 대 %1$@')
+
     def test_missing_catalog_and_unknown_locale_block_promotion(self):
         with tempfile.TemporaryDirectory() as folder, patch.object(voice,'CATALOG_ROOT',Path(folder)), redirect_stdout(io.StringIO()):
             self.assertEqual(voice.main(['promote','--dry-run']),1)

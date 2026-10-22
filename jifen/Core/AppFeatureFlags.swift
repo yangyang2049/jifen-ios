@@ -15,4 +15,8 @@ enum AppFeatureFlags {
     static let recordCrossDeviceSyncEnabled = true
     static let systemExternalDisplayEnabled = true
 
+    /// Remote group push is available in Debug and Release; notification
+    /// authorization and account binding still govern registration and delivery.
+    static let groupRemotePushEnabled = true
+
 }

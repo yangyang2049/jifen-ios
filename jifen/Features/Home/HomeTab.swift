@@ -150,7 +150,9 @@ struct HomeTab: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.scenePhase) private var scenePhase
     @State private var groups = GroupStore.shared
+    @State private var showGroupNoticeLogin = false
     @State private var groupReminders = GroupActivityReminder.shared
+    @State private var groupPush = GroupPushManager.shared
     @State private var recentActivities: [RecentActivity] = []
     @State private var upcomingBookings: [LocalBooking] = []
     @State private var unfinishedRecord: UnfinishedGameSummary?
@@ -209,6 +211,8 @@ struct HomeTab: View {
         case toolsList
         case schedule
         case groups
+        case groupDetail(groupID: String)
+        case groupNotices
         case commonNames
         case commonPlaces
         case bookingDetail(bookingId: String)
@@ -368,6 +372,16 @@ struct HomeTab: View {
                         path.append(NavigationDestination.scoreboard(.init(gameType: type, recordId: sessionID, setupResult: nil, analyticsEntryPoint: .bookingDetail)))
                     }
                     #endif
+                case .groupDetail(let groupID):
+                    GroupDetailView(groupID: groupID) { type, _, sessionID in
+                        path.append(NavigationDestination.scoreboard(.init(gameType: type, recordId: sessionID, setupResult: nil, analyticsEntryPoint: .bookingDetail)))
+                    }
+                case .groupNotices:
+                    GroupNoticeInbox { type, _, sessionID in
+                        path.append(NavigationDestination.scoreboard(.init(gameType: type, recordId: sessionID, setupResult: nil, analyticsEntryPoint: .bookingDetail)))
+                    }
+                    .toolbar(.visible, for: .navigationBar)
+                    .toolbar(.hidden, for: .tabBar)
                 case .schedule:
                     SchedulePage(
                         onStartBooking: { request in
@@ -405,22 +419,33 @@ struct HomeTab: View {
                     .navigationTitle(tool.title)
                     .toolbar(.hidden, for: .tabBar)
             }
+            .navigationDestination(isPresented: Binding(get: { groupInvitation != nil }, set: { if !$0 { groupInvitation = nil } })) {
+                if let invitation = groupInvitation {
+                    GroupJoinView(initialGroupNo: invitation.groupNo, onStart: { type, _, sessionID in
+                        groupInvitation = nil
+                        path.append(NavigationDestination.scoreboard(.init(gameType: type, recordId: sessionID, setupResult: nil, analyticsEntryPoint: .bookingDetail)))
+                    }, usesParentNavigation: true)
+                    .id(invitation.id)
+                }
+            }
         }
         .sheet(item: $homeSheet) { destination in
             HomeFormSheet(destination: destination)
+        }
+        .sheet(isPresented: $showGroupNoticeLogin, onDismiss: {
+            if SessionStore.shared.isAuthenticated { path.append(NavigationDestination.groupNotices) }
+        }) { AccountLoginSheet() }
+        .sheet(item: $groupPush.destination) { destination in
+            GroupPushDestinationView(destination: destination) { type, _, sessionID in
+                groupPush.destination = nil
+                path.append(NavigationDestination.scoreboard(.init(gameType: type, recordId: sessionID, setupResult: nil, analyticsEntryPoint: .bookingDetail)))
+            }
         }
         .sheet(item: $groupReminders.destination) { destination in
             GroupReminderDestinationView(destination: destination) { type, _, sessionID in
                 groupReminders.destination = nil
                 path.append(NavigationDestination.scoreboard(.init(gameType: type, recordId: sessionID, setupResult: nil, analyticsEntryPoint: .bookingDetail)))
             }
-        }
-        .sheet(item: $groupInvitation) { invitation in
-            GroupJoinView(initialGroupNo: invitation.groupNo) { type, _, sessionID in
-                groupInvitation = nil
-                path.append(NavigationDestination.scoreboard(.init(gameType: type, recordId: sessionID, setupResult: nil, analyticsEntryPoint: .bookingDetail)))
-            }
-            .id(invitation.id)
         }
         .onChange(of: groupInvitation) { _, invitation in
             guard invitation != nil else { return }
@@ -1067,8 +1092,8 @@ struct HomeTab: View {
                 .frame(width: columnWidth, alignment: .topLeading)
 
                 VStack(alignment: .leading, spacing: Theme.sectionSpacing) {
-                    buildCommonDataSection()
                     buildGroupsSection()
+                    buildCommonDataSection()
                     buildScheduleSection()
                     buildRecentRecordsSection()
                 }
@@ -1099,28 +1124,68 @@ struct HomeTab: View {
     @ViewBuilder
     private func buildGroupsSection() -> some View {
         if groups.enabled {
-            VStack(alignment: .leading, spacing: 12) {
-                Button { path.append(NavigationDestination.groups) } label: {
-                    HStack {
-                        Text(groupText("my_groups", "My groups")).font(.headline)
-                        Spacer()
+            // 标题栏的 44pt 操作按钮已提供上下留白，避免重复叠加标题间距。
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 0) {
+                    SectionTitleView(title: groupText("my_groups", "My groups"))
+                        .frame(minHeight: 44)
+                    Spacer()
+                    Button {
+                        if SessionStore.shared.isAuthenticated { path.append(NavigationDestination.groupNotices) }
+                        else { showGroupNoticeLogin = true }
+                    } label: {
+                        Image(systemName: "bell").font(.system(size: 20)).foregroundStyle(Theme.textSecondary)
+                            .frame(width: 20, height: 44)
+                            .overlay(alignment: .topTrailing) {
+                                if SessionStore.shared.isAuthenticated && groups.unreadCount > 0 {
+                                    Circle().fill(Theme.destructiveText).frame(width: 6, height: 6)
+                                        .padding(.top, 7).offset(x: Theme.xs).accessibilityHidden(true)
+                                }
+                            }
+                            .frame(width: 44, height: 44, alignment: .trailing)
+                            .contentShape(Rectangle())
+                    }.buttonStyle(.plain).accessibilityIdentifier("home_group_notices")
+                        .accessibilityLabel(groupText("notices", "Notifications"))
+                        .accessibilityValue(SessionStore.shared.isAuthenticated && groups.unreadCount > 0 ? "\(groups.unreadCount)" : "")
+                    Button { path.append(NavigationDestination.groups) } label: {
                         Image(systemName: "chevron.right")
-                    }.contentShape(Rectangle())
-                }.buttonStyle(.plain).accessibilityIdentifier("home_groups")
-                Button { path.append(NavigationDestination.groups) } label: {
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(Theme.textSecondary)
+                            .frame(width: 32, height: 44, alignment: .trailing)
+                            .contentShape(Rectangle())
+                    }.buttonStyle(.plain).accessibilityLabel(groupText("my_groups", "My groups"))
+                        .accessibilityIdentifier("home_groups")
+                }
+                Button {
+                    if let group = groups.groups.first {
+                        path.append(NavigationDestination.groupDetail(groupID: group.id))
+                    } else {
+                        path.append(NavigationDestination.groups)
+                    }
+                } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: "person.3").foregroundStyle(Theme.primary)
+                        if let group = groups.groups.first {
+                            AppCatalogIcon(gameType: group.sport.gameType, size: 40)
+                        } else {
+                            Image(systemName: "person.3").foregroundStyle(Theme.primary)
+                        }
                         VStack(alignment: .leading, spacing: 4) {
                             Text(groups.groups.first?.name ?? groupText("list_add_title", "Create or join a group"))
                                 .font(.subheadline.weight(.medium))
-                            Text(groups.groups.isEmpty ? groupText("join_hint", "Join with a group number or QR code.") : "\(groups.groups.count) " + groupText("groups", "groups"))
-                                .font(.caption).foregroundStyle(.secondary)
+                            if let group = groups.groups.first {
+                                Text("\(group.sport.title) · \(group.memberCount ?? 0) " + groupText("members", "members"))
+                                    .font(.caption).foregroundStyle(.secondary)
+                            } else {
+                                Text(groupText("join_hint", "Join with a group number or QR code."))
+                                    .font(.caption).foregroundStyle(.secondary)
+                            }
                         }
                         Spacer()
                         Image(systemName: "chevron.right").foregroundStyle(.secondary)
                     }.padding(16).frame(maxWidth: .infinity, alignment: .leading)
                         .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 16))
                 }.buttonStyle(.plain)
+                    .accessibilityIdentifier(groups.groups.first.map { "home_group_card_\($0.id)" } ?? "home_group_empty")
             }
         }
     }
@@ -1257,7 +1322,7 @@ struct HomeTab: View {
                     } label: {
                         Text(NSLocalizedString("schedule_new_booking", value: "预约新球局", comment: ""))
                             .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(.white)
+                            .foregroundColor(Theme.textOnPrimary)
                             .frame(height: 42)
                             .padding(.horizontal, 20)
                             .background(Theme.primary)

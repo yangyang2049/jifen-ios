@@ -1309,7 +1309,7 @@ struct ScoreboardStyleEditOverlayView: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                         .background(Color.white.opacity(0.14))
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .clipShape(Capsule())
                     }
                     .buttonStyle(.plain)
 
@@ -1324,7 +1324,7 @@ struct ScoreboardStyleEditOverlayView: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                         .background(StyleEditPalette.accentGreen)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .clipShape(Capsule())
                     }
                     .buttonStyle(.plain)
                 }
@@ -1385,7 +1385,7 @@ struct ScoreboardStyleEditOverlayView: View {
                     Button(action: { dismissUsageHint() }) {
                         Text(NSLocalizedString("scoreboard_usage_hint_got_it", value: "知道了", comment: ""))
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Theme.textOnPrimary)
                             .frame(maxWidth: .infinity)
                             .frame(height: 44)
                             .background(Theme.accentColor)

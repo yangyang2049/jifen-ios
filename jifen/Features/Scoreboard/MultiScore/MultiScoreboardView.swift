@@ -827,8 +827,8 @@ struct MultiScoreboardView: View {
                                 .foregroundStyle(.white.opacity(0.6))
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 44)
-                                .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.08)))
-                                .contentShape(RoundedRectangle(cornerRadius: 12))
+                                .background(Capsule().fill(Color.white.opacity(0.08)))
+                                .contentShape(Capsule())
                         }
                         .buttonStyle(.plain)
 
@@ -837,11 +837,11 @@ struct MultiScoreboardView: View {
                         } label: {
                             Text(NSLocalizedString("confirm", value: "确定", comment: ""))
                                 .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(.white)
+                                .foregroundStyle(Theme.textOnPrimary)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 44)
-                                .background(RoundedRectangle(cornerRadius: 12).fill(Theme.primary))
-                                .contentShape(RoundedRectangle(cornerRadius: 12))
+                                .background(Capsule().fill(Theme.primary))
+                                .contentShape(Capsule())
                         }
                         .buttonStyle(.plain)
                     }
@@ -997,7 +997,7 @@ struct MultiScoreboardView: View {
                         } label: {
                             Text(NSLocalizedString("uno_confirm_round", value: "确认记分", comment: ""))
                                 .font(.system(size: 16, weight: .medium))
-                                .foregroundStyle(.white)
+                                .foregroundStyle(Theme.textOnPrimary)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 44)
                                 .background(Theme.primary)

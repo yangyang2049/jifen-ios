@@ -34,7 +34,13 @@ struct GroupTrainingTab: View {
             }
             HStack {
                 GroupSectionTitle(title: groupText("training_schedule", "Training schedule"))
-                if coach { Button { editor = .init(plan: nil) } label: { Label(groupText("add_session", "Add a session"), systemImage: "plus").font(.caption) }.buttonStyle(.bordered).disabled(!writable).accessibilityIdentifier("group_training_add") }
+                if coach {
+                    Button { editor = .init(plan: nil) } label: {
+                        Label(groupText("add_session", "Add a session"), systemImage: "plus").font(.caption)
+                    }.buttonStyle(.bordered).tint(Theme.cardBackground).foregroundStyle(Theme.primary)
+                        .background(Theme.cardBackground, in: Capsule())
+                        .disabled(!writable).accessibilityIdentifier("group_training_add")
+                }
             }
             if (detail.trainingPlans ?? []).isEmpty { GroupEmptyCard(text: groupText("no_training", "No training scheduled yet")) }
             ForEach(visiblePlans) { plan in
@@ -50,7 +56,7 @@ struct GroupTrainingTab: View {
                             } label: { Image(systemName: "ellipsis") }.disabled(!writable).accessibilityIdentifier("group_training_plan_menu_\(plan.id)")
                         }
                     }
-                    if !plan.place.isEmpty { Label(plan.place, systemImage: "mappin.and.ellipse").font(.subheadline).foregroundStyle(.secondary) }
+                    if !plan.place.isEmpty { Label(plan.place, systemImage: "mappin.and.ellipse").font(GroupTypography.body).foregroundStyle(.secondary) }
                     if !plan.note.isEmpty { Text(plan.note).font(.caption).foregroundStyle(.secondary) }
                     if coach { ShareLink(item: plan.sessions.map { $0.date.formatted() + " · " + $0.court + " · " + $0.seats.map { $0.displayName ?? "" }.joined(separator: " / ") }.joined(separator: "\n")) { Label(groupText("share", "Share schedule"), systemImage: "square.and.arrow.up") } }
                     if plan.status == "cancelled" { Text(groupText("cancelled", "Cancelled")).foregroundStyle(.secondary) }
@@ -92,29 +98,29 @@ struct GroupTrainingTab: View {
                 }.frame(maxWidth: .infinity, alignment: .leading)
                 if canMarkSeen { Button(groupText("mark_seen", "Read")) {
                     Task { if await store.perform({ try await store.repository.action("/\(detail.group.id)/leave-notices/\(notice.id)/seen") }) { await onReload() } }
-                }.buttonStyle(.borderedProminent).controlSize(.small).disabled(!writable) }
+                }.buttonStyle(.borderedProminent).tint(Theme.primary).foregroundStyle(Theme.textOnPrimary).controlSize(.small).disabled(!writable) }
             }
         }
     }
 
     private func sessionRow(_ session: GroupTrainingSession, plan: GroupTrainingPlan) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack { Text("\(session.orderNo)").font(.headline).foregroundStyle(Theme.primary); Text(session.date, format: .dateTime.hour().minute()); Text(session.court); Spacer(); Text(session.format.title).font(.caption).foregroundStyle(.secondary) }
-            Text(session.seats.sorted { ($0.side, $0.seat) < ($1.side, $1.seat) }.map { seat in seat.displayName ?? detail.members.first(where: { $0.id == seat.memberId })?.displayName ?? "" }.joined(separator: " / ")).font(.subheadline)
+            HStack { Text("\(session.orderNo)").font(GroupTypography.section).foregroundStyle(Theme.primary); Text(session.date, format: .dateTime.hour().minute()); Text(session.court); Spacer(); Text(session.format.title).font(.caption).foregroundStyle(.secondary) }
+            Text(session.seats.sorted { ($0.side, $0.seat) < ($1.side, $1.seat) }.map { seat in seat.displayName ?? detail.members.first(where: { $0.id == seat.memberId })?.displayName ?? "" }.joined(separator: " / ")).font(GroupTypography.body)
             if !session.resultId.isEmpty {
                 if let result = detail.results.first(where: { $0.id == session.resultId }) { GroupResultLink(result: result) }
                 else { Text(groupText("completed", "Completed")).font(.caption).foregroundStyle(.secondary) }
             } else if (session.status == "scheduled" && plan.status != "cancelled") || !(session.startedGameId ?? "").isEmpty {
                 HStack {
                     if coach {
-                        Button(groupText((session.startedGameId ?? "").isEmpty ? "start_score" : "resume_score", "Start scoring")) { Task { await start(session) } }.buttonStyle(.borderedProminent)
-                        if (session.startedGameId ?? "").isEmpty { Button(groupText("manual_result", "Add a result")) { action = .init(kind: "manual", session: session) }.buttonStyle(.bordered) }
+                        Button(groupText((session.startedGameId ?? "").isEmpty ? "start_score" : "resume_score", "Start scoring")) { Task { await start(session) } }.buttonStyle(.borderedProminent).tint(Theme.primary).foregroundStyle(Theme.textOnPrimary)
+                        if (session.startedGameId ?? "").isEmpty { Button(groupText("manual_result", "Add a result")) { action = .init(kind: "manual", session: session) }.buttonStyle(.bordered).tint(Theme.textSecondary).foregroundStyle(Theme.primary) }
                     } else if session.seats.contains(where: { $0.memberId == me?.id }) {
-                        Button(groupText("leave_training", "Notify absence")) { action = .init(kind: "leave", session: session) }.buttonStyle(.bordered)
-                        if let leave = detail.leaveNotices?.first(where: { $0.sessionId == session.id && $0.memberId == me?.id && $0.invalidated != true }) { Text(leave.reason); Text(groupText(leave.status, leave.status)).font(.caption).foregroundStyle(.secondary) }
+                        Button(groupText("leave_training", "Notify absence")) { action = .init(kind: "leave", session: session) }.buttonStyle(.bordered).tint(Theme.textSecondary).foregroundStyle(Theme.primary)
+                        if let leave = detail.leaveNotices?.first(where: { $0.sessionId == session.id && $0.memberId == me?.id && $0.invalidated != true }) { Text(leave.reason); Text(GroupStatusText.leaveNotice(leave.status)).font(.caption).foregroundStyle(.secondary) }
                     }
                 }.controlSize(.small).disabled(!writable)
-            } else { Text(groupText(session.status, session.status)).font(.caption).foregroundStyle(.secondary) }
+            } else { Text(GroupStatusText.trainingSession(session.status)).font(.caption).foregroundStyle(.secondary) }
         }
     }
     private func start(_ session: GroupTrainingSession) async {
@@ -137,6 +143,10 @@ nonisolated struct GroupTrainingDraftSession: Identifiable, Equatable, Codable, 
 }
 
 nonisolated enum GroupTrainingValidation {
+    static func validText(place: String, note: String) -> Bool {
+        place.utf16.count <= 80 && note.utf16.count <= 200
+    }
+
     enum LineupIssue: Equatable { case incomplete, duplicate, sessions, memberLimit, conflict, invalid, frozen }
     static func lineupIssue(_ sessions: [GroupTrainingDraftSession], minutes: Int, maximumSessions: Int = 12, maximumPerMember: Int = 8,
                             skipsConflicts: Bool = false, allowsEmpty: Bool = false,
@@ -170,7 +180,7 @@ nonisolated enum GroupTrainingValidation {
                 (session.selectedIDs.count != session.format.seatsPerSide * 2 || session.selectedIDs.contains(where: { $0.isEmpty || allowedMemberIDs?.contains($0) == false })) { return .incomplete }
             let selected = session.selectedIDs.filter { !$0.isEmpty }
             if Set(selected).count != selected.count { return .duplicate }
-            if session.court.trimmingCharacters(in: .whitespacesAndNewlines).count > 16 || !session.startsAt.timeIntervalSince1970.isFinite || (!skipsConflicts && index > 0 && session.startsAt < sessions[index - 1].startsAt) { return .invalid }
+            if session.court.trimmingCharacters(in: .whitespacesAndNewlines).utf16.count > 16 || !session.startsAt.timeIntervalSince1970.isFinite || (!skipsConflicts && index > 0 && session.startsAt < sessions[index - 1].startsAt) { return .invalid }
             for id in selected { countByMember[id, default: 0] += 1 }
         }
         if countByMember.values.contains(where: { $0 > maximumPerMember }) { return .memberLimit }
@@ -251,36 +261,17 @@ struct GroupLeaveView: View {
             Form {
                 Text(session.date, format: .dateTime)
                 TextField(groupText("leave_reason", "Optional absence note"), text: $reason, axis: .vertical)
-                    .onChange(of: reason) { _, value in reason = String(value.prefix(100)) }
+                    .onChange(of: reason) { _, value in reason = GroupInputValidation.limitedText(value, maximum: GroupInputValidation.absenceReasonMax) }
                 if let error = store.error { GroupNotice(text: error) }
                 Button(groupText("leave_training", "Notify absence")) { Task { busy = true; defer { busy = false }; if await store.perform({ try await store.repository.action("/\(groupID)/training-sessions/\(session.id)/leave", body: .init(reason: reason)) }) { dismiss() } } }.disabled(busy)
             }.disabled(busy).navigationTitle(groupText("leave_training", "Notify absence")).groupAccountBoundary().interactiveDismissDisabled(busy)
                 .onAppear { let store = GroupStore.shared; if let member = store.cache.details[groupID]?.members.first(where: { $0.accountId == store.accountID }), let existing = store.cache.details[groupID]?.leaveNotices?.first(where: { $0.sessionId == session.id && $0.memberId == member.id }) { reason = existing.reason } }
-                .toolbar { ToolbarItem(placement: .cancellationAction) { Button(groupText("close", "Close")) { dismiss() } } }
+                .toolbar { ToolbarItem(placement: .cancellationAction) { ModalCloseButton { dismiss() }.disabled(busy) } }
         }
     }
 }
 
 struct GroupReportView: View {
     var groupID: String
-    @State private var reason = GroupReportReason.spam
-    @State private var detail = ""
-    @State private var busy = false
-    @State private var store = GroupStore.shared
-    @Environment(\.dismiss) private var dismiss
-    var body: some View {
-        NavigationStack {
-            Form {
-                Picker(groupText("report_reason", "Reason"), selection: $reason) { ForEach(GroupReportReason.allCases) { Text($0.title).tag($0) } }
-                TextField(groupText("report_detail", "Details (optional)"), text: $detail, axis: .vertical).onChange(of: detail) { _, value in detail = String(value.prefix(500)) }
-                if let error = store.error { GroupNotice(text: error) }
-                Button(groupText("report_submit", "Submit report")) { Task { busy = true; defer { busy = false }; if await store.perform({
-                    nonisolated struct Body: Encodable, Sendable { var reason: String; var detail: String }
-                    let _: EmptyResponse = try await store.repository.write("/\(groupID)/report", body: Body(reason: reason.rawValue, detail: detail))
-                }) { dismiss() } } }.disabled(busy)
-            }.disabled(busy).navigationTitle(groupText("report", "Report group")).groupAccountBoundary()
-                .interactiveDismissDisabled(busy)
-                .toolbar { ToolbarItem(placement: .cancellationAction) { Button(NSLocalizedString("cancel", comment: "")) { dismiss() }.disabled(busy) } }
-        }
-    }
+    var body: some View { GroupEvidenceReportSheet(groupID: groupID) }
 }

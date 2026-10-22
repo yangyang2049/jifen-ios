@@ -1,0 +1,1075 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -project jifen.xcodeproj -scheme jifen -destination "platform=iOS Simulator,id=1BAD35E9-B714-4AD9-BEF3-EBFD7F943FF1" -parallel-testing-enabled NO "-only-testing:jifenUITests/MainFlowUITests/testSetupNumberChoicesUseCompactSquares" "-only-testing:jifenUITests/MainFlowUITests/testSetupNumberChoicesInDarkMode" "-only-testing:jifenUITests/MainFlowUITests/testSetupCompactCustomSetsAndPointsEditInline" "-only-testing:jifenUITests/MainFlowUITests/testPlayAllSetupSupportsEvenAndCustomSetCounts" -resultBundlePath artifacts/setup-compact-2026-10-21/iPad.xcresult
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 5.3.1
+  GoogleAdsOnDeviceConversion: https://github.com/googleads/google-ads-on-device-conversion-ios-sdk @ 3.7.0
+  AppCheck: https://github.com/google/app-check.git @ 11.3.2
+  GoogleAppMeasurement: https://github.com/google/GoogleAppMeasurement.git @ 12.19.2
+  gRPC: https://github.com/google/grpc-binary.git @ 1.69.1
+  leveldb: https://github.com/firebase/leveldb.git @ 1.22.5
+  nanopb: https://github.com/firebase/nanopb.git @ 2.30910.1
+  Firebase: https://github.com/firebase/firebase-ios-sdk.git @ 12.19.2
+  Promises: https://github.com/google/promises.git @ 2.4.1
+  GoogleDataTransport: https://github.com/google/GoogleDataTransport.git @ 10.1.1
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.3
+  abseil: https://github.com/google/abseil-cpp-binary.git @ 1.2024072200.0
+  JifenCore: /Users/yangyang/Desktop/jifenqi/jifen-ios/Packages/JifenCore @ local
+
+Writing result bundle at path:
+	/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/setup-compact-2026-10-21/iPad.xcresult
+
+2026-10-21 13:37:14.918 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-21 13:37:24.566464+0800 jifenUITests-Runner[94399:6723044] [Default] Running tests...
+2026-10-21 13:37:24.586354+0800 jifenUITests-Runner[94399:6723044] [UIKit App Config] Update the Info.plist: Launch screens will soon be required.
+objc[94399]: Class UIAccessibilityLoaderWebShared is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebCore.axbundle/WebCore (0x1064f8310) and /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x106594398). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-10-21 13:37:26.042.
+Test Suite 'jifenUITests.xctest' started at 2026-10-21 13:37:26.042.
+Test Suite 'MainFlowUITests' started at 2026-10-21 13:37:26.042.
+Test Case '-[jifenUITests.MainFlowUITests testPlayAllSetupSupportsEvenAndCustomSetCounts]' started.
+    t =     0.00s Start Test at 2026-10-21 13:37:26.043
+    t =     0.23s Set Up
+    t =     0.44s Open com.douhua.jifen.ios
+    t =     0.44s     Launch com.douhua.jifen.ios
+2026-10-21 13:37:26.704 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-21 13:37:26.704 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-21 13:37:26.835 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     2.91s         Setting up automation session
+    t =     3.45s         Wait for com.douhua.jifen.ios to idle
+    t =     5.42s Wait for com.douhua.jifen.ios to become Running Foreground
+    t =     5.42s Checking existence of `"计分" Button`
+    t =     5.53s Checking existence of `"Score" Button`
+    t =     5.56s Waiting 8.0s for "main_tab_2" Button to exist
+    t =     6.60s     Checking `Expect predicate `existsNoRetry == 1` for object "main_tab_2" Button`
+    t =     6.60s         Checking existence of `"main_tab_2" Button`
+    t =     6.63s Tap "main_tab_2" Button
+    t =     6.63s     Wait for com.douhua.jifen.ios to idle
+    t =     6.63s     Find the "main_tab_2" Button
+    t =     6.64s     Check for interrupting elements affecting "main_tab_2" Button
+    t =     6.69s         Wait for com.apple.springboard to idle
+    t =     6.73s     Synthesize event
+    t =     7.13s     Wait for com.douhua.jifen.ios to idle
+    t =     8.10s Checking existence of `"scoreboard_catalog_pingpong" Any`
+    t =     8.16s Find the "scoreboard_catalog_pingpong" Any
+    t =     8.20s Waiting 5.0s for "scoreboard_catalog_pingpong" Button to exist
+    t =     9.24s     Checking `Expect predicate `existsNoRetry == 1` for object "scoreboard_catalog_pingpong" Button`
+    t =     9.24s         Checking existence of `"scoreboard_catalog_pingpong" Button`
+    t =     9.29s Find the "scoreboard_catalog_pingpong" Button
+    t =     9.33s Tap "scoreboard_catalog_pingpong" Button
+    t =     9.33s     Wait for com.douhua.jifen.ios to idle
+    t =     9.33s     Find the "scoreboard_catalog_pingpong" Button
+    t =     9.36s     Check for interrupting elements affecting "scoreboard_catalog_pingpong" Button
+    t =     9.39s         Wait for com.apple.springboard to idle
+    t =     9.41s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =     9.41s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =     9.41s     Synthesize event
+    t =     9.70s     Wait for com.douhua.jifen.ios to idle
+    t =     9.71s Waiting 5.0s for "singles_doubles_picker" SegmentedControl to exist
+    t =    10.75s     Checking `Expect predicate `existsNoRetry == 1` for object "singles_doubles_picker" SegmentedControl`
+    t =    10.76s         Checking existence of `"singles_doubles_picker" SegmentedControl`
+    t =    10.82s Waiting 5.0s for "match_completion_mode_selector" Button to exist
+    t =    11.86s     Checking `Expect predicate `existsNoRetry == 1` for object "match_completion_mode_selector" Button`
+    t =    11.86s         Checking existence of `"match_completion_mode_selector" Button`
+    t =    11.92s Find the "match_completion_mode_selector" Button
+    t =    11.96s Tap "match_completion_mode_selector" Button
+    t =    11.96s     Wait for com.douhua.jifen.ios to idle
+    t =    11.96s     Find the "match_completion_mode_selector" Button
+    t =    12.01s     Check for interrupting elements affecting "match_completion_mode_selector" Button
+    t =    12.05s         Wait for com.apple.springboard to idle
+    t =    12.06s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    12.07s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    12.07s     Synthesize event
+    t =    12.36s     Wait for com.douhua.jifen.ios to idle
+    t =    12.50s Waiting 3.0s for Button (First Match) to exist
+    t =    13.54s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    13.54s         Checking existence of `Button (First Match)`
+    t =    13.57s Tap Button (First Match)
+    t =    13.57s     Wait for com.douhua.jifen.ios to idle
+    t =    13.58s     Find the Button (First Match)
+    t =    13.59s     Check for interrupting elements affecting "打满、如五局全部打完，可能出现平局" Button
+    t =    13.63s         Wait for com.apple.springboard to idle
+    t =    13.65s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    13.65s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    13.65s     Synthesize event
+    t =    13.94s     Wait for com.douhua.jifen.ios to idle
+    t =    14.33s Find the "match_completion_mode_selector" Button
+    t =    14.40s Waiting 3.0s for "2" Button to exist
+    t =    15.44s     Checking `Expect predicate `existsNoRetry == 1` for object "2" Button`
+    t =    15.44s         Checking existence of `"2" Button`
+    t =    15.49s Tap "2" Button
+    t =    15.49s     Wait for com.douhua.jifen.ios to idle
+    t =    15.49s     Find the "2" Button
+    t =    15.53s     Check for interrupting elements affecting "2" Button
+    t =    15.57s         Wait for com.apple.springboard to idle
+    t =    15.58s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    15.58s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    15.58s     Synthesize event
+    t =    15.87s     Wait for com.douhua.jifen.ios to idle
+    t =    15.88s Checking existence of `"经典模式请输入 1-99 的奇数；打满模式请输入 1-99。" StaticText`
+    t =    15.92s Waiting 3.0s for "custom_match_sets_button" Button to exist
+    t =    16.96s     Checking `Expect predicate `existsNoRetry == 1` for object "custom_match_sets_button" Button`
+    t =    16.96s         Checking existence of `"custom_match_sets_button" Button`
+    t =    17.01s Tap "custom_match_sets_button" Button
+    t =    17.01s     Wait for com.douhua.jifen.ios to idle
+    t =    17.01s     Find the "custom_match_sets_button" Button
+    t =    17.05s     Check for interrupting elements affecting "custom_match_sets_button" Button
+    t =    17.09s         Wait for com.apple.springboard to idle
+    t =    17.10s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    17.10s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    17.11s     Synthesize event
+    t =    17.40s     Wait for com.douhua.jifen.ios to idle
+    t =    17.73s Waiting 3.0s for "custom_max_sets_field" TextField to exist
+    t =    18.78s     Checking `Expect predicate `existsNoRetry == 1` for object "custom_max_sets_field" TextField`
+    t =    18.78s         Checking existence of `"custom_max_sets_field" TextField`
+    t =    18.86s Waiting 3.0s for Keyboard (First Match) to exist
+    t =    19.90s     Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+    t =    19.91s         Checking existence of `Keyboard (First Match)`
+    t =    19.92s Type '8' into Target Application 'com.douhua.jifen.ios'
+    t =    19.92s     Wait for com.douhua.jifen.ios to idle
+    t =    19.93s     Find the Target Application 'com.douhua.jifen.ios'
+    t =    19.98s     Check for interrupting elements affecting "全能计分器" Application
+    t =    20.02s         Wait for com.apple.springboard to idle
+    t =    20.04s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    20.04s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    20.04s     Synthesize event
+    t =    20.04s         Get number of matches for: Elements containing elements matching predicate 'hasKeyboardFocus == 1'
+    t =    20.31s     Wait for com.douhua.jifen.ios to idle
+    t =    20.31s Find the "custom_max_sets_field" TextField
+    t =    20.38s Type '3' into Target Application 'com.douhua.jifen.ios'
+    t =    20.38s     Wait for com.douhua.jifen.ios to idle
+    t =    20.39s     Find the Target Application 'com.douhua.jifen.ios'
+    t =    20.42s     Check for interrupting elements affecting "全能计分器" Application
+    t =    20.47s         Wait for com.apple.springboard to idle
+    t =    20.48s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    20.48s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    20.49s     Synthesize event
+    t =    20.49s         Get number of matches for: Elements containing elements matching predicate 'hasKeyboardFocus == 1'
+    t =    20.76s     Wait for com.douhua.jifen.ios to idle
+    t =    20.77s Checking existence of `"custom_max_sets_field" TextField`
+    t =    20.83s Checking existence of `Keyboard (First Match)`
+    t =    20.84s Type '1' into Target Application 'com.douhua.jifen.ios'
+    t =    20.84s     Wait for com.douhua.jifen.ios to idle
+    t =    20.84s     Find the Target Application 'com.douhua.jifen.ios'
+    t =    20.88s     Check for interrupting elements affecting "全能计分器" Application
+    t =    20.93s         Wait for com.apple.springboard to idle
+    t =    20.95s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    20.95s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    20.95s     Synthesize event
+    t =    20.95s         Get number of matches for: Elements containing elements matching predicate 'hasKeyboardFocus == 1'
+    t =    21.21s     Wait for com.douhua.jifen.ios to idle
+    t =    21.21s Find the "custom_max_sets_field" TextField
+    t =    21.41s Added attachment named 'Play all setup - light'
+    t =    21.42s Terminate com.douhua.jifen.ios:94439
+2026-10-21 13:37:47.481 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-21 13:37:47.482 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    22.45s Tear Down
+Test Case '-[jifenUITests.MainFlowUITests testPlayAllSetupSupportsEvenAndCustomSetCounts]' passed (22.510 seconds).
+Test Case '-[jifenUITests.MainFlowUITests testSetupCompactCustomSetsAndPointsEditInline]' started.
+    t =     0.00s Start Test at 2026-10-21 13:37:48.553
+    t =     0.01s Set Up
+    t =     0.22s Open com.douhua.jifen.ios
+    t =     0.22s     Launch com.douhua.jifen.ios
+2026-10-21 13:37:48.772 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-21 13:37:48.772 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-21 13:37:48.808 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     0.43s         Setting up automation session
+    t =     0.89s         Wait for com.douhua.jifen.ios to idle
+    t =     2.44s Wait for com.douhua.jifen.ios to become Running Foreground
+    t =     2.44s Setting device orientation to Portrait
+    t =     2.45s     Device orientation changed to Portrait
+    t =     2.45s     Wait for com.douhua.jifen.ios to idle
+    t =     2.45s     Wait for com.apple.springboard to idle
+    t =     2.46s Checking existence of `"计分" Button`
+    t =     2.57s Checking existence of `"Score" Button`
+    t =     2.60s Waiting 8.0s for "main_tab_2" Button to exist
+    t =     3.60s     Checking `Expect predicate `existsNoRetry == 1` for object "main_tab_2" Button`
+    t =     3.60s         Checking existence of `"main_tab_2" Button`
+    t =     3.64s Tap "main_tab_2" Button
+    t =     3.64s     Wait for com.douhua.jifen.ios to idle
+    t =     3.64s     Find the "main_tab_2" Button
+    t =     3.66s     Check for interrupting elements affecting "main_tab_2" Button
+    t =     3.69s         Wait for com.apple.springboard to idle
+    t =     3.70s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =     3.71s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =     3.71s     Synthesize event
+    t =     4.00s     Wait for com.douhua.jifen.ios to idle
+    t =     4.94s Checking existence of `"scoreboard_catalog_pingpong" Any`
+    t =     4.98s Find the "scoreboard_catalog_pingpong" Any
+    t =     5.02s Waiting 5.0s for "scoreboard_catalog_pingpong" Button to exist
+    t =     6.06s     Checking `Expect predicate `existsNoRetry == 1` for object "scoreboard_catalog_pingpong" Button`
+    t =     6.06s         Checking existence of `"scoreboard_catalog_pingpong" Button`
+    t =     6.12s Find the "scoreboard_catalog_pingpong" Button
+    t =     6.16s Tap "scoreboard_catalog_pingpong" Button
+    t =     6.16s     Wait for com.douhua.jifen.ios to idle
+    t =     6.17s     Find the "scoreboard_catalog_pingpong" Button
+    t =     6.20s     Check for interrupting elements affecting "scoreboard_catalog_pingpong" Button
+    t =     6.22s         Wait for com.apple.springboard to idle
+    t =     6.24s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =     6.24s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =     6.24s     Synthesize event
+    t =     6.53s     Wait for com.douhua.jifen.ios to idle
+    t =     6.53s Waiting 5.0s for "singles_doubles_picker" SegmentedControl to exist
+    t =     7.57s     Checking `Expect predicate `existsNoRetry == 1` for object "singles_doubles_picker" SegmentedControl`
+    t =     7.58s         Checking existence of `"singles_doubles_picker" SegmentedControl`
+    t =     7.63s Waiting 3.0s for "custom_match_sets_button" Button to exist
+    t =     8.65s     Checking `Expect predicate `existsNoRetry == 1` for object "custom_match_sets_button" Button`
+    t =     8.65s         Checking existence of `"custom_match_sets_button" Button`
+    t =     8.69s Tap "custom_match_sets_button" Button
+    t =     8.69s     Wait for com.douhua.jifen.ios to idle
+    t =     8.69s     Find the "custom_match_sets_button" Button
+    t =     8.73s     Check for interrupting elements affecting "custom_match_sets_button" Button
+    t =     8.76s         Wait for com.apple.springboard to idle
+    t =     8.78s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =     8.78s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =     8.78s     Synthesize event
+    t =     9.06s     Wait for com.douhua.jifen.ios to idle
+    t =     9.27s Waiting 3.0s for "custom_max_sets_field" TextField to exist
+    t =    10.31s     Checking `Expect predicate `existsNoRetry == 1` for object "custom_max_sets_field" TextField`
+    t =    10.31s         Checking existence of `"custom_max_sets_field" TextField`
+    t =    10.38s Waiting 3.0s for Keyboard (First Match) to exist
+    t =    11.41s     Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+    t =    11.42s         Checking existence of `Keyboard (First Match)`
+    t =    11.45s Type '31' into Target Application 'com.douhua.jifen.ios'
+    t =    11.45s     Wait for com.douhua.jifen.ios to idle
+    t =    11.46s     Find the Target Application 'com.douhua.jifen.ios'
+    t =    11.50s     Check for interrupting elements affecting "全能计分器" Application
+    t =    11.55s         Wait for com.apple.springboard to idle
+    t =    11.57s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    11.57s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    11.57s     Synthesize event
+    t =    11.57s         Get number of matches for: Elements containing elements matching predicate 'hasKeyboardFocus == 1'
+    t =    11.85s     Wait for com.douhua.jifen.ios to idle
+    t =    11.85s Find the "custom_max_sets_field" TextField
+    t =    11.92s Find the "custom_max_sets_field" TextField
+    t =    11.98s Find the "custom_max_sets_field" TextField
+    t =    12.03s Find the "custom_max_sets_field" TextField
+    t =    12.09s Find the "1" Button
+    t =    12.94s Find the Target Application 'com.douhua.jifen.ios'
+    t =    12.99s Added attachment named 'iPad_setup_compact_custom_sets'
+    t =    12.99s Tap "1" Button
+    t =    12.99s     Wait for com.douhua.jifen.ios to idle
+    t =    12.99s     Find the "1" Button
+    t =    13.07s     Check for interrupting elements affecting "1" Button
+    t =    13.12s         Wait for com.apple.springboard to idle
+    t =    13.13s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    13.13s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    13.14s     Synthesize event
+    t =    13.14s         Scroll element to visible
+    t =    13.14s         Find the "1" Button
+    t =    13.24s         Computed hit point {-1, -1} after scrolling to visible
+    t =    13.52s     Wait for com.douhua.jifen.ios to idle
+    t =    13.89s Waiting 3.0s for Keyboard (First Match) to not exist
+    t =    14.92s     Checking `Expect predicate `existsNoRetry == 0` for object Keyboard (First Match)`
+    t =    14.92s         Checking existence of `Keyboard (First Match)`
+    t =    14.94s         Capturing element debug description
+    t =    15.98s     Checking `Expect predicate `existsNoRetry == 0` for object Keyboard (First Match)`
+    t =    15.98s         Checking existence of `Keyboard (First Match)`
+    t =    15.99s         Capturing element debug description
+    t =    16.90s     Checking `Expect predicate `existsNoRetry == 0` for object Keyboard (First Match)`
+    t =    16.90s         Checking existence of `Keyboard (First Match)`
+    t =    16.91s         Capturing element debug description
+    t =    16.91s     Checking existence of `Keyboard (First Match)`
+    t =    16.92s Collecting debug information to assist test failure triage
+    t =    16.92s     Requesting snapshot of accessibility hierarchy for app with pid 94533
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifenUITests/MainFlowUITests.swift:1411: error: -[jifenUITests.MainFlowUITests testSetupCompactCustomSetsAndPointsEditInline] : XCTAssertTrue failed
+    t =    17.21s Tear Down
+Test Case '-[jifenUITests.MainFlowUITests testSetupCompactCustomSetsAndPointsEditInline]' failed (17.453 seconds).
+Test Case '-[jifenUITests.MainFlowUITests testSetupNumberChoicesInDarkMode]' started.
+    t =     0.00s Start Test at 2026-10-21 13:38:06.007
+    t =     0.02s Set Up
+    t =     0.03s Terminate com.douhua.jifen.ios:94533
+2026-10-21 13:38:06.047 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-21 13:38:06.047 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     1.03s Wait for com.douhua.jifen.ios to become Not Running
+    t =     1.23s Open com.douhua.jifen.ios
+    t =     1.24s     Launch com.douhua.jifen.ios
+2026-10-21 13:38:07.245 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-21 13:38:07.245 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-21 13:38:07.268 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     1.45s         Setting up automation session
+    t =     1.93s         Wait for com.douhua.jifen.ios to idle
+    t =     3.54s Wait for com.douhua.jifen.ios to become Running Foreground
+    t =     3.54s Setting device orientation to Portrait
+    t =     3.54s     Wait for com.douhua.jifen.ios to idle
+    t =     3.55s     Wait for com.apple.springboard to idle
+    t =     3.55s Setting device orientation to Portrait
+    t =     3.55s     Wait for com.douhua.jifen.ios to idle
+    t =     3.55s     Wait for com.apple.springboard to idle
+    t =     3.56s Checking existence of `"计分" Button`
+    t =     3.66s Checking existence of `Button (First Match)`
+    t =     3.68s Find the Button (First Match)
+    t =     3.70s Checking existence of `Window (First Match)`
+    t =     3.70s Find the Window (First Match)
+    t =     3.72s Find the "main_tab_2" Button
+    t =     3.74s Checking existence of `Window (First Match)`
+    t =     3.74s Find the Window (First Match)
+    t =     3.75s Tap Target Application 'com.douhua.jifen.ios'[0.50, 0.04]
+    t =     3.75s     Wait for com.douhua.jifen.ios to idle
+    t =     4.03s     Find the Target Application 'com.douhua.jifen.ios'
+    t =     4.05s     Check for interrupting elements affecting "全能计分器" Application
+    t =     4.08s         Wait for com.apple.springboard to idle
+    t =     4.10s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =     4.10s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =     4.10s     Synthesize event
+    t =     4.10s         Find the Target Application 'com.douhua.jifen.ios'
+    t =     4.12s         Find the Target Application 'com.douhua.jifen.ios'
+    t =     4.15s         Find the Target Application 'com.douhua.jifen.ios'
+    t =     4.45s     Wait for com.douhua.jifen.ios to idle
+    t =     5.37s Checking existence of `"scoreboard_catalog_badminton" Any`
+    t =     5.42s Find the "scoreboard_catalog_badminton" Any
+    t =     5.46s Waiting 3.0s for "scoreboard_catalog_badminton" Button to exist
+    t =     6.49s     Checking `Expect predicate `existsNoRetry == 1` for object "scoreboard_catalog_badminton" Button`
+    t =     6.49s         Checking existence of `"scoreboard_catalog_badminton" Button`
+    t =     6.51s Find the "scoreboard_catalog_badminton" Button
+    t =     6.55s Tap "scoreboard_catalog_badminton" Button
+    t =     6.55s     Wait for com.douhua.jifen.ios to idle
+    t =     6.55s     Find the "scoreboard_catalog_badminton" Button
+    t =     6.58s     Check for interrupting elements affecting "scoreboard_catalog_badminton" Button
+    t =     6.61s         Wait for com.apple.springboard to idle
+    t =     6.62s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =     6.63s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =     6.63s     Synthesize event
+    t =     6.92s     Wait for com.douhua.jifen.ios to idle
+    t =     6.93s Waiting 5.0s for "开始" Button to exist
+    t =     7.95s     Checking `Expect predicate `existsNoRetry == 1` for object "开始" Button`
+    t =     7.95s         Checking existence of `"开始" Button`
+    t =     7.99s Get all elements bound by index for: Elements matching predicate 'label MATCHES "^[0-9]{1,2}$"'
+    t =     8.03s Find the Button (Element at index 0)
+    t =     8.07s Find the Button (Element at index 1)
+    t =     8.11s Find the Button (Element at index 2)
+    t =     8.15s Find the Button (Element at index 3)
+    t =     8.20s Find the Button (Element at index 4)
+    t =     8.24s Find the Button (Element at index 5)
+    t =     8.28s Find the Button (Element at index 6)
+    t =     8.32s Find the "1" Button
+    t =     8.36s Find the "1" Button
+    t =     8.40s Find the "3" Button
+    t =     8.44s Find the "3" Button
+    t =     8.48s Find the "5" Button
+    t =     8.51s Find the "5" Button
+    t =     8.55s Find the "7" Button
+    t =     8.59s Find the "7" Button
+    t =     8.63s Find the "11" Button
+    t =     8.67s Find the "11" Button
+    t =     8.71s Find the "15" Button
+    t =     8.75s Find the "15" Button
+    t =     8.81s Find the "21" Button
+    t =     8.87s Find the "21" Button
+    t =     8.92s Checking existence of `"custom_match_sets_button" Button`
+    t =     8.96s Find the "custom_match_sets_button" Button
+    t =     9.05s Find the "custom_match_sets_button" Button
+    t =     9.20s Find the "custom_match_sets_button" Button
+    t =     9.25s Checking existence of `"setup_custom_sets_button" Button`
+    t =     9.29s Checking existence of `"setup_custom_points_button" Button`
+    t =     9.33s Find the "setup_custom_points_button" Button
+    t =     9.38s Find the "setup_custom_points_button" Button
+    t =     9.43s Find the "setup_custom_points_button" Button
+    t =    10.46s Find the Target Application 'com.douhua.jifen.ios'
+    t =    10.50s Added attachment named 'iPad_setup_compact_badminton_dark'
+    t =    10.50s Terminate com.douhua.jifen.ios:94692
+2026-10-21 13:38:16.527 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-21 13:38:16.527 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    11.75s Open com.douhua.jifen.ios
+    t =    11.75s     Launch com.douhua.jifen.ios
+2026-10-21 13:38:17.755 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-21 13:38:17.755 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-21 13:38:17.775 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    11.96s         Setting up automation session
+    t =    12.55s         Wait for com.douhua.jifen.ios to idle
+    t =    14.28s Wait for com.douhua.jifen.ios to become Running Foreground
+    t =    14.28s Setting device orientation to Portrait
+    t =    14.29s     Wait for com.douhua.jifen.ios to idle
+    t =    14.29s     Wait for com.apple.springboard to idle
+    t =    14.29s Setting device orientation to Portrait
+    t =    14.30s     Wait for com.douhua.jifen.ios to idle
+    t =    14.30s     Wait for com.apple.springboard to idle
+    t =    14.30s Checking existence of `"计分" Button`
+    t =    14.39s Checking existence of `Button (First Match)`
+    t =    14.40s Find the Button (First Match)
+    t =    14.41s Checking existence of `Window (First Match)`
+    t =    14.42s Find the Window (First Match)
+    t =    14.42s Find the "main_tab_2" Button
+    t =    14.44s Checking existence of `Window (First Match)`
+    t =    14.44s Find the Window (First Match)
+    t =    14.44s Tap Target Application 'com.douhua.jifen.ios'[0.50, 0.04]
+    t =    14.44s     Wait for com.douhua.jifen.ios to idle
+    t =    14.77s     Find the Target Application 'com.douhua.jifen.ios'
+    t =    14.79s     Check for interrupting elements affecting "全能计分器" Application
+    t =    14.82s         Wait for com.apple.springboard to idle
+    t =    14.83s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    14.83s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    14.84s     Synthesize event
+    t =    14.84s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    14.86s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    14.88s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    15.19s     Wait for com.douhua.jifen.ios to idle
+    t =    16.15s Checking existence of `"scoreboard_catalog_pickleball" Any`
+    t =    16.19s Find the "scoreboard_catalog_pickleball" Any
+    t =    16.22s Waiting 3.0s for "scoreboard_catalog_pickleball" Button to exist
+    t =    17.25s     Checking `Expect predicate `existsNoRetry == 1` for object "scoreboard_catalog_pickleball" Button`
+    t =    17.25s         Checking existence of `"scoreboard_catalog_pickleball" Button`
+    t =    17.27s Find the "scoreboard_catalog_pickleball" Button
+    t =    17.31s Tap "scoreboard_catalog_pickleball" Button
+    t =    17.31s     Wait for com.douhua.jifen.ios to idle
+    t =    17.32s     Find the "scoreboard_catalog_pickleball" Button
+    t =    17.35s     Check for interrupting elements affecting "scoreboard_catalog_pickleball" Button
+    t =    17.38s         Wait for com.apple.springboard to idle
+    t =    17.39s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    17.39s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    17.40s     Synthesize event
+    t =    17.69s     Wait for com.douhua.jifen.ios to idle
+    t =    17.69s Waiting 5.0s for "开始" Button to exist
+    t =    18.73s     Checking `Expect predicate `existsNoRetry == 1` for object "开始" Button`
+    t =    18.73s         Checking existence of `"开始" Button`
+    t =    18.79s Get all elements bound by index for: Elements matching predicate 'label MATCHES "^[0-9]{1,2}$"'
+    t =    18.83s Find the Button (Element at index 0)
+    t =    18.88s Find the Button (Element at index 1)
+    t =    18.92s Find the Button (Element at index 2)
+    t =    18.97s Find the Button (Element at index 3)
+    t =    19.01s Find the Button (Element at index 4)
+    t =    19.06s Find the Button (Element at index 5)
+    t =    19.10s Find the Button (Element at index 6)
+    t =    19.15s Find the Button (Element at index 7)
+    t =    19.19s Find the Button (Element at index 8)
+    t =    19.24s Find the "1" Button
+    t =    19.27s Find the "1" Button
+    t =    19.31s Find the "3" Button
+    t =    19.35s Find the "3" Button
+    t =    19.39s Find the "5" Button
+    t =    19.43s Find the "5" Button
+    t =    19.47s Find the "7" Button
+    t =    19.51s Find the "7" Button
+    t =    19.55s Find the "11" Button
+    t =    19.59s Find the "11" Button
+    t =    19.63s Find the "15" Button
+    t =    19.68s Find the "15" Button
+    t =    19.72s Find the "21" Button
+    t =    19.76s Find the "21" Button
+    t =    19.80s Find the "13" Button
+    t =    19.84s Find the "13" Button
+    t =    19.88s Find the "15" Button
+    t =    19.92s Find the "15" Button
+    t =    19.96s Checking existence of `"custom_match_sets_button" Button`
+    t =    20.00s Find the "custom_match_sets_button" Button
+    t =    20.05s Find the "custom_match_sets_button" Button
+    t =    20.09s Find the "custom_match_sets_button" Button
+    t =    20.13s Checking existence of `"setup_custom_sets_button" Button`
+    t =    20.16s Checking existence of `"setup_custom_points_button" Button`
+    t =    21.00s Find the Target Application 'com.douhua.jifen.ios'
+    t =    21.03s Added attachment named 'iPad_setup_compact_pickleball_dark'
+    t =    21.04s Terminate com.douhua.jifen.ios:94747
+2026-10-21 13:38:27.076 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-21 13:38:27.077 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    22.09s Tear Down
+Test Case '-[jifenUITests.MainFlowUITests testSetupNumberChoicesInDarkMode]' passed (22.275 seconds).
+Test Case '-[jifenUITests.MainFlowUITests testSetupNumberChoicesUseCompactSquares]' started.
+    t =     0.00s Start Test at 2026-10-21 13:38:28.282
+    t =     0.02s Set Up
+    t =     0.22s Open com.douhua.jifen.ios
+    t =     0.22s     Launch com.douhua.jifen.ios
+2026-10-21 13:38:28.503 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-21 13:38:28.503 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-21 13:38:28.517 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     0.43s         Setting up automation session
+    t =     0.85s         Wait for com.douhua.jifen.ios to idle
+    t =     2.43s Wait for com.douhua.jifen.ios to become Running Foreground
+    t =     2.43s Setting device orientation to Portrait
+    t =     2.43s     Wait for com.douhua.jifen.ios to idle
+    t =     2.43s     Wait for com.apple.springboard to idle
+    t =     2.44s Setting device orientation to Portrait
+    t =     2.44s     Wait for com.douhua.jifen.ios to idle
+    t =     2.44s     Wait for com.apple.springboard to idle
+    t =     2.44s Checking existence of `"计分" Button`
+    t =     2.53s Checking existence of `Button (First Match)`
+    t =     2.54s Find the Button (First Match)
+    t =     2.55s Checking existence of `Window (First Match)`
+    t =     2.56s Find the Window (First Match)
+    t =     2.56s Find the "main_tab_2" Button
+    t =     2.58s Checking existence of `Window (First Match)`
+    t =     2.58s Find the Window (First Match)
+    t =     2.59s Tap Target Application 'com.douhua.jifen.ios'[0.50, 0.04]
+    t =     2.59s     Wait for com.douhua.jifen.ios to idle
+    t =     2.91s     Find the Target Application 'com.douhua.jifen.ios'
+    t =     2.93s     Check for interrupting elements affecting "全能计分器" Application
+    t =     2.96s         Wait for com.apple.springboard to idle
+    t =     2.98s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =     2.98s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =     2.98s     Synthesize event
+    t =     2.98s         Find the Target Application 'com.douhua.jifen.ios'
+    t =     3.00s         Find the Target Application 'com.douhua.jifen.ios'
+    t =     3.03s         Find the Target Application 'com.douhua.jifen.ios'
+    t =     3.33s     Wait for com.douhua.jifen.ios to idle
+    t =     4.23s Checking existence of `"scoreboard_catalog_pingpong" Any`
+    t =     4.26s Find the "scoreboard_catalog_pingpong" Any
+    t =     4.30s Waiting 3.0s for "scoreboard_catalog_pingpong" Button to exist
+    t =     5.33s     Checking `Expect predicate `existsNoRetry == 1` for object "scoreboard_catalog_pingpong" Button`
+    t =     5.33s         Checking existence of `"scoreboard_catalog_pingpong" Button`
+    t =     5.36s Find the "scoreboard_catalog_pingpong" Button
+    t =     5.40s Tap "scoreboard_catalog_pingpong" Button
+    t =     5.40s     Wait for com.douhua.jifen.ios to idle
+    t =     5.40s     Find the "scoreboard_catalog_pingpong" Button
+    t =     5.43s     Check for interrupting elements affecting "scoreboard_catalog_pingpong" Button
+    t =     5.45s         Wait for com.apple.springboard to idle
+    t =     5.47s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =     5.47s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =     5.47s     Synthesize event
+    t =     5.76s     Wait for com.douhua.jifen.ios to idle
+    t =     5.77s Waiting 5.0s for "开始" Button to exist
+    t =     6.81s     Checking `Expect predicate `existsNoRetry == 1` for object "开始" Button`
+    t =     6.81s         Checking existence of `"开始" Button`
+    t =     6.85s Get all elements bound by index for: Elements matching predicate 'label MATCHES "^[0-9]{1,2}$"'
+    t =     6.89s Find the Button (Element at index 0)
+    t =     6.94s Find the Button (Element at index 1)
+    t =     6.98s Find the Button (Element at index 2)
+    t =     7.03s Find the Button (Element at index 3)
+    t =     7.07s Find the Button (Element at index 4)
+    t =     7.11s Find the Button (Element at index 5)
+    t =     7.16s Find the Button (Element at index 6)
+    t =     7.20s Find the Button (Element at index 7)
+    t =     7.25s Find the "1" Button
+    t =     7.29s Find the "1" Button
+    t =     7.33s Find the "3" Button
+    t =     7.37s Find the "3" Button
+    t =     7.41s Find the "5" Button
+    t =     7.45s Find the "5" Button
+    t =     7.49s Find the "7" Button
+    t =     7.54s Find the "7" Button
+    t =     7.59s Find the "5" Button
+    t =     7.63s Find the "5" Button
+    t =     7.67s Find the "7" Button
+    t =     7.71s Find the "7" Button
+    t =     7.75s Find the "9" Button
+    t =     7.79s Find the "9" Button
+    t =     7.83s Find the "11" Button
+    t =     7.87s Find the "11" Button
+    t =     7.91s Checking existence of `"custom_match_sets_button" Button`
+    t =     7.94s Find the "custom_match_sets_button" Button
+    t =     7.99s Find the "custom_match_sets_button" Button
+    t =     8.03s Find the "custom_match_sets_button" Button
+    t =     8.07s Checking existence of `"setup_custom_sets_button" Button`
+    t =     8.11s Checking existence of `"setup_custom_points_button" Button`
+    t =     8.15s Find the "setup_custom_points_button" Button
+    t =     8.20s Find the "setup_custom_points_button" Button
+    t =     8.24s Find the "setup_custom_points_button" Button
+    t =     9.05s Find the Target Application 'com.douhua.jifen.ios'
+    t =     9.08s Added attachment named 'iPad_setup_compact_pingpong_light'
+    t =     9.08s Terminate com.douhua.jifen.ios:94797
+2026-10-21 13:38:37.374 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-21 13:38:37.375 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    10.33s Open com.douhua.jifen.ios
+    t =    10.34s     Launch com.douhua.jifen.ios
+2026-10-21 13:38:38.624 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-21 13:38:38.624 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-21 13:38:38.647 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    10.55s         Setting up automation session
+    t =    11.02s         Wait for com.douhua.jifen.ios to idle
+    t =    12.59s Wait for com.douhua.jifen.ios to become Running Foreground
+    t =    12.59s Setting device orientation to Portrait
+    t =    12.59s     Wait for com.douhua.jifen.ios to idle
+    t =    12.59s     Wait for com.apple.springboard to idle
+    t =    12.60s Setting device orientation to Portrait
+    t =    12.60s     Wait for com.douhua.jifen.ios to idle
+    t =    12.60s     Wait for com.apple.springboard to idle
+    t =    12.60s Checking existence of `"计分" Button`
+    t =    12.68s Checking existence of `Button (First Match)`
+    t =    12.69s Find the Button (First Match)
+    t =    12.71s Checking existence of `Window (First Match)`
+    t =    12.71s Find the Window (First Match)
+    t =    12.72s Find the "main_tab_2" Button
+    t =    12.73s Checking existence of `Window (First Match)`
+    t =    12.73s Find the Window (First Match)
+    t =    12.74s Tap Target Application 'com.douhua.jifen.ios'[0.50, 0.04]
+    t =    12.74s     Wait for com.douhua.jifen.ios to idle
+    t =    13.06s     Find the Target Application 'com.douhua.jifen.ios'
+    t =    13.08s     Check for interrupting elements affecting "全能计分器" Application
+    t =    13.11s         Wait for com.apple.springboard to idle
+    t =    13.12s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    13.12s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    13.13s     Synthesize event
+    t =    13.13s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    13.15s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    13.17s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    13.48s     Wait for com.douhua.jifen.ios to idle
+    t =    14.39s Checking existence of `"scoreboard_catalog_badminton" Any`
+    t =    14.43s Find the "scoreboard_catalog_badminton" Any
+    t =    14.46s Waiting 3.0s for "scoreboard_catalog_badminton" Button to exist
+    t =    15.49s     Checking `Expect predicate `existsNoRetry == 1` for object "scoreboard_catalog_badminton" Button`
+    t =    15.49s         Checking existence of `"scoreboard_catalog_badminton" Button`
+    t =    15.54s Find the "scoreboard_catalog_badminton" Button
+    t =    15.58s Tap "scoreboard_catalog_badminton" Button
+    t =    15.58s     Wait for com.douhua.jifen.ios to idle
+    t =    15.58s     Find the "scoreboard_catalog_badminton" Button
+    t =    15.61s     Check for interrupting elements affecting "scoreboard_catalog_badminton" Button
+    t =    15.64s         Wait for com.apple.springboard to idle
+    t =    15.66s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    15.66s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    15.66s     Synthesize event
+    t =    15.95s     Wait for com.douhua.jifen.ios to idle
+    t =    15.95s Waiting 5.0s for "开始" Button to exist
+    t =    16.96s     Checking `Expect predicate `existsNoRetry == 1` for object "开始" Button`
+    t =    16.96s         Checking existence of `"开始" Button`
+    t =    17.01s Get all elements bound by index for: Elements matching predicate 'label MATCHES "^[0-9]{1,2}$"'
+    t =    17.05s Find the Button (Element at index 0)
+    t =    17.09s Find the Button (Element at index 1)
+    t =    17.15s Find the Button (Element at index 2)
+    t =    17.19s Find the Button (Element at index 3)
+    t =    17.24s Find the Button (Element at index 4)
+    t =    17.28s Find the Button (Element at index 5)
+    t =    17.33s Find the Button (Element at index 6)
+    t =    17.37s Find the "1" Button
+    t =    17.41s Find the "1" Button
+    t =    17.45s Find the "3" Button
+    t =    17.49s Find the "3" Button
+    t =    17.54s Find the "5" Button
+    t =    17.58s Find the "5" Button
+    t =    17.63s Find the "7" Button
+    t =    17.68s Find the "7" Button
+    t =    17.72s Find the "11" Button
+    t =    17.76s Find the "11" Button
+    t =    17.81s Find the "15" Button
+    t =    17.85s Find the "15" Button
+    t =    17.89s Find the "21" Button
+    t =    17.93s Find the "21" Button
+    t =    17.97s Checking existence of `"custom_match_sets_button" Button`
+    t =    18.00s Find the "custom_match_sets_button" Button
+    t =    18.05s Find the "custom_match_sets_button" Button
+    t =    18.09s Find the "custom_match_sets_button" Button
+    t =    18.12s Checking existence of `"setup_custom_sets_button" Button`
+    t =    18.16s Checking existence of `"setup_custom_points_button" Button`
+    t =    18.19s Find the "setup_custom_points_button" Button
+    t =    18.23s Find the "setup_custom_points_button" Button
+    t =    18.27s Find the "setup_custom_points_button" Button
+    t =    19.07s Find the Target Application 'com.douhua.jifen.ios'
+    t =    19.09s Added attachment named 'iPad_setup_compact_badminton_light'
+    t =    19.09s Terminate com.douhua.jifen.ios:94821
+2026-10-21 13:38:47.391 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-21 13:38:47.392 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    20.35s Open com.douhua.jifen.ios
+    t =    20.35s     Launch com.douhua.jifen.ios
+2026-10-21 13:38:48.638 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-21 13:38:48.638 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-21 13:38:48.694 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    20.56s         Setting up automation session
+    t =    21.05s         Wait for com.douhua.jifen.ios to idle
+    t =    22.57s Wait for com.douhua.jifen.ios to become Running Foreground
+    t =    22.57s Setting device orientation to Portrait
+    t =    22.58s     Wait for com.douhua.jifen.ios to idle
+    t =    22.58s     Wait for com.apple.springboard to idle
+    t =    22.58s Setting device orientation to Portrait
+    t =    22.58s     Wait for com.douhua.jifen.ios to idle
+    t =    22.58s     Wait for com.apple.springboard to idle
+    t =    22.59s Checking existence of `"计分" Button`
+    t =    22.67s Checking existence of `Button (First Match)`
+    t =    22.69s Find the Button (First Match)
+    t =    22.70s Checking existence of `Window (First Match)`
+    t =    22.70s Find the Window (First Match)
+    t =    22.71s Find the "main_tab_2" Button
+    t =    22.72s Checking existence of `Window (First Match)`
+    t =    22.72s Find the Window (First Match)
+    t =    22.73s Tap Target Application 'com.douhua.jifen.ios'[0.50, 0.04]
+    t =    22.73s     Wait for com.douhua.jifen.ios to idle
+    t =    23.04s     Find the Target Application 'com.douhua.jifen.ios'
+    t =    23.06s     Check for interrupting elements affecting "全能计分器" Application
+    t =    23.09s         Wait for com.apple.springboard to idle
+    t =    23.11s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    23.11s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    23.11s     Synthesize event
+    t =    23.11s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    23.13s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    23.16s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    23.46s     Wait for com.douhua.jifen.ios to idle
+    t =    24.42s Checking existence of `"scoreboard_catalog_tennis" Any`
+    t =    24.46s Find the "scoreboard_catalog_tennis" Any
+    t =    24.50s Waiting 3.0s for "scoreboard_catalog_tennis" Button to exist
+    t =    25.53s     Checking `Expect predicate `existsNoRetry == 1` for object "scoreboard_catalog_tennis" Button`
+    t =    25.53s         Checking existence of `"scoreboard_catalog_tennis" Button`
+    t =    25.58s Find the "scoreboard_catalog_tennis" Button
+    t =    25.63s Tap "scoreboard_catalog_tennis" Button
+    t =    25.63s     Wait for com.douhua.jifen.ios to idle
+    t =    25.63s     Find the "scoreboard_catalog_tennis" Button
+    t =    25.66s     Check for interrupting elements affecting "scoreboard_catalog_tennis" Button
+    t =    25.69s         Wait for com.apple.springboard to idle
+    t =    25.70s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    25.70s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    25.71s     Synthesize event
+    t =    26.00s     Wait for com.douhua.jifen.ios to idle
+    t =    26.00s Waiting 5.0s for "开始" Button to exist
+    t =    27.03s     Checking `Expect predicate `existsNoRetry == 1` for object "开始" Button`
+    t =    27.03s         Checking existence of `"开始" Button`
+    t =    27.07s Get all elements bound by index for: Elements matching predicate 'label MATCHES "^[0-9]{1,2}$"'
+    t =    27.11s Find the Button (Element at index 0)
+    t =    27.15s Find the Button (Element at index 1)
+    t =    27.20s Find the Button (Element at index 2)
+    t =    27.24s Find the Button (Element at index 3)
+    t =    27.29s Find the "1" Button
+    t =    27.33s Find the "1" Button
+    t =    27.37s Find the "3" Button
+    t =    27.42s Find the "3" Button
+    t =    27.46s Find the "5" Button
+    t =    27.50s Find the "5" Button
+    t =    27.54s Find the "7" Button
+    t =    27.59s Find the "7" Button
+    t =    27.63s Checking existence of `"custom_match_sets_button" Button`
+    t =    27.67s Find the "custom_match_sets_button" Button
+    t =    27.72s Find the "custom_match_sets_button" Button
+    t =    27.76s Find the "custom_match_sets_button" Button
+    t =    27.80s Checking existence of `"setup_custom_sets_button" Button`
+    t =    27.84s Checking existence of `"setup_custom_points_button" Button`
+    t =    28.67s Find the Target Application 'com.douhua.jifen.ios'
+    t =    28.70s Added attachment named 'iPad_setup_compact_tennis_light'
+    t =    28.70s Terminate com.douhua.jifen.ios:94877
+2026-10-21 13:38:56.995 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-21 13:38:56.996 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    29.96s Open com.douhua.jifen.ios
+    t =    29.96s     Launch com.douhua.jifen.ios
+2026-10-21 13:38:58.243 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-21 13:38:58.243 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-21 13:38:58.262 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    30.17s         Setting up automation session
+    t =    30.60s         Wait for com.douhua.jifen.ios to idle
+    t =    32.02s Wait for com.douhua.jifen.ios to become Running Foreground
+    t =    32.02s Setting device orientation to Portrait
+    t =    32.02s     Wait for com.douhua.jifen.ios to idle
+    t =    32.02s     Wait for com.apple.springboard to idle
+    t =    32.03s Setting device orientation to Portrait
+    t =    32.03s     Wait for com.douhua.jifen.ios to idle
+    t =    32.03s     Wait for com.apple.springboard to idle
+    t =    32.03s Checking existence of `"计分" Button`
+    t =    32.12s Checking existence of `Button (First Match)`
+    t =    32.13s Find the Button (First Match)
+    t =    32.15s Checking existence of `Window (First Match)`
+    t =    32.15s Find the Window (First Match)
+    t =    32.16s Find the "main_tab_2" Button
+    t =    32.17s Checking existence of `Window (First Match)`
+    t =    32.17s Find the Window (First Match)
+    t =    32.17s Tap Target Application 'com.douhua.jifen.ios'[0.50, 0.04]
+    t =    32.17s     Wait for com.douhua.jifen.ios to idle
+    t =    32.49s     Find the Target Application 'com.douhua.jifen.ios'
+    t =    32.51s     Check for interrupting elements affecting "全能计分器" Application
+    t =    32.54s         Wait for com.apple.springboard to idle
+    t =    32.55s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    32.55s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    32.56s     Synthesize event
+    t =    32.56s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    32.58s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    32.61s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    32.91s     Wait for com.douhua.jifen.ios to idle
+    t =    33.87s Checking existence of `"scoreboard_catalog_boxing" Any`
+    t =    33.91s Find the "scoreboard_catalog_boxing" Any
+    t =    33.95s Waiting 3.0s for "scoreboard_catalog_boxing" Button to exist
+    t =    34.98s     Checking `Expect predicate `existsNoRetry == 1` for object "scoreboard_catalog_boxing" Button`
+    t =    34.98s         Checking existence of `"scoreboard_catalog_boxing" Button`
+    t =    35.01s Find the "scoreboard_catalog_boxing" Button
+    t =    35.05s Tap "scoreboard_catalog_boxing" Button
+    t =    35.05s     Wait for com.douhua.jifen.ios to idle
+    t =    35.05s     Find the "scoreboard_catalog_boxing" Button
+    t =    35.08s     Check for interrupting elements affecting "scoreboard_catalog_boxing" Button
+    t =    35.11s         Wait for com.apple.springboard to idle
+    t =    35.12s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    35.12s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    35.13s     Synthesize event
+    t =    35.42s     Wait for com.douhua.jifen.ios to idle
+    t =    35.42s Waiting 5.0s for "开始" Button to exist
+    t =    36.44s     Checking `Expect predicate `existsNoRetry == 1` for object "开始" Button`
+    t =    36.44s         Checking existence of `"开始" Button`
+    t =    36.48s Get all elements bound by index for: Elements matching predicate 'label MATCHES "^[0-9]{1,2}$"'
+    t =    36.52s Find the Button (Element at index 0)
+    t =    36.56s Find the Button (Element at index 1)
+    t =    36.59s Find the Button (Element at index 2)
+    t =    36.63s Find the Button (Element at index 3)
+    t =    36.67s Find the "3" Button
+    t =    36.71s Find the "3" Button
+    t =    36.74s Find the "8" Button
+    t =    36.78s Find the "8" Button
+    t =    36.81s Find the "10" Button
+    t =    36.85s Find the "10" Button
+    t =    36.89s Find the "12" Button
+    t =    36.93s Find the "12" Button
+    t =    36.96s Checking existence of `"custom_match_sets_button" Button`
+    t =    36.99s Checking existence of `"setup_custom_sets_button" Button`
+    t =    37.03s Find the "setup_custom_sets_button" Button
+    t =    37.07s Find the "setup_custom_sets_button" Button
+    t =    37.11s Find the "setup_custom_sets_button" Button
+    t =    37.14s Checking existence of `"setup_custom_points_button" Button`
+    t =    37.94s Find the Target Application 'com.douhua.jifen.ios'
+    t =    37.97s Added attachment named 'iPad_setup_compact_boxing_light'
+    t =    37.97s Terminate com.douhua.jifen.ios:94905
+2026-10-21 13:39:06.262 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-21 13:39:06.262 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    39.20s Open com.douhua.jifen.ios
+    t =    39.20s     Launch com.douhua.jifen.ios
+2026-10-21 13:39:07.483 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-21 13:39:07.483 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-21 13:39:07.506 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    39.41s         Setting up automation session
+    t =    40.04s         Wait for com.douhua.jifen.ios to idle
+    t =    41.56s Wait for com.douhua.jifen.ios to become Running Foreground
+    t =    41.56s Setting device orientation to Portrait
+    t =    41.57s     Wait for com.douhua.jifen.ios to idle
+    t =    41.57s     Wait for com.apple.springboard to idle
+    t =    41.57s Setting device orientation to Portrait
+    t =    41.58s     Wait for com.douhua.jifen.ios to idle
+    t =    41.58s     Wait for com.apple.springboard to idle
+    t =    41.58s Checking existence of `"计分" Button`
+    t =    41.67s Checking existence of `Button (First Match)`
+    t =    41.68s Find the Button (First Match)
+    t =    41.69s Checking existence of `Window (First Match)`
+    t =    41.69s Find the Window (First Match)
+    t =    41.70s Find the "main_tab_2" Button
+    t =    41.71s Checking existence of `Window (First Match)`
+    t =    41.72s Find the Window (First Match)
+    t =    41.72s Tap Target Application 'com.douhua.jifen.ios'[0.50, 0.04]
+    t =    41.72s     Wait for com.douhua.jifen.ios to idle
+    t =    42.04s     Find the Target Application 'com.douhua.jifen.ios'
+    t =    42.06s     Check for interrupting elements affecting "全能计分器" Application
+    t =    42.09s         Wait for com.apple.springboard to idle
+    t =    42.11s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    42.11s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    42.11s     Synthesize event
+    t =    42.11s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    42.13s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    42.16s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    42.46s     Wait for com.douhua.jifen.ios to idle
+    t =    43.39s Checking existence of `"scoreboard_catalog_snooker" Any`
+    t =    43.44s Find the "scoreboard_catalog_snooker" Any
+    t =    43.48s Waiting 3.0s for "scoreboard_catalog_snooker" Button to exist
+    t =    44.51s     Checking `Expect predicate `existsNoRetry == 1` for object "scoreboard_catalog_snooker" Button`
+    t =    44.51s         Checking existence of `"scoreboard_catalog_snooker" Button`
+    t =    44.56s Find the "scoreboard_catalog_snooker" Button
+    t =    44.60s Tap "scoreboard_catalog_snooker" Button
+    t =    44.60s     Wait for com.douhua.jifen.ios to idle
+    t =    44.60s     Find the "scoreboard_catalog_snooker" Button
+    t =    44.63s     Check for interrupting elements affecting "scoreboard_catalog_snooker" Button
+    t =    44.66s         Wait for com.apple.springboard to idle
+    t =    44.67s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    44.68s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    44.68s     Synthesize event
+    t =    44.97s     Wait for com.douhua.jifen.ios to idle
+    t =    44.97s Waiting 5.0s for "开始" Button to exist
+    t =    46.00s     Checking `Expect predicate `existsNoRetry == 1` for object "开始" Button`
+    t =    46.00s         Checking existence of `"开始" Button`
+    t =    46.06s Get all elements bound by index for: Elements matching predicate 'label MATCHES "^[0-9]{1,2}$"'
+    t =    46.09s Find the Button (Element at index 0)
+    t =    46.13s Find the Button (Element at index 1)
+    t =    46.17s Find the Button (Element at index 2)
+    t =    46.20s Find the Button (Element at index 3)
+    t =    46.24s Find the "1" Button
+    t =    46.28s Find the "1" Button
+    t =    46.31s Find the "3" Button
+    t =    46.35s Find the "3" Button
+    t =    46.38s Find the "5" Button
+    t =    46.41s Find the "5" Button
+    t =    46.45s Find the "7" Button
+    t =    46.48s Find the "7" Button
+    t =    46.51s Checking existence of `"custom_match_sets_button" Button`
+    t =    46.54s Checking existence of `"setup_custom_sets_button" Button`
+    t =    46.57s Find the "setup_custom_sets_button" Button
+    t =    46.61s Find the "setup_custom_sets_button" Button
+    t =    46.65s Find the "setup_custom_sets_button" Button
+    t =    46.69s Checking existence of `"setup_custom_points_button" Button`
+    t =    47.47s Find the Target Application 'com.douhua.jifen.ios'
+    t =    47.49s Added attachment named 'iPad_setup_compact_snooker_light'
+    t =    47.49s Terminate com.douhua.jifen.ios:94957
+2026-10-21 13:39:15.788 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-21 13:39:15.788 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    48.72s Open com.douhua.jifen.ios
+    t =    48.72s     Launch com.douhua.jifen.ios
+2026-10-21 13:39:17.004 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-21 13:39:17.004 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-21 13:39:17.021 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    48.93s         Setting up automation session
+    t =    49.44s         Wait for com.douhua.jifen.ios to idle
+    t =    51.18s Wait for com.douhua.jifen.ios to become Running Foreground
+    t =    51.18s Setting device orientation to Portrait
+    t =    51.18s     Wait for com.douhua.jifen.ios to idle
+    t =    51.18s     Wait for com.apple.springboard to idle
+    t =    51.19s Setting device orientation to Portrait
+    t =    51.19s     Wait for com.douhua.jifen.ios to idle
+    t =    51.19s     Wait for com.apple.springboard to idle
+    t =    51.20s Checking existence of `"计分" Button`
+    t =    51.29s Checking existence of `Button (First Match)`
+    t =    51.30s Find the Button (First Match)
+    t =    51.32s Checking existence of `Window (First Match)`
+    t =    51.32s Find the Window (First Match)
+    t =    51.33s Find the "main_tab_2" Button
+    t =    51.34s Checking existence of `Window (First Match)`
+    t =    51.34s Find the Window (First Match)
+    t =    51.35s Tap Target Application 'com.douhua.jifen.ios'[0.50, 0.04]
+    t =    51.35s     Wait for com.douhua.jifen.ios to idle
+    t =    51.67s     Find the Target Application 'com.douhua.jifen.ios'
+    t =    51.70s     Check for interrupting elements affecting "全能计分器" Application
+    t =    51.73s         Wait for com.apple.springboard to idle
+    t =    51.76s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    51.76s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    51.76s     Synthesize event
+    t =    51.76s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    51.78s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    51.81s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    52.11s     Wait for com.douhua.jifen.ios to idle
+    t =    53.07s Checking existence of `"scoreboard_catalog_eight_ball" Any`
+    t =    53.11s Find the "scoreboard_catalog_eight_ball" Any
+    t =    53.16s Waiting 3.0s for "scoreboard_catalog_eight_ball" Button to exist
+    t =    54.18s     Checking `Expect predicate `existsNoRetry == 1` for object "scoreboard_catalog_eight_ball" Button`
+    t =    54.18s         Checking existence of `"scoreboard_catalog_eight_ball" Button`
+    t =    54.21s Find the "scoreboard_catalog_eight_ball" Button
+    t =    54.24s Tap "scoreboard_catalog_eight_ball" Button
+    t =    54.24s     Wait for com.douhua.jifen.ios to idle
+    t =    54.25s     Find the "scoreboard_catalog_eight_ball" Button
+    t =    54.28s     Check for interrupting elements affecting "scoreboard_catalog_eight_ball" Button
+    t =    54.30s         Wait for com.apple.springboard to idle
+    t =    54.32s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    54.32s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    54.32s     Synthesize event
+    t =    54.61s     Wait for com.douhua.jifen.ios to idle
+    t =    54.61s Waiting 5.0s for "开始" Button to exist
+    t =    55.63s     Checking `Expect predicate `existsNoRetry == 1` for object "开始" Button`
+    t =    55.63s         Checking existence of `"开始" Button`
+    t =    55.70s Get all elements bound by index for: Elements matching predicate 'label MATCHES "^[0-9]{1,2}$"'
+    t =    55.74s Find the Button (Element at index 0)
+    t =    55.78s Find the Button (Element at index 1)
+    t =    55.82s Find the Button (Element at index 2)
+    t =    55.86s Find the Button (Element at index 3)
+    t =    55.90s Find the Button (Element at index 4)
+    t =    55.94s Find the Button (Element at index 5)
+    t =    55.98s Find the "1" Button
+    t =    56.01s Find the "1" Button
+    t =    56.04s Find the "3" Button
+    t =    56.08s Find the "3" Button
+    t =    56.12s Find the "5" Button
+    t =    56.15s Find the "5" Button
+    t =    56.19s Find the "7" Button
+    t =    56.22s Find the "7" Button
+    t =    56.26s Find the "9" Button
+    t =    56.30s Find the "9" Button
+    t =    56.33s Find the "11" Button
+    t =    56.37s Find the "11" Button
+    t =    56.40s Checking existence of `"custom_match_sets_button" Button`
+    t =    56.44s Checking existence of `"setup_custom_sets_button" Button`
+    t =    56.47s Find the "setup_custom_sets_button" Button
+    t =    56.51s Find the "setup_custom_sets_button" Button
+    t =    56.54s Find the "setup_custom_sets_button" Button
+    t =    56.58s Checking existence of `"setup_custom_points_button" Button`
+    t =    57.38s Find the Target Application 'com.douhua.jifen.ios'
+    t =    57.40s Added attachment named 'iPad_setup_compact_eight_ball_light'
+    t =    57.40s Terminate com.douhua.jifen.ios:95022
+2026-10-21 13:39:25.696 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-21 13:39:25.696 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    58.67s Open com.douhua.jifen.ios
+    t =    58.67s     Launch com.douhua.jifen.ios
+2026-10-21 13:39:26.952 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-21 13:39:26.952 xcodebuild[94003:6719956] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-21 13:39:26.979 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    58.88s         Setting up automation session
+    t =    59.35s         Wait for com.douhua.jifen.ios to idle
+    t =    60.93s Wait for com.douhua.jifen.ios to become Running Foreground
+    t =    60.93s Setting device orientation to Portrait
+    t =    60.93s     Wait for com.douhua.jifen.ios to idle
+    t =    60.93s     Wait for com.apple.springboard to idle
+    t =    60.94s Setting device orientation to Portrait
+    t =    60.94s     Wait for com.douhua.jifen.ios to idle
+    t =    60.94s     Wait for com.apple.springboard to idle
+    t =    60.94s Checking existence of `"计分" Button`
+    t =    61.04s Checking existence of `Button (First Match)`
+    t =    61.05s Find the Button (First Match)
+    t =    61.07s Checking existence of `Window (First Match)`
+    t =    61.07s Find the Window (First Match)
+    t =    61.07s Find the "main_tab_2" Button
+    t =    61.09s Checking existence of `Window (First Match)`
+    t =    61.09s Find the Window (First Match)
+    t =    61.09s Tap Target Application 'com.douhua.jifen.ios'[0.50, 0.04]
+    t =    61.09s     Wait for com.douhua.jifen.ios to idle
+    t =    61.41s     Find the Target Application 'com.douhua.jifen.ios'
+    t =    61.43s     Check for interrupting elements affecting "全能计分器" Application
+    t =    61.46s         Wait for com.apple.springboard to idle
+    t =    61.48s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    61.48s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    61.48s     Synthesize event
+    t =    61.48s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    61.50s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    61.53s         Find the Target Application 'com.douhua.jifen.ios'
+    t =    61.83s     Wait for com.douhua.jifen.ios to idle
+    t =    62.77s Checking existence of `"scoreboard_catalog_pickleball" Any`
+    t =    62.81s Find the "scoreboard_catalog_pickleball" Any
+    t =    62.85s Waiting 3.0s for "scoreboard_catalog_pickleball" Button to exist
+    t =    63.87s     Checking `Expect predicate `existsNoRetry == 1` for object "scoreboard_catalog_pickleball" Button`
+    t =    63.87s         Checking existence of `"scoreboard_catalog_pickleball" Button`
+    t =    63.91s Find the "scoreboard_catalog_pickleball" Button
+    t =    63.95s Tap "scoreboard_catalog_pickleball" Button
+    t =    63.95s     Wait for com.douhua.jifen.ios to idle
+    t =    63.95s     Find the "scoreboard_catalog_pickleball" Button
+    t =    63.98s     Check for interrupting elements affecting "scoreboard_catalog_pickleball" Button
+    t =    64.01s         Wait for com.apple.springboard to idle
+    t =    64.03s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    64.03s Ignoring failure to get hierarchy for remote element in process 94484 (Error getting main window kAXErrorServerNotFound)
+    t =    64.03s     Synthesize event
+    t =    64.32s     Wait for com.douhua.jifen.ios to idle
+    t =    64.32s Waiting 5.0s for "开始" Button to exist
+    t =    65.36s     Checking `Expect predicate `existsNoRetry == 1` for object "开始" Button`
+    t =    65.36s         Checking existence of `"开始" Button`
+    t =    65.41s Get all elements bound by index for: Elements matching predicate 'label MATCHES "^[0-9]{1,2}$"'
+    t =    65.44s Find the Button (Element at index 0)
+    t =    65.49s Find the Button (Element at index 1)
+    t =    65.53s Find the Button (Element at index 2)
+    t =    65.57s Find the Button (Element at index 3)
+    t =    65.62s Find the Button (Element at index 4)
+    t =    65.66s Find the Button (Element at index 5)
+    t =    65.71s Find the Button (Element at index 6)
+    t =    65.76s Find the Button (Element at index 7)
+    t =    65.81s Find the Button (Element at index 8)
+    t =    65.86s Find the "1" Button
+    t =    65.90s Find the "1" Button
+    t =    65.94s Find the "3" Button
+    t =    65.98s Find the "3" Button
+    t =    66.02s Find the "5" Button
+    t =    66.06s Find the "5" Button
+    t =    66.10s Find the "7" Button
+    t =    66.14s Find the "7" Button
+    t =    66.18s Find the "11" Button
+    t =    66.22s Find the "11" Button
+    t =    66.26s Find the "15" Button
+    t =    66.30s Find the "15" Button
+    t =    66.34s Find the "21" Button
+    t =    66.38s Find the "21" Button
+    t =    66.42s Find the "13" Button
+    t =    66.46s Find the "13" Button
+    t =    66.51s Find the "15" Button
+    t =    66.55s Find the "15" Button
+    t =    66.59s Checking existence of `"custom_match_sets_button" Button`
+    t =    66.63s Find the "custom_match_sets_button" Button
+    t =    66.68s Find the "custom_match_sets_button" Button
+    t =    66.73s Find the "custom_match_sets_button" Button
+    t =    66.77s Checking existence of `"setup_custom_sets_button" Button`
+    t =    66.80s Checking existence of `"setup_custom_points_button" Button`
+    t =    67.65s Find the Target Application 'com.douhua.jifen.ios'
+    t =    67.68s Added attachment named 'iPad_setup_compact_pickleball_light'
+    t =    67.68s Terminate com.douhua.jifen.ios:95065
+2026-10-21 13:39:35.980 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-21 13:39:35.981 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    68.75s Tear Down
+Test Case '-[jifenUITests.MainFlowUITests testSetupNumberChoicesUseCompactSquares]' passed (69.151 seconds).
+Test Suite 'MainFlowUITests' failed at 2026-10-21 13:39:37.433.
+	 Executed 4 tests, with 1 failure (0 unexpected) in 131.388 (131.391) seconds
+Test Suite 'jifenUITests.xctest' failed at 2026-10-21 13:39:37.434.
+	 Executed 4 tests, with 1 failure (0 unexpected) in 131.388 (131.392) seconds
+Test Suite 'Selected tests' failed at 2026-10-21 13:39:37.434.
+	 Executed 4 tests, with 1 failure (0 unexpected) in 131.388 (131.392) seconds
+2026-10-21 13:39:37.473 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-21 13:39:37.473 xcodebuild[94003:6719956] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-21 13:39:45.484 xcodebuild[94003:6719956] [MT] IDETestOperationsObserverDebug: 151.918 elapsed -- Testing started completed.
+2026-10-21 13:39:45.485 xcodebuild[94003:6719956] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-21 13:39:45.485 xcodebuild[94003:6719956] [MT] IDETestOperationsObserverDebug: 151.918 sec, +151.918 sec -- end
+
+Test session results, code coverage, and logs:
+	/Users/yangyang/Desktop/jifenqi/jifen-ios/artifacts/setup-compact-2026-10-21/iPad.xcresult
+
+Failing tests:
+	MainFlowUITests.testSetupCompactCustomSetsAndPointsEditInline()
+
+** TEST EXECUTE FAILED **
+
+Testing started

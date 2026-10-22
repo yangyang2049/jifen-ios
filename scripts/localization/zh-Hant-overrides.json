@@ -66,10 +66,8 @@
     "date": "2026-09-19"
   },
   "cast_intro_note": {
-    "value": "請先在系統裡完成 AirPlay 連線；App 一次只能使用一塊已連線的螢幕，不能直接搜索電視或投影機。斷開 AirPlay 後，本次投影也會結束。",
-    "note": "reviewed: TW 口径批量修正",
-    "reviewer": "yy",
-    "date": "2026-09-19"
+    "value": "請先在系統裡完成 AirPlay 連線；App 一次只能使用一塊已連線的螢幕，不能直接搜尋電視或投影機。斷開 AirPlay 後，本次投影也會結束。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
   },
   "cast_display_waiting_title": {
     "value": "尚未檢測到投影裝置",
@@ -306,10 +304,8 @@
     "date": "2026-09-19"
   },
   "account_deletion_impact_local_data": {
-    "value": "本機計分記錄、預約、常用名稱和設置不會被刪除。",
-    "note": "reviewed: accept generated",
-    "reviewer": "yy",
-    "date": "2026-09-19"
+    "value": "本機計分記錄、預約、常用名稱和設定不會被刪除。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
   },
   "account_deletion_impact_irreversible": {
     "value": "註銷完成後，該帳號無法恢復。",
@@ -384,10 +380,8 @@
     "date": "2026-09-19"
   },
   "faq_answer_5": {
-    "value": "兩台裝置配合使用：分享端負責計分，顯示端全螢幕展示比分。 分享端: 登入並開始同步，產生 6 位短碼。 顯示端: 登入並輸入分享端提供的 6 位短碼。 進入計分項目開始計分，比分會自動同步。\n\n建議優先使用系統「螢幕鏡像」（AirPlay）。連線成功並被檢測到後，計分板會自動顯示到大屏。 從控制中心開啟「螢幕鏡像」（AirPlay）。 請先在系統裡完成 AirPlay 連線；App 一次只能使用一塊已連線的螢幕，不能直接搜索電視或投影機。斷開 AirPlay 後，本次投影也會結束。",
-    "note": "2026-09-30: 按 iOS AirPlay 投屏和常用资料同步实际能力修正 FAQ",
-    "reviewer": "codex",
-    "date": "2026-09-30"
+    "value": "兩台裝置配合使用：分享端負責計分，顯示端全螢幕展示比分。 分享端: 登入並開始同步，產生 6 位短碼。 顯示端: 登入並輸入分享端提供的 6 位短碼。 進入計分項目開始計分，比分會自動同步。\n\n建議優先使用系統「螢幕鏡像」（AirPlay）。連線成功並被檢測到後，計分板會自動顯示到大屏。 從控制中心開啟「螢幕鏡像」（AirPlay）。 請先在系統裡完成 AirPlay 連線；App 一次只能使用一塊已連線的螢幕，不能直接搜尋電視或投影機。斷開 AirPlay 後，本次投影也會結束。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
   },
   "sync_intro_overview": {
     "value": "兩台裝置配合使用：分享端負責計分，顯示端全螢幕展示比分。",
@@ -454,5 +448,425 @@
     "note": "Split from the existing reviewed official-break help text.",
     "reviewer": "Codex",
     "date": "2026-10-04"
+  },
+  "group_error_permission": {
+    "value": "你沒有執行此操作的權限。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_transfer_first": {
+    "value": "退出小組或刪除帳號前，請先轉讓小組所有權。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_target": {
+    "value": "請選擇本組中有效的帳號成員。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_activity_locked": {
+    "value": "活動已開始或已結束，不能修改或取消排程。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_activity_pending": {
+    "value": "請先完成或移除剩餘待賽場次。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_registration_disabled": {
+    "value": "直接排賽不需要報名。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_content_blocked": {
+    "value": "內容包含不合適資訊，請修改後重試。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_request_invalid": {
+    "value": "請檢查填寫的資訊後重試。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_reason_required": {
+    "value": "請填寫原因後繼續。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_result_state": {
+    "value": "只有待確認的賽果可以確認。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_conflict": {
+    "value": "資料已變更，請重新整理並核對後重試。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_request_handled": {
+    "value": "該入組申請已處理，請重新整理列表。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_place_locked": {
+    "value": "已有開賽或完賽場次，不能修改場館。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_schedule_cancelled": {
+    "value": "該排程或場次已取消。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_session_completed": {
+    "value": "該場次已完成，無法請假。請重新整理排程查看賽果。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "group_error_session_has_result": {
+    "value": "該場已有賽果，請先作廢原賽果再補記。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_item_not_found": {
+    "value": "該活動、排程、場次或通知已無法使用，請重新整理列表。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_server": {
+    "value": "小組服務暫時無法使用，請稍後重試。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "group_error_peer_only": {
+    "value": "訓練組請使用訓練排程。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_name_length": {
+    "value": "小組名稱需為 2–24 個字元。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "group_error_description_length": {
+    "value": "簡介不能超過 200 字。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_activity_invalid": {
+    "value": "請檢查活動名稱、日期、地點和人數上限。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_registration_closed": {
+    "value": "報名已截止。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_action_disabled": {
+    "value": "此操作暫時無法使用。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_error_update_required": {
+    "value": "請更新應用程式後繼續。",
+    "note": "Group error copy reviewed by Codex; preserve Traditional Chinese wording",
+    "reviewer": "Codex",
+    "date": "2026-10-17"
+  },
+  "group_save": {
+    "value": "儲存",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "group_training_date": {
+    "value": "訓練日期",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "group_view_schedule": {
+    "value": "查看場次",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "group_notice_training_published": {
+    "value": "訓練已發布",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "group_notice_training_changed": {
+    "value": "訓練已更新",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "group_notice_training_cancelled": {
+    "value": "訓練已取消",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "group_notice_leave_changed": {
+    "value": "請假已更新",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "countdown_compact_hm": {
+    "value": "%d小時%d分",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "countdown_compact_h": {
+    "value": "%d小時",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "countdown_compact_ms": {
+    "value": "%d分%d秒",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "countdown_compact_m": {
+    "value": "%d分",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "countdown_compact_s": {
+    "value": "%d秒",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "loading": {
+    "value": "載入中",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "home_customize_quick_start": {
+    "value": "自訂快捷入口",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "home_edit_primary_card": {
+    "value": "設定主卡片 (大)",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "home_edit_secondary_card": {
+    "value": "設定副卡片 (小)",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "home_edit_tertiary_card": {
+    "value": "設定第三卡片 (小)",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "score_custom_adjust_help": {
+    "value": "自訂模式：點按格子打開加減分面板，可輸入任意分值。\n\n傳統模式：點按格子加 1 分；開啟「雙擊減分」後，雙擊減 1 分。\n\n兩種模式均支援負數，長按格子可編輯名稱和分數。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "setup": {
+    "value": "設定",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "setup_suffix": {
+    "value": "設定",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "save": {
+    "value": "儲存",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "screenshot_saved": {
+    "value": "截圖已儲存",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "open_settings": {
+    "value": "去設定",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "save_failed": {
+    "value": "儲存失敗: %@",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "filename": {
+    "value": "檔案名稱",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "clear_data_category_preferences": {
+    "value": "設定與工具資料",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "settings": {
+    "value": "設定",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "common_names_empty_hint": {
+    "value": "可在「設定」-「資料」-「常用名稱管理」中新增隊伍或選手名稱，下次即可快速選擇。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "common_names_management_empty_hint": {
+    "value": "計分時輸入的隊伍或選手名稱會自動儲存在這裡，下次可以快速選擇。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "common_places_usage_desc": {
+    "value": "預約球局中輸入的地點會自動儲存在這裡，下次可以快速選擇。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "schedule_save_failed": {
+    "value": "無法儲存預約",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "scoreboard_match_time_this_game_only": {
+    "value": "僅影響本局；下次開局仍使用項目設定。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "timer_custom_duration": {
+    "value": "自訂",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "scoreboard_usage_hint_uno": {
+    "value": "👆 點擊玩家打開本輪計分面板\n✏️ 長按玩家可編輯名稱和分數\n↩️ 可撤銷上一輪\n☑️ 可結算或手動結束比賽\n🖼️ 選單中可調整顯示和儲存截圖",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "scoreboard_usage_hint_multi_scoreboard": {
+    "value": "👆 點擊玩家格子加 1 分\n⬆️ 上滑加 1 分，⬇️ 下滑減 1 分\n↩️ 左滑撤銷上一步\n✏️ 長按玩家可編輯名稱和分數\n🎛️ 自訂調分模式下，點擊玩家會打開調分面板",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "record_detail_legacy_unavailable": {
+    "value": "舊記錄缺少可靠的分局或時間資訊，已降級顯示比賽總覽。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "scoreboard_save_failed": {
+    "value": "儲存失敗，請稍後重試",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "resume_load_failed_format": {
+    "value": "無法讀取已儲存的比賽：%@",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "resume_load_invalid": {
+    "value": "已儲存的比賽資料已損壞，無法繼續。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "display_cast_scope_hint": {
+    "value": "有線連線需手機接口支援影片輸出，且顯示器被系統識別為獨立擴展屏；整屏鏡像仍可顯示手機計分板，但不會使用 App 專為大屏設計的獨立介面。具體支援情況取決於手機、系統、顯示裝置和轉接裝置。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "vip_optional_sign_in_hint": {
+    "value": "登入後可在你的其他裝置上同步會員權益",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "membership_redeem_success_signed_out": {
+    "value": "兌換成功，會員已在本機生效；登入後可同步到你的其他裝置",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "qr_login_scan_hint": {
+    "value": "對準網頁上的登入二維碼",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "qr_login_confirm_subtitle": {
+    "value": "以下裝置請求登入你的計分器賬號",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "qr_login_confirm_device_label": {
+    "value": "登入裝置",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "qr_login_camera_unavailable_hint": {
+    "value": "請在系統設定中允許使用相機後重試",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "staging_token_entry": {
+    "value": "設定 IAP 測試密鑰",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "staging_token_message": {
+    "value": "密鑰只儲存在本機 Keychain，用於受限的 Staging 測試接口。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "membership_purchase_success_signed_out": {
+    "value": "購買成功，會員已在本機生效；登入後可同步到你的其他裝置",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "qr_login_invalid": {
+    "value": "不是有效的計分器登入二維碼",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "record_correction_hint": {
+    "value": "儲存後勝者將按新比分重算；原始比分保留在記錄中，不影響回放。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "group_cached": {
+    "value": "當前顯示快取資料，聯網後可刷新。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "group_camera_hint": {
+    "value": "請在設定中允許相機訪問，或從相冊識別。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "group_load_failed": {
+    "value": "無法載入小組",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "group_load_more": {
+    "value": "載入更多",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "group_need_login": {
+    "value": "請先登入後繼續",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "group_save_failed": {
+    "value": "無法儲存比賽，請重試。",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "group_member_settings": {
+    "value": "成員設定",
+    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+  },
+  "membership_entry_summary_active": {
+    "value": "VIP 已開通",
+    "reason": "Reviewed concise active VIP status for the Me row, 2026-10-22"
+  },
+  "group_report_evidence_title": {
+    "value": "圖片證據（選填）",
+    "reason": "Preserve reviewed report evidence wording; 2026-10-22"
+  },
+  "group_report_evidence_hint": {
+    "value": "最多 3 張 JPG、PNG，每張 2 MB。僅你與平台可查看。",
+    "reason": "Preserve reviewed report evidence wording; 2026-10-22"
+  },
+  "group_report_add_image": {
+    "value": "新增圖片",
+    "reason": "Preserve reviewed report evidence wording; 2026-10-22"
+  },
+  "group_report_retry": {
+    "value": "重試",
+    "reason": "Preserve reviewed report evidence wording; 2026-10-22"
+  },
+  "group_report_preview": {
+    "value": "證據圖片",
+    "reason": "Preserve reviewed report evidence wording; 2026-10-22"
+  },
+  "group_report_supplement": {
+    "value": "補充證據",
+    "reason": "Preserve reviewed report evidence wording; 2026-10-22"
+  },
+  "group_report_close": {
+    "value": "關閉",
+    "reason": "Preserve reviewed report evidence wording; 2026-10-22"
+  },
+  "group_report_remove_image": {
+    "value": "移除圖片",
+    "reason": "Preserve reviewed report evidence wording; 2026-10-22"
+  },
+  "group_report_image_error": {
+    "value": "圖片處理失敗，請更換 JPG 或 PNG 圖片重試。",
+    "reason": "Preserve reviewed report evidence wording; 2026-10-22"
+  },
+  "group_report_refresh": {
+    "value": "重新整理進度",
+    "reason": "Preserve reviewed report evidence wording; 2026-10-22"
   }
 }

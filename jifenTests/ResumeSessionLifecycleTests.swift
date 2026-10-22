@@ -436,6 +436,54 @@ final class ResumeSessionLifecycleTests: XCTestCase {
         XCTAssertTrue(outcome.shouldReload)
     }
 
+    func testHomeScannerArchivesPreviousSnapshotAndKeepsNewestRealProgress() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let resumeRoot = root.appendingPathComponent("resume")
+        let history = ScoreboardRecordFileStore(rootURL: root.appendingPathComponent("history"))
+        let previous = try manualEnvelope(score: 7, totalScoreChanges: 1, startedAtMilliseconds: 100_000)
+        let newest = try manualEnvelope(score: 2, totalScoreChanges: 1, startedAtMilliseconds: 200_000)
+        for envelope in [previous, newest] {
+            try ResumeSessionRepository.saveManualPayload(
+                sessionId: envelope.sessionId, gameType: envelope.gameType,
+                startedAtEpochMilliseconds: envelope.startedAtEpochMilliseconds,
+                participants: envelope.participants, scoreSummary: envelope.scoreSummary,
+                payload: envelope.payload, rootURL: resumeRoot,
+                updatedAtEpochMilliseconds: envelope.updatedAtEpochMilliseconds
+            )
+        }
+        let coordinator = AbandonedResumeSessionCoordinator(
+            rootURL: resumeRoot,
+            recordLookup: { id in history.loadRecords().first { $0.id == id } },
+            recordWriter: { try history.save($0) }
+        )
+        let now = Date(timeIntervalSince1970: 250)
+        var failures: [UUID] = []
+        let scanner = HomeResumeSessionScanner<UUID>(
+            reconcileCommittedRecord: { _ in false },
+            archiveIfExpired: { try await coordinator.archiveIfExpired(sessionID: $0, now: now) },
+            abandon: { try await coordinator.abandon(sessionID: $0, now: now) },
+            loadCandidate: { entry in
+                try? ResumeSessionRepository.loadEnvelope(sessionId: entry.sessionId, rootURL: resumeRoot)?.sessionId
+            },
+            onFailure: { _, entry in failures.append(entry.sessionId) }
+        )
+        let repository = ResumeSessionRepository(rootURL: resumeRoot)
+        let outcome = await scanner.scan(try await repository.liveEntries())
+
+        XCTAssertEqual(outcome.candidate, newest.sessionId)
+        XCTAssertTrue(outcome.recordsNeedRefresh)
+        XCTAssertTrue(failures.isEmpty)
+        let remaining = try await repository.liveEntries()
+        XCTAssertEqual(remaining.map(\.sessionId), [newest.sessionId])
+        let archived = try XCTUnwrap(history.loadRecords().first)
+        XCTAssertEqual(history.loadRecords().count, 1)
+        XCTAssertEqual(archived.team1FinalScore, 7)
+        XCTAssertEqual(archived.status, .abandoned)
+        let saved = try XCTUnwrap(ResumeSessionRepository.loadEnvelope(sessionId: newest.sessionId, rootURL: resumeRoot))
+        XCTAssertEqual(saved.payload, newest.payload)
+    }
+
     private var participants: [SessionParticipant] {
         [
             .init(id: TeamID.team0.rawValue, name: "A", role: "team"),

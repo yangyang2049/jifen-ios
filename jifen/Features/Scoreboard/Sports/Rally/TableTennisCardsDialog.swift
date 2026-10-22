@@ -110,11 +110,11 @@ struct TableTennisCardsDialog: View {
                      ? NSLocalizedString("confirm_forfeit", value: "确认判负", comment: "")
                      : NSLocalizedString("confirm", value: "确认", comment: ""))
                     .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.actionForeground(on: selectedStage == .report ? Color.red : Theme.primary))
                     .frame(maxWidth: .infinity)
                     .frame(height: 46)
                     .background(selectedStage == .report ? Color.red : Theme.primary,
-                                in: RoundedRectangle(cornerRadius: 12))
+                                in: Capsule())
             }
             .buttonStyle(.plain)
             .disabled(selectedSide == nil)

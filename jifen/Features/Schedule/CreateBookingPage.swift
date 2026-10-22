@@ -104,7 +104,7 @@ struct CreateBookingPage: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button(NSLocalizedString("cancel", comment: "")) { dismiss() }
+                    ModalCloseButton { dismiss() }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(NSLocalizedString("save", comment: "")) { saveBooking() }

@@ -138,7 +138,9 @@ struct QuickStartEditView: View {
                                         isSelected: activeSport.wrappedValue == sport,
                                         onClickOption: {
                                             activeSport.wrappedValue = sport
-                                        }
+                                        },
+                                        // 网格项目图标固定 28pt（鸿蒙为 24pt，iOS 网格列宽更大，取 28 视觉更均衡）。
+                                        fixedIconSize: 28
                                     )
                                 }
                             }
@@ -234,7 +236,7 @@ struct QuickStartEditView: View {
                     .frame(maxWidth: .infinity)
                     .frame(height: 48)
                     .background(Theme.dialogControlBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .clipShape(Capsule())
             }
             .buttonStyle(.plain)
 
@@ -252,7 +254,7 @@ struct QuickStartEditView: View {
                     .frame(maxWidth: .infinity)
                     .frame(height: 48)
                     .background(Theme.homeEditButtonGreen)
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .clipShape(Capsule())
             }
             .buttonStyle(.plain)
         }

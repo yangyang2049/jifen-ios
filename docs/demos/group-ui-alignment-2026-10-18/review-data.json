@@ -1,0 +1,948 @@
+{
+  "date": "2026-10-19",
+  "repo": "/Users/yangyang/Desktop/jifenqi/jifen-ios",
+  "verification": "Current source references rechecked after concurrent GroupViews changes. Analysis and HTML only; native apps not built or launched.",
+  "counts": {
+    "sheetCallsites": 27,
+    "fullScreenCoverCallsites": 0,
+    "nativeFormCallsites": 15,
+    "peerBusinessSheetCallsites": 15,
+    "innerPlaceOrRulesSheetCallsites": 4,
+    "loginOrScannerSheetCallsites": 4,
+    "shiftPreviewSheetCallsites": 1,
+    "trainingOnlySheetCallsites": 3,
+    "trainingOnlyNativeForms": 2
+  },
+  "scope": {
+    "confirmed": "仅熟人组，训练组不加入本轮。docs/groups/README.md:9",
+    "codeBoundary": "GroupModels.swift:168-169 only allows peer creation; current iOS list/store do not filter coaching returned by server (GroupViews.swift:39-56, GroupRepository.swift:271). GroupDetailView.swift:54 still routes existing coaching groups to training. Treat as retained compatibility path, not globally unreachable code.",
+    "warning": "GroupReportView is in GroupTrainingViews.swift but is shared by peer report menu and must remain in peer inventory."
+  },
+  "pages": [
+    {
+      "id": "group-list",
+      "name": "我的小组",
+      "current": "独立页 / List；创建与加入为 sheet",
+      "source": "jifen/Features/Groups/GroupViews.swift:20",
+      "entry": "jifen/Features/Groups/GroupViews.swift:135",
+      "target": "保留列表独立页；创建/加入改 push；底部创建/加入入口保留",
+      "android": "列表独立页，创建/加入通过导航进入。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/navigation/GroupGraph.kt:69,75-85",
+      "harmony": "列表、归档、创建、加入都 push。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupListPage.ets:179-200",
+      "group": "入口与通知",
+      "preview": null,
+      "priority": "随后统一",
+      "action": "保留主体",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "archived-list",
+      "name": "已归档小组",
+      "current": "NavigationLink 独立列表页",
+      "source": "jifen/Features/Groups/GroupViews.swift:173",
+      "entry": "jifen/Features/Groups/GroupViews.swift:43",
+      "target": "保留独立页；对齐卡片与只读标记",
+      "android": "已归档列表为独立导航目标。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/navigation/GroupGraph.kt:123-137",
+      "harmony": "同一路由以 archived:'1' 进入；页内 archivedOnly 状态决定展示。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupListPage.ets:149,182-183",
+      "group": "入口与通知",
+      "preview": null,
+      "priority": "随后统一",
+      "action": "保留主体",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "create-group",
+      "name": "创建小组",
+      "current": "sheet + 内嵌 NavigationStack + Form；创建后在同一 sheet 内直接替换为详情，再 push 邀请页",
+      "source": "jifen/Features/Groups/GroupViews.swift:300",
+      "entry": "jifen/Features/Groups/GroupViews.swift:135",
+      "target": "独立页；设计输入框、项目选择、加入方式选项卡、简介计数；提交成功路由替换至详情/邀请，避免整个组内浏览留在 sheet",
+      "android": "创建为独立页；仍用 Material OutlinedTextField，外观尚未完全统一。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/create/GroupCreateScreen.kt:198,215",
+      "harmony": "创建独立页，自绘名称/简介/项目卡/加入方式，底部固定提交。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupCreatePage.ets:179-244",
+      "group": "入口与通知",
+      "preview": "create",
+      "priority": "先改",
+      "action": "改造",
+      "checks": [
+        "成功后回到主导航栈并替换创建/加入路由；不能把组详情继续留在原 sheet 内。",
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "join-group",
+      "name": "加入小组 / 加入预览",
+      "current": "sheet + 内嵌 NavigationStack + Form；预览、附言和确认在同一 Form；加入后在 sheet 内替换为组详情",
+      "source": "jifen/Features/Groups/GroupQRViews.swift:41",
+      "entry": "jifen/Features/Groups/GroupViews.swift:136",
+      "target": "独立页；保留输号/扫码/相册和服务端所有加入状态；小组预览用设计卡片，底部固定确认加入",
+      "android": "加入和预览位于独立流程，保持审批/直接加入状态。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/navigation/GroupGraph.kt:279-302; app/src/main/java/com/douhua/jifen/screen/group/join/GroupJoinScreen.kt:207-220",
+      "harmony": "独立加入页；直接加入成功后 replace 至详情，申请制提交后保留预览并显示待审批。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupJoinPage.ets:286-295",
+      "group": "入口与通知",
+      "preview": "join",
+      "priority": "先改",
+      "action": "改造",
+      "checks": [
+        "成功后回到主导航栈并替换创建/加入路由；不能把组详情继续留在原 sheet 内。",
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "overview",
+      "name": "概览 tab",
+      "current": "自绘 GroupSurface 卡片独立详情页内 tab；底部开始计分/补记比赛以 sheet 打开",
+      "source": "jifen/Features/Groups/GroupDetailView.swift:272",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:51",
+      "target": "保留卡片布局与现有动作策略；开始/补记跳独立页",
+      "android": "身份和二维码留卡片；开始/补记固定在底部。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailOverviewTab.kt:284,315",
+      "harmony": "自绘卡片，底部立即计分/补记，跳独立 Result 页。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupDetailPage.ets:1457-1550,2970-2980",
+      "group": "概览",
+      "preview": null,
+      "priority": "随后统一",
+      "action": "保留主体",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "activities",
+      "name": "活动 tab",
+      "current": "自绘卡片；进行中/报名中与历史活动分段；点击活动已 push；底部直接排赛/发起活动 sheet",
+      "source": "jifen/Features/Groups/GroupDetailView.swift:415",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:73",
+      "target": "保留列表层级，创建/直接排赛改独立页",
+      "android": "可操作与历史活动分组，底部直接排赛/发起活动。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailActivitiesTab.kt:149,206",
+      "harmony": "当前/历史两段，底部直接编排/发起活动；均 push。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupDetailPage.ets:1763-1787,2995-3000",
+      "group": "活动",
+      "preview": null,
+      "priority": "随后统一",
+      "action": "保留主体",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "activity-detail",
+      "name": "活动详情",
+      "current": "已是独立页但内容由 Form 承载；报名、排赛、取消理由和操作混排；下层编辑均 sheet",
+      "source": "jifen/Features/Groups/GroupActivityViews.swift:142",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:452",
+      "target": "保留 push，改活动头卡/报名成员卡/场次卡；报名与计分主操作固定底部，管理动作归工具栏；取消理由放确认流程",
+      "android": "已独立页，更多菜单收纳编辑/取消，内容和底部主操作分离。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupActivityDetailScreen.kt:44",
+      "harmony": "独立 Activity 页面壳；报名、详情和编辑切模式，底部固定操作。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupActivityPage.ets:1057-1091",
+      "group": "活动",
+      "preview": "detail",
+      "priority": "先改",
+      "action": "改造",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "activity-create",
+      "name": "发起 / 编辑活动",
+      "current": "sheet + Form；DatePicker、Stepper、Picker、TextField；常用地点再 sheet",
+      "source": "jifen/Features/Groups/GroupActivityViews.swift:33",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:141; jifen/Features/Groups/GroupActivityViews.swift:213",
+      "target": "独立页；时间卡、场地输入、人数数字步进、单/双打选项、报名截止和备注；底部创建/保存",
+      "android": "独立页；浅底 BasicTextField、胶囊选项和固定操作区。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityCreateScreen.kt:254,327,383",
+      "harmony": "独立 Activity 页的创建/编辑模式，自定义字段与日期选择。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupActivityPage.ets:1057-1091",
+      "group": "活动",
+      "preview": "activity",
+      "priority": "先改",
+      "action": "改造",
+      "checks": [
+        "迁移时补齐未保存改动确认；保留已有版本冲突、冻结、请求锁与返回后列表状态。",
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "direct-schedule",
+      "name": "直接排赛",
+      "current": "sheet + Form；单页包含基本信息、时间模式、多场对阵、成员选择",
+      "source": "jifen/Features/Groups/GroupActivityViews.swift:324",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:142",
+      "target": "独立页；名称、日期地点、赛制和时间模式直接排列；只保留对阵安排分段。每场独立时间、场地及队员，只展开选中场次，固定保存排赛。",
+      "android": "独立排赛目标；按顺序/预计时间，场次卡和内联选人。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/navigation/GroupGraph.kt:421-430; app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupScreen.kt:278,349,366",
+      "harmony": "Lineup 独立页；场次编排与活动创建分工。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupActivityLineupPage.ets:157-158,473-480,743-767; entry/src/main/ets/pages/group/GroupDetailPage.ets:1265-1267",
+      "group": "活动",
+      "preview": "schedule",
+      "priority": "先改",
+      "action": "改造",
+      "checks": [
+        "迁移时补齐未保存改动确认；保留已有版本冲突、冻结、请求锁与返回后列表状态。",
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "activity-registration",
+      "name": "代临时成员报名",
+      "current": "sheet + Form Toggle 列表；确认预览在该 sheet 的 NavigationStack 内 push",
+      "source": "jifen/Features/Groups/GroupRegistrationEditor.swift:70",
+      "entry": "jifen/Features/Groups/GroupActivityViews.swift:212",
+      "target": "独立多选管理页；姓名/状态行与底部变更、容量摘要。按 Android/鸿蒙直接批量保存，收口 iOS 旧预览步骤，保留未保存退出保护和必要的冲突复核。",
+      "android": "在活动页切换报名管理，本地草稿批量保存、容量和退出确认。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityRegistrationSheet.kt:72-145",
+      "harmony": "Activity 独立页内切换报名管理，固定保存动作。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupActivityPage.ets:1057-1091",
+      "group": "活动",
+      "preview": "registration",
+      "priority": "先改",
+      "action": "改造",
+      "checks": [
+        "保留草稿退出确认、版本冲突复核、冻结场次和请求中禁用；返回后恢复列表 tab 与滚动位置。",
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "activity-lineup",
+      "name": "活动排赛 / 编辑排赛",
+      "current": "sheet 包 GroupActivityLineupEditor，复用 GroupScheduleEditor + Form；预览 push、顺延预览再 sheet",
+      "source": "jifen/Features/Groups/GroupScheduleEditor.swift:64",
+      "entry": "jifen/Features/Groups/GroupActivityViews.swift:214",
+      "target": "独立页；时间模式与时长选项，场次卡、冻结标记、冲突就近提示；预览独立页；顺延可保留短预览 sheet",
+      "android": "独立编排页，场次卡，页面内选人。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupScreen.kt:105,320,366",
+      "harmony": "独立 Lineup 路由，保留冻结和冲突校验。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupActivityLineupPage.ets:402-428,491,814-818,826-828",
+      "group": "活动",
+      "preview": "schedule",
+      "priority": "先改",
+      "action": "改造",
+      "checks": [
+        "迁移时补齐未保存改动确认；保留已有版本冲突、冻结、请求锁与返回后列表状态。",
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "start-match",
+      "name": "开始计分",
+      "current": "sheet + GroupMatchEditor Form；比赛规则又开 sheet，成员选择 push，临时成员再次 sheet",
+      "source": "jifen/Features/Groups/GroupForms.swift:45",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:145; jifen/Features/Groups/GroupActivityViews.swift:211",
+      "target": "独立页；A/B 队对阵选择卡、单/双打胶囊、规则摘要；底部开始计分；保留冻结参与人/规则与未完成比赛保护",
+      "android": "独立录入/准备页，名单内联展开；超过 12 人显示搜索。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/result/GroupResultEntryScreen.kt:361; app/src/main/java/com/douhua/jifen/ui/components/group/GroupInlinePlayerSelector.kt:154",
+      "harmony": "Result 独立页，A1/A2/B1/B2 各席位内联选人。",
+      "harmonySource": "entry/src/main/ets/pages/group/components/GroupMatchSeats.ets:7,45-55",
+      "group": "概览",
+      "preview": "start",
+      "priority": "先改",
+      "action": "改造",
+      "checks": [
+        "保留合法总分/逐局一致性、未完成比赛保护、冻结名单与规则；纠正上传复用同一比分控件。",
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "manual-result",
+      "name": "补记比赛",
+      "current": "sheet + 同一个 GroupMatchEditor Form；已有快捷局分自定义控件但仍嵌原生 Form",
+      "source": "jifen/Features/Groups/GroupForms.swift:45",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:146; jifen/Features/Groups/GroupActivityViews.swift:211",
+      "target": "独立页；复用整场比分快捷选项、每局明细展开与校验，替换输入外观；比赛时间与规则分卡，固定提交",
+      "android": "独立 ResultEntry 页；合法比分直选，手动和逐局明细折叠。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/result/GroupResultScoreControls.kt:82,127,147,168-209",
+      "harmony": "Result 独立页，自定义规则、日期、席位与固定提交。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupResultPage.ets:818-899,1075-1082",
+      "group": "概览",
+      "preview": "result",
+      "priority": "先改",
+      "action": "改造",
+      "checks": [
+        "保留合法总分/逐局一致性、未完成比赛保护、冻结名单与规则；纠正上传复用同一比分控件。",
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "results",
+      "name": "战绩 tab",
+      "current": "无真正子 tab；同一滚动页依次放待上传、待确认、单双打排行筛选、历史记录；rankFormat 与 recordFormat 各自独立",
+      "source": "jifen/Features/Groups/GroupDetailView.swift:477",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:56",
+      "target": "保留两端当前同页分段：待确认、排行榜、待上传与战绩。榜单六项统计列完整，榜单和记录各自筛选；本轮不新增第二层 tab。",
+      "android": "同一 tab 内待确认、榜单和记录分段；排行/记录分别筛选。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailRecordsTab.kt:148,169,198,326",
+      "harmony": "同页榜单单/双打 chips、待处理与记录筛选，没有真正二级 tab。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupDetailPage.ets:2339-2371",
+      "group": "战绩",
+      "preview": "records",
+      "priority": "随后统一",
+      "action": "改造",
+      "checks": [
+        "排行和历史记录筛选互不影响；已有本人标记、错误重试、统计口径继续复用。",
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "result-detail",
+      "name": "战绩详情",
+      "current": "已独立页 + 自绘 GroupSurface 结果卡/比赛信息卡；仅作废理由为 roundedBorder 原生输入",
+      "source": "jifen/Features/Groups/GroupViews.swift:461",
+      "entry": "jifen/Features/Groups/GroupViews.swift:345",
+      "target": "保留现有主体；统一作废输入与确认交互即可",
+      "android": "独立页，作废在详情，不在列表作为并列主操作。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/navigation/GroupGraph.kt:253-267; app/src/main/java/com/douhua/jifen/screen/group/detail/GroupBrowseScreens.kt:208-220",
+      "harmony": "独立 ResultDetail，结果与信息/操作分区。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupResultDetailPage.ets:28-30; entry/src/main/ets/pages/group/components/GroupBrowseView.ets:272-320",
+      "group": "战绩",
+      "preview": null,
+      "priority": "随后统一",
+      "action": "保留主体",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "member-results",
+      "name": "成员对局历史",
+      "current": "排行榜行 NavigationLink 独立页 + List；非成员设置页",
+      "source": "jifen/Features/Groups/GroupViews.swift:553",
+      "entry": "jifen/Features/Groups/GroupRankingTable.swift:49",
+      "target": "保留独立页，统一记录卡与筛选标题",
+      "android": "独立个人战绩路由，由排行榜下钻。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/navigation/GroupGraph.kt:196; app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailRecordsTab.kt:280",
+      "harmony": "独立 MemberResults，共用 GroupBrowseView。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupMemberResultsPage.ets:27-29",
+      "group": "战绩",
+      "preview": null,
+      "priority": "随后统一",
+      "action": "保留主体",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "upload-repair",
+      "name": "纠正上传",
+      "current": "sheet + Form；规则另 sheet，分数为直接数字 TextField，未复用新版 GroupResultScoreControls",
+      "source": "jifen/Features/Groups/GroupSupportViews.swift:366",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:124",
+      "target": "独立页；共用补记布局和比分控件；显示失败原因、原值、修正后校验与重新上传状态",
+      "android": "复用结果录入独立导航，修正并重新提交。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/navigation/GroupGraph.kt:341-344,446-474",
+      "harmony": "复用独立 Result 页修正待上传记录。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupResultPage.ets:160-161,283-298,603-604; entry/src/main/ets/pages/group/GroupDetailPage.ets:2325",
+      "group": "战绩",
+      "preview": "result",
+      "priority": "先改",
+      "action": "改造",
+      "checks": [
+        "保留合法总分/逐局一致性、未完成比赛保护、冻结名单与规则；纠正上传复用同一比分控件。",
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "members",
+      "name": "成员 tab",
+      "current": "自绘卡片；申请、正式成员、临时成员纵向段落；离开成员 DisclosureGroup；成员箭头与添加临时成员均复用 management sheet",
+      "source": "jifen/Features/Groups/GroupDetailView.swift:576",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:57",
+      "target": "列表保留；申请/成员/临时成员可用轻量筛选而非强加子 tab；成员设置、批量添加改独立页",
+      "android": "申请/正式/临时成员分组，审批采用两段式；普通成员不挂角色标签。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailMembersTab.kt:125-226,434",
+      "harmony": "同页申请/正式/临时成员/折叠已移除成员。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupDetailPage.ets:2532-2587",
+      "group": "成员与管理",
+      "preview": "members",
+      "priority": "随后统一",
+      "action": "保留主体",
+      "checks": [
+        "默认新组 30 人，实际按服务端 memberLimit；有效正式与临时成员合计，本轮不改现有名额政策。",
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "edit-group",
+      "name": "编辑小组资料 / 加入设置",
+      "current": "iPhone 已 navigationDestination；iPad 仍 sheet；内容仍 Form；工具栏保存",
+      "source": "jifen/Features/Groups/GroupManagementView.swift:52",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:134; jifen/Features/Groups/GroupDetailView.swift:206",
+      "target": "复用父 NavigationStack 的设计表单；小组名、简介、加入方式选项；保留审核与版本冲突操作",
+      "android": "手机独立页、宽屏居中页面 Dialog；字段仍 OutlinedTextField。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailScreen.kt:673,691",
+      "harmony": "手机 push；平板/2in1 居中 dialog，共用同一套自设计 GroupEditInfoForm。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupDetailPage.ets:1336-1354; entry/src/main/ets/pages/group/GroupEditInfoPage.ets:111",
+      "group": "成员与管理",
+      "preview": "edit",
+      "priority": "随后统一",
+      "action": "改造",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "temporary-members",
+      "name": "批量添加临时成员",
+      "current": "management sheet + Form；多行名称；常用名称导入已在内层 push",
+      "source": "jifen/Features/Groups/GroupManagementView.swift:62",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:616; jifen/Features/Groups/GroupSupportViews.swift:61",
+      "target": "批量添加使用独立页，显示解析数量、可用名额和常用姓名；单个临时成员快速补充可保留统一短 dialog。保留部分成功与幂等重试。",
+      "android": "批量名称输入与常用名称导入使用自定义弹窗；内部字段仍有 Material 组件。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupTemporaryMemberEditor.kt:62-79,109-116; app/src/main/java/com/douhua/jifen/screen/group/detail/GroupCommonNameImportDialog.kt:44,51",
+      "harmony": "自定义居中临时成员 dialog；批量输入和常用姓名导入。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupDetailPage.ets:2636-2645; entry/src/main/ets/pages/group/components/GroupTemporaryMemberDialog.ets:38-60,68-108",
+      "group": "成员与管理",
+      "preview": "temporary",
+      "priority": "随后统一",
+      "action": "改造",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "member-settings",
+      "name": "成员设置 / 改名 / 管理员 / 移除",
+      "current": "management sheet + Form；临时成员改名、正式成员管理员开关、移除确认",
+      "source": "jifen/Features/Groups/GroupManagementView.swift:71",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:629",
+      "target": "只有改名/移除等短动作时使用统一品牌 dialog；组合姓名、角色与权限编辑时进独立成员设置页，按实际复杂度选容器。",
+      "android": "短成员操作通过自定义浮层；姓名和权限按身份展示。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/ui/components/group/GroupOverlays.kt:96",
+      "harmony": "成员行打开操作菜单；管理员身份切换由菜单提交，临时成员改名及移除再使用自定义 dialog。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupDetailPage.ets:2729-2753,2841-2853,2901-2911",
+      "group": "成员与管理",
+      "preview": null,
+      "priority": "随后统一",
+      "action": "改造",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "ownership-transfer",
+      "name": "转让小组",
+      "current": "management sheet + Form，选择成员再 push",
+      "source": "jifen/Features/Groups/GroupManagementView.swift:76",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:216",
+      "target": "保留轻量成员选择层或独立名单页均可；统一设计成员行，底部明确待转让对象与后果，再做二次确认，不再用整张系统 Form。",
+      "android": "保留成员选择型轻量浮层，最终确认转让。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailScreen.kt:480-521",
+      "harmony": "成员单选 sheet；平板/2in1 居中呈现。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupDetailPage.ets:2757-2776",
+      "group": "成员与管理",
+      "preview": null,
+      "priority": "随后统一",
+      "action": "改造",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "group-status-actions",
+      "name": "归档 / 恢复 / 解散 / 撤销解散 / 退出",
+      "current": "5 种 action 共用 management sheet + Form；只有说明和确认按钮",
+      "source": "jifen/Features/Groups/GroupManagementView.swift:79",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:217",
+      "target": "短动作适合品牌确认弹窗；无需为了消灭 sheet 做五个全页；展示后果与加载/失败状态",
+      "android": "短动作与成员操作使用自定义确认层。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailScreen.kt:525-565",
+      "harmony": "归档、解散、退出使用确认 dialog；恢复和撤销解散直接提交。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupDetailPage.ets:581-591,1274-1284,1315-1323,2914-2922",
+      "group": "成员与管理",
+      "preview": null,
+      "priority": "随后统一",
+      "action": "改造",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "invite",
+      "name": "邀请 / 小组二维码",
+      "current": "已 push；自绘二维码页与系统 ShareLink",
+      "source": "jifen/Features/Groups/GroupQRViews.swift:217",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:143",
+      "target": "保留独立页和系统分享；统一底部按钮排版",
+      "android": "独立分享页及原生分享。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/navigation/GroupGraph.kt:477-488; app/src/main/java/com/douhua/jifen/screen/group/share/GroupShareScreen.kt:162-166",
+      "harmony": "独立 GroupSharePage。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupSharePage.ets:288-301; entry/src/main/ets/pages/group/GroupDetailPage.ets:1034",
+      "group": "概览",
+      "preview": null,
+      "priority": "随后统一",
+      "action": "保留主体",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "report-group",
+      "name": "举报小组 / 更新举报",
+      "current": "组内 GroupReportView 和加入预览 GroupPreviewReportView 均 sheet + Form；前者文件在 TrainingViews 但熟人组也使用",
+      "source": "jifen/Features/Groups/GroupTrainingViews.swift:283; jifen/Features/Groups/GroupPreviewReportView.swift:14",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:144; jifen/Features/Groups/GroupQRViews.swift:102",
+      "target": "统一独立举报页和自设计原因选项/说明输入；保留已有举报状态、更新和撤回",
+      "android": "自定义举报 Dialog，原因与说明分开；说明输入仍使用 Material TextField，字段视觉尚待统一。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/detail/GroupReportForm.kt:70,109,118",
+      "harmony": "组内及加入预览各用自定义举报 dialog，共用原因常量。",
+      "harmonySource": "entry/src/main/ets/pages/group/components/GroupReportDialog.ets:9-13,36-70; entry/src/main/ets/pages/group/GroupDetailPage.ets:1039-1045; entry/src/main/ets/pages/group/GroupJoinPage.ets:465-477",
+      "group": "成员与管理",
+      "preview": "report",
+      "priority": "随后统一",
+      "action": "改造",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "notification-inbox",
+      "name": "通知中心 / 通知详情",
+      "current": "已独立页 List；通知详情 navigationDestination；全部已读与分页已存在",
+      "source": "jifen/Features/Groups/GroupSupportViews.swift:128",
+      "entry": "jifen/Features/Groups/GroupViews.swift:121; jifen/Features/Groups/GroupSupportViews.swift:178",
+      "target": "保留 push 与已有行为，统一品牌通知行/空态/状态标签",
+      "android": "独立通知页与通知跳转。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/navigation/GroupGraph.kt:139-167; app/src/main/java/com/douhua/jifen/screen/group/notice/GroupNoticeInbox.kt:207-252",
+      "harmony": "独立 Notice 页。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupNoticePage.ets:154-168,309-323",
+      "group": "入口与通知",
+      "preview": null,
+      "priority": "随后统一",
+      "action": "保留主体",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "notification-settings",
+      "name": "通知设置",
+      "current": "已独立页 List + 原生 Toggle，组级/全局开关与系统授权入口",
+      "source": "jifen/Features/Groups/GroupPushViews.swift:10",
+      "entry": "jifen/Features/Groups/GroupDetailView.swift:98; jifen/Features/Groups/GroupSupportViews.swift:152",
+      "target": "品牌设置卡与说明行；原生开关可保留行为，视觉按设计统一",
+      "android": "现有源码可确认通知收件箱；本次未找到独立通知偏好页面，列为三端差异待定。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/notice/GroupNoticeInbox.kt:207-252（仅收件箱证据）",
+      "harmony": "独立 PushSettings；当前属于工作区已有新增代码。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupPushSettingsPage.ets:14-16,55-84",
+      "group": "入口与通知",
+      "preview": null,
+      "priority": "随后统一",
+      "action": "保留主体",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "member-selector",
+      "name": "选择队员 / 转让对象",
+      "current": "独立 NavigationLink 页 + 原生 List/searchable，选择后 dismiss；排赛中还可 sheet 添加临时成员",
+      "source": "jifen/Features/Groups/GroupSupportViews.swift:14",
+      "entry": "jifen/Features/Groups/GroupSupportViews.swift:41",
+      "target": "比赛准备和编排优先改为席位下内联选人，完整姓名、已占用提示和大名单搜索；转让等跨名单单选可保留独立选择页。",
+      "android": "对阵下内联名单，选择后推进下一空位；超过 12 人显示搜索。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/ui/components/group/GroupInlinePlayerSelector.kt:57-62,154,185-187",
+      "harmony": "席位下内联名单，点已选成员移除。",
+      "harmonySource": "entry/src/main/ets/pages/group/components/GroupMatchSeats.ets:7,45-55",
+      "group": "概览",
+      "preview": null,
+      "priority": "随后统一",
+      "action": "改造",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "match-rules",
+      "name": "比赛规则",
+      "current": "sheet + Form；已共用 GroupRuleChoices 自定义选项网格，仍有原生 Toggle/Stepper",
+      "source": "jifen/Features/Groups/GroupSupportViews.swift:74",
+      "entry": "jifen/Features/Groups/GroupForms.swift:83; jifen/Features/Groups/GroupSupportViews.swift:405",
+      "target": "常用规则在本页摘要下展开，选择即生效；复杂规则可进独立子页。复用 GroupRuleChoices 和能力目录，冻结规则只读；避免规则再叠一张完整 Form sheet。",
+      "android": "规则摘要点开自定义浮层，即点即生效，无冗余完成。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/result/GroupResultScoreControls.kt:82",
+      "harmony": "Result 页自绘可折叠规则 chips，日期使用品牌日历 dialog。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupResultPage.ets:818-899,477-483; entry/src/main/ets/pages/group/components/GroupActivityDateTimeDialog.ets:97-163",
+      "group": "概览",
+      "preview": null,
+      "priority": "随后统一",
+      "action": "改造",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    },
+    {
+      "id": "training-retained",
+      "name": "训练兼容路径（本轮不改）",
+      "current": "训练 tab、排期、开赛/请假、取消、训练通知仍有源码；3 sheet 入口、2 training-only Form；共享举报不计入训练专属",
+      "source": "jifen/Features/Groups/GroupTrainingViews.swift:70; jifen/Features/Groups/GroupTrainingViews.swift:261; jifen/Features/Groups/GroupTrainingNoticesView.swift:75",
+      "target": "仅标注存量和范围；不加入原型主流程、不借本轮扩大训练功能",
+      "android": "创建固定 peer；老训练组仍保留条件 tab 与路由。",
+      "androidSource": "app/src/main/java/com/douhua/jifen/screen/group/create/GroupCreateScreen.kt:126; app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailScreen.kt:208-221; app/src/main/java/com/douhua/jifen/navigation/GroupGraph.kt:432-443",
+      "harmony": "创建固定 peer，保留 coaching 兼容分叉。",
+      "harmonySource": "entry/src/main/ets/pages/group/GroupCreatePage.ets:121; entry/src/main/ets/pages/group/GroupDetailPage.ets:641,3038-3042",
+      "group": "历史兼容",
+      "preview": null,
+      "priority": "范围外",
+      "action": "仅记录",
+      "checks": [
+        "保留现有账号变化、权限和服务端校验；外观改造不扩展业务范围。"
+      ]
+    }
+  ],
+  "reusable": [
+    {
+      "name": "GroupSurface / GroupSectionTitle",
+      "source": "jifen/Features/Groups/GroupDetailView.swift:648",
+      "use": "小组自设计卡片和标题基础"
+    },
+    {
+      "name": "InlineCommonNameTextField",
+      "source": "jifen/Features/Home/Components/SportsSetupCommonNameViews.swift:79",
+      "use": "已有 .plain 文本输入、灰色控件底、主题圆角、右侧常用名称箭头；适配后可做表单基础输入"
+    },
+    {
+      "name": "GroupRuleChoices",
+      "source": "jifen/Features/Groups/GroupResultScoreControls.swift:110",
+      "use": "已有动态网格与选中状态；适合比赛规则、项目、单双打、加入方式等设计选项"
+    },
+    {
+      "name": "GroupResultScoreControls / GroupResultNumericField",
+      "source": "jifen/Features/Groups/GroupResultScoreControls.swift:3",
+      "use": "保留快捷比分、手动总分/明细切换、校验、键盘完成；NumericField 的 roundedBorder 换设计外观"
+    },
+    {
+      "name": "Theme.inputFieldBackground",
+      "source": "jifen/Core/Theme/Theme.swift:56",
+      "use": "页面输入框既有动态灰色底，深色 #2C2C2E；账号页有 48pt/12pt 圆角实例 AccountViews.swift:239-268"
+    },
+    {
+      "name": "CustomConfirmDialog",
+      "source": "jifen/Core/Components/CustomDialogs.swift:203",
+      "use": "退出/归档/移除/解散等短确认动作；不要继续用整张 Form sheet 承载一句说明"
+    },
+    {
+      "name": "既有数据模型与校验",
+      "source": "jifen/Features/Groups/GroupRegistrationEditor.swift:99; jifen/Features/Groups/GroupScheduleEditor.swift:127",
+      "use": "保留报名管理已有的未保存改动保护，以及版本冲突、冻结排赛、账号变化与离线队列。其他编辑页缺少的草稿退出保护需在迁移时补齐。"
+    }
+  ],
+  "prototypePriority": [
+    "create-group",
+    "activity-detail",
+    "activity-create",
+    "direct-schedule",
+    "activity-registration",
+    "manual-result",
+    "edit-group",
+    "results"
+  ],
+  "designRules": [
+    "复杂业务与多步表单进入同一个 NavigationStack 的独立页面，避免 sheet 内再 sheet",
+    "短确认、日期/时间选择、扫码、登录、系统分享可以继续用适合的系统/品牌浮层",
+    "原生 TextField/DatePicker 可以继续承担输入与无障碍行为；需替换的是原生 Form/List 的外观和布局，非重造输入系统",
+    "统一字段标题、必填标记、输入灰底、错误提示、计数、固定底部提交；校验语义取现有模型和服务端能力"
+  ],
+  "groups": [
+    "入口与通知",
+    "概览",
+    "活动",
+    "战绩",
+    "成员与管理",
+    "历史兼容"
+  ],
+  "decisions": [
+    {
+      "topic": "独立页与弹层",
+      "difference": "旧 Android 10-09 表单稿和 10-12 活动稿仍把复杂流程放 dialog/sheet；当前 Android/鸿蒙已将主要业务移入页面。",
+      "decision": "按当前实现对齐：手机复杂业务 push；短确认、日期、扫码和系统分享保留适合的浮层。iPad 可继续同一表单的居中适配。",
+      "status": "建议采用"
+    },
+    {
+      "topic": "表单输入外观",
+      "difference": "Android 创建活动是浅底自绘字段，创建/修改小组仍是 Material 描边；鸿蒙更多白底描边，iOS 已有动态灰底输入 token。",
+      "decision": "统一字段结构、标签、间距、选择状态和底部操作；iOS 复用 Theme.inputFieldBackground 与现有圆角，不照搬尚未统一的 Material 外观。",
+      "status": "建议采用"
+    },
+    {
+      "topic": "队员选择",
+      "difference": "iOS 当前主要 push 到选择名单；Android/鸿蒙已支持席位下内联选择。",
+      "decision": "对阵编辑使用内联名单，保留完整姓名、禁选已占用者和搜索；转让等单一选择仍可独立页/短选择层。",
+      "status": "建议采用"
+    },
+    {
+      "topic": "规则编辑",
+      "difference": "Android 点摘要开自定义浮层，鸿蒙本页可折叠；iOS 再开一张 Form sheet。",
+      "decision": "常用规则就地展开、选项立即生效；高级规则才进子页，冻结规则只读。",
+      "status": "建议采用"
+    },
+    {
+      "topic": "战绩要不要子 tab",
+      "difference": "三端当前都主要是同页分段，单双打是榜单筛选，不是真正子 tab。",
+      "decision": "本轮13页预览采用现有分段，不新增子 tab；后续如需新增分层，应单独评审且不改变统计口径。",
+      "status": "可选后续方案"
+    },
+    {
+      "topic": "报名管理",
+      "difference": "Android/鸿蒙在独立活动页切管理模式；iOS sheet 内 push 预览，已有草稿与离开保护。",
+      "decision": "iOS 使用活动详情 → 报名管理的同栈路径，底栏显示变更/容量并直接保存；保留草稿退出保护与必要版本冲突复核。",
+      "status": "建议采用"
+    },
+    {
+      "topic": "训练组与旧综合稿",
+      "difference": "旧综合稿包含训练/轮转/联赛；创建已限定 peer，但存量 coaching 仍有兼容路径。",
+      "decision": "本轮只改熟人组。保留训练源码的边界标注，不把旧原型演示当作当前功能承诺。",
+      "status": "维持现有范围"
+    }
+  ],
+  "stages": [
+    {
+      "name": "先修页面承载与成功后的返回路径",
+      "description": "创建/加入、开始/补记、创建活动、直接排赛、报名管理、排赛、纠正上传迁移到同一个导航栈。先解决创建或加入后整组浏览仍被装在 sheet 的问题。",
+      "acceptance": "逐条验证进入、返回、成功跳转、取消与草稿；原页面的 tab 和滚动位置保持。"
+    },
+    {
+      "name": "提取共用表单，再替换 13 处熟人组系统 Form",
+      "description": "复用现有卡片、主题输入底色、选项网格、比分快捷控件和确认 dialog。共用字段标题/提示/错误/计数、选择行、人数步进、日期行与底部动作区；替换覆盖 13 处熟人组可用 Form 的系统布局（管理 Form 包含多个模式）。",
+      "acceptance": "深浅色、320/390 宽、大字号、键盘遮挡、长姓名/地点和提交中状态均可操作。"
+    },
+    {
+      "name": "收齐 tab 内的列表与短操作",
+      "description": "活动详情分成信息/报名/场次卡；战绩保留已有结果卡并统一纠正上传；成员按最新审批双按钮和分段列表统一。短状态动作改统一确认 dialog。",
+      "acceptance": "排行/记录筛选独立、报名容量、权限、冻结场次、离线与账号切换等原行为不回退。"
+    },
+    {
+      "name": "单独评审可选信息架构变化",
+      "description": "在主要表单和导航统一后，再决定战绩是否拆比赛记录/排行榜两个子 tab。旧 HTML 的多个候选方案只当比较材料。",
+      "acceptance": "不借 UI 改造新增训练/轮转/联赛或改变容量、排行、确认和结果契约。"
+    }
+  ],
+  "sourceSnapshots": [
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupActivityViews.swift",
+      "sha256": "87ed349353e21dba403ff1d61cc25b527013c74101ae79f9c5e5d09e843dfec0"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupDetailView.swift",
+      "sha256": "21b0911a359cfb927772e4672599334430a97eeec4947462cced0f266861b73a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupForms.swift",
+      "sha256": "7de0ed4510400a8c88330395e1943b594671b84ab3c8b89c03c309733189c563"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupManagementView.swift",
+      "sha256": "e068f50e74b8a8e6afc384d2fdf68e68e8e27e2497aab3c778419dd80f8a9ea0"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupPreviewReportView.swift",
+      "sha256": "eb5e27b1a3b8b32697d6e5702b24b52d47114109257af536272c89e87afc9007"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupPushViews.swift",
+      "sha256": "bf3e13fe3a962709072d00b13fd2e6ecf6c798adf485a240f1a1fdd243c4e0f0"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupQRViews.swift",
+      "sha256": "6ddd51d401660bb0b0ae77c9f1b56989ba20312aeb14ecf372e51ee513d28317"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupRankingTable.swift",
+      "sha256": "d8c4b3e4f6a8171a25e3e3d60e7eef8076fd7639b35ea614db4ce93d1e17edb4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupRegistrationEditor.swift",
+      "sha256": "c3fa1ddd8a7747117eed296270330e5226cb13d83f455c5de317a72902b1aba6"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupScheduleEditor.swift",
+      "sha256": "96b67dd30cfe42250447aa2257a40325ab3311356b214b28452180ea328f5320"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupSupportViews.swift",
+      "sha256": "171d7c6a150e90dee8f8b7810d186d567aad6acf0cfd39243fc55767844f0ad9"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupTrainingNoticesView.swift",
+      "sha256": "5973207fe6245130a206fb0d4161362a12a841d418a493886385cb19435f5cbc"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupTrainingViews.swift",
+      "sha256": "e57666364262c491bfdd73a09fbea580ba8ff6bbc232e5b5edbca176031ac169"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Groups/GroupViews.swift",
+      "sha256": "6805946e4a3d6e9ff5c5ebd1bb76b047f6c3c760c2d369666fbb863259fb7b3e"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/navigation/GroupGraph.kt",
+      "sha256": "98d2382212bc4c942406387595ef9bc9d35474b62e1d1bcbc92fbd76d0c2da87"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityCreateScreen.kt",
+      "sha256": "a431ced6b34862cc5352506606fa9f5baf45650d2fd5961e7984dc3548f239b8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupScreen.kt",
+      "sha256": "74fa3204a82a5a75a2fdbe7986b43a3d87b39757f53b53e1edb6295f3a3da78d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/activity/GroupActivityRegistrationSheet.kt",
+      "sha256": "e0e27148215cf3b891952819482c51eb0d10bb0f0dde1ffbbe2b7c482a8b6301"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/create/GroupCreateScreen.kt",
+      "sha256": "6e24f87b2982d07a075cf0f13fda48955eae0318e8b10f8712231819e4f05d93"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupActivityDetailScreen.kt",
+      "sha256": "0bf8f13f8733c961e7ebb27a2f9cebddf12be5f2f98f1918cddf142443ab90f7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupBrowseScreens.kt",
+      "sha256": "d4d2003de611ea042809d16083db724ce464dcd03fe5106cbd21545be05f9531"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupCommonNameImportDialog.kt",
+      "sha256": "d757b6191bb54d6484854ed18a2dd167b65ef55fe544e3290cdcd2a190597ac2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailActivitiesTab.kt",
+      "sha256": "701f3f93410b5038b75afef1142f9237cc134348fa22d98cb236cdc0cd22596d"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailMembersTab.kt",
+      "sha256": "f91cc360a3f00e0a379d1d1cfd0107bf11e4a09a036d386cec4dea60c4805392"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailOverviewTab.kt",
+      "sha256": "5107b69813a7a68ab5127a40153554c5acebbe7bbf26cc2195e62ac2f593617c"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailRecordsTab.kt",
+      "sha256": "27bbe15d2314aab2c2815098831ea887dd9e0721f802cbf92c6546af6dcd18d1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupDetailScreen.kt",
+      "sha256": "888629f5485e788dbe2d691964f4ea9f445e0c9a4dfb0472a1087693dc47fb99"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupReportForm.kt",
+      "sha256": "6acfbdeed36b5bd7321a4b799422a2466d6b30a522ae3ff8727c9ea19686ae44"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/detail/GroupTemporaryMemberEditor.kt",
+      "sha256": "044c706374feb651d9fadfcdd5690ae8ba0992007dbdc3b12b898b3d9bdd0924"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/join/GroupJoinScreen.kt",
+      "sha256": "419397ab7c661595a5c953b19b773f848bec2d6715d5fe03b70169906f7506e2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/notice/GroupNoticeInbox.kt",
+      "sha256": "083a8f3a7aebbd88adbccc24d942ed43ea7e5f9c3701a7e3fc90bc27fa206df0"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/result/GroupResultEntryScreen.kt",
+      "sha256": "32805b9620568c81c4a41a97062e1b604ce30724301637ebd21189fbb34671c8"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/result/GroupResultScoreControls.kt",
+      "sha256": "0384842bce661c62f5a7e27862c71975052e18ea48560dfc5e9179827424b925"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/screen/group/share/GroupShareScreen.kt",
+      "sha256": "bc31482ea40c56b65dc06eb42cd7828d673cea41f93ece2d64185e22e0e462b2"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/group/GroupInlinePlayerSelector.kt",
+      "sha256": "76e080a9ef3e7c5123eb315dcc95bf83b033e27a8c072a6621f57828c2dcdf8a"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-android/app/src/main/java/com/douhua/jifen/ui/components/group/GroupOverlays.kt",
+      "sha256": "6177fa72ea537e6f03842fb552566872fd80af1a69441d9d1fd919bbdbe6fd22"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupActivityLineupPage.ets",
+      "sha256": "d8ec216e189af68bf6ead4ee5d944fde8589b5d22b08564266e22fca6c3396f7"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupActivityPage.ets",
+      "sha256": "b2334cdd8b0dff98255ac37e402179b119f6cac036a4047e2df55e7e3acb41ef"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupCreatePage.ets",
+      "sha256": "9c8ea7dbc6912f02b721d111130569616fd03d6b2ca5d59ac1572aaf2530b201"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupDetailPage.ets",
+      "sha256": "04fd841094d2fd9966e8f9109946ff7d21c8b1ed0ed3366e89356a76dec885d5"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupEditInfoPage.ets",
+      "sha256": "b842f92bcdbae16d4ba98da4386fe3804162d337a8432d6a405d2a2d00930ba4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupJoinPage.ets",
+      "sha256": "128567fe4db545932bb8b6bf4c4057b50ab182419a739496b345fb6e061e06d0"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupListPage.ets",
+      "sha256": "15ff413ef8de5167f87f0ff43fd153496e2e0762f77848824d2dfc555e9fdd37"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupMemberResultsPage.ets",
+      "sha256": "0dde64c0d721e213bc786ed49de58772123ec2d0a034658a5227226392e9b750"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupNoticePage.ets",
+      "sha256": "34ce1358d8b9018741a22b042008ed4cae6e8e0b0f10f93e1c9168e2679b91f1"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupPushSettingsPage.ets",
+      "sha256": "f74e25b362e56c46b922b2141f263089f03a084919da35958d53a422220251be"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupResultDetailPage.ets",
+      "sha256": "4eb3011a06d37784b02a85849c13b7e16505cea3486f955ee8ef353c73b19775"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupResultPage.ets",
+      "sha256": "dbd3361f99e5d8e0635d35694ae63e621e410d75a732d038463f1f86d08d26e4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/GroupSharePage.ets",
+      "sha256": "966b648cacaedc9877304d1e91035c6588e2ef7eb233cbb9f6710ed16a9d8803"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupActivityDateTimeDialog.ets",
+      "sha256": "49a2407441aebb5f42c531f18a19d2926688141546f574ab4b78be260b2de815"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupBrowseView.ets",
+      "sha256": "59e50db35e55e3eb0eca8e5634262b05d145a4ae979cfe74202c7b52f9b958b4"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupMatchSeats.ets",
+      "sha256": "e38807d5742b63e31158f9eb964896f66afa8801c8b3068ca2a21fd03351ad64"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupReportDialog.ets",
+      "sha256": "c46a832c5945ad38b5422c5312a589a40735ce772c1497d5974c49492bba97ff"
+    },
+    {
+      "path": "/Users/yangyang/Desktop/jifenqi/jifen-hos/entry/src/main/ets/pages/group/components/GroupTemporaryMemberDialog.ets",
+      "sha256": "e0f15414ab7bbd45cffd74737df743e3e8a4eb29a7ef040753f86a97e976e26e"
+    }
+  ]
+}

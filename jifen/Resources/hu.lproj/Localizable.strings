@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "Társasjátékok";
 "search_team_or_game" = "Csapat vagy játék keresése";
 "match_count" = "%d mérkőzés";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d mérkőzés · a csoport összes tagja";
+"archived_count" = "%d csoport";
 
 /* Home Screen */
 "recent_records" = "Legutóbbi előzmények";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "pl. mind az öt játszma lejátszása; a mérkőzés döntetlenre is végződhet";
 "match_completion_custom_placeholder" = "Írja be az 1-99 értéket";
 "match_completion_invalid_sets" = "Klasszikus módban 1–99 közötti páratlan szám szükséges; a Mind lejátszása mód 1–99 közötti számot fogad el.";
+"setup_auto_odd_sets" = "Csak páratlan szám adható meg — %d lesz használva";
 "has_been_reset" = "Visszaállítás kész";
 "no_undo_available" = "Nincs visszavonás";
 "screenshot_failed" = "A képernyőkép nem sikerült";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "Aktív szinkronizálási munkamenet";
 "timer_status_running" = "Folyamatban";
 "timer_status_paused" = "Szüneteltetve";
-"membership_entry_summary_active" = "Ön VIP tag. Köszönjük a támogatást";
+"membership_entry_summary_active" = "Aktív VIP-tagság";
 "sound_effects" = "Hangeffektusok";
 "vibration" = "Rezgés";
 "language" = "Nyelv";
@@ -1579,7 +1580,7 @@
 "group_approval" = "Jóváhagyás szükséges";
 "group_approve" = "Jóváhagyás";
 "group_archive" = "Csoport archiválása";
-"group_archive_hint" = "Az archiválás megőrzi az összes előzményt, és szünetelteti a csoport módosításait. A csoport később visszaállítható.";
+"group_archive_hint" = "Archiválod ezt a csoportot? A tartalma csak olvasható lesz.";
 "group_archive_readonly" = "Ez a csoport archiválva van. Az előzmények csak olvashatók.";
 "group_archived" = "Archiválva";
 "group_benefit_activity" = "Események tervezése és jelentkezés";
@@ -1624,38 +1625,38 @@
 "group_invalid_qr" = "Ez nem érvényes csoport-QR-kód.";
 "group_invalid_result" = "A rögzített eredményt feltöltés előtt ellenőrizni kell.";
 "group_invalid_rules" = "Ellenőrizd a mérkőzés szabályait.";
-"group_invite" = "Invite";
+"group_invite" = "Csapattársak meghívása";
 "group_join" = "Csatlakozás csoporthoz";
 "group_join_hint" = "Csatlakozz egy barátod csoportjához a számával vagy QR-kódjával.";
-"group_join_message" = "Üzenet a csoportnak (nem kötelező)";
-"group_join_policy" = "Csatlakozás";
+"group_join_message" = "Csatlakozási kérelem üzenete (nem kötelező)";
+"group_join_policy" = "Csatlakozási lehetőségek";
 "group_leave" = "Csoport elhagyása";
-"group_leave_hint" = "Elveszíted a hozzáférést ehhez a csoporthoz. Személyes feljegyzéseid ezen az eszközön maradnak.";
+"group_leave_hint" = "Kilépés után nem leszel a csoport tagja, és a csoport eltűnik a „Saját csoportjaim” listából. Többé nem férhetsz hozzá, és nem vehetsz részt a csoport tevékenységeiben. A csoport meglévő mérkőzésadatai és az eszközön tárolt személyes feljegyzéseid megmaradnak. Az újbóli hozzáféréshez ismét csatlakoznod kell.";
 "group_load_failed" = "A csoport nem tölthető be";
 "group_load_more" = "Továbbiak betöltése";
 "group_losses" = "vereségek";
 "group_manual" = "Kézi bevitel";
-"group_manual_result" = "Korábbi mérkőzés hozzáadása";
+"group_manual_result" = "Mérkőzéseredmény hozzáadása";
 "group_match_detail" = "Mérkőzés részletei";
 "group_match_log" = "Mérkőzéselőzmények";
 "group_match_rules" = "Mérkőzésszabályok";
 "group_member" = "Tag";
 "group_member_name" = "Tag neve";
-"group_members" = "Tagok";
+"group_members" = "Tag";
 "group_month_matches" = "Mérkőzések ebben a hónapban";
 "group_my_groups" = "Saját csoportjaim";
 "group_name" = "Csoport neve";
 "group_need_login" = "A folytatáshoz jelentkezz be.";
 "group_need_members" = "A mérkőzés indítása előtt hívj meg barátokat vagy adj hozzá ideiglenes tagokat.";
-"group_new_activity" = "Esemény tervezése";
+"group_new_activity" = "Esemény létrehozása";
 "group_new_owner" = "Új tulajdonos";
 "group_no_activities" = "Még nincs esemény";
 "group_no_description" = "Még nincs leírás";
 "group_no_rankings" = "A ranglisták a mérkőzés megerősítése után jelennek meg.";
 "group_no_set_details" = "Csak az összesített eredményt rögzítették.";
-"group_note" = "Eseményjegyzet (nem kötelező)";
-"group_number" = "6–8 digit group number";
-"group_open" = "A szám ismeretében bárki csatlakozhat";
+"group_note" = "Megjegyzés (nem kötelező)";
+"group_number" = "6–8 számjegyű csoportszám";
+"group_open" = "Közvetlen csatlakozás";
 "group_overall_score" = "Összesített szetteredmény";
 "group_overview" = "Áttekintés";
 "group_owner" = "Tulajdonos";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "Tag eltávolítása";
 "group_restore" = "Csoport visszaállítása";
 "group_restore_hint" = "Állítsd vissza a csoportot az események és a pontozás engedélyezéséhez.";
-"group_results" = "Mérkőzések";
+"group_results" = "Előzmények";
 "group_retry" = "Próbáld újra";
 "group_rules_missing" = "A szabályokat nem rögzítették";
-"group_save" = "Erősítse meg";
+"group_save" = "Mentés";
 "group_save_failed" = "A mérkőzést nem sikerült menteni. Próbáld újra.";
 "group_scan" = "QR-kód beolvasása";
 "group_scoreboard" = "Eredményjelző";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "Folytasd vagy fejezd be a jelenlegi mérkőzést, mielőtt újat indítasz.";
 "group_unregister" = "Jelentkezés lemondása";
 "group_void_reason" = "Érvénytelenítés oka";
-"group_void_result" = "Eredmény érvénytelenítése";
+"group_void_result" = "Érvénytelenítés";
 "group_voided" = "Érvénytelenítve";
 "group_wins" = "győzelmek";
 "group_withdraw" = "Kérelem visszavonása";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "Már tag vagy.";
 "group_open_group" = "Csoport megnyitása";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
+"group_groups" = "Csoport";
+"group_invite_students" = "Tanulók meghívása";
+"group_group_type" = "Csoport típusa";
+"group_peer" = "Baráti csoport";
+"group_coaching" = "Edzői csoport";
+"group_training" = "Edzés";
+"group_upcoming" = "Közelgő";
+"group_latest_results" = "Legutóbbi eredmények";
+"group_no_results" = "Még nincs rögzített mérkőzés";
+"group_no_training" = "Még nincs tervezett edzés";
+"group_active_activities" = "Folyamatban · Nyitott jelentkezés";
+"group_past_activities" = "Korábbi események";
+"group_all_formats" = "Minden játékmód";
+"group_join_requests" = "Csatlakozási kérelmek";
+"group_regular_members" = "Jelentkezett tagok";
+"group_temporary_members" = "Ideiglenes tagok";
+"group_add" = "Hozzáadás";
+"group_leader" = "Tulajdonos";
+"group_member_settings" = "Tag beállításai";
+"group_settings" = "Csoportkezelés";
+"group_partial_load" = "Néhány rész nem frissült. Húzd lefelé az újrapróbáláshoz.";
+"group_leave_notices" = "Tanulók hiányzásjelzései";
+"group_mark_seen" = "Olvasott";
+"group_training_schedule" = "Edzésbeosztás";
+"group_add_session" = "Mérkőzés hozzáadása";
+"group_edit_schedule" = "Beosztás szerkesztése";
+"group_cancel_schedule" = "Beosztás lemondása";
+"group_leave_training" = "Hiányzás jelzése";
+"group_session_minutes" = "Perc mérkőzésenként";
+"group_court" = "Pálya";
+"group_remove_session" = "Eltávolítás";
+"group_publish_schedule" = "Beosztás közzététele";
+"group_leave_reason" = "Hiányzás oka (nem kötelező)";
+"group_report" = "Csoport jelentése";
+"group_report_reason" = "Ok";
+"group_report_detail" = "Részletek (nem kötelező)";
+"group_report_submit" = "Küldés";
 "group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
-"group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_report_harassment" = "Zaklatás";
+"group_report_inappropriate" = "Szexuális vagy nem megfelelő tartalom";
+"group_report_fraud" = "Csalás vagy szerencsejáték";
+"group_report_illegal" = "Illegális vagy veszélyes tevékenység";
+"group_report_impersonation" = "Más személynek kiadás";
+"group_report_other" = "Egyéb";
+"group_lineup_invalid" = "Ellenőrizd az időpontokat, pályákat és játékosokat.";
+"group_lineup_member_limit" = "Egy tag beosztásonként legfeljebb nyolc mérkőzésen játszhat.";
+"group_lineup_conflict" = "Az egyidejű mérkőzésekhez külön pályák és játékosok szükségesek.";
+"group_multi_match_hint" = "Egy esemény több mérkőzést is tartalmazhat. A tagok az eseményre jelentkeznek; a beosztásnál minden egyéni mérkőzéshez 2, pároshoz 4 jelentkezőt válassz.";
+"group_single_match_hint" = "Minden esemény egy mérkőzésnek felel meg. Egyénihez 2, pároshoz 4 jelentkező tagot válassz.";
+"group_rate_limited" = "Túl sok kérés. Próbáld később.";
+"group_create_daily_limit" = "Elérted a csoportlétrehozás 24 órás korlátját. Próbáld később.";
+"group_join_daily_limit" = "Elérted a csoportcsatlakozás 24 órás korlátját. Próbáld később.";
+"group_pending_request_limit" = "Túl sok kérelem vár jóváhagyásra. Várj a döntésre, vagy vonj vissza néhányat.";
+"group_request_daily_limit" = "A csoport elérte a csatlakozási kérelmek 24 órás korlátját. Próbáld később.";
+"group_join_cooldown" = "Elutasítás után 24 óráig nem jelentkezhetsz újra.";
+"group_result_group_daily_limit" = "A csoport elérte az eredmények 24 órás korlátját. Próbáld később.";
+"group_result_submitter_daily_limit" = "Elérted az eredménybeküldés 24 órás korlátját. Próbáld később.";
+"group_not_coach" = "Csak az edző tervezhet edzéseket.";
+"group_activity_count" = "%1$d/%2$d jelentkező";
+"group_activity_create_admin_hint" = "Az eseményeket a csoport tulajdonosa vagy egy adminisztrátor hozza létre";
+"group_activity_direct_hint" = "Válassz közvetlenül az összes aktív csoporttag közül; jelentkezés nem szükséges.";
+"group_activity_direct_save" = "Beosztás mentése";
+"group_activity_direct_title" = "Beosztás most";
+"group_activity_field_title_optional" = "Esemény neve (nem kötelező)";
+"group_activity_full" = "Betelt";
+"group_activity_lineup_add" = "Mérkőzés hozzáadása";
+"group_activity_lineup_add_need_members" = "Nincs elég játékos. Egy mérkőzés hozzáadásához legalább %1$d aktív csoporttag kell.";
+"group_activity_lineup_court" = "Pályaszám";
+"group_activity_lineup_duration" = "Mérkőzés időtartama";
+"group_activity_lineup_match_count" = "%1$d mérkőzés";
+"group_activity_lineup_minutes" = "%1$d perc";
+"group_activity_lineup_remove" = "Eltávolítás";
+"group_activity_lineup_section_matches" = "Mérkőzések beosztása";
+"group_activity_lineup_session" = "%1$d. mérkőzés";
+"group_activity_registration_empty" = "Nincsenek ideiglenes tagok";
+"group_activity_section_count" = "%1$d esemény";
+"group_activity_section_past" = "Korábbi események";
+"group_activity_section_upcoming" = "Folyamatban · Nyitott jelentkezés";
+"group_activity_status_scheduled" = "Kezdésre kész";
+"group_activity_time_after_previous" = "Az előző mérkőzés után";
+"group_activity_time_unspecified" = "Időpont később";
+"group_activity_timing" = "Időzítés";
+"group_activity_timing_estimated" = "Becsült időpont";
+"group_activity_timing_sequence" = "Pontos időpont nélkül";
+"group_activity_title_auto_hint" = "Üres mező esetén a név a dátumból készül, például „November 10-i esemény”.";
+"group_archived_empty" = "Nincs archivált csoport";
+"group_archived_list_title" = "Archivált csoportok";
+"group_empty_activities_title" = "Még nincs esemény";
+"group_list_add_title" = "Csoport létrehozása vagy csatlakozás";
+"group_ranking_draws" = "döntetlenek";
+"group_ranking_games" = "Lejátszott";
+"group_ranking_losses" = "vereségek";
+"group_ranking_sets" = "Pontszám";
+"group_ranking_title" = "%@ ranglistája";
+"group_ranking_wins" = "győzelmek";
+"group_training_results_locked" = "Az eredménnyel rendelkező beosztások ideje és játékosai rögzítettek. A helyszín és a megjegyzés módosítható.";
+"group_temporary_hint" = "Az ideiglenes tagoknak nem kell fiók, és az eredmények rögzítésekor hozzáadhatók.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "Mérkőzés felszabadítása";
+"group_abandon_game" = "Mérkőzés feladása";
 "group_activity_lineup" = "Mérkőzések beosztása";
-"group_activity_mode" = "Mérkőzések";
+"group_activity_mode" = "Előzmények";
 "group_activity_reminder" = "Emlékeztetés 15 perccel előtte";
 "group_add_set" = "Játék eredményének hozzáadása";
 "group_added_members" = "Hozzáadva";
-"group_authority_confirm" = "Megerősítés csoporttulajdonosként";
-"group_batch_names_hint" = "Soronként egy név, egyenként 1–24 karakter.";
-"group_beta_notice" = "A csoportok béta verzióban érhetők el. Várjuk a visszajelzéseket.";
+"group_authority_confirm" = "Eredmény megerősítése";
+"group_batch_names_hint" = "Soronként egy név";
+"group_beta_notice" = "A csoportok bétaállapotban vannak. Egyes funkciók változhatnak. Köszönjük, hogy már most kipróbálod.";
 "group_cancel_dissolve" = "Feloszlatás visszavonása";
 "group_cancel_dissolve_hint" = "Állítsd vissza a csoportot az események és a pontozás engedélyezéséhez.";
 "group_cancel_training_hint" = "A befejezett mérkőzések megmaradnak az előzményekben. A megkezdettek befejezhetők.";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "Sport alapértelmezett";
 "group_discard_upload" = "Feltöltés elvetése";
 "group_dissolve" = "Csoport feloszlatása";
-"group_dissolve_hint" = "7 napig csak olvasható. Ezalatt visszavonhatod a feloszlatást.";
+"group_dissolve_hint" = "A csoport 7 napig csak olvasható, és ezalatt visszavonható a feloszlatás. A 7 nap után a csoport és minden adata véglegesen törlődik.";
 "group_dissolving" = "Feloszlatás folyamatban";
 "group_edit_activity" = "Szerkesztés";
 "group_edit_lineup" = "Mérkőzések beosztása";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "Még nincs értesítés";
 "group_no_sessions" = "Még nincs beosztott mérkőzés";
 "group_notices" = "Értesítések";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "Néhány rész nem frissült. Húzd lefelé az újrapróbáláshoz.";
 "group_point_cap" = "Pontszám felső határa";
 "group_preview_schedule" = "Beosztás ellenőrzése";
 "group_published" = "Közzétéve";
 "group_qr_direct_hint" = "Olvassa be az iScoreboardban a csoport megtekintéséhez és a csatlakozáshoz.";
 "group_quick_score" = "Összesített szetteredmény";
 "group_rally_scoring" = "Minden labdamenetért pont";
-"group_read_notices" = "Read";
+"group_read_notices" = "Olvasott";
 "group_registration_closes" = "Jelentkezés lezárása";
 "group_regular" = "Normál";
-"group_reload_version" = "Legújabb változat betöltése";
+"group_reload_version" = "Újratöltés";
 "group_reminder_body" = "A program 15 perc múlva kezdődik.";
 "group_reminder_permission" = "Engedélyezd az app értesítéseit a Beállításokban.";
 "group_reminder_too_late" = "A kezdésig kevesebb mint 15 perc van.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "Játszma pontozása";
 "group_tie_break" = "Rövidítés pontszáma";
 "group_tiebreak_only" = "Csak rövidítés";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "Dátum";
+"group_too_many_sessions" = "Ellenőrizd az időpontokat, pályákat és játékosokat.";
+"group_training_date" = "Edzés dátuma";
 "group_win_by_two" = "Győzelem két pont különbséggel";
 
-"group_keep_draft" = "Módosításaim megtartása";
+"group_keep_draft" = "Helyi verzió szerkesztésének folytatása";
 
 "group_server_version" = "Legújabb verzió";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "A csoport feloszlatásának ideje: %@\n7 napos meggondolási idő; addig csak olvasható";
 "group_notice_end" = "Nincs több értesítés";
 "group_notice_join_requested" = "Csatlakozási kérelem érkezett";
 "group_notice_join_approved" = "A csatlakozási kérelmet jóváhagyták";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "Kézi bevitel";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "Mindet olvasottnak jelöl";
+
+"group_status_active" = "Aktív";
+"group_dissolved" = "Feloszlatva";
+"group_report_status_pending" = "Függőben";
+"group_report_status_reviewing" = "Felülvizsgálat alatt";
+"group_report_status_resolved" = "Megoldva";
+"group_report_status_dismissed" = "Elutasítva";
+"group_error_permission" = "Nincs jogosultságod ehhez a művelethez.";
+"group_error_transfer_first" = "Kilépés vagy fióktörlés előtt add át a csoport tulajdonjogát.";
+"group_error_target" = "Válassz egy aktív, fiókkal rendelkező csoporttagot.";
+"group_error_activity_locked" = "Az esemény már elkezdődött vagy véget ért. A beosztása nem módosítható és nem mondható le.";
+"group_error_activity_pending" = "Előbb fejezd be vagy távolítsd el a hátralévő mérkőzéseket.";
+"group_error_registration_disabled" = "A közvetlenül beosztott mérkőzésekhez nem kell jelentkezni.";
+"group_error_content_blocked" = "A szöveg nem megfelelő tartalmat tartalmaz. Módosítsd.";
+"group_error_request_invalid" = "Ellenőrizd a megadott adatokat, és próbáld újra.";
+"group_error_reason_required" = "A folytatáshoz adj meg egy okot.";
+"group_error_result_state" = "Csak a megerősítésre váró eredmények erősíthetők meg.";
+"group_error_conflict" = "Az adatok megváltoztak. Frissítsd és ellenőrizd őket az újrapróbálás előtt.";
+"group_error_request_handled" = "Ezt a kérelmet már feldolgozták. Frissítsd a listát.";
+"group_error_place_locked" = "Elkezdett vagy befejezett mérkőzés után a helyszín nem módosítható.";
+"group_error_schedule_cancelled" = "Ezt a beosztást vagy mérkőzést lemondták.";
+"group_error_session_completed" = "Ez a mérkőzés már véget ért, így nem kérhető távollét. Az eredmény megtekintéséhez frissítsd a beosztást.";
+"group_error_session_has_result" = "A mérkőzésnek már van eredménye. Új hozzáadása előtt érvénytelenítsd azt.";
+"group_error_item_not_found" = "Ez az esemény, beosztás, mérkőzés vagy értesítés már nem érhető el. Frissítsd a listát.";
+"group_error_server" = "A csoportszolgáltatás átmenetileg nem érhető el. Próbáld újra később.";
+"group_error_peer_only" = "Edzői csoporthoz használd az edzéstervezést.";
+"group_error_name_length" = "A csoportnévnek 2–24 karaktert kell tartalmaznia.";
+"group_error_description_length" = "A csoportleírás legfeljebb 200 karakter lehet.";
+"group_error_activity_invalid" = "Ellenőrizd az esemény nevét, dátumát, helyszínét és létszámkorlátját.";
+"group_error_registration_closed" = "A jelentkezés lezárult.";
+"group_error_action_disabled" = "Ez a művelet jelenleg nem érhető el.";
+"group_error_update_required" = "A folytatáshoz frissítsd az alkalmazást.";
+"group_welcome_back" = "Üdv újra";
+"group_transfer_none" = "Nincs más rendes tag. Ideiglenes tag nem lehet a csoport vezetője.";
+"group_empty_activities_hint" = "Hozzon létre programot a tagoknak. A jelentkezés a létszám beteltével lezárul.";
+"group_temp_import_names" = "Mentett nevek importálása";
+"group_temp_import_count" = "Importálás (%1$d)";
+"group_result_information" = "Mérkőzés adatai";
+"group_result_actions" = "Eredményműveletek";
+"group_peer_confirmation" = "Ellenfél megerősítése";
+"group_notice_target_unavailable" = "Ez a tartalom nem érhető el, vagy már nincs hozzáférésed.";
+"group_push_enabled" = "Csoportértesítések";
+"group_push_group_enabled" = "A csoport értesítéseinek fogadása";
+"group_push_inbox_kept" = "A kikapcsolás megőrzi az alkalmazáson belüli értesítéseket és a meglévő tevékenységemlékeztetőket.";
+"group_push_permission" = "Rendszerértesítések engedélyezése";
+"group_push_settings" = "Értesítési beállítások";
+
+// Shared group form controls
+"group_inline_seat_hint" = "Válassz helyet, majd tagot";
+"group_score_and_rules" = "Eredmény és szabályok";
+"group_activity_registration_scope" = "Itt jelentkeztesd az ideiglenes tagokat. A fiókkal rendelkező tagok maguk jelentkeznek.";
+"group_activity_registration_no_changes" = "Nincs nem mentett módosítás";
+"group_activity_registration_changes" = "Hozzáadás %1$d · Lemondás %2$d";
+"group_activity_registration_save" = "Jelentkezések mentése (%1$d)";
+"group_activity_registration_manage" = "Ideiglenes tagok jelentkezése";
+"group_activity_registration_pending_add" = "Jelentkezésre vár";
+"group_activity_registration_pending_remove" = "Lemondásra vár";
+"group_activity_registration_registered" = "Jelentkezett";
+"group_activity_registration_not_registered" = "Nem jelentkezett";
+"group_activity_detail" = "Tevékenység részletei";
+"group_activity_my_registration" = "Jelentkezésem";
+"group_match_score" = "Mérkőzés eredménye";
+
+"group_lookup_available" = "Nyitott";
+
+/* Group beta notice card. */
+"group_beta_badge" = "Béta";
+"group_beta_supported_label" = "Már elérhető";
+"group_beta_feedback_prompt" = "Probléma vagy javaslat?";
+"group_beta_feedback_action" = "Visszajelzés küldése";
+
+"group_member_results_title" = "Tag eredményei";
+
+"group_removed_members_expand" = "Kibontás";
+"group_removed_members_collapse" = "Összecsukás";
+"group_best_of_format" = "%1$@ közül %2$@ győzelemig";
+"group_member_count_single" = "%d tag";
+"group_member_count_short" = "%d tag";
+"group_lookup_closed_short" = "Lezárva";
+"group_lookup_closing_short" = "Feloszlatás alatt";
+"group_lookup_member_short" = "Már csatlakoztál";
+"group_lookup_unavailable_short" = "Nem érhető el";
+"group_join_scan_hint" = "Olvasd be a csoport QR-kódját";
+"group_join_number_hint" = "6–8 számjegy. Kérd el a csoport tulajdonosától.";
+"group_request_join" = "Csatlakozás kérelmezése";
+"group_overdue_tasks" = "Lejárt feladatok";
+"group_apply_shift" = "Módosítások alkalmazása";
+"group_transfer_submit" = "Átruházás";
+"group_rename_member" = "Átnevezés";
+"group_set_admin" = "Adminisztrátorrá tesz";
+"group_set_member" = "Adminisztrátori szerep eltávolítása";
+"group_confirm_authority_message" = "Minden játékos ideiglenes tag, vagy az ellenfél oldalán nincs fiókkal rendelkező játékos, aki megerősíthet. A tulajdonosnak ellenőriznie kell a játékosokat és az eredményt. A megerősített eredmény bekerül a nyilvántartásba, és a tulajdonos lesz a megerősítő.";
+"group_confirm_result_message" = "Megerősítés után az eredmény mindkét fél nyilvántartásába beleszámít és nem szerkeszthető. Javításhoz előbb érvényteleníteni kell.";
+"group_confirm_member_message" = "Erősítsd meg a játékosokat és az eredményt a nyilvántartáshoz. Javítás esetén kérj meg egy kezelőt az eredeti eredmény érvénytelenítésére.";
+"group_cancel_activity_message" = "A lemondás végleg törli a jelentkezési listát. Folyamatban lévő esemény nem mondható le.";
+"group_abandon_game_message" = "Add fel ezt a mérkőzést egy másik indításához. A mentett személyes adatok megmaradnak.";
+"group_void_pending_message" = "Az eredmény nem vár többé megerősítésre és nem számít bele a statisztikába. Az eredeti pontszám és az ok látható marad a csoporttagoknak. A játékosok és a beküldő értesítést kapnak.";
+"group_void_confirmed_message" = "Az eredmény többé nem számít bele a statisztikába. Mindkét fél statisztikái és rangsorai újraszámolódnak. Az eredeti pontszám és az ok látható marad a csoporttagoknak. A játékosok és a beküldő értesítést kapnak.";
+"group_remove_member_message" = "Eltávolítod a következő tagot: %@? Újra kérnie kell a csatlakozást.";
+"group_reload_version_message" = "Elveted a mérkőzésbeosztás nem mentett módosításait, és betöltöd a legutóbb mentett beosztást?";
+"group_transfer_confirmation" = "Átruházod a tulajdonjogot a következő tagra: %@? Egyszerű taggá válsz.";
+"group_approve_confirmation" = "%@ csoporttag lesz, és láthatja az eseményeket és eredményeket.";
+"group_reject_confirmation" = "Elutasítás után %@ új kérelmet kell hogy küldjön.";
+"group_lookup_full_short" = "Betelt";
+"group_lookup_archived_short" = "Archiválva";
+"group_lookup_pending_short" = "Függőben";
+"group_temporary_member_count" = "%d tag";
+"group_best_of_tennis_format" = "%1$@ közül %2$@ győzelemig";
+"group_rename_member_title" = "Átnevezés";
+
+"group_copy_transfer_title" = "Tulajdonjog átadása";
+
+"group_copy_transfer_submit" = "Átruházás";
+
+"group_copy_transfer_message" = "Átruházod a tulajdonjogot a következő tagra: %@? Egyszerű taggá válsz.";
+
+"group_copy_transfer_hint" = "Az átadás után rendes tag leszel.";
+
+"group_copy_rename_title" = "Átnevezés";
+
+"group_copy_rename_action" = "Átnevezés";
+
+"group_copy_result_confirm" = "Eredmény megerősítése";
+
+"group_copy_result_confirm_authority_message" = "Minden játékos ideiglenes tag, vagy az ellenfél oldalán nincs fiókkal rendelkező játékos, aki megerősíthet. A tulajdonosnak ellenőriznie kell a játékosokat és az eredményt. A megerősített eredmény bekerül a nyilvántartásba, és a tulajdonos lesz a megerősítő.";
+
+"group_copy_result_confirm_manager_message" = "Megerősítés után az eredmény mindkét fél nyilvántartásába beleszámít és nem szerkeszthető. Javításhoz előbb érvényteleníteni kell.";
+
+"group_copy_result_confirm_member_message" = "Erősítsd meg a játékosokat és az eredményt a nyilvántartáshoz. Javítás esetén kérj meg egy kezelőt az eredeti eredmény érvénytelenítésére.";
+
+"group_copy_void_action" = "Érvénytelenítés";
+
+"group_copy_void_pending_message" = "Az eredmény nem vár többé megerősítésre és nem számít bele a statisztikába. Az eredeti pontszám és az ok látható marad a csoporttagoknak. A játékosok és a beküldő értesítést kapnak.";
+
+"group_copy_void_confirmed_message" = "Az eredmény többé nem számít bele a statisztikába. Mindkét fél statisztikái és rangsorai újraszámolódnak. Az eredeti pontszám és az ok látható marad a csoporttagoknak. A játékosok és a beküldő értesítést kapnak.";
+
+"group_copy_cancel_activity" = "Esemény lemondása";
+
+"group_copy_cancel_activity_message" = "A lemondás végleg törli a jelentkezési listát. Folyamatban lévő esemény nem mondható le.";
+
+"group_copy_abandon_action" = "Mérkőzés feladása";
+
+"group_copy_abandon_message" = "Add fel ezt a mérkőzést egy másik indításához. A mentett személyes adatok megmaradnak.";
+
+"group_copy_leave_action" = "Csoport elhagyása";
+
+"group_copy_leave_message" = "Kilépés után nem leszel a csoport tagja, és a csoport eltűnik a „Saját csoportjaim” listából. Többé nem férhetsz hozzá, és nem vehetsz részt a csoport tevékenységeiben. A csoport meglévő mérkőzésadatai és az eszközön tárolt személyes feljegyzéseid megmaradnak. Az újbóli hozzáféréshez ismét csatlakoznod kell.";
+
+"group_copy_archive_action" = "Csoport archiválása";
+
+"group_copy_archive_message" = "Archiválod ezt a csoportot? A tartalma csak olvasható lesz.";
+
+"group_copy_dissolve_action" = "Csoport feloszlatása";
+
+"group_copy_dissolve_message" = "A csoport 7 napig csak olvasható, és ezalatt visszavonható a feloszlatás. A 7 nap után a csoport és minden adata véglegesen törlődik.";
+
+"group_copy_approve_action" = "Jóváhagyás";
+
+"group_copy_approve_message" = "%@ csoporttag lesz, és láthatja az eseményeket és eredményeket.";
+
+"group_copy_reject_action" = "Elutasítás";
+
+"group_copy_reject_message" = "Elutasítás után %@ új kérelmet kell hogy küldjön.";
+
+"group_copy_remove_action" = "Tag eltávolítása";
+
+"group_copy_remove_message" = "Eltávolítod a következő tagot: %@? Újra kérnie kell a csatlakozást.";
+
+"group_copy_report_detail" = "Részletek (nem kötelező)";
+
+"group_copy_edit_profile" = "Csoportprofil szerkesztése";
+
+"group_copy_entry_a_wins" = "A nyer";
+
+"group_copy_entry_b_wins" = "B nyer";
+
+"group_copy_activity_timing_sequence" = "Pontos időpont nélkül";
+
+"group_copy_activity_registration_manage" = "Ideiglenes tagok jelentkezése";
+
+"group_copy_temporary_hint" = "Az ideiglenes tagoknak nem kell fiók, és az eredmények rögzítésekor hozzáadhatók.";
+
+"group_copy_activity_registration_scope" = "Itt jelentkeztesd az ideiglenes tagokat. A fiókkal rendelkező tagok maguk jelentkeznek.";
+
+"group_copy_report" = "Csoport jelentése";
+
+"group_copy_notice_member_removed" = "Eltávolították a csoportból";
+
+"group_copy_notice_role_changed" = "A szerepköre megváltozott";
+
+"group_copy_activity_direct_save" = "Beosztás mentése";
+
+"group_copy_notice_join_approved" = "A csatlakozási kérelmet jóváhagyták";
+
+"group_copy_notice_join_rejected" = "A csatlakozási kérelmet elutasították";
+
+"group_copy_all_formats" = "Minden játékmód";
+
+"group_copy_closed" = "Csatlakozás lezárva";
+
+"group_copy_report_other" = "Egyéb";
+
+"group_copy_report_impersonation" = "Más személynek kiadás";
+
+"group_copy_audit_ui_share_failed" = "A megosztás nem sikerült. Próbáld újra.";
+
+"group_copy_audit_ui_share_number" = "Csoportszám megosztása";
+
+"group_copy_create" = "Csoport létrehozása";
+
+"group_copy_confirm_join" = "Csatlakozás ehhez a csoporthoz";
+
+"group_copy_join" = "Csatlakozás csoporthoz";
+
+"group_copy_join_policy" = "Csatlakozási lehetőségek";
+
+"group_copy_filter_singles" = "Egyes";
+
+"group_copy_upcoming" = "Közelgő";
+
+"group_copy_activity_section_past" = "Korábbi események";
+
+"group_copy_beta_feedback_action" = "Visszajelzés küldése";
+
+"group_copy_doubles" = "Páros";
+
+"group_copy_create_activity" = "Esemény létrehozása";
+
+"group_copy_benefit_activity" = "Események tervezése és jelentkezés";
+
+"group_copy_empty_activities_hint" = "Hozzon létre programot a tagoknak. A jelentkezés a létszám beteltével lezárul.";
+
+"group_copy_lookup_available" = "Nyitott";
+
+"group_copy_activity_direct_hint" = "Válassz közvetlenül az összes aktív csoporttag közül; jelentkezés nem szükséges.";
+
+"group_copy_empty_intro" = "Hívd össze barátaidat mérkőzések tervezéséhez, pontozáshoz és közös előzmények létrehozásához.";
+
+"group_copy_place" = "Hely";
+
+"group_copy_ranking_games" = "Lejátszott";
+
+"group_copy_ranking_insufficient_matches" = "Túl kevés mérkőzés";
+
+"group_copy_report_spam" = "Spam";
+
+"group_copy_report_status_reviewing" = "Felülvizsgálat alatt";
+
+"group_copy_note" = "Megjegyzés (nem kötelező)";
+
+"group_copy_peer_confirmation" = "Ellenfél megerősítése";
+
+"group_copy_activity_lineup_section_matches" = "Mérkőzések beosztása";
+
+"group_copy_group" = "Csoport";
+
+"group_copy_group_qr" = "Csoport QR-kódja";
+
+"group_copy_beta_notice" = "A csoportok bétaállapotban vannak. Egyes funkciók változhatnak. Köszönjük, hogy már most kipróbálod.";
+
+"group_copy_created" = "Csoport létrehozva";
+
+"group_copy_ranking_sets" = "Pontszám";
+
+"group_copy_removed_members_expand" = "Kibontás";
+
+"group_copy_voided" = "Érvénytelenítve";
+
+"group_copy_cancelled" = "Törölve";
+
+"group_copy_report_status_resolved" = "Megoldva";
+
+"group_copy_completed" = "Befejezve";
+
+"group_copy_archived" = "Archiválva";
+
+"group_copy_archived_list_title" = "Archivált csoportok";
+
+"group_copy_activity_registration_registered" = "Jelentkezett";
+
+"group_copy_activity_full" = "Betelt";
+
+"group_copy_confirmed" = "Megerősítve";
+
+"group_copy_removed_members" = "Korábbi tagok";
+
+"group_copy_mark_seen" = "Olvasott";
+
+"group_copy_report_status_dismissed" = "Elutasítva";
+
+"group_copy_draws" = "döntetlenek";
+
+"group_copy_draw" = "Döntetlen";
+
+"group_copy_start_score" = "Pontozás indítása";
+
+"group_copy_pending_upload" = "Feltöltésre vár";
+
+"group_copy_activity_registration_pending_remove" = "Lemondásra vár";
+
+"group_copy_report_status_pending" = "Függőben";
+
+"group_copy_lookup_pending_short" = "Függőben";
+
+"group_copy_pending_request_limit" = "Túl sok kérelem vár jóváhagyásra. Várj a döntésre, vagy vonj vissza néhányat.";
+
+"group_copy_activity_registration_pending_add" = "Jelentkezésre vár";
+
+"group_copy_pending_confirmation" = "Megerősítésre vár";
+
+"group_copy_lookup_closing_short" = "Feloszlatás alatt";
+
+"group_copy_restore" = "Csoport visszaállítása";
+
+"group_copy_member" = "Tag";
+
+"group_copy_member_results_title" = "Tag eredményei";
+
+"group_copy_my_groups" = "Saját csoportjaim";
+
+"group_copy_activity_my_registration" = "Jelentkezésem";
+
+"group_copy_activity_mode" = "Előzmények";
+
+"group_copy_qr_join_short" = "Beolvasás a csatlakozáshoz";
+
+"group_copy_qr_apply_short" = "Beolvasás a csatlakozási kérelemhez";
+
+"group_copy_register" = "Jelentkezés";
+
+"group_copy_recruiting" = "Jelentkezés nyitva";
+
+"group_copy_registration_closes" = "Jelentkezés lezárása";
+
+"group_copy_activity_time_after_previous" = "Az előző mérkőzés után";
+
+"group_copy_report_submit" = "Küldés";
+
+"group_copy_submitted_by" = "Beküldte";
+
+"group_copy_cancel_dissolve" = "Feloszlatás visszavonása";
+
+"group_copy_notice_join_requested" = "Csatlakozási kérelem érkezett";
+
+"group_copy_removed_members_collapse" = "Összecsukás";
+
+"group_copy_discard_upload" = "Feltöltés elvetése";
+
+"group_copy_notice_activity_created" = "Esemény létrehozva";
+
+"group_copy_activity_time_unspecified" = "Időpont később";
+
+"group_copy_activity_registration_empty" = "Nincsenek ideiglenes tagok";
+
+"group_copy_transfer_none" = "Nincs más rendes tag. Ideiglenes tag nem lehet a csoport vezetője.";
+
+"group_copy_archived_empty" = "Nincs archivált csoport";
+
+"group_copy_empty_activities_title" = "Még nincs esemény";
+
+"group_copy_latest_results" = "Legutóbbi eredmények";
+
+"group_copy_disputed" = "Vitatott";
+
+"group_copy_activity_registration_not_registered" = "Nem jelentkezett";
+
+"group_copy_month_matches" = "Mérkőzések ebben a hónapban";
+
+"group_copy_open_group" = "Csoport megnyitása";
+
+"group_copy_benefit_history" = "Mérkőzések és ranglisták megtekintése";
+
+"group_copy_overview" = "Áttekintés";
+
+"group_copy_welcome_back" = "Üdv újra";
+
+"group_copy_regular_members" = "Jelentkezett tagok";
+
+"group_copy_rally_scoring" = "Minden labdamenetért pont";
+
+"group_copy_result_information" = "Mérkőzés adatai";
+
+"group_copy_match_score" = "Mérkőzés eredménye";
+
+"group_copy_match_rules" = "Mérkőzésszabályok";
+
+"group_copy_activity_registration_no_changes" = "Nincs nem mentett módosítás";
+
+"group_copy_activities" = "Események";
+
+"group_copy_activity_title" = "Esemény neve";
+
+"group_copy_activity_field_title_optional" = "Esemény neve (nem kötelező)";
+
+"group_copy_notice_activity_changed" = "Az esemény frissült";
+
+"group_copy_notice_activity_cancelled" = "Az esemény törölve";
+
+"group_copy_activity_lineup" = "Mérkőzések beosztása";
+
+"group_copy_activity_create_admin_hint" = "Az eseményeket a csoport tulajdonosa vagy egy adminisztrátor hozza létre";
+
+"group_copy_beta_badge" = "Béta";
+
+"group_copy_add_set" = "Játék eredményének hozzáadása";
+
+"group_copy_add_temporary" = "Ideiglenes tag hozzáadása";
+
+"group_copy_benefit_score" = "Pontozás vagy korábbi eredmények hozzáadása";
+
+"group_copy_request_join" = "Csatlakozás kérelmezése";
+
+"group_copy_join_message" = "Csatlakozási kérelem üzenete (nem kötelező)";
+
+"group_copy_beta_supported_label" = "Már elérhető";
+
+"group_copy_open" = "Közvetlen csatlakozás";
+
+"group_copy_activity_direct_title" = "Beosztás most";
+
+"group_copy_admin" = "Adminisztrátor";
+
+"group_copy_confirmed_matches" = "Megerősített mérkőzések";
+
+"group_copy_leader" = "Tulajdonos";
+
+"group_copy_notice_ownership_transferred" = "A csoport tulajdonosa megváltozott";
+
+"group_copy_complete_activity" = "Program befejezése";
+
+"group_copy_keep_draft" = "Helyi verzió szerkesztésének folytatása";
+
+"group_copy_ranking_wins" = "győzelmek";
+
+"group_copy_ranking_rate" = "Győzelmi arány";
+
+"group_copy_report_inappropriate" = "Szexuális vagy nem megfelelő tartalom";
+
+"group_copy_update_report" = "Jelentés frissítése";
+
+"group_copy_manual_result" = "Mérkőzéseredmény hozzáadása";
+
+"group_copy_set_admin" = "Adminisztrátorrá tesz";
+
+"group_copy_activity_timing_estimated" = "Becsült időpont";
+
+"group_copy_losses" = "vereségek";
+
+"group_copy_notice_result_voided" = "Az eredmény érvénytelenítve";
+
+"group_copy_notice_result_confirmed" = "Az eredmény megerősítve";
+
+"group_copy_notice_result_pending" = "Az eredmény megerősítésre vár";
+
+"group_copy_result_actions" = "Eredményműveletek";
+
+"group_copy_empty_title" = "Még nincs csoport";
+
+"group_copy_in_progress" = "Folyamatban";
+
+"group_copy_report_illegal" = "Illegális vagy veszélyes tevékenység";
+
+"group_copy_join_hint" = "Csatlakozz egy barátod csoportjához a számával vagy QR-kódjával.";
+
+"group_copy_overdue_tasks" = "Lejárt feladatok";
+
+"group_copy_beta_feedback_prompt" = "Probléma vagy javaslat?";
+
+"group_copy_invite" = "Csapattársak meghívása";
+
+"group_copy_retry" = "Próbáld újra";
+
+"group_copy_approval" = "Jóváhagyás szükséges";
+
+"group_copy_sport" = "Sport";
+
+"group_copy_report_harassment" = "Zaklatás";
+
+"group_copy_ranking_me_suffix" = " (én)";
+
+"group_copy_places_title" = "Válassza ki a helyet";
+
+"group_copy_report_fraud" = "Csalás vagy szerencsejáték";
+
+"group_copy_void_reason" = "Érvénytelenítés oka";
+
+"group_copy_reload_version" = "Újratöltés";
+
+"group_copy_lineup_reload_message" = "Elveted a mérkőzésbeosztás nem mentett módosításait, és betöltöd a legutóbb mentett beosztást?";
+
+"group_copy_join_number_separator" = "Vagy add meg a csoport számát";
+
+"group_copy_activity_multi_match_hint" = "Egy esemény több mérkőzést is tartalmazhat. A tagok az eseményre jelentkeznek; a beosztásnál minden egyéni mérkőzéshez 2, pároshoz 4 jelentkezőt válassz.";
+
+"group_copy_activity_single_match_hint" = "Minden esemény egy mérkőzésnek felel meg. Egyénihez 2, pároshoz 4 jelentkező tagot válassz.";
+
+"group_copy_activity_detail" = "Tevékenység részletei";
+
+"group_copy_registration_at_start" = "A program kezdetekor";
+
+"group_copy_registration_use_start" = "A program kezdési idejének használata";
+
+"group_copy_cancel_reason_optional" = "Lemondás oka (nem kötelező)";
+
+"group_copy_audit_result_frozen_info" = "Játékosok és szabályok megtekintése";
+"group_view_schedule" = "Mérkőzések megtekintése";
+"group_notice_training_published" = "Edzés közzétéve";
+"group_notice_training_changed" = "Edzés frissítve";
+"group_notice_training_cancelled" = "Edzés lemondva";
+"group_notice_leave_changed" = "Távollét frissítve";
+"group_report_evidence_title" = "Képes bizonyítékok (nem kötelező)";
+"group_report_evidence_hint" = "Legfeljebb 3 JPG- vagy PNG-kép, képenként legfeljebb 2 MB. Csak Ön és a platform láthatja őket.";
+"group_report_add_image" = "Kép hozzáadása";
+"group_report_retry" = "Újrapróbálás";
+"group_report_preview" = "Bizonyító kép";
+"group_report_supplement" = "Információk kiegészítése";
+"group_report_close" = "Bezárás";
+"group_report_remove_image" = "Kép eltávolítása";
+"group_report_image_error" = "Nem sikerült előkészíteni a képet. Próbáljon másik JPG- vagy PNG-képet.";
+"group_report_refresh" = "Állapot frissítése";

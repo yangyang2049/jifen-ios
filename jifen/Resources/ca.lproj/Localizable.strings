@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "Jocs de taula";
 "search_team_or_game" = "Cerca un equip o una partida";
 "match_count" = "%d partides";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d partits · tots els membres del grup";
+"archived_count" = "%d grup";
 
 /* Home Screen */
 "recent_records" = "Historial recent";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "p. ex. juga els cinc sets; el partit pot acabar en empat";
 "match_completion_custom_placeholder" = "Introduïu 1-99";
 "match_completion_invalid_sets" = "Clàssic requereix un nombre senar d’1 a 99; Juga tots els sets admet d’1 a 99.";
+"setup_auto_odd_sets" = "Només s'admeten nombres senars — s'utilitzarà %d";
 "has_been_reset" = "Restabliment completat";
 "no_undo_available" = "No hi ha cap acció per desfer";
 "screenshot_failed" = "La captura de pantalla ha fallat";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "Sessió de sincronització activa";
 "timer_status_running" = "En execució";
 "timer_status_paused" = "En pausa";
-"membership_entry_summary_active" = "Ets membre VIP. Gràcies pel teu suport";
+"membership_entry_summary_active" = "VIP actiu";
 "sound_effects" = "Efectes de so";
 "vibration" = "Vibració";
 "language" = "Idioma";
@@ -1579,7 +1580,7 @@
 "group_approval" = "Cal aprovació";
 "group_approve" = "Aprova";
 "group_archive" = "Arxiva el grup";
-"group_archive_hint" = "Arxivar conserva tot l'historial i atura els canvis al grup. El pots restaurar més endavant.";
+"group_archive_hint" = "Vols arxivar aquest grup? El contingut serà de només lectura.";
 "group_archive_readonly" = "Aquest grup està arxivat. L'historial és només de lectura.";
 "group_archived" = "Arxivat";
 "group_benefit_activity" = "Planifica activitats i inscriu-t'hi";
@@ -1624,38 +1625,38 @@
 "group_invalid_qr" = "Aquest codi QR de grup no és vàlid.";
 "group_invalid_result" = "Cal revisar el resultat registrat abans d'enviar-lo.";
 "group_invalid_rules" = "Comprova les regles de la partida.";
-"group_invite" = "Invite";
+"group_invite" = "Convida companys";
 "group_join" = "Uneix-te a un grup";
 "group_join_hint" = "Uneix-te al grup d'un amic amb el número o el codi QR.";
-"group_join_message" = "Missatge al grup (opcional)";
-"group_join_policy" = "Adhesió";
+"group_join_message" = "Missatge de sol·licitud d’entrada (opcional)";
+"group_join_policy" = "Opcions d’entrada";
 "group_leave" = "Surt del grup";
-"group_leave_hint" = "Perdràs l'accés a aquest grup. Els teus registres personals es quedaran en aquest dispositiu.";
+"group_leave_hint" = "En sortir, deixaràs de ser membre del grup i aquest s'eliminarà de «Els meus grups». Ja no hi podràs accedir ni participar-hi. Es conservaran els registres de partits del grup i els teus registres personals en aquest dispositiu. Per tornar-hi a accedir, t'hi hauràs de tornar a unir.";
 "group_load_failed" = "No s'ha pogut carregar el grup";
 "group_load_more" = "Carrega'n més";
 "group_losses" = "derrotes";
 "group_manual" = "Entrada manual";
-"group_manual_result" = "Afegeix una partida anterior";
+"group_manual_result" = "Afegeix un resultat";
 "group_match_detail" = "Detalls de la partida";
 "group_match_log" = "Historial de partides";
 "group_match_rules" = "Regles de la partida";
 "group_member" = "Membre";
 "group_member_name" = "Nom del membre";
-"group_members" = "Membres";
+"group_members" = "Membre";
 "group_month_matches" = "Partides d'aquest mes";
 "group_my_groups" = "Els meus grups";
 "group_name" = "Nom del grup";
 "group_need_login" = "Inicia la sessió per continuar.";
 "group_need_members" = "Convida amics o afegeix membres temporals abans de començar una partida.";
-"group_new_activity" = "Planifica una activitat";
+"group_new_activity" = "Crea una activitat";
 "group_new_owner" = "Nou propietari";
 "group_no_activities" = "Encara no hi ha activitats";
 "group_no_description" = "Encara no hi ha descripció";
 "group_no_rankings" = "Les classificacions apareixen després de confirmar una partida.";
 "group_no_set_details" = "Només s'ha registrat el resultat global.";
-"group_note" = "Nota de l'activitat (opcional)";
-"group_number" = "6–8 digit group number";
-"group_open" = "Qualsevol persona amb el número s'hi pot unir";
+"group_note" = "Nota (opcional)";
+"group_number" = "Número de grup de 6 a 8 dígits";
+"group_open" = "Uneix-t’hi directament";
 "group_overall_score" = "Puntuació total de sets";
 "group_overview" = "Resum";
 "group_owner" = "Propietari";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "Elimina el membre";
 "group_restore" = "Restaura el grup";
 "group_restore_hint" = "Restaura aquest grup per permetre activitats i puntuació.";
-"group_results" = "Partides";
+"group_results" = "Historial";
 "group_retry" = "Torna-ho a provar";
 "group_rules_missing" = "No s'han desat les regles";
-"group_save" = "Confirma";
+"group_save" = "Desa";
 "group_save_failed" = "No s'ha pogut desar la partida. Torna-ho a provar.";
 "group_scan" = "Escaneja el codi QR";
 "group_scoreboard" = "Marcador";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "Reprèn o acaba la partida actual abans de començar-ne una altra.";
 "group_unregister" = "Cancel·la la inscripció";
 "group_void_reason" = "Motiu d'anul·lació";
-"group_void_result" = "Anul·la el resultat";
+"group_void_result" = "Anul·la";
 "group_voided" = "Anul·lat";
 "group_wins" = "victòries";
 "group_withdraw" = "Retira la sol·licitud";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "Ja ets membre.";
 "group_open_group" = "Obre el grup";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
-"group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
+"group_groups" = "Grup";
+"group_invite_students" = "Convida alumnes";
+"group_group_type" = "Tipus de grup";
+"group_peer" = "Grup d’amics";
+"group_coaching" = "Grup d’entrenament";
+"group_training" = "Entrenament";
+"group_upcoming" = "Properament";
+"group_latest_results" = "Últims resultats";
+"group_no_results" = "Encara no hi ha partits registrats";
+"group_no_training" = "Encara no hi ha entrenaments programats";
+"group_active_activities" = "En curs · Inscripcions obertes";
+"group_past_activities" = "Activitats passades";
+"group_all_formats" = "Tots els formats";
+"group_join_requests" = "Sol·licituds d’accés";
+"group_regular_members" = "Membres inscrits";
+"group_temporary_members" = "Membres temporals";
+"group_add" = "Afegeix";
+"group_leader" = "Propietari";
+"group_member_settings" = "Configuració del membre";
+"group_settings" = "Gestió del grup";
+"group_partial_load" = "No s’han pogut actualitzar algunes seccions. Llisca avall per tornar-ho a provar.";
+"group_leave_notices" = "Avisos d’absència dels alumnes";
+"group_mark_seen" = "Llegit";
+"group_training_schedule" = "Programa d’entrenament";
+"group_add_session" = "Afegeix un partit";
+"group_edit_schedule" = "Edita la programació";
+"group_cancel_schedule" = "Cancel·la la programació";
+"group_leave_training" = "Comunica una absència";
+"group_session_minutes" = "Minuts per partit";
+"group_court" = "Pista";
+"group_remove_session" = "Elimina";
+"group_publish_schedule" = "Publica la programació";
+"group_leave_reason" = "Motiu de l’absència (opcional)";
+"group_report" = "Denuncia el grup";
+"group_report_reason" = "Motiu";
+"group_report_detail" = "Detalls (opcionals)";
+"group_report_submit" = "Envia";
+"group_report_spam" = "Correu brossa";
+"group_report_harassment" = "Assetjament";
+"group_report_inappropriate" = "Contingut sexual o inadequat";
+"group_report_fraud" = "Frau o apostes";
+"group_report_illegal" = "Activitat il·legal o perillosa";
+"group_report_impersonation" = "Suplantació d’identitat";
+"group_report_other" = "Altres";
+"group_lineup_invalid" = "Revisa els horaris, les pistes i els jugadors.";
+"group_lineup_member_limit" = "Cada membre pot jugar com a màxim vuit partits per programació.";
+"group_lineup_conflict" = "Els partits simultanis han de tenir pistes i jugadors diferents.";
+"group_multi_match_hint" = "Una activitat pot incloure diversos partits. Els membres s’inscriuen a l’activitat; en preparar els partits, tria 2 inscrits per a cada individual o 4 per a cada partit de dobles.";
+"group_single_match_hint" = "Cada activitat és un partit. Tria 2 membres inscrits per a individuals o 4 per a dobles.";
+"group_rate_limited" = "Massa sol·licituds. Torna-ho a provar més tard.";
+"group_create_daily_limit" = "Has arribat al límit de creació de grups en 24 hores. Torna-ho a provar més tard.";
+"group_join_daily_limit" = "Has arribat al límit d’entrada a grups en 24 hores. Torna-ho a provar més tard.";
+"group_pending_request_limit" = "Hi ha massa sol·licituds pendents. Espera una resposta o retira’n algunes.";
+"group_request_daily_limit" = "Aquest grup ha arribat al límit de sol·licituds d’accés en 24 hores. Torna-ho a provar més tard.";
+"group_join_cooldown" = "Cal esperar 24 hores després d’un rebuig per tornar a sol·licitar l’accés.";
+"group_result_group_daily_limit" = "Aquest grup ha arribat al límit de resultats en 24 hores. Torna-ho a provar més tard.";
+"group_result_submitter_daily_limit" = "Has arribat al límit d’enviament de resultats en 24 hores. Torna-ho a provar més tard.";
+"group_not_coach" = "Només l’entrenador pot programar sessions.";
+"group_activity_count" = "%1$d/%2$d inscrits";
+"group_activity_create_admin_hint" = "El propietari del grup o un administrador crea les activitats";
+"group_activity_direct_hint" = "Tria directament entre tots els membres actius del grup; no cal inscripció.";
+"group_activity_direct_save" = "Desa la programació";
+"group_activity_direct_title" = "Organitza ara";
+"group_activity_field_title_optional" = "Nom de l’activitat (opcional)";
+"group_activity_full" = "Complet";
+"group_activity_lineup_add" = "Afegeix un partit";
+"group_activity_lineup_add_need_members" = "No hi ha prou jugadors. Calen almenys %1$d membres actius per afegir un partit.";
+"group_activity_lineup_court" = "Núm. de pista";
+"group_activity_lineup_duration" = "Durada del partit";
+"group_activity_lineup_match_count" = "%1$d partits";
 "group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_activity_lineup_remove" = "Elimina";
+"group_activity_lineup_section_matches" = "Organitza partits";
+"group_activity_lineup_session" = "Partit %1$d";
+"group_activity_registration_empty" = "No hi ha membres temporals";
+"group_activity_section_count" = "%1$d activitats";
+"group_activity_section_past" = "Activitats passades";
+"group_activity_section_upcoming" = "En curs · Inscripcions obertes";
+"group_activity_status_scheduled" = "A punt per començar";
+"group_activity_time_after_previous" = "Després del partit anterior";
+"group_activity_time_unspecified" = "Hora per determinar";
+"group_activity_timing" = "Horari";
+"group_activity_timing_estimated" = "Hora estimada";
+"group_activity_timing_sequence" = "Sense hora exacta";
+"group_activity_title_auto_hint" = "Si es deixa buit, es generarà un nom a partir de la data, com ara «Activitat del 10 de novembre».";
+"group_archived_empty" = "No hi ha grups arxivats";
+"group_archived_list_title" = "Grups arxivats";
+"group_empty_activities_title" = "Encara no hi ha activitats";
+"group_list_add_title" = "Crea un grup o uneix-t’hi";
+"group_ranking_draws" = "empats";
+"group_ranking_games" = "Partits jugats";
+"group_ranking_losses" = "derrotes";
+"group_ranking_sets" = "Puntuació";
+"group_ranking_title" = "Classificació de %@";
+"group_ranking_wins" = "victòries";
+"group_training_results_locked" = "Les programacions amb resultats conserven horaris i jugadors. Pots editar el lloc i la nota.";
+"group_temporary_hint" = "Els membres temporals no necessiten compte i es poden afegir en introduir resultats.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "Allibera el partit";
-"group_activity_lineup" = "Horari de partits";
-"group_activity_mode" = "Partides";
+"group_abandon_game" = "Abandona el partit";
+"group_activity_lineup" = "Organitza partits";
+"group_activity_mode" = "Historial";
 "group_activity_reminder" = "Recorda-m’ho 15 minuts abans";
 "group_add_set" = "Afegeix la puntuació d’un joc";
 "group_added_members" = "S'ha afegit";
-"group_authority_confirm" = "Confirma com a propietari del grup";
-"group_batch_names_hint" = "Un nom per línia, d’1 a 24 caràcters cadascun.";
-"group_beta_notice" = "Els grups estan en beta. Agraïm els teus comentaris.";
+"group_authority_confirm" = "Confirma el resultat";
+"group_batch_names_hint" = "Un nom per línia";
+"group_beta_notice" = "Els grups estan en fase beta. Algunes funcions poden canviar. Gràcies per provar-los aviat.";
 "group_cancel_dissolve" = "Cancel·la la dissolució";
 "group_cancel_dissolve_hint" = "Restaura aquest grup per permetre activitats i puntuació.";
 "group_cancel_training_hint" = "Els partits acabats es conserven. Els començats es poden acabar.";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "Regles de l’esport";
 "group_discard_upload" = "Descarta la pujada";
 "group_dissolve" = "Dissol el grup";
-"group_dissolve_hint" = "Només lectura durant 7 dies. Pots cancel·lar la dissolució en aquest període.";
+"group_dissolve_hint" = "El grup serà de només lectura durant 7 dies i se'n podrà cancel·lar la dissolució durant aquest període. Després de 7 dies, el grup i totes les dades s'eliminaran definitivament.";
 "group_dissolving" = "Dissolució en curs";
 "group_edit_activity" = "Edita";
 "group_edit_lineup" = "Organitza partits";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "No hi ha notificacions";
 "group_no_sessions" = "No hi ha partits programats";
 "group_notices" = "Notificacions";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "No s’han pogut actualitzar algunes seccions. Llisca avall per tornar-ho a provar.";
 "group_point_cap" = "Límit de puntuació";
 "group_preview_schedule" = "Revisa l’horari";
 "group_published" = "Publicat";
 "group_qr_direct_hint" = "Escaneja amb iScoreboard per veure el grup i unir-t'hi.";
 "group_quick_score" = "Puntuació total de sets";
 "group_rally_scoring" = "Punt a cada intercanvi";
-"group_read_notices" = "Read";
+"group_read_notices" = "Llegit";
 "group_registration_closes" = "Tancament de les inscripcions";
 "group_regular" = "Estàndard";
-"group_reload_version" = "Carrega l’última versió";
+"group_reload_version" = "Torna a carregar";
 "group_reminder_body" = "L’activitat comença en 15 minuts.";
 "group_reminder_permission" = "Activa les notificacions de l’app a Configuració.";
 "group_reminder_too_late" = "L’activitat comença en menys de 15 minuts.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "Puntuació del set";
 "group_tie_break" = "Punts de desempat";
 "group_tiebreak_only" = "Només desempat";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "Data";
+"group_too_many_sessions" = "Revisa els horaris, les pistes i els jugadors.";
+"group_training_date" = "Data de l’entrenament";
 "group_win_by_two" = "Guanyar per dos punts";
 
-"group_keep_draft" = "Conserva els meus canvis";
+"group_keep_draft" = "Continua editant la versió local";
 
 "group_server_version" = "Versió més recent";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "El grup es dissoldrà el %@\nPeríode de reflexió de 7 dies; només lectura fins aleshores";
 "group_notice_end" = "No hi ha més notificacions";
 "group_notice_join_requested" = "Sol·licitud d'unió rebuda";
 "group_notice_join_approved" = "Sol·licitud d'unió aprovada";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "Entrada manual";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "Marca-ho tot com a llegit";
+
+"group_status_active" = "Actiu";
+"group_dissolved" = "Dissolt";
+"group_report_status_pending" = "Pendent";
+"group_report_status_reviewing" = "En revisió";
+"group_report_status_resolved" = "Resolt";
+"group_report_status_dismissed" = "Desestimat";
+"group_error_permission" = "No tens permís per fer aquesta acció.";
+"group_error_transfer_first" = "Transfereix la propietat del grup abans de sortir-ne o eliminar el compte.";
+"group_error_target" = "Tria un membre actiu d’aquest grup que tingui un compte.";
+"group_error_activity_locked" = "L’activitat ja ha començat o acabat. No se’n pot modificar ni cancel·lar la programació.";
+"group_error_activity_pending" = "Completa o elimina primer els partits pendents.";
+"group_error_registration_disabled" = "Els partits programats directament no requereixen inscripció.";
+"group_error_content_blocked" = "El text conté contingut inadequat. Modifica’l.";
+"group_error_request_invalid" = "Revisa les dades introduïdes i torna-ho a provar.";
+"group_error_reason_required" = "Introdueix un motiu abans de continuar.";
+"group_error_result_state" = "Només es poden confirmar els resultats pendents de confirmació.";
+"group_error_conflict" = "Les dades han canviat. Actualitza-les i revisa-les abans de tornar-ho a provar.";
+"group_error_request_handled" = "Aquesta sol·licitud ja s’ha tramitat. Actualitza la llista.";
+"group_error_place_locked" = "No es pot canviar el recinte un cop ha començat o acabat un partit.";
+"group_error_schedule_cancelled" = "Aquesta programació o aquest partit s’ha cancel·lat.";
+"group_error_session_completed" = "Aquest partit ja ha acabat i no s’hi pot demanar absència. Actualitza el calendari per veure’n el resultat.";
+"group_error_session_has_result" = "Aquest partit ja té un resultat. Anul·la’l abans d’afegir-ne un altre.";
+"group_error_item_not_found" = "Aquesta activitat, programació, partit o notificació ja no està disponible. Actualitza la llista.";
+"group_error_server" = "El servei de grups no està disponible temporalment. Torna-ho a provar més tard.";
+"group_error_peer_only" = "Fes servir la programació d’entrenaments per als grups d’entrenament.";
+"group_error_name_length" = "El nom del grup ha de tenir entre 2 i 24 caràcters.";
+"group_error_description_length" = "La descripció del grup no pot superar els 200 caràcters.";
+"group_error_activity_invalid" = "Revisa el nom, la data, el lloc i l’aforament de l’activitat.";
+"group_error_registration_closed" = "Les inscripcions s’han tancat.";
+"group_error_action_disabled" = "Aquesta acció no està disponible ara.";
+"group_error_update_required" = "Actualitza l’aplicació per continuar.";
+"group_welcome_back" = "Benvingut de nou";
+"group_transfer_none" = "No hi ha cap altre membre de ple dret. Els membres temporals no poden ser el líder.";
+"group_empty_activities_hint" = "Crea una activitat perquè els membres s’hi apuntin. Les inscripcions es tanquen quan s’omplen les places.";
+"group_temp_import_names" = "Importa noms desats";
+"group_temp_import_count" = "Importa (%1$d)";
+"group_result_information" = "Informació del partit";
+"group_result_actions" = "Accions del resultat";
+"group_peer_confirmation" = "Confirmació del rival";
+"group_notice_target_unavailable" = "Aquest contingut no està disponible o ja no hi tens accés.";
+"group_push_enabled" = "Notificacions del grup";
+"group_push_group_enabled" = "Rep notificacions d'aquest grup";
+"group_push_inbox_kept" = "Desactivar aquestes opcions manté les notificacions dins de l'app i els recordatoris d'activitats existents.";
+"group_push_permission" = "Activa les notificacions del sistema";
+"group_push_settings" = "Configuració de notificacions";
+
+// Shared group form controls
+"group_inline_seat_hint" = "Selecciona una plaça i després un membre";
+"group_score_and_rules" = "Resultat i regles";
+"group_activity_registration_scope" = "Inscriu aquí els membres temporals. Els membres amb compte s'inscriuen ells mateixos.";
+"group_activity_registration_no_changes" = "No hi ha canvis sense desar";
+"group_activity_registration_changes" = "Afegeix %1$d · Cancel·la %2$d";
+"group_activity_registration_save" = "Desa les inscripcions (%1$d)";
+"group_activity_registration_manage" = "Inscripció de membres temporals";
+"group_activity_registration_pending_add" = "Pendent d'inscripció";
+"group_activity_registration_pending_remove" = "Pendent de cancel·lació";
+"group_activity_registration_registered" = "Inscrit";
+"group_activity_registration_not_registered" = "No inscrit";
+"group_activity_detail" = "Detalls de l'activitat";
+"group_activity_my_registration" = "La meva inscripció";
+"group_match_score" = "Resultat del partit";
+
+"group_lookup_available" = "Obert";
+
+/* Group beta notice card. */
+"group_beta_badge" = "Beta";
+"group_beta_supported_label" = "Disponible ara";
+"group_beta_feedback_prompt" = "Problemes o suggeriments?";
+"group_beta_feedback_action" = "Envia comentaris";
+
+"group_member_results_title" = "Resultats del membre";
+
+"group_removed_members_expand" = "Desplega";
+"group_removed_members_collapse" = "Replega";
+"group_best_of_format" = "Al millor de %1$@ (cal guanyar-ne %2$@)";
+"group_member_count_single" = "%d membre";
+"group_member_count_short" = "%d membres";
+"group_lookup_closed_short" = "Tancat";
+"group_lookup_closing_short" = "En dissolució";
+"group_lookup_member_short" = "Ja t'hi has unit";
+"group_lookup_unavailable_short" = "No disponible";
+"group_join_scan_hint" = "Escaneja el codi QR d'un grup";
+"group_join_number_hint" = "Entre 6 i 8 dígits. Demana'l al propietari del grup.";
+"group_request_join" = "Sol·licita unir-t'hi";
+"group_overdue_tasks" = "Tasques vençudes";
+"group_apply_shift" = "Aplica els canvis";
+"group_transfer_submit" = "Transfereix";
+"group_rename_member" = "Canvia el nom";
+"group_set_admin" = "Fes administrador";
+"group_set_member" = "Retira el rol d'administrador";
+"group_confirm_authority_message" = "Tots els jugadors són membres temporals o no hi ha cap jugador amb compte al bàndol contrari que pugui confirmar. El propietari ha de revisar els jugadors i el marcador. La confirmació comptarà als registres i identificarà el propietari com a confirmador.";
+"group_confirm_result_message" = "Un cop confirmat, el resultat compta als registres dels dos bàndols i no es pot editar. Per corregir-lo, anul·la'l primer.";
+"group_confirm_member_message" = "Confirma els jugadors i el marcador per incloure el resultat als registres. Per corregir-lo, demana a un gestor que anul·li el resultat original.";
+"group_cancel_activity_message" = "La cancel·lació esborra definitivament la llista d'inscrits. No es poden cancel·lar activitats en curs.";
+"group_abandon_game_message" = "Abandona aquest partit per començar-ne un altre. Es conservaran els registres personals desats.";
+"group_void_pending_message" = "Aquest resultat ja no esperarà confirmació ni comptarà a les estadístiques. Els membres del grup continuaran veient el marcador original i el motiu. S'avisarà els jugadors i qui l'ha enviat.";
+"group_void_confirmed_message" = "Aquest resultat deixarà de comptar a les estadístiques. Es recalcularan les estadístiques i classificacions dels dos bàndols. Els membres del grup continuaran veient el marcador original i el motiu. S'avisarà els jugadors i qui l'ha enviat.";
+"group_remove_member_message" = "Vols eliminar %@? Haurà de tornar a sol·licitar unir-s'hi.";
+"group_reload_version_message" = "Vols descartar els canvis no desats en l'organització dels partits i carregar l'últim calendari desat?";
+"group_transfer_confirmation" = "Vols transferir la propietat a %@? Passaràs a ser un membre normal.";
+"group_approve_confirmation" = "%@ passarà a ser membre del grup i podrà veure les activitats i els resultats.";
+"group_reject_confirmation" = "Després del rebuig, %@ haurà d'enviar una nova sol·licitud.";
+"group_lookup_full_short" = "Complet";
+"group_lookup_archived_short" = "Arxivat";
+"group_lookup_pending_short" = "Pendent";
+"group_temporary_member_count" = "%d membres";
+"group_best_of_tennis_format" = "Al millor de %1$@ (cal guanyar-ne %2$@)";
+"group_rename_member_title" = "Canvia el nom";
+
+"group_copy_transfer_title" = "Transfereix la propietat";
+
+"group_copy_transfer_submit" = "Transfereix";
+
+"group_copy_transfer_message" = "Vols transferir la propietat a %@? Passaràs a ser un membre normal.";
+
+"group_copy_transfer_hint" = "Després del traspàs, passes a ser un membre ordinari.";
+
+"group_copy_rename_title" = "Canvia el nom";
+
+"group_copy_rename_action" = "Canvia el nom";
+
+"group_copy_result_confirm" = "Confirma el resultat";
+
+"group_copy_result_confirm_authority_message" = "Tots els jugadors són membres temporals o no hi ha cap jugador amb compte al bàndol contrari que pugui confirmar. El propietari ha de revisar els jugadors i el marcador. La confirmació comptarà als registres i identificarà el propietari com a confirmador.";
+
+"group_copy_result_confirm_manager_message" = "Un cop confirmat, el resultat compta als registres dels dos bàndols i no es pot editar. Per corregir-lo, anul·la'l primer.";
+
+"group_copy_result_confirm_member_message" = "Confirma els jugadors i el marcador per incloure el resultat als registres. Per corregir-lo, demana a un gestor que anul·li el resultat original.";
+
+"group_copy_void_action" = "Anul·la";
+
+"group_copy_void_pending_message" = "Aquest resultat ja no esperarà confirmació ni comptarà a les estadístiques. Els membres del grup continuaran veient el marcador original i el motiu. S'avisarà els jugadors i qui l'ha enviat.";
+
+"group_copy_void_confirmed_message" = "Aquest resultat deixarà de comptar a les estadístiques. Es recalcularan les estadístiques i classificacions dels dos bàndols. Els membres del grup continuaran veient el marcador original i el motiu. S'avisarà els jugadors i qui l'ha enviat.";
+
+"group_copy_cancel_activity" = "Cancel·la l'activitat";
+
+"group_copy_cancel_activity_message" = "La cancel·lació esborra definitivament la llista d'inscrits. No es poden cancel·lar activitats en curs.";
+
+"group_copy_abandon_action" = "Abandona el partit";
+
+"group_copy_abandon_message" = "Abandona aquest partit per començar-ne un altre. Es conservaran els registres personals desats.";
+
+"group_copy_leave_action" = "Surt del grup";
+
+"group_copy_leave_message" = "En sortir, deixaràs de ser membre del grup i aquest s'eliminarà de «Els meus grups». Ja no hi podràs accedir ni participar-hi. Es conservaran els registres de partits del grup i els teus registres personals en aquest dispositiu. Per tornar-hi a accedir, t'hi hauràs de tornar a unir.";
+
+"group_copy_archive_action" = "Arxiva el grup";
+
+"group_copy_archive_message" = "Vols arxivar aquest grup? El contingut serà de només lectura.";
+
+"group_copy_dissolve_action" = "Dissol el grup";
+
+"group_copy_dissolve_message" = "El grup serà de només lectura durant 7 dies i se'n podrà cancel·lar la dissolució durant aquest període. Després de 7 dies, el grup i totes les dades s'eliminaran definitivament.";
+
+"group_copy_approve_action" = "Aprova";
+
+"group_copy_approve_message" = "%@ passarà a ser membre del grup i podrà veure les activitats i els resultats.";
+
+"group_copy_reject_action" = "Rebutja";
+
+"group_copy_reject_message" = "Després del rebuig, %@ haurà d'enviar una nova sol·licitud.";
+
+"group_copy_remove_action" = "Elimina el membre";
+
+"group_copy_remove_message" = "Vols eliminar %@? Haurà de tornar a sol·licitar unir-s'hi.";
+
+"group_copy_report_detail" = "Detalls (opcionals)";
+
+"group_copy_edit_profile" = "Edita el perfil del grup";
+
+"group_copy_entry_a_wins" = "Guanya A";
+
+"group_copy_entry_b_wins" = "Guanya B";
+
+"group_copy_activity_timing_sequence" = "Sense hora exacta";
+
+"group_copy_activity_registration_manage" = "Inscripció de membres temporals";
+
+"group_copy_temporary_hint" = "Els membres temporals no necessiten compte i es poden afegir en introduir resultats.";
+
+"group_copy_activity_registration_scope" = "Inscriu aquí els membres temporals. Els membres amb compte s'inscriuen ells mateixos.";
+
+"group_copy_report" = "Denuncia el grup";
+
+"group_copy_notice_member_removed" = "Se t'ha eliminat del grup";
+
+"group_copy_notice_role_changed" = "El teu rol ha canviat";
+
+"group_copy_activity_direct_save" = "Desa la programació";
+
+"group_copy_notice_join_approved" = "Sol·licitud d'unió aprovada";
+
+"group_copy_notice_join_rejected" = "Sol·licitud d'unió rebutjada";
+
+"group_copy_all_formats" = "Tots els formats";
+
+"group_copy_closed" = "Adhesions tancades";
+
+"group_copy_report_other" = "Altres";
+
+"group_copy_report_impersonation" = "Suplantació d’identitat";
+
+"group_copy_audit_ui_share_failed" = "No s'ha pogut compartir. Torna-ho a provar.";
+
+"group_copy_audit_ui_share_number" = "Comparteix el número del grup";
+
+"group_copy_create" = "Crea un grup";
+
+"group_copy_confirm_join" = "Uneix-te a aquest grup";
+
+"group_copy_join" = "Uneix-te a un grup";
+
+"group_copy_join_policy" = "Opcions d’entrada";
+
+"group_copy_filter_singles" = "Individuals";
+
+"group_copy_upcoming" = "Properament";
+
+"group_copy_activity_section_past" = "Activitats passades";
+
+"group_copy_beta_feedback_action" = "Envia comentaris";
+
+"group_copy_doubles" = "Dobles";
+
+"group_copy_create_activity" = "Crea una activitat";
+
+"group_copy_benefit_activity" = "Planifica activitats i inscriu-t'hi";
+
+"group_copy_empty_activities_hint" = "Crea una activitat perquè els membres s’hi apuntin. Les inscripcions es tanquen quan s’omplen les places.";
+
+"group_copy_lookup_available" = "Obert";
+
+"group_copy_activity_direct_hint" = "Tria directament entre tots els membres actius del grup; no cal inscripció.";
+
+"group_copy_empty_intro" = "Reuneix els amics per planificar partides, puntuar i crear un historial compartit.";
+
+"group_copy_place" = "Ubicació";
+
+"group_copy_ranking_games" = "Partits jugats";
+
+"group_copy_ranking_insufficient_matches" = "Massa pocs partits";
+
+"group_copy_report_spam" = "Correu brossa";
+
+"group_copy_report_status_reviewing" = "En revisió";
+
+"group_copy_note" = "Nota (opcional)";
+
+"group_copy_peer_confirmation" = "Confirmació del rival";
+
+"group_copy_activity_lineup_section_matches" = "Organitza partits";
+
+"group_copy_group" = "Grup";
+
+"group_copy_group_qr" = "Codi QR del grup";
+
+"group_copy_beta_notice" = "Els grups estan en fase beta. Algunes funcions poden canviar. Gràcies per provar-los aviat.";
+
+"group_copy_created" = "Grup creat";
+
+"group_copy_ranking_sets" = "Puntuació";
+
+"group_copy_removed_members_expand" = "Desplega";
+
+"group_copy_voided" = "Anul·lat";
+
+"group_copy_cancelled" = "Cancel·lat";
+
+"group_copy_report_status_resolved" = "Resolt";
+
+"group_copy_completed" = "Completat";
+
+"group_copy_archived" = "Arxivat";
+
+"group_copy_archived_list_title" = "Grups arxivats";
+
+"group_copy_activity_registration_registered" = "Inscrit";
+
+"group_copy_activity_full" = "Complet";
+
+"group_copy_confirmed" = "Confirmat";
+
+"group_copy_removed_members" = "Antics membres";
+
+"group_copy_mark_seen" = "Llegit";
+
+"group_copy_report_status_dismissed" = "Desestimat";
+
+"group_copy_draws" = "empats";
+
+"group_copy_draw" = "Empat";
+
+"group_copy_start_score" = "Comença a puntuar";
+
+"group_copy_pending_upload" = "Pendent de pujada";
+
+"group_copy_activity_registration_pending_remove" = "Pendent de cancel·lació";
+
+"group_copy_report_status_pending" = "Pendent";
+
+"group_copy_lookup_pending_short" = "Pendent";
+
+"group_copy_pending_request_limit" = "Hi ha massa sol·licituds pendents. Espera una resposta o retira’n algunes.";
+
+"group_copy_activity_registration_pending_add" = "Pendent d'inscripció";
+
+"group_copy_pending_confirmation" = "Pendent de confirmació";
+
+"group_copy_lookup_closing_short" = "En dissolució";
+
+"group_copy_restore" = "Restaura el grup";
+
+"group_copy_member" = "Membre";
+
+"group_copy_member_results_title" = "Resultats del membre";
+
+"group_copy_my_groups" = "Els meus grups";
+
+"group_copy_activity_my_registration" = "La meva inscripció";
+
+"group_copy_activity_mode" = "Historial";
+
+"group_copy_qr_join_short" = "Escaneja per a unir-t'hi";
+
+"group_copy_qr_apply_short" = "Escaneja per a sol·licitar l'accés";
+
+"group_copy_register" = "Inscriu-t'hi";
+
+"group_copy_recruiting" = "Inscripcions obertes";
+
+"group_copy_registration_closes" = "Tancament de les inscripcions";
+
+"group_copy_activity_time_after_previous" = "Després del partit anterior";
+
+"group_copy_report_submit" = "Envia";
+
+"group_copy_submitted_by" = "Enviat per";
+
+"group_copy_cancel_dissolve" = "Cancel·la la dissolució";
+
+"group_copy_notice_join_requested" = "Sol·licitud d'unió rebuda";
+
+"group_copy_removed_members_collapse" = "Replega";
+
+"group_copy_discard_upload" = "Descarta la pujada";
+
+"group_copy_notice_activity_created" = "Activitat creada";
+
+"group_copy_activity_time_unspecified" = "Hora per determinar";
+
+"group_copy_activity_registration_empty" = "No hi ha membres temporals";
+
+"group_copy_transfer_none" = "No hi ha cap altre membre de ple dret. Els membres temporals no poden ser el líder.";
+
+"group_copy_archived_empty" = "No hi ha grups arxivats";
+
+"group_copy_empty_activities_title" = "Encara no hi ha activitats";
+
+"group_copy_latest_results" = "Últims resultats";
+
+"group_copy_disputed" = "Disputat";
+
+"group_copy_activity_registration_not_registered" = "No inscrit";
+
+"group_copy_month_matches" = "Partides d'aquest mes";
+
+"group_copy_open_group" = "Obre el grup";
+
+"group_copy_benefit_history" = "Consulta partides i classificacions";
+
+"group_copy_overview" = "Resum";
+
+"group_copy_welcome_back" = "Benvingut de nou";
+
+"group_copy_regular_members" = "Membres inscrits";
+
+"group_copy_rally_scoring" = "Punt a cada intercanvi";
+
+"group_copy_result_information" = "Informació del partit";
+
+"group_copy_match_score" = "Resultat del partit";
+
+"group_copy_match_rules" = "Regles de la partida";
+
+"group_copy_activity_registration_no_changes" = "No hi ha canvis sense desar";
+
+"group_copy_activities" = "Activitats";
+
+"group_copy_activity_title" = "Nom de l'activitat";
+
+"group_copy_activity_field_title_optional" = "Nom de l’activitat (opcional)";
+
+"group_copy_notice_activity_changed" = "Activitat actualitzada";
+
+"group_copy_notice_activity_cancelled" = "Activitat cancel·lada";
+
+"group_copy_activity_lineup" = "Organitza partits";
+
+"group_copy_activity_create_admin_hint" = "El propietari del grup o un administrador crea les activitats";
+
+"group_copy_beta_badge" = "Beta";
+
+"group_copy_add_set" = "Afegeix la puntuació d’un joc";
+
+"group_copy_add_temporary" = "Afegeix un membre temporal";
+
+"group_copy_benefit_score" = "Puntua o afegeix resultats anteriors";
+
+"group_copy_request_join" = "Sol·licita unir-t'hi";
+
+"group_copy_join_message" = "Missatge de sol·licitud d’entrada (opcional)";
+
+"group_copy_beta_supported_label" = "Disponible ara";
+
+"group_copy_open" = "Uneix-t’hi directament";
+
+"group_copy_activity_direct_title" = "Organitza ara";
+
+"group_copy_admin" = "Administrador";
+
+"group_copy_confirmed_matches" = "Partides confirmades";
+
+"group_copy_leader" = "Propietari";
+
+"group_copy_notice_ownership_transferred" = "El propietari del grup ha canviat";
+
+"group_copy_complete_activity" = "Finalitza l’activitat";
+
+"group_copy_keep_draft" = "Continua editant la versió local";
+
+"group_copy_ranking_wins" = "victòries";
+
+"group_copy_ranking_rate" = "Percentatge de victòries";
+
+"group_copy_report_inappropriate" = "Contingut sexual o inadequat";
+
+"group_copy_update_report" = "Actualitza l'informe";
+
+"group_copy_manual_result" = "Afegeix un resultat";
+
+"group_copy_set_admin" = "Fes administrador";
+
+"group_copy_activity_timing_estimated" = "Hora estimada";
+
+"group_copy_losses" = "derrotes";
+
+"group_copy_notice_result_voided" = "Resultat anul·lat";
+
+"group_copy_notice_result_confirmed" = "Resultat confirmat";
+
+"group_copy_notice_result_pending" = "Resultat pendent de confirmació";
+
+"group_copy_result_actions" = "Accions del resultat";
+
+"group_copy_empty_title" = "Encara no hi ha grups";
+
+"group_copy_in_progress" = "En curs";
+
+"group_copy_report_illegal" = "Activitat il·legal o perillosa";
+
+"group_copy_join_hint" = "Uneix-te al grup d'un amic amb el número o el codi QR.";
+
+"group_copy_overdue_tasks" = "Tasques vençudes";
+
+"group_copy_beta_feedback_prompt" = "Problemes o suggeriments?";
+
+"group_copy_invite" = "Convida companys";
+
+"group_copy_retry" = "Torna-ho a provar";
+
+"group_copy_approval" = "Cal aprovació";
+
+"group_copy_sport" = "Esport";
+
+"group_copy_report_harassment" = "Assetjament";
+
+"group_copy_ranking_me_suffix" = " (jo)";
+
+"group_copy_places_title" = "Tria un lloc";
+
+"group_copy_report_fraud" = "Frau o apostes";
+
+"group_copy_void_reason" = "Motiu d'anul·lació";
+
+"group_copy_reload_version" = "Torna a carregar";
+
+"group_copy_lineup_reload_message" = "Vols descartar els canvis no desats en l'organització dels partits i carregar l'últim calendari desat?";
+
+"group_copy_join_number_separator" = "O introdueix un número de grup";
+
+"group_copy_activity_multi_match_hint" = "Una activitat pot incloure diversos partits. Els membres s’inscriuen a l’activitat; en preparar els partits, tria 2 inscrits per a cada individual o 4 per a cada partit de dobles.";
+
+"group_copy_activity_single_match_hint" = "Cada activitat és un partit. Tria 2 membres inscrits per a individuals o 4 per a dobles.";
+
+"group_copy_activity_detail" = "Detalls de l'activitat";
+
+"group_copy_registration_at_start" = "En començar l’activitat";
+
+"group_copy_registration_use_start" = "Fes servir l’hora d’inici de l’activitat";
+
+"group_copy_cancel_reason_optional" = "Motiu de cancel·lació (opcional)";
+
+"group_copy_audit_result_frozen_info" = "Mostra els jugadors i les regles";
+"group_view_schedule" = "Mostra els partits";
+"group_notice_training_published" = "Entrenament publicat";
+"group_notice_training_changed" = "Entrenament actualitzat";
+"group_notice_training_cancelled" = "Entrenament cancel·lat";
+"group_notice_leave_changed" = "Absència actualitzada";
+"group_report_evidence_title" = "Imatges de prova (opcionals)";
+"group_report_evidence_hint" = "Fins a 3 imatges JPG o PNG, de 2 MB com a màxim cadascuna. Només tu i la plataforma les podeu veure.";
+"group_report_add_image" = "Afegeix una imatge";
+"group_report_retry" = "Torna-ho a provar";
+"group_report_preview" = "Imatge de prova";
+"group_report_supplement" = "Afegeix informació";
+"group_report_close" = "Tanca";
+"group_report_remove_image" = "Elimina la imatge";
+"group_report_image_error" = "No s’ha pogut preparar la imatge. Prova amb una altra imatge JPG o PNG.";
+"group_report_refresh" = "Actualitza l’estat";

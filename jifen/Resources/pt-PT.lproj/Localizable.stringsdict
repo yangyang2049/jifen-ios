@@ -30,12 +30,12 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
-		<key>one</key>
-		<string>%d match · all group members</string>
-		<key>many</key>
-		<string>%d matches · all group members</string>
-		<key>other</key>
-		<string>%d matches · all group members</string>
+			<key>one</key>
+			<string>%d partida · todos os membros do grupo</string>
+			<key>many</key>
+			<string>%d partidas · todos os membros do grupo</string>
+			<key>other</key>
+			<string>%d partidas · todos os membros do grupo</string>
 		</dict>
 	</dict>
 	<key>archived_count</key>
@@ -48,12 +48,12 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
-		<key>one</key>
-		<string>%d group</string>
-		<key>many</key>
-		<string>%d groups</string>
-		<key>other</key>
-		<string>%d groups</string>
+			<key>one</key>
+			<string>%d grupo</string>
+			<key>many</key>
+			<string>%d grupos</string>
+			<key>other</key>
+			<string>%d grupos</string>
 		</dict>
 	</dict>
 	<key>timer_byoyomi_periods_format</key>

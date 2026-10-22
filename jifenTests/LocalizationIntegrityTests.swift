@@ -377,6 +377,40 @@ final class LocalizationIntegrityTests: XCTestCase {
         XCTAssertEqual(values["timer_role_black"], "将")
     }
 
+    /// Padel 中文名口径：简体「板式网球」、繁体「板式網球」、英文「Padel」。
+    /// 依据国家体育总局 / 中国网球协会官方译名；「板网球」是 2016 年早期译名，禁止回流。
+    func testPadelNameFollowsTheOfficialChineseGlossary() throws {
+        let expectedNames = ["zh-Hans": "板式网球", "zh-Hant": "板式網球", "en": "Padel"]
+        for (locale, name) in expectedNames {
+            let values = try LocalizationTestSupport.valuesByKey(
+                relativePath: "jifen/Resources/\(locale).lproj/Localizable.strings"
+            )
+            let actualName = try XCTUnwrap(values["game_padel"], "\(locale) game_padel missing")
+            XCTAssertEqual(actualName, name, "\(locale) game_padel")
+        }
+
+        for locale in ["zh-Hans", "zh-Hant"] {
+            let values = try LocalizationTestSupport.valuesByKey(
+                relativePath: "jifen/Resources/\(locale).lproj/Localizable.strings"
+            )
+            let help = try XCTUnwrap(values["scoreboard_official_break_help_message"], locale)
+            let localizedName = try XCTUnwrap(expectedNames[locale])
+            XCTAssertFalse(help.contains("Padel"), "\(locale) break help must not embed latin Padel")
+            XCTAssertTrue(help.contains(localizedName), "\(locale) break help must use \(localizedName)")
+        }
+
+        // 「板式网球 / 板式網球」不含早期译名子串，因此这两条断言只在旧写法回流时才触发。
+        for locale in ["zh-Hans", "zh-Hant"] {
+            let content = try String(
+                contentsOf: LocalizationTestSupport.repositoryRoot
+                    .appendingPathComponent("jifen/Resources/\(locale).lproj/Localizable.strings"),
+                encoding: .utf8
+            )
+            XCTAssertFalse(content.contains("板网球"), "\(locale) still uses the legacy name 板网球")
+            XCTAssertFalse(content.contains("板網球"), "\(locale) still uses the legacy name 板網球")
+        }
+    }
+
     func testDynamicLocalizationKeyFamiliesAreComplete() throws {
         let expected = [
             "appearance_system", "appearance_light", "appearance_dark",

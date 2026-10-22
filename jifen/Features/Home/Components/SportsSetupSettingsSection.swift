@@ -4,9 +4,14 @@ import SwiftUI
 struct SportsSetupSettingsSection: View {
     let gameType: GameType
     @Binding var draft: SportsSetupDraft
+    var onCustomFieldFocus: (String?) -> Void = { _ in }
     @State private var completionModeExpanded = false
     @State private var requestedCustomField: CustomField?
     @FocusState private var focusedCustomField: CustomField?
+    @Environment(\.layoutDirection) private var layoutDirection
+    private let numberChipSize: CGFloat = 44
+    private let customInputWidth: CGFloat = 64
+    private let numberChipCornerRadius: CGFloat = 12
 
     private enum CustomField: String, Hashable {
         case sets
@@ -24,6 +29,10 @@ struct SportsSetupSettingsSection: View {
             if let oldField, oldField != newField, requestedCustomField == oldField {
                 requestedCustomField = nil
             }
+            if let newField {
+                requestedCustomField = newField
+            }
+            onCustomFieldFocus(newField.map { "setup_custom_\($0.rawValue)" })
         }
     }
 
@@ -205,7 +214,7 @@ struct SportsSetupSettingsSection: View {
         VStack(alignment: .leading, spacing: 10) {
             Text(NSLocalizedString("boxing_rounds", value: "回合数", comment: "Boxing rounds"))
                 .settingsLabelStyle()
-            HStack(spacing: 8) {
+            SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
                 ForEach([3, 8, 10, 12], id: \.self) { rounds in
                     numberChip(rounds, selection: $draft.selectedMaxSets) {
                         draft.customMaxSetsText = ""
@@ -306,7 +315,7 @@ struct SportsSetupSettingsSection: View {
     private func buildSoftTennisSettings() -> some View {
         Text(NSLocalizedString("soft_tennis_match_games", value: "整场局数", comment: "Soft tennis total match games"))
             .settingsLabelStyle()
-        HStack(spacing: 8) {
+        SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
             ForEach([7, 9], id: \.self) { games in
                 numberChip(games, selection: $draft.softTennisMatchGames)
             }
@@ -360,7 +369,7 @@ struct SportsSetupSettingsSection: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(NSLocalizedString("pickleball_target_score", value: "目标分", comment: ""))
                 .settingsLabelStyle()
-            HStack(spacing: 8) {
+            SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
                 ForEach([11, 15, 21], id: \.self) { points in
                     numberChip(points, selection: $draft.pickleballTargetScore) {
                         if points != 11 { draft.pickleballScoreCap = nil }
@@ -372,7 +381,7 @@ struct SportsSetupSettingsSection: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(NSLocalizedString("pickleball_score_cap", value: "最高分上限", comment: ""))
                     .settingsLabelStyle()
-                HStack(spacing: 8) {
+                SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
                     optionalNumberChip(nil, label: NSLocalizedString("pickleball_no_cap", value: "无", comment: ""), selection: $draft.pickleballScoreCap)
                     optionalNumberChip(13, label: "13", selection: $draft.pickleballScoreCap)
                     optionalNumberChip(15, label: "15", selection: $draft.pickleballScoreCap)
@@ -391,7 +400,7 @@ struct SportsSetupSettingsSection: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(NSLocalizedString("foosball_final_score_cap", value: "决胜局最高分上限", comment: ""))
                     .settingsLabelStyle()
-                HStack(spacing: 8) {
+                SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
                     Button {
                         dismissCustomFocus()
                         draft.foosballScoreCap = nil
@@ -400,10 +409,10 @@ struct SportsSetupSettingsSection: View {
                         Text(NSLocalizedString("pickleball_no_cap", value: "无", comment: ""))
                             .font(.system(size: 14, weight: draft.foosballScoreCap == nil && draft.customFoosballScoreCapText.isEmpty ? .medium : .regular))
                             .foregroundStyle(getChipTextColor(selected: draft.foosballScoreCap == nil && draft.customFoosballScoreCapText.isEmpty))
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 36)
+                            .padding(.horizontal, 8)
+                            .frame(minWidth: numberChipSize, minHeight: numberChipSize)
                             .background(getChipBackgroundColor(selected: draft.foosballScoreCap == nil && draft.customFoosballScoreCapText.isEmpty))
-                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: numberChipCornerRadius, style: .continuous))
                     }
                     .buttonStyle(.plain)
                     ForEach([8, 10], id: \.self) { value in
@@ -415,10 +424,9 @@ struct SportsSetupSettingsSection: View {
                             Text("\(value)")
                                 .font(.system(size: 14, weight: draft.foosballScoreCap == value && draft.customFoosballScoreCapText.isEmpty ? .medium : .regular))
                                 .foregroundStyle(getChipTextColor(selected: draft.foosballScoreCap == value && draft.customFoosballScoreCapText.isEmpty))
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 36)
+                                .frame(width: numberChipSize, height: numberChipSize)
                                 .background(getChipBackgroundColor(selected: draft.foosballScoreCap == value && draft.customFoosballScoreCapText.isEmpty))
-                                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                .clipShape(RoundedRectangle(cornerRadius: numberChipCornerRadius, style: .continuous))
                         }
                         .buttonStyle(.plain)
                     }
@@ -428,15 +436,8 @@ struct SportsSetupSettingsSection: View {
                         maxValue: 99
                     )
                 }
-                if !hasValidFoosballScoreCap {
-                    Text(NSLocalizedString(
-                        "setup_score_cap_below_target",
-                        value: "封顶分不能低于每局分数。",
-                        comment: "Foosball final-set score cap validation"
-                    ))
-                    .font(.system(size: 12))
-                    .foregroundColor(.red)
-                }
+                // 封顶分越界不再红字拦截：开赛时由 SetupInputCorrection.scoreCap 夹到
+                // [每局分数, 99]，与安卓一致。
             }
         }
     }
@@ -462,10 +463,7 @@ struct SportsSetupSettingsSection: View {
                     }
                 }
                 if draft.eightBallHandicapMode != "none" {
-                    LazyVGrid(
-                        columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4),
-                        spacing: 8
-                    ) {
+                    SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
                         ForEach(Array(1..<draft.selectedMaxSets), id: \.self) { racks in
                             numberChip(racks, selection: $draft.eightBallHandicapRacks)
                         }
@@ -527,36 +525,18 @@ struct SportsSetupSettingsSection: View {
         maxValue: Int,
         field: CustomField
     ) -> some View {
-        VStack(spacing: 8) {
-            ForEach(0..<((presets.count + 4) / 4), id: \.self) { row in
-                HStack(spacing: 8) {
-                    ForEach(0..<4, id: \.self) { column in
-                        let index = row * 4 + column
-                        if index < presets.count {
-                            numberChip(presets[index], selection: selection) {
-                                text.wrappedValue = ""
-                            }
-                        } else if index == presets.count {
-                            customNumberChip(selection: selection, text: text, maxValue: maxValue, field: field)
-                        } else {
-                            Color.clear.frame(maxWidth: .infinity).frame(height: 36)
-                        }
-                    }
+        SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
+            ForEach(presets, id: \.self) { value in
+                numberChip(value, selection: selection) {
+                    text.wrappedValue = ""
                 }
             }
+            customNumberChip(selection: selection, text: text, maxValue: maxValue, field: field)
         }
     }
 
     private var pointPresets: [Int] {
         draft.pointPresets(for: gameType)
-    }
-
-    private var hasValidPointsPerSet: Bool {
-        draft.hasValidPointsPerSet(for: gameType)
-    }
-
-    private var hasValidFoosballScoreCap: Bool {
-        draft.hasValidFoosballScoreCap(for: gameType)
     }
 
     private func chipRow(
@@ -595,10 +575,9 @@ struct SportsSetupSettingsSection: View {
             Text("\(value)")
                 .font(.system(size: 14, weight: selection.wrappedValue == value ? .medium : .regular))
                 .foregroundStyle(getChipTextColor(selected: selection.wrappedValue == value))
-                .frame(maxWidth: .infinity)
-                .frame(minWidth: 38, minHeight: 36)
+                .frame(width: numberChipSize, height: numberChipSize)
                 .background(getChipBackgroundColor(selected: selection.wrappedValue == value))
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: numberChipCornerRadius, style: .continuous))
         }
         .buttonStyle(.plain)
     }
@@ -623,13 +602,13 @@ struct SportsSetupSettingsSection: View {
             .keyboardType(.numberPad)
             .focused($focusedCustomField, equals: field)
             .task(id: requestedCustomField) { await focusRequestedCustomField(field) }
-            .accessibilityIdentifier("setup_custom_\(field.rawValue)_field")
             .multilineTextAlignment(.center)
             .font(.system(size: 14))
-            .frame(maxWidth: .infinity)
-            .frame(minWidth: 58, minHeight: 36)
+            .frame(width: customInputWidth, height: numberChipSize)
             .background(Theme.dialogControlBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: numberChipCornerRadius, style: .continuous))
+            .accessibilityIdentifier("setup_custom_\(field.rawValue)_field")
+            .id("setup_custom_\(field.rawValue)")
         } else {
             Button {
                 text.wrappedValue = selection.wrappedValue > 0 ? String(selection.wrappedValue) : "1"
@@ -638,10 +617,9 @@ struct SportsSetupSettingsSection: View {
                 Image(systemName: "pencil")
                     .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(Theme.textPrimary)
-                    .frame(maxWidth: .infinity)
-                    .frame(minWidth: 58, minHeight: 36)
+                    .frame(width: numberChipSize, height: numberChipSize)
                     .background(Theme.dialogControlBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: numberChipCornerRadius, style: .continuous))
             }
             .buttonStyle(.plain)
             .accessibilityLabel(NSLocalizedString("custom", value: "自定义", comment: ""))
@@ -661,10 +639,10 @@ struct SportsSetupSettingsSection: View {
             Text(label)
                 .font(.system(size: 14, weight: selection.wrappedValue == value ? .medium : .regular))
                 .foregroundStyle(getChipTextColor(selected: selection.wrappedValue == value))
-                .frame(maxWidth: .infinity)
-                .frame(height: 36)
+                .padding(.horizontal, value == nil ? 8 : 0)
+                .frame(minWidth: numberChipSize, minHeight: numberChipSize)
                 .background(getChipBackgroundColor(selected: selection.wrappedValue == value))
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: numberChipCornerRadius, style: .continuous))
         }
         .buttonStyle(.plain)
     }
@@ -694,13 +672,13 @@ struct SportsSetupSettingsSection: View {
             .keyboardType(.numberPad)
             .focused($focusedCustomField, equals: .foosballScoreCap)
             .task(id: requestedCustomField) { await focusRequestedCustomField(.foosballScoreCap) }
-            .accessibilityIdentifier("setup_custom_foosballScoreCap_field")
             .multilineTextAlignment(.center)
             .font(.system(size: 14))
-            .frame(maxWidth: .infinity)
-            .frame(minWidth: 58, minHeight: 36)
+            .frame(width: customInputWidth, height: numberChipSize)
             .background(Theme.dialogControlBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: numberChipCornerRadius, style: .continuous))
+            .accessibilityIdentifier("setup_custom_foosballScoreCap_field")
+            .id("setup_custom_foosballScoreCap")
         } else {
             Button {
                 let seed = selection.wrappedValue ?? 12
@@ -711,10 +689,9 @@ struct SportsSetupSettingsSection: View {
                 Image(systemName: "pencil")
                     .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(Theme.textPrimary)
-                    .frame(maxWidth: .infinity)
-                    .frame(minWidth: 58, minHeight: 36)
+                    .frame(width: numberChipSize, height: numberChipSize)
                     .background(Theme.dialogControlBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: numberChipCornerRadius, style: .continuous))
             }
             .buttonStyle(.plain)
             .accessibilityLabel(NSLocalizedString("custom", value: "自定义", comment: ""))
@@ -738,10 +715,6 @@ struct SportsSetupSettingsSection: View {
     /// Presets used by the currently visible “局数/盘数” chips (not only classic best-of).
     private var frameCountPresets: [Int] {
         draft.frameCountPresets(for: gameType)
-    }
-
-    private var hasValidMatchCompletionSets: Bool {
-        draft.hasValidMatchCompletionSets
     }
 
     @ViewBuilder
@@ -775,12 +748,12 @@ struct SportsSetupSettingsSection: View {
                             VStack(spacing: 4) {
                                 Text(matchCompletionModeTitle(mode))
                                     .font(.system(size: 16, weight: mode == draft.matchCompletionMode ? .medium : .regular))
-                                    .foregroundStyle(mode == draft.matchCompletionMode ? Color.white : Theme.textPrimary)
+                                    .foregroundStyle(mode == draft.matchCompletionMode ? Theme.textOnPrimary : Theme.textPrimary)
                                     .frame(maxWidth: .infinity)
                                     .multilineTextAlignment(.center)
                                 Text(matchCompletionModeDescription(mode, useTennisWording: useTennisWording))
                                     .font(.system(size: 12))
-                                    .foregroundStyle(mode == draft.matchCompletionMode ? Color.white.opacity(0.88) : Theme.textSecondary)
+                                    .foregroundStyle(mode == draft.matchCompletionMode ? Theme.textOnPrimary.opacity(0.88) : Theme.textSecondary)
                                     .frame(maxWidth: .infinity)
                                     .multilineTextAlignment(.center)
                             }
@@ -799,7 +772,7 @@ struct SportsSetupSettingsSection: View {
                 .presentationCompactAdaptation(.popover)
             }
 
-            HStack(spacing: Theme.sm) {
+            SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
                 ForEach(matchCompletionPresets, id: \.self) { sets in
                     Button(action: {
                         dismissCustomFocus()
@@ -808,60 +781,55 @@ struct SportsSetupSettingsSection: View {
                         Text("\(sets)")
                             .font(.system(size: 14, weight: draft.selectedMaxSets == sets ? .medium : .regular))
                             .foregroundColor(getChipTextColor(selected: draft.selectedMaxSets == sets))
-                            .frame(maxWidth: .infinity)
-                            .frame(minWidth: 38, minHeight: 36)
+                            .frame(width: numberChipSize, height: numberChipSize)
                             .background(getChipBackgroundColor(selected: draft.selectedMaxSets == sets))
-                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: numberChipCornerRadius, style: .continuous))
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("setup_match_sets_\(sets)")
                 }
 
-                Button(action: {
-                    if matchCompletionPresets.contains(draft.selectedMaxSets) {
+                if !matchCompletionPresets.contains(draft.selectedMaxSets) || isEditingCustomField(.sets) {
+                    TextField(NSLocalizedString("custom", value: "自定义", comment: ""), text: Binding(
+                        get: { draft.customMaxSetsText },
+                        set: { rawValue in
+                            // A removed editor can send its final value after a preset is selected.
+                            guard requestedCustomField == .sets else { return }
+                            let sanitized = normalizedDecimalDigits(rawValue, limit: 2)
+                            draft.customMaxSetsText = sanitized
+                            draft.selectedMaxSets = Int(sanitized) ?? 0
+                        }
+                    ))
+                    .keyboardType(.numberPad)
+                    .focused($focusedCustomField, equals: .sets)
+                    .task(id: requestedCustomField) { await focusRequestedCustomField(.sets) }
+                    .multilineTextAlignment(.center)
+                    .font(.system(size: 14))
+                    .frame(width: customInputWidth, height: numberChipSize)
+                    .background(Theme.dialogControlBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: numberChipCornerRadius, style: .continuous))
+                    .accessibilityIdentifier("custom_max_sets_field")
+                    .id("setup_custom_sets")
+                } else {
+                    Button(action: {
                         draft.selectedMaxSets = 0
                         draft.customMaxSetsText = ""
+                        requestedCustomField = .sets
+                    }) {
+                        Image(systemName: "pencil")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(Theme.textPrimary)
+                            .frame(width: numberChipSize, height: numberChipSize)
+                            .background(Theme.dialogControlBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: numberChipCornerRadius, style: .continuous))
                     }
-                    requestedCustomField = .sets
-                }) {
-                    Image(systemName: "pencil")
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundColor(getChipTextColor(selected: !matchCompletionPresets.contains(draft.selectedMaxSets)))
-                        .frame(maxWidth: .infinity)
-                        .frame(minWidth: 58, minHeight: 36)
-                        .background(getChipBackgroundColor(selected: !matchCompletionPresets.contains(draft.selectedMaxSets)))
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(NSLocalizedString("custom", value: "自定义", comment: ""))
+                    .accessibilityIdentifier("custom_match_sets_button")
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel(NSLocalizedString("custom", value: "自定义", comment: ""))
-                .accessibilityIdentifier("custom_match_sets_button")
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
-
-            if !matchCompletionPresets.contains(draft.selectedMaxSets) || isEditingCustomField(.sets) {
-                TextField(NSLocalizedString("match_completion_custom_placeholder", value: "输入 1-99", comment: ""), text: Binding(
-                    get: { draft.customMaxSetsText },
-                    set: { rawValue in
-                        let sanitized = normalizedDecimalDigits(rawValue, limit: 2)
-                        draft.customMaxSetsText = sanitized
-                        draft.selectedMaxSets = Int(sanitized) ?? 0
-                    }
-                ))
-                .keyboardType(.numberPad)
-                .focused($focusedCustomField, equals: .sets)
-                .task(id: requestedCustomField) { await focusRequestedCustomField(.sets) }
-                .textFieldStyle(.roundedBorder)
-                .accessibilityIdentifier("custom_max_sets_field")
             }
 
-            if !hasValidMatchCompletionSets {
-                Text(NSLocalizedString(
-                    "match_completion_invalid_sets",
-                    value: "经典模式请输入 1-99 的奇数；打满模式请输入 1-99。",
-                    comment: ""
-                ))
-                .font(.system(size: 12))
-                .foregroundColor(.red)
-            }
+            // 偶数局不再红字拦截：开赛时自动 +1，并提示实际使用的局数（安卓 setup_auto_odd_sets）。
         }
     }
 
@@ -933,4 +901,63 @@ struct SportsSetupSettingsSection: View {
         }
     }
     
+}
+
+/// Wrap fixed-size choices without remounting the focused input when rows change.
+private struct SetupNumberChoicesLayout: Layout {
+    var layoutDirection: LayoutDirection
+    private let spacing: CGFloat = 8
+
+    private func rows(for sizes: [CGSize], width: CGFloat) -> [[Int]] {
+        var rows: [[Int]] = []
+        var row: [Int] = []
+        var rowWidth: CGFloat = 0
+        for index in sizes.indices {
+            let nextWidth = rowWidth + (row.isEmpty ? 0 : spacing) + sizes[index].width
+            if !row.isEmpty && nextWidth > width {
+                rows.append(row)
+                row = []
+                rowWidth = 0
+            }
+            rowWidth += (row.isEmpty ? 0 : spacing) + sizes[index].width
+            row.append(index)
+        }
+        if !row.isEmpty { rows.append(row) }
+        return rows
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        guard !subviews.isEmpty else { return .zero }
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        let idealWidth = sizes.reduce(0) { $0 + $1.width } + spacing * CGFloat(sizes.count - 1)
+        let width = proposal.width.flatMap { $0.isFinite ? $0 : nil } ?? idealWidth
+        let rows = rows(for: sizes, width: width)
+        let height = rows.reduce(CGFloat.zero) { height, row in
+            height + (row.map { sizes[$0].height }.max() ?? 0)
+        } + spacing * CGFloat(rows.count - 1)
+        return CGSize(width: width, height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        var y = bounds.minY
+        for row in rows(for: sizes, width: bounds.width) {
+            let rowWidth = row.reduce(CGFloat.zero) { $0 + sizes[$1].width } + spacing * CGFloat(row.count - 1)
+            let rowHeight = row.map { sizes[$0].height }.max() ?? 0
+            var x = (bounds.width - rowWidth) / 2
+            for index in row {
+                let size = sizes[index]
+                let originX = layoutDirection == .rightToLeft
+                    ? bounds.maxX - x - size.width
+                    : bounds.minX + x
+                subviews[index].place(
+                    at: CGPoint(x: originX, y: y + (rowHeight - size.height) / 2),
+                    anchor: .topLeading,
+                    proposal: ProposedViewSize(size)
+                )
+                x += size.width + spacing
+            }
+            y += rowHeight + spacing
+        }
+    }
 }

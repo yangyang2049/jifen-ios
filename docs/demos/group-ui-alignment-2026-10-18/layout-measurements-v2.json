@@ -1,0 +1,521 @@
+{
+  "date": "2026-10-19",
+  "standard": [
+    {
+      "scene": "result",
+      "actionHeights": [
+        48
+      ],
+      "developmentCopy": false,
+      "fields": [],
+      "footerPadding": [
+        "16px",
+        "16px",
+        "16px",
+        "16px"
+      ],
+      "horizontalOverflow": false,
+      "labels": [],
+      "matchCourtFields": 0,
+      "radioCount": 0,
+      "rankingHeaders": [],
+      "sections": [
+        "比分与规则"
+      ],
+      "visibleRosterPools": 0,
+      "width": 402
+    },
+    {
+      "scene": "start",
+      "actionHeights": [
+        48
+      ],
+      "developmentCopy": false,
+      "fields": [],
+      "footerPadding": [
+        "16px",
+        "16px",
+        "16px",
+        "16px"
+      ],
+      "horizontalOverflow": false,
+      "labels": [],
+      "matchCourtFields": 0,
+      "radioCount": 0,
+      "rankingHeaders": [],
+      "sections": [
+        "比赛规则"
+      ],
+      "visibleRosterPools": 0,
+      "width": 402
+    },
+    {
+      "scene": "create",
+      "actionHeights": [
+        48
+      ],
+      "developmentCopy": false,
+      "fields": [
+        {
+          "font": "16px",
+          "height": 52
+        },
+        {
+          "font": "14px",
+          "height": 88
+        }
+      ],
+      "footerPadding": [
+        "8px",
+        "16px",
+        "8px",
+        "16px"
+      ],
+      "horizontalOverflow": false,
+      "labels": [
+        "14px",
+        "14px",
+        "14px",
+        "14px"
+      ],
+      "matchCourtFields": 0,
+      "radioCount": 0,
+      "rankingHeaders": [],
+      "sections": [],
+      "visibleRosterPools": 0,
+      "width": 402
+    },
+    {
+      "scene": "join",
+      "actionHeights": [],
+      "developmentCopy": false,
+      "fields": [
+        {
+          "font": "24px",
+          "height": 64
+        },
+        {
+          "font": "14px",
+          "height": 48
+        }
+      ],
+      "footerPadding": null,
+      "horizontalOverflow": false,
+      "labels": [],
+      "matchCourtFields": 0,
+      "radioCount": 0,
+      "rankingHeaders": [],
+      "sections": [],
+      "visibleRosterPools": 0,
+      "width": 402
+    },
+    {
+      "scene": "activity",
+      "actionHeights": [
+        48,
+        48
+      ],
+      "developmentCopy": false,
+      "fields": [
+        {
+          "font": "16px",
+          "height": 48
+        },
+        {
+          "font": "16px",
+          "height": 48
+        },
+        {
+          "font": "14px",
+          "height": 100
+        }
+      ],
+      "footerPadding": [
+        "16px",
+        "16px",
+        "16px",
+        "16px"
+      ],
+      "horizontalOverflow": false,
+      "labels": [
+        "14px",
+        "14px",
+        "14px",
+        "14px",
+        "14px",
+        "14px"
+      ],
+      "matchCourtFields": 0,
+      "radioCount": 0,
+      "rankingHeaders": [],
+      "sections": [],
+      "visibleRosterPools": 0,
+      "width": 402
+    },
+    {
+      "scene": "detail",
+      "actionHeights": [
+        48
+      ],
+      "developmentCopy": false,
+      "fields": [],
+      "footerPadding": [
+        "16px",
+        "16px",
+        "16px",
+        "16px"
+      ],
+      "horizontalOverflow": false,
+      "labels": [],
+      "matchCourtFields": 0,
+      "radioCount": 0,
+      "rankingHeaders": [],
+      "sections": [],
+      "visibleRosterPools": 0,
+      "width": 402
+    },
+    {
+      "scene": "schedule",
+      "actionHeights": [
+        48
+      ],
+      "developmentCopy": false,
+      "fields": [
+        {
+          "font": "16px",
+          "height": 48
+        }
+      ],
+      "footerPadding": [
+        "16px",
+        "16px",
+        "16px",
+        "16px"
+      ],
+      "horizontalOverflow": false,
+      "labels": [],
+      "matchCourtFields": 1,
+      "radioCount": 0,
+      "rankingHeaders": [],
+      "sections": [
+        "对阵安排"
+      ],
+      "visibleRosterPools": 1,
+      "width": 402
+    },
+    {
+      "scene": "registration",
+      "actionHeights": [
+        48
+      ],
+      "developmentCopy": false,
+      "fields": [],
+      "footerPadding": [
+        "16px",
+        "16px",
+        "16px",
+        "16px"
+      ],
+      "horizontalOverflow": false,
+      "labels": [],
+      "matchCourtFields": 0,
+      "radioCount": 0,
+      "rankingHeaders": [],
+      "sections": [],
+      "visibleRosterPools": 0,
+      "width": 402
+    },
+    {
+      "scene": "edit",
+      "actionHeights": [
+        48
+      ],
+      "developmentCopy": false,
+      "fields": [
+        {
+          "font": "16px",
+          "height": 48
+        },
+        {
+          "font": "14px",
+          "height": 100
+        }
+      ],
+      "footerPadding": [
+        "8px",
+        "16px",
+        "16px",
+        "16px"
+      ],
+      "horizontalOverflow": false,
+      "labels": [
+        "14px",
+        "14px",
+        "14px"
+      ],
+      "matchCourtFields": 0,
+      "radioCount": 0,
+      "rankingHeaders": [],
+      "sections": [],
+      "visibleRosterPools": 0,
+      "width": 402
+    },
+    {
+      "scene": "temporary",
+      "actionHeights": [
+        48,
+        48
+      ],
+      "developmentCopy": false,
+      "fields": [
+        {
+          "font": "14px",
+          "height": 140
+        }
+      ],
+      "footerPadding": [
+        "8px",
+        "16px",
+        "8px",
+        "16px"
+      ],
+      "horizontalOverflow": false,
+      "labels": [],
+      "matchCourtFields": 0,
+      "radioCount": 0,
+      "rankingHeaders": [],
+      "sections": [],
+      "visibleRosterPools": 0,
+      "width": 402
+    },
+    {
+      "scene": "members",
+      "actionHeights": [],
+      "developmentCopy": false,
+      "fields": [],
+      "footerPadding": null,
+      "horizontalOverflow": false,
+      "labels": [],
+      "matchCourtFields": 0,
+      "radioCount": 0,
+      "rankingHeaders": [],
+      "sections": [
+        "待审批申请",
+        "正式成员",
+        "临时成员"
+      ],
+      "visibleRosterPools": 0,
+      "width": 402
+    },
+    {
+      "scene": "records",
+      "actionHeights": [],
+      "developmentCopy": false,
+      "fields": [],
+      "footerPadding": null,
+      "horizontalOverflow": false,
+      "labels": [],
+      "matchCourtFields": 0,
+      "radioCount": 0,
+      "rankingHeaders": [
+        "排名 / 成员",
+        "场次",
+        "胜",
+        "负",
+        "平",
+        "局分",
+        "胜率"
+      ],
+      "sections": [
+        "待确认",
+        "战绩"
+      ],
+      "visibleRosterPools": 0,
+      "width": 402
+    },
+    {
+      "scene": "report",
+      "actionHeights": [
+        48,
+        48
+      ],
+      "developmentCopy": false,
+      "fields": [
+        {
+          "font": "14px",
+          "height": 90
+        }
+      ],
+      "footerPadding": [
+        "8px",
+        "16px",
+        "8px",
+        "16px"
+      ],
+      "horizontalOverflow": false,
+      "labels": [],
+      "matchCourtFields": 0,
+      "radioCount": 7,
+      "rankingHeaders": [],
+      "sections": [],
+      "visibleRosterPools": 0,
+      "width": 402
+    }
+  ],
+  "narrowDarkLarge": [
+    {
+      "scene": "result",
+      "overflow": false,
+      "scale": "1.3",
+      "width": 320
+    },
+    {
+      "scene": "start",
+      "overflow": false,
+      "scale": "1.3",
+      "width": 320
+    },
+    {
+      "scene": "create",
+      "overflow": false,
+      "scale": "1.3",
+      "width": 320
+    },
+    {
+      "scene": "join",
+      "overflow": false,
+      "scale": "1.3",
+      "width": 320
+    },
+    {
+      "scene": "activity",
+      "overflow": false,
+      "scale": "1.3",
+      "width": 320
+    },
+    {
+      "scene": "detail",
+      "overflow": false,
+      "scale": "1.3",
+      "width": 320
+    },
+    {
+      "scene": "schedule",
+      "overflow": false,
+      "scale": "1.3",
+      "width": 320
+    },
+    {
+      "scene": "registration",
+      "overflow": false,
+      "scale": "1.3",
+      "width": 320
+    },
+    {
+      "scene": "edit",
+      "overflow": false,
+      "scale": "1.3",
+      "width": 320
+    },
+    {
+      "scene": "temporary",
+      "overflow": false,
+      "scale": "1.3",
+      "width": 320
+    },
+    {
+      "scene": "members",
+      "overflow": false,
+      "scale": "1.3",
+      "width": 320
+    },
+    {
+      "scene": "records",
+      "overflow": false,
+      "scale": "1.3",
+      "width": 320
+    },
+    {
+      "scene": "report",
+      "overflow": false,
+      "scale": "1.3",
+      "width": 320
+    }
+  ],
+  "interactions": {
+    "deadlineIndependent": "14:00\n›",
+    "deadline": "2026-10-23 16:00\n›",
+    "secondCourt": "2号场",
+    "firstCourt": "3号场",
+    "firstSessionTime": "15:00\n›",
+    "secondSessionTime": "14:30\n›",
+    "registrationBeforeSave": "新增 1 · 取消 0\n报名 5/12\n保存报名（1 项）",
+    "registrationAfterSave": "没有未保存的变更\n报名 5/12\n完成",
+    "singleGameScores": [
+      "1 : 0",
+      "0 : 1"
+    ],
+    "playAllScores": [
+      "3 : 0",
+      "2 : 1",
+      "0 : 3",
+      "1 : 2"
+    ]
+  },
+  "controlGeometry": [
+    {
+      "scene": "result",
+      "checkboxes": [],
+      "scores": [
+        44,
+        44,
+        44,
+        44
+      ],
+      "seats": [
+        44,
+        44,
+        44,
+        44
+      ],
+      "sectionGaps": [
+        "24px"
+      ],
+      "sportIcon": [],
+      "sportTiles": []
+    },
+    {
+      "scene": "create",
+      "checkboxes": [],
+      "scores": [],
+      "seats": [],
+      "sectionGaps": [],
+      "sportIcon": [
+        34,
+        34,
+        34,
+        34
+      ],
+      "sportTiles": [
+        88,
+        88,
+        88,
+        88
+      ]
+    },
+    {
+      "scene": "registration",
+      "checkboxes": [
+        20,
+        20,
+        20,
+        20
+      ],
+      "scores": [],
+      "seats": [],
+      "sectionGaps": [],
+      "sportIcon": [],
+      "sportTiles": []
+    }
+  ]
+}

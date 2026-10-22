@@ -417,7 +417,7 @@ struct DualPlayerTimerView: View {
                     } label: {
                         Text(NSLocalizedString("start_game", value: "开始", comment: ""))
                             .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Theme.textOnPrimary)
                             .frame(width: 80, height: 80)
                             .background(Theme.accentColor)
                             .clipShape(Circle())
@@ -492,7 +492,7 @@ struct DualPlayerTimerView: View {
         Button(action: action) {
             Image(systemName: icon)
                 .font(.system(size: size >= 80 ? 32 : 24, weight: .semibold))
-                .foregroundColor(.white)
+                .foregroundColor(Theme.actionForeground(on: background))
                 .frame(width: size, height: size)
                 .background(background)
                 .clipShape(Circle())
@@ -527,7 +527,7 @@ struct DualPlayerTimerView: View {
                     } label: {
                         Text(NSLocalizedString("timer_restart", value: "重新开始", comment: ""))
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Theme.actionForeground(on: Color(hex: "34C759")))
                             .frame(width: 124, height: 42)
                             .background(Color(hex: "34C759"))
                             .clipShape(Capsule())
@@ -541,7 +541,7 @@ struct DualPlayerTimerView: View {
                     } label: {
                         Text(NSLocalizedString("exit", value: "退出", comment: ""))
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Theme.actionForeground(on: Color(hex: "FF3B30")))
                             .frame(width: 124, height: 42)
                             .background(Color(hex: "FF3B30"))
                             .clipShape(Capsule())

@@ -551,7 +551,7 @@ struct MembershipView: View {
                 if !plan.badge.isEmpty {
                     Text(plan.badge)
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.white)
+                        .foregroundColor(Theme.textOnPrimary)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 6)
                         .background(
@@ -677,7 +677,7 @@ struct MembershipView: View {
                 }
             }
             .font(.system(size: 16, weight: .bold))
-            .foregroundColor(.white)
+            .foregroundColor(Theme.textOnPrimary)
             .frame(maxWidth: .infinity)
             .frame(height: 54)
             .background(Capsule().fill(Theme.accentColor.opacity(canStartPurchase ? 1 : 0.48)))

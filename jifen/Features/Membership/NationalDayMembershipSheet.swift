@@ -64,18 +64,13 @@ struct NationalDayMembershipSheet: View {
             }
             .scrollBounceBehavior(.basedOnSize)
 
-            Button {
+            ModalCloseButton(placement: .standalone) {
                 guard !isBusy else { return }
                 onDismiss()
-            } label: {
-                Text("×")
-                    .font(.system(size: 25))
-                    .foregroundColor(Color(hex: "91897C"))
-                    .frame(width: 34, height: 34)
-                    .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
-            .padding(.trailing, 17)
+            .accessibilityLabel(NSLocalizedString("close", value: "关闭", comment: ""))
+            .accessibilityIdentifier("national_day_close")
+            .padding(.trailing, 12)
             .padding(.top, 1)
             .disabled(isBusy)
         }
@@ -99,6 +94,7 @@ struct NationalDayMembershipSheet: View {
                     .background(Theme.backgroundColor)
                     .navigationTitle(page.title)
                     .navigationBarTitleDisplayMode(.inline)
+                    .toolbar { ToolbarItem(placement: .topBarTrailing) { ModalCloseButton { agreementPage = nil } } }
             }
         }
     }
@@ -194,7 +190,7 @@ struct NationalDayMembershipSheet: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .frame(height: 52)
-                .background(RoundedRectangle(cornerRadius: 13).fill(ndGreen))
+                .background(Capsule().fill(ndGreen))
         }
         .buttonStyle(.plain)
         .disabled(isBusy || lifetimeProduct == nil)
@@ -323,7 +319,7 @@ struct NationalDayMembershipSheet: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .frame(height: 52)
-                .background(RoundedRectangle(cornerRadius: 13).fill(ndGreen))
+                .background(Capsule().fill(ndGreen))
         }
         .buttonStyle(.plain)
         .padding(.bottom, 4)

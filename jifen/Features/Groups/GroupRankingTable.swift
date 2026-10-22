@@ -34,16 +34,16 @@ struct GroupRankingTable: View {
         let columnWidths = widths
         GroupSurface {
             Text(String(format: groupText("ranking_title", "%@ rankings"), groupText("filter_" + format.rawValue, format.title)))
-                .font(.subheadline.weight(.semibold)).foregroundStyle(Theme.textSecondary)
+                .font(GroupTypography.body.weight(.semibold)).foregroundStyle(Theme.textSecondary)
             ScrollView(.horizontal) {
                 VStack(spacing: 0) {
                     HStack(spacing: 0) {
                         Text("").frame(minWidth: identityWidth, maxWidth: .infinity)
                         ForEach(headers.indices, id: \.self) { index in
-                            Text(headers[index]).font(.caption2.weight(.semibold)).foregroundStyle(Theme.textSecondary)
+                            Text(headers[index]).font(GroupTypography.caption.weight(.semibold)).foregroundStyle(Theme.textSecondary)
                                 .lineLimit(1).frame(width: columnWidths[index], alignment: .trailing)
                         }
-                    }.padding(.vertical, 4)
+                    }.padding(.vertical, Theme.xs)
                     ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
                         let rank = row.rank > 0 ? row.rank : index + 1
                         NavigationLink {
@@ -51,22 +51,22 @@ struct GroupRankingTable: View {
                         } label: {
                             HStack(spacing: 0) {
                                 HStack(spacing: 6) {
-                                    Text(String(rank)).font(.caption2.bold())
+                                    Text(String(rank)).font(GroupTypography.caption.bold())
                                         .foregroundStyle(rank <= 3 ? Theme.primary : Theme.textSecondary)
                                         .frame(width: badgeSize, height: badgeSize)
                                         .background((rank <= 3 ? Theme.primary : Theme.textSecondary).opacity(0.12), in: RoundedRectangle(cornerRadius: 6))
                                     GroupAvatar(name: row.name, url: members.first { $0.id == row.memberId }?.avatarUrl, size: 24)
                                     Text(row.name + (!row.memberId.isEmpty && row.memberId == myMemberID ? groupText("ranking_me_suffix", " (me)") : ""))
-                                        .font(.subheadline.weight(.semibold)).lineLimit(1).truncationMode(.tail)
+                                        .font(GroupTypography.body.weight(.semibold)).lineLimit(1).truncationMode(.tail)
                                     Spacer(minLength: 0)
                                 }.frame(minWidth: identityWidth, maxWidth: .infinity, alignment: .leading)
                                 ForEach(headers.indices, id: \.self) { column in
                                     let highlighted = column == 5 && rank <= 3 && row.qualifiedWinRate != nil
-                                    Text(cells(row)[column]).font(.subheadline.weight(highlighted ? .bold : .regular))
+                                    Text(cells(row)[column]).font(GroupTypography.body.weight(highlighted ? .bold : .regular))
                                         .foregroundStyle(highlighted ? Theme.primary : Theme.textPrimary).lineLimit(1)
                                         .frame(width: columnWidths[column], alignment: .trailing)
                                 }
-                            }.padding(.vertical, 8).contentShape(Rectangle())
+                            }.padding(.vertical, Theme.sm).contentShape(Rectangle())
                         }.buttonStyle(.plain).accessibilityIdentifier("group_rank_row_" + row.memberId)
                     }
                 }.frame(minWidth: max(availableWidth, identityWidth + columnWidths.reduce(0, +)))

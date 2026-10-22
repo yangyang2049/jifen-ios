@@ -30,12 +30,12 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
-		<key>one</key>
-		<string>%d match · all group members</string>
-		<key>few</key>
-		<string>%d matches · all group members</string>
-		<key>other</key>
-		<string>%d matches · all group members</string>
+			<key>one</key>
+			<string>%d meci · toți membrii grupului</string>
+			<key>few</key>
+			<string>%d meciuri · toți membrii grupului</string>
+			<key>other</key>
+			<string>%d de meciuri · toți membrii grupului</string>
 		</dict>
 	</dict>
 	<key>archived_count</key>
@@ -48,12 +48,12 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
-		<key>one</key>
-		<string>%d group</string>
-		<key>few</key>
-		<string>%d groups</string>
-		<key>other</key>
-		<string>%d groups</string>
+			<key>one</key>
+			<string>%d grup</string>
+			<key>few</key>
+			<string>%d grupuri</string>
+			<key>other</key>
+			<string>%d de grupuri</string>
 		</dict>
 	</dict>
 	<key>timer_byoyomi_periods_format</key>

@@ -231,7 +231,7 @@ struct RecordsTab: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(NSLocalizedString("cancel", comment: "Cancel")) {
+                    ModalCloseButton {
                         showFilterSheet = false
                     }
                 }
@@ -303,7 +303,7 @@ struct RecordsTab: View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: Theme.fontBody2, weight: selected ? .semibold : .medium))
-                .foregroundColor(selected ? .white : Theme.textPrimary)
+                .foregroundColor(selected ? Theme.textOnPrimary : Theme.textPrimary)
                 .padding(.horizontal, Theme.cardPadding)
                 .padding(.vertical, 8)
                 .background(selected ? Theme.accentColor : Theme.surface)
@@ -556,7 +556,7 @@ struct RecordsTab: View {
             if isSyncedFromWatch {
                 Image(systemName: "applewatch")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.textOnPrimary)
                     .padding(3)
                     .background(Circle().fill(Theme.accentColor))
                     .offset(x: 2, y: 2)

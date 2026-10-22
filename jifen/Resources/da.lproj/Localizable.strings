@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "Brætspil";
 "search_team_or_game" = "Søg efter hold eller spil";
 "match_count" = "%d kampe";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d kampe · alle gruppemedlemmer";
+"archived_count" = "%d grupper";
 
 /* Home Screen */
 "recent_records" = "Seneste historik";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "f.eks. spil alle fem sæt; kampen kan ende uafgjort";
 "match_completion_custom_placeholder" = "Indtast 1-99";
 "match_completion_invalid_sets" = "Klassisk kræver et ulige tal fra 1–99; Spil alle tillader 1–99.";
+"setup_auto_odd_sets" = "Kun ulige tal er tilladt — bruger %d";
 "has_been_reset" = "Nulstilling fuldført";
 "no_undo_available" = "Intet at fortryde";
 "screenshot_failed" = "Skærmbillede mislykkedes";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "Aktiv synkroniseringssession";
 "timer_status_running" = "Kører";
 "timer_status_paused" = "Sat på pause";
-"membership_entry_summary_active" = "Du er VIP-medlem. Tak for din støtte";
+"membership_entry_summary_active" = "VIP-medlemskab aktivt";
 "sound_effects" = "Lydeffekter";
 "vibration" = "Vibration";
 "language" = "Sprog";
@@ -1579,7 +1580,7 @@
 "group_approval" = "Godkendelse kræves";
 "group_approve" = "Godkend";
 "group_archive" = "Arkivér gruppe";
-"group_archive_hint" = "Arkivering bevarer hele historikken og sætter ændringer i gruppen på pause. Du kan gendanne den senere.";
+"group_archive_hint" = "Arkivér denne gruppe? Indholdet bliver skrivebeskyttet.";
 "group_archive_readonly" = "Denne gruppe er arkiveret. Historikken kan kun læses.";
 "group_archived" = "Arkiveret";
 "group_benefit_activity" = "Planlæg aktiviteter og tilmeld dig";
@@ -1624,38 +1625,38 @@
 "group_invalid_qr" = "Dette er ikke en gyldig QR-kode til en gruppe.";
 "group_invalid_result" = "Det gemte resultat skal kontrolleres før upload.";
 "group_invalid_rules" = "Kontrollér kampreglerne.";
-"group_invite" = "Invite";
+"group_invite" = "Invitér holdkammerater";
 "group_join" = "Bliv medlem af gruppe";
 "group_join_hint" = "Bliv medlem af en vens gruppe med dens nummer eller QR-kode.";
-"group_join_message" = "Besked til gruppen (valgfri)";
-"group_join_policy" = "Indmeldelse";
+"group_join_message" = "Besked med anmodning om medlemskab (valgfrit)";
+"group_join_policy" = "Muligheder for tilmelding";
 "group_leave" = "Forlad gruppe";
-"group_leave_hint" = "Du mister adgang til denne gruppe. Dine personlige registreringer bliver på denne enhed.";
+"group_leave_hint" = "Når du forlader gruppen, er du ikke længere medlem, og gruppen fjernes fra »Mine grupper«. Du kan ikke længere få adgang til eller deltage i gruppen. Gruppens eksisterende kampregistreringer og dine personlige registreringer på denne enhed bevares. Du skal tilmelde dig gruppen igen for at få adgang.";
 "group_load_failed" = "Gruppen kunne ikke indlæses";
 "group_load_more" = "Indlæs flere";
 "group_losses" = "nederlag";
 "group_manual" = "Manuel indtastning";
-"group_manual_result" = "Tilføj tidligere kamp";
+"group_manual_result" = "Tilføj kampresultat";
 "group_match_detail" = "Kampdetaljer";
 "group_match_log" = "Kamphistorik";
 "group_match_rules" = "Kampregler";
 "group_member" = "Medlem";
 "group_member_name" = "Medlemsnavn";
-"group_members" = "Medlemmer";
+"group_members" = "Medlem";
 "group_month_matches" = "Kampe denne måned";
 "group_my_groups" = "Mine grupper";
 "group_name" = "Gruppenavn";
 "group_need_login" = "Log ind for at fortsætte.";
 "group_need_members" = "Inviter venner eller tilføj midlertidige medlemmer, før du starter en kamp.";
-"group_new_activity" = "Planlæg en aktivitet";
+"group_new_activity" = "Opret aktivitet";
 "group_new_owner" = "Ny ejer";
 "group_no_activities" = "Ingen aktiviteter endnu";
 "group_no_description" = "Ingen beskrivelse endnu";
 "group_no_rankings" = "Ranglister vises, når en kamp er bekræftet.";
 "group_no_set_details" = "Kun det samlede resultat blev gemt.";
-"group_note" = "Aktivitetsnote (valgfri)";
-"group_number" = "6–8 digit group number";
-"group_open" = "Alle med nummeret kan blive medlem";
+"group_note" = "Note (valgfri)";
+"group_number" = "Gruppenummer med 6–8 cifre";
+"group_open" = "Tilmeld direkte";
 "group_overall_score" = "Samlet sætresultat";
 "group_overview" = "Oversigt";
 "group_owner" = "Ejer";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "Fjern medlem";
 "group_restore" = "Gendan gruppe";
 "group_restore_hint" = "Gendan denne gruppe for at tillade aktiviteter og pointtælling.";
-"group_results" = "Kampe";
+"group_results" = "Historik";
 "group_retry" = "Prøv igen";
 "group_rules_missing" = "Regler blev ikke gemt";
-"group_save" = "Bekræft";
+"group_save" = "Gem";
 "group_save_failed" = "Kampen kunne ikke gemmes. Prøv igen.";
 "group_scan" = "Scan QR-kode";
 "group_scoreboard" = "Resultattavle";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "Genoptag eller afslut din nuværende kamp, før du starter en ny.";
 "group_unregister" = "Afmeld";
 "group_void_reason" = "Årsag til annullering";
-"group_void_result" = "Annuller resultat";
+"group_void_result" = "Ugyldiggør";
 "group_voided" = "Annulleret";
 "group_wins" = "sejre";
 "group_withdraw" = "Træk anmodning tilbage";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "Du er allerede medlem.";
 "group_open_group" = "Åbn gruppe";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
+"group_groups" = "Gruppe";
+"group_invite_students" = "Inviter elever";
+"group_group_type" = "Gruppetype";
+"group_peer" = "Vennegruppe";
+"group_coaching" = "Træningsgruppe";
+"group_training" = "Træning";
+"group_upcoming" = "Kommende";
+"group_latest_results" = "Seneste resultater";
+"group_no_results" = "Ingen kampe registreret endnu";
+"group_no_training" = "Ingen træning planlagt endnu";
+"group_active_activities" = "I gang · Tilmelding åben";
+"group_past_activities" = "Tidligere aktiviteter";
+"group_all_formats" = "Alle spilleformer";
+"group_join_requests" = "Medlemsanmodninger";
+"group_regular_members" = "Tilmeldte medlemmer";
+"group_temporary_members" = "Midlertidige medlemmer";
+"group_add" = "Tilføj";
+"group_leader" = "Ejer";
+"group_member_settings" = "Medlemsindstillinger";
+"group_settings" = "Gruppeadministration";
+"group_partial_load" = "Nogle sektioner kunne ikke opdateres. Træk ned for at prøve igen.";
+"group_leave_notices" = "Elevernes fraværsmeldinger";
+"group_mark_seen" = "Læst";
+"group_training_schedule" = "Træningsprogram";
+"group_add_session" = "Tilføj kamp";
+"group_edit_schedule" = "Rediger program";
+"group_cancel_schedule" = "Aflys program";
+"group_leave_training" = "Meld fravær";
+"group_session_minutes" = "Minutter pr. kamp";
+"group_court" = "Bane";
+"group_remove_session" = "Fjern";
+"group_publish_schedule" = "Offentliggør program";
+"group_leave_reason" = "Fraværsårsag (valgfrit)";
+"group_report" = "Anmeld gruppe";
+"group_report_reason" = "Årsag";
+"group_report_detail" = "Detaljer (valgfrit)";
+"group_report_submit" = "Send";
 "group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
+"group_report_harassment" = "Chikane";
+"group_report_inappropriate" = "Seksuelt eller upassende indhold";
+"group_report_fraud" = "Svindel eller hasardspil";
+"group_report_illegal" = "Ulovlig eller farlig aktivitet";
+"group_report_impersonation" = "Identitetsmisbrug";
+"group_report_other" = "Andet";
+"group_lineup_invalid" = "Kontrollér kamptider, baner og spillere.";
+"group_lineup_member_limit" = "Et medlem kan højst spille otte kampe pr. program.";
+"group_lineup_conflict" = "Samtidige kampe skal have forskellige baner og spillere.";
+"group_multi_match_hint" = "En aktivitet kan indeholde flere kampe. Medlemmer tilmelder sig aktiviteten; vælg 2 tilmeldte til hver singlekamp eller 4 til hver doublekamp, når kampene planlægges.";
+"group_single_match_hint" = "Hver aktivitet er én kamp. Vælg 2 tilmeldte medlemmer til single eller 4 til double.";
+"group_rate_limited" = "For mange anmodninger. Prøv igen senere.";
+"group_create_daily_limit" = "Du har nået grænsen for oprettelse af grupper inden for 24 timer. Prøv igen senere.";
+"group_join_daily_limit" = "Du har nået grænsen for at deltage i grupper inden for 24 timer. Prøv igen senere.";
+"group_pending_request_limit" = "For mange anmodninger afventer godkendelse. Vent på svar, eller træk nogle tilbage.";
+"group_request_daily_limit" = "Gruppen har nået grænsen for medlemsanmodninger inden for 24 timer. Prøv igen senere.";
+"group_join_cooldown" = "Du skal vente 24 timer efter et afslag, før du kan ansøge igen.";
+"group_result_group_daily_limit" = "Gruppen har nået resultatgrænsen inden for 24 timer. Prøv igen senere.";
+"group_result_submitter_daily_limit" = "Du har nået grænsen for indsendelse af resultater inden for 24 timer. Prøv igen senere.";
+"group_not_coach" = "Kun træneren kan planlægge træningspas.";
+"group_activity_count" = "%1$d/%2$d tilmeldt";
+"group_activity_create_admin_hint" = "Aktiviteter oprettes af gruppeejeren eller en administrator";
+"group_activity_direct_hint" = "Vælg direkte blandt alle aktive gruppemedlemmer; tilmelding er ikke nødvendig.";
+"group_activity_direct_save" = "Gem program";
+"group_activity_direct_title" = "Planlæg nu";
+"group_activity_field_title_optional" = "Aktivitetsnavn (valgfrit)";
+"group_activity_full" = "Fuldt";
+"group_activity_lineup_add" = "Tilføj kamp";
+"group_activity_lineup_add_need_members" = "For få spillere. Der kræves mindst %1$d aktive gruppemedlemmer for at tilføje en kamp.";
+"group_activity_lineup_court" = "Banenummer";
+"group_activity_lineup_duration" = "Kampvarighed";
+"group_activity_lineup_match_count" = "%1$d kampe";
 "group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_activity_lineup_remove" = "Fjern";
+"group_activity_lineup_section_matches" = "Planlæg kampe";
+"group_activity_lineup_session" = "Kamp %1$d";
+"group_activity_registration_empty" = "Ingen midlertidige medlemmer";
+"group_activity_section_count" = "%1$d aktiviteter";
+"group_activity_section_past" = "Tidligere aktiviteter";
+"group_activity_section_upcoming" = "I gang · Tilmelding åben";
+"group_activity_status_scheduled" = "Klar til start";
+"group_activity_time_after_previous" = "Efter den foregående kamp";
+"group_activity_time_unspecified" = "Tidspunkt fastlægges senere";
+"group_activity_timing" = "Tidsplan";
+"group_activity_timing_estimated" = "Anslået tidspunkt";
+"group_activity_timing_sequence" = "Uden præcist tidspunkt";
+"group_activity_title_auto_hint" = "Hvis feltet er tomt, dannes et navn ud fra datoen, f.eks. ”Aktivitet den 10. november”.";
+"group_archived_empty" = "Ingen arkiverede grupper";
+"group_archived_list_title" = "Arkiverede grupper";
+"group_empty_activities_title" = "Ingen aktiviteter endnu";
+"group_list_add_title" = "Opret eller deltag i en gruppe";
+"group_ranking_draws" = "uafgjorte";
+"group_ranking_games" = "Spillede kampe";
+"group_ranking_losses" = "nederlag";
+"group_ranking_sets" = "Resultat";
+"group_ranking_title" = "%@ – rangliste";
+"group_ranking_wins" = "sejre";
+"group_training_results_locked" = "Programmer med resultater beholder tider og spillere. Sted og note kan redigeres.";
+"group_temporary_hint" = "Midlertidige medlemmer behøver ingen konto og kan tilføjes ved indtastning af resultater.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "Frigiv kamp";
-"group_activity_lineup" = "Kampplan";
-"group_activity_mode" = "Kampe";
+"group_abandon_game" = "Opgiv kamp";
+"group_activity_lineup" = "Planlæg kampe";
+"group_activity_mode" = "Historik";
 "group_activity_reminder" = "Påmind mig 15 minutter før";
 "group_add_set" = "Tilføj resultat for et parti";
 "group_added_members" = "Tilføjet";
-"group_authority_confirm" = "Bekræft som gruppeejer";
-"group_batch_names_hint" = "Ét navn pr. linje, hvert med 1–24 tegn.";
-"group_beta_notice" = "Grupper er i betaversion. Feedback er velkommen.";
+"group_authority_confirm" = "Bekræft resultat";
+"group_batch_names_hint" = "Ét navn pr. linje";
+"group_beta_notice" = "Grupper er i beta. Nogle funktioner kan ændre sig. Tak, fordi du prøver dem tidligt.";
 "group_cancel_dissolve" = "Annullér opløsning";
 "group_cancel_dissolve_hint" = "Gendan denne gruppe for at tillade aktiviteter og pointtælling.";
 "group_cancel_training_hint" = "Afsluttede kampe forbliver i historikken. Påbegyndte kampe kan afsluttes.";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "Sport Standard";
 "group_discard_upload" = "Kassér upload";
 "group_dissolve" = "Opløs gruppe";
-"group_dissolve_hint" = "Skrivebeskyttet i 7 dage. Du kan annullere opløsningen i denne periode.";
+"group_dissolve_hint" = "Gruppen er skrivebeskyttet i 7 dage, og opløsningen kan annulleres i den periode. Efter 7 dage slettes gruppen og alle dens data permanent.";
 "group_dissolving" = "Opløsning i gang";
 "group_edit_activity" = "Rediger";
 "group_edit_lineup" = "Planlæg kampe";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "Ingen notifikationer endnu";
 "group_no_sessions" = "Ingen kampe planlagt endnu";
 "group_notices" = "Notifikationer";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "Nogle sektioner kunne ikke opdateres. Træk ned for at prøve igen.";
 "group_point_cap" = "Scoregrænse";
 "group_preview_schedule" = "Gennemgå tidsplan";
 "group_published" = "Udgivet";
 "group_qr_direct_hint" = "Scan i iScoreboard for at se gruppen og deltage.";
 "group_quick_score" = "Samlet sætresultat";
 "group_rally_scoring" = "Rallyscoring";
-"group_read_notices" = "Read";
+"group_read_notices" = "Læst";
 "group_registration_closes" = "Tilmelding lukker";
 "group_regular" = "Standard";
-"group_reload_version" = "Hent seneste version";
+"group_reload_version" = "Genindlæs";
 "group_reminder_body" = "Aktiviteten begynder om 15 minutter.";
 "group_reminder_permission" = "Aktivér appens notifikationer i Indstillinger.";
 "group_reminder_too_late" = "Aktiviteten begynder om mindre end 15 minutter.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "Sætscoring";
 "group_tie_break" = "Tiebreak-point";
 "group_tiebreak_only" = "Kun tiebreak";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "Dato";
+"group_too_many_sessions" = "Kontrollér kamptider, baner og spillere.";
+"group_training_date" = "Træningsdato";
 "group_win_by_two" = "Vind med to points forskel";
 
-"group_keep_draft" = "Behold mine ændringer";
+"group_keep_draft" = "Fortsæt med at redigere den lokale version";
 
 "group_server_version" = "Seneste version";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "Gruppen opløses %@\n7 dages betænkningstid; indtil da kun læseadgang";
 "group_notice_end" = "Ikke flere notifikationer";
 "group_notice_join_requested" = "Anmodning om medlemskab modtaget";
 "group_notice_join_approved" = "Anmodning om medlemskab godkendt";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "Manuel indtastning";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "Markér alle som læst";
+
+"group_status_active" = "Aktiv";
+"group_dissolved" = "Opløst";
+"group_report_status_pending" = "Afventer";
+"group_report_status_reviewing" = "Under behandling";
+"group_report_status_resolved" = "Løst";
+"group_report_status_dismissed" = "Afvist";
+"group_error_permission" = "Du har ikke tilladelse til dette.";
+"group_error_transfer_first" = "Overdrag gruppens ejerskab, før du forlader den eller sletter din konto.";
+"group_error_target" = "Vælg et aktivt medlem af gruppen med en konto.";
+"group_error_activity_locked" = "Aktiviteten er startet eller afsluttet. Programmet kan ikke ændres eller aflyses.";
+"group_error_activity_pending" = "Afslut eller fjern først de resterende kampe.";
+"group_error_registration_disabled" = "Direkte planlagte kampe kræver ikke tilmelding.";
+"group_error_content_blocked" = "Teksten indeholder upassende indhold. Ret den.";
+"group_error_request_invalid" = "Kontrollér oplysningerne, og prøv igen.";
+"group_error_reason_required" = "Angiv en årsag, før du fortsætter.";
+"group_error_result_state" = "Kun resultater, der afventer bekræftelse, kan bekræftes.";
+"group_error_conflict" = "Oplysningerne er ændret. Opdater og kontrollér dem, før du prøver igen.";
+"group_error_request_handled" = "Anmodningen er allerede behandlet. Opdater listen.";
+"group_error_place_locked" = "Spillestedet kan ikke ændres, når en kamp er startet eller afsluttet.";
+"group_error_schedule_cancelled" = "Programmet eller kampen er blevet aflyst.";
+"group_error_session_completed" = "Kampen er afsluttet, og der kan ikke anmodes om fravær. Opdatér planen for at se resultatet.";
+"group_error_session_has_result" = "Kampen har allerede et resultat. Ugyldiggør det, før du tilføjer et andet.";
+"group_error_item_not_found" = "Aktiviteten, programmet, kampen eller notifikationen er ikke længere tilgængelig. Opdater listen.";
+"group_error_server" = "Gruppetjenesten er midlertidigt utilgængelig. Prøv igen senere.";
+"group_error_peer_only" = "Brug træningsplanlægningen til træningsgrupper.";
+"group_error_name_length" = "Gruppenavne skal indeholde 2–24 tegn.";
+"group_error_description_length" = "Gruppebeskrivelser må højst indeholde 200 tegn.";
+"group_error_activity_invalid" = "Kontrollér aktivitetens navn, dato, sted og deltagergrænse.";
+"group_error_registration_closed" = "Tilmeldingen er lukket.";
+"group_error_action_disabled" = "Handlingen er ikke tilgængelig lige nu.";
+"group_error_update_required" = "Opdater appen for at fortsætte.";
+"group_welcome_back" = "Velkommen tilbage";
+"group_transfer_none" = "Der er ingen andre faste medlemmer. Midlertidige medlemmer kan ikke blive gruppeleder.";
+"group_empty_activities_hint" = "Opret en aktivitet, som medlemmerne kan tilmelde sig. Tilmeldingen lukker, når alle pladser er fyldt.";
+"group_temp_import_names" = "Importér gemte navne";
+"group_temp_import_count" = "Importér (%1$d)";
+"group_result_information" = "Kampoplysninger";
+"group_result_actions" = "Resultathandlinger";
+"group_peer_confirmation" = "Bekræftet af modstanderen";
+"group_notice_target_unavailable" = "Dette indhold er ikke tilgængeligt, eller du har ikke længere adgang.";
+"group_push_enabled" = "Gruppenotifikationer";
+"group_push_group_enabled" = "Modtag notifikationer fra denne gruppe";
+"group_push_inbox_kept" = "Hvis du slår disse fra, bevares notifikationer i appen og eksisterende aktivitetspåmindelser.";
+"group_push_permission" = "Aktivér systemnotifikationer";
+"group_push_settings" = "Notifikationsindstillinger";
+
+// Shared group form controls
+"group_inline_seat_hint" = "Vælg en plads og derefter et medlem";
+"group_score_and_rules" = "Resultat og regler";
+"group_activity_registration_scope" = "Tilmeld midlertidige medlemmer her. Medlemmer med konto tilmelder sig selv.";
+"group_activity_registration_no_changes" = "Ingen ændringer, der ikke er gemt";
+"group_activity_registration_changes" = "Tilføj %1$d · Afmeld %2$d";
+"group_activity_registration_save" = "Gem tilmeldinger (%1$d)";
+"group_activity_registration_manage" = "Tilmelding af midlertidige medlemmer";
+"group_activity_registration_pending_add" = "Skal tilmeldes";
+"group_activity_registration_pending_remove" = "Skal afmeldes";
+"group_activity_registration_registered" = "Tilmeldt";
+"group_activity_registration_not_registered" = "Ikke tilmeldt";
+"group_activity_detail" = "Aktivitetsdetaljer";
+"group_activity_my_registration" = "Min tilmelding";
+"group_match_score" = "Kampresultat";
+
+"group_lookup_available" = "Åben";
+
+/* Group beta notice card. */
+"group_beta_badge" = "Beta";
+"group_beta_supported_label" = "Tilgængelig nu";
+"group_beta_feedback_prompt" = "Problemer eller forslag?";
+"group_beta_feedback_action" = "Send tilbagemelding";
+
+"group_member_results_title" = "Medlemsresultater";
+
+"group_removed_members_expand" = "Udvid";
+"group_removed_members_collapse" = "Skjul";
+"group_best_of_format" = "Bedst af %1$@ (først til %2$@)";
+"group_member_count_single" = "%d medlem";
+"group_member_count_short" = "%d medlemmer";
+"group_lookup_closed_short" = "Lukket";
+"group_lookup_closing_short" = "Under opløsning";
+"group_lookup_member_short" = "Tilmeldt";
+"group_lookup_unavailable_short" = "Ikke tilgængelig";
+"group_join_scan_hint" = "Scan en gruppes QR-kode";
+"group_join_number_hint" = "6–8 cifre. Spørg gruppens ejer.";
+"group_request_join" = "Anmod om at deltage";
+"group_overdue_tasks" = "Forfaldne opgaver";
+"group_apply_shift" = "Anvend ændringer";
+"group_transfer_submit" = "Overdrag";
+"group_rename_member" = "Omdøb";
+"group_set_admin" = "Gør til administrator";
+"group_set_member" = "Fjern administratorrolle";
+"group_confirm_authority_message" = "Alle spillere er midlertidige medlemmer, eller modparten har ingen spiller med konto, der kan bekræfte. Ejeren skal kontrollere spillere og resultat. Efter bekræftelse tæller resultatet i kampregistrene, og ejeren angives som den, der bekræftede.";
+"group_confirm_result_message" = "Efter bekræftelse tæller resultatet i begge siders registre og kan ikke redigeres. Annuller resultatet for at rette det.";
+"group_confirm_member_message" = "Bekræft spillere og resultat for at medtage det i registrene. Bed en administrator om at annullere det oprindelige resultat, hvis det skal rettes.";
+"group_cancel_activity_message" = "Aflysning sletter tilmeldingslisten permanent. Igangværende aktiviteter kan ikke aflyses.";
+"group_abandon_game_message" = "Opgiv denne kamp for at starte en anden. Gemte personlige registreringer bevares.";
+"group_void_pending_message" = "Resultatet afventer ikke længere bekræftelse og tæller ikke i kampstatistikken. Det oprindelige resultat og årsagen forbliver synlige for gruppens medlemmer. Spillerne og indsenderen får besked.";
+"group_void_confirmed_message" = "Resultatet tæller ikke længere i kampstatistikken. Begge siders statistik og placeringer genberegnes. Det oprindelige resultat og årsagen forbliver synlige for gruppens medlemmer. Spillerne og indsenderen får besked.";
+"group_remove_member_message" = "Fjern %@? Vedkommende skal anmode om at deltage igen.";
+"group_reload_version_message" = "Kassér ikke-gemte ændringer i kampplanen, og indlæs den senest gemte plan?";
+"group_transfer_confirmation" = "Overdrag ejerskabet til %@? Du bliver almindeligt medlem.";
+"group_approve_confirmation" = "%@ bliver gruppemedlem og kan se aktiviteter og resultater.";
+"group_reject_confirmation" = "Efter afvisning skal %@ sende en ny anmodning.";
+"group_lookup_full_short" = "Fuldt";
+"group_lookup_archived_short" = "Arkiveret";
+"group_lookup_pending_short" = "Afventer";
+"group_temporary_member_count" = "%d medlemmer";
+"group_best_of_tennis_format" = "Bedst af %1$@ (først til %2$@)";
+"group_rename_member_title" = "Omdøb";
+
+"group_copy_transfer_title" = "Overdrag ejerskab";
+
+"group_copy_transfer_submit" = "Overdrag";
+
+"group_copy_transfer_message" = "Overdrag ejerskabet til %@? Du bliver almindeligt medlem.";
+
+"group_copy_transfer_hint" = "Efter overdragelsen bliver du et almindeligt medlem.";
+
+"group_copy_rename_title" = "Omdøb";
+
+"group_copy_rename_action" = "Omdøb";
+
+"group_copy_result_confirm" = "Bekræft resultat";
+
+"group_copy_result_confirm_authority_message" = "Alle spillere er midlertidige medlemmer, eller modparten har ingen spiller med konto, der kan bekræfte. Ejeren skal kontrollere spillere og resultat. Efter bekræftelse tæller resultatet i kampregistrene, og ejeren angives som den, der bekræftede.";
+
+"group_copy_result_confirm_manager_message" = "Efter bekræftelse tæller resultatet i begge siders registre og kan ikke redigeres. Annuller resultatet for at rette det.";
+
+"group_copy_result_confirm_member_message" = "Bekræft spillere og resultat for at medtage det i registrene. Bed en administrator om at annullere det oprindelige resultat, hvis det skal rettes.";
+
+"group_copy_void_action" = "Ugyldiggør";
+
+"group_copy_void_pending_message" = "Resultatet afventer ikke længere bekræftelse og tæller ikke i kampstatistikken. Det oprindelige resultat og årsagen forbliver synlige for gruppens medlemmer. Spillerne og indsenderen får besked.";
+
+"group_copy_void_confirmed_message" = "Resultatet tæller ikke længere i kampstatistikken. Begge siders statistik og placeringer genberegnes. Det oprindelige resultat og årsagen forbliver synlige for gruppens medlemmer. Spillerne og indsenderen får besked.";
+
+"group_copy_cancel_activity" = "Aflys aktivitet";
+
+"group_copy_cancel_activity_message" = "Aflysning sletter tilmeldingslisten permanent. Igangværende aktiviteter kan ikke aflyses.";
+
+"group_copy_abandon_action" = "Opgiv kamp";
+
+"group_copy_abandon_message" = "Opgiv denne kamp for at starte en anden. Gemte personlige registreringer bevares.";
+
+"group_copy_leave_action" = "Forlad gruppe";
+
+"group_copy_leave_message" = "Når du forlader gruppen, er du ikke længere medlem, og gruppen fjernes fra »Mine grupper«. Du kan ikke længere få adgang til eller deltage i gruppen. Gruppens eksisterende kampregistreringer og dine personlige registreringer på denne enhed bevares. Du skal tilmelde dig gruppen igen for at få adgang.";
+
+"group_copy_archive_action" = "Arkivér gruppe";
+
+"group_copy_archive_message" = "Arkivér denne gruppe? Indholdet bliver skrivebeskyttet.";
+
+"group_copy_dissolve_action" = "Opløs gruppe";
+
+"group_copy_dissolve_message" = "Gruppen er skrivebeskyttet i 7 dage, og opløsningen kan annulleres i den periode. Efter 7 dage slettes gruppen og alle dens data permanent.";
+
+"group_copy_approve_action" = "Godkend";
+
+"group_copy_approve_message" = "%@ bliver gruppemedlem og kan se aktiviteter og resultater.";
+
+"group_copy_reject_action" = "Afvis";
+
+"group_copy_reject_message" = "Efter afvisning skal %@ sende en ny anmodning.";
+
+"group_copy_remove_action" = "Fjern medlem";
+
+"group_copy_remove_message" = "Fjern %@? Vedkommende skal anmode om at deltage igen.";
+
+"group_copy_report_detail" = "Detaljer (valgfrit)";
+
+"group_copy_edit_profile" = "Rediger gruppeprofil";
+
+"group_copy_entry_a_wins" = "A vinder";
+
+"group_copy_entry_b_wins" = "B vinder";
+
+"group_copy_activity_timing_sequence" = "Uden præcist tidspunkt";
+
+"group_copy_activity_registration_manage" = "Tilmelding af midlertidige medlemmer";
+
+"group_copy_temporary_hint" = "Midlertidige medlemmer behøver ingen konto og kan tilføjes ved indtastning af resultater.";
+
+"group_copy_activity_registration_scope" = "Tilmeld midlertidige medlemmer her. Medlemmer med konto tilmelder sig selv.";
+
+"group_copy_report" = "Anmeld gruppe";
+
+"group_copy_notice_member_removed" = "Du er blevet fjernet fra gruppen";
+
+"group_copy_notice_role_changed" = "Din rolle er ændret";
+
+"group_copy_activity_direct_save" = "Gem program";
+
+"group_copy_notice_join_approved" = "Anmodning om medlemskab godkendt";
+
+"group_copy_notice_join_rejected" = "Anmodning om medlemskab afvist";
+
+"group_copy_all_formats" = "Alle spilleformer";
+
+"group_copy_closed" = "Tilmelding til gruppen er lukket";
+
+"group_copy_report_other" = "Andet";
+
+"group_copy_report_impersonation" = "Identitetsmisbrug";
+
+"group_copy_audit_ui_share_failed" = "Deling mislykkedes. Prøv igen.";
+
+"group_copy_audit_ui_share_number" = "Del gruppenummer";
+
+"group_copy_create" = "Opret gruppe";
+
+"group_copy_confirm_join" = "Bliv medlem af denne gruppe";
+
+"group_copy_join" = "Bliv medlem af gruppe";
+
+"group_copy_join_policy" = "Muligheder for tilmelding";
+
+"group_copy_filter_singles" = "Single";
+
+"group_copy_upcoming" = "Kommende";
+
+"group_copy_activity_section_past" = "Tidligere aktiviteter";
+
+"group_copy_beta_feedback_action" = "Send tilbagemelding";
+
+"group_copy_doubles" = "Double";
+
+"group_copy_create_activity" = "Opret aktivitet";
+
+"group_copy_benefit_activity" = "Planlæg aktiviteter og tilmeld dig";
+
+"group_copy_empty_activities_hint" = "Opret en aktivitet, som medlemmerne kan tilmelde sig. Tilmeldingen lukker, når alle pladser er fyldt.";
+
+"group_copy_lookup_available" = "Åben";
+
+"group_copy_activity_direct_hint" = "Vælg direkte blandt alle aktive gruppemedlemmer; tilmelding er ikke nødvendig.";
+
+"group_copy_empty_intro" = "Saml dine venner for at planlægge kampe, tælle point og opbygge en fælles kamphistorik.";
+
+"group_copy_place" = "Placering";
+
+"group_copy_ranking_games" = "Spillede kampe";
+
+"group_copy_ranking_insufficient_matches" = "For få kampe";
+
+"group_copy_report_spam" = "Spam";
+
+"group_copy_report_status_reviewing" = "Under behandling";
+
+"group_copy_note" = "Note (valgfri)";
+
+"group_copy_peer_confirmation" = "Bekræftet af modstanderen";
+
+"group_copy_activity_lineup_section_matches" = "Planlæg kampe";
+
+"group_copy_group" = "Gruppe";
+
+"group_copy_group_qr" = "Gruppens QR-kode";
+
+"group_copy_beta_notice" = "Grupper er i beta. Nogle funktioner kan ændre sig. Tak, fordi du prøver dem tidligt.";
+
+"group_copy_created" = "Gruppe oprettet";
+
+"group_copy_ranking_sets" = "Resultat";
+
+"group_copy_removed_members_expand" = "Udvid";
+
+"group_copy_voided" = "Annulleret";
+
+"group_copy_cancelled" = "Annulleret";
+
+"group_copy_report_status_resolved" = "Løst";
+
+"group_copy_completed" = "Udført";
+
+"group_copy_archived" = "Arkiveret";
+
+"group_copy_archived_list_title" = "Arkiverede grupper";
+
+"group_copy_activity_registration_registered" = "Tilmeldt";
+
+"group_copy_activity_full" = "Fuldt";
+
+"group_copy_confirmed" = "Bekræftet";
+
+"group_copy_removed_members" = "Tidligere medlemmer";
+
+"group_copy_mark_seen" = "Læst";
+
+"group_copy_report_status_dismissed" = "Afvist";
+
+"group_copy_draws" = "uafgjorte";
+
+"group_copy_draw" = "Uafgjort";
+
+"group_copy_start_score" = "Tæl point nu";
+
+"group_copy_pending_upload" = "Afventer upload";
+
+"group_copy_activity_registration_pending_remove" = "Skal afmeldes";
+
+"group_copy_report_status_pending" = "Afventer";
+
+"group_copy_lookup_pending_short" = "Afventer";
+
+"group_copy_pending_request_limit" = "For mange anmodninger afventer godkendelse. Vent på svar, eller træk nogle tilbage.";
+
+"group_copy_activity_registration_pending_add" = "Skal tilmeldes";
+
+"group_copy_pending_confirmation" = "Afventer bekræftelse";
+
+"group_copy_lookup_closing_short" = "Under opløsning";
+
+"group_copy_restore" = "Gendan gruppe";
+
+"group_copy_member" = "Medlem";
+
+"group_copy_member_results_title" = "Medlemsresultater";
+
+"group_copy_my_groups" = "Mine grupper";
+
+"group_copy_activity_my_registration" = "Min tilmelding";
+
+"group_copy_activity_mode" = "Historik";
+
+"group_copy_qr_join_short" = "Scan for at deltage";
+
+"group_copy_qr_apply_short" = "Scan for at anmode om deltagelse";
+
+"group_copy_register" = "Tilmeld dig";
+
+"group_copy_recruiting" = "Åben for tilmelding";
+
+"group_copy_registration_closes" = "Tilmelding lukker";
+
+"group_copy_activity_time_after_previous" = "Efter den foregående kamp";
+
+"group_copy_report_submit" = "Send";
+
+"group_copy_submitted_by" = "Indsendt af";
+
+"group_copy_cancel_dissolve" = "Annullér opløsning";
+
+"group_copy_notice_join_requested" = "Anmodning om medlemskab modtaget";
+
+"group_copy_removed_members_collapse" = "Skjul";
+
+"group_copy_discard_upload" = "Kassér upload";
+
+"group_copy_notice_activity_created" = "Aktivitet oprettet";
+
+"group_copy_activity_time_unspecified" = "Tidspunkt fastlægges senere";
+
+"group_copy_activity_registration_empty" = "Ingen midlertidige medlemmer";
+
+"group_copy_transfer_none" = "Der er ingen andre faste medlemmer. Midlertidige medlemmer kan ikke blive gruppeleder.";
+
+"group_copy_archived_empty" = "Ingen arkiverede grupper";
+
+"group_copy_empty_activities_title" = "Ingen aktiviteter endnu";
+
+"group_copy_latest_results" = "Seneste resultater";
+
+"group_copy_disputed" = "Bestridt";
+
+"group_copy_activity_registration_not_registered" = "Ikke tilmeldt";
+
+"group_copy_month_matches" = "Kampe denne måned";
+
+"group_copy_open_group" = "Åbn gruppe";
+
+"group_copy_benefit_history" = "Se kampe og ranglister";
+
+"group_copy_overview" = "Oversigt";
+
+"group_copy_welcome_back" = "Velkommen tilbage";
+
+"group_copy_regular_members" = "Tilmeldte medlemmer";
+
+"group_copy_rally_scoring" = "Rallyscoring";
+
+"group_copy_result_information" = "Kampoplysninger";
+
+"group_copy_match_score" = "Kampresultat";
+
+"group_copy_match_rules" = "Kampregler";
+
+"group_copy_activity_registration_no_changes" = "Ingen ændringer, der ikke er gemt";
+
+"group_copy_activities" = "Aktiviteter";
+
+"group_copy_activity_title" = "Aktivitetens navn";
+
+"group_copy_activity_field_title_optional" = "Aktivitetsnavn (valgfrit)";
+
+"group_copy_notice_activity_changed" = "Aktivitet opdateret";
+
+"group_copy_notice_activity_cancelled" = "Aktivitet aflyst";
+
+"group_copy_activity_lineup" = "Planlæg kampe";
+
+"group_copy_activity_create_admin_hint" = "Aktiviteter oprettes af gruppeejeren eller en administrator";
+
+"group_copy_beta_badge" = "Beta";
+
+"group_copy_add_set" = "Tilføj resultat for et parti";
+
+"group_copy_add_temporary" = "Tilføj midlertidigt medlem";
+
+"group_copy_benefit_score" = "Tæl point eller tilføj tidligere resultater";
+
+"group_copy_request_join" = "Anmod om at deltage";
+
+"group_copy_join_message" = "Besked med anmodning om medlemskab (valgfrit)";
+
+"group_copy_beta_supported_label" = "Tilgængelig nu";
+
+"group_copy_open" = "Tilmeld direkte";
+
+"group_copy_activity_direct_title" = "Planlæg nu";
+
+"group_copy_admin" = "Administrator";
+
+"group_copy_confirmed_matches" = "Bekræftede kampe";
+
+"group_copy_leader" = "Ejer";
+
+"group_copy_notice_ownership_transferred" = "Gruppens ejer er ændret";
+
+"group_copy_complete_activity" = "Afslut aktivitet";
+
+"group_copy_keep_draft" = "Fortsæt med at redigere den lokale version";
+
+"group_copy_ranking_wins" = "sejre";
+
+"group_copy_ranking_rate" = "Sejrsprocent";
+
+"group_copy_report_inappropriate" = "Seksuelt eller upassende indhold";
+
+"group_copy_update_report" = "Opdater anmeldelse";
+
+"group_copy_manual_result" = "Tilføj kampresultat";
+
+"group_copy_set_admin" = "Gør til administrator";
+
+"group_copy_activity_timing_estimated" = "Anslået tidspunkt";
+
+"group_copy_losses" = "nederlag";
+
+"group_copy_notice_result_voided" = "Resultat annulleret";
+
+"group_copy_notice_result_confirmed" = "Resultat bekræftet";
+
+"group_copy_notice_result_pending" = "Resultat afventer bekræftelse";
+
+"group_copy_result_actions" = "Resultathandlinger";
+
+"group_copy_empty_title" = "Ingen grupper endnu";
+
+"group_copy_in_progress" = "I gang";
+
+"group_copy_report_illegal" = "Ulovlig eller farlig aktivitet";
+
+"group_copy_join_hint" = "Bliv medlem af en vens gruppe med dens nummer eller QR-kode.";
+
+"group_copy_overdue_tasks" = "Forfaldne opgaver";
+
+"group_copy_beta_feedback_prompt" = "Problemer eller forslag?";
+
+"group_copy_invite" = "Invitér holdkammerater";
+
+"group_copy_retry" = "Prøv igen";
+
+"group_copy_approval" = "Godkendelse kræves";
+
+"group_copy_sport" = "Sport";
+
+"group_copy_report_harassment" = "Chikane";
+
+"group_copy_ranking_me_suffix" = " (mig)";
+
+"group_copy_places_title" = "Vælg sted";
+
+"group_copy_report_fraud" = "Svindel eller hasardspil";
+
+"group_copy_void_reason" = "Årsag til annullering";
+
+"group_copy_reload_version" = "Genindlæs";
+
+"group_copy_lineup_reload_message" = "Kassér ikke-gemte ændringer i kampplanen, og indlæs den senest gemte plan?";
+
+"group_copy_join_number_separator" = "Eller indtast gruppenummer";
+
+"group_copy_activity_multi_match_hint" = "En aktivitet kan indeholde flere kampe. Medlemmer tilmelder sig aktiviteten; vælg 2 tilmeldte til hver singlekamp eller 4 til hver doublekamp, når kampene planlægges.";
+
+"group_copy_activity_single_match_hint" = "Hver aktivitet er én kamp. Vælg 2 tilmeldte medlemmer til single eller 4 til double.";
+
+"group_copy_activity_detail" = "Aktivitetsdetaljer";
+
+"group_copy_registration_at_start" = "Når aktiviteten starter";
+
+"group_copy_registration_use_start" = "Brug aktivitetens starttid";
+
+"group_copy_cancel_reason_optional" = "Årsag til aflysning (valgfrit)";
+
+"group_copy_audit_result_frozen_info" = "Se spillere og regler";
+"group_view_schedule" = "Se kampe";
+"group_notice_training_published" = "Træning offentliggjort";
+"group_notice_training_changed" = "Træning opdateret";
+"group_notice_training_cancelled" = "Træning aflyst";
+"group_notice_leave_changed" = "Fravær opdateret";
+"group_report_evidence_title" = "Billedbeviser (valgfrit)";
+"group_report_evidence_hint" = "Op til 3 JPG- eller PNG-billeder på højst 2 MB hver. Kun du og platformen kan se dem.";
+"group_report_add_image" = "Tilføj billede";
+"group_report_retry" = "Prøv igen";
+"group_report_preview" = "Bevisbillede";
+"group_report_supplement" = "Tilføj oplysninger";
+"group_report_close" = "Luk";
+"group_report_remove_image" = "Fjern billede";
+"group_report_image_error" = "Billedet kunne ikke klargøres. Prøv et andet JPG- eller PNG-billede.";
+"group_report_refresh" = "Opdater status";

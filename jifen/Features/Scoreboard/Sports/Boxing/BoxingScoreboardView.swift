@@ -448,7 +448,7 @@ private struct BoxingRoundDialog: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity, minHeight: 44)
                 .background(background)
-                .cornerRadius(22)
+                .clipShape(Capsule())
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

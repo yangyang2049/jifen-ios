@@ -23,6 +23,7 @@ struct AccountCenterView: View {
 }
 
 struct AccountLoginSheet: View {
+    var dismissOnAuthentication = true
     @Environment(\.dismiss) private var dismiss
     @Environment(SessionStore.self) private var session
     @State private var selectedDetent: PresentationDetent = .height(440)
@@ -46,7 +47,7 @@ struct AccountLoginSheet: View {
         .presentationSizing(.form)
         .interactiveDismissDisabled(session.isWorking)
         .onChange(of: session.isAuthenticated) { _, isAuthenticated in
-            if isAuthenticated { dismiss() }
+            if isAuthenticated && dismissOnAuthentication { dismiss() }
         }
     }
 }
@@ -112,7 +113,7 @@ private struct AccountLoginView: View {
                 .frame(height: 50)
                 .disabled(session.isWorking)
 
-                // 对齐安卓 LoginScreen 次按钮：账号密码登录（自测/审核测试用）。
+                // 登录入口例外：与上方原生 AppleIDButton 的 10pt 圆角一致，不使用胶囊。
                 Button {
                     onOpenPasswordLogin()
                     showPasswordLogin = true
@@ -122,7 +123,7 @@ private struct AccountLoginView: View {
                         .foregroundColor(Theme.textPrimary)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
-                        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.controlBackground))
+                        .background(RoundedRectangle(cornerRadius: 10).fill(Theme.controlBackground))
                 }
                 .buttonStyle(.plain)
                 .disabled(session.isWorking)
@@ -280,10 +281,10 @@ private struct PasswordLoginView: View {
                         }
                     }
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(Theme.textOnPrimary)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(RoundedRectangle(cornerRadius: 12).fill(Theme.accentColor.opacity(session.isWorking ? 0.48 : 1)))
+                    .background(Capsule().fill(Theme.accentColor.opacity(session.isWorking ? 0.48 : 1)))
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("password_login_submit")
@@ -898,10 +899,10 @@ struct AccountDeletionView: View {
                 }
             }
             .font(.system(size: 16, weight: .medium))
-            .foregroundColor(.white)
+            .foregroundColor(Theme.actionForeground(on: whistleRed))
             .frame(maxWidth: .infinity)
             .frame(height: 52)
-            .background(RoundedRectangle(cornerRadius: 12).fill(whistleRed.opacity(submitting ? 0.48 : 1)))
+            .background(Capsule().fill(whistleRed.opacity(submitting ? 0.48 : 1)))
         }
         .disabled(submitting)
     }
@@ -1419,7 +1420,7 @@ private struct NicknameEditDialog: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(NSLocalizedString("cancel", value: "取消", comment: "")) {
+                    ModalCloseButton {
                         onDismiss()
                     }
                     .disabled(saving)

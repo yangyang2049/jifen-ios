@@ -131,7 +131,24 @@ struct Theme {
     static let primary = accentColor // Map HarmonyOS 'primary' to existing accentColor
     static let primaryDark = Color(hex: "248A3D")
     static let black = Color.black
-    static let textOnPrimary = Color.white // Assuming text on primary is white
+    static var textOnPrimary: Color { actionForeground(on: primary) }
+    /// Light green actions use white labels; dark mode retains its existing foreground policy.
+    static func actionForeground(on background: Color) -> Color {
+        Color(uiColor: UIColor { traits in
+            actionForeground(on: UIColor(background).resolvedColor(with: traits), appearance: traits.userInterfaceStyle)
+        })
+    }
+
+    static func actionForeground(on background: UIColor, appearance: UIUserInterfaceStyle = .dark) -> UIColor {
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+        guard background.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else { return .black }
+        if appearance == .light && green > red && green > blue { return .white }
+        func linear(_ value: CGFloat) -> CGFloat {
+            value <= 0.04045 ? value / 12.92 : pow((value + 0.055) / 1.055, 2.4)
+        }
+        let luminance = 0.2126 * linear(red) + 0.7152 * linear(green) + 0.0722 * linear(blue)
+        return (luminance + 0.05) / 0.05 >= 1.05 / (luminance + 0.05) ? .black : .white
+    }
     static let transparent = Color.clear
 
     // HarmonyOS specific colors from the provided code

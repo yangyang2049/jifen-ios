@@ -221,7 +221,7 @@ struct AppWebView: View {
                 Text(NSLocalizedString("retry", value: "重试", comment: ""))
                     .font(.subheadline.weight(.medium))
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.borderedProminent).tint(Theme.primary).foregroundStyle(Theme.textOnPrimary)
             .accessibilityIdentifier("web_load_retry_button")
         }
         .padding(.horizontal, 32)

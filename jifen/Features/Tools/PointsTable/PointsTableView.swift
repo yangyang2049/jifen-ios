@@ -404,11 +404,11 @@ struct PointsTableDetailView: View {
                 systemImage: "plus.circle.fill"
             )
             .font(.system(size: 16, weight: .semibold))
-            .foregroundStyle(.white)
+            .foregroundStyle(Theme.textOnPrimary)
             .frame(maxWidth: .infinity)
             .frame(height: 48)
             .background(Theme.primary)
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .clipShape(Capsule())
         }
         .buttonStyle(.plain)
         .padding(.top, 4)

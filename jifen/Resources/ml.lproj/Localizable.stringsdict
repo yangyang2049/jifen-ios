@@ -28,10 +28,10 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
-		<key>one</key>
-		<string>%d match · all group members</string>
-		<key>other</key>
-		<string>%d matches · all group members</string>
+			<key>one</key>
+			<string>%d മത്സരം · ഗ്രൂപ്പിലെ എല്ലാ അംഗങ്ങളും</string>
+			<key>other</key>
+			<string>%d മത്സരങ്ങൾ · ഗ്രൂപ്പിലെ എല്ലാ അംഗങ്ങളും</string>
 		</dict>
 	</dict>
 	<key>archived_count</key>
@@ -44,10 +44,10 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
-		<key>one</key>
-		<string>%d group</string>
-		<key>other</key>
-		<string>%d groups</string>
+			<key>one</key>
+			<string>%d ഗ്രൂപ്പ്</string>
+			<key>other</key>
+			<string>%d ഗ്രൂപ്പുകൾ</string>
 		</dict>
 	</dict>
 	<key>timer_byoyomi_periods_format</key>

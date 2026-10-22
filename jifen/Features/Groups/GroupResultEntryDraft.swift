@@ -19,9 +19,9 @@ nonisolated struct GroupResultEntryDraft {
     var sets: [Points] = []
     var manualExpanded = false
     var detailsExpanded = false
-    var victoryOrder: String?
 
     var hasDetailInput: Bool { sets.contains(where: \.hasInput) }
+    var hasExcessDetailRows: Bool { total.score.map { sets.count > $0.a + $0.b } ?? false }
     var details: [GroupScore]? { hasDetailInput ? sets.compactMap(\.score) : nil }
     var score: GroupScore? {
         if total.hasInput { return total.score }
@@ -33,10 +33,6 @@ nonisolated struct GroupResultEntryDraft {
         guard let score else { return false }
         if hasDetailInput {
             guard sets.allSatisfy({ $0.score != nil }) else { return false }
-            if let victoryOrder, total.hasInput {
-                let actual = sets.map { $0.score!.a > $0.score!.b ? "A" : "B" }.joined()
-                guard actual == victoryOrder else { return false }
-            }
         }
         return rules.validResult(score, sets: details)
     }
@@ -46,42 +42,19 @@ nonisolated struct GroupResultEntryDraft {
         total = next
         reconcileDetails(rules)
     }
-    mutating func clearTotal() { total = Points(); victoryOrder = nil }
-    mutating func clearDetails() { sets = []; victoryOrder = nil; detailsExpanded = false }
+    mutating func clearTotal() { total = Points() }
+    mutating func clearDetails() { sets = []; detailsExpanded = false }
     mutating func reconcileDetails(_ rules: GroupMatchRules) {
         guard detailsExpanded, let score = total.score, rules.validResult(score, sets: nil) else { return }
-        if hasDetailInput, sets.allSatisfy({ $0.score != nil }), rules.validResult(score, sets: details) {
-            victoryOrder = sets.map { $0.score!.a > $0.score!.b ? "A" : "B" }.joined()
-            return
-        }
-        let orders = Self.orders(rules, total: score)
-        if let victoryOrder, orders.contains(victoryOrder), sets.count == score.a + score.b { return }
-        victoryOrder = orders.count == 1 ? orders.first : nil
-        // Retain entered points when changing a total; validation explains any mismatch.
-        if !hasDetailInput {
-            sets = Array(repeating: Points(), count: score.a + score.b)
-        }
+        let count = score.a + score.b
+        // Append blank rows on growth and reclaim only unused trailing placeholders on shrink.
+        // Entered scores remain until the user explicitly removes a row or clears its contents.
+        while sets.count < count { sets.append(.init()) }
+        while sets.count > count, sets.last?.hasInput == false { sets.removeLast() }
     }
-    mutating func selectOrder(_ order: String, rules: GroupMatchRules) {
-        guard Self.orders(rules, total: total.score).contains(order) else { return }
-        let previous = Array(victoryOrder ?? "")
-        let target = rules.sport == .tennis ? (rules.setScoringMode == "tiebreak_only" ? rules.tieBreakPoints : rules.gamesPerSet) : rules.pointsToWinSet
-        sets = Array(order).enumerated().map { index, side in
-            if index < previous.count, previous[index] == side, index < sets.count { return sets[index] }
-            return side == "A" ? Points(a: String(target)) : Points(b: String(target))
-        }
-        victoryOrder = order
-    }
-    static func orders(_ rules: GroupMatchRules, total: GroupScore?) -> [String] {
-        guard rules.maxSets <= 5, let total, rules.validResult(total, sets: nil) else { return [] }
-        var result: [String] = []
-        func visit(_ order: String, _ a: Int, _ b: Int) {
-            if a == total.a && b == total.b { result.append(order); return }
-            if rules.matchCompletionMode == "best_of", max(a, b) >= rules.maxSets / 2 + 1 { return }
-            if a < total.a { visit(order + "A", a + 1, b) }
-            if b < total.b { visit(order + "B", a, b + 1) }
-        }
-        visit("", 0, 0)
-        return result
+    mutating func removeSet(at index: Int, rules: GroupMatchRules) {
+        guard sets.indices.contains(index), !total.hasInput || hasExcessDetailRows else { return }
+        sets.remove(at: index)
+        reconcileDetails(rules)
     }
 }

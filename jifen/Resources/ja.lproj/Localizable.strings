@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "ボードゲーム";
 "search_team_or_game" = "チームまたはゲームを検索";
 "match_count" = "%d件の試合";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d試合・グループの全メンバー";
+"archived_count" = "%dグループ";
 
 /* Home Screen */
 "recent_records" = "最近の記録";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "例：5セットすべてを行います。引き分けになる場合があります";
 "match_completion_custom_placeholder" = "1 ～ 99 を入力してください";
 "match_completion_invalid_sets" = "クラシックは1～99の奇数、全セット実施は1～99を指定してください。";
+"setup_auto_odd_sets" = "奇数のみ入力できます — %d で開始します";
 "has_been_reset" = "リセット完了";
 "no_undo_available" = "元に戻すことはできません";
 "screenshot_failed" = "スクリーンショットの保存に失敗しました";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "アクティブな同期セッション";
 "timer_status_running" = "実行中";
 "timer_status_paused" = "一時停止中";
-"membership_entry_summary_active" = "あなたは VIP のメンバーです。ご支援ありがとうございます";
+"membership_entry_summary_active" = "VIP 会員です";
 "sound_effects" = "効果音";
 "vibration" = "振動";
 "language" = "言語";
@@ -1579,7 +1580,7 @@
 "group_approval" = "承認が必要";
 "group_approve" = "承認する";
 "group_archive" = "グループをアーカイブ";
-"group_archive_hint" = "履歴をすべて残してグループの変更を停止します。後で復元できます。";
+"group_archive_hint" = "このグループをアーカイブしますか？内容は閲覧専用になります。";
 "group_archive_readonly" = "このグループはアーカイブ済みです。履歴は閲覧のみ可能です。";
 "group_archived" = "アーカイブ済み";
 "group_benefit_activity" = "イベントの計画と参加申込";
@@ -1624,18 +1625,18 @@
 "group_invalid_qr" = "有効なグループのQRコードではありません。";
 "group_invalid_result" = "記録した結果をアップロード前に確認してください。";
 "group_invalid_rules" = "試合のルールを確認してください。";
-"group_invite" = "Invite";
+"group_invite" = "チームメイトを招待";
 "group_join" = "グループに参加";
 "group_join_hint" = "友達のグループ番号またはQRコードで参加できます。";
-"group_join_message" = "グループへのメッセージ（任意）";
-"group_join_policy" = "参加設定";
+"group_join_message" = "参加申請のメッセージ（任意）";
+"group_join_policy" = "参加方法";
 "group_leave" = "グループを退会";
-"group_leave_hint" = "このグループにアクセスできなくなります。個人の記録はこの端末に残ります。";
+"group_leave_hint" = "退出するとメンバーではなくなり、このグループは「マイグループ」から削除されます。グループの閲覧や参加はできなくなります。グループ内の既存の試合記録と、この端末に保存された個人の記録は残ります。再びアクセスするには、グループへの再参加が必要です。";
 "group_load_failed" = "グループを読み込めませんでした";
 "group_load_more" = "さらに読み込む";
 "group_losses" = "敗戦数";
 "group_manual" = "手入力";
-"group_manual_result" = "過去の試合を追加";
+"group_manual_result" = "試合結果を追加";
 "group_match_detail" = "試合の詳細";
 "group_match_log" = "試合履歴";
 "group_match_rules" = "試合のルール";
@@ -1647,15 +1648,15 @@
 "group_name" = "グループ名";
 "group_need_login" = "続行するにはログインしてください。";
 "group_need_members" = "試合を始める前に友達を招待するか、ゲストメンバーを追加してください。";
-"group_new_activity" = "イベントを計画";
+"group_new_activity" = "イベントを作成";
 "group_new_owner" = "新しいオーナー";
 "group_no_activities" = "イベントはまだありません";
 "group_no_description" = "説明はまだありません";
 "group_no_rankings" = "試合結果が確認されるとランキングが表示されます。";
 "group_no_set_details" = "総合結果のみ記録されています。";
-"group_note" = "イベントのメモ（任意）";
-"group_number" = "6–8 digit group number";
-"group_open" = "番号を知っている人なら参加可能";
+"group_note" = "メモ（任意）";
+"group_number" = "6～8桁のグループ番号";
+"group_open" = "直接参加";
 "group_overall_score" = "セットの総合スコア";
 "group_overview" = "概要";
 "group_owner" = "オーナー";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "メンバーを削除";
 "group_restore" = "グループを復元";
 "group_restore_hint" = "グループを復元すると、イベントと記分を再開できます。";
-"group_results" = "試合";
+"group_results" = "記録";
 "group_retry" = "再試行";
 "group_rules_missing" = "ルールの記録なし";
-"group_save" = "確認";
+"group_save" = "保存";
 "group_save_failed" = "試合を保存できませんでした。もう一度お試しください。";
 "group_scan" = "QRコードを読み取る";
 "group_scoreboard" = "スコアボード";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "新しい試合を始める前に、進行中の試合を再開または終了してください。";
 "group_unregister" = "参加申込を取り消す";
 "group_void_reason" = "無効にする理由";
-"group_void_result" = "結果を無効にする";
+"group_void_result" = "無効化";
 "group_voided" = "無効";
 "group_wins" = "勝利数";
 "group_withdraw" = "申請を取り下げる";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "すでにこのグループのメンバーです。";
 "group_open_group" = "グループを開く";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
-"group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
-"group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_groups" = "グループ";
+"group_invite_students" = "受講者を招待";
+"group_group_type" = "グループの種類";
+"group_peer" = "友人グループ";
+"group_coaching" = "コーチ指導グループ";
+"group_training" = "練習";
+"group_upcoming" = "今後の予定";
+"group_latest_results" = "最近の結果";
+"group_no_results" = "記録された試合はまだありません";
+"group_no_training" = "練習予定はまだありません";
+"group_active_activities" = "開催中・参加受付中";
+"group_past_activities" = "過去のイベント";
+"group_all_formats" = "すべての形式";
+"group_join_requests" = "参加申請";
+"group_regular_members" = "参加申込済みメンバー";
+"group_temporary_members" = "一時メンバー";
+"group_add" = "追加";
+"group_leader" = "オーナー";
+"group_member_settings" = "メンバー設定";
+"group_settings" = "グループ管理";
+"group_partial_load" = "一部を更新できませんでした。下に引いて再試行してください。";
+"group_leave_notices" = "受講者の欠席連絡";
+"group_mark_seen" = "既読";
+"group_training_schedule" = "練習予定";
+"group_add_session" = "試合を追加";
+"group_edit_schedule" = "予定を編集";
+"group_cancel_schedule" = "予定を取り消す";
+"group_leave_training" = "欠席を連絡";
+"group_session_minutes" = "1試合の時間（分）";
+"group_court" = "コート";
+"group_remove_session" = "削除";
+"group_publish_schedule" = "予定を公開";
+"group_leave_reason" = "欠席の説明（任意）";
+"group_report" = "グループを通報";
+"group_report_reason" = "理由";
+"group_report_detail" = "詳細（任意）";
+"group_report_submit" = "送信";
+"group_report_spam" = "スパム";
+"group_report_harassment" = "嫌がらせ";
+"group_report_inappropriate" = "性的または不適切な内容";
+"group_report_fraud" = "詐欺・賭博";
+"group_report_illegal" = "違法・危険な行為";
+"group_report_impersonation" = "なりすまし";
+"group_report_other" = "その他";
+"group_lineup_invalid" = "試合の時刻、コート、参加者を確認してください。";
+"group_lineup_member_limit" = "1回の予定で同じメンバーを割り当てられるのは8試合までです。";
+"group_lineup_conflict" = "同時刻の試合は、コートと参加者が重複しないようにしてください。";
+"group_multi_match_hint" = "1つの活動で複数の試合を行えます。メンバーは活動に参加登録し、対戦を組む際に各シングルスは登録者から2人、各ダブルスは4人を選びます。";
+"group_single_match_hint" = "1つの活動につき1試合を行います。登録済みメンバーからシングルスは2人、ダブルスは4人を選んでください。";
+"group_rate_limited" = "リクエストが多すぎます。時間をおいてお試しください。";
+"group_create_daily_limit" = "過去24時間のグループ作成上限に達しました。時間をおいてお試しください。";
+"group_join_daily_limit" = "過去24時間のグループ参加上限に達しました。時間をおいてお試しください。";
+"group_pending_request_limit" = "承認待ちの参加申請が多すぎます。結果を待つか、一部の申請を取り下げてください。";
+"group_request_daily_limit" = "このグループへの参加申請が過去24時間の上限に達しました。時間をおいてお試しください。";
+"group_join_cooldown" = "申請が却下されてから24時間は再申請できません。";
+"group_result_group_daily_limit" = "このグループの試合結果が過去24時間の登録上限に達しました。時間をおいてお試しください。";
+"group_result_submitter_daily_limit" = "過去24時間の試合結果の送信上限に達しました。時間をおいてお試しください。";
+"group_not_coach" = "練習の予定を組めるのはコーチのみです。";
+"group_activity_count" = "%1$d/%2$d 人が参加登録";
+"group_activity_create_admin_hint" = "イベントはグループ所有者または管理者が作成します";
+"group_activity_direct_hint" = "参加登録なしで、在籍中のメンバー全員から選べます。";
+"group_activity_direct_save" = "予定を保存";
+"group_activity_direct_title" = "今すぐ試合を組む";
+"group_activity_field_title_optional" = "イベント名（任意）";
+"group_activity_full" = "定員に達しました";
+"group_activity_lineup_add" = "試合を追加";
+"group_activity_lineup_add_need_members" = "人数が足りません。試合を追加するには、在籍中のメンバーが最低 %1$d 人必要です。";
+"group_activity_lineup_court" = "コート番号";
+"group_activity_lineup_duration" = "試合時間";
+"group_activity_lineup_match_count" = "%1$d 試合";
+"group_activity_lineup_minutes" = "%1$d 分";
+"group_activity_lineup_remove" = "削除";
+"group_activity_lineup_section_matches" = "試合を組む";
+"group_activity_lineup_session" = "第 %1$d 試合";
+"group_activity_registration_empty" = "一時メンバーはいません";
+"group_activity_section_count" = "%1$d 件のイベント";
+"group_activity_section_past" = "過去のイベント";
+"group_activity_section_upcoming" = "開催中・参加受付中";
+"group_activity_status_scheduled" = "開始待ち";
+"group_activity_time_after_previous" = "前の試合の後";
+"group_activity_time_unspecified" = "時間未定";
+"group_activity_timing" = "時間設定";
+"group_activity_timing_estimated" = "予定時刻";
+"group_activity_timing_sequence" = "時刻を指定しない";
+"group_activity_title_auto_hint" = "空欄の場合、日付から「11月10日のイベント」などの名前を自動生成します。";
+"group_archived_empty" = "アーカイブ済みグループはありません";
+"group_archived_list_title" = "アーカイブ済みグループ";
+"group_empty_activities_title" = "イベントはまだありません";
+"group_list_add_title" = "グループを作成・参加";
+"group_ranking_draws" = "引き分け数";
+"group_ranking_games" = "試合数";
+"group_ranking_losses" = "敗戦数";
+"group_ranking_sets" = "スコア";
+"group_ranking_title" = "%@のランキング";
+"group_ranking_wins" = "勝利数";
+"group_training_results_locked" = "結果がある予定の時刻と参加者は変更できません。場所とメモは編集できます。";
+"group_temporary_hint" = "一時メンバーはアカウント不要で、結果の入力時に追加できます。";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "試合の予約を解除";
-"group_activity_lineup" = "試合予定";
-"group_activity_mode" = "試合";
+"group_abandon_game" = "試合を放棄";
+"group_activity_lineup" = "試合を組む";
+"group_activity_mode" = "記録";
 "group_activity_reminder" = "15分前に通知";
 "group_add_set" = "ゲームの得点を追加";
 "group_added_members" = "追加しました";
-"group_authority_confirm" = "グループ所有者として承認";
-"group_batch_names_hint" = "1行に1名、各1～24文字で入力してください。";
-"group_beta_notice" = "グループ機能はベータ版です。ご意見をお寄せください。";
+"group_authority_confirm" = "結果を確認";
+"group_batch_names_hint" = "1行に1名を入力してください。";
+"group_beta_notice" = "グループ機能はベータ版です。一部の機能は変更される場合があります。先行体験へのご協力ありがとうございます。";
 "group_cancel_dissolve" = "解散を取り消す";
 "group_cancel_dissolve_hint" = "グループを復元すると、イベントと記分を再開できます。";
 "group_cancel_training_hint" = "完了した試合は履歴に残り、開始済みの試合は完了できます。";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "スポーツデフォルト";
 "group_discard_upload" = "アップロードを破棄";
 "group_dissolve" = "グループを解散";
-"group_dissolve_hint" = "7日間は閲覧専用になります。その間は解散を取り消せます。";
+"group_dissolve_hint" = "7日間は閲覧専用となり、その間は解散を取り消せます。7日後にグループとすべてのデータが完全に削除されます。";
 "group_dissolving" = "解散手続き中";
 "group_edit_activity" = "編集";
 "group_edit_lineup" = "試合を組む";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "通知はありません";
 "group_no_sessions" = "予定された試合はありません";
 "group_notices" = "通知";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "一部を更新できませんでした。下に引いて再試行してください。";
 "group_point_cap" = "得点上限";
 "group_preview_schedule" = "予定を確認";
 "group_published" = "公開済み";
 "group_qr_direct_hint" = "iScoreboardでコードを読み取り、内容を確認して参加できます。";
 "group_quick_score" = "セットの総合スコア";
 "group_rally_scoring" = "ラリーポイント制";
-"group_read_notices" = "Read";
+"group_read_notices" = "既読";
 "group_registration_closes" = "参加受付の締切";
 "group_regular" = "スタンダード";
-"group_reload_version" = "最新の情報を読み込む";
+"group_reload_version" = "再読み込み";
 "group_reminder_body" = "活動は15分後に始まります。";
 "group_reminder_permission" = "設定でアプリの通知を有効にしてください。";
 "group_reminder_too_late" = "開始まで15分未満です。";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "セットの得点方式";
 "group_tie_break" = "タイブレークポイント";
 "group_tiebreak_only" = "タイブレークのみ";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "日付";
+"group_too_many_sessions" = "試合の時刻、コート、参加者を確認してください。";
+"group_training_date" = "練習日";
 "group_win_by_two" = "2点差で勝利";
 
-"group_keep_draft" = "自分の変更を保持";
+"group_keep_draft" = "ローカル版の編集を続ける";
 
 "group_server_version" = "最新の内容";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "%@にグループを解散します\n7日間の猶予期間中は閲覧専用です";
 "group_notice_end" = "これ以上の通知はありません";
 "group_notice_join_requested" = "参加申請が届きました";
 "group_notice_join_approved" = "参加申請が承認されました";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "手動入力";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "すべて既読にする";
+
+"group_status_active" = "有効";
+"group_dissolved" = "解散済み";
+"group_report_status_pending" = "対応待ち";
+"group_report_status_reviewing" = "確認中";
+"group_report_status_resolved" = "対応済み";
+"group_report_status_dismissed" = "却下";
+"group_error_permission" = "この操作を行う権限がありません。";
+"group_error_transfer_first" = "退会またはアカウント削除の前に、グループ所有権を譲渡してください。";
+"group_error_target" = "このグループに在籍中のアカウントメンバーを選んでください。";
+"group_error_activity_locked" = "このイベントは開始済みか終了済みのため、予定の変更や取り消しはできません。";
+"group_error_activity_pending" = "未完了の試合を先に完了するか削除してください。";
+"group_error_registration_disabled" = "直接組んだ試合は参加登録不要です。";
+"group_error_content_blocked" = "不適切な内容が含まれています。文章を修正してください。";
+"group_error_request_invalid" = "入力内容を確認して、もう一度お試しください。";
+"group_error_reason_required" = "続行する前に理由を入力してください。";
+"group_error_result_state" = "確認待ちの結果のみ確定できます。";
+"group_error_conflict" = "データが変更されました。更新して内容を確認してから再試行してください。";
+"group_error_request_handled" = "この参加申請は処理済みです。一覧を更新してください。";
+"group_error_place_locked" = "開始済みまたは終了済みの試合があるため、会場を変更できません。";
+"group_error_schedule_cancelled" = "この予定または試合は取り消されました。";
+"group_error_session_completed" = "この試合は終了しているため、欠席を申請できません。日程を更新して結果を確認してください。";
+"group_error_session_has_result" = "この試合には結果があります。別の結果を追加する前に、既存の結果を無効にしてください。";
+"group_error_item_not_found" = "このイベント、予定、試合または通知は利用できません。一覧を更新してください。";
+"group_error_server" = "グループサービスを一時的に利用できません。しばらくしてから再試行してください。";
+"group_error_peer_only" = "コーチ指導グループでは練習予定機能を使ってください。";
+"group_error_name_length" = "グループ名は2～24文字で入力してください。";
+"group_error_description_length" = "グループの説明は200文字以内で入力してください。";
+"group_error_activity_invalid" = "イベント名、日付、場所、定員を確認してください。";
+"group_error_registration_closed" = "参加受付は終了しました。";
+"group_error_action_disabled" = "現在この操作は利用できません。";
+"group_error_update_required" = "アプリを更新してから続行してください。";
+"group_welcome_back" = "おかえりなさい";
+"group_transfer_none" = "引き継ぎ可能な正式メンバーがいません。一時メンバーはグループリーダーになれません。";
+"group_empty_activities_hint" = "アクティビティを作成してメンバーを募集しましょう。定員に達すると募集が終了します。";
+"group_temp_import_names" = "保存済みの名前を読み込む";
+"group_temp_import_count" = "読み込む（%1$d）";
+"group_result_information" = "試合情報";
+"group_result_actions" = "試合結果の操作";
+"group_peer_confirmation" = "対戦相手による確認";
+"group_notice_target_unavailable" = "このコンテンツは利用できないか、アクセス権がなくなっています。";
+"group_push_enabled" = "グループ通知";
+"group_push_group_enabled" = "このグループの通知を受け取る";
+"group_push_inbox_kept" = "オフにしても、アプリ内通知と既存の活動リマインダーは保持されます。";
+"group_push_permission" = "システム通知を有効にする";
+"group_push_settings" = "通知設定";
+
+// Shared group form controls
+"group_inline_seat_hint" = "位置を選んでからメンバーを選択";
+"group_score_and_rules" = "スコアとルール";
+"group_activity_registration_scope" = "仮メンバーの参加登録を代行します。アカウントのあるメンバーは各自で登録してください。";
+"group_activity_registration_no_changes" = "未保存の変更はありません";
+"group_activity_registration_changes" = "追加 %1$d 人 · 取消 %2$d 人";
+"group_activity_registration_save" = "参加登録を保存（%1$d 件）";
+"group_activity_registration_manage" = "仮メンバーの参加登録";
+"group_activity_registration_pending_add" = "登録予定";
+"group_activity_registration_pending_remove" = "取消予定";
+"group_activity_registration_registered" = "登録済み";
+"group_activity_registration_not_registered" = "未登録";
+"group_activity_detail" = "活動の詳細";
+"group_activity_my_registration" = "自分の参加登録";
+"group_match_score" = "試合のスコア";
+
+"group_lookup_available" = "参加可";
+
+/* Group beta notice card. */
+"group_beta_badge" = "ベータ版";
+"group_beta_supported_label" = "現在の対応種目";
+"group_beta_feedback_prompt" = "問題やご要望はありますか？";
+"group_beta_feedback_action" = "意見を送る";
+
+"group_member_results_title" = "メンバー戦績";
+
+"group_removed_members_expand" = "展開";
+"group_removed_members_collapse" = "折りたたむ";
+"group_best_of_format" = "%1$@回中%2$@回先取";
+"group_member_count_single" = "%d人のメンバー";
+"group_member_count_short" = "%d人のメンバー";
+"group_lookup_closed_short" = "参加受付終了";
+"group_lookup_closing_short" = "解散手続き中";
+"group_lookup_member_short" = "参加済み";
+"group_lookup_unavailable_short" = "参加不可";
+"group_join_scan_hint" = "グループのQRコードをスキャン";
+"group_join_number_hint" = "6〜8桁の番号です。グループのオーナーに確認してください。";
+"group_request_join" = "参加を申請";
+"group_overdue_tasks" = "期限超過のタスク";
+"group_apply_shift" = "変更を適用";
+"group_transfer_submit" = "譲渡";
+"group_rename_member" = "名前を変更";
+"group_set_admin" = "管理者に設定";
+"group_set_member" = "管理者を解除";
+"group_confirm_authority_message" = "全員が一時メンバー、または相手側に確認できるアカウントを持つ選手がいません。オーナーが対戦者とスコアを確認してください。確定後は戦績に集計され、オーナーが確認者として記録されます。";
+"group_confirm_result_message" = "確定後は双方の戦績に集計され、編集できません。訂正する場合は先に無効にしてください。";
+"group_confirm_member_message" = "対戦者とスコアを確認して戦績に反映します。訂正が必要な場合は管理者に元の結果の無効化を依頼してください。";
+"group_cancel_activity_message" = "中止すると参加申込一覧は完全に削除されます。進行中の活動は中止できません。";
+"group_abandon_game_message" = "この試合を放棄すると別の試合を開始できます。保存済みの個人記録は残ります。";
+"group_void_pending_message" = "この結果は確認待ちから外れ、戦績に集計されません。元のスコアと理由はグループのメンバーに引き続き表示されます。選手と提出者に通知されます。";
+"group_void_confirmed_message" = "この結果は戦績の集計対象から外れます。双方の戦績と順位が再計算されます。元のスコアと理由はグループのメンバーに引き続き表示されます。選手と提出者に通知されます。";
+"group_remove_member_message" = "%@を削除しますか？再度参加申請が必要になります。";
+"group_reload_version_message" = "未保存の対戦設定を破棄し、保存済みの最新設定を読み込みますか？";
+"group_transfer_confirmation" = "%@にオーナー権限を譲渡しますか？あなたは一般メンバーになります。";
+"group_approve_confirmation" = "%@はグループのメンバーとなり、活動と結果を閲覧できます。";
+"group_reject_confirmation" = "却下後、%@は新しい申請を提出する必要があります。";
+"group_lookup_full_short" = "定員に達しました";
+"group_lookup_archived_short" = "アーカイブ済み";
+"group_lookup_pending_short" = "対応待ち";
+"group_temporary_member_count" = "%d人のメンバー";
+"group_best_of_tennis_format" = "%1$@回中%2$@回先取";
+"group_rename_member_title" = "名前を変更";
+
+"group_copy_transfer_title" = "所有権を譲渡";
+
+"group_copy_transfer_submit" = "譲渡";
+
+"group_copy_transfer_message" = "%@にオーナー権限を譲渡しますか？あなたは一般メンバーになります。";
+
+"group_copy_transfer_hint" = "譲渡後は通常のメンバーになります。";
+
+"group_copy_rename_title" = "名前を変更";
+
+"group_copy_rename_action" = "名前を変更";
+
+"group_copy_result_confirm" = "結果を確認";
+
+"group_copy_result_confirm_authority_message" = "全員が一時メンバー、または相手側に確認できるアカウントを持つ選手がいません。オーナーが対戦者とスコアを確認してください。確定後は戦績に集計され、オーナーが確認者として記録されます。";
+
+"group_copy_result_confirm_manager_message" = "確定後は双方の戦績に集計され、編集できません。訂正する場合は先に無効にしてください。";
+
+"group_copy_result_confirm_member_message" = "対戦者とスコアを確認して戦績に反映します。訂正が必要な場合は管理者に元の結果の無効化を依頼してください。";
+
+"group_copy_void_action" = "無効化";
+
+"group_copy_void_pending_message" = "この結果は確認待ちから外れ、戦績に集計されません。元のスコアと理由はグループのメンバーに引き続き表示されます。選手と提出者に通知されます。";
+
+"group_copy_void_confirmed_message" = "この結果は戦績の集計対象から外れます。双方の戦績と順位が再計算されます。元のスコアと理由はグループのメンバーに引き続き表示されます。選手と提出者に通知されます。";
+
+"group_copy_cancel_activity" = "イベントを中止";
+
+"group_copy_cancel_activity_message" = "中止すると参加申込一覧は完全に削除されます。進行中の活動は中止できません。";
+
+"group_copy_abandon_action" = "試合を放棄";
+
+"group_copy_abandon_message" = "この試合を放棄すると別の試合を開始できます。保存済みの個人記録は残ります。";
+
+"group_copy_leave_action" = "グループを退会";
+
+"group_copy_leave_message" = "退出するとメンバーではなくなり、このグループは「マイグループ」から削除されます。グループの閲覧や参加はできなくなります。グループ内の既存の試合記録と、この端末に保存された個人の記録は残ります。再びアクセスするには、グループへの再参加が必要です。";
+
+"group_copy_archive_action" = "グループをアーカイブ";
+
+"group_copy_archive_message" = "このグループをアーカイブしますか？内容は閲覧専用になります。";
+
+"group_copy_dissolve_action" = "グループを解散";
+
+"group_copy_dissolve_message" = "7日間は閲覧専用となり、その間は解散を取り消せます。7日後にグループとすべてのデータが完全に削除されます。";
+
+"group_copy_approve_action" = "承認する";
+
+"group_copy_approve_message" = "%@はグループのメンバーとなり、活動と結果を閲覧できます。";
+
+"group_copy_reject_action" = "拒否";
+
+"group_copy_reject_message" = "却下後、%@は新しい申請を提出する必要があります。";
+
+"group_copy_remove_action" = "メンバーを削除";
+
+"group_copy_remove_message" = "%@を削除しますか？再度参加申請が必要になります。";
+
+"group_copy_report_detail" = "詳細（任意）";
+
+"group_copy_edit_profile" = "グループ情報を編集";
+
+"group_copy_entry_a_wins" = "A の勝ち";
+
+"group_copy_entry_b_wins" = "B の勝ち";
+
+"group_copy_activity_timing_sequence" = "時刻を指定しない";
+
+"group_copy_activity_registration_manage" = "仮メンバーの参加登録";
+
+"group_copy_temporary_hint" = "一時メンバーはアカウント不要で、結果の入力時に追加できます。";
+
+"group_copy_activity_registration_scope" = "仮メンバーの参加登録を代行します。アカウントのあるメンバーは各自で登録してください。";
+
+"group_copy_report" = "グループを通報";
+
+"group_copy_notice_member_removed" = "あなたはグループから削除されました";
+
+"group_copy_notice_role_changed" = "あなたの役割が変更されました";
+
+"group_copy_activity_direct_save" = "予定を保存";
+
+"group_copy_notice_join_approved" = "参加申請が承認されました";
+
+"group_copy_notice_join_rejected" = "参加申請が却下されました";
+
+"group_copy_all_formats" = "すべての形式";
+
+"group_copy_closed" = "参加受付停止";
+
+"group_copy_report_other" = "その他";
+
+"group_copy_report_impersonation" = "なりすまし";
+
+"group_copy_audit_ui_share_failed" = "シェアに失敗しました。もう一度お試しください。";
+
+"group_copy_audit_ui_share_number" = "グループ番号をシェア";
+
+"group_copy_create" = "グループを作成";
+
+"group_copy_confirm_join" = "このグループに参加";
+
+"group_copy_join" = "グループに参加";
+
+"group_copy_join_policy" = "参加方法";
+
+"group_copy_filter_singles" = "シングルス";
+
+"group_copy_upcoming" = "今後の予定";
+
+"group_copy_activity_section_past" = "過去のイベント";
+
+"group_copy_beta_feedback_action" = "意見を送る";
+
+"group_copy_doubles" = "ダブルス";
+
+"group_copy_create_activity" = "イベントを作成";
+
+"group_copy_benefit_activity" = "イベントの計画と参加申込";
+
+"group_copy_empty_activities_hint" = "アクティビティを作成してメンバーを募集しましょう。定員に達すると募集が終了します。";
+
+"group_copy_lookup_available" = "参加可";
+
+"group_copy_activity_direct_hint" = "参加登録なしで、在籍中のメンバー全員から選べます。";
+
+"group_copy_empty_intro" = "友達を集めて試合を計画し、記分と試合履歴をみんなで共有しましょう。";
+
+"group_copy_place" = "場所";
+
+"group_copy_ranking_games" = "試合数";
+
+"group_copy_ranking_insufficient_matches" = "試合数が不足";
+
+"group_copy_report_spam" = "スパム";
+
+"group_copy_report_status_reviewing" = "確認中";
+
+"group_copy_note" = "メモ（任意）";
+
+"group_copy_peer_confirmation" = "対戦相手による確認";
+
+"group_copy_activity_lineup_section_matches" = "試合を組む";
+
+"group_copy_group" = "グループ";
+
+"group_copy_group_qr" = "グループのQRコード";
+
+"group_copy_beta_notice" = "グループ機能はベータ版です。一部の機能は変更される場合があります。先行体験へのご協力ありがとうございます。";
+
+"group_copy_created" = "グループを作成しました";
+
+"group_copy_ranking_sets" = "スコア";
+
+"group_copy_removed_members_expand" = "展開";
+
+"group_copy_voided" = "無効";
+
+"group_copy_cancelled" = "キャンセルされました";
+
+"group_copy_report_status_resolved" = "対応済み";
+
+"group_copy_completed" = "完了";
+
+"group_copy_archived" = "アーカイブ済み";
+
+"group_copy_archived_list_title" = "アーカイブ済みグループ";
+
+"group_copy_activity_registration_registered" = "登録済み";
+
+"group_copy_activity_full" = "定員に達しました";
+
+"group_copy_confirmed" = "確認済み";
+
+"group_copy_removed_members" = "以前のメンバー";
+
+"group_copy_mark_seen" = "既読";
+
+"group_copy_report_status_dismissed" = "却下";
+
+"group_copy_draws" = "引き分け数";
+
+"group_copy_draw" = "引き分け";
+
+"group_copy_start_score" = "今すぐ記分";
+
+"group_copy_pending_upload" = "アップロード待ち";
+
+"group_copy_activity_registration_pending_remove" = "取消予定";
+
+"group_copy_report_status_pending" = "対応待ち";
+
+"group_copy_lookup_pending_short" = "対応待ち";
+
+"group_copy_pending_request_limit" = "承認待ちの参加申請が多すぎます。結果を待つか、一部の申請を取り下げてください。";
+
+"group_copy_activity_registration_pending_add" = "登録予定";
+
+"group_copy_pending_confirmation" = "確認待ち";
+
+"group_copy_lookup_closing_short" = "解散手続き中";
+
+"group_copy_restore" = "グループを復元";
+
+"group_copy_member" = "メンバー";
+
+"group_copy_member_results_title" = "メンバー戦績";
+
+"group_copy_my_groups" = "マイグループ";
+
+"group_copy_activity_my_registration" = "自分の参加登録";
+
+"group_copy_activity_mode" = "記録";
+
+"group_copy_qr_join_short" = "スキャンして参加";
+
+"group_copy_qr_apply_short" = "スキャンして参加申請";
+
+"group_copy_register" = "参加申込";
+
+"group_copy_recruiting" = "参加申込受付中";
+
+"group_copy_registration_closes" = "参加受付の締切";
+
+"group_copy_activity_time_after_previous" = "前の試合の後";
+
+"group_copy_report_submit" = "送信";
+
+"group_copy_submitted_by" = "送信者";
+
+"group_copy_cancel_dissolve" = "解散を取り消す";
+
+"group_copy_notice_join_requested" = "参加申請が届きました";
+
+"group_copy_removed_members_collapse" = "折りたたむ";
+
+"group_copy_discard_upload" = "アップロードを破棄";
+
+"group_copy_notice_activity_created" = "イベントが作成されました";
+
+"group_copy_activity_time_unspecified" = "時間未定";
+
+"group_copy_activity_registration_empty" = "一時メンバーはいません";
+
+"group_copy_transfer_none" = "引き継ぎ可能な正式メンバーがいません。一時メンバーはグループリーダーになれません。";
+
+"group_copy_archived_empty" = "アーカイブ済みグループはありません";
+
+"group_copy_empty_activities_title" = "イベントはまだありません";
+
+"group_copy_latest_results" = "最近の結果";
+
+"group_copy_disputed" = "異議あり";
+
+"group_copy_activity_registration_not_registered" = "未登録";
+
+"group_copy_month_matches" = "今月の試合";
+
+"group_copy_open_group" = "グループを開く";
+
+"group_copy_benefit_history" = "試合履歴とランキングの確認";
+
+"group_copy_overview" = "概要";
+
+"group_copy_welcome_back" = "おかえりなさい";
+
+"group_copy_regular_members" = "参加申込済みメンバー";
+
+"group_copy_rally_scoring" = "ラリーポイント制";
+
+"group_copy_result_information" = "試合情報";
+
+"group_copy_match_score" = "試合のスコア";
+
+"group_copy_match_rules" = "試合のルール";
+
+"group_copy_activity_registration_no_changes" = "未保存の変更はありません";
+
+"group_copy_activities" = "イベント";
+
+"group_copy_activity_title" = "イベント名";
+
+"group_copy_activity_field_title_optional" = "イベント名（任意）";
+
+"group_copy_notice_activity_changed" = "イベントが更新されました";
+
+"group_copy_notice_activity_cancelled" = "イベントが中止されました";
+
+"group_copy_activity_lineup" = "試合を組む";
+
+"group_copy_activity_create_admin_hint" = "イベントはグループ所有者または管理者が作成します";
+
+"group_copy_beta_badge" = "ベータ版";
+
+"group_copy_add_set" = "ゲームの得点を追加";
+
+"group_copy_add_temporary" = "ゲストメンバーを追加";
+
+"group_copy_benefit_score" = "記分または過去の結果を追加";
+
+"group_copy_request_join" = "参加を申請";
+
+"group_copy_join_message" = "参加申請のメッセージ（任意）";
+
+"group_copy_beta_supported_label" = "現在の対応種目";
+
+"group_copy_open" = "直接参加";
+
+"group_copy_activity_direct_title" = "今すぐ試合を組む";
+
+"group_copy_admin" = "管理者";
+
+"group_copy_confirmed_matches" = "確認済みの試合";
+
+"group_copy_leader" = "オーナー";
+
+"group_copy_notice_ownership_transferred" = "グループのオーナーが変更されました";
+
+"group_copy_complete_activity" = "活動を終了";
+
+"group_copy_keep_draft" = "ローカル版の編集を続ける";
+
+"group_copy_ranking_wins" = "勝利数";
+
+"group_copy_ranking_rate" = "勝率";
+
+"group_copy_report_inappropriate" = "性的または不適切な内容";
+
+"group_copy_update_report" = "通報を更新";
+
+"group_copy_manual_result" = "試合結果を追加";
+
+"group_copy_set_admin" = "管理者に設定";
+
+"group_copy_activity_timing_estimated" = "予定時刻";
+
+"group_copy_losses" = "敗戦数";
+
+"group_copy_notice_result_voided" = "結果が無効になりました";
+
+"group_copy_notice_result_confirmed" = "結果が確定しました";
+
+"group_copy_notice_result_pending" = "結果の確認待ちです";
+
+"group_copy_result_actions" = "試合結果の操作";
+
+"group_copy_empty_title" = "グループはまだありません";
+
+"group_copy_in_progress" = "進行中";
+
+"group_copy_report_illegal" = "違法・危険な行為";
+
+"group_copy_join_hint" = "友達のグループ番号またはQRコードで参加できます。";
+
+"group_copy_overdue_tasks" = "期限超過のタスク";
+
+"group_copy_beta_feedback_prompt" = "問題やご要望はありますか？";
+
+"group_copy_invite" = "チームメイトを招待";
+
+"group_copy_retry" = "再試行";
+
+"group_copy_approval" = "承認が必要";
+
+"group_copy_sport" = "スポーツ";
+
+"group_copy_report_harassment" = "嫌がらせ";
+
+"group_copy_ranking_me_suffix" = "（自分）";
+
+"group_copy_places_title" = "場所を選択";
+
+"group_copy_report_fraud" = "詐欺・賭博";
+
+"group_copy_void_reason" = "無効にする理由";
+
+"group_copy_reload_version" = "再読み込み";
+
+"group_copy_lineup_reload_message" = "未保存の対戦設定を破棄し、保存済みの最新設定を読み込みますか？";
+
+"group_copy_join_number_separator" = "またはグループ番号を入力";
+
+"group_copy_activity_multi_match_hint" = "1つの活動で複数の試合を行えます。メンバーは活動に参加登録し、対戦を組む際に各シングルスは登録者から2人、各ダブルスは4人を選びます。";
+
+"group_copy_activity_single_match_hint" = "1つの活動につき1試合を行います。登録済みメンバーからシングルスは2人、ダブルスは4人を選んでください。";
+
+"group_copy_activity_detail" = "活動の詳細";
+
+"group_copy_registration_at_start" = "活動開始時";
+
+"group_copy_registration_use_start" = "活動開始時刻に戻す";
+
+"group_copy_cancel_reason_optional" = "中止理由（任意）";
+
+"group_copy_audit_result_frozen_info" = "対戦メンバーとルールを確認";
+"group_view_schedule" = "試合を表示";
+"group_notice_training_published" = "練習が公開されました";
+"group_notice_training_changed" = "練習が更新されました";
+"group_notice_training_cancelled" = "練習が中止されました";
+"group_notice_leave_changed" = "欠席情報が更新されました";
+"group_report_evidence_title" = "証拠画像（任意）";
+"group_report_evidence_hint" = "JPGまたはPNGの画像を3枚まで、1枚あたり2 MBまで添付できます。閲覧できるのはあなたと運営のみです。";
+"group_report_add_image" = "画像を追加";
+"group_report_retry" = "再試行";
+"group_report_preview" = "証拠画像";
+"group_report_supplement" = "情報を追加";
+"group_report_close" = "閉じる";
+"group_report_remove_image" = "画像を削除";
+"group_report_image_error" = "画像を処理できませんでした。別のJPGまたはPNG画像をお試しください。";
+"group_report_refresh" = "状況を更新";

@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "बोर्ड गेम्स";
 "search_team_or_game" = "टीम या गेम खोजें";
 "match_count" = "%d मैच";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d मैच · समूह के सभी सदस्य";
+"archived_count" = "%d समूह";
 
 /* Home Screen */
 "recent_records" = "हाल के रिकॉर्ड";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "जैसे, सभी पाँच सेट खेलें; मैच ड्रॉ हो सकता है";
 "match_completion_custom_placeholder" = "1-99 दर्ज करें";
 "match_completion_invalid_sets" = "क्लासिक में 1-99 के बीच विषम संख्या चाहिए; सभी खेलें में 1-99 की कोई भी संख्या मान्य है।";
+"setup_auto_odd_sets" = "केवल विषम संख्याएँ मान्य हैं — %d का उपयोग किया जा रहा है";
 "has_been_reset" = "रीसेट पूर्ण";
 "no_undo_available" = "कोई पूर्ववत उपलब्ध नहीं है";
 "screenshot_failed" = "स्क्रीनशॉट विफल रहा";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "सक्रिय सिंक सत्र";
 "timer_status_running" = "चल रहा है";
 "timer_status_paused" = "रोका गया";
-"membership_entry_summary_active" = "आप एक VIP सदस्य हैं। आपके समर्थन के लिए धन्यवाद";
+"membership_entry_summary_active" = "VIP सदस्यता सक्रिय";
 "sound_effects" = "ध्वनि प्रभाव";
 "vibration" = "कंपन";
 "language" = "भाषा";
@@ -1579,7 +1580,7 @@
 "group_approval" = "मंज़ूरी ज़रूरी है";
 "group_approve" = "मंज़ूर करें";
 "group_archive" = "समूह संग्रहित करें";
-"group_archive_hint" = "संग्रहित करने से पूरा इतिहास सुरक्षित रहता है और समूह में बदलाव रुक जाते हैं। इसे बाद में बहाल कर सकते हैं।";
+"group_archive_hint" = "इस समूह को संग्रहित करें? इसकी सामग्री केवल पढ़ी जा सकेगी।";
 "group_archive_readonly" = "यह समूह संग्रहित है। इसका इतिहास केवल पढ़ा जा सकता है।";
 "group_archived" = "संग्रहित";
 "group_benefit_activity" = "गतिविधियों की योजना बनाएँ और पंजीकरण करें";
@@ -1624,18 +1625,18 @@
 "group_invalid_qr" = "यह वैध समूह QR कोड नहीं है।";
 "group_invalid_result" = "अपलोड करने से पहले दर्ज परिणाम की समीक्षा ज़रूरी है।";
 "group_invalid_rules" = "कृपया मैच के नियम जाँचें।";
-"group_invite" = "Invite";
+"group_invite" = "साथी खिलाड़ियों को आमंत्रित करें";
 "group_join" = "समूह से जुड़ें";
 "group_join_hint" = "संख्या या QR कोड से दोस्त के समूह से जुड़ें।";
-"group_join_message" = "समूह को संदेश (वैकल्पिक)";
-"group_join_policy" = "जुड़ने का तरीका";
+"group_join_message" = "जुड़ने के अनुरोध का संदेश (वैकल्पिक)";
+"group_join_policy" = "जुड़ने के विकल्प";
 "group_leave" = "समूह छोड़ें";
-"group_leave_hint" = "इस समूह तक आपकी पहुँच समाप्त होगी। निजी रिकॉर्ड इस डिवाइस पर बने रहेंगे।";
+"group_leave_hint" = "छोड़ने के बाद आप समूह के सदस्य नहीं रहेंगे और समूह “मेरे समूह” से हटा दिया जाएगा। आप समूह को देख या उसमें भाग नहीं ले सकेंगे। समूह के मौजूदा मैच रिकॉर्ड और इस डिवाइस पर आपके निजी रिकॉर्ड सुरक्षित रहेंगे। दोबारा पहुँच पाने के लिए समूह में फिर से शामिल होना होगा।";
 "group_load_failed" = "समूह लोड नहीं हो सका";
 "group_load_more" = "और लोड करें";
 "group_losses" = "हार की संख्या";
 "group_manual" = "हाथ से प्रविष्टि";
-"group_manual_result" = "पुराना मैच जोड़ें";
+"group_manual_result" = "मैच का परिणाम जोड़ें";
 "group_match_detail" = "मैच का विवरण";
 "group_match_log" = "मैच इतिहास";
 "group_match_rules" = "मैच के नियम";
@@ -1647,15 +1648,15 @@
 "group_name" = "समूह का नाम";
 "group_need_login" = "जारी रखने के लिए साइन इन करें।";
 "group_need_members" = "मैच शुरू करने से पहले दोस्तों को आमंत्रित करें या अस्थायी सदस्य जोड़ें।";
-"group_new_activity" = "गतिविधि की योजना बनाएँ";
+"group_new_activity" = "गतिविधि बनाएँ";
 "group_new_owner" = "नया मालिक";
 "group_no_activities" = "अभी कोई गतिविधि नहीं";
 "group_no_description" = "अभी कोई विवरण नहीं";
 "group_no_rankings" = "मैच की पुष्टि के बाद रैंकिंग दिखाई देगी।";
 "group_no_set_details" = "केवल कुल परिणाम दर्ज किया गया है।";
-"group_note" = "गतिविधि टिप्पणी (वैकल्पिक)";
-"group_number" = "6–8 digit group number";
-"group_open" = "संख्या जानने वाला कोई भी जुड़ सकता है";
+"group_note" = "नोट (वैकल्पिक)";
+"group_number" = "6–8 अंकों का समूह नंबर";
+"group_open" = "सीधे जुड़ें";
 "group_overall_score" = "कुल सेट स्कोर";
 "group_overview" = "अवलोकन";
 "group_owner" = "मालिक";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "सदस्य हटाएँ";
 "group_restore" = "समूह बहाल करें";
 "group_restore_hint" = "गतिविधियाँ और अंक लेखा शुरू करने के लिए इस समूह को बहाल करें।";
-"group_results" = "मैच";
+"group_results" = "रिकॉर्ड्स";
 "group_retry" = "पुनः प्रयास करें";
 "group_rules_missing" = "नियम दर्ज नहीं हुए";
-"group_save" = "पुष्टि करें";
+"group_save" = "सहेजें";
 "group_save_failed" = "मैच सहेजा नहीं जा सका। फिर कोशिश करें।";
 "group_scan" = "QR कोड स्कैन करें";
 "group_scoreboard" = "स्कोरबोर्ड";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "नया मैच शुरू करने से पहले मौजूदा मैच जारी रखें या समाप्त करें।";
 "group_unregister" = "पंजीकरण रद्द करें";
 "group_void_reason" = "अमान्य करने का कारण";
-"group_void_result" = "परिणाम अमान्य करें";
+"group_void_result" = "अमान्य करें";
 "group_voided" = "अमान्य";
 "group_wins" = "जीत की संख्या";
 "group_withdraw" = "अनुरोध वापस लें";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "आप पहले से सदस्य हैं।";
 "group_open_group" = "समूह खोलें";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
-"group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
-"group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_groups" = "समूह";
+"group_invite_students" = "विद्यार्थियों को आमंत्रित करें";
+"group_group_type" = "समूह का प्रकार";
+"group_peer" = "दोस्तों का समूह";
+"group_coaching" = "प्रशिक्षण समूह";
+"group_training" = "प्रशिक्षण";
+"group_upcoming" = "आगामी";
+"group_latest_results" = "नए परिणाम";
+"group_no_results" = "अभी कोई मैच दर्ज नहीं";
+"group_no_training" = "अभी प्रशिक्षण तय नहीं है";
+"group_active_activities" = "जारी · पंजीकरण खुला है";
+"group_past_activities" = "पिछली गतिविधियाँ";
+"group_all_formats" = "सभी प्रारूप";
+"group_join_requests" = "जुड़ने के अनुरोध";
+"group_regular_members" = "पंजीकृत सदस्य";
+"group_temporary_members" = "अस्थायी सदस्य";
+"group_add" = "जोड़ें";
+"group_leader" = "मालिक";
+"group_member_settings" = "सदस्य सेटिंग";
+"group_settings" = "समूह प्रबंधन";
+"group_partial_load" = "कुछ हिस्से रीफ़्रेश नहीं हुए। फिर कोशिश करने के लिए नीचे खींचें।";
+"group_leave_notices" = "विद्यार्थियों की छुट्टी सूचनाएँ";
+"group_mark_seen" = "पढ़ा गया";
+"group_training_schedule" = "प्रशिक्षण कार्यक्रम";
+"group_add_session" = "मैच जोड़ें";
+"group_edit_schedule" = "कार्यक्रम बदलें";
+"group_cancel_schedule" = "कार्यक्रम रद्द करें";
+"group_leave_training" = "छुट्टी का अनुरोध";
+"group_session_minutes" = "प्रति मैच मिनट";
+"group_court" = "कोर्ट";
+"group_remove_session" = "हटाएँ";
+"group_publish_schedule" = "कार्यक्रम प्रकाशित करें";
+"group_leave_reason" = "छुट्टी का कारण (वैकल्पिक)";
+"group_report" = "समूह की रिपोर्ट करें";
+"group_report_reason" = "कारण";
+"group_report_detail" = "विवरण (वैकल्पिक)";
+"group_report_submit" = "भेजें";
+"group_report_spam" = "स्पैम";
+"group_report_harassment" = "उत्पीड़न";
+"group_report_inappropriate" = "यौन या अनुचित सामग्री";
+"group_report_fraud" = "धोखाधड़ी या जुआ";
+"group_report_illegal" = "गैरकानूनी या खतरनाक गतिविधि";
+"group_report_impersonation" = "किसी और का रूप धारण करना";
+"group_report_other" = "अन्य";
+"group_lineup_invalid" = "मैचों के समय, कोर्ट और खिलाड़ी जाँचें।";
+"group_lineup_member_limit" = "एक सदस्य एक कार्यक्रम में अधिकतम आठ मैच खेल सकता है।";
+"group_lineup_conflict" = "एक ही समय के मैचों के कोर्ट और खिलाड़ी अलग होने चाहिए।";
+"group_multi_match_hint" = "एक गतिविधि में कई मैच हो सकते हैं। सदस्य गतिविधि के लिए पंजीकरण करते हैं; मैच तय करते समय प्रत्येक एकल के लिए 2 या युगल के लिए 4 पंजीकृत सदस्य चुनें।";
+"group_single_match_hint" = "हर गतिविधि एक मैच है। एकल के लिए 2 या युगल के लिए 4 पंजीकृत सदस्य चुनें।";
+"group_rate_limited" = "बहुत अधिक अनुरोध हैं। बाद में फिर कोशिश करें।";
+"group_create_daily_limit" = "आप 24 घंटे में समूह बनाने की सीमा पर पहुँच गए हैं। बाद में फिर कोशिश करें।";
+"group_join_daily_limit" = "आप 24 घंटे में समूहों से जुड़ने की सीमा पर पहुँच गए हैं। बाद में फिर कोशिश करें।";
+"group_pending_request_limit" = "बहुत अधिक अनुरोध स्वीकृति की प्रतीक्षा में हैं। निर्णय का इंतज़ार करें या कुछ वापस लें।";
+"group_request_daily_limit" = "इस समूह की 24 घंटे की जुड़ने के अनुरोधों की सीमा पूरी हो गई है। बाद में कोशिश करें।";
+"group_join_cooldown" = "अस्वीकृति के बाद 24 घंटे तक फिर आवेदन नहीं कर सकते।";
+"group_result_group_daily_limit" = "इस समूह की 24 घंटे की परिणाम सीमा पूरी हो गई है। बाद में कोशिश करें।";
+"group_result_submitter_daily_limit" = "आपकी 24 घंटे की परिणाम भेजने की सीमा पूरी हो गई है। बाद में कोशिश करें।";
+"group_not_coach" = "केवल कोच प्रशिक्षण सत्र तय कर सकता है।";
+"group_activity_count" = "%1$d/%2$d पंजीकृत";
+"group_activity_create_admin_hint" = "गतिविधियाँ समूह का मालिक या व्यवस्थापक बनाता है";
+"group_activity_direct_hint" = "समूह के सभी सक्रिय सदस्यों में से सीधे चुनें; पंजीकरण ज़रूरी नहीं।";
+"group_activity_direct_save" = "कार्यक्रम सहेजें";
+"group_activity_direct_title" = "अभी तय करें";
+"group_activity_field_title_optional" = "गतिविधि का नाम (वैकल्पिक)";
+"group_activity_full" = "स्थान भर गए";
+"group_activity_lineup_add" = "मैच जोड़ें";
+"group_activity_lineup_add_need_members" = "खिलाड़ी पर्याप्त नहीं हैं। मैच जोड़ने के लिए कम से कम %1$d सक्रिय सदस्य चाहिए।";
+"group_activity_lineup_court" = "कोर्ट नंबर";
+"group_activity_lineup_duration" = "मैच की अवधि";
+"group_activity_lineup_match_count" = "%1$d मैच";
+"group_activity_lineup_minutes" = "%1$d मिनट";
+"group_activity_lineup_remove" = "हटाएँ";
+"group_activity_lineup_section_matches" = "मैच तय करें";
+"group_activity_lineup_session" = "मैच %1$d";
+"group_activity_registration_empty" = "कोई अस्थायी सदस्य नहीं";
+"group_activity_section_count" = "%1$d गतिविधियाँ";
+"group_activity_section_past" = "पिछली गतिविधियाँ";
+"group_activity_section_upcoming" = "जारी · पंजीकरण खुला है";
+"group_activity_status_scheduled" = "शुरू होने को तैयार";
+"group_activity_time_after_previous" = "पिछले मैच के बाद";
+"group_activity_time_unspecified" = "समय तय होना बाकी है";
+"group_activity_timing" = "समय निर्धारण";
+"group_activity_timing_estimated" = "अनुमानित समय";
+"group_activity_timing_sequence" = "निश्चित समय के बिना";
+"group_activity_title_auto_hint" = "खाली छोड़ने पर तारीख से नाम बनेगा, जैसे “10 नवंबर की गतिविधि”।";
+"group_archived_empty" = "कोई संग्रहित समूह नहीं";
+"group_archived_list_title" = "संग्रहित समूह";
+"group_empty_activities_title" = "अभी कोई गतिविधि नहीं";
+"group_list_add_title" = "समूह बनाएँ या जुड़ें";
+"group_ranking_draws" = "ड्रॉ की संख्या";
+"group_ranking_games" = "खेले गए मैच";
+"group_ranking_losses" = "हार की संख्या";
+"group_ranking_sets" = "स्कोर";
+"group_ranking_title" = "%@ की रैंकिंग";
+"group_ranking_wins" = "जीत की संख्या";
+"group_training_results_locked" = "परिणाम वाले कार्यक्रमों में समय और खिलाड़ी नहीं बदल सकते। स्थान और नोट बदल सकते हैं।";
+"group_temporary_hint" = "अस्थायी सदस्यों को खाते की ज़रूरत नहीं होती और परिणाम दर्ज करते समय उन्हें जोड़ा जा सकता है।";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "मैच का आरक्षण छोड़ें";
-"group_activity_lineup" = "मैच कार्यक्रम";
-"group_activity_mode" = "मैच";
+"group_abandon_game" = "मैच छोड़ें";
+"group_activity_lineup" = "मैच तय करें";
+"group_activity_mode" = "रिकॉर्ड्स";
 "group_activity_reminder" = "15 मिनट पहले याद दिलाएँ";
 "group_add_set" = "गेम का स्कोर जोड़ें";
 "group_added_members" = "जोड़ा गया";
-"group_authority_confirm" = "समूह के मालिक के रूप में पुष्टि करें";
-"group_batch_names_hint" = "हर पंक्ति में एक नाम, प्रत्येक में 1–24 अक्षर।";
-"group_beta_notice" = "समूह बीटा में हैं। आपकी प्रतिक्रिया का स्वागत है।";
+"group_authority_confirm" = "परिणाम की पुष्टि करें";
+"group_batch_names_hint" = "हर पंक्ति में एक नाम";
+"group_beta_notice" = "समूह सुविधा परीक्षण में है। कुछ सुविधाएँ बदल सकती हैं। जल्दी आज़माने के लिए धन्यवाद।";
 "group_cancel_dissolve" = "समूह भंग करना रद्द करें";
 "group_cancel_dissolve_hint" = "गतिविधियाँ और अंक लेखा शुरू करने के लिए इस समूह को बहाल करें।";
 "group_cancel_training_hint" = "समाप्त मैच इतिहास में रहते हैं। शुरू हुए मैच पूरे किए जा सकते हैं।";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "स्पोर्ट डिफ़ॉल्ट";
 "group_discard_upload" = "अपलोड छोड़ें";
 "group_dissolve" = "समूह भंग करें";
-"group_dissolve_hint" = "7 दिनों तक केवल पढ़ने की सुविधा। इस दौरान समूह भंग करना रद्द कर सकते हैं।";
+"group_dissolve_hint" = "समूह 7 दिन केवल देखा जा सकेगा और इस दौरान भंग करना रद्द किया जा सकता है। 7 दिन बाद समूह और उसका सारा डेटा स्थायी रूप से मिट जाएगा।";
 "group_dissolving" = "समूह भंग हो रहा है";
 "group_edit_activity" = "संपादित करें";
 "group_edit_lineup" = "मैच तय करें";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "अभी कोई सूचना नहीं";
 "group_no_sessions" = "अभी कोई मैच तय नहीं है";
 "group_notices" = "सूचनाएँ";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "कुछ हिस्से रीफ़्रेश नहीं हुए। फिर कोशिश करने के लिए नीचे खींचें।";
 "group_point_cap" = "स्कोर कैप";
 "group_preview_schedule" = "कार्यक्रम जाँचें";
 "group_published" = "प्रकाशित";
 "group_qr_direct_hint" = "iScoreboard में स्कैन करके समूह देखें और जुड़ें।";
 "group_quick_score" = "कुल सेट स्कोर";
 "group_rally_scoring" = "रैली स्कोरिंग";
-"group_read_notices" = "Read";
+"group_read_notices" = "पढ़ा गया";
 "group_registration_closes" = "पंजीकरण समाप्ति";
 "group_regular" = "मानक";
-"group_reload_version" = "नवीनतम संस्करण लोड करें";
+"group_reload_version" = "फिर लोड करें";
 "group_reminder_body" = "गतिविधि 15 मिनट में शुरू होगी।";
 "group_reminder_permission" = "सेटिंग्स में ऐप की सूचनाएँ चालू करें।";
 "group_reminder_too_late" = "शुरू होने में 15 मिनट से कम समय है।";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "सेट की स्कोरिंग";
 "group_tie_break" = "टाईब्रेक पॉइंट";
 "group_tiebreak_only" = "केवल टाई-ब्रेक";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "दिनांक";
+"group_too_many_sessions" = "मैचों के समय, कोर्ट और खिलाड़ी जाँचें।";
+"group_training_date" = "प्रशिक्षण की तारीख";
 "group_win_by_two" = "दो अंक के अंतर से जीतें";
 
-"group_keep_draft" = "मेरे बदलाव रखें";
+"group_keep_draft" = "स्थानीय संस्करण में बदलाव जारी रखें";
 
 "group_server_version" = "नवीनतम संस्करण";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "समूह %@ को भंग होगा\n7 दिन की विचार अवधि; तब तक केवल पढ़ सकते हैं";
 "group_notice_end" = "अधिक सूचनाएँ नहीं";
 "group_notice_join_requested" = "शामिल होने का अनुरोध प्राप्त हुआ";
 "group_notice_join_approved" = "शामिल होने का अनुरोध स्वीकृत";
@@ -1908,7 +1909,7 @@
 "group_ranking_insufficient_matches" = "बहुत कम मैच";
 "group_entry_a_wins" = "A जीतता है";
 "group_entry_b_wins" = "B जीतता है";
-"group_result_draw" = "ड्रॉ";
+"group_result_draw" = "ड्रा";
 "group_share_no" = "समूह संख्या %@";
 "group_audit_ui_share_invitation" = "आमंत्रण साझा करें";
 "group_audit_ui_share_qr" = "QR कोड साझा करें";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "खुद दर्ज करें";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "सभी को पढ़ा हुआ मार्क करें";
+
+"group_status_active" = "सक्रिय";
+"group_dissolved" = "समूह भंग किया गया";
+"group_report_status_pending" = "लंबित";
+"group_report_status_reviewing" = "समीक्षाधीन";
+"group_report_status_resolved" = "हल किया गया";
+"group_report_status_dismissed" = "खारिज";
+"group_error_permission" = "आपको यह कार्रवाई करने की अनुमति नहीं है।";
+"group_error_transfer_first" = "समूह छोड़ने या खाता मिटाने से पहले समूह का स्वामित्व सौंपें।";
+"group_error_target" = "इस समूह का ऐसा सक्रिय सदस्य चुनें जिसका खाता हो।";
+"group_error_activity_locked" = "गतिविधि शुरू या समाप्त हो चुकी है। उसका कार्यक्रम बदल या रद्द नहीं कर सकते।";
+"group_error_activity_pending" = "पहले बाकी मैच पूरे करें या हटाएँ।";
+"group_error_registration_disabled" = "सीधे तय किए गए मैचों के लिए पंजीकरण ज़रूरी नहीं।";
+"group_error_content_blocked" = "इस पाठ में अनुचित सामग्री है। कृपया संशोधित करें।";
+"group_error_request_invalid" = "दर्ज की गई जानकारी जाँचें और फिर कोशिश करें।";
+"group_error_reason_required" = "आगे बढ़ने से पहले कारण दर्ज करें।";
+"group_error_result_state" = "केवल पुष्टि की प्रतीक्षा वाले परिणामों की पुष्टि हो सकती है।";
+"group_error_conflict" = "डेटा बदल गया है। फिर कोशिश करने से पहले रीफ़्रेश करके जाँचें।";
+"group_error_request_handled" = "यह अनुरोध पहले ही निपटाया जा चुका है। सूची रीफ़्रेश करें।";
+"group_error_place_locked" = "मैच शुरू या समाप्त होने के बाद आयोजन स्थल नहीं बदल सकते।";
+"group_error_schedule_cancelled" = "यह कार्यक्रम या मैच रद्द हो चुका है।";
+"group_error_session_completed" = "यह मैच समाप्त हो चुका है, इसलिए अनुपस्थिति का अनुरोध नहीं कर सकते। परिणाम देखने के लिए कार्यक्रम रीफ़्रेश करें।";
+"group_error_session_has_result" = "इस मैच का परिणाम पहले से है। दूसरा जोड़ने से पहले उसे अमान्य करें।";
+"group_error_item_not_found" = "यह गतिविधि, कार्यक्रम, मैच या सूचना अब उपलब्ध नहीं है। सूची रीफ़्रेश करें।";
+"group_error_server" = "समूह सेवा अस्थायी रूप से उपलब्ध नहीं है। बाद में फिर प्रयास करें।";
+"group_error_peer_only" = "प्रशिक्षण समूह के लिए प्रशिक्षण कार्यक्रम का उपयोग करें।";
+"group_error_name_length" = "समूह के नाम में 2–24 अक्षर होने चाहिए।";
+"group_error_description_length" = "समूह का विवरण 200 अक्षरों से अधिक नहीं हो सकता।";
+"group_error_activity_invalid" = "गतिविधि का नाम, तारीख, स्थान और क्षमता जाँचें।";
+"group_error_registration_closed" = "पंजीकरण बंद हो गया है।";
+"group_error_action_disabled" = "यह कार्रवाई अभी उपलब्ध नहीं है।";
+"group_error_update_required" = "जारी रखने के लिए ऐप अपडेट करें।";
+"group_welcome_back" = "वापस स्वागत है";
+"group_transfer_none" = "कोई अन्य नियमित सदस्य नहीं है। अस्थायी सदस्य समूह प्रमुख नहीं बन सकते।";
+"group_empty_activities_hint" = "सदस्यों के लिए गतिविधि बनाएँ। सभी स्थान भर जाने पर पंजीकरण बंद हो जाएगा।";
+"group_temp_import_names" = "सहेजे गए नाम आयात करें";
+"group_temp_import_count" = "आयात करें (%1$d)";
+"group_result_information" = "मैच की जानकारी";
+"group_result_actions" = "परिणाम की कार्रवाइयाँ";
+"group_peer_confirmation" = "प्रतिद्वंद्वी की पुष्टि";
+"group_notice_target_unavailable" = "यह सामग्री उपलब्ध नहीं है या अब आपके पास इसे देखने की अनुमति नहीं है।";
+"group_push_enabled" = "समूह की सूचनाएँ";
+"group_push_group_enabled" = "इस समूह की सूचनाएँ पाएँ";
+"group_push_inbox_kept" = "इन्हें बंद करने पर भी ऐप के भीतर की सूचनाएँ और गतिविधियों के मौजूदा रिमाइंडर बने रहेंगे।";
+"group_push_permission" = "सिस्टम सूचनाएँ चालू करें";
+"group_push_settings" = "सूचना सेटिंग्स";
+
+// Shared group form controls
+"group_inline_seat_hint" = "पहले स्थान, फिर सदस्य चुनें";
+"group_score_and_rules" = "स्कोर और नियम";
+"group_activity_registration_scope" = "यहाँ अस्थायी सदस्यों का पंजीकरण करें। खाते वाले सदस्य स्वयं पंजीकरण करेंगे।";
+"group_activity_registration_no_changes" = "कोई सहेजे न गए बदलाव नहीं";
+"group_activity_registration_changes" = "जोड़ें %1$d · रद्द करें %2$d";
+"group_activity_registration_save" = "पंजीकरण सहेजें (%1$d)";
+"group_activity_registration_manage" = "अस्थायी सदस्य पंजीकरण";
+"group_activity_registration_pending_add" = "पंजीकरण बाकी";
+"group_activity_registration_pending_remove" = "रद्द करना बाकी";
+"group_activity_registration_registered" = "पंजीकृत";
+"group_activity_registration_not_registered" = "पंजीकृत नहीं";
+"group_activity_detail" = "गतिविधि का विवरण";
+"group_activity_my_registration" = "मेरा पंजीकरण";
+"group_match_score" = "मैच का स्कोर";
+
+"group_lookup_available" = "उपलब्ध";
+
+/* Group beta notice card. */
+"group_beta_badge" = "बीटा";
+"group_beta_supported_label" = "अभी उपलब्ध";
+"group_beta_feedback_prompt" = "कोई समस्या या सुझाव है?";
+"group_beta_feedback_action" = "फ़ीडबैक दें";
+
+"group_member_results_title" = "सदस्य के परिणाम";
+
+"group_removed_members_expand" = "विस्तार करें";
+"group_removed_members_collapse" = "समेटें";
+"group_best_of_format" = "%1$@ में सर्वश्रेष्ठ (%2$@ जीत ज़रूरी)";
+"group_member_count_single" = "%d सदस्य";
+"group_member_count_short" = "%d सदस्य";
+"group_lookup_closed_short" = "बंद";
+"group_lookup_closing_short" = "भंग होने की प्रक्रिया में";
+"group_lookup_member_short" = "शामिल हैं";
+"group_lookup_unavailable_short" = "उपलब्ध नहीं";
+"group_join_scan_hint" = "समूह का QR कोड स्कैन करें";
+"group_join_number_hint" = "6–8 अंक। समूह के मालिक से प्राप्त करें।";
+"group_request_join" = "शामिल होने का अनुरोध";
+"group_overdue_tasks" = "समयसीमा पार कर चुके कार्य";
+"group_apply_shift" = "बदलाव लागू करें";
+"group_transfer_submit" = "हस्तांतरित करें";
+"group_rename_member" = "नाम बदलें";
+"group_set_admin" = "प्रशासक बनाएँ";
+"group_set_member" = "प्रशासक की भूमिका हटाएँ";
+"group_confirm_authority_message" = "सभी खिलाड़ी अस्थायी सदस्य हैं या विरोधी पक्ष में कोई खाताधारक खिलाड़ी पुष्टि नहीं कर सकता। मालिक को खिलाड़ियों और स्कोर की जाँच करनी होगी। पुष्टि के बाद परिणाम रिकॉर्ड में गिना जाएगा और मालिक को पुष्टि करने वाले के रूप में दर्ज किया जाएगा।";
+"group_confirm_result_message" = "पुष्टि के बाद परिणाम दोनों पक्षों के रिकॉर्ड में गिना जाएगा और बदला नहीं जा सकेगा। सुधार के लिए पहले परिणाम अमान्य करें।";
+"group_confirm_member_message" = "परिणाम रिकॉर्ड में जोड़ने के लिए खिलाड़ियों और स्कोर की पुष्टि करें। सुधार चाहिए तो प्रबंधक से मूल परिणाम अमान्य करने को कहें।";
+"group_cancel_activity_message" = "रद्द करने से पंजीकरण सूची स्थायी रूप से मिट जाएगी। चल रही गतिविधियाँ रद्द नहीं की जा सकतीं।";
+"group_abandon_game_message" = "दूसरा मैच शुरू करने के लिए यह मैच छोड़ें। सहेजे गए व्यक्तिगत रिकॉर्ड बने रहेंगे।";
+"group_void_pending_message" = "यह परिणाम अब पुष्टि की प्रतीक्षा नहीं करेगा और मैच के आँकड़ों में नहीं गिना जाएगा। मूल स्कोर और कारण समूह के सदस्यों को दिखते रहेंगे। खिलाड़ियों और जमा करने वाले को सूचित किया जाएगा।";
+"group_void_confirmed_message" = "यह परिणाम मैच के आँकड़ों में नहीं गिना जाएगा। दोनों पक्षों के आँकड़े और रैंकिंग फिर से गणना किए जाएँगे। मूल स्कोर और कारण समूह के सदस्यों को दिखते रहेंगे। खिलाड़ियों और जमा करने वाले को सूचित किया जाएगा।";
+"group_remove_member_message" = "%@ को हटाएँ? उन्हें दोबारा शामिल होने का अनुरोध करना होगा।";
+"group_reload_version_message" = "मैचों की बिना सहेजी गई व्यवस्था छोड़कर सबसे नया सहेजा गया शेड्यूल लोड करें?";
+"group_transfer_confirmation" = "मालिकाना हक %@ को सौंपें? आप सामान्य सदस्य बन जाएँगे।";
+"group_approve_confirmation" = "%@ समूह के सदस्य बनेंगे और गतिविधियाँ व परिणाम देख सकेंगे।";
+"group_reject_confirmation" = "अस्वीकृति के बाद %@ को नया अनुरोध भेजना होगा।";
+"group_lookup_full_short" = "स्थान भर गए";
+"group_lookup_archived_short" = "संग्रहित";
+"group_lookup_pending_short" = "लंबित";
+"group_temporary_member_count" = "%d सदस्य";
+"group_best_of_tennis_format" = "%1$@ में सर्वश्रेष्ठ (%2$@ जीत ज़रूरी)";
+"group_rename_member_title" = "नाम बदलें";
+
+"group_copy_transfer_title" = "मालिकाना हस्तांतरित करें";
+
+"group_copy_transfer_submit" = "हस्तांतरित करें";
+
+"group_copy_transfer_message" = "मालिकाना हक %@ को सौंपें? आप सामान्य सदस्य बन जाएँगे।";
+
+"group_copy_transfer_hint" = "हस्तांतरण के बाद आप सामान्य सदस्य बनेंगे।";
+
+"group_copy_rename_title" = "नाम बदलें";
+
+"group_copy_rename_action" = "नाम बदलें";
+
+"group_copy_result_confirm" = "परिणाम की पुष्टि करें";
+
+"group_copy_result_confirm_authority_message" = "सभी खिलाड़ी अस्थायी सदस्य हैं या विरोधी पक्ष में कोई खाताधारक खिलाड़ी पुष्टि नहीं कर सकता। मालिक को खिलाड़ियों और स्कोर की जाँच करनी होगी। पुष्टि के बाद परिणाम रिकॉर्ड में गिना जाएगा और मालिक को पुष्टि करने वाले के रूप में दर्ज किया जाएगा।";
+
+"group_copy_result_confirm_manager_message" = "पुष्टि के बाद परिणाम दोनों पक्षों के रिकॉर्ड में गिना जाएगा और बदला नहीं जा सकेगा। सुधार के लिए पहले परिणाम अमान्य करें।";
+
+"group_copy_result_confirm_member_message" = "परिणाम रिकॉर्ड में जोड़ने के लिए खिलाड़ियों और स्कोर की पुष्टि करें। सुधार चाहिए तो प्रबंधक से मूल परिणाम अमान्य करने को कहें।";
+
+"group_copy_void_action" = "अमान्य करें";
+
+"group_copy_void_pending_message" = "यह परिणाम अब पुष्टि की प्रतीक्षा नहीं करेगा और मैच के आँकड़ों में नहीं गिना जाएगा। मूल स्कोर और कारण समूह के सदस्यों को दिखते रहेंगे। खिलाड़ियों और जमा करने वाले को सूचित किया जाएगा।";
+
+"group_copy_void_confirmed_message" = "यह परिणाम मैच के आँकड़ों में नहीं गिना जाएगा। दोनों पक्षों के आँकड़े और रैंकिंग फिर से गणना किए जाएँगे। मूल स्कोर और कारण समूह के सदस्यों को दिखते रहेंगे। खिलाड़ियों और जमा करने वाले को सूचित किया जाएगा।";
+
+"group_copy_cancel_activity" = "गतिविधि रद्द करें";
+
+"group_copy_cancel_activity_message" = "रद्द करने से पंजीकरण सूची स्थायी रूप से मिट जाएगी। चल रही गतिविधियाँ रद्द नहीं की जा सकतीं।";
+
+"group_copy_abandon_action" = "मैच छोड़ें";
+
+"group_copy_abandon_message" = "दूसरा मैच शुरू करने के लिए यह मैच छोड़ें। सहेजे गए व्यक्तिगत रिकॉर्ड बने रहेंगे।";
+
+"group_copy_leave_action" = "समूह छोड़ें";
+
+"group_copy_leave_message" = "छोड़ने के बाद आप समूह के सदस्य नहीं रहेंगे और समूह “मेरे समूह” से हटा दिया जाएगा। आप समूह को देख या उसमें भाग नहीं ले सकेंगे। समूह के मौजूदा मैच रिकॉर्ड और इस डिवाइस पर आपके निजी रिकॉर्ड सुरक्षित रहेंगे। दोबारा पहुँच पाने के लिए समूह में फिर से शामिल होना होगा।";
+
+"group_copy_archive_action" = "समूह संग्रहित करें";
+
+"group_copy_archive_message" = "इस समूह को संग्रहित करें? इसकी सामग्री केवल पढ़ी जा सकेगी।";
+
+"group_copy_dissolve_action" = "समूह भंग करें";
+
+"group_copy_dissolve_message" = "समूह 7 दिन केवल देखा जा सकेगा और इस दौरान भंग करना रद्द किया जा सकता है। 7 दिन बाद समूह और उसका सारा डेटा स्थायी रूप से मिट जाएगा।";
+
+"group_copy_approve_action" = "मंज़ूर करें";
+
+"group_copy_approve_message" = "%@ समूह के सदस्य बनेंगे और गतिविधियाँ व परिणाम देख सकेंगे।";
+
+"group_copy_reject_action" = "अस्वीकार";
+
+"group_copy_reject_message" = "अस्वीकृति के बाद %@ को नया अनुरोध भेजना होगा।";
+
+"group_copy_remove_action" = "सदस्य हटाएँ";
+
+"group_copy_remove_message" = "%@ को हटाएँ? उन्हें दोबारा शामिल होने का अनुरोध करना होगा।";
+
+"group_copy_report_detail" = "विवरण (वैकल्पिक)";
+
+"group_copy_edit_profile" = "समूह प्रोफ़ाइल बदलें";
+
+"group_copy_entry_a_wins" = "A जीतता है";
+
+"group_copy_entry_b_wins" = "B जीतता है";
+
+"group_copy_activity_timing_sequence" = "निश्चित समय के बिना";
+
+"group_copy_activity_registration_manage" = "अस्थायी सदस्य पंजीकरण";
+
+"group_copy_temporary_hint" = "अस्थायी सदस्यों को खाते की ज़रूरत नहीं होती और परिणाम दर्ज करते समय उन्हें जोड़ा जा सकता है।";
+
+"group_copy_activity_registration_scope" = "यहाँ अस्थायी सदस्यों का पंजीकरण करें। खाते वाले सदस्य स्वयं पंजीकरण करेंगे।";
+
+"group_copy_report" = "समूह की रिपोर्ट करें";
+
+"group_copy_notice_member_removed" = "आपको समूह से हटा दिया गया";
+
+"group_copy_notice_role_changed" = "आपकी भूमिका बदल गई";
+
+"group_copy_activity_direct_save" = "कार्यक्रम सहेजें";
+
+"group_copy_notice_join_approved" = "शामिल होने का अनुरोध स्वीकृत";
+
+"group_copy_notice_join_rejected" = "शामिल होने का अनुरोध अस्वीकृत";
+
+"group_copy_all_formats" = "सभी प्रारूप";
+
+"group_copy_closed" = "नए सदस्यों का प्रवेश बंद";
+
+"group_copy_report_other" = "अन्य";
+
+"group_copy_report_impersonation" = "किसी और का रूप धारण करना";
+
+"group_copy_audit_ui_share_failed" = "साझा करना विफल रहा। फिर से प्रयास करें।";
+
+"group_copy_audit_ui_share_number" = "ग्रुप नंबर साझा करें";
+
+"group_copy_create" = "समूह बनाएँ";
+
+"group_copy_confirm_join" = "इस समूह से जुड़ें";
+
+"group_copy_join" = "समूह से जुड़ें";
+
+"group_copy_join_policy" = "जुड़ने के विकल्प";
+
+"group_copy_filter_singles" = "एकल";
+
+"group_copy_upcoming" = "आगामी";
+
+"group_copy_activity_section_past" = "पिछली गतिविधियाँ";
+
+"group_copy_beta_feedback_action" = "फ़ीडबैक दें";
+
+"group_copy_doubles" = "युगल";
+
+"group_copy_create_activity" = "गतिविधि बनाएँ";
+
+"group_copy_benefit_activity" = "गतिविधियों की योजना बनाएँ और पंजीकरण करें";
+
+"group_copy_empty_activities_hint" = "सदस्यों के लिए गतिविधि बनाएँ। सभी स्थान भर जाने पर पंजीकरण बंद हो जाएगा।";
+
+"group_copy_lookup_available" = "उपलब्ध";
+
+"group_copy_activity_direct_hint" = "समूह के सभी सक्रिय सदस्यों में से सीधे चुनें; पंजीकरण ज़रूरी नहीं।";
+
+"group_copy_empty_intro" = "दोस्तों को साथ लाकर खेल की योजना बनाएँ, अंक दर्ज करें और साझा मैच इतिहास बनाएँ।";
+
+"group_copy_place" = "स्थान";
+
+"group_copy_ranking_games" = "खेले गए मैच";
+
+"group_copy_ranking_insufficient_matches" = "बहुत कम मैच";
+
+"group_copy_report_spam" = "स्पैम";
+
+"group_copy_report_status_reviewing" = "समीक्षाधीन";
+
+"group_copy_note" = "नोट (वैकल्पिक)";
+
+"group_copy_peer_confirmation" = "प्रतिद्वंद्वी की पुष्टि";
+
+"group_copy_activity_lineup_section_matches" = "मैच तय करें";
+
+"group_copy_group" = "समूह";
+
+"group_copy_group_qr" = "समूह का QR कोड";
+
+"group_copy_beta_notice" = "समूह सुविधा परीक्षण में है। कुछ सुविधाएँ बदल सकती हैं। जल्दी आज़माने के लिए धन्यवाद।";
+
+"group_copy_created" = "समूह बन गया";
+
+"group_copy_ranking_sets" = "स्कोर";
+
+"group_copy_removed_members_expand" = "विस्तार करें";
+
+"group_copy_voided" = "अमान्य";
+
+"group_copy_cancelled" = "रद्द कर दिया गया";
+
+"group_copy_report_status_resolved" = "हल किया गया";
+
+"group_copy_completed" = "पूरा हुआ";
+
+"group_copy_archived" = "संग्रहित";
+
+"group_copy_archived_list_title" = "संग्रहित समूह";
+
+"group_copy_activity_registration_registered" = "पंजीकृत";
+
+"group_copy_activity_full" = "स्थान भर गए";
+
+"group_copy_confirmed" = "पुष्टि हुई";
+
+"group_copy_removed_members" = "पूर्व सदस्य";
+
+"group_copy_mark_seen" = "पढ़ा गया";
+
+"group_copy_report_status_dismissed" = "खारिज";
+
+"group_copy_draws" = "ड्रॉ की संख्या";
+
+"group_copy_draw" = "ड्रा";
+
+"group_copy_start_score" = "अभी अंक दर्ज करें";
+
+"group_copy_pending_upload" = "अपलोड की प्रतीक्षा";
+
+"group_copy_activity_registration_pending_remove" = "रद्द करना बाकी";
+
+"group_copy_report_status_pending" = "लंबित";
+
+"group_copy_lookup_pending_short" = "लंबित";
+
+"group_copy_pending_request_limit" = "बहुत अधिक अनुरोध स्वीकृति की प्रतीक्षा में हैं। निर्णय का इंतज़ार करें या कुछ वापस लें।";
+
+"group_copy_activity_registration_pending_add" = "पंजीकरण बाकी";
+
+"group_copy_pending_confirmation" = "पुष्टि की प्रतीक्षा";
+
+"group_copy_lookup_closing_short" = "भंग होने की प्रक्रिया में";
+
+"group_copy_restore" = "समूह बहाल करें";
+
+"group_copy_member" = "सदस्य";
+
+"group_copy_member_results_title" = "सदस्य के परिणाम";
+
+"group_copy_my_groups" = "मेरे समूह";
+
+"group_copy_activity_my_registration" = "मेरा पंजीकरण";
+
+"group_copy_activity_mode" = "रिकॉर्ड्स";
+
+"group_copy_qr_join_short" = "शामिल होने के लिए स्कैन करें";
+
+"group_copy_qr_apply_short" = "शामिल होने का अनुरोध करने के लिए स्कैन करें";
+
+"group_copy_register" = "पंजीकरण करें";
+
+"group_copy_recruiting" = "पंजीकरण खुला है";
+
+"group_copy_registration_closes" = "पंजीकरण समाप्ति";
+
+"group_copy_activity_time_after_previous" = "पिछले मैच के बाद";
+
+"group_copy_report_submit" = "भेजें";
+
+"group_copy_submitted_by" = "भेजने वाला";
+
+"group_copy_cancel_dissolve" = "समूह भंग करना रद्द करें";
+
+"group_copy_notice_join_requested" = "शामिल होने का अनुरोध प्राप्त हुआ";
+
+"group_copy_removed_members_collapse" = "समेटें";
+
+"group_copy_discard_upload" = "अपलोड छोड़ें";
+
+"group_copy_notice_activity_created" = "गतिविधि बनाई गई";
+
+"group_copy_activity_time_unspecified" = "समय तय होना बाकी है";
+
+"group_copy_activity_registration_empty" = "कोई अस्थायी सदस्य नहीं";
+
+"group_copy_transfer_none" = "कोई अन्य नियमित सदस्य नहीं है। अस्थायी सदस्य समूह प्रमुख नहीं बन सकते।";
+
+"group_copy_archived_empty" = "कोई संग्रहित समूह नहीं";
+
+"group_copy_empty_activities_title" = "अभी कोई गतिविधि नहीं";
+
+"group_copy_latest_results" = "नए परिणाम";
+
+"group_copy_disputed" = "विवादित";
+
+"group_copy_activity_registration_not_registered" = "पंजीकृत नहीं";
+
+"group_copy_month_matches" = "इस महीने के मैच";
+
+"group_copy_open_group" = "समूह खोलें";
+
+"group_copy_benefit_history" = "मैच और रैंकिंग देखें";
+
+"group_copy_overview" = "अवलोकन";
+
+"group_copy_welcome_back" = "वापस स्वागत है";
+
+"group_copy_regular_members" = "पंजीकृत सदस्य";
+
+"group_copy_rally_scoring" = "रैली स्कोरिंग";
+
+"group_copy_result_information" = "मैच की जानकारी";
+
+"group_copy_match_score" = "मैच का स्कोर";
+
+"group_copy_match_rules" = "मैच के नियम";
+
+"group_copy_activity_registration_no_changes" = "कोई सहेजे न गए बदलाव नहीं";
+
+"group_copy_activities" = "गतिविधियाँ";
+
+"group_copy_activity_title" = "गतिविधि का नाम";
+
+"group_copy_activity_field_title_optional" = "गतिविधि का नाम (वैकल्पिक)";
+
+"group_copy_notice_activity_changed" = "गतिविधि अपडेट की गई";
+
+"group_copy_notice_activity_cancelled" = "गतिविधि रद्द की गई";
+
+"group_copy_activity_lineup" = "मैच तय करें";
+
+"group_copy_activity_create_admin_hint" = "गतिविधियाँ समूह का मालिक या व्यवस्थापक बनाता है";
+
+"group_copy_beta_badge" = "बीटा";
+
+"group_copy_add_set" = "गेम का स्कोर जोड़ें";
+
+"group_copy_add_temporary" = "अस्थायी सदस्य जोड़ें";
+
+"group_copy_benefit_score" = "अंक दर्ज करें या पुराने परिणाम जोड़ें";
+
+"group_copy_request_join" = "शामिल होने का अनुरोध";
+
+"group_copy_join_message" = "जुड़ने के अनुरोध का संदेश (वैकल्पिक)";
+
+"group_copy_beta_supported_label" = "अभी उपलब्ध";
+
+"group_copy_open" = "सीधे जुड़ें";
+
+"group_copy_activity_direct_title" = "अभी तय करें";
+
+"group_copy_admin" = "प्रशासक";
+
+"group_copy_confirmed_matches" = "पुष्टि वाले मैच";
+
+"group_copy_leader" = "मालिक";
+
+"group_copy_notice_ownership_transferred" = "समूह का मालिक बदल गया";
+
+"group_copy_complete_activity" = "गतिविधि समाप्त करें";
+
+"group_copy_keep_draft" = "स्थानीय संस्करण में बदलाव जारी रखें";
+
+"group_copy_ranking_wins" = "जीत की संख्या";
+
+"group_copy_ranking_rate" = "जीत का प्रतिशत";
+
+"group_copy_report_inappropriate" = "यौन या अनुचित सामग्री";
+
+"group_copy_update_report" = "रिपोर्ट अपडेट करें";
+
+"group_copy_manual_result" = "मैच का परिणाम जोड़ें";
+
+"group_copy_set_admin" = "प्रशासक बनाएँ";
+
+"group_copy_activity_timing_estimated" = "अनुमानित समय";
+
+"group_copy_losses" = "हार की संख्या";
+
+"group_copy_notice_result_voided" = "परिणाम अमान्य कर दिया गया";
+
+"group_copy_notice_result_confirmed" = "परिणाम की पुष्टि हो गई";
+
+"group_copy_notice_result_pending" = "परिणाम पुष्टि की प्रतीक्षा में";
+
+"group_copy_result_actions" = "परिणाम की कार्रवाइयाँ";
+
+"group_copy_empty_title" = "अभी कोई समूह नहीं";
+
+"group_copy_in_progress" = "चल रहा है";
+
+"group_copy_report_illegal" = "गैरकानूनी या खतरनाक गतिविधि";
+
+"group_copy_join_hint" = "संख्या या QR कोड से दोस्त के समूह से जुड़ें।";
+
+"group_copy_overdue_tasks" = "समयसीमा पार कर चुके कार्य";
+
+"group_copy_beta_feedback_prompt" = "कोई समस्या या सुझाव है?";
+
+"group_copy_invite" = "साथी खिलाड़ियों को आमंत्रित करें";
+
+"group_copy_retry" = "पुनः प्रयास करें";
+
+"group_copy_approval" = "मंज़ूरी ज़रूरी है";
+
+"group_copy_sport" = "खेल";
+
+"group_copy_report_harassment" = "उत्पीड़न";
+
+"group_copy_ranking_me_suffix" = " (मैं)";
+
+"group_copy_places_title" = "स्थान चुनें";
+
+"group_copy_report_fraud" = "धोखाधड़ी या जुआ";
+
+"group_copy_void_reason" = "अमान्य करने का कारण";
+
+"group_copy_reload_version" = "फिर लोड करें";
+
+"group_copy_lineup_reload_message" = "मैचों की बिना सहेजी गई व्यवस्था छोड़कर सबसे नया सहेजा गया शेड्यूल लोड करें?";
+
+"group_copy_join_number_separator" = "या समूह नंबर दर्ज करें";
+
+"group_copy_activity_multi_match_hint" = "एक गतिविधि में कई मैच हो सकते हैं। सदस्य गतिविधि के लिए पंजीकरण करते हैं; मैच तय करते समय प्रत्येक एकल के लिए 2 या युगल के लिए 4 पंजीकृत सदस्य चुनें।";
+
+"group_copy_activity_single_match_hint" = "हर गतिविधि एक मैच है। एकल के लिए 2 या युगल के लिए 4 पंजीकृत सदस्य चुनें।";
+
+"group_copy_activity_detail" = "गतिविधि का विवरण";
+
+"group_copy_registration_at_start" = "गतिविधि शुरू होने पर";
+
+"group_copy_registration_use_start" = "गतिविधि शुरू होने का समय इस्तेमाल करें";
+
+"group_copy_cancel_reason_optional" = "रद्द करने का कारण (वैकल्पिक)";
+
+"group_copy_audit_result_frozen_info" = "खिलाड़ी और नियम देखें";
+"group_view_schedule" = "मैच देखें";
+"group_notice_training_published" = "प्रशिक्षण प्रकाशित हुआ";
+"group_notice_training_changed" = "प्रशिक्षण अपडेट हुआ";
+"group_notice_training_cancelled" = "प्रशिक्षण रद्द हुआ";
+"group_notice_leave_changed" = "अनुपस्थिति अपडेट हुई";
+"group_report_evidence_title" = "साक्ष्य की छवि (वैकल्पिक)";
+"group_report_evidence_hint" = "अधिकतम 3 JPG या PNG छवियाँ, प्रत्येक 2 MB तक। केवल आप और प्लेटफ़ॉर्म इन्हें देख सकते हैं।";
+"group_report_add_image" = "छवि जोड़ें";
+"group_report_retry" = "पुनः प्रयास करें";
+"group_report_preview" = "साक्ष्य की छवि";
+"group_report_supplement" = "जानकारी जोड़ें";
+"group_report_close" = "बंद करें";
+"group_report_remove_image" = "छवि हटाएँ";
+"group_report_image_error" = "छवि तैयार नहीं हो सकी। किसी दूसरी JPG या PNG छवि के साथ प्रयास करें।";
+"group_report_refresh" = "स्थिति ताज़ा करें";

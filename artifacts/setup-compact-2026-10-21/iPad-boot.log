@@ -1,0 +1,30 @@
+Monitoring boot status for Jifen iPad controls regression 20261020 (1BAD35E9-B714-4AD9-BEF3-EBFD7F943FF1).
+[2026-10-21 05:52:24 +0000] Status=2, isTerminal=NO, Elapsed=00:01.
+	Waiting on Data Migration
+		Reason:(null)
+		Migration Elapsed:00:00 seconds
+
+[2026-10-21 05:52:25 +0000] Status=4, isTerminal=NO, Elapsed=00:01.
+	Waiting on System App
+
+[2026-10-21 05:52:26 +0000] Status=4, isTerminal=NO, Elapsed=00:02.
+	Waiting on System App
+
+[2026-10-21 05:52:27 +0000] Status=4, isTerminal=NO, Elapsed=00:03.
+	Waiting on System App
+
+[2026-10-21 05:52:28 +0000] Status=4, isTerminal=NO, Elapsed=00:04.
+	Waiting on System App
+
+[2026-10-21 05:52:29 +0000] Status=4, isTerminal=NO, Elapsed=00:05.
+	Waiting on System App
+
+[2026-10-21 05:52:30 +0000] Status=4, isTerminal=NO, Elapsed=00:06.
+	Waiting on System App
+
+[2026-10-21 05:52:31 +0000] Status=4, isTerminal=NO, Elapsed=00:07.
+	Waiting on System App
+
+[2026-10-21 05:52:32 +0000] Status=4294967295, isTerminal=YES, Elapsed=00:08.
+	Finished
+

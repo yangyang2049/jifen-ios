@@ -1,0 +1,175 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>小组 · 规则设置展开态：「完成 / 收起」交互对比</title><style>
+:root{--green:#4caf50;--green-dark:#2e7d32;--green-soft:#e7f3e8;--text:#111827;--text2:#5b6472;--helper:#647084;--muted:#8a93a3;--line:#e5e7eb;--group:#f5f5f5;--surface:#fff;--red:#bd454c;--red-bg:#fcf2f3;--phone-width:390px}
+*{box-sizing:border-box}body{margin:0;background:#f2f4f6;color:var(--text);font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif}button,input{font:inherit}button{border:0;cursor:pointer;color:inherit;background:none;text-align:left}button:disabled{cursor:default;opacity:.45}button:focus-visible{outline:2px solid var(--green);outline-offset:2px}h1,h2,h3,p{margin:0}svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.top{padding:24px 32px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}.eyebrow{font-size:12px;font-weight:600;color:var(--green-dark);margin-bottom:5px}h1{font-size:24px;letter-spacing:-.5px;font-weight:650}.top p{color:var(--text2);font-size:13px;margin-top:5px;max-width:560px}.tools{display:flex;gap:6px;flex-wrap:wrap;max-width:640px;justify-content:flex-end}.tool{border:1px solid var(--line);border-radius:10px;background:#fff;padding:7px 11px;font-size:12px;min-height:36px;white-space:nowrap}.tool.on{background:var(--green-soft);border-color:var(--green);color:var(--green-dark)}.tool-group{display:flex;gap:6px;flex-wrap:wrap}
+.workspace{padding:28px 32px;max-width:1450px;margin:auto;display:grid;grid-template-columns:225px minmax(350px,1fr) 300px;gap:24px;align-items:start}.sidebar,.notes{position:sticky;top:24px}.sidebar h2{font-size:14px;margin-bottom:12px}.variant{display:flex;gap:10px;align-items:flex-start;width:100%;padding:11px 12px;margin-bottom:8px;border:1px solid transparent;border-radius:12px}.variant.active{border-color:#badcbc;background:#fff;box-shadow:0 2px 8px #11182705}.variant .letter{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;flex-shrink:0;font-size:11px;font-weight:700;background:var(--group);color:var(--text2)}.variant.active .letter{background:var(--green);color:#fff}.variant strong{font-size:13px;font-weight:600;display:block}.variant small{font-size:11px;color:var(--helper);display:block;margin-top:2px}.side-note{font-size:11px;color:var(--muted);margin-top:14px;line-height:1.7}
+.stage{display:flex;flex-direction:column;align-items:center}.sports{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;justify-content:center}.sports button{border:1px solid var(--line);border-radius:9px;padding:8px 11px;min-height:38px;background:#fff;font-size:12px}.sports button.on{color:var(--green-dark);border-color:var(--green);background:var(--green-soft)}
+.comparison{display:flex;gap:18px;overflow-x:auto;padding:4px 2px 12px;align-items:flex-start}.comparison .cmp-item{display:flex;flex-direction:column;gap:8px;flex-shrink:0}.comparison .cmp-item h3{font-size:12px;font-weight:600;color:var(--text2);padding-left:2px}
+.note-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}.note-card h2{font-size:13px;margin-bottom:8px}.note-card p{font-size:12px;color:var(--text2);margin-bottom:6px}.note-card ul{margin:6px 0 0;padding-left:18px}.note-card li{font-size:12px;color:var(--text2);margin-bottom:4px}.note-card .tag{display:inline-block;font-size:10px;font-weight:600;color:var(--green-dark);background:var(--green-soft);border-radius:6px;padding:1px 7px;margin-bottom:8px}
+.explanation{padding:0 32px 40px;max-width:1450px;margin:auto}.explanation details{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}.explanation summary{font-size:13px;font-weight:600;cursor:pointer}.explanation p{font-size:12px;color:var(--text2);margin-top:10px}.explanation table{width:100%;border-collapse:collapse;margin-top:12px;font-size:12px}.explanation th,.explanation td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}.explanation th{background:var(--group);font-weight:600}.explanation td{color:var(--text2)}
+@media(max-width:1200px){.workspace{grid-template-columns:200px minmax(340px,1fr);padding:24px;gap:20px}.notes{position:static;grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:16px}.note-card{margin:0}.top{padding:20px 24px}.explanation{padding:0 24px 32px}}
+@media(max-width:700px){.top{padding:16px}.workspace{display:flex;flex-direction:column;padding:18px 10px;gap:18px}.sidebar{position:static;width:100%;display:flex;gap:6px;overflow-x:auto}.sidebar>h2,.side-note{display:none}.variant{min-width:170px;margin:0}.notes{display:block;width:100%;padding:0 6px}.explanation{padding:0 16px 28px}}
+
+/* ---------- 手机 ---------- */
+.phone{width:var(--phone-width);background:var(--surface);border-radius:24px;box-shadow:0 12px 32px #11182714;overflow:hidden;display:flex;flex-direction:column}
+.nav{display:flex;align-items:center;gap:6px;padding:14px 12px 8px}.nav button{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;color:var(--text)}.nav .title{font-size:16px;font-weight:600;flex:1;text-align:center}.nav .ph{width:36px}
+.phone-body{flex:1;overflow-y:auto;padding:0 16px 16px;position:relative}
+.cta{margin:0 16px 16px;background:var(--green);color:#fff;font-size:14px;font-weight:600;min-height:48px;border-radius:12px;display:grid;place-items:center}
+.seg{display:flex;background:var(--group);border-radius:12px;padding:3px;margin:6px 0 14px}.seg button{flex:1;min-height:38px;border-radius:9px;font-size:13px;color:var(--text2);display:grid;place-items:center}.seg button.on{background:#fff;color:var(--text);font-weight:600;box-shadow:0 1px 3px #1118271a}
+.seat{display:flex;align-items:center;gap:10px;background:var(--group);border-radius:12px;min-height:44px;padding:8px 12px;margin-bottom:8px}.seat .avatar{width:28px;height:28px;border-radius:50%;background:#dce1e5;color:#404b55;display:grid;place-items:center;font-size:12px;font-weight:600;flex-shrink:0}.seat .name{font-size:13px;color:var(--text)}.seat .key{font-size:11px;color:var(--muted);margin-left:auto}
+.sec-head{display:flex;align-items:center;padding:16px 2px 10px;font-size:13px;font-weight:600;color:var(--text2)}
+.card{background:var(--group);border-radius:16px;padding:12px;position:relative}
+.summary{display:flex;align-items:center;gap:10px;background:var(--group);border-radius:12px;min-height:44px;padding:10px 12px;width:100%;cursor:pointer}.summary .lines{flex:1;min-width:0}.summary .mode{font-size:14px;font-weight:500;color:var(--text)}.summary .pts{font-size:12px;color:var(--helper);margin-top:2px}.summary .cap{font-size:11px;color:var(--helper);margin-top:2px}.summary .arrow{color:var(--muted)}
+.flag{display:inline-block;font-size:10px;color:var(--red);background:var(--red-bg);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:1px;font-weight:500}
+.panel{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:8;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 28px #1c29302b;padding:12px;max-height:390px;overflow-y:auto}
+.panel h3{font-size:12px;font-weight:600;color:var(--text2);margin:0 0 7px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);border-radius:12px;background:transparent;font-size:12px;font-weight:600;color:var(--text2);min-height:40px;padding:0 12px;display:inline-flex;align-items:center;justify-content:center}.chip.num{min-width:44px;min-height:44px;padding:0}.chip.on{border-color:var(--green);background:var(--green-soft);color:var(--green-dark)}
+.g{margin-bottom:14px}.g:last-child{margin-bottom:0}
+.gblock{background:var(--group);border-radius:12px;padding:12px;margin-bottom:12px}.gblock:last-child{margin-bottom:0}.gblock h3:first-child{margin-top:0}.gblock .chips{margin-bottom:0}.gblock h3+p.chips{margin-bottom:0}
+.done-row{display:flex;align-items:center;width:100%;min-height:44px;color:var(--text2);font-size:12px;padding:0 2px;border-radius:10px}.done-row span{flex:1}.done-row svg{color:var(--muted)}
+.done-pair{display:flex;align-items:center;gap:2px;margin-top:2px}.done-pair.right{margin-left:auto}.done-pair.left{margin-right:auto}
+.text-btn{font-size:12px;color:var(--text2);min-height:44px;padding:0 10px;border-radius:10px;display:inline-flex;align-items:center}.icon-btn{width:44px;height:44px;display:grid;place-items:center;border-radius:12px;color:var(--muted);flex-shrink:0}.text-btn:hover,.icon-btn:hover{background:#ececec}
+.placeholder{background:var(--group);border-radius:12px;min-height:44px;display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:var(--text2)}.placeholder .score{margin-left:auto;font-weight:600;color:var(--text)}
+.hint{font-size:11px;color:var(--muted);padding:10px 2px 0;line-height:1.7}
+</style></head><body>
+<header class="top"><div><p class="eyebrow">全能计分器 / 小组 / 赛果录入（发起比赛）</p><h1>规则设置展开态：「完成 / 收起」怎么放</h1><p>第一组（几局几胜 + 每局分数）加中性灰底；羽毛球不再展示推导出的「封顶分数」；底部「完成 + ↑」比较三种处理方式，点击真机演示。</p></div><div class="tools" id="tools"></div></header>
+<main class="workspace" id="workspace"></main>
+<section class="explanation"><details open><summary>改动清单与方案说明</summary>
+<p><strong>本次一并落地的两处修正：</strong>① 羽毛球摘要行不再显示「封顶分数 30」——该值由 <code>badmintonPointCap(points)</code> 推导（21 分制 → 30 封顶，&gt;21 无封顶），属于内联衍生内容；匹克球的封顶是用户真实选择（15 分 / 不封顶），保留展示与选择。② 展开面板内每个设置组加 <code>#F5F5F5</code>（groupControlBackground）圆角底，与摘要卡、面板白底形成层级。</p>
+<table><thead><tr><th>方案</th><th>底部交互</th><th>优点</th><th>顾虑</th></tr></thead><tbody>
+<tr><td>现状</td><td>全宽行：「完成」文字 + ↑ 箭头（右侧）</td><td>—</td><td>完成与收起语义重复；全宽行又把面板撑高一截</td></tr>
+<tr><td>A · 右下角</td><td>「完成」文字按钮 + ↑ 图标按钮合并一组，右下角</td><td>两个入口收在一处，不占整行；即点即生效时「完成」只是收起确认</td><td>文字 + 图标并列仍有轻微重复感</td></tr>
+<tr><td>A′ · 左下角</td><td>同 A，放左下角</td><td>靠近左侧阅读起点</td><td>与上方 chips 左边缘形成双左边界，略显杂</td></tr>
+<tr><td>B · 仅收起箭头</td><td>只有一个 ↑ 图标按钮（右下角，44×44 触控区）</td><td>最干净；规则改动即点即生效，无需「完成」</td><td>需接受「没有完成按钮」——当前所有 chips 本就是即改即生效</td></tr>
+<tr><td>C · 头部上箭头</td><td>面板无底部行；摘要卡右侧箭头展开时变为 ↑，点它收起</td><td>元素最少，面板纯设置内容</td><td>收起入口在面板之外，首次使用需要发现</td></tr>
+</tbody></table>
+<p>演示依据当前客户端能力目录（ruleOptions）：羽毛球 / 乒乓球 / 匹克球均为 1 / 3 / 局制与 11 / 21 分预设，网球为每盘局数、抢七与平分规则；项目切换仅用于预览，小组实际项目固定。</p>
+</details></section>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const icon=k=>`<svg viewBox="0 0 24 24" aria-hidden="true">${({back:'<path d="m14 5-7 7 7 7M7 12h13"/>',right:'<path d="m9 6 6 6-6 6"/>',up:'<path d="m6 15 6-6 6 6"/>'})[k]}</svg>`;
+const sports={
+ badminton:{name:'羽毛球',emoji:'🏸',unit:'局',bestOf:3,points:21,pointOptions:[21,11],tennis:false},
+ table_tennis:{name:'乒乓球',emoji:'🏓',unit:'局',bestOf:5,points:11,pointOptions:[11,21],tennis:false},
+ tennis:{name:'网球',emoji:'🎾',unit:'盘',bestOf:3,games:6,tiebreak:7,noAd:false,tennis:true},
+ pickleball:{name:'匹克球',emoji:'🟡',unit:'局',bestOf:3,points:11,pointOptions:[11,15],cap:15,tennis:false}
+};
+const modeLabels={
+ badminton:{1:'一局定胜负',3:'三局两胜',5:'五局三胜'},
+ table_tennis:{1:'一局定胜负',3:'三局两胜',5:'五局三胜'},
+ tennis:{1:'一盘定胜负',3:'三盘两胜',5:'五盘三胜'},
+ pickleball:{1:'一局定胜负',3:'三局两胜',5:'五局三胜'}
+};
+const variants={
+ current:{key:'current',name:'现状',sub:'全宽「完成 + ↑」行',desc:'底部全宽行：「完成」文字 + ↑ 箭头。羽毛球仍显示推导出的封顶分数，面板各组无背景。'},
+ a_br:{key:'a_br',name:'方案 A',sub:'完成 + 收起，右下角',desc:'「完成」与 ↑ 合并成一组放右下角；各组加灰底；羽毛球封顶不再展示。'},
+ a_bl:{key:'a_bl',name:'方案 A′',sub:'完成 + 收起，左下角',desc:'同 A，组合放左下角，靠近左侧阅读起点。'},
+ b_arrow:{key:'b_arrow',name:'方案 B',sub:'仅保留收起箭头',desc:'去掉「完成」，只留下右下角 ↑ 图标按钮；改动即点即生效。'},
+ c_header:{key:'c_header',name:'方案 C',sub:'摘要卡箭头切换',desc:'面板无底部行；摘要卡右箭头在展开时变 ↑，点顶部收起。'}
+};
+const ui={variant:'current',sport:'badminton',compare:false};
+const phones={};
+function resetPhone(st){const sp=sports[ui.sport];st.expanded=false;st.bestOf=sp.bestOf;st.points=sp.points;st.cap=sp.cap??null;st.games=sp.games??6;st.tiebreak=sp.tiebreak??7;st.noAd=sp.noAd??false;}
+Object.keys(variants).forEach(k=>{phones[k]={};resetPhone(phones[k]);});
+
+function summaryLines(st){
+ const sp=sports[ui.sport],mode=modeLabels[ui.sport][st.bestOf];
+ let pts,cap=null;
+ if(sp.tennis){pts=`每盘 ${st.games} 局 · 抢七／抢十 ${st.tiebreak} 分`;cap=st.noAd?'无占先计分':'有占先计分';}
+ else{pts=`每局目标 ${st.points} 分`;
+  const derived=ui.sport==='badminton'?(st.points===21?30:null):null;
+  const showDerived=ui.variant==='current'&&derived!==null;
+  const userCap=ui.sport==='pickleball'?st.cap:null;
+  if(showDerived)cap=`封顶分数 ${derived}`;
+  else if(userCap!==null&&userCap!==undefined)cap=`封顶分数 ${userCap}`;
+ }
+ return {mode,pts,cap};
+}
+function chip(text,on,extra='',num=false){return `<button class="chip ${num?'num':''} ${on?'on':''}" ${extra}>${esc(text)}</button>`;}
+function groupInner(st){
+ const sp=sports[ui.sport];let h='';
+ h+=`<h3>赛制</h3><div class="chips">${[1,3,5].map(n=>chip(modeLabels[ui.sport][n],st.bestOf===n,`data-act="set" data-n="${n}"`)).join('')}</div>`;
+ if(sp.tennis){
+  h+=`<h3>每盘局数</h3><div class="chips">${[6,4].map(n=>chip(String(n),st.games===n,`data-act="games" data-n="${n}"`,true)).join('')}</div>`;
+  h+=`<h3>抢七／抢十目标分</h3><div class="chips">${[7,10].map(n=>chip(String(n),st.tiebreak===n,`data-act="tiebreak" data-n="${n}"`,true)).join('')}</div>`;
+  h+=`<h3>平分规则</h3><div class="chips">${chip('无占先计分',st.noAd,`data-act="noad"`)}</div>`;
+ }else{
+  h+=`<h3>每局目标分</h3><div class="chips">${sp.pointOptions.map(n=>chip(String(n),st.points===n,`data-act="points" data-n="${n}"`,true)).join('')}</div>`;
+  if(ui.sport==='pickleball')h+=`<h3>封顶</h3><div class="chips">${chip('15 分',st.cap===15,`data-act="cap" data-v="15"`,true)}${chip('不封顶',st.cap===null,`data-act="cap" data-v="none"`)}</div>`;
+ }
+ return h;
+}
+function doneZone(v){
+ if(v==='current')return `<button class="done-row" data-act="done"><span>完成</span>${icon('up')}</button>`;
+ if(v==='a_br')return `<div class="done-pair right"><button class="text-btn" data-act="done">完成</button><button class="icon-btn" data-act="done" aria-label="收起">${icon('up')}</button></div>`;
+ if(v==='a_bl')return `<div class="done-pair left"><button class="text-btn" data-act="done">完成</button><button class="icon-btn" data-act="done" aria-label="收起">${icon('up')}</button></div>`;
+ if(v==='b_arrow')return `<div class="done-pair right"><button class="icon-btn" data-act="done" aria-label="收起">${icon('up')}</button></div>`;
+ return '';
+}
+function phone(v){
+ const st=phones[v],def=variants[v],sp=sports[ui.sport],L=summaryLines(st);
+ const groups=v==='current'?`<div class="g">${groupInner(st)}</div>`:`<div class="gblock">${groupInner(st)}</div>`;
+ const arrow=v==='c_header'?(st.expanded?icon('up'):icon('right')):icon('right');
+ const panel=st.expanded?`<div class="panel" role="dialog" aria-label="比赛规则">${groups}${doneZone(v)}</div>`:'';
+ const capFlag=(ui.sport==='badminton'&&L.cap)?`<span class="flag">衍生值 · 建议移除</span>`:'';
+ const noBgFlag=(v==='current'&&st.expanded)?`<span class="flag" style="position:absolute;right:12px;bottom:12px">完成 + ↑ 语义重复</span>`:'';
+ return `<div class="phone" data-v="${v}"><div class="nav"><button class="ph" aria-label="返回">${icon('back')}</button><div class="title">发起比赛</div><div class="ph"></div></div>
+ <div class="phone-body">
+  <div class="seg"><button class="on">单打</button><button>双打</button></div>
+  <div class="seat"><span class="avatar">小</span><span class="name">小林</span><span class="key">A1</span></div>
+  <div class="seat"><span class="avatar">杰</span><span class="name">阿杰</span><span class="key">B1</span></div>
+  <div class="sec-head">规则设置</div>
+  <div class="card">
+   <button class="summary" data-act="summary" aria-expanded="${st.expanded}">
+    <span class="lines"><span class="mode">${esc(L.mode)}</span><span class="pts">${esc(L.pts)}</span>${L.cap?`<span class="cap">${esc(L.cap)}${capFlag}</span>`:''}</span>
+    <span class="arrow">${arrow}</span>
+   </button>
+   ${panel}${noBgFlag}
+  </div>
+  <div class="sec-head">比分</div>
+  <div class="placeholder">总局分<span class="score">2 : 1</span></div>
+  <div class="placeholder">逐局明细<span class="score" style="font-weight:400;color:var(--muted)">未填写</span></div>
+  <p class="hint">${def.desc}</p>
+ </div>
+ <div class="cta">开始比赛</div></div>`;
+}
+function renderTools(){
+ $('#tools').innerHTML=
+  `<div class="tool-group">${Object.values(variants).map(d=>`<button class="tool ${ui.variant===d.key&&!ui.compare?'on':''}" data-variant="${d.key}">${d.key==='current'?'现状':d.name}</button>`).join('')}</div>`+
+  `<div class="tool-group">${Object.values(sports).map((s,k)=>`<button class="tool ${ui.sport===k?'on':''}" data-sport="${k}">${s.emoji} ${s.name}</button>`).join('')}</div>`+
+  `<div class="tool-group"><button class="tool ${ui.compare?'on':''}" data-toggle="compare">${ui.compare?'单方案':'比较全部'}</button></div>`;
+}
+function render(){
+ renderTools();
+ const sidebar=`<aside class="sidebar"><h2>底部交互方案</h2>${Object.values(variants).map(d=>`<button class="variant ${ui.variant===d.key&&!ui.compare?'active':''}" data-variant="${d.key}"><span class="letter">${d.key==='current'?'现':d.name.replace('方案 ','')}</span><span><strong>${d.name}</strong><small>${d.sub}</small></span></button>`).join('')}<p class="side-note">点击摘要卡展开规则面板。<br>chips 即点即生效。<br>切换项目查看羽毛球 / 乒乓球 / 网球 / 匹克球差异。</p></aside>`;
+ const notes=`<aside class="notes">
+  <div class="note-card"><span class="tag">已应用</span><h2>两处修正（全部方案一致）</h2><ul><li>羽毛球不再展示「封顶分数」——30 是 21 分制推导值，非用户设置</li><li>面板内每个设置组加 #F5F5F5 圆角底，与面板白底分层</li><li>匹克球「封顶 15 分 / 不封顶」是真实选择，保留</li></ul></div>
+  <div class="note-card"><h2>${variants[ui.variant].name} · ${variants[ui.variant].sub}</h2><p>${variants[ui.variant].desc}</p></div>
+  <div class="note-card"><h2>推荐</h2><p>首选 <strong>B · 仅收起箭头</strong>：规则改动本来就即点即生效，「完成」是冗余确认；一个 ↑ 图标按钮足够，且不破坏面板纯内容形态。若团队希望保留明确出口，则选 <strong>A · 右下角</strong>，把「完成 + ↑」收成一组，避免全宽行的重复感。</p></div>
+ </aside>`;
+ const stage=ui.compare
+  ?`<section class="stage"><div class="sports">${Object.entries(sports).map(([k,s])=>`<button data-sport="${k}" class="${ui.sport===k?'on':''}">${s.emoji} ${s.name}</button>`).join('')}</div><div class="comparison">${Object.keys(variants).map(v=>`<div class="cmp-item"><h3>${variants[v].key==='current'?'现状':variants[v].name} · ${variants[v].sub}</h3>${phone(v)}</div>`).join('')}</div></section>`
+  :`<section class="stage"><div class="sports">${Object.entries(sports).map(([k,s])=>`<button data-sport="${k}" class="${ui.sport===k?'on':''}">${s.emoji} ${s.name}</button>`).join('')}</div>${phone(ui.variant)}</section>`;
+ $('#workspace').innerHTML=sidebar+stage+notes;
+}
+document.addEventListener('click',e=>{
+ const t=e.target.closest('button');if(!t)return;
+ if(t.dataset.variant){ui.variant=t.dataset.variant;ui.compare=false;render();return;}
+ if(t.dataset.sport){ui.sport=t.dataset.sport;Object.values(phones).forEach(resetPhone);render();return;}
+ if(t.dataset.toggle==='compare'){ui.compare=!ui.compare;render();return;}
+ const frame=t.closest('.phone');if(!frame)return;
+ const v=frame.dataset.v;
+ const st=phones[v];if(!st)return;
+ const act=t.dataset.act;
+ if(act==='summary'){st.expanded=!st.expanded;render();}
+ else if(act==='done'){st.expanded=false;render();}
+ else if(act==='set'){st.bestOf=+t.dataset.n;render();}
+ else if(act==='points'){st.points=+t.dataset.n;render();}
+ else if(act==='games'){st.games=+t.dataset.n;render();}
+ else if(act==='tiebreak'){st.tiebreak=+t.dataset.n;render();}
+ else if(act==='noad'){st.noAd=!st.noAd;render();}
+ else if(act==='cap'){st.cap=t.dataset.v==='none'?null:+t.dataset.v;render();}
+});
+render();
+</script></body></html>

@@ -1,15 +1,26 @@
 import SwiftUI
 
-/// Shared close affordance for sheets and dialogs whose dismissal does not
-/// discard a pending business action.
+/// Shared close affordance for sheets and dialogs. The caller retains its
+/// existing dismissal, draft-discard confirmation and busy-state behavior.
 struct ModalCloseButton: View {
+    enum Placement { case toolbar, standalone }
+    var placement: Placement = .toolbar
     let action: () -> Void
 
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: "xmark")
-                .foregroundColor(Theme.textPrimary)
+    @ViewBuilder var body: some View {
+        if placement == .standalone {
+            closeButton.buttonStyle(.bordered).buttonBorderShape(.circle).controlSize(.large)
+        } else {
+            // The navigation toolbar supplies its own native background.
+            closeButton
         }
+    }
+
+    private var closeButton: some View {
+        Button(role: .cancel, action: action) {
+            Image(systemName: "xmark")
+        }
+        .tint(Theme.textPrimary)
         .accessibilityLabel(NSLocalizedString("close", value: "关闭", comment: ""))
         .accessibilityIdentifier("modal_close_button")
     }

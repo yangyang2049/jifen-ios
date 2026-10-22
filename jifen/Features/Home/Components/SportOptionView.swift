@@ -4,6 +4,9 @@ struct SportOptionView: View {
     let sport: GameType
     let isSelected: Bool
     var onClickOption: (() -> Void)? = nil
+    /// 固定图标边长；传 nil 时沿用父容器自适应的旧算法。
+    /// 快捷入口编辑弹窗固定为 28pt（鸿蒙同名弹窗为 24pt，iOS 列宽更大）。
+    var fixedIconSize: CGFloat? = nil
 
     var body: some View {
         Button(action: {
@@ -11,7 +14,7 @@ struct SportOptionView: View {
         }) {
             GeometryReader { geo in
                 let side = min(geo.size.width, geo.size.height)
-                let iconSize = max(24, min(56, side * 0.4))
+                let iconSize = fixedIconSize ?? max(24, min(56, side * 0.4))
                 let fontSize = max(11, min(18, side * 0.12))
                 VStack(spacing: Theme.sm) {
                     AppCatalogIcon(gameType: sport, size: iconSize)

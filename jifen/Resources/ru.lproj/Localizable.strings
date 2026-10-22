@@ -18,8 +18,8 @@
 "scoreboard_board_games" = "Настольные игры";
 "search_team_or_game" = "Поиск команды или игры";
 "match_count" = "Матчей: %d";
-"activity_direct_match_count" = "%d matches · all group members";
-"archived_count" = "%d groups";
+"activity_direct_match_count" = "%d матчей · все участники группы";
+"archived_count" = "%d групп";
 
 /* Home Screen */
 "recent_records" = "Последние записи";
@@ -290,6 +290,7 @@
 "match_completion_play_all_tennis_description" = "Например, сыграть все пять сетов; матч может завершиться вничью";
 "match_completion_custom_placeholder" = "Введите 1-99.";
 "match_completion_invalid_sets" = "Для классического режима требуется нечётное число от 1 до 99; в режиме «Играть все» допустимы числа от 1 до 99.";
+"setup_auto_odd_sets" = "Допускаются только нечётные числа — будет использовано %d";
 "has_been_reset" = "Сброс завершен.";
 "no_undo_available" = "Отмена невозможна.";
 "screenshot_failed" = "Не удалось сделать снимок экрана.";
@@ -514,7 +515,7 @@
 "clear_data_category_active_sync" = "Сеанс активной синхронизации.";
 "timer_status_running" = "Работает";
 "timer_status_paused" = "Приостановлено";
-"membership_entry_summary_active" = "У вас есть подписка VIP. Спасибо за поддержку";
+"membership_entry_summary_active" = "VIP активен";
 "sound_effects" = "Звуковые эффекты";
 "vibration" = "Вибрация";
 "language" = "Язык";
@@ -1579,7 +1580,7 @@
 "group_approval" = "Требуется одобрение";
 "group_approve" = "Одобрить";
 "group_archive" = "Архивировать группу";
-"group_archive_hint" = "Архивация сохраняет всю историю и приостанавливает изменения в группе. Позже её можно восстановить.";
+"group_archive_hint" = "Архивировать эту группу? Её содержимое станет доступно только для чтения.";
 "group_archive_readonly" = "Эта группа в архиве. История доступна только для чтения.";
 "group_archived" = "В архиве";
 "group_benefit_activity" = "Планировать мероприятия и записываться";
@@ -1624,38 +1625,38 @@
 "group_invalid_qr" = "Это недействительный QR-код группы.";
 "group_invalid_result" = "Записанный результат нужно проверить перед отправкой.";
 "group_invalid_rules" = "Проверьте правила матча.";
-"group_invite" = "Invite";
+"group_invite" = "Пригласить товарищей";
 "group_join" = "Вступить в группу";
 "group_join_hint" = "Вступите в группу друга по её номеру или QR-коду.";
-"group_join_message" = "Сообщение группе (необязательно)";
-"group_join_policy" = "Вступление";
+"group_join_message" = "Сообщение к заявке на вступление (необязательно)";
+"group_join_policy" = "Способы вступления";
 "group_leave" = "Покинуть группу";
-"group_leave_hint" = "Вы потеряете доступ к группе. Личные записи останутся на этом устройстве.";
+"group_leave_hint" = "После выхода вы перестанете быть участником, а группа исчезнет из раздела «Мои группы». Вы больше не сможете открывать её или участвовать в ней. Существующие записи матчей группы и ваши личные записи на этом устройстве сохранятся. Чтобы снова получить доступ, нужно повторно вступить в группу.";
 "group_load_failed" = "Не удалось загрузить группу";
 "group_load_more" = "Загрузить ещё";
 "group_losses" = "поражения";
 "group_manual" = "Ручной ввод";
-"group_manual_result" = "Добавить прошлый матч";
+"group_manual_result" = "Добавить результат матча";
 "group_match_detail" = "Сведения о матче";
 "group_match_log" = "История матчей";
 "group_match_rules" = "Правила матча";
 "group_member" = "Участник";
 "group_member_name" = "Имя участника";
-"group_members" = "Участники";
+"group_members" = "Участник";
 "group_month_matches" = "Матчи в этом месяце";
 "group_my_groups" = "Мои группы";
 "group_name" = "Название группы";
 "group_need_login" = "Войдите в аккаунт, чтобы продолжить.";
 "group_need_members" = "Пригласите друзей или добавьте временных участников перед началом матча.";
-"group_new_activity" = "Запланировать мероприятие";
+"group_new_activity" = "Создать мероприятие";
 "group_new_owner" = "Новый владелец";
 "group_no_activities" = "Мероприятий пока нет";
 "group_no_description" = "Описания пока нет";
 "group_no_rankings" = "Рейтинги появятся после подтверждения матча.";
 "group_no_set_details" = "Записан только общий результат.";
-"group_note" = "Примечание к мероприятию (необязательно)";
-"group_number" = "6–8 digit group number";
-"group_open" = "Любой, кто знает номер, может вступить";
+"group_note" = "Примечание (необязательно)";
+"group_number" = "Номер группы из 6–8 цифр";
+"group_open" = "Вступить напрямую";
 "group_overall_score" = "Общий счёт по сетам";
 "group_overview" = "Обзор";
 "group_owner" = "Владелец";
@@ -1678,10 +1679,10 @@
 "group_remove_member" = "Удалить участника";
 "group_restore" = "Восстановить группу";
 "group_restore_hint" = "Восстановите группу, чтобы разрешить мероприятия и ведение счёта.";
-"group_results" = "Матчи";
+"group_results" = "Записи";
 "group_retry" = "Повторить";
 "group_rules_missing" = "Правила не записаны";
-"group_save" = "Подтвердить";
+"group_save" = "Сохранить";
 "group_save_failed" = "Не удалось сохранить матч. Попробуйте ещё раз.";
 "group_scan" = "Сканировать QR-код";
 "group_scoreboard" = "Табло";
@@ -1706,7 +1707,7 @@
 "group_unfinished_match" = "Продолжите или завершите текущий матч, прежде чем начать новый.";
 "group_unregister" = "Отменить запись";
 "group_void_reason" = "Причина аннулирования";
-"group_void_result" = "Аннулировать результат";
+"group_void_result" = "Аннулировать";
 "group_voided" = "Аннулировано";
 "group_wins" = "победы";
 "group_withdraw" = "Отозвать заявку";
@@ -1714,114 +1715,114 @@
 "group_already_member" = "Вы уже участник группы.";
 "group_open_group" = "Открыть группу";
 
-"group_groups" = "groups";
-"group_invite_students" = "Invite students";
-"group_group_type" = "Group type";
-"group_peer" = "Friends group";
-"group_coaching" = "Coaching group";
-"group_training" = "Training";
-"group_upcoming" = "Upcoming";
-"group_latest_results" = "Latest results";
-"group_no_results" = "No matches recorded yet";
-"group_no_training" = "No training scheduled yet";
-"group_active_activities" = "Active & recruiting";
-"group_past_activities" = "Past activities";
-"group_all_formats" = "All formats";
-"group_join_requests" = "Join requests";
-"group_regular_members" = "Members";
-"group_temporary_members" = "Temporary members";
-"group_add" = "Add";
-"group_leader" = "Leader";
-"group_member_settings" = "Member settings";
-"group_settings" = "Group management";
-"group_partial_load" = "Some sections could not refresh. Pull to retry.";
-"group_leave_notices" = "Student leave notices";
-"group_mark_seen" = "Read";
-"group_training_schedule" = "Training schedule";
-"group_add_session" = "Add a session";
-"group_edit_schedule" = "Edit schedule";
-"group_cancel_schedule" = "Cancel schedule";
-"group_leave_training" = "Notify absence";
-"group_session_minutes" = "Minutes per match";
-"group_court" = "Court";
-"group_remove_session" = "Remove session";
-"group_publish_schedule" = "Publish schedule";
-"group_leave_reason" = "Optional absence note (up to 100 characters)";
-"group_report" = "Report group";
-"group_report_reason" = "Reason";
-"group_report_detail" = "Details (optional, up to 500 characters)";
-"group_report_submit" = "Submit report";
-"group_report_spam" = "Spam";
-"group_report_harassment" = "Harassment";
-"group_report_inappropriate" = "Inappropriate content";
-"group_report_fraud" = "Fraud or gambling";
-"group_report_illegal" = "Illegal or dangerous activity";
-"group_report_impersonation" = "Impersonation";
-"group_report_other" = "Other";
-"group_lineup_invalid" = "Check the match times, courts and participants.";
-"group_lineup_member_limit" = "A member can play at most eight matches per schedule.";
-"group_lineup_conflict" = "Overlapping matches need different courts and participants.";
-"group_multi_match_hint" = "Registered players can be assigned to several matches.";
-"group_single_match_hint" = "Select two singles players or four doubles players from the registrations.";
-"group_rate_limited" = "Too many requests. Please try again later.";
-"group_create_daily_limit" = "You've reached the 24-hour limit for creating groups. Try again later.";
-"group_join_daily_limit" = "You've reached the 24-hour limit for joining groups. Try again later.";
-"group_pending_request_limit" = "You have too many join requests awaiting approval. Wait for a decision or withdraw some.";
-"group_request_daily_limit" = "This group has reached its 24-hour limit for join requests. Try again later.";
-"group_join_cooldown" = "You can't apply again within 24 hours of a rejection.";
-"group_result_group_daily_limit" = "This group has reached its 24-hour limit for results. Try again later.";
-"group_result_submitter_daily_limit" = "You've reached the 24-hour limit for submitting results. Try again later.";
-"group_not_coach" = "Only the coach can schedule sessions.";
-"group_activity_count" = "%1$d/%2$d signed up";
-"group_activity_create_admin_hint" = "Activities are created by the group owner or an admin";
-"group_activity_direct_hint" = "Choose directly from all active group members; registration is not required.";
-"group_activity_direct_save" = "Save schedule";
-"group_activity_direct_title" = "Arrange now";
-"group_activity_field_title_optional" = "Activity name (optional)";
-"group_activity_full" = "Full";
-"group_activity_lineup_add" = "Add match";
-"group_activity_lineup_add_need_members" = "Not enough players. At least %1$d active group members are required to add a match.";
-"group_activity_lineup_court" = "Court No.";
-"group_activity_lineup_duration" = "Match duration";
-"group_activity_lineup_match_count" = "%1$d matches";
-"group_activity_lineup_minutes" = "%1$d min";
-"group_activity_lineup_remove" = "Remove";
-"group_activity_lineup_section_matches" = "Match schedule";
-"group_activity_lineup_session" = "Match %1$d";
-"group_activity_registration_empty" = "No temporary members";
-"group_activity_section_count" = "%1$d activities";
-"group_activity_section_past" = "Past activities";
-"group_activity_section_upcoming" = "In progress · Registration open";
-"group_activity_status_scheduled" = "Ready to start";
-"group_activity_time_after_previous" = "After the previous match";
-"group_activity_time_unspecified" = "Time to be decided";
-"group_activity_timing" = "Timing";
-"group_activity_timing_estimated" = "Estimated time";
-"group_activity_timing_sequence" = "No exact time";
-"group_activity_title_auto_hint" = "If left blank, a name such as “November 10 activity” will be generated from the date.";
-"group_archived_empty" = "No archived groups";
-"group_archived_list_title" = "Archived groups";
-"group_empty_activities_title" = "No activities yet";
-"group_list_add_title" = "Create or join a group";
-"group_ranking_draws" = "D";
-"group_ranking_games" = "GP";
-"group_ranking_losses" = "L";
-"group_ranking_sets" = "Score";
-"group_ranking_title" = "%@ leaderboard";
-"group_ranking_wins" = "W";
-"group_training_results_locked" = "Schedules with results keep their times and participants. You can edit the location and note.";
-"group_temporary_hint" = "Temporary members can take part without creating an account.";
+"group_groups" = "Группа";
+"group_invite_students" = "Пригласить учеников";
+"group_group_type" = "Тип группы";
+"group_peer" = "Группа друзей";
+"group_coaching" = "Тренировочная группа";
+"group_training" = "Тренировка";
+"group_upcoming" = "Предстоящие";
+"group_latest_results" = "Последние результаты";
+"group_no_results" = "Матчей пока нет";
+"group_no_training" = "Тренировки пока не запланированы";
+"group_active_activities" = "Идут · Запись открыта";
+"group_past_activities" = "Прошедшие мероприятия";
+"group_all_formats" = "Все форматы";
+"group_join_requests" = "Заявки на вступление";
+"group_regular_members" = "Записавшиеся участники";
+"group_temporary_members" = "Временные участники";
+"group_add" = "Добавить";
+"group_leader" = "Владелец";
+"group_member_settings" = "Настройки участника";
+"group_settings" = "Управление группой";
+"group_partial_load" = "Не удалось обновить некоторые разделы. Потяните вниз для повтора.";
+"group_leave_notices" = "Уведомления учеников об отсутствии";
+"group_mark_seen" = "Прочитано";
+"group_training_schedule" = "Расписание тренировок";
+"group_add_session" = "Добавить матч";
+"group_edit_schedule" = "Изменить расписание";
+"group_cancel_schedule" = "Отменить расписание";
+"group_leave_training" = "Сообщить об отсутствии";
+"group_session_minutes" = "Минут на матч";
+"group_court" = "Корт";
+"group_remove_session" = "Удалить";
+"group_publish_schedule" = "Опубликовать расписание";
+"group_leave_reason" = "Причина отсутствия (необязательно)";
+"group_report" = "Пожаловаться на группу";
+"group_report_reason" = "Причина";
+"group_report_detail" = "Подробности (необязательно)";
+"group_report_submit" = "Отправить";
+"group_report_spam" = "Спам";
+"group_report_harassment" = "Преследование";
+"group_report_inappropriate" = "Сексуальный или неприемлемый контент";
+"group_report_fraud" = "Мошенничество или азартные игры";
+"group_report_illegal" = "Незаконная или опасная деятельность";
+"group_report_impersonation" = "Выдача себя за другого";
+"group_report_other" = "Другое";
+"group_lineup_invalid" = "Проверьте время, корты и участников матчей.";
+"group_lineup_member_limit" = "Участник может сыграть не более восьми матчей в одном расписании.";
+"group_lineup_conflict" = "У одновременных матчей должны быть разные корты и игроки.";
+"group_multi_match_hint" = "В одном мероприятии может быть несколько матчей. Участники записываются на мероприятие; при составлении пар выберите по 2 записавшихся для каждого одиночного матча или по 4 для парного.";
+"group_single_match_hint" = "Каждое мероприятие — один матч. Выберите 2 записавшихся участников для одиночного матча или 4 для парного.";
+"group_rate_limited" = "Слишком много запросов. Повторите попытку позже.";
+"group_create_daily_limit" = "Достигнут лимит создания групп за 24 часа. Повторите попытку позже.";
+"group_join_daily_limit" = "Достигнут лимит вступления в группы за 24 часа. Повторите попытку позже.";
+"group_pending_request_limit" = "Слишком много заявок ожидают одобрения. Дождитесь решения или отзовите часть заявок.";
+"group_request_daily_limit" = "Группа достигла лимита заявок на вступление за 24 часа. Повторите попытку позже.";
+"group_join_cooldown" = "После отказа повторную заявку можно подать только через 24 часа.";
+"group_result_group_daily_limit" = "Группа достигла лимита результатов за 24 часа. Повторите попытку позже.";
+"group_result_submitter_daily_limit" = "Достигнут лимит отправки результатов за 24 часа. Повторите попытку позже.";
+"group_not_coach" = "Планировать занятия может только тренер.";
+"group_activity_count" = "Записались: %1$d/%2$d";
+"group_activity_create_admin_hint" = "Мероприятия создаёт владелец группы или администратор";
+"group_activity_direct_hint" = "Выбирайте из всех активных участников группы; предварительная запись не нужна.";
+"group_activity_direct_save" = "Сохранить расписание";
+"group_activity_direct_title" = "Составить сейчас";
+"group_activity_field_title_optional" = "Название мероприятия (необязательно)";
+"group_activity_full" = "Мест нет";
+"group_activity_lineup_add" = "Добавить матч";
+"group_activity_lineup_add_need_members" = "Недостаточно игроков. Для добавления матча нужно не менее %1$d активных участников группы.";
+"group_activity_lineup_court" = "Номер корта";
+"group_activity_lineup_duration" = "Длительность матча";
+"group_activity_lineup_match_count" = "Матчей: %1$d";
+"group_activity_lineup_minutes" = "%1$d мин";
+"group_activity_lineup_remove" = "Удалить";
+"group_activity_lineup_section_matches" = "Составить расписание";
+"group_activity_lineup_session" = "Матч %1$d";
+"group_activity_registration_empty" = "Нет временных участников";
+"group_activity_section_count" = "Мероприятий: %1$d";
+"group_activity_section_past" = "Прошедшие мероприятия";
+"group_activity_section_upcoming" = "Идёт · Запись открыта";
+"group_activity_status_scheduled" = "Готово к началу";
+"group_activity_time_after_previous" = "После предыдущего матча";
+"group_activity_time_unspecified" = "Время не определено";
+"group_activity_timing" = "Время проведения";
+"group_activity_timing_estimated" = "Примерное время";
+"group_activity_timing_sequence" = "Без точного времени";
+"group_activity_title_auto_hint" = "Если оставить поле пустым, название будет создано по дате, например «Мероприятие 10 ноября».";
+"group_archived_empty" = "Нет архивных групп";
+"group_archived_list_title" = "Архивные группы";
+"group_empty_activities_title" = "Мероприятий пока нет";
+"group_list_add_title" = "Создать группу или вступить";
+"group_ranking_draws" = "ничьи";
+"group_ranking_games" = "Сыграно";
+"group_ranking_losses" = "поражения";
+"group_ranking_sets" = "Счёт";
+"group_ranking_title" = "Таблица лидеров: %@";
+"group_ranking_wins" = "победы";
+"group_training_results_locked" = "В расписаниях с результатами время и участники сохраняются. Место и примечание можно изменить.";
+"group_temporary_hint" = "Временным участникам не нужен аккаунт. Их можно добавить при вводе результатов.";
 
 /* iOS group parity, 2026-10-13 */
-"group_abandon_game" = "Освободить матч";
-"group_activity_lineup" = "Расписание матчей";
-"group_activity_mode" = "Матчи";
+"group_abandon_game" = "Отказаться от матча";
+"group_activity_lineup" = "Составить расписание";
+"group_activity_mode" = "Записи";
 "group_activity_reminder" = "Напомнить за 15 минут";
 "group_add_set" = "Добавить счёт игры";
 "group_added_members" = "Добавлено";
-"group_authority_confirm" = "Подтвердить как владелец группы";
-"group_batch_names_hint" = "По одному имени в строке, от 1 до 24 символов.";
-"group_beta_notice" = "Группы в бета-версии. Будем рады вашим отзывам.";
+"group_authority_confirm" = "Подтвердить результат";
+"group_batch_names_hint" = "По одному имени в строке";
+"group_beta_notice" = "Группы находятся в бета-тестировании. Некоторые функции могут измениться. Спасибо за раннее участие.";
 "group_cancel_dissolve" = "Отменить роспуск";
 "group_cancel_dissolve_hint" = "Восстановите группу, чтобы разрешить мероприятия и ведение счёта.";
 "group_cancel_training_hint" = "Завершённые матчи сохраняются в истории. Начатые можно закончить.";
@@ -1834,7 +1835,7 @@
 "group_default_rules" = "По умолчанию для спорта";
 "group_discard_upload" = "Отменить загрузку";
 "group_dissolve" = "Распустить группу";
-"group_dissolve_hint" = "Режим чтения на 7 дней. В этот период можно отменить роспуск.";
+"group_dissolve_hint" = "Группа доступна только для чтения 7 дней. В этот период расформирование можно отменить. Через 7 дней группа и все её данные будут удалены навсегда.";
 "group_dissolving" = "Роспуск группы";
 "group_edit_activity" = "Изменить";
 "group_edit_lineup" = "Составить расписание";
@@ -1851,17 +1852,17 @@
 "group_no_notices" = "Уведомлений пока нет";
 "group_no_sessions" = "Матчи ещё не запланированы";
 "group_notices" = "Уведомления";
-"group_pagination_failed" = "Some sections could not refresh. Pull to retry.";
+"group_pagination_failed" = "Не удалось обновить некоторые разделы. Потяните вниз для повтора.";
 "group_point_cap" = "Максимальный счёт";
 "group_preview_schedule" = "Проверить расписание";
 "group_published" = "Опубликовано";
 "group_qr_direct_hint" = "Отсканируйте код в iScoreboard, чтобы посмотреть группу и вступить в неё.";
 "group_quick_score" = "Общий счёт по сетам";
 "group_rally_scoring" = "Очко за каждый розыгрыш";
-"group_read_notices" = "Read";
+"group_read_notices" = "Прочитано";
 "group_registration_closes" = "Окончание регистрации";
 "group_regular" = "Стандартный";
-"group_reload_version" = "Загрузить актуальную версию";
+"group_reload_version" = "Обновить";
 "group_reminder_body" = "Мероприятие начнётся через 15 минут.";
 "group_reminder_permission" = "Включите уведомления приложения в настройках.";
 "group_reminder_too_late" = "До начала осталось менее 15 минут.";
@@ -1877,15 +1878,15 @@
 "group_tennis_scoring" = "Подсчёт в сете";
 "group_tie_break" = "Очки тай-брейка";
 "group_tiebreak_only" = "Только тай-брейк";
-"group_too_many_sessions" = "Check the match times, courts and participants.";
-"group_training_date" = "Дата";
+"group_too_many_sessions" = "Проверьте время, корты и участников матчей.";
+"group_training_date" = "Дата тренировки";
 "group_win_by_two" = "Победа с разницей в два очка";
 
-"group_keep_draft" = "Сохранить мои изменения";
+"group_keep_draft" = "Продолжить правку локальной версии";
 
 "group_server_version" = "Последняя версия";
 
-"group_banner_dissolving" = "Group will be dissolved on %@\n7-day cooling-off period; read-only until then";
+"group_banner_dissolving" = "Группа будет распущена %@\nПериод ожидания — 7 дней; до этого доступно только чтение";
 "group_notice_end" = "Уведомлений больше нет";
 "group_notice_join_requested" = "Получена заявка на вступление";
 "group_notice_join_approved" = "Заявка на вступление одобрена";
@@ -1902,8 +1903,8 @@
 "group_notice_receipt_failed" = "Подтверждение прочтения уведомления неполное. Повторите попытку.";
 "group_notice_seen" = "Отметить как прочитанное";
 "group_ranking_empty" = "Таблица %@ пока пуста";
-"group_filter_singles" = "Одиночный";
-"group_filter_doubles" = "Парный";
+"group_filter_singles" = "Одиночный разряд";
+"group_filter_doubles" = "Парный разряд";
 "group_ranking_me_suffix" = " (я)";
 "group_ranking_insufficient_matches" = "Слишком мало матчей";
 "group_entry_a_wins" = "Побеждает A";
@@ -1931,3 +1932,523 @@
 "group_entry_manual" = "Ввести вручную";
 /* Group notice plan-B 2026-10-15 */
 "group_notice_mark_all" = "Отметить все как прочитанные";
+
+"group_status_active" = "Активна";
+"group_dissolved" = "Расформирована";
+"group_report_status_pending" = "Ожидает обработки";
+"group_report_status_reviewing" = "На рассмотрении";
+"group_report_status_resolved" = "Обработано";
+"group_report_status_dismissed" = "Отклонено";
+"group_error_permission" = "У вас нет прав для этого действия.";
+"group_error_transfer_first" = "Перед выходом или удалением аккаунта передайте права владельца группы.";
+"group_error_target" = "Выберите активного участника этой группы с аккаунтом.";
+"group_error_activity_locked" = "Мероприятие уже началось или закончилось. Его расписание нельзя изменить или отменить.";
+"group_error_activity_pending" = "Сначала завершите или удалите оставшиеся матчи.";
+"group_error_registration_disabled" = "Для напрямую запланированных матчей запись не нужна.";
+"group_error_content_blocked" = "Текст содержит недопустимое содержание. Измените его.";
+"group_error_request_invalid" = "Проверьте введённые данные и повторите попытку.";
+"group_error_reason_required" = "Укажите причину перед продолжением.";
+"group_error_result_state" = "Подтвердить можно только результаты, ожидающие подтверждения.";
+"group_error_conflict" = "Данные изменились. Обновите и проверьте их перед повторной попыткой.";
+"group_error_request_handled" = "Эта заявка уже обработана. Обновите список.";
+"group_error_place_locked" = "Место нельзя изменить, если матч уже начался или завершился.";
+"group_error_schedule_cancelled" = "Это расписание или матч отменены.";
+"group_error_session_completed" = "Этот матч уже завершён, и запросить отсутствие нельзя. Обновите расписание, чтобы увидеть результат.";
+"group_error_session_has_result" = "У матча уже есть результат. Аннулируйте его перед добавлением другого.";
+"group_error_item_not_found" = "Это мероприятие, расписание, матч или уведомление больше недоступно. Обновите список.";
+"group_error_server" = "Сервис групп временно недоступен. Повторите попытку позже.";
+"group_error_peer_only" = "Для тренировочной группы используйте расписание тренировок.";
+"group_error_name_length" = "Название группы должно содержать 2–24 символа.";
+"group_error_description_length" = "Описание группы не должно превышать 200 символов.";
+"group_error_activity_invalid" = "Проверьте название, дату, место и число участников мероприятия.";
+"group_error_registration_closed" = "Запись закрыта.";
+"group_error_action_disabled" = "Это действие сейчас недоступно.";
+"group_error_update_required" = "Обновите приложение, чтобы продолжить.";
+"group_welcome_back" = "С возвращением";
+"group_transfer_none" = "Нет других постоянных участников. Временные участники не могут стать руководителем группы.";
+"group_empty_activities_hint" = "Создайте мероприятие, чтобы участники могли записаться. Запись закроется, когда все места будут заняты.";
+"group_temp_import_names" = "Импортировать сохранённые имена";
+"group_temp_import_count" = "Импортировать (%1$d)";
+"group_result_information" = "Информация о матче";
+"group_result_actions" = "Действия с результатом";
+"group_peer_confirmation" = "Подтверждение соперником";
+"group_notice_target_unavailable" = "Этот контент недоступен или у вас больше нет доступа.";
+"group_push_enabled" = "Уведомления группы";
+"group_push_group_enabled" = "Получать уведомления этой группы";
+"group_push_inbox_kept" = "При отключении уведомления в приложении и существующие напоминания о событиях сохраняются.";
+"group_push_permission" = "Включить системные уведомления";
+"group_push_settings" = "Настройки уведомлений";
+
+// Shared group form controls
+"group_inline_seat_hint" = "Выберите место, затем участника";
+"group_score_and_rules" = "Счёт и правила";
+"group_activity_registration_scope" = "Запишите временных участников здесь. Участники с аккаунтом записываются сами.";
+"group_activity_registration_no_changes" = "Нет несохранённых изменений";
+"group_activity_registration_changes" = "Добавить %1$d · Отменить %2$d";
+"group_activity_registration_save" = "Сохранить записи (%1$d)";
+"group_activity_registration_manage" = "Запись временных участников";
+"group_activity_registration_pending_add" = "К записи";
+"group_activity_registration_pending_remove" = "К отмене";
+"group_activity_registration_registered" = "Записан";
+"group_activity_registration_not_registered" = "Не записан";
+"group_activity_detail" = "Сведения о мероприятии";
+"group_activity_my_registration" = "Моя запись";
+"group_match_score" = "Счёт матча";
+
+"group_lookup_available" = "Открыта";
+
+/* Group beta notice card. */
+"group_beta_badge" = "Бета";
+"group_beta_supported_label" = "Доступно сейчас";
+"group_beta_feedback_prompt" = "Есть проблема или предложение?";
+"group_beta_feedback_action" = "Отправить отзыв";
+
+"group_member_results_title" = "Результаты участника";
+
+"group_removed_members_expand" = "Развернуть";
+"group_removed_members_collapse" = "Свернуть";
+"group_best_of_format" = "До %2$@ побед из %1$@";
+"group_member_count_single" = "%d участник";
+"group_member_count_short" = "%d участников";
+"group_lookup_closed_short" = "Закрыта";
+"group_lookup_closing_short" = "Расформировывается";
+"group_lookup_member_short" = "Вы участник";
+"group_lookup_unavailable_short" = "Недоступна";
+"group_join_scan_hint" = "Отсканируйте QR-код группы";
+"group_join_number_hint" = "6–8 цифр. Узнайте у владельца группы.";
+"group_request_join" = "Подать заявку";
+"group_overdue_tasks" = "Просроченные задачи";
+"group_apply_shift" = "Применить изменения";
+"group_transfer_submit" = "Передать";
+"group_rename_member" = "Переименовать";
+"group_set_admin" = "Назначить администратором";
+"group_set_member" = "Снять права администратора";
+"group_confirm_authority_message" = "Все игроки — временные участники, либо на противоположной стороне нет игрока с аккаунтом, который может подтвердить результат. Владелец должен проверить игроков и счёт. После подтверждения результат войдёт в историю, а владелец будет указан как подтвердивший.";
+"group_confirm_result_message" = "После подтверждения результат учитывается в истории обеих сторон и не редактируется. Для исправления сначала аннулируйте его.";
+"group_confirm_member_message" = "Подтвердите игроков и счёт, чтобы включить результат в историю. Для исправления попросите управляющего аннулировать исходный результат.";
+"group_cancel_activity_message" = "Отмена безвозвратно очищает список записавшихся. Начавшиеся мероприятия отменить нельзя.";
+"group_abandon_game_message" = "Откажитесь от этого матча, чтобы начать другой. Сохранённые личные записи останутся.";
+"group_void_pending_message" = "Результат перестанет ожидать подтверждения и не будет учитываться в статистике. Исходный счёт и причина останутся видны участникам группы. Игроки и отправитель получат уведомление.";
+"group_void_confirmed_message" = "Результат перестанет учитываться в статистике. Статистика и рейтинги обеих сторон будут пересчитаны. Исходный счёт и причина останутся видны участникам группы. Игроки и отправитель получат уведомление.";
+"group_remove_member_message" = "Удалить %@? Потребуется повторная заявка на вступление.";
+"group_reload_version_message" = "Отменить несохранённые изменения в расписании матчей и загрузить последнее сохранённое расписание?";
+"group_transfer_confirmation" = "Передать владение пользователю %@? Вы станете обычным участником.";
+"group_approve_confirmation" = "%@ станет участником группы и сможет видеть мероприятия и результаты.";
+"group_reject_confirmation" = "После отклонения %@ потребуется отправить новую заявку.";
+"group_lookup_full_short" = "Мест нет";
+"group_lookup_archived_short" = "В архиве";
+"group_lookup_pending_short" = "Ожидает обработки";
+"group_temporary_member_count" = "%d участников";
+"group_best_of_tennis_format" = "До %2$@ побед из %1$@";
+"group_rename_member_title" = "Переименовать";
+
+"group_copy_transfer_title" = "Передать владение";
+
+"group_copy_transfer_submit" = "Передать";
+
+"group_copy_transfer_message" = "Передать владение пользователю %@? Вы станете обычным участником.";
+
+"group_copy_transfer_hint" = "После передачи владения вы станете обычным участником.";
+
+"group_copy_rename_title" = "Переименовать";
+
+"group_copy_rename_action" = "Переименовать";
+
+"group_copy_result_confirm" = "Подтвердить результат";
+
+"group_copy_result_confirm_authority_message" = "Все игроки — временные участники, либо на противоположной стороне нет игрока с аккаунтом, который может подтвердить результат. Владелец должен проверить игроков и счёт. После подтверждения результат войдёт в историю, а владелец будет указан как подтвердивший.";
+
+"group_copy_result_confirm_manager_message" = "После подтверждения результат учитывается в истории обеих сторон и не редактируется. Для исправления сначала аннулируйте его.";
+
+"group_copy_result_confirm_member_message" = "Подтвердите игроков и счёт, чтобы включить результат в историю. Для исправления попросите управляющего аннулировать исходный результат.";
+
+"group_copy_void_action" = "Аннулировать";
+
+"group_copy_void_pending_message" = "Результат перестанет ожидать подтверждения и не будет учитываться в статистике. Исходный счёт и причина останутся видны участникам группы. Игроки и отправитель получат уведомление.";
+
+"group_copy_void_confirmed_message" = "Результат перестанет учитываться в статистике. Статистика и рейтинги обеих сторон будут пересчитаны. Исходный счёт и причина останутся видны участникам группы. Игроки и отправитель получат уведомление.";
+
+"group_copy_cancel_activity" = "Отменить мероприятие";
+
+"group_copy_cancel_activity_message" = "Отмена безвозвратно очищает список записавшихся. Начавшиеся мероприятия отменить нельзя.";
+
+"group_copy_abandon_action" = "Отказаться от матча";
+
+"group_copy_abandon_message" = "Откажитесь от этого матча, чтобы начать другой. Сохранённые личные записи останутся.";
+
+"group_copy_leave_action" = "Покинуть группу";
+
+"group_copy_leave_message" = "После выхода вы перестанете быть участником, а группа исчезнет из раздела «Мои группы». Вы больше не сможете открывать её или участвовать в ней. Существующие записи матчей группы и ваши личные записи на этом устройстве сохранятся. Чтобы снова получить доступ, нужно повторно вступить в группу.";
+
+"group_copy_archive_action" = "Архивировать группу";
+
+"group_copy_archive_message" = "Архивировать эту группу? Её содержимое станет доступно только для чтения.";
+
+"group_copy_dissolve_action" = "Распустить группу";
+
+"group_copy_dissolve_message" = "Группа доступна только для чтения 7 дней. В этот период расформирование можно отменить. Через 7 дней группа и все её данные будут удалены навсегда.";
+
+"group_copy_approve_action" = "Одобрить";
+
+"group_copy_approve_message" = "%@ станет участником группы и сможет видеть мероприятия и результаты.";
+
+"group_copy_reject_action" = "Отклонить";
+
+"group_copy_reject_message" = "После отклонения %@ потребуется отправить новую заявку.";
+
+"group_copy_remove_action" = "Удалить участника";
+
+"group_copy_remove_message" = "Удалить %@? Потребуется повторная заявка на вступление.";
+
+"group_copy_report_detail" = "Подробности (необязательно)";
+
+"group_copy_edit_profile" = "Изменить профиль группы";
+
+"group_copy_entry_a_wins" = "Побеждает A";
+
+"group_copy_entry_b_wins" = "Побеждает B";
+
+"group_copy_activity_timing_sequence" = "Без точного времени";
+
+"group_copy_activity_registration_manage" = "Запись временных участников";
+
+"group_copy_temporary_hint" = "Временным участникам не нужен аккаунт. Их можно добавить при вводе результатов.";
+
+"group_copy_activity_registration_scope" = "Запишите временных участников здесь. Участники с аккаунтом записываются сами.";
+
+"group_copy_report" = "Пожаловаться на группу";
+
+"group_copy_notice_member_removed" = "Вас удалили из группы";
+
+"group_copy_notice_role_changed" = "Ваша роль изменилась";
+
+"group_copy_activity_direct_save" = "Сохранить расписание";
+
+"group_copy_notice_join_approved" = "Заявка на вступление одобрена";
+
+"group_copy_notice_join_rejected" = "Заявка на вступление отклонена";
+
+"group_copy_all_formats" = "Все форматы";
+
+"group_copy_closed" = "Вступление закрыто";
+
+"group_copy_report_other" = "Другое";
+
+"group_copy_report_impersonation" = "Выдача себя за другого";
+
+"group_copy_audit_ui_share_failed" = "Не удалось поделиться. Попробуйте снова.";
+
+"group_copy_audit_ui_share_number" = "Поделиться номером группы";
+
+"group_copy_create" = "Создать группу";
+
+"group_copy_confirm_join" = "Вступить в эту группу";
+
+"group_copy_join" = "Вступить в группу";
+
+"group_copy_join_policy" = "Способы вступления";
+
+"group_copy_filter_singles" = "Одиночный разряд";
+
+"group_copy_upcoming" = "Предстоящие";
+
+"group_copy_activity_section_past" = "Прошедшие мероприятия";
+
+"group_copy_beta_feedback_action" = "Отправить отзыв";
+
+"group_copy_doubles" = "Парный разряд";
+
+"group_copy_create_activity" = "Создать мероприятие";
+
+"group_copy_benefit_activity" = "Планировать мероприятия и записываться";
+
+"group_copy_empty_activities_hint" = "Создайте мероприятие, чтобы участники могли записаться. Запись закроется, когда все места будут заняты.";
+
+"group_copy_lookup_available" = "Открыта";
+
+"group_copy_activity_direct_hint" = "Выбирайте из всех активных участников группы; предварительная запись не нужна.";
+
+"group_copy_empty_intro" = "Соберите друзей, чтобы планировать игры, вести счёт и создавать общую историю матчей.";
+
+"group_copy_place" = "Место";
+
+"group_copy_ranking_games" = "Сыграно";
+
+"group_copy_ranking_insufficient_matches" = "Слишком мало матчей";
+
+"group_copy_report_spam" = "Спам";
+
+"group_copy_report_status_reviewing" = "На рассмотрении";
+
+"group_copy_note" = "Примечание (необязательно)";
+
+"group_copy_peer_confirmation" = "Подтверждение соперником";
+
+"group_copy_activity_lineup_section_matches" = "Составить расписание";
+
+"group_copy_group" = "Группа";
+
+"group_copy_group_qr" = "QR-код группы";
+
+"group_copy_beta_notice" = "Группы находятся в бета-тестировании. Некоторые функции могут измениться. Спасибо за раннее участие.";
+
+"group_copy_created" = "Группа создана";
+
+"group_copy_ranking_sets" = "Счёт";
+
+"group_copy_removed_members_expand" = "Развернуть";
+
+"group_copy_voided" = "Аннулировано";
+
+"group_copy_cancelled" = "Отменено";
+
+"group_copy_report_status_resolved" = "Обработано";
+
+"group_copy_completed" = "Завершено";
+
+"group_copy_archived" = "В архиве";
+
+"group_copy_archived_list_title" = "Архивные группы";
+
+"group_copy_activity_registration_registered" = "Записан";
+
+"group_copy_activity_full" = "Мест нет";
+
+"group_copy_confirmed" = "Подтверждено";
+
+"group_copy_removed_members" = "Бывшие участники";
+
+"group_copy_mark_seen" = "Прочитано";
+
+"group_copy_report_status_dismissed" = "Отклонено";
+
+"group_copy_draws" = "ничьи";
+
+"group_copy_draw" = "Ничья";
+
+"group_copy_start_score" = "Начать вести счёт";
+
+"group_copy_pending_upload" = "Ожидает отправки";
+
+"group_copy_activity_registration_pending_remove" = "К отмене";
+
+"group_copy_report_status_pending" = "Ожидает обработки";
+
+"group_copy_lookup_pending_short" = "Ожидает обработки";
+
+"group_copy_pending_request_limit" = "Слишком много заявок ожидают одобрения. Дождитесь решения или отзовите часть заявок.";
+
+"group_copy_activity_registration_pending_add" = "К записи";
+
+"group_copy_pending_confirmation" = "Ожидает подтверждения";
+
+"group_copy_lookup_closing_short" = "Расформировывается";
+
+"group_copy_restore" = "Восстановить группу";
+
+"group_copy_member" = "Участник";
+
+"group_copy_member_results_title" = "Результаты участника";
+
+"group_copy_my_groups" = "Мои группы";
+
+"group_copy_activity_my_registration" = "Моя запись";
+
+"group_copy_activity_mode" = "Записи";
+
+"group_copy_qr_join_short" = "Сканируйте, чтобы вступить";
+
+"group_copy_qr_apply_short" = "Сканируйте, чтобы отправить заявку";
+
+"group_copy_register" = "Записаться";
+
+"group_copy_recruiting" = "Запись открыта";
+
+"group_copy_registration_closes" = "Окончание регистрации";
+
+"group_copy_activity_time_after_previous" = "После предыдущего матча";
+
+"group_copy_report_submit" = "Отправить";
+
+"group_copy_submitted_by" = "Отправил";
+
+"group_copy_cancel_dissolve" = "Отменить роспуск";
+
+"group_copy_notice_join_requested" = "Получена заявка на вступление";
+
+"group_copy_removed_members_collapse" = "Свернуть";
+
+"group_copy_discard_upload" = "Отменить загрузку";
+
+"group_copy_notice_activity_created" = "Мероприятие создано";
+
+"group_copy_activity_time_unspecified" = "Время не определено";
+
+"group_copy_activity_registration_empty" = "Нет временных участников";
+
+"group_copy_transfer_none" = "Нет других постоянных участников. Временные участники не могут стать руководителем группы.";
+
+"group_copy_archived_empty" = "Нет архивных групп";
+
+"group_copy_empty_activities_title" = "Мероприятий пока нет";
+
+"group_copy_latest_results" = "Последние результаты";
+
+"group_copy_disputed" = "Оспорено";
+
+"group_copy_activity_registration_not_registered" = "Не записан";
+
+"group_copy_month_matches" = "Матчи в этом месяце";
+
+"group_copy_open_group" = "Открыть группу";
+
+"group_copy_benefit_history" = "Просматривать матчи и рейтинги";
+
+"group_copy_overview" = "Обзор";
+
+"group_copy_welcome_back" = "С возвращением";
+
+"group_copy_regular_members" = "Записавшиеся участники";
+
+"group_copy_rally_scoring" = "Очко за каждый розыгрыш";
+
+"group_copy_result_information" = "Информация о матче";
+
+"group_copy_match_score" = "Счёт матча";
+
+"group_copy_match_rules" = "Правила матча";
+
+"group_copy_activity_registration_no_changes" = "Нет несохранённых изменений";
+
+"group_copy_activities" = "Мероприятия";
+
+"group_copy_activity_title" = "Название мероприятия";
+
+"group_copy_activity_field_title_optional" = "Название мероприятия (необязательно)";
+
+"group_copy_notice_activity_changed" = "Мероприятие обновлено";
+
+"group_copy_notice_activity_cancelled" = "Мероприятие отменено";
+
+"group_copy_activity_lineup" = "Составить расписание";
+
+"group_copy_activity_create_admin_hint" = "Мероприятия создаёт владелец группы или администратор";
+
+"group_copy_beta_badge" = "Бета";
+
+"group_copy_add_set" = "Добавить счёт игры";
+
+"group_copy_add_temporary" = "Добавить временного участника";
+
+"group_copy_benefit_score" = "Вести счёт или добавлять прошлые результаты";
+
+"group_copy_request_join" = "Подать заявку";
+
+"group_copy_join_message" = "Сообщение к заявке на вступление (необязательно)";
+
+"group_copy_beta_supported_label" = "Доступно сейчас";
+
+"group_copy_open" = "Вступить напрямую";
+
+"group_copy_activity_direct_title" = "Составить сейчас";
+
+"group_copy_admin" = "Администратор";
+
+"group_copy_confirmed_matches" = "Подтверждённые матчи";
+
+"group_copy_leader" = "Владелец";
+
+"group_copy_notice_ownership_transferred" = "Владелец группы изменился";
+
+"group_copy_complete_activity" = "Завершить мероприятие";
+
+"group_copy_keep_draft" = "Продолжить правку локальной версии";
+
+"group_copy_ranking_wins" = "победы";
+
+"group_copy_ranking_rate" = "Процент побед";
+
+"group_copy_report_inappropriate" = "Сексуальный или неприемлемый контент";
+
+"group_copy_update_report" = "Обновить жалобу";
+
+"group_copy_manual_result" = "Добавить результат матча";
+
+"group_copy_set_admin" = "Назначить администратором";
+
+"group_copy_activity_timing_estimated" = "Примерное время";
+
+"group_copy_losses" = "поражения";
+
+"group_copy_notice_result_voided" = "Результат аннулирован";
+
+"group_copy_notice_result_confirmed" = "Результат подтверждён";
+
+"group_copy_notice_result_pending" = "Результат ожидает подтверждения";
+
+"group_copy_result_actions" = "Действия с результатом";
+
+"group_copy_empty_title" = "Групп пока нет";
+
+"group_copy_in_progress" = "В процессе";
+
+"group_copy_report_illegal" = "Незаконная или опасная деятельность";
+
+"group_copy_join_hint" = "Вступите в группу друга по её номеру или QR-коду.";
+
+"group_copy_overdue_tasks" = "Просроченные задачи";
+
+"group_copy_beta_feedback_prompt" = "Есть проблема или предложение?";
+
+"group_copy_invite" = "Пригласить товарищей";
+
+"group_copy_retry" = "Повторить";
+
+"group_copy_approval" = "Требуется одобрение";
+
+"group_copy_sport" = "Спорт";
+
+"group_copy_report_harassment" = "Преследование";
+
+"group_copy_ranking_me_suffix" = " (я)";
+
+"group_copy_places_title" = "Выберите место";
+
+"group_copy_report_fraud" = "Мошенничество или азартные игры";
+
+"group_copy_void_reason" = "Причина аннулирования";
+
+"group_copy_reload_version" = "Обновить";
+
+"group_copy_lineup_reload_message" = "Отменить несохранённые изменения в расписании матчей и загрузить последнее сохранённое расписание?";
+
+"group_copy_join_number_separator" = "Или введите номер группы";
+
+"group_copy_activity_multi_match_hint" = "В одном мероприятии может быть несколько матчей. Участники записываются на мероприятие; при составлении пар выберите по 2 записавшихся для каждого одиночного матча или по 4 для парного.";
+
+"group_copy_activity_single_match_hint" = "Каждое мероприятие — один матч. Выберите 2 записавшихся участников для одиночного матча или 4 для парного.";
+
+"group_copy_activity_detail" = "Сведения о мероприятии";
+
+"group_copy_registration_at_start" = "В начале мероприятия";
+
+"group_copy_registration_use_start" = "Использовать время начала мероприятия";
+
+"group_copy_cancel_reason_optional" = "Причина отмены (необязательно)";
+
+"group_copy_audit_result_frozen_info" = "Посмотреть игроков и правила";
+"group_view_schedule" = "Посмотреть матчи";
+"group_notice_training_published" = "Тренировка опубликована";
+"group_notice_training_changed" = "Тренировка обновлена";
+"group_notice_training_cancelled" = "Тренировка отменена";
+"group_notice_leave_changed" = "Данные об отсутствии обновлены";
+"group_report_evidence_title" = "Фотодоказательства (необязательно)";
+"group_report_evidence_hint" = "До 3 изображений JPG или PNG, не более 2 MB каждое. Доступны только вам и платформе.";
+"group_report_add_image" = "Добавить изображение";
+"group_report_retry" = "Повторить";
+"group_report_preview" = "Изображение с доказательством";
+"group_report_supplement" = "Дополнить информацию";
+"group_report_close" = "Закрыть";
+"group_report_remove_image" = "Удалить изображение";
+"group_report_image_error" = "Не удалось подготовить изображение. Попробуйте другое изображение JPG или PNG.";
+"group_report_refresh" = "Обновить статус";

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>小组活动 · 报名状态预览</title>
+  <style>
+    *{box-sizing:border-box}
+    :root{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:#18201e;background:#edf0ef;font-synthesis:none}
+    body{margin:0;line-height:1.5}button,select,input{font:inherit}button,select{cursor:pointer}button{color:inherit}
+    button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #278747;outline-offset:3px}
+    main{max-width:1152px;margin:auto;padding:36px 28px 48px}
+    .eyebrow{font-size:12px;color:#62716a;margin:0 0 8px;letter-spacing:1px}
+    h1{font-size:27px;letter-spacing:-.6px;line-height:1.35;margin:0 0 10px;font-weight:650}
+    .intro{font-size:14px;color:#59655f;margin:0;max-width:680px}
+    .controls{margin:24px 0 30px;padding:16px;display:flex;flex-wrap:wrap;align-items:end;gap:16px;background:#fafcfb;border:1px solid #dce3df;border-radius:14px}
+    label{display:grid;gap:7px;font-size:12px;color:#59655f}
+    select,input[type=text]{height:38px;border:1px solid #cfd8d2;border-radius:8px;background:white;color:#18201e;padding:0 10px;font-size:13px}
+    .place-control{flex:1;min-width:210px}input[type=text]{width:100%;min-width:0}
+    .option-title{display:flex;align-items:center;gap:8px;margin:0 0 6px;font-size:16px;font-weight:600}
+    .explanation{margin:0 0 18px;font-size:13px;color:#62716a;min-height:40px}
+    .preview-well{display:flex;justify-content:center;align-items:start;overflow:auto;padding:2px 2px 14px}
+    .phone{--page:#000;--surface:#1a1a1a;--text:#fff;--secondary:rgba(255,255,255,.718);--accent:#30d158;--scale:1;width:360px;flex:none;color:var(--text);background:var(--page);border-radius:24px;box-shadow:0 0 0 1px #cbd3ce;overflow:hidden;font-size:calc(14px * var(--scale));container-type:inline-size}
+    .phone.light{--page:#f1f3f5;--surface:#fff;--text:#111827;--secondary:rgba(17,24,39,.75);--accent:#2e7d32}
+    .statusbar{padding:14px 22px 8px;display:flex;justify-content:space-between;font-size:12px;font-weight:600}
+    .titlebar{display:grid;grid-template-columns:40px minmax(0,1fr) 40px;align-items:center;height:56px;padding:0 12px}
+    .titlebar strong{font-size:calc(19px * var(--scale));text-align:center;font-weight:600;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+    .back{width:11px;height:11px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-left:12px}
+    .more{text-align:center;font-size:23px}
+    .tabs{display:flex;justify-content:space-between;margin:6px 20px 24px;color:var(--secondary);font-size:calc(14px * var(--scale));gap:8px}
+    .tab{padding:7px 0;white-space:nowrap}.tab.active{border-bottom:2px solid var(--accent);color:var(--accent);font-weight:600}
+    .content{padding:0 16px 24px}.section-heading{font-size:calc(16px * var(--scale));font-weight:600;margin:0 0 12px}
+    .activity-card{padding:16px;border-radius:12px;background:var(--surface);margin-top:12px}
+    .card-heading{display:flex;align-items:center;gap:8px;margin-bottom:8px;min-width:0}
+    .activity-title{margin:0;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:calc(16px * var(--scale));font-weight:500}
+    .activity-status{flex:none;font-size:calc(12px * var(--scale));color:var(--secondary);white-space:nowrap}
+    .metadata{font-size:calc(12px * var(--scale));line-height:1.6;color:var(--secondary)}
+    .date{white-space:nowrap}.activity-status{font-variant-numeric:tabular-nums}
+    .place{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+    .same-line{display:flex;align-items:center;gap:12px}.same-line .date{flex:none}.same-line .place{flex:1}
+    .home-indicator{width:108px;height:4px;border-radius:3px;background:var(--text);opacity:.55;margin:12px auto 10px}
+    #measurement{font-size:12px;color:#62716a;margin:0}
+    @media(max-width:780px){main{padding:24px 16px}.explanation{min-height:0}.preview-well{justify-content:safe center}h1{font-size:24px}.controls{gap:12px}.place-control{flex-basis:100%}}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">全能计分器 / 小组活动</p>
+      <h1>报名中 · 3/8</h1>
+      <p class="intro">将状态和人数合并到卡片右上角，第二行只显示日期与地点。</p>
+    </header>
+    <form class="controls" aria-label="预览设置" onsubmit="return false">
+      <label>屏幕宽度<select id="width"><option value="320">320 px · 窄屏</option><option value="360" selected>360 px</option><option value="400">400 px</option><option value="480">480 px · 宽屏</option></select></label>
+      <label>主题<select id="theme"><option value="dark">深色</option><option value="light">浅色</option></select></label>
+      <label>文字大小<select id="scale"><option value="1">标准</option><option value="1.3">放大 130%</option><option value="1.6">放大 160%</option></select></label>
+      <label>报名人数<select id="count"><option value="3/8">3/8</option><option value="30/30">30/30</option><option value="100/100">100/100</option></select></label>
+      <label class="place-control">地点<input id="place" type="text" value="滨江体育中心羽毛球馆 3 号场" placeholder="也可以清空，查看没有地点的活动"></label>
+    </form>
+    <section aria-labelledby="preview-title">
+      <h2 class="option-title" id="preview-title">状态与人数放在一起</h2>
+      <p class="explanation">右上角显示「报名中 · 3/8」，不再单独显示「已报名」。</p>
+      <div class="preview-well"><div class="phone" id="phone-preview"></div></div>
+    </section>
+    <p id="measurement" aria-live="polite"></p>
+  </main>
+  <script>
+    const $ = id => document.getElementById(id);
+    const phones = [...document.querySelectorAll('.phone')];
+    function cardMarkup(title, date) {
+      const card = document.createElement('article');
+      card.className = 'activity-card';
+      card.innerHTML = '<div class="card-heading"><h3 class="activity-title"></h3><span class="activity-status"></span></div><div class="metadata same-line"><span class="date"></span><span class="place"></span></div>';
+      card.querySelector('.activity-title').textContent = title;
+      card.querySelector('.date').textContent = date;
+      return card;
+    }
+    for (const phone of phones) {
+      phone.innerHTML = '<div class="statusbar"><span>9:41</span><span>5G ▰</span></div><div class="titlebar"><span class="back" aria-hidden="true"></span><strong>球友交流组</strong><span class="more" aria-hidden="true">···</span></div><div class="tabs"><span class="tab active">概览</span><span class="tab">活动</span><span class="tab">战绩</span><span class="tab">成员</span></div><div class="content"><h2 class="section-heading">即将开始</h2></div><div class="home-indicator" aria-hidden="true"></div>';
+      phone.querySelector('.content').append(
+        cardMarkup('周六羽毛球双打交流', '2026-10-24 14:00'),
+        cardMarkup('周日球友循环赛', '2026-10-25 · 按顺序'));
+    }
+    function update() {
+      for (const phone of phones) {
+        phone.style.width = $('width').value + 'px';
+        phone.style.setProperty('--scale', $('scale').value);
+        phone.classList.toggle('light', $('theme').value === 'light');
+        for (const card of phone.querySelectorAll('.activity-card')) {
+          const place = card.querySelector('.place');
+          place.textContent = $('place').value;
+          place.title = $('place').value;
+          place.hidden = !place.textContent;
+          card.querySelector('.activity-status').textContent = '报名中 · ' + $('count').value;
+        }
+      }
+      $('measurement').textContent = '当前预览：' + $('width').value + ' px / ' + $('scale').selectedOptions[0].text + '。可调整地点、人数与主题查看效果。';
+    }
+    document.querySelector('.controls').addEventListener('input', update);
+    document.querySelector('.controls').addEventListener('change', update);
+    update();
+  </script>
+</body>
+</html>

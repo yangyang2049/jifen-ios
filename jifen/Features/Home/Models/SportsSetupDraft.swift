@@ -264,10 +264,12 @@ extension SportsSetupDraft {
         return [11, 15, 21]
     }
 
+    /// 对齐安卓 `setupMaxSetsPresets`：每个分支固定 4 个预设。
+    /// 「4 预设 + 自定义铅笔 chip」在手机内容宽下仍是一行，点开输入框后也不会换行；
+    /// 打满模式原先的第 5 个预设（5 局）改由自定义输入承接，1~99 的可选范围不变。
     func matchCompletionPresets(for gameType: GameType) -> [Int] {
         if gameType == .foosball { return [1, 3, 5, 7] }
-        if gameType == .tennis, matchCompletionMode == .playAll { return [1, 2, 3, 4] }
-        return matchCompletionMode == .playAll ? [1, 2, 3, 4, 5] : [1, 3, 5, 7]
+        return matchCompletionMode == .playAll ? [1, 2, 3, 4] : [1, 3, 5, 7]
     }
 
     func frameCountPresets(for gameType: GameType) -> [Int] {
@@ -301,6 +303,32 @@ extension SportsSetupDraft {
         return matchCompletionMode == .playAll || !selectedMaxSets.isMultiple(of: 2)
     }
 
+    /// 数值类约束在开赛时静默纠正（对齐安卓 `SetupInputCorrection`），不再红字拦截。
+    /// 重名不在其中：静默纠正无法替用户改名，重名仍由调用方拦截。
+
+    /// 奇数局是否为硬约束（经典模式「五局三胜」、斯诺克帧数）。
+    func requiresOddSets(for gameType: GameType) -> Bool {
+        // 网球抢七制只用 1 盘，不读局数，纠正与提示都无意义。
+        if gameType == .tennis, tennisSetScoringMode == "tiebreak_only" { return false }
+        let supportsBestOf = [.pingpong, .badminton, .tennis, .squash, .pickleball, .foosball].contains(gameType)
+        return (supportsBestOf && matchCompletionMode == .bestOf) || gameType == .snooker
+    }
+
+    /// 「开赛时会被纠正」的局数原始值；用于判断是否要给一次提示。
+    func oddSetsCorrectionApplied(for gameType: GameType) -> (raw: Int, corrected: Int)? {
+        guard requiresOddSets(for: gameType) else { return nil }
+        let raw = selectedMaxSets
+        guard (1...99).contains(raw), raw.isMultiple(of: 2) else { return nil }
+        return (raw, min(99, raw + 1))
+    }
+
+    /// 开赛时最终使用的局数：偶数局向上取奇数，其余情况保持原值。
+    func correctedMaxSets(for gameType: GameType) -> Int {
+        let fallback = Self.defaultMaxSets(for: gameType) ?? 3
+        let raw = selectedMaxSets > 0 ? String(selectedMaxSets) : nil
+        return SetupInputCorrection.sets(raw, oddOnly: requiresOddSets(for: gameType), fallback: fallback)
+    }
+
     func makeResult(gameType: GameType, usesDoublesPlayerInputs: Bool, voiceSupported: Bool = SportsVoiceSupport.isSupported) -> SportsSetupResult {
         let usesTeamPlayerInputs = gameType == .shuttlecock && competitionFormat == .team
         let usesNamedPlayerInputs = usesDoublesPlayerInputs || usesTeamPlayerInputs
@@ -314,6 +342,20 @@ extension SportsSetupDraft {
             : (usesDoublesPlayerInputs
                 ? buildDoublesTeamName(team2Player1Name, team2Player2Name, gameType: gameType)
                 : team2Name.trimmingCharacters(in: .whitespacesAndNewlines))
+
+        // 数值输入在下发引擎前统一夹到合法区间（对齐安卓 SetupInputCorrection）。
+        let resolvedMaxSets = correctedMaxSets(for: gameType)
+        let pointsMaximum = gameType == .foosball ? 99 : 999
+        let resolvedPointsPerSet = SetupInputCorrection.pointsPerSet(
+            selectedPointsPerSet > 0 ? String(selectedPointsPerSet) : nil,
+            max: pointsMaximum,
+            fallback: Self.defaultPointsPerSet(for: gameType) ?? 11
+        )
+        let resolvedFoosballScoreCap = SetupInputCorrection.scoreCap(
+            foosballScoreCap.map(String.init),
+            pointsPerSet: resolvedPointsPerSet,
+            enabled: foosballWinByTwo
+        )
 
         var result = SportsSetupResult(
             team1Name: resolvedTeam1Name,
@@ -343,11 +385,11 @@ extension SportsSetupDraft {
             result.basketballMode = "five_v_five"
             result.basketballRuleSet = basketballRuleSet
         case .boxing:
-            result.maxRounds = selectedMaxSets > 0 ? selectedMaxSets : 3
+            result.maxRounds = SetupInputCorrection.boxingRounds(selectedMaxSets > 0 ? String(selectedMaxSets) : nil, fallback: 3)
         case .pingpong:
-            result.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 5
+            result.maxSets = resolvedMaxSets
             result.matchCompletionMode = matchCompletionMode
-            result.pointsPerSet = selectedPointsPerSet > 0 ? selectedPointsPerSet : 11
+            result.pointsPerSet = resolvedPointsPerSet
             result.autoChangeSides = autoChangeSides
             result.isSingles = isSingles
             result.servingSide = servingSide.rawValue
@@ -359,9 +401,7 @@ extension SportsSetupDraft {
                 result.showMatchTime = showMatchTime
             }
         case .tennis:
-            result.maxSets = tennisSetScoringMode == "tiebreak_only"
-                ? 1
-                : (selectedMaxSets > 0 ? selectedMaxSets : 3)
+            result.maxSets = tennisSetScoringMode == "tiebreak_only" ? 1 : resolvedMaxSets
             result.matchCompletionMode = tennisSetScoringMode == "tiebreak_only" ? .bestOf : matchCompletionMode
             result.tieBreakPoints = tennisSetScoringMode == "tiebreak_only"
                 ? matchTieBreakPoints
@@ -387,7 +427,7 @@ extension SportsSetupDraft {
             result.voiceAnnouncement = voiceAnnouncement
             result.ruleProfileVersion = 1
         case .padel:
-            result.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 3
+            result.maxSets = resolvedMaxSets
             result.matchCompletionMode = .bestOf
             result.gamesPerSet = 6
             result.tieBreakPoints = 7
@@ -400,17 +440,17 @@ extension SportsSetupDraft {
             result.voiceAnnouncement = voiceAnnouncement
             result.ruleProfileVersion = 1
         case .badminton:
-            result.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 3
+            result.maxSets = resolvedMaxSets
             result.matchCompletionMode = matchCompletionMode
             result.autoChangeSides = autoChangeSides
             result.isSingles = isSingles
-            result.pointsPerSet = selectedPointsPerSet > 0 ? selectedPointsPerSet : 21
+            result.pointsPerSet = resolvedPointsPerSet
             result.servingSide = servingSide.rawValue
             result.voiceAnnouncement = voiceAnnouncement
         case .shuttlecock:
             result.maxSets = 3
             result.matchCompletionMode = .bestOf
-            result.pointsPerSet = selectedPointsPerSet > 0 ? selectedPointsPerSet : 21
+            result.pointsPerSet = resolvedPointsPerSet
             result.competitionFormat = competitionFormat
             result.isSingles = competitionFormat == .singles
             result.autoChangeSides = autoChangeSides
@@ -418,7 +458,7 @@ extension SportsSetupDraft {
             result.voiceAnnouncement = voiceAnnouncement
             result.ruleProfileVersion = 1
         case .squash:
-            result.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 5
+            result.maxSets = resolvedMaxSets
             result.matchCompletionMode = matchCompletionMode
             result.competitionFormat = .singles
             result.isSingles = true
@@ -431,7 +471,7 @@ extension SportsSetupDraft {
             result.showMatchTime = true
             result.ruleProfileVersion = 1
         case .pickleball:
-            result.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 3
+            result.maxSets = resolvedMaxSets
             result.matchCompletionMode = matchCompletionMode
             result.isSingles = isSingles
             result.targetScore = pickleballTargetScore
@@ -443,27 +483,32 @@ extension SportsSetupDraft {
             result.voiceAnnouncement = voiceAnnouncement
         case .foosball:
             result.isSingles = isSingles
-            result.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 3
+            result.maxSets = resolvedMaxSets
             result.matchCompletionMode = matchCompletionMode
-            result.pointsPerSet = selectedPointsPerSet > 0 ? selectedPointsPerSet : 5
+            result.pointsPerSet = resolvedPointsPerSet
             result.targetScore = result.pointsPerSet
             result.winByTwo = foosballWinByTwo
-            result.scoreCap = foosballWinByTwo ? foosballScoreCap : nil
+            result.scoreCap = resolvedFoosballScoreCap
             result.servingSide = servingSide.rawValue
         case .volleyball, .beachVolleyball, .airVolleyball:
             result.autoChangeSides = autoChangeSides
             result.servingSide = servingSide.rawValue
             result.showMatchTime = showMatchTime
         case .snooker:
-            result.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 1
+            result.maxSets = resolvedMaxSets
             result.servingSide = servingSide.rawValue
             result.matchTitle = matchTitleEnabled ? ScoreboardMatchTitlePolicy.sanitize(matchTitle) : nil
         case .eightBall:
-            let target = selectedMaxSets > 0 ? selectedMaxSets : 9
+            // 目标局与让局都静默纠正（对齐安卓 normalizeEightBallHandicapRacks）。
+            let target = SetupInputCorrection.billiardsTarget(
+                selectedMaxSets > 0 ? String(selectedMaxSets) : nil,
+                fallback: Self.defaultMaxSets(for: .eightBall) ?? 9
+            )
             result.maxSets = target
-            let handicap = eightBallHandicapMode == "none"
+            let beneficiaryValid = eightBallHandicapMode == "team1" || eightBallHandicapMode == "team2"
+            let handicap = (!beneficiaryValid || target <= 1)
                 ? 0
-                : min(eightBallHandicapRacks, max(0, target - 1))
+                : min(max(eightBallHandicapRacks, 1), target - 1)
             result.eightBallHandicapRacks = handicap
             result.eightBallHandicapBeneficiary = handicap > 0 ? eightBallHandicapMode : "none"
         case .archery:
@@ -498,7 +543,7 @@ extension SportsSetupDraft {
             .joined(separator: "/")
     }
 
-    private static func defaultMaxSets(for gameType: GameType) -> Int? {
+    static func defaultMaxSets(for gameType: GameType) -> Int? {
         switch gameType {
         case .pingpong: return 5
         case .badminton, .shuttlecock, .pickleball, .boxing, .foosball, .tennis, .padel: return 3
@@ -520,5 +565,55 @@ extension SportsSetupDraft {
 
     private static func defaultTieBreakPoints(for gameType: GameType) -> Int? {
         gameType == .tennis ? 7 : nil
+    }
+}
+
+/// 对齐安卓 `SetupInputCorrection`：自定义输入不再红字报错 + 禁用「开始」，
+/// 而是在开赛时把输入夹到合法区间，让「开始」始终可用。
+///
+/// 每条规则都返回**最终会传给引擎的值**，调用方不需要再二次判断合法性。
+nonisolated enum SetupInputCorrection {
+    /// 通用数字区间：空 / 非数字 / 0 都回落到 `fallback`。
+    /// 0 视为「还没填」而不是「最小值 1」，否则用户清空后点开始会静默变成 1 局/1 分。
+    static func numberInRange(_ raw: String?, _ range: ClosedRange<Int>, fallback: Int) -> Int {
+        guard let parsed = Int(raw?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""),
+              parsed > 0 else { return fallback }
+        return min(max(parsed, range.lowerBound), range.upperBound)
+    }
+
+    /// 局数（1...99）。`oddOnly` 为 true 时向上取奇数（经典模式「五局三胜」这类赛制要求奇数局），
+    /// 99 已是上限时回落到 99，避免夹到 100 越界。
+    static func sets(_ raw: String?, oddOnly: Bool, fallback: Int) -> Int {
+        let bounded = numberInRange(raw, 1...99, fallback: fallback)
+        guard oddOnly, bounded.isMultiple(of: 2) else { return bounded }
+        return bounded >= 99 ? 99 : bounded + 1
+    }
+
+    /// 每局分数：羽毛球/乒乓球 1...999，桌上足球 1...99。
+    static func pointsPerSet(_ raw: String?, max: Int, fallback: Int) -> Int {
+        numberInRange(raw, 1...max, fallback: fallback)
+    }
+
+    /// 桌上足球分差上限：必须不小于目标分、且不超过 99。
+    /// 未开启「末局净胜两分」时没有上限，返回 nil。
+    static func scoreCap(_ raw: String?, pointsPerSet: Int, enabled: Bool) -> Int? {
+        guard enabled else { return nil }
+        let lower = min(max(pointsPerSet, 1), 99)
+        return numberInRange(raw, lower...99, fallback: lower)
+    }
+
+    /// 台球目标局/分：1...99。
+    static func billiardsTarget(_ raw: String?, fallback: Int) -> Int {
+        numberInRange(raw, 1...99, fallback: fallback)
+    }
+
+    /// 九球追分各项分值：1...99。
+    static func nineBallPoint(_ raw: String?, fallback: Int) -> Int {
+        numberInRange(raw, 1...99, fallback: fallback)
+    }
+
+    /// 拳击回合数：1...99（非预设时使用）。
+    static func boxingRounds(_ raw: String?, fallback: Int) -> Int {
+        numberInRange(raw, 1...99, fallback: fallback)
     }
 }

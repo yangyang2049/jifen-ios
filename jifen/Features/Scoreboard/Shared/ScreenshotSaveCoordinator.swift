@@ -453,7 +453,7 @@ struct ScreenshotSaveOverlay: View {
         }
     }
 
-    /// 1:1 对齐安卓 ScreenshotPreviewDialog：深色圆角卡 + 截图 + 底部「关闭/分享」文字按钮。
+    /// 深色圆角预览卡：右上角关闭，底部分享。
     private func previewDialog(image: UIImage) -> some View {
         ZStack {
             Color.black.opacity(0.32)
@@ -461,25 +461,26 @@ struct ScreenshotSaveOverlay: View {
                 .onTapGesture { coordinator.closePreviewAndContinue() }
             GeometryReader { proxy in
             let margin: CGFloat = 24
-            let buttonRow: CGFloat = 32
+            let buttonRow: CGFloat = 88
             let imageMaxHeight = max(120, proxy.size.height / 2 - margin - buttonRow - margin)
             let cardWidth = min(proxy.size.width - margin * 2, 420)
             let imageWidth = max(1, cardWidth - 32)
             let imageHeight = min(imageMaxHeight, imageWidth * image.size.height / max(1, image.size.width))
 
             VStack(spacing: 12) {
+                HStack {
+                    Spacer()
+                    ScoreboardDialogCloseButton(
+                        action: { coordinator.closePreviewAndContinue() },
+                        accessibilityIdentifier: "screenshot_preview_close"
+                    )
+                }
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: .infinity)
                     .frame(height: imageHeight)
                 HStack {
-                    Button(action: { coordinator.closePreviewAndContinue() }) {
-                        Text(NSLocalizedString("close", value: "关闭", comment: ""))
-                            .font(.system(size: 15))
-                            .foregroundStyle(.white.opacity(0.9))
-                    }
-                    .buttonStyle(.plain)
                     Spacer()
                     Button(action: { coordinator.sharePreviewImage() }) {
                         Text(NSLocalizedString("share", value: "分享", comment: ""))
@@ -551,7 +552,7 @@ struct ScreenshotSaveOverlay: View {
                         } label: {
                             Text(coordinator.primaryButtonTitle)
                                 .font(.system(size: 14, weight: .medium))
-                                .foregroundStyle(.white)
+                                .foregroundStyle(Theme.textOnPrimary)
                                 .frame(
                                     maxWidth: .infinity,
                                     minHeight: ScoreboardConstants.minimumTouchTarget

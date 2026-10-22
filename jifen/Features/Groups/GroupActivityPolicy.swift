@@ -3,6 +3,31 @@ import Foundation
 nonisolated enum GroupActivityPolicy {
     static let defaultJoinPolicy = "open"
     static let commonDurations = [20, 30, 45, 60]
+    // z.string().max(300) on the server counts UTF-16 code units.
+    static let cancelReasonMax = 300
+
+    static func validCancellationReason(_ value: String) -> Bool {
+        value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || value.utf16.count <= cancelReasonMax
+    }
+
+    static func limitedCancellationReason(_ value: String) -> String {
+        GroupInputValidation.limitedText(value, maximum: cancelReasonMax)
+    }
+
+    static func registrationFollowsStart(closes: Date, starts: Date) -> Bool { closes == starts }
+
+    static func registrationCloseAfterSelection(_ selection: Date, starts: Date, calendar: Calendar = .current) -> Date {
+        let components: Set<Calendar.Component> = [.era, .year, .month, .day, .hour, .minute]
+        return calendar.dateComponents(components, from: selection) == calendar.dateComponents(components, from: starts) ? starts : selection
+    }
+
+    static func registrationCloseAfterStartChange(closes: Date, previousStart: Date, newStart: Date) -> Date {
+        registrationFollowsStart(closes: closes, starts: previousStart) ? newStart : closes
+    }
+
+    static func allowsMatchEntry(activityStatus: String, sessionStatus: String?) -> Bool {
+        activityStatus != "cancelled" && sessionStatus != "cancelled"
+    }
 
     static func validText(title: String, place: String, note: String = "") -> Bool {
         title.trimmingCharacters(in: .whitespacesAndNewlines).unicodeScalars.count <= 40

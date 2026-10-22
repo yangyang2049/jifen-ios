@@ -20,6 +20,9 @@ struct SportsSetupDialogView: View {
 
     @State private var draft = SportsSetupDraft()
     @State private var setupSendErrorText = ""
+    @State private var focusedSetupFieldID: String?
+    @State private var setupToastMessage: String?
+    @State private var setupToastDismissTask: Task<Void, Never>?
     // Managers
     private let commonNamesManager = CommonNamesManager.shared
 
@@ -36,25 +39,50 @@ struct SportsSetupDialogView: View {
             .frame(height: 56)
             .padding(.horizontal, Theme.md)
         } content: { maxContentHeight in
-            AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight) {
-                VStack(spacing: 20) {
-                    if showParticipants {
-                    SportsSetupParticipantSection(
-                        gameType: gameType,
-                        defaultTeam1Name: defaultTeam1Name,
-                        defaultTeam2Name: defaultTeam2Name,
-                        draft: $draft
-                    )
-                    }
+            ScrollViewReader { scrollProxy in
+                AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight) {
+                    VStack(spacing: 20) {
+                        if showParticipants {
+                        SportsSetupParticipantSection(
+                            gameType: gameType,
+                            defaultTeam1Name: defaultTeam1Name,
+                            defaultTeam2Name: defaultTeam2Name,
+                            draft: $draft
+                        )
+                        }
 
-                    SportsSetupSettingsSection(gameType: gameType, draft: $draft)
+                        SportsSetupSettingsSection(gameType: gameType, draft: $draft) {
+                            focusedSetupFieldID = $0
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, Theme.md)
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, Theme.md)
+                .task(id: focusedSetupFieldID) {
+                    guard let fieldID = focusedSetupFieldID else { return }
+                    // Wait for the keyboard and dialog viewport to finish resizing.
+                    do {
+                        try await Task.sleep(for: .milliseconds(350))
+                    } catch {
+                        return
+                    }
+                    guard focusedSetupFieldID == fieldID else { return }
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        scrollProxy.scrollTo(fieldID, anchor: .center)
+                    }
+                }
             }
         } actions: {
             buildDialogActions()
         }
+        .overlay(alignment: .bottom) {
+            if let setupToastMessage {
+                ToastView(message: setupToastMessage)
+                    .transition(.opacity)
+                    .allowsHitTesting(false)
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: setupToastMessage)
         .onAppear {
             initializeView()
         }
@@ -129,7 +157,7 @@ struct SportsSetupDialogView: View {
         } label: {
             Text(NSLocalizedString("start_game", comment: "Start Game button"))
                 .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.textOnPrimary)
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)
                 .background(Theme.primary)
@@ -173,19 +201,17 @@ struct SportsSetupDialogView: View {
     }
 
     private func confirmSetup() async {
-        if supportsMatchCompletionMode, !draft.hasValidMatchCompletionSets {
-            return
-        }
-        if !draft.hasValidPointsPerSet(for: gameType) {
-            return
-        }
-        if !draft.hasValidFoosballScoreCap(for: gameType) {
-            setupSendErrorText = NSLocalizedString(
-                "setup_score_cap_below_target",
-                value: "封顶分不能低于每局分数。",
-                comment: "Foosball final-set score cap validation"
-            )
-            return
+        // 对齐安卓：数值类约束（局数/每局分数/封顶分/让局）在 makeResult 里静默夹到合法区间，
+        // 不再红字报错或让「开始」点了没反应。只有「重名」无法替用户改名，仍在这里拦截。
+        if let correction = draft.oddSetsCorrectionApplied(for: gameType) {
+            showSetupToast(String(
+                format: NSLocalizedString(
+                    "setup_auto_odd_sets",
+                    value: "Only odd numbers are allowed — using %d",
+                    comment: "Setup odd-set autocorrection notice"
+                ),
+                correction.corrected
+            ))
         }
         var finalConfig = draft.makeResult(
             gameType: gameType,
@@ -246,6 +272,16 @@ struct SportsSetupDialogView: View {
         onConfirm?(finalConfig)
     }
 
+    /// Toast 与页面内其他一次性提示保持一致：2 秒后自动消失，新提示覆盖旧提示。
+    private func showSetupToast(_ message: String) {
+        setupToastDismissTask?.cancel()
+        setupToastMessage = message
+        setupToastDismissTask = Task { @MainActor in
+            do { try await Task.sleep(for: .seconds(2)) } catch { return }
+            guard !Task.isCancelled else { return }
+            setupToastMessage = nil
+        }
+    }
 
     private var supportsMatchCompletionMode: Bool {
         gameType == .pingpong || gameType == .badminton || gameType == .tennis ||

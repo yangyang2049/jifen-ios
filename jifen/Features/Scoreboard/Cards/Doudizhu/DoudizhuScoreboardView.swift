@@ -487,7 +487,7 @@ struct DoudizhuScoreboardView: View {
                 } label: {
                     Image(systemName: isEditMode ? "checkmark" : "pencil")
                         .font(.system(size: ScoreboardConstants.buttonIconSize))
-                        .foregroundColor(.white)
+                        .foregroundColor((isEditMode ? Theme.textOnPrimary : Color.white))
                         .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
                         .background(
                             Circle().fill(isEditMode ? Theme.primary : Color.black.opacity(0.25))
@@ -817,7 +817,7 @@ struct DoudizhuScoreboardView: View {
                 } label: {
                     Text(String(format: NSLocalizedString("doudizhu_confirm_with_score", value: "确认 (底分: %d)", comment: ""), selectedBaseScore * (1 << selectedMultiplierPower)))
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle((doudizhuWinnerSelectionValid ? Theme.textOnPrimary : Color.white))
                         .frame(width: containerWidth * 0.45, height: usesCompactSettleLayout ? 46 : 50)
                         .background(Capsule().fill(doudizhuWinnerSelectionValid ? Theme.primary : Color.white.opacity(0.2)))
                 }
@@ -921,7 +921,7 @@ struct DoudizhuScoreboardView: View {
         } label: {
             Text(players[index].name)
                 .font(.system(size: fontSize, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle((selectedWinners[index] ? Theme.textOnPrimary : Color.white))
                 .lineLimit(1)
                 .frame(maxWidth: width, minHeight: height)
                 .background(
@@ -961,7 +961,7 @@ struct DoudizhuScoreboardView: View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 14, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle((selected ? Theme.textOnPrimary : Color.white))
                 .frame(width: width, height: height)
                 .background(RoundedRectangle(cornerRadius: 12).fill(selected ? Theme.primary : Color.white.opacity(0.2)))
         }

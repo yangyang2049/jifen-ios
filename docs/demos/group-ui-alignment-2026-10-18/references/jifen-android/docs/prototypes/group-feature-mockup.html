@@ -1,0 +1,1145 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>全能计分器 · 小组功能前端方案</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080909;
+      --panel: #111313;
+      --card: #1c1e1f;
+      --card-2: #242627;
+      --line: #303333;
+      --text: #f7f7f7;
+      --sub: #a7aaaa;
+      --muted: #6f7474;
+      --green: #27d565;
+      --green-deep: #153d23;
+      --green-soft: #b9f7ce;
+      --orange: #ff8a36;
+      --blue: #4d8dff;
+      --yellow: #ffd34d;
+      --danger: #ff5c5c;
+      --shadow: 0 18px 60px rgba(0,0,0,.38);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(39,213,101,.09), transparent 28rem),
+        radial-gradient(circle at 100% 100%, rgba(77,141,255,.07), transparent 34rem),
+        var(--bg);
+      color: var(--text);
+    }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(250px, 320px) minmax(420px, 1fr) minmax(270px, 350px);
+      gap: 28px;
+      padding: 26px;
+      align-items: start;
+    }
+    .sidebar, .notes {
+      position: sticky;
+      top: 26px;
+      max-height: calc(100vh - 52px);
+      overflow: auto;
+      scrollbar-width: thin;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      background: var(--green);
+      color: #06140b;
+      font-weight: 900;
+      font-size: 19px;
+      box-shadow: 0 9px 30px rgba(39,213,101,.22);
+    }
+    .brand h1 { font-size: 18px; margin: 0 0 3px; }
+    .brand p { font-size: 12px; color: var(--sub); margin: 0; }
+
+    .eyebrow {
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      margin: 0 0 8px;
+    }
+    .sidebar h2 { font-size: 28px; line-height: 1.2; margin: 0 0 12px; }
+    .intro { color: var(--sub); font-size: 14px; line-height: 1.7; margin: 0 0 24px; }
+
+    .scheme-list { display: grid; gap: 10px; }
+    .scheme-button {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: rgba(28,30,31,.72);
+      padding: 15px;
+      text-align: left;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+    .scheme-button:hover { transform: translateY(-1px); border-color: #4a4e4e; }
+    .scheme-button.active {
+      border-color: var(--green);
+      background: linear-gradient(135deg, rgba(39,213,101,.16), rgba(28,30,31,.9));
+      box-shadow: 0 0 0 1px rgba(39,213,101,.12) inset;
+    }
+    .scheme-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .scheme-name { font-size: 15px; font-weight: 800; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 99px;
+      padding: 4px 8px;
+      background: var(--green-deep);
+      color: var(--green-soft);
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .scheme-button p { margin: 7px 0 0; color: var(--sub); font-size: 12px; line-height: 1.5; }
+    .sidebar-foot {
+      margin-top: 20px;
+      padding: 14px;
+      border-radius: 14px;
+      background: #111313;
+      border: 1px dashed var(--line);
+      font-size: 12px;
+      color: var(--sub);
+      line-height: 1.6;
+    }
+
+    .stage {
+      min-height: calc(100vh - 52px);
+      display: grid;
+      place-items: center;
+    }
+    .phone-wrap { position: relative; }
+    .phone-label {
+      position: absolute;
+      top: 21px;
+      left: -104px;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .14em;
+    }
+    .phone {
+      width: 390px;
+      height: min(844px, calc(100vh - 52px));
+      min-height: 680px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 38px;
+      border: 8px solid #242727;
+      background: #000;
+      box-shadow: var(--shadow), 0 0 0 1px #3c4040;
+    }
+    .phone::after {
+      content: "";
+      position: absolute;
+      z-index: 20;
+      width: 122px;
+      height: 4px;
+      left: 50%;
+      bottom: 8px;
+      transform: translateX(-50%);
+      background: #e6e6e6;
+      border-radius: 99px;
+      opacity: .7;
+      pointer-events: none;
+    }
+    .phone-status {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 18px 0;
+      font-size: 12px;
+      font-weight: 700;
+      position: relative;
+      z-index: 6;
+    }
+    .status-icons { letter-spacing: 2px; font-size: 11px; color: #ddd; }
+    .app {
+      height: calc(100% - 34px);
+      position: relative;
+      overflow: hidden;
+    }
+    .screen {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .screen-scroll {
+      min-height: 0;
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 18px 96px;
+      scrollbar-width: none;
+    }
+    .screen-scroll::-webkit-scrollbar { display: none; }
+    .screen-view { height: 100%; }
+
+    .topbar {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 7px 18px 5px;
+    }
+    .topbar h2 { font-size: 25px; margin: 0; letter-spacing: -.03em; }
+    .icon-button {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      background: var(--card);
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .text-button { border: 0; background: none; color: var(--green); padding: 8px 0; font-weight: 700; cursor: pointer; }
+    .back-button { border: 0; background: none; color: white; padding: 5px 8px 5px 0; font-size: 28px; cursor: pointer; line-height: 1; }
+    .topbar-title { flex: 1; text-align: center; font-size: 19px !important; }
+    .topbar-spacer { width: 38px; }
+
+    .segmented {
+      padding: 4px;
+      background: var(--card);
+      border-radius: 14px;
+      display: flex;
+      gap: 4px;
+    }
+    .segmented button {
+      flex: 1;
+      border: 0;
+      background: transparent;
+      color: var(--sub);
+      padding: 9px 8px;
+      border-radius: 11px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .segmented button.active { background: var(--card-2); color: white; font-weight: 800; }
+    .segmented button.primary.active { background: var(--green); color: #06140b; }
+
+    .section-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin: 22px 2px 11px;
+    }
+    .section-title h3 { margin: 0; font-size: 18px; }
+    .section-title span { color: var(--sub); font-size: 12px; }
+
+    .sport-identity {
+      position: relative;
+      overflow: hidden;
+      min-height: 174px;
+      border-radius: 26px;
+      padding: 21px;
+      background: linear-gradient(135deg, #174626, #102b1a 66%, #0b1c11);
+      border: 1px solid rgba(39,213,101,.35);
+      box-shadow: 0 15px 38px rgba(0,0,0,.25);
+    }
+    .sport-identity.compact { min-height: 154px; padding: 18px; }
+    .sport-identity.compact .sport-stats { margin-top: 20px; }
+    .sport-identity::after {
+      content: attr(data-ball);
+      position: absolute;
+      right: -5px;
+      bottom: -25px;
+      font-size: 112px;
+      opacity: .21;
+      filter: grayscale(.15);
+    }
+    .sport-identity.orange { background: linear-gradient(135deg, #56300e, #281b10 70%); border-color: rgba(255,138,54,.35); }
+    .sport-identity.blue { background: linear-gradient(135deg, #173763, #111f33 70%); border-color: rgba(77,141,255,.4); }
+    .sport-kicker { font-size: 12px; color: rgba(255,255,255,.68); font-weight: 700; margin-bottom: 9px; }
+    .sport-identity h3 { margin: 0; font-size: 25px; }
+    .sport-identity p { margin: 7px 0 0; font-size: 13px; color: rgba(255,255,255,.7); }
+    .sport-stats { display: flex; gap: 24px; margin-top: 26px; position: relative; z-index: 1; }
+    .sport-stat strong { display: block; font-size: 19px; }
+    .sport-stat span { font-size: 11px; color: rgba(255,255,255,.65); }
+
+    .quick-actions { display: grid; grid-template-columns: 1.35fr 1fr; gap: 10px; }
+    .quick-action {
+      min-height: 92px;
+      border: 0;
+      border-radius: 20px;
+      background: var(--card);
+      padding: 16px;
+      text-align: left;
+      cursor: pointer;
+      position: relative;
+    }
+    .quick-action.primary { background: var(--green); color: #06140b; }
+    .quick-action .qa-icon { position: absolute; right: 15px; bottom: 12px; font-size: 25px; opacity: .9; }
+    .quick-action strong { font-size: 16px; display: block; }
+    .quick-action span { display: block; margin-top: 5px; font-size: 11px; opacity: .7; }
+    .secondary-actions { display: grid; grid-template-columns: repeat(2,1fr); gap: 9px; margin-top: 10px; }
+    .secondary-action { border: 1px solid var(--line); border-radius: 14px; background: transparent; color: var(--sub); padding: 10px; font-size: 11px; cursor: pointer; }
+
+    .link-button {
+      border: 0;
+      background: none;
+      color: var(--sub);
+      font-size: 12px;
+      padding: 0;
+      cursor: pointer;
+    }
+    .activity-card {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      align-items: center;
+      gap: 16px;
+      border: 1px solid rgba(39,213,101,.18);
+      border-radius: 19px;
+      padding: 15px;
+      background: linear-gradient(135deg, rgba(39,213,101,.12), var(--card) 70%);
+      text-align: left;
+      cursor: pointer;
+    }
+    .activity-main strong { display: block; font-size: 28px; line-height: 1; }
+    .activity-main span { display: block; color: var(--sub); font-size: 10px; margin-top: 7px; }
+    .activity-change { color: var(--green) !important; font-weight: 800; }
+    .mini-bars { height: 54px; display: flex; align-items: end; gap: 5px; }
+    .mini-bars i { flex: 1; min-height: 7px; border-radius: 4px 4px 2px 2px; background: rgba(39,213,101,.35); }
+    .mini-bars i:last-child { background: var(--green); }
+
+    .metric-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; }
+    .metric-card { min-width: 0; padding: 13px 10px; border-radius: 15px; background: var(--card); }
+    .metric-card strong { display: block; font-size: 18px; }
+    .metric-card span { display: block; color: var(--sub); font-size: 9px; margin-top: 5px; }
+    .mode-breakdown { display: grid; gap: 13px; }
+    .mode-line-head { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; margin-bottom: 7px; }
+    .mode-line-head span:last-child { color: var(--sub); }
+    .progress-track { height: 8px; border-radius: 99px; background: #303333; overflow: hidden; }
+    .progress-value { height: 100%; border-radius: inherit; background: var(--green); }
+    .progress-value.secondary { background: var(--blue); }
+
+    .game-card, .member-card, .rank-card, .group-card, .info-card {
+      background: var(--card);
+      border-radius: 19px;
+      padding: 15px;
+      border: 1px solid rgba(255,255,255,.035);
+    }
+    .game-card + .game-card, .group-card + .group-card { margin-top: 10px; }
+    .game-meta { display: flex; justify-content: space-between; color: var(--sub); font-size: 11px; margin-bottom: 12px; }
+    .mode-pill { color: var(--green); background: var(--green-deep); border-radius: 99px; padding: 3px 8px; font-weight: 800; }
+    .versus { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
+    .side { min-width: 0; }
+    .side.right { text-align: right; }
+    .side strong { font-size: 14px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .side span { font-size: 10px; color: var(--sub); }
+    .score { font-size: 22px; font-weight: 900; letter-spacing: .03em; }
+    .win { color: var(--green); }
+    .upcoming-card { border-color: rgba(39,213,101,.25); background: linear-gradient(135deg, rgba(39,213,101,.08), var(--card)); }
+    .upcoming-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+    .small-button { border: 0; border-radius: 10px; padding: 8px 11px; background: var(--card-2); color: var(--sub); font-size: 10px; cursor: pointer; }
+    .small-button.primary { background: var(--green); color: #07150c; font-weight: 800; }
+
+    .bottom-nav {
+      position: absolute;
+      z-index: 10;
+      left: 0; right: 0; bottom: 0;
+      height: 79px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 8px 8px 18px;
+      background: rgba(5,6,6,.94);
+      border-top: 1px solid #171919;
+      backdrop-filter: blur(18px);
+    }
+    .bottom-nav button {
+      border: 0;
+      background: none;
+      color: var(--muted);
+      display: grid;
+      justify-items: center;
+      align-content: center;
+      gap: 4px;
+      font-size: 10px;
+      cursor: pointer;
+    }
+    .bottom-nav button b { font-size: 19px; font-weight: 500; line-height: 1; }
+    .bottom-nav button.active { color: var(--text); }
+    .bottom-nav button.active b { color: var(--green); }
+    .bottom-nav.five { grid-template-columns: repeat(5, 1fr); }
+
+    .tab-strip {
+      display: flex;
+      gap: 22px;
+      padding: 5px 18px 0;
+      border-bottom: 1px solid #1c1e1e;
+    }
+    .tab-strip button {
+      flex: 1;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      background: none;
+      padding: 12px 0 10px;
+      color: var(--sub);
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .tab-strip button.active { color: white; border-color: var(--green); font-weight: 800; }
+
+    .rank-row { display: grid; grid-template-columns: 28px 42px 1fr auto; align-items: center; gap: 10px; padding: 12px 2px; }
+    .rank-row + .rank-row { border-top: 1px solid var(--line); }
+    .rank-no { font-weight: 900; color: var(--sub); text-align: center; }
+    .rank-no.medal { color: var(--yellow); }
+    .avatar {
+      width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center;
+      background: #304037; color: white; font-weight: 800;
+    }
+    .avatar.orange { background: #613b1f; }
+    .avatar.blue { background: #253e65; }
+    .rank-name strong { font-size: 13px; display: block; }
+    .rank-name span { color: var(--sub); font-size: 10px; }
+    .rank-value { text-align: right; }
+    .rank-value strong { display: block; font-size: 14px; }
+    .rank-value span { color: var(--sub); font-size: 9px; }
+
+    .member-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .member-card { display: flex; align-items: center; gap: 10px; padding: 12px; }
+    .member-card .avatar { width: 38px; height: 38px; flex: none; }
+    .member-card strong { display: block; font-size: 12px; }
+    .member-card span { display: block; color: var(--sub); font-size: 9px; margin-top: 3px; }
+    .member-card.wide { grid-column: 1 / -1; }
+    .member-badge { display: inline-flex !important; width: max-content; padding: 2px 6px; border-radius: 99px; background: #343737; color: #c3c6c6 !important; font-size: 8px !important; }
+
+    .modal-backdrop {
+      position: absolute;
+      z-index: 30;
+      inset: 0;
+      display: none;
+      align-items: end;
+      background: rgba(0,0,0,.62);
+      backdrop-filter: blur(2px);
+    }
+    .modal-backdrop.open { display: flex; }
+    .sheet {
+      width: 100%;
+      max-height: 88%;
+      overflow: auto;
+      border-radius: 28px 28px 0 0;
+      background: #191b1b;
+      padding: 12px 18px 30px;
+      box-shadow: 0 -20px 60px rgba(0,0,0,.5);
+      animation: rise .22s ease-out;
+    }
+    @keyframes rise { from { transform: translateY(28px); opacity: .3; } }
+    .sheet-handle { width: 42px; height: 4px; border-radius: 99px; background: #4a4d4d; margin: 0 auto 16px; }
+    .sheet-head { display: flex; justify-content: space-between; align-items: center; }
+    .sheet-head h3 { margin: 0; font-size: 21px; }
+    .close-sheet { border: 0; background: var(--card-2); width: 34px; height: 34px; border-radius: 50%; cursor: pointer; }
+    .field-label { color: var(--sub); font-size: 11px; margin: 20px 0 8px; }
+    .select-card-row { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+    .select-card-row.three { grid-template-columns: repeat(3,1fr); }
+    .select-card {
+      padding: 14px 10px;
+      border-radius: 15px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      text-align: center;
+      cursor: pointer;
+    }
+    .select-card.active { border-color: var(--green); background: var(--green-deep); }
+    .select-card b { display: block; font-size: 21px; margin-bottom: 5px; }
+    .select-card strong { font-size: 13px; }
+    .select-card span { display: block; color: var(--sub); font-size: 9px; margin-top: 4px; }
+    .input-like { width: 100%; background: var(--card-2); border: 0; border-radius: 13px; padding: 13px; color: white; }
+    .input-like::placeholder { color: #747878; }
+    .member-select { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+    .member-choice { text-align: center; min-width: 58px; cursor: pointer; opacity: .55; }
+    .member-choice.active { opacity: 1; }
+    .member-choice.active .avatar { outline: 2px solid var(--green); outline-offset: 2px; }
+    .member-choice .avatar { margin: auto; }
+    .member-choice span { display: block; max-width: 58px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 6px; font-size: 9px; }
+    .submit-button { width: 100%; border: 0; border-radius: 16px; padding: 14px; margin-top: 22px; background: var(--green); color: #07150c; font-weight: 900; cursor: pointer; }
+    .submit-button.secondary { background: var(--card-2); color: white; }
+
+    .group-card { padding: 17px; cursor: pointer; }
+    .group-card-top { display: flex; align-items: center; gap: 12px; }
+    .sport-icon { width: 48px; height: 48px; border-radius: 15px; display: grid; place-items: center; background: var(--card-2); font-size: 25px; }
+    .group-title { min-width: 0; flex: 1; }
+    .group-title strong { display: block; font-size: 16px; }
+    .group-title span { color: var(--sub); font-size: 10px; }
+    .chevron { color: var(--muted); }
+    .group-card-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 15px; }
+    .mini-stat { background: var(--card-2); border-radius: 11px; padding: 9px; }
+    .mini-stat strong { display: block; font-size: 13px; }
+    .mini-stat span { font-size: 9px; color: var(--sub); }
+    .floating-add { position: absolute; z-index: 12; right: 21px; bottom: 92px; width: 58px; height: 58px; border: 0; border-radius: 50%; background: var(--green); color: #07150c; font-size: 30px; cursor: pointer; box-shadow: 0 10px 28px rgba(39,213,101,.25); }
+    .hub-explain { margin-bottom: 14px; padding: 12px 14px; border-radius: 14px; border: 1px dashed var(--line); color: var(--sub); font-size: 11px; line-height: 1.55; }
+    .hub-explain strong { color: white; }
+    .hub-actions { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-top: 14px; }
+    .hub-action { border: 1px solid var(--line); border-radius: 15px; background: var(--card); padding: 12px; color: white; font-size: 12px; font-weight: 800; cursor: pointer; }
+    .hub-action.primary { background: var(--green); border-color: var(--green); color: #07150c; }
+    .event-card { padding: 16px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); }
+    .event-card + .event-card { margin-top: 10px; }
+    .event-card-head { display: flex; justify-content: space-between; gap: 10px; }
+    .event-card h3 { margin: 0; font-size: 16px; }
+    .event-card p { color: var(--sub); font-size: 11px; line-height: 1.55; margin: 10px 0 0; }
+    .event-meta { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .event-meta span { border-radius: 9px; background: var(--card-2); padding: 6px 8px; color: #c6c8c8; font-size: 9px; }
+    .choice-stack { display: grid; gap: 10px; margin-top: 18px; }
+    .choice-action { width: 100%; display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); padding: 13px; text-align: left; cursor: pointer; }
+    .choice-action b { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 13px; background: var(--card-2); font-size: 21px; }
+    .choice-action strong { display: block; font-size: 14px; }
+    .choice-action span { display: block; margin-top: 3px; color: var(--sub); font-size: 10px; }
+    .choice-action em { color: var(--muted); font-style: normal; font-size: 18px; }
+    .flow-card { margin-top: 16px; padding: 16px; border-radius: 18px; background: var(--card); }
+    .flow-step { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: start; }
+    .flow-step + .flow-step { margin-top: 13px; }
+    .flow-step b { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--green-deep); color: var(--green); font-size: 10px; }
+    .flow-step strong { display: block; font-size: 12px; }
+    .flow-step span { display: block; color: var(--sub); font-size: 10px; margin-top: 3px; line-height: 1.45; }
+
+    .league-head { display: flex; gap: 11px; align-items: center; margin-bottom: 18px; }
+    .league-head .sport-icon { width: 54px; height: 54px; }
+    .league-head h3 { margin: 0; font-size: 19px; }
+    .league-head p { margin: 4px 0 0; color: var(--sub); font-size: 11px; }
+    .standings-head, .standing-row { display: grid; grid-template-columns: 26px 1fr repeat(3, 32px); gap: 7px; align-items: center; }
+    .standings-head { color: var(--muted); font-size: 9px; padding: 0 6px 8px; }
+    .standing-row { padding: 12px 6px; border-top: 1px solid var(--line); font-size: 11px; }
+    .standing-row strong { font-size: 12px; }
+    .chart { height: 88px; display: flex; align-items: end; gap: 9px; margin-top: 12px; }
+    .bar-wrap { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; text-align: center; color: var(--muted); font-size: 8px; }
+    .bar { width: 100%; flex: none; border-radius: 8px 8px 3px 3px; background: linear-gradient(var(--green), #167c3b); margin-bottom: 5px; min-height: 10px; }
+
+    .notes { padding: 4px 0; }
+    .notes h2 { font-size: 20px; margin: 0 0 14px; }
+    .note-card {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(17,19,19,.84);
+      border: 1px solid var(--line);
+      margin-bottom: 12px;
+    }
+    .note-card h3 { margin: 0 0 9px; font-size: 14px; }
+    .note-card p { margin: 0; color: var(--sub); font-size: 12px; line-height: 1.62; }
+    .module-list { display: grid; gap: 10px; }
+    .module-item { display: grid; grid-template-columns: 22px 1fr; gap: 9px; align-items: start; }
+    .module-check { width: 20px; height: 20px; border-radius: 6px; display: grid; place-items: center; background: var(--green-deep); color: var(--green); font-size: 11px; }
+    .module-item strong { font-size: 12px; display: block; }
+    .module-item span { font-size: 10px; line-height: 1.45; color: var(--sub); display: block; margin-top: 2px; }
+    .scope-out { color: #929696; }
+    .scope-out .module-check { background: #292b2b; color: #747878; }
+    .legend { display: flex; flex-wrap: wrap; gap: 7px; }
+    .legend span { border: 1px solid var(--line); border-radius: 99px; padding: 5px 8px; color: var(--sub); font-size: 9px; }
+    .toast { position: absolute; z-index: 50; left: 50%; bottom: 98px; transform: translate(-50%, 12px); opacity: 0; pointer-events: none; background: #e9ecea; color: #101211; border-radius: 99px; padding: 9px 14px; font-size: 11px; font-weight: 700; transition: .2s ease; white-space: nowrap; }
+    .toast.show { transform: translate(-50%, 0); opacity: 1; }
+
+    .scheme-panel { display: none; height: 100%; }
+    .scheme-panel.active { display: block; }
+    .hide { display: none !important; }
+
+    @media (max-width: 1080px) {
+      .shell { grid-template-columns: 260px 1fr; }
+      .notes { position: static; max-height: none; grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+      .notes h2 { grid-column: 1 / -1; }
+      .note-card { margin: 0; }
+    }
+    @media (max-width: 760px) {
+      .shell { display: block; padding: 18px 12px 36px; }
+      .sidebar { position: static; max-height: none; }
+      .sidebar h2 { font-size: 24px; }
+      .scheme-list { grid-template-columns: repeat(3, minmax(200px,1fr)); overflow-x: auto; padding-bottom: 6px; }
+      .stage { margin: 24px 0; min-height: auto; }
+      .phone { width: min(390px, calc(100vw - 24px)); height: 780px; min-height: 0; }
+      .phone-label { display: none; }
+      .notes { display: block; }
+      .note-card { margin-bottom: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">分</div>
+        <div><h1>全能计分器</h1><p>小组功能 · 前端概念原型</p></div>
+      </div>
+      <p class="eyebrow">Group concept · v0.1</p>
+      <h2>一个小组<br>专注一项比赛</h2>
+      <p class="intro">小组是固定项目的长期组织。客户端首版只开放羽毛球，支持单打、双打、临时成员、赛程、活跃度和战绩统计。</p>
+
+      <div class="scheme-list">
+        <button class="scheme-button active" data-scheme="a">
+          <div class="scheme-top"><span class="scheme-name">A · 小组完整闭环</span><span class="tag">推荐</span></div>
+          <p>从现有首页预约区之后进入，覆盖创建、比赛、战绩和临时成员，不新增底部 Tab。</p>
+        </button>
+        <button class="scheme-button" data-scheme="b">
+          <div class="scheme-top"><span class="scheme-name">B · 轻量小组卡片</span><span class="tag">低改造</span></div>
+          <p>沿用现有组局列表，小组作为新的卡片入口，先做最小闭环。</p>
+        </button>
+        <button class="scheme-button" data-scheme="c">
+          <div class="scheme-top"><span class="scheme-name">C · 联赛数据型</span><span class="tag">进阶</span></div>
+          <p>突出赛程、积分与统计，更适合正式俱乐部和周期赛。</p>
+        </button>
+      </div>
+      <div class="sidebar-foot">推荐体验路径：首页 → 小组区块 → 周六羽毛球 → 立即计分 / 约一场 → 战绩；账号邀请和云同步仅展示“后端接入后开放”。</div>
+    </aside>
+
+    <section class="stage">
+      <div class="phone-wrap">
+        <span class="phone-label">INTERACTIVE PROTOTYPE</span>
+        <div class="phone">
+          <div class="phone-status"><span>10:43</span><span class="status-icons">◉ ◒ 5G ▰</span></div>
+          <div class="app">
+            <section class="scheme-panel active" id="scheme-a">
+              <div class="screen-view" id="a-hub">
+                <div class="screen">
+                  <header class="topbar"><h2>首页</h2><button class="icon-button" data-open-group-actions>＋</button></header>
+                  <div class="screen-scroll">
+                    <div id="hub-groups">
+                      <div class="hub-explain"><strong>首页预约区之后的小组入口。</strong>小组是长期组织；公开组局 Event 仍是一次活动，二者不复用实体。</div>
+                      <div class="section-title"><h3>我的小组</h3><span>最近使用</span></div>
+                      <article class="group-card" data-sport="badminton" data-enter-group>
+                        <div class="group-card-top"><span class="sport-icon">🏸</span><span class="group-title"><strong>周六羽毛球</strong><span>羽毛球 · 18 位成员</span></span><span class="chevron">›</span></div>
+                        <div class="group-card-stats"><div class="mini-stat"><strong>8</strong><span>本月比赛</span></div><div class="mini-stat"><strong>13</strong><span>活跃成员</span></div><div class="mini-stat"><strong>62%</strong><span>我的胜率</span></div></div>
+                      </article>
+                      <div class="hub-actions"><button class="hub-action primary" data-open-create-group>创建小组</button><button class="hub-action" data-toast="账号邀请和加入：后端接入后开放">加入小组 · 后端接入后开放</button></div>
+                    </div>
+                  </div>
+                  <nav class="bottom-nav five app-nav"><button class="active"><b>⌂</b><span>首页</span></button><button data-toast="战绩页沿用现有页面"><b>▤</b><span>战绩</span></button><button data-toast="计分页沿用现有页面"><b>▣</b><span>计分</span></button><button data-toast="计时页沿用现有页面"><b>◷</b><span>计时</span></button><button data-toast="我的页面沿用现有页面"><b>♙</b><span>我的</span></button></nav>
+                </div>
+              </div>
+
+              <div class="screen-view hide" id="a-detail">
+                <div class="screen">
+                  <header class="topbar"><button class="back-button" data-back-hub>‹</button><h2 class="topbar-title">小组详情</h2><button class="icon-button" data-toast="小组设置：名称、公告、基础权限">•••</button></header>
+                  <div class="tab-strip" id="a-tabs">
+                    <button class="active" data-tab="overview">概览</button>
+                    <button data-tab="matches">比赛</button>
+                    <button data-tab="record">战绩</button>
+                    <button data-tab="members">成员</button>
+                  </div>
+                  <div class="screen-scroll">
+                    <div id="a-overview">
+                      <article class="sport-identity compact" id="sport-identity" data-ball="🏸">
+                        <div class="sport-kicker" id="sport-kicker">羽毛球小组 · 18 位成员</div>
+                        <h3 id="sport-title">周六羽毛球</h3>
+                        <p id="sport-mode-copy">支持单打、双打 · 组内自由约赛</p>
+                        <div class="sport-stats"><div class="sport-stat"><strong id="stat-total">46</strong><span>累计比赛</span></div><div class="sport-stat"><strong id="stat-month">8</strong><span>本月比赛</span></div><div class="sport-stat"><strong id="stat-mine">62%</strong><span id="stat-mine-label">我的胜率</span></div></div>
+                      </article>
+
+                      <div class="section-title"><h3>开始一场</h3><span>项目由小组固定</span></div>
+                      <div class="quick-actions">
+                        <button class="quick-action primary" data-open-match><strong>立即计分</strong><span>现在开打并关联小组</span><b class="qa-icon">＋</b></button>
+                        <button class="quick-action" data-open-schedule><strong>约一场</strong><span>设置时间、地点和成员</span><b class="qa-icon">◷</b></button>
+                      </div>
+                      <div class="secondary-actions"><button class="secondary-action" data-toast="账号邀请：后端接入后开放">邀请账号成员 · 后端接入后开放</button><button class="secondary-action" data-open-temp-member>添加临时成员</button></div>
+
+                      <div class="section-title"><h3>下一场</h3><button class="link-button" data-open-matches>全部比赛 ›</button></div>
+                      <article class="game-card upcoming-card">
+                        <div class="game-meta"><span>明天 19:30 · 1 号场</span><span class="mode-pill">双打</span></div>
+                        <div class="versus"><div class="side"><strong>杨扬 / 林启</strong><span>已确认</span></div><div class="score">VS</div><div class="side right"><strong>陈鹏 / 小北</strong><span>3/4 已确认</span></div></div>
+                        <div class="upcoming-actions"><button class="small-button" data-open-schedule>编辑</button><button class="small-button primary" data-open-match>开始计分</button></div>
+                      </article>
+
+                      <div class="section-title"><h3>小组动态</h3><button class="link-button" data-open-stats>查看战绩 ›</button></div>
+                      <button class="activity-card" data-open-stats><span class="activity-main"><strong id="overview-active-rate">72%</strong><span id="overview-active-count">近30天 13/18 人有比赛</span><span class="activity-change" id="overview-active-change">较上月 +18%</span></span><span class="mini-bars" id="overview-mini-bars" aria-label="近六周活跃趋势"><i style="height:36%"></i><i style="height:52%"></i><i style="height:43%"></i><i style="height:70%"></i><i style="height:61%"></i><i style="height:90%"></i></span></button>
+                    </div>
+
+                    <div id="a-matches" class="hide">
+                      <div class="section-title"><h3>待开始</h3><button class="link-button" data-open-schedule>＋ 约一场</button></div>
+                      <article class="game-card upcoming-card"><div class="game-meta"><span>明天 19:30 · 1 号场</span><span class="mode-pill">双打</span></div><div class="versus"><div class="side"><strong>杨扬 / 林启</strong><span>已确认</span></div><div class="score">VS</div><div class="side right"><strong>陈鹏 / 小北</strong><span>3/4 已确认</span></div></div><div class="upcoming-actions"><button class="small-button">取消</button><button class="small-button primary" data-open-match>开始计分</button></div></article>
+                      <div class="section-title"><h3>比赛记录</h3><span>46 场</span></div>
+                      <article class="game-card"><div class="game-meta"><span>昨天 20:36</span><span class="mode-pill">双打</span></div><div class="versus"><div class="side"><strong>杨扬 / 林启</strong><span>已计入战绩</span></div><div class="score win">2 : 1</div><div class="side right"><strong>陈鹏 / 小北</strong><span>已结束</span></div></div></article>
+                      <article class="game-card"><div class="game-meta"><span>8月6日 18:12</span><span class="mode-pill">单打</span></div><div class="versus"><div class="side"><strong>杨扬</strong><span>已计入战绩</span></div><div class="score">0 : 2</div><div class="side right"><strong>陈鹏</strong><span>已结束</span></div></div></article>
+                      <div class="info-card" style="margin-top:10px;color:var(--sub);font-size:11px;line-height:1.6">比赛结束后由本地计分记录自动关联并刷新统计；云端存储和多端同步不在首版实现。</div>
+                    </div>
+
+                    <div id="a-record" class="hide">
+                      <div class="segmented" id="record-tabs"><button class="primary active" data-record-tab="ranking">排行榜</button><button class="primary" data-record-tab="stats">数据统计</button></div>
+                      <div id="record-ranking">
+                        <div class="section-title"><h3>成员排行</h3><span>按胜场、胜率、场次、名称</span></div>
+                        <div class="rank-card"><div class="rank-row"><span class="rank-no medal">1</span><span class="avatar">陈</span><span class="rank-name"><strong>陈鹏</strong><span>12 场 · 9 胜</span></span><span class="rank-value"><strong>75%</strong><span>胜率</span></span></div><div class="rank-row"><span class="rank-no medal">2</span><span class="avatar blue">杨</span><span class="rank-name"><strong>杨扬（我）</strong><span>11 场 · 7 胜</span></span><span class="rank-value"><strong>64%</strong><span>胜率</span></span></div><div class="rank-row"><span class="rank-no medal">3</span><span class="avatar orange">林</span><span class="rank-name"><strong>林启</strong><span>8 场 · 5 胜</span></span><span class="rank-value"><strong>63%</strong><span>胜率</span></span></div><div class="rank-row"><span class="rank-no">4</span><span class="avatar">北</span><span class="rank-name"><strong>小北</strong><span>9 场 · 4 胜</span></span><span class="rank-value"><strong>44%</strong><span>胜率</span></span></div></div>
+                        <div class="info-card" style="margin-top:10px;color:var(--sub);font-size:11px;line-height:1.6">排行只由已完成比赛派生，不维护另一份权威积分数据。</div>
+                      </div>
+                      <div id="a-stats" class="hide">
+                        <div class="section-title"><h3>本月数据</h3><span id="stats-period">8月 · 进行中</span></div>
+                        <div class="metric-grid"><div class="metric-card"><strong id="stats-games">8</strong><span>比赛场次</span></div><div class="metric-card"><strong id="stats-active">13</strong><span>活跃成员</span></div><div class="metric-card"><strong id="stats-average">2.6</strong><span id="stats-average-label">人均参赛</span></div></div>
+                        <div class="section-title"><h3>近 6 周活跃度</h3><span id="stats-trend">较上月 +18%</span></div>
+                        <div class="info-card"><div class="chart" id="stats-chart"><div class="bar-wrap"><div class="bar" style="height:36%"></div>W1</div><div class="bar-wrap"><div class="bar" style="height:52%"></div>W2</div><div class="bar-wrap"><div class="bar" style="height:43%"></div>W3</div><div class="bar-wrap"><div class="bar" style="height:70%"></div>W4</div><div class="bar-wrap"><div class="bar" style="height:61%"></div>W5</div><div class="bar-wrap"><div class="bar" style="height:90%"></div>W6</div></div></div>
+                        <div class="section-title"><h3>比赛构成</h3><span>演示数据</span></div>
+                        <div class="info-card mode-breakdown"><div id="mode-stat-one"><div class="mode-line-head"><strong>单打</strong><span>5 场 · 62%</span></div><div class="progress-track"><div class="progress-value" style="width:62%"></div></div></div><div id="mode-stat-two"><div class="mode-line-head"><strong>双打</strong><span>3 场 · 38%</span></div><div class="progress-track"><div class="progress-value secondary" style="width:38%"></div></div></div></div>
+                      </div>
+                    </div>
+
+                    <div id="a-members" class="hide">
+                      <div class="section-title"><h3>全部成员</h3><span id="detail-member-count">18 人</span></div>
+                      <div class="member-grid" id="detail-member-grid">
+                        <div class="member-card"><span class="avatar blue">杨</span><div><strong>杨扬</strong><span>管理员 · 11 场</span></div></div><div class="member-card"><span class="avatar">陈</span><div><strong>陈鹏</strong><span>成员 · 12 场</span></div></div><div class="member-card"><span class="avatar orange">林</span><div><strong>林启</strong><span>成员 · 8 场</span></div></div><div class="member-card"><span class="avatar">北</span><div><strong>小北</strong><span>成员 · 9 场</span></div></div><div class="member-card"><span class="avatar blue">莫</span><div><strong>莫凡</strong><span>成员 · 5 场</span></div></div><div class="member-card"><span class="avatar orange">乐</span><div><strong>乐言</strong><span>成员 · 4 场</span></div></div><div class="member-card wide"><span class="avatar">客</span><div><strong>老周</strong><span class="member-badge">临时成员</span><span>可参赛，暂未绑定账号</span></div></div>
+                      </div>
+                      <div class="hub-actions"><button class="hub-action primary" data-open-invite>邀请成员</button><button class="hub-action" data-open-temp-member>添加临时成员</button></div>
+                    </div>
+                  </div>
+                  <nav class="bottom-nav five app-nav"><button class="active" data-back-hub><b>⌂</b><span>首页</span></button><button data-toast="战绩页沿用现有页面"><b>▤</b><span>战绩</span></button><button data-toast="计分页沿用现有页面"><b>▣</b><span>计分</span></button><button data-toast="计时页沿用现有页面"><b>◷</b><span>计时</span></button><button data-toast="我的页面沿用现有页面"><b>♙</b><span>我的</span></button></nav>
+                </div>
+              </div>
+            </section>
+
+            <section class="scheme-panel" id="scheme-b">
+              <div class="screen">
+                <header class="topbar"><h2>我的小组</h2><button class="text-button" data-toast="进入小组管理模式">管理</button></header>
+                <div class="screen-scroll">
+                  <div class="segmented"><button class="primary active">我加入的</button><button class="primary">我管理的</button></div>
+                  <div class="section-title"><h3>3 个小组</h3><span>按最近比赛</span></div>
+                  <article class="group-card" data-sport="badminton">
+                    <div class="group-card-top"><span class="sport-icon">🏸</span><span class="group-title"><strong>周六羽毛球</strong><span>羽毛球 · 18 位成员</span></span><span class="chevron">›</span></div>
+                    <div class="group-card-stats"><div class="mini-stat"><strong>8</strong><span>本月比赛</span></div><div class="mini-stat"><strong>第 2</strong><span>我的排名</span></div><div class="mini-stat"><strong>62%</strong><span>我的胜率</span></div></div>
+                  </article>
+                  <article class="group-card" data-sport="basketball">
+                    <div class="group-card-top"><span class="sport-icon">🏀</span><span class="group-title"><strong>园区篮球局</strong><span>篮球 · 24 位成员</span></span><span class="chevron">›</span></div>
+                    <div class="group-card-stats"><div class="mini-stat"><strong>4</strong><span>本月比赛</span></div><div class="mini-stat"><strong>12</strong><span>我的出场</span></div><div class="mini-stat"><strong>7.8</strong><span>场均得分</span></div></div>
+                  </article>
+                  <article class="group-card" data-sport="guandan">
+                    <div class="group-card-top"><span class="sport-icon">🃏</span><span class="group-title"><strong>晚饭后掼蛋</strong><span>掼蛋 · 12 位成员</span></span><span class="chevron">›</span></div>
+                    <div class="group-card-stats"><div class="mini-stat"><strong>14</strong><span>本月比赛</span></div><div class="mini-stat"><strong>A</strong><span>我的级牌</span></div><div class="mini-stat"><strong>9</strong><span>获胜场次</span></div></div>
+                  </article>
+                  <div class="section-title"><h3>方案特点</h3></div>
+                  <div class="info-card" style="color:var(--sub);font-size:11px;line-height:1.65">从小组卡片直接看关键数据；点击小组后只用一个简化详情页。适合先验证用户是否愿意持续维护小组。</div>
+                </div>
+                <button class="floating-add" data-toast="创建小组：先选择固定比赛项目">＋</button>
+                <nav class="bottom-nav"><button><b>⌂</b><span>首页</span></button><button><b>▣</b><span>计分</span></button><button class="active"><b>♧</b><span>小组</span></button><button><b>♙</b><span>我的</span></button></nav>
+              </div>
+            </section>
+
+            <section class="scheme-panel" id="scheme-c">
+              <div class="screen">
+                <header class="topbar"><h2>小组联赛</h2><button class="icon-button" data-toast="赛季设置仅做前端占位">•••</button></header>
+                <div class="screen-scroll">
+                  <div class="league-head"><span class="sport-icon">🏸</span><div><h3>周六羽毛球 · 夏季赛</h3><p>羽毛球 · 第 4 周 / 共 8 周</p></div></div>
+                  <div class="segmented"><button class="active">积分榜</button><button>赛程</button><button>统计</button></div>
+                  <div class="section-title"><h3>小组积分榜</h3><span>更新于今天</span></div>
+                  <div class="rank-card">
+                    <div class="standings-head"><span>#</span><span>成员</span><span>赛</span><span>胜</span><span>分</span></div>
+                    <div class="standing-row"><b>1</b><strong>陈鹏</strong><span>12</span><span>9</span><b class="win">27</b></div>
+                    <div class="standing-row"><b>2</b><strong>杨扬</strong><span>11</span><span>7</span><b>22</b></div>
+                    <div class="standing-row"><b>3</b><strong>林启</strong><span>8</span><span>5</span><b>16</b></div>
+                    <div class="standing-row"><b>4</b><strong>小北</strong><span>9</span><span>4</span><b>14</b></div>
+                  </div>
+                  <div class="section-title"><h3>近 6 周活跃度</h3><span>比赛场次</span></div>
+                  <div class="info-card">
+                    <div class="chart">
+                      <div class="bar-wrap"><div class="bar" style="height:38%"></div>W1</div>
+                      <div class="bar-wrap"><div class="bar" style="height:55%"></div>W2</div>
+                      <div class="bar-wrap"><div class="bar" style="height:44%"></div>W3</div>
+                      <div class="bar-wrap"><div class="bar" style="height:78%"></div>W4</div>
+                      <div class="bar-wrap"><div class="bar" style="height:64%"></div>W5</div>
+                      <div class="bar-wrap"><div class="bar" style="height:92%"></div>W6</div>
+                    </div>
+                  </div>
+                  <div class="section-title"><h3>下一场</h3><span>明天</span></div>
+                  <article class="game-card"><div class="game-meta"><span>8月11日 19:30</span><span class="mode-pill">双打</span></div><div class="versus"><div class="side"><strong>杨扬 / 林启</strong><span>1 号场</span></div><div class="score">VS</div><div class="side right"><strong>陈鹏 / 小北</strong><span>待开始</span></div></div></article>
+                  <button class="submit-button" data-open-match>安排一场比赛</button>
+                </div>
+                <nav class="bottom-nav"><button><b>⌂</b><span>小组</span></button><button class="active"><b>▥</b><span>联赛</span></button><button><b>▤</b><span>赛程</span></button><button><b>♙</b><span>我的</span></button></nav>
+              </div>
+            </section>
+
+            <div class="modal-backdrop" id="group-actions-sheet">
+              <div class="sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-head"><h3>添加小组</h3><button class="close-sheet" data-close-sheet>×</button></div>
+                <div class="choice-stack">
+                  <button class="choice-action" data-open-create-group><b>＋</b><span><strong>创建新小组</strong><span>选择固定比赛项目，邀请熟悉的球友</span></span><em>›</em></button>
+                  <button class="choice-action" data-open-join-group><b>⌁</b><span><strong>加入已有小组</strong><span>输入邀请码或通过分享链接加入</span></span><em>›</em></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-backdrop" id="create-group-sheet">
+              <div class="sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-head"><h3>创建小组</h3><button class="close-sheet" data-close-sheet>×</button></div>
+                <p class="field-label">比赛项目 · 创建后不可直接更换</p>
+                <div class="select-card-row three" id="create-sport-cards">
+                  <button class="select-card active" data-create-sport="badminton"><b>🏸</b><strong>羽毛球</strong><span>单打 / 双打</span></button>
+                  <button class="select-card" disabled data-toast="后续版本开放"><b>🏀</b><strong>篮球</strong><span>后续版本</span></button>
+                  <button class="select-card" disabled data-toast="后续版本开放"><b>🃏</b><strong>掼蛋</strong><span>后续版本</span></button>
+                </div>
+                <p class="field-label">小组名称</p>
+                <input class="input-like" id="new-group-name" value="周三羽毛球" aria-label="小组名称">
+                <p class="field-label">加入方式</p>
+                <div class="segmented"><button class="primary active">邀请加入</button><button class="primary">申请加入</button></div>
+                <button class="submit-button" id="create-group-submit">创建本地小组</button>
+              </div>
+            </div>
+
+            <div class="modal-backdrop" id="join-group-sheet">
+              <div class="sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-head"><h3>加入小组 · 后端接入后开放</h3><button class="close-sheet" data-close-sheet>×</button></div>
+                <p class="field-label">小组邀请码</p>
+                <input class="input-like" id="join-code" value="BDM-8264" aria-label="小组邀请码">
+                <div class="flow-card">
+                  <div class="league-head" style="margin:0"><span class="sport-icon">🏸</span><div><h3>周六羽毛球</h3><p>羽毛球 · 18 位成员 · 邀请加入</p></div></div>
+                </div>
+                <button class="submit-button" id="join-group-submit">暂不可用</button>
+              </div>
+            </div>
+
+            <div class="modal-backdrop" id="schedule-sheet">
+              <div class="sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-head"><h3>约一场组内比赛</h3><button class="close-sheet" data-close-sheet>×</button></div>
+                <p class="field-label">比赛项目</p>
+                <div class="input-like" id="schedule-sport">🏸 羽毛球 <span style="float:right;color:var(--sub)">由小组固定</span></div>
+                <p class="field-label">时间</p>
+                <input class="input-like" value="8月11日 周二 19:30" aria-label="比赛时间">
+                <p class="field-label">地点</p>
+                <input class="input-like" value="江北体育馆 · 1号场" aria-label="比赛地点">
+                <p class="field-label">比赛模式</p>
+                <div class="segmented" id="schedule-mode"><button class="primary active">双打</button><button class="primary">单打</button></div>
+                <p class="field-label">参赛成员</p>
+                <div class="member-select">
+                  <div class="member-choice active"><span class="avatar blue">杨</span><span>杨扬</span></div><div class="member-choice active"><span class="avatar">陈</span><span>陈鹏</span></div><div class="member-choice active"><span class="avatar orange">林</span><span>林启</span></div><div class="member-choice active"><span class="avatar">北</span><span>小北</span></div><div class="member-choice"><span class="avatar">客</span><span>老周</span></div>
+                </div>
+                <button class="submit-button" id="schedule-submit">保存并生成邀请</button>
+              </div>
+            </div>
+
+            <div class="modal-backdrop" id="invite-sheet">
+              <div class="sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-head"><h3>邀请账号成员</h3><button class="close-sheet" data-close-sheet>×</button></div>
+                <div class="flow-card" style="text-align:center"><div style="font-size:40px;margin-bottom:10px">⌁</div><strong style="font-size:17px">周六羽毛球</strong><p style="color:var(--sub);font-size:11px;line-height:1.6">邀请好友加入后，对方可查看比赛安排、确认参赛并拥有自己的小组战绩。</p><div class="input-like" style="margin-top:12px">邀请码 BDM-8264</div></div>
+                <button class="submit-button" id="copy-invite">复制邀请口令</button>
+              </div>
+            </div>
+
+            <div class="modal-backdrop" id="temp-member-sheet">
+              <div class="sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-head"><h3>添加临时成员</h3><button class="close-sheet" data-close-sheet>×</button></div>
+                <p class="field-label">小组内显示名称</p>
+                <input class="input-like" id="temp-member-name" value="新球友" aria-label="临时成员名称">
+                <div class="hub-explain" style="margin-top:14px;margin-bottom:0">临时成员不需要登录，可以被选入比赛；后续绑定账号的规则不在本原型实现。</div>
+                <button class="submit-button" id="temp-member-submit">添加到成员列表</button>
+              </div>
+            </div>
+
+            <div class="modal-backdrop" id="match-sheet">
+              <div class="sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-head"><h3>开始组内计分</h3><button class="close-sheet" data-close-sheet>×</button></div>
+                <p class="field-label">比赛项目</p>
+                <div class="input-like" id="sheet-sport">🏸 羽毛球 <span style="float:right;color:var(--sub)">由小组固定</span></div>
+                <p class="field-label">比赛模式</p>
+                <div class="select-card-row" id="mode-cards">
+                  <button class="select-card active" data-mode="single"><b>1v1</b><strong>单打</strong><span>选择 2 位成员</span></button>
+                  <button class="select-card" data-mode="double"><b>2v2</b><strong>双打</strong><span>选择 4 位成员</span></button>
+                </div>
+                <p class="field-label">选择参赛成员 <span id="member-count-tip">· 已选 2/2</span></p>
+                <div class="member-select" id="member-select">
+                  <div class="member-choice active"><span class="avatar blue">杨</span><span>杨扬</span></div>
+                  <div class="member-choice active"><span class="avatar">陈</span><span>陈鹏</span></div>
+                  <div class="member-choice"><span class="avatar orange">林</span><span>林启</span></div>
+                  <div class="member-choice"><span class="avatar">北</span><span>小北</span></div>
+                  <div class="member-choice"><span class="avatar blue">莫</span><span>莫凡</span></div>
+                  <div class="member-choice"><span class="avatar orange">乐</span><span>乐言</span></div>
+                  <div class="member-choice"><span class="avatar">乔</span><span>乔安</span></div>
+                  <div class="member-choice"><span class="avatar blue">川</span><span>川子</span></div>
+                  <div class="member-choice"><span class="avatar orange">可</span><span>可可</span></div>
+                  <div class="member-choice"><span class="avatar">远</span><span>远航</span></div>
+                </div>
+                <p class="field-label">比赛名称（可选）</p>
+                <input class="input-like" value="周六练习赛" aria-label="比赛名称">
+                <button class="submit-button" id="create-match">关联小组并进入计分板</button>
+              </div>
+            </div>
+
+            <div class="modal-backdrop" id="score-flow-sheet">
+              <div class="sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-head"><h3>已关联到当前小组</h3><button class="close-sheet" data-close-sheet>×</button></div>
+                <div class="flow-card">
+                  <div class="flow-step"><b>1</b><div><strong>进入现有计分板</strong><span>继续使用全能计分器已有的项目计分页面。</span></div></div>
+                  <div class="flow-step"><b>2</b><div><strong>比赛结束后确认结果</strong><span>确认双方、比分和是否保存到当前小组。</span></div></div>
+                  <div class="flow-step"><b>3</b><div><strong>更新比赛与战绩</strong><span>数据回写和同步仅作为流程说明，不在 HTML 中实现。</span></div></div>
+                </div>
+                <button class="submit-button" id="simulate-finish">模拟比赛结束</button>
+              </div>
+            </div>
+
+            <div class="modal-backdrop" id="result-confirm-sheet">
+              <div class="sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-head"><h3>确认比赛结果</h3><button class="close-sheet" data-close-sheet>×</button></div>
+                <article class="game-card" style="margin-top:16px"><div class="game-meta"><span>刚刚结束</span><span class="mode-pill">双打</span></div><div class="versus"><div class="side"><strong>杨扬 / 林启</strong><span>胜方</span></div><div class="score win">2 : 1</div><div class="side right"><strong>陈鹏 / 小北</strong><span>已结束</span></div></div></article>
+                <div class="input-like" style="margin-top:12px">✓ 保存到「周六羽毛球」</div>
+                <button class="submit-button" id="save-result">确认并计入小组战绩</button>
+                <button class="submit-button secondary" data-close-sheet>暂不保存</button>
+              </div>
+            </div>
+            <div class="toast" id="toast">已完成</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="notes">
+      <h2>建议讨论的模块</h2>
+      <section class="note-card">
+        <h3>首版前端闭环（P0）</h3>
+        <div class="module-list">
+          <div class="module-item"><span class="module-check">✓</span><div><strong>首页小组入口</strong><span>位于预约区之后，区分一次活动和长期组织，不新增底部 Tab。</span></div></div>
+          <div class="module-item"><span class="module-check">✓</span><div><strong>本地创建</strong><span>首版只开放固定项目的羽毛球小组，账号加入暂不开放。</span></div></div>
+          <div class="module-item"><span class="module-check">✓</span><div><strong>立即计分与约一场</strong><span>区分现在开打和提前安排，均关联当前小组。</span></div></div>
+          <div class="module-item"><span class="module-check">✓</span><div><strong>比赛与战绩</strong><span>待开始、比赛记录、排行榜和数据统计。</span></div></div>
+          <div class="module-item"><span class="module-check">✓</span><div><strong>临时成员</strong><span>添加、改名和停用可用；账号邀请显示后端接入后开放。</span></div></div>
+        </div>
+      </section>
+      <section class="note-card">
+        <h3>本轮明确不做</h3>
+        <div class="module-list scope-out">
+          <div class="module-item"><span class="module-check">—</span><div><strong>后端与多端同步</strong><span>小组数据同步、冲突合并、离线策略。</span></div></div>
+          <div class="module-item"><span class="module-check">—</span><div><strong>实时协作</strong><span>多人同时记分、观赛与在线状态。</span></div></div>
+          <div class="module-item"><span class="module-check">—</span><div><strong>消息系统</strong><span>邀请通知、审核、聊天和系统推送。</span></div></div>
+          <div class="module-item"><span class="module-check">—</span><div><strong>复杂权限</strong><span>管理员转让、角色矩阵与申诉流程。</span></div></div>
+        </div>
+      </section>
+      <section class="note-card">
+        <h3>需要定下来的产品规则</h3>
+        <p>已确定：一个小组只绑定一个运动或棋牌项目，创建后不可更换。仍待确定：① 篮球等团队项目是固定队伍还是每场临时分队；② 排名按个人还是搭档/球队；③ 谁能新增或修正比赛；④ 是否允许非成员临时参赛。</p>
+      </section>
+      <section class="note-card">
+        <h3>当前原型假设</h3>
+        <div class="legend"><span>小组固定项目</span><span>组局是一次活动</span><span>成员可多组</span><span>允许临时成员</span><span>赛制按项目适配</span></div>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    const schemes = document.querySelectorAll('.scheme-button');
+    const panels = document.querySelectorAll('.scheme-panel');
+    const toast = document.getElementById('toast');
+    const modeContainer = document.getElementById('mode-cards');
+    const matchMemberChoices = document.querySelectorAll('#member-select .member-choice');
+    const memberTip = document.getElementById('member-count-tip');
+    let selectedMode = 'single';
+    let selectedNeeded = 2;
+    let toastTimer;
+
+    const sports = {
+      badminton: {
+        icon: '🏸', name: '周六羽毛球', label: '羽毛球', members: 18, copy: '支持单打、双打 · 组内自由约赛', tone: '', total: '46', month: '8', mine: '62%', mineLabel: '我的胜率',
+        stats: { active: 13, rate: 72, change: 18, average: '2.6', averageLabel: '人均参赛', weekly: [36,52,43,70,61,90], modes: [{ label: '单打', games: 5, rate: 62 }, { label: '双打', games: 3, rate: 38 }] },
+        modes: [{ key: 'single', score: '1v1', label: '单打', needed: 2 }, { key: 'double', score: '2v2', label: '双打', needed: 4 }]
+      },
+      basketball: {
+        icon: '🏀', name: '园区篮球局', label: '篮球', members: 24, copy: '支持 3v3、5v5 · 每场临时分队', tone: 'orange', total: '31', month: '4', mine: '12', mineLabel: '我的出场',
+        stats: { active: 17, rate: 71, change: 8, average: '2.1', averageLabel: '人均出场', weekly: [42,38,56,60,53,76], modes: [{ label: '3v3 半场', games: 3, rate: 75 }, { label: '5v5 全场', games: 1, rate: 25 }] },
+        modes: [{ key: 'three', score: '3v3', label: '半场', needed: 6 }, { key: 'five', score: '5v5', label: '全场', needed: 10 }]
+      },
+      guandan: {
+        icon: '🃏', name: '晚饭后掼蛋', label: '掼蛋', members: 12, copy: '固定 2v2 搭档赛 · 按级牌记录', tone: 'blue', total: '68', month: '14', mine: '9', mineLabel: '我的胜场',
+        stats: { active: 10, rate: 83, change: 25, average: '4.7', averageLabel: '人均参赛', weekly: [30,45,52,48,73,94], modes: [{ label: '2v2 搭档赛', games: 14, rate: 100 }] },
+        modes: [{ key: 'partner', score: '2v2', label: '搭档赛', needed: 4 }]
+      }
+    };
+    let currentSport = sports.badminton;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    function closeModals() {
+      document.querySelectorAll('.modal-backdrop.open').forEach(modal => modal.classList.remove('open'));
+    }
+
+    function openModal(id) {
+      closeModals();
+      document.getElementById(id).classList.add('open');
+    }
+
+    function showAHub() {
+      document.getElementById('a-hub').classList.remove('hide');
+      document.getElementById('a-detail').classList.add('hide');
+    }
+
+    function showADetail() {
+      document.getElementById('a-hub').classList.add('hide');
+      document.getElementById('a-detail').classList.remove('hide');
+      switchDetailTab('overview');
+    }
+
+    function switchDetailTab(tab) {
+      document.querySelectorAll('#a-tabs button').forEach(button => button.classList.toggle('active', button.dataset.tab === tab));
+      ['overview', 'matches', 'record', 'members'].forEach(name => document.getElementById(`a-${name}`).classList.toggle('hide', name !== tab));
+    }
+
+    function switchRecordTab(tab) {
+      document.querySelectorAll('#record-tabs button').forEach(button => button.classList.toggle('active', button.dataset.recordTab === tab));
+      document.getElementById('record-ranking').classList.toggle('hide', tab !== 'ranking');
+      document.getElementById('a-stats').classList.toggle('hide', tab !== 'stats');
+    }
+
+    schemes.forEach(button => button.addEventListener('click', () => {
+      schemes.forEach(item => item.classList.toggle('active', item === button));
+      panels.forEach(panel => panel.classList.toggle('active', panel.id === `scheme-${button.dataset.scheme}`));
+      if (button.dataset.scheme === 'a') showAHub();
+    }));
+
+    document.querySelectorAll('[data-toast]').forEach(item => item.addEventListener('click', () => showToast(item.dataset.toast)));
+    document.querySelectorAll('[data-close-sheet]').forEach(item => item.addEventListener('click', () => item.closest('.modal-backdrop').classList.remove('open')));
+    document.querySelectorAll('.modal-backdrop').forEach(modal => modal.addEventListener('click', event => { if (event.target === modal) modal.classList.remove('open'); }));
+    document.querySelectorAll('[data-open-match]').forEach(item => item.addEventListener('click', () => openModal('match-sheet')));
+    document.querySelectorAll('[data-open-schedule]').forEach(item => item.addEventListener('click', () => openModal('schedule-sheet')));
+    document.querySelectorAll('[data-open-invite]').forEach(item => item.addEventListener('click', () => openModal('invite-sheet')));
+    document.querySelectorAll('[data-open-temp-member]').forEach(item => item.addEventListener('click', () => openModal('temp-member-sheet')));
+    document.querySelectorAll('[data-open-group-actions]').forEach(item => item.addEventListener('click', () => openModal('group-actions-sheet')));
+    document.querySelectorAll('[data-open-create-group]').forEach(item => item.addEventListener('click', () => openModal('create-group-sheet')));
+    document.querySelectorAll('[data-open-join-group]').forEach(item => item.addEventListener('click', () => openModal('join-group-sheet')));
+    document.querySelectorAll('[data-back-hub]').forEach(item => item.addEventListener('click', showAHub));
+
+    document.querySelectorAll('#hub-tabs button').forEach(button => button.addEventListener('click', () => {
+      document.querySelectorAll('#hub-tabs button').forEach(item => item.classList.toggle('active', item === button));
+      document.getElementById('hub-events').classList.toggle('hide', button.dataset.hubTab !== 'events');
+      document.getElementById('hub-groups').classList.toggle('hide', button.dataset.hubTab !== 'groups');
+    }));
+
+    document.querySelectorAll('#a-tabs button').forEach(button => button.addEventListener('click', () => switchDetailTab(button.dataset.tab)));
+    document.querySelectorAll('#record-tabs button').forEach(button => button.addEventListener('click', () => switchRecordTab(button.dataset.recordTab)));
+    document.querySelectorAll('[data-open-stats]').forEach(item => item.addEventListener('click', () => { switchDetailTab('record'); switchRecordTab('stats'); }));
+    document.querySelectorAll('[data-open-matches]').forEach(item => item.addEventListener('click', () => switchDetailTab('matches')));
+
+    modeContainer.addEventListener('click', event => {
+      const button = event.target.closest('.select-card');
+      if (!button) return;
+      selectedMode = button.dataset.mode;
+      selectedNeeded = Number(button.dataset.needed);
+      modeContainer.querySelectorAll('.select-card').forEach(item => item.classList.toggle('active', item === button));
+      matchMemberChoices.forEach((member, index) => member.classList.toggle('active', index < selectedNeeded));
+      updateMemberTip();
+    });
+
+    matchMemberChoices.forEach(member => member.addEventListener('click', () => {
+      const selectedCount = document.querySelectorAll('#member-select .member-choice.active').length;
+      if (!member.classList.contains('active') && selectedCount >= selectedNeeded) { showToast(`当前模式最多选择 ${selectedNeeded} 人`); return; }
+      member.classList.toggle('active');
+      updateMemberTip();
+    }));
+
+    function updateMemberTip() {
+      memberTip.textContent = `· 已选 ${document.querySelectorAll('#member-select .member-choice.active').length}/${selectedNeeded}`;
+    }
+
+    function configureModes() {
+      modeContainer.innerHTML = currentSport.modes.map((mode, index) => `<button class="select-card${index === 0 ? ' active' : ''}" data-mode="${mode.key}" data-needed="${mode.needed}"><b>${mode.score}</b><strong>${mode.label}</strong><span>选择 ${mode.needed} 位成员</span></button>`).join('');
+      selectedMode = currentSport.modes[0].key;
+      selectedNeeded = currentSport.modes[0].needed;
+      matchMemberChoices.forEach((member, index) => member.classList.toggle('active', index < selectedNeeded));
+      document.getElementById('schedule-mode').innerHTML = currentSport.modes.map((mode, index) => `<button class="primary${index === 0 ? ' active' : ''}">${mode.score} ${mode.label}</button>`).join('');
+      updateMemberTip();
+    }
+
+    function renderStats() {
+      const stats = currentSport.stats;
+      document.getElementById('overview-active-rate').textContent = `${stats.rate}%`;
+      document.getElementById('overview-active-count').textContent = `近30天 ${stats.active}/${currentSport.members} 人有比赛`;
+      document.getElementById('overview-active-change').textContent = `较上月 +${stats.change}%`;
+      document.getElementById('stats-games').textContent = currentSport.month;
+      document.getElementById('stats-active').textContent = stats.active;
+      document.getElementById('stats-average').textContent = stats.average;
+      document.getElementById('stats-average-label').textContent = stats.averageLabel;
+      document.getElementById('stats-trend').textContent = `较上月 +${stats.change}%`;
+      document.getElementById('overview-mini-bars').innerHTML = stats.weekly.map(value => `<i style="height:${value}%"></i>`).join('');
+      document.getElementById('stats-chart').innerHTML = stats.weekly.map((value, index) => `<div class="bar-wrap"><div class="bar" style="height:${value}%"></div>W${index + 1}</div>`).join('');
+      [document.getElementById('mode-stat-one'), document.getElementById('mode-stat-two')].forEach((target, index) => {
+        const mode = stats.modes[index];
+        target.classList.toggle('hide', !mode);
+        if (mode) target.innerHTML = `<div class="mode-line-head"><strong>${mode.label}</strong><span>${mode.games} 场 · ${mode.rate}%</span></div><div class="progress-track"><div class="progress-value${index === 1 ? ' secondary' : ''}" style="width:${mode.rate}%"></div></div>`;
+      });
+    }
+
+    function renderGroup() {
+      document.getElementById('sport-title').textContent = currentSport.name;
+      document.getElementById('sport-kicker').textContent = `${currentSport.label}小组 · ${currentSport.members} 位成员`;
+      document.getElementById('sport-mode-copy').textContent = currentSport.copy;
+      document.getElementById('stat-total').textContent = currentSport.total;
+      document.getElementById('stat-month').textContent = currentSport.month;
+      document.getElementById('stat-mine').textContent = currentSport.mine;
+      document.getElementById('stat-mine-label').textContent = currentSport.mineLabel;
+      document.getElementById('detail-member-count').textContent = `${currentSport.members} 人`;
+      document.getElementById('sheet-sport').innerHTML = `${currentSport.icon} ${currentSport.label} <span style="float:right;color:var(--sub)">由小组固定</span>`;
+      document.getElementById('schedule-sport').innerHTML = `${currentSport.icon} ${currentSport.label} <span style="float:right;color:var(--sub)">由小组固定</span>`;
+      const identity = document.getElementById('sport-identity');
+      identity.dataset.ball = currentSport.icon;
+      identity.classList.remove('orange', 'blue');
+      if (currentSport.tone) identity.classList.add(currentSport.tone);
+      configureModes();
+      renderStats();
+    }
+
+    document.addEventListener('click', event => {
+      const card = event.target.closest('.group-card[data-sport]');
+      if (!card) return;
+      currentSport = sports[card.dataset.sport];
+      schemes[0].click();
+      renderGroup();
+      showADetail();
+      showToast(`已进入「${currentSport.name}」`);
+    });
+
+    document.querySelectorAll('#create-sport-cards .select-card').forEach(button => button.addEventListener('click', () => {
+      document.querySelectorAll('#create-sport-cards .select-card').forEach(item => item.classList.toggle('active', item === button));
+    }));
+
+    document.getElementById('create-group-submit').addEventListener('click', () => { closeModals(); showToast(`已创建「${document.getElementById('new-group-name').value}」（前端演示）`); });
+    document.getElementById('join-group-submit').addEventListener('click', () => { closeModals(); showToast('账号加入：后端接入后开放'); });
+    document.getElementById('schedule-submit').addEventListener('click', () => { closeModals(); switchDetailTab('matches'); showToast('比赛安排已保存并生成邀请'); });
+    document.getElementById('copy-invite').addEventListener('click', () => { closeModals(); showToast('邀请口令已复制'); });
+    document.getElementById('temp-member-submit').addEventListener('click', () => {
+      const name = document.getElementById('temp-member-name').value.trim() || '临时成员';
+      const initial = name.slice(0, 1);
+      document.getElementById('detail-member-grid').insertAdjacentHTML('beforeend', `<div class="member-card wide"><span class="avatar">${initial}</span><div><strong>${name}</strong><span class="member-badge">临时成员</span><span>可参赛，暂未绑定账号</span></div></div>`);
+      closeModals();
+      showToast(`已添加临时成员「${name}」`);
+    });
+
+    document.getElementById('create-match').addEventListener('click', () => {
+      const count = document.querySelectorAll('#member-select .member-choice.active').length;
+      if (count !== selectedNeeded) { showToast(`请先选择 ${selectedNeeded} 位参赛成员`); return; }
+      openModal('score-flow-sheet');
+    });
+    document.getElementById('simulate-finish').addEventListener('click', () => openModal('result-confirm-sheet'));
+    document.getElementById('save-result').addEventListener('click', () => { closeModals(); switchDetailTab('matches'); showToast('结果已确认并计入小组战绩'); });
+
+    configureModes();
+    renderStats();
+    showAHub();
+  </script>
+</body>
+</html>

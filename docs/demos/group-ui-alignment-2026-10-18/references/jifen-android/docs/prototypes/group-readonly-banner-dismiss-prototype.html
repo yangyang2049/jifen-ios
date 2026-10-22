@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小组只读横幅收起方案 · 探索 Demo</title>
+<style>
+  :root {
+    --bg: #F2F3F5;
+    --surface: #FFFFFF;
+    --card: #F6F7F9;
+    --control: #F2F4F7;
+    --chip: #E8EDF2;
+    --divider: #E5E7EB;
+    --t1: #111827;
+    --t2: #5B6472;
+    --t3: #8A93A3;
+    --primary: #4CAF50;
+    --primary-soft: #E8F3E9;
+    --primary-text: #2E7D32;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--t1);
+    padding: 32px 20px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 700; }
+  .sub { color: var(--t2); font-size: 14px; margin-top: 6px; line-height: 1.6; }
+
+  /* 状态切换 */
+  .state-switch {
+    display: inline-flex; margin-top: 18px; background: var(--control);
+    border-radius: 10px; padding: 3px;
+  }
+  .state-switch button {
+    border: none; background: transparent; color: var(--t2);
+    font-size: 13px; padding: 7px 16px; border-radius: 8px; cursor: pointer;
+    font-family: inherit; transition: all .18s;
+  }
+  .state-switch button.active { background: var(--surface); color: var(--t1); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)); gap: 24px; margin-top: 28px; }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+
+  .scheme {
+    background: var(--surface); border: 1px solid var(--divider);
+    border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;
+  }
+  .scheme-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .scheme-head h2 { font-size: 16px; font-weight: 700; }
+  .tag {
+    font-size: 11px; padding: 3px 8px; border-radius: 999px; font-weight: 600; white-space: nowrap;
+  }
+  .tag.rec { background: var(--primary-soft); color: var(--primary-text); }
+  .tag.alt { background: var(--chip); color: var(--t2); }
+  .scheme-desc { font-size: 13px; color: var(--t2); line-height: 1.6; }
+
+  /* ===== 手机卡片 mock：活动详情底部操作区 ===== */
+  .phone {
+    background: var(--bg); border-radius: 18px; padding: 16px;
+    border: 1px solid var(--divider);
+  }
+  .sheet-card {
+    background: var(--surface); border-radius: 14px; padding: 14px;
+    box-shadow: 0 1px 4px rgba(17,24,39,.05);
+  }
+  .act-title { font-size: 15px; font-weight: 600; }
+  .act-meta { font-size: 12px; color: var(--t3); margin-top: 4px; }
+  .act-divider { height: 1px; background: var(--divider); margin: 12px 0; }
+
+  .btn-row { display: flex; gap: 8px; }
+  .btn {
+    flex: 1; text-align: center; font-size: 14px; font-weight: 500;
+    padding: 10px 0; border-radius: 10px; border: 1px solid var(--divider);
+    color: var(--t1); background: var(--surface); cursor: pointer; user-select: none;
+    -webkit-user-select: none; transition: opacity .15s; font-family: inherit;
+  }
+  .btn:active { opacity: .6; }
+
+  /* —— GroupBanner 复刻 —— */
+  .banner {
+    margin-top: 10px; background: var(--control); color: var(--t2);
+    font-size: 12px; line-height: 18px; border-radius: 10px;
+    padding: 10px 12px; display: flex; align-items: flex-start; gap: 8px;
+    overflow: hidden;
+  }
+  .banner .txt { flex: 1; }
+  .banner.warn { background: #FFF3E0; color: #E65100; }
+
+  /* 收起动画 */
+  .banner.hide-anim { transition: max-height .28s ease, opacity .28s ease, margin .28s ease, padding .28s ease; max-height: 0; opacity: 0; margin-top: 0; padding-top: 0; padding-bottom: 0; }
+  .banner.show-anim { transition: max-height .28s ease, opacity .28s ease, margin .28s ease; max-height: 120px; opacity: 1; }
+  .banner.clipped { max-height: 0; opacity: 0; margin-top: 0; padding-top: 0; padding-bottom: 0; border-width: 0; }
+
+  /* A：× 按钮 */
+  .banner .close-x {
+    flex: none; width: 20px; height: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--t3); font-size: 14px; cursor: pointer; margin-top: -1px;
+    transition: background .15s;
+  }
+  .banner .close-x:hover { background: rgba(0,0,0,.06); }
+
+  /* B：长按 */
+  .banner.longpress { cursor: pointer; position: relative; }
+  .banner.longpress .hint { color: var(--t3); font-size: 11px; white-space: nowrap; margin-top: 1px; }
+  .banner.longpress.progress::after {
+    content: ""; position: absolute; left: 0; bottom: 0; height: 2px;
+    background: var(--t3); width: var(--p, 0%);
+  }
+  .undo-toast {
+    margin-top: 10px; background: rgba(17,24,39,.88); color: #fff; font-size: 12px;
+    border-radius: 8px; padding: 9px 14px; display: none;
+    justify-content: space-between; align-items: center; gap: 12px;
+  }
+  .undo-toast.show { display: flex; }
+  .undo-toast span.act { color: #7DE38B; cursor: pointer; font-weight: 500; }
+
+  /* C：折叠 chip */
+  .chip-banner {
+    margin-top: 10px; background: var(--control); border-radius: 10px;
+    font-size: 12px; color: var(--t2); cursor: pointer; overflow: hidden;
+    transition: background .15s;
+  }
+  .chip-banner:active { background: var(--chip); }
+  .chip-row { padding: 9px 12px; display: flex; align-items: center; gap: 6px; }
+  .chip-row .arrow { margin-left: auto; color: var(--t3); font-size: 11px; transition: transform .2s; }
+  .chip-banner.open .arrow { transform: rotate(180deg); }
+  .chip-body { max-height: 0; transition: max-height .25s ease; }
+  .chip-banner.open .chip-body { max-height: 80px; }
+  .chip-body-inner { padding: 0 12px 10px; line-height: 18px; color: var(--t2); }
+
+  /* D：× + 菜单 + 角落 ⓘ */
+  .menu {
+    margin-top: 10px; background: var(--surface); border: 1px solid var(--divider);
+    border-radius: 12px; box-shadow: 0 4px 16px rgba(17,24,39,.12);
+    font-size: 13px; overflow: hidden; display: none;
+  }
+  .menu.show { display: block; }
+  .menu div { padding: 10px 14px; cursor: pointer; display: flex; justify-content: space-between; }
+  .menu div:active { background: var(--card); }
+  .menu div + div { border-top: 1px solid var(--divider); }
+  .corner-info {
+    margin-top: 10px; display: flex; justify-content: flex-end;
+  }
+  .corner-info .dot {
+    width: 24px; height: 24px; border-radius: 50%; background: var(--control);
+    color: var(--t3); font-size: 12px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: 1px solid var(--divider);
+  }
+  .corner-hint { font-size: 11px; color: var(--t3); align-self: center; margin-right: auto; }
+
+  /* E：footer 小字 */
+  .footer-note {
+    margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--divider);
+    font-size: 11px; color: var(--t3); line-height: 16px;
+  }
+
+  /* 结论表 */
+  .table-wrap { margin-top: 48px; background: var(--surface); border: 1px solid var(--divider); border-radius: 16px; overflow: hidden; }
+  .table-wrap h2 { font-size: 17px; padding: 18px 20px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 14px; }
+  th, td { padding: 11px 14px; text-align: left; border-top: 1px solid var(--divider); vertical-align: top; line-height: 1.55; }
+  th { background: var(--card); font-weight: 600; color: var(--t2); font-size: 12px; white-space: nowrap; }
+  td b.ok { color: var(--primary-text); font-weight: 600; }
+  td b.no { color: #C62828; font-weight: 600; }
+  .rec-row td { background: #F4FAF5; }
+
+  .foot-tip { margin-top: 14px; font-size: 12px; color: var(--t3); line-height: 1.7; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>小组「仅可查看」横幅 · 收起方案探索</h1>
+  <p class="sub">
+    现状：活动详情底部按钮区上方常驻一条灰色横幅（小组已归档 / 正在解散时），没有出口，每次进入都会占一行。
+    下面 5 个方案全部可交互。切换状态可预览两种文案。
+  </p>
+
+  <div class="state-switch" id="stateSwitch">
+    <button class="active" data-state="archived">已归档</button>
+    <button data-state="dissolving">解散中</button>
+  </div>
+
+  <div class="grid">
+
+    <!-- ============ 方案 A ============ -->
+    <section class="scheme">
+      <div class="scheme-head">
+        <h2>方案 A · 右上角 × 一次性收起</h2>
+        <span class="tag rec">推荐</span>
+      </div>
+      <p class="scheme-desc">
+        横幅右侧加一个 ×，点了就收起。<b>session 级记忆</b>：本次进入小组期间不再出现，退出小组再进（或杀掉 App）会重新显示。
+        状态信息该知道的总归会再看到一次，不会永久丢。
+      </p>
+      <div class="phone">
+        <div class="sheet-card">
+          <div class="act-title">周三羽毛球局</div>
+          <div class="act-meta">10月18日 19:30 · 市体育中心</div>
+          <div class="act-divider"></div>
+          <div class="btn-row"><div class="btn" onclick="toastMsg('查看战绩')">查看战绩</div></div>
+          <div class="banner" data-a>
+            <span class="txt">小组已归档，仅可查看</span>
+            <span class="close-x" onclick="dismissA()">✕</span>
+          </div>
+        </div>
+      </div>
+      <p class="scheme-desc">
+        ✅ 改动最小：GroupBanner 加可选 onClose，一处组件全 App 受益。<br>
+        ✅ 不需要存储层，ViewModel 里一个 State 即可。<br>
+        ⚠️ 用户若永久不想看到，做不到（每次重进会再出现）。
+      </p>
+    </section>
+
+    <!-- ============ 方案 B ============ -->
+    <section class="scheme">
+      <div class="scheme-head">
+        <h2>方案 B · 长按收起</h2>
+        <span class="tag alt">零占位</span>
+      </div>
+      <p class="scheme-desc">
+        横幅本身不增加任何视觉元素，长按 600ms 收起（带进度线和震动反馈）。首次显示时在句尾带一次小灰字提示「长按可收起」。
+        适合不想让横幅长出按钮、保持纯文本说明的形态。
+      </p>
+      <div class="phone">
+        <div class="sheet-card">
+          <div class="act-title">周三羽毛球局</div>
+          <div class="act-meta">10月18日 19:30 · 市体育中心</div>
+          <div class="act-divider"></div>
+          <div class="btn-row"><div class="btn">查看战绩</div></div>
+          <div class="banner longpress" id="lpBanner" data-b>
+            <span class="txt" id="lpText">小组已归档，仅可查看</span>
+            <span class="hint" id="lpHint">长按可收起</span>
+          </div>
+          <div class="undo-toast" id="lpUndo"><span>已收起说明</span><span class="act" onclick="undoB()">撤销</span></div>
+        </div>
+      </div>
+      <p class="scheme-desc">
+        ✅ 视觉零成本，卡片依旧干净。<br>
+        ⚠️ 可发现性差，不提示就没人知道能收起。<br>
+        ⚠️ Compose 端要写 long-press + 进度动画，比 × 费一点。
+      </p>
+    </section>
+
+    <!-- ============ 方案 C ============ -->
+    <section class="scheme">
+      <div class="scheme-head">
+        <h2>方案 C · 折叠成单行 chip</h2>
+        <span class="tag rec">推荐</span>
+      </div>
+      <p class="scheme-desc">
+        不消失，只变矮。常驻态压成一行「ⓘ 已归档 · 仅可查看」小 chip，点开展开长句，看完点「知道了」或点外部收回。
+        状态信息<b>永远在场</b>，但视觉高度从两行降到一行，与「外面短、里面长」的文案分层原则天然一致。
+      </p>
+      <div class="phone">
+        <div class="sheet-card">
+          <div class="act-title">周三羽毛球局</div>
+          <div class="act-meta">10月18日 19:30 · 市体育中心</div>
+          <div class="act-divider"></div>
+          <div class="btn-row"><div class="btn">查看战绩</div></div>
+          <div class="chip-banner" id="chipBanner" onclick="toggleChip(event)">
+            <div class="chip-row">
+              <span>ⓘ</span><span id="chipShort">已归档 · 仅可查看</span><span class="arrow">▼</span>
+            </div>
+            <div class="chip-body"><div class="chip-body-inner" id="chipLong">小组已归档，仅可查看。如需恢复请联系组长。</div></div>
+          </div>
+        </div>
+      </div>
+      <p class="scheme-desc">
+        ✅ 短标签走现有 <code>group_label_archived</code> 语义，长句走现有 <code>group_banner_*</code> key，不用新加字符串分层。<br>
+        ✅ 无记忆逻辑、无丢失风险，最符合「信息需要常驻但别吵」的诉求。<br>
+        ⚠️ 比彻底收起仍多一行高度。
+      </p>
+    </section>
+
+    <!-- ============ 方案 D ============ -->
+    <section class="scheme">
+      <div class="scheme-head">
+        <h2>方案 D · × 二选一菜单 + 角落 ⓘ</h2>
+        <span class="tag alt">可彻底关</span>
+      </div>
+      <p class="scheme-desc">
+        点 × 弹出小菜单：「本次收起」/「不再显示」。选「不再显示」按 <b>groupId + 状态</b> 记忆（解散中→归档状态变化时横幅会回来一次）。
+        收起后按钮区角落留一个极小的灰色 ⓘ，点了可随时唤回横幅。
+      </p>
+      <div class="phone">
+        <div class="sheet-card">
+          <div class="act-title">周三羽毛球局</div>
+          <div class="act-meta">10月18日 19:30 · 市体育中心</div>
+          <div class="act-divider"></div>
+          <div class="btn-row"><div class="btn">查看战绩</div></div>
+          <div class="banner" id="dBanner">
+            <span class="txt" id="dText">小组已归档，仅可查看</span>
+            <span class="close-x" onclick="openMenu(event)">✕</span>
+          </div>
+          <div class="menu" id="dMenu">
+            <div onclick="dismissD('session')">本次收起</div>
+            <div onclick="dismissD('forever')">不再显示</div>
+          </div>
+          <div class="corner-info" id="dCorner" style="display:none;">
+            <span class="corner-hint">说明已关闭</span>
+            <span class="dot" onclick="restoreD()">ⓘ</span>
+          </div>
+        </div>
+      </div>
+      <p class="scheme-desc">
+        ✅ 给了「彻底关掉」的出口，且 ⓘ 兜底可找回，不丢信息。<br>
+        ✅ 按状态记忆是关键：解散中→已归档是<b>状态升级</b>，必须重新提醒一次。<br>
+        ⚠️ 交互链路最长（× → 菜单 → 二级选择），实现和存储成本最高。
+      </p>
+    </section>
+
+    <!-- ============ 方案 E ============ -->
+    <section class="scheme">
+      <div class="scheme-head">
+        <h2>方案 E · 降级为卡片 footer 小字</h2>
+        <span class="tag alt">去横幅化</span>
+      </div>
+      <p class="scheme-desc">
+        干脆不用横幅形态：说明降级为按钮区下方的一行 11px 灰色小字（虚线分隔），类似免责声明的视觉权重。
+        常驻但完全不抢注意力，也无需任何交互。
+      </p>
+      <div class="phone">
+        <div class="sheet-card">
+          <div class="act-title">周三羽毛球局</div>
+          <div class="act-meta">10月18日 19:30 · 市体育中心</div>
+          <div class="act-divider"></div>
+          <div class="btn-row"><div class="btn">查看战绩</div></div>
+          <div class="footer-note" id="eNote">小组已归档，仅可查看</div>
+        </div>
+      </div>
+      <p class="scheme-desc">
+        ✅ 改动小：就是把 GroupBanner 换成一行 Text，视觉权重全场最低。<br>
+        ⚠️ 11px 偏小，贴近 <code>textTertiary</code>（装饰层级），信息感弱——但这正是「仅可查看」该有的地位：解释性，非行动引导。<br>
+        ⚠️ 解散中（两行长句）时会撑高，需截断或降为单行。
+      </p>
+    </section>
+
+  </div>
+
+  <!-- ============ 结论表 ============ -->
+  <div class="table-wrap">
+    <h2>方案对比</h2>
+    <table>
+      <thead><tr><th>方案</th><th>视觉占用</th><th>可发现性</th><th>实现成本</th><th>信息丢失风险</th><th>备注</th></tr></thead>
+      <tbody>
+        <tr class="rec-row"><td><b>A × 一次性收起</b></td><td>收起后为 0</td><td><b class="ok">高</b>（× 一眼可见）</td><td><b class="ok">极低</b>（GroupBanner 加 onClose）</td><td>无（重进重现）</td><td>性价比最高，可与 C 组合</td></tr>
+        <tr><td><b>B 长按收起</b></td><td>收起后为 0</td><td><b class="no">低</b>（需提示文案）</td><td>中（长按+进度动画）</td><td>无（可撤销）</td><td>形态最干净，但教学成本高</td></tr>
+        <tr class="rec-row"><td><b>C 折叠单行 chip</b></td><td>一行（约减半）</td><td><b class="ok">高</b>（永远在场可点）</td><td><b class="ok">低</b>（纯 UI 折叠）</td><td><b class="ok">零</b></td><td>最符合「外面短、里面长」既有原则</td></tr>
+        <tr><td><b>D × 菜单 + ⓘ</b></td><td>收起后仅 ⓘ</td><td>高</td><td><b class="no">高</b>（菜单+持久化+状态键）</td><td>低（有状态键兜底）</td><td>诉求最强时才值得做</td></tr>
+        <tr><td><b>E footer 小字</b></td><td>一行 11px</td><td>—（无需交互）</td><td><b class="ok">极低</b></td><td>无</td><td>彻底去掉横幅形态，最"低调"</td></tr>
+      </tbody>
+    </table>
+    <p class="foot-tip" style="padding: 0 20px 18px;">
+      建议：<b>首选 C（折叠 chip）</b>，信息常驻但高度减半，且与 10-12 定下的「外面短、里面长」分层一脉相承；
+      若评审仍觉得 chip 碍眼，<b>退而选 A</b>（× 收起 + session 级重置），GroupBanner 加可选 onClose 参数即可，其他横幅场景未来也能复用。
+      B / D / E 作为备选保留。无论选哪个，「解散中→已归档」状态变化时都应重置收起态，重新提醒一次。
+    </p>
+  </div>
+</div>
+
+<div id="globalToast" style="position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:rgba(17,24,39,.88);color:#fff;font-size:13px;padding:10px 18px;border-radius:10px;display:none;z-index:99;"></div>
+
+<script>
+  const TEXTS = {
+    archived: {
+      banner: "小组已归档，仅可查看",
+      short: "已归档 · 仅可查看",
+      long: "小组已归档，仅可查看。如需恢复请联系组长。"
+    },
+    dissolving: {
+      banner: "小组正在解散，期间仅可查看",
+      short: "解散中 · 仅可查看",
+      long: "小组将于 7 天后解散，期间仅可查看。"
+    }
+  };
+  let state = "archived";
+
+  document.querySelectorAll("#stateSwitch button").forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll("#stateSwitch button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      state = btn.dataset.state;
+      applyState();
+    };
+  });
+
+  function applyState() {
+    const t = TEXTS[state];
+    // A
+    const a = document.querySelector("[data-a]");
+    a.classList.remove("hide-anim", "clipped");
+    a.classList.add("show-anim");
+    a.querySelector(".txt").textContent = t.banner;
+    a.style.display = "";
+    // B
+    const b = document.getElementById("lpBanner");
+    b.style.display = "";
+    document.getElementById("lpText").textContent = t.banner;
+    document.getElementById("lpUndo").classList.remove("show");
+    // C
+    const c = document.getElementById("chipBanner");
+    c.classList.remove("open");
+    document.getElementById("chipShort").textContent = t.short;
+    document.getElementById("chipLong").textContent = t.long;
+    // D
+    document.getElementById("dBanner").style.display = "";
+    document.getElementById("dBanner").classList.remove("hide-anim");
+    document.getElementById("dText").textContent = t.banner;
+    document.getElementById("dMenu").classList.remove("show");
+    document.getElementById("dCorner").style.display = "none";
+    // E
+    document.getElementById("eNote").textContent = t.banner;
+  }
+
+  let toastTimer;
+  function toastMsg(msg) {
+    const el = document.getElementById("globalToast");
+    el.textContent = msg; el.style.display = "block";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.style.display = "none", 1600);
+  }
+
+  /* A */
+  function dismissA() {
+    const a = document.querySelector("[data-a]");
+    a.classList.add("hide-anim");
+    setTimeout(() => a.style.display = "none", 280);
+    toastMsg("已收起，重新进入小组后会再次显示（session 级记忆）");
+  }
+
+  /* B 长按 */
+  (function () {
+    const b = document.getElementById("lpBanner");
+    let timer = null, start = 0, prog = null;
+    function setP(p) { b.style.setProperty("--p", p + "%"); }
+    function begin(e) {
+      e.preventDefault();
+      b.classList.add("progress");
+      start = Date.now();
+      timer = setInterval(() => {
+        const p = Math.min(100, (Date.now() - start) / 600 * 100);
+        setP(p);
+        if (p >= 100) finish();
+      }, 30);
+    }
+    function finish() {
+      clearInterval(timer); timer = null; setP(0);
+      b.classList.remove("progress");
+      if (navigator.vibrate) navigator.vibrate(10);
+      b.style.display = "none";
+      document.getElementById("lpUndo").classList.add("show");
+    }
+    function cancel() {
+      if (timer) { clearInterval(timer); timer = null; }
+      setP(0); b.classList.remove("progress");
+    }
+    b.addEventListener("mousedown", begin);
+    b.addEventListener("touchstart", begin, { passive: false });
+    ["mouseup", "mouseleave", "touchend", "touchcancel"].forEach(ev => b.addEventListener(ev, cancel));
+    // 提示只显示前 5 秒
+    setTimeout(() => { document.getElementById("lpHint").style.opacity = ".35"; }, 5000);
+  })();
+  function undoB() {
+    document.getElementById("lpBanner").style.display = "";
+    document.getElementById("lpUndo").classList.remove("show");
+  }
+
+  /* C */
+  function toggleChip(e) {
+    e.stopPropagation();
+    document.getElementById("chipBanner").classList.toggle("open");
+  }
+
+  /* D */
+  function openMenu(e) {
+    e.stopPropagation();
+    document.getElementById("dMenu").classList.toggle("show");
+  }
+  function dismissD(mode) {
+    document.getElementById("dMenu").classList.remove("show");
+    const b = document.getElementById("dBanner");
+    b.classList.add("hide-anim");
+    setTimeout(() => {
+      b.style.display = "none";
+      document.getElementById("dCorner").style.display = "flex";
+    }, 280);
+    toastMsg(mode === "forever"
+      ? "本组该状态下不再显示（groupId+status 记忆，状态变化会重置）"
+      : "本次收起，重新进入小组后会再次显示");
+  }
+  function restoreD() {
+    document.getElementById("dBanner").style.display = "";
+    document.getElementById("dBanner").classList.remove("hide-anim");
+    document.getElementById("dCorner").style.display = "none";
+  }
+  document.addEventListener("click", () => document.getElementById("dMenu").classList.remove("show"));
+
+  applyState();
+</script>
+</body>
+</html>

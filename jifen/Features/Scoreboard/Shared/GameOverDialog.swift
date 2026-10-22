@@ -266,7 +266,7 @@ struct GameOverDialog: View {
                         Button(action: trackNewGame) {
                             Text(newGameLabel ?? NSLocalizedString("play_again", value: "再来一场", comment: ""))
                                 .font(.system(size: newGameDisabled ? (usesTabletSpacing ? 14 : 13) : 16, weight: .medium))
-                                .foregroundStyle(newGameDisabled ? secondaryText : Color.white)
+                                .foregroundStyle(newGameDisabled ? secondaryText : Theme.textOnPrimary)
                                 .multilineTextAlignment(.center)
                                 .lineLimit(newGameDisabled ? 2 : 1)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -275,7 +275,7 @@ struct GameOverDialog: View {
                         .buttonStyle(.plain)
                         .frame(height: usesTabletSpacing ? 52 : 44)
                         .background(newGameDisabled ? disabledBackground : Theme.primary)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(Capsule())
                         .disabled(newGameDisabled)
                         .accessibilityIdentifier("game_over_action_new_game")
 
@@ -515,7 +515,7 @@ struct GameOverDialog: View {
         .buttonStyle(.plain)
         .frame(height: usesTabletSpacing ? 46 : ScoreboardConstants.minimumTouchTarget)
         .background(cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(Capsule())
         .accessibilityIdentifier(identifier)
     }
 }

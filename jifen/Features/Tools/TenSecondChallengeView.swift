@@ -104,7 +104,7 @@ struct TenSecondChallengeView: View {
             Button(action: startChallenge) {
                 Text(isRunning ? NSLocalizedString("ten_second_stop", value: "停止", comment: "") : NSLocalizedString("ten_second_start", value: "开始", comment: ""))
                     .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(Theme.actionForeground(on: isRunning ? Color(hex: "FF5252") : Color(hex: "4CAF50")))
                     .frame(width: 200, height: 60)
                     .background(
                         RoundedRectangle(cornerRadius: 30)
