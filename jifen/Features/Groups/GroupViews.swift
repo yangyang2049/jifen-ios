@@ -63,12 +63,12 @@ struct GroupListView: View {
             }
         }
         .listSectionSpacing(Theme.spacing)
-        .frame(maxWidth: 960).frame(maxWidth: .infinity)
+        .frame(maxWidth: 960).expandedPhonePageContent(existingHorizontalInset: 20).frame(maxWidth: .infinity)
         .background(Color(uiColor: .systemGroupedBackground))
         .safeAreaInset(edge: .bottom, spacing: 0) {
             VStack(spacing: 0) {
                 entryActions.padding(.horizontal, 20).padding(.vertical, Theme.spacing)
-                    .frame(maxWidth: 960).frame(maxWidth: .infinity)
+                    .frame(maxWidth: 960).expandedPhonePageContent(existingHorizontalInset: 20).frame(maxWidth: .infinity)
             }
             .background(Theme.backgroundColor.ignoresSafeArea(edges: .bottom))
             .overlay(alignment: .top) { Divider() }
@@ -161,7 +161,7 @@ struct GroupArchivedListView: View {
             ForEach(groups) { group in
                 Section { GroupListRow(group: group, onStart: onStart) }
             }
-        }.listSectionSpacing(Theme.spacing).navigationTitle(groupText("archived_list_title", "Archived groups")).groupAdaptiveOrientation()
+        }.listSectionSpacing(Theme.spacing).expandedPhonePageContent(existingHorizontalInset: 20).navigationTitle(groupText("archived_list_title", "Archived groups")).groupAdaptiveOrientation()
             .toolbar(.visible, for: .navigationBar).toolbar(.hidden, for: .tabBar)
     }
 }
@@ -362,7 +362,7 @@ struct GroupCreateView: View {
                     GroupAlignedPolicyChoice(selection: $policy).accessibilityIdentifier("group_create_policy").accessibilityValue(groupText(policy, policy))
                 }
                 if let error = store.error { GroupNotice(text: error) }
-            }.padding(Theme.padding).frame(maxWidth: 720).frame(maxWidth: .infinity)
+            }.padding(Theme.padding).frame(maxWidth: 720).expandedPhonePageContent(existingHorizontalInset: Theme.padding).frame(maxWidth: .infinity)
         }.scrollDismissesKeyboard(.interactively).background(Theme.backgroundColor)
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 GroupAlignedFooter(topPadding: 8, bottomPadding: 8) {
@@ -395,7 +395,7 @@ private struct GroupCreatedView: View {
     @Environment(\.dismiss) private var dismiss
     var body: some View {
         GroupShareView(group: group).navigationTitle(groupText("created", "Group created"))
-            .safeAreaInset(edge: .bottom) { Text(groupText("created_hint", "Share the group number or QR code, then open your group from My groups.")).font(GroupTypography.body).padding().frame(maxWidth: .infinity).background(.regularMaterial) }
+            .safeAreaInset(edge: .bottom) { Text(groupText("created_hint", "Share the group number or QR code, then open your group from My groups.")).font(GroupTypography.body).padding().expandedPhonePageContent(existingHorizontalInset: Theme.padding).frame(maxWidth: .infinity).background(.regularMaterial) }
     }
 }
 
@@ -405,7 +405,9 @@ struct GroupResultLink: View {
     var body: some View {
         NavigationLink { GroupResultDetailView(initial: result) } label: {
             GroupResultSummary(result: result, showRules: true, showDisclosure: showDisclosure)
+                .contentShape(Rectangle())
         }.buttonStyle(.plain)
+            .accessibilityIdentifier("group_result_\(result.id)")
     }
 }
 
@@ -568,8 +570,9 @@ struct GroupResultDetailView: View {
                     GroupNotice(text: error)
                     Button(groupText("reload_version", "Load latest version")) { Task { await store.loadDetail(current.groupId); await reload() } }.disabled(busy)
                 }
-            }.padding().frame(maxWidth: 680).frame(maxWidth: .infinity)
-        }.background(Theme.backgroundColor).navigationTitle(groupText("match_detail", "Match details"))
+            }.padding().frame(maxWidth: 680).expandedPhonePageContent(existingHorizontalInset: Theme.padding).frame(maxWidth: .infinity)
+        }.accessibilityIdentifier("group_result_detail")
+            .background(Theme.backgroundColor).navigationTitle(groupText("match_detail", "Match details"))
             .groupAccountBoundary().task { await reload() }.refreshable { if !busy { await store.loadDetail(current.groupId); await reload() } }
         .groupAlert(groupText("confirm_result", "Confirm result"), isPresented: $confirming) {
             Button(NSLocalizedString("cancel", value: "Cancel", comment: ""), role: .cancel) {}
@@ -649,7 +652,8 @@ struct GroupMemberResultsView: View {
             if initialized && !loading && rows.isEmpty && error == nil { Text(groupText("no_results", "No matches recorded yet")) }
             ForEach(rows) { GroupResultLink(result: $0, showDisclosure: false) }
             if cursor != nil { Button(groupText("load_more", "Load more")) { Task { await load() } }.disabled(loading) }
-        }.navigationTitle(groupText("member_results_title", "Member results")).navigationBarTitleDisplayMode(.inline).groupAccountBoundary().task { if !initialized { initialized = true; await load() } }.refreshable { await load(refresh: true) }
+        }.expandedPhonePageContent(existingHorizontalInset: Theme.padding).background(Theme.backgroundColor).accessibilityIdentifier("group_member_results")
+            .navigationTitle(groupText("member_results_title", "Member results")).navigationBarTitleDisplayMode(.inline).groupAccountBoundary().task { if !initialized { initialized = true; await load() } }.refreshable { await load(refresh: true) }
     }
     private func load(refresh: Bool = false) async {
         guard !loading || refresh, let accountID = store.accountID else { return }

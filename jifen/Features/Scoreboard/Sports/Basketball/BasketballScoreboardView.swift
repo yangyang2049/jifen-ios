@@ -3,6 +3,7 @@ import ScoreCore
 import UIKit
 
 struct BasketballScoreboardView: View {
+    @Environment(\.scoreboardEditAboveMenu) private var editAboveMenu
     @Environment(\.dismiss) private var dismiss
 
     var onNavigationBack: (() -> Void)? = nil
@@ -109,11 +110,27 @@ struct BasketballScoreboardView: View {
                 let windowInsets = activeWindowSafeAreaInsets
                 let leadingSafeInset = max(proxy.safeAreaInsets.leading, windowInsets.left)
                 let trailingSafeInset = max(proxy.safeAreaInsets.trailing, windowInsets.right)
+                let leftLayout = ScoreboardLayoutMetrics.basketballTeamPanelLayout(
+                    panelSize: sideSize,
+                    outerSafeAreaInset: leadingSafeInset,
+                    isLargeScreen: Theme.usesPadLayout
+                )
+                let rightLayout = ScoreboardLayoutMetrics.basketballTeamPanelLayout(
+                    panelSize: sideSize,
+                    outerSafeAreaInset: trailingSafeInset,
+                    isLargeScreen: Theme.usesPadLayout
+                )
+                // Both teams fit the narrower safe region so a one-sided
+                // camera inset cannot give equal scores different font sizes.
+                let scoreContentWidth = min(leftLayout.scoreContentWidth, rightLayout.scoreContentWidth)
+                let nameContentWidth = min(leftLayout.nameContentWidth, rightLayout.nameContentWidth)
                 HStack(spacing: 0) {
                     basketballSidePanel(
                         screenSide: .left,
                         panelSize: sideSize,
-                        outerSafeAreaInset: leadingSafeInset
+                        layout: leftLayout,
+                        scoreContentWidth: scoreContentWidth,
+                        nameContentWidth: nameContentWidth
                     )
                     .frame(width: sideW)
 
@@ -145,7 +162,9 @@ struct BasketballScoreboardView: View {
                     basketballSidePanel(
                         screenSide: .right,
                         panelSize: sideSize,
-                        outerSafeAreaInset: trailingSafeInset
+                        layout: rightLayout,
+                        scoreContentWidth: scoreContentWidth,
+                        nameContentWidth: nameContentWidth
                     )
                     .frame(width: sideW)
                 }
@@ -309,7 +328,8 @@ struct BasketballScoreboardView: View {
     }
 
     private var chromeOverlay: some View {
-        VStack {
+        VStack(spacing: editAboveMenu ? 0 : nil) {
+            if editAboveMenu { Spacer() }
             HStack {
                 Spacer()
                 chromeButton(systemName: isEditMode ? "checkmark" : "pencil") {
@@ -319,12 +339,14 @@ struct BasketballScoreboardView: View {
                         beginBasketballEdit()
                     }
                 }
+                .accessibilityLabel(isEditMode ? NSLocalizedString("done", value: "完成", comment: "") : NSLocalizedString("edit", value: "编辑", comment: ""))
                 .disabled(store.state.finished || store.state.timeoutActiveSide != nil)
                 .opacity(store.state.finished || store.state.timeoutActiveSide != nil ? 0.45 : 1)
                 .padding(.trailing, ScoreboardConstants.buttonPadding)
-                .padding(.top, ScoreboardConstants.buttonPadding)
+                .padding(.bottom, editAboveMenu ? ScoreboardConstants.buttonSpacing : 0)
+                .padding(.top, editAboveMenu ? 0 : ScoreboardConstants.buttonPadding)
             }
-            Spacer()
+            if !editAboveMenu { Spacer() }
             if !isEditMode {
                 HStack {
                     chromeButton(systemName: "chevron.left", action: requestBack)
@@ -337,6 +359,10 @@ struct BasketballScoreboardView: View {
                     .padding(.trailing, ScoreboardConstants.buttonPadding)
                     .padding(.bottom, ScoreboardConstants.buttonPadding)
                 }
+            } else if editAboveMenu {
+                Color.clear
+                    .frame(height: ScoreboardConstants.buttonSize + ScoreboardConstants.buttonPadding)
+                    .allowsHitTesting(false)
             }
         }
         .allowsHitTesting(true)
@@ -370,7 +396,9 @@ struct BasketballScoreboardView: View {
     private func basketballSidePanel(
         screenSide: MatchSide,
         panelSize: CGSize,
-        outerSafeAreaInset: CGFloat
+        layout: BasketballTeamPanelLayoutMetrics,
+        scoreContentWidth: CGFloat,
+        nameContentWidth: CGFloat
     ) -> some View {
         let isScreenLeft = screenSide == .left
         let color = logicalSide(forScreen: screenSide) == .left
@@ -401,7 +429,9 @@ struct BasketballScoreboardView: View {
                 isLeftSide: isScreenLeft,
                 typography: typographyPreference,
                 panelSize: panelSize,
-                outerSafeAreaInset: outerSafeAreaInset,
+                layout: layout,
+                scoreContentWidth: scoreContentWidth,
+                nameContentWidth: nameContentWidth,
                 points: BasketballMatchEngine.scoringButtons(store.state),
                 timeoutActiveSide: store.state.timeoutActiveSide,
                 timeoutRemainingSeconds: store.state.timeoutRemainingSeconds,
@@ -891,7 +921,9 @@ private struct BasketballTeamPanel: View {
     let isLeftSide: Bool
     let typography: ScoreboardTypographyPreference
     let panelSize: CGSize
-    let outerSafeAreaInset: CGFloat
+    let layout: BasketballTeamPanelLayoutMetrics
+    let scoreContentWidth: CGFloat
+    let nameContentWidth: CGFloat
     let points: [Int]
     let timeoutActiveSide: MatchSide?
     let timeoutRemainingSeconds: Int
@@ -907,24 +939,6 @@ private struct BasketballTeamPanel: View {
     @State private var timeoutPendingConfirmation = false
 
     private let bonusYellow = Color(hex: "FACC15")
-    private let additionalOuterPadding: CGFloat = 8
-
-    private var scoreButtonSize: CGFloat {
-        guard Theme.usesPadLayout else { return 50 }
-        let widthLimitedSize = panelSize.width * 0.3
-        let heightLimitedSize = (panelSize.height - 96) / 3.25
-        return min(72, max(44, min(widthLimitedSize, heightLimitedSize)))
-    }
-
-    private var scoreButtonFontSize: CGFloat {
-        guard Theme.usesPadLayout else { return 16 }
-        return min(22, max(15, 16 + (scoreButtonSize - 50) * 6 / 22))
-    }
-
-    private var scoreButtonSpacing: CGFloat {
-        guard Theme.usesPadLayout else { return 10 }
-        return min(16, max(8, 10 + (scoreButtonSize - 50) * 6 / 22))
-    }
 
     private var resolvedTypography: ScoreboardTypographyResult {
         ScoreboardTypographyResolver.resolve(
@@ -935,7 +949,9 @@ private struct BasketballTeamPanel: View {
                 scoreText: "\(score)",
                 secondaryText: "\(fouls) \(timeouts)",
                 preference: typography,
-                horizontalPadding: 64 + outerSafeAreaInset,
+                horizontalPadding: 0,
+                nameAvailableWidth: nameContentWidth,
+                scoreAvailableWidth: scoreContentWidth,
                 reservedHeight: 76,
                 isLargeScreen: Theme.usesPadLayout
             )
@@ -967,7 +983,7 @@ private struct BasketballTeamPanel: View {
             HStack(spacing: 0) {
                 if isLeftSide {
                     scoreButtons
-                        .padding(.leading, outerSafeAreaInset + additionalOuterPadding)
+                        .padding(.leading, layout.outerPadding)
                 }
 
                 Text("\(score)")
@@ -979,12 +995,12 @@ private struct BasketballTeamPanel: View {
                     .foregroundStyle(.white)
                     .minimumScaleFactor(0.4)
                     .lineLimit(1)
-                    .padding(.horizontal, 8)
+                    .padding(.horizontal, BasketballTeamPanelLayoutMetrics.contentPadding)
                     .frame(maxWidth: .infinity)
 
                 if !isLeftSide {
                     scoreButtons
-                        .padding(.trailing, outerSafeAreaInset + additionalOuterPadding)
+                        .padding(.trailing, layout.outerPadding)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -999,7 +1015,9 @@ private struct BasketballTeamPanel: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
                     .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: panelSize.height))
-                    .padding(.horizontal, 8)
+                    .frame(maxWidth: .infinity)
+                    .padding(isLeftSide ? .leading : .trailing, layout.outerPadding)
+                    .padding(isLeftSide ? .trailing : .leading, BasketballTeamPanelLayoutMetrics.contentPadding)
                 Spacer()
             }
 
@@ -1032,13 +1050,13 @@ private struct BasketballTeamPanel: View {
     }
 
     private var scoreButtons: some View {
-        VStack(spacing: scoreButtonSpacing) {
+        VStack(spacing: layout.scoreButtonSpacing) {
             ForEach(points, id: \.self) { point in
                 Button(action: { onScore(point) }) {
-                    AddValueLabel(value: "\(point)", numberFontSize: scoreButtonFontSize)
-                        .font(.system(size: scoreButtonFontSize, weight: .bold))
+                    AddValueLabel(value: "\(point)", numberFontSize: layout.scoreButtonFontSize)
+                        .font(.system(size: layout.scoreButtonFontSize, weight: .bold))
                         .foregroundStyle(.white)
-                        .frame(width: scoreButtonSize, height: scoreButtonSize)
+                        .frame(width: layout.scoreButtonSize, height: layout.scoreButtonSize)
                         .background(Circle().fill(Color.white.opacity(0.14)))
                         .contentShape(Circle())
                 }

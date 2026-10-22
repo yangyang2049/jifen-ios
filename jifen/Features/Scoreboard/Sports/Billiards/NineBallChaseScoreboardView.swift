@@ -33,6 +33,7 @@ enum NineBallUndoPolicy {
 }
 
 struct NineBallChaseScoreboardView: View {
+    @Environment(\.scoreboardEditAboveMenu) private var editAboveMenu
     @Environment(\.dismiss) private var dismiss
     let initialSetup: SportsSetupResult?
     var initialResumeSessionId: String? = nil
@@ -222,8 +223,9 @@ struct NineBallChaseScoreboardView: View {
             .background(appearance.theme.palette.background).ignoresSafeArea()
 
             if shouldShowChrome {
-                // Top edit
+                // Edit / done above the fixed bottom-right Menu slot
                 VStack {
+                    if editAboveMenu { Spacer() }
                     HStack {
                         Spacer()
                         Button(action: {
@@ -246,10 +248,13 @@ struct NineBallChaseScoreboardView: View {
                         .buttonStyle(.plain)
                         .disabled(scoringLocked)
                         .accessibilityIdentifier("scoreboard_edit_button")
+                        .accessibilityLabel(showEditPanel ? NSLocalizedString("done", value: "完成", comment: "") : NSLocalizedString("edit", value: "编辑", comment: ""))
                     }
                     .foregroundStyle(.white)
-                    .padding(ScoreboardConstants.buttonPadding)
-                    Spacer()
+                    .padding(.horizontal, ScoreboardConstants.buttonPadding)
+                    .padding(.bottom, editAboveMenu ? ScoreboardConstants.editButtonBottomPadding : 0)
+                    .padding(.top, editAboveMenu ? 0 : ScoreboardConstants.buttonPadding)
+                    if !editAboveMenu { Spacer() }
                 }
 
                 // Bottom-left back + bottom-right menu
@@ -549,6 +554,7 @@ struct NineBallChaseScoreboardView: View {
                         chaseStatRow(player: player, kinds: Array(NineBallChaseKind.allCases.prefix(3)))
                         chaseStatRow(player: player, kinds: Array(NineBallChaseKind.allCases.suffix(3)))
                     }
+                    // Statistics extend to the panel bottom; floating controls do not reserve a footer.
                     .padding(.bottom, 4)
                 }
             }

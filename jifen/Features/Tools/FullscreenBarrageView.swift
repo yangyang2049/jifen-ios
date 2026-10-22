@@ -43,6 +43,7 @@ struct FullscreenBarrageView: View {
     @State private var mode: DisplayMode = .scroll
     @State private var isRunning = false
     @State private var showEditor = false
+    @FocusState private var messageIsFocused: Bool
     @State private var fontSize: Double = Theme.usesPadLayout ? 120 : 80
     @State private var speed: Double = 15
     @State private var textColor = Color.white
@@ -76,6 +77,13 @@ struct FullscreenBarrageView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button(NSLocalizedString("done", comment: "")) { messageIsFocused = false }
+                    .accessibilityIdentifier("barrage_finish_input")
+            }
+        }
         .onAppear(perform: prepareOrientation)
         .onDisappear(perform: restoreOrientation)
         .preferredColorScheme(colorSchemeForBackground)
@@ -96,6 +104,7 @@ struct FullscreenBarrageView: View {
                         axis: .vertical
                     )
                     .accessibilityIdentifier("barrage_message_field")
+                    .focused($messageIsFocused)
                     .font(.system(size: 18))
                     .padding(14)
                     .background(Theme.cardBackground)
@@ -146,6 +155,7 @@ struct FullscreenBarrageView: View {
                 .padding(.bottom, 32)
                 .frame(maxWidth: .infinity)
             }
+            .scrollDismissesKeyboard(.interactively)
 
             VStack {
                 HStack {
@@ -178,7 +188,7 @@ struct FullscreenBarrageView: View {
                 .position(x: container.size.width / 2, y: container.size.height / 2)
                 .animation(.easeInOut(duration: 0.25), value: usesContentRotationFallback)
         }
-        .ignoresSafeArea()
+        .ignoresSafeArea(.container)
         .accessibilityIdentifier("barrage_running")
         .accessibilityValue(usesContentRotationFallback ? "content_rotated" : "window_orientation")
     }
@@ -208,6 +218,9 @@ struct FullscreenBarrageView: View {
             VStack(spacing: 0) {
                 if showEditor {
                     runningEditor(maxHeight: height * 0.6)
+                        .padding(.leading, overlayPadding.leading)
+                        .padding(.trailing, overlayPadding.trailing)
+                        .padding(.top, overlayPadding.top)
                         .transition(.move(edge: .top).combined(with: .opacity))
                 } else {
                     runningOverlayButtons(padding: overlayPadding)
@@ -232,7 +245,11 @@ struct FullscreenBarrageView: View {
                 .lineLimit(1)
                 .fixedSize()
                 .offset(x: offset)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                // A long fixed-size message must not widen the ZStack and
+                // push its overlay controls outside a compact display.
+                .frame(width: width, alignment: .leading)
+                .clipped()
+                .frame(maxHeight: .infinity)
         }
     }
 
@@ -269,6 +286,7 @@ struct FullscreenBarrageView: View {
         AdaptiveSetupDialogScrollView(maxHeight: maxHeight, bottomClearance: 0) {
             VStack(spacing: 12) {
                 TextField(NSLocalizedString("barrage_input_placeholder", value: "输入要展示的内容", comment: ""), text: $message)
+                    .focused($messageIsFocused)
                     .textFieldStyle(.plain)
                     .foregroundStyle(.white)
                     .padding(.horizontal, 12)
@@ -301,6 +319,7 @@ struct FullscreenBarrageView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Button {
+                    messageIsFocused = false
                     withAnimation(.easeInOut(duration: 0.2)) { showEditor = false }
                 } label: {
                     Image(systemName: "chevron.up")
@@ -308,6 +327,8 @@ struct FullscreenBarrageView: View {
                         .frame(width: 44, height: 30)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(NSLocalizedString("done", comment: ""))
+                .accessibilityIdentifier("barrage_editor_collapse")
             }
             .padding(.horizontal, 16)
             .padding(.top, 14)

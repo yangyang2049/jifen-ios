@@ -58,6 +58,7 @@ struct RecordsTab: View {
             content
         }
         .frame(maxWidth: usesPadLayout ? 920 : .infinity, maxHeight: .infinity)
+        .expandedPhonePageContent(existingHorizontalInset: Theme.md)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.backgroundColor)
         .navigationTitle(NSLocalizedString("tab_records", comment: "Records"))

@@ -28,11 +28,13 @@ nonisolated struct GroupRepository: Sendable {
         #if DEBUG
         if GroupCaptureFixture.enabled { return try GroupCaptureFixture.read(path, query: query) }
         if ProcessInfo.processInfo.arguments.contains("-UITestGroupsFixture") {
+            // 保留 3.3 的证据举报夹具覆盖，其余路径走统一的离线夹具实现。
             if path.hasSuffix("/report") { return try JSONDecoder().decode(T.self, from: Data("{\"report\":null}".utf8)) }
             if path == "/capabilities", var catalog = await MainActor.run(body: { GroupStore.shared.capabilities }) {
                 catalog.groupReportEvidenceEnabled = true
                 return try JSONDecoder().decode(T.self, from: JSONEncoder().encode(catalog))
             }
+            return try await GroupStore.shared.readUITestFixture(path, query: query)
         }
         #endif
         let revision: UInt64? = authenticated ? await requestRevision(expectedAuthRevision) : nil
@@ -41,6 +43,9 @@ nonisolated struct GroupRepository: Sendable {
     func write<T: Decodable & Sendable>(_ path: String, body: (any Encodable & Sendable)? = nil, method: HTTPMethod = .post, key: String? = nil, revision: Int64? = nil, expectedAuthRevision: UInt64? = nil) async throws -> T {
         #if DEBUG
         if GroupCaptureFixture.enabled { try GroupCaptureFixture.rejectWrite(path) }
+        if ProcessInfo.processInfo.arguments.contains("-UITestGroupsFixture") {
+            throw GroupUITestFixtureError.blockedWrite(path)
+        }
         #endif
         let authRevision = await requestRevision(expectedAuthRevision)
         if let action = GroupWriteCapability.required(for: path, method: method) {
@@ -612,7 +617,97 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
 }
 
 #if DEBUG
+private nonisolated enum GroupUITestFixtureError: LocalizedError {
+    case unsupportedRead(String)
+    case blockedWrite(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .unsupportedRead(let path): "Unsupported offline group fixture read: " + path
+        case .blockedWrite(let path): "Offline group fixture blocked write: " + path
+        }
+    }
+}
+
 extension GroupStore {
+    /// Supplies the same process-local sample cache to production detail pages.
+    /// Every unmatched read and every write fail locally instead of reaching the API.
+    func readUITestFixture<T: Decodable & Sendable>(_ path: String, query: [URLQueryItem]) throws -> T {
+        guard ProcessInfo.processInfo.arguments.contains("-UITestGroupsFixture"),
+              !query.contains(where: { $0.name == "cursor" && !($0.value ?? "").isEmpty }) else {
+            throw GroupUITestFixtureError.unsupportedRead(path)
+        }
+        let parts = path.split(separator: "/").map(String.init)
+        let payload: Data
+        func encoded<U: Encodable>(_ value: U) throws -> Data { try JSONEncoder().encode(value) }
+        func page<U: Codable & Sendable>(_ rows: [U]) throws -> Data {
+            try encoded(GroupPage(items: rows, nextCursor: nil))
+        }
+        func parameter(_ name: String) -> String? { query.first { $0.name == name }?.value }
+
+        if parts.isEmpty {
+            payload = try page(cache.groups)
+        } else if path == "/capabilities", let capabilities {
+            payload = try encoded(capabilities)
+        } else if path == "/join-requests/mine" {
+            payload = try page(cache.pending)
+        } else if path == "/notices" {
+            payload = try encoded(UITestNoticePage(items: notices, nextCursor: nil, unreadCount: unreadCount))
+        } else if let detail = cache.details[parts[0]] {
+            let resource = parts.count > 1 ? parts[1] : ""
+            if parts.count == 1 {
+                payload = try encoded(detail.group)
+            } else if resource == "members", parts.count == 2 {
+                let status = parameter("status") ?? "active"
+                let rows = status == "removed" ? detail.removedMembers ?? [] : detail.members
+                payload = try page(rows.filter { $0.status == status })
+            } else if resource == "activities", parts.count == 2 {
+                payload = try page(detail.activities)
+            } else if resource == "activities", parts.count == 3,
+                      let activity = detail.activities.first(where: { $0.id == parts[2] }) {
+                payload = try encoded(activity)
+            } else if resource == "activities", parts.count == 4, parts[3] == "lineup",
+                      let lineup = detail.activityLineups?[parts[2]] {
+                payload = try encoded(lineup)
+            } else if resource == "results", parts.count == 2 {
+                let format = parameter("format"), status = parameter("status"), member = parameter("memberId")
+                payload = try page(detail.results.filter { result in
+                    (format == nil || result.format.rawValue == format)
+                        && (status == nil || result.status == status)
+                        && (member == nil || result.participants.contains { $0.memberId == member })
+                })
+            } else if resource == "results", parts.count == 3,
+                      let result = detail.results.first(where: { $0.id == parts[2] }) {
+                payload = try encoded(result)
+            } else if resource == "rankings", parts.count == 2,
+                      let format = GroupFormat(rawValue: parameter("format") ?? "singles") {
+                payload = try page(detail.rankings(for: format))
+            } else if resource == "stats", parts.count == 2, let stats = detail.stats {
+                payload = try encoded(stats)
+            } else if resource == "training-plans", parts.count == 2 {
+                payload = try page(detail.trainingPlans ?? [])
+            } else if resource == "training-plans", parts.count == 3,
+                      let plan = detail.trainingPlans?.first(where: { $0.id == parts[2] }) {
+                payload = try encoded(plan)
+            } else if resource == "leave-notices", parts.count == 2 {
+                payload = try page(detail.leaveNotices ?? [])
+            } else if resource == "training-notices", parts.count == 2 {
+                payload = try page(detail.trainingNotices ?? [])
+            } else {
+                throw GroupUITestFixtureError.unsupportedRead(path)
+            }
+        } else {
+            throw GroupUITestFixtureError.unsupportedRead(path)
+        }
+        return try JSONDecoder().decode(T.self, from: payload)
+    }
+
+    private nonisolated struct UITestNoticePage: Encodable {
+        var items: [GroupNotification]
+        var nextCursor: String?
+        var unreadCount: Int
+    }
+
     func loadUITestFixtureIfRequested() -> Bool {
         if GroupCaptureFixture.enabled {
             do {

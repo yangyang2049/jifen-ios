@@ -80,7 +80,7 @@ struct GroupJoinView: View {
                 if let preview { previewCard(preview) }
                 if let error = localError ?? store.error { GroupNotice(text: error) }
                 if busy { ProgressView().frame(maxWidth: .infinity) }
-            }.padding(Theme.padding).frame(maxWidth: 720).frame(maxWidth: .infinity)
+            }.padding(Theme.padding).frame(maxWidth: 720).expandedPhonePageContent(existingHorizontalInset: Theme.padding).frame(maxWidth: .infinity)
         }.scrollDismissesKeyboard(.interactively).background(Theme.backgroundColor)
             .disabled(submitting).interactiveDismissDisabled(submitting)
             .navigationTitle(groupText("join", "Join group")).navigationBarTitleDisplayMode(.inline).groupAccountBoundary()
@@ -307,7 +307,7 @@ struct GroupShareView: View {
                     .buttonStyle(GroupAlignedActionStyle(secondary: true, secondaryForeground: Theme.textPrimary))
                     .accessibilityIdentifier("group_share_number")
                 }
-            }.padding(Theme.lg).frame(maxWidth: .infinity)
+            }.padding(Theme.lg).expandedPhonePageContent(existingHorizontalInset: Theme.lg).frame(maxWidth: .infinity)
         }
         }.background(Theme.backgroundColor)
             .navigationTitle(groupText("group_qr", "Group QR code")).navigationBarTitleDisplayMode(.inline).groupAccountBoundary()

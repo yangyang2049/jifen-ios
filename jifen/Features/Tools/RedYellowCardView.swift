@@ -36,6 +36,7 @@ struct RedYellowCardView: View {
                         .padding(.bottom, 40)
                 }
         }
+        .background((currentIndex == 0 ? Color(hex: "FFEB3B") : Color(hex: "F44336")).ignoresSafeArea())
         // Full-screen card color with a floating back button instead of a
         // navigation bar.
         .toolbar(.hidden, for: .navigationBar)

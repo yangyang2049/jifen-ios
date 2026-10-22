@@ -30,8 +30,14 @@ struct GroupInlineMatchRoster: View {
     }
     private func name(at index: Int) -> String {
         if frozen, let name = snapshot(at: index)?.displayName, !name.isEmpty { return name }
-        return member(at: index)?.displayName ?? snapshot(at: index)?.displayName ??
-            (id(at: index).isEmpty ? groupText("choose_member", "Choose a member") : groupText("former_member", "Former member"))
+        if let member = member(at: index) { return member.displayName }
+        let memberID = id(at: index)
+        guard !memberID.isEmpty else { return groupText("choose_member", "Choose a member") }
+        if let snapshot = snapshot(at: index), snapshot.memberId == memberID,
+           let displayName = snapshot.displayName, !displayName.isEmpty {
+            return displayName
+        }
+        return groupText("former_member", "Former member")
     }
     private func identity(_ member: GroupMember) -> String? {
         guard roster.filter({ $0.displayName == member.displayName }).count > 1 else { return nil }

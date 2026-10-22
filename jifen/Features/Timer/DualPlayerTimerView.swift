@@ -262,6 +262,9 @@ struct DualPlayerTimerView: View {
             roleIcon(for: playerID)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: iconAlignment(for: playerID))
                 .padding(20)
+                .padding(.top, geo.safeAreaInsets.top)
+                .padding(.leading, playerID == displayedPlayerID(isLeftSide: true) ? geo.safeAreaInsets.leading : 0)
+                .padding(.trailing, playerID == displayedPlayerID(isLeftSide: false) ? geo.safeAreaInsets.trailing : 0)
 
             statusIndicator(for: playerID)
                 .position(x: panelWidth / 2, y: geo.size.height * 0.3)

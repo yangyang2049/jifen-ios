@@ -19,15 +19,15 @@ enum HomeLayoutPolicy {
     /// 对齐安卓 AppSpacing.screenHorizontalTablet。
     static let tabletHorizontalInset: CGFloat = 64
 
-    static func usesWideLayout(size: CGSize, isPad: Bool) -> Bool {
+    static func usesWideLayout(size: CGSize, usesExpandedLayout: Bool) -> Bool {
         // 对齐安卓 isWideScreen()：窗口宽 >= 768 即双列，不区分横竖屏。
-        isPad && size.width >= minimumWideWidth
+        usesExpandedLayout && size.width >= minimumWideWidth
     }
 
-    static func horizontalInset(size: CGSize) -> CGFloat {
+    static func horizontalInset(size: CGSize, horizontalSizeClass: UserInterfaceSizeClass?) -> CGFloat {
         min(size.width, size.height) >= minimumTabletSmallestSide
             ? tabletHorizontalInset
-            : Theme.pageHorizontalInset
+            : Theme.pageHorizontalInset(for: horizontalSizeClass)
     }
 }
 
@@ -233,19 +233,19 @@ struct HomeTab: View {
             GeometryReader { geo in
                 let isWide = HomeLayoutPolicy.usesWideLayout(
                     size: geo.size,
-                    isPad: Theme.usesPadLayout
+                    usesExpandedLayout: usesExpandedLayout
                 )
-                let contentWidth = geo.size.width - HomeLayoutPolicy.horizontalInset(size: geo.size) * 2
+                let contentWidth = geo.size.width - HomeLayoutPolicy.horizontalInset(size: geo.size, horizontalSizeClass: horizontalSizeClass) * 2
                 // 68pt bar and 8pt gap: the final card can scroll above the floating bar.
                 let unfinishedBarClearance: CGFloat = unfinishedRecord == nil ? 0 : 76
                 // 顶栏固定（对齐鸿蒙 HomeHeader），内容区独立滚动，便于后续接入同步计分 banner
                 VStack(spacing: 0) {
                     HomeHeaderView(
                         headerDate: headerDate,
-                        horizontalInset: HomeLayoutPolicy.horizontalInset(size: geo.size),
+                        horizontalInset: HomeLayoutPolicy.horizontalInset(size: geo.size, horizontalSizeClass: horizontalSizeClass),
                         onCastTapped: {
-                            // 对齐安卓平板端：iPad 上投屏与同步以对话框（form sheet）呈现。
-                            if Theme.usesPadLayout {
+                            // 宽窗口使用 form sheet，合拢后的窄窗口使用页面。
+                            if usesExpandedLayout {
                                 homeSheet = .cast
                             } else {
                                 path.append(NavigationDestination.cast)
@@ -255,7 +255,7 @@ struct HomeTab: View {
 
                     ScrollView(showsIndicators: false) {
                         buildContent(isWide: isWide, contentWidth: contentWidth)
-                            .padding(.horizontal, HomeLayoutPolicy.horizontalInset(size: geo.size))
+                            .padding(.horizontal, HomeLayoutPolicy.horizontalInset(size: geo.size, horizontalSizeClass: horizontalSizeClass))
                             .padding(.top, Theme.sectionSpacing)
                             .padding(.bottom, Theme.tabContentBottomPadding + unfinishedBarClearance)
                     }
@@ -593,7 +593,7 @@ struct HomeTab: View {
                     Spacer(minLength: 0)
                 }
             }
-            .padding(.horizontal, Theme.pageHorizontalInset)
+            .padding(.horizontal, Theme.pageHorizontalInset(for: horizontalSizeClass))
             .padding(.bottom, Theme.sm)
             .animation(.easeInOut(duration: 0.2), value: showDiscardConfirmationToast)
         }
@@ -625,10 +625,12 @@ struct HomeTab: View {
         #endif
     }
 
+    private var usesExpandedLayout: Bool { horizontalSizeClass == .regular }
+
     private var showsTertiaryQuickStartSlot: Bool {
         QuickStartLayoutPolicy.showsTertiarySlot(
             horizontalSizeClass: horizontalSizeClass,
-            isPad: Theme.usesPadLayout
+            isPad: usesExpandedLayout
         )
     }
 
@@ -1080,7 +1082,7 @@ struct HomeTab: View {
                 VStack(alignment: .leading, spacing: Theme.sectionSpacing) {
                     buildQuickStartSection()
                     ProToolsSectionView(
-                        isPad: Theme.usesPadLayout,
+                        isPad: usesExpandedLayout,
                         isWide: true,
                         availableWidth: columnWidth,
                         onToolClick: { tool in
@@ -1106,7 +1108,7 @@ struct HomeTab: View {
                 buildScheduleSection()
                 buildCommonDataSection()
                 ProToolsSectionView(
-                    isPad: Theme.usesPadLayout,
+                    isPad: usesExpandedLayout,
                     isWide: false,
                     onToolClick: { tool in
                         trackHomeToolSelection(tool)
@@ -1194,15 +1196,15 @@ struct HomeTab: View {
     private func buildCommonDataSection() -> some View {
         CommonDataSectionView(
             onNamesTapped: {
-                // 对齐安卓平板端：iPad 上常用名称以对话框（form sheet）呈现。
-                if Theme.usesPadLayout {
+                // 宽窗口使用 form sheet，保留当前弹层直到用户关闭。
+                if usesExpandedLayout {
                     homeSheet = .commonNames
                 } else {
                     path.append(NavigationDestination.commonNames)
                 }
             },
             onPlacesTapped: {
-                if Theme.usesPadLayout {
+                if usesExpandedLayout {
                     homeSheet = .commonPlaces
                 } else {
                     path.append(NavigationDestination.commonPlaces)

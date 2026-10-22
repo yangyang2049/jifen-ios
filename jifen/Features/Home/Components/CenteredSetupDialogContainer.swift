@@ -144,6 +144,7 @@ struct AdaptiveSetupDialogLayout<Header: View, DialogContent: View, Actions: Vie
 
 /// 居中 Setup Dialog 壳：与计分板操作菜单一致，遮罩和卡片直接出现、直接消失。
 struct CenteredSetupDialogContainer<Content: View>: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     var allowsBackdropDismiss: Bool = true
     var onBackdropTap: () -> Void
     @ViewBuilder var content: (_ maxDialogHeight: CGFloat) -> Content
@@ -153,7 +154,8 @@ struct CenteredSetupDialogContainer<Content: View>: View {
             let cardMaxHeight = max(280, proxy.size.height - 48)
             let cardWidth = Theme.dialogWidth(
                 availableWidth: proxy.size.width,
-                role: .setup
+                role: .setup,
+                usesExpandedLayout: horizontalSizeClass == .regular
             )
 
             ZStack {
@@ -181,6 +183,7 @@ struct CenteredSetupDialogContainer<Content: View>: View {
 
 /// 托管 binding：直接根据 item 插入或移除整块遮罩与 Dialog。
 struct CenteredSetupDialogPresenter<Item: Identifiable, Content: View>: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Binding var item: Item?
     var allowsBackdropDismiss: Bool = true
     @ViewBuilder var content: (_ item: Item, _ dismiss: @escaping () -> Void, _ maxDialogHeight: CGFloat) -> Content
@@ -190,7 +193,8 @@ struct CenteredSetupDialogPresenter<Item: Identifiable, Content: View>: View {
             let cardMaxHeight = max(280, proxy.size.height - 48)
             let cardWidth = Theme.dialogWidth(
                 availableWidth: proxy.size.width,
-                role: .setup
+                role: .setup,
+                usesExpandedLayout: horizontalSizeClass == .regular
             )
 
             ZStack {

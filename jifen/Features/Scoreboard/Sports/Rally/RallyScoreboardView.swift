@@ -190,14 +190,16 @@ struct TeamCourtScoreboardPanel: View {
     let nameColor: Color
     let scoreColor: Color
     let setsColor: Color
+    var topContentInset: CGFloat = 0
 
     var body: some View {
+        let contentSize = CGSize(width: panelSize.width, height: max(1, panelSize.height - topContentInset))
         let visibleNames = names.isEmpty ? [fallbackName] : names
         let longestName = visibleNames.max(by: { $0.count < $1.count }) ?? ""
         let firstPass = ScoreboardTypographyResolver.resolve(
             ScoreboardTypographyLayoutContext(
                 profile: .rally,
-                containerSize: panelSize,
+                containerSize: contentSize,
                 nameText: longestName,
                 scoreText: scoreText,
                 secondaryText: setsText,
@@ -210,7 +212,7 @@ struct TeamCourtScoreboardPanel: View {
         let typography = ScoreboardTypographyResolver.resolve(
             ScoreboardTypographyLayoutContext(
                 profile: .rally,
-                containerSize: panelSize,
+                containerSize: contentSize,
                 nameText: longestName,
                 scoreText: scoreText,
                 secondaryText: setsText,
@@ -244,6 +246,7 @@ struct TeamCourtScoreboardPanel: View {
                 .monospacedDigit()
         }
         .padding(.horizontal, 16)
+        .padding(.top, topContentInset)
         .frame(width: panelSize.width, height: panelSize.height)
         .background(panelColor)
     }
@@ -343,6 +346,7 @@ private struct TableTennisPauseDialog: View {
 }
 
 struct RallyScoreboardView: View {
+    @Environment(\.scoreboardEditAboveMenu) private var editAboveMenu
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scoreboardUsageHintCoordinator) private var usageHintCoordinator
     @Environment(\.scoreboardMatchClockSession) private var matchClockSession
@@ -860,7 +864,8 @@ struct RallyScoreboardView: View {
             panelColor: panel,
             nameColor: appearance.elementForeground(.playerName, slotKey: slotKey),
             scoreColor: appearance.elementForeground(.mainScore, slotKey: slotKey),
-            setsColor: setsColor(slotKey: slotKey)
+            setsColor: setsColor(slotKey: slotKey),
+            topContentInset: isStyleEditing ? ScoreboardStyleEditOverlayView.topControlsReservedHeight : 0
         )
         .contentShape(Rectangle())
         .gesture(
@@ -1336,6 +1341,7 @@ struct RallyScoreboardView: View {
                     .font(typographyPreference.font.swiftUIFont(size: mainSize))
                     .foregroundStyle(scoreColor)
                     .styleElementSelectable(.mainScore, slotKey: slotKey)
+                    .accessibilityIdentifier("rally_doubles_score_\(side == .left ? "left" : "right")")
                     .monospacedDigit()
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
@@ -1361,6 +1367,7 @@ struct RallyScoreboardView: View {
                     .font(typographyPreference.font.swiftUIFont(size: mainSize))
                     .foregroundStyle(scoreColor)
                     .styleElementSelectable(.mainScore, slotKey: slotKey)
+                    .accessibilityIdentifier("rally_doubles_score_\(side == .left ? "left" : "right")")
                     .monospacedDigit()
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
@@ -1707,6 +1714,7 @@ struct RallyScoreboardView: View {
     private var chromeOverlay: some View {
         ZStack {
             VStack {
+                if editAboveMenu { Spacer() }
                 HStack(spacing: 8) {
                     Spacer()
                     chromeButton(
@@ -1719,11 +1727,13 @@ struct RallyScoreboardView: View {
                         isEditMode.toggle()
                         VibrationManager.shared.vibrateMedium()
                     }
+                    .accessibilityLabel(isEditMode ? NSLocalizedString("done", value: "完成", comment: "") : NSLocalizedString("edit", value: "编辑", comment: ""))
                 }
-                Spacer()
+                if !editAboveMenu { Spacer() }
             }
             .padding(.trailing, ScoreboardConstants.buttonPadding)
-            .padding(.top, ScoreboardConstants.buttonPadding)
+            .padding(.bottom, editAboveMenu ? ScoreboardConstants.editButtonBottomPadding : 0)
+            .padding(.top, editAboveMenu ? 0 : ScoreboardConstants.buttonPadding)
 
             if !isEditMode {
                 VStack {

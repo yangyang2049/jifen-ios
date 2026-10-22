@@ -18,16 +18,19 @@ struct ToolsTab: View {
 }
 
 /// 工具列表内容页，无内层 NavigationStack，用于从首页 push 时避免嵌套导致自动退出。
-/// 布局对齐计分 Tab：iPad 内容限宽 1080、分区标题带绿竖条、网格近正方形卡片。
+/// 布局对齐计分 Tab：宽窗口内容居中、分区标题带绿竖条、网格近正方形卡片。
 struct ToolsListPageView: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.usesExpandedPhoneLayout) private var expandedPhone
     var onToolTap: ((ToolItem) -> Void)? = nil
 
     var body: some View {
         GeometryReader { proxy in
-            let usesPadLayout = Theme.usesPadLayout
+            let usesExpandedLayout = horizontalSizeClass == .regular
+            let horizontalInset = expandedPhone ? Theme.expandedPhonePageInset : Theme.pageHorizontalInset(for: horizontalSizeClass)
             let availableWidth = max(
                 0,
-                min(proxy.size.width, usesPadLayout ? 1080 : .infinity) - Theme.pageHorizontalInset * 2
+                min(proxy.size.width - horizontalInset * 2, expandedPhone ? Theme.expandedPhoneContentMaxWidth : (usesExpandedLayout ? 1080 : .infinity))
             )
 
             ScrollView(showsIndicators: false) {
@@ -36,7 +39,7 @@ struct ToolsListPageView: View {
                         title: NSLocalizedString("match_tools", comment: "Match Tools"),
                         tools: ToolItem.competitionTools,
                         availableWidth: availableWidth,
-                        usesPadLayout: usesPadLayout
+                        usesExpandedLayout: usesExpandedLayout
                     ) { tool in
                         onToolTap?(tool)
                     }
@@ -44,15 +47,15 @@ struct ToolsListPageView: View {
                         title: NSLocalizedString("other_tools", comment: "Other Tools"),
                         tools: ToolItem.otherTools,
                         availableWidth: availableWidth,
-                        usesPadLayout: usesPadLayout
+                        usesExpandedLayout: usesExpandedLayout
                     ) { tool in
                         onToolTap?(tool)
                     }
                 }
-                .frame(maxWidth: usesPadLayout ? 1080 : .infinity)
+                .frame(maxWidth: expandedPhone ? Theme.expandedPhoneContentMaxWidth : (usesExpandedLayout ? 1080 : .infinity))
                 .frame(maxWidth: .infinity)
-                .padding(.horizontal, Theme.pageHorizontalInset)
-                .padding(.top, usesPadLayout ? Theme.lg : Theme.md)
+                .padding(.horizontal, horizontalInset)
+                .padding(.top, usesExpandedLayout ? Theme.lg : Theme.md)
                 .padding(.bottom, Theme.tabContentBottomPadding)
             }
             .background(Theme.backgroundColor)
@@ -70,7 +73,7 @@ struct ToolSectionView: View {
     let title: String
     let tools: [ToolItem]
     let availableWidth: CGFloat
-    let usesPadLayout: Bool
+    let usesExpandedLayout: Bool
     let onToolClick: (ToolItem) -> Void
 
     var body: some View {
@@ -87,9 +90,8 @@ struct ToolSectionView: View {
         }
     }
 
-    /// 对齐计分 Tab：iPad 固定一行 4 个，窄屏（<360pt）2 列，其余 3 列。
     private var gridColumns: [GridItem] {
-        let count = usesPadLayout ? 4 : (availableWidth + Theme.padding * 2 < 360 ? 2 : 3)
+        let count = Theme.catalogColumnCount(availableWidth: availableWidth, usesExpandedLayout: usesExpandedLayout)
         return Array(
             repeating: GridItem(.flexible(), spacing: Theme.gridSpacing),
             count: count

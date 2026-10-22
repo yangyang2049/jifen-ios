@@ -91,6 +91,7 @@ struct SettingsView: View {
                         supportCard
                     }
                     .frame(maxWidth: Theme.meTabContentMaxWidth)
+                    .expandedPhonePageContent(existingHorizontalInset: Theme.pageHorizontalInset)
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal, Theme.pageHorizontalInset)
                     .padding(.vertical, Theme.tabContentBottomPadding)
@@ -753,6 +754,7 @@ private struct ScoreboardSettingsView: View {
                 }
             }
             .frame(maxWidth: Theme.meTabContentMaxWidth)
+            .expandedPhonePageContent(existingHorizontalInset: Theme.pageHorizontalInset)
             .frame(maxWidth: .infinity)
             .padding(.horizontal, Theme.pageHorizontalInset)
             .padding(.top, Theme.lg)
@@ -1013,6 +1015,7 @@ private struct FAQView: View {
             .background(Theme.appCardBackground)
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
             .frame(maxWidth: Theme.meTabContentMaxWidth)
+            .expandedPhonePageContent(existingHorizontalInset: Theme.pageHorizontalInset)
             .frame(maxWidth: .infinity)
             .padding(.horizontal, Theme.pageHorizontalInset)
             .padding(.vertical, Theme.md)
@@ -1086,6 +1089,7 @@ private struct AboutUsView: View {
                         .padding(.bottom, Theme.lg)
                 }
                 .frame(maxWidth: Theme.meTabContentMaxWidth)
+                .expandedPhonePageContent(existingHorizontalInset: Theme.pageHorizontalInset)
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, Theme.pageHorizontalInset)
                 .padding(.vertical, Theme.md)

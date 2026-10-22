@@ -109,6 +109,7 @@ struct ScoreboardNameEditorField: View {
 }
 
 struct ScoreboardTemplate: View {
+    @Environment(\.scoreboardEditAboveMenu) private var editAboveMenu
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scoreboardUsageHintCoordinator) private var usageHintCoordinator
     @State private var config: TemplateConfig
@@ -391,9 +392,10 @@ struct ScoreboardTemplate: View {
                     }
                 }
                 
-                // Edit button (top right) - close to screen edge
+                // Edit / done stays immediately above the bottom-right Menu slot.
                 if shouldShowChromeButtons && (scoringEnabled || isEditMode) {
                     VStack {
+                        if editAboveMenu { Spacer() }
                         HStack {
                             Spacer()
                             Button(action: {
@@ -427,12 +429,14 @@ struct ScoreboardTemplate: View {
                                 )
                             }
                             .accessibilityIdentifier("scoreboard_edit_button")
+                            .accessibilityLabel(isEditMode ? NSLocalizedString("done", value: "完成", comment: "") : NSLocalizedString("edit", value: "编辑", comment: ""))
                             .padding(.trailing, ScoreboardConstants.buttonPadding)
-                            .padding(.top, ScoreboardConstants.buttonPadding + topChromeInset)
+                            .padding(.bottom, editAboveMenu ? ScoreboardConstants.editButtonBottomPadding : 0)
+                            .padding(.top, editAboveMenu ? 0 : ScoreboardConstants.buttonPadding + topChromeInset)
                         }
-                        Spacer()
+                        if !editAboveMenu { Spacer() }
                     }
-                    .ignoresSafeArea(.all, edges: .top)
+                    .ignoresSafeArea(.all, edges: editAboveMenu ? [.bottom, .trailing] : .top)
                 }
 
                 

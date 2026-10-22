@@ -173,105 +173,107 @@ struct MultiScoreboardView: View {
     ]
 
     var body: some View {
-        GeometryReader { geo in
-            ZStack {
-                appearance.theme.palette.background.ignoresSafeArea()
+        GeometryReader { safeGeometry in
+            GeometryReader { geo in
+                ZStack {
+                    appearance.theme.palette.background.ignoresSafeArea()
 
-                scoreboardGrid(geo: geo)
+                    scoreboardGrid(geo: geo, safeArea: safeGeometry.safeAreaInsets)
 
-                if gameType == .uno,
-                   !showDisplaySettings,
-                   !showUnoRoundPanel,
-                   playerEditIndex == nil,
-                   customAdjustIndex == nil,
-                   shouldShowChrome {
-                    unoTargetBadge
-                }
-
-                if shouldShowChrome,
-                   !showUnoRoundPanel,
-                   playerEditIndex == nil,
-                   customAdjustIndex == nil {
-                    bottomControls
-                }
-
-                if showMenu {
-                    MenuDialog(
-                        isVisible: true,
-                        onClose: {
-                            menuConfirm.clear()
-                            showMenu = false
-                        },
-                        onMenuItemClick: handleMultiScoreMenuAction,
-                        items: multiScoreMenuItems,
-                        analyticsGameType: gameType
-                    )
-                }
-
-                if let index = customAdjustIndex, players.indices.contains(index) {
-                    ScoreCustomAdjustPanel(
-                        targetName: players[index].name,
-                        currentScore: players[index].score,
-                        onDismiss: { customAdjustIndex = nil },
-                        onAdjust: { delta in
-                            adjustScore(index: index, delta: delta)
-                        }
-                    )
-                }
-
-                if let index = playerEditIndex, players.indices.contains(index) {
-                    playerEditOverlay(index: index)
-                }
-
-                if showUnoRoundPanel {
-                    unoRoundOverlay
-                }
-
-                if let message = toastMessage {
-                    VStack {
-                        Spacer()
-                        ToastView(message: message)
-                            .padding(.bottom, 24)
+                    if gameType == .uno,
+                       !showDisplaySettings,
+                       !showUnoRoundPanel,
+                       playerEditIndex == nil,
+                       customAdjustIndex == nil,
+                       shouldShowChrome {
+                        unoTargetBadge
                     }
-                    .allowsHitTesting(false)
-                }
 
-                if showGameOverDialog {
-                    GameOverDialog(
-                        winnerName: finishedWinnerName,
-                        gameType: gameType,
-                        multiNames: players.map(\.name),
-                        multiScores: players.map(\.score),
-                        onNewGame: {
-                            startNewMatch()
-                        },
-                        onRecords: {
-                            persistRecord(finished: gameFinished)
-                            showFinishedRecordDetail = true
-                        },
-                        onShare: {
-                            let text = zip(players.map(\.name), players.map(\.score))
-                                .map { "\($0) \($1)" }
-                                .joined(separator: " · ")
-                            ScoreboardShareSupport.present(text: text)
-                        },
-                        onExit: {
-                            persistRecord(finished: gameFinished)
-                            performScoreboardExit(
-                                onNavigationBack: onNavigationBack,
-                                dismiss: dismiss
-                            )
+                    if shouldShowChrome,
+                       !showUnoRoundPanel,
+                       playerEditIndex == nil,
+                       customAdjustIndex == nil {
+                        bottomControls
+                    }
+
+                    if showMenu {
+                        MenuDialog(
+                            isVisible: true,
+                            onClose: {
+                                menuConfirm.clear()
+                                showMenu = false
+                            },
+                            onMenuItemClick: handleMultiScoreMenuAction,
+                            items: multiScoreMenuItems,
+                            analyticsGameType: gameType
+                        )
+                    }
+
+                    if let index = customAdjustIndex, players.indices.contains(index) {
+                        ScoreCustomAdjustPanel(
+                            targetName: players[index].name,
+                            currentScore: players[index].score,
+                            onDismiss: { customAdjustIndex = nil },
+                            onAdjust: { delta in
+                                adjustScore(index: index, delta: delta)
+                            }
+                        )
+                    }
+
+                    if let index = playerEditIndex, players.indices.contains(index) {
+                        playerEditOverlay(index: index)
+                    }
+
+                    if showUnoRoundPanel {
+                        unoRoundOverlay
+                    }
+
+                    if let message = toastMessage {
+                        VStack {
+                            Spacer()
+                            ToastView(message: message)
+                                .padding(.bottom, 24)
                         }
-                    )
+                        .allowsHitTesting(false)
+                    }
+
+                    if showGameOverDialog {
+                        GameOverDialog(
+                            winnerName: finishedWinnerName,
+                            gameType: gameType,
+                            multiNames: players.map(\.name),
+                            multiScores: players.map(\.score),
+                            onNewGame: {
+                                startNewMatch()
+                            },
+                            onRecords: {
+                                persistRecord(finished: gameFinished)
+                                showFinishedRecordDetail = true
+                            },
+                            onShare: {
+                                let text = zip(players.map(\.name), players.map(\.score))
+                                    .map { "\($0) \($1)" }
+                                    .joined(separator: " · ")
+                                ScoreboardShareSupport.present(text: text)
+                            },
+                            onExit: {
+                                persistRecord(finished: gameFinished)
+                                performScoreboardExit(
+                                    onNavigationBack: onNavigationBack,
+                                    dismiss: dismiss
+                                )
+                            }
+                        )
+                    }
                 }
+                .animation(.easeInOut(duration: 0.2), value: showMenu)
+                .animation(.easeInOut(duration: 0.2), value: customAdjustIndex)
+                .animation(.easeInOut(duration: 0.2), value: playerEditIndex)
+                .animation(.easeInOut(duration: 0.2), value: showUnoRoundPanel)
+                .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
             }
-            .animation(.easeInOut(duration: 0.2), value: showMenu)
-            .animation(.easeInOut(duration: 0.2), value: customAdjustIndex)
-            .animation(.easeInOut(duration: 0.2), value: playerEditIndex)
-            .animation(.easeInOut(duration: 0.2), value: showUnoRoundPanel)
-            .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
+            .ignoresSafeArea(.container)
         }
-        .ignoresSafeArea(.all)
         .cloudSyncSharingEntryOverlay(respectsSafeArea: true)
         .navigationTitle(gameType.displayName)
         .navigationBarTitleDisplayMode(.inline)
@@ -351,16 +353,24 @@ struct MultiScoreboardView: View {
 
     // MARK: - Grid
 
-    private func scoreboardGrid(geo: GeometryProxy) -> some View {
+    private func scoreboardGrid(geo: GeometryProxy, safeArea: EdgeInsets) -> some View {
         let rows = layoutRows()
         let cellHeight = geo.size.height / CGFloat(max(1, rows.count))
 
         return VStack(spacing: 0) {
-            ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+            ForEach(Array(rows.enumerated()), id: \.offset) { rowIndex, row in
                 HStack(spacing: 0) {
-                    ForEach(Array(row.enumerated()), id: \.offset) { _, playerIndex in
+                    ForEach(Array(row.enumerated()), id: \.offset) { columnIndex, playerIndex in
                         if let playerIndex, players.indices.contains(playerIndex) {
-                            playerPanel(index: playerIndex, player: players[playerIndex], height: cellHeight)
+                            playerPanel(
+                                index: playerIndex, player: players[playerIndex], height: cellHeight,
+                                nameInsets: EdgeInsets(
+                                    top: rowIndex == 0 ? safeArea.top : 0,
+                                    leading: columnIndex == 0 ? safeArea.leading : 0,
+                                    bottom: 0,
+                                    trailing: columnIndex == row.count - 1 ? safeArea.trailing : 0
+                                )
+                            )
                                 .frame(maxWidth: .infinity)
                         } else {
                             extraCellPlaceholder(height: cellHeight, showEmoji: true)
@@ -462,7 +472,7 @@ struct MultiScoreboardView: View {
         .allowsHitTesting(false)
     }
 
-    private func playerPanel(index: Int, player: MultiPlayerItem, height: CGFloat) -> some View {
+    private func playerPanel(index: Int, player: MultiPlayerItem, height: CGFloat, nameInsets: EdgeInsets) -> some View {
         GeometryReader { panelGeo in
             let typography = ScoreboardTypographyResolver.resolve(
                 ScoreboardTypographyLayoutContext(
@@ -488,6 +498,7 @@ struct MultiScoreboardView: View {
                     .minimumScaleFactor(0.7)
                     .padding(.horizontal, Theme.sm)
                     .padding(.top, 12)
+                    .padding(nameInsets)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
                 Text("\(player.score)")

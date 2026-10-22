@@ -72,6 +72,7 @@ struct MembershipView: View {
             .padding(.top, 8)
             .padding(.bottom, isVIP ? 24 : 16)
             .frame(maxWidth: Theme.meTabContentMaxWidth)
+            .expandedPhonePageContent(existingHorizontalInset: Theme.pageHorizontalInset)
             .frame(maxWidth: .infinity)
         }
         .background(Theme.backgroundColor.ignoresSafeArea())
@@ -655,6 +656,7 @@ struct MembershipView: View {
         .padding(.top, 10)
         .padding(.bottom, 8)
         .frame(maxWidth: Theme.meTabContentMaxWidth)
+        .expandedPhonePageContent(existingHorizontalInset: 24)
         .frame(maxWidth: .infinity)
         .background(
             Rectangle()

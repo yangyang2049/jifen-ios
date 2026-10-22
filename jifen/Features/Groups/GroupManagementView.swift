@@ -161,7 +161,7 @@ struct GroupManagementView: View {
             default: GroupNotice(text: groupText("leave_hint", "After leaving, you will no longer be a member, and this group will be removed from “My groups”. You will no longer be able to access or participate in it. Existing group match records and personal records on this device will be kept. You must rejoin to access the group again."))
             }
             if let error = error ?? store.error { GroupNotice(text: error) }
-            }.padding(Theme.padding).frame(maxWidth: 720).frame(maxWidth: .infinity)
+            }.padding(Theme.padding).frame(maxWidth: 720).expandedPhonePageContent(existingHorizontalInset: Theme.padding).frame(maxWidth: .infinity)
                 .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height in
                     if abs(editorContentHeight - height) > 1 { editorContentHeight = height }
                 }
@@ -253,7 +253,7 @@ private struct GroupCommonNameImportView: View {
                     HStack { Text(name).foregroundStyle(.primary); Spacer(); Image(systemName: selected.contains(name) ? "checkmark.circle.fill" : "circle").foregroundStyle(Theme.primary) }
                 }.accessibilityAddTraits(selected.contains(name) ? .isSelected : [])
             }
-        }.searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always)).navigationTitle(groupText("common_names", "Common names")).groupAccountBoundary()
+        }.expandedPhonePageContent(existingHorizontalInset: Theme.padding).searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always)).navigationTitle(groupText("common_names", "Common names")).groupAccountBoundary()
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button(String(format: groupText("temp_import_count", "Import (%1$d)"), selected.count)) { onImport(names.filter { selected.contains($0) }); dismiss() }.disabled(selected.isEmpty) } }
     }
 }

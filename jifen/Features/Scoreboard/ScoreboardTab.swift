@@ -9,6 +9,8 @@ import SwiftUI
 import ScoreCore
 
 struct ScoreboardTab: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.usesExpandedPhoneLayout) private var expandedPhone
     @State private var selectedSport: ScoreboardCatalogItem?
     @Binding var selectedGame: GameType?
     var onDismiss: () -> Void = {}
@@ -26,15 +28,15 @@ struct ScoreboardTab: View {
                             sectionGroup(
                                 title: section.title,
                                 items: GameCatalog.scoreboardItems(in: section),
-                                availableWidth: max(0, min(proxy.size.width, usesPadLayout ? 1080 : .infinity) - Theme.pageHorizontalInset * 2)
+                                availableWidth: max(0, min(proxy.size.width - horizontalInset * 2, expandedPhone ? Theme.expandedPhoneContentMaxWidth : (usesExpandedLayout ? 1080 : .infinity)))
                             )
                         }
                     }
-                    // 对齐 Timer tab：iPad 内容区限宽 1080 并水平居中。
-                    .frame(maxWidth: usesPadLayout ? 1080 : .infinity)
+                    // 展开手机参照首页留白；iPad 保留原有目录宽度。
+                    .frame(maxWidth: expandedPhone ? Theme.expandedPhoneContentMaxWidth : (usesExpandedLayout ? 1080 : .infinity))
                     .frame(maxWidth: .infinity)
-                    .padding(.horizontal, Theme.pageHorizontalInset)
-                    .padding(.top, usesPadLayout ? Theme.lg : Theme.md)
+                    .padding(.horizontal, horizontalInset)
+                    .padding(.top, usesExpandedLayout ? Theme.lg : Theme.md)
                     .padding(.bottom, Theme.tabContentBottomPadding)
                 }
                 .background(Theme.backgroundColor)
@@ -117,13 +119,16 @@ struct ScoreboardTab: View {
     }
 
     private func gridColumns(availableWidth: CGFloat) -> [GridItem] {
-        // 对齐 Timer tab：iPad 固定一行 4 个。
-        let count = usesPadLayout ? 4 : (availableWidth + Theme.padding * 2 < 360 ? 2 : 3)
+        let count = Theme.catalogColumnCount(availableWidth: availableWidth, usesExpandedLayout: usesExpandedLayout)
         return Array(repeating: GridItem(.flexible(), spacing: gridSpacing), count: count)
     }
 
-    private var usesPadLayout: Bool {
-        Theme.usesPadLayout
+    private var usesExpandedLayout: Bool {
+        horizontalSizeClass == .regular
+    }
+
+    private var horizontalInset: CGFloat {
+        expandedPhone ? Theme.expandedPhonePageInset : Theme.pageHorizontalInset(for: horizontalSizeClass)
     }
 
     @ViewBuilder

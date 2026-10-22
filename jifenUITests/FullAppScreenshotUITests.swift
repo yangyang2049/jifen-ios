@@ -59,6 +59,472 @@ final class FullAppScreenshotUITests: XCTestCase {
         continueAfterFailure = true
     }
 
+    private var isDuoWalkthrough: Bool {
+        ProcessInfo.processInfo.environment["DUO_CHAPTER"] != nil
+    }
+
+    private var gestureSurface: XCUIElement {
+        isDuoWalkthrough ? app.windows.firstMatch : app
+    }
+
+    private var duoCatalog: [(id: String, label: String)] {
+        scoreboards + [
+            ("shuttlecock", "毽球"), ("squash", "壁球"),
+            ("soft_tennis", "软式网球"), ("padel", "板式网球"),
+            ("football_5v5", "五人制足球"), ("basketball_training", "投篮训练")
+        ]
+    }
+
+    /// Host-selected chapters retain the real navigation and produce a video
+    /// plus explicit-display screenshots, including secondary and modal pages.
+    func testWalkDuoReviewChapter() throws {
+        guard let chapter = ProcessInfo.processInfo.environment["DUO_CHAPTER"] else {
+            throw XCTSkip("Requires the host walkthrough recorder")
+        }
+        switch chapter {
+        case "home":
+            captureTabRootsAndHomeSecondary()
+            captureScheduleFlow()
+        case "scoreboards": captureDuoScoreboards()
+        case "chrome-safety": captureDuoChromeSafety()
+        case "content-width": captureDuoContentWidths()
+        case "timers": captureAllTimers()
+        case "tools": captureAllTools()
+        case "me":
+            captureMeSecondaryPages()
+            for (identifier, name) in [
+                ("settings_membership_entry", "45_membership"),
+                ("settings_account_entry", "46_login"),
+                ("settings_feedback_entry", "47_feedback")
+            ] {
+                relaunch()
+                XCTAssertTrue(selectTab("我的"))
+                let entry = app.descendants(matching: .any)[identifier].firstMatch
+                if entry.waitForExistence(timeout: 3), entry.isHittable {
+                    entry.tap()
+                    snap(name)
+                    if name == "46_login" {
+                        XCTAssertTrue(tapFirstExisting(["账号密码登录"]))
+                        XCTAssertTrue(app.buttons["password_login_submit"].firstMatch.waitForExistence(timeout: 4))
+                        snap("46_login_password_form")
+                    }
+                } else { XCTFail("Unavailable entry: \(identifier)") }
+            }
+        case "me-forms": captureDuoMeForms()
+        case "account":
+            relaunch(extraArguments: ["-UITestFakeSession"])
+            XCTAssertTrue(selectTab("我的"))
+            let account = app.descendants(matching: .any)["settings_account_entry"].firstMatch
+            XCTAssertTrue(account.waitForExistence(timeout: 5))
+            account.tap()
+            snap("account_01_fixture_profile")
+            swipePage(up: true)
+            snap("account_02_fixture_profile_lower")
+            swipePage(up: false)
+            let avatar = app.buttons["profile_avatar_edit_button"].firstMatch
+            if avatar.exists, avatar.isHittable {
+                avatar.tap()
+                snap("account_03_avatar_source_choices")
+            }
+        case "connection":
+            relaunch()
+            XCTAssertTrue(selectTab("首页"))
+            XCTAssertTrue(tapContaining("投屏与同步"))
+            snap("connection_01_overview")
+            swipePage(up: true)
+            snap("connection_02_lower_options")
+        case "schedules": captureDuoScheduleDetails()
+        case "records": captureDuoRecords()
+        case "record-actions": captureDuoRecordActions()
+        case "record-tail": captureDuoRecordTails()
+        case "variants": testCapturePrioritySportsVariants()
+        case "styles": testAuditAllScoreboardEditingSurfaces()
+        default: XCTFail("Unknown walkthrough chapter: \(chapter)")
+        }
+    }
+
+    private func captureDuoContentWidths() {
+        continueAfterFailure = false
+        relaunch(extraArguments: ["-UITestRecordFixtures"])
+        for (tab, name) in [("首页", "home"), ("记录", "records"), ("计分", "score"), ("计时", "timer"), ("我的", "me")] {
+            XCTAssertTrue(selectTab(tab))
+            snap("width_01_tab_" + name)
+            if tab == "计分" || tab == "计时" || tab == "我的" {
+                swipePage(up: true)
+                snap("width_02_tab_" + name + "_lower")
+                swipePage(up: false)
+            }
+        }
+        // Inspect the actual tool-list destination, also used by Home navigation.
+        relaunch(extraArguments: ["-UITestOpenTools"], waitForTabBar: false)
+        XCTAssertTrue(app.navigationBars["工具"].waitForExistence(timeout: 8))
+        snap("width_03_tools_list")
+        for (identifier, title, name) in [
+            ("settings_scoreboard_entry", "计分设置", "scoreboard_settings"),
+            ("settings_faq_entry", "常见问题", "faq"),
+            ("settings_about_entry", "关于我们", "about")
+        ] {
+            relaunch()
+            XCTAssertTrue(selectTab("我的"))
+            tapSettingsEntry(identifier, fallback: title)
+            XCTAssertTrue(app.navigationBars[title].waitForExistence(timeout: 5))
+            snap("width_04_" + name)
+            swipePage(up: true)
+            snap("width_05_" + name + "_lower")
+        }
+        for (title, name) in [("常用名称", "common_names"), ("常用地点", "common_places")] {
+            relaunch()
+            XCTAssertTrue(tapContaining(title))
+            XCTAssertTrue(app.navigationBars[title].waitForExistence(timeout: 5))
+            snap("width_06_" + name)
+        }
+        relaunch(extraArguments: ["-UITestFakeSession"])
+        XCTAssertTrue(selectTab("我的"))
+        app.descendants(matching: .any)["settings_account_entry"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["profile_avatar_edit_button"].waitForExistence(timeout: 5))
+        snap("width_07_account_profile")
+    }
+
+    /// Seven independent top-control implementations plus every legacy panel.
+    /// Exercise ordinary score editing separately from the V2 style editor.
+    private func captureDuoChromeSafety() {
+        continueAfterFailure = false
+        let ids = ["pingpong", "football", "eight_ball", "tennis", "basketball",
+                   "three_basketball", "doudizhu", "nine_ball", "uno", "multiScoreboard"]
+        let filter = ProcessInfo.processInfo.environment["DUO_ITEMS"]?.split(separator: ",").map(String.init)
+        for id in ids where filter == nil || filter!.contains(id) {
+            guard let item = duoCatalog.first(where: { $0.id == id }) else { XCTFail(id); return }
+            guard openPriorityScoreboardSetup(id: id, label: item.label), tapStart() else {
+                XCTFail("Cannot open " + id); return
+            }
+            let back = app.buttons["scoreboard_back_button"].firstMatch
+            XCTAssertTrue(back.waitForExistence(timeout: 8))
+            if app.staticTexts["横屏体验更佳"].exists {
+                app.buttons["取消"].firstMatch.tap()
+            }
+            snap("chrome_\(id)_01_board")
+            if !["uno", "multiScoreboard"].contains(id) {
+                let editID = id == "tennis" ? "tennis_scoreboard_edit_button" : "scoreboard_edit_button"
+                let edit = app.buttons[editID].firstMatch
+                guard edit.waitForExistence(timeout: 5), edit.isHittable, edit.isEnabled else {
+                    XCTFail("Ordinary score edit is unreachable: " + id); return
+                }
+                let original = edit.frame
+                let menu = app.buttons["scoreboard_menu_button"].firstMatch
+                XCTAssertTrue(menu.exists && menu.isHittable)
+                XCTAssertEqual(original.midX, menu.frame.midX, accuracy: 1)
+                if ProcessInfo.processInfo.environment["DUO_POSE"] == "unfolded" {
+                    XCTAssertLessThan(original.maxY, menu.frame.minY - 7, "Inner Edit must be above Menu")
+                    XCTAssertGreaterThan(original.minY, app.windows.firstMatch.frame.midY)
+                } else {
+                    XCTAssertLessThan(original.midY, app.windows.firstMatch.frame.midY, "Outer and ordinary devices retain top Edit")
+                }
+                XCTAssertTrue(app.windows.firstMatch.frame.insetBy(dx: -1, dy: -1).contains(original))
+                edit.tap()
+                // The action label proves this is score editing, not style editing.
+                XCTAssertEqual(edit.label, "完成")
+                snap("chrome_\(id)_02_score_editing")
+                XCTAssertTrue(edit.exists && edit.isHittable)
+                XCTAssertEqual(edit.frame.minX, original.minX, accuracy: 1)
+                XCTAssertEqual(edit.frame.minY, original.minY, accuracy: 1)
+                edit.tap()
+                XCTAssertEqual(edit.label, "编辑")
+                snap("chrome_\(id)_03_score_edit_finished")
+            }
+            guard openPriorityScoreboardMenu() else { XCTFail("Missing menu " + id); return }
+            XCTAssertTrue(app.descendants(matching: .any)["scoreboard_menu_action_displaySettings"].firstMatch.exists)
+            snap("chrome_\(id)_04_menu")
+            let settings = app.descendants(matching: .any)["scoreboard_menu_action_displaySettings"].firstMatch
+            XCTAssertTrue(settings.waitForExistence(timeout: 3) && settings.isHittable)
+            settings.tap()
+            let hint = app.buttons["知道了"].firstMatch
+            if hint.waitForExistence(timeout: 0.4), hint.isHittable { hint.tap() }
+            if ["basketball", "three_basketball", "nine_ball", "uno", "multiScoreboard"].contains(id) {
+                let panel = app.descendants(matching: .any)["scoreboard_display_settings_panel"].firstMatch
+                XCTAssertTrue(panel.waitForExistence(timeout: 4))
+                let cancel = app.buttons["取消"].firstMatch
+                let apply = app.buttons["应用"].firstMatch
+                XCTAssertTrue(cancel.isHittable && apply.isHittable)
+                snap("chrome_\(id)_05_legacy_style_panel")
+                cancel.tap()
+                XCTAssertTrue(panel.waitForNonExistence(timeout: 4))
+                XCTAssertTrue(openPriorityScoreboardMenu())
+                app.descendants(matching: .any)["scoreboard_menu_action_displaySettings"].firstMatch.tap()
+                XCTAssertTrue(panel.waitForExistence(timeout: 4) && apply.isHittable)
+                apply.tap()
+                XCTAssertTrue(panel.waitForNonExistence(timeout: 4))
+                snap("chrome_\(id)_06_legacy_style_applied")
+            } else {
+                let confirm = app.buttons["确认样式编辑"].firstMatch
+                let exit = app.buttons["退出样式编辑"].firstMatch
+                XCTAssertTrue(confirm.waitForExistence(timeout: 4) && confirm.isHittable && exit.isHittable)
+                snap("chrome_\(id)_05_v2_style_confirmation")
+                exit.tap()
+            }
+        }
+    }
+
+    private func captureDuoScoreboards() {
+        let filter = ProcessInfo.processInfo.environment["DUO_ITEMS"]?.split(separator: ",").map(String.init)
+        for item in duoCatalog where filter == nil || filter!.contains(item.id) {
+            XCTContext.runActivity(named: "Duo \(item.id)") { _ in
+                guard openPriorityScoreboardSetup(id: item.id, label: item.label) else {
+                    XCTFail("Missing catalog setup \(item.id)"); return
+                }
+                if app.segmentedControls["singles_doubles_picker"].exists {
+                    XCTAssertTrue(selectSinglesDoublesMode(doubles: false))
+                }
+                snap("walk_\(item.id)_01_setup")
+                guard tapStart() else { XCTFail("Cannot start \(item.id)"); return }
+                let back = app.descendants(matching: .any)["scoreboard_back_button"].firstMatch
+                XCTAssertTrue(back.waitForExistence(timeout: 8), "Missing scoreboard \(item.id)")
+                snap("walk_\(item.id)_02_board")
+                guard openPriorityScoreboardMenu() else {
+                    XCTFail("Missing menu \(item.id)"); return
+                }
+                snap("walk_\(item.id)_03_menu")
+                let settings = app.descendants(matching: .any)["scoreboard_menu_action_displaySettings"].firstMatch
+                if settings.exists, settings.isHittable {
+                    settings.tap()
+                    let hint = app.buttons["知道了"].firstMatch
+                    if hint.waitForExistence(timeout: 0.5), hint.isHittable { hint.tap() }
+                    snap("walk_\(item.id)_04_style")
+                    let score = app.descendants(matching: .any)["style_element_mainScore_side_left"].firstMatch
+                    if score.exists, score.isHittable {
+                        score.tap()
+                        snap("walk_\(item.id)_05_typography")
+                        let close = app.buttons["完成当前面板"].firstMatch
+                        if close.exists, close.isHittable { close.tap() }
+                    }
+                    let palette = app.buttons["样式与颜色"].firstMatch
+                    if palette.exists, palette.isHittable {
+                        palette.tap()
+                        snap("walk_\(item.id)_06_palette")
+                    }
+                }
+            }
+        }
+    }
+
+    private func captureDuoRecords() {
+        // Inject data into the real store, then enter each detail from Records.
+        // Do not use -UITestRecordDetail, which replaces the app's root view.
+        relaunch(extraArguments: ["-UITestRecordFixtures"])
+        XCTAssertTrue(selectTab("记录"))
+        snap("records_01_populated_list")
+        let filter = ProcessInfo.processInfo.environment["DUO_ITEMS"]?.split(separator: ",").map(String.init)
+        for item in duoCatalog where filter == nil || filter!.contains(item.id) {
+            let recordID = ["archery": "archery_dual", "simpleScore": "simple_score", "multiScoreboard": "multi_scoreboard"][item.id] ?? item.id
+            let identifier = "record_row_\(recordID)"
+            scrollUntilExists(identifier: identifier)
+            let row = app.descendants(matching: .any)[identifier].firstMatch
+            guard row.exists, row.isHittable else {
+                XCTFail("Missing real record row \(item.id)"); continue
+            }
+            row.tap()
+            let again = app.buttons["再来一场"].firstMatch
+            XCTAssertTrue(again.waitForExistence(timeout: 5), "Missing detail \(item.id)")
+            snap("record_\(item.id)_01_detail")
+            swipePage(up: true)
+            snap("record_\(item.id)_02_lower")
+            let timeline = app.buttons["明细"].firstMatch
+            if timeline.exists, timeline.isHittable {
+                timeline.tap()
+                snap("record_\(item.id)_03_timeline")
+            }
+            navigateBack()
+        }
+    }
+
+    /// Check the end of the longest sample timeline and the chase-score variant.
+    private func captureDuoRecordTails() {
+        for game in ["pingpong", "nine_ball"] {
+            relaunch(extraArguments: ["-UITestRecordFixtures"])
+            XCTAssertTrue(selectTab("记录"))
+            let identifier = "record_row_" + game
+            scrollUntilExists(identifier: identifier)
+            let row = app.descendants(matching: .any)[identifier].firstMatch
+            XCTAssertTrue(row.exists && row.isHittable)
+            guard row.exists, row.isHittable else { continue }
+            row.tap()
+            XCTAssertTrue(app.buttons["再来一场"].firstMatch.waitForExistence(timeout: 5))
+            let timeline = app.buttons["明细"].firstMatch
+            for _ in 0..<5 where !timeline.isHittable { swipePage(up: true) }
+            XCTAssertTrue(timeline.exists && timeline.isHittable)
+            guard timeline.exists, timeline.isHittable else { continue }
+            timeline.tap()
+            snap("record_tail_" + game + "_01_timeline_top")
+            let ending = app.staticTexts["比赛结束"].firstMatch
+            for _ in 0..<20 where !ending.isHittable { swipePage(up: true) }
+            XCTAssertTrue(ending.exists && ending.isHittable, "Timeline ending must be reachable: " + game)
+            snap("record_tail_" + game + "_02_timeline_ending")
+        }
+    }
+
+    private func captureDuoRecordActions() {
+        relaunch(extraArguments: ["-UITestRecordFixtures"])
+        XCTAssertTrue(selectTab("记录"))
+        app.buttons["更多"].firstMatch.tap()
+        XCTAssertTrue(tapFirstExisting(["筛选"]))
+        snap("records_actions_01_filters")
+        dismissDialog()
+        scrollUntilExists(identifier: "record_row_basketball")
+        let row = app.descendants(matching: .any)["record_row_basketball"].firstMatch
+        XCTAssertTrue(row.exists && row.isHittable)
+        row.tap()
+        XCTAssertTrue(app.buttons["再来一场"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(tapContaining("笔记"))
+        snap("records_actions_02_note_menu")
+        XCTAssertTrue(tapFirstExisting(["文字笔记"]))
+        XCTAssertTrue(app.textViews.firstMatch.waitForExistence(timeout: 5))
+        snap("records_actions_03_text_note_editor")
+        let close = app.buttons["modal_close_button"].firstMatch
+        if close.exists, close.isHittable { close.tap() }
+
+        relaunch(extraArguments: ["-UITestRecordFixtures"])
+        XCTAssertTrue(selectTab("记录"))
+        scrollUntilExists(identifier: "record_row_basketball")
+        app.descendants(matching: .any)["record_row_basketball"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["再来一场"].firstMatch.waitForExistence(timeout: 5))
+        app.buttons["再来一场"].firstMatch.tap()
+        snap("records_actions_04_play_again_setup")
+    }
+
+    /// Run once per Device Hub pose; fold/unfold is controlled on the host.
+    /// Use a fresh simulator so the root captures don't depend on an account.
+    func testCaptureFoldableWindowLayouts() {
+        continueAfterFailure = false
+        let environment = ProcessInfo.processInfo.environment
+        let pose = environment["DUO_POSE"] ?? environment["TEST_RUNNER_DUO_POSE"] ?? "current"
+        relaunch(extraArguments: ["-national_day_2026_10_autopopup_count", "99"], orientation: nil)
+        for (tab, name) in [
+            ("首页", "home"), ("记录", "records"), ("计时", "timer"),
+            ("我的", "me"), ("计分", "score")
+        ] {
+            XCTAssertTrue(selectTab(tab), "Missing tab in \(pose): \(tab)")
+            if name == "timer" {
+                XCTAssertTrue(app.descendants(matching: .any)["timer_dest_stopwatch"].firstMatch.waitForExistence(timeout: 5))
+            }
+            snapFoldable("duo_\(pose)_\(name)")
+        }
+        let badminton = app.descendants(matching: .any)["scoreboard_catalog_badminton"].firstMatch
+        XCTAssertTrue(badminton.waitForExistence(timeout: 5))
+        badminton.tap()
+        let title = app.staticTexts["sports_setup_title"]
+        XCTAssertTrue(title.waitForExistence(timeout: 5))
+        for label in ["开始", "取消"] {
+            let button = app.buttons[label].firstMatch
+            XCTAssertTrue(button.isHittable, "Setup action unreachable in \(pose): \(label)")
+            XCTAssertTrue(app.frame.insetBy(dx: -1, dy: -1).contains(button.frame))
+        }
+        snapFoldable("duo_\(pose)_badminton_setup")
+        let hierarchy = XCTAttachment(string: "App frame: \(app.frame)\n" + app.debugDescription)
+        hierarchy.name = "duo_\(pose)_setup_hierarchy"
+        hierarchy.lifetime = .keepAlways
+        add(hierarchy)
+        relaunch(extraArguments: ["-UITestOpenTools", "-national_day_2026_10_autopopup_count", "99"], waitForTabBar: false, orientation: nil)
+        XCTAssertTrue(app.navigationBars["工具"].waitForExistence(timeout: 8))
+        snapFoldable("duo_\(pose)_tools")
+    }
+
+    /// The host changes Device Hub's pose at each logged checkpoint.
+    func testFoldableDraftAndScoreSurviveLiveResize() throws {
+        let environment = ProcessInfo.processInfo.environment
+        guard (environment["DUO_LIVE_RESIZE"] ?? environment["TEST_RUNNER_DUO_LIVE_RESIZE"]) == "1" else {
+            throw XCTSkip("Requires host-controlled fold/unfold checkpoints")
+        }
+        continueAfterFailure = false
+        relaunch(extraArguments: ["-national_day_2026_10_autopopup_count", "99"])
+        XCTAssertTrue(selectTab("计分"))
+        let badminton = app.descendants(matching: .any)["scoreboard_catalog_badminton"].firstMatch
+        XCTAssertTrue(badminton.waitForExistence(timeout: 5))
+        badminton.tap()
+        let mode = app.segmentedControls["singles_doubles_picker"]
+        XCTAssertTrue(mode.waitForExistence(timeout: 5))
+        mode.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.5)).tap()
+        let selectedMode = mode.value as? String
+        XCTAssertEqual(selectedMode, "双打")
+        XCTAssertGreaterThanOrEqual(app.textFields.count, 4)
+        snapFoldable("duo_live_doubles_before")
+        for step in 1...2 {
+            waitForHostResize(checkpoint: "draft_\(step)")
+            XCTAssertEqual(mode.value as? String, selectedMode, "Resize reset the setup draft")
+            XCTAssertGreaterThanOrEqual(app.textFields.count, 4)
+            XCTAssertTrue(app.buttons["开始"].firstMatch.isHittable)
+            snapFoldable("duo_live_doubles_after_\(step)")
+        }
+        XCTAssertTrue(tapStart())
+        XCTAssertTrue(app.buttons["scoreboard_menu_button"].waitForExistence(timeout: 8))
+        let score = app.staticTexts["rally_doubles_score_left"]
+        XCTAssertTrue(score.waitForExistence(timeout: 3))
+        for points in 1...3 {
+            score.tap()
+            let updated = expectation(for: NSPredicate(format: "label == %@", String(points)), evaluatedWith: score)
+            wait(for: [updated], timeout: 3)
+            RunLoop.current.run(until: Date().addingTimeInterval(0.35))
+        }
+        XCTAssertEqual(score.label, "3")
+        snapFoldable("duo_live_score_before")
+        for step in 1...2 {
+            waitForHostResize(checkpoint: "score_\(step)")
+            XCTAssertEqual(score.label, "3", "Resize reset the live score")
+            snapFoldable("duo_live_score_after_\(step)")
+            let menu = app.buttons["scoreboard_menu_button"]
+            let reachable = expectation(for: NSPredicate(format: "hittable == true"), evaluatedWith: menu)
+            wait(for: [reachable], timeout: 5)
+        }
+    }
+
+    private func waitForHostResize(checkpoint: String) {
+        let original = app.frame.size
+        print("DUO_RESIZE_READY \(checkpoint) \(original)")
+        let changed = expectation(for: NSPredicate { [weak self] _, _ in
+            guard let size = self?.app.frame.size else { return false }
+            return abs(size.width - original.width) > 30 || abs(size.height - original.height) > 30
+        }, evaluatedWith: app)
+        wait(for: [changed], timeout: 90)
+        var previous = app.frame.size
+        var stableSamples = 0
+        for _ in 0..<15 {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+            let current = app.frame.size
+            stableSamples = current == previous ? stableSamples + 1 : 0
+            previous = current
+            if stableSamples >= 3 { break }
+        }
+        print("DUO_RESIZE_DONE \(checkpoint) \(app.frame.size)")
+    }
+
+    private func snapFoldable(_ name: String) {
+        // The current Xcode screenshot service returns black pixels on Duo's
+        // inner display. Let the host capture the explicit active display.
+        if ProcessInfo.processInfo.environment["DUO_HOST_CAPTURE"] == "1" {
+            let marker = FileManager.default.temporaryDirectory.appendingPathComponent("duo-capture.json")
+            var size = app.frame.size
+            var metadata: [String: Any] = ["name": name, "width": size.width, "height": size.height]
+            if isDuoWalkthrough { metadata["hierarchy"] = app.debugDescription }
+            do {
+                try JSONSerialization.data(withJSONObject: metadata).write(to: marker, options: .atomic)
+            } catch {
+                XCTFail("Cannot request host screenshot: \(error)")
+                return
+            }
+            let deadline = Date().addingTimeInterval(90)
+            while FileManager.default.fileExists(atPath: marker.path), Date() < deadline {
+                RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+                let current = app.frame.size
+                if current != size {
+                    size = current
+                    let update: [String: Any] = ["name": name, "width": size.width, "height": size.height]
+                    try? JSONSerialization.data(withJSONObject: update).write(to: marker, options: .atomic)
+                }
+            }
+            XCTAssertFalse(FileManager.default.fileExists(atPath: marker.path), "Host screenshot timed out: \(name)")
+        } else {
+            UITestScreenshotStore.capture(app, name: name, testCase: self)
+        }
+    }
+
     func testCaptureFullAppScreenshots() throws {
         UITestScreenshotStore.resetOutputDirectory()
         defer {
@@ -111,7 +577,7 @@ final class FullAppScreenshotUITests: XCTestCase {
 
         XCTAssertTrue(openPriorityScoreboardSetup(id: "basketball", label: "篮球"))
         XCTAssertTrue(tapStart())
-        XCUIDevice.shared.orientation = .landscapeRight
+        if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeRight }
         snap("marketing_basketball")
 
         relaunch()
@@ -120,7 +586,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         XCTAssertTrue(go.waitForExistence(timeout: 4))
         go.tap()
         XCTAssertTrue(tapStart())
-        XCUIDevice.shared.orientation = .landscapeLeft
+        if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeLeft }
         snap("marketing_go_timer")
     }
 
@@ -142,7 +608,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         // 竖屏下左右半场点按计分(布局对称无歧义),再转横屏截图
         scoreRallySide(left: true, times: 25)
         scoreRallySide(left: false, times: 23)
-        XCUIDevice.shared.orientation = .landscapeLeft
+        if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeLeft }
         RunLoop.current.run(until: Date().addingTimeInterval(0.6))
         snap("marketing_volleyball_data", settle: 0.5)
     }
@@ -150,7 +616,7 @@ final class FullAppScreenshotUITests: XCTestCase {
     private func captureSnookerData() {
         relaunch()
         guard openSportAndStart(id: "snooker", label: "斯诺克") else { return }
-        XCUIDevice.shared.orientation = .landscapeLeft
+        if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeLeft }
         RunLoop.current.run(until: Date().addingTimeInterval(0.6))
         // 用球值按钮组合真实比分:红球连击 + 彩球,换手后再打
         scoreSnookerBall(1, times: 12)
@@ -169,7 +635,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         scrollUntilExists(identifier: "timer_dest_xiangqi")
         app.descendants(matching: .any)["timer_dest_xiangqi"].firstMatch.tap()
         guard tapStart() else { return }
-        XCUIDevice.shared.orientation = .landscapeLeft
+        if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeLeft }
         RunLoop.current.run(until: Date().addingTimeInterval(1.2))
         ensureBoardTimerStarted()
         RunLoop.current.run(until: Date().addingTimeInterval(20))
@@ -186,7 +652,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         scrollUntilExists(identifier: "timer_dest_go")
         app.descendants(matching: .any)["timer_dest_go"].firstMatch.tap()
         guard tapStart() else { return }
-        XCUIDevice.shared.orientation = .landscapeLeft
+        if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeLeft }
         RunLoop.current.run(until: Date().addingTimeInterval(1.2))
         ensureBoardTimerStarted()
         RunLoop.current.run(until: Date().addingTimeInterval(30))
@@ -211,7 +677,7 @@ final class FullAppScreenshotUITests: XCTestCase {
     private func captureBasketballData() {
         relaunch()
         guard openSportAndStart(id: "basketball", label: "篮球") else { return }
-        XCUIDevice.shared.orientation = .landscapeRight
+        if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeRight }
         RunLoop.current.run(until: Date().addingTimeInterval(0.5))
         revealScoreboardChrome(fromLeftCorner: true)
         scoreBasketballPoints(left: true, points: 58)
@@ -313,14 +779,14 @@ final class FullAppScreenshotUITests: XCTestCase {
         // 24:23 局点，比分会随每一分变化，比整数局分更像在打
         scoreRallySide(left: true, times: 24)
         scoreRallySide(left: false, times: 23)
-        XCUIDevice.shared.orientation = .landscapeLeft
+        if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeLeft }
         snap(pack.prefix + "volleyball", settle: 0.6)
     }
 
     private func captureStoreSnooker(_ pack: StorePack) {
         relaunch(extraArguments: pack.names(pack.duel), locale: pack.locale)
         guard openCatalogEntry("snooker"), tapStart() else { return }
-        XCUIDevice.shared.orientation = .landscapeLeft
+        if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeLeft }
         RunLoop.current.run(until: Date().addingTimeInterval(0.6))
         scoreSnookerBall(1, times: 12)
         scoreSnookerBall(5, times: 4)
@@ -336,7 +802,7 @@ final class FullAppScreenshotUITests: XCTestCase {
     private func captureStoreUnoLive(_ pack: StorePack) {
         relaunch(extraArguments: pack.names(pack.uno), locale: pack.locale)
         guard openCatalogEntry("uno"), tapStart() else { return }
-        XCUIDevice.shared.orientation = .landscapeLeft
+        if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeLeft }
         RunLoop.current.run(until: Date().addingTimeInterval(0.8))
         scoreUnoRound(player: pack.uno[0], points: 236)
         scoreUnoRound(player: pack.uno[1], points: 187)
@@ -348,7 +814,7 @@ final class FullAppScreenshotUITests: XCTestCase {
     private func captureStoreMultiLive(_ pack: StorePack) {
         relaunch(extraArguments: pack.names(pack.multi), locale: pack.locale)
         guard openCatalogEntry("multiScoreboard"), tapStart() else { return }
-        XCUIDevice.shared.orientation = .landscapeLeft
+        if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeLeft }
         RunLoop.current.run(until: Date().addingTimeInterval(0.8))
         tapMultiScoreCell(player: pack.multi[0], times: 12)
         tapMultiScoreCell(player: pack.multi[1], times: 8)
@@ -365,7 +831,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         guard entry.waitForExistence(timeout: 4), entry.isHittable else { return }
         entry.tap()
         guard tapStart() else { return }
-        XCUIDevice.shared.orientation = .landscapeLeft
+        if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeLeft }
         RunLoop.current.run(until: Date().addingTimeInterval(1.2))
         ensureStoreBoardTimerStarted()
         // 两边都真实走过时间,读秒数才对得上;计时器只认"点自己这侧交权",
@@ -379,7 +845,7 @@ final class FullAppScreenshotUITests: XCTestCase {
     private func captureStoreBasketball(_ pack: StorePack) {
         relaunch(extraArguments: pack.names(pack.teams), locale: pack.locale)
         guard openCatalogEntry("basketball"), tapStart() else { return }
-        XCUIDevice.shared.orientation = .landscapeRight
+        if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeRight }
         RunLoop.current.run(until: Date().addingTimeInterval(0.5))
         revealScoreboardChrome(fromLeftCorner: true)
         scoreBasketballPoints(left: true, points: 71)
@@ -593,7 +1059,7 @@ final class FullAppScreenshotUITests: XCTestCase {
     /// 排球/斯诺克等点按计分板:点按对应半场 +1
     private func scoreRallySide(left: Bool, times: Int) {
         for _ in 0..<times {
-            app.coordinate(withNormalizedOffset: CGVector(dx: left ? 0.25 : 0.75, dy: 0.5)).tap()
+            gestureSurface.coordinate(withNormalizedOffset: CGVector(dx: left ? 0.25 : 0.75, dy: 0.5)).tap()
             RunLoop.current.run(until: Date().addingTimeInterval(0.1))
         }
     }
@@ -638,7 +1104,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         if player.waitForExistence(timeout: 2), player.isHittable {
             player.tap()
         } else {
-            app.coordinate(withNormalizedOffset: CGVector(dx: playerID == "1" ? 0.25 : 0.75, dy: 0.5)).tap()
+            gestureSurface.coordinate(withNormalizedOffset: CGVector(dx: playerID == "1" ? 0.25 : 0.75, dy: 0.5)).tap()
         }
         RunLoop.current.run(until: Date().addingTimeInterval(0.3))
     }
@@ -657,7 +1123,9 @@ final class FullAppScreenshotUITests: XCTestCase {
             ("pickleball", "匹克球", true),
         ]
 
-        for (offset, variant) in variants.enumerated() {
+        // Singles already have setup/board/menu/style coverage in the catalog
+        // chapters; the Duo review adds the distinct doubles layouts here.
+        for (offset, variant) in variants.enumerated() where !isDuoWalkthrough || variant.doubles {
             let index = offset + 1
             let mode = variant.doubles ? "doubles" : "singles"
             XCTContext.runActivity(named: "Priority \(variant.id) \(mode)") { _ in
@@ -698,7 +1166,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         XCTAssertTrue(waitForPriorityScoreboard())
 
         for _ in 0..<11 {
-            app.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+            gestureSurface.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
             RunLoop.current.run(until: Date().addingTimeInterval(0.04))
         }
 
@@ -883,7 +1351,7 @@ final class FullAppScreenshotUITests: XCTestCase {
             XCTAssertTrue(card.waitForExistence(timeout: 3), "Missing \(item.id) card")
             card.tap()
             XCTAssertTrue(tapStart(), "Start button not found for \(item.id)")
-            XCUIDevice.shared.orientation = .landscapeRight
+            if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeRight }
             RunLoop.current.run(until: Date().addingTimeInterval(0.35))
             revealScoreboardChrome(fromLeftCorner: true)
             XCTAssertTrue(
@@ -905,13 +1373,13 @@ final class FullAppScreenshotUITests: XCTestCase {
                      (id: "multiScoreboard", label: "多人计分")] {
             XCTAssertTrue(openPriorityScoreboardSetup(id: item.id, label: item.label))
             XCTAssertTrue(tapStart())
-            XCUIDevice.shared.orientation = .landscapeRight
+            if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeRight }
             RunLoop.current.run(until: Date().addingTimeInterval(0.5))
             if item.id == "doudizhu" {
-                app.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.09)).tap()
+                gestureSurface.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.09)).tap()
                 XCTAssertTrue(app.descendants(matching: .any)["doudizhu_player_0_name_editor"].firstMatch.waitForExistence(timeout: 2))
                 snap("audit_doudizhu_02_edit", settle: 0.3)
-                app.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.09)).tap()
+                gestureSurface.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.09)).tap()
             } else if ["uno", "multiScoreboard"].contains(item.id) {
                 app.staticTexts["玩家 1"].firstMatch.press(forDuration: 1.2)
                 XCTAssertTrue(app.descendants(matching: .any)["multi_score_player_name_editor"].firstMatch.waitForExistence(timeout: 2))
@@ -980,7 +1448,7 @@ final class FullAppScreenshotUITests: XCTestCase {
     func testFollowupBoxingAndStoppageControls() {
         XCTAssertTrue(openPriorityScoreboardSetup(id: "boxing", label: "拳击"))
         XCTAssertTrue(tapStart())
-        XCUIDevice.shared.orientation = .landscapeRight
+        if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeRight }
         let add = app.buttons["boxing_add_round"].firstMatch
         XCTAssertTrue(add.waitForExistence(timeout: 3))
         XCTAssertEqual(add.frame.midX, app.frame.midX, accuracy: 4)
@@ -990,7 +1458,7 @@ final class FullAppScreenshotUITests: XCTestCase {
 
         XCTAssertTrue(openPriorityScoreboardSetup(id: "football", label: "足球"))
         XCTAssertTrue(tapStart())
-        XCUIDevice.shared.orientation = .landscapeRight
+        if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeRight }
         XCTAssertFalse(app.descendants(matching: .any)["football_stoppage_menu"].exists)
         XCTAssertTrue(openPriorityScoreboardMenu())
         let injury = app.descendants(matching: .any)["scoreboard_menu_action_footballInjury"].firstMatch
@@ -1017,7 +1485,7 @@ final class FullAppScreenshotUITests: XCTestCase {
                     XCTFail("Missing setup: \(item.id)"); return
                 }
                 guard tapStart() else { XCTFail("Cannot start \(item.id)"); return }
-                XCUIDevice.shared.orientation = .landscapeRight
+                if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeRight }
                 RunLoop.current.run(until: Date().addingTimeInterval(0.6))
                 revealScoreboardChrome(fromLeftCorner: true)
                 snap("audit_\(item.id)_01_board", settle: 0.3)
@@ -1025,10 +1493,10 @@ final class FullAppScreenshotUITests: XCTestCase {
                 let tennisEdit = app.buttons["tennis_scoreboard_edit_button"].firstMatch
                 let edit = standardEdit.exists ? standardEdit : (tennisEdit.exists ? tennisEdit : app.buttons["pencil"].firstMatch)
                 if item.id == "doudizhu" {
-                    app.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.09)).tap()
+                    gestureSurface.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.09)).tap()
                     XCTAssertTrue(app.descendants(matching: .any)["doudizhu_player_0_name_editor"].firstMatch.waitForExistence(timeout: 2))
                     snap("audit_doudizhu_02_edit", settle: 0.3)
-                    app.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.09)).tap()
+                    gestureSurface.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.09)).tap()
                 } else if edit.waitForExistence(timeout: 2), edit.isHittable {
                     edit.tap()
                     snap("audit_\(item.id)_02_edit", settle: 0.3)
@@ -1113,7 +1581,7 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     // MARK: - Launch
 
-    private func relaunch(extraArguments: [String] = [], locale: UITestLocale.Configuration = UITestLocale.zhHans, waitForTabBar: Bool = true, orientation: UIDeviceOrientation = .portrait) {
+    private func relaunch(extraArguments: [String] = [], locale: UITestLocale.Configuration = UITestLocale.zhHans, waitForTabBar: Bool = true, orientation: UIDeviceOrientation? = .portrait) {
         if app != nil {
             terminateAndWait(app)
         }
@@ -1125,24 +1593,30 @@ final class FullAppScreenshotUITests: XCTestCase {
             "-UITestSkipScoreboardUsageHints",
             "-UITestScreenshotMode", "1"
         ] + extraArguments
+        if isDuoWalkthrough {
+            app.launchArguments += ["-national_day_2026_10_autopopup_count", "99"]
+        }
         XCTAssertTrue(launchAndWait(app), "Screenshot app failed to reach the foreground")
         // 夹具会把根视图换成详情页，此时没有 Tab Bar 可等
         if waitForTabBar {
             XCTAssertTrue(waitForTabs(timeout: 12), "Tab bar not ready after launch")
         }
         // Ensure portrait for tab navigation
-        XCUIDevice.shared.orientation = orientation
+        if let orientation, !isDuoWalkthrough { XCUIDevice.shared.orientation = orientation }
         RunLoop.current.run(until: Date().addingTimeInterval(0.4))
     }
 
     private func launchAndWait(_ app: XCUIApplication) -> Bool {
-        if app.state != .notRunning {
-            app.terminate()
-            guard app.wait(for: .notRunning, timeout: 5) else { return false }
+        for _ in 0..<2 {
+            if app.state != .notRunning {
+                app.terminate()
+                _ = app.wait(for: .notRunning, timeout: 8)
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+            app.launch()
+            if app.wait(for: .runningForeground, timeout: 12) { return true }
         }
-        RunLoop.current.run(until: Date().addingTimeInterval(0.2))
-        app.launch()
-        return app.wait(for: .runningForeground, timeout: 12)
+        return false
     }
 
     private func terminateAndWait(_ app: XCUIApplication) {
@@ -1175,6 +1649,29 @@ final class FullAppScreenshotUITests: XCTestCase {
             "Me": ["我的", "Me"]
         ]
         let names = aliases[name] ?? [name]
+        let tabNames = ["首页", "记录", "计分", "计时", "我的"]
+        if let index = tabNames.firstIndex(where: { names.contains($0) }) {
+            let tab = app.descendants(matching: .any)["main_tab_\(index)"].firstMatch
+            if tab.waitForExistence(timeout: 2), tab.isHittable {
+                if !tab.isSelected { tab.tap() }
+                return tab.isSelected
+            }
+            // iOS 27.1's vertical system toolbar can discard the SwiftUI Label
+            // identifier. Match the tab's own symbol to avoid Records filters
+            // with the same "Score" / "Timer" labels.
+            let symbol = ["house.fill", "list.bullet.clipboard.fill", "sportscourt.fill", "timer", "person.fill"][index]
+            for title in names {
+                let candidates = app.buttons.matching(NSPredicate(format: "label == %@", title)).allElementsBoundByIndex
+                if let renderedTab = candidates.first(where: { $0.images[symbol].exists && $0.isHittable }) {
+                    if !renderedTab.isSelected { renderedTab.tap() }
+                    // Tab navigation removes same-name content buttons, so a
+                    // previously index-bound element can point past the new list.
+                    let current = app.buttons.matching(NSPredicate(format: "label == %@", title))
+                        .allElementsBoundByIndex.first(where: { $0.images[symbol].exists })
+                    return current?.isSelected == true
+                }
+            }
+        }
         for n in names {
             // iPhone: standard tab bar. iPad (iOS 18+/26): may expose tabs outside `tabBars`.
             let candidates: [XCUIElement] = [
@@ -1205,7 +1702,11 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     private func snap(_ name: String, settle: TimeInterval = 0.8) {
         RunLoop.current.run(until: Date().addingTimeInterval(settle))
-        UITestScreenshotStore.capture(app, name: name, testCase: self, settleNanoseconds: 200_000_000)
+        if ProcessInfo.processInfo.environment["DUO_HOST_CAPTURE"] == "1" {
+            snapFoldable(name)
+        } else {
+            UITestScreenshotStore.capture(app, name: name, testCase: self, settleNanoseconds: 200_000_000)
+        }
     }
 
     // MARK: - Tabs + home secondary
@@ -1217,7 +1718,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         selectTab("计分"); snap("03_tab_score")
         selectTab("计时")
         // Ensure basketball 24s/12s (below the fold on smaller phones) are visible.
-        app.swipeUp()
+        swipePage(up: true)
         RunLoop.current.run(until: Date().addingTimeInterval(0.3))
         snap("04_tab_timer")
         selectTab("我的"); snap("05_tab_me")
@@ -1289,7 +1790,7 @@ final class FullAppScreenshotUITests: XCTestCase {
 
                 // 部分计分板仅在横屏尺寸下挂载完整的无障碍树。先完成方向切换，
                 // 再检查页面标识，避免把“尚未布局”误判为“未打开”。
-                XCUIDevice.shared.orientation = .landscapeLeft
+                if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeLeft }
                 RunLoop.current.run(until: Date().addingTimeInterval(0.35))
                 revealScoreboardChrome(fromLeftCorner: true)
                 let scoreboard = app.descendants(matching: .any)["scoreboard_back_button"]
@@ -1340,12 +1841,15 @@ final class FullAppScreenshotUITests: XCTestCase {
         }
         RunLoop.current.run(until: Date().addingTimeInterval(0.3))
 
+        // Foosball labels these same options 1V1/2V2. The selected control
+        // expresses the mode without depending on a sport-specific title.
+        if option.exists { return option.isSelected }
         let expected = doubles ? "双打" : "单打"
         return (picker.value as? String) == expected
     }
 
     private func waitForPriorityScoreboard() -> Bool {
-        XCUIDevice.shared.orientation = .landscapeLeft
+        if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeLeft }
         RunLoop.current.run(until: Date().addingTimeInterval(0.45))
         revealScoreboardChrome(fromLeftCorner: true)
         return app.descendants(matching: .any)["scoreboard_back_button"]
@@ -1362,9 +1866,9 @@ final class FullAppScreenshotUITests: XCTestCase {
     }
 
     private func tapPriorityScorePanels() {
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        gestureSurface.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
         RunLoop.current.run(until: Date().addingTimeInterval(0.25))
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.5)).tap()
+        gestureSurface.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.5)).tap()
         RunLoop.current.run(until: Date().addingTimeInterval(0.35))
     }
 
@@ -1377,10 +1881,10 @@ final class FullAppScreenshotUITests: XCTestCase {
         if menu.waitForExistence(timeout: 2), menu.isHittable {
             menu.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         } else {
-            app.coordinate(withNormalizedOffset: CGVector(dx: 0.96, dy: 0.94)).tap()
+            gestureSurface.coordinate(withNormalizedOffset: CGVector(dx: 0.96, dy: 0.94)).tap()
         }
         if !dialog.waitForExistence(timeout: 1) {
-            app.coordinate(withNormalizedOffset: CGVector(dx: 0.96, dy: 0.94)).tap()
+            gestureSurface.coordinate(withNormalizedOffset: CGVector(dx: 0.96, dy: 0.94)).tap()
         }
         return dialog.waitForExistence(timeout: 3)
     }
@@ -1396,12 +1900,12 @@ final class FullAppScreenshotUITests: XCTestCase {
                 menu.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
             } else {
                 // 控制栏正在淡出时 identifier 仍可能存在但暂不可点，使用其固定右下角热区。
-                app.coordinate(withNormalizedOffset: CGVector(dx: 0.96, dy: 0.94)).tap()
+                gestureSurface.coordinate(withNormalizedOffset: CGVector(dx: 0.96, dy: 0.94)).tap()
             }
         }
 
         if !dialog.waitForExistence(timeout: 0.5) {
-            app.coordinate(withNormalizedOffset: CGVector(dx: 0.96, dy: 0.94)).tap()
+            gestureSurface.coordinate(withNormalizedOffset: CGVector(dx: 0.96, dy: 0.94)).tap()
         }
 
         XCTAssertTrue(dialog.waitForExistence(timeout: 3), "Menu did not open for \(id)")
@@ -1458,7 +1962,7 @@ final class FullAppScreenshotUITests: XCTestCase {
     private func revealScoreboardChrome(fromLeftCorner: Bool) {
         let expectedID = fromLeftCorner ? "scoreboard_back_button" : "scoreboard_menu_button"
         if app.descendants(matching: .any)[expectedID].exists { return }
-        app.coordinate(
+        gestureSurface.coordinate(
             withNormalizedOffset: CGVector(dx: fromLeftCorner ? 0.02 : 0.98, dy: 0.98)
         ).tap()
         RunLoop.current.run(until: Date().addingTimeInterval(0.25))
@@ -1479,7 +1983,7 @@ final class FullAppScreenshotUITests: XCTestCase {
                 let card = app.descendants(matching: .any)["timer_dest_\(item.id)"]
                 if card.waitForExistence(timeout: 3) {
                     for _ in 0..<4 where !card.isHittable {
-                        app.swipeUp()
+                        swipePage(up: true)
                         RunLoop.current.run(until: Date().addingTimeInterval(0.2))
                     }
                     card.tap()
@@ -1512,7 +2016,7 @@ final class FullAppScreenshotUITests: XCTestCase {
                     XCTAssertTrue(tapStart(), "Timer start button not found for \(item.id)")
                 }
 
-                XCUIDevice.shared.orientation = .landscapeLeft
+                if !isDuoWalkthrough { XCUIDevice.shared.orientation = .landscapeLeft }
                 RunLoop.current.run(until: Date().addingTimeInterval(1.0))
                 snap(String(format: "21_%02d_timer_%@", index + 1, item.id), settle: 0.5)
             }
@@ -1522,7 +2026,6 @@ final class FullAppScreenshotUITests: XCTestCase {
     // MARK: - Tools
 
     private func captureAllTools() {
-        relaunch()
         openToolsListFromHome()
         XCTAssertTrue(
             app.navigationBars["工具"].waitForExistence(timeout: 4)
@@ -1541,7 +2044,7 @@ final class FullAppScreenshotUITests: XCTestCase {
                 let card = app.descendants(matching: .any)["tool_card_\(item.id)"]
                 if card.waitForExistence(timeout: 3) {
                     for _ in 0..<6 where !card.isHittable {
-                        app.swipeUp()
+                        swipePage(up: true)
                     }
                     card.tap()
                 } else {
@@ -1571,9 +2074,17 @@ final class FullAppScreenshotUITests: XCTestCase {
     }
 
     private func openToolsListFromHome() {
+        if isDuoWalkthrough {
+            // Regular Home already contains every tool and omits the compact
+            // "all tools" header. Open Home's production tools route, then walk
+            // every destination through the rendered catalog.
+            relaunch(extraArguments: ["-UITestOpenTools"], waitForTabBar: false, orientation: nil)
+            XCTAssertTrue(app.navigationBars["工具"].waitForExistence(timeout: 8))
+            return
+        }
         relaunch()
         selectTab("首页")
-        for _ in 0..<6 { app.swipeUp() }
+        for _ in 0..<6 { swipePage(up: true) }
 
         let allTools = app.descendants(matching: .any)["home_all_tools_button"]
         if allTools.waitForExistence(timeout: 3) {
@@ -1595,14 +2106,94 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     // MARK: - Me
 
+    /// Read-only forms: never save an account change or publish feedback.
+    private func captureDuoMeForms() {
+        for (identifier, name) in [
+            ("scoreboard_touch_guard_toggle_help", "me_forms_01_touch_guard_help"),
+            ("scoreboard_double_tap_subtract_toggle_help", "me_forms_02_double_tap_help"),
+            ("official_breaks_toggle_help", "me_forms_03_official_break_help")
+        ] {
+            relaunch()
+            XCTAssertTrue(selectTab("我的"))
+            tapSettingsEntry("settings_scoreboard_entry", fallback: "计分设置")
+            let help = app.buttons[identifier].firstMatch
+            for _ in 0..<3 where !help.isHittable { swipePage(up: true) }
+            XCTAssertTrue(help.exists && help.isHittable)
+            guard help.exists, help.isHittable else { continue }
+            help.tap()
+            snap(name)
+        }
+
+        relaunch(extraArguments: ["-UITestFakeSession"])
+        XCTAssertTrue(selectTab("我的"))
+        tapSettingsEntry("settings_account_entry", fallback: "账号")
+        let nickname = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "昵称")).firstMatch
+        XCTAssertTrue(nickname.waitForExistence(timeout: 4))
+        if nickname.exists, nickname.isHittable {
+            nickname.tap()
+            let nameField = app.textFields["请输入昵称"].firstMatch
+            XCTAssertTrue(nameField.waitForExistence(timeout: 4))
+            nameField.tap()
+            nameField.typeText(" Review")
+            XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 8), "Software keyboard must be visible for the nickname checkpoint")
+            snap("me_forms_04_nickname_keyboard_no_save")
+        }
+
+        relaunch(extraArguments: ["-UITestFakeSession"])
+        XCTAssertTrue(selectTab("我的"))
+        tapSettingsEntry("settings_feedback_entry", fallback: "反馈")
+        let create = app.buttons["新建反馈"].firstMatch
+        XCTAssertTrue(create.waitForExistence(timeout: 8))
+        guard create.exists, create.isHittable else { return }
+        create.tap()
+        XCTAssertTrue(app.textFields["请输入反馈标题"].firstMatch.waitForExistence(timeout: 5))
+        snap("me_forms_05_feedback_create_no_publish")
+        swipePage(up: true)
+        snap("me_forms_06_feedback_create_lower")
+        swipePage(up: false)
+        for (label, name) in [("功能建议", "me_forms_07_feedback_feature"), ("问题反馈", "me_forms_08_feedback_bug")] {
+            let kind = app.buttons[label].firstMatch
+            for _ in 0..<3 where !kind.isHittable { swipePage(up: false) }
+            XCTAssertTrue(kind.exists && kind.isHittable)
+            if kind.exists, kind.isHittable { kind.tap(); snap(name) }
+        }
+        for (identifier, title, name) in [
+            ("settings_about_terms_link", "用户协议", "me_forms_09_terms_web"),
+            ("settings_about_privacy_link", "隐私政策", "me_forms_11_privacy_web")
+        ] {
+            relaunch()
+            XCTAssertTrue(selectTab("我的"))
+            tapSettingsEntry("settings_about_entry", fallback: "关于我们")
+            let link = app.descendants(matching: .any)[identifier].firstMatch
+            XCTAssertTrue(link.waitForExistence(timeout: 4))
+            guard link.exists, link.isHittable else { XCTFail("Missing About link: " + identifier); continue }
+            link.tap()
+            XCTAssertTrue(app.navigationBars[title].waitForExistence(timeout: 5))
+            let web = app.webViews.firstMatch
+            XCTAssertTrue(web.waitForExistence(timeout: 8))
+            XCTAssertTrue(web.staticTexts.firstMatch.waitForExistence(timeout: 15), "Legal web content must actually load")
+            XCTAssertFalse(app.buttons["web_load_retry_button"].exists)
+            snap(name)
+            swipePage(up: true)
+            snap(name + "_lower")
+        }
+    }
+
     private func captureMeSecondaryPages() {
         relaunch()
         selectTab("我的")
         snap("40_me_root")
 
         tapSettingsEntry("settings_scoreboard_entry", fallback: "计分设置")
+        XCTAssertTrue(app.navigationBars["计分设置"].waitForExistence(timeout: 5))
         RunLoop.current.run(until: Date().addingTimeInterval(0.5))
         snap("41_me_scoreboard_settings")
+        if isDuoWalkthrough {
+            for page in 1...3 {
+                swipePage(up: true)
+                snap("41_me_scoreboard_settings_page_\(page)")
+            }
+        }
         closeMeDestination("settings_scoreboard_sheet_close")
 
         selectTab("我的")
@@ -1614,16 +2205,30 @@ final class FullAppScreenshotUITests: XCTestCase {
         tapRow("外观")
         RunLoop.current.run(until: Date().addingTimeInterval(0.4))
         snap("42_me_appearance")
-        dismissDialog()
+        if isDuoWalkthrough, let system = app.buttons.matching(NSPredicate(format: "label == %@", "跟随系统"))
+            .allElementsBoundByIndex.first(where: { $0.isHittable }) {
+            system.tap()
+        } else {
+            dismissDialog()
+        }
 
         selectTab("我的")
         tapSettingsEntry("settings_faq_entry", fallback: "常见问题")
+        XCTAssertTrue(app.navigationBars["常见问题"].waitForExistence(timeout: 5))
         RunLoop.current.run(until: Date().addingTimeInterval(0.5))
         snap("43_me_faq")
+        if isDuoWalkthrough {
+            let questions = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", "settings_faq_question_")).allElementsBoundByIndex
+            for (index, question) in questions.prefix(4).enumerated() where question.isHittable {
+                question.tap()
+                snap("43_me_faq_answer_\(index + 1)")
+            }
+        }
         closeMeDestination("settings_faq_sheet_close")
 
         selectTab("我的")
         tapSettingsEntry("settings_about_entry", fallback: "关于我们")
+        XCTAssertTrue(app.navigationBars["关于我们"].waitForExistence(timeout: 5))
         RunLoop.current.run(until: Date().addingTimeInterval(0.5))
         snap("44_me_about")
         closeMeDestination("settings_about_sheet_close")
@@ -1631,10 +2236,62 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     // MARK: - Schedule / records / sync
 
+    /// Creates only a local simulator appointment, with notifications disabled.
+    private func captureDuoScheduleDetails() {
+        captureScheduleFlow()
+        let location = app.textFields["输入地点"].firstMatch
+        for _ in 0..<4 where !location.isHittable { swipePage(up: true) }
+        XCTAssertTrue(location.isHittable)
+        location.tap()
+        let locationName = "Duo Court " + String(Int(Date().timeIntervalSince1970))
+        location.typeText(locationName)
+        let finishInput = app.buttons["booking_finish_input"].firstMatch
+        XCTAssertTrue(finishInput.waitForExistence(timeout: 5))
+        finishInput.tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 5))
+        for _ in 0..<4 { swipePage(up: true) }
+        for label in ["2 小时前", "30 分钟前", "15 分钟前"] {
+            let chip = app.buttons[label].firstMatch
+            for _ in 0..<5 where !chip.isHittable { swipePage(up: false) }
+            XCTAssertTrue(chip.exists && chip.isHittable && chip.isEnabled, "Reminder chip must be visible")
+            if chip.exists, chip.isHittable, chip.isEnabled, chip.isSelected { chip.tap() }
+            XCTAssertFalse(chip.isSelected, "Reminder must be off before saving the local QA appointment")
+        }
+        snap("schedule_01_local_form_lower_no_notifications")
+        let save = app.buttons["保存"].firstMatch
+        // Compact native sheets may collapse their navigation items while
+        // scrolling. Bring the form header back before tapping its Save action.
+        for _ in 0..<8 where !save.exists || !save.isHittable { swipePage(up: false) }
+        XCTAssertTrue(save.waitForExistence(timeout: 3) && save.isHittable && save.isEnabled)
+        snap("schedule_01b_local_ready_to_save")
+        save.tap()
+        XCTAssertTrue(app.navigationBars["我的球局"].waitForExistence(timeout: 5))
+        let row = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", locationName)).firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 4))
+        row.tap()
+        XCTAssertTrue(app.navigationBars["球局详情"].waitForExistence(timeout: 4))
+        snap("schedule_02_local_detail")
+        XCTAssertTrue(tapFirstHittableButton(containing: "编辑", maxScrolls: 3))
+        XCTAssertTrue(app.textFields["输入地点"].firstMatch.waitForExistence(timeout: 4))
+        snap("schedule_03_local_edit")
+        for _ in 0..<3 { swipePage(up: true) }
+        snap("schedule_04_local_edit_lower")
+        let close = app.buttons["modal_close_button"].firstMatch
+        for _ in 0..<8 where !close.exists || !close.isHittable { swipePage(up: false) }
+        XCTAssertTrue(close.waitForExistence(timeout: 3) && close.isHittable)
+        close.tap()
+        XCTAssertTrue(app.navigationBars["球局详情"].waitForExistence(timeout: 4))
+        XCTAssertTrue(tapFirstHittableButton(containing: "取消预约", maxScrolls: 3))
+        XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 3))
+        snap("schedule_05_local_cancel_confirmation")
+        app.alerts.buttons["取消"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["球局详情"].exists)
+    }
+
     private func captureScheduleFlow() {
         relaunch()
         selectTab("首页")
-        for _ in 0..<4 { app.swipeUp() }
+        for _ in 0..<4 { swipePage(up: true) }
 
         let scheduleEntry = app.descendants(matching: .any)["home_schedule_all_button"]
         if scheduleEntry.waitForExistence(timeout: 3) {
@@ -1686,7 +2343,7 @@ final class FullAppScreenshotUITests: XCTestCase {
                 return true
             }
             if pass < maxScrolls {
-                app.swipeUp()
+                swipePage(up: true)
                 RunLoop.current.run(until: Date().addingTimeInterval(0.25))
             }
         }
@@ -1694,23 +2351,48 @@ final class FullAppScreenshotUITests: XCTestCase {
     }
 
     private func scrollUntilExists(identifier: String) {
-        let target = app.descendants(matching: .any)[identifier]
+        let target = app.descendants(matching: .any)[identifier].firstMatch
         for _ in 0..<10 {
             if target.exists, target.isHittable { return }
-            app.swipeUp()
+            swipePage(up: true)
             RunLoop.current.run(until: Date().addingTimeInterval(0.2))
         }
         for _ in 0..<10 {
             if target.exists, target.isHittable { return }
-            app.swipeDown()
+            swipePage(up: false)
             RunLoop.current.run(until: Date().addingTimeInterval(0.2))
         }
+    }
+
+    /// Duo's application frame can retain swapped axes while each window and
+    /// scroll container reports its real bounds. Keep gestures in visible content.
+    private func swipePage(up: Bool) {
+        guard isDuoWalkthrough else {
+            if up { app.swipeUp() } else { app.swipeDown() }
+            return
+        }
+        let containers = app.scrollViews.allElementsBoundByIndex
+            + app.collectionViews.allElementsBoundByIndex + app.tables.allElementsBoundByIndex
+        let surface = containers.last(where: { $0.exists && $0.isHittable && $0.frame.height > 150 })
+            ?? app.windows.firstMatch
+        let frame = surface.frame
+        var height = frame.height
+        let keyboard = app.keyboards.firstMatch
+        if keyboard.exists {
+            height = min(height, keyboard.frame.minY - frame.minY - 50)
+        }
+        guard height > 100 else { return }
+        let origin = surface.coordinate(withNormalizedOffset: .zero)
+        let top = origin.withOffset(CGVector(dx: frame.width * 0.5, dy: height * 0.25))
+        let bottom = origin.withOffset(CGVector(dx: frame.width * 0.5, dy: height * 0.8))
+        if up { bottom.press(forDuration: 0.05, thenDragTo: top) }
+        else { top.press(forDuration: 0.05, thenDragTo: bottom) }
     }
 
     @discardableResult
     private func tapStart() -> Bool {
         for label in ["开始", "Start", "确认"] {
-            let button = app.buttons[label]
+            let button = app.buttons[label].firstMatch
             if button.waitForExistence(timeout: 1.2), button.isHittable {
                 button.tap()
                 return true
@@ -1738,12 +2420,12 @@ final class FullAppScreenshotUITests: XCTestCase {
                 let windowFrame = window.exists ? window.frame : app.frame
                 let buttonFrame = button.frame
                 if buttonFrame.maxY < windowFrame.minY {
-                    app.swipeDown()
+                    swipePage(up: false)
                 } else {
-                    app.swipeUp()
+                    swipePage(up: true)
                 }
             } else {
-                app.swipeUp()
+                swipePage(up: true)
             }
             RunLoop.current.run(until: Date().addingTimeInterval(0.2))
         }
@@ -1808,25 +2490,26 @@ final class FullAppScreenshotUITests: XCTestCase {
             }
         }
         for label in ["返回", "关闭", "Close", "Back"] {
-            if app.buttons[label].exists {
-                app.buttons[label].tap()
+            if let button = app.buttons.matching(NSPredicate(format: "label == %@", label))
+                .allElementsBoundByIndex.first(where: { $0.isHittable }) {
+                button.tap()
                 return
             }
         }
-        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.02, dy: 0.5))
-        let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.5))
+        let start = gestureSurface.coordinate(withNormalizedOffset: CGVector(dx: 0.02, dy: 0.5))
+        let end = gestureSurface.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.5))
         start.press(forDuration: 0.05, thenDragTo: end)
     }
 
     private func dismissDialog() {
         for label in ["取消", "关闭", "Cancel", "Close", "完成", "Done"] {
-            let button = app.buttons[label]
-            if button.exists, button.isHittable {
+            if let button = app.buttons.matching(NSPredicate(format: "label == %@", label))
+                .allElementsBoundByIndex.first(where: { $0.isHittable }) {
                 button.tap()
                 return
             }
         }
-        app.swipeDown()
+        swipePage(up: false)
     }
 
     private func writeManifest(count: Int) {

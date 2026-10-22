@@ -264,7 +264,7 @@ struct GroupLeaveView: View {
                     .onChange(of: reason) { _, value in reason = GroupInputValidation.limitedText(value, maximum: GroupInputValidation.absenceReasonMax) }
                 if let error = store.error { GroupNotice(text: error) }
                 Button(groupText("leave_training", "Notify absence")) { Task { busy = true; defer { busy = false }; if await store.perform({ try await store.repository.action("/\(groupID)/training-sessions/\(session.id)/leave", body: .init(reason: reason)) }) { dismiss() } } }.disabled(busy)
-            }.disabled(busy).navigationTitle(groupText("leave_training", "Notify absence")).groupAccountBoundary().interactiveDismissDisabled(busy)
+            }.expandedPhonePageContent(existingHorizontalInset: 20).disabled(busy).navigationTitle(groupText("leave_training", "Notify absence")).groupAccountBoundary().interactiveDismissDisabled(busy)
                 .onAppear { let store = GroupStore.shared; if let member = store.cache.details[groupID]?.members.first(where: { $0.accountId == store.accountID }), let existing = store.cache.details[groupID]?.leaveNotices?.first(where: { $0.sessionId == session.id && $0.memberId == member.id }) { reason = existing.reason } }
                 .toolbar { ToolbarItem(placement: .cancellationAction) { ModalCloseButton { dismiss() }.disabled(busy) } }
         }

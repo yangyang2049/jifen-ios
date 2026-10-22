@@ -23,6 +23,7 @@ struct RecentActivityPage: View {
                     }
                 }
                 .frame(maxWidth: Theme.secondaryPageContentMaxWidth, maxHeight: .infinity)
+                .expandedPhonePageContent(existingHorizontalInset: Theme.md)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .navigationTitle(NSLocalizedString("recent_records", comment: ""))

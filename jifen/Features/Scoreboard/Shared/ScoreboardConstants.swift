@@ -13,6 +13,9 @@ struct ScoreboardConstants {
 
     static let buttonSize: CGFloat = 48
 
+    static let buttonSpacing: CGFloat = 12
+    static let editButtonBottomPadding = buttonPadding + buttonSize + buttonSpacing
+
     static let buttonIconSize: CGFloat = 20
 
     /// Minimum interactive area for scoreboard controls.
@@ -26,6 +29,10 @@ struct ScoreboardConstants {
 
     /// Side control lift from bottom (HOS translateY: -72).
     static let sideControlsBottomOffset: CGFloat = 72
+}
+
+extension EnvironmentValues {
+    var scoreboardEditAboveMenu: Bool { usesExpandedPhoneLayout }
 }
 
 extension View {

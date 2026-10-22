@@ -30,6 +30,7 @@ struct CastConnectionView: View {
             }
             .pickerStyle(.segmented)
             .padding(.horizontal, Theme.pageHorizontalInset)
+            .expandedPhonePageContent(existingHorizontalInset: Theme.pageHorizontalInset)
             .padding(.top, 8)
             .padding(.bottom, 4)
 
@@ -66,6 +67,7 @@ struct CastConnectionView: View {
             .padding(.top, 16)
             .padding(.bottom, 40)
             .frame(maxWidth: Theme.secondaryPageContentMaxWidth)
+            .expandedPhonePageContent(existingHorizontalInset: Theme.pageHorizontalInset)
             .frame(maxWidth: .infinity)
         }
     }

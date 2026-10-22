@@ -170,6 +170,7 @@ struct AACalculatorView: View {
                                     )
                             }
                             .disabled(participants >= 20)
+                            .accessibilityIdentifier("aa_participants_increase")
                             .opacity(participants < 20 ? 1 : 0.3)
                         }
                     }
@@ -284,10 +285,18 @@ struct AACalculatorView: View {
                 .frame(maxWidth: .infinity)
             }
             .scrollIndicators(.hidden)
+            .scrollDismissesKeyboard(.interactively)
         }
         .background(Theme.backgroundColor.ignoresSafeArea())
         .navigationTitle(NSLocalizedString("aa_calculator_title", comment: "AA Calculator title"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button(NSLocalizedString("done", comment: "")) { isAmountFocused = false }
+                    .accessibilityIdentifier("aa_finish_input")
+            }
+        }
         .overlay(
             toastMessage.isEmpty ? nil :
                 VStack {

@@ -38,6 +38,7 @@ struct DoudizhuPlayerItem: Identifiable {
 }
 
 struct DoudizhuScoreboardView: View {
+    @Environment(\.scoreboardEditAboveMenu) private var editAboveMenu
     @Environment(\.dismiss) var dismiss
     var initialSetup: SportsSetupResult? = nil
     var initialResumeSessionId: String? = nil
@@ -242,7 +243,7 @@ struct DoudizhuScoreboardView: View {
                 }
 
                 if shouldShowChrome {
-                    topTrailingEditButton
+                    bottomTrailingEditButton
                 }
 
                 if !isEditMode && !showScorePanel && shouldShowChrome {
@@ -472,8 +473,9 @@ struct DoudizhuScoreboardView: View {
         return compact
     }
 
-    private var topTrailingEditButton: some View {
+    private var bottomTrailingEditButton: some View {
         VStack {
+            if editAboveMenu { Spacer() }
             HStack {
                 Spacer()
                 Button {
@@ -493,12 +495,15 @@ struct DoudizhuScoreboardView: View {
                             Circle().fill(isEditMode ? Theme.primary : Color.black.opacity(0.25))
                         )
                 }
+                .accessibilityIdentifier("scoreboard_edit_button")
+                .accessibilityLabel(isEditMode ? NSLocalizedString("done", value: "完成", comment: "") : NSLocalizedString("edit", value: "编辑", comment: ""))
                 .padding(.trailing, ScoreboardConstants.buttonPadding)
-                .padding(.top, ScoreboardConstants.buttonPadding)
+                .padding(.bottom, editAboveMenu ? ScoreboardConstants.editButtonBottomPadding : 0)
+                .padding(.top, editAboveMenu ? 0 : ScoreboardConstants.buttonPadding)
             }
-            Spacer()
+            if !editAboveMenu { Spacer() }
         }
-        .ignoresSafeArea(.all, edges: .top)
+        .ignoresSafeArea(.all, edges: editAboveMenu ? [.bottom, .trailing] : .top)
     }
 
     private var bottomControls: some View {

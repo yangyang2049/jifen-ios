@@ -201,6 +201,9 @@ private extension ScoreboardStyleProfileV2 {
 
 /// 全屏样式编辑悬浮层（对齐安卓 ScoreboardStyleEditOverlay）。
 struct ScoreboardStyleEditOverlayView: View {
+    /// Clearance for previews whose content begins at the very top edge.
+    static var topControlsReservedHeight: CGFloat { Theme.usesPadLayout ? 84 : 64 }
+
     @Bindable var controller: ScoreboardStyleEditorController
     let typographySession: ScoreboardTypographySession?
     let uiState: ScoreboardStyleEditorUiState

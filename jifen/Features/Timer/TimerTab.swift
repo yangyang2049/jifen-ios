@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct TimerTab: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.usesExpandedPhoneLayout) private var expandedPhone
     @Environment(\.scenePhase) private var scenePhase
     @Binding var pendingTimerGameType: GameType?
     @State private var selectedDestination: TimerDestination?
@@ -27,12 +29,13 @@ struct TimerTab: View {
 
     var body: some View {
         NavigationStack {
-            let usesPadLayout = Theme.usesPadLayout
+            let usesExpandedLayout = horizontalSizeClass == .regular
+            let horizontalInset = expandedPhone ? Theme.expandedPhonePageInset : Theme.pageHorizontalInset(for: horizontalSizeClass)
 
             GeometryReader { proxy in
                 let availableWidth = max(
                     0,
-                    min(proxy.size.width, usesPadLayout ? 1080 : .infinity) - Theme.pageHorizontalInset * 2
+                    min(proxy.size.width - horizontalInset * 2, expandedPhone ? Theme.expandedPhoneContentMaxWidth : (usesExpandedLayout ? 1080 : .infinity))
                 )
 
                 ScrollView(showsIndicators: false) {
@@ -41,19 +44,19 @@ struct TimerTab: View {
                             title: NSLocalizedString("timer_section_board_games", value: "棋类", comment: ""),
                             items: GameCatalog.timerBoardGameItems,
                             availableWidth: availableWidth,
-                            usesPadLayout: usesPadLayout
+                            usesExpandedLayout: usesExpandedLayout
                         )
                         timerSectionGroup(
                             title: NSLocalizedString("timer_section_other", value: "其他", comment: ""),
                             items: GameCatalog.timerOtherItems,
                             availableWidth: availableWidth,
-                            usesPadLayout: usesPadLayout
+                            usesExpandedLayout: usesExpandedLayout
                         )
                     }
-                    .frame(maxWidth: usesPadLayout ? 1080 : .infinity)
+                    .frame(maxWidth: expandedPhone ? Theme.expandedPhoneContentMaxWidth : (usesExpandedLayout ? 1080 : .infinity))
                     .frame(maxWidth: .infinity)
-                    .padding(.horizontal, Theme.pageHorizontalInset)
-                    .padding(.top, usesPadLayout ? Theme.lg : Theme.md)
+                    .padding(.horizontal, horizontalInset)
+                    .padding(.top, usesExpandedLayout ? Theme.lg : Theme.md)
                     .padding(.bottom, Theme.tabContentBottomPadding)
                 }
                 .background(Theme.backgroundColor)
@@ -128,10 +131,9 @@ struct TimerTab: View {
         title: String,
         items: [TimerDestination],
         availableWidth: CGFloat,
-        usesPadLayout: Bool
+        usesExpandedLayout: Bool
     ) -> some View {
-        // 对齐计分/工具 Tab：iPad 固定一行 4 个，窄屏（<360pt）2 列，其余 3 列。
-        let columnCount = usesPadLayout ? 4 : (availableWidth + Theme.padding * 2 < 360 ? 2 : 3)
+        let columnCount = Theme.catalogColumnCount(availableWidth: availableWidth, usesExpandedLayout: usesExpandedLayout)
         let columns = Array(
             repeating: GridItem(.flexible(), spacing: Theme.gridSpacing),
             count: columnCount

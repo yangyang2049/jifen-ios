@@ -1660,6 +1660,7 @@ enum ScoreboardFontSizePolicy {
 }
 
 struct ScoreboardDisplaySettingsView: View {
+    @Environment(\.scoreboardEditAboveMenu) private var editAboveMenu
     @Environment(\.scoreboardMatchClockSession) private var matchClockSession
     let session: ScoreboardTypographySession
     let metrics: [ScoreboardFontMetric]
@@ -1683,13 +1684,14 @@ struct ScoreboardDisplaySettingsView: View {
                     .onTapGesture(perform: cancel)
 
                 panelContent
+                    .accessibilityIdentifier("scoreboard_display_settings_panel")
                     .frame(width: panelWidth)
                     .frame(maxHeight: .infinity)
-                    .background(Color.black.opacity(0.68))
+                    .background { Color.black.opacity(0.68).ignoresSafeArea() }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .ignoresSafeArea()
+        .ignoresSafeArea(.all, edges: editAboveMenu ? [] : .all)
         .onAppear {
             session.beginPreview()
             matchTimeDraft = matchClockSession?.isVisible ?? false

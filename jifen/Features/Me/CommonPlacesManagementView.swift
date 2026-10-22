@@ -82,6 +82,7 @@ struct CommonPlacesManagementView: View {
                     )
                 }
             }
+            .expandedPhonePageContent(existingHorizontalInset: Theme.md)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             if showToast {

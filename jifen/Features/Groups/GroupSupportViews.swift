@@ -275,6 +275,8 @@ struct GroupNoticeInbox: View {
                 )
             }
         }
+        .expandedPhonePageContent(existingHorizontalInset: Theme.padding)
+        .background(Theme.backgroundColor)
         .navigationTitle(groupText("notices", "Notifications")).groupAccountBoundary()
         .accessibilityIdentifier("group_notice_inbox")
         .toolbar {
@@ -401,7 +403,7 @@ struct GroupNoticeDestinationView: View {
                     if !notice.title.isEmpty { Text(notice.title) }
                     if let reason = notice.reason, !reason.isEmpty { Text(reason) }
                     Text(Date(timeIntervalSince1970: Double(notice.createdAt) / 1000), format: .dateTime).font(.caption).foregroundStyle(.secondary)
-                }.navigationTitle(groupText("notices", "Notifications"))
+                }.expandedPhonePageContent(existingHorizontalInset: Theme.padding).background(Theme.backgroundColor).navigationTitle(groupText("notices", "Notifications"))
             case .activity:
                 if let activity, let detail = store.cache.details[notice.groupId] {
                     GroupActivityView(detail: detail, activity: activity, onStart: onStart)
@@ -597,7 +599,7 @@ struct GroupUploadRepairView: View {
                     else if error != nil { Button(groupText("retry", "Retry")) { Task { await loadConfiguration() } } }
                 }
             }.padding(.horizontal, Theme.padding).padding(.top, Theme.padding).padding(.bottom, Theme.lg)
-                .frame(maxWidth: 680).frame(maxWidth: .infinity)
+                .frame(maxWidth: 680).expandedPhonePageContent(existingHorizontalInset: Theme.padding).frame(maxWidth: .infinity)
         }
         .scrollDismissesKeyboard(.interactively).background(Theme.backgroundColor)
         .safeAreaInset(edge: .bottom, spacing: 0) {

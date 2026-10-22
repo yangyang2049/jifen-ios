@@ -83,6 +83,7 @@ struct PointsTableView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityIdentifier("points_table_add")
             }
         }
         .navigationDestination(item: $selectedRecord) { record in
@@ -181,9 +182,17 @@ struct PointsTableDetailView: View {
         }
         .background(Theme.backgroundColor.ignoresSafeArea())
         .appAnalyticsScreen(.pointsTableDetail)
+        .scrollDismissesKeyboard(.interactively)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button(NSLocalizedString("done", comment: "")) {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                }
+                .accessibilityIdentifier("points_table_finish_input")
+            }
             ToolbarItem(placement: .principal) {
                 Text(record.name)
                     .font(.headline)

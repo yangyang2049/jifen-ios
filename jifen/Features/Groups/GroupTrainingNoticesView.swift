@@ -66,6 +66,8 @@ struct GroupTrainingNoticeInbox: View {
                 )
             }
         }
+        .expandedPhonePageContent(existingHorizontalInset: Theme.padding)
+        .background(Theme.backgroundColor)
         .navigationTitle(groupText("notices", "Notifications")).groupAccountBoundary()
             .accessibilityIdentifier("group_training_notice_inbox")
             .task { await reload() }.refreshable { await reload() }
@@ -88,7 +90,7 @@ struct GroupTrainingCancelView: View {
                 Button(groupText("cancel_schedule", "Cancel schedule"), role: .destructive) {
                     Task { busy = true; defer { busy = false }; if await store.perform({ let _: GroupTrainingPlan = try await store.repository.write("/\(groupID)/training-plans/\(plan.id)/cancel", body: GroupActionBody(reason: reason), revision: plan.revision) }) { dismiss() } }
                 }.disabled(busy || !GroupActivityPolicy.validCancellationReason(reason))
-            }.disabled(busy).navigationTitle(groupText("cancel_schedule", "Cancel schedule")).groupAccountBoundary().interactiveDismissDisabled(busy)
+            }.expandedPhonePageContent(existingHorizontalInset: 20).disabled(busy).navigationTitle(groupText("cancel_schedule", "Cancel schedule")).groupAccountBoundary().interactiveDismissDisabled(busy)
                 .toolbar { ToolbarItem(placement: .cancellationAction) { ModalCloseButton { dismiss() }.disabled(busy) } }
         }
     }

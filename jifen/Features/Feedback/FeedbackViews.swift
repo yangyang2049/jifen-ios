@@ -396,6 +396,7 @@ struct FeedbackListView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .expandedPhonePageContent(existingHorizontalInset: Theme.padding)
         .background(Theme.backgroundColor.ignoresSafeArea())
         .navigationTitle(NSLocalizedString("feedback_title", value: "反馈", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
@@ -663,6 +664,7 @@ struct FeedbackDetailView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+        .expandedPhonePageContent(existingHorizontalInset: Theme.padding)
         .background(Theme.backgroundColor.ignoresSafeArea())
         .navigationTitle(NSLocalizedString("feedback_detail", value: "反馈详情", comment: ""))
         .navigationBarTitleDisplayMode(.inline)

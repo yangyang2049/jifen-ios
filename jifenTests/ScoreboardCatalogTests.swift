@@ -507,32 +507,52 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertTrue(ToolItem.allTools.contains { $0.id == "fullscreen_barrage" })
     }
 
-    func testHomeUsesWideLayoutForWideIPadWindowsRegardlessOfOrientation() {
-        // 对齐安卓 isWideScreen()：iPad 窗口宽 >= 768 即双列，不区分横竖屏。
+    func testHomeUsesWideLayoutForExpandedWindowsRegardlessOfDevice() {
+        // Expanded windows can belong to an iPad or an unfolded phone.
         XCTAssertTrue(
             HomeLayoutPolicy.usesWideLayout(
                 size: CGSize(width: 1_366, height: 1_024),
-                isPad: true
+                usesExpandedLayout: true
             )
         )
         XCTAssertTrue(
             HomeLayoutPolicy.usesWideLayout(
                 size: CGSize(width: 1_024, height: 1_366),
-                isPad: true
+                usesExpandedLayout: true
             )
         )
         XCTAssertFalse(
             HomeLayoutPolicy.usesWideLayout(
                 size: CGSize(width: 700, height: 500),
-                isPad: true
+                usesExpandedLayout: true
             )
         )
+        XCTAssertTrue(HomeLayoutPolicy.usesWideLayout(size: CGSize(width: 890, height: 626), usesExpandedLayout: true))
+        XCTAssertFalse(HomeLayoutPolicy.usesWideLayout(size: CGSize(width: 466, height: 678), usesExpandedLayout: false))
         XCTAssertFalse(
             HomeLayoutPolicy.usesWideLayout(
                 size: CGSize(width: 932, height: 430),
-                isPad: false
+                usesExpandedLayout: false
             )
         )
+    }
+
+    func testCatalogColumnsFitCompactAndExpandedWindows() {
+        XCTAssertEqual(Theme.catalogColumnCount(availableWidth: 288, usesExpandedLayout: false), 2)
+        XCTAssertEqual(Theme.catalogColumnCount(availableWidth: 328, usesExpandedLayout: false), 3)
+        XCTAssertEqual(Theme.catalogColumnCount(availableWidth: 578, usesExpandedLayout: true), 4)
+        XCTAssertEqual(Theme.catalogColumnCount(availableWidth: 288, usesExpandedLayout: true), 2)
+        XCTAssertEqual(Theme.catalogColumnCount(availableWidth: 419, usesExpandedLayout: true), 3)
+        XCTAssertEqual(Theme.catalogColumnCount(availableWidth: 420, usesExpandedLayout: true), 4)
+    }
+
+    func testSetupDialogUsesCurrentWindowAndClampsSmallWidths() {
+        XCTAssertEqual(Theme.dialogWidth(availableWidth: 466, role: .setup, usesExpandedLayout: false), 340)
+        XCTAssertEqual(Theme.dialogWidth(availableWidth: 890, role: .setup, usesExpandedLayout: true), 480)
+        XCTAssertEqual(Theme.dialogWidth(availableWidth: 320, role: .setup, usesExpandedLayout: true), 288)
+        XCTAssertEqual(Theme.pageHorizontalInset(for: .regular), 24)
+        XCTAssertEqual(Theme.pageHorizontalInset(for: .compact), 16)
+        XCTAssertEqual(Theme.pageHorizontalInset(for: nil), 16)
     }
 
     func testNormalPageOrientationPolicyAllowsIPadRotationButLocksPhonePortrait() {

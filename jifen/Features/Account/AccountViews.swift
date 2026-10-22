@@ -533,6 +533,7 @@ private struct AccountProfileView: View {
             }
             .padding(16)
             .frame(maxWidth: Theme.meTabContentMaxWidth)
+            .expandedPhonePageContent(existingHorizontalInset: Theme.pageHorizontalInset)
             .frame(maxWidth: .infinity)
         }
         .background(Theme.backgroundColor.ignoresSafeArea())
@@ -753,6 +754,7 @@ struct AccountDeletionView: View {
                     }
                     .padding(16)
                     .frame(maxWidth: Theme.meTabContentMaxWidth)
+                    .expandedPhonePageContent(existingHorizontalInset: Theme.pageHorizontalInset)
                     .frame(maxWidth: .infinity)
                 }
             }

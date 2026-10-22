@@ -97,12 +97,20 @@ struct CreateBookingPage: View {
                     .frame(minHeight: 80)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .frame(maxWidth: Theme.focusedContentMaxWidth)
             .frame(maxWidth: .infinity)
             .background(Theme.backgroundColor)
             .navigationTitle(navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button(NSLocalizedString("done", comment: "")) {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }
+                    .accessibilityIdentifier("booking_finish_input")
+                }
                 ToolbarItem(placement: .topBarLeading) {
                     ModalCloseButton { dismiss() }
                 }

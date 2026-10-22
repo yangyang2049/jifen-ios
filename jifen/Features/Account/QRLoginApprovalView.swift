@@ -237,6 +237,7 @@ struct QRLoginApprovalView: View {
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 16)
+        .expandedPhonePageContent(existingHorizontalInset: 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 

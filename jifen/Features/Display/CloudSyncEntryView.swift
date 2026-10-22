@@ -52,6 +52,7 @@ struct CloudSyncEntryPanel: View {
             .padding(.top, 16)
             .padding(.bottom, 40)
             .frame(maxWidth: Theme.secondaryPageContentMaxWidth)
+            .expandedPhonePageContent(existingHorizontalInset: Theme.pageHorizontalInset)
             .frame(maxWidth: .infinity)
         }
         .onAppear {

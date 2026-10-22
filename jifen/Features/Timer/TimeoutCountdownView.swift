@@ -108,7 +108,8 @@ struct TimeoutCountdownView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let compactLandscape = UIDevice.current.userInterfaceIdiom == .phone && geometry.size.width > geometry.size.height
+            // Reduce controls only when the available height is actually constrained.
+            let compactHeight = geometry.size.height < 500
 
             ZStack {
                 Theme.backgroundColor.ignoresSafeArea()
@@ -116,8 +117,8 @@ struct TimeoutCountdownView: View {
                 VStack(spacing: 0) {
                     topBar
 
-                    VStack(spacing: compactLandscape ? 4 : 10) {
-                        Spacer(minLength: compactLandscape ? 0 : 12)
+                    VStack(spacing: compactHeight ? 4 : 10) {
+                        Spacer(minLength: compactHeight ? 0 : 12)
 
                         Text(formatCountdown(displayRemainingMilliseconds))
                             .font(.system(size: timerFontSize(for: geometry.size), weight: .bold, design: .monospaced))
@@ -127,12 +128,12 @@ struct TimeoutCountdownView: View {
                             .frame(maxWidth: .infinity)
 
                         Text(compactDuration(state.durationSeconds))
-                            .font(.system(size: compactLandscape ? 14 : 16, weight: .medium))
+                            .font(.system(size: compactHeight ? 14 : 16, weight: .medium))
                             .foregroundStyle(Theme.textSecondary)
 
-                        Spacer(minLength: compactLandscape ? 4 : 16)
+                        Spacer(minLength: compactHeight ? 4 : 16)
 
-                        if shouldShowPresets(compactLandscape: compactLandscape) {
+                        if shouldShowPresets(compactHeight: compactHeight) {
                             presetArea
                                 .frame(maxWidth: 720)
                                 .padding(.horizontal, 16)
@@ -143,10 +144,10 @@ struct TimeoutCountdownView: View {
                                 .padding(.top, 14)
                         }
 
-                        Spacer(minLength: compactLandscape ? 4 : 18)
+                        Spacer(minLength: compactHeight ? 4 : 18)
 
                         controls
-                            .padding(.bottom, compactLandscape ? 8 : 18)
+                            .padding(.bottom, compactHeight ? 8 : 18)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
@@ -165,6 +166,7 @@ struct TimeoutCountdownView: View {
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showsCustomEditor) {
             customEditor
+                .onAppear(perform: syncCustomFields)
                 .presentationDetents([.height(340)])
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(24)
@@ -230,7 +232,6 @@ struct TimeoutCountdownView: View {
                     selected: !quickPresets.contains(state.durationSeconds),
                     identifier: "countdown_preset_custom"
                 ) {
-                    syncCustomFields()
                     showsCustomEditor = true
                 }
             }
@@ -404,6 +405,7 @@ struct TimeoutCountdownView: View {
                     .foregroundStyle(Theme.textSecondary)
 
                 customValueRow(
+                    identifier: "minutes",
                     title: NSLocalizedString("timer_custom_minutes", value: "分钟", comment: "Minutes"),
                     value: customMinutes,
                     decrease: { adjustCustom(minutes: -1, seconds: 0) },
@@ -411,6 +413,7 @@ struct TimeoutCountdownView: View {
                 )
 
                 customValueRow(
+                    identifier: "seconds",
                     title: NSLocalizedString("timer_custom_seconds", value: "秒", comment: "Seconds"),
                     value: customSeconds,
                     decrease: { adjustCustom(minutes: 0, seconds: -1) },
@@ -434,6 +437,7 @@ struct TimeoutCountdownView: View {
     }
 
     private func customValueRow(
+        identifier: String,
         title: String,
         value: Int,
         decrease: @escaping () -> Void,
@@ -446,13 +450,16 @@ struct TimeoutCountdownView: View {
                 .frame(width: 56, alignment: .leading)
 
             valueButton(systemName: "minus", action: decrease)
+                .accessibilityIdentifier("countdown_custom_\(identifier)_decrease")
 
             Text("\(value)")
+                .accessibilityIdentifier("countdown_custom_\(identifier)_value")
                 .font(.system(size: 22, weight: .semibold, design: .monospaced))
                 .foregroundStyle(Theme.textPrimary)
                 .frame(maxWidth: .infinity)
 
             valueButton(systemName: "plus", action: increase)
+                .accessibilityIdentifier("countdown_custom_\(identifier)_increase")
         }
     }
 
@@ -484,13 +491,13 @@ struct TimeoutCountdownView: View {
         return Theme.textPrimary
     }
 
-    private func shouldShowPresets(compactLandscape: Bool) -> Bool {
-        (state.phase == .idle || state.phase == .ended) && !compactLandscape
+    private func shouldShowPresets(compactHeight: Bool) -> Bool {
+        (state.phase == .idle || state.phase == .ended) && !compactHeight
     }
 
     private func timerFontSize(for size: CGSize) -> CGFloat {
-        let compactLandscape = UIDevice.current.userInterfaceIdiom == .phone && size.width > size.height
-        if compactLandscape { return min(112, size.height * 0.28) }
+        let compactHeight = size.height < 500
+        if compactHeight { return min(112, size.height * 0.28) }
         if Theme.usesPadLayout {
             let characterCount = CGFloat(max(5, formatCountdown(displayRemainingMilliseconds).count))
             let targetTextWidth = size.width / 3

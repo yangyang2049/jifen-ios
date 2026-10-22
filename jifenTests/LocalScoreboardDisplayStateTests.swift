@@ -555,6 +555,90 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
         XCTAssertLessThanOrEqual(constrained.nameToScoreSpacing, short.nameToScoreSpacing)
     }
 
+    func testBasketballPanelCountsTheSafeEdgeAndButtonColumnOnce() {
+        let panel = CGSize(width: 259, height: 466)
+        let inset = ScoreboardLayoutMetrics.basketballTeamPanelLayout(
+            panelSize: panel, outerSafeAreaInset: 61, isLargeScreen: false
+        )
+        let clear = ScoreboardLayoutMetrics.basketballTeamPanelLayout(
+            panelSize: panel, outerSafeAreaInset: 0, isLargeScreen: false
+        )
+
+        XCTAssertEqual(inset.scoreButtonSize, 50)
+        XCTAssertEqual(inset.outerPadding, 69)
+        XCTAssertEqual(inset.scoreContentWidth, 124)
+        XCTAssertEqual(clear.scoreContentWidth, 185)
+        XCTAssertEqual(clear.scoreContentWidth - inset.scoreContentWidth, 61)
+        XCTAssertEqual(inset.nameContentWidth, 182)
+        XCTAssertEqual(clear.nameContentWidth, 243)
+        XCTAssertEqual(inset.nameContentWidth - inset.scoreContentWidth, 58)
+    }
+
+    func testBasketballTeamsUseTheSameReadableScoreSizeWithAnAsymmetricSafeArea() {
+        let panel = CGSize(width: 259, height: 466)
+        let left = ScoreboardLayoutMetrics.basketballTeamPanelLayout(
+            panelSize: panel, outerSafeAreaInset: 61, isLargeScreen: false
+        )
+        let right = ScoreboardLayoutMetrics.basketballTeamPanelLayout(
+            panelSize: panel, outerSafeAreaInset: 0, isLargeScreen: false
+        )
+        let preference = ScoreboardTypographyPreference.default(font: .default)
+        func result(name: String) -> ScoreboardTypographyResult {
+            ScoreboardTypographyResolver.resolve(
+                ScoreboardTypographyLayoutContext(
+                    profile: .basketball,
+                    containerSize: panel,
+                    nameText: name,
+                    scoreText: "0",
+                    secondaryText: "0 0",
+                    preference: preference,
+                    horizontalPadding: 0,
+                    nameAvailableWidth: min(left.nameContentWidth, right.nameContentWidth),
+                    scoreAvailableWidth: min(left.scoreContentWidth, right.scoreContentWidth),
+                    reservedHeight: 76
+                )
+            )
+        }
+        let leftText = result(name: "A队")
+        let rightText = result(name: "B队")
+
+        XCTAssertEqual(leftText.scoreFontSize, rightText.scoreFontSize)
+        XCTAssertEqual(leftText.nameFontSize, rightText.nameFontSize)
+        XCTAssertGreaterThan(leftText.scoreFontSize, 100)
+        XCTAssertGreaterThan(leftText.nameFontSize, 30)
+        XCTAssertLessThanOrEqual(leftText.scoreFontSize * 0.64, left.scoreContentWidth + 1)
+    }
+
+    func testBasketballNameUsesItsOwnTrackWhileMultiDigitScoreStaysWithinButtons() {
+        let preference = ScoreboardTypographyPreference(
+            font: .default, scoreMultiplier: 1.4, nameMultiplier: 1.3, secondaryMultiplier: 1
+        )
+        let before = preference
+        func result(nameWidth: CGFloat) -> ScoreboardTypographyResult {
+            ScoreboardTypographyResolver.resolve(
+                ScoreboardTypographyLayoutContext(
+                    profile: .basketball,
+                    containerSize: CGSize(width: 259, height: 466),
+                    nameText: "Duo Review",
+                    scoreText: "123",
+                    secondaryText: "0 0",
+                    preference: preference,
+                    horizontalPadding: 0,
+                    nameAvailableWidth: nameWidth,
+                    scoreAvailableWidth: 124,
+                    reservedHeight: 76
+                )
+            )
+        }
+        let separateTracks = result(nameWidth: 182)
+        let buttonLimitedName = result(nameWidth: 124)
+
+        XCTAssertGreaterThan(separateTracks.nameFontSize, buttonLimitedName.nameFontSize)
+        XCTAssertEqual(separateTracks.scoreFontSize, buttonLimitedName.scoreFontSize)
+        XCTAssertLessThanOrEqual(separateTracks.scoreFontSize * 3 * 0.64, 125)
+        XCTAssertEqual(preference, before)
+    }
+
     func testTypographyResolverReservesExtraUnoAndNineBallRegions() {
         let preference = ScoreboardTypographyPreference.default(font: .default)
         func result(_ profile: ScoreboardTypographyProfile) -> ScoreboardTypographyResult {

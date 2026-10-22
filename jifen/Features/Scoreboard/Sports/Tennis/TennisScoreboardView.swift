@@ -44,6 +44,7 @@ private struct TennisTieBreakIndicator: View {
 
 /// Tennis scoreboard driven by `TennisSessionStore` / ScoreCore reducer.
 struct TennisScoreboardView: View {
+    @Environment(\.scoreboardEditAboveMenu) private var editAboveMenu
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scoreboardUsageHintCoordinator) private var usageHintCoordinator
     var onNavigationBack: (() -> Void)? = nil
@@ -225,8 +226,9 @@ struct TennisScoreboardView: View {
                         )
                     }
                 }
-                if shouldShowChrome {
+                if shouldShowChrome, !editAboveMenu || (!showMenu && !showGameOverDialog) {
                     VStack {
+                        if editAboveMenu { Spacer() }
                         HStack {
                             Spacer()
                             if (isEditMode || !store.state.finished), !scoringLocked {
@@ -247,8 +249,9 @@ struct TennisScoreboardView: View {
                         }
                         .foregroundStyle(.white)
                         .padding(.trailing, ScoreboardConstants.buttonPadding)
-                        .padding(.top, ScoreboardConstants.buttonPadding)
-                        Spacer()
+                        .padding(.bottom, editAboveMenu ? ScoreboardConstants.editButtonBottomPadding : 0)
+                        .padding(.top, editAboveMenu ? 0 : ScoreboardConstants.buttonPadding)
+                        if !editAboveMenu { Spacer() }
                     }
                     .zIndex(2)
                 }

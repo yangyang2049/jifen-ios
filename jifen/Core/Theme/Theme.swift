@@ -195,10 +195,22 @@ struct Theme {
 
     // Main-tab layout metrics. Keep semantic roles separate from the generic spacing scale.
     static var pageHorizontalInset: CGFloat { usesPadLayout ? 24 : 16 }
+    /// Layout follows the current window, including an unfolded phone or a narrow iPad window.
+    static func pageHorizontalInset(for horizontalSizeClass: UserInterfaceSizeClass?) -> CGFloat {
+        horizontalSizeClass == .regular ? 24 : 16
+    }
+
+    static func catalogColumnCount(availableWidth: CGFloat, usesExpandedLayout: Bool) -> Int {
+        if usesExpandedLayout, availableWidth >= 4 * 96 + 3 * gridSpacing { return 4 }
+        return availableWidth + padding * 2 < 360 ? 2 : 3
+    }
     /// 普通二、三级列表页在 iPad 上的正文宽度。
     static var secondaryPageContentMaxWidth: CGFloat { usesPadLayout ? 760 : .infinity }
     /// 表单、记录详情、积分表等需要保持阅读聚焦的内容宽度。
     static let focusedContentMaxWidth: CGFloat = 600
+    /// Match Home's 64pt margins on the expanded phone; cap long reading rows.
+    static let expandedPhonePageInset: CGFloat = 64
+    static let expandedPhoneContentMaxWidth: CGFloat = 760
     /// 登录类页面的正文宽度：ASAuthorizationAppleIDButton 内部自带 width <= 375（Apple 规范），
     /// 整栏收到 375 后，同级的账号密码登录/输入框/协议条与它等宽，也不会再和 UIKit 约束打架。
     static let authContentMaxWidth: CGFloat = 375
@@ -210,13 +222,15 @@ struct Theme {
     /// them usable in iPad Split View and Stage Manager narrow windows.
     static func dialogWidth(
         availableWidth: CGFloat,
-        role: DialogWidthRole
+        role: DialogWidthRole,
+        usesExpandedLayout: Bool? = nil
     ) -> CGFloat {
         let widths = dialogPreferredWidths(role: role)
         return dialogWidth(
             availableWidth: availableWidth,
             phonePreferredWidth: widths.phone,
-            padPreferredWidth: widths.pad
+            padPreferredWidth: widths.pad,
+            usesExpandedLayout: usesExpandedLayout
         )
     }
 
@@ -236,10 +250,12 @@ struct Theme {
     static func dialogWidth(
         availableWidth: CGFloat,
         phonePreferredWidth: CGFloat,
-        padPreferredWidth: CGFloat
+        padPreferredWidth: CGFloat,
+        usesExpandedLayout: Bool? = nil
     ) -> CGFloat {
-        let preferredWidth = usesPadLayout ? padPreferredWidth : phonePreferredWidth
-        let horizontalInset: CGFloat = usesPadLayout && availableWidth >= 600 ? 40 : 16
+        let expanded = usesExpandedLayout ?? usesPadLayout
+        let preferredWidth = expanded ? padPreferredWidth : phonePreferredWidth
+        let horizontalInset: CGFloat = expanded && availableWidth >= 600 ? 40 : 16
         return max(0, min(preferredWidth, availableWidth - horizontalInset * 2))
     }
 
@@ -284,6 +300,36 @@ struct Theme {
         return base.withTintColor(.systemRed, renderingMode: .alwaysOriginal)
     }()
 
+}
+
+extension EnvironmentValues {
+    /// Platform traits distinguish the expanded phone from its compact outer screen.
+    var usesExpandedPhoneLayout: Bool {
+        if #available(iOS 27.1, *) {
+            return !Theme.usesPadLayout && horizontalSizeClass == .regular && toolbarVerticalEdge != nil
+        }
+        return false
+    }
+}
+
+private struct ExpandedPhonePageContent: ViewModifier {
+    @Environment(\.usesExpandedPhoneLayout) private var expandedPhone
+    let existingHorizontalInset: CGFloat
+
+    func body(content: Content) -> some View {
+        content
+            .frame(maxWidth: expandedPhone ? Theme.expandedPhoneContentMaxWidth : .infinity)
+            .padding(.horizontal, expandedPhone ? max(0, Theme.expandedPhonePageInset - existingHorizontalInset) : 0)
+            .frame(maxWidth: .infinity)
+    }
+}
+
+extension View {
+    /// Apply to a page's content or action column, before its full-width background.
+    /// Keep the modifier structure stable as the window changes to retain local state.
+    func expandedPhonePageContent(existingHorizontalInset: CGFloat = 0) -> some View {
+        modifier(ExpandedPhonePageContent(existingHorizontalInset: existingHorizontalInset))
+    }
 }
 
 extension Color {

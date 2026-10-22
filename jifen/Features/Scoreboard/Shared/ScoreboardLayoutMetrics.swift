@@ -13,6 +13,17 @@ struct TennisDoublesEditLayoutMetrics: Equatable, Sendable {
     let estimatedContentHeight: CGFloat
 }
 
+struct BasketballTeamPanelLayoutMetrics: Equatable, Sendable {
+    static let contentPadding: CGFloat = 8
+
+    let scoreButtonSize: CGFloat
+    let scoreButtonFontSize: CGFloat
+    let scoreButtonSpacing: CGFloat
+    let outerPadding: CGFloat
+    let scoreContentWidth: CGFloat
+    let nameContentWidth: CGFloat
+}
+
 /// Font/spacing curves aligned with HOS `helpers/baseMainScoreFontSize.ts`.
 enum ScoreboardLayoutMetrics {
     private static let mainScoreBaseSize: CGFloat = 144
@@ -436,6 +447,30 @@ enum ScoreboardLayoutMetrics {
         return 200
     }
 
+    static func basketballTeamPanelLayout(
+        panelSize: CGSize,
+        outerSafeAreaInset: CGFloat,
+        isLargeScreen: Bool
+    ) -> BasketballTeamPanelLayoutMetrics {
+        let buttonSize: CGFloat = isLargeScreen
+            ? min(72, max(44, min(panelSize.width * 0.3, (panelSize.height - 96) / 3.25)))
+            : 50
+        let contentPadding = BasketballTeamPanelLayoutMetrics.contentPadding
+        let outerPadding = max(0, outerSafeAreaInset) + contentPadding
+        // The buttons occupy only the outer edge. The score keeps its own
+        // padding on both sides; the name uses the whole safe panel width.
+        return BasketballTeamPanelLayoutMetrics(
+            scoreButtonSize: buttonSize,
+            scoreButtonFontSize: isLargeScreen
+                ? min(22, max(15, 16 + (buttonSize - 50) * 6 / 22)) : 16,
+            scoreButtonSpacing: isLargeScreen
+                ? min(16, max(8, 10 + (buttonSize - 50) * 6 / 22)) : 10,
+            outerPadding: outerPadding,
+            scoreContentWidth: max(1, panelSize.width - outerPadding - buttonSize - contentPadding * 2),
+            nameContentWidth: max(1, panelSize.width - outerPadding - contentPadding)
+        )
+    }
+
     /// Moves a label from the center of either half-panel onto the shared
     /// scoreboard center line without coupling it to a logical team side.
     static func sharedCenterLabelHorizontalOffset(
@@ -477,6 +512,10 @@ struct ScoreboardTypographyLayoutContext: Sendable {
     var secondaryText: String = ""
     let preference: ScoreboardTypographyPreference
     var horizontalPadding: CGFloat = 16
+    /// Separate tracks can have different widths, for example a full-width
+    /// basketball name above a score next to a column of scoring buttons.
+    var nameAvailableWidth: CGFloat? = nil
+    var scoreAvailableWidth: CGFloat? = nil
     var reservedHeight: CGFloat = 0
     var scoreBaseScale: CGFloat = 1
     var nameBaseScale: CGFloat = 1
@@ -537,7 +576,7 @@ enum ScoreboardTypographyResolver {
         let nameSize = fitFontSizeByWidth(
             requested: requestedName,
             text: context.nameText,
-            availableWidth: availableWidth,
+            availableWidth: max(1, context.nameAvailableWidth ?? availableWidth),
             minimum: nameMinimum
         )
 
@@ -615,7 +654,7 @@ enum ScoreboardTypographyResolver {
         let widthLimitedScore = fitFontSizeByWidth(
             requested: requestedScore,
             text: context.scoreText,
-            availableWidth: max(1, availableWidth - inlineSecondaryWidth),
+            availableWidth: max(1, (context.scoreAvailableWidth ?? availableWidth) - inlineSecondaryWidth),
             minimum: scoreMinimum
         )
         let verticalLimit = max(1, (size.height - reservedHeight - 2) / max(1, lineHeightRatio))

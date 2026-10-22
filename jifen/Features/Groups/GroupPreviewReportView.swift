@@ -14,7 +14,7 @@ struct GroupExistingUploadResultView: View {
             ForEach(matches) { GroupResultLink(result: $0, showDisclosure: false) }
             if let error { GroupNotice(text: error) }
             if matches.isEmpty { Text(groupText("no_results", "No matching results yet.")) }
-        }.navigationTitle(groupText("match_detail", "Match details")).groupAccountBoundary().task {
+        }.expandedPhonePageContent(existingHorizontalInset: Theme.padding).background(Theme.backgroundColor).navigationTitle(groupText("match_detail", "Match details")).groupAccountBoundary().task {
             let store = GroupStore.shared; let revision = store.identityRevision
             do {
                 if let id = upload.existingResultID {

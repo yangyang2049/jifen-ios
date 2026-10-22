@@ -30,6 +30,9 @@
 		D44000000000000000000002 /* TimerAndToolOfflineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D44000000000000000000001 /* TimerAndToolOfflineTests.swift */; };
 		D67019110000000000000002 /* ReportSheetContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D67019110000000000000001 /* ReportSheetContractTests.swift */; };
 		D67019110000000000000004 /* GroupAlignedFormsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D67019110000000000000003 /* GroupAlignedFormsUITests.swift */; };
+		D670D0010000000000000002 /* DuoGroupWalkthroughUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D670D0010000000000000001 /* DuoGroupWalkthroughUITests.swift */; };
+		D670D0020000000000000002 /* DuoToolsWalkthroughUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D670D0020000000000000001 /* DuoToolsWalkthroughUITests.swift */; };
+		D670D0030000000000000002 /* DuoTimerWalkthroughUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D670D0030000000000000001 /* DuoTimerWalkthroughUITests.swift */; };
 		D987C048DDD2CFB6D1560D48 /* jifenUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */; };
 		E10000000000000000000002 /* RallySessionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000001 /* RallySessionStoreTests.swift */; };
 		E10000000000000000000004 /* BoardTimerConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000003 /* BoardTimerConfigTests.swift */; };
@@ -104,6 +107,9 @@
 		D44000000000000000000001 /* TimerAndToolOfflineTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TimerAndToolOfflineTests.swift; sourceTree = "<group>"; };
 		D67019110000000000000001 /* ReportSheetContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportSheetContractTests.swift; sourceTree = "<group>"; };
 		D67019110000000000000003 /* GroupAlignedFormsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupAlignedFormsUITests.swift; sourceTree = "<group>"; };
+		D670D0010000000000000001 /* DuoGroupWalkthroughUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuoGroupWalkthroughUITests.swift; sourceTree = "<group>"; };
+		D670D0020000000000000001 /* DuoToolsWalkthroughUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuoToolsWalkthroughUITests.swift; sourceTree = "<group>"; };
+		D670D0030000000000000001 /* DuoTimerWalkthroughUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuoTimerWalkthroughUITests.swift; sourceTree = "<group>"; };
 		D8B51BCB1FC8EEE1F9DFA4A8 /* jifenUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = jifenUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E10000000000000000000001 /* RallySessionStoreTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RallySessionStoreTests.swift; sourceTree = "<group>"; };
 		E10000000000000000000003 /* BoardTimerConfigTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BoardTimerConfigTests.swift; sourceTree = "<group>"; };
@@ -258,6 +264,9 @@
 			children = (
 				2D1273C47DF445F6918C0C49 /* GroupRedesignUITests.swift */,
 				D67019110000000000000003 /* GroupAlignedFormsUITests.swift */,
+				D670D0010000000000000001 /* DuoGroupWalkthroughUITests.swift */,
+				D670D0020000000000000001 /* DuoToolsWalkthroughUITests.swift */,
+				D670D0030000000000000001 /* DuoTimerWalkthroughUITests.swift */,
 				BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */,
 				E20000000000000000000001 /* RecordRecapUITests.swift */,
 				AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */,
@@ -474,6 +483,9 @@
 			files = (
 				04B923BF21624627AB1BCC66 /* GroupRedesignUITests.swift in Sources */,
 				D67019110000000000000004 /* GroupAlignedFormsUITests.swift in Sources */,
+				D670D0010000000000000002 /* DuoGroupWalkthroughUITests.swift in Sources */,
+				D670D0020000000000000002 /* DuoToolsWalkthroughUITests.swift in Sources */,
+				D670D0030000000000000002 /* DuoTimerWalkthroughUITests.swift in Sources */,
 				D987C048DDD2CFB6D1560D48 /* jifenUITests.swift in Sources */,
 				E20000000000000000000002 /* RecordRecapUITests.swift in Sources */,
 				A9C0600ED82342CDBF1AAF6E /* MainFlowUITests.swift in Sources */,

@@ -21,7 +21,7 @@ struct GroupPushSettingsView: View {
                 Task { do { try await GroupPushManager.shared.requestPermission() } catch { self.error = error.localizedDescription } }
             }
             if let error { Text(error).foregroundStyle(.secondary); Button(groupText("retry", "Retry")) { Task { await load() } } }
-        }.navigationTitle(groupText("push_settings", "Notification settings")).groupAccountBoundary()
+        }.expandedPhonePageContent(existingHorizontalInset: Theme.padding).background(Theme.backgroundColor).navigationTitle(groupText("push_settings", "Notification settings")).groupAccountBoundary()
             .task(id: store.identityRevision) { await load() }
     }
     private func load() async {

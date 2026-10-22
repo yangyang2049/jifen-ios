@@ -72,7 +72,7 @@ struct GroupDetailView: View {
                         case 2: results(detail)
                         default: members(detail)
                         }
-                    }.padding(Theme.padding).frame(maxWidth: 960)
+                    }.padding(Theme.padding).frame(maxWidth: 960).expandedPhonePageContent(existingHorizontalInset: Theme.padding)
                         .frame(maxWidth: .infinity)
                 }.scrollDismissesKeyboard(.interactively).refreshable { await reload() }
             } else if let error = store.detailErrors[groupID] {
@@ -102,7 +102,7 @@ struct GroupDetailView: View {
                                 .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true).frame(maxWidth: .infinity, minHeight: 32)
                         }.buttonStyle(.borderedProminent).tint(Theme.primary).foregroundStyle(Theme.textOnPrimary).frame(maxWidth: .infinity).accessibilityIdentifier("group_activity_create")
                     }.disabled(!writable || !store.allows("create_activity")).tint(Theme.primary).padding(.horizontal, 20).padding(.vertical, Theme.spacing)
-                        .frame(maxWidth: 960).frame(maxWidth: .infinity)
+                        .frame(maxWidth: 960).expandedPhonePageContent(existingHorizontalInset: 20).frame(maxWidth: .infinity)
                 }
                 .background(Theme.backgroundColor.ignoresSafeArea(edges: .bottom))
                 .overlay(alignment: .top) { Divider() }
@@ -215,7 +215,7 @@ struct GroupDetailView: View {
         let titles = [groupText("overview", "Overview"), detail?.group.isCoaching == true ? groupText("training", "Training") : groupText("activities", "Activities"), groupText("results", "Matches"), groupText("members", "Members")]
         if dynamicTypeSize.isAccessibilitySize {
             Picker(groupText("group", "Group"), selection: $tab) { ForEach(0..<4, id: \.self) { index in Text(titles[index]).tag(index) } }
-                .pickerStyle(.menu).font(GroupTypography.section).tint(Theme.primary).frame(maxWidth: 960)
+                .pickerStyle(.menu).font(GroupTypography.section).tint(Theme.primary).frame(maxWidth: 960).expandedPhonePageContent(existingHorizontalInset: 20)
                 .padding(.horizontal, 20).padding(.vertical, 10).accessibilityIdentifier("group_tab_\(tab)")
         } else { HStack(spacing: 3) {
             ForEach(0..<4, id: \.self) { index in
@@ -231,7 +231,7 @@ struct GroupDetailView: View {
                     .accessibilityAddTraits(tab == index ? .isSelected : [])
             }
         }.padding(3).background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 12))
-            .padding(.horizontal, 20).padding(.vertical, 10).frame(maxWidth: 960)
+            .padding(.horizontal, 20).padding(.vertical, 10).frame(maxWidth: 960).expandedPhonePageContent(existingHorizontalInset: 20)
         }
     }
 
@@ -475,7 +475,7 @@ struct GroupDetailView: View {
                         }
                     }
                 }.disabled(!writable).tint(Theme.primary).padding(.horizontal, 20).padding(.vertical, Theme.spacing)
-                    .frame(maxWidth: 960).frame(maxWidth: .infinity)
+                    .frame(maxWidth: 960).expandedPhonePageContent(existingHorizontalInset: 20).frame(maxWidth: .infinity)
             }
             .background(Theme.backgroundColor.ignoresSafeArea(edges: .bottom))
             .overlay(alignment: .top) { Divider() }

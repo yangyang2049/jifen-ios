@@ -10,6 +10,7 @@ import UIKit
 
 /// Two-side 50/50 scaffold aligned with the HOS boards for eight-ball, shengji, and guandan.
 struct TwoSideScoreboardScaffold<Center: View>: View {
+    @Environment(\.scoreboardEditAboveMenu) private var editAboveMenu
     let gameType: GameType
     let leftName: String
     let rightName: String
@@ -442,15 +443,20 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
     private var chromeOverlay: some View {
         ZStack {
             VStack {
+                if editAboveMenu { Spacer() }
                 HStack {
                     Spacer()
                     if onEditCommit != nil, editingEnabled {
                         chromeButton(isEditMode ? "checkmark" : "pencil") { toggleEditMode() }
+                            .accessibilityLabel(isEditMode ? NSLocalizedString("done", value: "完成", comment: "") : NSLocalizedString("edit", value: "编辑", comment: ""))
                     }
                 }
-                Spacer()
+                if !editAboveMenu { Spacer() }
             }
-            .padding(ScoreboardConstants.buttonPadding)
+            .padding(.horizontal, ScoreboardConstants.buttonPadding)
+            .padding(.bottom, editAboveMenu ? ScoreboardConstants.editButtonBottomPadding : 0)
+            .padding(.top, editAboveMenu ? 0 : ScoreboardConstants.buttonPadding)
+            .padding(.bottom, editAboveMenu ? 0 : ScoreboardConstants.buttonPadding)
 
             if !isEditMode {
                 VStack {
