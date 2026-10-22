@@ -120,8 +120,8 @@ struct BasketballScoreboardView: View {
                     outerSafeAreaInset: trailingSafeInset,
                     isLargeScreen: Theme.usesPadLayout
                 )
-                // Both teams fit the narrower safe region so a one-sided
-                // camera inset cannot give equal scores different font sizes.
+                // Share the text widths so the name's one-sided camera inset
+                // cannot give the two teams different font sizes.
                 let scoreContentWidth = min(leftLayout.scoreContentWidth, rightLayout.scoreContentWidth)
                 let nameContentWidth = min(leftLayout.nameContentWidth, rightLayout.nameContentWidth)
                 HStack(spacing: 0) {
@@ -1016,7 +1016,7 @@ private struct BasketballTeamPanel: View {
                     .minimumScaleFactor(0.6)
                     .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: panelSize.height))
                     .frame(maxWidth: .infinity)
-                    .padding(isLeftSide ? .leading : .trailing, layout.outerPadding)
+                    .padding(isLeftSide ? .leading : .trailing, layout.nameOuterPadding)
                     .padding(isLeftSide ? .trailing : .leading, BasketballTeamPanelLayoutMetrics.contentPadding)
                 Spacer()
             }

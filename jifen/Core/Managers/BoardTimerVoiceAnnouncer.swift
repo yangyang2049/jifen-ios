@@ -88,6 +88,7 @@ final class BoardTimerVoiceAnnouncer {
             return
         }
         do {
+            try AppAudioPlaybackSession.activate()
             let player = try AVAudioPlayer(contentsOf: url)
             player.prepareToPlay()
             if preferSecondaryChannel {

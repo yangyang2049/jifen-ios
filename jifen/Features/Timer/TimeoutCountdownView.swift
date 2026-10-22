@@ -315,10 +315,10 @@ struct TimeoutCountdownView: View {
                         .opacity(0.72)
                 }
             }
-            .foregroundStyle(Theme.textPrimary)
+            .foregroundStyle(selected ? Theme.textOnPrimary : Theme.textPrimary)
             .frame(maxWidth: .infinity)
             .frame(height: 52)
-            .background(selected ? Theme.tintedFill(Theme.primary, lightAlpha: 0.12, darkAlpha: 0.22) : Theme.controlBackground)
+            .background(selected ? Theme.adaptive(Theme.primary, Theme.primary.opacity(0.22)) : Theme.controlBackground)
             .overlay(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .stroke(selected ? Theme.primary : Color.clear, lineWidth: 1.5)

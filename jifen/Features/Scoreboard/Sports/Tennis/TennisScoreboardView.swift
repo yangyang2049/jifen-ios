@@ -388,6 +388,9 @@ struct TennisScoreboardView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
+        .modifier(VoiceMediaVolumeHint(
+            isEnabled: store.voiceAnnouncementEnabled && SportsVoiceSupport.isSupported && !store.state.finished
+        ))
         .simultaneousGesture(
             LongPressGesture(minimumDuration: 0.55)
                 .onEnded { _ in

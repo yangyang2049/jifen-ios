@@ -131,7 +131,8 @@ struct Theme {
     static let primary = accentColor // Map HarmonyOS 'primary' to existing accentColor
     static let primaryDark = Color(hex: "248A3D")
     static let black = Color.black
-    static var textOnPrimary: Color { actionForeground(on: primary) }
+    /// Green primary actions always use white labels, including dark scoreboard overlays.
+    static let textOnPrimary = Color.white
     /// Light green actions use white labels; dark mode retains its existing foreground policy.
     static func actionForeground(on background: Color) -> Color {
         Color(uiColor: UIColor { traits in

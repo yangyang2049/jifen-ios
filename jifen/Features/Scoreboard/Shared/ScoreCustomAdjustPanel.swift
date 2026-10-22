@@ -142,7 +142,7 @@ struct ScoreCustomAdjustPanel: View {
                             Button(action: applyCustomInput) {
                                 Text(NSLocalizedString("score_custom_adjust_apply", value: "应用", comment: ""))
                                     .font(.system(size: 16, weight: .medium))
-                                    .foregroundStyle(Theme.textOnPrimary)
+                                    .foregroundStyle(.white)
                                     .padding(.horizontal, 20)
                                     .frame(height: 50)
                                     .background(Theme.primary)

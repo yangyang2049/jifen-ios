@@ -42,38 +42,15 @@ struct MembershipView: View {
     @State private var agreementPage: MembershipAgreementPage?
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                if isVIP {
-                    activeMembershipCard
-                        .padding(.bottom, 24)
-                    activeBenefitsSection
-                } else {
-                    heroHeader
-                        .padding(.bottom, 18)
-                    sectionTitle(
-                        NSLocalizedString("vip_features_title", value: "会员专属权益", comment: "")
-                    )
-                    .padding(.bottom, 8)
-                    featureList
-                        .padding(.bottom, 10)
-                    planCards
+        GeometryReader { viewport in
+            // Measure before the purchase inset so loading products cannot toggle the logo.
+            membershipScrollContent(showLogo: viewport.size.height >= 700)
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+                    // 商品读取完成后再显示开通栏，避免 Loading 期间出现不可用的购买按钮。
+                    if !isVIP && !manager.products.isEmpty {
+                        purchaseBottomBar
+                    }
                 }
-
-                #if STAGING
-                Text(NSLocalizedString("membership_staging_note", value: "当前为 Staging：本地 StoreKit 交易通过隔离测试接口授予测试会员，不代表 App Store 正式链路成功。", comment: ""))
-                    .font(.system(size: 12))
-                    .foregroundColor(Theme.textSecondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 16)
-                #endif
-            }
-            .padding(.horizontal, Theme.pageHorizontalInset)
-            .padding(.top, 8)
-            .padding(.bottom, isVIP ? 24 : 16)
-            .frame(maxWidth: Theme.meTabContentMaxWidth)
-            .expandedPhonePageContent(existingHorizontalInset: Theme.pageHorizontalInset)
-            .frame(maxWidth: .infinity)
         }
         .background(Theme.backgroundColor.ignoresSafeArea())
         .navigationTitle(NSLocalizedString("membership_title", value: "会员", comment: ""))
@@ -98,12 +75,6 @@ struct MembershipView: View {
                 manager: manager
             )
         )
-        .safeAreaInset(edge: .bottom) {
-            // 商品读取完成后再显示开通栏，避免 Loading 期间出现不可用的购买按钮。
-            if !isVIP && !manager.products.isEmpty {
-                purchaseBottomBar
-            }
-        }
         .task {
             await manager.loadProducts()
             await session.reloadProfile()
@@ -113,6 +84,42 @@ struct MembershipView: View {
         }
         .sheet(isPresented: $showLoginSheet) {
             AccountLoginSheet()
+        }
+    }
+
+    private func membershipScrollContent(showLogo: Bool) -> some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                if isVIP {
+                    activeMembershipCard
+                        .padding(.bottom, 24)
+                    activeBenefitsSection
+                } else {
+                    heroHeader(showLogo: showLogo)
+                        .padding(.bottom, 18)
+                    sectionTitle(
+                        NSLocalizedString("vip_features_title", value: "会员专属权益", comment: "")
+                    )
+                    .padding(.bottom, 8)
+                    featureList
+                        .padding(.bottom, 10)
+                    planCards
+                }
+
+                #if STAGING
+                Text(NSLocalizedString("membership_staging_note", value: "当前为 Staging：本地 StoreKit 交易通过隔离测试接口授予测试会员，不代表 App Store 正式链路成功。", comment: ""))
+                    .font(.system(size: 12))
+                    .foregroundColor(Theme.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 16)
+                #endif
+            }
+            .padding(.horizontal, Theme.pageHorizontalInset)
+            .padding(.top, 8)
+            .padding(.bottom, isVIP ? 24 : 16)
+            .frame(maxWidth: Theme.meTabContentMaxWidth)
+            .expandedPhonePageContent(existingHorizontalInset: Theme.pageHorizontalInset)
+            .frame(maxWidth: .infinity)
         }
     }
 
@@ -157,14 +164,16 @@ struct MembershipView: View {
 
     // MARK: - Hero（对齐安卓 MembershipHeroHeader）
 
-    private var heroHeader: some View {
+    private func heroHeader(showLogo: Bool) -> some View {
         VStack(spacing: 0) {
-            AppLogoImage(size: 50)
+            if showLogo {
+                AppLogoImage(size: 50)
+            }
             Text(NSLocalizedString("vip_title", value: "全能计分器 VIP", comment: ""))
                 .font(.system(size: 22, weight: .bold))
                 .foregroundColor(Theme.textPrimary)
                 .multilineTextAlignment(.center)
-                .padding(.top, 8)
+                .padding(.top, showLogo ? 8 : 0)
         }
         .frame(maxWidth: .infinity)
     }
@@ -204,8 +213,7 @@ struct MembershipView: View {
                 )
                 if let code = membershipCode {
                     identityRow(
-                        label: membership?.numberLabel.nilIfBlank
-                            ?? NSLocalizedString("me_profile_membership_number_label", value: "会员编号", comment: ""),
+                        label: NSLocalizedString("me_profile_membership_number_label", value: "会员编号", comment: ""),
                         value: code,
                         valueColor: Theme.textPrimary,
                         valueSize: 13
@@ -256,7 +264,7 @@ struct MembershipView: View {
     private var activeMembershipTitle: String {
         switch activeMembershipSource {
         case .server:
-            return activeServerMembership?.identitySummary.nilIfBlank
+            return activeServerMembership?.localizedTitle()
                 ?? NSLocalizedString("me_profile_vip_badge", value: "VIP 会员", comment: "")
         case .localStore:
             if manager.localEntitlementExpirationDate == nil {
@@ -659,11 +667,19 @@ struct MembershipView: View {
         .expandedPhonePageContent(existingHorizontalInset: 24)
         .frame(maxWidth: .infinity)
         .background(
-            Rectangle()
-                .fill(Theme.cardBackground)
-                .overlay(alignment: .top) { Theme.divider.frame(height: 1) }
-                .ignoresSafeArea(edges: .bottom)
+            Theme.backgroundColor.ignoresSafeArea(edges: .bottom)
         )
+        .overlay(alignment: .top) {
+            LinearGradient(
+                colors: [Theme.backgroundColor.opacity(0), Theme.backgroundColor],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: 28)
+            .offset(y: -28)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+        }
     }
 
     private var purchaseButton: some View {

@@ -86,28 +86,39 @@ struct InlineCommonNameTextField: View {
     var backgroundColor: Color = Theme.dialogControlBackground
     var height: CGFloat = 44
     var cornerRadius: CGFloat = Theme.sm
+    var leadingLabel: String? = nil
 
     var body: some View {
-        HStack(spacing: Theme.xs) {
-            TextField(placeholder, text: $text)
-                .textFieldStyle(.plain)
-                .font(font)
-                .foregroundColor(textColor)
-
-            // 对齐安卓 NameInput：尾部箭头是铺满字段高度的 44pt 热区，而不是只包住 24pt 图标。
-            // 图标向右偏移 8.4pt，补偿原图右侧透明区，让可见右距约为 12pt。
-            Button(action: onChevronTap) {
-                Image(systemName: "chevron.forward")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(iconColor)
-                    .offset(x: 8.4)
-                    .frame(width: 44, height: 44)
-                    .contentShape(Rectangle())
+        HStack(spacing: 0) {
+            if let leadingLabel {
+                Text(leadingLabel)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 40, height: height)
+                    .background(Theme.primary.opacity(0.5))
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(NSLocalizedString("common_names_title", value: "Saved Names", comment: ""))
+
+            HStack(spacing: Theme.xs) {
+                TextField(placeholder, text: $text)
+                    .textFieldStyle(.plain)
+                    .font(font)
+                    .foregroundColor(textColor)
+
+                // 对齐安卓 NameInput：尾部箭头是铺满字段高度的 44pt 热区，而不是只包住 24pt 图标。
+                // 图标向右偏移 8.4pt，补偿原图右侧透明区，让可见右距约为 12pt。
+                Button(action: onChevronTap) {
+                    Image(systemName: "chevron.forward")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(iconColor)
+                        .offset(x: 8.4)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(NSLocalizedString("common_names_title", value: "Saved Names", comment: ""))
+            }
+            .padding(.leading, Theme.sm)
         }
-        .padding(.leading, Theme.sm)
         // 有尾部操作时由它的热区覆盖到右边缘，不再额外留白（对齐安卓 SetupNameField）。
         .padding(.trailing, 0)
         .frame(height: height)

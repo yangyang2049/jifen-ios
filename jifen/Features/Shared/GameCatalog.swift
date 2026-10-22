@@ -17,7 +17,7 @@ enum ScoreboardCatalogSection: String, CaseIterable, Identifiable {
         case .cardGames:
             return NSLocalizedString("scoreboard_board_games", value: "棋牌", comment: "Board/card games section")
         case .other:
-            return NSLocalizedString("scoreboard_other", value: "其他计分", comment: "Other scoring section")
+            return NSLocalizedString("scoreboard_other", value: "其他", comment: "Other section")
         }
     }
 }

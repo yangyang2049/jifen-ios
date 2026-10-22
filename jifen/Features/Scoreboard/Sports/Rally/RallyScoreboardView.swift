@@ -709,6 +709,9 @@ struct RallyScoreboardView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
+        .modifier(VoiceMediaVolumeHint(
+            isEnabled: voiceAnnouncementEnabled && SportsVoiceSupport.isSupported && !store.state.finished
+        ))
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: store.sessionId.uuidString)

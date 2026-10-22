@@ -125,6 +125,9 @@ struct DualPlayerTimerView: View {
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .persistentSystemOverlays(.hidden)
+        .modifier(VoiceMediaVolumeHint(
+            isEnabled: config.voiceEnabled && PreferencesManager.shared.soundEnabled
+        ))
         .onAppear {
             if previousIdleTimerDisabled == nil {
                 previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled

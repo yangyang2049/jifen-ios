@@ -24,6 +24,11 @@ struct MultiScoreSetupDialogView: View {
     @State private var team2Name: String
     @State private var unoTargetScore: Int
     @State private var unoCustomTargetScoreText: String
+    @State private var unoCustomTargetSelected: Bool
+    @State private var unoCustomTargetRequested = false
+    @State private var unoCustomTargetSelection: TextSelection?
+    @FocusState private var unoCustomTargetFocused: Bool
+    @Environment(\.layoutDirection) private var layoutDirection
     @State private var customAdjustEnabled: Bool
     @State private var showMatchTime: Bool
     @State private var guandanTripleA: Bool
@@ -126,6 +131,7 @@ struct MultiScoreSetupDialogView: View {
         let initialUnoTarget = UnoTargetScorePolicy.initialSelection(for: initialTargetScore)
         _unoTargetScore = State(initialValue: initialUnoTarget.targetScore)
         _unoCustomTargetScoreText = State(initialValue: initialUnoTarget.customText)
+        _unoCustomTargetSelected = State(initialValue: !initialUnoTarget.customText.isEmpty)
         let initialCustomAdjust: Bool = initialSetup?.multiScoreCustomAdjustEnabled ?? {
             switch mode {
             case .multiScore:
@@ -297,7 +303,8 @@ struct MultiScoreSetupDialogView: View {
                 InlineCommonNameTextField(
                     placeholder: playerLabel(index),
                     text: bindingForPlayerName(index),
-                    onChevronTap: { activeCommonNameIndex = index }
+                    onChevronTap: { activeCommonNameIndex = index },
+                    leadingLabel: (layoutMode == .multiScore || layoutMode == .uno) ? String(index + 1) : nil
                 )
             }
         }
@@ -430,46 +437,94 @@ struct MultiScoreSetupDialogView: View {
                 .font(.system(size: 12))
                 .foregroundStyle(Theme.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .center)
-            HStack(spacing: 8) {
+            SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
                 ForEach(UnoTargetScorePolicy.presets, id: \.self) { score in
-                    let isSelected = unoCustomTargetScoreText.isEmpty && unoTargetScore == score
+                    let isSelected = !unoCustomTargetSelected && unoTargetScore == score
                     Button {
+                        unoCustomTargetSelected = false
+                        unoCustomTargetRequested = false
+                        unoCustomTargetFocused = false
+                        unoCustomTargetSelection = nil
                         unoTargetScore = score
                         unoCustomTargetScoreText = ""
                     } label: {
-                        Text("\(score)")
+                        Text(String(score))
                             .font(.system(size: 14, weight: isSelected ? .medium : .regular))
                             .foregroundStyle(isSelected ? Theme.textOnPrimary : Theme.textPrimary)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 40)
+                            .frame(width: 44, height: 44)
                             .background(isSelected ? Theme.primary : Theme.dialogControlBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("uno_target_score_preset_\(score)")
                 }
 
-                TextField(
-                    NSLocalizedString("custom", value: "自定义", comment: ""),
-                    text: Binding(
-                        get: { unoCustomTargetScoreText },
-                        set: { rawValue in
-                            let sanitized = UnoTargetScorePolicy.sanitizedInput(rawValue)
-                            unoCustomTargetScoreText = sanitized
-                            unoTargetScore = UnoTargetScorePolicy.customValue(from: sanitized) ?? 0
-                        }
-                    )
-                )
-                .keyboardType(.numberPad)
-                .multilineTextAlignment(.center)
-                .font(.system(size: 14, weight: unoCustomTargetScoreText.isEmpty ? .regular : .medium))
-                .foregroundStyle(unoCustomTargetScoreText.isEmpty ? Theme.textPrimary : Theme.textOnPrimary)
-                .frame(maxWidth: .infinity)
-                .frame(height: 40)
-                .background(unoCustomTargetScoreText.isEmpty ? Theme.dialogControlBackground : Theme.primary)
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .accessibilityIdentifier("uno_custom_target_score_field")
+                unoCustomTargetScoreChip
             }
+        }
+    }
+
+    @ViewBuilder
+    private var unoCustomTargetScoreChip: some View {
+        if unoCustomTargetSelected {
+            TextField(
+                NSLocalizedString("custom", value: "自定义", comment: ""),
+                text: Binding(
+                    get: { unoCustomTargetScoreText },
+                    set: { rawValue in
+                        // A removed editor can send its final value after a preset is selected.
+                        guard unoCustomTargetSelected else { return }
+                        let sanitized = UnoTargetScorePolicy.sanitizedInput(rawValue)
+                        unoCustomTargetScoreText = sanitized
+                        unoTargetScore = UnoTargetScorePolicy.customValue(from: sanitized) ?? 0
+                    }
+                ),
+                selection: $unoCustomTargetSelection
+            )
+                .keyboardType(.numberPad)
+                .focused($unoCustomTargetFocused)
+                .task(id: unoCustomTargetRequested) {
+                    guard unoCustomTargetRequested else { return }
+                    do {
+                        try await Task.sleep(for: .milliseconds(100))
+                    } catch {
+                        return
+                    }
+                    guard !Task.isCancelled, unoCustomTargetRequested else { return }
+                    unoCustomTargetFocused = true
+                }
+                .onChange(of: unoCustomTargetFocused) { _, focused in
+                    if focused {
+                        unoCustomTargetSelection = TextSelection(
+                            range: unoCustomTargetScoreText.startIndex..<unoCustomTargetScoreText.endIndex
+                        )
+                    } else {
+                        unoCustomTargetRequested = false
+                    }
+                }
+                .multilineTextAlignment(.center)
+                .font(.system(size: 14))
+                .foregroundStyle(Theme.textPrimary)
+                .frame(width: 64, height: 44)
+                .background(Theme.dialogControlBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .accessibilityIdentifier("uno_custom_target_score_field")
+        } else {
+            Button {
+                unoCustomTargetSelected = true
+                unoCustomTargetScoreText = String(UnoTargetScorePolicy.normalized(unoTargetScore))
+                unoCustomTargetRequested = true
+            } label: {
+                Image(systemName: "pencil")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(Theme.textPrimary)
+                    .frame(width: 44, height: 44)
+                    .background(Theme.dialogControlBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(NSLocalizedString("custom", value: "自定义", comment: ""))
+            .accessibilityIdentifier("uno_custom_target_score_button")
         }
     }
 

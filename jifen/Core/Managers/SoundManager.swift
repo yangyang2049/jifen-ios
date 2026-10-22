@@ -9,6 +9,20 @@ import AVFoundation
 import Foundation
 import ScoreCore
 
+/// Explicit tool sounds and announcements remain audible in Silent mode.
+/// Configure at playback time because voice-note recording changes the shared session.
+enum AppAudioPlaybackSession {
+    static func activate() throws {
+        let session = AVAudioSession.sharedInstance()
+        // playAndRecord already ignores the Silent switch. Keep its input route
+        // intact while a voice note is being recorded.
+        if !RecordNoteAudioManager.shared.isRecording {
+            try session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
+        }
+        try session.setActive(true)
+    }
+}
+
 /// Sound effects manager
 class SoundManager {
     static let shared = SoundManager()
@@ -48,6 +62,7 @@ class SoundManager {
         }
         
         do {
+            try AppAudioPlaybackSession.activate()
             audioPlayer = try AVAudioPlayer(contentsOf: soundUrl)
             audioPlayer?.play()
         } catch {
@@ -68,7 +83,9 @@ final class ScoreVoiceAnnouncer {
 
     private var sessionGate = SportsVoiceSessionGate()
 
-    private init() {}
+    private init() {
+        synthesizer.usesApplicationAudioSession = true
+    }
 
     func beginSession(_ id: UUID) {
         guard sessionGate.beginSession(id) else { return }
@@ -169,6 +186,14 @@ final class ScoreVoiceAnnouncer {
         }
         guard SportsVoiceSupport.language == language,
               let voice = SportsVoiceSupport.voice(for: language) else { return }
+        do {
+            try AppAudioPlaybackSession.activate()
+        } catch {
+            #if DEBUG
+            print("Error preparing speech audio: \(error)")
+            #endif
+            return
+        }
         for text in texts {
             let utterance = AVSpeechUtterance(string: text)
             utterance.voice = voice

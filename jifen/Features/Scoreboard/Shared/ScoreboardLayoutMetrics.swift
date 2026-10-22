@@ -20,6 +20,7 @@ struct BasketballTeamPanelLayoutMetrics: Equatable, Sendable {
     let scoreButtonFontSize: CGFloat
     let scoreButtonSpacing: CGFloat
     let outerPadding: CGFloat
+    let nameOuterPadding: CGFloat
     let scoreContentWidth: CGFloat
     let nameContentWidth: CGFloat
 }
@@ -456,9 +457,11 @@ enum ScoreboardLayoutMetrics {
             ? min(72, max(44, min(panelSize.width * 0.3, (panelSize.height - 96) / 3.25)))
             : 50
         let contentPadding = BasketballTeamPanelLayoutMetrics.contentPadding
-        let outerPadding = max(0, outerSafeAreaInset) + contentPadding
-        // The buttons occupy only the outer edge. The score keeps its own
-        // padding on both sides; the name uses the whole safe panel width.
+        // Scoring controls mirror each other at the physical outer edges.
+        // A one-sided camera inset must not push just one button column inward.
+        // Only the team name continues to reserve the camera's safe area.
+        let outerPadding = contentPadding
+        let nameOuterPadding = max(0, outerSafeAreaInset) + contentPadding
         return BasketballTeamPanelLayoutMetrics(
             scoreButtonSize: buttonSize,
             scoreButtonFontSize: isLargeScreen
@@ -466,8 +469,9 @@ enum ScoreboardLayoutMetrics {
             scoreButtonSpacing: isLargeScreen
                 ? min(16, max(8, 10 + (buttonSize - 50) * 6 / 22)) : 10,
             outerPadding: outerPadding,
+            nameOuterPadding: nameOuterPadding,
             scoreContentWidth: max(1, panelSize.width - outerPadding - buttonSize - contentPadding * 2),
-            nameContentWidth: max(1, panelSize.width - outerPadding - contentPadding)
+            nameContentWidth: max(1, panelSize.width - nameOuterPadding - contentPadding)
         )
     }
 

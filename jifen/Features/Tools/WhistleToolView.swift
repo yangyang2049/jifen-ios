@@ -65,6 +65,18 @@ struct WhistleToolView: View {
                 }
             }
         }
+        .safeAreaInset(edge: .bottom) {
+            Text(MediaVolumeHint.message)
+                .font(.footnote)
+                .foregroundStyle(Theme.textSecondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 480)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity)
+                .background(Theme.backgroundColor)
+                .accessibilityIdentifier("whistle_media_volume_hint")
+        }
         .toolbar(.hidden, for: .navigationBar)
         .overlay(alignment: .topLeading) {
             FloatingBackButton { dismiss() }

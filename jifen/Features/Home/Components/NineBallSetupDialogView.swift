@@ -54,7 +54,8 @@ struct NineBallSetupDialogView: View {
                             InlineCommonNameTextField(
                                 placeholder: playerLabel(index),
                                 text: nameBinding(index),
-                                onChevronTap: { activeNameIndex = index }
+                                onChevronTap: { activeNameIndex = index },
+                                leadingLabel: String(index + 1)
                             )
                         }
                     }

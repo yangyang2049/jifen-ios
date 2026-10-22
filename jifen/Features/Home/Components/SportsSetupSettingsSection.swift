@@ -7,6 +7,7 @@ struct SportsSetupSettingsSection: View {
     var onCustomFieldFocus: (String?) -> Void = { _ in }
     @State private var completionModeExpanded = false
     @State private var requestedCustomField: CustomField?
+    @State private var customFieldSelections: [CustomField: TextSelection] = [:]
     @FocusState private var focusedCustomField: CustomField?
     @Environment(\.layoutDirection) private var layoutDirection
     private let numberChipSize: CGFloat = 44
@@ -31,6 +32,10 @@ struct SportsSetupSettingsSection: View {
             }
             if let newField {
                 requestedCustomField = newField
+                let text = customFieldText(newField)
+                customFieldSelections[newField] = TextSelection(range: text.startIndex..<text.endIndex)
+            } else if let oldField {
+                customFieldSelections[oldField] = nil
             }
             onCustomFieldFocus(newField.map { "setup_custom_\($0.rawValue)" })
         }
@@ -51,10 +56,30 @@ struct SportsSetupSettingsSection: View {
     private func dismissCustomFocus() {
         requestedCustomField = nil
         focusedCustomField = nil
+        customFieldSelections = [:]
     }
 
     private func isEditingCustomField(_ field: CustomField) -> Bool {
         requestedCustomField == field || focusedCustomField == field
+    }
+
+    private func customFieldText(_ field: CustomField) -> String {
+        switch field {
+        case .sets: draft.customMaxSetsText
+        case .points: draft.customPointsText
+        case .foosballScoreCap: draft.customFoosballScoreCapText
+        }
+    }
+
+    private func isCustomValueActive(_ field: CustomField) -> Bool {
+        isEditingCustomField(field) || !customFieldText(field).isEmpty
+    }
+
+    private func customTextSelection(_ field: CustomField) -> Binding<TextSelection?> {
+        Binding(
+            get: { customFieldSelections[field] },
+            set: { customFieldSelections[field] = $0 }
+        )
     }
 
     private func getChipBackgroundColor(selected: Bool) -> Color {
@@ -216,7 +241,7 @@ struct SportsSetupSettingsSection: View {
                 .settingsLabelStyle()
             SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
                 ForEach([3, 8, 10, 12], id: \.self) { rounds in
-                    numberChip(rounds, selection: $draft.selectedMaxSets) {
+                    numberChip(rounds, selection: $draft.selectedMaxSets, customField: .sets) {
                         draft.customMaxSetsText = ""
                     }
                 }
@@ -407,11 +432,11 @@ struct SportsSetupSettingsSection: View {
                         draft.customFoosballScoreCapText = ""
                     } label: {
                         Text(NSLocalizedString("pickleball_no_cap", value: "无", comment: ""))
-                            .font(.system(size: 14, weight: draft.foosballScoreCap == nil && draft.customFoosballScoreCapText.isEmpty ? .medium : .regular))
-                            .foregroundStyle(getChipTextColor(selected: draft.foosballScoreCap == nil && draft.customFoosballScoreCapText.isEmpty))
+                            .font(.system(size: 14, weight: draft.foosballScoreCap == nil && !isCustomValueActive(.foosballScoreCap) ? .medium : .regular))
+                            .foregroundStyle(getChipTextColor(selected: draft.foosballScoreCap == nil && !isCustomValueActive(.foosballScoreCap)))
                             .padding(.horizontal, 8)
                             .frame(minWidth: numberChipSize, minHeight: numberChipSize)
-                            .background(getChipBackgroundColor(selected: draft.foosballScoreCap == nil && draft.customFoosballScoreCapText.isEmpty))
+                            .background(getChipBackgroundColor(selected: draft.foosballScoreCap == nil && !isCustomValueActive(.foosballScoreCap)))
                             .clipShape(RoundedRectangle(cornerRadius: numberChipCornerRadius, style: .continuous))
                     }
                     .buttonStyle(.plain)
@@ -422,10 +447,10 @@ struct SportsSetupSettingsSection: View {
                             draft.customFoosballScoreCapText = ""
                         } label: {
                             Text("\(value)")
-                                .font(.system(size: 14, weight: draft.foosballScoreCap == value && draft.customFoosballScoreCapText.isEmpty ? .medium : .regular))
-                                .foregroundStyle(getChipTextColor(selected: draft.foosballScoreCap == value && draft.customFoosballScoreCapText.isEmpty))
+                                .font(.system(size: 14, weight: draft.foosballScoreCap == value && !isCustomValueActive(.foosballScoreCap) ? .medium : .regular))
+                                .foregroundStyle(getChipTextColor(selected: draft.foosballScoreCap == value && !isCustomValueActive(.foosballScoreCap)))
                                 .frame(width: numberChipSize, height: numberChipSize)
-                                .background(getChipBackgroundColor(selected: draft.foosballScoreCap == value && draft.customFoosballScoreCapText.isEmpty))
+                                .background(getChipBackgroundColor(selected: draft.foosballScoreCap == value && !isCustomValueActive(.foosballScoreCap)))
                                 .clipShape(RoundedRectangle(cornerRadius: numberChipCornerRadius, style: .continuous))
                         }
                         .buttonStyle(.plain)
@@ -527,7 +552,7 @@ struct SportsSetupSettingsSection: View {
     ) -> some View {
         SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
             ForEach(presets, id: \.self) { value in
-                numberChip(value, selection: selection) {
+                numberChip(value, selection: selection, customField: field) {
                     text.wrappedValue = ""
                 }
             }
@@ -565,18 +590,21 @@ struct SportsSetupSettingsSection: View {
     private func numberChip(
         _ value: Int,
         selection: Binding<Int>,
+        customField: CustomField? = nil,
         onSelect: @escaping () -> Void = {}
     ) -> some View {
-        Button {
+        let isSelected = selection.wrappedValue == value
+            && !(customField.map { isCustomValueActive($0) } ?? false)
+        return Button {
             dismissCustomFocus()
             selection.wrappedValue = value
             onSelect()
         } label: {
             Text("\(value)")
-                .font(.system(size: 14, weight: selection.wrappedValue == value ? .medium : .regular))
-                .foregroundStyle(getChipTextColor(selected: selection.wrappedValue == value))
+                .font(.system(size: 14, weight: isSelected ? .medium : .regular))
+                .foregroundStyle(getChipTextColor(selected: isSelected))
                 .frame(width: numberChipSize, height: numberChipSize)
-                .background(getChipBackgroundColor(selected: selection.wrappedValue == value))
+                .background(getChipBackgroundColor(selected: isSelected))
                 .clipShape(RoundedRectangle(cornerRadius: numberChipCornerRadius, style: .continuous))
         }
         .buttonStyle(.plain)
@@ -593,12 +621,13 @@ struct SportsSetupSettingsSection: View {
             TextField(NSLocalizedString("custom", value: "自定义", comment: ""), text: Binding(
                 get: { text.wrappedValue },
                 set: { rawValue in
+                    guard requestedCustomField == field else { return }
                     let limit = String(maxValue).count
                     let sanitized = normalizedDecimalDigits(rawValue, limit: limit)
                     text.wrappedValue = sanitized
                     selection.wrappedValue = min(maxValue, Int(sanitized) ?? 0)
                 }
-            ))
+            ), selection: customTextSelection(field))
             .keyboardType(.numberPad)
             .focused($focusedCustomField, equals: field)
             .task(id: requestedCustomField) { await focusRequestedCustomField(field) }
@@ -659,6 +688,7 @@ struct SportsSetupSettingsSection: View {
             TextField(NSLocalizedString("custom", value: "自定义", comment: ""), text: Binding(
                 get: { text.wrappedValue },
                 set: { rawValue in
+                    guard requestedCustomField == .foosballScoreCap else { return }
                     let limit = String(maxValue).count
                     let sanitized = normalizedDecimalDigits(rawValue, limit: limit)
                     text.wrappedValue = sanitized
@@ -668,7 +698,7 @@ struct SportsSetupSettingsSection: View {
                         selection.wrappedValue = nil
                     }
                 }
-            ))
+            ), selection: customTextSelection(.foosballScoreCap))
             .keyboardType(.numberPad)
             .focused($focusedCustomField, equals: .foosballScoreCap)
             .task(id: requestedCustomField) { await focusRequestedCustomField(.foosballScoreCap) }
@@ -774,22 +804,23 @@ struct SportsSetupSettingsSection: View {
 
             SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
                 ForEach(matchCompletionPresets, id: \.self) { sets in
+                    let isSelected = draft.selectedMaxSets == sets && !isCustomValueActive(.sets)
                     Button(action: {
                         dismissCustomFocus()
                         draft.selectMatchCompletionPreset(sets, gameType: gameType)
                     }) {
                         Text("\(sets)")
-                            .font(.system(size: 14, weight: draft.selectedMaxSets == sets ? .medium : .regular))
-                            .foregroundColor(getChipTextColor(selected: draft.selectedMaxSets == sets))
+                            .font(.system(size: 14, weight: isSelected ? .medium : .regular))
+                            .foregroundColor(getChipTextColor(selected: isSelected))
                             .frame(width: numberChipSize, height: numberChipSize)
-                            .background(getChipBackgroundColor(selected: draft.selectedMaxSets == sets))
+                            .background(getChipBackgroundColor(selected: isSelected))
                             .clipShape(RoundedRectangle(cornerRadius: numberChipCornerRadius, style: .continuous))
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("setup_match_sets_\(sets)")
                 }
 
-                if !matchCompletionPresets.contains(draft.selectedMaxSets) || isEditingCustomField(.sets) {
+                if !matchCompletionPresets.contains(draft.selectedMaxSets) || isCustomValueActive(.sets) {
                     TextField(NSLocalizedString("custom", value: "自定义", comment: ""), text: Binding(
                         get: { draft.customMaxSetsText },
                         set: { rawValue in
@@ -799,7 +830,7 @@ struct SportsSetupSettingsSection: View {
                             draft.customMaxSetsText = sanitized
                             draft.selectedMaxSets = Int(sanitized) ?? 0
                         }
-                    ))
+                    ), selection: customTextSelection(.sets))
                     .keyboardType(.numberPad)
                     .focused($focusedCustomField, equals: .sets)
                     .task(id: requestedCustomField) { await focusRequestedCustomField(.sets) }
@@ -812,8 +843,7 @@ struct SportsSetupSettingsSection: View {
                     .id("setup_custom_sets")
                 } else {
                     Button(action: {
-                        draft.selectedMaxSets = 0
-                        draft.customMaxSetsText = ""
+                        draft.customMaxSetsText = String(max(1, draft.selectedMaxSets))
                         requestedCustomField = .sets
                     }) {
                         Image(systemName: "pencil")
@@ -904,7 +934,7 @@ struct SportsSetupSettingsSection: View {
 }
 
 /// Wrap fixed-size choices without remounting the focused input when rows change.
-private struct SetupNumberChoicesLayout: Layout {
+struct SetupNumberChoicesLayout: Layout {
     var layoutDirection: LayoutDirection
     private let spacing: CGFloat = 8
 
