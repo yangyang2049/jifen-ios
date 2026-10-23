@@ -2,6 +2,11 @@ import LinkCore
 import ScoreCore
 import SwiftUI
 
+private struct SetupFieldScrollTarget: Equatable {
+    let fieldID: String?
+    let viewportHeight: CGFloat
+}
+
 // MARK: - SportsSetupDialogView
 
 struct SportsSetupDialogView: View {
@@ -58,9 +63,10 @@ struct SportsSetupDialogView: View {
                     .padding(.horizontal, 20)
                     .padding(.vertical, Theme.md)
                 }
-                .task(id: focusedSetupFieldID) {
+                .task(id: SetupFieldScrollTarget(fieldID: focusedSetupFieldID, viewportHeight: maxContentHeight)) {
                     guard let fieldID = focusedSetupFieldID else { return }
-                    // Wait for the keyboard and dialog viewport to finish resizing.
+                    // A keyboard resize can finish after the initial focus request.
+                    // Restart when the viewport changes so the editor stays inside it.
                     do {
                         try await Task.sleep(for: .milliseconds(350))
                     } catch {

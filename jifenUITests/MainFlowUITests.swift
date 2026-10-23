@@ -1,6 +1,5 @@
 import UIKit
 import XCTest
-import UIKit
 
 final class MainFlowUITests: XCTestCase {
     private let tabNames = ["Home", "Records", "Score", "Timer", "Me"]
@@ -1461,9 +1460,10 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
         app.typeText("31")
         XCTAssertEqual(setsField.value as? String, "31")
-        XCTAssertEqual(setsField.frame.width, 64, accuracy: 1)
-        XCTAssertEqual(setsField.frame.height, 44, accuracy: 1)
-        XCTAssertEqual(setsField.frame.midY, app.buttons["setup_match_sets_1"].frame.midY, accuracy: 1)
+        let setsFrames = waitForStableFrames(of: [setsField, app.buttons["setup_match_sets_1"]])
+        XCTAssertEqual(setsFrames[0].width, 64, accuracy: 1)
+        XCTAssertEqual(setsFrames[0].height, 44, accuracy: 1)
+        XCTAssertEqual(setsFrames[0].midY, setsFrames[1].midY, accuracy: 1)
         UITestScreenshotStore.capture(app, name: "setup_compact_custom_sets", testCase: self)
         app.buttons["setup_match_sets_1"].tap()
         UITestScreenshotStore.capture(app, name: "setup_compact_after_preset_tap", testCase: self)
@@ -1486,12 +1486,40 @@ final class MainFlowUITests: XCTestCase {
         app.typeText("999")
         XCTAssertEqual(pointsField.value as? String, "999")
         let pointsScroll = app.scrollViews.containing(.textField, identifier: "setup_custom_points_field").firstMatch
-        XCTAssertGreaterThanOrEqual(pointsField.frame.minY, pointsScroll.frame.minY - 1)
-        XCTAssertLessThanOrEqual(pointsField.frame.maxY, pointsScroll.frame.maxY + 1)
-        XCTAssertEqual(pointsField.frame.width, 64, accuracy: 1)
-        XCTAssertEqual(pointsField.frame.height, 44, accuracy: 1)
-        XCTAssertEqual(pointsField.frame.midY, app.buttons["11"].firstMatch.frame.midY, accuracy: 1)
+        let pointsFrames = waitForStableFrames(of: [pointsField, app.buttons["11"].firstMatch, pointsScroll])
         UITestScreenshotStore.capture(app, name: "setup_compact_custom_points", testCase: self)
+        XCTAssertGreaterThanOrEqual(pointsFrames[0].minY, pointsFrames[2].minY - 1)
+        XCTAssertLessThanOrEqual(pointsFrames[0].maxY, pointsFrames[2].maxY + 1)
+        XCTAssertEqual(pointsFrames[0].width, 64, accuracy: 1)
+        XCTAssertEqual(pointsFrames[0].height, 44, accuracy: 1)
+        XCTAssertEqual(pointsFrames[0].midY, pointsFrames[1].midY, accuracy: 1)
+    }
+
+    private func waitForStableFrames(
+        of elements: [XCUIElement],
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> [CGRect] {
+        var frames: [CGRect] = []
+        var stableSince = Date()
+        let stable = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            guard elements.allSatisfy({ $0.exists }) else { return false }
+            let current = elements.map(\.frame)
+            guard current.allSatisfy({ !$0.isEmpty && !$0.isInfinite && !$0.isNull }) else { return false }
+            // The keyboard resizes the dialog, then ScrollViewReader animates to
+            // the editor. An existing keyboard alone does not mean layout is idle.
+            if current != frames {
+                frames = current
+                stableSince = Date()
+                return false
+            }
+            return Date().timeIntervalSince(stableSince) >= 0.75
+        }, object: nil)
+        XCTAssertEqual(
+            XCTWaiter.wait(for: [stable], timeout: 6), .completed,
+            "Setup controls did not settle: \(frames)", file: file, line: line
+        )
+        return frames
     }
 
     private func assertCompactSetupNumberChoices(in app: XCUIApplication) {
