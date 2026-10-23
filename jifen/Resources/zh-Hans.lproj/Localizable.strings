@@ -2487,3 +2487,12 @@
 
 /* Media volume reminder */
 "media_volume_hint" = "声音使用媒体音量，请按音量键调节。";
+
+// WeChat login
+"login_wechat" = "微信登录";
+"login_wechat_not_installed" = "请先安装微信";
+"login_wechat_request_failed" = "无法发起微信登录，请重试";
+"login_wechat_cancelled" = "已取消登录";
+"login_wechat_denied" = "已拒绝微信授权";
+"login_wechat_invalid_response" = "微信授权信息无效，请重试";
+"login_wechat_timeout" = "微信登录超时，请重试";

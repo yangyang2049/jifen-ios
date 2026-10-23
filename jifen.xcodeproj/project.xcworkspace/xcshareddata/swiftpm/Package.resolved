@@ -1,5 +1,5 @@
 {
-  "originHash" : "fcc5f621f93ee9c097e3df0936e3a95ea6c22666d1500c613378bdc71ee5dbd8",
+  "originHash" : "5b5dc030083f15599bea18a62a46fa0da9274ea1656e658d8a3776cc7692e8a0",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -116,6 +116,15 @@
       "state" : {
         "revision" : "f4a19a3c313dc2616c70bb49d29a799fb16be837",
         "version" : "2.4.1"
+      }
+    },
+    {
+      "identity" : "wechatopensdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/yanyin1986/WechatOpenSDK.git",
+      "state" : {
+        "revision" : "291a3f40fd03ce23d193e7b761d79bcbb12eb8a9",
+        "version" : "2.0.7"
       }
     }
   ],

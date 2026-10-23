@@ -115,6 +115,25 @@ private struct AccountLoginView: View {
                 .accessibilityIdentifier("account_login_apple")
                 .disabled(session.isWorking)
 
+                if WechatLoginPolicy.supports(language: Bundle.main.preferredLocalizations.first ?? "en") && ProductionWechatAuthProvider.isInstalled {
+                    Button {
+                        Task {
+                            guard requireAgreement() else { return }
+                            await session.signInWithWechat()
+                        }
+                    } label: {
+                        Text(NSLocalizedString("login_wechat", comment: ""))
+                            .font(.system(size: 16))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(RoundedRectangle(cornerRadius: 10).fill(Color(red: 7 / 255, green: 193 / 255, blue: 96 / 255)))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(session.isWorking)
+                    .accessibilityIdentifier("account_login_wechat")
+                }
+
                 // 登录入口例外：与上方原生 AppleIDButton 的 10pt 圆角一致，不使用胶囊。
                 Button {
                     onOpenPasswordLogin()

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        C23000000000000000000001 /* WechatOpenSDK in Frameworks */ = {isa = PBXBuildFile; productRef = A23000000000000000000001 /* WechatOpenSDK */; };
 		04B923BF21624627AB1BCC66 /* GroupRedesignUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1273C47DF445F6918C0C49 /* GroupRedesignUITests.swift */; };
 		2DB38D61DF48EE1A17B38843 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C476D58990954AF104F51A /* Foundation.framework */; };
 		614D317A62708BF7CFA926F2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C476D58990954AF104F51A /* Foundation.framework */; };
@@ -165,6 +166,7 @@
 				C10000000000000000000006 /* TimerCore in Frameworks */,
 				C10000000000000000000007 /* FirebaseCore in Frameworks */,
 				C10000000000000000000008 /* FirebaseAnalyticsCore in Frameworks */,
+                C23000000000000000000001 /* WechatOpenSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -317,6 +319,7 @@
 				A10000000000000000000006 /* TimerCore */,
 				A10000000000000000000007 /* FirebaseCore */,
 				A10000000000000000000008 /* FirebaseAnalyticsCore */,
+                A23000000000000000000001 /* WechatOpenSDK */,
 			);
 			productName = jifen;
 			productReference = 0FA5BAD12F18F3EB00182375 /* jifen.app */;
@@ -439,6 +442,7 @@
 			packageReferences = (
 				D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */,
 				D50000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+                D23000000000000000000001 /* XCRemoteSwiftPackageReference "WechatOpenSDK" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0FA5BAD22F18F3EB00182375 /* Products */;
@@ -949,6 +953,11 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+        D23000000000000000000001 /* XCRemoteSwiftPackageReference "WechatOpenSDK" */ = {
+            isa = XCRemoteSwiftPackageReference;
+            repositoryURL = "https://github.com/yanyin1986/WechatOpenSDK.git";
+            requirement = {kind = exactVersion; version = 2.0.7; };
+        };
 		D50000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
@@ -960,6 +969,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+        A23000000000000000000001 /* WechatOpenSDK */ = {
+            isa = XCSwiftPackageProductDependency;
+            package = D23000000000000000000001 /* XCRemoteSwiftPackageReference "WechatOpenSDK" */;
+            productName = WechatOpenSDK;
+        };
 		A10000000000000000000001 /* ScoreCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;

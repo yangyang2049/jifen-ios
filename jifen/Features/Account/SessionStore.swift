@@ -164,6 +164,10 @@ final class SessionStore {
         await performAuth(method: "apple") { try await appleProvider.signIn() }
     }
 
+    func signInWithWechat() async {
+        await performAuth(method: "wechat") { try await ProductionWechatAuthProvider.shared.signIn() }
+    }
+
     /// 账号密码登录（对齐安卓 AuthRepository.loginWithEmail：POST api/auth/login/email）。
     func signInWithEmail(account: String, password: String) async {
         await performAuth(method: "password") {
@@ -494,6 +498,9 @@ final class SessionStore {
     }
 
     private nonisolated static func analyticsAuthOutcome(_ error: Error) -> (result: AnalyticsResult, category: String) {
+        if let wechatError = error as? WechatAuthError, case .cancelled = wechatError {
+            return (.cancelled, "user_cancelled")
+        }
         if let appleError = error as? AppleAuthError {
             switch appleError {
             case .cancelled: return (.cancelled, "user_cancelled")

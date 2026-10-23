@@ -3,6 +3,15 @@ import XCTest
 @testable import jifen
 
 final class AccountPasswordLoginTests: XCTestCase {
+    func testWechatVisibilityUsesLanguageRegardlessOfRegion() {
+        for language in ["zh", "zh-Hans", "zh-Hant", "zh_CN", "zh-TW", "zh-HK", "zh-MO", "zh-Hans-US"] {
+            XCTAssertTrue(WechatLoginPolicy.supports(language: language), language)
+        }
+        for language in ["en", "en-CN", "ja-CN", "fr", ""] {
+            XCTAssertFalse(WechatLoginPolicy.supports(language: language), language)
+        }
+    }
+
     func testEndpointAndPayloadMatchBackendContract() throws {
         XCTAssertEqual(PasswordLoginEndpoint.path, "/api/auth/login/email")
 

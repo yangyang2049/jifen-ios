@@ -22,9 +22,12 @@ struct MainTabView: View {
         .tint(Theme.accentColor)
         .onChange(of: GroupPushManager.shared.destination) { _, value in if value != nil { selectedTab = 0 } }
         .onChange(of: groupReminders.destination) { _, value in if value != nil { selectedTab = 0 } }
-        .onOpenURL { receiveGroupInvitation($0) }
+        .onOpenURL { url in
+            if !ProductionWechatAuthProvider.shared.handle(url: url) { receiveGroupInvitation(url) }
+        }
         .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
-            if let url = activity.webpageURL { receiveGroupInvitation(url) }
+            if !ProductionWechatAuthProvider.shared.handle(activity: activity),
+               let url = activity.webpageURL { receiveGroupInvitation(url) }
         }
         .onAppear {
             configureTabBarPresentation()

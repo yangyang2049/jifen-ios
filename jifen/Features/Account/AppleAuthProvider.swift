@@ -16,10 +16,8 @@ enum AccountIdentityProviderID: String, Sendable {
 }
 
 enum AccountIdentityProviderAvailability {
-    /// WeChat deliberately remains a reserved provider until its iOS SDK and
-    /// privacy flow are integrated. It is not rendered or initialized today.
-    static let enabled: [AccountIdentityProviderID] = [.apple]
-    static let reserved: [AccountIdentityProviderID] = [.wechat]
+    static let enabled: [AccountIdentityProviderID] = [.apple, .wechat]
+    static let reserved: [AccountIdentityProviderID] = []
 }
 
 enum AppleAuthError: LocalizedError {

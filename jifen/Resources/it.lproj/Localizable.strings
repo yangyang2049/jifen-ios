@@ -2456,3 +2456,12 @@
 
 /* Media volume reminder */
 "media_volume_hint" = "L’audio usa il volume dei contenuti multimediali. Regolalo con i tasti del volume.";
+
+// WeChat login
+"login_wechat" = "WeChat Login";
+"login_wechat_not_installed" = "WeChat is not installed";
+"login_wechat_request_failed" = "Unable to start WeChat login. Please try again.";
+"login_wechat_cancelled" = "Login cancelled";
+"login_wechat_denied" = "WeChat authorization denied";
+"login_wechat_invalid_response" = "Invalid WeChat authorization response. Please try again.";
+"login_wechat_timeout" = "WeChat login timed out. Please try again.";
