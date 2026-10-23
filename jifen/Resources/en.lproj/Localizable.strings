@@ -1860,7 +1860,7 @@
 "group_qr_direct_hint" = "Scan in iScoreboard to preview and join.";
 "group_quick_score" = "Overall set score";
 "group_rally_scoring" = "Rally Scoring";
-"group_read_notices" = "Mark as Read";
+"group_read_notices" = "Read";
 "group_registration_closes" = "Registration Deadline";
 "group_regular" = "Standard";
 "group_reload_version" = "Load Latest Version";

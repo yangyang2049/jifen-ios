@@ -84,6 +84,15 @@ class GroupLocalizationTests(unittest.TestCase):
             with self.assertRaises(AssertionError, msg=key):
                 updated_reviewed_sources(self.copy, {**english, key: value})
 
+    def test_read_status_is_distinct_from_mark_as_read_action(self):
+        from group_heading_case_20261022 import alias_targets
+        self.assertNotIn('group_read_notices', alias_targets())
+        self.assertNotIn('group_read_notices', self.copy['aliases'])
+        for locale, expected in [('en', 'Read'), ('zh-Hans', '已读'), ('zh-Hant', '已讀')]:
+            entries = self.tables[locale]
+            self.assertEqual(entries['group_read_notices'].value, expected)
+        self.assertEqual(self.english['group_copy_mark_seen'].value, 'Mark as Read')
+
     def test_every_locale_explains_lineup_counts_and_has_view_and_notice_labels(self):
         for locale, entries in self.tables.items():
             for key in ['group_multi_match_hint', 'group_single_match_hint',

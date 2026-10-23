@@ -257,3 +257,14 @@ fallback. No speech asset is bundled and no private Settings URL is used.
 Download guidance names Settings → Accessibility → VoiceOver → Speech and
 explicitly says VoiceOver need not be enabled. The per-match missing-voice
 notification budget uses the existing persisted session ID, in memory only.
+
+WeChat login is available only in Simplified and Traditional Chinese. The seven
+`login_wechat*` rows in other locale catalogs preserve the existing English
+fallback resources as fixed copy; they are not translations or an expansion of
+the supported login languages. Translate and review them before enabling this
+provider outside Chinese.
+
+`group_read_notices` is a read status (English `Read`), separate from the
+`group_copy_mark_seen` action (`Mark as Read`). Its runtime and copy-pack aliases
+must not map the status back to the action. Existing native status wording is
+retained in the copy-pack overrides.

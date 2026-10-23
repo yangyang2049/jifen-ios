@@ -137,7 +137,6 @@
     "group_report_spam": "feedback_report_spam",
     "group_activity_lineup_section_matches": "group_activity_lineup",
     "group_empty_activities_title": "group_no_activities",
-    "group_read_notices": "group_mark_seen",
     "group_pagination_failed": "group_partial_load",
     "group_too_many_sessions": "group_lineup_invalid",
     "group_past_activities": "group_activity_section_past",
@@ -6044,7 +6043,8 @@
       "group_ranking_losses": "હારની સંખ્યા",
       "group_ranking_draws": "ડ્રોની સંખ્યા",
       "group_error_description_length": "ગ્રુપનું વર્ણન 200 અક્ષરથી વધુ ન હોવું જોઈએ.",
-      "group_manual_result_action": "મેચનું પરિણામ ઉમેરો"
+      "group_manual_result_action": "મેચનું પરિણામ ઉમેરો",
+      "group_read_notices": "વાંચેલું"
     },
     "bn": {
       "group_archive_hint": "এই গ্রুপটি আর্কাইভ করবেন? এর বিষয়বস্তু শুধু পড়া যাবে।",
@@ -6242,7 +6242,8 @@
       "group_ranking_losses": "হারের সংখ্যা",
       "group_ranking_draws": "ড্রয়ের সংখ্যা",
       "group_error_description_length": "গ্রুপের বিবরণ ২০০ অক্ষরের বেশি হতে পারবে না।",
-      "group_manual_result_action": "ম্যাচের ফল যোগ করুন"
+      "group_manual_result_action": "ম্যাচের ফল যোগ করুন",
+      "group_read_notices": "পড়া হয়েছে"
     },
     "pa": {
       "group_archive_hint": "ਇਸ ਗਰੁੱਪ ਨੂੰ ਆਰਕਾਈਵ ਕਰਨਾ ਹੈ? ਇਸ ਦੀ ਸਮੱਗਰੀ ਸਿਰਫ਼ ਪੜ੍ਹੀ ਜਾ ਸਕੇਗੀ।",
@@ -6440,7 +6441,8 @@
       "group_ranking_losses": "ਹਾਰ ਦੀ ਗਿਣਤੀ",
       "group_ranking_draws": "ਡਰਾਅ ਦੀ ਗਿਣਤੀ",
       "group_error_description_length": "ਗਰੁੱਪ ਦਾ ਵੇਰਵਾ 200 ਅੱਖਰਾਂ ਤੋਂ ਵੱਧ ਨਹੀਂ ਹੋਣਾ ਚਾਹੀਦਾ।",
-      "group_manual_result_action": "ਮੈਚ ਦਾ ਨਤੀਜਾ ਜੋੜੋ"
+      "group_manual_result_action": "ਮੈਚ ਦਾ ਨਤੀਜਾ ਜੋੜੋ",
+      "group_read_notices": "ਪੜ੍ਹਿਆ"
     },
     "or": {
       "group_archive_hint": "ଏହି ଗୋଷ୍ଠୀକୁ ଆର୍କାଇଭ୍ କରିବେ? ଏହାର ବିଷୟବସ୍ତୁ କେବଳ ପଢ଼ିହେବ।",
@@ -6638,7 +6640,8 @@
       "group_ranking_losses": "ହାର ସଂଖ୍ୟା",
       "group_ranking_draws": "ଡ୍ର ସଂଖ୍ୟା",
       "group_error_description_length": "ଗୋଷ୍ଠୀ ବିବରଣୀ 200 ଅକ୍ଷରରୁ ଅଧିକ ହେବା ଉଚିତ ନୁହେଁ।",
-      "group_manual_result_action": "ମ୍ୟାଚ୍ ଫଳାଫଳ ଯୋଡ଼ନ୍ତୁ"
+      "group_manual_result_action": "ମ୍ୟାଚ୍ ଫଳାଫଳ ଯୋଡ଼ନ୍ତୁ",
+      "group_read_notices": "ପଢ଼ାଯାଇଛି"
     },
     "en": {
       "group_error_registration_closed": "Registration has closed.",
@@ -6668,7 +6671,8 @@
       "group_ranking_losses": "L",
       "group_ranking_draws": "D",
       "group_error_description_length": "Group descriptions must be no longer than 200 characters.",
-      "group_manual_result_action": "Add Result"
+      "group_manual_result_action": "Add Result",
+      "group_read_notices": "Read"
     },
     "zh-Hans": {
       "group_error_registration_closed": "报名已截止。",
@@ -6694,7 +6698,8 @@
       "group_ranking_losses": "负",
       "group_ranking_draws": "平",
       "group_error_description_length": "简介不能超过 200 字。",
-      "group_manual_result_action": "补记赛果"
+      "group_manual_result_action": "补记赛果",
+      "group_read_notices": "已读"
     },
     "zh-Hant": {
       "group_error_registration_closed": "報名已截止。",
@@ -6727,7 +6732,8 @@
       "group_ranking_losses": "負",
       "group_ranking_draws": "平",
       "group_error_description_length": "簡介不能超過 200 字。",
-      "group_manual_result_action": "補記賽果"
+      "group_manual_result_action": "補記賽果",
+      "group_read_notices": "已讀"
     },
     "ja": {
       "group_error_registration_closed": "参加受付は終了しました。",
@@ -6892,7 +6898,8 @@
       "group_ranking_losses": "敗戦数",
       "group_ranking_draws": "引き分け数",
       "group_error_description_length": "グループの説明は200文字以内で入力してください。",
-      "group_manual_result_action": "試合結果を追加"
+      "group_manual_result_action": "試合結果を追加",
+      "group_read_notices": "既読"
     },
     "ko": {
       "group_error_registration_closed": "참가 신청이 마감되었습니다.",
@@ -7057,7 +7064,8 @@
       "group_ranking_losses": "패배 수",
       "group_ranking_draws": "무승부 수",
       "group_error_description_length": "그룹 소개는 200자 이하여야 합니다.",
-      "group_manual_result_action": "경기 결과 추가"
+      "group_manual_result_action": "경기 결과 추가",
+      "group_read_notices": "읽음"
     },
     "de": {
       "group_error_registration_closed": "Die Anmeldung ist geschlossen.",
@@ -7222,7 +7230,8 @@
       "group_ranking_losses": "Niederlagen",
       "group_ranking_draws": "Unentschieden",
       "group_error_description_length": "Gruppenbeschreibungen dürfen höchstens 200 Zeichen enthalten.",
-      "group_manual_result_action": "Spielergebnis hinzufügen"
+      "group_manual_result_action": "Spielergebnis hinzufügen",
+      "group_read_notices": "Gelesen"
     },
     "fr": {
       "group_error_registration_closed": "Les inscriptions sont closes.",
@@ -7387,7 +7396,8 @@
       "group_ranking_losses": "défaites",
       "group_ranking_draws": "matchs nuls",
       "group_error_description_length": "La description du groupe ne doit pas dépasser 200 caractères.",
-      "group_manual_result_action": "Ajouter un résultat de match"
+      "group_manual_result_action": "Ajouter un résultat de match",
+      "group_read_notices": "Lu"
     },
     "fr-CA": {
       "group_error_registration_closed": "Les inscriptions sont closes.",
@@ -7552,7 +7562,8 @@
       "group_ranking_losses": "défaites",
       "group_ranking_draws": "matchs nuls",
       "group_error_description_length": "La description du groupe ne doit pas dépasser 200 caractères.",
-      "group_manual_result_action": "Ajouter un résultat de match"
+      "group_manual_result_action": "Ajouter un résultat de match",
+      "group_read_notices": "Lu"
     },
     "es-ES": {
       "group_error_registration_closed": "Las inscripciones se han cerrado.",
@@ -7717,7 +7728,8 @@
       "group_ranking_losses": "derrotas",
       "group_ranking_draws": "empates",
       "group_error_description_length": "La descripción del grupo no puede superar los 200 caracteres.",
-      "group_manual_result_action": "Añadir resultado de partido"
+      "group_manual_result_action": "Añadir resultado de partido",
+      "group_read_notices": "Leído"
     },
     "es-MX": {
       "group_error_registration_closed": "Las inscripciones se han cerrado.",
@@ -7882,7 +7894,8 @@
       "group_ranking_losses": "derrotas",
       "group_ranking_draws": "empates",
       "group_error_description_length": "La descripción del grupo no puede superar los 200 caracteres.",
-      "group_manual_result_action": "Añadir resultado de partido"
+      "group_manual_result_action": "Añadir resultado de partido",
+      "group_read_notices": "Leído"
     },
     "it": {
       "group_error_registration_closed": "Le iscrizioni sono chiuse.",
@@ -8047,7 +8060,8 @@
       "group_ranking_losses": "sconfitte",
       "group_ranking_draws": "pareggi",
       "group_error_description_length": "La descrizione del gruppo non può superare 200 caratteri.",
-      "group_manual_result_action": "Aggiungi risultato della partita"
+      "group_manual_result_action": "Aggiungi risultato della partita",
+      "group_read_notices": "Letto"
     },
     "pt-BR": {
       "group_error_registration_closed": "As inscrições foram encerradas.",
@@ -8212,7 +8226,8 @@
       "group_ranking_losses": "derrotas",
       "group_ranking_draws": "empates",
       "group_error_description_length": "A descrição do grupo não pode ultrapassar 200 caracteres.",
-      "group_manual_result_action": "Adicionar resultado da partida"
+      "group_manual_result_action": "Adicionar resultado da partida",
+      "group_read_notices": "Lido"
     },
     "pt-PT": {
       "group_error_registration_closed": "As inscrições estão encerradas.",
@@ -8377,7 +8392,8 @@
       "group_ranking_losses": "derrotas",
       "group_ranking_draws": "empates",
       "group_error_description_length": "A descrição do grupo não pode ultrapassar 200 caracteres.",
-      "group_manual_result_action": "Adicionar resultado da jogo"
+      "group_manual_result_action": "Adicionar resultado da jogo",
+      "group_read_notices": "Lido"
     },
     "nl": {
       "group_error_registration_closed": "De inschrijving is gesloten.",
@@ -8543,7 +8559,8 @@
       "group_ranking_losses": "nederlagen",
       "group_ranking_draws": "gelijke spelen",
       "group_error_description_length": "Groepsbeschrijvingen mogen maximaal 200 tekens bevatten.",
-      "group_manual_result_action": "Wedstrijdresultaat toevoegen"
+      "group_manual_result_action": "Wedstrijdresultaat toevoegen",
+      "group_read_notices": "Gelezen"
     },
     "sv": {
       "group_error_registration_closed": "Anmälan är stängd.",
@@ -8708,7 +8725,8 @@
       "group_ranking_losses": "förluster",
       "group_ranking_draws": "oavgjorda",
       "group_error_description_length": "Gruppbeskrivningar får vara högst 200 tecken.",
-      "group_manual_result_action": "Lägg till matchresultat"
+      "group_manual_result_action": "Lägg till matchresultat",
+      "group_read_notices": "Läst"
     },
     "da": {
       "group_error_registration_closed": "Tilmeldingen er lukket.",
@@ -8874,7 +8892,8 @@
       "group_ranking_losses": "nederlag",
       "group_ranking_draws": "uafgjorte",
       "group_error_description_length": "Gruppebeskrivelser må højst indeholde 200 tegn.",
-      "group_manual_result_action": "Tilføj kampresultat"
+      "group_manual_result_action": "Tilføj kampresultat",
+      "group_read_notices": "Læst"
     },
     "nb": {
       "group_error_registration_closed": "Påmeldingen er stengt.",
@@ -9039,7 +9058,8 @@
       "group_ranking_losses": "tap",
       "group_ranking_draws": "uavgjorte",
       "group_error_description_length": "Gruppebeskrivelser kan ikke være lengre enn 200 tegn.",
-      "group_manual_result_action": "Legg til kampresultat"
+      "group_manual_result_action": "Legg til kampresultat",
+      "group_read_notices": "Lest"
     },
     "fi": {
       "group_error_registration_closed": "Ilmoittautuminen on päättynyt.",
@@ -9204,7 +9224,8 @@
       "group_ranking_losses": "tappiot",
       "group_ranking_draws": "tasapelit",
       "group_error_description_length": "Ryhmän kuvauksessa saa olla enintään 200 merkkiä.",
-      "group_manual_result_action": "Lisää ottelutulos"
+      "group_manual_result_action": "Lisää ottelutulos",
+      "group_read_notices": "Luettu"
     },
     "pl": {
       "group_error_registration_closed": "Zapisy zostały zamknięte.",
@@ -9369,7 +9390,8 @@
       "group_ranking_losses": "porażki",
       "group_ranking_draws": "remisy",
       "group_error_description_length": "Opis grupy nie może przekraczać 200 znaków.",
-      "group_manual_result_action": "Dodaj wynik meczu"
+      "group_manual_result_action": "Dodaj wynik meczu",
+      "group_read_notices": "Przeczytane"
     },
     "cs": {
       "group_error_registration_closed": "Přihlašování bylo uzavřeno.",
@@ -9534,7 +9556,8 @@
       "group_ranking_losses": "prohry",
       "group_ranking_draws": "remízy",
       "group_error_description_length": "Popis skupiny smí mít nejvýše 200 znaků.",
-      "group_manual_result_action": "Přidat výsledek zápasu"
+      "group_manual_result_action": "Přidat výsledek zápasu",
+      "group_read_notices": "Přečteno"
     },
     "sk": {
       "group_error_registration_closed": "Prihlasovanie bolo uzavreté.",
@@ -9699,7 +9722,8 @@
       "group_ranking_losses": "prehry",
       "group_ranking_draws": "remízy",
       "group_error_description_length": "Opis skupiny môže mať najviac 200 znakov.",
-      "group_manual_result_action": "Pridať výsledok zápasu"
+      "group_manual_result_action": "Pridať výsledok zápasu",
+      "group_read_notices": "Prečítané"
     },
     "hu": {
       "group_error_registration_closed": "A jelentkezés lezárult.",
@@ -9864,7 +9888,8 @@
       "group_ranking_losses": "vereségek",
       "group_ranking_draws": "döntetlenek",
       "group_error_description_length": "A csoportleírás legfeljebb 200 karakter lehet.",
-      "group_manual_result_action": "Mérkőzéseredmény hozzáadása"
+      "group_manual_result_action": "Mérkőzéseredmény hozzáadása",
+      "group_read_notices": "Olvasott"
     },
     "ro": {
       "group_error_registration_closed": "Înscrierile s-au încheiat.",
@@ -10029,7 +10054,8 @@
       "group_ranking_losses": "înfrângeri",
       "group_ranking_draws": "egaluri",
       "group_error_description_length": "Descrierea grupului nu poate depăși 200 de caractere.",
-      "group_manual_result_action": "Adaugă rezultatul unui meci"
+      "group_manual_result_action": "Adaugă rezultatul unui meci",
+      "group_read_notices": "Citit"
     },
     "hr": {
       "group_error_registration_closed": "Prijave su zatvorene.",
@@ -10194,7 +10220,8 @@
       "group_ranking_losses": "porazi",
       "group_ranking_draws": "neriješene utakmice",
       "group_error_description_length": "Opis grupe ne smije biti dulji od 200 znakova.",
-      "group_manual_result_action": "Dodaj rezultat meča"
+      "group_manual_result_action": "Dodaj rezultat meča",
+      "group_read_notices": "Pročitano"
     },
     "sl": {
       "group_error_registration_closed": "Prijave so zaprte.",
@@ -10359,7 +10386,8 @@
       "group_ranking_losses": "porazi",
       "group_ranking_draws": "neodločene tekme",
       "group_error_description_length": "Opis skupine ne sme presegati 200 znakov.",
-      "group_manual_result_action": "Dodaj rezultat dvoboja"
+      "group_manual_result_action": "Dodaj rezultat dvoboja",
+      "group_read_notices": "Prebrano"
     },
     "el": {
       "group_error_registration_closed": "Οι εγγραφές έκλεισαν.",
@@ -10524,7 +10552,8 @@
       "group_ranking_losses": "ήττες",
       "group_ranking_draws": "ισοπαλίες",
       "group_error_description_length": "Η περιγραφή της ομάδας δεν πρέπει να ξεπερνά τους 200 χαρακτήρες.",
-      "group_manual_result_action": "Προσθήκη αποτελέσματος αγώνα"
+      "group_manual_result_action": "Προσθήκη αποτελέσματος αγώνα",
+      "group_read_notices": "Αναγνωσμένο"
     },
     "tr": {
       "group_error_registration_closed": "Kayıt sona erdi.",
@@ -10689,7 +10718,8 @@
       "group_ranking_losses": "mağlubiyetler",
       "group_ranking_draws": "beraberlikler",
       "group_error_description_length": "Grup açıklamaları 200 karakteri geçmemelidir.",
-      "group_manual_result_action": "Maç sonucu ekle"
+      "group_manual_result_action": "Maç sonucu ekle",
+      "group_read_notices": "Okundu"
     },
     "ar": {
       "group_error_registration_closed": "أُغلق التسجيل.",
@@ -10854,7 +10884,8 @@
       "group_ranking_losses": "خسائر",
       "group_ranking_draws": "تعادلات",
       "group_error_description_length": "يجب ألا يتجاوز وصف المجموعة 200 حرف.",
-      "group_manual_result_action": "إضافة نتيجة مباراة"
+      "group_manual_result_action": "إضافة نتيجة مباراة",
+      "group_read_notices": "مقروء"
     },
     "he": {
       "group_error_registration_closed": "ההרשמה נסגרה.",
@@ -11019,7 +11050,8 @@
       "group_ranking_losses": "הפסדים",
       "group_ranking_draws": "תוצאות תיקו",
       "group_error_description_length": "תיאור הקבוצה מוגבל ל־200 תווים.",
-      "group_manual_result_action": "הוספת תוצאת משחק"
+      "group_manual_result_action": "הוספת תוצאת משחק",
+      "group_read_notices": "נקרא"
     },
     "ur": {
       "group_error_registration_closed": "رجسٹریشن بند ہو گئی ہے۔",
@@ -11186,7 +11218,8 @@
       "group_ranking_losses": "ہار کی تعداد",
       "group_ranking_draws": "ڈرا کی تعداد",
       "group_error_description_length": "گروپ کی تفصیل 200 حروف سے زیادہ نہیں ہو سکتی۔",
-      "group_manual_result_action": "میچ کا نتیجہ شامل کریں"
+      "group_manual_result_action": "میچ کا نتیجہ شامل کریں",
+      "group_read_notices": "پڑھ لیا"
     },
     "hi": {
       "group_error_registration_closed": "पंजीकरण बंद हो गया है।",
@@ -11351,7 +11384,8 @@
       "group_ranking_losses": "हार की संख्या",
       "group_ranking_draws": "ड्रॉ की संख्या",
       "group_error_description_length": "समूह का विवरण 200 अक्षरों से अधिक नहीं हो सकता।",
-      "group_manual_result_action": "मैच का परिणाम जोड़ें"
+      "group_manual_result_action": "मैच का परिणाम जोड़ें",
+      "group_read_notices": "पढ़ा गया"
     },
     "mr": {
       "group_error_registration_closed": "नोंदणी बंद झाली आहे.",
@@ -11516,7 +11550,8 @@
       "group_ranking_losses": "पराभवांची संख्या",
       "group_ranking_draws": "बरोबरीची संख्या",
       "group_error_description_length": "गटाचे वर्णन 200 अक्षरांपेक्षा मोठे नसावे.",
-      "group_manual_result_action": "सामन्याचा निकाल जोडा"
+      "group_manual_result_action": "सामन्याचा निकाल जोडा",
+      "group_read_notices": "वाचले"
     },
     "ta": {
       "group_error_registration_closed": "பதிவு முடிந்துவிட்டது.",
@@ -11681,7 +11716,8 @@
       "group_ranking_losses": "தோல்விகளின் எண்ணிக்கை",
       "group_ranking_draws": "சமநிலைகளின் எண்ணிக்கை",
       "group_error_description_length": "குழு விளக்கம் 200 எழுத்துகளுக்கு மிகாமல் இருக்க வேண்டும்.",
-      "group_manual_result_action": "போட்டி முடிவைச் சேர்"
+      "group_manual_result_action": "போட்டி முடிவைச் சேர்",
+      "group_read_notices": "படிக்கப்பட்டது"
     },
     "te": {
       "group_error_registration_closed": "నమోదు ముగిసింది.",
@@ -11846,7 +11882,8 @@
       "group_ranking_losses": "ఓటముల సంఖ్య",
       "group_ranking_draws": "డ్రాల సంఖ్య",
       "group_error_description_length": "గ్రూపు వివరణ 200 అక్షరాలకు మించకూడదు.",
-      "group_manual_result_action": "మ్యాచ్ ఫలితం జోడించండి"
+      "group_manual_result_action": "మ్యాచ్ ఫలితం జోడించండి",
+      "group_read_notices": "చదివారు"
     },
     "kn": {
       "group_error_registration_closed": "ನೋಂದಣಿ ಮುಗಿದಿದೆ.",
@@ -12011,7 +12048,8 @@
       "group_ranking_losses": "ಸೋಲುಗಳ ಸಂಖ್ಯೆ",
       "group_ranking_draws": "ಡ್ರಾಗಳ ಸಂಖ್ಯೆ",
       "group_error_description_length": "ಗುಂಪಿನ ವಿವರಣೆ 200 ಅಕ್ಷರಗಳನ್ನು ಮೀರಬಾರದು.",
-      "group_manual_result_action": "ಪಂದ್ಯದ ಫಲಿತಾಂಶ ಸೇರಿಸಿ"
+      "group_manual_result_action": "ಪಂದ್ಯದ ಫಲಿತಾಂಶ ಸೇರಿಸಿ",
+      "group_read_notices": "ಓದಲಾಗಿದೆ"
     },
     "ml": {
       "group_error_registration_closed": "രജിസ്ട്രേഷൻ അവസാനിച്ചു.",
@@ -12176,7 +12214,8 @@
       "group_ranking_losses": "തോൽവികളുടെ എണ്ണം",
       "group_ranking_draws": "സമനിലകളുടെ എണ്ണം",
       "group_error_description_length": "ഗ്രൂപ്പ് വിവരണം 200 അക്ഷരങ്ങളിൽ കൂടരുത്.",
-      "group_manual_result_action": "മത്സരഫലം ചേർക്കുക"
+      "group_manual_result_action": "മത്സരഫലം ചേർക്കുക",
+      "group_read_notices": "വായിച്ചു"
     },
     "id": {
       "group_error_registration_closed": "Pendaftaran telah ditutup.",
@@ -12341,7 +12380,8 @@
       "group_ranking_losses": "Jumlah kekalahan",
       "group_ranking_draws": "Jumlah seri",
       "group_error_description_length": "Deskripsi grup tidak boleh melebihi 200 karakter.",
-      "group_manual_result_action": "Tambahkan hasil pertandingan"
+      "group_manual_result_action": "Tambahkan hasil pertandingan",
+      "group_read_notices": "Dibaca"
     },
     "ms": {
       "group_error_registration_closed": "Pendaftaran telah ditutup.",
@@ -12508,7 +12548,8 @@
       "group_ranking_losses": "Bilangan kekalahan",
       "group_ranking_draws": "Bilangan seri",
       "group_error_description_length": "Penerangan kumpulan tidak boleh melebihi 200 aksara.",
-      "group_manual_result_action": "Tambah keputusan perlawanan"
+      "group_manual_result_action": "Tambah keputusan perlawanan",
+      "group_read_notices": "Dibaca"
     },
     "vi": {
       "group_error_registration_closed": "Đã hết hạn đăng ký.",
@@ -12673,7 +12714,8 @@
       "group_ranking_losses": "Số trận thua",
       "group_ranking_draws": "Số trận hòa",
       "group_error_description_length": "Mô tả nhóm không được vượt quá 200 ký tự.",
-      "group_manual_result_action": "Thêm kết quả trận đấu"
+      "group_manual_result_action": "Thêm kết quả trận đấu",
+      "group_read_notices": "Đã đọc"
     },
     "th": {
       "group_error_registration_closed": "ปิดรับสมัครแล้ว",
@@ -12839,7 +12881,8 @@
       "group_ranking_losses": "จำนวนแพ้",
       "group_ranking_draws": "จำนวนเสมอ",
       "group_error_description_length": "คำอธิบายกลุ่มต้องไม่เกิน 200 อักขระ",
-      "group_manual_result_action": "เพิ่มผลการแข่งขัน"
+      "group_manual_result_action": "เพิ่มผลการแข่งขัน",
+      "group_read_notices": "อ่านแล้ว"
     },
     "ru": {
       "group_error_registration_closed": "Запись закрыта.",
@@ -13004,7 +13047,8 @@
       "group_ranking_losses": "поражения",
       "group_ranking_draws": "ничьи",
       "group_error_description_length": "Описание группы не должно превышать 200 символов.",
-      "group_manual_result_action": "Добавить результат матча"
+      "group_manual_result_action": "Добавить результат матча",
+      "group_read_notices": "Прочитано"
     },
     "uk": {
       "group_error_registration_closed": "Запис закрито.",
@@ -13169,7 +13213,8 @@
       "group_ranking_losses": "поразки",
       "group_ranking_draws": "нічиї",
       "group_error_description_length": "Опис групи не має перевищувати 200 символів.",
-      "group_manual_result_action": "Додати результат матчу"
+      "group_manual_result_action": "Додати результат матчу",
+      "group_read_notices": "Прочитано"
     },
     "ca": {
       "group_error_registration_closed": "Les inscripcions s’han tancat.",
@@ -13334,7 +13379,8 @@
       "group_ranking_losses": "derrotes",
       "group_ranking_draws": "empats",
       "group_error_description_length": "La descripció del grup no pot superar els 200 caràcters.",
-      "group_manual_result_action": "Afegeix un resultat"
+      "group_manual_result_action": "Afegeix un resultat",
+      "group_read_notices": "Llegit"
     }
   },
   "shared_terms": {
@@ -14717,7 +14763,7 @@
     "group_qr_direct_hint": "Scan in iScoreboard to preview and join.",
     "group_quick_score": "Overall set score",
     "group_rally_scoring": "Rally Scoring",
-    "group_read_notices": "Mark as Read",
+    "group_read_notices": "Read",
     "group_registration_closes": "Registration Deadline",
     "group_regular": "Standard",
     "group_reload_version": "Load Latest Version",

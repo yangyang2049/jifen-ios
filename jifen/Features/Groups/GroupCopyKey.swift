@@ -157,7 +157,6 @@ nonisolated enum GroupCopyKey {
         "group_ranking_rate": "group_copy_ranking_rate",
         "group_ranking_sets": "group_copy_ranking_sets",
         "group_ranking_wins": "group_copy_ranking_wins",
-        "group_read_notices": "group_copy_mark_seen",
         "group_recruiting": "group_copy_recruiting",
         "group_register": "group_copy_register",
         "group_registration_at_start": "group_copy_registration_at_start",
