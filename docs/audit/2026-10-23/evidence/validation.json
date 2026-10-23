@@ -1,0 +1,113 @@
+{
+  "date": "2026-10-23",
+  "branch": "3.4",
+  "base_commit": "844f6f638cb8214d34efa33c4d3bf361d9176e68",
+  "tests": {
+    "app": {
+      "registered": 719,
+      "passed": 718,
+      "skipped": 1,
+      "failed": 0,
+      "language": "zh-Hans"
+    },
+    "iphone_ui": {
+      "passed": 3,
+      "failed": 0
+    },
+    "ipad_ui": {
+      "passed": 2,
+      "failed": 0
+    },
+    "swift_core": {
+      "passed": 251
+    },
+    "scripts": {
+      "registered": 46,
+      "passed": 45,
+      "skipped": 1,
+      "failed": 0
+    },
+    "localization": {
+      "passed": 49,
+      "failed": 0
+    },
+    "catalogs": {
+      "passed": 44,
+      "blockers": 0
+    }
+  },
+  "release_build": "BUILD SUCCEEDED",
+  "debug_build": "TEST BUILD SUCCEEDED",
+  "new_release_warning_categories": [],
+  "preexisting_dirty_paths": [
+    "Info.plist",
+    "jifen.xcodeproj/project.pbxproj"
+  ],
+  "xctestrun": "/tmp/jifen-review-derived-20261023/Build/Products/jifen-review-zh-Hans.xctestrun",
+  "xctestrun_sha256": "ff39277684bb6e89a54add92c90ae15aada8fe7ed9900e700a54daf9952f37f9",
+  "product_sha256": {
+    "/tmp/jifen-review-derived-20261023/Build/Products/Debug-iphonesimulator/jifen.app/jifen": "600e00edc411413917509b9657cfb1d73d2453ffe0d99afa6ac3d7fa9e569917",
+    "/tmp/jifen-review-derived-20261023/Build/Products/Debug-iphonesimulator/jifen.app/jifen.debug.dylib": "dda9b70ddb52d1b949a4af51714a984e8abb25074375916da48a5ed9eb77c97a",
+    "/tmp/jifen-review-derived-20261023/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/jifenTests": "e1e8c9fddc5f957b91424567929ea66fcd028f7182ec6a50e335acd3a085dca2",
+    "/tmp/jifen-review-derived-20261023/Build/Products/Debug-iphonesimulator/jifenUITests-Runner.app/PlugIns/jifenUITests.xctest/jifenUITests": "2a6129e8586996a6e86b6ee1694bead2db457db1946fb28cbda082e57325eea9"
+  },
+  "source_sha256": {
+    "jifen/Features/Groups/GroupCopyKey.swift": "a8e4bd5ce619bcd141f0b906f5f56052ef27318137e78c395b4a0ced151a7744",
+    "jifen/Features/Home/Components/SportsSetupDialogView.swift": "e2aaf77e636762d5f361dc7df1e1cd0b0e1a690e368dfd5e3890bdefb705419a",
+    "jifen/Resources/en.lproj/Localizable.strings": "2046211e52e8b4d2676e704fffcbeda139c1f4de7c0a88ae31c21547885b891e",
+    "jifenUITests/MainFlowUITests.swift": "eabb4b8fea6fa894e2103dd1decae40afd50da0a0785eeb2e69f3d970d2c3b82",
+    "scripts/localization/README.md": "ac844efe8d362f2313c3f686a7d9dc6e5df2cddadac40f77b8417c435e23cbda",
+    "scripts/localization/catalogs/ar.jsonl": "d58f0e7837d9e7ccd224e03ba8c298c451b785fb1956645ebb845968edca8743",
+    "scripts/localization/catalogs/bn.jsonl": "91bbbb758af4dee5e2d086fcf12ee158ed2cafe7ef2b2b7b357e52c8c7114730",
+    "scripts/localization/catalogs/ca.jsonl": "4e337dbcca53b06873d05bd23dd98efd2600f0e98dc493bbb210fd5038d7b9de",
+    "scripts/localization/catalogs/cs.jsonl": "cccd9fdfd81f998849cf7ce2046859cdeac7932163f98c0dc95486af936f9bde",
+    "scripts/localization/catalogs/da.jsonl": "47204837d8f1eb2f4bca524647f3bed1998fbee5417588fbaf3594789ab913b2",
+    "scripts/localization/catalogs/de.jsonl": "fb908e13be3b619c66108bc2ce2530b46d6b71de6a6c73c5358378b993713210",
+    "scripts/localization/catalogs/el.jsonl": "19f6b4c77a903d22c4d7970ce674ba05773aa7c8491b6046cb9006a1707fbf5f",
+    "scripts/localization/catalogs/es-ES.jsonl": "f6adcc348e801792d8a1253aaaa9a4cc17a9375f5ff693f445544f1163dc6ebd",
+    "scripts/localization/catalogs/es-MX.jsonl": "e33dedb7077d9216c1283eecf4678ac6ea9dc0aa7926f10c2a69f0ba16f94894",
+    "scripts/localization/catalogs/fi.jsonl": "b014097aa96e491c7ac068de26559c340a4c307e843c23e0ec7e32e27acd30c4",
+    "scripts/localization/catalogs/fr-CA.jsonl": "9c32088e2741910e1a8ba884c55c7b9314ae4d0338a2e7508a42c753bd10e2df",
+    "scripts/localization/catalogs/fr.jsonl": "f02f950e5b0f1f2e54927032e91c80232532372d1908af53a556582deef888f1",
+    "scripts/localization/catalogs/gu.jsonl": "a5b0cb1c4abb3e83ae6ada30268f29617cf72bb66397bf6c6531b8256285ff77",
+    "scripts/localization/catalogs/he.jsonl": "68668b201db990412269776b3272d008052b85f02d2d5fa0596a55bb2dacfafe",
+    "scripts/localization/catalogs/hi.jsonl": "25f63881dbf866a187069672f834627a13c5e04733bebac1e276d59120b2a9bf",
+    "scripts/localization/catalogs/hr.jsonl": "601d4e38de96caa0362a77b9dc4a87d09b85e97e4e6d3ed17dfea107ecd185a6",
+    "scripts/localization/catalogs/hu.jsonl": "821eca12090ed9b09825f906ae3fdab537369541863df975e47af2a93bed48ef",
+    "scripts/localization/catalogs/id.jsonl": "e7784f379f5bee3cd1804ef424159b5082830f37adefec38ae6b8550c2c8d504",
+    "scripts/localization/catalogs/it.jsonl": "cc7da4553fa2b79bff78b3bca37ccc14bddb7eedc4bdaec301b02f57b9fca799",
+    "scripts/localization/catalogs/ja.jsonl": "b28283994054fe30613e444517c42f3b7b1c3b0aeaf785c6d9be441e6ed5e582",
+    "scripts/localization/catalogs/kn.jsonl": "406c4f3b29320785dd137b65ecfce07c74cfce53e33cec7feffd2b988012370a",
+    "scripts/localization/catalogs/ko.jsonl": "a17f607af8f68a5da4130263096182a981c766c4f654555e1802365267ecea12",
+    "scripts/localization/catalogs/ml.jsonl": "5d9f92bdb0107e9bc4f15f664df4e892a041eeb4754be5588f95ae8b8f1b193b",
+    "scripts/localization/catalogs/mr.jsonl": "546998efba009a09ab1276cca8121c90e0635e09a67c5b534b5546c6009390b0",
+    "scripts/localization/catalogs/ms.jsonl": "3e130157be6d6c5123f4a5d4ea229beafd4ad39438ea0562c4d027bdf5846bc3",
+    "scripts/localization/catalogs/nb.jsonl": "b089930d5036da5095046758d920aee9c9062a3d97ad4c63cd57277260e44ef9",
+    "scripts/localization/catalogs/nl.jsonl": "c5791d5f53ccd2cc226c402427246aee1f0f0ee1e2bea85631b1c2fe72d5eaba",
+    "scripts/localization/catalogs/or.jsonl": "c3f078eee5d0b3129e71a9263e20994e0f7c47df85d10a6d7614f9c872409dd1",
+    "scripts/localization/catalogs/pa.jsonl": "89289785f021e14167a53628b3b49720d0c9188ecba6d202d99f6800dff20f24",
+    "scripts/localization/catalogs/pl.jsonl": "fdbc3ede4c063fa218c6d5adfc527bed8d3e2188a914379f4c3f34ae84b3eb15",
+    "scripts/localization/catalogs/pt-BR.jsonl": "ea2c9af04b8b79d117a77e466b961f2b864e7cfae12a94245564f07a50c946a3",
+    "scripts/localization/catalogs/pt-PT.jsonl": "4a0085f30b08a09a4709bc9eac1d0b32c9f15cb4f4725ad77ce4b74b60c8b159",
+    "scripts/localization/catalogs/ro.jsonl": "e48aacd1146c7296aaaffe77d514028542c897cf708d6bbc4b4c47cee31abc20",
+    "scripts/localization/catalogs/ru.jsonl": "3b211a68039e3fd20cd2b278adf39447f1a6fa17ad349f9fa6480d0ee8ea0b9e",
+    "scripts/localization/catalogs/sk.jsonl": "06cb0280b0d2da11775fa09ed4cf6412a80ba02c6e09bb8aab4439ed68721144",
+    "scripts/localization/catalogs/sl.jsonl": "fdd7ab2e57a6f423addb9558b709e4c25d4fc5a9386b9375a3af1e1122eae97f",
+    "scripts/localization/catalogs/sv.jsonl": "25e347771ee8d1d351cd8a096f0ebcdd6db337c1e24cefe9aa66d2fe5e73b26e",
+    "scripts/localization/catalogs/ta.jsonl": "c540a5ae19b2bce07092b745d1013fc085551b5eff8e433e8fb39eaf97566629",
+    "scripts/localization/catalogs/te.jsonl": "9707837c56c3a5c0b98f803059789c377d364547f95e1fead6d3290ce1b09526",
+    "scripts/localization/catalogs/th.jsonl": "6152ae41b743dcb79b1c040e49e4467bd993a61fcbdb3394525d8434fd66fb40",
+    "scripts/localization/catalogs/tr.jsonl": "808aee593a2dffe5353f12ff0cdae1fbdcd9385ea825b3c81febb68b10459d75",
+    "scripts/localization/catalogs/uk.jsonl": "8a3acda41ccf131c5a5ac68c60f83321828987f27f93e58ed6b98f484e12ce64",
+    "scripts/localization/catalogs/ur.jsonl": "949406f7fe670f1b92117b1156ab1bdfa856ba541c33ed6535105a772559f929",
+    "scripts/localization/catalogs/vi.jsonl": "926fbdcaf5d7620da52777e7ebb6955ce108f80f8ddb82547b58b0c7b1450e10",
+    "scripts/localization/group-copy-20261017.json": "07aa0eb254cb8becc8cb503eef46f18eda4b7ca61be2212f1774667815997f5a",
+    "scripts/localization/test_group_localization.py": "e744bc18827d867d8c7e5a8200ba82b012092b45fc7de81346575dbc07e6d5d2",
+    "scripts/test_ios_capture_workflows.py": "5bc26cc8e7fd665049cd3c07667296c6a3a4eba89645e75963de543ba40efeb4"
+  },
+  "notes": [
+    "WeChat remains Simplified and Traditional Chinese only; seven existing English fallback catalog rows do not represent translations.",
+    "Final app tests explicitly set host AppleLanguages and AppleLocale; earlier English-host failures remain in logs.",
+    "UI evidence is simulator evidence; physical-device acceptance remains outstanding."
+  ]
+}

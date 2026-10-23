@@ -14,10 +14,15 @@ import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
-from PIL import Image, ImageDraw
-
-
 WORKFLOW = Path(__file__).resolve().parents[1] / "marketing/app-store/ios-screenshots-pen-2026-10-02"
+
+# This historical screenshot bundle is not tracked in the repository.
+# Skip before importing it (or its imaging dependencies), but let incomplete or
+# broken bundles fail normally when the directory is present.
+if not WORKFLOW.is_dir():
+    raise unittest.SkipTest(f"Optional iOS screenshot workflow is not in this checkout: {WORKFLOW}")
+
+from PIL import Image, ImageDraw
 
 
 def load_module(name, filename):
