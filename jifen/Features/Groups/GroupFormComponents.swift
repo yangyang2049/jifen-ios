@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Group text roles reuse the app's existing type scale; page/navigation titles stay native.
 enum GroupTypography {
@@ -8,6 +9,34 @@ enum GroupTypography {
     static let body = Font.system(size: Theme.fontBody2)
     static let input = Font.system(size: Theme.fontBody1)
     static let caption = Font.system(size: Theme.fontCaption)
+    /// 多行说明文案的行高（对齐鸿蒙 GroupLineHeight / 安卓 GroupTypography）。
+    /// 只用于会换行的正文与说明，单行标签保持系统默认行高。
+    enum LineHeight {
+        static let caption: CGFloat = 18
+        static let body: CGFloat = 22
+        /// 对应鸿蒙 `GroupLineHeight.bodyLarge`；iOS 小组页暂无 16pt 多行正文，保留以备对齐。
+        static let bodyLarge: CGFloat = 24
+
+        /// SwiftUI 的 `lineSpacing` 是「额外」行距，需要减掉字体自带行高。
+        static let captionSpacing: CGFloat = spacing(for: caption, size: Theme.fontCaption)
+        static let bodySpacing: CGFloat = spacing(for: body, size: Theme.fontBody2)
+
+        private static func spacing(for target: CGFloat, size: CGFloat) -> CGFloat {
+            let font = UIFont.systemFont(ofSize: size)
+            return max(0, target - (font.ascender - font.descender + font.leading))
+        }
+    }
+}
+
+extension View {
+    /// 小组多行说明文案：套用与安卓/鸿蒙一致的目标行高。
+    func groupLineHeight(_ role: GroupTypography.LineHeightRole) -> some View {
+        lineSpacing(role == .caption ? GroupTypography.LineHeight.captionSpacing : GroupTypography.LineHeight.bodySpacing)
+    }
+}
+
+extension GroupTypography {
+    enum LineHeightRole { case caption, body }
 }
 
 enum GroupFieldSize {

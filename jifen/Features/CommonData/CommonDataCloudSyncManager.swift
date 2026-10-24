@@ -89,6 +89,14 @@ nonisolated struct CommonDataSyncEpoch: Equatable, Sendable {
     }
 }
 
+nonisolated enum CommonDataAccountLinkError: Error { case quota }
+
+nonisolated private struct CommonDataAccountLinkPause: Equatable {
+    let context: WechatBindingSessionContext
+    let sessionRevision: UInt64
+    let paused: Bool
+}
+
 @MainActor
 @Observable
 final class CommonDataCloudSyncManager {
@@ -110,6 +118,7 @@ final class CommonDataCloudSyncManager {
     private var applyingRemote = false
     private var retryIndex = 0
     private var sessionRevision: UInt64 = 0
+    private var accountLinkPause: CommonDataAccountLinkPause?
     private var localMutationRevision: UInt64 = 0
     private var scheduledTask: Task<Void, Never>?
     private var cancellables = Set<AnyCancellable>()
@@ -135,6 +144,7 @@ final class CommonDataCloudSyncManager {
     func sessionDidChange(userId: String?) async {
         scheduledTask?.cancel()
         sessionRevision &+= 1
+        accountLinkPause = nil
         activeUserId = userId
         guard let userId else {
             phase = .signedOut
@@ -150,6 +160,97 @@ final class CommonDataCloudSyncManager {
             persist()
         }
         await syncNow(reason: "session", force: true)
+    }
+
+    /// Flush before the server takes its preview, then freeze local deltas.
+    /// The checkpoint also preserves unsynced/tombstone state for manual recovery.
+    func pauseForAccountLink(context: WechatBindingSessionContext) async throws {
+        if accountLinkPause?.context == context, accountLinkPause?.paused == true {
+            try await validateAccountLinkPause(context)
+            return
+        }
+        guard activeUserId == context.accountID, accountLinkPause == nil else { throw CancellationError() }
+        // Register ownership before the first suspension so closing the sheet
+        // can invalidate a pause that is still waiting for an in-flight sync.
+        accountLinkPause = .init(context: context, sessionRevision: sessionRevision, paused: false)
+        do {
+            try await validateAccountLinkPause(context)
+            let deadline = Date().addingTimeInterval(25)
+            while inFlight {
+                guard Date() < deadline else { throw URLError(.timedOut) }
+                try await Task.sleep(for: .milliseconds(100))
+                try await validateAccountLinkPause(context)
+            }
+            captureLocalChanges()
+            let original = state
+            if let checkpoint = try? JSONEncoder().encode(original) {
+                defaults.set(checkpoint, forKey: "jifen-v3.commonDataLinkArchive." + context.accountID)
+            }
+            guard original.names.filter({ $0.type == "TEAM" }).count <= limits.TEAM,
+                  original.names.filter({ $0.type == "PLAYER" }).count <= limits.PLAYER,
+                  original.places.count <= limits.PLACE else { throw CommonDataAccountLinkError.quota }
+            await syncNow(reason: "account_link", force: true)
+            try await validateAccountLinkPause(context)
+            guard phase == .synced else { throw URLError(.cannotConnectToHost) }
+            if lastTrimmedTotal > 0 {
+                // Only the still-current source session may restore its checkpoint.
+                applyingRemote = true
+                CommonNamesManager.shared.replaceNamesFromCloud(original.names.filter { $0.type == "TEAM" }.map(\.name), type: .team)
+                CommonNamesManager.shared.replaceNamesFromCloud(original.names.filter { $0.type == "PLAYER" }.map(\.name), type: .player)
+                CommonPlacesManager.shared.replacePlacesFromCloud(original.places.map(\.name))
+                applyingRemote = false
+                state = original
+                persist()
+                throw CommonDataAccountLinkError.quota
+            }
+            scheduledTask?.cancel()
+            scheduledTask = nil
+            sessionRevision &+= 1
+            accountLinkPause = .init(context: context, sessionRevision: sessionRevision, paused: true)
+            pendingAfterFlight = false
+            activeUserId = nil
+        } catch {
+            if accountLinkPause?.context == context { accountLinkPause = nil }
+            throw error
+        }
+    }
+
+    private func validateAccountLinkPause(_ context: WechatBindingSessionContext) async throws {
+        try Task.checkCancellation()
+        guard let pause = accountLinkPause, pause.context == context,
+              pause.sessionRevision == sessionRevision else { throw CancellationError() }
+        let authRevision = await client.authSessionRevision()
+        guard accountLinkPause == pause, sessionRevision == pause.sessionRevision,
+              authRevision == context.authRevision,
+              pause.paused ? (activeUserId == nil && state.ownerUserId == context.accountID)
+                           : activeUserId == context.accountID else { throw CancellationError() }
+        try Task.checkCancellation()
+    }
+
+    func cancelAccountLink(context: WechatBindingSessionContext) async {
+        guard let pause = accountLinkPause, pause.context == context else { return }
+        accountLinkPause = nil
+        guard pause.paused, pause.sessionRevision == sessionRevision,
+              activeUserId == nil, state.ownerUserId == context.accountID else { return }
+        let authRevision = await client.authSessionRevision()
+        guard accountLinkPause == nil, sessionRevision == pause.sessionRevision,
+              authRevision == context.authRevision, activeUserId == nil else { return }
+        await sessionDidChange(userId: context.accountID)
+    }
+
+    /// Pull the committed cloud baseline before allowing any old local deletion
+    /// delta to run, including when the selected master has the same ID.
+    func completeAccountLink(userID: String, context: WechatBindingSessionContext) async throws {
+        guard let pause = accountLinkPause, pause.context == context, pause.paused,
+              pause.sessionRevision == sessionRevision, activeUserId == nil,
+              state.ownerUserId == context.accountID else { throw CancellationError() }
+        accountLinkPause = nil
+        scheduledTask?.cancel()
+        sessionRevision &+= 1
+        activeUserId = userID
+        pendingAfterFlight = false
+        replaceLocalDataForAccount(userID)
+        await pullAndReplace(for: userID)
     }
 
     func forceSync() async {

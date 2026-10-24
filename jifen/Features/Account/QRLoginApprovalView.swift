@@ -1,6 +1,4 @@
 import SwiftUI
-import Vision
-import VisionKit
 
 nonisolated struct QRLoginPayload: Decodable, Equatable, Sendable {
     var type: String
@@ -115,16 +113,15 @@ struct QRLoginApprovalView: View {
             Theme.backgroundColor.ignoresSafeArea()
             if let parsed, let scanResponse {
                 confirmContent(scanResponse, fallbackPlatform: parsed.targetPlatform)
-            } else if DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
-                scannerContent
             } else {
-                // 相机不可用（不支持/权限被拒）时的占位提示。
-                cameraUnavailablePlaceholder
+                // 扫码态：统一扫码 Sheet（左上关闭 + 居中小标题 + 右上相册入口）。
+                QRScanSheet(
+                    hint: groupText("group_qr", "Group QR code") + " · " + NSLocalizedString("qr_login_title", value: "扫码登录", comment: ""),
+                    paused: scannerPaused,
+                    prefersPhotoValue: { (try? MeQRPayload.parse($0, capabilities: GroupStore.shared.capabilities)) != nil }
+                ) { raw in Task { await receive(raw) } }
             }
         }
-        .navigationTitle(groupText("scan", "Scan QR code"))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.hidden, for: .tabBar)
         .appAnalyticsScreen(.qrLoginPage)
         #if DEBUG
         .task {
@@ -168,35 +165,6 @@ struct QRLoginApprovalView: View {
                 .padding(.top, 12)
             }
         }
-    }
-
-    // 扫码态：相机全屏 + 通栏底部渐变提示横幅。
-    private var scannerContent: some View {
-        QRDataScannerView(paused: scannerPaused) { raw in
-            Task { await receive(raw) }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea(edges: .bottom)
-        .overlay(alignment: .bottom) { scanHintBanner }
-    }
-
-    private var scanHintBanner: some View {
-        Text(groupText("group_qr", "Group QR code") + " · " + NSLocalizedString("qr_login_title", value: "扫码登录", comment: ""))
-            .font(.system(size: 16, weight: .semibold))
-            .foregroundStyle(.white)
-            .multilineTextAlignment(.center)
-            .frame(maxWidth: .infinity)
-            .padding(.top, 46)
-            .padding(.bottom, 30)
-            .background(
-                LinearGradient(
-                    colors: [.black.opacity(0), .black.opacity(0.75)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
-            )
-            .accessibilityIdentifier("qr_login_scan_hint")
     }
 
     // 确认态：App 徽标 + 设备信息大卡 + 全宽胶囊按钮（对齐方案 A demo）。
@@ -292,24 +260,6 @@ struct QRLoginApprovalView: View {
         .background(Theme.appCardBackground, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
-    // 相机不可用（不支持/权限被拒）时的占位提示。
-    private var cameraUnavailablePlaceholder: some View {
-        VStack(spacing: 14) {
-            Image(systemName: "camera.on.rectangle")
-                .font(.system(size: 48))
-                .foregroundStyle(Theme.textSecondary)
-            Text(NSLocalizedString("qr_login_camera_unavailable", value: "相机不可用", comment: ""))
-                .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(Theme.textPrimary)
-            Text(NSLocalizedString("qr_login_camera_unavailable_hint", value: "请在系统设置中允许使用相机后重试", comment: ""))
-                .font(.system(size: 14))
-                .foregroundStyle(Theme.textSecondary)
-                .multilineTextAlignment(.center)
-        }
-        .padding(24)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
     private func receive(_ raw: String) async {
         guard !isWorking, parsed == nil, raw != blockedScanValue else { return }
         isWorking = true
@@ -380,43 +330,5 @@ struct QRLoginApprovalView: View {
     private func readablePlatform(_ value: String?) -> String {
         guard let value else { return NSLocalizedString("qr_login_unknown_device", value: "网页设备", comment: "") }
         return value.replacingOccurrences(of: "_", with: " ")
-    }
-}
-
-struct QRDataScannerView: UIViewControllerRepresentable {
-    var paused: Bool
-    var onValue: (String) -> Void
-
-    func makeUIViewController(context: Context) -> DataScannerViewController {
-        let controller = DataScannerViewController(
-            recognizedDataTypes: [.barcode(symbologies: [.qr])],
-            qualityLevel: .balanced,
-            recognizesMultipleItems: false,
-            isHighlightingEnabled: true
-        )
-        controller.delegate = context.coordinator
-        try? controller.startScanning()
-        return controller
-    }
-
-    func updateUIViewController(_ controller: DataScannerViewController, context: Context) {
-        if paused { controller.stopScanning() } else if !controller.isScanning { try? controller.startScanning() }
-    }
-
-    func makeCoordinator() -> Coordinator { Coordinator(onValue: onValue) }
-
-    final class Coordinator: NSObject, DataScannerViewControllerDelegate {
-        let onValue: (String) -> Void
-        init(onValue: @escaping (String) -> Void) { self.onValue = onValue }
-        func dataScanner(
-            _ dataScanner: DataScannerViewController,
-            didAdd addedItems: [RecognizedItem],
-            allItems: [RecognizedItem]
-        ) {
-            guard case .barcode(let barcode) = addedItems.first,
-                  let value = barcode.payloadStringValue
-            else { return }
-            onValue(value)
-        }
     }
 }

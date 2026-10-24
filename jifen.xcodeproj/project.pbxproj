@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-        C23000000000000000000001 /* WechatOpenSDK in Frameworks */ = {isa = PBXBuildFile; productRef = A23000000000000000000001 /* WechatOpenSDK */; };
 		04B923BF21624627AB1BCC66 /* GroupRedesignUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1273C47DF445F6918C0C49 /* GroupRedesignUITests.swift */; };
 		2DB38D61DF48EE1A17B38843 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C476D58990954AF104F51A /* Foundation.framework */; };
 		614D317A62708BF7CFA926F2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C476D58990954AF104F51A /* Foundation.framework */; };
@@ -17,6 +16,8 @@
 		AB1000000000000000000002 /* AccountPasswordLoginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1000000000000000000001 /* AccountPasswordLoginTests.swift */; };
 		B27931C15EF1056A3BF7C5E2 /* ScheduleModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D82E75ABD730744578E876 /* ScheduleModelTests.swift */; };
 		BB8112B0BEAB4E949E9E82DB /* GroupPortParityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911E22E26F6E46118B7955CE /* GroupPortParityTests.swift */; };
+		BC2026102300000000000002 /* WechatBindingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2026102300000000000001 /* WechatBindingTests.swift */; };
+		BC2026102300000000000004 /* WechatBindingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2026102300000000000003 /* WechatBindingUITests.swift */; };
 		C0D320261002000000000002 /* APIClientSessionIsolationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D320261002000000000001 /* APIClientSessionIsolationTests.swift */; };
 		C10000000000000000000001 /* ScoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000001 /* ScoreCore */; };
 		C10000000000000000000002 /* SessionCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000002 /* SessionCore */; };
@@ -26,6 +27,7 @@
 		C10000000000000000000006 /* TimerCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000006 /* TimerCore */; };
 		C10000000000000000000007 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000007 /* FirebaseCore */; };
 		C10000000000000000000008 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000008 /* FirebaseAnalyticsCore */; };
+		C23000000000000000000001 /* WechatOpenSDK in Frameworks */ = {isa = PBXBuildFile; productRef = A23000000000000000000001 /* WechatOpenSDK */; };
 		D42000000000000000000002 /* LocalDataResetCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D42000000000000000000001 /* LocalDataResetCoordinatorTests.swift */; };
 		D43000000000000000000002 /* OfflineReleaseBoundaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43000000000000000000001 /* OfflineReleaseBoundaryTests.swift */; };
 		D44000000000000000000002 /* TimerAndToolOfflineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D44000000000000000000001 /* TimerAndToolOfflineTests.swift */; };
@@ -68,6 +70,7 @@
 		FE1000000000000000000002 /* ScoreboardDisplayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE1000000000000000000001 /* ScoreboardDisplayTests.swift */; };
 		FEE320261003000000000002 /* FeedbackLanguageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE320261003000000000001 /* FeedbackLanguageTests.swift */; };
 		FF1000000000000000000002 /* ResumeSessionLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */; };
+		FF2000000000000000000002 /* ActionForegroundTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000000000000000000001 /* ActionForegroundTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -101,6 +104,8 @@
 		AA1000000000000000000001 /* Support/LocalizationTestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Support/LocalizationTestSupport.swift; sourceTree = "<group>"; };
 		AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainFlowUITests.swift; sourceTree = "<group>"; };
 		AB1000000000000000000001 /* AccountPasswordLoginTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountPasswordLoginTests.swift; sourceTree = "<group>"; };
+		BC2026102300000000000001 /* WechatBindingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WechatBindingTests.swift; sourceTree = "<group>"; };
+		BC2026102300000000000003 /* WechatBindingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WechatBindingUITests.swift; sourceTree = "<group>"; };
 		BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = jifenUITests.swift; sourceTree = "<group>"; };
 		C0D320261002000000000001 /* APIClientSessionIsolationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = APIClientSessionIsolationTests.swift; sourceTree = "<group>"; };
 		D42000000000000000000001 /* LocalDataResetCoordinatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalDataResetCoordinatorTests.swift; sourceTree = "<group>"; };
@@ -143,6 +148,7 @@
 		FE1000000000000000000001 /* ScoreboardDisplayTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardDisplayTests.swift; sourceTree = "<group>"; };
 		FEE320261003000000000001 /* FeedbackLanguageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackLanguageTests.swift; sourceTree = "<group>"; };
 		FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ResumeSessionLifecycleTests.swift; sourceTree = "<group>"; };
+		FF2000000000000000000001 /* ActionForegroundTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ActionForegroundTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -166,7 +172,7 @@
 				C10000000000000000000006 /* TimerCore in Frameworks */,
 				C10000000000000000000007 /* FirebaseCore in Frameworks */,
 				C10000000000000000000008 /* FirebaseAnalyticsCore in Frameworks */,
-                C23000000000000000000001 /* WechatOpenSDK in Frameworks */,
+				C23000000000000000000001 /* WechatOpenSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -248,6 +254,8 @@
 				FE1000000000000000000001 /* ScoreboardDisplayTests.swift */,
 				F6A000000000000000000001 /* NationalDayCampaignTests.swift */,
 				FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */,
+				FF2000000000000000000001 /* ActionForegroundTests.swift */,
+				BC2026102300000000000001 /* WechatBindingTests.swift */,
 				C0D320261002000000000001 /* APIClientSessionIsolationTests.swift */,
 			);
 			path = jifenTests;
@@ -265,6 +273,7 @@
 			isa = PBXGroup;
 			children = (
 				2D1273C47DF445F6918C0C49 /* GroupRedesignUITests.swift */,
+				BC2026102300000000000003 /* WechatBindingUITests.swift */,
 				D67019110000000000000003 /* GroupAlignedFormsUITests.swift */,
 				D670D0010000000000000001 /* DuoGroupWalkthroughUITests.swift */,
 				D670D0020000000000000001 /* DuoToolsWalkthroughUITests.swift */,
@@ -319,7 +328,7 @@
 				A10000000000000000000006 /* TimerCore */,
 				A10000000000000000000007 /* FirebaseCore */,
 				A10000000000000000000008 /* FirebaseAnalyticsCore */,
-                A23000000000000000000001 /* WechatOpenSDK */,
+				A23000000000000000000001 /* WechatOpenSDK */,
 			);
 			productName = jifen;
 			productReference = 0FA5BAD12F18F3EB00182375 /* jifen.app */;
@@ -442,7 +451,7 @@
 			packageReferences = (
 				D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */,
 				D50000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-                D23000000000000000000001 /* XCRemoteSwiftPackageReference "WechatOpenSDK" */,
+				D23000000000000000000001 /* XCRemoteSwiftPackageReference "WechatOpenSDK" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0FA5BAD22F18F3EB00182375 /* Products */;
@@ -486,6 +495,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				04B923BF21624627AB1BCC66 /* GroupRedesignUITests.swift in Sources */,
+				BC2026102300000000000004 /* WechatBindingUITests.swift in Sources */,
 				D67019110000000000000004 /* GroupAlignedFormsUITests.swift in Sources */,
 				D670D0010000000000000002 /* DuoGroupWalkthroughUITests.swift in Sources */,
 				D670D0020000000000000002 /* DuoToolsWalkthroughUITests.swift in Sources */,
@@ -548,6 +558,8 @@
 				FD2000000000000000000002 /* SportsSetupDraftTests.swift in Sources */,
 				FE1000000000000000000002 /* ScoreboardDisplayTests.swift in Sources */,
 				FF1000000000000000000002 /* ResumeSessionLifecycleTests.swift in Sources */,
+				FF2000000000000000000002 /* ActionForegroundTests.swift in Sources */,
+				BC2026102300000000000002 /* WechatBindingTests.swift in Sources */,
 				C0D320261002000000000002 /* APIClientSessionIsolationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -725,7 +737,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = jifen/Config/JifenDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 76;
+				CURRENT_PROJECT_VERSION = 78;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_APP_SANDBOX = YES;
@@ -752,7 +764,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
-				MARKETING_VERSION = 3.3;
+				MARKETING_VERSION = 3.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -782,7 +794,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = jifen/Config/JifenAppStore.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 76;
+				CURRENT_PROJECT_VERSION = 78;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_APP_SANDBOX = YES;
@@ -809,7 +821,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
-				MARKETING_VERSION = 3.3;
+				MARKETING_VERSION = 3.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -953,11 +965,14 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-        D23000000000000000000001 /* XCRemoteSwiftPackageReference "WechatOpenSDK" */ = {
-            isa = XCRemoteSwiftPackageReference;
-            repositoryURL = "https://github.com/yanyin1986/WechatOpenSDK.git";
-            requirement = {kind = exactVersion; version = 2.0.7; };
-        };
+		D23000000000000000000001 /* XCRemoteSwiftPackageReference "WechatOpenSDK" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/yanyin1986/WechatOpenSDK.git";
+			requirement = {
+				kind = exactVersion;
+				version = 2.0.7;
+			};
+		};
 		D50000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
@@ -969,11 +984,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-        A23000000000000000000001 /* WechatOpenSDK */ = {
-            isa = XCSwiftPackageProductDependency;
-            package = D23000000000000000000001 /* XCRemoteSwiftPackageReference "WechatOpenSDK" */;
-            productName = WechatOpenSDK;
-        };
 		A10000000000000000000001 /* ScoreCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
@@ -1013,6 +1023,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D50000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalyticsCore;
+		};
+		A23000000000000000000001 /* WechatOpenSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D23000000000000000000001 /* XCRemoteSwiftPackageReference "WechatOpenSDK" */;
+			productName = WechatOpenSDK;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

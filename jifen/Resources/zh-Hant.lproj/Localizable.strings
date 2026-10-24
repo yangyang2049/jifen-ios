@@ -2488,8 +2488,8 @@
 
 // WeChat login
 "login_wechat" = "微信登入";
-"login_wechat_not_installed" = "請先安裝微信";
-"login_wechat_request_failed" = "無法發起微信登入，請重試";
+"login_wechat_not_installed" = "未安裝微信，請安裝微信後重試";
+"login_wechat_request_failed" = "無法發起微信授權，請重試";
 "login_wechat_cancelled" = "已取消登入";
 "login_wechat_denied" = "已拒絕微信授權";
 "login_wechat_invalid_response" = "微信授權資訊無效，請重試";

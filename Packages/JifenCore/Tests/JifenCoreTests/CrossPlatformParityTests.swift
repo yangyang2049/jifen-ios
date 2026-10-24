@@ -721,6 +721,41 @@ import SessionCore
     #expect(reset.state.redTeam.currentRank == "2")
 }
 
+@Test func guandanAdjustRankIsRejectedAfterFinish() {
+    let reducer = GuandanSessionReducer()
+    var state = GuandanMatchState.initial(redName: "红", blueName: "蓝")
+    state = reducer.reduce(state: state, intent: .startMatch, at: 1).state
+    state = reducer.reduce(state: state, intent: .beginRoundResult(winner: .red), at: 2).state
+    state = reducer.reduce(state: state, intent: .applyRoundSettlement(step: 1), at: 3).state
+    state = reducer.reduce(state: state, intent: .finish, at: 4).state
+    #expect(state.phase == .finished)
+
+    // 终局后 adjustRank（下滑降级走的路径，含云端同步重放）必须被拒绝，
+    // 且不产生任何状态变化，避免终局后级数仍被改动。
+    let downgraded = reducer.reduce(state: state, intent: .adjustRank(side: .red, delta: -1), at: 5)
+    #expect(!downgraded.accepted)
+    #expect(downgraded.state == state)
+
+    let upgraded = reducer.reduce(state: state, intent: .adjustRank(side: .blue, delta: 1), at: 6)
+    #expect(!upgraded.accepted)
+    #expect(upgraded.state == state)
+
+    // 重复结束保持原有拒绝语义（带专属 reason）。
+    let refinished = reducer.reduce(state: state, intent: .finish, at: 7)
+    #expect(!refinished.accepted)
+
+    // adminCorrect 仍是终局后的正规修正路径：改级并把对局拉回进行中。
+    let corrected = reducer.reduce(
+        state: state,
+        intent: .adminCorrect(redName: "红", blueName: "蓝", redRank: "A", blueRank: "2"),
+        at: 8
+    )
+    #expect(corrected.accepted)
+    #expect(corrected.state.phase == .playing)
+    #expect(corrected.state.finalWinner == nil)
+    #expect(corrected.state.redTeam.currentRank == "A")
+}
+
 @Test func guandanIllegalPhaseIntentsDoNotCreateEmptyUndoFrames() async {
     func isRejected(_ result: DispatchResult<GuandanMatchState, GuandanSessionEvent>) -> Bool {
         if case .rejected = result { return true }
@@ -799,6 +834,113 @@ import SessionCore
     bundle = await core.resumeBundle()
     #expect(bundle.undoFrames.count == 3)
     #expect(bundle.timeline.count == 3)
+}
+
+@Test func guandanAdministrativeRankCorrectionPreservesChosenTripleAAttempts() {
+    let reducer = GuandanSessionReducer()
+    for lastWinner in [GuandanSide.red, .blue] {
+        for rank in ["A1", "A2", "A3"] {
+            let finished = GuandanMatchState(
+                phase: .finished,
+                redTeam: .init(name: "红", currentRank: "K"),
+                blueTeam: .init(name: "蓝", currentRank: "K"),
+                roundWinner: .red,
+                lastRoundWinner: lastWinner,
+                roundUpgrade: 2,
+                aStageMode: .tripleA,
+                finalWinner: lastWinner
+            )
+            let corrected = reducer.reduce(
+                state: finished,
+                intent: .adminCorrect(redName: "红", blueName: "蓝", redRank: rank, blueRank: rank),
+                at: 1
+            )
+            #expect(corrected.accepted)
+            #expect(corrected.state.phase == .playing)
+            #expect(corrected.state.finalWinner == nil)
+            #expect(corrected.state.redTeam.currentRank == "A")
+            #expect(corrected.state.blueTeam.currentRank == "A")
+            let attempt = Int(rank.dropFirst())!
+            #expect(corrected.state.redAFailCount == attempt - 1)
+            #expect(corrected.state.blueAFailCount == attempt - 1)
+            #expect(corrected.state.displayRank(for: lastWinner) == rank)
+            let other: GuandanSide = lastWinner == .red ? .blue : .red
+            #expect(corrected.state.displayRank(for: other) == "A\(max(1, attempt - 1))")
+            #expect(corrected.state.aStageTeam == lastWinner)
+            #expect(corrected.state.isInAStage)
+            #expect(corrected.state.roundWinner == nil)
+            #expect(corrected.state.roundUpgrade == nil)
+        }
+    }
+}
+
+@Test func guandanAdministrativeCorrectionClearsStaleAStageAfterDowngrade() async {
+    let finished = GuandanMatchState(
+        phase: .finished,
+        redTeam: .init(name: "红", currentRank: "A"),
+        blueTeam: .init(name: "蓝", currentRank: "K"),
+        lastRoundWinner: .red,
+        isInAStage: true,
+        aStageTeam: .red,
+        aStageMode: .tripleA,
+        finalWinner: .red,
+        redAFailCount: 2
+    )
+    let seed = ScoreSession<GuandanMatchState, GuandanSessionEvent>(
+        gameType: .guandan,
+        ruleFamily: .s4,
+        reducerType: "guandan/v1",
+        state: finished
+    )
+    let core = ScoreSessionCore(seedSession: seed, reducer: GuandanSessionReducer())
+    _ = await core.dispatch(
+        actorId: "phone",
+        intent: .adminCorrect(redName: "新红", blueName: "蓝", redRank: "Q", blueRank: "K"),
+        at: 1
+    )
+    let correctedBundle = await core.resumeBundle()
+    let corrected = correctedBundle.currentSession.state
+    #expect(corrected.phase == .playing)
+    #expect(corrected.finalWinner == nil)
+    #expect(corrected.redTeam.name == "新红")
+    #expect(corrected.redTeam.currentRank == "Q")
+    #expect(corrected.redAFailCount == 0)
+    #expect(corrected.aStageTeam == nil)
+    #expect(!corrected.isInAStage)
+    #expect(correctedBundle.undoFrames.count == 1)
+    #expect(correctedBundle.timeline.count == 1)
+    #expect(await core.undo(actorId: "phone"))
+    let restored = await core.resumeBundle()
+    #expect(restored.currentSession.state == finished)
+}
+
+@Test func guandanEditedThirdAAttemptFallsBackOnItsNextFailure() {
+    let reducer = GuandanSessionReducer()
+    var state = GuandanMatchState(
+        phase: .finished,
+        redTeam: .init(name: "红", currentRank: "K"),
+        blueTeam: .init(name: "蓝", currentRank: "2"),
+        lastRoundWinner: .blue,
+        aStageMode: .tripleA,
+        tripleAFallbackRank: "10",
+        finalWinner: .red
+    )
+    state = reducer.reduce(
+        state: state,
+        intent: .adminCorrect(redName: "红", blueName: "蓝", redRank: "A3", blueRank: "2"),
+        at: 1
+    ).state
+    #expect(state.redAFailCount == 2)
+    #expect(state.aStageTeam == nil)
+    state = reducer.reduce(state: state, intent: .beginRoundResult(winner: .red), at: 2).state
+    state = reducer.reduce(state: state, intent: .applyRoundSettlement(step: 1), at: 3).state
+    #expect(state.aStageTeam == .red)
+    #expect(state.displayRank(for: .red) == "A3")
+    #expect(state.redAFailCount == 2)
+    state = reducer.reduce(state: state, intent: .beginRoundResult(winner: .blue), at: 4).state
+    state = reducer.reduce(state: state, intent: .applyRoundSettlement(step: 1), at: 5).state
+    #expect(state.redTeam.currentRank == "10")
+    #expect(state.redAFailCount == 0)
 }
 
 @Test func guandanTripleAFailsFallbackToConfiguredRank() {

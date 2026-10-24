@@ -61,8 +61,7 @@ struct NineBallSetupDialogView: View {
                     }
 
                     Text(NSLocalizedString("nine_ball_chase_points", value: "事件分值", comment: ""))
-                        .font(.system(size: 12))
-                        .foregroundStyle(Theme.textSecondary)
+                        .settingsLabelStyle()
 
                     VStack(spacing: 10) {
                         scoreStepper("nine_ball_big_gold", fallback: "大金", value: $bigGold)
@@ -107,6 +106,7 @@ struct NineBallSetupDialogView: View {
             HStack(spacing: 12) {
                 Button(action: requestCancel) {
                     Text(NSLocalizedString("cancel", comment: ""))
+                        .font(.system(size: 16))
                         .foregroundStyle(Theme.textPrimary)
                         .frame(width: 100, height: 44)
                         .background(Theme.dialogControlBackground)
@@ -128,7 +128,7 @@ struct NineBallSetupDialogView: View {
             Task { await confirm() }
         } label: {
             Text(NSLocalizedString("start_game", comment: ""))
-                .fontWeight(.medium)
+                .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Theme.textOnPrimary)
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)

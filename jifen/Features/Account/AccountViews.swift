@@ -89,10 +89,13 @@ private struct AccountLoginView: View {
     @Environment(SessionStore.self) private var session
     @State private var agreementAccepted = false
     @State private var agreementError: String?
+    @State private var presentsLoginNotice = false
     @State private var legalDocument: LoginLegalDocument?
     @State private var showPasswordLogin = false
     var onOpenLegal: () -> Void = {}
     var onOpenPasswordLogin: () -> Void = {}
+
+    private var appLanguage: String { Bundle.main.preferredLocalizations.first ?? "en" }
     #if STAGING
     @State private var showStagingToken = false
     @State private var stagingToken = ""
@@ -115,10 +118,15 @@ private struct AccountLoginView: View {
                 .accessibilityIdentifier("account_login_apple")
                 .disabled(session.isWorking)
 
-                if WechatLoginPolicy.supports(language: Bundle.main.preferredLocalizations.first ?? "en") && ProductionWechatAuthProvider.isInstalled {
+                if WechatLoginPolicy.supports(language: appLanguage) {
                     Button {
+                        guard ProductionWechatAuthProvider.isInstalled else {
+                            agreementError = WechatAuthError.notInstalled.localizedDescription
+                            presentsLoginNotice = true
+                            return
+                        }
+                        guard requireAgreement() else { return }
                         Task {
-                            guard requireAgreement() else { return }
                             await session.signInWithWechat()
                         }
                     } label: {
@@ -134,21 +142,24 @@ private struct AccountLoginView: View {
                     .accessibilityIdentifier("account_login_wechat")
                 }
 
-                // 登录入口例外：与上方原生 AppleIDButton 的 10pt 圆角一致，不使用胶囊。
-                Button {
-                    onOpenPasswordLogin()
-                    showPasswordLogin = true
-                } label: {
-                    Text(NSLocalizedString("me_password_login_entry", value: "账号密码登录", comment: ""))
-                        .font(.system(size: 16))
-                        .foregroundColor(Theme.textPrimary)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(RoundedRectangle(cornerRadius: 10).fill(Theme.controlBackground))
+                // 账号密码登录是内部测试通道：中文面板默认隐藏，英文面板保留给测试账号登录。
+                if PasswordLoginEntryPolicy.isVisible(language: appLanguage, launchArguments: ProcessInfo.processInfo.arguments) {
+                    // 登录入口例外：与上方原生 AppleIDButton 的 10pt 圆角一致，不使用胶囊。
+                    Button {
+                        onOpenPasswordLogin()
+                        showPasswordLogin = true
+                    } label: {
+                        Text(NSLocalizedString("me_password_login_entry", value: "账号密码登录", comment: ""))
+                            .font(.system(size: 16))
+                            .foregroundColor(Theme.textPrimary)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(RoundedRectangle(cornerRadius: 10).fill(Theme.controlBackground))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(session.isWorking)
+                    .accessibilityIdentifier("account_login_password")
                 }
-                .buttonStyle(.plain)
-                .disabled(session.isWorking)
-                .accessibilityIdentifier("account_login_password")
 
                 loginAgreement
 
@@ -190,6 +201,11 @@ private struct AccountLoginView: View {
         .onChange(of: agreementAccepted) { _, accepted in
             if accepted { agreementError = nil }
         }
+        .alert(NSLocalizedString("account_login_title", value: "登录", comment: ""), isPresented: $presentsLoginNotice) {
+            Button(NSLocalizedString("confirm", value: "确定", comment: ""), role: .cancel) { }
+        } message: {
+            Text(agreementError ?? "")
+        }
         #if STAGING
         .alert(NSLocalizedString("staging_token_title", value: "Staging 临时密钥", comment: ""), isPresented: $showStagingToken) {
             TextField(NSLocalizedString("staging_token_placeholder", value: "输入临时密钥", comment: ""), text: $stagingToken)
@@ -220,6 +236,7 @@ private struct AccountLoginView: View {
                 value: "请先阅读并同意用户协议和隐私政策",
                 comment: ""
             )
+            presentsLoginNotice = true
             return false
         }
         agreementError = nil
@@ -377,6 +394,15 @@ nonisolated enum PasswordLoginInputValidator {
     }
 }
 
+/// 账号密码登录入口可见性：中文面板只保留 Apple / 微信登录（账号密码仅内部测试通道），
+/// 英文等其他语言保留该入口给测试账号登录；`-UITestShowPasswordLogin` 可在中文环境强制显示。
+nonisolated enum PasswordLoginEntryPolicy {
+    static func isVisible(language: String, launchArguments: [String] = []) -> Bool {
+        if launchArguments.contains("-UITestShowPasswordLogin") { return true }
+        return !WechatLoginPolicy.supports(language: language)
+    }
+}
+
 /// 登录协议勾选条（对齐安卓 LoginAgreementBar），登录主页与密码登录页共用。
 private struct LoginAgreementBar: View {
     @Binding var agreementAccepted: Bool
@@ -460,6 +486,7 @@ private struct AccountProfileView: View {
     @State private var showLogoutConfirmation = false
     @State private var showAccountDeletion = false
     @State private var showMembership = false
+    @State private var showWechatBinding = false
     @State private var toastMessage: String?
 
     var body: some View {
@@ -542,19 +569,41 @@ private struct AccountProfileView: View {
                     .disabled(displayUserId == "--")
                     ProfileThinDivider()
                     ProfileInfoRow(
-                        label: NSLocalizedString("me_profile_registered_date_label", value: "注册时间", comment: ""),
-                        value: profileRegisteredDate,
-                        showChevron: false
-                    )
-                    ProfileThinDivider()
-                    ProfileInfoRow(
                         label: NSLocalizedString("me_profile_email_label", value: "电子邮箱", comment: ""),
                         value: session.user?.email?.nilIfBlank
                             ?? NSLocalizedString("me_profile_email_not_set", value: "无", comment: ""),
                         showChevron: false
                     )
+                    ProfileThinDivider()
+                    if let bindings = session.wechatBindingStatus, !bindings.providers.isEmpty {
+                        ProfileInfoRow(label: bindingText("login_method"),
+                                       value: AccountLoginMethodText.joined(bindings.providers),
+                                       richValue: AccountLoginMethodText.currentFirstText(bindings),
+                                       showChevron: false)
+                        ProfileThinDivider()
+                    }
+                    ProfileInfoRow(
+                        label: NSLocalizedString("me_profile_registered_date_label", value: "注册时间", comment: ""),
+                        value: profileRegisteredDate,
+                        showChevron: false
+                    )
                 }
                 .background(RoundedRectangle(cornerRadius: 20).fill(Theme.appCardBackground))
+
+                if WechatBindingPolicy.showsEntry(isAuthenticated: session.isAuthenticated,
+                    language: Bundle.main.preferredLocalizations.first ?? "en", status: session.wechatBindingStatus) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(bindingText("section")).font(.footnote).foregroundStyle(.secondary).padding(.horizontal, 4)
+                        ProfileInfoRow(label: bindingText("bind"),
+                            value: bindingText(session.wechatBindingStatus?.wechat.bound == true ? "bound" : "unbound"),
+                            valueColor: session.wechatBindingStatus?.wechat.bound == true ? Theme.accentColor : Theme.textSecondary,
+                            showChevron: session.wechatBindingStatus?.wechat.bound != true) { showWechatBinding = true }
+                            .disabled(session.isWorking || session.wechatBindingStatus?.wechat.bound == true)
+                            .background(Theme.appCardBackground, in: RoundedRectangle(cornerRadius: 20))
+                            .accessibilityIdentifier("profile_bind_wechat")
+                        Text(bindingText("entry_detail")).font(.footnote).foregroundStyle(.secondary).padding(.horizontal, 4)
+                    }
+                }
             }
             .padding(16)
             .frame(maxWidth: Theme.meTabContentMaxWidth)
@@ -566,6 +615,8 @@ private struct AccountProfileView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .appAnalyticsScreen(.profilePage)
+        .task(id: session.user?.id) { await session.reloadWechatBindingStatus() }
+        .sheet(isPresented: $showWechatBinding) { WechatBindingSheet() }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
@@ -1282,6 +1333,8 @@ private struct ProfileAvatarFallback: View {
 private struct ProfileInfoRow: View {
     let label: String
     let value: String
+    /// 富文本值（各段自带颜色）；为 nil 时回退到纯文本 value。
+    var richValue: Text? = nil
     var valueColor: Color = Theme.textPrimary
     var showChevron: Bool
     var onClick: (() -> Void)? = nil
@@ -1305,10 +1358,10 @@ private struct ProfileInfoRow: View {
                 .foregroundColor(Theme.textSecondary)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            Text(value)
+            (richValue ?? Text(value))
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(valueColor)
-                .lineLimit(1)
+                .lineLimit(2)
                 .truncationMode(.tail)
                 .frame(maxWidth: .infinity, alignment: .trailing)
             if showChevron {

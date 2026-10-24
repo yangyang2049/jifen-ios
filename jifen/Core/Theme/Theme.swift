@@ -133,6 +133,7 @@ struct Theme {
     static let black = Color.black
     /// Green primary actions always use white labels, including dark scoreboard overlays.
     static let textOnPrimary = Color.white
+    /// Solid red actions always use white labels; orange/yellow warnings keep the contrast policy.
     /// Light green actions use white labels; dark mode retains its existing foreground policy.
     static func actionForeground(on background: Color) -> Color {
         Color(uiColor: UIColor { traits in
@@ -144,11 +145,32 @@ struct Theme {
         var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
         guard background.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else { return .black }
         if appearance == .light && green > red && green > blue { return .white }
+        // 实心红底在深浅模式都用白字（对齐安卓 actionTextColor / 鸿蒙 actionTextColor）。
+        // 判据是「高饱和 + 色相落在红区」：浅红提示底（低饱和）与橙黄警告仍走对比度计算，
+        // 否则 #FF9800 / #FFD600 这类黄色底会被误判成红。
+        if isSolidRedAction(red: red, green: green, blue: blue) { return .white }
         func linear(_ value: CGFloat) -> CGFloat {
             value <= 0.04045 ? value / 12.92 : pow((value + 0.055) / 1.055, 2.4)
         }
         let luminance = 0.2126 * linear(red) + 0.7152 * linear(green) + 0.0722 * linear(blue)
         return (luminance + 0.05) / 0.05 >= 1.05 / (luminance + 0.05) ? .black : .white
+    }
+
+    /// 高饱和且色相在红区（≤15° 或 ≥345°）。与安卓 `hsv.s >= 0.4 && (hsv.h <= 15 || hsv.h >= 345)` 同口径。
+    static func isSolidRedAction(red: CGFloat, green: CGFloat, blue: CGFloat) -> Bool {
+        let maxValue = max(red, green, blue), minValue = min(red, green, blue)
+        let delta = maxValue - minValue
+        guard maxValue > 0, delta / maxValue >= 0.4 else { return false }
+        let hue: CGFloat
+        if maxValue == red {
+            hue = 60 * ((green - blue) / delta).truncatingRemainder(dividingBy: 6)
+        } else if maxValue == green {
+            hue = 60 * ((blue - red) / delta + 2)
+        } else {
+            hue = 60 * ((red - green) / delta + 4)
+        }
+        let normalized = hue < 0 ? hue + 360 : hue
+        return normalized <= 15 || normalized >= 345
     }
     static let transparent = Color.clear
 

@@ -5,6 +5,8 @@ import SwiftUI
 struct ModalCloseButton: View {
     enum Placement { case toolbar, standalone }
     var placement: Placement = .toolbar
+    /// 全屏相机等深色背景上的关闭按钮需要白色，其余场景沿用正文色。
+    var tint: Color = Theme.textPrimary
     let action: () -> Void
 
     @ViewBuilder var body: some View {
@@ -20,7 +22,7 @@ struct ModalCloseButton: View {
         Button(role: .cancel, action: action) {
             Image(systemName: "xmark")
         }
-        .tint(Theme.textPrimary)
+        .tint(tint)
         .accessibilityLabel(NSLocalizedString("close", value: "关闭", comment: ""))
         .accessibilityIdentifier("modal_close_button")
     }

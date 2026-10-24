@@ -220,9 +220,16 @@ nonisolated extension GroupPreview {
 nonisolated enum GroupPermissions {
     static func waitingNames(_ result: GroupResult, members: [GroupMember]) -> [String] {
         let side = result.participants.first { $0.memberId == result.submitterMemberId }?.side
-        let accounts = Set(members.filter { $0.kind == "account" && $0.status == "active" }.map(\.id))
-        return result.participants.filter { accounts.contains($0.memberId) && (side == nil || $0.side != side) }.sorted { ($0.side, $0.seat) < ($1.side, $1.seat) }
-            .map { seat in seat.displayName.flatMap { $0.isEmpty ? nil : $0 } ?? members.first(where: { $0.id == seat.memberId })?.displayName ?? "" }
+        let accounts = members.filter { $0.kind == "account" && $0.status == "active" }
+        let submitter = result.submitterCanonicalMemberId
+            ?? result.participants.first(where: { $0.memberId == result.submitterMemberId })?.effectiveMemberID
+            ?? result.submitterMemberId
+        var seen = Set<String>()
+        return result.participants.sorted { ($0.side, $0.seat) < ($1.side, $1.seat) }.compactMap { seat in
+            guard (side == nil || seat.side != side), seat.effectiveMemberID != submitter,
+                  let member = accounts.first(where: { seat.belongs(to: $0) }), seen.insert(member.id).inserted else { return nil }
+            return seat.displayName.flatMap { $0.isEmpty ? nil : $0 } ?? member.displayName
+        }
     }
     static func manager(_ member: GroupMember?) -> Bool { ["owner", "admin"].contains(member?.role ?? "") && member?.status == "active" }
     static func coach(_ group: ScoreGroup, member: GroupMember?) -> Bool {
@@ -235,12 +242,19 @@ nonisolated enum GroupPermissions {
     static func confirmation(_ result: GroupResult, group: ScoreGroup?, me: GroupMember?) -> (allowed: Bool, authority: Bool) {
         guard group?.isActive == true, let me, me.kind == "account", me.status == "active", result.status == "pending_confirmation" else { return (false, false) }
         if let group, group.isCoaching && !coach(group, member: me) { return (false, false) }
+        let canonicalSubmitter = result.submitterCanonicalMemberId
+            ?? result.participants.first(where: { $0.memberId == result.submitterMemberId })?.effectiveMemberID
+            ?? result.submitterMemberId
+        // Preserve the existing explicit all-temporary owner confirmation, but
+        // never let a different historical alias bypass self-confirmation.
+        if result.submitterMemberId != me.id, me.ownsHistoricalMember(canonicalSubmitter) { return (false, false) }
         if group?.isCoaching != true, me.role == "owner", result.canAuthorityConfirm == true { return (true, true) }
-        guard me.id != result.submitterMemberId else { return (false, false) }
+        guard !me.ownsHistoricalMember(canonicalSubmitter) else { return (false, false) }
         if manager(me) { return (true, false) }
-        guard let mine = result.participants.first(where: { $0.memberId == me.id }) else { return (false, false) }
+        let mine = result.participants.filter { $0.belongs(to: me) }
+        guard !mine.isEmpty else { return (false, false) }
         let submitter = result.participants.first { $0.memberId == result.submitterMemberId }
-        return (submitter == nil || mine.side != submitter?.side, false)
+        return (submitter == nil || mine.contains { $0.side != submitter?.side }, false)
     }
     static func confirmationTasks(_ results: [GroupResult], group: ScoreGroup?, me: GroupMember?) -> [GroupResult] {
         results.filter { confirmation($0, group: group, me: me).allowed }
@@ -254,7 +268,7 @@ nonisolated enum GroupPermissions {
     }
     static func canScore(_ activity: GroupActivity, me: GroupMember?, seats: [GroupSeat] = []) -> Bool {
         guard let me, me.status == "active" else { return false }
-        return manager(me) || activity.creatorMemberId == me.id || seats.contains { $0.memberId == me.id }
+        return manager(me) || activity.creatorMemberId == me.id || seats.contains { $0.belongs(to: me) }
     }
     /// 对齐安卓 `canInviteToGroup`：状态必须是 active、入组策略不能是 closed、满员不可邀请，
     /// availability 落在「已满 / 已关闭 / 已归档 / 不存在」四类里同样不可邀请。

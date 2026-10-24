@@ -97,7 +97,8 @@ final class FullAppScreenshotUITests: XCTestCase {
                 ("settings_account_entry", "46_login"),
                 ("settings_feedback_entry", "47_feedback")
             ] {
-                relaunch()
+                // 走访录制需要拍到中文面板的账号密码登录页，用开关强制显示该测试通道。
+                relaunch(extraArguments: ["-UITestShowPasswordLogin"])
                 XCTAssertTrue(selectTab("我的"))
                 let entry = app.descendants(matching: .any)[identifier].firstMatch
                 if entry.waitForExistence(timeout: 3), entry.isHittable {

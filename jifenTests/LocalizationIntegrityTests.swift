@@ -249,11 +249,65 @@ final class LocalizationIntegrityTests: XCTestCase {
     }
 
     func testEveryStaticLocalizationKeyExistsInItsTarget() throws {
+        let references = try swiftFiles(in: "jifen").map { file in
+            let source = try String(contentsOf: file, encoding: .utf8)
+            return (file: file, references: try LocalizationTestSupport.staticReferences(in: source))
+        }
         for locale in LocalizationTestSupport.promotedLocales {
             try assertStaticKeysExist(
-                sourceDirectory: "jifen",
+                references: references,
                 stringsPath: LocalizationTestSupport.localizablePaths[locale]!
             )
+        }
+    }
+
+    func testStaticLocalizationReferencesKeepExplicitTables() throws {
+        let source = #"""
+        NSLocalizedString("default_key", comment: "")
+        NSLocalizedString("scan_key", tableName: "QRScan", value: "Fallback (example)", comment: "")
+        NSLocalizedString("binding_key",
+                          tableName: "WechatBinding", comment: "")
+        NSLocalizedString("nil_table_key", tableName: nil, comment: "")
+        localized("helper_key", bundle: bundle)
+        NSLocalizedString("dynamic_\(key)", comment: "")
+        """#
+        XCTAssertEqual(try LocalizationTestSupport.staticReferences(in: source), [
+            .init(key: "default_key", tableName: "Localizable", line: 1),
+            .init(key: "scan_key", tableName: "QRScan", line: 2),
+            .init(key: "binding_key", tableName: "WechatBinding", line: 3),
+            .init(key: "nil_table_key", tableName: "Localizable", line: 5),
+            .init(key: "helper_key", tableName: "Localizable", line: 6)
+        ])
+    }
+
+    func testExplicitLocalizationTablesHaveEnglishFallbackAndMatchingTranslations() throws {
+        var tables = Set<String>()
+        for file in try swiftFiles(in: "jifen") {
+            let source = try String(contentsOf: file, encoding: .utf8)
+            tables.formUnion(try LocalizationTestSupport.staticReferences(in: source).map(\.tableName))
+        }
+        for table in tables.sorted() where table != "Localizable" {
+            let englishPath = "jifen/Resources/en.lproj/\(table).strings"
+            let englishEntries = try entries(at: englishPath)
+            XCTAssertEqual(duplicateKeys(in: englishEntries), [], englishPath)
+            let english = Dictionary(uniqueKeysWithValues: englishEntries.map { ($0.key, $0.value) })
+            XCTAssertFalse(english.isEmpty, "\(table) must provide the app's English fallback")
+            for locale in LocalizationTestSupport.promotedLocales {
+                let path = "jifen/Resources/\(locale).lproj/\(table).strings"
+                // Dedicated tables may intentionally ship only selected languages.
+                // A missing table uses the English development localization.
+                guard FileManager.default.fileExists(atPath: repositoryRoot.appendingPathComponent(path).path) else { continue }
+                let localizedEntries = try entries(at: path)
+                XCTAssertEqual(duplicateKeys(in: localizedEntries), [], path)
+                let localized = Dictionary(uniqueKeysWithValues: localizedEntries.map { ($0.key, $0.value) })
+                XCTAssertEqual(Set(localized.keys), Set(english.keys), path)
+                for (key, value) in english {
+                    let translated = try XCTUnwrap(localized[key], "\(path): \(key)")
+                    XCTAssertFalse(translated.isEmpty, "\(path): \(key)")
+                    XCTAssertEqual(LocalizationTestSupport.formatTokens(in: translated),
+                                   LocalizationTestSupport.formatTokens(in: value), "\(path): \(key)")
+                }
+            }
         }
     }
 
@@ -742,24 +796,24 @@ final class LocalizationIntegrityTests: XCTestCase {
         )
     }
 
-    private func assertStaticKeysExist(sourceDirectory: String, stringsPath: String) throws {
-        let available = Set(try entries(at: stringsPath).map(\.key))
-        let patterns = [
-            #"NSLocalizedString\s*\(\s*\"([^\"]+)\"\s*,"#,
-            #"\blocalized\s*\(\s*\"([^\"]+)\"\s*,"#
-        ]
+    private func assertStaticKeysExist(
+        references: [(file: URL, references: [LocalizationTestSupport.StaticReference])],
+        stringsPath: String
+    ) throws {
+        let localeDirectory = (stringsPath as NSString).deletingLastPathComponent
+        var availableByTable = ["Localizable": Set(try entries(at: stringsPath).map(\.key))]
         var missing: [String] = []
 
-        for file in try swiftFiles(in: sourceDirectory) {
-            let source = try String(contentsOf: file, encoding: .utf8)
-            for pattern in patterns {
-                for match in captures(pattern: pattern, in: source) {
-                    guard !match.value.contains(#"\("#), !available.contains(match.value) else { continue }
-                    let line = source[..<match.range].reduce(into: 1) { count, character in
-                        if character == "\n" { count += 1 }
-                    }
-                    missing.append("\(match.value) at \(file.lastPathComponent):\(line)")
+        for (file, fileReferences) in references {
+            for reference in fileReferences {
+                if availableByTable[reference.tableName] == nil {
+                    let localizedPath = "\(localeDirectory)/\(reference.tableName).strings"
+                    let tablePath = FileManager.default.fileExists(atPath: repositoryRoot.appendingPathComponent(localizedPath).path)
+                        ? localizedPath : "jifen/Resources/en.lproj/\(reference.tableName).strings"
+                    availableByTable[reference.tableName] = Set(try entries(at: tablePath).map(\.key))
                 }
+                guard availableByTable[reference.tableName]?.contains(reference.key) != true else { continue }
+                missing.append("\(reference.tableName)/\(reference.key) at \(file.lastPathComponent):\(reference.line)")
             }
         }
 

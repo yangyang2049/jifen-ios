@@ -493,7 +493,9 @@ struct jifenApp: App {
     private var rootView: some View {
         #if DEBUG
         let arguments = ProcessInfo.processInfo.arguments
-        if let fixtureName = DisplaySnapshotFixture.requestedName {
+        if WechatBindingFixture.enabled {
+            WechatBindingCaptureView()
+        } else if let fixtureName = DisplaySnapshotFixture.requestedName {
             DisplaySnapshotFixtureView(name: fixtureName)
         } else if let fixtureName = MarketingScreenshotFixture.requestedName {
             MarketingScreenshotFixtureView(name: fixtureName)
@@ -533,6 +535,7 @@ class ScoreboardAppDelegate: NSObject, UIApplicationDelegate, UNUserNotification
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        WechatDiag.log("app launch")
         FirebaseApp.configure()
         UNUserNotificationCenter.current().delegate = self
         return true

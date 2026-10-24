@@ -60,7 +60,7 @@ struct GroupTrainingTab: View {
                     if !plan.note.isEmpty { Text(plan.note).font(.caption).foregroundStyle(.secondary) }
                     if coach { ShareLink(item: plan.sessions.map { $0.date.formatted() + " · " + $0.court + " · " + $0.seats.map { $0.displayName ?? "" }.joined(separator: " / ") }.joined(separator: "\n")) { Label(groupText("share", "Share schedule"), systemImage: "square.and.arrow.up") } }
                     if plan.status == "cancelled" { Text(groupText("cancelled", "Cancelled")).foregroundStyle(.secondary) }
-                    ForEach(plan.sessions.filter { coach || $0.seats.contains { $0.memberId == me?.id } }) { session in
+                    ForEach(plan.sessions.filter { coach || $0.seats.contains { $0.belongs(to: me) } }) { session in
                         Divider()
                         sessionRow(session, plan: plan)
                     }
@@ -78,7 +78,7 @@ struct GroupTrainingTab: View {
 
     private var visiblePlans: [GroupTrainingPlan] {
         let now = Int64(Date().timeIntervalSince1970 * 1000)
-        return (detail.trainingPlans ?? []).filter { coach || $0.sessions.contains { $0.seats.contains { $0.memberId == me?.id } } }.sorted { a, b in
+        return (detail.trainingPlans ?? []).filter { coach || $0.sessions.contains { $0.seats.contains { $0.belongs(to: me) } } }.sorted { a, b in
             let activeA = a.status != "cancelled" && a.endsAt >= now, activeB = b.status != "cancelled" && b.endsAt >= now
             if activeA != activeB { return activeA }
             return activeA ? a.startsAt < b.startsAt : a.startsAt > b.startsAt
@@ -115,9 +115,9 @@ struct GroupTrainingTab: View {
                     if coach {
                         Button(groupText((session.startedGameId ?? "").isEmpty ? "start_score" : "resume_score", "Start scoring")) { Task { await start(session) } }.buttonStyle(.borderedProminent).tint(Theme.primary).foregroundStyle(Theme.textOnPrimary)
                         if (session.startedGameId ?? "").isEmpty { Button(groupText("manual_result_action", "Add Result")) { action = .init(kind: "manual", session: session) }.buttonStyle(.bordered).tint(Theme.textSecondary).foregroundStyle(Theme.primary) }
-                    } else if session.seats.contains(where: { $0.memberId == me?.id }) {
+                    } else if session.seats.contains(where: { $0.belongs(to: me) }) {
                         Button(groupText("leave_training", "Notify absence")) { action = .init(kind: "leave", session: session) }.buttonStyle(.bordered).tint(Theme.textSecondary).foregroundStyle(Theme.primary)
-                        if let leave = detail.leaveNotices?.first(where: { $0.sessionId == session.id && $0.memberId == me?.id && $0.invalidated != true }) { Text(leave.reason); Text(GroupStatusText.leaveNotice(leave.status)).font(.caption).foregroundStyle(.secondary) }
+                        if let leave = detail.leaveNotices?.first(where: { $0.sessionId == session.id && me?.ownsHistoricalMember($0.memberId) == true && $0.invalidated != true }) { Text(leave.reason); Text(GroupStatusText.leaveNotice(leave.status)).font(.caption).foregroundStyle(.secondary) }
                     }
                 }.controlSize(.small).disabled(!writable)
             } else { Text(GroupStatusText.trainingSession(session.status)).font(.caption).foregroundStyle(.secondary) }

@@ -1,7 +1,4 @@
 import SwiftUI
-import PhotosUI
-import Vision
-import VisionKit
 import CoreImage.CIFilterBuiltins
 
 struct GroupJoinView: View {
@@ -25,9 +22,7 @@ struct GroupJoinView: View {
     @State private var busy = false
     @State private var sheet: Sheet?
     @State private var submitting = false
-    @State private var photoGeneration = 0
     @State private var key = UUID().uuidString
-    @State private var photo: PhotosPickerItem?
     @State private var localError: String?
     /// 邀请链接带号进入：已是成员时直接进详情，不停留加入页（对齐微信「已在群聊直接进群」）。
     @State private var seededEntry = false
@@ -103,7 +98,10 @@ struct GroupJoinView: View {
             .sheet(item: $sheet) { destination in
                 switch destination {
                 case .scanner:
-                    NavigationStack { GroupScannerView(photo: $photo) { raw in sheet = nil; receive(raw) } }
+                    QRScanSheet(
+                        hint: groupText("join_scan_hint", "Scan a group QR code"),
+                        prefersPhotoValue: { GroupQRPayload.parse($0, capabilities: store.capabilities) != nil }
+                    ) { raw in sheet = nil; receive(raw) }
                 case .report:
                     GroupPreviewReportView(groupNo: number)
                 case .login:
@@ -123,11 +121,10 @@ struct GroupJoinView: View {
             .onChange(of: number) { _, _ in seededEntry = false; message = "" }
             .onChange(of: previewTaskID) { _, _ in
                 previewRevision &+= 1; busy = false; preview = nil; waiting = false; joinedID = nil; localError = nil; key = UUID().uuidString
-                photoGeneration += 1; photo = nil; seededAutoOpened = false
+                seededAutoOpened = false
                 if sheet == .report { sheet = nil }
             }
             .onChange(of: message) { _,_ in key = UUID().uuidString }
-            .onChange(of: photo) { _, item in if item != nil { sheet = nil; Task { await decodePhoto(item) } } }
             .task(id: previewTaskID) {
                 guard GroupQRPayload.validNumber(number, capabilities: store.capabilities) else { return }
                 do { try await Task.sleep(for: .milliseconds(350)) } catch { return }
@@ -223,7 +220,6 @@ struct GroupJoinView: View {
               store.capabilities?.allows("join_group") ?? true else { return }
         guard session.isAuthenticated else {
             focusedInput = nil
-            photoGeneration += 1; photo = nil
             sheet = .login
             return
         }
@@ -239,60 +235,6 @@ struct GroupJoinView: View {
             if let groupID = outcome.groupId, outcome.kind != "pending" { joinedID = groupID } else { waiting = true }
         }
         if success { await store.refresh(); if waiting { await loadPreview() } }
-    }
-    private func decodePhoto(_ item: PhotosPickerItem?) async {
-        guard let item else { return }
-        photoGeneration += 1; let generation = photoGeneration, identity = store.identityRevision, inputRevision = previewRevision
-        do {
-            guard let data = try await item.loadTransferable(type: Data.self) else { return }
-            guard photoGeneration == generation, store.identityRevision == identity, previewRevision == inputRevision, !submitting else { return }
-            let candidates = await Task.detached(priority: .userInitiated) { GroupPhotoQRDecoder.candidates(in: data) }.value
-            guard photoGeneration == generation, store.identityRevision == identity, previewRevision == inputRevision, !submitting else { return }
-            guard let raw = candidates.first(where: { GroupQRPayload.parse($0, capabilities: store.capabilities) != nil }) else { throw GroupFormError.invalidQR }
-            receive(raw)
-        } catch { if photoGeneration == generation, store.identityRevision == identity, previewRevision == inputRevision { localError = groupErrorMessage(error) } }
-        if photoGeneration == generation { photo = nil }
-    }
-}
-
-private nonisolated enum GroupPhotoQRDecoder {
-    static func candidates(in data: Data) -> [String] {
-    let request = VNDetectBarcodesRequest(); request.symbologies = [.qr]
-    var candidates: [String] = []
-    do {
-        try VNImageRequestHandler(data: data).perform([request])
-        candidates = request.results?.compactMap(\.payloadStringValue) ?? []
-    } catch {
-        // The simulator can lack Vision's inference runtime; use the CPU QR detector.
-        if let image = CIImage(data: data, options: [.applyOrientationProperty: true]),
-           let detector = CIDetector(ofType: CIDetectorTypeQRCode,
-                                     context: CIContext(options: [.useSoftwareRenderer: true]),
-                                     options: [CIDetectorAccuracy: CIDetectorAccuracyHigh]) {
-            candidates = detector.features(in: image).compactMap { ($0 as? CIQRCodeFeature)?.messageString }
-        }
-    }
-        return candidates
-    }
-}
-
-struct GroupScannerView: View {
-    @Binding var photo: PhotosPickerItem?
-    var onValue: (String) -> Void
-    @Environment(\.dismiss) private var dismiss
-    @State private var paused = false
-    var body: some View {
-        Group {
-            if DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
-                QRDataScannerView(paused: paused) { value in guard !paused else { return }; paused = true; onValue(value) }
-            } else { ContentUnavailableView(groupText("camera_unavailable", "Camera unavailable"), systemImage: "camera", description: Text(groupText("camera_hint", "Allow camera access in Settings, or choose a photo."))) }
-        }.navigationTitle(groupText("scan", "Scan QR code"))
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) { ModalCloseButton { dismiss() } }
-                ToolbarItem(placement: .topBarTrailing) {
-                    PhotosPicker(selection: $photo, matching: .images) { Image(systemName: "photo") }
-                        .accessibilityLabel(groupText("album", "Choose photo")).accessibilityIdentifier("group_scan_photo")
-                }
-            }
     }
 }
 

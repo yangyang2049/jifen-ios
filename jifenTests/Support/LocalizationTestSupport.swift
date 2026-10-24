@@ -84,6 +84,28 @@ enum LocalizationTestSupport {
         Dictionary(uniqueKeysWithValues: try entries(relativePath: relativePath).map { ($0.key, $0.value) })
     }
 
+    struct StaticReference: Equatable {
+        let key: String
+        let tableName: String
+        let line: Int
+    }
+
+    /// tableName precedes bundle/value/comment in NSLocalizedString's signature.
+    /// Read it with the key so keys from dedicated tables never enter Localizable.
+    static func staticReferences(in source: String) throws -> [StaticReference] {
+        let pattern = #"\b(?:NSLocalizedString|localized)\s*\(\s*\"((?:\\.|[^\"\\])*)\"\s*,\s*(?:tableName\s*:\s*\"([^\"\\]*)\"\s*,)?"#
+        let regex = try NSRegularExpression(pattern: pattern)
+        return regex.matches(in: source, range: NSRange(source.startIndex..., in: source)).compactMap { match in
+            guard let keyRange = Range(match.range(at: 1), in: source),
+                  let callRange = Range(match.range, in: source) else { return nil }
+            let key = String(source[keyRange])
+            guard !key.contains(#"\("#) else { return nil }
+            let tableName = Range(match.range(at: 2), in: source).map { String(source[$0]) } ?? "Localizable"
+            return StaticReference(key: key, tableName: tableName.isEmpty ? "Localizable" : tableName,
+                                   line: source[..<callRange.lowerBound].filter { $0 == "\n" }.count + 1)
+        }
+    }
+
     static func formatTokens(in value: String) -> [String] {
         let pattern = #"%(?:%|(?:\d+\$)?[-+0 #']*(?:\d+|\*)?(?:\.\d+)?(?:hh|h|ll|l|L|z|t|j)?[@dDuUxXoOfFeEgGcCsSpaAi])"#
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return [] }

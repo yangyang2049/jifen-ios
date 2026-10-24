@@ -157,6 +157,10 @@ actor APIClient {
         configuration.timeoutIntervalForRequest = 20
         configuration.timeoutIntervalForResource = 45
         configuration.waitsForConnectivity = true
+        // Native authentication is owned by AuthTokenStore. A web login cookie
+        // can outlive account linking and takes precedence over Bearer server-side.
+        configuration.httpCookieStorage = nil
+        configuration.httpShouldSetCookies = false
         self.session = session ?? URLSession(configuration: configuration)
         self.tokenStore = tokenStore
         self.encoder = JSONEncoder()
@@ -226,6 +230,13 @@ actor APIClient {
         }
     }
 
+    /// The binding flow retains the exact bearer used to verify its ticket.
+    /// Refresh before taking this snapshot; recovery must not silently exchange
+    /// the revoked source session for unrelated credentials.
+    func accountLinkingAuthorization(expectedRevision: UInt64) async throws -> AuthSessionSnapshot {
+        try await validAuthSnapshot(expectedRevision: expectedRevision)
+    }
+
     func authSessionRevision() async -> UInt64 {
         await tokenStore.authSessionRevision()
     }
@@ -287,6 +298,11 @@ actor APIClient {
         var unauthorizedHandled = false
         while true {
             if let auth { try await ensureCurrent(auth) }
+            // Explicit credentials used by account-link confirmation still
+            // belong to the original session at the actual send boundary.
+            // Receipt recovery intentionally omits this precondition.
+            if !requiresAuth, let expectedAuthRevision,
+               await tokenStore.authSessionRevision() != expectedAuthRevision { throw CancellationError() }
             do {
                 let data = try await perform(
                     path, method: method, query: query, bodyData: bodyData, contentType: contentType,
@@ -447,6 +463,9 @@ actor APIClient {
     }
 
     nonisolated private static func applyDefaultHeaders(to request: inout URLRequest) {
+        // Also cover injected URLSessions and the pinned receipt-recovery bearer.
+        request.httpShouldHandleCookies = false
+        request.setValue(nil, forHTTPHeaderField: "Cookie")
         let info = Bundle.main.infoDictionary
         if request.value(forHTTPHeaderField: "X-Request-ID") == nil {
             request.setValue(UUID().uuidString, forHTTPHeaderField: "X-Request-ID")

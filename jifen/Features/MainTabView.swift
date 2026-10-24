@@ -2,6 +2,12 @@ import SwiftUI
 import UIKit
 
 struct MainTabView: View {
+    @Environment(SessionStore.self) private var session
+    @State private var showWechatBinding = false
+    @State private var showBindingLogin = false
+    @State private var bindingRequested = false
+    @State private var previewsWechatBindingPrompt = false
+    @State private var hasOpenedBindingPreview = false
     @State private var selectedTab = ProcessInfo.processInfo.arguments.contains("-UITestOpenTimer") ? 3 : 0
     @State private var selectedGame: GameType? = nil
     @State private var navigatingFromTab: Int? = nil
@@ -20,6 +26,25 @@ struct MainTabView: View {
             )
         }
         .tint(Theme.accentColor)
+        .sheet(isPresented: Binding(
+            get: { previewsWechatBindingPrompt || (session.presentsWechatUpgradePrompt && selectedGame == nil && groupInvitation == nil) },
+            set: { if !$0 { dismissBindingPrompt() } }
+        ), onDismiss: {
+            guard bindingRequested else { return }
+            bindingRequested = false
+            if session.isAuthenticated { showWechatBinding = true }
+            else { showBindingLogin = true }
+        }) {
+            WechatBindingPromptSheet(onBind: {
+                bindingRequested = true
+                dismissBindingPrompt()
+            }, onLater: { dismissBindingPrompt() })
+            .onAppear {
+                if !previewsWechatBindingPrompt { session.markWechatBindingPromptPresented() }
+            }
+        }
+        .sheet(isPresented: $showWechatBinding) { WechatBindingSheet() }
+        .sheet(isPresented: $showBindingLogin) { AccountLoginSheet() }
         .onChange(of: GroupPushManager.shared.destination) { _, value in if value != nil { selectedTab = 0 } }
         .onChange(of: groupReminders.destination) { _, value in if value != nil { selectedTab = 0 } }
         .onOpenURL { url in
@@ -31,10 +56,21 @@ struct MainTabView: View {
         }
         .onAppear {
             configureTabBarPresentation()
+            #if DEBUG
+            if !hasOpenedBindingPreview && ProcessInfo.processInfo.arguments.contains("-PreviewWechatBindingPrompt") {
+                hasOpenedBindingPreview = true
+                previewsWechatBindingPrompt = true
+            }
+            #endif
         }
         .onChange(of: selectedTab) { oldValue, newValue in
             configureTabBarPresentation()
         }
+    }
+
+    private func dismissBindingPrompt() {
+        previewsWechatBindingPrompt = false
+        session.presentsWechatUpgradePrompt = false
     }
 
     @ViewBuilder

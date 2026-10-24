@@ -7,6 +7,125 @@ import XCTest
 
 @MainActor
 final class CardResumeAndWinnerIdentityTests: XCTestCase {
+    func testGuandanFinishedRankEditsStayInDraftUntilOneAdministrativeCommit() throws {
+        let finished = GuandanMatchState(
+            phase: .finished,
+            redTeam: .init(name: "红队", currentRank: "A"),
+            blueTeam: .init(name: "蓝队", currentRank: "K"),
+            lastRoundWinner: .red,
+            isInAStage: true,
+            aStageTeam: .red,
+            finalWinner: .red
+        )
+        let publishedBefore = guandanLocalDisplayState(state: finished, typography: .default(font: .default), themeID: "default")
+        var draft: GuandanRankEditDraft? = .init(state: finished)
+        draft?.adjust(side: guandanLogicalSide(onScreen: .left), delta: -1)
+        draft?.adjust(side: guandanLogicalSide(onScreen: .left), delta: -1)
+        draft?.adjust(side: guandanLogicalSide(onScreen: .right), delta: 1)
+        XCTAssertEqual(draft?.redRank, "Q")
+        XCTAssertEqual(draft?.blueRank, "A")
+        XCTAssertEqual(finished.phase, .finished)
+        XCTAssertEqual(finished.finalWinner, .red)
+        XCTAssertEqual(
+            guandanLocalDisplayState(state: finished, typography: .default(font: .default), themeID: "default"),
+            publishedBefore
+        )
+
+        let intent = try XCTUnwrap(draft?.correctionIntent(currentState: finished, redName: "新红队", blueName: "蓝队"))
+        guard case .adminCorrect = intent else { return XCTFail("Editing must commit through adminCorrect") }
+        let corrected = GuandanSessionReducer().reduce(state: finished, intent: intent, at: 1).state
+        XCTAssertEqual(corrected.phase, .playing)
+        XCTAssertNil(corrected.finalWinner)
+        XCTAssertNil(corrected.aStageTeam)
+        XCTAssertEqual(corrected.redTeam.name, "新红队")
+        XCTAssertEqual(corrected.redTeam.currentRank, "Q")
+        XCTAssertEqual(corrected.blueTeam.currentRank, "A")
+        let actions = guandanDetailedActions(
+            for: intent, previousState: finished, resultingState: corrected,
+            epochMilliseconds: 1, roundNumber: 1
+        )
+        XCTAssertEqual(actions.map(\.operationCode), ["guandan_admin_corrected"])
+
+        // Abandoning an edit discards its draft; the finished source is intact.
+        draft = nil
+        XCTAssertEqual(finished.redTeam.currentRank, "A")
+        XCTAssertEqual(finished.blueTeam.currentRank, "K")
+        XCTAssertEqual(finished.phase, .finished)
+    }
+
+    func testGuandanTripleADraftTraversesAllAttemptsAndConfirmsWrap() throws {
+        let state = GuandanMatchState(
+            phase: .finished,
+            redTeam: .init(name: "红队", currentRank: "K"),
+            blueTeam: .init(name: "蓝队", currentRank: "2"),
+            lastRoundWinner: .red,
+            aStageMode: .tripleA,
+            finalWinner: .red
+        )
+        var draft = GuandanRankEditDraft(state: state)
+        for expectedRank in ["A1", "A2", "A3"] {
+            XCTAssertFalse(draft.requiresWrapConfirmation(side: .red, delta: 1))
+            draft.adjust(side: .red, delta: 1)
+            XCTAssertEqual(draft.redRank, expectedRank)
+            let intent = try XCTUnwrap(draft.correctionIntent(currentState: state, redName: "红队", blueName: "蓝队"))
+            let corrected = GuandanSessionReducer().reduce(state: state, intent: intent, at: 1).state
+            XCTAssertEqual(corrected.displayRank(for: .red), expectedRank)
+        }
+        XCTAssertTrue(draft.requiresWrapConfirmation(side: .red, delta: 1))
+        // Cancelling the wrap alert performs no adjustment.
+        XCTAssertEqual(draft.redRank, "A3")
+        draft.adjust(side: .red, delta: 1)
+        XCTAssertEqual(draft.redRank, "2")
+        draft.adjust(side: .red, delta: -1)
+        XCTAssertEqual(draft.redRank, "2")
+        XCTAssertEqual(state.redTeam.currentRank, "K")
+    }
+
+    func testGuandanUnchangedAndReplacedEditDraftsCannotReopenFinishedMatch() {
+        var state = GuandanMatchState.initial(redName: "红队", blueName: "蓝队")
+        state.phase = .finished
+        state.finalWinner = .red
+        var draft = GuandanRankEditDraft(state: state)
+        XCTAssertNil(draft.correctionIntent(currentState: state, redName: "红队", blueName: "蓝队"))
+        draft.adjust(side: .red, delta: 1)
+        draft.adjust(side: .red, delta: -1)
+        XCTAssertNil(draft.correctionIntent(currentState: state, redName: "红队", blueName: "蓝队"))
+        draft.adjust(side: .red, delta: 1)
+        var replaced = state
+        replaced.blueTeam.currentRank = "10"
+        XCTAssertNil(draft.correctionIntent(currentState: replaced, redName: "红队", blueName: "蓝队"))
+
+        var playing = state
+        playing.phase = .playing
+        playing.finalWinner = nil
+        let beforeRemoteFinish = GuandanRankEditDraft(state: playing)
+        XCTAssertNil(beforeRemoteFinish.correctionIntent(currentState: state, redName: "新红队", blueName: "蓝队"))
+    }
+
+    func testGuandanNameOnlyDraftPreservesTripleAFailureHistory() throws {
+        let state = GuandanMatchState(
+            phase: .finished,
+            redTeam: .init(name: "红队", currentRank: "A"),
+            blueTeam: .init(name: "蓝队", currentRank: "A"),
+            lastRoundWinner: .red,
+            isInAStage: true,
+            aStageTeam: .red,
+            aStageMode: .tripleA,
+            finalWinner: .red,
+            redAFailCount: 2,
+            blueAFailCount: 1
+        )
+        let draft = GuandanRankEditDraft(state: state)
+        XCTAssertEqual(draft.redRank, "A3")
+        XCTAssertEqual(draft.blueRank, "A2")
+        let intent = try XCTUnwrap(draft.correctionIntent(currentState: state, redName: "新红队", blueName: "蓝队"))
+        let corrected = GuandanSessionReducer().reduce(state: state, intent: intent, at: 1).state
+        XCTAssertEqual(corrected.redAFailCount, 2)
+        XCTAssertEqual(corrected.blueAFailCount, 1)
+        XCTAssertEqual(corrected.displayRank(for: .red), "A3")
+        XCTAssertEqual(corrected.displayRank(for: .blue), "A1")
+    }
+
     func testWinnerIdentityRoundTripsAndDualWritesCanonicalLegacyToken() throws {
         let record = makeRecord(
             gameType: .doudizhu,

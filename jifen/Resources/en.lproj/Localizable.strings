@@ -2489,8 +2489,8 @@
 
 // WeChat login
 "login_wechat" = "WeChat Login";
-"login_wechat_not_installed" = "WeChat is not installed";
-"login_wechat_request_failed" = "Unable to start WeChat login. Please try again.";
+"login_wechat_not_installed" = "WeChat is not installed. Install WeChat and try again.";
+"login_wechat_request_failed" = "Unable to start WeChat authorization. Please try again.";
 "login_wechat_cancelled" = "Login cancelled";
 "login_wechat_denied" = "WeChat authorization denied";
 "login_wechat_invalid_response" = "Invalid WeChat authorization response. Please try again.";

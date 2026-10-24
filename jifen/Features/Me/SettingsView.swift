@@ -100,11 +100,11 @@ struct SettingsView: View {
             }
             .navigationTitle(NSLocalizedString(isTabRoot ? "tab_me" : "settings", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
-            .navigationDestination(isPresented: $showQRLogin) {
+            .sheet(isPresented: $showQRLogin) {
                 QRLoginApprovalView { number in
                     // 只记录号码并关闭扫码页。跳转必须等这一页真正退出后再做：
-                    // 「pop + 切 Tab + push」落在同一帧时，新页面请求的隐藏 Tab Bar
-                    // 会被切换过程覆盖，加入页和小组页就会重新露出 Tab Bar。
+                    // 「关 Sheet + 切 Tab + push」落在同一帧时，新页面请求的隐藏
+                    // Tab Bar 会被切换过程覆盖，加入页和小组页就会重新露出 Tab Bar。
                     pendingGroupNumber = number
                     showQRLogin = false
                 }

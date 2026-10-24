@@ -94,6 +94,7 @@ struct ShotTrainingSetupDialogView: View {
             HStack(spacing: Theme.md) {
                 Button(action: { onCancel?() }) {
                     Text(NSLocalizedString("cancel", value: "取消", comment: ""))
+                        .font(.system(size: 16))
                         .foregroundStyle(Theme.textPrimary)
                         .frame(width: 100, height: 44)
                         .background(Theme.dialogControlBackground, in: Capsule())
@@ -109,7 +110,7 @@ struct ShotTrainingSetupDialogView: View {
                     ))
                 } label: {
                     Text(NSLocalizedString("start_game", value: "开始", comment: ""))
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(Theme.textOnPrimary)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)

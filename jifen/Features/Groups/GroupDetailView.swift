@@ -414,7 +414,7 @@ struct GroupDetailView: View {
         let now = Int64(Date().timeIntervalSince1970 * 1000)
         if d.group.isCoaching {
             let sessions = (d.trainingPlans ?? []).flatMap { plan in plan.sessions.filter { plan.status != "cancelled" || !($0.startedGameId ?? "").isEmpty } }
-                .filter { $0.status == "scheduled" && $0.resultId.isEmpty && (GroupPermissions.coach(d.group, member: me) || $0.mySide != nil || $0.seats.contains { $0.memberId == me?.id }) }.sorted { $0.startsAt < $1.startsAt }
+                .filter { $0.status == "scheduled" && $0.resultId.isEmpty && (GroupPermissions.coach(d.group, member: me) || $0.mySide != nil || $0.seats.contains { $0.belongs(to: me) }) }.sorted { $0.startsAt < $1.startsAt }
             if let current = sessions.first(where: { $0.startsAt <= now && $0.endsAt > now }) { overviewTraining(current, title: groupText("in_progress", "In progress")) }
             if let upcoming = sessions.first(where: { $0.startsAt > now }) { overviewTraining(upcoming, title: groupText("upcoming", "Upcoming")) }
             if let overdue = sessions.first(where: { $0.endsAt <= now }) { overviewTraining(overdue, title: NSLocalizedString("schedule_time_status_overdue", comment: "")) }
@@ -884,7 +884,7 @@ struct GroupEmptyCard: View {
     @ViewBuilder var body: some View {
         if isCard { GroupSurface { content } } else { content }
     }
-    private var content: some View { VStack(spacing: Theme.spacing) { EmptyStateCourtIcon(); Text(text).accessibilityIdentifier("group_empty_title").font(GroupTypography.body).foregroundStyle(.secondary).multilineTextAlignment(.center); if let description { Text(description).font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center) }; if let actionTitle, let action { Button(actionTitle, action: action).buttonStyle(.borderedProminent).tint(Theme.primary).foregroundStyle(Theme.textOnPrimary) } }.frame(maxWidth: .infinity).padding(.vertical, Theme.padding) }
+    private var content: some View { VStack(spacing: Theme.spacing) { EmptyStateCourtIcon(); Text(text).accessibilityIdentifier("group_empty_title").font(GroupTypography.body).foregroundStyle(.secondary).multilineTextAlignment(.center).groupLineHeight(.body); if let description { Text(description).font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center).groupLineHeight(.caption) }; if let actionTitle, let action { Button(actionTitle, action: action).buttonStyle(.borderedProminent).tint(Theme.primary).foregroundStyle(Theme.textOnPrimary) } }.frame(maxWidth: .infinity).padding(.vertical, Theme.padding) }
 }
 
 struct GroupAvatar: View {

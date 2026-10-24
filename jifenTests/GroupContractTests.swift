@@ -4,16 +4,59 @@ import PersistenceCore
 @testable import jifen
 
 @MainActor final class GroupContractTests: XCTestCase {
-    func testGroupRuleFormatNamesAcrossSupportedSports() {
+    func testGroupRuleFormatNamesAcrossSupportedSports() throws {
+        let language = Bundle.main.preferredLocalizations.first ?? "en"
+        let values = try LocalizationTestSupport.valuesByKey(
+            relativePath: "jifen/Resources/\(language).lproj/Localizable.strings")
+        let numbers = NumberFormatter()
+        numbers.locale = Locale(identifier: language)
+        numbers.numberStyle = language.hasPrefix("zh") ? .spellOut : .decimal
         for sport in GroupSport.allCases {
             var value = rules(); value.sport = sport
-            let unit = sport == .tennis ? "盘" : "局"
-            for (sets, title) in [(1, "一" + unit + "制"), (3, "三" + unit + "两胜"), (5, "五" + unit + "三胜"), (7, "七" + unit + "四胜"), (11, "十一" + unit + "六胜")] {
+            for sets in [1, 3, 5, 7, 11] {
                 value.maxSets = sets
-                XCTAssertEqual(value.formatTitle, title, "\(sport.rawValue), \(sets)")
+                let title: String
+                if sets == 1 {
+                    title = try XCTUnwrap(values[sport == .tennis ? "tennis_set_option_best_of_1" : "pingpong_set_option_best_of_1"])
+                } else {
+                    let template = try XCTUnwrap(values[sport == .tennis ? "group_best_of_tennis_format" : "group_best_of_format"])
+                    let total = try XCTUnwrap(numbers.string(from: NSNumber(value: sets)))
+                    let wins = language.hasPrefix("zh") && sets == 3
+                        ? (language.contains("Hant") ? "兩" : "两")
+                        : try XCTUnwrap(numbers.string(from: NSNumber(value: sets / 2 + 1)))
+                    title = String(format: template, total, wins)
+                }
+                XCTAssertEqual(value.formatTitle, title, "\(language), \(sport.rawValue), \(sets)")
             }
             value.maxSets = 4; value.matchCompletionMode = "play_all"
-            XCTAssertEqual(value.formatTitle, "打满4" + unit)
+            let template = try XCTUnwrap(values[sport == .tennis ? "record_format_sets_play_all_tennis" : "record_format_sets_play_all"])
+            XCTAssertEqual(value.formatTitle, String(format: template, 4), "\(language), \(sport.rawValue)")
+        }
+    }
+
+    func testChineseGroupRuleFormatResourcesKeepReviewedNames() throws {
+        for language in ["zh-Hans", "zh-Hant"] {
+            let values = try LocalizationTestSupport.valuesByKey(
+                relativePath: "jifen/Resources/\(language).lproj/Localizable.strings")
+            let two = language == "zh-Hant" ? "兩" : "两"
+            let playAll = language == "zh-Hant" ? "打滿" : "打满"
+            for sport in GroupSport.allCases {
+                let unit = sport == .tennis ? "盘" : "局"
+                let localizedUnit = language == "zh-Hant" && sport == .tennis ? "盤" : unit
+                let singleKey = sport == .tennis ? "tennis_set_option_best_of_1" : "pingpong_set_option_best_of_1"
+                XCTAssertEqual(values[singleKey], "一" + localizedUnit + "制", language)
+                let bestOf = try XCTUnwrap(values[sport == .tennis ? "group_best_of_tennis_format" : "group_best_of_format"])
+                for (total, wins, title) in [("三", two, "三" + localizedUnit + two + "胜"),
+                                             ("五", "三", "五" + localizedUnit + "三胜"),
+                                             ("七", "四", "七" + localizedUnit + "四胜"),
+                                             ("十一", "六", "十一" + localizedUnit + "六胜")] {
+                    XCTAssertEqual(String(format: bestOf, total, wins),
+                                   language == "zh-Hant" ? title.replacingOccurrences(of: "胜", with: "勝") : title,
+                                   "\(language), \(sport.rawValue)")
+                }
+                let all = try XCTUnwrap(values[sport == .tennis ? "record_format_sets_play_all_tennis" : "record_format_sets_play_all"])
+                XCTAssertEqual(String(format: all, 4), playAll + "4" + localizedUnit, language)
+            }
         }
     }
 

@@ -371,6 +371,7 @@ struct GroupNoticeEmptyState: View {
             .font(GroupTypography.body)
             .foregroundStyle(Theme.textSecondary)
             .multilineTextAlignment(.center)
+            .groupLineHeight(.body)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, Theme.lg)
             .accessibilityIdentifier(identifier)

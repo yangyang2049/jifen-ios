@@ -211,6 +211,16 @@ struct ShengjiScoreboardView: View {
                     send(.addLevels(side: side, delta: delta))
                 }
             },
+            onPanelSwipe: { isLeft, delta in
+                // 对齐其他记分板的上滑加分/下滑减分：上滑升一级、下滑降一级。
+                // 编辑态与终局由骨架的 panelSwipeGesture 统一挡住。
+                let side = shengjiLogicalSide(onScreen: isLeft ? .left : .right)
+                if delta > 0 {
+                    send(.addLevels(side: side, delta: 1))
+                } else {
+                    send(.subtractLevels(side: side, delta: 1))
+                }
+            },
             extraMenuItems: shengjiMatchClockMenuItems,
             onMenuAction: { action in
                 guard action == "toggleMatchTime" else { return }

@@ -196,6 +196,17 @@ public struct GuandanSessionReducer: DomainReducer {
         intent: GuandanSessionIntent,
         at epochMilliseconds: Int64
     ) -> ReduceResult<GuandanMatchState, GuandanSessionEvent> {
+        // 对齐八球/升级的终局保护：终局后只放行改名、管理员修正、重开与结束，
+        // 其余意图（例如云端同步来的 adjustRank）一律拒绝，避免终局后级数仍被改动。
+        // 终局后的正规修正路径是 adminCorrect——它会主动把 phase 拉回 playing。
+        if state.phase == .finished {
+            switch intent {
+            case .setRedTeamName, .setBlueTeamName, .adminCorrect, .reset, .finish:
+                break
+            default:
+                return .rejected(state: state, reason: "Match is already finished")
+            }
+        }
         switch intent {
         case .setRedTeamName(let name):
             var next = state
@@ -211,11 +222,13 @@ public struct GuandanSessionReducer: DomainReducer {
             var next = state
             if !redName.isEmpty { next.redTeam.name = redName }
             if !blueName.isEmpty { next.blueTeam.name = blueName }
-            if guandanRankOrder.contains(redRank) { next.redTeam.currentRank = redRank }
-            if guandanRankOrder.contains(blueRank) { next.blueTeam.currentRank = blueRank }
+            next = correctRank(state: next, side: .red, rank: redRank)
+            next = correctRank(state: next, side: .blue, rank: blueRank)
             next.phase = .playing
             next.finalWinner = nil
-            return .init(state: next)
+            next.roundWinner = nil
+            next.roundUpgrade = nil
+            return .init(state: withCurrentAStage(next, side: currentAStageTeam(state: next)))
         case .reset:
             var next = GuandanMatchState.initial(
                 redName: state.redTeam.name,
@@ -437,6 +450,25 @@ public struct GuandanSessionReducer: DomainReducer {
         if state.lastRoundWinner == .red && state.redTeam.currentRank == "A" { return .red }
         if state.lastRoundWinner == .blue && state.blueTeam.currentRank == "A" { return .blue }
         return nil
+    }
+
+    /// Administrative A1/A2/A3 input selects the next attempt, represented by
+    /// zero/one/two failed attempts. Main-board displayRank still distinguishes
+    /// the current round winner from the team showing its previous attempt.
+    private func correctRank(state: GuandanMatchState, side: GuandanSide, rank: String) -> GuandanMatchState {
+        let explicitAttempt = state.aStageMode == .tripleA
+            ? ["A1": 1, "A2": 2, "A3": 3][rank]
+            : nil
+        let baseRank = explicitAttempt == nil ? rank : "A"
+        guard guandanRankOrder.contains(baseRank) else { return state }
+        let previousRank = team(state, side).currentRank
+        var next = withTeam(state, side: side, team: .init(name: team(state, side).name, currentRank: baseRank))
+        if let attempt = explicitAttempt {
+            next = withFailCount(next, side: side, value: attempt - 1)
+        } else if baseRank != "A" || previousRank != "A" {
+            next = withFailCount(next, side: side, value: 0)
+        }
+        return next
     }
 
     private func adjustRank(state: GuandanMatchState, side: GuandanSide, delta: Int) -> GuandanMatchState {

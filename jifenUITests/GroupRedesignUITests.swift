@@ -157,7 +157,7 @@ final class GroupRedesignUITests: XCTestCase {
 
     private func openGuestJoin(_ extra: [String] = []) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestSportsVoiceMissing", "-UITestGroupsFixture", "-UITestGroupJoinAuth", "-national_day_2026_10_autopopup_count", "99"] + extra
+        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestSportsVoiceMissing", "-UITestGroupsFixture", "-UITestGroupJoinAuth", "-UITestShowPasswordLogin", "-national_day_2026_10_autopopup_count", "99"] + extra
         app.launch()
         XCTAssertTrue(app.buttons["group_join"].waitForExistence(timeout: 15))
         app.buttons["group_join"].tap()

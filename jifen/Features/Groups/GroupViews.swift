@@ -309,7 +309,7 @@ extension View { func groupAdaptiveOrientation() -> some View { modifier(GroupAd
 
 struct GroupNotice: View {
     var text: String
-    var body: some View { Text(text).font(GroupTypography.body).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true).accessibilityIdentifier("group_notice") }
+    var body: some View { Text(text).font(GroupTypography.body).foregroundStyle(.secondary).groupLineHeight(.body).fixedSize(horizontal: false, vertical: true).accessibilityIdentifier("group_notice") }
 }
 
 struct GroupCreateView: View {

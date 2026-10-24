@@ -58,11 +58,15 @@ final class SessionStore {
     private(set) var user: AppUser?
     private(set) var isWorking = false
     var lastError: String?
+    private(set) var wechatBindingStatus: WechatBindingStatus?
+    var presentsWechatUpgradePrompt = false
+    private let bindingPrompt: WechatBindingUpgradePrompt
 
     private let client: APIClient
     private let tokenStore: AuthTokenStore
     private let appleProvider: any AccountIdentityProviding
     private let postAuthenticationWarmup: (@MainActor (String?) async -> Void)?
+    private let postAccountLinkCleanup: (@MainActor (String) async -> Void)?
     private var didRestore = false
     /// 两步补偿：图片已传成功但 PATCH profile 失败时记住 URL，下次上传先补 PATCH，不重复传图。
     private var pendingAvatarURL: String?
@@ -78,12 +82,16 @@ final class SessionStore {
         client: APIClient = .shared,
         tokenStore: AuthTokenStore = .shared,
         appleProvider: (any AccountIdentityProviding)? = nil,
-        postAuthenticationWarmup: (@MainActor (String?) async -> Void)? = nil
+        postAuthenticationWarmup: (@MainActor (String?) async -> Void)? = nil,
+        postAccountLinkCleanup: (@MainActor (String) async -> Void)? = nil,
+        defaults: UserDefaults = .standard
     ) {
         self.client = client
         self.tokenStore = tokenStore
         self.appleProvider = appleProvider ?? ProductionAppleAuthProvider(client: client)
         self.postAuthenticationWarmup = postAuthenticationWarmup
+        self.postAccountLinkCleanup = postAccountLinkCleanup
+        self.bindingPrompt = WechatBindingUpgradePrompt(defaults: defaults)
         sessionExpiredObserver = NotificationCenter.default.addObserver(
             forName: .apiSessionExpired,
             object: nil,
@@ -91,11 +99,19 @@ final class SessionStore {
         ) { [weak self] notification in
             let revision = (notification.userInfo?["authSessionRevision"] as? UInt64)
                 ?? (notification.userInfo?["authSessionRevision"] as? NSNumber)?.uint64Value
-            Task { @MainActor in await self?.expireSession(expectedAuthRevision: revision) }
+            Task { @MainActor in
+                guard let self else { return }
+                await self.expireSession(expectedAuthRevision: revision)
+            }
         }
     }
 
     var isAuthenticated: Bool { state == .authenticated && user != nil }
+
+    /// Only this flow's source session may await a confirmation receipt after
+    /// atomic token expiry. A replacement session keeps normal expiry handling.
+    private var wechatBindingContext: WechatBindingSessionContext?
+    var isWechatBindingSessionActive: Bool { wechatBindingContext != nil }
 
     /// 生效中的会员状态：服务端账号会员，或未登录时本机 Apple ID 的 StoreKit 权益
     /// （Guideline 5.1.1(v)：购买与权益不强制要求登录账号）。
@@ -123,6 +139,10 @@ final class SessionStore {
             if ProcessInfo.processInfo.arguments.contains("-UITestFakeSessionReview") {
                 stub.avatarVisibility = "OWNER_PREVIEW"
             }
+            if WechatBindingFixture.enabled {
+                stub.uid = "10482"; stub.name = "杨同学"
+                wechatBindingStatus = WechatBindingFixture.status
+            }
             user = stub
             state = .authenticated
             uiTestFakeSessionActive = true
@@ -144,6 +164,8 @@ final class SessionStore {
             user = profile
             state = .authenticated
             lastError = nil
+            await reloadWechatBindingStatus()
+            try await ensureSession(revision: snapshot.revision, generation: generation)
             await runPostAuthenticationWarmup(userId: user?.id)
         } catch {
             if error is CancellationError || generation != sessionGeneration { return }
@@ -372,7 +394,11 @@ final class SessionStore {
     }
 
     func logout() async {
+        wechatBindingContext = nil
+        isWorking = false
         GroupPushManager.shared.sessionDidChange(userID: nil)
+        presentsWechatUpgradePrompt = false
+        wechatBindingStatus = nil
         sessionGeneration &+= 1
         let generation = sessionGeneration
         let revision = await tokenStore.authSessionRevision()
@@ -407,10 +433,19 @@ final class SessionStore {
         // Read revision/token together and never clear a newer login from a delayed callback.
         guard snapshot.token == nil, user?.id == expectedUserID,
               expectedAuthRevision == nil || snapshot.revision == expectedAuthRevision else { return }
+        if let context = wechatBindingContext,
+           context.generation == sessionGeneration, user?.id == context.accountID,
+           snapshot.revision == context.authRevision &+ 1 {
+            // Keep the flow available for confirm/recover. Closing without a
+            // replacement rechecks this expiry instead of silently losing it.
+            return
+        }
         pendingAvatarURL = nil
         lastProfileReloadAt = nil
         user = nil
         state = .signedOut
+        wechatBindingStatus = nil
+        presentsWechatUpgradePrompt = false
         lastError = APIClientError.sessionExpired.localizedDescription
         // 凭证已失效（401），本地直接断开云端同步 WebSocket，不再发送 LEAVE。
         CloudSyncSession.shared.endFromServer()
@@ -447,14 +482,135 @@ final class SessionStore {
         }
     }
 
+    #if DEBUG
+    func installWechatBindingFixture(masterUserID: String) {
+        guard WechatBindingFixture.enabled, uiTestFakeSessionActive else { return }
+        let account = masterUserID == WechatBindingFixture.accounts.current.id
+            ? WechatBindingFixture.accounts.current : WechatBindingFixture.accounts.wechat
+        user?.id = account.id
+        user?.uid = account.uid
+        user?.name = account.name
+        var status = WechatBindingFixture.status
+        status.providers = ["apple", "wechat"]
+        status.wechat = .init(bound: true, canBind: false)
+        wechatBindingStatus = status
+    }
+    #endif
+
+    func reloadWechatBindingStatus() async {
+        guard isAuthenticated else { wechatBindingStatus = nil; return }
+        #if DEBUG
+        if uiTestFakeSessionActive { return }
+        #endif
+        let generation = sessionGeneration
+        let revision = await tokenStore.authSessionRevision()
+        do {
+            let status = try await WechatBindingService(client: client).status(expectedAuthRevision: revision)
+            try await ensureSession(revision: revision, generation: generation)
+            wechatBindingStatus = status
+            if bindingPrompt.offer(status: status) { presentsWechatUpgradePrompt = true }
+        } catch {
+            guard generation == sessionGeneration else { return }
+            // An unavailable/new endpoint must not prevent launch, login or profile use.
+            wechatBindingStatus = nil
+        }
+    }
+
+    func markWechatBindingPromptPresented() {
+        bindingPrompt.markPresented()
+    }
+
+    func beginWechatBinding() async throws -> WechatBindingSessionContext {
+        guard isAuthenticated, let accountID = user?.id, !isWorking else { throw CancellationError() }
+        isWorking = true
+        presentsWechatUpgradePrompt = false
+        let generation = sessionGeneration
+        let revision = await tokenStore.authSessionRevision()
+        do {
+            try await ensureSession(revision: revision, generation: generation)
+            guard user?.id == accountID else { throw CancellationError() }
+            let context = WechatBindingSessionContext(accountID: accountID, authRevision: revision, generation: generation)
+            wechatBindingContext = context
+            return context
+        } catch {
+            if generation == sessionGeneration { isWorking = false }
+            throw error
+        }
+    }
+
+    func validateWechatBinding(_ context: WechatBindingSessionContext) async throws {
+        guard wechatBindingContext == context else { throw CancellationError() }
+        try await ensureSession(revision: context.authRevision, generation: context.generation)
+        guard wechatBindingContext == context, isAuthenticated, user?.id == context.accountID else { throw CancellationError() }
+    }
+
+    func updateWechatBinding(_ status: WechatBindingStatus, context: WechatBindingSessionContext) async throws {
+        try await validateWechatBinding(context)
+        wechatBindingStatus = status
+    }
+
+    func endWechatBinding(_ context: WechatBindingSessionContext) async {
+        guard wechatBindingContext == context else { return }
+        wechatBindingContext = nil
+        guard context.generation == sessionGeneration else { return }
+        isWorking = false
+        await expireSession(expectedAuthRevision: context.authRevision &+ 1)
+    }
+
+    /// The merge response is the only path that can replace the current login.
+    /// A delayed response can never overwrite a later manual login or logout.
+    func applyLinkedAccount(_ response: AuthResponse, bindings: WechatBindingStatus,
+                            context: WechatBindingSessionContext) async throws {
+        guard wechatBindingContext == context, context.generation == sessionGeneration,
+              let expiry = APIDateParser.date(from: response.expiresAt) else { throw CancellationError() }
+        let snapshot = await tokenStore.authSnapshot()
+        guard wechatBindingContext == context, context.generation == sessionGeneration else { throw CancellationError() }
+        let stillOriginal = snapshot.revision == context.authRevision && user?.id == context.accountID
+        let expiredOriginal = snapshot.token == nil && snapshot.revision == context.authRevision &+ 1
+            && user?.id == context.accountID
+        guard stillOriginal || expiredOriginal else { throw CancellationError() }
+        guard try await tokenStore.setLinkedAuth(token: response.token, expiresAt: expiry,
+                                                replacingSourceRevision: context.authRevision),
+              context.generation == sessionGeneration else { throw CancellationError() }
+        sessionGeneration &+= 1
+        wechatBindingContext = nil
+        let linkedGeneration = sessionGeneration
+        // Keep authentication changes serialized until the new cloud baseline is
+        // installed. Logout/expiry can still interrupt and must cancel the warmup.
+        isWorking = true
+        defer { if sessionGeneration == linkedGeneration { isWorking = false } }
+        pendingAvatarURL = nil
+        lastProfileReloadAt = nil
+        user = response.user
+        state = .authenticated
+        wechatBindingStatus = bindings
+        lastError = nil
+        // Invalidate even when the chosen account ID is unchanged: roles and
+        // historical member aliases have changed underneath the cached pages.
+        CloudSyncSession.shared.end(reason: "account_linked")
+        GroupStore.shared.sessionDidChange(userID: nil)
+        if let postAccountLinkCleanup {
+            await postAccountLinkCleanup(response.user.id)
+        } else {
+            try await CommonDataCloudSyncManager.shared.completeAccountLink(userID: response.user.id, context: context)
+        }
+        guard sessionGeneration == linkedGeneration, isAuthenticated,
+              user?.id == response.user.id else { throw CancellationError() }
+        await runPostAuthenticationWarmup(userId: response.user.id)
+        guard sessionGeneration == linkedGeneration, isAuthenticated,
+              user?.id == response.user.id else { throw CancellationError() }
+    }
+
     private func performAuth(method: String, _ operation: () async throws -> AuthResponse) async {
         guard !isWorking else { return }
+        presentsWechatUpgradePrompt = false
+        wechatBindingStatus = nil
         let interruptedRestore = state == .restoring
         isWorking = true
         sessionGeneration &+= 1
         let generation = sessionGeneration
         lastError = nil
-        defer { isWorking = false }
+        defer { if generation == sessionGeneration { isWorking = false } }
         let revision = await tokenStore.authSessionRevision()
         do {
             guard generation == sessionGeneration else { throw CancellationError() }
@@ -476,7 +632,10 @@ final class SessionStore {
             #if DEBUG
             print("[AccountAuth] local session authenticated")
             #endif
+            await reloadWechatBindingStatus()
+            try await ensureSession(revision: revision &+ 1, generation: generation)
             await runPostAuthenticationWarmup(userId: response.user.id)
+            try await ensureSession(revision: revision &+ 1, generation: generation)
             AppAnalytics.trackLoginSuccess(method: method)
         } catch {
             guard generation == sessionGeneration else { return }
@@ -538,9 +697,10 @@ final class SessionStore {
 
     private func handle(_ error: Error) async {
         guard !(error is CancellationError) else { return }
-        lastError = error.localizedDescription
         if error as? APIClientError == .sessionExpired {
             await expireSession()
+        } else {
+            lastError = error.localizedDescription
         }
     }
 

@@ -311,6 +311,7 @@ struct ShotTrainingScoreboardView: View {
         .onTapGesture {
             record(points: mode.fixedPoints ?? 1, made: made)
         }
+        .simultaneousGesture(zoneSwipeGesture(points: mode.fixedPoints ?? 1, made: made))
     }
 
     /// 自由模式一侧：横屏 1/2/3 三列、竖屏 1/2/3 三行，整侧共用红/绿底色，格间 1vp 分隔线。
@@ -384,6 +385,7 @@ struct ShotTrainingScoreboardView: View {
         .onTapGesture {
             record(points: points, made: made)
         }
+        .simultaneousGesture(zoneSwipeGesture(points: points, made: made))
     }
 
     /// 与鸿蒙/手表端一致：自由模式入场 2 秒内半透明覆盖两侧分区含义，提示层不拦截整格点击。
@@ -584,6 +586,21 @@ struct ShotTrainingScoreboardView: View {
 
     // MARK: - Scoring actions
 
+    /// 分区手势，对齐其他记分板的上滑加分/下滑减分（scoreboardPanelSwipeGestures）：
+    /// 上滑记一次出手（等同点按），下滑撤销该分区最近一次出手。
+    private func zoneSwipeGesture(points: @autoclosure @escaping () -> Int, made: Bool) -> some Gesture {
+        DragGesture(minimumDistance: 50)
+            .onEnded { value in
+                guard abs(value.translation.height) > 50,
+                      abs(value.translation.width) < 50 else { return }
+                if value.translation.height < 0 {
+                    record(points: points(), made: made)
+                } else {
+                    undoLastShot(made: made, points: points())
+                }
+            }
+    }
+
     private func record(points: Int, made: Bool) {
         guard !gameFinished else { return }
         hideEntrySidePrompt()
@@ -594,11 +611,14 @@ struct ShotTrainingScoreboardView: View {
     }
 
     /// - Parameter made: 显示端只撤销指定一侧的最近一次出手；页面自身（菜单 / 左滑）撤销全局最后一次。
-    private func undoLastShot(made: Bool? = nil) {
+    /// - Parameter points: 分区下滑撤销用：指定分值时只撤销该侧该分值的最近一次出手。
+    private func undoLastShot(made: Bool? = nil, points: Int? = nil) {
         guard !gameFinished else { return }
         let index: Int?
-        if let made {
-            index = shots.lastIndex { $0.made == made }
+        if made != nil || points != nil {
+            index = shots.lastIndex { shot in
+                (made == nil || shot.made == made) && (points == nil || shot.points == points)
+            }
         } else {
             index = shots.isEmpty ? nil : shots.count - 1
         }

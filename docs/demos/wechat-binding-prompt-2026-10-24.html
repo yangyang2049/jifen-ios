@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>绑定微信提示 · Bottom Sheet</title>
+<style>
+:root{color-scheme:light;--page:#f2f2f7;--surface:#fff;--text:#16181c;--secondary:#777980;--control:#f2f2f7;--green:#4caf50;--line:#e7e7eb}
+*{box-sizing:border-box}body{margin:0;background:#e8e9ed;color:var(--text);font:15px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}button,select{font:inherit;cursor:pointer}main{max-width:940px;margin:30px auto;padding:0 20px;display:grid;grid-template-columns:1fr 375px;gap:44px;align-items:start}h1{font-size:25px;line-height:1.4;margin:0 0 14px}p{line-height:1.8;color:var(--secondary)}.controls{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0}button,select{border:1px solid var(--line);border-radius:10px;background:white;padding:9px 12px;color:var(--text)}.rules{font-size:14px;line-height:2.1;padding-left:20px}.status{padding:14px;background:white;border-radius:12px;line-height:1.7;font-size:13px}.phone{height:748px;border:8px solid #22252b;border-radius:42px;overflow:hidden;background:var(--page);position:relative;box-shadow:0 20px 55px #18203322}.time{height:54px;padding:16px 24px;font-weight:600}.home{padding:25px 20px}.home h2{font-size:27px;margin:0 0 8px}.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:25px}.card{height:95px;background:var(--surface);border-radius:18px;padding:22px 15px;color:var(--secondary)}.mask{position:absolute;inset:0;background:#0005;display:flex;align-items:flex-end}.mask[hidden]{display:none}.sheet{background:var(--surface);width:100%;border-radius:28px 28px 0 0;padding:10px 24px 28px;box-shadow:0 -8px 35px #0001}.grabber{width:36px;height:5px;background:#d1d1d6;border-radius:8px;margin:0 auto 24px}.hero{display:flex;flex-direction:column;gap:16px;align-items:center}.hero img{width:52px;height:52px;flex-shrink:0}.hero h3{font-size:22px;line-height:1.4;font-weight:600;margin:0;text-align:center;white-space:pre-line}.copy{font-size:16px;line-height:1.65;margin:20px 0 26px;text-align:center}.sheet button{display:block;width:100%;border:0;border-radius:25px;height:48px;padding:0;font-size:16px}.primary{background:var(--green);color:white;font-weight:500}.secondary{background:var(--control);color:var(--text);margin-top:16px}.bottom{height:5px;width:120px;border-radius:5px;background:var(--text);margin:16px auto -17px}.dark{--page:#111114;--surface:#242427;--text:#f4f4f5;--secondary:#aaaab1;--control:#39393d;--line:#38383c}.dark .phone{border-color:#44464c}.dark .status,.dark button,.dark select{background:var(--surface)}.dark .primary{background:var(--green)}.dark .secondary{background:var(--control)}.dark .grabber{background:#606068}@media(max-width:720px){main{grid-template-columns:1fr;justify-items:center;gap:24px}.intro{max-width:420px}.phone{width:375px;max-width:100%}}
+</style>
+<main>
+<section class="intro">
+  <h1>绑定微信提示<br>Bottom Sheet</h1>
+  <p>沿用已有绑定文案与主题绿色；提醒只说明跨设备登录，不直接发起微信授权。</p>
+  <div class="controls">
+    <select id="lang" aria-label="语言"><option value="sc">简体中文</option><option value="tc">繁體中文</option></select>
+    <button id="theme">深色模式</button><button id="preview">强制预览一次</button><button id="auto">模拟符合条件</button><button id="reset">重置演示记录</button>
+  </div>
+  <ul class="rules"><li>Apple 已登录，且尚未绑定微信。</li><li>按简体／繁体中文判断，不检测用户所在地。</li><li>全局持久记录，整个应用生命周期自动弹一次。</li><li>稍后再说、下滑关闭或进入绑定后，都不再自动弹。</li><li>强制预览不写入正式展示记录。</li></ul>
+  <div class="status" id="status" aria-live="polite"></div>
+</section>
+<section class="phone" aria-label="手机预览">
+  <div class="time">9:41</div><div class="home"><h2 id="app">全能计分器</h2><p id="greeting">今天，来一场比赛</p><div class="cards"><div class="card">羽毛球</div><div class="card">乒乓球</div><div class="card">篮球</div><div class="card">网球</div></div></div>
+  <div class="mask" id="mask"><section class="sheet" role="dialog" aria-labelledby="title" aria-modal="true"><div class="grabber"></div><div class="hero"><img src="../../jifen/Assets.xcassets/WechatLogo.imageset/wechat_logo.svg" alt=""><h3 id="title"></h3></div><p class="copy" id="body"></p><button class="primary" id="bind"></button><button class="secondary" id="later"></button><div class="bottom"></div></section></div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id),key='wechat-binding-demo-lifetime-shown';let preview=true;
+const copy={sc:{title:'绑定微信，换设备也能继续用',body:'绑定后，可在安卓、鸿蒙和网页端用微信登录同一账号，继续使用会员、小组和常用数据。',bind:'立即绑定',later:'稍后再说'},tc:{title:'綁定微信，換裝置也能繼續用',body:'綁定後，可在安卓、鴻蒙和網頁端用微信登入同一帳號，繼續使用會員、小組和常用資料。',bind:'立即綁定',later:'稍後再說'}};
+function message(text){$('status').textContent=text}function render(){const t=copy[$('lang').value];for(const id of ['title','body','bind','later'])$(id).textContent=id==='title'?t[id].replace('，','，\n'):t[id]}
+function show(force){preview=force;if(!force&&localStorage.getItem(key)){message('已展示过：符合条件也不重复弹出。资料页绑定入口仍保留。');return}if(!force)localStorage.setItem(key,'1');$('mask').hidden=false;message(force?'当前为强制预览，不消耗自动提示次数。':'本次为首次自动展示，已记录；重新打开页面或再次模拟都不会重复弹。')}
+function close(bind){$('mask').hidden=true;message(bind?'下一步打开绑定流程的 Sheet；这里仅预览，不发起真实授权。':preview?'预览已关闭，自动提示记录未改变。':'已关闭，后续不再自动弹出。可从个人资料页主动绑定。')}
+$('lang').onchange=render;$('theme').onclick=()=>{document.body.classList.toggle('dark');$('theme').textContent=document.body.classList.contains('dark')?'浅色模式':'深色模式'};$('preview').onclick=()=>show(true);$('auto').onclick=()=>show(false);$('reset').onclick=()=>{localStorage.removeItem(key);message('演示记录已重置。可点击“模拟符合条件”验证只弹一次。')};$('bind').onclick=()=>close(true);$('later').onclick=()=>close(false);$('mask').onclick=e=>{if(e.target===$('mask'))close(false)};render();show(true);
+</script>
+</html>

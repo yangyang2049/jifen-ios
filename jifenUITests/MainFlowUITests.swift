@@ -1,6 +1,122 @@
 import UIKit
 import XCTest
 
+@MainActor
+final class WechatBindingPromptUITests: XCTestCase {
+    override func setUpWithError() throws { continueAfterFailure = false }
+
+    func testBindingButtonInSignedOutPreviewOpensLoginAfterPromptCloses() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-PreviewWechatBindingPrompt",
+            "-national_day_2026_last_shown_at", String(Date().timeIntervalSince1970)]
+        app.launch()
+        defer { app.terminate() }
+        let bind = app.buttons["wechat_binding_prompt_bind"]
+        XCTAssertTrue(bind.waitForExistence(timeout: 12))
+        bind.tap()
+        XCTAssertTrue(app.staticTexts["wechat_binding_prompt_title"].waitForNonExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["account_login_wechat"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.alerts.firstMatch.exists)
+    }
+
+    func testCenteredPromptAndDismissalInSimplifiedAndTraditionalChinese() {
+        for (language, title, later) in [
+            ("zh-Hans", "绑定微信，\n换设备也能继续用", "稍后再说"),
+            ("zh-Hant", "綁定微信，\n換裝置也能繼續用", "稍後再說")
+        ] {
+            let app = XCUIApplication()
+            app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleLocale", "zh_CN",
+                "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-PreviewWechatBindingPrompt",
+                "-national_day_2026_last_shown_at", String(Date().timeIntervalSince1970)]
+            app.launch()
+            let heading = app.staticTexts["wechat_binding_prompt_title"]
+            XCTAssertTrue(heading.waitForExistence(timeout: 12))
+            XCTAssertEqual(heading.label, title)
+            let bind = app.buttons["wechat_binding_prompt_bind"]
+            let dismiss = app.buttons["wechat_binding_prompt_later"]
+            XCTAssertTrue(bind.isHittable)
+            XCTAssertTrue(dismiss.isHittable)
+            XCTAssertEqual(dismiss.label, later)
+            XCTAssertLessThan(abs(heading.frame.midX - bind.frame.midX), 2)
+            let image = XCTAttachment(screenshot: app.screenshot())
+            image.name = "wechat-binding-prompt-\(language)"
+            image.lifetime = .keepAlways
+            add(image)
+            dismiss.tap()
+            XCTAssertTrue(heading.waitForNonExistence(timeout: 5))
+            XCTAssertFalse(app.alerts.firstMatch.exists)
+            XCTAssertTrue(app.tabBars.firstMatch.exists)
+            app.terminate()
+        }
+    }
+}
+
+@MainActor
+final class WechatLoginEntryUITests: XCTestCase {
+    override func setUpWithError() throws {
+        continueAfterFailure = false
+        guard ProcessInfo.processInfo.environment["SIMULATOR_DEVICE_NAME"] != nil else {
+            throw XCTSkip("These entry checks require a simulator without WeChat installed.")
+        }
+    }
+
+    private func openLogin() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints",
+            "-national_day_2026_last_shown_at", String(Date().timeIntervalSince1970)
+        ]
+        app.launch()
+        let me = app.tabBars.buttons["我的"]
+        XCTAssertTrue(me.waitForExistence(timeout: 12))
+        me.tap()
+        let account = app.descendants(matching: .any)["settings_account_entry"].firstMatch
+        XCTAssertTrue(account.waitForExistence(timeout: 5))
+        account.tap()
+        XCTAssertTrue(app.buttons["account_login_apple"].waitForExistence(timeout: 5))
+        return app
+    }
+
+    func testWechatEntryRemainsVisibleWithoutInstallationAndFailsImmediately() {
+        let app = openLogin()
+        defer { app.terminate() }
+        let wechat = app.buttons["account_login_wechat"]
+        XCTAssertTrue(wechat.exists, "The entry must not disappear when WeChat is absent.")
+        wechat.tap()
+        let notice = app.alerts.firstMatch
+        XCTAssertTrue(notice.waitForExistence(timeout: 3))
+        XCTAssertTrue(notice.staticTexts["未安装微信，请安装微信后重试"].exists)
+        notice.buttons.firstMatch.tap()
+        XCTAssertTrue(wechat.isEnabled)
+        XCTAssertTrue(app.buttons["account_login_apple"].isEnabled,
+                      "A missing app must not leave authorization pending.")
+    }
+
+    func testAgreementReminderDoesNotAcceptTermsOrAutomaticallyStartLogin() {
+        let app = openLogin()
+        defer { app.terminate() }
+        let agreement = app.buttons["account_login_agreement"]
+        XCTAssertEqual(agreement.value as? String, "0")
+        // Apple and WeChat share requireAgreement(); avoid an external SDK on the simulator.
+        let apple = app.buttons["account_login_apple"]
+        for _ in 0..<2 {
+            apple.tap()
+            let notice = app.alerts.firstMatch
+            XCTAssertTrue(notice.waitForExistence(timeout: 3))
+            XCTAssertTrue(notice.staticTexts["请先阅读并同意用户协议和隐私政策"].exists)
+            notice.buttons.firstMatch.tap()
+            XCTAssertEqual(agreement.value as? String, "0")
+            XCTAssertTrue(apple.isEnabled)
+        }
+        agreement.tap()
+        XCTAssertEqual(agreement.value as? String, "1")
+        XCTAssertFalse(app.alerts.firstMatch.exists)
+        XCTAssertTrue(apple.isEnabled, "Checking the box must wait for another explicit login tap.")
+    }
+}
+
 final class MainFlowUITests: XCTestCase {
     private let tabNames = ["Home", "Records", "Score", "Timer", "Me"]
     private let destructiveKeywords = [

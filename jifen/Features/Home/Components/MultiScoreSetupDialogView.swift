@@ -368,8 +368,7 @@ struct MultiScoreSetupDialogView: View {
     private var guandanSettingsSection: some View {
         VStack(alignment: .leading, spacing: Theme.sm) {
             Text(NSLocalizedString("guandan_pass_a_condition_section", value: "过 A 条件", comment: ""))
-                .font(.system(size: 12))
-                .foregroundStyle(Theme.textSecondary)
+                .settingsLabelStyle()
 
             HStack(spacing: 8) {
                 guandanPassChip(
@@ -391,8 +390,7 @@ struct MultiScoreSetupDialogView: View {
 
             if guandanTripleA {
                 Text(NSLocalizedString("guandan_triple_a_fallback_section", value: "三 A 不过回退到", comment: ""))
-                    .font(.system(size: 12))
-                    .foregroundStyle(Theme.textSecondary)
+                    .settingsLabelStyle()
                 LazyVGrid(
                     columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4),
                     spacing: 8
@@ -434,9 +432,7 @@ struct MultiScoreSetupDialogView: View {
     private var unoTargetScoreSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(NSLocalizedString("uno_target_score", value: "目标分", comment: ""))
-                .font(.system(size: 12))
-                .foregroundStyle(Theme.textSecondary)
-                .frame(maxWidth: .infinity, alignment: .center)
+                .settingsLabelStyle()
             SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
                 ForEach(UnoTargetScorePolicy.presets, id: \.self) { score in
                     let isSelected = !unoCustomTargetSelected && unoTargetScore == score

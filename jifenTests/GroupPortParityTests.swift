@@ -111,6 +111,39 @@ import UIKit
         XCTAssertEqual(GroupQRPayload.parse("123456"), "123456")
         XCTAssertNil(GroupQRPayload.parse("{\"type\":\"JIFEN_GROUP\",\"v\":2,\"groupNo\":\"123456\"}"))
     }
+    func testGroupAlbumQRSelectionSkipsUnrelatedAndLoginCodes() throws {
+        let invitation = GroupQRPayload.encode("123456", regionCode: "CN", localization: "zh-Hans")
+        let login = "https://jifenqi.com/auth/qr#sid=session_12345&st=qrl_scan_" + String(repeating: "a", count: 43)
+        let selected = try XCTUnwrap(QRPhotoDecoder.preferredCandidate(
+            from: ["https://example.com/advertisement", login, invitation],
+            matching: { GroupQRPayload.parse($0) != nil }
+        ))
+        XCTAssertEqual(GroupQRPayload.parse(selected), "123456")
+    }
+    func testMeAlbumQRSelectionAcceptsFirstSupportedInvitationOrLogin() throws {
+        let invitation = GroupQRPayload.encode("123456", regionCode: "CN", localization: "zh-Hans")
+        let login = "https://jifenqi.com/auth/qr#sid=session_12345&st=qrl_scan_" + String(repeating: "a", count: 43)
+        for supported in [[login, invitation], [invitation, login]] {
+            let selected = try XCTUnwrap(QRPhotoDecoder.preferredCandidate(
+                from: ["https://example.com/advertisement"] + supported,
+                matching: { (try? MeQRPayload.parse($0)) != nil }
+            ))
+            XCTAssertEqual(selected, supported.first)
+            XCTAssertNoThrow(try MeQRPayload.parse(selected))
+        }
+    }
+    func testAlbumQRSelectionKeepsOriginalErrorWhenNoCodeIsSupported() throws {
+        let expired = "{\"type\":\"AUTH_QR_LOGIN\",\"version\":1,\"sessionId\":\"session_12345\",\"scanToken\":\"qrl_scan_" + String(repeating: "a", count: 43) + "\",\"expiresAt\":1}"
+        let selected = try XCTUnwrap(QRPhotoDecoder.preferredCandidate(
+            from: [expired, "https://example.com/advertisement"],
+            matching: { (try? MeQRPayload.parse($0)) != nil }
+        ))
+        XCTAssertEqual(selected, expired)
+        XCTAssertThrowsError(try MeQRPayload.parse(selected)) { error in
+            guard case QRLoginError.expired = error else { return XCTFail("Expected the original expiration error, received \(error)") }
+        }
+        XCTAssertNil(QRPhotoDecoder.preferredCandidate(from: [], matching: { _ in true }))
+    }
     func testSpectatorSubmissionCanBeConfirmedByParticipant() {
         XCTAssertTrue(GroupPermissions.confirmation(result(submitter: "spectator"), group: group(), me: member("a")).allowed)
         XCTAssertFalse(GroupPermissions.confirmation(result(submitter: "spectator"), group: group(), me: member("other")).allowed)
@@ -1566,7 +1599,9 @@ extension GroupPortParityTests {
             for fill in [Theme.primary, Theme.primaryDark, Theme.toolWhistleRed, Color.black, Color.white] {
                 let background = UIColor(fill).resolvedColor(with: traits)
                 let foreground = UIColor(Theme.actionForeground(on: fill)).resolvedColor(with: traits)
-                if appearance == .light && (fill == Theme.primary || fill == Theme.primaryDark) {
+                // Solid red labels follow the existing cross-platform white
+                // action-label policy, just like light-theme green labels.
+                if fill == Theme.toolWhistleRed || (appearance == .light && (fill == Theme.primary || fill == Theme.primaryDark)) {
                     assertRGBAEqual(foreground, UIColor.white)
                 } else {
                     let a = luminance(background), b = luminance(foreground)

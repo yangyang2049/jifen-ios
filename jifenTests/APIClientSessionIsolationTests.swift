@@ -102,7 +102,62 @@ private nonisolated final class DelayedAuthURLProtocol: URLProtocol, @unchecked 
         await store.clearAuth()
     }
     func testDelayedRefreshSuccessCannotOverwriteNewAccount() async throws { try await delayedRefresh(status: 200) }
+    func testNativeRequestsAndRefreshIgnoreRevokedLoginCookies() async throws {
+        let id = UUID().uuidString
+        let store = AuthTokenStore(service: "com.douhua.jifen.cookie-tests." + id)
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [DelayedAuthURLProtocol.self]
+        let cookies = try XCTUnwrap(config.httpCookieStorage)
+        let staleCookie = try XCTUnwrap(HTTPCookie(properties: [
+            .name: "jwt_token", .value: "revoked-cookie-" + id,
+            .domain: "api.jifenqi.com", .path: "/", .secure: "TRUE"
+        ]))
+        cookies.setCookie(staleCookie)
+        let transport = URLSession(configuration: config)
+        let client = APIClient(session: transport, tokenStore: store)
+        let original = "native-original-" + id, refreshed = "native-refreshed-" + id
+        defer {
+            transport.invalidateAndCancel()
+            DelayedAuthURLProtocol.unregister(tokens: [original, refreshed, ""])
+        }
+        let expiry = ISO8601DateFormatter().string(from: Date().addingTimeInterval(3600))
+        let body = "{\"token\":\"\(refreshed)\",\"expiresAt\":\"\(expiry)\"}"
+        let log = AuthRequestLog()
+        DelayedAuthURLProtocol.register(tokens: [original, refreshed, ""]) { proto in
+            log.append(proto.request.url!.path)
+            XCTAssertFalse(proto.request.httpShouldHandleCookies)
+            XCTAssertNil(proto.request.value(forHTTPHeaderField: "Cookie"), "web cookies must never override the native bearer")
+            proto.reply(status: 200, body: proto.request.url?.path == "/api/auth/refresh" ? body : "{}")
+        }
+        try await store.setAuth(token: original, expiresAt: Date().addingTimeInterval(-1))
+        let _: EmptyResponse = try await client.request("/native-protected", requiresAuth: true)
+        let _: EmptyResponse = try await client.request("/native-login", headers: ["Cookie": "jwt_token=revoked"])
+        let _: EmptyResponse = try await client.request("/native-receipt", headers: ["Authorization": "Bearer " + original])
+        XCTAssertEqual(log.count("/api/auth/refresh"), 1)
+        XCTAssertEqual(log.count("/native-protected"), 1)
+        XCTAssertEqual(log.count("/native-login"), 1)
+        XCTAssertEqual(log.count("/native-receipt"), 1)
+        XCTAssertEqual(cookies.cookies?.first?.value, staleCookie.value, "the client does not mutate unrelated web cookie storage")
+        await store.clearAuth()
+    }
     func testDelayedRefresh401CannotClearNewAccount() async throws { try await delayedRefresh(status: 401) }
+    func testLinkedCredentialInstallAtomicallyAcceptsSourceExpiryButRejectsLaterLogin() async throws {
+        let (store, _, transport, tokens) = fixture()
+        defer { transport.invalidateAndCancel() }
+        let expiry = Date().addingTimeInterval(3600)
+        try await store.setAuth(token: tokens[0], expiresAt: expiry)
+        let source = await store.authSnapshot()
+        _ = await store.clearAuth(ifMatching: source)
+        let applied = try await store.setLinkedAuth(token: tokens[1], expiresAt: expiry,
+                                                   replacingSourceRevision: source.revision)
+        XCTAssertTrue(applied, "a source 401 between snapshot and installation must not discard successful confirmation")
+        let staleApplied = try await store.setLinkedAuth(token: tokens[2], expiresAt: expiry,
+                                                        replacingSourceRevision: source.revision)
+        XCTAssertFalse(staleApplied, "a replacement login cannot be overwritten by a late confirmation")
+        let current = await store.authToken()
+        XCTAssertEqual(current, tokens[1])
+        await store.clearAuth()
+    }
     func testDelayedRefreshCannotResurrectLogoutThenLoginWithSameToken() async throws { try await delayedRefresh(status: 200, sameTokenLogin: true) }
     func testDelayedProtected401DoesNotRefreshUnderTheNextAccount() async throws {
         let (store, client, session, tokens) = fixture()
@@ -337,5 +392,213 @@ private nonisolated final class DelayedAuthURLProtocol: URLProtocol, @unchecked 
 
     func testLogoutDuringInterruptedRestoreRetryCannotRestoreSession() async throws {
         try await recoverInterruptedRestore(logoutDuringRetry: true)
+    }
+
+    private func logoutDuringBindingStatus(restoring: Bool) async throws {
+        let (store, client, transport, tokens) = fixture()
+        let suiteName = "com.douhua.jifen.status-warmup-tests." + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        let gate = AuthReplyGate()
+        defer {
+            gate.release()
+            transport.invalidateAndCancel()
+            DelayedAuthURLProtocol.unregister(tokens: tokens + [""])
+            defaults.removePersistentDomain(forName: suiteName)
+        }
+        if restoring {
+            try await store.setAuth(token: tokens[0], expiresAt: Date().addingTimeInterval(3600))
+        }
+        let statusStarted = expectation(description: "binding status is in flight after authentication")
+        let profile = #"{"id":"original-account","role":"FREE","plan":"FREE","createdAt":1}"#
+        let expiry = ISO8601DateFormatter().string(from: Date().addingTimeInterval(3600))
+        let login = "{\"user\":\(profile),\"token\":\"\(tokens[0])\",\"expiresAt\":\"\(expiry)\"}"
+        let bindings = #"{"sessionProvider":"apple","providers":["apple"],"capabilities":{"wechatBinding":true,"accountMerge":true},"wechat":{"bound":false,"canBind":true}}"#
+        DelayedAuthURLProtocol.register(tokens: tokens + [""]) { proto in
+            switch proto.request.url?.path {
+            case WechatBindingEndpoint.status:
+                statusStarted.fulfill()
+                gate.hold { proto.reply(status: 200, body: bindings) }
+            case PasswordLoginEndpoint.path: proto.reply(status: 200, body: login)
+            case "/api/auth/me": proto.reply(status: 200, body: profile)
+            default: proto.reply(status: 200, body: #"{"success":true}"#)
+            }
+        }
+        var warmedUsers: [String?] = []
+        let account = SessionStore(client: client, tokenStore: store,
+            postAuthenticationWarmup: { warmedUsers.append($0) }, defaults: defaults)
+        let authentication = Task {
+            if restoring { await account.restore() }
+            else { await account.signInWithEmail(account: "test@example.invalid", password: "test") }
+        }
+        await fulfillment(of: [statusStarted], timeout: 3)
+        await account.logout()
+        gate.release()
+        await authentication.value
+        XCTAssertTrue(warmedUsers.isEmpty, "a late binding status response must not reactivate stores after logout")
+        XCTAssertFalse(account.isAuthenticated)
+        XCTAssertNil(account.user)
+        let finalToken = await store.authToken()
+        XCTAssertNil(finalToken)
+        await store.clearAuth()
+    }
+
+    func testLogoutDuringLoginBindingStatusDoesNotRestartWarmup() async throws {
+        try await logoutDuringBindingStatus(restoring: false)
+    }
+
+    func testLogoutDuringRestoreBindingStatusDoesNotRestartWarmup() async throws {
+        try await logoutDuringBindingStatus(restoring: true)
+    }
+
+}
+
+extension APIClientSessionIsolationTests {
+    private struct CommonDataLinkFixture {
+        let store: AuthTokenStore
+        let transport: URLSession
+        let tokens: [String]
+        let defaults: UserDefaults
+        let suiteName: String
+        let manager: CommonDataCloudSyncManager
+        let localData: [(String, Any?)]
+
+        func context() async -> WechatBindingSessionContext {
+            .init(accountID: "same-account", authRevision: await store.authSessionRevision(), generation: 1)
+        }
+
+        func cleanup() async {
+            await manager.sessionDidChange(userId: nil)
+            transport.invalidateAndCancel()
+            DelayedAuthURLProtocol.unregister(tokens: tokens)
+            defaults.removePersistentDomain(forName: suiteName)
+            for (key, value) in localData { UserDefaults.standard.set(value, forKey: key) }
+            await store.clearAuth()
+        }
+    }
+
+    private func commonDataLinkFixture() async throws -> CommonDataLinkFixture {
+        let (store, client, transport, tokens) = fixture()
+        let suiteName = "com.douhua.jifen.common-data-link-tests." + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        let localData = ["commonTeamNames", "commonPlayerNames", "jifen-v2.commonPlaces"]
+            .map { ($0, UserDefaults.standard.object(forKey: $0)) }
+        try await store.setAuth(token: tokens[0], expiresAt: Date().addingTimeInterval(3600))
+        let manager = CommonDataCloudSyncManager(client: client, defaults: defaults)
+        return .init(store: store, transport: transport, tokens: tokens, defaults: defaults,
+                     suiteName: suiteName, manager: manager, localData: localData)
+    }
+
+    func testOldCommonDataPauseCannotFreezeSameAccountAfterRelogin() async throws {
+        let f = try await commonDataLinkFixture()
+        let gate = AuthReplyGate(), log = AuthRequestLog()
+        defer { gate.release() }
+        let requested = expectation(description: "source sync is in flight")
+        DelayedAuthURLProtocol.register(tokens: f.tokens) { proto in
+            let path = proto.request.url!.path
+            log.append(path)
+            let body = #"{"names":[],"places":[],"serverTime":1}"#
+            if log.count(path) == 1 {
+                requested.fulfill()
+                gate.hold { proto.reply(status: 200, body: body) }
+            } else { proto.reply(status: 200, body: body) }
+        }
+        let context = await f.context()
+        let initialSync = Task { await f.manager.sessionDidChange(userId: context.accountID) }
+        await fulfillment(of: [requested], timeout: 3)
+        let entered = expectation(description: "old binding begins waiting")
+        let pause = Task {
+            entered.fulfill()
+            try await f.manager.pauseForAccountLink(context: context)
+        }
+        await fulfillment(of: [entered], timeout: 3)
+        await f.manager.sessionDidChange(userId: nil)
+        try await f.store.setAuth(token: f.tokens[1], expiresAt: Date().addingTimeInterval(3600))
+        await f.manager.sessionDidChange(userId: context.accountID)
+        gate.release()
+        await initialSync.value
+        do { try await pause.value; XCTFail("a pause from before relogin must be cancelled") }
+        catch { XCTAssertTrue(error is CancellationError) }
+        await f.manager.forceSync()
+        XCTAssertEqual(f.manager.phase, .synced)
+        await f.cleanup()
+    }
+
+    func testClosingPendingCommonDataPauseCannotFreezeAfterLateFlush() async throws {
+        let f = try await commonDataLinkFixture()
+        let gate = AuthReplyGate(), log = AuthRequestLog()
+        defer { gate.release() }
+        let requested = expectation(description: "binding flush is in flight")
+        DelayedAuthURLProtocol.register(tokens: f.tokens) { proto in
+            let path = proto.request.url!.path
+            log.append(path)
+            let body = #"{"names":[],"places":[],"serverTime":1}"#
+            if log.count(path) == 2 {
+                requested.fulfill()
+                gate.hold { proto.reply(status: 200, body: body) }
+            } else { proto.reply(status: 200, body: body) }
+        }
+        await f.manager.sessionDidChange(userId: "same-account")
+        let context = await f.context()
+        let pause = Task { try await f.manager.pauseForAccountLink(context: context) }
+        await fulfillment(of: [requested], timeout: 3)
+        await f.manager.cancelAccountLink(context: context)
+        gate.release()
+        do { try await pause.value; XCTFail("closing must invalidate a pending pause before its flush returns") }
+        catch { XCTAssertTrue(error is CancellationError) }
+        await f.manager.forceSync()
+        XCTAssertEqual(f.manager.phase, .synced)
+        await f.cleanup()
+    }
+
+    func testOldCommonDataCloseAndCompletionCannotConsumeNewPause() async throws {
+        let f = try await commonDataLinkFixture()
+        let log = AuthRequestLog()
+        DelayedAuthURLProtocol.register(tokens: f.tokens) { proto in
+            log.append(proto.request.url!.path)
+            proto.reply(status: 200, body: #"{"names":[],"places":[],"serverTime":1}"#)
+        }
+        await f.manager.sessionDidChange(userId: "same-account")
+        let old = await f.context()
+        try await f.manager.pauseForAccountLink(context: old)
+        await f.manager.cancelAccountLink(context: old)
+        let current = await f.context()
+        XCTAssertNotEqual(old.id, current.id)
+        try await f.manager.pauseForAccountLink(context: current)
+        let requestCount = log.count("/api/common-data/sync")
+        await f.manager.cancelAccountLink(context: old)
+        do {
+            try await f.manager.completeAccountLink(userID: "unrelated-master", context: old)
+            XCTFail("a stale completion must not replace the new flow's cloud baseline")
+        } catch { XCTAssertTrue(error is CancellationError) }
+        await f.manager.forceSync()
+        XCTAssertEqual(log.count("/api/common-data/sync"), requestCount, "the new pause must stay frozen")
+        XCTAssertEqual(log.count("/api/common-data"), 0)
+        await f.manager.cancelAccountLink(context: current)
+        XCTAssertEqual(f.manager.phase, .synced)
+        XCTAssertGreaterThan(log.count("/api/common-data/sync"), requestCount)
+        await f.cleanup()
+    }
+
+    func testOwnedCommonDataCompletionPullsBaselineAfterSourceExpiry() async throws {
+        let f = try await commonDataLinkFixture()
+        let log = AuthRequestLog()
+        DelayedAuthURLProtocol.register(tokens: f.tokens) { proto in
+            log.append(proto.request.url!.path)
+            proto.reply(status: 200, body: #"{"names":[],"places":[],"serverTime":1}"#)
+        }
+        await f.manager.sessionDidChange(userId: "same-account")
+        let context = await f.context()
+        try await f.manager.pauseForAccountLink(context: context)
+        await f.store.clearAuth()
+        try await f.store.setAuth(token: f.tokens[1], expiresAt: Date().addingTimeInterval(3600))
+        try await f.manager.completeAccountLink(userID: "linked-master", context: context)
+        XCTAssertEqual(f.manager.phase, .synced)
+        XCTAssertEqual(log.count("/api/common-data"), 1)
+        let requestCount = log.count("/api/common-data/sync")
+        await f.manager.cancelAccountLink(context: context)
+        await f.manager.forceSync()
+        XCTAssertEqual(f.manager.phase, .synced)
+        XCTAssertEqual(log.count("/api/common-data/sync"), requestCount + 1)
+        await f.cleanup()
     }
 }

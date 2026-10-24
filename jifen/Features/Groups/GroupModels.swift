@@ -42,6 +42,12 @@ nonisolated struct GroupMember: Codable, Identifiable, Sendable, Equatable {
     var displayNameModerationStatus: String? = nil
     var displayNameModerationReviewReason: String? = nil
     var groupRevision: Int64? = nil
+    var canonicalMemberId: String? = nil
+    var legacyMemberIds: [String]? = nil
+
+    func ownsHistoricalMember(_ memberID: String) -> Bool {
+        id == memberID || canonicalMemberId == memberID || legacyMemberIds?.contains(memberID) == true
+    }
 }
 nonisolated struct GroupJoinRequest: Codable, Identifiable, Sendable {
     var id: String; var groupId: String; var groupNo: String; var groupName: String; var sport: GroupSport
@@ -105,6 +111,13 @@ nonisolated struct GroupActivity: Codable, Identifiable, Sendable {
 }
 nonisolated struct GroupSeat: Codable, Sendable, Equatable {
     var memberId: String; var side: String; var seat: Int; var displayName: String? = nil
+    var canonicalMemberId: String? = nil
+    var countsForPersonalStats: Bool? = nil
+    var effectiveMemberID: String { canonicalMemberId ?? memberId }
+    func belongs(to member: GroupMember?) -> Bool {
+        guard let member else { return false }
+        return effectiveMemberID == (member.canonicalMemberId ?? member.id) || member.ownsHistoricalMember(memberId)
+    }
 }
 nonisolated struct GroupScore: Codable, Sendable, Equatable { var a: Int; var b: Int }
 nonisolated struct GroupResult: Codable, Identifiable, Sendable {
@@ -116,6 +129,8 @@ nonisolated struct GroupResult: Codable, Identifiable, Sendable {
     var activitySessionId: String? = nil
     var confirmationMode: String? = nil
     var canAuthorityConfirm: Bool? = nil
+    var submitterCanonicalMemberId: String? = nil
+    var confirmedByCanonicalMemberId: String? = nil
     var date: Date { Date(timeIntervalSince1970: Double(playedAt) / 1000) }
 }
 nonisolated struct GroupRanking: Codable, Identifiable, Sendable {

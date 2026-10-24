@@ -76,6 +76,14 @@ actor AuthTokenStore {
         return true
     }
 
+    /// Confirmation can race the source token's atomic 401 clear. Decide and
+    /// install in one actor turn; a later login or a second clear is never eligible.
+    func setLinkedAuth(token: String, expiresAt: Date, replacingSourceRevision revision: UInt64) throws -> Bool {
+        guard sessionRevision == revision || (sessionRevision == revision &+ 1 && authToken() == nil) else { return false }
+        try setAuth(token: token, expiresAt: expiresAt)
+        return true
+    }
+
     func clearAuth() {
         sessionRevision &+= 1
         delete(.authToken)

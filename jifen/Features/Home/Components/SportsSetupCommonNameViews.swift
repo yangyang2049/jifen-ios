@@ -68,10 +68,11 @@ struct CommonNameSelectorDialog: View {
 }
 
 extension View {
-    /// Setup 对话框区块小标题：14pt 居中、次要色。
+    /// Setup 对话框区块小标题：14pt、常规字重、次要色，包含换行文字的居中对齐。
     func settingsLabelStyle() -> some View {
-        font(.system(size: 14))
+        font(.system(size: 14, weight: .regular))
             .foregroundStyle(Theme.textSecondary)
+            .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity, alignment: .center)
     }
 }

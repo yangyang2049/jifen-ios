@@ -18,6 +18,73 @@ func guandanLogicalSide(onScreen screenSide: MatchSide) -> GuandanSide {
         : .blue
 }
 
+/// Rank buttons edit a local draft. The live match (including a finished
+/// winner), its undo history and its published snapshot change only on Done.
+struct GuandanRankEditDraft {
+    let originalState: GuandanMatchState
+    private(set) var redRank: String
+    private(set) var blueRank: String
+    private let initialRedRank: String
+    private let initialBlueRank: String
+
+    init(state: GuandanMatchState) {
+        originalState = state
+        func editableRank(for side: GuandanSide) -> String {
+            let rank = side == .red ? state.redTeam.currentRank : state.blueTeam.currentRank
+            guard state.aStageMode == .tripleA, rank == "A" else { return rank }
+            // Editing selects the next A attempt. The main board can show the
+            // other team's previous attempt, which must not add a failure here.
+            return "A\(min(2, state.aFailCount(for: side)) + 1)"
+        }
+        redRank = editableRank(for: .red)
+        blueRank = editableRank(for: .blue)
+        initialRedRank = redRank
+        initialBlueRank = blueRank
+    }
+
+    func rank(for side: GuandanSide) -> String {
+        side == .red ? redRank : blueRank
+    }
+
+    private var rankOrder: [String] {
+        originalState.aStageMode == .tripleA
+            ? Array(guandanRankOrder.dropLast()) + ["A1", "A2", "A3"]
+            : guandanRankOrder
+    }
+
+    func requiresWrapConfirmation(side: GuandanSide, delta: Int) -> Bool {
+        guard delta > 0, let index = rankOrder.firstIndex(of: rank(for: side)) else { return false }
+        return index + delta >= rankOrder.count
+    }
+
+    mutating func adjust(side: GuandanSide, delta: Int) {
+        guard delta != 0, let index = rankOrder.firstIndex(of: rank(for: side)) else { return }
+        let nextIndex = requiresWrapConfirmation(side: side, delta: delta)
+            ? 0
+            : min(max(index + delta, 0), rankOrder.count - 1)
+        if side == .red {
+            redRank = rankOrder[nextIndex]
+        } else {
+            blueRank = rankOrder[nextIndex]
+        }
+    }
+
+    func correctionIntent(currentState: GuandanMatchState, redName: String, blueName: String) -> GuandanSessionIntent? {
+        guard currentState == originalState else { return nil }
+        let effectiveRedName = redName.isEmpty ? originalState.redTeam.name : redName
+        let effectiveBlueName = blueName.isEmpty ? originalState.blueTeam.name : blueName
+        guard effectiveRedName != originalState.redTeam.name
+            || effectiveBlueName != originalState.blueTeam.name
+            || redRank != initialRedRank || blueRank != initialBlueRank else { return nil }
+        return .adminCorrect(
+            redName: effectiveRedName,
+            blueName: effectiveBlueName,
+            redRank: redRank,
+            blueRank: blueRank
+        )
+    }
+}
+
 func guandanLocalScoreboardAction(
     for intent: LocalScoreboardIntent
 ) -> GuandanLocalScoreboardAction {
@@ -375,6 +442,7 @@ struct GuandanScoreboardView: View {
     @State private var showFinishedRecordDetail = false
     @State private var pendingEditWrapSide: GuandanSide?
     @State private var scoreboardEditing = false
+    @State private var editDraft: GuandanRankEditDraft?
     @State private var typographyPreference = PreferencesManager.shared.scoreboardTypography(
         for: ScoreboardStyleID(gameType: .guandan)
     )
@@ -473,8 +541,10 @@ struct GuandanScoreboardView: View {
                 gameType: .guandan,
                 leftName: guandanName(onScreen: .left),
                 rightName: guandanName(onScreen: .right),
-                leftScore: state.displayRank(for: guandanSide(onScreen: .left)),
-                rightScore: state.displayRank(for: guandanSide(onScreen: .right)),
+                leftScore: editDraft?.rank(for: guandanSide(onScreen: .left))
+                    ?? state.displayRank(for: guandanSide(onScreen: .left)),
+                rightScore: editDraft?.rank(for: guandanSide(onScreen: .right))
+                    ?? state.displayRank(for: guandanSide(onScreen: .right)),
                 leftDetail: nil,
                 rightDetail: nil,
                 finished: state.phase == .finished,
@@ -531,7 +601,11 @@ struct GuandanScoreboardView: View {
                 panelAccessory: { isLeft in
                     AnyView(guandanPanelActions(side: guandanSide(onScreen: isLeft ? .left : .right), isLeftScreen: isLeft))
                 },
-                onEditModeChange: { scoreboardEditing = $0 },
+                onEditModeChange: { editing in
+                    scoreboardEditing = editing
+                    pendingEditWrapSide = nil
+                    editDraft = editing ? GuandanRankEditDraft(state: state) : nil
+                },
                 onTypographyChange: { preference in
                     typographyPreference = preference
                     LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -610,6 +684,12 @@ struct GuandanScoreboardView: View {
             bindMatchClock()
         }
         .onChange(of: state) { _, _ in
+            if scoreboardEditing, editDraft?.originalState != state {
+                // A replacement snapshot invalidates the old draft. Never
+                // apply edits captured before a synchronized state change.
+                editDraft = nil
+                pendingEditWrapSide = nil
+            }
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onChange(of: state.phase) { _, phase in
@@ -619,6 +699,9 @@ struct GuandanScoreboardView: View {
         }
         .onChange(of: matchClockSession?.isVisible) { _, _ in saveRecord() }
         .onDisappear {
+            editDraft = nil
+            scoreboardEditing = false
+            pendingEditWrapSide = nil
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             saveRecord()
         }
@@ -635,7 +718,7 @@ struct GuandanScoreboardView: View {
             Button(NSLocalizedString("confirm", value: "确认", comment: ""), role: .destructive) {
                 guard let side = pendingEditWrapSide else { return }
                 pendingEditWrapSide = nil
-                send(.adjustRank(side: side, delta: 1))
+                editDraft?.adjust(side: side, delta: 1)
             }
         } message: {
             Text(NSLocalizedString(
@@ -701,27 +784,12 @@ struct GuandanScoreboardView: View {
     }
 
     private func adjustRankInEditMode(side: GuandanSide, delta: Int) {
-        guard delta != 0 else { return }
-        if delta > 0, shouldConfirmRankWrap(side: side, delta: delta) {
+        guard delta != 0, let editDraft else { return }
+        if editDraft.requiresWrapConfirmation(side: side, delta: delta) {
             pendingEditWrapSide = side
             return
         }
-        send(.adjustRank(side: side, delta: delta))
-    }
-
-    private func shouldConfirmRankWrap(side: GuandanSide, delta: Int) -> Bool {
-        guard delta > 0 else { return false }
-        let rank = side == .red ? state.redTeam.currentRank : state.blueTeam.currentRank
-        let maxRankIndex = guandanRankOrder.count - 1
-        let rankIndex = max(0, guandanRankOrder.firstIndex(of: rank) ?? 0)
-        let currentDisplayIndex: Int
-        if state.aStageMode == .tripleA, rankIndex == maxRankIndex {
-            currentDisplayIndex = maxRankIndex + min(max(state.aFailCount(for: side), 0), 2)
-        } else {
-            currentDisplayIndex = rankIndex
-        }
-        let maxDisplayIndex = state.aStageMode == .tripleA ? maxRankIndex + 2 : maxRankIndex
-        return currentDisplayIndex + delta > maxDisplayIndex
+        self.editDraft?.adjust(side: side, delta: delta)
     }
 
     private func send(_ intent: GuandanSessionIntent) {
@@ -770,6 +838,7 @@ struct GuandanScoreboardView: View {
         gameStartAt = Date()
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.guandan.canonicalScoreboardIdentifier)
         pendingEditWrapSide = nil
+        editDraft = nil
         showGameOverDialog = false
         matchClockSession?.reset(startedAt: gameStartAt)
         saveRecord()
@@ -799,6 +868,7 @@ struct GuandanScoreboardView: View {
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.guandan.canonicalScoreboardIdentifier)
         matchClockSession?.reset(startedAt: gameStartAt)
         pendingEditWrapSide = nil
+        editDraft = nil
         showGameOverDialog = false
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
     }
@@ -846,27 +916,18 @@ struct GuandanScoreboardView: View {
 
     private func applyEdit(left: String, right: String, leftScore: String, rightScore: String) {
         let previous = state
-        // Rank buttons mutate the reducer immediately while the scaffold keeps
-        // the edit-session text it captured on entry. Commit names together
-        // with the reducer's current ranks so leaving edit mode cannot roll a
-        // rank adjustment back to that stale text.
-        let screenLeftRank = state.displayRank(for: guandanSide(onScreen: .left))
-            .uppercased().replacingOccurrences(of: "A1", with: "A")
-            .replacingOccurrences(of: "A2", with: "A")
-            .replacingOccurrences(of: "A3", with: "A")
-        let screenRightRank = state.displayRank(for: guandanSide(onScreen: .right))
-            .uppercased().replacingOccurrences(of: "A1", with: "A")
-            .replacingOccurrences(of: "A2", with: "A")
-            .replacingOccurrences(of: "A3", with: "A")
         let leftIsRed = guandanSide(onScreen: .left) == .red
-        let redName = leftIsRed ? left : right
-        let blueName = leftIsRed ? right : left
-        let redRank = leftIsRed ? screenLeftRank : screenRightRank
-        let blueRank = leftIsRed ? screenRightRank : screenLeftRank
+        guard let editDraft, editDraft.originalState == state,
+              let intent = editDraft.correctionIntent(
+                  currentState: state,
+                  redName: leftIsRed ? left : right,
+                  blueName: leftIsRed ? right : left
+              ) else { return }
+        let timestamp = Int64(Date().timeIntervalSince1970 * 1_000)
         let result = reducer.reduce(
             state: state,
-            intent: .adminCorrect(redName: redName, blueName: blueName, redRank: redRank, blueRank: blueRank),
-            at: Int64(Date().timeIntervalSince1970 * 1_000)
+            intent: intent,
+            at: timestamp
         )
         guard result.accepted, result.state != previous else { return }
         pushUndoSnapshot(previous)
@@ -874,9 +935,9 @@ struct GuandanScoreboardView: View {
         actionCount += 1
         appendSnapshot("adminCorrect")
         appendDetailedAction(
-            for: .adminCorrect(redName: redName, blueName: blueName, redRank: redRank, blueRank: blueRank),
+            for: intent,
             previousState: previous,
-            epochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000)
+            epochMilliseconds: timestamp
         )
         showGameOverDialog = false
         saveRecord()

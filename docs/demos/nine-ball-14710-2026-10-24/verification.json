@@ -1,0 +1,220 @@
+{
+  "date": "2026-10-24",
+  "revision": "v3-two-player-handoff-and-fixed-foul-copy",
+  "rulesTests": {
+    "command": "node --test rules.test.mjs",
+    "passed": 23,
+    "failed": 0
+  },
+  "uiChecks": [
+    {
+      "label": "双人犯规使用固定角色文案，不包含姓名",
+      "passed": true
+    },
+    {
+      "label": "双人让杆直接记录唯一对手，不出确认层",
+      "passed": true
+    },
+    {
+      "label": "双人让杆不改变比分、局数和开球人",
+      "passed": true
+    },
+    {
+      "label": "双人让杆可整笔撤销",
+      "passed": true
+    },
+    {
+      "label": "犯规一击同时转分，只生成一笔记录且不换局",
+      "passed": true
+    },
+    {
+      "label": "多人犯规明确标注下家",
+      "passed": true
+    },
+    {
+      "label": "多人让杆保留选人，确认前不记账",
+      "passed": true
+    },
+    {
+      "label": "圆表犯规短文案完整显示且按整段换行",
+      "passed": true
+    },
+    {
+      "label": "手表双人让杆同样直接记录",
+      "passed": true
+    }
+  ],
+  "views": [
+    "手机宽屏 1265px",
+    "手机窄屏 482px，2/3/4人",
+    "鸿蒙手表圆屏，2/3/4人"
+  ],
+  "standalone": {
+    "inlineRules": true,
+    "externalAssets": false,
+    "browserVerifiedVia": "http://127.0.0.1:8768/"
+  },
+  "nativeAppModified": false,
+  "previousRevisionUiChecks": [
+    {
+      "label": "small-gold dialog is concise",
+      "passed": true
+    },
+    {
+      "label": "small-gold transfers and advances breaker",
+      "passed": true
+    },
+    {
+      "label": "small-gold banner increments",
+      "passed": true
+    },
+    {
+      "label": "undo restores rack, breaker and banner",
+      "passed": true
+    },
+    {
+      "label": "breaker marker does not move name or score",
+      "passed": true
+    },
+    {
+      "label": "handoff is a filled button",
+      "passed": true
+    },
+    {
+      "label": "handoff dialog shows only recipient and actions",
+      "passed": true
+    },
+    {
+      "label": "handoff keeps points and rack",
+      "passed": true
+    },
+    {
+      "label": "foul updates points and banner without ending rack",
+      "passed": true
+    },
+    {
+      "label": "manual edit rejects unbalanced totals",
+      "passed": true
+    },
+    {
+      "label": "manual edit applies balanced scores",
+      "passed": true
+    },
+    {
+      "label": "menu undo restores manual edit",
+      "passed": true
+    },
+    {
+      "label": "watch actions fit round screen with filled handoff",
+      "passed": true
+    },
+    {
+      "label": "watch breaker marks stay inside circle for all seats",
+      "passed": true,
+      "cases": [
+        {
+          "count": 2,
+          "inside": true,
+          "marker": "0"
+        },
+        {
+          "count": 2,
+          "inside": true,
+          "marker": "1"
+        },
+        {
+          "count": 3,
+          "inside": true,
+          "marker": "0"
+        },
+        {
+          "count": 3,
+          "inside": true,
+          "marker": "1"
+        },
+        {
+          "count": 3,
+          "inside": true,
+          "marker": "2"
+        },
+        {
+          "count": 4,
+          "inside": true,
+          "marker": "0"
+        },
+        {
+          "count": 4,
+          "inside": true,
+          "marker": "1"
+        },
+        {
+          "count": 4,
+          "inside": true,
+          "marker": "2"
+        },
+        {
+          "count": 4,
+          "inside": true,
+          "marker": "3"
+        }
+      ]
+    },
+    {
+      "label": "narrow three-player banner avoids score and name",
+      "passed": true,
+      "geometry": [
+        {
+          "bannerCells": 6,
+          "bannerTop": -13.109375,
+          "nameBottom": -99.609375,
+          "scoreBottom": -16.609375,
+          "scoreTop": -79.609375
+        },
+        {
+          "bannerCells": 6,
+          "bannerTop": 166.890625,
+          "nameBottom": 80.390625,
+          "scoreBottom": 163.390625,
+          "scoreTop": 100.390625
+        },
+        {
+          "bannerCells": 6,
+          "bannerTop": 346.890625,
+          "nameBottom": 260.390625,
+          "scoreBottom": 343.390625,
+          "scoreTop": 280.390625
+        }
+      ]
+    },
+    {
+      "label": "narrow four-player banner avoids score",
+      "passed": true,
+      "geometry": [
+        {
+          "bannerTop": 540.6953125,
+          "scoreBottom": 452.89453125
+        },
+        {
+          "bannerTop": 540.6953125,
+          "scoreBottom": 452.89453125
+        },
+        {
+          "bannerTop": 540.6953125,
+          "scoreBottom": 452.89453125
+        },
+        {
+          "bannerTop": 540.6953125,
+          "scoreBottom": 452.89453125
+        }
+      ]
+    },
+    {
+      "label": "narrow two-player keeps side-by-side panels and six stats",
+      "passed": true
+    },
+    {
+      "label": "score panels fill scoreboard without extra bars or role labels",
+      "passed": true
+    }
+  ]
+}

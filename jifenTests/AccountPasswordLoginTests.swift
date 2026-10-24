@@ -12,6 +12,86 @@ final class AccountPasswordLoginTests: XCTestCase {
         }
     }
 
+    func testWechatDispatchFailureUsesActualInstallationStatus() {
+        XCTAssertEqual(WechatAuthorizationResultPolicy.sendFailure(isInstalled: false), .notInstalled)
+        XCTAssertEqual(WechatAuthorizationResultPolicy.sendFailure(isInstalled: true), .requestFailed)
+    }
+
+    func testWechatSendFailureCallbackUsesActualInstallationStatus() {
+        XCTAssertEqual(
+            WechatAuthorizationResultPolicy.response(
+                expectedState: "current", state: "current", errorCode: -3,
+                code: nil, isInstalled: false
+            ), .failure(.notInstalled)
+        )
+        XCTAssertEqual(
+            WechatAuthorizationResultPolicy.response(
+                expectedState: "current", state: "current", errorCode: -3,
+                code: nil, isInstalled: true
+            ), .failure(.requestFailed)
+        )
+    }
+
+    func testWechatAuthorizationResultPreservesOtherFailuresRegardlessOfInstallationStatus() {
+        for isInstalled in [false, true] {
+            for (errorCode, error) in [
+                (Int32(-2), WechatAuthError.cancelled), (-4, .denied),
+                (-1, .requestFailed), (-5, .requestFailed)
+            ] {
+                XCTAssertEqual(
+                    WechatAuthorizationResultPolicy.response(
+                        expectedState: "current", state: "current", errorCode: errorCode,
+                        code: nil, isInstalled: isInstalled
+                    ), .failure(error)
+                )
+            }
+        }
+    }
+
+    func testWechatAuthorizationIgnoresUnrelatedResponses() {
+        for expectedState in [nil, "current"] {
+            for errorCode: Int32 in [0, -2, -3, -4] {
+                XCTAssertNil(WechatAuthorizationResultPolicy.response(
+                    expectedState: expectedState, state: "old", errorCode: errorCode,
+                    code: "unused", isInstalled: false
+                ))
+            }
+        }
+    }
+
+    func testWechatAuthorizationRequiresCodeOnlyForSuccessfulMatchedResponse() {
+        for code in [nil, ""] {
+            XCTAssertEqual(
+                WechatAuthorizationResultPolicy.response(
+                    expectedState: "current", state: "current", errorCode: 0,
+                    code: code, isInstalled: false
+                ), .failure(.invalidResponse)
+            )
+        }
+        XCTAssertEqual(
+            WechatAuthorizationResultPolicy.response(
+                expectedState: "current", state: "current", errorCode: 0,
+                code: "authorized-code", isInstalled: true
+            ), .success("authorized-code")
+        )
+    }
+
+    func testPasswordLoginEntryHiddenOnChinesePanelsOnly() {
+        for language in ["zh", "zh-Hans", "zh-Hant", "zh_CN", "zh-Hans-US"] {
+            XCTAssertFalse(PasswordLoginEntryPolicy.isVisible(language: language), language)
+        }
+        for language in ["en", "en-CN", "ja-CN", "fr", ""] {
+            XCTAssertTrue(PasswordLoginEntryPolicy.isVisible(language: language), language)
+        }
+    }
+
+    func testPasswordLoginEntryCanBeForceShownForChineseTesting() {
+        XCTAssertTrue(PasswordLoginEntryPolicy.isVisible(
+            language: "zh-Hans",
+            launchArguments: ["-UITestShowPasswordLogin"]
+        ))
+    }
+
     func testEndpointAndPayloadMatchBackendContract() throws {
         XCTAssertEqual(PasswordLoginEndpoint.path, "/api/auth/login/email")
 
