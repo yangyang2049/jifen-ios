@@ -283,6 +283,7 @@ enum ManualResumeSessionStore {
             scoreSummary: record.finalScoreLine(),
             payload: payload
         )
+        Task { @MainActor in try? ParticipantIdentityStore.shared.reconcileSelections(record: record) }
     }
 
     static func sessionID(for recordID: String) -> UUID? {
@@ -420,27 +421,33 @@ final class ScoreboardRecordFileStore {
         return records
     }
 
+    /// A detail lookup reads one record, independent of library size.
+    func loadRecord(id: String) -> ScoreboardRecord? {
+        guard let data = try? Data(contentsOf: recordURL(id: id)),
+              let record = try? decoder.decode(ScoreboardRecord.self, from: data),
+              record.id == id, record.status.isHistorical else { return nil }
+        return record
+    }
+
     func save(_ record: ScoreboardRecord) throws {
         guard record.status.isHistorical else {
             throw CocoaError(.fileWriteInapplicableStringEncoding)
         }
         try ensureDirectory()
         try writeRecord(record)
-        var records = loadRecords().filter { $0.id != record.id }
-        records.append(record)
-        records.sort { $0.startTime > $1.startTime }
-        try writeIndex(for: records)
+        var entries = (loadIndex() ?? rebuildIndex()).filter { $0.id != record.id }
+        entries.append(indexEntry(record))
+        try writeIndex(entries: entries.sorted { $0.startTime > $1.startTime })
     }
 
     @discardableResult
     func delete(id: String) -> Bool {
-        var records = loadRecords()
-        guard records.contains(where: { $0.id == id }) else { return false }
-        records.removeAll { $0.id == id }
+        guard loadRecord(id: id) != nil else { return false }
+        let entries = (loadIndex() ?? rebuildIndex()).filter { $0.id != id }
         let url = recordURL(id: id)
         do {
             if fileManager.fileExists(atPath: url.path) { try fileManager.removeItem(at: url) }
-            try writeIndex(for: records)
+            try writeIndex(entries: entries)
             return true
         } catch {
             return false
@@ -528,7 +535,11 @@ final class ScoreboardRecordFileStore {
     }
 
     private func writeIndex(for records: [ScoreboardRecord]) throws {
-        let data = try encoder.encode(records.map(indexEntry))
+        try writeIndex(entries: records.map(indexEntry))
+    }
+
+    private func writeIndex(entries: [ScoreboardRecordIndexEntry]) throws {
+        let data = try encoder.encode(entries)
         try data.write(to: indexURL, options: .atomic)
     }
 
@@ -554,15 +565,15 @@ final class ScoreboardRecordManager {
     static let shared = ScoreboardRecordManager()
 
     private let recordsKey = "scoreboard_records"
-    private let maxRecords = 1000
     private let defaults: UserDefaults
     private let store: ScoreboardRecordFileStore
     private let lock = NSRecursiveLock()
 
     private init() {
-        defaults = .standard
+        defaults = AppTestRuntime.persistenceDefaults
         let applicationSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        let root = applicationSupport
+        let root = AppTestRuntime.storageRootURL?.appendingPathComponent("ScoreboardRecords-v4", isDirectory: true)
+            ?? applicationSupport
             .appendingPathComponent(Bundle.main.bundleIdentifier ?? "com.douhua.jifen", isDirectory: true)
             .appendingPathComponent("ScoreboardRecords-v4", isDirectory: true)
         store = ScoreboardRecordFileStore(rootURL: root)
@@ -599,8 +610,7 @@ final class ScoreboardRecordManager {
             record.setResults = ScoreboardRecordActionAdapter.setResults(from: detailedActions)
         }
 
-        var records = store.loadRecords()
-        let previousRecord = records.first { $0.id == record.id }
+        let previousRecord = store.loadRecord(id: record.id)
 
         do {
             try store.save(record)
@@ -615,15 +625,11 @@ final class ScoreboardRecordManager {
             AppAnalytics.scoreboardRecordSaveFailed(record)
             throw error
         }
-        records.removeAll { $0.id == record.id }
-        records.append(record)
-        records.sort { $0.startTime > $1.startTime }
-        if records.count > maxRecords {
-            let dropped = Array(records.dropFirst(maxRecords))
-            store.removeRecords(dropped)
-            for droppedRecord in dropped {
-                Self.deleteVoiceNoteFile(droppedRecord.voiceNote?.relativePath)
-            }
+        // Retention is a cache concern after private-cloud support. Never turn
+        // a local list threshold into deletion of historical records or audio.
+        Task { @MainActor in
+            try? ParticipantIdentityStore.shared.reconcileSelections(record: record)
+            PersonalRecordsCloudSync.shared.schedule()
         }
         AppAnalytics.scoreboardRecordSaved(record, previous: previousRecord)
         if cleanupResumeAfterWrite,
@@ -642,7 +648,7 @@ final class ScoreboardRecordManager {
         lock.lock()
         defer { lock.unlock() }
         migrateIfNeeded()
-        guard var record = store.loadRecords().first(where: { $0.id == id }) else {
+        guard var record = store.loadRecord(id: id) else {
             throw CocoaError(.fileNoSuchFile)
         }
         record.note = ScoreboardRecordNote.normalize(note)
@@ -662,7 +668,7 @@ final class ScoreboardRecordManager {
         lock.lock()
         defer { lock.unlock() }
         migrateIfNeeded()
-        guard let record = store.loadRecords().first(where: { $0.id == id }) else {
+        guard let record = store.loadRecord(id: id) else {
             throw CocoaError(.fileNoSuchFile)
         }
         let corrected = ScoreboardRecordCorrection.applied(
@@ -678,6 +684,9 @@ final class ScoreboardRecordManager {
     // ---- 本地语音笔记（对齐安卓 ScoreboardRecordRepository） ----
 
     static var voiceNotesDirectoryURL: URL {
+        if let root = AppTestRuntime.storageRootURL {
+            return root.appendingPathComponent("RecordNotes", isDirectory: true)
+        }
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         return base.appendingPathComponent("RecordNotes", isDirectory: true)
     }
@@ -717,7 +726,7 @@ final class ScoreboardRecordManager {
         guard tempRelativePath.hasPrefix("temp_"), tempRelativePath.hasSuffix(".m4a") else {
             throw RecordNoteError.invalidVoiceNote
         }
-        guard var record = store.loadRecords().first(where: { $0.id == id }) else {
+        guard var record = store.loadRecord(id: id) else {
             throw RecordNoteError.recordMissing
         }
         let tempURL = Self.voiceNoteFileURL(tempRelativePath)
@@ -753,7 +762,7 @@ final class ScoreboardRecordManager {
         lock.lock()
         defer { lock.unlock() }
         migrateIfNeeded()
-        guard var record = store.loadRecords().first(where: { $0.id == id }) else {
+        guard var record = store.loadRecord(id: id) else {
             throw RecordNoteError.recordMissing
         }
         let previousPath = record.voiceNote?.relativePath
@@ -784,16 +793,29 @@ final class ScoreboardRecordManager {
         loadAllRecords().filter { $0.status.isHistorical }.map { ScoreboardRecordSummary(from: $0) }
     }
 
-    func getRecordById(_ id: String) -> ScoreboardRecord? {
-        loadAllRecords().first { $0.id == id }
+    func loadAllRecordsInBackground() async -> [ScoreboardRecord] {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .utility).async {
+                continuation.resume(returning: self.loadAllRecords())
+            }
+        }
     }
 
+    func getRecordById(_ id: String) -> ScoreboardRecord? {
+        lock.lock()
+        defer { lock.unlock() }
+        migrateIfNeeded()
+        return store.loadRecord(id: id)
+    }
+
+    @MainActor
     func deleteRecord(_ id: String) -> Bool {
         lock.lock()
         defer { lock.unlock() }
         migrateIfNeeded()
-        let previousPath = store.loadRecords().first(where: { $0.id == id })?.voiceNote?.relativePath
+        let previousPath = store.loadRecord(id: id)?.voiceNote?.relativePath
         guard store.delete(id: id) else { return false }
+        PersonalRecordsCloudSync.shared.markDeleted(recordKey: id)
         Self.deleteVoiceNoteFile(previousPath)
         AppAnalytics.track(.recordAction, parameters: [
             .actionName: .string("delete"),

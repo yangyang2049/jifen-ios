@@ -1,0 +1,35 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -xctestrun /tmp/jifen-selfcheck-dd/Build/Products/jifen_iphonesimulator27.1-arm64-x86_64.xctestrun -destination "platform=iOS Simulator,id=7AECD88D-ED22-42FE-BBF5-1C638FB9054E" -resultBundlePath /tmp/jifen-precommit-duo-final-20261025.xcresult -parallel-testing-enabled NO "-only-testing:jifenTests" "-only-testing:jifenUITests/ParticipantIdentityUITests" "-only-testing:jifenUITests/MainFlowUITests/testVoiceMediaVolumeHintOnEntryAndNoHintWhenDisabled" "-only-testing:jifenUITests/MainFlowUITests/testPingpongServeOptionsFloatAndReopenWithoutResizingSetup" test-without-building
+
+Writing result bundle at path:
+	/tmp/jifen-precommit-duo-final-20261025.xcresult
+
+xcodebuild: error: Unable to find a device matching the provided destination specifier:
+		{ platform:iOS Simulator, id:7AECD88D-ED22-42FE-BBF5-1C638FB9054E }
+
+	The requested device could not be found because no available devices matched the request.
+
+	Destinations compatible with the "jifen" scheme:
+		{ platform:macOS, arch:arm64e, id:00006040-000A51EE1AFB801C, name:My Mac }
+		{ platform:macOS, arch:arm64, id:00006040-000A51EE1AFB801C, name:My Mac }
+		{ platform:macOS, arch:x86_64, id:00006040-000A51EE1AFB801C, name:My Mac }
+		{ platform:macOS, arch:arm64e, variant:Mac Catalyst, id:00006040-000A51EE1AFB801C, name:My Mac }
+		{ platform:macOS, arch:arm64, variant:Mac Catalyst, id:00006040-000A51EE1AFB801C, name:My Mac }
+		{ platform:macOS, arch:x86_64, variant:Mac Catalyst, id:00006040-000A51EE1AFB801C, name:My Mac }
+		{ platform:macOS, arch:arm64e, variant:DriverKit, id:00006040-000A51EE1AFB801C, name:My Mac }
+		{ platform:macOS, arch:arm64, variant:DriverKit, id:00006040-000A51EE1AFB801C, name:My Mac }
+		{ platform:macOS, arch:arm64e, variant:Designed for [iPad,iPhone], id:00006040-000A51EE1AFB801C, name:My Mac }
+		{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:00006040-000A51EE1AFB801C, name:My Mac }
+		{ platform:iOS, arch:arm64e, id:00008030-000E548E21F9802E, name:iPhone }
+		{ platform:iOS, arch:arm64, id:00008030-000E548E21F9802E, name:iPhone }
+		{ platform:DriverKit, name:Any DriverKit Host }
+		{ platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
+		{ platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }
+		{ platform:macOS, name:Any Mac }
+		{ platform:macOS, variant:Mac Catalyst, name:Any Mac }
+		{ platform:tvOS, id:dvtdevice-DVTiOSDevicePlaceholder-appletvos:placeholder, name:Any tvOS Device }
+		{ platform:tvOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-appletvsimulator:placeholder, name:Any tvOS Simulator Device }
+		{ platform:visionOS, id:dvtdevice-DVTiOSDevicePlaceholder-xros:placeholder, name:Any visionOS Device }
+		{ platform:visionOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-xrsimulator:placeholder, name:Any visionOS Simulator Device }
+		{ platform:watchOS, id:dvtdevice-DVTiOSDevicePlaceholder-watchos:placeholder, name:Any watchOS Device }
+		{ platform:watchOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-watchsimulator:placeholder, name:Any watchOS Simulator Device }

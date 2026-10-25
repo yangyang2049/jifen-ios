@@ -916,7 +916,7 @@
     "tennis.advantage.name": {
       "source_hash": "cf92b9f40534227363236760847055f693b6f97bd8f336966f58de9fd171dbd9",
       "status": "reviewed",
-      "value": "%1$@占先"
+      "value": "%1$@佔先"
     },
     "tennis.deciding.point": {
       "source_hash": "44c69af3f43cebfc9efcafb98d1983a6b3d282368ab8058d7c479d753cf99938",
@@ -1360,6 +1360,114 @@
       "source_hash": "aa3b564c91c10c8da6eec90f70ca600487a9e23d23ed43d97635c459afbd4a43",
       "value": "，休息",
       "status": "reviewed"
+    },
+    "pingpong.result.game": {
+      "source_hash": "2cba6bce5acf9b28ae3835e21a76e42e62e1668de631f80c788d6871b40788b5",
+      "value": "%1$@，%2$@勝第%3$@局",
+      "status": "reviewed",
+      "note": "ITTF HMO 2026 Appendix D; HKTTA Chinese printed pp.106-107. Rechecked 2026-10-24."
+    },
+    "pingpong.result.match": {
+      "source_hash": "e7b1338035461e12b2c0b5a637097912f96a14db2e169e15527ea321c71429d2",
+      "value": "%1$@，%2$@勝第%3$@局。比賽結果%2$@勝%4$@",
+      "status": "reviewed",
+      "note": "ITTF HMO 2026 Appendix D; HKTTA Chinese printed pp.106-107. Rechecked 2026-10-24."
+    },
+    "pingpong.result.manual": {
+      "source_hash": "f8c198820870a19f017265ca3c8f49e69b79a8674eaf9fa208c9dd721a4d797c",
+      "value": "比賽結果%1$@勝%2$@",
+      "status": "reviewed",
+      "note": "ITTF HMO 2026 Appendix D; HKTTA Chinese printed pp.106-107. Rechecked 2026-10-24."
+    },
+    "badminton.result.game": {
+      "source_hash": "af283fe2f0c8c72f9aa2198dba4b9c26441b9be3228a0bd2648c9c45a1a96c46",
+      "value": "本局結束，第%1$@局由%2$@獲勝，%3$@",
+      "status": "reviewed",
+      "note": "BWF Vocabulary 6.1-6.4 and CTBA 2025-11-17 p.54. Rechecked 2026-10-24."
+    },
+    "badminton.result.one.all": {
+      "source_hash": "e96c8bfd31b74e7dc922c364bb169c7bbdaf99a4fda6284ee0b3caceb9e4a206",
+      "value": "一局平",
+      "status": "reviewed",
+      "note": "BWF Vocabulary 6.4 and CTBA 2025-11-17 p.54. Rechecked 2026-10-24."
+    },
+    "badminton.result.match": {
+      "source_hash": "3ee756e0952d49b494f5f802de95de6dd331348eb6fc1cb592de3b73723c5143",
+      "value": "本局結束，比賽由%1$@獲勝，%2$@",
+      "status": "reviewed",
+      "note": "BWF Vocabulary 6.1,6.5 and CTBA 2025-11-17 p.54. Rechecked 2026-10-24."
+    },
+    "tennis.result.game.lead": {
+      "source_hash": "d17d2ea8e973907714cc1c34c2d3a1717b410a4fe2474bfcfc5ce8b311d281e7",
+      "value": "%1$@勝本局，第%2$@盤局數%3$@，%4$@領先",
+      "status": "reviewed",
+      "note": "ITF 2026 II.G.4(e); CTA Chinese vocabulary p.39. Rechecked 2026-10-24."
+    },
+    "tennis.result.game.all": {
+      "source_hash": "74bcdfbe57ef86a1615acf268951f6d23f791cba3081cb69f6057db1a9e50762",
+      "value": "%1$@勝本局，第%2$@盤局數%3$@平",
+      "status": "reviewed",
+      "note": "ITF 2026 II.G.4(e); CTA Chinese vocabulary p.39. Rechecked 2026-10-24."
+    },
+    "tennis.result.game.tiebreak": {
+      "source_hash": "84e6d433a28539f25a86859ea5da0d3b4c906347f90f168a842e23f656635250",
+      "value": "%1$@勝本局，第%2$@盤局數%3$@平，搶七",
+      "status": "reviewed",
+      "note": "ITF 2026 II.G.4(f); CTA Chinese vocabulary p.39. Rechecked 2026-10-24."
+    },
+    "tennis.result.set": {
+      "source_hash": "c0e4f9cfe3868fb96c6f00f5e1c430703e69249c8214488e966e24084bbd1a86",
+      "value": "第%1$@盤結束，%2$@獲勝，局數%3$@",
+      "status": "reviewed",
+      "note": "ITF 2026 II.G.4(e); CTA Chinese vocabulary p.39. Rechecked 2026-10-24."
+    },
+    "tennis.result.sets.all": {
+      "source_hash": "f15479ef156b5e056f5b65384f2e116b3c40c16b406b2cd5cee4fcdb07ab6c6e",
+      "value": "盤數%1$@平",
+      "status": "reviewed",
+      "note": "ITF 2026 II.G.4(e); CTA Chinese vocabulary p.39. Rechecked 2026-10-24."
+    },
+    "tennis.result.sets.lead": {
+      "source_hash": "8c028afdcdc6c158786cd266195311c05cbd2ec090b1b8f68bfe911c5a005027",
+      "value": "盤數%1$@，%2$@領先",
+      "status": "reviewed",
+      "note": "ITF 2026 II.G.4(e); CTA Chinese vocabulary p.39. Rechecked 2026-10-24."
+    },
+    "tennis.result.match": {
+      "source_hash": "92f73981741fa5be241dc01929ed6ba7d5d6ece8855da9d5d156724055754eb7",
+      "value": "全場比賽結束，%1$@獲勝，盤數%2$@，各盤局數%3$@",
+      "status": "reviewed",
+      "note": "ITF 2026 II.G.4(h); CTA Chinese vocabulary p.39. Rechecked 2026-10-24."
+    },
+    "tennis.result.match.tiebreak": {
+      "source_hash": "3c3756448fa51fcfca084fcce18dc3ce2353a7c602678ab026f234fff6e8f541",
+      "value": "比賽結束，%1$@獲勝，%2$@",
+      "status": "reviewed",
+      "note": "Match tiebreak points are not game/set counts. ITF result structure; CTA Chinese terms. Rechecked 2026-10-24."
+    },
+    "squash.result.game": {
+      "source_hash": "7f7cecf30f3938a9c46d14921c49964a2c748bef6e5904bba08aa9b457faab5f",
+      "value": "%1$@，%2$@本局獲勝",
+      "status": "reviewed",
+      "note": "WSF 2025 Appendix 2.1; Sport Administration Chinese edition PDF p.31. Rechecked 2026-10-24."
+    },
+    "squash.result.games.all": {
+      "source_hash": "cb49d0eefaaf09d14e71d0c3bc9a7080526968e2d1b0567d95bc02e2bae628d9",
+      "value": "大比分%1$@平",
+      "status": "reviewed",
+      "note": "WSF 2025 Appendix 2.1; Sport Administration Chinese edition PDF p.31. Rechecked 2026-10-24."
+    },
+    "squash.result.leads": {
+      "source_hash": "13b8bfc1385f7e692dea351349aac4c2caac52763b1835eceaec84ec68724ec0",
+      "value": "%1$@大比分%2$@領先",
+      "status": "reviewed",
+      "note": "WSF 2025 Appendix 2.1; Sport Administration Chinese edition PDF p.31. Rechecked 2026-10-24."
+    },
+    "squash.result.match": {
+      "source_hash": "7eebaf1603c40bcc8da6d1dc0b8e467bb0c5f76c1f004734f8efe185bb6a0339",
+      "value": "%1$@，%2$@比賽獲勝，大比分%3$@，小比分：%4$@",
+      "status": "reviewed",
+      "note": "WSF 2025 Appendix 2.1; Sport Administration Chinese edition PDF p.31. Rechecked 2026-10-24."
     }
   }
 }

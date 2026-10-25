@@ -107,6 +107,33 @@ public enum LocalizedVoiceAnnouncementBuilder {
         let french = ["fr", "fr-CA"].contains(localization)
         let spanish = ["es-ES", "es-MX"].contains(localization)
         let portuguese = ["pt-PT", "pt-BR"].contains(localization)
+        // ITTF HMO 2026 Appendix D, including the HKTTA Chinese translation
+        // (printed pp. 106-107). Result calls are separate from live score calls.
+        if ["zh-Hans", "zh-Hant"].contains(localization),
+           VoiceAnnouncementSupport.isPingpong(payload.gameType),
+           [.setEnd, .matchEnd].contains(payload.phase) {
+            return reviewedTableTennisResultZh(payload)
+        }
+        // BWF Vocabulary 6.1-6.5; CTBA's 2025-11-17 bilingual rulebook,
+        // printed p.54. Match results list game scores, not the games-won total.
+        if ["zh-Hans", "zh-Hant"].contains(localization),
+           VoiceAnnouncementSupport.isBadminton(payload.gameType),
+           [.setEnd, .matchEnd].contains(payload.phase) {
+            return reviewedBadmintonResultZh(payload)
+        }
+        // ITF 2026 II.G.4(e-h); CTA's published Chinese score-call vocabulary,
+        // printed p.39. Game counts and set counts must remain distinct.
+        if ["zh-Hans", "zh-Hant"].contains(localization),
+           VoiceAnnouncementSupport.isTennis(payload.gameType),
+           [.gameEnd, .setEnd, .matchEnd].contains(payload.phase) {
+            return reviewedTennisResultZh(payload)
+        }
+        // WSF 2025 Appendix 2.1, Chinese edition approved by the General
+        // Administration of Sport, PDF p.31: game/match winner and game scores.
+        if ["zh-Hans", "zh-Hant"].contains(localization), payload.gameType == .squash,
+           [.setEnd, .matchEnd].contains(payload.phase) {
+            return reviewedSquashResultZh(payload)
+        }
         if payload.gameType == .softTennis, english || japanese {
             return reviewedSoftTennis(payload)
         }
@@ -210,6 +237,118 @@ public enum LocalizedVoiceAnnouncementBuilder {
         // A local-language rule permits numeric TT calls; no invented "all"
         // translation, service-change prefix or other sport's jargon is needed.
         return numericFallback(payload)
+    }
+
+    private static func reviewedTableTennisResultZh(_ payload: VoiceAnnouncementPayload) -> VoiceAnnouncementMessage {
+        guard let winner = payload.winnerSide else {
+            return payload.phase == .matchEnd ? "比赛结束" : "本局结束"
+        }
+        let name = winnerName(payload)
+        let score = VoiceAnnouncementMessage.phrase("score.numbers", [
+            .verbatim(String(scoreOf(payload, winner))), .verbatim(String(scoreOf(payload, winner.opposite)))
+        ])
+        let game = max(1, payload.currentSet ?? (payload.leftSets + payload.rightSets))
+        if payload.phase == .setEnd {
+            return .phrase("pingpong.result.game", [score, name, .verbatim(String(game))])
+        }
+        let games = VoiceAnnouncementMessage.phrase("score.numbers", [
+            .verbatim(String(scoreOfSets(payload, winner))), .verbatim(String(scoreOfSets(payload, winner.opposite)))
+        ])
+        if payload.isManualEnd { return .phrase("pingpong.result.manual", [name, games]) }
+        return .phrase("pingpong.result.match", [score, name, .verbatim(String(game)), games])
+    }
+
+    private static func reviewedBadmintonResultZh(_ payload: VoiceAnnouncementPayload) -> VoiceAnnouncementMessage {
+        guard let winner = payload.winnerSide else {
+            return payload.phase == .matchEnd ? "比赛结束" : "本局结束"
+        }
+        let name = winnerName(payload)
+        if payload.phase == .setEnd {
+            let game = max(1, payload.currentSet ?? (payload.leftSets + payload.rightSets))
+            let score = VoiceAnnouncementMessage.phrase("score.numbers", [
+                .verbatim(String(scoreOf(payload, winner))), .verbatim(String(scoreOf(payload, winner.opposite)))
+            ])
+            var line = VoiceAnnouncementMessage.phrase("badminton.result.game", [.verbatim(String(game)), name, score])
+            if payload.leftSets == 1, payload.rightSets == 1 { line += "，" + .phrase("badminton.result.one.all", []) }
+            return line
+        }
+        if payload.isManualEnd { return "比赛结束，\(name)获胜" }
+        let scores = resolveSetScoreList(payload).map { score in
+            VoiceAnnouncementMessage.phrase("score.numbers", [
+                .verbatim(String(winner == .left ? score.leftGames : score.rightGames)),
+                .verbatim(String(winner == .left ? score.rightGames : score.leftGames))
+            ])
+        }.voiceJoined(separator: "、")
+        return .phrase("badminton.result.match", [name, scores])
+    }
+
+    private static func reviewedTennisResultZh(_ payload: VoiceAnnouncementPayload) -> VoiceAnnouncementMessage {
+        guard let winner = payload.winnerSide else {
+            return payload.phase == .matchEnd ? "比赛结束" : (payload.phase == .setEnd ? "本盘结束" : "本局结束")
+        }
+        func pair(_ a: Int, _ b: Int) -> VoiceAnnouncementMessage {
+            .phrase("score.numbers", [.verbatim(String(a)), .verbatim(String(b))])
+        }
+        let name = winnerName(payload)
+        let set = max(1, payload.currentSet ?? (payload.leftSets + payload.rightSets))
+        if payload.phase == .gameEnd {
+            if payload.leftScore == payload.rightScore {
+                return .phrase(payload.isTieBreak ? "tennis.result.game.tiebreak" : "tennis.result.game.all",
+                    [name, .verbatim(String(set)), .verbatim(String(payload.leftScore))])
+            }
+            let lead: MatchSide = payload.leftScore > payload.rightScore ? .left : .right
+            return .phrase("tennis.result.game.lead", [name, .verbatim(String(set)),
+                pair(scoreOf(payload, lead), scoreOf(payload, lead.opposite)), namedTeam(payload, lead)])
+        }
+        if payload.phase == .setEnd {
+            var line = VoiceAnnouncementMessage.phrase("tennis.result.set", [.verbatim(String(set)), name,
+                pair(scoreOf(payload, winner), scoreOf(payload, winner.opposite))])
+            if payload.leftSets == payload.rightSets {
+                line += .verbatim("。") + .phrase("tennis.result.sets.all", [.verbatim(String(payload.leftSets))])
+            } else {
+                let lead: MatchSide = payload.leftSets > payload.rightSets ? .left : .right
+                line += .verbatim("。") + .phrase("tennis.result.sets.lead", [
+                    pair(scoreOfSets(payload, lead), scoreOfSets(payload, lead.opposite)), namedTeam(payload, lead)])
+            }
+            return line
+        }
+        if payload.isManualEnd { return "比赛结束，\(name)获胜" }
+        if payload.isTieBreak, payload.leftSets == 0, payload.rightSets == 0 {
+            return .phrase("tennis.result.match.tiebreak", [name, pair(scoreOf(payload, winner), scoreOf(payload, winner.opposite))])
+        }
+        let scores = resolveSetScoreList(payload).map { score in
+            pair(winner == .left ? score.leftGames : score.rightGames, winner == .left ? score.rightGames : score.leftGames)
+        }.voiceJoined(separator: "、")
+        return .phrase("tennis.result.match", [name,
+            pair(scoreOfSets(payload, winner), scoreOfSets(payload, winner.opposite)), scores])
+    }
+
+    private static func reviewedSquashResultZh(_ payload: VoiceAnnouncementPayload) -> VoiceAnnouncementMessage {
+        guard let winner = payload.winnerSide else {
+            return payload.phase == .matchEnd ? "比赛结束" : "本局结束"
+        }
+        func pair(_ a: Int, _ b: Int) -> VoiceAnnouncementMessage {
+            .phrase("score.numbers", [.verbatim(String(a)), .verbatim(String(b))])
+        }
+        let name = winnerName(payload)
+        let points = pair(scoreOf(payload, winner), scoreOf(payload, winner.opposite))
+        if payload.phase == .setEnd {
+            var line = VoiceAnnouncementMessage.phrase("squash.result.game", [points, name])
+            if payload.leftSets == payload.rightSets {
+                line += .verbatim("。") + .phrase("squash.result.games.all", [.verbatim(String(payload.leftSets))])
+            } else {
+                let lead: MatchSide = payload.leftSets > payload.rightSets ? .left : .right
+                line += .verbatim("。") + .phrase("squash.result.leads", [namedTeam(payload, lead),
+                    pair(scoreOfSets(payload, lead), scoreOfSets(payload, lead.opposite))])
+            }
+            return line
+        }
+        if payload.isManualEnd { return "比赛结束，\(name)获胜" }
+        let scores = resolveSetScoreList(payload).map { score in
+            pair(winner == .left ? score.leftGames : score.rightGames, winner == .left ? score.rightGames : score.leftGames)
+        }.voiceJoined(separator: "、")
+        return .phrase("squash.result.match", [points, name,
+            pair(scoreOfSets(payload, winner), scoreOfSets(payload, winner.opposite)), scores])
     }
 
     private static func reviewedNativeTennisPoint(_ payload: VoiceAnnouncementPayload) -> VoiceAnnouncementMessage {

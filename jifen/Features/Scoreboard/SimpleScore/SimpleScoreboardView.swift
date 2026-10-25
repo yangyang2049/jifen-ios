@@ -25,6 +25,7 @@ struct SimpleScoreboardView: View {
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
     @State private var recordID: String
+    @State private var registersParticipantOwner: Bool
 
     init(
         initialSetup: SportsSetupResult? = nil,
@@ -50,6 +51,7 @@ struct SimpleScoreboardView: View {
         let enabled = initialSetup?.multiScoreCustomAdjustEnabled
             ?? PreferencesManager.shared.simpleScoreCustomAdjustEnabled
         _customAdjustEnabled = State(initialValue: enabled)
+        _registersParticipantOwner = State(initialValue: initialResumeSessionId == nil)
     }
 
     var body: some View {
@@ -169,6 +171,7 @@ struct SimpleScoreboardView: View {
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
+        .registerParticipantSetupOnAppear(recordID: recordID, selections: registersParticipantOwner ? [:] : nil)
         .onAppear {
             if let setup = initialSetup {
                 if !setup.team1Name.isEmpty { viewModel.leftTeam.name = setup.team1Name }
@@ -227,6 +230,7 @@ struct SimpleScoreboardView: View {
         recordID = ScoreboardRecordIdentity.next(
             prefix: GameType.simpleScore.canonicalScoreboardIdentifier
         )
+        try? ParticipantIdentityStore.shared.registerRecord(recordID)
         matchClockSession?.reset(startedAt: controller.gameStartTime)
         viewModel.restoreSession(state: freshState, history: [])
         adjustTargetIsLeft = nil

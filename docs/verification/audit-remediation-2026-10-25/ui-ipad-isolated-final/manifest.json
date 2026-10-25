@@ -1,0 +1,26 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "5832316B-4FD4-47FA-AE31-E55DD4AED27D",
+        "deviceName" : "iPad Pro 13-inch (M5) (16GB)",
+        "exportedFileName" : "47EC3E3B-A7A5-45E9-9277-D67492D6D9BB.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "我的记录-二级页面_0_CCED60DA-CB67-4CF3-983A-987351289B17.png",
+        "timestamp" : 1792899754.225
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "5832316B-4FD4-47FA-AE31-E55DD4AED27D",
+        "deviceName" : "iPad Pro 13-inch (M5) (16GB)",
+        "exportedFileName" : "BC39695D-1DDE-4DC5-925A-67583BC8248A.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "筛选状态-左右布局_0_1572AFF3-FFB0-49A0-AF74-EA70DA9E14BD.png",
+        "timestamp" : 1792899751.162
+      }
+    ],
+    "testIdentifier" : "ParticipantIdentityUITests/testFilterCanBeClearedAndPersonalPageHidesMainTabs()",
+    "testIdentifierURL" : "test://com.apple.xcode/jifen/jifenUITests/ParticipantIdentityUITests/testFilterCanBeClearedAndPersonalPageHidesMainTabs"
+  }
+]

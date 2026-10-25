@@ -1,0 +1,106 @@
+{
+  "date": "2026-10-24",
+  "scope": "Standalone HTML interaction demo; no native app changes",
+  "checks": [
+    "Inline JavaScript syntax parses",
+    "Main setup offers only folk transfer rules and tournament scoring",
+    "1357 default points are 7/5/3/3/1 for big/small/golden/normal/foul",
+    "Point values can be entered directly, marked modified, and reset",
+    "An empty point input can be recovered using the step buttons",
+    "Three-player all-pay small gold produces -7/+14/-7",
+    "Tournament small gold produces +7/0, including for the breaker",
+    "Tournament same-rack fouls give the opponent 1 then 1 then 2 points; third foul ends rack",
+    "Undo third foul restores scores 7/2, rack 2, and two accumulated fouls",
+    "Tournament edit rejects negative scores and accepts independent totals 17/9",
+    "Folk manual edit permits a nonzero total with an explicit reminder",
+    "Rule help renders current values and the comparison table",
+    "Switching from a three-player breaker to tournament keeps the selected breaker consistent with the new match",
+    "320px and 390px iframe viewports inspected visually; rule table wraps and footer remains available"
+  ],
+  "setupSimplification": {
+    "checks": [
+      "No visible participant heading; point plan is inside the collapsed rules",
+      "First-rack breaker defaults to player 1; selector is inside the collapsed rules",
+      "Redundant point-value and input guidance captions removed",
+      "Restore preset is hidden initially and appears only after a rules change",
+      "Restore sits beside the collapsed-row hint and takes no extra row",
+      "Restoring resets values and first breaker, hides the restore button, and preserves expanded or collapsed state",
+      "Starting with the default setup displays player 1 as the first breaker",
+      "Tournament setup retains exactly two name fields"
+    ],
+    "screenshots": ["preview.png", "setup-adjusted.png"]
+  },
+  "pointPlanDeemphasis": {
+    "checks": [
+      "Default folk scheme remains 14710 and the scheme selector is initially hidden",
+      "Expanding rules reveals the 14710/1357 selector before individual event values",
+      "Switching to 1357 keeps rules expanded and updates values to 7/5/3/3/1",
+      "Restoring a customized 1357 value returns to 1357, not 14710",
+      "Obsolete flat three-version comparison entry removed"
+    ],
+    "screenshots": ["preview.png", "setup-presets-expanded.png"]
+  },
+  "formatSelectorSimplification": {
+    "checks": [
+      "Folk and tournament use the existing segmented-control appearance without a separate heading",
+      "The two choices render one text line each, without subtitles or check marks",
+      "Question-mark help sits at the right of the main dialog title",
+      "Tournament selection still exposes two player names",
+      "Question-mark help opens 赛制说明"
+    ],
+    "screenshots": ["preview.png"]
+  },
+  "rackChoicesAndFoulCopy": {
+    "checks": [
+      "Tournament default changed to 10 total racks, with 1/5/10/20 convenience choices",
+      "Custom 0 blocks starting; custom 3 starts a three-rack match",
+      "Restore clears the custom draft and selects default 10",
+      "A one-rack match ends after an ordinary win",
+      "44px square choices and 64px custom input share a row at 390px and wrap the custom input at 320px",
+      "Three same-player rack fouls produce opponent totals 1, 2, 4 and then rack 2",
+      "Third foul creates one rack-loss record with +2, without an additional ordinary-win event",
+      "Undo restores rack 1, opponent score 2, and two fouls",
+      "Help explains rack loss versus match loss and total racks versus race-to wins"
+    ],
+    "sources": [
+      "https://alison-chang.com/duya-legends-tour-golden-nine-standard-rules/",
+      "https://www.taiqiuhq.com/NewsDetail/6398587.html"
+    ],
+    "screenshots": ["preview.png", "setup-racks.png", "racks-mobile-qa.png"]
+  },
+  "continuousRuleHelp": {
+    "checks": [
+      "One scrollable page contains folk rules, tournament rules, and differences in that order",
+      "Current-format and comparison switching controls removed",
+      "All three main section headings have a 3x16 green bar with an 8px gap, matching the home SectionTitleView",
+      "Headings use a dialog title, three main sections, and nested subheadings",
+      "Both formats render their own settings: edited folk small gold +9 and tournament small gold +7",
+      "Tournament three-foul rack-loss explanation retained"
+    ],
+    "screenshots": ["help-all-sections.png", "rules-help.png", "help-section-bars.png"]
+  },
+  "ruleFeedback": {
+    "checks": [
+      "Folk rules, tournament rules, and differences each have a feedback entry at the bottom",
+      "All three entries open the full-page feedback composer directly",
+      "The initial feedback title is #九球追分# followed by a space, matching the Groups title-tag convention",
+      "Feedback type, title, and body survive type switching and returning from the rule explanation",
+      "Returning restores the rule scroll position and focuses the entry used",
+      "The demo does not call the feedback backend or publish a real post"
+    ],
+    "nativeReference": "jifen/Features/Groups/GroupViews.swift: FeedbackListView(initiallyCreate: true, initialCreateTitle:)",
+    "screenshots": ["rule-feedback-entry.png", "feedback-prefilled.png"]
+  },
+  "goldenSummaryAndRestore": {
+    "checks": [
+      "Setup disclosure no longer contains the modified badge",
+      "Restore preset remains hidden initially, appears after editing, and hides again after restoring",
+      "Folk setup summary and help score strip include golden nine as the fifth value",
+      "Editing golden nine from 4 to 6 updates both summaries; restoring returns it to 4",
+      "Tournament setup and help retain four score categories without golden nine"
+    ],
+    "screenshots": ["setup-golden-summary.png", "help-golden-summary.png"]
+  },
+  "screenshots": ["preview.png", "rules-help.png", "mobile-qa.png", "help-all-sections.png"],
+  "ruleSourceLimit": "Tournament example references the 2025-10-16 Duya standard-rule text in a media reproduction; not certified as the complete latest Juejin season rules"
+}

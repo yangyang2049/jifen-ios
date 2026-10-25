@@ -175,10 +175,18 @@ import PersistenceCore
         p.deleteAccountData(accountID: "a"); p.repairOutbox(from: [record]); XCTAssertTrue(p.uploads(accountID: "a").isEmpty)
     }
     func testInitialResumePersistsFrozenSeatsBeforeFirstScore() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("group-booking-identity-" + UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let identity = ParticipantIdentityStore(fileURL: root.appendingPathComponent("identity.json"), currentAccountID: { "group-unit" })
+        try identity.beginAccount("group-unit")
+        try identity.migrateLegacyIfNeeded(scoreIDs: [], timerIDs: [])
         let context = GroupMatchContext(accountID: "group-unit", groupID: "g", groupName: "group", gameID: nil, clientSessionID: UUID().uuidString, format: .doubles, rules: rules(), participants: [.init(memberId: "a", side: "A", seat: 0), .init(memberId: "b", side: "A", seat: 1), .init(memberId: "c", side: "B", seat: 0), .init(memberId: "d", side: "B", seat: 1)])
         var setup = SportsSetupResult(team1Name: "A / B", team2Name: "C / D"); setup.isSingles = false; setup.maxSets = 3
-        let result = await BookingStartPersistence.persist(.init(bookingId: "", gameType: .badminton, setup: setup), groupContext: context)
+        let result = await BookingStartPersistence.persist(.init(bookingId: "", gameType: .badminton, setup: setup),
+            groupContext: context, identity: identity, currentSessionAccountID: { "group-unit" })
         let id = try XCTUnwrap(result)
+        XCTAssertTrue(identity.canRead(recordKey: id))
+        XCTAssertTrue(identity.selections(for: id).isEmpty)
         XCTAssertEqual(GroupLocalPersistence.shared.context(sessionID: id)?.participants, context.participants)
         let uuid = try XCTUnwrap(UUID(uuidString: id))
         let restored = try XCTUnwrap(RallySessionStore(restoring: uuid))

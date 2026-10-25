@@ -268,3 +268,15 @@ provider outside Chinese.
 `group_copy_mark_seen` action (`Mark as Read`). Its runtime and copy-pack aliases
 must not map the status back to the action. Existing native status wording is
 retained in the copy-pack overrides.
+
+The 2026-10-25 nine-ball update retains an explicit English fallback for its 77
+new control and guide keys in the 44 additional locales, as scoped in
+[`nine-ball-rule-presets-ios-2026-10-24.md`](../../docs/nine-ball-rule-presets-ios-2026-10-24.md).
+Their catalog rows use `fixed` with provenance notes; no translation is claimed.
+The five announcement-language labels and table-tennis call notes already have
+authored native wording. Codex reviewed those values for meaning and protected
+call terms and recorded them separately as `reviewed`, without claiming an
+external-provider or native-speaker review. The two Chinese-only WeChat install
+and authorization failure fallbacks also match the current English source and
+retain `fixed` status. All of these rows participate in the ordinary complete
+catalog, source-hash, placeholder and promoted-resource gates.

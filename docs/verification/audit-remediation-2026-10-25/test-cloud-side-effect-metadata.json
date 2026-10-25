@@ -1,0 +1,697 @@
+{
+  "capturedAt": "2026-10-25T11:32:08+08:00",
+  "device": "iPhone 17 Pro / iOS 26.5 simulator",
+  "scope": "Read-only local identity/cloud JSON and existing test logs/source. No Keychain, credentials, remote requests, or cache/cloud mutations.",
+  "files": {
+    "identity.json": {
+      "bytes": 3233170,
+      "sha256": "5a30535b50027a3a94cf5656d90819fc928e301e2c7ff3fa27f9ee0a29add6d3",
+      "mtime": "2026-10-25T11:23:34+08:00"
+    },
+    "cloud.json": {
+      "bytes": 652984,
+      "sha256": "d6063c673b6cc63329e8469dfba0a2f5e08a5856b86b58ac58092bce4fb3e6c5",
+      "mtime": "2026-10-25T11:23:34+08:00"
+    }
+  },
+  "identity": {
+    "recordLibraries": 41414,
+    "ledgerCount": 11,
+    "hasActiveAccount": true,
+    "activeAccountFingerprint": "aceb4705a756",
+    "keyPatterns": {
+      "uuid": 41375,
+      "ui-fixture": 29,
+      "other": 10
+    }
+  },
+  "accounts": [
+    {
+      "fingerprint": "aceb4705a756",
+      "isActiveIdentityAccount": true,
+      "idLength": 25,
+      "exactLocalTestLiteralReferences": [],
+      "testAccountProven": false,
+      "provenanceLimit": "A local account ID or matching test literal does not establish ownership or environment of a remote account.",
+      "cachedRecords": 59,
+      "cachedRemoteIDPresent": 59,
+      "cachedPositiveRevision": 59,
+      "cachedDeletedRecords": 29,
+      "cachedRecordKeyPatterns": {
+        "ui-fixture": 29,
+        "uuid": 30
+      },
+      "nonFixtureRecordsWithFixtureMarkers": 0,
+      "outbox": 53,
+      "outboxOperations": {
+        "delete": 24,
+        "upsert": 29
+      },
+      "fixtureOutboxOperations": {
+        "upsert": 29
+      },
+      "blockedErrorCounts": {
+        "RECORD_NOT_FOUND": 24
+      },
+      "conflicts": 29,
+      "digests": 59,
+      "localRevisions": 59,
+      "fixtures": [
+        {
+          "recordKey": "ui-fixture-air_volleyball",
+          "project": "air_volleyball",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:36:07+08:00",
+          "playedAtUTC": "2026-10-25T02:36:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-archery_dual",
+          "project": "archery_dual",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:35:07+08:00",
+          "playedAtUTC": "2026-10-25T02:35:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-badminton",
+          "project": "badminton",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:51:07+08:00",
+          "playedAtUTC": "2026-10-25T02:51:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-basketball",
+          "project": "basketball",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:41:07+08:00",
+          "playedAtUTC": "2026-10-25T02:41:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-basketball_training",
+          "project": "basketball_training",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:39:07+08:00",
+          "playedAtUTC": "2026-10-25T02:39:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-beach_volleyball",
+          "project": "beach_volleyball",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:37:07+08:00",
+          "playedAtUTC": "2026-10-25T02:37:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-billiards",
+          "project": "billiards",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:33:07+08:00",
+          "playedAtUTC": "2026-10-25T02:33:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-boxing",
+          "project": "boxing",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:34:07+08:00",
+          "playedAtUTC": "2026-10-25T02:34:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-doudizhu",
+          "project": "doudizhu",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:05+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:05+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:29:07+08:00",
+          "playedAtUTC": "2026-10-25T02:29:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-eight_ball",
+          "project": "eight_ball",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:05+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:05+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:31:07+08:00",
+          "playedAtUTC": "2026-10-25T02:31:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-foosball",
+          "project": "foosball",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:05+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:05+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:25:07+08:00",
+          "playedAtUTC": "2026-10-25T02:25:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-football",
+          "project": "football",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:43:07+08:00",
+          "playedAtUTC": "2026-10-25T02:43:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-football_5v5",
+          "project": "football_5v5",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:42:07+08:00",
+          "playedAtUTC": "2026-10-25T02:42:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-guandan",
+          "project": "guandan",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:05+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:05+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:28:07+08:00",
+          "playedAtUTC": "2026-10-25T02:28:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-multi_scoreboard",
+          "project": "multi_scoreboard",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:05+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:05+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:23:07+08:00",
+          "playedAtUTC": "2026-10-25T02:23:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-nine_ball",
+          "project": "nine_ball",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:05+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:05+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:30:07+08:00",
+          "playedAtUTC": "2026-10-25T02:30:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-padel",
+          "project": "padel",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:44:07+08:00",
+          "playedAtUTC": "2026-10-25T02:44:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-pickleball",
+          "project": "pickleball",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:48:07+08:00",
+          "playedAtUTC": "2026-10-25T02:48:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-pingpong",
+          "project": "pingpong",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 61,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:49:07+08:00",
+          "playedAtUTC": "2026-10-25T02:49:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-shengji",
+          "project": "shengji",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:05+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:05+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:27:07+08:00",
+          "playedAtUTC": "2026-10-25T02:27:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-shuttlecock",
+          "project": "shuttlecock",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:47:07+08:00",
+          "playedAtUTC": "2026-10-25T02:47:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-simple_score",
+          "project": "simple_score",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:05+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:05+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:24:07+08:00",
+          "playedAtUTC": "2026-10-25T02:24:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-snooker",
+          "project": "snooker",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:32:07+08:00",
+          "playedAtUTC": "2026-10-25T02:32:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-soft_tennis",
+          "project": "soft_tennis",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:45:07+08:00",
+          "playedAtUTC": "2026-10-25T02:45:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-squash",
+          "project": "squash",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:46:07+08:00",
+          "playedAtUTC": "2026-10-25T02:46:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-tennis",
+          "project": "tennis",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:50:07+08:00",
+          "playedAtUTC": "2026-10-25T02:50:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-three_basketball",
+          "project": "three_basketball",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:40:07+08:00",
+          "playedAtUTC": "2026-10-25T02:40:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-uno",
+          "project": "uno",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 2,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:05+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:05+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:26:07+08:00",
+          "playedAtUTC": "2026-10-25T02:26:07+00:00"
+        },
+        {
+          "recordKey": "ui-fixture-volleyball",
+          "project": "volleyball",
+          "kind": "score",
+          "serverIDPresent": true,
+          "revision": 3,
+          "deleted": true,
+          "updatedAt": "2026-10-25T11:14:04+08:00",
+          "fixtureOperationMarkerCount": 3,
+          "libraryOwnerMatchesCachedAccount": true,
+          "pendingOperations": {
+            "upsert": 1
+          },
+          "hasConflict": true,
+          "updatedAtUTC": "2026-10-25T03:14:04+00:00",
+          "playedAtAsiaShanghai": "2026-10-25T10:38:07+08:00",
+          "playedAtUTC": "2026-10-25T02:38:07+00:00"
+        }
+      ],
+      "unclassifiedRecordUpdatedMinuteCounts": {
+        "2026-10-25 11:23": 30
+      },
+      "unclassifiedRecordRevisionCounts": {
+        "5": 19,
+        "1": 7,
+        "3": 4
+      },
+      "fixtureTimeRanges": {
+        "updatedAt": {
+          "UTC": [
+            "2026-10-25T03:14:04+00:00",
+            "2026-10-25T03:14:05+00:00"
+          ],
+          "AsiaShanghai": [
+            "2026-10-25T11:14:04+08:00",
+            "2026-10-25T11:14:05+08:00"
+          ]
+        },
+        "playedAt": {
+          "UTC": [
+            "2026-10-25T02:23:07+00:00",
+            "2026-10-25T02:51:07+00:00"
+          ],
+          "AsiaShanghai": [
+            "2026-10-25T10:23:07+08:00",
+            "2026-10-25T10:51:07+08:00"
+          ]
+        }
+      },
+      "outboxFixtureCount": 29,
+      "outboxUnclassifiedCount": 24,
+      "unclassifiedCachedTimeRanges": {
+        "updatedAt": {
+          "UTC": [
+            "2026-10-25T03:23:28+00:00",
+            "2026-10-25T03:23:31+00:00"
+          ],
+          "AsiaShanghai": [
+            "2026-10-25T11:23:28+08:00",
+            "2026-10-25T11:23:31+08:00"
+          ]
+        },
+        "playedAt": {
+          "UTC": [
+            "2026-10-24T15:37:36+00:00",
+            "2026-10-25T03:23:13+00:00"
+          ],
+          "AsiaShanghai": [
+            "2026-10-24T23:37:36+08:00",
+            "2026-10-25T11:23:13+08:00"
+          ]
+        }
+      }
+    },
+    {
+      "fingerprint": "a9e18465f1d5",
+      "isActiveIdentityAccount": false,
+      "idLength": 16,
+      "exactLocalTestLiteralReferences": [
+        "jifenTests/WechatBindingTests.swift:592",
+        "jifenTests/WechatBindingTests.swift:647",
+        "jifenTests/WechatBindingTests.swift:786",
+        "jifenTests/WechatBindingTests.swift:807",
+        "jifenTests/WechatBindingTests.swift:846",
+        "jifenTests/WechatBindingTests.swift:852",
+        "jifenTests/WechatBindingTests.swift:995",
+        "jifenTests/WechatBindingTests.swift:1004",
+        "jifenTests/WechatBindingTests.swift:1116",
+        "jifenTests/APIClientSessionIsolationTests.swift:442"
+      ],
+      "testAccountProven": false,
+      "provenanceLimit": "A local account ID or matching test literal does not establish ownership or environment of a remote account.",
+      "cachedRecords": 0,
+      "cachedRemoteIDPresent": 0,
+      "cachedPositiveRevision": 0,
+      "cachedDeletedRecords": 0,
+      "cachedRecordKeyPatterns": {},
+      "nonFixtureRecordsWithFixtureMarkers": 0,
+      "outbox": 52,
+      "outboxOperations": {
+        "upsert": 52
+      },
+      "fixtureOutboxOperations": {
+        "upsert": 29
+      },
+      "blockedErrorCounts": {},
+      "conflicts": 0,
+      "digests": 0,
+      "localRevisions": 0,
+      "fixtures": [],
+      "unclassifiedRecordUpdatedMinuteCounts": {},
+      "unclassifiedRecordRevisionCounts": {},
+      "fixtureTimeRanges": {
+        "updatedAt": null,
+        "playedAt": null
+      },
+      "outboxFixtureCount": 29,
+      "outboxUnclassifiedCount": 23,
+      "unclassifiedCachedTimeRanges": {
+        "updatedAt": null,
+        "playedAt": null
+      }
+    }
+  ],
+  "evidence": {
+    "log": "ios-unit-final.log:2733-2751",
+    "source": "jifen/Features/Records/UITestRecordFixtures.swift:108-125",
+    "sourceMeaning": "The ui-fixture- prefix and fixture_score/fixture_section action markers are generated by UITestRecordFixtures.",
+    "scoreboardDisplayTests": "ScoreboardDisplayTests display fixture() builds display states, not persisted records; the network requests occurred while its snapshot tests pumped the run loop. Timing alone does not prove this suite generated the uploaded records.",
+    "causalityLimit": "No pre-run cache snapshot was captured. Server-ID/revision cache entries and successful pull/push logs establish synchronization evidence, but this snapshot cannot identify exactly which records were newly applied during this run versus already present from earlier runs.",
+    "cleanup": "No remote or local deletion performed; do not infer the 30 unmarked UUID records are disposable fixtures.",
+    "timingFinding": "All 29 marked UI fixtures have server updatedAt at 11:14:04-11:14:05 Asia/Shanghai, before the final unit run push at 11:23. The 30 unclassified UUID records have server updatedAt during 11:23; server revision counts are 7 at revision 1, 4 at revision 3, and 19 at revision 5. This strongly supports real record updates during the test window; a cache snapshot cannot by itself establish their fixture provenance or the remote account purpose."
+  }
+}

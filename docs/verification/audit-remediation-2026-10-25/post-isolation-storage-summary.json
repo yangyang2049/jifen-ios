@@ -1,0 +1,124 @@
+{
+  "capturedAt": "2026-10-25T11:45:41+08:00",
+  "scope": "Read-only local filesystem metadata and JSON aggregates. No Keychain/token access, remote request, source edit, cache edit, or deletion.",
+  "device": "iPhone 17 Pro / iOS 26.5 simulator",
+  "previousReport": "test-cloud-side-effect-metadata.json",
+  "normalStorage": {
+    "relativeRoot": "jifen-v3/participant-identity",
+    "files": {
+      "identity.json": {
+        "exists": true,
+        "bytes": 3233170,
+        "sha256": "5a30535b50027a3a94cf5656d90819fc928e301e2c7ff3fa27f9ee0a29add6d3",
+        "mtimeAsiaShanghai": "2026-10-25T11:23:34+08:00",
+        "sha256MatchesBeforeIsolation": true,
+        "mtimeMatchesBeforeIsolation": true,
+        "baselineMtimeAsiaShanghai": "2026-10-25T11:23:34+08:00"
+      },
+      "cloud.json": {
+        "exists": true,
+        "bytes": 652984,
+        "sha256": "d6063c673b6cc63329e8469dfba0a2f5e08a5856b86b58ac58092bce4fb3e6c5",
+        "mtimeAsiaShanghai": "2026-10-25T11:23:34+08:00",
+        "sha256MatchesBeforeIsolation": true,
+        "mtimeMatchesBeforeIsolation": true,
+        "baselineMtimeAsiaShanghai": "2026-10-25T11:23:34+08:00"
+      }
+    },
+    "cloud": {
+      "fileExists": true,
+      "persistedAccounts": 2,
+      "cachedRecords": 59,
+      "outbox": 105,
+      "accounts": [
+        {
+          "fingerprint": "aceb4705a756",
+          "records": 59,
+          "outbox": 53
+        },
+        {
+          "fingerprint": "a9e18465f1d5",
+          "records": 0,
+          "outbox": 52
+        }
+      ]
+    },
+    "identity": {
+      "fileExists": true,
+      "ledgerCount": 11,
+      "recordLibraries": 41414,
+      "hasActiveAccount": true,
+      "ledgerOwnersPresent": 7
+    },
+    "otherScoreboardStores": [
+      {
+        "relativeRoot": "com.douhua.jifen.ios/ScoreboardRecords-v4",
+        "exists": true,
+        "recordFileCount": 99,
+        "recordKeyPatterns": {
+          "ui-fixture": 29,
+          "unclassified": 70
+        },
+        "unreadableRecordFiles": 0,
+        "indexEntryCount": 99,
+        "indexMetadata": {
+          "exists": true,
+          "bytes": 16378,
+          "sha256": "d259bf7473d616987a724f2aa7023ba79f8a178e27120d25d2c009f54252e66f",
+          "mtimeAsiaShanghai": "2026-10-25T11:23:14+08:00"
+        }
+      }
+    ]
+  },
+  "isolatedUITestStorage": {
+    "relativeRoot": "UITestFixtures-v1",
+    "exists": true,
+    "identityMetadata": {
+      "exists": true,
+      "bytes": 2428,
+      "sha256": "82bad9d6975f11d16244c84c65981239264d9f30cbb9c3f108d3beee157a1c4f",
+      "mtimeAsiaShanghai": "2026-10-25T11:40:20+08:00"
+    },
+    "identity": {
+      "fileExists": true,
+      "ledgerCount": 1,
+      "recordLibraries": 31,
+      "hasActiveAccount": false,
+      "ledgerOwnersPresent": 0
+    },
+    "cloudMetadata": {
+      "exists": false
+    },
+    "cloud": {
+      "fileExists": false,
+      "persistedAccounts": 0,
+      "cachedRecords": 0,
+      "outbox": 0
+    },
+    "scoreboardRecords": {
+      "exists": true,
+      "recordFileCount": 29,
+      "recordKeyPatterns": {
+        "ui-fixture": 29
+      },
+      "unreadableRecordFiles": 0,
+      "indexEntryCount": 29,
+      "indexMetadata": {
+        "exists": true,
+        "bytes": 4058,
+        "sha256": "86cc6884455bdb12ca0270b8d3482d5ab9f6a8b7350f0ee975632c72b92c6ce3",
+        "mtimeAsiaShanghai": "2026-10-25T11:40:16+08:00"
+      }
+    },
+    "timerRecordFiles": 0
+  },
+  "findings": [
+    "The isolated UI-test identity and scoreboard records resolve beneath UITestFixtures-v1, separately from normal participant-identity and normal scoreboard storage.",
+    "UITestFixtures-v1/cloud.json does not exist; effective persisted test cloud accounts, records, and outbox counts are zero.",
+    "Normal identity.json and cloud.json hashes and mtimes match the pre-isolation metadata exactly; both remain dated 2026-10-25 11:23:34 Asia/Shanghai. The isolated final test run did not rewrite these two normal cache files.",
+    "Unchanged normal files retain the earlier account/cache state. This verification does not undo or erase the prior synchronization side effects.",
+    "No before-isolation hashes of normal scoreboard record files were collected, so those files are reported only as a current aggregate, not as a byte-for-byte unchanged claim."
+  ],
+  "pathSeparationVerified": true,
+  "normalCacheUnchangedVerified": true
+}

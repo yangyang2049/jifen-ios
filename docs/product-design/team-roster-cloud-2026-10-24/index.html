@@ -1,0 +1,1056 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>独立队伍、队员与云协作 · PRD 与技术方案</title><meta name="description" content="全能计分器独立队伍、离线阵容、云协作、邀请认领与篮球统计的产品需求和技术方案，含十张架构与流程图。"><style>
+:root{color-scheme:light;--page:#f4f6f5;--paper:#fff;--ink:#202e28;--sub:#627168;--line:#dce4de;--green:#2c7142;--soft:#eaf3ed;--code:#f2f5f3}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:28px}body{margin:0;background:var(--page);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;font-size:15px;line-height:1.85}a{color:var(--green);text-decoration:none}a:hover{text-decoration:underline}button,select{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #76aa88;outline-offset:3px}.masthead{max-width:1450px;margin:auto;padding:54px 44px 34px}.eyebrow{font-size:12px;letter-spacing:.14em;color:var(--green);font-weight:600}.masthead h1{font-size:42px;line-height:1.3;letter-spacing:-.04em;font-weight:600;margin:13px 0 14px}.masthead p{color:var(--sub);margin:0;max-width:850px}.meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:22px;color:var(--sub);font-size:12px}.badge{background:var(--soft);color:var(--green);padding:3px 10px;border-radius:5px}.top-actions{display:flex;flex-wrap:wrap;gap:20px;align-items:center;margin-top:24px}.quiet{border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:6px 14px;border-radius:7px}.layout{display:grid;grid-template-columns:245px minmax(0,1fr);gap:30px;max-width:1450px;margin:auto;padding:0 34px 70px}.toc{position:sticky;top:20px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;padding:6px 12px 20px 5px}.toc h2{font-size:12px;color:var(--sub);margin:18px 9px 9px;letter-spacing:.05em}.toc a{display:block;color:var(--sub);font-size:12px;line-height:1.65;padding:6px 9px;border-left:2px solid transparent}.toc a:hover,.toc a.active{color:var(--green);border-left-color:var(--green);background:var(--soft);text-decoration:none}.document{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:38px 44px;min-width:0;box-shadow:0 12px 40px #20332606}article+article{border-top:3px solid var(--line);padding-top:34px;margin-top:62px}article h1{font-size:29px;line-height:1.45;letter-spacing:-.025em;margin:0 0 20px;font-weight:600}article h2{font-size:22px;line-height:1.45;margin:46px 0 16px;padding-bottom:12px;border-bottom:1px solid var(--line);font-weight:600}article h3{font-size:17px;line-height:1.5;margin:26px 0 10px;font-weight:600}p{margin:13px 0}ul,ol{padding-left:24px;margin:13px 0}li+li{margin-top:6px}strong{font-weight:600}blockquote{border-left:3px solid #81ae8b;background:var(--soft);margin:22px 0;padding:12px 18px;color:#345541}blockquote p{margin:0}.table-wrap{overflow:auto;margin:20px 0 24px}table{width:100%;border-collapse:collapse;font-size:13px;line-height:1.75;min-width:590px}th{text-align:left;background:var(--soft);color:#314f3b;font-weight:600}th,td{padding:10px 13px;border:1px solid var(--line);vertical-align:top}tr:nth-child(even) td{background:#fafcfb}code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.87em;padding:2px 4px;border-radius:4px;background:var(--code);overflow-wrap:anywhere}pre{padding:18px 20px;background:var(--code);border-radius:8px;overflow:auto;font-size:13px;line-height:1.6}pre code{padding:0;background:none;overflow-wrap:normal}figure{margin:26px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}figcaption{display:flex;align-items:center;justify-content:space-between;gap:15px;background:#f7faf8;padding:11px 15px;font-size:12px;color:#56665b}.zoom-button{background:none;border:0;padding:4px;color:var(--green);font-size:12px;white-space:nowrap;min-height:30px}.diagram-body{overflow:auto;background:#fff}.diagram-body svg{display:block;width:100%;min-width:850px;height:auto}.mobile-toc{display:none}dialog{padding:0;max-width:96vw;width:1500px;max-height:94vh;border:1px solid var(--line);border-radius:12px;color:var(--ink);background:var(--paper)}dialog::backdrop{background:#15241bcc}.dialog-header{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:var(--paper);border-bottom:1px solid var(--line);gap:20px;z-index:1}.dialog-body{overflow:auto;max-height:calc(94vh - 70px);background:#fff}.dialog-body svg{display:block;width:100%;min-width:1100px;height:auto}.bottom-note{font-size:12px;color:var(--sub);padding-top:30px;border-top:1px solid var(--line);margin-top:50px}.muted{color:var(--sub)}
+@media(max-width:1000px){.layout{grid-template-columns:200px minmax(0,1fr);gap:16px;padding:0 18px 50px}.document{padding:28px 24px}.masthead{padding:36px 30px 26px}.masthead h1{font-size:34px}.toc a{font-size:11px}}
+@media(max-width:730px){body{font-size:14px}.masthead{padding:27px 20px 22px}.masthead h1{font-size:28px;letter-spacing:-.025em}.masthead p{font-size:13px}.meta{font-size:11px}.layout{display:block;padding:0 10px 34px}.toc{display:none}.document{padding:24px 17px;border-radius:10px}article h1{font-size:23px}article h2{font-size:19px;margin-top:34px}article h3{font-size:16px}.mobile-toc{display:block;margin:0 10px 16px;padding:11px 13px;background:var(--paper);border:1px solid var(--line);border-radius:8px}.mobile-toc label{display:block;font-size:12px;color:var(--sub);margin-bottom:6px}.mobile-toc select{width:100%;padding:8px 6px;background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:6px;font-size:14px}.top-actions{gap:16px;font-size:13px}figcaption{font-size:11px;padding:9px 10px}.zoom-button{font-size:11px}pre{padding:14px;font-size:11px}table{font-size:12px}.dialog-header{font-size:13px}}
+@media print{body{background:#fff;color:#111;font-size:10.5pt}.masthead{padding:0 0 20px}.masthead h1{font-size:25pt}.layout{display:block;padding:0}.toc,.mobile-toc,.top-actions,.zoom-button,dialog{display:none!important}.document{border:0;box-shadow:none;padding:0}.diagram-body{overflow:visible}.diagram-body svg{min-width:0;width:100%;max-height:24cm}.table-wrap{overflow:visible}table{min-width:0;font-size:9pt}thead{display:table-header-group}tr,figure{break-inside:avoid}article h2{break-after:avoid}a{color:inherit}pre{white-space:pre-wrap}article+article{break-before:page}p,li{orphans:3;widows:3}.meta .badge{border:1px solid #aaa}}
+</style></head><body>
+<header class="masthead"><div class="eyebrow">全能计分器 · 产品与技术评审</div><h1>独立队伍、队员与云协作</h1><p>从本机阵容到云端邀请，把队伍、小组、本人身份和比赛统计的边界一次讲清。</p><div class="meta"><span class="badge">待评审 · 未实施</span><span>版本 0.1</span><span>2026.10.24</span><span>PRD + 技术方案 · 10 张图</span></div><div class="top-actions"><a href="#p01">产品需求</a><a href="#t01">技术方案</a><a href="#p12">验收用例</a><button class="quiet" type="button" id="print-document">打印／保存 PDF</button></div></header>
+<div class="mobile-toc"><label for="section-picker">跳转章节</label><select id="section-picker"><option value="">选择章节</option><option value="p01">P01. 产品定义与结论</option><option value="p02">P02. 问题、证据与目标</option><option value="p03">P03. 已明确方向与本方案建议</option><option value="p04">P04. 核心概念</option><option value="p05">P05. 页面与入口</option><option value="p06">P06. 关键用户旅程</option><option value="p07">P07. 排行榜与统计规则</option><option value="p08">P08. 权限与可见性</option><option value="p09">P09. 旧数据与名称关联</option><option value="p10">P10. 跨端与小组交集</option><option value="p11">P11. 分期与评审门槛</option><option value="p12">P12. 验收用例</option><option value="p13">P13. 衡量效果与待定事项</option><option value="t01">T01. 现状核对与改造边界</option><option value="t02">T02. 核心不变量</option><option value="t03">T03. 领域数据模型</option><option value="t04">T04. 本地存储与同步协议</option><option value="t05">T05. 邀请、认领与权限事务</option><option value="t06">T06. 拟新增接口</option><option value="t07">T07. 比赛事实、接受状态与统计投影</option><option value="t08">T08. 兼容迁移与逐端落地</option><option value="t09">T09. 权限、内容与运维</option><option value="t10">T10. 验证、上线与回退</option><option value="t11">T11. 评审必须回答的问题</option></select></div>
+<div class="layout"><nav class="toc" aria-label="文档目录"><h2>产品需求</h2><a href="#p01">P01. 产品定义与结论</a><a href="#p02">P02. 问题、证据与目标</a><a href="#p03">P03. 已明确方向与本方案建议</a><a href="#p04">P04. 核心概念</a><a href="#p05">P05. 页面与入口</a><a href="#p06">P06. 关键用户旅程</a><a href="#p07">P07. 排行榜与统计规则</a><a href="#p08">P08. 权限与可见性</a><a href="#p09">P09. 旧数据与名称关联</a><a href="#p10">P10. 跨端与小组交集</a><a href="#p11">P11. 分期与评审门槛</a><a href="#p12">P12. 验收用例</a><a href="#p13">P13. 衡量效果与待定事项</a><h2>技术设计</h2><a href="#t01">T01. 现状核对与改造边界</a><a href="#t02">T02. 核心不变量</a><a href="#t03">T03. 领域数据模型</a><a href="#t04">T04. 本地存储与同步协议</a><a href="#t05">T05. 邀请、认领与权限事务</a><a href="#t06">T06. 拟新增接口</a><a href="#t07">T07. 比赛事实、接受状态与统计投影</a><a href="#t08">T08. 兼容迁移与逐端落地</a><a href="#t09">T09. 权限、内容与运维</a><a href="#t10">T10. 验证、上线与回退</a><a href="#t11">T11. 评审必须回答的问题</a></nav><main class="document"><article aria-label="产品需求"><h1 id="prd-title">独立队伍、队员与云协作 PRD</h1>
+<p><strong>版本</strong>：0.1　<strong>日期</strong>：2026-10-24　<strong>状态</strong>：待评审／未实施　<strong>范围</strong>：先统一中文产品概念与跨端行为。</p>
+<h2 id="p01">P01. 产品定义与结论</h2>
+<p>队伍是一份能持续使用的阵容和比赛资料，不依赖小组存在。用户可以在离线状态下创建队伍、添加未注册队员、选择出场名单、计分并查看本机统计。需要邀请他人、在多设备继续使用、共享队伍资料时，再把选定队伍发布为云队伍。</p>
+<p>小组承担活动与赛事组织。需要队伍参赛的项目可引用已有队伍；按个人参赛的项目继续引用个人。加入队伍、加入小组、报名某次赛事是三个独立动作。</p>
+<p><strong>建议中文入口为“队伍与队员”。</strong> “花名册”可用于队内名单的称呼，但不宜作为包含比赛和统计的总入口。本方案不新增一个独立的全局展示姓名。</p>
+<blockquote>
+<p>上云不代表公开；绑定本人账号不等于实名认证；组织者不一定是参赛者。</p>
+</blockquote>
+<figure id="figure-01-product-domain" data-figure="01-product-domain"><figcaption><span>图 1：队伍、队员、小组与离线比赛的关系</span><button type="button" class="zoom-button" aria-label="放大图 1：队伍、队员、小组与离线比赛的关系">放大查看</button></figcaption><div class="diagram-body"><svg xmlns="http://www.w3.org/2000/svg" width="1200" height="580" viewBox="0 0 1200 580" role="img" aria-labelledby="01-product-domain-title"><title id="01-product-domain-title">队伍独立存在，小组按需引用</title><defs><marker id="01-product-domain-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M0 0 L9 4.5 L0 9Z" fill="#536878"/></marker><marker id="01-product-domain-amber" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9Z" fill="#a16b23"/></marker></defs><style>text{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;fill:#23323e}.diagram-title{font-size:22px;font-weight:600}.node-title{font-size:17px;font-weight:600}.node-body{font-size:15px}.edge-label{font-size:14px;fill:#4b5c69}.footer{font-size:14px;fill:#5b6a75}</style><rect width="100%" height="100%" fill="#fff"/><text x="35" y="32" class="diagram-title">队伍独立存在，小组按需引用</text><polyline points="345,145 445,145" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#01-product-domain-arrow)"/><polyline points="755,145 855,145" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#01-product-domain-arrow)"/><polyline points="190,220 190,350" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#01-product-domain-arrow)"/><polyline points="345,420 445,420" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#01-product-domain-arrow)"/><polyline points="855,420 755,420" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round" stroke-dasharray="6 5" marker-end="url(#01-product-domain-arrow)"/><g id="01-product-domain-team"><rect x="35" y="75" width="310" height="145" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="52" y="104">队伍</text><text class="node-body" x="52" y="139">长期阵容、项目、队名</text><text class="node-body" x="52" y="162">无需先建小组；可先仅在本机</text></g><g id="01-product-domain-roster"><rect x="445" y="75" width="310" height="145" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="462" y="104">队员与本场阵容</text><text class="node-body" x="462" y="139">名单可包含尚未注册的人</text><text class="node-body" x="462" y="162">每场另选实际出场者</text></g><g id="01-product-domain-account"><rect x="855" y="75" width="310" height="145" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="872" y="104">本人账号</text><text class="node-body" x="872" y="139">本人同意与管理方确认后认领</text><text class="node-body" x="872" y="162">应用昵称与队内昵称各有范围</text></g><g id="01-product-domain-local"><rect x="35" y="350" width="310" height="145" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="52" y="379">普通离线比赛</text><text class="node-body" x="52" y="414">选择队伍、阵容、记录比分</text><text class="node-body" x="52" y="437">保存本机记录与本机统计</text></g><g id="01-product-domain-cloud"><rect x="445" y="350" width="310" height="145" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="462" y="379">云队伍与共享记录</text><text class="node-body" x="462" y="414">选择上云、邀请、跨设备访问</text><text class="node-body" x="462" y="437">同步成功不等于双方确认</text></g><g id="01-product-domain-group"><rect x="855" y="350" width="310" height="145" rx="11" fill="#f0f3f6" stroke="#ccd6dd" stroke-dasharray="5 4"/><text class="node-title" x="872" y="379">小组的队伍赛事（后续）</text><text class="node-body" x="872" y="414">引用既有队伍，独立报名授权</text><text class="node-body" x="872" y="437">当前个人单／双打继续保留</text></g><g><rect x="373" y="109" width="44" height="23" rx="4" fill="#fff"/><text x="395" y="126" text-anchor="middle" class="edge-label">包含</text></g><g><rect x="783" y="109" width="44" height="23" rx="4" fill="#fff"/><text x="805" y="126" text-anchor="middle" class="edge-label">认领</text></g><g><rect x="209" y="268" width="72" height="23" rx="4" fill="#fff"/><text x="245" y="285" text-anchor="middle" class="edge-label">无需网络</text></g><g><rect x="359" y="384" width="72" height="23" rx="4" fill="#fff"/><text x="395" y="401" text-anchor="middle" class="edge-label">选择上传</text></g><g><rect x="762" y="384" width="86" height="23" rx="4" fill="#fff"/><text x="805" y="401" text-anchor="middle" class="edge-label">引用与确认</text></g><text class="footer" x="35" y="550">队伍、账号与小组的关系独立；不因同名、登录或引用队伍而自动合并身份或授权。</text></svg></div></figure>
+<h2 id="p02">P02. 问题、证据与目标</h2>
+<h3 id="prd-heading-1">反馈证据</h3>
+<p>用户提供的鸿蒙简体中文反馈，创建于 2026-10-09 19:37:24，标题为“队伍里面不能增加人员”；内容指出队伍无法加人，或队员无法分组。反馈状态为待处理。这支持“组织者需要队伍—队员关系”的判断，尚不能单凭这条反馈证明其愿意注册、邀请或使用排行榜。</p>
+<h3 id="prd-heading-2">目标与非目标</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>本方案要求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>组织效率</td>
+<td>建队后维护固定队员，下一场直接选队伍和本场阵容</td>
+</tr>
+<tr>
+<td>离线可用</td>
+<td>未登录、无网络时能完成本机创建、选人、计分和查看记录</td>
+</tr>
+<tr>
+<td>身份连续</td>
+<td>临时队员被本人认领后保留原队员身份与历史，不按姓名重新建一个人</td>
+</tr>
+<tr>
+<td>合作与增长</td>
+<td>通过邀请，让队员看到本队资料、认领自己并设置队内昵称</td>
+</tr>
+<tr>
+<td>记录可信</td>
+<td>区分本机记录、本队记录、双方确认与赛事确认</td>
+</tr>
+<tr>
+<td>可计算统计</td>
+<td>队伍战绩、明确出场次数；有球员记分数据时才生成相应技术榜</td>
+</tr>
+<tr>
+<td>本期不做</td>
+<td>全国公开排行榜、强制实名、自动抓取通讯录、完整俱乐部经营、通用社交聊天</td>
+</tr>
+<tr>
+<td>保持既有规则</td>
+<td>不借本项目修改已有小组的人数、会员或计费规则</td>
+</tr>
+</tbody></table></div>
+<h2 id="p03">P03. 已明确方向与本方案建议</h2>
+<h3 id="prd-heading-3">已明确的产品方向</h3>
+<ul>
+<li>队伍与小组有交集，也各自独立；普通离线计分也要能使用队伍与队员。</li>
+<li>支持邀请用户加入，用户可以编辑自己在队内的昵称。</li>
+<li>需要考虑篮球排行榜与长期比赛数据，而不是只增加一个队员名称输入框。</li>
+<li>当前应用昵称复用既有资料；个人可关联最多 3 个名称；选人时已关联名称显示“我”。</li>
+<li>一个自然人在同一场比赛中只能占一个个人参赛位置，别名不产生多个参赛身份。</li>
+</ul>
+<h3 id="prd-heading-4">建议采用、仍需产品评审的默认方案</h3>
+<ul>
+<li>保留纯本机队伍；上云由用户显式选择，云队伍默认仅对获准成员可见。</li>
+<li>邀请分为“加入队伍”和“认领已有队员”，两者的权限与确认步骤不同。</li>
+<li>队伍访问角色与球员名单分离，允许管理员或记分员只组织、不出场。</li>
+<li>队伍成员变动不改写历史；每场保存当时的阵容和名称快照。</li>
+<li>队伍战绩先完整支持；球员得分归属作为下一阶段增强；小组队伍赛事再单独接入。</li>
+</ul>
+<h2 id="p04">P04. 核心概念</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>含义与边界</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>队员</td>
+<td>队伍名单中的一个稳定成员，可以尚未注册。名字相同不代表同一个人</td>
+</tr>
+<tr>
+<td>本人账号</td>
+<td>登录身份；经确认可对应多个队伍里的不同成员关系</td>
+</tr>
+<tr>
+<td>队伍</td>
+<td>独立的长期阵容，属于一个运动项目；建议项目创建后不直接修改</td>
+</tr>
+<tr>
+<td>本队访问成员</td>
+<td>获准查看或管理云队伍的账号；不必同时是出场队员</td>
+</tr>
+<tr>
+<td>本场阵容</td>
+<td>从队伍名单选择的实际参赛者；加入队伍不等于每场出场</td>
+</tr>
+<tr>
+<td>小组</td>
+<td>活动、约赛或赛事组织空间；使用队伍时建立显式引用，不复制队伍</td>
+</tr>
+<tr>
+<td>关联名称</td>
+<td>个人历史数据认领和快捷选人使用的名称，最多 3 个；不代表多个球员</td>
+</tr>
+<tr>
+<td>队内昵称</td>
+<td>仅在本队生效的称呼，未设置时使用应用昵称；不占个人关联名称名额</td>
+</tr>
+</tbody></table></div>
+<h3 id="prd-heading-5">名称显示规则</h3>
+<ol>
+<li>新队员有账号且设置了队内昵称：优先显示队内昵称。</li>
+<li>新队员有账号但未设置队内昵称：使用当前获准展示的应用昵称。</li>
+<li>未认领的队员：显示组织者录入的队员名称。</li>
+<li>历史比赛始终保留当场名称；“我”的识别以身份关系为准。</li>
+<li>管理员给队员的内部备注不得覆盖本人公开的队内昵称；本期可不提供内部备注。</li>
+</ol>
+<h2 id="p05">P05. 页面与入口</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>位置</th>
+<th>内容与动作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>首页 → 队伍与队员</td>
+<td>替代当前仅存名称的入口，进入“队伍／队员”两类；兼容既有快捷名称</td>
+</tr>
+<tr>
+<td>队伍列表</td>
+<td>本机／云端状态、运动项目、我的权限；创建、导入、选择上云</td>
+</tr>
+<tr>
+<td>队伍详情 → 队员</td>
+<td>展开名单、添加队员、邀请加入、认领状态、队内昵称与权限入口</td>
+</tr>
+<tr>
+<td>队伍详情 → 比赛</td>
+<td>本队比赛、阵容、比分、记录来源、确认状态</td>
+</tr>
+<tr>
+<td>队伍详情 → 统计</td>
+<td>本队战绩、队员出场；满足数据条件时展示已记录得分榜</td>
+</tr>
+<tr>
+<td>队伍列表 → 战绩榜</td>
+<td>在明确的项目、时间与记录范围内比较多支队伍，不默认全国排行</td>
+</tr>
+<tr>
+<td>队员页 → 已关联本人</td>
+<td>直接展开最多 3 个关联名称及操作，不拆成两个“关联／管理”导航行</td>
+</tr>
+<tr>
+<td>Setup</td>
+<td>选已有队伍 → 选本场阵容；个人项目直接选人，已关联名称显示“我”</td>
+</tr>
+<tr>
+<td>记录 → 我的参赛</td>
+<td>看本人实际参与的比赛与统计，不把名称管理放在默认内容中</td>
+</tr>
+<tr>
+<td>小组赛事</td>
+<td>当项目支持队伍时选择已有云队伍，按赛事权限报名；不自动加入队伍或小组</td>
+</tr>
+<tr>
+<td>我的 → 个人资料</td>
+<td>修改应用昵称，查看本人账号；不设置第三套全局名字</td>
+</tr>
+</tbody></table></div>
+<p>当前小组尚不支持篮球、足球队伍赛，此表中的小组队伍赛事是目标位置，不是已上线能力。</p>
+<figure id="figure-02-information-architecture" data-figure="02-information-architecture"><figcaption><span>图 2：页面信息架构与主要入口</span><button type="button" class="zoom-button" aria-label="放大图 2：页面信息架构与主要入口">放大查看</button></figcaption><div class="diagram-body"><svg xmlns="http://www.w3.org/2000/svg" width="1220" height="840" viewBox="0 0 1220 840" role="img" aria-labelledby="02-information-architecture-title"><title id="02-information-architecture-title">名称管理与比赛记录各有位置</title><defs><marker id="02-information-architecture-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M0 0 L9 4.5 L0 9Z" fill="#536878"/></marker><marker id="02-information-architecture-amber" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9Z" fill="#a16b23"/></marker></defs><style>text{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;fill:#23323e}.diagram-title{font-size:22px;font-weight:600}.node-title{font-size:17px;font-weight:600}.node-body{font-size:15px}.edge-label{font-size:14px;fill:#4b5c69}.footer{font-size:14px;fill:#5b6a75}</style><rect width="100%" height="100%" fill="#fff"/><text x="35" y="32" class="diagram-title">名称管理与比赛记录各有位置</text><polyline points="375,110 440,110" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#02-information-architecture-arrow)"/><polyline points="780,110 845,110" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#02-information-architecture-arrow)"/><polyline points="610,160 610,245" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#02-information-architecture-arrow)"/><polyline points="1015,160 1015,245" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#02-information-architecture-arrow)"/><polyline points="375,300 440,300" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#02-information-architecture-arrow)"/><polyline points="375,515 440,515" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#02-information-architecture-arrow)"/><polyline points="1015,370 1015,465" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#02-information-architecture-arrow)"/><polyline points="780,710 812,710 812,110 845,110" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round" stroke-dasharray="6 5" marker-end="url(#02-information-architecture-arrow)"/><g id="02-information-architecture-home"><rect x="35" y="65" width="340" height="95" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="52" y="94">首页</text><text class="node-body" x="52" y="129">队伍与队员入口</text></g><g id="02-information-architecture-library"><rect x="440" y="65" width="340" height="95" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="457" y="94">队伍与队员</text><text class="node-body" x="457" y="129">队伍／队员两类；本机与云状态</text></g><g id="02-information-architecture-team"><rect x="845" y="65" width="340" height="95" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="862" y="94">队伍详情</text><text class="node-body" x="862" y="129">队员 ｜ 比赛 ｜ 统计</text></g><g id="02-information-architecture-aliases"><rect x="440" y="245" width="340" height="125" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="457" y="274">队员页：已关联本人 3／3</text><text class="node-body" x="457" y="309">名字直接展开；显示“我”</text><text class="node-body" x="457" y="332">隐藏快捷入口与解除关联分开</text></g><g id="02-information-architecture-setup"><rect x="35" y="245" width="340" height="125" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="52" y="274">Setup 计分设置</text><text class="node-body" x="52" y="309">选已有队伍，再选本场出场者</text><text class="node-body" x="52" y="332">同一身份不可重复占位</text></g><g id="02-information-architecture-nickname"><rect x="845" y="245" width="340" height="125" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="862" y="274">队伍设置／本人队员资料</text><text class="node-body" x="862" y="309">队内昵称、邀请、认领、权限</text><text class="node-body" x="862" y="332">昵称仅在本队生效</text></g><g id="02-information-architecture-records"><rect x="35" y="465" width="340" height="100" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="52" y="494">记录 Tab</text><text class="node-body" x="52" y="529">保留全部／计分／计时分类</text></g><g id="02-information-architecture-personal"><rect x="440" y="465" width="340" height="100" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="457" y="494">我的参赛</text><text class="node-body" x="457" y="529">本人比赛与统计；不混入名称管理</text></g><g id="02-information-architecture-ranking"><rect x="845" y="465" width="340" height="100" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="862" y="494">统计／战绩榜</text><text class="node-body" x="862" y="529">队伍或赛事范围；不默认全站榜</text></g><g id="02-information-architecture-profile"><rect x="35" y="660" width="340" height="100" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="52" y="689">我的 → 个人资料</text><text class="node-body" x="52" y="724">应用昵称与账号</text></g><g id="02-information-architecture-group"><rect x="440" y="660" width="340" height="100" rx="11" fill="#f0f3f6" stroke="#ccd6dd" stroke-dasharray="5 4"/><text class="node-title" x="457" y="689">小组赛事（按项目开放）</text><text class="node-body" x="457" y="724">队伍报名、引用与赛事确认</text></g><g><rect x="370" y="263" width="72" height="23" rx="4" fill="#fff"/><text x="406" y="280" text-anchor="middle" class="edge-label">快速选择</text></g><text class="footer" x="35" y="810">保留已有导航语义：名字和队伍在资料入口维护；比赛在记录里查看；队内昵称在队伍内设置。</text></svg></div></figure>
+<h3 id="prd-heading-6">界面约束</h3>
+<ul>
+<li>名字、“我”、人数、同步／确认状态优先用单行信息表达；完整规则放问号中。</li>
+<li>关联名称最多 3 个，当前昵称的自动置顶项不额外占名额。计数以明确确认的名称映射去重结果为准，不因改昵称自动增删映射。</li>
+<li>从选人中隐藏不释放关联名额；解除关联释放名额，但原始比赛不删除。</li>
+<li>已满 3 个时仍可为已有名称补充旧记录；游客归入账号时对并集再次检查上限。</li>
+<li>新队伍的数量和名单人数配额另行评审，不套用关联名称的 3 个上限，也不擅自沿用小组配额。</li>
+</ul>
+<h2 id="p06">P06. 关键用户旅程</h2>
+<h3 id="prd-heading-7">FR-01 离线建队并计分（P0）</h3>
+<p>用户未登录也可创建“飞扬篮球队”，录入队员姓名和可选球衣号。在 Setup 选择飞扬队与另一支本机队伍，选择本场阵容；也允许直接手填对手队名。结束比赛后，原始比分和本场阵容保存在本机。</p>
+<p>不要求为了记一场普通比赛先创建小组、先上云、先邀请所有队员。对手只有文字队名时可以计分，但不会自动认作同名云队伍。</p>
+<h3 id="prd-heading-8">FR-02 选择上云与多端继续（P0）</h3>
+<p>登录后选择需要上云的队伍。确认页展示目标账号、队伍、队员数、拟上传记录范围。仅上传明确选择的资料，先持久化云队伍与名单，再按依赖上传比赛。</p>
+<p>上云成功后保留原本机稳定标识与映射，其他设备能在当前账号权限范围内读取。网络中断可重试，不重复建队、不丢本机记录。登录另一个账号不会接管前一账号的队伍。</p>
+<figure id="figure-03-offline-cloud-state" data-figure="03-offline-cloud-state"><figcaption><span>图 3：本机队伍上云与冲突处理</span><button type="button" class="zoom-button" aria-label="放大图 3：本机队伍上云与冲突处理">放大查看</button></figcaption><div class="diagram-body"><svg xmlns="http://www.w3.org/2000/svg" width="1240" height="640" viewBox="0 0 1240 640" role="img" aria-labelledby="03-offline-cloud-state-title"><title id="03-offline-cloud-state-title">本机能力始终保留，云端写入按权限收敛</title><defs><marker id="03-offline-cloud-state-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M0 0 L9 4.5 L0 9Z" fill="#536878"/></marker><marker id="03-offline-cloud-state-amber" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9Z" fill="#a16b23"/></marker></defs><style>text{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;fill:#23323e}.diagram-title{font-size:22px;font-weight:600}.node-title{font-size:17px;font-weight:600}.node-body{font-size:15px}.edge-label{font-size:14px;fill:#4b5c69}.footer{font-size:14px;fill:#5b6a75}</style><rect width="100%" height="100%" fill="#fff"/><text x="35" y="32" class="diagram-title">本机能力始终保留，云端写入按权限收敛</text><polyline points="285,138 340,138" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#03-offline-cloud-state-arrow)"/><polyline points="590,138 645,138" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#03-offline-cloud-state-arrow)"/><polyline points="895,138 950,138" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#03-offline-cloud-state-arrow)"/><polyline points="705,200 705,265 465,265 465,365" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#03-offline-cloud-state-arrow)"/><polyline points="770,200 770,365" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#03-offline-cloud-state-arrow)"/><polyline points="1075,200 1075,365" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#03-offline-cloud-state-arrow)"/><polyline points="465,365 465,200" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#03-offline-cloud-state-arrow)"/><g id="03-offline-cloud-state-local"><rect x="35" y="75" width="250" height="125" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="52" y="104">仅本机</text><text class="node-body" x="52" y="139">未登录也能建队、计分</text><text class="node-body" x="52" y="162">原始资料已落盘</text></g><g id="03-offline-cloud-state-queued"><rect x="340" y="75" width="250" height="125" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="357" y="104">待上传</text><text class="node-body" x="357" y="139">用户确认目标账号与范围</text><text class="node-body" x="357" y="162">持久化操作与来源 ID</text></g><g id="03-offline-cloud-state-syncing"><rect x="645" y="75" width="250" height="125" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="662" y="104">上传中</text><text class="node-body" x="662" y="139">队伍／名单先行</text><text class="node-body" x="662" y="162">依赖满足后上传比赛</text></g><g id="03-offline-cloud-state-cloud"><rect x="950" y="75" width="250" height="125" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="967" y="104">已同步</text><text class="node-body" x="967" y="139">返回云版本与回执</text><text class="node-body" x="967" y="162">其他获准设备可访问</text></g><g id="03-offline-cloud-state-retry"><rect x="340" y="365" width="250" height="135" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="357" y="394">网络失败／重试</text><text class="node-body" x="357" y="429">保持相同操作 ID</text><text class="node-body" x="357" y="452">不删本机资料、不重复建队</text></g><g id="03-offline-cloud-state-conflict"><rect x="645" y="365" width="250" height="135" rx="11" fill="#fcf5e9" stroke="#d9bb8f" /><text class="node-title" x="662" y="394">版本冲突</text><text class="node-body" x="662" y="429">拉取当前状态后明确处理</text><text class="node-body" x="662" y="452">身份与权限不做盲目覆盖</text></g><g id="03-offline-cloud-state-reject"><rect x="950" y="365" width="250" height="135" rx="11" fill="#fcf5e9" stroke="#d9bb8f" /><text class="node-title" x="967" y="394">权限撤销／拒绝写入</text><text class="node-body" x="967" y="429">不更新共享队伍与榜单</text><text class="node-body" x="967" y="452">可保留私人比赛副本</text></g><g><rect x="507" y="228" width="86" height="23" rx="4" fill="#fff"/><text x="550" y="245" text-anchor="middle" class="edge-label">可重试错误</text></g><g><rect x="780.03" y="270" width="39.94" height="23" rx="4" fill="#fff"/><text x="800" y="287" text-anchor="middle" class="edge-label">409</text></g><g><rect x="1088" y="270" width="72" height="23" rx="4" fill="#fff"/><text x="1124" y="287" text-anchor="middle" class="edge-label">授权失效</text></g><g><rect x="406" y="288" width="44" height="23" rx="4" fill="#fff"/><text x="428" y="305" text-anchor="middle" class="edge-label">重连</text></g><text class="footer" x="35" y="610">本地同步状态不等于比赛确认状态。切换账号不会把旧账号的队列交给新账号。</text></svg></div></figure>
+<h3 id="prd-heading-9">FR-03 邀请加入与认领已有队员（P0）</h3>
+<p><strong>邀请加入</strong>：管理员分享队伍邀请，受邀者登录并明确同意；根据邀请策略批准访问，再建立队员身份或关联至已确认的队员。</p>
+<p><strong>认领已有队员</strong>：邀请明确指向原队员，受邀者同意认领后，管理方确认其确为该队员，才绑定原成员身份。认领不是按姓名模糊匹配，也不让链接打开者直接拿走旧战绩。</p>
+<ul>
+<li>链接可失效、撤销；失效时不暴露整份队员名单。</li>
+<li>已由其他账号认领：拒绝，交由管理员处理；不覆盖原绑定。</li>
+<li>同一账号已是另一条队员：提示身份重复，本期不自动合并历史。需要单独的受控合并流程。</li>
+<li>本人同意与管理方审批均留记录；同一个人重复点击返回同一结果。</li>
+</ul>
+<figure id="figure-04-member-claim-sequence" data-figure="04-member-claim-sequence"><figcaption><span>图 4：认领既有队员的双方确认时序</span><button type="button" class="zoom-button" aria-label="放大图 4：认领既有队员的双方确认时序">放大查看</button></figcaption><div class="diagram-body"><svg xmlns="http://www.w3.org/2000/svg" width="1240" height="920" viewBox="0 0 1240 920" role="img" aria-labelledby="04-member-claim-sequence-title"><title id="04-member-claim-sequence-title">认领保留原队员身份，双方动作均留痕</title><defs><marker id="04-member-claim-sequence-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M0 0 L9 4.5 L0 9Z" fill="#536878"/></marker><marker id="04-member-claim-sequence-amber" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9Z" fill="#a16b23"/></marker></defs><style>text{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;fill:#23323e}.diagram-title{font-size:22px;font-weight:600}.node-title{font-size:17px;font-weight:600}.node-body{font-size:15px}.edge-label{font-size:14px;fill:#4b5c69}.footer{font-size:14px;fill:#5b6a75}</style><rect width="100%" height="100%" fill="#fff"/><text x="35" y="32" class="diagram-title">认领保留原队员身份，双方动作均留痕</text><rect x="35" y="58" width="210" height="42" rx="8" fill="#f3f6f8" stroke="#c9d5dd"/><text class="node-title" x="140" y="85" text-anchor="middle">队伍管理方</text><line x1="140" y1="103" x2="140" y2="845" stroke="#b8c6ce" stroke-dasharray="5 5"/><rect x="355" y="58" width="210" height="42" rx="8" fill="#f3f6f8" stroke="#c9d5dd"/><text class="node-title" x="460" y="85" text-anchor="middle">受邀者本人</text><line x1="460" y1="103" x2="460" y2="845" stroke="#b8c6ce" stroke-dasharray="5 5"/><rect x="675" y="58" width="210" height="42" rx="8" fill="#edf7ef" stroke="#c9d5dd"/><text class="node-title" x="780" y="85" text-anchor="middle">队伍 API</text><line x1="780" y1="103" x2="780" y2="845" stroke="#b8c6ce" stroke-dasharray="5 5"/><rect x="995" y="58" width="210" height="42" rx="8" fill="#f3f6f8" stroke="#c9d5dd"/><text class="node-title" x="1100" y="85" text-anchor="middle">数据库事务</text><line x1="1100" y1="103" x2="1100" y2="845" stroke="#b8c6ce" stroke-dasharray="5 5"/><rect x="660" y="526" width="570" height="147" rx="8" fill="#edf7ef" fill-opacity=".7" stroke="#b3d3bc"/><line x1="140" y1="142" x2="780" y2="142" stroke="#536878" stroke-width="1.6"  marker-end="url(#04-member-claim-sequence-arrow)"/><g><rect x="363.03" y="113" width="193.94" height="23" rx="4" fill="#fff"/><text x="460" y="130" text-anchor="middle" class="edge-label">1. 创建指定队员的认领邀请</text></g><line x1="780" y1="196" x2="1100" y2="196" stroke="#536878" stroke-width="1.6"  marker-end="url(#04-member-claim-sequence-arrow)"/><g><rect x="803.1300000000001" y="167" width="273.7399999999999" height="23" rx="4" fill="#fff"/><text x="940" y="184" text-anchor="middle" class="edge-label">2. 保存用途、目标、token hash、期限</text></g><line x1="780" y1="250" x2="140" y2="250" stroke="#536878" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#04-member-claim-sequence-arrow)"/><g><rect x="377.03" y="221" width="165.94" height="23" rx="4" fill="#fff"/><text x="460" y="238" text-anchor="middle" class="edge-label">3. 返回可撤销邀请链接</text></g><line x1="140" y1="304" x2="460" y2="304" stroke="#536878" stroke-width="1.6"  marker-end="url(#04-member-claim-sequence-arrow)"/><g><rect x="189.03" y="275" width="221.94" height="23" rx="4" fill="#fff"/><text x="300" y="292" text-anchor="middle" class="edge-label">4. 分享邀请（不直接授予身份）</text></g><line x1="460" y1="358" x2="780" y2="358" stroke="#536878" stroke-width="1.6"  marker-end="url(#04-member-claim-sequence-arrow)"/><g><rect x="537.03" y="329" width="165.94" height="23" rx="4" fill="#fff"/><text x="620" y="346" text-anchor="middle" class="edge-label">5. 登录并明确同意认领</text></g><line x1="780" y1="412" x2="1100" y2="412" stroke="#536878" stroke-width="1.6"  marker-end="url(#04-member-claim-sequence-arrow)"/><g><rect x="842.12" y="383" width="195.76000000000002" height="23" rx="4" fill="#fff"/><text x="940" y="400" text-anchor="middle" class="edge-label">6. 建立 pending 认领申请</text></g><line x1="780" y1="466" x2="140" y2="466" stroke="#536878" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#04-member-claim-sequence-arrow)"/><g><rect x="377.03" y="437" width="165.94" height="23" rx="4" fill="#fff"/><text x="460" y="454" text-anchor="middle" class="edge-label">7. 通知管理方核对队员</text></g><line x1="140" y1="520" x2="780" y2="520" stroke="#536878" stroke-width="1.6"  marker-end="url(#04-member-claim-sequence-arrow)"/><g><rect x="377.03" y="491" width="165.94" height="23" rx="4" fill="#fff"/><text x="460" y="508" text-anchor="middle" class="edge-label">8. 批准指定申请与版本</text></g><line x1="780" y1="574" x2="1100" y2="574" stroke="#536878" stroke-width="1.6"  marker-end="url(#04-member-claim-sequence-arrow)"/><g><rect x="822.03" y="545" width="235.94" height="23" rx="4" fill="#fff"/><text x="940" y="562" text-anchor="middle" class="edge-label">9. 锁队伍／队员／申请，重查权限</text></g><line x1="780" y1="628" x2="1100" y2="628" stroke="#536878" stroke-width="1.6"  marker-end="url(#04-member-claim-sequence-arrow)"/><g><rect x="789.13" y="599" width="301.74" height="23" rx="4" fill="#fff"/><text x="940" y="616" text-anchor="middle" class="edge-label">10. 绑定原 memberId，写最小访问权与审计</text></g><line x1="1100" y1="682" x2="780" y2="682" stroke="#536878" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#04-member-claim-sequence-arrow)"/><g><rect x="839.04" y="653" width="201.92000000000002" height="23" rx="4" fill="#fff"/><text x="940" y="670" text-anchor="middle" class="edge-label">11. 一次提交成功或明确冲突</text></g><line x1="780" y1="736" x2="460" y2="736" stroke="#536878" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#04-member-claim-sequence-arrow)"/><g><rect x="505.03999999999996" y="707" width="229.92000000000002" height="23" rx="4" fill="#fff"/><text x="620" y="724" text-anchor="middle" class="edge-label">12. 返回认领结果，接上原有历史</text></g><line x1="780" y1="790" x2="140" y2="790" stroke="#536878" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#04-member-claim-sequence-arrow)"/><g><rect x="359.03999999999996" y="761" width="201.92000000000002" height="23" rx="4" fill="#fff"/><text x="460" y="778" text-anchor="middle" class="edge-label">13. 刷新成员状态与资源版本</text></g><text x="35" y="893" class="footer">并发只允许一人认领；已有另一条成员身份时不自动合并；认领球员不授予管理员。</text></svg></div></figure>
+<h3 id="prd-heading-10">FR-04 阵容、改名、离队与角色（P0）</h3>
+<ul>
+<li>队员可编辑自己的队内昵称；应用昵称、队内昵称和历史快照各有范围。</li>
+<li>组织者可只做管理员或记分员，不自动占用队员名额，也不自动算作参赛。</li>
+<li>移出常驻阵容后，以前出场与成绩继续保留；退出访问权限与移出阵容是可区分的操作。</li>
+<li>移除管理员、队伍归档、邀请撤销等动作，离线时可保存待提交请求，不能在本机先当作云端已生效。</li>
+<li>同一账号／已确认同一成员在同场多个位置出现时，选人即拦截，提交再校验；同名的不同人允许参加。</li>
+<li>队员同属比赛双方时，必须明确本场代表哪一队；不能两边都计算个人胜负。</li>
+</ul>
+<h3 id="prd-heading-11">FR-05 球队比赛与确认（P0）</h3>
+<p>本机比赛立即可查。上传成功只说明云端保存完成，不等于对手确认。云队伍管理员可记录本队比赛，界面标“本队记录”；对手有权限的确认方也确认当前比分版本，才标“双方确认”。赛事权威确认由未来的赛事契约规定。</p>
+<p>同名对手、创建者自报对手账号或本机旧权限缓存，均不能代替对手同意。修订比分要保留前一版本，并使新版本重新进入需要的确认流程。</p>
+<figure id="figure-05-result-lifecycle" data-figure="05-result-lifecycle"><figcaption><span>图 5：比赛版本、队伍接受状态与作废</span><button type="button" class="zoom-button" aria-label="放大图 5：比赛版本、队伍接受状态与作废">放大查看</button></figcaption><div class="diagram-body"><svg xmlns="http://www.w3.org/2000/svg" width="1240" height="690" viewBox="0 0 1240 690" role="img" aria-labelledby="05-result-lifecycle-title"><title id="05-result-lifecycle-title">比分有版本，接受必须指向同一版本</title><defs><marker id="05-result-lifecycle-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M0 0 L9 4.5 L0 9Z" fill="#536878"/></marker><marker id="05-result-lifecycle-amber" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9Z" fill="#a16b23"/></marker></defs><style>text{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;fill:#23323e}.diagram-title{font-size:22px;font-weight:600}.node-title{font-size:17px;font-weight:600}.node-body{font-size:15px}.edge-label{font-size:14px;fill:#4b5c69}.footer{font-size:14px;fill:#5b6a75}</style><rect width="100%" height="100%" fill="#fff"/><text x="35" y="32" class="diagram-title">比分有版本，接受必须指向同一版本</text><polyline points="285,128 340,128" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#05-result-lifecycle-arrow)"/><polyline points="590,128 645,128" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#05-result-lifecycle-arrow)"/><polyline points="895,128 950,128" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#05-result-lifecycle-arrow)"/><polyline points="1075,190 1075,270 770,270 770,340" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#05-result-lifecycle-arrow)"/><polyline points="770,340 770,190" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#05-result-lifecycle-arrow)"/><polyline points="1075,340 1075,190" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#05-result-lifecycle-arrow)"/><polyline points="465,190 465,340" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#05-result-lifecycle-arrow)"/><polyline points="365,190 365,245 190,245 190,340" fill="none" stroke="#a16b23" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#05-result-lifecycle-amber)"/><polyline points="285,410 340,410" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#05-result-lifecycle-arrow)"/><polyline points="645,410 590,410" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#05-result-lifecycle-arrow)"/><g id="05-result-lifecycle-draft"><rect x="35" y="65" width="250" height="125" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="52" y="94">草稿／计分中</text><text class="node-body" x="52" y="129">保留会话与阵容来源 ID</text><text class="node-body" x="52" y="152">可离线继续</text></g><g id="05-result-lifecycle-recorded"><rect x="340" y="65" width="250" height="125" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="357" y="94">结果 r3 已记录</text><text class="node-body" x="357" y="129">最终比分与阵容快照</text><text class="node-body" x="357" y="152">云保存完成不自动确认</text></g><g id="05-result-lifecycle-one"><rect x="645" y="65" width="250" height="125" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="662" y="94">本队接受 r3</text><text class="node-body" x="662" y="129">只代表本队</text><text class="node-body" x="662" y="152">可进入本队记录口径</text></g><g id="05-result-lifecycle-both"><rect x="950" y="65" width="250" height="125" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="967" y="94">双方接受 r3</text><text class="node-body" x="967" y="129">接受者须有对应队伍权限</text><text class="node-body" x="967" y="152">可进入双方确认口径</text></g><g id="05-result-lifecycle-revision"><rect x="645" y="340" width="250" height="145" rx="11" fill="#fcf5e9" stroke="#d9bb8f" /><text class="node-title" x="662" y="369">修订为结果 r4</text><text class="node-body" x="662" y="404">比分／阵容等事实发生变化</text><text class="node-body" x="662" y="427">旧版本保留</text><text class="node-body" x="662" y="450">对新版本重新接受</text></g><g id="05-result-lifecycle-disputed"><rect x="950" y="340" width="250" height="145" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="967" y="369">未接受／有异议</text><text class="node-body" x="967" y="404">不进入要求双方确认的榜</text><text class="node-body" x="967" y="427">按当前有效版本处理</text></g><g id="05-result-lifecycle-void"><rect x="35" y="340" width="250" height="145" rx="11" fill="#fcf5e9" stroke="#d9bb8f" /><text class="node-title" x="52" y="369">作废</text><text class="node-body" x="52" y="404">记录原因与操作审计</text><text class="node-body" x="52" y="427">投影撤回该结果的贡献</text><text class="node-body" x="52" y="450">不物理删除历史事实</text></g><g id="05-result-lifecycle-stats"><rect x="340" y="340" width="250" height="145" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="357" y="369">统计更新</text><text class="node-body" x="357" y="404">按范围与可信等级重算</text><text class="node-body" x="357" y="427">输出 statsRevision 与覆盖</text><text class="node-body" x="357" y="450">率</text></g><g><rect x="870" y="234" width="100" height="23" rx="4" fill="#fff"/><text x="920" y="251" text-anchor="middle" class="edge-label">改比分或阵容</text></g><g><rect x="778.03" y="277" width="95.94" height="23" rx="4" fill="#fff"/><text x="826" y="294" text-anchor="middle" class="edge-label">r4 重新接受</text></g><g><rect x="1092" y="273" width="86" height="23" rx="4" fill="#fff"/><text x="1135" y="290" text-anchor="middle" class="edge-label">仅当前版本</text></g><g><rect x="209" y="273" width="72" height="23" rx="4" fill="#fff"/><text x="245" y="290" text-anchor="middle" class="edge-label">作废请求</text></g><g><rect x="276" y="373" width="72" height="23" rx="4" fill="#fff"/><text x="312" y="390" text-anchor="middle" class="edge-label">撤回贡献</text></g><g><rect x="595" y="373" width="44" height="23" rx="4" fill="#fff"/><text x="617" y="390" text-anchor="middle" class="edge-label">重算</text></g><text class="footer" x="35" y="660">同步维度、结果事实与各方接受分开存储；r3 的确认绝不自动套到 r4。</text></svg></div></figure>
+<h2 id="p07">P07. 排行榜与统计规则</h2>
+<h3 id="prd-heading-12">三类能力分开交付</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>能力</th>
+<th>计算前提</th>
+<th>明确不能推导的内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>队伍战绩／战绩榜（P0）</td>
+<td>队伍身份、本场最终结果、项目、时间、有效版本与统计范围</td>
+<td>不能仅凭同名队名合并球队，不能自动变成全国排名</td>
+</tr>
+<tr>
+<td>队员出场统计（P0）</td>
+<td>明确本场出场名单与比赛有效性</td>
+<td>队伍全名单不等于实际出场名单；未知出场状态不记为已出场</td>
+</tr>
+<tr>
+<td>球员得分榜（P1）</td>
+<td>篮球记分事件明确关联得分球员，能处理撤销与纠错</td>
+<td>不能从队伍总分反推各人得分；没有篮板、助攻事件就不生成相应榜单</td>
+</tr>
+</tbody></table></div>
+<h3 id="prd-heading-13">统计范围与默认口径</h3>
+<ul>
+<li>统计请求必须指定：本机／个人比赛库／本队／某赛事、运动项目、时间范围、最低确认等级、当前有效结果版本。</li>
+<li>本机与个人记录可先提供战绩表；本队记录显示来源标签。正式赛事排名采用该赛事声明的规则，不偷偷混入友谊赛。</li>
+<li>普通战绩表默认显示场次、胜／负／平、胜率、总得分／失分和净胜分；排序为胜场、胜率、净胜分，完整展示统计范围与场次。这里不是跨赛事竞技水平评分。</li>
+<li>胜率为胜场除以有效场次，平局计入分母；是否允许平局由本场规则决定，不能对篮球自定义比赛盲目补加时。</li>
+<li>足球赛事积分规则可配置，不把 3／1／0 强加到所有运动和所有普通比赛。</li>
+<li>一场比赛在手机、手表回传、队伍页面、小组赛事出现时，只按明确的同场标识计一次。</li>
+<li>队伍归档、成员改名或离队不删除有效历史；比赛作废、比分修订和确认撤销要触发重算。</li>
+</ul>
+<h3 id="prd-heading-14">球员得分示例</h3>
+<p>飞扬队总得分 68 分，已明确记录球员归属的得分为 53 分，还有 15 分未归属。界面展示“已记录得分榜”，并显示归属覆盖率约 78%。不能把未知 15 分平均分给上场队员，也不能声称这就是全队完整得分榜。</p>
+<p>记分时可选“仅加到队伍”或点选得分队员；为追求完整统计而强制每一球先选人，会阻塞原有快速计分。是否完整记录的开关与说明必须清楚。</p>
+<figure id="figure-06-statistics-pipeline" data-figure="06-statistics-pipeline"><figcaption><span>图 6：记录归并、身份解析与分层统计</span><button type="button" class="zoom-button" aria-label="放大图 6：记录归并、身份解析与分层统计">放大查看</button></figcaption><div class="diagram-body"><svg xmlns="http://www.w3.org/2000/svg" width="1240" height="820" viewBox="0 0 1240 820" role="img" aria-labelledby="06-statistics-pipeline-title"><title id="06-statistics-pipeline-title">先明确同场与身份，再按数据覆盖程度统计</title><defs><marker id="06-statistics-pipeline-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M0 0 L9 4.5 L0 9Z" fill="#536878"/></marker><marker id="06-statistics-pipeline-amber" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9Z" fill="#a16b23"/></marker></defs><style>text{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;fill:#23323e}.diagram-title{font-size:22px;font-weight:600}.node-title{font-size:17px;font-weight:600}.node-body{font-size:15px}.edge-label{font-size:14px;fill:#4b5c69}.footer{font-size:14px;fill:#5b6a75}</style><rect width="100%" height="100%" fill="#fff"/><text x="35" y="32" class="diagram-title">先明确同场与身份，再按数据覆盖程度统计</text><polyline points="375,132 450,132" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#06-statistics-pipeline-arrow)"/><polyline points="790,132 865,132" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#06-statistics-pipeline-arrow)"/><polyline points="1035,200 1035,280 205,280 205,365" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#06-statistics-pipeline-arrow)"/><polyline points="620,280 620,365" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#06-statistics-pipeline-arrow)"/><polyline points="1035,280 1035,365" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#06-statistics-pipeline-arrow)"/><polyline points="205,510 205,630" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#06-statistics-pipeline-arrow)"/><polyline points="620,510 620,630" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#06-statistics-pipeline-arrow)"/><polyline points="1035,510 1035,630" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#06-statistics-pipeline-arrow)"/><polyline points="865,685 790,685" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#06-statistics-pipeline-arrow)"/><g id="06-statistics-pipeline-sources"><rect x="35" y="65" width="340" height="135" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="52" y="94">原始来源</text><text class="node-body" x="52" y="129">手机、手表、队伍记录、小组赛事</text><text class="node-body" x="52" y="152">来源会话／事件 ID；保留原始快照</text></g><g id="06-statistics-pipeline-canonical"><rect x="450" y="65" width="340" height="135" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="467" y="94">同场归并与有效版本</text><text class="node-body" x="467" y="129">可靠来源键映射到 contestId</text><text class="node-body" x="467" y="152">无可靠键：只提示疑似重复</text></g><g id="06-statistics-pipeline-identity"><rect x="865" y="65" width="340" height="135" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="882" y="94">身份与范围解析</text><text class="node-body" x="882" y="129">明确成员／本人账号映射</text><text class="node-body" x="882" y="152">项目、时间、队伍／赛事、可信等级</text></g><g id="06-statistics-pipeline-team"><rect x="35" y="365" width="340" height="145" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="52" y="394">队伍战绩与战绩榜</text><text class="node-body" x="52" y="429">最终有效结果足够</text><text class="node-body" x="52" y="452">场次、胜负平、得失分、胜率</text><text class="node-body" x="52" y="475">不推断竞技水平或全站排名</text></g><g id="06-statistics-pipeline-attendance"><rect x="450" y="365" width="340" height="145" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="467" y="394">队员出场</text><text class="node-body" x="467" y="429">只计算明确确认的本场名单</text><text class="node-body" x="467" y="452">全队名单不等于出场名单</text><text class="node-body" x="467" y="475">未知不记作出场</text></g><g id="06-statistics-pipeline-points"><rect x="865" y="365" width="340" height="145" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="882" y="394">已记录球员得分榜</text><text class="node-body" x="882" y="429">需要球员归属事件</text><text class="node-body" x="882" y="452">撤销／纠错后重算</text><text class="node-body" x="882" y="475">不生成未记录的篮板或助攻</text></g><g id="06-statistics-pipeline-coverage"><rect x="865" y="630" width="340" height="110" rx="11" fill="#fcf5e9" stroke="#d9bb8f" /><text class="node-title" x="882" y="659">覆盖率示例</text><text class="node-body" x="882" y="694">球队 68 = 已归属 53 + 未归属 15</text><text class="node-body" x="882" y="717">得分归属覆盖率约 78%</text></g><g id="06-statistics-pipeline-report"><rect x="35" y="630" width="755" height="110" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="52" y="659">个人回顾与后续分析</text><text class="node-body" x="52" y="694">使用明确本人、已去重且符合可信等级的数据</text><text class="node-body" x="52" y="717">同时保留统计范围、有效版本、缺失指标与覆盖率</text></g><g><rect x="784" y="647" width="86" height="23" rx="4" fill="#fff"/><text x="827" y="664" text-anchor="middle" class="edge-label">带覆盖信息</text></g><text class="footer" x="35" y="790">修订、作废、接受变化与身份认领均触发受影响统计更新；统计缓存可以重建。</text></svg></div></figure>
+<h2 id="p08">P08. 权限与可见性</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>队主</th>
+<th>管理员</th>
+<th>记分员</th>
+<th>已加入的普通队员</th>
+<th>未认领队员／无权限账号</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>查看本队共享资料</td>
+<td>是</td>
+<td>是</td>
+<td>是</td>
+<td>是</td>
+<td>否；仅可看邀请最小预览</td>
+</tr>
+<tr>
+<td>添加／移出阵容</td>
+<td>是</td>
+<td>是</td>
+<td>否</td>
+<td>否</td>
+<td>否</td>
+</tr>
+<tr>
+<td>修改本人队内昵称</td>
+<td>是，仅本人</td>
+<td>是，仅本人</td>
+<td>如本人是队员</td>
+<td>是</td>
+<td>未认领时由管理方维护录入名</td>
+</tr>
+<tr>
+<td>创建和提交本队比赛</td>
+<td>是</td>
+<td>是</td>
+<td>是</td>
+<td>默认否</td>
+<td>只能在自己的本机库记录，不影响本队榜</td>
+</tr>
+<tr>
+<td>接受本队结果版本</td>
+<td>是</td>
+<td>是</td>
+<td>默认否</td>
+<td>否</td>
+<td>否</td>
+</tr>
+<tr>
+<td>邀请、批准认领</td>
+<td>是</td>
+<td>是</td>
+<td>否</td>
+<td>默认否</td>
+<td>否</td>
+</tr>
+<tr>
+<td>修改访问角色／转让队主</td>
+<td>是</td>
+<td>不可授予队主</td>
+<td>否</td>
+<td>否</td>
+<td>否</td>
+</tr>
+<tr>
+<td>归档队伍</td>
+<td>是</td>
+<td>否</td>
+<td>否</td>
+<td>否</td>
+<td>否</td>
+</tr>
+</tbody></table></div>
+<p>权限与阵容分开：管理方可以不是球员。队员离队不修改旧比赛快照；离开后停止获取未授权的新资料。队内昵称和名单沿用现有内容审核能力，上云资料默认不公开搜索。</p>
+<h2 id="p09">P09. 旧数据与名称关联</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>旧数据</th>
+<th>升级方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>一条常用队名</td>
+<td>升级为可选本机队伍，名单为空；不凭同名自动合并成云队伍</td>
+</tr>
+<tr>
+<td>一条常用个人名</td>
+<td>保留快捷选择；可创建本机队员或按明确操作归入队伍</td>
+</tr>
+<tr>
+<td>只有文字队名的比赛</td>
+<td>保留原始名称与比分；提供按名称和明确范围批量关联队伍的工具，不重写原文</td>
+</tr>
+<tr>
+<td>有明确个人位置的旧记录</td>
+<td>复用个人最多 3 个名称的批量关联；不要求逐场确认</td>
+</tr>
+<tr>
+<td>只有球队总分、无名单</td>
+<td>可形成已确认归属的队伍战绩，不能形成个人出场或得分数据</td>
+</tr>
+<tr>
+<td>其他账号的资料</td>
+<td>不跨账号自动迁移，不按同名接管</td>
+</tr>
+</tbody></table></div>
+<p>个人关联名称、队伍昵称与队内昵称不是同一额度。队内昵称不占个人 3 个关联名称名额。旧记录关系关联、临时成员认领与账号合并也不能共用一个无差别的“绑定”按钮。</p>
+<p>个人名称关联仍属于主对话正在规划的能力；本方案要求共用其身份契约，不假设已经上线或已完成跨端实现。</p>
+<h2 id="p10">P10. 跨端与小组交集</h2>
+<ul>
+<li>iOS、Android 各渠道、HarmonyOS、网页与小程序使用同一业务契约；具体端有无完整管理界面，按阶段核对，不要求手表复制全部管理页面。</li>
+<li>手表／手机联动保留本场队伍、成员及来源比赛标识；没有球员记分能力的设备仍可贡献球队总分，不伪造个人技术数据。</li>
+<li>现有小组当前仅覆盖羽毛球、乒乓球、网球、匹克球的单／双打。独立队伍先落地；篮球、足球小组赛事需要新的项目能力、队伍报名、可变人数阵容和结果契约。</li>
+<li>小组引用云队伍需要队伍方和赛事方各自授权；引用队伍不自动让所有队员成为小组成员，也不突破已有小组人数限制。</li>
+</ul>
+<h2 id="p11">P11. 分期与评审门槛</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>交付范围</th>
+<th>进入下一阶段的条件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>M0 契约与样例</td>
+<td>概念、原型、身份与权限、同步错误、统计样例、旧数据样本</td>
+<td>产品、服务端与各端对同一示例得出一致结果</td>
+</tr>
+<tr>
+<td>M1 独立本机队伍</td>
+<td>队伍／队员、本场名单、离线记录、本机战绩、旧名称兼容</td>
+<td>不登录可用；升级、改名、换边、撤销不丢身份</td>
+</tr>
+<tr>
+<td>M2 云队伍与邀请</td>
+<td>选择上云、增量同步、访问角色、邀请加入与认领、队内昵称</td>
+<td>断网重试、并发认领、角色撤销、账号切换和隐私验收通过</td>
+</tr>
+<tr>
+<td>M3 云端战绩与灰度</td>
+<td>有版本的结果、确认等级、共享战绩和出场统计</td>
+<td>多来源只计一场；修订、作废和撤销可重算</td>
+</tr>
+<tr>
+<td>M4 球员得分增强</td>
+<td>篮球得分归属、未归属桶、事件撤销、覆盖率</td>
+<td>个人分与未归属分之和等于球队总分</td>
+</tr>
+<tr>
+<td>M5 小组队伍赛事</td>
+<td>扩展项目能力与赛事引用队伍、报名和权威确认</td>
+<td>不破坏既有单／双打小组；权限与配额隔离</td>
+</tr>
+</tbody></table></div>
+<p>阶段顺序是依赖建议，不是开发排期承诺。球队战绩并不依赖 M4 的完整球员技术统计；独立云队伍也不依赖 M5。</p>
+<figure id="figure-07-delivery-dependencies" data-figure="07-delivery-dependencies"><figcaption><span>图 7：阶段依赖与交付边界</span><button type="button" class="zoom-button" aria-label="放大图 7：阶段依赖与交付边界">放大查看</button></figcaption><div class="diagram-body"><svg xmlns="http://www.w3.org/2000/svg" width="1240" height="620" viewBox="0 0 1240 620" role="img" aria-labelledby="07-delivery-dependencies-title"><title id="07-delivery-dependencies-title">独立队伍先形成闭环，再扩展球员事件与小组赛事</title><defs><marker id="07-delivery-dependencies-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M0 0 L9 4.5 L0 9Z" fill="#536878"/></marker><marker id="07-delivery-dependencies-amber" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9Z" fill="#a16b23"/></marker></defs><style>text{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;fill:#23323e}.diagram-title{font-size:22px;font-weight:600}.node-title{font-size:17px;font-weight:600}.node-body{font-size:15px}.edge-label{font-size:14px;fill:#4b5c69}.footer{font-size:14px;fill:#5b6a75}</style><rect width="100%" height="100%" fill="#fff"/><text x="35" y="32" class="diagram-title">独立队伍先形成闭环，再扩展球员事件与小组赛事</text><polyline points="285,140 340,140" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#07-delivery-dependencies-arrow)"/><polyline points="590,140 645,140" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#07-delivery-dependencies-arrow)"/><polyline points="895,140 950,140" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#07-delivery-dependencies-arrow)"/><polyline points="1075,210 1075,285 770,285 770,365" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#07-delivery-dependencies-arrow)"/><polyline points="1075,285 1075,365" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round" stroke-dasharray="6 5" marker-end="url(#07-delivery-dependencies-arrow)"/><g id="07-delivery-dependencies-m0"><rect x="35" y="70" width="250" height="140" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="52" y="99">M0 契约与样例</text><text class="node-body" x="52" y="134">身份、权限、同步与统计金样</text><text class="node-body" x="52" y="157">产品与各端共同评审</text></g><g id="07-delivery-dependencies-m1"><rect x="340" y="70" width="250" height="140" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="357" y="99">M1 本机队伍</text><text class="node-body" x="357" y="134">不登录能建队和计分</text><text class="node-body" x="357" y="157">名单、出场、旧数据兼容</text></g><g id="07-delivery-dependencies-m2"><rect x="645" y="70" width="250" height="140" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="662" y="99">M2 云队伍与邀请</text><text class="node-body" x="662" y="134">选择上云、多端、认领</text><text class="node-body" x="662" y="157">访问角色与队内昵称</text></g><g id="07-delivery-dependencies-m3"><rect x="950" y="70" width="250" height="140" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="967" y="99">M3 云战绩与灰度</text><text class="node-body" x="967" y="134">结果版本、确认等级</text><text class="node-body" x="967" y="157">共享战绩与出场统计</text></g><g id="07-delivery-dependencies-m4"><rect x="645" y="365" width="250" height="140" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="662" y="394">M4 球员得分</text><text class="node-body" x="662" y="429">可选球员归属、未归属桶</text><text class="node-body" x="662" y="452">撤销、覆盖率与得分榜</text></g><g id="07-delivery-dependencies-m5"><rect x="950" y="365" width="250" height="140" rx="11" fill="#f0f3f6" stroke="#ccd6dd" stroke-dasharray="5 4"/><text class="node-title" x="967" y="394">M5 小组队伍赛事</text><text class="node-body" x="967" y="429">项目能力与 team 结果契约</text><text class="node-body" x="967" y="452">报名引用和赛事确认</text></g><text class="footer" x="35" y="590">阶段是依赖关系，不是日期承诺。云队伍不等待小组队伍赛；队伍战绩不等待完整球员技术统计。</text></svg></div></figure>
+<h2 id="p12">P12. 验收用例</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>编号</th>
+<th>操作与预期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AC-01</td>
+<td>飞行模式且未登录，创建两队、添加未注册队员、选择阵容并完成比赛；重启后仍可读</td>
+</tr>
+<tr>
+<td>AC-02</td>
+<td>管理员没有加入出场名单，记录比赛后不出现在个人参赛统计</td>
+</tr>
+<tr>
+<td>AC-03</td>
+<td>队员改昵称、离队后查看过去比赛，名字快照与比分不被改写</td>
+</tr>
+<tr>
+<td>AC-04</td>
+<td>选定队伍上云过程中断网，重试不产生第二支队伍或重复队员</td>
+</tr>
+<tr>
+<td>AC-05</td>
+<td>A 账号退出并登录 B，不自动把 A 的云队伍或本人关联交给 B</td>
+</tr>
+<tr>
+<td>AC-06</td>
+<td>两个账号同时认领一条临时队员，最多一个成功，另一方得到可理解的冲突</td>
+</tr>
+<tr>
+<td>AC-07</td>
+<td>单靠邀请链接、姓名相同或设备缓存权限，不能获得原成员身份或本队管理权</td>
+</tr>
+<tr>
+<td>AC-08</td>
+<td>账号已是另一条队员时认领旧队员，不静默合并；旧数据全部保留</td>
+</tr>
+<tr>
+<td>AC-09</td>
+<td>同一人以不同别名选入同场多个位置，选择与提交均被拦截；同名不同人允许</td>
+</tr>
+<tr>
+<td>AC-10</td>
+<td>队伍 10 人，本场明确 6 人出场，只给 6 人计算出场；未提供名单时记录未知</td>
+</tr>
+<tr>
+<td>AC-11</td>
+<td>手机与手表提交同一来源比赛，战绩只增加一场</td>
+</tr>
+<tr>
+<td>AC-12</td>
+<td>上传成功但对方没确认，显示本队记录，不显示双方确认</td>
+</tr>
+<tr>
+<td>AC-13</td>
+<td>双方确认后修订比分，新结果版本重新确认；旧确认不套用新比分</td>
+</tr>
+<tr>
+<td>AC-14</td>
+<td>得分 68、归属 53、未知 15，个人榜标明范围，覆盖率约 78%，总量守恒</td>
+</tr>
+<tr>
+<td>AC-15</td>
+<td>撤销某球员一次 2 分，队伍总分和该球员有效得分一致减少，不重复扣减</td>
+</tr>
+<tr>
+<td>AC-16</td>
+<td>关联名称达到 3 个时拒绝第 4 个；隐藏不释放额度，解除后可补一个</td>
+</tr>
+<tr>
+<td>AC-17</td>
+<td>本机旧名称迁移不把不同同名队伍合并，不把全部既有队员推定已出场</td>
+</tr>
+<tr>
+<td>AC-18</td>
+<td>没有篮球小组能力的旧端仍可使用原有小组；不把 TeamContest 当 singles 解析</td>
+</tr>
+<tr>
+<td>AC-19</td>
+<td>离线时权限已被撤销，联网提交被拒后，本机原始记录可保留为私人副本，不污染共享榜</td>
+</tr>
+<tr>
+<td>AC-20</td>
+<td>云队伍默认不可被无权限账号搜索和拉取整份队员／比赛数据</td>
+</tr>
+</tbody></table></div>
+<h2 id="p13">P13. 衡量效果与待定事项</h2>
+<p>上线前记录当前基线，随后观察：建队后添加队员比例、使用已有队伍开始下一场的比例、选定上云完成率、邀请接受／认领完成率、首次看到本人比赛数据的比例、队伍次周继续记分比例、重复比赛与身份纠错率。目标值在基线采集后确定，不虚构增长承诺。</p>
+<p>需要评审的事项：新队伍数量／名单人数及免费权益；团队内普通队员是否默认可记分；私人战绩与双方确认榜的默认展示；是否首发支持认领身份的受控合并；篮球球员归属功能的优先级。这些不应通过本技术方案暗中变成既定商业规则。</p>
+</article><article aria-label="技术方案"><h1 id="tech-title">独立队伍云协作技术方案</h1>
+<p><strong>版本</strong>：0.1　<strong>日期</strong>：2026-10-24　<strong>状态</strong>：设计提案／未建表／未增加接口／未部署。</p>
+<h2 id="t01">T01. 现状核对与改造边界</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>已核对的代码</th>
+<th>当前能力</th>
+<th>对本方案的约束</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>后台根 <code>package.json</code>、<code>api-server/package.json</code></td>
+<td>Express + TypeScript、Prisma、PostgreSQL，内置 WebSocket</td>
+<td>延续一个 API 进程和根目录单一 schema；不为队伍新建一套微服务</td>
+</tr>
+<tr>
+<td>后台 <code>prisma/schema.prisma:291</code> 的 UserCommonName</td>
+<td>账号私有的队名／人名字符串、规范化去重、软删除</td>
+<td>不能直接当队伍、成员或授权表</td>
+</tr>
+<tr>
+<td>同文件 <code>ScoreGroup / GroupMember</code></td>
+<td>小组、账号或临时成员、成员 ID、权限、快照、历史身份解析</td>
+<td>可复用设计模式，不能直接复用为“队伍就是小组”</td>
+</tr>
+<tr>
+<td>同文件 <code>GroupGame / GroupResult</code></td>
+<td>单／双打、按局赛果、成员席位、确认版本</td>
+<td>不适合直接装篮球／足球可变人数阵容和总分赛事</td>
+</tr>
+<tr>
+<td><code>api-server/src/lib/groups/capabilities.ts</code></td>
+<td>当前项目仅四种球拍类，format 为 singles / doubles</td>
+<td>小组队伍赛是新能力版本，不是加一个队名字段</td>
+</tr>
+<tr>
+<td><code>groups/access.ts / idempotency.ts</code></td>
+<td>服务端重查权限、版本、锁与幂等回执</td>
+<td>延用原则，队伍领域使用独立资源锁与错误码</td>
+</tr>
+<tr>
+<td><code>groups/serializers.ts / service.ts</code></td>
+<td>账号队员的部分显示优先使用 user.name，正式成员改名并非现成接口</td>
+<td>队内昵称要有独立覆盖语义，不能只改客户端文字</td>
+</tr>
+<tr>
+<td>iOS <code>ScoreboardRecord.swift:117</code></td>
+<td>schema v5，历史名称、动作、比赛快照与来源元数据</td>
+<td>做增量身份扩展，避免破坏回放和旧版本读取</td>
+</tr>
+<tr>
+<td>iOS <code>RecordSyncOutbox.swift:1</code></td>
+<td>有记录发送队列；actor 来自本机匿名身份</td>
+<td>actor 是同步操作者，不等于球员，也不证明云队伍权限</td>
+</tr>
+</tbody></table></div>
+<p>以上是本地源码快照核对，不是完整全端审计。正式编码前仍要盘点 Android、HarmonyOS、网页、小程序及各手表项目的序列化、记录同步和未知字段保留行为。</p>
+<h3 id="tech-heading-1">ADR-01：延续现有单体，新增独立领域</h3>
+<p>新增 <code>teams/</code> 领域服务、路由、投影任务与表；共用既有 User、鉴权、内容审核、幂等基础设施。根 <code>prisma/schema.prisma</code> 是唯一 schema 来源。生产使用版本化迁移，不用直接 push schema。此处只提出设计，不修改现有业务文件。</p>
+<figure id="figure-08-system-architecture" data-figure="08-system-architecture"><figcaption><span>图 8：客户端离线层、API 与数据投影架构</span><button type="button" class="zoom-button" aria-label="放大图 8：客户端离线层、API 与数据投影架构">放大查看</button></figcaption><div class="diagram-body"><svg xmlns="http://www.w3.org/2000/svg" width="1300" height="860" viewBox="0 0 1300 860" role="img" aria-labelledby="08-system-architecture-title"><title id="08-system-architecture-title">复用既有 API 单体，新增队伍领域与可重建投影</title><defs><marker id="08-system-architecture-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M0 0 L9 4.5 L0 9Z" fill="#536878"/></marker><marker id="08-system-architecture-amber" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9Z" fill="#a16b23"/></marker></defs><style>text{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;fill:#23323e}.diagram-title{font-size:22px;font-weight:600}.node-title{font-size:17px;font-weight:600}.node-body{font-size:15px}.edge-label{font-size:14px;fill:#4b5c69}.footer{font-size:14px;fill:#5b6a75}</style><rect width="100%" height="100%" fill="#fff"/><text x="35" y="32" class="diagram-title">复用既有 API 单体，新增队伍领域与可重建投影</text><polyline points="395,127 470,127" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#08-system-architecture-arrow)"/><polyline points="830,127 905,127" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#08-system-architecture-arrow)"/><polyline points="215,195 215,345" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#08-system-architecture-arrow)"/><polyline points="650,195 650,345" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#08-system-architecture-arrow)"/><polyline points="1085,195 1085,345" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#08-system-architecture-arrow)"/><polyline points="395,417 470,417" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#08-system-architecture-arrow)"/><polyline points="830,417 905,417" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#08-system-architecture-arrow)"/><polyline points="215,490 215,650" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#08-system-architecture-arrow)"/><polyline points="650,490 650,650" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#08-system-architecture-arrow)"/><polyline points="1085,490 1085,650" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#08-system-architecture-arrow)"/><g id="08-system-architecture-clients"><rect x="35" y="60" width="360" height="135" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="52" y="89">各客户端</text><text class="node-body" x="52" y="124">iOS／Android／HarmonyOS</text><text class="node-body" x="52" y="147">网页、小程序、手表按能力接入</text></g><g id="08-system-architecture-api"><rect x="470" y="60" width="360" height="135" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="487" y="89">既有 Express API 进程</text><text class="node-body" x="487" y="124">账号鉴权、限流、审核、版本</text><text class="node-body" x="487" y="147">新增 teams 与 team-contests 路由</text></g><g id="08-system-architecture-pg"><rect x="905" y="60" width="360" height="135" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="922" y="89">PostgreSQL + Prisma</text><text class="node-body" x="922" y="124">单一根 schema 与版本化迁移</text><text class="node-body" x="922" y="147">队伍／身份／事实／审计／outbox</text></g><g id="08-system-architecture-local"><rect x="35" y="345" width="360" height="145" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="52" y="374">本机仓库与待发队列</text><text class="node-body" x="52" y="409">稳定 UUID、来源 ID、账号作用域</text><text class="node-body" x="52" y="432">baseRevision、回执与 tombstone</text><text class="node-body" x="52" y="455">无网络仍可记分</text></g><g id="08-system-architecture-domain"><rect x="470" y="345" width="360" height="145" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="487" y="374">队伍领域事务</text><text class="node-body" x="487" y="409">TeamAccess 与阵容分开</text><text class="node-body" x="487" y="432">认领、结果版本、确认、配额</text><text class="node-body" x="487" y="455">权限／身份写入不做盲目覆盖</text></g><g id="08-system-architecture-projector"><rect x="905" y="345" width="360" height="145" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="922" y="374">事务 Outbox + 后台投影</text><text class="node-body" x="922" y="409">幂等消费、分区重算</text><text class="node-body" x="922" y="432">首期不增加消息中间件</text><text class="node-body" x="922" y="455">可对账、可重建</text></g><g id="08-system-architecture-legacy"><rect x="35" y="650" width="360" height="120" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="52" y="679">旧名称与既有记录</text><text class="node-body" x="52" y="714">保留旧客户端读取与回放</text><text class="node-body" x="52" y="737">关联层增量扩展</text></g><g id="08-system-architecture-ws"><rect x="470" y="650" width="360" height="120" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="487" y="679">WebSocket 资源失效通知</text><text class="node-body" x="487" y="714">只推 revision／失效信息</text><text class="node-body" x="487" y="737">客户端再走鉴权 API 拉取</text></g><g id="08-system-architecture-stats"><rect x="905" y="650" width="360" height="120" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="922" y="679">统计读取 API</text><text class="node-body" x="922" y="714">权限、范围、metricVersion</text><text class="node-body" x="922" y="737">statsRevision 与数据覆盖率</text></g><g><rect x="404.05" y="91" width="55.9" height="23" rx="4" fill="#fff"/><text x="432" y="108" text-anchor="middle" class="edge-label">HTTPS</text></g><g><rect x="410" y="381" width="44" height="23" rx="4" fill="#fff"/><text x="432" y="398" text-anchor="middle" class="edge-label">同步</text></g><g><rect x="831" y="381" width="72" height="23" rx="4" fill="#fff"/><text x="867" y="398" text-anchor="middle" class="edge-label">业务事件</text></g><text class="footer" x="35" y="830">复用基础设施与设计原则；不把小组表、旧名称表或匿名同步 actor 直接当作队伍授权模型。</text></svg></div></figure>
+<h2 id="t02">T02. 核心不变量</h2>
+<ol>
+<li><code>teamId / memberId / contestId / eventId</code> 是稳定身份；名称与屏幕左右位置均不是身份。</li>
+<li>未登录本机 ID 不授予云端资源权限；服务端操作者必须来自鉴权中间件。</li>
+<li>TeamAccess 决定访问权限，TeamMember 决定阵容身份；创建队伍不等于本人出场。</li>
+<li>本机队伍发布为云队伍保持 UUID 或有显式、不丢引用的映射；不得按同名合并。</li>
+<li>已结束比赛有不可变的阵容、队名和队员名称快照；新版本通过追加修订表示。</li>
+<li>同一个确认过的自然人不能在同场占多个个人位置；跨队兼任必须选择本场代表方。</li>
+<li>同场去重需要明确来源标识；姓名、时间、比分相同只能是疑似重复。</li>
+<li>云端保存状态与结果接受状态分开；同步完成不能伪造双方确认。</li>
+<li>邀请 token 不能直接授予既有球员身份；认领必须保留受邀者同意与管理方确认。</li>
+<li>排名只计算当前有效结果版本，撤销／作废／认领变化均可重算；不覆盖事实日志。</li>
+</ol>
+<h2 id="t03">T03. 领域数据模型</h2>
+<h3 id="tech-heading-2">队伍、权限与成员</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>表（拟新增）</th>
+<th>关键字段</th>
+<th>约束与含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Team</td>
+<td>id UUID、ownerUserId、sport、name、status、revision、createdAt、archivedAt</td>
+<td>独立聚合；sport 初期不可直接改；本机所有权发布后由服务端建立</td>
+</tr>
+<tr>
+<td>TeamAccess</td>
+<td>teamId、userId、role、status、revision、grantedBy</td>
+<td>唯一(teamId,userId)；角色 owner/admin/recorder/member，与是否球员分离</td>
+</tr>
+<tr>
+<td>TeamMember</td>
+<td>id、teamId、userId?、recordedName、nicknameOverride?、jerseyNumber?、rosterStatus、revision</td>
+<td>memberId 保持不变；userId 仅经批准认领后设置；同队同一账号最多一条有效球员身份</td>
+</tr>
+<tr>
+<td>TeamInvite</td>
+<td>id、teamId、purpose、targetMemberId?、tokenHash、expiresAt、status、invitedBy</td>
+<td>purpose=join/claim；原始 token 不落库；目标和用途不可被受邀者替换</td>
+</tr>
+<tr>
+<td>TeamClaim</td>
+<td>id、inviteId、teamId、targetMemberId、requesterUserId、consentedAt、status、reviewerUserId?、reviewedAt</td>
+<td>pending/approved/rejected/cancelled/expired；审批使用事务锁，完整审计</td>
+</tr>
+<tr>
+<td>TeamAuditLog</td>
+<td>actor、teamId、resource、action、beforeRevision、afterRevision、reason、createdAt</td>
+<td>权限、认领、角色、归档、结果修订的追加审计</td>
+</tr>
+</tbody></table></div>
+<p><code>nicknameOverride = null</code> 明确表示跟随应用昵称；有值表示队内独立称呼，不靠与 user.name 是否相等来判断。<code>recordedName</code> 保留未认领成员及管理录入的基础名称；账号昵称审核通过前按既有展示策略解析。</p>
+<p>同账号有多队身份是允许的。不同本机库里同名队员不会自动变成一个全局“真实的人”。跨队个人统计只沿已确认的账号关系解析；私人名称关联不会生成 TeamAccess。</p>
+<p>已退役的名单与已离开的访问成员分别留状态。若一个账号需要恢复原队员，优先恢复既有成员身份，不能靠新建第二条绕过唯一性。涉及两条历史成员合并的情况，本期返回冲突并保留数据，后续建立明确审批合并流程。</p>
+<figure id="figure-09-roster-identity-erd" data-figure="09-roster-identity-erd"><figcaption><span>图 9：队伍、访问权限、队员与认领实体关系</span><button type="button" class="zoom-button" aria-label="放大图 9：队伍、访问权限、队员与认领实体关系">放大查看</button></figcaption><div class="diagram-body"><svg xmlns="http://www.w3.org/2000/svg" width="1260" height="760" viewBox="0 0 1260 760" role="img" aria-labelledby="09-roster-identity-erd-title"><title id="09-roster-identity-erd-title">访问权、球员身份与认领记录分别建模</title><defs><marker id="09-roster-identity-erd-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M0 0 L9 4.5 L0 9Z" fill="#536878"/></marker><marker id="09-roster-identity-erd-amber" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9Z" fill="#a16b23"/></marker></defs><style>text{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;fill:#23323e}.diagram-title{font-size:22px;font-weight:600}.node-title{font-size:17px;font-weight:600}.node-body{font-size:15px}.edge-label{font-size:14px;fill:#4b5c69}.footer{font-size:14px;fill:#5b6a75}</style><rect width="100%" height="100%" fill="#fff"/><text x="35" y="32" class="diagram-title">访问权、球员身份与认领记录分别建模</text><polyline points="385,165 455,165" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#09-roster-identity-erd-arrow)"/><polyline points="805,165 875,165" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#09-roster-identity-erd-arrow)"/><polyline points="210,275 210,425" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#09-roster-identity-erd-arrow)"/><polyline points="1050,275 1050,425" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#09-roster-identity-erd-arrow)"/><polyline points="805,530 875,530" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#09-roster-identity-erd-arrow)"/><polyline points="1050,635 1050,690 210,690 210,635" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#09-roster-identity-erd-arrow)"/><g id="09-roster-identity-erd-team"><rect x="35" y="65" width="350" height="210" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="52" y="94">Team</text><text class="node-body" x="52" y="129">id · ownerUserId · sport</text><text class="node-body" x="52" y="152">name · status · revision</text><text class="node-body" x="52" y="175">队伍独立聚合</text></g><g id="09-roster-identity-erd-access"><rect x="455" y="65" width="350" height="210" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="472" y="94">TeamAccess</text><text class="node-body" x="472" y="129">teamId + userId 唯一</text><text class="node-body" x="472" y="152">role · status · revision</text><text class="node-body" x="472" y="175">管理员／记分员不必是球员</text></g><g id="09-roster-identity-erd-user"><rect x="875" y="65" width="350" height="210" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="892" y="94">User（已有）</text><text class="node-body" x="892" y="129">账号身份、应用昵称</text><text class="node-body" x="892" y="152">鉴权与账号生命周期</text><text class="node-body" x="892" y="175">userId 本身不授予队伍权限</text></g><g id="09-roster-identity-erd-member"><rect x="35" y="425" width="350" height="210" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="52" y="454">TeamMember</text><text class="node-body" x="52" y="489">id · teamId · userId?</text><text class="node-body" x="52" y="512">recordedName · nicknameOverride?</text><text class="node-body" x="52" y="535">rosterStatus · revision</text><text class="node-body" x="52" y="558">历史 memberId 不随认领改变</text></g><g id="09-roster-identity-erd-invite"><rect x="455" y="425" width="350" height="210" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="472" y="454">TeamInvite</text><text class="node-body" x="472" y="489">teamId · targetMemberId?</text><text class="node-body" x="472" y="512">purpose = join / claim</text><text class="node-body" x="472" y="535">tokenHash · expiresAt · status</text><text class="node-body" x="472" y="558">不保存原始邀请 token</text></g><g id="09-roster-identity-erd-claim"><rect x="875" y="425" width="350" height="210" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="892" y="454">TeamClaim</text><text class="node-body" x="892" y="489">inviteId · targetMemberId</text><text class="node-body" x="892" y="512">requesterUserId · consentedAt</text><text class="node-body" x="892" y="535">status · reviewerUserId</text><text class="node-body" x="892" y="558">认领和授权在审批事务内建立</text></g><g><rect x="392.05" y="128" width="55.9" height="23" rx="4" fill="#fff"/><text x="420" y="145" text-anchor="middle" class="edge-label">1 : N</text></g><g><rect x="812.05" y="128" width="55.9" height="23" rx="4" fill="#fff"/><text x="840" y="145" text-anchor="middle" class="edge-label">N : 1</text></g><g><rect x="219.06" y="333" width="91.88" height="23" rx="4" fill="#fff"/><text x="265" y="350" text-anchor="middle" class="edge-label">1 : N 名单</text></g><g><rect x="1064" y="333" width="72" height="23" rx="4" fill="#fff"/><text x="1100" y="350" text-anchor="middle" class="edge-label">本人请求</text></g><g><rect x="812.05" y="493" width="55.9" height="23" rx="4" fill="#fff"/><text x="840" y="510" text-anchor="middle" class="edge-label">1 : N</text></g><g><rect x="489" y="656" width="282" height="23" rx="4" fill="#fff"/><text x="630" y="673" text-anchor="middle" class="edge-label">批准后绑定原成员；唯一性与权限另行校验</text></g><text class="footer" x="35" y="730">同一账号可以属于多个队伍；未认领成员没有账号访问权。表字段为设计提案，完整约束见技术正文。</text></svg></div></figure>
+<h3 id="tech-heading-3">比赛、阵容与结果</h3>
+<p>新表使用 <code>TeamContest</code>，避免与已有实时 <code>Match</code>、个人小组 <code>GroupGame</code> 混淆。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>表（拟新增）</th>
+<th>关键字段</th>
+<th>约束与含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TeamContest</td>
+<td>id、originLibraryId、originSessionId、recorderUserId?、sport、status、playedAt、currentRevisionId、lineupCompleteness、rulesJson</td>
+<td>draft/finished/voided；名单完整性 unknown/partial/complete；来源键稳定唯一</td>
+</tr>
+<tr>
+<td>TeamContestSide</td>
+<td>id、contestId、side A/B、teamId?、localTeamRef?、teamNameSnapshot</td>
+<td>唯一(contestId,side)；文字对手允许 teamId=null，不自动绑定同名云队伍</td>
+</tr>
+<tr>
+<td>TeamAppearance</td>
+<td>id、contestId、sideId、teamMemberId?、guestParticipantId?、nameSnapshot、appearanceState</td>
+<td>confirmed/unknown/did_not_play；确认出场才计数，不复制整个常驻阵容作为出场</td>
+</tr>
+<tr>
+<td>TeamScoreEvent</td>
+<td>id、contestId、originEventId、sequence、sideId、memberRef?、kind、points、reversesEventId?、createdAt</td>
+<td>追加事件；memberRef=null 表示未归属；唯一来源事件防重复</td>
+</tr>
+<tr>
+<td>TeamResultRevision</td>
+<td>id、contestId、revision、scoreA、scoreB、outcome、lineupHash、eventsHash、status、reason</td>
+<td>唯一(contestId,revision)；不可原地修改已确认版本；保留已作废版本</td>
+</tr>
+<tr>
+<td>TeamResultAcceptance</td>
+<td>contestId、resultRevisionId、teamId、status、actorUserId、mode、acceptedAt</td>
+<td>唯一(resultRevisionId,teamId)；pending/accepted/disputed/revoked；接受必须绑定版本</td>
+</tr>
+<tr>
+<td>TeamStatsProjection</td>
+<td>scopeType、scopeId、sport、periodKey、identityKey、metricVersion、statsRevision、payload</td>
+<td>派生缓存，不是事实来源；可完整重建</td>
+</tr>
+<tr>
+<td>TeamDomainOutbox</td>
+<td>eventId、aggregateId、revision、type、payload、status</td>
+<td>与业务写同事务，后台任务可重放、幂等消费</td>
+</tr>
+</tbody></table></div>
+<p>个人队员身份不能与账号权限混用。TeamAppearance 引用成员或本场临时身份，结束后保留快照；成员后来认领时，身份解析器通过原 memberId 找到账号，不重写历史名字。</p>
+<figure id="figure-10-contest-results-erd" data-figure="10-contest-results-erd"><figcaption><span>图 10：比赛、出场、事件、结果版本与接受关系</span><button type="button" class="zoom-button" aria-label="放大图 10：比赛、出场、事件、结果版本与接受关系">放大查看</button></figcaption><div class="diagram-body"><svg xmlns="http://www.w3.org/2000/svg" width="1360" height="980" viewBox="0 0 1360 980" role="img" aria-labelledby="10-contest-results-erd-title"><title id="10-contest-results-erd-title">原始事实可追溯，结果确认绑定具体版本</title><defs><marker id="10-contest-results-erd-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M0 0 L9 4.5 L0 9Z" fill="#536878"/></marker><marker id="10-contest-results-erd-amber" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9Z" fill="#a16b23"/></marker></defs><style>text{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;fill:#23323e}.diagram-title{font-size:22px;font-weight:600}.node-title{font-size:17px;font-weight:600}.node-body{font-size:15px}.edge-label{font-size:14px;fill:#4b5c69}.footer{font-size:14px;fill:#5b6a75}</style><rect width="100%" height="100%" fill="#fff"/><text x="35" y="32" class="diagram-title">原始事实可追溯，结果确认绑定具体版本</text><polyline points="860,152 965,152" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#10-contest-results-erd-arrow)"/><polyline points="500,152 440,152 440,320 215,320 215,385" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#10-contest-results-erd-arrow)"/><polyline points="680,245 680,385" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#10-contest-results-erd-arrow)"/><polyline points="860,185 915,185 915,325 1145,325 1145,385" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#10-contest-results-erd-arrow)"/><polyline points="215,570 215,710" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#10-contest-results-erd-arrow)"/><polyline points="680,570 680,710" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#10-contest-results-erd-arrow)"/><polyline points="1145,570 1145,710" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#10-contest-results-erd-arrow)"/><polyline points="965,802 860,802" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#10-contest-results-erd-arrow)"/><polyline points="395,802 500,802" fill="none" stroke="#536878" stroke-width="1.7" stroke-linejoin="round"  marker-end="url(#10-contest-results-erd-arrow)"/><g id="10-contest-results-erd-refs"><rect x="35" y="60" width="360" height="185" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="52" y="89">队伍与成员引用</text><text class="node-body" x="52" y="124">Team / TeamMember 的稳定 ID</text><text class="node-body" x="52" y="147">本场文字对手可没有云队伍 ID</text><text class="node-body" x="52" y="170">阵容及名称在结束时快照</text></g><g id="10-contest-results-erd-contest"><rect x="500" y="60" width="360" height="185" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="517" y="89">TeamContest</text><text class="node-body" x="517" y="124">originLibraryId · originSessionId</text><text class="node-body" x="517" y="147">sport · status · currentRevisionId</text><text class="node-body" x="517" y="170">recorder 不等于参赛人</text></g><g id="10-contest-results-erd-source"><rect x="965" y="60" width="360" height="185" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="982" y="89">ContestSourceLink</text><text class="node-body" x="982" y="124">来源作用域 + 系统 + 记录 ID</text><text class="node-body" x="982" y="147">多来源明确指向同一 contestId</text><text class="node-body" x="982" y="170">无可靠来源键不自动合并</text></g><g id="10-contest-results-erd-side"><rect x="35" y="385" width="360" height="185" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="52" y="414">TeamContestSide</text><text class="node-body" x="52" y="449">contestId + side 唯一</text><text class="node-body" x="52" y="472">teamId? · teamNameSnapshot</text><text class="node-body" x="52" y="495">未知对手保留文字，不授予权限</text></g><g id="10-contest-results-erd-event"><rect x="500" y="385" width="360" height="185" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="517" y="414">TeamScoreEvent</text><text class="node-body" x="517" y="449">originEventId · sequence · sideId</text><text class="node-body" x="517" y="472">memberRef? · points · kind</text><text class="node-body" x="517" y="495">reversesEventId? · 追加事件</text></g><g id="10-contest-results-erd-revision"><rect x="965" y="385" width="360" height="185" rx="11" fill="#edf7ef" stroke="#9fc9a9" /><text class="node-title" x="982" y="414">TeamResultRevision</text><text class="node-body" x="982" y="449">contestId + revision 唯一</text><text class="node-body" x="982" y="472">scoreA / B · lineupHash · eventsHash</text><text class="node-body" x="982" y="495">不可覆盖已确认版本</text></g><g id="10-contest-results-erd-appearance"><rect x="35" y="710" width="360" height="185" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="52" y="739">TeamAppearance</text><text class="node-body" x="52" y="774">contestId · sideId · memberId?</text><text class="node-body" x="52" y="797">nameSnapshot · appearanceState</text><text class="node-body" x="52" y="820">名单未知不当作已出场</text></g><g id="10-contest-results-erd-projection"><rect x="500" y="710" width="360" height="185" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="517" y="739">TeamStatsProjection</text><text class="node-body" x="517" y="774">范围 + 项目 + 时间 + 指标版本</text><text class="node-body" x="517" y="797">statsRevision · coverage</text><text class="node-body" x="517" y="820">派生数据，可从事实重建</text></g><g id="10-contest-results-erd-acceptance"><rect x="965" y="710" width="360" height="185" rx="11" fill="#f7f9fa" stroke="#ccd6dd" /><text class="node-title" x="982" y="739">TeamResultAcceptance</text><text class="node-body" x="982" y="774">resultRevisionId + teamId 唯一</text><text class="node-body" x="982" y="797">status · actorUserId · mode</text><text class="node-body" x="982" y="820">只接受该比分与阵容版本</text></g><g><rect x="866.06" y="115" width="91.88" height="23" rx="4" fill="#fff"/><text x="912" y="132" text-anchor="middle" class="edge-label">1 : N 来源</text></g><g><rect x="302.05" y="283" width="55.9" height="23" rx="4" fill="#fff"/><text x="330" y="300" text-anchor="middle" class="edge-label">1 : 2</text></g><g><rect x="687.06" y="297" width="91.88" height="23" rx="4" fill="#fff"/><text x="733" y="314" text-anchor="middle" class="edge-label">1 : N 事件</text></g><g><rect x="997.06" y="288" width="91.88" height="23" rx="4" fill="#fff"/><text x="1043" y="305" text-anchor="middle" class="edge-label">1 : N 修订</text></g><g><rect x="227" y="623" width="72" height="23" rx="4" fill="#fff"/><text x="263" y="640" text-anchor="middle" class="edge-label">本场阵容</text></g><g><rect x="692" y="623" width="72" height="23" rx="4" fill="#fff"/><text x="728" y="640" text-anchor="middle" class="edge-label">有效事件</text></g><g><rect x="1154.06" y="623" width="91.88" height="23" rx="4" fill="#fff"/><text x="1200" y="640" text-anchor="middle" class="edge-label">1 : N 接受</text></g><g><rect x="877" y="765" width="72" height="23" rx="4" fill="#fff"/><text x="913" y="782" text-anchor="middle" class="edge-label">可信等级</text></g><g><rect x="412" y="765" width="72" height="23" rx="4" fill="#fff"/><text x="448" y="782" text-anchor="middle" class="edge-label">明确出场</text></g><text class="footer" x="35" y="950">示意图展示主干关系。事实、身份解析、可信等级和统计缓存必须能够分别追溯与重算。</text></svg></div></figure>
+<h3 id="tech-heading-4">后续小组桥接</h3>
+<p>新增 <code>GroupTeamEntry(groupId, teamId, seasonOrActivityId, status, teamApprovedBy, groupApprovedBy, revision)</code> 作为显式报名／引用。小组需新增 team 赛事能力与相应结果适配，既有 singles/doubles 枚举的旧分支保持可读。</p>
+<p>报名引用队伍不自动插入全部 GroupMember，不改变小组既有计数与配额。是否允许名单中的非小组成员参赛，由新的队伍赛事规则明确，不能借桥接默认放开旧权限。</p>
+<h2 id="t04">T04. 本地存储与同步协议</h2>
+<h3 id="tech-heading-5">本地层</h3>
+<p>各端增加队伍、访问快照、成员、邀请状态缓存、阵容引用、结果版本与待发送操作。可复用现有记录队列的基础能力，但队伍操作必须有自己的聚合版本和权限错误处理。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>元数据</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>localLibraryId</td>
+<td>区分未登录本机资料范围，不作为云端授权凭据</td>
+</tr>
+<tr>
+<td>aggregateId / clientOperationId</td>
+<td>创建前本机生成的稳定 UUID；重试不重新生成</td>
+</tr>
+<tr>
+<td>baseRevision</td>
+<td>提交时检查云队伍版本，拒绝盲目覆盖</td>
+</tr>
+<tr>
+<td>originSessionId / originEventId</td>
+<td>手机、手表、恢复会话与回传的稳定来源标识</td>
+</tr>
+<tr>
+<td>syncState</td>
+<td>local_only / queued / syncing / synced / conflict / rejected</td>
+</tr>
+<tr>
+<td>accountScope</td>
+<td>本次操作显式属于哪个登录账号；切账号冻结不属于新账号的队列</td>
+</tr>
+<tr>
+<td>deletedAt / tombstoneRevision</td>
+<td>防止旧客户端和迟到请求恢复已移除数据</td>
+</tr>
+</tbody></table></div>
+<h3 id="tech-heading-6">选择上云</h3>
+<ol>
+<li>客户端先显示所选队伍、成员、旧记录范围与目标账号，收集明确同意。</li>
+<li>上传计划分配稳定 <code>clientOperationId</code>，队伍和名单作为一个有界聚合创建；成员 UUID 一并保存或返回映射。</li>
+<li>服务端鉴权、校验 UUID 未被其他所有者占用、限额与文本审核，事务创建 Team、TeamAccess、TeamMember、幂等回执和 outbox。</li>
+<li>成功后本机保存回执，再按依赖上传选择过的比赛；只在持久化确认后出队。</li>
+<li>未完成部分保留待发送状态；失败不删除原始本机队伍。不会自动上传所有个人库或认定所有名单成员都已注册。</li>
+</ol>
+<h3 id="tech-heading-7">多端增量与冲突</h3>
+<ul>
+<li>初次拉取是授权快照加 cursor；增量是服务端顺序变更流，cursor 不使用设备时钟。</li>
+<li><code>POST /api/teams/sync/push</code> 按操作返回 applied/conflict/rejected 和当前 revision；单个资源写入原子，整批允许部分成功，并报告依赖失败。</li>
+<li>关系操作、删除、访问角色与认领禁止最后写入覆盖；遇到版本不一致返回 409，用户决定重新提交还是保留私人副本。</li>
+<li>队内昵称可以按资源版本重试；不把本地旧值覆盖管理方已确认的身份或恢复已删除成员。</li>
+<li>权限被撤销后，旧缓存可用于理解本机历史，但不能继续拉取云端新数据。待提交云写入拒绝后可另存私人记录，不能复制云授权。</li>
+<li>WebSocket 仅发送资源失效／revision 提示；客户端必须通过带鉴权的 API 拉取，不把敏感整份阵容直接广播给所有会话。</li>
+</ul>
+<h2 id="t05">T05. 邀请、认领与权限事务</h2>
+<h3 id="tech-heading-8">邀请令牌</h3>
+<p>使用高熵、带用途的随机 token，服务端只存 hash。建议默认有效期 7 天、单人认领链接单次完成后失效；具体有效期可配置。普通多人加入链接与指向既有成员的认领链接分开。公开预览只给队名、项目、邀请用途与必要提示，不返回完整名单、账号标识或统计。</p>
+<h3 id="tech-heading-9">认领事务</h3>
+<p>审批锁顺序固定：Team → TeamMember → TeamClaim → requester 对应访问关系。事务内重新检查：账号有效、队伍有效、审批者当前角色、邀请用途与目标、受邀者同意状态、成员未被其他人绑定、同队账号唯一性、请求版本。通过后绑定原成员 userId，按明确策略创建最小 TeamAccess，写审计和 outbox。业务写入、幂等回执与 outbox 必须使用同一个数据库事务对象，不能在幂等回调中另起独立事务。</p>
+<p>认领一个球员不授予管理员角色。已有其他成员身份时返回 <code>ACCOUNT_ALREADY_HAS_TEAM_MEMBER</code>，不自动把另一条球员改成当前人，也不通过姓名合并跨队身份。并发审批一人成功，另一人收到冲突；请求重放返回首次结果。</p>
+<h3 id="tech-heading-10">队主与访问控制</h3>
+<p>队主可不是球员，但必须是有效账号。队主转让需要目标账号已明确同意并有有效访问关系；不可留下没有负责人的云队伍。删除本人账号、队伍归档与解散复用现有账号生命周期框架，但需要单独的队伍数据保留／匿名化策略，不复制全部小组逻辑。</p>
+<h2 id="t06">T06. 拟新增接口</h2>
+<p>以下均为提案路径，不是现有线上 API。所有共享写入都使用鉴权、幂等键与适用的 If-Match；列表分页使用不透明 cursor。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>方法与路径</th>
+<th>用途与关键约束</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET <code>/api/teams/capabilities</code></td>
+<td>schemaVersion、项目、角色动作、暂定配额、同步与球员事件能力</td>
+</tr>
+<tr>
+<td>GET / POST <code>/api/teams</code></td>
+<td>列出有权访问的云队伍／从明确选定的本机队伍创建</td>
+</tr>
+<tr>
+<td>GET / PATCH <code>/api/teams/:teamId</code></td>
+<td>获取／更新队伍，版本匹配；修改 sport 初期拒绝</td>
+</tr>
+<tr>
+<td>GET <code>/api/teams/:teamId/access-members</code></td>
+<td>当前访问成员与可见角色，不等于球员名单</td>
+</tr>
+<tr>
+<td>PATCH <code>/api/teams/:teamId/access-members/:userId</code></td>
+<td>队主调整已加入者的角色／访问状态；不能用此接口静默添加未同意账号</td>
+</tr>
+<tr>
+<td>POST <code>/api/teams/:teamId/leave</code></td>
+<td>本人退出访问与后续通知；当前队主须先转让或按规则归档</td>
+</tr>
+<tr>
+<td>POST <code>/api/teams/:teamId/owner-transfers</code></td>
+<td>发起转让，记录目标与其接受状态；尚未接受不换队主</td>
+</tr>
+<tr>
+<td>POST <code>/api/teams/:teamId/owner-transfers/:id/accept</code></td>
+<td>目标账号明确接受后，事务更新唯一队主与角色</td>
+</tr>
+<tr>
+<td>POST <code>/api/teams/:teamId/archive</code></td>
+<td>队主归档，保留只读历史与统计，不物理删队</td>
+</tr>
+<tr>
+<td>GET / POST <code>/api/teams/:teamId/members</code></td>
+<td>阵容分页／新增未认领队员，不替对方注册账号</td>
+</tr>
+<tr>
+<td>PATCH <code>/api/teams/:teamId/members/:memberId</code></td>
+<td>修改录入信息或阵容状态；本人昵称和管理录入名使用不同动作白名单</td>
+</tr>
+<tr>
+<td>PATCH <code>/api/teams/:teamId/me/nickname</code></td>
+<td>本人队内昵称；null=跟随应用昵称；沿用审核策略</td>
+</tr>
+<tr>
+<td>POST <code>/api/teams/:teamId/invitations</code></td>
+<td>join/claim 两种用途，claim 必须绑定 targetMemberId</td>
+</tr>
+<tr>
+<td>GET <code>/api/team-invitations/preview</code></td>
+<td>token 最小预览，限流；不返回整份名单</td>
+</tr>
+<tr>
+<td>POST <code>/api/team-invitations/accept</code></td>
+<td>登录本人同意加入或认领，操作幂等</td>
+</tr>
+<tr>
+<td>GET <code>/api/teams/:teamId/claims</code></td>
+<td>管理方处理认领申请；仅返回其有权管理的范围</td>
+</tr>
+<tr>
+<td>GET <code>/api/team-claims/:claimId</code></td>
+<td>请求人或授权管理方读取申请状态</td>
+</tr>
+<tr>
+<td>POST <code>/api/team-claims/:claimId/withdraw</code></td>
+<td>本人在审批完成前撤回，审批事务必须检查未被撤回</td>
+</tr>
+<tr>
+<td>POST <code>/api/teams/:teamId/claims/:claimId/approve</code></td>
+<td>管理方确认，执行身份／权限事务</td>
+</tr>
+<tr>
+<td>POST <code>/api/teams/:teamId/claims/:claimId/reject</code></td>
+<td>明确拒绝与原因；保留审计</td>
+</tr>
+<tr>
+<td>POST <code>/api/teams/:teamId/invitations/:id/revoke</code></td>
+<td>撤销尚未完成的邀请</td>
+</tr>
+<tr>
+<td>POST <code>/api/teams/sync/push</code></td>
+<td>操作批次、依赖、baseRevision、逐项回执</td>
+</tr>
+<tr>
+<td>GET <code>/api/teams/sync/pull?cursor=...</code></td>
+<td>当前账号授权资源增量与撤销通知</td>
+</tr>
+<tr>
+<td>POST <code>/api/team-contests</code></td>
+<td>有权限范围内创建比赛，保留来源同场键</td>
+</tr>
+<tr>
+<td>GET <code>/api/teams/:teamId/contests</code></td>
+<td>本队可见的比赛与当前结果版本分页</td>
+</tr>
+<tr>
+<td>GET / PATCH <code>/api/team-contests/:id</code></td>
+<td>按权限读取／更新可写草稿；已结束结果改走追加修订</td>
+</tr>
+<tr>
+<td>POST <code>/api/team-contests/:id/events/batch</code></td>
+<td>M4 球员事件与撤销批次，独立来源事件键与逐项回执</td>
+</tr>
+<tr>
+<td>POST <code>/api/team-contests/:id/results</code></td>
+<td>提交新结果版本，不覆盖旧已确认版本</td>
+</tr>
+<tr>
+<td>POST <code>/api/team-contests/:id/revisions/:rev/accept</code></td>
+<td>代表有权限队伍接受指定版本，不能代表对手</td>
+</tr>
+<tr>
+<td>POST <code>/api/team-contests/:id/revisions/:rev/dispute</code></td>
+<td>不接受该版本，停止其进入需要双方确认的榜</td>
+</tr>
+<tr>
+<td>POST <code>/api/team-contests/:id/void</code></td>
+<td>作废并留原因，发布重算事件</td>
+</tr>
+<tr>
+<td>GET <code>/api/teams/:id/statistics</code></td>
+<td>本队统计，必须声明范围、确认等级、metricVersion 与 statsRevision</td>
+</tr>
+<tr>
+<td>GET <code>/api/team-rankings</code></td>
+<td>当前账号有权查看的指定队伍集合／赛事战绩；不是全站裸查询</td>
+</tr>
+</tbody></table></div>
+<p>建议统一错误形状：<code>{ error, message, resourceId?, currentRevision?, retryable?, details? }</code>。明确区分 401 未登录、403 无权动作、404 不可见资源、409 版本／身份冲突、422 不合法阵容／比分、429 限流。对不应泄露存在性的资源沿用不可见即未找到的策略。</p>
+<h3 id="tech-heading-11">提交结果示例</h3>
+<pre><code class="language-json">{
+  &quot;clientOperationId&quot;: &quot;019d-demo-operation&quot;,
+  &quot;originSessionId&quot;: &quot;019d-demo-match&quot;,
+  &quot;baseRevision&quot;: &quot;12&quot;,
+  &quot;sport&quot;: &quot;basketball&quot;,
+  &quot;score&quot;: { &quot;A&quot;: 68, &quot;B&quot;: 61 },
+  &quot;sides&quot;: [
+    { &quot;side&quot;: &quot;A&quot;, &quot;teamId&quot;: &quot;team-feiyang&quot;, &quot;teamNameSnapshot&quot;: &quot;飞扬队&quot; },
+    { &quot;side&quot;: &quot;B&quot;, &quot;teamId&quot;: null, &quot;teamNameSnapshot&quot;: &quot;晨光队&quot; }
+  ],
+  &quot;lineupCompleteness&quot;: &quot;partial&quot;,
+  &quot;appearances&quot;: [
+    { &quot;side&quot;: &quot;A&quot;, &quot;memberId&quot;: &quot;member-001&quot;, &quot;nameSnapshot&quot;: &quot;小杨&quot;, &quot;state&quot;: &quot;confirmed&quot; }
+  ],
+  &quot;rules&quot;: { &quot;schemaVersion&quot;: 1, &quot;allowsDraw&quot;: false },
+  &quot;scoreAttribution&quot;: { &quot;attributedPointsA&quot;: 53, &quot;unattributedPointsA&quot;: 15 }
+}
+</code></pre>
+<p>上例 ID 为便于阅读的示意占位，正式接口使用约定 UUID。此例仅展示一名已确认出场者，故名单标为 partial，不能据此认定完整球队阵容。归属合计与差额由服务端从有效事件和结果核对／计算，不能信任客户端自报汇总。没有 B 队 ID 时，不创建 B 队访问权，也不产生双方确认。</p>
+<h2 id="t07">T07. 比赛事实、接受状态与统计投影</h2>
+<h3 id="tech-heading-12">来源身份与去重</h3>
+<p>本机开始比赛即生成稳定 <code>originSessionId</code> 和受保护的来源作用域；手机、手表与小组回传必须保留原始同场键。客户端各自的记录 ID 通过 <code>ContestSourceLink(originNamespace, sourceSystem, sourceRecordId, contestId)</code> 关联同一场，前三者组成唯一键。来源作用域由服务端验证归属，不能任意指定别人的库；两台设备都使用局部记录号“1”也不会撞在一起。旧数据没有可靠同场键时，不自动用“同名＋同分＋相近时间”合并；只提示疑似重复。</p>
+<h3 id="tech-heading-13">权威事实与可信等级</h3>
+<ul>
+<li>TeamContest 的当前有效结果版本是比分事实；TeamResultAcceptance 表示各方对这个版本的接受，不混入同步状态。</li>
+<li>本队记分员可以提交本队记录，但默认不能代表双方确认；队伍管理员仅代表本队接受。</li>
+<li>私人库看到同名云队伍不自动把该结果写入对方共享榜。对方进入后必须有明确比赛引用与本队接受。</li>
+<li>结果 r3 的接受不适用于 r4。修改比分、阵容或会影响统计的规则产生新版本，相关接受重新建立。</li>
+<li>作废不物理删除事实；统计投影收到相应修订事件后撤回旧贡献、应用新贡献，或对受影响分区全量重算。</li>
+</ul>
+<h3 id="tech-heading-14">投影与一致性</h3>
+<p>首期采用同一 PostgreSQL 内的事务 outbox 与幂等后台任务，不预先引入独立消息中间件。消费键为事件 ID，统计分区含 scope、sport、period、metricVersion；同一聚合修订只应用一次。</p>
+<p>对外响应包含 <code>resultRevision / statsRevision / computedAt / coverage</code>。结果已保存但投影仍在处理时，显示“统计更新中”，不使用旧榜伪装已更新。支持后台按范围重建并核对校验和。</p>
+<h3 id="tech-heading-15">球员事件数据</h3>
+<p>篮球加分事件至少有球队、分值、来源事件 ID、可选球员、序列号。撤销追加 reversal 引用原事件；纠错追加修订，不把原事件原地变成另一名球员。未归属得分单独计算；没有统计的项目返回缺失，不返回 0 冒充真实测量。</p>
+<p>比赛最终总分与动作合计不一致时，保留结果摘要并标明事件覆盖不足；如用户选择完整技术统计模式，应在结束前提示差异，不能偷偷把差额分摊给球员。</p>
+<h2 id="t08">T08. 兼容迁移与逐端落地</h2>
+<h3 id="tech-heading-16">数据迁移</h3>
+<p>采用“新增表／可选字段 → 服务端能力目录 → 新端增量读写 → 小流量验证 → 扩展入口”的顺序。旧常用名称仍可读写；新队伍数据通过独立存储和接口维护，不把成员关系塞进旧 name 字符串或 UserCommonName.type。</p>
+<p>旧名称升级本机队伍时建立 <code>LegacyNameEntityLink(ownerScope, type, normalizedName, localEntityId, migrationBatchId)</code>，同名只是用户明确确认的迁移范围，不跨用户去重。原始记录与回放不改写，身份关系另存。</p>
+<p>已有计分引擎的 <code>team_0 / team_1</code>、左右席位和 winner identity 仍然表示比赛内部的位置，不替换成云队伍 ID。新增可版本化的 roster context，在位置之外保存 teamId、memberId、当场名称和来源会话；需要时作为独立 sidecar 随记录关联。显示层换边不会交换自然人身份，也不会重新分配云队伍 ID。</p>
+<h3 id="tech-heading-17">客户端能力</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>客户端</th>
+<th>必须核对／改造</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>iOS / Android / Android Google / HarmonyOS</td>
+<td>名称兼容、本机队伍仓库、访问与成员模型、离线队列、版本冲突、选队与出场、记录来源 ID</td>
+</tr>
+<tr>
+<td>网页 / 小程序</td>
+<td>接受邀请、登录回跳、最低权限名单、队内昵称、读取与可选记分；能力不足时不写未知新版实体</td>
+</tr>
+<tr>
+<td>手表独立端 / 手机联动</td>
+<td>队伍与成员引用、来源会话和事件 ID、可选得分归属；手机可承担完整管理与认领</td>
+</tr>
+<tr>
+<td>后台管理端</td>
+<td>队伍与身份审计、内容审核、争议查看、投影重建、邀请撤销与异常认领排查</td>
+</tr>
+</tbody></table></div>
+<p>不能仅靠“可选字段”保证兼容：如果旧端解码再编码会丢未知字段，要用 sidecar 存储或服务端合并保护新关系，绝不允许旧快照覆盖新身份、权限和 tombstone。</p>
+<h3 id="tech-heading-18">小组对接阶段</h3>
+<p>新增小组项目能力版本、team 赛制、队伍报名与结果适配，服务端按 capabilities 检查；不认识 team 的旧端只读提示升级，不把人数压成 singles/doubles。保留既有组长、成员、确认和人数语义。</p>
+<h2 id="t09">T09. 权限、内容与运维</h2>
+<ul>
+<li>所有共享写入重查账号、TeamAccess、队伍状态、资源归属和版本；不信任客户端提交的 owner、role、reviewer 或 confirmedBy。</li>
+<li>私人备注、账号联系方式不随队伍整包暴露；邀请预览只给完成当前动作所需信息。</li>
+<li>沿用既有文本／头像审核框架，新增队伍、队内昵称审核目标和范围；本地录入与对外共享的状态明确分开。</li>
+<li>对邀请创建、预览、接受、认领与同步有分层限流；配额由 capabilities 下发，尚未确定的商业配额不在客户端写死。</li>
+<li>日志不写原始邀请 token、登录凭据和整份个人资料。审计保留动作与资源 ID，用于纠错与追溯。</li>
+<li>监控队列积压、409 比例、认领冲突、拒绝越权、重复比赛、投影延迟、事件总量守恒和重算差异。</li>
+<li>队伍归档、退队、账号注销、隐私删除的产品保留期仍需专项评审；不可通过级联删除摧毁他人合法持有的历史比赛快照。</li>
+</ul>
+<h2 id="t10">T10. 验证、上线与回退</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>类别</th>
+<th>必测项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单元／属性测试</td>
+<td>名称规范化、身份查重、计数上限、统计范围、事件撤销和未归属分守恒</td>
+</tr>
+<tr>
+<td>数据库集成</td>
+<td>同 key 重放、不同 body 复用 key、并发认领、账号同队唯一、事务失败回滚、权限撤销与 tombstone</td>
+</tr>
+<tr>
+<td>同步回归</td>
+<td>断网／重试／换账号／旧版本回写／乱序事件／同场多来源／部分批次失败与依赖</td>
+</tr>
+<tr>
+<td>统计金样</td>
+<td>本队记录与双方确认分开；r3→r4 不继承确认；作废撤回；离队改名不改变快照</td>
+</tr>
+<tr>
+<td>端到端</td>
+<td>未登录离线建队、选择上云、邀请认领、本人昵称、球员出场、旧名批量关联与原记录保留</td>
+</tr>
+<tr>
+<td>跨端契约</td>
+<td>同一份 JSON 样本在所有参与端解码、重编码、恢复、上传后身份不漂移</td>
+</tr>
+</tbody></table></div>
+<p>推荐依 feature flag 分别控制：本机队伍、云发布、邀请认领、共享战绩、球员事件、小组 team 赛事。先在内部账号验证，再有限灰度。上线前比较迁移样本数量、成员引用完整性与统计金样；按照各端既有发布门槛完成设备回归。</p>
+<p>回退优先关闭新写入和新入口，保留已生成资料的只读能力。数据库采用向前兼容的新增结构，不以删表或清空新字段回退；队列与 outbox 保留，恢复后可幂等继续。</p>
+<h2 id="t11">T11. 评审必须回答的问题</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>问题</th>
+<th>本方案建议／仍需确认</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>新队伍商业配额</td>
+<td>尚未确定；独立评审，不改变既有小组规则</td>
+</tr>
+<tr>
+<td>普通队员能否提交本队比分</td>
+<td>默认否；明确授权为记分员后可提交，仍不能代表对手确认</td>
+</tr>
+<tr>
+<td>认领冲突时是否自动合并</td>
+<td>不自动；首期保留冲突并交由管理方处理，完整合并为后续能力</td>
+</tr>
+<tr>
+<td>队伍战绩默认可信等级</td>
+<td>私人／本队显示明确来源；正式赛事排名使用该赛事要求</td>
+</tr>
+<tr>
+<td>队内昵称审核策略</td>
+<td>复用现有框架，新增队伍作用域与本人预览语义；与现有服务端解析统一</td>
+</tr>
+<tr>
+<td>篮球球员得分优先级</td>
+<td>作为 M4，先不承诺篮板、助攻等未记录指标</td>
+</tr>
+<tr>
+<td>小组队伍赛上线时间</td>
+<td>在独立队伍稳定后单独立项，不假定当前已支持篮球、足球</td>
+</tr>
+</tbody></table></div>
+<p>技术方案以这些默认约束形成可评审基线；它不替代上述产品决策，也不表示现有后台已经提供所列能力。</p>
+</article><footer class="bottom-note">文档仅描述设计提案与本地源码核对结果，不代表功能已上线。两份 Markdown 与本 HTML 由相同源生成；所有图已内嵌，阅读无需联网。</footer></main></div>
+<dialog id="figure-dialog" aria-labelledby="figure-dialog-title"><div class="dialog-header"><strong id="figure-dialog-title">图形详情</strong><button class="quiet" type="button" id="close-figure">关闭</button></div><div class="dialog-body" id="figure-dialog-body"></div></dialog>
+<script>
+(()=>{const dialog=document.getElementById('figure-dialog');document.querySelectorAll('.zoom-button').forEach(button=>button.addEventListener('click',()=>{const figure=button.closest('figure');const original=figure.querySelector('svg');document.getElementById('figure-dialog-title').textContent=original.querySelector('title').textContent;document.getElementById('figure-dialog-body').innerHTML=original.outerHTML.replaceAll(figure.dataset.figure+'-','zoom-'+figure.dataset.figure+'-');dialog.showModal();}));document.getElementById('close-figure').onclick=()=>dialog.close();dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close();});document.getElementById('print-document').onclick=()=>window.print();document.getElementById('section-picker').onchange=event=>{if(event.target.value)document.getElementById(event.target.value)?.scrollIntoView({behavior:'smooth'});};if('IntersectionObserver' in window){const observer=new IntersectionObserver(entries=>{const visible=entries.filter(entry=>entry.isIntersecting);if(!visible.length)return;const id=visible[0].target.id;document.querySelectorAll('.toc a').forEach(link=>link.classList.toggle('active',link.getAttribute('href')==='#'+id));},{rootMargin:'-10% 0px -75% 0px'});document.querySelectorAll('article h2').forEach(heading=>observer.observe(heading));}})();
+</script></body></html>

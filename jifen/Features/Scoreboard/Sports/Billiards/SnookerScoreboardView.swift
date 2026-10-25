@@ -26,6 +26,7 @@ struct SnookerScoreboardView: View {
     @State private var actionCount = 0
     @State private var startedAt: Date
     @State private var recordID: String
+    @State private var initialParticipantSelections: [String: ParticipantSelection]?
     @State private var leftName: String
     @State private var rightName: String
     @State private var matchTitle: String?
@@ -155,6 +156,7 @@ struct SnookerScoreboardView: View {
         _matchTitle = State(initialValue: title)
         _matchTitleDraft = State(initialValue: title ?? "")
         _showGameOverDialog = State(initialValue: showFinished)
+        _initialParticipantSelections = State(initialValue: initialResumeSessionId == nil ? (initialSetup?.participantSelections ?? [:]) : nil)
     }
 
     private var state: SnookerState { sessionStore.state }
@@ -171,6 +173,7 @@ struct SnookerScoreboardView: View {
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             finishedRecordDetailPage
         }
+        .registerParticipantSetupOnAppear(recordID: recordID, selections: initialParticipantSelections)
         .onAppear {
             onSetupConsumed?()
             registerSync()
@@ -1269,6 +1272,7 @@ struct SnookerScoreboardView: View {
 
 
     private func startNewMatch() {
+        let previousIdentityRecord = recordID
         guard !scoringLocked, !isStartingNewMatch else { return }
         isStartingNewMatch = true
         let finishedStore = sessionStore
@@ -1301,6 +1305,7 @@ struct SnookerScoreboardView: View {
                 sessionStore = freshStore
                 startedAt = newStartedAt
                 recordID = newRecordID
+                ParticipantIdentityStore.shared.copySelections(from: previousIdentityRecord, to: newRecordID)
                 actionCount = 0
                 actionLog.removeAll()
                 detailedActions.removeAll()

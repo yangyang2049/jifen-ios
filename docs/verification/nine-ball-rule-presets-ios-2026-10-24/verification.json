@@ -1,0 +1,102 @@
+{
+  "completedAt": "2026-10-25",
+  "platform": "iOS",
+  "ruleVersion": 3,
+  "published": false,
+  "core": {
+    "tests": 275,
+    "failures": 0,
+    "log": "/tmp/nine-ball-v3-core.log"
+  },
+  "ios": {
+    "distinctTests": 223,
+    "failures": 0,
+    "runs": [
+      {
+        "tests": 220,
+        "result": "/tmp/nine-ball-v3-native-tests.xcresult"
+      },
+      {
+        "tests": 4,
+        "newTests": 1,
+        "result": "/tmp/nine-ball-v3-booking-tests.xcresult"
+      },
+      {
+        "tests": 66,
+        "newTests": 1,
+        "result": "/tmp/nine-ball-v3-final-regression.xcresult"
+      },
+      {
+        "tests": 1,
+        "newTests": 1,
+        "result": "/tmp/nine-ball-v3-layout.xcresult",
+        "language": "zh-Hant",
+        "region": "TW"
+      }
+    ]
+  },
+  "nativeWalkthrough": [
+    {
+      "device": "iPhone 17 Pro",
+      "language": "en",
+      "checks": [
+        "folk five-item summary wrapping",
+        "tournament singles and four-item summary",
+        "direct points input",
+        "keyboard leaves Start accessible",
+        "third foul awards 2 and ends rack",
+        "0/1 -> 0/2 -> 0/4",
+        "next breaker and fouls reset",
+        "one undo restores scores, counts, rack, breaker and fouls"
+      ]
+    },
+    {
+      "device": "iPad Pro 13-inch (M5)",
+      "language": "zh-Hans",
+      "checks": [
+        "setup layout",
+        "continuous rule sections and green section markers",
+        "1357 point scheme",
+        "family switching",
+        "custom rack validation",
+        "feedback guest login handling without posting"
+      ]
+    },
+    {
+      "device": "iPhone SE (3rd generation)",
+      "language": "zh-Hans",
+      "checks": [
+        "small-screen setup",
+        "zero racks disables Start",
+        "empty points disables Start",
+        "restore after either invalid draft enables Start and hides restore",
+        "number-pad input and fixed actions",
+        "dark appearance"
+      ]
+    }
+  ],
+  "renderedMatrix": [
+    "375pt four-player long names",
+    "375pt tournament with saved custom racks",
+    "320pt dark setup",
+    "375pt full rules",
+    "768pt full rules"
+  ],
+  "limitations": [
+    "New Simplified Chinese, Traditional Chinese and English strings supplied. Other locales use English for new keys.",
+    "Physical TV/AirPlay connection not exercised; iOS display metadata, wire round trip and native projection regressions passed.",
+    "Feedback title constructor and existing login path checked; no feedback was published."
+  ],
+  "screenshots": [
+    "ipad-setup-zh.png",
+    "iphone-se-keyboard-zh.png",
+    "iphone-se-setup-dark-zh.png",
+    "iphone-setup-en.png",
+    "iphone-three-foul-en.png",
+    "native-rules-375-zh-Hant.png",
+    "native-rules-768-zh-Hant.png",
+    "native-setup-folk-dark-zh-Hant.png",
+    "native-setup-folk-four-zh-Hant.png",
+    "native-setup-tournament-zh-Hant.png"
+  ]
+}

@@ -525,12 +525,12 @@ import SessionCore
 
 @Test func nineBallChaseFoulMatchesTwoAndFourPlayerRules() {
     let reducer = NineBallChaseReducer()
-    var two = NineBallChaseState.initial(playerCount: 2)
+    var two = NineBallChaseState.initial(playerCount: 2, ruleVersion: 1)
     two = reducer.reduce(state: two, intent: .chaseEvent(player: 0, kind: .foul), at: 1).state
     #expect(two.playerPoints[0] == 0)
     #expect(two.playerPoints[1] == 1)
 
-    var four = NineBallChaseState.initial(playerCount: 4)
+    var four = NineBallChaseState.initial(playerCount: 4, ruleVersion: 1)
     four = reducer.reduce(state: four, intent: .chaseEvent(player: 2, kind: .foul), at: 1).state
     #expect(four.playerPoints[2] == -1)
     #expect(four.playerCounts[2][5] == 1)
@@ -1063,7 +1063,7 @@ import SessionCore
 
     let scored = NineBallChaseReducer().reduce(
         state: state,
-        intent: .chaseEvent(player: 0, kind: .foul),
+        intent: .chaseTransfer(player: 0, kind: .foul, payer: nil, continuePlayer: nil),
         at: 1
     )
     #expect(scored.accepted)
@@ -1266,7 +1266,7 @@ import SessionCore
         reducer: NineBallChaseReducer(),
         shouldFinish: { _, state in state.finished }
     )
-    _ = await chaseCore.dispatch(actorId: "phone", intent: .chaseEvent(player: 2, kind: .foul), at: 2)
+    _ = await chaseCore.dispatch(actorId: "phone", intent: .chaseTransfer(player: 2, kind: .foul, payer: nil, continuePlayer: nil), at: 2)
     #expect(await chaseCore.snapshot().state.playerPoints[2] == -1)
     var authoritativeChase = await chaseCore.snapshot().state
     authoritativeChase.playerPoints[2] = 88

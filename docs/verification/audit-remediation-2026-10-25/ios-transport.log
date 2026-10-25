@@ -1,0 +1,1299 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project jifen.xcodeproj -scheme jifen -destination "platform=iOS Simulator,id=86871B65-E0ED-4FBD-9F93-F3FB6246A895" -derivedDataPath /tmp/jifen-selfcheck-dd -resultBundlePath /tmp/jifen-audit-remediation-transport-20261025.xcresult -parallel-testing-enabled NO "-only-testing:jifenTests/PersonalRecordsTransportTests" test
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  WechatOpenSDK: https://github.com/yanyin1986/WechatOpenSDK.git @ 2.0.7
+  Firebase: https://github.com/firebase/firebase-ios-sdk.git @ 12.19.2
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.3
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  abseil: https://github.com/google/abseil-cpp-binary.git @ 1.2024072200.0
+  JifenCore: /Users/yangyang/Desktop/jifenqi/jifen-ios/Packages/JifenCore @ local
+  Promises: https://github.com/google/promises.git @ 2.4.1
+  nanopb: https://github.com/firebase/nanopb.git @ 2.30910.1
+  leveldb: https://github.com/firebase/leveldb.git @ 1.22.5
+  GoogleAdsOnDeviceConversion: https://github.com/googleads/google-ads-on-device-conversion-ios-sdk @ 3.7.0
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 5.3.1
+  gRPC: https://github.com/google/grpc-binary.git @ 1.69.1
+  GoogleAppMeasurement: https://github.com/google/GoogleAppMeasurement.git @ 12.19.2
+  AppCheck: https://github.com/google/app-check.git @ 11.3.2
+  GoogleDataTransport: https://github.com/google/GoogleDataTransport.git @ 10.1.1
+
+Writing result bundle at path:
+	/tmp/jifen-audit-remediation-transport-20261025.xcresult
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (59 targets)
+    Target 'jifenUITests' in project 'jifen'
+        ➜ Explicit dependency on target 'jifen' in project 'jifen'
+    Target 'jifenTests' in project 'jifen'
+        ➜ Explicit dependency on target 'jifen' in project 'jifen'
+    Target 'jifen' in project 'jifen'
+        ➜ Explicit dependency on target 'ScoreCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'SessionCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'RecordCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'PersistenceCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'LinkCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'TimerCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'FirebaseCore-product' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAnalyticsCore-product' in project 'Firebase'
+        ➜ Explicit dependency on target 'WechatOpenSDK-product' in project 'WechatOpenSDK'
+    Target 'WechatOpenSDK-product' in project 'WechatOpenSDK' (no dependencies)
+    Target 'FirebaseAnalyticsCore-product' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAnalyticsCoreTarget' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAnalyticsCoreWrapper' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'FBLPromises-product' in project 'Promises'
+        ➜ Explicit dependency on target 'GULUserDefaults-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleAppMeasurementCore-product' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULMethodSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNetwork-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'nanopb-product' in project 'nanopb'
+    Target 'FirebaseAnalyticsCoreTarget' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAnalyticsCoreWrapper' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'FBLPromises-product' in project 'Promises'
+        ➜ Explicit dependency on target 'GULUserDefaults-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleAppMeasurementCore-product' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULMethodSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNetwork-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'nanopb-product' in project 'nanopb'
+    Target 'FirebaseAnalyticsCoreWrapper' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'FBLPromises-product' in project 'Promises'
+        ➜ Explicit dependency on target 'GULUserDefaults-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleAppMeasurementCore-product' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULMethodSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNetwork-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'nanopb-product' in project 'nanopb'
+    Target 'GoogleAppMeasurementCore-product' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GoogleAppMeasurementCoreTarget' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULMethodSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNetwork-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'nanopb-product' in project 'nanopb'
+    Target 'GoogleAppMeasurementCoreTarget' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULMethodSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNetwork-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'nanopb-product' in project 'nanopb'
+    Target 'nanopb-product' in project 'nanopb'
+        ➜ Explicit dependency on target 'nanopb' in project 'nanopb'
+        ➜ Explicit dependency on target 'nanopb_nanopb' in project 'nanopb'
+    Target 'nanopb' in project 'nanopb'
+        ➜ Explicit dependency on target 'nanopb_nanopb' in project 'nanopb'
+    Target 'nanopb_nanopb' in project 'nanopb' (no dependencies)
+    Target 'GULNetwork-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Network' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+    Target 'GULMethodSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-MethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-MethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-MethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-MethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-MethodSwizzler' in project 'GoogleUtilities' (no dependencies)
+    Target 'GULAppDelegateSwizzler-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Network' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-Network' in project 'GoogleUtilities' (no dependencies)
+    Target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-Reachability' in project 'GoogleUtilities' (no dependencies)
+    Target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities' (no dependencies)
+    Target 'FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'FBLPromises-product' in project 'Promises'
+        ➜ Explicit dependency on target 'GULUserDefaults-product' in project 'GoogleUtilities'
+    Target 'GULUserDefaults-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-UserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-UserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-UserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-UserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-UserDefaults' in project 'GoogleUtilities' (no dependencies)
+    Target 'FBLPromises-product' in project 'Promises'
+        ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+        ➜ Explicit dependency on target 'Promises_FBLPromises' in project 'Promises'
+    Target 'FBLPromises' in project 'Promises'
+        ➜ Explicit dependency on target 'Promises_FBLPromises' in project 'Promises'
+    Target 'Promises_FBLPromises' in project 'Promises' (no dependencies)
+    Target 'Firebase_FirebaseInstallations' in project 'Firebase' (no dependencies)
+    Target 'FirebaseCore-product' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger-product' in project 'GoogleUtilities'
+    Target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger-product' in project 'GoogleUtilities'
+    Target 'GULLogger-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-Logger' in project 'GoogleUtilities' (no dependencies)
+    Target 'GULEnvironment-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+    Target 'third-party-IsAppEncrypted' in project 'GoogleUtilities' (no dependencies)
+    Target 'GoogleUtilities_GoogleUtilities-Environment' in project 'GoogleUtilities' (no dependencies)
+    Target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData-product' in project 'GoogleUtilities'
+    Target 'GULNSData-product' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-NSData' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-NSData' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-NSData' in project 'GoogleUtilities' (no dependencies)
+    Target 'Firebase_FirebaseCoreInternal' in project 'Firebase' (no dependencies)
+    Target 'Firebase' in project 'Firebase' (no dependencies)
+    Target 'Firebase_FirebaseCore' in project 'Firebase' (no dependencies)
+    Target 'TimerCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'TimerCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+    Target 'TimerCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+    Target 'LinkCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'LinkCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'SessionCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'RecordCore' in project 'JifenCore'
+    Target 'LinkCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'SessionCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'RecordCore' in project 'JifenCore'
+    Target 'PersistenceCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'PersistenceCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'SessionCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'RecordCore' in project 'JifenCore'
+    Target 'PersistenceCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'SessionCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'RecordCore' in project 'JifenCore'
+    Target 'RecordCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'RecordCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'SessionCore' in project 'JifenCore'
+    Target 'RecordCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'SessionCore' in project 'JifenCore'
+    Target 'SessionCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'SessionCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+    Target 'SessionCore' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+    Target 'ScoreCore-product' in project 'JifenCore'
+        ➜ Explicit dependency on target 'ScoreCore' in project 'JifenCore'
+    Target 'ScoreCore' in project 'JifenCore' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -x objective-c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+Build description signature: 8bc26e28fcb06ab634fd88a79f1805c6
+Build description path: /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/XCBuildData/8bc26e28fcb06ab634fd88a79f1805c6.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk /tmp/jifen-selfcheck-dd/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -o /tmp/jifen-selfcheck-dd/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache
+
+ProcessInfoPlistFile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/Firebase_FirebaseCoreInternal.bundle/Info.plist /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/Firebase.build/Debug-iphonesimulator/Firebase_FirebaseCoreInternal-b.build/empty-Firebase_FirebaseCoreInternal.plist (in target 'Firebase_FirebaseCoreInternal' from project 'Firebase')
+    cd /tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk
+    builtin-infoPlistUtility /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/Firebase.build/Debug-iphonesimulator/Firebase_FirebaseCoreInternal-b.build/empty-Firebase_FirebaseCoreInternal.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/Firebase_FirebaseCoreInternal.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-NSData.bundle/Info.plist /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-NSData-b.build/empty-GoogleUtilities_GoogleUtilities-NSData.plist (in target 'GoogleUtilities_GoogleUtilities-NSData' from project 'GoogleUtilities')
+    cd /tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-NSData-b.build/empty-GoogleUtilities_GoogleUtilities-NSData.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-NSData.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/Promises_FBLPromises.bundle/Info.plist /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/Promises.build/Debug-iphonesimulator/Promises_FBLPromises-b.build/empty-Promises_FBLPromises.plist (in target 'Promises_FBLPromises' from project 'Promises')
+    cd /tmp/jifen-selfcheck-dd/SourcePackages/checkouts/promises
+    builtin-infoPlistUtility /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/Promises.build/Debug-iphonesimulator/Promises_FBLPromises-b.build/empty-Promises_FBLPromises.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/Promises_FBLPromises.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-UserDefaults.bundle/Info.plist /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-UserDefaults-b.build/empty-GoogleUtilities_GoogleUtilities-UserDefaults.plist (in target 'GoogleUtilities_GoogleUtilities-UserDefaults' from project 'GoogleUtilities')
+    cd /tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-UserDefaults-b.build/empty-GoogleUtilities_GoogleUtilities-UserDefaults.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-UserDefaults.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/nanopb_nanopb.bundle/Info.plist /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/nanopb.build/Debug-iphonesimulator/nanopb_nanopb-b.build/empty-nanopb_nanopb.plist (in target 'nanopb_nanopb' from project 'nanopb')
+    cd /tmp/jifen-selfcheck-dd/SourcePackages/checkouts/nanopb
+    builtin-infoPlistUtility /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/nanopb.build/Debug-iphonesimulator/nanopb_nanopb-b.build/empty-nanopb_nanopb.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/nanopb_nanopb.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-MethodSwizzler.bundle/Info.plist /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-MethodSwizzler-b.build/empty-GoogleUtilities_GoogleUtilities-MethodSwizzler.plist (in target 'GoogleUtilities_GoogleUtilities-MethodSwizzler' from project 'GoogleUtilities')
+    cd /tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-MethodSwizzler-b.build/empty-GoogleUtilities_GoogleUtilities-MethodSwizzler.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-MethodSwizzler.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Logger.bundle/Info.plist /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Logger-b.build/empty-GoogleUtilities_GoogleUtilities-Logger.plist (in target 'GoogleUtilities_GoogleUtilities-Logger' from project 'GoogleUtilities')
+    cd /tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Logger-b.build/empty-GoogleUtilities_GoogleUtilities-Logger.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Logger.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Environment.bundle/Info.plist /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Environment-b.build/empty-GoogleUtilities_GoogleUtilities-Environment.plist (in target 'GoogleUtilities_GoogleUtilities-Environment' from project 'GoogleUtilities')
+    cd /tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Environment-b.build/empty-GoogleUtilities_GoogleUtilities-Environment.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Environment.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle/Info.plist /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler-b.build/empty-GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.plist (in target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' from project 'GoogleUtilities')
+    cd /tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler-b.build/empty-GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Reachability.bundle/Info.plist /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Reachability-b.build/empty-GoogleUtilities_GoogleUtilities-Reachability.plist (in target 'GoogleUtilities_GoogleUtilities-Reachability' from project 'GoogleUtilities')
+    cd /tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Reachability-b.build/empty-GoogleUtilities_GoogleUtilities-Reachability.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Reachability.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Network.bundle/Info.plist /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Network-b.build/empty-GoogleUtilities_GoogleUtilities-Network.plist (in target 'GoogleUtilities_GoogleUtilities-Network' from project 'GoogleUtilities')
+    cd /tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Network-b.build/empty-GoogleUtilities_GoogleUtilities-Network.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/GoogleUtilities_GoogleUtilities-Network.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/Firebase_FirebaseInstallations.bundle/Info.plist /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/Firebase.build/Debug-iphonesimulator/Firebase_FirebaseInstallations-b.build/empty-Firebase_FirebaseInstallations.plist (in target 'Firebase_FirebaseInstallations' from project 'Firebase')
+    cd /tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk
+    builtin-infoPlistUtility /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/Firebase.build/Debug-iphonesimulator/Firebase_FirebaseInstallations-b.build/empty-Firebase_FirebaseInstallations.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/Firebase_FirebaseInstallations.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/Firebase_FirebaseCore.bundle/Info.plist /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/Firebase.build/Debug-iphonesimulator/Firebase_FirebaseCore-b.build/empty-Firebase_FirebaseCore.plist (in target 'Firebase_FirebaseCore' from project 'Firebase')
+    cd /tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk
+    builtin-infoPlistUtility /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/Firebase.build/Debug-iphonesimulator/Firebase_FirebaseCore-b.build/empty-Firebase_FirebaseCore.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/Firebase_FirebaseCore.bundle/Info.plist
+
+SwiftDriver jifen normal arm64 com.apple.xcode.tools.swift.compiler (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name jifen -Onone @/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.SwiftFileList -DDEBUG -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/promises/Sources/FBLPromises/include/module.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-UserDefaults.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleAppMeasurementCoreTarget.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-AppDelegateSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-MethodSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Reachability.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-NSData.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Logger.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Environment.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/third-party-IsAppEncrypted.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Network.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/nanopb.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreWrapper.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseInstallations.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseCore.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources/module.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreTarget.modulemap -default-isolation\=MainActor -enable-bare-slash-regex -enable-upcoming-feature DisableOutwardActorInference -enable-upcoming-feature InferSendableFromCaptures -enable-upcoming-feature GlobalActorIsolatedTypesUsability -enable-upcoming-feature MemberImportVisibility -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /tmp/jifen-selfcheck-dd/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/jifen-selfcheck-dd/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -F /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -emit-localized-strings -emit-localized-strings-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64 -c -j12 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/jifen-selfcheck-dd/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/jifen-selfcheck-dd/ModuleCache.noindex -sdk-module-cache-path /tmp/jifen-selfcheck-dd/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/jifen-selfcheck-dd/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-generated-files.hmap -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-own-target-headers.hmap -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen-bd9621345967a26baad30e5e8e3a08f0-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-project-headers.hmap -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/promises/Sources/FBLPromises/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/UserDefaults/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleAppMeasurement/GoogleAppMeasurementCoreWrapper/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/AppDelegateSwizzler/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/MethodSwizzler/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Reachability/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/NSData+zlib/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Logger/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Environment/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/third_party/IsAppEncrypted/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Network/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/nanopb/spm_headers -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseAnalyticsCoreWrapper/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseInstallations/Source/Library/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseCore/Sources/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/SwiftPM-PlatformExclude/FirebaseAnalyticsCoreWrap/include -Xcc -I/tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources-normal/arm64 -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources/arm64 -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-Swift.h -working-directory /Users/yangyang/Desktop/jifenqi/jifen-ios -experimental-emit-module-separately -disable-cmo
+
+ProcessInfoPlistFile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/Info.plist /Users/yangyang/Desktop/jifenqi/jifen-ios/Info.plist (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-infoPlistUtility /Users/yangyang/Desktop/jifenqi/jifen-ios/Info.plist -producttype com.apple.product-type.application -genpkginfo /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/assetcatalog_generated_info.plist -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/Firebase_FirebaseCore.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/Firebase_FirebaseCoreInternal.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/Firebase_FirebaseInstallations.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/Frameworks/FirebaseAnalytics.framework -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/Frameworks/GoogleAppMeasurement.framework -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/Frameworks/WechatOpenSDK.framework -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/GoogleUtilities_GoogleUtilities-Environment.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/GoogleUtilities_GoogleUtilities-Logger.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/GoogleUtilities_GoogleUtilities-MethodSwizzler.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/GoogleUtilities_GoogleUtilities-NSData.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/GoogleUtilities_GoogleUtilities-Network.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/GoogleUtilities_GoogleUtilities-Reachability.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/GoogleUtilities_GoogleUtilities-UserDefaults.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/Promises_FBLPromises.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/nanopb_nanopb.bundle -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/Info.plist
+
+SwiftCompile normal arm64 Compiling\ PersonalRecordsCloudSync.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/PersonalRecordsCloudSync.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/PersonalRecordsCloudSync.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile PersonalRecordsCloudSync.swift
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ jifen (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/PersonalRecordAccessPolicy.swift:7:74: warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 5 | @MainActor enum PersonalRecordAccessPolicy {
+ 6 |     static func allowsNativeRecord(_ recordKey: String,
+ 7 |                                    identity: ParticipantIdentityStore = .shared,
+   |                                                                          `- warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 8 |                                    cloud: PersonalRecordsCloudSync = .shared) -> Bool {
+ 9 |         identity.canRead(recordKey: recordKey)
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/ParticipantIdentityStore.swift:15:16: note: static property declared here
+ 13 | @MainActor @Observable
+ 14 | final class ParticipantIdentityStore {
+ 15 |     static let shared = ParticipantIdentityStore(currentAccountID: { SessionStore.shared.user?.id })
+    |                `- note: static property declared here
+ 16 |
+ 17 |     struct State: Codable {
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/PersonalRecordAccessPolicy.swift:8:71: warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 6 |     static func allowsNativeRecord(_ recordKey: String,
+ 7 |                                    identity: ParticipantIdentityStore = .shared,
+ 8 |                                    cloud: PersonalRecordsCloudSync = .shared) -> Bool {
+   |                                                                       `- warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 9 |         identity.canRead(recordKey: recordKey)
+10 |             && !cloud.usesCloudVersion(recordKey: recordKey)
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/PersonalRecordsCloudSync.swift:78:16: note: static property declared here
+ 76 | @MainActor @Observable
+ 77 | final class PersonalRecordsCloudSync {
+ 78 |     static let shared = PersonalRecordsCloudSync(observeConnectivity: true)
+    |                `- note: static property declared here
+ 79 |     private(set) var phase = "local"
+ 80 |     private(set) var lastError: String?
+SwiftCompile normal arm64 Compiling\ ParticipantIdentityViews.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/ParticipantIdentityViews.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/ParticipantIdentityViews.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile ParticipantIdentityViews.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling ParticipantIdentityViews.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling PersonalRecordsCloudSync.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 Compiling\ GameOverDialog.swift,\ MenuDialog.swift,\ SimpleScoreboardView.swift,\ ArcheryScoreboardView.swift,\ BasketballScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/GameOverDialog.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/MenuDialog.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/SimpleScore/SimpleScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Archery/ArcheryScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Basketball/BasketballScoreboardView.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/GameOverDialog.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile GameOverDialog.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Shared/MenuDialog.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile MenuDialog.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/SimpleScore/SimpleScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile SimpleScoreboardView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Archery/ArcheryScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile ArcheryScoreboardView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Basketball/BasketballScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile BasketballScoreboardView.swift
+
+SwiftCompile normal arm64 Compiling\ TimerRecordDetailPage.swift,\ MarketingScreenshotFixture.swift,\ MultiScoreSetupDialogView.swift,\ RecentRecordsSectionView.swift,\ HomeTab.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Activity/TimerRecordDetailPage.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Display/MarketingScreenshotFixture.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/MultiScoreSetupDialogView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/RecentRecordsSectionView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/HomeTab.swift (in target 'jifen' from project 'jifen')
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/PersonalRecordAccessPolicy.swift:7:74: warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 5 | @MainActor enum PersonalRecordAccessPolicy {
+ 6 |     static func allowsNativeRecord(_ recordKey: String,
+ 7 |                                    identity: ParticipantIdentityStore = .shared,
+   |                                                                          `- warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 8 |                                    cloud: PersonalRecordsCloudSync = .shared) -> Bool {
+ 9 |         identity.canRead(recordKey: recordKey)
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/ParticipantIdentityStore.swift:15:16: note: static property declared here
+ 13 | @MainActor @Observable
+ 14 | final class ParticipantIdentityStore {
+ 15 |     static let shared = ParticipantIdentityStore(currentAccountID: { SessionStore.shared.user?.id })
+    |                `- note: static property declared here
+ 16 |
+ 17 |     struct State: Codable {
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/PersonalRecordAccessPolicy.swift:8:71: warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 6 |     static func allowsNativeRecord(_ recordKey: String,
+ 7 |                                    identity: ParticipantIdentityStore = .shared,
+ 8 |                                    cloud: PersonalRecordsCloudSync = .shared) -> Bool {
+   |                                                                       `- warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 9 |         identity.canRead(recordKey: recordKey)
+10 |             && !cloud.usesCloudVersion(recordKey: recordKey)
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/PersonalRecordsCloudSync.swift:78:16: note: static property declared here
+ 76 | @MainActor @Observable
+ 77 | final class PersonalRecordsCloudSync {
+ 78 |     static let shared = PersonalRecordsCloudSync(observeConnectivity: true)
+    |                `- note: static property declared here
+ 79 |     private(set) var phase = "local"
+ 80 |     private(set) var lastError: String?
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Activity/TimerRecordDetailPage.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile TimerRecordDetailPage.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Display/MarketingScreenshotFixture.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile MarketingScreenshotFixture.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/MultiScoreSetupDialogView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile MultiScoreSetupDialogView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/Components/RecentRecordsSectionView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile RecentRecordsSectionView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Home/HomeTab.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile HomeTab.swift
+
+SwiftCompile normal arm64 Compiling\ ScoreboardRecordManager.swift,\ DoudizhuScoreboardView.swift,\ GuandanScoreboardView.swift,\ ShengjiScoreboardView.swift,\ MultiScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Records/ScoreboardRecordManager.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Cards/Doudizhu/DoudizhuScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Cards/Guandan/GuandanScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Cards/Shengji/ShengjiScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/MultiScore/MultiScoreboardView.swift (in target 'jifen' from project 'jifen')
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Cards/Guandan/GuandanScoreboardView.swift:1024:50: warning: expression implicitly coerced from 'String?' to 'Any'
+1022 |                 "guandanBlueRank": AnyCodable(state.blueTeam.currentRank),
+1023 |                 "guandanIsInAStage": AnyCodable(state.isInAStage),
+1024 |                 "guandanRoundWinner": AnyCodable(state.lastRoundWinner?.rawValue),
+     |                                                  |                      |- note: provide a default value to avoid this warning
+     |                                                  |                      |- note: force-unwrap the value to avoid this warning
+     |                                                  |                      `- note: explicitly cast to 'Any' with 'as Any' to silence this warning
+     |                                                  `- warning: expression implicitly coerced from 'String?' to 'Any'
+1025 |                 "guandanAStageTeam": AnyCodable(state.aStageTeam?.rawValue),
+1026 |                 "guandanFinalWinner": AnyCodable(state.finalWinner?.rawValue),
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Cards/Guandan/GuandanScoreboardView.swift:1025:49: warning: expression implicitly coerced from 'String?' to 'Any'
+1023 |                 "guandanIsInAStage": AnyCodable(state.isInAStage),
+1024 |                 "guandanRoundWinner": AnyCodable(state.lastRoundWinner?.rawValue),
+1025 |                 "guandanAStageTeam": AnyCodable(state.aStageTeam?.rawValue),
+     |                                                 |                 |- note: provide a default value to avoid this warning
+     |                                                 |                 |- note: force-unwrap the value to avoid this warning
+     |                                                 |                 `- note: explicitly cast to 'Any' with 'as Any' to silence this warning
+     |                                                 `- warning: expression implicitly coerced from 'String?' to 'Any'
+1026 |                 "guandanFinalWinner": AnyCodable(state.finalWinner?.rawValue),
+1027 |                 "guandanRedAFailCount": AnyCodable(state.aFailCount(for: .red)),
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Cards/Guandan/GuandanScoreboardView.swift:1026:50: warning: expression implicitly coerced from 'String?' to 'Any'
+1024 |                 "guandanRoundWinner": AnyCodable(state.lastRoundWinner?.rawValue),
+1025 |                 "guandanAStageTeam": AnyCodable(state.aStageTeam?.rawValue),
+1026 |                 "guandanFinalWinner": AnyCodable(state.finalWinner?.rawValue),
+     |                                                  |                  |- note: provide a default value to avoid this warning
+     |                                                  |                  |- note: force-unwrap the value to avoid this warning
+     |                                                  |                  `- note: explicitly cast to 'Any' with 'as Any' to silence this warning
+     |                                                  `- warning: expression implicitly coerced from 'String?' to 'Any'
+1027 |                 "guandanRedAFailCount": AnyCodable(state.aFailCount(for: .red)),
+1028 |                 "guandanBlueAFailCount": AnyCodable(state.aFailCount(for: .blue)),
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Records/ScoreboardRecordManager.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile ScoreboardRecordManager.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Cards/Doudizhu/DoudizhuScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile DoudizhuScoreboardView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Cards/Guandan/GuandanScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile GuandanScoreboardView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Cards/Shengji/ShengjiScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile ShengjiScoreboardView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/MultiScore/MultiScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile MultiScoreboardView.swift
+
+SwiftCompile normal arm64 Compiling\ LocalDataResetComposition.swift,\ SessionStore.swift,\ WechatBindingView.swift,\ TimerRecordManager.swift,\ RecentActivityPage.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/App/Composition/LocalDataResetComposition.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Account/SessionStore.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Account/WechatBindingView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Activity/Models/TimerRecordManager.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Activity/RecentActivityPage.swift (in target 'jifen' from project 'jifen')
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Account/WechatBindingView.swift:96:69: warning: '+' was deprecated in iOS 26.0: Use string interpolation on `Text` instead: `Text("Hello \(name)")` [#DeprecatedDeclaration]
+ 94 |         let rest = joined(bindings.providers.filter { normalized($0) != normalized(sessionProvider) })
+ 95 |         let marker = NSLocalizedString("wechat_binding_login_current", tableName: "WechatBinding", comment: "")
+ 96 |         let head = Text(current).foregroundColor(Theme.accentColor) + Text(marker)
+    |                                                                     `- warning: '+' was deprecated in iOS 26.0: Use string interpolation on `Text` instead: `Text("Hello \(name)")` [#DeprecatedDeclaration]
+ 97 |         return rest.isEmpty ? head : head + Text(" · " + rest)
+ 98 |     }
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Account/WechatBindingView.swift:97:43: warning: '+' was deprecated in iOS 26.0: Use string interpolation on `Text` instead: `Text("Hello \(name)")` [#DeprecatedDeclaration]
+ 95 |         let marker = NSLocalizedString("wechat_binding_login_current", tableName: "WechatBinding", comment: "")
+ 96 |         let head = Text(current).foregroundColor(Theme.accentColor) + Text(marker)
+ 97 |         return rest.isEmpty ? head : head + Text(" · " + rest)
+    |                                           `- warning: '+' was deprecated in iOS 26.0: Use string interpolation on `Text` instead: `Text("Hello \(name)")` [#DeprecatedDeclaration]
+ 98 |     }
+ 99 | }
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Account/WechatBindingView.swift:96:56: warning: main actor-isolated static property 'accentColor' can not be referenced from a nonisolated context
+ 88 |     /// 资料页「登录方式」行（方案二）：当前会话的登录方式置前并标注（当前），
+ 89 |     /// 其余方式跟随；旧令牌推断不出当前方式时返回 nil，回退为普通列表。
+ 90 |     static func currentFirstText(_ bindings: WechatBindingStatus) -> Text? {
+    |                 `- note: add '@MainActor' to make static method 'currentFirstText' part of global actor 'MainActor'
+ 91 |         guard let sessionProvider = bindings.sessionProvider,
+ 92 |               bindings.providers.contains(normalized(sessionProvider)) else { return nil }
+    :
+ 94 |         let rest = joined(bindings.providers.filter { normalized($0) != normalized(sessionProvider) })
+ 95 |         let marker = NSLocalizedString("wechat_binding_login_current", tableName: "WechatBinding", comment: "")
+ 96 |         let head = Text(current).foregroundColor(Theme.accentColor) + Text(marker)
+    |                                                        `- warning: main actor-isolated static property 'accentColor' can not be referenced from a nonisolated context
+ 97 |         return rest.isEmpty ? head : head + Text(" · " + rest)
+ 98 |     }
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Core/Theme/Theme.swift:115:16: note: static property declared here
+113 |     static let divider = Color(uiColor: .separator)
+114 |     /// 与鸿蒙端一致：浅色 #4CAF50，深色 #30D158。
+115 |     static let accentColor = Color(uiColor: UIColor { traits in
+    |                `- note: static property declared here
+116 |         if traits.userInterfaceStyle == .dark {
+117 |             return UIColor(red: 48 / 255, green: 209 / 255, blue: 88 / 255, alpha: 1)
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/App/Composition/LocalDataResetComposition.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile LocalDataResetComposition.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Account/SessionStore.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile SessionStore.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Account/WechatBindingView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile WechatBindingView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Activity/Models/TimerRecordManager.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile TimerRecordManager.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Activity/RecentActivityPage.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile RecentActivityPage.swift
+
+SwiftCompile normal arm64 Compiling\ ShotTrainingScoreboardView.swift,\ BilliardsScoreboardView.swift,\ EightBallScoreboardView.swift,\ NineBallChaseScoreboardView.swift,\ SnookerScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Basketball/ShotTrainingScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Billiards/BilliardsScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Billiards/EightBallScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Billiards/NineBallChaseScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Billiards/SnookerScoreboardView.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Basketball/ShotTrainingScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile ShotTrainingScoreboardView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Billiards/BilliardsScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile BilliardsScoreboardView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Billiards/EightBallScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile EightBallScoreboardView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Billiards/NineBallChaseScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile NineBallChaseScoreboardView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Billiards/SnookerScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile SnookerScoreboardView.swift
+
+SwiftCompile normal arm64 Compiling\ ParticipantIdentityStore.swift,\ PersonalRecordAccessPolicy.swift,\ SettingsView.swift,\ RecordsTab.swift,\ ScoreboardRecordDetailPage.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/ParticipantIdentityStore.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/PersonalRecordAccessPolicy.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Me/SettingsView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Records/RecordsTab.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Records/ScoreboardRecordDetailPage.swift (in target 'jifen' from project 'jifen')
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/PersonalRecordAccessPolicy.swift:7:74: warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 5 | @MainActor enum PersonalRecordAccessPolicy {
+ 6 |     static func allowsNativeRecord(_ recordKey: String,
+ 7 |                                    identity: ParticipantIdentityStore = .shared,
+   |                                                                          `- warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 8 |                                    cloud: PersonalRecordsCloudSync = .shared) -> Bool {
+ 9 |         identity.canRead(recordKey: recordKey)
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/ParticipantIdentityStore.swift:15:16: note: static property declared here
+ 13 | @MainActor @Observable
+ 14 | final class ParticipantIdentityStore {
+ 15 |     static let shared = ParticipantIdentityStore(currentAccountID: { SessionStore.shared.user?.id })
+    |                `- note: static property declared here
+ 16 |
+ 17 |     struct State: Codable {
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/PersonalRecordAccessPolicy.swift:8:71: warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 6 |     static func allowsNativeRecord(_ recordKey: String,
+ 7 |                                    identity: ParticipantIdentityStore = .shared,
+ 8 |                                    cloud: PersonalRecordsCloudSync = .shared) -> Bool {
+   |                                                                       `- warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 9 |         identity.canRead(recordKey: recordKey)
+10 |             && !cloud.usesCloudVersion(recordKey: recordKey)
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/PersonalRecordsCloudSync.swift:78:16: note: static property declared here
+ 76 | @MainActor @Observable
+ 77 | final class PersonalRecordsCloudSync {
+ 78 |     static let shared = PersonalRecordsCloudSync(observeConnectivity: true)
+    |                `- note: static property declared here
+ 79 |     private(set) var phase = "local"
+ 80 |     private(set) var lastError: String?
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/ParticipantIdentityStore.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile ParticipantIdentityStore.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Identity/PersonalRecordAccessPolicy.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile PersonalRecordAccessPolicy.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Me/SettingsView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile SettingsView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Records/RecordsTab.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile RecordsTab.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Records/ScoreboardRecordDetailPage.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile ScoreboardRecordDetailPage.swift
+
+SwiftCompile normal arm64 Compiling\ BoxingScoreboardView.swift,\ FoosballScoreboardView.swift,\ FootballScoreboardView.swift,\ PickleballScoreboardView.swift,\ PingPongScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Boxing/BoxingScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Foosball/FoosballScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Football/FootballScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Pickleball/PickleballScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/PingPong/PingPongScoreboardView.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Boxing/BoxingScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile BoxingScoreboardView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Foosball/FoosballScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile FoosballScoreboardView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Football/FootballScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile FootballScoreboardView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Pickleball/PickleballScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile PickleballScoreboardView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/PingPong/PingPongScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile PingPongScoreboardView.swift
+
+SwiftCompile normal arm64 Compiling\ WhistleToolView.swift,\ MainTabView.swift,\ ContentView.swift,\ jifenApp.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/WhistleToolView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/MainTabView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/ContentView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/jifenApp.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/WhistleToolView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile WhistleToolView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/MainTabView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile MainTabView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/ContentView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile ContentView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/jifenApp.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile jifenApp.swift
+
+SwiftCompile normal arm64 Compiling\ RallyScoreboardView.swift,\ TennisScoreboardView.swift,\ VolleyballScoreboardView.swift,\ ScoreboardTab.swift,\ CubeTimerView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Rally/RallyScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Tennis/TennisScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Volleyball/VolleyballScoreboardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/ScoreboardTab.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/CubeTimerView.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Rally/RallyScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile RallyScoreboardView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Tennis/TennisScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile TennisScoreboardView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/Sports/Volleyball/VolleyballScoreboardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile VolleyballScoreboardView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Scoreboard/ScoreboardTab.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile ScoreboardTab.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/CubeTimerView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile CubeTimerView.swift
+
+SwiftCompile normal arm64 Compiling\ RandomTeamView.swift,\ RedYellowCardView.swift,\ StopwatchView.swift,\ TenSecondChallengeView.swift,\ ToolsTab.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/RandomTeamView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/RedYellowCardView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/StopwatchView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/TenSecondChallengeView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/ToolsTab.swift (in target 'jifen' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/RandomTeamView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile RandomTeamView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/RedYellowCardView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile RedYellowCardView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/StopwatchView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile StopwatchView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/TenSecondChallengeView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile TenSecondChallengeView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/ToolsTab.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile ToolsTab.swift
+
+SwiftCompile normal arm64 Compiling\ DualPlayerTimerView.swift,\ DualTimerSetupView.swift,\ TimeoutCountdownView.swift,\ TimerTab.swift,\ PointsTableView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/DualPlayerTimerView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/DualTimerSetupView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/TimeoutCountdownView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/TimerTab.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/PointsTable/PointsTableView.swift (in target 'jifen' from project 'jifen')
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/TimeoutCountdownView.swift:777:62: warning: 'interfaceOrientation' was deprecated in iOS 26.0: Use effectiveGeometry.interfaceOrientation instead. [#DeprecatedDeclaration]
+775 |     private func rotateScreen() {
+776 |         guard let windowScene = activeWindowScene else { return }
+777 |         let target: UIInterfaceOrientationMask = windowScene.interfaceOrientation.isPortrait ? .landscapeRight : .portrait
+    |                                                              `- warning: 'interfaceOrientation' was deprecated in iOS 26.0: Use effectiveGeometry.interfaceOrientation instead. [#DeprecatedDeclaration]
+778 |         requestOrientation(target, scene: windowScene)
+779 |     }
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/TimeoutCountdownView.swift:782:52: warning: 'interfaceOrientation' was deprecated in iOS 26.0: Use effectiveGeometry.interfaceOrientation instead. [#DeprecatedDeclaration]
+780 |
+781 |     private func rotateToPortraitIfNeeded() {
+782 |         guard let scene = activeWindowScene, scene.interfaceOrientation.isLandscape else { return }
+    |                                                    `- warning: 'interfaceOrientation' was deprecated in iOS 26.0: Use effectiveGeometry.interfaceOrientation instead. [#DeprecatedDeclaration]
+783 |         requestOrientation(.portrait, scene: scene)
+784 |     }
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/DualPlayerTimerView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile DualPlayerTimerView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/DualTimerSetupView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile DualTimerSetupView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/TimeoutCountdownView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile TimeoutCountdownView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Timer/TimerTab.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile TimerTab.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/PointsTable/PointsTableView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile PointsTableView.swift
+
+SwiftCompile normal arm64 Compiling\ AACalculatorView.swift,\ DateTimeToolView.swift,\ DiceToolView.swift,\ FlipCoinView.swift,\ FullscreenBarrageView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/AACalculatorView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/DateTimeToolView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/DiceToolView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/FlipCoinView.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/FullscreenBarrageView.swift (in target 'jifen' from project 'jifen')
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/DateTimeToolView.swift:95:38: warning: 'interfaceOrientation' was deprecated in iOS 26.0: Use effectiveGeometry.interfaceOrientation instead. [#DeprecatedDeclaration]
+ 93 |         guard let windowScene = activeWindowScene else { return }
+ 94 |
+ 95 |         let isPortrait = windowScene.interfaceOrientation.isPortrait
+    |                                      `- warning: 'interfaceOrientation' was deprecated in iOS 26.0: Use effectiveGeometry.interfaceOrientation instead. [#DeprecatedDeclaration]
+ 96 |         let targetMask: UIInterfaceOrientationMask = isPortrait ? .landscapeRight : .portrait
+ 97 |         AppAnalytics.track(.toolAction, parameters: [
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/FullscreenBarrageView.swift:469:38: warning: 'interfaceOrientation' was deprecated in iOS 26.0: Use effectiveGeometry.interfaceOrientation instead. [#DeprecatedDeclaration]
+467 |         invalidateOrientationRequests()
+468 |         if let scene = activeWindowScene {
+469 |             entryOrientation = scene.interfaceOrientation.isLandscape
+    |                                      `- warning: 'interfaceOrientation' was deprecated in iOS 26.0: Use effectiveGeometry.interfaceOrientation instead. [#DeprecatedDeclaration]
+470 |                 ? (scene.interfaceOrientation == .landscapeLeft ? .landscapeLeft : .landscapeRight)
+471 |                 : .portrait
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/FullscreenBarrageView.swift:470:26: warning: 'interfaceOrientation' was deprecated in iOS 26.0: Use effectiveGeometry.interfaceOrientation instead. [#DeprecatedDeclaration]
+468 |         if let scene = activeWindowScene {
+469 |             entryOrientation = scene.interfaceOrientation.isLandscape
+470 |                 ? (scene.interfaceOrientation == .landscapeLeft ? .landscapeLeft : .landscapeRight)
+    |                          `- warning: 'interfaceOrientation' was deprecated in iOS 26.0: Use effectiveGeometry.interfaceOrientation instead. [#DeprecatedDeclaration]
+471 |                 : .portrait
+472 |         }
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/FullscreenBarrageView.swift:497:56: warning: 'interfaceOrientation' was deprecated in iOS 26.0: Use effectiveGeometry.interfaceOrientation instead. [#DeprecatedDeclaration]
+495 |         }
+496 |
+497 |         let target: UIInterfaceOrientationMask = scene.interfaceOrientation.isPortrait ? .landscapeRight : .portrait
+    |                                                        `- warning: 'interfaceOrientation' was deprecated in iOS 26.0: Use effectiveGeometry.interfaceOrientation instead. [#DeprecatedDeclaration]
+498 |         OrientationLock.shared.lock(target)
+499 |         updateSupportedOrientations(in: scene)
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/AACalculatorView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile AACalculatorView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/DateTimeToolView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile DateTimeToolView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/DiceToolView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile DiceToolView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/FlipCoinView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile FlipCoinView.swift
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifen/Features/Tools/FullscreenBarrageView.swift (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile FullscreenBarrageView.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling RandomTeamView.swift, RedYellowCardView.swift, StopwatchView.swift, TenSecondChallengeView.swift, ToolsTab.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling WhistleToolView.swift, MainTabView.swift, ContentView.swift, jifenApp.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling BoxingScoreboardView.swift, FoosballScoreboardView.swift, FootballScoreboardView.swift, PickleballScoreboardView.swift, PingPongScoreboardView.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling LocalDataResetComposition.swift, SessionStore.swift, WechatBindingView.swift, TimerRecordManager.swift, RecentActivityPage.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling DualPlayerTimerView.swift, DualTimerSetupView.swift, TimeoutCountdownView.swift, TimerTab.swift, PointsTableView.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling GameOverDialog.swift, MenuDialog.swift, SimpleScoreboardView.swift, ArcheryScoreboardView.swift, BasketballScoreboardView.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling AACalculatorView.swift, DateTimeToolView.swift, DiceToolView.swift, FlipCoinView.swift, FullscreenBarrageView.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling ScoreboardRecordManager.swift, DoudizhuScoreboardView.swift, GuandanScoreboardView.swift, ShengjiScoreboardView.swift, MultiScoreboardView.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling TimerRecordDetailPage.swift, MarketingScreenshotFixture.swift, MultiScoreSetupDialogView.swift, RecentRecordsSectionView.swift, HomeTab.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling ShotTrainingScoreboardView.swift, BilliardsScoreboardView.swift, EightBallScoreboardView.swift, NineBallChaseScoreboardView.swift, SnookerScoreboardView.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling RallyScoreboardView.swift, TennisScoreboardView.swift, VolleyballScoreboardView.swift, ScoreboardTab.swift, CubeTimerView.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Compiling ParticipantIdentityStore.swift, PersonalRecordAccessPolicy.swift, SettingsView.swift, RecordsTab.swift, ScoreboardRecordDetailPage.swift (in target 'jifen' from project 'jifen')
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for jifen (in target 'jifen' from project 'jifen')
+
+SwiftDriver\ Compilation\ Requirements jifen normal arm64 com.apple.xcode.tools.swift.compiler (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name jifen -Onone @/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.SwiftFileList -DDEBUG -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/promises/Sources/FBLPromises/include/module.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-UserDefaults.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleAppMeasurementCoreTarget.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-AppDelegateSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-MethodSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Reachability.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-NSData.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Logger.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Environment.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/third-party-IsAppEncrypted.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Network.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/nanopb.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreWrapper.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseInstallations.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseCore.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources/module.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreTarget.modulemap -default-isolation\=MainActor -enable-bare-slash-regex -enable-upcoming-feature DisableOutwardActorInference -enable-upcoming-feature InferSendableFromCaptures -enable-upcoming-feature GlobalActorIsolatedTypesUsability -enable-upcoming-feature MemberImportVisibility -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /tmp/jifen-selfcheck-dd/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/jifen-selfcheck-dd/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -F /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -emit-localized-strings -emit-localized-strings-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64 -c -j12 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/jifen-selfcheck-dd/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/jifen-selfcheck-dd/ModuleCache.noindex -sdk-module-cache-path /tmp/jifen-selfcheck-dd/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/jifen-selfcheck-dd/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-generated-files.hmap -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-own-target-headers.hmap -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen-bd9621345967a26baad30e5e8e3a08f0-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-project-headers.hmap -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/promises/Sources/FBLPromises/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/UserDefaults/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleAppMeasurement/GoogleAppMeasurementCoreWrapper/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/AppDelegateSwizzler/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/MethodSwizzler/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Reachability/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/NSData+zlib/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Logger/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Environment/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/third_party/IsAppEncrypted/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Network/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/nanopb/spm_headers -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseAnalyticsCoreWrapper/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseInstallations/Source/Library/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseCore/Sources/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/SwiftPM-PlatformExclude/FirebaseAnalyticsCoreWrap/include -Xcc -I/tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources-normal/arm64 -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources/arm64 -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-Swift.h -working-directory /Users/yangyang/Desktop/jifenqi/jifen-ios -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver\ Compilation jifen normal arm64 com.apple.xcode.tools.swift.compiler (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name jifen -Onone @/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.SwiftFileList -DDEBUG -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/promises/Sources/FBLPromises/include/module.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-UserDefaults.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleAppMeasurementCoreTarget.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-AppDelegateSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-MethodSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Reachability.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-NSData.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Logger.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Environment.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/third-party-IsAppEncrypted.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Network.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/nanopb.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreWrapper.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseInstallations.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseCore.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources/module.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreTarget.modulemap -default-isolation\=MainActor -enable-bare-slash-regex -enable-upcoming-feature DisableOutwardActorInference -enable-upcoming-feature InferSendableFromCaptures -enable-upcoming-feature GlobalActorIsolatedTypesUsability -enable-upcoming-feature MemberImportVisibility -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /tmp/jifen-selfcheck-dd/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/jifen-selfcheck-dd/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -F /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -emit-localized-strings -emit-localized-strings-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64 -c -j12 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/jifen-selfcheck-dd/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/jifen-selfcheck-dd/ModuleCache.noindex -sdk-module-cache-path /tmp/jifen-selfcheck-dd/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/jifen-selfcheck-dd/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-generated-files.hmap -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-own-target-headers.hmap -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen-bd9621345967a26baad30e5e8e3a08f0-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-project-headers.hmap -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/promises/Sources/FBLPromises/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/UserDefaults/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleAppMeasurement/GoogleAppMeasurementCoreWrapper/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/AppDelegateSwizzler/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/MethodSwizzler/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Reachability/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/NSData+zlib/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Logger/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Environment/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/third_party/IsAppEncrypted/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Network/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/nanopb/spm_headers -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseAnalyticsCoreWrapper/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseInstallations/Source/Library/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseCore/Sources/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/SwiftPM-PlatformExclude/FirebaseAnalyticsCoreWrap/include -Xcc -I/tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources-normal/arm64 -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources/arm64 -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen-Swift.h -working-directory /Users/yangyang/Desktop/jifenqi/jifen-ios -experimental-emit-module-separately -disable-cmo
+
+Copy /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.swiftsourceinfo (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.swiftsourceinfo /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo
+
+Copy /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.swiftmodule/arm64-apple-ios-simulator.swiftmodule /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.swiftmodule (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.swiftmodule /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.swiftmodule/arm64-apple-ios-simulator.swiftmodule
+
+Copy /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.swiftmodule/arm64-apple-ios-simulator.abi.json /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.abi.json (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.abi.json /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.swiftmodule/arm64-apple-ios-simulator.abi.json
+
+SwiftDriver jifenTests normal arm64 com.apple.xcode.tools.swift.compiler (in target 'jifenTests' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name jifenTests -Onone @/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests.SwiftFileList -DDEBUG -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/promises/Sources/FBLPromises/include/module.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-UserDefaults.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleAppMeasurementCoreTarget.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-AppDelegateSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-MethodSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Reachability.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-NSData.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Logger.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Environment.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/third-party-IsAppEncrypted.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Network.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/nanopb.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreWrapper.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseInstallations.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseCore.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources/module.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreTarget.modulemap -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /tmp/jifen-selfcheck-dd/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/jifen-selfcheck-dd/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk/Developer/Library/Frameworks -emit-localized-strings -emit-localized-strings-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64 -c -j12 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/jifen-selfcheck-dd/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/jifen-selfcheck-dd/ModuleCache.noindex -sdk-module-cache-path /tmp/jifen-selfcheck-dd/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/jifen-selfcheck-dd/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/jifenTests-generated-files.hmap -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/jifenTests-own-target-headers.hmap -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/jifenTests-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen-bd9621345967a26baad30e5e8e3a08f0-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/jifenTests-project-headers.hmap -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/promises/Sources/FBLPromises/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/UserDefaults/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleAppMeasurement/GoogleAppMeasurementCoreWrapper/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/AppDelegateSwizzler/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/MethodSwizzler/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Reachability/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/NSData+zlib/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Logger/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Environment/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/third_party/IsAppEncrypted/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Network/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/nanopb/spm_headers -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseAnalyticsCoreWrapper/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseInstallations/Source/Library/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseCore/Sources/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/SwiftPM-PlatformExclude/FirebaseAnalyticsCoreWrap/include -Xcc -I/tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/DerivedSources-normal/arm64 -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/DerivedSources/arm64 -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests-Swift.h -working-directory /Users/yangyang/Desktop/jifenqi/jifen-ios -experimental-emit-module-separately -disable-cmo
+
+Ld /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/jifen.debug.dylib normal (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.0-simulator -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -L/tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -F/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F/tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/PackageFrameworks -F/tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -filelist /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.LinkFileList -install_name @rpath/jifen.debug.dylib -Xlinker -rpath -Xlinker @loader_path -Xlinker -rpath -Xlinker /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/PackageFrameworks -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.swiftmodule -ObjC -framework UIKit -framework Security -framework StoreKit -lsqlite3 -lc++ -lz -lz -framework StoreKit -lsqlite3 -lc++ -lz -Xlinker -alias -Xlinker _main -Xlinker ___debug_main_executable_dylib_entry_point -framework FirebaseAnalytics -framework GoogleAppMeasurement -framework WechatOpenSDK -Xlinker -no_adhoc_codesign -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/jifen.debug.dylib
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ jifenTests (in target 'jifenTests' from project 'jifen')
+
+SwiftCompile normal arm64 (in target 'jifenTests' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifenTests/ScoreboardRecordV4Tests.swift:516:27: warning: 'cleanupShouldFail' mutated after capture by sendable closure
+ 495 |         let record = makeRecord(id: sessionId.uuidString)
+ 496 |         var storedRecord: ScoreboardRecord?
+ 497 |         var cleanupShouldFail = true
+     |             `- note: variable defined here
+ 498 |         var events: [String] = []
+ 499 |         let coordinator = FinishedSessionCommitCoordinator(
+     :
+ 503 |                 storedRecord = value
+ 504 |             },
+ 505 |             resumeRemover: { _ in
+     |                            `- note: variable captured by sendable closure
+ 506 |                 events.append("resume")
+ 507 |                 if cleanupShouldFail { throw ProbeError.cleanup }
+     |                    `- note: capturing use
+ 508 |             },
+ 509 |             cleanupRetryScheduler: { _, _ in }
+     :
+ 514 |         XCTAssertNotNil(first.cleanupError)
+ 515 |
+ 516 |         cleanupShouldFail = false
+     |                           `- warning: 'cleanupShouldFail' mutated after capture by sendable closure
+ 517 |         let retry = try await coordinator.commit(record, sessionId: sessionId)
+ 518 |
+SwiftCompile normal arm64 Compiling\ PersonalRecordAccessPolicyTests.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifenTests/PersonalRecordAccessPolicyTests.swift (in target 'jifenTests' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifenTests/PersonalRecordAccessPolicyTests.swift (in target 'jifenTests' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile PersonalRecordAccessPolicyTests.swift
+
+SwiftCompile normal arm64 Compiling\ PersonalRecordsTransportTests.swift /Users/yangyang/Desktop/jifenqi/jifen-ios/jifenTests/PersonalRecordsTransportTests.swift (in target 'jifenTests' from project 'jifen')
+
+SwiftCompile normal arm64 /Users/yangyang/Desktop/jifenqi/jifen-ios/jifenTests/PersonalRecordsTransportTests.swift (in target 'jifenTests' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-SwiftPerFileCompile PersonalRecordsTransportTests.swift
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifenTests/PersonalRecordsTransportTests.swift:286:24: warning: 'currentAccount' mutated after capture by sendable closure
+280 |     func testStaleLoginWarmupCannotReactivateSignedOutLibrary() async throws {
+281 |         let f = try await fixture()
+282 |         var currentAccount: String? = "account"
+    |             `- note: variable defined here
+283 |         let service = PersonalRecordsCloudSync(client: f.client, fileURL: f.root.appendingPathComponent("cloud.json"), identity: f.identity,
+284 |             currentAccountID: { currentAccount }, scoreRecords: { [] }, timerRecords: { [] })
+    |                               | `- note: capturing use
+    |                               `- note: variable captured by sendable closure
+285 |         await service.sessionDidAuthenticate(userId: "account")
+286 |         currentAccount = nil; service.signedOut(explicit: true)
+    |                        `- warning: 'currentAccount' mutated after capture by sendable closure
+287 |         let guestLibrary = f.identity.ledger.libraryId
+288 |         await service.sessionDidAuthenticate(userId: "account")
+
+/Users/yangyang/Desktop/jifenqi/jifen-ios/jifenTests/PersonalRecordsTransportTests.swift:410:35: warning: 'currentAccount' mutated after capture by sendable closure
+401 |         for resetLocalCache in [true, false] {
+402 |             let f = try await fixture(), gate = IdentityRecordLoaderGate()
+403 |             var currentAccount: String? = "account"
+    |                 `- note: variable defined here
+404 |             let service = PersonalRecordsCloudSync(client: f.client, fileURL: f.root.appendingPathComponent("cloud.json"), identity: f.identity,
+405 |                 currentAccountID: { currentAccount }, scoreRecords: { [] }, timerRecords: { [] },
+    |                                   | `- note: capturing use
+    |                                   `- note: variable captured by sendable closure
+406 |                 scoreRecordsInBackground: { await gate.load() })
+407 |             let warmup = Task { await service.sessionDidAuthenticate(userId: "account") }
+408 |             await gate.waitForStart()
+409 |             if resetLocalCache { try service.clearLocalCache() }
+410 |             else { currentAccount = nil; service.signedOut(explicit: true) }
+    |                                   `- warning: 'currentAccount' mutated after capture by sendable closure
+411 |             gate.release(); await warmup.value
+412 |             XCTAssertEqual(service.phase, "local")
+SwiftDriverJobDiscovery normal arm64 Compiling PersonalRecordAccessPolicyTests.swift (in target 'jifenTests' from project 'jifen')
+
+ConstructStubExecutorLinkFileList /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-ExecutorLinkFileList-normal-arm64.txt (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    construct-stub-executor-link-file-list /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/jifen.debug.dylib /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor_no_swift_entry_point.a /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor.a --output /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-ExecutorLinkFileList-normal-arm64.txt
+note: Using stub executor library with Swift entry point. (in target 'jifen' from project 'jifen')
+
+Ld /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/jifen normal (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -F/tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/PackageFrameworks -F/tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -Xlinker -rpath -Xlinker @executable_path -Xlinker -rpath -Xlinker @loader_path -Xlinker -rpath -Xlinker /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/PackageFrameworks -Xlinker -rpath -Xlinker @executable_path/Frameworks -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -e ___debug_blank_executor_main -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_dylib -Xlinker /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-DebugDylibPath-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_instlnm -Xlinker /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-DebugDylibInstallName-normal-arm64.txt -Xlinker -filelist -Xlinker /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen-ExecutorLinkFileList-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __entitlements -Xlinker /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen.app-Simulated.xcent -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __ents_der -Xlinker /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen.app-Simulated.xcent.der /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/jifen.debug.dylib -Xlinker -no_adhoc_codesign -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/jifen
+
+CopySwiftLibs /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/jifen.debug.dylib --scan-folder /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/Frameworks --scan-folder /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns --scan-folder /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/SystemExtensions --scan-folder /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/Extensions --platform iphonesimulator --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+ExtractAppIntentsMetadata (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name jifen --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk --xcode-version 27A9275 --platform-family iOS --deployment-target 26.0 --bundle-identifier com.douhua.jifen.ios --output /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app --target-triple arm64-apple-ios26.0-simulator --binary-file /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/jifen --dependency-file /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen_dependency_info.dat --stringsdata-file /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.SwiftFileList --metadata-file-list /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen.DependencyMetadataFileList --static-metadata-file-list /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen.DependencyStaticMetadataFileList --swift-const-vals-list /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/Objects-normal/arm64/jifen.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-10-25 10:47:51.207 appintentsmetadataprocessor[50308:19153879] Starting appintentsmetadataprocessor export
+2026-10-25 10:47:51.213 appintentsmetadataprocessor[50308:19153879] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+
+ProcessInfoPlistFile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/Info.plist /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/empty-jifenTests.plist (in target 'jifenTests' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-infoPlistUtility /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/empty-jifenTests.plist -producttype com.apple.product-type.bundle.unit-test -expandbuildsettings -format binary -platform iphonesimulator -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/Firebase_FirebaseCore.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/Firebase_FirebaseCoreInternal.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/Firebase_FirebaseInstallations.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/GoogleUtilities_GoogleUtilities-Environment.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/GoogleUtilities_GoogleUtilities-Logger.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/GoogleUtilities_GoogleUtilities-MethodSwizzler.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/GoogleUtilities_GoogleUtilities-NSData.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/GoogleUtilities_GoogleUtilities-Network.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/GoogleUtilities_GoogleUtilities-Reachability.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/GoogleUtilities_GoogleUtilities-UserDefaults.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/Promises_FBLPromises.bundle -scanforprivacyfile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/nanopb_nanopb.bundle -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/Info.plist
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for jifenTests (in target 'jifenTests' from project 'jifen')
+
+SwiftDriver\ Compilation\ Requirements jifenTests normal arm64 com.apple.xcode.tools.swift.compiler (in target 'jifenTests' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name jifenTests -Onone @/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests.SwiftFileList -DDEBUG -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/promises/Sources/FBLPromises/include/module.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-UserDefaults.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleAppMeasurementCoreTarget.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-AppDelegateSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-MethodSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Reachability.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-NSData.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Logger.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Environment.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/third-party-IsAppEncrypted.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Network.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/nanopb.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreWrapper.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseInstallations.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseCore.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources/module.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreTarget.modulemap -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /tmp/jifen-selfcheck-dd/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/jifen-selfcheck-dd/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk/Developer/Library/Frameworks -emit-localized-strings -emit-localized-strings-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64 -c -j12 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/jifen-selfcheck-dd/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/jifen-selfcheck-dd/ModuleCache.noindex -sdk-module-cache-path /tmp/jifen-selfcheck-dd/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/jifen-selfcheck-dd/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/jifenTests-generated-files.hmap -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/jifenTests-own-target-headers.hmap -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/jifenTests-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen-bd9621345967a26baad30e5e8e3a08f0-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/jifenTests-project-headers.hmap -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/promises/Sources/FBLPromises/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/UserDefaults/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleAppMeasurement/GoogleAppMeasurementCoreWrapper/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/AppDelegateSwizzler/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/MethodSwizzler/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Reachability/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/NSData+zlib/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Logger/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Environment/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/third_party/IsAppEncrypted/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Network/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/nanopb/spm_headers -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseAnalyticsCoreWrapper/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseInstallations/Source/Library/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseCore/Sources/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/SwiftPM-PlatformExclude/FirebaseAnalyticsCoreWrap/include -Xcc -I/tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/DerivedSources-normal/arm64 -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/DerivedSources/arm64 -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests-Swift.h -working-directory /Users/yangyang/Desktop/jifenqi/jifen-ios -experimental-emit-module-separately -disable-cmo
+
+Copy /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifenTests.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests.swiftsourceinfo (in target 'jifenTests' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests.swiftsourceinfo /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifenTests.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo
+
+Copy /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifenTests.swiftmodule/arm64-apple-ios-simulator.swiftmodule /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests.swiftmodule (in target 'jifenTests' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests.swiftmodule /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifenTests.swiftmodule/arm64-apple-ios-simulator.swiftmodule
+
+Copy /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifenTests.swiftmodule/arm64-apple-ios-simulator.abi.json /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests.abi.json (in target 'jifenTests' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests.abi.json /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifenTests.swiftmodule/arm64-apple-ios-simulator.abi.json
+
+SwiftDriverJobDiscovery normal arm64 Compiling PersonalRecordsTransportTests.swift (in target 'jifenTests' from project 'jifen')
+
+SwiftDriver\ Compilation jifenTests normal arm64 com.apple.xcode.tools.swift.compiler (in target 'jifenTests' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name jifenTests -Onone @/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests.SwiftFileList -DDEBUG -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/promises/Sources/FBLPromises/include/module.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-UserDefaults.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleAppMeasurementCoreTarget.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-AppDelegateSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-MethodSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Reachability.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-NSData.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Logger.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Environment.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/third-party-IsAppEncrypted.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/GoogleUtilities-Network.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/nanopb.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreWrapper.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseInstallations.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseCore.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources/module.modulemap -Xcc -fmodule-map-file\=/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/FirebaseAnalyticsCoreTarget.modulemap -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /tmp/jifen-selfcheck-dd/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/jifen-selfcheck-dd/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk/Developer/Library/Frameworks -emit-localized-strings -emit-localized-strings-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64 -c -j12 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/jifen-selfcheck-dd/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/jifen-selfcheck-dd/ModuleCache.noindex -sdk-module-cache-path /tmp/jifen-selfcheck-dd/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/jifen-selfcheck-dd/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/jifenTests-generated-files.hmap -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/jifenTests-own-target-headers.hmap -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/jifenTests-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen-bd9621345967a26baad30e5e8e3a08f0-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/jifenTests-project-headers.hmap -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/promises/Sources/FBLPromises/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/UserDefaults/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleAppMeasurement/GoogleAppMeasurementCoreWrapper/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/AppDelegateSwizzler/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/MethodSwizzler/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Reachability/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/NSData+zlib/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Logger/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Environment/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/third_party/IsAppEncrypted/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Network/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/nanopb/spm_headers -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseAnalyticsCoreWrapper/include -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseInstallations/Source/Library/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/FirebaseCore/Sources/Public -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources -Xcc -I/tmp/jifen-selfcheck-dd/SourcePackages/checkouts/firebase-ios-sdk/SwiftPM-PlatformExclude/FirebaseAnalyticsCoreWrap/include -Xcc -I/tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/DerivedSources-normal/arm64 -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/DerivedSources/arm64 -Xcc -I/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests-Swift.h -working-directory /Users/yangyang/Desktop/jifenqi/jifen-ios -experimental-emit-module-separately -disable-cmo
+
+Ld /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/jifenTests normal (in target 'jifenTests' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.0-simulator -bundle -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -L/tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -L/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F/tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F/tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/PackageFrameworks -F/tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator -iframework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -iframework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk/Developer/Library/Frameworks -filelist /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests.LinkFileList -Xlinker -rpath -Xlinker @loader_path -Xlinker -rpath -Xlinker /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/PackageFrameworks -Xlinker -rpath -Xlinker @loader_path/Frameworks -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -dead_strip -bundle_loader /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/jifen -Xlinker -object_path_lto -Xlinker /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests.swiftmodule -framework UIKit -framework Security -framework StoreKit -lsqlite3 -lc++ -lz -lz -framework StoreKit -lsqlite3 -lc++ -lz -Xlinker -needed_framework -Xlinker XCTest -framework XCTest -Xlinker -needed-lXCTestSwiftSupport -lXCTestSwiftSupport -framework Foundation /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/jifen.debug.dylib -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/jifenTests
+
+ExtractAppIntentsMetadata (in target 'jifenTests' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name jifenTests --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk --xcode-version 27A9275 --platform-family iOS --deployment-target 26.0 --bundle-identifier com.douhua.jifenTests --output /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest --target-triple arm64-apple-ios26.0-simulator --binary-file /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/jifenTests --dependency-file /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests_dependency_info.dat --stringsdata-file /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests.SwiftFileList --metadata-file-list /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/jifenTests.DependencyMetadataFileList --static-metadata-file-list /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/jifenTests.DependencyStaticMetadataFileList --swift-const-vals-list /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/Objects-normal/arm64/jifenTests.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-10-25 10:47:51.760 appintentsmetadataprocessor[50311:19153913] Starting appintentsmetadataprocessor export
+2026-10-25 10:47:51.762 appintentsmetadataprocessor[50311:19153913] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+
+CopySwiftLibs /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest (in target 'jifenTests' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/jifenTests --scan-folder /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/Frameworks --scan-folder /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/PlugIns --scan-folder /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/SystemExtensions --scan-folder /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/Extensions --scan-folder /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework --platform iphonesimulator --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/PlugIns/jifenTests.xctest/Frameworks --strip-bitcode --scan-executable /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenTests.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+Ignoring --strip-bitcode because --sign was not passed
+
+CodeSign /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/jifen.debug.dylib (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+
+    Signing Identity:     "Sign to Run Locally"
+
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/jifen.debug.dylib
+
+CodeSign /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/__preview.dylib (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+
+    Signing Identity:     "Sign to Run Locally"
+
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/__preview.dylib
+/tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app/__preview.dylib: replacing existing signature
+
+CodeSign /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+
+    Signing Identity:     "Sign to Run Locally"
+
+    /usr/bin/codesign --force --sign - --entitlements /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifen.build/jifen.app.xcent --timestamp\=none --generate-entitlement-der /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app
+
+Validate /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app (in target 'jifen' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-validationUtility /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifen.app -shallow-bundle -infoplist-subpath Info.plist
+
+ProcessInfoPlistFile /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifenUITests-Runner.app/PlugIns/jifenUITests.xctest/Info.plist /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenUITests.build/empty-jifenUITests.plist (in target 'jifenUITests' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-infoPlistUtility /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenUITests.build/empty-jifenUITests.plist -producttype com.apple.product-type.bundle.ui-testing -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenUITests.build/ProductTypeInfoPlistAdditions.plist -o /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifenUITests-Runner.app/PlugIns/jifenUITests.xctest/Info.plist
+
+CopySwiftLibs /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifenUITests-Runner.app/PlugIns/jifenUITests.xctest (in target 'jifenUITests' from project 'jifen')
+    cd /Users/yangyang/Desktop/jifenqi/jifen-ios
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifenUITests-Runner.app/PlugIns/jifenUITests.xctest/jifenUITests --scan-folder /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifenUITests-Runner.app/PlugIns/jifenUITests.xctest/Frameworks --scan-folder /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifenUITests-Runner.app/PlugIns/jifenUITests.xctest/PlugIns --scan-folder /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifenUITests-Runner.app/PlugIns/jifenUITests.xctest/SystemExtensions --scan-folder /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifenUITests-Runner.app/PlugIns/jifenUITests.xctest/Extensions --scan-folder /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework --platform iphonesimulator --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/jifen-selfcheck-dd/Build/Products/Debug-iphonesimulator/jifenUITests-Runner.app/PlugIns/jifenUITests.xctest/Frameworks --strip-bitcode --scan-executable /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/jifen.build/Debug-iphonesimulator/jifenUITests.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+Ignoring --strip-bitcode because --sign was not passed
+
+PruneExplicitPrecompiledModules /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/jifen-selfcheck-dd/SDKExplicitPrecompiledModules
+
+note: Disabling hardened runtime with ad-hoc codesigning. (in target 'jifen' from project 'jifen')
+2026-10-25 10:47:52.527 xcodebuild[49892:19151178] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+[FontRegistrar] Successfully registered 7segment.ttf
+[FontRegistrar] Successfully registered teko.ttf
+2026-10-25 10:47:59.147776+0800 jifen[50332:19154559] [[FirebaseAnalytics]] 12.19.2 - [FirebaseAnalytics][I-ACS023007] Analytics v.12.19.2 started
+2026-10-25 10:47:59.148039+0800 jifen[50332:19154559] [[FirebaseAnalytics]] 12.19.2 - [FirebaseAnalytics][I-ACS023008] To enable debug logging set the following application argument: -FIRAnalyticsDebugEnabled (see http://goo.gl/RfcP7r)
+2026-10-25 10:47:59.148099+0800 jifen[50332:19154559] [[FirebaseAnalytics]] 12.19.2 - [FirebaseAnalytics][I-ACS025036] App Delegate Proxy is disabled
+2026-10-25 10:47:59.150564+0800 jifen[50332:19154559] [[FirebaseAnalytics]] 12.19.2 - [FirebaseAnalytics][I-ACS044003] GoogleAppMeasurementIdentitySupport dependency is not currently linked. IDFA will not be accessible.
+2026-10-25 10:47:59.154605+0800 jifen[50332:19154559] [[FirebaseAnalytics]] 12.19.2 - [FirebaseAnalytics][I-ACS800023] No pending snapshot to activate. SDK name: app_measurement
+2026-10-25 10:47:59.159558+0800 jifen[50332:19154559] [[FirebaseAnalytics]] 12.19.2 - [FirebaseAnalytics][I-ACS023268] Failed to get the compatible conversion service.
+2026-10-25 10:47:59.173235+0800 jifen[50332:19154543] [[FirebaseAnalytics]] 12.19.2 - [FirebaseAnalytics][I-ACS023308] Failed to initiate on-device conversion measurement for retrieving aggregate first-party data. Ads account not linked to Google Analytics.
+2026-10-25 10:47:59.173814+0800 jifen[50332:19154543] [[FirebaseAnalytics]] 12.19.2 - [FirebaseAnalytics][I-ACS023012] Analytics collection enabled
+2026-10-25 10:48:00.341496+0800 jifen[50332:19154658] <SKPaymentQueue: 0x1037d0790>: Error in remote proxy while checking server queue: Error Domain=SKInternalErrorDomain Code=12 "(null)" UserInfo={storefront-country-code=USA, client-environment-type=Sandbox}
+[HomeTab] 📊 Deriving recent activities from 56 cached records
+[HomeTab] 📋 Showing 5 recent records
+[HomeTab] 🎮 Record: 41BB926A-C8D0-4FBE-BBBF-2A8A1E7C157A - pickleball - 1:0
+[HomeTab] 🎮 Record: 3632FBF8-29C7-446B-BF2B-ADFD46B54A77 - pingpong - 2:0
+[HomeTab] 🎮 Record: BB1200E8-2BF5-4012-9C71-62B6A5D21616 - pingpong - 2:0
+[HomeTab] 🎮 Record: F84120D4-6ABB-4F0A-AE9B-922E07C050EE - tennis - 0:0
+[HomeTab] 🎮 Record: 94E92B4A-6128-4DED-A636-5F6FF9064F29 - pingpong - 2:0
+2026-10-25 10:48:00.552864+0800 jifen[50332:19154676] [VoiceDBClient] Error fetching voices: DecodingError.dataCorrupted: Data was corrupted. Debug description: Invalid container metadata for _UnkeyedDecodingContainer, found keyedGraphEncodingNodeID. Using fallback voices.
+2026-10-25 10:48:00.588157+0800 jifen[50332:19154543] [VoiceDBClient] Error fetching voices: DecodingError.dataCorrupted: Data was corrupted. Debug description: Invalid container metadata for _UnkeyedDecodingContainer, found keyedGraphEncodingNodeID. Using fallback voices.
+2026-10-25 10:48:00.589265+0800 jifen[50332:19154676] [VoiceDBClient] Error fetching locales: DecodingError.keyNotFound: Key 'codingKey: CodingKeys(stringValue: "primary", intValue: nil)' not found in keyed decoding container. Debug description: Missing key. Using fallback locales.
+2026-10-25 10:48:00.610285+0800 jifen[50332:19154559] [VoiceDBClient] Error fetching voices: DecodingError.dataCorrupted: Data was corrupted. Debug description: Invalid container metadata for _UnkeyedDecodingContainer, found keyedGraphEncodingNodeID. Using fallback voices.
+Test Suite 'Selected tests' started at 2026-10-25 10:48:00.629.
+Test Suite 'jifenTests.xctest' started at 2026-10-25 10:48:00.629.
+Test Suite 'PersonalRecordsTransportTests' started at 2026-10-25 10:48:00.629.
+Test Case '-[jifenTests.PersonalRecordsTransportTests testAssetEndpointsAcceptOnlyPrivateAudioOnTheSameOrigin]' started.
+Test Case '-[jifenTests.PersonalRecordsTransportTests testAssetEndpointsAcceptOnlyPrivateAudioOnTheSameOrigin]' passed (0.006 seconds).
+Test Case '-[jifenTests.PersonalRecordsTransportTests testAudioDownloadUsesManifestAbsoluteEndpoint]' started.
+[APIClient] GET /api/private-record-assets/1301CCD5-01AA-401A-A790-144444E49051 -> 200, bytes=184
+[APIClient] GET /api/private-record-assets/1301CCD5-01AA-401A-A790-144444E49051/content -> 200, bytes=26
+Test Case '-[jifenTests.PersonalRecordsTransportTests testAudioDownloadUsesManifestAbsoluteEndpoint]' passed (0.180 seconds).
+Test Case '-[jifenTests.PersonalRecordsTransportTests testBulkDeleteIsIdempotentAndRejectsUnreadableLibraries]' started.
+Test Case '-[jifenTests.PersonalRecordsTransportTests testBulkDeleteIsIdempotentAndRejectsUnreadableLibraries]' passed (0.007 seconds).
+Test Case '-[jifenTests.PersonalRecordsTransportTests testCancelledAuthenticationWarmupCannotOverwriteResetOrLogoutState]' started.
+Test Case '-[jifenTests.PersonalRecordsTransportTests testCancelledAuthenticationWarmupCannotOverwriteResetOrLogoutState]' passed (0.009 seconds).
+Test Case '-[jifenTests.PersonalRecordsTransportTests testCommittedKeepReceiptRecoversAfterRestartWithoutReadoptingSourceLibrary]' started.
+Test Case '-[jifenTests.PersonalRecordsTransportTests testCommittedKeepReceiptRecoversAfterRestartWithoutReadoptingSourceLibrary]' passed (0.010 seconds).
+Test Case '-[jifenTests.PersonalRecordsTransportTests testDeletedCloudRecordCanOnlyBeRetainedWithANewRecordKey]' started.
+[APIClient] GET /api/self-identity -> 200, bytes=208
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] POST /api/private-records/sync/push -> 200, bytes=1032
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] GET /api/self-identity -> 200, bytes=208
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] POST /api/private-records/sync/push -> 200, bytes=1076
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+Test Case '-[jifenTests.PersonalRecordsTransportTests testDeletedCloudRecordCanOnlyBeRetainedWithANewRecordKey]' passed (0.035 seconds).
+Test Case '-[jifenTests.PersonalRecordsTransportTests testExpiredAdoptionStartsAFreshPreparedRequest]' started.
+[APIClient] GET /api/self-identity -> 200, bytes=208
+[APIClient] POST /api/self-identity/adoptions/prepare -> 200, bytes=254
+[APIClient] POST /api/self-identity/adoptions/commit -> 410, bytes=28
+[APIClient] POST /api/self-identity/adoptions/prepare -> 200, bytes=254
+[APIClient] POST /api/self-identity/adoptions/commit -> 200, bytes=474
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+Test Case '-[jifenTests.PersonalRecordsTransportTests testExpiredAdoptionStartsAFreshPreparedRequest]' passed (0.019 seconds).
+Test Case '-[jifenTests.PersonalRecordsTransportTests testHistoricalClaimUploadsOnlyStrictInputFields]' started.
+[APIClient] GET /api/self-identity -> 200, bytes=392
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] POST /api/private-records/sync/push -> 200, bytes=1017
+[APIClient] POST /api/self-identity/mutations -> 200, bytes=392
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+Test Case '-[jifenTests.PersonalRecordsTransportTests testHistoricalClaimUploadsOnlyStrictInputFields]' passed (0.031 seconds).
+Test Case '-[jifenTests.PersonalRecordsTransportTests testLostAliasReplyReplaysIdenticalPersistedRequestAfterRestart]' started.
+[APIClient] GET /api/self-identity -> 200, bytes=208
+2026-10-25 10:48:00.936109+0800 jifen[50332:19154675] [Default] Task <BB7751BD-17A6-4291-A27B-55C06E358455>.<2> finished with error [-1005] Error Domain=NSURLErrorDomain Code=-1005 "(null)" UserInfo={_NSURLErrorRelatedURLSessionTaskErrorKey=(
+    "LocalDataTask <BB7751BD-17A6-4291-A27B-55C06E358455>.<2>"
+), _NSURLErrorFailingURLSessionTaskErrorKey=LocalDataTask <BB7751BD-17A6-4291-A27B-55C06E358455>.<2>}
+[APIClient] GET /api/self-identity -> 200, bytes=368
+[APIClient] POST /api/self-identity/mutations -> 200, bytes=368
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+Test Case '-[jifenTests.PersonalRecordsTransportTests testLostAliasReplyReplaysIdenticalPersistedRequestAfterRestart]' passed (0.022 seconds).
+Test Case '-[jifenTests.PersonalRecordsTransportTests testLostHistoricalClaimReplyReplaysThePersistedBody]' started.
+[APIClient] GET /api/self-identity -> 200, bytes=392
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] POST /api/private-records/sync/push -> 200, bytes=1029
+2026-10-25 10:48:00.963578+0800 jifen[50332:19154559] [Default] Task <76691156-B690-46F9-AE9C-6A2807B3C5D6>.<4> finished with error [-1005] Error Domain=NSURLErrorDomain Code=-1005 "(null)" UserInfo={_NSURLErrorRelatedURLSessionTaskErrorKey=(
+    "LocalDataTask <76691156-B690-46F9-AE9C-6A2807B3C5D6>.<4>"
+), _NSURLErrorFailingURLSessionTaskErrorKey=LocalDataTask <76691156-B690-46F9-AE9C-6A2807B3C5D6>.<4>}
+2026-10-25 10:48:00.966311+0800 jifen[50332:19154675] [default] Failed to resolve host network app id to config: bundleID: com.apple.WebKit.Networking instance ID: Optional([_EXExtensionInstanceIdentifier: 5D58C8BC-9EC2-4BDD-8C99-75458D58BD21])
+[APIClient] GET /api/self-identity -> 200, bytes=392
+[APIClient] POST /api/self-identity/mutations -> 200, bytes=392
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+Test Case '-[jifenTests.PersonalRecordsTransportTests testLostHistoricalClaimReplyReplaysThePersistedBody]' passed (0.051 seconds).
+Test Case '-[jifenTests.PersonalRecordsTransportTests testManualRetryCapturesAnEditedRejectedRecordBeforeSending]' started.
+[APIClient] GET /api/self-identity -> 200, bytes=208
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] POST /api/private-records/sync/push -> 200, bytes=127
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] GET /api/self-identity -> 200, bytes=208
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] POST /api/private-records/sync/push -> 200, bytes=1062
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+Test Case '-[jifenTests.PersonalRecordsTransportTests testManualRetryCapturesAnEditedRejectedRecordBeforeSending]' passed (0.047 seconds).
+Test Case '-[jifenTests.PersonalRecordsTransportTests testMissingAnnotationsEncodeExplicitNullAndNoAudioReferences]' started.
+[APIClient] GET /api/self-identity -> 200, bytes=208
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] POST /api/private-records/sync/push -> 200, bytes=1097
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] GET /api/self-identity -> 200, bytes=208
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] POST /api/private-records/sync/push -> 200, bytes=1017
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+Test Case '-[jifenTests.PersonalRecordsTransportTests testMissingAnnotationsEncodeExplicitNullAndNoAudioReferences]' passed (0.026 seconds).
+Test Case '-[jifenTests.PersonalRecordsTransportTests testNewerCloudRevisionReplacesNativeDisplayWithoutOverwritingBackup]' started.
+[APIClient] GET /api/self-identity -> 200, bytes=208
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] POST /api/private-records/sync/push -> 200, bytes=1044
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] GET /api/self-identity -> 200, bytes=208
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=944
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=944
+Test Case '-[jifenTests.PersonalRecordsTransportTests testNewerCloudRevisionReplacesNativeDisplayWithoutOverwritingBackup]' passed (0.021 seconds).
+Test Case '-[jifenTests.PersonalRecordsTransportTests testOversizedRecordIsIsolatedAcrossRestartAndChangedContentRetries]' started.
+[APIClient] GET /api/self-identity -> 200, bytes=208
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] POST /api/private-records/sync/push -> 200, bytes=1017
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] GET /api/self-identity -> 200, bytes=208
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+2026-10-25 10:48:01.448077+0800 jifen[50332:19154817] [ResourceLoadStatistics] WebContent[50380] Unable to hide query parameters from script (missing data)
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] GET /api/self-identity -> 200, bytes=208
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] POST /api/private-records/sync/push -> 200, bytes=1078
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+Test Case '-[jifenTests.PersonalRecordsTransportTests testOversizedRecordIsIsolatedAcrossRestartAndChangedContentRetries]' passed (0.396 seconds).
+Test Case '-[jifenTests.PersonalRecordsTransportTests testRejectedRecordDoesNotBlockLaterBatchesAndCanBeRetried]' started.
+[APIClient] GET /api/self-identity -> 200, bytes=208
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] POST /api/private-records/sync/push -> 200, bytes=48894
+[APIClient] POST /api/private-records/sync/push -> 200, bytes=2019
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] GET /api/self-identity -> 200, bytes=208
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] GET /api/self-identity -> 200, bytes=208
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] POST /api/private-records/sync/push -> 200, bytes=1020
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+Test Case '-[jifenTests.PersonalRecordsTransportTests testRejectedRecordDoesNotBlockLaterBatchesAndCanBeRetried]' passed (0.107 seconds).
+Test Case '-[jifenTests.PersonalRecordsTransportTests testRetainedConflictDoesNotAutomaticallyRescheduleForever]' started.
+[APIClient] GET /api/self-identity -> 200, bytes=208
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] POST /api/private-records/sync/push -> 200, bytes=1044
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] GET /api/self-identity -> 200, bytes=208
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+[APIClient] GET /api/self-identity/claims -> 200, bytes=31
+[APIClient] GET /api/private-records/sync/pull -> 200, bytes=73
+Test Case '-[jifenTests.PersonalRecordsTransportTests testRetainedConflictDoesNotAutomaticallyRescheduleForever]' passed (0.738 seconds).
+Test Case '-[jifenTests.PersonalRecordsTransportTests testStaleLoginWarmupCannotReactivateSignedOutLibrary]' started.
+Test Case '-[jifenTests.PersonalRecordsTransportTests testStaleLoginWarmupCannotReactivateSignedOutLibrary]' passed (0.007 seconds).
+Test Suite 'PersonalRecordsTransportTests' passed at 2026-10-25 10:48:02.346.
+	 Executed 17 tests, with 0 failures (0 unexpected) in 1.712 (1.717) seconds
+Test Suite 'jifenTests.xctest' passed at 2026-10-25 10:48:02.346.
+	 Executed 17 tests, with 0 failures (0 unexpected) in 1.712 (1.717) seconds
+Test Suite 'Selected tests' passed at 2026-10-25 10:48:02.347.
+	 Executed 17 tests, with 0 failures (0 unexpected) in 1.712 (1.718) seconds
+2026-10-25 10:48:02.367 xcodebuild[49892:19151178] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 10:48:02.369 xcodebuild[49892:19151178] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 10:48:02.671 xcodebuild[49892:19151178] [MT] IDETestOperationsObserverDebug: 10.305 elapsed -- Testing started completed.
+2026-10-25 10:48:02.671 xcodebuild[49892:19151178] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-25 10:48:02.671 xcodebuild[49892:19151178] [MT] IDETestOperationsObserverDebug: 10.305 sec, +10.305 sec -- end
+
+Test session results, code coverage, and logs:
+	/tmp/jifen-audit-remediation-transport-20261025.xcresult
+
+** TEST SUCCEEDED **
+
+Testing started

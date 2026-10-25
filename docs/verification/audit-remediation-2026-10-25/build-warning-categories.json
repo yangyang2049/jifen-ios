@@ -1,0 +1,34 @@
+{
+  "ios-ui-first-clean-build.log": {
+    "uniqueSourceWarnings": 85,
+    "categories": {
+      "Actor isolation": 19,
+      "ActorIsolatedCall": 18,
+      "Async locking": 5,
+      "DeprecatedDeclaration": 18,
+      "ImplicitStrongCapture": 3,
+      "IsolatedConformances": 3,
+      "NoUsage": 1,
+      "Optional coercion": 9,
+      "Sendable capture": 6,
+      "TrailingClosureMatching": 1,
+      "VariableNeverMutated": 2
+    }
+  },
+  "ios-final.log": {
+    "uniqueSourceWarnings": 88,
+    "categories": {
+      "Actor isolation": 19,
+      "ActorIsolatedCall": 18,
+      "Async locking": 5,
+      "DeprecatedDeclaration": 21,
+      "ImplicitStrongCapture": 3,
+      "IsolatedConformances": 3,
+      "NoUsage": 1,
+      "Optional coercion": 9,
+      "Sendable capture": 6,
+      "TrailingClosureMatching": 1,
+      "VariableNeverMutated": 2
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "Localizable": {
+    "locales": 47,
+    "keys": 2208,
+    "duplicateKeys": 0,
+    "keySetMismatches": 0
+  },
+  "ParticipantIdentity": {
+    "locales": 3,
+    "keys": 62,
+    "duplicateKeys": 0,
+    "keySetMismatches": 0
+  },
+  "recordFilteringDiskLookups": 0,
+  "removedSymbolsFound": 0
+}

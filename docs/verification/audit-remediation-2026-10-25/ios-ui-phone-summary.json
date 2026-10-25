@@ -1,0 +1,42 @@
+{
+  "sourceResultBundle": "/tmp/jifen-audit-remediation-final-20261025.xcresult",
+  "device": "iPhone 17 Pro / iOS Simulator 26.5",
+  "tests": [
+    {
+      "duration": "37秒",
+      "durationInSeconds": 37.01944303512573,
+      "name": "testPingpongServeOptionsFloatAndReopenWithoutResizingSetup()",
+      "nodeIdentifier": "MainFlowUITests/testPingpongServeOptionsFloatAndReopenWithoutResizingSetup()",
+      "nodeIdentifierURL": "test://com.apple.xcode/jifen/jifenUITests/MainFlowUITests/testPingpongServeOptionsFloatAndReopenWithoutResizingSetup",
+      "nodeType": "Test Case",
+      "result": "Passed"
+    },
+    {
+      "children": [
+        {
+          "name": "[Internal] Thread running at User-interactive quality-of-service class waiting on a lower QoS thread running at Default quality-of-service class. Investigate ways to avoid priority inversions",
+          "nodeType": "Runtime Warning"
+        }
+      ],
+      "duration": "22秒",
+      "durationInSeconds": 22.360716938972473,
+      "name": "testVoiceMediaVolumeHintOnEntryAndNoHintWhenDisabled()",
+      "nodeIdentifier": "MainFlowUITests/testVoiceMediaVolumeHintOnEntryAndNoHintWhenDisabled()",
+      "nodeIdentifierURL": "test://com.apple.xcode/jifen/jifenUITests/MainFlowUITests/testVoiceMediaVolumeHintOnEntryAndNoHintWhenDisabled",
+      "nodeType": "Test Case",
+      "result": "Passed"
+    },
+    {
+      "duration": "26秒",
+      "durationInSeconds": 26.928148984909058,
+      "name": "testFilterCanBeClearedAndPersonalPageHidesMainTabs()",
+      "nodeIdentifier": "ParticipantIdentityUITests/testFilterCanBeClearedAndPersonalPageHidesMainTabs()",
+      "nodeIdentifierURL": "test://com.apple.xcode/jifen/jifenUITests/ParticipantIdentityUITests/testFilterCanBeClearedAndPersonalPageHidesMainTabs",
+      "nodeType": "Test Case",
+      "result": "Passed"
+    }
+  ],
+  "totalTestCount": 3,
+  "passedTests": 3,
+  "failedTests": 0
+}

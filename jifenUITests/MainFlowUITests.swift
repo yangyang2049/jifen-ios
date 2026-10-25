@@ -331,11 +331,7 @@ final class MainFlowUITests: XCTestCase {
         if app.alerts.firstMatch.waitForExistence(timeout: 1) {
             throw XCTSkip("Simulator voice data is unavailable")
         }
-        let serveOptions = app.switches["setup_announce_server_toggle"]
-        let optionsClosed = XCTNSPredicateExpectation(
-            predicate: NSPredicate(format: "exists == false"), object: serveOptions
-        )
-        XCTAssertEqual(XCTWaiter.wait(for: [optionsClosed], timeout: 8), .completed)
+        dismissServePopupIfNeeded(in: app)
         app.buttons["Start"].tap()
         let hint = app.descendants(matching: .any)["voice_media_volume_hint"].firstMatch
         XCTAssertTrue(hint.waitForExistence(timeout: 5))
@@ -372,15 +368,17 @@ final class MainFlowUITests: XCTestCase {
         option.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
         let changed = option.value as? String
         XCTAssertNotEqual(changed, original)
-        let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: option)
-        XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 8), .completed)
+        let unexpectedDismissal = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: option)
+        unexpectedDismissal.isInverted = true
+        XCTAssertEqual(XCTWaiter.wait(for: [unexpectedDismissal], timeout: 5), .completed)
+        XCTAssertTrue(option.exists, "Changing a preference keeps the voice options open")
+        dismissServePopupIfNeeded(in: app)
         app.buttons["setup_voice_options"].tap()
         XCTAssertTrue(option.waitForExistence(timeout: 2))
         XCTAssertEqual(option.value as? String, changed)
         option.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap() // Restore the existing preference.
         XCTAssertEqual(option.value as? String, original)
-        let setupClosed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: option)
-        XCTAssertEqual(XCTWaiter.wait(for: [setupClosed], timeout: 8), .completed)
+        dismissServePopupIfNeeded(in: app)
         start.tap()
         let menu = app.buttons["scoreboard_menu_button"]
         XCTAssertTrue(menu.waitForExistence(timeout: 8))
@@ -395,8 +393,8 @@ final class MainFlowUITests: XCTestCase {
         addScreenshot("pingpong-menu-serve-popup")
         menuOption.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
         let menuChanged = menuOption.value as? String
-        let menuClosed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: menuOption)
-        XCTAssertEqual(XCTWaiter.wait(for: [menuClosed], timeout: 8), .completed)
+        XCTAssertTrue(menuOption.exists, "Changing a preference keeps the voice options open")
+        dismissServePopupIfNeeded(in: app)
         XCTAssertEqual(undo.frame, undoFrame, "Popup must not resize the operation menu")
         let mainVoice = app.buttons["scoreboard_menu_action_voiceAnnouncement"]
         XCTAssertTrue(mainVoice.label.contains("Voice: On"), "Opening more must keep voice enabled")
@@ -477,8 +475,13 @@ final class MainFlowUITests: XCTestCase {
             ? app.switches["scoreboard_announce_server_toggle"]
             : app.switches["setup_announce_server_toggle"]
         if popup.exists {
+            let options = app.buttons[app.switches["scoreboard_announce_server_toggle"].exists
+                ? "scoreboard_voice_options" : "setup_voice_options"]
+            // The options stay open until dismissed. Tap the anchor explicitly;
+            // native popovers may consume this outside tap as their dismissal.
+            options.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
             let closed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: popup)
-            XCTAssertEqual(XCTWaiter.wait(for: [closed], timeout: 8), .completed)
+            XCTAssertEqual(XCTWaiter.wait(for: [closed], timeout: 3), .completed)
         }
     }
 

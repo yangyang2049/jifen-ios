@@ -4,6 +4,56 @@ import XCTest
 
 @MainActor
 final class SportsSetupDraftTests: XCTestCase {
+    func testNineBallTournamentSetupRoundTripKeepsRulesAndForcesSingles() throws {
+        let original = SportsSetupResult(team1Name: "A", team2Name: "B", nineBallSmallGold: 9,
+            nineBallBreakerPlayer: 1, nineBallRuleFamily: "tournament", nineBallPointScheme: "14710",
+            nineBallHandoffEnabled: false, nineBallThirdFoul: 5, nineBallBreakRule: "alternate",
+            nineBallTotalRacks: 3, playerCount: 4, playerNames: ["A", "B", "C", "D"])
+        let setup = try JSONDecoder().decode(SportsSetupResult.self, from: JSONEncoder().encode(original))
+        guard case let .nineBall(names, points) = setup.billiardsConfiguration(for: .nineBall) else { return XCTFail() }
+        XCTAssertEqual(names, ["A", "B"])
+        XCTAssertEqual(points.ruleFamily, .tournament)
+        XCTAssertEqual(points.smallGold, 9)
+        XCTAssertEqual(points.thirdFoul, 5)
+        XCTAssertEqual(points.breakRule, .alternate)
+        XCTAssertEqual(points.totalRacks, 3)
+        XCTAssertFalse(points.handoffEnabled)
+    }
+
+    func testNineBallNewSetupUses14710AndDefaultTransferOptions() throws {
+        let setup = SportsSetupResult(team1Name: "甲", team2Name: "乙")
+        guard case let .nineBall(names, points) = setup.billiardsConfiguration(for: .nineBall) else {
+            return XCTFail("Expected nine-ball configuration")
+        }
+        XCTAssertEqual(names, ["甲", "乙"])
+        XCTAssertEqual(points.bigGold, 10)
+        XCTAssertEqual(points.smallGold, 7)
+        XCTAssertEqual(points.goldenNine, 4)
+        XCTAssertEqual(points.normalWin, 4)
+        XCTAssertEqual(points.foul, 1)
+        XCTAssertFalse(points.smallGoldAllPay)
+        XCTAssertTrue(points.goldRetainsBreak)
+    }
+
+    func testNineBallSetupOptionsRoundTripWithoutChangingLegacyPointValues() throws {
+        let setup = SportsSetupResult(
+            team1Name: "甲", team2Name: "乙",
+            nineBallGoldenNine: 8,
+            nineBallBreakerPlayer: 2,
+            nineBallSmallGoldAllPay: true,
+            nineBallGoldRetainsBreak: false,
+            playerCount: 3, playerNames: ["甲", "乙", "丙"]
+        )
+        let decoded = try JSONDecoder().decode(SportsSetupResult.self, from: JSONEncoder().encode(setup))
+        XCTAssertEqual(decoded, setup)
+        guard case let .nineBall(_, points) = decoded.billiardsConfiguration(for: .nineBall) else {
+            return XCTFail("Expected nine-ball configuration")
+        }
+        XCTAssertEqual(points.goldenNine, 8, "Explicit saved/custom values are not rewritten")
+        XCTAssertTrue(points.smallGoldAllPay)
+        XCTAssertFalse(points.goldRetainsBreak)
+    }
+
     // MARK: - Match feature matrix (对齐安卓 SportsSetupMatchFeatures)
 
     func testMatchFeatureMatrixMirrorsAndroid() {

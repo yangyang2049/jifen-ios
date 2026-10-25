@@ -1,3 +1,4 @@
+import ScoreCore
 import SwiftUI
 import UIKit
 
@@ -27,7 +28,10 @@ struct CommonNamesManagementView: View {
     private let manager = CommonNamesManager.shared
 
     private var currentNames: [String] {
-        selectedType == .team ? teamNames : playerNames
+        if selectedType == .team { return teamNames }
+        let identity = ParticipantIdentityStore.shared
+        let mine = Set(identity.aliases.map(\.normalizedName) + [ParticipantIdentityRules.normalizedName(identity.currentName)])
+        return playerNames.filter { !mine.contains(ParticipantIdentityRules.normalizedName($0)) }
     }
 
     private var filteredNames: [String] {
@@ -68,7 +72,7 @@ struct CommonNamesManagementView: View {
                         categoryChips
                     }
 
-                    if filteredNames.isEmpty {
+                    if filteredNames.isEmpty && selectedType == .team {
                         emptyState
                     } else {
                         namesList
@@ -112,6 +116,7 @@ struct CommonNamesManagementView: View {
         }
         .navigationTitle(NSLocalizedString("common_names_title", value: "常用名称", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
         .appAnalyticsScreen(.commonNamesPage)
         .systemSearchable(
             text: $searchText,
@@ -251,6 +256,9 @@ struct CommonNamesManagementView: View {
     private var namesList: some View {
         ScrollView {
             LazyVStack(spacing: CommonDataManagementChrome.listSpacing) {
+                if selectedType == .player && !isEditMode && !isSearchActive {
+                    ParticipantAssociatedNamesSection()
+                }
                 ForEach(filteredNames, id: \.self) { name in
                     nameRow(name)
                 }
@@ -315,6 +323,15 @@ struct CommonNamesManagementView: View {
             }
         }
         .commonDataListCardStyle()
+        .contextMenu {
+            if selectedType == .player && !isEditMode {
+                NavigationLink {
+                    HistoricalParticipantNamesView(initialName: name)
+                } label: {
+                    Label(identityText("associate_me", "关联为我"), systemImage: "person.crop.circle.badge.checkmark")
+                }
+            }
+        }
     }
 
     private var addSheet: some View {

@@ -1,0 +1,196 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project jifen.xcodeproj -scheme jifen -destination "platform=iOS Simulator,id=5832316B-4FD4-47FA-AE31-E55DD4AED27D" -derivedDataPath /tmp/jifen-selfcheck-dd -resultBundlePath /tmp/jifen-audit-remediation-ui-ipad-20261025.xcresult -parallel-testing-enabled NO "-only-testing:jifenUITests/ParticipantIdentityUITests" test-without-building
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  GoogleDataTransport: https://github.com/google/GoogleDataTransport.git @ 10.1.1
+  Firebase: https://github.com/firebase/firebase-ios-sdk.git @ 12.19.2
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  GoogleAppMeasurement: https://github.com/google/GoogleAppMeasurement.git @ 12.19.2
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.3
+  leveldb: https://github.com/firebase/leveldb.git @ 1.22.5
+  JifenCore: /Users/yangyang/Desktop/jifenqi/jifen-ios/Packages/JifenCore @ local
+  AppCheck: https://github.com/google/app-check.git @ 11.3.2
+  nanopb: https://github.com/firebase/nanopb.git @ 2.30910.1
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 5.3.1
+  Promises: https://github.com/google/promises.git @ 2.4.1
+  WechatOpenSDK: https://github.com/yanyin1986/WechatOpenSDK.git @ 2.0.7
+  GoogleAdsOnDeviceConversion: https://github.com/googleads/google-ads-on-device-conversion-ios-sdk @ 3.7.0
+  gRPC: https://github.com/google/grpc-binary.git @ 1.69.1
+  abseil: https://github.com/google/abseil-cpp-binary.git @ 1.2024072200.0
+
+Writing result bundle at path:
+	/tmp/jifen-audit-remediation-ui-ipad-20261025.xcresult
+
+2026-10-25 11:15:25.521 xcodebuild[66749:19263416] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 11:15:30.832293+0800 jifenUITests-Runner[66975:19264778] [Default] Running tests...
+2026-10-25 11:15:30.857604+0800 jifenUITests-Runner[66975:19264778] [UIKit App Config] Update the Info.plist: Launch screens will soon be required.
+2026-10-25 11:15:30.859199+0800 jifenUITests-Runner[66975:19264928] [General] Failed to send CA Event for app launch measurements for ca_event_type: 0 event_name: com.apple.app_launch_measurement.FirstFramePresentationMetric
+2026-10-25 11:15:30.901134+0800 jifenUITests-Runner[66975:19264925] [General] Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-10-25 11:15:31.552.
+Test Suite 'jifenUITests.xctest' started at 2026-10-25 11:15:31.552.
+Test Suite 'ParticipantIdentityUITests' started at 2026-10-25 11:15:31.552.
+Test Case '-[jifenUITests.ParticipantIdentityUITests testFilterCanBeClearedAndPersonalPageHidesMainTabs]' started.
+    t =     0.00s Start Test at 2026-10-25 11:15:31.553
+    t =     0.13s Set Up
+    t =     0.13s Open com.douhua.jifen.ios
+    t =     0.13s     Launch com.douhua.jifen.ios
+2026-10-25 11:15:31.878 xcodebuild[66749:19263416] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-25 11:15:31.878 xcodebuild[66749:19263416] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-25 11:15:31.943 xcodebuild[66749:19263416] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+objc[66975]: Class UIAccessibilityLoaderWebShared is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebCore.axbundle/WebCore (0x105e24310) and /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x105ec0398). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+    t =     1.55s         Setting up automation session
+    t =     2.20s         Wait for com.douhua.jifen.ios to idle
+    t =     4.09s Waiting 12.0s for Button (First Match) to exist
+    t =     5.12s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =     5.12s         Checking existence of `Button (First Match)`
+    t =     5.18s Tap Button (First Match)
+    t =     5.18s     Wait for com.douhua.jifen.ios to idle
+    t =     5.58s     Find the Button (First Match)
+    t =     5.61s     Check for interrupting elements affecting "main_tab_1" Button
+    t =     5.66s         Wait for com.apple.springboard to idle
+    t =     5.69s     Synthesize event
+    t =     6.08s     Wait for com.douhua.jifen.ios to idle
+    t =     7.26s Waiting 6.0s for "personal_records_entry" Button to exist
+    t =     8.32s     Checking `Expect predicate `existsNoRetry == 1` for object "personal_records_entry" Button`
+    t =     8.32s         Checking existence of `"personal_records_entry" Button`
+    t =     8.43s Tap "records_more" Button
+    t =     8.43s     Wait for com.douhua.jifen.ios to idle
+    t =     8.43s     Find the "records_more" Button
+    t =     8.49s     Check for interrupting elements affecting "records_more" Button
+    t =     8.55s         Wait for com.apple.springboard to idle
+    t =     8.57s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =     8.57s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =     8.57s     Synthesize event
+    t =     8.86s     Wait for com.douhua.jifen.ios to idle
+    t =     9.77s Tap "筛选" Button
+    t =     9.77s     Wait for com.douhua.jifen.ios to idle
+    t =     9.77s     Find the "筛选" Button
+    t =     9.86s     Check for interrupting elements affecting "line.3.horizontal.decrease.circle" Button
+    t =     9.92s         Wait for com.apple.springboard to idle
+    t =     9.93s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =     9.93s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =     9.93s     Synthesize event
+    t =    10.22s     Wait for com.douhua.jifen.ios to idle
+    t =    11.89s Waiting 4.0s for "今天" Button to exist
+    t =    12.93s     Checking `Expect predicate `existsNoRetry == 1` for object "今天" Button`
+    t =    12.94s         Checking existence of `"今天" Button`
+    t =    13.06s Tap "今天" Button
+    t =    13.07s     Wait for com.douhua.jifen.ios to idle
+    t =    13.07s     Find the "今天" Button
+    t =    13.15s     Check for interrupting elements affecting "今天" Button
+    t =    13.22s         Wait for com.apple.springboard to idle
+    t =    13.24s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =    13.24s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =    13.24s     Synthesize event
+    t =    13.53s     Wait for com.douhua.jifen.ios to idle
+    t =    14.28s Tap "计时" Button
+    t =    14.28s     Wait for com.douhua.jifen.ios to idle
+    t =    14.29s     Find the "计时" Button
+    t =    14.39s     Check for interrupting elements affecting "计时" Button
+    t =    14.46s         Wait for com.apple.springboard to idle
+    t =    14.47s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =    14.47s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =    14.48s     Synthesize event
+    t =    14.77s     Wait for com.douhua.jifen.ios to idle
+    t =    15.95s Checking existence of `CollectionView (First Match)`
+    t =    16.01s Waiting 4.0s for CollectionView (First Match) to exist
+    t =    17.03s     Checking `Expect predicate `existsNoRetry == 1` for object CollectionView (First Match)`
+    t =    17.03s         Checking existence of `CollectionView (First Match)`
+    t =    17.10s Checking existence of `"records_project_filter_family:badminton" Button`
+    t =    17.18s Press CollectionView (First Match)[0.50, 0.78] for 0.1 seconds, then drag to CollectionView (First Match)[0.50, 0.48] with velocity of 500.00 pixels per second, and then hold for 0.0 seconds
+    t =    17.18s     Wait for com.douhua.jifen.ios to idle
+    t =    17.18s     Find the CollectionView (First Match)
+    t =    17.22s     Check for interrupting elements affecting CollectionView
+    t =    17.30s         Wait for com.apple.springboard to idle
+    t =    17.31s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =    17.31s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =    17.31s     Synthesize event
+    t =    17.31s         Find the CollectionView at {{226.0, 644.0}, {580.0, 364.0}}
+    t =    17.36s         Find the CollectionView at {{226.0, 644.0}, {580.0, 364.0}}
+    t =    17.41s         Find the CollectionView at {{226.0, 644.0}, {580.0, 364.0}}
+    t =    17.45s         Find the CollectionView at {{226.0, 644.0}, {580.0, 364.0}}
+    t =    17.49s         Find the CollectionView at {{226.0, 644.0}, {580.0, 364.0}}
+    t =    18.05s     Wait for com.douhua.jifen.ios to idle
+    t =    19.64s Checking existence of `"records_project_filter_family:badminton" Button`
+    t =    19.73s Find the "records_project_filter_family:badminton" Button
+    t =    19.82s Checking existence of `"records_project_filter_family:badminton" Button`
+    t =    19.90s Find the "records_project_filter_family:badminton" Button
+    t =    19.99s Find the "records_project_filter_family:badminton" Button
+    t =    20.08s Tap "records_project_filter_family:badminton" Button
+    t =    20.08s     Wait for com.douhua.jifen.ios to idle
+    t =    20.08s     Find the "records_project_filter_family:badminton" Button
+    t =    20.16s     Check for interrupting elements affecting "records_project_filter_family:badminton" Button
+    t =    20.24s         Wait for com.apple.springboard to idle
+    t =    20.25s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =    20.25s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =    20.25s     Synthesize event
+    t =    20.54s     Wait for com.douhua.jifen.ios to idle
+    t =    21.28s Tap "records_apply_filter" Button
+    t =    21.28s     Wait for com.douhua.jifen.ios to idle
+    t =    21.28s     Find the "records_apply_filter" Button
+    t =    21.39s     Check for interrupting elements affecting "records_apply_filter" Button
+    t =    21.46s         Wait for com.apple.springboard to idle
+    t =    21.47s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =    21.47s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =    21.48s     Synthesize event
+    t =    21.77s     Wait for com.douhua.jifen.ios to idle
+    t =    22.20s Waiting 4.0s for "records_clear_filters" Button to exist
+    t =    23.20s     Checking `Expect predicate `existsNoRetry == 1` for object "records_clear_filters" Button`
+    t =    23.20s         Checking existence of `"records_clear_filters" Button`
+    t =    23.25s Find the "records_clear_filters" Button
+    t =    23.28s Find the "records_active_conditions" Button
+    t =    23.30s Find the "records_clear_filters" Button
+    t =    23.32s Checking existence of `"没有符合筛选条件的记录" StaticText`
+    t =    23.34s Find the Target Application 'com.douhua.jifen.ios'
+    t =    23.48s Added attachment named '筛选状态-左右布局'
+    t =    23.48s Tap "records_clear_filters" Button
+    t =    23.48s     Wait for com.douhua.jifen.ios to idle
+    t =    23.48s     Find the "records_clear_filters" Button
+    t =    23.50s     Check for interrupting elements affecting "records_clear_filters" Button
+    t =    23.52s         Wait for com.apple.springboard to idle
+    t =    23.54s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =    23.54s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =    23.54s     Synthesize event
+    t =    23.82s     Wait for com.douhua.jifen.ios to idle
+    t =    23.82s Checking existence of `"records_clear_filters" Button`
+    t =    23.90s Tap "personal_records_entry" Button
+    t =    23.90s     Wait for com.douhua.jifen.ios to idle
+    t =    23.90s     Find the "personal_records_entry" Button
+    t =    23.97s     Check for interrupting elements affecting "personal_records_entry" Button
+    t =    24.02s         Wait for com.apple.springboard to idle
+    t =    24.04s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =    24.04s Ignoring failure to get hierarchy for remote element in process 67057 (Error getting main window kAXErrorServerNotFound)
+    t =    24.04s     Synthesize event
+    t =    24.34s     Wait for com.douhua.jifen.ios to idle
+    t =    25.11s Waiting 4.0s for "我的记录" NavigationBar to exist
+    t =    26.17s     Checking `Expect predicate `existsNoRetry == 1` for object "我的记录" NavigationBar`
+    t =    26.17s         Checking existence of `"我的记录" NavigationBar`
+    t =    26.21s Checking existence of `TabBar (First Match)`
+    t =    26.24s Find the Target Application 'com.douhua.jifen.ios'
+    t =    26.37s Added attachment named '我的记录-二级页面'
+    t =    26.37s Tear Down
+Test Case '-[jifenUITests.ParticipantIdentityUITests testFilterCanBeClearedAndPersonalPageHidesMainTabs]' passed (26.633 seconds).
+Test Suite 'ParticipantIdentityUITests' passed at 2026-10-25 11:15:58.186.
+	 Executed 1 test, with 0 failures (0 unexpected) in 26.633 (26.633) seconds
+Test Suite 'jifenUITests.xctest' passed at 2026-10-25 11:15:58.186.
+	 Executed 1 test, with 0 failures (0 unexpected) in 26.633 (26.634) seconds
+Test Suite 'Selected tests' passed at 2026-10-25 11:15:58.186.
+	 Executed 1 test, with 0 failures (0 unexpected) in 26.633 (26.634) seconds
+2026-10-25 11:15:58.212 xcodebuild[66749:19263416] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 11:15:58.212 xcodebuild[66749:19263416] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 11:15:58.228 xcodebuild[66749:19263416] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 11:15:58.229 xcodebuild[66749:19263416] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 11:15:58.494 xcodebuild[66749:19263416] [MT] IDETestOperationsObserverDebug: 33.308 elapsed -- Testing started completed.
+2026-10-25 11:15:58.494 xcodebuild[66749:19263416] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-25 11:15:58.494 xcodebuild[66749:19263416] [MT] IDETestOperationsObserverDebug: 33.308 sec, +33.308 sec -- end
+
+Test session results, code coverage, and logs:
+	/tmp/jifen-audit-remediation-ui-ipad-20261025.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started

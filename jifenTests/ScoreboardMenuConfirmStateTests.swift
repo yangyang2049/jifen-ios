@@ -4,6 +4,23 @@ import ScoreCore
 
 @MainActor
 final class ScoreboardMenuConfirmStateTests: XCTestCase {
+    func testVoiceOptionsRequireEnabledVoiceControlAndVisibleContent() {
+        let cases = [("zh", false, true), ("zh-Hans", false, true), ("zh-Hant", false, true),
+                     ("en", false, false), ("ja", false, false), ("fr", false, false),
+                     ("en", true, true), ("ja", true, true), ("zh-Hant", true, true)]
+        for (language, hasServeOption, hasVisibleContent) in cases {
+            for isVoiceControl in [false, true] {
+                for enabled in [false, true] {
+                    XCTAssertEqual(SportsVoiceOptionsPolicy.canPresent(
+                        isVoiceControl: isVoiceControl, isVoiceEnabled: enabled,
+                        hasServeOption: hasServeOption, appLanguage: language
+                    ), isVoiceControl && enabled && hasVisibleContent,
+                    "language=\(language), voice=\(isVoiceControl), enabled=\(enabled), serve=\(hasServeOption)")
+                }
+            }
+        }
+    }
+
     func testArmThenConfirmExecutes() {
         let state = ScoreboardMenuConfirmState()
         state.prepare(forMenuAction: "reset")

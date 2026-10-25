@@ -23,6 +23,7 @@ struct BadmintonScoreboardView: View {
             gameType: isDoubles ? .badmintonDoubles : .badminton,
             rules: rules,
             participants: rallyParticipants,
+            participantSelections: initialSetup?.participantSelections ?? [:],
             openingServer: openingServer,
             voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement == true,
             initialResumeSessionId: initialResumeSessionId,

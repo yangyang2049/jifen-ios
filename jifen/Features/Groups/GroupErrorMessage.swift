@@ -57,6 +57,7 @@ nonisolated func groupErrorMessage(_ error: Error, bundle: Bundle = .main) -> St
         "UNSUPPORTED_SPORT": "error_request_invalid",
         "INVALID_FORMAT": "error_request_invalid",
         "INVALID_REQUEST": "error_request_invalid",
+        "ACCOUNT_MERGE_INVALID": "error_request_invalid",
         "INVALID_PERIOD": "error_request_invalid",
         "INVALID_PLAN_NOTE": "error_request_invalid",
         "INVALID_MEMBER_STATUS": "error_request_invalid",

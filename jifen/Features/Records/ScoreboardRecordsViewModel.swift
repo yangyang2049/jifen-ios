@@ -99,13 +99,16 @@ final class ScoreboardRecordsViewModel {
                 summaries.count
             )
             DispatchQueue.main.async {
+                if self.refreshAfterCurrentLoad {
+                    self.refreshAfterCurrentLoad = false
+                    self.isLoading = false
+                    self.requestLoad()
+                    return
+                }
                 self.records = summaries
                 self.groupedRecords = grouped
                 self.isLoading = false
                 self.hasLoaded = true
-                guard self.refreshAfterCurrentLoad else { return }
-                self.refreshAfterCurrentLoad = false
-                self.requestLoad()
             }
         }
     }

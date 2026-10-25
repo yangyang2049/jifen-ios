@@ -20,6 +20,18 @@ struct SportsSetupParticipantSection: View {
         case team2Player3
 
         var id: String { rawValue }
+        var seatKey: String {
+            switch self {
+            case .team1: return "side:0"
+            case .team2: return "side:1"
+            case .team1Player1: return "side:0:player:0"
+            case .team1Player2: return "side:0:player:1"
+            case .team1Player3: return "side:0:player:2"
+            case .team2Player1: return "side:1:player:0"
+            case .team2Player2: return "side:1:player:1"
+            case .team2Player3: return "side:1:player:2"
+            }
+        }
     }
 
     var body: some View {
@@ -39,15 +51,26 @@ struct SportsSetupParticipantSection: View {
                 primaryNameInput
             }
 
+            ParticipantDuplicateNamesHint(names: participantNamesForWarning)
+
             if showsServingSideSelector {
                 servingSideSection
             }
         }
         .sheet(item: $activeNameInputTarget) { target in
-            CommonNameSelectorDialog(nameType: nameType(for: target)) { name in
+            CommonNameSelectorDialog(nameType: nameType(for: target),
+                unavailablePeople: Set(draft.validParticipantSelections(gameType: gameType).filter { $0.key != target.seatKey }.values.compactMap(\.personRef)),
+                onParticipantSelect: (gameType == .shuttlecock && draft.competitionFormat == .team) ? nil : { selection in
+                    if selection.personRef != nil { draft.participantSelections[target.seatKey] = selection }
+                    else { draft.participantSelections.removeValue(forKey: target.seatKey) }
+                }) { name in
                 applySelectedName(name, to: target)
                 activeNameInputTarget = nil
             }
+        }
+        .onChange(of: draft) { _, _ in
+            let valid = draft.validParticipantSelections(gameType: gameType)
+            if draft.participantSelections != valid { draft.participantSelections = valid }
         }
     }
 
@@ -63,6 +86,14 @@ struct SportsSetupParticipantSection: View {
 
     private var usesTeamPlayerInputs: Bool {
         gameType == .shuttlecock && draft.competitionFormat == .team
+    }
+
+    private var participantNamesForWarning: [String] {
+        guard PersonalRecordAdapter.supportsPerson(gameType), !usesTeamPlayerInputs else { return [] }
+        if usesDoublesPlayerInputs {
+            return [draft.team1Player1Name, draft.team1Player2Name, draft.team2Player1Name, draft.team2Player2Name]
+        }
+        return [draft.team1Name, draft.team2Name]
     }
 
     private var shuttlecockFormatSection: some View {
@@ -312,6 +343,27 @@ struct SportsSetupParticipantSection: View {
         case .team2Player2: draft.team2Player2Name = value
         case .team1Player3: draft.team1Player3Name = value
         case .team2Player3: draft.team2Player3Name = value
+        }
+    }
+}
+
+/// Equal display names may represent different people. Keep the match available
+/// while making the display and spoken-score ambiguity visible before starting.
+struct ParticipantDuplicateNamesHint: View {
+    let names: [String]
+
+    private var containsDuplicateNames: Bool {
+        let normalized = names.map(ParticipantIdentityRules.normalizedName).filter { !$0.isEmpty }
+        return Set(normalized).count != normalized.count
+    }
+
+    var body: some View {
+        if containsDuplicateNames {
+            Text(identityText("duplicate_names_hint", "Players share a name. Add a distinguishing name to make the scoreboard and voice calls clearer."))
+                .font(.system(size: 12))
+                .foregroundStyle(Theme.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityIdentifier("participant_duplicate_names_hint")
         }
     }
 }

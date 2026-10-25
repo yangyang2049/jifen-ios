@@ -16,6 +16,7 @@ struct FoosballScoreboardView: View {
             gameType: isDoubles ? .foosballDoubles : .foosball,
             rules: rules,
             participants: isDoubles ? doublesParticipants(initialSetup) : nil,
+            participantSelections: initialSetup?.participantSelections ?? [:],
             openingServer: Self.openingServer(for: initialSetup),
             initialResumeSessionId: initialResumeSessionId,
             onNavigationBack: onNavigationBack,

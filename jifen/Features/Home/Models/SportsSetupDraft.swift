@@ -9,6 +9,7 @@ import ScoreCore
 struct SportsSetupDraft: Equatable {
     var team1Name = ""
     var team2Name = ""
+    var participantSelections: [String: ParticipantSelection] = [:]
 
     var selectedMaxSets = 0
     var selectedPointsPerSet = 0
@@ -73,6 +74,7 @@ extension SportsSetupDraft {
         initialTieBreakPoints: Int?,
         preferences: PreferencesManager = .shared
     ) {
+        participantSelections = initialSetup?.participantSelections ?? [:]
         let setup = initialSetup
         let defaultSingles = gameType != .foosball && gameType != .shuttlecock && gameType != .softTennis && gameType != .padel
         isSingles = setup?.isSingles
@@ -304,7 +306,7 @@ extension SportsSetupDraft {
     }
 
     /// 数值类约束在开赛时静默纠正（对齐安卓 `SetupInputCorrection`），不再红字拦截。
-    /// 重名不在其中：静默纠正无法替用户改名，重名仍由调用方拦截。
+    /// 不静默改名：个人项目的同名提示、重复身份拦截由调用方处理。
 
     /// 奇数局是否为硬约束（经典模式「五局三胜」、斯诺克帧数）。
     func requiresOddSets(for gameType: GameType) -> Bool {
@@ -523,6 +525,8 @@ extension SportsSetupDraft {
             result.voiceAnnouncement = voiceSupported && voiceAnnouncement
         }
 
+        let identity = validParticipantSelections(gameType: gameType)
+        result.participantSelections = identity.isEmpty ? nil : identity
         return result
     }
 

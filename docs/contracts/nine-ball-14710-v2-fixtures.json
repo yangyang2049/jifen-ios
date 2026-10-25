@@ -1,0 +1,22 @@
+[
+  {"id":"big-2","count":2,"kind":"big_gold","actor":0,"scores":[10,-10,0,0],"nextBreaker":0,"round":2},
+  {"id":"big-3","count":3,"kind":"big_gold","actor":0,"scores":[20,-10,-10,0],"nextBreaker":0,"round":2},
+  {"id":"big-4","count":4,"kind":"big_gold","actor":0,"scores":[30,-10,-10,-10],"nextBreaker":0,"round":2},
+  {"id":"golden-2","count":2,"kind":"golden_nine","actor":0,"scores":[4,-4,0,0],"nextBreaker":0,"round":2},
+  {"id":"golden-3","count":3,"kind":"golden_nine","actor":0,"scores":[8,-4,-4,0],"nextBreaker":0,"round":2},
+  {"id":"golden-4","count":4,"kind":"golden_nine","actor":0,"scores":[12,-4,-4,-4],"nextBreaker":0,"round":2},
+  {"id":"small-2","count":2,"kind":"small_gold","actor":1,"scores":[-7,7,0,0],"nextBreaker":0,"round":2},
+  {"id":"small-3","count":3,"kind":"small_gold","actor":1,"scores":[-7,7,0,0],"nextBreaker":2,"round":2},
+  {"id":"small-4","count":4,"kind":"small_gold","actor":1,"scores":[-7,7,0,0],"nextBreaker":2,"round":2},
+  {"id":"normal-2","count":2,"kind":"normal_win","actor":1,"scores":[-4,4,0,0],"nextBreaker":0,"round":2},
+  {"id":"normal-3","count":3,"kind":"normal_win","actor":2,"scores":[0,-4,4,0],"nextBreaker":0,"round":2},
+  {"id":"normal-4","count":4,"kind":"normal_win","actor":2,"scores":[0,-4,4,0],"nextBreaker":3,"round":2},
+  {"id":"foul-2","count":2,"kind":"foul","actor":0,"scores":[-1,1,0,0],"nextBreaker":0,"round":1,"shooter":1},
+  {"id":"foul-3","count":3,"kind":"foul","actor":1,"scores":[0,-1,1,0],"nextBreaker":0,"round":1,"shooter":2},
+  {"id":"foul-4","count":4,"kind":"foul","actor":3,"scores":[1,0,0,-1],"nextBreaker":0,"round":1,"shooter":0},
+  {"id":"handoff-3","count":3,"kind":"handoff","actor":1,"continuePlayer":0,"scores":[0,0,0,0],"nextBreaker":0,"round":1,"shooter":0},
+  {"id":"small-all-4","count":4,"kind":"small_gold","actor":1,"allPay":true,"scores":[-7,21,-7,-7],"nextBreaker":2,"round":2},
+  {"id":"golden-no-retain-3","count":3,"kind":"golden_nine","actor":1,"retain":false,"scores":[-4,8,-4,0],"nextBreaker":2,"round":2},
+  {"id":"small-corrected-payer-4","count":4,"kind":"small_gold","actor":2,"payer":3,"scores":[0,0,7,-7],"nextBreaker":3,"round":2},
+  {"id":"normal-corrected-payer-4","count":4,"kind":"normal_win","actor":2,"payer":0,"scores":[-4,0,4,0],"nextBreaker":3,"round":2}
+]

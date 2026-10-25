@@ -67,6 +67,7 @@ struct MultiScoreboardView: View {
     @State private var actions: [String] = []
     @State private var gameStartTime = Date()
     @State private var recordId: String
+    @State private var initialParticipantSelections: [String: ParticipantSelection]?
     @State private var gameFinished = false
     @State private var showGameOverDialog = false
     @State private var finishedWinnerName = ""
@@ -154,6 +155,8 @@ struct MultiScoreboardView: View {
         _customAdjustEnabled = State(initialValue: adjust)
         let layoutKey = gameType == .uno ? "uno_use_landscape_layout" : "multi_scoreboard_use_landscape_layout"
         _useLandscapeLayout = State(initialValue: UserDefaults.standard.object(forKey: layoutKey) as? Bool ?? true)
+        _initialParticipantSelections = State(initialValue: initialResumeSessionId == nil
+            ? (initialSetup?.participantSelections ?? [:]) : nil)
     }
 
     // HOS MULTI_PLAYER_GRID_COLORS order
@@ -293,6 +296,7 @@ struct MultiScoreboardView: View {
                     undoLast()
                 }
         )
+        .registerParticipantSetupOnAppear(recordID: recordId, selections: initialParticipantSelections)
         .onAppear {
             typographySession.reload()
             applySetupIfNeeded()
@@ -1189,10 +1193,12 @@ struct MultiScoreboardView: View {
     }
 
     private func startNewMatch() {
+        let previousIdentityRecord = recordId
         persistRecord(finished: true)
 
         resumeSaveGeneration += 1
         recordId = ScoreboardRecordIdentity.next(prefix: gameType.canonicalScoreboardIdentifier)
+        ParticipantIdentityStore.shared.copySelections(from: previousIdentityRecord, to: recordId)
         gameStartTime = Date()
         history.removeAll()
         actions.removeAll()

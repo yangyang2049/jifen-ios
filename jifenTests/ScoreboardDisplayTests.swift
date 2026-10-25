@@ -5,6 +5,69 @@ import ScoreCore
 
 @MainActor
 final class ScoreboardDisplayTests: XCTestCase {
+    /// Production SwiftUI views rendered for the nine-ball visual acceptance matrix.
+    func testAuditNineBallNativeLayoutSnapshots() throws {
+        let longNames = ["玩家一 ABCDEFG", "玩家二 ABCDEFG", "玩家三 ABCDEFG", "玩家四 ABCDEFG"]
+        let setups: [(String, CGFloat, ColorScheme, SportsSetupResult)] = [
+            ("folk_four", 375, .light, .init(team1Name: longNames[0], team2Name: longNames[1], playerCount: 4, playerNames: longNames)),
+            ("tournament", 375, .light, .init(team1Name: longNames[0], team2Name: longNames[1], nineBallRuleFamily: "tournament", nineBallTotalRacks: 3)),
+            ("folk_dark", 320, .dark, .init(team1Name: "A", team2Name: "B"))
+        ]
+        for (name, width, scheme, setup) in setups {
+            let size = CGSize(width: width, height: 667)
+            let content = CenteredSetupDialogContainer(onBackdropTap: {}) { maximum in
+                NineBallSetupDialogView(initialSetup: setup, maxDialogHeight: maximum, onConfirm: { _ in }, onCancel: {})
+            }.environment(\.colorScheme, scheme).frame(width: size.width, height: size.height)
+            try attachNineBallNativeView(content, size: size, name: "nine_ball_setup_\(name)")
+        }
+        for width in [CGFloat(375), 768] {
+            let size = CGSize(width: width, height: width == 375 ? 3500 : 2600)
+            try attachNineBallNativeView(NavigationStack { NineBallRulesView() },
+                size: size, name: "nine_ball_rules_\(Int(width))")
+        }
+    }
+
+    private func attachNineBallNativeView<Content: View>(_ content: Content, size: CGSize, name: String) throws {
+        let window = UIWindow(frame: CGRect(origin: .zero, size: size))
+        let controller = UIHostingController(rootView: content)
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        controller.view.frame = window.bounds
+        controller.view.layoutIfNeeded()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        let image = UIGraphicsImageRenderer(size: size).image { _ in
+            controller.view.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
+        }
+        let data = try XCTUnwrap(image.pngData())
+        XCTAssertGreaterThan(data.count, 10_000)
+        let attachment = XCTAttachment(data: data, uniformTypeIdentifier: "public.png")
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        window.isHidden = true
+    }
+
+    func testTournamentDisplayMetadataAndCategoriesRoundTrip() throws {
+        var state = fixture(gameID: "nine_ball", score: 2)
+        let context: [String: ScoreboardDisplayValue] = [
+            "chaseRuleVersion": .integer(3), "chaseRuleFamily": .string("tournament"),
+            "chasePointScheme": .string("14710"), "chaseBreakRule": .string("alternate"),
+            "chasePoints": .integerMap(["big_gold": 10, "small_gold": 9, "normal_win": 4, "foul": 1, "third_foul": 5]),
+            "chaseTotalRacks": .integer(10), "chaseRoundNumber": .integer(3),
+            "chaseRackFouls": .integers([2, 1, 0, 0]), "chaseBreakerPlayer": .integer(1),
+            "chaseHandoffEnabled": .boolean(false), "chaseLeftCounts": .integers([1, 2, 0, 3, 0, 5, 0])
+        ]
+        state.sportState = context
+        let decoded = try XCTUnwrap(DisplayStateWireCodec.decode(try XCTUnwrap(DisplayStateWireCodec.encode(state))))
+        XCTAssertEqual(decoded.sportState, context)
+        XCTAssertEqual(decoded.displayChaseCounts(playerIndex: 0), [1, 2, 3, 5])
+        XCTAssertEqual(decoded.displayChaseBreakerIndex(), 1)
+        XCTAssertEqual(ScoreboardExternalLiveView.displayChaseChalkLabel(forIndex: 2, categoryCount: 4),
+                       ScoreboardExternalLiveView.displayChaseChalkLabel(forIndex: 3))
+        state.sportState?["chaseRuleFamily"] = .string("folk")
+        XCTAssertEqual(state.displayChaseCounts(playerIndex: 0), [1, 2, 0, 3, 5])
+    }
+
     func testMatchClockRebindPreservesElapsedOriginAndOnlyPublishesUserChanges() {
         let originalStart = Date(timeIntervalSince1970: 1_000)
         let resumedStart = Date(timeIntervalSince1970: 900)
@@ -602,6 +665,43 @@ final class ScoreboardDisplayTests: XCTestCase {
             anchorWallClockMilliseconds: 1_000, injuryTimeText: "+00:47")
         let footballWire = try XCTUnwrap(DisplayStateWireCodec.encode(football))
         XCTAssertEqual(DisplayStateWireCodec.decode(footballWire)?.clock?.injuryTimeText, "+00:47")
+    }
+
+    func testNineBallTransferVersionAndRackContextSurviveDisplayWireRoundTrip() throws {
+        var state = fixture(gameID: "nine_ball", score: 2)
+        let context: [String: ScoreboardDisplayValue] = [
+            "chaseRuleVersion": .integer(2),
+            "chaseRoundNumber": .integer(9),
+            "chaseBreakerPlayer": .integer(2),
+            "chaseCurrentShooter": .integer(1),
+            "chasePlayerPoints": .integers([-17, 7, 10, 0]),
+            "chaseSmallGoldAllPay": .boolean(false),
+            "chaseGoldRetainsBreak": .boolean(true)
+        ]
+        state.sportState = context
+        let wire = try XCTUnwrap(DisplayStateWireCodec.encode(state))
+        let decoded = try XCTUnwrap(DisplayStateWireCodec.decode(wire))
+        XCTAssertEqual(decoded.sportState, context)
+    }
+
+    func testNineBallCastBreakerMarkAndStatsOrderFollowRuleVersion() throws {
+        // v2：开球标记返回逻辑玩家索引，统计带第 5 格展示让杆（存储第 7 格）。
+        var v2 = fixture(gameID: "nine_ball", score: 2)
+        v2.sportState = [
+            "chaseRuleVersion": .integer(2),
+            "chaseBreakerPlayer": .integer(1),
+            "chaseLeftCounts": .integers([1, 2, 3, 4, 5, 6, 7]),
+            "chaseRightCounts": .integers([7, 6, 5, 4, 3, 2, 1])
+        ]
+        XCTAssertEqual(v2.displayChaseBreakerIndex(), 1)
+        XCTAssertEqual(v2.displayChaseCounts(playerIndex: 0), [1, 2, 3, 4, 7, 6])
+        XCTAssertEqual(v2.displayChaseCounts(playerIndex: 1), [7, 6, 5, 4, 1, 2])
+
+        // 旧版对局：无开球标记，统计带保持存储顺序（旧自由球位）。
+        var legacy = fixture(gameID: "nine_ball", score: 2)
+        legacy.sportState = ["chaseLeftCounts": .integers([1, 2, 3, 4, 5, 6])]
+        XCTAssertNil(legacy.displayChaseBreakerIndex())
+        XCTAssertEqual(legacy.displayChaseCounts(playerIndex: 0), [1, 2, 3, 4, 5, 6])
     }
 
     func testTableTennisAdministrativeMarkerCountIsBoundedForRemotePayloads() {

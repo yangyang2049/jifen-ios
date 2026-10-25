@@ -150,6 +150,8 @@ struct HomeTab: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.scenePhase) private var scenePhase
     @State private var groups = GroupStore.shared
+    @State private var recordIdentity = ParticipantIdentityStore.shared
+    @State private var privateRecords = PersonalRecordsCloudSync.shared
     @State private var showGroupNoticeLogin = false
     @State private var groupReminders = GroupActivityReminder.shared
     @State private var groupPush = GroupPushManager.shared
@@ -544,6 +546,23 @@ struct HomeTab: View {
             updateRecentActivities()
             loadUnfinishedRecord()
         }
+        .onChange(of: recordIdentity.state.activeLibraryId) { _, _ in
+            unfinishedRecord = nil
+            resetDiscardConfirmation()
+            updateRecentActivities()
+            loadUnfinishedRecord()
+        }
+        .onChange(of: recordIdentity.state.archivedLibraries) { _, _ in
+            updateRecentActivities()
+            loadUnfinishedRecord()
+        }
+        .onChange(of: privateRecords.phase) { _, _ in
+            updateRecentActivities()
+            if unfinishedRecord.map({ !canAccessUnfinishedRecord($0) }) == true {
+                unfinishedRecord = nil
+                loadUnfinishedRecord()
+            }
+        }
         .onReceive(
             NotificationCenter.default.publisher(
                 for: ResumeSessionRepository.didChangeNotification
@@ -578,7 +597,7 @@ struct HomeTab: View {
 
     @ViewBuilder
     private var unfinishedGameBar: some View {
-        if let unfinishedRecord {
+        if let unfinishedRecord, canAccessUnfinishedRecord(unfinishedRecord) {
             VStack(spacing: Theme.sm) {
                 if showDiscardConfirmationToast {
                     UnfinishedGameDiscardToast()
@@ -710,6 +729,7 @@ struct HomeTab: View {
         #endif
 
         let recentRecords = records
+            .filter { PersonalRecordAccessPolicy.allowsNativeRecord($0.id) }
             .sorted { $0.timestamp > $1.timestamp }
             .prefix(5)
         #if DEBUG
@@ -744,6 +764,7 @@ struct HomeTab: View {
         resumeLoadTask?.cancel()
         let generation = UUID()
         resumeLoadGeneration = generation
+        let libraryId = recordIdentity.state.activeLibraryId
 
 
         resumeLoadTask = Task { @MainActor in
@@ -763,6 +784,7 @@ struct HomeTab: View {
                 let lifecycleCoordinator = AbandonedResumeSessionCoordinator()
                 let scanner = HomeResumeSessionScanner<UnfinishedGameSummary>(
                     reconcileCommittedRecord: { entry in
+                        guard recordIdentity.state.activeLibraryId == libraryId else { return false }
                         let committedRecordID = ManualResumeSessionStore.recordID(
                             for: entry.sessionId
                         ) ?? entry.sessionId.uuidString
@@ -779,10 +801,12 @@ struct HomeTab: View {
                         return true
                     },
                     archiveIfExpired: { sessionID in
-                        try await lifecycleCoordinator.archiveIfExpired(sessionID: sessionID)
+                        guard recordIdentity.state.activeLibraryId == libraryId else { throw CancellationError() }
+                        return try await lifecycleCoordinator.archiveIfExpired(sessionID: sessionID)
                     },
                     abandon: { sessionID in
-                        try await lifecycleCoordinator.abandon(sessionID: sessionID)
+                        guard recordIdentity.state.activeLibraryId == libraryId else { throw CancellationError() }
+                        return try await lifecycleCoordinator.abandon(sessionID: sessionID)
                     },
                     loadCandidate: { entry in
                         await UnfinishedGameSummary.load(session: entry)
@@ -797,7 +821,14 @@ struct HomeTab: View {
                     }
                 )
 
-                var outcome = await scanner.scan(try await repository.liveEntries())
+                let entries = try await repository.liveEntries()
+                guard resumeLoadGeneration == generation, recordIdentity.state.activeLibraryId == libraryId, !Task.isCancelled else { return }
+                let visibleEntries = entries.filter { entry in
+                    let key = PersonalRecordAccessPolicy.resumeRecordKey(entry.sessionId)
+                    try? recordIdentity.registerLegacyResumeIfNeeded(recordKey: key, expectedLibraryId: libraryId)
+                    return PersonalRecordAccessPolicy.allowsNativeRecord(key)
+                }
+                var outcome = await scanner.scan(visibleEntries)
                 var recordsNeedRefresh = outcome.recordsNeedRefresh
 
                 // A missing envelope can be a harmless index/snapshot race.
@@ -806,7 +837,14 @@ struct HomeTab: View {
                 if outcome.shouldReload {
                     await Task.yield()
                     guard resumeLoadGeneration == generation, !Task.isCancelled else { return }
-                    let retriedOutcome = await scanner.scan(try await repository.liveEntries())
+                    let reloaded = try await repository.liveEntries()
+                    guard resumeLoadGeneration == generation, recordIdentity.state.activeLibraryId == libraryId, !Task.isCancelled else { return }
+                    let retriedEntries = reloaded.filter { entry in
+                        let key = PersonalRecordAccessPolicy.resumeRecordKey(entry.sessionId)
+                        try? recordIdentity.registerLegacyResumeIfNeeded(recordKey: key, expectedLibraryId: libraryId)
+                        return PersonalRecordAccessPolicy.allowsNativeRecord(key)
+                    }
+                    let retriedOutcome = await scanner.scan(retriedEntries)
                     recordsNeedRefresh = recordsNeedRefresh || retriedOutcome.recordsNeedRefresh
                     outcome = retriedOutcome
                 }
@@ -844,8 +882,15 @@ struct HomeTab: View {
         }
     }
 
+    private func canAccessUnfinishedRecord(_ summary: UnfinishedGameSummary) -> Bool {
+        switch summary.source {
+        case .resume(let sessionId):
+            return PersonalRecordAccessPolicy.allowsNativeRecord(PersonalRecordAccessPolicy.resumeRecordKey(sessionId))
+        }
+    }
+
     private func continueUnfinishedGame() {
-        guard let unfinishedRecord else { return }
+        guard let unfinishedRecord, canAccessUnfinishedRecord(unfinishedRecord) else { return }
         resetDiscardConfirmation()
         let recordId: String?
         let setupResult: SportsSetupResult?
@@ -910,7 +955,7 @@ struct HomeTab: View {
     }
 
     private func discardUnfinishedGame() {
-        guard let unfinishedRecord else { return }
+        guard let unfinishedRecord, canAccessUnfinishedRecord(unfinishedRecord) else { return }
         switch unfinishedRecord.source {
         case .resume(let sessionId):
             Task {
@@ -1303,7 +1348,7 @@ struct HomeTab: View {
             SectionTitleView(title: NSLocalizedString("recent_records", comment: "Recent Records Section Title"))
 
             RecentRecordsSectionView(
-                records: recentActivities,
+                records: recentActivities.filter { PersonalRecordAccessPolicy.allowsNativeRecord($0.id) },
                 onViewAllTapped: { onNavigateToTab?(1, nil) }
             )
         }

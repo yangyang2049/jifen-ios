@@ -227,6 +227,7 @@ struct ScoreboardSetupItem: Identifiable {
 struct SportsSetupResult: Codable, Hashable {
     var team1Name: String
     var team2Name: String
+    var participantSelections: [String: ParticipantSelection]? = nil
     /// Optional snooker event/match heading. Normalized to 40 Unicode code points.
     var matchTitle: String? = nil
     var team3Name: String? = nil
@@ -266,6 +267,15 @@ struct SportsSetupResult: Codable, Hashable {
     var nineBallNormalWin: Int? = nil
     var nineBallBallInHand: Int? = nil
     var nineBallFoul: Int? = nil
+    var nineBallBreakerPlayer: Int? = nil
+    var nineBallSmallGoldAllPay: Bool? = nil
+    var nineBallGoldRetainsBreak: Bool? = nil
+    var nineBallRuleFamily: String? = nil
+    var nineBallPointScheme: String? = nil
+    var nineBallHandoffEnabled: Bool? = nil
+    var nineBallThirdFoul: Int? = nil
+    var nineBallBreakRule: String? = nil
+    var nineBallTotalRacks: Int? = nil
     var playerCount: Int? = nil // 多人计分：3-9
     var playerNames: [String]? = nil // 多人计分玩家名
     /// Simple score: tap opens ±N panel instead of +1. Aligns with Android/HOS.
@@ -330,7 +340,7 @@ extension SportsSetupResult {
             )
         case .nineBall:
             let candidates = playerNames ?? [team1Name, team2Name, team3Name, team4Name].compactMap { $0 }
-            let count = min(4, max(2, playerCount ?? candidates.count))
+            let count = nineBallRuleFamily == "tournament" ? 2 : min(4, max(2, playerCount ?? candidates.count))
             let names = (0..<count).map { index in
                 let trimmed = index < candidates.count
                     ? candidates[index].trimmingCharacters(in: .whitespacesAndNewlines)
@@ -342,10 +352,18 @@ extension SportsSetupResult {
                 points: NineBallChaseConfig(
                     bigGold: min(99, max(1, nineBallBigGold ?? 10)),
                     smallGold: min(99, max(1, nineBallSmallGold ?? 7)),
-                    goldenNine: min(99, max(1, nineBallGoldenNine ?? 8)),
+                    goldenNine: min(99, max(1, nineBallGoldenNine ?? 4)),
                     normalWin: min(99, max(1, nineBallNormalWin ?? 4)),
                     ballInHand: min(99, max(1, nineBallBallInHand ?? 1)),
-                    foul: min(99, max(1, nineBallFoul ?? 1))
+                    foul: min(99, max(1, nineBallFoul ?? 1)),
+                    smallGoldAllPay: nineBallSmallGoldAllPay ?? false,
+                    goldRetainsBreak: nineBallGoldRetainsBreak ?? true,
+                    ruleFamily: NineBallRuleFamily(rawValue: nineBallRuleFamily ?? "") ?? .folk,
+                    pointScheme: NineBallPointScheme(rawValue: nineBallPointScheme ?? "") ?? .standard,
+                    handoffEnabled: nineBallHandoffEnabled ?? true,
+                    thirdFoul: nineBallThirdFoul ?? 2,
+                    breakRule: NineBallBreakRule(rawValue: nineBallBreakRule ?? "") ?? .winner,
+                    totalRacks: nineBallTotalRacks ?? 10
                 )
             )
         case .snooker:

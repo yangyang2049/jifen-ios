@@ -1,0 +1,94 @@
+{
+  "generatedAt": "2026-10-24",
+  "documentStatus": "proposal_not_implemented",
+  "markdownFiles": [
+    "PRD.md",
+    "TECHNICAL-DESIGN.md"
+  ],
+  "sections": 24,
+  "figures": [
+    {
+      "id": "01-product-domain",
+      "width": 1200,
+      "height": 580,
+      "nodes": 6
+    },
+    {
+      "id": "02-information-architecture",
+      "width": 1220,
+      "height": 840,
+      "nodes": 11
+    },
+    {
+      "id": "03-offline-cloud-state",
+      "width": 1240,
+      "height": 640,
+      "nodes": 7
+    },
+    {
+      "id": "04-member-claim-sequence",
+      "width": 1240,
+      "height": 920,
+      "nodes": 4
+    },
+    {
+      "id": "05-result-lifecycle",
+      "width": 1240,
+      "height": 690,
+      "nodes": 8
+    },
+    {
+      "id": "06-statistics-pipeline",
+      "width": 1240,
+      "height": 820,
+      "nodes": 8
+    },
+    {
+      "id": "07-delivery-dependencies",
+      "width": 1240,
+      "height": 620,
+      "nodes": 6
+    },
+    {
+      "id": "08-system-architecture",
+      "width": 1300,
+      "height": 860,
+      "nodes": 9
+    },
+    {
+      "id": "09-roster-identity-erd",
+      "width": 1260,
+      "height": 760,
+      "nodes": 6
+    },
+    {
+      "id": "10-contest-results-erd",
+      "width": 1360,
+      "height": 980,
+      "nodes": 9
+    }
+  ],
+  "uniqueHtmlIds": 174,
+  "checks": {
+    "allFigureTextFits": true,
+    "allDiagramBoundsValid": true,
+    "tocTargetsValid": true,
+    "offlineResourcesOnly": true,
+    "duplicateIds": false
+  },
+  "browserChecks": {
+    "desktop1280": "passed",
+    "narrow390": "passed",
+    "narrow320": "passed",
+    "figureZoom": "passed",
+    "sequenceDiagram": "passed",
+    "entityRelationshipDiagram": "passed",
+    "sectionNavigation": "passed"
+  },
+  "sourceSha256": {
+    "PRD.md": "a28e112a68518ece0c03c5ff6cab2f15840dbd66551b9e96115042ee672b72ff",
+    "TECHNICAL-DESIGN.md": "a07254d8c87173415aa17ed9bac84bedfdacd3fc80ac17412237a332afbeeae1",
+    "diagrams/diagrams.json": "30d1a9a823d9839dde5cd0b84716631eda49fdc4a49584c001c5e3ab8776e533"
+  },
+  "validationScope": "Document rendering, consistency and local source inspection only; no client/server implementation or production changes."
+}

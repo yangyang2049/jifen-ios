@@ -1,0 +1,2 @@
+com.douhua.jifen.cloudsync.DisplayStateContractTest: tests=53 failures=0 errors=0 skipped=0
+com.douhua.jifen.display.ui.DisplaySurfaceAdapterTest: tests=80 failures=0 errors=0 skipped=0

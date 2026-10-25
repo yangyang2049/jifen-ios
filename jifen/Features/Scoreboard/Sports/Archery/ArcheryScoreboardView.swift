@@ -35,6 +35,7 @@ struct ArcheryScoreboardView: View {
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
     @State private var recordID: String
+    @State private var initialParticipantSelections: [String: ParticipantSelection]?
     @State private var manualFinishRequested = false
     @State private var toastMessage: String?
 
@@ -65,6 +66,8 @@ struct ArcheryScoreboardView: View {
             prefix: GameType.archery.canonicalScoreboardIdentifier,
             resuming: initialResumeSessionId
         ))
+        _initialParticipantSelections = State(initialValue: initialResumeSessionId == nil
+            ? (initialSetup?.participantSelections ?? [:]) : nil)
     }
 
     var body: some View {
@@ -201,6 +204,7 @@ struct ArcheryScoreboardView: View {
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
+        .registerParticipantSetupOnAppear(recordID: recordID, selections: initialParticipantSelections)
         .onAppear {
             viewModel.controller = controller
             viewModel.mutationLocked = scoringLocked
@@ -491,9 +495,11 @@ struct ArcheryScoreboardView: View {
     }
 
     private func startNewMatch() {
+        let previousIdentityRecord = recordID
         saveGameRecordInRealTime(isGameFinished: true)
         controller.beginNewMatch()
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.archery.canonicalScoreboardIdentifier)
+        ParticipantIdentityStore.shared.copySelections(from: previousIdentityRecord, to: recordID)
         viewModel.startNewMatch()
         manualFinishRequested = false
         showArrowPicker = false

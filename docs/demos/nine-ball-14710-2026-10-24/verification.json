@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "revision": "v3-two-player-handoff-and-fixed-foul-copy",
+  "revision": "v6-all-two-player-events-direct",
   "rulesTests": {
     "command": "node --test rules.test.mjs",
     "passed": 23,
@@ -8,46 +8,86 @@
   },
   "uiChecks": [
     {
-      "label": "双人犯规使用固定角色文案，不包含姓名",
+      "label": "双人 normal 一击完成、整笔转分并更新状态",
       "passed": true
     },
     {
-      "label": "双人让杆直接记录唯一对手，不出确认层",
+      "label": "双人 normal 可整笔撤销",
       "passed": true
     },
     {
-      "label": "双人让杆不改变比分、局数和开球人",
+      "label": "双人 big 一击完成、整笔转分并更新状态",
       "passed": true
     },
     {
-      "label": "双人让杆可整笔撤销",
+      "label": "双人 big 可整笔撤销",
       "passed": true
     },
     {
-      "label": "犯规一击同时转分，只生成一笔记录且不换局",
+      "label": "双人 small 一击完成、整笔转分并更新状态",
       "passed": true
     },
     {
-      "label": "多人犯规明确标注下家",
+      "label": "双人 small 可整笔撤销",
       "passed": true
     },
     {
-      "label": "多人让杆保留选人，确认前不记账",
+      "label": "双人 golden 一击完成、整笔转分并更新状态",
       "passed": true
     },
     {
-      "label": "圆表犯规短文案完整显示且按整段换行",
+      "label": "双人 golden 可整笔撤销",
       "passed": true
     },
     {
-      "label": "手表双人让杆同样直接记录",
+      "label": "双人 foul 一击完成、整笔转分并更新状态",
+      "passed": true
+    },
+    {
+      "label": "双人 foul 可整笔撤销",
+      "passed": true
+    },
+    {
+      "label": "双人 handoff 一击完成、整笔转分并更新状态",
+      "passed": true
+    },
+    {
+      "label": "双人 handoff 可整笔撤销",
+      "passed": true
+    },
+    {
+      "label": "多人 normal 仍保留确认",
+      "passed": true
+    },
+    {
+      "label": "多人 small 仍保留确认",
+      "passed": true
+    },
+    {
+      "label": "多人 golden 仍保留确认",
+      "passed": true
+    },
+    {
+      "label": "多人 handoff 仍保留确认",
+      "passed": true
+    },
+    {
+      "label": "双人默认模式下无效小金按钮禁用且大金可用",
+      "passed": true
+    },
+    {
+      "label": "对手小金可用，无效大金仍禁用",
+      "passed": true
+    },
+    {
+      "label": "直记交互无运行错误",
       "passed": true
     }
   ],
   "views": [
-    "手机宽屏 1265px",
-    "手机窄屏 482px，2/3/4人",
-    "鸿蒙手表圆屏，2/3/4人"
+    "手机窄窗口 482px，2/3/4 人与长短姓名",
+    "手机横向 1265px，长姓名",
+    "圆表常规与 320px 小窗口，2/3/4 人所有座位"
   ],
   "standalone": {
     "inlineRules": true,
@@ -214,6 +254,78 @@
     },
     {
       "label": "score panels fill scoreboard without extra bars or role labels",
+      "passed": true
+    }
+  ],
+  "earlierUiChecks": [
+    {
+      "label": "双人犯规使用固定角色文案，不包含姓名",
+      "passed": true
+    },
+    {
+      "label": "双人让杆直接记录唯一对手，不出确认层",
+      "passed": true
+    },
+    {
+      "label": "双人让杆不改变比分、局数和开球人",
+      "passed": true
+    },
+    {
+      "label": "双人让杆可整笔撤销",
+      "passed": true
+    },
+    {
+      "label": "犯规一击同时转分，只生成一笔记录且不换局",
+      "passed": true
+    },
+    {
+      "label": "多人犯规明确标注下家",
+      "passed": true
+    },
+    {
+      "label": "多人让杆保留选人，确认前不记账",
+      "passed": true
+    },
+    {
+      "label": "圆表犯规短文案完整显示且按整段换行",
+      "passed": true
+    },
+    {
+      "label": "手表双人让杆同样直接记录",
+      "passed": true
+    }
+  ],
+  "screenshots": [
+    "two-player-small-direct-v6.jpg",
+    "intro-ack-only-v5.jpg"
+  ],
+  "previousUiChecks": [
+    {
+      "label": "首次提示只保留知道了按钮",
+      "passed": true
+    },
+    {
+      "label": "双人普胜一击转分换局，只记一笔",
+      "passed": true
+    },
+    {
+      "label": "撤销双人普胜恢复比分和开球人",
+      "passed": true
+    },
+    {
+      "label": "非开球人不能记大金",
+      "passed": true
+    },
+    {
+      "label": "多人普胜仍确认付分人，未确认不记账",
+      "passed": true
+    },
+    {
+      "label": "默认三人小金仅开球人付7，第三人不动",
+      "passed": true
+    },
+    {
+      "label": "可选四人小金全员模式，赢家收21其余各付7",
       "passed": true
     }
   ]

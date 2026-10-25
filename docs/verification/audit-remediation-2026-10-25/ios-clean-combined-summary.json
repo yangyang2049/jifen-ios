@@ -1,0 +1,59 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "86871B65-E0ED-4FBD-9F93-F3FB6246A895",
+        "deviceName" : "iPhone 17 Pro",
+        "modelName" : "iPhone 17 Pro",
+        "osBuildNumber" : "23F77",
+        "osVersion" : "26.5",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 1,
+      "passedTests" : 876,
+      "skippedTests" : 1,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "jifen · Built with macOS 27.0.1",
+  "expectedFailures" : 0,
+  "failedTests" : 1,
+  "finishTime" : 1792897884.356,
+  "passedTests" : 876,
+  "result" : "Failed",
+  "runtimeWarnings" : [
+    {
+      "issueType" : "Runtime Warning",
+      "message" : "[Internal] Thread running at User-interactive quality-of-service class waiting on a lower QoS thread running at Default quality-of-service class. Investigate ways to avoid priority inversions"
+    }
+  ],
+  "skippedTests" : 1,
+  "startTime" : 1792897882.588,
+  "statistics" : [
+
+  ],
+  "testFailures" : [
+    {
+      "failureText" : "XCTAssertEqual failed: (\"[]\") is not equal to (\"[\"installed-session\"]\")",
+      "targetName" : "jifenTests",
+      "testIdentifier" : 410,
+      "testIdentifierString" : "ParticipantIdentityIntegrationTests/testHostedIdentityRegistrationUsesInstalledStateAcrossReconstructionAndReappearance()",
+      "testIdentifierURL" : "test://com.apple.xcode/jifen/jifenTests/ParticipantIdentityIntegrationTests/testHostedIdentityRegistrationUsesInstalledStateAcrossReconstructionAndReappearance",
+      "testName" : "testHostedIdentityRegistrationUsesInstalledStateAcrossReconstructionAndReappearance()"
+    }
+  ],
+  "title" : "Test - jifen",
+  "topInsights" : [
+    {
+      "category" : "Longest Test Runs",
+      "impact" : "65% of duration",
+      "text" : "10 longest test runs with outlier durations exceeding 0.97s (three standard deviations)"
+    }
+  ],
+  "totalTestCount" : 878
+}

@@ -90,6 +90,37 @@ class SportsVoicePipelineTests(unittest.TestCase):
             (Path(folder) / 'en.json').write_text(json.dumps(payload))
             self.assertEqual(voice.main(['promote', '--locale', 'en', '--dry-run']), 1)
 
+    def test_scoped_export_preserves_other_sports_and_host_language_baselines(self):
+        existing = [
+            {'gameType': 'pingpong', 'phase': 'match_end', 'expected': {'ZH': '11比8', 'EN': 'English result', 'FR': 'Local French result'}},
+            {'gameType': 'volleyball', 'phase': 'opening', 'expected': {'ZH': '0比0', 'EN': '0 all'}},
+        ]
+        generated = [
+            {'gameType': 'pingpong', 'phase': 'match_end', 'expected': {'ZH': '获胜方及局分', 'EN': 'Different English', 'FR': 'Different French'}},
+            {'gameType': 'volleyball', 'phase': 'opening', 'expected': {'ZH': '0比0', 'EN': '0, 0'}},
+        ]
+        result = exporter.merge_scoped_fixtures(existing, generated, {'pingpong'}, {'ZH'})
+        self.assertEqual(result[0]['expected'], {'ZH': '获胜方及局分', 'EN': 'English result', 'FR': 'Local French result'})
+        self.assertEqual(result[1], existing[1])
+        self.assertEqual(existing[0]['expected']['ZH'], '11比8')
+        with self.assertRaises(ValueError):
+            exporter.merge_scoped_fixtures(existing, generated[1:], {'pingpong'}, {'ZH'})
+
+    def test_scoped_catalog_export_preserves_unselected_native_phrases(self):
+        existing = {'ZH': {'score.numbers': '%1$@比%2$@', 'pingpong.result.game': 'old'},
+                    'FR': {'squash.game.to': 'Original French'}}
+        generated = {'ZH': {'score.numbers': 'changed', 'pingpong.result.game': 'new'},
+                     'FR': {'squash.game.to': 'Different French'}}
+        merged = exporter.scoped_phrase_tables(existing, generated, ['pingpong.result.'])
+        self.assertEqual(merged['ZH'], {'score.numbers': '%1$@比%2$@', 'pingpong.result.game': 'new'})
+        self.assertEqual(merged['FR'], existing['FR'])
+        self.assertEqual(existing['ZH']['pingpong.result.game'], 'old')
+        kotlin = '    private fun zh(): Map<String, String> = mapOf(\n        "score.numbers" to "%1\\$@比%2\\$@",\n        "pingpong.result.game" to "old",\n    )\n'
+        updated = exporter.scoped_kotlin_catalog(kotlin, {'ZH': generated['ZH']}, ['pingpong.result.'])
+        self.assertIn('"score.numbers" to "%1\\$@比%2\\$@"', updated)
+        self.assertIn('"pingpong.result.game" to "new"', updated)
+        self.assertNotIn('"old"', updated)
+
     def test_cross_platform_validation_failure_leaves_projects_untouched(self):
         with patch('sys.argv', ['sync_reviewed_voice_catalogs.py']), \
              patch.object(exporter.voice_localization, 'main', return_value=1), \

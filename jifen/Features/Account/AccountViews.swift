@@ -111,13 +111,6 @@ private struct AccountLoginView: View {
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
 
-                AppleIDButton {
-                    Task { await startAppleLogin() }
-                }
-                .frame(height: 50)
-                .accessibilityIdentifier("account_login_apple")
-                .disabled(session.isWorking)
-
                 if WechatLoginPolicy.supports(language: appLanguage) {
                     Button {
                         guard ProductionWechatAuthProvider.isInstalled else {
@@ -141,6 +134,13 @@ private struct AccountLoginView: View {
                     .disabled(session.isWorking)
                     .accessibilityIdentifier("account_login_wechat")
                 }
+
+                AppleIDButton {
+                    Task { await startAppleLogin() }
+                }
+                .frame(height: 50)
+                .accessibilityIdentifier("account_login_apple")
+                .disabled(session.isWorking)
 
                 // 账号密码登录是内部测试通道：中文面板默认隐藏，英文面板保留给测试账号登录。
                 if PasswordLoginEntryPolicy.isVisible(language: appLanguage, launchArguments: ProcessInfo.processInfo.arguments) {

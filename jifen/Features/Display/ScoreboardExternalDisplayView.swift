@@ -483,6 +483,9 @@ private struct DisplayTwoSideSideModel {
     var secondaryHex: String
     /// 九球追分统计（对齐安卓 buildSurfaceSide.chaseStats，空 = 不渲染追分带）。
     var chaseStats: [Int]
+    /// v2 追分为每个面板预留姓名左侧球杆图标位，切换开球人不移动姓名。
+    var reservesBreakerMark = false
+    var showsBreakerMark = false
     var setsHex: String? = nil
     var gamesHex: String? = nil
 }
@@ -1183,8 +1186,14 @@ struct ScoreboardExternalLiveView: View {
 
         // 九球追分计数（对齐安卓 buildNineBallChaseStats：twoSide 用逻辑玩家索引）。
         var chaseStats: [Int] = []
+        var reservesBreakerMark = false
+        var showsBreakerMark = false
         if gameType == "nine_ball" {
             chaseStats = state.displayChaseCounts(playerIndex: isLogicalTeam0 ? 0 : 1)
+            if let chaseBreaker = state.displayChaseBreakerIndex() {
+                reservesBreakerMark = true
+                showsBreakerMark = chaseBreaker == (isLogicalTeam0 ? 0 : 1)
+            }
         }
 
         // 棋类计时：主分显示格式化时钟（对齐安卓 CARD_TWO_SEAT → TwoSideSurface，
@@ -1220,13 +1229,18 @@ struct ScoreboardExternalLiveView: View {
             mainHex: mainHex,
             secondaryHex: secondaryHex,
             chaseStats: chaseStats,
+            reservesBreakerMark: reservesBreakerMark,
+            showsBreakerMark: showsBreakerMark,
             setsHex: state.appearance.style?.renderColor("setScore", slot: slot),
             gamesHex: state.appearance.style?.renderColor("gameScore", slot: slot)
         )
     }
 
-    /// 追分短标签（对齐安卓 chase_chalk_*：大/小/九/胜/让/犯，计数顺序 = NineBallChaseKind.allCases）。
-    static func displayChaseChalkLabel(forIndex index: Int) -> String {
+    /// Display order is 大金/小金/黄金9/普胜/让杆/犯规. Stored v2 handoff counts keep index 6.
+    static func displayChaseChalkLabel(forIndex index: Int, categoryCount: Int = 6) -> String {
+        let indices = categoryCount == 4 ? [0, 1, 3, 5] : categoryCount == 5 ? [0, 1, 2, 3, 5] : [0, 1, 2, 3, 4, 5]
+        guard indices.indices.contains(index) else { return "" }
+        let index = indices[index]
         let keys = [
             "chase_chalk_big",
             "chase_chalk_small",
@@ -2008,14 +2022,23 @@ private struct DisplayTwoSideSurface: View {
     /// 常规面板：名称 → 主分 → 次级信息 → 局分 pill（对齐安卓 TwoSidePanel 非 TENNIS 分支）。
     private func standardPanel(side: DisplayTwoSideSideModel) -> some View {
         VStack(spacing: 0) {
-            Text(side.name)
-                .font(.system(size: model.nameFontSize, weight: .bold))
-                .lineSpacing(max(0, model.nameFontSize * 1.2 - model.nameFontSize))
-                .multilineTextAlignment(.center)
-                .foregroundStyle(Color(hex: side.textHex))
-                .lineLimit(model.nameMaxLines)
-                .minimumScaleFactor(0.5)
-                .padding(.horizontal, max(model.nameHorizontalPadding, 16))
+            HStack(spacing: model.nameFontSize * 0.3) {
+                if side.reservesBreakerMark {
+                    DisplayBreakerCueMark(
+                        visible: side.showsBreakerMark,
+                        height: model.nameFontSize * 1.05,
+                        color: Color(hex: side.textHex)
+                    )
+                }
+                Text(side.name)
+                    .font(.system(size: model.nameFontSize, weight: .bold))
+                    .lineSpacing(max(0, model.nameFontSize * 1.2 - model.nameFontSize))
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(Color(hex: side.textHex))
+                    .lineLimit(model.nameMaxLines)
+                    .minimumScaleFactor(0.5)
+            }
+            .padding(.horizontal, max(model.nameHorizontalPadding, 16))
             Spacer().frame(height: model.nameScoreGap)
             Text(side.scoreText)
                 .font(scoreFont(size: model.scoreFontSize))
@@ -2222,6 +2245,24 @@ private extension DisplayTwoSideRenderModel {
     }
 }
 
+/// 本局开球球杆标记（投屏/同步端）：v2 追分每个面板预留同一图标位，仅开球人一侧显示。
+private struct DisplayBreakerCueMark: View {
+    let visible: Bool
+    let height: CGFloat
+    let color: Color
+
+    var body: some View {
+        Image("ic_snooker_cue")
+            .renderingMode(.template)
+            .resizable()
+            .scaledToFit()
+            .frame(width: height, height: height)
+            .foregroundStyle(color)
+            .opacity(visible ? 1 : 0)
+            .accessibilityHidden(true)
+    }
+}
+
 /// 追分粉笔条（对齐安卓 ChaseStatsStrip：黑 28% 底、SpaceEvenly 六列、
 /// 标签白 72% 10*scale、数值白 Bold 15*scale，用比分字体）。
 private struct DisplayChaseStatsStrip: View {
@@ -2234,7 +2275,7 @@ private struct DisplayChaseStatsStrip: View {
         return HStack(spacing: 0) {
             ForEach(stats.indices, id: \.self) { index in
                 VStack(spacing: 0) {
-                    Text(ScoreboardExternalLiveView.displayChaseChalkLabel(forIndex: index))
+                    Text(ScoreboardExternalLiveView.displayChaseChalkLabel(forIndex: index, categoryCount: stats.count))
                         .font(.system(size: 10 * scale))
                         .foregroundStyle(.white.opacity(0.72))
                         .lineLimit(1)
@@ -2552,6 +2593,8 @@ private struct DisplayMultiGridSurface: View {
             let uiScale = (min(viewport.width, viewport.height) / 360).clamped(1.5, 2)
             return (54 * uiScale).clamped(54, 92)
         }()
+        // v2 追分：每个格预留姓名左侧球杆图标位，仅本局开球人格显示。
+        let gridChaseBreaker = state.gameType == "nine_ball" ? state.displayChaseBreakerIndex() : nil
         let winnerID = (state.result?.ended ?? false) ? state.result?.winnerID : nil
         let manualEnd = state.result?.manualEnd ?? false
         // 同步端沿用本机单行名称；电视端保留大屏 chrome 内边距。
@@ -2588,6 +2631,8 @@ private struct DisplayMultiGridSurface: View {
                                         score: player.score ?? 0,
                                         chaseStats: state.displayChaseCounts(playerIndex: index),
                                         chaseStatsBandHeight: chaseStatsBandHeight,
+                                        reservesBreakerMark: gridChaseBreaker != nil,
+                                        showsBreakerMark: gridChaseBreaker == index,
                                         fontCode: state.appearance.fontCode,
                                         nameMaxLines: nameMaxLines,
                                         nameHorizontalPadding: nameHorizontalPadding,
@@ -2769,6 +2814,8 @@ private struct DisplayMultiGridSurface: View {
         let score: Int
         var chaseStats: [Int] = []
         var chaseStatsBandHeight: CGFloat = 0
+        var reservesBreakerMark = false
+        var showsBreakerMark = false
         var fontCode: String = ""
         var nameMaxLines: Int = 1
         var nameHorizontalPadding: CGFloat = 0
@@ -2832,13 +2879,18 @@ private struct DisplayMultiGridSurface: View {
             let fittedScore = max(24, scoreFont * contentScale)
 
             return VStack(spacing: requestedGap * contentScale) {
-                Text(name)
-                    .font(scoreDisplayFont(size: fittedName, weight: .bold))
-                    .foregroundStyle(nameColor)
-                    .lineLimit(nameMaxLines)
-                    .minimumScaleFactor(0.5)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, max(8, nameHorizontalPadding))
+                HStack(spacing: fittedName * 0.3) {
+                    if reservesBreakerMark {
+                        DisplayBreakerCueMark(visible: showsBreakerMark, height: fittedName * 1.05, color: nameColor)
+                    }
+                    Text(name)
+                        .font(scoreDisplayFont(size: fittedName, weight: .bold))
+                        .foregroundStyle(nameColor)
+                        .lineLimit(nameMaxLines)
+                        .minimumScaleFactor(0.5)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.horizontal, max(8, nameHorizontalPadding))
                 Text("\(score)")
                     .font(scoreDisplayFont(size: fittedScore))
                     .foregroundStyle(textColor)
@@ -3368,7 +3420,8 @@ private struct ScoreboardExternalRestOverlay: View {
 
 // MARK: - sportState 布尔读取
 
-private extension ScoreboardDisplayState {
+extension ScoreboardDisplayState {
+    /// 投屏/同步端共用的九球追分展示规则（内部可见供 jifenTests 直接断言）。
     func sportBoolValue(_ key: String) -> Bool? {
         guard let value = sportState?[key] else { return nil }
         switch value {
@@ -3382,13 +3435,29 @@ private extension ScoreboardDisplayState {
     /// 对齐安卓 buildNineBallChaseStats：优先 chasePlayerCounts[玩家]，2 人局回退 left/right。
     func displayChaseCounts(playerIndex: Int) -> [Int] {
         guard let sportState = sportState else { return [] }
+        func displayOrder(_ counts: [Int]) -> [Int] {
+            guard let version = sportInt("chaseRuleVersion"), (2...3).contains(version) else { return counts }
+            var indices = [0, 1, 2, 3, 6, 5]
+            if version == 3 {
+                if case .string("tournament")? = sportState["chaseRuleFamily"] { indices = [0, 1, 3, 5] }
+                else if case .boolean(false)? = sportState["chaseHandoffEnabled"] { indices = [0, 1, 2, 3, 5] }
+            }
+            return indices.map { counts.indices.contains($0) ? counts[$0] : 0 }
+        }
         if case .integersArrays(let rows)? = sportState["chasePlayerCounts"] {
-            if rows.indices.contains(playerIndex) { return rows[playerIndex] }
+            if rows.indices.contains(playerIndex) { return displayOrder(rows[playerIndex]) }
         }
         let fallbackKey = playerIndex == 0 ? "chaseLeftCounts" : "chaseRightCounts"
         if case .integers(let counts)? = sportState[fallbackKey] {
-            return counts
+            return displayOrder(counts)
         }
         return []
+    }
+
+    /// v2 追分才返回本局开球人（逻辑玩家索引）；旧版对局与缺失字段一律无标记。
+    func displayChaseBreakerIndex() -> Int? {
+        guard let version = sportInt("chaseRuleVersion"), (2...3).contains(version) else { return nil }
+        let breaker = sportInt("chaseBreakerPlayer") ?? 0
+        return breaker >= 0 ? breaker : nil
     }
 }

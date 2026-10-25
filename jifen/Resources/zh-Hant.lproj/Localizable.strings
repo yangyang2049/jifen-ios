@@ -1569,6 +1569,11 @@
 
 "voice_announce_server" = "播報發球方";
 
+"voice_announcement_language" = "播報語言";
+"voice_language_zh_cn" = "簡體中文";
+"voice_language_en_us" = "English(英文)";
+"voice_call_note_zh" = "國內比賽口徑:比分播「3比2」,平分播「3平」。";
+"voice_call_note_en" = "國際比賽口徑:0 讀 love、0–0 讀 Love all,選手名轉拼音。";
 // Restored group feature resources.
 "group_account" = "賬號成員";
 "group_active_30d" = "30天活躍";
@@ -2494,3 +2499,84 @@
 "login_wechat_denied" = "已拒絕微信授權";
 "login_wechat_invalid_response" = "微信授權資訊無效，請重試";
 "login_wechat_timeout" = "微信登入逾時，請重試";
+
+/* Nine-ball 14710 transfer rules. */
+"nine_ball_first_breaker" = "首局開球";
+"nine_ball_small_gold_all_pay" = "小金全員付分";
+"nine_ball_gold_retains_break" = "大金／黃金9贏家續開";
+"nine_ball_legacy_rules" = "舊版規則";
+"nine_ball_current_breaker" = "本局開球人";
+"nine_ball_correct_breaker_hint" = "請更正本局開球人";
+"nine_ball_no_score" = "不計分";
+"nine_ball_handoff" = "讓桿";
+"nine_ball_foul_transfer_opponent_format" = "本人 −%1$d  對手 +%1$d";
+"nine_ball_foul_transfer_next_format" = "本人 −%1$d  下家 +%1$d";
+"nine_ball_payer" = "付分人";
+"nine_ball_breaker_pays" = "開球人付分";
+"nine_ball_correct" = "更正";
+"nine_ball_continue_player" = "繼續擊球";
+"nine_ball_next_breaker" = "下局開球";
+"nine_ball_confirm_event_format" = "確認%@";
+"nine_ball_breaker_intro_title" = "第 %1$d 局 · %2$@開球";
+"nine_ball_breaker_intro_message" = "球桿標記表示本局開球人，不代表目前擊球人。";
+"nine_ball_handoff_summary_format" = "%1$@讓桿，%2$@繼續擊球";
+"nine_ball_breaker_changed_format" = "本局改為%@開球";
+"nine_ball_state_changed_retry" = "對局已更新，請重新選擇";
+
+/* Nine-ball rule presets v3. New non-Chinese guide text uses English. */
+"nine_ball_adjust" = "調整";
+"nine_ball_alternate_breaks" = "雙方輪流";
+"nine_ball_break_rule" = "開球方式";
+"nine_ball_collapse" = "收起";
+"nine_ball_compare_accumulate" = "得分方加分，對手積分不變。";
+"nine_ball_compare_event_foul" = "第三犯本局判負；可以合法防守；沒有讓桿。";
+"nine_ball_compare_event_players" = "兩人單打";
+"nine_ball_compare_folk_foul" = "不自動累計三犯判負；可以開啓讓桿。";
+"nine_ball_compare_folk_players" = "2至4人獨立參與";
+"nine_ball_compare_golden" = "獨立黃金9；小金默認由本局開球人付分。";
+"nine_ball_compare_small" = "合法開球進9算小金，沒有付分人。";
+"nine_ball_compare_transfer" = "贏家加分，付分人等額扣分。";
+"nine_ball_feedback_action" = "去反饋";
+"nine_ball_feedback_prompt" = "遇到問題或有建議？";
+"nine_ball_folk" = "民間追分";
+"nine_ball_handoff_enabled" = "開啓讓桿";
+"nine_ball_help_agreement" = "這裡展示的是本應用的民間預設，並非全國統一規則，開局前請同桌確認約定。";
+"nine_ball_help_all_pay" = "小金設為其餘每人付分。";
+"nine_ball_help_break_nine" = "開球進9，記小金";
+"nine_ball_help_breaker_pay" = "小金僅本局開球人付分，其他玩家不變。";
+"nine_ball_help_defense_break" = "防守與開球";
+"nine_ball_help_differences" = "兩者差異";
+"nine_ball_help_event_defense" = "允許合法防守，防守不單獨計分，不提供民間讓桿操作。三犯結束本局時，對手視為本局贏家，按所選開球方式安排下一局。";
+"nine_ball_help_event_fouls" = "同一人本局累計三犯，不要求連續。第一次、第二次犯規，每次對手得%1$d分；第三次犯規，對手得%2$d分，犯規方本局判負，本局結束。不再另加普通犯規或普勝分，也不代表整場判負。三次共給對手%3$d分；進入下一局時，雙方犯規次數清零。";
+"nine_ball_help_event_nine" = "沒有獨立的黃金9得分類別。合法開球進9直接記小金；開球進9同時犯規時，9號球復位，對手獲自由球，並按犯規處理。";
+"nine_ball_help_event_racks" = "本場設為%d局，指總局數，不是先贏幾局。打完後積分較高者獲勝；平分則逐局加賽。每局結束後，僅當分差超過剩餘局數的最高可追分時提前結束，計算包含犯規得分和自定義分值。";
+"nine_ball_help_event_wins" = "大金%1$d分：開球方完成開球清台。小金%2$d分：包括合法開球直接進9、開球9顆目標球全部進袋，以及開球進球後開球方不停桿傳進9。非開球時，擊球前台面仍有1號和9號，按順序清台也算小金；這種情況下中途傳進9不算小金。其他合法贏局記普勝%3$d分。";
+"nine_ball_help_folk_break_next" = "所有贏局事件後，均由贏家的座位下家開球。";
+"nine_ball_help_folk_break_retain" = "普勝、小金後由贏家的座位下家開球；大金、黃金9贏家繼續開球。";
+"nine_ball_help_folk_fouls" = "犯規本人扣%d分，座位下家等額加分並獲自由球，不額外收自由球分。讓桿選擇另一位玩家繼續擊球，不計分、不換局。本民間預設不自動累計三犯判負。";
+"nine_ball_help_folk_intro" = "記錄玩家之間的積分轉移。有人加分，其他人等額扣分。14710和1357使用本應用同一套民間玩法，只更換預設分值。";
+"nine_ball_help_folk_wins" = "大金：本局開球人完成開球清台，其餘每人付%1$d分。小金：接手後完成符合本桌約定的清台，付分人付%2$d分。普勝：由一位付分人付%3$d分，預選贏家的座位上家，實際付分人由同桌確認。";
+"nine_ball_help_fouls_handoff" = "犯規與讓桿";
+"nine_ball_help_golden" = "本預設將合法開球直接進9、合法傳進9作為獨立的黃金9事件，其餘每人付%d分。分值單獨約定，不由方案的四個數字完整定義。";
+"nine_ball_help_handoff_off" = "讓桿已關閉。";
+"nine_ball_help_handoff_on" = "讓桿已開啓。";
+"nine_ball_help_next_break" = "下一局誰開球";
+"nine_ball_help_same_points" = "同名分值不代表同一種玩法。先看是玩家間轉分還是比賽積分累計，再看黃金9、犯規和開球的約定。";
+"nine_ball_help_source" = "規則依據";
+"nine_ball_help_source_body" = "參考《獨牙傳奇中式九球標準規則》（2025年10月16日）。具體比賽的開球方式、局數及補充條款，以該賽事賽前公佈的規程為準。這裡不標作“最新決金官方版”。";
+"nine_ball_help_tournament_intro" = "兩人各自累計積分，得分時對手積分不扣除。整場按總積分決定勝負，輸掉一局不等於輸掉整場比賽。";
+"nine_ball_help_wins" = "大金、小金與普勝";
+"nine_ball_nonnegative" = "賽事積分須為非負整數。";
+"nine_ball_point_scheme" = "分值方案";
+"nine_ball_points_break" = "分值與開球";
+"nine_ball_racks_hint" = "按總局數累計積分，非搶局制；平分則加賽。";
+"nine_ball_restore_preset" = "恢復預設";
+"nine_ball_rules_help" = "賽制說明";
+"nine_ball_rules_title" = "九球追分";
+"nine_ball_third_foul" = "三犯判負";
+"nine_ball_third_hint" = "本局結束，不另加犯規或普勝分。";
+"nine_ball_total_racks" = "比賽局數";
+"nine_ball_tournament" = "賽事積分";
+"nine_ball_unbalanced_edit" = "修改後的積分合計不為0。";
+"nine_ball_winner_breaks" = "贏家續開";
+"nine_ball_help_preset_values" = "預設範例；此處數值不是目前比賽的設定。";

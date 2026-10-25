@@ -5,6 +5,28 @@ import ScoreCore
 import XCTest
 
 final class LocalizationIntegrityTests: XCTestCase {
+    func testOfficialResultsReadCompiledChineseTemplates() throws {
+        let hans = try XCTUnwrap(SportsVoiceLanguage.resolve(localization: "zh-Hans", iosMajorVersion: 27))
+        let hant = try XCTUnwrap(SportsVoiceLanguage.resolve(localization: "zh-Hant", iosMajorVersion: 27))
+        var p = VoiceAnnouncementPayload(gameType: .pingpong, phase: .matchEnd,
+            leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 10, rightScore: 12,
+            leftSets: 1, rightSets: 3, currentSet: 4, winnerSide: .right)
+        XCTAssertEqual(SportsVoiceSupport.message(p, language: hans, announceServer: true), "12比10，Bob胜第4局。比赛结果Bob胜3比1")
+        XCTAssertEqual(SportsVoiceSupport.message(p, language: hant), "12比10，Bob勝第4局。比賽結果Bob勝3比1")
+        p.gameType = .badminton
+        p.leftScore = 18; p.rightScore = 21; p.rightSets = 2
+        p.setScores = [.init(leftGames: 21, rightGames: 15), .init(leftGames: 17, rightGames: 21), .init(leftGames: 18, rightGames: 21)]
+        XCTAssertEqual(SportsVoiceSupport.message(p, language: hans), "本局结束，比赛由Bob获胜，15比21、21比17、21比18")
+        p.gameType = .tennis
+        p.leftScore = 4; p.rightScore = 6
+        p.setScores = [.init(leftGames: 6, rightGames: 4), .init(leftGames: 3, rightGames: 6), .init(leftGames: 4, rightGames: 6)]
+        XCTAssertEqual(SportsVoiceSupport.message(p, language: hans), "全场比赛结束，Bob获胜，盘数2比1，各盘局数4比6、6比3、6比4")
+        p.gameType = .squash
+        p.leftScore = 8; p.rightScore = 11
+        p.setScores = [.init(leftGames: 11, rightGames: 3), .init(leftGames: 7, rightGames: 11), .init(leftGames: 8, rightGames: 11)]
+        XCTAssertEqual(SportsVoiceSupport.message(p, language: hans), "11比8，Bob比赛获胜，大比分2比1，小比分：3比11、11比7、11比8")
+    }
+
     func testMembershipMetadataUsesAppLanguageAcrossPromotedLocales() throws {
         for locale in LocalizationTestSupport.promotedLocales {
             let bundle = try XCTUnwrap(Bundle(path: repositoryRoot.appendingPathComponent("jifen/Resources/\(locale).lproj").path))
@@ -225,6 +247,27 @@ final class LocalizationIntegrityTests: XCTestCase {
                         "\(label) format placeholders differ for \(entry.key) in \(locale)"
                     )
                 }
+            }
+        }
+    }
+
+    func testParticipantIdentityTablesKeepKeysFormatsAndCompiledResourcesInSync() throws {
+        let table = "ParticipantIdentity"
+        let basePath = "jifen/Resources/en.lproj/\(table).strings"
+        let english = try LocalizationTestSupport.entries(relativePath: basePath)
+        XCTAssertEqual(duplicateKeys(in: english), [])
+        for locale in ["en", "zh-Hans", "zh-Hant"] {
+            let entries = try LocalizationTestSupport.entries(relativePath: "jifen/Resources/\(locale).lproj/\(table).strings")
+            XCTAssertEqual(duplicateKeys(in: entries), [], locale)
+            XCTAssertEqual(Set(entries.map(\.key)), Set(english.map(\.key)), locale)
+            let values = Dictionary(uniqueKeysWithValues: entries.map { ($0.key, $0.value) })
+            let bundlePath = try XCTUnwrap(Bundle.main.path(forResource: locale, ofType: "lproj"))
+            let bundle = try XCTUnwrap(Bundle(path: bundlePath))
+            for entry in english {
+                let value = try XCTUnwrap(values[entry.key], "\(locale)/\(entry.key)")
+                XCTAssertFalse(value.isEmpty, "\(locale)/\(entry.key)")
+                XCTAssertEqual(LocalizationTestSupport.formatTokens(in: entry.value), LocalizationTestSupport.formatTokens(in: value), "\(locale)/\(entry.key)")
+                XCTAssertEqual(bundle.localizedString(forKey: entry.key, value: nil, table: table), value, "\(locale)/\(entry.key) not bundled")
             }
         }
     }
@@ -857,5 +900,81 @@ final class LocalizationIntegrityTests: XCTestCase {
             else { return nil }
             return (String(source[valueRange]), matchRange.lowerBound)
         }
+    }
+}
+
+/// 英文播报的名字罗马化(与鸿蒙 nameTranslit.ts 同口径)。
+final class NameTransliterationTests: XCTestCase {
+    func testRomanizesChineseNamesToTonelessPinyin() {
+        XCTAssertEqual(NameTransliteration.romanizedName("张三"), "zhang san")
+        XCTAssertEqual(NameTransliteration.romanizedName("樊振东"), "fan zhen dong")
+    }
+
+    func testSurnameReadingsOverridePolyphonicFirstCharacters() {
+        XCTAssertEqual(NameTransliteration.romanizedName("曾国藩"), "zeng guo fan")
+        XCTAssertEqual(NameTransliteration.romanizedName("单田芳"), "shan tian fang")
+        XCTAssertEqual(NameTransliteration.romanizedName("解晓东"), "xie xiao dong")
+        XCTAssertEqual(NameTransliteration.romanizedName("区楚良"), "ou chu liang")
+        XCTAssertEqual(NameTransliteration.romanizedName("乐毅"), "yue yi")
+    }
+
+    func testLeavesLatinAndEmptyUntouched() {
+        XCTAssertEqual(NameTransliteration.romanizedName("Mike"), "Mike")
+        XCTAssertEqual(NameTransliteration.romanizedName(""), "")
+        XCTAssertEqual(NameTransliteration.romanizedName("张Mike"), "zhang Mike")
+    }
+
+    func testTraditionalSurnameReadingsMatchSimplifiedForms() {
+        let pairs = [("单", "單", "shan"), ("乐", "樂", "yue"),
+                     ("缪", "繆", "miao"), ("种", "種", "chong"),
+                     ("盖", "蓋", "ge"), ("区", "區", "ou"),
+                     ("贲", "賁", "ben"), ("秘", "祕", "bi")]
+        for (simplified, traditional, reading) in pairs {
+            XCTAssertEqual(NameTransliteration.romanizedName(simplified), reading)
+            XCTAssertEqual(NameTransliteration.romanizedName(traditional), reading)
+        }
+        XCTAssertEqual(NameTransliteration.romanizedName("單田芳"), "shan tian fang")
+        XCTAssertEqual(NameTransliteration.romanizedName("區楚良"), "ou chu liang")
+        XCTAssertEqual(NameTransliteration.romanizedName("樂毅"), "yue yi")
+    }
+
+    func testMixedNamesPreserveOriginalAccentsPunctuationAndWhitespace() {
+        let examples = [("张José", "zhang José"), ("Müller张", "Müller zhang"),
+                        ("张-José·李", "zhang-José·li"), ("张  José", "zhang  José"),
+                        ("José单", "José dan"), ("张重庆", "zhang chong qing")]
+        for (name, expected) in examples {
+            XCTAssertEqual(NameTransliteration.romanizedName(name), expected, name)
+        }
+        let decomposed = "Jose\u{301}"
+        XCTAssertEqual(Array(NameTransliteration.romanizedName("张" + decomposed).utf8), Array(("zhang " + decomposed).utf8))
+    }
+
+    func testRomanizedPayloadOnlyTouchesNameFields() {
+        var payload = VoiceAnnouncementPayload(gameType: .pingpong, phase: .scoreChange,
+            leftTeamName: "张三", rightTeamName: "Mike", leftScore: 3, rightScore: 0,
+            serverSide: .left, serverName: "张三")
+        payload.winnerName = "李四"
+        payload.receiverName = "José张"
+        let converted = NameTransliteration.romanized(payload)
+        XCTAssertEqual(converted.leftTeamName, "zhang san")
+        XCTAssertEqual(converted.rightTeamName, "Mike")
+        XCTAssertEqual(converted.serverName, "zhang san")
+        XCTAssertEqual(converted.winnerName, "li si")
+        XCTAssertEqual(converted.receiverName, "José zhang")
+        XCTAssertEqual(converted.leftScore, 3)
+        XCTAssertEqual(converted.rightScore, 0)
+        XCTAssertEqual(converted.gameType, payload.gameType)
+        XCTAssertEqual(payload.leftTeamName, "张三", "原 payload 不被修改")
+    }
+
+    func testEnglishAnnouncementUsesRomanizedNames() throws {
+        guard let language = SportsVoiceLanguage.resolve(localization: "en", iosMajorVersion: 27) else {
+            throw XCTSkip("en speech mapping unavailable")
+        }
+        let payload = VoiceAnnouncementPayload(gameType: .pingpong, phase: .scoreChange,
+            leftTeamName: "张三", rightTeamName: "李四", leftScore: 1, rightScore: 0, serverSide: .left)
+        let line = try XCTUnwrap(SportsVoiceSupport.message(payload, language: language, announceServer: true))
+        XCTAssertTrue(line.lowercased().contains("zhang"), line)
+        XCTAssertFalse(line.contains("张"), line)
     }
 }

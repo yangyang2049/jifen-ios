@@ -12,6 +12,7 @@ struct BasketballScoreboardView: View {
     var onSetupConsumed: (() -> Void)? = nil
 
     @State private var store: BasketballSessionStore
+    @State private var registersParticipantOwner: Bool
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
     @State private var typographySession: ScoreboardTypographySession
     @State private var preferences = PreferencesManager.shared
@@ -54,6 +55,7 @@ struct BasketballScoreboardView: View {
            let sessionId = UUID(uuidString: initialResumeSessionId),
            let restoredStore = BasketballSessionStore(restoring: sessionId) {
             _store = State(initialValue: restoredStore)
+            _registersParticipantOwner = State(initialValue: false)
             _showGameOverDialog = State(initialValue: restoredStore.state.finished)
             initialStyleID = ScoreboardStyleID(gameType: restoredStore.state.gameMode == .threeXThree ? .threeBasketball : .basketball)
         } else {
@@ -76,6 +78,7 @@ struct BasketballScoreboardView: View {
                 gameMode: gameMode,
                 ruleSet: ruleSet
             ))
+            _registersParticipantOwner = State(initialValue: true)
             initialStyleID = ScoreboardStyleID(gameType: gameMode == .threeXThree ? .threeBasketball : .basketball)
         }
         _typographySession = State(initialValue: ScoreboardTypographySession(styleID: initialStyleID))
@@ -241,6 +244,7 @@ struct BasketballScoreboardView: View {
                     }
                 }
         )
+        .registerParticipantSetupOnAppear(recordID: store.sessionId.uuidString, selections: registersParticipantOwner ? [:] : nil)
         .onAppear {
             onSetupConsumed?()
             typographySession.switchStyleID(ScoreboardStyleID(gameType: appGameType))
@@ -758,6 +762,7 @@ struct BasketballScoreboardView: View {
                     store.startClock()
                     return
                 }
+                try? ParticipantIdentityStore.shared.registerRecord(freshStore.sessionId.uuidString)
                 store = freshStore
                 isEditMode = false
                 showMenu = false

@@ -438,6 +438,7 @@ struct GuandanScoreboardView: View {
     @State private var actionCount = 0
     @State private var gameStartAt: Date
     @State private var recordID: String
+    @State private var registersParticipantOwner: Bool
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
     @State private var pendingEditWrapSide: GuandanSide?
@@ -533,6 +534,7 @@ struct GuandanScoreboardView: View {
         _actionLog = State(initialValue: restoredActions)
         _detailedActions = State(initialValue: restoredDetailedActions)
         _pendingEditWrapSide = State(initialValue: nil)
+        _registersParticipantOwner = State(initialValue: initialResumeSessionId == nil)
     }
 
     var body: some View {
@@ -669,6 +671,7 @@ struct GuandanScoreboardView: View {
                     }
             }
         }
+        .registerParticipantSetupOnAppear(recordID: recordID, selections: registersParticipantOwner ? [:] : nil)
         .onAppear {
             if state.phase == .notStarted {
                 // Opening the page is lifecycle setup, not an undoable scoring
@@ -837,6 +840,7 @@ struct GuandanScoreboardView: View {
         actionCount = 0
         gameStartAt = Date()
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.guandan.canonicalScoreboardIdentifier)
+        try? ParticipantIdentityStore.shared.registerRecord(recordID)
         pendingEditWrapSide = nil
         editDraft = nil
         showGameOverDialog = false
@@ -866,6 +870,7 @@ struct GuandanScoreboardView: View {
         actionCount = 0
         gameStartAt = Date()
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.guandan.canonicalScoreboardIdentifier)
+        try? ParticipantIdentityStore.shared.registerRecord(recordID)
         matchClockSession?.reset(startedAt: gameStartAt)
         pendingEditWrapSide = nil
         editDraft = nil

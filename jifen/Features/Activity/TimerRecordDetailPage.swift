@@ -11,9 +11,12 @@ struct TimerRecordDetailPage: View {
     let recordId: String
     @StateObject private var timerVM = TimerRecordsViewModel.shared
     @State private var didTrackRecordView = false
+    @State private var recordIdentity = ParticipantIdentityStore.shared
+    @State private var privateRecords = PersonalRecordsCloudSync.shared
 
     private var record: GameRecordSummary? {
-        timerVM.records.first { $0.id == recordId }
+        guard PersonalRecordAccessPolicy.allowsNativeRecord(recordId, identity: recordIdentity, cloud: privateRecords) else { return nil }
+        return timerVM.records.first { $0.id == recordId }
     }
 
     var body: some View {

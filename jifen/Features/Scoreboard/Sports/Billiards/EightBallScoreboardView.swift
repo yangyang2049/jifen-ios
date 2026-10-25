@@ -18,6 +18,7 @@ struct EightBallScoreboardView: View {
     @State private var actionCount = 0
     @State private var startedAt: Date
     @State private var recordID: String
+    @State private var initialParticipantSelections: [String: ParticipantSelection]?
     @State private var leftName: String
     @State private var rightName: String
     @State private var showGameOverDialog = false
@@ -115,6 +116,7 @@ struct EightBallScoreboardView: View {
         _leftName = State(initialValue: left)
         _rightName = State(initialValue: right)
         _showGameOverDialog = State(initialValue: showFinished)
+        _initialParticipantSelections = State(initialValue: initialResumeSessionId == nil ? (initialSetup?.participantSelections ?? [:]) : nil)
     }
 
     private var state: EightBallState { sessionStore.state }
@@ -128,6 +130,7 @@ struct EightBallScoreboardView: View {
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             finishedRecordDetailPage
         }
+        .registerParticipantSetupOnAppear(recordID: recordID, selections: initialParticipantSelections)
         .onAppear {
             onSetupConsumed?()
             registerSync()
@@ -552,6 +555,7 @@ struct EightBallScoreboardView: View {
 
 
     private func startNewMatch() {
+        let previousIdentityRecord = recordID
         guard !scoringLocked, !isStartingNewMatch else { return }
         isStartingNewMatch = true
         let finishedStore = sessionStore
@@ -584,6 +588,7 @@ struct EightBallScoreboardView: View {
                 sessionStore = freshStore
                 startedAt = newStartedAt
                 recordID = newRecordID
+                ParticipantIdentityStore.shared.copySelections(from: previousIdentityRecord, to: newRecordID)
                 actionCount = 0
                 actionLog.removeAll()
                 detailedActions.removeAll()

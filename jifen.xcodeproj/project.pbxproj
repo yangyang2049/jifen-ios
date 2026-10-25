@@ -18,6 +18,10 @@
 		BB8112B0BEAB4E949E9E82DB /* GroupPortParityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911E22E26F6E46118B7955CE /* GroupPortParityTests.swift */; };
 		BC2026102300000000000002 /* WechatBindingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2026102300000000000001 /* WechatBindingTests.swift */; };
 		BC2026102300000000000004 /* WechatBindingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2026102300000000000003 /* WechatBindingUITests.swift */; };
+		BC2026102400000000000002 /* ParticipantIdentityIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2026102400000000000001 /* ParticipantIdentityIntegrationTests.swift */; };
+		BC2026102500000000000002 /* PersonalRecordsTransportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2026102500000000000001 /* PersonalRecordsTransportTests.swift */; };
+		BC2026102500000000000004 /* ParticipantIdentityUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2026102500000000000003 /* ParticipantIdentityUITests.swift */; };
+		BC2026102500000000000006 /* PersonalRecordAccessPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2026102500000000000005 /* PersonalRecordAccessPolicyTests.swift */; };
 		C0D320261002000000000002 /* APIClientSessionIsolationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D320261002000000000001 /* APIClientSessionIsolationTests.swift */; };
 		C10000000000000000000001 /* ScoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000001 /* ScoreCore */; };
 		C10000000000000000000002 /* SessionCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000002 /* SessionCore */; };
@@ -106,6 +110,10 @@
 		AB1000000000000000000001 /* AccountPasswordLoginTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountPasswordLoginTests.swift; sourceTree = "<group>"; };
 		BC2026102300000000000001 /* WechatBindingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WechatBindingTests.swift; sourceTree = "<group>"; };
 		BC2026102300000000000003 /* WechatBindingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WechatBindingUITests.swift; sourceTree = "<group>"; };
+		BC2026102400000000000001 /* ParticipantIdentityIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantIdentityIntegrationTests.swift; sourceTree = "<group>"; };
+		BC2026102500000000000001 /* PersonalRecordsTransportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalRecordsTransportTests.swift; sourceTree = "<group>"; };
+		BC2026102500000000000003 /* ParticipantIdentityUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ParticipantIdentityUITests.swift; sourceTree = "<group>"; };
+		BC2026102500000000000005 /* PersonalRecordAccessPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalRecordAccessPolicyTests.swift; sourceTree = "<group>"; };
 		BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = jifenUITests.swift; sourceTree = "<group>"; };
 		C0D320261002000000000001 /* APIClientSessionIsolationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = APIClientSessionIsolationTests.swift; sourceTree = "<group>"; };
 		D42000000000000000000001 /* LocalDataResetCoordinatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalDataResetCoordinatorTests.swift; sourceTree = "<group>"; };
@@ -251,6 +259,9 @@
 				FC7000000000000000000001 /* CardResumeAndWinnerIdentityTests.swift */,
 				FC8000000000000000000001 /* ShotTrainingTests.swift */,
 				FD2000000000000000000001 /* SportsSetupDraftTests.swift */,
+				BC2026102400000000000001 /* ParticipantIdentityIntegrationTests.swift */,
+				BC2026102500000000000005 /* PersonalRecordAccessPolicyTests.swift */,
+				BC2026102500000000000001 /* PersonalRecordsTransportTests.swift */,
 				FE1000000000000000000001 /* ScoreboardDisplayTests.swift */,
 				F6A000000000000000000001 /* NationalDayCampaignTests.swift */,
 				FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */,
@@ -280,6 +291,7 @@
 				D670D0030000000000000001 /* DuoTimerWalkthroughUITests.swift */,
 				BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */,
 				E20000000000000000000001 /* RecordRecapUITests.swift */,
+				BC2026102500000000000003 /* ParticipantIdentityUITests.swift */,
 				AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */,
 				FA1000000000000000000001 /* RemodelFocusUITests.swift */,
 				F10000000000000000000001 /* FullAppScreenshotUITests.swift */,
@@ -502,6 +514,7 @@
 				D670D0030000000000000002 /* DuoTimerWalkthroughUITests.swift in Sources */,
 				D987C048DDD2CFB6D1560D48 /* jifenUITests.swift in Sources */,
 				E20000000000000000000002 /* RecordRecapUITests.swift in Sources */,
+				BC2026102500000000000004 /* ParticipantIdentityUITests.swift in Sources */,
 				A9C0600ED82342CDBF1AAF6E /* MainFlowUITests.swift in Sources */,
 				FA1000000000000000000002 /* RemodelFocusUITests.swift in Sources */,
 				F10000000000000000000002 /* FullAppScreenshotUITests.swift in Sources */,
@@ -556,6 +569,9 @@
 				FC7000000000000000000002 /* CardResumeAndWinnerIdentityTests.swift in Sources */,
 				FC8000000000000000000002 /* ShotTrainingTests.swift in Sources */,
 				FD2000000000000000000002 /* SportsSetupDraftTests.swift in Sources */,
+				BC2026102400000000000002 /* ParticipantIdentityIntegrationTests.swift in Sources */,
+				BC2026102500000000000006 /* PersonalRecordAccessPolicyTests.swift in Sources */,
+				BC2026102500000000000002 /* PersonalRecordsTransportTests.swift in Sources */,
 				FE1000000000000000000002 /* ScoreboardDisplayTests.swift in Sources */,
 				FF1000000000000000000002 /* ResumeSessionLifecycleTests.swift in Sources */,
 				FF2000000000000000000002 /* ActionForegroundTests.swift in Sources */,

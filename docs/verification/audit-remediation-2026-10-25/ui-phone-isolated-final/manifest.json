@@ -1,0 +1,26 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "86871B65-E0ED-4FBD-9F93-F3FB6246A895",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "8DAA5C80-DDEB-46CA-B1F3-38463FCFC72A.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "我的记录-二级页面_0_59F2641E-A328-44CF-8A16-1EA3C01C107F.png",
+        "timestamp" : 1792899641.342
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "86871B65-E0ED-4FBD-9F93-F3FB6246A895",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "01F49809-AEB7-44F3-9C9C-E760B6957CDB.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "筛选状态-左右布局_0_73807A28-CBC5-4025-BD16-94172688D2B8.png",
+        "timestamp" : 1792899637.921
+      }
+    ],
+    "testIdentifier" : "ParticipantIdentityUITests/testFilterCanBeClearedAndPersonalPageHidesMainTabs()",
+    "testIdentifierURL" : "test://com.apple.xcode/jifen/jifenUITests/ParticipantIdentityUITests/testFilterCanBeClearedAndPersonalPageHidesMainTabs"
+  }
+]

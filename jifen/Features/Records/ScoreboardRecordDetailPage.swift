@@ -6,6 +6,12 @@ import SwiftUI
 struct ScoreboardRecordDetailPage: View {
     let recordId: String
     @Environment(\.dismiss) private var dismiss
+    @State private var recordIdentity = ParticipantIdentityStore.shared
+    @State private var privateRecords = PersonalRecordsCloudSync.shared
+
+    private var canAccessRecord: Bool {
+        PersonalRecordAccessPolicy.allowsNativeRecord(recordId, identity: recordIdentity, cloud: privateRecords)
+    }
 
     private enum DetailMode: String, CaseIterable {
         case recap
@@ -48,7 +54,7 @@ struct ScoreboardRecordDetailPage: View {
     var body: some View {
         ZStack {
             Theme.backgroundColor.ignoresSafeArea()
-            if let record {
+            if let record, canAccessRecord {
                 recordContent(record)
                     .appAnalyticsScreen(record.gameType == .multiScoreboard ? .multiscoreRecordDetail : .sportsRecordDetail)
             } else {
@@ -63,12 +69,12 @@ struct ScoreboardRecordDetailPage: View {
                     .overlay { ProgressView(NSLocalizedString("share_preparing", value: "正在生成分享图片…", comment: "")).tint(.white).foregroundStyle(.white) }
             }
         }
-        .navigationTitle(record?.gameType.recordDetailTitle ?? GameType.defaultRecordDetailTitle)
+        .navigationTitle(canAccessRecord ? record?.gameType.recordDetailTitle ?? GameType.defaultRecordDetailTitle : GameType.defaultRecordDetailTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                if record != nil {
+                if record != nil && canAccessRecord {
                     Menu {
                         Button(role: .destructive) { showingDeleteConfirm = true } label: {
                             // Menu 只染文字不染图标，图标会跟 App 绿色 tint；预先烘焙红色保证与文字一致。
@@ -86,6 +92,9 @@ struct ScoreboardRecordDetailPage: View {
             }
         }
         .onAppear(perform: loadRecord)
+        .onChange(of: recordIdentity.state.activeLibraryId) { _, _ in loadRecord() }
+        .onChange(of: recordIdentity.state.archivedLibraries) { _, _ in loadRecord() }
+        .onChange(of: privateRecords.phase) { _, _ in if !canAccessRecord { loadRecord() } }
         .alert(NSLocalizedString("confirm_delete", comment: ""), isPresented: $showingDeleteConfirm) {
             Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
             Button(NSLocalizedString("delete", comment: ""), role: .destructive, action: deleteRecord)
@@ -94,20 +103,20 @@ struct ScoreboardRecordDetailPage: View {
             Button(NSLocalizedString("confirm", value: "确定", comment: ""), role: .cancel) {}
         } message: { Text(explanation ?? "") }
         .sheet(isPresented: $showingShareSheet, onDismiss: cleanupShareFile) {
-            if let shareFileURL { AnalyticsActivityView(activityItems: [shareFileURL], contentType: "score_record") }
+            if let shareFileURL, canAccessRecord { AnalyticsActivityView(activityItems: [shareFileURL], contentType: "score_record") }
         }
         .sheet(isPresented: $showingScoreCorrection) {
-            if let record { scoreCorrectionSheet(record) }
+            if let record, canAccessRecord { scoreCorrectionSheet(record) }
         }
         .overlay {
             // 与首页/计分 Tab 同款居中 Setup Dialog（CenteredSetupDialogPresenter），不再用 Bottom Sheet。
-            CenteredSetupDialogPresenter(item: $replaySetupRequest) { request, dismiss, maxDialogHeight in
+            if canAccessRecord { CenteredSetupDialogPresenter(item: $replaySetupRequest) { request, dismiss, maxDialogHeight in
                 replaySetupDialog(
                     for: request.record,
                     maxDialogHeight: maxDialogHeight,
                     onCancel: dismiss
                 )
-            }
+            } }
         }
         .navigationDestination(item: $launchRequest) { request in
             ScoreboardLaunchView(
@@ -219,6 +228,15 @@ struct ScoreboardRecordDetailPage: View {
                 Text(record.competitionDisplayName)
                     .font(.headline)
                     .multilineTextAlignment(.center)
+                if record.isLegacyNineBallRecord {
+                    Text(NineBallRecordRuleVersionPolicy.legacyLabel)
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(Theme.textSecondary)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 3)
+                        .background(Theme.textSecondary.opacity(0.10))
+                        .clipShape(Capsule())
+                }
             }
             .frame(maxWidth: .infinity, alignment: .center)
             if record.isSyncedFromWatch {
@@ -405,6 +423,7 @@ struct ScoreboardRecordDetailPage: View {
     }
 
     private func submitScoreCorrection(_ record: ScoreboardRecord) {
+        guard canAccessRecord else { loadRecord(); return }
         guard let team1 = correctionTeam1Value, let team2 = correctionTeam2Value else { return }
         let set1 = correctionSet1Value ?? record.team1SetScore
         let set2 = correctionSet2Value ?? record.team2SetScore
@@ -811,6 +830,13 @@ struct ScoreboardRecordDetailPage: View {
     }
 
     private func actionTitle(_ action: DetailedScoreAction, record: ScoreboardRecord) -> String {
+        if record.gameType == .nineBall,
+           let transferTitle = ScoreboardRecordActionTitlePolicy.nineBallOperationTitle(
+               operationCode: action.operationCode,
+               summary: action.summary
+           ) {
+            return transferTitle
+        }
         if record.gameType == .doudizhu {
             let winnerNames = DoudizhuRecordDetailPolicy.winnerNames(for: action, record: record)
             if !winnerNames.isEmpty {
@@ -927,6 +953,7 @@ struct ScoreboardRecordDetailPage: View {
     }
 
     private func handleReplay(_ record: ScoreboardRecord, presentation: ScoreboardRecordPresentation) {
+        guard canAccessRecord else { loadRecord(); return }
         AppAnalytics.track(.scoreboardAction, parameters: [
             .gameType: .string(record.gameType.analyticsIdentifier),
             .actionName: .string("play_again"),
@@ -936,9 +963,10 @@ struct ScoreboardRecordDetailPage: View {
     }
 
     private func startReplay(_ setup: SportsSetupResult) {
-        guard let record else { return }
+        guard let record, canAccessRecord else { return }
         replaySetupRequest = nil
         DispatchQueue.main.async {
+            guard canAccessRecord else { return }
             launchRequest = LaunchRequest(
                 gameType: record.gameType,
                 setup: setup
@@ -1054,6 +1082,12 @@ struct ScoreboardRecordDetailPage: View {
     private func loadRecord() {
         selectedTrendTabID = nil
         selectedDetailSectionID = nil
+        guard canAccessRecord else {
+            record = nil; replaySetupRequest = nil; launchRequest = nil
+            showingShareSheet = false; showingScoreCorrection = false; showingDeleteConfirm = false
+            noteSheetMode = .none; isPreparingShare = false; cleanupShareFile()
+            return
+        }
         record = ScoreboardRecordManager.shared.getRecordById(recordId)
         guard let record, !didTrackRecordView else { return }
         didTrackRecordView = true
@@ -1066,13 +1100,14 @@ struct ScoreboardRecordDetailPage: View {
     }
 
     private func deleteRecord() {
+        guard canAccessRecord else { loadRecord(); return }
         guard ScoreboardRecordManager.shared.deleteRecord(recordId) else { return }
         ScoreboardRecordsViewModel.shared.refreshRecords()
         dismiss()
     }
 
     private func prepareShare() {
-        guard let record, !isPreparingShare else { return }
+        guard let record, canAccessRecord, !isPreparingShare else { return }
         isPreparingShare = true
         // 对齐安卓 shareScoreboardRecord：渲染 GameInfoCard（含品牌页脚）位图。
         let content = overviewContent(record, dateText: formattedDate(record.startTime))

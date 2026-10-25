@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>九球追分 · 规则选择与编辑 Demo</title>
+  <style>
+    :root { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; color:#202124; background:#f4f5f7; --green:#4caf50; --ink-green:#267939; --soft-green:#edf6ee; --muted:#767981; --line:#e7e8ec; --control:#f0f1f4; }
+    * { box-sizing:border-box; }
+    body { margin:0; -webkit-font-smoothing:antialiased; }
+    button,input,select { font:inherit; }
+    button { cursor:pointer; touch-action:manipulation; }
+    button:disabled { cursor:default; opacity:.4; }
+    button,a,input,select { -webkit-tap-highlight-color:transparent; }
+    button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible { outline:3px solid #7bc589; outline-offset:3px; }
+    button { border:0; background:none; color:inherit; }
+    a { color:var(--ink-green); text-underline-offset:3px; }
+    h1,h2,h3,h4,p { margin:0; }
+    [hidden] { display:none !important; }
+    .page { max-width:1176px; margin:auto; padding:30px 36px 34px; }
+    .masthead { display:flex; justify-content:space-between; align-items:center; gap:20px; padding-bottom:25px; }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .ball { width:43px; height:43px; border-radius:50%; background:#d6ab32; display:grid; place-items:center; flex-shrink:0; }
+    .ball span { width:24px; height:24px; border-radius:50%; background:white; display:grid; place-items:center; color:#242424; font-weight:750; font-size:17px; }
+    h1 { font-size:23px; font-weight:650; letter-spacing:-.6px; }
+    .subhead { font-size:12px; color:var(--muted); margin-top:5px; }
+    .demo-tag { font-size:11px; color:var(--muted); padding:7px 10px; border:1px solid #dcdfe4; border-radius:6px; white-space:nowrap; }
+    .layout { display:grid; grid-template-columns:minmax(420px,1fr) minmax(320px,420px); gap:50px; align-items:start; }
+    .preview-toolbar { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:18px; }
+    .preview-context { font-size:12px; color:var(--muted); }
+    .segments { display:flex; padding:3px; gap:3px; background:var(--control); border-radius:9px; }
+    .segments button { min-height:34px; padding:7px 12px; color:#73767f; border-radius:7px; font-size:12px; line-height:1.2; flex:1; white-space:nowrap; }
+    .segments button[aria-pressed="true"] { background:white; color:#24282b; box-shadow:0 1px 4px #00000012; font-weight:600; }
+    .preview-toolbar .segments { border:1px solid #e0e2e7; }
+    .reset-demo { padding:8px 0; color:var(--muted); font-size:12px; white-space:nowrap; }
+    .device { width:414px; max-width:100%; height:834px; margin:auto; background:#e9ebef; border:7px solid #24272c; border-radius:39px; box-shadow:0 17px 45px #24272c12; overflow:hidden; position:relative; }
+    .status { height:39px; display:flex; justify-content:space-between; align-items:center; padding:0 23px; font-size:12px; font-weight:650; }
+    .status-icons { display:flex; align-items:center; gap:5px; }
+    .status-icons svg { width:15px; height:13px; }
+    .screen { height:calc(100% - 39px); position:relative; }
+    .home-hint { padding:22px 23px; color:#5d6468; }
+    .home-hint strong { font-size:23px; font-weight:650; }
+    .home-tabs { display:flex; gap:25px; font-size:14px; margin-top:24px; }
+    .home-placeholder { height:96px; background:#ffffffb3; border-radius:14px; margin-top:22px; padding:20px; display:flex; align-items:center; gap:13px; }
+    .home-placeholder .ball { width:32px; height:32px; }
+    .home-placeholder .ball span { width:19px; height:19px; font-size:13px; }
+    .setup-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:22px 14px 32px; background:#1b202773; }
+    .setup-dialog { width:100%; max-height:100%; background:white; border-radius:20px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 14px 40px #0003; }
+    .dialog-title { position:relative; height:57px; flex-shrink:0; display:flex; align-items:center; justify-content:center; gap:7px; }
+    .dialog-title h2 { font-size:20px; font-weight:550; }
+    .tiny-ball { width:19px; height:19px; background:#d8b345; display:grid; place-items:center; border-radius:50%; }
+    .tiny-ball span { width:12px; height:12px; display:grid; place-items:center; background:white; border-radius:50%; color:#333; font-size:9px; font-weight:700; }
+    .setup-content { overflow:auto; overscroll-behavior:contain; padding:1px 20px 12px; scrollbar-width:thin; scrollbar-color:#d3d5da transparent; }
+    .form-section + .form-section { margin-top:20px; }
+    .help-button { display:grid; place-items:center; width:34px; height:34px; margin:-4px 0 -4px -1px; }
+    .dialog-title .title-help { position:absolute; right:13px; top:50%; margin:0; transform:translateY(-50%); }
+    .question { display:grid; place-items:center; width:17px; height:17px; border:1.35px solid #959aa1; border-radius:50%; font-size:11px; font-weight:650; color:#81858e; }
+    .rule-options button { min-height:35px; font-size:14px; }
+    .score-plan { display:flex; align-items:center; gap:12px; }
+    .score-plan > span { font-size:13px; white-space:nowrap; }
+    .score-plan .segments { flex:1; }
+    .score-plan .segments button { min-height:32px; font-size:13px; }
+    .scheme-number { font-variant-numeric:tabular-nums; letter-spacing:.2px; }
+    .rule-brief { font-size:11px; color:#737780; margin:10px 1px 0; line-height:1.7; }
+    .player-count { width:100%; }
+    .player-count button { min-height:35px; font-size:14px; }
+    .field-list { display:grid; gap:8px; margin-top:12px; }
+    .field-list.names-only { margin-top:0; }
+    .name-field { display:flex; min-height:43px; background:var(--control); border-radius:8px; overflow:hidden; }
+    .name-index { width:39px; flex-shrink:0; display:grid; place-items:center; background:#4caf5066; color:white; font-size:16px; font-weight:650; }
+    .name-field input { width:100%; min-width:0; background:none; border:0; padding:10px 11px; color:#272a2f; font-size:15px; outline-offset:-3px; }
+    .name-field button { width:42px; flex-shrink:0; color:#9498a0; font-size:21px; font-weight:350; }
+    .field-row { display:flex; align-items:center; justify-content:space-between; gap:14px; min-height:44px; font-size:14px; }
+    .field-row select { max-width:58%; color:var(--ink-green); border:0; background:none; padding:8px 0 8px 5px; font-size:14px; text-align:right; text-overflow:ellipsis; }
+    .fine-print { font-size:11px; color:#8b9098; line-height:1.7; }
+    .advanced { margin-top:15px; border-top:1px solid var(--line); }
+    .advanced summary { display:flex; align-items:center; justify-content:space-between; list-style:none; min-height:48px; padding:9px 1px; cursor:pointer; font-size:14px; }
+    .advanced summary::-webkit-details-marker { display:none; }
+    .advanced-summary { color:#8a8d95; font-size:11px; display:flex; align-items:center; gap:8px; }
+    .advanced-label { display:flex; align-items:center; gap:6px; }
+    .chevron { width:7px; height:7px; border-right:1.5px solid #92969e; border-bottom:1.5px solid #92969e; transform:rotate(45deg) translateY(-2px); }
+    .advanced[open] .chevron { transform:rotate(225deg) translate(-2px,-1px); }
+    .advanced-body { padding:0 0 4px; }
+    .advanced-body .score-plan { margin:3px 0 12px; }
+    .reset-preset { padding:5px 0; min-height:30px; color:var(--ink-green); font-size:11px; }
+    .point-row { display:flex; justify-content:space-between; align-items:center; gap:10px; min-height:49px; font-size:14px; }
+    .point-row small { display:block; color:#8b8e96; font-size:10px; margin-top:3px; }
+    .stepper { display:flex; align-items:center; border-radius:21px; background:var(--control); height:37px; flex-shrink:0; }
+    .stepper button { width:37px; height:37px; font-size:19px; line-height:1; color:#484c52; }
+    .stepper input { color:#24282d; width:43px; height:23px; text-align:center; border:0; border-left:1px solid #d8dbe0; border-right:1px solid #d8dbe0; border-radius:0; background:none; font-size:14px; font-variant-numeric:tabular-nums; appearance:textfield; padding:0 2px; }
+    input::-webkit-inner-spin-button,input::-webkit-outer-spin-button { appearance:none; margin:0; }
+    .rule-settings { border-top:1px solid var(--line); margin-top:12px; padding-top:10px; }
+    .rule-settings .field-row { font-size:13px; }
+    .rule-settings select { font-size:12px; max-width:59%; }
+    .racks-section { margin-top:14px; }
+    .racks-label { display:block; margin-bottom:9px; font-size:13px; }
+    .racks-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
+    .racks-grid button,.racks-grid input { flex:none; height:44px; border:1.5px solid transparent; border-radius:12px; background:var(--control); color:#41484e; font-size:14px; text-align:center; }
+    .racks-grid button { width:44px; }
+    .racks-grid input { width:64px; min-width:0; padding:6px 3px; }
+    .racks-grid input::placeholder { color:#969ca3; font-size:12px; }
+    .racks-grid button[aria-pressed="true"],.racks-grid input.active { color:var(--ink-green); border-color:#88bc91; background:var(--soft-green); }
+    .racks-grid input[aria-invalid="true"] { border-color:#bd6459; }
+    .racks-section .fine-print { margin-top:9px; }
+    .switch { display:flex; justify-content:space-between; align-items:center; gap:12px; min-height:46px; font-size:13px; cursor:pointer; }
+    .switch input { appearance:none; width:41px; height:25px; background:#d8dade; border-radius:15px; flex-shrink:0; position:relative; margin:0; cursor:pointer; transition:background .16s; }
+    .switch input:before { content:""; position:absolute; top:2px; left:2px; width:21px; height:21px; border-radius:50%; background:white; box-shadow:0 1px 3px #0002; transition:transform .16s; }
+    .switch input:checked { background:var(--green); }
+    .switch input:checked:before { transform:translateX(16px); }
+    .setup-footer { padding:14px 20px 17px; display:flex; gap:11px; flex-shrink:0; border-top:1px solid #f0f1f3; }
+    .pill-button { min-height:44px; border-radius:24px; padding:10px 16px; font-size:15px; font-weight:500; }
+    .cancel-button { background:var(--control); min-width:87px; }
+    .primary-button { background:var(--green); color:white; flex:1; }
+    .setup-error { margin-top:9px; color:#b34640; font-size:11px; line-height:1.65; }
+    .preview-caption { text-align:center; margin-top:14px; font-size:11px; color:#9498a0; }
+    .design-aside { padding-top:6px; }
+    .eyebrow { display:flex; align-items:center; gap:7px; font-size:11px; color:var(--ink-green); margin-bottom:14px; }
+    .eyebrow:before { content:""; width:6px; height:6px; background:var(--green); border-radius:50%; }
+    .design-aside h2 { font-size:26px; font-weight:600; letter-spacing:-.7px; line-height:1.4; }
+    .lead { color:#727780; font-size:13px; line-height:1.9; margin-top:13px; }
+    .design-section { margin-top:28px; padding-top:22px; border-top:1px solid #dee1e5; }
+    .design-section h3 { font-size:14px; font-weight:600; margin-bottom:11px; }
+    .example-head { display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:12px; color:#81868e; margin-bottom:11px; }
+    .example-head strong { color:#353a40; font-weight:550; }
+    .example-table { background:white; border:1px solid #e3e5e8; border-radius:12px; padding:3px 15px; }
+    .example-person { display:flex; justify-content:space-between; align-items:center; min-height:43px; font-size:13px; }
+    .example-person + .example-person { border-top:1px solid #eff0f3; }
+    .example-person small { color:#989ca4; margin-left:7px; font-size:10px; }
+    .example-person strong { font-variant-numeric:tabular-nums; font-size:17px; font-weight:600; }
+    .positive { color:var(--ink-green); }
+    .negative { color:#bd5348; }
+    .zero { color:#a0a4aa; }
+    .example-note { margin-top:9px; color:#878c94; font-size:11px; line-height:1.8; }
+    .review-row { padding:11px 0; display:grid; grid-template-columns:92px 1fr; gap:12px; font-size:12px; line-height:1.8; }
+    .review-row + .review-row { border-top:1px solid #e5e7eb; }
+    .review-row strong { font-weight:550; color:#444a51; }
+    .review-row span { color:#81868e; }
+    .aside-links { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+    .aside-links button { border:1px solid #d9dfe0; background:white; border-radius:7px; padding:9px 12px; color:#4c6352; font-size:12px; }
+    .source-note { margin-top:26px; padding:13px 0 0 12px; border-left:2px solid #ced8d0; color:#8a8f97; font-size:10px; line-height:1.9; }
+    .source-note a { color:#717e73; }
+    .source-note strong { display:block; font-weight:550; color:#727982; margin-bottom:5px; }
+    .layer { position:absolute; inset:0; background:#13171b70; z-index:5; display:flex; flex-direction:column; justify-content:flex-end; }
+    .sheet { background:white; border-radius:21px 21px 0 0; max-height:94%; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 -9px 30px #0002; }
+    .sheet-grabber { width:32px; height:4px; border-radius:3px; background:#d8dbe0; margin:9px auto 0; flex-shrink:0; }
+    .sheet-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:15px 20px 13px; flex-shrink:0; }
+    .sheet-head h2 { font-size:19px; font-weight:600; }
+    .sheet-head small { display:block; color:#8d929a; font-size:10px; font-weight:400; margin-top:5px; }
+    .close-button { width:30px; height:30px; border-radius:50%; background:var(--control); font-size:19px; color:#9298a1; }
+    .sheet-content { overflow:auto; overscroll-behavior:contain; padding:2px 20px 23px; scrollbar-width:thin; }
+    .help-group + .help-group { margin-top:25px; padding-top:23px; border-top:1px solid #dce3dd; }
+    .help-group > h3 { display:flex; align-items:center; gap:8px; margin:0 0 14px; font-size:17px; font-weight:600; color:#303e33; }
+    .help-group > h3::before { content:""; width:3px; height:16px; flex-shrink:0; border-radius:2px; background:var(--green); }
+    .help-intro { font-size:13px; line-height:1.9; color:#737a80; margin:0 0 17px; }
+    .help-example { background:var(--soft-green); padding:13px 14px; border-radius:10px; margin:0 0 6px; }
+    .help-example strong { font-size:13px; color:var(--ink-green); font-weight:550; }
+    .help-example p { font-size:11px; line-height:1.9; color:#65816b; margin-top:5px; }
+    .help-section { padding:17px 0; border-bottom:1px solid #eceef0; }
+    .help-section:last-of-type { border:0; padding-bottom:0; }
+    .help-section h4 { font-size:14px; font-weight:600; margin-bottom:7px; }
+    .help-section p { font-size:12px; line-height:1.95; color:#777f87; }
+    .help-section p + p { margin-top:7px; }
+    .help-section b { color:#434c52; font-weight:550; }
+    .rule-feedback { display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; min-height:48px; margin-top:16px; padding:13px 0 0; border-top:1px solid #e7ebe8; text-align:left; }
+    .rule-feedback > span { color:#858d91; font-size:12px; line-height:1.7; }
+    .rule-feedback strong { display:flex; align-items:center; gap:7px; color:var(--ink-green); font-size:12px; font-weight:600; white-space:nowrap; }
+    .rule-feedback svg { width:7px; height:12px; }
+    .layer.feedback-layer { background:#f2f3f5; }
+    .sheet.feedback-page { height:100%; max-height:100%; border-radius:0; box-shadow:none; background:#f2f3f5; }
+    .feedback-nav { display:grid; grid-template-columns:60px 1fr 60px; align-items:center; min-height:54px; padding:4px 12px; flex-shrink:0; background:white; border-bottom:1px solid #e6e9ec; }
+    .feedback-nav h2 { font-size:17px; font-weight:600; text-align:center; }
+    .feedback-nav button { min-height:44px; color:var(--ink-green); font-size:14px; }
+    .feedback-nav .feedback-back { color:#6f7880; text-align:left; padding-left:4px; font-size:26px; }
+    .feedback-content { overflow:auto; padding:16px; overscroll-behavior:contain; }
+    .feedback-types { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+    .feedback-types button { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; min-height:80px; border-radius:12px; background:#e7e9ed; font-size:13px; }
+    .feedback-types svg { width:23px; height:23px; }
+    .feedback-types button[aria-pressed="true"] { color:white; background:var(--feedback-type-color); }
+    .feedback-fields { display:grid; gap:16px; margin-top:24px; }
+    .feedback-fields input,.feedback-fields textarea { width:100%; border:0; border-radius:8px; background:#e5e5ea; color:#30383f; padding:12px; font:inherit; font-size:15px; }
+    .feedback-fields input { height:44px; }
+    .feedback-fields textarea { min-height:195px; resize:vertical; line-height:1.7; }
+    .feedback-fields input::placeholder,.feedback-fields textarea::placeholder { color:#969da4; }
+    .feedback-guide { margin-top:24px; }
+    .feedback-guide h3 { font-size:14px; font-weight:550; margin-bottom:10px; }
+    .feedback-guide p { font-size:12px; line-height:2; color:#808992; }
+    .feedback-error { margin-top:12px; color:#b55549; font-size:12px; line-height:1.8; }
+    .feedback-demo-note { margin-top:17px; font-size:11px; color:#8b959c; line-height:1.8; }
+    .help-score { display:grid; grid-auto-flow:column; grid-auto-columns:minmax(0,1fr); margin:10px 0 3px; background:#f5f6f8; border-radius:9px; padding:11px 0; }
+    .help-score div { text-align:center; border-right:1px solid #e3e5e8; }
+    .help-score div:last-child { border:0; }
+    .help-score strong { display:block; font-size:19px; font-weight:600; font-variant-numeric:tabular-nums; }
+    .help-score span { display:block; font-size:10px; color:#90969d; margin-top:5px; }
+    .compare-table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:11px; line-height:1.8; }
+    .compare-table th { padding:11px 7px; background:#f2f5f2; color:#4d6c54; font-weight:550; text-align:left; vertical-align:top; }
+    .compare-table td { padding:12px 7px; border-bottom:1px solid #eceef0; vertical-align:top; color:#7b838b; overflow-wrap:anywhere; }
+    .compare-table th:first-child,.compare-table td:first-child { width:62px; color:#454f56; }
+    .compare-table b { color:#35453a; font-weight:550; }
+    .sheet-foot { padding:12px 20px 23px; background:white; border-top:1px solid #eceef1; display:flex; gap:10px; flex-shrink:0; }
+    .sheet-foot button { width:100%; min-height:43px; border-radius:23px; font-size:14px; }
+    .toast { position:absolute; bottom:24px; left:50%; transform:translateX(-50%); background:#292e34f2; color:white; border-radius:11px; padding:11px 15px; z-index:8; font-size:12px; line-height:1.6; text-align:center; max-width:90%; width:max-content; pointer-events:none; }
+    .board { position:absolute; inset:0; background:#141416; color:white; display:flex; flex-direction:column; }
+    .board-top { height:64px; display:flex; justify-content:space-between; align-items:center; padding:0 17px; font-size:12px; flex-shrink:0; gap:8px; }
+    .board-top button { width:35px; height:35px; color:#c0c2c6; font-size:25px; }
+    .board-top strong { font-weight:500; }
+    .board-top small { display:block; font-size:10px; color:#868a92; margin-top:5px; text-align:center; }
+    .board-grid { flex:1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:2px; overflow:hidden; }
+    .board-grid[data-count="3"],.board-grid[data-count="4"] { grid-template-rows:repeat(2,minmax(0,1fr)); }
+    .board-grid[data-count="3"] .player-panel:last-child { grid-column:1/-1; }
+    .player-panel { display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; gap:27px; color:white; padding:24px 10px; min-width:0; }
+    .player-panel:nth-child(1) { background:#c63e34; }
+    .player-panel:nth-child(2) { background:#38894a; }
+    .player-panel:nth-child(3) { background:#b17b25; }
+    .player-panel:nth-child(4) { background:#426b9f; }
+    .player-panel .player-name { font-size:17px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:flex; align-items:center; gap:7px; }
+    .cue-slot { width:18px; height:18px; flex-shrink:0; }
+    .cue-slot svg { width:100%; height:100%; }
+    .player-panel .player-score { font-size:70px; font-weight:600; letter-spacing:-3px; font-variant-numeric:tabular-nums; line-height:1; max-width:100%; overflow:hidden; }
+    .board-grid[data-count="3"] .player-score,.board-grid[data-count="4"] .player-score { font-size:58px; }
+    .panel-hint { position:absolute; bottom:18px; color:#ffffffa6; font-size:10px; }
+    .foul-dots { display:flex; gap:5px; height:6px; }
+    .foul-dots i { width:6px; height:6px; border-radius:50%; background:#ffffff3b; }
+    .foul-dots i.active { background:#fff; }
+    .board-bottom { display:flex; height:64px; align-items:center; justify-content:space-around; padding-bottom:5px; }
+    .board-bottom button { min-height:40px; padding:6px 10px; color:#d8dbe0; font-size:12px; }
+    .board .layer { color:#24282d; }
+    .event-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; padding:2px 0 8px; }
+    .event-button { background:#f1f3f5; border-radius:11px; min-height:72px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:7px; }
+    .event-button strong { font-size:14px; font-weight:550; }
+    .event-button span { color:#869099; font-size:11px; }
+    .event-button.win { background:#edf7ef; }
+    .event-button.win strong { color:var(--ink-green); }
+    .event-button.foul { background:#fbefed; }
+    .event-button.foul strong { color:#b25249; }
+    .event-button.handoff { grid-column:1/-1; min-height:45px; flex-direction:row; gap:12px; }
+    .payer-chooser { margin-top:15px; padding-top:13px; border-top:1px solid var(--line); }
+    .payer-chooser label { display:flex; align-items:center; justify-content:space-between; font-size:12px; gap:10px; }
+    .payer-chooser select { border:0; padding:9px; border-radius:8px; background:var(--control); max-width:60%; color:#376340; font-size:12px; }
+    .edit-row { display:grid; grid-template-columns:22px minmax(0,1fr) 103px; gap:7px; align-items:center; min-height:56px; }
+    .edit-row > span { font-size:12px; color:#8b939b; }
+    .edit-row input { width:100%; min-width:0; padding:10px 9px; border:1px solid transparent; border-radius:8px; background:var(--control); color:#30383f; font-size:14px; }
+    .edit-row input[type="number"] { text-align:right; font-variant-numeric:tabular-nums; }
+    .edit-guidance { margin-top:15px; padding:12px 13px; background:#f2f5f2; border-radius:9px; }
+    .edit-guidance strong { display:block; font-size:12px; font-weight:550; color:#4d6653; }
+    .edit-guidance p { font-size:11px; line-height:1.85; color:#7a867e; margin-top:6px; }
+    .edit-warning { font-size:11px; line-height:1.8; color:#a26c32; margin-top:10px; }
+    .name-options { display:grid; gap:8px; }
+    .name-options button { min-height:43px; background:var(--control); border-radius:8px; text-align:left; padding:10px 13px; font-size:14px; }
+    .ledger-item { border-bottom:1px solid var(--line); padding:12px 0; font-size:12px; line-height:1.8; color:#727b83; }
+    .ledger-item strong { color:#343e45; font-weight:550; display:block; }
+    .empty-ledger { font-size:12px; color:#949ba2; padding:18px 0; line-height:1.9; }
+    @media(min-width:1000px) { .preview-column { position:sticky; top:18px; } }
+    @media(max-width:940px) { .page { padding:22px; } .layout { grid-template-columns:minmax(380px,1fr) minmax(275px,.8fr); gap:25px; } .design-aside h2 { font-size:23px; } .device { height:800px; } }
+    @media(max-width:740px) { .page { padding:18px 12px 28px; } .masthead { padding:0 6px 20px; } h1 { font-size:19px; } .ball { width:35px; height:35px; } .ball span { width:21px; height:21px; font-size:15px; } .demo-tag { display:none; } .layout { grid-template-columns:minmax(0,1fr); gap:28px; } .design-aside { max-width:414px; margin:auto; } .preview-toolbar { gap:10px; } .device { height:800px; border-width:5px; border-radius:32px; } .setup-overlay { padding:18px 11px 26px; } .setup-content { padding-left:17px; padding-right:17px; } .setup-footer { padding-left:17px; padding-right:17px; } }
+    @media(max-width:360px) { .device { height:752px; } .setup-overlay { padding:15px 8px 22px; } .setup-content { padding-left:14px; padding-right:14px; } .score-plan { gap:8px; } .score-plan > span { font-size:12px; } .preview-toolbar .segments button { padding:7px 9px; font-size:11px; } .sheet-head,.sheet-content { padding-left:15px; padding-right:15px; } }
+    @media(prefers-reduced-motion:reduce) { *,*:before { transition:none !important; scroll-behavior:auto !important; } }
+  </style>
+</head>
+<body>
+<main class="page">
+  <header class="masthead">
+    <div class="brand"><div class="ball" aria-hidden="true"><span>9</span></div><div><h1>九球追分 · 规则设置</h1><p class="subhead">全能计分器 / 开局设置与比分编辑</p></div></div>
+    <span class="demo-tag">可交互 HTML Demo · 2026.10.24</span>
+  </header>
+  <div class="layout">
+    <section class="preview-column" aria-label="应用预览">
+      <div class="preview-toolbar">
+        <span class="preview-context">规则设置预览</span>
+        <button class="reset-demo" data-action="reset-demo">重置示例</button>
+      </div>
+      <div class="device" id="device">
+        <div class="status" aria-hidden="true"><span>9:41</span><span class="status-icons"><svg viewBox="0 0 18 14"><path d="M2 12V9M6 12V7M10 12V4M14 12V1" fill="none" stroke="currentColor" stroke-width="2.4"/></svg><svg viewBox="0 0 19 13"><rect x="1" y="2" width="14" height="9" rx="2" fill="none" stroke="currentColor"/><rect x="3" y="4" width="10" height="5" rx=".5" fill="currentColor"/><path d="M17 5v3" stroke="currentColor" stroke-width="1.5"/></svg></span></div>
+        <div class="screen" id="screen">
+          <div class="home-hint" aria-hidden="true"><strong>全能计分器</strong><div class="home-tabs"><b>计分</b><span>计时</span><span>工具</span></div><div class="home-placeholder"><div class="ball"><span>9</span></div><span>九球追分</span></div></div>
+          <div class="setup-overlay" id="setup-overlay"><section class="setup-dialog" aria-label="九球追分开局设置">
+            <header class="dialog-title"><span class="tiny-ball" aria-hidden="true"><span>9</span></span><h2>九球追分</h2><button class="help-button title-help" data-action="help" aria-label="查看赛制说明"><span class="question" aria-hidden="true">?</span></button></header>
+            <div class="setup-content" id="setup-content"></div>
+            <footer class="setup-footer"><button class="pill-button cancel-button" data-action="cancel-setup">取消</button><button class="pill-button primary-button" data-action="start">开始游戏</button></footer>
+          </section></div>
+          <div class="board" id="board" hidden></div>
+          <div class="layer" id="layer" hidden><section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1"></section></div>
+          <div class="toast" id="toast" role="status" hidden></div>
+        </div>
+      </div>
+      <p class="preview-caption">点击标题右侧的问号、展开调整，或开始后试试编辑比分。</p>
+    </section>
+    <aside class="design-aside">
+      <p class="eyebrow">推荐方案</p>
+      <h2>先选玩法，<br>分值按需调整。</h2>
+      <p class="lead">主界面只选「民间追分」或「赛事积分」。民间默认使用14710；需要换成1357或自行改分时，再展开「分值与开球」。</p>
+      <section class="design-section" aria-live="polite">
+        <div class="example-head"><strong>同样记一次小金</strong><span id="example-mode"></span></div>
+        <div class="example-table" id="example-table"></div>
+        <p class="example-note" id="example-note"></p>
+      </section>
+      <section class="design-section">
+        <h3>现有编辑框，可以继续用</h3>
+        <div class="review-row"><strong>分值编辑</strong><span>保留一行一个项目和加减按钮。数字可点入直接输入，改到较大分值也方便。</span></div>
+        <div class="review-row"><strong>分值与开球</strong><span>默认收起，首局由1号玩家开球。展开后可改分值、开球等选项；修改后才出现恢复预设。</span></div>
+        <div class="review-row"><strong>比分编辑</strong><span>沿用姓名＋积分。民间允许负分，显示合计并在不为0时提醒；赛事使用非负积分，不要求双方合计为0。</span></div>
+        <div class="aside-links"><button data-action="compare">查看赛制说明</button><button data-action="preview-edit">试试比分编辑</button></div>
+      </section>
+      <section class="design-section">
+        <h3>不增加一个「自定义」大入口</h3>
+        <p class="lead" style="margin-top:0">修改后才显示「恢复预设」。切换两类玩法会保留各自的设置，不用反复填写。</p>
+      </section>
+      <div class="source-note"><strong>赛事示例的规则依据</strong>本 Demo 的「赛事积分」参考署名独牙中式九球竞赛组委会、落款 2025-10-16 的标准规则，采用 10／7／4。它不标作「决金第7季官方版」；该季原文尚未完整核实，单双打编排也未纳入此示例。<br><a href="https://alison-chang.com/duya-legends-tour-golden-nine-standard-rules/" target="_blank" rel="noopener noreferrer">标准规则全文（媒体转载） ↗</a> · <a href="https://mp.weixin.qq.com/s/1eM99Wc1Q9GNMT9Xm_dunw" target="_blank" rel="noopener noreferrer">决金第7季规程原文 ↗</a></div>
+    </aside>
+  </div>
+</main>
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const esc = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const clone = value => JSON.parse(JSON.stringify(value));
+  const signed = value => value > 0 ? `+${value}` : value < 0 ? `−${Math.abs(value)}` : '0';
+  const labels = {big:'大金',small:'小金',golden:'黄金9',normal:'普胜',foul:'犯规',third:'三犯判负',handoff:'让杆'};
+  const schemes = {
+    '14710':{big:10,small:7,golden:4,normal:4,foul:1},
+    '1357':{big:7,small:5,golden:3,normal:3,foul:1}
+  };
+  const eventDefaults = {big:10,small:7,normal:4,foul:1,third:2};
+  const DEFAULT_RACKS = 10;
+  const rackPresets = [1,5,10,20];
+  const fresh = () => ({family:'folk',scheme:'14710',count:2,names:['玩家1','玩家2','玩家3','玩家4'],breaker:0,folk:{...schemes['14710'],allPay:false,retains:true,handoff:true},event:{...eventDefaults,breakRule:'winner',racks:DEFAULT_RACKS}});
+  let state = fresh();
+  let advancedOpen = false;
+  let customRacksActive = false;
+  let customRacksText = '';
+  let page = 'setup';
+  let sheetType = null;
+  let game = null;
+  let actor = 0;
+  let editDraft = null;
+  let nameTarget = 0;
+  let lastFocus = null;
+  let feedbackDraft = null;
+  let feedbackHelpScroll = 0;
+  let feedbackSource = 'folk';
+  let toastTimer;
+  const cue = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21 18 6m-3-3 6 6M7 17l-3-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  const config = (s=state) => s[s.family];
+  const playerCount = (s=state) => s.family === 'event' ? 2 : s.count;
+  const name = (i,s=state) => s.names[i]?.trim() || `玩家${i+1}`;
+  const modified = (s=state) => {
+    const c=config(s), base=s.family==='folk'?{...schemes[s.scheme],allPay:false,retains:true,handoff:true}:{...eventDefaults,breakRule:'winner',racks:DEFAULT_RACKS};
+    return s.breaker!==0||Object.keys(base).some(k=>c[k]!==base[k]);
+  };
+  const modeName = (s=state) => s.family==='folk'?`民间追分 · ${s.scheme}`:'赛事积分';
+  const summaryKeys = (s=state) => s.family==='folk'?['foul','normal','small','big','golden']:['foul','normal','small','big'];
+  const option = (value,text,current) => `<option value="${esc(value)}" ${String(value)===String(current)?'selected':''}>${esc(text)}</option>`;
+  function toast(text) {
+    clearTimeout(toastTimer); $('toast').textContent=text; $('toast').hidden=false;
+    toastTimer=setTimeout(()=>$('toast').hidden=true,2700);
+  }
+  function pointsValid(s=state) {
+    const keys=s.family==='folk'?['big','small','golden','normal','foul']:['big','small','normal','foul','third'];
+    return keys.every(k=>Number.isInteger(config(s)[k])&&config(s)[k]>=1&&config(s)[k]<=99);
+  }
+  function racksValid() {
+    if(state.family!=='event')return true;
+    const value=customRacksActive?Number(customRacksText):state.event.racks;
+    return (!customRacksActive||customRacksText.trim()!=='')&&Number.isInteger(value)&&value>=1&&value<=99;
+  }
+  function rackChoices() {
+    const value=state.event.racks;
+    return `<div class="racks-section"><span class="racks-label" id="racks-label">比赛局数</span><div class="racks-grid" role="group" aria-labelledby="racks-label">${rackPresets.map(n=>`<button data-racks="${n}" aria-pressed="${!customRacksActive&&value===n}" aria-label="${n}局">${n}</button>`).join('')}<input id="custom-racks" class="${customRacksActive?'active':''}" type="text" inputmode="numeric" maxlength="2" placeholder="自定义" value="${customRacksActive?esc(customRacksText):''}" aria-label="自定义比赛局数" aria-describedby="racks-hint"></div><p class="fine-print" id="racks-hint">按总局数累计积分，非抢局制。</p></div>`;
+  }
+  function pointRow(key,desc='') {
+    const v=config()[key];
+    return `<div class="point-row"><div>${labels[key]}${desc?`<small>${desc}</small>`:''}</div><div class="stepper"><button data-step="${key}" data-delta="-1" aria-label="减少${labels[key]}分值" ${v<=1?'disabled':''}>−</button><input type="number" min="1" max="99" step="1" inputmode="numeric" value="${v}" data-point="${key}" aria-label="${labels[key]}分值"><button data-step="${key}" data-delta="1" aria-label="增加${labels[key]}分值" ${v>=99?'disabled':''}>＋</button></div></div>`;
+  }
+  function renderSetup() {
+    const folk=state.family==='folk', c=config(), count=playerCount();
+    const ruleChoices=`<div class="segments rule-options" role="group" aria-label="赛制"><button data-family="folk" aria-pressed="${folk}">民间追分</button><button data-family="event" aria-pressed="${!folk}">赛事积分</button></div>`;
+    const plan=folk?`<div class="score-plan"><span>分值方案</span><div class="segments" aria-label="分值方案">${['14710','1357'].map(p=>`<button data-scheme="${p}" class="scheme-number" aria-pressed="${state.scheme===p}">${p}</button>`).join('')}</div></div>`:'';
+    const names=Array.from({length:count},(_,i)=>`<div class="name-field"><span class="name-index" aria-hidden="true">${i+1}</span><input value="${esc(state.names[i])}" data-name="${i}" aria-label="玩家${i+1}姓名" maxlength="16" autocomplete="off"><button data-name-picker="${i}" aria-label="为玩家${i+1}选择常用姓名">›</button></div>`).join('');
+    const fields=folk?['big','small','golden','normal','foul']:['big','small','normal','foul','third'];
+    const advancedSettings=folk?`
+      ${count>2?`<div class="field-row"><label for="all-pay">小金付分对象</label><select id="all-pay" data-setting="allPay">${option('false','仅本局开球人',c.allPay)}${option('true','其余每人',c.allPay)}</select></div>`:''}
+      <label class="switch"><span>大金／黄金9赢家续开</span><input type="checkbox" data-setting="retains" aria-label="大金或黄金9赢家续开" ${c.retains?'checked':''}></label>
+      <label class="switch"><span>开启让杆</span><input type="checkbox" data-setting="handoff" aria-label="开启让杆" ${c.handoff?'checked':''}></label>`
+      : `<div class="field-row"><label for="break-rule">开球方式</label><select id="break-rule" data-setting="breakRule">${option('winner','赢家续开',c.breakRule)}${option('alternate','双方轮流',c.breakRule)}</select></div>
+      ${rackChoices()}<p class="fine-print" style="margin-top:8px">同一人本局累计三犯：对手得分，本局判负。换局清零。</p>`;
+    $('setup-content').innerHTML=`
+      <section class="form-section">${ruleChoices}</section>
+      <section class="form-section" aria-label="${folk?'参与玩家':'比赛双方'}">
+        ${folk?`<div class="segments player-count" aria-label="参与人数">${[2,3,4].map(n=>`<button data-count="${n}" aria-pressed="${count===n}">${n}人</button>`).join('')}</div>`:''}
+        <div class="field-list ${folk?'':'names-only'}">${names}</div>
+      </section>
+      <section class="form-section"><p class="rule-brief" id="rule-brief"></p></section>
+      <details class="advanced" id="advanced" ${advancedOpen?'open':''}><summary><span class="advanced-label">分值与开球</span><span class="advanced-summary"><button class="reset-preset" id="reset-preset" data-action="reset-preset" ${modified()?'':'hidden'}>恢复预设</button><span id="advanced-action">${advancedOpen?'收起':'调整'}</span><i class="chevron" aria-hidden="true"></i></span></summary><div class="advanced-body">
+        ${plan}
+        ${fields.map(k=>pointRow(k,k==='third'?'本局结束，不另加犯规或普胜分':'')).join('')}
+        <div class="rule-settings"><div class="field-row"><label for="breaker">首局开球</label><select id="breaker" data-setting="breaker">${Array.from({length:count},(_,i)=>option(i,name(i),state.breaker<count?state.breaker:0)).join('')}</select></div>${advancedSettings}</div>
+      </div></details><p class="setup-error" id="setup-error" role="alert" hidden></p>`;
+    $('advanced').addEventListener('toggle',()=>{advancedOpen=$('advanced').open;$('advanced-action').textContent=advancedOpen?'收起':'调整';});
+    updateDerived();
+  }
+  function updateDerived() {
+    const c=config();
+    if ($('rule-brief')) $('rule-brief').textContent=summaryKeys().map(k=>`${labels[k]} ${c[k]}`).join(' · ')+(state.family==='event'?'，只加得分，不扣对手积分。':'');
+    if ($('reset-preset')) $('reset-preset').hidden=!modified();
+    document.querySelectorAll('[data-racks]').forEach(b=>b.setAttribute('aria-pressed',!customRacksActive&&Number(b.dataset.racks)===state.event.racks));
+    if($('custom-racks')) {
+      $('custom-racks').classList.toggle('active',customRacksActive);
+      if(racksValid())$('custom-racks').removeAttribute('aria-invalid');else $('custom-racks').setAttribute('aria-invalid','true');
+    }
+    document.querySelector('[data-action="start"]').disabled=!racksValid();
+    document.querySelectorAll('[data-step]').forEach(b=>b.disabled=Number(b.dataset.delta)<0?config()[b.dataset.step]<=1:config()[b.dataset.step]>=99);
+    renderExample();
+  }
+  function renderExample() {
+    const s=page==='board'&&game?game.setup:state, c=config(s), count=playerCount(s), folk=s.family==='folk', activeBreaker=page==='board'&&game?game.breaker:s.breaker, payer=activeBreaker<count?activeBreaker:0, winner=(payer+1)%count;
+    const changes=Array(count).fill(0);
+    if(folk) {
+      const payers=c.allPay?Array.from({length:count},(_,i)=>i).filter(i=>i!==winner):[payer];
+      payers.forEach(i=>{changes[i]-=c.small;changes[winner]+=c.small;});
+    } else changes[winner]=c.small;
+    $('example-mode').textContent=modeName(s)+(modified(s)?' · 已调整':'');
+    $('example-table').innerHTML=changes.map((v,i)=>`<div class="example-person"><span>${esc(name(i,s))}${i===winner?'<small>小金赢家</small>':i===payer?'<small>本局开球人</small>':''}</span><strong class="${v>0?'positive':v<0?'negative':'zero'}">${signed(v)}</strong></div>`).join('');
+    $('example-note').textContent=folk?`赢家收到付分，其他玩家等额扣分。本次变化合计为0。${c.allPay?'小金已设为其余每人付分。':'小金由本局开球人付分。'}`:'小金赢家增加积分，对手积分不变。双方积分合计无需为0。';
+  }
+  function setupError(text) {
+    $('setup-error').textContent=text; $('setup-error').hidden=!text;
+    if(text) $('setup-error').scrollIntoView({block:'nearest'});
+  }
+  function startGame() {
+    if(!racksValid()) {setupError('比赛局数须为1至99的整数。');return;}
+    if(!pointsValid()) {setupError('请将所有分值设为1至99的整数。');return;}
+    const names=Array.from({length:playerCount()},(_,i)=>name(i));
+    if(new Set(names).size!==names.length) {setupError('玩家姓名不能相同，请修改后开始。');return;}
+    const setup=clone(state); setup.names=names; setup.breaker=setup.family==='event'?Math.min(1,setup.breaker):setup.breaker;
+    game={setup,scores:Array(names.length).fill(0),breaker:setup.breaker,round:1,fouls:[0,0],finished:false,history:[],log:[]};
+    page='board'; closeSheet(); $('setup-overlay').hidden=true; $('board').hidden=false; renderBoard(); renderExample();
+  }
+  function renderBoard() {
+    const s=game.setup;
+    const rackLabel=s.family==='event'&&game.round>s.event.racks?`加赛第 ${game.round-s.event.racks} 局`:`第 ${game.round}${s.family==='event'?` / ${s.event.racks}`:''} 局`;
+    $('board').innerHTML=`<header class="board-top"><button data-action="return-setup" aria-label="返回开局设置">‹</button><div><strong>${esc(modeName(s))}${modified(s)?' · 已调整':''}</strong><small>${game.finished?'本场已结束':`${rackLabel} · ${esc(name(game.breaker,s))}开球`}</small></div><button data-action="help" aria-label="查看本场规则"><span class="question" style="border-color:#a0a6ad;color:#c2c7ce">?</span></button></header>
+      <div class="board-grid" data-count="${game.scores.length}">${game.scores.map((v,i)=>`<button class="player-panel" data-player="${i}" aria-label="为${esc(name(i,s))}记分"><span class="player-name"><span class="cue-slot">${i===game.breaker?cue:''}</span>${esc(name(i,s))}</span><strong class="player-score" style="${String(v).length>3?'font-size:44px;letter-spacing:-1px':''}">${v<0?'−'+Math.abs(v):v}</strong>${s.family==='event'?`<span class="foul-dots" aria-label="本局${game.fouls[i]}次犯规">${[0,1,2].map(n=>`<i class="${n<game.fouls[i]?'active':''}"></i>`).join('')}</span>`:''}<span class="panel-hint">${game.finished?'查看与编辑':'点此记录'}</span></button>`).join('')}</div>
+      <footer class="board-bottom"><button data-action="undo" ${game.history.length?'':'disabled'}>↶ 撤销</button><button data-action="edit">✎ 编辑</button><button data-action="ledger">记录</button></footer>`;
+  }
+  function showSheet(type) {
+    lastFocus=document.activeElement; sheetType=type; $('layer').hidden=false;
+    $('setup-overlay').inert=true; $('board').inert=true;
+    renderSheet(); requestAnimationFrame(()=>($('sheet').querySelector('button:not(:disabled),input,select')||$('sheet')).focus({preventScroll:true}));
+  }
+  function closeSheet() {
+    sheetType=null; $('layer').hidden=true; $('setup-overlay').inert=false; $('board').inert=false;
+    if(lastFocus?.isConnected) lastFocus.focus({preventScroll:true});
+  }
+  const sheetHead=(title,subtitle='')=>`<div class="sheet-grabber" aria-hidden="true"></div><header class="sheet-head"><h2 id="sheet-title">${title}${subtitle?`<small>${subtitle}</small>`:''}</h2><button class="close-button" data-action="close-sheet" aria-label="关闭弹窗">×</button></header>`;
+  const sheetFoot=(title='知道了',action='close-sheet')=>`<footer class="sheet-foot"><button class="primary-button" data-action="${action}">${title}</button></footer>`;
+  const helpSection=(title,body)=>`<section class="help-section"><h4>${title}</h4>${body}</section>`;
+  const feedbackEntry=section=>`<button class="rule-feedback" data-action="rule-feedback" data-feedback-section="${section}" aria-label="${{folk:'民间追分',tournament:'赛事积分',compare:'两者差异'}[section]}反馈"><span>遇到问题或有建议？</span><strong>去反馈<svg viewBox="0 0 8 14" aria-hidden="true"><path d="m1 1 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></strong></button>`;
+  function openRuleFeedback(section) {
+    feedbackSource=section;
+    feedbackHelpScroll=$('help-content').scrollTop;
+    if(!feedbackDraft)feedbackDraft={type:'feedback',title:'#九球追分# ',content:''};
+    sheetType='feedback';renderSheet();
+    requestAnimationFrame(()=>$('sheet').querySelector('[data-action="feedback-back"]').focus({preventScroll:true}));
+  }
+  function returnToRuleHelp() {
+    sheetType='help';renderSheet();$('help-content').scrollTop=feedbackHelpScroll;
+    requestAnimationFrame(()=>$('sheet').querySelector(`[data-feedback-section="${feedbackSource}"]`).focus({preventScroll:true}));
+  }
+  function feedbackCompose() {
+    const types=[
+      {id:'feedback',label:'一般反馈',color:'#22c55e',icon:'<path d="M5 4h14v12H9l-4 4V4Z"/>'},
+      {id:'feature',label:'功能建议',color:'#3b82f6',icon:'<path d="M8 15c-4-4-1-11 4-11s8 7 4 11l-1 2H9l-1-2ZM9 20h6M10 23h4"/>'},
+      {id:'problem',label:'问题反馈',color:'#ef4444',icon:'<rect x="7" y="7" width="10" height="14" rx="5"/><path d="m8 7-2-3m10 3 2-3M3 11h4m10 0h4M3 16h4m10 0h4M5 23l3-4m8 0 3 4M12 8v12"/>'}
+    ];
+    return `<header class="feedback-nav"><button class="feedback-back" data-action="feedback-back" aria-label="返回赛制说明">‹</button><h2 id="sheet-title">发布反馈</h2><button data-action="feedback-publish">发布</button></header><div class="feedback-content"><div class="feedback-types" role="group" aria-label="反馈类型">${types.map(t=>`<button data-feedback-type="${t.id}" aria-pressed="${feedbackDraft.type===t.id}" style="--feedback-type-color:${t.color}"><svg viewBox="0 0 24 26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${t.icon}</svg><span>${t.label}</span></button>`).join('')}</div><div class="feedback-fields"><input id="feedback-title" value="${esc(feedbackDraft.title)}" maxlength="200" placeholder="请输入反馈标题" aria-label="反馈标题"><textarea id="feedback-content" maxlength="10000" placeholder="请详细描述您的反馈内容…" aria-label="反馈内容">${esc(feedbackDraft.content)}</textarea></div><p class="feedback-error" id="feedback-error" role="alert" hidden></p><section class="feedback-guide"><h3>发布须知</h3><p>请确保反馈内容真实、有建设性。<br>功能建议请描述使用场景。<br>问题反馈请包含复现步骤。</p></section><p class="feedback-demo-note">此页用于演示反馈入口和标题预填；点击发布不会发送线上反馈。</p></div>`;
+  }
+  function renderHelp(s,comparison=false) {
+    const c=config(s), folk=s.family==='folk';
+    const scoreStrip=`<div class="help-score">${summaryKeys(s).map(k=>`<div><strong>${c[k]}</strong><span>${labels[k]}</span></div>`).join('')}</div>`;
+    if(comparison) return `<p class="help-intro">14710、1357 是本应用民间追分的两种分值方案。赛事积分除了分值，还在积分增减、9号球归类和犯规结算上有所不同。</p>
+      <table class="compare-table"><thead><tr><th>项目</th><th>民间追分<br>14710 / 1357</th><th>赛事积分<br>参考2025规则</th></tr></thead><tbody>
+      <tr><td>记分</td><td><b>赢家加分<br>付分人等额扣分</b></td><td><b>得分方加分<br>对手积分不变</b></td></tr>
+      <tr><td>预设分值</td><td>1／4／7／10<br>或 1／3／5／7</td><td>1／4／7／10<br>第三犯对手得2分<br>不另加普胜分</td></tr>
+      <tr><td>开球进9</td><td>独立记黄金9</td><td>合法开球进9记小金</td></tr>
+      <tr><td>小金</td><td>默认本局开球人付分<br>可改为其余每人付分</td><td>符合小金定义则得分<br>没有付分人</td></tr>
+      <tr><td>黄金9</td><td>独立事件、单独设分</td><td>没有独立得分类别</td></tr>
+      <tr><td>犯规</td><td>本人扣分、下家加分<br>本预设不累计三犯判负</td><td>同一人本局累计三犯<br>该人本局判负并结束本局<br>不代表整场判负</td></tr>
+      <tr><td>让杆</td><td>可以开启<br>不计分、不换局</td><td>不提供民间让杆操作</td></tr>
+      <tr><td>防守</td><td>本预设按进攻追分约定</td><td>合法防守不单独计分</td></tr>
+      <tr><td>人数</td><td>2至4人</td><td>两人单打</td></tr>
+      </tbody></table>${helpSection('同名分值，不代表同一种玩法','<p>赛事也可能使用14710。辨别时先看是<b>玩家间转分</b>还是<b>比赛积分累计</b>，再看黄金9、犯规和开球的约定。</p>')}`;
+    let body=`<p class="help-intro">${folk?'记录玩家之间的积分转移。有人加分，其他人等额扣分。14710 和 1357 使用本应用同一套民间玩法，只更换预设分值。':'两人各自累计积分，得分时对手积分不扣除。整场按总积分决定胜负；输掉一局不等于输掉整场比赛。'}</p>
+      <div class="help-example"><strong>${folk?(c.allPay?`小金示例：赢家 +${c.small*(playerCount(s)-1)}，其余每人 −${c.small}`:`小金示例：赢家 +${c.small}，付分人 −${c.small}`):`小金示例：赢家 +${c.small}，对手 0`}</strong><p>${folk?(c.allPay?'民间小金设为其余每人付分，赢家收取各家分数总和。':'民间小金设为仅本局开球人付分；其他玩家不变。'):'分值相同也可能是不同玩法。双方积分合计不要求为0。'}</p></div>${scoreStrip}`;
+    if(folk) {
+      body+=helpSection('大金、小金与普胜',`<p><b>大金：</b>本局开球人完成开球清台，其余每人付${c.big}分。</p><p><b>小金：</b>接手后完成符合本桌约定的清台，${c.allPay?`其余每人付${c.small}分`:`默认由本局开球人付${c.small}分`}。</p><p><b>普胜：</b>其他普通赢局，由一位付分人付${c.normal}分。多人预选赢家的座位上家，可在确认时更正。</p>`);
+      body+=helpSection(`黄金9 · 每位其他玩家付${c.golden}分`,'<p>本预设将合法开球直接进9、合法传进9作为独立的黄金9事件，赢家收取其余每人的付分。它的分值单独约定，不由“14710”或“1357”四个数字完整定义。</p>');
+      body+=helpSection('犯规与让杆',`<p><b>犯规：</b>本人扣${c.foul}分，座位下家得${c.foul}分并获自由球；不额外收自由球分，不结束本局。</p><p><b>让杆：</b>${c.handoff?'已开启。选择另一位玩家继续击球，不计分、不换局。是否符合让杆条件，由同桌玩家确认。':'已关闭，记分操作中不显示让杆。'}</p><p>本民间预设不自动累计三犯判负，按进攻追分约定使用。</p>`);
+      body+=helpSection('下一局谁开球',`<p>普胜、小金：由赢家的座位下家开球。</p><p>大金、黄金9：${c.retains?'赢家继续开球。':'由赢家的座位下家开球。'}</p>`);
+      body+=helpSection('分值可以改，玩法先说好','<p>黄金9分值、小金付分对象、续开和让杆都可在「分值与开球」中修改。这里展示的是本应用的民间预设，开局前请同桌确认约定。</p>');
+    } else {
+      body+=helpSection('大金、小金与普胜',`<p><b>大金 ${c.big}分：</b>开球方完成开球清台。</p><p><b>小金 ${c.small}分：</b>包括合法开球直接进9、开球9颗目标球全部进袋，以及开球进球后开球方不停杆传进9。</p><p>非开球时，击球前台面仍有1号和9号，按顺序清台也算小金；这种情况下中途传进9不算小金。</p><p><b>普胜 ${c.normal}分：</b>除大金、小金、三犯判负外的其他合法赢局，才记普胜。传进9并不一律算小金。</p>`);
+      body+=helpSection('开球进9，记小金','<p>没有独立的黄金9得分类别。合法开球进9直接记小金。</p><p>开球进9同时犯规时，9号球复位，对手获自由球，并按犯规处理。</p>');
+      body+=helpSection('同一人本局累计三犯',`<p>第一次、第二次犯规：每次对手得${c.foul}分，本局继续。</p><p>第三次犯规：<b>犯规方本局判负，对手得${c.third}分，本局结束。</b></p><p>这是一次结算，不再另加普通犯规${c.foul}分或普胜${c.normal}分，也不代表整场判负。例如同一人本局犯规三次，对手依次得${c.foul}、${c.foul}、${c.third}分，共${2*c.foul+c.third}分。</p><p>每人分别累计，不要求连续；中途合法击球不会清零。进入下一局时，双方犯规次数清零。</p>`);
+      body+=helpSection('防守与开球',`<p>可以合法防守，防守不单独计分，也不提供民间让杆操作。</p><p>赛事开球方式设为<b>${c.breakRule==='winner'?'赢家续开':'双方轮流开球'}</b>。三犯结束本局时，未犯满三次的一方视为本局赢家，按该开球方式安排下一局。</p>`);
+      body+=helpSection('比赛局数与胜负',`<p>赛事局数设为<b>${c.racks}局</b>，指总局数，不是先赢${c.racks}局。局数可在「分值与开球」中选择或自定义。</p><p>总局数打完后，积分较高者获胜；平分则加赛。分差大于剩余局数×大金分值时，提前结束比赛。</p>`);
+      body+=helpSection('规则依据','<p>参考《独牙传奇中式九球标准规则》（2025年10月16日）。具体比赛的开球方式、局数及补充条款，以该赛事赛前公布的规程为准。</p>');
+    }
+    return body;
+  }
+  function renderSheet() {
+    const s=page==='board'&&game?game.setup:state;
+    $('sheet').classList.toggle('feedback-page',sheetType==='feedback');
+    $('layer').classList.toggle('feedback-layer',sheetType==='feedback');
+    if(sheetType==='help') {
+      $('sheet').innerHTML=sheetHead('赛制说明')+`<div class="sheet-content" id="help-content"><section class="help-group" id="help-folk" aria-labelledby="help-folk-title"><h3 id="help-folk-title">民间追分</h3>${renderHelp({...s,family:'folk'})}${feedbackEntry('folk')}</section><section class="help-group" id="help-tournament" aria-labelledby="help-tournament-title"><h3 id="help-tournament-title">赛事积分</h3>${renderHelp({...s,family:'event'})}${feedbackEntry('tournament')}</section><section class="help-group" id="help-compare" aria-labelledby="help-compare-title"><h3 id="help-compare-title">两者差异</h3>${renderHelp(s,true)}${feedbackEntry('compare')}</section></div>`+sheetFoot();
+    } else if(sheetType==='feedback') {
+      $('sheet').innerHTML=feedbackCompose();
+    } else if(sheetType==='names') {
+      $('sheet').innerHTML=sheetHead('选择常用姓名',`替换玩家${nameTarget+1}的姓名`)+`<div class="sheet-content name-options">${['张三','李四','王五','赵六','林小满','陈星河'].map(n=>`<button data-saved-name="${n}">${n}</button>`).join('')}</div>`+sheetFoot('取消');
+    } else if(sheetType==='actions') {
+      const c=config(s), folk=s.family==='folk';
+      const keys=folk?['normal','foul','big','small','golden']:['normal','foul','big','small'];
+      const payer=(actor+game.scores.length-1)%game.scores.length;
+      $('sheet').innerHTML=sheetHead(esc(name(actor,s)),`第${game.round}局 · ${folk?'记录转分':'累计比赛得分'}`)+`<div class="sheet-content"><div class="event-grid">${keys.map(k=>{
+        const disabled=game.finished||(k==='big'&&actor!==game.breaker)||(folk&&k==='small'&&!c.allPay&&actor===game.breaker&&game.scores.length===2);
+        const detail=k==='foul'?folk?`本人 −${c.foul} / 下家 +${c.foul}`:game.fouls[actor]>=2?`对手 +${c.third} · 本局判负`:`对手 +${c.foul} · 本局第${game.fouls[actor]+1}犯`:folk&&(k==='big'||k==='golden'||(k==='small'&&c.allPay))?`每家${c[k]}分 · 赢家 +${c[k]*(game.scores.length-1)}`:`${folk?'赢家':'本人'} +${c[k]}`;
+        return `<button class="event-button ${k==='normal'?'win':k==='foul'?'foul':''}" data-event="${k}" ${disabled?'disabled':''}><strong>${labels[k]}</strong><span>${detail}</span></button>`;
+      }).join('')}${folk&&c.handoff?`<button class="event-button handoff" data-event="handoff" ${game.finished?'disabled':''}><strong>让杆</strong><span>不计分</span></button>`:''}</div>
+        ${folk&&game.scores.length>2?`<div class="payer-chooser"><label>普胜付分人<select id="payer">${game.scores.map((_,i)=>i!==actor?option(i,name(i,s),payer):'').join('')}</select></label><label>小金付分人<select id="small-payer" ${c.allPay?'disabled':''}>${game.scores.map((_,i)=>i!==actor?option(i,name(i,s),game.breaker===actor?payer:game.breaker):'').join('')}</select></label>${c.handoff?`<label>让杆后继续人<select id="continue-player">${game.scores.map((_,i)=>i!==actor?option(i,name(i,s),(actor+1)%game.scores.length):'').join('')}</select></label>`:''}</div>`:''}
+        <p class="fine-print" style="margin-top:12px">${game.finished?'本场已结束，可编辑或撤销。':folk&&actor===game.breaker?'大金仅开球人可记。小金默认由开球人付分。':'记录后可以整笔撤销。'}</p></div>`+sheetFoot('返回');
+    } else if(sheetType==='edit') {
+      const folk=s.family==='folk';
+      $('sheet').innerHTML=sheetHead('编辑比分',modeName(s))+`<div class="sheet-content">${editDraft.names.map((n,i)=>`<div class="edit-row"><span>${i+1}</span><input value="${esc(n)}" maxlength="16" data-edit-name="${i}" aria-label="编辑玩家${i+1}姓名"><input type="number" min="${folk?-9999:0}" max="9999" step="1" inputmode="${folk?'text':'numeric'}" value="${esc(editDraft.scores[i])}" data-edit-score="${i}" aria-label="编辑玩家${i+1}积分"></div>`).join('')}
+        <div class="edit-guidance"><strong>${folk?'转分积分 · 允许正负数':'赛事积分 · 从0开始累计'}</strong><p>${folk?'正常记分等额加减。这里保留手动更正能力，分数合计不为0时会提醒，仍可保存。':'双方积分独立累计，只接受0至9999的整数，无需凑成合计0。'}</p></div><p class="edit-warning" id="edit-warning" role="status"></p><p class="setup-error" id="edit-error" role="alert" hidden></p></div>`+sheetFoot('保存修改','save-edit');
+      validateEdit();
+    } else if(sheetType==='ledger') {
+      $('sheet').innerHTML=sheetHead('本场记录',modeName(s))+`<div class="sheet-content">${game.log.length?game.log.slice().reverse().map(x=>`<div class="ledger-item"><strong>${esc(x.title)}</strong>${esc(x.detail)}</div>`).join(''):'<p class="empty-ledger">还没有记分。点击玩家记录大金、小金、普胜或犯规。</p>'}</div>`+sheetFoot();
+    }
+  }
+  function snapshot() {const {history,...rest}=game; game.history.push(clone(rest));}
+  function commitEvent(kind) {
+    if(game.finished)return;
+    const s=game.setup,c=config(s),folk=s.family==='folk',n=game.scores.length;
+    const delta=Array(n).fill(0); const roundBefore=game.round;
+    let ends=false, following=game.breaker, detail='';
+    const pay=(payer,receiver,v)=>{delta[payer]-=v;delta[receiver]+=v;};
+    if(kind==='big'&&actor!==game.breaker) return;
+    if(folk) {
+      if(kind==='big'||kind==='golden'||(kind==='small'&&c.allPay)) {
+        for(let i=0;i<n;i++)if(i!==actor)pay(i,actor,c[kind]);
+      } else if(kind==='small'||kind==='normal') {
+        const el=$(kind==='small'?'small-payer':'payer');
+        const payer=el?Number(el.value):kind==='small'?game.breaker:(actor+n-1)%n;
+        if(payer===actor){toast('请先确认小金付分人。');return;}
+        pay(payer,actor,c[kind]);
+      } else if(kind==='foul') pay(actor,(actor+1)%n,c.foul);
+      if(kind==='handoff') {const next=$('continue-player')?Number($('continue-player').value):(actor+1)%n;detail=`${name(next,s)}继续击球，不计分、不换局`;}
+      ends=['normal','small','big','golden'].includes(kind);
+      if(ends) following=(kind==='big'||kind==='golden')&&c.retains?actor:(actor+1)%n;
+    } else {
+      if(kind==='foul') {
+        const third=game.fouls[actor]===2; delta[1-actor]=third?c.third:c.foul; ends=third; following=1-actor;
+        detail=third?`${name(actor,s)}本局累计三犯，判负本局；不另加普胜分`:`本局第${game.fouls[actor]+1}次犯规`;
+      } else {delta[actor]=c[kind];ends=true;following=actor;}
+      if(ends&&c.breakRule==='alternate') following=1-game.breaker;
+    }
+    snapshot();
+    if(!folk&&kind==='foul')game.fouls[actor]+=1;
+    game.scores=game.scores.map((v,i)=>v+delta[i]);
+    const changes=delta.map((v,i)=>`${name(i,s)} ${signed(v)}`).join('，');
+    game.log.push({title:`第${roundBefore}局 · ${name(actor,s)} ${!folk&&kind==='foul'&&ends?'三犯判负':labels[kind]}`,detail:(detail?detail+'；':'')+changes});
+    if(ends) {
+      game.round++; game.breaker=following; game.fouls=[0,0];
+      if(!folk) {
+        const remaining=Math.max(0,c.racks-roundBefore),diff=Math.abs(game.scores[0]-game.scores[1]);
+        game.finished=diff>remaining*c.big;
+        if(roundBefore>=c.racks)game.finished=diff!==0;
+      }
+    }
+    closeSheet(); renderBoard(); toast(kind==='handoff'?detail:changes+(!folk&&kind==='foul'&&ends?' · 三犯，本局判负':'')+(game.finished?' · 本场结束':''));
+  }
+  function openEdit() {
+    editDraft={names:game.setup.names.slice(),scores:game.scores.map(String)}; showSheet('edit');
+  }
+  function validateEdit() {
+    const folk=game.setup.family==='folk',lo=folk?-9999:0;
+    let error='';
+    const values=editDraft.scores.map(v=>v.trim()===''?NaN:Number(v));
+    if(values.some(v=>!Number.isInteger(v)||v<lo||v>9999))error=`积分须为${lo}至9999的整数。`;
+    const names=editDraft.names.map((v,i)=>v.trim()||`玩家${i+1}`);
+    if(new Set(names).size!==names.length)error='玩家姓名不能相同。';
+    const sum=values.reduce((a,b)=>a+b,0);
+    $('edit-warning').textContent=folk&&Number.isFinite(sum)?`当前积分合计：${signed(sum)}${sum!==0?'。与等额转分不同，请确认手动更正结果。':'，符合等额转分。'}`:'';
+    $('edit-error').textContent=error; $('edit-error').hidden=!error;
+    $('sheet').querySelector('[data-action="save-edit"]').disabled=!!error;
+    return !error;
+  }
+  function saveEdit() {
+    if(!validateEdit())return;
+    snapshot();game.setup.names=editDraft.names.map((n,i)=>n.trim()||`玩家${i+1}`);game.scores=editDraft.scores.map(Number);
+    game.log.push({title:'手动更正',detail:game.scores.map((v,i)=>`${name(i,game.setup)} ${signed(v)}`).join('，')});
+    closeSheet();renderBoard();renderExample();toast('已保存，可整笔撤销。');
+  }
+  function changeFamily(family) {
+    state.family=family; state.breaker=Math.min(state.breaker,playerCount()-1); renderSetup();
+  }
+  document.addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b||b.disabled)return;
+    if(b.dataset.family){changeFamily(b.dataset.family);return;}
+    if(b.dataset.scheme){state.family='folk';state.scheme=b.dataset.scheme;Object.assign(state.folk,schemes[state.scheme]);renderSetup();return;}
+    if(b.dataset.racks){state.event.racks=Number(b.dataset.racks);customRacksActive=false;customRacksText='';renderSetup();return;}
+    if(b.dataset.feedbackType){feedbackDraft.type=b.dataset.feedbackType;renderSheet();$('sheet').querySelector(`[data-feedback-type="${feedbackDraft.type}"]`).focus({preventScroll:true});return;}
+    if(b.dataset.count){state.count=Number(b.dataset.count);state.breaker=Math.min(state.breaker,state.count-1);renderSetup();return;}
+    if(b.dataset.step){const k=b.dataset.step,current=Number(config()[k]);config()[k]=Math.min(99,Math.max(1,(Number.isFinite(current)?current:1)+Number(b.dataset.delta)));const input=document.querySelector(`[data-point="${k}"]`);input.value=config()[k];input.removeAttribute('aria-invalid');if(pointsValid())setupError('');updateDerived();return;}
+    if(b.dataset.namePicker!==undefined){nameTarget=Number(b.dataset.namePicker);showSheet('names');return;}
+    if(b.dataset.savedName){state.names[nameTarget]=b.dataset.savedName;closeSheet();renderSetup();return;}
+    if(b.dataset.player!==undefined){actor=Number(b.dataset.player);showSheet('actions');return;}
+    if(b.dataset.event){commitEvent(b.dataset.event);return;}
+    switch(b.dataset.action){
+      case 'help':
+      case 'compare':showSheet('help');break;
+      case 'rule-feedback':openRuleFeedback(b.dataset.feedbackSection);break;
+      case 'feedback-back':returnToRuleHelp();break;
+      case 'feedback-publish':{
+        const error=feedbackDraft.title.trim().length<5?'标题至少5个字。':feedbackDraft.content.trim().length<10?'详细描述至少10个字。':'';
+        $('feedback-error').textContent=error;$('feedback-error').hidden=!error;
+        if(!error)toast('Demo仅演示，未发送线上反馈。');
+        break;
+      }
+      case 'close-sheet':closeSheet();break;
+      case 'start':startGame();break;
+      case 'cancel-setup':if(game){page='board';$('setup-overlay').hidden=true;$('board').hidden=false;renderBoard();renderExample();}else toast('这是开局设置预览，选择规则后可开始体验。');break;
+      case 'return-setup':page='setup';$('board').hidden=true;$('setup-overlay').hidden=false;renderSetup();break;
+      case 'reset-preset':e.preventDefault();if(state.family==='folk')state.folk={...schemes[state.scheme],allPay:false,retains:true,handoff:true};else {state.event={...eventDefaults,breakRule:'winner',racks:DEFAULT_RACKS};customRacksActive=false;customRacksText='';}state.breaker=0;renderSetup();$('advanced').querySelector('summary').focus({preventScroll:true});toast('已恢复当前预设，玩家姓名保持不变。');break;
+      case 'reset-demo':closeSheet();clearTimeout(toastTimer);$('toast').hidden=true;state=fresh();game=null;page='setup';advancedOpen=false;customRacksActive=false;customRacksText='';feedbackDraft=null;feedbackHelpScroll=0;feedbackSource='folk';$('board').hidden=true;$('setup-overlay').hidden=false;renderSetup();break;
+      case 'edit':openEdit();break;
+      case 'preview-edit':if(page!=='board'){startGame();if(page!=='board')return;}openEdit();break;
+      case 'save-edit':saveEdit();break;
+      case 'ledger':showSheet('ledger');break;
+      case 'undo':if(game.history.length){const history=game.history;const previous=history.pop();game={...previous,history};closeSheet();renderBoard();renderExample();toast('已撤销上一笔，积分、局数和犯规次数同时恢复。');}break;
+    }
+  });
+  document.addEventListener('input',e=>{
+    const el=e.target;
+    if(el.id==='feedback-title'||el.id==='feedback-content'){feedbackDraft[el.id==='feedback-title'?'title':'content']=el.value;$('feedback-error').hidden=true;}
+    if(el.id==='custom-racks') {customRacksActive=true;customRacksText=el.value;const n=Number(customRacksText);if(customRacksText.trim()!==''&&Number.isInteger(n)&&n>=1&&n<=99)state.event.racks=n;setupError(racksValid()?'':'比赛局数须为1至99的整数。');updateDerived();}
+    if(el.dataset.name!==undefined){state.names[Number(el.dataset.name)]=el.value;const before=$('breaker').value;$('breaker').innerHTML=Array.from({length:playerCount()},(_,i)=>option(i,name(i),before)).join('');renderExample();}
+    if(el.dataset.point){config()[el.dataset.point]=el.value.trim()===''?NaN:Number(el.value);updateDerived();}
+    if(el.dataset.editScore!==undefined){editDraft.scores[Number(el.dataset.editScore)]=el.value;validateEdit();}
+    if(el.dataset.editName!==undefined){editDraft.names[Number(el.dataset.editName)]=el.value;validateEdit();}
+  });
+  document.addEventListener('focusin',e=>{
+    const el=e.target;
+    if(el.id==='custom-racks'&&!customRacksActive){customRacksActive=true;customRacksText=String(state.event.racks);el.value=customRacksText;el.select();updateDerived();}
+  });
+  document.addEventListener('change',e=>{
+    const el=e.target;
+    if(el.dataset.point){const v=Number(el.value);if(!Number.isInteger(v)||v<1||v>99){el.setAttribute('aria-invalid','true');setupError('分值须为1至99的整数。');}else{el.removeAttribute('aria-invalid');setupError('');}updateDerived();}
+    if(el.dataset.setting){const k=el.dataset.setting;if(k==='breaker')state.breaker=Number(el.value);else if(k==='allPay')state.folk.allPay=el.value==='true';else if(el.type==='checkbox')config()[k]=el.checked;else config()[k]=k==='racks'?Number(el.value):el.value;updateDerived();}
+  });
+  $('layer').addEventListener('click',e=>{if(e.target===$('layer'))closeSheet();});
+  document.addEventListener('keydown',e=>{
+    if(!sheetType)return;
+    if(e.key==='Escape'){e.preventDefault();if(sheetType==='feedback')returnToRuleHelp();else closeSheet();return;}
+    if(e.key==='Tab'){
+      const nodes=[...$('sheet').querySelectorAll('button:not(:disabled),input:not(:disabled),textarea:not(:disabled),select:not(:disabled),a[href]')];
+      if(!nodes.length)return;
+      if(e.shiftKey&&(document.activeElement===nodes[0]||!$('sheet').contains(document.activeElement))){e.preventDefault();nodes.at(-1).focus();}
+      else if(!e.shiftKey&&(document.activeElement===nodes.at(-1)||!$('sheet').contains(document.activeElement))){e.preventDefault();nodes[0].focus();}
+    }
+  });
+  renderSetup();
+})();
+</script>
+</body>
+</html>

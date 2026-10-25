@@ -216,8 +216,10 @@ final class WechatBindingFlowModel {
             try await session.validateWechatBinding(context)
             guard !closed else { throw CancellationError() }
             try await commonData.pauseForAccountLink(context: context)
+            try PersonalRecordsCloudSync.shared.pauseForAccountLink(context: context)
             guard !closed else {
                 await commonData.cancelAccountLink(context: context)
+                await PersonalRecordsCloudSync.shared.cancelAccountLink(context: context)
                 throw CancellationError()
             }
             try await session.validateWechatBinding(context)
@@ -260,7 +262,8 @@ final class WechatBindingFlowModel {
                 result = try await service.confirm(ticket: ticket, previewToken: preview.previewToken, requestID: requestID)
             }
             guard let auth = result.authentication, let bindings = result.bindings else { throw APIClientError.invalidResponse }
-            try await session.applyLinkedAccount(auth, bindings: bindings, context: context)
+            if let merge = result.merge { PersonalRecordsCloudSync.shared.stageAccountLinkResult(merge) }
+            try await session.applyLinkedAccount(auth, bindings: bindings, context: context, privateMerge: result.merge)
             completed = true
             stage = .success
         } catch { handle(error) }
@@ -301,6 +304,7 @@ final class WechatBindingFlowModel {
         guard let context else { return }
         self.context = nil
         await commonData.cancelAccountLink(context: context)
+        await PersonalRecordsCloudSync.shared.cancelAccountLink(context: context)
         await session.endWechatBinding(context)
         attempt = nil
         ticket = nil

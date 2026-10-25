@@ -436,9 +436,14 @@ struct ScoreboardRecordSummary: Codable, Identifiable, Equatable {
     var winnerIdentity: ScoreboardWinnerIdentity?
     var extraData: [String: AnyCodable]?
     var projectConfiguration: [String: AnyCodable]?
+    /// Carries the snapshot-derived version into list rows without changing the record.
+    var nineBallRuleVersion: Int? = nil
     /// Exact ScoreCore type for mode-aware labels and filters. App `GameType`
     /// intentionally keeps its historical family-level raw values.
     var scoreCoreGameTypeRawValue: String?
+    /// Account-independent identity metadata; list filtering never opens full records.
+    var personalRecordSeatNames: [String: String]?
+    var groupGameID: String?
     
     // Convert from full record
     init(from record: ScoreboardRecord) {
@@ -471,7 +476,11 @@ struct ScoreboardRecordSummary: Codable, Identifiable, Equatable {
         self.winnerIdentity = record.winnerIdentity
         self.extraData = record.extraData
         self.projectConfiguration = record.projectConfiguration
+        self.nineBallRuleVersion = record.gameType == .nineBall ? record.nineBallRuleVersion : nil
         self.scoreCoreGameTypeRawValue = record.resolvedScoreCoreGameType?.rawValue
+        self.personalRecordSeatNames = record.groupMatchContext == nil
+            ? Dictionary(uniqueKeysWithValues: PersonalRecordAdapter.seatDescriptors(record).map { ($0.id, $0.name) }) : [:]
+        self.groupGameID = record.groupMatchContext?.gameID
     }
     
     // Equatable conformance
@@ -497,6 +506,18 @@ struct ScoreboardRecordParticipant: Equatable {
 }
 
 extension ScoreboardRecord {
+    var nineBallRuleVersion: Int {
+        NineBallRecordRuleVersionPolicy.resolve(
+            extraData: extraData,
+            projectConfiguration: projectConfiguration,
+            stateSnapshot: stateSnapshot
+        )
+    }
+
+    var isLegacyNineBallRecord: Bool {
+        gameType == .nineBall && nineBallRuleVersion < 2
+    }
+
     /// Standalone or linked finishes that originated on Apple Watch.
     var isSyncedFromWatch: Bool {
         if let syncFrom = extraData?["syncFrom"]?.value as? String, syncFrom == "watch" {
@@ -722,6 +743,13 @@ extension ScoreboardRecord {
 }
 
 extension ScoreboardRecordSummary {
+    var isLegacyNineBallRecord: Bool {
+        gameType == .nineBall && (nineBallRuleVersion ?? NineBallRecordRuleVersionPolicy.resolve(
+            extraData: extraData,
+            projectConfiguration: projectConfiguration
+        )) < 2
+    }
+
     var isSyncedFromWatch: Bool {
         if let syncFrom = extraData?["syncFrom"]?.value as? String, syncFrom == "watch" {
             return true
@@ -961,9 +989,22 @@ enum ScoreboardRecordConfiguration {
         return result
     }
 
-    static func setup(from record: ScoreboardRecord) -> SportsSetupResult {
+    static func setup(from record: ScoreboardRecord, identity: ParticipantIdentityStore? = nil) -> SportsSetupResult {
+        let identity = identity ?? .shared
         let data = record.mergedProjectConfiguration
         var setup = SportsSetupResult(team1Name: record.team1Name, team2Name: record.team2Name)
+        if record.groupMatchContext == nil, identity.canRead(recordKey: record.id) {
+            let seats = PersonalRecordAdapter.seats(record, identity: identity)
+            let personalSeats = identity.personalSeats(for: record.id, matchingSeatNames: Dictionary(uniqueKeysWithValues: seats.map { ($0.id, $0.name) }))
+            var selections: [String: ParticipantSelection] = [:]
+            for seat in seats {
+                // Names are snapshots; only a saved selection or a unique
+                // historical claim can carry identity into a new match.
+                let person = seat.personRef ?? (personalSeats.count == 1 && personalSeats.contains(seat.id) ? identity.person : nil)
+                if let person { selections[seat.id] = .init(name: seat.name, personRef: person) }
+            }
+            setup.participantSelections = selections.isEmpty ? nil : selections
+        }
         let tennisState = record.tennisSnapshotState
         setup.maxSets = scoreboardInt(data["maxSets"]) ?? tennisState?.rules.maxSets
         setup.pointsPerSet = scoreboardInt(data["pointsPerSet"] ?? data["targetScore"])
@@ -1031,6 +1072,15 @@ enum ScoreboardRecordConfiguration {
         setup.nineBallNormalWin = scoreboardInt(data["nineBallNormalWin"])
         setup.nineBallBallInHand = scoreboardInt(data["nineBallBallInHand"])
         setup.nineBallFoul = scoreboardInt(data["nineBallFoul"])
+        setup.nineBallBreakerPlayer = scoreboardInt(data["nineBallBreakerPlayer"] ?? data["chaseBreakerPlayer"])
+        setup.nineBallSmallGoldAllPay = scoreboardBool(data["nineBallSmallGoldAllPay"] ?? data["chaseSmallGoldAllPay"])
+        setup.nineBallGoldRetainsBreak = scoreboardBool(data["nineBallGoldRetainsBreak"] ?? data["chaseGoldRetainsBreak"])
+        setup.nineBallRuleFamily = scoreboardString(data["nineBallRuleFamily"] ?? data["chaseRuleFamily"])
+        setup.nineBallPointScheme = scoreboardString(data["nineBallPointScheme"])
+        setup.nineBallHandoffEnabled = scoreboardBool(data["nineBallHandoffEnabled"])
+        setup.nineBallThirdFoul = scoreboardInt(data["nineBallThirdFoul"])
+        setup.nineBallBreakRule = scoreboardString(data["nineBallBreakRule"])
+        setup.nineBallTotalRacks = scoreboardInt(data["nineBallTotalRacks"])
         return setup
     }
 }

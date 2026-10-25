@@ -416,6 +416,9 @@ final class SessionStore {
         lastProfileReloadAt = nil
         user = nil
         state = .signedOut
+        // Disconnect private state before yielding to other sync managers. A
+        // later login must not be reset when this logout resumes.
+        PersonalRecordsCloudSync.shared.signedOut(explicit: true)
         // 登出即终止云端同步会话：发送 LEAVE、断开 WebSocket 并禁止自动重连（对齐安卓端会话随登出终止）。
         CloudSyncSession.shared.end(reason: "logout")
         GroupPushManager.shared.sessionDidChange(userID: nil)
@@ -447,6 +450,7 @@ final class SessionStore {
         wechatBindingStatus = nil
         presentsWechatUpgradePrompt = false
         lastError = APIClientError.sessionExpired.localizedDescription
+        PersonalRecordsCloudSync.shared.signedOut(explicit: false)
         // 凭证已失效（401），本地直接断开云端同步 WebSocket，不再发送 LEAVE。
         CloudSyncSession.shared.endFromServer()
         GroupPushManager.shared.sessionDidChange(userID: nil)
@@ -560,7 +564,7 @@ final class SessionStore {
     /// The merge response is the only path that can replace the current login.
     /// A delayed response can never overwrite a later manual login or logout.
     func applyLinkedAccount(_ response: AuthResponse, bindings: WechatBindingStatus,
-                            context: WechatBindingSessionContext) async throws {
+                            context: WechatBindingSessionContext, privateMerge: AccountLinkResponse.Merge? = nil) async throws {
         guard wechatBindingContext == context, context.generation == sessionGeneration,
               let expiry = APIDateParser.date(from: response.expiresAt) else { throw CancellationError() }
         let snapshot = await tokenStore.authSnapshot()
@@ -596,6 +600,18 @@ final class SessionStore {
         }
         guard sessionGeneration == linkedGeneration, isAuthenticated,
               user?.id == response.user.id else { throw CancellationError() }
+        if let privateMerge {
+            do {
+                try await PersonalRecordsCloudSync.shared.completeAccountLink(masterId: response.user.id,
+                    sourceId: privateMerge.sourceUserId, mode: privateMerge.mode.rawValue, context: context)
+            } catch {
+                guard sessionGeneration == linkedGeneration, isAuthenticated,
+                      user?.id == response.user.id else { throw CancellationError() }
+                // Authentication is already committed. Preserve the private queue
+                // for recovery rather than report a successful binding as failed.
+                PersonalRecordsCloudSync.shared.reportFailure(error)
+            }
+        }
         await runPostAuthenticationWarmup(userId: response.user.id)
         guard sessionGeneration == linkedGeneration, isAuthenticated,
               user?.id == response.user.id else { throw CancellationError() }
@@ -685,6 +701,8 @@ final class SessionStore {
             await postAuthenticationWarmup(userId)
             return
         }
+        let generation = sessionGeneration
+        guard user?.id == userId else { return }
         GroupStore.shared.sessionDidChange(userID: userId)
         GroupPushManager.shared.sessionDidChange(userID: userId)
         Task { await GroupStore.shared.refresh(); GroupPushManager.shared.synchronize() }
@@ -693,6 +711,8 @@ final class SessionStore {
         )
         async let purchaseSync: Void = StoreKitPurchaseManager.shared.sessionDidAuthenticate()
         _ = await (commonDataSync, purchaseSync)
+        guard generation == sessionGeneration, user?.id == userId, !Task.isCancelled else { return }
+        if let userId { await PersonalRecordsCloudSync.shared.sessionDidAuthenticate(userId: userId) }
     }
 
     private func handle(_ error: Error) async {

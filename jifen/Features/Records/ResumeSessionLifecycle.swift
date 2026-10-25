@@ -310,7 +310,16 @@ enum AbandonedResumeRecordBuilder {
                 operationCount: count,
                 extraData: [
                     "players": AnyCodable(players),
-                    "playerCount": AnyCodable(state.playerCount)
+                    "playerCount": AnyCodable(state.playerCount),
+                    "chaseRuleVersion": AnyCodable(state.ruleVersion),
+                    "chaseRoundNumber": AnyCodable(state.roundNumber),
+                    "chaseBreakerPlayer": AnyCodable(state.breakerPlayer),
+                    "chaseCurrentShooter": AnyCodable(state.currentShooter as Any),
+                    "chasePlayerPoints": AnyCodable(Array(state.playerPoints.prefix(state.playerCount))),
+                    "chaseSmallGoldAllPay": AnyCodable(state.config.smallGoldAllPay),
+                    "chaseGoldRetainsBreak": AnyCodable(state.config.goldRetainsBreak),
+                    "chaseRuleFamily": AnyCodable(state.config.ruleFamily.rawValue),
+                    "chaseRackFouls": AnyCodable(state.rackFouls)
                 ],
                 configuration: [
                     ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(envelope.gameType.rawValue),
@@ -319,7 +328,18 @@ enum AbandonedResumeRecordBuilder {
                     "nineBallGoldenNine": AnyCodable(state.config.goldenNine),
                     "nineBallNormalWin": AnyCodable(state.config.normalWin),
                     "nineBallBallInHand": AnyCodable(state.config.ballInHand),
-                    "nineBallFoul": AnyCodable(state.config.foul)
+                    "nineBallFoul": AnyCodable(state.config.foul),
+                    "nineBallRuleVersion": AnyCodable(state.ruleVersion),
+                    "nineBallRoundNumber": AnyCodable(state.roundNumber),
+                    "nineBallBreakerPlayer": AnyCodable(state.breakerPlayer),
+                    "nineBallSmallGoldAllPay": AnyCodable(state.config.smallGoldAllPay),
+                    "nineBallGoldRetainsBreak": AnyCodable(state.config.goldRetainsBreak),
+                    "nineBallRuleFamily": AnyCodable(state.config.ruleFamily.rawValue),
+                    "nineBallPointScheme": AnyCodable(state.config.pointScheme.rawValue),
+                    "nineBallHandoffEnabled": AnyCodable(state.config.handoffEnabled),
+                    "nineBallThirdFoul": AnyCodable(state.config.thirdFoul),
+                    "nineBallBreakRule": AnyCodable(state.config.breakRule.rawValue),
+                    "nineBallTotalRacks": AnyCodable(state.config.totalRacks)
                 ]
             )
 
@@ -796,7 +816,7 @@ private extension EightBallEvent {
 private extension NineBallChaseEvent {
     var isMeaningfulScoreOperation: Bool {
         switch self {
-        case .chaseApplied, .totalsAdjusted:
+        case .chaseApplied, .chaseTransferred, .breakerChanged, .totalsAdjusted:
             true
         default:
             false

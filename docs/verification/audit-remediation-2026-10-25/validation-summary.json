@@ -1,0 +1,53 @@
+{
+  "JifenCore": {
+    "total": 277,
+    "failed": 0
+  },
+  "iOSUnit": {
+    "total": 878,
+    "passed": 877,
+    "skipped": 1,
+    "failed": 0
+  },
+  "iOSUIPhone": {
+    "total": 3,
+    "passed": 3,
+    "skipped": 0,
+    "failed": 0
+  },
+  "iOSUIiPad": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0
+  },
+  "voiceLocalization": {
+    "total": 12,
+    "failed": 0
+  },
+  "nineBallDemo": {
+    "total": 23,
+    "failed": 0
+  },
+  "AndroidOfficial": {
+    "total": 133,
+    "failed": 0
+  },
+  "AndroidGoogle": {
+    "total": 133,
+    "failed": 0
+  },
+  "HarmonyOS": {
+    "entryDebugBuild": "succeeded",
+    "nineBallChecks": 73,
+    "displayScripts": "passed"
+  },
+  "backend": {
+    "contractPassed": 1,
+    "databaseSuite": "skipped"
+  },
+  "privateRequestsOutsideInjectedTransportSuite": 0,
+  "cloudDataReview": "dedicated-test-account-confirmed-data-retained",
+  "physicalKeyboardAndTV": "not-run",
+  "cloudAccountPurpose": "dedicated-test-account",
+  "cloudCleanupPerformed": false
+}

@@ -55,6 +55,7 @@ struct TennisScoreboardView: View {
     var usageHintCoordinatorOverride: ScoreboardUsageHintCoordinator? = nil
 
     @State private var store: TennisSessionStore
+    @State private var initialParticipantSelections: [String: ParticipantSelection]?
     @State private var showMenu = false
     @State private var showDisplaySettings = false
     @State private var styleEditorEntry = ScoreboardStyleEditorEntry()
@@ -162,6 +163,7 @@ struct TennisScoreboardView: View {
         _typographySession = State(initialValue: ScoreboardTypographySession(
             styleID: ScoreboardStyleID(scoreCoreGameType: gameType)
         ))
+        _initialParticipantSelections = State(initialValue: initialResumeSessionId == nil ? (initialSetup?.participantSelections ?? [:]) : nil)
     }
 
 
@@ -399,6 +401,7 @@ struct TennisScoreboardView: View {
                     revealImmersiveChrome()
                 }
         )
+        .registerParticipantSetupOnAppear(recordID: store.sessionId.uuidString, selections: initialParticipantSelections)
         .onAppear {
             appearance = .current(styleID: ScoreboardStyleID(scoreCoreGameType: store.gameType))
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
@@ -2038,6 +2041,7 @@ struct TennisScoreboardView: View {
             freshStore.persistSnapshot { freshSaved in
                 isStartingNewMatch = false
                 guard freshSaved else { return }
+                ParticipantIdentityStore.shared.copySelections(from: finishedStore.sessionId.uuidString, to: freshStore.sessionId.uuidString)
                 store = freshStore
                 manualFinishRequested = false
                 didSpeakOpeningAnnouncement = false

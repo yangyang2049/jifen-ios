@@ -38,6 +38,9 @@ extension LocalDataResetCoordinator {
             LocalDataResetStep(category: .legacySyncData) {
                 try AnonymousIdentityProvider.shared.clearLocalIdentity()
                 try removeLegacyRecordSyncOutbox(fileManager: fileManager)
+                try PersonalRecordsCloudSync.shared.clearLocalCache()
+                try PersonalGroupRecords.shared.clearLocalCache()
+                try ParticipantIdentityStore.shared.clearLocalState(accountId: SessionStore.shared.user?.id)
             },
             LocalDataResetStep(category: .localPreferencesAndTools) {
                 PointsTableStorage.clear(defaults: defaults)

@@ -23,6 +23,7 @@ struct PickleballScoreboardView: View {
             gameType: isDoubles ? .pickleballDoubles : .pickleball,
             rules: rules,
             participants: initialSetup?.isSingles == false ? doublesParticipants(initialSetup) : nil,
+            participantSelections: initialSetup?.participantSelections ?? [:],
             openingServer: openingServer,
             voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement ?? false,
             initialResumeSessionId: initialResumeSessionId,

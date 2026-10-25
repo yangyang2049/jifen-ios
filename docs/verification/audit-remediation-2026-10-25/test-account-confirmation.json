@@ -1,0 +1,12 @@
+{
+  "source": "Direct user reply to the simulator-account clarification",
+  "userAnswer": "专用测试账号",
+  "accountPurpose": "dedicated-test-account",
+  "affectedActiveAccountFingerprint": "aceb4705a756",
+  "fixtureRecords": 29,
+  "recordsWithUnclassifiedProvenance": 30,
+  "cleanupRequested": false,
+  "cleanupPerformed": false,
+  "dataDisposition": "Retained with the existing audit evidence",
+  "originalReadOnlyMetadata": "test-cloud-side-effect-metadata.json"
+}

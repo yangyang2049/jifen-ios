@@ -1,0 +1,14 @@
+.F.................................................
+======================================================================
+FAIL: test_current_backend_business_errors_all_have_an_ios_mapping (test_group_localization.GroupLocalizationTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yangyang/Desktop/jifenqi/jifen-ios/scripts/localization/test_group_localization.py", line 213, in test_current_backend_business_errors_all_have_an_ios_mapping
+    self.assertEqual(codes - peer_codes, set(), platform)
+AssertionError: Items in the first set but not the second:
+'ACCOUNT_MERGE_INVALID' : HarmonyOS
+
+----------------------------------------------------------------------
+Ran 51 tests in 20.226s
+
+FAILED (failures=1)

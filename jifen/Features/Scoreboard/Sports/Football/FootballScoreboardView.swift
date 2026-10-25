@@ -24,6 +24,7 @@ struct FootballScoreboardView: View {
     @State private var showGameOverDialog: Bool = false
     @State private var showFinishedRecordDetail = false
     @State private var recordID: String
+    @State private var registersParticipantOwner: Bool
     @State private var showPostRegulationDialog = false
     @State private var showSwitchHalfConfirm = false
     @State private var showStoppageSettings = false
@@ -56,6 +57,7 @@ struct FootballScoreboardView: View {
             prefix: (isFiveAside ? GameType.football5v5 : GameType.football).canonicalScoreboardIdentifier,
             resuming: initialResumeSessionId
         ))
+        _registersParticipantOwner = State(initialValue: initialResumeSessionId == nil)
     }
 
     var body: some View {
@@ -227,6 +229,7 @@ struct FootballScoreboardView: View {
         .onChange(of: viewModel.clockRevision) { _, _ in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
+        .registerParticipantSetupOnAppear(recordID: recordID, selections: registersParticipantOwner ? [:] : nil)
         .onAppear {
             viewModel.controller = controller
             if let setup = initialSetup, !didApplyInitialSetup {
@@ -276,6 +279,7 @@ struct FootballScoreboardView: View {
         let freshState = viewModel.makeFreshMatchState()
         controller.beginNewMatch()
         recordID = ScoreboardRecordIdentity.next(prefix: (isFiveAside ? GameType.football5v5 : GameType.football).canonicalScoreboardIdentifier)
+        try? ParticipantIdentityStore.shared.registerRecord(recordID)
         viewModel.restoreSession(state: freshState, history: [])
         viewModel.resetClock()
         showGameOverDialog = false

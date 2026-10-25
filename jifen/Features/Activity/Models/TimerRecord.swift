@@ -21,8 +21,10 @@ class TimerRecordsViewModel: ObservableObject {
 
     @Published var records: [GameRecordSummary] = []
     @Published var groupedRecords: [RecordGroup] = []
-    private(set) var hasLoaded = false
+    @Published private(set) var hasLoaded = false
+    @Published private(set) var isLoading = false
     private let recordsLoader: RecordsLoader
+    private var reloadAfterCurrentLoad = false
 
     init(
         recordsLoader: @escaping RecordsLoader = {
@@ -33,14 +35,32 @@ class TimerRecordsViewModel: ObservableObject {
     }
 
     func ensureLoaded() {
-        guard !hasLoaded else { return }
+        guard !hasLoaded, !isLoading else { return }
         loadFromStorage()
     }
 
     func loadFromStorage() {
-        records = recordsLoader()
-        groupRecords()
-        hasLoaded = true
+        guard !isLoading else { reloadAfterCurrentLoad = true; return }
+        isLoading = true
+        let loader = recordsLoader
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            let records = loader()
+            DispatchQueue.main.async {
+                guard let self else { return }
+                if self.reloadAfterCurrentLoad {
+                    // A mutation invalidated this snapshot while disk I/O ran.
+                    // Never briefly republish deleted data or migrate stale IDs.
+                    self.reloadAfterCurrentLoad = false
+                    self.isLoading = false
+                    self.loadFromStorage()
+                    return
+                }
+                self.records = records
+                self.groupRecords()
+                self.hasLoaded = true
+                self.isLoading = false
+            }
+        }
     }
 
     func addRecord(_ record: GameRecordSummary) {

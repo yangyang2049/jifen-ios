@@ -50,6 +50,7 @@ struct DoudizhuScoreboardView: View {
     @State private var actionCount = 0
     @State private var gameStartTime: Date
     @State private var recordID: String
+    @State private var initialParticipantSelections: [String: ParticipantSelection]?
     @State private var showMenu = false
     @State private var isEditMode = false
     @State private var editNames: [String]
@@ -197,6 +198,8 @@ struct DoudizhuScoreboardView: View {
         _detailedActions = State(initialValue: restoredDetailedActions)
         _editNames = State(initialValue: initialPlayers.map(\.name))
         _selectedWinners = State(initialValue: Array(repeating: false, count: initialPlayers.count))
+        _initialParticipantSelections = State(initialValue: initialResumeSessionId == nil
+            ? (initialSetup?.participantSelections ?? [:]) : nil)
     }
 
     /// HOS: left/right follow the scoreboard theme; the center stays success
@@ -342,6 +345,7 @@ struct DoudizhuScoreboardView: View {
                     undoLast()
                 }
         )
+        .registerParticipantSetupOnAppear(recordID: recordID, selections: initialParticipantSelections)
         .onAppear {
             typographySession.reload()
             if let setup = initialSetup {
@@ -1159,8 +1163,10 @@ struct DoudizhuScoreboardView: View {
     }
 
     private func startNewMatch() {
+        let previousIdentityRecord = recordID
         saveRecord(finished: true)
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.doudizhu.canonicalScoreboardIdentifier)
+        ParticipantIdentityStore.shared.copySelections(from: previousIdentityRecord, to: recordID)
         gameStartTime = Date()
         history.removeAll()
         historyTimeline.removeAll()

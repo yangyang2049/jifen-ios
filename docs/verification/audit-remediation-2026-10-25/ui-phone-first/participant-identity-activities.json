@@ -1,0 +1,1560 @@
+{
+  "testIdentifier" : "ParticipantIdentityUITests/testFilterCanBeClearedAndPersonalPageHidesMainTabs()",
+  "testIdentifierURL" : "test://com.apple.xcode/jifen/jifenUITests/ParticipantIdentityUITests/testFilterCanBeClearedAndPersonalPageHidesMainTabs",
+  "testName" : "testFilterCanBeClearedAndPersonalPageHidesMainTabs()",
+  "testRuns" : [
+    {
+      "activities" : [
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Screen Recording 2026-10-25 at 10.51.05 上午.mp4",
+              "payloadId" : "0~AX9JVdGgFF6hpTD6Dk8R80hEFtItHROMSYKm1fiKdh7KSsphrJl-pKdAo8t3kOj5jWqWIefH39iGuce_BMmovg==",
+              "timestamp" : 1792896665.878,
+              "uuid" : "457F1CAC-4822-4511-B50A-367922414E8B"
+            }
+          ],
+          "childActivities" : [
+            {
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896665.878,
+              "title" : "kXCTAttachmentScreenRecording"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896665.852,
+          "title" : "Start Test at 2026-10-25 10:51:05.852"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896665.88,
+          "title" : "Set Up"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "childActivities" : [
+                {
+                  "activityType" : "com.apple.dt.xctest.activity-type.internal",
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896665.883,
+                  "title" : "Terminate com.douhua.jifen.ios:51797"
+                },
+                {
+                  "activityType" : "com.apple.dt.xctest.activity-type.internal",
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896667.158,
+                  "title" : "Setting up automation session"
+                },
+                {
+                  "activityType" : "com.apple.dt.xctest.activity-type.internal",
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896667.821,
+                  "title" : "Wait for com.douhua.jifen.ios to idle"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896665.882,
+              "title" : "Launch com.douhua.jifen.ios"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896665.881,
+          "title" : "Open com.douhua.jifen.ios"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "childActivities" : [
+                {
+                  "activityType" : "com.apple.dt.xctest.activity-type.internal",
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896671.602,
+                  "title" : "Checking existence of `Button (First Match)`"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896671.601,
+              "title" : "Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896670.557,
+          "title" : "Waiting 12.0s for Button (First Match) to exist"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Synthesized Event 2026-10-25 at 10.51.12 上午",
+              "payloadId" : "0~8UT4qRUi_Do87IWa2VL8roXc8SM1stxQwEfHjDWQ5LDI2JIg8d_UXf7XiykzjhToT17Xuz_WiCJHm0FKbDwhrQ==",
+              "timestamp" : 1792896672.017,
+              "uuid" : "02697798-2A9A-45AB-9DC5-28D257639605"
+            }
+          ],
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896671.634,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896671.661,
+              "title" : "Find the Button (First Match)"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896671.679,
+              "title" : "Check for interrupting elements affecting \"记录\" Button"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "attachments" : [
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "Synthesized Event 2026-10-25 at 10.51.12 上午",
+                  "payloadId" : "0~8UT4qRUi_Do87IWa2VL8roXc8SM1stxQwEfHjDWQ5LDI2JIg8d_UXf7XiykzjhToT17Xuz_WiCJHm0FKbDwhrQ==",
+                  "timestamp" : 1792896672.017,
+                  "uuid" : "02697798-2A9A-45AB-9DC5-28D257639605"
+                }
+              ],
+              "childActivities" : [
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896672.017,
+                  "title" : "kXCTAttachmentLegacySynthesizedEvent"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896671.728,
+              "title" : "Synthesize event"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896672.017,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896671.634,
+          "title" : "Tap Button (First Match)"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "childActivities" : [
+                {
+                  "activityType" : "com.apple.dt.xctest.activity-type.internal",
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896675.057,
+                  "title" : "Checking existence of `\"personal_records_entry\" Button`"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896675.056,
+              "title" : "Checking `Expect predicate `existsNoRetry == 1` for object \"personal_records_entry\" Button`"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896674.02,
+          "title" : "Waiting 6.0s for \"personal_records_entry\" Button to exist"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Synthesized Event 2026-10-25 at 10.51.15 上午",
+              "payloadId" : "0~Ud5WMsQ2zErqYQy2cdyHdoXhzIZnxC1oV7Q2IntnCiR8cBc0_r56qqaOX8pcGiDHms19WjS6yAiXnyLcqOE-4w==",
+              "timestamp" : 1792896675.818,
+              "uuid" : "ADB6D129-FC16-41D6-813E-2AB0F777EB04"
+            }
+          ],
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896675.177,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896675.196,
+              "title" : "Find the \"records_more\" Button"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896675.306,
+              "title" : "Check for interrupting elements affecting \"records_more\" Button"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "attachments" : [
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "Synthesized Event 2026-10-25 at 10.51.15 上午",
+                  "payloadId" : "0~Ud5WMsQ2zErqYQy2cdyHdoXhzIZnxC1oV7Q2IntnCiR8cBc0_r56qqaOX8pcGiDHms19WjS6yAiXnyLcqOE-4w==",
+                  "timestamp" : 1792896675.818,
+                  "uuid" : "ADB6D129-FC16-41D6-813E-2AB0F777EB04"
+                }
+              ],
+              "childActivities" : [
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896675.818,
+                  "title" : "kXCTAttachmentLegacySynthesizedEvent"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896675.499,
+              "title" : "Synthesize event"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896675.818,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896675.177,
+          "title" : "Tap \"records_more\" Button"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Synthesized Event 2026-10-25 at 10.51.17 上午",
+              "payloadId" : "0~GK5Ah8PfLtlq5dl9JNIh8zAOZ-zjrfcI9j1Bw-usjX9ZA6zPOC1cyEhTRzb_-1fmSfKH_TG-3UnCKOTyp6Wj9w==",
+              "timestamp" : 1792896677.535,
+              "uuid" : "9B35411E-FE3D-4C5B-976D-D80D7356ADE8"
+            }
+          ],
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896677.066,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896677.07,
+              "title" : "Find the \"筛选\" Button"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896677.172,
+              "title" : "Check for interrupting elements affecting \"line.3.horizontal.decrease.circle\" Button"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "attachments" : [
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "Synthesized Event 2026-10-25 at 10.51.17 上午",
+                  "payloadId" : "0~GK5Ah8PfLtlq5dl9JNIh8zAOZ-zjrfcI9j1Bw-usjX9ZA6zPOC1cyEhTRzb_-1fmSfKH_TG-3UnCKOTyp6Wj9w==",
+                  "timestamp" : 1792896677.535,
+                  "uuid" : "9B35411E-FE3D-4C5B-976D-D80D7356ADE8"
+                }
+              ],
+              "childActivities" : [
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896677.535,
+                  "title" : "kXCTAttachmentLegacySynthesizedEvent"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896677.244,
+              "title" : "Synthesize event"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896677.535,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896677.066,
+          "title" : "Tap \"筛选\" Button"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "childActivities" : [
+                {
+                  "activityType" : "com.apple.dt.xctest.activity-type.internal",
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896680.122,
+                  "title" : "Checking existence of `\"今天\" Button`"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896680.122,
+              "title" : "Checking `Expect predicate `existsNoRetry == 1` for object \"今天\" Button`"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896679.083,
+          "title" : "Waiting 4.0s for \"今天\" Button to exist"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Synthesized Event 2026-10-25 at 10.51.21 上午",
+              "payloadId" : "0~1WELL92oPdT7IU059Wi2y1_-QmfpnMyCj3OQHOOtWLsRe6kGIIyhnkaJjm96Q8zCYuLk3idnDdAAP-wKO1z9gQ==",
+              "timestamp" : 1792896681.957,
+              "uuid" : "9E068E35-E031-4B94-B792-EE3C9AF55FD6"
+            }
+          ],
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896680.262,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896681.483,
+              "title" : "Find the \"今天\" Button"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896681.583,
+              "title" : "Check for interrupting elements affecting \"今天\" Button"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "attachments" : [
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "Synthesized Event 2026-10-25 at 10.51.21 上午",
+                  "payloadId" : "0~1WELL92oPdT7IU059Wi2y1_-QmfpnMyCj3OQHOOtWLsRe6kGIIyhnkaJjm96Q8zCYuLk3idnDdAAP-wKO1z9gQ==",
+                  "timestamp" : 1792896681.957,
+                  "uuid" : "9E068E35-E031-4B94-B792-EE3C9AF55FD6"
+                }
+              ],
+              "childActivities" : [
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896681.957,
+                  "title" : "kXCTAttachmentLegacySynthesizedEvent"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896681.668,
+              "title" : "Synthesize event"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896681.958,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896680.262,
+          "title" : "Tap \"今天\" Button"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Synthesized Event 2026-10-25 at 10.51.24 上午",
+              "payloadId" : "0~Fv1l2TcxUU80c8WyDVDoEtDwxBXmE7IVBtqxvT43FlAflZmG-iXGhtIQ5aSPg_vCtFm-UOdSbhfy434kgw4J-g==",
+              "timestamp" : 1792896684.33,
+              "uuid" : "4C2A2446-9F65-47BF-8F34-A8F97FB2C745"
+            }
+          ],
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896683.83,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896683.842,
+              "title" : "Find the \"计时\" Button"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896683.959,
+              "title" : "Check for interrupting elements affecting \"计时\" Button"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "attachments" : [
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "Synthesized Event 2026-10-25 at 10.51.24 上午",
+                  "payloadId" : "0~Fv1l2TcxUU80c8WyDVDoEtDwxBXmE7IVBtqxvT43FlAflZmG-iXGhtIQ5aSPg_vCtFm-UOdSbhfy434kgw4J-g==",
+                  "timestamp" : 1792896684.33,
+                  "uuid" : "4C2A2446-9F65-47BF-8F34-A8F97FB2C745"
+                }
+              ],
+              "childActivities" : [
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896684.33,
+                  "title" : "kXCTAttachmentLegacySynthesizedEvent"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896684.044,
+              "title" : "Synthesize event"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896684.331,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896683.83,
+          "title" : "Tap \"计时\" Button"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896685.481,
+          "title" : "Checking existence of `\"羽毛球 · 全部\" Button`"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "UI Snapshot 2026-10-25 at 10.51.25 上午",
+              "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+              "timestamp" : 1792896685.764,
+              "uuid" : "3BFDBB3E-C296-4F39-BA2E-1D861FB97C5D"
+            },
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Synthesized Event 2026-10-25 at 10.51.26 上午",
+              "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+              "timestamp" : 1792896686.179,
+              "uuid" : "7A777903-0700-44E5-9441-23E93F5E861B"
+            }
+          ],
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896685.603,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896685.605,
+              "title" : "Find the Target Application 'com.douhua.jifen.ios'"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896685.682,
+              "title" : "Check for interrupting elements affecting \"全能计分器\" Application"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "attachments" : [
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "UI Snapshot 2026-10-25 at 10.51.25 上午",
+                  "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+                  "timestamp" : 1792896685.764,
+                  "uuid" : "3BFDBB3E-C296-4F39-BA2E-1D861FB97C5D"
+                },
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "Synthesized Event 2026-10-25 at 10.51.26 上午",
+                  "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+                  "timestamp" : 1792896686.179,
+                  "uuid" : "7A777903-0700-44E5-9441-23E93F5E861B"
+                }
+              ],
+              "childActivities" : [
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896685.764,
+                  "title" : "kXCTAttachmentLegacySnapshot"
+                },
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896686.179,
+                  "title" : "kXCTAttachmentLegacySynthesizedEvent"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896685.762,
+              "title" : "Synthesize event"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896686.18,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896685.602,
+          "title" : "Swipe up Target Application 'com.douhua.jifen.ios'"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896688.306,
+          "title" : "Checking existence of `\"羽毛球 · 全部\" Button`"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "UI Snapshot 2026-10-25 at 10.51.28 上午",
+              "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+              "timestamp" : 1792896688.597,
+              "uuid" : "9CBD5029-83F3-47BA-8703-846BC52603DD"
+            },
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Synthesized Event 2026-10-25 at 10.51.29 上午",
+              "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+              "timestamp" : 1792896689.016,
+              "uuid" : "453660A5-7BF5-490F-9836-6D263C7103B6"
+            }
+          ],
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896688.436,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896688.439,
+              "title" : "Find the Target Application 'com.douhua.jifen.ios'"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896688.512,
+              "title" : "Check for interrupting elements affecting \"全能计分器\" Application"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "attachments" : [
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "UI Snapshot 2026-10-25 at 10.51.28 上午",
+                  "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+                  "timestamp" : 1792896688.597,
+                  "uuid" : "9CBD5029-83F3-47BA-8703-846BC52603DD"
+                },
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "Synthesized Event 2026-10-25 at 10.51.29 上午",
+                  "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+                  "timestamp" : 1792896689.016,
+                  "uuid" : "453660A5-7BF5-490F-9836-6D263C7103B6"
+                }
+              ],
+              "childActivities" : [
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896688.597,
+                  "title" : "kXCTAttachmentLegacySnapshot"
+                },
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896689.016,
+                  "title" : "kXCTAttachmentLegacySynthesizedEvent"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896688.595,
+              "title" : "Synthesize event"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896689.016,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896688.436,
+          "title" : "Swipe up Target Application 'com.douhua.jifen.ios'"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896691.14,
+          "title" : "Checking existence of `\"羽毛球 · 全部\" Button`"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "UI Snapshot 2026-10-25 at 10.51.31 上午",
+              "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+              "timestamp" : 1792896691.425,
+              "uuid" : "6757EF10-48C2-4368-9365-B5F8878C3C1A"
+            },
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Synthesized Event 2026-10-25 at 10.51.31 上午",
+              "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+              "timestamp" : 1792896691.843,
+              "uuid" : "1E817EC1-706C-41F1-A64C-691DE2742D23"
+            }
+          ],
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896691.265,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896691.267,
+              "title" : "Find the Target Application 'com.douhua.jifen.ios'"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896691.34,
+              "title" : "Check for interrupting elements affecting \"全能计分器\" Application"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "attachments" : [
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "UI Snapshot 2026-10-25 at 10.51.31 上午",
+                  "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+                  "timestamp" : 1792896691.425,
+                  "uuid" : "6757EF10-48C2-4368-9365-B5F8878C3C1A"
+                },
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "Synthesized Event 2026-10-25 at 10.51.31 上午",
+                  "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+                  "timestamp" : 1792896691.843,
+                  "uuid" : "1E817EC1-706C-41F1-A64C-691DE2742D23"
+                }
+              ],
+              "childActivities" : [
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896691.425,
+                  "title" : "kXCTAttachmentLegacySnapshot"
+                },
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896691.843,
+                  "title" : "kXCTAttachmentLegacySynthesizedEvent"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896691.423,
+              "title" : "Synthesize event"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896691.844,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896691.265,
+          "title" : "Swipe up Target Application 'com.douhua.jifen.ios'"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896693.955,
+          "title" : "Checking existence of `\"羽毛球 · 全部\" Button`"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "UI Snapshot 2026-10-25 at 10.51.34 上午",
+              "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+              "timestamp" : 1792896694.246,
+              "uuid" : "C4995D42-E045-4706-97E4-437417DDC0EC"
+            },
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Synthesized Event 2026-10-25 at 10.51.34 上午",
+              "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+              "timestamp" : 1792896694.664,
+              "uuid" : "E96D1367-E661-4258-8FFC-50E3B2C598C6"
+            }
+          ],
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896694.079,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896694.081,
+              "title" : "Find the Target Application 'com.douhua.jifen.ios'"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896694.156,
+              "title" : "Check for interrupting elements affecting \"全能计分器\" Application"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "attachments" : [
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "UI Snapshot 2026-10-25 at 10.51.34 上午",
+                  "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+                  "timestamp" : 1792896694.246,
+                  "uuid" : "C4995D42-E045-4706-97E4-437417DDC0EC"
+                },
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "Synthesized Event 2026-10-25 at 10.51.34 上午",
+                  "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+                  "timestamp" : 1792896694.664,
+                  "uuid" : "E96D1367-E661-4258-8FFC-50E3B2C598C6"
+                }
+              ],
+              "childActivities" : [
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896694.246,
+                  "title" : "kXCTAttachmentLegacySnapshot"
+                },
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896694.664,
+                  "title" : "kXCTAttachmentLegacySynthesizedEvent"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896694.244,
+              "title" : "Synthesize event"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896694.664,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896694.078,
+          "title" : "Swipe up Target Application 'com.douhua.jifen.ios'"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896695.938,
+          "title" : "Checking existence of `\"羽毛球 · 全部\" Button`"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "UI Snapshot 2026-10-25 at 10.51.36 上午",
+              "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+              "timestamp" : 1792896696.209,
+              "uuid" : "7AA75C42-CAB2-4C51-94A9-32F7EA83698F"
+            },
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Synthesized Event 2026-10-25 at 10.51.36 上午",
+              "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+              "timestamp" : 1792896696.623,
+              "uuid" : "EA618C3E-7BBE-4BC9-A374-B2F3EE03FD09"
+            }
+          ],
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896696.049,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896696.051,
+              "title" : "Find the Target Application 'com.douhua.jifen.ios'"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896696.123,
+              "title" : "Check for interrupting elements affecting \"全能计分器\" Application"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "attachments" : [
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "UI Snapshot 2026-10-25 at 10.51.36 上午",
+                  "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+                  "timestamp" : 1792896696.209,
+                  "uuid" : "7AA75C42-CAB2-4C51-94A9-32F7EA83698F"
+                },
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "Synthesized Event 2026-10-25 at 10.51.36 上午",
+                  "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+                  "timestamp" : 1792896696.623,
+                  "uuid" : "EA618C3E-7BBE-4BC9-A374-B2F3EE03FD09"
+                }
+              ],
+              "childActivities" : [
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896696.209,
+                  "title" : "kXCTAttachmentLegacySnapshot"
+                },
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896696.623,
+                  "title" : "kXCTAttachmentLegacySynthesizedEvent"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896696.206,
+              "title" : "Synthesize event"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896696.624,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896696.049,
+          "title" : "Swipe up Target Application 'com.douhua.jifen.ios'"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896697.313,
+          "title" : "Checking existence of `\"羽毛球 · 全部\" Button`"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "UI Snapshot 2026-10-25 at 10.51.37 上午",
+              "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+              "timestamp" : 1792896697.615,
+              "uuid" : "10AB0BD3-AA29-48BA-8CFF-A4B6CD72CB9F"
+            },
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Synthesized Event 2026-10-25 at 10.51.38 上午",
+              "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+              "timestamp" : 1792896698.034,
+              "uuid" : "9C867BBD-D082-45FB-BF19-D11779E32024"
+            }
+          ],
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896697.439,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896697.44,
+              "title" : "Find the Target Application 'com.douhua.jifen.ios'"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896697.519,
+              "title" : "Check for interrupting elements affecting \"全能计分器\" Application"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "attachments" : [
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "UI Snapshot 2026-10-25 at 10.51.37 上午",
+                  "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+                  "timestamp" : 1792896697.615,
+                  "uuid" : "10AB0BD3-AA29-48BA-8CFF-A4B6CD72CB9F"
+                },
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "Synthesized Event 2026-10-25 at 10.51.38 上午",
+                  "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+                  "timestamp" : 1792896698.034,
+                  "uuid" : "9C867BBD-D082-45FB-BF19-D11779E32024"
+                }
+              ],
+              "childActivities" : [
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896697.615,
+                  "title" : "kXCTAttachmentLegacySnapshot"
+                },
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896698.034,
+                  "title" : "kXCTAttachmentLegacySynthesizedEvent"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896697.613,
+              "title" : "Synthesize event"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896698.035,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896697.439,
+          "title" : "Swipe up Target Application 'com.douhua.jifen.ios'"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896698.73,
+          "title" : "Checking existence of `\"羽毛球 · 全部\" Button`"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "UI Snapshot 2026-10-25 at 10.51.39 上午",
+              "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+              "timestamp" : 1792896699.031,
+              "uuid" : "9F6D0369-3719-4B59-B0CF-4FA51BDB17A0"
+            },
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Synthesized Event 2026-10-25 at 10.51.39 上午",
+              "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+              "timestamp" : 1792896699.447,
+              "uuid" : "59170866-562D-4B8A-9F8A-F360E4B7673E"
+            }
+          ],
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896698.862,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896698.864,
+              "title" : "Find the Target Application 'com.douhua.jifen.ios'"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896698.939,
+              "title" : "Check for interrupting elements affecting \"全能计分器\" Application"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "attachments" : [
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "UI Snapshot 2026-10-25 at 10.51.39 上午",
+                  "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+                  "timestamp" : 1792896699.031,
+                  "uuid" : "9F6D0369-3719-4B59-B0CF-4FA51BDB17A0"
+                },
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "Synthesized Event 2026-10-25 at 10.51.39 上午",
+                  "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+                  "timestamp" : 1792896699.447,
+                  "uuid" : "59170866-562D-4B8A-9F8A-F360E4B7673E"
+                }
+              ],
+              "childActivities" : [
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896699.031,
+                  "title" : "kXCTAttachmentLegacySnapshot"
+                },
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896699.447,
+                  "title" : "kXCTAttachmentLegacySynthesizedEvent"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896699.029,
+              "title" : "Synthesize event"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896699.448,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896698.862,
+          "title" : "Swipe up Target Application 'com.douhua.jifen.ios'"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896700.147,
+          "title" : "Checking existence of `\"羽毛球 · 全部\" Button`"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "UI Snapshot 2026-10-25 at 10.51.40 上午",
+              "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+              "timestamp" : 1792896700.436,
+              "uuid" : "F06BDAF2-BE72-42A3-8530-E91BE8DDD28F"
+            },
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Synthesized Event 2026-10-25 at 10.51.40 上午",
+              "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+              "timestamp" : 1792896700.851,
+              "uuid" : "1B6204CA-643F-4032-85E1-AF0FBAA7B6A8"
+            }
+          ],
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896700.271,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896700.273,
+              "title" : "Find the Target Application 'com.douhua.jifen.ios'"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896700.349,
+              "title" : "Check for interrupting elements affecting \"全能计分器\" Application"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "attachments" : [
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "UI Snapshot 2026-10-25 at 10.51.40 上午",
+                  "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+                  "timestamp" : 1792896700.436,
+                  "uuid" : "F06BDAF2-BE72-42A3-8530-E91BE8DDD28F"
+                },
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "Synthesized Event 2026-10-25 at 10.51.40 上午",
+                  "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+                  "timestamp" : 1792896700.851,
+                  "uuid" : "1B6204CA-643F-4032-85E1-AF0FBAA7B6A8"
+                }
+              ],
+              "childActivities" : [
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896700.436,
+                  "title" : "kXCTAttachmentLegacySnapshot"
+                },
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896700.851,
+                  "title" : "kXCTAttachmentLegacySynthesizedEvent"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896700.434,
+              "title" : "Synthesize event"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896700.852,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896700.271,
+          "title" : "Swipe up Target Application 'com.douhua.jifen.ios'"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896701.544,
+          "title" : "Checking existence of `\"羽毛球 · 全部\" Button`"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "UI Snapshot 2026-10-25 at 10.51.41 上午",
+              "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+              "timestamp" : 1792896701.83,
+              "uuid" : "76EB68BF-62CF-4299-8462-B0E802CFB8FD"
+            },
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Synthesized Event 2026-10-25 at 10.51.42 上午",
+              "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+              "timestamp" : 1792896702.242,
+              "uuid" : "4E081065-EE9A-45F8-9978-58C3F1CFBA5A"
+            }
+          ],
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896701.663,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896701.665,
+              "title" : "Find the Target Application 'com.douhua.jifen.ios'"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896701.741,
+              "title" : "Check for interrupting elements affecting \"全能计分器\" Application"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "attachments" : [
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "UI Snapshot 2026-10-25 at 10.51.41 上午",
+                  "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+                  "timestamp" : 1792896701.83,
+                  "uuid" : "76EB68BF-62CF-4299-8462-B0E802CFB8FD"
+                },
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "Synthesized Event 2026-10-25 at 10.51.42 上午",
+                  "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+                  "timestamp" : 1792896702.242,
+                  "uuid" : "4E081065-EE9A-45F8-9978-58C3F1CFBA5A"
+                }
+              ],
+              "childActivities" : [
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896701.83,
+                  "title" : "kXCTAttachmentLegacySnapshot"
+                },
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896702.242,
+                  "title" : "kXCTAttachmentLegacySynthesizedEvent"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896701.828,
+              "title" : "Synthesize event"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896702.243,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896701.662,
+          "title" : "Swipe up Target Application 'com.douhua.jifen.ios'"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896702.945,
+          "title" : "Checking existence of `\"羽毛球 · 全部\" Button`"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "UI Snapshot 2026-10-25 at 10.51.43 上午",
+              "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+              "timestamp" : 1792896703.24,
+              "uuid" : "6C0266E9-2F0E-4CA4-8AEE-E5AA61FE1B7D"
+            },
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Synthesized Event 2026-10-25 at 10.51.43 上午",
+              "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+              "timestamp" : 1792896703.658,
+              "uuid" : "DFBD13F1-1C77-4FD6-A29A-66C90258B4F3"
+            }
+          ],
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896703.069,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896703.072,
+              "title" : "Find the Target Application 'com.douhua.jifen.ios'"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896703.15,
+              "title" : "Check for interrupting elements affecting \"全能计分器\" Application"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "attachments" : [
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "UI Snapshot 2026-10-25 at 10.51.43 上午",
+                  "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+                  "timestamp" : 1792896703.24,
+                  "uuid" : "6C0266E9-2F0E-4CA4-8AEE-E5AA61FE1B7D"
+                },
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "Synthesized Event 2026-10-25 at 10.51.43 上午",
+                  "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+                  "timestamp" : 1792896703.658,
+                  "uuid" : "DFBD13F1-1C77-4FD6-A29A-66C90258B4F3"
+                }
+              ],
+              "childActivities" : [
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896703.24,
+                  "title" : "kXCTAttachmentLegacySnapshot"
+                },
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896703.658,
+                  "title" : "kXCTAttachmentLegacySynthesizedEvent"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896703.238,
+              "title" : "Synthesize event"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896703.659,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896703.069,
+          "title" : "Swipe up Target Application 'com.douhua.jifen.ios'"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896704.344,
+          "title" : "Checking existence of `\"羽毛球 · 全部\" Button`"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "UI Snapshot 2026-10-25 at 10.51.44 上午",
+              "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+              "timestamp" : 1792896704.641,
+              "uuid" : "E73C8CED-3933-49A7-8B45-F5BAB53DFCB2"
+            },
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Synthesized Event 2026-10-25 at 10.51.45 上午",
+              "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+              "timestamp" : 1792896705.06,
+              "uuid" : "DACF3B44-82E6-4C47-A935-3E014C89F27E"
+            }
+          ],
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896704.47,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896704.472,
+              "title" : "Find the Target Application 'com.douhua.jifen.ios'"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896704.548,
+              "title" : "Check for interrupting elements affecting \"全能计分器\" Application"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "attachments" : [
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "UI Snapshot 2026-10-25 at 10.51.44 上午",
+                  "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+                  "timestamp" : 1792896704.641,
+                  "uuid" : "E73C8CED-3933-49A7-8B45-F5BAB53DFCB2"
+                },
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "Synthesized Event 2026-10-25 at 10.51.45 上午",
+                  "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+                  "timestamp" : 1792896705.06,
+                  "uuid" : "DACF3B44-82E6-4C47-A935-3E014C89F27E"
+                }
+              ],
+              "childActivities" : [
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896704.641,
+                  "title" : "kXCTAttachmentLegacySnapshot"
+                },
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896705.06,
+                  "title" : "kXCTAttachmentLegacySynthesizedEvent"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896704.639,
+              "title" : "Synthesize event"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896705.061,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896704.47,
+          "title" : "Swipe up Target Application 'com.douhua.jifen.ios'"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896705.745,
+          "title" : "Checking existence of `\"羽毛球 · 全部\" Button`"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "attachments" : [
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "UI Snapshot 2026-10-25 at 10.51.46 上午",
+              "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+              "timestamp" : 1792896706.032,
+              "uuid" : "9072FBC6-59F5-48AA-8ADC-A28517C5D670"
+            },
+            {
+              "lifetime" : "deleteOnSuccess",
+              "name" : "Synthesized Event 2026-10-25 at 10.51.46 上午",
+              "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+              "timestamp" : 1792896706.452,
+              "uuid" : "F4852875-AF44-463E-8AE8-A87D23B65F3F"
+            }
+          ],
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896705.87,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896705.873,
+              "title" : "Find the Target Application 'com.douhua.jifen.ios'"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896705.945,
+              "title" : "Check for interrupting elements affecting \"全能计分器\" Application"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "attachments" : [
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "UI Snapshot 2026-10-25 at 10.51.46 上午",
+                  "payloadId" : "0~qryPy5Ya-uaagwBlOL3H1_r-KdDstmLOawTY6hUQx-SA3f3NSBLYbl3Cs8EIMOl3Aqh4iZYTKEA-_gUdZWZ1NQ==",
+                  "timestamp" : 1792896706.032,
+                  "uuid" : "9072FBC6-59F5-48AA-8ADC-A28517C5D670"
+                },
+                {
+                  "lifetime" : "deleteOnSuccess",
+                  "name" : "Synthesized Event 2026-10-25 at 10.51.46 上午",
+                  "payloadId" : "0~FC9V-XCuWgj5baD8I4Gce4me1ZHvameT_4q5cMpkvXg-boK5UbmX4vNjrteICFgkMEBnASJck8wzg3VvoNUIYQ==",
+                  "timestamp" : 1792896706.452,
+                  "uuid" : "F4852875-AF44-463E-8AE8-A87D23B65F3F"
+                }
+              ],
+              "childActivities" : [
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896706.032,
+                  "title" : "kXCTAttachmentLegacySnapshot"
+                },
+                {
+                  "isAssociatedWithFailure" : false,
+                  "startTime" : 1792896706.452,
+                  "title" : "kXCTAttachmentLegacySynthesizedEvent"
+                }
+              ],
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896706.03,
+              "title" : "Synthesize event"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896706.453,
+              "title" : "Wait for com.douhua.jifen.ios to idle"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896705.87,
+          "title" : "Swipe up Target Application 'com.douhua.jifen.ios'"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "childActivities" : [
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896708.272,
+              "title" : "Find the \"羽毛球 · 全部\" Button (retry 1)"
+            },
+            {
+              "activityType" : "com.apple.dt.xctest.activity-type.internal",
+              "isAssociatedWithFailure" : false,
+              "startTime" : 1792896709.41,
+              "title" : "Find the \"羽毛球 · 全部\" Button (retry 2)"
+            }
+          ],
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896707.145,
+          "title" : "Find the \"羽毛球 · 全部\" Button"
+        },
+        {
+          "childActivities" : [
+            {
+              "isAssociatedWithFailure" : false,
+              "title" : ""
+            }
+          ],
+          "isAssociatedWithFailure" : true,
+          "startTime" : 1792896709.511,
+          "title" : "XCTAssertTrue failed"
+        },
+        {
+          "activityType" : "com.apple.dt.xctest.activity-type.internal",
+          "isAssociatedWithFailure" : false,
+          "startTime" : 1792896709.514,
+          "title" : "Tear Down"
+        }
+      ],
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "86871B65-E0ED-4FBD-9F93-F3FB6246A895",
+        "deviceName" : "iPhone 17 Pro",
+        "modelName" : "iPhone 17 Pro",
+        "osBuildNumber" : "23F77",
+        "osVersion" : "26.5",
+        "platform" : "iOS Simulator"
+      },
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import Foundation
+import PersistenceCore
 import ScoreCore
 
 /// Persists the exact initial scoreboard state used by a scheduled booking.
@@ -6,7 +7,74 @@ import ScoreCore
 /// an app interruption immediately after launch still leaves a resumable game.
 @MainActor
 enum BookingStartPersistence {
-    static func persist(_ request: BookingStartRequest, groupContext: GroupMatchContext? = nil) async -> String? {
+    struct IdentityContext {
+        let libraryID: String
+        let accountID: String?
+        let sessionAccountID: String?
+        private let currentSessionAccountID: @MainActor () -> String?
+
+        init(identity: ParticipantIdentityStore,
+             currentSessionAccountID: @escaping @MainActor () -> String? = { SessionStore.shared.user?.id }) {
+            libraryID = identity.state.activeLibraryId
+            accountID = identity.state.activeAccountId
+            self.currentSessionAccountID = currentSessionAccountID
+            sessionAccountID = currentSessionAccountID()
+        }
+
+        func isCurrent(identity: ParticipantIdentityStore) -> Bool {
+            identity.state.activeLibraryId == libraryID
+                && identity.state.activeAccountId == accountID
+                && currentSessionAccountID() == sessionAccountID
+                && identity.readableLibraryIds.contains(libraryID)
+        }
+    }
+
+    static func persist(_ request: BookingStartRequest, groupContext: GroupMatchContext? = nil,
+                        identity: ParticipantIdentityStore? = nil,
+                        currentSessionAccountID: @escaping @MainActor () -> String? = { SessionStore.shared.user?.id }) async -> String? {
+        let identity = identity ?? .shared
+        let context = IdentityContext(identity: identity, currentSessionAccountID: currentSessionAccountID)
+        guard context.isCurrent(identity: identity), !Task.isCancelled else { return nil }
+        guard let recordID = await persistInitialState(request, groupContext: groupContext) else { return nil }
+        return await completePersistedStart(recordID, request: request, groupContext: groupContext, identity: identity, context: context)
+    }
+
+    /// A snapshot that cannot be committed must not remain discoverable as an
+    /// unowned legacy game after an account switch or failed identity write.
+    static func completePersistedStart(_ recordID: String, request: BookingStartRequest,
+                                       groupContext: GroupMatchContext?, identity: ParticipantIdentityStore,
+                                       context: IdentityContext) async -> String? {
+        if let result = finishPersistedStart(recordID, request: request, groupContext: groupContext,
+                                             identity: identity, context: context) { return result }
+        if let sessionID = ManualResumeSessionStore.sessionID(for: recordID) {
+            do { try await ResumeSessionRepository().remove(sessionId: sessionID) }
+            catch {
+                ScoreboardPersistenceFailureReporter.report(error,
+                    context: "Failed to remove uncommitted scheduled booking \(recordID)")
+            }
+        }
+        return nil
+    }
+
+    /// Keep owner capture and commit on opposite sides of the snapshot await.
+    /// A booking is launchable only after both its resume and identity are durable.
+    static func finishPersistedStart(_ recordID: String, request: BookingStartRequest,
+                                     groupContext: GroupMatchContext?, identity: ParticipantIdentityStore,
+                                     context: IdentityContext) -> String? {
+        guard context.isCurrent(identity: identity), !Task.isCancelled else { return nil }
+        let selections = groupContext == nil && PersonalRecordAdapter.supportsPerson(request.gameType)
+            ? (request.setup.participantSelections ?? [:]) : [:]
+        do {
+            try identity.registerRecord(recordID, selections: selections)
+            return recordID
+        } catch is CancellationError { return nil }
+        catch {
+            ScoreboardPersistenceFailureReporter.report(error, context: "Failed to persist scheduled booking identity \(recordID)")
+            return nil
+        }
+    }
+
+    private static func persistInitialState(_ request: BookingStartRequest, groupContext: GroupMatchContext?) async -> String? {
         switch request.gameType {
         case .pingpong, .badminton, .volleyball, .airVolleyball,
              .beachVolleyball, .pickleball:
@@ -297,7 +365,9 @@ enum BookingStartPersistence {
         let state = NineBallChaseState.initial(
             config: config,
             playerCount: playerCount,
-            playerNames: names
+            playerNames: names,
+            ruleVersion: 3,
+            breakerPlayer: setup.nineBallBreakerPlayer ?? 0
         )
         let id = UUID().uuidString
         let store = BilliardsSessionStore(

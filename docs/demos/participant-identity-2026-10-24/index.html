@@ -1,0 +1,3180 @@
+<!doctype html>
+<html lang="en" data-visualize-standalone>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>全能计分器 · 本机的我与历史关联</title>
+<style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;padding:1rem;background:inherit}iframe{display:block;width:100%;height:calc(100vh - 2rem);margin:0 auto;border:0}</style>
+
+</head>
+<body>
+<iframe id="codex-visualization" sandbox="allow-scripts" referrerpolicy="no-referrer" title="全能计分器 · 本机的我与历史关联" data-srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot; data-visualize-standalone&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;&gt;
+&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;none&#x27;; script-src &#x27;unsafe-inline&#x27; &#x27;unsafe-eval&#x27; &#x27;wasm-unsafe-eval&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src &#x27;unsafe-inline&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src &#x27;none&#x27;; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;&quot;&gt;
+&lt;title&gt;全能计分器 · 本机的我与历史关联&lt;/title&gt;
+&lt;style&gt;:root {
+  color-scheme: light dark;
+  background-color: var(
+    --background,
+    var(--color-background-primary, light-dark(rgb(255 255 255), rgb(24 24 24)))
+  ) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --color-background-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --card: color-mix(in oklab, var(--foreground) 5%, var(--background));
+  --card-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --popover: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255), rgb(45 45 45))
+  );
+  --popover-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --primary: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --primary-foreground: var(
+    --color-text-inverse,
+    light-dark(rgb(255 255 255), rgb(13 13 13))
+  );
+  --secondary: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%))
+  );
+  --secondary-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: var(
+    --color-text-secondary,
+    light-dark(rgb(26 28 31 / 49.4%), rgb(255 255 255 / 49.8%))
+  );
+  --accent: var(
+    --color-background-info,
+    light-dark(rgb(229 242 255), rgb(13 39 63))
+  );
+  --accent-foreground: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --destructive: var(
+    --color-text-warning,
+    light-dark(rgb(226 85 7), rgb(255 133 73))
+  );
+  --border: var(
+    --color-border-secondary,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+  --input: var(
+    --color-border-primary,
+    light-dark(
+      rgb(26 28 31 / 11.8%),
+      color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+    )
+  );
+  --ring: var(
+    --color-ring-primary,
+    light-dark(rgb(51 156 255), rgb(131 195 255 / 76%))
+  );
+  --font-size-base: var(--font-text-md-size, 16px);
+  --blue: light-dark(rgb(51 156 255), rgb(51 156 255));
+  --orange: light-dark(rgb(226 85 7), rgb(251 106 34));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+  --red: light-dark(rgb(224 46 42), rgb(255 103 100));
+  --purple: light-dark(rgb(146 79 247), rgb(173 123 249));
+  --yellow: light-dark(rgb(255 195 0), rgb(255 210 64));
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans:
+    -apple-system-body, ui-sans-serif, -apple-system, system-ui, &quot;Segoe UI&quot;,
+    Helvetica, &quot;Apple Color Emoji&quot;, Arial, sans-serif, &quot;Segoe UI Emoji&quot;,
+    &quot;Segoe UI Symbol&quot;;
+  --font-mono:
+    ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, &quot;Liberation Mono&quot;,
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --icon-size: 16px;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --corner-shape: round;
+  --radius: var(--border-radius-lg, 8px);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url(&quot;data:image/svg+xml,%3Csvg xmlns=&#x27;http://www.w3.org/2000/svg&#x27; viewBox=&#x27;0 0 17 17&#x27;%3E%3Cpath d=&#x27;M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z&#x27;/%3E%3C/svg%3E&quot;);
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+}
+
+:root[data-theme=&quot;light&quot;] {
+  color-scheme: light;
+}
+
+:root[data-theme=&quot;dark&quot;] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html &gt; body {
+  /* Preserve MCP aliases for older inline renderers without creating :root cycles. */
+  --color-background-primary: var(
+    --background,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --color-text-primary: var(
+    --foreground,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --color-border-secondary: var(
+    --border,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+
+  margin: 0;
+  padding: var(--visualize-paint-gutter, 0px);
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans) !important;
+  -webkit-font-smoothing: antialiased;
+  font-size: var(--font-size-base);
+  line-height: calc(var(--font-size-base) * 1.625);
+  font-weight: var(--font-weight-normal);
+}
+
+.cursor-interaction {
+  cursor: var(--cursor-interaction, pointer);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: var(--cursor-interaction, pointer);
+  text-decoration: none;
+  text-underline-offset: 2px;
+  font-weight: inherit;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+li,
+.table {
+  font-family: var(--font-sans);
+}
+
+h1 {
+  font-size: calc(var(--font-size-base) * 1.5);
+  line-height: 1.3333333333;
+}
+
+h2 {
+  font-size: calc(var(--font-size-base) * 1.25);
+  line-height: 1.4;
+}
+h3 {
+  font-size: calc(var(--font-size-base) * 1.125);
+  line-height: 1.5555555556;
+}
+h4 {
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+}
+h5,
+h6 {
+  font-size: var(--font-size-base);
+  line-height: calc(var(--font-size-base) * 1.625);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+b,
+strong,
+th {
+  font-weight: 600;
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+pre,
+pre code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: calc(var(--font-size-base) * 0.875);
+  line-height: calc(var(--font-size-base) * 1.625);
+  font-family: var(--font-sans);
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 5%, transparent);
+}
+.table :is(th, td):not(:last-child) {
+  padding-inline-end: calc(var(--font-size-base) * 1.5);
+}
+
+.table-responsive &gt; .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead :is(th, td) {
+  border-bottom-color: var(--border-strong, var(--input));
+  padding-block: calc(var(--font-size-base) / 2);
+  line-height: var(--font-size-base);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+.table tbody :is(th, td) {
+  padding-block: calc(var(--font-size-base) * 0.625);
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 8px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align=&quot;right&quot;]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align=&quot;center&quot;]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: var(--corner-shape);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+.widget {
+  min-width: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  box-shadow: 0 0 0 0.5px var(--border-strong, var(--border));
+  color: var(--foreground);
+  background: var(--background);
+}
+
+#widget &gt; :not(.card, .widget, .progress) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  border: 1px solid var(--border);
+  corner-shape: var(--corner-shape);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+  font-family: var(--font-sans);
+  padding: 5px 12px;
+  border-color: color-mix(
+    in oklab,
+    light-dark(var(--primary-foreground), var(--foreground)) 5%,
+    transparent
+  );
+  border-radius: var(--radius-2xl);
+  color: light-dark(var(--primary-foreground), var(--foreground));
+  background: light-dark(var(--foreground), var(--popover));
+  box-shadow: 0 8px 18px rgb(15 23 42 / 20%);
+  letter-spacing: -0.15px;
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+hr {
+  width: 100%;
+  height: 1px;
+  margin-block: 6px;
+  border: 0;
+  background: var(--border);
+}
+
+.nav {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress {
+  display: flex;
+  height: 8px;
+  margin-block: calc((var(--line-height-normal, 1.5em) - 8px) / 2);
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+}
+
+.progress-bar:only-child {
+  border-radius: var(--radius-full);
+}
+
+.progress-bar {
+  height: 100%;
+  flex-shrink: 0;
+  border: 0;
+  background: var(--viz-series-1);
+}
+
+.viz-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  color: color-mix(in srgb, var(--foreground) 40%, var(--muted-foreground));
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  font-family: var(--font-sans);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 1;
+}
+
+small,
+.text-small {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls &gt; .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls &gt; .form-label &gt; :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.nav-link,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+/* Match inline alignment without overriding a containing flex or grid layout. */
+.btn,
+.nav-link,
+.form-control,
+.form-select,
+.form-range,
+.form-check {
+  vertical-align: middle;
+}
+
+.btn,
+.nav-link {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  corner-shape: var(--corner-shape);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: inherit;
+  font-family: var(--font-sans);
+  height: fit-content;
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  padding-inline: var(--control-spacing, 12px);
+  border-color: transparent;
+  border-radius: var(--radius-full);
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 18px;
+}
+
+.btn {
+  border-color: var(--border);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: var(--cursor-interaction, pointer);
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover {
+  background: light-dark(
+    color-mix(in srgb, var(--foreground) 5.5%, transparent),
+    color-mix(in srgb, var(--foreground) 8%, transparent)
+  );
+}
+
+.nav-link:not(:disabled):not([aria-disabled=&quot;true&quot;]):hover {
+  background: color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+
+.btn-primary {
+  border-color: var(--border);
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: border-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: border-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--muted-foreground);
+  background: light-dark(
+    color-mix(in srgb, var(--foreground) 5.5%, transparent),
+    color-mix(in srgb, var(--foreground) 8%, transparent)
+  );
+}
+
+.nav-pills .nav-link {
+  min-width: 0;
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.nav-justified .nav-link {
+  flex: 1 1 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.nav-pills .nav-link.active {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+/* Shared preview chrome; product styles stay inside each variant. */
+.viz-dotted-background {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--foreground) 14%, transparent) 0.8px,
+    transparent 0.8px
+  );
+  background-position: center;
+  background-size: 16px 16px;
+}
+
+.viz-carousel {
+  position: relative;
+  min-width: 0;
+}
+
+.viz-carousel:has(&gt; .viz-carousel-controls) {
+  min-height: calc(60px + var(--viz-carousel-picker-height, 0px));
+  padding-bottom: 60px;
+}
+
+.viz-carousel &gt; [data-variant][hidden] {
+  display: none !important;
+}
+
+.viz-carousel &gt; [data-variant] {
+  isolation: isolate;
+}
+
+.viz-carousel-controls {
+  --viz-carousel-hover: light-dark(
+    color-mix(in srgb, var(--foreground) 5.4%, transparent),
+    color-mix(in srgb, var(--foreground) 7.8%, transparent)
+  );
+  position: absolute;
+  z-index: 2;
+  bottom: 8px;
+  left: 50%;
+  display: flex;
+  width: max-content;
+  /* Leave room for the host&#x27;s design-controls launcher at the trailing edge. */
+  max-width: calc(100% - 96px);
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans);
+  /* Match the settings dropdown chrome independently of the content font size. */
+  font-size: 13px;
+  font-weight: var(--font-weight-normal);
+  line-height: 18px;
+  transform: translateX(-50%);
+  user-select: none;
+}
+
+/* Keep authored mockup button styles out of the shared carousel chrome. */
+.viz-carousel-controls button,
+.viz-carousel-picker &gt; summary {
+  display: flex !important;
+  height: auto !important;
+  min-height: 30px;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px;
+  padding: 0 6px !important;
+  -webkit-app-region: no-drag;
+  border: 0 !important;
+  border-radius: 14px !important;
+  color: inherit !important;
+  background: transparent !important;
+  font: inherit !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.viz-carousel-controls &gt; button,
+.viz-carousel-picker &gt; summary {
+  position: relative;
+  isolation: isolate;
+}
+
+.viz-carousel-controls &gt; button {
+  --icon-size: 16px;
+  width: 30px !important;
+  padding: 0 !important;
+}
+
+.viz-carousel-picker &gt; summary {
+  padding-inline: 12px !important;
+}
+
+.viz-carousel-controls .viz-carousel-caret {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  margin: 0;
+  color: inherit;
+  transform: rotate(180deg);
+}
+
+.viz-carousel-controls &gt; button &gt; svg,
+.viz-carousel-controls .viz-carousel-caret,
+.viz-carousel-count {
+  opacity: 0.5;
+}
+
+.viz-carousel-controls &gt; button::before,
+.viz-carousel-picker &gt; summary::before {
+  position: absolute;
+  z-index: -1;
+  inset: 3px;
+  border-radius: 12px;
+  content: &quot;&quot;;
+  pointer-events: none;
+}
+
+.viz-carousel-controls &gt; button:hover::before,
+.viz-carousel-picker &gt; summary:hover::before {
+  background: var(--viz-carousel-hover);
+}
+
+.viz-carousel-controls &gt; button,
+.viz-carousel-controls [data-lucide],
+.viz-carousel-controls .lucide {
+  flex-shrink: 0;
+}
+
+.viz-carousel-picker {
+  min-width: 0;
+}
+
+.viz-carousel-picker &gt; summary {
+  min-width: 0;
+  list-style: none;
+}
+
+.viz-carousel-picker &gt; summary::-webkit-details-marker {
+  display: none;
+}
+
+.viz-carousel-count {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.viz-carousel-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viz-carousel-options {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 4px);
+  left: 0;
+  display: flex;
+  max-height: 240px;
+  flex-direction: column;
+  gap: 2px;
+  overflow: auto;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--background);
+  box-shadow: 0 4px 12px light-dark(rgb(0 0 0 / 6%), rgb(0 0 0 / 25%));
+}
+
+.viz-carousel-options &gt; button {
+  border-radius: max(0px, calc(var(--radius-lg) - 5px)) !important;
+  width: 100% !important;
+  min-height: 28px;
+  justify-content: flex-start !important;
+  padding: 4px 8px !important;
+  font-size: var(--font-size-small) !important;
+  text-align: start;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.viz-carousel-options &gt; [aria-current=&quot;true&quot;],
+.viz-carousel-options &gt; button:hover {
+  background: var(--viz-carousel-hover) !important;
+}
+
+.btn:disabled,
+.nav-link:disabled,
+.nav-link[aria-disabled=&quot;true&quot;] {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  padding-inline: calc(4px + var(--control-spacing, 12px) / 2);
+  border-color: var(--input);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--popover) 96%, transparent);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.4285714286;
+}
+.form-control:is(
+  [type=&quot;file&quot;],
+  [type=&quot;date&quot;],
+  [type=&quot;datetime-local&quot;],
+  [type=&quot;month&quot;],
+  [type=&quot;week&quot;],
+  [type=&quot;color&quot;]
+) {
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  line-height: 18px;
+}
+.form-control:is(
+  [type=&quot;date&quot;],
+  [type=&quot;datetime-local&quot;],
+  [type=&quot;month&quot;],
+  [type=&quot;week&quot;]
+) {
+  padding-inline: var(--control-spacing, 12px);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type=&quot;file&quot;] {
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+  padding: 0;
+}
+
+.form-control[type=&quot;file&quot;]::file-selector-button {
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+  min-height: calc(10px + 2 * var(--control-spacing, 12px));
+  padding-inline: var(--control-spacing, 12px);
+  margin-inline-end: var(--control-spacing, 12px);
+}
+
+.form-control[type=&quot;file&quot;]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type=&quot;color&quot;] {
+  width: 40px;
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: var(--corner-shape);
+}
+
+textarea.form-control {
+  height: auto;
+  resize: vertical;
+  min-height: 96px;
+  padding: 8px 10px;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: none;
+}
+.form-control:disabled {
+  color: var(--muted-foreground);
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  opacity: 1;
+}
+.form-control[aria-invalid=&quot;true&quot;] {
+  border-color: var(--red);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--red) 20%, transparent);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: fit-content;
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  margin: 0;
+  /* The secondary icon role is 14px at compact density and 16px at web density. */
+  --icon-size: calc(10px + var(--control-spacing, 12px) / 2);
+  /* Settings dropdowns retain a 12px inset and a 4px text-to-chevron gap. */
+  padding: 0 calc(16px + var(--icon-size)) 0 12px;
+  outline: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(
+      45deg,
+      transparent calc(50% - 0.6px),
+      var(--muted-foreground) calc(50% - 0.6px) calc(50% + 0.6px),
+      transparent calc(50% + 0.6px)
+    ),
+    linear-gradient(
+      135deg,
+      transparent calc(50% - 0.6px),
+      var(--muted-foreground) calc(50% - 0.6px) calc(50% + 0.6px),
+      transparent calc(50% + 0.6px)
+    );
+  background-position:
+    calc(100% - 12px - var(--icon-size) / 2) 50%,
+    calc(100% - 12px - var(--icon-size) * 0.18) 50%;
+  background-repeat: no-repeat;
+  background-size: calc(var(--icon-size) * 0.32) calc(var(--icon-size) * 0.32);
+  cursor: var(--cursor-interaction, default);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 18px;
+}
+
+.form-select option {
+  color: var(--popover-foreground);
+  background-color: var(--popover);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: light-dark(
+    color-mix(in srgb, var(--foreground) 5.5%, transparent),
+    color-mix(in srgb, var(--foreground) 8%, transparent)
+  );
+}
+
+.form-select:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+.form-select:disabled {
+  opacity: 0.4;
+}
+
+.form-check {
+  display: flex;
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+  corner-shape: round;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  width: calc(10px + var(--control-spacing, 12px) / 2);
+  height: calc(10px + var(--control-spacing, 12px) / 2);
+  border-color: var(--border-strong, var(--input));
+  border-radius: calc(var(--radius-sm) / 2);
+  background-color: transparent;
+  color: var(--foreground);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:is(:checked, :indeterminate) {
+  border-color: var(--border-strong, var(--input));
+  background-color: color-mix(in srgb, var(--popover) 96%, transparent);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: &quot;&quot;;
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+  background-color: var(--foreground);
+}
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:indeterminate::before {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 65%;
+  height: 6.65%;
+  margin: auto;
+  border-radius: var(--radius-full);
+  background: var(--foreground);
+  mask: none;
+  content: &quot;&quot;;
+}
+
+.form-check-input[type=&quot;radio&quot;] {
+  border-radius: var(--radius-full);
+  width: 16px;
+  height: 16px;
+  border: 0;
+  box-shadow: inset 0 0 0 1px var(--input);
+}
+
+.form-check-input[type=&quot;radio&quot;]:checked {
+  border: 0;
+  background: radial-gradient(
+    circle,
+    var(--primary-foreground) 0 3px,
+    var(--foreground) 3px
+  );
+  box-shadow: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;]:focus-visible {
+  border-color: var(--ring);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+.form-check:not(.form-switch) .form-check-input[type=&quot;radio&quot;]:disabled,
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;radio&quot;]:disabled
+  + .form-check-label {
+  opacity: 0.5;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  content: &quot;&quot;;
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+  border-color: #fff;
+  background: #fff;
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--blue);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+  outline: none;
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  accent-color: var(--primary);
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  outline: none;
+  border-radius: var(--radius-full);
+  color: var(--foreground);
+  background: transparent;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  background: var(--form-range-track, var(--border));
+  height: 2px;
+  border-radius: var(--radius-full);
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  margin-top: -9px;
+  border-color: transparent;
+  background: currentColor;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Outline the native track and thumb, preserving the larger input hit area. */
+.form-range:focus-visible::-webkit-slider-runnable-track {
+  outline: 2px auto Highlight;
+  outline-color: -webkit-focus-ring-color;
+}
+
+.form-range::-moz-range-track {
+  background: var(--form-range-track, var(--border));
+  height: 2px;
+  border-radius: var(--radius-full);
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  border-color: transparent;
+  background: currentColor;
+  box-shadow: var(--shadow-sm);
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  outline: 2px solid Highlight;
+  outline-offset: 2px;
+}
+
+.form-range:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+  [aria-pressed=&quot;true&quot;],
+  [aria-selected=&quot;true&quot;],
+  .is-selected
+) {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--blue);
+}
+
+.btn.viz-tile:is([aria-pressed=&quot;true&quot;], [aria-selected=&quot;true&quot;], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible,
+.nav-link:focus-visible {
+  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.viz-carousel-controls :is(button, summary):focus-visible {
+  outline: 2px solid var(--ring) !important;
+  outline-offset: 2px !important;
+}
+
+/* Web recipes are the default, including on renderers without inline style queries. */
+@supports (border-radius: if(style(--corner-shape: round): 1px; else: 2px)) {
+  /* Match the host&#x27;s proportional text-sm scale at every text preference. */
+  .tooltip,
+  .viz-badge,
+  .btn,
+  .nav-link,
+  .form-control,
+  .form-select {
+    font-size: if(
+      style(--corner-shape: round): round(
+          nearest,
+          calc(var(--font-size-base) * 14 / 16),
+          1px
+        );
+        else: round(nearest, calc(var(--font-size-base) * 13 / 14), 1px)
+    );
+  }
+
+  .btn,
+  .nav-link,
+  .form-select {
+    border-radius: if(
+      style(--corner-shape: round): var(--radius-full); else: var(--radius-lg)
+    );
+  }
+
+  .form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+    border-radius: if(
+      style(--corner-shape: round): calc(var(--radius-sm) / 2);
+        else: calc(var(--radius-lg) * 0.4)
+    );
+  }
+
+  .tooltip {
+    font-weight: if(
+      style(--corner-shape: round): 600; else: var(--font-weight-normal)
+    );
+  }
+}
+
+@media (pointer: coarse) {
+  .viz-carousel:has(&gt; .viz-carousel-controls) {
+    min-height: calc(76px + var(--viz-carousel-picker-height, 0px));
+    padding-bottom: 76px;
+  }
+
+  .btn,
+  .nav-link,
+  .viz-carousel-controls button,
+  .viz-carousel-picker &gt; summary,
+  .form-control,
+  .form-select {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Keep small-screen WebKit from zooming when a text field receives focus. */
+  .form-control,
+  .form-select {
+    font-size: max(16px, calc(var(--font-size-base) * 14 / 16));
+    font-size: max(
+      16px,
+      round(nearest, calc(var(--font-size-base) * 14 / 16), 1px)
+    );
+  }
+  .form-control:is(
+    [type=&quot;file&quot;],
+    [type=&quot;date&quot;],
+    [type=&quot;datetime-local&quot;],
+    [type=&quot;month&quot;],
+    [type=&quot;week&quot;],
+    [type=&quot;time&quot;],
+    [type=&quot;color&quot;]
+  ) {
+    height: 44px;
+    min-height: 44px;
+    font-size: max(16px, calc(var(--font-size-base) * 14 / 16));
+    font-size: max(
+      16px,
+      round(nearest, calc(var(--font-size-base) * 14 / 16), 1px)
+    );
+  }
+
+  .form-control[type=&quot;file&quot;]::file-selector-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .form-control-color[type=&quot;color&quot;] {
+    width: 44px;
+    height: 44px;
+  }
+
+  .form-control:is(
+    [type=&quot;date&quot;],
+    [type=&quot;datetime-local&quot;],
+    [type=&quot;month&quot;],
+    [type=&quot;time&quot;],
+    [type=&quot;week&quot;]
+  ) {
+    min-width: 0;
+    max-width: 100%;
+    padding-block: 8px;
+  }
+
+  .form-check {
+    min-height: 44px;
+    padding-inline: 15px;
+  }
+
+  .form-check-input {
+    position: relative;
+  }
+
+  .form-check-input::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    content: &quot;&quot;;
+    transform: translate(-50%, -50%);
+  }
+
+  .form-check-label {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .form-range {
+    height: 44px;
+    touch-action: pan-y;
+  }
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget &gt; svg {
+  width: 100%;
+}
+
+/* Model-authored chart rules can otherwise stretch icons after these styles load. */
+svg.lucide {
+  display: block;
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  flex: none;
+  margin: 0 !important;
+  stroke-width: 1.6;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html&gt;body{padding:0}&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;script type=&quot;application/json&quot; id=&quot;codex-visualization-widget-state&quot;&gt;__CODEX_VISUALIZATION_WIDGET_STATE__&lt;/script&gt;
+&lt;script&gt;(() =&gt; {
+  const root = document.documentElement;
+  const mediaQuery = globalThis.matchMedia(&quot;(prefers-color-scheme: dark)&quot;);
+  const apply = Reflect.apply;
+  const isArray = Array.isArray;
+  const hasOwn = Object.hasOwn;
+  const parentWindow = globalThis.parent;
+  const stringify = JSON.stringify;
+  const parse = JSON.parse;
+  const encode = TextEncoder.prototype.encode.bind(new TextEncoder());
+  const initialStateElement = document.getElementById(
+    &quot;codex-visualization-widget-state&quot;,
+  );
+  const initialGlobals = parse(initialStateElement?.textContent ?? &quot;{}&quot;);
+  initialStateElement?.remove();
+  /** @type {Record&lt;string, unknown&gt; | null} */
+  let state = initialGlobals.widgetState ?? null;
+  const statePersistence = initialGlobals.statePersistence ?? &quot;none&quot;;
+  let nextStateRequestId = 0;
+  /** @type {Map&lt;number, { resolve: () =&gt; void; reject: (error: Error) =&gt; void; timeout: ReturnType&lt;typeof globalThis.setTimeout&gt;; serializedState: string }&gt;} */
+  const pendingStateWrites = new Map();
+  const persistenceError = () =&gt;
+    Object.assign(
+      new Error(&quot;The host could not persist the widget state update&quot;),
+      {
+        code: -32000,
+        data: { code: &quot;widget_state_persistence_failed&quot;, retryable: false },
+      },
+    );
+  /**
+   * @param {object} prototype
+   * @param {string} property
+   */
+  const getPrototypeGetter = (prototype, property) =&gt; {
+    // oxlint-disable-next-line typescript/unbound-method -- invoked through captured Reflect.apply
+    const getter = Object.getOwnPropertyDescriptor(prototype, property)?.get;
+    if (getter == null) {
+      throw new Error(`Missing ${property} getter`);
+    }
+    return getter;
+  };
+  const getMessageData = getPrototypeGetter(MessageEvent.prototype, &quot;data&quot;);
+  const getMessagePorts = getPrototypeGetter(MessageEvent.prototype, &quot;ports&quot;);
+  const getMessageSource = getPrototypeGetter(MessageEvent.prototype, &quot;source&quot;);
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const addHostMessageListener = MessagePort.prototype.addEventListener;
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const postHostMessage = MessagePort.prototype.postMessage;
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const startHostPort = MessagePort.prototype.start;
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const stopMessagePropagation = Event.prototype.stopImmediatePropagation;
+  /** @type {MessagePort | null} */
+  let hostPort = null;
+  const postToHost = (type, payload) =&gt; {
+    if (hostPort != null) {
+      apply(postHostMessage, hostPort, [{ type, ...payload }]);
+    }
+  };
+  const openExternal = ({ href }) =&gt; {
+    if (globalThis.navigator.userActivation?.isActive === true) {
+      postToHost(&quot;open-external&quot;, { href });
+    }
+  };
+  const sendFollowUpMessage = ({ context, prompt, title }) =&gt; {
+    if (globalThis.navigator.userActivation?.isActive === true) {
+      postToHost(&quot;follow-up&quot;, { context, prompt, title });
+    }
+    return Promise.resolve();
+  };
+  /**
+   * @param {Record&lt;string, unknown&gt; | ((previous: Record&lt;string, unknown&gt; | null) =&gt; Record&lt;string, unknown&gt;)} next
+   * @returns {Promise&lt;void&gt;}
+   */
+  const setWidgetState = async (next) =&gt; {
+    const nextState = typeof next === &quot;function&quot; ? next(state) : next;
+    if (
+      nextState == null ||
+      typeof nextState !== &quot;object&quot; ||
+      isArray(nextState)
+    ) {
+      throw new TypeError(&quot;Widget state must be a JSON object&quot;);
+    }
+    const inputState = stringify(
+      nextState,
+      (_key, /** @type {unknown} */ value) =&gt; {
+        if (
+          typeof value === &quot;undefined&quot; ||
+          typeof value === &quot;function&quot; ||
+          typeof value === &quot;symbol&quot; ||
+          (typeof value === &quot;number&quot; &amp;&amp; !Number.isFinite(value))
+        ) {
+          throw new TypeError(&quot;Widget state must be a JSON object&quot;);
+        }
+        return value;
+      },
+    );
+    const parsedState = parse(inputState);
+    if (
+      parsedState == null ||
+      typeof parsedState !== &quot;object&quot; ||
+      isArray(parsedState)
+    ) {
+      throw new TypeError(&quot;Widget state must be a JSON object&quot;);
+    }
+    const storedState = {
+      modelContent: null,
+      privateContent: null,
+      ...parsedState,
+    };
+    const serializedState = stringify(storedState);
+    if (encode(serializedState).length &gt; 16 * 1024) {
+      throw new TypeError(
+        &quot;Widget state must be a JSON object of at most 16 KiB&quot;,
+      );
+    }
+    if (
+      hasOwn(storedState, &quot;imageIds&quot;) &amp;&amp;
+      (!isArray(storedState.imageIds) ||
+        storedState.imageIds.some(
+          (/** @type {unknown} */ id) =&gt; typeof id !== &quot;string&quot;,
+        ))
+    ) {
+      throw new TypeError(&quot;Widget state imageIds must be an array of strings&quot;);
+    }
+    if (storedState.imageIds?.length &gt; 0) {
+      throw Object.assign(
+        new TypeError(&quot;Visualization state does not support image attachments&quot;),
+        { code: -32602, data: { code: &quot;images_unsupported&quot; } },
+      );
+    }
+    state = storedState;
+    globalThis.openai.widgetState = state;
+    globalThis.dispatchEvent(
+      new CustomEvent(&quot;openai:set_globals&quot;, {
+        detail: { globals: { widgetState: state } },
+      }),
+    );
+    if (statePersistence === &quot;none&quot;) {
+      throw persistenceError();
+    }
+    const id = ++nextStateRequestId;
+    return new Promise((resolve, reject) =&gt; {
+      const timeout = globalThis.setTimeout(() =&gt; {
+        pendingStateWrites.delete(id);
+        reject(persistenceError());
+      }, 30_000);
+      pendingStateWrites.set(id, { resolve, reject, timeout, serializedState });
+      postToHost(&quot;widget-state-write&quot;, { id, state: serializedState });
+    });
+  };
+  const syncTheme = () =&gt; {
+    const theme = mediaQuery.matches ? &quot;dark&quot; : &quot;light&quot;;
+    root.dataset.theme = theme;
+    globalThis.openai = {
+      ...globalThis.openai,
+      openExternal,
+      sendFollowUpMessage,
+      setWidgetState,
+      theme,
+      visualizationStyleVariables: {},
+      visualizationTheme: theme,
+      widgetState: state,
+      statePersistence,
+      stateModelContext: &quot;none&quot;,
+    };
+    globalThis.dispatchEvent(
+      new CustomEvent(&quot;openai:set_globals&quot;, {
+        detail: { globals: globalThis.openai },
+      }),
+    );
+  };
+  const sendHeight = () =&gt; {
+    postToHost(&quot;height&quot;, {
+      height: Math.ceil(
+        Math.max(
+          document.body.scrollHeight,
+          document.body.getBoundingClientRect().height,
+        ),
+      ),
+    });
+  };
+
+  globalThis.addEventListener(
+    &quot;message&quot;,
+    (event) =&gt; {
+      const data = apply(getMessageData, event, []);
+      const ports = apply(getMessagePorts, event, []);
+      const source = apply(getMessageSource, event, []);
+      if (
+        hostPort != null ||
+        source !== parentWindow ||
+        typeof data !== &quot;object&quot; ||
+        data?.type !== &quot;codex-visualization-initialize&quot; ||
+        !isArray(ports) ||
+        ports.length !== 1
+      ) {
+        return;
+      }
+      apply(stopMessagePropagation, event, []);
+      const nextHostPort = ports[0];
+      try {
+        apply(addHostMessageListener, nextHostPort, [
+          &quot;message&quot;,
+          (event) =&gt; {
+            const data = apply(getMessageData, event, []);
+            if (typeof data === &quot;object&quot; &amp;&amp; data?.type === &quot;measure&quot;) {
+              sendHeight();
+            } else if (
+              typeof data === &quot;object&quot; &amp;&amp;
+              data?.type === &quot;widget-state-result&quot;
+            ) {
+              /** @type {unknown} */
+              const id = data.id;
+              if (typeof id !== &quot;number&quot;) {
+                return;
+              }
+              const pending = pendingStateWrites.get(id);
+              if (pending != null) {
+                pendingStateWrites.delete(id);
+                globalThis.clearTimeout(pending.timeout);
+                if (data.ok === true) {
+                  pending.resolve();
+                } else {
+                  pending.reject(persistenceError());
+                }
+              }
+            }
+          },
+        ]);
+        apply(startHostPort, nextHostPort, []);
+      } catch {
+        return;
+      }
+      hostPort = nextHostPort;
+      for (const [id, { serializedState }] of pendingStateWrites) {
+        postToHost(&quot;widget-state-write&quot;, { id, state: serializedState });
+      }
+      sendHeight();
+    },
+    { capture: true },
+  );
+  document.currentScript?.remove();
+  mediaQuery.addEventListener(&quot;change&quot;, syncTheme);
+  globalThis.addEventListener(&quot;click&quot;, (event) =&gt; {
+    if (event.defaultPrevented) {
+      return;
+    }
+    let element = null;
+    if (event.target instanceof globalThis.Element) {
+      element = event.target;
+    } else if (event.target instanceof globalThis.Node) {
+      element = event.target.parentElement;
+    }
+    const link = element?.closest(&quot;a[href]&quot;);
+    const href = link?.getAttribute(&quot;href&quot;);
+    if (href == null) {
+      return;
+    }
+    if (href.startsWith(&quot;#&quot;)) {
+      let id;
+      try {
+        id = decodeURIComponent(href.slice(1));
+      } catch {
+        return;
+      }
+      const target = id.length === 0 ? root : document.getElementById(id);
+      if (
+        target == null ||
+        globalThis.navigator.userActivation?.isActive !== true
+      ) {
+        return;
+      }
+      event.preventDefault();
+      postToHost(&quot;scroll-to&quot;, {
+        top: target.getBoundingClientRect().top + globalThis.scrollY,
+      });
+      return;
+    }
+    event.preventDefault();
+    openExternal({ href });
+  });
+  new ResizeObserver(sendHeight).observe(document.body);
+  syncTheme();
+})();
+&lt;/script&gt;
+&lt;style&gt;
+#my-history-names { color-scheme: light dark; --app-bg: light-dark(#f2f2f7,#000); --app-surface: light-dark(#fff,#202022); --app-text: light-dark(#202024,#f5f5f7); --app-sub: light-dark(#74747a,#aaaab0); --app-line: light-dark(#e6e6eb,#38383b); --app-control: light-dark(#ededf0,#343437); --app-green: light-dark(#4caf50,#30d158); --app-green-ink: light-dark(#2d7932,#65dc80); --app-green-soft: light-dark(#eaf5ec,#1c3523); --app-amber: light-dark(#8d5b16,#e7bc75); --app-amber-soft: light-dark(#faf1e2,#33291b); --app-red: light-dark(#c33d39,#ff7c75); font-family: -apple-system,BlinkMacSystemFont,&quot;PingFang SC&quot;,sans-serif; padding: 24px 8px; }
+#my-history-names * { box-sizing: border-box; }
+#my-history-names [hidden] { display: none !important; }
+#my-history-names button, #my-history-names input { font: inherit; }
+#my-history-names button { color: inherit; }
+#my-history-names .phone { display:flex;flex-direction:column;max-width: 393px; width: 100%; min-height: 740px; margin: 0 auto; padding-bottom:28px; background: var(--app-bg); color: var(--app-text); border: 1px solid var(--app-line); border-radius: 28px; overflow: hidden; position: relative; font-size: 16px; line-height:1.4; }
+#my-history-names .page { flex:1; }
+#my-history-names .phone.is-scan { height:700px;min-height:700px; }
+#my-history-names .phone.is-scan .page { display:flex;flex-direction:column;min-height:0;overflow:hidden; }
+#my-history-names .phone.is-scan .status,#my-history-names .phone.is-scan .nav { flex-shrink:0; }
+#my-history-names .phone.is-scan .content { display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;padding:12px 18px 0; }
+#my-history-names .scan-intro { flex-shrink:0;padding-bottom:10px; }
+#my-history-names .scan-scroll { flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-bottom:16px; }
+#my-history-names .scan-action-bar { flex-shrink:0;padding:10px 18px 14px;background:var(--app-bg);border-top:1px solid var(--app-line); }
+#my-history-names .scan-action-bar .selected-summary { font-size:13px;margin:0 2px 9px; }
+#my-history-names .scan-action-bar .selected-summary:empty { display:none; }
+#my-history-names .nav.is-left { grid-template-columns:44px minmax(0,1fr) 44px;padding:0 10px; }
+#my-history-names .nav.is-left h1 { text-align:left;padding-left:4px; }
+#my-history-names .nav.is-left.is-root { grid-template-columns:minmax(0,1fr) 44px;padding-left:18px; }
+#my-history-names .nav.is-left.is-root [data-back] { display:none; }
+#my-history-names .status { display: flex; justify-content: space-between; align-items: center; height: 44px; padding: 0 23px; font-size: 13px; font-weight: 500; }
+#my-history-names .status span:last-child { display: flex; gap: 5px; }
+#my-history-names svg { width: 18px; height: 18px; vertical-align: middle; flex-shrink: 0; }
+#my-history-names .status svg { width: 14px; height: 14px; }
+#my-history-names .nav { height: 52px; display: grid; grid-template-columns: 56px 1fr 56px; align-items: center; background: var(--app-bg); }
+#my-history-names .nav h1 { font-size: 18px; font-weight: 500; text-align: center; margin: 0; }
+#my-history-names .icon-button { display: grid; place-items: center; border: 0; background: none; min-width: 44px; height: 44px; padding: 0; }
+#my-history-names .nav button { color: var(--app-green-ink); }
+#my-history-names .content { padding: 16px 18px 28px; }
+#my-history-names .profile { display: flex; gap: 12px; align-items: center; padding: 4px 2px 22px; }
+#my-history-names .avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--app-green-ink); background: var(--app-green-soft); font-size: 21px; }
+#my-history-names .profile strong { font-size: 19px; font-weight: 500; }
+#my-history-names .sub { font-size: 13px; line-height: 1.6; color: var(--app-sub); margin: 5px 0 0; }
+#my-history-names .section-label { font-size: 13px; color: var(--app-sub); margin: 24px 4px 10px; }
+#my-history-names .surface { background: var(--app-surface); border-radius: 16px; overflow: hidden; }
+#my-history-names .metrics { display: grid; grid-template-columns: repeat(3,1fr); padding: 19px 2px 17px; }
+#my-history-names .metrics &gt; div { text-align: center; }
+#my-history-names .metric-value { font-size: 28px; font-weight: 500; font-variant-numeric: tabular-nums; }
+#my-history-names .metric-label { color: var(--app-sub); font-size: 12px; margin-top: 5px; }
+#my-history-names .link-row { border: 0; background: none; width: 100%; min-height: 58px; text-align: left; display: flex; align-items: center; gap: 10px; padding: 12px 16px; }
+#my-history-names .link-row + .link-row { border-top: 1px solid var(--app-line); }
+#my-history-names .link-row &gt; div { flex: 1; min-width: 0; }
+#my-history-names .chev { color: var(--app-sub); }
+#my-history-names .count { font-size: 13px; color: var(--app-sub); flex-shrink: 0; }
+#my-history-names .pill { color: var(--app-green-ink); background: var(--app-green-soft); border-radius: 5px; font-size: 12px; padding: 3px 7px; display: inline-block; }
+#my-history-names .intro { margin: 2px 3px 18px; font-size: 14px; line-height: 1.7; color: var(--app-sub); }
+#my-history-names .callout { padding: 13px 15px; background: var(--app-green-soft); color: var(--app-green-ink); border-radius: 12px; font-size: 13px; line-height: 1.65; margin: 0 0 16px; }
+#my-history-names .callout.amber { background: var(--app-amber-soft); color: var(--app-amber); }
+#my-history-names .primary { width: 100%; border: 0; min-height: 46px; padding: 11px 12px; border-radius: 24px; background: var(--app-green); color: #fff; font-size: 16px; font-weight: 500; }
+#my-history-names .primary:disabled { opacity: .4; }
+#my-history-names .secondary { width: 100%; border: 0; min-height: 44px; padding: 10px; border-radius: 22px; background: var(--app-control); margin-top: 10px; }
+#my-history-names .text-button { border: 0; background: none; color: var(--app-green-ink); min-height: 44px; padding: 8px 4px; }
+#my-history-names .actions { margin-top: 20px; }
+#my-history-names .fine { color: var(--app-sub); font-size: 12px; line-height: 1.65; margin: 12px 4px; }
+#my-history-names .name-choice { display: flex; align-items: center; gap: 12px; min-height: 74px; padding: 13px 15px; }
+#my-history-names .name-choice + .name-choice { border-top: 1px solid var(--app-line); }
+#my-history-names .name-choice input { width: 21px; height: 21px; margin: 0; flex-shrink: 0; accent-color: var(--app-green); }
+#my-history-names .name-choice label { display: block; flex: 1; min-width: 0; padding: 3px 0; margin: 0; font-size: 16px; line-height: 1.4; }
+#my-history-names .name-choice .sample { font-size: 12px; color: var(--app-sub); margin-top: 6px; }
+#my-history-names .name-choice .preview-name { border: 0; background: none; min-height: 44px; min-width: 44px; padding: 4px; color: var(--app-sub); }
+#my-history-names .selected-summary { margin: 17px 3px 0; font-size: 14px; line-height: 1.7; }
+#my-history-names .empty { padding: 28px 18px; text-align: center; color: var(--app-sub); font-size: 14px; line-height: 1.8; }
+#my-history-names .detail-row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; min-height: 62px; }
+#my-history-names .detail-row + .detail-row { border-top: 1px solid var(--app-line); }
+#my-history-names .detail-row &gt; div { flex: 1; min-width: 0; }
+#my-history-names .detail-row strong { font-size: 15px; font-weight: 400; }
+#my-history-names .detail-row .sub { font-size: 12px; }
+#my-history-names .score { font-variant-numeric: tabular-nums; font-size: 17px; white-space: nowrap; }
+#my-history-names .modal-layer { position: absolute; inset: 0; background: #0006; display: flex; align-items: center; padding: 20px; z-index: 5; }
+#my-history-names .modal { width: 100%; padding: 22px; background: var(--app-surface); border-radius: 22px; }
+#my-history-names .modal h2 { margin: 0 0 12px; font-size: 19px; font-weight: 500; text-align: center; }
+#my-history-names .modal p { font-size: 14px; line-height: 1.75; margin: 10px 0 18px; }
+#my-history-names .modal .preview-records { max-height: none; }
+#my-history-names .modal .preview-records .detail-row { padding-left: 0; padding-right: 0; }
+#my-history-names .name-input { width: 100%; border: 0; padding: 13px; background: var(--app-control); color: var(--app-text); border-radius: 9px; font-size: 16px; }
+#my-history-names .success-mark { margin: 2px auto 15px; width: 52px; height: 52px; display: grid; place-items: center; border-radius: 50%; color: var(--app-green-ink); background: var(--app-green-soft); }
+#my-history-names .success-mark svg { width: 28px; height: 28px; }
+#my-history-names .danger { color: var(--app-red); }
+#my-history-names .picker-row { display: flex; gap: 9px; align-items: center; width: 100%; background: none; border: 0; border-bottom: 1px solid var(--app-line); min-height: 52px; text-align: left; padding: 12px 4px; }
+#my-history-names .picker-row:last-child { border-bottom: 0; }
+#my-history-names .setup-preview { padding: 18px; }
+#my-history-names .fields { display: flex; align-items: center; gap: 10px; margin: 0 0 20px; }
+#my-history-names .field { background: var(--app-control); min-height: 44px; min-width: 0; flex: 1; border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 4px; }
+#my-history-names .field span:first-child { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+#my-history-names .field button { border: 0; background: none; padding: 0; min-width: 30px; min-height: 30px; }
+#my-history-names .homebar { width: 112px; height: 5px; background: var(--app-text); border-radius: 4px; position:absolute;bottom:10px;left:50%;transform:translateX(-50%); }
+#my-history-names .format-switch { display:flex; background:var(--app-control); border-radius:9px; padding:3px; margin-bottom:20px; }
+#my-history-names .format-switch button { flex:1; min-height:36px; background:none; border:0; border-radius:7px; font-size:14px; }
+#my-history-names .format-switch button[aria-pressed=&quot;true&quot;] { background:var(--app-surface); color:var(--app-text); }
+#my-history-names .slot-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+#my-history-names .side-slots { display:grid; gap:8px; min-width:0; }
+#my-history-names .side-title { color:var(--app-sub); font-size:13px; margin-bottom:3px; }
+#my-history-names .slot-button { display:flex; align-items:center; gap:6px; width:100%; min-height:48px; border:1px solid transparent; border-radius:9px; background:var(--app-control); padding:9px; text-align:left; }
+#my-history-names .slot-button span:first-child { flex:1; min-width:0; overflow-wrap:anywhere; }
+#my-history-names .slot-button.is-target { border-color:var(--app-green); }
+#my-history-names .picker-heading { display:flex; align-items:center; justify-content:space-between; min-height:44px; margin:0 4px; font-size:14px; color:var(--app-sub); }
+#my-history-names .picker-row { padding:12px 16px; min-height:50px; }
+#my-history-names .picker-row:disabled { opacity:.45; }
+#my-history-names .picker-note { color:var(--app-amber); font-size:13px; margin:0 4px 10px; }
+#my-history-names .help-list { font-size:14px; line-height:1.75; padding-left:20px; margin:10px 0 20px; }
+#my-history-names .help-list li + li { margin-top:9px; }
+#my-history-names .app-tabs { display:flex;min-height:64px;border-top:1px solid var(--app-line);background:var(--app-surface); }
+#my-history-names .app-tabs button { flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:0;background:none;color:var(--app-sub);font-size:11px;min-height:58px;padding:8px 2px; }
+#my-history-names .app-tabs button[aria-current=&quot;page&quot;] { color:var(--app-green-ink); }
+#my-history-names .app-tabs button:disabled { opacity:.5; }
+#my-history-names .app-tabs svg { width:21px;height:21px; }
+#my-history-names .section-header { display:flex;align-items:center;justify-content:space-between;margin:22px 4px 9px;min-height:26px;color:var(--app-sub);font-size:13px; }
+#my-history-names .section-header:first-child { margin-top:0; }
+#my-history-names .section-header .text-button { min-height:30px;padding:2px 0;font-size:13px; }
+#my-history-names .association-row { display:flex;align-items:center;gap:8px;padding:7px 15px;min-height:52px; }
+#my-history-names .association-row + .association-row { border-top:1px solid var(--app-line); }
+#my-history-names .association-row .row-name { flex:1;min-width:0; }
+#my-history-names .association-row .row-name .pill { margin-left:5px; }
+#my-history-names .association-row .row-menu { min-width:44px;min-height:44px;border:0;background:none;display:grid;place-items:center;color:var(--app-sub); }
+#my-history-names .related-action { display:flex;justify-content:center;align-items:center;gap:6px;width:100%;min-height:46px;border:0;border-top:1px solid var(--app-line);background:none;color:var(--app-green-ink); }
+#my-history-names .related-action:disabled { color:var(--app-sub); }
+#my-history-names .related-action:first-child { border-top:0; }
+#my-history-names .category-row { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px; }
+#my-history-names .category-row button { min-height:38px;padding:7px 14px;border:0;border-radius:20px;background:var(--app-control);color:var(--app-sub);font-size:14px; }
+#my-history-names .category-row button[aria-pressed=&quot;true&quot;] { background:var(--app-green-soft);color:var(--app-green-ink); }
+#my-history-names .home-cards { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+#my-history-names .home-cards button { min-height:80px;background:var(--app-surface);border:0;border-radius:16px;display:flex;align-items:center;gap:11px;padding:17px 15px;text-align:left; }
+#my-history-names .home-cards svg { color:var(--app-green-ink);width:23px;height:23px; }
+#my-history-names .record-row { display:block;width:100%;background:none;border:0;text-align:left;padding:14px 15px; }
+#my-history-names .record-row + .record-row { border-top:1px solid var(--app-line); }
+#my-history-names .record-meta { color:var(--app-sub);font-size:12px;margin-bottom:9px; }
+#my-history-names .record-teams { display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;font-size:14px; }
+#my-history-names .record-teams &gt; span:last-child { text-align:right; }
+#my-history-names .record-teams .pill { font-size:11px;padding:1px 4px;margin-left:3px; }
+#my-history-names .record-teams .score { color:var(--app-text); }
+#my-history-names .phone[data-platform=&quot;Android&quot;] { border-radius: 20px; }
+#my-history-names .phone[data-platform=&quot;Android&quot;] .primary { border-radius: 12px; }
+#my-history-names .phone[data-platform=&quot;鸿蒙&quot;] .surface { border-radius: 20px; }
+#my-history-names .phone[data-platform=&quot;网页&quot;] .status { height: 36px; border-bottom: 1px solid var(--app-line); color: var(--app-sub); }
+@media(max-width:360px) { #my-history-names { padding: 16px 0; } #my-history-names .content { padding: 13px 12px 24px; } #my-history-names .modal-layer { padding: 12px; } #my-history-names .modal { padding: 18px; } }
+&lt;/style&gt;
+&lt;div id=&quot;my-history-names&quot; class=&quot;viz-dotted-background&quot; aria-label=&quot;名称关联与参赛记录位置预览&quot;&gt;
+  &lt;div class=&quot;phone&quot; data-platform=&quot;iOS&quot;&gt;
+    &lt;div class=&quot;status&quot;&gt;&lt;span data-clock&gt;9:41&lt;/span&gt;&lt;span&gt;&lt;i data-lucide=&quot;signal&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;i data-lucide=&quot;wifi&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;i data-lucide=&quot;battery-full&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;page&quot;&gt;
+      &lt;div class=&quot;nav&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;icon-button cursor-interaction&quot; data-back aria-label=&quot;返回&quot;&gt;&lt;i data-lucide=&quot;chevron-left&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;&lt;h1 data-title&gt;我的参赛记录&lt;/h1&gt;&lt;button type=&quot;button&quot; class=&quot;icon-button cursor-interaction&quot; data-help aria-label=&quot;名称与记录说明&quot;&gt;&lt;i data-lucide=&quot;circle-help&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;&lt;/div&gt;
+      &lt;div class=&quot;content&quot; data-content&gt;&lt;/div&gt;
+      &lt;div class=&quot;scan-action-bar&quot; data-scan-actions hidden&gt;&lt;div class=&quot;selected-summary&quot; data-summary&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;primary cursor-interaction&quot; data-action=&quot;confirm-names&quot; data-confirm disabled&gt;关联到我&lt;/button&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;nav class=&quot;app-tabs&quot; aria-label=&quot;应用导航&quot; data-app-tabs&gt;&lt;/nav&gt;
+    &lt;div class=&quot;homebar&quot; aria-hidden=&quot;true&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;modal-layer&quot; hidden&gt;&lt;section class=&quot;modal&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot; aria-label=&quot;确认关联&quot; data-modal&gt;&lt;/section&gt;&lt;/div&gt;
+    &lt;div class=&quot;sr-only&quot; aria-live=&quot;polite&quot; data-live&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;script&gt;
+(() =&gt; {
+  const root = document.getElementById(&#x27;my-history-names&#x27;);
+  const MAX_LINKED_NAMES = 3;
+  const config = { account: &#x27;未登录&#x27;, platform: &#x27;iOS&#x27;, imported: false, screen:&#x27;关联历史名称&#x27; };
+  let activeAccount=config.account;
+  const state = { page: &#x27;scan&#x27;, stack:[&#x27;start&#x27;,&#x27;names&#x27;], guestNameRef:null, guestUsed:false, sport:&#x27;羽毛球&#x27;, nameType:&#x27;player&#x27;, recordType:&#x27;all&#x27;, showMoreRecords:false, selected: [], modal: null, accountNames: { a: &#x27;杨杨&#x27;, b: &#x27;小林&#x27; }, groups: { a: &#x27;&#x27;, b: &#x27;&#x27; }, links: { guest: {}, a: {}, b: {} }, pickerHidden:{guest:[],a:[],b:[]}, format:&#x27;singles&#x27;, target:2, slots:[{name:&#x27;杨扬&#x27;,person:null,current:false},{name:&#x27;&#x27;,person:null,current:false},{name:&#x27;小林&#x27;,person:null,current:false},{name:&#x27;&#x27;,person:null,current:false}], notice: &#x27;&#x27; };
+  const records = [
+    { id: &#x27;old-1&#x27;, date: &#x27;2026.10.20&#x27;, sport: &#x27;羽毛球 · 单打&#x27;, a: [&#x27;杨扬&#x27;], b: [&#x27;小林&#x27;], score: [21,17] },
+    { id: &#x27;old-2&#x27;, date: &#x27;2026.10.12&#x27;, sport: &#x27;羽毛球 · 单打&#x27;, a: [&#x27;杨扬&#x27;], b: [&#x27;阿杰&#x27;], score: [18,21] },
+    { id: &#x27;old-3&#x27;, date: &#x27;2026.09.28&#x27;, sport: &#x27;羽毛球 · 单打&#x27;, a: [&#x27;小杨&#x27;], b: [&#x27;小林&#x27;], score: [21,16] },
+    { id: &#x27;old-4&#x27;, date: &#x27;2026.09.18&#x27;, sport: &#x27;羽毛球 · 双打&#x27;, a: [&#x27;小杨&#x27;,&#x27;陈晨&#x27;], b: [&#x27;阿杰&#x27;,&#x27;李薇&#x27;], score: [21,17] },
+    { id: &#x27;old-5&#x27;, date: &#x27;2026.08.05&#x27;, sport: &#x27;乒乓球 · 单打&#x27;, a: [&#x27;YY&#x27;], b: [&#x27;陈晨&#x27;], score: [11,8] },
+    { id: &#x27;old-6&#x27;, date: &#x27;2026.07.12&#x27;, sport: &#x27;羽毛球 · 单打&#x27;, a: [&#x27;杨扬&#x27;], b: [&#x27;小杨&#x27;], score: [21,19] },
+    { id: &#x27;import-1&#x27;, date: &#x27;2026.06.03&#x27;, sport: &#x27;乒乓球 · 单打&#x27;, a: [&#x27;YY&#x27;], b: [&#x27;小林&#x27;], score: [8,11], imported: true },
+    { id: &#x27;import-2&#x27;, date: &#x27;2026.05.04&#x27;, sport: &#x27;羽毛球 · 单打&#x27;, a: [&#x27;杨扬&#x27;], b: [&#x27;小林&#x27;], score: [21,18], imported: true }
+  ];
+  const candidateOrder = [&#x27;杨扬&#x27;,&#x27;小杨&#x27;,&#x27;YY&#x27;,&#x27;小林&#x27;,&#x27;阿杰&#x27;,&#x27;陈晨&#x27;,&#x27;李薇&#x27;];
+  const q = selector =&gt; root.querySelector(selector);
+  const norm = name =&gt; name.trim().replace(/\s+/g,&#x27; &#x27;).toLowerCase();
+  const esc = value =&gt; String(value).replace(/[&amp;&lt;&gt;&quot;&#x27;]/g, char =&gt; ({&#x27;&amp;&#x27;:&#x27;&amp;amp;&#x27;,&#x27;&lt;&#x27;:&#x27;&amp;lt;&#x27;,&#x27;&gt;&#x27;:&#x27;&amp;gt;&#x27;,&#x27;&quot;&#x27;:&#x27;&amp;quot;&#x27;,&quot;&#x27;&quot;:&#x27;&amp;#39;&#x27;}[char]));
+  const who = () =&gt; config.account === &#x27;未登录&#x27; ? &#x27;guest&#x27; : config.account === &#x27;杨杨&#x27; ? &#x27;a&#x27; : &#x27;b&#x27;;
+  const nick = () =&gt; who() === &#x27;guest&#x27; ? state.guestNameRef || &#x27;我&#x27; : state.accountNames[who()];
+  const available = () =&gt; records.filter(record =&gt; !record.imported || config.imported);
+  const source = () =&gt; who() === &#x27;guest&#x27; ? &#x27;本机历史记录&#x27; : &#x27;本机及当前账号的历史记录&#x27;;
+  const namesIn = record =&gt; [...record.a,...record.b];
+  const mine = () =&gt; state.links[who()];
+  const linkedCount = (owner = who()) =&gt; new Set(Object.keys(state.links[owner]).map(norm)).size;
+  const proposedCount = (names, owner = who()) =&gt; new Set([...Object.keys(state.links[owner]),...names].map(norm)).size;
+  const withinNameLimit = (names, owner = who()) =&gt; proposedCount(names,owner) &lt;= MAX_LINKED_NAMES;
+  function canSelectName(name) { return state.selected.includes(name) || withinNameLimit([...state.selected,name]); }
+  const pageLabels = {start:&#x27;首页&#x27;,records:&#x27;记录&#x27;,personal:&#x27;我的参赛&#x27;,names:&#x27;常用名称&#x27;,scan:&#x27;关联历史名称&#x27;,setup:&#x27;选人&#x27;,group:&#x27;小组&#x27;,groupNick:&#x27;小组昵称&#x27;,me:&#x27;我的&#x27;,profile:&#x27;个人资料&#x27;};
+  const commonPlayers=[&#x27;杨扬&#x27;,&#x27;小杨&#x27;,&#x27;YY&#x27;,&#x27;小林&#x27;,&#x27;阿杰&#x27;,&#x27;陈晨&#x27;,&#x27;李薇&#x27;];
+  const commonTeams=[&#x27;飞扬队&#x27;,&#x27;晨光队&#x27;];
+  const baseMatches=[{id:&#x27;recent-self&#x27;,date:&#x27;2026.10.23&#x27;,sport:&#x27;羽毛球 · 单打&#x27;,a:[&#x27;杨杨&#x27;],b:[&#x27;小林&#x27;],score:[21,18],owner:&#x27;a&#x27;},{id:&#x27;group-self&#x27;,date:&#x27;2026.10.22&#x27;,sport:&#x27;羽毛球 · 单打&#x27;,a:[&#x27;杨工&#x27;],b:[&#x27;阿杰&#x27;],score:[21,19],owner:&#x27;a&#x27;,group:true}];
+  const activeSlots = () =&gt; state.format === &#x27;doubles&#x27; ? [0,1,2,3] : [0,2];
+  const slotLabel = index =&gt; (index &lt; 2 ? &#x27;左侧&#x27; : &#x27;右侧&#x27;) + (state.format === &#x27;doubles&#x27; ? &#x27;选手&#x27; + (index % 2 + 1) : &#x27;&#x27;);
+  function currentSelfSlot() { return activeSlots().find(index =&gt; state.slots[index].person === who()); }
+  function pickerEntries() {
+    const hidden = new Set(state.pickerHidden[who()].map(norm));
+    const entries = [{name:nick(),person:who(),current:true}];
+    const seen = new Set(entries.map(entry =&gt; norm(entry.name)));
+    for (const name of [...Object.keys(mine()),...commonPlayers]) {
+      if (hidden.has(norm(name)) || seen.has(norm(name))) continue;
+      seen.add(norm(name));
+      entries.push({name,person:Object.hasOwn(mine(),name) ? who() : null,current:false});
+    }
+    return entries;
+  }
+  function canPick(entry, target = state.target) { return !entry.person || !activeSlots().some(index =&gt; index !== target &amp;&amp; state.slots[index].person === entry.person); }
+  function pickEntry(entry, target = state.target) {
+    if (!canPick(entry,target)) return false;
+    state.slots[target] = {name:entry.name,person:entry.person,current:entry.current === true};
+    if(entry.person===&#x27;guest&#x27;)state.guestUsed=true;
+    return true;
+  }
+  function promoteGuest(){
+    if(who()===&#x27;guest&#x27;)return {ok:false,reason:&#x27;signed-out&#x27;};
+    const names=Object.keys(state.links.guest);
+    const conflict=names.some(name=&gt;[&#x27;a&#x27;,&#x27;b&#x27;].some(owner=&gt;owner!==who()&amp;&amp;Object.keys(state.links[owner]).some(value=&gt;norm(value)===norm(name))));
+    if(conflict)return {ok:false,reason:&#x27;ownership&#x27;};
+    if(!withinNameLimit(names))return {ok:false,reason:&#x27;limit&#x27;};
+    const moved=names.length&gt;0||state.guestUsed;
+    names.forEach(name=&gt;{const key=Object.keys(mine()).find(value=&gt;norm(value)===norm(name))||name;mine()[key]=[...new Set([...(mine()[key]||[]),...state.links.guest[name]])];});
+    state.slots.forEach(slot=&gt;{if(slot.person===&#x27;guest&#x27;){if(slot.current)slot.name=state.guestNameRef||&#x27;我&#x27;;slot.person=who();slot.current=false;}});
+    state.links.guest={};state.pickerHidden.guest=[];state.guestNameRef=null;state.guestUsed=false;
+    return {ok:true,moved};
+  }
+  function signInAndPromote(){
+    config.account=&#x27;杨杨&#x27;;activeAccount=config.account;state.selected=[];
+    const result=promoteGuest();
+    if(state.stack.at(-1)===&#x27;names&#x27;)state.stack.pop();
+    if(!state.stack.length)state.stack=[&#x27;start&#x27;];
+    state.page=&#x27;names&#x27;;config.screen=pageLabels.names;state.modal=result.ok?null:{kind:&#x27;transfer&#x27;};
+    state.notice=result.ok?(result.moved?&#x27;已登录，本机的我已同步到当前账号&#x27;:&#x27;已登录&#x27;):&#x27;&#x27;;
+    render();persist();
+  }
+  function lineupProblem() {
+    if(activeSlots().some(index=&gt;!slotName(index)))return &#x27;请先选择所有选手&#x27;;
+    const people=activeSlots().map(index=&gt;state.slots[index].person).filter(Boolean);
+    return new Set(people).size!==people.length?&#x27;同一人不能占多个参赛位置&#x27;:null;
+  }
+  function slotName(index) { const slot = state.slots[index]; return slot.current &amp;&amp; slot.person === who() ? nick() : slot.name; }
+  function foreignBound(name) {
+    return [&#x27;guest&#x27;,&#x27;a&#x27;,&#x27;b&#x27;].some(id =&gt; id !== who() &amp;&amp; id !== &#x27;guest&#x27; &amp;&amp; Object.keys(state.links[id]).some(key =&gt; norm(key) === norm(name)));
+  }
+  function remaining(name) { return available().filter(record =&gt; namesIn(record).some(value =&gt; norm(value) === norm(name)) &amp;&amp; !(mine()[name] || []).includes(record.id)); }
+  function associations(owner = who(), selection = []) {
+    const map = Object.fromEntries(Object.entries(state.links[owner]).map(([name, ids]) =&gt; [name, new Set(ids)]));
+    selection.forEach(name =&gt; { if (!map[name]) map[name] = new Set(); available().filter(record =&gt; namesIn(record).includes(name)).forEach(record =&gt; map[name].add(record.id)); });
+    return available().flatMap(record =&gt; {
+      const seats = [...record.a.map((name, index) =&gt; ({ name, side: 0, seat: index })),...record.b.map((name,index) =&gt; ({ name, side: 1, seat: index }))].filter(seat =&gt; map[seat.name]?.has(record.id));
+      return seats.length ? [{ record, seats, conflict: seats.length !== 1 }] : [];
+    });
+  }
+  function selectionSummary() {
+    const selected = new Set(state.selected);
+    const rows = available().flatMap(record =&gt; {
+      const matching = namesIn(record).filter(name =&gt; selected.has(name) &amp;&amp; !(mine()[name] || []).includes(record.id));
+      return matching.length ? [record] : [];
+    });
+    const after = associations(who(), state.selected);
+    return { count: rows.length, conflicts: after.filter(item =&gt; item.conflict &amp;&amp; rows.some(row =&gt; row.id === item.record.id)).length };
+  }
+  function statistics() {
+    const all = associations();
+    const good = all.filter(item =&gt; !item.conflict);
+    const base = who() === &#x27;a&#x27; ? 2 : 0;
+    const wins = good.filter(item =&gt; item.record.score[item.seats[0].side] &gt; item.record.score[1-item.seats[0].side]).length + base;
+    const count = good.length + base;
+    return { count, wins, rate: count ? Math.round(wins/count*100) + &#x27;%&#x27; : &#x27;—&#x27;, old: all.length, conflicts: all.filter(item =&gt; item.conflict).length, names: Object.keys(mine()).length };
+  }
+  function icon(name) { return &#x27;&lt;i data-lucide=&quot;&#x27; + name + &#x27;&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&#x27;; }
+  function row(action, title, subtitle = &#x27;&#x27;, suffix = &#x27;&#x27;) { return &#x27;&lt;button type=&quot;button&quot; class=&quot;link-row cursor-interaction&quot; data-action=&quot;&#x27; + action + &#x27;&quot;&gt;&lt;div&gt;&#x27; + title + (subtitle ? &#x27;&lt;div class=&quot;sub&quot;&gt;&#x27; + subtitle + &#x27;&lt;/div&gt;&#x27; : &#x27;&#x27;) + &#x27;&lt;/div&gt;&#x27; + (suffix ? &#x27;&lt;span class=&quot;count&quot;&gt;&#x27; + suffix + &#x27;&lt;/span&gt;&#x27; : &#x27;&#x27;) + &#x27;&lt;span class=&quot;chev&quot;&gt;&#x27; + icon(&#x27;chevron-right&#x27;) + &#x27;&lt;/span&gt;&lt;/button&gt;&#x27;; }
+  function recordRow(record) { return &#x27;&lt;div class=&quot;detail-row&quot;&gt;&lt;div&gt;&lt;strong&gt;&#x27; + esc(record.a.join(&#x27; / &#x27;)) + &#x27; vs &#x27; + esc(record.b.join(&#x27; / &#x27;)) + &#x27;&lt;/strong&gt;&lt;div class=&quot;sub&quot;&gt;&#x27; + record.date + &#x27; · &#x27; + record.sport + &#x27;&lt;/div&gt;&lt;/div&gt;&lt;span class=&quot;score&quot;&gt;&#x27; + record.score.join(&#x27; : &#x27;) + &#x27;&lt;/span&gt;&lt;/div&gt;&#x27;; }
+  function personalMatches(){return [...baseMatches.filter(record=&gt;record.owner===who()),...associations().filter(item=&gt;!item.conflict).map(item=&gt;item.record)];}
+  function mySeats(record){if(record.owner===who())return [{side:0,seat:0}];return associations().find(item=&gt;item.record.id===record.id&amp;&amp;!item.conflict)?.seats||[];}
+  function matchCard(record){const seats=mySeats(record);const sideNames=side=&gt;record[side===0?&#x27;a&#x27;:&#x27;b&#x27;].map((name,seat)=&gt;esc(name)+(seats.some(value=&gt;value.side===side&amp;&amp;value.seat===seat)?&#x27;&lt;span class=&quot;pill&quot;&gt;我&lt;/span&gt;&#x27;:&#x27;&#x27;)).join(&#x27; / &#x27;);return &#x27;&lt;button type=&quot;button&quot; class=&quot;record-row cursor-interaction&quot; data-record=&quot;&#x27;+esc(record.id)+&#x27;&quot;&gt;&lt;div class=&quot;record-meta&quot;&gt;&#x27;+record.date+&#x27; · &#x27;+record.sport+(record.group?&#x27; · 小组&#x27;:&#x27;&#x27;)+&#x27;&lt;/div&gt;&lt;div class=&quot;record-teams&quot;&gt;&lt;span&gt;&#x27;+sideNames(0)+&#x27;&lt;/span&gt;&lt;strong class=&quot;score&quot;&gt;&#x27;+record.score.join(&#x27; : &#x27;)+&#x27;&lt;/strong&gt;&lt;span&gt;&#x27;+sideNames(1)+&#x27;&lt;/span&gt;&lt;/div&gt;&lt;/button&gt;&#x27;;}
+  function activeMainTab(){if([&#x27;records&#x27;,&#x27;personal&#x27;].includes(state.page))return &#x27;records&#x27;;if(state.page===&#x27;setup&#x27;)return &#x27;setup&#x27;;if([&#x27;me&#x27;,&#x27;profile&#x27;].includes(state.page))return &#x27;me&#x27;;for(const page of [...state.stack].reverse()){if([&#x27;records&#x27;,&#x27;personal&#x27;].includes(page))return &#x27;records&#x27;;if(page===&#x27;setup&#x27;)return &#x27;setup&#x27;;if([&#x27;me&#x27;,&#x27;profile&#x27;].includes(page))return &#x27;me&#x27;;if(page===&#x27;start&#x27;)return &#x27;start&#x27;;}return &#x27;start&#x27;;}
+  function appTabs(){const active=activeMainTab();return [[&#x27;start&#x27;,&#x27;首页&#x27;,&#x27;house&#x27;],[&#x27;records&#x27;,&#x27;记录&#x27;,&#x27;clipboard-list&#x27;],[&#x27;setup&#x27;,&#x27;计分&#x27;,&#x27;circle-dot&#x27;],[&#x27;timer&#x27;,&#x27;计时&#x27;,&#x27;timer&#x27;],[&#x27;me&#x27;,&#x27;我的&#x27;,&#x27;user-round&#x27;]].map(([page,label,glyph])=&gt;&#x27;&lt;button type=&quot;button&quot; class=&quot;cursor-interaction&quot; &#x27;+(page===&#x27;timer&#x27;?&#x27;disabled&#x27;:&#x27;data-main=&quot;&#x27;+page+&#x27;&quot;&#x27;)+&#x27; &#x27;+(active===page?&#x27;aria-current=&quot;page&quot;&#x27;:&#x27;&#x27;)+&#x27;&gt;&#x27;+icon(glyph)+&#x27;&lt;span&gt;&#x27;+label+&#x27;&lt;/span&gt;&lt;/button&gt;&#x27;).join(&#x27;&#x27;);}
+  function persist() {
+    if (window.openai?.setWidgetState) window.openai.setWidgetState({ modelContent: { account: config.account, nickname: nick(), linkedNames: Object.keys(mine()), oldRecordCount: statistics().old, countedRecordCount: statistics().count, selectedOldNames: state.selected, page: state.page, groupNickname: who() === &#x27;guest&#x27; ? null : state.groups[who()] || null, format:state.format, lineup:activeSlots().map(index=&gt;({position:slotLabel(index),name:slotName(index),isMe:state.slots[index].person===who()})) }, privateContent: { state, config } }).catch(() =&gt; {});
+  }
+  function restore(snapshot) {
+    const saved = snapshot?.privateContent;
+    if (!saved?.state || !saved?.config) return;
+    const s = saved.state, c = saved.config;
+    if ([&#x27;未登录&#x27;,&#x27;杨杨&#x27;,&#x27;小林&#x27;].includes(c.account)) config.account = c.account;
+    if ([&#x27;iOS&#x27;,&#x27;Android&#x27;,&#x27;鸿蒙&#x27;,&#x27;网页&#x27;].includes(c.platform)) config.platform = c.platform;
+    if (typeof c.imported === &#x27;boolean&#x27;) config.imported = c.imported;
+    const compatiblePage={home:&#x27;personal&#x27;,manage:&#x27;names&#x27;}[s.page]||s.page;
+    if (Object.hasOwn(pageLabels,compatiblePage)) state.page = compatiblePage;
+    config.screen = pageLabels[state.page];
+    if(Array.isArray(s.stack))state.stack=s.stack.filter(page=&gt;Object.hasOwn(pageLabels,page));
+    if([&#x27;player&#x27;,&#x27;team&#x27;].includes(s.nameType))state.nameType=s.nameType;
+    if([&#x27;羽毛球&#x27;,&#x27;乒乓球&#x27;].includes(s.sport))state.sport=s.sport;
+    if([&#x27;all&#x27;,&#x27;score&#x27;,&#x27;timer&#x27;].includes(s.recordType))state.recordType=s.recordType;
+    state.showMoreRecords=s.showMoreRecords===true;
+    for (const owner of [&#x27;guest&#x27;,&#x27;a&#x27;,&#x27;b&#x27;]) {
+      if (!s.links?.[owner] || typeof s.links[owner] !== &#x27;object&#x27;) continue;
+      const clean = {};
+      for (const [name,ids] of Object.entries(s.links[owner])) if (candidateOrder.includes(name) &amp;&amp; Array.isArray(ids)) clean[name] = [...new Set(ids.filter(id =&gt; records.some(record =&gt; record.id === id)))];
+      state.links[owner] = clean;
+      if (Array.isArray(s.pickerHidden?.[owner])) state.pickerHidden[owner] = [...new Set(s.pickerHidden[owner].filter(name=&gt;typeof name===&#x27;string&#x27;))];
+    }
+    for (const owner of [&#x27;a&#x27;,&#x27;b&#x27;]) {
+      if (typeof s.accountNames?.[owner] === &#x27;string&#x27; &amp;&amp; s.accountNames[owner].trim()) state.accountNames[owner] = s.accountNames[owner].slice(0,20);
+      if (typeof s.groups?.[owner] === &#x27;string&#x27;) state.groups[owner] = s.groups[owner].slice(0,20);
+    }
+    if (Array.isArray(s.selected)) {
+      state.selected=[];
+      for(const name of new Set(s.selected)) if(candidateOrder.includes(name)&amp;&amp;!foreignBound(name)&amp;&amp;withinNameLimit([...state.selected,name]))state.selected.push(name);
+    }
+    state.guestNameRef=typeof s.guestNameRef===&#x27;string&#x27;&amp;&amp;Object.hasOwn(state.links.guest,s.guestNameRef)&amp;&amp;!state.pickerHidden.guest.includes(s.guestNameRef)?s.guestNameRef:Object.keys(state.links.guest).find(name=&gt;!state.pickerHidden.guest.includes(name))||null;
+    state.guestUsed=s.guestUsed===true||Object.keys(state.links.guest).length&gt;0;
+    state.format = s.format === &#x27;doubles&#x27; ? &#x27;doubles&#x27; : &#x27;singles&#x27;;
+    if (Array.isArray(s.slots) &amp;&amp; s.slots.length===4) state.slots = s.slots.map(slot=&gt;({name:typeof slot.name===&#x27;string&#x27;?slot.name.slice(0,20):&#x27;&#x27;,person:[&#x27;a&#x27;,&#x27;b&#x27;,&#x27;guest&#x27;].includes(slot.person)?slot.person:null,current:slot.current===true}));
+    state.target = activeSlots().includes(s.target) ? s.target : 0;
+    const seenPeople = new Set();
+    for(const index of activeSlots()) { const person=state.slots[index].person; if(person &amp;&amp; seenPeople.has(person)) state.slots[index].person=null; else if(person) seenPeople.add(person); }
+    activeAccount=config.account;
+  }
+  function render() {
+    const previousScroll=q(&#x27;[data-scan-scroll]&#x27;)?.scrollTop||0;
+    const focusedName=document.activeElement?.dataset?.name;
+    const stats = statistics();
+    q(&#x27;.phone&#x27;).dataset.platform = config.platform;
+    q(&#x27;.phone&#x27;).classList.toggle(&#x27;is-scan&#x27;,state.page===&#x27;scan&#x27;);
+    const rootPage=[&#x27;start&#x27;,&#x27;records&#x27;,&#x27;me&#x27;].includes(state.page);
+    q(&#x27;.nav&#x27;).classList.toggle(&#x27;is-left&#x27;,config.platform===&#x27;Android&#x27;);
+    q(&#x27;.nav&#x27;).classList.toggle(&#x27;is-root&#x27;,rootPage);
+    q(&#x27;[data-app-tabs]&#x27;).hidden=!rootPage;
+    q(&#x27;[data-scan-actions]&#x27;).hidden=state.page!==&#x27;scan&#x27;;
+    q(&#x27;[data-clock]&#x27;).textContent = config.platform === &#x27;网页&#x27; ? &#x27;全能计分器 · 个人数据&#x27; : &#x27;9:41&#x27;;
+    q(&#x27;[data-back]&#x27;).style.visibility = [&#x27;start&#x27;,&#x27;records&#x27;,&#x27;me&#x27;].includes(state.page) ? &#x27;hidden&#x27; : &#x27;visible&#x27;;
+    const titles = {start:&#x27;全能计分器&#x27;,records:&#x27;记录&#x27;,personal:&#x27;我的参赛&#x27;,names:&#x27;常用名称&#x27;,scan:&#x27;关联历史名称&#x27;,group:&#x27;周末羽毛球组&#x27;,groupNick:&#x27;我在本组的昵称&#x27;,setup:state.sport,me:&#x27;我的&#x27;,profile:&#x27;个人资料&#x27;};
+    q(&#x27;[data-title]&#x27;).textContent = titles[state.page];
+    let html = &#x27;&#x27;;
+    if (state.page === &#x27;personal&#x27;) {
+      html += &#x27;&lt;div class=&quot;surface metrics&quot;&gt;&lt;div&gt;&lt;div class=&quot;metric-value&quot;&gt;&#x27; + stats.count + &#x27;&lt;/div&gt;&lt;div class=&quot;metric-label&quot;&gt;本人参赛&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div class=&quot;metric-value&quot;&gt;&#x27; + stats.wins + &#x27;&lt;/div&gt;&lt;div class=&quot;metric-label&quot;&gt;获胜&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div class=&quot;metric-value&quot;&gt;&#x27; + stats.rate + &#x27;&lt;/div&gt;&lt;div class=&quot;metric-label&quot;&gt;胜率&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&#x27;;
+      if (stats.conflicts) html += &#x27;&lt;p class=&quot;fine&quot;&gt;&#x27; + stats.conflicts + &#x27; 场身份重叠，暂不计入统计。&lt;/p&gt;&#x27;;
+      const matches=personalMatches();html+=&#x27;&lt;div class=&quot;section-header&quot;&gt;&lt;span&gt;参赛记录&lt;/span&gt;&lt;span&gt;&#x27;+matches.length+&#x27; 场&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;surface&quot;&gt;&#x27;+(matches.length?matches.map(matchCard).join(&#x27;&#x27;):&#x27;&lt;div class=&quot;empty&quot;&gt;还没有明确属于你的参赛记录&lt;/div&gt;&#x27;)+&#x27;&lt;/div&gt;&#x27;;
+      if(!matches.length)html+=&#x27;&lt;button type=&quot;button&quot; class=&quot;text-button cursor-interaction&quot; data-action=&quot;names&quot;&gt;去常用名称关联本人&lt;/button&gt;&#x27;;
+    }
+    if(state.page===&#x27;start&#x27;)html=&#x27;&lt;div class=&quot;section-header&quot;&gt;&lt;span&gt;计分&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;home-cards&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;cursor-interaction&quot; data-game=&quot;羽毛球&quot;&gt;&#x27;+icon(&#x27;circle-dot&#x27;)+&#x27;&lt;span&gt;羽毛球&lt;/span&gt;&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;cursor-interaction&quot; data-game=&quot;乒乓球&quot;&gt;&#x27;+icon(&#x27;circle-dot&#x27;)+&#x27;&lt;span&gt;乒乓球&lt;/span&gt;&lt;/button&gt;&lt;/div&gt;&lt;div class=&quot;section-header&quot;&gt;&lt;span&gt;我的小组&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;surface&quot;&gt;&#x27;+row(&#x27;group&#x27;,&#x27;周末羽毛球组&#x27;,&#x27;&#x27;,&#x27;4 人&#x27;)+&#x27;&lt;/div&gt;&lt;div class=&quot;section-header&quot;&gt;&lt;span&gt;常用数据&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;home-cards&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;cursor-interaction&quot; data-action=&quot;names&quot;&gt;&#x27;+icon(&#x27;users-round&#x27;)+&#x27;&lt;span&gt;常用名称&lt;/span&gt;&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;cursor-interaction&quot; data-action=&quot;places&quot;&gt;&#x27;+icon(&#x27;map-pin&#x27;)+&#x27;&lt;span&gt;常用地点&lt;/span&gt;&lt;/button&gt;&lt;/div&gt;&#x27;;
+    if(state.page===&#x27;records&#x27;){
+      html=&#x27;&lt;div class=&quot;category-row&quot;&gt;&#x27;+[[&#x27;all&#x27;,&#x27;全部&#x27;],[&#x27;score&#x27;,&#x27;计分&#x27;],[&#x27;timer&#x27;,&#x27;计时&#x27;]].map(([value,label])=&gt;&#x27;&lt;button type=&quot;button&quot; class=&quot;cursor-interaction&quot; data-record-type=&quot;&#x27;+value+&#x27;&quot; aria-pressed=&quot;&#x27;+(state.recordType===value)+&#x27;&quot;&gt;&#x27;+label+&#x27;&lt;/button&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&#x27;;
+      if(state.recordType!==&#x27;timer&#x27;)html+=&#x27;&lt;div class=&quot;surface&quot;&gt;&#x27;+row(&#x27;personal&#x27;,&#x27;我的参赛&#x27;,&#x27;&#x27;,stats.count+&#x27; 场&#x27;)+&#x27;&lt;/div&gt;&lt;div class=&quot;section-header&quot;&gt;&lt;span&gt;最近记录&lt;/span&gt;&lt;/div&gt;&#x27;;
+      if(state.recordType===&#x27;timer&#x27;)html+=&#x27;&lt;div class=&quot;surface&quot;&gt;&lt;div class=&quot;detail-row&quot;&gt;&lt;div&gt;自定义计时&lt;div class=&quot;sub&quot;&gt;2026.10.23&lt;/div&gt;&lt;/div&gt;&lt;span class=&quot;score&quot;&gt;15:00&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&#x27;;
+      else{const all=[...baseMatches,...available()];html+=&#x27;&lt;div class=&quot;surface&quot;&gt;&#x27;+all.slice(0,state.showMoreRecords?all.length:4).map(matchCard).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&#x27;+(state.showMoreRecords?&#x27;&#x27;:&#x27;&lt;button type=&quot;button&quot; class=&quot;text-button cursor-interaction&quot; data-action=&quot;more-records&quot;&gt;查看更早记录&lt;/button&gt;&#x27;);}
+    }
+    if(state.page===&#x27;me&#x27;)html=&#x27;&lt;div class=&quot;surface&quot;&gt;&#x27;+row(&#x27;profile&#x27;,esc(nick()),&#x27;&#x27;,who()===&#x27;guest&#x27;?&#x27;未登录&#x27;:&#x27;个人资料&#x27;)+&#x27;&lt;/div&gt;&#x27;;
+    if(state.page===&#x27;profile&#x27;) html = &#x27;&lt;div class=&quot;profile&quot;&gt;&lt;span class=&quot;avatar&quot;&gt;&#x27;+esc(who()===&#x27;guest&#x27;?&#x27;我&#x27;:nick()[0])+&#x27;&lt;/span&gt;&lt;strong&gt;&#x27;+esc(nick())+&#x27;&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;surface&quot;&gt;&#x27;+(who()!==&#x27;guest&#x27;?row(&#x27;rename&#x27;,&#x27;昵称&#x27;,&#x27;&#x27;,esc(nick())):&#x27;&#x27;)+&#x27;&lt;/div&gt;&#x27;;
+    if (state.page === &#x27;scan&#x27;) {
+      html = &#x27;&lt;div class=&quot;scan-intro&quot;&gt;&lt;div class=&quot;picker-heading&quot;&gt;&lt;span&gt;选择你曾用过的名字&lt;/span&gt;&lt;span data-capacity&gt;&#x27;+proposedCount(state.selected)+&#x27; / &#x27;+MAX_LINKED_NAMES+&#x27;&lt;/span&gt;&lt;/div&gt;&#x27;;
+      if(linkedCount()&gt;=MAX_LINKED_NAMES)html+=&#x27;&lt;p class=&quot;fine&quot;&gt;已达上限，可补充已有名称的记录&lt;/p&gt;&#x27;;
+      html += &#x27;&lt;/div&gt;&lt;div class=&quot;scan-scroll&quot; data-scan-scroll role=&quot;region&quot; aria-label=&quot;历史名称列表&quot;&gt;&lt;div class=&quot;surface&quot;&gt;&#x27; + candidateOrder.map((name,index) =&gt; {
+        const rows = remaining(name), total = available().filter(record =&gt; namesIn(record).includes(name)).length;
+        const locked = foreignBound(name), done = !rows.length;
+        return &#x27;&lt;div class=&quot;name-choice&quot;&gt;&lt;input type=&quot;checkbox&quot; id=&quot;old-name-&#x27; + index + &#x27;&quot; class=&quot;cursor-interaction&quot; data-name=&quot;&#x27; + esc(name) + &#x27;&quot; &#x27; + (state.selected.includes(name) ? &#x27;checked &#x27; : &#x27;&#x27;) + (locked || done || !canSelectName(name) ? &#x27;disabled &#x27; : &#x27;&#x27;) + &#x27;&gt;&lt;label for=&quot;old-name-&#x27; + index + &#x27;&quot; class=&quot;cursor-interaction&quot;&gt;&#x27; + esc(name) + (mine()[name]?&#x27; &lt;span class=&quot;pill&quot;&gt;我&lt;/span&gt;&#x27;:&#x27;&#x27;) + &#x27;&lt;/label&gt;&lt;span class=&quot;count&quot;&gt;&#x27; + (locked ? &#x27;其他账号&#x27; : done ? &#x27;已关联 &#x27;+total+&#x27; 场&#x27; : mine()[name]?&#x27;新增 &#x27;+rows.length+&#x27; 场&#x27;:total+&#x27; 场&#x27;) + &#x27;&lt;/span&gt;&lt;button type=&quot;button&quot; class=&quot;preview-name cursor-interaction&quot; data-preview=&quot;&#x27; + esc(name) + &#x27;&quot; aria-label=&quot;预览&#x27; + esc(name) + &#x27;的旧记录&quot;&gt;&#x27; + icon(&#x27;eye&#x27;) + &#x27;&lt;/button&gt;&lt;/div&gt;&#x27;;
+      }).join(&#x27;&#x27;) + &#x27;&lt;/div&gt;&lt;/div&gt;&#x27;;
+    }
+    if (state.page === &#x27;names&#x27;) {
+      html=&#x27;&lt;div class=&quot;category-row&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;cursor-interaction&quot; data-name-type=&quot;player&quot; aria-pressed=&quot;&#x27;+(state.nameType===&#x27;player&#x27;)+&#x27;&quot;&gt;选手名称&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;cursor-interaction&quot; data-name-type=&quot;team&quot; aria-pressed=&quot;&#x27;+(state.nameType===&#x27;team&#x27;)+&#x27;&quot;&gt;队伍名称&lt;/button&gt;&lt;/div&gt;&#x27;;
+      if(state.notice)html+=&#x27;&lt;p class=&quot;fine&quot;&gt;&#x27;+esc(state.notice)+&#x27;&lt;/p&gt;&#x27;;
+      if(state.nameType===&#x27;player&#x27;){
+        if(who()!==&#x27;guest&#x27;)html+=&#x27;&lt;div class=&quot;surface&quot;&gt;&lt;div class=&quot;association-row&quot;&gt;&lt;span class=&quot;row-name&quot;&gt;&#x27;+esc(nick())+&#x27; &lt;span class=&quot;pill&quot;&gt;我&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;count&quot;&gt;当前昵称&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&#x27;;
+        else html+=&#x27;&lt;div class=&quot;surface&quot;&gt;&#x27;+row(&#x27;choose-me&#x27;,&#x27;我 &lt;span class=&quot;pill&quot;&gt;本机&lt;/span&gt;&#x27;,&#x27;&#x27;,esc(state.guestNameRef||&#x27;设置名称&#x27;))+&#x27;&lt;/div&gt;&#x27;;
+        const names=Object.keys(mine());
+        html+=&#x27;&lt;div class=&quot;section-header&quot;&gt;&lt;span&gt;已关联本人&lt;/span&gt;&lt;span&gt;&#x27;+linkedCount()+&#x27; / &#x27;+MAX_LINKED_NAMES+&#x27;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;surface&quot;&gt;&#x27;+names.map(name=&gt;&#x27;&lt;div class=&quot;association-row&quot;&gt;&lt;span class=&quot;row-name&quot;&gt;&#x27;+esc(name)+&#x27; &lt;span class=&quot;pill&quot;&gt;我&lt;/span&gt;&lt;/span&gt;&#x27;+(state.pickerHidden[who()].includes(name)?&#x27;&lt;span class=&quot;count&quot;&gt;已隐藏&lt;/span&gt;&#x27;:&#x27;&#x27;)+&#x27;&lt;button type=&quot;button&quot; class=&quot;row-menu cursor-interaction&quot; data-manage=&quot;&#x27;+esc(name)+&#x27;&quot; aria-label=&quot;管理&#x27;+esc(name)+&#x27;&quot;&gt;&#x27;+icon(&#x27;ellipsis&#x27;)+&#x27;&lt;/button&gt;&lt;/div&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;button type=&quot;button&quot; class=&quot;related-action cursor-interaction&quot; data-action=&quot;scan&quot;&gt;&#x27;+icon(&#x27;link&#x27;)+&#x27;&lt;span&gt;&#x27;+(names.length?&#x27;从历史记录关联&#x27;:&#x27;关联用过的名称&#x27;)+&#x27;&lt;/span&gt;&lt;/button&gt;&lt;/div&gt;&#x27;;
+        if(who()===&#x27;guest&#x27;&amp;&amp;(stats.old||state.guestUsed))html+=&#x27;&lt;button type=&quot;button&quot; class=&quot;text-button cursor-interaction&quot; data-action=&quot;login&quot;&gt;登录并同步&lt;/button&gt;&#x27;;
+        if(who()!==&#x27;guest&#x27;&amp;&amp;Object.keys(state.links.guest).length)html+=&#x27;&lt;button type=&quot;button&quot; class=&quot;text-button cursor-interaction&quot; data-action=&quot;transfer&quot;&gt;关联本机标记&lt;/button&gt;&#x27;;
+        const ordinary=commonPlayers.filter(name=&gt;!Object.hasOwn(mine(),name)&amp;&amp;(who()===&#x27;guest&#x27;||norm(name)!==norm(nick())));
+        html+=&#x27;&lt;div class=&quot;section-header&quot;&gt;&lt;span&gt;其他选手名称&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;surface&quot;&gt;&#x27;+ordinary.map(name=&gt;&#x27;&lt;div class=&quot;association-row&quot;&gt;&lt;span class=&quot;row-name&quot;&gt;&#x27;+esc(name)+&#x27;&lt;/span&gt;&lt;button type=&quot;button&quot; class=&quot;row-menu cursor-interaction&quot; data-common=&quot;&#x27;+esc(name)+&#x27;&quot; aria-label=&quot;操作&#x27;+esc(name)+&#x27;&quot;&gt;&#x27;+icon(&#x27;ellipsis&#x27;)+&#x27;&lt;/button&gt;&lt;/div&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&#x27;;
+      }else html+=&#x27;&lt;div class=&quot;surface&quot;&gt;&#x27;+commonTeams.map(name=&gt;&#x27;&lt;div class=&quot;association-row&quot;&gt;&lt;span class=&quot;row-name&quot;&gt;&#x27;+esc(name)+&#x27;&lt;/span&gt;&lt;/div&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&#x27;;
+    }
+    if(state.page===&#x27;group&#x27;)html=who()===&#x27;guest&#x27;?&#x27;&lt;div class=&quot;surface empty&quot;&gt;请先登录&lt;/div&gt;&#x27;:&#x27;&lt;div class=&quot;section-header&quot;&gt;&lt;span&gt;成员&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;surface&quot;&gt;&lt;div class=&quot;association-row&quot;&gt;&lt;span class=&quot;row-name&quot;&gt;&#x27;+esc(state.groups[who()]||nick())+&#x27; &lt;span class=&quot;pill&quot;&gt;我&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;association-row&quot;&gt;&lt;span&gt;小林&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;section-header&quot;&gt;&lt;span&gt;我的设置&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;surface&quot;&gt;&#x27;+row(&#x27;groupNick&#x27;,&#x27;本组昵称&#x27;,&#x27;&#x27;,esc(state.groups[who()]||nick()))+&#x27;&lt;/div&gt;&#x27;;
+    if (state.page === &#x27;groupNick&#x27;) {
+      html = &#x27;&lt;div class=&quot;section-label&quot; style=&quot;margin-top:0&quot;&gt;周末羽毛球组&lt;/div&gt;&#x27;;
+      if (state.notice) html += &#x27;&lt;div class=&quot;callout&quot;&gt;&#x27; + esc(state.notice) + &#x27;&lt;/div&gt;&#x27;;
+      if (who() === &#x27;guest&#x27;) html += &#x27;&lt;div class=&quot;surface empty&quot;&gt;请先登录&lt;/div&gt;&#x27;;
+      else html += &#x27;&lt;div class=&quot;surface&quot; style=&quot;padding:16px&quot;&gt;&lt;label for=&quot;group-name&quot;&gt;本组昵称&lt;/label&gt;&lt;input id=&quot;group-name&quot; class=&quot;name-input&quot; style=&quot;margin-top:12px&quot; value=&quot;&#x27; + esc(state.groups[who()]) + &#x27;&quot; placeholder=&quot;&#x27; + esc(nick()) + &#x27;&quot;&gt;&lt;p class=&quot;fine&quot;&gt;留空时使用应用昵称&lt;/p&gt;&lt;button type=&quot;button&quot; class=&quot;primary cursor-interaction&quot; data-action=&quot;save-group&quot;&gt;保存&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;text-button cursor-interaction&quot; data-action=&quot;reset-group&quot;&gt;恢复默认&lt;/button&gt;&lt;/div&gt;&#x27;;
+    }
+    if (state.page === &#x27;setup&#x27;) {
+      html = &#x27;&lt;div class=&quot;format-switch&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;cursor-interaction&quot; data-format=&quot;singles&quot; aria-pressed=&quot;&#x27;+(state.format===&#x27;singles&#x27;)+&#x27;&quot;&gt;单打&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;cursor-interaction&quot; data-format=&quot;doubles&quot; aria-pressed=&quot;&#x27;+(state.format===&#x27;doubles&#x27;)+&#x27;&quot;&gt;双打&lt;/button&gt;&lt;/div&gt;&lt;div class=&quot;slot-grid&quot;&gt;&#x27;+[0,2].map(start=&gt;&#x27;&lt;div class=&quot;side-slots&quot;&gt;&lt;div class=&quot;side-title&quot;&gt;&#x27;+(start===0?&#x27;左侧&#x27;:&#x27;右侧&#x27;)+&#x27;&lt;/div&gt;&#x27;+activeSlots().filter(index=&gt;index&gt;=start&amp;&amp;index&lt;start+2).map(index=&gt;&#x27;&lt;button type=&quot;button&quot; class=&quot;slot-button cursor-interaction &#x27;+(state.target===index?&#x27;is-target&#x27;:&#x27;&#x27;)+&#x27;&quot; data-slot=&quot;&#x27;+index+&#x27;&quot; aria-label=&quot;选择&#x27;+slotLabel(index)+&#x27;&quot;&gt;&lt;span&gt;&#x27;+esc(slotName(index)||&#x27;选择选手&#x27;)+&#x27;&lt;/span&gt;&#x27;+(state.slots[index].person===who()?&#x27;&lt;span class=&quot;pill&quot;&gt;我&lt;/span&gt;&#x27;:&#x27;&#x27;)+icon(&#x27;chevron-right&#x27;)+&#x27;&lt;/button&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&lt;div class=&quot;picker-heading&quot;&gt;&lt;span&gt;选择&#x27;+slotLabel(state.target)+&#x27;&lt;/span&gt;&lt;/div&gt;&#x27;;
+      const taken = currentSelfSlot();
+      if(taken!==undefined &amp;&amp; taken!==state.target) html += &#x27;&lt;p class=&quot;picker-note&quot;&gt;你已在&#x27;+slotLabel(taken)+&#x27;参赛&lt;/p&gt;&#x27;;
+      html += &#x27;&lt;div class=&quot;surface&quot;&gt;&#x27;+pickerEntries().map((entry,index)=&gt;&#x27;&lt;button type=&quot;button&quot; class=&quot;picker-row cursor-interaction&quot; data-pick-index=&quot;&#x27;+index+&#x27;&quot; &#x27;+(!canPick(entry)?&#x27;disabled&#x27;:&#x27;&#x27;)+&#x27;&gt;&#x27;+esc(entry.name)+(entry.person===who()?&#x27;&lt;span class=&quot;pill&quot;&gt;我&lt;/span&gt;&#x27;:&#x27;&#x27;)+&#x27;&lt;/button&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&lt;div style=&quot;display:flex;justify-content:space-between&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;text-button cursor-interaction&quot; data-action=&quot;manual-name&quot;&gt;手动填写&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;text-button cursor-interaction&quot; data-action=&quot;clear-slot&quot;&gt;清除此位置&lt;/button&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;text-button cursor-interaction&quot; data-action=&quot;names&quot; style=&quot;width:100%&quot;&gt;管理常用名称&lt;/button&gt;&lt;div class=&quot;actions&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;primary cursor-interaction&quot; data-action=&quot;confirm-lineup&quot;&gt;开始比赛&lt;/button&gt;&lt;/div&gt;&#x27;;
+    }
+    q(&#x27;[data-content]&#x27;).innerHTML = html;
+    q(&#x27;[data-app-tabs]&#x27;).innerHTML=appTabs();
+    bind();
+    if (state.page === &#x27;scan&#x27;) updateSummary();
+    if(state.page===&#x27;scan&#x27;){q(&#x27;[data-scan-scroll]&#x27;).scrollTop=previousScroll;if(focusedName&amp;&amp;!state.modal)[...root.querySelectorAll(&#x27;[data-name]&#x27;)].find(input=&gt;input.dataset.name===focusedName)?.focus({preventScroll:true});}
+    renderModal();
+    if (globalThis.lucide) lucide.createIcons({ attrs: { width: 18, height: 18 } });
+  }
+  function updateSummary() {
+    const s = selectionSummary();
+    q(&#x27;[data-summary]&#x27;).textContent = state.selected.length ? &#x27;已选 &#x27; + state.selected.length + &#x27; 个名称 · &#x27; + s.count + &#x27; 场记录&#x27; + (s.conflicts ? &#x27;（&#x27;+s.conflicts+&#x27; 场身份重叠）&#x27; : &#x27;&#x27;) : &#x27;&#x27;;
+    q(&#x27;[data-confirm]&#x27;).disabled = !s.count || !withinNameLimit(state.selected);
+    q(&#x27;[data-confirm]&#x27;).textContent = s.count ? &#x27;关联到我 · &#x27; + s.count + &#x27; 场&#x27; : &#x27;关联到我&#x27;;
+    q(&#x27;[data-capacity]&#x27;).textContent=proposedCount(state.selected)+&#x27; / &#x27;+MAX_LINKED_NAMES;
+    root.querySelectorAll(&#x27;[data-name]&#x27;).forEach(input=&gt;{const name=input.dataset.name;input.disabled=foreignBound(name)||!remaining(name).length||!canSelectName(name);});
+  }
+  function navigate(page, main = false) { if(main)state.stack=[];else if(page!==state.page)state.stack.push(state.page);state.page = page; config.screen=pageLabels[page]; state.modal = null; state.selected = []; state.notice = &#x27;&#x27;; render();root.scrollIntoView({block:&#x27;start&#x27;});persist(); }
+  function goBack(){const fallback={personal:&#x27;records&#x27;,names:&#x27;start&#x27;,scan:&#x27;names&#x27;,setup:&#x27;start&#x27;,group:&#x27;start&#x27;,groupNick:&#x27;group&#x27;,profile:&#x27;me&#x27;};state.page=state.stack.pop()||fallback[state.page]||&#x27;start&#x27;;config.screen=pageLabels[state.page];state.modal=null;state.selected=[];state.notice=&#x27;&#x27;;render();root.scrollIntoView({block:&#x27;start&#x27;});persist();}
+  function bind() {
+    root.querySelectorAll(&#x27;[data-action]&#x27;).forEach(button =&gt; button.onclick = () =&gt; action(button.dataset.action));
+    root.querySelectorAll(&#x27;[data-name]&#x27;).forEach(input =&gt; input.onchange = () =&gt; { const name = input.dataset.name;if(input.checked&amp;&amp;!withinNameLimit([...state.selected,name])){input.checked=false;updateSummary();return;}state.selected = input.checked ? [...new Set([...state.selected,name])] : state.selected.filter(value =&gt; value !== name); updateSummary(); persist(); });
+    root.querySelectorAll(&#x27;[data-preview]&#x27;).forEach(button =&gt; button.onclick = () =&gt; openModal({ kind: &#x27;preview&#x27;, name: button.dataset.preview }));
+    root.querySelectorAll(&#x27;[data-manage]&#x27;).forEach(button =&gt; button.onclick = () =&gt; openModal({ kind: &#x27;manage&#x27;, name: button.dataset.manage }));
+    root.querySelectorAll(&#x27;[data-common]&#x27;).forEach(button=&gt;button.onclick=()=&gt;openModal({kind:&#x27;common-name&#x27;,name:button.dataset.common}));
+    root.querySelectorAll(&#x27;[data-main]&#x27;).forEach(button=&gt;button.onclick=()=&gt;navigate(button.dataset.main,true));
+    root.querySelectorAll(&#x27;[data-game]&#x27;).forEach(button=&gt;button.onclick=()=&gt;{state.sport=button.dataset.game;navigate(&#x27;setup&#x27;);});
+    root.querySelectorAll(&#x27;[data-name-type]&#x27;).forEach(button=&gt;button.onclick=()=&gt;{state.nameType=button.dataset.nameType;render();persist();});
+    root.querySelectorAll(&#x27;[data-record-type]&#x27;).forEach(button=&gt;button.onclick=()=&gt;{state.recordType=button.dataset.recordType;render();persist();});
+    root.querySelectorAll(&#x27;[data-record]&#x27;).forEach(button=&gt;button.onclick=()=&gt;openModal({kind:&#x27;record&#x27;,id:button.dataset.record}));
+    root.querySelectorAll(&#x27;[data-slot]&#x27;).forEach(button=&gt;button.onclick=()=&gt;{state.target=Number(button.dataset.slot);render();persist();});
+    root.querySelectorAll(&#x27;[data-pick-index]&#x27;).forEach(button=&gt;button.onclick=()=&gt;{const entry=pickerEntries()[Number(button.dataset.pickIndex)];if(entry&amp;&amp;pickEntry(entry)){render();persist();}});
+    root.querySelectorAll(&#x27;[data-format]&#x27;).forEach(button=&gt;button.onclick=()=&gt;{state.format=button.dataset.format;if(state.format===&#x27;singles&#x27;)for(const index of [1,3])state.slots[index]={name:&#x27;&#x27;,person:null,current:false};if(!activeSlots().includes(state.target))state.target=0;render();persist();});
+  }
+  function action(name) {
+    if(name===&#x27;names&#x27;)state.nameType=&#x27;player&#x27;;
+    if (Object.hasOwn(pageLabels,name)) return navigate(name);
+    if(name===&#x27;more-records&#x27;){state.showMoreRecords=true;render();persist();return;}
+    if(name===&#x27;places&#x27;)return openModal({kind:&#x27;places&#x27;});
+    if (name === &#x27;confirm-names&#x27; &amp;&amp; selectionSummary().count) return openModal({ kind: withinNameLimit(state.selected)?&#x27;confirm&#x27;:&#x27;name-limit&#x27; });
+    if (name === &#x27;rename&#x27;) return openModal({ kind: &#x27;rename&#x27; });
+    if (name === &#x27;login&#x27;) return signInAndPromote();
+    if (name === &#x27;transfer&#x27;) {const result=promoteGuest();if(!result.ok)return openModal({kind:&#x27;transfer&#x27;});state.notice=&#x27;本机的我已同步到当前账号&#x27;;state.modal=null;render();persist();return;}
+    if(name===&#x27;choose-me&#x27;)return openModal({kind:&#x27;guest-name&#x27;});
+    if (name === &#x27;save-group&#x27;) { state.groups[who()] = q(&#x27;#group-name&#x27;).value.trim().slice(0,20); state.notice = state.groups[who()] ? &#x27;已保存，只在这个小组使用。&#x27; : &#x27;已恢复跟随应用昵称。&#x27;; render(); q(&#x27;[data-live]&#x27;).textContent = &#x27;已保存小组昵称&#x27;; persist(); return; }
+    if (name === &#x27;reset-group&#x27;) { state.groups[who()] = &#x27;&#x27;; state.notice = &#x27;已恢复跟随应用昵称。&#x27;; render(); persist(); return; }
+    if(name===&#x27;manual-name&#x27;)return openModal({kind:&#x27;manual-name&#x27;});
+    if(name===&#x27;clear-slot&#x27;){state.slots[state.target]={name:&#x27;&#x27;,person:null,current:false};render();persist();return;}
+    if(name===&#x27;confirm-lineup&#x27;){const problem=lineupProblem();if(problem){q(&#x27;[data-live]&#x27;).textContent=problem;openModal({kind:&#x27;incomplete&#x27;,message:problem});return;}return openModal({kind:&#x27;lineup&#x27;});}
+  }
+  function openModal(modal) { state.modal = modal; renderModal(); if (globalThis.lucide) lucide.createIcons({ attrs: { width: 18, height: 18 } }); q(&#x27;[data-modal]&#x27;).scrollIntoView({ block: &#x27;center&#x27; }); q(&#x27;[data-modal] button&#x27;)?.focus({ preventScroll: true }); }
+  function closeModal() { state.modal = null; renderModal(); }
+  function renderModal() {
+    const modal = state.modal;
+    q(&#x27;.modal-layer&#x27;).hidden = !modal; q(&#x27;.page&#x27;).inert = !!modal;q(&#x27;[data-app-tabs]&#x27;).inert=!!modal;
+    if (!modal) { q(&#x27;[data-modal]&#x27;).replaceChildren(); return; }
+    let html = &#x27;&#x27;;
+    if (modal.kind === &#x27;confirm&#x27;) {
+      const s = selectionSummary();
+      html = &#x27;&lt;h2&gt;关联到“我”？&lt;/h2&gt;&lt;p&gt;&#x27; + state.selected.map(esc).join(&#x27;、&#x27;) + &#x27;&lt;br&gt;&lt;span class=&quot;sub&quot;&gt;&#x27;+s.count+&#x27; 场旧记录 · &#x27;+esc(nick())+&#x27;&lt;/span&gt;&lt;/p&gt;&#x27;;
+      if (s.conflicts) html += &#x27;&lt;div class=&quot;callout amber&quot;&gt;&#x27;+s.conflicts+&#x27; 场身份重叠，暂不计入统计。&lt;/div&gt;&#x27;;
+      html += &#x27;&lt;p class=&quot;fine&quot;&gt;&#x27;+(who()===&#x27;guest&#x27;?&#x27;先保存在本机，登录后自动同步。&#x27;:&#x27;保留原始名称和比分。&#x27;)+&#x27;&lt;/p&gt;&lt;button type=&quot;button&quot; class=&quot;primary cursor-interaction&quot; data-modal-action=&quot;apply&quot;&gt;确认关联&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;secondary cursor-interaction&quot; data-modal-action=&quot;close&quot;&gt;取消&lt;/button&gt;&#x27;;
+    }
+    if (modal.kind === &#x27;success&#x27;) html = &#x27;&lt;div class=&quot;success-mark&quot;&gt;&#x27; + icon(&#x27;check&#x27;) + &#x27;&lt;/div&gt;&lt;h2&gt;已关联 &#x27; + modal.count + &#x27; 场记录&lt;/h2&gt;&lt;p&gt;&#x27; + modal.names.map(esc).join(&#x27;、&#x27;) + &#x27; &lt;span class=&quot;pill&quot;&gt;我&lt;/span&gt;&lt;/p&gt;&#x27;+(who()===&#x27;guest&#x27;?&#x27;&lt;p class=&quot;fine&quot;&gt;已保存到本机的我&lt;/p&gt;&#x27;:&#x27;&#x27;)+&#x27;&lt;button type=&quot;button&quot; class=&quot;primary cursor-interaction&quot; data-modal-action=&quot;home&quot;&gt;完成&lt;/button&gt;&#x27;+(who()===&#x27;guest&#x27;?&#x27;&lt;button type=&quot;button&quot; class=&quot;secondary cursor-interaction&quot; data-modal-action=&quot;login-sync&quot;&gt;登录并同步&lt;/button&gt;&#x27;:&#x27;&#x27;);
+    if(modal.kind===&#x27;guest-name&#x27;)html=&#x27;&lt;h2&gt;选一个名称作为我&lt;/h2&gt;&lt;div class=&quot;surface&quot;&gt;&#x27;+commonPlayers.map(name=&gt;&#x27;&lt;button type=&quot;button&quot; class=&quot;picker-row cursor-interaction&quot; data-guest-pick=&quot;&#x27;+esc(name)+&#x27;&quot; &#x27;+(!withinNameLimit([name])||foreignBound(name)?&#x27;disabled&#x27;:&#x27;&#x27;)+&#x27;&gt;&#x27;+esc(name)+(state.guestNameRef===name?&#x27;&lt;span class=&quot;pill&quot;&gt;当前使用&lt;/span&gt;&#x27;:&#x27;&#x27;)+&#x27;&lt;/button&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;secondary cursor-interaction&quot; data-modal-action=&quot;close&quot;&gt;取消&lt;/button&gt;&#x27;;
+    if (modal.kind === &#x27;preview&#x27;) {
+      const rows = available().filter(record =&gt; namesIn(record).includes(modal.name));
+      html = &#x27;&lt;h2&gt;&#x27; + esc(modal.name) + &#x27; · &#x27; + rows.length + &#x27; 场旧记录&lt;/h2&gt;&lt;div class=&quot;preview-records&quot;&gt;&#x27; + rows.slice(0,3).map(recordRow).join(&#x27;&#x27;) + &#x27;&lt;/div&gt;&#x27; + (rows.length &gt; 3 ? &#x27;&lt;p class=&quot;fine&quot;&gt;仅预览最近 3 场。关联时会处理该名字的全部候选旧记录。&lt;/p&gt;&#x27; : &#x27;&#x27;) + &#x27;&lt;button type=&quot;button&quot; class=&quot;secondary cursor-interaction&quot; data-modal-action=&quot;close&quot;&gt;返回选择名字&lt;/button&gt;&#x27;;
+    }
+    if (modal.kind === &#x27;manage&#x27;) html = &#x27;&lt;h2&gt;&#x27; + esc(modal.name) + &#x27; &lt;span class=&quot;pill&quot;&gt;我&lt;/span&gt;&lt;/h2&gt;&lt;p class=&quot;sub&quot; style=&quot;text-align:center&quot;&gt;&#x27;+(mine()[modal.name]||[]).length+&#x27; 场旧记录&lt;/p&gt;&#x27;+(remaining(modal.name).length?&#x27;&lt;button type=&quot;button&quot; class=&quot;primary cursor-interaction&quot; data-modal-action=&quot;supplement&quot;&gt;补充 &#x27;+remaining(modal.name).length+&#x27; 场旧记录&lt;/button&gt;&#x27;:&#x27;&#x27;)+(who()===&#x27;guest&#x27;||norm(modal.name)!==norm(nick())?&#x27;&lt;button type=&quot;button&quot; class=&quot;secondary cursor-interaction&quot; data-modal-action=&quot;toggle-picker&quot;&gt;&#x27;+(state.pickerHidden[who()].includes(modal.name)?&#x27;显示在选人列表&#x27;:&#x27;从选人列表移除&#x27;)+&#x27;&lt;/button&gt;&#x27;:&#x27;&#x27;)+&#x27;&lt;button type=&quot;button&quot; class=&quot;secondary danger cursor-interaction&quot; data-modal-action=&quot;ask-unlink&quot;&gt;解除名称关联&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;text-button cursor-interaction&quot; style=&quot;width:100%&quot; data-modal-action=&quot;close&quot;&gt;完成&lt;/button&gt;&#x27;;
+    if(modal.kind===&#x27;common-name&#x27;)html=&#x27;&lt;h2&gt;&#x27;+esc(modal.name)+&#x27;&lt;/h2&gt;&#x27;+(withinNameLimit([modal.name])?&#x27;&#x27;:&#x27;&lt;p class=&quot;fine&quot;&gt;已关联 3 / 3 个名称&lt;/p&gt;&#x27;)+&#x27;&lt;button type=&quot;button&quot; class=&quot;primary cursor-interaction&quot; data-modal-action=&quot;associate-common&quot; &#x27;+(!withinNameLimit([modal.name])||foreignBound(modal.name)?&#x27;disabled&#x27;:&#x27;&#x27;)+&#x27;&gt;关联为我&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;secondary cursor-interaction&quot; data-modal-action=&quot;close&quot;&gt;取消&lt;/button&gt;&#x27;;
+    if(modal.kind===&#x27;record&#x27;){const record=[...baseMatches,...available()].find(value=&gt;value.id===modal.id);html=&#x27;&lt;h2&gt;比赛记录&lt;/h2&gt;&#x27;+(record?&#x27;&lt;p class=&quot;sub&quot;&gt;&#x27;+record.date+&#x27; · &#x27;+record.sport+&#x27;&lt;/p&gt;&#x27;+recordRow(record):&#x27;&#x27;)+&#x27;&lt;button type=&quot;button&quot; class=&quot;secondary cursor-interaction&quot; data-modal-action=&quot;close&quot;&gt;完成&lt;/button&gt;&#x27;;}
+    if(modal.kind===&#x27;places&#x27;)html=&#x27;&lt;h2&gt;常用地点&lt;/h2&gt;&lt;p&gt;市体育馆&lt;br&gt;周末羽毛球馆&lt;/p&gt;&lt;button type=&quot;button&quot; class=&quot;secondary cursor-interaction&quot; data-modal-action=&quot;close&quot;&gt;完成&lt;/button&gt;&#x27;;
+    if(modal.kind===&#x27;unlink-confirm&#x27;)html=&#x27;&lt;h2&gt;解除“&#x27;+esc(modal.name)+&#x27;”的关联？&lt;/h2&gt;&lt;p&gt;其旧记录将不再按此名称计入“我”，以后选用该名称也不再标记“我”。&lt;/p&gt;&lt;p class=&quot;fine&quot;&gt;原始记录保留。已直接记录本人身份的新比赛不受影响。&lt;/p&gt;&lt;button type=&quot;button&quot; class=&quot;primary cursor-interaction&quot; data-modal-action=&quot;unlink&quot;&gt;解除关联&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;secondary cursor-interaction&quot; data-modal-action=&quot;close&quot;&gt;取消&lt;/button&gt;&#x27;;
+    if (modal.kind === &#x27;rename&#x27;) html = &#x27;&lt;h2&gt;修改昵称&lt;/h2&gt;&lt;input class=&quot;name-input&quot; aria-label=&quot;应用昵称&quot; maxlength=&quot;20&quot; value=&quot;&#x27; + esc(nick()) + &#x27;&quot;&gt;&lt;div class=&quot;actions&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;primary cursor-interaction&quot; data-modal-action=&quot;save-name&quot;&gt;保存&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;secondary cursor-interaction&quot; data-modal-action=&quot;close&quot;&gt;取消&lt;/button&gt;&lt;/div&gt;&#x27;;
+    if(modal.kind===&#x27;manual-name&#x27;)html=&#x27;&lt;h2&gt;填写名称&lt;/h2&gt;&lt;input class=&quot;name-input&quot; aria-label=&quot;普通参赛名称&quot; maxlength=&quot;20&quot; placeholder=&quot;选手名称&quot;&gt;&lt;p class=&quot;fine&quot;&gt;作为普通选手，不标记“我”&lt;/p&gt;&lt;button type=&quot;button&quot; class=&quot;primary cursor-interaction&quot; data-modal-action=&quot;save-manual&quot;&gt;确定&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;secondary cursor-interaction&quot; data-modal-action=&quot;close&quot;&gt;取消&lt;/button&gt;&#x27;;
+    if(modal.kind===&#x27;incomplete&#x27;)html=&#x27;&lt;h2&gt;&#x27;+esc(modal.message||&#x27;请先选择所有选手&#x27;)+&#x27;&lt;/h2&gt;&lt;button type=&quot;button&quot; class=&quot;primary cursor-interaction&quot; data-modal-action=&quot;close&quot;&gt;继续设置&lt;/button&gt;&#x27;;
+    if(modal.kind===&#x27;lineup&#x27;)html=&#x27;&lt;h2&gt;参赛名单已确认&lt;/h2&gt;&lt;div class=&quot;surface&quot;&gt;&#x27;+activeSlots().map(index=&gt;&#x27;&lt;div class=&quot;detail-row&quot;&gt;&lt;span class=&quot;count&quot;&gt;&#x27;+slotLabel(index)+&#x27;&lt;/span&gt;&lt;div&gt;&#x27;+esc(slotName(index))+(state.slots[index].person===who()?&#x27; &lt;span class=&quot;pill&quot;&gt;我&lt;/span&gt;&#x27;:&#x27;&#x27;)+&#x27;&lt;/div&gt;&lt;/div&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;primary cursor-interaction&quot; style=&quot;margin-top:18px&quot; data-modal-action=&quot;close&quot;&gt;完成预览&lt;/button&gt;&#x27;;
+    if(modal.kind===&#x27;help&#x27;){
+      const help={start:[&#x27;常用名称在首页的常用数据中管理。&#x27;,&#x27;个人参赛记录从底部“记录”进入。&#x27;],records:[&#x27;这里保留全部计分、计时记录。&#x27;,&#x27;“我的参赛”只查看明确属于本人身份的比赛。&#x27;],personal:[&#x27;同一场比赛只算一次；身份重叠的旧记录暂不计入胜负。&#x27;,&#x27;需要补充本人名称时，前往“常用名称”。&#x27;],names:[&#x27;最多关联 3 个名称；当前昵称的自动置顶项不额外占名额。&#x27;,&#x27;已关联名称直接在本页展开；其他选手名称的菜单里可以选择“关联为我”。&#x27;,&#x27;从选人列表移除只隐藏快捷入口，不释放名额；解除关联后才释放名额。&#x27;,&#x27;已有名称的新旧记录可继续补充。队伍名称不关联到个人。&#x27;],scan:[&#x27;勾选名称，批量关联找到的旧记录，保留原始名称和比分。&#x27;,&#x27;最多关联 3 个名称；这些名称以后选用时都标记“我”。&#x27;,&#x27;后来导入的旧记录可以再次补充。&#x27;],setup:[&#x27;带“我”的名称属于同一人，可以继续用其中任意一个参赛。&#x27;,&#x27;一场比赛同一人只能占一个位置；其他位置会禁选全部本人名称。&#x27;,&#x27;同位置可以换名字。重名球友可手动填写普通名称。&#x27;],me:[&#x27;应用昵称在个人资料中修改。&#x27;],profile:[&#x27;昵称用于应用内展示，不影响登录方式。&#x27;,&#x27;改昵称不改变已关联记录的身份。&#x27;],group:[&#x27;本组昵称在本组的“我的设置”中修改。&#x27;],groupNick:[&#x27;小组昵称仅在本组使用。&#x27;,&#x27;未单独设置时，跟随应用昵称。&#x27;]};
+      if(who()===&#x27;guest&#x27;&amp;&amp;[&#x27;names&#x27;,&#x27;scan&#x27;,&#x27;setup&#x27;,&#x27;personal&#x27;].includes(state.page))help[state.page].push(&#x27;未登录也能使用本机的我，之后登录会自动承接；超过名额或归属冲突时再处理，不丢弃记录。&#x27;);
+      html=&#x27;&lt;h2&gt;说明&lt;/h2&gt;&lt;ul class=&quot;help-list&quot;&gt;&#x27;+help[state.page].map(text=&gt;&#x27;&lt;li&gt;&#x27;+text+&#x27;&lt;/li&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/ul&gt;&lt;button type=&quot;button&quot; class=&quot;primary cursor-interaction&quot; data-modal-action=&quot;close&quot;&gt;知道了&lt;/button&gt;&#x27;;
+    }
+    if(modal.kind===&#x27;name-limit&#x27;)html=&#x27;&lt;h2&gt;最多关联 3 个名称&lt;/h2&gt;&lt;p&gt;请先解除一个已有名称，再添加新的关联。&lt;/p&gt;&lt;button type=&quot;button&quot; class=&quot;primary cursor-interaction&quot; data-modal-action=&quot;manage-names&quot;&gt;返回常用名称&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;secondary cursor-interaction&quot; data-modal-action=&quot;close&quot;&gt;取消&lt;/button&gt;&#x27;;
+    if (modal.kind === &#x27;transfer&#x27;) {
+      const localNames = Object.keys(state.links.guest), localIds = new Set(Object.values(state.links.guest).flat());
+      const conflicts = localNames.some(name =&gt; [&#x27;a&#x27;,&#x27;b&#x27;].some(owner =&gt; owner !== who() &amp;&amp; Object.hasOwn(state.links[owner],name)));
+      const exceeds=!withinNameLimit(localNames);
+      html = &#x27;&lt;h2&gt;本机身份待同步&lt;/h2&gt;&lt;p&gt;本机有 &#x27; + localNames.length + &#x27; 个关联名称，涉及 &#x27; + localIds.size + &#x27; 场旧记录。&lt;/p&gt;&#x27; + (conflicts ? &#x27;&lt;div class=&quot;callout amber&quot;&gt;存在账号归属冲突，本机数据仍然保留。&lt;/div&gt;&#x27; : exceeds?&#x27;&lt;div class=&quot;callout amber&quot;&gt;合并后超过 3 个名称，请先管理已有的关联。本机数据仍然保留。&lt;/div&gt;&#x27;:&#x27;&lt;p class=&quot;fine&quot;&gt;可继续同步到当前账号。&lt;/p&gt;&#x27;) + &#x27;&lt;button type=&quot;button&quot; class=&quot;primary cursor-interaction&quot; data-modal-action=&quot;transfer&quot; &#x27; + (conflicts || exceeds || !localNames.length ? &#x27;disabled&#x27; : &#x27;&#x27;) + &#x27;&gt;继续同步&lt;/button&gt;&#x27;+(exceeds?&#x27;&lt;button type=&quot;button&quot; class=&quot;secondary cursor-interaction&quot; data-modal-action=&quot;manage-names&quot;&gt;前往常用名称&lt;/button&gt;&#x27;:&#x27;&#x27;)+&#x27;&lt;button type=&quot;button&quot; class=&quot;secondary cursor-interaction&quot; data-modal-action=&quot;close&quot;&gt;稍后处理&lt;/button&gt;&#x27;;
+    }
+    q(&#x27;[data-modal]&#x27;).innerHTML = html;
+    q(&#x27;[data-modal]&#x27;).setAttribute(&#x27;aria-label&#x27;, q(&#x27;[data-modal] h2&#x27;)?.textContent || &#x27;确认关联&#x27;);
+    root.querySelectorAll(&#x27;[data-modal-action]&#x27;).forEach(button =&gt; button.onclick = () =&gt; modalAction(button.dataset.modalAction));
+    root.querySelectorAll(&#x27;[data-guest-pick]&#x27;).forEach(button=&gt;button.onclick=()=&gt;{const name=button.dataset.guestPick;if(Object.hasOwn(state.links.guest,name)){state.guestNameRef=name;state.modal=null;render();persist();}else if(withinNameLimit([name])&amp;&amp;!foreignBound(name)){state.selected=[name];openModal({kind:&#x27;confirm&#x27;,chooseGuestName:name});}});
+  }
+  function modalAction(action) {
+    if (action === &#x27;close&#x27;) return closeModal();
+    if(action===&#x27;login-sync&#x27;)return signInAndPromote();
+    if (action === &#x27;home&#x27;) {if(state.stack.at(-1)===&#x27;names&#x27;)return goBack();return navigate(&#x27;names&#x27;);}
+    if(action===&#x27;manage-names&#x27;)return navigate(&#x27;names&#x27;);
+    if(action===&#x27;associate-common&#x27;||action===&#x27;supplement&#x27;){const name=state.modal.name;if(foreignBound(name))return;if(!withinNameLimit([name]))return openModal({kind:&#x27;name-limit&#x27;});state.selected=[name];return openModal({kind:&#x27;confirm&#x27;});}
+    if(action===&#x27;ask-unlink&#x27;)return openModal({kind:&#x27;unlink-confirm&#x27;,name:state.modal.name});
+    if(action===&#x27;toggle-picker&#x27;){const name=state.modal.name;const hidden=state.pickerHidden[who()];state.pickerHidden[who()]=hidden.includes(name)?hidden.filter(value=&gt;value!==name):[...hidden,name];if(who()===&#x27;guest&#x27;&amp;&amp;state.guestNameRef===name&amp;&amp;!hidden.includes(name))state.guestNameRef=Object.keys(mine()).find(value=&gt;!state.pickerHidden.guest.includes(value))||null;state.notice=hidden.includes(name)?&#x27;已显示在选人列表&#x27;:&#x27;已从选人列表移除，记录关联保留&#x27;;state.modal=null;render();persist();return;}
+    if(action===&#x27;save-manual&#x27;){const value=q(&#x27;.name-input&#x27;).value.trim();if(!value)return;pickEntry({name:value,person:null,current:false});state.modal=null;render();persist();return;}
+    if (action === &#x27;apply&#x27;) {
+      state.selected = state.selected.filter(name =&gt; !foreignBound(name));
+      if(!withinNameLimit(state.selected))return openModal({kind:&#x27;name-limit&#x27;});
+      const s = selectionSummary(), names = [...state.selected];
+      const preferred=state.modal?.chooseGuestName;
+      if (!s.count&amp;&amp;names.every(name=&gt;Object.hasOwn(mine(),name))) return closeModal();
+      names.forEach(name =&gt; { mine()[name] = [...new Set([...(mine()[name] || []),...remaining(name).map(record =&gt; record.id)])]; state.pickerHidden[who()]=state.pickerHidden[who()].filter(value=&gt;value!==name); });
+      if(who()===&#x27;guest&#x27;){state.guestUsed=true;state.guestNameRef=preferred||state.guestNameRef||names[0]||null;}
+      state.modal = { kind: &#x27;success&#x27;, count: s.count, names }; render(); persist(); return;
+    }
+    if (action === &#x27;unlink&#x27;) { const name = state.modal.name; delete mine()[name];if(who()===&#x27;guest&#x27;&amp;&amp;state.guestNameRef===name)state.guestNameRef=Object.keys(mine()).find(value=&gt;!state.pickerHidden.guest.includes(value))||null;for(const slot of state.slots)if(!slot.current&amp;&amp;norm(slot.name)===norm(name)&amp;&amp;slot.person===who())slot.person=null;state.modal = null; state.notice = &#x27;已解除“&#x27; + name + &#x27;”的关联&#x27;; render(); persist(); return; }
+    if (action === &#x27;save-name&#x27;) { const value = q(&#x27;.name-input&#x27;).value.trim(); if (!value) { q(&#x27;.name-input&#x27;).focus(); return; } state.accountNames[who()] = value; state.modal = null; render(); persist(); return; }
+    if (action === &#x27;transfer&#x27;) {
+      const result=promoteGuest();if(!result.ok)return openModal({kind:&#x27;transfer&#x27;});state.modal=null;state.page=&#x27;names&#x27;;config.screen=pageLabels.names;state.notice=&#x27;本机的我已同步到当前账号&#x27;;render();persist();
+    }
+  }
+  q(&#x27;[data-back]&#x27;).onclick = goBack;
+  q(&#x27;[data-help]&#x27;).onclick=()=&gt;openModal({kind:&#x27;help&#x27;});
+  root.addEventListener(&#x27;keydown&#x27;, event =&gt; {
+    if (!state.modal) return;
+    if (event.key === &#x27;Escape&#x27;) { event.preventDefault(); closeModal(); }
+    if (event.key === &#x27;Tab&#x27;) {
+      const elements = [...q(&#x27;[data-modal]&#x27;).querySelectorAll(&#x27;button:not(:disabled),input&#x27;)];
+      const first = elements[0], last = elements[elements.length-1];
+      if (event.shiftKey &amp;&amp; document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey &amp;&amp; document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    }
+  });
+  restore(window.openai?.widgetState); render();
+  window.addEventListener(&#x27;openai:set_globals&#x27;, event =&gt; { if (event.detail?.globals?.widgetState) { restore(event.detail.globals.widgetState); render(); } });
+  if (globalThis.Tweak) {
+    const tweak = new Tweak({ container: root, onChange: () =&gt; { if (activeAccount !== config.account) {const previousAccount=activeAccount;state.page=&#x27;names&#x27;;state.stack=[&#x27;start&#x27;];config.screen=pageLabels.names;state.selected=[];state.modal=null;state.notice=&#x27;&#x27;;if(previousAccount===&#x27;未登录&#x27;&amp;&amp;who()!==&#x27;guest&#x27;){const result=promoteGuest();state.modal=result.ok?null:{kind:&#x27;transfer&#x27;};if(result.ok&amp;&amp;result.moved)state.notice=&#x27;本机的我已同步到当前账号&#x27;;}else state.slots.forEach(slot=&gt;slot.person=null);activeAccount=config.account;}else{const page=Object.keys(pageLabels).find(value=&gt;pageLabels[value]===config.screen)||&#x27;start&#x27;;if(page!==state.page){state.page=page;state.stack=[];state.modal=null;state.selected=[];state.notice=&#x27;&#x27;;}}render(); persist(); } });
+    tweak.addSelect(config,&#x27;screen&#x27;,{label:&#x27;查看页面&#x27;,options:Object.values(pageLabels)});
+    tweak.addSelect(config, &#x27;account&#x27;, { label: &#x27;登录状态&#x27;, options: [&#x27;杨杨&#x27;,&#x27;未登录&#x27;,&#x27;小林&#x27;] });
+    tweak.addSelect(config, &#x27;platform&#x27;, { label: &#x27;界面示意&#x27;, options: [&#x27;iOS&#x27;,&#x27;Android&#x27;,&#x27;鸿蒙&#x27;,&#x27;网页&#x27;] });
+    tweak.addToggle(config, &#x27;imported&#x27;, { label: &#x27;后来又导入了旧记录&#x27; });
+  }
+})();
+&lt;/script&gt;
+
+&lt;script src=&quot;https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  if (window.FloatingUIDOM == null) {
+    return;
+  }
+  const { autoUpdate, computePosition, flip, offset, shift, size } =
+    window.FloatingUIDOM;
+  const tooltipPlacements = new Set([&quot;top&quot;, &quot;right&quot;, &quot;bottom&quot;, &quot;left&quot;]);
+  const tooltipId = `codex-visualization-tooltip-${
+    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
+  }`;
+  const tooltipGap = 5;
+  const hoverDelay = 700;
+  const skipDelay = 300;
+  let activeTrigger = null;
+  let pendingTrigger = null;
+  let tooltip = null;
+  let openTimeout = null;
+  let autoUpdateCleanup = null;
+  let positionRequest = 0;
+  let skipDelayUntil = 0;
+  let lastPointerWasTouch = false;
+  let pinnedByTouch = false;
+
+  const getTrigger = (event) =&gt; {
+    for (const target of event.composedPath()) {
+      if (target?.nodeType === Node.ELEMENT_NODE) {
+        const trigger = target.closest(&quot;[data-tooltip]&quot;);
+        if (trigger) return trigger;
+      }
+    }
+    return null;
+  };
+  const containsTarget = (trigger, target) =&gt;
+    target?.nodeType != null &amp;&amp; trigger.contains(target);
+  const getContent = (trigger) =&gt;
+    trigger.getAttribute(&quot;data-tooltip&quot;)?.trim() ?? &quot;&quot;;
+  const getPlacement = (trigger) =&gt; {
+    const placement = trigger.getAttribute(&quot;data-tooltip-placement&quot;);
+    return tooltipPlacements.has(placement) ? placement : &quot;top&quot;;
+  };
+  const getTooltip = () =&gt; {
+    if (tooltip == null) {
+      tooltip = document.createElement(&quot;div&quot;);
+      tooltip.id = tooltipId;
+      tooltip.className = &quot;tooltip&quot;;
+      tooltip.setAttribute(&quot;role&quot;, &quot;tooltip&quot;);
+    }
+    return tooltip;
+  };
+  const setDescribedBy = (trigger, described) =&gt; {
+    const ids = new Set(
+      (trigger.getAttribute(&quot;aria-describedby&quot;) ?? &quot;&quot;)
+        .split(/\s+/)
+        .filter(Boolean),
+    );
+    if (described) {
+      ids.add(tooltipId);
+    } else {
+      ids.delete(tooltipId);
+    }
+    if (ids.size === 0) {
+      trigger.removeAttribute(&quot;aria-describedby&quot;);
+    } else {
+      trigger.setAttribute(&quot;aria-describedby&quot;, [...ids].join(&quot; &quot;));
+    }
+  };
+  const clearOpenTimeout = () =&gt; {
+    if (openTimeout != null) {
+      window.clearTimeout(openTimeout);
+      openTimeout = null;
+    }
+    pendingTrigger = null;
+  };
+  const closeTooltip = (activateSkipDelay = true) =&gt; {
+    clearOpenTimeout();
+    pinnedByTouch = false;
+    positionRequest += 1;
+    autoUpdateCleanup?.();
+    autoUpdateCleanup = null;
+    if (activeTrigger == null) {
+      return;
+    }
+    setDescribedBy(activeTrigger, false);
+    activeTrigger = null;
+    tooltip?.remove();
+    if (activateSkipDelay) {
+      skipDelayUntil = Date.now() + skipDelay;
+    }
+  };
+  const updatePosition = (trigger, floating) =&gt; {
+    const request = ++positionRequest;
+    void computePosition(trigger, floating, {
+      middleware: [
+        offset(tooltipGap),
+        flip({ padding: tooltipGap }),
+        shift({ padding: tooltipGap }),
+        size({
+          padding: tooltipGap,
+          apply({ availableHeight, availableWidth, elements }) {
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-width&quot;,
+              `${Math.max(0, availableWidth)}px`,
+            );
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-height&quot;,
+              `${Math.max(0, availableHeight)}px`,
+            );
+          },
+        }),
+      ],
+      placement: getPlacement(trigger),
+      strategy: &quot;fixed&quot;,
+    })
+      .then(({ x, y }) =&gt; {
+        if (activeTrigger !== trigger || request !== positionRequest) {
+          return;
+        }
+        const scale = window.devicePixelRatio || 1;
+        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
+        floating.style.visibility = &quot;visible&quot;;
+      })
+      .catch(() =&gt; {
+        if (activeTrigger === trigger &amp;&amp; request === positionRequest) {
+          closeTooltip(false);
+        }
+      });
+  };
+  const openTooltip = (trigger) =&gt; {
+    const content = getContent(trigger);
+    if (!trigger.isConnected || content.length === 0) {
+      return;
+    }
+    clearOpenTimeout();
+    if (activeTrigger === trigger) {
+      return;
+    }
+    closeTooltip();
+    const floating = getTooltip();
+    floating.textContent = content;
+    floating.style.visibility = &quot;hidden&quot;;
+    floating.style.transform = &quot;translate(0, 0)&quot;;
+    document.body.appendChild(floating);
+    activeTrigger = trigger;
+    setDescribedBy(trigger, true);
+    autoUpdateCleanup = autoUpdate(trigger, floating, () =&gt; {
+      updatePosition(trigger, floating);
+    });
+  };
+  const requestOpen = (trigger, immediate = false) =&gt; {
+    if (
+      getContent(trigger).length === 0 ||
+      activeTrigger === trigger ||
+      pendingTrigger === trigger
+    ) {
+      return;
+    }
+    clearOpenTimeout();
+    pendingTrigger = trigger;
+    const delay =
+      immediate || activeTrigger != null || Date.now() &lt; skipDelayUntil
+        ? 0
+        : hoverDelay;
+    if (delay === 0) {
+      openTooltip(trigger);
+      return;
+    }
+    openTimeout = window.setTimeout(() =&gt; {
+      openTimeout = null;
+      pendingTrigger = null;
+      openTooltip(trigger);
+    }, delay);
+  };
+  const handlePointerOpen = (event) =&gt; {
+    if (event.pointerType === &quot;touch&quot;) {
+      return;
+    }
+    const trigger = getTrigger(event);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    requestOpen(trigger);
+  };
+  const handlePointer = (event) =&gt; {
+    lastPointerWasTouch =
+      event.type === &quot;pointerdown&quot; &amp;&amp; event.pointerType === &quot;touch&quot;;
+  };
+  const handleTouchClick = (event) =&gt; {
+    const isTouch = event.pointerType === &quot;touch&quot; || lastPointerWasTouch;
+    lastPointerWasTouch = false;
+    if (!isTouch || event.detail === 0) {
+      return;
+    }
+    const trigger = getTrigger(event);
+    if (
+      trigger == null ||
+      !trigger.isConnected ||
+      getContent(trigger).length === 0 ||
+      (pinnedByTouch &amp;&amp; activeTrigger === trigger)
+    ) {
+      if (pinnedByTouch) {
+        closeTooltip();
+      }
+      return;
+    }
+    openTooltip(trigger);
+    pinnedByTouch = activeTrigger === trigger;
+    window.setTimeout(() =&gt; {
+      if (activeTrigger === trigger &amp;&amp; !trigger.isConnected) {
+        closeTooltip(false);
+      }
+    }, 0);
+  };
+  const handleLeave = (event) =&gt; {
+    if (pinnedByTouch) {
+      return;
+    }
+    const trigger = getTrigger(event);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handleFocusIn = (event) =&gt; {
+    const trigger = getTrigger(event);
+    if (trigger?.matches(&quot;:focus-visible&quot;)) {
+      requestOpen(trigger, true);
+    }
+  };
+  const handleKeyDown = (event) =&gt; {
+    if (event.key === &quot;Escape&quot;) {
+      closeTooltip();
+    }
+  };
+  const handleContextMenu = (event) =&gt; {
+    lastPointerWasTouch = false;
+    const trigger = getTrigger(event);
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handlers = {
+    pointerover: handlePointerOpen,
+    pointerdown: handlePointer,
+    pointercancel: handlePointer,
+    click: handleTouchClick,
+    pointerout: handleLeave,
+    focusin: handleFocusIn,
+    focusout: handleLeave,
+    keydown: handleKeyDown,
+    contextmenu: handleContextMenu,
+  };
+  const roots = new Map();
+  const handledEvents = new WeakSet();
+  const handleEvent = (event) =&gt; {
+    if (handledEvents.has(event)) return;
+    handledEvents.add(event);
+    handlers[event.type](event);
+  };
+  const discoverRoots = (node) =&gt; {
+    if (node.shadowRoot) listen(node.shadowRoot);
+    for (const element of node.querySelectorAll(&quot;*&quot;)) {
+      if (element.shadowRoot) listen(element.shadowRoot);
+    }
+  };
+  const listen = (root) =&gt; {
+    if (roots.has(root)) return;
+    for (const type of Object.keys(handlers)) root.addEventListener(type, handleEvent);
+    const observer = new window.MutationObserver((records) =&gt; {
+      for (const { addedNodes } of records) {
+        for (const node of addedNodes) {
+          if (node.nodeType === Node.ELEMENT_NODE) discoverRoots(node);
+        }
+      }
+      for (const [root, cleanup] of roots) {
+        if (root.host &amp;&amp; !root.host.isConnected) {
+          cleanup();
+          roots.delete(root);
+        }
+      }
+      if (activeTrigger &amp;&amp; !activeTrigger.isConnected) closeTooltip(false);
+    });
+    observer.observe(root, { childList: true, subtree: true });
+    roots.set(root, () =&gt; {
+      observer.disconnect();
+      for (const type of Object.keys(handlers)) root.removeEventListener(type, handleEvent);
+    });
+    discoverRoots(root);
+  };
+  const destroy = () =&gt; {
+    closeTooltip(false);
+    lastPointerWasTouch = false;
+    for (const cleanup of roots.values()) cleanup();
+    roots.clear();
+    tooltip = null;
+  };
+
+  // Events between children of one shadow root never reach the document.
+  listen(document);
+  window.addEventListener(&quot;pagehide&quot;, destroy, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-tabs&quot;&gt;
+(() =&gt; {
+  const selector = &#x27;.nav[role=&quot;tablist&quot;] [role=&quot;tab&quot;]&#x27;;
+  const disabled = &#x27;:disabled,[aria-disabled=&quot;true&quot;]&#x27;;
+  const selectTab = (selected) =&gt; {
+    const panelId = selected.getAttribute(&quot;aria-controls&quot;);
+    for (const tab of selected.closest(&#x27;[role=&quot;tablist&quot;]&#x27;).querySelectorAll(&#x27;[role=&quot;tab&quot;]&#x27;)) {
+      const active = tab === selected;
+      tab.classList.toggle(&quot;active&quot;, active);
+      tab.setAttribute(&quot;aria-selected&quot;, String(active));
+      const id = tab.getAttribute(&quot;aria-controls&quot;);
+      const panel = id &amp;&amp; document.getElementById(id);
+      if (panel != null) {
+        panel.hidden = id !== panelId;
+        if (!panel.hidden &amp;&amp; selected.id) {
+          panel.setAttribute(&quot;aria-labelledby&quot;, selected.id);
+        }
+      }
+    }
+  };
+  const interact = (event) =&gt; {
+    const tab = event.target?.closest?.(selector);
+    if (event.defaultPrevented || tab == null || tab.matches(disabled)) {
+      return;
+    }
+    if (event.type === &quot;click&quot;) {
+      selectTab(tab);
+      return;
+    }
+    const tabs = Array.from(
+      tab.closest(&#x27;[role=&quot;tablist&quot;]&#x27;).querySelectorAll(&#x27;[role=&quot;tab&quot;]&#x27;),
+    ).filter((candidate) =&gt; !candidate.matches(disabled));
+    const current = tabs.indexOf(tab);
+    let next;
+    if (event.key === &quot;ArrowRight&quot; || event.key === &quot;ArrowDown&quot;) {
+      next = (current + 1) % tabs.length;
+    } else if (event.key === &quot;ArrowLeft&quot; || event.key === &quot;ArrowUp&quot;) {
+      next = (current + tabs.length - 1) % tabs.length;
+    } else if (event.key === &quot;Home&quot;) {
+      next = 0;
+    } else if (event.key === &quot;End&quot;) {
+      next = tabs.length - 1;
+    } else {
+      return;
+    }
+    event.preventDefault();
+    tabs[next].focus();
+    selectTab(tabs[next]);
+  };
+
+  for (const list of document.querySelectorAll(&#x27;.nav[role=&quot;tablist&quot;]&#x27;)) {
+    const selected =
+      list.querySelector(&#x27;[role=&quot;tab&quot;][aria-selected=&quot;true&quot;]&#x27;) ??
+      list.querySelector(&#x27;[role=&quot;tab&quot;].active&#x27;) ??
+      list.querySelector(&#x27;[role=&quot;tab&quot;]&#x27;);
+    if (selected != null) {
+      selectTab(selected);
+    }
+  }
+  document.addEventListener(&quot;click&quot;, interact);
+  document.addEventListener(&quot;keydown&quot;, interact);
+  window.addEventListener(&quot;pagehide&quot;, () =&gt; {
+    document.removeEventListener(&quot;click&quot;, interact);
+    document.removeEventListener(&quot;keydown&quot;, interact);
+  }, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-carousel&quot;&gt;
+  (() =&gt; {
+    for (const root of document.querySelectorAll(&quot;.viz-carousel&quot;)) {
+      const panels = Array.from(
+        root.querySelectorAll(&quot;:scope &gt; [data-variant]&quot;),
+      );
+      if (panels.length === 0) {
+        continue;
+      }
+      root.setAttribute(&quot;role&quot;, &quot;group&quot;);
+      panels.forEach((panel, index) =&gt; {
+        panel.hidden = index !== 0;
+        panel.setAttribute(&quot;role&quot;, &quot;group&quot;);
+        if (!panel.hasAttribute(&quot;aria-label&quot;)) {
+          panel.setAttribute(&quot;aria-label&quot;, panel.dataset.variant);
+        }
+      });
+      root.dataset.activeVariant = panels[0].dataset.variant;
+      if (panels.length === 1) {
+        continue;
+      }
+
+      const controls = document.createElement(&quot;div&quot;);
+      controls.className = &quot;viz-carousel-controls&quot;;
+      // Portable copy of the settings dropdown&#x27;s legacy glyph; no 14px icon-package preset matches it.
+      // https://github.com/openai/openai/blob/master/codex/codex-apps/webview/src/icons/chevron.svg
+      controls.innerHTML = `
+      &lt;button type=&quot;button&quot; class=&quot;viz-carousel-previous cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;chevron-left&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+      &lt;details class=&quot;viz-carousel-picker&quot;&gt;
+        &lt;summary class=&quot;cursor-interaction&quot;&gt;
+          &lt;span class=&quot;viz-carousel-count tabular-nums&quot;&gt;&lt;/span&gt;
+          &lt;span class=&quot;viz-carousel-name&quot;&gt;&lt;/span&gt;
+          &lt;svg class=&quot;viz-carousel-caret&quot; width=&quot;14&quot; height=&quot;14&quot; viewBox=&quot;0 0 20 21&quot; fill=&quot;none&quot; aria-hidden=&quot;true&quot; focusable=&quot;false&quot;&gt;
+            &lt;path d=&quot;M15.2793 7.71101C15.539 7.45131 15.961 7.45131 16.2207 7.71101C16.4804 7.97071 16.4804 8.39272 16.2207 8.65242L10.4707 14.4024C10.211 14.6621 9.78902 14.6621 9.52932 14.4024L3.77932 8.65242L3.69436 8.54792C3.52385 8.28979 3.55205 7.93828 3.77932 7.71101C4.00659 7.48374 4.3581 7.45554 4.61623 7.62605L4.72073 7.71101L10 12.9903L15.2793 7.71101Z&quot; fill=&quot;currentColor&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;0.6&quot; /&gt;
+          &lt;/svg&gt;
+        &lt;/summary&gt;
+        &lt;div class=&quot;viz-carousel-options&quot;&gt;&lt;/div&gt;
+      &lt;/details&gt;
+      &lt;button type=&quot;button&quot; class=&quot;viz-carousel-next cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;chevron-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;`;
+      const previous = controls.querySelector(&quot;.viz-carousel-previous&quot;);
+      const next = controls.querySelector(&quot;.viz-carousel-next&quot;);
+      const picker = controls.querySelector(&quot;.viz-carousel-picker&quot;);
+      const summary = picker.querySelector(&quot;summary&quot;);
+      const count = controls.querySelector(&quot;.viz-carousel-count&quot;);
+      const name = controls.querySelector(&quot;.viz-carousel-name&quot;);
+      const options = controls.querySelector(&quot;.viz-carousel-options&quot;);
+      const status = document.createElement(&quot;span&quot;);
+      status.className = &quot;sr-only&quot;;
+      status.setAttribute(&quot;role&quot;, &quot;status&quot;);
+      status.setAttribute(&quot;aria-live&quot;, &quot;polite&quot;);
+      status.setAttribute(&quot;aria-atomic&quot;, &quot;true&quot;);
+      previous.setAttribute(
+        &quot;aria-label&quot;,
+        root.dataset.previousLabel ?? &quot;Previous variant&quot;,
+      );
+      next.setAttribute(&quot;aria-label&quot;, root.dataset.nextLabel ?? &quot;Next variant&quot;);
+
+      let active = 0;
+      let mousePointerId = null;
+      let summaryPointerHandled = false;
+      summary.addEventListener(&quot;pointerdown&quot;, (event) =&gt; {
+        summaryPointerHandled =
+          event.pointerType === &quot;mouse&quot; &amp;&amp; event.button === 0 &amp;&amp; !event.ctrlKey;
+        if (!summaryPointerHandled) {
+          return;
+        }
+        event.preventDefault();
+        summary.focus({ preventScroll: true });
+        picker.open = !picker.open;
+        mousePointerId = picker.open ? event.pointerId : null;
+      });
+      summary.addEventListener(&quot;click&quot;, (event) =&gt; {
+        if (summaryPointerHandled &amp;&amp; event.detail &gt; 0) {
+          event.preventDefault();
+        }
+      });
+      const choices = panels.map((panel, index) =&gt; {
+        const choice = document.createElement(&quot;button&quot;);
+        choice.type = &quot;button&quot;;
+        choice.className = &quot;cursor-interaction&quot;;
+        choice.textContent = panel.dataset.variant;
+        choice.addEventListener(&quot;click&quot;, () =&gt; {
+          select(index);
+          summary.focus();
+        });
+        choice.addEventListener(&quot;pointerup&quot;, (event) =&gt; {
+          if (
+            picker.open &amp;&amp;
+            event.pointerType === &quot;mouse&quot; &amp;&amp;
+            event.button === 0 &amp;&amp;
+            event.pointerId === mousePointerId
+          ) {
+            choice.click();
+          }
+        });
+        options.appendChild(choice);
+        return choice;
+      });
+      const select = (index) =&gt; {
+        const changed = active !== index;
+        active = index;
+        panels.forEach((panel, position) =&gt; {
+          panel.hidden = position !== active;
+          choices[position].setAttribute(
+            &quot;aria-current&quot;,
+            String(position === active),
+          );
+        });
+        root.dataset.activeVariant = panels[active].dataset.variant;
+        count.textContent = `${active + 1} / ${panels.length}`;
+        name.textContent = panels[active].dataset.variant;
+        picker.open = false;
+        mousePointerId = null;
+        if (changed) {
+          status.textContent = `${count.textContent}: ${name.textContent}`;
+        }
+      };
+      previous.addEventListener(&quot;click&quot;, () =&gt;
+        select((active + panels.length - 1) % panels.length),
+      );
+      next.addEventListener(&quot;click&quot;, () =&gt;
+        select((active + 1) % panels.length),
+      );
+      picker.addEventListener(&quot;keydown&quot;, (event) =&gt; {
+        if (event.key === &quot;Escape&quot; &amp;&amp; picker.open) {
+          event.preventDefault();
+          picker.open = false;
+          mousePointerId = null;
+          summary.focus();
+          return;
+        }
+        if (event.altKey || event.ctrlKey || event.metaKey) {
+          return;
+        }
+        const index = choices.indexOf(document.activeElement);
+        let nextIndex;
+        if (event.key === &quot;ArrowDown&quot;) {
+          nextIndex = index &lt; 0 ? active : (index + 1) % choices.length;
+        } else if (event.key === &quot;ArrowUp&quot;) {
+          nextIndex = index &lt; 0 ? active : (index + choices.length - 1) % choices.length;
+        } else if (picker.open &amp;&amp; event.key === &quot;Home&quot;) {
+          nextIndex = 0;
+        } else if (picker.open &amp;&amp; event.key === &quot;End&quot;) {
+          nextIndex = choices.length - 1;
+        } else {
+          return;
+        }
+        event.preventDefault();
+        picker.open = true;
+        choices[nextIndex].focus();
+      });
+      picker.addEventListener(&quot;focusout&quot;, (event) =&gt; {
+        if (!picker.contains(event.relatedTarget)) {
+          picker.open = false;
+          mousePointerId = null;
+        }
+      });
+      const dismiss = (event) =&gt; {
+        if (!summary.contains(event.target)) {
+          mousePointerId = null;
+        }
+        if (!picker.contains(event.target)) {
+          picker.open = false;
+        }
+      };
+      const endPointerSelection = () =&gt; {
+        mousePointerId = null;
+      };
+      const sizePicker = () =&gt; {
+        root.style.setProperty(
+          &quot;--viz-carousel-picker-height&quot;,
+          `${picker.open ? options.offsetHeight : 0}px`,
+        );
+      };
+      picker.addEventListener(&quot;toggle&quot;, sizePicker);
+      window.addEventListener(&quot;resize&quot;, sizePicker);
+      document.addEventListener(&quot;pointerdown&quot;, dismiss);
+      document.addEventListener(&quot;pointerup&quot;, endPointerSelection);
+      document.addEventListener(&quot;pointercancel&quot;, endPointerSelection);
+      window.addEventListener(&quot;blur&quot;, endPointerSelection);
+      window.addEventListener(
+        &quot;pagehide&quot;,
+        () =&gt; {
+          document.removeEventListener(&quot;pointerdown&quot;, dismiss);
+          document.removeEventListener(&quot;pointerup&quot;, endPointerSelection);
+          document.removeEventListener(&quot;pointercancel&quot;, endPointerSelection);
+          window.removeEventListener(&quot;blur&quot;, endPointerSelection);
+          window.removeEventListener(&quot;resize&quot;, sizePicker);
+        },
+        { once: true },
+      );
+      root.append(controls, status);
+      select(0);
+    }
+  })();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-lucide&quot; async src=&quot;https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  const initialize = () =&gt; {
+    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
+  };
+  if (globalThis.lucide != null) {
+    initialize();
+    return;
+  }
+  document
+    .getElementById(&quot;codex-visualization-lucide&quot;)
+    ?.addEventListener(&quot;load&quot;, initialize, { once: true });
+})();
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+
+<script>(() => {
+  const frame = document.getElementById("codex-visualization");
+  if (!(frame instanceof HTMLIFrameElement)) {
+    return;
+  }
+  const isShare = document.documentElement.classList.contains(
+    "visualization-share-root",
+  );
+  let viewportHeight = globalThis.innerHeight;
+  let sizeFingerprint = null;
+  let sizeWriteTimeout;
+  let lastSize = null;
+  let pendingSize = null;
+  const storageKey = `codex:visualization-widget-state-v2:${JSON.stringify([
+    globalThis.location.pathname,
+    globalThis.location.search,
+  ])}`;
+  const sizeStorageKey = `${storageKey}:share-size-v1`;
+  const parseState = (serializedState) => {
+    if (
+      typeof serializedState !== "string" ||
+      new TextEncoder().encode(serializedState).length > 16 * 1024
+    ) {
+      throw new TypeError(
+        "Widget state must be a JSON object of at most 16 KiB",
+      );
+    }
+    /** @type {unknown} */
+    const state = JSON.parse(serializedState);
+    if (
+      state == null ||
+      typeof state !== "object" ||
+      Array.isArray(state) ||
+      ("imageIds" in state &&
+        (!Array.isArray(state.imageIds) || state.imageIds.length > 0))
+    ) {
+      throw new TypeError("Widget state must be a JSON object");
+    }
+    const storedState = { modelContent: null, privateContent: null, ...state };
+    const canonicalState = JSON.stringify(
+      storedState,
+      (_key, /** @type {unknown} */ value) => {
+        if (typeof value === "number" && !Number.isFinite(value)) {
+          throw new TypeError("Widget state must contain finite numbers");
+        }
+        return value;
+      },
+    );
+    if (new TextEncoder().encode(canonicalState).length > 16 * 1024) {
+      throw new TypeError(
+        "Widget state must be a JSON object of at most 16 KiB",
+      );
+    }
+    return storedState;
+  };
+  let storage = null;
+  let state = null;
+  try {
+    const localStorage = globalThis.localStorage;
+    const probeKey = `${storageKey}:probe`;
+    localStorage.setItem(probeKey, "1");
+    localStorage.removeItem(probeKey);
+    storage = localStorage;
+    const savedState = storage.getItem(storageKey);
+    if (savedState != null) {
+      try {
+        state = parseState(savedState);
+      } catch {
+        // Invalid saved state does not disable future writes.
+      }
+    }
+  } catch {
+    storage = null;
+  }
+  const persistSize = () => {
+    globalThis.clearTimeout(sizeWriteTimeout);
+    if (pendingSize == null) {
+      return;
+    }
+    try {
+      storage?.setItem(sizeStorageKey, pendingSize);
+    } catch {
+      // A denied or full cache must not affect the visualization.
+    }
+    pendingSize = null;
+  };
+  if (isShare) {
+    globalThis.addEventListener("pagehide", persistSize);
+  }
+  const initialGlobals = {
+    widgetState: state,
+    statePersistence: storage == null ? "none" : "local",
+  };
+
+  const channel = new MessageChannel();
+  channel.port1.addEventListener("message", (event) => {
+    const data = event.data;
+    if (typeof data !== "object" || data == null) {
+      return;
+    }
+    if (data.type === "widget-state-write") {
+      if (!Number.isSafeInteger(data.id) || data.id <= 0) {
+        return;
+      }
+      let ok = false;
+      try {
+        if (storage != null) {
+          const state = parseState(data.state);
+          storage.setItem(storageKey, JSON.stringify(state));
+          ok = true;
+        }
+      } catch {
+        // Storage denial, quota limits, and invalid state return a failed receipt.
+      }
+      channel.port1.postMessage({
+        type: "widget-state-result",
+        id: data.id,
+        ok,
+      });
+      return;
+    }
+    if (data.type === "height") {
+      const height = data.height;
+      if (
+        typeof height !== "number" ||
+        !Number.isFinite(height) ||
+        height < 0
+      ) {
+        return;
+      }
+      if (height <= 10_000) {
+        const width = isShare && storage != null ? frame.clientWidth : null;
+        frame.style.height = Math.ceil(height) + "px";
+        if (isShare && storage != null) {
+          const size = JSON.stringify({
+            fingerprint: sizeFingerprint,
+            width,
+            viewportHeight: globalThis.innerHeight,
+            dark: globalThis.matchMedia("(prefers-color-scheme: dark)").matches,
+            scale: globalThis.devicePixelRatio,
+            height: Math.ceil(height),
+          });
+          if (size !== lastSize) {
+            lastSize = size;
+            pendingSize = size;
+            globalThis.clearTimeout(sizeWriteTimeout);
+            sizeWriteTimeout = globalThis.setTimeout(persistSize, 100);
+          }
+        }
+      }
+      if (isShare) {
+        // Keep unusually tall content accessible without accepting an unbounded height.
+        if (height > 10_000 && Number.parseFloat(frame.style.height) === 0) {
+          frame.style.removeProperty("height");
+        }
+        frame.scrolling = height > 10_000 ? "auto" : "no";
+        document.documentElement.classList.add("visualization-share-ready");
+      }
+      return;
+    }
+    if (data.type === "scroll-to") {
+      const top = data.top;
+      if (
+        typeof top === "number" &&
+        Number.isFinite(top) &&
+        top >= 0 &&
+        globalThis.navigator.userActivation?.isActive === true
+      ) {
+        globalThis.scrollTo({
+          top: Math.ceil(
+            globalThis.scrollY + frame.getBoundingClientRect().top + top,
+          ),
+        });
+      }
+      return;
+    }
+    if (data.type === "open-external") {
+      const rawHref = data.href;
+      if (typeof rawHref !== "string") {
+        return;
+      }
+      let href;
+      try {
+        const url = new URL(rawHref, document.baseURI);
+        if (url.protocol !== "https:") {
+          return;
+        }
+        href = url.href;
+      } catch {
+        return;
+      }
+      if (globalThis.navigator.userActivation?.isActive === true) {
+        const anchor = document.createElement("a");
+        anchor.href = href;
+        anchor.rel = "noopener noreferrer";
+        anchor.target = "_blank";
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+      }
+      return;
+    }
+    if (data.type === "follow-up") {
+      const prompt = data.prompt;
+      if (
+        typeof prompt !== "string" ||
+        globalThis.navigator.userActivation?.isActive !== true
+      ) {
+        return;
+      }
+      const title = data.title;
+      globalThis.prompt(typeof title === "string" ? title : prompt, prompt);
+    }
+  });
+  channel.port1.start();
+  const srcdoc = frame.dataset.srcdoc;
+  if (srcdoc == null) {
+    return;
+  }
+  globalThis.addEventListener("resize", () => {
+    const height = Number.parseFloat(frame.style.height);
+    if (!isShare && (!Number.isFinite(height) || height <= viewportHeight)) {
+      frame.style.removeProperty("height");
+    }
+    viewportHeight = globalThis.innerHeight;
+    channel.port1.postMessage({ type: "measure" });
+  });
+  frame.addEventListener(
+    "load",
+    () => {
+      frame.contentWindow?.postMessage(
+        { type: "codex-visualization-initialize" },
+        "*",
+        [channel.port2],
+      );
+    },
+    { once: true },
+  );
+  // Match the trusted bootstrap element, not the same text in an authored title.
+  const frameHtml = srcdoc.replace(
+    '<script type="application/json" id="codex-visualization-widget-state">__CODEX_VISUALIZATION_WIDGET_STATE__<\/script>',
+    () =>
+      '<script type="application/json" id="codex-visualization-widget-state">' +
+      JSON.stringify(initialGlobals).replaceAll("<", "\\u003c") +
+      "<\/script>",
+  );
+  if (isShare && storage != null) {
+    // Fingerprint the rendered document, including restored widget state, without
+    // storing its content. This is a layout cache, not a security identity.
+    let hash = 5381;
+    for (let index = 0; index < frameHtml.length; index += 1) {
+      hash = (hash * 33 + frameHtml.charCodeAt(index)) % 4_294_967_296;
+    }
+    sizeFingerprint = hash.toString(36);
+    try {
+      const size = JSON.parse(storage.getItem(sizeStorageKey) ?? "null");
+      if (
+        size?.fingerprint === sizeFingerprint &&
+        size.width === frame.clientWidth &&
+        size.viewportHeight === globalThis.innerHeight &&
+        size.dark ===
+          globalThis.matchMedia("(prefers-color-scheme: dark)").matches &&
+        size.scale === globalThis.devicePixelRatio &&
+        typeof size.height === "number" &&
+        Number.isFinite(size.height) &&
+        size.height >= 0 &&
+        size.height <= 10_000
+      ) {
+        frame.style.height = size.height + "px";
+      }
+    } catch {
+      // Ignore missing or invalid cache entries and measure the live frame.
+    }
+  }
+  frame.srcdoc = frameHtml;
+  delete frame.dataset.srcdoc;
+})();
+</script>
+</body>
+</html>

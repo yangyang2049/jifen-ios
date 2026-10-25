@@ -8,6 +8,40 @@ import XCTest
 
 @MainActor
 final class ResumeSessionLifecycleTests: XCTestCase {
+    func testTournamentResumeKeepsFoulsRulesAndAtomicUndoAfterReload() async throws {
+        let config = NineBallChaseConfig(smallGold: 9, ruleFamily: .tournament,
+            thirdFoul: 5, breakRule: .alternate, totalRacks: 3)
+        let state = NineBallChaseState.initial(config: config, playerNames: ["A", "B"], ruleVersion: 3, breakerPlayer: 1)
+        let seed = ScoreSession<NineBallChaseState, NineBallChaseEvent>(gameType: .nineBall,
+            ruleFamily: .s2, reducerType: "nine_ball/v3", state: state, participants: participants)
+        let core = ScoreSessionCore(seedSession: seed, reducer: NineBallChaseReducer())
+        for _ in 0..<2 { _ = await core.dispatch(actorId: "phone", intent: .tournamentEvent(player: 0, kind: .foul), at: 1) }
+        let before = await core.snapshot().state
+        let data = try JSONEncoder().encode(await core.resumeBundle())
+        let bundle = try JSONDecoder().decode(ScoreSessionResumeBundle<NineBallChaseState, NineBallChaseEvent, NineBallChaseIntent>.self, from: data)
+        XCTAssertEqual(bundle.currentSession.state, before)
+        XCTAssertEqual(before.rackFouls, [2, 0, 0, 0])
+        let restored = ScoreSessionCore(resumeBundle: bundle, reducer: NineBallChaseReducer())
+        _ = await restored.dispatch(actorId: "phone", intent: .tournamentEvent(player: 0, kind: .foul), at: 2)
+        let after = await restored.snapshot().state
+        XCTAssertEqual(after.playerPoints, [0, 7, 0, 0])
+        XCTAssertEqual(after.roundNumber, 2)
+        XCTAssertEqual(after.breakerPlayer, 0)
+        XCTAssertEqual(after.rackFouls, [0, 0, 0, 0])
+        let undone = await restored.undo(actorId: "phone")
+        XCTAssertTrue(undone)
+        let undoneState = await restored.snapshot().state
+        XCTAssertEqual(undoneState, before)
+        let archived = try XCTUnwrap(AbandonedResumeRecordBuilder.build(envelope: envelope(
+            sessionID: seed.sessionId, gameType: .nineBall, payloadKind: .scoreSessionBundle, payload: data),
+            abandonedAt: Date(timeIntervalSince1970: 200)))
+        XCTAssertEqual(archived.extraData?["chaseRackFouls"]?.value as? [Int], [2, 0, 0, 0])
+        let setup = ScoreboardRecordConfiguration.setup(from: archived)
+        guard case let .nineBall(_, savedConfig) = setup.billiardsConfiguration(for: .nineBall) else { return XCTFail() }
+        XCTAssertEqual(savedConfig, config)
+        XCTAssertEqual(setup.nineBallBreakerPlayer, 1)
+    }
+
     private enum StubError: Error {
         case write
         case remove

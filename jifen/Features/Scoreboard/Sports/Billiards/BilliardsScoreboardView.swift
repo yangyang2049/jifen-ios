@@ -33,6 +33,7 @@ struct BilliardsScoreboardView: View {
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
     @State private var recordID: String
+    @State private var initialParticipantSelections: [String: ParticipantSelection]?
 
     init(
         initialSetup: SportsSetupResult? = nil,
@@ -52,6 +53,7 @@ struct BilliardsScoreboardView: View {
             defaultNames: DefaultParticipantNames.resolve(for: .billiards)
         ))
         _recordID = State(initialValue: BilliardsRecordIdentity.initial(resuming: initialResumeSessionId))
+        _initialParticipantSelections = State(initialValue: initialResumeSessionId == nil ? (initialSetup?.participantSelections ?? [:]) : nil)
     }
 
     var body: some View {
@@ -124,6 +126,7 @@ struct BilliardsScoreboardView: View {
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
+        .registerParticipantSetupOnAppear(recordID: recordID, selections: initialParticipantSelections)
         .onAppear {
             if let setup = initialSetup {
                 if !setup.team1Name.isEmpty { viewModel.leftTeam.name = setup.team1Name }
@@ -168,6 +171,7 @@ struct BilliardsScoreboardView: View {
     }
 
     private func startNewMatch() {
+        let previousIdentityRecord = recordID
         // Preserve the completed match before switching identity. A new match
         // must not reuse the resumed/timestamp-derived record or its undo log.
         saveGameRecordInRealTime(isGameFinished: true)
@@ -175,6 +179,7 @@ struct BilliardsScoreboardView: View {
         let freshState = viewModel.makeFreshMatchState()
         controller.beginNewMatch()
         recordID = BilliardsRecordIdentity.next()
+        ParticipantIdentityStore.shared.copySelections(from: previousIdentityRecord, to: recordID)
         viewModel.restoreSession(state: freshState, history: [])
         showGameOverDialog = false
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()

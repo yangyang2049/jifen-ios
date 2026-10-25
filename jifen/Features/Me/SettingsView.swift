@@ -153,7 +153,7 @@ struct SettingsView: View {
                     "clear_data_confirm_message",
                     value: "将删除所有本地记录、预约、提醒、常用名称和常用地点，且无法恢复。",
                     comment: ""
-                ))
+                ) + (SessionStore.shared.user == nil ? "" : "\n\n" + identityText("local_data_cloud_restore_hint", "Cloud records for your signed-in account will reappear after the next sync.")))
             }
             .overlay {
                 if let toastMessage {

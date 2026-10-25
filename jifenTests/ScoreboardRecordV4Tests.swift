@@ -8,6 +8,93 @@ import XCTest
 
 @MainActor
 final class ScoreboardRecordV4Tests: XCTestCase {
+    func testTournamentAnotherMatchKeepsActivePresetAndRecordTitle() {
+        let record = makeConfigurationRecord(gameType: .nineBall, configuration: [
+            "nineBallRuleVersion": AnyCodable(3), "nineBallRuleFamily": AnyCodable("tournament"),
+            "nineBallPointScheme": AnyCodable("14710"), "nineBallThirdFoul": AnyCodable(5),
+            "nineBallBreakRule": AnyCodable("alternate"), "nineBallTotalRacks": AnyCodable(3),
+            "nineBallHandoffEnabled": AnyCodable(false)
+        ])
+        let setup = ScoreboardRecordConfiguration.setup(from: record)
+        XCTAssertEqual(setup.nineBallRuleFamily, "tournament")
+        XCTAssertEqual(setup.nineBallThirdFoul, 5)
+        XCTAssertEqual(setup.nineBallTotalRacks, 3)
+        XCTAssertEqual(setup.nineBallBreakRule, "alternate")
+        XCTAssertEqual(setup.nineBallHandoffEnabled, false)
+        XCTAssertEqual(ScoreboardRecordActionTitlePolicy.nineBallOperationTitle(operationCode: "nine_ball_tournament_foul", summary: "Third foul, opponent +2"), "Third foul, opponent +2")
+    }
+
+    func testNineBallTransferTitlesUseFullSavedSummaryOnlyForNewOperations() {
+        XCTAssertEqual(
+            ScoreboardRecordActionTitlePolicy.nineBallOperationTitle(
+                operationCode: "nine_ball_transfer_big_gold",
+                summary: "  甲 大金：甲 +20，乙 −10，丙 −10  "
+            ),
+            "甲 大金：甲 +20，乙 −10，丙 −10"
+        )
+        XCTAssertNil(ScoreboardRecordActionTitlePolicy.nineBallOperationTitle(
+            operationCode: "big_gold", summary: "旧记录不改写"
+        ))
+        XCTAssertNil(ScoreboardRecordActionTitlePolicy.nineBallOperationTitle(
+            operationCode: "nine_ball_transfer_handoff", summary: "  "
+        ))
+        XCTAssertEqual(ScoreboardRecordActionTitlePolicy.nineBallOperationTitle(
+            operationCode: "nine_ball_breaker_changed", summary: "本局改为乙开球"
+        ), "本局改为乙开球")
+    }
+
+    func testNineBallLegacyBadgeOnlyReadsVersionAndNeverChangesStoredScores() throws {
+        var record = makeRecord(gameType: .nineBall)
+        record.team1FinalScore = 17
+        record.team2FinalScore = 3
+        record.actions = ["甲 小金 +7"]
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        let before = try encoder.encode(record)
+        XCTAssertTrue(record.isLegacyNineBallRecord)
+        XCTAssertTrue(ScoreboardRecordSummary(from: record).isLegacyNineBallRecord)
+        XCTAssertEqual(try encoder.encode(record), before)
+
+        record.extraData = ["chaseRuleVersion": AnyCodable(2)]
+        XCTAssertFalse(record.isLegacyNineBallRecord)
+        XCTAssertFalse(ScoreboardRecordSummary(from: record).isLegacyNineBallRecord)
+        XCTAssertEqual(record.team1FinalScore, 17)
+        XCTAssertEqual(record.team2FinalScore, 3)
+        XCTAssertEqual(record.actions, ["甲 小金 +7"])
+    }
+
+    func testNineBallRuleVersionResolvesExtraBeforeConfigurationAndSnapshot() throws {
+        var record = makeRecord(gameType: .nineBall)
+        record.projectConfiguration = ["nineBallRuleVersion": AnyCodable(2)]
+        XCTAssertFalse(record.isLegacyNineBallRecord)
+        record.extraData = ["chaseRuleVersion": AnyCodable(1)]
+        XCTAssertTrue(record.isLegacyNineBallRecord)
+
+        record.extraData = nil
+        record.projectConfiguration = nil
+        record.stateSnapshot = try JSONSerialization.data(withJSONObject: ["state": ["ruleVersion": 2]])
+        XCTAssertFalse(record.isLegacyNineBallRecord)
+        let summary = ScoreboardRecordSummary(from: record)
+        XCTAssertFalse(summary.isLegacyNineBallRecord)
+        XCTAssertFalse(try JSONDecoder().decode(ScoreboardRecordSummary.self, from: JSONEncoder().encode(summary)).isLegacyNineBallRecord)
+        XCTAssertFalse(makeRecord(gameType: .snooker).isLegacyNineBallRecord)
+    }
+
+    func testNineBallAnotherMatchRestoresBreakerAndTransferOptions() {
+        let record = makeConfigurationRecord(gameType: .nineBall, configuration: [
+            "nineBallRuleVersion": AnyCodable(2),
+            "nineBallBreakerPlayer": AnyCodable(2),
+            "nineBallSmallGoldAllPay": AnyCodable(true),
+            "nineBallGoldRetainsBreak": AnyCodable(false),
+            "nineBallGoldenNine": AnyCodable(4)
+        ])
+        let setup = ScoreboardRecordConfiguration.setup(from: record)
+        XCTAssertEqual(setup.nineBallBreakerPlayer, 2)
+        XCTAssertEqual(setup.nineBallSmallGoldAllPay, true)
+        XCTAssertEqual(setup.nineBallGoldRetainsBreak, false)
+        XCTAssertEqual(setup.nineBallGoldenNine, 4)
+    }
+
     func testFootballLegacySyntheticSetScoreNeverReplacesRealGoalScore() {
         let record = ScoreboardRecord(
             id: "football-2-0",
@@ -1887,11 +1974,94 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         XCTAssertTrue(store.loadRecords().isEmpty)
     }
 
+    func testSingleRecordLookupDoesNotDependOnTheAggregateIndex() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("record-lookup-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = ScoreboardRecordFileStore(rootURL: root)
+        try store.save(makeRecord(id: "healthy"))
+        try Data("broken-index".utf8).write(to: root.appendingPathComponent("index.json"))
+        try Data("broken-record".utf8).write(to: root.appendingPathComponent("unrelated.record.json"))
+
+        XCTAssertEqual(store.loadRecord(id: "healthy")?.team1FinalScore, 11)
+        XCTAssertNil(store.loadRecord(id: "missing"))
+        XCTAssertTrue(store.delete(id: "healthy"))
+        XCTAssertNil(store.loadRecord(id: "healthy"))
+    }
+
+    func testPersonalSummaryUsesLiveIdentityWithoutReopeningRecordFiles() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("summary-identity-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let identity = ParticipantIdentityStore(fileURL: root.appendingPathComponent("identity.json"))
+        let record = makeRecord(id: "mine")
+        let summary = ScoreboardRecordSummary(from: record)
+        XCTAssertEqual(summary.personalRecordSeatNames, ["side:0": "A", "side:1": "B"])
+        XCTAssertFalse(PersonalRecordAdapter.isMine(summary, identity: identity))
+        try identity.registerRecord(record.id, selections: ["side:0": .init(name: "A", personRef: identity.person)])
+        XCTAssertTrue(PersonalRecordAdapter.isMine(summary, identity: identity))
+        let renamed = makeRecord(id: record.id, team1Name: "Someone else")
+        XCTAssertFalse(PersonalRecordAdapter.isMine(ScoreboardRecordSummary(from: renamed), identity: identity))
+        let alias = try identity.link(name: "B")
+        try identity.installClaims([.init(libraryId: identity.ledger.libraryId, recordKey: record.id,
+            seatKey: "side:1", aliasId: alias.id, nameSnapshot: "B")])
+        XCTAssertFalse(PersonalRecordAdapter.isMine(summary, identity: identity))
+    }
+
+    func testTimerFileMigrationKeepsAllHistoryAndUpdatesSameID() throws {
+        let suite = "timer-migration-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(suite)
+        defer { defaults.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: root) }
+        let records = (0..<600).map { GameRecordSummary(id: "timer-\($0)", gameType: .chess, timestamp: Double($0), duration: 60) }
+        defaults.set(try JSONEncoder().encode(records), forKey: "timer_records")
+        let manager = TimerRecordManager(defaults: defaults, rootURL: root)
+        XCTAssertEqual(manager.getRecords().count, 600)
+        XCTAssertNil(defaults.data(forKey: "timer_records"))
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: root.path).count, 600)
+        var changed = manager.getRecords()
+        changed[0].duration = 120
+        manager.saveRecords(changed)
+        let restored = TimerRecordManager(defaults: defaults, rootURL: root)
+        XCTAssertEqual(restored.getRecords().first?.duration, 120)
+        XCTAssertEqual(restored.getRecords().count, 600)
+        XCTAssertTrue(restored.clearAllRecords())
+        XCTAssertTrue(TimerRecordManager(defaults: defaults, rootURL: root).getRecords().isEmpty)
+    }
+
+    func testFailedTimerMigrationPreservesLegacySourceForRetry() throws {
+        let suite = "timer-migration-failure-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(suite)
+        defer { defaults.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: root) }
+        let record = GameRecordSummary(id: "timer", gameType: .chess, timestamp: 1)
+        let source = try JSONEncoder().encode([record])
+        defaults.set(source, forKey: "timer_records")
+        try Data("not-a-directory".utf8).write(to: root)
+        XCTAssertTrue(TimerRecordManager(defaults: defaults, rootURL: root).getRecords().isEmpty)
+        XCTAssertEqual(defaults.data(forKey: "timer_records"), source)
+        try FileManager.default.removeItem(at: root)
+        XCTAssertEqual(TimerRecordManager(defaults: defaults, rootURL: root).getRecords().map(\.id), ["timer"])
+    }
+
+    func testCorruptTimerLegacyIsBackedUpWithoutBlockingNewRecords() throws {
+        let suite = "timer-corrupt-legacy-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(suite)
+        defer { defaults.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: root) }
+        let corrupt = Data("corrupt-legacy-json".utf8)
+        defaults.set(corrupt, forKey: "timer_records")
+        let manager = TimerRecordManager(defaults: defaults, rootURL: root)
+        manager.saveRecords([GameRecordSummary(id: "new", gameType: .chess, timestamp: 1)])
+        XCTAssertEqual(manager.getRecords().map(\.id), ["new"])
+        XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent("legacy-corrupt.json")), corrupt)
+        XCTAssertNil(defaults.data(forKey: "timer_records"))
+    }
+
     private func makeRecord(
         id: String = "record",
         schemaVersion: Int = 4,
         actions: [String] = [],
-        gameType: jifen.GameType = .pingpong
+        gameType: jifen.GameType = .pingpong,
+        team1Name: String = "A"
     ) -> ScoreboardRecord {
         var record = ScoreboardRecord(
             id: id,
@@ -1899,7 +2069,7 @@ final class ScoreboardRecordV4Tests: XCTestCase {
             startTime: Date(timeIntervalSince1970: 1_700_000_000),
             endTime: Date(timeIntervalSince1970: 1_700_000_060),
             duration: 60,
-            team1Name: "A",
+            team1Name: team1Name,
             team2Name: "B",
             team1FinalScore: 11,
             team2FinalScore: 7,

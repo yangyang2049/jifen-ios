@@ -151,36 +151,64 @@ public struct EightBallReducer: DomainReducer {
 
 // MARK: - Nine-ball chase points (2-4 players)
 
+public enum NineBallRuleFamily: String, Codable, CaseIterable, Sendable { case folk, tournament }
+public enum NineBallPointScheme: String, Codable, CaseIterable, Sendable { case standard = "14710", classic = "1357" }
+public enum NineBallBreakRule: String, Codable, CaseIterable, Sendable { case winner, alternate }
+
 public struct NineBallChaseConfig: Codable, Equatable, Sendable {
-    public var bigGold = 10
-    public var smallGold = 7
-    public var goldenNine = 8
-    public var normalWin = 4
-    public var ballInHand = 1
-    public var foul = 1
+    public var bigGold: Int
+    public var smallGold: Int
+    public var goldenNine: Int
+    public var normalWin: Int
+    public var ballInHand: Int
+    public var foul: Int
+    public var smallGoldAllPay: Bool
+    public var goldRetainsBreak: Bool
+    public var ruleFamily: NineBallRuleFamily
+    public var pointScheme: NineBallPointScheme
+    public var handoffEnabled: Bool
+    public var thirdFoul: Int
+    public var breakRule: NineBallBreakRule
+    public var totalRacks: Int
 
-    public init(bigGold: Int = 10, smallGold: Int = 7, goldenNine: Int = 8, normalWin: Int = 4, ballInHand: Int = 1, foul: Int = 1) {
-        self.bigGold = Self.normalizedPoint(bigGold)
-        self.smallGold = Self.normalizedPoint(smallGold)
-        self.goldenNine = Self.normalizedPoint(goldenNine)
-        self.normalWin = Self.normalizedPoint(normalWin)
-        self.ballInHand = Self.normalizedPoint(ballInHand)
-        self.foul = Self.normalizedPoint(foul)
+    public init(bigGold: Int = 10, smallGold: Int = 7, goldenNine: Int = 4, normalWin: Int = 4, ballInHand: Int = 1, foul: Int = 1, smallGoldAllPay: Bool = false, goldRetainsBreak: Bool = true, ruleFamily: NineBallRuleFamily = .folk, pointScheme: NineBallPointScheme = .standard, handoffEnabled: Bool = true, thirdFoul: Int = 2, breakRule: NineBallBreakRule = .winner, totalRacks: Int = 10) {
+        self.bigGold = Self.point(bigGold); self.smallGold = Self.point(smallGold)
+        self.goldenNine = Self.point(goldenNine); self.normalWin = Self.point(normalWin)
+        self.ballInHand = Self.point(ballInHand); self.foul = Self.point(foul)
+        self.smallGoldAllPay = smallGoldAllPay; self.goldRetainsBreak = goldRetainsBreak
+        self.ruleFamily = ruleFamily; self.pointScheme = pointScheme; self.handoffEnabled = handoffEnabled
+        self.thirdFoul = Self.point(thirdFoul); self.breakRule = breakRule; self.totalRacks = Self.point(totalRacks)
     }
-
+    public static func preset(_ scheme: NineBallPointScheme = .standard, family: NineBallRuleFamily = .folk) -> Self {
+        scheme == .classic && family == .folk
+            ? .init(bigGold: 7, smallGold: 5, goldenNine: 3, normalWin: 3, pointScheme: scheme)
+            : .init(ruleFamily: family)
+    }
     public var normalized: Self {
-        .init(
-            bigGold: bigGold,
-            smallGold: smallGold,
-            goldenNine: goldenNine,
-            normalWin: normalWin,
-            ballInHand: ballInHand,
-            foul: foul
-        )
+        .init(bigGold: bigGold, smallGold: smallGold, goldenNine: goldenNine, normalWin: normalWin,
+              ballInHand: ballInHand, foul: foul, smallGoldAllPay: smallGoldAllPay,
+              goldRetainsBreak: goldRetainsBreak, ruleFamily: ruleFamily, pointScheme: pointScheme,
+              handoffEnabled: handoffEnabled, thirdFoul: thirdFoul, breakRule: breakRule, totalRacks: totalRacks)
     }
-
-    private static func normalizedPoint(_ value: Int) -> Int {
-        min(99, max(1, value))
+    public var maximumRackSwing: Int { 2 * foul + max(bigGold, smallGold, normalWin, thirdFoul) }
+    private static func point(_ value: Int) -> Int { min(99, max(1, value)) }
+    private enum CodingKeys: String, CodingKey {
+        case bigGold, smallGold, goldenNine, normalWin, ballInHand, foul, smallGoldAllPay, goldRetainsBreak
+        case ruleFamily, pointScheme, handoffEnabled, thirdFoul, breakRule, totalRacks
+    }
+    public init(from decoder: Decoder) throws {
+        let v = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(bigGold: try v.decode(Int.self, forKey: .bigGold), smallGold: try v.decode(Int.self, forKey: .smallGold),
+                  goldenNine: try v.decode(Int.self, forKey: .goldenNine), normalWin: try v.decode(Int.self, forKey: .normalWin),
+                  ballInHand: try v.decode(Int.self, forKey: .ballInHand), foul: try v.decode(Int.self, forKey: .foul),
+                  smallGoldAllPay: try v.decodeIfPresent(Bool.self, forKey: .smallGoldAllPay) ?? false,
+                  goldRetainsBreak: try v.decodeIfPresent(Bool.self, forKey: .goldRetainsBreak) ?? true,
+                  ruleFamily: try v.decodeIfPresent(NineBallRuleFamily.self, forKey: .ruleFamily) ?? .folk,
+                  pointScheme: try v.decodeIfPresent(NineBallPointScheme.self, forKey: .pointScheme) ?? .standard,
+                  handoffEnabled: try v.decodeIfPresent(Bool.self, forKey: .handoffEnabled) ?? true,
+                  thirdFoul: try v.decodeIfPresent(Int.self, forKey: .thirdFoul) ?? 2,
+                  breakRule: try v.decodeIfPresent(NineBallBreakRule.self, forKey: .breakRule) ?? .winner,
+                  totalRacks: try v.decodeIfPresent(Int.self, forKey: .totalRacks) ?? 10)
     }
 }
 
@@ -191,6 +219,15 @@ public enum NineBallChaseKind: String, Codable, CaseIterable, Equatable, Sendabl
     case normalWin = "normal_win"
     case ballInHand = "ball_in_hand"
     case foul
+    /// A non-scoring choice of who continues. The legacy ball_in_hand slot is never reused.
+    case handoff
+
+    public static let legacyKinds: [Self] = [.bigGold, .smallGold, .goldenNine, .normalWin, .ballInHand, .foul]
+    public static let transferKinds: [Self] = [.bigGold, .smallGold, .goldenNine, .normalWin, .handoff, .foul]
+
+    public var endsRack: Bool {
+        self == .bigGold || self == .smallGold || self == .goldenNine || self == .normalWin
+    }
 }
 
 public struct NineBallChaseState: Codable, Equatable, Sendable {
@@ -204,6 +241,22 @@ public struct NineBallChaseState: Codable, Equatable, Sendable {
     /// Presentation-only side placement for two-player chase. Player identity,
     /// scores and event counts always remain in logical player order.
     public var sidesSwapped: Bool
+    /// Missing on persisted sessions means legacy cumulative scoring, never an implicit upgrade.
+    public var ruleVersion: Int
+    public var roundNumber: Int
+    public var breakerPlayer: Int
+    /// The configured opening breaker, kept separately from the current rack.
+    public var initialBreakerPlayer: Int
+    public var currentShooter: Int?
+
+    public var rackFouls: [Int]
+    public var isTournament: Bool { ruleVersion == 3 && config.ruleFamily == .tournament }
+    public var usesRackRules: Bool { ruleVersion == 2 || ruleVersion == 3 }
+    public var scoringKinds: [NineBallChaseKind] {
+        if ruleVersion == 1 { return NineBallChaseKind.legacyKinds }
+        if isTournament { return [.bigGold, .smallGold, .normalWin, .foul] }
+        return NineBallChaseKind.transferKinds.filter { ruleVersion == 2 || config.handoffEnabled || $0 != .handoff }
+    }
 
     public init(
         playerCount: Int,
@@ -212,14 +265,28 @@ public struct NineBallChaseState: Codable, Equatable, Sendable {
         config: NineBallChaseConfig,
         finished: Bool,
         playerNames: [String] = [],
-        sidesSwapped: Bool = false
+        sidesSwapped: Bool = false,
+        ruleVersion: Int = 2,
+        roundNumber: Int = 1,
+        breakerPlayer: Int = 0,
+        initialBreakerPlayer: Int? = nil,
+        currentShooter: Int? = nil,
+        rackFouls: [Int] = []
     ) {
-        self.playerCount = min(4, max(2, playerCount))
+        let normalizedPlayerCount = ruleVersion == 3 && config.ruleFamily == .tournament ? 2 : min(4, max(2, playerCount))
+        self.playerCount = normalizedPlayerCount
+        self.ruleVersion = max(1, ruleVersion)
+        self.roundNumber = max(1, roundNumber)
+        self.breakerPlayer = (0..<self.playerCount).contains(breakerPlayer) ? breakerPlayer : 0
+        self.initialBreakerPlayer = (0..<self.playerCount).contains(initialBreakerPlayer ?? breakerPlayer) ? (initialBreakerPlayer ?? breakerPlayer) : 0
+        self.currentShooter = currentShooter.flatMap { (0..<normalizedPlayerCount).contains($0) ? $0 : nil }
         self.playerPoints = Array((playerPoints + Array(repeating: 0, count: 4)).prefix(4))
+        let count = self.ruleVersion == 1 ? 6 : 7
         self.playerCounts = (0..<4).map { index in
             let source = playerCounts[safe: index] ?? []
-            return Array((source + Array(repeating: 0, count: NineBallChaseKind.allCases.count)).prefix(NineBallChaseKind.allCases.count))
+            return Array((source + Array(repeating: 0, count: count)).prefix(count))
         }
+        self.rackFouls = (0..<4).map { min(2, max(0, rackFouls[safe: $0] ?? 0)) }
         self.config = config.normalized
         self.finished = finished
         self.playerNames = Self.normalizedNames(playerNames)
@@ -229,15 +296,19 @@ public struct NineBallChaseState: Codable, Equatable, Sendable {
     public static func initial(
         config: NineBallChaseConfig = .init(),
         playerCount: Int = 2,
-        playerNames: [String] = []
+        playerNames: [String] = [],
+        ruleVersion: Int = 2,
+        breakerPlayer: Int = 0
     ) -> Self {
         .init(
             playerCount: playerCount,
             playerPoints: Array(repeating: 0, count: 4),
-            playerCounts: Array(repeating: Array(repeating: 0, count: NineBallChaseKind.allCases.count), count: 4),
+            playerCounts: Array(repeating: Array(repeating: 0, count: ruleVersion == 1 ? 6 : 7), count: 4),
             config: config,
             finished: false,
-            playerNames: playerNames
+            playerNames: playerNames,
+            ruleVersion: ruleVersion,
+            breakerPlayer: breakerPlayer
         )
     }
 
@@ -260,6 +331,7 @@ public struct NineBallChaseState: Codable, Equatable, Sendable {
 
     private enum CodingKeys: String, CodingKey {
         case playerCount, playerPoints, playerCounts, config, finished, playerNames, sidesSwapped
+        case ruleVersion, roundNumber, breakerPlayer, initialBreakerPlayer, currentShooter, rackFouls
     }
 
     public init(from decoder: Decoder) throws {
@@ -271,13 +343,23 @@ public struct NineBallChaseState: Codable, Equatable, Sendable {
             config: try container.decode(NineBallChaseConfig.self, forKey: .config),
             finished: try container.decode(Bool.self, forKey: .finished),
             playerNames: try container.decodeIfPresent([String].self, forKey: .playerNames) ?? [],
-            sidesSwapped: try container.decodeIfPresent(Bool.self, forKey: .sidesSwapped) ?? false
+            sidesSwapped: try container.decodeIfPresent(Bool.self, forKey: .sidesSwapped) ?? false,
+            ruleVersion: try container.decodeIfPresent(Int.self, forKey: .ruleVersion) ?? 1,
+            roundNumber: try container.decodeIfPresent(Int.self, forKey: .roundNumber) ?? 1,
+            breakerPlayer: try container.decodeIfPresent(Int.self, forKey: .breakerPlayer) ?? 0,
+            initialBreakerPlayer: try container.decodeIfPresent(Int.self, forKey: .initialBreakerPlayer) ?? 0,
+            currentShooter: try container.decodeIfPresent(Int.self, forKey: .currentShooter),
+            rackFouls: try container.decodeIfPresent([Int].self, forKey: .rackFouls) ?? []
         )
     }
 }
 
 public enum NineBallChaseIntent: Codable, Sendable {
+    /// Only valid for legacy sessions. New sessions require the transfer intent.
     case chaseEvent(player: Int, kind: NineBallChaseKind)
+    case chaseTransfer(player: Int, kind: NineBallChaseKind, payer: Int?, continuePlayer: Int?)
+    case tournamentEvent(player: Int, kind: NineBallChaseKind)
+    case setBreaker(player: Int)
     case deltaTotal(player: Int, delta: Int)
     case adminSetTotals(left: Int, right: Int)
     case adminCorrect(playerNames: [String], playerPoints: [Int])
@@ -291,12 +373,17 @@ public enum NineBallChaseEvent: Codable, Equatable, Sendable {
     case totalsAdjusted
     case sidesExchanged
     case matchFinished
+    case chaseTransferred(player: Int, kind: NineBallChaseKind, deltas: [Int], payer: Int?, continuePlayer: Int?, roundBefore: Int, breakerBefore: Int, nextBreaker: Int)
+    case breakerChanged(player: Int)
 }
 
 public struct NineBallChaseReducer: DomainReducer {
     public init() {}
 
     public func reduce(state: NineBallChaseState, intent: NineBallChaseIntent, at epochMilliseconds: Int64) -> ReduceResult<NineBallChaseState, NineBallChaseEvent> {
+        guard (1...3).contains(state.ruleVersion) else {
+            return .rejected(state: state, reason: "Unsupported nine-ball rule version")
+        }
         if state.finished {
             switch intent {
             case .adminSetTotals, .resetScores: break
@@ -307,11 +394,16 @@ public struct NineBallChaseReducer: DomainReducer {
         switch intent {
         case .resetScores:
             next.playerPoints = Array(repeating: 0, count: 4)
-            next.playerCounts = Array(repeating: Array(repeating: 0, count: 6), count: 4)
+            next.playerCounts = Array(repeating: Array(repeating: 0, count: next.ruleVersion == 1 ? 6 : 7), count: 4)
             next.finished = false
             next.sidesSwapped = false
+            next.roundNumber = 1
+            next.breakerPlayer = next.initialBreakerPlayer
+            next.currentShooter = nil
+            next.rackFouls = Array(repeating: 0, count: 4)
             return .init(state: next, events: [.totalsAdjusted])
         case .chaseEvent(let player, let kind):
+            guard next.ruleVersion == 1 else { return .rejected(state: state, reason: "Rule v2 requires a transfer event") }
             guard (0 ..< next.playerCount).contains(player) else { return .rejected(state: state, reason: "Invalid player") }
             let configured = delta(for: kind, config: next.config)
             guard configured != 0 else { return .rejected(state: state, reason: "Invalid point value") }
@@ -323,15 +415,29 @@ public struct NineBallChaseReducer: DomainReducer {
             next.playerPoints[scorePlayer] += scoreDelta
             next.playerCounts[player][kindIndex] += 1
             return .init(state: next, events: [.chaseApplied(player: player, scorePlayer: scorePlayer, kind: kind, delta: scoreDelta)])
+        case .chaseTransfer(let player, let kind, let payer, let continuePlayer):
+            guard next.usesRackRules, !next.isTournament else { return .rejected(state: state, reason: "Session requires its own scoring intent") }
+            return transfer(state: next, player: player, kind: kind, payer: payer, continuePlayer: continuePlayer)
+        case .tournamentEvent(let player, let kind):
+            return tournament(state: next, player: player, kind: kind)
+        case .setBreaker(let player):
+            guard next.usesRackRules, (0..<next.playerCount).contains(player) else {
+                return .rejected(state: state, reason: "Invalid breaker")
+            }
+            next.breakerPlayer = player
+            return .init(state: next, events: [.breakerChanged(player: player)])
         case .deltaTotal(let player, let delta):
             guard (0 ..< next.playerCount).contains(player) else { return .rejected(state: state, reason: "Invalid player") }
+            guard !next.isTournament || next.playerPoints[player] + delta >= 0 else { return .rejected(state: state, reason: "Negative tournament score") }
             next.playerPoints[player] += delta
             return .init(state: next, events: [.totalsAdjusted])
         case .adminSetTotals(let left, let right):
-            next.playerPoints[0] = max(0, left)
-            next.playerPoints[1] = max(0, right)
+            guard !next.isTournament || (left >= 0 && right >= 0) else { return .rejected(state: state, reason: "Negative tournament score") }
+            next.playerPoints[0] = next.ruleVersion == 1 ? max(0, left) : left
+            next.playerPoints[1] = next.ruleVersion == 1 ? max(0, right) : right
             return .init(state: next, events: [.totalsAdjusted])
         case .adminCorrect(let playerNames, let playerPoints):
+            guard !next.isTournament || playerPoints.prefix(next.playerCount).allSatisfy({ $0 >= 0 }) else { return .rejected(state: state, reason: "Negative tournament score") }
             for index in 0 ..< next.playerCount {
                 let trimmed = playerNames[safe: index]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
                 if !trimmed.isEmpty {
@@ -356,18 +462,10 @@ public struct NineBallChaseReducer: DomainReducer {
     }
 
     private func normalized(_ state: NineBallChaseState) -> NineBallChaseState {
-        var value = state
-        value.playerCount = min(4, max(2, value.playerCount))
-        value.playerPoints = Array((value.playerPoints + Array(repeating: 0, count: 4)).prefix(4))
-        value.playerCounts = (0 ..< 4).map { player in
-            let source = value.playerCounts[safe: player] ?? []
-            return Array((source + Array(repeating: 0, count: 6)).prefix(6))
-        }
-        value.playerNames = Array((value.playerNames + Array(repeating: "", count: 4)).prefix(4)).map {
-            $0.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-        value.config = value.config.normalized
-        return value
+        .init(playerCount: state.playerCount, playerPoints: state.playerPoints, playerCounts: state.playerCounts,
+              config: state.config, finished: state.finished, playerNames: state.playerNames,
+              sidesSwapped: state.sidesSwapped, ruleVersion: state.ruleVersion, roundNumber: state.roundNumber,
+              breakerPlayer: state.breakerPlayer, initialBreakerPlayer: state.initialBreakerPlayer, currentShooter: state.currentShooter, rackFouls: state.rackFouls)
     }
 
     private func delta(for kind: NineBallChaseKind, config: NineBallChaseConfig) -> Int {
@@ -378,6 +476,7 @@ public struct NineBallChaseReducer: DomainReducer {
         case .normalWin: config.normalWin
         case .ballInHand: config.ballInHand
         case .foul: config.foul
+        case .handoff: 0
         }
     }
 }

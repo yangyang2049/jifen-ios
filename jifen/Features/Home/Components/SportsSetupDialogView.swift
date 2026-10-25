@@ -208,7 +208,7 @@ struct SportsSetupDialogView: View {
 
     private func confirmSetup() async {
         // 对齐安卓：数值类约束（局数/每局分数/封顶分/让局）在 makeResult 里静默夹到合法区间，
-        // 不再红字报错或让「开始」点了没反应。只有「重名」无法替用户改名，仍在这里拦截。
+        // 个人项目允许不同选手同名，并在表单内提示；同一身份占多个席位仍需拦截。
         if let correction = draft.oddSetsCorrectionApplied(for: gameType) {
             showSetupToast(String(
                 format: NSLocalizedString(
@@ -224,7 +224,11 @@ struct SportsSetupDialogView: View {
             usesDoublesPlayerInputs: shouldUseDoublesPlayerInputs()
         )
 
-        if finalConfig.team1Name == finalConfig.team2Name && !finalConfig.team1Name.isEmpty {
+        if ParticipantIdentityRules.containsDuplicatePerson(Array((finalConfig.participantSelections ?? [:]).values)) {
+            setupSendErrorText = identityText("already_playing", "你已在其他位置参赛")
+            return
+        }
+        if !PersonalRecordAdapter.supportsPerson(gameType) && finalConfig.team1Name == finalConfig.team2Name && !finalConfig.team1Name.isEmpty {
             setupSendErrorText = NSLocalizedString(
                 "duplicate_names_warning",
                 value: "双方名称不能相同",

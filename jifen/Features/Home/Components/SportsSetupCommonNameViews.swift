@@ -1,3 +1,4 @@
+import ScoreCore
 import SwiftUI
 
 
@@ -8,17 +9,29 @@ struct CommonNameSelectorDialog: View {
     @Environment(\.dismiss) var dismiss
     var nameType: NameType
     var onSelect: (String) -> Void
+    var unavailablePeople: Set<ParticipantPersonRef> = []
+    var onParticipantSelect: ((ParticipantSelection) -> Void)?
+
+    init(nameType: NameType, unavailablePeople: Set<ParticipantPersonRef> = [],
+         onParticipantSelect: ((ParticipantSelection) -> Void)? = nil,
+         onSelect: @escaping (String) -> Void) {
+        self.nameType = nameType; self.unavailablePeople = unavailablePeople
+        self.onParticipantSelect = onParticipantSelect; self.onSelect = onSelect
+    }
+
+    @State private var identity = ParticipantIdentityStore.shared
 
     private let commonNamesManager = CommonNamesManager.shared
 
     private var names: [String] {
         commonNamesManager.getNames(type: nameType)
     }
+    private var providesIdentity: Bool { nameType == .player && onParticipantSelect != nil }
 
     var body: some View {
         NavigationView {
             Group {
-                if names.isEmpty {
+                if names.isEmpty && !providesIdentity {
                     VStack(spacing: Theme.sm) {
                         EmptyStateCourtIcon(size: 44)
                         Text(NSLocalizedString("common_names_empty", value: "暂无常用名称", comment: ""))
@@ -33,9 +46,29 @@ struct CommonNameSelectorDialog: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    List(names, id: \.self) { name in
+                    List {
+                        if providesIdentity {
+                            Section {
+                                ForEach(identity.pickerSelections, id: \.name) { selection in
+                                    Button {
+                                        onSelect(selection.name); onParticipantSelect?(selection); dismiss()
+                                    } label: {
+                                        HStack {
+                                            Text(selection.name); Text(identityText("self", "我")).font(.caption).foregroundStyle(Theme.accentColor)
+                                            Spacer()
+                                        }.frame(minHeight: 44)
+                                    }.disabled(selection.personRef.map { unavailablePeople.contains($0) } ?? false)
+                                }
+                            } footer: {
+                                if unavailablePeople.contains(identity.person) {
+                                    Text(identityText("already_playing", "你已在其他位置参赛"))
+                                }
+                            }
+                        }
+                        ForEach(names.filter { name in !providesIdentity || !identity.pickerSelections.contains(where: { ParticipantIdentityRules.normalizedName($0.name) == ParticipantIdentityRules.normalizedName(name) }) }, id: \.self) { name in
                         Button(action: {
                             onSelect(name)
+                            onParticipantSelect?(.init(name: name))
                             dismiss()
                         }) {
                             HStack {
@@ -46,6 +79,10 @@ struct CommonNameSelectorDialog: View {
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .contentShape(Rectangle())
+                        }
+                        }
+                        NavigationLink(identityText("manage_common_names", "管理常用名称")) {
+                            CommonNamesManagementView()
                         }
                     }
                     .listStyle(.plain)

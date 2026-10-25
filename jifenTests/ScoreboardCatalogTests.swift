@@ -997,6 +997,114 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(store.undoStates.map(\.leftPoints), [0, 1])
     }
 
+    func testNineBallQueuedWinRejectsStaleSmallGoldWithoutUndoOrRecord() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("nine-ball-stale-transfer-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let repository = ResumeSessionRepository(rootURL: root)
+        let initial = NineBallChaseState.initial(playerCount: 3, breakerPlayer: 0)
+        let store = BilliardsSessionStore(
+            gameType: ScoreCore.GameType.nineBall, state: initial,
+            reducer: NineBallChaseReducer(), participants: [],
+            startedAt: Date(timeIntervalSince1970: 1), recordID: UUID().uuidString,
+            resumeRepository: repository
+        )
+        let reviewedContext = NineBallTransferContext(state: store.state)
+        let intents: [NineBallChaseIntent] = [
+            .chaseTransfer(player: 1, kind: .normalWin, payer: 0, continuePlayer: nil),
+            // This would otherwise be accepted as a correction and charge the
+            // previous breaker for a rack whose breaker has already changed.
+            .chaseTransfer(player: 2, kind: .smallGold, payer: 0, continuePlayer: nil)
+        ]
+        var rejected = 0
+        for intent in intents {
+            store.sendDerived(
+                { reserved in
+                    let validated = reviewedContext.validatedIntent(intent, in: reserved)
+                    if validated == nil { rejected += 1 }
+                    return validated
+                },
+                completion: { _, _, next, _ in
+                    store.updateRecordContext(
+                        actionLog: store.recordContext.actionLog + ["accepted"],
+                        detailedActions: store.recordContext.detailedActions + [
+                            .init(type: .scoreChanged, scores: next.playerPoints)
+                        ],
+                        actionCount: store.recordContext.actionCount + 1
+                    )
+                }
+            )
+        }
+        XCTAssertEqual(store.state, initial, "The UI projection has not advanced while both taps reserve their work")
+        XCTAssertEqual(rejected, 1)
+        let flushed = expectation(description: "nine-ball stale transfer flushed")
+        store.flush { flushed.fulfill() }
+        await fulfillment(of: [flushed], timeout: 2)
+
+        XCTAssertEqual(store.state.playerPoints, [-4, 4, 0, 0])
+        XCTAssertEqual(store.state.roundNumber, 2)
+        XCTAssertEqual(store.state.breakerPlayer, 2)
+        XCTAssertEqual(store.undoStates.count, 1)
+        XCTAssertEqual(store.recordContext.actionCount, 1)
+        XCTAssertEqual(store.recordContext.actionLog.count, 1)
+        XCTAssertEqual(store.recordContext.detailedActions.count, 1)
+        let restored = try await repository.loadResumeBundle(
+            sessionId: store.sessionId,
+            as: BilliardsSessionStore<NineBallChaseReducer>.ResumeBundle.self
+        )
+        XCTAssertEqual(restored?.timeline.count, 1)
+        XCTAssertEqual(restored?.undoFrames.count, 1)
+        XCTAssertEqual(restored.flatMap { ScoreSessionRecordContext.decode($0.auxiliaryPayload) }?.actionCount, 1)
+    }
+
+    func testNineBallSameRackFoulAndHandoffCanQueueFromOneReviewedContext() async {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("nine-ball-same-rack-transfer-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let initial = NineBallChaseState.initial(playerCount: 3, breakerPlayer: 0)
+        let store = BilliardsSessionStore(
+            gameType: ScoreCore.GameType.nineBall, state: initial,
+            reducer: NineBallChaseReducer(), participants: [],
+            startedAt: Date(timeIntervalSince1970: 1), recordID: UUID().uuidString,
+            resumeRepository: ResumeSessionRepository(rootURL: root)
+        )
+        let reviewedContext = NineBallTransferContext(state: store.state)
+        let intents: [NineBallChaseIntent] = [
+            .chaseTransfer(player: 1, kind: .foul, payer: nil, continuePlayer: nil),
+            .chaseTransfer(player: 2, kind: .handoff, payer: nil, continuePlayer: 0)
+        ]
+        var acceptedKinds: [NineBallChaseKind] = []
+        for intent in intents {
+            store.sendDerived(
+                { reviewedContext.validatedIntent(intent, in: $0) },
+                completion: { _, _, next, events in
+                    for event in events {
+                        if case .chaseTransferred(_, let kind, _, _, _, _, _, _) = event { acceptedKinds.append(kind) }
+                    }
+                    store.updateRecordContext(
+                        actionLog: store.recordContext.actionLog + ["accepted"],
+                        detailedActions: store.recordContext.detailedActions + [
+                            .init(type: .stateChanged, scores: next.playerPoints)
+                        ],
+                        actionCount: store.recordContext.actionCount + 1
+                    )
+                }
+            )
+        }
+        let flushed = expectation(description: "nine-ball same-rack transfers flushed")
+        store.flush { flushed.fulfill() }
+        await fulfillment(of: [flushed], timeout: 2)
+
+        XCTAssertEqual(acceptedKinds, [.foul, .handoff])
+        XCTAssertEqual(store.state.playerPoints, [0, -1, 1, 0])
+        XCTAssertEqual(store.state.currentShooter, 0)
+        XCTAssertEqual(store.state.roundNumber, initial.roundNumber)
+        XCTAssertEqual(store.state.breakerPlayer, initial.breakerPlayer)
+        XCTAssertEqual(store.undoStates.count, 2)
+        XCTAssertEqual(store.recordContext.actionCount, 2)
+        XCTAssertEqual(store.recordContext.detailedActions.count, 2)
+    }
+
     func testSnookerQueuedPointThenSettleUsesOneAuthoritativeTerminalTransitionAndSnapshot() async throws {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("snooker-point-settle-\(UUID().uuidString)", isDirectory: true)

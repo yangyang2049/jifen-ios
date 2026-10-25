@@ -1,0 +1,522 @@
+<style>
+#my-history-names { color-scheme: light dark; --app-bg: light-dark(#f2f2f7,#000); --app-surface: light-dark(#fff,#202022); --app-text: light-dark(#202024,#f5f5f7); --app-sub: light-dark(#74747a,#aaaab0); --app-line: light-dark(#e6e6eb,#38383b); --app-control: light-dark(#ededf0,#343437); --app-green: light-dark(#4caf50,#30d158); --app-green-ink: light-dark(#2d7932,#65dc80); --app-green-soft: light-dark(#eaf5ec,#1c3523); --app-amber: light-dark(#8d5b16,#e7bc75); --app-amber-soft: light-dark(#faf1e2,#33291b); --app-red: light-dark(#c33d39,#ff7c75); font-family: -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif; padding: 24px 8px; }
+#my-history-names * { box-sizing: border-box; }
+#my-history-names [hidden] { display: none !important; }
+#my-history-names button, #my-history-names input { font: inherit; }
+#my-history-names button { color: inherit; }
+#my-history-names .phone { display:flex;flex-direction:column;max-width: 393px; width: 100%; min-height: 740px; margin: 0 auto; padding-bottom:28px; background: var(--app-bg); color: var(--app-text); border: 1px solid var(--app-line); border-radius: 28px; overflow: hidden; position: relative; font-size: 16px; line-height:1.4; }
+#my-history-names .page { flex:1; }
+#my-history-names .phone.is-scan { height:700px;min-height:700px; }
+#my-history-names .phone.is-scan .page { display:flex;flex-direction:column;min-height:0;overflow:hidden; }
+#my-history-names .phone.is-scan .status,#my-history-names .phone.is-scan .nav { flex-shrink:0; }
+#my-history-names .phone.is-scan .content { display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;padding:12px 18px 0; }
+#my-history-names .scan-intro { flex-shrink:0;padding-bottom:10px; }
+#my-history-names .scan-scroll { flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-bottom:16px; }
+#my-history-names .scan-action-bar { flex-shrink:0;padding:10px 18px 14px;background:var(--app-bg);border-top:1px solid var(--app-line); }
+#my-history-names .scan-action-bar .selected-summary { font-size:13px;margin:0 2px 9px; }
+#my-history-names .scan-action-bar .selected-summary:empty { display:none; }
+#my-history-names .nav.is-left { grid-template-columns:44px minmax(0,1fr) 44px;padding:0 10px; }
+#my-history-names .nav.is-left h1 { text-align:left;padding-left:4px; }
+#my-history-names .nav.is-left.is-root { grid-template-columns:minmax(0,1fr) 44px;padding-left:18px; }
+#my-history-names .nav.is-left.is-root [data-back] { display:none; }
+#my-history-names .status { display: flex; justify-content: space-between; align-items: center; height: 44px; padding: 0 23px; font-size: 13px; font-weight: 500; }
+#my-history-names .status span:last-child { display: flex; gap: 5px; }
+#my-history-names svg { width: 18px; height: 18px; vertical-align: middle; flex-shrink: 0; }
+#my-history-names .status svg { width: 14px; height: 14px; }
+#my-history-names .nav { height: 52px; display: grid; grid-template-columns: 56px 1fr 56px; align-items: center; background: var(--app-bg); }
+#my-history-names .nav h1 { font-size: 18px; font-weight: 500; text-align: center; margin: 0; }
+#my-history-names .icon-button { display: grid; place-items: center; border: 0; background: none; min-width: 44px; height: 44px; padding: 0; }
+#my-history-names .nav button { color: var(--app-green-ink); }
+#my-history-names .content { padding: 16px 18px 28px; }
+#my-history-names .profile { display: flex; gap: 12px; align-items: center; padding: 4px 2px 22px; }
+#my-history-names .avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--app-green-ink); background: var(--app-green-soft); font-size: 21px; }
+#my-history-names .profile strong { font-size: 19px; font-weight: 500; }
+#my-history-names .sub { font-size: 13px; line-height: 1.6; color: var(--app-sub); margin: 5px 0 0; }
+#my-history-names .section-label { font-size: 13px; color: var(--app-sub); margin: 24px 4px 10px; }
+#my-history-names .surface { background: var(--app-surface); border-radius: 16px; overflow: hidden; }
+#my-history-names .metrics { display: grid; grid-template-columns: repeat(3,1fr); padding: 19px 2px 17px; }
+#my-history-names .metrics > div { text-align: center; }
+#my-history-names .metric-value { font-size: 28px; font-weight: 500; font-variant-numeric: tabular-nums; }
+#my-history-names .metric-label { color: var(--app-sub); font-size: 12px; margin-top: 5px; }
+#my-history-names .link-row { border: 0; background: none; width: 100%; min-height: 58px; text-align: left; display: flex; align-items: center; gap: 10px; padding: 12px 16px; }
+#my-history-names .link-row + .link-row { border-top: 1px solid var(--app-line); }
+#my-history-names .link-row > div { flex: 1; min-width: 0; }
+#my-history-names .chev { color: var(--app-sub); }
+#my-history-names .count { font-size: 13px; color: var(--app-sub); flex-shrink: 0; }
+#my-history-names .pill { color: var(--app-green-ink); background: var(--app-green-soft); border-radius: 5px; font-size: 12px; padding: 3px 7px; display: inline-block; }
+#my-history-names .intro { margin: 2px 3px 18px; font-size: 14px; line-height: 1.7; color: var(--app-sub); }
+#my-history-names .callout { padding: 13px 15px; background: var(--app-green-soft); color: var(--app-green-ink); border-radius: 12px; font-size: 13px; line-height: 1.65; margin: 0 0 16px; }
+#my-history-names .callout.amber { background: var(--app-amber-soft); color: var(--app-amber); }
+#my-history-names .primary { width: 100%; border: 0; min-height: 46px; padding: 11px 12px; border-radius: 24px; background: var(--app-green); color: #fff; font-size: 16px; font-weight: 500; }
+#my-history-names .primary:disabled { opacity: .4; }
+#my-history-names .secondary { width: 100%; border: 0; min-height: 44px; padding: 10px; border-radius: 22px; background: var(--app-control); margin-top: 10px; }
+#my-history-names .text-button { border: 0; background: none; color: var(--app-green-ink); min-height: 44px; padding: 8px 4px; }
+#my-history-names .actions { margin-top: 20px; }
+#my-history-names .fine { color: var(--app-sub); font-size: 12px; line-height: 1.65; margin: 12px 4px; }
+#my-history-names .name-choice { display: flex; align-items: center; gap: 12px; min-height: 74px; padding: 13px 15px; }
+#my-history-names .name-choice + .name-choice { border-top: 1px solid var(--app-line); }
+#my-history-names .name-choice input { width: 21px; height: 21px; margin: 0; flex-shrink: 0; accent-color: var(--app-green); }
+#my-history-names .name-choice label { display: block; flex: 1; min-width: 0; padding: 3px 0; margin: 0; font-size: 16px; line-height: 1.4; }
+#my-history-names .name-choice .sample { font-size: 12px; color: var(--app-sub); margin-top: 6px; }
+#my-history-names .name-choice .preview-name { border: 0; background: none; min-height: 44px; min-width: 44px; padding: 4px; color: var(--app-sub); }
+#my-history-names .selected-summary { margin: 17px 3px 0; font-size: 14px; line-height: 1.7; }
+#my-history-names .empty { padding: 28px 18px; text-align: center; color: var(--app-sub); font-size: 14px; line-height: 1.8; }
+#my-history-names .detail-row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; min-height: 62px; }
+#my-history-names .detail-row + .detail-row { border-top: 1px solid var(--app-line); }
+#my-history-names .detail-row > div { flex: 1; min-width: 0; }
+#my-history-names .detail-row strong { font-size: 15px; font-weight: 400; }
+#my-history-names .detail-row .sub { font-size: 12px; }
+#my-history-names .score { font-variant-numeric: tabular-nums; font-size: 17px; white-space: nowrap; }
+#my-history-names .modal-layer { position: absolute; inset: 0; background: #0006; display: flex; align-items: center; padding: 20px; z-index: 5; }
+#my-history-names .modal { width: 100%; padding: 22px; background: var(--app-surface); border-radius: 22px; }
+#my-history-names .modal h2 { margin: 0 0 12px; font-size: 19px; font-weight: 500; text-align: center; }
+#my-history-names .modal p { font-size: 14px; line-height: 1.75; margin: 10px 0 18px; }
+#my-history-names .modal .preview-records { max-height: none; }
+#my-history-names .modal .preview-records .detail-row { padding-left: 0; padding-right: 0; }
+#my-history-names .name-input { width: 100%; border: 0; padding: 13px; background: var(--app-control); color: var(--app-text); border-radius: 9px; font-size: 16px; }
+#my-history-names .success-mark { margin: 2px auto 15px; width: 52px; height: 52px; display: grid; place-items: center; border-radius: 50%; color: var(--app-green-ink); background: var(--app-green-soft); }
+#my-history-names .success-mark svg { width: 28px; height: 28px; }
+#my-history-names .danger { color: var(--app-red); }
+#my-history-names .picker-row { display: flex; gap: 9px; align-items: center; width: 100%; background: none; border: 0; border-bottom: 1px solid var(--app-line); min-height: 52px; text-align: left; padding: 12px 4px; }
+#my-history-names .picker-row:last-child { border-bottom: 0; }
+#my-history-names .setup-preview { padding: 18px; }
+#my-history-names .fields { display: flex; align-items: center; gap: 10px; margin: 0 0 20px; }
+#my-history-names .field { background: var(--app-control); min-height: 44px; min-width: 0; flex: 1; border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 4px; }
+#my-history-names .field span:first-child { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+#my-history-names .field button { border: 0; background: none; padding: 0; min-width: 30px; min-height: 30px; }
+#my-history-names .homebar { width: 112px; height: 5px; background: var(--app-text); border-radius: 4px; position:absolute;bottom:10px;left:50%;transform:translateX(-50%); }
+#my-history-names .format-switch { display:flex; background:var(--app-control); border-radius:9px; padding:3px; margin-bottom:20px; }
+#my-history-names .format-switch button { flex:1; min-height:36px; background:none; border:0; border-radius:7px; font-size:14px; }
+#my-history-names .format-switch button[aria-pressed="true"] { background:var(--app-surface); color:var(--app-text); }
+#my-history-names .slot-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+#my-history-names .side-slots { display:grid; gap:8px; min-width:0; }
+#my-history-names .side-title { color:var(--app-sub); font-size:13px; margin-bottom:3px; }
+#my-history-names .slot-button { display:flex; align-items:center; gap:6px; width:100%; min-height:48px; border:1px solid transparent; border-radius:9px; background:var(--app-control); padding:9px; text-align:left; }
+#my-history-names .slot-button span:first-child { flex:1; min-width:0; overflow-wrap:anywhere; }
+#my-history-names .slot-button.is-target { border-color:var(--app-green); }
+#my-history-names .picker-heading { display:flex; align-items:center; justify-content:space-between; min-height:44px; margin:0 4px; font-size:14px; color:var(--app-sub); }
+#my-history-names .picker-row { padding:12px 16px; min-height:50px; }
+#my-history-names .picker-row:disabled { opacity:.45; }
+#my-history-names .picker-note { color:var(--app-amber); font-size:13px; margin:0 4px 10px; }
+#my-history-names .help-list { font-size:14px; line-height:1.75; padding-left:20px; margin:10px 0 20px; }
+#my-history-names .help-list li + li { margin-top:9px; }
+#my-history-names .app-tabs { display:flex;min-height:64px;border-top:1px solid var(--app-line);background:var(--app-surface); }
+#my-history-names .app-tabs button { flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:0;background:none;color:var(--app-sub);font-size:11px;min-height:58px;padding:8px 2px; }
+#my-history-names .app-tabs button[aria-current="page"] { color:var(--app-green-ink); }
+#my-history-names .app-tabs button:disabled { opacity:.5; }
+#my-history-names .app-tabs svg { width:21px;height:21px; }
+#my-history-names .section-header { display:flex;align-items:center;justify-content:space-between;margin:22px 4px 9px;min-height:26px;color:var(--app-sub);font-size:13px; }
+#my-history-names .section-header:first-child { margin-top:0; }
+#my-history-names .section-header .text-button { min-height:30px;padding:2px 0;font-size:13px; }
+#my-history-names .association-row { display:flex;align-items:center;gap:8px;padding:7px 15px;min-height:52px; }
+#my-history-names .association-row + .association-row { border-top:1px solid var(--app-line); }
+#my-history-names .association-row .row-name { flex:1;min-width:0; }
+#my-history-names .association-row .row-name .pill { margin-left:5px; }
+#my-history-names .association-row .row-menu { min-width:44px;min-height:44px;border:0;background:none;display:grid;place-items:center;color:var(--app-sub); }
+#my-history-names .related-action { display:flex;justify-content:center;align-items:center;gap:6px;width:100%;min-height:46px;border:0;border-top:1px solid var(--app-line);background:none;color:var(--app-green-ink); }
+#my-history-names .related-action:disabled { color:var(--app-sub); }
+#my-history-names .related-action:first-child { border-top:0; }
+#my-history-names .category-row { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px; }
+#my-history-names .category-row button { min-height:38px;padding:7px 14px;border:0;border-radius:20px;background:var(--app-control);color:var(--app-sub);font-size:14px; }
+#my-history-names .category-row button[aria-pressed="true"] { background:var(--app-green-soft);color:var(--app-green-ink); }
+#my-history-names .home-cards { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+#my-history-names .home-cards button { min-height:80px;background:var(--app-surface);border:0;border-radius:16px;display:flex;align-items:center;gap:11px;padding:17px 15px;text-align:left; }
+#my-history-names .home-cards svg { color:var(--app-green-ink);width:23px;height:23px; }
+#my-history-names .record-row { display:block;width:100%;background:none;border:0;text-align:left;padding:14px 15px; }
+#my-history-names .record-row + .record-row { border-top:1px solid var(--app-line); }
+#my-history-names .record-meta { color:var(--app-sub);font-size:12px;margin-bottom:9px; }
+#my-history-names .record-teams { display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;font-size:14px; }
+#my-history-names .record-teams > span:last-child { text-align:right; }
+#my-history-names .record-teams .pill { font-size:11px;padding:1px 4px;margin-left:3px; }
+#my-history-names .record-teams .score { color:var(--app-text); }
+#my-history-names .phone[data-platform="Android"] { border-radius: 20px; }
+#my-history-names .phone[data-platform="Android"] .primary { border-radius: 12px; }
+#my-history-names .phone[data-platform="鸿蒙"] .surface { border-radius: 20px; }
+#my-history-names .phone[data-platform="网页"] .status { height: 36px; border-bottom: 1px solid var(--app-line); color: var(--app-sub); }
+@media(max-width:360px) { #my-history-names { padding: 16px 0; } #my-history-names .content { padding: 13px 12px 24px; } #my-history-names .modal-layer { padding: 12px; } #my-history-names .modal { padding: 18px; } }
+</style>
+<div id="my-history-names" class="viz-dotted-background" aria-label="名称关联与参赛记录位置预览">
+  <div class="phone" data-platform="iOS">
+    <div class="status"><span data-clock>9:41</span><span><i data-lucide="signal" aria-hidden="true"></i><i data-lucide="wifi" aria-hidden="true"></i><i data-lucide="battery-full" aria-hidden="true"></i></span></div>
+    <div class="page">
+      <div class="nav"><button type="button" class="icon-button cursor-interaction" data-back aria-label="返回"><i data-lucide="chevron-left" aria-hidden="true"></i></button><h1 data-title>我的参赛记录</h1><button type="button" class="icon-button cursor-interaction" data-help aria-label="名称与记录说明"><i data-lucide="circle-help" aria-hidden="true"></i></button></div>
+      <div class="content" data-content></div>
+      <div class="scan-action-bar" data-scan-actions hidden><div class="selected-summary" data-summary></div><button type="button" class="primary cursor-interaction" data-action="confirm-names" data-confirm disabled>关联到我</button></div>
+    </div>
+    <nav class="app-tabs" aria-label="应用导航" data-app-tabs></nav>
+    <div class="homebar" aria-hidden="true"></div>
+    <div class="modal-layer" hidden><section class="modal" role="dialog" aria-modal="true" aria-label="确认关联" data-modal></section></div>
+    <div class="sr-only" aria-live="polite" data-live></div>
+  </div>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('my-history-names');
+  const MAX_LINKED_NAMES = 3;
+  const config = { account: '未登录', platform: 'iOS', imported: false, screen:'关联历史名称' };
+  let activeAccount=config.account;
+  const state = { page: 'scan', stack:['start','names'], guestNameRef:null, guestUsed:false, sport:'羽毛球', nameType:'player', recordType:'all', showMoreRecords:false, selected: [], modal: null, accountNames: { a: '杨杨', b: '小林' }, groups: { a: '', b: '' }, links: { guest: {}, a: {}, b: {} }, pickerHidden:{guest:[],a:[],b:[]}, format:'singles', target:2, slots:[{name:'杨扬',person:null,current:false},{name:'',person:null,current:false},{name:'小林',person:null,current:false},{name:'',person:null,current:false}], notice: '' };
+  const records = [
+    { id: 'old-1', date: '2026.10.20', sport: '羽毛球 · 单打', a: ['杨扬'], b: ['小林'], score: [21,17] },
+    { id: 'old-2', date: '2026.10.12', sport: '羽毛球 · 单打', a: ['杨扬'], b: ['阿杰'], score: [18,21] },
+    { id: 'old-3', date: '2026.09.28', sport: '羽毛球 · 单打', a: ['小杨'], b: ['小林'], score: [21,16] },
+    { id: 'old-4', date: '2026.09.18', sport: '羽毛球 · 双打', a: ['小杨','陈晨'], b: ['阿杰','李薇'], score: [21,17] },
+    { id: 'old-5', date: '2026.08.05', sport: '乒乓球 · 单打', a: ['YY'], b: ['陈晨'], score: [11,8] },
+    { id: 'old-6', date: '2026.07.12', sport: '羽毛球 · 单打', a: ['杨扬'], b: ['小杨'], score: [21,19] },
+    { id: 'import-1', date: '2026.06.03', sport: '乒乓球 · 单打', a: ['YY'], b: ['小林'], score: [8,11], imported: true },
+    { id: 'import-2', date: '2026.05.04', sport: '羽毛球 · 单打', a: ['杨扬'], b: ['小林'], score: [21,18], imported: true }
+  ];
+  const candidateOrder = ['杨扬','小杨','YY','小林','阿杰','陈晨','李薇'];
+  const q = selector => root.querySelector(selector);
+  const norm = name => name.trim().replace(/\s+/g,' ').toLowerCase();
+  const esc = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const who = () => config.account === '未登录' ? 'guest' : config.account === '杨杨' ? 'a' : 'b';
+  const nick = () => who() === 'guest' ? state.guestNameRef || '我' : state.accountNames[who()];
+  const available = () => records.filter(record => !record.imported || config.imported);
+  const source = () => who() === 'guest' ? '本机历史记录' : '本机及当前账号的历史记录';
+  const namesIn = record => [...record.a,...record.b];
+  const mine = () => state.links[who()];
+  const linkedCount = (owner = who()) => new Set(Object.keys(state.links[owner]).map(norm)).size;
+  const proposedCount = (names, owner = who()) => new Set([...Object.keys(state.links[owner]),...names].map(norm)).size;
+  const withinNameLimit = (names, owner = who()) => proposedCount(names,owner) <= MAX_LINKED_NAMES;
+  function canSelectName(name) { return state.selected.includes(name) || withinNameLimit([...state.selected,name]); }
+  const pageLabels = {start:'首页',records:'记录',personal:'我的参赛',names:'常用名称',scan:'关联历史名称',setup:'选人',group:'小组',groupNick:'小组昵称',me:'我的',profile:'个人资料'};
+  const commonPlayers=['杨扬','小杨','YY','小林','阿杰','陈晨','李薇'];
+  const commonTeams=['飞扬队','晨光队'];
+  const baseMatches=[{id:'recent-self',date:'2026.10.23',sport:'羽毛球 · 单打',a:['杨杨'],b:['小林'],score:[21,18],owner:'a'},{id:'group-self',date:'2026.10.22',sport:'羽毛球 · 单打',a:['杨工'],b:['阿杰'],score:[21,19],owner:'a',group:true}];
+  const activeSlots = () => state.format === 'doubles' ? [0,1,2,3] : [0,2];
+  const slotLabel = index => (index < 2 ? '左侧' : '右侧') + (state.format === 'doubles' ? '选手' + (index % 2 + 1) : '');
+  function currentSelfSlot() { return activeSlots().find(index => state.slots[index].person === who()); }
+  function pickerEntries() {
+    const hidden = new Set(state.pickerHidden[who()].map(norm));
+    const entries = [{name:nick(),person:who(),current:true}];
+    const seen = new Set(entries.map(entry => norm(entry.name)));
+    for (const name of [...Object.keys(mine()),...commonPlayers]) {
+      if (hidden.has(norm(name)) || seen.has(norm(name))) continue;
+      seen.add(norm(name));
+      entries.push({name,person:Object.hasOwn(mine(),name) ? who() : null,current:false});
+    }
+    return entries;
+  }
+  function canPick(entry, target = state.target) { return !entry.person || !activeSlots().some(index => index !== target && state.slots[index].person === entry.person); }
+  function pickEntry(entry, target = state.target) {
+    if (!canPick(entry,target)) return false;
+    state.slots[target] = {name:entry.name,person:entry.person,current:entry.current === true};
+    if(entry.person==='guest')state.guestUsed=true;
+    return true;
+  }
+  function promoteGuest(){
+    if(who()==='guest')return {ok:false,reason:'signed-out'};
+    const names=Object.keys(state.links.guest);
+    const conflict=names.some(name=>['a','b'].some(owner=>owner!==who()&&Object.keys(state.links[owner]).some(value=>norm(value)===norm(name))));
+    if(conflict)return {ok:false,reason:'ownership'};
+    if(!withinNameLimit(names))return {ok:false,reason:'limit'};
+    const moved=names.length>0||state.guestUsed;
+    names.forEach(name=>{const key=Object.keys(mine()).find(value=>norm(value)===norm(name))||name;mine()[key]=[...new Set([...(mine()[key]||[]),...state.links.guest[name]])];});
+    state.slots.forEach(slot=>{if(slot.person==='guest'){if(slot.current)slot.name=state.guestNameRef||'我';slot.person=who();slot.current=false;}});
+    state.links.guest={};state.pickerHidden.guest=[];state.guestNameRef=null;state.guestUsed=false;
+    return {ok:true,moved};
+  }
+  function signInAndPromote(){
+    config.account='杨杨';activeAccount=config.account;state.selected=[];
+    const result=promoteGuest();
+    if(state.stack.at(-1)==='names')state.stack.pop();
+    if(!state.stack.length)state.stack=['start'];
+    state.page='names';config.screen=pageLabels.names;state.modal=result.ok?null:{kind:'transfer'};
+    state.notice=result.ok?(result.moved?'已登录，本机的我已同步到当前账号':'已登录'):'';
+    render();persist();
+  }
+  function lineupProblem() {
+    if(activeSlots().some(index=>!slotName(index)))return '请先选择所有选手';
+    const people=activeSlots().map(index=>state.slots[index].person).filter(Boolean);
+    return new Set(people).size!==people.length?'同一人不能占多个参赛位置':null;
+  }
+  function slotName(index) { const slot = state.slots[index]; return slot.current && slot.person === who() ? nick() : slot.name; }
+  function foreignBound(name) {
+    return ['guest','a','b'].some(id => id !== who() && id !== 'guest' && Object.keys(state.links[id]).some(key => norm(key) === norm(name)));
+  }
+  function remaining(name) { return available().filter(record => namesIn(record).some(value => norm(value) === norm(name)) && !(mine()[name] || []).includes(record.id)); }
+  function associations(owner = who(), selection = []) {
+    const map = Object.fromEntries(Object.entries(state.links[owner]).map(([name, ids]) => [name, new Set(ids)]));
+    selection.forEach(name => { if (!map[name]) map[name] = new Set(); available().filter(record => namesIn(record).includes(name)).forEach(record => map[name].add(record.id)); });
+    return available().flatMap(record => {
+      const seats = [...record.a.map((name, index) => ({ name, side: 0, seat: index })),...record.b.map((name,index) => ({ name, side: 1, seat: index }))].filter(seat => map[seat.name]?.has(record.id));
+      return seats.length ? [{ record, seats, conflict: seats.length !== 1 }] : [];
+    });
+  }
+  function selectionSummary() {
+    const selected = new Set(state.selected);
+    const rows = available().flatMap(record => {
+      const matching = namesIn(record).filter(name => selected.has(name) && !(mine()[name] || []).includes(record.id));
+      return matching.length ? [record] : [];
+    });
+    const after = associations(who(), state.selected);
+    return { count: rows.length, conflicts: after.filter(item => item.conflict && rows.some(row => row.id === item.record.id)).length };
+  }
+  function statistics() {
+    const all = associations();
+    const good = all.filter(item => !item.conflict);
+    const base = who() === 'a' ? 2 : 0;
+    const wins = good.filter(item => item.record.score[item.seats[0].side] > item.record.score[1-item.seats[0].side]).length + base;
+    const count = good.length + base;
+    return { count, wins, rate: count ? Math.round(wins/count*100) + '%' : '—', old: all.length, conflicts: all.filter(item => item.conflict).length, names: Object.keys(mine()).length };
+  }
+  function icon(name) { return '<i data-lucide="' + name + '" aria-hidden="true"></i>'; }
+  function row(action, title, subtitle = '', suffix = '') { return '<button type="button" class="link-row cursor-interaction" data-action="' + action + '"><div>' + title + (subtitle ? '<div class="sub">' + subtitle + '</div>' : '') + '</div>' + (suffix ? '<span class="count">' + suffix + '</span>' : '') + '<span class="chev">' + icon('chevron-right') + '</span></button>'; }
+  function recordRow(record) { return '<div class="detail-row"><div><strong>' + esc(record.a.join(' / ')) + ' vs ' + esc(record.b.join(' / ')) + '</strong><div class="sub">' + record.date + ' · ' + record.sport + '</div></div><span class="score">' + record.score.join(' : ') + '</span></div>'; }
+  function personalMatches(){return [...baseMatches.filter(record=>record.owner===who()),...associations().filter(item=>!item.conflict).map(item=>item.record)];}
+  function mySeats(record){if(record.owner===who())return [{side:0,seat:0}];return associations().find(item=>item.record.id===record.id&&!item.conflict)?.seats||[];}
+  function matchCard(record){const seats=mySeats(record);const sideNames=side=>record[side===0?'a':'b'].map((name,seat)=>esc(name)+(seats.some(value=>value.side===side&&value.seat===seat)?'<span class="pill">我</span>':'')).join(' / ');return '<button type="button" class="record-row cursor-interaction" data-record="'+esc(record.id)+'"><div class="record-meta">'+record.date+' · '+record.sport+(record.group?' · 小组':'')+'</div><div class="record-teams"><span>'+sideNames(0)+'</span><strong class="score">'+record.score.join(' : ')+'</strong><span>'+sideNames(1)+'</span></div></button>';}
+  function activeMainTab(){if(['records','personal'].includes(state.page))return 'records';if(state.page==='setup')return 'setup';if(['me','profile'].includes(state.page))return 'me';for(const page of [...state.stack].reverse()){if(['records','personal'].includes(page))return 'records';if(page==='setup')return 'setup';if(['me','profile'].includes(page))return 'me';if(page==='start')return 'start';}return 'start';}
+  function appTabs(){const active=activeMainTab();return [['start','首页','house'],['records','记录','clipboard-list'],['setup','计分','circle-dot'],['timer','计时','timer'],['me','我的','user-round']].map(([page,label,glyph])=>'<button type="button" class="cursor-interaction" '+(page==='timer'?'disabled':'data-main="'+page+'"')+' '+(active===page?'aria-current="page"':'')+'>'+icon(glyph)+'<span>'+label+'</span></button>').join('');}
+  function persist() {
+    if (window.openai?.setWidgetState) window.openai.setWidgetState({ modelContent: { account: config.account, nickname: nick(), linkedNames: Object.keys(mine()), oldRecordCount: statistics().old, countedRecordCount: statistics().count, selectedOldNames: state.selected, page: state.page, groupNickname: who() === 'guest' ? null : state.groups[who()] || null, format:state.format, lineup:activeSlots().map(index=>({position:slotLabel(index),name:slotName(index),isMe:state.slots[index].person===who()})) }, privateContent: { state, config } }).catch(() => {});
+  }
+  function restore(snapshot) {
+    const saved = snapshot?.privateContent;
+    if (!saved?.state || !saved?.config) return;
+    const s = saved.state, c = saved.config;
+    if (['未登录','杨杨','小林'].includes(c.account)) config.account = c.account;
+    if (['iOS','Android','鸿蒙','网页'].includes(c.platform)) config.platform = c.platform;
+    if (typeof c.imported === 'boolean') config.imported = c.imported;
+    const compatiblePage={home:'personal',manage:'names'}[s.page]||s.page;
+    if (Object.hasOwn(pageLabels,compatiblePage)) state.page = compatiblePage;
+    config.screen = pageLabels[state.page];
+    if(Array.isArray(s.stack))state.stack=s.stack.filter(page=>Object.hasOwn(pageLabels,page));
+    if(['player','team'].includes(s.nameType))state.nameType=s.nameType;
+    if(['羽毛球','乒乓球'].includes(s.sport))state.sport=s.sport;
+    if(['all','score','timer'].includes(s.recordType))state.recordType=s.recordType;
+    state.showMoreRecords=s.showMoreRecords===true;
+    for (const owner of ['guest','a','b']) {
+      if (!s.links?.[owner] || typeof s.links[owner] !== 'object') continue;
+      const clean = {};
+      for (const [name,ids] of Object.entries(s.links[owner])) if (candidateOrder.includes(name) && Array.isArray(ids)) clean[name] = [...new Set(ids.filter(id => records.some(record => record.id === id)))];
+      state.links[owner] = clean;
+      if (Array.isArray(s.pickerHidden?.[owner])) state.pickerHidden[owner] = [...new Set(s.pickerHidden[owner].filter(name=>typeof name==='string'))];
+    }
+    for (const owner of ['a','b']) {
+      if (typeof s.accountNames?.[owner] === 'string' && s.accountNames[owner].trim()) state.accountNames[owner] = s.accountNames[owner].slice(0,20);
+      if (typeof s.groups?.[owner] === 'string') state.groups[owner] = s.groups[owner].slice(0,20);
+    }
+    if (Array.isArray(s.selected)) {
+      state.selected=[];
+      for(const name of new Set(s.selected)) if(candidateOrder.includes(name)&&!foreignBound(name)&&withinNameLimit([...state.selected,name]))state.selected.push(name);
+    }
+    state.guestNameRef=typeof s.guestNameRef==='string'&&Object.hasOwn(state.links.guest,s.guestNameRef)&&!state.pickerHidden.guest.includes(s.guestNameRef)?s.guestNameRef:Object.keys(state.links.guest).find(name=>!state.pickerHidden.guest.includes(name))||null;
+    state.guestUsed=s.guestUsed===true||Object.keys(state.links.guest).length>0;
+    state.format = s.format === 'doubles' ? 'doubles' : 'singles';
+    if (Array.isArray(s.slots) && s.slots.length===4) state.slots = s.slots.map(slot=>({name:typeof slot.name==='string'?slot.name.slice(0,20):'',person:['a','b','guest'].includes(slot.person)?slot.person:null,current:slot.current===true}));
+    state.target = activeSlots().includes(s.target) ? s.target : 0;
+    const seenPeople = new Set();
+    for(const index of activeSlots()) { const person=state.slots[index].person; if(person && seenPeople.has(person)) state.slots[index].person=null; else if(person) seenPeople.add(person); }
+    activeAccount=config.account;
+  }
+  function render() {
+    const previousScroll=q('[data-scan-scroll]')?.scrollTop||0;
+    const focusedName=document.activeElement?.dataset?.name;
+    const stats = statistics();
+    q('.phone').dataset.platform = config.platform;
+    q('.phone').classList.toggle('is-scan',state.page==='scan');
+    const rootPage=['start','records','me'].includes(state.page);
+    q('.nav').classList.toggle('is-left',config.platform==='Android');
+    q('.nav').classList.toggle('is-root',rootPage);
+    q('[data-app-tabs]').hidden=!rootPage;
+    q('[data-scan-actions]').hidden=state.page!=='scan';
+    q('[data-clock]').textContent = config.platform === '网页' ? '全能计分器 · 个人数据' : '9:41';
+    q('[data-back]').style.visibility = ['start','records','me'].includes(state.page) ? 'hidden' : 'visible';
+    const titles = {start:'全能计分器',records:'记录',personal:'我的参赛',names:'常用名称',scan:'关联历史名称',group:'周末羽毛球组',groupNick:'我在本组的昵称',setup:state.sport,me:'我的',profile:'个人资料'};
+    q('[data-title]').textContent = titles[state.page];
+    let html = '';
+    if (state.page === 'personal') {
+      html += '<div class="surface metrics"><div><div class="metric-value">' + stats.count + '</div><div class="metric-label">本人参赛</div></div><div><div class="metric-value">' + stats.wins + '</div><div class="metric-label">获胜</div></div><div><div class="metric-value">' + stats.rate + '</div><div class="metric-label">胜率</div></div></div>';
+      if (stats.conflicts) html += '<p class="fine">' + stats.conflicts + ' 场身份重叠，暂不计入统计。</p>';
+      const matches=personalMatches();html+='<div class="section-header"><span>参赛记录</span><span>'+matches.length+' 场</span></div><div class="surface">'+(matches.length?matches.map(matchCard).join(''):'<div class="empty">还没有明确属于你的参赛记录</div>')+'</div>';
+      if(!matches.length)html+='<button type="button" class="text-button cursor-interaction" data-action="names">去常用名称关联本人</button>';
+    }
+    if(state.page==='start')html='<div class="section-header"><span>计分</span></div><div class="home-cards"><button type="button" class="cursor-interaction" data-game="羽毛球">'+icon('circle-dot')+'<span>羽毛球</span></button><button type="button" class="cursor-interaction" data-game="乒乓球">'+icon('circle-dot')+'<span>乒乓球</span></button></div><div class="section-header"><span>我的小组</span></div><div class="surface">'+row('group','周末羽毛球组','','4 人')+'</div><div class="section-header"><span>常用数据</span></div><div class="home-cards"><button type="button" class="cursor-interaction" data-action="names">'+icon('users-round')+'<span>常用名称</span></button><button type="button" class="cursor-interaction" data-action="places">'+icon('map-pin')+'<span>常用地点</span></button></div>';
+    if(state.page==='records'){
+      html='<div class="category-row">'+[['all','全部'],['score','计分'],['timer','计时']].map(([value,label])=>'<button type="button" class="cursor-interaction" data-record-type="'+value+'" aria-pressed="'+(state.recordType===value)+'">'+label+'</button>').join('')+'</div>';
+      if(state.recordType!=='timer')html+='<div class="surface">'+row('personal','我的参赛','',stats.count+' 场')+'</div><div class="section-header"><span>最近记录</span></div>';
+      if(state.recordType==='timer')html+='<div class="surface"><div class="detail-row"><div>自定义计时<div class="sub">2026.10.23</div></div><span class="score">15:00</span></div></div>';
+      else{const all=[...baseMatches,...available()];html+='<div class="surface">'+all.slice(0,state.showMoreRecords?all.length:4).map(matchCard).join('')+'</div>'+(state.showMoreRecords?'':'<button type="button" class="text-button cursor-interaction" data-action="more-records">查看更早记录</button>');}
+    }
+    if(state.page==='me')html='<div class="surface">'+row('profile',esc(nick()),'',who()==='guest'?'未登录':'个人资料')+'</div>';
+    if(state.page==='profile') html = '<div class="profile"><span class="avatar">'+esc(who()==='guest'?'我':nick()[0])+'</span><strong>'+esc(nick())+'</strong></div><div class="surface">'+(who()!=='guest'?row('rename','昵称','',esc(nick())):'')+'</div>';
+    if (state.page === 'scan') {
+      html = '<div class="scan-intro"><div class="picker-heading"><span>选择你曾用过的名字</span><span data-capacity>'+proposedCount(state.selected)+' / '+MAX_LINKED_NAMES+'</span></div>';
+      if(linkedCount()>=MAX_LINKED_NAMES)html+='<p class="fine">已达上限，可补充已有名称的记录</p>';
+      html += '</div><div class="scan-scroll" data-scan-scroll role="region" aria-label="历史名称列表"><div class="surface">' + candidateOrder.map((name,index) => {
+        const rows = remaining(name), total = available().filter(record => namesIn(record).includes(name)).length;
+        const locked = foreignBound(name), done = !rows.length;
+        return '<div class="name-choice"><input type="checkbox" id="old-name-' + index + '" class="cursor-interaction" data-name="' + esc(name) + '" ' + (state.selected.includes(name) ? 'checked ' : '') + (locked || done || !canSelectName(name) ? 'disabled ' : '') + '><label for="old-name-' + index + '" class="cursor-interaction">' + esc(name) + (mine()[name]?' <span class="pill">我</span>':'') + '</label><span class="count">' + (locked ? '其他账号' : done ? '已关联 '+total+' 场' : mine()[name]?'新增 '+rows.length+' 场':total+' 场') + '</span><button type="button" class="preview-name cursor-interaction" data-preview="' + esc(name) + '" aria-label="预览' + esc(name) + '的旧记录">' + icon('eye') + '</button></div>';
+      }).join('') + '</div></div>';
+    }
+    if (state.page === 'names') {
+      html='<div class="category-row"><button type="button" class="cursor-interaction" data-name-type="player" aria-pressed="'+(state.nameType==='player')+'">选手名称</button><button type="button" class="cursor-interaction" data-name-type="team" aria-pressed="'+(state.nameType==='team')+'">队伍名称</button></div>';
+      if(state.notice)html+='<p class="fine">'+esc(state.notice)+'</p>';
+      if(state.nameType==='player'){
+        if(who()!=='guest')html+='<div class="surface"><div class="association-row"><span class="row-name">'+esc(nick())+' <span class="pill">我</span></span><span class="count">当前昵称</span></div></div>';
+        else html+='<div class="surface">'+row('choose-me','我 <span class="pill">本机</span>','',esc(state.guestNameRef||'设置名称'))+'</div>';
+        const names=Object.keys(mine());
+        html+='<div class="section-header"><span>已关联本人</span><span>'+linkedCount()+' / '+MAX_LINKED_NAMES+'</span></div><div class="surface">'+names.map(name=>'<div class="association-row"><span class="row-name">'+esc(name)+' <span class="pill">我</span></span>'+(state.pickerHidden[who()].includes(name)?'<span class="count">已隐藏</span>':'')+'<button type="button" class="row-menu cursor-interaction" data-manage="'+esc(name)+'" aria-label="管理'+esc(name)+'">'+icon('ellipsis')+'</button></div>').join('')+'<button type="button" class="related-action cursor-interaction" data-action="scan">'+icon('link')+'<span>'+(names.length?'从历史记录关联':'关联用过的名称')+'</span></button></div>';
+        if(who()==='guest'&&(stats.old||state.guestUsed))html+='<button type="button" class="text-button cursor-interaction" data-action="login">登录并同步</button>';
+        if(who()!=='guest'&&Object.keys(state.links.guest).length)html+='<button type="button" class="text-button cursor-interaction" data-action="transfer">关联本机标记</button>';
+        const ordinary=commonPlayers.filter(name=>!Object.hasOwn(mine(),name)&&(who()==='guest'||norm(name)!==norm(nick())));
+        html+='<div class="section-header"><span>其他选手名称</span></div><div class="surface">'+ordinary.map(name=>'<div class="association-row"><span class="row-name">'+esc(name)+'</span><button type="button" class="row-menu cursor-interaction" data-common="'+esc(name)+'" aria-label="操作'+esc(name)+'">'+icon('ellipsis')+'</button></div>').join('')+'</div>';
+      }else html+='<div class="surface">'+commonTeams.map(name=>'<div class="association-row"><span class="row-name">'+esc(name)+'</span></div>').join('')+'</div>';
+    }
+    if(state.page==='group')html=who()==='guest'?'<div class="surface empty">请先登录</div>':'<div class="section-header"><span>成员</span></div><div class="surface"><div class="association-row"><span class="row-name">'+esc(state.groups[who()]||nick())+' <span class="pill">我</span></span></div><div class="association-row"><span>小林</span></div></div><div class="section-header"><span>我的设置</span></div><div class="surface">'+row('groupNick','本组昵称','',esc(state.groups[who()]||nick()))+'</div>';
+    if (state.page === 'groupNick') {
+      html = '<div class="section-label" style="margin-top:0">周末羽毛球组</div>';
+      if (state.notice) html += '<div class="callout">' + esc(state.notice) + '</div>';
+      if (who() === 'guest') html += '<div class="surface empty">请先登录</div>';
+      else html += '<div class="surface" style="padding:16px"><label for="group-name">本组昵称</label><input id="group-name" class="name-input" style="margin-top:12px" value="' + esc(state.groups[who()]) + '" placeholder="' + esc(nick()) + '"><p class="fine">留空时使用应用昵称</p><button type="button" class="primary cursor-interaction" data-action="save-group">保存</button><button type="button" class="text-button cursor-interaction" data-action="reset-group">恢复默认</button></div>';
+    }
+    if (state.page === 'setup') {
+      html = '<div class="format-switch"><button type="button" class="cursor-interaction" data-format="singles" aria-pressed="'+(state.format==='singles')+'">单打</button><button type="button" class="cursor-interaction" data-format="doubles" aria-pressed="'+(state.format==='doubles')+'">双打</button></div><div class="slot-grid">'+[0,2].map(start=>'<div class="side-slots"><div class="side-title">'+(start===0?'左侧':'右侧')+'</div>'+activeSlots().filter(index=>index>=start&&index<start+2).map(index=>'<button type="button" class="slot-button cursor-interaction '+(state.target===index?'is-target':'')+'" data-slot="'+index+'" aria-label="选择'+slotLabel(index)+'"><span>'+esc(slotName(index)||'选择选手')+'</span>'+(state.slots[index].person===who()?'<span class="pill">我</span>':'')+icon('chevron-right')+'</button>').join('')+'</div>').join('')+'</div><div class="picker-heading"><span>选择'+slotLabel(state.target)+'</span></div>';
+      const taken = currentSelfSlot();
+      if(taken!==undefined && taken!==state.target) html += '<p class="picker-note">你已在'+slotLabel(taken)+'参赛</p>';
+      html += '<div class="surface">'+pickerEntries().map((entry,index)=>'<button type="button" class="picker-row cursor-interaction" data-pick-index="'+index+'" '+(!canPick(entry)?'disabled':'')+'>'+esc(entry.name)+(entry.person===who()?'<span class="pill">我</span>':'')+'</button>').join('')+'</div><div style="display:flex;justify-content:space-between"><button type="button" class="text-button cursor-interaction" data-action="manual-name">手动填写</button><button type="button" class="text-button cursor-interaction" data-action="clear-slot">清除此位置</button></div><button type="button" class="text-button cursor-interaction" data-action="names" style="width:100%">管理常用名称</button><div class="actions"><button type="button" class="primary cursor-interaction" data-action="confirm-lineup">开始比赛</button></div>';
+    }
+    q('[data-content]').innerHTML = html;
+    q('[data-app-tabs]').innerHTML=appTabs();
+    bind();
+    if (state.page === 'scan') updateSummary();
+    if(state.page==='scan'){q('[data-scan-scroll]').scrollTop=previousScroll;if(focusedName&&!state.modal)[...root.querySelectorAll('[data-name]')].find(input=>input.dataset.name===focusedName)?.focus({preventScroll:true});}
+    renderModal();
+    if (globalThis.lucide) lucide.createIcons({ attrs: { width: 18, height: 18 } });
+  }
+  function updateSummary() {
+    const s = selectionSummary();
+    q('[data-summary]').textContent = state.selected.length ? '已选 ' + state.selected.length + ' 个名称 · ' + s.count + ' 场记录' + (s.conflicts ? '（'+s.conflicts+' 场身份重叠）' : '') : '';
+    q('[data-confirm]').disabled = !s.count || !withinNameLimit(state.selected);
+    q('[data-confirm]').textContent = s.count ? '关联到我 · ' + s.count + ' 场' : '关联到我';
+    q('[data-capacity]').textContent=proposedCount(state.selected)+' / '+MAX_LINKED_NAMES;
+    root.querySelectorAll('[data-name]').forEach(input=>{const name=input.dataset.name;input.disabled=foreignBound(name)||!remaining(name).length||!canSelectName(name);});
+  }
+  function navigate(page, main = false) { if(main)state.stack=[];else if(page!==state.page)state.stack.push(state.page);state.page = page; config.screen=pageLabels[page]; state.modal = null; state.selected = []; state.notice = ''; render();root.scrollIntoView({block:'start'});persist(); }
+  function goBack(){const fallback={personal:'records',names:'start',scan:'names',setup:'start',group:'start',groupNick:'group',profile:'me'};state.page=state.stack.pop()||fallback[state.page]||'start';config.screen=pageLabels[state.page];state.modal=null;state.selected=[];state.notice='';render();root.scrollIntoView({block:'start'});persist();}
+  function bind() {
+    root.querySelectorAll('[data-action]').forEach(button => button.onclick = () => action(button.dataset.action));
+    root.querySelectorAll('[data-name]').forEach(input => input.onchange = () => { const name = input.dataset.name;if(input.checked&&!withinNameLimit([...state.selected,name])){input.checked=false;updateSummary();return;}state.selected = input.checked ? [...new Set([...state.selected,name])] : state.selected.filter(value => value !== name); updateSummary(); persist(); });
+    root.querySelectorAll('[data-preview]').forEach(button => button.onclick = () => openModal({ kind: 'preview', name: button.dataset.preview }));
+    root.querySelectorAll('[data-manage]').forEach(button => button.onclick = () => openModal({ kind: 'manage', name: button.dataset.manage }));
+    root.querySelectorAll('[data-common]').forEach(button=>button.onclick=()=>openModal({kind:'common-name',name:button.dataset.common}));
+    root.querySelectorAll('[data-main]').forEach(button=>button.onclick=()=>navigate(button.dataset.main,true));
+    root.querySelectorAll('[data-game]').forEach(button=>button.onclick=()=>{state.sport=button.dataset.game;navigate('setup');});
+    root.querySelectorAll('[data-name-type]').forEach(button=>button.onclick=()=>{state.nameType=button.dataset.nameType;render();persist();});
+    root.querySelectorAll('[data-record-type]').forEach(button=>button.onclick=()=>{state.recordType=button.dataset.recordType;render();persist();});
+    root.querySelectorAll('[data-record]').forEach(button=>button.onclick=()=>openModal({kind:'record',id:button.dataset.record}));
+    root.querySelectorAll('[data-slot]').forEach(button=>button.onclick=()=>{state.target=Number(button.dataset.slot);render();persist();});
+    root.querySelectorAll('[data-pick-index]').forEach(button=>button.onclick=()=>{const entry=pickerEntries()[Number(button.dataset.pickIndex)];if(entry&&pickEntry(entry)){render();persist();}});
+    root.querySelectorAll('[data-format]').forEach(button=>button.onclick=()=>{state.format=button.dataset.format;if(state.format==='singles')for(const index of [1,3])state.slots[index]={name:'',person:null,current:false};if(!activeSlots().includes(state.target))state.target=0;render();persist();});
+  }
+  function action(name) {
+    if(name==='names')state.nameType='player';
+    if (Object.hasOwn(pageLabels,name)) return navigate(name);
+    if(name==='more-records'){state.showMoreRecords=true;render();persist();return;}
+    if(name==='places')return openModal({kind:'places'});
+    if (name === 'confirm-names' && selectionSummary().count) return openModal({ kind: withinNameLimit(state.selected)?'confirm':'name-limit' });
+    if (name === 'rename') return openModal({ kind: 'rename' });
+    if (name === 'login') return signInAndPromote();
+    if (name === 'transfer') {const result=promoteGuest();if(!result.ok)return openModal({kind:'transfer'});state.notice='本机的我已同步到当前账号';state.modal=null;render();persist();return;}
+    if(name==='choose-me')return openModal({kind:'guest-name'});
+    if (name === 'save-group') { state.groups[who()] = q('#group-name').value.trim().slice(0,20); state.notice = state.groups[who()] ? '已保存，只在这个小组使用。' : '已恢复跟随应用昵称。'; render(); q('[data-live]').textContent = '已保存小组昵称'; persist(); return; }
+    if (name === 'reset-group') { state.groups[who()] = ''; state.notice = '已恢复跟随应用昵称。'; render(); persist(); return; }
+    if(name==='manual-name')return openModal({kind:'manual-name'});
+    if(name==='clear-slot'){state.slots[state.target]={name:'',person:null,current:false};render();persist();return;}
+    if(name==='confirm-lineup'){const problem=lineupProblem();if(problem){q('[data-live]').textContent=problem;openModal({kind:'incomplete',message:problem});return;}return openModal({kind:'lineup'});}
+  }
+  function openModal(modal) { state.modal = modal; renderModal(); if (globalThis.lucide) lucide.createIcons({ attrs: { width: 18, height: 18 } }); q('[data-modal]').scrollIntoView({ block: 'center' }); q('[data-modal] button')?.focus({ preventScroll: true }); }
+  function closeModal() { state.modal = null; renderModal(); }
+  function renderModal() {
+    const modal = state.modal;
+    q('.modal-layer').hidden = !modal; q('.page').inert = !!modal;q('[data-app-tabs]').inert=!!modal;
+    if (!modal) { q('[data-modal]').replaceChildren(); return; }
+    let html = '';
+    if (modal.kind === 'confirm') {
+      const s = selectionSummary();
+      html = '<h2>关联到“我”？</h2><p>' + state.selected.map(esc).join('、') + '<br><span class="sub">'+s.count+' 场旧记录 · '+esc(nick())+'</span></p>';
+      if (s.conflicts) html += '<div class="callout amber">'+s.conflicts+' 场身份重叠，暂不计入统计。</div>';
+      html += '<p class="fine">'+(who()==='guest'?'先保存在本机，登录后自动同步。':'保留原始名称和比分。')+'</p><button type="button" class="primary cursor-interaction" data-modal-action="apply">确认关联</button><button type="button" class="secondary cursor-interaction" data-modal-action="close">取消</button>';
+    }
+    if (modal.kind === 'success') html = '<div class="success-mark">' + icon('check') + '</div><h2>已关联 ' + modal.count + ' 场记录</h2><p>' + modal.names.map(esc).join('、') + ' <span class="pill">我</span></p>'+(who()==='guest'?'<p class="fine">已保存到本机的我</p>':'')+'<button type="button" class="primary cursor-interaction" data-modal-action="home">完成</button>'+(who()==='guest'?'<button type="button" class="secondary cursor-interaction" data-modal-action="login-sync">登录并同步</button>':'');
+    if(modal.kind==='guest-name')html='<h2>选一个名称作为我</h2><div class="surface">'+commonPlayers.map(name=>'<button type="button" class="picker-row cursor-interaction" data-guest-pick="'+esc(name)+'" '+(!withinNameLimit([name])||foreignBound(name)?'disabled':'')+'>'+esc(name)+(state.guestNameRef===name?'<span class="pill">当前使用</span>':'')+'</button>').join('')+'</div><button type="button" class="secondary cursor-interaction" data-modal-action="close">取消</button>';
+    if (modal.kind === 'preview') {
+      const rows = available().filter(record => namesIn(record).includes(modal.name));
+      html = '<h2>' + esc(modal.name) + ' · ' + rows.length + ' 场旧记录</h2><div class="preview-records">' + rows.slice(0,3).map(recordRow).join('') + '</div>' + (rows.length > 3 ? '<p class="fine">仅预览最近 3 场。关联时会处理该名字的全部候选旧记录。</p>' : '') + '<button type="button" class="secondary cursor-interaction" data-modal-action="close">返回选择名字</button>';
+    }
+    if (modal.kind === 'manage') html = '<h2>' + esc(modal.name) + ' <span class="pill">我</span></h2><p class="sub" style="text-align:center">'+(mine()[modal.name]||[]).length+' 场旧记录</p>'+(remaining(modal.name).length?'<button type="button" class="primary cursor-interaction" data-modal-action="supplement">补充 '+remaining(modal.name).length+' 场旧记录</button>':'')+(who()==='guest'||norm(modal.name)!==norm(nick())?'<button type="button" class="secondary cursor-interaction" data-modal-action="toggle-picker">'+(state.pickerHidden[who()].includes(modal.name)?'显示在选人列表':'从选人列表移除')+'</button>':'')+'<button type="button" class="secondary danger cursor-interaction" data-modal-action="ask-unlink">解除名称关联</button><button type="button" class="text-button cursor-interaction" style="width:100%" data-modal-action="close">完成</button>';
+    if(modal.kind==='common-name')html='<h2>'+esc(modal.name)+'</h2>'+(withinNameLimit([modal.name])?'':'<p class="fine">已关联 3 / 3 个名称</p>')+'<button type="button" class="primary cursor-interaction" data-modal-action="associate-common" '+(!withinNameLimit([modal.name])||foreignBound(modal.name)?'disabled':'')+'>关联为我</button><button type="button" class="secondary cursor-interaction" data-modal-action="close">取消</button>';
+    if(modal.kind==='record'){const record=[...baseMatches,...available()].find(value=>value.id===modal.id);html='<h2>比赛记录</h2>'+(record?'<p class="sub">'+record.date+' · '+record.sport+'</p>'+recordRow(record):'')+'<button type="button" class="secondary cursor-interaction" data-modal-action="close">完成</button>';}
+    if(modal.kind==='places')html='<h2>常用地点</h2><p>市体育馆<br>周末羽毛球馆</p><button type="button" class="secondary cursor-interaction" data-modal-action="close">完成</button>';
+    if(modal.kind==='unlink-confirm')html='<h2>解除“'+esc(modal.name)+'”的关联？</h2><p>其旧记录将不再按此名称计入“我”，以后选用该名称也不再标记“我”。</p><p class="fine">原始记录保留。已直接记录本人身份的新比赛不受影响。</p><button type="button" class="primary cursor-interaction" data-modal-action="unlink">解除关联</button><button type="button" class="secondary cursor-interaction" data-modal-action="close">取消</button>';
+    if (modal.kind === 'rename') html = '<h2>修改昵称</h2><input class="name-input" aria-label="应用昵称" maxlength="20" value="' + esc(nick()) + '"><div class="actions"><button type="button" class="primary cursor-interaction" data-modal-action="save-name">保存</button><button type="button" class="secondary cursor-interaction" data-modal-action="close">取消</button></div>';
+    if(modal.kind==='manual-name')html='<h2>填写名称</h2><input class="name-input" aria-label="普通参赛名称" maxlength="20" placeholder="选手名称"><p class="fine">作为普通选手，不标记“我”</p><button type="button" class="primary cursor-interaction" data-modal-action="save-manual">确定</button><button type="button" class="secondary cursor-interaction" data-modal-action="close">取消</button>';
+    if(modal.kind==='incomplete')html='<h2>'+esc(modal.message||'请先选择所有选手')+'</h2><button type="button" class="primary cursor-interaction" data-modal-action="close">继续设置</button>';
+    if(modal.kind==='lineup')html='<h2>参赛名单已确认</h2><div class="surface">'+activeSlots().map(index=>'<div class="detail-row"><span class="count">'+slotLabel(index)+'</span><div>'+esc(slotName(index))+(state.slots[index].person===who()?' <span class="pill">我</span>':'')+'</div></div>').join('')+'</div><button type="button" class="primary cursor-interaction" style="margin-top:18px" data-modal-action="close">完成预览</button>';
+    if(modal.kind==='help'){
+      const help={start:['常用名称在首页的常用数据中管理。','个人参赛记录从底部“记录”进入。'],records:['这里保留全部计分、计时记录。','“我的参赛”只查看明确属于本人身份的比赛。'],personal:['同一场比赛只算一次；身份重叠的旧记录暂不计入胜负。','需要补充本人名称时，前往“常用名称”。'],names:['最多关联 3 个名称；当前昵称的自动置顶项不额外占名额。','已关联名称直接在本页展开；其他选手名称的菜单里可以选择“关联为我”。','从选人列表移除只隐藏快捷入口，不释放名额；解除关联后才释放名额。','已有名称的新旧记录可继续补充。队伍名称不关联到个人。'],scan:['勾选名称，批量关联找到的旧记录，保留原始名称和比分。','最多关联 3 个名称；这些名称以后选用时都标记“我”。','后来导入的旧记录可以再次补充。'],setup:['带“我”的名称属于同一人，可以继续用其中任意一个参赛。','一场比赛同一人只能占一个位置；其他位置会禁选全部本人名称。','同位置可以换名字。重名球友可手动填写普通名称。'],me:['应用昵称在个人资料中修改。'],profile:['昵称用于应用内展示，不影响登录方式。','改昵称不改变已关联记录的身份。'],group:['本组昵称在本组的“我的设置”中修改。'],groupNick:['小组昵称仅在本组使用。','未单独设置时，跟随应用昵称。']};
+      if(who()==='guest'&&['names','scan','setup','personal'].includes(state.page))help[state.page].push('未登录也能使用本机的我，之后登录会自动承接；超过名额或归属冲突时再处理，不丢弃记录。');
+      html='<h2>说明</h2><ul class="help-list">'+help[state.page].map(text=>'<li>'+text+'</li>').join('')+'</ul><button type="button" class="primary cursor-interaction" data-modal-action="close">知道了</button>';
+    }
+    if(modal.kind==='name-limit')html='<h2>最多关联 3 个名称</h2><p>请先解除一个已有名称，再添加新的关联。</p><button type="button" class="primary cursor-interaction" data-modal-action="manage-names">返回常用名称</button><button type="button" class="secondary cursor-interaction" data-modal-action="close">取消</button>';
+    if (modal.kind === 'transfer') {
+      const localNames = Object.keys(state.links.guest), localIds = new Set(Object.values(state.links.guest).flat());
+      const conflicts = localNames.some(name => ['a','b'].some(owner => owner !== who() && Object.hasOwn(state.links[owner],name)));
+      const exceeds=!withinNameLimit(localNames);
+      html = '<h2>本机身份待同步</h2><p>本机有 ' + localNames.length + ' 个关联名称，涉及 ' + localIds.size + ' 场旧记录。</p>' + (conflicts ? '<div class="callout amber">存在账号归属冲突，本机数据仍然保留。</div>' : exceeds?'<div class="callout amber">合并后超过 3 个名称，请先管理已有的关联。本机数据仍然保留。</div>':'<p class="fine">可继续同步到当前账号。</p>') + '<button type="button" class="primary cursor-interaction" data-modal-action="transfer" ' + (conflicts || exceeds || !localNames.length ? 'disabled' : '') + '>继续同步</button>'+(exceeds?'<button type="button" class="secondary cursor-interaction" data-modal-action="manage-names">前往常用名称</button>':'')+'<button type="button" class="secondary cursor-interaction" data-modal-action="close">稍后处理</button>';
+    }
+    q('[data-modal]').innerHTML = html;
+    q('[data-modal]').setAttribute('aria-label', q('[data-modal] h2')?.textContent || '确认关联');
+    root.querySelectorAll('[data-modal-action]').forEach(button => button.onclick = () => modalAction(button.dataset.modalAction));
+    root.querySelectorAll('[data-guest-pick]').forEach(button=>button.onclick=()=>{const name=button.dataset.guestPick;if(Object.hasOwn(state.links.guest,name)){state.guestNameRef=name;state.modal=null;render();persist();}else if(withinNameLimit([name])&&!foreignBound(name)){state.selected=[name];openModal({kind:'confirm',chooseGuestName:name});}});
+  }
+  function modalAction(action) {
+    if (action === 'close') return closeModal();
+    if(action==='login-sync')return signInAndPromote();
+    if (action === 'home') {if(state.stack.at(-1)==='names')return goBack();return navigate('names');}
+    if(action==='manage-names')return navigate('names');
+    if(action==='associate-common'||action==='supplement'){const name=state.modal.name;if(foreignBound(name))return;if(!withinNameLimit([name]))return openModal({kind:'name-limit'});state.selected=[name];return openModal({kind:'confirm'});}
+    if(action==='ask-unlink')return openModal({kind:'unlink-confirm',name:state.modal.name});
+    if(action==='toggle-picker'){const name=state.modal.name;const hidden=state.pickerHidden[who()];state.pickerHidden[who()]=hidden.includes(name)?hidden.filter(value=>value!==name):[...hidden,name];if(who()==='guest'&&state.guestNameRef===name&&!hidden.includes(name))state.guestNameRef=Object.keys(mine()).find(value=>!state.pickerHidden.guest.includes(value))||null;state.notice=hidden.includes(name)?'已显示在选人列表':'已从选人列表移除，记录关联保留';state.modal=null;render();persist();return;}
+    if(action==='save-manual'){const value=q('.name-input').value.trim();if(!value)return;pickEntry({name:value,person:null,current:false});state.modal=null;render();persist();return;}
+    if (action === 'apply') {
+      state.selected = state.selected.filter(name => !foreignBound(name));
+      if(!withinNameLimit(state.selected))return openModal({kind:'name-limit'});
+      const s = selectionSummary(), names = [...state.selected];
+      const preferred=state.modal?.chooseGuestName;
+      if (!s.count&&names.every(name=>Object.hasOwn(mine(),name))) return closeModal();
+      names.forEach(name => { mine()[name] = [...new Set([...(mine()[name] || []),...remaining(name).map(record => record.id)])]; state.pickerHidden[who()]=state.pickerHidden[who()].filter(value=>value!==name); });
+      if(who()==='guest'){state.guestUsed=true;state.guestNameRef=preferred||state.guestNameRef||names[0]||null;}
+      state.modal = { kind: 'success', count: s.count, names }; render(); persist(); return;
+    }
+    if (action === 'unlink') { const name = state.modal.name; delete mine()[name];if(who()==='guest'&&state.guestNameRef===name)state.guestNameRef=Object.keys(mine()).find(value=>!state.pickerHidden.guest.includes(value))||null;for(const slot of state.slots)if(!slot.current&&norm(slot.name)===norm(name)&&slot.person===who())slot.person=null;state.modal = null; state.notice = '已解除“' + name + '”的关联'; render(); persist(); return; }
+    if (action === 'save-name') { const value = q('.name-input').value.trim(); if (!value) { q('.name-input').focus(); return; } state.accountNames[who()] = value; state.modal = null; render(); persist(); return; }
+    if (action === 'transfer') {
+      const result=promoteGuest();if(!result.ok)return openModal({kind:'transfer'});state.modal=null;state.page='names';config.screen=pageLabels.names;state.notice='本机的我已同步到当前账号';render();persist();
+    }
+  }
+  q('[data-back]').onclick = goBack;
+  q('[data-help]').onclick=()=>openModal({kind:'help'});
+  root.addEventListener('keydown', event => {
+    if (!state.modal) return;
+    if (event.key === 'Escape') { event.preventDefault(); closeModal(); }
+    if (event.key === 'Tab') {
+      const elements = [...q('[data-modal]').querySelectorAll('button:not(:disabled),input')];
+      const first = elements[0], last = elements[elements.length-1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    }
+  });
+  restore(window.openai?.widgetState); render();
+  window.addEventListener('openai:set_globals', event => { if (event.detail?.globals?.widgetState) { restore(event.detail.globals.widgetState); render(); } });
+  if (globalThis.Tweak) {
+    const tweak = new Tweak({ container: root, onChange: () => { if (activeAccount !== config.account) {const previousAccount=activeAccount;state.page='names';state.stack=['start'];config.screen=pageLabels.names;state.selected=[];state.modal=null;state.notice='';if(previousAccount==='未登录'&&who()!=='guest'){const result=promoteGuest();state.modal=result.ok?null:{kind:'transfer'};if(result.ok&&result.moved)state.notice='本机的我已同步到当前账号';}else state.slots.forEach(slot=>slot.person=null);activeAccount=config.account;}else{const page=Object.keys(pageLabels).find(value=>pageLabels[value]===config.screen)||'start';if(page!==state.page){state.page=page;state.stack=[];state.modal=null;state.selected=[];state.notice='';}}render(); persist(); } });
+    tweak.addSelect(config,'screen',{label:'查看页面',options:Object.values(pageLabels)});
+    tweak.addSelect(config, 'account', { label: '登录状态', options: ['杨杨','未登录','小林'] });
+    tweak.addSelect(config, 'platform', { label: '界面示意', options: ['iOS','Android','鸿蒙','网页'] });
+    tweak.addToggle(config, 'imported', { label: '后来又导入了旧记录' });
+  }
+})();
+</script>

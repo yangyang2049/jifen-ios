@@ -64,6 +64,58 @@ private nonisolated final class DelayedAuthURLProtocol: URLProtocol, @unchecked 
 }
 
 @MainActor final class APIClientSessionIsolationTests: XCTestCase {
+    func testTestRuntimeSeparatesHostedAndUIFixturesFromNormalAuthentication() {
+        XCTAssertEqual(AppTestRuntime.detect(arguments: [], environment: [:], xctestLoaded: false, debugBuild: true), .application)
+        XCTAssertEqual(AppTestRuntime.detect(arguments: [], environment: ["XCTestConfigurationFilePath": "/fixture.xctestconfiguration"], xctestLoaded: false, debugBuild: true), .hostedUnitTests)
+        XCTAssertEqual(AppTestRuntime.detect(arguments: [], environment: [:], xctestLoaded: true, debugBuild: true), .hostedUnitTests)
+        XCTAssertEqual(AppTestRuntime.detect(arguments: ["-UITestRecordFixtures"], environment: [:], xctestLoaded: false, debugBuild: true), .uiTests)
+        XCTAssertEqual(AppTestRuntime.detect(arguments: ["-UITestFakeSession"], environment: ["XCTestSessionIdentifier": "fixture"], xctestLoaded: true, debugBuild: false), .application)
+        let first = AppTestRuntime.authService(for: .hostedUnitTests, processNamespace: "first-process")
+        let second = AppTestRuntime.authService(for: .hostedUnitTests, processNamespace: "second-process")
+        XCTAssertNotEqual(first, second)
+        XCTAssertNotEqual(first, AppTestRuntime.normalAuthService)
+        XCTAssertEqual(AppTestRuntime.authService(for: .application, processNamespace: "fixture"), AppTestRuntime.normalAuthService)
+        XCTAssertEqual(AppTestRuntime.authService(for: .uiTests, processNamespace: "first-process"),
+                       AppTestRuntime.authService(for: .uiTests, processNamespace: "second-process"))
+        XCTAssertNotEqual(AppTestRuntime.authService(for: .uiTests, processNamespace: "fixture"), AppTestRuntime.normalAuthService)
+    }
+
+    func testHostedDefaultsUseAnIsolatedNamespaceAndCannotActivatePrivateSync() async throws {
+        XCTAssertEqual(AppTestRuntime.mode, .hostedUnitTests)
+        XCTAssertTrue(AppTestRuntime.isolatesDefaultPrivateSync)
+        // Inspect only metadata. Never probe the normal Keychain service.
+        XCTAssertEqual(AuthTokenStore.shared.serviceIdentifier, AppTestRuntime.authService)
+        XCTAssertTrue(AuthTokenStore.shared.serviceIdentifier.hasPrefix(AppTestRuntime.normalAuthService + ".tests.unit."))
+        XCTAssertNotEqual(AuthTokenStore.shared.serviceIdentifier, AppTestRuntime.normalAuthService)
+        XCTAssertNotNil(AppTestRuntime.storageRootURL)
+        XCTAssertTrue(AppTestRuntime.storageRootURL?.lastPathComponent.hasPrefix("jifen-hosted-tests-") == true)
+        XCTAssertTrue(AppTestRuntime.defaultsSuiteName?.hasPrefix("com.douhua.jifen.tests.unit.") == true)
+        let root = try XCTUnwrap(AppTestRuntime.storageRootURL)
+        let recordID = "test-namespace-" + UUID().uuidString
+        let score = ScoreboardRecord(id: recordID, gameType: .pingpong, startTime: Date(),
+            team1Name: "A", team2Name: "B", team1FinalScore: 1, team2FinalScore: 0, totalScoreChanges: 1)
+        try ScoreboardRecordManager.shared.saveScoreboardRecord(score, cleanupResumeAfterWrite: false)
+        let scoreFiles = ScoreboardRecordFileStore(rootURL: root.appendingPathComponent("ScoreboardRecords-v4"))
+        XCTAssertEqual(scoreFiles.loadRecord(id: recordID)?.id, recordID)
+        XCTAssertTrue(ScoreboardRecordManager.voiceNotesDirectoryURL.path.hasPrefix(root.path + "/"))
+        XCTAssertTrue(ParticipantIdentityStore().storageFileURL.path.hasPrefix(root.path + "/"))
+        XCTAssertTrue(PersonalRecordsCloudSync().storageFileURL.path.hasPrefix(root.path + "/"))
+        XCTAssertTrue(PersonalGroupRecords.shared.cacheDirectoryURL.path.hasPrefix(root.path + "/"))
+        XCTAssertTrue(PersonalRecordsCloudSync.shared.audioCacheURL.path.hasPrefix(root.path + "/"))
+        let timer = GameRecordSummary(id: recordID, gameType: .chess, timestamp: 1)
+        TimerRecordManager.shared.addRecord(timer)
+        let timerFiles = TimerRecordManager(defaults: AppTestRuntime.persistenceDefaults,
+            rootURL: root.appendingPathComponent("TimerRecords-v2"))
+        XCTAssertTrue(timerFiles.getRecords().contains { $0.id == recordID })
+        _ = ScoreboardRecordManager.shared.deleteRecord(recordID)
+        _ = TimerRecordManager.shared.deleteRecord(recordID)
+        let service = PersonalRecordsCloudSync.shared
+        await service.sessionDidAuthenticate(userId: "hosted-fixture-must-not-sync")
+        await service.synchronizeNow()
+        XCTAssertEqual(service.phase, "local")
+        XCTAssertTrue(service.remoteRecords.isEmpty)
+    }
+
     private func fixture() -> (AuthTokenStore, APIClient, URLSession, [String]) {
         let id = UUID().uuidString
         let store = AuthTokenStore(service: "com.douhua.jifen.codex-auth-tests." + id)

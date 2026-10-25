@@ -1,0 +1,231 @@
+<style>
+#record-tab-options .rec-stage { min-height:730px;display:flex;justify-content:center;align-items:flex-start;padding:16px 10px; }
+#record-tab-options .rec-app { color-scheme:light dark;--rec-bg:light-dark(#f2f2f7,#000);--rec-surface:light-dark(#fff,#202022);--rec-control:light-dark(#e8e8ed,#343437);--rec-text:light-dark(#202024,#f5f5f7);--rec-sub:light-dark(#74747a,#aaaab0);--rec-line:light-dark(#e2e2e7,#38383b);--rec-green:light-dark(#4caf50,#30d158);--rec-green-ink:light-dark(#2d7932,#65dc80);--rec-green-soft:light-dark(#eaf5ec,#1c3523);--rec-red:light-dark(#c33d39,#ff7c75);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;font-size:16px;line-height:1.4;color:var(--rec-text);background:var(--rec-bg);width:375px;max-width:100%;min-height:640px;border:1px solid var(--rec-line);border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;padding-bottom:25px; }
+#record-tab-options .rec-app * { box-sizing:border-box; }
+#record-tab-options .rec-app [hidden] { display:none!important; }
+#record-tab-options .rec-app button,#record-tab-options .rec-app input { font:inherit;line-height:1.4;color:inherit; }
+#record-tab-options .rec-app svg { width:19px;height:19px;vertical-align:middle;flex-shrink:0;color:inherit;stroke:currentColor; }
+#record-tab-options .rec-status { height:44px;padding:0 23px;display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:500; }
+#record-tab-options .rec-status > span:last-child { display:flex;gap:5px; }
+#record-tab-options .rec-status svg { width:14px;height:14px; }
+#record-tab-options .rec-shell { flex:1; }
+#record-tab-options .rec-nav { min-height:54px;padding:0 10px;display:grid;grid-template-columns:92px minmax(0,1fr) 92px;align-items:center; }
+#record-tab-options .rec-nav h1 { margin:0;font-size:17px;font-weight:500;text-align:center;white-space:nowrap; }
+#record-tab-options .rec-nav-left { display:flex;justify-content:flex-start;min-width:0; }
+#record-tab-options .rec-nav-right { display:flex;justify-content:flex-end; }
+#record-tab-options .rec-icon { border:0;background:none;min-width:44px;height:44px;display:grid;place-items:center;padding:0; }
+#record-tab-options .rec-icon[aria-expanded="true"] { color:var(--rec-green-ink); }
+#record-tab-options .rec-type { display:flex;align-items:center;justify-content:center;gap:4px;border:0;background:none;min-height:44px;padding:0 4px;color:var(--rec-green-ink)!important;font-size:14px!important;white-space:nowrap; }
+#record-tab-options .rec-type svg,#record-tab-options .rec-title-button svg { width:13px;height:13px; }
+#record-tab-options .rec-title-button { border:0;background:none;min-height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-size:17px;white-space:nowrap; }
+#record-tab-options .rec-nav.is-left { display:flex;justify-content:space-between;padding:0 14px;gap:6px; }
+#record-tab-options .rec-nav.is-left h1 { font-size:23px;text-align:left; }
+#record-tab-options .rec-title-cluster { display:flex;align-items:center;gap:2px;min-width:0; }
+#record-tab-options .rec-title-cluster .rec-icon { margin-left:-10px; }
+#record-tab-options .rec-title-cluster.has-back h1 { font-size:19px; }
+#record-tab-options .rec-nav.is-left .rec-nav-right { flex-shrink:0; }
+#record-tab-options .rec-body { padding:13px 17px 20px; }
+#record-tab-options .rec-search { display:flex;gap:8px;align-items:center;background:var(--rec-control);border-radius:10px;padding:0 12px;margin-bottom:16px;min-height:42px; }
+#record-tab-options .rec-search svg { color:var(--rec-sub);width:17px;height:17px; }
+#record-tab-options .rec-search input { min-width:0;flex:1;border:0;background:none;font-size:16px;min-height:42px;outline-offset:3px; }
+#record-tab-options .rec-search input::placeholder { color:var(--rec-sub);opacity:1; }
+#record-tab-options .rec-search button { background:none;border:0;min-width:32px;min-height:40px;padding:0; }
+#record-tab-options .rec-mine-entry { display:flex;align-items:center;gap:10px;width:100%;padding:13px 15px;min-height:58px;border:0;border-radius:15px;background:var(--rec-surface);text-align:left;margin-bottom:22px; }
+#record-tab-options .rec-mine-entry > span:first-of-type { flex:1; }
+#record-tab-options .rec-mine-entry > svg:first-child { color:var(--rec-green-ink); }
+#record-tab-options .rec-mine-entry > svg:last-child { color:var(--rec-sub);width:16px;height:16px; }
+#record-tab-options .rec-count { color:var(--rec-sub);font-size:13px;white-space:nowrap; }
+#record-tab-options .rec-heading { display:flex;justify-content:space-between;align-items:center;margin:0 3px 10px;color:var(--rec-sub);font-size:13px;min-height:23px; }
+#record-tab-options .rec-list { background:var(--rec-surface);border-radius:15px;overflow:hidden; }
+#record-tab-options .rec-row { display:block;text-align:left;width:100%;min-height:75px;padding:13px 14px;background:none;border:0; }
+#record-tab-options .rec-row + .rec-row { border-top:1px solid var(--rec-line); }
+#record-tab-options .rec-meta { color:var(--rec-sub);font-size:12px;margin-bottom:8px; }
+#record-tab-options .rec-teams { display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:9px;align-items:center;font-size:14px; }
+#record-tab-options .rec-teams > span:last-child { text-align:right; }
+#record-tab-options .rec-score { font-size:17px;white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:500; }
+#record-tab-options .rec-me { display:inline-block;color:var(--rec-green-ink);background:var(--rec-green-soft);padding:1px 4px;border-radius:4px;font-size:11px;margin-left:4px; }
+#record-tab-options .rec-timer { display:flex;align-items:center;justify-content:space-between;font-size:14px; }
+#record-tab-options .rec-empty { padding:32px 16px;text-align:center;color:var(--rec-sub);font-size:14px; }
+#record-tab-options .rec-stats { display:grid;grid-template-columns:repeat(3,1fr);padding:17px 0;background:var(--rec-surface);border-radius:15px;margin-bottom:22px; }
+#record-tab-options .rec-stats > div { text-align:center; }
+#record-tab-options .rec-stats strong { display:block;font-size:25px;font-weight:500;font-variant-numeric:tabular-nums; }
+#record-tab-options .rec-stats span { display:block;font-size:12px;color:var(--rec-sub);margin-top:4px; }
+#record-tab-options .rec-scope { display:flex;border-radius:10px;background:var(--rec-control);padding:3px;margin-bottom:20px; }
+#record-tab-options .rec-scope button { flex:1;min-height:36px;border:0;background:none;border-radius:8px;font-size:14px;padding:6px 8px; }
+#record-tab-options .rec-scope button[aria-pressed="true"] { background:var(--rec-surface);color:var(--rec-text); }
+#record-tab-options .rec-footer { display:flex;min-height:63px;background:var(--rec-surface);border-top:1px solid var(--rec-line); }
+#record-tab-options .rec-footer button { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;flex:1;min-height:62px;padding:7px 2px;border:0;background:none;font-size:11px;color:var(--rec-sub); }
+#record-tab-options .rec-footer button[aria-current="page"] { color:var(--rec-green-ink); }
+#record-tab-options .rec-footer button:disabled { opacity:.55; }
+#record-tab-options .rec-homebar { position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:112px;height:5px;border-radius:5px;background:var(--rec-text); }
+#record-tab-options .rec-cover { position:absolute;inset:0;z-index:5;border:0;background:#0002;width:100%;height:100%;padding:0; }
+#record-tab-options .rec-menu { position:absolute;z-index:6;top:94px;left:12px;min-width:190px;max-width:calc(100% - 24px);background:var(--rec-surface);border:1px solid var(--rec-line);border-radius:15px;overflow:hidden;box-shadow:0 10px 28px light-dark(#0002,#0009); }
+#record-tab-options .rec-menu.is-center { left:50%;transform:translateX(-50%);min-width:220px; }
+#record-tab-options .rec-menu.is-right { left:auto;right:12px; }
+#record-tab-options .rec-menu-label { color:var(--rec-sub);font-size:12px;padding:11px 14px 5px; }
+#record-tab-options .rec-menu-separator { border-top:1px solid var(--rec-line);margin-top:5px; }
+#record-tab-options .rec-option { display:flex;align-items:center;gap:12px;min-height:46px;width:100%;padding:10px 14px;text-align:left;background:none;border:0;font-size:15px; }
+#record-tab-options .rec-option > span { flex:1; }
+#record-tab-options .rec-option[aria-checked="true"] { color:var(--rec-green-ink); }
+#record-tab-options .rec-option svg { width:17px;height:17px; }
+#record-tab-options .rec-danger { color:var(--rec-red)!important; }
+#record-tab-options .rec-dialog-layer { position:absolute;inset:0;z-index:6;display:flex;align-items:center;padding:20px;pointer-events:none; }
+#record-tab-options .rec-dialog { background:var(--rec-surface);border-radius:21px;padding:20px;width:100%;pointer-events:auto; }
+#record-tab-options .rec-dialog h2 { font-size:18px;font-weight:500;margin:0 0 18px;text-align:center; }
+#record-tab-options .rec-dialog p { font-size:14px;line-height:1.7;margin:10px 0 18px; }
+#record-tab-options .rec-primary { border:0;min-height:44px;padding:10px 12px;background:var(--rec-green);color:#fff!important;border-radius:23px;width:100%;font-weight:500; }
+#record-tab-options .rec-secondary { border:0;min-height:44px;padding:10px 12px;background:var(--rec-control);border-radius:23px;width:100%;margin-top:10px; }
+#record-tab-options .rec-filter-group { border:0;margin:0 0 18px;padding:0; }
+#record-tab-options .rec-filter-group legend { font-size:13px;color:var(--rec-sub);margin-bottom:9px; }
+#record-tab-options .rec-filter-options { display:flex;gap:8px; }
+#record-tab-options .rec-filter-options button { flex:1;min-height:42px;background:var(--rec-control);border:0;border-radius:9px;padding:8px 4px;font-size:14px; }
+#record-tab-options .rec-filter-options button[aria-pressed="true"] { background:var(--rec-green-soft);color:var(--rec-green-ink); }
+#record-tab-options .rec-editbar { display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:13px; }
+#record-tab-options .rec-editbar button { min-height:40px;border:0;background:none;padding:5px 3px;color:var(--rec-green-ink);font-size:14px; }
+#record-tab-options .rec-editbar button:disabled { opacity:.4; }
+#record-tab-options .rec-row.is-selected { background:var(--rec-green-soft); }
+#record-tab-options .rec-check { display:inline-flex;vertical-align:middle;margin-right:6px;color:var(--rec-green-ink); }
+#record-tab-options .rec-live { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0; }
+@media(max-width:360px) { #record-tab-options .rec-stage { padding:16px 0;min-height:730px; } #record-tab-options .rec-body { padding:12px 13px 18px; } #record-tab-options .rec-nav { grid-template-columns:88px minmax(0,1fr) 88px;padding:0 8px; } #record-tab-options .rec-row { padding:12px; } #record-tab-options .rec-teams { gap:7px; } }
+</style>
+<div id="record-tab-options" class="viz-carousel viz-dotted-background" aria-label="记录页布局方案" data-previous-label="上一方案" data-next-label="下一方案">
+  <section data-variant="左上分类" aria-label="左上分类方案"><div class="rec-stage"><div class="rec-app" data-design="corner" aria-label="左上分类记录页"></div></div></section>
+  <section data-variant="标题下拉" aria-label="标题下拉方案" hidden><div class="rec-stage"><div class="rec-app" data-design="title" aria-label="标题下拉记录页"></div></div></section>
+  <section data-variant="左题右筛选" aria-label="左题右筛选方案" hidden><div class="rec-stage"><div class="rec-app" data-design="right" aria-label="左题右筛选记录页"></div></div></section>
+  <section data-variant="独立切换" aria-label="独立切换方案" hidden><div class="rec-stage"><div class="rec-app" data-design="scope" aria-label="独立切换记录页"></div></div></section>
+</div>
+<script>
+(() => {
+  const root=document.getElementById('record-tab-options');
+  const designs=[{id:'corner',name:'左上分类'},{id:'title',name:'标题下拉'},{id:'right',name:'左题右筛选'},{id:'scope',name:'独立切换'}];
+  const data=[
+    {id:'match-one',kind:'score',date:'2026.10.23',sport:'羽毛球',format:'单打',left:'杨杨',right:'小林',scores:[21,18],mine:true},
+    {id:'timer-one',kind:'timer',date:'2026.10.22',label:'自定义计时',duration:'15:00'},
+    {id:'match-two',kind:'score',date:'2026.10.21',sport:'羽毛球',format:'单打',left:'小杨',right:'阿杰',scores:[18,21],mine:true},
+    {id:'match-three',kind:'score',date:'2026.09.20',sport:'乒乓球',format:'单打',left:'陈晨',right:'李薇',scores:[11,8],mine:false}
+  ];
+  const typeLabels={all:'全部',score:'计分',timer:'计时'};
+  const typeTitles={all:'全部记录',score:'计分记录',timer:'计时记录'};
+  const initial=()=>({type:'all',scope:'all',detail:false,search:false,query:'',menu:null,period:'all',sport:'all',editing:false,selected:[],deleted:[]});
+  const models=Object.fromEntries(designs.map(design=>[design.id,initial()]));
+  let lastInteracted=null;
+  const esc=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const icon=name=>'<i data-lucide="'+name+'" aria-hidden="true"></i>';
+  const appFor=id=>root.querySelector('[data-design="'+id+'"]');
+  function liveData(model){return data.filter(record=>!model.deleted.includes(record.id));}
+  function filtered(model,forceMine=false){
+    return liveData(model).filter(record=>{
+      if((forceMine||model.scope==='mine')&&!record.mine)return false;
+      if(!forceMine&&model.scope!=='mine'&&model.type!=='all'&&record.kind!==model.type)return false;
+      if(model.period==='month'&&!record.date.startsWith('2026.10'))return false;
+      if(model.sport==='badminton'&&record.sport!=='羽毛球')return false;
+      const query=model.query.trim().toLowerCase();
+      return !query||[record.left,record.right,record.sport,record.label].filter(Boolean).join(' ').toLowerCase().includes(query);
+    });
+  }
+  function stats(model){const records=filtered(model,true);const wins=records.filter(record=>record.scores[0]>record.scores[1]).length;return {count:records.length,wins,rate:records.length?Math.round(wins/records.length*100)+'%':'—'};}
+  function toolbar(model,design){
+    if(model.editing)return '<button type="button" class="rec-type cursor-interaction" data-action="done-edit">完成</button>';
+    return (design==='right'&&model.scope!=='mine'?'<button type="button" class="rec-icon cursor-interaction" data-action="type-menu" aria-label="记录类型" aria-expanded="'+(model.menu==='type')+'">'+icon('list-filter')+'</button>':'')+'<button type="button" class="rec-icon cursor-interaction" data-action="search" aria-label="搜索记录" aria-expanded="'+model.search+'">'+icon('search')+'</button><button type="button" class="rec-icon cursor-interaction" data-action="more" aria-label="更多操作" aria-expanded="'+(model.menu==='more')+'">'+icon('ellipsis')+'</button>';
+  }
+  function header(model,design){
+    const personal=model.scope==='mine';
+    if(design==='right')return '<header class="rec-nav is-left"><div class="rec-title-cluster '+(model.detail?'has-back':'')+'">'+(model.detail?'<button type="button" class="rec-icon cursor-interaction" data-action="back" aria-label="返回记录">'+icon('chevron-left')+'</button>':'')+'<h1>'+(personal?'我的参赛':'记录')+'</h1></div><div class="rec-nav-right">'+toolbar(model,design)+'</div></header>';
+    let left='',title='记录';
+    if(design==='title')title='<button type="button" class="rec-title-button cursor-interaction" data-action="view-menu" aria-label="'+(personal?'我的参赛':typeTitles[model.type])+'，切换记录视图" aria-expanded="'+(model.menu==='view')+'">'+(personal?'我的参赛':typeTitles[model.type])+icon('chevron-down')+'</button>';
+    else if(model.detail){left='<button type="button" class="rec-icon cursor-interaction" data-action="back" aria-label="返回记录">'+icon('chevron-left')+'</button>';title='我的参赛';}
+    else if(!personal)left='<button type="button" class="rec-type cursor-interaction" data-action="type-menu" aria-label="记录类型：'+typeLabels[model.type]+'" aria-expanded="'+(model.menu==='type')+'">'+typeLabels[model.type]+icon('chevron-down')+'</button>';
+    return '<header class="rec-nav"><div class="rec-nav-left">'+left+'</div><h1>'+title+'</h1><div class="rec-nav-right">'+toolbar(model,design)+'</div></header>';
+  }
+  function matchRow(record,model){
+    const edit=model.editing?'<span class="rec-check">'+icon(model.selected.includes(record.id)?'square-check':'square')+'</span>':'';
+    const meta=record.date+' · '+(record.kind==='timer'?'计时':record.sport+' · '+record.format);
+    const content=record.kind==='timer'?'<div class="rec-timer"><span>'+esc(record.label)+'</span><strong class="rec-score">'+record.duration+'</strong></div>':'<div class="rec-teams"><span>'+esc(record.left)+(record.mine?'<span class="rec-me">我</span>':'')+'</span><strong class="rec-score">'+record.scores.join(' : ')+'</strong><span>'+esc(record.right)+'</span></div>';
+    return '<button type="button" class="rec-row cursor-interaction '+(model.selected.includes(record.id)?'is-selected':'')+'" data-row="'+record.id+'" '+(model.editing?'aria-pressed="'+model.selected.includes(record.id)+'"':'')+'><div class="rec-meta">'+edit+meta+'</div>'+content+'</button>';
+  }
+  function results(model,design){
+    const records=filtered(model);
+    const heading=model.query?'搜索结果':model.scope==='mine'?'参赛记录':design==='title'?'最近记录':model.type==='all'?'最近记录':typeTitles[model.type];
+    return '<div class="rec-heading"><span>'+heading+'</span><span>'+records.length+' 条</span></div><div class="rec-list">'+(records.length?records.map(record=>matchRow(record,model)).join(''):'<div class="rec-empty">暂无符合条件的记录</div>')+'</div>';
+  }
+  function summary(model){const value=stats(model);return '<div class="rec-stats"><div><strong>'+value.count+'</strong><span>参赛</span></div><div><strong>'+value.wins+'</strong><span>获胜</span></div><div><strong>'+value.rate+'</strong><span>胜率</span></div></div>';}
+  function body(model,design){
+    let html='';
+    if(model.search)html+='<div class="rec-search">'+icon('search')+'<input type="search" aria-label="搜索队伍或项目" placeholder="搜索队伍或项目" value="'+esc(model.query)+'"><button type="button" class="cursor-interaction" data-action="close-search" aria-label="关闭搜索">'+icon('x')+'</button></div>';
+    if(design==='scope')html+='<div class="rec-scope"><button type="button" class="cursor-interaction" data-scope="all" aria-pressed="'+(model.scope==='all')+'">全部记录</button><button type="button" class="cursor-interaction" data-scope="mine" aria-pressed="'+(model.scope==='mine')+'">我的参赛</button></div>';
+    if(model.editing)html+='<div class="rec-editbar"><button type="button" class="cursor-interaction" data-action="select-all">全选</button><span>已选 '+model.selected.length+' 条</span><button type="button" class="rec-danger cursor-interaction" data-action="delete-selected" '+(!model.selected.length?'disabled':'')+'>删除</button></div>';
+    else if(model.scope==='mine')html+=summary(model);
+    else if(design==='corner'||design==='right')html+='<button type="button" class="rec-mine-entry cursor-interaction" data-action="mine">'+icon('user-round')+'<span>我的参赛</span><span class="rec-count">'+stats({...model,query:''}).count+' 场</span>'+icon('chevron-right')+'</button>';
+    return html+'<div data-results>'+results(model,design)+'</div>';
+  }
+  function footer(model){return '<nav class="rec-footer" aria-label="应用导航" '+(model.detail?'hidden':'')+'>'+[['首页','house'],['记录','clipboard-list'],['计分','circle-dot'],['计时','timer'],['我的','user-round']].map(([label,glyph])=>'<button type="button" class="cursor-interaction" '+(label==='记录'?'aria-current="page" data-action="all-view"':'disabled')+'>'+icon(glyph)+'<span>'+label+'</span></button>').join('')+'</nav>';}
+  function option(label,action,value,checked=false,glyph=''){return '<button type="button" class="rec-option cursor-interaction" role="menuitemradio" aria-checked="'+checked+'" data-'+action+'="'+value+'">'+(glyph?icon(glyph):'')+'<span>'+label+'</span>'+(checked?icon('check'):'')+'</button>';}
+  function menu(model,design){
+    if(!model.menu)return '';
+    let html='<button type="button" class="rec-cover cursor-interaction" data-action="close-menu" aria-label="关闭弹层"></button>';
+    if(model.menu==='type'||model.menu==='view'){
+      const centered=model.menu==='view',right=design==='right';
+      html+='<div class="rec-menu '+(centered?'is-center':right?'is-right':'')+'" role="menu" aria-label="'+(centered?'记录视图':'记录类型')+'">'+(centered?'<div class="rec-menu-label">记录类型</div>':'')+['all','score','timer'].map(type=>option(centered?typeTitles[type]:typeLabels[type],'type',type,model.scope==='all'&&model.type===type)).join('');
+      if(centered)html+='<div class="rec-menu-separator"></div><div class="rec-menu-label">个人</div>'+option('我的参赛','scope','mine',model.scope==='mine','user-round');
+      return html+'</div>';
+    }
+    if(model.menu==='more')return html+'<div class="rec-menu is-right" role="menu" aria-label="更多操作"><button type="button" class="rec-option cursor-interaction" role="menuitem" data-action="filters">'+icon('sliders-horizontal')+'<span>筛选</span></button><button type="button" class="rec-option cursor-interaction" role="menuitem" data-action="edit">'+icon('pencil')+'<span>编辑</span></button><button type="button" class="rec-option rec-danger cursor-interaction" role="menuitem" data-action="clear">'+icon('trash-2')+'<span>清空全部记录</span></button></div>';
+    let dialog='';
+    if(model.menu==='filters')dialog='<h2>筛选记录</h2><fieldset class="rec-filter-group"><legend>时间</legend><div class="rec-filter-options">'+[['all','全部时间'],['month','本月']].map(([value,label])=>'<button type="button" class="cursor-interaction" data-period="'+value+'" aria-pressed="'+(model.period===value)+'">'+label+'</button>').join('')+'</div></fieldset><fieldset class="rec-filter-group"><legend>项目</legend><div class="rec-filter-options">'+[['all','全部项目'],['badminton','羽毛球']].map(([value,label])=>'<button type="button" class="cursor-interaction" data-sport="'+value+'" aria-pressed="'+(model.sport===value)+'">'+label+'</button>').join('')+'</div></fieldset><button type="button" class="rec-primary cursor-interaction" data-action="close-menu">完成</button>';
+    if(model.menu==='clear'||model.menu==='delete-selected')dialog='<h2>'+(model.menu==='clear'?'清空全部记录？':'删除选中的 '+model.selected.length+' 条记录？')+'</h2><button type="button" class="rec-primary cursor-interaction" data-action="confirm-delete">'+(model.menu==='clear'?'清空':'删除')+'</button><button type="button" class="rec-secondary cursor-interaction" data-action="close-menu">取消</button>';
+    if(model.menu.startsWith('record:')){const record=data.find(value=>value.id===model.menu.slice(7));dialog='<h2>记录详情</h2>'+(record?'<p>'+record.date+'<br>'+(record.kind==='timer'?record.label+' · '+record.duration:record.sport+' · '+record.format+'<br>'+esc(record.left)+' '+record.scores.join(' : ')+' '+esc(record.right))+'</p>':'')+'<button type="button" class="rec-primary cursor-interaction" data-action="close-menu">完成</button>';}
+    return html+'<div class="rec-dialog-layer"><section class="rec-dialog" role="dialog" aria-modal="true" aria-label="'+(model.menu==='filters'?'筛选记录':'记录操作')+'">'+dialog+'</section></div>';
+  }
+  function render(id){
+    const app=appFor(id),model=models[id];
+    app.innerHTML='<div class="rec-shell"><div class="rec-status"><span>9:41</span><span>'+icon('signal')+icon('wifi')+icon('battery-full')+'</span></div>'+header(model,id)+'<main class="rec-body">'+body(model,id)+'</main></div>'+footer(model)+'<div class="rec-homebar" aria-hidden="true"></div>'+menu(model,id)+'<div class="rec-live" aria-live="polite"></div>';
+    app.querySelector('.rec-shell').inert=!!model.menu;app.querySelector('.rec-footer').inert=!!model.menu;
+    bind(app,id);
+    if(globalThis.lucide)lucide.createIcons({attrs:{width:19,height:19}});
+  }
+  function renderAll(){designs.forEach(design=>render(design.id));}
+  function save(id){lastInteracted=id;if(window.openai?.setWidgetState)window.openai.setWidgetState({modelContent:{lastInteractedDesign:designs.find(design=>design.id===id)?.name||null,views:designs.map(design=>({design:design.name,scope:models[design.id].scope,type:models[design.id].type,search:models[design.id].query}))},privateContent:{models}}).catch(()=>{});}
+  function restore(snapshot){
+    const saved=snapshot?.privateContent?.models;if(!saved)return;
+    for(const {id} of designs){const value=saved[id];if(!value)continue;const model=models[id];if(Object.hasOwn(typeLabels,value.type))model.type=value.type;if(['all','mine'].includes(value.scope))model.scope=value.scope;model.detail=value.detail===true&&['corner','right'].includes(id)&&model.scope==='mine';model.search=value.search===true;model.query=typeof value.query==='string'?value.query.slice(0,80):'';model.period=value.period==='month'?'month':'all';model.sport=value.sport==='badminton'?'badminton':'all';model.editing=value.editing===true;model.selected=Array.isArray(value.selected)?value.selected.filter(key=>data.some(row=>row.id===key)):[];model.deleted=Array.isArray(value.deleted)?value.deleted.filter(key=>data.some(row=>row.id===key)):[];model.menu=null;}
+  }
+  function changeScope(id,scope){const model=models[id];model.scope=scope;model.detail=scope==='mine'&&['corner','right'].includes(id);model.menu=null;model.editing=false;model.selected=[];model.query='';model.search=false;}
+  function act(id,action){
+    const model=models[id];
+    if(action==='type-menu')model.menu='type';
+    if(action==='view-menu')model.menu='view';
+    if(action==='more')model.menu='more';
+    if(action==='close-menu')model.menu=null;
+    if(action==='search'){model.search=!model.search;if(!model.search)model.query='';}
+    if(action==='close-search'){model.search=false;model.query='';}
+    if(action==='mine')changeScope(id,'mine');
+    if(action==='back'||action==='all-view')changeScope(id,'all');
+    if(action==='filters')model.menu='filters';
+    if(action==='edit'){model.editing=true;model.search=false;model.menu=null;model.selected=[];}
+    if(action==='done-edit'){model.editing=false;model.selected=[];}
+    if(action==='select-all'){const visible=filtered(model).map(row=>row.id);model.selected=visible.every(key=>model.selected.includes(key))?[]:visible;}
+    if(action==='delete-selected')model.menu='delete-selected';
+    if(action==='clear')model.menu='clear';
+    if(action==='confirm-delete'){model.deleted=[...new Set([...model.deleted,...(model.menu==='clear'?data.map(row=>row.id):model.selected)])];model.selected=[];model.editing=false;model.menu=null;}
+    render(id);save(id);
+    const app=appFor(id);
+    if(model.menu)app.querySelector('.rec-menu button,.rec-dialog button')?.focus({preventScroll:true});
+    if(action==='search'&&model.search)app.querySelector('input')?.focus({preventScroll:true});
+  }
+  function bind(app,id){
+    const model=models[id];
+    app.querySelectorAll('[data-action]').forEach(button=>button.onclick=()=>act(id,button.dataset.action));
+    app.querySelectorAll('[data-type]').forEach(button=>button.onclick=()=>{model.type=button.dataset.type;model.scope='all';model.detail=false;model.menu=null;model.selected=[];render(id);save(id);});
+    app.querySelectorAll('[data-scope]').forEach(button=>button.onclick=()=>{changeScope(id,button.dataset.scope);render(id);save(id);});
+    app.querySelectorAll('[data-period]').forEach(button=>button.onclick=()=>{model.period=button.dataset.period;render(id);save(id);});
+    app.querySelectorAll('[data-sport]').forEach(button=>button.onclick=()=>{model.sport=button.dataset.sport;render(id);save(id);});
+    app.querySelectorAll('[data-row]').forEach(button=>button.onclick=()=>{const key=button.dataset.row;if(model.editing)model.selected=model.selected.includes(key)?model.selected.filter(value=>value!==key):[...model.selected,key];else model.menu='record:'+key;render(id);save(id);});
+    const input=app.querySelector('input');
+    if(input)input.oninput=()=>{model.query=input.value;app.querySelector('[data-results]').innerHTML=results(model,id);if(model.scope==='mine'){const statsBlock=app.querySelector('.rec-stats');if(statsBlock)statsBlock.outerHTML=summary(model);}bindRows(app,id);if(globalThis.lucide)lucide.createIcons({attrs:{width:19,height:19}});save(id);};
+    app.onkeydown=event=>{if(event.key==='Escape'){if(model.menu){event.preventDefault();act(id,'close-menu');}else if(model.search){event.preventDefault();act(id,'close-search');}}if(event.key==='Tab'&&model.menu){const panel=app.querySelector('.rec-menu,.rec-dialog');const buttons=[...panel.querySelectorAll('button:not(:disabled)')];const first=buttons[0],last=buttons[buttons.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}}};
+  }
+  function bindRows(app,id){app.querySelectorAll('[data-row]').forEach(button=>button.onclick=()=>{models[id].menu='record:'+button.dataset.row;render(id);save(id);});}
+  restore(window.openai?.widgetState);renderAll();
+  window.addEventListener('openai:set_globals',event=>{const snapshot=event.detail?.globals?.widgetState;if(snapshot?.privateContent?.models&&JSON.stringify(snapshot.privateContent.models)!==JSON.stringify(models)){restore(snapshot);renderAll();}});
+})();
+</script>

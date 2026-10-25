@@ -103,6 +103,7 @@ struct ShotTrainingScoreboardView: View {
     @State private var shots: [ShotTrainingShot]
     @State private var gameStartTime: Date
     @State private var recordID: String
+    @State private var registersParticipantOwner: Bool
     @State private var gameFinished: Bool
     @State private var showGameOver: Bool
     @State private var finalizedRecordID: String?
@@ -157,6 +158,7 @@ struct ShotTrainingScoreboardView: View {
         _finalizedRecordID = State(initialValue: restoredFinished ? restoredID : nil)
         let prefersLandscape = UserDefaults.standard.object(forKey: Self.landscapeLayoutKey) as? Bool ?? true
         _preferLandscape = State(initialValue: prefersLandscape)
+        _registersParticipantOwner = State(initialValue: initialResumeSessionId == nil)
     }
 
     private var counts: ShotTrainingCounts { .build(from: shots) }
@@ -209,6 +211,7 @@ struct ShotTrainingScoreboardView: View {
             )
         }
         .animation(.easeInOut(duration: 0.2), value: showGameOver)
+        .registerParticipantSetupOnAppear(recordID: recordID, selections: registersParticipantOwner ? [:] : nil)
         .onAppear {
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = PreferencesManager.shared.keepScoreboardScreenOn
@@ -674,6 +677,7 @@ struct ShotTrainingScoreboardView: View {
     private func restartSession() {
         saveRecord(finished: true)
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.basketballTraining.canonicalScoreboardIdentifier)
+        try? ParticipantIdentityStore.shared.registerRecord(recordID)
         gameStartTime = Date()
         shots.removeAll()
         gameFinished = false

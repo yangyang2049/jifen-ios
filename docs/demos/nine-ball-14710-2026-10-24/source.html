@@ -36,6 +36,9 @@
     .switch-line input:checked:before { transform:translateX(13px); }
     .reset { margin-left:auto; height:35px; border:0; background:none; color:var(--green); font-size:12px; padding:0 2px; }
     .demo-note { margin:10px 2px 0; color:var(--muted); font-size:11px; line-height:1.7; }
+    .marker-controls { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:14px; color:var(--muted); font-size:11px; }
+    .replay { border:0; padding:4px 0; background:none; color:var(--green); font-size:12px; }
+    .replay[hidden] { display:none; }
     .shortcuts { display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:18px 0 12px; }
     .shortcuts span { color:var(--muted); font-size:11px; margin-right:2px; }
     .shortcuts button { background:#fff; border:1px solid var(--line); border-radius:7px; padding:7px 10px; font-size:12px; color:#4a4a53; }
@@ -44,10 +47,14 @@
     .app { width:100%; height:560px; background:#111; color:#fff; border:0; border-radius:18px; overflow:hidden; position:relative; color-scheme:dark; box-shadow:0 12px 32px #15151b17; container-type:size; }
     .score-grid { position:absolute; inset:0; display:grid; gap:0; grid-template-columns:repeat(var(--players),minmax(0,1fr)); }
     .player { border:0; display:block; background:var(--player-bg); color:white; min-width:0; min-height:0; position:relative; padding:0; overflow:hidden; container-type:size; }
-    .player-name { position:absolute; left:12px; right:12px; top:20px; font-size:clamp(16px,7.5cqh,72px); font-weight:600; line-height:1.25; text-align:center; }
+    .player-name { position:absolute; left:12px; right:12px; top:20px; font-size:clamp(16px,min(7.5cqh,calc((100cqw - 84px)/var(--name-length))),72px); font-weight:600; line-height:1.25; text-align:center; }
+    .name-anchor { display:inline-flex; align-items:center; gap:8px; max-width:100%; white-space:nowrap; vertical-align:top; }
+    .name-text { min-width:0; overflow:hidden; text-overflow:ellipsis; }
+    .breaker-slot { display:inline-flex; align-items:center; justify-content:center; flex:none; width:24px; height:24px; }
     .player-score { position:absolute; left:50%; top:calc(50% - 8px); transform:translate(-50%,-50%); font-size:clamp(40px,min(68cqw,35cqh),264px); font-variant-numeric:tabular-nums; line-height:1; font-weight:700; letter-spacing:-.035em; }
     .player-score.long-score { font-size:clamp(40px,min(29cqw,39cqh),210px); }
-    .breaker-mark { position:absolute; z-index:1; left:10px; top:7px; background:#00000029; padding:3px 6px; border-radius:5px; font-size:10px; line-height:1.2; font-weight:500; }
+    .breaker-mark { display:flex; align-items:center; justify-content:center; width:100%; height:100%; pointer-events:none; }
+    .breaker-mark svg { display:block; width:100%; height:100%; }
     .stat-banner { position:absolute; left:0; right:0; bottom:4px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(2,50px); gap:1px; }
     .stat-cell { min-width:0; background:#ffffff1c; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:5px 4px; }
     .stat-label { font-size:13px; line-height:1.2; font-weight:500; color:#ffffffc7; white-space:nowrap; }
@@ -64,7 +71,8 @@
     @container (max-height:300px) {
       .player-name { top:12px; font-size:clamp(18px,min(8cqw,9cqh),30px); }
       .player-score { top:calc(50% - 4px); }
-      .breaker-mark { top:4px; left:8px; font-size:9px; }
+      .breaker-slot { width:18px; height:18px; }
+      .name-anchor { gap:6px; }
       .stat-banner { grid-template-rows:repeat(2,clamp(27px,15cqh,50px)); }
       .stat-cell { gap:1px; padding:2px 4px; }
       .stat-label { font-size:11px; }
@@ -134,6 +142,9 @@
     .confirm { display:block; width:100%; min-height:44px; border:0; border-radius:10px; background:#2f8542; color:white; font-size:14px; font-weight:650; margin-top:15px; padding:11px 7px; }
     .back { display:block; width:100%; min-height:32px; background:none; border:0; font-size:11px; color:#b0b0bb; padding:12px 0 0; }
     .error { color:#ffb0a9; padding:9px 0 0; font-size:11px; line-height:1.55; }
+    .intro-body { text-align:center; padding-top:0; }
+    .intro-cue { display:block; width:40px; height:40px; margin:1px auto 16px; }
+    .intro-copy { font-size:13px; line-height:1.8; color:#ccccd3; max-width:300px; margin:0 auto 20px; }
     .notice { color:#c5c5cf; font-size:12px; line-height:1.8; }
     .rule-row { padding:11px 0; border-bottom:1px solid #ffffff12; }
     .rule-row strong { display:block; font-size:12px; margin-bottom:4px; }
@@ -142,10 +153,10 @@
     .watch { width:374px; height:374px; border:9px solid #1b1b1e; border-radius:50%; box-shadow:0 0 0 2px #45454d,0 15px 35px #15151b20; }
     .watch .score-grid { height:100%; }
     .watch .score-grid[data-count="4"] { grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:repeat(2,minmax(0,1fr)); }
-    .watch .breaker-mark { padding:3px 4px; border-radius:4px; top:96px; left:50%; right:auto; transform:translateX(-50%); font-size:8px; white-space:nowrap; }
-    .watch .score-grid[data-count="4"] .breaker-mark { top:11px; left:auto; right:12px; transform:none; }
-    .watch .score-grid[data-count="4"] .player:nth-child(even) .breaker-mark { left:12px; right:auto; }
-    .watch .player-name { font-size:18px; top:calc(50% - 47px); }
+    .watch .player-name { left:8px; right:8px; font-size:clamp(11px,min(18px,calc((100cqw - 56px)/var(--name-length))),18px); top:calc(50% - 47px); }
+    .watch .score-grid[data-count="4"] .player-name { font-size:clamp(11px,min(18px,calc((100cqw - 72px)/var(--name-length))),18px); }
+    .watch .breaker-slot { width:16px; height:16px; }
+    .watch .name-anchor { gap:5px; }
     .watch .player-score { font-size:42px; top:calc(50% + 6px); letter-spacing:-1px; }
     .watch .player-score.long-score { font-size:clamp(20px,25cqw,38px); }
     .watch .stat-banner,.watch .floating { display:none; }
@@ -174,6 +185,12 @@
     .watch .next-rack span,.watch .next-rack strong { font-size:10px; }
     .watch .confirm,.watch .back { max-width:190px; margin-left:auto; margin-right:auto; }
     .watch .toast { bottom:50px; font-size:10px; max-width:78%; }
+    .watch .intro-cue { width:32px; height:32px; margin:5px auto 12px; }
+    .watch .intro-copy { max-width:230px; margin-bottom:15px; font-size:12px; }
+    .watch .dialog:has(.intro-body) { display:flex; flex-direction:column; justify-content:center; padding:20px 25px; }
+    .watch .dialog:has(.intro-body) .dialog-head { padding-left:0; padding-right:0; }
+    .watch .dialog:has(.intro-body) .dialog-head h2 { font-size:16px; }
+    .watch .intro-body { padding-bottom:0; }
     .stage[data-watch="true"] { padding:26px 0; }
     .below { display:grid; grid-template-columns:minmax(0,1fr) 265px; gap:27px; padding-top:20px; }
     .ledger-head { display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid var(--line); }
@@ -214,13 +231,15 @@
   </header>
   <section class="controls" aria-label="Demo 场景设置">
     <div class="control"><span class="control-label">查看界面</span><div class="segments" id="device-controls"><button data-device="phone" aria-pressed="true">手机</button><button data-device="watch" aria-pressed="false">鸿蒙手表</button></div></div>
-    <div class="control"><label for="player-count">参与人数</label><select id="player-count"><option value="2">2 人</option><option value="3" selected>3 人</option><option value="4">4 人</option></select></div>
+    <div class="control"><label for="player-count">参与人数</label><select id="player-count"><option value="2" selected>2 人</option><option value="3">3 人</option><option value="4">4 人</option></select></div>
     <div class="control"><label for="small-mode">小金付分</label><select id="small-mode"><option value="breaker">仅本局开球人</option><option value="all">其他所有人</option></select></div>
     <div class="control"><label for="breaker-select">本局开球人</label><select id="breaker-select"></select></div>
+    <div class="control"><label for="name-mode">姓名示例</label><select id="name-mode"><option value="short">简短姓名</option><option value="long">3～4 字姓名</option></select></div>
     <div class="switch-control"><label class="switch-line"><input type="checkbox" id="retain-break" checked><span>大金／黄金9赢家续开</span></label></div>
     <button class="reset" id="reset-demo">重置示例</button>
   </section>
   <p class="demo-note">按本次约定：普胜／小金 → 赢家的座位下家开球；大金／黄金9 → 开关开启时赢家续开，关闭时赢家下家开球。更改人数或规则将重置本示例。</p>
+  <div class="marker-controls"><span>姓名左侧球杆 · 仅标记本局开球人</span><button class="replay" id="replay-intro">重播首次提示</button></div>
   <div class="shortcuts" aria-label="快速查看流程"><span>直接体验</span><button data-scenario="small">小金：自动带出开球人</button><button data-scenario="normal">普胜：确认付分人</button><button data-scenario="golden">黄金9：全员付分与续开</button><button data-scenario="actions">查看操作面板</button></div>
   <div class="preview-context"><span id="rack-context"></span><span id="balance"></span></div>
   <div class="stage" id="stage">
@@ -235,21 +254,29 @@
   </div>
   <section class="below">
     <div><div class="ledger-head"><h2>本场明细</h2><button id="undo-last">撤销上一笔</button></div><div id="ledger" aria-live="polite"></div></div>
-    <aside class="design-copy"><h3>小金不用每次重新选人</h3><p>默认带出本局开球人，先显示双方增减；只有开球人记错时，才点「更正」。普胜默认带出顺序上家，实际付分人不同可修改。</p><p>普胜、犯规前置；大金、小金、黄金9仍按固定顺序排列。让杆独立展示，不加减分，也不结束本局。</p><div class="old-example"><h3>历史记录示例 <span class="old-tag">旧版规则</span></h3><p>旧记录保留原分数，只加标识。这个 Demo 不转换旧记录。</p></div></aside>
+    <aside class="design-copy"><h3>双人直接记，多人按需确认</h3><p>双人点一次直接完成，不再选付分人。多人小金默认带出本局开球人，记错时才点「更正」；多人普胜预选座位上家，可更正实际付分人。</p><p>普胜、犯规前置；大金、小金、黄金9仍按固定顺序排列。让杆独立展示，不加减分，也不结束本局。</p><div class="old-example"><h3>历史记录示例 <span class="old-tag">旧版规则</span></h3><p>旧记录保留原分数，只加标识。这个 Demo 不转换旧记录。</p></div></aside>
   </section>
   <p class="prototype-foot">仅本地示例，不连接账号或上传数据。手机与手表预览共用本场状态；表盘内可上下滑动，每笔操作都可整笔撤销。让杆按双方约定记录击球权，不自动判定是否具备让杆条件。</p>
 </main>
 <script type="module">
   import { PLAYER_NAMES, createGame, previewEvent, applyEvent, undoGame } from './rules.mjs';
   const $ = id => document.getElementById(id);
-  const name = i => PLAYER_NAMES[i];
+  const longNames = ['陈志远','李明轩','欧阳小雨','司马长风'];
+  let nameMode = 'short';
+  const name = i => (nameMode === 'long' ? longNames : PLAYER_NAMES)[i];
   const nextSeat = i => (i + 1) % game.count;
   const signed = n => n > 0 ? '+' + n : n < 0 ? '−' + Math.abs(n) : '0';
   const labels = { normal:'普胜', big:'大金', small:'小金', golden:'黄金9', foul:'犯规', handoff:'让杆', adjust:'调整比分' };
   const stats = ['big','small','golden','normal','handoff','foul'];
   const colors = ['#C62828','#007AFF','#3DA447','#9B6B43'];
   const closeIcon = '<svg aria-hidden="true" viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" fill="none"/></svg>';
-  let game = createGame();
+  // Exact paths from Assets.xcassets/ic_snooker_cue.imageset/ic_snooker_cue.svg.
+  const cueIcon = '<svg aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#F2F2F2" fill-rule="evenodd" clip-rule="evenodd" d="M13.2929 10.7071C13.0833 10.4975 12.7452 10.4921 12.529 10.6948L11.4231 11.7316C11.5742 11.8411 11.7273 11.9699 11.8787 12.1213C12.0301 12.2727 12.1589 12.4258 12.2684 12.5769L13.3052 11.471C13.5079 11.2548 13.5025 10.9167 13.2929 10.7071ZM10.8371 14.1037L3.7245 21.6904C3.34677 22.0933 3.36719 22.7262 3.7701 23.1039C4.17301 23.4816 4.80585 23.4612 5.18358 23.0583L14.7643 12.8389C15.7053 11.8352 15.68 10.2658 14.7071 9.29289C13.7342 8.32001 12.1648 8.2947 11.1611 9.23571L0.941673 18.8164C0.538761 19.1941 0.518346 19.827 0.896077 20.2299C1.27381 20.6328 1.90664 20.6532 2.30955 20.2755L9.8963 13.1629C10.0323 13.2101 10.2405 13.3116 10.4644 13.5355C10.6884 13.7595 10.7899 13.9677 10.8371 14.1037Z"/><path fill="#F2F2F2" d="M14 18.5C18.6944 18.5 22.5 14.6944 22.5 10C22.5 5.30558 18.6944 1.5 14 1.5C9.30556 1.5 5.49998 5.30558 5.49998 10C5.49998 10.8642 5.62894 11.6982 5.86866 12.4839L10.3061 8.32379C11.8021 6.92135 14.141 6.95906 15.591 8.40901C17.0409 9.85896 17.0786 12.1979 15.6762 13.6938L11.516 18.1313C12.3018 18.371 13.1358 18.5 14 18.5Z"/></svg>';
+  const settingKey = 'nineball-14710-demo-v4:';
+  function readSetting(key, fallback) { try { return localStorage.getItem(settingKey + key) ?? fallback; } catch { return fallback; } }
+  function writeSetting(key, value) { try { localStorage.setItem(settingKey + key,value); } catch { /* Memory state still works without browser storage. */ } }
+  let introSeen = readSetting('intro-seen','0') === '1';
+  let game = createGame({count:2});
   let actor = 1, device = 'phone', view = null, pending = null, editingPayer = false, editDraft = null;
   let toastTimer = null;
 
@@ -258,7 +285,8 @@
     $('small-mode').value = game.smallGoldMode;
     $('small-mode').disabled = game.count === 2;
     $('retain-break').checked = game.goldRetainsBreak;
-    $('breaker-select').innerHTML = PLAYER_NAMES.slice(0, game.count).map((n,i) => `<option value="${i}" ${i === game.breaker ? 'selected' : ''}>${n}</option>`).join('');
+    $('name-mode').value = nameMode;
+    $('breaker-select').innerHTML = game.scores.map((_,i) => `<option value="${i}" ${i === game.breaker ? 'selected' : ''}>${name(i)}</option>`).join('');
   }
 
   function render() {
@@ -267,39 +295,62 @@
     $('stage').dataset.watch = String(device === 'watch');
     document.querySelectorAll('[data-device]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.device === device)));
     $('rack-context').textContent = `第 ${game.round} 局 · ${name(game.breaker)}开球`;
+    document.querySelector('[data-scenario="normal"]').textContent = game.count === 2 ? '普胜：直接记分' : '普胜：确认付分人';
+    document.querySelector('[data-scenario="small"]').textContent = game.count === 2 ? '小金：直接记分' : '小金：自动带出开球人';
+    document.querySelector('[data-scenario="golden"]').textContent = game.count === 2 ? '黄金9：直接记分' : '黄金9：全员付分与续开';
     $('score-grid').style.setProperty('--players', game.count);
     $('score-grid').dataset.count = String(game.count);
-    $('score-grid').innerHTML = game.scores.map((score,i) => `<button class="player" data-player="${i}" style="--player-bg:${colors[i]}" aria-label="为${name(i)}记分，当前${signed(score)}分">${i === game.breaker ? '<span class="breaker-mark">本局开球</span>' : ''}<span class="player-name">${name(i)}</span><span class="player-score ${String(score).length > 2 ? 'long-score' : ''}">${score < 0 ? '−' + Math.abs(score) : score}</span><span class="stat-banner" aria-label="${name(i)}分项统计">${stats.map(kind => `<span class="stat-cell"><span class="stat-label">${labels[kind]}</span><span class="stat-count" data-stat="${i}-${kind}">${game.history.filter(e => e.actor === i && e.kind === kind).length}</span></span>`).join('')}</span></button>`).join('');
+    $('score-grid').innerHTML = game.scores.map((score,i) => `<button class="player" data-player="${i}" style="--player-bg:${colors[i]};--name-length:${name(i).length}" aria-label="为${name(i)}记分，当前${signed(score)}分${i === game.breaker ? '，本局开球' : ''}"><span class="player-name"><span class="name-anchor"><span class="breaker-slot" aria-hidden="true">${i === game.breaker ? `<span class="breaker-mark">${cueIcon}</span>` : ''}</span><span class="name-text" title="${name(i)}">${name(i)}</span></span></span><span class="player-score ${String(score).length > 2 ? 'long-score' : ''}">${score < 0 ? '−' + Math.abs(score) : score}</span><span class="stat-banner" aria-label="${name(i)}分项统计">${stats.map(kind => `<span class="stat-cell"><span class="stat-label">${labels[kind]}</span><span class="stat-count" data-stat="${i}-${kind}">${game.history.filter(e => e.actor === i && e.kind === kind).length}</span></span>`).join('')}</span></button>`).join('');
+    fitWatchNames();
     $('balance').textContent = `全员合计 ${game.scores.reduce((a,b) => a+b,0)}`;
     $('undo-last').disabled = game.history.length === 0;
     renderLedger();
     renderDialog();
   }
 
-  function header(title) {
-    return `<header class="dialog-head"><h2 id="dialog-title">${title}</h2><button class="close" data-action="close" aria-label="关闭">${closeIcon}</button></header>`;
+  function fitWatchNames() {
+    if (device !== 'watch') return;
+    const board = $('app').getBoundingClientRect(), cx = board.x + board.width / 2, cy = board.y + board.height / 2, radius = board.width / 2 - 9;
+    document.querySelectorAll('.player').forEach(player => {
+      const field = player.querySelector('.player-name');
+      field.style.left = '8px'; field.style.right = '8px'; field.style.fontSize = '';
+      const panel = player.getBoundingClientRect(), row = field.getBoundingClientRect();
+      const vertical = Math.min(radius,Math.max(Math.abs(row.top - cy),Math.abs(row.bottom - cy)) + 2);
+      const halfWidth = Math.sqrt(Math.max(0,radius * radius - vertical * vertical));
+      const left = Math.max(panel.left + 8,cx - halfWidth + 4), right = Math.min(panel.right - 8,cx + halfWidth - 4);
+      field.style.left = `${left - panel.left}px`; field.style.right = `${panel.right - right}px`;
+      field.style.fontSize = `${Math.max(11,Math.min(18,(right - left - 21) / name(Number(player.dataset.player)).length))}px`;
+    });
+  }
+
+  function header(title, showClose = true) {
+    return `<header class="dialog-head"><h2 id="dialog-title">${title}</h2>${showClose ? `<button class="close" data-action="close" aria-label="关闭">${closeIcon}</button>` : ''}</header>`;
   }
 
   function actionButton(kind) {
     const draft = previewEvent(game, {kind, actor});
     const received = draft.changes[actor] || 0;
-    const disabled = kind === 'big' && actor !== game.breaker;
+    const disabled = (kind === 'big' && actor !== game.breaker) || (game.count === 2 && Boolean(draft.error));
+    const disabledReason = kind === 'big' ? `仅本局开球人${name(game.breaker)}可记大金` : '仅非开球人可记小金，请先更正本局开球人';
     const amount = kind === 'foul' ? `<span class="penalty-part">本人 −1</span><span class="penalty-part">${game.count === 2 ? '对手' : '下家'} +1</span>` : signed(received || (kind === 'small' ? 7 : kind === 'big' ? (game.count - 1) * 10 : 0));
-    return `<button class="action ${kind}" data-kind="${kind}" ${disabled ? `disabled title="仅本局开球人${name(game.breaker)}可记大金"` : ''}><span class="action-name">${labels[kind]}</span><span class="action-detail">${amount}</span></button>`;
+    return `<button class="action ${kind}" data-kind="${kind}" ${disabled ? `disabled title="${disabledReason}"` : ''}><span class="action-name">${labels[kind]}</span><span class="action-detail">${amount}</span></button>`;
   }
 
   function renderDialog() {
     $('overlay').hidden = !view;
     $('score-grid').inert = !!view;
     if (!view) return;
-    if (view === 'actions') {
+    if (view === 'intro') {
+      $('dialog').innerHTML = header(`第 ${game.round} 局 · ${name(game.breaker)}开球`,false) + `<div class="dialog-body intro-body"><span class="intro-cue">${cueIcon}</span><p class="intro-copy">球杆标记表示本局开球人，<br>不代表当前击球人。</p><button class="confirm" data-action="close">知道了</button></div>`;
+    } else if (view === 'actions') {
       $('dialog').innerHTML = header(name(actor)) + `<div class="dialog-body"><div class="frequent">${actionButton('normal')}${actionButton('foul')}</div><div class="rare">${actionButton('big')}${actionButton('small')}${actionButton('golden')}</div><button class="handoff" data-action="handoff"><span class="move-icon"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 7h13m-4-4 4 4-4 4M19 17H6m4-4-4 4 4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><strong>让杆</strong></button></div>`;
     } else if (view === 'confirm') {
       renderConfirmation();
     } else if (view === 'menu') {
       $('dialog').innerHTML = header('菜单') + `<div class="dialog-body menu-options"><button data-action="undo" ${game.history.length ? '' : 'disabled'}>撤销上一笔</button><button data-action="rules">本场规则</button><button data-action="setup">开局设置</button></div>`;
     } else if (view === 'edit') {
-      $('dialog').innerHTML = header('编辑比分') + `<div class="dialog-body"><div class="edit-totals">${editDraft.map((score,i) => `<label>${name(i)}<input type="number" inputmode="numeric" min="-9999" max="9999" step="1" value="${score}" data-edit-player="${i}" aria-label="${name(i)}的比分"></label>`).join('')}</div><p class="error" id="edit-error" role="alert" hidden></p><button class="confirm" data-action="save-edit">保存</button></div>`;
+      const error = editError();
+      $('dialog').innerHTML = header('编辑比分') + `<div class="dialog-body"><div class="edit-totals">${editDraft.map((score,i) => `<label>${name(i)}<input type="number" inputmode="numeric" min="-9999" max="9999" step="1" value="${score}" data-edit-player="${i}" aria-label="${name(i)}的比分"></label>`).join('')}</div><p class="error" id="edit-error" role="alert" ${error ? '' : 'hidden'}>${error}</p><button class="confirm" data-action="save-edit" ${error ? 'disabled' : ''}>保存</button></div>`;
     } else if (view === 'rules') {
       $('dialog').innerHTML = header('本场规则') + `<div class="dialog-body"><div class="rule-row"><strong>赢局付分</strong><span>大金每家10，黄金9每家4；小金${game.smallGoldMode === 'all' ? '其他每家7' : '仅开球人付7'}；普胜由上家付4，可更正付分人。</span></div><div class="rule-row"><strong>下局开球</strong><span>普胜、小金：赢家下家。大金、黄金9：${game.goldRetainsBreak ? '赢家续开' : '赢家下家'}。</span></div><div class="rule-row"><strong>犯规／让杆</strong><span>犯规：本人−1、下家+1，下家自由球。让杆：不计分，选择继续击球的人。本局继续。</span></div><button class="confirm" data-action="close">知道了</button></div>`;
     }
@@ -326,12 +377,12 @@
   }
 
   function payerOptions(selected, purpose) {
-    return `<div class="payer-options" role="group" aria-label="${purpose === 'continue' ? '继续击球人' : '付分人'}">${PLAYER_NAMES.slice(0,game.count).map((n,i) => i === actor ? '' : `<button class="payer-option" data-${purpose}="${i}" aria-pressed="${i === selected}">${n}${i === selected ? ' ✓' : ''}</button>`).join('')}</div>`;
+    return `<div class="payer-options" role="group" aria-label="${purpose === 'continue' ? '继续击球人' : '付分人'}">${game.scores.map((_,i) => i === actor ? '' : `<button class="payer-option" data-${purpose}="${i}" aria-pressed="${i === selected}">${name(i)}${i === selected ? ' ✓' : ''}</button>`).join('')}</div>`;
   }
 
   function renderLedger() {
     if (!game.history.length) {
-      $('ledger').innerHTML = '<p class="empty">还没有记分。可以先试一次「小金」，查看自动带出的开球人；再试「撤销」，回到原来那一局。</p>';
+      $('ledger').innerHTML = '<p class="empty">点击玩家色块开始记分，误点可撤销上一笔。</p>';
       return;
     }
     $('ledger').innerHTML = [...game.history].reverse().map(e => {
@@ -341,13 +392,17 @@
     }).join('');
   }
 
-  function openActions(player) { actor = player; pending = null; view = 'actions'; editingPayer = false; render(); focusDialog(); }
+  function openActions(player) { hideToast(); actor = player; pending = null; view = 'actions'; editingPayer = false; render(); focusDialog(); }
   function startEvent(kind) {
-    if (kind === 'foul' || (kind === 'handoff' && game.count === 2)) {
+    if (kind === 'foul' || game.count === 2) {
       const receiver = nextSeat(actor);
-      game = applyEvent(game, {kind, actor, ...(kind === 'handoff' ? {continuePlayer:receiver} : {})});
+      const options = {kind, actor, ...(kind === 'handoff' ? {continuePlayer:receiver} : {})};
+      const preview = previewEvent(game,options);
+      if (preview.error) { toast(preview.error); return; }
+      game = applyEvent(game,options);
+      const last = game.history.at(-1);
       view = null; pending = null; render();
-      toast(kind === 'foul' ? `${name(actor)} −1 → ${name(receiver)} +1 · 第${game.round}局继续` : `${name(actor)}让杆，${name(receiver)}继续击球 · 不计分`);
+      toast(last.endsRack ? `${name(actor)}${labels[kind]} ${signed(last.changes[actor])} · 第${game.round}局${name(game.breaker)}开球` : kind === 'foul' ? `${name(actor)} −1 → ${name(receiver)} +1 · 第${game.round}局继续` : `${name(actor)}让杆，${name(receiver)}继续击球 · 不计分`);
       return;
     }
     pending = {kind, actor};
@@ -375,9 +430,14 @@
     actor = (game.breaker + 1) % game.count; pending = null; view = null; editingPayer = false; editDraft = null;
     hideToast(); render();
   }
-  function focusDialog() { requestAnimationFrame(() => $('dialog').focus({preventScroll:true})); }
+  function focusDialog() { requestAnimationFrame(() => ($('dialog').querySelector('button:not(:disabled)') ?? $('dialog')).focus({preventScroll:true})); }
   function hideToast() { clearTimeout(toastTimer); $('toast').hidden = true; }
   function toast(message) { hideToast(); $('toast').textContent = message; $('toast').hidden = false; toastTimer = setTimeout(() => $('toast').hidden = true, 3900); }
+  function showIntro(force = false) {
+    if (introSeen && !force) return;
+    introSeen = true; writeSetting('intro-seen','1'); hideToast();
+    view = 'intro'; pending = null; render(); focusDialog();
+  }
 
   function editError() {
     if (!editDraft.every(n => Number.isInteger(n) && Math.abs(n) <= 9999)) return '请输入 −9999 至 9999 的整数';
@@ -422,6 +482,8 @@
     }
   });
   $('player-count').addEventListener('change',e => reset({count:Number(e.target.value)}));
+  $('name-mode').addEventListener('change',e => { nameMode = e.target.value; hideToast(); render(); });
+  $('replay-intro').addEventListener('click',() => showIntro(true));
   $('small-mode').addEventListener('change',e => reset({smallGoldMode:e.target.value}));
   $('retain-break').addEventListener('change',e => reset({goldRetainsBreak:e.target.checked}));
   $('breaker-select').addEventListener('change',e => {
@@ -440,15 +502,18 @@
   $('overlay').addEventListener('click',e => { if(e.target === $('overlay')) {view = null; pending = null; render();} });
   document.addEventListener('keydown',e => {
     if(e.key === 'Escape' && view) {view = null; pending = null; render();}
-    if(e.key !== 'Tab' || !view || !$('dialog').contains(document.activeElement)) return;
+    if(e.key !== 'Tab' || !view) return;
     const focusable = [...$('dialog').querySelectorAll('button:not(:disabled),select,input')];
     if(!focusable.length) return;
-    if(e.shiftKey && document.activeElement === focusable[0]) {e.preventDefault();focusable.at(-1).focus();}
+    if (!$('dialog').contains(document.activeElement) || document.activeElement === $('dialog')) {e.preventDefault();(e.shiftKey ? focusable.at(-1) : focusable[0]).focus();}
+    else if(e.shiftKey && document.activeElement === focusable[0]) {e.preventDefault();focusable.at(-1).focus();}
     else if(!e.shiftKey && document.activeElement === focusable.at(-1)) {e.preventDefault();focusable[0].focus();}
   });
   // Read-only state snapshots help verify the prototype without touching app data.
   window.chaseDemo = { snapshot:() => structuredClone(game), preview:options => previewEvent(game,options) };
+  new ResizeObserver(fitWatchNames).observe($('app'));
   render();
+  showIntro();
 </script>
 </body>
 </html>

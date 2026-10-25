@@ -23,6 +23,7 @@ struct PingPongScoreboardView: View {
             gameType: isDoubles ? .pingpongDoubles : .pingpong,
             rules: rules,
             participants: rallyParticipants,
+            participantSelections: initialSetup?.participantSelections ?? [:],
             openingServer: openingServer,
             voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement == true,
             showMatchTimeEnabled: initialSetup?.showMatchTime

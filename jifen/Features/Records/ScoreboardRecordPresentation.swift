@@ -1,12 +1,56 @@
 import Foundation
 import RecordCore
 
+/// Read-only label policy. Missing version metadata denotes the historical
+/// cumulative rules; opening a record never replays it under current rules.
+enum NineBallRecordRuleVersionPolicy {
+    static func resolve(
+        extraData: [String: AnyCodable]?,
+        projectConfiguration: [String: AnyCodable]?,
+        stateSnapshot: Data? = nil
+    ) -> Int {
+        if let version = version(extraData?["chaseRuleVersion"]?.value) { return version }
+        if let version = version(projectConfiguration?["nineBallRuleVersion"]?.value) { return version }
+        guard let stateSnapshot,
+              let root = try? JSONSerialization.jsonObject(with: stateSnapshot) as? [String: Any] else {
+            return 1
+        }
+        if let version = version(root["ruleVersion"]) { return version }
+        if let state = root["state"] as? [String: Any], let version = version(state["ruleVersion"]) {
+            return version
+        }
+        if let current = root["currentSession"] as? [String: Any],
+           let state = current["state"] as? [String: Any],
+           let version = version(state["ruleVersion"]) {
+            return version
+        }
+        return 1
+    }
+
+    static var legacyLabel: String {
+        NSLocalizedString("nine_ball_legacy_rules", value: "旧版规则", comment: "")
+    }
+
+    private static func version(_ raw: Any?) -> Int? {
+        if let value = raw as? Int, value >= 1 { return value }
+        if let value = raw as? String, let number = Int(value), number >= 1 { return number }
+        return nil
+    }
+}
+
 enum ScoreboardRecordDetailLayout: Equatable {
     case standard
     case multiScoreTimeline
 }
 
 enum ScoreboardRecordActionTitlePolicy {
+    static func nineBallOperationTitle(operationCode: String?, summary: String?) -> String? {
+        guard operationCode?.hasPrefix("nine_ball_transfer_") == true || operationCode?.hasPrefix("nine_ball_tournament_") == true || operationCode == "nine_ball_breaker_changed",
+              let summary = summary?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !summary.isEmpty else { return nil }
+        return summary
+    }
+
     static func tableTennisAdministrativeTitle(
         operationCode: String?,
         teamName: String?

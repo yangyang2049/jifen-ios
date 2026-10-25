@@ -27,6 +27,7 @@ struct BoxingScoreboardView: View {
     @State private var roundLeftPoints: Int = 10
     @State private var roundRightPoints: Int = 10
     @State private var recordID: String
+    @State private var initialParticipantSelections: [String: ParticipantSelection]?
 
     init(
         initialSetup: SportsSetupResult? = nil,
@@ -45,6 +46,8 @@ struct BoxingScoreboardView: View {
             prefix: GameType.boxing.canonicalScoreboardIdentifier,
             resuming: initialResumeSessionId
         ))
+        _initialParticipantSelections = State(initialValue: initialResumeSessionId == nil
+            ? (initialSetup?.participantSelections ?? [:]) : nil)
     }
 
     var body: some View {
@@ -154,6 +157,7 @@ struct BoxingScoreboardView: View {
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
+        .registerParticipantSetupOnAppear(recordID: recordID, selections: initialParticipantSelections)
         .onAppear {
             viewModel.controller = controller
             if let setup = initialSetup {
@@ -273,9 +277,11 @@ struct BoxingScoreboardView: View {
     }
 
     private func startNewMatch() {
+        let previousIdentityRecord = recordID
         viewModel.saveGameRecordInRealTime(recordID: recordID, isGameFinished: true)
         controller.beginNewMatch()
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.boxing.canonicalScoreboardIdentifier)
+        ParticipantIdentityStore.shared.copySelections(from: previousIdentityRecord, to: recordID)
         viewModel.startNewMatch()
         roundLeftPoints = 10
         roundRightPoints = 10

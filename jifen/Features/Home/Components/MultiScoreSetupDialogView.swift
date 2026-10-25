@@ -20,6 +20,7 @@ struct MultiScoreSetupDialogView: View {
 
     @State private var selectedPlayerCount: Int
     @State private var playerNames: [String]
+    @State private var participantSelections: [String: ParticipantSelection] = [:]
     @State private var team1Name: String
     @State private var team2Name: String
     @State private var unoTargetScore: Int
@@ -115,6 +116,7 @@ struct MultiScoreSetupDialogView: View {
         }()
 
         _selectedPlayerCount = State(initialValue: safeCount)
+        _participantSelections = State(initialValue: initialSetup?.participantSelections ?? [:])
         let resolvedNames: [String] = {
             if mode == .doudizhu && initialPlayerNames.isEmpty {
                 return Self.defaultDoudizhuNames()
@@ -203,6 +205,7 @@ struct MultiScoreSetupDialogView: View {
                             playerCountChips
                         }
                         playerNameFields
+                        ParticipantDuplicateNamesHint(names: Array(playerNames.prefix(selectedPlayerCount)))
                         if layoutMode == .multiScore {
                             customAdjustToggle
                         }
@@ -246,11 +249,18 @@ struct MultiScoreSetupDialogView: View {
             get: { activeCommonNameIndex != nil },
             set: { if !$0 { activeCommonNameIndex = nil } }
         )) {
-            CommonNameSelectorDialog(nameType: .player) { name in
-                if let index = activeCommonNameIndex, playerNames.indices.contains(index) {
+            if let index = activeCommonNameIndex {
+                CommonNameSelectorDialog(nameType: .player,
+                    unavailablePeople: Set(validParticipantSelections.filter { $0.key != "player:\(index)" }.values.compactMap(\.personRef)),
+                    onParticipantSelect: { selection in
+                        if selection.personRef != nil { participantSelections["player:\(index)"] = selection }
+                        else { participantSelections.removeValue(forKey: "player:\(index)") }
+                    }) { name in
+                    if playerNames.indices.contains(index) {
                     playerNames[index] = name
+                    }
+                    activeCommonNameIndex = nil
                 }
-                activeCommonNameIndex = nil
             }
         }
         .sheet(item: $activeTeamNameTarget) { target in
@@ -525,7 +535,17 @@ struct MultiScoreSetupDialogView: View {
     }
 
     private var canConfirmSetup: Bool {
-        layoutMode != .uno || UnoTargetScorePolicy.allowedRange.contains(unoTargetScore)
+        (layoutMode != .uno || UnoTargetScorePolicy.allowedRange.contains(unoTargetScore))
+            && !ParticipantIdentityRules.containsDuplicatePerson(Array(validParticipantSelections.values))
+    }
+
+    private var validParticipantSelections: [String: ParticipantSelection] {
+        guard layoutMode != .twoTeam else { return [:] }
+        return participantSelections.filter { key, selection in
+            guard let index = Int(key.replacingOccurrences(of: "player:", with: "")), index < selectedPlayerCount,
+                  playerNames.indices.contains(index) else { return false }
+            return selection.personRef != nil && selection.name == playerNames[index]
+        }
     }
 
     private static func normalizePlayerNames(_ names: [String], capacity: Int) -> [String] {
@@ -561,6 +581,7 @@ struct MultiScoreSetupDialogView: View {
             get: { playerNames.indices.contains(index) ? playerNames[index] : "" },
             set: { newValue in
                 guard playerNames.indices.contains(index) else { return }
+                if newValue != participantSelections["player:\(index)"]?.name { participantSelections.removeValue(forKey: "player:\(index)") }
                 playerNames[index] = newValue
             }
         )
@@ -620,6 +641,7 @@ struct MultiScoreSetupDialogView: View {
                 playerCount: selectedPlayerCount,
                 playerNames: finalNames
             )
+            result.participantSelections = validParticipantSelections.isEmpty ? nil : validParticipantSelections
             if layoutMode == .multiScore {
                 PreferencesManager.shared.multiScoreboardPlayerCount = selectedPlayerCount
                 PreferencesManager.shared.multiScoreboardCustomAdjustEnabled = customAdjustEnabled

@@ -1,0 +1,16 @@
+Command (cwd: jifenqi-backend/api-server):
+node --import tsx --test src/lib/participantIdentity.integration.test.ts
+
+Result: exit 0; contract pass 1; isolated Postgres suite skipped because RUN_LOCAL_DB_TESTS was not enabled.
+No environment values or tokens are included in this log. The executed contract case performs no database query; the database suite was skipped.
+
+✔ contract: team/person separation, stable digests and unknown native fields (13.49475ms)
+﹣ real isolated Postgres: identity, records, voice, account merge and session guards (27.586125ms) # SKIP
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 529.340292

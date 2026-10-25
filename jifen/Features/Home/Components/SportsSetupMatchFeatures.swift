@@ -66,13 +66,33 @@ struct SportsSetupMatchFeaturesSection: View {
     let gameType: GameType
     @Binding var draft: SportsSetupDraft
     @AppStorage("pingpongAnnounceServer") private var announceServer = true
+    @AppStorage("voiceAnnouncementLanguage") private var voiceLanguagePref = "auto"
     @State private var showServePopup = false
-    @State private var servePopupRevision = 0
 
     private let featureCardSpacing: CGFloat = 8
 
+    /// "zh-CN"/"en-US" 当前生效值:显式偏好优先,未手动选择时跟随 App 语言。
+    private var selectedLanguageCode: String {
+        if voiceLanguagePref == "zh-CN" || voiceLanguagePref == "en-US" { return voiceLanguagePref }
+        return SportsVoiceSupport.localization.hasPrefix("zh") ? "zh-CN" : "en-US"
+    }
+
+    /// 语言选择器仅面向中文 App 用户(其他语言暂不提供入口,偏好仍生效)。
+    private var showsLanguagePicker: Bool {
+        SportsVoiceSupport.localization.hasPrefix("zh")
+    }
+
     private var features: [SportsSetupMatchFeature] {
         SportsSetupMatchFeature.features(for: gameType, isSingles: draft.isSingles, voiceSupported: SportsVoiceSupport.isSupported)
+    }
+
+    private var hasVoiceOptions: Bool {
+        SportsVoiceOptionsPolicy.canPresent(
+            isVoiceControl: features.contains(.voiceAnnouncement),
+            isVoiceEnabled: draft.voiceAnnouncement,
+            hasServeOption: gameType == .pingpong,
+            appLanguage: SportsVoiceSupport.localization
+        )
     }
 
     var body: some View {
@@ -93,36 +113,70 @@ struct SportsSetupMatchFeaturesSection: View {
                                 toggle(feature)
                             }
                             .overlay(alignment: .topTrailing) {
-                                if feature == .voiceAnnouncement, gameType == .pingpong, draft.voiceAnnouncement {
+                                if feature == .voiceAnnouncement, hasVoiceOptions {
                                     Button {
-                                        servePopupRevision += 1
-                                        showServePopup = true
+                                        showServePopup.toggle()
                                     } label: {
                                         Image(systemName: "chevron.down")
                                             .font(.system(size: 10, weight: .semibold))
                                             .frame(width: 24, height: 28)
                                     }
-                                    .accessibilityLabel(NSLocalizedString("voice_announce_server", comment: ""))
+                                    .accessibilityLabel(NSLocalizedString("voice_announcement_language", value: "Announcement language", comment: ""))
                                     .accessibilityIdentifier("setup_voice_options")
                                 }
                             }
                             .popover(isPresented: Binding(
-                                get: { feature == .voiceAnnouncement && showServePopup },
+                                get: { feature == .voiceAnnouncement && hasVoiceOptions && showServePopup },
                                 set: { showServePopup = $0 }
                             ), arrowEdge: .bottom) {
-                                Toggle(NSLocalizedString("voice_announce_server", comment: ""), isOn: $announceServer)
-                                    .font(.system(size: 15))
-                                    .foregroundStyle(Theme.textPrimary)
-                                    .tint(Theme.primary)
-                                    .frame(width: 248)
-                                    .padding(16)
-                                    .presentationCompactAdaptation(.popover)
-                                    .accessibilityIdentifier("setup_announce_server_toggle")
-                                    .onChange(of: announceServer) { _, _ in servePopupRevision += 1 }
-                                    .task(id: servePopupRevision) {
-                                        try? await Task.sleep(for: .seconds(5))
-                                        if !Task.isCancelled { showServePopup = false }
+                                VStack(spacing: 0) {
+                                    if gameType == .pingpong {
+                                        Toggle(NSLocalizedString("voice_announce_server", comment: ""), isOn: $announceServer)
+                                            .font(.system(size: 15))
+                                            .foregroundStyle(Theme.textPrimary)
+                                            .tint(Theme.primary)
+                                            .padding(16)
+                                            .accessibilityIdentifier("setup_announce_server_toggle")
+                                        Rectangle()
+                                            .fill(Theme.divider)
+                                            .frame(height: 1)
                                     }
+                                    if showsLanguagePicker {
+                                        Text(NSLocalizedString("voice_announcement_language", value: "Announcement language", comment: ""))
+                                            .font(.system(size: 12))
+                                            .foregroundStyle(Theme.textSecondary)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .padding(.horizontal, 16)
+                                            .padding(.top, 10)
+                                        voiceLanguageRow(
+                                            code: "zh-CN",
+                                            key: "voice_language_zh_cn",
+                                            fallback: "简体中文",
+                                            identifier: "setup_voice_language_zh"
+                                        )
+                                        voiceLanguageRow(
+                                            code: "en-US",
+                                            key: "voice_language_en_us",
+                                            fallback: "English(英文)",
+                                            identifier: "setup_voice_language_en"
+                                        )
+                                        if gameType == .pingpong {
+                                            Text(selectedLanguageCode == "zh-CN"
+                                             ? NSLocalizedString("voice_call_note_zh", value: "国内比赛口径:比分播「3比2」,平分播「3平」。", comment: "")
+                                             : NSLocalizedString("voice_call_note_en", value: "ITTF-style calls: 0 as love, 0–0 as Love all, names in pinyin.", comment: ""))
+                                            .font(.system(size: 11))
+                                            .foregroundStyle(Theme.textSecondary)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .padding(10)
+                                            .background(Color.primary.opacity(0.06), in: RoundedRectangle(cornerRadius: 8))
+                                            .padding(.horizontal, 16)
+                                            .padding(.top, 10)
+                                            .padding(.bottom, 14)
+                                        }
+                                    }
+                                }
+                                .frame(width: 248)
+                                .presentationCompactAdaptation(.popover)
                             }
                         }
                     }
@@ -131,15 +185,37 @@ struct SportsSetupMatchFeaturesSection: View {
             .onChange(of: draft.voiceAnnouncement) { _, enabled in
                 guard gameType == .pingpong else { return }
                 showServePopup = enabled
-                servePopupRevision += 1
             }
             .onAppear {
                 if gameType == .pingpong && draft.voiceAnnouncement {
                     showServePopup = true
-                    servePopupRevision += 1
                 }
             }
         }
+    }
+
+    /// 气泡内的语言勾选行:点选即写偏好,下一次播报生效。
+    private func voiceLanguageRow(code: String, key: String, fallback: String, identifier: String) -> some View {
+        Button {
+            voiceLanguagePref = code
+        } label: {
+            HStack {
+                Text(NSLocalizedString(key, value: fallback, comment: ""))
+                    .font(.system(size: 15))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                if selectedLanguageCode == code {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Theme.primary)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 11)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(identifier)
     }
 
     /// 中文保持 74pt 与安卓一致；其他语言最多放宽到 96pt，但窄屏会按

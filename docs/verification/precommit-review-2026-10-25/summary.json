@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-25",
+  "scope": "jifen-ios 3.4 uncommitted changes after b8255085",
+  "swiftPackage": {
+    "passed": 277,
+    "failed": 0,
+    "log": "/tmp/jifen-precommit-swift-test-20261025.log"
+  },
+  "nineBallDemo": {
+    "passed": 23,
+    "failed": 0,
+    "command": "node --test docs/demos/nine-ball-14710-2026-10-24/rules.test.mjs"
+  },
+  "iOSTestBuild": {
+    "result": "succeeded",
+    "architectures": [
+      "arm64",
+      "x86_64"
+    ],
+    "resultBundle": "/tmp/jifen-precommit-build-20261025.xcresult",
+    "log": "/tmp/jifen-precommit-build-20261025.log"
+  },
+  "iOSTestExecution": {
+    "result": "not_completed_environment_unavailable",
+    "intended": "jifenTests plus ParticipantIdentityUITests and two MainFlow voice tests",
+    "finalExitCode": 70,
+    "log": "/tmp/jifen-precommit-duo-final-20261025.log"
+  },
+  "python": {
+    "total": 51,
+    "passed": 50,
+    "failed": 1,
+    "failure": "Sibling HarmonyOS checkout has no ACCOUNT_MERGE_INVALID mapping; iOS assertion passes.",
+    "log": "/tmp/jifen-precommit-localization-final-20261025.log"
+  },
+  "catalogs": {
+    "locales": 44,
+    "blockers": 0,
+    "command": "python3 scripts/localization/localize.py validate --all --require-reviewed"
+  },
+  "staticChecks": {
+    "jsonAndSvg": "passed",
+    "documentSourceHashes": "passed",
+    "javascriptSyntaxBlocks": 11,
+    "diffWhitespace": "passed",
+    "secretPatterns": "no_matches"
+  },
+  "physicalDeviceAndRelease": "not_run",
+  "evidenceWhitespaceNormalization": {
+    "files": 14,
+    "originalBackup": "/tmp/jifen-precommit-original-evidence-20261025",
+    "change": "trailing horizontal whitespace and final empty lines only"
+  },
+  "temporarySimulatorCleanup": {
+    "result": "simctl_delete_timed_out",
+    "devices": [
+      "Codex Precommit iPhone 17 Pro 20261025",
+      "Codex Precommit iPhone Duo 20261025"
+    ]
+  }
+}

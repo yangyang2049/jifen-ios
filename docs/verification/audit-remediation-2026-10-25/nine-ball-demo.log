@@ -1,0 +1,31 @@
+✔ game defaults and names match the three-player demo (0.773416ms)
+✔ 2 players: big/golden collect one share per other player (0.445625ms)
+✔ 2 players: normal and default small transfer a single share (0.100417ms)
+✔ 2 players: all-player small mode collects all seven-point shares (0.073541ms)
+✔ 2 players: foul pays the next seat and keeps rack/breaker (0.091042ms)
+✔ 3 players: big/golden collect one share per other player (0.101458ms)
+✔ 3 players: normal and default small transfer a single share (0.047042ms)
+✔ 3 players: all-player small mode collects all seven-point shares (0.03975ms)
+✔ 3 players: foul pays the next seat and keeps rack/breaker (0.0595ms)
+✔ 4 players: big/golden collect one share per other player (0.110167ms)
+✔ 4 players: normal and default small transfer a single share (0.062125ms)
+✔ 4 players: all-player small mode collects all seven-point shares (0.040334ms)
+✔ 4 players: foul pays the next seat and keeps rack/breaker (0.03625ms)
+✔ normal payer can be confirmed as the actual previous shooter (0.1ms)
+✔ small payer correction is recorded as the effective rack breaker (0.180291ms)
+✔ golden/big retain the winner when enabled; otherwise next seat of winner (0.693709ms)
+✔ the user four-rack example: A big, B golden, C normal, B small (0.0845ms)
+✔ handoff changes only shooter and history; it never scores or ends rack (0.0645ms)
+✔ full undo restores scores, round, breaker and shooter after a mixed event stream (0.082125ms)
+✔ preview and apply reject self payment, invalid big winner and invalid handoff (0.152709ms)
+✔ all invalid player indices are rejected without clamping (0.34075ms)
+✔ configuration is validated strictly (0.174208ms)
+✔ preview, apply and undo leave old state and options unchanged (0.585916ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 123.2205

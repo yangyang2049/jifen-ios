@@ -26,6 +26,33 @@ nonisolated struct APIErrorPayload: Decodable, Sendable {
     var message: String?
     var nextAvailableAt: String? = nil
     var currentResultId: String? = nil
+    var details: PrivateSyncRecoveryDetails? = nil
+    private enum CodingKeys: String, CodingKey { case error, message, nextAvailableAt, currentResultId, details }
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        error = try c.decodeIfPresent(String.self, forKey: .error)
+        message = try c.decodeIfPresent(String.self, forKey: .message)
+        nextAvailableAt = try c.decodeIfPresent(String.self, forKey: .nextAvailableAt)
+        currentResultId = try c.decodeIfPresent(String.self, forKey: .currentResultId)
+        // Validation errors may carry an array of issues instead of sync details.
+        details = try? c.decode(PrivateSyncRecoveryDetails.self, forKey: .details)
+    }
+}
+
+nonisolated struct PrivateSyncMutationOutcome: Decodable, Sendable {
+    var mutationId: String?; var status: String?; var operation: String?
+    var libraryId: String?; var recordKey: String?; var appliedRevision: Int?
+    var userId: String?; var guestPersonId: String?; var adoptionId: String?; var assetId: String?
+}
+nonisolated struct PrivateSyncRecoveryDetails: Decodable, Sendable {
+    var splitBatch: Bool?; var retryable: Bool?; var retryAfterSeconds: Double?
+    var outcome: PrivateSyncMutationOutcome?
+}
+nonisolated struct APIClientPrivateSyncError: LocalizedError, Sendable {
+    var underlying: APIClientError; var status: Int; var details: PrivateSyncRecoveryDetails?
+    var path: String? = nil
+    var code: String? { if case .server(_, let code, _, _) = underlying { return code }; return nil }
+    var errorDescription: String? { underlying.errorDescription }
 }
 
 /// Carries actionable group conflict details without changing existing server errors.
@@ -132,6 +159,24 @@ private nonisolated final class HTTPDateFormatter: DateFormatter, @unchecked Sen
     }()
 }
 
+/// Asset manifests may use relative paths or absolute URLs on this API origin.
+/// Resolve before attaching credentials; an arbitrary host must never receive a bearer.
+nonisolated enum PersonalRecordAssetEndpoint {
+    static func resolve(_ reference: String, baseURL: URL) throws -> (path: String, query: [URLQueryItem]) {
+        guard let url = URL(string: reference, relativeTo: baseURL.appendingPathComponent("/"))?.absoluteURL,
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              components.scheme?.lowercased() == baseURL.scheme?.lowercased(),
+              components.host?.lowercased() == baseURL.host?.lowercased(),
+              (components.port ?? 443) == (baseURL.port ?? 443),
+              components.user == nil, components.password == nil, components.fragment == nil,
+              components.path.hasPrefix("/api/private-record-assets/"),
+              components.path.hasSuffix("/content") else { throw APIClientError.invalidResponse }
+        let assetId = String(components.path.dropFirst("/api/private-record-assets/".count).dropLast("/content".count))
+        guard UUID(uuidString: assetId) != nil else { throw APIClientError.invalidResponse }
+        return (components.path, components.queryItems ?? [])
+    }
+}
+
 actor APIClient {
     static let shared = APIClient()
 
@@ -228,6 +273,17 @@ actor APIClient {
         } catch {
             throw APIClientError.decoding
         }
+    }
+
+    /// Private record audio uses the same exact-session authentication funnel as
+    /// JSON requests; it must not maintain a second bearer or cookie session.
+    func privateRecordAssetBytes(_ path: String, method: HTTPMethod = .get,
+                                 data: Data? = nil, contentType: String? = nil,
+                                 expectedAuthRevision: UInt64) async throws -> Data {
+        let endpoint = try PersonalRecordAssetEndpoint.resolve(path, baseURL: environment.restBaseURL)
+        return try await execute(endpoint.path, method: method, query: endpoint.query, bodyData: data,
+                                 contentType: contentType, requiresAuth: true, headers: [:],
+                                 timeout: 60, retries: 0, expectedAuthRevision: expectedAuthRevision)
     }
 
     /// The binding flow retains the exact bearer used to verify its ticket.
@@ -442,6 +498,14 @@ actor APIClient {
                 message: payload?.message,
                 nextAvailableAt: payload?.nextAvailableAt
             )
+            // Sync POSTs own their durable retry IDs and split/backoff policy.
+            if (path == "/api/self-identity" || path.hasPrefix("/api/self-identity/") || path.hasPrefix("/api/private-records") || path.hasPrefix("/api/private-record-assets")), [410, 413, 429, 503].contains(http.statusCode) {
+                var details = payload?.details ?? PrivateSyncRecoveryDetails()
+                if details.retryAfterSeconds == nil {
+                    details.retryAfterSeconds = APIRetryPolicy.retryAfterSeconds(from: http.value(forHTTPHeaderField: "Retry-After"))
+                }
+                throw APIClientPrivateSyncError(underlying: error, status: http.statusCode, details: details, path: path)
+            }
             if APIRetryPolicy.retryableStatuses.contains(http.statusCode) {
                 var retryAfter: Double?
                 if let nextAvailableAt = payload?.nextAvailableAt {

@@ -22,7 +22,10 @@ actor AuthTokenStore {
     private let service: String
     private var sessionRevision: UInt64 = 0
 
-    init(service: String = "com.douhua.jifen.ios.secure") {
+    /// A namespace identifier is safe to inspect without reading any credentials.
+    nonisolated var serviceIdentifier: String { service }
+
+    init(service: String = AppTestRuntime.authService) {
         self.service = service
     }
 

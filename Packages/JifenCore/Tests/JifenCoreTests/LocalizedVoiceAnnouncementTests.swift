@@ -91,7 +91,7 @@ import Testing
                 let expected = String(format: advantage, locale: Locale(identifier: code), joinedNames as NSString)
                 #expect(rendered == expected, "\(code) \(side)")
                 if code.hasPrefix("zh-") {
-                    #expect(rendered == names.joined(separator: "和") + "占先")
+                    #expect(rendered == names.joined(separator: "和") + (code == "zh-Hant" ? "佔先" : "占先"))
                 }
             }
         }

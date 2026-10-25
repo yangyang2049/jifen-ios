@@ -1,0 +1,329 @@
+
+> Configure project :app
+WARNING: The option setting 'android.builtInKotlin=false' is deprecated.
+The current default is 'true'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+WARNING: The option setting 'android.newDsl=false' is deprecated.
+The current default is 'true'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+WARNING: API 'applicationVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+The legacy variant API is disabled by default in AGP 9.0, but can be re-enabled by adding
+    android.newDsl=false
+to this project's gradle.properties file.
+For more information, see http://developer.android.com/build/r/new-dsl.
+
+To determine what is calling applicationVariants, use -Pandroid.debug.obsoleteApi=true on the command line to display more information.
+WARNING: API 'testVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+The legacy variant API is disabled by default in AGP 9.0, but can be re-enabled by adding
+    android.newDsl=false
+to this project's gradle.properties file.
+For more information, see http://developer.android.com/build/r/new-dsl.
+
+To determine what is calling testVariants, use -Pandroid.debug.obsoleteApi=true on the command line to display more information.
+WARNING: API 'unitTestVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+The legacy variant API is disabled by default in AGP 9.0, but can be re-enabled by adding
+    android.newDsl=false
+to this project's gradle.properties file.
+For more information, see http://developer.android.com/build/r/new-dsl.
+
+To determine what is calling unitTestVariants, use -Pandroid.debug.obsoleteApi=true on the command line to display more information.
+
+> Configure project :score-engine
+WARNING: API 'libraryVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+The legacy variant API is disabled by default in AGP 9.0, but can be re-enabled by adding
+    android.newDsl=false
+to this project's gradle.properties file.
+For more information, see http://developer.android.com/build/r/new-dsl.
+
+To determine what is calling libraryVariants, use -Pandroid.debug.obsoleteApi=true on the command line to display more information.
+
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preGoogleplayDebugBuild UP-TO-DATE
+> Task :app:generateGoogleplayDebugBuildConfig UP-TO-DATE
+> Task :app:generateGoogleplayDebugResources UP-TO-DATE
+> Task :app:injectCrashlyticsMappingFileIdGoogleplayDebug UP-TO-DATE
+> Task :app:processGoogleplayDebugGoogleServices UP-TO-DATE
+> Task :app:packageGoogleplayDebugResources UP-TO-DATE
+> Task :score-engine:preBuild UP-TO-DATE
+> Task :score-engine:preDebugBuild UP-TO-DATE
+> Task :score-engine:processDebugNavigationResources UP-TO-DATE
+> Task :shared-core:preBuild UP-TO-DATE
+> Task :shared-core:preDebugBuild UP-TO-DATE
+> Task :shared-core:processDebugNavigationResources UP-TO-DATE
+> Task :shared-model:preBuild UP-TO-DATE
+> Task :shared-model:preDebugBuild UP-TO-DATE
+> Task :shared-model:processDebugNavigationResources UP-TO-DATE
+> Task :app:processGoogleplayDebugNavigationResources UP-TO-DATE
+> Task :app:parseGoogleplayDebugLocalResources UP-TO-DATE
+> Task :app:generateGoogleplayDebugRFile UP-TO-DATE
+> Task :score-engine:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :score-engine:generateDebugResources UP-TO-DATE
+> Task :score-engine:packageDebugResources UP-TO-DATE
+> Task :score-engine:parseDebugLocalResources UP-TO-DATE
+> Task :score-engine:generateDebugRFile UP-TO-DATE
+> Task :shared-model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :shared-model:generateDebugResources UP-TO-DATE
+> Task :shared-model:packageDebugResources UP-TO-DATE
+> Task :shared-model:parseDebugLocalResources UP-TO-DATE
+> Task :shared-model:generateDebugRFile UP-TO-DATE
+> Task :shared-model:compileDebugKotlin UP-TO-DATE
+> Task :shared-model:javaPreCompileDebug UP-TO-DATE
+> Task :shared-model:compileDebugJavaWithJavac NO-SOURCE
+> Task :shared-model:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :score-engine:compileDebugKotlin UP-TO-DATE
+> Task :score-engine:javaPreCompileDebug UP-TO-DATE
+> Task :score-engine:compileDebugJavaWithJavac NO-SOURCE
+> Task :score-engine:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :shared-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :shared-core:generateDebugBuildConfig UP-TO-DATE
+> Task :shared-core:generateDebugResources UP-TO-DATE
+> Task :shared-core:packageDebugResources UP-TO-DATE
+> Task :shared-core:parseDebugLocalResources UP-TO-DATE
+> Task :shared-core:generateDebugRFile UP-TO-DATE
+> Task :shared-core:kspDebugKotlin UP-TO-DATE
+> Task :shared-core:compileDebugKotlin UP-TO-DATE
+> Task :shared-core:javaPreCompileDebug UP-TO-DATE
+> Task :shared-core:compileDebugJavaWithJavac UP-TO-DATE
+> Task :shared-core:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :app:javaPreCompileGoogleplayDebug UP-TO-DATE
+> Task :score-engine:writeDebugAarMetadata UP-TO-DATE
+> Task :shared-core:writeDebugAarMetadata UP-TO-DATE
+> Task :shared-model:writeDebugAarMetadata UP-TO-DATE
+> Task :app:checkGoogleplayDebugAarMetadata UP-TO-DATE
+> Task :app:mapGoogleplayDebugSourceSetPaths UP-TO-DATE
+> Task :app:compileGoogleplayDebugNavigationResources UP-TO-DATE
+> Task :app:mergeGoogleplayDebugResources UP-TO-DATE
+> Task :app:createGoogleplayDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksGoogleplayDebug UP-TO-DATE
+> Task :score-engine:extractDeepLinksDebug UP-TO-DATE
+> Task :score-engine:processDebugManifest UP-TO-DATE
+> Task :shared-core:extractDeepLinksDebug UP-TO-DATE
+> Task :shared-core:processDebugManifest UP-TO-DATE
+> Task :shared-model:extractDeepLinksDebug UP-TO-DATE
+> Task :shared-model:processDebugManifest UP-TO-DATE
+> Task :app:processGoogleplayDebugMainManifest UP-TO-DATE
+> Task :app:processGoogleplayDebugManifest UP-TO-DATE
+> Task :app:processGoogleplayDebugManifestForPackage UP-TO-DATE
+> Task :score-engine:mapDebugSourceSetPaths UP-TO-DATE
+> Task :score-engine:compileDebugLibraryResources UP-TO-DATE
+> Task :shared-core:mapDebugSourceSetPaths UP-TO-DATE
+> Task :shared-core:compileDebugLibraryResources UP-TO-DATE
+> Task :shared-model:mapDebugSourceSetPaths UP-TO-DATE
+> Task :shared-model:compileDebugLibraryResources UP-TO-DATE
+> Task :app:processGoogleplayDebugResources UP-TO-DATE
+> Task :app:preGoogleplayDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileGoogleplayDebugUnitTest UP-TO-DATE
+> Task :app:syncContractFixtures UP-TO-DATE
+> Task :score-engine:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :score-engine:processDebugJavaRes UP-TO-DATE
+> Task :shared-core:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :shared-core:processDebugJavaRes UP-TO-DATE
+> Task :shared-model:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :shared-model:processDebugJavaRes UP-TO-DATE
+> Task :app:compileGoogleplayDebugKotlin
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/MainActivity.kt:226:15 'fun onActivityResult(p0: Int, p1: Int, p2: Intent?): Unit' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/cloudsync/ui/RemoteSyncSharedUi.kt:248:5 'fun ClickableText(text: AnnotatedString, modifier: Modifier = ..., style: TextStyle = ..., softWrap: Boolean = ..., overflow: TextOverflow = ..., maxLines: Int = ..., onTextLayout: (TextLayoutResult) -> Unit = ..., onClick: (Int) -> Unit): Unit' is deprecated. Use Text or BasicText and pass an AnnotatedString that contains a LinkAnnotation.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/cloudsync/ws/MatchWebSocketManager.kt:430:46 Unchecked cast of 'Any?' to 'Map<String, Any?>'.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/cloudsync/ws/WsModels.kt:165:70 Unchecked cast of 'Any?' to 'Map<String, Any?>'.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/data/model/group/GroupApiModels.kt:1081:33 Condition is always 'true'.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/data/remote/HttpClient.kt:101:61 Condition is always 'true'.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/data/sync/ParticipantPrivateRecordsSync.kt:389:17 Condition is always 'false'.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/data/sync/ParticipantPrivateRecordsSync.kt:406:100 Condition is always 'true'.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/display/model/DisplayState.kt:684:27 Unchecked cast of 'Any?' to 'Map<String, Any?>'.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/managers/group/GroupUploadManager.kt:100:17 Condition is always 'false'.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/managers/group/GroupUploadManager.kt:100:30 Condition is always 'false'.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/recordnote/RecordNoteAudioManager.kt:182:17 'constructor(): MediaRecorder' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/group/result/GroupResultScoreControls.kt:291:28 'val Icons.Rounded.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.KeyboardArrowRight.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/me/ScoreboardSettingsScreen.kt:316:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/me/ScoreboardSettingsScreen.kt:317:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/me/membership/WeekendMembershipArtwork.kt:162:9 'fun quadraticBezierTo(x1: Float, y1: Float, x2: Float, y2: Float): Unit' is deprecated. Use quadraticTo() for consistency with cubicTo().
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/me/membership/WeekendMembershipArtwork.kt:163:9 'fun quadraticBezierTo(x1: Float, y1: Float, x2: Float, y2: Float): Unit' is deprecated. Use quadraticTo() for consistency with cubicTo().
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/me/membership/WeekendMembershipArtwork.kt:164:9 'fun quadraticBezierTo(x1: Float, y1: Float, x2: Float, y2: Float): Unit' is deprecated. Use quadraticTo() for consistency with cubicTo().
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/me/membership/WeekendMembershipArtwork.kt:165:9 'fun quadraticBezierTo(x1: Float, y1: Float, x2: Float, y2: Float): Unit' is deprecated. Use quadraticTo() for consistency with cubicTo().
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/schedule/ScheduleUi.kt:29:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/score/ScoreTabScreen.kt:51:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/score/ScoreTabScreen.kt:58:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/score/setup/MahjongSetupEditors.kt:84:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/score/setup/MahjongSetupEditors.kt:84:32 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/score/shared/ScoreboardBackgroundCheckpointEffect.kt:16:26 'val LocalLifecycleOwner: ProvidableCompositionLocal<LifecycleOwner>' is deprecated. Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/timer/TimerTabScreen.kt:83:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/timer/TimerTabScreen.kt:90:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/tools/DateTimeToolScreen.kt:74:46 'var statusBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/tools/DateTimeToolScreen.kt:75:50 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/tools/DateTimeToolScreen.kt:83:20 'var statusBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/tools/DateTimeToolScreen.kt:84:20 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/tools/DateTimeToolScreen.kt:88:54 'var statusBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/tools/DateTimeToolScreen.kt:89:58 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/tools/ToolCatalog.kt:9:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/tools/ToolCatalog.kt:11:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/screen/tools/ToolCatalog.kt:15:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/ui/components/group/GroupOverlays.kt:224:48 'static field SOFT_INPUT_ADJUST_RESIZE: Int' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/ui/components/group/GroupOverlays.kt:229:68 'static field FLAG_TRANSLUCENT_STATUS: Int' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/ui/components/group/GroupOverlays.kt:232:30 'var isStatusBarContrastEnforced: Boolean' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/main/java/com/douhua/jifen/util/FeedbackLinkify.kt:113:5 'fun ClickableText(text: AnnotatedString, modifier: Modifier = ..., style: TextStyle = ..., softWrap: Boolean = ..., overflow: TextOverflow = ..., maxLines: Int = ..., onTextLayout: (TextLayoutResult) -> Unit = ..., onClick: (Int) -> Unit): Unit' is deprecated. Use Text or BasicText and pass an AnnotatedString that contains a LinkAnnotation.
+
+> Task :app:compileGoogleplayDebugJavaWithJavac UP-TO-DATE
+> Task :app:bundleGoogleplayDebugClassesToRuntimeJar
+> Task :app:bundleGoogleplayDebugClassesToCompileJar
+> Task :app:processGoogleplayDebugJavaRes UP-TO-DATE
+
+> Task :app:compileGoogleplayDebugUnitTestKotlin
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/data/local/CountdownToolCoordinatorTest.kt:19:37 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/data/local/CountdownToolCoordinatorTest.kt:23:9 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/data/local/CountdownToolCoordinatorTest.kt:24:9 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/data/local/CountdownToolCoordinatorTest.kt:28:9 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/data/local/CountdownToolCoordinatorTest.kt:29:9 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/data/local/CountdownToolCoordinatorTest.kt:42:37 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/data/local/CountdownToolCoordinatorTest.kt:47:9 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/data/local/CountdownToolCoordinatorTest.kt:48:9 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/data/sync/ParticipantIdentityTransportTest.kt:74:84 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'File?'.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:40:21 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:43:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:50:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:54:72 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:58:21 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:61:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:63:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:65:72 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:69:21 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:72:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:77:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:80:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:87:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:89:72 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:93:21 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:96:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:102:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupCreateReviewTest.kt:105:72 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/group/GroupFeatureConfigFallbackReviewTest.kt:143:9 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/scoreboard/contracts/ContractFixtureGeneratorTest.kt:742:9 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'File?'.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/scoreboard/contracts/Phase9TennisContractFixtureTest.kt:56:20 'constructor(): JsonParser' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/scoreboard/contracts/Phase9TennisContractFixtureTest.kt:56:33 'fun parse(p0: String!): JsonElement!' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/scoreboard/contracts/S1S2S3ContractFixtureTest.kt:610:16 'constructor(): JsonParser' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/scoreboard/contracts/S1S2S3ContractFixtureTest.kt:610:29 'fun parse(p0: String!): JsonElement!' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/scoreboard/contracts/S4ContractFixtureTest.kt:199:16 'constructor(): JsonParser' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/scoreboard/contracts/S4ContractFixtureTest.kt:199:29 'fun parse(p0: String!): JsonElement!' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/scoreboard/contracts/SportsContractFixtureTest.kt:260:32 'constructor(): JsonParser' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/scoreboard/contracts/SportsContractFixtureTest.kt:260:45 'fun parse(p0: String!): JsonElement!' is deprecated. Deprecated in Java.
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/scoreboard/presentation/MahjongKongVisibilityTest.kt:36:21 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/scoreboard/presentation/MahjongKongVisibilityTest.kt:36:29 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/scoreboard/presentation/MahjongKongVisibilityTest.kt:44:21 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/scoreboard/presentation/MahjongSessionViewModelInitRaceTest.kt:74:21 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/scoreboard/presentation/MahjongSessionViewModelInitRaceTest.kt:74:29 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/scoreboard/presentation/MahjongSessionViewModelInitRaceTest.kt:83:21 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:73:21 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:75:15 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:75:61 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:76:42 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:108:49 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:113:41 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:120:59 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:127:59 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:141:49 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:149:21 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:152:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:155:53 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:156:53 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:158:103 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:161:53 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:164:44 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:168:21 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:172:47 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:176:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:178:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:185:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:191:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:204:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:207:63 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:211:21 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:214:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:217:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:221:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:227:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:231:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:242:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:252:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:257:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:264:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:271:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:277:44 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:283:41 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:287:22 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:297:22 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:301:22 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:310:41 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:314:41 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:322:22 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:334:45 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:344:26 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:348:41 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/app/src/test/java/com/douhua/jifen/screen/group/activity/GroupActivityLineupReviewTest.kt:351:26 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+
+> Task :app:compileGoogleplayDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processGoogleplayDebugUnitTestJavaRes UP-TO-DATE
+> Task :app:testGoogleplayDebugUnitTest
+
+[Incubating] Problems report is available at: file:///Users/yangyang/Desktop/jifenqi/jifen-android-google/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.6.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m 9s
+77 actionable tasks: 5 executed, 72 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.1/userguide/configuration_cache_enabling.html

@@ -1,4 +1,6 @@
 import XCTest
+import Combine
+import Observation
 @testable import jifen
 
 @MainActor
@@ -83,6 +85,127 @@ final class LocalDataResetCoordinatorTests: XCTestCase {
         // Account credentials and purchase recovery data live in AuthTokenStore's
         // Keychain service and are intentionally outside this reset composition.
     }
+
+    func testTimerLoadDiscardsSnapshotInvalidatedByClearBeforePublishing() async {
+        let firstStarted = expectation(description: "First timer snapshot read")
+        let secondStarted = expectation(description: "Fresh timer snapshot read")
+        let loaded = expectation(description: "Only the fresh timer snapshot completes loading")
+        let old = GameRecordSummary(id: "deleted-timer", gameType: .chess, timestamp: 1)
+        let loader = BlockingRecordSnapshots(first: [old], next: [], firstStarted: firstStarted, nextStarted: secondStarted)
+        defer { loader.releaseFirst(); loader.releaseNext() }
+        let viewModel = TimerRecordsViewModel(recordsLoader: loader.load)
+        var publishedIDs: [[String]] = []
+        let recordsSubscription = viewModel.$records.dropFirst().sink { records in
+            publishedIDs.append(records.map(\.id))
+        }
+        let loadedSubscription = viewModel.$hasLoaded.filter { $0 }.prefix(1).sink { _ in loaded.fulfill() }
+        defer { recordsSubscription.cancel(); loadedSubscription.cancel() }
+
+        viewModel.ensureLoaded()
+        await fulfillment(of: [firstStarted], timeout: 3)
+        // Clearing the store requests another load while the old read is blocked.
+        viewModel.loadFromStorage()
+        loader.releaseFirst()
+        await fulfillment(of: [secondStarted], timeout: 3)
+        XCTAssertTrue(publishedIDs.isEmpty)
+        XCTAssertTrue(viewModel.records.isEmpty)
+        XCTAssertFalse(viewModel.hasLoaded)
+        XCTAssertTrue(viewModel.isLoading)
+
+        loader.releaseNext()
+        await fulfillment(of: [loaded], timeout: 3)
+        XCTAssertEqual(publishedIDs, [[]])
+        XCTAssertTrue(viewModel.records.isEmpty)
+        XCTAssertTrue(viewModel.groupedRecords.isEmpty)
+        XCTAssertTrue(viewModel.hasLoaded)
+        XCTAssertFalse(viewModel.isLoading)
+    }
+
+    func testScoreboardLoadDiscardsSnapshotInvalidatedByClearBeforePublishing() async {
+        let firstStarted = expectation(description: "First score snapshot read")
+        let secondStarted = expectation(description: "Fresh score snapshot read")
+        let loaded = expectation(description: "Only the fresh score snapshot completes loading")
+        let old = ScoreboardRecordSummary(from: ScoreboardRecord(id: "deleted-score", gameType: .pingpong,
+            startTime: Date(timeIntervalSince1970: 1), team1Name: "甲", team2Name: "乙",
+            team1FinalScore: 11, team2FinalScore: 9, totalScoreChanges: 1))
+        let loader = BlockingRecordSnapshots(first: [old], next: [], firstStarted: firstStarted, nextStarted: secondStarted)
+        defer { loader.releaseFirst(); loader.releaseNext() }
+        let viewModel = ScoreboardRecordsViewModel(summaryLoader: loader.load, notificationCenter: NotificationCenter())
+        let publications = RecordPublicationCounter()
+        withObservationTracking {
+            _ = viewModel.records
+        } onChange: {
+            publications.increment()
+        }
+        withObservationTracking {
+            _ = viewModel.hasLoaded
+        } onChange: {
+            loaded.fulfill()
+        }
+
+        viewModel.ensureLoaded()
+        await fulfillment(of: [firstStarted], timeout: 3)
+        viewModel.refreshRecordsImmediately()
+        loader.releaseFirst()
+        await fulfillment(of: [secondStarted], timeout: 3)
+        XCTAssertEqual(publications.count, 0)
+        XCTAssertTrue(viewModel.records.isEmpty)
+        XCTAssertFalse(viewModel.hasLoaded)
+        XCTAssertTrue(viewModel.isLoading)
+
+        loader.releaseNext()
+        await fulfillment(of: [loaded], timeout: 3)
+        // Observation may suppress an empty-to-empty assignment. Any callback
+        // must occur only after the fresh read has been released.
+        XCTAssertLessThanOrEqual(publications.count, 1)
+        XCTAssertTrue(viewModel.records.isEmpty)
+        XCTAssertTrue(viewModel.groupedRecords.isEmpty)
+        XCTAssertTrue(viewModel.hasLoaded)
+        XCTAssertFalse(viewModel.isLoading)
+    }
+}
+
+/// Both reads are gated independently so the test can inspect the state between
+/// discarding the invalidated snapshot and publishing the replacement.
+private final class BlockingRecordSnapshots<Record>: @unchecked Sendable {
+    private let first: [Record]
+    private let next: [Record]
+    private let firstStarted: XCTestExpectation
+    private let nextStarted: XCTestExpectation
+    private let firstGate = DispatchSemaphore(value: 0)
+    private let nextGate = DispatchSemaphore(value: 0)
+    private let lock = NSLock()
+    private var reads = 0
+
+    init(first: [Record], next: [Record], firstStarted: XCTestExpectation, nextStarted: XCTestExpectation) {
+        self.first = first; self.next = next
+        self.firstStarted = firstStarted; self.nextStarted = nextStarted
+    }
+
+    func load() -> [Record] {
+        lock.lock()
+        reads += 1
+        let read = reads
+        lock.unlock()
+        if read == 1 {
+            firstStarted.fulfill()
+            _ = firstGate.wait(timeout: .now() + 10)
+            return first
+        }
+        nextStarted.fulfill()
+        _ = nextGate.wait(timeout: .now() + 10)
+        return next
+    }
+
+    func releaseFirst() { firstGate.signal() }
+    func releaseNext() { nextGate.signal() }
+}
+
+private final class RecordPublicationCounter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value = 0
+    var count: Int { lock.lock(); defer { lock.unlock() }; return value }
+    func increment() { lock.lock(); defer { lock.unlock() }; value += 1 }
 }
 
 @MainActor

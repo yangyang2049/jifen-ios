@@ -1569,6 +1569,12 @@
 
 "voice_announce_server" = "Announce server";
 
+"voice_announcement_language" = "Announcement language";
+"voice_language_zh_cn" = "Simplified Chinese";
+"voice_language_en_us" = "English";
+"voice_call_note_zh" = "Chinese calls: scores like 3–2, ties like 3-all.";
+"voice_call_note_en" = "ITTF-style calls: 0 as love, 0–0 as Love all, names in pinyin.";
+
 // Restored group feature resources.
 "group_account" = "Account member";
 "group_active_30d" = "Active (30d)";
@@ -2495,3 +2501,84 @@
 "login_wechat_denied" = "WeChat authorization denied";
 "login_wechat_invalid_response" = "Invalid WeChat authorization response. Please try again.";
 "login_wechat_timeout" = "WeChat login timed out. Please try again.";
+
+/* Nine-ball 14710 transfer rules. */
+"nine_ball_first_breaker" = "Opening breaker";
+"nine_ball_small_gold_all_pay" = "All opponents pay for small gold";
+"nine_ball_gold_retains_break" = "Big gold / golden 9 winner breaks again";
+"nine_ball_legacy_rules" = "Legacy rules";
+"nine_ball_current_breaker" = "Rack breaker";
+"nine_ball_correct_breaker_hint" = "Correct the rack breaker";
+"nine_ball_no_score" = "No points";
+"nine_ball_handoff" = "Handoff";
+"nine_ball_foul_transfer_opponent_format" = "Self −%1$d  Opponent +%1$d";
+"nine_ball_foul_transfer_next_format" = "Self −%1$d  Next player +%1$d";
+"nine_ball_payer" = "Paying player";
+"nine_ball_breaker_pays" = "Breaker pays";
+"nine_ball_correct" = "Correct";
+"nine_ball_continue_player" = "Continue shooting";
+"nine_ball_next_breaker" = "Next rack breaker";
+"nine_ball_confirm_event_format" = "Confirm %@";
+"nine_ball_breaker_intro_title" = "Rack %1$d · %2$@ breaks";
+"nine_ball_breaker_intro_message" = "The cue marks the rack breaker, not the current shooter.";
+"nine_ball_handoff_summary_format" = "%1$@ hands over; %2$@ continues";
+"nine_ball_breaker_changed_format" = "%@ is now the rack breaker";
+"nine_ball_state_changed_retry" = "The match has changed. Select the result again.";
+
+/* Nine-ball rule presets v3. New non-Chinese guide text uses English. */
+"nine_ball_adjust" = "Adjust";
+"nine_ball_alternate_breaks" = "Alternate breaks";
+"nine_ball_break_rule" = "Break order";
+"nine_ball_collapse" = "Collapse";
+"nine_ball_compare_accumulate" = "Scorer gains; opponent’s score stays unchanged.";
+"nine_ball_compare_event_foul" = "Third foul loses the rack; legal safeties; no handoff.";
+"nine_ball_compare_event_players" = "Two-player singles";
+"nine_ball_compare_folk_foul" = "No automatic three-foul loss; optional handoff.";
+"nine_ball_compare_folk_players" = "2–4 individual players";
+"nine_ball_compare_golden" = "Separate golden 9; default small gold paid by the breaker.";
+"nine_ball_compare_small" = "Legal 9 on the break is small gold; no payer.";
+"nine_ball_compare_transfer" = "Winner gains; payers lose the same amount.";
+"nine_ball_feedback_action" = "Send feedback";
+"nine_ball_feedback_prompt" = "Found a problem or have an idea?";
+"nine_ball_folk" = "Casual chase";
+"nine_ball_handoff_enabled" = "Allow handoff";
+"nine_ball_help_agreement" = "These are app presets, not a national standard. Agree on the rules with everyone before starting.";
+"nine_ball_help_all_pay" = "Small gold: every other player pays.";
+"nine_ball_help_break_nine" = "9 on the break";
+"nine_ball_help_breaker_pay" = "Small gold: only this rack’s breaker pays; other players are unchanged.";
+"nine_ball_help_defense_break" = "Safety & break order";
+"nine_ball_help_differences" = "Differences";
+"nine_ball_help_event_defense" = "Legal safeties are allowed and do not score separately. There is no casual handoff action. A third-foul loss gives the rack to the opponent.";
+"nine_ball_help_event_fouls" = "For each player, count fouls within the same rack, not necessarily consecutively. The first two give the opponent %1$d each. The third gives %2$d and loses the rack. Do not add another foul or normal-win award. Three fouls therefore award %3$d in total. Clear both counts at the next rack.";
+"nine_ball_help_event_nine" = "A legal 9 on the break scores small gold. There is no separate golden-9 category. If the break also contains a foul, spot the 9 and apply the foul; the opponent has ball in hand.";
+"nine_ball_help_event_racks" = "Play %d total racks, not a race to that many wins. Higher points win; ties continue into extra racks. After a rack, finish early only if the trailing player cannot tie even using the remaining racks’ maximum points, including foul awards and custom values.";
+"nine_ball_help_event_wins" = "Big gold (%1$d): the breaker runs out. Small gold (%2$d): includes a legal 9 on the break, all nine object balls pocketed on the break, or a continuous break-and-combination into the 9 after potting on the break. Away from the break, a runout from a table still containing the 1 and 9 qualifies; a combination during that runout does not. Other legal wins score %3$d.";
+"nine_ball_help_folk_break_next" = "After any winning result, the next seat after the winner breaks.";
+"nine_ball_help_folk_break_retain" = "After a normal win or small gold, the next seat after the winner breaks. After big gold or golden 9, the winner breaks again.";
+"nine_ball_help_folk_fouls" = "A foul transfers %d from the offender to the next seat, who receives ball in hand. No extra ball-in-hand points. A handoff selects another player to continue without scoring or ending the rack. This casual preset does not track three-foul losses.";
+"nine_ball_help_folk_intro" = "Points transfer between players: the winner gains what the others pay. 14710 and 1357 use the same casual rules in this app, with different point values.";
+"nine_ball_help_folk_wins" = "Big gold: the breaker clears the rack; every opponent pays %1$d. Small gold: a qualifying clearance after taking over; the payer pays %2$d. Normal win: one payer pays %3$d, initially the winner’s previous seat. Players confirm the actual payer.";
+"nine_ball_help_fouls_handoff" = "Fouls & handoff";
+"nine_ball_help_golden" = "A legal 9 on the break or a legal combination into the 9 is a separate golden-9 result in this preset. Each opponent pays %d. Its value is configured separately from the four scheme numbers.";
+"nine_ball_help_handoff_off" = "Handoff is disabled.";
+"nine_ball_help_handoff_on" = "Handoff is enabled.";
+"nine_ball_help_next_break" = "Next break";
+"nine_ball_help_same_points" = "The same point numbers do not imply the same rules. Check point transfers versus accumulation, golden 9, fouls and break order.";
+"nine_ball_help_source" = "Rule reference";
+"nine_ball_help_source_body" = "This scoring example references the Duya Legends Chinese Nine-ball Standard Rules dated 16 October 2025. Break order, rack count and supplements depend on the event. This is not labeled the latest official Juejin edition.";
+"nine_ball_help_tournament_intro" = "Two players accumulate points independently. Scoring does not deduct points from the opponent. Losing a rack does not mean losing the match.";
+"nine_ball_help_wins" = "Big gold, small gold and normal wins";
+"nine_ball_nonnegative" = "Tournament scores must be nonnegative integers.";
+"nine_ball_point_scheme" = "Point scheme";
+"nine_ball_points_break" = "Points & break";
+"nine_ball_racks_hint" = "Total racks, not a race to wins. Ties go to extra racks.";
+"nine_ball_restore_preset" = "Restore preset";
+"nine_ball_rules_help" = "Format guide";
+"nine_ball_rules_title" = "Nine-ball chase";
+"nine_ball_third_foul" = "Third-foul loss";
+"nine_ball_third_hint" = "Ends the rack; no additional foul or win points.";
+"nine_ball_total_racks" = "Total racks";
+"nine_ball_tournament" = "Tournament points";
+"nine_ball_unbalanced_edit" = "The edited scores do not total zero.";
+"nine_ball_winner_breaks" = "Winner breaks";
+"nine_ball_help_preset_values" = "Preset example; values are not from the current match.";

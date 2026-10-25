@@ -53,6 +53,7 @@ struct ShengjiScoreboardView: View {
     @State private var actionCount = 0
     @State private var startedAt: Date
     @State private var recordID: String
+    @State private var registersParticipantOwner: Bool
     @State private var leftName: String
     @State private var rightName: String
     @State private var showFinishedRecordDetail = false
@@ -110,6 +111,7 @@ struct ShengjiScoreboardView: View {
         _actionCount = State(initialValue: actions)
         _leftName = State(initialValue: left)
         _rightName = State(initialValue: right)
+        _registersParticipantOwner = State(initialValue: initialResumeSessionId == nil)
     }
 
     var body: some View {
@@ -118,6 +120,7 @@ struct ShengjiScoreboardView: View {
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             finishedRecordDetailPage
         }
+        .registerParticipantSetupOnAppear(recordID: recordID, selections: registersParticipantOwner ? [:] : nil)
         .onAppear { onSetupConsumed?(); registerSync(); bindMatchClock() }
         .onChange(of: state) { _, _ in LocalScoreboardSyncCoordinator.shared.publishSnapshot() }
         .onChange(of: matchClockSession?.isVisible) { _, _ in _ = saveRecord() }
@@ -349,6 +352,7 @@ struct ShengjiScoreboardView: View {
         actionCount = 0
         startedAt = Date()
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.shengji.canonicalScoreboardIdentifier)
+        try? ParticipantIdentityStore.shared.registerRecord(recordID)
         matchClockSession?.reset(startedAt: startedAt)
         showGameOverDialog = false
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()

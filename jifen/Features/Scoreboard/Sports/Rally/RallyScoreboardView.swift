@@ -357,6 +357,7 @@ struct RallyScoreboardView: View {
     let usageHintCoordinatorOverride: ScoreboardUsageHintCoordinator?
     @State private var voiceAnnouncementEnabled: Bool
     @State private var store: RallySessionStore
+    @State private var initialParticipantSelections: [String: ParticipantSelection]?
     @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var toastMessage: String?
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
@@ -405,6 +406,7 @@ struct RallyScoreboardView: View {
         participants: [SessionParticipant]? = nil,
         competitionFormat: CompetitionFormat? = nil,
         competitionPlayerNames: [String]? = nil,
+        participantSelections: [String: ParticipantSelection] = [:],
         openingServer: MatchSide = .left,
         voiceAnnouncementEnabled: Bool = false,
         showMatchTimeEnabled: Bool = false,
@@ -422,6 +424,7 @@ struct RallyScoreboardView: View {
            let restoredStore = RallySessionStore(restoring: sessionId) {
             self.gameType = restoredStore.gameType
             _store = State(initialValue: restoredStore)
+            _initialParticipantSelections = State(initialValue: nil)
             _voiceAnnouncementEnabled = State(initialValue: restoredStore.voiceAnnouncementEnabled)
             _showGameOverDialog = State(initialValue: restoredStore.state.finished)
             _officialBreakSession = State(initialValue: OfficialBreakSession(state: restoredStore.state.officialBreakState))
@@ -441,6 +444,7 @@ struct RallyScoreboardView: View {
                 showMatchTimeEnabled: showMatchTimeEnabled
             )
             _store = State(initialValue: newStore)
+            _initialParticipantSelections = State(initialValue: participantSelections)
             _voiceAnnouncementEnabled = State(initialValue: voiceAnnouncementEnabled)
             _officialBreakSession = State(initialValue: OfficialBreakSession())
         }
@@ -730,6 +734,7 @@ struct RallyScoreboardView: View {
                     revealImmersiveChrome()
                 }
         )
+        .registerParticipantSetupOnAppear(recordID: store.sessionId.uuidString, selections: initialParticipantSelections)
         .onAppear {
             onPresented()
             ScoreVoiceAnnouncer.shared.beginSession(store.sessionId)
@@ -3040,6 +3045,7 @@ struct RallyScoreboardView: View {
             freshStore.persistSnapshot { freshSaved in
                 isStartingNewMatch = false
                 guard freshSaved else { return }
+                ParticipantIdentityStore.shared.copySelections(from: finishedStore.sessionId.uuidString, to: freshStore.sessionId.uuidString)
                 store = freshStore
                 bindMatchClock()
                 manualFinishRequested = false

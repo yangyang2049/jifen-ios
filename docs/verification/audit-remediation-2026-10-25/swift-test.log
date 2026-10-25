@@ -1,0 +1,621 @@
+Building for debugging...
+[Starting]
+[2 / 8] JifenCoreTests-product
+[4 / 10] JifenCoreTests-product
+[7 / 11] JifenCoreTests-product
+[9 / 11] JifenCoreTests-product
+Build complete! (2.63秒)
+Test Suite 'All tests' started at 2026-10-25 10:39:32.109.
+Test Suite 'JifenCoreTests.xctest' started at 2026-10-25 10:39:32.110.
+Test Suite 'ParticipantIdentityTests' started at 2026-10-25 10:39:32.110.
+Test Case '-[JifenCoreTests.ParticipantIdentityTests testAccountAdoptionPreservesSnapshotsAndRejectsAnotherAccount]' started.
+Test Case '-[JifenCoreTests.ParticipantIdentityTests testAccountAdoptionPreservesSnapshotsAndRejectsAnotherAccount]' passed (0.002 seconds).
+Test Case '-[JifenCoreTests.ParticipantIdentityTests testAliasLimitAndHiddenNamesStillConsumeCapacity]' started.
+Test Case '-[JifenCoreTests.ParticipantIdentityTests testAliasLimitAndHiddenNamesStillConsumeCapacity]' passed (0.001 seconds).
+Test Case '-[JifenCoreTests.ParticipantIdentityTests testSamePersonCannotOccupyTwoSeatsButOrdinaryNamesCanMatch]' started.
+Test Case '-[JifenCoreTests.ParticipantIdentityTests testSamePersonCannotOccupyTwoSeatsButOrdinaryNamesCanMatch]' passed (0.000 seconds).
+Test Case '-[JifenCoreTests.ParticipantIdentityTests testTeamNamesAndRevokedClaimsCannotBeReactivatedImplicitly]' started.
+Test Case '-[JifenCoreTests.ParticipantIdentityTests testTeamNamesAndRevokedClaimsCannotBeReactivatedImplicitly]' passed (0.000 seconds).
+Test Case '-[JifenCoreTests.ParticipantIdentityTests testUnlinkOnlyRevokesAliasHistoryAndKeepsExplicitSelections]' started.
+Test Case '-[JifenCoreTests.ParticipantIdentityTests testUnlinkOnlyRevokesAliasHistoryAndKeepsExplicitSelections]' passed (0.000 seconds).
+Test Suite 'ParticipantIdentityTests' passed at 2026-10-25 10:39:32.114.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.003 (0.004) seconds
+Test Suite 'RecordCoreV4Tests' started at 2026-10-25 10:39:32.114.
+Test Case '-[JifenCoreTests.RecordCoreV4Tests testDetailedActionRoundTripsAllProjectFields]' started.
+Test Case '-[JifenCoreTests.RecordCoreV4Tests testDetailedActionRoundTripsAllProjectFields]' passed (0.000 seconds).
+Test Case '-[JifenCoreTests.RecordCoreV4Tests testFootballGoalClockFieldsSurviveForeignPayloadRoundTrip]' started.
+Test Case '-[JifenCoreTests.RecordCoreV4Tests testFootballGoalClockFieldsSurviveForeignPayloadRoundTrip]' passed (0.000 seconds).
+Test Case '-[JifenCoreTests.RecordCoreV4Tests testImportedActionMayOmitTimestamp]' started.
+Test Case '-[JifenCoreTests.RecordCoreV4Tests testImportedActionMayOmitTimestamp]' passed (0.000 seconds).
+Test Suite 'RecordCoreV4Tests' passed at 2026-10-25 10:39:32.115.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'JifenCoreTests.xctest' passed at 2026-10-25 10:39:32.115.
+	 Executed 8 tests, with 0 failures (0 unexpected) in 0.004 (0.005) seconds
+Test Suite 'All tests' passed at 2026-10-25 10:39:32.115.
+	 Executed 8 tests, with 0 failures (0 unexpected) in 0.004 (0.006) seconds
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test snookerPendingFrameSnapshotSurvivesRestore() started.
+◇ Test lineScoreReducerClampsFootballAndAllowsNegativeSimpleScore() started.
+◇ Test pingPongDoublesRotatesServerAndReceiverAfterTwoPoints() started.
+◇ Suite "Nine-ball rule presets v3" started.
+◇ Test tennisDoublesPlayerEditRebuildsJoinedNamesAndSurvivesReset() started.
+◇ Test finishedSessionBecomesLiveWhenReducerAcceptsReset() started.
+◇ Test pingPongAdministrativeDecrementRecomputesServeFromReplay() started.
+◇ Test metadataUpdateSurvivesUndoReplayAndResume() started.
+◇ Test boxingSideExchangeKeepsTotalsRoundsAndNamesOnStableIdentity() started.
+◇ Test boxingReducerCompletesConfiguredRoundsLikeAndroid() started.
+◇ Test multiParticipantFinishBlocksMutationButResetReopensSession() started.
+◇ Test resumeSessionRepositoryOwnsEnvelopeIndexAndDeletion() started.
+◇ Test pickleballDoublesNextSetAlternatesFromOpening() started.
+◇ Suite BoardTimerVoiceTests started.
+◇ Test badmintonCapsAtThirtyAndCompletesTheSet() started.
+◇ Test resumeSessionRetentionDoesNotExpireFutureStartTimes() started.
+◇ Test football31ClampsPeriodsAndRestrictsExtraTimeToElevenAside() started.
+◇ Test beachVolleyballSwitchesSidesEverySevenTotalPoints() started.
+◇ Test bestOfOneRallyFinishesAfterFirstSetLikeHarmony() started.
+◇ Test snookerClearanceAutoSettlesAndWaitsForNextFrameLikeAndroid30() started.
+◇ Test threeSpecializedBilliardsSessionsUseCoreUndoAndRebaseBoundaries() started.
+◇ Test resumeSessionIndexUpsertsAndOrdersEntries() started.
+◇ Test foosballDecidingSetWinByTwoAndCapOnlyApplyToFinalSet() started.
+◇ Test rallyCorrectionHistorySurvivesAuthorityRebaseWithoutRestoringUndo() started.
+◇ Suite VoiceAnnouncementMessageBuilderTests started.
+◇ Test basketball31TimeoutSnapshotRoundTripsAndLegacySnapshotMigrates() started.
+◇ Test officialBreakSourcePersistsAndMigratesLegacyAdministrativeSnapshots() started.
+◇ Test scoreboardSessionFactoryProjectsSetupIntoTypedStateAndParticipants() started.
+◇ Test automaticBasketballClockTicksDoNotConsumeScoreUndo() started.
+◇ Suite PickleballVoiceAnnouncementTests started.
+◇ Test footballStoppageCannotBeUndoneBelowElapsedStoppageTime() started.
+◇ Test basketball31ThreeByThreeTimeoutUsesThirtySeconds() started.
+◇ Test tennisReducerHandlesAdvantageNoAdAndTieBreak() started.
+◇ Suite "Tennis voice event mapper" started.
+◇ Suite "Official result calls through the production entry" started.
+◇ Suite "Edit score guards" started.
+◇ Test pingPongDecidingSetAutoExchangesAtFiveNotSix() started.
+◇ Suite "Archery match reducer" started.
+◇ Suite "Rally voice event mapper" started.
+◇ Suite "Key point status" started.
+◇ Test sessionUndoAndReplayUseOneTimeline() started.
+◇ Suite BadmintonMisconductTests started.
+◇ Test guandanTripleADisplayRankShowsAttemptNumber() started.
+◇ Suite "Nine-ball 14710 transfers" started.
+◇ Test localRecordSyncStorePersistsQueueAndCursor() started.
+◇ Suite "Team identity chain" started.
+◇ Suite LocalizedVoiceAnnouncementTests started.
+◇ Test volleyballNextSetAlternatesFromOpeningServer() started.
+◇ Test resumeSessionRepositoryRetainsStackedLiveSessionsForRecordFirstCleanup() started.
+◇ Test doudizhuSettlementMatchesOneAndTwoWinnerSplits() started.
+◇ Test archeryNextShooterPrefersTrailingSetPoints() started.
+◇ Test foosballDoublesChangesTeamServeWithoutPlayerRotation() started.
+◇ Test tennisDoublesReceiverAlternatesBetweenPartners() started.
+◇ Test pingPongPenaltyIntentIsAtomicForTimelineUndo() started.
+◇ Test scoreboardSessionFactoryConstructsEveryReducerBackedGameType() started.
+◇ Test resumeSessionRepositoryPreservesEveryExactGameTypeAndClearsIt() started.
+◇ Test multiParticipantRemovalPolicyMatchesAndroidThreePointZero() started.
+◇ Test resumeSessionRepositoryPrunesLegacyIndexEntryWithoutSnapshot() started.
+◇ Test foosballDoublesKeepsFourPlayerIdentities() started.
+◇ Test football31SeparatesElevenAsideAndFiveAsideClockPolicies() started.
+◇ Test threeByThreeOvertimeFinishesAfterTwoAdditionalPoints() started.
+◇ Test atomicStoreCreatesAndReplacesItsFirstRecord() started.
+◇ Test guandanAdministrativeRankCorrectionPreservesChosenTripleAAttempts() started.
+◇ Test badmintonFifteenPointSetCapsAtTwentyOne() started.
+◇ Test multiParticipantRejectsDuplicateAndMissingParticipantOperations() started.
+◇ Test specializedBilliardsResumeBundleRepositoryPreservesTypedUndoTimeline() started.
+◇ Test padelGoldenAndStarPointModesAreDeterministicAndUndoableBySnapshot() started.
+◇ Test pingPongCompletesASetAndResetsPointsLikeHarmony() started.
+◇ Test decidingSetSideSwitchPointHelperMatchesAndroidFormulas() started.
+◇ Test shengjiFinishedWinnerFollowsTheHigherTierAndAllowsDraws() started.
+◇ Test rallyDoublesDisplayUsesBadmintonCourtOrderOnPhoneAndWatch() started.
+◇ Test foosballConcedingSideServesAfterEveryGoalAndStartsNextGame() started.
+◇ Test footballClockUsesMonotonicTimeAndRestoresRunningStateFromWallAnchor() started.
+◇ Test guandanUpgradeAndPassAFinishMatch() started.
+◇ Test newRallyProfilesUseUncappedTwoPointScoring() started.
+◇ Test pickleballRallyScoringReceiverCanWinGamePointUnder2026Rules() started.
+◇ Test rallyUndoRestoresDoublesRotationAtomically() started.
+◇ Test legacyTennisDoublesSnapshotInfersAPlayerForFirstServingTeam() started.
+◇ Test nineBallAndroidSetupRangeMigratesEveryPointValueToOneThroughNinetyNine() started.
+◇ Test matchCompletionModesFollowAndroidAndHarmonyRules() started.
+◇ Test legacyNineBallSnapshotDefaultsToUnswappedPlacement() started.
+◇ Test threeByThreeBasketballClockUsesTwelveSeconds() started.
+◇ Test standardBasketballClockOnlyAcceptsFourteenOrTwentyFour() started.
+◇ Test officialBreakSubsecondRefreshDoesNotStretchDuration() started.
+◇ Test rallyDoublesDisplayKeepsPickleballServerAttachedToDisplayedName() started.
+◇ Test volleyballUsesFifteenPointsInTheDecidingSet() started.
+◇ Test playAllRallyCanFinishInADraw() started.
+◇ Test tennisDoublesServerRotationContinuesAcrossSetBoundaries() started.
+◇ Test pickleballFactoryHasNoDefaultPointCap() started.
+◇ Test rallyReducerAdvancesBadmintonDoublesCourtsAndService() started.
+◇ Test specializedBilliardsAdministrativeTransitionsStayInsideReducers() started.
+◇ Test tennisTieBreakAdminAdjustmentRecomputesTeamAndPlayerServer() started.
+◇ Test scoreboardSessionFactoryRejectsWrongKernelAndInvalidPlayerArity() started.
+◇ Test basketballTimeoutStopsClocksAndRestoresShotClock() started.
+◇ Test pingPongDoublesStartsAndContinuesWithoutOpeningConfirmation() started.
+◇ Test unoRoundScoreMatchesAndroidFormula() started.
+◇ Test guandanTripleAFailsFallbackToConfiguredRank() started.
+◇ Test unoTargetMetadataAndUndoHistorySurviveResume() started.
+◇ Test tennisFourGameAndTiebreakOnlyFormatsMatchMobileRules() started.
+◇ Test indoorVolleyballSwitchesSidesAtEightInDecidingSet() started.
+◇ Test addedTwoSideStatesExchangePlacementAndDecodeLegacyAsUnswapped() started.
+◇ Test badmintonDoublesServingTeamKeepsServerAndSwapsCourts() started.
+◇ Test nineBallTwoPlayerExchangeOnlyChangesScreenPlacement() started.
+◇ Test guandanEditedThirdAAttemptFallsBackOnItsNextFailure() started.
+◇ Test tennisAutomaticSideExchangeMovesScreenPlacementOnly() started.
+◇ Test rallyReducerAdvancesPingPongDoublesRotationWithScore() started.
+◇ Test snookerSingleFrameAutoFinishesAndTiedBlackIsRespottedLikeAndroid30() started.
+◇ Test officialBreak31WarningCuesOnlyEmitNearCrossedThresholds() started.
+◇ Test canonicalGameTypeDecoderMigratesLegacyIdentifiers() started.
+◇ Test sessionReplayNormalizesRestoredSeedVersionAndEvents() started.
+◇ Test legacyEightBallSnapshotDefaultsToUnswappedPlacement() started.
+◇ Test pingPongAdministrativePenaltySequenceAwardsPointsAndForfeits() started.
+◇ Test nineBallChaseFoulMatchesTwoAndFourPlayerRules() started.
+◇ Test pickleballSinglesRallyScoringAlternatesThePriorServer() started.
+◇ Test fiveByFivePeriodExpiryCanAdvanceAndResetsPeriodState() started.
+◇ Test guandanAdministrativeTransitionsStayInsideReducer() started.
+◇ Test decidingSetSideSwitchReminderFiresOnceLikeHarmony() started.
+◇ Test pingPongUsesTwoServeTurnsThenOneServeAtDeuce() started.
+◇ Test foosballDoublesPlayerEditRebuildsJoinedTeamName() started.
+◇ Test tennisGameAdjustmentNormalizesTieBreakPointsAndServingSlot() started.
+◇ Test guandanIllegalPhaseIntentsDoNotCreateEmptyUndoFrames() started.
+◇ Test pickleballSideOutChangesServerWithoutAddingAPoint() started.
+◇ Test officialBreakKindMigratesPre31SnapshotNames() started.
+◇ Test pingPongDoublesStartsNextSetWithAlternatingTeamServer() started.
+◇ Test tennisSideExchangeKeepsStableTeamIdentity() started.
+◇ Test resumedSessionPreservesUndoHistoryAndTimeline() started.
+◇ Test shengjiTierReducerMatchesAndroidFixture() started.
+◇ Test versionedRecordPreservesSnapshotAndTombstoneMetadata() started.
+◇ Test multiParticipantClampsAdjustSetAndEditAtAndroidBounds() started.
+◇ Test eightBallRaceToMatchesAndroidFixture() started.
+◇ Test guandanAdministrativeCorrectionClearsStaleAStageAfterDowngrade() started.
+◇ Test concurrentResumeSaveAndDiscardKeepIndexAndSnapshotConsistent() started.
+◇ Test officialBreakFreezesInputSupportsPreparationSkipUndoAndRestore() started.
+◇ Test pingPongDoublesDeciderChangesReceivingOrderAtFive() started.
+◇ Test restoredOfficialBreakKeepsUndoPredecessorAndAdministrativeTitle() started.
+◇ Test softTennisFinishesSevenGameMatchAtFourTwoAndNineGameAtFiveThree() started.
+◇ Test badmintonAdministrativeDecrementReplaysSelectedTeamsLatestPoint() started.
+◇ Test legacyPingPongDeuceSnapshotRebuildDoesNotPrematurelyCompleteSet() started.
+◇ Test badmintonSupportedFormatsEndAtTheirCaps() started.
+◇ Test doudizhuReducerRejectsWinnerCountThatDoesNotMatchState() started.
+◇ Test legacyRallySnapshotWithoutReplayStillDecodes() started.
+◇ Test lineScoreSideExchangeKeepsStableTeamIdentityAndResetsPlacement() started.
+◇ Test snookerPotAndFoulMatchAndroidSemantics() started.
+◇ Test pickleballDoublesRallyScoringHasOneServerPerSideOut() started.
+◇ Test authoritativeRebaseClearsUndoAndReplayBoundary() started.
+◇ Test multiParticipantAndroidContractFixtureAdjustsAndRenames() started.
+◇ Test volleyballVariantsUseAlternateFromOpeningNextSetServer() started.
+◇ Test legacyPingPongSnapshotWithoutReplayCanRecomputeAfterDecrement() started.
+◇ Test archeryReducerAwardsSetPointsLikeSharedRules() started.
+◇ Test badmintonDoublesReceivingTeamTakesServiceWithoutCourtSwap() started.
+◇ Test basketball31TimeoutCountsDownToZeroAndRequiresExplicitResume() started.
+◇ Test tennisDoublesDerivedReceiverTracksPointParityAndLogicalSides() started.
+◇ Test pickleballDoublesStartsAtServerTwoAndRotates() started.
+◇ Test shengjiAdministrativeTransitionsStayInsideReducer() started.
+◇ Test resumeSessionRetentionUsesAnExactFortyEightHourBoundary() started.
+◇ Test foosballUsesFivePointSetsByDefault() started.
+◇ Test tennisResetAfterSideExchangePreservesConfiguredPlayers() started.
+◇ Test basketballThreeByThreeEndsAtTwentyOneAndUsesTwelveSecondShotClock() started.
+◇ Test guandanAdjustRankIsRejectedAfterFinish() started.
+◇ Test pickleballSinglesNextSetReturnsToOpeningServer() started.
+◇ Test badmintonPointCapHelperMatchesIOSFormats() started.
+◇ Test shengjiResolveRoundTransfersDealerAndUpgrades() started.
+◇ Test rallyMatchUndoRestoresThePreviousPoint() started.
+◇ Test officialBreakStatePersistsWithAfterActionInsideMatchSnapshots() started.
+◇ Test resumeSessionRepositoryClearRemovesIndexedAndOrphanedFiles() started.
+◇ Test basketballScoreResetsShotClockWithoutStoppingGameClock() started.
+◇ Test rallyRulesDecodeOldAndUnknownCompletionModesAsClassic() started.
+◇ Test pingPongTwoPointPenaltyCarriesUnusedPointIntoNextSet() started.
+◇ Test basketballFiveByFiveTieAtFinalBuzzerStartsOvertime() started.
+◇ Test pingPongTwoPointPenaltyDropsUnusedPointWhenMatchEnds() started.
+◇ Test multiParticipantLegacySnapshotDecodesAndroidDefaults() started.
+◇ Test basketball31PeriodResetAndFinishClearActiveTimeout() started.
+◇ Test tennisAndPadelReturnLostAdvantageToCanonicalDeuceLikeAndroid31() started.
+◇ Test kernelRegistryRoutesEveryGameTypeAndFactoriesRejectWrongFamilies() started.
+◇ Test doudizhuReducerProjectsAndroidLandlordFarmerRoles() started.
+◇ Test earlyFinishCountsFoulsAndLargestCustomAward() started.
+◇ Test singlesAndIntentIsolation() started.
+◇ Test softTennisUsesSevenGameMatchAndTwoPointFinalGameSideChanges() started.
+◇ Test badmintonDeuceRequiresTwoPointLeadBeforeCapLikeHarmony() started.
+◇ Test normalRackClearsFoulsAndAlternateBreaks() started.
+◇ Test resetRestoresConfiguredOpeningBreakerAfterScoringAndPersistence() started.
+◇ Test negativeTournamentEditsRejectAtomicallyAndSnapshotRoundTrips() started.
+◇ Test olderSnapshotWithoutOpeningBreakerKeepsCompatibleResetDefault() started.
+◇ Test thirdFoulUndoRestoresCompleteState() started.
+◇ Test rackFoulsArePerPlayerAndNotConsecutive() started.
+◇ Test folkSchemesAndDisabledHandoff() started.
+◇ Test extraRacksUntilUntiedAndCustomPoints() started.
+✔ Test lineScoreReducerClampsFootballAndAllowsNegativeSimpleScore() passed after 0.003 seconds.
+✔ Test boxingReducerCompletesConfiguredRoundsLikeAndroid() passed after 0.002 seconds.
+✔ Test pingPongDoublesRotatesServerAndReceiverAfterTwoPoints() passed after 0.003 seconds.
+✔ Test snookerPendingFrameSnapshotSurvivesRestore() passed after 0.003 seconds.
+◇ Test traditionalChineseKeepsMandarinClips() started.
+◇ Test standaloneCountdownUsesNeutralDingClip() started.
+◇ Test postStartDelayMatchesHarmony() started.
+✔ Test pingPongAdministrativeDecrementRecomputesServeFromReplay() passed after 0.003 seconds.
+◇ Test englishLocaleDetection() started.
+◇ Test byoyomiPhraseUsesLastOnlyOnFinalPeriod() started.
+◇ Test resolvedSoundNameUsesEnSuffix() started.
+✔ Test boxingSideExchangeKeepsTotalsRoundsAndNamesOnStableIdentity() passed after 0.003 seconds.
+✔ Test football31ClampsPeriodsAndRestrictsExtraTimeToElevenAside() passed after 0.003 seconds.
+✔ Test badmintonCapsAtThirtyAndCompletesTheSet() passed after 0.003 seconds.
+✔ Test beachVolleyballSwitchesSidesEverySevenTotalPoints() passed after 0.003 seconds.
+✔ Test bestOfOneRallyFinishesAfterFirstSetLikeHarmony() passed after 0.003 seconds.
+✔ Test finishedSessionBecomesLiveWhenReducerAcceptsReset() passed after 0.003 seconds.
+✔ Test multiParticipantFinishBlocksMutationButResetReopensSession() passed after 0.003 seconds.
+✔ Test foosballDecidingSetWinByTwoAndCapOnlyApplyToFinalSet() passed after 0.003 seconds.
+◇ Test badmintonScoreAndServiceOver() started.
+✔ Test pickleballDoublesNextSetAlternatesFromOpening() passed after 0.003 seconds.
+◇ Test badmintonSetAndMatchEnd() started.
+◇ Test officialBreak31WarningsStartAndResumeUseProjectSpecificCalls() started.
+◇ Test onlyOrdinarySingleScoresAreDebounced() started.
+✔ Test tennisDoublesPlayerEditRebuildsJoinedNamesAndSurvivesReset() passed after 0.003 seconds.
+◇ Test pingPongAdministrativeBreaksStaySilentWithPreferenceOnOrOff() started.
+◇ Test traditionalBreakUsesRestTerm() started.
+✔ Test snookerClearanceAutoSettlesAndWaitsForNextFrameLikeAndroid30() passed after 0.003 seconds.
+◇ Test tennisPointsGamesSetsAndMatch() started.
+◇ Test ordinaryOfficialBreakKeepsExistingVoicePolicy() started.
+◇ Test pingpongOpeningScoreAndEnds() started.
+◇ Test traditionalKeepsTennisAdvantageTermAndUserNames() started.
+◇ Test officialBreak31CuePolicyMatchesAndroid() started.
+◇ Test doublesWinnerUsesLocalizedPairNameAndTiedManualFinishHasNoWinner() started.
+◇ Test badmintonCriticalPointsAndInterval() started.
+◇ Test android31AddsProjectSpecificRacketCalls() started.
+◇ Test languageResolutionUsesChineseOnlyForChineseLocales() started.
+✔ Test resumeSessionRetentionDoesNotExpireFutureStartTimes() passed after 0.003 seconds.
+◇ Test traditionalSideChangeAndCriticalPoints() started.
+✔ Test officialBreakSourcePersistsAndMigratesLegacyAdministrativeSnapshots() passed after 0.004 seconds.
+✔ Test rallyCorrectionHistorySurvivesAuthorityRebaseWithoutRestoringUndo() passed after 0.004 seconds.
+◇ Test singlesSideOutAnnouncesNewServerScore() started.
+◇ Test mapperEmitsSideOutAndOpening() started.
+◇ Test doublesOpeningZeroZeroTwo() started.
+◇ Test singlesScoreCall() started.
+◇ Test sideOutPrefix() started.
+◇ Test doublesThreeNumberCall() started.
+◇ Test rallyScoringOmitsSideOutPrefix() started.
+◇ Test gameAndMatchEndUsePickleballCalls() started.
+✔ Test basketball31TimeoutSnapshotRoundTripsAndLegacySnapshotMigrates() passed after 0.004 seconds.
+✔ Test basketball31ThreeByThreeTimeoutUsesThirtySeconds() passed after 0.004 seconds.
+◇ Test gameEndEnteringShortSetTieBreakUsesIsTieBreakFlag() started.
+✔ Test footballStoppageCannotBeUndoneBelowElapsedStoppageTime() passed after 0.004 seconds.
+◇ Test standaloneTiebreakFinalPointNeverBecomesZeroSetsOrTenGames() started.
+◇ Test doublesServerNameFollowsGameRotation() started.
+◇ Test matchEndPrefersSetHistoryAndSkipsPointScore() started.
+◇ Test manualTiedFinishDoesNotInventWinner() started.
+◇ Test softTennisAndPadelCarryAndroid31VoiceProfiles() started.
+◇ Test tableTennisNamesWinnerAndUsesPointsThenGames() started.
+◇ Test squashUsesItsOwnGameAndMatchResultStructure() started.
+◇ Test tableTennisFinalPointProducesOneMatchResultAfterPointReset() started.
+◇ Test manualSideChangeIsAnnounced() started.
+✔ Test metadataUpdateSurvivesUndoReplayAndResume() passed after 0.004 seconds.
+◇ Test tiebreakOnlyOpeningAndDoublesIdentity() started.
+◇ Test badmintonAnnouncesEveryCompletedGameFromTheMatchWinnersSide() started.
+◇ Test tennisSeparatesGameWinnerSetLeaderAndMatchResult() started.
+✔ Test automaticBasketballClockTicksDoNotConsumeScoreUndo() passed after 0.005 seconds.
+✔ Test tennisReducerHandlesAdvantageNoAdAndTieBreak() passed after 0.005 seconds.
+✔ Test threeSpecializedBilliardsSessionsUseCoreUndoAndRebaseBoundaries() passed after 0.005 seconds.
+◇ Test rallyUsesFinalSetTargetAndCap() started.
+◇ Test pingPongDoublesPositiveEditAdvancesRotation() started.
+◇ Test archeryAllowsPerfectArrowSumButRejectsScoreOverflowAndWinningSetEdit() started.
+◇ Test tennisGuardsTieBreakGamesAndSetsForSinglesAndDoublesState() started.
+◇ Test eightBallAndBoxingRejectOverflowWithoutMutation() started.
+◇ Test rallyPositiveEditAdvancesServeAndDoublesRotation() started.
+◇ Test rallyStopsBeforeSetWinAndAllowsOnePointLeadAtDeuce() started.
+✔ Test scoreboardSessionFactoryProjectsSetupIntoTypedStateAndParticipants() passed after 0.005 seconds.
+◇ Test normalSetAwardsTwoPointsOnWin() started.
+◇ Test squashAndShuttlecockAreNoLongerFilteredFromVoiceMapping() started.
+✔ Test pingPongDecidingSetAutoExchangesAtFiveNotSix() passed after 0.005 seconds.
+◇ Test manualFinishWithoutWinnerIsNeutral() started.
+◇ Test doublesPayloadTracksRotationForAllRallySports() started.
+◇ Test doublesOpeningUsesActualServerAndReceiverSlots() started.
+◇ Test pickleballDoublesFirstServerLossAnnouncesSecondServerNotSideOut() started.
+◇ Test resetAfterSideExchangeRestoresNamesAndOpeningShooterIdentity() started.
+◇ Test firstToSixFinishesMatch() started.
+◇ Test tiedShootOffCanRepeatUntilResolved() started.
+◇ Test volleyballSupportsVoiceAnnouncementAndReportsServiceOver() started.
+◇ Test tiedSetAwardsOnePointEach() started.
+◇ Test badmintonCriticalPointIntervalAndOrderedSideChange() started.
+◇ Test tennisNewFormatsProduceSetAndMatchPoints() started.
+◇ Test zeroRingAndMissProduceDistinctEvents() started.
+◇ Test tableTennisGameAndMatchPoint() started.
+◇ Test shootOffTieRequiresClosestToCenter() started.
+◇ Test traditionalPickleballOnlyServerCanHaveKeyPoint() started.
+◇ Test tennisTieBreakMatchPoint() started.
+◇ Test cappedTieHidesTwoSameLevelStatuses() started.
+◇ Test tennisOmitsGamePointAndFindsSetPoint() started.
+◇ Test yellowCardRecordsWithoutScoring() started.
+◇ Test higherLevelStatusWinsWhenBothSidesDiffer() started.
+◇ Test medicalCountUpFreezesScoringInReducer() started.
+◇ Test stateWithoutMisconductFieldStillDecodes() started.
+◇ Test singleSetUsesMatchPoint() started.
+◇ Test disqualificationFinishesMatchWithOpponentAsWinner() started.
+◇ Test medicalCountUpBreakNeverCompletesAutomatically() started.
+◇ Test badmintonRulesUseBadmintonSportProfile() started.
+◇ Test misconductKindRawValuesMatchAndroidOpCodes() started.
+◇ Test misconductStateAndEventsSurviveSerializationRoundTrip() started.
+◇ Test medicalCountUpBreakEndsOnlyByManualSkip() started.
+◇ Test misconductRejectedAfterMatchFinishedAndForOtherProfiles() started.
+◇ Test medicalCountUpBreakStateSurvivesSerializationAndLegacyDecode() started.
+◇ Test correctedSmallGoldPersistsPayerAndRackContext() started.
+◇ Test redCardAwardsOpponentOnePoint() started.
+◇ Test newAndLegacyIntentsCannotCrossRuleVersions() started.
+◇ Test invalidTransfersLeaveStateUnchanged() started.
+◇ Test sessionUndoRestoresEveryoneAndWholeRackContext() started.
+◇ Test chineseSemanticTemplatesPreserveEstablishedCalls() started.
+◇ Test productionCallsFollowDocumentedSportsAndNumericFallbacks() started.
+◇ Test everySupportedLanguageRendersEverySportScenario() started.
+◇ Test commonPayoutAndRotationFixtures() started.
+◇ Test reviewedMatrixCoversAllGameTypesAndLanguages() started.
+◇ Test englishPhraseTreeMatchesLegacyCalls() started.
+◇ Test missingTemplatesFailClosedAndNamesAreNeverKeys() started.
+◇ Test lostAdvantageKeepsTheDeuceTransitionAfterPointNormalization() started.
+◇ Test supportMatrixAndRegionalVoices() started.
+◇ Test storedMatchStopsWhenUnsupportedAndRecoversAfterVoiceDownload() started.
+◇ Test oldSnapshotWithoutRuleVersionKeepsOldScoresAndRules() started.
+◇ Test screenTapMapsToIdentityEngineSide() started.
+◇ Test team0ScreenSideBridgesSidesSwapped() started.
+✔ Test guandanTripleADisplayRankShowsAttemptNumber() passed after 0.006 seconds.
+✔ Test volleyballNextSetAlternatesFromOpeningServer() passed after 0.006 seconds.
+◇ Test legacyWinnerTokensMapToTeamID() started.
+✔ Test sessionUndoAndReplayUseOneTimeline() passed after 0.006 seconds.
+✔ Test foosballDoublesChangesTeamServeWithoutPlayerRotation() passed after 0.006 seconds.
+✔ Test doudizhuSettlementMatchesOneAndTwoWinnerSplits() passed after 0.006 seconds.
+✔ Test archeryNextShooterPrefersTrailingSetPoints() passed after 0.006 seconds.
+✔ Test pingPongPenaltyIntentIsAtomicForTimelineUndo() passed after 0.006 seconds.
+✔ Test football31SeparatesElevenAsideAndFiveAsideClockPolicies() passed after 0.006 seconds.
+✔ Test multiParticipantRemovalPolicyMatchesAndroidThreePointZero() passed after 0.006 seconds.
+✔ Test threeByThreeOvertimeFinishesAfterTwoAdditionalPoints() passed after 0.006 seconds.
+✔ Test foosballDoublesKeepsFourPlayerIdentities() passed after 0.006 seconds.
+✔ Test badmintonFifteenPointSetCapsAtTwentyOne() passed after 0.006 seconds.
+✔ Test multiParticipantRejectsDuplicateAndMissingParticipantOperations() passed after 0.006 seconds.
+✔ Test guandanAdministrativeRankCorrectionPreservesChosenTripleAAttempts() passed after 0.006 seconds.
+✔ Test decidingSetSideSwitchPointHelperMatchesAndroidFormulas() passed after 0.006 seconds.
+✔ Test pingPongCompletesASetAndResetsPointsLikeHarmony() passed after 0.006 seconds.
+✔ Test rallyDoublesDisplayUsesBadmintonCourtOrderOnPhoneAndWatch() passed after 0.006 seconds.
+✔ Test padelGoldenAndStarPointModesAreDeterministicAndUndoableBySnapshot() passed after 0.006 seconds.
+✔ Test shengjiFinishedWinnerFollowsTheHigherTierAndAllowsDraws() passed after 0.006 seconds.
+✔ Test foosballConcedingSideServesAfterEveryGoalAndStartsNextGame() passed after 0.006 seconds.
+✔ Test pickleballRallyScoringReceiverCanWinGamePointUnder2026Rules() passed after 0.006 seconds.
+✔ Test footballClockUsesMonotonicTimeAndRestoresRunningStateFromWallAnchor() passed after 0.006 seconds.
+✔ Test guandanUpgradeAndPassAFinishMatch() passed after 0.006 seconds.
+✔ Test rallyUndoRestoresDoublesRotationAtomically() passed after 0.006 seconds.
+✔ Test newRallyProfilesUseUncappedTwoPointScoring() passed after 0.006 seconds.
+✔ Test nineBallAndroidSetupRangeMigratesEveryPointValueToOneThroughNinetyNine() passed after 0.006 seconds.
+✔ Test scoreboardSessionFactoryConstructsEveryReducerBackedGameType() passed after 0.007 seconds.
+◇ Test scoreCallsUseSportVocabularyAndPauseWithoutSpeakingSeparators() started.
+✔ Test tennisDoublesReceiverAlternatesBetweenPartners() passed after 0.006 seconds.
+◇ Test reviewedDoublesAdvantageLocalizesNameJoinWithoutReinterpretingNames() started.
+✔ Test legacyTennisDoublesSnapshotInfersAPlayerForFirstServingTeam() passed after 0.006 seconds.
+✔ Test threeByThreeBasketballClockUsesTwelveSeconds() passed after 0.006 seconds.
+✔ Test matchCompletionModesFollowAndroidAndHarmonyRules() passed after 0.006 seconds.
+✔ Test officialBreakSubsecondRefreshDoesNotStretchDuration() passed after 0.006 seconds.
+✔ Test localRecordSyncStorePersistsQueueAndCursor() passed after 0.007 seconds.
+✔ Test volleyballUsesFifteenPointsInTheDecidingSet() passed after 0.006 seconds.
+✔ Test standardBasketballClockOnlyAcceptsFourteenOrTwentyFour() passed after 0.006 seconds.
+✔ Test rallyDoublesDisplayKeepsPickleballServerAttachedToDisplayedName() passed after 0.006 seconds.
+✔ Test pickleballFactoryHasNoDefaultPointCap() passed after 0.006 seconds.
+✔ Test rallyReducerAdvancesBadmintonDoublesCourtsAndService() passed after 0.006 seconds.
+✔ Test tennisDoublesServerRotationContinuesAcrossSetBoundaries() passed after 0.006 seconds.
+✔ Test resumeSessionIndexUpsertsAndOrdersEntries() passed after 0.008 seconds.
+✔ Test tennisTieBreakAdminAdjustmentRecomputesTeamAndPlayerServer() passed after 0.006 seconds.
+✔ Test legacyNineBallSnapshotDefaultsToUnswappedPlacement() passed after 0.006 seconds.
+✔ Test pingPongDoublesStartsAndContinuesWithoutOpeningConfirmation() passed after 0.006 seconds.
+✔ Test unoRoundScoreMatchesAndroidFormula() passed after 0.006 seconds.
+✔ Test scoreboardSessionFactoryRejectsWrongKernelAndInvalidPlayerArity() passed after 0.006 seconds.
+✔ Test guandanTripleAFailsFallbackToConfiguredRank() passed after 0.006 seconds.
+✔ Test tennisFourGameAndTiebreakOnlyFormatsMatchMobileRules() passed after 0.006 seconds.
+✔ Test specializedBilliardsAdministrativeTransitionsStayInsideReducers() passed after 0.006 seconds.
+✔ Test basketballTimeoutStopsClocksAndRestoresShotClock() passed after 0.006 seconds.
+✔ Test playAllRallyCanFinishInADraw() passed after 0.007 seconds.
+✔ Test indoorVolleyballSwitchesSidesAtEightInDecidingSet() passed after 0.006 seconds.
+✔ Test badmintonDoublesServingTeamKeepsServerAndSwapsCourts() passed after 0.006 seconds.
+✔ Test nineBallTwoPlayerExchangeOnlyChangesScreenPlacement() passed after 0.006 seconds.
+✔ Test officialBreak31WarningCuesOnlyEmitNearCrossedThresholds() passed after 0.006 seconds.
+✔ Test snookerSingleFrameAutoFinishesAndTiedBlackIsRespottedLikeAndroid30() passed after 0.006 seconds.
+✔ Test canonicalGameTypeDecoderMigratesLegacyIdentifiers() passed after 0.006 seconds.
+✔ Test legacyEightBallSnapshotDefaultsToUnswappedPlacement() passed after 0.006 seconds.
+✔ Test rallyReducerAdvancesPingPongDoublesRotationWithScore() passed after 0.006 seconds.
+✔ Test sessionReplayNormalizesRestoredSeedVersionAndEvents() passed after 0.006 seconds.
+✔ Test addedTwoSideStatesExchangePlacementAndDecodeLegacyAsUnswapped() passed after 0.007 seconds.
+✔ Test guandanEditedThirdAAttemptFallsBackOnItsNextFailure() passed after 0.007 seconds.
+✔ Test tennisAutomaticSideExchangeMovesScreenPlacementOnly() passed after 0.007 seconds.
+✔ Test fiveByFivePeriodExpiryCanAdvanceAndResetsPeriodState() passed after 0.007 seconds.
+✔ Test guandanAdministrativeTransitionsStayInsideReducer() passed after 0.007 seconds.
+✔ Test pingPongUsesTwoServeTurnsThenOneServeAtDeuce() passed after 0.007 seconds.
+✔ Test decidingSetSideSwitchReminderFiresOnceLikeHarmony() passed after 0.007 seconds.
+✔ Test pingPongAdministrativePenaltySequenceAwardsPointsAndForfeits() passed after 0.007 seconds.
+✔ Test foosballDoublesPlayerEditRebuildsJoinedTeamName() passed after 0.007 seconds.
+✔ Test pickleballSinglesRallyScoringAlternatesThePriorServer() passed after 0.007 seconds.
+✔ Test unoTargetMetadataAndUndoHistorySurviveResume() passed after 0.007 seconds.
+✔ Test nineBallChaseFoulMatchesTwoAndFourPlayerRules() passed after 0.007 seconds.
+✔ Test pickleballSideOutChangesServerWithoutAddingAPoint() passed after 0.007 seconds.
+✔ Test pingPongDoublesStartsNextSetWithAlternatingTeamServer() passed after 0.007 seconds.
+✔ Test tennisGameAdjustmentNormalizesTieBreakPointsAndServingSlot() passed after 0.007 seconds.
+✔ Test guandanIllegalPhaseIntentsDoNotCreateEmptyUndoFrames() passed after 0.007 seconds.
+✔ Test resumedSessionPreservesUndoHistoryAndTimeline() passed after 0.007 seconds.
+✔ Test multiParticipantClampsAdjustSetAndEditAtAndroidBounds() passed after 0.007 seconds.
+✔ Test eightBallRaceToMatchesAndroidFixture() passed after 0.007 seconds.
+✔ Test shengjiTierReducerMatchesAndroidFixture() passed after 0.007 seconds.
+✔ Test guandanAdministrativeCorrectionClearsStaleAStageAfterDowngrade() passed after 0.007 seconds.
+✔ Test officialBreakFreezesInputSupportsPreparationSkipUndoAndRestore() passed after 0.007 seconds.
+✔ Test restoredOfficialBreakKeepsUndoPredecessorAndAdministrativeTitle() passed after 0.007 seconds.
+✔ Test pingPongDoublesDeciderChangesReceivingOrderAtFive() passed after 0.007 seconds.
+✔ Test softTennisFinishesSevenGameMatchAtFourTwoAndNineGameAtFiveThree() passed after 0.007 seconds.
+✔ Test badmintonAdministrativeDecrementReplaysSelectedTeamsLatestPoint() passed after 0.007 seconds.
+✔ Test officialBreakKindMigratesPre31SnapshotNames() passed after 0.007 seconds.
+✔ Test legacyPingPongDeuceSnapshotRebuildDoesNotPrematurelyCompleteSet() passed after 0.007 seconds.
+✔ Test badmintonSupportedFormatsEndAtTheirCaps() passed after 0.007 seconds.
+✔ Test doudizhuReducerRejectsWinnerCountThatDoesNotMatchState() passed after 0.007 seconds.
+✔ Test lineScoreSideExchangeKeepsStableTeamIdentityAndResetsPlacement() passed after 0.007 seconds.
+✔ Test versionedRecordPreservesSnapshotAndTombstoneMetadata() passed after 0.007 seconds.
+✔ Test pickleballDoublesRallyScoringHasOneServerPerSideOut() passed after 0.007 seconds.
+✔ Test snookerPotAndFoulMatchAndroidSemantics() passed after 0.007 seconds.
+✔ Test tennisSideExchangeKeepsStableTeamIdentity() passed after 0.007 seconds.
+✔ Test authoritativeRebaseClearsUndoAndReplayBoundary() passed after 0.007 seconds.
+✔ Test multiParticipantAndroidContractFixtureAdjustsAndRenames() passed after 0.008 seconds.
+✔ Test volleyballVariantsUseAlternateFromOpeningNextSetServer() passed after 0.008 seconds.
+✔ Test legacyPingPongSnapshotWithoutReplayCanRecomputeAfterDecrement() passed after 0.008 seconds.
+✔ Test legacyRallySnapshotWithoutReplayStillDecodes() passed after 0.008 seconds.
+✔ Test basketball31TimeoutCountsDownToZeroAndRequiresExplicitResume() passed after 0.008 seconds.
+✔ Test shengjiAdministrativeTransitionsStayInsideReducer() passed after 0.008 seconds.
+✔ Test resumeSessionRetentionUsesAnExactFortyEightHourBoundary() passed after 0.008 seconds.
+✔ Test tennisResetAfterSideExchangePreservesConfiguredPlayers() passed after 0.008 seconds.
+✔ Test foosballUsesFivePointSetsByDefault() passed after 0.008 seconds.
+✔ Test basketballThreeByThreeEndsAtTwentyOneAndUsesTwelveSecondShotClock() passed after 0.008 seconds.
+✔ Test guandanAdjustRankIsRejectedAfterFinish() passed after 0.008 seconds.
+✔ Test pickleballSinglesNextSetReturnsToOpeningServer() passed after 0.008 seconds.
+✔ Test specializedBilliardsResumeBundleRepositoryPreservesTypedUndoTimeline() passed after 0.009 seconds.
+✔ Test archeryReducerAwardsSetPointsLikeSharedRules() passed after 0.008 seconds.
+✔ Test badmintonDoublesReceivingTeamTakesServiceWithoutCourtSwap() passed after 0.008 seconds.
+✔ Test badmintonPointCapHelperMatchesIOSFormats() passed after 0.008 seconds.
+✔ Test shengjiResolveRoundTransfersDealerAndUpgrades() passed after 0.008 seconds.
+✔ Test tennisDoublesDerivedReceiverTracksPointParityAndLogicalSides() passed after 0.008 seconds.
+✔ Test rallyMatchUndoRestoresThePreviousPoint() passed after 0.008 seconds.
+✔ Test basketballScoreResetsShotClockWithoutStoppingGameClock() passed after 0.008 seconds.
+✔ Test basketballFiveByFiveTieAtFinalBuzzerStartsOvertime() passed after 0.008 seconds.
+✔ Test pingPongTwoPointPenaltyCarriesUnusedPointIntoNextSet() passed after 0.008 seconds.
+✔ Test officialBreakStatePersistsWithAfterActionInsideMatchSnapshots() passed after 0.009 seconds.
+✔ Test pickleballDoublesStartsAtServerTwoAndRotates() passed after 0.009 seconds.
+✔ Test multiParticipantLegacySnapshotDecodesAndroidDefaults() passed after 0.010 seconds.
+✔ Test basketball31PeriodResetAndFinishClearActiveTimeout() passed after 0.012 seconds.
+✔ Test tennisAndPadelReturnLostAdvantageToCanonicalDeuceLikeAndroid31() passed after 0.012 seconds.
+✔ Test doudizhuReducerProjectsAndroidLandlordFarmerRoles() passed after 0.012 seconds.
+✔ Test rallyRulesDecodeOldAndUnknownCompletionModesAsClassic() passed after 0.012 seconds.
+✔ Test earlyFinishCountsFoulsAndLargestCustomAward() passed after 0.012 seconds.
+✔ Test pingPongTwoPointPenaltyDropsUnusedPointWhenMatchEnds() passed after 0.012 seconds.
+✔ Test singlesAndIntentIsolation() passed after 0.012 seconds.
+✔ Test softTennisUsesSevenGameMatchAndTwoPointFinalGameSideChanges() passed after 0.012 seconds.
+✔ Test kernelRegistryRoutesEveryGameTypeAndFactoriesRejectWrongFamilies() passed after 0.012 seconds.
+✔ Test badmintonDeuceRequiresTwoPointLeadBeforeCapLikeHarmony() passed after 0.012 seconds.
+✔ Test normalRackClearsFoulsAndAlternateBreaks() passed after 0.012 seconds.
+✔ Test resumeSessionRepositoryPrunesLegacyIndexEntryWithoutSnapshot() passed after 0.014 seconds.
+✔ Test olderSnapshotWithoutOpeningBreakerKeepsCompatibleResetDefault() passed after 0.012 seconds.
+✔ Test thirdFoulUndoRestoresCompleteState() passed after 0.012 seconds.
+✔ Test rackFoulsArePerPlayerAndNotConsecutive() passed after 0.012 seconds.
+✔ Test resetRestoresConfiguredOpeningBreakerAfterScoringAndPersistence() passed after 0.012 seconds.
+✔ Test extraRacksUntilUntiedAndCustomPoints() passed after 0.012 seconds.
+✔ Test folkSchemesAndDisabledHandoff() passed after 0.012 seconds.
+✔ Test standaloneCountdownUsesNeutralDingClip() passed after 0.012 seconds.
+✔ Test postStartDelayMatchesHarmony() passed after 0.012 seconds.
+✔ Test byoyomiPhraseUsesLastOnlyOnFinalPeriod() passed after 0.012 seconds.
+✔ Test resolvedSoundNameUsesEnSuffix() passed after 0.012 seconds.
+✔ Test traditionalChineseKeepsMandarinClips() passed after 0.012 seconds.
+✔ Test negativeTournamentEditsRejectAtomicallyAndSnapshotRoundTrips() passed after 0.012 seconds.
+✔ Test badmintonSetAndMatchEnd() passed after 0.012 seconds.
+✔ Test onlyOrdinarySingleScoresAreDebounced() passed after 0.015 seconds.
+✔ Test traditionalBreakUsesRestTerm() passed after 0.015 seconds.
+✔ Test ordinaryOfficialBreakKeepsExistingVoicePolicy() passed after 0.015 seconds.
+✔ Test tennisPointsGamesSetsAndMatch() passed after 0.015 seconds.
+✔ Test pingPongAdministrativeBreaksStaySilentWithPreferenceOnOrOff() passed after 0.015 seconds.
+✔ Test badmintonCriticalPointsAndInterval() passed after 0.015 seconds.
+✔ Test englishLocaleDetection() passed after 0.016 seconds.
+✔ Test officialBreak31CuePolicyMatchesAndroid() passed after 0.015 seconds.
+✔ Test officialBreak31WarningsStartAndResumeUseProjectSpecificCalls() passed after 0.016 seconds.
+✔ Test android31AddsProjectSpecificRacketCalls() passed after 0.015 seconds.
+✔ Test pingpongOpeningScoreAndEnds() passed after 0.016 seconds.
+✔ Test doublesWinnerUsesLocalizedPairNameAndTiedManualFinishHasNoWinner() passed after 0.016 seconds.
+✔ Test badmintonScoreAndServiceOver() passed after 0.016 seconds.
+✔ Test singlesSideOutAnnouncesNewServerScore() passed after 0.015 seconds.
+✔ Test doublesOpeningZeroZeroTwo() passed after 0.015 seconds.
+✔ Test singlesScoreCall() passed after 0.015 seconds.
+✔ Test resumeSessionRepositoryClearRemovesIndexedAndOrphanedFiles() passed after 0.017 seconds.
+✔ Test mapperEmitsSideOutAndOpening() passed after 0.015 seconds.
+✔ Test sideOutPrefix() passed after 0.015 seconds.
+✔ Test gameAndMatchEndUsePickleballCalls() passed after 0.015 seconds.
+✔ Test traditionalSideChangeAndCriticalPoints() passed after 0.015 seconds.
+✔ Test rallyScoringOmitsSideOutPrefix() passed after 0.015 seconds.
+✔ Test resumeSessionRepositoryRetainsStackedLiveSessionsForRecordFirstCleanup() passed after 0.019 seconds.
+✔ Test gameEndEnteringShortSetTieBreakUsesIsTieBreakFlag() passed after 0.015 seconds.
+✔ Test doublesServerNameFollowsGameRotation() passed after 0.015 seconds.
+✔ Test manualTiedFinishDoesNotInventWinner() passed after 0.014 seconds.
+✔ Test softTennisAndPadelCarryAndroid31VoiceProfiles() passed after 0.014 seconds.
+✔ Test traditionalKeepsTennisAdvantageTermAndUserNames() passed after 0.016 seconds.
+✔ Test manualSideChangeIsAnnounced() passed after 0.014 seconds.
+✔ Test tiebreakOnlyOpeningAndDoublesIdentity() passed after 0.014 seconds.
+✔ Test doublesThreeNumberCall() passed after 0.015 seconds.
+✔ Test matchEndPrefersSetHistoryAndSkipsPointScore() passed after 0.015 seconds.
+✔ Test rallyUsesFinalSetTargetAndCap() passed after 0.014 seconds.
+✔ Test pingPongDoublesPositiveEditAdvancesRotation() passed after 0.014 seconds.
+✔ Test archeryAllowsPerfectArrowSumButRejectsScoreOverflowAndWinningSetEdit() passed after 0.014 seconds.
+✔ Test tennisGuardsTieBreakGamesAndSetsForSinglesAndDoublesState() passed after 0.014 seconds.
+✔ Test eightBallAndBoxingRejectOverflowWithoutMutation() passed after 0.014 seconds.
+✔ Test rallyPositiveEditAdvancesServeAndDoublesRotation() passed after 0.014 seconds.
+✔ Test rallyStopsBeforeSetWinAndAllowsOnePointLeadAtDeuce() passed after 0.014 seconds.
+✔ Test normalSetAwardsTwoPointsOnWin() passed after 0.014 seconds.
+✔ Test languageResolutionUsesChineseOnlyForChineseLocales() passed after 0.016 seconds.
+✔ Test squashAndShuttlecockAreNoLongerFilteredFromVoiceMapping() passed after 0.014 seconds.
+✔ Test manualFinishWithoutWinnerIsNeutral() passed after 0.014 seconds.
+✔ Test doublesOpeningUsesActualServerAndReceiverSlots() passed after 0.014 seconds.
+✔ Test pickleballDoublesFirstServerLossAnnouncesSecondServerNotSideOut() passed after 0.014 seconds.
+✔ Test tableTennisFinalPointProducesOneMatchResultAfterPointReset() passed after 0.015 seconds.
+✔ Test resetAfterSideExchangeRestoresNamesAndOpeningShooterIdentity() passed after 0.014 seconds.
+✔ Test doublesPayloadTracksRotationForAllRallySports() passed after 0.014 seconds.
+✔ Test firstToSixFinishesMatch() passed after 0.014 seconds.
+✔ Test tiedSetAwardsOnePointEach() passed after 0.014 seconds.
+✔ Test tennisNewFormatsProduceSetAndMatchPoints() passed after 0.014 seconds.
+✔ Test tableTennisGameAndMatchPoint() passed after 0.014 seconds.
+✔ Test tiedShootOffCanRepeatUntilResolved() passed after 0.014 seconds.
+✔ Test shootOffTieRequiresClosestToCenter() passed after 0.014 seconds.
+✔ Test badmintonCriticalPointIntervalAndOrderedSideChange() passed after 0.014 seconds.
+✔ Test volleyballSupportsVoiceAnnouncementAndReportsServiceOver() passed after 0.014 seconds.
+✔ Test tennisTieBreakMatchPoint() passed after 0.014 seconds.
+✔ Test zeroRingAndMissProduceDistinctEvents() passed after 0.014 seconds.
+✔ Test cappedTieHidesTwoSameLevelStatuses() passed after 0.014 seconds.
+✔ Test tennisOmitsGamePointAndFindsSetPoint() passed after 0.014 seconds.
+✔ Test medicalCountUpFreezesScoringInReducer() passed after 0.014 seconds.
+✔ Test higherLevelStatusWinsWhenBothSidesDiffer() passed after 0.014 seconds.
+✔ Test singleSetUsesMatchPoint() passed after 0.014 seconds.
+✔ Test stateWithoutMisconductFieldStillDecodes() passed after 0.014 seconds.
+✔ Test disqualificationFinishesMatchWithOpponentAsWinner() passed after 0.014 seconds.
+✔ Test badmintonRulesUseBadmintonSportProfile() passed after 0.014 seconds.
+✔ Test medicalCountUpBreakNeverCompletesAutomatically() passed after 0.014 seconds.
+✔ Test misconductKindRawValuesMatchAndroidOpCodes() passed after 0.014 seconds.
+✔ Test standaloneTiebreakFinalPointNeverBecomesZeroSetsOrTenGames() passed after 0.015 seconds.
+✔ Test medicalCountUpBreakEndsOnlyByManualSkip() passed after 0.014 seconds.
+✔ Test misconductRejectedAfterMatchFinishedAndForOtherProfiles() passed after 0.014 seconds.
+✔ Test medicalCountUpBreakStateSurvivesSerializationAndLegacyDecode() passed after 0.014 seconds.
+✔ Test traditionalPickleballOnlyServerCanHaveKeyPoint() passed after 0.014 seconds.
+✔ Test correctedSmallGoldPersistsPayerAndRackContext() passed after 0.014 seconds.
+✔ Test redCardAwardsOpponentOnePoint() passed after 0.014 seconds.
+✔ Test sessionUndoRestoresEveryoneAndWholeRackContext() passed after 0.014 seconds.
+✔ Test invalidTransfersLeaveStateUnchanged() passed after 0.014 seconds.
+✔ Test newAndLegacyIntentsCannotCrossRuleVersions() passed after 0.014 seconds.
+✔ Test yellowCardRecordsWithoutScoring() passed after 0.014 seconds.
+✔ Test squashUsesItsOwnGameAndMatchResultStructure() passed after 0.016 seconds.
+✔ Test misconductStateAndEventsSurviveSerializationRoundTrip() passed after 0.015 seconds.
+✔ Test commonPayoutAndRotationFixtures() passed after 0.014 seconds.
+✔ Test missingTemplatesFailClosedAndNamesAreNeverKeys() passed after 0.014 seconds.
+✔ Test lostAdvantageKeepsTheDeuceTransitionAfterPointNormalization() passed after 0.014 seconds.
+✔ Test supportMatrixAndRegionalVoices() passed after 0.014 seconds.
+✔ Test oldSnapshotWithoutRuleVersionKeepsOldScoresAndRules() passed after 0.014 seconds.
+✔ Test screenTapMapsToIdentityEngineSide() passed after 0.014 seconds.
+✔ Test team0ScreenSideBridgesSidesSwapped() passed after 0.014 seconds.
+✔ Test legacyWinnerTokensMapToTeamID() passed after 0.014 seconds.
+✔ Test badmintonAnnouncesEveryCompletedGameFromTheMatchWinnersSide() passed after 0.016 seconds.
+✔ Test tennisSeparatesGameWinnerSetLeaderAndMatchResult() passed after 0.016 seconds.
+✔ Test reviewedDoublesAdvantageLocalizesNameJoinWithoutReinterpretingNames() passed after 0.014 seconds.
+✔ Test scoreCallsUseSportVocabularyAndPauseWithoutSpeakingSeparators() passed after 0.014 seconds.
+✔ Test resumeSessionRepositoryOwnsEnvelopeIndexAndDeletion() passed after 0.021 seconds.
+✔ Suite "Nine-ball rule presets v3" passed after 0.021 seconds.
+✔ Suite BoardTimerVoiceTests passed after 0.021 seconds.
+✔ Suite VoiceAnnouncementMessageBuilderTests passed after 0.021 seconds.
+✔ Suite PickleballVoiceAnnouncementTests passed after 0.021 seconds.
+✔ Suite "Tennis voice event mapper" passed after 0.021 seconds.
+✔ Suite "Edit score guards" passed after 0.021 seconds.
+✔ Suite "Archery match reducer" passed after 0.021 seconds.
+✔ Suite "Rally voice event mapper" passed after 0.021 seconds.
+✔ Suite "Key point status" passed after 0.021 seconds.
+✔ Suite BadmintonMisconductTests passed after 0.021 seconds.
+✔ Suite "Nine-ball 14710 transfers" passed after 0.021 seconds.
+✔ Suite "Team identity chain" passed after 0.021 seconds.
+✔ Test storedMatchStopsWhenUnsupportedAndRecoversAfterVoiceDownload() passed after 0.014 seconds.
+✔ Test atomicStoreCreatesAndReplacesItsFirstRecord() passed after 0.022 seconds.
+✔ Test tableTennisNamesWinnerAndUsesPointsThenGames() passed after 0.020 seconds.
+✔ Suite "Official result calls through the production entry" passed after 0.025 seconds.
+✔ Test concurrentResumeSaveAndDiscardKeepIndexAndSnapshotConsistent() passed after 0.065 seconds.
+✔ Test englishPhraseTreeMatchesLegacyCalls() passed after 0.064 seconds.
+✔ Test resumeSessionRepositoryPreservesEveryExactGameTypeAndClearsIt() passed after 0.101 seconds.
+✔ Test chineseSemanticTemplatesPreserveEstablishedCalls() passed after 0.120 seconds.
+✔ Test reviewedMatrixCoversAllGameTypesAndLanguages() passed after 0.172 seconds.
+✔ Test productionCallsFollowDocumentedSportsAndNumericFallbacks() passed after 0.187 seconds.
+✔ Test everySupportedLanguageRendersEverySportScenario() passed after 0.777 seconds.
+✔ Suite LocalizedVoiceAnnouncementTests passed after 0.783 seconds.
+✔ Test run with 277 tests in 14 suites passed after 0.784 seconds.

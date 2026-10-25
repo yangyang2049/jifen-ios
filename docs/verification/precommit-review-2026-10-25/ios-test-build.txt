@@ -1,0 +1,16 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project jifen.xcodeproj -scheme jifen -destination "generic/platform=iOS Simulator" -derivedDataPath /tmp/jifen-selfcheck-dd -resultBundlePath /tmp/jifen-precommit-build-20261025.xcresult build-for-testing
+
+
+PruneExplicitPrecompiledModules /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/jifen-selfcheck-dd/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/jifen-selfcheck-dd/SDKExplicitPrecompiledModules
+
+note: Disabling hardened runtime with ad-hoc codesigning. (in target 'jifen' from project 'jifen')
+
+Result bundle written to path:
+	/tmp/jifen-precommit-build-20261025.xcresult
+
+** TEST BUILD SUCCEEDED **
