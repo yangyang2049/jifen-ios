@@ -764,7 +764,7 @@ struct NineBallChaseScoreboardView: View {
                     .ignoresSafeArea()
                     .onTapGesture { activeChasePlayer = nil }
 
-                VStack(spacing: 0) {
+                AdaptiveSetupDialogLayout(maxHeight: max(150, proxy.size.height - 32)) {
                     ZStack {
                         Text(playerName(player))
                             .font(.system(size: 20, weight: .semibold))
@@ -782,38 +782,53 @@ struct NineBallChaseScoreboardView: View {
                     }
                     .padding(.horizontal, 12)
                     .frame(height: 52)
-
-                    VStack(spacing: 10) {
-                        ForEach(nineBallActionRows.indices, id: \.self) { rowIndex in
-                            HStack(spacing: 10) {
-                                ForEach(nineBallActionRows[rowIndex], id: \.self) { kind in
-                                    nineBallActionButton(kind, player: player)
+                } content: { maxContentHeight in
+                    AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight, bottomClearance: 0) {
+                        VStack(spacing: 10) {
+                            ForEach(nineBallActionRows.indices, id: \.self) { rowIndex in
+                                HStack(spacing: 10) {
+                                    ForEach(nineBallActionRows[rowIndex], id: \.self) { kind in
+                                        nineBallActionButton(kind, player: player)
+                                    }
                                 }
                             }
-                        }
-                        if state.scoringKinds.contains(.handoff) {
-                            Button {
-                                beginChaseEvent(.handoff, player: player)
-                            } label: {
-                                Label(chaseTitle(.handoff), systemImage: "arrow.left.arrow.right")
-                                    .font(.system(size: 15, weight: .medium))
-                                    .frame(maxWidth: .infinity, minHeight: 44)
-                                    .foregroundStyle(.white)
-                                    .background(Color.white.opacity(0.15), in: RoundedRectangle(cornerRadius: 11))
+                            if state.scoringKinds.contains(.handoff) {
+                                Button {
+                                    beginChaseEvent(.handoff, player: player)
+                                } label: {
+                                    Label(chaseTitle(.handoff), systemImage: "arrow.left.arrow.right")
+                                        .font(.system(size: 15, weight: .medium))
+                                        .frame(maxWidth: .infinity, minHeight: 48)
+                                        .foregroundStyle(.white)
+                                        .background(Color.white.opacity(0.15), in: RoundedRectangle(cornerRadius: 11))
+                                }
+                                .buttonStyle(.plain)
+                                .disabled(scoringLocked || state.finished)
+                                .accessibilityIdentifier("nine_ball_action_handoff")
                             }
-                            .buttonStyle(.plain)
-                            .disabled(scoringLocked || state.finished)
-                            .accessibilityIdentifier("nine_ball_action_handoff")
                         }
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 12)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 16)
+                } actions: {
                     if state.usesRackRules {
-                        Button(nineBallText("nine_ball_rules_help", "Format guide")) { activeChasePlayer = nil; showRules = true }
-                            .font(.system(size: 12)).foregroundStyle(.white.opacity(0.7)).padding(.bottom, 12)
-                            .accessibilityIdentifier("nine_ball_board_help")
+                        Button {
+                            activeChasePlayer = nil
+                            showRules = true
+                        } label: {
+                            Text(nineBallText("nine_ball_rules_help", "Format guide"))
+                                .font(.system(size: 15))
+                                .foregroundStyle(.white.opacity(0.85))
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 8)
+                        .accessibilityIdentifier("nine_ball_board_help")
                     }
                 }
+                .fixedSize(horizontal: false, vertical: true)
                 .frame(width: dialogWidth)
                 .background(Theme.scoreboardDialogSurface)
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
@@ -824,6 +839,7 @@ struct NineBallChaseScoreboardView: View {
                 .shadow(color: .black.opacity(0.3), radius: 32, x: 0, y: 12)
                 .contentShape(Rectangle())
                 .onTapGesture { }
+                .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("nine_ball_action_dialog")
             }
         }
@@ -849,10 +865,10 @@ struct NineBallChaseScoreboardView: View {
                     .font(.system(size: 16, weight: .bold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
-                    .frame(maxWidth: .infinity, minHeight: 32)
+                    .frame(maxWidth: .infinity, minHeight: 48)
             }
             .foregroundStyle(.white)
-            .frame(maxWidth: .infinity, minHeight: 58)
+            .frame(maxWidth: .infinity, minHeight: 74)
             .background(nineBallActionBackground(kind))
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -871,14 +887,25 @@ struct NineBallChaseScoreboardView: View {
         onClose: (() -> Void)?,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
+        nineBallDialog(title: title, identifier: identifier, onClose: onClose, content: content) {
+            EmptyView()
+        }
+    }
+
+    private func nineBallDialog<Content: View, Actions: View>(
+        title: String,
+        identifier: String,
+        onClose: (() -> Void)?,
+        @ViewBuilder content: @escaping () -> Content,
+        @ViewBuilder actions: @escaping () -> Actions
+    ) -> some View {
         GeometryReader { proxy in
             let width = Theme.dialogWidth(availableWidth: proxy.size.width, phonePreferredWidth: 400, padPreferredWidth: 480)
-            let dialogContent = content().padding(.horizontal, 18).padding(.bottom, 17)
             ZStack {
                 Theme.scoreboardDialogScrim
                     .ignoresSafeArea()
                     .onTapGesture { onClose?() }
-                VStack(spacing: 0) {
+                AdaptiveSetupDialogLayout(maxHeight: max(150, proxy.size.height - 32)) {
                     ZStack {
                         Text(title)
                             .font(.system(size: 20, weight: .semibold))
@@ -895,13 +922,15 @@ struct NineBallChaseScoreboardView: View {
                     }
                     .padding(.horizontal, 12)
                     .frame(height: 52)
-                    ViewThatFits(in: .vertical) {
-                        dialogContent
-                        ScrollView { dialogContent }
+                } content: { maxContentHeight in
+                    AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight, bottomClearance: 0) {
+                        content().padding(.horizontal, 18).padding(.bottom, 17)
                     }
+                } actions: {
+                    actions()
                 }
+                .fixedSize(horizontal: false, vertical: true)
                 .frame(width: width)
-                .frame(maxHeight: max(150, proxy.size.height - 32))
                 .background(Theme.scoreboardDialogSurface)
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                 .overlay {
@@ -910,6 +939,7 @@ struct NineBallChaseScoreboardView: View {
                 }
                 .contentShape(Rectangle())
                 .onTapGesture { }
+                .accessibilityElement(children: .contain)
                 .accessibilityIdentifier(identifier)
             }
         }
@@ -936,12 +966,16 @@ struct NineBallChaseScoreboardView: View {
                     .foregroundStyle(Color.white.opacity(0.8))
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
-                nineBallPrimaryButton(NSLocalizedString("got_it", value: "知道了", comment: "")) {
-                    UserDefaults.standard.set(true, forKey: "nineBall14710BreakerIntroSeen")
-                    showBreakerIntro = false
-                }
-                .accessibilityIdentifier("nine_ball_breaker_intro_ack")
             }
+        } actions: {
+            nineBallPrimaryButton(NSLocalizedString("got_it", value: "知道了", comment: "")) {
+                UserDefaults.standard.set(true, forKey: "nineBall14710BreakerIntroSeen")
+                showBreakerIntro = false
+            }
+            .accessibilityIdentifier("nine_ball_breaker_intro_ack")
+            .padding(.horizontal, 18)
+            .padding(.top, 12)
+            .padding(.bottom, 17)
         }
     }
 
@@ -1120,7 +1154,7 @@ struct NineBallChaseScoreboardView: View {
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(Theme.textOnPrimary)
                 .frame(maxWidth: .infinity, minHeight: 44)
-                .background(Theme.primary, in: RoundedRectangle(cornerRadius: 10))
+                .background(Theme.primary, in: Capsule())
         }
         .buttonStyle(.plain)
     }

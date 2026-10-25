@@ -28,6 +28,8 @@ struct SystemHelpButton: View {
     @State private var isPopoverPresented = false
     @State private var isSheetPresented = false
     @State private var fitsBelowAnchor = true
+    @State private var popoverContentHeight: CGFloat = 260
+    @State private var popoverAvailableHeight: CGFloat = 260
 
     var body: some View {
         Button {
@@ -49,10 +51,10 @@ struct SystemHelpButton: View {
         .background(
             GeometryReader { geo in
                 Color.clear
-                    .onAppear { fitsBelowAnchor = Self.popoverFitsBelow(geo.frame(in: .global)) }
+                    .onAppear { updatePopoverSpace(anchorFrame: geo.frame(in: .global)) }
                     .onChange(of: isPopoverPresented) { _, presented in
                         guard presented else { return }
-                        fitsBelowAnchor = Self.popoverFitsBelow(geo.frame(in: .global))
+                        updatePopoverSpace(anchorFrame: geo.frame(in: .global))
                     }
             }
         )
@@ -61,18 +63,28 @@ struct SystemHelpButton: View {
             attachmentAnchor: .rect(.bounds),
             arrowEdge: preferredArrowEdge ?? (fitsBelowAnchor ? .top : .bottom)
         ) {
-            VStack(alignment: .leading, spacing: 10) {
-                Text(title)
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
 
-                Text(message)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                    Text(message)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(20)
+                .onGeometryChange(for: CGFloat.self) { geometry in
+                    ceil(geometry.size.height)
+                } action: { height in
+                    popoverContentHeight = height
+                }
             }
-            .padding(20)
+            .scrollBounceBehavior(.basedOnSize)
             .frame(idealWidth: 280, maxWidth: 320, alignment: .leading)
+            .frame(height: min(popoverContentHeight, popoverAvailableHeight))
             .presentationCompactAdaptation(.popover)
         }
         .sheet(isPresented: $isSheetPresented) {
@@ -103,15 +115,18 @@ struct SystemHelpButton: View {
         }
     }
 
-    /// 估算锚点下方的可用空间能否容纳气泡（内容约 260pt 高，含边距）；
-    /// 放不下且上方空间更大时返回 false（气泡改在锚点上方展开）。
-    private static func popoverFitsBelow(_ anchorFrame: CGRect) -> Bool {
+    /// 根据锚点上下的可用空间选择展开方向，并限制可滚动气泡的高度。
+    private func updatePopoverSpace(anchorFrame: CGRect) {
         let windowHeight = UIApplication.shared.connectedScenes
             .compactMap { ($0 as? UIWindowScene)?.keyWindow?.bounds.height }
             .first ?? AppScreen.bounds.height
         let below = windowHeight - anchorFrame.maxY
         let above = anchorFrame.minY
-        return below >= min(260, above)
+        fitsBelowAnchor = below >= min(260, above)
+        let arrowEdge = preferredArrowEdge ?? (fitsBelowAnchor ? .top : .bottom)
+        let availableHeight = arrowEdge == .top ? below : above
+        // Leave room for the popover arrow and the screen edges; long text scrolls inside.
+        popoverAvailableHeight = max(80, min(480, availableHeight - 44))
     }
 }
 

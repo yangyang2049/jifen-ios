@@ -356,7 +356,7 @@ struct MultiScoreSetupDialogView: View {
                     comment: ""
                 ),
                 iconFontSize: 14,
-                showsDetailSheet: true
+                accessibilityIdentifier: "custom_adjust_setup_help"
             )
             Spacer()
             Toggle("", isOn: $customAdjustEnabled)

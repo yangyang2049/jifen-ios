@@ -323,6 +323,8 @@ struct GroupCreateView: View {
     @State private var policy = GroupActivityPolicy.defaultJoinPolicy
     @State private var busy = false
     @State private var created: ScoreGroup?
+    @State private var didFocusName = false
+    @FocusState private var nameFocused: Bool
     var body: some View {
         if usesParentNavigation { destination }
         else { NavigationStack { destination } }
@@ -335,7 +337,9 @@ struct GroupCreateView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.padding) {
                 GroupAlignedField(groupText("name", "Group name")) {
-                    TextField(groupText("name", "Group name"), text: $name).groupAlignedInput(minHeight: 52).accessibilityIdentifier("group_name")
+                    TextField(groupText("name", "Group name"), text: $name)
+                        .focused($nameFocused)
+                        .groupAlignedInput(minHeight: 52).accessibilityIdentifier("group_name")
                 }
                 GroupAlignedField(groupText("description", "Description (optional)")) {
                     TextField(groupText("description", "Description (optional)"), text: $description, axis: .vertical)
@@ -375,6 +379,13 @@ struct GroupCreateView: View {
             .toolbar {
                 if !usesParentNavigation { ToolbarItem(placement: .cancellationAction) { ModalCloseButton { dismiss() }.disabled(busy) } }
             }.interactiveDismissDisabled(busy)
+            .task {
+                guard !didFocusName else { return }
+                // Wait for the navigation transition before showing the keyboard.
+                do { try await Task.sleep(for: .milliseconds(350)) } catch { return }
+                didFocusName = true
+                nameFocused = true
+            }
     }
     private var valid: Bool { GroupInputValidation.validName(name, minimum: store.capabilities?.nameMin ?? 2, maximum: store.capabilities?.nameMax ?? 24) && description.utf16.count <= (store.capabilities?.descriptionMax ?? 200) && (store.capabilities?.allowsPeerCreation ?? false) }
     private func submit() async {

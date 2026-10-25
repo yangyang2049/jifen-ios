@@ -17,10 +17,13 @@ struct ParticipantAssociatedNamesSection: View {
                 if store.isGuest { Text(identityText("local", "本机")).font(.caption).foregroundStyle(Theme.textSecondary) }
             }
             .padding(16).commonDataListCardStyle()
-            HStack {
-                Text(identityText("associated_names", "已关联本人"))
-                Spacer()
-            }.font(.subheadline).foregroundStyle(Theme.textSecondary)
+            // 尚未关联任何名称时，卡片里只剩"关联用过的名称"入口，小标题反而多余。
+            if !store.aliases.isEmpty {
+                HStack {
+                    Text(identityText("associated_names", "已关联本人"))
+                    Spacer()
+                }.font(.subheadline).foregroundStyle(Theme.textSecondary)
+            }
             VStack(spacing: 0) {
                 ForEach(store.aliases) { alias in
                     HStack {
@@ -148,12 +151,17 @@ struct HistoricalParticipantNamesView: View {
         .onChange(of: store.state.activeLibraryId) { _, _ in dismiss() }
         .onChange(of: SessionStore.shared.user?.id) { _, _ in dismiss() }
         .safeAreaInset(edge: .bottom) {
-            Button(identityText("link_to_me", "关联到我")) { confirming = true }
-                .font(.body.weight(.medium)).frame(maxWidth: .infinity, minHeight: 48)
-                .background(selected.isEmpty ? Theme.dialogControlBackground : Theme.accentColor)
-                .foregroundStyle(selected.isEmpty ? Theme.textSecondary : Theme.textOnPrimary)
-                .clipShape(Capsule()).disabled(selected.isEmpty || proposedCount > 3)
-                .padding(.horizontal, Theme.md).padding(.vertical, 10).background(Theme.backgroundColor)
+            Button { confirming = true } label: {
+                Text(identityText("link_to_me", "关联到我"))
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(Theme.textOnPrimary)
+                    .frame(maxWidth: .infinity, minHeight: 48)
+                    .background(Theme.accentColor, in: Capsule())
+            }
+                .buttonStyle(.plain)
+                .opacity(selected.isEmpty || proposedCount > 3 ? 0.45 : 1)
+                .disabled(selected.isEmpty || proposedCount > 3)
+                .padding(.horizontal, Theme.md).padding(.vertical, 10)
         }
         .task {
             records = ScoreboardRecordManager.shared.loadAllRecords()

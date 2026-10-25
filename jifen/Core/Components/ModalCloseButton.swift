@@ -21,6 +21,8 @@ struct ModalCloseButton: View {
     private var closeButton: some View {
         Button(role: .cancel, action: action) {
             Image(systemName: "xmark")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(tint)
         }
         .tint(tint)
         .accessibilityLabel(NSLocalizedString("close", value: "关闭", comment: ""))

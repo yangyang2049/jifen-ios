@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-25",
+  "timezone": "Asia/Shanghai",
+  "branch": "3.4",
+  "baseCommit": "553d0b48f2652dd944585b71666d840018dfca35",
+  "scope": "All uncommitted iOS application, resource, UI-test, version-scope, manual-QA and App Store draft changes, including repairs found during review.",
+  "fixes": [
+    "Use the existing localized scan label instead of the missing qr_scan_entry key.",
+    "Keep sync recovery accessible for failed and blocked uploads as well as conflicts.",
+    "Route scanned group invitations from sheet onDismiss after scanner dismissal.",
+    "Contain nine-ball dialog accessibility elements so child button identifiers are retained.",
+    "Synchronize all 44 reviewed catalog source hashes and fallback values with the shortened rules reference.",
+    "Correct the manual small-gold three/four-player totals and broken release-draft document links.",
+    "Add scan, search, help-popover and compact nine-ball dialog regression tests; support iPad floating tab controls and inline search."
+  ],
+  "results": {
+    "iOSHostedUnitTests": {
+      "total": 891,
+      "passed": 890,
+      "skipped": 1,
+      "failed": 0,
+      "skipReason": "Real APNs probe is opt-in",
+      "evidence": "ios-unit-and-phone-summary.json"
+    },
+    "iOSUI": {
+      "devices": [
+        "iPhone SE (3rd generation)",
+        "iPad Pro 13-inch (M5)"
+      ],
+      "uniqueCasesPerDevice": 8,
+      "finalPassed": 16,
+      "failed": 0,
+      "evidence": "ios-ui-matrix-summary.json",
+      "additionalPhoneCases": "Existing-member and open-join scanner flows also passed in the unit-and-phone run."
+    },
+    "swiftPackage": {
+      "swiftTestingPassed": 277,
+      "xctestPassed": 8,
+      "failed": 0,
+      "log": "/tmp/jifen-ios-selfcheck-core-20261025.log"
+    },
+    "nineBallDemo": {
+      "passed": 23,
+      "failed": 0,
+      "log": "/tmp/jifen-ios-selfcheck-nineball-20261025.log"
+    },
+    "localization": {
+      "reviewedLocales": 44,
+      "blockers": 0,
+      "resourceSyntaxFiles": 47,
+      "log": "/tmp/jifen-ios-selfcheck-localization-final-20261025.log"
+    },
+    "pythonLocalization": {
+      "total": 51,
+      "passed": 50,
+      "failed": 1,
+      "failureScope": "Existing sibling HarmonyOS mapping for ACCOUNT_MERGE_INVALID is absent. The iOS assertion passes; this check was already failing in docs/verification/precommit-review-2026-10-25/summary.json. No sibling repository files were changed.",
+      "log": "/tmp/jifen-ios-selfcheck-python-final-20261025.log"
+    },
+    "static": {
+      "diffWhitespace": "passed",
+      "newJsonSyntax": "passed",
+      "newMarkdownLinks": "passed",
+      "addedCredentialPatterns": "no_matches"
+    }
+  },
+  "appDiffSHA256": "702bd5f9ea86d27585478cf865b3ec85e308871b9f130b8e607dde3692b1f1cc",
+  "physicalDeviceChecks": "Not run; AirPlay/TV, real multi-device login, numeric-keyboard physical-device and foldable release checks remain in the manual QA checklist.",
+  "releaseActions": "Commit and push only; App Store copy remains a draft."
+}

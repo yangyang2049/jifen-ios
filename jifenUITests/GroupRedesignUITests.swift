@@ -2,8 +2,8 @@ import XCTest
 import UIKit
 
 final class GroupRedesignUITests: XCTestCase {
-    func testMeScannerGroupApprovalPreviewHidesTabBarAndRestoresHome() {
-        let app = openGroupFromMeScanner(["-UITestGroupScanApproval"])
+    func testHomeScannerGroupApprovalPreviewHidesTabBarAndRestoresHome() {
+        let app = openGroupFromHomeScanner(["-UITestGroupScanApproval"])
         XCTAssertTrue(app.staticTexts["group_preview_name"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["group_join_submit"].exists)
         assertMainTabBarHidden(app)
@@ -11,8 +11,8 @@ final class GroupRedesignUITests: XCTestCase {
         returnFromScannedGroupToHome(app, title: "加入小组")
     }
 
-    func testMeScannerOpenGroupJoinKeepsTabBarHidden() {
-        let app = openGroupFromMeScanner()
+    func testHomeScannerOpenGroupJoinKeepsTabBarHidden() {
+        let app = openGroupFromHomeScanner()
         XCTAssertTrue(app.buttons["group_join_submit"].waitForExistence(timeout: 10))
         assertMainTabBarHidden(app)
         app.buttons["group_join_submit"].tap()
@@ -22,8 +22,8 @@ final class GroupRedesignUITests: XCTestCase {
         returnFromScannedGroupToHome(app, title: "球友小组")
     }
 
-    func testMeScannerExistingMemberOpensGroupWithoutTabBar() {
-        let app = openGroupFromMeScanner(["-UITestGroupScanMember"])
+    func testHomeScannerExistingMemberOpensGroupWithoutTabBar() {
+        let app = openGroupFromHomeScanner(["-UITestGroupScanMember"])
         XCTAssertTrue(app.buttons["group_overview_addResult"].waitForExistence(timeout: 10))
         XCTAssertFalse(app.buttons["group_join_submit"].exists)
         assertMainTabBarHidden(app)
@@ -31,7 +31,7 @@ final class GroupRedesignUITests: XCTestCase {
         returnFromScannedGroupToHome(app, title: "球友小组")
     }
 
-    private func openGroupFromMeScanner(_ extra: [String] = []) -> XCUIApplication {
+    private func openGroupFromHomeScanner(_ extra: [String] = []) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = [
             "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
@@ -44,10 +44,8 @@ final class GroupRedesignUITests: XCTestCase {
         let groups = app.navigationBars["我的小组"]
         XCTAssertTrue(groups.waitForExistence(timeout: 15))
         groups.buttons.firstMatch.tap()
-        let me = app.tabBars.buttons["我的"]
-        XCTAssertTrue(me.waitForExistence(timeout: 5))
-        me.tap()
-        let scan = app.buttons["settings_qr_login_entry"]
+        // 扫码入口已统一到首页顶栏（设置页入口已移除）。
+        let scan = app.buttons["home_scan_button"]
         XCTAssertTrue(scan.waitForExistence(timeout: 5))
         scan.tap()
         return app
@@ -55,17 +53,19 @@ final class GroupRedesignUITests: XCTestCase {
 
     private func assertMainTabBarHidden(_ app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
         let hidden = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
-            !app.tabBars.allElementsBoundByIndex.contains { $0.exists && $0.isHittable }
+            !app.descendants(matching: .any)
+                .matching(NSPredicate(format: "identifier BEGINSWITH %@", "main_tab_"))
+                .allElementsBoundByIndex.contains { $0.exists && $0.isHittable }
         }, object: nil)
         XCTAssertEqual(XCTWaiter.wait(for: [hidden], timeout: 5), .completed, "Scanned group destinations must hide the main Tab Bar", file: file, line: line)
     }
 
     private func returnFromScannedGroupToHome(_ app: XCUIApplication, title: String) {
         app.navigationBars[title].buttons.firstMatch.tap()
-        XCTAssertTrue(app.tabBars.buttons["首页"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.tabBars.buttons["首页"].isHittable)
-        app.tabBars.buttons["我的"].tap()
-        XCTAssertTrue(app.buttons["settings_qr_login_entry"].waitForExistence(timeout: 5))
+        let home = app.descendants(matching: .any)["main_tab_0"].firstMatch
+        XCTAssertTrue(home.waitForExistence(timeout: 5))
+        XCTAssertTrue(home.isHittable)
+        XCTAssertTrue(app.buttons["home_scan_button"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.navigationBars["扫码"].exists, "The original scanner must close after routing to the group")
     }
 

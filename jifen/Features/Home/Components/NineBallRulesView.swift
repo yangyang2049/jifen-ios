@@ -34,7 +34,7 @@ struct NineBallRulesView: View {
                     item("nine_ball_help_defense_break", "Safety & break order", nineBallText("nine_ball_help_event_defense", "Legal safeties are allowed and do not score separately. There is no casual handoff action. A third-foul loss gives the rack to the opponent."))
                     paragraph(tournament.breakRule == .winner ? "nine_ball_winner_breaks" : "nine_ball_alternate_breaks", tournament.breakRule == .winner ? "Winner breaks" : "Alternate breaks")
                     item("nine_ball_total_racks", "Total racks", String.localizedStringWithFormat(nineBallText("nine_ball_help_event_racks", "Play %d total racks, not a race to that many wins. Higher points win; ties continue into extra racks. After a rack, finish early only if the trailing player cannot tie even using the remaining racks’ maximum points, including foul awards and custom values."), tournament.totalRacks))
-                    item("nine_ball_help_source", "Rule reference", nineBallText("nine_ball_help_source_body", "This scoring example references the Duya Legends Chinese Nine-ball Standard Rules dated 16 October 2025. Break order, rack count and supplements depend on the event. This is not labeled the latest official Juejin edition."))
+                    item("nine_ball_help_source", "Rule reference", nineBallText("nine_ball_help_source_body", "This scoring example references the Duya Legends Chinese Nine-ball Standard Rules dated 16 October 2025. Break order, rack count and supplements depend on the event."))
                 }
                 ruleGroup(nineBallText("nine_ball_help_differences", "Differences"), id: "compare") {
                     comparisonRow(nineBallText("nine_ball_folk", "Casual chase"), nineBallText("nine_ball_tournament", "Tournament points"), heading: true)
@@ -69,7 +69,7 @@ struct NineBallRulesView: View {
                         Spacer(minLength: 8)
                         Text(nineBallText("nine_ball_feedback_action", "Send feedback")).foregroundStyle(Theme.primary)
                         Image(systemName: "chevron.right").foregroundStyle(Theme.primary)
-                    }.font(.system(size: 12)).frame(minHeight: 44)
+                    }.font(.system(size: 15)).frame(minHeight: 44)
                 }.buttonStyle(.plain).accessibilityIdentifier("nine_ball_feedback_\(id)")
             }
         }.accessibilityIdentifier("nine_ball_help_\(id)")

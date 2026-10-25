@@ -1613,7 +1613,7 @@
 "group_create_activity" = "發起活動";
 "group_created" = "小組已建立";
 "group_created_hint" = "分享小組號或 QR 碼，然後從「我的小組」進入。";
-"group_description" = "簡介";
+"group_description" = "簡介（選填）";
 "group_disputed" = "有爭議";
 "group_doubles" = "雙打";
 "group_draw" = "平局";
@@ -2563,7 +2563,7 @@
 "nine_ball_help_next_break" = "下一局誰開球";
 "nine_ball_help_same_points" = "同名分值不代表同一種玩法。先看是玩家間轉分還是比賽積分累計，再看黃金9、犯規和開球的約定。";
 "nine_ball_help_source" = "規則依據";
-"nine_ball_help_source_body" = "參考《獨牙傳奇中式九球標準規則》（2025年10月16日）。具體比賽的開球方式、局數及補充條款，以該賽事賽前公佈的規程為準。這裡不標作“最新決金官方版”。";
+"nine_ball_help_source_body" = "參考《獨牙傳奇中式九球標準規則》（2025年10月16日）。具體比賽的開球方式、局數及補充條款，以該賽事賽前公佈的規程為準。";
 "nine_ball_help_tournament_intro" = "兩人各自累計積分，得分時對手積分不扣除。整場按總積分決定勝負，輸掉一局不等於輸掉整場比賽。";
 "nine_ball_help_wins" = "大金、小金與普勝";
 "nine_ball_nonnegative" = "賽事積分須為非負整數。";

@@ -64,12 +64,9 @@ struct SettingsView: View {
     @Environment(AppAppearanceStore.self) private var appearance
     @Environment(SessionStore.self) private var session
     var isTabRoot: Bool = false
-    var onGroupInvitation: (String) -> Void = { _ in }
     @State private var showClearConfirm = false
     @State private var showAppShareSheet = false
     @State private var showAccountLoginSheet = false
-    @State private var showQRLogin = false
-    @State private var pendingGroupNumber: String?
     @State private var activeSheet: SettingsSheetDestination?
     @State private var clearDataErrorMessage: String?
     @State private var isClearingData = false
@@ -100,20 +97,6 @@ struct SettingsView: View {
             }
             .navigationTitle(NSLocalizedString(isTabRoot ? "tab_me" : "settings", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $showQRLogin) {
-                QRLoginApprovalView { number in
-                    // 只记录号码并关闭扫码页。跳转必须等这一页真正退出后再做：
-                    // 「关 Sheet + 切 Tab + push」落在同一帧时，新页面请求的隐藏
-                    // Tab Bar 会被切换过程覆盖，加入页和小组页就会重新露出 Tab Bar。
-                    pendingGroupNumber = number
-                    showQRLogin = false
-                }
-                .onDisappear {
-                    guard let number = pendingGroupNumber else { return }
-                    pendingGroupNumber = nil
-                    onGroupInvitation(number)
-                }
-            }
             // Use `.automatic` on the Me tab root so pushed pages can hide the tab bar.
             .toolbar(isTabRoot ? .automatic : .hidden, for: .tabBar)
             .toolbar {
@@ -216,6 +199,7 @@ struct SettingsView: View {
             NavigationLink { AccountCenterView() } label: {
                 accountEntryLabel
             }
+            .buttonStyle(.plain)
             .accessibilityIdentifier("settings_account_entry")
         } else {
             Button {
@@ -234,8 +218,7 @@ struct SettingsView: View {
             loggedIn: session.isAuthenticated,
             displayName: session.user?.displayName ?? "",
             avatarURL: avatarURL,
-            subtitle: accountSubtitle,
-            onScanLogin: session.isAuthenticated ? { showQRLogin = true } : nil
+            subtitle: accountSubtitle
         )
     }
 
@@ -526,9 +509,8 @@ private extension SettingsSheetDestination {
 }
 
 struct MeTab: View {
-    var onGroupInvitation: (String) -> Void
     var body: some View {
-        SettingsView(isTabRoot: true, onGroupInvitation: onGroupInvitation)
+        SettingsView(isTabRoot: true)
             // 宿主必须挂在读 openInAppWebLink 的那个视图之上：挂在 SettingsView 自己
             // body 的输出上等于自我注入，它本身读到的仍是默认空 action（点了没反应）。
             .inAppWebLinks()
@@ -620,7 +602,6 @@ private struct MeAccountEntryRow: View {
     let displayName: String
     let avatarURL: URL?
     let subtitle: String
-    var onScanLogin: (() -> Void)? = nil
 
     var body: some View {
         HStack(spacing: 16) {
@@ -639,9 +620,6 @@ private struct MeAccountEntryRow: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer()
-            if let onScanLogin {
-                scanLoginButton(action: onScanLogin)
-            }
             Image(systemName: "chevron.forward")
                 .font(.caption.weight(.semibold))
                 .foregroundColor(Theme.textSecondary)
@@ -650,20 +628,6 @@ private struct MeAccountEntryRow: View {
         .padding(.vertical, 16)
         .frame(minHeight: 92)
         .contentShape(Rectangle())
-    }
-
-    // 扫码登录：嵌在名称条右侧、右箭头左侧的图标按钮（对齐安卓扫一扫图标入口）。
-    private func scanLoginButton(action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: "qrcode.viewfinder")
-                .font(.system(size: 18, weight: .medium))
-                .foregroundColor(Theme.textPrimary)
-                .frame(width: 36, height: 36)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(NSLocalizedString("qr_login_title", value: "扫码登录", comment: ""))
-        .accessibilityIdentifier("settings_qr_login_entry")
     }
 
     private var avatar: some View {

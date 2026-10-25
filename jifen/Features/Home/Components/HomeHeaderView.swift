@@ -5,6 +5,7 @@ struct HomeHeaderView: View {
     /// 首页水平边距（由 HomeTab 按窗口尺寸传入；iPad 平板档为 64，对齐安卓 responsiveHorizontalPadding）。
     var horizontalInset: CGFloat = Theme.pageHorizontalInset
     var onCastTapped: () -> Void = {}
+    var onScanTapped: () -> Void = {}
     @ObservedObject private var externalDisplay = ExternalDisplayCoordinator.shared
     @ObservedObject private var cloudSyncSession = CloudSyncSession.shared
 
@@ -30,15 +31,6 @@ struct HomeHeaderView: View {
         return state.controller.state
     }
 
-    private var castEntryTitle: String {
-        let localization = Bundle.main.preferredLocalizations.first ?? "en"
-        let language = Locale(identifier: localization).language.languageCode?.identifier
-        if language == "zh" || language == "ko" {
-            return NSLocalizedString("display_connection_title", value: "投屏与同步", comment: "")
-        }
-        return NSLocalizedString("display_connection_tab_cast", value: "投屏", comment: "")
-    }
-
     private var normalHeader: some View {
         HStack {
             VStack(alignment: .leading) {
@@ -57,30 +49,30 @@ struct HomeHeaderView: View {
 
             Spacer()
 
+            // 顶栏图标按钮（对齐 App Store 右上角扫码位的官方模式）：
+            // 投屏/同步收成纯图标，投屏中（外接屏幕已连接）用主色保留活跃提示。
             Button(action: onCastTapped) {
-                HStack(spacing: 6) {
-                    Image(systemName: "rectangle.on.rectangle")
-                        .font(.system(size: 13, weight: .semibold))
-                    Text(externalDisplay.status == .dedicated
-                         ? NSLocalizedString("cast_active", value: "投屏中", comment: "")
-                         : castEntryTitle)
-                        .font(.system(size: 13, weight: .semibold))
-                        .lineLimit(1)
-                        .fixedSize(horizontal: true, vertical: false)
-                }
-                .foregroundStyle(externalDisplay.status == .dedicated ? Theme.textOnPrimary : Theme.primary)
-                .padding(.horizontal, 12)
-                .frame(height: 34)
-                .background(
-                    externalDisplay.status == .dedicated
-                        ? Theme.primary
-                        : Theme.primary.opacity(0.12),
-                    in: Capsule()
-                )
+                Image(systemName: "rectangle.on.rectangle")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundStyle(externalDisplay.status == .dedicated ? Theme.primary : Theme.textPrimary)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("home_cast_button")
             .accessibilityLabel(NSLocalizedString("home_sync_entry", value: "投屏与同步", comment: ""))
+
+            // 扫码放最右侧：顶栏最顺手的位置，一部手机从启动到扫码只需一次点击。
+            Button(action: onScanTapped) {
+                Image(systemName: "qrcode.viewfinder")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundStyle(Theme.textPrimary)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("home_scan_button")
+            .accessibilityLabel(groupText("scan", "Scan QR code"))
         }
         // 水平内边距移入正常顶栏内部：同步态绿色条需要全宽贴边（对齐安卓 activeModifier）。
         .padding(.horizontal, horizontalInset)

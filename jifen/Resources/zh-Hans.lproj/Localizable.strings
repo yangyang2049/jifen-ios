@@ -1614,7 +1614,7 @@
 "group_create_activity" = "发起活动";
 "group_created" = "小组已创建";
 "group_created_hint" = "分享小组号或二维码，然后从“我的小组”进入。";
-"group_description" = "简介";
+"group_description" = "简介（选填）";
 "group_disputed" = "有争议";
 "group_doubles" = "双打";
 "group_draw" = "平局";
@@ -2566,7 +2566,7 @@
 "nine_ball_help_next_break" = "下一局谁开球";
 "nine_ball_help_same_points" = "同名分值不代表同一种玩法。先看是玩家间转分还是比赛积分累计，再看黄金9、犯规和开球的约定。";
 "nine_ball_help_source" = "规则依据";
-"nine_ball_help_source_body" = "参考《独牙传奇中式九球标准规则》（2025年10月16日）。具体比赛的开球方式、局数及补充条款，以该赛事赛前公布的规程为准。这里不标作“最新决金官方版”。";
+"nine_ball_help_source_body" = "参考《独牙传奇中式九球标准规则》（2025年10月16日）。具体比赛的开球方式、局数及补充条款，以该赛事赛前公布的规程为准。";
 "nine_ball_help_tournament_intro" = "两人各自累计积分，得分时对手积分不扣除。整场按总积分决定胜负，输掉一局不等于输掉整场比赛。";
 "nine_ball_help_wins" = "大金、小金与普胜";
 "nine_ball_nonnegative" = "赛事积分须为非负整数。";

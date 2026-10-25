@@ -341,7 +341,9 @@ struct CloudSyncEntryPanel: View {
         .frame(maxWidth: .infinity)
         .frame(height: 56)
         .padding(.horizontal, 16)
-        .background(Theme.inputFieldBackground, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        // 位于白色角色卡内：用卡内控件统一的 dialogControlBackground（对齐同卡设备行与安卓 elevatedCard 的浅色观感），
+        // inputFieldBackground 是页面级输入框 token，直接铺在白卡上会偏深。
+        .background(Theme.dialogControlBackground, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .strokeBorder(

@@ -2534,7 +2534,7 @@
 "nine_ball_help_next_break" = "Next break";
 "nine_ball_help_same_points" = "The same point numbers do not imply the same rules. Check point transfers versus accumulation, golden 9, fouls and break order.";
 "nine_ball_help_source" = "Rule reference";
-"nine_ball_help_source_body" = "This scoring example references the Duya Legends Chinese Nine-ball Standard Rules dated 16 October 2025. Break order, rack count and supplements depend on the event. This is not labeled the latest official Juejin edition.";
+"nine_ball_help_source_body" = "This scoring example references the Duya Legends Chinese Nine-ball Standard Rules dated 16 October 2025. Break order, rack count and supplements depend on the event.";
 "nine_ball_help_tournament_intro" = "Two players accumulate points independently. Scoring does not deduct points from the opponent. Losing a rack does not mean losing the match.";
 "nine_ball_help_wins" = "Big gold, small gold and normal wins";
 "nine_ball_nonnegative" = "Tournament scores must be nonnegative integers.";

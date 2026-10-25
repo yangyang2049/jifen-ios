@@ -108,10 +108,7 @@ struct MainTabView: View {
             tabItem(tag: 3, titleKey: "tab_timer", systemImage: "timer", screen: .timerTab) {
                 TimerTab(pendingTimerGameType: pendingTimerGameType)
             }
-            MeTab { number in
-                selectedTab.wrappedValue = 0
-                groupInvitation = GroupInvitation(groupNo: number)
-            }
+            MeTab()
                 .appAnalyticsScreen(.meTab)
                 .tag(4)
                 .tabItem {

@@ -485,6 +485,67 @@ final class MainFlowUITests: XCTestCase {
         }
     }
 
+    func testHomeScannerIsAvailableToGuestsAndCancelRestoresHome() {
+        let app = launchChineseApp()
+        defer { app.terminate() }
+        let scan = app.buttons["home_scan_button"]
+        XCTAssertTrue(scan.waitForExistence(timeout: 8))
+        XCTAssertGreaterThanOrEqual(scan.frame.width, 44)
+        XCTAssertGreaterThanOrEqual(scan.frame.height, 44)
+        scan.tap()
+        XCTAssertTrue(app.buttons["group_scan_photo"].waitForExistence(timeout: 5))
+        app.buttons["modal_close_button"].tap()
+        XCTAssertTrue(scan.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.descendants(matching: .any)["main_tab_0"].firstMatch.isSelected)
+        app.descendants(matching: .any)["main_tab_4"].firstMatch.tap()
+        XCTAssertFalse(app.buttons["settings_qr_login_entry"].exists)
+    }
+
+    func testCustomAdjustHelpScrollsWithinWindow() {
+        let app = launchChineseApp(arguments: ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryXXXL"])
+        defer { app.terminate() }
+        openSetupCatalogCardByScrolling("multiScoreboard", in: app)
+        let help = app.buttons["custom_adjust_setup_help"]
+        revealSetupControl(help, in: app)
+        XCTAssertTrue(help.isHittable)
+        help.tap()
+        let heading = app.staticTexts["计分方式说明"]
+        XCTAssertTrue(heading.waitForExistence(timeout: 5))
+        let scroll = app.scrollViews.containing(.staticText, identifier: "计分方式说明").firstMatch
+        XCTAssertTrue(scroll.exists)
+        XCTAssertTrue(app.windows.firstMatch.frame.contains(scroll.frame))
+        scroll.swipeUp()
+        attach(XCUIScreen.main.screenshot(), name: "custom-adjust-help-scroll")
+    }
+
+    func testNineBallLandscapeDialogsKeepActionsInsideWindow() {
+        let app = launchChineseApp(arguments: ["-nineBall14710BreakerIntroSeen", "NO"])
+        defer {
+            XCUIDevice.shared.orientation = .portrait
+            app.terminate()
+        }
+        openSetupCatalogCardByScrolling("nine_ball", in: app)
+        app.buttons["nine_ball_setup_start"].tap()
+        XCUIDevice.shared.orientation = .landscapeRight
+        let acknowledge = app.buttons["nine_ball_breaker_intro_ack"]
+        XCTAssertTrue(acknowledge.waitForExistence(timeout: 8), app.debugDescription)
+        XCTAssertTrue(acknowledge.isHittable)
+        XCTAssertTrue(app.windows.firstMatch.frame.contains(acknowledge.frame))
+        attach(XCUIScreen.main.screenshot(), name: "nine-ball-landscape-intro")
+        acknowledge.tap()
+        let player = app.descendants(matching: .any)["nine_ball_player_0_tile"].firstMatch
+        XCTAssertTrue(player.waitForExistence(timeout: 5))
+        player.tap()
+        let help = app.buttons["nine_ball_board_help"]
+        XCTAssertTrue(help.waitForExistence(timeout: 5))
+        XCTAssertTrue(help.isHittable)
+        XCTAssertGreaterThanOrEqual(help.frame.height, 44)
+        XCTAssertTrue(app.windows.firstMatch.frame.contains(help.frame))
+        attach(XCUIScreen.main.screenshot(), name: "nine-ball-landscape-actions")
+        app.buttons["nine_ball_action_close"].tap()
+        XCTAssertTrue(help.waitForNonExistence(timeout: 5))
+    }
+
     func testHomeCastEntryOpensConnectionGuide() {
         let app = launchApp()
         let castButton = app.buttons["home_cast_button"]

@@ -66,16 +66,7 @@ struct RecordsTab: View {
                     }
                 }
                 else {
-                    NavigationLink {
-                        RecordsTab(personalOnly: true)
-                    } label: {
-                        HStack {
-                            Label(identityText("my_records", "我的记录"), systemImage: "person.crop.circle")
-                            Spacer(); Image(systemName: "chevron.right").font(.caption)
-                        }.padding(16).background(Theme.appCardBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
-                    }.buttonStyle(.plain).padding(.horizontal, Theme.pageHorizontalInset).padding(.bottom, 8)
-                        .accessibilityIdentifier("personal_records_entry")
+                    RecordsPersonalEntry(hasSearchQuery: !searchText.isEmpty)
                 }
                 if hasActiveFilters { activeFilterRow }
             }
@@ -93,7 +84,7 @@ struct RecordsTab: View {
         .systemSearchable(
             text: $searchText,
             prompt: NSLocalizedString("search_team_or_game", value: "搜索队伍或项目", comment: "Search placeholder"),
-            isEnabled: !isEditMode
+            isEnabled: !personalOnly && !isEditMode
         )
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -124,10 +115,16 @@ struct RecordsTab: View {
                             Label(NSLocalizedString("edit", comment: "Edit"), systemImage: "pencil")
                         }
                         .disabled(!filteredRecords().contains(where: \.isEditable))
-                        NavigationLink {
-                            PersonalSyncStatusView()
-                        } label: {
-                            Label(identityText("sync_status", "记录同步"), systemImage: "arrow.triangle.2.circlepath")
+                        // Ordinary syncing is automatic; conflicts and failed uploads still need a recovery entry.
+                        if !privateCloud.conflicts.isEmpty || privateCloud.lastError != nil || privateCloud.blockedRecordCount > 0 {
+                            NavigationLink {
+                                PersonalSyncStatusView()
+                            } label: {
+                                Label(privateCloud.conflicts.isEmpty
+                                      ? identityText("sync_failed", "同步未完成")
+                                      : identityText("sync_conflict", "部分记录需要处理同步冲突"), systemImage: "exclamationmark.triangle")
+                            }
+                            .accessibilityIdentifier("records_sync_conflicts")
                         }
                         if !personalOnly { Button(role: .destructive) {
                             showClearConfirm = true
@@ -1024,6 +1021,33 @@ struct RecordsProjectFilter: Identifiable, Hashable {
             return [.init(gameType: type, scope: .family), .init(gameType: type, scope: .exact(.foosball)), .init(gameType: type, scope: .exact(.foosballDoubles))]
         default:
             return [.init(gameType: type, scope: .family)]
+        }
+    }
+}
+
+/// Read search state below `.searchable`, where SwiftUI supplies the active state.
+private struct RecordsPersonalEntry: View {
+    @Environment(\.isSearching) private var isSearching
+    let hasSearchQuery: Bool
+
+    var body: some View {
+        if !isSearching && !hasSearchQuery {
+            NavigationLink {
+                RecordsTab(personalOnly: true)
+            } label: {
+                HStack {
+                    Label(identityText("my_records", "我的记录"), systemImage: "person.crop.circle")
+                    Spacer()
+                    Image(systemName: "chevron.right").font(.caption)
+                }
+                .padding(16)
+                .background(Theme.appCardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, Theme.pageHorizontalInset)
+            .padding(.bottom, 8)
+            .accessibilityIdentifier("personal_records_entry")
         }
     }
 }

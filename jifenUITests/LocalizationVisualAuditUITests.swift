@@ -369,7 +369,7 @@ final class LocalizationVisualAuditUITests: XCTestCase {
                 app,
                 locale: locale,
                 stage: "home",
-                identifiers: ["main_tab_0", "main_tab_1", "main_tab_2", "main_tab_3", "main_tab_4", "home_cast_button", "home_quick_start_primary"]
+                identifiers: ["main_tab_0", "main_tab_1", "main_tab_2", "main_tab_3", "main_tab_4", "home_cast_button", "home_scan_button", "home_quick_start_primary"]
             )
         }
 

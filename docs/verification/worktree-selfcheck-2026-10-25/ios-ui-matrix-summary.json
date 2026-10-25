@@ -1,0 +1,111 @@
+{
+  "devices": [
+    {
+      "device": "iPhone SE (3rd generation)",
+      "total": 8,
+      "finallyPassed": 8,
+      "failed": 0,
+      "tests": [
+        {
+          "test": "GroupAlignedFormsUITests/testCreateAndJoinUsePages",
+          "status": "passed",
+          "durationSeconds": 13.483
+        },
+        {
+          "test": "GroupRedesignUITests/testHomeScannerGroupApprovalPreviewHidesTabBarAndRestoresHome",
+          "status": "passed",
+          "durationSeconds": 14.688
+        },
+        {
+          "test": "MainFlowUITests/testCustomAdjustHelpScrollsWithinWindow",
+          "status": "passed",
+          "durationSeconds": 16.903
+        },
+        {
+          "test": "MainFlowUITests/testHomeCastEntryOpensConnectionGuide",
+          "status": "passed",
+          "durationSeconds": 5.807
+        },
+        {
+          "test": "MainFlowUITests/testHomeScannerIsAvailableToGuestsAndCancelRestoresHome",
+          "status": "passed",
+          "durationSeconds": 11.686
+        },
+        {
+          "test": "MainFlowUITests/testNineBallLandscapeDialogsKeepActionsInsideWindow",
+          "status": "passed",
+          "durationSeconds": 17.549
+        },
+        {
+          "test": "ParticipantIdentityUITests/testFilterCanBeClearedAndPersonalPageHidesMainTabs",
+          "status": "passed",
+          "durationSeconds": 24.04
+        },
+        {
+          "test": "ParticipantIdentityUITests/testPersonalEntryHidesWhileSearchingAndReturnsAfterCancel",
+          "status": "passed",
+          "durationSeconds": 17.779
+        }
+      ],
+      "retests": [],
+      "sourceExecutionLog": "/tmp/jifen-ios-selfcheck-ui-final-20261025.xcresult/Staging/2_Test/Diagnostics/jifenUITests-BE6DDABB-940A-4E95-9E27-69398B6F531A-Configuration-Test Scheme Action-Iteration-1/jifenUITests-09AE685C-474D-40A0-BC7E-2DFD2DE3D144/StandardOutputAndStandardError.txt"
+    },
+    {
+      "device": "iPad Pro 13-inch (M5)",
+      "total": 8,
+      "finallyPassed": 8,
+      "failed": 0,
+      "tests": [
+        {
+          "test": "GroupAlignedFormsUITests/testCreateAndJoinUsePages",
+          "status": "passed",
+          "durationSeconds": 13.309
+        },
+        {
+          "test": "GroupRedesignUITests/testHomeScannerGroupApprovalPreviewHidesTabBarAndRestoresHome",
+          "status": "passed",
+          "durationSeconds": 14.149
+        },
+        {
+          "test": "MainFlowUITests/testCustomAdjustHelpScrollsWithinWindow",
+          "status": "passed",
+          "durationSeconds": 12.991
+        },
+        {
+          "test": "MainFlowUITests/testHomeCastEntryOpensConnectionGuide",
+          "status": "passed",
+          "durationSeconds": 6.756
+        },
+        {
+          "test": "MainFlowUITests/testHomeScannerIsAvailableToGuestsAndCancelRestoresHome",
+          "status": "passed",
+          "durationSeconds": 12.399
+        },
+        {
+          "test": "MainFlowUITests/testNineBallLandscapeDialogsKeepActionsInsideWindow",
+          "status": "passed",
+          "durationSeconds": 14.916
+        },
+        {
+          "test": "ParticipantIdentityUITests/testFilterCanBeClearedAndPersonalPageHidesMainTabs",
+          "status": "passed",
+          "durationSeconds": 24.422
+        },
+        {
+          "test": "ParticipantIdentityUITests/testPersonalEntryHidesWhileSearchingAndReturnsAfterCancel",
+          "status": "passed_after_test_selector_fix",
+          "durationSeconds": 13.529
+        }
+      ],
+      "retests": [
+        {
+          "test": "ParticipantIdentityUITests/testPersonalEntryHidesWhileSearchingAndReturnsAfterCancel",
+          "reason": "iPad inline search has no Cancel button; clearing the native search field ends search and restores the personal entry. Updated the UI test to use that control.",
+          "evidence": "ios-ipad-search-summary.json"
+        }
+      ],
+      "sourceExecutionLog": "/tmp/jifen-ios-selfcheck-ui-final-20261025.xcresult/Staging/3_Test/Diagnostics/jifenUITests-5A7642B9-72C8-4807-AE14-FB8E3171BBFF-Configuration-Test Scheme Action-Iteration-1/jifenUITests-4CF7E5B0-0C3D-4E5B-9F0A-6F4B47B61567/StandardOutputAndStandardError.txt"
+    }
+  ],
+  "note": "All application sources match the successful 891-test hosted unit run. The matrix required only test adaptations for native iOS 26 search and floating tab controls. Test execution finished; the original matrix runner was stopped during stalled diagnostic collection."
+}

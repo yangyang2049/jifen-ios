@@ -153,6 +153,8 @@ struct HomeTab: View {
     @State private var recordIdentity = ParticipantIdentityStore.shared
     @State private var privateRecords = PersonalRecordsCloudSync.shared
     @State private var showGroupNoticeLogin = false
+    @State private var showHomeQRScan = false
+    @State private var pendingGroupNumber: String?
     @State private var groupReminders = GroupActivityReminder.shared
     @State private var groupPush = GroupPushManager.shared
     @State private var recentActivities: [RecentActivity] = []
@@ -252,7 +254,8 @@ struct HomeTab: View {
                             } else {
                                 path.append(NavigationDestination.cast)
                             }
-                        }
+                        },
+                        onScanTapped: { showHomeQRScan = true }
                     )
 
                     ScrollView(showsIndicators: false) {
@@ -431,7 +434,6 @@ struct HomeTab: View {
                     .toolbar(.hidden, for: .tabBar)
                 }
             }
-            // The scanner pops in the Me tab while this destination is pushed.
             // Own the invitation's visibility inside the active navigation stack.
             .toolbar(groupInvitation == nil ? .automatic : .hidden, for: .tabBar)
         }
@@ -441,6 +443,19 @@ struct HomeTab: View {
         .sheet(isPresented: $showGroupNoticeLogin, onDismiss: {
             if SessionStore.shared.isAuthenticated { path.append(NavigationDestination.groupNotices) }
         }) { AccountLoginSheet() }
+        .sheet(isPresented: $showHomeQRScan, onDismiss: {
+            guard let number = pendingGroupNumber else { return }
+            pendingGroupNumber = nil
+            groupInvitation = GroupInvitation(groupNo: number)
+        }) {
+            // 群二维码与登录确认共用扫码流。
+            // 扫到群码时先关扫码页，等它真正退出后再置 groupInvitation 推入加群页，
+            // 避免"关 Sheet + push"同帧发生把 Tab Bar 的隐藏状态覆盖掉。
+            QRLoginApprovalView { number in
+                pendingGroupNumber = number
+                showHomeQRScan = false
+            }
+        }
         .sheet(item: $groupPush.destination) { destination in
             GroupPushDestinationView(destination: destination) { type, _, sessionID in
                 groupPush.destination = nil

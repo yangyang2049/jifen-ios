@@ -3,6 +3,39 @@ import XCTest
 final class ParticipantIdentityUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = false }
 
+    func testPersonalEntryHidesWhileSearchingAndReturnsAfterCancel() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestRecordFixtures",
+            "-national_day_2026_last_shown_at", String(Date().timeIntervalSince1970)]
+        app.launch()
+        defer { app.terminate() }
+        app.descendants(matching: .any)["main_tab_1"].firstMatch.tap()
+        let personal = app.buttons["personal_records_entry"]
+        XCTAssertTrue(personal.waitForExistence(timeout: 6))
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.tap()
+        XCTAssertTrue(personal.waitForNonExistence(timeout: 5))
+        search.typeText("不存在的项目")
+        XCTAssertFalse(personal.exists)
+        // Native search dismissal uses different accessibility roles on iPhone and iPad.
+        let closeSearch = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label IN %@", ["取消", "关闭", "Cancel", "Close"])).firstMatch
+        if closeSearch.exists {
+            closeSearch.tap()
+        } else {
+            // iPad keeps search inline without a cancel control.
+            search.buttons["清除文本"].tap()
+            let hideKeyboard = app.buttons["隐藏键盘"]
+            if hideKeyboard.exists { hideKeyboard.tap() }
+        }
+        XCTAssertTrue(personal.waitForExistence(timeout: 5), app.debugDescription)
+        personal.tap()
+        XCTAssertTrue(app.navigationBars["我的记录"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.searchFields.firstMatch.exists)
+    }
+
     func testFilterCanBeClearedAndPersonalPageHidesMainTabs() {
         let app = XCUIApplication()
         app.launchArguments += ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestRecordFixtures", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryXXXL"]
