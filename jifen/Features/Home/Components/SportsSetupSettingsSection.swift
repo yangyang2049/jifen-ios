@@ -351,17 +351,21 @@ struct SportsSetupSettingsSection: View {
     private func buildPadelSettings() -> some View {
         Text(NSLocalizedString("padel_deuce_mode", value: "平分规则", comment: "Padel deuce mode"))
             .settingsLabelStyle()
-        ForEach(PadelDeuceMode.allCases, id: \.self) { mode in
-            Button {
-                draft.padelDeuceMode = mode
-            } label: {
-                HStack {
+        SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
+            ForEach(PadelDeuceMode.allCases, id: \.self) { mode in
+                Button {
+                    draft.padelDeuceMode = mode
+                } label: {
                     Text(padelModeTitle(mode))
-                    Spacer()
-                    if draft.padelDeuceMode == mode { Image(systemName: "checkmark") }
+                        .font(.system(size: 14, weight: draft.padelDeuceMode == mode ? .medium : .regular))
+                        .foregroundStyle(getChipTextColor(selected: draft.padelDeuceMode == mode))
+                        .padding(.horizontal, 16)
+                        .frame(minWidth: 64, minHeight: 40)
+                        .background(getChipBackgroundColor(selected: draft.padelDeuceMode == mode))
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
     }
 

@@ -157,7 +157,6 @@ struct HomeTab: View {
     @State private var pendingGroupNumber: String?
     @State private var groupReminders = GroupActivityReminder.shared
     @State private var groupPush = GroupPushManager.shared
-    @State private var recentActivities: [RecentActivity] = []
     @State private var upcomingBookings: [LocalBooking] = []
     @State private var unfinishedRecord: UnfinishedGameSummary?
     @State private var showNewGameDialog = false
@@ -195,6 +194,7 @@ struct HomeTab: View {
 
     @State private var headerDate = ""
     @StateObject private var quickStartManager = QuickStartConfigManager.shared
+    @StateObject private var timerVM = TimerRecordsViewModel.shared
     @State private var scoreboardVM = ScoreboardRecordsViewModel.shared
 
     private static let discardConfirmationDuration: TimeInterval = 3
@@ -532,6 +532,8 @@ struct HomeTab: View {
             loadData()
             configureQuickStartDefaultsForCurrentDevice()
             scoreboardVM.ensureLoaded()
+            timerVM.ensureLoaded()
+            privateRecords.schedule()
             loadUpcomingBookings()
             loadUnfinishedRecord()
             #if DEBUG
@@ -558,21 +560,17 @@ struct HomeTab: View {
             }
         }
         .onChange(of: scoreboardVM.records) { _, _ in
-            updateRecentActivities()
             loadUnfinishedRecord()
         }
         .onChange(of: recordIdentity.state.activeLibraryId) { _, _ in
             unfinishedRecord = nil
             resetDiscardConfirmation()
-            updateRecentActivities()
             loadUnfinishedRecord()
         }
         .onChange(of: recordIdentity.state.archivedLibraries) { _, _ in
-            updateRecentActivities()
             loadUnfinishedRecord()
         }
         .onChange(of: privateRecords.phase) { _, _ in
-            updateRecentActivities()
             if unfinishedRecord.map({ !canAccessUnfinishedRecord($0) }) == true {
                 unfinishedRecord = nil
                 loadUnfinishedRecord()
@@ -737,34 +735,11 @@ struct HomeTab: View {
         headerDate = "\(dateFormatter.string(from: now))  \(weekdayFormatter.string(from: now))"
     }
 
-    private func updateRecentActivities() {
-        let records = scoreboardVM.records
-        #if DEBUG
-        print("[HomeTab] 📊 Deriving recent activities from \(records.count) cached records")
-        #endif
-
-        let recentRecords = records
-            .filter { PersonalRecordAccessPolicy.allowsNativeRecord($0.id) }
-            .sorted { $0.timestamp > $1.timestamp }
-            .prefix(5)
-        #if DEBUG
-        print("[HomeTab] 📋 Showing \(recentRecords.count) recent records")
-        #endif
-
-        recentActivities = recentRecords.map { record in
-            #if DEBUG
-            print("[HomeTab] 🎮 Record: \(record.id) - \(record.gameType.rawValue) - \(record.team1FinalScore):\(record.team2FinalScore)")
-            #endif
-            return RecentActivity(
-                id: record.id,
-                activityType: .scoreboard,
-                gameType: record.gameType,
-                timestamp: record.timestamp,
-                title: record.displayMatchTitle,
-                description: record.displayScore(),
-                syncFrom: record.isSyncedFromWatch ? "watch" : nil
-            )
-        }
+    private var recentActivities: [RecordsTabRecordItem] {
+        Array(RecordListSource.visibleRecords(
+            scoreboard: scoreboardVM.records, timers: timerVM.records,
+            cloudRecords: privateRecords.remoteRecords, identity: recordIdentity, cloud: privateRecords
+        ).prefix(5))
     }
 
     private func loadUpcomingBookings() {
@@ -1363,7 +1338,7 @@ struct HomeTab: View {
             SectionTitleView(title: NSLocalizedString("recent_records", comment: "Recent Records Section Title"))
 
             RecentRecordsSectionView(
-                records: recentActivities.filter { PersonalRecordAccessPolicy.allowsNativeRecord($0.id) },
+                records: recentActivities,
                 onViewAllTapped: { onNavigateToTab?(1, nil) }
             )
         }

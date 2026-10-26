@@ -1,187 +1,141 @@
 import SwiftUI
 
-// MARK: - RecentActivity Models (already defined in HomeModels.swift, import here for convenience)
-// These models are expected to be available through the module import
-// import jifen.Features.Home.Models // Or just `import jifen` if public
+/// One row layout for Home, Records and My Records, including cloud records.
+struct RecordListRow: View {
+    let record: RecordListPresentation
+    var isEditMode = false
 
-// MARK: - RecentRowView
+    var body: some View {
+        HStack(spacing: 12) {
+            if let gameType = record.gameType {
+                recordGameIcon(gameType: gameType, isSyncedFromWatch: record.isSyncedFromWatch)
+            } else {
+                Image(systemName: "sportscourt")
+                    .font(.system(size: 26))
+                    .foregroundStyle(Theme.textSecondary)
+                    .frame(width: 40, height: 40)
+            }
+
+            if record.participantCount >= 3 && !Theme.usesPadLayout {
+                VStack(alignment: .leading, spacing: 4) {
+                    if let score = record.score { recordScore(score) }
+                    recordLabels(record)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                recordLabels(record)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                if let score = record.score { recordScore(score).layoutPriority(1) }
+            }
+
+            if !isEditMode {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(Theme.textSecondary)
+                    .frame(width: 16)
+            }
+        }
+        .contentShape(Rectangle())
+        .padding(.vertical, 12)
+    }
+
+    private func recordLabels(_ record: RecordListPresentation) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(record.title)
+                .font(.system(size: Theme.fontBody2, weight: .medium))
+                .foregroundStyle(Theme.textPrimary)
+                .lineLimit(record.names == nil ? 1 : 2)
+            if let names = record.names {
+                Text(names)
+                    .font(.system(size: Theme.fontCaption))
+                    .foregroundStyle(Theme.textSecondary)
+                    .lineLimit(1)
+            }
+            HStack(spacing: 8) {
+                Text(record.time).fixedSize()
+                if let duration = record.duration { Text(formatDuration(duration)).fixedSize() }
+                if let project = record.project { Text(project).lineLimit(1) }
+            }
+            .font(.system(size: Theme.fontCaption))
+            .foregroundStyle(Theme.textSecondary)
+            if record.isLegacyNineBall {
+                Text(NineBallRecordRuleVersionPolicy.legacyLabel)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(Theme.textSecondary)
+                    .lineLimit(1)
+            }
+        }
+    }
+
+    private func recordScore(_ score: String) -> some View {
+        Text(score)
+            .font(.system(size: Theme.fontBody1, weight: .bold))
+            .monospacedDigit()
+            .foregroundStyle(Theme.accentColor)
+            .lineLimit(1)
+            .minimumScaleFactor(0.65)
+    }
+
+    /// Game icon with optional Watch-sync corner badge (aligned with HarmonyOS RecordsTab).
+    private func recordGameIcon(gameType: GameType, isSyncedFromWatch: Bool) -> some View {
+        ZStack(alignment: .bottomTrailing) {
+            AppCatalogIcon(gameType: gameType, size: 30)
+                .frame(width: 40, height: 40)
+                .multilineTextAlignment(.center)
+                .minimumScaleFactor(0.5)
+            if isSyncedFromWatch {
+                Image(systemName: "applewatch")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(Theme.textOnPrimary)
+                    .padding(3)
+                    .background(Circle().fill(Theme.accentColor))
+                    .offset(x: 2, y: 2)
+                    .accessibilityLabel(NSLocalizedString(
+                        "record_detail_synced_from_watch_badge",
+                        value: "手表记录已同步",
+                        comment: ""
+                    ))
+            }
+        }
+        .frame(width: 40, height: 40)
+    }
+
+}
+
 struct RecentRowView: View {
-    let activity: RecentActivity
+    let activity: RecordsTabRecordItem
     let isLast: Bool
 
     var body: some View {
-        VStack(spacing: 0) { // Column()
-            if activity.activityType == .timer {
-                buildTimerItem()
-            } else {
-                buildScoreboardItem()
+        VStack(spacing: 0) {
+            NavigationLink {
+                switch activity {
+                case .scoreboard(let record): ScoreboardRecordDetailPage(recordId: record.id)
+                case .timer(let record): TimerRecordDetailPage(recordId: record.id)
+                case .cloud(let record):
+                    if record.origin.sourceSystem == "group",
+                       let result = try? JSONDecoder().decode(GroupResult.self, from: JSONEncoder().encode(record.nativePayload)) {
+                        GroupResultDetailView(initial: result)
+                    } else {
+                        PersonalCloudRecordDetailView(record: record)
+                    }
+                }
+            } label: {
+                RecordListRow(record: activity.presentation)
             }
-
-            // Divider
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("recent_record_\(activity.id)")
             if !isLast {
-                Divider()
-                    .overlay(Theme.homeNeutralCardDivider)
-                    .padding(.horizontal, 0)
+                Divider().overlay(Theme.homeNeutralCardDivider).padding(.leading, 52)
             }
         }
-        .frame(maxWidth: .infinity) // width('100%')
-    }
-
-    @ViewBuilder
-    private func buildTimerItem() -> some View {
-        NavigationLink(destination: TimerRecordDetailPage(recordId: activity.id)) {
-            HStack(spacing: 0) { // Row()
-                // Left: Game Icon
-                buildGameIcon(activity.gameType)
-                .padding(.trailing, Theme.sm) // margin({ left: 12 }) (approximated)
-
-                // Middle Info
-                HStack(spacing: 0) { // Row()
-                    Text(formatTime(activity.timestamp))
-                        .font(.system(size: Theme.fontBody2)) // fontSize(14)
-                        .foregroundColor(Theme.homeNeutralCardTextPrimary)
-
-                    if !activity.description.isEmpty {
-                    Text(activity.description)
-                        .font(.system(size: Theme.fontCaption)) // fontSize(12)
-                        .foregroundColor(Theme.homeNeutralCardTextSecondary)
-                        .padding(.leading, Theme.md) // margin({ left: 16 })
-                        .lineLimit(1) // 单行显示，超出省略号
-                        .truncationMode(.tail)
-                    }
-
-                    Spacer() // Blank()
-                }
-                .frame(maxWidth: .infinity, alignment: .leading) // width('100%'), layoutWeight(1)
-                // .margin({ left: 12 }) -> moved to padding on buildGameIcon
-
-                // Right: Chevron
-                Image(systemName: "chevron.right") // Image($r('app.media.chevron_forward'))
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 16, height: 16)
-                    .foregroundColor(Theme.homeNeutralCardTextSecondary)
-                    .padding(.leading, Theme.sm) // margin({ left: 12 })
-            }
-            .contentShape(Rectangle()) // Make entire area tappable
-            .padding(.horizontal, Theme.xs) // padding({ left: 4, right: 4
-            .padding(.vertical, Theme.recordRowVerticalPadding)
-        }
-        .buttonStyle(CardButtonStyle()) // Use custom button style for interaction feedback
-    }
-
-    @ViewBuilder
-    private func buildScoreboardItem() -> some View {
-        NavigationLink(destination: ScoreboardRecordDetailPage(recordId: activity.id)) {
-            HStack(spacing: 0) { // Row()
-                // Left: Game icon (+ watch sync badge)
-                ZStack(alignment: .bottomTrailing) {
-                    AppCatalogIcon(gameType: activity.gameType, size: 32)
-                        .frame(width: 40, height: 40)
-                        .multilineTextAlignment(.center)
-                        .minimumScaleFactor(0.5)
-                    if activity.isSyncedFromWatch {
-                        Image(systemName: "applewatch")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(Theme.textOnPrimary)
-                            .padding(3)
-                            .background(Circle().fill(Theme.accentColor))
-                            .offset(x: 2, y: 2)
-                    }
-                }
-                .frame(width: 40, height: 40)
-                .padding(.trailing, Theme.sm)
-
-                // Middle Info
-                HStack(spacing: 0) { // Row()
-                    VStack(alignment: .leading, spacing: Theme.xs) { // Column({ space: 4 })
-                        // Game Name
-                        Text(activity.title) // Text(this.activity.title || getGameName(this.activity.gameType))
-                            .font(.system(size: Theme.fontBody2, weight: .medium)) // fontSize(14), fontWeight(FontWeight.Medium)
-                            .foregroundColor(Theme.homeNeutralCardTextPrimary)
-                            .lineLimit(1) // 单行显示，超出省略号
-                            .truncationMode(.tail)
-
-                        HStack(spacing: Theme.sm) { // Row({ space: 8 })
-                            Text(formatTime(activity.timestamp))
-                                .font(.system(size: Theme.fontCaption)) // fontSize(12)
-                                .foregroundColor(Theme.homeNeutralCardTextSecondary)
-                            if activity.isSyncedFromWatch {
-                                Text(NSLocalizedString(
-                                    "record_detail_synced_from_watch_badge",
-                                    value: "手表记录已同步",
-                                    comment: ""
-                                ))
-                                .font(.system(size: 10, weight: .semibold))
-                                .foregroundStyle(Theme.accentColor)
-                                .lineLimit(1)
-                            }
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading) // alignItems(HorizontalAlign.Start), width('100%'), layoutWeight(1)
-
-                    // Score Display
-                    VStack(alignment: .trailing, spacing: 0) { // Column({ space: 4 })
-                        if !activity.description.isEmpty {
-                            Text(activity.description)
-                                .font(.system(size: Theme.fontBody1, weight: .bold)) // fontSize(16), fontWeight(FontWeight.Bold)
-                                .foregroundColor(Theme.homeNeutralCardTextPrimary)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .trailing) // alignItems(HorizontalAlign.End)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading) // width('100%'), layoutWeight(1)
-                // .margin({ left: 12 }) -> moved to padding on game icon
-
-                // Right: Chevron
-                Image(systemName: "chevron.right") // Image($r('app.media.chevron_forward'))
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 16, height: 16)
-                    .foregroundColor(Theme.homeNeutralCardTextSecondary)
-                    .padding(.leading, Theme.sm) // margin({ left: 12 })
-            }
-            .contentShape(Rectangle()) // Make entire area tappable
-            .padding(.horizontal, 0) // padding({ left: 0, right: 0
-            .padding(.vertical, Theme.recordRowVerticalPadding)
-        }
-        .buttonStyle(CardButtonStyle()) // Use custom button style for interaction feedback
-    }
-
-    @ViewBuilder
-    private func buildGameIcon(_ gameType: GameType) -> some View {
-        AppCatalogIcon(gameType: gameType, size: 28)
-            .frame(width: 32, height: 32)
-            .multilineTextAlignment(.center)
-            .minimumScaleFactor(0.5)
-    }
-
-    private func formatTime(_ timestamp: TimeInterval) -> String {
-        let date = Date(timeIntervalSince1970: timestamp)
-        let calendar = Calendar.current
-        
-        let dateFormatter = DateFormatter()
-        
-        // If today, show HH:MM
-        if calendar.isDateInToday(date) {
-            dateFormatter.dateFormat = "HH:mm"
-            return dateFormatter.string(from: date)
-        }
-        
-        // Else show "昨天" or date
-        if calendar.isDateInYesterday(date) {
-            return NSLocalizedString("home_yesterday", comment: "Yesterday")
-        }
-        
-        // Other dates display MM-DD
-        dateFormatter.dateFormat = "MM-dd"
-        return dateFormatter.string(from: date)
+        .frame(maxWidth: .infinity)
     }
 }
 
 // MARK: - RecentRecordsSectionView
 struct RecentRecordsSectionView: View {
-    var records: [RecentActivity] = []
+    var records: [RecordsTabRecordItem] = []
     /// When set, "View all records" switches to Records tab instead of navigating to RecentActivityPage.
     var onViewAllTapped: (() -> Void)? = nil
 

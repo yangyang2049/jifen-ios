@@ -1,0 +1,798 @@
+{
+  "checkedAt": "2026-10-25T12:20:11.065536+00:00",
+  "appId": "6759768784",
+  "products": {
+    "monthly": {
+      "parent": {
+        "type": "subscriptions",
+        "id": "6807103111",
+        "attributes": {
+          "name": "monthly membership",
+          "productId": "iscoreboard_monthly_vip",
+          "familySharable": false,
+          "state": "APPROVED",
+          "subscriptionPeriod": "ONE_MONTH",
+          "reviewNote": null,
+          "groupLevel": 1,
+          "multiSeatStatus": "ENABLED",
+          "marketSettings": [
+            "APP_STORE",
+            "APPLE_BUSINESS",
+            "APPLE_SCHOOL"
+          ]
+        },
+        "relationships": {
+          "subscriptionLocalizations": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/subscriptionLocalizations",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/subscriptionLocalizations"
+            }
+          },
+          "appStoreReviewScreenshot": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/appStoreReviewScreenshot",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/appStoreReviewScreenshot"
+            }
+          },
+          "introductoryOffers": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/introductoryOffers",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/introductoryOffers"
+            }
+          },
+          "promotionalOffers": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/promotionalOffers",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/promotionalOffers"
+            }
+          },
+          "offerCodes": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/offerCodes",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/offerCodes"
+            }
+          },
+          "prices": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/prices",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/prices"
+            }
+          },
+          "pricePoints": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/pricePoints",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/pricePoints"
+            }
+          },
+          "promotedPurchase": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/promotedPurchase",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/promotedPurchase"
+            }
+          },
+          "subscriptionAvailability": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/subscriptionAvailability",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/subscriptionAvailability"
+            }
+          },
+          "winBackOffers": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/winBackOffers",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/winBackOffers"
+            }
+          },
+          "images": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/images",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/images"
+            }
+          },
+          "planAvailabilities": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/planAvailabilities",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/planAvailabilities"
+            }
+          },
+          "versions": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/relationships/versions",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111/versions"
+            }
+          }
+        },
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807103111"
+        }
+      },
+      "versions": [
+        {
+          "version": {
+            "type": "subscriptionVersions",
+            "id": "c1719b77-4aa3-41c2-bf36-50d837970d01",
+            "attributes": {
+              "version": 3,
+              "state": "APPROVED"
+            },
+            "relationships": {
+              "image": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/c1719b77-4aa3-41c2-bf36-50d837970d01/relationships/image",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/c1719b77-4aa3-41c2-bf36-50d837970d01/image"
+                }
+              },
+              "images": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/c1719b77-4aa3-41c2-bf36-50d837970d01/relationships/images",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/c1719b77-4aa3-41c2-bf36-50d837970d01/images"
+                }
+              },
+              "localizations": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/c1719b77-4aa3-41c2-bf36-50d837970d01/relationships/localizations",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/c1719b77-4aa3-41c2-bf36-50d837970d01/localizations"
+                }
+              }
+            },
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/c1719b77-4aa3-41c2-bf36-50d837970d01"
+            }
+          },
+          "images": [
+            {
+              "type": "subscriptionImages",
+              "id": "64605858-e9fa-4eeb-8cda-75ea18333232",
+              "attributes": {
+                "fileSize": 987196,
+                "fileName": "monthly-6d420bb882.png",
+                "assetToken": "f1e41185-511d-74bb-9045-01989c9e9e57",
+                "imageAsset": {
+                  "templateUrl": "https://is1-ssl.mzstatic.com/image/thumb/PsodpVCkwfNMTGT9-1y29A/{w}x{h}bb.{f}",
+                  "width": 1024,
+                  "height": 1024
+                },
+                "assetDeliveryState": {
+                  "errors": null,
+                  "warnings": null,
+                  "state": "COMPLETE"
+                }
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionImages/64605858-e9fa-4eeb-8cda-75ea18333232"
+              }
+            }
+          ],
+          "selectedImage": {
+            "type": "subscriptionImages",
+            "id": "64605858-e9fa-4eeb-8cda-75ea18333232",
+            "attributes": {
+              "fileSize": 987196,
+              "fileName": "monthly-6d420bb882.png",
+              "assetToken": "a53beaf9-d218-2840-08ba-54db76ac27c8",
+              "imageAsset": {
+                "templateUrl": "https://is1-ssl.mzstatic.com/image/thumb/PsodpVCkwfNMTGT9-1y29A/{w}x{h}bb.{f}",
+                "width": 1024,
+                "height": 1024
+              },
+              "assetDeliveryState": {
+                "errors": null,
+                "warnings": null,
+                "state": "COMPLETE"
+              }
+            },
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/subscriptionImages/64605858-e9fa-4eeb-8cda-75ea18333232"
+            }
+          }
+        },
+        {
+          "version": {
+            "type": "subscriptionVersions",
+            "id": "e4956952-d9f4-4242-bf40-6100ce80f5ec",
+            "attributes": {
+              "version": 2,
+              "state": "REPLACED_WITH_NEW_VERSION"
+            },
+            "relationships": {
+              "image": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/e4956952-d9f4-4242-bf40-6100ce80f5ec/relationships/image",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/e4956952-d9f4-4242-bf40-6100ce80f5ec/image"
+                }
+              },
+              "images": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/e4956952-d9f4-4242-bf40-6100ce80f5ec/relationships/images",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/e4956952-d9f4-4242-bf40-6100ce80f5ec/images"
+                }
+              },
+              "localizations": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/e4956952-d9f4-4242-bf40-6100ce80f5ec/relationships/localizations",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/e4956952-d9f4-4242-bf40-6100ce80f5ec/localizations"
+                }
+              }
+            },
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/e4956952-d9f4-4242-bf40-6100ce80f5ec"
+            }
+          },
+          "images": [],
+          "selectedImage": null
+        },
+        {
+          "version": {
+            "type": "subscriptionVersions",
+            "id": "fdb3fd0b-f6c1-4106-a261-20511a20fce1",
+            "attributes": {
+              "version": 1,
+              "state": "REPLACED_WITH_NEW_VERSION"
+            },
+            "relationships": {
+              "image": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/fdb3fd0b-f6c1-4106-a261-20511a20fce1/relationships/image",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/fdb3fd0b-f6c1-4106-a261-20511a20fce1/image"
+                }
+              },
+              "images": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/fdb3fd0b-f6c1-4106-a261-20511a20fce1/relationships/images",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/fdb3fd0b-f6c1-4106-a261-20511a20fce1/images"
+                }
+              },
+              "localizations": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/fdb3fd0b-f6c1-4106-a261-20511a20fce1/relationships/localizations",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/fdb3fd0b-f6c1-4106-a261-20511a20fce1/localizations"
+                }
+              }
+            },
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/fdb3fd0b-f6c1-4106-a261-20511a20fce1"
+            }
+          },
+          "images": [],
+          "selectedImage": null
+        }
+      ],
+      "reviewScreenshot": {
+        "type": "subscriptionAppStoreReviewScreenshots",
+        "id": "9a990d01-df75-4acd-9c63-eefdef5508d8",
+        "attributes": {
+          "fileSize": 196973,
+          "fileName": "SOURCE",
+          "sourceFileChecksum": "a6a792eb4ef61e828b33cdda2c7c026e",
+          "imageAsset": {
+            "templateUrl": "https://is1-ssl.mzstatic.com/image/thumb/945UvJh-wIABH--aHoUjTQ/{w}x{h}bb.{f}",
+            "width": 750,
+            "height": 1334
+          },
+          "assetToken": "00c2b03a-730d-9821-b6f4-378612d234bf",
+          "assetType": "IAP_REVIEW_SCREENSHOT",
+          "assetDeliveryState": {
+            "errors": null,
+            "warnings": null,
+            "state": "COMPLETE"
+          }
+        },
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/subscriptionAppStoreReviewScreenshots/9a990d01-df75-4acd-9c63-eefdef5508d8"
+        }
+      },
+      "promotedPurchase": null
+    },
+    "yearly": {
+      "parent": {
+        "type": "subscriptions",
+        "id": "6807106491",
+        "attributes": {
+          "name": "yearly membership",
+          "productId": "iscoreboard_yearly_vip",
+          "familySharable": true,
+          "state": "APPROVED",
+          "subscriptionPeriod": "ONE_YEAR",
+          "reviewNote": null,
+          "groupLevel": 2,
+          "multiSeatStatus": "ENABLED",
+          "marketSettings": [
+            "APP_STORE",
+            "APPLE_BUSINESS",
+            "APPLE_SCHOOL"
+          ]
+        },
+        "relationships": {
+          "subscriptionLocalizations": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/subscriptionLocalizations",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/subscriptionLocalizations"
+            }
+          },
+          "appStoreReviewScreenshot": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/appStoreReviewScreenshot",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/appStoreReviewScreenshot"
+            }
+          },
+          "introductoryOffers": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/introductoryOffers",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/introductoryOffers"
+            }
+          },
+          "promotionalOffers": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/promotionalOffers",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/promotionalOffers"
+            }
+          },
+          "offerCodes": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/offerCodes",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/offerCodes"
+            }
+          },
+          "prices": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/prices",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/prices"
+            }
+          },
+          "pricePoints": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/pricePoints",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/pricePoints"
+            }
+          },
+          "promotedPurchase": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/promotedPurchase",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/promotedPurchase"
+            }
+          },
+          "subscriptionAvailability": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/subscriptionAvailability",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/subscriptionAvailability"
+            }
+          },
+          "winBackOffers": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/winBackOffers",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/winBackOffers"
+            }
+          },
+          "images": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/images",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/images"
+            }
+          },
+          "planAvailabilities": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/planAvailabilities",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/planAvailabilities"
+            }
+          },
+          "versions": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/relationships/versions",
+              "related": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491/versions"
+            }
+          }
+        },
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/subscriptions/6807106491"
+        }
+      },
+      "versions": [
+        {
+          "version": {
+            "type": "subscriptionVersions",
+            "id": "3ade8e17-8149-4ef4-9918-a71f107bf7c7",
+            "attributes": {
+              "version": 3,
+              "state": "APPROVED"
+            },
+            "relationships": {
+              "image": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/3ade8e17-8149-4ef4-9918-a71f107bf7c7/relationships/image",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/3ade8e17-8149-4ef4-9918-a71f107bf7c7/image"
+                }
+              },
+              "images": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/3ade8e17-8149-4ef4-9918-a71f107bf7c7/relationships/images",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/3ade8e17-8149-4ef4-9918-a71f107bf7c7/images"
+                }
+              },
+              "localizations": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/3ade8e17-8149-4ef4-9918-a71f107bf7c7/relationships/localizations",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/3ade8e17-8149-4ef4-9918-a71f107bf7c7/localizations"
+                }
+              }
+            },
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/3ade8e17-8149-4ef4-9918-a71f107bf7c7"
+            }
+          },
+          "images": [
+            {
+              "type": "subscriptionImages",
+              "id": "87a8298f-5a7e-4ec3-be9a-9a59ba16d34c",
+              "attributes": {
+                "fileSize": 1113404,
+                "fileName": "yearly-4310e56edb.png",
+                "assetToken": "e84e3975-ea6f-0514-8be6-97cc3c235767",
+                "imageAsset": {
+                  "templateUrl": "https://is1-ssl.mzstatic.com/image/thumb/shIMsIarAVO2l8Rlg_Zj2Q/{w}x{h}bb.{f}",
+                  "width": 1024,
+                  "height": 1024
+                },
+                "assetDeliveryState": {
+                  "errors": null,
+                  "warnings": null,
+                  "state": "COMPLETE"
+                }
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/subscriptionImages/87a8298f-5a7e-4ec3-be9a-9a59ba16d34c"
+              }
+            }
+          ],
+          "selectedImage": {
+            "type": "subscriptionImages",
+            "id": "87a8298f-5a7e-4ec3-be9a-9a59ba16d34c",
+            "attributes": {
+              "fileSize": 1113404,
+              "fileName": "yearly-4310e56edb.png",
+              "assetToken": "49ad5920-6d17-da26-e287-f6217330ae23",
+              "imageAsset": {
+                "templateUrl": "https://is1-ssl.mzstatic.com/image/thumb/shIMsIarAVO2l8Rlg_Zj2Q/{w}x{h}bb.{f}",
+                "width": 1024,
+                "height": 1024
+              },
+              "assetDeliveryState": {
+                "errors": null,
+                "warnings": null,
+                "state": "COMPLETE"
+              }
+            },
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/subscriptionImages/87a8298f-5a7e-4ec3-be9a-9a59ba16d34c"
+            }
+          }
+        },
+        {
+          "version": {
+            "type": "subscriptionVersions",
+            "id": "dbc2efcc-8938-4431-aa80-3f5e3094f25f",
+            "attributes": {
+              "version": 2,
+              "state": "REPLACED_WITH_NEW_VERSION"
+            },
+            "relationships": {
+              "image": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/dbc2efcc-8938-4431-aa80-3f5e3094f25f/relationships/image",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/dbc2efcc-8938-4431-aa80-3f5e3094f25f/image"
+                }
+              },
+              "images": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/dbc2efcc-8938-4431-aa80-3f5e3094f25f/relationships/images",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/dbc2efcc-8938-4431-aa80-3f5e3094f25f/images"
+                }
+              },
+              "localizations": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/dbc2efcc-8938-4431-aa80-3f5e3094f25f/relationships/localizations",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/dbc2efcc-8938-4431-aa80-3f5e3094f25f/localizations"
+                }
+              }
+            },
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/dbc2efcc-8938-4431-aa80-3f5e3094f25f"
+            }
+          },
+          "images": [],
+          "selectedImage": null
+        },
+        {
+          "version": {
+            "type": "subscriptionVersions",
+            "id": "39529ec4-d789-4c4a-8847-68f03fff405c",
+            "attributes": {
+              "version": 1,
+              "state": "REPLACED_WITH_NEW_VERSION"
+            },
+            "relationships": {
+              "image": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/39529ec4-d789-4c4a-8847-68f03fff405c/relationships/image",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/39529ec4-d789-4c4a-8847-68f03fff405c/image"
+                }
+              },
+              "images": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/39529ec4-d789-4c4a-8847-68f03fff405c/relationships/images",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/39529ec4-d789-4c4a-8847-68f03fff405c/images"
+                }
+              },
+              "localizations": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/39529ec4-d789-4c4a-8847-68f03fff405c/relationships/localizations",
+                  "related": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/39529ec4-d789-4c4a-8847-68f03fff405c/localizations"
+                }
+              }
+            },
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/subscriptionVersions/39529ec4-d789-4c4a-8847-68f03fff405c"
+            }
+          },
+          "images": [],
+          "selectedImage": null
+        }
+      ],
+      "reviewScreenshot": {
+        "type": "subscriptionAppStoreReviewScreenshots",
+        "id": "5d98dbe9-6b0b-4f8d-b6ec-5de9c7e31096",
+        "attributes": {
+          "fileSize": 196973,
+          "fileName": "SOURCE",
+          "sourceFileChecksum": "a6a792eb4ef61e828b33cdda2c7c026e",
+          "imageAsset": {
+            "templateUrl": "https://is1-ssl.mzstatic.com/image/thumb/HvBM9nZ2VRtJ8R8G8Jyyeg/{w}x{h}bb.{f}",
+            "width": 750,
+            "height": 1334
+          },
+          "assetToken": "5984419a-2ff0-a20f-328f-a469db99d22f",
+          "assetType": "IAP_REVIEW_SCREENSHOT",
+          "assetDeliveryState": {
+            "errors": null,
+            "warnings": null,
+            "state": "COMPLETE"
+          }
+        },
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/subscriptionAppStoreReviewScreenshots/5d98dbe9-6b0b-4f8d-b6ec-5de9c7e31096"
+        }
+      },
+      "promotedPurchase": null
+    },
+    "lifetime": {
+      "parent": {
+        "type": "inAppPurchases",
+        "id": "6807102027",
+        "attributes": {
+          "name": "lifetime vip",
+          "productId": "iscoreboard_lifetime_vip",
+          "inAppPurchaseType": "NON_CONSUMABLE",
+          "state": "APPROVED",
+          "reviewNote": null,
+          "familySharable": true,
+          "contentHosting": false
+        },
+        "relationships": {
+          "inAppPurchaseLocalizations": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/inAppPurchaseLocalizations",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/inAppPurchaseLocalizations"
+            }
+          },
+          "pricePoints": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/pricePoints",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/pricePoints"
+            }
+          },
+          "content": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/content",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/content"
+            }
+          },
+          "appStoreReviewScreenshot": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/appStoreReviewScreenshot",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/appStoreReviewScreenshot"
+            }
+          },
+          "promotedPurchase": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/promotedPurchase",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/promotedPurchase"
+            }
+          },
+          "iapPriceSchedule": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/iapPriceSchedule",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/iapPriceSchedule"
+            }
+          },
+          "inAppPurchaseAvailability": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/inAppPurchaseAvailability",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/inAppPurchaseAvailability"
+            }
+          },
+          "images": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/images",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/images"
+            }
+          },
+          "offerCodes": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/offerCodes",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/offerCodes"
+            }
+          },
+          "versions": {
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/relationships/versions",
+              "related": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027/versions"
+            }
+          }
+        },
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6807102027"
+        }
+      },
+      "versions": [
+        {
+          "version": {
+            "type": "inAppPurchaseVersions",
+            "id": "9d84e958-19e9-45db-b557-93e9915ce9ed",
+            "attributes": {
+              "version": 2,
+              "state": "APPROVED"
+            },
+            "relationships": {
+              "image": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/9d84e958-19e9-45db-b557-93e9915ce9ed/relationships/image",
+                  "related": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/9d84e958-19e9-45db-b557-93e9915ce9ed/image"
+                }
+              },
+              "images": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/9d84e958-19e9-45db-b557-93e9915ce9ed/relationships/images",
+                  "related": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/9d84e958-19e9-45db-b557-93e9915ce9ed/images"
+                }
+              },
+              "localizations": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/9d84e958-19e9-45db-b557-93e9915ce9ed/relationships/localizations",
+                  "related": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/9d84e958-19e9-45db-b557-93e9915ce9ed/localizations"
+                }
+              }
+            },
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/9d84e958-19e9-45db-b557-93e9915ce9ed"
+            }
+          },
+          "images": [
+            {
+              "type": "inAppPurchaseImages",
+              "id": "ad6a3962-dec5-4424-a0df-5cbe06dceee0",
+              "attributes": {
+                "fileSize": 1051750,
+                "fileName": "lifetime-c3254beef9.png",
+                "assetToken": "105d9588-71c7-d33a-981f-442213d28a3e",
+                "imageAsset": {
+                  "templateUrl": "https://is1-ssl.mzstatic.com/image/thumb/KZDCZZCEno2-yHxqiMzlNg/{w}x{h}bb.{f}",
+                  "width": 1024,
+                  "height": 1024
+                },
+                "assetDeliveryState": {
+                  "errors": null,
+                  "warnings": null,
+                  "state": "COMPLETE"
+                }
+              },
+              "links": {
+                "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseImages/ad6a3962-dec5-4424-a0df-5cbe06dceee0"
+              }
+            }
+          ],
+          "selectedImage": {
+            "type": "inAppPurchaseImages",
+            "id": "ad6a3962-dec5-4424-a0df-5cbe06dceee0",
+            "attributes": {
+              "fileSize": 1051750,
+              "fileName": "lifetime-c3254beef9.png",
+              "assetToken": "262e42ee-53f6-5686-36f2-8579d9566606",
+              "imageAsset": {
+                "templateUrl": "https://is1-ssl.mzstatic.com/image/thumb/KZDCZZCEno2-yHxqiMzlNg/{w}x{h}bb.{f}",
+                "width": 1024,
+                "height": 1024
+              },
+              "assetDeliveryState": {
+                "errors": null,
+                "warnings": null,
+                "state": "COMPLETE"
+              }
+            },
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v2/inAppPurchaseImages/ad6a3962-dec5-4424-a0df-5cbe06dceee0"
+            }
+          }
+        },
+        {
+          "version": {
+            "type": "inAppPurchaseVersions",
+            "id": "62928f26-91b5-4e63-a520-6e7e1303a6f9",
+            "attributes": {
+              "version": 1,
+              "state": "REPLACED_WITH_NEW_VERSION"
+            },
+            "relationships": {
+              "image": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/62928f26-91b5-4e63-a520-6e7e1303a6f9/relationships/image",
+                  "related": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/62928f26-91b5-4e63-a520-6e7e1303a6f9/image"
+                }
+              },
+              "images": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/62928f26-91b5-4e63-a520-6e7e1303a6f9/relationships/images",
+                  "related": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/62928f26-91b5-4e63-a520-6e7e1303a6f9/images"
+                }
+              },
+              "localizations": {
+                "links": {
+                  "self": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/62928f26-91b5-4e63-a520-6e7e1303a6f9/relationships/localizations",
+                  "related": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/62928f26-91b5-4e63-a520-6e7e1303a6f9/localizations"
+                }
+              }
+            },
+            "links": {
+              "self": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseVersions/62928f26-91b5-4e63-a520-6e7e1303a6f9"
+            }
+          },
+          "images": [],
+          "selectedImage": null
+        }
+      ],
+      "reviewScreenshot": {
+        "type": "inAppPurchaseAppStoreReviewScreenshots",
+        "id": "68ca22f9-5c46-4a95-9319-f6c41bd6c7a3",
+        "attributes": {
+          "fileSize": 196973,
+          "fileName": "SOURCE",
+          "sourceFileChecksum": "a6a792eb4ef61e828b33cdda2c7c026e",
+          "imageAsset": {
+            "templateUrl": "https://is1-ssl.mzstatic.com/image/thumb/D0kiqzVKdMK2ZfhNzrcigA/{w}x{h}bb.{f}",
+            "width": 750,
+            "height": 1334
+          },
+          "assetToken": "1a3a28c9-cfe7-f5c1-76b0-ffdd8606ea41",
+          "assetType": "IAP_REVIEW_SCREENSHOT",
+          "assetDeliveryState": {
+            "errors": null,
+            "warnings": null,
+            "state": "COMPLETE"
+          }
+        },
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/inAppPurchaseAppStoreReviewScreenshots/68ca22f9-5c46-4a95-9319-f6c41bd6c7a3"
+        }
+      },
+      "promotedPurchase": {
+        "type": "promotedPurchases",
+        "id": "e695fb99-af08-4b1a-920e-56038ace938e",
+        "attributes": {
+          "visibleForAllUsers": true,
+          "enabled": true,
+          "state": "APPROVED"
+        },
+        "links": {
+          "self": "https://api.appstoreconnect.apple.com/v1/promotedPurchases/e695fb99-af08-4b1a-920e-56038ace938e"
+        }
+      }
+    }
+  }
+}

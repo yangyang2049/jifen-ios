@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-25",
+  "device": "iPhone 17 Pro simulator / iOS 26.5",
+  "unit_tests": {
+    "passed": 89,
+    "failed": 0
+  },
+  "ui_tests": {
+    "passed": 4,
+    "failed": 0
+  },
+  "coverage": [
+    "Full iOS native payload preserves detailed actions, sets, configuration, snapshot and annotation overlay",
+    "Android/HarmonyOS schema 1 standard score actions, set results, millisecond timestamps and winner identities",
+    "Shared list/detail score hierarchy",
+    "Opaque unsupported payloads use formatted summary without invented history",
+    "Cloud record library isolation, tombstones and merged-library replay identity",
+    "Cloud table tennis recap/trend/timeline and multiplayer cards; existing local Chinese/Traditional Chinese/English recap",
+    "Multiplayer overview uses actual participant/ranking data instead of two-team placeholders"
+  ],
+  "unit_log": "/tmp/jifen-cloud-detail-final-20261025.log",
+  "ui_log": "/tmp/jifen-cloud-detail-ui-fresh-20261025.log",
+  "screenshots": [
+    "cloud-pingpong-recap.png",
+    "cloud-pingpong-timeline.png",
+    "cloud-multiplayer.png"
+  ],
+  "testflight_uploaded_by_this_task": false,
+  "additional_ui_log": "/tmp/jifen-cloud-multiplayer-header-20261025.log",
+  "ui_test_executions": 6
+}

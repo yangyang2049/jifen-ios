@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-25",
+  "device": "iPhone 17 Pro simulator / iOS 26.5",
+  "clean_install": true,
+  "unit_tests": {
+    "passed": 111,
+    "failed": 0
+  },
+  "ui_tests": {
+    "passed": 4,
+    "failed": 0
+  },
+  "covered": [
+    "Shared Home, Records and My Records rows",
+    "Home local/cloud merge, deduplication and account filtering",
+    "Cloud-only history after reinstall",
+    "Newer cloud scores override stale local/native payload",
+    "History association and My Records navigation",
+    "Home recent record detail navigation"
+  ],
+  "screenshots": [
+    "home-recent.png",
+    "records-tab.png",
+    "my-records.png"
+  ],
+  "testflight_uploaded_by_this_task": false,
+  "unit_log": "/tmp/jifen-record-final-20261025.log",
+  "ui_log": "/tmp/jifen-record-unified-ui-final-20261025.log"
+}

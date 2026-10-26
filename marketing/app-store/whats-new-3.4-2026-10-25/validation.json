@@ -1,0 +1,267 @@
+{
+  "localeCount": 50,
+  "expectedLocaleCount": 50,
+  "missingLocales": [],
+  "extraLocales": [],
+  "approvedSourcesUnchanged": true,
+  "wechatOnlyInChinese": true,
+  "bullets": {
+    "zh-Hans": 7,
+    "zh-Hant": 7,
+    "allOtherLocales": 6
+  },
+  "maximumUtf16Length": 890,
+  "notes": "All translations were authored and reviewed for meaning and regional usage by the agent; no independent human native-speaker review is claimed. English variants match the approved source because its wording requires no regional spelling changes.",
+  "rows": [
+    {
+      "locale": "ar-SA",
+      "utf16Length": 632,
+      "bullets": 6
+    },
+    {
+      "locale": "bn-BD",
+      "utf16Length": 704,
+      "bullets": 6
+    },
+    {
+      "locale": "ca",
+      "utf16Length": 795,
+      "bullets": 6
+    },
+    {
+      "locale": "cs",
+      "utf16Length": 728,
+      "bullets": 6
+    },
+    {
+      "locale": "da",
+      "utf16Length": 755,
+      "bullets": 6
+    },
+    {
+      "locale": "de-DE",
+      "utf16Length": 755,
+      "bullets": 6
+    },
+    {
+      "locale": "el",
+      "utf16Length": 812,
+      "bullets": 6
+    },
+    {
+      "locale": "en-AU",
+      "utf16Length": 627,
+      "bullets": 6
+    },
+    {
+      "locale": "en-CA",
+      "utf16Length": 627,
+      "bullets": 6
+    },
+    {
+      "locale": "en-GB",
+      "utf16Length": 627,
+      "bullets": 6
+    },
+    {
+      "locale": "en-US",
+      "utf16Length": 627,
+      "bullets": 6
+    },
+    {
+      "locale": "es-ES",
+      "utf16Length": 814,
+      "bullets": 6
+    },
+    {
+      "locale": "es-MX",
+      "utf16Length": 801,
+      "bullets": 6
+    },
+    {
+      "locale": "fi",
+      "utf16Length": 730,
+      "bullets": 6
+    },
+    {
+      "locale": "fr-CA",
+      "utf16Length": 890,
+      "bullets": 6
+    },
+    {
+      "locale": "fr-FR",
+      "utf16Length": 864,
+      "bullets": 6
+    },
+    {
+      "locale": "gu-IN",
+      "utf16Length": 702,
+      "bullets": 6
+    },
+    {
+      "locale": "he",
+      "utf16Length": 561,
+      "bullets": 6
+    },
+    {
+      "locale": "hi",
+      "utf16Length": 707,
+      "bullets": 6
+    },
+    {
+      "locale": "hr",
+      "utf16Length": 713,
+      "bullets": 6
+    },
+    {
+      "locale": "hu",
+      "utf16Length": 806,
+      "bullets": 6
+    },
+    {
+      "locale": "id",
+      "utf16Length": 784,
+      "bullets": 6
+    },
+    {
+      "locale": "it",
+      "utf16Length": 747,
+      "bullets": 6
+    },
+    {
+      "locale": "ja",
+      "utf16Length": 345,
+      "bullets": 6
+    },
+    {
+      "locale": "kn-IN",
+      "utf16Length": 796,
+      "bullets": 6
+    },
+    {
+      "locale": "ko",
+      "utf16Length": 350,
+      "bullets": 6
+    },
+    {
+      "locale": "ml-IN",
+      "utf16Length": 805,
+      "bullets": 6
+    },
+    {
+      "locale": "mr-IN",
+      "utf16Length": 704,
+      "bullets": 6
+    },
+    {
+      "locale": "ms",
+      "utf16Length": 798,
+      "bullets": 6
+    },
+    {
+      "locale": "nl-NL",
+      "utf16Length": 799,
+      "bullets": 6
+    },
+    {
+      "locale": "no",
+      "utf16Length": 741,
+      "bullets": 6
+    },
+    {
+      "locale": "or-IN",
+      "utf16Length": 763,
+      "bullets": 6
+    },
+    {
+      "locale": "pa-IN",
+      "utf16Length": 683,
+      "bullets": 6
+    },
+    {
+      "locale": "pl",
+      "utf16Length": 743,
+      "bullets": 6
+    },
+    {
+      "locale": "pt-BR",
+      "utf16Length": 725,
+      "bullets": 6
+    },
+    {
+      "locale": "pt-PT",
+      "utf16Length": 773,
+      "bullets": 6
+    },
+    {
+      "locale": "ro",
+      "utf16Length": 806,
+      "bullets": 6
+    },
+    {
+      "locale": "ru",
+      "utf16Length": 700,
+      "bullets": 6
+    },
+    {
+      "locale": "sk",
+      "utf16Length": 743,
+      "bullets": 6
+    },
+    {
+      "locale": "sl-SI",
+      "utf16Length": 751,
+      "bullets": 6
+    },
+    {
+      "locale": "sv",
+      "utf16Length": 723,
+      "bullets": 6
+    },
+    {
+      "locale": "ta-IN",
+      "utf16Length": 888,
+      "bullets": 6
+    },
+    {
+      "locale": "te-IN",
+      "utf16Length": 744,
+      "bullets": 6
+    },
+    {
+      "locale": "th",
+      "utf16Length": 586,
+      "bullets": 6
+    },
+    {
+      "locale": "tr",
+      "utf16Length": 721,
+      "bullets": 6
+    },
+    {
+      "locale": "uk",
+      "utf16Length": 703,
+      "bullets": 6
+    },
+    {
+      "locale": "ur-PK",
+      "utf16Length": 762,
+      "bullets": 6
+    },
+    {
+      "locale": "vi",
+      "utf16Length": 675,
+      "bullets": 6
+    },
+    {
+      "locale": "zh-Hans",
+      "utf16Length": 258,
+      "bullets": 7
+    },
+    {
+      "locale": "zh-Hant",
+      "utf16Length": 266,
+      "bullets": 7
+    }
+  ]
+}

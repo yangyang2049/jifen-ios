@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import Security
 
@@ -10,6 +11,11 @@ nonisolated struct AuthSessionSnapshot: Sendable {
 actor AuthTokenStore {
     static let shared = AuthTokenStore()
 
+    nonisolated private struct Credentials: Codable, Sendable {
+        var token: String
+        var expiresAt: Date
+    }
+
     private enum Key: String {
         case authToken = "auth-token"
         case authExpiry = "auth-expiry"
@@ -20,19 +26,35 @@ actor AuthTokenStore {
     }
 
     private let service: String
+    private let authFileURL: URL
+    private var suppressStoredAuth = false
     private var sessionRevision: UInt64 = 0
+    #if DEBUG
+    private var didLogAuthSource = false
+    #endif
 
     /// A namespace identifier is safe to inspect without reading any credentials.
     nonisolated var serviceIdentifier: String { service }
 
-    init(service: String = AppTestRuntime.authService) {
+    init(service: String = AppTestRuntime.authService, authFileURL: URL? = nil) {
         self.service = service
+        let root = AppTestRuntime.storageRootURL
+            ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        let filename = SHA256.hash(data: Data(service.utf8)).map { String(format: "%02x", $0) }.joined() + ".json"
+        self.authFileURL = authFileURL ?? root.appendingPathComponent("auth-sessions", isDirectory: true).appendingPathComponent(filename)
     }
 
     func authSessionRevision() -> UInt64 { sessionRevision }
 
     func authSnapshot() -> AuthSessionSnapshot {
-        AuthSessionSnapshot(revision: sessionRevision, token: authToken(), expiresAt: authExpiry())
+        let credentials = storedCredentials()
+        #if DEBUG
+        if !didLogAuthSource {
+            didLogAuthSource = true
+            print("[AuthTokenStore] login source=app-container-file, loginCredentialPresent=\(credentials != nil)")
+        }
+        #endif
+        return AuthSessionSnapshot(revision: sessionRevision, token: credentials?.token, expiresAt: credentials?.expiresAt)
     }
 
     private func matches(_ snapshot: AuthSessionSnapshot) -> Bool {
@@ -42,8 +64,7 @@ actor AuthTokenStore {
     /// Refresh changes credentials inside one login session; it may not replace a later login.
     func setRefreshedAuth(token: String, expiresAt: Date, ifMatching snapshot: AuthSessionSnapshot) throws -> AuthSessionSnapshot? {
         guard matches(snapshot) else { return nil }
-        try writeString(token, key: .authToken)
-        try writeString(String(expiresAt.timeIntervalSince1970), key: .authExpiry)
+        try saveCredentials(.init(token: token, expiresAt: expiresAt), to: authFileURL)
         return authSnapshot()
     }
 
@@ -60,17 +81,18 @@ actor AuthTokenStore {
         return sessionRevision
     }
 
-    func authToken() -> String? { readString(.authToken) }
+    func authToken() -> String? {
+        storedCredentials()?.token
+    }
 
     func authExpiry() -> Date? {
-        guard let value = readString(.authExpiry), let seconds = TimeInterval(value) else { return nil }
-        return Date(timeIntervalSince1970: seconds)
+        storedCredentials()?.expiresAt
     }
 
     func setAuth(token: String, expiresAt: Date) throws {
+        try saveCredentials(.init(token: token, expiresAt: expiresAt), to: authFileURL)
         sessionRevision &+= 1
-        try writeString(token, key: .authToken)
-        try writeString(String(expiresAt.timeIntervalSince1970), key: .authExpiry)
+        suppressStoredAuth = false
     }
 
     func setAuth(token: String, expiresAt: Date, ifRevisionMatches revision: UInt64) throws -> Bool {
@@ -89,14 +111,25 @@ actor AuthTokenStore {
 
     func clearAuth() {
         sessionRevision &+= 1
+        suppressStoredAuth = true
+        try? FileManager.default.removeItem(at: authFileURL)
+        // Remove legacy credentials on logout, but never read them for login.
         delete(.authToken)
         delete(.authExpiry)
     }
 
     #if STAGING
-    func stagingToken() -> String? { readString(.stagingToken) }
-    func setStagingToken(_ token: String) throws { try writeString(token, key: .stagingToken) }
-    func clearStagingToken() { delete(.stagingToken) }
+    private var stagingFileURL: URL { authFileURL.deletingPathExtension().appendingPathExtension("staging.json") }
+    func stagingToken() -> String? {
+        readCredentials(from: stagingFileURL)?.token
+    }
+    func setStagingToken(_ token: String) throws {
+        try saveCredentials(.init(token: token, expiresAt: .distantFuture), to: stagingFileURL)
+    }
+    func clearStagingToken() {
+        try? FileManager.default.removeItem(at: stagingFileURL)
+        delete(.stagingToken)
+    }
     #endif
 
     func pendingIapTransactions() -> [String] {
@@ -115,6 +148,28 @@ actor AuthTokenStore {
         let data = try JSONEncoder().encode(Array(Set(values)))
         guard let value = String(data: data, encoding: .utf8) else { throw KeychainError.encoding }
         try writeString(value, key: .pendingIap)
+    }
+
+    private func storedCredentials() -> Credentials? {
+        suppressStoredAuth ? nil : readCredentials(from: authFileURL)
+    }
+
+    private func readCredentials(from url: URL) -> Credentials? {
+        guard let data = try? Data(contentsOf: url) else { return nil }
+        return try? JSONDecoder().decode(Credentials.self, from: data)
+    }
+
+    /// App-container storage follows uninstall, while surviving normal updates
+    /// and the app's record/preferences reset. Legacy Keychain login is ignored.
+    private func saveCredentials(_ credentials: Credentials, to url: URL) throws {
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true,
+            attributes: [.posixPermissions: 0o700, .protectionKey: FileProtectionType.completeUntilFirstUserAuthentication])
+        try JSONEncoder().encode(credentials).write(to: url, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
+        try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
+        var protectedURL = url
+        var values = URLResourceValues()
+        values.isExcludedFromBackup = true
+        try protectedURL.setResourceValues(values)
     }
 
     private func readString(_ key: Key) -> String? {

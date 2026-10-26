@@ -1,0 +1,75 @@
+{
+  "verifiedAt": "2026-10-25T20:47:05.280182+08:00",
+  "issue": "ITMS-90208",
+  "cause": {
+    "framework": "WechatOpenSDK.framework",
+    "failedBuild": "78",
+    "declaredMinimum": "12.0",
+    "actualMinimum": "26.0",
+    "originalSDKType": "static archive",
+    "embeddedBinaryType": "Xcode-generated empty dynamic stub"
+  },
+  "fixedBuild": "79",
+  "localVerification": {
+    "appVersion": "3.4",
+    "build": "79",
+    "minimumOS": "26.0",
+    "frameworks": [
+      {
+        "framework": "GoogleAppMeasurement.framework",
+        "plistMinimum": "100.0",
+        "binaryMinimums": [
+          "100.0"
+        ]
+      },
+      {
+        "framework": "FirebaseAnalytics.framework",
+        "plistMinimum": "100.0",
+        "binaryMinimums": [
+          "100.0"
+        ]
+      },
+      {
+        "framework": "WechatOpenSDK.framework",
+        "plistMinimum": "26.0",
+        "binaryMinimums": [
+          "26.0"
+        ]
+      }
+    ],
+    "allSignaturesValid": true,
+    "distributionAuthorities": [
+      "Authority=Apple Distribution: Bolo mobile, Inc. (X9VDZZL3C3)",
+      "Authority=Apple Worldwide Developer Relations Certification Authority",
+      "Authority=Apple Root CA"
+    ],
+    "developmentEntitlementDisabled": true,
+    "productionAPNs": true,
+    "appleSignInPresent": true,
+    "universalLinkPresent": true,
+    "wechatCodeStillLinked": true,
+    "ipaPath": "/Users/yangyang/Desktop/jifenqi/jifen-ios/build/itms-90208-2026-10-25/app-store/jifen.ipa",
+    "ipaSHA256": "f9ef0625575f4f75601eb4c91e9a5baafbb6b4ada51a35f5c3418dc2be3b67de",
+    "archivePath": "/Users/yangyang/Library/Developer/Xcode/Archives/2026-10-25/jifen 3.4 (79) WeChat fixed.xcarchive"
+  },
+  "packagingRegressionTests": {
+    "passed": 6,
+    "failed": 0
+  },
+  "wechatRegressionTests": {
+    "totalTestCount": 56,
+    "passedTests": 56,
+    "failedTests": 0,
+    "skippedTests": 0,
+    "result": "Passed"
+  },
+  "appleValidation": {
+    "exitCode": 0,
+    "success": true,
+    "message": "No errors validating archive at '/Users/yangyang/Desktop/jifenqi/jifen-ios/build/itms-90208-2026-10-25/app-store/jifen.ipa'."
+  },
+  "sourceSDKCacheUnmodified": true,
+  "uploaded": false,
+  "submittedForReview": false,
+  "released": false
+}

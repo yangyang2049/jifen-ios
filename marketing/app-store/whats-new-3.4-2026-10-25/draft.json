@@ -3,20 +3,33 @@
   "bundleId": "com.douhua.jifen.ios",
   "version": "3.4",
   "build": 78,
-  "copyStatus": "draft_pending_user_approval",
-  "baselineNote": "Primary copy assumes the live store version is still 3.2.3 (the repo has no evidence that 3.3 was submitted or released: its last read-back was PREPARE_FOR_SUBMISSION). If 3.3 is already live, use trimmed-if-3.3-live.json instead, which drops the Groups and WeChat sign-in bullets.",
+  "copyStatus": "approved_by_user",
+  "reviewStage": "Chinese and English approved. All 50 locale copies uploaded through the API and read back successfully for iOS 3.4.",
+  "baseline": {
+    "version": "3.3",
+    "verifiedOn": "2026-10-25",
+    "source": "https://itunes.apple.com/lookup?id=6759768784&country=cn",
+    "currentVersionReleaseDate": "2026-10-22T18:27:01Z"
+  },
+  "copyRules": {
+    "styleReference": "../whats-new-3.3-2026-10-22/draft.json",
+    "wechat": "Include sign-in and account linking in Chinese only; omit all WeChat references from English and non-Chinese translations.",
+    "scope": "Changes since the live 3.3 release; do not repeat Groups Beta launch or Silent mode audio support.",
+    "nextSteps": [
+      "User reviews zh-Hans and en-US source copy",
+      "After approval, translate remaining store locales",
+      "Validate and read back uploaded metadata; proceed with the release process after required release checks"
+    ]
+  },
   "localizations": [
     {
       "locale": "zh-Hans",
-      "whatsNew": "• 新增「小组」（试用）：羽毛球、乒乓球、网球和匹克球可建组、邀人、约球，集中查看赛果与排行榜。\n• 新增「我的记录」：登录后自动认出各项目的本人身份，集中查看自己参赛的记录；以前用过的名字可一键关联。\n• 记录支持云端同步：换设备登录后可继续查看和修改；同一条记录两端都改时保留两个版本供选择，删除会同步到同账号其他设备。\n• 微信登录与账号绑定：中文界面可用微信登录；Apple 登录后可在资料页绑定微信，换设备或换平台继续用同一账号（简繁中文界面）。\n• 九球追分新增「赛事积分」赛制与 14710、1357 两种分值方案，可设置首局开球、比赛局数、小金付款和三犯判负，并附完整规则说明。\n• 语音与扫码改进：中文 App 内可切换中英文播报，英文播报把中文姓名读成拼音；首页顶栏新增扫码入口，加组和网页扫码登录共用同一扫码页，并支持从相册识别二维码。\n• 改进计分板布局、掼蛋修正与升高操作、投篮训练手势，修复若干已知问题。"
-    },
-    {
-      "locale": "zh-Hant",
-      "whatsNew": "• 新增「小組」（試用）：羽毛球、乒乓球、網球和匹克球可建組、邀人、約球，集中查看賽果與排行榜。\n• 新增「我的記錄」：登入後自動辨識各項目的本人身分，集中查看自己參賽的記錄；以前用過的名字可一鍵關聯。\n• 記錄支援雲端同步：換裝置登入後可繼續檢視和修改；同一筆記錄兩端都改時保留兩個版本供選擇，刪除會同步到同帳號其他裝置。\n• 微信登入與帳號綁定：中文介面可用微信登入；Apple 登入後可在個人資料頁綁定微信，換裝置或換平台繼續用同一帳號。\n• 九球追分新增「賽事積分」賽制與 14710、1357 兩種分值方案，可設定首局開球、比賽局數、小金付款和三犯判負，並附完整規則說明。\n• 語音與掃碼改進：中文 App 內可切換中英文播報，英文播報將中文姓名讀成拼音；首頁頂欄新增掃碼入口，加組和網頁掃碼登入共用同一掃碼頁，並支援從相簿辨識 QR 碼。\n• 改進計分板版面、摜蛋修正與升高操作、投籃訓練手勢，修正若干已知問題。"
+      "whatsNew": "• 新增微信登录与账号绑定，支持关联 Apple 账号，换设备或换平台继续使用同一账号。\n• 新增「我的记录」，可关联用过的名字，集中查看自己参赛的记录。\n• 新增记录云端同步，登录同一账号即可在不同设备查看记录与备注。\n• 九球追分新增「赛事积分」赛制及 14710、1357 分值方案，完善开球设置与规则说明。\n• 优化语音播报，支持中英文切换，英文播报可将中文姓名读成拼音。\n• 扫码支持从相册识别二维码，改进加入小组与网页扫码登录体验。\n• 优化计分板布局、掼蛋操作和投篮训练手势，提升稳定性，修复已知问题。"
     },
     {
       "locale": "en-US",
-      "whatsNew": "• Groups (Beta) for badminton, table tennis, tennis and pickleball: create a group, invite friends and arrange matches, with results and standings in one place.\n• New My Records: signed-in players are recognized automatically, so the games you actually played are gathered in one place; past names can be linked in one tap.\n• Records sync across devices. If the same record is edited in two places, both versions are kept for you to choose, and deletions apply to your other devices too.\n• WeChat sign-in and account linking (Simplified and Traditional Chinese only): sign in with WeChat, or link it to an Apple account and keep the same account on other devices.\n• Nine-ball chase adds a Tournament Points format and 14710 / 1357 point schemes, with first-break, rack count, small-gold payment and third-foul options plus a full rule guide.\n• Voice and scanning improvements: switch between Chinese and English calls in the Chinese app, English calls speak Chinese names in pinyin, and a scan button in the home toolbar now shares one scanner for group joining and web sign-in, with photo import.\n• Scoreboard layout refinements, Guandan corrections and rank swipes, shot-training gestures, and bug fixes."
+      "whatsNew": "• Introducing My Records: link names you’ve used and view the matches you played in one place.\n• Added cloud sync for records and notes across devices signed in to the same account.\n• Added Tournament Points mode and 14710 / 1357 scoring presets for nine-ball, with improved break settings and rule guides.\n• Improved voice announcements, including pinyin pronunciation for Chinese names in English announcements.\n• Added QR code scanning from photos and improved group joining and web sign-in.\n• Refined scoreboard layouts, Guandan controls and basketball shooting practice gestures, with stability improvements and bug fixes."
     }
-  ]
+  ],
+  "approvedOn": "2026-10-25"
 }

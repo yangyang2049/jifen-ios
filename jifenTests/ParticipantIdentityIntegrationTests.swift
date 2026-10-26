@@ -17,6 +17,77 @@ import UIKit
     }
     private func store() -> ParticipantIdentityStore { .init(fileURL: directory.appendingPathComponent("identity.json")) }
 
+    func testMergedCloudHistoryLinksBothLibrariesWithoutNativeFiles() throws {
+        let identity = store(), sourceLibrary = identity.ledger.libraryId
+        try identity.adopt(libraryId: sourceLibrary, accountId: "source", person: .init(id: "source-person", kind: .account))
+        try identity.beginAccount("master")
+        let masterLibrary = identity.ledger.libraryId
+        try identity.completeAccountLink(masterId: "master", sourceId: "source", mode: "merge")
+        for library in [sourceLibrary, masterLibrary] { try identity.recordReceived(key: "same-key", libraryId: library) }
+        let cloud = PersonalRecordsCloudSync(fileURL: directory.appendingPathComponent("cloud.json"), identity: identity,
+            currentAccountID: { "master" }, scoreRecords: { [] }, timerRecords: { [] })
+        let records = [sourceLibrary, masterLibrary].map { library in
+            PersonalRecordEnvelope(libraryId: library, recordKey: "same-key", kind: "score", project: "pingpong", playedAt: 1,
+                participantMode: "individual", participants: [.init(seatKey: "side:0", kind: "PERSON", nameSnapshot: "旧名称")],
+                summary: [:], origin: .init(platform: "android", nativeSchemaVersion: 1), nativePayload: [:], assetIds: [])
+        }
+        let candidates = PersonalHistoricalNames.candidates(records: [], cloudRecords: records, identity: identity, cloud: cloud)
+        let candidate = try XCTUnwrap(candidates.first)
+        XCTAssertEqual(candidate.name, "旧名称")
+        XCTAssertEqual(candidate.recordCount, 2, "Identical native IDs in merged libraries are still two matches")
+        XCTAssertEqual(Set(candidate.seats.map(\.libraryId)), [sourceLibrary, masterLibrary])
+        _ = try identity.link(name: candidate.name, historicalSeats: candidate.seats)
+        for record in records {
+            XCTAssertEqual(identity.personalSeats(for: record.recordKey, libraryId: record.libraryId), ["side:0"])
+            XCTAssertTrue(PersonalRecordAdapter.isMine(record, identity: identity))
+        }
+    }
+
+    func testHistoricalCandidatesExcludeArchivedLibrariesGroupsTeamsAndTraining() throws {
+        let identity = store(), library = identity.ledger.libraryId
+        let cloud = PersonalRecordsCloudSync(fileURL: directory.appendingPathComponent("cloud.json"), identity: identity,
+            currentAccountID: { nil }, scoreRecords: { [] }, timerRecords: { [] })
+        let base = PersonalRecordEnvelope(libraryId: library, recordKey: "personal", kind: "score", project: "pingpong", playedAt: 1,
+            participantMode: "individual", participants: [.init(seatKey: "side:0", kind: "PERSON", nameSnapshot: "个人")],
+            summary: [:], origin: .init(platform: "harmony", nativeSchemaVersion: 1), nativePayload: [:], assetIds: [])
+        var excluded: [PersonalRecordEnvelope] = []
+        var team = base; team.recordKey = "team"; team.participantMode = "team"; excluded.append(team)
+        var training = base; training.recordKey = "training"; training.project = "basketball_training"; excluded.append(training)
+        var group = base; group.recordKey = "group"; group.origin.sourceSystem = "group"; excluded.append(group)
+        var foreign = base; foreign.recordKey = "foreign"; foreign.libraryId = "other-account"; excluded.append(foreign)
+        var deleted = base; deleted.recordKey = "deleted"; deleted.deleted = true; excluded.append(deleted)
+        let candidates = PersonalHistoricalNames.candidates(records: [], cloudRecords: [base] + excluded, identity: identity, cloud: cloud)
+        XCTAssertEqual(candidates.count, 1)
+        XCTAssertEqual(candidates[0].recordCount, 1)
+        XCTAssertEqual(candidates[0].seats[0].recordKey, "personal")
+        XCTAssertThrowsError(try identity.link(name: "Other account", historicalSeats: [
+            .init(libraryId: "other-account", recordKey: "personal", seat: .init(id: "side:0", name: "Other account"))]))
+        XCTAssertTrue(identity.aliases.isEmpty)
+    }
+
+    func testPersonalGroupCacheRestoresBeforeAnyNetworkAndStaysAccountScoped() throws {
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let record = PersonalRecordEnvelope(libraryId: "group:one", recordKey: "result", kind: "score", project: "pingpong",
+            playedAt: 1, participantMode: "individual", participants: [], summary: [:], origin: .init(nativeSchemaVersion: 1, sourceSystem: "group"),
+            nativePayload: [:], assetIds: [])
+        let json = try JSONSerialization.jsonObject(with: JSONEncoder().encode([record]))
+        let data = try JSONSerialization.data(withJSONObject: ["rows": json, "members": [:]])
+        let account = "cached-account"
+        let filename = "groups-" + Data(account.utf8).base64EncodedString().replacingOccurrences(of: "/", with: "_") + ".json"
+        try data.write(to: directory.appendingPathComponent(filename))
+        var current: String? = account
+        let groups = PersonalGroupRecords(cacheDirectoryURL: directory, currentAccountID: { current })
+        XCTAssertEqual(groups.visibleRows.map(\.recordKey), ["result"])
+        XCTAssertFalse(groups.isLoading)
+        current = "another-account"
+        XCTAssertTrue(groups.visibleRows.isEmpty)
+        groups.restoreCachedRows()
+        XCTAssertTrue(groups.visibleRows.isEmpty)
+        current = account
+        groups.restoreCachedRows()
+        XCTAssertEqual(groups.visibleRows.map(\.recordKey), ["result"])
+    }
+
     func testGuestCanChooseMeBeforeLinkingOrSigningIn() {
         let store = store()
         XCTAssertTrue(store.isGuest)

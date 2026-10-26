@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-25",
+  "unit_tests": {
+    "unique_passed": 62,
+    "failed": 0
+  },
+  "ui_tests": {
+    "passed": 4,
+    "failed": 0
+  },
+  "cases": [
+    "Cloud-only historical name candidates",
+    "Merged libraries with identical record keys retain separate claims",
+    "Archived, foreign, deleted, team, training and group records excluded from personal alias candidates",
+    "Original merged library ID retained in uploaded claims",
+    "Personal cloud rows available from disk before querying",
+    "Group cache restored synchronously with account isolation",
+    "Record filter, history association, personal page and Home navigation"
+  ],
+  "unit_log": "/tmp/jifen-history-cache-unit-20261025.log",
+  "additional_unit_and_ui_log": "/tmp/jifen-history-cache-ui-20261025.log",
+  "testflight_uploaded_by_this_task": false
+}

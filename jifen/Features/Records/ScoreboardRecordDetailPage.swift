@@ -5,12 +5,28 @@ import SwiftUI
 
 struct ScoreboardRecordDetailPage: View {
     let recordId: String
+    private let cloudRecord: PersonalRecordEnvelope?
+    private let decodedCloudRecord: ScoreboardRecord?
+
+    init(recordId: String) {
+        self.recordId = recordId
+        cloudRecord = nil; decodedCloudRecord = nil
+    }
+
+    init(cloudRecord: PersonalRecordEnvelope, decodedRecord: ScoreboardRecord) {
+        recordId = cloudRecord.recordKey
+        self.cloudRecord = cloudRecord; decodedCloudRecord = decodedRecord
+        _record = State(initialValue: decodedRecord)
+    }
     @Environment(\.dismiss) private var dismiss
     @State private var recordIdentity = ParticipantIdentityStore.shared
     @State private var privateRecords = PersonalRecordsCloudSync.shared
 
     private var canAccessRecord: Bool {
-        PersonalRecordAccessPolicy.allowsNativeRecord(recordId, identity: recordIdentity, cloud: privateRecords)
+        if let cloudRecord {
+            return PersonalRecordAccessPolicy.allowsCloudRecord(cloudRecord, identity: recordIdentity, cloud: privateRecords)
+        }
+        return PersonalRecordAccessPolicy.allowsNativeRecord(recordId, identity: recordIdentity, cloud: privateRecords)
     }
 
     private enum DetailMode: String, CaseIterable {
@@ -95,6 +111,7 @@ struct ScoreboardRecordDetailPage: View {
         .onChange(of: recordIdentity.state.activeLibraryId) { _, _ in loadRecord() }
         .onChange(of: recordIdentity.state.archivedLibraries) { _, _ in loadRecord() }
         .onChange(of: privateRecords.phase) { _, _ in if !canAccessRecord { loadRecord() } }
+        .onChange(of: cloudRecord?.revision) { _, _ in loadRecord() }
         .alert(NSLocalizedString("confirm_delete", comment: ""), isPresented: $showingDeleteConfirm) {
             Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
             Button(NSLocalizedString("delete", comment: ""), role: .destructive, action: deleteRecord)
@@ -135,38 +152,46 @@ struct ScoreboardRecordDetailPage: View {
         return ScrollView {
             VStack(spacing: 16) {
                 overviewCard(record)
-                RecordNotesSectionView(
+                if let cloudRecord {
+                    CloudRecordNotesCard(record: cloudRecord)
+                } else { RecordNotesSectionView(
                     recordId: record.id,
                     note: record.note,
                     voiceNote: record.voiceNote,
                     sheetMode: $noteSheetMode,
                     onNotesChanged: { loadRecord() },
                     onToast: { recordNoteToast = $0 }
-                )
+                ) }
                 if !record.displayParticipants.isEmpty { rankingCard(record) }
-                switch presentation.detailLayout {
-                case .standard:
-                    if presentation.canShowTrend {
-                        trendCard(record: record, tabs: presentation.trendTabs)
-                    }
-                    detailModePicker
-                    recordSectionPicker(presentation.recap)
-                    if mode == .recap {
-                        recapCard(
+                if cloudRecord == nil || !record.actions.isEmpty || !(record.detailedActions ?? []).isEmpty || !(record.setResults ?? []).isEmpty {
+                    switch presentation.detailLayout {
+                    case .standard:
+                        if presentation.canShowTrend {
+                            trendCard(record: record, tabs: presentation.trendTabs)
+                        }
+                        detailModePicker
+                        recordSectionPicker(presentation.recap)
+                        if mode == .recap {
+                            recapCard(
+                                record: record,
+                                sections: visibleRecordSections(presentation.recap)
+                            )
+                        } else {
+                            timelineCard(
+                                record: record,
+                                sections: visibleRecordSections(presentation.timelineSections)
+                            )
+                        }
+                    case .multiScoreTimeline:
+                        multiScoreTimelineCard(
                             record: record,
-                            sections: visibleRecordSections(presentation.recap)
-                        )
-                    } else {
-                        timelineCard(
-                            record: record,
-                            sections: visibleRecordSections(presentation.timelineSections)
+                            rows: presentation.multiScoreTimelineRows
                         )
                     }
-                case .multiScoreTimeline:
-                    multiScoreTimelineCard(
-                        record: record,
-                        rows: presentation.multiScoreTimelineRows
-                    )
+                } else {
+                    Text(NSLocalizedString("no_actions_recorded", value: "未记录任何操作", comment: ""))
+                        .foregroundStyle(Theme.textSecondary).frame(maxWidth: .infinity).padding(24)
+                        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 16))
                 }
             }
             .padding()
@@ -273,7 +298,7 @@ struct ScoreboardRecordDetailPage: View {
                     .frame(maxWidth: .infinity)
                     .accessibilityIdentifier("record_match_title")
             }
-            if record.gameType == .doudizhu, record.displayParticipants.count >= 3 {
+            if record.gameType != .multiScoreboard, !record.displayParticipants.isEmpty {
                 let participants = Array(record.displayParticipants.prefix(4))
                 HStack(alignment: .center, spacing: 8) {
                     ForEach(Array(participants.enumerated()), id: \.offset) { index, participant in
@@ -287,7 +312,7 @@ struct ScoreboardRecordDetailPage: View {
                         )
                     }
                 }
-            } else {
+            } else if record.gameType != .multiScoreboard || record.displayParticipants.isEmpty {
                 let score = record.primaryScore
                 HStack(alignment: .center, spacing: 12) {
                     scoreSide(
@@ -329,15 +354,17 @@ struct ScoreboardRecordDetailPage: View {
 
     private func primaryActions(_ record: ScoreboardRecord, presentation: ScoreboardRecordPresentation) -> some View {
         HStack(spacing: 12) {
-            Button { noteSheetMode = .menu } label: {
-                Image(systemName: "square.and.pencil")
-                    .font(.system(size: 22, weight: .medium))
-                    .foregroundStyle(Theme.primary)
-                    .frame(width: 48, height: 48)
-                    .contentShape(Rectangle())
+            if cloudRecord == nil {
+                Button { noteSheetMode = .menu } label: {
+                    Image(systemName: "square.and.pencil")
+                        .font(.system(size: 22, weight: .medium))
+                        .foregroundStyle(Theme.primary)
+                        .frame(width: 48, height: 48)
+                        .contentShape(Rectangle())
+                }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(NSLocalizedString("record_note_action", value: "笔记", comment: ""))
             }
-                .buttonStyle(.plain)
-                .accessibilityLabel(NSLocalizedString("record_note_action", value: "笔记", comment: ""))
             Button(action: prepareShare) {
                 Image(systemName: "square.and.arrow.up")
                     .font(.system(size: 22, weight: .medium))
@@ -347,18 +374,20 @@ struct ScoreboardRecordDetailPage: View {
             }
                 .buttonStyle(.plain)
                 .accessibilityLabel(NSLocalizedString("share", comment: ""))
-            Button { handleReplay(record, presentation: presentation) } label: {
-                Label(
-                    NSLocalizedString("play_again", value: "再来一场", comment: ""),
-                    systemImage: "arrow.clockwise"
-                )
-                .font(.system(size: 17, weight: .semibold))
-                .imageScale(.medium)
-                .frame(maxWidth: .infinity)
-                .frame(minHeight: 48)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.borderedProminent).tint(Theme.primary).foregroundStyle(Theme.textOnPrimary)
+            if cloudRecord == nil || (cloudRecord?.origin.platform == "ios" && record.groupMatchContext == nil) {
+                Button { handleReplay(record, presentation: presentation) } label: {
+                    Label(
+                        NSLocalizedString("play_again", value: "再来一场", comment: ""),
+                        systemImage: "arrow.clockwise"
+                    )
+                    .font(.system(size: 17, weight: .semibold))
+                    .imageScale(.medium)
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 48)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.borderedProminent).tint(Theme.primary).foregroundStyle(Theme.textOnPrimary)
+            } else { Spacer() }
         }
     }
 
@@ -423,7 +452,7 @@ struct ScoreboardRecordDetailPage: View {
     }
 
     private func submitScoreCorrection(_ record: ScoreboardRecord) {
-        guard canAccessRecord else { loadRecord(); return }
+        guard canAccessRecord, cloudRecord == nil else { loadRecord(); return }
         guard let team1 = correctionTeam1Value, let team2 = correctionTeam2Value else { return }
         let set1 = correctionSet1Value ?? record.team1SetScore
         let set2 = correctionSet2Value ?? record.team2SetScore
@@ -903,7 +932,8 @@ struct ScoreboardRecordDetailPage: View {
         maxDialogHeight: CGFloat,
         onCancel: @escaping () -> Void
     ) -> some View {
-        let setup = ScoreboardRecordConfiguration.setup(from: record)
+        let setup = cloudRecord.flatMap { PersonalCloudRecordDecoder.replaySetup(record, envelope: $0, identity: recordIdentity) }
+            ?? ScoreboardRecordConfiguration.setup(from: record)
         Group {
             if record.gameType == .basketballTraining {
                 ShotTrainingSetupDialogView(
@@ -1088,7 +1118,7 @@ struct ScoreboardRecordDetailPage: View {
             noteSheetMode = .none; isPreparingShare = false; cleanupShareFile()
             return
         }
-        record = ScoreboardRecordManager.shared.getRecordById(recordId)
+        record = cloudRecord == nil ? ScoreboardRecordManager.shared.getRecordById(recordId) : decodedCloudRecord
         guard let record, !didTrackRecordView else { return }
         didTrackRecordView = true
         AppAnalytics.track(.recordAction, parameters: [
@@ -1101,6 +1131,11 @@ struct ScoreboardRecordDetailPage: View {
 
     private func deleteRecord() {
         guard canAccessRecord else { loadRecord(); return }
+        if let cloudRecord {
+            privateRecords.markDeleted(recordKey: cloudRecord.recordKey, libraryId: cloudRecord.libraryId)
+            dismiss()
+            return
+        }
         guard ScoreboardRecordManager.shared.deleteRecord(recordId) else { return }
         ScoreboardRecordsViewModel.shared.refreshRecords()
         dismiss()
@@ -1118,7 +1153,7 @@ struct ScoreboardRecordDetailPage: View {
         )
         renderer.scale = AppScreen.scale
         guard let data = renderer.uiImage?.pngData() else { isPreparingShare = false; return }
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("share_record_\(record.id).png")
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("share_record_\(UUID().uuidString).png")
         do {
             try data.write(to: url, options: .atomic)
             shareFileURL = url

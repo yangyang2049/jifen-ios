@@ -1,0 +1,140 @@
+{
+  "date": "2026-10-25",
+  "base_commit": "9ff0e92299b750a713a6e1ef8838fdcfda4af6be",
+  "subagents_used": false,
+  "manual_checklist_item_count": 80,
+  "wechat_prompt_decision": "User reconfirmed one actual presentation per local app across accounts and versions.",
+  "baseline_ios_units": {
+    "result_bundle": "/tmp/jifen-qa-recheck-baseline-20261025.xcresult",
+    "log": "/tmp/jifen-qa-recheck-baseline-20261025.log",
+    "result": "Passed",
+    "total": 891,
+    "passed": 890,
+    "failed": 0,
+    "skipped": 1,
+    "devices": [
+      {
+        "name": "iPhone 17 Pro",
+        "passed": 890,
+        "failed": 0,
+        "skipped": 1
+      }
+    ],
+    "tests": []
+  },
+  "final_ios_units": {
+    "result_bundle": "/tmp/jifen-qa-recheck-final-20261025.xcresult",
+    "log": "/tmp/jifen-qa-recheck-final-20261025.log",
+    "result": "Passed",
+    "total": 892,
+    "passed": 891,
+    "failed": 0,
+    "skipped": 1,
+    "devices": [
+      {
+        "name": "iPhone 17 Pro",
+        "passed": 891,
+        "failed": 0,
+        "skipped": 1
+      }
+    ],
+    "tests": [
+      {
+        "name": "ScoreboardCatalogTests/testNineBallHandoffConfirmationCannotQueueTwiceOrConsumeAReopenedDialog()",
+        "result": "Passed"
+      }
+    ]
+  },
+  "core": {
+    "swift_testing": 277,
+    "xctest": 8,
+    "failed": 0,
+    "log": "/tmp/jifen-qa-recheck-core-20261025.log"
+  },
+  "ui_initial": {
+    "result_bundle": "/tmp/jifen-qa-recheck-ui-20261025.xcresult",
+    "log": "/tmp/jifen-qa-recheck-ui-20261025.log",
+    "result": "Passed",
+    "total": 1,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "devices": [
+      {
+        "name": "iPad Pro 13-inch (M5) (16GB)",
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "iPhone SE (3rd generation)",
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      }
+    ],
+    "tests": [
+      {
+        "name": "ParticipantIdentityUITests/testFilterCanBeClearedAndPersonalPageHidesMainTabs()",
+        "result": "Passed"
+      }
+    ]
+  },
+  "ui_initial_note": "Only the identity test was discovered. The three missing MainFlow tests were not counted as passing; they were rerun after clean.",
+  "ui_after_clean": {
+    "result_bundle": "/tmp/jifen-qa-recheck-ui-clean-20261025.xcresult",
+    "log": "/tmp/jifen-qa-recheck-ui-clean-20261025.log",
+    "result": "Passed",
+    "total": 3,
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0,
+    "devices": [
+      {
+        "name": "iPad Pro 13-inch (M5) (16GB)",
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "iPhone SE (3rd generation)",
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0
+      }
+    ],
+    "tests": [
+      {
+        "name": "MainFlowUITests/testCustomAdjustHelpScrollsWithinWindow()",
+        "result": "Passed"
+      },
+      {
+        "name": "MainFlowUITests/testHomeScannerIsAvailableToGuestsAndCancelRestoresHome()",
+        "result": "Passed"
+      },
+      {
+        "name": "MainFlowUITests/testNineBallLandscapeDialogsKeepActionsInsideWindow()",
+        "result": "Passed"
+      }
+    ]
+  },
+  "ui_total_test_runs": 8,
+  "clean_build": {
+    "succeeded": true,
+    "compiler_errors": [],
+    "changed_file_warnings": [],
+    "existing_warning_categories": [
+      "Swift actor isolation and Sendable diagnostics",
+      "deprecated UIKit and SwiftUI APIs",
+      "unused results, optional coercions and trailing closure matching"
+    ],
+    "baseline_comparison_note": "Incremental baseline omitted some cached test compilation warnings. Clean build warnings were inspected by category and source location; changed files have no diagnostics."
+  },
+  "not_executed": [
+    "physical TV or AirPlay",
+    "real dual-device account synchronization",
+    "real camera QR scanning",
+    "physical keyboard and foldable regression",
+    "production account operations or release"
+  ]
+}

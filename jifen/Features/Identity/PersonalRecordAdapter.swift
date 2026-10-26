@@ -1,4 +1,5 @@
 import Foundation
+import RecordCore
 import ScoreCore
 
 nonisolated enum PersonalJSON: Codable, Hashable, Sendable {
@@ -28,6 +29,11 @@ nonisolated enum PersonalJSON: Codable, Hashable, Sendable {
     }
     var string: String? { if case .string(let value) = self { return value }; return nil }
     var integer: Int64? { if case .integer(let value) = self { return value }; return nil }
+    var object: [String: PersonalJSON]? { if case .object(let value) = self { return value }; return nil }
+    var array: [PersonalJSON]? { if case .array(let value) = self { return value }; return nil }
+    var numeric: Double? {
+        switch self { case .integer(let value): return Double(value); case .number(let value): return value; default: return nil }
+    }
 }
 
 nonisolated struct PersonalWireParticipant: Codable, Sendable {
@@ -78,6 +84,255 @@ nonisolated struct PersonalRecordEnvelope: Codable, Sendable {
         try c.encode(note, forKey: .note); try c.encode(assetIds, forKey: .assetIds)
         try c.encodeIfPresent(id, forKey: .id); try c.encodeIfPresent(revision, forKey: .revision)
         try c.encodeIfPresent(updatedAt, forKey: .updatedAt); try c.encodeIfPresent(deleted, forKey: .deleted)
+    }
+}
+
+struct PersonalHistoricalNameCandidate: Identifiable {
+    var id: String
+    var name: String
+    var seats: [PersonalHistoricalSeat] = []
+    var records: [RecordsTabRecordItem] = []
+    var recordCount: Int { records.count }
+}
+
+enum PersonalHistoricalNames {
+    static func candidates(records: [ScoreboardRecord], cloudRecords: [PersonalRecordEnvelope],
+                           identity: ParticipantIdentityStore, cloud: PersonalRecordsCloudSync,
+                           initialName: String? = nil) -> [PersonalHistoricalNameCandidate] {
+        let native = Dictionary(uniqueKeysWithValues: records.map { ($0.id, $0) })
+        let visible = RecordListSource.visibleRecords(scoreboard: records.map { ScoreboardRecordSummary(from: $0) },
+            timers: [], cloudRecords: cloudRecords, identity: identity, cloud: cloud)
+        var names: [String: PersonalHistoricalNameCandidate] = [:]
+        var order: [String] = []
+        for item in visible {
+            let library: String, recordKey: String, seats: [PersonalRecordSeat]
+            switch item {
+            case .scoreboard(let summary):
+                guard let record = native[summary.id], record.groupMatchContext == nil else { continue }
+                library = identity.libraryId(for: record.id); recordKey = record.id
+                seats = PersonalRecordAdapter.seats(record, identity: identity)
+            case .cloud(let record):
+                guard record.kind == "score", record.participantMode == "individual",
+                      record.origin.sourceSystem != "group", !record.libraryId.hasPrefix("group:") else { continue }
+                if let game = ScoreCore.GameType(rawValue: record.project).flatMap({ GameType(scoreCoreGameType: $0) }),
+                   !PersonalRecordAdapter.supportsPerson(game) { continue }
+                library = record.libraryId; recordKey = record.recordKey
+                seats = record.participants.filter { $0.kind == "PERSON" }.map {
+                    .init(id: $0.seatKey, name: $0.nameSnapshot, side: $0.sideKey, personRef: $0.personRef)
+                }
+            case .timer: continue
+            }
+            for seat in seats {
+                let key = ParticipantIdentityRules.normalizedName(seat.name)
+                guard !key.isEmpty else { continue }
+                if names[key] == nil {
+                    names[key] = .init(id: key, name: seat.name)
+                    order.append(key)
+                }
+                names[key]?.seats.append(.init(libraryId: library, recordKey: recordKey, seat: seat))
+                if names[key]?.records.last?.id != item.id { names[key]?.records.append(item) }
+            }
+        }
+        if let initialName {
+            let key = ParticipantIdentityRules.normalizedName(initialName)
+            if !key.isEmpty && names[key] == nil {
+                names[key] = .init(id: key, name: initialName)
+                order.insert(key, at: 0)
+            }
+        }
+        return order.compactMap { names[$0] }
+    }
+}
+
+/// Decode into the existing presentation models without importing a foreign
+/// record into the local store or reinterpreting its replay snapshot.
+enum PersonalCloudRecordDecoder {
+    static func gameType(_ record: PersonalRecordEnvelope) -> GameType? {
+        ScoreCore.GameType(rawValue: record.project).flatMap { GameType(scoreCoreGameType: $0) }
+            ?? GameType.allCases.first { $0.canonicalScoreboardIdentifier == record.project }
+    }
+
+    static func scoreboard(_ record: PersonalRecordEnvelope) -> ScoreboardRecord? {
+        guard record.kind == "score", let game = gameType(record) else { return nil }
+        var payload = record.nativePayload
+        // The common annotation is authoritative, and another device's local
+        // audio path must never be opened against this device's file system.
+        payload["note"] = record.note.map(PersonalJSON.string) ?? .null
+        payload["voiceNote"] = .null
+        for (common, native) in [("leftScore", "team1FinalScore"), ("rightScore", "team2FinalScore"),
+                                 ("leftName", "team1Name"), ("rightName", "team2Name")] {
+            if let value = record.summary[common], value != .null { payload[native] = value }
+        }
+        if record.origin.platform == "ios", let native: ScoreboardRecord = decode(payload),
+           native.id == record.recordKey, native.gameType == game {
+            return native
+        }
+
+        let foreign = ["android", "harmonyos", "harmony"].contains(record.origin.platform)
+            && record.origin.nativeSchemaVersion == 1
+        let data = record.nativePayload
+        guard foreign, let nativeLeft = int(data["team1FinalScore"]), let nativeRight = int(data["team2FinalScore"]) else { return nil }
+        var extra = foreign ? data["extraData"]?.object ?? [:] : [:]
+        var players = (data["players"]?.array ?? extra["players"]?.array ?? record.summary["players"]?.array ?? []).compactMap { value -> PersonalJSON? in
+            guard var player = value.object else { return nil }
+            if player["score"] == nil { player["score"] = player["finalScore"] }
+            return .object(player)
+        }
+        if players.isEmpty, data["team3Name"]?.string != nil,
+           [.doudizhu, .nineBall, .uno, .multiScoreboard].contains(game) {
+            players = (1...4).compactMap { index in
+                guard let name = data["team\(index)Name"]?.string, let score = data["team\(index)FinalScore"] else { return nil }
+                return .object(["name": .string(name), "score": score])
+            }
+        }
+        if !players.isEmpty { extra["players"] = .array(players) }
+        let detailed = foreign ? (data["actions"]?.array ?? []).compactMap { action($0, game: game) } : []
+        let explicitSets = foreign ? (data["sets"]?.array ?? []).compactMap { value -> RecordSetResult? in
+            guard let set = value.object, let number = int(set["setNumber"]),
+                  let left = int(set["team1Score"]), let right = int(set["team2Score"]) else { return nil }
+            return .init(number: number, scores: [left, right], winner: team(set["winner"]))
+        } : []
+        let sets = explicitSets.isEmpty ? ScoreboardRecordActionAdapter.setResults(from: detailed) : explicitSets
+        let start = foreign ? data["startTime"]?.numeric.map { Date(timeIntervalSince1970: $0 / 1_000) } : nil
+        let end = foreign ? data["endTime"]?.numeric.map { Date(timeIntervalSince1970: $0 / 1_000) } : nil
+        let duration = record.summary["durationMs"]?.numeric ?? (foreign ? data["duration"]?.numeric : nil)
+        let participants = record.participants.map(\.nameSnapshot)
+        var result = ScoreboardRecord(id: record.recordKey, gameType: game,
+            startTime: start ?? Date(timeIntervalSince1970: Double(record.playedAt) / 1_000), endTime: end,
+            duration: duration.map { $0 / 1_000 },
+            team1Name: record.summary["leftName"]?.string ?? data["team1Name"]?.string ?? participants.first ?? game.displayName,
+            team2Name: record.summary["rightName"]?.string ?? data["team2Name"]?.string ?? participants.dropFirst().first ?? "",
+            team1FinalScore: int(record.summary["leftScore"]) ?? nativeLeft,
+            team2FinalScore: int(record.summary["rightScore"]) ?? nativeRight,
+            team1SetScore: int(data["team1SetScore"]), team2SetScore: int(data["team2SetScore"]),
+            winnerIdentity: winner(data["winner"], hasPlayers: !players.isEmpty),
+            detailedActions: detailed, setResults: sets,
+            totalScoreChanges: int(data["totalScoreChanges"]) ?? detailed.filter { $0.type == .scoreChanged }.count,
+            extraData: decode(extra), note: record.note,
+            status: data["status"]?.string.flatMap(ScoreboardRecordStatus.init(rawValue:)) ?? .finished)
+        // Foreign snapshot formats remain opaque. Only their recorded values
+        // feed the recap; they cannot become an iOS resumable session.
+        result.schemaVersion = foreign ? 4 : 1
+        return result
+    }
+
+    static func timer(_ record: PersonalRecordEnvelope) -> GameRecordSummary? {
+        guard record.kind == "timer", let game = gameType(record) else { return nil }
+        if record.origin.platform == "ios", let native: GameRecordSummary = decode(record.nativePayload), native.id == record.recordKey {
+            return native
+        }
+        var result = GameRecordSummary(id: record.recordKey, gameType: game, timestamp: Double(record.playedAt) / 1_000,
+            duration: record.summary["durationMs"]?.numeric.map { $0 / 1_000 })
+        let data = record.nativePayload
+        guard ["android", "harmonyos", "harmony"].contains(record.origin.platform),
+              record.origin.nativeSchemaVersion == 1, data["id"]?.string == record.recordKey else { return result }
+        if result.duration == nil { result.duration = data["duration"]?.numeric.map { $0 / 1_000 } }
+        func playerName(_ value: PersonalJSON?) -> String? {
+            switch value?.string {
+            case "PLAYER1": return BoardTimerParticipantNames.name(for: game, playerID: 1)
+            case "PLAYER2": return BoardTimerParticipantNames.name(for: game, playerID: 2)
+            default: return nil
+            }
+        }
+        result.winner = playerName(data["winner"])
+        let start = data["startTime"]?.numeric ?? Double(record.playedAt)
+        // Preserve actual snapshots only; foreign clock configuration cannot become an iOS session.
+        result.actions = data["actions"]?.array?.enumerated().compactMap { index, value -> TimerActionRecord? in
+            guard let action = value.object, let timestamp = action["timestamp"]?.numeric,
+                  timestamp.isFinite, timestamp >= start else { return nil }
+            let type: TimerActionType
+            switch action["actionType"]?.string {
+            case "GAME_START": type = .start
+            case "GAME_PAUSE": type = .pause
+            case "GAME_RESUME": type = .resume
+            case "PLAYER_SWITCH": type = .move
+            case "TIMEOUT": type = .timeout
+            case "GAME_END": type = .gameEnd
+            default: return nil
+            }
+            func remaining(_ key: String) -> Int? {
+                guard let value = action[key]?.numeric, value.isFinite, value >= 0 else { return nil }
+                return Int(exactly: ceil(value / 1_000))
+            }
+            return .init(id: "\(record.recordKey):foreign:\(index)", elapsed: (timestamp - start) / 1_000,
+                type: type, actor: type == .gameEnd ? result.winner : playerName(action["fromPlayer"]),
+                leftRemaining: remaining("player1Time"), rightRemaining: remaining("player2Time"))
+        }
+        return result
+    }
+
+    static func replaySetup(_ native: ScoreboardRecord, envelope: PersonalRecordEnvelope,
+                            identity: ParticipantIdentityStore) -> SportsSetupResult? {
+        guard envelope.origin.platform == "ios", native.id == envelope.recordKey, native.groupMatchContext == nil,
+              identity.readableLibraryIds.contains(envelope.libraryId) else { return nil }
+        var setup = ScoreboardRecordConfiguration.setup(from: native, identity: identity)
+        // A same-ID local record can belong to a different merged library.
+        // Carry only the current person's explicit cloud seat or scoped claim.
+        setup.participantSelections = nil
+        let seats = PersonalRecordAdapter.seatDescriptors(native)
+        let claims = identity.personalSeats(for: envelope.recordKey, libraryId: envelope.libraryId,
+            matchingSeatNames: Dictionary(uniqueKeysWithValues: seats.map { ($0.id, $0.name) }))
+        var selections: [String: ParticipantSelection] = [:]
+        for seat in seats {
+            let explicit = envelope.participants.contains {
+                $0.kind == "PERSON" && $0.seatKey == seat.id && $0.nameSnapshot == seat.name && $0.personRef == identity.person
+            }
+            if explicit || (claims.count == 1 && claims.contains(seat.id)) {
+                selections[seat.id] = .init(name: seat.name, personRef: identity.person)
+            }
+        }
+        setup.participantSelections = selections.isEmpty ? nil : selections
+        return setup
+    }
+
+    private static func action(_ value: PersonalJSON, game: GameType) -> DetailedScoreAction? {
+        guard let data = value.object, let code = data["actionType"]?.string,
+              let left = int(data["team1Score"]), let right = int(data["team2Score"]) else { return nil }
+        let type: DetailedScoreActionType
+        switch code {
+        case "GAME_START": type = .matchStarted
+        case "GAME_END": type = .matchFinished
+        case "SCORE_ADD", "SCORE_SUBTRACT", "EDIT_SCORE", "SCORE_CHANGE":
+            type = data["foulAdd"] == .bool(true) || data["foulRemove"] == .bool(true) ? .foul : .scoreChanged
+        case "SET_END":
+            type = game == .boxing ? .roundFinished : [.basketball, .threeBasketball].contains(game) ? .periodFinished : .setFinished
+        case "GAME_RESET": type = .reset
+        case "UNDO": type = .undo
+        default: type = .stateChanged
+        }
+        let participants = (data["participantsSnapshot"]?.array ?? []).compactMap { value -> ParticipantScoreSnapshot? in
+            guard let player = value.object, let name = player["name"]?.string, let score = int(player["score"]) else { return nil }
+            return .init(id: player["playerId"]?.integer.map(String.init) ?? name, name: name, score: score)
+        }
+        var scores = [left, right]
+        for index in 3...4 { if let score = int(data["team\(index)Score"]), scores.count == index - 1 { scores.append(score) } }
+        let sets: [Int]
+        if let left = int(data["team1SetScore"]), let right = int(data["team2SetScore"]) { sets = [left, right] }
+        else { sets = [] }
+        return .init(type: type, epochMilliseconds: data["timestamp"]?.integer,
+            team: team(data["team"]), scores: scores, setScores: sets,
+            setNumber: int(data["setNumber"]), gameNumber: int(data["gameNumberInSet"]), roundNumber: int(data["roundNumber"]),
+            periodNumber: [.basketball, .threeBasketball].contains(game) ? int(data["setNumber"]) : nil,
+            scoreChange: int(data["scoreChange"]), winner: code == "SET_END" ? team(data["team"]) : nil,
+            landlord: team(data["landlord"]),
+            winners: data["winners"]?.array.map { $0.compactMap(team) }, losers: data["losers"]?.array.map { $0.compactMap(team) },
+            farmers: data["farmers"]?.array.map { $0.compactMap(team) }, participants: participants,
+            operationCode: data["cardRecordOpCode"]?.string, operationPayload: data["cardRecordPayload"]?.string,
+            summary: data["description"]?.string, footballPeriod: int(data["footballPeriod"]), footballElapsedSeconds: int(data["footballElapsedSeconds"]))
+    }
+
+    private static func int(_ value: PersonalJSON?) -> Int? { value?.numeric.flatMap(Int.init(exactly:)) }
+    private static func team(_ value: PersonalJSON?) -> RecordTeam? {
+        value?.string.flatMap { RecordTeam(rawValue: $0.lowercased()) }
+    }
+    private static func winner(_ value: PersonalJSON?, hasPlayers: Bool) -> ScoreboardWinnerIdentity? {
+        guard let team = team(value), let index = RecordTeam.allCases.firstIndex(of: team) else { return nil }
+        if hasPlayers || index > 1 { return .participant(index: index) }
+        return .team(index == 0 ? .team0 : .team1)
+    }
+    private static func decode<T: Decodable>(_ value: [String: PersonalJSON]) -> T? {
+        guard let data = try? JSONEncoder().encode(value) else { return nil }
+        return try? JSONDecoder().decode(T.self, from: data)
     }
 }
 
@@ -141,10 +396,10 @@ enum PersonalRecordAdapter {
         return identity.personalSeats(for: summary.id, matchingSeatNames: seats).intersection(Set(seats.keys)).count == 1
     }
 
-    static func isMine(_ record: PersonalRecordEnvelope) -> Bool {
+    static func isMine(_ record: PersonalRecordEnvelope, identity: ParticipantIdentityStore? = nil) -> Bool {
         guard record.kind == "score", record.participantMode == "individual", record.deleted != true else { return false }
         if record.origin.sourceSystem == "group" && !record.libraryId.hasPrefix("group:") { return false }
-        let identity = ParticipantIdentityStore.shared
+        let identity = identity ?? .shared
         let valid = Set(record.participants.filter { $0.kind == "PERSON" }.map(\.seatKey))
         var mine = Set(record.participants.filter { $0.kind == "PERSON" && $0.personRef == identity.person }.map(\.seatKey))
         mine.formUnion(identity.personalSeats(for: record.recordKey, libraryId: record.libraryId))

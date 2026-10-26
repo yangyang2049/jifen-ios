@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-25",
+  "platform": "iOS",
+  "validation": {
+    "command": "xcodebuild -project jifen.xcodeproj -scheme jifen -configuration Debug -destination platform=iOS Simulator,id=86871B65-E0ED-4FBD-9F93-F3FB6246A895 -derivedDataPath build/InteractionFixes -only-testing:jifenTests/ScoreboardRecordV4Tests test",
+    "tests": 85,
+    "failures": 0,
+    "status": "passed"
+  },
+  "additionalCoverage": [
+    "Every catalog scoreboard round-trips through its cloud native payload into the normal detail model",
+    "Android and HarmonyOS timer action snapshots convert elapsed and remaining milliseconds correctly",
+    "Foreign timer actions retain localized board-player identities and explicit winners",
+    "Mismatched native record identities never supply timer history or winner",
+    "Foreign timer rendering leaves the original cached payload unchanged"
+  ],
+  "androidVerification": [
+    "/Users/yangyang/Desktop/jifenqi/jifen-android/docs/verification/cloud-record-detail-2026-10-25/verification.json",
+    "/Users/yangyang/Desktop/jifenqi/jifen-android-google/docs/verification/cloud-record-detail-2026-10-25/verification.json"
+  ],
+  "limits": [
+    "Summary-only historical records cannot recreate actions that were never saved",
+    "No App Store or TestFlight upload was performed"
+  ]
+}

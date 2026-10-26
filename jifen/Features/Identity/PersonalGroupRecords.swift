@@ -7,9 +7,11 @@ import Observation
     static let shared = PersonalGroupRecords()
     private(set) var rows: [PersonalRecordEnvelope] = []
     private(set) var error: String?
+    private(set) var isLoading = false
     private var accountId: String?
     private var members: [String: GroupMember] = [:]
     private var generation: UInt64 = 0
+    private var lastSuccessfulRefresh: Date?
     let cacheDirectoryURL: URL
     private let repository: GroupRepository
     private let currentAccountID: @MainActor () -> String?
@@ -22,6 +24,7 @@ import Observation
                 .appendingPathComponent("jifen-v3/participant-identity", isDirectory: true)
         self.repository = repository
         self.currentAccountID = currentAccountID
+        restoreCachedRows()
     }
     private struct Cache: Codable { var rows: [PersonalRecordEnvelope]; var members: [String: GroupMember] }
 
@@ -45,23 +48,32 @@ import Observation
 
     func clearLocalCache() throws {
         generation &+= 1
-        rows = []; members = [:]; accountId = nil; error = nil
+        rows = []; members = [:]; accountId = nil; error = nil; isLoading = false; lastSuccessfulRefresh = nil
         let directory = cacheURL("unused").deletingLastPathComponent()
         for url in (try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)) ?? [] where url.lastPathComponent.hasPrefix("groups-") {
             try FileManager.default.removeItem(at: url)
         }
     }
 
-    func refresh() async {
+    /// Restore before the first network suspension; cached rows stay visible
+    /// while revisiting the page or refreshing an offline account.
+    func restoreCachedRows() {
+        let id = currentAccountID()
+        guard accountId != id else { return }
+        accountId = id; rows = []; members = [:]; error = nil; lastSuccessfulRefresh = nil
+        if let id, let data = try? Data(contentsOf: cacheURL(id)), let cache = try? JSONDecoder().decode(Cache.self, from: data) {
+            rows = cache.rows; members = cache.members
+        }
+    }
+
+    func refresh(force: Bool = false) async {
+        restoreCachedRows()
+        guard let id = currentAccountID() else { isLoading = false; return }
+        if !force, let lastSuccessfulRefresh, Date().timeIntervalSince(lastSuccessfulRefresh) < 60 { return }
         generation &+= 1
         let epoch = generation
-        guard let id = currentAccountID() else { rows = []; members = [:]; accountId = nil; return }
-        if accountId != id {
-            accountId = id; rows = []; members = [:]
-            if let data = try? Data(contentsOf: cacheURL(id)), let cache = try? JSONDecoder().decode(Cache.self, from: data) {
-                rows = cache.rows; members = cache.members
-            }
-        }
+        isLoading = true
+        defer { if generation == epoch { isLoading = false } }
         let revision = await repository.client.authSessionRevision()
         do {
             let groups: [ScoreGroup] = try await repository.allPages("", expectedAuthRevision: revision)
@@ -89,7 +101,7 @@ import Observation
             }
             let currentRevision = await repository.client.authSessionRevision()
             guard generation == epoch, currentAccountID() == id, currentRevision == revision, !Task.isCancelled else { return }
-            rows = received; members = current; error = nil
+            rows = received; members = current; error = nil; lastSuccessfulRefresh = Date()
             let url = cacheURL(id); try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
             try JSONEncoder().encode(Cache(rows: received, members: current)).write(to: url, options: .atomic)
         } catch {

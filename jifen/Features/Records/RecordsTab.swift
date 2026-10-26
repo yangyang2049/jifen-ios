@@ -22,7 +22,8 @@ struct RecordsTab: View {
     @State private var identity = ParticipantIdentityStore.shared
     @State private var privateCloud = PersonalRecordsCloudSync.shared
     @State private var groupRecords = PersonalGroupRecords.shared
-    @State private var cloudQueryRecords: [PersonalRecordEnvelope] = []
+    @State private var completedCloudQueryKey: String?
+    @State private var cloudQueryError: String?
     @State private var searchText: String = ""
     @State private var showClearConfirm = false
     @State private var showBatchDeleteConfirm = false
@@ -59,7 +60,7 @@ struct RecordsTab: View {
         VStack(spacing: 0) {
             if !isEditMode {
                 if personalOnly {
-                    personalSummary
+                    if !isInitiallyLoading { personalSummary }
                     if groupRecords.error != nil {
                         Button(identityText("group_records_unavailable", "部分小组记录未能加载")) { Task { await groupRecords.refresh() } }
                             .font(.caption).foregroundStyle(Theme.textSecondary).padding(.bottom, 8)
@@ -156,6 +157,11 @@ struct RecordsTab: View {
         .onChange(of: scoreboardVM.hasLoaded) { _, _ in migrateLoadedIdentityRecords() }
         .onChange(of: timerVM.hasLoaded) { _, _ in migrateLoadedIdentityRecords() }
         .onChange(of: scenePhase) { _, value in if value == .active { privateCloud.schedule() } }
+        .onChange(of: privateCloud.phase) { _, phase in
+            if phase != "syncing", cloudQueryError != nil {
+                Task { await refreshCloudQuery() }
+            }
+        }
         .task(id: cloudQueryKey) { await refreshCloudQuery() }
         .task(id: personalOnly ? SessionStore.shared.user?.id : nil) {
             if personalOnly { await groupRecords.refresh() }
@@ -163,10 +169,10 @@ struct RecordsTab: View {
         .refreshable {
             await privateCloud.synchronizeNow()
             await refreshCloudQuery()
-            if personalOnly { await groupRecords.refresh() }
+            if personalOnly { await groupRecords.refresh(force: true) }
         }
         .onChange(of: identity.state.activeAccountId) { _, _ in
-            clearFilters(); searchText = ""; cloudQueryRecords = []; exitEditMode()
+            clearFilters(); searchText = ""; completedCloudQueryKey = nil; cloudQueryError = nil; exitEditMode()
         }
         .onDisappear {
             exitEditMode()
@@ -281,14 +287,20 @@ struct RecordsTab: View {
     }
 
     private var cloudQueryKey: String {
-        "\(personalOnly)-\(currentTab)-\(selectedTimeFilter.rawValue)-\(selectedProjectFilter?.id ?? "")-\(searchText)-\(identity.state.activeAccountId ?? "guest")-\(privateCloud.phase)"
+        "\(personalOnly)-\(currentTab)-\(selectedTimeFilter.rawValue)-\(selectedProjectFilter?.id ?? "")-\(searchText)-\(identity.state.activeAccountId ?? "guest")-\(identity.state.activeLibraryId)"
     }
 
     private func refreshCloudQuery() async {
-        guard !identity.isGuest else { cloudQueryRecords = []; return }
+        let queryKey = cloudQueryKey
+        completedCloudQueryKey = nil
+        cloudQueryError = nil
+        defer {
+            if !Task.isCancelled && cloudQueryKey == queryKey { completedCloudQueryKey = queryKey }
+        }
+        guard !identity.isGuest else { return }
         // The task is cancelled when search or filter inputs change.
         // Avoid paging through the cloud library for every keystroke.
-        do { try await Task.sleep(for: .milliseconds(300)) }
+        do { if !searchText.isEmpty { try await Task.sleep(for: .milliseconds(300)) } }
         catch { return }
         let calendar = Calendar.current
         let from: Date?
@@ -304,31 +316,16 @@ struct RecordsTab: View {
                 projects = Array(Set([selectedProjectFilter.gameType.canonicalScoreboardIdentifier]
                     + RecordsProjectFilter.allOptions.filter { $0.gameType == selectedProjectFilter.gameType }.compactMap { $0.scoreCoreGameType?.rawValue }))
             } else { projects = nil }
-            let result = try await privateCloud.query(scope: personalOnly ? "mine" : "all", kind: personalOnly || currentTab == 1 ? "score" : currentTab == 2 ? "timer" : nil,
+            _ = try await privateCloud.query(scope: personalOnly ? "mine" : "all", kind: personalOnly || currentTab == 1 ? "score" : currentTab == 2 ? "timer" : nil,
                 project: selectedProjectFilter?.scoreCoreGameType?.rawValue ?? selectedProjectFilter?.gameType.canonicalScoreboardIdentifier, projects: projects,
                 from: from.map { Int64($0.timeIntervalSince1970 * 1_000) }, to: nil, search: searchText)
-            try Task.checkCancellation(); cloudQueryRecords = result
         } catch {
-            if Task.isCancelled { return }
-            cloudQueryRecords = privateCloud.remoteRecords.filter { record in
-                if personalOnly {
-                    return PersonalRecordAdapter.isMine(record)
-                }
-                return currentTab == 0 || record.kind == (currentTab == 1 ? "score" : "timer")
-            }
+            if !Task.isCancelled && cloudQueryKey == queryKey { cloudQueryError = error.localizedDescription }
         }
     }
 
     private func cloudRowContent(_ record: PersonalRecordEnvelope) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(record.summary["title"]?.string ?? record.project).font(.caption).foregroundStyle(Theme.textSecondary)
-            HStack {
-                Text(record.summary["leftName"]?.string ?? record.participants.first?.nameSnapshot ?? record.project)
-                Spacer()
-                if let left = record.summary["leftScore"]?.integer, let right = record.summary["rightScore"]?.integer { Text("\(left) : \(right)").monospacedDigit() }
-                Text(record.summary["rightName"]?.string ?? "")
-            }.font(.body)
-        }.padding(.vertical, 14).foregroundStyle(Theme.textPrimary)
+        RecordListRow(record: RecordListPresentation(record), isEditMode: isEditMode)
     }
 
     private var recordsFilterSheet: some View {
@@ -463,36 +460,45 @@ struct RecordsTab: View {
 
     @ViewBuilder
     private var content: some View {
-        if (scoreboardVM.isLoading || timerVM.isLoading) && scoreboardVM.records.isEmpty && timerVM.records.isEmpty {
+        let filtered = filteredRecords()
+        if !filtered.isEmpty {
+            recordsList(records: filtered)
+        } else if isInitiallyLoading {
             loadingView
+        } else if let cloudQueryError {
+            VStack(spacing: Theme.md) {
+                Text(identityText("sync_failed", "同步未完成")).foregroundStyle(Theme.textSecondary)
+                Text(cloudQueryError).font(.caption).foregroundStyle(Theme.textSecondary)
+                Button(identityText("sync_retry", "重试同步")) { Task { await refreshCloudQuery() } }
+            }.frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
-            let filtered = filteredRecords()
-            if filtered.isEmpty {
-                emptyState
-            } else {
-                recordsList(records: filtered)
-            }
+            emptyState
         }
     }
 
+    private var isInitiallyLoading: Bool {
+        filteredRecords().isEmpty && (!scoreboardVM.hasLoaded || (!personalOnly && !timerVM.hasLoaded)
+            || (!identity.isGuest && completedCloudQueryKey != cloudQueryKey)
+            || (personalOnly && groupRecords.isLoading))
+    }
+
     private func filteredRecords() -> [RecordsTabRecordItem] {
-        var items: [RecordsTabRecordItem] = []
-        if personalOnly || currentTab == 0 || currentTab == 1 {
-            items += scoreboardVM.records.filter { summary in
-                identity.canRead(recordKey: summary.id) && !privateCloud.usesCloudVersion(recordKey: summary.id)
-                    && !privateCloud.isLocallyDeleted(libraryId: identity.libraryId(for: summary.id), recordKey: summary.id)
-                    && (!personalOnly || PersonalRecordAdapter.isMine(summary, identity: identity))
-            }.map { RecordsTabRecordItem.scoreboard($0) }
+        var items = RecordListSource.visibleRecords(
+            scoreboard: personalOnly || currentTab != 2 ? scoreboardVM.records : [],
+            timers: !personalOnly && currentTab != 1 ? timerVM.records : [],
+            cloudRecords: privateCloud.remoteRecords.filter {
+                personalOnly || currentTab == 1 ? $0.kind == "score" : currentTab == 2 ? $0.kind == "timer" : true
+            }, identity: identity, cloud: privateCloud
+        )
+        if personalOnly {
+            items = items.filter { item in
+                switch item {
+                case .scoreboard(let record): return PersonalRecordAdapter.isMine(record, identity: identity)
+                case .cloud(let record): return PersonalRecordAdapter.isMine(record, identity: identity)
+                case .timer: return false
+                }
+            }
         }
-        if !personalOnly && (currentTab == 0 || currentTab == 2) {
-            items += timerVM.records.filter { $0.gameType != .stopwatch && identity.canRead(recordKey: $0.id) && !privateCloud.usesCloudVersion(recordKey: $0.id)
-                && !privateCloud.isLocallyDeleted(libraryId: identity.libraryId(for: $0.id), recordKey: $0.id) }.map { RecordsTabRecordItem.timer($0) }
-        }
-        let localKeys = Set(items.map { identity.libraryId(for: $0.selectionID.recordID) + ":" + $0.selectionID.recordID })
-        let visibleCloud = cloudQueryRecords.filter { identity.readableLibraryIds.contains($0.libraryId)
-            && !localKeys.contains($0.libraryId + ":" + $0.recordKey) && $0.deleted != true
-            && !privateCloud.isLocallyDeleted(libraryId: $0.libraryId, recordKey: $0.recordKey) }.map(RecordsTabRecordItem.cloud)
-        items += visibleCloud
         if personalOnly, !identity.isGuest {
             let localGames = Set(items.compactMap { item -> String? in
                 switch item {
@@ -676,118 +682,12 @@ struct RecordsTab: View {
     }
 
     private func scoreboardRowContent(_ record: ScoreboardRecordSummary) -> some View {
-        HStack(spacing: 0) {
-            recordGameIcon(gameType: record.gameType, isSyncedFromWatch: record.isSyncedFromWatch)
-                .padding(.trailing, Theme.sm)
-
-            VStack(alignment: .leading, spacing: Theme.xs) {
-                Text(record.displayMatchTitle)
-                    .font(.system(size: Theme.fontBody2, weight: .medium))
-                    .foregroundColor(Theme.textPrimary)
-                    .lineLimit(1)
-                HStack(spacing: 6) {
-                    Text(record.time)
-                        .font(.system(size: Theme.fontCaption))
-                        .foregroundColor(Theme.textSecondary)
-                    Text(record.competitionDisplayName)
-                        .font(.system(size: Theme.fontCaption))
-                        .foregroundColor(Theme.textSecondary)
-                    if record.isLegacyNineBallRecord {
-                        Text(NineBallRecordRuleVersionPolicy.legacyLabel)
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundStyle(Theme.textSecondary)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 2)
-                            .background(Theme.textSecondary.opacity(0.10))
-                            .clipShape(Capsule())
-                            .lineLimit(1)
-                    }
-                    if record.isSyncedFromWatch {
-                        Text(NSLocalizedString(
-                            "record_detail_synced_from_watch_badge",
-                            value: "手表记录已同步",
-                            comment: ""
-                        ))
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(Theme.accentColor)
-                        .lineLimit(1)
-                    }
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            Text(record.displayScore())
-                .font(.system(size: Theme.fontBody1, weight: .bold))
-                .foregroundColor(Theme.accentColor)
-
-            if !isEditMode {
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(Theme.textSecondary)
-                    .padding(.leading, Theme.sm)
-            }
-        }
-        .contentShape(Rectangle())
-        .padding(.vertical, Theme.recordRowVerticalPadding)
-        .accessibilityIdentifier("record_row_\(record.gameType.canonicalScoreboardIdentifier)")
-    }
-
-    /// Game icon with optional Watch-sync corner badge (aligned with HarmonyOS RecordsTab).
-    private func recordGameIcon(gameType: GameType, isSyncedFromWatch: Bool) -> some View {
-        ZStack(alignment: .bottomTrailing) {
-            AppCatalogIcon(gameType: gameType, size: 30)
-                .frame(width: 40, height: 40)
-                .multilineTextAlignment(.center)
-                .minimumScaleFactor(0.5)
-            if isSyncedFromWatch {
-                Image(systemName: "applewatch")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(Theme.textOnPrimary)
-                    .padding(3)
-                    .background(Circle().fill(Theme.accentColor))
-                    .offset(x: 2, y: 2)
-                    .accessibilityLabel(NSLocalizedString(
-                        "record_detail_synced_from_watch_badge",
-                        value: "手表记录已同步",
-                        comment: ""
-                    ))
-            }
-        }
-        .frame(width: 40, height: 40)
+        RecordListRow(record: RecordListPresentation(record), isEditMode: isEditMode)
+            .accessibilityIdentifier("record_row_\(record.gameType.canonicalScoreboardIdentifier)")
     }
 
     private func timerRowContent(_ record: GameRecordSummary) -> some View {
-        HStack(spacing: 0) {
-            AppCatalogIcon(gameType: record.gameType, size: 30)
-                .frame(width: 40, height: 40)
-                .padding(.trailing, Theme.sm)
-
-            VStack(alignment: .leading, spacing: Theme.xs) {
-                Text(record.title)
-                    .font(.system(size: Theme.fontBody2, weight: .medium))
-                    .foregroundColor(Theme.textPrimary)
-                    .lineLimit(1)
-                Text(record.time)
-                    .font(.system(size: Theme.fontCaption))
-                    .foregroundColor(Theme.textSecondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            if let w = record.winner {
-                Text("\(w) \(NSLocalizedString("wins", value: "获胜", comment: "Wins"))")
-                    .font(.system(size: Theme.fontCaption))
-                    .foregroundColor(Theme.accentColor)
-            }
-
-            if !isEditMode {
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(Theme.textSecondary)
-                    .padding(.leading, Theme.sm)
-            }
-        }
-        .contentShape(Rectangle())
-        .padding(.vertical, Theme.recordRowVerticalPadding)
+        RecordListRow(record: RecordListPresentation(record), isEditMode: isEditMode)
     }
 
     private func exitEditMode() {
@@ -1133,10 +1033,18 @@ struct RecordsTabSelectionState: Equatable {
     }
 }
 
-private enum RecordsTabRecordItem: Identifiable {
+enum RecordsTabRecordItem: Identifiable {
     case scoreboard(ScoreboardRecordSummary)
     case timer(GameRecordSummary)
     case cloud(PersonalRecordEnvelope)
+
+    var presentation: RecordListPresentation {
+        switch self {
+        case .scoreboard(let record): return RecordListPresentation(record)
+        case .timer(let record): return RecordListPresentation(record)
+        case .cloud(let record): return RecordListPresentation(record)
+        }
+    }
 
     var isEditable: Bool {
         if case .cloud(let record) = self { return !record.libraryId.hasPrefix("group:") }
@@ -1175,6 +1083,31 @@ private enum RecordsTabRecordItem: Identifiable {
             let formatter = DateFormatter(); formatter.dateFormat = "yyyy-MM-dd"
             return formatter.string(from: Date(timeIntervalSince1970: Double(r.playedAt) / 1_000))
         }
+    }
+}
+
+/// Home and the record list merge the same readable local/cloud records.
+/// Key by library as well as record ID, and hide pending cloud deletions.
+enum RecordListSource {
+    static func visibleRecords(scoreboard: [ScoreboardRecordSummary], timers: [GameRecordSummary],
+                               cloudRecords: [PersonalRecordEnvelope], identity: ParticipantIdentityStore,
+                               cloud: PersonalRecordsCloudSync) -> [RecordsTabRecordItem] {
+        var items = scoreboard.filter {
+            PersonalRecordAccessPolicy.allowsNativeRecord($0.id, identity: identity, cloud: cloud)
+        }.map(RecordsTabRecordItem.scoreboard)
+        items += timers.filter {
+            $0.gameType != .stopwatch && PersonalRecordAccessPolicy.allowsNativeRecord($0.id, identity: identity, cloud: cloud)
+        }.map(RecordsTabRecordItem.timer)
+        var keys = Set(items.map { RecordsTabRecordSelectionID.cloud(identity.libraryId(for: $0.selectionID.recordID), $0.selectionID.recordID) })
+        let readableLibraries = identity.readableLibraryIds
+        for record in cloudRecords where readableLibraries.contains(record.libraryId)
+            && record.deleted != true && !(record.kind == "timer" && record.project == "stopwatch")
+            && !cloud.isLocallyDeleted(libraryId: record.libraryId, recordKey: record.recordKey) {
+            if keys.insert(.cloud(record.libraryId, record.recordKey)).inserted {
+                items.append(.cloud(record))
+            }
+        }
+        return items.sorted { $0.timestamp == $1.timestamp ? $0.id < $1.id : $0.timestamp > $1.timestamp }
     }
 }
 

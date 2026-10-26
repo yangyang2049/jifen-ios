@@ -594,11 +594,14 @@ private struct AccountProfileView: View {
                     language: Bundle.main.preferredLocalizations.first ?? "en", status: session.wechatBindingStatus) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(bindingText("section")).font(.footnote).foregroundStyle(.secondary).padding(.horizontal, 4)
+                        // 已绑定后仅拦截点击，不整行 disabled：整行禁用会把左侧标签一起压灰。
                         ProfileInfoRow(label: bindingText("bind"),
                             value: bindingText(session.wechatBindingStatus?.wechat.bound == true ? "bound" : "unbound"),
                             valueColor: session.wechatBindingStatus?.wechat.bound == true ? Theme.accentColor : Theme.textSecondary,
-                            showChevron: session.wechatBindingStatus?.wechat.bound != true) { showWechatBinding = true }
-                            .disabled(session.isWorking || session.wechatBindingStatus?.wechat.bound == true)
+                            showChevron: session.wechatBindingStatus?.wechat.bound != true) {
+                                if session.wechatBindingStatus?.wechat.bound != true { showWechatBinding = true }
+                            }
+                            .disabled(session.isWorking)
                             .background(Theme.appCardBackground, in: RoundedRectangle(cornerRadius: 20))
                             .accessibilityIdentifier("profile_bind_wechat")
                         Text(bindingText("entry_detail")).font(.footnote).foregroundStyle(.secondary).padding(.horizontal, 4)

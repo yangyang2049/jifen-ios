@@ -9,12 +9,24 @@ import SwiftUI
 
 struct TimerRecordDetailPage: View {
     let recordId: String
+    private let cloudRecord: PersonalRecordEnvelope?
+    private let decodedCloudRecord: GameRecordSummary?
+
+    init(recordId: String) {
+        self.recordId = recordId; cloudRecord = nil; decodedCloudRecord = nil
+    }
+    init(cloudRecord: PersonalRecordEnvelope, decodedRecord: GameRecordSummary) {
+        recordId = cloudRecord.recordKey; self.cloudRecord = cloudRecord; decodedCloudRecord = decodedRecord
+    }
     @StateObject private var timerVM = TimerRecordsViewModel.shared
     @State private var didTrackRecordView = false
     @State private var recordIdentity = ParticipantIdentityStore.shared
     @State private var privateRecords = PersonalRecordsCloudSync.shared
 
     private var record: GameRecordSummary? {
+        if let cloudRecord {
+            return PersonalRecordAccessPolicy.allowsCloudRecord(cloudRecord, identity: recordIdentity, cloud: privateRecords) ? decodedCloudRecord : nil
+        }
         guard PersonalRecordAccessPolicy.allowsNativeRecord(recordId, identity: recordIdentity, cloud: privateRecords) else { return nil }
         return timerVM.records.first { $0.id == recordId }
     }
@@ -46,7 +58,7 @@ struct TimerRecordDetailPage: View {
         .toolbar(.hidden, for: .tabBar)
         .appAnalyticsScreen(.timerRecordDetail)
         .onAppear {
-            timerVM.loadFromStorage()
+            if cloudRecord == nil { timerVM.loadFromStorage() }
             guard let record, !didTrackRecordView else { return }
             didTrackRecordView = true
             AppAnalytics.track(.recordAction, parameters: [

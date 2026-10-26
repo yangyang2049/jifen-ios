@@ -1,0 +1,69 @@
+{
+  "checkedAt": "2026-10-25T12:20:11.065536+00:00",
+  "products": [
+    {
+      "product": "monthly",
+      "productState": "APPROVED",
+      "metadataState": "APPROVED",
+      "promotionalImageId": "64605858-e9fa-4eeb-8cda-75ea18333232",
+      "promotionalImageSize": [
+        1024,
+        1024
+      ],
+      "imageState": "COMPLETE",
+      "matchesPreviouslyVerifiedAsset": true,
+      "promotion": null,
+      "reviewScreenshotSize": [
+        750,
+        1334
+      ],
+      "reviewChecksum": "a6a792eb4ef61e828b33cdda2c7c026e"
+    },
+    {
+      "product": "yearly",
+      "productState": "APPROVED",
+      "metadataState": "APPROVED",
+      "promotionalImageId": "87a8298f-5a7e-4ec3-be9a-9a59ba16d34c",
+      "promotionalImageSize": [
+        1024,
+        1024
+      ],
+      "imageState": "COMPLETE",
+      "matchesPreviouslyVerifiedAsset": true,
+      "promotion": null,
+      "reviewScreenshotSize": [
+        750,
+        1334
+      ],
+      "reviewChecksum": "a6a792eb4ef61e828b33cdda2c7c026e"
+    },
+    {
+      "product": "lifetime",
+      "productState": "APPROVED",
+      "metadataState": "APPROVED",
+      "promotionalImageId": "ad6a3962-dec5-4424-a0df-5cbe06dceee0",
+      "promotionalImageSize": [
+        1024,
+        1024
+      ],
+      "imageState": "COMPLETE",
+      "matchesPreviouslyVerifiedAsset": true,
+      "promotion": {
+        "visibleForAllUsers": true,
+        "enabled": true,
+        "state": "APPROVED"
+      },
+      "reviewScreenshotSize": [
+        750,
+        1334
+      ],
+      "reviewChecksum": "a6a792eb4ef61e828b33cdda2c7c026e"
+    }
+  ],
+  "allReviewScreenshotsSame": true,
+  "recommendation": {
+    "promotionalImages": "Keep the existing approved images. They are language-free, contain no prices, and remain suitable for 3.4.",
+    "reviewScreenshots": "Refresh with the actual 3.4 membership screen. Existing shared screenshot shows five benefits; current source lists six including professional casting and has an offer-code entry. Consider capturing each product selected."
+  },
+  "readOnly": true
+}

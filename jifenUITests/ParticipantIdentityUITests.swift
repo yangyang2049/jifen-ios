@@ -3,6 +3,59 @@ import XCTest
 final class ParticipantIdentityUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = false }
 
+    func testRecordListLayoutKeepsNamesScoresAndDurationsVisible() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestRecordFixtures",
+            "-national_day_2026_last_shown_at", String(Date().timeIntervalSince1970)]
+        app.launch()
+        defer { app.terminate() }
+        app.descendants(matching: .any)["main_tab_1"].firstMatch.tap()
+        let row = app.buttons["record_row_pingpong"].firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 6))
+        XCTAssertTrue(row.isHittable)
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = "记录条目-图标名称时长比分"; shot.lifetime = .keepAlways; add(shot)
+
+        app.descendants(matching: .any)["main_tab_0"].firstMatch.tap()
+        let recent = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "recent_record_")).firstMatch
+        for _ in 0..<10 {
+            if recent.exists && recent.isHittable { break }
+            app.scrollViews.firstMatch.swipeUp()
+        }
+        XCTAssertTrue(recent.exists)
+        XCTAssertTrue(recent.isHittable)
+        let home = XCTAttachment(screenshot: app.screenshot())
+        home.name = "首页最近记录-共用条目"; home.lifetime = .keepAlways; add(home)
+        recent.tap()
+        XCTAssertTrue(app.buttons["再来一场"].waitForExistence(timeout: 5))
+    }
+
+    func testLinkedHistoryUsesSharedRowsInMyRecords() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestRecordFixtures",
+            "-national_day_2026_last_shown_at", String(Date().timeIntervalSince1970)]
+        app.launch()
+        defer { app.terminate() }
+        let names = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "常用名称")).firstMatch
+        XCTAssertTrue(names.waitForExistence(timeout: 8)); names.tap()
+        app.buttons["关联用过的名称"].tap()
+        let candidate = app.buttons.containing(.staticText, identifier: "红方").firstMatch
+        XCTAssertTrue(candidate.waitForExistence(timeout: 5)); candidate.tap()
+        app.buttons["关联到我"].tap()
+        app.buttons["确认关联"].tap()
+        XCTAssertTrue(app.navigationBars["常用名称"].waitForExistence(timeout: 5))
+        app.navigationBars["常用名称"].buttons["BackButton"].tap()
+        app.descendants(matching: .any)["main_tab_1"].firstMatch.tap()
+        app.buttons["personal_records_entry"].tap()
+        XCTAssertTrue(app.navigationBars["我的记录"].waitForExistence(timeout: 5))
+        let row = app.buttons["record_row_pingpong"].firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = "我的记录-共用条目"; shot.lifetime = .keepAlways; add(shot)
+    }
+
     func testPersonalEntryHidesWhileSearchingAndReturnsAfterCancel() {
         let app = XCUIApplication()
         app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",

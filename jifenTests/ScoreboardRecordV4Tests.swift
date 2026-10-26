@@ -8,6 +8,202 @@ import XCTest
 
 @MainActor
 final class ScoreboardRecordV4Tests: XCTestCase {
+    func testEveryCatalogScoreboardReopensItsCloudPayloadInTheNativeDetailModel() throws {
+        for item in GameCatalog.scoreboardItems {
+            let native = makeRecord(id: "cloud-catalog-" + item.gameType.canonicalScoreboardIdentifier, gameType: item.gameType)
+            let envelope = try PersonalRecordAdapter.envelope(native)
+            let restored = try XCTUnwrap(PersonalCloudRecordDecoder.scoreboard(envelope), item.gameType.rawValue)
+            XCTAssertEqual(restored.gameType, native.gameType)
+            XCTAssertEqual(restored.id, native.id)
+            XCTAssertEqual(restored.team1FinalScore, native.team1FinalScore)
+            XCTAssertEqual(restored.team2FinalScore, native.team2FinalScore)
+            XCTAssertEqual(restored.startTime, native.startTime)
+            XCTAssertEqual(restored.duration, native.duration)
+        }
+    }
+
+    func testIOSCloudDetailRestoresFullRecordAndUsesCommonAnnotation() throws {
+        var native = makeRecord()
+        native.detailedActions = [
+            .init(type: .matchStarted, epochMilliseconds: 1_700_000_000_000, scores: [0, 0]),
+            .init(type: .scoreChanged, epochMilliseconds: 1_700_000_001_000, team: .team1, scores: [1, 0], setNumber: 1, scoreChange: 1),
+            .init(type: .setFinished, epochMilliseconds: 1_700_000_060_000, scores: [11, 7], setNumber: 1, winner: .team1)
+        ]
+        native.setResults = ScoreboardRecordActionAdapter.setResults(from: native.detailedActions!)
+        native.projectConfiguration = ["isSingles": AnyCodable(true)]
+        native.stateSnapshot = Data("original snapshot".utf8)
+        native.note = "old note"
+        var envelope = try PersonalRecordAdapter.envelope(native)
+        envelope.note = "cloud annotation"
+        let restored = try XCTUnwrap(PersonalCloudRecordDecoder.scoreboard(envelope))
+        XCTAssertEqual(restored.detailedActions, native.detailedActions)
+        XCTAssertEqual(restored.setResults, native.setResults)
+        XCTAssertEqual(restored.stateSnapshot, native.stateSnapshot)
+        XCTAssertEqual(restored.projectConfiguration?["isSingles"]?.value as? Bool, true)
+        XCTAssertEqual(restored.note, "cloud annotation")
+        XCTAssertEqual(restored.startTime, native.startTime)
+        XCTAssertEqual(restored.duration, native.duration)
+        let detail = ScoreboardRecordPresentation(record: restored)
+        XCTAssertEqual(detail.actions.count, 3)
+        XCTAssertFalse(detail.recap.isEmpty)
+        XCTAssertTrue(detail.canShowTrend)
+        XCTAssertEqual(envelope.nativePayload["note"]?.string, "old note", "Rendering must not change the cached original")
+    }
+
+    func testAndroidAndHarmonyCloudDetailsNormalizeRecordedUnitsActionsAndSets() throws {
+        for platform in ["android", "harmonyos"] {
+            let envelope = PersonalRecordEnvelope(libraryId: "library", recordKey: "foreign", kind: "score", project: "pingpong",
+                playedAt: 1_700_000_000_000, participantMode: "individual", participants: [],
+                summary: ["leftScore": .integer(11), "rightScore": .integer(7), "durationMs": .integer(60_000)],
+                origin: .init(platform: platform, nativeSchemaVersion: 1), nativePayload: [
+                    "team1Name": .string("甲"), "team2Name": .string("乙"), "startTime": .integer(1_700_000_000_000),
+                    "endTime": .integer(1_700_000_060_000), "duration": .integer(60_000),
+                    "team1FinalScore": .integer(11), "team2FinalScore": .integer(7), "team1SetScore": .integer(1), "team2SetScore": .integer(0),
+                    "winner": .string("TEAM1"), "extraData": .object(["isSingles": .bool(true)]),
+                    "actions": .array([
+                        .object(["timestamp": .integer(1_700_000_000_000), "actionType": .string("GAME_START"), "team1Score": .integer(0), "team2Score": .integer(0)]),
+                        .object(["timestamp": .integer(1_700_000_001_000), "actionType": .string("SCORE_ADD"), "team": .string("TEAM1"), "team1Score": .integer(1), "team2Score": .integer(0), "scoreChange": .integer(1), "setNumber": .integer(1)]),
+                        .object(["timestamp": .integer(1_700_000_060_000), "actionType": .string("SET_END"), "team": .string("TEAM1"), "team1Score": .integer(11), "team2Score": .integer(7), "setNumber": .integer(1)])]),
+                    "sets": .array([.object(["setNumber": .integer(1), "team1Score": .integer(11), "team2Score": .integer(7), "winner": .string("TEAM1")])])
+                ], assetIds: [])
+            let restored = try XCTUnwrap(PersonalCloudRecordDecoder.scoreboard(envelope), platform)
+            XCTAssertEqual(restored.duration, 60)
+            XCTAssertEqual(restored.startTime.timeIntervalSince1970, 1_700_000_000)
+            XCTAssertEqual(restored.endTime?.timeIntervalSince1970, 1_700_000_060)
+            XCTAssertEqual(restored.detailedActions?.map(\.type), [.matchStarted, .scoreChanged, .setFinished])
+            XCTAssertEqual(restored.detailedActions?[1].team, .team1)
+            XCTAssertEqual(restored.setResults?.first?.scores, [11, 7])
+            XCTAssertEqual(restored.resolvedWinnerRecordTeam, .team1)
+            XCTAssertEqual(restored.displayScore(), "1 : 0")
+            XCTAssertEqual(RecordListPresentation(envelope).score, restored.displayScore(), "Cloud list and detail must use the same score hierarchy")
+            XCTAssertNil(restored.stateSnapshot, "A foreign replay snapshot cannot be reinterpreted as an iOS session")
+        }
+    }
+
+    func testForeignTimerCloudDetailsPreserveActionsAndConvertClockMilliseconds() throws {
+        for platform in ["android", "harmonyos"] {
+            var envelope = PersonalRecordEnvelope(libraryId: "library", recordKey: "foreign-timer", kind: "timer", project: "chess",
+                playedAt: 1_700_000_000_000, participantMode: "none", participants: [], summary: ["durationMs": .integer(65_000)],
+                origin: .init(platform: platform, nativeSchemaVersion: 1), nativePayload: [
+                    "id": .string("foreign-timer"), "startTime": .integer(1_700_000_000_000), "winner": .string("PLAYER2"),
+                    "actions": .array([
+                        .object(["timestamp": .integer(1_700_000_000_000), "actionType": .string("GAME_START"), "player1Time": .integer(300_000), "player2Time": .integer(300_000)]),
+                        .object(["timestamp": .integer(1_700_000_003_500), "actionType": .string("PLAYER_SWITCH"), "fromPlayer": .string("PLAYER1"), "toPlayer": .string("PLAYER2"), "player1Time": .integer(296_500), "player2Time": .integer(300_000)]),
+                        .object(["timestamp": .integer(1_700_000_004_000), "actionType": .string("GAME_PAUSE")]),
+                        .object(["timestamp": .integer(1_700_000_004_500), "actionType": .string("future-action")]),
+                        .object(["actionType": .string("GAME_END")])])
+                ], assetIds: [])
+            let before = envelope.nativePayload
+            let timer = try XCTUnwrap(PersonalCloudRecordDecoder.timer(envelope))
+            XCTAssertEqual(timer.duration, 65)
+            XCTAssertEqual(timer.winner, BoardTimerParticipantNames.name(for: .chess, playerID: 2))
+            XCTAssertEqual(timer.actions?.map(\.type), [.start, .move, .pause])
+            XCTAssertEqual(timer.actions?[1].elapsed, 3.5)
+            XCTAssertEqual(timer.actions?[1].actor, BoardTimerParticipantNames.name(for: .chess, playerID: 1))
+            XCTAssertEqual(timer.actions?[1].leftRemaining, 297)
+            XCTAssertEqual(timer.actions?[1].rightRemaining, 300)
+            XCTAssertNil(timer.actions?[2].leftRemaining)
+            XCTAssertEqual(envelope.nativePayload, before)
+            envelope.recordKey = "another-timer"
+            let mismatch = try XCTUnwrap(PersonalCloudRecordDecoder.timer(envelope))
+            XCTAssertNil(mismatch.actions)
+            XCTAssertNil(mismatch.winner)
+        }
+    }
+
+    func testCloudDetailDoesNotInventHistoryOrTrustMismatchedNativeIdentity() throws {
+        let native = makeRecord()
+        var envelope = try PersonalRecordAdapter.envelope(native)
+        envelope.recordKey = "another-record"
+        XCTAssertNil(PersonalCloudRecordDecoder.scoreboard(envelope))
+        envelope.recordKey = native.id
+        envelope.nativePayload = [:]
+        XCTAssertNil(PersonalCloudRecordDecoder.scoreboard(envelope))
+        envelope.origin.platform = "android"
+        XCTAssertNil(PersonalCloudRecordDecoder.scoreboard(envelope))
+        envelope.kind = "timer"; envelope.project = "chess"; envelope.summary["durationMs"] = .integer(65_000)
+        let timer = try XCTUnwrap(PersonalCloudRecordDecoder.timer(envelope))
+        XCTAssertEqual(timer.duration, 65)
+        XCTAssertNil(timer.actions)
+    }
+
+    func testCloudReplayDoesNotCopyIdentityFromSameIDInAnotherMergedLibrary() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let identity = ParticipantIdentityStore(fileURL: root.appendingPathComponent("identity.json"))
+        let native = makeRecord()
+        let libraryA = identity.ledger.libraryId
+        try identity.registerRecord(native.id, selections: ["side:0": .init(name: "A", personRef: identity.person)])
+        try identity.adopt(libraryId: libraryA, accountId: "A", person: .init(id: "person-a", kind: .account))
+        try identity.beginAccount("B")
+        let libraryB = identity.ledger.libraryId
+        try identity.completeAccountLink(masterId: "B", sourceId: "A", mode: "merge")
+        try identity.recordReceived(key: native.id, libraryId: libraryB)
+        var envelope = try PersonalRecordAdapter.envelope(native, identity: identity)
+        envelope.libraryId = libraryB
+        envelope.participants = [.init(seatKey: "side:1", kind: "PERSON", nameSnapshot: "B", personRef: identity.person)]
+        let setup = try XCTUnwrap(PersonalCloudRecordDecoder.replaySetup(native, envelope: envelope, identity: identity))
+        XCTAssertNil(setup.participantSelections?["side:0"])
+        XCTAssertEqual(setup.participantSelections?["side:1"]?.personRef, identity.person)
+        XCTAssertEqual(identity.libraryId(for: native.id), libraryA, "Viewing a cloud record must not import over the native one")
+    }
+
+    func testSyncedIOSListKeepsNativeSetScoreAndNames() throws {
+        var record = makeRecord()
+        record.team1SetScore = 2
+        record.team2SetScore = 1
+        let local = RecordListPresentation(ScoreboardRecordSummary(from: record))
+        let synced = RecordListPresentation(try PersonalRecordAdapter.envelope(record))
+        XCTAssertEqual(synced.title, local.title)
+        XCTAssertEqual(synced.score, "2 : 1")
+        XCTAssertEqual(synced.gameType, local.gameType)
+        XCTAssertEqual(synced.time, local.time)
+        XCTAssertEqual(synced.duration, local.duration)
+    }
+
+    func testForeignMultiplayerListUsesAllNamesAndScores() {
+        let record = PersonalRecordEnvelope(libraryId: "library", recordKey: "multi", kind: "score",
+            project: "multi_scoreboard", playedAt: 1_700_000_000_000, participantMode: "individual", participants: [],
+            summary: ["title": .string("multi_scoreboard"), "leftScore": .integer(0), "rightScore": .integer(0),
+                "players": .array([.object(["name": .string("A"), "score": .integer(20)]),
+                    .object(["name": .string("B"), "score": .integer(-5)]),
+                    .object(["name": .string("C"), "score": .integer(8)])])],
+            origin: .init(platform: "android", nativeSchemaVersion: 1), nativePayload: [:], assetIds: [])
+        let row = RecordListPresentation(record)
+        XCTAssertEqual(row.gameType, .multiScoreboard)
+        XCTAssertEqual(row.title, "A vs B vs C")
+        XCTAssertEqual(row.score, "20 : -5 : 8")
+        XCTAssertEqual(row.participantCount, 3)
+    }
+
+    func testGroupListKeepsGroupTitleAndBothDoublesSides() {
+        let record = PersonalRecordEnvelope(libraryId: "group:one", recordKey: "result", kind: "score",
+            project: "badminton_doubles", playedAt: 1_700_000_000_000, participantMode: "individual",
+            participants: [
+                .init(seatKey: "A:0", kind: "PERSON", nameSnapshot: "A1", sideKey: "A"),
+                .init(seatKey: "A:1", kind: "PERSON", nameSnapshot: "A2", sideKey: "A"),
+                .init(seatKey: "B:0", kind: "PERSON", nameSnapshot: "B1", sideKey: "B"),
+                .init(seatKey: "B:1", kind: "PERSON", nameSnapshot: "B2", sideKey: "B")],
+            summary: ["title": .string("周末羽毛球"), "leftScore": .integer(2), "rightScore": .integer(1)],
+            origin: .init(nativeSchemaVersion: 1, sourceSystem: "group"), nativePayload: [:], assetIds: [])
+        let row = RecordListPresentation(record)
+        XCTAssertEqual(row.gameType, .badminton)
+        XCTAssertEqual(row.title, "周末羽毛球")
+        XCTAssertEqual(row.names, "A1 / A2 vs B1 / B2")
+        XCTAssertEqual(row.score, "2 : 1")
+    }
+
+    func testForeignTimerListShowsDurationWithoutInventingAScore() {
+        let record = PersonalRecordEnvelope(libraryId: "library", recordKey: "timer", kind: "timer",
+            project: "chess", playedAt: 1_700_000_000_000, participantMode: "none", participants: [],
+            summary: ["title": .string("chess"), "durationMs": .integer(65_000)],
+            origin: .init(platform: "harmony", nativeSchemaVersion: 1), nativePayload: [:], assetIds: [])
+        let row = RecordListPresentation(record)
+        XCTAssertEqual(row.title, jifen.GameType.chess.displayName)
+        XCTAssertEqual(row.duration, 65)
+        XCTAssertNil(row.score)
+    }
+
     func testTournamentAnotherMatchKeepsActivePresetAndRecordTitle() {
         let record = makeConfigurationRecord(gameType: .nineBall, configuration: [
             "nineBallRuleVersion": AnyCodable(3), "nineBallRuleFamily": AnyCodable("tournament"),

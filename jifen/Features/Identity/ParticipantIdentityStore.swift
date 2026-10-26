@@ -9,6 +9,12 @@ nonisolated struct PersonalRecordSeat: Codable, Hashable, Identifiable, Sendable
     var personRef: ParticipantPersonRef?
 }
 
+nonisolated struct PersonalHistoricalSeat: Hashable, Sendable {
+    var libraryId: String
+    var recordKey: String
+    var seat: PersonalRecordSeat
+}
+
 /// Durable identity sidecar: it never rewrites historical scores or replay data.
 @MainActor @Observable
 final class ParticipantIdentityStore {
@@ -204,13 +210,23 @@ final class ParticipantIdentityStore {
     }
 
     @discardableResult func link(name: String, seats: [(String, PersonalRecordSeat)] = []) throws -> ParticipantAlias {
+        try link(name: name, historicalSeats: seats.map {
+            PersonalHistoricalSeat(libraryId: libraryId(for: $0.0), recordKey: $0.0, seat: $0.1)
+        })
+    }
+
+    @discardableResult func link(name: String, historicalSeats: [PersonalHistoricalSeat]) throws -> ParticipantAlias {
         guard matchesCurrentSession else { throw CancellationError() }
+        let readable = readableLibraryIds
+        guard historicalSeats.allSatisfy({ readable.contains($0.libraryId) }) else {
+            throw ParticipantIdentityError.ownerMismatch
+        }
         var next = state
         var value = ledger
         let alias = try value.link(name: name)
-        value.linkClaims(seats.map { record, seat in
-            .init(libraryId: libraryId(for: record), recordKey: record, seatKey: seat.id,
-                  aliasId: alias.id, nameSnapshot: seat.name)
+        value.linkClaims(historicalSeats.map {
+            .init(libraryId: $0.libraryId, recordKey: $0.recordKey, seatKey: $0.seat.id,
+                  aliasId: alias.id, nameSnapshot: $0.seat.name)
         })
         next.ledgers[next.activeLibraryId] = value
         try commit(next)

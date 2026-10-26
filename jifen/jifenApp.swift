@@ -502,7 +502,13 @@ struct jifenApp: App {
         } else if let index = arguments.firstIndex(of: "-UITestRecordDetail"),
                   arguments.indices.contains(index + 1) {
             NavigationStack {
-                ScoreboardRecordDetailPage(recordId: "ui-fixture-\(arguments[index + 1])")
+                if arguments.contains("-UITestCloudRecordDetail"),
+                   let record = ScoreboardRecordManager.shared.getRecordById("ui-fixture-\(arguments[index + 1])"),
+                   let envelope = try? PersonalRecordAdapter.envelope(record) {
+                    PersonalCloudRecordDetailView(record: envelope)
+                } else {
+                    ScoreboardRecordDetailPage(recordId: "ui-fixture-\(arguments[index + 1])")
+                }
             }
         } else {
             legalGatedContent

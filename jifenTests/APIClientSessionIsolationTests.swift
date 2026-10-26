@@ -1,6 +1,114 @@
 import XCTest
 import Foundation
+import Security
 @testable import jifen
+
+@MainActor final class AuthTokenInstallationTests: XCTestCase {
+    private var root: URL!
+    private var service: String!
+    private let expiry = Date(timeIntervalSince1970: 2_000_000_000)
+    private var authURL: URL { root.appendingPathComponent("session.json") }
+
+    override func setUpWithError() throws {
+        root = FileManager.default.temporaryDirectory.appendingPathComponent("auth-installation-" + UUID().uuidString)
+        service = "com.douhua.jifen.installation-tests." + UUID().uuidString
+    }
+
+    override func tearDownWithError() throws {
+        try? FileManager.default.removeItem(at: root)
+        SecItemDelete([kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service!] as CFDictionary)
+    }
+
+    private func store() -> AuthTokenStore {
+        AuthTokenStore(service: service, authFileURL: authURL)
+    }
+
+    private func seedLegacyLogin() throws {
+        let status = SecItemAdd([
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service!,
+            kSecAttrAccount as String: "auth-token",
+            kSecValueData as String: Data("legacy-login".utf8),
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+        ] as CFDictionary, nil)
+        XCTAssertEqual(status, errSecSuccess)
+    }
+
+    func testLegacyKeychainLoginIsIgnoredWhilePurchaseRecoveryRemainsAvailable() async throws {
+        try seedLegacyLogin()
+        let subject = store()
+        try await subject.setPendingIapTransactions(["pending-purchase"])
+        let snapshot = await subject.authSnapshot()
+        XCTAssertNil(snapshot.token)
+        XCTAssertNil(snapshot.expiresAt)
+        let purchases = await subject.pendingIapTransactions()
+        XCTAssertEqual(purchases, ["pending-purchase"])
+        XCTAssertFalse(FileManager.default.fileExists(atPath: authURL.path))
+    }
+
+    func testNormalRestartAndUpdateKeepTheNewLogin() async throws {
+        try await store().setAuth(token: "current-login", expiresAt: expiry)
+        let snapshot = await store().authSnapshot()
+        XCTAssertEqual(snapshot.token, "current-login")
+        XCTAssertEqual(snapshot.expiresAt, expiry)
+    }
+
+    func testReinstallLosesSandboxLoginAndNeverFallsBackToKeychain() async throws {
+        try seedLegacyLogin()
+        try await store().setAuth(token: "current-login", expiresAt: expiry)
+        try FileManager.default.removeItem(at: root)
+        let reinstalled = await store().authSnapshot()
+        XCTAssertNil(reinstalled.token)
+        XCTAssertNil(reinstalled.expiresAt)
+    }
+
+    func testClearingPreferencesKeepsLoginAndExplicitLogoutRemovesIt() async throws {
+        try await store().setAuth(token: "current-login", expiresAt: expiry)
+        let name = "auth-installation-defaults-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: name))
+        defer { defaults.removePersistentDomain(forName: name) }
+        LegalConsent.acceptCurrentDocuments(defaults: defaults)
+        LocalPreferenceDataResetter.clear(defaults: defaults)
+        let restarted = store()
+        let preserved = await restarted.authSnapshot()
+        XCTAssertEqual(preserved.token, "current-login")
+        await restarted.clearAuth()
+        let signedOut = await store().authSnapshot()
+        XCTAssertNil(signedOut.token)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: authURL.path))
+    }
+
+    func testCorruptFileCannotRecoverLegacyKeychainLoginAndCanBeReplaced() async throws {
+        try seedLegacyLogin()
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        try Data("invalid session".utf8).write(to: authURL)
+        let subject = store()
+        let unavailable = await subject.authSnapshot()
+        XCTAssertNil(unavailable.token)
+        try await subject.setAuth(token: "new-login", expiresAt: expiry)
+        let recovered = await store().authSnapshot()
+        XCTAssertEqual(recovered.token, "new-login")
+    }
+
+    func testFailedWriteDoesNotInstallLoginAndSavedFileIsPrivateAndExcludedFromBackup() async throws {
+        try Data().write(to: root)
+        let subject = store()
+        do {
+            try await subject.setAuth(token: "unsaved-login", expiresAt: expiry)
+            XCTFail("A failed credential write must fail login")
+        } catch {}
+        let unavailable = await subject.authSnapshot()
+        XCTAssertNil(unavailable.token)
+        XCTAssertEqual(unavailable.revision, 0)
+        try FileManager.default.removeItem(at: root)
+        try await subject.setAuth(token: "saved-login", expiresAt: expiry)
+        let recovered = await store().authSnapshot()
+        XCTAssertEqual(recovered.token, "saved-login")
+        let attributes = try FileManager.default.attributesOfItem(atPath: authURL.path)
+        XCTAssertEqual((attributes[.posixPermissions] as? NSNumber)?.intValue, 0o600)
+        XCTAssertEqual(try authURL.resourceValues(forKeys: [.isExcludedFromBackupKey]).isExcludedFromBackup, true)
+    }
+}
 
 private nonisolated final class AuthReplyGate: @unchecked Sendable {
     private let lock = NSLock()

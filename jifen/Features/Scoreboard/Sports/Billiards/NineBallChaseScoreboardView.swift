@@ -58,7 +58,8 @@ struct NineBallTransferContext: Equatable {
     }
 }
 
-private struct NineBallPendingTransfer: Equatable {
+struct NineBallPendingTransfer: Equatable {
+    let id = UUID()
     let player: Int
     let kind: NineBallChaseKind
     let context: NineBallTransferContext
@@ -67,6 +68,15 @@ private struct NineBallPendingTransfer: Equatable {
 
     var intent: NineBallChaseIntent {
         .chaseTransfer(player: player, kind: kind, payer: payer, continuePlayer: continuePlayer)
+    }
+
+    /// Consume the visible confirmation synchronously, before the store queues it.
+    /// Handoff leaves the rack context unchanged, so rack validation alone cannot
+    /// reject a second tap on the same confirmation.
+    func consume(from pending: inout Self?) -> NineBallChaseIntent? {
+        guard pending == self else { return nil }
+        pending = nil
+        return intent
     }
 }
 
@@ -1096,8 +1106,11 @@ struct NineBallChaseScoreboardView: View {
                 )) {
                     let latest = NineBallChaseReducer().reduce(state: state, intent: pending.intent, at: 0)
                     guard latest.accepted else { return }
-                    pendingTransfer = nil
-                    send(pending.intent, expectedContext: pending.context)
+                    guard let intent = pending.consume(from: &pendingTransfer) else {
+                        showNineBallRetryToast()
+                        return
+                    }
+                    send(intent, expectedContext: pending.context)
                 }
                 .disabled(!preview.accepted)
                 .opacity(preview.accepted ? 1 : 0.4)

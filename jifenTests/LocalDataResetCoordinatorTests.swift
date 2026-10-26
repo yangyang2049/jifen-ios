@@ -82,8 +82,8 @@ final class LocalDataResetCoordinatorTests: XCTestCase {
                 .localPreferencesAndTools,
             ]
         )
-        // Account credentials and purchase recovery data live in AuthTokenStore's
-        // Keychain service and are intentionally outside this reset composition.
+        // Account credentials live in the protected app-container auth file;
+        // purchase recovery stays in Keychain. Both are outside this reset.
     }
 
     func testTimerLoadDiscardsSnapshotInvalidatedByClearBeforePublishing() async {

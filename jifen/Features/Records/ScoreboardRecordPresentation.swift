@@ -1,5 +1,106 @@
 import Foundation
 import RecordCore
+import ScoreCore
+
+/// Local and synced records share the same list labels and score hierarchy.
+/// Foreign payloads stay opaque; their common envelope supplies the fallback.
+struct RecordListPresentation {
+    var gameType: GameType?
+    var title: String
+    var names: String?
+    var time: String
+    var project: String?
+    var duration: TimeInterval?
+    var score: String?
+    var participantCount = 2
+    var isLegacyNineBall = false
+    var isSyncedFromWatch = false
+
+    init(_ record: ScoreboardRecordSummary) {
+        gameType = record.gameType
+        title = record.displayMatchTitle
+        if record.configuredMatchTitle != nil {
+            let players = record.displayParticipants.map(\.name)
+            names = players.isEmpty ? "\(record.team1Name) vs \(record.team2Name)" : players.joined(separator: " vs ")
+        }
+        time = record.time
+        project = record.competitionDisplayName
+        duration = record.duration
+        score = record.displayScore()
+        participantCount = max(2, record.displayParticipants.count)
+        isLegacyNineBall = record.isLegacyNineBallRecord
+        isSyncedFromWatch = record.isSyncedFromWatch
+    }
+
+    init(_ record: GameRecordSummary) {
+        gameType = record.gameType
+        title = record.title
+        time = record.time
+        duration = record.duration
+        score = record.winner.map { "\($0) \(NSLocalizedString("wins", value: "获胜", comment: ""))" }
+    }
+
+    init(_ record: PersonalRecordEnvelope) {
+        if let native = PersonalCloudRecordDecoder.scoreboard(record) {
+            self = RecordListPresentation(ScoreboardRecordSummary(from: native))
+            isSyncedFromWatch = isSyncedFromWatch || record.origin.sourceSystem == "watch"
+            return
+        }
+        if let native = PersonalCloudRecordDecoder.timer(record) {
+            self = RecordListPresentation(native)
+            return
+        }
+        gameType = ScoreCore.GameType(rawValue: record.project).map { GameType(scoreCoreGameType: $0) }
+            ?? GameType.allCases.first { $0.canonicalScoreboardIdentifier == record.project }
+        let projectName = ScoreCore.GameType(rawValue: record.project)?.scoreboardDisplayName ?? gameType?.displayName
+        project = projectName
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        time = formatter.string(from: Date(timeIntervalSince1970: Double(record.playedAt) / 1_000))
+        duration = record.summary["durationMs"]?.integer.map { Double($0) / 1_000 }
+        isSyncedFromWatch = record.origin.sourceSystem == "watch"
+
+        var playerNames: [String] = []
+        var playerScores: [String] = []
+        if case .array(let players) = record.summary["players"] {
+            for case .object(let player) in players {
+                if let name = player["name"]?.string, !name.isEmpty { playerNames.append(name) }
+                if let value = player["score"]?.integer { playerScores.append(String(value)) }
+            }
+        }
+        if playerNames.isEmpty {
+            let left = record.summary["leftName"]?.string
+                ?? Self.sideName(record.participants, keys: ["side:0", "A"])
+            let right = record.summary["rightName"]?.string
+                ?? Self.sideName(record.participants, keys: ["side:1", "B"])
+            playerNames = [left, right].compactMap { $0 }.filter { !$0.isEmpty }
+            if playerNames.isEmpty { playerNames = record.participants.map(\.nameSnapshot).filter { !$0.isEmpty } }
+        }
+        let savedTitle = record.summary["title"]?.string.flatMap { $0.isEmpty || $0 == record.project ? nil : $0 }
+        if record.kind == "timer" {
+            title = projectName ?? savedTitle ?? identityText("record_detail", "记录详情")
+            project = nil
+        } else {
+            let nameLine = playerNames.joined(separator: " vs ")
+            title = nameLine.isEmpty ? (projectName ?? savedTitle ?? identityText("record_detail", "记录详情")) : nameLine
+            if record.origin.sourceSystem == "group", let savedTitle {
+                title = savedTitle
+                names = nameLine.isEmpty ? nil : nameLine
+            }
+            if !playerScores.isEmpty {
+                score = playerScores.joined(separator: " : ")
+            } else if let left = record.summary["leftScore"]?.integer, let right = record.summary["rightScore"]?.integer {
+                score = "\(left) : \(right)"
+            }
+            participantCount = max(2, playerNames.count)
+        }
+    }
+
+    private static func sideName(_ participants: [PersonalWireParticipant], keys: Set<String>) -> String? {
+        let names = participants.filter { $0.sideKey.map(keys.contains) == true }.map(\.nameSnapshot).filter { !$0.isEmpty }
+        return names.isEmpty ? nil : names.joined(separator: " / ")
+    }
+}
 
 /// Read-only label policy. Missing version metadata denotes the historical
 /// cumulative rules; opening a record never replays it under current rules.

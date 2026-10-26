@@ -1057,6 +1057,67 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(restored.flatMap { ScoreSessionRecordContext.decode($0.auxiliaryPayload) }?.actionCount, 1)
     }
 
+    func testNineBallHandoffConfirmationCannotQueueTwiceOrConsumeAReopenedDialog() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("nine-ball-confirmation-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let repository = ResumeSessionRepository(rootURL: root)
+        let initial = NineBallChaseState.initial(playerCount: 3, breakerPlayer: 0)
+        let store = BilliardsSessionStore(
+            gameType: ScoreCore.GameType.nineBall, state: initial,
+            reducer: NineBallChaseReducer(), participants: [],
+            startedAt: Date(timeIntervalSince1970: 1), recordID: UUID().uuidString,
+            resumeRepository: repository
+        )
+        let reviewed = NineBallPendingTransfer(
+            player: 1, kind: .handoff, context: NineBallTransferContext(state: initial),
+            continuePlayer: 2
+        )
+        var pending: NineBallPendingTransfer? = reviewed
+        var rejected = 0
+        for _ in 0..<2 {
+            guard let intent = reviewed.consume(from: &pending) else { rejected += 1; continue }
+            store.sendDerived(
+                { reviewed.context.validatedIntent(intent, in: $0) },
+                completion: { _, _, _, _ in
+                    store.updateRecordContext(
+                        actionLog: store.recordContext.actionLog + ["handoff"],
+                        detailedActions: store.recordContext.detailedActions,
+                        actionCount: store.recordContext.actionCount + 1
+                    )
+                }
+            )
+        }
+        XCTAssertEqual(rejected, 1)
+        XCTAssertNil(pending)
+        let flushed = expectation(description: "one handoff confirmation flushed")
+        store.flush { flushed.fulfill() }
+        await fulfillment(of: [flushed], timeout: 2)
+        XCTAssertEqual(store.state.playerPoints, initial.playerPoints)
+        XCTAssertEqual(store.state.playerCounts[1][6], 1)
+        XCTAssertEqual(store.state.currentShooter, 2)
+        XCTAssertEqual(store.state.roundNumber, initial.roundNumber)
+        XCTAssertEqual(store.undoStates.count, 1)
+        XCTAssertEqual(store.recordContext.actionCount, 1)
+        let saved = try await repository.loadResumeBundle(
+            sessionId: store.sessionId,
+            as: BilliardsSessionStore<NineBallChaseReducer>.ResumeBundle.self
+        )
+        XCTAssertEqual(saved?.timeline.count, 1)
+        XCTAssertEqual(saved?.undoFrames.count, 1)
+
+        // A late callback from the closed dialog must not consume a fresh one,
+        // even when its player, choices and rack context are identical.
+        let reopened = NineBallPendingTransfer(
+            player: 1, kind: .handoff, context: reviewed.context, continuePlayer: 2
+        )
+        pending = reopened
+        XCTAssertNil(reviewed.consume(from: &pending))
+        XCTAssertEqual(pending, reopened)
+        XCTAssertNotNil(reopened.consume(from: &pending))
+        XCTAssertNil(pending)
+    }
+
     func testNineBallSameRackFoulAndHandoffCanQueueFromOneReviewedContext() async {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("nine-ball-same-rack-transfer-\(UUID().uuidString)", isDirectory: true)

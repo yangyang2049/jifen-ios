@@ -50,3 +50,11 @@ python3 scripts/app_store_membership.py \
 - [内购元数据版本](https://developer.apple.com/documentation/appstoreconnectapi/working-with-in-app-purchase-versions)
 - [订阅元数据版本](https://developer.apple.com/documentation/appstoreconnectapi/working-with-subscription-versions)
 - [订阅组元数据版本](https://developer.apple.com/documentation/appstoreconnectapi/working-with-subscription-group-versions)
+
+
+## 2026-10-25 只读复查
+
+- 已通过 API 重新查询：包月、包年、终身商品均为 APPROVED，各自最新元数据版本也均为 APPROVED；三张已选推广图的资源 ID 与 10-04 逐像素核验的图片一致，尺寸 1024×1024、处理状态 COMPLETE。此前“仅草稿”描述是 10-04 当时状态，不能再当作当前状态。
+- 当前只有终身商品存在推广记录，enabled=true、visibleForAllUsers=true、state=APPROVED；包月和包年返回空推广记录。图片存在与推广配置分别核对，本次未修改推广设置。
+- 三档审核截图均存在、COMPLETE，尺寸 750×1334，内容校验和相同；人工查看为同一张旧会员页截图，包含五项权益。当前 MembershipView 的权益列表已有六项（新增专业投屏体验），并有兑换入口，建议随 3.4 更新审核截图；现有三张推广图可继续使用。
+- 本次仅 GET 查询与本地取证，未修改任何商品、图片或审核状态。证据：[只读摘要](../../../artifacts/app-store-membership-20261025-inspection/summary.json)、[API 快照](../../../artifacts/app-store-membership-20261025-inspection/snapshot.json)、[现有审核截图](../../../artifacts/app-store-membership-20261025-inspection/review-screenshot.png)。

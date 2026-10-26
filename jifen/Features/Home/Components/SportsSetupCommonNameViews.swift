@@ -53,7 +53,8 @@ struct CommonNameSelectorDialog: View {
                                     Button {
                                         onSelect(selection.name); onParticipantSelect?(selection); dismiss()
                                     } label: {
-                                        HStack {
+                                        HStack(spacing: 10) {
+                                            IdentitySelfAvatar(size: 32)
                                             Text(selection.name); Text(identityText("self", "我")).font(.caption).foregroundStyle(Theme.accentColor)
                                             Spacer()
                                         }.frame(minHeight: 44)

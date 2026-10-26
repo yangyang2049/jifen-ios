@@ -425,8 +425,62 @@ private nonisolated final class GroupResponseGate: @unchecked Sendable {
         XCTAssertTrue(service.usesCloudVersion(recordKey: record.id))
         XCTAssertFalse(PersonalRecordAccessPolicy.allowsNativeRecord(record.id, identity: f.identity, cloud: service))
         XCTAssertEqual(service.remoteRecords.first?.summary["leftScore"]?.integer, 21)
+        let visible = RecordListSource.visibleRecords(scoreboard: [ScoreboardRecordSummary(from: record)], timers: [],
+            cloudRecords: service.remoteRecords, identity: f.identity, cloud: service)
+        XCTAssertEqual(visible.count, 1)
+        XCTAssertEqual(visible.first?.presentation.score, "21 : 9", "Home and Records must show the newer cloud score")
         XCTAssertEqual(record.team1FinalScore, 11)
         XCTAssertEqual(server.pushedEnvelopes.count, 1)
+        service.signedOut(explicit: false); await cleanup(f)
+    }
+
+    func testCloudHistoryAndPersonalRowsAreAvailableFromDiskBeforeQuerying() async throws {
+        let f = try await fixture(), server = IdentityTransportServer()
+        IdentityTransportProtocol.register(f.token) { server.respond($0) }
+        let record = PersonalRecordEnvelope(libraryId: f.identity.ledger.libraryId, recordKey: "cloud-only", kind: "score",
+            project: "pingpong", playedAt: 1, participantMode: "individual",
+            participants: [.init(seatKey: "side:0", kind: "PERSON", nameSnapshot: "以前的名字", personRef: f.identity.person)],
+            summary: ["leftScore": .integer(2), "rightScore": .integer(1)],
+            origin: .init(platform: "android", nativeSchemaVersion: 1), nativePayload: [:], assetIds: [], revision: 1, deleted: false)
+        server.pullRecords = [try JSONSerialization.jsonObject(with: JSONEncoder().encode(record)) as! [String: Any]]
+        let service = sync(f)
+        await service.sessionDidAuthenticate(userId: "account")
+        await service.synchronizeNow()
+        service.signedOut(explicit: false)
+
+        let restored = sync(f)
+        await restored.sessionDidAuthenticate(userId: "account")
+        // No query or synchronization is needed to display the persisted rows.
+        let cached = RecordListSource.visibleRecords(scoreboard: [], timers: [], cloudRecords: restored.remoteRecords,
+            identity: f.identity, cloud: restored)
+        XCTAssertEqual(cached.map(\.selectionID.recordID), ["cloud-only"])
+        XCTAssertTrue(PersonalRecordAdapter.isMine(try XCTUnwrap(restored.remoteRecords.first), identity: f.identity))
+        let names = PersonalHistoricalNames.candidates(records: [], cloudRecords: restored.remoteRecords, identity: f.identity, cloud: restored)
+        XCTAssertEqual(names.first?.name, "以前的名字")
+        restored.signedOut(explicit: false); await cleanup(f)
+    }
+
+    func testLinkingMergedCloudHistoryUploadsClaimsToItsOriginalLibrary() async throws {
+        let f = try await fixture(), server = IdentityTransportServer()
+        IdentityTransportProtocol.register(f.token) { server.respond($0) }
+        let sourceLibrary = "merged-source-library"
+        try f.identity.recordReceived(key: "old-match", libraryId: sourceLibrary)
+        let record = PersonalRecordEnvelope(libraryId: sourceLibrary, recordKey: "old-match", kind: "score", project: "pingpong",
+            playedAt: 1, participantMode: "individual", participants: [.init(seatKey: "side:0", kind: "PERSON", nameSnapshot: "旧名")],
+            summary: [:], origin: .init(platform: "harmony", nativeSchemaVersion: 1), nativePayload: [:], assetIds: [], revision: 1, deleted: false)
+        server.pullRecords = [try JSONSerialization.jsonObject(with: JSONEncoder().encode(record)) as! [String: Any]]
+        let service = sync(f)
+        await service.sessionDidAuthenticate(userId: "account")
+        await service.synchronizeNow()
+        let candidate = try XCTUnwrap(PersonalHistoricalNames.candidates(records: [], cloudRecords: service.remoteRecords,
+            identity: f.identity, cloud: service).first)
+        let alias = try f.identity.link(name: candidate.name, historicalSeats: candidate.seats)
+        service.enqueueIdentity(accountId: "account", operation: "linkAlias", alias: alias)
+        await service.synchronizeNow()
+        XCTAssertEqual(server.claimInputs.count, 1)
+        XCTAssertEqual(server.claimInputs.first?["libraryId"] as? String, sourceLibrary)
+        XCTAssertEqual(server.claimInputs.first?["recordKey"] as? String, "old-match")
+        XCTAssertTrue(PersonalRecordAdapter.isMine(record, identity: f.identity))
         service.signedOut(explicit: false); await cleanup(f)
     }
 

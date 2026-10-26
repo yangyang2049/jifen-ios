@@ -3,6 +3,13 @@ import Foundation
 /// Every native entry point uses the same owner and cloud-overlay checks.
 /// The native file can remain as an offline backup after a cloud choice or deletion.
 @MainActor enum PersonalRecordAccessPolicy {
+    static func allowsCloudRecord(_ record: PersonalRecordEnvelope,
+                                  identity: ParticipantIdentityStore = .shared,
+                                  cloud: PersonalRecordsCloudSync = .shared) -> Bool {
+        record.deleted != true && identity.readableLibraryIds.contains(record.libraryId)
+            && !cloud.isLocallyDeleted(libraryId: record.libraryId, recordKey: record.recordKey)
+    }
+
     static func allowsNativeRecord(_ recordKey: String,
                                    identity: ParticipantIdentityStore = .shared,
                                    cloud: PersonalRecordsCloudSync = .shared) -> Bool {

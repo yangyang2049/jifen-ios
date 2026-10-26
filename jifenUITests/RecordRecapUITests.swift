@@ -5,13 +5,49 @@ final class RecordRecapUITests: XCTestCase {
         continueAfterFailure = false
     }
 
+    func testCloudTableTennisUsesFullRecapTrendAndTimeline() {
+        let app = cloudRecordApp("pingpong")
+        app.launch()
+        defer { app.terminate() }
+        XCTAssertTrue(app.buttons["record_detail_section_all"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.buttons["record_detail_section_sets-0-2"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["score_trend_tab_picker"].exists)
+        XCTAssertTrue(app.buttons["分享"].exists)
+        XCTAssertTrue(app.buttons["再来一场"].exists)
+        let recap = XCTAttachment(screenshot: app.screenshot())
+        recap.name = "云端乒乓球-完整概览趋势分局卡片"; recap.lifetime = .keepAlways; add(recap)
+        app.segmentedControls.buttons["明细"].tap()
+        XCTAssertTrue(app.buttons["record_detail_section_sets-0-2"].exists)
+        let timeline = XCTAttachment(screenshot: app.screenshot())
+        timeline.name = "云端乒乓球-逐分明细"; timeline.lifetime = .keepAlways; add(timeline)
+    }
+
+    func testCloudMultiplayerUsesRankingAndScoreChangeCards() {
+        let app = cloudRecordApp("multi_scoreboard")
+        app.launch()
+        defer { app.terminate() }
+        XCTAssertTrue(app.staticTexts["multi_score_record_actions"].waitForExistence(timeout: 8))
+        XCTAssertFalse(app.staticTexts["record_not_found"].exists)
+        XCTAssertFalse(app.staticTexts["红方"].exists)
+        XCTAssertFalse(app.staticTexts["蓝方"].exists)
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = "云端多人记录-排名与分数变化卡片"; shot.lifetime = .keepAlways; add(shot)
+    }
+
+    private func cloudRecordApp(_ project: String) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints", "-UITestRecordFixtures", "-UITestRecordDetail", project, "-UITestCloudRecordDetail"]
+        return app
+    }
+
     /// The same identifier-driven flow runs on both iPhone and iPad test
     /// destinations. It also exercises the largest accessibility text size in
     /// Chinese and English so the phone scroller and adaptive iPad grid share
     /// one behavioral contract.
     func testFullMatchAndGroupedRecapSwitchInChineseAndEnglish() {
         for configuration in [
-            (language: UITestLocale.en.language, locale: UITestLocale.en.locale, fullMatch: "Full Match", details: "Details", secondTrend: "Game 2"),
+            (language: UITestLocale.en.language, locale: UITestLocale.en.locale, fullMatch: "Full Match", details: "Details", secondTrend: "Set 2"),
             (language: UITestLocale.zhHans.language, locale: UITestLocale.zhHans.locale, fullMatch: "全场", details: "明细", secondTrend: "第 2 局"),
             (language: UITestLocale.zhHant.language, locale: UITestLocale.zhHant.locale, fullMatch: "全場", details: "明細", secondTrend: "第 2 局")
         ] {
@@ -49,8 +85,8 @@ final class RecordRecapUITests: XCTestCase {
             ).firstMatch
             XCTAssertTrue(secondTrendChart.waitForExistence(timeout: 4))
             XCTAssertTrue(
-                String(describing: secondTrendChart.value).contains("4"),
-                "Second set should contain its own origin plus three local score points"
+                String(describing: secondTrendChart.value).contains("20"),
+                "Second set should contain its own origin plus the 19 recorded scoring points"
             )
 
             secondSet.tap()
