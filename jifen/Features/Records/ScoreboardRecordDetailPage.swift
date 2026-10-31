@@ -126,8 +126,11 @@ struct ScoreboardRecordDetailPage: View {
             if let record, canAccessRecord { scoreCorrectionSheet(record) }
         }
         .overlay {
-            // 与首页/计分 Tab 同款居中 Setup Dialog（CenteredSetupDialogPresenter），不再用 Bottom Sheet。
-            if canAccessRecord { CenteredSetupDialogPresenter(item: $replaySetupRequest) { request, dismiss, maxDialogHeight in
+            // 与首页同款：多人计分贴底，其他项目保留原有居中布局。
+            if canAccessRecord { CenteredSetupDialogPresenter(
+                item: $replaySetupRequest,
+                alignment: replaySetupRequest?.record.gameType == .multiScoreboard ? .bottom : .center
+            ) { request, dismiss, maxDialogHeight in
                 replaySetupDialog(
                     for: request.record,
                     maxDialogHeight: maxDialogHeight,
@@ -1006,6 +1009,13 @@ struct ScoreboardRecordDetailPage: View {
 
     private func recordFormatDescription(_ record: ScoreboardRecord) -> String? {
         switch record.gameType {
+        case .basketball:
+            let data = record.mergedProjectConfiguration
+            let rule = BasketballRuleSet(rawValue: (data["basketballRuleSet"]?.value as? String) ?? "fiba") ?? .fiba
+            let period = BasketballMatchEngine.periodSeconds(rule, customSeconds: (data["basketballPeriodSeconds"]?.value as? Int)) / 60
+            let overtime = rule == .custom ? BasketballMatchEngine.validDuration((data["basketballOvertimeSeconds"]?.value as? Int), fallback: 300) / 60 : 5
+            return BookingBasketballTiming(ruleSet: rule, periodSeconds: period * 60,
+                                           overtimeSeconds: overtime * 60).localizedSummary
         case .tennis:
             return tennisFormatDescription(record)
         case .pingpong, .badminton:

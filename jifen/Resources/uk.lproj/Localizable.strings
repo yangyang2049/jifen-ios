@@ -2551,3 +2551,56 @@
 "nine_ball_unbalanced_edit" = "The edited scores do not total zero.";
 "nine_ball_winner_breaks" = "Winner breaks";
 "nine_ball_help_preset_values" = "Preset example; values are not from the current match.";
+
+// Keys pending reviewed localization: English source is shipped as a temporary value.
+"multi_score_cast_settings" = "Cast settings";
+"multi_score_display_previous" = "Previous display page";
+"multi_score_display_next" = "Next display page";
+"multi_score_display_page_number" = "%d/%d";
+"multi_score_display_page_description" = "Display page %d of %d, players %d to %d";
+"basketball_period_minutes" = "Quarter length (min)";
+"basketball_overtime_minutes" = "Overtime length (min)";
+"basketball_edit_timing" = "Edit durations";
+"basketball_reset_current_clock" = "Reset current clock to %@";
+"basketball_record_timing" = "%@ · %d min quarters · %d min OT";
+"basketball_custom_fiba_note" = "Custom uses FIBA rules.";
+"multi_score_count_placeholder" = "3–50";
+"multi_score_count_invalid" = "Enter a whole number from 3 to 50";
+"multi_score_common_counts" = "Common player counts";
+"multi_score_bulk_names" = "Fill names in bulk";
+"multi_score_bulk_placeholder" = "One name per line. You can paste a list.";
+"multi_score_bulk_empty" = "Names replace the first players in order; the remaining names stay unchanged.";
+"multi_score_bulk_apply" = "%d names: replace the first %d players; keep the rest.";
+"multi_score_bulk_expand" = "%d names: player count will change to %d.";
+"multi_score_bulk_too_many" = "Up to 50 players. Shorten the list before applying.";
+"multi_score_bulk_name_long" = "Name %d is longer than 24 characters.";
+"multi_score_find_player_action" = "Find player";
+"multi_score_find_player" = "Search name or player number";
+"multi_score_all_players" = "All players";
+"multi_score_player_number" = "Player %d";
+"multi_score_reset_scores" = "Clear all scores";
+"multi_score_settle_match" = "Settle scoring";
+"multi_score_end_scoring" = "Finish scoring";
+"multi_score_previous_page" = "Previous page";
+"multi_score_next_page" = "Next page";
+"multi_score_page_description" = "Page %d of %d, players %d to %d";
+"multi_score_find_player_no_result" = "No matching player";
+
+"multi_score_player_names" = "Player names";
+
+// Multi-player scoreboard appearance
+"multi_score_style" = "Стиль табло";
+"multi_score_style_solid" = "Однотонний";
+"multi_score_style_colorful" = "Різнокольоровий";
+"multi_score_color_ink" = "Чорнильний";
+"multi_score_color_graphite" = "Графітовий";
+"multi_score_color_paper" = "Паперовий білий";
+"multi_score_color_mist" = "Туманно-сірий";
+"multi_score_color_forest" = "Сосновий";
+"multi_score_color_jade" = "Нефритовий";
+"multi_score_color_navy" = "Темно-синій";
+"multi_score_color_lake" = "Озерний синій";
+"multi_score_color_violet" = "Гліцинія";
+"multi_score_color_rose" = "Рожевий";
+"multi_score_color_clay" = "Теракотовий";
+"multi_score_color_olive" = "Оливковий";

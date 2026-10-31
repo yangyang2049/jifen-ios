@@ -21,6 +21,12 @@ final class ScoreboardDisplayOutputs: ObservableObject {
     @Published private(set) var displayState: ScoreboardDisplayState?
     @Published private(set) var presentationMode: ScoreboardDisplayPresentationMode = .waiting
     @Published private(set) var controllerAway = false
+    /// 本地投屏当前屏的锚点玩家（完整名单里的全局下标）。
+    ///
+    /// 对齐安卓 `DisplaySurfaceBuildOptions.localMultiScoreAnchorPlayer`：它只在本进程内
+    /// 从手机端分页控件流向独立大屏视图，不进入 `ScoreboardDisplayState`、wire 协议、
+    /// 偏好或战绩；大屏仍按完整名单里同一个玩家 ID 取名字、分数与配色。
+    @Published private(set) var localMultiScoreAnchorPlayer = 0
 
     private var ownerID: String?
     private var leaseID: UInt64 = 0
@@ -82,6 +88,14 @@ final class ScoreboardDisplayOutputs: ObservableObject {
 
     func setControllerAway(_ away: Bool) {
         controllerAway = away
+    }
+
+    /// 手机端分页控件切换大屏当前屏。这里保留原始锚点，越界由分页模型按名单长度夹取，
+    /// 因此重连、旋转、窗口重建都不会丢失或裁剪当前屏。
+    func setLocalMultiScoreAnchorPlayer(_ anchorPlayer: Int) {
+        let clamped = max(0, anchorPlayer)
+        guard clamped != localMultiScoreAnchorPlayer else { return }
+        localMultiScoreAnchorPlayer = clamped
     }
 
     private func apply(_ state: ScoreboardDisplayState) {

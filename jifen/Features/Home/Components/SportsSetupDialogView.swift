@@ -279,6 +279,11 @@ struct SportsSetupDialogView: View {
             )
         }
 
+        if gameType == .basketball {
+            PreferencesManager.shared.basketballRuleSet = draft.basketballRuleSet
+            PreferencesManager.shared.basketballPeriodSeconds = max(1, min(99, draft.basketballPeriodMinutes)) * 60
+            PreferencesManager.shared.basketballOvertimeSeconds = max(1, min(99, draft.basketballOvertimeMinutes)) * 60
+        }
         onConfirm?(finalConfig)
     }
 

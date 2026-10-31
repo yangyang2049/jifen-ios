@@ -2,8 +2,10 @@
 set -euo pipefail
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-output_dir="$repo_dir/UITestScreenshots-All"
-result_dir="$repo_dir/build/ui-screenshot-results"
+source "$repo_dir/scripts/test_artifacts.sh"
+start_test_artifacts ui-screenshots
+output_dir="$TEST_ARTIFACT_RUN/screenshots"
+result_dir="$TEST_ARTIFACT_RUN/results"
 
 iphone_destination="${IPHONE_DESTINATION:-platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5}"
 ipad_destination="${IPAD_DESTINATION:-platform=iOS Simulator,name=iPad Pro 11-inch (M5),OS=26.5}"

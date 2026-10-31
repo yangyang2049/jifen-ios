@@ -125,8 +125,13 @@ struct ScoreboardExternalDisplayRootView: View {
         ZStack {
             Color.black.ignoresSafeArea()
             if let state = outputs.displayState {
-                ScoreboardExternalLiveView(state: state)
-                    .id("\(state.gameType)-\(state.layoutKind.rawValue)")
+                // 本地投屏的当前屏由手机端分页控件经 DisplayOutputs 传入：大屏本身
+                // 只有悬浮圆点，不提供箭头，也不改变手机端自己的每页 9/10 人分页。
+                ScoreboardExternalLiveView(
+                    state: state,
+                    multiScoreAnchorPlayer: outputs.localMultiScoreAnchorPlayer
+                )
+                .id("\(state.gameType)-\(state.layoutKind.rawValue)")
             } else {
                 ScoreboardExternalWaitingView()
             }
@@ -548,6 +553,11 @@ private struct DisplaySportInfoSegments {
 struct ScoreboardExternalLiveView: View {
     let state: ScoreboardDisplayState
     var projection: ScoreboardExternalProjection = .localProjection
+    /// 多人计分分页锚点（全局玩家下标）：本机投屏由手机端分页控件给出，
+    /// 跨设备接收端由接收端自己的箭头给出；不进入 wire 协议。
+    var multiScoreAnchorPlayer: Int = 0
+    /// 接收端分页回调（目标屏的锚点玩家）。为本机投屏时为 nil：大屏只有圆点。
+    var onMultiScorePage: ((Int) -> Void)? = nil
 
     var onExit: (() -> Void)? = nil
 
@@ -677,7 +687,14 @@ struct ScoreboardExternalLiveView: View {
         case .teamCourt:
             teamCourtSurface(viewport: viewport)
         case .multiGrid:
-            DisplayMultiGridSurface(state: state, viewport: viewport, cardStyle: false, projection: projection)
+            DisplayMultiGridSurface(
+                state: state,
+                viewport: viewport,
+                cardStyle: false,
+                projection: projection,
+                anchorPlayer: multiScoreAnchorPlayer,
+                onPage: onMultiScorePage
+            )
         case .cardThreePlayer:
             DisplayMultiGridSurface(state: state, viewport: viewport, cardStyle: true, projection: projection)
         case .shotTrainingGrid:
@@ -2566,15 +2583,44 @@ private struct DisplayDoublesCourtSurface: View {
 /// 对齐安卓 DisplayMultiGridSurface + MultiGridTile：
 /// 固定深底 #111827、无幻影标题带、seamless 网格无间距/外边距、
 /// winner 3pt #FBBF24 描边 + 左上 ★、姓名固定顶部、主分独立居中、字号按实际格宽派生。
+///
+/// 多人计分板超过 9 人时按 `MultiScoreDisplayPaging` 分屏：卡片铺满画面，
+/// 底部只有悬浮圆点（跨设备接收端另有自己的左右箭头），编号沿用完整名单的全局席位，
+/// 末页保留同样格子尺寸的空位；3–9 人与其它项目继续走原布局。
 private struct DisplayMultiGridSurface: View {
     let state: ScoreboardDisplayState
     let viewport: CGSize
     let cardStyle: Bool
     var projection: ScoreboardExternalProjection = .localProjection
+    /// 多人计分分页锚点（全局玩家下标）；只有超过 9 人的多人计分板才会用到。
+    var anchorPlayer: Int = 0
+    /// 接收端翻页回调；nil 表示本机投屏（大屏只有悬浮圆点，不提供箭头）。
+    var onPage: ((Int) -> Void)? = nil
+
+    private var uniformBackground: String? {
+        guard state.gameType == "multi_scoreboard",
+              let panels = state.appearance.style?.panels.filter({ $0.slotKey.hasPrefix("player_") }),
+              let first = panels.first,
+              panels.allSatisfy({ $0.backgroundColor == first.backgroundColor }) else { return nil }
+        return ScoreboardDisplayStyle.renderHex(first.backgroundColor)
+    }
+
+    private var gridForeground: Color {
+        Color(hex: state.appearance.style?.renderColor("mainScore", slot: "player_0") ?? "FFFFFF")
+    }
 
     var body: some View {
         let players = LegacyExternalLayouts.resolvedPlayers(state)
-        let layoutRows = Self.layoutRows(
+        // 多人计分超过 9 人时先切出当前屏，网格铺满画面；3–9 人保持原布局。
+        let pagedGrid = Self.pagedGrid(
+            state: state,
+            players: players,
+            viewport: viewport,
+            projection: projection,
+            cardStyle: cardStyle,
+            anchorPlayer: anchorPlayer
+        )
+        let layoutRows = pagedGrid.map { Self.rows(of: $0) } ?? Self.layoutRows(
             state: state,
             players: players,
             cardStyle: cardStyle,
@@ -2602,11 +2648,25 @@ private struct DisplayMultiGridSurface: View {
         let chrome = DisplayTypographyResolver.chromeScale(for: viewport).clamped(1, 1.5)
         let nameMaxLines = 1
         let nameHorizontalPadding: CGFloat = isLocal ? (16 * chrome).clamped(16, 24) : 12
+        // 对齐安卓 pagingContentInset：多屏才为底部圆点/箭头让出垂直空间，
+        // 圆点不再压住数字；单屏（含 3–9 人）不加任何预留。
+        let pageInset: CGFloat = (pagedGrid?.page.pageCount ?? 1) > 1
+            ? (isLocal ? 20 * chrome : 48)
+            : 0
+        let contentCellHeight = max(1, cellHeight - pageInset)
+        // 分页时整屏共用一档字号：按完整名单里最长姓名/最宽分数派生，
+        // 与当前屏装的是谁无关，翻页看不到字号跳动。
+        let sizingText: (name: String, score: String)? = pagedGrid.map { _ in
+            let longestName = players.map(\.name).max(by: { $0.count < $1.count }) ?? ""
+            let widestScore = players.map { "\($0.score ?? 0)" }.max(by: { $0.count < $1.count }) ?? "0"
+            return (name: longestName, score: widestScore)
+        }
+        let placeholderMark = pagedGrid == nil ? "—" : ""
 
         return ZStack {
-            Color(hex: "111827")
+            Color(hex: uniformBackground ?? "111827")
             VStack(spacing: gap) {
-                ForEach(Array(layoutRows.enumerated()), id: \.offset) { _, row in
+                ForEach(Array(layoutRows.enumerated()), id: \.offset) { rowIndex, row in
                     let columnCount = max(1, row.count)
                     let cellWidth = max(1, (viewport.width - outer * 2 - gap * CGFloat(columnCount - 1)) / CGFloat(columnCount))
                     HStack(spacing: gap) {
@@ -2616,8 +2676,9 @@ private struct DisplayMultiGridSurface: View {
                                     let player = players[index]
                                     let typography = resolvedTypography(
                                         player: player,
-                                        cellSize: CGSize(width: cellWidth, height: cellHeight),
-                                        chaseStatsBandHeight: chaseStatsBandHeight
+                                        cellSize: CGSize(width: cellWidth, height: contentCellHeight),
+                                        chaseStatsBandHeight: chaseStatsBandHeight,
+                                        sizingText: sizingText
                                     )
                                     let slot = LegacyExternalLayouts.colorSlot(index: index, state: state)
                                     let styleSlot = state.appearance.style?.panels.first(where: { $0.participantId == player.id })?.slotKey
@@ -2631,6 +2692,9 @@ private struct DisplayMultiGridSurface: View {
                                         score: player.score ?? 0,
                                         chaseStats: state.displayChaseCounts(playerIndex: index),
                                         chaseStatsBandHeight: chaseStatsBandHeight,
+                                        bottomContentInset: rowIndex == rowCount - 1 ? pageInset : 0,
+                                        // 编号用完整名单的全局席位：末页仍显示 46–50 号。
+                                        seatNumber: pagedGrid == nil ? nil : index + 1,
                                         reservesBreakerMark: gridChaseBreaker != nil,
                                         showsBreakerMark: gridChaseBreaker == index,
                                         fontCode: state.appearance.fontCode,
@@ -2649,25 +2713,46 @@ private struct DisplayMultiGridSurface: View {
                                         score: 0,
                                         chaseStats: [],
                                         chaseStatsBandHeight: chaseStatsBandHeight,
+                                        bottomContentInset: rowIndex == rowCount - 1 ? pageInset : 0,
                                         fontCode: state.appearance.fontCode,
                                         nameMaxLines: nameMaxLines,
                                         nameHorizontalPadding: nameHorizontalPadding,
                                         nameFont: 24,
                                         scoreFont: 48,
-                                        panelColor: Color(hex: "1F2937"),
-                                        textColor: .white.opacity(0.6),
+                                        panelColor: Color(hex: uniformBackground ?? "1F2937"),
+                                        textColor: gridForeground.opacity(0.6),
                                         placeholder: true,
+                                        placeholderMark: placeholderMark,
                                         isWinner: false
                                     )
                                 }
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .overlay {
+                                if uniformBackground != nil {
+                                    Rectangle().strokeBorder(gridForeground.opacity(0.1), lineWidth: 0.5)
+                                        .allowsHitTesting(false)
+                                }
+                            }
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
             .padding(outer)
+
+            // 底部只有悬浮圆点：没有底栏、范围文字、数字页码或操作箭头；单屏隐藏。
+            if let pagedGrid, pagedGrid.page.pageCount > 1 {
+                MultiScoreDisplayPageIndicatorView(
+                    page: pagedGrid.page,
+                    scale: chrome,
+                    foreground: uniformBackground == nil ? .white : gridForeground,
+                    onPage: onPage
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                .padding(.bottom, 4 * chrome)
+                .allowsHitTesting(onPage != nil)
+            }
 
             if state.gameType == "uno", let target = state.sportInt("unoTargetScore"), target > 0 {
                 unoTargetBadge(target: target)
@@ -2688,7 +2773,8 @@ private struct DisplayMultiGridSurface: View {
     private func resolvedTypography(
         player: ScoreboardDisplayPlayer,
         cellSize: CGSize,
-        chaseStatsBandHeight: CGFloat
+        chaseStatsBandHeight: CGFloat,
+        sizingText: (name: String, score: String)? = nil
     ) -> ScoreboardTypographyResult {
         let profile: ScoreboardTypographyProfile
         let horizontalPadding: CGFloat
@@ -2724,8 +2810,8 @@ private struct DisplayMultiGridSurface: View {
             ScoreboardTypographyLayoutContext(
                 profile: profile,
                 containerSize: cellSize,
-                nameText: player.name,
-                scoreText: "\(player.score ?? 0)",
+                nameText: sizingText?.name ?? player.name,
+                scoreText: sizingText?.score ?? "\(player.score ?? 0)",
                 secondaryText: detail,
                 preference: typographyPreference,
                 horizontalPadding: horizontalPadding,
@@ -2734,6 +2820,36 @@ private struct DisplayMultiGridSurface: View {
                 isLargeScreen: min(viewport.width, viewport.height) >= 600
             )
         )
+    }
+
+    /// 多人计分分页：只有超过 9 人才切屏；本机投屏恒按 5 列 15 人（大屏），
+    /// 接收端横屏 15 / 竖屏 9，用接收端自己的窗口方向而不是发送手机的 orientation。
+    private static func pagedGrid(
+        state: ScoreboardDisplayState,
+        players: [ScoreboardDisplayPlayer],
+        viewport: CGSize,
+        projection: ScoreboardExternalProjection,
+        cardStyle: Bool,
+        anchorPlayer: Int
+    ) -> MultiScoreDisplayGrid? {
+        guard MultiScoreDisplayPaging.usesPaging(
+            gameType: state.gameType,
+            playerCount: players.count,
+            cardStyle: cardStyle
+        ) else { return nil }
+        let landscape = projection.isLocalProjection || viewport.width >= viewport.height
+        return MultiScoreDisplayPaging.grid(
+            playerCount: players.count,
+            landscape: landscape,
+            anchorPlayer: anchorPlayer
+        )
+    }
+
+    /// 分页网格的行优先席位（nil 为空位），行数固定，末页不会被拉大。
+    private static func rows(of grid: MultiScoreDisplayGrid) -> [[Int?]] {
+        stride(from: 0, to: grid.seats.count, by: grid.columns).map { start in
+            Array(grid.seats[start ..< min(start + grid.columns, grid.seats.count)])
+        }
     }
 
     private func unoTargetBadge(target: Int) -> some View {
@@ -2814,6 +2930,10 @@ private struct DisplayMultiGridSurface: View {
         let score: Int
         var chaseStats: [Int] = []
         var chaseStatsBandHeight: CGFloat = 0
+        /// 底栏圆点/箭头占位：只有分页且位于末行时非 0，让文本避让圆点。
+        var bottomContentInset: CGFloat = 0
+        /// 分页时的全局席位编号；nil 表示不分页（不显示编号）。
+        var seatNumber: Int? = nil
         var reservesBreakerMark = false
         var showsBreakerMark = false
         var fontCode: String = ""
@@ -2825,6 +2945,8 @@ private struct DisplayMultiGridSurface: View {
         let textColor: Color
         var nameColor: Color = .white
         var placeholder = false
+        /// 占位符文案：分页末页的空位保持空白，3–9 人原布局仍显示「—」。
+        var placeholderMark: String = "—"
         var isWinner = false
 
         var body: some View {
@@ -2834,13 +2956,15 @@ private struct DisplayMultiGridSurface: View {
                     RoundedRectangle(cornerRadius: 0).strokeBorder(Color(hex: "FBBF24"), lineWidth: 3)
                 }
                 if placeholder {
-                    Text("—")
-                        .font(.system(size: scoreFont * 0.7, weight: .bold))
-                        .foregroundStyle(textColor)
+                    if !placeholderMark.isEmpty {
+                        Text(placeholderMark)
+                            .font(.system(size: scoreFont * 0.7, weight: .bold))
+                            .foregroundStyle(textColor)
+                    }
                 } else if !chaseStats.isEmpty {
                     // 九球 3-4 人：姓名与主分作为一个整体，在追分条上方居中。
                     GeometryReader { proxy in
-                        let availableHeight = max(1, proxy.size.height - chaseStatsBandHeight)
+                        let availableHeight = max(1, proxy.size.height - chaseStatsBandHeight - bottomContentInset)
                         centeredParticipantContent(availableHeight: availableHeight)
                             .frame(maxWidth: .infinity)
                             .frame(height: availableHeight)
@@ -2854,9 +2978,20 @@ private struct DisplayMultiGridSurface: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
                 } else {
                     GeometryReader { proxy in
-                        centeredParticipantContent(availableHeight: proxy.size.height)
+                        let availableHeight = max(1, proxy.size.height - bottomContentInset)
+                        centeredParticipantContent(availableHeight: availableHeight)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .padding(.bottom, bottomContentInset)
                     }
+                }
+                if let seatNumber {
+                    Text("\(seatNumber)")
+                        .font(scoreDisplayFont(size: max(10, nameFont * 0.34), weight: .semibold))
+                        .foregroundStyle(nameColor.opacity(0.65))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                        .padding(8)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                 }
                 if isWinner {
                     Text("★")
@@ -2905,6 +3040,95 @@ private struct DisplayMultiGridSurface: View {
             }
             return font.swiftUIFont(size: size, weight: weight)
         }
+    }
+}
+
+/// 多人计分分页指示器（对齐安卓 MultiScoreDisplayPageIndicator）：
+/// 没有底栏、范围文字或数字页码；本机投屏只有悬浮圆点，跨设备接收端额外
+/// 提供接收端自己的左右箭头翻页。单屏（pageCount == 1）整体隐藏。
+private struct MultiScoreDisplayPageIndicatorView: View {
+    let page: MultiScoreDisplayPage
+    var scale: CGFloat = 1
+    var foreground: Color = .white
+    /// 翻页回调：参数是目标屏首位的全局锚点玩家下标（越界按钮已禁用）。
+    var onPage: ((Int) -> Void)? = nil
+
+    private var description: String {
+        String(
+            format: NSLocalizedString(
+                "multi_score_display_page_description",
+                value: "Display page %d of %d, players %d to %d",
+                comment: ""
+            ),
+            page.page + 1,
+            page.pageCount,
+            page.start + 1,
+            page.start + page.count
+        )
+    }
+
+    var body: some View {
+        HStack(spacing: 0) {
+            if onPage != nil {
+                previousButton
+            }
+            HStack(spacing: 0) {
+                ForEach(0..<page.pageCount, id: \.self) { index in
+                    Circle()
+                        .fill(foreground.opacity(index == page.page ? 1 : 0.45))
+                        .frame(width: (index == page.page ? 7 : 4) * scale,
+                               height: (index == page.page ? 7 : 4) * scale)
+                        .frame(width: (onPage == nil ? 16 : 12) * scale)
+                        .accessibilityIdentifier("multi_score_display_dot_\(index)")
+                }
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(description)
+            if onPage != nil {
+                nextButton
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("multi_score_display_pager")
+    }
+
+    /// 48pt 圆形热区；不可用（首页/末页）时淡显并禁用。
+    private var previousButton: some View {
+        Button {
+            onPage?((page.page - 1) * page.capacity)
+        } label: {
+            pagerIcon(systemName: "chevron.left", enabled: page.page > 0)
+        }
+        .disabled(page.page <= 0)
+        .accessibilityLabel(NSLocalizedString(
+            "multi_score_display_previous",
+            value: "Previous display page",
+            comment: ""
+        ))
+        .accessibilityIdentifier("multi_score_display_previous")
+    }
+
+    private var nextButton: some View {
+        Button {
+            onPage?((page.page + 1) * page.capacity)
+        } label: {
+            pagerIcon(systemName: "chevron.right", enabled: page.page + 1 < page.pageCount)
+        }
+        .disabled(page.page + 1 >= page.pageCount)
+        .accessibilityLabel(NSLocalizedString(
+            "multi_score_display_next",
+            value: "Next display page",
+            comment: ""
+        ))
+        .accessibilityIdentifier("multi_score_display_next")
+    }
+
+    private func pagerIcon(systemName: String, enabled: Bool) -> some View {
+        Image(systemName: systemName)
+            .font(.system(size: 20 * scale, weight: .semibold))
+            .foregroundStyle(foreground.opacity(enabled ? 1 : 0.3))
+            .frame(width: 48, height: 48)
+            .contentShape(Circle())
     }
 }
 

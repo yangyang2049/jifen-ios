@@ -346,7 +346,7 @@ public enum ScoreboardSessionFactory {
         switch gameType {
         case .multiScoreboard:
             guard descriptor.kind == .multi, targetScore == nil else { return nil }
-            allowedCount = 3 ... 9
+            allowedCount = 3 ... 50
         case .uno:
             guard descriptor.kind == .uno,
                   customAdjustEnabled == false,

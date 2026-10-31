@@ -186,6 +186,7 @@ struct CenteredSetupDialogPresenter<Item: Identifiable, Content: View>: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Binding var item: Item?
     var allowsBackdropDismiss: Bool = true
+    var alignment: Alignment = .center
     @ViewBuilder var content: (_ item: Item, _ dismiss: @escaping () -> Void, _ maxDialogHeight: CGFloat) -> Content
 
     var body: some View {
@@ -197,7 +198,7 @@ struct CenteredSetupDialogPresenter<Item: Identifiable, Content: View>: View {
                 usesExpandedLayout: horizontalSizeClass == .regular
             )
 
-            ZStack {
+            ZStack(alignment: alignment) {
                 if let item {
                     Color.black.opacity(0.48)
                         .ignoresSafeArea()

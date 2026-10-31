@@ -1,3 +1,4 @@
+import ScoreCore
 import SwiftUI
 import UIKit
 
@@ -47,6 +48,10 @@ struct CreateBookingPage: View {
     @State private var pointsPerSet: Int?
     @State private var tieBreakPoints: Int?
     @State private var tennisDeuceMode: String?
+    @State private var basketballRuleSet: String?
+    @State private var basketballUsesProjectDefault = false
+    @State private var basketballPeriodMinutes = "10"
+    @State private var basketballOvertimeMinutes = "5"
     @State private var notes: String = ""
     @State private var reminders: Set<Int> = Set(LocalBooking.defaultReminderMinutes)
     @State private var didLoadInitial = false
@@ -83,7 +88,7 @@ struct CreateBookingPage: View {
                     startPresetSection
                 }
 
-                if !ruleSetOptions.isEmpty || !pointOptions.isEmpty || sportType == .tennis {
+                if !ruleSetOptions.isEmpty || !pointOptions.isEmpty || sportType == .tennis || sportType == .basketball {
                     rulePresetSection
                 }
 
@@ -116,7 +121,7 @@ struct CreateBookingPage: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(NSLocalizedString("save", comment: "")) { saveBooking() }
-                        .disabled(location.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        .disabled(location.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !basketballTimingIsValid)
                 }
             }
             .onAppear(perform: applyInitialBookingIfNeeded)
@@ -204,6 +209,7 @@ struct CreateBookingPage: View {
                     .tag(type)
                 }
             }
+            .accessibilityIdentifier("booking_sport_type")
 
             if sportType == .billiards {
                 Picker(NSLocalizedString("schedule_billiards_mode", value: "台球玩法", comment: ""), selection: $billiardsFormat) {
@@ -362,6 +368,9 @@ struct CreateBookingPage: View {
                     options: pointOptions
                 )
             }
+            if sportType == .basketball {
+                basketballRuleFields
+            }
             if sportType == .tennis {
                 optionalIntPicker(
                     title: NSLocalizedString("schedule_tiebreak_points", value: "抢七分数", comment: ""),
@@ -374,6 +383,45 @@ struct CreateBookingPage: View {
                     Text(NSLocalizedString("tennis_deuce_option_no_ad", value: "无占先", comment: "")).tag(String?.some("no_ad"))
                 }
             }
+        }
+    }
+
+    private var basketballTimingIsValid: Bool {
+        guard sportType == .basketball, basketballRuleSet == "custom" else { return true }
+        return (1...99).contains(Int(basketballPeriodMinutes) ?? 0)
+            && (1...99).contains(Int(basketballOvertimeMinutes) ?? 0)
+    }
+
+    @ViewBuilder
+    private var basketballRuleFields: some View {
+        Picker(NSLocalizedString("basketball_rule_set_label", value: "规则", comment: ""), selection: Binding(
+            get: { basketballRuleSet },
+            set: {
+                basketballRuleSet = $0
+                basketballUsesProjectDefault = $0 == nil
+            }
+        )) {
+            Text(NSLocalizedString("schedule_use_project_default", value: "项目默认", comment: "")).tag(String?.none)
+            Text("FIBA").tag(String?.some("fiba"))
+            Text("NBA").tag(String?.some("nba"))
+            Text(NSLocalizedString("custom", comment: "")).tag(String?.some("custom"))
+        }
+        .accessibilityIdentifier("booking_basketball_rule_set")
+        if basketballRuleSet == "custom" {
+            basketballMinutesField("basketball_period_minutes", text: $basketballPeriodMinutes)
+            basketballMinutesField("basketball_overtime_minutes", text: $basketballOvertimeMinutes)
+        }
+    }
+
+    private func basketballMinutesField(_ key: String, text: Binding<String>) -> some View {
+        HStack {
+            Text(NSLocalizedString(key, comment: ""))
+            TextField("1–99", text: Binding(get: { text.wrappedValue }, set: {
+                text.wrappedValue = normalizedDecimalDigits($0, limit: 2)
+            }))
+            .keyboardType(.numberPad)
+            .multilineTextAlignment(.trailing)
+            .accessibilityIdentifier("booking_\(key)")
         }
     }
 
@@ -541,6 +589,12 @@ struct CreateBookingPage: View {
         normalizeReminderSelection(now: now)
         let original = initialBooking
         let source = original ?? copyingBooking
+        let timing = BookingBasketballTiming.forSaving(
+            sportType: sportType, source: source, ruleSet: basketballRuleSet,
+            periodSeconds: Int(basketballPeriodMinutes).map { $0 * 60 },
+            overtimeSeconds: Int(basketballOvertimeMinutes).map { $0 * 60 },
+            useProjectDefault: basketballUsesProjectDefault
+        )
         let booking = LocalBooking(
             id: original?.id ?? UUID().uuidString,
             sportType: sportType,
@@ -561,6 +615,9 @@ struct CreateBookingPage: View {
             pointsPerSet: pointsPerSet,
             tieBreakPoints: tieBreakPoints,
             tennisDeuceMode: sportType == .tennis ? tennisDeuceMode : nil,
+            basketballRuleSet: timing?.ruleSet.rawValue,
+            basketballPeriodDurationSeconds: timing?.periodSeconds,
+            basketballOvertimeDurationSeconds: timing?.overtimeSeconds,
             participantNames: participantRows,
             notes: notes.trimmingCharacters(in: .whitespacesAndNewlines),
             reminderMinutes: Array(reminders),
@@ -620,6 +677,9 @@ struct CreateBookingPage: View {
         pointsPerSet = booking.pointsPerSet
         tieBreakPoints = booking.tieBreakPoints
         tennisDeuceMode = booking.tennisDeuceMode
+        basketballRuleSet = booking.basketballRuleSet
+        basketballPeriodMinutes = String((booking.basketballPeriodDurationSeconds ?? 600) / 60)
+        basketballOvertimeMinutes = String((booking.basketballOvertimeDurationSeconds ?? 300) / 60)
         participantRows = booking.participantNames
         while participantRows.count < 2 { participantRows.append("") }
         participantRows = Array(participantRows.prefix(LocalBooking.maximumParticipants))

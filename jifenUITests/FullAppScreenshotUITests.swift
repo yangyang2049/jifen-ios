@@ -1,10 +1,11 @@
 import XCTest
 
 /// 全页面截图 UI 测试：覆盖 Tab、全部计分板、计时面板、工具、二三级页面。
-/// iPhone / iPad 截图带设备前缀写入仓库根目录 `UITestScreenshots-All/`。
+/// iPhone / iPad 截图带设备前缀，通过显式输出目录写入托管测试批次。
 /// 横屏计分/计时页每次结束后 terminate+relaunch，避免方向锁导致后续导航失败。
 final class FullAppScreenshotUITests: XCTestCase {
     private var app: XCUIApplication!
+    private var testLocaleLanguage = "zh-Hans"
 
     private let scoreboards: [(id: String, label: String)] = [
         ("pingpong", "乒乓球"),
@@ -476,7 +477,208 @@ final class FullAppScreenshotUITests: XCTestCase {
         }
     }
 
+    /// Start with Device Hub Open; capture real surfaces despite stale AX frames.
+    func testDuoMultiScoreFiftyPlayerPortraitScoreVisibility() throws {
+        let environment = ProcessInfo.processInfo.environment
+        guard (environment["DUO_SAFEAREA_REGRESSION"] ?? environment["TEST_RUNNER_DUO_SAFEAREA_REGRESSION"]) == "1" else {
+            throw XCTSkip("Requires explicit Duo API-driven regression and host screenshots")
+        }
+        continueAfterFailure = false
+        defer { app?.terminate() }
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "multiScoreboard", label: "多人计分",
+                                                  extraArguments: ["-multi_scoreboard_use_landscape_layout", "YES"]))
+        let four = app.buttons["setup_multi_count_4"].firstMatch
+        XCTAssertTrue(four.waitForExistence(timeout: 4) && four.isHittable)
+        four.tap()
+        let custom = app.buttons["setup_multi_count_custom"].firstMatch
+        XCTAssertTrue(custom.waitForExistence(timeout: 4) && custom.isHittable)
+        custom.tap()
+        let fifty = app.buttons["setup_multi_quick_count_50"].firstMatch
+        XCTAssertTrue(fifty.waitForExistence(timeout: 4) && fifty.isHittable)
+        fifty.tap()
+        XCTAssertTrue(tapStart())
+
+        func score(_ index: Int) -> XCUIElement {
+            app.windows.firstMatch.staticTexts["multi_score_value_\(index)"].firstMatch
+        }
+        XCTAssertTrue(score(0).waitForExistence(timeout: 8) && score(0).isHittable)
+        score(0).tap()
+        let pointAdded = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label == %@", "1"), object: score(0))
+        XCTAssertEqual(XCTWaiter.wait(for: [pointAdded], timeout: 4), .completed)
+
+        for step in 0..<3 {
+            XCTAssertTrue(openPriorityScoreboardMenu())
+            app.buttons["scoreboard_menu_action_layout"].firstMatch.tap()
+            let targetPortrait = step.isMultiple(of: 2)
+            XCUIDevice.shared.orientation = targetPortrait ? .portrait : .landscapeRight
+            RunLoop.current.run(until: Date().addingTimeInterval(0.8))
+            // Duo's AX window can retain the previous dimensions. The host
+            // captures the explicit inner display; inspect its real pixels.
+            snapFoldable("duo_fixed_multi_\(targetPortrait ? "portrait" : "landscape")_\(step)_open")
+            for index in 0..<4 {
+                XCTAssertTrue(score(index).waitForExistence(timeout: 4) && score(index).isHittable)
+                XCTAssertGreaterThanOrEqual(score(index).frame.height, 24, "First-row score must not collapse")
+                print("DUO_SCORE_FRAME step=\(step) index=\(index) label=\(score(index).label) frame=\(score(index).frame)")
+            }
+            XCTAssertEqual(score(0).label, "1", "Layout changes must retain the score")
+        }
+        let next = app.windows.firstMatch.buttons["multi_score_next_page"].firstMatch
+        for _ in 0..<7 where next.isEnabled {
+            next.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+        }
+        XCTAssertFalse(next.isEnabled)
+        XCTAssertTrue(score(49).exists && score(49).isHittable)
+        snapFoldable("duo_fixed_multi_last_page_open")
+        let previous = app.windows.firstMatch.buttons["multi_score_previous_page"].firstMatch
+        for _ in 0..<7 where previous.isEnabled {
+            previous.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+        }
+        XCTAssertEqual(score(0).label, "1")
+        if (environment["DUO_LIVE_RESIZE"] ?? environment["TEST_RUNNER_DUO_LIVE_RESIZE"]) == "1" {
+            for checkpoint in ["multi341_fixed_closed", "multi341_fixed_open"] {
+                waitForHostResize(checkpoint: checkpoint)
+                XCTAssertEqual(score(0).label, "1", "Folding must retain the score")
+                for index in 0..<4 {
+                    XCTAssertTrue(score(index).exists && score(index).isHittable)
+                    XCTAssertGreaterThanOrEqual(score(index).frame.height, 24)
+                }
+                snapFoldable("duo_fixed_\(checkpoint)")
+            }
+        }
+    }
+
+    /// Start with Device Hub Closed. The host opens/closes the same running app
+    /// at the four named checkpoints; no relaunch occurs between either pair.
+    func testFoldable341BasketballTimingAndScoreSurviveLiveResize() throws {
+        let environment = ProcessInfo.processInfo.environment
+        guard (environment["DUO_LIVE_RESIZE"] ?? environment["TEST_RUNNER_DUO_LIVE_RESIZE"]) == "1" else {
+            throw XCTSkip("Requires host-controlled fold/unfold checkpoints")
+        }
+        continueAfterFailure = false
+        defer { app?.terminate() }
+        configureBasketballPreMatchTiming()
+
+        func assertTimingDraft() {
+            let window = app.windows.firstMatch
+            XCTAssertTrue(window.buttons["20"].firstMatch.exists)
+            XCTAssertTrue(window.buttons["3"].firstMatch.exists)
+            XCTAssertTrue(window.buttons["开始"].firstMatch.isHittable)
+            XCTAssertTrue(window.buttons["取消"].firstMatch.isHittable)
+        }
+        assertTimingDraft()
+        snapFoldable("duo_341_basketball_setup_closed_before")
+        for checkpoint in ["basket341_setup_open", "basket341_setup_closed"] {
+            waitForHostResize(checkpoint: checkpoint)
+            assertTimingDraft()
+            snapFoldable("duo_341_\(checkpoint)")
+        }
+        app.windows.firstMatch.buttons["开始"].firstMatch.tap()
+        XCTAssertTrue(waitForPriorityScoreboard())
+        let addTwo = try XCTUnwrap(app.windows.firstMatch.buttons.matching(NSPredicate(format: "label == %@", "+2"))
+            .allElementsBoundByIndex.filter { $0.isHittable }.min { $0.frame.minX < $1.frame.minX })
+        addTwo.tap()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        addTwo.tap()
+
+        func assertLiveTimingAndScore() {
+            let window = app.windows.firstMatch
+            let clock = window.descendants(matching: .any)["basketball_game_clock"].firstMatch
+            XCTAssertTrue(clock.waitForExistence(timeout: 4) && clock.isHittable)
+            XCTAssertTrue(clock.label.contains("20:00"), "Resize changed the pre-match configured clock: \(clock.label)")
+            XCTAssertTrue(window.staticTexts.matching(NSPredicate(format: "label == %@", "4")).allElementsBoundByIndex.contains { $0.isHittable })
+            XCTAssertTrue(window.buttons["basketball_clock_toggle"].firstMatch.isHittable)
+            revealScoreboardChrome(fromLeftCorner: false)
+            let edit = window.buttons["scoreboard_edit_button"].firstMatch
+            XCTAssertTrue(edit.waitForExistence(timeout: 4) && edit.isHittable)
+            edit.tap()
+            XCTAssertFalse(window.buttons["修改时长"].exists, "In-game editing must not change period or overtime durations")
+            XCTAssertFalse(window.staticTexts["每节时长（分钟）"].exists)
+            edit.tap()
+        }
+        assertLiveTimingAndScore()
+        snapFoldable("duo_341_basketball_score_closed_before")
+        for checkpoint in ["basket341_score_open", "basket341_score_closed"] {
+            waitForHostResize(checkpoint: checkpoint)
+            assertLiveTimingAndScore()
+            snapFoldable("duo_341_\(checkpoint)")
+        }
+    }
+
     private func waitForHostResize(checkpoint: String) {
+        if checkpoint.contains("341") {
+            let expectsOpen = checkpoint.hasSuffix("_open")
+            let expectsClosed = checkpoint.hasSuffix("_closed")
+            guard expectsOpen || expectsClosed else {
+                XCTFail("Missing explicit Open/Closed resize target: \(checkpoint)")
+                return
+            }
+
+            func valid(_ size: CGSize) -> Bool {
+                size.width.isFinite && size.height.isFinite && size.width > 0 && size.height > 0
+            }
+
+            func currentWindowSize() -> CGSize? {
+                // Re-query the real window every sample: Duo's app.frame may
+                // transiently retain the other display's geometry after folding.
+                let first = app.windows.firstMatch
+                let firstSize = first.exists ? first.frame.size : .zero
+                if valid(firstSize), first.isHittable { return firstSize }
+                for window in app.windows.allElementsBoundByIndex where window.isHittable {
+                    let size = window.frame.size
+                    if valid(size) { return size }
+                }
+                return valid(firstSize) ? firstSize : nil
+            }
+
+            func logFrames(_ phase: String) {
+                print("DUO_RESIZE_\(phase) \(checkpoint) app=\(app.frame)")
+                for (index, window) in app.windows.allElementsBoundByIndex.enumerated() {
+                    print("DUO_WINDOW \(checkpoint) \(index) \(window.frame) hittable=\(window.isHittable)")
+                }
+            }
+
+            guard let original = currentWindowSize() else {
+                logFrames("INVALID_WINDOW")
+                XCTFail("No valid window before live resize: \(checkpoint)")
+                return
+            }
+            print("DUO_RESIZE_READY \(checkpoint) window=\(original) app=\(app.frame.size)")
+            let deadline = ProcessInfo.processInfo.systemUptime + 90
+            var candidate: CGSize?
+            var stableSince: TimeInterval?
+            var lastLoggedSize: CGSize?
+            while ProcessInfo.processInfo.systemUptime < deadline {
+                let current = currentWindowSize()
+                if current != lastLoggedSize {
+                    print("DUO_RESIZE_SAMPLE \(checkpoint) window=\(String(describing: current)) app=\(app.frame.size)")
+                    lastLoggedSize = current
+                }
+                let now = ProcessInfo.processInfo.systemUptime
+                if let current,
+                   (expectsOpen ? min(current.width, current.height) >= 600 : min(current.width, current.height) < 600),
+                   abs(current.width - original.width) > 30 || abs(current.height - original.height) > 30 {
+                    if candidate == current, let stableSince {
+                        if now - stableSince >= 2 {
+                            print("DUO_RESIZE_DONE \(checkpoint) window=\(current) stableSeconds=\(now - stableSince)")
+                            logFrames("FRAMES")
+                            return
+                        }
+                    } else {
+                        candidate = current
+                        stableSince = now
+                    }
+                } else {
+                    candidate = nil
+                    stableSince = nil
+                }
+                RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+            }
+            logFrames("TIMEOUT")
+            XCTFail("Live resize never reached a different, stable \(expectsOpen ? "Open" : "Closed") window for two seconds: \(checkpoint)")
+            return
+        }
         let original = app.frame.size
         print("DUO_RESIZE_READY \(checkpoint) \(original)")
         let changed = expectation(for: NSPredicate { [weak self] _, _ in
@@ -541,12 +743,26 @@ final class FullAppScreenshotUITests: XCTestCase {
         captureScheduleFlow()
         captureRecordsAndLocalSync()
 
-        let count = UITestScreenshotStore.writtenFileCount()
-        XCTAssertGreaterThanOrEqual(
-            count,
-            87,
-            "Expected broad screenshot coverage, got \(count). Dir: \(UITestScreenshotStore.outputDirectory.path)"
-        )
+        // Check named pages, rather than an old total that included the removed local-sync page.
+        var required = [
+            "01_tab_home", "02_tab_records", "03_tab_score", "04_tab_timer", "05_tab_me",
+            "06_home_new_game_dialog", "07_home_common_names", "07b_home_common_names_add",
+            "08_home_common_places", "09_home_quick_start_edit", "30_tools_list",
+            "40_me_root", "41_me_scoreboard_settings", "42_me_appearance", "43_me_faq", "44_me_about",
+            "50_schedule_list", "51_schedule_create", "60_records_root"
+        ]
+        for (index, item) in scoreboards.enumerated() {
+            required += [String(format: "10_%02d_setup_%@", index + 1, item.id), String(format: "11_%02d_board_%@", index + 1, item.id)]
+        }
+        for (index, item) in timers.enumerated() {
+            if item.needsSetup { required.append(String(format: "20_%02d_timer_setup_%@", index + 1, item.id)) }
+            required.append(String(format: "21_%02d_timer_%@", index + 1, item.id))
+        }
+        for (index, item) in tools.enumerated() { required.append(String(format: "31_%02d_tool_%@", index + 1, item.id)) }
+        for name in required {
+            let file = UITestScreenshotStore.outputDirectory.appendingPathComponent("\(UITestScreenshotStore.devicePrefix)_\(name).png")
+            XCTAssertTrue(FileManager.default.fileExists(atPath: file.path), "Required UI page not captured: \(name)")
+        }
     }
 
     func testCaptureMeSecondaryScreenshots() {
@@ -1562,15 +1778,20 @@ final class FullAppScreenshotUITests: XCTestCase {
                             snap("audit_\(item.id)_\(8 + index)_palette_panel", settle: 0.3)
                             let close = app.buttons["完成当前面板"].firstMatch
                             XCTAssertTrue(close.waitForExistence(timeout: 1))
-                            if close.exists, close.isHittable { close.tap() }
+                            if close.exists {
+                                close.tap()
+                                XCTAssertTrue(close.waitForNonExistence(timeout: 3), "Panel did not close: \(item.id)/\(title)")
+                            }
                             if index < 2, palette.exists, palette.isHittable { palette.tap() }
                         }
                     }
                 }
                 let cancel = app.buttons["退出样式编辑"].firstMatch
-                if cancel.exists, cancel.isHittable { cancel.tap() }
+                if cancel.exists { cancel.tap() }
                 if !legacyStyle {
-                    XCTAssertTrue(openPriorityScoreboardMenu())
+                    guard openPriorityScoreboardMenu() else {
+                        XCTFail("Cannot reopen menu after style editing: \(item.id)"); return
+                    }
                     app.descendants(matching: .any)["scoreboard_menu_action_displaySettings"].firstMatch.tap()
                     XCTAssertFalse(app.buttons["知道了"].firstMatch.waitForExistence(timeout: 0.5), "Usage hint reappeared")
                     let exit = app.buttons["退出样式编辑"].firstMatch
@@ -1580,9 +1801,315 @@ final class FullAppScreenshotUITests: XCTestCase {
         }
     }
 
+    @objc func testMultiScoreStylePickerAndFixedFooter() {
+        continueAfterFailure = false
+        defer { app?.terminate() }
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "multiScoreboard", label: "多人计分"))
+        let adjust = app.switches["multi_score_custom_adjust_toggle"]
+        let entry = app.buttons["setup_multi_style"]
+        XCTAssertTrue(entry.waitForExistence(timeout: 4) && entry.isHittable)
+        XCTAssertTrue(adjust.isHittable)
+        XCTAssertGreaterThan(entry.frame.midY, adjust.frame.maxY)
+        snap("multi_style_entry_below_existing_adjust")
+        entry.tap()
+        let modes = app.segmentedControls["multi_score_style_modes"]
+        XCTAssertTrue(modes.waitForExistence(timeout: 4))
+        modes.buttons["纯色"].tap()
+        let paper = app.buttons["multi_score_style_color_paper"]
+        XCTAssertTrue(paper.waitForExistence(timeout: 4) && paper.isHittable)
+        paper.tap()
+        XCTAssertTrue(paper.isSelected)
+        snap("multi_style_solid_palette_paper")
+        modes.buttons["彩色"].tap()
+        XCTAssertFalse(app.buttons["multi_score_style_color_paper"].exists)
+        snap("multi_style_colorful_preview")
+        modes.buttons["纯色"].tap()
+        XCTAssertTrue(app.buttons["multi_score_style_color_paper"].isSelected)
+        app.buttons["multi_score_style_done"].tap()
+        XCTAssertTrue(entry.waitForExistence(timeout: 4) && entry.isHittable)
+        XCTAssertTrue(entry.label.contains("纯色"))
+        XCTAssertTrue(tapStart())
+        XCTAssertTrue(waitForPriorityScoreboard())
+        snap("multi_style_paper_scoreboard")
+        // Relaunch through the real setup flow to prove the selection was saved.
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "multiScoreboard", label: "多人计分"))
+        XCTAssertTrue(app.buttons["setup_multi_style"].label.contains("纯色"))
+        app.buttons["setup_multi_style"].tap()
+        XCTAssertTrue(app.buttons["multi_score_style_color_paper"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.buttons["multi_score_style_color_paper"].isSelected)
+    }
+
+    func testMultiScoreInvalidPlayerCountPreventsStarting() {
+        continueAfterFailure = false
+        defer { app?.terminate() }
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "multiScoreboard", label: "多人计分"))
+        app.buttons["setup_multi_count_4"].tap()
+        app.buttons["setup_multi_count_custom"].tap()
+        let field = app.textFields["setup_multi_count_custom_input"]
+        XCTAssertTrue(field.waitForExistence(timeout: 4))
+        // Appending to 4 leaves the visible draft invalid while the last valid
+        // selection has already advanced to 49. Start must respect the draft.
+        field.typeText("99")
+        XCTAssertEqual(field.value as? String, "499")
+        let start = app.buttons["开始"]
+        XCTAssertFalse(start.isEnabled)
+        field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 3))
+        XCTAssertFalse(start.isEnabled)
+        field.typeText("50")
+        XCTAssertEqual(field.value as? String, "50")
+        XCTAssertTrue(start.isEnabled)
+        app.buttons["setup_multi_quick_count_50"].tap()
+        XCTAssertTrue(tapStart())
+        XCTAssertTrue(app.buttons["multi_score_next_page"].waitForExistence(timeout: 6))
+    }
+
+    // 同一组交互回归可在 SE 2 真机与模拟器运行，不清空用户数据或保存测试预约。
+    func testSE2MultiScoreFiftyPlayerPagingRegression() {
+        continueAfterFailure = false
+        defer { app?.terminate() }
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "multiScoreboard", label: "多人计分"))
+        // 单页最密的 9 人布局也检查姓名与大分数，再继续分页回归。
+        let countRow = app.buttons["setup_multi_count_4"].frame
+        let origin = app.coordinate(withNormalizedOffset: .zero)
+        let rowStart = origin.withOffset(CGVector(dx: countRow.maxX, dy: countRow.midY))
+        let rowEnd = origin.withOffset(CGVector(dx: 42, dy: countRow.midY))
+        let nine = app.buttons["setup_multi_count_9"]
+        for _ in 0..<5 where !nine.isHittable {
+            rowStart.press(forDuration: 0.05, thenDragTo: rowEnd)
+        }
+        XCTAssertTrue(nine.isHittable)
+        nine.tap()
+        XCTAssertTrue(tapStart())
+        XCTAssertTrue(waitForPriorityScoreboard())
+        snap("se2_multi_nine_player_spacing")
+        XCTAssertTrue(openPriorityScoreboardMenu())
+        app.buttons["scoreboard_menu_action_layout"].tap()
+        snap("se2_multi_nine_player_rotated_spacing")
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "multiScoreboard", label: "多人计分"))
+        app.buttons["setup_multi_count_4"].tap()
+        snap("se2_multi_pencil_entry")
+        let custom = app.buttons["setup_multi_count_custom"]
+        if custom.exists { custom.tap() }
+        else { app.textFields["setup_multi_count_custom_input"].tap() }
+        snap("se2_multi_count_popup")
+        let hierarchy = XCTAttachment(string: app.debugDescription)
+        hierarchy.name = "se2_multi_count_hierarchy"
+        hierarchy.lifetime = .keepAlways
+        add(hierarchy)
+        let fifty = app.buttons["setup_multi_quick_count_50"]
+        XCTAssertTrue(fifty.waitForExistence(timeout: 4))
+        fifty.tap()
+        let bulk = app.buttons["setup_multi_bulk_entry"]
+        XCTAssertTrue(bulk.waitForExistence(timeout: 4))
+        snap("se2_multi_name_header")
+        bulk.tap()
+        let editor = app.textViews["setup_multi_bulk_input"]
+        XCTAssertTrue(editor.waitForExistence(timeout: 4))
+        editor.tap()
+        editor.typeText("SE2 Alpha\nSE2 Beta\nSE2 Gamma")
+        let apply = app.buttons["setup_multi_bulk_apply"]
+        XCTAssertTrue(apply.isEnabled && apply.isHittable)
+        snap("se2_multi_bulk_names")
+        apply.tap()
+        let customAdjust = app.switches["multi_score_custom_adjust_toggle"]
+        XCTAssertTrue(customAdjust.waitForExistence(timeout: 4) && customAdjust.isHittable)
+        let adjustY = customAdjust.frame.midY
+        let styleEntry = app.buttons["setup_multi_style"]
+        XCTAssertTrue(styleEntry.isHittable)
+        let styleY = styleEntry.frame.midY
+        let firstName = app.textFields.matching(NSPredicate(format: "value == %@", "SE2 Alpha")).firstMatch
+        XCTAssertTrue(firstName.isHittable)
+        let firstNameY = firstName.frame.midY
+        let nameScrollStart = firstName.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
+        nameScrollStart.press(forDuration: 0.05, thenDragTo: nameScrollStart.withOffset(CGVector(dx: 0, dy: -150)))
+        XCTAssertLessThan(firstName.frame.midY, firstNameY - 40)
+        XCTAssertTrue(customAdjust.isHittable)
+        XCTAssertEqual(customAdjust.frame.midY, adjustY, accuracy: 2)
+        XCTAssertTrue(styleEntry.isHittable)
+        XCTAssertEqual(styleEntry.frame.midY, styleY, accuracy: 2)
+        snap("se2_multi_fixed_adjust_footer")
+        XCTAssertTrue(tapStart())
+        let next = app.buttons["multi_score_next_page"]
+        XCTAssertTrue(next.waitForExistence(timeout: 6))
+        XCTAssertTrue(app.staticTexts["SE2 Alpha"].exists)
+        snap("se2_multi_first_page")
+        next.tap()
+        XCTAssertTrue(app.buttons["multi_score_previous_page"].isEnabled)
+        XCTAssertFalse(app.staticTexts["SE2 Alpha"].exists)
+        for _ in 0..<7 where next.isEnabled { next.tap() }
+        XCTAssertFalse(next.isEnabled)
+        snap("se2_multi_last_page")
+        // 平板旋转会改变每页容量；验证同一锚点玩家仍可见，不假定页码保持不变。
+        let visiblePlayerNames = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "玩家 "))
+            .allElementsBoundByIndex.filter { $0.isHittable }.map(\.label)
+        let anchorName = visiblePlayerNames.min {
+            (Int($0.split(separator: " ").last ?? "0") ?? 0) < (Int($1.split(separator: " ").last ?? "0") ?? 0)
+        }
+        XCTAssertNotNil(anchorName)
+        let wasLandscape = app.frame.width > app.frame.height
+        XCTAssertTrue(openPriorityScoreboardMenu())
+        app.buttons["scoreboard_menu_action_layout"].tap()
+        XCUIDevice.shared.orientation = wasLandscape ? .portrait : .landscapeRight
+        let rotated = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            (self.app.frame.width > self.app.frame.height) != wasLandscape
+        }, object: app)
+        XCTAssertEqual(XCTWaiter.wait(for: [rotated], timeout: 6), .completed)
+        XCTAssertTrue(app.buttons["multi_score_previous_page"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.staticTexts[anchorName!].isHittable)
+        snap("se2_multi_rotated_last_page")
+    }
+
+    private func configureBasketballPreMatchTiming() {
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "basketball", label: "篮球"))
+        let custom = app.buttons["自定义"].firstMatch
+        for _ in 0..<5 where !custom.isHittable { swipePage(up: true) }
+        XCTAssertTrue(custom.waitForExistence(timeout: 4) && custom.isHittable)
+        custom.tap()
+        let twenty = app.buttons["20"].firstMatch
+        for _ in 0..<5 where !twenty.isHittable { swipePage(up: true) }
+        XCTAssertTrue(twenty.isHittable)
+        twenty.tap()
+        let three = app.buttons["3"].firstMatch
+        for _ in 0..<5 where !three.isHittable { swipePage(up: true) }
+        XCTAssertTrue(three.isHittable)
+        three.tap()
+    }
+
+    func testSE2BasketballPreMatchTimingIsLockedRegression() {
+        continueAfterFailure = false
+        defer { app?.terminate() }
+        configureBasketballPreMatchTiming()
+        snap("se2_basketball_prematch_custom_timing")
+        XCTAssertTrue(tapStart())
+        XCTAssertTrue(waitForPriorityScoreboard())
+        let window = app.windows.firstMatch
+        let clock = window.descendants(matching: .any)["basketball_game_clock"].firstMatch
+        XCTAssertTrue(clock.waitForExistence(timeout: 4))
+        XCTAssertTrue(clock.label.contains("20:00"), clock.label)
+        let edit = window.buttons["scoreboard_edit_button"].firstMatch
+        XCTAssertTrue(edit.waitForExistence(timeout: 4))
+        edit.tap()
+        XCTAssertFalse(window.buttons["修改时长"].exists)
+        XCTAssertFalse(window.staticTexts["每节时长（分钟）"].exists)
+        snap("se2_basketball_edit_without_timing_change")
+        edit.tap()
+        XCTAssertTrue(clock.label.contains("20:00"), clock.label)
+        snap("se2_basketball_prematch_clock_applied")
+    }
+
+    func testSE2BookingBasketballCustomFieldsRegression() {
+        continueAfterFailure = false
+        defer { app?.terminate() }
+        captureScheduleFlow()
+        let sport = app.buttons["booking_sport_type"].firstMatch
+        XCTAssertTrue(sport.waitForExistence(timeout: 5))
+        sport.tap()
+        let basketball = app.buttons["篮球"].firstMatch
+        XCTAssertTrue(basketball.waitForExistence(timeout: 3))
+        basketball.tap()
+        let rule = app.buttons["booking_basketball_rule_set"]
+        for _ in 0..<5 where !rule.isHittable { swipePage(up: true) }
+        XCTAssertTrue(rule.exists && rule.isHittable)
+        rule.tap()
+        app.buttons["自定义"].firstMatch.tap()
+        let period = app.textFields["booking_basketball_period_minutes"]
+        XCTAssertTrue(period.waitForExistence(timeout: 4))
+        XCTAssertTrue(app.textFields["booking_basketball_overtime_minutes"].exists)
+        period.tap()
+        period.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 2) + "24")
+        let done = app.buttons["booking_finish_input"]
+        if done.exists { done.tap() }
+        XCTAssertEqual(period.value as? String, "24")
+        snap("se2_booking_basketball_custom")
+        // 不保存预约，避免触发通知或写入用户球局。
+    }
+
+    @objc func testMultiScoreStyleAllColorsAndCancel() {
+        continueAfterFailure = false
+        defer { app?.terminate() }
+        openStyleAuditSetup(locale: UITestLocale.zhHans)
+        let entry = app.buttons["setup_multi_style"]
+        let originalLabel = entry.label
+        entry.tap()
+        let modes = app.segmentedControls["multi_score_style_modes"]
+        XCTAssertTrue(modes.waitForExistence(timeout: 4))
+        modes.buttons["multi_score_style_mode_solid"].tap()
+        let colors = ["ink", "graphite", "paper", "mist", "forest", "jade", "navy", "lake", "violet", "rose", "clay", "olive"]
+        let originalColor = colors.first { app.buttons["multi_score_style_color_\($0)"].isSelected }
+        XCTAssertNotNil(originalColor)
+        let doneY = app.buttons["multi_score_style_done"].frame.midY
+        for color in colors {
+            let button = app.buttons["multi_score_style_color_\(color)"]
+            XCTAssertTrue(button.isHittable, "Color must be reachable: \(color)")
+            XCTAssertLessThanOrEqual(button.frame.maxY, app.buttons["multi_score_style_done"].frame.minY)
+            button.tap()
+            XCTAssertTrue(button.isSelected, color)
+            XCTAssertEqual(app.buttons["multi_score_style_done"].frame.midY, doneY, accuracy: 2)
+            if ["ink", "paper", "olive"].contains(color) { snap("style_all_colors_\(color)", settle: 0.2) }
+        }
+        app.buttons["multi_score_style_done"].tap()
+        app.buttons["取消"].tap()
+        openStyleAuditSetup(locale: UITestLocale.zhHans)
+        XCTAssertEqual(app.buttons["setup_multi_style"].label, originalLabel, "Cancel must discard the style draft")
+        app.buttons["setup_multi_style"].tap()
+        app.segmentedControls["multi_score_style_modes"].buttons["multi_score_style_mode_solid"].tap()
+        XCTAssertTrue(app.buttons["multi_score_style_color_\(originalColor!)"].isSelected)
+    }
+
+    @objc func testMultiScoreStyleLocalizedPanels() {
+        continueAfterFailure = false
+        defer { app?.terminate() }
+        let cases: [(UITestLocale.Configuration, String, String)] = [
+            (UITestLocale.en, "Scoreboard style", "Paper white"),
+            (UITestLocale.de, "Anzeigestil", "Papierweiß"),
+            (UITestLocale.zhHant, "計分板樣式", "紙白"),
+            (UITestLocale.ja, "スコアボードの配色", "紙の白"),
+            (UITestLocale.ar, "نمط لوحة النتائج", "أبيض ورقي")
+        ]
+        for (locale, title, paperName) in cases {
+            openStyleAuditSetup(locale: locale)
+            let entry = app.buttons["setup_multi_style"]
+            XCTAssertTrue(entry.label.contains(title), locale.language)
+            snap("style_locale_\(locale.language)_entry", settle: 0.2)
+            entry.tap()
+            let modes = app.segmentedControls["multi_score_style_modes"]
+            XCTAssertTrue(modes.waitForExistence(timeout: 4))
+            modes.buttons["multi_score_style_mode_solid"].tap()
+            let paper = app.buttons["multi_score_style_color_paper"]
+            XCTAssertTrue(paper.waitForExistence(timeout: 4) && paper.isHittable)
+            XCTAssertEqual(paper.label, paperName)
+            paper.tap()
+            XCTAssertTrue(paper.isSelected)
+            for color in ["ink", "graphite", "paper", "mist", "forest", "jade", "navy", "lake", "violet", "rose", "clay", "olive"] {
+                let button = app.buttons["multi_score_style_color_\(color)"]
+                XCTAssertTrue(button.isHittable, "\(locale.language)/\(color)")
+                XCTAssertFalse(button.label.contains("multi_score_color_"))
+                XCTAssertLessThanOrEqual(button.frame.maxY, app.buttons["multi_score_style_done"].frame.minY)
+            }
+            if locale.language == "de" {
+                XCTAssertGreaterThanOrEqual(app.buttons["multi_score_style_color_ink"].frame.width, 90,
+                    "Long German color names need enough width to avoid orphaned final letters")
+            }
+            snap("style_locale_\(locale.language)_palette", settle: 0.2)
+            app.buttons["multi_score_style_done"].tap()
+            XCTAssertTrue(entry.waitForExistence(timeout: 4) && entry.isHittable)
+        }
+    }
+
+    private func openStyleAuditSetup(locale: UITestLocale.Configuration) {
+        relaunch(locale: locale)
+        XCTAssertTrue(selectTab("计分"))
+        scrollUntilExists(identifier: "scoreboard_catalog_multiScoreboard")
+        let card = app.descendants(matching: .any)["scoreboard_catalog_multiScoreboard"].firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 4) && card.isHittable)
+        card.tap()
+        XCTAssertTrue(app.buttons["setup_multi_style"].waitForExistence(timeout: 4))
+    }
+
     // MARK: - Launch
 
     private func relaunch(extraArguments: [String] = [], locale: UITestLocale.Configuration = UITestLocale.zhHans, waitForTabBar: Bool = true, orientation: UIDeviceOrientation? = .portrait) {
+        testLocaleLanguage = locale.language
         if app != nil {
             terminateAndWait(app)
         }
@@ -1651,9 +2178,18 @@ final class FullAppScreenshotUITests: XCTestCase {
             "Timer": ["计时", "Timer"],
             "Me": ["我的", "Me"]
         ]
-        let names = aliases[name] ?? [name]
+        var names = aliases[name] ?? [name]
         let tabNames = ["首页", "记录", "计分", "计时", "我的"]
         if let index = tabNames.firstIndex(where: { names.contains($0) }) {
+            let localizedTitles = [
+                "zh-Hant": ["首頁", "記錄", "計分", "計時", "我的"],
+                "de": ["Startseite", "Verlauf", "Punkte", "Timer", "Profil"],
+                "ja": ["ホーム", "記録", "スコア", "タイマー", "マイページ"],
+                "ar": ["الصفحة الرئيسية", "السجلات", "النتيجة", "مؤقت", "حسابي"]
+            ]
+            if let localized = localizedTitles[testLocaleLanguage]?[index], !names.contains(localized) {
+                names.append(localized)
+            }
             let tab = app.descendants(matching: .any)["main_tab_\(index)"].firstMatch
             if tab.waitForExistence(timeout: 2), tab.isHittable {
                 if !tab.isSelected { tab.tap() }
@@ -1808,8 +2344,8 @@ final class FullAppScreenshotUITests: XCTestCase {
         }
     }
 
-    private func openPriorityScoreboardSetup(id: String, label: String) -> Bool {
-        relaunch()
+    private func openPriorityScoreboardSetup(id: String, label: String, extraArguments: [String] = []) -> Bool {
+        relaunch(extraArguments: extraArguments)
         guard selectTab("计分") else { return false }
         scrollUntilExists(identifier: "scoreboard_catalog_\(id)")
 
@@ -1875,7 +2411,13 @@ final class FullAppScreenshotUITests: XCTestCase {
         RunLoop.current.run(until: Date().addingTimeInterval(0.35))
     }
 
+    private func dismissScoreboardOpeningGuide() {
+        let acknowledge = app.buttons["知道了"].firstMatch
+        if acknowledge.exists, acknowledge.isHittable { acknowledge.tap() }
+    }
+
     private func openPriorityScoreboardMenu() -> Bool {
+        dismissScoreboardOpeningGuide()
         let dialog = app.descendants(matching: .any)["scoreboard_menu_dialog"]
         if dialog.exists { return true }
 
@@ -1894,6 +2436,7 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     /// 每个计分板都实际操作菜单与撤销，避免截图存在但按钮失效、遮挡或菜单未挂载。
     private func exerciseScoreboardChrome(for id: String) {
+        dismissScoreboardOpeningGuide()
         revealScoreboardChrome(fromLeftCorner: false)
         let dialog = app.descendants(matching: .any)["scoreboard_menu_dialog"]
         let menu = app.descendants(matching: .any)["scoreboard_menu_button"]

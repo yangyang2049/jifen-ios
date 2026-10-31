@@ -12,6 +12,9 @@ struct RemoteDisplayView: View {
     @State private var backRevealRevision = 0
     @State private var lastExitTapAt: Date?
     @State private var toastMessage: String?
+    /// 接收端自己的多人计分分页锚点（对齐安卓 viewerAnchor）：
+    /// 横屏每页 15 人、竖屏每页 9 人；翻页只影响本接收端，不改变发送手机的大屏选择。
+    @State private var multiScoreViewerAnchor = 0
     @Environment(\.dismiss) private var dismiss
 
     /// 与安卓 REMOTE_DISPLAY_EXIT_DOUBLE_TAP_MS 一致。
@@ -84,9 +87,23 @@ struct RemoteDisplayView: View {
         switch session.mode {
         case .live, .finished:
             if let state = session.displayState {
-                ScoreboardExternalLiveView(state: state, projection: .synchronizedDisplay, onExit: exitImmediately)
-                    .id("\(state.gameType)-\(state.layoutKind.rawValue)")
-                    .transition(.opacity)
+                ScoreboardExternalLiveView(
+                    state: state,
+                    projection: .synchronizedDisplay,
+                    multiScoreAnchorPlayer: multiScoreViewerAnchor,
+                    onMultiScorePage: multiScorePageCallback(for: state),
+                    onExit: exitImmediately
+                )
+                .id("\(state.gameType)-\(state.layoutKind.rawValue)")
+                .transition(.opacity)
+                // 重新开局（结束态回到进行中）回到第一屏，与安卓 viewerAnchor 复位一致。
+                .onChange(of: state.result?.ended ?? false) { wasEnded, ended in
+                    if wasEnded, !ended { multiScoreViewerAnchor = 0 }
+                }
+                // 名单变短时把锚点夹回有效范围，避免名单再变长时停在旧屏。
+                .onChange(of: state.players?.count ?? 0) { _, count in
+                    multiScoreViewerAnchor = min(multiScoreViewerAnchor, max(0, count - 1))
+                }
             } else {
                 waitingPanel
             }
@@ -100,6 +117,13 @@ struct RemoteDisplayView: View {
         case .waiting:
             waitingPanel
         }
+    }
+
+    /// 接收端分页回调：参数是目标屏首位的全局锚点玩家下标（翻页只改本接收端）。
+    /// 结束态与安卓一致不再提供箭头，只留圆点展示当前屏。
+    private func multiScorePageCallback(for state: ScoreboardDisplayState) -> ((Int) -> Void)? {
+        guard state.result?.ended != true else { return nil }
+        return { anchor in multiScoreViewerAnchor = anchor }
     }
 
     /// 等待/无内容态：App 图标 + 横排翻页时钟 + 等待文案（对齐安卓 DisplayIdleWaitingPanel）。

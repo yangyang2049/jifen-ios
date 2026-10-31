@@ -346,11 +346,17 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
         return .accepted(session: currentSession, events: result.events)
     }
 
-    public func undo(actorId: String) -> Bool {
+    public func undo(actorId: String, mergingState: (@Sendable (State, State) -> State)? = nil) -> Bool {
         guard canUndo(actorId), let frame = undoStack.popLast() else {
             return false
         }
-        currentSession = frame.session
+        let old = frame.session
+        let merged = mergingState?(old.state, currentSession.state) ?? old.state
+        let status = mergingState != nil && timeline.last.map({ shouldFinish($0.intent, merged) }) == true ? SessionStatus.finished : old.status
+        currentSession = ScoreSession(sessionId: old.sessionId, gameType: old.gameType, ruleFamily: old.ruleFamily,
+            reducerType: old.reducerType, version: old.version,
+            state: merged,
+            events: old.events, status: status, participants: old.participants, metadata: old.metadata)
         if frame.intentCount > 0 {
             timeline.removeLast(min(frame.intentCount, timeline.count))
         }

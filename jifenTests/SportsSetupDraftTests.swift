@@ -4,6 +4,38 @@ import XCTest
 
 @MainActor
 final class SportsSetupDraftTests: XCTestCase {
+    func testBasketballCustomPreferencesPresetsAndRecordRestart() throws {
+        let suite = "basketball-test-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let preferences = PreferencesManager(defaults: defaults)
+        preferences.basketballRuleSet = "custom"
+        preferences.basketballPeriodSeconds = 1200
+        preferences.basketballOvertimeSeconds = 180
+        var draft = SportsSetupDraft()
+        draft.initialize(gameType: .basketball, initialSetup: nil, initialMaxSets: nil,
+            initialPointsPerSet: nil, initialTieBreakPoints: nil, preferences: preferences)
+        XCTAssertEqual(draft.basketballPeriodMinutes, 20)
+        XCTAssertEqual(draft.basketballOvertimeMinutes, 3)
+        draft.basketballRuleSet = "nba"
+        let nba = draft.makeResult(gameType: .basketball, usesDoublesPlayerInputs: false)
+        XCTAssertEqual(nba.basketballPeriodSeconds, 720)
+        XCTAssertEqual(nba.basketballOvertimeSeconds, 300)
+        draft.basketballRuleSet = "custom"
+        let custom = draft.makeResult(gameType: .basketball, usesDoublesPlayerInputs: false)
+        XCTAssertEqual(custom.basketballPeriodSeconds, 1200)
+        XCTAssertEqual(custom.basketballOvertimeSeconds, 180)
+        let record = ScoreboardRecord(id: UUID().uuidString, gameType: .basketball, startTime: Date(),
+            team1Name: "H", team2Name: "A", team1FinalScore: 10, team2FinalScore: 8, totalScoreChanges: 3,
+            extraData: ["basketballRuleSet": AnyCodable("custom"), "basketballPeriodSeconds": AnyCodable(1200),
+                "basketballOvertimeSeconds": AnyCodable(180), "basketballGameTime": AnyCodable(137)])
+        let restored = try JSONDecoder().decode(ScoreboardRecord.self, from: JSONEncoder().encode(record))
+        let restart = ScoreboardRecordConfiguration.setup(from: restored)
+        XCTAssertEqual(restart.basketballRuleSet, "custom")
+        XCTAssertEqual(restart.basketballPeriodSeconds, 1200)
+        XCTAssertEqual(restart.basketballOvertimeSeconds, 180)
+    }
+
     func testNineBallTournamentSetupRoundTripKeepsRulesAndForcesSingles() throws {
         let original = SportsSetupResult(team1Name: "A", team2Name: "B", nineBallSmallGold: 9,
             nineBallBreakerPlayer: 1, nineBallRuleFamily: "tournament", nineBallPointScheme: "14710",
@@ -452,13 +484,13 @@ final class SportsSetupDraftTests: XCTestCase {
         XCTAssertEqual(eleven.pickleballRules.pointsToWinSet, 11)
         XCTAssertEqual(eleven.pickleballRules.pointCap, 15)
 
-        var legacy = SportsSetupResult(team1Name: "A", team2Name: "B")
-        legacy.targetScore = 99
-        legacy.maxSets = nil
-        legacy.isSingles = true
-        XCTAssertEqual(legacy.pickleballRules.pointsToWinSet, 11)
-        XCTAssertEqual(legacy.pickleballRules.maxSets, 3)
-        XCTAssertEqual(legacy.pickleballRules.nextSetServerModel, .opening)
+        var custom = SportsSetupResult(team1Name: "A", team2Name: "B")
+        custom.targetScore = 99
+        custom.maxSets = nil
+        custom.isSingles = true
+        XCTAssertEqual(custom.pickleballRules.pointsToWinSet, 99)
+        XCTAssertEqual(custom.pickleballRules.maxSets, 1)
+        XCTAssertEqual(custom.pickleballRules.nextSetServerModel, .opening)
     }
 
     func testInitializationRestoresTennisConfiguration() {

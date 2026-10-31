@@ -17,7 +17,7 @@ enum MultiScoreRules {
     static let scoreRange = -9999 ... 9999
 
     static func normalizedPlayerCount(_ requested: Int, gameType: GameType) -> Int {
-        let range = gameType == .uno ? 2 ... 10 : 3 ... 9
+        let range = gameType == .uno ? 2 ... 10 : MultiScoreCapacity.minPlayers ... MultiScoreCapacity.maxPlayers
         return min(range.upperBound, max(range.lowerBound, requested))
     }
 
@@ -104,6 +104,13 @@ struct MultiScoreboardView: View {
     @State private var resumeSaveGeneration = 0
     @State private var pendingTapIndex: Int?
     @State private var pendingTapAt: Date = .distantPast
+    /// 分页锚点：当前页第一位玩家的全局席位；页码只影响视图，不进入比赛数据。
+    @State private var anchorPlayer = 0
+    /// 大屏当前屏锚点：与手机自己的页码完全独立（对齐安卓 castAnchorPlayer）。
+    @State private var castAnchorPlayer = 0
+    @State private var showRoster = false
+    @State private var rosterQuery = ""
+    @ObservedObject private var externalDisplay = ExternalDisplayCoordinator.shared
     @State private var useLandscapeLayout: Bool
     @FocusState private var unoNumberFieldFocused: Bool
 
@@ -159,27 +166,22 @@ struct MultiScoreboardView: View {
             ? (initialSetup?.participantSelections ?? [:]) : nil)
     }
 
-    // HOS MULTI_PLAYER_GRID_COLORS order
-    private let colors: [Color] = [
-        Color(hex: "EF4444"),
-        Color(hex: "3B82F6"),
-        Color(hex: "22C55E"),
-        Color(hex: "F59E0B"),
-        Color(hex: "A855F7"),
-        Color(hex: "EC4899"),
-        Color(hex: "14B8A6"),
-        Color(hex: "F97316"),
-        Color(hex: "6366F1"),
-        Color(hex: "84CC16"),
-        Color(hex: "06B6D4"),
-        Color(hex: "E11D48"),
-    ]
+    private var gridStyle: MultiScoreboardStyle {
+        gameType == .multiScoreboard ? preferences.multiScoreboardStyle : .default
+    }
 
     var body: some View {
         GeometryReader { safeGeometry in
             GeometryReader { geo in
                 ZStack {
-                    appearance.theme.palette.background.ignoresSafeArea()
+                    Group {
+                        if gameType == .multiScoreboard, gridStyle.mode == .solid {
+                            Color(hex: gridStyle.solidColor.hex)
+                        } else {
+                            appearance.theme.palette.background
+                        }
+                    }
+                    .ignoresSafeArea()
 
                     scoreboardGrid(geo: geo, safeArea: safeGeometry.safeAreaInsets)
 
@@ -197,6 +199,29 @@ struct MultiScoreboardView: View {
                        playerEditIndex == nil,
                        customAdjustIndex == nil {
                         bottomControls
+                    }
+
+                    if gameType == .multiScoreboard,
+                       shouldShowChrome,
+                       !showUnoRoundPanel,
+                       playerEditIndex == nil,
+                       customAdjustIndex == nil,
+                       !showGameOverDialog {
+                        VStack {
+                            HStack {
+                                MultiScoreCastPagingControl(
+                                    playerCount: players.count,
+                                    anchorPlayer: castAnchorPlayer,
+                                    onAnchorPlayer: { castAnchorPlayer = $0 },
+                                    isActive: externalDisplay.status != .disconnected
+                                )
+                                Spacer(minLength: 0)
+                            }
+                            Spacer(minLength: 0)
+                        }
+                        .padding(.leading, 8)
+                        .padding(.top, max(8, safeGeometry.safeAreaInsets.top + 8))
+                        .allowsHitTesting(true)
                     }
 
                     if showMenu {
@@ -288,7 +313,9 @@ struct MultiScoreboardView: View {
         .simultaneousGesture(
             DragGesture(minimumDistance: 50)
                 .onEnded { value in
-                    guard playerEditIndex == nil,
+                    // 多人分页模式左右滑动改为翻页；UNO 与非分页多人板保留左滑撤销。
+                    guard MultiScorePaging.allowsSwipeUndo(gameType: gameType, playerCount: players.count),
+                          playerEditIndex == nil,
                           customAdjustIndex == nil,
                           !showUnoRoundPanel,
                           value.translation.width < -50,
@@ -343,6 +370,11 @@ struct MultiScoreboardView: View {
                 : ScoreboardTypographyProfile.multi.adjustableMetrics
         )
         .scoreboardStyleEditorEntry(styleEditorEntry, typographySession: typographySession)
+        .sheet(isPresented: $showRoster) {
+            rosterSheet
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordId)
@@ -358,38 +390,152 @@ struct MultiScoreboardView: View {
     // MARK: - Grid
 
     private func scoreboardGrid(geo: GeometryProxy, safeArea: EdgeInsets) -> some View {
-        let rows = layoutRows()
-        let cellHeight = geo.size.height / CGFloat(max(1, rows.count))
+        let geometry = MultiScoreGridGeometry(
+            size: geo.size,
+            topInset: gameType == .multiScoreboard ? safeArea.top : 0
+        )
+        let layout = MultiScorePaging.layout(
+            gameType: gameType,
+            playerCount: players.count,
+            landscape: useLandscapeLayout,
+            size: geometry.contentSize,
+            anchorPlayer: anchorPlayer
+        )
+        let rows = layout.rows
+        let showsSeatNumbers = layout.paginated
+        // 姓名与分数分区后，比分区也要避开底部返回/菜单和分页控件。
+        // 全部卡片使用相同净空，控件显隐时字号与位置保持稳定。
+        let scoreBottomInset: CGFloat = gameType == .multiScoreboard
+            ? ScoreboardConstants.buttonPadding + ScoreboardConstants.buttonSize + 4
+            : (layout.pageCount > 1 ? 20 : 0)
 
-        return VStack(spacing: 0) {
-            ForEach(Array(rows.enumerated()), id: \.offset) { rowIndex, row in
-                HStack(spacing: 0) {
-                    ForEach(Array(row.enumerated()), id: \.offset) { columnIndex, playerIndex in
-                        if let playerIndex, players.indices.contains(playerIndex) {
-                            playerPanel(
-                                index: playerIndex, player: players[playerIndex], height: cellHeight,
-                                nameInsets: EdgeInsets(
-                                    top: rowIndex == 0 ? safeArea.top : 0,
-                                    leading: columnIndex == 0 ? safeArea.leading : 0,
-                                    bottom: 0,
-                                    trailing: columnIndex == row.count - 1 ? safeArea.trailing : 0
+        return ZStack(alignment: .bottom) {
+            VStack(spacing: 0) {
+                ForEach(Array(rows.enumerated()), id: \.offset) { rowIndex, row in
+                    let cellHeight = geometry.rowHeight(at: rowIndex, rowCount: rows.count)
+                    HStack(spacing: 0) {
+                        ForEach(Array(row.enumerated()), id: \.offset) { columnIndex, playerIndex in
+                            if let playerIndex, players.indices.contains(playerIndex) {
+                                playerPanel(
+                                    index: playerIndex, player: players[playerIndex], height: cellHeight,
+                                    seatNumber: showsSeatNumbers ? playerIndex + 1 : nil,
+                                    scoreBottomInset: scoreBottomInset,
+                                    nameInsets: EdgeInsets(
+                                        top: rowIndex == 0 ? safeArea.top : 0,
+                                        leading: columnIndex == 0 ? safeArea.leading : 0,
+                                        bottom: 0,
+                                        trailing: columnIndex == row.count - 1 ? safeArea.trailing : 0
+                                    )
                                 )
-                            )
-                                .frame(maxWidth: .infinity)
-                        } else {
-                            extraCellPlaceholder(height: cellHeight, showEmoji: true)
-                                .frame(maxWidth: .infinity)
+                                    .frame(maxWidth: .infinity)
+                            } else {
+                                extraCellPlaceholder(height: cellHeight, showEmoji: true)
+                                    .frame(maxWidth: .infinity)
+                            }
                         }
                     }
+                    .frame(height: cellHeight)
                 }
-                .frame(height: cellHeight)
+            }
+            .frame(width: geo.size.width, height: geo.size.height, alignment: .top)
+            .contentShape(Rectangle())
+            .simultaneousGesture(pagingGesture(layout: layout))
+
+            if layout.pageCount > 1,
+               shouldShowChrome,
+               playerEditIndex == nil,
+               customAdjustIndex == nil,
+               !showUnoRoundPanel {
+                pagingControls(layout: layout)
+                    .padding(.bottom, 4)
             }
         }
-        .frame(width: geo.size.width, height: geo.size.height, alignment: .top)
+    }
+
+    /// 翻页手势只认水平主轴，且不与格内上下滑动加减分抢手势。
+    private func pagingGesture(layout: MultiScorePageLayout) -> some Gesture {
+        DragGesture(minimumDistance: 50)
+            .onEnded { value in
+                guard layout.pageCount > 1,
+                      playerEditIndex == nil,
+                      customAdjustIndex == nil,
+                      !showUnoRoundPanel,
+                      abs(value.translation.width) >= 60,
+                      abs(value.translation.width) > abs(value.translation.height) * 1.5 else { return }
+                goToPage(layout.page + (value.translation.width < 0 ? 1 : -1), layout: layout)
+            }
+    }
+
+    private func pagingControls(layout: MultiScorePageLayout) -> some View {
+        HStack(spacing: 14) {
+            Button {
+                goToPage(layout.page - 1, layout: layout)
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.white.opacity(layout.page > 0 ? 1 : 0.3))
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .disabled(layout.page == 0)
+            .accessibilityLabel(NSLocalizedString("multi_score_previous_page", value: "上一页", comment: ""))
+            .accessibilityIdentifier("multi_score_previous_page")
+
+            HStack(spacing: 6) {
+                ForEach(0 ..< layout.pageCount, id: \.self) { index in
+                    Circle()
+                        .fill(Color.white.opacity(index == layout.page ? 0.95 : 0.32))
+                        .frame(width: 6, height: 6)
+                }
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(pagingDescription(layout))
+
+            Button {
+                goToPage(layout.page + 1, layout: layout)
+            } label: {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.white.opacity(layout.page + 1 < layout.pageCount ? 1 : 0.3))
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .disabled(layout.page + 1 >= layout.pageCount)
+            .accessibilityLabel(NSLocalizedString("multi_score_next_page", value: "下一页", comment: ""))
+            .accessibilityIdentifier("multi_score_next_page")
+        }
+        .padding(.horizontal, 8)
+        .background(Capsule().fill(Color.black.opacity(0.28)))
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("multi_score_paging_controls")
+    }
+
+    private func pagingDescription(_ layout: MultiScorePageLayout) -> String {
+        String(
+            format: NSLocalizedString(
+                "multi_score_page_description",
+                value: "第 %d 页，共 %d 页，玩家 %d 至 %d",
+                comment: ""
+            ),
+            layout.page + 1,
+            layout.pageCount,
+            layout.start + 1,
+            layout.start + layout.count
+        )
+    }
+
+    private func goToPage(_ target: Int, layout: MultiScorePageLayout) {
+        guard layout.pageCount > 1 else { return }
+        let clamped = min(max(0, target), layout.pageCount - 1)
+        anchorPlayer = min(clamped * layout.capacity, max(0, players.count - 1))
+        revealImmersiveChrome()
     }
 
     private func extraCellPlaceholder(height: CGFloat, showEmoji: Bool) -> some View {
-        Color.white.opacity(0.05)
+        (gameType == .multiScoreboard && gridStyle.mode == .solid
+            ? Color(hex: gridStyle.solidColor.hex) : Color.white.opacity(0.05))
             .frame(maxWidth: .infinity)
             .frame(height: height)
     }
@@ -476,46 +622,110 @@ struct MultiScoreboardView: View {
         .allowsHitTesting(false)
     }
 
-    private func playerPanel(index: Int, player: MultiPlayerItem, height: CGFloat, nameInsets: EdgeInsets) -> some View {
+    private func playerPanel(
+        index: Int,
+        player: MultiPlayerItem,
+        height: CGFloat,
+        seatNumber: Int? = nil,
+        scoreBottomInset: CGFloat = 0,
+        nameInsets: EdgeInsets
+    ) -> some View {
         GeometryReader { panelGeo in
+            let baseNameTopInset = seatNumber == nil ? 12.0 : 28.0
+            let nameTopInset = baseNameTopInset + nameInsets.top
+            // The grid already gives the first row extra height for its safe
+            // area. Typography uses the same content height for every row.
+            let contentSize = CGSize(
+                width: panelGeo.size.width,
+                height: max(1, panelGeo.size.height - (gameType == .multiScoreboard ? nameInsets.top : 0))
+            )
+            let minimumNameScoreGap: CGFloat = 8
             let typography = ScoreboardTypographyResolver.resolve(
                 ScoreboardTypographyLayoutContext(
                     profile: gameType == .uno ? .uno : .multi,
-                    containerSize: panelGeo.size,
+                    containerSize: MultiScorePaging.scoreContentSize(contentSize, bottomInset: scoreBottomInset),
                     nameText: player.name,
                     scoreText: "\(player.score)",
                     secondaryText: "",
                     preference: typographySession.effectivePreference,
                     horizontalPadding: 12,
-                    reservedHeight: gameType == .uno ? 44 : 20,
+                    reservedHeight: gameType == .uno ? 44 : baseNameTopInset + minimumNameScoreGap,
                     isLargeScreen: Theme.usesPadLayout
                 )
             )
+            let nameScoreGap = max(minimumNameScoreGap, typography.nameToScoreSpacing)
+            let customFont = typographySession.effectivePreference.font.postScriptName
+                .flatMap { UIFont(name: $0, size: 100) }
+            let nameLineHeight = (customFont?.withSize(typography.nameFontSize)
+                ?? UIFont.systemFont(ofSize: typography.nameFontSize, weight: .medium)).lineHeight
+            let scoreLineHeight = (customFont?.withSize(typography.scoreFontSize)
+                ?? UIFont.systemFont(ofSize: typography.scoreFontSize, weight: .bold)).lineHeight
+            let scoreAreaHeight = panelGeo.size.height - nameTopInset - nameLineHeight
+                - nameScoreGap - scoreBottomInset
+            // 下移只使用比分区的剩余留白，不侵占姓名或底部悬浮控件的净空。
+            let scoreDownshift = min(18, max(0, (scoreAreaHeight - scoreLineHeight - 2) / 2))
+            let nameLabel = Text(player.name)
+                .font(typographySession.effectivePreference.font.swiftUIFont(
+                    size: typography.nameFontSize,
+                    weight: .medium
+                ))
+                .foregroundColor(Color(hex: gridStyle.foregroundHex))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .padding(.horizontal, Theme.sm)
+            let scoreLabel = Text("\(player.score)")
+                .font(typographySession.effectivePreference.font.swiftUIFont(size: typography.scoreFontSize))
+                .foregroundColor(Color(hex: gridStyle.foregroundHex))
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .accessibilityIdentifier("multi_score_value_\(player.id)")
             ZStack {
-                Text(player.name)
-                    .font(typographySession.effectivePreference.font.swiftUIFont(
-                        size: typography.nameFontSize,
-                        weight: .medium
-                    ))
-                    .foregroundColor(.white)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                    .padding(.horizontal, Theme.sm)
-                    .padding(.top, 12)
-                    .padding(nameInsets)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                if let seatNumber {
+                    // 分页时的全局席位编号（末页仍是 46～50 号），不写回比赛数据。
+                    Text("\(seatNumber)")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(Color(hex: gridStyle.foregroundHex).opacity(0.62))
+                        .padding(.top, 6)
+                        .padding(.trailing, 8)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                }
 
-                Text("\(player.score)")
-                    .font(typographySession.effectivePreference.font.swiftUIFont(size: typography.scoreFontSize))
-                    .foregroundColor(.white)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                if gameType == .multiScoreboard {
+                    // 姓名独占顶部一行，分数在其下方的剩余区域略向下对齐。
+                    // 固定间隔也参与字号预算，放大字号时不会相互覆盖。
+                    VStack(spacing: nameScoreGap) {
+                        nameLabel
+                            .padding(.leading, nameInsets.leading)
+                            .padding(.trailing, nameInsets.trailing)
+                            .frame(maxWidth: .infinity)
+                            .fixedSize(horizontal: false, vertical: true)
+                        scoreLabel
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .offset(y: scoreDownshift)
+                    }
+                    .padding(.top, nameTopInset)
+                    .padding(.bottom, scoreBottomInset)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    nameLabel
+                        .padding(.top, seatNumber == nil ? 12 : 28)
+                        .padding(nameInsets)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    scoreLabel
+                        .padding(.bottom, scoreBottomInset)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(height: height)
         .background(panelColor(index: index))
+        .overlay {
+            if gameType == .multiScoreboard, gridStyle.mode == .solid {
+                Rectangle().strokeBorder(Color(hex: gridStyle.foregroundHex).opacity(0.1), lineWidth: 0.5)
+                    .allowsHitTesting(false)
+            }
+        }
         .contentShape(Rectangle())
         .onTapGesture {
             handlePlayerTap(index: index)
@@ -582,6 +792,90 @@ struct MultiScoreboardView: View {
         }
     }
 
+    // MARK: - Roster（找人）
+
+    private var rosterSheet: some View {
+        let query = rosterQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        let matches = players.enumerated().filter { pair in
+            let seat = String(pair.offset + 1)
+            guard !query.isEmpty else { return true }
+            if seat == query || seat.hasPrefix(query) { return true }
+            return pair.element.name.localizedCaseInsensitiveContains(query)
+        }
+
+        return VStack(spacing: 0) {
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(Theme.textSecondary)
+                TextField(
+                    NSLocalizedString("multi_score_find_player", value: "搜索姓名或输入编号", comment: ""),
+                    text: $rosterQuery
+                )
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .accessibilityIdentifier("multi_score_find_player_field")
+                if !rosterQuery.isEmpty {
+                    Button {
+                        rosterQuery = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(Theme.textSecondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, Theme.md)
+            .padding(.vertical, Theme.sm)
+            .background(Theme.dialogControlBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .padding(Theme.md)
+
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(Array(matches), id: \.element.id) { index, player in
+                        Button {
+                            anchorPlayer = index
+                            showRoster = false
+                            revealImmersiveChrome()
+                        } label: {
+                            HStack(spacing: Theme.sm) {
+                                Text("\(index + 1)")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(Theme.textSecondary)
+                                    .frame(width: 28, alignment: .trailing)
+                                Text(player.name)
+                                    .font(.system(size: 16))
+                                    .foregroundColor(Theme.textPrimary)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
+                                Spacer(minLength: Theme.sm)
+                                Text("\(player.score)")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .monospacedDigit()
+                                    .foregroundColor(Theme.textPrimary)
+                            }
+                            .padding(.horizontal, Theme.md)
+                            .frame(height: 44)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("multi_score_roster_row_\(index)")
+
+                        Divider().padding(.leading, 44)
+                    }
+
+                    if matches.isEmpty {
+                        Text(NSLocalizedString("multi_score_find_player_no_result", value: "没有匹配结果", comment: ""))
+                            .font(.system(size: 14))
+                            .foregroundColor(Theme.textSecondary)
+                            .padding(Theme.lg)
+                    }
+                }
+            }
+        }
+        .background(Theme.dialogSurfaceBackground)
+    }
+
     // MARK: - Menu
 
     private var multiScoreMenuItems: [ScoreboardMenuItem] {
@@ -594,9 +888,31 @@ struct MultiScoreboardView: View {
             showDisplaySettings: true,
             // 对齐安卓 showSettleMatchOption = !isUno：UNO 无结算项。
             showSettleMatch: gameType != .uno,
+            // 多人板沿用安卓 3.4 文案：比分清零 / 结算记分 / 结束记分（UNO 保持原共用文案）。
+            resetTitle: gameType == .uno
+                ? nil
+                : NSLocalizedString("multi_score_reset_scores", value: "比分清零", comment: ""),
+            settleTitle: gameType == .uno
+                ? nil
+                : NSLocalizedString("multi_score_settle_match", value: "结算记分", comment: ""),
+            endGameTitle: gameType == .uno
+                ? nil
+                : NSLocalizedString("multi_score_end_scoring", value: "结束记分", comment: ""),
             resetConfirming: menuConfirm.resetConfirming,
             finishConfirming: menuConfirm.finishConfirming,
             settleConfirming: menuConfirm.settleConfirming
+        )
+        items.insert(
+            ScoreboardMenuItem(
+                title: NSLocalizedString("multi_score_find_player_action", value: "找人", comment: ""),
+                action: "roster",
+                group: .match,
+                icon: "magnifyingglass",
+                keepDialogOpen: false,
+                enabled: true,
+                sortOrder: 1
+            ),
+            at: 0
         )
         // 旋转方向与结算同属“赛后操作”一类，放在「结束比赛」之后（orderedMatchItems 会把结算置底）。
         // 对齐安卓 ScoreboardMenuDialog：文案显示目标状态（当前横屏 → 竖屏，当前竖屏 → 横屏）。
@@ -633,6 +949,10 @@ struct MultiScoreboardView: View {
             ) {
                 showDisplaySettings = true
             }
+        case "roster":
+            showMenu = false
+            rosterQuery = ""
+            showRoster = true
         case "layout":
             toggleLayout()
         case "exit":
@@ -695,13 +1015,6 @@ struct MultiScoreboardView: View {
 
     // MARK: - Layout helpers
 
-    private func layoutRows() -> [[Int?]] {
-        ScoreboardPlayerGridLayout.multiRows(
-            playerCount: players.count,
-            usesWideLayout: useLandscapeLayout
-        )
-    }
-
     private func toggleLayout() {
         useLandscapeLayout.toggle()
         let key = gameType == .uno ? "uno_use_landscape_layout" : "multi_scoreboard_use_landscape_layout"
@@ -711,10 +1024,7 @@ struct MultiScoreboardView: View {
     }
 
     private func panelColor(index: Int) -> Color {
-        if appearance.theme == .electronic || appearance.theme == .retro {
-            return .black
-        }
-        return colors[index % colors.count]
+        Color(hex: gridStyle.backgroundHex(index: index, theme: appearance.theme))
     }
 
     private func playerPlaceholder(_ index: Int) -> String {
@@ -1183,6 +1493,8 @@ struct MultiScoreboardView: View {
             players[i].score = 0
         }
         appendRecordAction("reset")
+        anchorPlayer = 0
+        castAnchorPlayer = 0
         gameFinished = false
         showGameOverDialog = false
         finishedWinnerName = ""
@@ -1213,6 +1525,8 @@ struct MultiScoreboardView: View {
         playerEditIndex = nil
         customAdjustIndex = nil
         showUnoRoundPanel = false
+        anchorPlayer = 0
+        castAnchorPlayer = 0
         VibrationManager.shared.vibrateMedium()
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
     }
@@ -1302,6 +1616,12 @@ struct MultiScoreboardView: View {
                     fontCode: typographySession.effectivePreference.font.rawValue
                 )
                 compact.externalState?.appearance.fontSizeMultipliers = multipliers
+                if gameType == .multiScoreboard, let displayAppearance = compact.externalState?.appearance {
+                    compact.externalState?.appearance.style = gridStyle.displayStyle(
+                        appearance: displayAppearance,
+                        players: displayPlayers
+                    )
+                }
                 return compact
             },
             handleIntent: { intent in
@@ -1333,7 +1653,9 @@ struct MultiScoreboardView: View {
         initialSetupApplied = true
         guard let setup = initialSetup else { return }
 
-        let allowedRange: ClosedRange<Int> = gameType == .uno ? 2...10 : 3...9
+        let allowedRange: ClosedRange<Int> = gameType == .uno
+            ? 2...10
+            : MultiScoreCapacity.minPlayers...MultiScoreCapacity.maxPlayers
         let setupCount: Int
         if let count = setup.playerCount, allowedRange.contains(count) {
             setupCount = count

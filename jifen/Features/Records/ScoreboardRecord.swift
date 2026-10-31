@@ -1037,6 +1037,8 @@ enum ScoreboardRecordConfiguration {
         setup.basketballMode = scoreboardString(data["basketballMode"])
         setup.basketballTrainingScoringMode = scoreboardString(data["basketballTrainingScoringMode"])
         setup.basketballRuleSet = scoreboardString(data["basketballRuleSet"])
+        setup.basketballPeriodSeconds = scoreboardInt(data["basketballPeriodSeconds"])
+        setup.basketballOvertimeSeconds = scoreboardInt(data["basketballOvertimeSeconds"])
         setup.tennisDeuceMode = scoreboardString(data["tennisDeuceMode"])
             ?? tennisState.map { $0.rules.usesNoAdScoring ? "no_ad" : "advantage" }
         setup.servingSide = scoreboardString(data["servingSide"])

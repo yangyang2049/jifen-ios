@@ -61,6 +61,19 @@ class PreferencesManager {
         static let styleProfilePrefix = "scoreboard_style_v2_"
     }
 
+    var basketballRuleSet: String {
+        get { defaults.string(forKey: "basketballRuleSet") ?? "fiba" }
+        set { defaults.set(newValue, forKey: "basketballRuleSet") }
+    }
+    var basketballPeriodSeconds: Int {
+        get { BasketballMatchEngine.validDuration(defaults.object(forKey: "basketballPeriodSeconds") as? Int, fallback: 600) }
+        set { defaults.set(newValue, forKey: "basketballPeriodSeconds") }
+    }
+    var basketballOvertimeSeconds: Int {
+        get { BasketballMatchEngine.validDuration(defaults.object(forKey: "basketballOvertimeSeconds") as? Int, fallback: 300) }
+        set { defaults.set(newValue, forKey: "basketballOvertimeSeconds") }
+    }
+
     private let defaults: UserDefaults
 
     /// 样式编辑草稿预览（key = styleID.rawValue，仅内存，不参与持久化）。
@@ -214,6 +227,8 @@ class PreferencesManager {
             "linked_score_watch_start_guide_popup_shown_v1",
             "simpleScoreCustomAdjustEnabled", "multiScoreboardCustomAdjustEnabled",
             "multiScoreboardPlayerCount", "unoPlayerCount", "unoTargetScore",
+            "multiScoreboardStyleMode", "multiScoreboardSolidColor",
+            "basketballRuleSet", "basketballPeriodSeconds", "basketballOvertimeSeconds",
             "guandanSetupTripleA", "guandanSetupPassACondition",
             "guandanSetupTripleAFallbackRank", "scoreboard_style_v2_recent_colors"
         ]
@@ -245,9 +260,28 @@ class PreferencesManager {
     var multiScoreboardPlayerCount: Int {
         get {
             let value = defaults.integer(forKey: "multiScoreboardPlayerCount")
-            return (3...9).contains(value) ? value : 4
+            return MultiScoreCapacity.isValid(value) ? value : 4
         }
-        set { defaults.set(min(9, max(3, newValue)), forKey: "multiScoreboardPlayerCount") }
+        set {
+            defaults.set(
+                MultiScoreCapacity.normalized(newValue),
+                forKey: "multiScoreboardPlayerCount"
+            )
+        }
+    }
+
+    var multiScoreboardStyle: MultiScoreboardStyle {
+        get {
+            MultiScoreboardStyle(
+                mode: MultiScoreboardStyle.Mode(rawValue: defaults.string(forKey: "multiScoreboardStyleMode") ?? "") ?? .colorful,
+                solidColor: MultiScoreboardStyle.SolidColor(rawValue: defaults.string(forKey: "multiScoreboardSolidColor") ?? "") ?? .ink
+            )
+        }
+        set {
+            defaults.set(newValue.mode.rawValue, forKey: "multiScoreboardStyleMode")
+            defaults.set(newValue.solidColor.rawValue, forKey: "multiScoreboardSolidColor")
+            notifyScoreboardPreferencesChanged()
+        }
     }
 
     var unoPlayerCount: Int {

@@ -244,7 +244,9 @@ enum AbandonedResumeRecordBuilder {
                 configuration: [
                     ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(envelope.gameType.rawValue),
                     "basketballMode": AnyCodable(state.gameMode.rawValue),
-                    "basketballRuleSet": AnyCodable(state.ruleSet.rawValue)
+                    "basketballRuleSet": AnyCodable(state.ruleSet.rawValue),
+                    "basketballPeriodSeconds": AnyCodable(state.periodDurationSeconds),
+                    "basketballOvertimeSeconds": AnyCodable(state.overtimeDurationSeconds)
                 ]
             )
 
@@ -747,7 +749,7 @@ private extension BasketballMatchState {
     var hasMeaningfulTimerProgress: Bool {
         let defaultGameTime = gameMode == .threeXThree
             ? 10 * 60
-            : BasketballMatchEngine.periodSeconds(ruleSet)
+            : BasketballMatchEngine.periodSeconds(self)
         let defaultShotTime = BasketballMatchEngine.defaultShotSeconds(gameMode)
         return gameTimeSeconds < defaultGameTime
             || shotTimeSeconds < defaultShotTime

@@ -2,7 +2,13 @@
 set -euo pipefail
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-audit_dir="${LOCALIZATION_VISUAL_AUDIT_DIR:-$repo_dir/build/localization/visual-audit}"
+source "$repo_dir/scripts/test_artifacts.sh"
+if [[ -z "${LOCALIZATION_VISUAL_AUDIT_DIR:-}" ]]; then
+  start_test_artifacts localization-audit
+  audit_dir="$TEST_ARTIFACT_RUN/audit"
+else
+  audit_dir="$LOCALIZATION_VISUAL_AUDIT_DIR"
+fi
 screenshot_dir="$audit_dir/screenshots"
 result_dir="$audit_dir/results"
 

@@ -1,0 +1,12 @@
+{
+  "bundleId": "com.douhua.jifen.ios.watchkitapp",
+  "version": "3.4",
+  "build": "83",
+  "companionBundleId": "com.douhua.jifen.ios",
+  "minimumWatchOS": "11.6",
+  "signatureVerified": true,
+  "profileName": "iOS Team Provisioning Profile: *",
+  "profileApplicationIdentifier": "X9VDZZL3C3.*",
+  "getTaskAllow": true,
+  "runtimeSmokeTestPerformed": false
+}

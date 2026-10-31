@@ -210,13 +210,18 @@ struct GameOverDialog: View {
         )
     }
 
+    /// 多人结果区上限：超过即内部滚动（50 人时整块结果不再撑高弹窗）。
+    private var multiParticipantVisibleCap: CGFloat {
+        isPhoneLandscape ? 136 : (usesTabletSpacing ? 420 : 320)
+    }
+
     private var resultAreaHeight: CGFloat {
         let base: CGFloat = usesTabletSpacing ? 154 : (isPhoneLandscape ? 96 : 124)
         guard multiNames.count > 3, multiNames.count == multiScores.count else { return base }
         let rows = CGFloat((multiNames.count + 1) / 2)
         let rowHeight = multiParticipantRowHeight
         let gridHeight = rows * rowHeight + max(0, rows - 1) * 8
-        let visibleGridHeight = isPhoneLandscape ? min(gridHeight, 136) : gridHeight
+        let visibleGridHeight = min(gridHeight, multiParticipantVisibleCap)
         return max(base, visibleGridHeight + (usesTabletSpacing ? 24 : 8))
     }
 
@@ -439,12 +444,12 @@ struct GameOverDialog: View {
         )
         let rows = CGFloat((multiNames.count + (multiNames.count >= 4 ? 1 : 2)) / (multiNames.count >= 4 ? 2 : 3))
         let fullHeight = rows * multiParticipantRowHeight + max(0, rows - 1) * 8
-        if isPhoneLandscape, fullHeight > 136 {
+        if fullHeight > multiParticipantVisibleCap {
             ScrollView(.vertical) {
                 multiParticipantGridContent(columns: columns)
             }
             .scrollIndicators(.hidden)
-            .frame(maxHeight: 136)
+            .frame(maxHeight: multiParticipantVisibleCap)
         } else {
             multiParticipantGridContent(columns: columns)
                 .frame(height: fullHeight)

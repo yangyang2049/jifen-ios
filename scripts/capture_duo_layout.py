@@ -18,6 +18,8 @@ import struct
 import subprocess
 import time
 
+from test_artifacts import new_run, finish_automatically
+
 
 def output(*args):
     return subprocess.check_output(args, text=True).strip()
@@ -102,7 +104,7 @@ def main():
     parser.add_argument('--record', action='store_true', help='Record actual simulator navigation to H.264 video')
     parser.add_argument('--video-only', action='store_true', help='Keep video and checkpoint times without PNG screenshots')
     parser.add_argument('--xctestrun', type=Path, help='Use an explicitly built XCTest configuration')
-    parser.add_argument('--output-root', type=Path, default=Path('artifacts/iphone-duo-layout-20261020'))
+    parser.add_argument('--output-root', type=Path, help='Override the managed external test batch')
     args = parser.parse_args()
     if not re.fullmatch(r'[a-z0-9-]+', args.pose):
         parser.error('Pose must contain lowercase letters, numbers or hyphens')
@@ -131,7 +133,11 @@ def main():
     if label and not re.fullmatch(r'[a-z0-9-]+', label):
         parser.error('Chapter label must contain lowercase letters, numbers or hyphens')
     run_id = f'host-{args.pose}-{label + "-" if label else ""}{int(time.time())}'
-    result = root / 'build' / 'duo' / f'{run_id}.xcresult'
+    managed_run = new_run('duo-capture', active=True) if args.output_root is None else None
+    args.output_root = args.output_root or managed_run
+    results = args.output_root / 'results'
+    results.mkdir(parents=True, exist_ok=True)
+    result = results / f'{run_id}.xcresult'
     log = result.with_suffix('.log')
     destination = args.output_root / args.pose
     if label and (args.chapter or args.test_id):
@@ -201,12 +207,27 @@ def main():
                     metadata = json.loads(marker.read_text())
                     width, height = metadata['width'], metadata['height']
                     aspect = max(width, height) / min(width, height)
-                    display, display_aspect, _ = min(displays, key=lambda row: abs(row[1] - aspect))
-                    if abs(display_aspect - aspect) > 0.01:
-                        raise RuntimeError(f'Window does not match a full display: {metadata}')
                     name = metadata['name']
                     if not re.fullmatch(r'[A-Za-z0-9_-]+', name):
                         raise RuntimeError(f'Invalid capture name: {name}')
+                    pose_match = re.search(r'(?:^|_)(open|closed)(?:_|$)', name) if args.live else None
+                    explicit_pose = pose_match.group(1) if pose_match else None
+                    if explicit_pose:
+                        if len(displays) != 2:
+                            raise RuntimeError('Explicit live pose capture requires two built-in displays')
+                        # Duo AX can retain the old app.frame after a live resize.
+                        # The host-controlled checkpoint names the intended surface.
+                        chooser = max if explicit_pose == 'open' else min
+                        display, display_aspect, _ = chooser(displays, key=lambda row: row[2])
+                    else:
+                        display, display_aspect, _ = min(displays, key=lambda row: abs(row[1] - aspect))
+                    aspect_mismatch = abs(display_aspect - aspect) > 0.01
+                    if not explicit_pose and aspect_mismatch:
+                        raise RuntimeError(f'Window does not match a full display: {metadata}')
+                    metadata.update(explicit_pose=explicit_pose,
+                                    display_selection='explicit-live-pose' if explicit_pose else 'window-aspect',
+                                    ax_window_aspect=aspect, display_aspect=display_aspect,
+                                    ax_display_aspect_mismatch=aspect_mismatch)
                     target = destination / f'{name}.png'
                     if not args.video_only:
                         subprocess.run(['xcrun', 'simctl', 'io', args.device, 'screenshot',
@@ -251,6 +272,8 @@ def main():
         if manifest['status'] == 'running':
             manifest['status'] = 'interrupted'
         write_manifest(manifest_path, manifest)
+        if managed_run is not None:
+            finish_automatically(managed_run, failed=manifest['status'] != 'passed')
 
 
 if __name__ == '__main__':

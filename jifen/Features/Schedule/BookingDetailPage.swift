@@ -1,3 +1,4 @@
+import ScoreCore
 import SwiftUI
 
 struct BookingDetailPage: View {
@@ -298,6 +299,9 @@ struct BookingDetailPage: View {
         }
         if let tieBreak = booking.tieBreakPoints {
             parts.append(String(format: NSLocalizedString("schedule_tiebreak_summary", value: "抢七 %d 分", comment: ""), tieBreak))
+        }
+        if let timing = booking.resolvedBasketballTiming() {
+            parts.append(timing.localizedSummary)
         }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }

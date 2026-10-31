@@ -255,10 +255,28 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
         )
     }
 
-    public static func pickleball(maxSets: Int = 3, matchCompletionMode: MatchCompletionMode = .bestOf) -> Self {
+    /// 匹克球可选目标分范围：与安卓 3.4 一致，放开到 1–99 的任意整数。
+    public static let pickleballTargetScoreRange = 1...99
+
+    /// 匹克球目标分归一化：1–99 的整数原样保留，缺省或越界回退 11。
+    /// 语义对齐安卓 `PickleballMatchEngine.normalizeTargetScore` 与鸿蒙
+    /// `normalizePickleballTargetScore`：手表/手机 handoff 与云端记录带来的
+    /// 自定义目标分不再被旧的白名单静默改成 11。
+    public static func normalizePickleballTargetScore(_ targetScore: Int?) -> Int {
+        guard let targetScore, pickleballTargetScoreRange.contains(targetScore) else { return 11 }
+        return targetScore
+    }
+
+    /// 匹克球规则集。目标分经 `normalizePickleballTargetScore` 归一化后写入，
+    /// 调用方不再需要自己过滤 11/15/21 档位。
+    public static func pickleball(
+        maxSets: Int = 3,
+        targetScore: Int? = nil,
+        matchCompletionMode: MatchCompletionMode = .bestOf
+    ) -> Self {
         .init(
             maxSets: maxSets,
-            pointsToWinSet: 11,
+            pointsToWinSet: normalizePickleballTargetScore(targetScore),
             pointCap: nil,
             useRallyScoring: false,
             matchCompletionMode: matchCompletionMode,

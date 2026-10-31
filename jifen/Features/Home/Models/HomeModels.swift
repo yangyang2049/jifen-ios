@@ -248,7 +248,9 @@ struct SportsSetupResult: Codable, Hashable {
     var team2Player3Name: String? = nil
     var basketballMode: String? = nil // "five_v_five" or "three_x_three"
     var basketballTrainingScoringMode: String? = nil // "fixed_1/2/3" or "free"
-    var basketballRuleSet: String? = nil // "fiba" or "nba"
+    var basketballRuleSet: String? = nil // fiba / nba / custom
+    var basketballPeriodSeconds: Int? = nil
+    var basketballOvertimeSeconds: Int? = nil
     var tennisDeuceMode: String? = nil // "advantage" or "no_ad"
     var servingSide: String? = nil // "left" or "right"
     var voiceAnnouncement: Bool? = nil
@@ -276,7 +278,7 @@ struct SportsSetupResult: Codable, Hashable {
     var nineBallThirdFoul: Int? = nil
     var nineBallBreakRule: String? = nil
     var nineBallTotalRacks: Int? = nil
-    var playerCount: Int? = nil // 多人计分：3-9
+    var playerCount: Int? = nil // 多人计分：3-50（UNO 仍 2-10）
     var playerNames: [String]? = nil // 多人计分玩家名
     /// Simple score: tap opens ±N panel instead of +1. Aligns with Android/HOS.
     var multiScoreCustomAdjustEnabled: Bool? = nil
@@ -412,14 +414,15 @@ extension SportsSetupResult {
     }
 
     var pickleballRules: RallyRuleSet {
-        let requestedTarget = targetScore ?? 11
-        let target = [11, 15, 21].contains(requestedTarget) ? requestedTarget : 11
+        // 安卓 3.4 起目标分放开到 1–99（`normalizeTargetScore` 同鸿蒙语义），
+        // 归一化收口在 ScoreCore，非 11 的任意整数都会原样进入引擎。
+        let target = RallyRuleSet.normalizePickleballTargetScore(targetScore)
         let defaultMaxSets = target == 11 ? 3 : 1
         var rules = RallyRuleSet.pickleball(
             maxSets: maxSets.flatMap { $0 > 0 ? $0 : nil } ?? defaultMaxSets,
+            targetScore: target,
             matchCompletionMode: matchCompletionMode ?? .bestOf
         )
-        rules.pointsToWinSet = target
         rules.pointCap = scoreCap.flatMap { $0 > 0 ? $0 : nil }
         rules.winByTwo = winByTwo ?? true
         rules.autoChangeSides = autoChangeSides ?? true

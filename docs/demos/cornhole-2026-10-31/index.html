@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>Cornhole · 点按录分原型</title>
+  <style>
+    :root { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; color:#202124; background:#f3f4f6; --surface:#fff; --control:#f0f1f3; --muted:#70747b; --line:#e4e6e9; --green:#4caf50; --green-text:#277c32; --red:#e94149; --blue:#3278e8; }
+    * { box-sizing:border-box; }
+    body { margin:0; -webkit-font-smoothing:antialiased; }
+    button,input { font:inherit; }
+    button { cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+    button { border:0; background:none; color:inherit; }
+    button:disabled { cursor:default; opacity:.38; }
+    button:focus-visible,a:focus-visible { outline:3px solid #66bb6a; outline-offset:4px; }
+    h1,h2,h3,p { margin:0; }
+    [hidden] { display:none !important; }
+    a { color:var(--green-text); text-underline-offset:3px; }
+    .page { max-width:1120px; margin:auto; padding:26px 30px 30px; }
+    .masthead { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:22px; }
+    .masthead h1 { font-size:22px; font-weight:600; letter-spacing:-.5px; }
+    .masthead p { color:var(--muted); font-size:13px; margin-top:6px; }
+    .prototype-tag { color:var(--muted); font-size:12px; white-space:nowrap; }
+    .layout { display:grid; grid-template-columns:minmax(320px,640px) minmax(260px,1fr); gap:36px; align-items:start; }
+    .screen { container-type:inline-size; height:min(720px,calc(100svh - 112px)); min-height:520px; display:flex; flex-direction:column; overflow:hidden; background:var(--surface); border-radius:24px; box-shadow:0 12px 45px #1e263011; }
+    .app-header { min-height:64px; display:flex; flex-shrink:0; align-items:center; justify-content:space-between; gap:12px; padding:10px 18px; }
+    .app-title { display:flex; align-items:center; gap:10px; }
+    .app-title h2 { font-size:19px; font-weight:600; letter-spacing:-.35px; }
+    .app-title p { color:var(--muted); font-size:12px; margin-top:4px; }
+    .board-symbol { width:30px; height:38px; border-radius:5px; background:var(--control); transform:rotate(-12deg); display:grid; place-items:start center; padding-top:6px; }
+    .board-symbol::before { content:""; width:10px; height:10px; border-radius:50%; background:var(--muted); }
+    .text-action { min-height:44px; padding:8px 0 8px 12px; font-size:13px; color:var(--green-text); white-space:nowrap; }
+    .board { flex:1; min-height:0; display:grid; grid-template-columns:1fr 1fr; }
+    .team { min-width:0; color:#fff; padding:22px 20px 20px; display:flex; flex-direction:column; }
+    .team-red { background:var(--red); }
+    .team-blue { background:var(--blue); }
+    .team-head { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+    .team-name { font-size:18px; font-weight:500; line-height:1.4; }
+    .throw-order { display:block; min-height:20px; font-size:12px; color:#fff; opacity:.82; margin-top:5px; }
+    .total { text-align:right; }
+    .total small { display:block; font-size:11px; opacity:.85; margin-bottom:1px; }
+    .total output { font-size:39px; line-height:1; font-weight:600; font-variant-numeric:tabular-nums; }
+    .round-hit { flex:1; min-height:0; padding:20px 0 8px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; border-radius:12px; width:100%; user-select:none; }
+    .round-hit:active { background:#ffffff10; }
+    .round-label { font-size:13px; opacity:.9; }
+    .round-number { display:block; font-size:clamp(90px,25cqw,164px); line-height:1.12; font-weight:600; font-variant-numeric:tabular-nums; letter-spacing:-5px; transition:transform .1s; }
+    .tap-hint { font-size:12px; opacity:.84; margin-top:9px; }
+    .team-controls { display:flex; justify-content:center; align-items:center; gap:8px; min-height:44px; }
+    .team-controls button { min-width:44px; height:44px; padding:0 13px; border-radius:24px; background:#0000001a; color:#fff; font-size:16px; font-weight:500; }
+    .team-controls button:active { background:#00000035; }
+    .quick-add { display:none; }
+    .screen[data-mode="buttons"] .quick-add { display:inline-block; }
+    .settlement { padding:15px 18px max(16px,env(safe-area-inset-bottom)); flex-shrink:0; background:var(--surface); }
+    .preview { text-align:center; min-height:44px; display:flex; flex-direction:column; justify-content:center; gap:4px; margin-bottom:12px; }
+    .preview strong { font-size:16px; font-weight:500; color:var(--green-text); }
+    .preview small { font-size:12px; color:var(--muted); }
+    .preview.is-invalid strong { color:#b02b32; font-size:13px; }
+    .bottom-actions { display:flex; align-items:center; gap:12px; }
+    .sub-action { min-width:52px; min-height:48px; padding:4px 0; display:flex; flex-direction:column; justify-content:center; gap:3px; align-items:center; font-size:11px; color:var(--muted); }
+    .sub-action .symbol { font-size:22px; line-height:1; }
+    .settle { flex:1; min-width:0; height:50px; border-radius:27px; background:var(--green); color:white; font-size:16px; font-weight:500; }
+    .settle:active { filter:brightness(.93); }
+    .side { padding-top:5px; }
+    .review-section + .review-section { border-top:1px solid var(--line); padding-top:23px; margin-top:23px; }
+    .eyebrow { display:block; font-size:11px; color:var(--muted); letter-spacing:1.2px; margin-bottom:10px; }
+    .side h3 { font-size:17px; font-weight:600; margin-bottom:12px; }
+    .side p { color:var(--muted); font-size:13px; line-height:1.85; }
+    .segments { display:flex; gap:3px; padding:4px; background:var(--control); border-radius:11px; margin-bottom:12px; }
+    .segments button { flex:1; min-height:40px; font-size:13px; border-radius:8px; padding:8px 5px; }
+    .segments button[aria-pressed="true"] { background:var(--surface); color:var(--green-text); box-shadow:0 1px 5px #0000000a; font-weight:500; }
+    .example-list { display:grid; gap:7px; }
+    .example { display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:44px; padding:10px 0; text-align:left; border-bottom:1px solid var(--line); }
+    .example:last-child { border-bottom:0; }
+    .example strong { font-size:18px; font-weight:500; font-variant-numeric:tabular-nums; }
+    .example span { color:var(--muted); font-size:12px; }
+    .tiny-note { font-size:11px !important; margin-top:10px; }
+    .rule-points { padding:0; margin:0 0 12px; list-style:none; display:grid; gap:11px; font-size:13px; line-height:1.65; }
+    .rule-points li { display:flex; gap:12px; }
+    .rule-points b { font-weight:500; min-width:45px; }
+    .rule-points span { color:var(--muted); }
+    dialog { border:0; padding:0; width:calc(100% - 32px); max-width:460px; max-height:85svh; border-radius:22px; background:var(--surface); color:inherit; box-shadow:0 20px 80px #0003; }
+    dialog::backdrop { background:#0b152b66; }
+    .dialog-head { display:flex; align-items:center; justify-content:space-between; padding:20px 22px 12px; gap:15px; }
+    .dialog-head h2 { font-size:19px; font-weight:600; }
+    .close { width:44px; height:44px; border-radius:50%; font-size:22px; color:var(--muted); background:var(--control); flex-shrink:0; }
+    .dialog-body { padding:0 22px 24px; overflow:auto; }
+    .dialog-body p { color:var(--muted); font-size:14px; line-height:1.85; }
+    .dialog-actions { display:flex; gap:12px; margin-top:20px; }
+    .dialog-actions button { min-height:46px; flex:1; border-radius:24px; background:var(--control); font-size:15px; }
+    .dialog-actions .primary { background:var(--green); color:white; }
+    .history { width:100%; border-collapse:collapse; text-align:center; font-size:13px; font-variant-numeric:tabular-nums; }
+    .history th { color:var(--muted); font-weight:400; padding:12px 4px; border-bottom:1px solid var(--line); white-space:nowrap; }
+    .history td { padding:13px 4px; border-bottom:1px solid var(--line); }
+    .history .credit { color:var(--green-text); }
+    .empty { text-align:center; padding:25px 0; }
+    .winner-score { display:flex; align-items:center; justify-content:center; gap:18px; margin:12px 0 8px; font-size:56px; font-weight:600; font-variant-numeric:tabular-nums; }
+    .winner-score .colon { color:var(--muted); font-size:32px; font-weight:400; }
+    .winner-score .red { color:var(--red); }
+    .winner-score .blue { color:var(--blue); }
+    .winner-note { text-align:center; }
+    .toast { position:fixed; left:50%; bottom:26px; transform:translateX(-50%); padding:11px 17px; border-radius:12px; background:#21252cec; color:white; font-size:13px; max-width:calc(100vw - 32px); z-index:5; pointer-events:none; box-shadow:0 5px 20px #0002; }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
+    @media (prefers-color-scheme:dark) { :root { background:#111214; color:#f1f2f3; --surface:#222327; --control:#303237; --muted:#b0b2b8; --line:#3b3d42; --green-text:#8bd690; } .preview.is-invalid strong { color:#ff9ca2; } }
+    @media (max-width:800px) { .page { padding:18px 18px 24px; } .layout { grid-template-columns:1fr; gap:28px; max-width:600px; margin:auto; } .screen { height:min(720px,calc(100svh - 100px)); min-height:500px; } .side { display:grid; grid-template-columns:1fr 1fr; gap:24px; } .review-section + .review-section { margin:0; border:0; padding:0; } .review-section:last-child { grid-column:1/-1; border-top:1px solid var(--line); padding-top:22px; } .masthead { max-width:600px; margin:0 auto 18px; } }
+    @media (max-width:420px) { .page { padding:13px 0 24px; } .masthead { padding:0 16px; margin-bottom:14px; } .masthead h1 { font-size:18px; } .masthead p { display:none; } .prototype-tag { font-size:11px; } .screen { border-radius:0; height:calc(100svh - 53px); min-height:480px; box-shadow:none; } .team { padding:18px 14px 18px; } .team-head { gap:4px; } .team-name { font-size:16px; } .total output { font-size:35px; } .round-number { letter-spacing:-4px; } .team-controls { gap:6px; } .team-controls button { padding:0 11px; } .side { display:block; padding:0 18px; } .review-section + .review-section { border-top:1px solid var(--line); padding-top:20px; margin-top:20px; } .bottom-actions { gap:8px; } .settlement { padding-left:14px; padding-right:14px; } }
+    @media (max-width:340px) { .team { padding-left:6px; padding-right:6px; } .team-controls { gap:4px; } }
+    @media (orientation:landscape) and (max-height:600px) { .layout { grid-template-columns:1fr; max-width:1000px; } .masthead p { display:none; } .screen { height:calc(100svh - 88px); min-height:260px; } .app-header { min-height:50px; padding-top:5px; padding-bottom:5px; } .team { display:grid; grid-template-columns:minmax(70px,.65fr) 1fr; grid-template-rows:1fr 44px; gap:0 8px; padding:8px 12px; } .team-head { grid-column:1; grid-row:1/-1; flex-direction:column; justify-content:center; gap:10px; } .total { text-align:left; } .total output { font-size:28px; } .throw-order { display:none; } .round-hit { grid-column:2; grid-row:1; padding:0; } .round-label,.tap-hint { display:none; } .round-number { font-size:62px; } .team-controls { grid-column:2; grid-row:2; min-height:44px; gap:4px; } .team-controls button { height:44px; padding:0 10px; } .settlement { padding-top:8px; padding-bottom:8px; } .preview { min-height:22px; margin-bottom:7px; } .preview small { display:none; } .settle { height:44px; } .sub-action { min-height:44px; } }
+    @media (prefers-reduced-motion:reduce) { * { transition:none !important; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="masthead">
+      <div><h1>Cornhole · 录分交互</h1><p>先录本轮，再把差额计入总分</p></div>
+      <span class="prototype-tag">全能计分器 · 可交互原型</span>
+    </header>
+    <main class="layout">
+      <section class="screen" id="screen" data-mode="tap" aria-label="Cornhole 计分板">
+        <header class="app-header">
+          <div class="app-title"><span class="board-symbol" aria-hidden="true"></span><div><h2>Cornhole</h2><p id="match-status">第 1 轮 · 21 分制</p></div></div>
+          <button class="text-action" id="new-game">重新开始</button>
+        </header>
+        <div class="board">
+          <section class="team team-red" aria-label="红方">
+            <div class="team-head"><div><h3 class="team-name">红方</h3><small class="throw-order" id="red-first">本轮先投</small></div><div class="total"><small>累计总分</small><output id="red-total">0</output></div></div>
+            <button class="round-hit" id="red-hit" data-team="0" data-change="1" aria-label="红方本轮 0 分，点按加 1"><span class="round-label">本轮得分</span><strong class="round-number" id="red-draft">0</strong><span class="tap-hint">轻点分数 +1</span></button>
+            <div class="team-controls"><button data-team="0" data-change="-1" id="red-minus" aria-label="红方本轮减 1">−1</button><button class="quick-add" data-team="0" data-change="1" aria-label="红方本轮加 1">+1</button><button class="quick-add" data-team="0" data-change="3" aria-label="红方本轮加 3">+3</button></div>
+          </section>
+          <section class="team team-blue" aria-label="蓝方">
+            <div class="team-head"><div><h3 class="team-name">蓝方</h3><small class="throw-order" id="blue-first"></small></div><div class="total"><small>累计总分</small><output id="blue-total">0</output></div></div>
+            <button class="round-hit" id="blue-hit" data-team="1" data-change="1" aria-label="蓝方本轮 0 分，点按加 1"><span class="round-label">本轮得分</span><strong class="round-number" id="blue-draft">0</strong><span class="tap-hint">轻点分数 +1</span></button>
+            <div class="team-controls"><button data-team="1" data-change="-1" id="blue-minus" aria-label="蓝方本轮减 1">−1</button><button class="quick-add" data-team="1" data-change="1" aria-label="蓝方本轮加 1">+1</button><button class="quick-add" data-team="1" data-change="3" aria-label="蓝方本轮加 3">+3</button></div>
+          </section>
+        </div>
+        <footer class="settlement">
+          <div class="preview" id="preview" aria-live="polite" aria-atomic="true"><strong id="preview-title">本轮打平 · 双方不加分</strong><small id="preview-detail">录好双方本轮得分，再结算</small></div>
+          <div class="bottom-actions"><button class="sub-action" id="undo" disabled><span class="symbol" aria-hidden="true">↶</span><span>撤销</span></button><button class="settle" id="settle">结算本轮</button><button class="sub-action" id="show-history"><span class="symbol" aria-hidden="true">≡</span><span>逐轮记录</span></button></div>
+        </footer>
+      </section>
+      <aside class="side" aria-label="原型试用选项">
+        <section class="review-section"><span class="eyebrow">操作方式</span><h3>先试试直接点分数</h3><div class="segments" role="group" aria-label="录分方式"><button id="mode-tap" aria-pressed="true" data-mode="tap">仅点按</button><button id="mode-buttons" aria-pressed="false" data-mode="buttons">显示加分按钮</button></div><p id="mode-note">轻点本轮大数字加 1，点「−1」纠错。累计总分只在结算后变化。</p></section>
+        <section class="review-section"><span class="eyebrow">试用示例</span><h3>差额是这样算的</h3><div class="example-list"><button class="example" data-example="difference"><strong>7 : 5</strong><span>红方本轮 +2 →</span></button><button class="example" data-example="eleven"><strong>12 : 1</strong><span>分差可以是 11 →</span></button><button class="example" data-example="maximum"><strong>12 : 0</strong><span>最大分差 12 →</span></button><button class="example" data-example="victory"><strong>胜局演示</strong><span>从总分 20 : 18 开始 →</span></button></div><p class="tiny-note">示例会替换当前演示比分；可点「撤销」回退。</p></section>
+        <section class="review-section"><span class="eyebrow">计分规则</span><h3>每方每轮只有 4 袋</h3><ul class="rule-points"><li><b>1 分</b><span>一轮结束时，留在板上的每袋。</span></li><li><b>3 分</b><span>进入洞内的每袋；落地为 0 分。</span></li><li><b>0–12</b><span>单方本轮范围。11 分无法由 4 袋组成，录到 11 时会提示修正。</span></li><li><b>21 分</b><span>结算整轮后，累计达到或超过 21 分即获胜。</span></li></ul><p>双方本轮得分先抵消，只有领先方获得差额；打平时双方均不加分。</p><p class="tiny-note"><a href="https://americancornhole.com/rules/" target="_blank" rel="noopener noreferrer">查看 ACO 官方规则 ↗</a></p></section>
+      </aside>
+    </main>
+  </div>
+  <dialog id="history-dialog" aria-labelledby="history-title"><header class="dialog-head"><h2 id="history-title">逐轮记录</h2><button class="close" data-close="history-dialog" aria-label="关闭逐轮记录">×</button></header><div class="dialog-body"><p class="empty" id="history-empty">结算第一轮后，记录会出现在这里。</p><table class="history" id="history-table" hidden><thead><tr><th scope="col">轮次</th><th scope="col">本轮红 : 蓝</th><th scope="col">计入总分</th><th scope="col">累计红 : 蓝</th></tr></thead><tbody id="history-rows"></tbody></table></div></dialog>
+  <dialog id="restart-dialog" aria-labelledby="restart-title"><header class="dialog-head"><h2 id="restart-title">重新开始？</h2><button class="close" data-close="restart-dialog" aria-label="取消重新开始">×</button></header><div class="dialog-body"><p>清空本轮、累计比分和逐轮记录，重新开始一局。</p><div class="dialog-actions"><button data-close="restart-dialog">继续记分</button><button class="primary" id="confirm-restart">重新开始</button></div></div></dialog>
+  <dialog id="winner-dialog" aria-labelledby="winner-title"><header class="dialog-head"><h2 id="winner-title">红方获胜</h2><button class="close" data-close="winner-dialog" aria-label="关闭胜局结果">×</button></header><div class="dialog-body"><div class="winner-score"><span class="red" id="winner-red">0</span><span class="colon">:</span><span class="blue" id="winner-blue">0</span></div><p class="winner-note">整轮结算完成，累计达到或超过 21 分。</p><div class="dialog-actions"><button id="winner-history">逐轮记录</button><button class="primary" id="play-again">再来一局</button></div></div></dialog>
+  <div class="toast" id="toast" role="status" hidden></div>
+  <script id="cornhole-core">
+    window.CornholeCore = (() => {
+      const validScores = [0,1,2,3,4,5,6,7,8,9,10,12];
+      const makeState = () => ({ totals:[0,0], draft:[0,0], first:0, rounds:[], winner:null });
+      function validate(draft) {
+        if (!Array.isArray(draft) || draft.length !== 2 || draft.some(n => !Number.isInteger(n) || n < 0 || n > 12)) return '每方本轮得分须为 0–12 的整数';
+        if (draft[0] === 11 || draft[1] === 11) return `${draft[0] === 11 ? '红方' : '蓝方'} 11 分无法由 4 袋组成，请改为 10 或 12`;
+        return '';
+      }
+      function change(state, team, amount) {
+        if (![0,1].includes(team) || !Number.isInteger(amount)) throw new RangeError('Invalid score action');
+        if (state.winner !== null) return state;
+        const value = Math.max(0,Math.min(12,state.draft[team] + amount));
+        if (value === state.draft[team]) return state;
+        const draft = [...state.draft]; draft[team] = value;
+        return { ...state, draft };
+      }
+      function settle(state) {
+        if (state.winner !== null) return state;
+        const error = validate(state.draft); if (error) throw new RangeError(error);
+        const difference = state.draft[0] - state.draft[1];
+        const credited = [Math.max(0,difference),Math.max(0,-difference)];
+        const totals = state.totals.map((n,i) => n + credited[i]);
+        const first = difference === 0 ? state.first : (difference > 0 ? 0 : 1);
+        const winner = totals[0] >= 21 ? 0 : (totals[1] >= 21 ? 1 : null);
+        const round = { number:state.rounds.length + 1, raw:[...state.draft], credited, totals:[...totals] };
+        return { totals, draft:[0,0], first, rounds:[...state.rounds,round], winner };
+      }
+      return Object.freeze({ validScores, makeState, validate, change, settle });
+    })();
+  </script>
+  <script>
+    (() => {
+      const core = window.CornholeCore;
+      const names = ['红方','蓝方'];
+      const sides = ['red','blue'];
+      let state = core.makeState();
+      let past = [];
+      let mode = 'tap';
+      let toastTimer;
+      const $ = id => document.getElementById(id);
+      function notify(message) {
+        $('toast').textContent = message; $('toast').hidden = false;
+        clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; },2200);
+      }
+      function commit(next) {
+        if (next === state) return;
+        past.push(state); if (past.length > 120) past.shift();
+        state = next; render();
+      }
+      function render() {
+        const error = core.validate(state.draft);
+        const difference = state.draft[0] - state.draft[1];
+        $('screen').dataset.mode = mode;
+        $('match-status').textContent = state.winner === null ? `第 ${state.rounds.length + 1} 轮 · 21 分制` : '本局已结束 · 21 分制';
+        sides.forEach((side,i) => {
+          $(side + '-total').textContent = state.totals[i];
+          $(side + '-draft').textContent = state.draft[i];
+          $(side + '-first').textContent = state.winner === null && state.first === i ? '本轮先投' : '';
+          $(side + '-hit').setAttribute('aria-label',`${names[i]}本轮 ${state.draft[i]} 分，点按加 1`);
+          $(side + '-hit').disabled = state.winner !== null;
+        });
+        document.querySelectorAll('.team-controls [data-change]').forEach(button => {
+          button.disabled = state.winner !== null || (Number(button.dataset.change) < 0 && state.draft[Number(button.dataset.team)] === 0);
+        });
+        $('undo').disabled = past.length === 0;
+        $('settle').disabled = !!error;
+        $('settle').textContent = state.winner === null ? '结算本轮' : '再来一局';
+        $('preview').classList.toggle('is-invalid',!!error);
+        if (state.winner !== null) {
+          $('preview-title').textContent = `${names[state.winner]}获胜`;
+          $('preview-detail').textContent = '可查看逐轮记录，或撤销上一轮结算';
+        } else if (error) {
+          $('preview-title').textContent = error;
+          $('preview-detail').textContent = '可以继续点按或用 −1 修正';
+        } else {
+          $('preview-title').textContent = difference === 0 ? '本轮打平 · 双方不加分' : `${names[difference > 0 ? 0 : 1]}本轮 +${Math.abs(difference)}`;
+          $('preview-detail').textContent = `${state.draft[0]} : ${state.draft[1]} 抵消后计分 · 录好双方再结算`;
+        }
+        $('mode-tap').setAttribute('aria-pressed',String(mode === 'tap'));
+        $('mode-buttons').setAttribute('aria-pressed',String(mode === 'buttons'));
+        $('mode-note').textContent = mode === 'tap' ? '轻点本轮大数字加 1，点「−1」纠错。累计总分只在结算后变化。' : '可以点分数，也可以用 +1 / +3 按钮录分；−1 用于纠错。两种方式共用当前比分。';
+      }
+      document.querySelectorAll('[data-team][data-change]').forEach(button => button.addEventListener('click',() => {
+        const team = Number(button.dataset.team), amount = Number(button.dataset.change);
+        if (state.draft[team] + amount > 12) { notify('每方每轮最多 12 分'); return; }
+        commit(core.change(state,team,amount));
+      }));
+      function revealPreview() {
+        if (window.innerWidth <= 800 || window.innerHeight <= 600) $('screen').scrollIntoView({ behavior:'instant', block:'start' });
+      }
+      document.querySelectorAll('button[data-mode]').forEach(button => button.addEventListener('click',() => { mode = button.dataset.mode; render(); revealPreview(); }));
+      function updateHistory() {
+        $('history-empty').hidden = state.rounds.length > 0;
+        $('history-table').hidden = state.rounds.length === 0;
+        $('history-rows').replaceChildren();
+        state.rounds.forEach(round => {
+          const tr = document.createElement('tr');
+          const credit = round.credited[0] ? `红 +${round.credited[0]}` : (round.credited[1] ? `蓝 +${round.credited[1]}` : '打平');
+          [String(round.number),round.raw.join(' : '),credit,round.totals.join(' : ')].forEach((value,i) => {
+            const td = document.createElement('td'); td.textContent = value;
+            if (i === 2) td.className = 'credit'; tr.append(td);
+          });
+          $('history-rows').append(tr);
+        });
+      }
+      function showHistory() { updateHistory(); $('history-dialog').showModal(); }
+      function restart() { commit(core.makeState()); notify('新的一局已开始'); }
+      $('settle').addEventListener('click',() => {
+        if (state.winner !== null) { restart(); return; }
+        if (core.validate(state.draft)) return;
+        const next = core.settle(state); commit(next);
+        if (state.winner !== null) {
+          $('winner-title').textContent = `${names[state.winner]}获胜`;
+          $('winner-red').textContent = state.totals[0]; $('winner-blue').textContent = state.totals[1];
+          $('winner-dialog').showModal();
+        } else {
+          const last = state.rounds.at(-1);
+          notify(last.credited[0] || last.credited[1] ? `${names[last.credited[0] ? 0 : 1]} +${Math.max(...last.credited)}，第 ${last.number} 轮已结算` : '本轮打平，双方不加分');
+        }
+      });
+      $('undo').addEventListener('click',() => { if (past.length) { state = past.pop(); render(); notify('已撤销上一步'); } });
+      $('show-history').addEventListener('click',showHistory);
+      $('new-game').addEventListener('click',() => $('restart-dialog').showModal());
+      $('confirm-restart').addEventListener('click',() => { $('restart-dialog').close(); restart(); });
+      $('play-again').addEventListener('click',() => { $('winner-dialog').close(); restart(); });
+      $('winner-history').addEventListener('click',() => { $('winner-dialog').close(); showHistory(); });
+      document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click',() => $(button.dataset.close).close()));
+      document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('click',event => { if (event.target === dialog) { const rect=dialog.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close(); } }));
+      const examples = {
+        difference: { totals:[0,0],draft:[7,5] },
+        eleven: { totals:[0,0],draft:[12,1] },
+        maximum: { totals:[0,0],draft:[12,0] },
+        victory: { totals:[20,18],draft:[3,1] }
+      };
+      document.querySelectorAll('[data-example]').forEach(button => button.addEventListener('click',() => {
+        const example = examples[button.dataset.example];
+        commit({ ...core.makeState(), totals:[...example.totals], draft:[...example.draft] });
+        notify(button.dataset.example === 'victory' ? '已载入演示总分 20 : 18，本轮 3 : 1' : '已载入示例，点「结算本轮」查看结果');
+        revealPreview();
+      }));
+      render();
+    })();
+  </script>
+</body>
+</html>

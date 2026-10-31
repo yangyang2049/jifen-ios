@@ -1,0 +1,215 @@
+{
+  "appId": "6759768784",
+  "bundleId": "com.douhua.jifen.ios",
+  "version": "3.4.1",
+  "build": 84,
+  "sourceCopyStatus": "approved_by_user",
+  "approvedSources": "draft.json",
+  "translationSource": "translations.json",
+  "translationReview": "Codex semantic and terminology review; no independent native-language review claimed",
+  "localizations": [
+    {
+      "locale": "ar-SA",
+      "whatsNew": "• يمكن تخصيص المدة قبل بدء مباريات كرة السلة 5 ضد 5.\n• يدعم تسجيل النقاط المتعدد الآن ما يصل إلى 50 لاعبًا.\n• تدعم البيكل بول الآن تخصيص النقاط المستهدفة من 1 إلى 99.\n• تحسين عرض الإعدادات والنقاط على الشاشات الصغيرة."
+    },
+    {
+      "locale": "bn-BD",
+      "whatsNew": "• 5 বনাম 5 বাস্কেটবল ম্যাচ শুরুর আগে সময়সীমা নির্ধারণ করুন।\n• একাধিক খেলোয়াড়ের স্কোর গণনায় এখন সর্বোচ্চ 50 জন সমর্থিত।\n• পিকলবলে এখন 1 থেকে 99-এর মধ্যে জয়ের লক্ষ্য স্কোর নির্ধারণ করা যায়।\n• ছোট পর্দায় সেটআপ ও স্কোর প্রদর্শন উন্নত করা হয়েছে।"
+    },
+    {
+      "locale": "ca",
+      "whatsNew": "• Personalitza la durada abans de començar un partit de bàsquet de 5 contra 5.\n• El marcador multijugador ara admet fins a 50 jugadors.\n• El pickleball ara permet establir una puntuació objectiu d’1 a 99.\n• Hem millorat la configuració i la visualització dels marcadors en pantalles petites."
+    },
+    {
+      "locale": "cs",
+      "whatsNew": "• Před zahájením basketbalového zápasu 5 na 5 si nastavte vlastní délku hry.\n• Počítání skóre pro více hráčů nyní podporuje až 50 hráčů.\n• V pickleballu si nyní můžete nastavit cílové skóre od 1 do 99.\n• Vylepšili jsme zobrazení nastavení a skóre na menších obrazovkách."
+    },
+    {
+      "locale": "da",
+      "whatsNew": "• Tilpas spilletiden, før du starter en basketballkamp med 5 mod 5.\n• Scoring for flere spillere understøtter nu op til 50 spillere.\n• I pickleball kan du nu vælge et pointmål fra 1 til 99.\n• Forbedret visning af opsætning og scoring på mindre skærme."
+    },
+    {
+      "locale": "de-DE",
+      "whatsNew": "• Lege vor einem Basketballspiel mit 5 gegen 5 eine individuelle Spieldauer fest.\n• Die Mehrspieler-Punktetafel unterstützt jetzt bis zu 50 Spieler.\n• Beim Pickleball lässt sich das Ziel jetzt auf 1 bis 99 Punkte festlegen.\n• Verbesserte Darstellung von Einstellungen und Spielständen auf kleinen Bildschirmen."
+    },
+    {
+      "locale": "el",
+      "whatsNew": "• Προσαρμόστε τη διάρκεια πριν ξεκινήσετε έναν αγώνα μπάσκετ 5 εναντίον 5.\n• Η καταμέτρηση σκορ πολλών παικτών υποστηρίζει πλέον έως 50 παίκτες.\n• Στο pickleball μπορείτε πλέον να ορίσετε στόχο από 1 έως 99 πόντους.\n• Βελτιώθηκε η εμφάνιση των ρυθμίσεων και του σκορ σε μικρότερες οθόνες."
+    },
+    {
+      "locale": "en-AU",
+      "whatsNew": "• Set custom durations before starting a 5-on-5 basketball game.\n• Multi-Score now supports up to 50 players.\n• Pickleball now supports custom target scores from 1 to 99.\n• Improved setup and score displays on smaller screens."
+    },
+    {
+      "locale": "en-CA",
+      "whatsNew": "• Set custom durations before starting a 5-on-5 basketball game.\n• Multi-Score now supports up to 50 players.\n• Pickleball now supports custom target scores from 1 to 99.\n• Improved setup and score displays on smaller screens."
+    },
+    {
+      "locale": "en-GB",
+      "whatsNew": "• Set custom durations before starting a 5-on-5 basketball game.\n• Multi-Score now supports up to 50 players.\n• Pickleball now supports custom target scores from 1 to 99.\n• Improved setup and score displays on smaller screens."
+    },
+    {
+      "locale": "en-US",
+      "whatsNew": "• Set custom durations before starting a 5-on-5 basketball game.\n• Multi-Score now supports up to 50 players.\n• Pickleball now supports custom target scores from 1 to 99.\n• Improved setup and score displays on smaller screens."
+    },
+    {
+      "locale": "es-ES",
+      "whatsNew": "• Personaliza la duración antes de empezar un partido de baloncesto de 5 contra 5.\n• El marcador multijugador ahora admite hasta 50 jugadores.\n• El pickleball ahora permite establecer una puntuación objetivo de 1 a 99.\n• Mejoramos la visualización de los ajustes y los marcadores en pantallas pequeñas."
+    },
+    {
+      "locale": "es-MX",
+      "whatsNew": "• Personaliza la duración antes de empezar un partido de básquetbol de 5 contra 5.\n• El marcador multijugador ahora admite hasta 50 jugadores.\n• El pickleball ahora permite establecer un puntaje objetivo de 1 a 99.\n• Mejoramos la visualización de los ajustes y los marcadores en pantallas pequeñas."
+    },
+    {
+      "locale": "fi",
+      "whatsNew": "• Määritä 5 vastaan 5 -koripallo-ottelun kesto ennen pelin alkua.\n• Usean pelaajan pistelasku tukee nyt jopa 50 pelaajaa.\n• Pickleballissa voi nyt asettaa tavoitepistemääräksi 1–99 pistettä.\n• Asetusten ja pistetilanteen näyttöä pienillä näytöillä on parannettu."
+    },
+    {
+      "locale": "fr-CA",
+      "whatsNew": "• Personnalisez la durée avant de commencer un match de basketball à 5 contre 5.\n• Le tableau de pointage multijoueur prend maintenant en charge jusqu’à 50 joueurs.\n• Le pickleball permet maintenant de définir un objectif de 1 à 99 points.\n• Amélioration de l’affichage des réglages et des pointages sur les petits écrans."
+    },
+    {
+      "locale": "fr-FR",
+      "whatsNew": "• Personnalisez la durée avant de commencer un match de basket à 5 contre 5.\n• Le tableau de score multijoueur prend désormais en charge jusqu’à 50 joueurs.\n• Le pickleball permet désormais de définir un objectif de 1 à 99 points.\n• Amélioration de l’affichage des réglages et des scores sur les petits écrans."
+    },
+    {
+      "locale": "gu-IN",
+      "whatsNew": "• 5 સામે 5 બાસ્કેટબોલની રમત શરૂ કરતાં પહેલાં સમયગાળો સેટ કરો.\n• બહુવિધ ખેલાડીઓની સ્કોર ગણતરી હવે 50 ખેલાડીઓ સુધી સપોર્ટ કરે છે.\n• પિકલબોલમાં હવે 1 થી 99 સુધીનો લક્ષ્યાંક સ્કોર સેટ કરી શકાય છે.\n• નાની સ્ક્રીન પર સેટઅપ અને સ્કોરનું પ્રદર્શન સુધાર્યું છે."
+    },
+    {
+      "locale": "he",
+      "whatsNew": "• אפשר להתאים את משך המשחק לפני תחילת משחק כדורסל 5 על 5.\n• מעקב הניקוד למספר שחקנים תומך כעת בעד 50 שחקנים.\n• בפיקלבול אפשר כעת להגדיר יעד ניקוד בין 1 ל-99.\n• תצוגת ההגדרות והניקוד שופרה במסכים קטנים."
+    },
+    {
+      "locale": "hi",
+      "whatsNew": "• 5 बनाम 5 बास्केटबॉल मैच शुरू करने से पहले समयावधि तय करें।\n• एकाधिक खिलाड़ियों की स्कोर गणना अब अधिकतम 50 खिलाड़ियों का समर्थन करती है।\n• पिकलबॉल में अब 1 से 99 के बीच लक्ष्य स्कोर तय किया जा सकता है।\n• छोटी स्क्रीन पर सेटअप और स्कोर का प्रदर्शन बेहतर किया गया है।"
+    },
+    {
+      "locale": "hr",
+      "whatsNew": "• Prilagodite trajanje prije početka košarkaške utakmice 5 na 5.\n• Brojanje bodova za više igrača sada podržava do 50 igrača.\n• U pickleballu sada možete postaviti ciljni rezultat od 1 do 99.\n• Poboljšan je prikaz postavki i rezultata na manjim zaslonima."
+    },
+    {
+      "locale": "hu",
+      "whatsNew": "• Állítsd be az 5 az 5 elleni kosárlabda-mérkőzés időtartamát a kezdés előtt.\n• A többjátékos pontszámláló mostantól akár 50 játékost is támogat.\n• Pickleballban mostantól 1 és 99 közötti célpontszámot állíthatsz be.\n• Javítottuk a beállítások és a pontszámok megjelenítését kisebb képernyőkön."
+    },
+    {
+      "locale": "id",
+      "whatsNew": "• Atur durasi sebelum memulai pertandingan bola basket 5 lawan 5.\n• Pencatatan skor multipemain kini mendukung hingga 50 pemain.\n• Pickleball kini mendukung pengaturan target skor dari 1 hingga 99.\n• Tampilan pengaturan dan skor pada layar kecil telah ditingkatkan."
+    },
+    {
+      "locale": "it",
+      "whatsNew": "• Personalizza la durata prima di iniziare una partita di basket 5 contro 5.\n• Il segnapunti multigiocatore ora supporta fino a 50 giocatori.\n• Nel pickleball ora puoi impostare un punteggio obiettivo da 1 a 99.\n• Migliorata la visualizzazione delle impostazioni e dei punteggi sugli schermi più piccoli."
+    },
+    {
+      "locale": "ja",
+      "whatsNew": "• 5人制バスケットボールで、試合開始前に時間を設定できるようになりました。\n• 複数人のスコア記録が最大50人に対応しました。\n• ピックルボールの目標スコアを1～99点に設定できるようになりました。\n• 小さな画面での設定とスコア表示を改善しました。"
+    },
+    {
+      "locale": "kn-IN",
+      "whatsNew": "• 5 ವಿರುದ್ಧ 5 ಬಾಸ್ಕೆಟ್‌ಬಾಲ್ ಪಂದ್ಯ ಆರಂಭಿಸುವ ಮೊದಲು ಅವಧಿಯನ್ನು ಹೊಂದಿಸಿ.\n• ಬಹು ಆಟಗಾರರ ಅಂಕ ಎಣಿಕೆ ಈಗ ಗರಿಷ್ಠ 50 ಆಟಗಾರರನ್ನು ಬೆಂಬಲಿಸುತ್ತದೆ.\n• ಪಿಕಲ್‌ಬಾಲ್‌ನಲ್ಲಿ ಈಗ 1 ರಿಂದ 99 ರವರೆಗೆ ಗುರಿ ಅಂಕವನ್ನು ಹೊಂದಿಸಬಹುದು.\n• ಸಣ್ಣ ಪರದೆಗಳಲ್ಲಿ ಸೆಟಪ್ ಮತ್ತು ಅಂಕಗಳ ಪ್ರದರ್ಶನವನ್ನು ಸುಧಾರಿಸಲಾಗಿದೆ."
+    },
+    {
+      "locale": "ko",
+      "whatsNew": "• 5인제 농구에서 경기 시작 전에 시간을 직접 설정할 수 있습니다.\n• 다인 점수 기록이 최대 50명까지 지원됩니다.\n• 피클볼 목표 점수를 1~99점으로 설정할 수 있습니다.\n• 작은 화면에서 설정 및 점수 표시를 개선했습니다."
+    },
+    {
+      "locale": "ml-IN",
+      "whatsNew": "• 5 പേർ വീതമുള്ള ബാസ്‌കറ്റ്‌ബോൾ മത്സരം തുടങ്ങുന്നതിന് മുമ്പ് സമയദൈർഘ്യം ക്രമീകരിക്കാം.\n• ഒന്നിലധികം കളിക്കാരുടെ സ്കോർ രേഖപ്പെടുത്തൽ ഇപ്പോൾ 50 കളിക്കാരെ വരെ പിന്തുണയ്ക്കുന്നു.\n• പിക്കിൾബോളിൽ ഇപ്പോൾ 1 മുതൽ 99 വരെ ലക്ഷ്യ സ്കോർ ക്രമീകരിക്കാം.\n• ചെറിയ സ്ക്രീനുകളിൽ സജ്ജീകരണങ്ങളും സ്കോറും കാണിക്കുന്നത് മെച്ചപ്പെടുത്തി."
+    },
+    {
+      "locale": "mr-IN",
+      "whatsNew": "• 5 विरुद्ध 5 बास्केटबॉल सामना सुरू होण्यापूर्वी कालावधी ठरवा.\n• अनेक खेळाडूंच्या गुणमोजणीमध्ये आता जास्तीत जास्त 50 खेळाडूंना समर्थन आहे.\n• पिकलबॉलमध्ये आता 1 ते 99 पर्यंतचे लक्ष्य गुण ठरवता येतात.\n• लहान स्क्रीनवरील सेटअप आणि गुणांचे प्रदर्शन सुधारले आहे."
+    },
+    {
+      "locale": "ms",
+      "whatsNew": "• Tetapkan tempoh sebelum memulakan perlawanan bola keranjang 5 lawan 5.\n• Pemarkahan berbilang pemain kini menyokong sehingga 50 pemain.\n• Pickleball kini menyokong penetapan mata sasaran dari 1 hingga 99.\n• Paparan tetapan dan skor pada skrin kecil telah ditambah baik."
+    },
+    {
+      "locale": "nl-NL",
+      "whatsNew": "• Stel de speelduur in voordat je een basketbalwedstrijd van 5 tegen 5 begint.\n• De scoreteller voor meerdere spelers ondersteunt nu maximaal 50 spelers.\n• Bij pickleball kun je nu een doelscore van 1 tot 99 instellen.\n• De weergave van instellingen en scores op kleine schermen is verbeterd."
+    },
+    {
+      "locale": "no",
+      "whatsNew": "• Tilpass spilletiden før du starter en basketballkamp med 5 mot 5.\n• Poengtelling for flere spillere støtter nå opptil 50 spillere.\n• I pickleball kan du nå velge et poengmål fra 1 til 99.\n• Forbedret visning av oppsett og poeng på mindre skjermer."
+    },
+    {
+      "locale": "or-IN",
+      "whatsNew": "• 5 ବନାମ 5 ବାସ୍କେଟବଲ୍ ମ୍ୟାଚ୍ ଆରମ୍ଭ ପୂର୍ବରୁ ସମୟସୀମା ସେଟ୍ କରନ୍ତୁ।\n• ଏକାଧିକ ଖେଳାଳିଙ୍କ ସ୍କୋର ଗଣନା ଏବେ ସର୍ବାଧିକ 50 ଜଣଙ୍କୁ ସମର୍ଥନ କରେ।\n• ପିକଲବଲ୍‌ରେ ଏବେ 1 ରୁ 99 ମଧ୍ୟରେ ଲକ୍ଷ୍ୟ ସ୍କୋର ସେଟ୍ କରିପାରିବେ।\n• ଛୋଟ ସ୍କ୍ରିନ୍‌ରେ ସେଟଅପ୍ ଏବଂ ସ୍କୋର ପ୍ରଦର୍ଶନ ଉନ୍ନତ କରାଯାଇଛି।"
+    },
+    {
+      "locale": "pa-IN",
+      "whatsNew": "• 5 ਬਨਾਮ 5 ਬਾਸਕਟਬਾਲ ਮੈਚ ਸ਼ੁਰੂ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਸਮਾਂ ਨਿਰਧਾਰਤ ਕਰੋ।\n• ਕਈ ਖਿਡਾਰੀਆਂ ਦੀ ਸਕੋਰ ਗਿਣਤੀ ਹੁਣ ਵੱਧ ਤੋਂ ਵੱਧ 50 ਖਿਡਾਰੀਆਂ ਨੂੰ ਸਮਰਥਨ ਦਿੰਦੀ ਹੈ।\n• ਪਿਕਲਬਾਲ ਵਿੱਚ ਹੁਣ 1 ਤੋਂ 99 ਤੱਕ ਦਾ ਟੀਚਾ ਸਕੋਰ ਨਿਰਧਾਰਤ ਕੀਤਾ ਜਾ ਸਕਦਾ ਹੈ।\n• ਛੋਟੀਆਂ ਸਕ੍ਰੀਨਾਂ ’ਤੇ ਸੈੱਟਅੱਪ ਅਤੇ ਸਕੋਰ ਡਿਸਪਲੇ ਨੂੰ ਬਿਹਤਰ ਬਣਾਇਆ ਗਿਆ ਹੈ।"
+    },
+    {
+      "locale": "pl",
+      "whatsNew": "• Ustaw czas gry przed rozpoczęciem meczu koszykówki 5 na 5.\n• Liczenie punktów dla wielu graczy obsługuje teraz do 50 osób.\n• W pickleballu można teraz ustawić docelowy wynik od 1 do 99 punktów.\n• Poprawiliśmy wyświetlanie ustawień i wyników na mniejszych ekranach."
+    },
+    {
+      "locale": "pt-BR",
+      "whatsNew": "• Personalize a duração antes de iniciar uma partida de basquete 5 contra 5.\n• O placar multijogador agora aceita até 50 jogadores.\n• O pickleball agora permite definir uma pontuação-alvo de 1 a 99.\n• Melhoramos a exibição das configurações e dos placares em telas pequenas."
+    },
+    {
+      "locale": "pt-PT",
+      "whatsNew": "• Personalize a duração antes de iniciar um jogo de basquetebol 5 contra 5.\n• O marcador multijogador suporta agora até 50 jogadores.\n• O pickleball permite agora definir uma pontuação-alvo de 1 a 99.\n• Melhorámos a apresentação das definições e dos resultados em ecrãs pequenos."
+    },
+    {
+      "locale": "ro",
+      "whatsNew": "• Personalizează durata înainte de a începe un meci de baschet 5 la 5.\n• Evidența scorului pentru mai mulți jucători acceptă acum până la 50 de jucători.\n• În pickleball poți seta acum un scor țintă de la 1 la 99.\n• Am îmbunătățit afișarea setărilor și a scorurilor pe ecranele mici."
+    },
+    {
+      "locale": "ru",
+      "whatsNew": "• Настройте длительность до начала баскетбольного матча 5 на 5.\n• Подсчёт очков для нескольких игроков теперь поддерживает до 50 участников.\n• В пиклболе теперь можно задать целевой счёт от 1 до 99.\n• Улучшено отображение настроек и счёта на небольших экранах."
+    },
+    {
+      "locale": "sk",
+      "whatsNew": "• Pred začiatkom basketbalového zápasu 5 na 5 si nastavte vlastnú dĺžku hry.\n• Počítanie skóre pre viacerých hráčov teraz podporuje až 50 hráčov.\n• V pickleballe si teraz môžete nastaviť cieľové skóre od 1 do 99.\n• Vylepšili sme zobrazenie nastavení a skóre na menších obrazovkách."
+    },
+    {
+      "locale": "sl-SI",
+      "whatsNew": "• Pred začetkom košarkarske tekme 5 na 5 prilagodite trajanje igre.\n• Štetje točk za več igralcev zdaj podpira do 50 igralcev.\n• Pri pickleballu lahko zdaj nastavite ciljni rezultat od 1 do 99.\n• Izboljšali smo prikaz nastavitev in rezultatov na manjših zaslonih."
+    },
+    {
+      "locale": "sv",
+      "whatsNew": "• Anpassa speltiden innan du startar en basketmatch med 5 mot 5.\n• Poängräkning för flera spelare stöder nu upp till 50 spelare.\n• I pickleball kan du nu välja ett poängmål från 1 till 99.\n• Förbättrad visning av inställningar och poäng på mindre skärmar."
+    },
+    {
+      "locale": "ta-IN",
+      "whatsNew": "• 5 பேர் கொண்ட அணிகளுக்கான கூடைப்பந்து போட்டி தொடங்கும் முன் நேரத்தை அமைக்கலாம்.\n• பல வீரர்களுக்கான மதிப்பெண் கணக்கீடு இப்போது அதிகபட்சம் 50 வீரர்களை ஆதரிக்கிறது.\n• பிக்கிள்பாலில் இப்போது 1 முதல் 99 வரையிலான இலக்கு மதிப்பெண்ணை அமைக்கலாம்.\n• சிறிய திரைகளில் அமைப்புகள் மற்றும் மதிப்பெண் காட்சி மேம்படுத்தப்பட்டுள்ளது."
+    },
+    {
+      "locale": "te-IN",
+      "whatsNew": "• 5 వర్సెస్ 5 బాస్కెట్‌బాల్ మ్యాచ్ ప్రారంభించే ముందు సమయాన్ని సెట్ చేయండి.\n• బహుళ ఆటగాళ్ల స్కోర్ లెక్కింపు ఇప్పుడు గరిష్ఠంగా 50 మంది ఆటగాళ్లకు మద్దతు ఇస్తుంది.\n• పికిల్‌బాల్‌లో ఇప్పుడు 1 నుండి 99 వరకు లక్ష్య స్కోర్‌ను సెట్ చేయవచ్చు.\n• చిన్న స్క్రీన్‌లలో సెటప్ మరియు స్కోర్ ప్రదర్శనను మెరుగుపరిచాము."
+    },
+    {
+      "locale": "th",
+      "whatsNew": "• ตั้งระยะเวลาเองได้ก่อนเริ่มการแข่งขันบาสเกตบอลแบบ 5 ต่อ 5\n• การนับคะแนนหลายผู้เล่นรองรับผู้เล่นสูงสุด 50 คนแล้ว\n• พิกเคิลบอลรองรับการกำหนดคะแนนเป้าหมายตั้งแต่ 1 ถึง 99 แล้ว\n• ปรับปรุงการแสดงการตั้งค่าและคะแนนบนหน้าจอขนาดเล็ก"
+    },
+    {
+      "locale": "tr",
+      "whatsNew": "• 5'e 5 basketbol maçına başlamadan önce süreyi özelleştirin.\n• Çok oyunculu skor takibi artık 50 oyuncuya kadar destekliyor.\n• Pickleball'da artık 1 ile 99 arasında hedef skor belirleyebilirsiniz.\n• Küçük ekranlarda ayarların ve skorların görünümü iyileştirildi."
+    },
+    {
+      "locale": "uk",
+      "whatsNew": "• Налаштуйте тривалість до початку баскетбольного матчу 5 на 5.\n• Підрахунок очок для кількох гравців тепер підтримує до 50 учасників.\n• У піклболі тепер можна задати цільовий рахунок від 1 до 99.\n• Поліпшено відображення налаштувань і рахунку на невеликих екранах."
+    },
+    {
+      "locale": "ur-PK",
+      "whatsNew": "• 5 بمقابلہ 5 باسکٹ بال میچ شروع کرنے سے پہلے دورانیہ مقرر کریں۔\n• متعدد کھلاڑیوں کی اسکورنگ اب زیادہ سے زیادہ 50 کھلاڑیوں کو سپورٹ کرتی ہے۔\n• پکل بال میں اب 1 سے 99 تک ہدف اسکور مقرر کیا جا سکتا ہے۔\n• چھوٹی اسکرینوں پر سیٹ اپ اور اسکور کا ڈسپلے بہتر بنایا گیا ہے۔"
+    },
+    {
+      "locale": "vi",
+      "whatsNew": "• Tùy chỉnh thời lượng trước khi bắt đầu trận bóng rổ 5 đấu 5.\n• Tính điểm nhiều người chơi hiện hỗ trợ tối đa 50 người.\n• Pickleball hiện cho phép đặt điểm mục tiêu từ 1 đến 99.\n• Cải thiện hiển thị thiết lập và điểm số trên màn hình nhỏ."
+    },
+    {
+      "locale": "zh-Hans",
+      "whatsNew": "• 五人制篮球支持赛前自定义时长。\n• 多人计分支持最多 50 人。\n• 匹克球支持自定义 1～99 分的目标分。\n• 优化小屏幕下的设置和计分显示。"
+    },
+    {
+      "locale": "zh-Hant",
+      "whatsNew": "• 五人制籃球支援賽前自訂時長。\n• 多人計分支援最多 50 人。\n• 匹克球支援自訂 1～99 分的目標分。\n• 最佳化小螢幕上的設定與計分顯示。"
+    }
+  ],
+  "uploadStatus": "verified_50_locales",
+  "appStoreVersionId": "045507ac-dc8a-4208-9250-0bfc95e62c65",
+  "verifiedAt": "2026-10-31T04:29:10.960469+00:00"
+}

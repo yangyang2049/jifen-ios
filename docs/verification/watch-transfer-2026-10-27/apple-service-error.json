@@ -1,0 +1,12 @@
+{
+  "errors": [
+    {
+      "id": "bcf82fc8-3886-4bd4-864b-74f6f1492a89",
+      "status": "409",
+      "code": "ENTITY_ERROR.ATTRIBUTE.INVALID",
+      "title": "An attribute in the provided entity has invalid value",
+      "resultCode": 9401,
+      "detail": "An App ID with Identifier 'com.douhua.jifen.ios.watchkitapp' is not available. Please enter a different string."
+    }
+  ]
+}

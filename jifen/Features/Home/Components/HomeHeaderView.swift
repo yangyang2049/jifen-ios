@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeHeaderView: View {
     let headerDate: String
+    let windowWidth: CGFloat
     /// 首页水平边距（由 HomeTab 按窗口尺寸传入；iPad 平板档为 64，对齐安卓 responsiveHorizontalPadding）。
     var horizontalInset: CGFloat = Theme.pageHorizontalInset
     var onCastTapped: () -> Void = {}
@@ -32,6 +33,21 @@ struct HomeHeaderView: View {
     }
 
     private var normalHeader: some View {
+        ViewThatFits(in: .horizontal) {
+            if windowWidth >= 480 {
+                normalHeaderContent(showCastLabel: true)
+            }
+            normalHeaderContent(showCastLabel: false)
+        }
+        // Keep padding outside the fit check and the sharing banner full width.
+        .padding(.horizontal, horizontalInset)
+        .padding(.top, Theme.md)
+        .padding(.bottom, Theme.sm)
+        .frame(maxWidth: .infinity)
+        .background(Theme.backgroundColor)
+    }
+
+    private func normalHeaderContent(showCastLabel: Bool) -> some View {
         HStack {
             VStack(alignment: .leading) {
                 Text(NSLocalizedString("app_name", comment: "App Name"))
@@ -45,18 +61,32 @@ struct HomeHeaderView: View {
                     .foregroundColor(Theme.textSecondary)
                     .lineLimit(1)
             }
+            .fixedSize(horizontal: showCastLabel, vertical: false)
             .layoutPriority(1)
 
             Spacer()
 
-            // 顶栏图标按钮（对齐 App Store 右上角扫码位的官方模式）：
-            // 投屏/同步收成纯图标，投屏中（外接屏幕已连接）用主色保留活跃提示。
             Button(action: onCastTapped) {
-                Image(systemName: "rectangle.on.rectangle")
-                    .font(.system(size: 18, weight: .medium))
-                    .foregroundStyle(externalDisplay.status == .dedicated ? Theme.primary : Theme.textPrimary)
-                    .frame(width: 44, height: 44)
-                    .contentShape(Rectangle())
+                if showCastLabel {
+                    HStack(spacing: Theme.xs) {
+                        Image(systemName: "rectangle.on.rectangle")
+                            .font(.system(size: 16, weight: .medium))
+                        Text(NSLocalizedString("home_sync_entry", value: "投屏与同步", comment: ""))
+                            .font(.system(size: Theme.fontBody2, weight: .semibold))
+                            .lineLimit(1)
+                    }
+                    .foregroundStyle(Theme.textOnPrimary)
+                    .padding(.horizontal, 12)
+                    .frame(height: 44)
+                    .background(Theme.primary, in: Capsule())
+                    .fixedSize(horizontal: true, vertical: false)
+                } else {
+                    Image(systemName: "rectangle.on.rectangle")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(externalDisplay.status == .dedicated ? Theme.primary : Theme.textPrimary)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("home_cast_button")
@@ -74,12 +104,6 @@ struct HomeHeaderView: View {
             .accessibilityIdentifier("home_scan_button")
             .accessibilityLabel(groupText("scan", "Scan QR code"))
         }
-        // 水平内边距移入正常顶栏内部：同步态绿色条需要全宽贴边（对齐安卓 activeModifier）。
-        .padding(.horizontal, horizontalInset)
-        .padding(.top, Theme.md)
-        .padding(.bottom, Theme.sm)
-        .frame(maxWidth: .infinity)
-        .background(Theme.backgroundColor)
     }
 }
 

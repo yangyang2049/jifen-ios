@@ -19,6 +19,7 @@ struct MultiScoreSetupDialogView: View {
     var onCancel: (() -> Void)?
 
     @State private var selectedPlayerCount: Int
+    @State private var playerCountDraftValid = true
     @State private var playerNames: [String]
     @State private var participantSelections: [String: ParticipantSelection] = [:]
     @State private var team1Name: String
@@ -37,6 +38,9 @@ struct MultiScoreSetupDialogView: View {
     @State private var guandanFallbackRank: String
     @State private var activeCommonNameIndex: Int? = nil
     @State private var activeTeamNameTarget: TeamNameTarget? = nil
+    @State private var showBulkNames = false
+    @State private var boardStyle: MultiScoreboardStyle
+    @State private var showBoardStylePicker = false
 
     private enum TeamNameTarget: String, Identifiable {
         case team1
@@ -58,7 +62,7 @@ struct MultiScoreSetupDialogView: View {
     private var playerCountRange: ClosedRange<Int> {
         switch layoutMode {
         case .uno: return 2...10
-        case .multiScore: return 3...9
+        case .multiScore: return MultiScoreCapacity.minPlayers...MultiScoreCapacity.maxPlayers
         case .doudizhu: return 3...4
         case .twoTeam: return 2...2
         }
@@ -98,7 +102,7 @@ struct MultiScoreSetupDialogView: View {
         let range: ClosedRange<Int> = {
             switch mode {
             case .uno: return 2...10
-            case .multiScore: return 3...9
+            case .multiScore: return MultiScoreCapacity.minPlayers...MultiScoreCapacity.maxPlayers
             case .doudizhu: return 3...4
             case .twoTeam: return 2...2
             }
@@ -121,7 +125,10 @@ struct MultiScoreSetupDialogView: View {
             if mode == .doudizhu && initialPlayerNames.isEmpty {
                 return Self.defaultDoudizhuNames()
             }
-            return Self.normalizePlayerNames(initialPlayerNames, capacity: 10)
+            return Self.normalizePlayerNames(
+                initialPlayerNames,
+                capacity: mode == .multiScore ? MultiScoreCapacity.maxPlayers : 10
+            )
         }()
         _playerNames = State(initialValue: resolvedNames)
         _team1Name = State(initialValue: defaultTeam1Name.isEmpty
@@ -145,6 +152,7 @@ struct MultiScoreSetupDialogView: View {
             }
         }()
         _customAdjustEnabled = State(initialValue: initialCustomAdjust)
+        _boardStyle = State(initialValue: PreferencesManager.shared.multiScoreboardStyle)
         _showMatchTime = State(initialValue: ScoreboardMatchTimePolicy.includesCasualSetupValue(for: gameType)
             ? (initialSetup?.showMatchTime
                 ?? PreferencesManager.shared.scoreboardMatchTimeVisible(for: gameType))
@@ -201,14 +209,21 @@ struct MultiScoreSetupDialogView: View {
                     case .multiScore, .uno, .doudizhu:
                         if layoutMode == .doudizhu {
                             doudizhuPlayerCountSegment
+                        } else if layoutMode == .multiScore {
+                            // 3～9 快捷项 + 自定义输入（3～50），对齐安卓 MultiScoreCountSelector。
+                            MultiScoreCountSelector(playerCount: selectedPlayerCount, onValidationChange: { valid in
+                                playerCountDraftValid = valid
+                            }) { count in
+                                selectedPlayerCount = MultiScoreCapacity.normalized(count)
+                            }
                         } else {
                             playerCountChips
                         }
+                        if layoutMode == .multiScore {
+                            bulkNamesEntry
+                        }
                         playerNameFields
                         ParticipantDuplicateNamesHint(names: Array(playerNames.prefix(selectedPlayerCount)))
-                        if layoutMode == .multiScore {
-                            customAdjustToggle
-                        }
                         if layoutMode == .uno {
                             unoTargetScoreSection
                         }
@@ -218,32 +233,44 @@ struct MultiScoreSetupDialogView: View {
                 .padding(.vertical, Theme.md)
             }
         } actions: {
-            HStack(spacing: Theme.md) {
-                Button(action: { onCancel?() }) {
-                    Text(NSLocalizedString("cancel", comment: "Cancel button"))
-                        .font(.system(size: 16))
-                        .foregroundColor(Theme.textPrimary)
-                        .frame(width: 100, height: 44)
-                        .background(Theme.dialogControlBackground)
-                        .cornerRadius(.infinity)
+            VStack(spacing: Theme.sm) {
+                if layoutMode == .multiScore {
+                    customAdjustToggle
+                        .frame(minHeight: 44)
+                    boardStyleRow
                 }
-                .buttonStyle(.plain)
 
-                Button(action: confirmSetup) {
-                    Text(NSLocalizedString("start_game", comment: "Start Game button"))
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(canConfirmSetup ? Theme.textOnPrimary : Theme.textSecondary)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 44)
-                        .background(canConfirmSetup ? Theme.primary : Theme.dialogControlBackground)
-                        .cornerRadius(.infinity)
+                HStack(spacing: Theme.md) {
+                    Button(action: { onCancel?() }) {
+                        Text(NSLocalizedString("cancel", comment: "Cancel button"))
+                            .font(.system(size: 16))
+                            .foregroundColor(Theme.textPrimary)
+                            .frame(width: 100, height: 44)
+                            .background(Theme.dialogControlBackground)
+                            .cornerRadius(.infinity)
+                    }
+                    .buttonStyle(.plain)
+
+                    Button(action: confirmSetup) {
+                        Text(NSLocalizedString("start_game", comment: "Start Game button"))
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(canConfirmSetup ? Theme.textOnPrimary : Theme.textSecondary)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 44)
+                            .background(canConfirmSetup ? Theme.primary : Theme.dialogControlBackground)
+                            .cornerRadius(.infinity)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!canConfirmSetup)
                 }
-                .buttonStyle(.plain)
-                .disabled(!canConfirmSetup)
             }
             .padding(.horizontal, Theme.lg)
             .padding(.top, Theme.sm)
             .padding(.bottom, Theme.md)
+            .background(Theme.dialogSurfaceBackground)
+        }
+        .sheet(isPresented: $showBoardStylePicker) {
+            MultiScoreboardStylePicker(style: $boardStyle)
         }
         .sheet(isPresented: Binding(
             get: { activeCommonNameIndex != nil },
@@ -263,6 +290,18 @@ struct MultiScoreSetupDialogView: View {
                 }
             }
         }
+        .sheet(isPresented: $showBulkNames) {
+            MultiScoreBulkNamesDialog(
+                playerCount: selectedPlayerCount,
+                onApply: { names in
+                    applyBulkNames(names)
+                    showBulkNames = false
+                },
+                onDismiss: { showBulkNames = false }
+            )
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+        }
         .sheet(item: $activeTeamNameTarget) { target in
             CommonNameSelectorDialog(nameType: .team) { name in
                 switch target {
@@ -272,6 +311,84 @@ struct MultiScoreSetupDialogView: View {
                 activeTeamNameTarget = nil
             }
         }
+    }
+
+    private var bulkNamesEntry: some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text(NSLocalizedString("multi_score_player_names", value: "玩家姓名", comment: ""))
+                .font(.system(size: 14, weight: .regular))
+                .foregroundStyle(Theme.textPrimary)
+            Spacer()
+            Button {
+                showBulkNames = true
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "text.append")
+                        .font(.system(size: 13, weight: .medium))
+                    Text(NSLocalizedString("multi_score_bulk_names", value: "批量填写", comment: ""))
+                        .font(.system(size: 14, weight: .medium))
+                }
+                .foregroundColor(Theme.primary)
+                .frame(minWidth: 88, minHeight: 44, alignment: .trailing)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("setup_multi_bulk_entry")
+        }
+    }
+
+    private var boardStyleRow: some View {
+        Button { showBoardStylePicker = true } label: {
+            HStack(spacing: Theme.sm) {
+                Text(NSLocalizedString("multi_score_style", comment: "Scoreboard style"))
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer(minLength: Theme.sm)
+                if boardStyle.mode == .solid {
+                    Circle()
+                        .fill(Color(hex: boardStyle.solidColor.hex))
+                        .frame(width: 14, height: 14)
+                        .overlay(Circle().strokeBorder(Theme.textSecondary.opacity(0.3), lineWidth: 0.5))
+                        .accessibilityHidden(true)
+                }
+                Text(boardStyle.mode.title)
+                    .foregroundStyle(Theme.textSecondary)
+                Image(systemName: "chevron.forward")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(Theme.textSecondary)
+            }
+            .font(.system(size: 14))
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("setup_multi_style")
+    }
+
+    /// 按顺序替换、保留未覆盖姓名；超过当前人数时扩充人数（与安卓一致）。
+    private func applyBulkNames(_ names: [String]) {
+        guard !names.isEmpty else { return }
+        let targetCount = max(selectedPlayerCount, min(MultiScoreCapacity.maxPlayers, names.count))
+        var next = normalizeNamesToCapacity(playerNames, capacity: max(targetCount, MultiScoreCapacity.minPlayers))
+        for (index, name) in names.enumerated() where index < next.count {
+            next[index] = name
+        }
+        playerNames = next
+        selectedPlayerCount = targetCount
+        // 姓名被批量覆盖，取消对应的身份绑定，避免身份与姓名不一致。
+        for index in names.indices {
+            participantSelections.removeValue(forKey: "player:\(index)")
+        }
+    }
+
+    private func normalizeNamesToCapacity(_ names: [String], capacity: Int) -> [String] {
+        var result = names
+        if result.count < capacity {
+            for index in result.count ..< capacity {
+                result.append(DefaultParticipantNames.numberedPlayer(index + 1))
+            }
+        }
+        return result
     }
 
     private var playerCountChips: some View {
@@ -346,7 +463,7 @@ struct MultiScoreSetupDialogView: View {
     private var customAdjustToggle: some View {
         HStack(spacing: 6) {
             Text(NSLocalizedString("score_custom_adjust_label", value: "自定义加减分", comment: ""))
-                .font(.system(size: 14))
+                .font(.system(size: 14, weight: .regular))
                 .foregroundStyle(Theme.textPrimary)
             SystemHelpButton(
                 title: NSLocalizedString("score_custom_adjust_help_title", value: "计分方式说明", comment: ""),
@@ -362,6 +479,8 @@ struct MultiScoreSetupDialogView: View {
             Toggle("", isOn: $customAdjustEnabled)
                 .labelsHidden()
                 .tint(Theme.primary)
+                .accessibilityLabel(NSLocalizedString("score_custom_adjust_label", value: "自定义加减分", comment: ""))
+                .accessibilityIdentifier("multi_score_custom_adjust_toggle")
         }
     }
 
@@ -535,7 +654,8 @@ struct MultiScoreSetupDialogView: View {
     }
 
     private var canConfirmSetup: Bool {
-        (layoutMode != .uno || UnoTargetScorePolicy.allowedRange.contains(unoTargetScore))
+        (layoutMode != .multiScore || playerCountDraftValid)
+            && (layoutMode != .uno || UnoTargetScorePolicy.allowedRange.contains(unoTargetScore))
             && !ParticipantIdentityRules.containsDuplicatePerson(Array(validParticipantSelections.values))
     }
 
@@ -548,7 +668,7 @@ struct MultiScoreSetupDialogView: View {
         }
     }
 
-    private static func normalizePlayerNames(_ names: [String], capacity: Int) -> [String] {
+    static func normalizePlayerNames(_ names: [String], capacity: Int) -> [String] {
         var result = names
         // 商店源图要真实玩家名：见 DefaultParticipantNames.uiTestParticipantNames
         for (index, name) in DefaultParticipantNames.uiTestParticipantNames.enumerated() {
@@ -645,6 +765,7 @@ struct MultiScoreSetupDialogView: View {
             if layoutMode == .multiScore {
                 PreferencesManager.shared.multiScoreboardPlayerCount = selectedPlayerCount
                 PreferencesManager.shared.multiScoreboardCustomAdjustEnabled = customAdjustEnabled
+                PreferencesManager.shared.multiScoreboardStyle = boardStyle
                 result.multiScoreCustomAdjustEnabled = customAdjustEnabled
             }
             if layoutMode == .uno {

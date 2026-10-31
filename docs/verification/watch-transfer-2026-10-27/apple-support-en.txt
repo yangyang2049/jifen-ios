@@ -1,0 +1,42 @@
+Subject: Transferred iOS app: companion Watch App ID unavailable to recipient team; App Store distribution export fails
+
+Hello Apple Developer Support,
+
+Our app, iScoreboard / 全能计分器, was previously transferred from another Apple Developer account to our current account. After restoring its companion watchOS app, both targets compile and the development-signed archive succeeds. App Store distribution export then fails while obtaining signing assets, before binary upload.
+
+App details:
+- App Store Connect Apple ID: 6759768784
+- iOS Bundle ID: com.douhua.jifen.ios
+- Companion watchOS Bundle ID: com.douhua.jifen.ios.watchkitapp
+- Recipient Team ID: X9VDZZL3C3
+- Recipient team: Bolo mobile, Inc.
+- Reproduced with version 3.4, build 83
+- Xcode 27.1 (27A9275)
+- Reproduced October 27, 2026, 22:49–22:50 Asia/Shanghai (UTC+8)
+
+Exact Xcode errors:
+
+error: exportArchive Failed Registering Bundle Identifier
+  The app identifier "com.douhua.jifen.ios.watchkitapp" cannot be registered to your development team because it is not available. Change your bundle identifier to a unique string to try again.
+
+error: exportArchive No profiles for 'com.douhua.jifen.ios.watchkitapp' were found
+  Xcode couldn't find any iOS App Store provisioning profiles matching 'com.douhua.jifen.ios.watchkitapp'.
+
+** EXPORT FAILED **
+
+
+Apple Developer service response:
+- HTTP status: 409
+- Code: ENTITY_ERROR.ATTRIBUTE.INVALID
+- resultCode: 9401
+- Error ID: bcf82fc8-3886-4bd4-864b-74f6f1492a89
+- Detail: An App ID with Identifier 'com.douhua.jifen.ios.watchkitapp' is not available. Please enter a different string.
+
+The current team's Bundle IDs API query returns the main iOS Bundle ID, but returns an empty list for the companion watchOS Bundle ID. The watch app can be development-signed using a wildcard profile (X9VDZZL3C3.*); successful development archiving therefore does not establish ownership of this explicit Watch App ID.
+
+Please investigate the ownership of the companion Watch App ID and its association with the transferred iOS app. If its transfer or association is incomplete, or it is reserved under another team, please help correct the state so our recipient team can obtain an App Store distribution provisioning profile. Please advise whether any action is required from the original account holder. We would like to preserve the existing Watch Bundle ID.
+
+We cannot yet establish whether the root cause is an incomplete App ID transfer, an ownership issue, or another backend restriction. We are not asserting that an old signing certificate must be transferred.
+
+Attached are the original export error log, the Apple service error JSON, Bundle ID query results, and archive signature verification summary.
+Thank you.

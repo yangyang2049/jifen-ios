@@ -44,13 +44,17 @@ final class BasketballSessionStore {
         rightName: String,
         gameMode: BasketballGameMode = .fiveVFive,
         ruleSet: BasketballRuleSet = .fiba,
+        periodDurationSeconds: Int? = nil,
+        overtimeDurationSeconds: Int? = nil,
         resumeRepository: ResumeSessionRepository? = nil
     ) {
         var initial = BasketballMatchEngine.initial(
             leftName: leftName,
             rightName: rightName,
             gameMode: gameMode,
-            ruleSet: ruleSet
+            ruleSet: ruleSet,
+            periodDurationSeconds: periodDurationSeconds,
+            overtimeDurationSeconds: overtimeDurationSeconds
         )
         #if DEBUG
         if MarketingScreenshotFixture.isRequested("basketball") {
@@ -146,6 +150,8 @@ final class BasketballSessionStore {
             rightName: state.rightName,
             gameMode: state.gameMode,
             ruleSet: state.ruleSet,
+            periodDurationSeconds: state.periodDurationSeconds,
+            overtimeDurationSeconds: state.overtimeDurationSeconds,
             resumeRepository: resumeRepository
         )
     }
@@ -203,7 +209,15 @@ final class BasketballSessionStore {
         let previousTask = operationTask
         operationTask = Task { [weak self, core] in
             _ = await previousTask?.value
-            guard await core.undo(actorId: "phone"), let self else {
+            let intent = await core.intentTimeline().last?.intent
+            let preservesTiming = intent.map(BasketballMatchEngine.preservesTimingOnUndo) ?? false
+            let hadStartedClock = self?.basketballClockStarted ?? false
+            guard await core.undo(actorId: "phone", mergingState: { before, current in
+                if preservesTiming {
+                    return BasketballMatchEngine.mergeUndoTiming(before, current)
+                }
+                return BasketballMatchEngine.mergeUndoConfiguration(before, current)
+            }), let self else {
                 completion?(false)
                 return
             }
@@ -220,8 +234,9 @@ final class BasketballSessionStore {
                 // a stale score/period action after a legacy resume undo.
                 self.rebuildRecordContext(from: session.events)
             }
-            self.basketballClockStarted = self.recordContext.presentationFlags[Self.clockStartedFlag]
+            let restoredClockStarted = self.recordContext.presentationFlags[Self.clockStartedFlag]
                 ?? Self.inferLegacyClockStarted(from: session.state)
+            self.basketballClockStarted = restoredClockStarted || (preservesTiming && hadStartedClock)
             self.recordContext.presentationFlags[Self.clockStartedFlag] = self.basketballClockStarted
             await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
             completion?(true)
@@ -299,7 +314,7 @@ final class BasketballSessionStore {
 
     private func refreshClockFromAnchor() {
         let now = DispatchTime.now().uptimeNanoseconds
-        let maximumCatchUpSeconds = 90 * 60
+        let maximumCatchUpSeconds = 100 * 60
         if state.timeoutActiveSide != nil, state.timeoutRemainingSeconds > 0 {
             gameClockAnchorNanoseconds = nil
             guard let anchor = timeoutClockAnchorNanoseconds else {
@@ -388,7 +403,7 @@ final class BasketballSessionStore {
             action = .init(type: .reset, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, gameTimeSeconds: gameTimeSeconds, operationCode: "reset")
         case .finish:
             action = .init(type: .matchFinished, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, gameTimeSeconds: gameTimeSeconds, winner: state.leftScore == state.rightScore ? nil : (state.leftScore > state.rightScore ? .team1 : .team2), operationCode: "finish")
-        case .tickClock, .tickTimeout:
+        case .tickClock, .tickTimeout, .setTiming:
             return nil
         default:
             action = .init(type: .stateChanged, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, gameTimeSeconds: gameTimeSeconds, operationCode: String(describing: intent))
@@ -440,7 +455,9 @@ final class BasketballSessionStore {
             leftName: state.leftName,
             rightName: state.rightName,
             gameMode: state.gameMode,
-            ruleSet: state.ruleSet
+            ruleSet: state.ruleSet,
+            periodDurationSeconds: state.periodDurationSeconds,
+            overtimeDurationSeconds: state.overtimeDurationSeconds
         )
         return state.gameRunning
             || state.shotRunning
@@ -492,7 +509,9 @@ final class BasketballSessionStore {
             totalScoreChanges: recordContext.actionCount,
             projectConfiguration: [
                 "basketballMode": AnyCodable(state.gameMode == .threeXThree ? "three_x_three" : "five_v_five"),
-                "basketballRuleSet": AnyCodable(String(describing: state.ruleSet).lowercased())
+                "basketballRuleSet": AnyCodable(state.ruleSet.rawValue),
+                "basketballPeriodSeconds": AnyCodable(state.periodDurationSeconds),
+                "basketballOvertimeSeconds": AnyCodable(state.overtimeDurationSeconds)
             ],
             stateSnapshot: snapshot,
             status: .finished

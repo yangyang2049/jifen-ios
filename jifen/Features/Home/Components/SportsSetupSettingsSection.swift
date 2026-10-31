@@ -18,6 +18,9 @@ struct SportsSetupSettingsSection: View {
         case sets
         case points
         case foosballScoreCap
+        case pickleballTarget
+        case basketballPeriod
+        case basketballOvertime
     }
 
     var body: some View {
@@ -68,6 +71,9 @@ struct SportsSetupSettingsSection: View {
         case .sets: draft.customMaxSetsText
         case .points: draft.customPointsText
         case .foosballScoreCap: draft.customFoosballScoreCapText
+        case .pickleballTarget: draft.customPickleballTargetText
+        case .basketballPeriod: draft.basketballPeriodText
+        case .basketballOvertime: draft.basketballOvertimeText
         }
     }
 
@@ -221,16 +227,38 @@ struct SportsSetupSettingsSection: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(NSLocalizedString("basketball_rule_set_label", value: "规则", comment: "Basketball rules"))
                 .settingsLabelStyle()
-            chipRow(options: ["fiba", "nba"], selection: $draft.basketballRuleSet) { value in
-                value.uppercased()
+            chipRow(options: ["fiba", "nba", "custom"], selection: $draft.basketballRuleSet) { value in
+                value == "custom" ? NSLocalizedString("custom", comment: "") : value.uppercased()
             }
-            Text(draft.basketballRuleSet == "nba"
+            if draft.basketballRuleSet == "custom" {
+                VStack(spacing: 20) {
+                    Text(NSLocalizedString("basketball_period_minutes", value: "每节时长（分钟）", comment: "")).settingsLabelStyle()
+                    SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
+                        ForEach([10, 12, 15, 20], id: \.self) { value in
+                            numberChip(value, selection: $draft.basketballPeriodMinutes, customField: .basketballPeriod) {
+                                draft.basketballPeriodMinutes = value; draft.basketballPeriodText = ""; requestedCustomField = nil
+                            }
+                        }
+                        customNumberChip(selection: $draft.basketballPeriodMinutes, text: $draft.basketballPeriodText, maxValue: 99, field: .basketballPeriod)
+                    }
+                    Text(NSLocalizedString("basketball_overtime_minutes", value: "加时时长（分钟）", comment: "")).settingsLabelStyle()
+                    SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
+                        ForEach([3, 5, 10], id: \.self) { value in
+                            numberChip(value, selection: $draft.basketballOvertimeMinutes, customField: .basketballOvertime) {
+                                draft.basketballOvertimeMinutes = value; draft.basketballOvertimeText = ""; requestedCustomField = nil
+                            }
+                        }
+                        customNumberChip(selection: $draft.basketballOvertimeMinutes, text: $draft.basketballOvertimeText, maxValue: 99, field: .basketballOvertime)
+                    }
+                }
+            } else { Text(draft.basketballRuleSet == "nba"
                  ? NSLocalizedString("basketball_rule_nba_summary", value: "NBA：每节 12 分钟，常规赛 7 次暂停。", comment: "")
                  : NSLocalizedString("basketball_rule_fiba_summary", value: "FIBA：每节 10 分钟，上下半场分别计算暂停。", comment: ""))
                 .font(.system(size: 13))
                 .foregroundStyle(Theme.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .multilineTextAlignment(.center)
+            }
         }
     }
 
@@ -398,13 +426,20 @@ struct SportsSetupSettingsSection: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(NSLocalizedString("pickleball_target_score", value: "目标分", comment: ""))
                 .settingsLabelStyle()
-            SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
-                ForEach([11, 15, 21], id: \.self) { points in
-                    numberChip(points, selection: $draft.pickleballTargetScore) {
-                        if points != 11 { draft.pickleballScoreCap = nil }
-                    }
-                }
-            }
+            // 安卓 3.4：目标分放开到 1–99。保留 11/15/21 快捷档位，
+            // 其余整数走同文件已有的自定义数值输入（铅笔 chip → 数字键盘）。
+            customNumberChipGrid(
+                presets: SportsSetupDraft.pickleballTargetPresets,
+                selection: $draft.pickleballTargetScore,
+                text: $draft.customPickleballTargetText,
+                maxValue: RallyRuleSet.pickleballTargetScoreRange.upperBound,
+                minimumValue: RallyRuleSet.pickleballTargetScoreRange.lowerBound,
+                field: .pickleballTarget
+            )
+        }
+        .onChange(of: draft.pickleballTargetScore) { _, target in
+            // 封顶分（scoreCap）只在目标分 11 时保留，其余目标分继续置 nil。
+            if target != 11 { draft.pickleballScoreCap = nil }
         }
         if draft.pickleballTargetScore == 11 {
             VStack(alignment: .leading, spacing: 8) {
@@ -552,6 +587,7 @@ struct SportsSetupSettingsSection: View {
         selection: Binding<Int>,
         text: Binding<String>,
         maxValue: Int,
+        minimumValue: Int = 0,
         field: CustomField
     ) -> some View {
         SetupNumberChoicesLayout(layoutDirection: layoutDirection) {
@@ -560,7 +596,13 @@ struct SportsSetupSettingsSection: View {
                     text.wrappedValue = ""
                 }
             }
-            customNumberChip(selection: selection, text: text, maxValue: maxValue, field: field)
+            customNumberChip(
+                selection: selection,
+                text: text,
+                maxValue: maxValue,
+                minimumValue: minimumValue,
+                field: field
+            )
         }
     }
 
@@ -619,6 +661,7 @@ struct SportsSetupSettingsSection: View {
         selection: Binding<Int>,
         text: Binding<String>,
         maxValue: Int,
+        minimumValue: Int = 0,
         field: CustomField
     ) -> some View {
         if !text.wrappedValue.isEmpty || isEditingCustomField(field) {
@@ -629,7 +672,7 @@ struct SportsSetupSettingsSection: View {
                     let limit = String(maxValue).count
                     let sanitized = normalizedDecimalDigits(rawValue, limit: limit)
                     text.wrappedValue = sanitized
-                    selection.wrappedValue = min(maxValue, Int(sanitized) ?? 0)
+                    selection.wrappedValue = max(minimumValue, min(maxValue, Int(sanitized) ?? 0))
                 }
             ), selection: customTextSelection(field))
             .keyboardType(.numberPad)
@@ -644,7 +687,9 @@ struct SportsSetupSettingsSection: View {
             .id("setup_custom_\(field.rawValue)")
         } else {
             Button {
-                text.wrappedValue = selection.wrappedValue > 0 ? String(selection.wrappedValue) : "1"
+                text.wrappedValue = selection.wrappedValue > 0
+                    ? String(selection.wrappedValue)
+                    : String(max(1, minimumValue))
                 requestedCustomField = field
             } label: {
                 Image(systemName: "pencil")

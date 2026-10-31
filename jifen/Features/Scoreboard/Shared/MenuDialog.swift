@@ -66,6 +66,9 @@ enum ScoreboardMenuItemBuilder {
         showScreenshot: Bool = true,
         showDisplaySettings: Bool = true,
         showSettleMatch: Bool = false,
+        resetTitle: String? = nil,
+        settleTitle: String? = nil,
+        endGameTitle: String? = nil,
         resetConfirming: Bool = false,
         exchangeConfirming: Bool = false,
         finishConfirming: Bool = false,
@@ -111,7 +114,7 @@ enum ScoreboardMenuItemBuilder {
 
         items.append(
             ScoreboardMenuItem(
-                title: NSLocalizedString("menu_reset", comment: "Reset"),
+                title: resetTitle ?? NSLocalizedString("menu_reset", comment: "Reset"),
                 action: "reset",
                 group: .match,
                 icon: "arrow.counterclockwise",
@@ -125,7 +128,7 @@ enum ScoreboardMenuItemBuilder {
         if showSettleMatch {
             items.append(
                 ScoreboardMenuItem(
-                    title: NSLocalizedString("settle_match", value: "结算", comment: ""),
+                    title: settleTitle ?? NSLocalizedString("settle_match", value: "结算", comment: ""),
                     action: "settleMatch",
                     group: .match,
                     icon: "checkmark.seal",
@@ -139,7 +142,7 @@ enum ScoreboardMenuItemBuilder {
         if showEndGame {
             items.append(
                 ScoreboardMenuItem(
-                    title: NSLocalizedString("menu_end_game", value: "结束比赛", comment: "End game"),
+                    title: endGameTitle ?? NSLocalizedString("menu_end_game", value: "结束比赛", comment: "End game"),
                     action: "endGame",
                     group: .match,
                     icon: "flag.checkered",

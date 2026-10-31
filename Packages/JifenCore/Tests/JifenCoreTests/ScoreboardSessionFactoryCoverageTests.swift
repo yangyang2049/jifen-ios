@@ -144,9 +144,20 @@ import Testing
             playerNames: (1 ... 9).map { "P\($0)" }
         ) != nil
     )
+    // 3～50 人（安卓 3.4 起放开容量），10 人应被接受、51 人拒绝。
     #expect(
         ScoreboardSessionFactory.multiScoreboard(
             playerNames: (1 ... 10).map { "P\($0)" }
+        ) != nil
+    )
+    #expect(
+        ScoreboardSessionFactory.multiScoreboard(
+            playerNames: (1 ... 50).map { "P\($0)" }
+        ) != nil
+    )
+    #expect(
+        ScoreboardSessionFactory.multiScoreboard(
+            playerNames: (1 ... 51).map { "P\($0)" }
         ) == nil
     )
 

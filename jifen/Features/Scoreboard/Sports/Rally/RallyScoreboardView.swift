@@ -190,6 +190,7 @@ struct TeamCourtScoreboardPanel: View {
     let nameColor: Color
     let scoreColor: Color
     let setsColor: Color
+    var styleSlotKey: ScoreboardStyleSlotKeyV2? = nil
     var topContentInset: CGFloat = 0
 
     var body: some View {
@@ -232,6 +233,7 @@ struct TeamCourtScoreboardPanel: View {
                         .minimumScaleFactor(0.6)
                 }
             }
+            .styleElementSelectable(.playerName, slotKey: styleSlotKey)
             Spacer().frame(height: typography.nameToScoreSpacing)
             Text(scoreText)
                 .font(preference.font.swiftUIFont(size: typography.scoreFontSize))
@@ -239,11 +241,13 @@ struct TeamCourtScoreboardPanel: View {
                 .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
+                .styleElementSelectable(.mainScore, slotKey: styleSlotKey)
             Spacer().frame(height: ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: panelSize.height))
             Text(setsText)
                 .font(preference.font.swiftUIFont(size: typography.secondaryFontSize))
                 .foregroundStyle(setsColor)
                 .monospacedDigit()
+                .styleElementSelectable(.setScore, slotKey: styleSlotKey)
         }
         .padding(.horizontal, 16)
         .padding(.top, topContentInset)
@@ -873,6 +877,7 @@ struct RallyScoreboardView: View {
             nameColor: appearance.elementForeground(.playerName, slotKey: slotKey),
             scoreColor: appearance.elementForeground(.mainScore, slotKey: slotKey),
             setsColor: setsColor(slotKey: slotKey),
+            styleSlotKey: slotKey,
             topContentInset: isStyleEditing ? ScoreboardStyleEditOverlayView.topControlsReservedHeight : 0
         )
         .contentShape(Rectangle())

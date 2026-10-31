@@ -1035,7 +1035,7 @@
 "common_previous" = "上一页";
 "common_next" = "下一页";
 "scoreboard_usage_hint_simple_score" = "👆 点击左/右比分区为对应一方加分\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n✏️ 长按或编辑入口可修改名称和分数";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 点击玩家格子加 1 分\n⬆️ 上滑加 1 分，⬇️ 下滑减 1 分\n↩️ 左滑撤销上一步\n✏️ 长按玩家可编辑名称和分数\n🎛️ 自定义调分模式下，点击玩家会打开调分面板";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 点击玩家格子加 1 分\n⬆️ 上滑加 1 分，⬇️ 下滑减 1 分\n↔️ 超过 9 人时左右滑动翻页，也可用底部圆点箭头\n↩️ 撤销与找人请打开菜单\n✏️ 长按玩家可编辑名称和分数\n🎛️ 自定义调分模式下，点击玩家会打开调分面板";
 "multi_score_portrait" = "竖屏";
 "multi_score_landscape" = "横屏";
 "settle_match" = "结算";
@@ -1264,6 +1264,11 @@
 "cast_match_finished" = "比赛结束";
 "cast_winner_format" = "%@ 获胜";
 "cast_result_draw" = "比赛结果已确认";
+"multi_score_cast_settings" = "投屏设置";
+"multi_score_display_previous" = "大屏上一屏";
+"multi_score_display_next" = "大屏下一屏";
+"multi_score_display_page_number" = "%d/%d";
+"multi_score_display_page_description" = "大屏第 %d 屏，共 %d 屏，玩家 %d 至 %d";
 
 "record_note_action" = "笔记";
 "record_note_title" = "笔记";
@@ -2583,3 +2588,53 @@
 "nine_ball_unbalanced_edit" = "修改后的积分合计不为0。";
 "nine_ball_winner_breaks" = "赢家续开";
 "nine_ball_help_preset_values" = "预设示例；此处数值不是当前比赛的配置。";
+
+// Basketball custom duration
+"basketball_period_minutes" = "每节时长（分钟）";
+"basketball_overtime_minutes" = "加时时长（分钟）";
+"basketball_edit_timing" = "修改时长";
+"basketball_reset_current_clock" = "重置当前时钟至 %@";
+"basketball_record_timing" = "%@ · 每节 %d 分钟 · 加时 %d 分钟";
+"basketball_custom_fiba_note" = "自定义沿用 FIBA 规则";
+
+// Multi-score capacity, paging and bulk names (align Android 3.4)
+"multi_score_count_placeholder" = "3–50";
+"multi_score_count_invalid" = "请输入 3～50 的整数";
+"multi_score_common_counts" = "常用人数";
+"multi_score_bulk_names" = "批量填写";
+"multi_score_bulk_placeholder" = "每行一个姓名，可直接粘贴名单";
+"multi_score_bulk_empty" = "按顺序替换，未填到的玩家姓名保留";
+"multi_score_bulk_apply" = "%d 个姓名，替换前 %d 位，其余保留";
+"multi_score_bulk_expand" = "%d 个姓名，人数将改为 %d 人";
+"multi_score_bulk_too_many" = "最多 50 人，请调整名单后再应用";
+"multi_score_bulk_name_long" = "第 %d 个姓名超过 24 字";
+"multi_score_find_player_action" = "找人";
+"multi_score_find_player" = "搜索姓名或输入编号";
+"multi_score_all_players" = "全员";
+"multi_score_player_number" = "玩家 %d";
+"multi_score_reset_scores" = "比分清零";
+"multi_score_settle_match" = "结算记分";
+"multi_score_end_scoring" = "结束记分";
+"multi_score_previous_page" = "上一页";
+"multi_score_next_page" = "下一页";
+"multi_score_page_description" = "第 %d 页，共 %d 页，玩家 %d 至 %d";
+"multi_score_find_player_no_result" = "没有匹配的玩家";
+
+"multi_score_player_names" = "玩家姓名";
+
+// Multi-player scoreboard appearance
+"multi_score_style" = "计分板样式";
+"multi_score_style_solid" = "纯色";
+"multi_score_style_colorful" = "彩色";
+"multi_score_color_ink" = "墨黑";
+"multi_score_color_graphite" = "石墨";
+"multi_score_color_paper" = "纸白";
+"multi_score_color_mist" = "雾灰";
+"multi_score_color_forest" = "松绿";
+"multi_score_color_jade" = "青绿";
+"multi_score_color_navy" = "藏蓝";
+"multi_score_color_lake" = "湖蓝";
+"multi_score_color_violet" = "藤紫";
+"multi_score_color_rose" = "玫红";
+"multi_score_color_clay" = "陶橙";
+"multi_score_color_olive" = "橄榄";

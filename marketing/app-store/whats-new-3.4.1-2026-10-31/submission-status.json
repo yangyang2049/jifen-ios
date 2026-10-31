@@ -1,0 +1,17 @@
+{
+  "appId": "6759768784",
+  "bundleId": "com.douhua.jifen.ios",
+  "version": "3.4.1",
+  "build": "84",
+  "buildId": "38e6703c-10b2-4e85-9b0a-f6cb850d5409",
+  "versionId": "045507ac-dc8a-4208-9250-0bfc95e62c65",
+  "reviewId": "1c0d67e5-2d71-4fc2-8a1a-3f78455d22f6",
+  "reviewState": "WAITING_FOR_REVIEW",
+  "appStoreState": "WAITING_FOR_REVIEW",
+  "whatsNewLocaleCount": 50,
+  "releaseType": "AFTER_APPROVAL",
+  "checkedAt": "2026-10-31T05:13:13.502174+00:00",
+  "ipaSha256": "755f7a19c2245f43bfb8bb6520d79465388be8b5c099ff6145b790ae2179076e",
+  "method": "Existing App Store Connect API and altool with the same API key; no Computer Use for store operations",
+  "ageRatingFieldCompleted": "socialMedia=false; only the editable draft changed, other declarations and published version unchanged"
+}

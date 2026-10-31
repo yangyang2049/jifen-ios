@@ -8,6 +8,7 @@ public enum BasketballGameMode: String, Codable, Sendable {
 public enum BasketballRuleSet: String, Codable, Sendable {
     case fiba
     case nba
+    case custom
 }
 
 public struct BasketballTimeoutPools: Codable, Equatable, Sendable {
@@ -87,6 +88,8 @@ public struct BasketballMatchState: Codable, Equatable, Sendable {
     /// the operator explicitly resumes with the center clock control.
     public var timeoutActiveSide: MatchSide?
     public var timeoutRemainingSeconds: Int
+    public var periodDurationSeconds: Int
+    public var overtimeDurationSeconds: Int
 
     public init(
         leftName: String,
@@ -112,9 +115,13 @@ public struct BasketballMatchState: Codable, Equatable, Sendable {
         leftTimeouts: Int? = nil,
         rightTimeouts: Int? = nil,
         timeoutActiveSide: MatchSide? = nil,
-        timeoutRemainingSeconds: Int = 0
+        timeoutRemainingSeconds: Int = 0,
+        periodDurationSeconds: Int? = nil,
+        overtimeDurationSeconds: Int? = nil
     ) {
-        let defaultGameTime = gameMode == .threeXThree ? 10 * 60 : BasketballMatchEngine.periodSeconds(ruleSet)
+        let period = BasketballMatchEngine.periodSeconds(ruleSet, customSeconds: periodDurationSeconds)
+        let overtime = ruleSet == .custom ? BasketballMatchEngine.validDuration(overtimeDurationSeconds, fallback: 300) : 300
+        let defaultGameTime = gameMode == .threeXThree ? 600 : isOvertime ? overtime : period
         let defaultShotTime = BasketballMatchEngine.defaultShotSeconds(gameMode)
         let pools = timeoutPools ?? BasketballMatchEngine.defaultTimeoutPools(ruleSet)
         let active = BasketballMatchEngine.activeTimeouts(
@@ -135,6 +142,8 @@ public struct BasketballMatchState: Codable, Equatable, Sendable {
         self.finished = finished
         self.gameMode = gameMode
         self.ruleSet = ruleSet
+        self.periodDurationSeconds = period
+        self.overtimeDurationSeconds = overtime
         self.currentPeriod = max(1, min(currentPeriod, 4))
         self.periodEnded = periodEnded
         self.canAdvancePeriod = canAdvancePeriod
@@ -153,6 +162,7 @@ public struct BasketballMatchState: Codable, Equatable, Sendable {
     }
 
     private enum CodingKeys: String, CodingKey {
+        case periodDurationSeconds, overtimeDurationSeconds
         case leftName, rightName, leftScore, rightScore, leftFouls, rightFouls
         case sidesSwapped, finished, gameMode, ruleSet, currentPeriod, periodEnded
         case canAdvancePeriod, isOvertime, overtimeStartScore, gameTimeSeconds
@@ -187,7 +197,9 @@ public struct BasketballMatchState: Codable, Equatable, Sendable {
             leftTimeouts: try container.decodeIfPresent(Int.self, forKey: .leftTimeouts),
             rightTimeouts: try container.decodeIfPresent(Int.self, forKey: .rightTimeouts),
             timeoutActiveSide: try container.decodeIfPresent(MatchSide.self, forKey: .timeoutActiveSide),
-            timeoutRemainingSeconds: try container.decodeIfPresent(Int.self, forKey: .timeoutRemainingSeconds) ?? 0
+            timeoutRemainingSeconds: try container.decodeIfPresent(Int.self, forKey: .timeoutRemainingSeconds) ?? 0,
+            periodDurationSeconds: try container.decodeIfPresent(Int.self, forKey: .periodDurationSeconds),
+            overtimeDurationSeconds: try container.decodeIfPresent(Int.self, forKey: .overtimeDurationSeconds)
         )
     }
 }
@@ -198,6 +210,7 @@ public enum BasketballMatchIntent: Codable, Equatable, Sendable {
     case addFoul(side: MatchSide)
     case removeFoul(side: MatchSide)
     case rename(side: MatchSide, name: String)
+    case setTiming(periodSeconds: Int, overtimeSeconds: Int, resetCurrentClock: Bool)
     case setRuleSet(BasketballRuleSet)
     case setClockRunning(Bool)
     case tickClock
@@ -229,9 +242,12 @@ public enum BasketballMatchEngine {
         leftName: String,
         rightName: String,
         gameMode: BasketballGameMode,
-        ruleSet: BasketballRuleSet = .fiba
+        ruleSet: BasketballRuleSet = .fiba,
+        periodDurationSeconds: Int? = nil,
+        overtimeDurationSeconds: Int? = nil
     ) -> BasketballMatchState {
-        BasketballMatchState(leftName: leftName, rightName: rightName, gameMode: gameMode, ruleSet: ruleSet)
+        BasketballMatchState(leftName: leftName, rightName: rightName, gameMode: gameMode, ruleSet: ruleSet,
+            periodDurationSeconds: periodDurationSeconds, overtimeDurationSeconds: overtimeDurationSeconds)
     }
 
     public static func hasPeriods(_ state: BasketballMatchState) -> Bool {
@@ -242,11 +258,77 @@ public enum BasketballMatchEngine {
         gameMode == .threeXThree ? 12 : 24
     }
 
-    public static func periodSeconds(_ ruleSet: BasketballRuleSet) -> Int {
-        ruleSet == .nba ? 12 * 60 : 10 * 60
+    public static func validDuration(_ seconds: Int?, fallback: Int) -> Int {
+        guard let seconds, (60...5940).contains(seconds), seconds % 60 == 0 else { return fallback }
+        return seconds
+    }
+
+    public static func periodSeconds(_ ruleSet: BasketballRuleSet, customSeconds: Int? = nil) -> Int {
+        ruleSet == .nba ? 720 : ruleSet == .custom ? validDuration(customSeconds, fallback: 600) : 600
+    }
+
+    public static func periodSeconds(_ state: BasketballMatchState) -> Int {
+        periodSeconds(state.ruleSet, customSeconds: state.periodDurationSeconds)
+    }
+
+    public static func overtimeSeconds(_ state: BasketballMatchState) -> Int {
+        state.ruleSet == .custom ? validDuration(state.overtimeDurationSeconds, fallback: 300) : 300
+    }
+
+    public static func setTiming(_ state: BasketballMatchState, period: Int, overtime: Int, resetCurrentClock: Bool) -> BasketballMatchState {
+        guard state.gameMode == .fiveVFive, !state.finished, state.timeoutActiveSide == nil else { return state }
+        var next = state
+        next.ruleSet = .custom
+        next.periodDurationSeconds = validDuration(period, fallback: 600)
+        next.overtimeDurationSeconds = validDuration(overtime, fallback: 300)
+        next.timeoutPools.leftOvertime = min(next.timeoutPools.leftOvertime, 1)
+        next.timeoutPools.rightOvertime = min(next.timeoutPools.rightOvertime, 1)
+        next.gameRunning = false
+        next.shotRunning = false
+        return refreshActiveTimeouts(resetCurrentClock ? resetGameClock(next) : next)
     }
 
     public static func overtimeSeconds() -> Int { 5 * 60 }
+
+    public static func preservesTimingOnUndo(_ intent: BasketballMatchIntent) -> Bool {
+        switch intent {
+        case .addPoints, .adjustScore, .addFoul, .removeFoul, .rename, .adjustTimeout, .exchangeSides: true
+        default: false
+        }
+    }
+
+    public static func mergeUndoConfiguration(_ before: BasketballMatchState, _ current: BasketballMatchState) -> BasketballMatchState {
+        var next = before
+        next.ruleSet = current.ruleSet
+        next.periodDurationSeconds = current.periodDurationSeconds
+        next.overtimeDurationSeconds = current.overtimeDurationSeconds
+        if before.ruleSet != current.ruleSet {
+            next.timeoutPools = current.timeoutPools
+            return refreshActiveTimeouts(next)
+        }
+        return next
+    }
+
+    public static func mergeUndoTiming(_ before: BasketballMatchState, _ current: BasketballMatchState) -> BasketballMatchState {
+        var next = mergeUndoConfiguration(before, current)
+        next.finished = before.finished || (current.finished && before.gameTimeSeconds > 0 && current.gameTimeSeconds == 0)
+        next.currentPeriod = current.currentPeriod
+        next.periodEnded = current.periodEnded
+        next.canAdvancePeriod = current.canAdvancePeriod
+        next.isOvertime = current.isOvertime
+        next.overtimeStartScore = current.overtimeStartScore
+        next.gameTimeSeconds = current.gameTimeSeconds
+        next.shotTimeSeconds = current.shotTimeSeconds
+        next.gameRunning = current.gameRunning
+        next.shotRunning = current.shotRunning
+        next.timeoutActiveSide = current.timeoutActiveSide
+        next.timeoutRemainingSeconds = current.timeoutRemainingSeconds
+        if before.currentPeriod != current.currentPeriod || before.isOvertime != current.isOvertime {
+            next.timeoutPools = current.timeoutPools
+            return refreshActiveTimeouts(next)
+        }
+        return next
+    }
 
     public static func scoringButtons(_ state: BasketballMatchState) -> [Int] {
         state.gameMode == .threeXThree ? [1, 2] : [1, 2, 3]
@@ -333,14 +415,16 @@ public enum BasketballMatchEngine {
     }
 
     public static func reset(_ state: BasketballMatchState) -> BasketballMatchState {
-        initial(leftName: state.leftName, rightName: state.rightName, gameMode: state.gameMode, ruleSet: state.ruleSet)
+        initial(leftName: state.leftName, rightName: state.rightName, gameMode: state.gameMode, ruleSet: state.ruleSet, periodDurationSeconds: state.periodDurationSeconds, overtimeDurationSeconds: state.overtimeDurationSeconds)
     }
 
     public static func setRuleSet(_ state: BasketballMatchState, ruleSet: BasketballRuleSet) -> BasketballMatchState {
         var next = state
         next.ruleSet = ruleSet
+        next.periodDurationSeconds = periodSeconds(ruleSet, customSeconds: state.periodDurationSeconds)
+        next.overtimeDurationSeconds = ruleSet == .custom ? state.overtimeDurationSeconds : 300
         if next.gameMode == .fiveVFive && !next.isOvertime {
-            next.gameTimeSeconds = periodSeconds(ruleSet)
+            next.gameTimeSeconds = periodSeconds(next)
         }
         next.timeoutPools.leftOvertime = ruleSet == .nba ? 2 : 1
         next.timeoutPools.rightOvertime = ruleSet == .nba ? 2 : 1
@@ -386,9 +470,9 @@ public enum BasketballMatchEngine {
         next.shotRunning = false
         next.periodEnded = false
         next.canAdvancePeriod = false
-        next.isOvertime = false
-        next.overtimeStartScore = 0
-        next.gameTimeSeconds = next.gameMode == .threeXThree ? 10 * 60 : periodSeconds(next.ruleSet)
+        next.isOvertime = state.isOvertime && state.gameMode == .fiveVFive
+        next.overtimeStartScore = next.isOvertime ? state.overtimeStartScore : 0
+        next.gameTimeSeconds = next.gameMode == .threeXThree ? 600 : next.isOvertime ? overtimeSeconds(next) : periodSeconds(next)
         next.shotTimeSeconds = defaultShotSeconds(next.gameMode)
         next.timeoutActiveSide = nil
         next.timeoutRemainingSeconds = 0
@@ -415,13 +499,13 @@ public enum BasketballMatchEngine {
         next.canAdvancePeriod = false
         next.isOvertime = false
         next.overtimeStartScore = 0
-        next.gameTimeSeconds = periodSeconds(next.ruleSet)
+        next.gameTimeSeconds = periodSeconds(next)
         next.shotTimeSeconds = defaultShotSeconds(next.gameMode)
         next.gameRunning = false
         next.shotRunning = false
         next.timeoutActiveSide = nil
         next.timeoutRemainingSeconds = 0
-        return next.ruleSet == .fiba && previousPeriod == 2 ? refreshActiveTimeouts(next) : next
+        return next.ruleSet != .nba && previousPeriod == 2 ? refreshActiveTimeouts(next) : next
     }
 
     public static func enterFiveVFiveOvertime(_ state: BasketballMatchState) -> BasketballMatchState {
@@ -433,7 +517,7 @@ public enum BasketballMatchEngine {
         next.periodEnded = false
         next.canAdvancePeriod = false
         next.overtimeStartScore = next.leftScore
-        next.gameTimeSeconds = overtimeSeconds()
+        next.gameTimeSeconds = overtimeSeconds(next)
         next.shotTimeSeconds = defaultShotSeconds(next.gameMode)
         next.leftFouls = 0
         next.rightFouls = 0
@@ -625,6 +709,8 @@ public struct BasketballMatchReducer: DomainReducer {
             next = BasketballMatchEngine.removeFoul(state, side: side)
         case .rename(let side, let name):
             next = BasketballMatchEngine.rename(state, side: side, name: name)
+        case .setTiming(let period, let overtime, let reset):
+            next = BasketballMatchEngine.setTiming(state, period: period, overtime: overtime, resetCurrentClock: reset)
         case .setRuleSet(let ruleSet):
             next = BasketballMatchEngine.setRuleSet(state, ruleSet: ruleSet)
         case .setClockRunning(let running):

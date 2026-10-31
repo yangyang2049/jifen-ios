@@ -1,4 +1,5 @@
 import Foundation
+import ScoreCore
 
 final class LocalBookingManager {
     static let shared = LocalBookingManager()
@@ -82,6 +83,36 @@ final class LocalBookingManager {
         item.status = .completed
         item.completedAt = date
         item.updatedAt = date
+        return upsertBooking(item)
+    }
+
+    /// 开赛成功后把实际使用的篮球规则集/节时/加时锁进预约，之后从同一预约再次
+    /// 开赛按锁定值预填（对齐安卓 HomeViewModel.lockBookingBasketballSetup）。
+    @discardableResult
+    func lockBasketballSetup(_ id: String, setup: SportsSetupResult) -> Bool {
+        guard !id.isEmpty,
+              let ruleSetValue = setup.basketballRuleSet,
+              let ruleSet = BasketballRuleSet(rawValue: ruleSetValue),
+              var item = getBooking(by: id),
+              item.resolvedGameType == .basketball else {
+            return false
+        }
+        let periodSeconds = BasketballMatchEngine.periodSeconds(
+            ruleSet,
+            customSeconds: setup.basketballPeriodSeconds
+        )
+        let overtimeSeconds = ruleSet == .custom
+            ? BasketballMatchEngine.validDuration(setup.basketballOvertimeSeconds, fallback: 300)
+            : 300
+        guard item.basketballRuleSet != ruleSet.rawValue
+                || item.basketballPeriodDurationSeconds != periodSeconds
+                || item.basketballOvertimeDurationSeconds != overtimeSeconds else {
+            return true
+        }
+        item.basketballRuleSet = ruleSet.rawValue
+        item.basketballPeriodDurationSeconds = periodSeconds
+        item.basketballOvertimeDurationSeconds = overtimeSeconds
+        item.updatedAt = Date()
         return upsertBooking(item)
     }
 

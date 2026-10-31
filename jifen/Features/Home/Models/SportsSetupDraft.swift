@@ -24,6 +24,10 @@ struct SportsSetupDraft: Equatable {
     var autoChangeSides = true
     var isSingles = true
     var basketballRuleSet = "fiba"
+    var basketballPeriodMinutes = 10
+    var basketballOvertimeMinutes = 5
+    var basketballPeriodText = ""
+    var basketballOvertimeText = ""
     var customFoosballScoreCapText = ""
     var tennisDeuceMode = "advantage"
     var servingSide: MatchSide = .left
@@ -37,6 +41,8 @@ struct SportsSetupDraft: Equatable {
     var matchTitle = ""
 
     var pickleballTargetScore = 11
+    /// 目标分自定义输入文本（1–99 任意整数）；为空表示用的是快捷档位。
+    var customPickleballTargetText = ""
     var pickleballScoreCap: Int?
     var pickleballUseRallyScoring = false
     var foosballWinByTwo = false
@@ -134,7 +140,12 @@ extension SportsSetupDraft {
         }
         matchCompletionMode = setup?.matchCompletionMode ?? .bestOf
         autoChangeSides = setup?.autoChangeSides ?? true
-        basketballRuleSet = setup?.basketballRuleSet ?? "fiba"
+        basketballRuleSet = setup?.basketballRuleSet ?? preferences.basketballRuleSet
+        let customPreset = setup?.basketballRuleSet == "custom"
+        basketballPeriodMinutes = BasketballMatchEngine.validDuration(customPreset ? setup?.basketballPeriodSeconds : preferences.basketballPeriodSeconds, fallback: 600) / 60
+        basketballOvertimeMinutes = BasketballMatchEngine.validDuration(customPreset ? setup?.basketballOvertimeSeconds : preferences.basketballOvertimeSeconds, fallback: 300) / 60
+        basketballPeriodText = [10, 12, 15, 20].contains(basketballPeriodMinutes) ? "" : String(basketballPeriodMinutes)
+        basketballOvertimeText = [3, 5, 10].contains(basketballOvertimeMinutes) ? "" : String(basketballOvertimeMinutes)
         tennisDeuceMode = setup?.tennisDeuceMode ?? "advantage"
         servingSide = setup?.servingSide == MatchSide.right.rawValue ? .right : .left
         voiceAnnouncement = setup?.voiceAnnouncement ?? false
@@ -149,7 +160,11 @@ extension SportsSetupDraft {
         footballHalfLengthSeconds = min(90 * 60, max(60, setup?.footballHalfLengthSeconds ?? defaultFootballLength))
         matchTitle = ScoreboardMatchTitlePolicy.limitInput(setup?.matchTitle ?? "")
         matchTitleEnabled = ScoreboardMatchTitlePolicy.sanitize(setup?.matchTitle) != nil
-        pickleballTargetScore = setup?.targetScore ?? 11
+        // 目标分 1–99：恢复时保留任意整数，只有快捷档位才清空自定义文本。
+        pickleballTargetScore = Self.pickleballTargetScoreRestoring(setup?.targetScore)
+        customPickleballTargetText = Self.pickleballTargetPresets.contains(pickleballTargetScore)
+            ? ""
+            : String(pickleballTargetScore)
         pickleballScoreCap = setup?.scoreCap
         pickleballUseRallyScoring = setup?.useRallyScoring ?? false
         foosballWinByTwo = setup?.winByTwo ?? false
@@ -165,10 +180,27 @@ extension SportsSetupDraft {
         }
     }
 
+    /// 匹克球目标分快捷档位；其余 1–99 的整数由自定义输入承接。
+    static let pickleballTargetPresets = [11, 15, 21]
+
+    /// 输入/表单侧夹取：目标分只允许 1–99，其它值夹到区间边界。
+    static func pickleballTargetScore(_ value: Int) -> Int {
+        min(RallyRuleSet.pickleballTargetScoreRange.upperBound,
+            max(RallyRuleSet.pickleballTargetScoreRange.lowerBound, value))
+    }
+
+    /// 回填已有设置：合法整数原样恢复，缺失或越界按引擎归一化回退 11。
+    static func pickleballTargetScoreRestoring(_ value: Int?) -> Int {
+        RallyRuleSet.normalizePickleballTargetScore(value)
+    }
+
     mutating func syncPickleballTargetForSets(gameType: GameType) {
         guard gameType == .pickleball else { return }
         let next = selectedMaxSets == 1 ? 15 : 11
         pickleballTargetScore = next
+        // 局数联动只会落到 11/15 快捷档位，自定义输入文本随之清空，避免出现
+        // 「自定义框里还是旧值、但已选中快捷档位」的错位显示。
+        customPickleballTargetText = ""
         if next != 11 {
             pickleballScoreCap = nil
         }
@@ -386,6 +418,9 @@ extension SportsSetupDraft {
         case .basketball:
             result.basketballMode = "five_v_five"
             result.basketballRuleSet = basketballRuleSet
+            result.basketballPeriodSeconds = BasketballMatchEngine.periodSeconds(BasketballRuleSet(rawValue: basketballRuleSet) ?? .fiba,
+                customSeconds: max(1, min(99, basketballPeriodMinutes)) * 60)
+            result.basketballOvertimeSeconds = basketballRuleSet == "custom" ? max(1, min(99, basketballOvertimeMinutes)) * 60 : 300
         case .boxing:
             result.maxRounds = SetupInputCorrection.boxingRounds(selectedMaxSets > 0 ? String(selectedMaxSets) : nil, fallback: 3)
         case .pingpong:
@@ -473,12 +508,14 @@ extension SportsSetupDraft {
             result.showMatchTime = true
             result.ruleProfileVersion = 1
         case .pickleball:
+            // 目标分放开到 1–99：越界值在这里夹取，封顶分仍只对目标分 11 生效。
+            let target = Self.pickleballTargetScore(pickleballTargetScore)
             result.maxSets = resolvedMaxSets
             result.matchCompletionMode = matchCompletionMode
             result.isSingles = isSingles
-            result.targetScore = pickleballTargetScore
+            result.targetScore = target
             result.winByTwo = true
-            result.scoreCap = pickleballTargetScore == 11 ? pickleballScoreCap : nil
+            result.scoreCap = target == 11 ? pickleballScoreCap : nil
             result.useRallyScoring = pickleballUseRallyScoring
             result.autoChangeSides = autoChangeSides
             result.servingSide = servingSide.rawValue

@@ -56,7 +56,10 @@ struct ScoreboardTab: View {
                 .toolbar(.hidden, for: .tabBar)
             }
             .overlay {
-                CenteredSetupDialogPresenter(item: $pendingSetupSport) { sport, dismiss, maxDialogHeight in
+                CenteredSetupDialogPresenter(
+                    item: $pendingSetupSport,
+                    alignment: pendingSetupSport?.gameType == .multiScoreboard ? .bottom : .center
+                ) { sport, dismiss, maxDialogHeight in
                     scoreboardSetupDialog(
                         for: sport,
                         maxDialogHeight: maxDialogHeight,

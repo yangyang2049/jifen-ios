@@ -1,4 +1,5 @@
 import Foundation
+import ScoreCore
 
 enum BookingStatus: String, Codable, CaseIterable, Identifiable {
     case pending
@@ -190,6 +191,36 @@ enum BookingBilliardsFormat: String, Codable, CaseIterable, Identifiable {
     }
 }
 
+/// 预约锁定的篮球开赛配置：规则集 + 节时长 + 加时时长。
+/// 与 `SportsSetupResult.basketballRuleSet/basketballPeriodSeconds/basketballOvertimeSeconds`
+/// 一一对应，避免预约开局退回内置 FIBA/NBA 默认时长。
+struct BookingBasketballTiming: Equatable {
+    let ruleSet: BasketballRuleSet
+    let periodSeconds: Int
+    let overtimeSeconds: Int
+
+    var localizedSummary: String {
+        String(format: NSLocalizedString("basketball_record_timing", value: "%@ · 每节 %d 分钟 · 加时 %d 分钟", comment: ""),
+               ruleSet == .custom ? NSLocalizedString("custom", comment: "") : ruleSet.rawValue.uppercased(),
+               periodSeconds / 60, overtimeSeconds / 60)
+    }
+
+    /// 未编辑的空规则草稿回退到来源预约；明确选择项目默认时解除锁定。
+    static func forSaving(sportType: BookingSportType, source: LocalBooking?, ruleSet: String?,
+                          periodSeconds: Int?, overtimeSeconds: Int?, useProjectDefault: Bool = false) -> Self? {
+        guard sportType == .basketball, !useProjectDefault else { return nil }
+        guard let normalized = LocalBooking.normalizedBasketballRuleSet(ruleSet),
+              let rule = BasketballRuleSet(rawValue: normalized) else {
+            guard source?.basketballRuleSet != nil else { return nil }
+            return source?.resolvedBasketballTiming()
+        }
+        return Self(ruleSet: rule,
+                    periodSeconds: BasketballMatchEngine.periodSeconds(rule, customSeconds: periodSeconds),
+                    overtimeSeconds: rule == .custom
+                        ? BasketballMatchEngine.validDuration(overtimeSeconds, fallback: 300) : 300)
+    }
+}
+
 struct BookingStartRequest: Equatable {
     let bookingId: String
     let gameType: GameType
@@ -224,6 +255,11 @@ struct LocalBooking: Identifiable, Codable, Equatable, Hashable {
     var pointsPerSet: Int?
     var tieBreakPoints: Int?
     var tennisDeuceMode: String?
+    /// 篮球规则集（fiba/nba/custom）与锁定的节时/加时；非篮球项目为 nil。
+    /// 命名与既有的 `basketballRuleSet`（SportsSetupResult）保持同一风格。
+    var basketballRuleSet: String?
+    var basketballPeriodDurationSeconds: Int?
+    var basketballOvertimeDurationSeconds: Int?
     var participantNames: [String]
     var notes: String
     var reminderMinutes: [Int]
@@ -273,6 +309,9 @@ struct LocalBooking: Identifiable, Codable, Equatable, Hashable {
         pointsPerSet: Int? = nil,
         tieBreakPoints: Int? = nil,
         tennisDeuceMode: String? = nil,
+        basketballRuleSet: String? = nil,
+        basketballPeriodDurationSeconds: Int? = nil,
+        basketballOvertimeDurationSeconds: Int? = nil,
         participantNames: [String] = [],
         notes: String = "",
         reminderMinutes: [Int] = LocalBooking.defaultReminderMinutes,
@@ -304,6 +343,14 @@ struct LocalBooking: Identifiable, Codable, Equatable, Hashable {
         self.pointsPerSet = pointsPerSet.flatMap { $0 > 0 ? $0 : nil }
         self.tieBreakPoints = tieBreakPoints.flatMap { $0 > 0 ? $0 : nil }
         self.tennisDeuceMode = Self.normalizedTennisDeuceMode(tennisDeuceMode)
+        let isBasketball = sportType == .basketball
+        self.basketballRuleSet = isBasketball ? Self.normalizedBasketballRuleSet(basketballRuleSet) : nil
+        self.basketballPeriodDurationSeconds = isBasketball
+            ? Self.normalizedBasketballDuration(basketballPeriodDurationSeconds)
+            : nil
+        self.basketballOvertimeDurationSeconds = isBasketball
+            ? Self.normalizedBasketballDuration(basketballOvertimeDurationSeconds)
+            : nil
         self.participantNames = Self.normalizedParticipants(participantNames)
         self.notes = notes
         self.reminderMinutes = Self.normalizedReminders(reminderMinutes)
@@ -332,12 +379,26 @@ struct LocalBooking: Identifiable, Codable, Equatable, Hashable {
         return result
     }
 
+    /// 规则集只接受 fiba/nba/custom（与安卓 LocalBooking 同口径）。
+    static func normalizedBasketballRuleSet(_ value: String?) -> String? {
+        guard let value else { return nil }
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard let ruleSet = BasketballRuleSet(rawValue: trimmed) else { return nil }
+        return ruleSet.rawValue
+    }
+
+    /// 篮球节时/加时：只接受篮球引擎认可的整分钟时长（1–99 分钟）。
+    static func normalizedBasketballDuration(_ seconds: Int?) -> Int? {
+        guard let seconds, (60...5940).contains(seconds), seconds % 60 == 0 else { return nil }
+        return seconds
+    }
+
     static func normalizedReminders(_ values: [Int]) -> [Int] {
         let supported = Set(reminderOptions)
         return Array(Set(values.filter { supported.contains($0) })).sorted(by: >)
     }
 
-    func makeStartRequest() -> BookingStartRequest? {
+    func makeStartRequest(preferences: PreferencesManager = .shared) -> BookingStartRequest? {
         guard let gameType = resolvedGameType else { return nil }
 
         let isSingles = sportType.supportsSinglesAndDoubles ? matchMode != .doubles : true
@@ -388,6 +449,12 @@ struct LocalBooking: Identifiable, Codable, Equatable, Hashable {
         switch gameType {
         case .basketball:
             setup.basketballMode = "five_v_five"
+            // 按预约锁定的规则集/节时/加时预填，避免开局回退 FIBA/NBA 默认时长。
+            if let timing = resolvedBasketballTiming(preferences: preferences) {
+                setup.basketballRuleSet = timing.ruleSet.rawValue
+                setup.basketballPeriodSeconds = timing.periodSeconds
+                setup.basketballOvertimeSeconds = timing.overtimeSeconds
+            }
         case .nineBall:
             let names = participants.isEmpty ? [leftName, rightName] : Array(participants.prefix(4))
             setup.playerNames = names
@@ -399,6 +466,32 @@ struct LocalBooking: Identifiable, Codable, Equatable, Hashable {
         return BookingStartRequest(bookingId: id, gameType: gameType, setup: setup)
     }
 
+    /// 预约里锁定的篮球开赛配置。规则集优先用预约值，老数据（未锁定）回落到
+    /// 最近一次篮球设置，仍缺失才用 FIBA；节时/加时按规则集语义取默认值。
+    func resolvedBasketballTiming(preferences: PreferencesManager = .shared) -> BookingBasketballTiming? {
+        guard resolvedGameType == .basketball else { return nil }
+        let ruleSet = BasketballRuleSet(rawValue: basketballRuleSet ?? "")
+            ?? BasketballRuleSet(rawValue: preferences.basketballRuleSet)
+            ?? .fiba
+        let periodSeconds = ruleSet == .custom
+            ? BasketballMatchEngine.validDuration(
+                basketballPeriodDurationSeconds ?? preferences.basketballPeriodSeconds,
+                fallback: 600
+            )
+            : BasketballMatchEngine.periodSeconds(ruleSet)
+        let overtimeSeconds = ruleSet == .custom
+            ? BasketballMatchEngine.validDuration(
+                basketballOvertimeDurationSeconds ?? preferences.basketballOvertimeSeconds,
+                fallback: 300
+            )
+            : 300
+        return BookingBasketballTiming(
+            ruleSet: ruleSet,
+            periodSeconds: periodSeconds,
+            overtimeSeconds: overtimeSeconds
+        )
+    }
+
     private static func normalizedTennisDeuceMode(_ value: String?) -> String? {
         value == "advantage" || value == "no_ad" ? value : nil
     }
@@ -408,7 +501,9 @@ struct LocalBooking: Identifiable, Codable, Equatable, Hashable {
         case locationLat, locationLng, latitude, longitude
         case gameFormat, matchFormat, matchMode, team1Name, team2Name
         case redTopName, redBottomName, blueTopName, blueBottomName
-        case maxSets, pointsPerSet, tieBreakPoints, tennisDeuceMode, participantNames
+        case maxSets, pointsPerSet, tieBreakPoints, tennisDeuceMode
+        case basketballRuleSet, basketballPeriodDurationSeconds, basketballOvertimeDurationSeconds
+        case participantNames
         case notes, note, reminderMinutes, status, createdAt, updatedAt, completedAt, calendarEventId
     }
 
@@ -463,6 +558,23 @@ struct LocalBooking: Identifiable, Codable, Equatable, Hashable {
         tennisDeuceMode = Self.normalizedTennisDeuceMode(
             (try? container.decodeIfPresent(String.self, forKey: .tennisDeuceMode)) ?? nil
         )
+        // decodeIfPresent：旧本地数据没有篮球字段时按 nil 兼容，不改变非篮球项目。
+        let isBasketball = sportType == .basketball
+        basketballRuleSet = isBasketball
+            ? Self.normalizedBasketballRuleSet(
+                (try? container.decodeIfPresent(String.self, forKey: .basketballRuleSet)) ?? nil
+            )
+            : nil
+        basketballPeriodDurationSeconds = isBasketball
+            ? Self.normalizedBasketballDuration(
+                (try? container.decodeIfPresent(Int.self, forKey: .basketballPeriodDurationSeconds)) ?? nil
+            )
+            : nil
+        basketballOvertimeDurationSeconds = isBasketball
+            ? Self.normalizedBasketballDuration(
+                (try? container.decodeIfPresent(Int.self, forKey: .basketballOvertimeDurationSeconds)) ?? nil
+            )
+            : nil
         participantNames = Self.normalizedParticipants(
             (try? container.decode([String].self, forKey: .participantNames)) ?? []
         )
@@ -500,6 +612,9 @@ struct LocalBooking: Identifiable, Codable, Equatable, Hashable {
         try container.encodeIfPresent(pointsPerSet, forKey: .pointsPerSet)
         try container.encodeIfPresent(tieBreakPoints, forKey: .tieBreakPoints)
         try container.encodeIfPresent(tennisDeuceMode, forKey: .tennisDeuceMode)
+        try container.encodeIfPresent(basketballRuleSet, forKey: .basketballRuleSet)
+        try container.encodeIfPresent(basketballPeriodDurationSeconds, forKey: .basketballPeriodDurationSeconds)
+        try container.encodeIfPresent(basketballOvertimeDurationSeconds, forKey: .basketballOvertimeDurationSeconds)
         try container.encode(participantNames, forKey: .participantNames)
         try container.encode(notes, forKey: .notes)
         try container.encode(notes, forKey: .note)

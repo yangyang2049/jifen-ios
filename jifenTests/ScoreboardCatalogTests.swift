@@ -2116,7 +2116,9 @@ final class ScoreboardCatalogTests: XCTestCase {
 
     func testMultiScorePlayerScoreAndWinnerBoundaries() {
         XCTAssertEqual(MultiScoreRules.normalizedPlayerCount(1, gameType: .multiScoreboard), 3)
-        XCTAssertEqual(MultiScoreRules.normalizedPlayerCount(12, gameType: .multiScoreboard), 9)
+        XCTAssertEqual(MultiScoreRules.normalizedPlayerCount(12, gameType: .multiScoreboard), 12)
+        XCTAssertEqual(MultiScoreRules.normalizedPlayerCount(50, gameType: .multiScoreboard), 50)
+        XCTAssertEqual(MultiScoreRules.normalizedPlayerCount(51, gameType: .multiScoreboard), 50)
         XCTAssertEqual(MultiScoreRules.normalizedPlayerCount(1, gameType: .uno), 2)
         XCTAssertEqual(MultiScoreRules.normalizedPlayerCount(12, gameType: .uno), 10)
         XCTAssertEqual(MultiScoreRules.adjustedScore(9990, delta: 100), 9999)

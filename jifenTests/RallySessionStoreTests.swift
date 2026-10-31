@@ -451,6 +451,89 @@ final class RallySessionStoreTests: XCTestCase {
         )
     }
 
+    func testBasketballScoreUndoKeepsStartedClockAfterCustomTimingEdit() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("basketball-timing-undo-" + UUID().uuidString)
+        let repository = ResumeSessionRepository(rootURL: root)
+        let store = BasketballSessionStore(leftName: "H", rightName: "A", gameMode: .fiveVFive,
+            ruleSet: .custom, periodDurationSeconds: 900, overtimeDurationSeconds: 420, resumeRepository: repository)
+        let prefs = PreferencesManager.shared
+        let savedPrefs = (prefs.basketballRuleSet, prefs.basketballPeriodSeconds, prefs.basketballOvertimeSeconds)
+        defer {
+            try? FileManager.default.removeItem(at: root)
+            prefs.basketballRuleSet = savedPrefs.0
+            prefs.basketballPeriodSeconds = savedPrefs.1
+            prefs.basketballOvertimeSeconds = savedPrefs.2
+        }
+        store.send(.addPoints(side: .left, points: 2))
+        store.send(.setClockRunning(true), recordsUndo: false)
+        store.send(.setClockRunning(false), recordsUndo: false)
+        store.send(.setTiming(periodSeconds: 1200, overtimeSeconds: 180, resetCurrentClock: false), recordsUndo: false)
+        let ready = expectation(description: "timing edit persisted")
+        store.flush { ready.fulfill() }
+        await fulfillment(of: [ready], timeout: 3)
+        XCTAssertTrue(store.basketballClockStarted)
+        let undone = expectation(description: "score undone")
+        store.undo { success in XCTAssertTrue(success); undone.fulfill() }
+        await fulfillment(of: [undone], timeout: 3)
+        XCTAssertEqual(store.state.leftScore, 0)
+        XCTAssertEqual(store.state.ruleSet, .custom)
+        XCTAssertEqual(store.state.periodDurationSeconds, 1200)
+        XCTAssertEqual(store.state.overtimeDurationSeconds, 180)
+        XCTAssertTrue(store.basketballClockStarted, "Undo must not turn an already-started game into the pregame display")
+    }
+
+    func testBasketballClockUndoKeepsPreMatchTimingConfiguration() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("basketball-clock-undo-" + UUID().uuidString)
+        let repository = ResumeSessionRepository(rootURL: root)
+        let store = BasketballSessionStore(leftName: "H", rightName: "A", ruleSet: .custom,
+            periodDurationSeconds: 1200, overtimeDurationSeconds: 180, resumeRepository: repository)
+        let prefs = PreferencesManager.shared
+        let savedPrefs = (prefs.basketballRuleSet, prefs.basketballPeriodSeconds, prefs.basketballOvertimeSeconds)
+        defer {
+            try? FileManager.default.removeItem(at: root)
+            prefs.basketballRuleSet = savedPrefs.0; prefs.basketballPeriodSeconds = savedPrefs.1; prefs.basketballOvertimeSeconds = savedPrefs.2
+        }
+        store.send(.setClockRunning(true))
+        store.send(.setClockRunning(false), recordsUndo: false)
+        let saved = expectation(description: "pre-match configuration preserved")
+        store.flush { saved.fulfill() }
+        await fulfillment(of: [saved], timeout: 3)
+        let undone = expectation(description: "clock action undone")
+        store.undo { success in XCTAssertTrue(success); undone.fulfill() }
+        await fulfillment(of: [undone], timeout: 3)
+        XCTAssertEqual(store.state.ruleSet, .custom)
+        XCTAssertEqual(store.state.periodDurationSeconds, 1200)
+        XCTAssertEqual(store.state.overtimeDurationSeconds, 180)
+        XCTAssertEqual(store.state.leftTimeouts, 2)
+        XCTAssertFalse(store.basketballClockStarted)
+    }
+
+    func testBasketballLegacyTimingIntentAfterFinishDoesNotChangePreferences() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("basketball-rejected-timing-" + UUID().uuidString)
+        let repository = ResumeSessionRepository(rootURL: root)
+        let store = BasketballSessionStore(leftName: "H", rightName: "A", ruleSet: .fiba, resumeRepository: repository)
+        let prefs = PreferencesManager.shared
+        let savedPrefs = (prefs.basketballRuleSet, prefs.basketballPeriodSeconds, prefs.basketballOvertimeSeconds)
+        prefs.basketballRuleSet = "fiba"; prefs.basketballPeriodSeconds = 600; prefs.basketballOvertimeSeconds = 300
+        defer {
+            _ = ScoreboardRecordManager.shared.deleteRecord(store.sessionId.uuidString)
+            try? FileManager.default.removeItem(at: root)
+            prefs.basketballRuleSet = savedPrefs.0; prefs.basketballPeriodSeconds = savedPrefs.1; prefs.basketballOvertimeSeconds = savedPrefs.2
+        }
+        store.send(.finish)
+        let finished = expectation(description: "game finished")
+        store.flush { finished.fulfill() }
+        await fulfillment(of: [finished], timeout: 3)
+        store.send(.setTiming(periodSeconds: 1200, overtimeSeconds: 180, resetCurrentClock: true), recordsUndo: false)
+        let rejected = expectation(description: "rejected edit processed")
+        store.flush { rejected.fulfill() }
+        await fulfillment(of: [rejected], timeout: 3)
+        XCTAssertTrue(store.state.finished)
+        XCTAssertEqual(prefs.basketballRuleSet, "fiba")
+        XCTAssertEqual(prefs.basketballPeriodSeconds, 600)
+        XCTAssertEqual(prefs.basketballOvertimeSeconds, 300)
+    }
+
     func testBasketballClockStartedPersistsAndFollowsResetUndo() async throws {
         let repository = ResumeSessionRepository()
         let store = BasketballSessionStore(

@@ -507,7 +507,7 @@ enum DisplayStateWireCodec {
                       "chaseRuleVersion", "chaseRoundNumber", "chaseBreakerPlayer", "chaseCurrentShooter", "chasePlayerPoints",
                       "chaseSmallGoldAllPay", "chaseGoldRetainsBreak", "chaseRuleFamily", "chasePointScheme", "chaseBreakRule", "chaseHandoffEnabled", "chaseTotalRacks", "chaseRackFouls"],
         "archery_dual": ["archeryCurrentShooter"],
-        "basketball": ["basketballCurrentPeriod", "basketballIsOT", "basketballLeftFouls", "basketballRightFouls",
+        "basketball": ["basketballRuleSet", "basketballPeriodSeconds", "basketballOvertimeSeconds", "basketballCurrentPeriod", "basketballIsOT", "basketballLeftFouls", "basketballRightFouls",
                        "basketballGameTime", "basketballShotTime", "basketballGameRunning", "basketballShotRunning",
                        "basketballClockRevision", "basketballClockStarted"],
         "three_basketball": ["basketballCurrentPeriod", "basketballIsOT", "basketballLeftFouls", "basketballRightFouls",

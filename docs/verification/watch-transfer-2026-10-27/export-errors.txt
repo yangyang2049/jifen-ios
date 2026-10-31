@@ -1,0 +1,7 @@
+error: exportArchive Failed Registering Bundle Identifier
+  The app identifier "com.douhua.jifen.ios.watchkitapp" cannot be registered to your development team because it is not available. Change your bundle identifier to a unique string to try again.
+
+error: exportArchive No profiles for 'com.douhua.jifen.ios.watchkitapp' were found
+  Xcode couldn't find any iOS App Store provisioning profiles matching 'com.douhua.jifen.ios.watchkitapp'.
+
+** EXPORT FAILED **

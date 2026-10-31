@@ -140,11 +140,12 @@ enum BookingStartPersistence {
             rules = value
         case .pickleball:
             scoreCoreType = isDoubles ? .pickleballDoubles : .pickleball
+            // 目标分 1–99 任意整数：归一化（越界回退 11）在 ScoreCore 内完成。
             var value = RallyRuleSet.pickleball(
                 maxSets: setup.maxSets ?? 3,
+                targetScore: setup.targetScore ?? setup.pointsPerSet,
                 matchCompletionMode: setup.matchCompletionMode ?? .bestOf
             )
-            value.pointsToWinSet = max(1, setup.targetScore ?? setup.pointsPerSet ?? 11)
             value.pointCap = setup.scoreCap
             value.winByTwo = setup.winByTwo ?? true
             value.autoChangeSides = setup.autoChangeSides ?? true
@@ -224,7 +225,9 @@ enum BookingStartPersistence {
             leftName: names.left,
             rightName: names.right,
             gameMode: gameMode,
-            ruleSet: setup.basketballRuleSet == "nba" ? .nba : .fiba
+            ruleSet: BasketballRuleSet(rawValue: setup.basketballRuleSet ?? "fiba") ?? .fiba,
+            periodDurationSeconds: setup.basketballPeriodSeconds,
+            overtimeDurationSeconds: setup.basketballOvertimeSeconds
         )
         return await persist(store)
     }

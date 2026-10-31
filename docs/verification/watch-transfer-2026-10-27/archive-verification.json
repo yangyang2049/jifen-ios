@@ -1,0 +1,14 @@
+{
+  "iOS": {
+    "bundleId": "com.douhua.jifen.ios",
+    "version": "3.4",
+    "build": "83",
+    "signatureVerified": true
+  },
+  "watchOS": {
+    "bundleId": "com.douhua.jifen.ios.watchkitapp",
+    "version": "3.4",
+    "build": "83",
+    "signatureVerified": true
+  }
+}

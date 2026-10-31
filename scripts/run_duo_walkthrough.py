@@ -8,6 +8,8 @@ from pathlib import Path
 import subprocess
 import sys
 
+from test_artifacts import new_run, finish_automatically
+
 
 CATALOG = ['pingpong', 'badminton', 'tennis', 'pickleball', 'football',
            'basketball', 'three_basketball', 'volleyball', 'beach_volleyball',
@@ -37,13 +39,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('device')
     parser.add_argument('pose', choices=['folded', 'unfolded'])
-    parser.add_argument('--root', type=Path, default=Path('build/duo/walkthrough-20261020'))
+    parser.add_argument('--root', type=Path, help='Existing batch to resume, or an explicit output override')
     parser.add_argument('--only', help='Comma-separated output chapter labels')
     parser.add_argument('--retry', action='store_true', help='Rerun failed chapters; passed ones stay intact')
     parser.add_argument('--video-only', action='store_true', help='Record videos and checkpoint times without screenshots')
     args = parser.parse_args()
     repo = Path(__file__).resolve().parents[1]
-    root = (repo / args.root).resolve()
     chapters = [('home', ['--chapter', 'home']), ('connection', ['--chapter', 'connection']), ('me', ['--chapter', 'me']),
                 ('account', ['--chapter', 'account']), ('me-forms', ['--chapter', 'me-forms']), ('schedules', ['--chapter', 'schedules']),
                 ('timers', ['--chapter', 'timers']), ('tools', ['--chapter', 'tools'])]
@@ -72,31 +73,41 @@ def main():
         if unknown:
             parser.error('Unknown chapters: ' + ','.join(sorted(unknown)))
         chapters = [(label, options) for label, options in chapters if label in requested]
-    statuses = []
-    for label, options in chapters:
-        manifest = root / args.pose / label / 'session.json'
-        if manifest.exists():
-            previous = json.loads(manifest.read_text())
-            if previous.get('status') == 'passed' or not args.retry:
-                print(f'Skip existing {args.pose}/{label}: {previous.get("status")}', flush=True)
-                continue
-            attempts = root / 'attempts'
-            attempts.mkdir(exist_ok=True)
-            archived = attempts / (args.pose + '-' + label + '-' + datetime.now().strftime('%H%M%S'))
-            shutil.move(str(manifest.parent), archived)
-            print(f'Archived previous attempt: {archived}', flush=True)
-        command = [sys.executable, str(repo / 'scripts/capture_duo_layout.py'), args.device,
-                   args.pose, '--label', label, '--record', '--output-root', str(root)] + options
-        if args.video_only:
-            command.append('--video-only')
-        print(f'BEGIN {args.pose}/{label}', flush=True)
-        result = subprocess.run(command, cwd=repo)
-        statuses.append(dict(chapter=label, exit_code=result.returncode))
-        print(f'END {args.pose}/{label}: {result.returncode}', flush=True)
-        if not args.video_only:
-            subprocess.run([sys.executable, str(repo / 'scripts/build_duo_review.py'), str(root)], cwd=repo)
-    (root / f'{args.pose}-run.json').write_text(json.dumps(statuses, indent=2) + '\n')
-    return 1 if any(status['exit_code'] for status in statuses) else 0
+    managed_run = new_run('duo-walkthrough', active=True) if args.root is None else None
+    root = (repo / args.root).resolve() if args.root is not None else managed_run
+    root.mkdir(parents=True, exist_ok=True)
+    print(f'Walkthrough batch: {root}', flush=True)
+    failed = True
+    try:
+        statuses = []
+        for label, options in chapters:
+            manifest = root / args.pose / label / 'session.json'
+            if manifest.exists():
+                previous = json.loads(manifest.read_text())
+                if previous.get('status') == 'passed' or not args.retry:
+                    print(f'Skip existing {args.pose}/{label}: {previous.get("status")}', flush=True)
+                    continue
+                attempts = root / 'attempts'
+                attempts.mkdir(exist_ok=True)
+                archived = attempts / (args.pose + '-' + label + '-' + datetime.now().strftime('%H%M%S'))
+                shutil.move(str(manifest.parent), archived)
+                print(f'Archived previous attempt: {archived}', flush=True)
+            command = [sys.executable, str(repo / 'scripts/capture_duo_layout.py'), args.device,
+                       args.pose, '--label', label, '--record', '--output-root', str(root)] + options
+            if args.video_only:
+                command.append('--video-only')
+            print(f'BEGIN {args.pose}/{label}', flush=True)
+            result = subprocess.run(command, cwd=repo)
+            statuses.append(dict(chapter=label, exit_code=result.returncode))
+            print(f'END {args.pose}/{label}: {result.returncode}', flush=True)
+            if not args.video_only:
+                subprocess.run([sys.executable, str(repo / 'scripts/build_duo_review.py'), str(root)], cwd=repo)
+        (root / f'{args.pose}-run.json').write_text(json.dumps(statuses, indent=2) + '\n')
+        failed = any(status['exit_code'] for status in statuses)
+        return 1 if failed else 0
+    finally:
+        if managed_run is not None:
+            finish_automatically(managed_run, failed=failed)
 
 
 if __name__ == '__main__':

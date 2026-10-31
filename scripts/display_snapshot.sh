@@ -13,7 +13,11 @@ SCHEME="jifen"
 CONFIGURATION="Debug"
 BUNDLE_ID="com.douhua.jifen.ios"
 SIM_NAME="${SIM_NAME:-}"
-OUT_DIR="${OUT_DIR:-build/display_snapshots}"
+source scripts/test_artifacts.sh
+if [[ -z "${OUT_DIR:-}" ]]; then
+  start_test_artifacts display-snapshots
+  OUT_DIR="$TEST_ARTIFACT_RUN/screenshots"
+fi
 FIXTURES="${FIXTURES:-pingpong_live pingpong_game_point pingpong_match_point pingpong_deuce pingpong_timeout pingpong_game_break pingpong_finished pingpong_doubles_live pingpong_doubles_timeout pingpong_doubles_finished}"
 
 # 1) 构建（模拟器）
@@ -59,9 +63,11 @@ echo "==> Installing app..."
 xcrun simctl install "$SIM" "$APP_PATH"
 STATUS_BAR_OVERRIDDEN=0
 cleanup_status_bar() {
+  local status="$?"
   if [ "$STATUS_BAR_OVERRIDDEN" -eq 1 ]; then
     xcrun simctl status_bar "$SIM" clear >/dev/null 2>&1 || true
   fi
+  if [[ -n "${TEST_ARTIFACT_RUN:-}" ]]; then finish_test_artifacts "$status"; fi
 }
 trap cleanup_status_bar EXIT
 xcrun simctl status_bar "$SIM" override --time "9:41" --batteryLevel 100
@@ -78,6 +84,5 @@ done
 
 xcrun simctl status_bar "$SIM" clear
 STATUS_BAR_OVERRIDDEN=0
-trap - EXIT
 echo "==> Done. Screenshots in $OUT_DIR/"
 ls -la "$OUT_DIR"

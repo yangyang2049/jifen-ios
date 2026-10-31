@@ -246,6 +246,7 @@ struct HomeTab: View {
                 VStack(spacing: 0) {
                     HomeHeaderView(
                         headerDate: headerDate,
+                        windowWidth: geo.size.width,
                         horizontalInset: HomeLayoutPolicy.horizontalInset(size: geo.size, horizontalSizeClass: horizontalSizeClass),
                         onCastTapped: {
                             // 宽窗口使用 form sheet，合拢后的窄窗口使用页面。
@@ -316,7 +317,10 @@ struct HomeTab: View {
                 )
             }
             .overlay {
-                CenteredSetupDialogPresenter(item: $pendingScoreboardSetupItem) { item, dismiss, maxDialogHeight in
+                CenteredSetupDialogPresenter(
+                    item: $pendingScoreboardSetupItem,
+                    alignment: pendingScoreboardSetupItem?.gameType == .multiScoreboard ? .bottom : .center
+                ) { item, dismiss, maxDialogHeight in
                     scoreboardSetupDialog(
                         for: item.gameType,
                         maxDialogHeight: maxDialogHeight,
@@ -998,6 +1002,9 @@ struct HomeTab: View {
         guard let resumeSessionId = await BookingStartPersistence.persist(request) else {
             return false
         }
+        // 预约开赛成功后把本次实际使用的篮球规则集/节时/加时写回预约，
+        // 之后从同一预约再次开赛按锁定值预填（对齐安卓 lockBookingBasketballSetup）。
+        LocalBookingManager.shared.lockBasketballSetup(request.bookingId, setup: request.setup)
         pendingScoreboardEntryPoint = .bookingDetail
         path.append(
             NavigationDestination.scoreboard(

@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		04B923BF21624627AB1BCC66 /* GroupRedesignUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1273C47DF445F6918C0C49 /* GroupRedesignUITests.swift */; };
+		09319D3A1866E048009AFE52 /* MultiScoreDisplayPagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DD8908E7A30CF3B9BF14AC /* MultiScoreDisplayPagingTests.swift */; };
+		1C857D8A97FF7AD9E36B1DD6 /* MultiScoreSetupControlsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 718565C11C07A06DB996CEB5 /* MultiScoreSetupControlsTests.swift */; };
 		2DB38D61DF48EE1A17B38843 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C476D58990954AF104F51A /* Foundation.framework */; };
 		614D317A62708BF7CFA926F2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C476D58990954AF104F51A /* Foundation.framework */; };
 		76E3C9919DBC4F7AAB4D90D0 /* GroupContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FD1719554A44229EC4AEAA /* GroupContractTests.swift */; };
@@ -32,6 +34,8 @@
 		C10000000000000000000007 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000007 /* FirebaseCore */; };
 		C10000000000000000000008 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000008 /* FirebaseAnalyticsCore */; };
 		C23000000000000000000001 /* WechatOpenSDK in Frameworks */ = {isa = PBXBuildFile; productRef = A23000000000000000000001 /* WechatOpenSDK */; };
+		C748D22B660C17B977BC6AE9 /* BookingBasketballTimingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F8EC0DD915B1306E2528D /* BookingBasketballTimingTests.swift */; };
+		CCD15D3C49FDE98D34734F0E /* MultiScorePagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F1078853789E2731F9870B9 /* MultiScorePagingTests.swift */; };
 		D42000000000000000000002 /* LocalDataResetCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D42000000000000000000001 /* LocalDataResetCoordinatorTests.swift */; };
 		D43000000000000000000002 /* OfflineReleaseBoundaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43000000000000000000001 /* OfflineReleaseBoundaryTests.swift */; };
 		D44000000000000000000002 /* TimerAndToolOfflineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D44000000000000000000001 /* TimerAndToolOfflineTests.swift */; };
@@ -44,6 +48,7 @@
 		E10000000000000000000002 /* RallySessionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000001 /* RallySessionStoreTests.swift */; };
 		E10000000000000000000004 /* BoardTimerConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000003 /* BoardTimerConfigTests.swift */; };
 		E20000000000000000000002 /* RecordRecapUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000001 /* RecordRecapUITests.swift */; };
+		E925086AC2DF541DDDFC17C9 /* PickleballTargetScoreSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CCE66F82DF4346759C6C83 /* PickleballTargetScoreSetupTests.swift */; };
 		F10000000000000000000002 /* FullAppScreenshotUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000001 /* FullAppScreenshotUITests.swift */; };
 		F10000000000000000000004 /* UITestScreenshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000003 /* UITestScreenshotStore.swift */; };
 		F10000000000000000000006 /* SupplementalScreenshotUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000005 /* SupplementalScreenshotUITests.swift */; };
@@ -100,10 +105,15 @@
 		0FA5BAF02F18F50000182375 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		28F3A5C0DD0A45F09AFA5204 /* GroupPushAPNsProbeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPushAPNsProbeTests.swift; sourceTree = "<group>"; };
 		2D1273C47DF445F6918C0C49 /* GroupRedesignUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GroupRedesignUITests.swift; sourceTree = "<group>"; };
+		43CCE66F82DF4346759C6C83 /* PickleballTargetScoreSetupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickleballTargetScoreSetupTests.swift; sourceTree = "<group>"; };
+		5D3F8EC0DD915B1306E2528D /* BookingBasketballTimingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookingBasketballTimingTests.swift; sourceTree = "<group>"; };
 		6698F86CD13F72512D8A63C9 /* jifenTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = jifenTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		68621CE31D5740DBAF6A4FDF /* GroupPreviewDecodingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GroupPreviewDecodingTests.swift; sourceTree = "<group>"; };
+		718565C11C07A06DB996CEB5 /* MultiScoreSetupControlsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiScoreSetupControlsTests.swift; sourceTree = "<group>"; };
 		72FD1719554A44229EC4AEAA /* GroupContractTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GroupContractTests.swift; sourceTree = "<group>"; };
+		7F1078853789E2731F9870B9 /* MultiScorePagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiScorePagingTests.swift; sourceTree = "<group>"; };
 		911E22E26F6E46118B7955CE /* GroupPortParityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPortParityTests.swift; sourceTree = "<group>"; };
+		99DD8908E7A30CF3B9BF14AC /* MultiScoreDisplayPagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiScoreDisplayPagingTests.swift; sourceTree = "<group>"; };
 		A6C476D58990954AF104F51A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		AA1000000000000000000001 /* Support/LocalizationTestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Support/LocalizationTestSupport.swift; sourceTree = "<group>"; };
 		AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainFlowUITests.swift; sourceTree = "<group>"; };
@@ -228,6 +238,11 @@
 		4BEAA1146F45CAF74810C41D /* jifenTests */ = {
 			isa = PBXGroup;
 			children = (
+				43CCE66F82DF4346759C6C83 /* PickleballTargetScoreSetupTests.swift */,
+				5D3F8EC0DD915B1306E2528D /* BookingBasketballTimingTests.swift */,
+				718565C11C07A06DB996CEB5 /* MultiScoreSetupControlsTests.swift */,
+				99DD8908E7A30CF3B9BF14AC /* MultiScoreDisplayPagingTests.swift */,
+				7F1078853789E2731F9870B9 /* MultiScorePagingTests.swift */,
 				68621CE31D5740DBAF6A4FDF /* GroupPreviewDecodingTests.swift */,
 				72FD1719554A44229EC4AEAA /* GroupContractTests.swift */,
 				D67019110000000000000001 /* ReportSheetContractTests.swift */,
@@ -558,6 +573,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E925086AC2DF541DDDFC17C9 /* PickleballTargetScoreSetupTests.swift in Sources */,
+				C748D22B660C17B977BC6AE9 /* BookingBasketballTimingTests.swift in Sources */,
+				1C857D8A97FF7AD9E36B1DD6 /* MultiScoreSetupControlsTests.swift in Sources */,
+				09319D3A1866E048009AFE52 /* MultiScoreDisplayPagingTests.swift in Sources */,
+				CCD15D3C49FDE98D34734F0E /* MultiScorePagingTests.swift in Sources */,
 				F530CC64174A44D0981AE32E /* GroupPreviewDecodingTests.swift in Sources */,
 				76E3C9919DBC4F7AAB4D90D0 /* GroupContractTests.swift in Sources */,
 				D67019110000000000000002 /* ReportSheetContractTests.swift in Sources */,
@@ -774,7 +794,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = jifen/Config/JifenDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 82;
+				CURRENT_PROJECT_VERSION = 84;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_APP_SANDBOX = YES;
@@ -802,7 +822,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
-				MARKETING_VERSION = 3.4;
+				MARKETING_VERSION = 3.4.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -832,7 +852,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = jifen/Config/JifenAppStore.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 82;
+				CURRENT_PROJECT_VERSION = 84;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_APP_SANDBOX = YES;
@@ -860,7 +880,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
-				MARKETING_VERSION = 3.4;
+				MARKETING_VERSION = 3.4.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

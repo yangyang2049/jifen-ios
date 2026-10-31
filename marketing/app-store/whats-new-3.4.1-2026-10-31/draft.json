@@ -1,0 +1,34 @@
+{
+  "appId": "6759768784",
+  "bundleId": "com.douhua.jifen.ios",
+  "version": "3.4.1",
+  "build": 84,
+  "copyStatus": "approved_by_user",
+  "preparedOn": "2026-10-31",
+  "baseline": {
+    "version": "3.4",
+    "build": 82,
+    "verifiedOn": "2026-10-31",
+    "appStoreState": "READY_FOR_SALE",
+    "currentVersionReleaseDate": "2026-10-26T03:22:32Z",
+    "source": "App Store Connect read-only version/build check and Apple Lookup",
+    "scope": "Changes since the live 3.4 release; do not repeat its WeChat, My Records, cloud sync, nine-ball, voice or QR-scanning launch notes.",
+    "reference": "../whats-new-3.4-2026-10-25/draft.json"
+  },
+  "copyRules": {
+    "styleReference": "../whats-new-3.4-2026-10-25/README.md",
+    "scope": "Prioritize user-facing changes verified in the current source. Multi-Score capacity is separate from Groups membership limits.",
+    "localizationStatus": "All 50 App Store language regions uploaded via the existing App Store Connect API and read back exactly; no Computer Use."
+  },
+  "localizations": [
+    {
+      "locale": "zh-Hans",
+      "whatsNew": "• 五人制篮球支持赛前自定义时长。\n• 多人计分支持最多 50 人。\n• 匹克球支持自定义 1～99 分的目标分。\n• 优化小屏幕下的设置和计分显示。"
+    },
+    {
+      "locale": "en-US",
+      "whatsNew": "• Set custom durations before starting a 5-on-5 basketball game.\n• Multi-Score now supports up to 50 players.\n• Pickleball now supports custom target scores from 1 to 99.\n• Improved setup and score displays on smaller screens."
+    }
+  ],
+  "approvedOn": "2026-10-31"
+}

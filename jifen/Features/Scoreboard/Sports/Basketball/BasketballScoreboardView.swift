@@ -71,12 +71,14 @@ struct BasketballScoreboardView: View {
                 initialSetup?.team2Name,
                 fallback: defaults.right
             )
-            let ruleSet: BasketballRuleSet = initialSetup?.basketballRuleSet == "nba" ? .nba : .fiba
+            let ruleSet: BasketballRuleSet = BasketballRuleSet(rawValue: initialSetup?.basketballRuleSet ?? "fiba") ?? .fiba
             _store = State(initialValue: BasketballSessionStore(
                 leftName: leftName,
                 rightName: rightName,
                 gameMode: gameMode,
-                ruleSet: ruleSet
+                ruleSet: ruleSet,
+                periodDurationSeconds: initialSetup?.basketballPeriodSeconds,
+                overtimeDurationSeconds: initialSetup?.basketballOvertimeSeconds
             ))
             _registersParticipantOwner = State(initialValue: true)
             initialStyleID = ScoreboardStyleID(gameType: gameMode == .threeXThree ? .threeBasketball : .basketball)
@@ -664,6 +666,9 @@ struct BasketballScoreboardView: View {
                         "team0ScreenSide": .string(team0OnLeft ? "left" : "right"),
                         "basketballLeftFouls": .integer(logicalLeftFouls),
                         "basketballRightFouls": .integer(logicalRightFouls),
+                        "basketballRuleSet": .string(store.state.ruleSet.rawValue),
+                        "basketballPeriodSeconds": .integer(store.state.periodDurationSeconds),
+                        "basketballOvertimeSeconds": .integer(store.state.overtimeDurationSeconds),
                         "basketballCurrentPeriod": .integer(store.state.currentPeriod),
                         "basketballIsOT": .boolean(store.state.isOvertime),
                         "basketballGameTime": .integer(store.state.gameTimeSeconds),

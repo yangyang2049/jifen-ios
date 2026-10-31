@@ -1,0 +1,45 @@
+主题：应用转移后，关联 Apple Watch App ID 无法在接收方团队注册，导致 App Store 分发失败
+
+Apple Developer Support 您好：
+
+我的应用「全能计分器 / iScoreboard」此前从另一个 Apple Developer 账号转移到了当前账号。现在恢复关联的 Apple Watch App 后，iOS 与 watchOS 源码均可成功编译并完成开发签名归档，但在 App Store 分发导出的签名资产获取阶段失败，尚未进入二进制上传阶段。
+
+应用信息：
+- App Store Connect Apple ID：6759768784
+- iOS Bundle ID：com.douhua.jifen.ios
+- 关联 watchOS Bundle ID：com.douhua.jifen.ios.watchkitapp
+- 接收方当前 Team ID：X9VDZZL3C3
+- 接收方当前团队：Bolo mobile, Inc.
+- 复现版本：3.4（83）
+- 工具：Xcode 27.1（27A9275）
+- 复现时间：2026-10-27 22:49–22:50（Asia/Shanghai，UTC+8）
+
+Xcode 原始错误：
+
+error: exportArchive Failed Registering Bundle Identifier
+  The app identifier "com.douhua.jifen.ios.watchkitapp" cannot be registered to your development team because it is not available. Change your bundle identifier to a unique string to try again.
+
+error: exportArchive No profiles for 'com.douhua.jifen.ios.watchkitapp' were found
+  Xcode couldn't find any iOS App Store provisioning profiles matching 'com.douhua.jifen.ios.watchkitapp'.
+
+** EXPORT FAILED **
+
+
+Apple Developer 服务端返回：
+- HTTP status：409
+- code：ENTITY_ERROR.ATTRIBUTE.INVALID
+- resultCode：9401
+- error ID：bcf82fc8-3886-4bd4-864b-74f6f1492a89
+- detail：An App ID with Identifier 'com.douhua.jifen.ios.watchkitapp' is not available. Please enter a different string.
+
+同一当前团队的 Bundle IDs API 查询可找到主应用 com.douhua.jifen.ios，但查询 com.douhua.jifen.ios.watchkitapp 返回空列表。开发归档中的手表 App 使用通配开发描述文件 X9VDZZL3C3.*，因此开发归档成功不代表该手表 App ID 已归属当前团队。
+
+请协助核查：
+1. 该手表 App ID 当前的归属，以及它与已转移主应用的关联是否正确。
+2. 如果关联手表 App ID 未完整转移，或存在其他团队占用／保留状态，请协助修复关联或转移状态，使当前团队能获取其 App Store 分发描述文件。
+3. 请确认是否需要原开发者账号配合，以及具体处理步骤。我们希望保留现有手表 Bundle ID，而不是通过更换标识绕过问题。
+
+目前无法确定根因是 App ID 迁移遗漏、归属异常或其他后台限制，因此请求 Apple 核查；并未认定是旧证书未转移。
+
+附件包含原始导出错误、Apple 服务端错误 JSON、当前 Bundle ID 查询结果与归档签名验证摘要。
+谢谢。

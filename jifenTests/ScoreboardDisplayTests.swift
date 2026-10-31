@@ -5,6 +5,52 @@ import ScoreCore
 
 @MainActor
 final class ScoreboardDisplayTests: XCTestCase {
+    /// Render the real local board with the Duo portrait safe area, including
+    /// an in-place window resize. Attachments require visual acceptance.
+    func testAuditMultiScoreDuoSafeAreaSnapshots() throws {
+        let preferences = PreferencesManager.shared
+        let previousStyle = preferences.multiScoreboardStyle
+        let layoutKey = "multi_scoreboard_use_landscape_layout"
+        let previousLayout = UserDefaults.standard.object(forKey: layoutKey)
+        UserDefaults.standard.set(false, forKey: layoutKey)
+        preferences.multiScoreboardStyle = .init(mode: .solid, solidColor: .paper)
+        defer {
+            preferences.multiScoreboardStyle = previousStyle
+            if let previousLayout { UserDefaults.standard.set(previousLayout, forKey: layoutKey) }
+            else { UserDefaults.standard.removeObject(forKey: layoutKey) }
+        }
+        let names = (1...50).map { "Player \($0)" }
+        let board = MultiScoreboardView(defaultPlayerCount: 50, initialSetup: .init(
+            team1Name: "A", team2Name: "B", playerCount: 50, playerNames: names
+        ))
+        let window = UIWindow()
+        let hosting = UIHostingController(rootView: board.environment(\.colorScheme, .light))
+        window.rootViewController = hosting
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true }
+        for (name, size, top) in [
+            ("duo_portrait_top86", CGSize(width: 669, height: 951), CGFloat(86)),
+            ("duo_landscape_top86", CGSize(width: 951, height: 669), CGFloat(86)),
+            ("duo_portrait_return_top86", CGSize(width: 669, height: 951), CGFloat(86))
+        ] {
+            window.frame = CGRect(origin: .zero, size: size)
+            hosting.view.frame = window.bounds
+            hosting.additionalSafeAreaInsets = UIEdgeInsets(top: top, left: 0, bottom: 0, right: 0)
+            hosting.view.setNeedsLayout()
+            hosting.view.layoutIfNeeded()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+            XCTAssertEqual(hosting.view.safeAreaInsets.top, top, accuracy: 1)
+            print("MULTI_SAFEAREA_NATIVE \(name) window=\(window.bounds) safe=\(hosting.view.safeAreaInsets)")
+            let image = UIGraphicsImageRenderer(size: size).image { _ in
+                hosting.view.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
+            }
+            let attachment = XCTAttachment(image: image)
+            attachment.name = name
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
+    }
+
     /// Production SwiftUI views rendered for the nine-ball visual acceptance matrix.
     func testAuditNineBallNativeLayoutSnapshots() throws {
         let longNames = ["玩家一 ABCDEFG", "玩家二 ABCDEFG", "玩家三 ABCDEFG", "玩家四 ABCDEFG"]

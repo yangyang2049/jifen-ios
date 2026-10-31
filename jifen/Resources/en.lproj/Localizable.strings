@@ -1019,7 +1019,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Tap left/right score area to add 1 goal\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n☑️ Use Settle or Finish when the match ends";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Tap left/right score area to add 1 goal\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n👥 2V2 names are set before the match\n☑️ Use Settle or Finish when the match ends";
 "scoreboard_usage_hint_simple_score" = "👆 Tap left/right score area to add\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n✏️ Long-press or edit to change names and scores";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Tap a player tile to add 1 point\n⬆️ Swipe up to add 1; ⬇️ swipe down to subtract 1\n↩️ Swipe left to undo\n✏️ Long-press a player to edit the name and score\n🎛️ In custom adjust mode, tapping a player opens the adjustment panel";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Tap a player tile to add 1 point\n⬆️ Swipe up to add 1; ⬇️ swipe down to subtract 1\n↔️ With more than 9 players, swipe left/right to turn pages, or use the dots and arrows below\n↩️ Use the menu to undo or find a player\n✏️ Long-press a player to edit the name and score\n🎛️ In custom adjust mode, tapping a player opens the adjustment panel";
 "scoreboard_usage_hint_double_tap_point" = "👆 Double-tap same side to subtract 1";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Double-tap same side to subtract 1 rack";
 "scoreboard_usage_hint_double_tap_player" = "👆 Double-tap same player to subtract 1";
@@ -1264,6 +1264,11 @@
 "cast_match_finished" = "Match Finished";
 "cast_winner_format" = "%@ Wins";
 "cast_result_draw" = "Result Confirmed";
+"multi_score_cast_settings" = "Cast settings";
+"multi_score_display_previous" = "Previous display page";
+"multi_score_display_next" = "Next display page";
+"multi_score_display_page_number" = "%d/%d";
+"multi_score_display_page_description" = "Display page %d of %d, players %d to %d";
 
 "record_note_action" = "Note";
 "record_note_title" = "Notes";
@@ -2582,3 +2587,53 @@
 "nine_ball_unbalanced_edit" = "The edited scores do not total zero.";
 "nine_ball_winner_breaks" = "Winner breaks";
 "nine_ball_help_preset_values" = "Preset example; values are not from the current match.";
+
+// Basketball custom duration
+"basketball_period_minutes" = "Quarter length (min)";
+"basketball_overtime_minutes" = "Overtime length (min)";
+"basketball_edit_timing" = "Edit durations";
+"basketball_reset_current_clock" = "Reset current clock to %@";
+"basketball_record_timing" = "%@ · %d min quarters · %d min OT";
+"basketball_custom_fiba_note" = "Custom uses FIBA rules.";
+
+// Multi-score capacity, paging and bulk names (align Android 3.4)
+"multi_score_count_placeholder" = "3–50";
+"multi_score_count_invalid" = "Enter a whole number from 3 to 50";
+"multi_score_common_counts" = "Common player counts";
+"multi_score_bulk_names" = "Fill names in bulk";
+"multi_score_bulk_placeholder" = "One name per line. You can paste a list.";
+"multi_score_bulk_empty" = "Names replace the first players in order; the remaining names stay unchanged.";
+"multi_score_bulk_apply" = "%d names: replace the first %d players; keep the rest.";
+"multi_score_bulk_expand" = "%d names: player count will change to %d.";
+"multi_score_bulk_too_many" = "Up to 50 players. Shorten the list before applying.";
+"multi_score_bulk_name_long" = "Name %d is longer than 24 characters.";
+"multi_score_find_player_action" = "Find player";
+"multi_score_find_player" = "Search name or player number";
+"multi_score_all_players" = "All players";
+"multi_score_player_number" = "Player %d";
+"multi_score_reset_scores" = "Clear all scores";
+"multi_score_settle_match" = "Settle scoring";
+"multi_score_end_scoring" = "Finish scoring";
+"multi_score_previous_page" = "Previous page";
+"multi_score_next_page" = "Next page";
+"multi_score_page_description" = "Page %d of %d, players %d to %d";
+"multi_score_find_player_no_result" = "No matching player";
+
+"multi_score_player_names" = "Player names";
+
+// Multi-player scoreboard appearance
+"multi_score_style" = "Scoreboard style";
+"multi_score_style_solid" = "Solid";
+"multi_score_style_colorful" = "Colorful";
+"multi_score_color_ink" = "Ink black";
+"multi_score_color_graphite" = "Graphite";
+"multi_score_color_paper" = "Paper white";
+"multi_score_color_mist" = "Mist gray";
+"multi_score_color_forest" = "Pine green";
+"multi_score_color_jade" = "Jade green";
+"multi_score_color_navy" = "Navy blue";
+"multi_score_color_lake" = "Lake blue";
+"multi_score_color_violet" = "Wisteria";
+"multi_score_color_rose" = "Rose";
+"multi_score_color_clay" = "Terracotta";
+"multi_score_color_olive" = "Olive";

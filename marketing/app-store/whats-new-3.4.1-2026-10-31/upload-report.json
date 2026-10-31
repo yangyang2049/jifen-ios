@@ -1,0 +1,207 @@
+{
+  "versionId": "045507ac-dc8a-4208-9250-0bfc95e62c65",
+  "results": [
+    {
+      "locale": "ar-SA",
+      "action": "PATCH"
+    },
+    {
+      "locale": "bn-BD",
+      "action": "PATCH"
+    },
+    {
+      "locale": "ca",
+      "action": "PATCH"
+    },
+    {
+      "locale": "cs",
+      "action": "PATCH"
+    },
+    {
+      "locale": "da",
+      "action": "PATCH"
+    },
+    {
+      "locale": "de-DE",
+      "action": "PATCH"
+    },
+    {
+      "locale": "el",
+      "action": "PATCH"
+    },
+    {
+      "locale": "en-AU",
+      "action": "PATCH"
+    },
+    {
+      "locale": "en-CA",
+      "action": "PATCH"
+    },
+    {
+      "locale": "en-GB",
+      "action": "PATCH"
+    },
+    {
+      "locale": "en-US",
+      "action": "PATCH"
+    },
+    {
+      "locale": "es-ES",
+      "action": "PATCH"
+    },
+    {
+      "locale": "es-MX",
+      "action": "PATCH"
+    },
+    {
+      "locale": "fi",
+      "action": "PATCH"
+    },
+    {
+      "locale": "fr-CA",
+      "action": "PATCH"
+    },
+    {
+      "locale": "fr-FR",
+      "action": "PATCH"
+    },
+    {
+      "locale": "gu-IN",
+      "action": "PATCH"
+    },
+    {
+      "locale": "he",
+      "action": "PATCH"
+    },
+    {
+      "locale": "hi",
+      "action": "PATCH"
+    },
+    {
+      "locale": "hr",
+      "action": "PATCH"
+    },
+    {
+      "locale": "hu",
+      "action": "PATCH"
+    },
+    {
+      "locale": "id",
+      "action": "PATCH"
+    },
+    {
+      "locale": "it",
+      "action": "PATCH"
+    },
+    {
+      "locale": "ja",
+      "action": "PATCH"
+    },
+    {
+      "locale": "kn-IN",
+      "action": "PATCH"
+    },
+    {
+      "locale": "ko",
+      "action": "PATCH"
+    },
+    {
+      "locale": "ml-IN",
+      "action": "PATCH"
+    },
+    {
+      "locale": "mr-IN",
+      "action": "PATCH"
+    },
+    {
+      "locale": "ms",
+      "action": "PATCH"
+    },
+    {
+      "locale": "nl-NL",
+      "action": "PATCH"
+    },
+    {
+      "locale": "no",
+      "action": "PATCH"
+    },
+    {
+      "locale": "or-IN",
+      "action": "PATCH"
+    },
+    {
+      "locale": "pa-IN",
+      "action": "PATCH"
+    },
+    {
+      "locale": "pl",
+      "action": "PATCH"
+    },
+    {
+      "locale": "pt-BR",
+      "action": "PATCH"
+    },
+    {
+      "locale": "pt-PT",
+      "action": "PATCH"
+    },
+    {
+      "locale": "ro",
+      "action": "PATCH"
+    },
+    {
+      "locale": "ru",
+      "action": "PATCH"
+    },
+    {
+      "locale": "sk",
+      "action": "PATCH"
+    },
+    {
+      "locale": "sl-SI",
+      "action": "PATCH"
+    },
+    {
+      "locale": "sv",
+      "action": "PATCH"
+    },
+    {
+      "locale": "ta-IN",
+      "action": "PATCH"
+    },
+    {
+      "locale": "te-IN",
+      "action": "PATCH"
+    },
+    {
+      "locale": "th",
+      "action": "PATCH"
+    },
+    {
+      "locale": "tr",
+      "action": "PATCH"
+    },
+    {
+      "locale": "uk",
+      "action": "PATCH"
+    },
+    {
+      "locale": "ur-PK",
+      "action": "PATCH"
+    },
+    {
+      "locale": "vi",
+      "action": "PATCH"
+    },
+    {
+      "locale": "zh-Hans",
+      "action": "PATCH"
+    },
+    {
+      "locale": "zh-Hant",
+      "action": "PATCH"
+    }
+  ],
+  "submittedForReview": false,
+  "released": false
+}

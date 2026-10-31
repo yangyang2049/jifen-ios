@@ -1,0 +1,57 @@
+{
+  "basketball-setup-open.png": {
+    "source": "/Users/yangyang/Library/Developer/jifen-ios-test-artifacts/runs/20261031T022812187319Z-ios-341-preflight-20261031/duo/folded/final-basket/duo_341_basket341_setup_open.png",
+    "sha256": "72b42fa6c604f0eb8f77c4eb90b63f8878a912e8a646f4a7bbe613ef20f58862"
+  },
+  "basketball-open.png": {
+    "source": "/Users/yangyang/Library/Developer/jifen-ios-test-artifacts/runs/20261031T022812187319Z-ios-341-preflight-20261031/duo/folded/final-basket/duo_341_basket341_score_open.png",
+    "sha256": "c5f6b03d1b9d1442e73ea9e89b584232c88e1dd4c1859c45b8bc615854e870c9"
+  },
+  "basketball-closed.png": {
+    "source": "/Users/yangyang/Library/Developer/jifen-ios-test-artifacts/runs/20261031T022812187319Z-ios-341-preflight-20261031/duo/folded/final-basket/duo_341_basket341_score_closed.png",
+    "sha256": "a14c7a40ce770562e6d1334918355cc713446b61ed75c0274ea0112efad77aaf"
+  },
+  "multi-closed.png": {
+    "source": "/Users/yangyang/Library/Developer/jifen-ios-test-artifacts/runs/20261031T022812187319Z-ios-341-preflight-20261031/duo/native-final/multi-closed-return.png",
+    "sha256": "0745d902b0f5e961245246de9e392ed8c78d6c5d4405543e00d84dbfee09a9b8",
+    "displayUUID": "A4709D18-F417-45D5-BE02-56C2863B919C",
+    "method": "CUA Device Hub native manual actions + explicit simctl display screenshot",
+    "result": "manual state preservation observed; full foldable gate remains unresolved"
+  },
+  "multi-open-landscape.png": {
+    "source": "/Users/yangyang/Library/Developer/jifen-ios-test-artifacts/runs/20261031T022812187319Z-ios-341-preflight-20261031/duo/native-final/multi-open-landscape.png",
+    "sha256": "b92fefcc5b70905d2d75ef91d518a24b811e276d67c0a25cb233e4d8a7e024af",
+    "displayUUID": "F1C5D633-73D1-48D2-9E7F-B507AE4338F4",
+    "method": "CUA Device Hub native manual actions + explicit simctl display screenshot",
+    "result": "manual state preservation observed; full foldable gate remains unresolved"
+  },
+  "multi-open-portrait-anomaly.png": {
+    "source": "/Users/yangyang/Library/Developer/jifen-ios-test-artifacts/runs/20261031T022812187319Z-ios-341-preflight-20261031/duo/native-final/multi-open.png",
+    "sha256": "c59a0cc7fdfdad54ab4d833fdb7056951a434de45b8ed9f5823d7bdb63c1b884",
+    "displayUUID": "F1C5D633-73D1-48D2-9E7F-B507AE4338F4",
+    "method": "CUA Device Hub native manual actions + explicit simctl display screenshot",
+    "result": "unresolved visible anomaly"
+  },
+  "multi-portrait-native-before-fix.png": {
+    "source": "/Users/yangyang/Library/Developer/jifen-ios-test-artifacts/runs/20261031T043106001243Z-duo-multiscore-safearea-fix-20261031/baseline-screenshots/741EB147-BD68-48A5-AB96-7903C6695358.png",
+    "sha256": "4276bca2177b0844e752a305099ebfe463e502078e8860cf00aceec6f705a73d",
+    "method": "Production MultiScoreboardView hosted on Duo simulator at 669x951 pt with explicit 86pt top safe-area; deterministic native render, not a physical hinge screenshot"
+  },
+  "multi-portrait-native-fixed.png": {
+    "source": "/Users/yangyang/Library/Developer/jifen-ios-test-artifacts/runs/20261031T043106001243Z-duo-multiscore-safearea-fix-20261031/fixed-final-screenshots/92BC3B38-C0CD-4866-BB6E-001C7C60996A.png",
+    "sha256": "25d8eb66434aea7a32388b9c2e9265475d2f08ba287d04aba7e348cc2e60c7b5",
+    "method": "Production MultiScoreboardView hosted on Duo simulator at 669x951 pt with explicit 86pt top safe-area; deterministic native render, not a physical hinge screenshot"
+  },
+  "multi-closed-fixed.png": {
+    "source": "/Users/yangyang/Library/Developer/jifen-ios-test-artifacts/runs/20261031T043106001243Z-duo-multiscore-safearea-fix-20261031/duo/unfolded/multiscore-safearea-live-final/duo_fixed_multi341_fixed_closed.png",
+    "sha256": "e5647db86fef016f7b63f4096e971599a3cc35768da478f5928a704529d72d78",
+    "method": "Real Device Hub Open/Closed/Open during passing XCTest; full explicit-display simctl screenshot, no UI edits",
+    "displayUUID": "A4709D18-F417-45D5-BE02-56C2863B919C"
+  },
+  "multi-open-fixed.png": {
+    "source": "/Users/yangyang/Library/Developer/jifen-ios-test-artifacts/runs/20261031T043106001243Z-duo-multiscore-safearea-fix-20261031/duo/unfolded/multiscore-safearea-live-final/duo_fixed_multi341_fixed_open.png",
+    "sha256": "0712cdaad4f14101ac1df611c913f50dfda8eb74ca84cf221fe1fb238c53ec11",
+    "method": "Real Device Hub Open/Closed/Open during passing XCTest; full explicit-display simctl screenshot, no UI edits",
+    "displayUUID": "F1C5D633-73D1-48D2-9E7F-B507AE4338F4"
+  }
+}
