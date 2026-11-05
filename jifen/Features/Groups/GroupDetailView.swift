@@ -64,14 +64,18 @@ struct GroupDetailView: View {
                         } else if !detail.group.isActive {
                             GroupNotice(text: groupText("archive_readonly", "This group is archived. Its history is read-only."))
                         }
-                        switch tab {
+                        if detail.group.sport == .billiards && tab != 3 {
+                            GroupBilliardsTab(detail: detail, tab: tab, onStart: onStart)
+                        } else if detail.group.sport == .unsupported {
+                            GroupNotice(text: billiardsText("unsupported"))
+                        } else { switch tab {
                         case 0: overview(detail)
                         case 1:
                             if detail.group.isCoaching { GroupTrainingTab(detail: detail, onStart: onStart, onReload: reload) }
                             else { activities(detail) }
                         case 2: results(detail)
                         default: members(detail)
-                        }
+                        } }
                     }.padding(Theme.padding).frame(maxWidth: 960).expandedPhonePageContent(existingHorizontalInset: Theme.padding)
                         .frame(maxWidth: .infinity)
                 }.scrollDismissesKeyboard(.interactively).refreshable { await reload() }
@@ -86,8 +90,8 @@ struct GroupDetailView: View {
                 .padding(.horizontal, Theme.lg).padding(.bottom, Theme.lg).allowsHitTesting(false)
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            if tab == 0, let detail { overviewActionBar(detail) }
-            if tab == 1, let detail, !detail.group.isCoaching, detail.group.isActive, manager {
+            if tab == 0, let detail, detail.group.sport != .billiards, detail.group.sport != .unsupported { overviewActionBar(detail) }
+            if tab == 1, let detail, detail.group.sport != .billiards, detail.group.sport != .unsupported, !detail.group.isCoaching, detail.group.isActive, manager {
             VStack(spacing: 0) {
                 let layout = dynamicTypeSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: Theme.sm)) : AnyLayout(HStackLayout(spacing: Theme.spacing))
                 layout {

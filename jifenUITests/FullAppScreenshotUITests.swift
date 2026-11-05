@@ -241,7 +241,7 @@ final class FullAppScreenshotUITests: XCTestCase {
             settings.tap()
             let hint = app.buttons["知道了"].firstMatch
             if hint.waitForExistence(timeout: 0.4), hint.isHittable { hint.tap() }
-            if ["basketball", "three_basketball", "nine_ball", "uno", "multiScoreboard"].contains(id) {
+            if ["nine_ball", "uno", "multiScoreboard"].contains(id) {
                 let panel = app.descendants(matching: .any)["scoreboard_display_settings_panel"].firstMatch
                 XCTAssertTrue(panel.waitForExistence(timeout: 4))
                 let cancel = app.buttons["取消"].firstMatch
@@ -1690,6 +1690,200 @@ final class FullAppScreenshotUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["+0:00"].firstMatch.waitForExistence(timeout: 2))
     }
 
+    func testUnifiedStyleFontLayout() {
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "pingpong", label: "乒乓球",
+            extraArguments: ["-UITestSportsVoiceMissing", "-national_day_2026_10_autopopup_count", "99"]))
+        XCTAssertTrue(tapStart())
+        XCUIDevice.shared.orientation = .landscapeRight
+        XCTAssertTrue(openPriorityScoreboardMenu())
+        app.descendants(matching: .any)["scoreboard_menu_action_displaySettings"].firstMatch.tap()
+        let editor = app.descendants(matching: .any)["scoreboard_style_editor"].firstMatch
+        XCTAssertTrue(editor.waitForExistence(timeout: 4))
+        assertUnifiedStyleEditorControls(editor)
+        app.buttons["scoreboard_style_tab_font"].firstMatch.tap()
+        for code in ["default", "rounded", "serif"] {
+            XCTAssertTrue(app.buttons["scoreboard_style_name_font_\(code)"].firstMatch.isHittable)
+        }
+        for code in ["default", "digital", "seven_segment", "teko"] {
+            XCTAssertTrue(app.buttons["scoreboard_style_score_font_\(code)"].firstMatch.isHittable)
+        }
+        snap("unified_font_editor")
+        app.buttons["scoreboard_style_cancel"].firstMatch.tap()
+        XCTAssertFalse(editor.waitForExistence(timeout: 1))
+    }
+
+    func testThemeWorkbenchBasketballAndThreeBasketball() {
+        for (id, label) in [("basketball", "篮球"), ("three_basketball", "三人篮球")] {
+            XCTAssertTrue(openPriorityScoreboardSetup(id: id, label: label, extraArguments: ["-UITestSportsVoiceMissing", "-national_day_2026_10_autopopup_count", "99"]))
+            XCTAssertTrue(tapStart())
+            XCUIDevice.shared.orientation = .landscapeRight
+            let left = app.staticTexts["basketball_score_left"].firstMatch
+            let right = app.staticTexts["basketball_score_right"].firstMatch
+            XCTAssertTrue(left.waitForExistence(timeout: 4)); XCTAssertTrue(right.exists)
+            let scores = [left.label, right.label]
+            XCTAssertTrue(openPriorityScoreboardMenu())
+            app.descendants(matching: .any)["scoreboard_menu_action_displaySettings"].firstMatch.tap()
+            let editor = app.descendants(matching: .any)["scoreboard_style_editor"].firstMatch
+            XCTAssertTrue(editor.waitForExistence(timeout: 4))
+            assertUnifiedStyleEditorControls(editor)
+            for tab in ["theme", "background", "font", "free"] {
+                let button = app.buttons["scoreboard_style_tab_\(tab)"].firstMatch
+                XCTAssertTrue(button.exists); button.tap()
+            }
+            let target = app.descendants(matching: .any)["style_element_mainScore_side_right"].firstMatch
+            XCTAssertTrue(target.waitForExistence(timeout: 3)); target.tap()
+            XCTAssertTrue(app.buttons["右侧"].firstMatch.isSelected)
+            app.buttons["scoreboard_style_tab_font"].firstMatch.tap()
+            app.buttons["scoreboard_style_score_font_digital"].firstMatch.tap()
+            app.buttons["scoreboard_style_tab_theme"].firstMatch.tap()
+            let preset = app.buttons["scoreboard_style_theme_pro_dark"].firstMatch
+            if preset.exists { preset.tap() }
+            app.descendants(matching: .any)["scoreboard_style_full_preview"].firstMatch.tap()
+            let full = app.descendants(matching: .any)["scoreboard_style_full_match_preview"].firstMatch
+            touchReadOnlyThemePreview(full)
+            snap("basketball_workbench_\(id)")
+            app.descendants(matching: .any)["scoreboard_style_back_to_editor"].firstMatch.tap()
+            app.buttons["scoreboard_style_save"].firstMatch.tap()
+            XCTAssertFalse(editor.waitForExistence(timeout: 1))
+            XCTAssertEqual([left.label, right.label], scores, "preview must not change match scores")
+            XCTAssertTrue(openPriorityScoreboardMenu())
+            app.descendants(matching: .any)["scoreboard_menu_action_displaySettings"].firstMatch.tap()
+            XCTAssertTrue(editor.waitForExistence(timeout: 4))
+            app.buttons["scoreboard_style_reset"].firstMatch.tap()
+            app.buttons["scoreboard_style_cancel"].firstMatch.tap()
+            XCTAssertFalse(editor.waitForExistence(timeout: 1))
+            XCTAssertEqual([left.label, right.label], scores)
+        }
+    }
+
+    func testThemeWorkbenchPhotoSinglesAndDoubles() {
+        for doubles in [false, true] {
+            XCTAssertTrue(openPriorityScoreboardSetup(id: "pingpong", label: "乒乓球", extraArguments: ["-UITestSportsVoiceMissing", "-national_day_2026_10_autopopup_count", "99"]))
+            if doubles { XCTAssertTrue(selectSinglesDoublesMode(doubles: true)) }
+            XCTAssertTrue(tapStart())
+            XCUIDevice.shared.orientation = .landscapeRight
+            let leftScoreID = doubles ? "rally_doubles_score_left" : "rally_score_left"
+            let rightScoreID = doubles ? "rally_doubles_score_right" : "rally_score_right"
+            XCTAssertTrue(app.staticTexts[leftScoreID].firstMatch.waitForExistence(timeout: 3))
+            XCTAssertTrue(app.staticTexts[rightScoreID].firstMatch.waitForExistence(timeout: 3))
+            let originalLeft = app.staticTexts[leftScoreID].firstMatch.label
+            let originalRight = app.staticTexts[rightScoreID].firstMatch.label
+            XCTAssertTrue(openPriorityScoreboardMenu())
+            let settings = app.descendants(matching: .any)["scoreboard_menu_action_displaySettings"].firstMatch
+            XCTAssertTrue(settings.waitForExistence(timeout: 3)); settings.tap()
+            let editor = app.descendants(matching: .any)["scoreboard_style_editor"].firstMatch
+            XCTAssertTrue(editor.waitForExistence(timeout: 4))
+            assertUnifiedStyleEditorControls(editor)
+            snap(doubles ? "theme_workbench_doubles" : "theme_workbench_singles")
+            let free = app.buttons["scoreboard_style_tab_free"].firstMatch
+            XCTAssertTrue(free.waitForExistence(timeout: 3)); free.tap()
+            let preview = app.descendants(matching: .any)["scoreboard_style_live_preview"].firstMatch
+            let score = preview.descendants(matching: .any)["style_element_mainScore_side_right"].firstMatch
+            XCTAssertTrue(score.waitForExistence(timeout: 3)); score.tap()
+            XCTAssertTrue(app.sliders.firstMatch.waitForExistence(timeout: 2))
+            XCTAssertTrue(app.buttons["右侧"].firstMatch.isSelected)
+            XCTAssertTrue(app.buttons["主比分"].firstMatch.isSelected)
+            app.buttons["scoreboard_style_tab_theme"].firstMatch.tap()
+            let fullPreview = app.descendants(matching: .any)["scoreboard_style_full_preview"].firstMatch
+            XCTAssertTrue(fullPreview.waitForExistence(timeout: 3)); fullPreview.tap()
+            let fullMatch = app.descendants(matching: .any)["scoreboard_style_full_match_preview"].firstMatch
+            touchReadOnlyThemePreview(fullMatch)
+            app.descendants(matching: .any)["scoreboard_style_back_to_editor"].firstMatch.tap()
+            let photo = app.buttons["scoreboard_style_theme_event_background"].firstMatch
+            scrollStyleOptionIntoView(photo, editor: editor)
+            XCTAssertTrue(photo.waitForExistence(timeout: 3)); photo.tap()
+            snap(doubles ? "photo_theme_doubles" : "photo_theme_singles")
+            XCTAssertTrue(fullPreview.waitForExistence(timeout: 3)); fullPreview.tap()
+            touchReadOnlyThemePreview(fullMatch)
+            snap(doubles ? "photo_full_doubles" : "photo_full_singles")
+            app.descendants(matching: .any)["scoreboard_style_back_to_editor"].firstMatch.tap()
+            // 退出全屏预览后再点背景页：不等预览消失，点击会落在预览层上被吞掉。
+            waitForDisappearance(fullMatch)
+            let backgroundTab = app.buttons["scoreboard_style_tab_background"].firstMatch
+            XCTAssertTrue(backgroundTab.waitForExistence(timeout: 4))
+            if !backgroundTab.isSelected { backgroundTab.tap() }
+            XCTAssertTrue(backgroundTab.isSelected, "background tab must be active before asserting its controls")
+            XCTAssertTrue(app.sliders["scoreboard_style_photo_dim"].waitForExistence(timeout: 4))
+            let sportIndicator = app.buttons["scoreboard_style_server_style_sport"].firstMatch
+            let arrowIndicator = app.buttons["scoreboard_style_server_style_arrow"].firstMatch
+            // 发球指示器排在图片操作与压暗/透明度之后（对齐安卓），需要滚动到可见区。
+            revealInSettingsPane(sportIndicator, editor: editor)
+            XCTAssertTrue(sportIndicator.waitForExistence(timeout: 3)); sportIndicator.tap()
+            XCTAssertTrue(sportIndicator.isSelected)
+            arrowIndicator.tap(); XCTAssertTrue(arrowIndicator.isSelected)
+            snap(doubles ? "photo_settings_doubles" : "photo_settings_singles")
+            app.buttons["scoreboard_style_cancel"].firstMatch.tap()
+            XCTAssertFalse(editor.waitForExistence(timeout: 1))
+            XCTAssertEqual(app.staticTexts[leftScoreID].firstMatch.label, originalLeft, "Preview taps and swipes must not change the match")
+            XCTAssertEqual(app.staticTexts[rightScoreID].firstMatch.label, originalRight, "Preview taps and swipes must not change the match")
+        }
+    }
+
+    private func assertUnifiedStyleEditorControls(_ editor: XCUIElement) {
+        let exit = app.buttons["scoreboard_style_cancel"].firstMatch
+        let save = app.buttons["scoreboard_style_save"].firstMatch
+        let fullPreview = app.buttons["scoreboard_style_full_preview"].firstMatch
+        XCTAssertTrue(exit.isHittable)
+        XCTAssertTrue(save.isHittable)
+        XCTAssertTrue(fullPreview.isHittable)
+        XCTAssertLessThan(exit.frame.midX, editor.frame.midX, "Editor exit stays at the top-left")
+        XCTAssertLessThan(exit.frame.maxY, editor.frame.minY + 80)
+        if editor.frame.width >= editor.frame.height {
+            XCTAssertGreaterThan(save.frame.midX, editor.frame.midX, "Save belongs to the settings pane")
+            XCTAssertGreaterThan(fullPreview.frame.midX, editor.frame.midX, "Full preview belongs to the settings pane")
+            XCTAssertEqual(save.frame.midY, fullPreview.frame.midY, accuracy: 2)
+        }
+    }
+
+/// 在样式编辑的设置面板内反复上滑，直到目标控件可点击。
+    /// 面板的 ScrollView 带 `.id(tab + themeCode)`，切 tab 会重建并复位滚动位置，
+    /// 所以不能只依赖一次 swipe，也不能复用旧的滚动容器引用。
+/// 轮询等待元素消失。`waitForExistence` 只等"出现"，元素已存在时会立刻返回 true，
+    /// 无法用于等待全屏预览这类退出动画；动画期间点击会被吞掉。
+    private func waitForDisappearance(_ element: XCUIElement, timeout: TimeInterval = 3) {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if !element.exists { return }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+        }
+    }
+
+    private func revealInSettingsPane(_ option: XCUIElement, editor: XCUIElement) {
+        // 设置面板是编辑栏右侧那块可滚动区域；直接在该区域做拖拽比依赖
+        // scrollViews 查询更稳（面板内容较长，需要滚动才能露出后面的控件）。
+        let paneCenter = editor.coordinate(withNormalizedOffset: CGVector(dx: 0.82, dy: 0.62))
+        for _ in 0..<8 {
+            if option.exists && option.isHittable { return }
+            paneCenter.press(
+                forDuration: 0.05,
+                thenDragTo: editor.coordinate(withNormalizedOffset: CGVector(dx: 0.82, dy: 0.30)),
+                withVelocity: .slow,
+                thenHoldForDuration: 0.1
+            )
+        }
+    }
+
+    private func scrollStyleOptionIntoView(_ option: XCUIElement, editor: XCUIElement) {
+        for _ in 0..<4 {
+            if option.exists && option.isHittable { return }
+            XCTContext.runActivity(named: "Reveal style option in the settings pane") { _ in
+                if let settings = app.scrollViews.allElementsBoundByIndex.last(where: { $0.frame.height > 100 }) {
+                    settings.swipeUp()
+                } else {
+                    editor.coordinate(withNormalizedOffset: CGVector(dx: 0.82, dy: 0.7))
+                        .press(forDuration: 0.02, thenDragTo: editor.coordinate(withNormalizedOffset: CGVector(dx: 0.82, dy: 0.28)))
+                }
+            }
+        }
+    }
+
+    private func touchReadOnlyThemePreview(_ element: XCUIElement) {
+        XCTAssertTrue(element.waitForExistence(timeout: 3))
+        element.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        element.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.5))
+            .press(forDuration: 0.01, thenDragTo: element.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.5)))
+    }
+
     /// Current catalog audit. Each snapshot is produced by navigating the real app.
     func testAuditAllScoreboardEditingSurfaces() {
         let added = [(id: "shuttlecock", label: "毽球"), (id: "squash", label: "壁球"),
@@ -1738,7 +1932,7 @@ final class FullAppScreenshotUITests: XCTestCase {
                 settings.tap()
                 let hint = app.buttons["知道了"].firstMatch
                 if hint.waitForExistence(timeout: 0.5), hint.isHittable { hint.tap() }
-                let legacyStyle = ["basketball", "three_basketball", "nine_ball", "uno", "multiScoreboard"].contains(item.id)
+                let legacyStyle = ["nine_ball", "uno", "multiScoreboard"].contains(item.id)
                 if !legacyStyle {
                     XCTAssertTrue(app.descendants(matching: .any)["scoreboard_style_editor"].firstMatch.waitForExistence(timeout: 3))
                 }

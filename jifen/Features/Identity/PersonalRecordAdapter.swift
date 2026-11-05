@@ -420,7 +420,7 @@ enum PersonalRecordAdapter {
                 .object(["seatKey": .string("player:\(index)"), "name": .string(participant.name), "score": .integer(Int64(participant.score))])
             })
         }
-        if let gameId = record.groupMatchContext?.gameID { summary["groupGameId"] = .string(gameId) }
+        if let gameId = record.groupMatchContext?.gameID ?? record.billiardsSource?.gameID { summary["groupGameId"] = .string(gameId) }
         return .init(libraryId: identity.libraryId(for: record.id), recordKey: record.id,
                      kind: "score", project: record.resolvedScoreCoreGameType?.rawValue ?? record.gameType.canonicalScoreboardIdentifier,
                      playedAt: Int64(record.startTime.timeIntervalSince1970 * 1_000),

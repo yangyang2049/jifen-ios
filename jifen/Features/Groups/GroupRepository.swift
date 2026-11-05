@@ -47,7 +47,7 @@ nonisolated struct GroupRepository: Sendable {
         }
         #endif
         let revision: UInt64? = authenticated ? await requestRevision(expectedAuthRevision) : nil
-        return try await client.request("/api/groups" + path, query: query, requiresAuth: authenticated, expectedAuthRevision: revision)
+        return try await client.request("/api/groups" + path, query: query, requiresAuth: authenticated, headers: GroupContract.headers, expectedAuthRevision: revision)
     }
     func write<T: Decodable & Sendable>(_ path: String, body: (any Encodable & Sendable)? = nil, method: HTTPMethod = .post, key: String? = nil, revision: Int64? = nil, expectedAuthRevision: UInt64? = nil) async throws -> T {
         #if DEBUG
@@ -72,7 +72,7 @@ nonisolated struct GroupRepository: Sendable {
                 throw APIClientError.server(status: 409, code: "ACTION_DISABLED", message: nil, nextAvailableAt: nil)
             }
         }
-        var headers: [String: String] = [:]
+        var headers: [String: String] = GroupContract.headers
         if let key { headers["Idempotency-Key"] = key }
         if let revision { headers["If-Match"] = "\"\(revision)\"" }
         return try await client.request("/api/groups" + path, method: method, body: body ?? EmptyRequest(), requiresAuth: true, headers: headers, expectedAuthRevision: authRevision)
@@ -353,6 +353,14 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
         do {
             let authRevision = await repository.client.authSessionRevision()
             let g: ScoreGroup = try await repository.read("/\(groupID)", expectedAuthRevision: authRevision)
+            if g.sport == .billiards || g.sport == .unsupported {
+                let members: [GroupMember] = try await repository.allPages("/\(groupID)/members", expectedAuthRevision: authRevision)
+                guard matchesIdentity(id, revision: revision), detailRequests[groupID] == sequence else { return }
+                cache.details[groupID] = .init(group:g,members:members,activities:[],results:[],rankings:[],stats:nil,nextCursor:nil,syncedAt:Date())
+                detailErrors[groupID] = nil; cached = false; saveCache()
+                if let index = cache.groups.firstIndex(where: { $0.id == groupID }) { cache.groups[index] = g }
+                return
+            }
             async let members: [GroupMember]? = try? await repository.allPages("/\(groupID)/members", expectedAuthRevision: authRevision)
             async let activities: [GroupActivity]? = try? await repository.allPages("/\(groupID)/activities", expectedAuthRevision: authRevision)
             async let results: GroupPage<GroupResult>? = try? await repository.results(groupID, expectedAuthRevision: authRevision)
@@ -454,7 +462,7 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
     }
     private func saveCache() { if let accountID { try? GroupLocalPersistence.shared.saveCache(cache, accountID: accountID) } }
     func perform(_ operation: () async throws -> Void) async -> Bool {
-        guard (capabilities?.minClientContractVersion ?? 1) <= 1 else { error = groupText("capabilities_missing", "Match rules are unavailable. Connect and retry."); return false }
+        guard (capabilities?.minClientContractVersion ?? 1) <= GroupContract.version else { error = groupText("error_update_required", "Update the app to continue."); return false }
         guard enabled, let id = accountID, signedInAccountID() == id else { error = groupText("need_login", "Please sign in to continue."); return false }
         let revision = identityRevision
         mutationCount += 1; mutating = true
@@ -488,6 +496,7 @@ nonisolated struct GroupAccountCache: Codable, Sendable {
         defer { syncRunning = false; uploadRevision += 1; scheduleRetry(); if identityRevision != revision { Task { await self.sync() } } }
         let authRevision = await repository.client.authSessionRevision()
         guard matchesIdentity(id, revision: revision) else { return }
+        await GroupBilliardsSync.shared.sync()
         GroupLocalPersistence.shared.repairOutbox(from: ScoreboardRecordManager.shared.loadAllRecords())
         var attempted = Set<String>(), changed = Set<String>()
         repeat {
@@ -784,11 +793,12 @@ extension GroupStore {
         if ProcessInfo.processInfo.arguments.contains("-UITestGroupsActivitiesDisabled") {
             capabilities?.allowedActions = ["create_group", "join_group", "start_game", "submit_result", "confirm_result", "void_result", "manage_group", "manage_members", "register_activity"]
         }
-        capabilities?.sports = GroupSport.allCases.map { sport in
+        capabilities?.sports = GroupSport.racketSports.map { sport in
             var value = rules; value.sport = sport; value.maxSets = sport == .tableTennis ? 5 : 3; value.matchCompletionMode = "best_of"
             value.pointsToWinSet = sport == .badminton ? 21 : sport == .tennis ? 6 : 11
             return .init(sport: sport, defaultRules: value, ruleOptions: .init(maxSets: [1,3,5], matchCompletionModes: ["best_of", "play_all"], pointsToWinSet: [7,11,15,21], winByTwo: [true,false], useRallyScoring: [true,false], gamesPerSet: [4,6], tieBreakPoints: [7,10], setScoringModes: ["regular", "tiebreak_only"], usesNoAdScoring: [false,true]), supportsCustomRules: true)
         }
+        capabilities?.sports?.append(.init(sport:.billiards,defaultRules:nil,ruleOptions:nil,supportsCustomRules:true))
         notices = [.init(id: "ui-notice", groupId: group.id, groupName: group.name, kind: "activity_changed", resourceId: activity.id, title: "周末羽毛球已改期", reason: "场馆调整", createdAt: now, seenAt: nil)]; unreadCount = 1
         let result = GroupResult(id: "ui-result", groupId: group.id, activityId: "", gameId: "ui-game", format: .singles, sport: .badminton, bestOf: 2, setScore: .init(a: 1,b: 1), sets: [.init(a: 21,b: 19),.init(a: 18,b: 21)], winnerSide: nil, outcome: "draw", rules: rules, participants: [.init(memberId: "ui-a",side: "A",seat: 0,displayName: "甲"),.init(memberId: "ui-b",side: "B",seat: 0,displayName: "乙")], playedAt: now, submitterMemberId: "ui-a", confirmedByMemberId: "ui-b", status: "confirmed", source: "scoreboard", reason: "", createdAt: now, revision: 1)
         if ProcessInfo.processInfo.arguments.contains("-UITestGroupsCoaching") {
@@ -797,6 +807,9 @@ extension GroupStore {
         }
         cache.groups = [group]
         cache.details[group.id] = .init(group: group, members: members, activities: [activity], results: [result], rankings: [.init(memberId: "ui-a",displayName: "甲",games: 1,wins: 0,losses: 0,draws: 1,setsWon: 1,setsLost: 1,winRateText: "—",rank: 1)], stats: .init(confirmedMatchCount: 1,currentMonthMatchCount: 1,activeMemberCount30d: 2,lastCompletedAt: now), nextCursor: nil, syncedAt: Date())
+        if ProcessInfo.processInfo.arguments.contains("-UITestBilliardsGroup") {
+            group.sport = .billiards;cache.groups=[group];cache.details[group.id]?.group=group;cache.details[group.id]?.results=[];cache.details[group.id]?.activities=[]
+        }
         if ProcessInfo.processInfo.arguments.contains("-UITestGroupsMulti") {
             var multi = activity; multi.matchMode = "multi"; multi.sessionCount = 1
             cache.details[group.id]?.activities = [multi]

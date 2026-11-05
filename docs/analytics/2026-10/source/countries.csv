@@ -1,0 +1,79 @@
+# ----------------------------------------
+# iscoreboard
+# 202610 iOSGoogle Play -Free form 1
+# 20261001-20261031
+# ----------------------------------------
+
+Stream name,Country,Total users,Active users,New users,Returning users,Sessions,Engaged sessions,Engagement rate,User engagement,Total revenue,Average engagement time per session
+,,698,679,568,379,1960,1680,0.8571428571428571,3323523,86.023031,1695.675,Grand total
+iScoreboard,China,487,470,374,294,1479,1285,0.8688302907369845,2900305,78.632597,1960.9905341446924
+iScoreboard,United States,26,26,21,9,51,43,0.8431372549019608,46566,0,913.0588235294117
+iScoreboard Android,(not set),24,24,24,0,24,12,0.5,5848,0,243.66666666666666
+iScoreboard Android,India,14,14,14,5,23,20,0.8695652173913043,16827,0,731.6086956521739
+iScoreboard,Singapore,13,12,10,6,23,20,0.8695652173913043,29711,0,1291.7826086956522
+iScoreboard,Malaysia,12,12,9,6,21,21,1,23186,0,1104.095238095238
+iScoreboard,Saudi Arabia,7,7,6,2,12,9,0.75,6850,0,570.8333333333334
+iScoreboard,Canada,5,5,4,2,8,5,0.625,586,0,73.25
+iScoreboard,Germany,5,5,4,4,13,9,0.6923076923076923,40854,0,3142.6153846153848
+iScoreboard,Denmark,4,4,3,1,4,4,1,11898,0,2974.5
+iScoreboard,Myanmar (Burma),4,4,4,3,16,12,0.75,4434,0,277.125
+iScoreboard,Philippines,4,4,4,4,27,24,0.8888888888888888,9182,0,340.0740740740741
+iScoreboard,Spain,4,4,4,3,12,11,0.9166666666666666,18271,0,1522.5833333333333
+iScoreboard,Taiwan,4,4,3,1,4,3,0.75,1397,0,349.25
+iScoreboard,Vietnam,4,4,4,4,9,7,0.7777777777777778,1596,0,177.33333333333334
+iScoreboard,Australia,3,3,2,2,6,6,1,3161,0,526.8333333333334
+iScoreboard,France,3,3,3,3,7,5,0.7142857142857143,14141,0,2020.142857142857
+iScoreboard,Hong Kong,3,2,1,2,3,3,1,121,0,40.333333333333336
+iScoreboard,Indonesia,3,3,3,2,14,13,0.9285714285714286,20380,0,1455.7142857142858
+iScoreboard,Iraq,3,3,3,0,3,3,1,209,0,69.66666666666667
+iScoreboard,Japan,3,3,3,1,9,8,0.8888888888888888,3137,7.390434,348.55555555555554
+iScoreboard,Poland,3,3,3,1,5,5,1,3634,0,726.8
+iScoreboard,Russia,3,3,3,0,3,2,0.6666666666666666,139,0,46.333333333333336
+iScoreboard,Thailand,3,3,3,2,6,4,0.6666666666666666,1071,0,178.5
+iScoreboard Android,Russia,3,3,3,3,9,8,0.8888888888888888,4001,0,444.55555555555554
+iScoreboard Android,South Korea,3,3,3,1,4,4,1,496,0,124
+iScoreboard,Austria,2,2,2,1,8,7,0.875,29460,0,3682.5
+iScoreboard,Bosnia & Herzegovina,2,2,2,2,36,33,0.9166666666666666,52933,0,1470.361111111111
+iScoreboard,Colombia,2,2,2,0,2,2,1,61,0,30.5
+iScoreboard,Greece,2,2,1,2,7,6,0.8571428571428571,1050,0,150
+iScoreboard,India,2,2,0,2,5,5,1,1495,0,299
+iScoreboard,Israel,2,2,2,1,5,5,1,4679,0,935.8
+iScoreboard,Italy,2,2,2,0,2,1,0.5,43,0,21.5
+iScoreboard,Mexico,2,2,2,1,11,10,0.9090909090909091,23868,0,2169.818181818182
+iScoreboard,Portugal,2,2,2,0,2,2,1,924,0,462
+iScoreboard,Serbia,2,2,2,2,6,6,1,3244,0,540.6666666666666
+iScoreboard,Switzerland,2,2,2,1,7,7,1,9578,0,1368.2857142857142
+iScoreboard Android,Germany,2,2,2,0,2,2,1,2896,0,1448
+iScoreboard Android,Türkiye,2,2,2,1,3,3,1,137,0,45.666666666666664
+iScoreboard,Bahrain,1,1,1,0,1,1,1,6,0,6
+iScoreboard,Belgium,1,1,0,0,1,0,0,1,0,1
+iScoreboard,Dominican Republic,1,1,1,0,1,1,1,386,0,386
+iScoreboard,Finland,1,1,1,0,1,1,1,25,0,25
+iScoreboard,Jordan,1,1,0,1,1,0,0,2,0,2
+iScoreboard,Kuwait,1,1,1,0,1,1,1,130,0,130
+iScoreboard,Macao,1,1,0,1,4,3,0.75,3810,0,952.5
+iScoreboard,Mongolia,1,1,1,0,1,1,1,8,0,8
+iScoreboard,Romania,1,0,0,0,0,0,0,0,0,0
+iScoreboard,South Africa,1,1,1,0,1,1,1,199,0,199
+iScoreboard,South Korea,1,1,1,1,2,1,0.5,135,0,67.5
+iScoreboard,United Kingdom,1,1,1,0,1,1,1,10,0,10
+iScoreboard,Venezuela,1,1,1,0,1,1,1,101,0,101
+iScoreboard Android,Azerbaijan,1,1,1,1,2,2,1,1553,0,776.5
+iScoreboard Android,Brazil,1,1,1,1,2,2,1,1643,0,821.5
+iScoreboard Android,China,1,1,1,1,4,3,0.75,243,0,60.75
+iScoreboard Android,Ecuador,1,1,1,0,1,1,1,25,0,25
+iScoreboard Android,France,1,1,1,1,14,12,0.8571428571428571,3754,0,268.14285714285717
+iScoreboard Android,Greece,1,1,1,0,1,1,1,1643,0,1643
+iScoreboard Android,Honduras,1,1,1,0,1,1,1,30,0,30
+iScoreboard Android,Indonesia,1,1,1,1,8,7,0.875,7823,0,977.875
+iScoreboard Android,Iran,1,1,1,0,1,1,1,27,0,27
+iScoreboard Android,Japan,1,1,1,0,1,1,1,35,0,35
+iScoreboard Android,Kenya,1,1,1,1,12,2,0.16666666666666666,158,0,13.166666666666666
+iScoreboard Android,Malaysia,1,1,1,0,1,0,0,77,0,77
+iScoreboard Android,Norway,1,1,1,0,1,1,1,58,0,58
+iScoreboard Android,Qatar,1,1,1,0,1,0,0,2,0,2
+iScoreboard Android,Serbia,1,1,1,1,2,1,0.5,47,0,23.5
+iScoreboard Android,Spain,1,1,1,1,2,2,1,3179,0,1589.5
+iScoreboard Android,Thailand,1,1,1,0,1,1,1,44,0,44
+iScoreboard Android,United States,1,1,1,0,1,0,0,0,0,0
+

@@ -190,6 +190,7 @@ struct TeamCourtScoreboardPanel: View {
     let nameColor: Color
     let scoreColor: Color
     let setsColor: Color
+    var nameFontCode: String? = nil
     var styleSlotKey: ScoreboardStyleSlotKeyV2? = nil
     var topContentInset: CGFloat = 0
 
@@ -227,7 +228,7 @@ struct TeamCourtScoreboardPanel: View {
             VStack(spacing: 6) {
                 ForEach(Array(visibleNames.enumerated()), id: \.offset) { _, name in
                     Text(name)
-                        .font(preference.font.swiftUIFont(size: typography.nameFontSize, weight: .bold))
+                        .font(ScoreboardNameFont.font(code: nameFontCode, inherited: preference.font, size: typography.nameFontSize, weight: .bold))
                         .foregroundStyle(nameColor)
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
@@ -347,6 +348,14 @@ private struct TableTennisPauseDialog: View {
         .accessibilityLabel("\(name) · \(title)")
         .accessibilityIdentifier("pingpong_pause_\(regular ? "regular" : "medical")_\(side == .left ? "left" : "right")")
     }
+}
+
+/// 只观测投屏输出的薄壳：照片主题场景用它取 matchTitle / clock，
+/// 这样投屏状态变化只重算这一层，不牵动整个记分板。
+private struct RallyPhotoDisplayObserver<Content: View>: View {
+    @ObservedObject private var outputs = ScoreboardDisplayOutputs.shared
+    @ViewBuilder var content: (ScoreboardDisplayState?) -> Content
+    var body: some View { content(outputs.displayState) }
 }
 
 struct RallyScoreboardView: View {
@@ -560,6 +569,9 @@ struct RallyScoreboardView: View {
             ZStack {
                 palette.background.ignoresSafeArea()
 
+                if appearance.styleProfileV2.isPhotoTheme, !isEditMode {
+                    RallyPhotoDisplayObserver { photoScene($0) }
+                } else {
                 HStack(spacing: 0) {
                     if teamCourtRoster != nil, !isEditMode {
                         teamCourtHalf(screenSide: .left, size: CGSize(width: proxy.size.width / 2, height: halfH))
@@ -576,11 +588,13 @@ struct RallyScoreboardView: View {
                     }
                 }
 
-                if !isEditMode && !store.state.finished && showsServeIndicator && terminalSetPresentation == nil {
+                }
+
+                if !appearance.styleProfileV2.isPhotoTheme && !appearance.styleProfileV2.serverIndicatorHidden && !isEditMode && !store.state.finished && showsServeIndicator && terminalSetPresentation == nil {
                     serveIndicatorOverlay(size: proxy.size, triangleSize: serveIndicatorSize)
                 }
 
-                if !isEditMode && !isStyleEditing && !showDisplaySettings && !store.state.finished && terminalSetPresentation == nil {
+                if !appearance.styleProfileV2.isPhotoTheme && !isEditMode && !isStyleEditing && !showDisplaySettings && !store.state.finished && terminalSetPresentation == nil {
                     ScoreboardKeyPointBadgeLayer(
                         status: KeyPointResolver.rally(state: store.state),
                         gameType: gameType,
@@ -590,7 +604,7 @@ struct RallyScoreboardView: View {
                     )
                 }
 
-                if !isEditMode && !isStyleEditing && !showDisplaySettings && [.pingpong, .pingpongDoubles].contains(gameType) {
+                if !appearance.styleProfileV2.isPhotoTheme && !isEditMode && !isStyleEditing && !showDisplaySettings && [.pingpong, .pingpongDoubles].contains(gameType) {
                     pingPongAdministrativeMarkerOverlay
                 }
 
@@ -877,6 +891,7 @@ struct RallyScoreboardView: View {
             nameColor: appearance.elementForeground(.playerName, slotKey: slotKey),
             scoreColor: appearance.elementForeground(.mainScore, slotKey: slotKey),
             setsColor: setsColor(slotKey: slotKey),
+            nameFontCode: appearance.styleProfileV2.nameFontCode,
             styleSlotKey: slotKey,
             topContentInset: isStyleEditing ? ScoreboardStyleEditOverlayView.topControlsReservedHeight : 0
         )
@@ -907,6 +922,40 @@ struct RallyScoreboardView: View {
                     }
                 }
         )
+    }
+
+    /// 照片主题场景需要的投屏输出（抬头/时钟）单独观测：
+    /// 之前由记分板本体 `@ObservedObject` 持全局单例，任何投屏状态变化都会重算整页。
+    private func photoScene(_ displayState: ScoreboardDisplayState?) -> some View {
+        func team(_ screenSide: MatchSide) -> ScoreboardPhotoScene.Team {
+            let side = logicalSide(forScreen: screenSide)
+            let left = side == .left
+            let name: String
+            if let doubles = store.state.doubles {
+                let slots = left ? [0, 2] : [1, 3]
+                name = slots.compactMap { doubles.playerName(at: $0) }.joined(separator: " / ")
+            } else { name = scoreboardDisplayName(for: side) }
+            let keyPoint = KeyPointResolver.rally(state: store.state)
+            let badge: String? = keyPoint?.side == side ? (keyPoint?.kind == .match ? "match" : keyPoint?.kind == .set ? "set" : "game") : nil
+            let slot: ScoreboardStyleSlotKeyV2 = left ? .sideLeft : .sideRight
+            let doubles = store.state.doubles != nil
+            return .init(name: name, score: "\(displayedPoints(for: side))", sets: "\(displayedSets(for: side))", color: left ? palette.left : palette.right,
+                nameColor: Color(hex: appearance.styleProfileV2.resolvedElementTextHex(doubles ? .playerName : .teamName, slotKey: slot)),
+                scoreColor: Color(hex: appearance.styleProfileV2.resolvedElementTextHex(.mainScore, slotKey: slot)),
+                setsColor: Color(hex: appearance.styleProfileV2.resolvedElementTextHex(doubles ? .setGameScore : .setScore, slotKey: slot)),
+                markers: pingPongMarkerStatus(forScreen: screenSide), badgeKind: store.state.finished ? nil : badge)
+        }
+        return ScoreboardPhotoScene(left: team(.left), right: team(.right), title: displayState?.matchTitle,
+            backdrop: appearance.styleProfileV2.backdrop ?? ScoreboardBackdrop(),
+            servingLeft: appearance.styleProfileV2.serverIndicatorHidden || store.state.finished ? nil : logicalSide(forScreen: .left) == store.state.servingSide,
+            servingColor: appearance.serverIndicatorColor, indicatorStyle: appearance.styleProfileV2.serverIndicatorStyle ?? "arrow", gameType: ScoreboardStyleID(scoreCoreGameType: gameType).rawValue, clock: displayState?.clock.flatMap { $0.visible ? $0 : nil },
+            onTap: { screenLeft in handlePanelTap(logicalSide(forScreen: screenLeft ? .left : .right)) },
+            onSubtract: { screenLeft in
+                guard !scoringLocked, !store.state.finished else { return }
+                let side = logicalSide(forScreen: screenLeft ? .left : .right)
+                guard (side == .left ? store.state.leftPoints : store.state.rightPoints) > 0 else { return }
+                dispatch(.adjustPoints(side: side, delta: -1))
+            }, onUndo: { guard !scoringLocked else { return }; performUndo() }, touchGuard: appearance.touchGuard)
     }
 
     private func singlesHalf(screenSide: MatchSide, size: CGSize) -> some View {
@@ -978,7 +1027,7 @@ struct RallyScoreboardView: View {
 
         return VStack(spacing: 0) {
             Text(name)
-                .font(typographyPreference.font.swiftUIFont(size: nameSize, weight: .bold))
+                .font(appearance.nameFont(size: nameSize, weight: .bold))
                 .foregroundStyle(appearance.elementForeground(nameElement, slotKey: slotKey))
                 .styleElementSelectable(nameElement, slotKey: slotKey)
                 .lineLimit(isFoosballDoubles ? 2 : 1)
@@ -992,6 +1041,7 @@ struct RallyScoreboardView: View {
                 .monospacedDigit()
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
+                .accessibilityIdentifier("rally_score_\(side == .left ? "left" : "right")")
             Spacer().frame(height: mainToSet)
             Text("\(sets)")
                 .font(typographyPreference.font.swiftUIFont(size: setSize))
@@ -1491,7 +1541,7 @@ struct RallyScoreboardView: View {
                 )
             } else {
                 Text(name)
-                    .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
+                    .font(appearance.nameFont(size: fontSize, weight: .bold))
                     .foregroundStyle(nameColor)
                     .styleElementSelectable(.playerName, slotKey: slot.isMultiple(of: 2) ? .sideLeft : .sideRight)
                     .lineLimit(1)
@@ -1704,7 +1754,7 @@ struct RallyScoreboardView: View {
             CenterLineServeIndicator(
                 isLeftServing: servingIsLeftScreen,
                 triangleSize: triangleSize,
-                color: appearance.serverIndicatorColor
+                color: appearance.serverIndicatorColor, styleCode: appearance.styleProfileV2.serverIndicatorStyle ?? "arrow", gameType: ScoreboardStyleID(scoreCoreGameType: gameType).rawValue
             )
             .position(
                 x: size.width / 2,
@@ -1715,7 +1765,7 @@ struct RallyScoreboardView: View {
             CenterLineServeIndicator(
                 isLeftServing: servingIsLeftScreen,
                 triangleSize: triangleSize,
-                color: appearance.serverIndicatorColor
+                color: appearance.serverIndicatorColor, styleCode: appearance.styleProfileV2.serverIndicatorStyle ?? "arrow", gameType: ScoreboardStyleID(scoreCoreGameType: gameType).rawValue
             )
                 .position(x: size.width / 2, y: size.height / 2)
                 .allowsHitTesting(false)
@@ -2672,11 +2722,7 @@ struct RallyScoreboardView: View {
                     snapshot: appearance,
                     fontCode: typographyPreference.font.rawValue
                 )
-                compact.externalState?.appearance.fontSizeMultipliers = ScoreboardDisplayAppearance.multipliers(
-                    score: typographyPreference.scoreMultiplier,
-                    name: typographyPreference.nameMultiplier,
-                    secondary: typographyPreference.secondaryMultiplier
-                )
+                compact.externalState?.appearance.fontSizeMultipliers = typographyPreference.resolvedElementMultipliers
                 return compact
             },
             handleIntent: { intent in

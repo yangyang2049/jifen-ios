@@ -1,0 +1,952 @@
+# ----------------------------------------
+# iscoreboard
+# 202610 iOSGoogle Play -Free form 1
+# 20261001-20261031
+# ----------------------------------------
+
+Stream name,Page title and screen name,Country,Total users,Active users,Sessions,User engagement,Views,Event count
+,,,698,679,1961,3323791,11221,64627,Grand total
+iScoreboard,home_tab,China,466,465,1305,24491,2016,8506
+iScoreboard,(not set),China,405,384,581,0,0,1439
+iScoreboard,score_tab,China,189,189,327,5031,514,1845
+iScoreboard,me_tab,China,170,170,243,1291,365,753
+iScoreboard,records_tab,China,166,166,296,2312,476,1130
+iScoreboard,sports_record_detail,China,118,118,245,21570,617,2368
+iScoreboard,timer_tab,China,115,115,170,564,255,512
+iScoreboard,badminton_scoreboard,China,101,101,221,286020,396,4804
+iScoreboard,login_page,China,86,86,100,2097,177,526
+iScoreboard,nine_ball_scoreboard,China,65,65,202,744923,298,3632
+iScoreboard,billiards_scoreboard,China,57,57,142,700631,167,1764
+iScoreboard,basketball_scoreboard,China,56,56,94,144220,130,1247
+iScoreboard,vip_page,China,53,53,60,720,79,234
+iScoreboard,whistle_tool,China,45,45,56,844,70,447
+iScoreboard,dice_tool,China,43,43,121,7950,183,4790
+iScoreboard,flip_coin,China,42,42,51,1726,58,821
+iScoreboard,red_yellow_card,China,39,39,51,760,57,305
+iScoreboard,pingpong_scoreboard,China,38,38,118,148500,248,2384
+iScoreboard,create_booking_page,China,37,37,43,17705,53,157
+iScoreboard,cast_page,China,34,34,43,1091,59,174
+iScoreboard,ten_second_challenge,China,34,34,44,2287,57,505
+iScoreboard,common_names_page,China,33,33,50,2871,79,336
+iScoreboard,badminton_doubles_scoreboard,China,32,32,48,58589,103,948
+iScoreboard,points_table,China,31,31,39,982,114,305
+iScoreboard,date_time_tool,China,28,28,32,580,34,113
+iScoreboard,home_tab,United States,26,26,47,695,62,250
+iScoreboard,scoreboard_settings_page,China,26,26,30,393,40,123
+iScoreboard,aa_calculator,China,25,25,28,297,27,111
+iScoreboard Android,(not set),(not set),24,24,24,478,65,187
+iScoreboard Android,home_tab,(not set),24,24,24,854,62,198
+iScoreboard,common_places_page,China,23,23,25,404,29,73
+iScoreboard,password_login_page,China,21,21,24,965,44,117
+iScoreboard,eight_ball_scoreboard,China,20,20,38,88122,82,894
+iScoreboard,multi_group_score,China,20,20,35,43933,55,527
+iScoreboard,guandan_score,China,19,19,95,383145,132,1251
+iScoreboard,profile_page,China,19,19,22,531,38,97
+iScoreboard,simple_score_page,China,19,19,31,18535,50,347
+iScoreboard,volleyball_scoreboard,China,19,19,39,68018,54,424
+iScoreboard,cube_timer,China,17,17,17,832,23,128
+iScoreboard,(not set),United States,15,15,17,0,0,31
+iScoreboard,countdown_page,China,14,14,17,983,24,95
+iScoreboard Android,(not set),India,14,14,23,1440,67,172
+iScoreboard Android,home_tab,India,14,14,20,1198,165,666
+iScoreboard,(not set),Singapore,12,10,12,0,0,27
+iScoreboard,doudizhu_score,China,12,12,14,18902,16,74
+iScoreboard,home_tab,Malaysia,12,12,20,288,24,130
+iScoreboard,home_tab,Singapore,12,12,19,925,28,111
+iScoreboard,points_table_detail,China,11,11,17,2173,50,160
+iScoreboard,tools_page,China,11,11,12,902,47,262
+iScoreboard,(not set),China,10,9,9,0,0,13
+iScoreboard,stopwatch_page,China,10,10,15,13069,33,287
+iScoreboard,about_us_page,China,9,9,10,98,18,37
+iScoreboard,fullscreen_barrage,China,9,9,12,1559,12,58
+iScoreboard,legal_web_page,China,9,9,9,26,11,20
+iScoreboard Android,me_tab,(not set),9,9,9,331,39,138
+iScoreboard,qr_login_page,China,8,8,12,193,15,45
+iScoreboard,schedule_list,China,8,8,8,90,9,36
+iScoreboard,score_tab,United States,8,8,9,80,9,28
+iScoreboard Android,records_tab,(not set),8,8,8,110,22,67
+iScoreboard,(not set),Saudi Arabia,7,7,8,0,0,14
+iScoreboard,badminton_scoreboard,Singapore,7,7,12,17876,39,333
+iScoreboard,football_scoreboard,China,7,7,12,6903,12,112
+iScoreboard,home_tab,Saudi Arabia,7,7,12,141,20,75
+iScoreboard,me_tab,United States,7,7,10,123,12,29
+iScoreboard,tennis_scoreboard,China,7,7,9,389,11,56
+iScoreboard,xiangqi_timer,China,7,7,7,1099,10,174
+iScoreboard Android,create_booking_page,India,7,7,8,119,16,17
+iScoreboard Android,score_tab,(not set),7,7,7,335,23,124
+iScoreboard,(not set),Malaysia,6,6,8,0,0,12
+iScoreboard,multiscore_record_detail,China,6,6,6,42,7,22
+iScoreboard,random_team,China,6,6,6,446,10,41
+iScoreboard,records_tab,United States,6,6,9,100,12,27
+iScoreboard,score_tab,Singapore,6,6,6,35,8,20
+iScoreboard,sports_record_detail,Singapore,6,6,12,2864,47,205
+iScoreboard Android,display_connection_screen,India,6,6,5,17,6,13
+iScoreboard Android,me_tab,India,6,6,7,84,28,83
+iScoreboard Android,records_tab,India,6,6,8,65,36,110
+iScoreboard Android,scoreboard_settings_page,(not set),6,6,6,149,6,25
+iScoreboard Android,timer_tab,(not set),6,6,6,555,38,251
+iScoreboard Android,timer_tab,India,6,6,7,61,31,134
+iScoreboard,(not set),Canada,5,5,5,0,0,10
+iScoreboard,badminton_scoreboard,Malaysia,5,5,7,3270,9,63
+iScoreboard,flip_coin,Singapore,5,5,7,1135,22,134
+iScoreboard,home_tab,Canada,5,5,8,40,9,31
+iScoreboard,home_tab,Germany,5,5,12,122,15,70
+iScoreboard,login_page,United States,5,5,5,138,9,26
+iScoreboard,me_tab,Singapore,5,5,5,16,5,10
+iScoreboard,pingpong_doubles_scoreboard,China,5,5,18,23887,31,334
+iScoreboard,records_tab,Malaysia,5,5,5,2,5,10
+iScoreboard,records_tab,Singapore,5,5,5,34,7,15
+iScoreboard,snooker_scoreboard,China,5,5,6,246,6,30
+iScoreboard,timer_record_detail,China,5,5,5,56,9,29
+iScoreboard,timer_tab,United States,5,5,5,19,7,18
+iScoreboard,uno_score,China,5,5,16,14114,23,126
+iScoreboard Android,basketball_scoreboard,India,5,5,6,5237,19,47
+iScoreboard Android,score_tab,India,5,5,7,321,45,255
+iScoreboard Android,tennis_scoreboard,India,5,5,7,265,11,20
+iScoreboard Android,vip_page,(not set),5,5,5,221,5,6
+iScoreboard,(not set),Denmark,4,4,4,0,0,8
+iScoreboard,(not set),Germany,4,4,7,0,0,11
+iScoreboard,(not set),Philippines,4,4,9,0,0,13
+iScoreboard,(not set),Spain,4,4,5,0,0,8
+iScoreboard,(not set),Taiwan,4,4,4,0,0,7
+iScoreboard,(not set),Vietnam,4,4,4,0,0,8
+iScoreboard,air_volleyball_scoreboard,China,4,4,6,13881,11,114
+iScoreboard,billiards_scoreboard,Philippines,4,4,26,8418,54,601
+iScoreboard,feedback_page,China,4,4,4,76,9,19
+iScoreboard,home_tab,Denmark,4,4,4,92,5,24
+iScoreboard,home_tab,Myanmar (Burma),4,4,15,303,19,93
+iScoreboard,home_tab,Philippines,4,4,26,456,50,178
+iScoreboard,home_tab,Spain,4,4,11,145,13,61
+iScoreboard,home_tab,Taiwan,4,4,4,76,5,21
+iScoreboard,home_tab,Vietnam,4,4,9,162,10,47
+iScoreboard,score_tab,Spain,4,4,5,126,5,20
+iScoreboard,shot_training_scoreboard,China,4,4,4,124,4,22
+iScoreboard,three_basketball_scoreboard,China,4,4,5,4527,4,52
+iScoreboard,timer_tab,Singapore,4,4,4,22,6,11
+iScoreboard Android,basketball_scoreboard,(not set),4,4,4,1466,6,26
+iScoreboard Android,feedback_tab,(not set),4,4,4,172,7,13
+iScoreboard Android,stopwatch_page,(not set),4,4,4,94,6,19
+iScoreboard,(not set),Indonesia,3,3,4,0,0,8
+iScoreboard,(not set),Iraq,3,3,3,0,0,6
+iScoreboard,(not set),Japan,3,3,3,0,0,6
+iScoreboard,(not set),Myanmar (Burma),3,3,3,0,0,6
+iScoreboard,(not set),Poland,3,3,4,0,0,7
+iScoreboard,(not set),Russia,3,3,3,0,0,6
+iScoreboard,archery_scoreboard,China,3,3,4,494,5,31
+iScoreboard,basketball_scoreboard,Myanmar (Burma),3,3,9,3675,16,102
+iScoreboard,basketball_scoreboard,United States,3,3,3,316,3,22
+iScoreboard,boxing_scoreboard,China,3,3,3,270,4,36
+iScoreboard,faq_page,China,3,3,3,45,4,8
+iScoreboard,home_tab,Australia,3,3,6,2734,8,33
+iScoreboard,home_tab,France,3,3,6,127,8,35
+iScoreboard,home_tab,Indonesia,3,3,12,435,23,98
+iScoreboard,home_tab,Iraq,3,3,3,23,3,15
+iScoreboard,home_tab,Japan,3,3,9,192,16,56
+iScoreboard,home_tab,Poland,3,3,5,83,6,31
+iScoreboard,home_tab,Russia,3,3,3,14,4,15
+iScoreboard,home_tab,Thailand,3,3,6,87,9,38
+iScoreboard,me_tab,Malaysia,3,3,3,9,3,5
+iScoreboard,password_login_page,United States,3,3,3,48,3,8
+iScoreboard,red_yellow_card,Singapore,3,3,4,202,6,39
+iScoreboard,score_tab,Malaysia,3,3,3,9,3,10
+iScoreboard,score_tab,Myanmar (Burma),3,3,3,19,5,11
+iScoreboard,score_tab,Saudi Arabia,3,3,3,49,4,10
+iScoreboard,shuttlecock_scoreboard,China,3,3,3,89,4,24
+iScoreboard,timer_tab,Malaysia,3,3,3,1,3,4
+iScoreboard,timer_tab,Myanmar (Burma),3,3,4,10,6,12
+iScoreboard,vip_page,United States,3,3,3,73,3,7
+iScoreboard,whistle_tool,Singapore,3,3,4,348,5,56
+iScoreboard Android,(not set),Russia,3,3,9,723,15,41
+iScoreboard Android,(not set),South Korea,3,3,4,3,5,14
+iScoreboard Android,about_us_page,(not set),3,3,3,25,3,3
+iScoreboard Android,badminton_scoreboard,India,3,3,4,2668,9,17
+iScoreboard Android,countdown_page,(not set),3,3,3,73,3,35
+iScoreboard Android,create_booking_page,(not set),3,3,3,152,5,5
+iScoreboard Android,faq_page,(not set),3,3,3,71,3,3
+iScoreboard Android,feedback_detail_page,(not set),3,3,3,22,3,3
+iScoreboard Android,group_create_page,India,3,3,3,114,3,39
+iScoreboard Android,home_tab,Russia,3,3,9,440,38,153
+iScoreboard Android,home_tab,South Korea,3,3,4,433,6,34
+iScoreboard Android,points_table,India,3,3,3,10,10,22
+iScoreboard Android,points_table_detail,India,3,3,3,47,6,14
+iScoreboard Android,simple_score_page,India,3,3,4,285,8,42
+iScoreboard,(not set),Australia,2,2,3,0,0,6
+iScoreboard,(not set),Austria,2,2,2,0,0,4
+iScoreboard,(not set),Bosnia & Herzegovina,2,2,4,0,0,6
+iScoreboard,(not set),Colombia,2,2,2,0,0,4
+iScoreboard,(not set),France,2,2,4,0,0,6
+iScoreboard,(not set),Greece,2,2,5,0,0,7
+iScoreboard,(not set),Hong Kong,2,1,2,0,0,4
+iScoreboard,(not set),India,2,2,3,0,0,4
+iScoreboard,(not set),Israel,2,2,2,0,0,4
+iScoreboard,(not set),Serbia,2,2,2,0,0,4
+iScoreboard,aa_calculator,Saudi Arabia,2,2,3,46,3,10
+iScoreboard,badminton_doubles_scoreboard,Malaysia,2,2,2,56,2,11
+iScoreboard,badminton_scoreboard,Canada,2,2,3,345,4,37
+iScoreboard,badminton_scoreboard,Iraq,2,2,2,155,2,11
+iScoreboard,badminton_scoreboard,Vietnam,2,2,3,149,3,22
+iScoreboard,basketball_scoreboard,Japan,2,2,2,174,4,21
+iScoreboard,basketball_scoreboard,Malaysia,2,2,6,6530,7,29
+iScoreboard,basketball_scoreboard,Saudi Arabia,2,2,2,169,2,10
+iScoreboard,basketball_scoreboard,Serbia,2,2,3,174,3,14
+iScoreboard,chess_timer,China,2,2,2,45,2,48
+iScoreboard,common_names_page,Mexico,2,2,3,543,5,23
+iScoreboard,common_names_page,Spain,2,2,2,63,2,7
+iScoreboard,common_names_page,United States,2,2,5,122,5,22
+iScoreboard,common_places_page,Mexico,2,2,3,183,5,25
+iScoreboard,create_booking_page,Israel,2,2,3,91,4,14
+iScoreboard,create_booking_page,Japan,2,2,2,180,3,10
+iScoreboard,create_booking_page,Serbia,2,2,2,50,2,6
+iScoreboard,create_booking_page,Singapore,2,2,3,130,2,11
+iScoreboard,create_booking_page,Vietnam,2,2,2,17,2,6
+iScoreboard,cube_timer,United States,2,2,2,36,2,4
+iScoreboard,date_time_tool,Thailand,2,2,2,20,2,6
+iScoreboard,dice_tool,Singapore,2,2,2,50,2,42
+iScoreboard,dice_tool,Taiwan,2,2,2,14,2,13
+iScoreboard,dice_tool,Thailand,2,2,2,55,3,32
+iScoreboard,flip_coin,Mexico,2,2,2,65,2,25
+iScoreboard,flip_coin,Spain,2,2,2,30,2,12
+iScoreboard,flip_coin,Thailand,2,2,2,39,5,32
+iScoreboard,foosball_scoreboard,China,2,2,2,79,2,21
+iScoreboard,football_5v5_scoreboard,China,2,2,5,11840,19,229
+iScoreboard,football_scoreboard,Denmark,2,2,2,2929,4,38
+iScoreboard,football_scoreboard,Saudi Arabia,2,2,6,6006,16,85
+iScoreboard,go_timer,China,2,2,2,46,2,69
+iScoreboard,home_tab,Austria,2,2,8,111,11,44
+iScoreboard,home_tab,Bosnia & Herzegovina,2,2,32,915,44,214
+iScoreboard,home_tab,Colombia,2,2,2,20,2,9
+iScoreboard,home_tab,Greece,2,2,7,219,14,57
+iScoreboard,home_tab,India,2,2,5,121,6,32
+iScoreboard,home_tab,Israel,2,2,4,50,4,15
+iScoreboard,home_tab,Italy,2,2,2,16,2,10
+iScoreboard,home_tab,Mexico,2,2,8,202,17,54
+iScoreboard,home_tab,Portugal,2,2,2,120,5,28
+iScoreboard,home_tab,Serbia,2,2,6,167,7,38
+iScoreboard,home_tab,Switzerland,2,2,6,15,8,25
+iScoreboard,legal_web_page,United States,2,2,2,12,2,4
+iScoreboard,me_tab,Greece,2,2,3,14,4,8
+iScoreboard,me_tab,Myanmar (Burma),2,2,3,40,3,7
+iScoreboard,me_tab,Switzerland,2,2,4,10,4,11
+iScoreboard,pickleball_doubles_scoreboard,China,2,2,2,54,2,14
+iScoreboard,pickleball_scoreboard,China,2,2,2,613,3,19
+iScoreboard,pingpong_scoreboard,Bosnia & Herzegovina,2,2,4,337,5,22
+iScoreboard,pingpong_scoreboard,United States,2,2,10,28624,20,247
+iScoreboard,points_table,Taiwan,2,2,2,9,3,7
+iScoreboard,points_table,Thailand,2,2,2,4,2,6
+iScoreboard,random_team,Saudi Arabia,2,2,2,66,2,13
+iScoreboard,records_tab,Canada,2,2,4,6,4,7
+iScoreboard,records_tab,Greece,2,2,3,4,3,8
+iScoreboard,records_tab,Indonesia,2,2,5,46,5,15
+iScoreboard,records_tab,Myanmar (Burma),2,2,2,3,3,5
+iScoreboard,records_tab,Philippines,2,2,3,12,4,14
+iScoreboard,records_tab,Saudi Arabia,2,2,2,4,3,5
+iScoreboard,records_tab,Spain,2,2,2,8,2,4
+iScoreboard,records_tab,Thailand,2,2,2,8,3,6
+iScoreboard,red_yellow_card,Taiwan,2,2,2,6,2,8
+iScoreboard,red_yellow_card,Thailand,2,2,2,57,3,17
+iScoreboard,score_tab,Canada,2,2,4,48,4,17
+iScoreboard,score_tab,France,2,2,2,138,2,5
+iScoreboard,score_tab,Greece,2,2,3,16,4,11
+iScoreboard,score_tab,India,2,2,3,75,4,18
+iScoreboard,score_tab,Mexico,2,2,3,36,5,13
+iScoreboard,score_tab,Philippines,2,2,3,42,3,9
+iScoreboard,score_tab,Poland,2,2,2,5,2,6
+iScoreboard,score_tab,Switzerland,2,2,5,38,6,31
+iScoreboard,score_tab,Thailand,2,2,2,24,3,12
+iScoreboard,scoreboard_settings_page,Switzerland,2,2,2,19,2,5
+iScoreboard,shengji_score,China,2,2,3,176,2,14
+iScoreboard,simple_score_page,United States,2,2,2,1060,2,17
+iScoreboard,sports_record_detail,Malaysia,2,2,2,7,2,6
+iScoreboard,sports_record_detail,Saudi Arabia,2,2,2,12,2,8
+iScoreboard,sports_record_detail,Serbia,2,2,4,206,7,54
+iScoreboard,sports_record_detail,Spain,2,2,3,89,6,23
+iScoreboard,sports_record_detail,United States,2,2,7,115,11,33
+iScoreboard,ten_second_challenge,Thailand,2,2,2,13,2,8
+iScoreboard,timer_tab,Spain,2,2,2,7,2,7
+iScoreboard,vip_page,Singapore,2,2,2,33,2,7
+iScoreboard,vip_page,Switzerland,2,2,3,65,3,12
+iScoreboard,volleyball_scoreboard,Malaysia,2,2,2,197,5,44
+iScoreboard,volleyball_scoreboard,Switzerland,2,2,6,6067,7,129
+iScoreboard,volleyball_scoreboard,United States,2,2,5,8771,6,60
+iScoreboard,whistle_tool,Malaysia,2,2,2,28,3,18
+iScoreboard,whistle_tool,Thailand,2,2,2,85,6,32
+iScoreboard Android,(not set),Germany,2,2,2,0,2,6
+iScoreboard Android,(not set),Türkiye,2,2,3,1,3,9
+iScoreboard Android,checkers_timer,(not set),2,2,2,2,2,6
+iScoreboard Android,chess_timer,(not set),2,2,2,33,2,12
+iScoreboard Android,common_names_page,India,2,2,2,35,2,2
+iScoreboard Android,countdown_page,India,2,2,2,4,2,2
+iScoreboard Android,date_time_tool,India,2,2,2,4,2,4
+iScoreboard Android,date_time_tool,Russia,2,2,2,17,3,6
+iScoreboard Android,dice_tool,India,2,2,3,35,3,20
+iScoreboard Android,display_connection_screen,(not set),2,2,2,32,3,6
+iScoreboard Android,flip_coin,India,2,2,3,123,3,57
+iScoreboard Android,flip_coin,Russia,2,2,2,68,2,10
+iScoreboard Android,football_scoreboard,India,2,2,2,968,2,3
+iScoreboard Android,football_scoreboard,Russia,2,2,4,86,4,24
+iScoreboard Android,go_timer,(not set),2,2,2,7,2,8
+iScoreboard Android,group_list_page,(not set),2,2,2,63,3,3
+iScoreboard Android,home_tab,Germany,2,2,2,57,5,25
+iScoreboard Android,home_tab,Türkiye,2,2,3,17,4,20
+iScoreboard Android,points_table,Russia,2,2,2,5,9,19
+iScoreboard Android,points_table_detail,Russia,2,2,2,39,5,18
+iScoreboard Android,red_yellow_card,India,2,2,2,15,2,11
+iScoreboard Android,red_yellow_card,Russia,2,2,2,642,4,13
+iScoreboard Android,scoreboard_settings_page,India,2,2,1,6,4,6
+iScoreboard Android,sports_record_detail,(not set),2,2,2,183,2,9
+iScoreboard Android,sports_record_detail,India,2,2,5,149,17,43
+iScoreboard Android,stopwatch_page,India,2,2,2,1,2,2
+iScoreboard Android,ten_second_challenge,India,2,2,2,9,2,10
+iScoreboard Android,ten_second_challenge,Russia,2,2,2,131,2,16
+iScoreboard Android,tennis_scoreboard,(not set),2,2,2,246,2,12
+iScoreboard Android,three_basketball_scoreboard,India,2,2,2,26,2,5
+iScoreboard Android,whistle_tool,(not set),2,2,2,9,2,6
+iScoreboard Android,whistle_tool,India,2,2,3,20,3,10
+iScoreboard Android,xiangqi_timer,(not set),2,2,2,10,2,11
+iScoreboard,(not set),Bahrain,1,1,1,0,0,2
+iScoreboard,(not set),Belgium,1,1,1,0,0,1
+iScoreboard,(not set),Dominican Republic,1,1,1,0,0,2
+iScoreboard,(not set),Finland,1,1,1,0,0,2
+iScoreboard,(not set),Italy,1,1,1,0,0,2
+iScoreboard,(not set),Kuwait,1,1,1,0,0,2
+iScoreboard,(not set),Macao,1,1,1,0,0,1
+iScoreboard,(not set),Mexico,1,1,1,0,0,2
+iScoreboard,(not set),Mongolia,1,1,1,0,0,2
+iScoreboard,(not set),Romania,1,0,0,0,0,2
+iScoreboard,(not set),South Africa,1,1,1,0,0,2
+iScoreboard,(not set),South Korea,1,1,2,0,0,4
+iScoreboard,(not set),Thailand,1,1,2,0,0,3
+iScoreboard,aa_calculator,Austria,1,1,1,10,1,2
+iScoreboard,aa_calculator,Bosnia & Herzegovina,1,1,1,11,2,7
+iScoreboard,aa_calculator,Malaysia,1,1,1,8,1,3
+iScoreboard,aa_calculator,Singapore,1,1,1,3,1,3
+iScoreboard,aa_calculator,Spain,1,1,1,19,1,4
+iScoreboard,aa_calculator,Taiwan,1,1,1,3,1,3
+iScoreboard,aa_calculator,Thailand,1,1,1,8,1,4
+iScoreboard,aa_calculator,United States,1,1,2,71,2,13
+iScoreboard,about_us_page,Greece,1,1,1,15,3,6
+iScoreboard,about_us_page,Mongolia,1,1,1,3,1,2
+iScoreboard,about_us_page,Myanmar (Burma),1,1,1,12,1,3
+iScoreboard,archery_scoreboard,Bosnia & Herzegovina,1,1,1,40,1,5
+iScoreboard,archery_scoreboard,Japan,1,1,1,379,1,8
+iScoreboard,badminton_doubles_scoreboard,Indonesia,1,1,9,17685,23,401
+iScoreboard,badminton_doubles_scoreboard,Mexico,1,1,7,18220,31,390
+iScoreboard,badminton_doubles_scoreboard,Singapore,1,1,2,3305,2,19
+iScoreboard,badminton_doubles_scoreboard,Vietnam,1,1,1,162,1,11
+iScoreboard,badminton_scoreboard,Indonesia,1,1,4,881,7,108
+iScoreboard,badminton_scoreboard,Israel,1,1,1,0,1,2
+iScoreboard,badminton_scoreboard,Mexico,1,1,2,3721,8,93
+iScoreboard,badminton_scoreboard,Myanmar (Burma),1,1,1,29,1,6
+iScoreboard,badminton_scoreboard,Thailand,1,1,2,224,3,30
+iScoreboard,basketball_scoreboard,Australia,1,1,1,66,1,5
+iScoreboard,basketball_scoreboard,Bosnia & Herzegovina,1,1,10,15895,13,189
+iScoreboard,basketball_scoreboard,Dominican Republic,1,1,1,381,2,39
+iScoreboard,basketball_scoreboard,India,1,1,1,35,1,7
+iScoreboard,basketball_scoreboard,Poland,1,1,3,3433,3,14
+iScoreboard,basketball_scoreboard,Portugal,1,1,1,66,1,4
+iScoreboard,basketball_scoreboard,Singapore,1,1,1,733,3,36
+iScoreboard,basketball_scoreboard,Spain,1,1,1,7,1,3
+iScoreboard,basketball_scoreboard,Taiwan,1,1,1,1091,3,12
+iScoreboard,basketball_scoreboard,Thailand,1,1,1,27,1,3
+iScoreboard,basketball_scoreboard,Venezuela,1,1,1,74,1,4
+iScoreboard,basketball_scoreboard,Vietnam,1,1,2,123,2,8
+iScoreboard,billiards_scoreboard,Austria,1,1,6,27918,13,54
+iScoreboard,billiards_scoreboard,Germany,1,1,5,37524,7,46
+iScoreboard,billiards_scoreboard,Greece,1,1,1,97,2,9
+iScoreboard,billiards_scoreboard,Israel,1,1,4,4375,7,61
+iScoreboard,billiards_scoreboard,Malaysia,1,1,1,6538,1,17
+iScoreboard,billiards_scoreboard,Mexico,1,1,1,61,1,6
+iScoreboard,billiards_scoreboard,Myanmar (Burma),1,1,1,10,1,2
+iScoreboard,billiards_scoreboard,Portugal,1,1,1,276,4,57
+iScoreboard,billiards_scoreboard,Spain,1,1,4,16549,5,34
+iScoreboard,booking_detail_page,China,1,1,1,4,1,3
+iScoreboard,booking_detail_page,Israel,1,1,1,1,1,3
+iScoreboard,boxing_scoreboard,Bosnia & Herzegovina,1,1,2,185,2,14
+iScoreboard,boxing_scoreboard,Thailand,1,1,1,105,3,17
+iScoreboard,cast_page,Austria,1,1,1,9,1,3
+iScoreboard,cast_page,Canada,1,1,1,33,1,2
+iScoreboard,cast_page,Indonesia,1,1,1,92,2,11
+iScoreboard,cast_page,Israel,1,1,1,8,1,2
+iScoreboard,cast_page,Japan,1,1,1,17,1,3
+iScoreboard,cast_page,Malaysia,1,1,1,12,1,2
+iScoreboard,cast_page,Mexico,1,1,4,295,4,24
+iScoreboard,cast_page,Singapore,1,1,1,16,1,2
+iScoreboard,checkers_timer,China,1,1,1,32,1,111
+iScoreboard,checkers_timer,Thailand,1,1,1,28,1,15
+iScoreboard,chess_timer,Bosnia & Herzegovina,1,1,1,36,1,16
+iScoreboard,chess_timer,Spain,1,1,1,12,1,3
+iScoreboard,common_names_page,Austria,1,1,2,27,2,6
+iScoreboard,common_names_page,Greece,1,1,1,36,1,4
+iScoreboard,common_names_page,India,1,1,1,5,1,2
+iScoreboard,common_names_page,Indonesia,1,1,2,709,4,42
+iScoreboard,common_names_page,Kuwait,1,1,1,31,2,7
+iScoreboard,common_names_page,Serbia,1,1,1,9,1,2
+iScoreboard,common_names_page,Singapore,1,1,3,1045,8,58
+iScoreboard,common_names_page,Thailand,1,1,1,18,2,5
+iScoreboard,common_places_page,Greece,1,1,1,52,1,5
+iScoreboard,common_places_page,Indonesia,1,1,1,38,1,4
+iScoreboard,common_places_page,Israel,1,1,1,10,1,2
+iScoreboard,common_places_page,Macao,1,1,1,5,1,5
+iScoreboard,countdown_page,Bosnia & Herzegovina,1,1,1,14,1,6
+iScoreboard,countdown_page,Philippines,1,1,1,15,1,2
+iScoreboard,countdown_page,Serbia,1,1,1,9,1,7
+iScoreboard,countdown_page,Spain,1,1,1,50,1,3
+iScoreboard,countdown_page,Thailand,1,1,1,45,1,6
+iScoreboard,create_booking_page,Australia,1,1,1,20,1,3
+iScoreboard,create_booking_page,Austria,1,1,2,19,2,6
+iScoreboard,create_booking_page,France,1,1,1,72,1,6
+iScoreboard,create_booking_page,Germany,1,1,2,20,2,8
+iScoreboard,create_booking_page,Greece,1,1,1,19,1,2
+iScoreboard,create_booking_page,India,1,1,1,6,1,2
+iScoreboard,create_booking_page,Iraq,1,1,1,7,1,4
+iScoreboard,create_booking_page,Kuwait,1,1,1,58,2,7
+iScoreboard,create_booking_page,Malaysia,1,1,1,6,1,3
+iScoreboard,create_booking_page,Myanmar (Burma),1,1,1,27,1,2
+iScoreboard,create_booking_page,Philippines,1,1,1,47,2,6
+iScoreboard,create_booking_page,Taiwan,1,1,1,13,1,3
+iScoreboard,create_booking_page,United States,1,1,1,45,1,2
+iScoreboard,cube_timer,Bosnia & Herzegovina,1,1,2,30,2,5
+iScoreboard,cube_timer,Myanmar (Burma),1,1,1,5,1,2
+iScoreboard,cube_timer,Saudi Arabia,1,1,1,19,1,3
+iScoreboard,cube_timer,Serbia,1,1,1,20,1,5
+iScoreboard,cube_timer,Singapore,1,1,1,129,2,31
+iScoreboard,cube_timer,Spain,1,1,1,22,1,5
+iScoreboard,cube_timer,Thailand,1,1,1,15,1,5
+iScoreboard,date_time_tool,Australia,1,1,1,21,1,4
+iScoreboard,date_time_tool,Austria,1,1,1,26,2,7
+iScoreboard,date_time_tool,Bosnia & Herzegovina,1,1,1,26,1,3
+iScoreboard,date_time_tool,Israel,1,1,1,5,1,3
+iScoreboard,date_time_tool,Japan,1,1,1,8,1,2
+iScoreboard,date_time_tool,Malaysia,1,1,1,3,1,3
+iScoreboard,date_time_tool,Philippines,1,1,1,29,2,11
+iScoreboard,date_time_tool,Saudi Arabia,1,1,2,13,2,6
+iScoreboard,date_time_tool,Serbia,1,1,1,5,1,3
+iScoreboard,date_time_tool,Singapore,1,1,1,8,1,3
+iScoreboard,date_time_tool,Spain,1,1,1,11,1,2
+iScoreboard,date_time_tool,Taiwan,1,1,1,3,1,3
+iScoreboard,date_time_tool,United States,1,1,2,52,2,6
+iScoreboard,dice_tool,Australia,1,1,1,82,2,50
+iScoreboard,dice_tool,Austria,1,1,1,19,1,11
+iScoreboard,dice_tool,Bosnia & Herzegovina,1,1,1,9,2,11
+iScoreboard,dice_tool,Macao,1,1,1,6,1,5
+iScoreboard,dice_tool,Malaysia,1,1,2,201,2,95
+iScoreboard,dice_tool,Mexico,1,1,1,19,1,2
+iScoreboard,dice_tool,Myanmar (Burma),1,1,1,26,1,18
+iScoreboard,dice_tool,Saudi Arabia,1,1,2,12,2,14
+iScoreboard,dice_tool,United States,1,1,2,23,2,17
+iScoreboard,doudizhu_score,India,1,1,1,80,2,15
+iScoreboard,eight_ball_scoreboard,Germany,1,1,2,726,1,8
+iScoreboard,eight_ball_scoreboard,Mexico,1,1,1,77,1,7
+iScoreboard,eight_ball_scoreboard,Portugal,1,1,1,48,2,12
+iScoreboard,faq_page,Greece,1,1,1,6,1,2
+iScoreboard,faq_page,Indonesia,1,1,1,12,1,2
+iScoreboard,faq_page,United States,1,1,1,11,1,3
+iScoreboard,feedback_page,Canada,1,1,1,3,1,2
+iScoreboard,feedback_page,Indonesia,1,1,1,9,1,2
+iScoreboard,feedback_page,Singapore,1,1,1,3,1,2
+iScoreboard,feedback_page,United States,1,1,1,14,2,4
+iScoreboard,flip_coin,Australia,1,1,2,107,3,42
+iScoreboard,flip_coin,Austria,1,1,1,61,1,36
+iScoreboard,flip_coin,Bosnia & Herzegovina,1,1,2,108,4,24
+iScoreboard,flip_coin,India,1,1,1,14,1,4
+iScoreboard,flip_coin,Macao,1,1,1,10,1,6
+iScoreboard,flip_coin,Malaysia,1,1,1,17,1,14
+iScoreboard,flip_coin,Myanmar (Burma),1,1,1,62,1,13
+iScoreboard,flip_coin,Saudi Arabia,1,1,3,30,3,20
+iScoreboard,flip_coin,Taiwan,1,1,1,13,2,12
+iScoreboard,flip_coin,United States,1,1,2,26,2,16
+iScoreboard,foosball_scoreboard,Bosnia & Herzegovina,1,1,1,55,1,6
+iScoreboard,foosball_scoreboard,Spain,1,1,2,672,3,7
+iScoreboard,foosball_scoreboard,Taiwan,1,1,1,9,1,2
+iScoreboard,foosball_scoreboard,United States,1,1,1,48,1,6
+iScoreboard,football_5v5_scoreboard,Bosnia & Herzegovina,1,1,5,2678,6,77
+iScoreboard,football_5v5_scoreboard,France,1,1,1,122,2,11
+iScoreboard,football_5v5_scoreboard,Portugal,1,1,1,44,1,6
+iScoreboard,football_5v5_scoreboard,Serbia,1,1,1,62,2,13
+iScoreboard,football_scoreboard,Australia,1,1,2,28,2,10
+iScoreboard,football_scoreboard,Austria,1,1,1,791,1,12
+iScoreboard,football_scoreboard,Bosnia & Herzegovina,1,1,18,27740,28,294
+iScoreboard,football_scoreboard,Canada,1,1,1,2,1,2
+iScoreboard,football_scoreboard,France,1,1,1,30,1,10
+iScoreboard,football_scoreboard,Poland,1,1,1,58,1,5
+iScoreboard,football_scoreboard,Portugal,1,1,1,46,2,15
+iScoreboard,football_scoreboard,Thailand,1,1,1,24,1,5
+iScoreboard,football_scoreboard,United States,1,1,1,118,1,17
+iScoreboard,fullscreen_barrage,Singapore,1,1,1,6,1,2
+iScoreboard,fullscreen_barrage,Taiwan,1,1,1,2,1,3
+iScoreboard,fullscreen_barrage,Thailand,1,1,1,4,1,3
+iScoreboard,fullscreen_barrage,United States,1,1,2,103,2,11
+iScoreboard,guandan_score,Bosnia & Herzegovina,1,1,2,1912,1,24
+iScoreboard,guandan_score,Indonesia,1,1,1,60,2,15
+iScoreboard,guandan_score,Japan,1,1,1,15,1,4
+iScoreboard,guandan_score,United States,1,1,3,888,3,52
+iScoreboard,home_tab,Bahrain,1,1,1,6,1,6
+iScoreboard,home_tab,Belgium,1,1,1,1,1,4
+iScoreboard,home_tab,Dominican Republic,1,1,1,5,1,5
+iScoreboard,home_tab,Finland,1,1,1,11,1,6
+iScoreboard,home_tab,Hong Kong,1,1,2,94,2,10
+iScoreboard,home_tab,Jordan,1,1,1,2,1,3
+iScoreboard,home_tab,Kuwait,1,1,1,37,2,6
+iScoreboard,home_tab,Macao,1,1,2,6,2,10
+iScoreboard,home_tab,Mongolia,1,1,1,2,1,3
+iScoreboard,home_tab,South Africa,1,1,1,61,2,8
+iScoreboard,home_tab,South Korea,1,1,2,23,2,9
+iScoreboard,home_tab,United Kingdom,1,1,1,10,1,6
+iScoreboard,home_tab,Venezuela,1,1,1,27,1,7
+iScoreboard,legal_web_page,Greece,1,1,1,54,1,2
+iScoreboard,login_page,Canada,1,1,1,16,1,4
+iScoreboard,login_page,Hong Kong,1,1,1,3,0,2
+iScoreboard,login_page,Indonesia,1,1,1,10,1,2
+iScoreboard,login_page,Japan,1,1,1,7,1,2
+iScoreboard,login_page,Malaysia,1,1,1,2,1,2
+iScoreboard,login_page,Mexico,1,1,1,11,1,4
+iScoreboard,login_page,Myanmar (Burma),1,1,1,17,1,4
+iScoreboard,login_page,Singapore,1,1,1,9,1,4
+iScoreboard,login_page,Switzerland,1,1,1,12,1,4
+iScoreboard,me_tab,Canada,1,1,2,9,2,4
+iScoreboard,me_tab,Germany,1,1,2,4,2,4
+iScoreboard,me_tab,India,1,1,1,2,2,4
+iScoreboard,me_tab,Indonesia,1,1,3,51,6,12
+iScoreboard,me_tab,Japan,1,1,1,22,4,10
+iScoreboard,me_tab,Kuwait,1,1,1,1,1,2
+iScoreboard,me_tab,Macao,1,1,1,1,2,3
+iScoreboard,me_tab,Mexico,1,1,3,42,6,12
+iScoreboard,me_tab,Mongolia,1,1,1,2,1,2
+iScoreboard,me_tab,Philippines,1,1,2,4,2,4
+iScoreboard,me_tab,Poland,1,1,1,8,1,3
+iScoreboard,me_tab,Portugal,1,1,1,1,1,2
+iScoreboard,me_tab,Russia,1,1,1,2,1,2
+iScoreboard,me_tab,Saudi Arabia,1,1,1,1,1,2
+iScoreboard,me_tab,South Korea,1,1,1,2,1,2
+iScoreboard,me_tab,Spain,1,1,1,4,1,2
+iScoreboard,me_tab,Taiwan,1,1,1,1,1,2
+iScoreboard,me_tab,Thailand,1,1,1,2,2,3
+iScoreboard,multi_group_score,Austria,1,1,1,23,1,5
+iScoreboard,multi_group_score,Bosnia & Herzegovina,1,1,3,1714,5,32
+iScoreboard,multi_group_score,Canada,1,1,1,19,1,6
+iScoreboard,multi_group_score,France,1,1,2,9759,3,27
+iScoreboard,multi_group_score,Greece,1,1,1,325,3,29
+iScoreboard,multi_group_score,Singapore,1,1,2,513,1,13
+iScoreboard,multi_group_score,Spain,1,1,2,340,3,27
+iScoreboard,multi_group_score,United States,1,1,4,472,5,66
+iScoreboard,multiscore_record_detail,Greece,1,1,1,11,1,3
+iScoreboard,multiscore_record_detail,Singapore,1,1,1,5,1,4
+iScoreboard,multiscore_record_detail,Spain,1,1,1,16,1,3
+iScoreboard,nine_ball_scoreboard,Greece,1,1,3,109,4,18
+iScoreboard,nine_ball_scoreboard,Hong Kong,1,1,1,8,1,3
+iScoreboard,nine_ball_scoreboard,Malaysia,1,1,1,5686,1,12
+iScoreboard,nine_ball_scoreboard,Philippines,1,1,1,108,1,14
+iScoreboard,padel_scoreboard,Bosnia & Herzegovina,1,1,1,29,1,5
+iScoreboard,pickleball_scoreboard,Bosnia & Herzegovina,1,1,1,17,1,6
+iScoreboard,pingpong_doubles_scoreboard,South Africa,1,1,1,130,2,8
+iScoreboard,pingpong_doubles_scoreboard,Vietnam,1,1,2,925,4,40
+iScoreboard,pingpong_scoreboard,Austria,1,1,1,22,1,6
+iScoreboard,pingpong_scoreboard,Colombia,1,1,1,25,1,3
+iScoreboard,pingpong_scoreboard,Japan,1,1,6,2082,11,146
+iScoreboard,pingpong_scoreboard,Poland,1,1,1,25,1,8
+iScoreboard,pingpong_scoreboard,Saudi Arabia,1,1,1,19,1,3
+iScoreboard,pingpong_scoreboard,Serbia,1,1,2,74,3,13
+iScoreboard,pingpong_scoreboard,South Korea,1,1,1,64,2,16
+iScoreboard,pingpong_scoreboard,Switzerland,1,1,1,3297,2,26
+iScoreboard,points_table,Austria,1,1,1,32,4,13
+iScoreboard,points_table,Bosnia & Herzegovina,1,1,1,10,2,5
+iScoreboard,points_table,Israel,1,1,1,28,1,4
+iScoreboard,points_table,Japan,1,1,1,12,1,4
+iScoreboard,points_table,Malaysia,1,1,1,9,4,11
+iScoreboard,points_table,Philippines,1,1,1,2,1,3
+iScoreboard,points_table,Portugal,1,1,1,20,1,2
+iScoreboard,points_table,Saudi Arabia,1,1,2,34,7,21
+iScoreboard,points_table,Singapore,1,1,2,11,4,13
+iScoreboard,points_table,Switzerland,1,1,1,7,1,2
+iScoreboard,points_table,United States,1,1,3,76,7,22
+iScoreboard,points_table_detail,Austria,1,1,1,15,2,4
+iScoreboard,points_table_detail,Malaysia,1,1,1,10,1,2
+iScoreboard,points_table_detail,Saudi Arabia,1,1,2,15,3,6
+iScoreboard,points_table_detail,Singapore,1,1,1,16,2,4
+iScoreboard,points_table_detail,Spain,1,1,1,4,1,2
+iScoreboard,points_table_detail,Taiwan,1,1,1,1,1,2
+iScoreboard,points_table_detail,United States,1,1,2,688,3,38
+iScoreboard,profile_page,Canada,1,1,1,25,2,7
+iScoreboard,profile_page,Hong Kong,1,1,1,16,1,2
+iScoreboard,profile_page,Myanmar (Burma),1,1,1,126,2,4
+iScoreboard,profile_page,Switzerland,1,1,2,11,1,5
+iScoreboard,qr_login_page,Malaysia,1,1,1,0,1,6
+iScoreboard,qr_login_page,Mexico,1,1,2,11,2,6
+iScoreboard,qr_login_page,Myanmar (Burma),1,1,1,6,1,3
+iScoreboard,qr_login_page,Singapore,1,1,1,5,1,3
+iScoreboard,qr_login_page,Switzerland,1,1,1,0,0,1
+iScoreboard,qr_login_page,United States,1,1,1,25,1,2
+iScoreboard,random_team,Singapore,1,1,1,3,1,3
+iScoreboard,random_team,Taiwan,1,1,1,21,1,13
+iScoreboard,random_team,Thailand,1,1,1,128,6,30
+iScoreboard,random_team,United States,1,1,3,325,7,65
+iScoreboard,records_tab,Australia,1,1,1,1,1,3
+iScoreboard,records_tab,Austria,1,1,2,85,3,10
+iScoreboard,records_tab,Bosnia & Herzegovina,1,1,2,2,2,6
+iScoreboard,records_tab,France,1,1,1,2,1,3
+iScoreboard,records_tab,Germany,1,1,1,1,1,2
+iScoreboard,records_tab,India,1,1,1,0,1,1
+iScoreboard,records_tab,Japan,1,1,1,8,3,5
+iScoreboard,records_tab,Kuwait,1,1,1,0,1,1
+iScoreboard,records_tab,Macao,1,1,1,1,1,2
+iScoreboard,records_tab,Mexico,1,1,7,134,7,18
+iScoreboard,records_tab,Mongolia,1,1,1,0,1,1
+iScoreboard,records_tab,Poland,1,1,1,2,1,3
+iScoreboard,records_tab,Portugal,1,1,1,3,1,3
+iScoreboard,records_tab,Switzerland,1,1,2,1,2,3
+iScoreboard,records_tab,Taiwan,1,1,1,0,1,1
+iScoreboard,red_yellow_card,Australia,1,1,1,22,1,7
+iScoreboard,red_yellow_card,Austria,1,1,1,8,1,6
+iScoreboard,red_yellow_card,Bosnia & Herzegovina,1,1,4,66,9,33
+iScoreboard,red_yellow_card,Canada,1,1,1,5,1,4
+iScoreboard,red_yellow_card,Colombia,1,1,1,15,1,4
+iScoreboard,red_yellow_card,India,1,1,1,14,1,5
+iScoreboard,red_yellow_card,Malaysia,1,1,1,8,1,9
+iScoreboard,red_yellow_card,Saudi Arabia,1,1,4,47,5,33
+iScoreboard,red_yellow_card,Serbia,1,1,1,9,1,5
+iScoreboard,red_yellow_card,Spain,1,1,1,8,1,4
+iScoreboard,red_yellow_card,United States,1,1,2,20,2,11
+iScoreboard,schedule_list,Indonesia,1,1,1,27,1,4
+iScoreboard,schedule_list,Israel,1,1,1,48,2,5
+iScoreboard,score_tab,Australia,1,1,1,13,1,3
+iScoreboard,score_tab,Austria,1,1,1,4,1,5
+iScoreboard,score_tab,Bosnia & Herzegovina,1,1,3,112,2,15
+iScoreboard,score_tab,Colombia,1,1,1,1,1,2
+iScoreboard,score_tab,Indonesia,1,1,3,52,3,11
+iScoreboard,score_tab,Israel,1,1,1,14,1,3
+iScoreboard,score_tab,Japan,1,1,1,27,4,16
+iScoreboard,score_tab,Kuwait,1,1,1,1,1,2
+iScoreboard,score_tab,Macao,1,1,1,5,2,5
+iScoreboard,score_tab,Mongolia,1,1,1,0,1,1
+iScoreboard,score_tab,Portugal,1,1,1,2,2,4
+iScoreboard,score_tab,Serbia,1,1,2,27,2,10
+iScoreboard,score_tab,South Africa,1,1,1,8,1,5
+iScoreboard,score_tab,Taiwan,1,1,1,7,3,10
+iScoreboard,scoreboard_settings_page,Greece,1,1,1,23,1,2
+iScoreboard,scoreboard_settings_page,India,1,1,1,5,1,2
+iScoreboard,scoreboard_settings_page,Indonesia,1,1,1,53,2,5
+iScoreboard,scoreboard_settings_page,Mexico,1,1,2,48,2,8
+iScoreboard,scoreboard_settings_page,Myanmar (Burma),1,1,1,4,1,2
+iScoreboard,shengji_score,Thailand,1,1,1,5,1,3
+iScoreboard,shot_training_scoreboard,Bosnia & Herzegovina,1,1,1,251,3,19
+iScoreboard,shot_training_scoreboard,United States,1,1,1,151,1,22
+iScoreboard,simple_score_page,Austria,1,1,1,15,1,5
+iScoreboard,simple_score_page,Bosnia & Herzegovina,1,1,3,279,3,14
+iScoreboard,simple_score_page,Denmark,1,1,1,8875,1,8
+iScoreboard,simple_score_page,Greece,1,1,1,20,1,2
+iScoreboard,simple_score_page,India,1,1,1,755,1,16
+iScoreboard,simple_score_page,Italy,1,1,1,27,1,3
+iScoreboard,simple_score_page,Japan,1,1,1,10,1,2
+iScoreboard,simple_score_page,Malaysia,1,1,1,13,2,8
+iScoreboard,simple_score_page,Myanmar (Burma),1,1,1,8,1,4
+iScoreboard,simple_score_page,Portugal,1,1,1,55,1,6
+iScoreboard,simple_score_page,Serbia,1,1,2,2387,4,49
+iScoreboard,snooker_scoreboard,Israel,1,1,2,38,2,13
+iScoreboard,snooker_scoreboard,Mexico,1,1,1,104,1,15
+iScoreboard,snooker_scoreboard,United States,1,1,1,2673,2,13
+iScoreboard,soft_tennis_doubles_scoreboard,Bosnia & Herzegovina,1,1,1,12,1,5
+iScoreboard,soft_tennis_scoreboard,Bosnia & Herzegovina,1,1,1,12,1,5
+iScoreboard,soft_tennis_scoreboard,China,1,1,1,19,1,6
+iScoreboard,sports_record_detail,Australia,1,1,1,4,1,3
+iScoreboard,sports_record_detail,Austria,1,1,3,205,5,14
+iScoreboard,sports_record_detail,Bosnia & Herzegovina,1,1,3,206,33,139
+iScoreboard,sports_record_detail,Canada,1,1,1,4,1,3
+iScoreboard,sports_record_detail,France,1,1,1,9,3,11
+iScoreboard,sports_record_detail,Germany,1,1,1,20,2,7
+iScoreboard,sports_record_detail,Greece,1,1,2,25,5,16
+iScoreboard,sports_record_detail,India,1,1,1,15,3,9
+iScoreboard,sports_record_detail,Indonesia,1,1,2,201,7,35
+iScoreboard,sports_record_detail,Macao,1,1,1,15,3,10
+iScoreboard,sports_record_detail,Mexico,1,1,2,42,1,8
+iScoreboard,sports_record_detail,Myanmar (Burma),1,1,1,30,4,16
+iScoreboard,sports_record_detail,Philippines,1,1,2,44,2,8
+iScoreboard,sports_record_detail,Poland,1,1,1,11,2,5
+iScoreboard,sports_record_detail,Portugal,1,1,1,148,5,25
+iScoreboard,sports_record_detail,South Korea,1,1,1,46,2,8
+iScoreboard,sports_record_detail,Thailand,1,1,1,15,1,2
+iScoreboard,sports_record_detail,Vietnam,1,1,1,16,1,5
+iScoreboard,squash_scoreboard,Bosnia & Herzegovina,1,1,1,8,1,6
+iScoreboard,squash_scoreboard,Saudi Arabia,1,1,1,58,3,14
+iScoreboard,stopwatch_page,Philippines,1,1,1,3,1,2
+iScoreboard,stopwatch_page,Saudi Arabia,1,1,1,11,1,9
+iScoreboard,stopwatch_page,Serbia,1,1,1,5,1,4
+iScoreboard,stopwatch_page,United States,1,1,1,40,1,5
+iScoreboard,ten_second_challenge,Bosnia & Herzegovina,1,1,1,34,2,17
+iScoreboard,ten_second_challenge,Germany,1,1,1,22,1,6
+iScoreboard,ten_second_challenge,Macao,1,1,1,20,1,5
+iScoreboard,ten_second_challenge,Malaysia,1,1,2,264,4,57
+iScoreboard,ten_second_challenge,Saudi Arabia,1,1,2,33,2,19
+iScoreboard,ten_second_challenge,Serbia,1,1,1,5,1,4
+iScoreboard,ten_second_challenge,Singapore,1,1,1,30,1,7
+iScoreboard,ten_second_challenge,Spain,1,1,1,3,1,3
+iScoreboard,ten_second_challenge,Taiwan,1,1,1,117,3,29
+iScoreboard,ten_second_challenge,United States,1,1,2,70,1,12
+iScoreboard,tennis_doubles_scoreboard,China,1,1,2,52,4,19
+iScoreboard,tennis_scoreboard,Australia,1,1,1,43,1,4
+iScoreboard,tennis_scoreboard,Austria,1,1,1,43,1,4
+iScoreboard,tennis_scoreboard,Bosnia & Herzegovina,1,1,2,79,3,17
+iScoreboard,tennis_scoreboard,France,1,1,2,3882,4,43
+iScoreboard,tennis_scoreboard,Iraq,1,1,1,24,2,8
+iScoreboard,tennis_scoreboard,Portugal,1,1,1,93,1,7
+iScoreboard,tennis_scoreboard,Russia,1,1,1,22,1,6
+iScoreboard,tennis_scoreboard,Singapore,1,1,1,201,1,12
+iScoreboard,tennis_scoreboard,Spain,1,1,1,19,1,6
+iScoreboard,tennis_scoreboard,United States,1,1,1,77,2,16
+iScoreboard,three_basketball_scoreboard,Bosnia & Herzegovina,1,1,1,17,1,5
+iScoreboard,three_basketball_scoreboard,Saudi Arabia,1,1,1,18,1,10
+iScoreboard,timer_record_detail,Bosnia & Herzegovina,1,1,1,5,3,14
+iScoreboard,timer_tab,Bosnia & Herzegovina,1,1,2,8,2,8
+iScoreboard,timer_tab,Canada,1,1,3,5,3,6
+iScoreboard,timer_tab,Denmark,1,1,1,2,1,3
+iScoreboard,timer_tab,Greece,1,1,2,5,2,4
+iScoreboard,timer_tab,Indonesia,1,1,2,14,4,6
+iScoreboard,timer_tab,Japan,1,1,1,4,1,4
+iScoreboard,timer_tab,Kuwait,1,1,1,2,1,2
+iScoreboard,timer_tab,Macao,1,1,1,2,2,4
+iScoreboard,timer_tab,Mexico,1,1,2,9,3,6
+iScoreboard,timer_tab,Mongolia,1,1,1,1,1,2
+iScoreboard,timer_tab,Philippines,1,1,1,2,2,5
+iScoreboard,timer_tab,Portugal,1,1,1,2,1,2
+iScoreboard,timer_tab,Saudi Arabia,1,1,1,2,2,5
+iScoreboard,timer_tab,Serbia,1,1,1,1,1,3
+iScoreboard,timer_tab,Switzerland,1,1,1,1,1,2
+iScoreboard,timer_tab,Taiwan,1,1,1,4,2,4
+iScoreboard,timer_tab,Thailand,1,1,1,7,1,4
+iScoreboard,tools_page,Indonesia,1,1,1,5,1,2
+iScoreboard,tools_page,Spain,1,1,1,67,5,22
+iScoreboard,tools_page,United States,1,1,1,21,3,9
+iScoreboard,uno_score,Bosnia & Herzegovina,1,1,1,24,1,7
+iScoreboard,uno_score,India,1,1,2,358,4,29
+iScoreboard,uno_score,United States,1,1,1,91,1,10
+iScoreboard,vip_page,Macao,1,1,1,5,1,2
+iScoreboard,vip_page,Malaysia,1,1,1,12,1,2
+iScoreboard,vip_page,Mexico,1,1,1,13,1,2
+iScoreboard,vip_page,Myanmar (Burma),1,1,1,9,1,2
+iScoreboard,vip_page,Poland,1,1,1,9,1,2
+iScoreboard,volleyball_scoreboard,Canada,1,1,1,26,1,6
+iScoreboard,volleyball_scoreboard,Finland,1,1,1,14,1,3
+iScoreboard,volleyball_scoreboard,Germany,1,1,2,2415,3,19
+iScoreboard,volleyball_scoreboard,Macao,1,1,4,3704,2,15
+iScoreboard,volleyball_scoreboard,Russia,1,1,1,101,1,4
+iScoreboard,volleyball_scoreboard,Serbia,1,1,1,21,1,2
+iScoreboard,volleyball_scoreboard,Thailand,1,1,1,24,1,5
+iScoreboard,whistle_tool,Australia,1,1,1,20,1,9
+iScoreboard,whistle_tool,Austria,1,1,1,17,1,9
+iScoreboard,whistle_tool,Bosnia & Herzegovina,1,1,3,57,7,46
+iScoreboard,whistle_tool,India,1,1,1,10,1,5
+iScoreboard,whistle_tool,Israel,1,1,1,11,1,7
+iScoreboard,whistle_tool,Macao,1,1,2,30,2,11
+iScoreboard,whistle_tool,Mexico,1,1,1,32,1,6
+iScoreboard,whistle_tool,Myanmar (Burma),1,1,1,13,1,8
+iScoreboard,whistle_tool,Saudi Arabia,1,1,2,45,2,25
+iScoreboard,whistle_tool,Serbia,1,1,1,13,1,7
+iScoreboard,whistle_tool,Switzerland,1,1,2,35,2,21
+iScoreboard,whistle_tool,Taiwan,1,1,1,7,1,7
+iScoreboard,whistle_tool,United States,1,1,2,106,2,18
+iScoreboard,whistle_tool,Vietnam,1,1,1,42,1,5
+iScoreboard Android,(not set),Azerbaijan,1,1,2,31,5,19
+iScoreboard Android,(not set),Brazil,1,1,2,1,2,6
+iScoreboard Android,(not set),China,1,1,4,3,5,12
+iScoreboard Android,(not set),Ecuador,1,1,1,0,1,4
+iScoreboard Android,(not set),France,1,1,14,267,31,83
+iScoreboard Android,(not set),Greece,1,1,1,769,5,15
+iScoreboard Android,(not set),Honduras,1,1,1,0,1,4
+iScoreboard Android,(not set),Indonesia,1,1,8,640,24,63
+iScoreboard Android,(not set),Iran,1,1,1,0,1,3
+iScoreboard Android,(not set),Japan,1,1,1,1,1,4
+iScoreboard Android,(not set),Kenya,1,1,12,1,4,18
+iScoreboard Android,(not set),Malaysia,1,1,1,0,1,3
+iScoreboard Android,(not set),Norway,1,1,1,51,2,8
+iScoreboard Android,(not set),Qatar,1,1,1,0,1,5
+iScoreboard Android,(not set),Serbia,1,1,2,0,2,6
+iScoreboard Android,(not set),Spain,1,1,2,31,5,18
+iScoreboard Android,(not set),Thailand,1,1,1,0,1,5
+iScoreboard Android,(not set),United States,1,1,1,0,1,3
+iScoreboard Android,aa_calculator,France,1,1,1,15,1,13
+iScoreboard Android,aa_calculator,Germany,1,1,1,1,1,1
+iScoreboard Android,aa_calculator,India,1,1,1,1,1,1
+iScoreboard Android,aa_calculator,Russia,1,1,1,3,1,4
+iScoreboard Android,about_us_page,India,1,1,1,2,1,1
+iScoreboard Android,about_us_page,Indonesia,1,1,1,5,1,1
+iScoreboard Android,archery_scoreboard,India,1,1,2,333,4,11
+iScoreboard Android,archery_scoreboard,Indonesia,1,1,1,120,1,4
+iScoreboard Android,badminton_doubles_scoreboard,Thailand,1,1,1,32,1,1
+iScoreboard Android,badminton_scoreboard,Indonesia,1,1,3,973,4,5
+iScoreboard Android,badminton_scoreboard,Japan,1,1,1,26,1,2
+iScoreboard Android,badminton_scoreboard,Russia,1,1,1,145,1,2
+iScoreboard Android,badminton_scoreboard,South Korea,1,1,1,25,1,3
+iScoreboard Android,basketball_scoreboard,Kenya,1,1,0,77,1,2
+iScoreboard Android,basketball_scoreboard,Russia,1,1,1,8,1,3
+iScoreboard Android,basketball_scoreboard,Türkiye,1,1,1,38,1,6
+iScoreboard Android,booking_detail_page,Russia,1,1,1,767,6,11
+iScoreboard Android,boxing_scoreboard,India,1,1,1,60,1,2
+iScoreboard Android,checkers_timer,India,1,1,2,4,2,2
+iScoreboard Android,chess_timer,India,1,1,2,28,2,12
+iScoreboard Android,chess_timer,Russia,1,1,1,7,1,6
+iScoreboard Android,common_names_page,(not set),1,1,1,51,1,1
+iScoreboard Android,common_names_page,France,1,1,2,2,2,2
+iScoreboard Android,common_names_page,Germany,1,1,1,1,1,1
+iScoreboard Android,common_names_page,Russia,1,1,1,1,1,1
+iScoreboard Android,common_names_page,Spain,1,1,2,43,2,2
+iScoreboard Android,common_places_page,France,1,1,1,1,1,1
+iScoreboard Android,common_places_page,India,1,1,1,1,1,1
+iScoreboard Android,common_places_page,Indonesia,1,1,1,25,1,1
+iScoreboard Android,common_places_page,Russia,1,1,1,4,2,2
+iScoreboard Android,countdown_page,China,1,1,1,39,1,7
+iScoreboard Android,countdown_page,France,1,1,2,9,2,3
+iScoreboard Android,countdown_page,Russia,1,1,3,564,3,15
+iScoreboard Android,create_booking_page,Ecuador,1,1,1,3,2,2
+iScoreboard Android,create_booking_page,France,1,1,3,28,4,4
+iScoreboard Android,create_booking_page,Indonesia,1,1,1,66,2,2
+iScoreboard Android,create_booking_page,Kenya,1,1,1,12,1,1
+iScoreboard Android,create_booking_page,Russia,1,1,1,197,3,7
+iScoreboard Android,create_booking_page,Türkiye,1,1,1,62,1,2
+iScoreboard Android,cube_timer,(not set),1,1,1,4,1,3
+iScoreboard Android,cube_timer,France,1,1,2,14,2,6
+iScoreboard Android,cube_timer,India,1,1,2,17,2,3
+iScoreboard Android,cube_timer,Russia,1,1,1,1,1,1
+iScoreboard Android,date_time_tool,France,1,1,2,6,2,4
+iScoreboard Android,date_time_tool,Iran,1,1,1,4,1,2
+iScoreboard Android,display_connection_screen,Azerbaijan,1,1,1,59,1,2
+iScoreboard Android,display_connection_screen,China,1,1,1,2,1,2
+iScoreboard Android,display_connection_screen,France,1,1,2,4,2,4
+iScoreboard Android,display_connection_screen,Indonesia,1,1,2,59,3,6
+iScoreboard Android,display_connection_screen,Kenya,1,1,1,2,1,2
+iScoreboard Android,doudizhu_score,China,1,1,1,61,1,1
+iScoreboard Android,doudizhu_score,India,1,1,1,9,1,1
+iScoreboard Android,flip_coin,(not set),1,1,1,6,2,5
+iScoreboard Android,flip_coin,Azerbaijan,1,1,1,54,1,22
+iScoreboard Android,flip_coin,Brazil,1,1,1,5,1,3
+iScoreboard Android,flip_coin,France,1,1,1,1,1,1
+iScoreboard Android,foosball_scoreboard,India,1,1,1,73,2,2
+iScoreboard Android,football_5v5_scoreboard,South Korea,1,1,1,3,1,2
+iScoreboard Android,football_scoreboard,Azerbaijan,1,1,2,442,3,21
+iScoreboard Android,football_scoreboard,Ecuador,1,1,1,7,1,1
+iScoreboard Android,football_scoreboard,France,1,1,3,206,3,14
+iScoreboard Android,football_scoreboard,Greece,1,1,1,843,4,11
+iScoreboard Android,football_scoreboard,Indonesia,1,1,2,56,3,5
+iScoreboard Android,football_scoreboard,Iran,1,1,1,0,1,7
+iScoreboard Android,football_scoreboard,Kenya,1,1,1,24,1,3
+iScoreboard Android,football_scoreboard,Türkiye,1,1,1,10,1,1
+iScoreboard Android,fullscreen_barrage,Azerbaijan,1,1,1,121,2,9
+iScoreboard Android,fullscreen_barrage,France,1,1,2,17,3,7
+iScoreboard Android,fullscreen_barrage,India,1,1,1,0,1,1
+iScoreboard Android,fullscreen_barrage,Indonesia,1,1,2,108,2,13
+iScoreboard Android,fullscreen_barrage,Russia,1,1,1,4,1,1
+iScoreboard Android,go_timer,France,1,1,1,8,2,10
+iScoreboard Android,go_timer,India,1,1,1,2,1,1
+iScoreboard Android,go_timer,Indonesia,1,1,1,24,1,6
+iScoreboard Android,go_timer,Russia,1,1,1,1,1,1
+iScoreboard Android,guandan_score,China,1,1,1,26,1,2
+iScoreboard Android,guandan_score,India,1,1,1,71,1,1
+iScoreboard Android,home_tab,Azerbaijan,1,1,2,519,16,76
+iScoreboard Android,home_tab,Brazil,1,1,2,69,3,29
+iScoreboard Android,home_tab,China,1,1,4,84,6,25
+iScoreboard Android,home_tab,Ecuador,1,1,1,8,4,12
+iScoreboard Android,home_tab,France,1,1,14,269,98,341
+iScoreboard Android,home_tab,Greece,1,1,1,31,4,17
+iScoreboard Android,home_tab,Honduras,1,1,1,23,2,6
+iScoreboard Android,home_tab,Indonesia,1,1,8,1048,47,294
+iScoreboard Android,home_tab,Iran,1,1,1,19,3,15
+iScoreboard Android,home_tab,Japan,1,1,1,8,1,7
+iScoreboard Android,home_tab,Kenya,1,1,2,38,5,22
+iScoreboard Android,home_tab,Malaysia,1,1,0,27,2,11
+iScoreboard Android,home_tab,Norway,1,1,1,3,1,7
+iScoreboard Android,home_tab,Qatar,1,1,0,2,1,3
+iScoreboard Android,home_tab,Serbia,1,1,2,47,2,7
+iScoreboard Android,home_tab,Spain,1,1,2,87,6,32
+iScoreboard Android,home_tab,Thailand,1,1,1,12,2,10
+iScoreboard Android,home_tab,United States,1,1,1,0,1,2
+iScoreboard Android,me_tab,Azerbaijan,1,1,1,13,1,3
+iScoreboard Android,me_tab,China,1,1,1,0,1,3
+iScoreboard Android,me_tab,France,1,1,3,56,11,36
+iScoreboard Android,me_tab,Indonesia,1,1,2,75,5,15
+iScoreboard Android,me_tab,Kenya,1,1,1,4,1,5
+iScoreboard Android,multi_group_score,Azerbaijan,1,1,1,121,3,11
+iScoreboard Android,multi_group_score,France,1,1,1,22,1,4
+iScoreboard Android,multi_group_score,India,1,1,5,1724,6,7
+iScoreboard Android,multi_group_score,Indonesia,1,1,1,46,1,2
+iScoreboard Android,multiscore_record_detail,France,1,1,1,7,2,4
+iScoreboard Android,multiscore_record_detail,India,1,1,1,18,2,5
+iScoreboard Android,nine_ball_scoreboard,India,1,1,1,25,1,2
+iScoreboard Android,padel_scoreboard,India,1,1,1,6,1,1
+iScoreboard Android,padel_scoreboard,Indonesia,1,1,1,81,1,3
+iScoreboard Android,pingpong_doubles_scoreboard,Indonesia,1,1,1,11,1,1
+iScoreboard Android,pingpong_scoreboard,Brazil,1,1,1,1568,1,6
+iScoreboard Android,pingpong_scoreboard,Germany,1,1,1,36,1,3
+iScoreboard Android,pingpong_scoreboard,India,1,1,1,67,1,2
+iScoreboard Android,pingpong_scoreboard,Indonesia,1,1,6,3236,22,86
+iScoreboard Android,pingpong_scoreboard,Malaysia,1,1,0,50,1,6
+iScoreboard Android,pingpong_scoreboard,South Korea,1,1,1,32,1,2
+iScoreboard Android,pingpong_scoreboard,Spain,1,1,1,3017,1,9
+iScoreboard Android,points_table,Azerbaijan,1,1,2,9,4,8
+iScoreboard Android,points_table,France,1,1,3,22,13,26
+iScoreboard Android,points_table,Indonesia,1,1,1,3,2,4
+iScoreboard Android,points_table_detail,Azerbaijan,1,1,2,36,2,2
+iScoreboard Android,points_table_detail,France,1,1,2,111,6,21
+iScoreboard Android,points_table_detail,Indonesia,1,1,1,47,1,1
+iScoreboard Android,profile_page,India,1,1,1,27,2,3
+iScoreboard Android,random_team,France,1,1,1,30,3,14
+iScoreboard Android,random_team,Indonesia,1,1,1,6,1,1
+iScoreboard Android,random_team,Russia,1,1,1,58,2,11
+iScoreboard Android,records_tab,Azerbaijan,1,1,1,5,2,5
+iScoreboard Android,records_tab,China,1,1,2,3,2,6
+iScoreboard Android,records_tab,France,1,1,5,27,22,68
+iScoreboard Android,records_tab,Germany,1,1,1,0,1,3
+iScoreboard Android,records_tab,Honduras,1,1,1,1,1,3
+iScoreboard Android,records_tab,Indonesia,1,1,3,75,5,16
+iScoreboard Android,records_tab,Russia,1,1,1,1,1,2
+iScoreboard Android,records_tab,Spain,1,1,1,1,1,3
+iScoreboard Android,red_yellow_card,France,1,1,1,4,1,4
+iScoreboard Android,red_yellow_card,Indonesia,1,1,1,3,1,2
+iScoreboard Android,schedule_list,France,1,1,2,6,3,10
+iScoreboard Android,schedule_list,India,1,1,1,1,1,1
+iScoreboard Android,schedule_list,Indonesia,1,1,1,4,1,2
+iScoreboard Android,score_tab,Azerbaijan,1,1,1,13,1,4
+iScoreboard Android,score_tab,China,1,1,1,13,2,10
+iScoreboard Android,score_tab,Ecuador,1,1,1,7,2,10
+iScoreboard Android,score_tab,France,1,1,3,49,14,61
+iScoreboard Android,score_tab,Germany,1,1,1,63,3,19
+iScoreboard Android,score_tab,Honduras,1,1,1,6,1,4
+iScoreboard Android,score_tab,Indonesia,1,1,3,636,20,165
+iScoreboard Android,score_tab,Russia,1,1,1,2,1,8
+iScoreboard Android,score_tab,Türkiye,1,1,1,9,1,3
+iScoreboard Android,scoreboard_settings_page,France,1,1,2,13,4,9
+iScoreboard Android,scoreboard_settings_page,Indonesia,1,1,1,9,1,1
+iScoreboard Android,shot_training_scoreboard,India,1,1,2,90,2,2
+iScoreboard Android,simple_score_page,France,1,1,1,13,1,3
+iScoreboard Android,simple_score_page,Germany,1,1,1,2671,1,1
+iScoreboard Android,simple_score_page,Indonesia,1,1,2,75,2,7
+iScoreboard Android,simple_score_page,Russia,1,1,2,14,2,4
+iScoreboard Android,snooker_scoreboard,India,1,1,1,67,3,3
+iScoreboard Android,soft_tennis_scoreboard,India,1,1,1,12,1,1
+iScoreboard Android,sports_record_detail,Azerbaijan,1,1,1,24,2,5
+iScoreboard Android,sports_record_detail,France,1,1,1,1,1,2
+iScoreboard Android,sports_record_detail,Indonesia,1,1,2,250,4,18
+iScoreboard Android,sports_record_detail,Russia,1,1,2,4,3,8
+iScoreboard Android,squash_scoreboard,India,1,1,2,135,2,3
+iScoreboard Android,stopwatch_page,China,1,1,1,8,1,12
+iScoreboard Android,stopwatch_page,France,1,1,3,6,4,8
+iScoreboard Android,stopwatch_page,Russia,1,1,1,6,1,3
+iScoreboard Android,ten_second_challenge,France,1,1,1,23,3,8
+iScoreboard Android,ten_second_challenge,Iran,1,1,1,4,1,3
+iScoreboard Android,tennis_doubles_scoreboard,India,1,1,1,24,1,2
+iScoreboard Android,tennis_scoreboard,Norway,1,1,1,4,1,2
+iScoreboard Android,three_basketball_scoreboard,(not set),1,1,1,93,1,4
+iScoreboard Android,timer_record_detail,(not set),1,1,1,1,1,2
+iScoreboard Android,timer_tab,China,1,1,1,4,3,13
+iScoreboard Android,timer_tab,France,1,1,3,115,19,135
+iScoreboard Android,timer_tab,Indonesia,1,1,2,22,3,12
+iScoreboard Android,timer_tab,Russia,1,1,3,21,8,44
+iScoreboard Android,tools_page,France,1,1,1,4,2,6
+iScoreboard Android,tools_page,Indonesia,1,1,1,16,1,1
+iScoreboard Android,uno_score,Germany,1,1,1,67,1,1
+iScoreboard Android,uno_score,India,1,1,1,327,2,2
+iScoreboard Android,volleyball_scoreboard,India,1,1,1,377,3,19
+iScoreboard Android,volleyball_scoreboard,Indonesia,1,1,2,87,3,3
+iScoreboard Android,whistle_tool,Azerbaijan,1,1,1,106,1,16
+iScoreboard Android,whistle_tool,France,1,1,9,2394,19,82
+iScoreboard Android,whistle_tool,Indonesia,1,1,2,17,2,8
+iScoreboard Android,whistle_tool,Russia,1,1,1,42,1,2
+iScoreboard Android,xiangqi_timer,France,1,1,1,4,1,6
+

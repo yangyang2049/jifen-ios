@@ -1,0 +1,14 @@
+# ----------------------------------------
+# iscoreboard
+# 202610 iOSGoogle Play -Free form 1
+# 20261001-20261031
+# ----------------------------------------
+
+Stream name,First user source,First user medium,Total users,Active users,Sessions,User engagement,Views,Event count
+,,,700,681,1964,3323860,11227,64662,Grand total
+iScoreboard,(direct),(none),633,614,1815,3232287,9375,57409
+iScoreboard Android,(direct),(none),44,44,66,24811,879,3182
+iScoreboard,(not set),(not set),24,22,27,41027,200,1136
+iScoreboard Android,google-play,organic,20,20,46,17868,603,2171
+iScoreboard Android,google,organic,2,2,9,7867,170,764
+

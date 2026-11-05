@@ -1,0 +1,21 @@
+"entry" = "VIP community";
+"unavailable" = "The VIP group is temporarily unavailable. Please try again later.";
+"ok" = "OK";
+"scan_hint" = "Scan with WeChat, or save the code and select it from the WeChat scanner album.";
+"save" = "Save QR code";
+"open" = "Open group page";
+"later" = "Maybe later";
+"close" = "Close";
+"photos_denied" = "Allow adding photos in Settings to save the QR code.";
+"saved" = "QR code saved to Photos";
+"save_failed" = "Unable to save. Please try again.";
+
+"join_title" = "Join the VIP community";
+"description" = "Share tips, report issues, and suggest improvements.";
+"scan_next" = "After saving, select it from the album in WeChat Scan.";
+"scan_saved" = "Saved. Select it from the album in WeChat Scan.";
+"save_open_wechat" = "Save and open WeChat";
+"open_web" = "Open group webpage";
+"saving" = "Saving…";
+"saved_wechat_unavailable" = "QR code saved. Unable to open WeChat; try the group webpage.";
+"entry_summary" = "Share tips · Send feedback";

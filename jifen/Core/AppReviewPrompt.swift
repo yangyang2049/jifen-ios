@@ -3,6 +3,7 @@ import StoreKit
 import SwiftUI
 
 enum AppReviewPrompt {
+    @MainActor static var requestedThisLaunch = false
     /// Change this Info.plist value to tune the number of cold launches before
     /// requesting a review. Set it to 0 to disable the automatic request.
     static let launchThresholdInfoPlistKey = "JifenReviewPromptLaunchThreshold"
@@ -78,14 +79,16 @@ private struct LaunchReviewPromptModifier: ViewModifier {
     func body(content: Content) -> some View {
         content.task {
             guard !hasCheckedThisPresentation else { return }
+            // Recheck after yielding so a community sheet and a review request cannot win together.
+            await Task.yield()
+            guard !Task.isCancelled, !hasCheckedThisPresentation else { return }
             hasCheckedThisPresentation = true
             // 国庆活动优先于评分邀请（对齐安卓）：活动展示当天不再弹评分邀请，
             // 也不消耗本次待邀请次数，活动结束后仍可正常弹出。
-            guard !NationalDayCampaignReviewGate.blocksReviewToday() else { return }
+            guard !NationalDayCampaignReviewGate.blocksReviewToday(), !VipCommunityAvailability.shared.isPresenting else { return }
             guard AppReviewPrompt.consumePendingRequestIfAllowed() else { return }
 
-            // Let the main scene finish becoming active before asking StoreKit.
-            await Task.yield()
+            AppReviewPrompt.requestedThisLaunch = true
             requestReview()
             AppAnalytics.track(.rateApp, parameters: [
                 .entryPoint: .string(AnalyticsEntryPoint.autoAfterLaunchThreshold.rawValue),

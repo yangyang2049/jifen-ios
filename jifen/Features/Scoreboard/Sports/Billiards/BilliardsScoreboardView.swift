@@ -177,8 +177,12 @@ struct BilliardsScoreboardView: View {
         saveGameRecordInRealTime(isGameFinished: true)
 
         let freshState = viewModel.makeFreshMatchState()
+        // 先做可能抛错的 source 继承，再切换控制器/记录身份：失败时保持原局状态，
+        // 不再出现「控制器已重置但 recordID 回滚」的半应用状态（与另外三个台球视图一致）。
+        let nextRecordID = BilliardsRecordIdentity.next()
+        do {try GroupBilliardsPersistence.shared.inheritSource(from:previousIdentityRecord,to:nextRecordID)} catch {ScoreboardPersistenceFailureReporter.report(error,context:"Group rematch source");return}
+        recordID = nextRecordID
         controller.beginNewMatch()
-        recordID = BilliardsRecordIdentity.next()
         ParticipantIdentityStore.shared.copySelections(from: previousIdentityRecord, to: recordID)
         viewModel.restoreSession(state: freshState, history: [])
         showGameOverDialog = false

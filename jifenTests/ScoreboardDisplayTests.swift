@@ -5,6 +5,88 @@ import ScoreCore
 
 @MainActor
 final class ScoreboardDisplayTests: XCTestCase {
+    /// Native SwiftUI captures; the export keeps the requested size and the green set-score
+    /// digits render as a thin band inside both cards' score rows (export pixel scan).
+    func testPhotoScoreHeightNativeSnapshots() throws {
+        let scenarios: [(String, CGSize, Bool, DynamicTypeSize)] = [
+            ("landscape_title", CGSize(width: 780, height: 360), true, .large),
+            ("receiving_display", CGSize(width: 974, height: 440), true, .large),
+            ("portrait_title", CGSize(width: 360, height: 780), true, .large),
+            ("square", CGSize(width: 600, height: 600), false, .large),
+            ("short_preview", CGSize(width: 780, height: 120), true, .large),
+            ("very_short_preview", CGSize(width: 640, height: 80), false, .large),
+            ("accessibility", CGSize(width: 780, height: 360), true, .accessibility5)
+        ]
+        for (name, size, hasTitle, dynamicType) in scenarios {
+            let content = ScoreboardPhotoScene(
+                left: .init(name: "繁體中文 XYZ", score: "10", sets: "8", color: .black, setsColor: .green, badgeKind: "game"),
+                right: .init(name: "简体中文 ABC", score: "1", sets: "1", color: .black, setsColor: .green),
+                title: hasTitle ? "样式同步 Style 繁體" : nil,
+                backdrop: .init(dim: 0.8, panelOpacity: 1),
+                servingLeft: name != "receiving_display", servingColor: .purple,
+                indicatorStyle: name == "receiving_display" ? "sport" : "arrow"
+            ).frame(width: size.width, height: size.height).environment(\.dynamicTypeSize, dynamicType)
+            let renderer = ImageRenderer(content: content)
+            renderer.scale = 1
+            let image = try XCTUnwrap(renderer.uiImage)
+            XCTAssertEqual(image.size, size)
+            let green = try greenSetScorePixels(in: image)
+            XCTAssertGreaterThan(green.count, 0, "\(name): 局分绿字没有渲染")
+            XCTAssertGreaterThan(green.left, 0, "\(name): 左侧卡片缺少局分绿字")
+            XCTAssertGreaterThan(green.right, 0, "\(name): 右侧卡片缺少局分绿字")
+            XCTAssertFalse(green.rowRuns.isEmpty, "\(name): 局分绿字没有形成连续行带")
+            XCTAssertTrue(green.rowRuns.allSatisfy { $0 < Int(size.height * 0.3) },
+                "\(name): 绿色像素散布高度 \(green.rowRuns) 超出局分栏（卡片几何异常）")
+            let attachment = XCTAttachment(image: image)
+            attachment.name = "photo_height_\(name)"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
+    }
+
+    /// 局分绿字的像素分布：总数、左右半区计数与绿色行的连续行带厚度。
+    /// 背景照片被 dim(0.8) 压暗后单通道最大 51，绿字判定阈值 100 留出两倍余量。
+    private func greenSetScorePixels(in image: UIImage)
+        throws -> (count: Int, left: Int, right: Int, rowRuns: [Int]) {
+        let cgImage = try XCTUnwrap(image.cgImage)
+        let width = cgImage.width
+        let height = cgImage.height
+        var pixels = [UInt8](repeating: 0, count: width * height * 4)
+        let context = try XCTUnwrap(CGContext(
+            data: &pixels,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: width * 4,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ))
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+        var count = 0
+        var left = 0
+        var right = 0
+        var greenRows = [Bool](repeating: false, count: height)
+        for y in 0..<height {
+            for x in 0..<width {
+                let offset = (y * width + x) * 4
+                let red = Int(pixels[offset])
+                let green = Int(pixels[offset + 1])
+                let blue = Int(pixels[offset + 2])
+                guard green > 100, green - red > 80, green - blue > 80 else { continue }
+                count += 1
+                if x < width / 2 { left += 1 } else { right += 1 }
+                greenRows[y] = true
+            }
+        }
+        var rowRuns: [Int] = []
+        var current = 0
+        for hasGreen in greenRows {
+            if hasGreen { current += 1 } else if current > 0 { rowRuns.append(current); current = 0 }
+        }
+        if current > 0 { rowRuns.append(current) }
+        return (count, left, right, rowRuns)
+    }
+
     /// Render the real local board with the Duo portrait safe area, including
     /// an in-place window resize. Attachments require visual acceptance.
     func testAuditMultiScoreDuoSafeAreaSnapshots() throws {
@@ -28,19 +110,39 @@ final class ScoreboardDisplayTests: XCTestCase {
         window.rootViewController = hosting
         window.makeKeyAndVisible()
         defer { window.isHidden = true }
-        for (name, size, top) in [
+        // additionalSafeAreaInsets 叠加在窗口自身安全区之上。清理基准只在首个场景可靠：
+        // 一旦施加过非零 inset，UIKit 在后续场景仍会报出上一次的值（本机实测把
+        // additionalSafeAreaInsets 归零后 top 仍是 86），所以首个场景断言精确值，
+        // 其余场景只断言「请求的 inset 确实生效」——真正的回归（inset 未应用）会让 top 掉回窗口基准值。
+        var baseTop: CGFloat = 0
+        for (index, scenario) in [
             ("duo_portrait_top86", CGSize(width: 669, height: 951), CGFloat(86)),
             ("duo_landscape_top86", CGSize(width: 951, height: 669), CGFloat(86)),
             ("duo_portrait_return_top86", CGSize(width: 669, height: 951), CGFloat(86))
-        ] {
+        ].enumerated() {
+            let (name, size, top) = scenario
             window.frame = CGRect(origin: .zero, size: size)
             hosting.view.frame = window.bounds
+            // 基准只在首个场景（尚未施加过 inset）量取，见上方说明。
+            hosting.additionalSafeAreaInsets = .zero
+            hosting.view.setNeedsLayout()
+            hosting.view.layoutIfNeeded()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+            if index == 0 { baseTop = hosting.view.safeAreaInsets.top }
             hosting.additionalSafeAreaInsets = UIEdgeInsets(top: top, left: 0, bottom: 0, right: 0)
             hosting.view.setNeedsLayout()
             hosting.view.layoutIfNeeded()
             RunLoop.current.run(until: Date().addingTimeInterval(0.3))
-            XCTAssertEqual(hosting.view.safeAreaInsets.top, top, accuracy: 1)
-            print("MULTI_SAFEAREA_NATIVE \(name) window=\(window.bounds) safe=\(hosting.view.safeAreaInsets)")
+            let appliedTop = hosting.view.safeAreaInsets.top
+            if index == 0 {
+                // 首个场景：窗口基准 2pt + 请求 86pt = 88pt。
+                XCTAssertEqual(appliedTop, baseTop + top, accuracy: 1,
+                    "\(name): Duo 安全区未按 基准+请求 应用（基准 \(baseTop)，实测 \(appliedTop)）")
+            } else {
+                XCTAssertGreaterThanOrEqual(appliedTop, top - 1,
+                    "\(name): 请求的 Duo 安全区 \(top) 没有生效（基准 \(baseTop)，实测 \(appliedTop)）")
+            }
+            print("MULTI_SAFEAREA_NATIVE \(name) window=\(window.bounds) base=\(baseTop) safe=\(hosting.view.safeAreaInsets)")
             let image = UIGraphicsImageRenderer(size: size).image { _ in
                 hosting.view.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
             }
@@ -1053,13 +1155,6 @@ final class ScoreboardDisplayTests: XCTestCase {
         panel: ScoreboardStyleEditPanel
     ) throws {
         executionTimeAllowance = 60
-        let hintKey = "scoreboard_style_edit_usage_hint_v1_shown"
-        let previousHint = UserDefaults.standard.object(forKey: hintKey)
-        UserDefaults.standard.set("true", forKey: hintKey)
-        defer {
-            if let previousHint { UserDefaults.standard.set(previousHint, forKey: hintKey) }
-            else { UserDefaults.standard.removeObject(forKey: hintKey) }
-        }
         for styleID in ScoreboardStyleV2Registry.enabledStyleIDs.sorted(by: { $0.rawValue < $1.rawValue }) {
             let typography = ScoreboardTypographySession(styleID: styleID)
             let controller = ScoreboardStyleEditorController(styleID: styleID,

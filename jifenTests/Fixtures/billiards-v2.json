@@ -1,0 +1,295 @@
+{
+  "contractVersion": 2,
+  "fixtures": [
+    {
+      "id": "nine_ball_folk-3",
+      "rules": {
+        "version": 2,
+        "sport": "billiards",
+        "variant": "nine_ball_folk",
+        "participantMode": "individuals",
+        "playerCount": 3,
+        "config": {
+          "pointScheme": "14710",
+          "bigGold": 10,
+          "smallGold": 7,
+          "goldenNine": 4,
+          "normalWin": 4,
+          "foul": 1,
+          "smallGoldAllPay": false,
+          "goldRetainsBreak": true,
+          "handoffEnabled": true
+        },
+        "engineRuleVersion": 3,
+        "initialBreakerParticipantId": "p0"
+      },
+      "participants": [
+        {
+          "participantId": "p0",
+          "memberId": "m0",
+          "position": 0
+        },
+        {
+          "participantId": "p1",
+          "memberId": "m1",
+          "position": 1
+        },
+        {
+          "participantId": "p2",
+          "memberId": "m2",
+          "position": 2
+        }
+      ],
+      "result": {
+        "resultKind": "points_ledger",
+        "completion": "completed",
+        "scores": [
+          {
+            "participantId": "p0",
+            "points": 20
+          },
+          {
+            "participantId": "p1",
+            "points": -7
+          },
+          {
+            "participantId": "p2",
+            "points": -13
+          }
+        ]
+      }
+    },
+    {
+      "id": "nine_ball_folk-4",
+      "rules": {
+        "version": 2,
+        "sport": "billiards",
+        "variant": "nine_ball_folk",
+        "participantMode": "individuals",
+        "playerCount": 4,
+        "config": {
+          "pointScheme": "14710",
+          "bigGold": 10,
+          "smallGold": 7,
+          "goldenNine": 4,
+          "normalWin": 4,
+          "foul": 1,
+          "smallGoldAllPay": true,
+          "goldRetainsBreak": true,
+          "handoffEnabled": true
+        },
+        "engineRuleVersion": 3,
+        "initialBreakerParticipantId": "p0"
+      },
+      "participants": [
+        {
+          "participantId": "p0",
+          "memberId": "m0",
+          "position": 0
+        },
+        {
+          "participantId": "p1",
+          "memberId": "m1",
+          "position": 1
+        },
+        {
+          "participantId": "p2",
+          "memberId": "m2",
+          "position": 2
+        },
+        {
+          "participantId": "p3",
+          "memberId": "m3",
+          "position": 3
+        }
+      ],
+      "result": {
+        "resultKind": "points_ledger",
+        "completion": "completed",
+        "scores": [
+          {
+            "participantId": "p0",
+            "points": 30
+          },
+          {
+            "participantId": "p1",
+            "points": -10
+          },
+          {
+            "participantId": "p2",
+            "points": -10
+          },
+          {
+            "participantId": "p3",
+            "points": -10
+          }
+        ]
+      }
+    },
+    {
+      "id": "nine_ball_tournament-2",
+      "rules": {
+        "version": 2,
+        "sport": "billiards",
+        "variant": "nine_ball_tournament",
+        "participantMode": "two_sides",
+        "playerCount": 2,
+        "config": {
+          "bigGold": 10,
+          "smallGold": 7,
+          "normalWin": 4,
+          "foul": 1,
+          "thirdFoul": 2,
+          "breakRule": "winner",
+          "totalRacks": 10
+        },
+        "engineRuleVersion": 3,
+        "initialBreakerParticipantId": "p0"
+      },
+      "participants": [
+        {
+          "participantId": "p0",
+          "memberId": "m0",
+          "position": 0
+        },
+        {
+          "participantId": "p1",
+          "memberId": "m1",
+          "position": 1
+        }
+      ],
+      "result": {
+        "resultKind": "points_duel",
+        "completion": "completed",
+        "scores": [
+          {
+            "participantId": "p0",
+            "points": 25
+          },
+          {
+            "participantId": "p1",
+            "points": 12
+          }
+        ],
+        "completedRacks": 9
+      }
+    },
+    {
+      "id": "eight_ball-2",
+      "rules": {
+        "version": 2,
+        "sport": "billiards",
+        "variant": "eight_ball",
+        "participantMode": "two_sides",
+        "playerCount": 2,
+        "config": {
+          "targetRacks": 5,
+          "handicapRacks": 2,
+          "handicapBeneficiary": "p0"
+        }
+      },
+      "participants": [
+        {
+          "participantId": "p0",
+          "memberId": "m0",
+          "position": 0
+        },
+        {
+          "participantId": "p1",
+          "memberId": "m1",
+          "position": 1
+        }
+      ],
+      "result": {
+        "resultKind": "rack_duel",
+        "completion": "completed",
+        "scores": [
+          {
+            "participantId": "p0",
+            "points": 5
+          },
+          {
+            "participantId": "p1",
+            "points": 3
+          }
+        ]
+      }
+    },
+    {
+      "id": "snooker-2",
+      "rules": {
+        "version": 2,
+        "sport": "billiards",
+        "variant": "snooker",
+        "participantMode": "two_sides",
+        "playerCount": 2,
+        "config": {
+          "maxFrames": 3
+        }
+      },
+      "participants": [
+        {
+          "participantId": "p0",
+          "memberId": "m0",
+          "position": 0
+        },
+        {
+          "participantId": "p1",
+          "memberId": "m1",
+          "position": 1
+        }
+      ],
+      "result": {
+        "resultKind": "frame_duel",
+        "completion": "completed",
+        "scores": [
+          {
+            "participantId": "p0",
+            "points": 2
+          },
+          {
+            "participantId": "p1",
+            "points": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "standard-2",
+      "rules": {
+        "version": 2,
+        "sport": "billiards",
+        "variant": "standard",
+        "participantMode": "two_sides",
+        "playerCount": 2,
+        "config": {}
+      },
+      "participants": [
+        {
+          "participantId": "p0",
+          "memberId": "m0",
+          "position": 0
+        },
+        {
+          "participantId": "p1",
+          "memberId": "m1",
+          "position": 1
+        }
+      ],
+      "result": {
+        "resultKind": "points_duel",
+        "completion": "completed",
+        "scores": [
+          {
+            "participantId": "p0",
+            "points": 7
+          },
+          {
+            "participantId": "p1",
+            "points": 7
+          }
+        ]
+      }
+    }
+  ]
+}

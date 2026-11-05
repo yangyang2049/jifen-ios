@@ -323,6 +323,7 @@ struct GroupCreateView: View {
     @State private var policy = GroupActivityPolicy.defaultJoinPolicy
     @State private var busy = false
     @State private var created: ScoreGroup?
+    @State private var showBilliardsVersionNotice = false
     @State private var didFocusName = false
     @FocusState private var nameFocused: Bool
     var body: some View {
@@ -346,20 +347,18 @@ struct GroupCreateView: View {
                         .lineLimit(3...5).groupAlignedInput(minHeight: GroupFieldSize.note, alignment: .topLeading, font: GroupTypography.body).accessibilityIdentifier("group_create_description")
                 }
                 GroupAlignedField(groupText("sport", "Sport")) {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: Theme.sm) {
-                            ForEach(GroupSport.allCases) { value in
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 88), spacing: Theme.sm)], spacing: Theme.sm) {
+                            ForEach(GroupSport.allCases.filter { $0 != .billiards || store.capabilities?.sports?.contains(where: { $0.sport == .billiards }) == true }) { value in
                                 Button { sport = value } label: {
                                     VStack(spacing: 6) {
                                         AppCatalogIcon(gameType: value.gameType, size: 34)
                                         Text(value.title).font(.system(size: Theme.fontBody2))
-                                    }.frame(width: 96, height: 88)
+                                    }.frame(maxWidth: .infinity, minHeight: 88)
                                         .foregroundStyle(sport == value ? Theme.primary : Theme.textSecondary)
                                         .background(sport == value ? Theme.primary.opacity(0.1) : Theme.cardBackground, in: RoundedRectangle(cornerRadius: 12))
                                         .overlay { RoundedRectangle(cornerRadius: 12).strokeBorder(sport == value ? Theme.primary : .clear, lineWidth: 1) }
-                                }.buttonStyle(.plain).accessibilityAddTraits(sport == value ? .isSelected : [])
+                                }.buttonStyle(.plain).accessibilityAddTraits(sport == value ? .isSelected : []).accessibilityIdentifier("group_create_sport_"+value.rawValue)
                             }
-                        }
                     }
                 }
                 GroupAlignedField(groupText("join_policy", "Joining")) {
@@ -370,13 +369,28 @@ struct GroupCreateView: View {
         }.scrollDismissesKeyboard(.interactively).background(Theme.backgroundColor)
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 GroupAlignedFooter(topPadding: 8, bottomPadding: 8) {
-                    Button(groupText("create", "Create group")) { Task { await submit() } }
+                    Button(groupText("create", "Create group")) {
+                        guard valid, !busy else { return }
+                        nameFocused = false
+                        if sport == .billiards { showBilliardsVersionNotice = true }
+                        else { Task { await submit() } }
+                    }
                         .buttonStyle(GroupAlignedActionStyle()).disabled(busy || !valid).accessibilityIdentifier("group_create_submit")
                 }
             }
+            .alert(groupText("billiards_create_notice_title", "Billiards group version notice"), isPresented: $showBilliardsVersionNotice) {
+                Button(groupText("billiards_create_notice_cancel", "Not now"), role: .cancel) { }
+                Button(groupText("billiards_create_notice_confirm", "Continue creating")) { Task { await submit() } }
+                    .disabled(busy || !valid)
+            } message: {
+                Text(String(format: groupText("billiards_create_notice_message", ""), appVersion))
+            }
+            .onChange(of: store.identityRevision) { _, _ in showBilliardsVersionNotice = false }
             .disabled(busy).navigationTitle(groupText("create", "Create group")).navigationBarTitleDisplayMode(.inline).groupAccountBoundary()
             .navigationBarBackButtonHidden(usesParentNavigation && busy)
             .toolbar {
+                ToolbarItemGroup(placement:.keyboard) { Spacer(); Button(NSLocalizedString("done",value:"Done",comment:"")){nameFocused=false}.accessibilityIdentifier("group_create_keyboard_done") }
+
                 if !usesParentNavigation { ToolbarItem(placement: .cancellationAction) { ModalCloseButton { dismiss() }.disabled(busy) } }
             }.interactiveDismissDisabled(busy)
             .task {
@@ -386,6 +400,10 @@ struct GroupCreateView: View {
                 didFocusName = true
                 nameFocused = true
             }
+    }
+    /// 台球小组版本提示里的最低版本号，取自包版本（文案用 `%@` 占位）。
+    private var appVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
     }
     private var valid: Bool { GroupInputValidation.validName(name, minimum: store.capabilities?.nameMin ?? 2, maximum: store.capabilities?.nameMax ?? 24) && description.utf16.count <= (store.capabilities?.descriptionMax ?? 200) && (store.capabilities?.allowsPeerCreation ?? false) }
     private func submit() async {
@@ -452,7 +470,18 @@ private struct GroupResultSummary: View {
             }
         }.frame(maxWidth: .infinity)
     }
-    var body: some View {
+    @ViewBuilder var body: some View {
+        if let row = result.billiards {
+            VStack(alignment:.leading,spacing:8) {
+                Text(row.rules.knownVariant?.title ?? billiardsText("unsupported")).font(.headline)
+                Text(billiardsText(row.status == "confirmed" ? "confirmed" : row.status == "voided" ? "voided" : "pending"))
+                ForEach(row.result.scores,id:\.participantId) { score in
+                    Text((row.participants.first { $0.participant.participantId == score.participantId }?.displayName ?? billiardsText("unknown"))+"  "+(score.points > 0 && row.rules.knownVariant == .folk ? "+":"")+String(score.points))
+                }
+            }
+        } else { legacyBody }
+    }
+    private var legacyBody: some View {
         VStack(spacing: Theme.sm) {
             if centeredHeader {
                 VStack(spacing: Theme.xs) {
@@ -528,7 +557,14 @@ struct GroupResultDetailView: View {
         }.font(GroupTypography.body).fixedSize(horizontal: false, vertical: true)
             .padding(.vertical, Theme.md).frame(minHeight: 56, alignment: .leading)
     }
-    var body: some View {
+    @ViewBuilder var body: some View {
+        if current.sport == .billiards {
+            if let detail = store.cache.details[current.groupId] {
+                ScrollView { GroupBilliardsTab(detail:detail,tab:2,resultID:current.id,onStart:{_,_,_ in}).padding() }
+            } else { ProgressView().task { await store.loadDetail(current.groupId) } }
+        } else { legacyBody }
+    }
+    private var legacyBody: some View {
         ScrollView {
             VStack(spacing: Theme.md) {
                 GroupSurface { GroupResultSummary(result: current, centeredHeader: true) }

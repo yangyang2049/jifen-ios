@@ -27,7 +27,7 @@ struct MainTabView: View {
         }
         .tint(Theme.accentColor)
         .sheet(isPresented: Binding(
-            get: { previewsWechatBindingPrompt || (session.presentsWechatUpgradePrompt && selectedGame == nil && groupInvitation == nil) },
+            get: { previewsWechatBindingPrompt || (session.presentsWechatUpgradePrompt && selectedGame == nil && groupInvitation == nil && !VipCommunityAvailability.shared.isPresenting) },
             set: { if !$0 { dismissBindingPrompt() } }
         ), onDismiss: {
             guard bindingRequested else { return }

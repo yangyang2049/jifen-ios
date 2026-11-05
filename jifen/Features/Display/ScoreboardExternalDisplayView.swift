@@ -571,8 +571,13 @@ struct ScoreboardExternalLiveView: View {
             let doublesModel = template == .doublesCourt ? buildDoublesModel(viewport: proxy.size) : nil
             ZStack {
                 Color(hex: state.appearance.backgroundHex)
-                templateBody(viewport: proxy.size, twoSideModel: twoSideModel, doublesModel: doublesModel)
+                if state.appearance.style?.themeCode == "event_background", ["pingpong", "pingpong_doubles"].contains(state.gameType) {
+                    photoScene
+                } else {
+                    templateBody(viewport: proxy.size, twoSideModel: twoSideModel, doublesModel: doublesModel)
+                }
 
+                if state.appearance.style?.themeCode != "event_background" {
                 ScoreboardExternalKeyPointBadgeLayer(
                     state: state,
                     projection: projection,
@@ -581,7 +586,9 @@ struct ScoreboardExternalLiveView: View {
                     twoSideModel: twoSideModel
                 )
 
-                if state.gameType == "pingpong" || state.gameType == "pingpong_doubles" {
+                }
+
+                if (state.gameType == "pingpong" || state.gameType == "pingpong_doubles") && state.appearance.style?.themeCode != "event_background" {
                     ScoreboardExternalTableTennisMarkerLayer(
                         state: state,
                         projection: projection,
@@ -599,7 +606,7 @@ struct ScoreboardExternalLiveView: View {
 
                 snookerMatchTitleOverlay(viewport: proxy.size)
 
-                topChrome
+                if state.appearance.style?.themeCode != "event_background" { topChrome }
 
                 if let rest = state.rest {
                     ScoreboardExternalRestOverlay(rest: rest, viewport: proxy.size, projection: projection)
@@ -610,7 +617,16 @@ struct ScoreboardExternalLiveView: View {
             }
             .clipped()
         }
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("external_display_live_\(state.layoutKind.rawValue)")
+    }
+
+    private var photoScene: some View {
+        return ScoreboardPhotoScene(left: ScoreboardPhotoProjection.team(state, visualIndex: 0), right: ScoreboardPhotoProjection.team(state, visualIndex: 1), title: state.matchTitle,
+            backdrop: state.appearance.style?.backdrop ?? ScoreboardBackdrop(),
+            servingLeft: ScoreboardPhotoProjection.servingLeft(state),
+            servingColor: Color(hex: ScoreboardDisplayStyle.renderHex(state.appearance.style?.serverIndicatorColor ?? "#30D158")),
+            indicatorStyle: state.appearance.style?.serverIndicatorStyle ?? "arrow", gameType: state.gameType, clock: state.clock?.visible == true ? state.clock : nil)
     }
 
     // MARK: 斯诺克比赛抬头带（对齐安卓 DisplayMatchTitle：仅斯诺克且抬头非空时渲染）
@@ -744,7 +760,8 @@ struct ScoreboardExternalLiveView: View {
                         panelColor: Color(hex: panel),
                         nameColor: Color(hex: state.appearance.style?.renderColor("playerName", slot: slot) ?? "#FFFFFF"),
                         scoreColor: Color(hex: state.appearance.style?.renderColor("mainScore", slot: slot) ?? "#FFFFFF"),
-                        setsColor: Color(hex: state.appearance.style?.renderColor("setScore", slot: slot) ?? "#FFFFFF")
+                        setsColor: Color(hex: state.appearance.style?.renderColor("setScore", slot: slot) ?? "#FFFFFF"),
+                        nameFontCode: state.appearance.style?.nameFontCode
                     )
                 }
             }
@@ -755,7 +772,7 @@ struct ScoreboardExternalLiveView: View {
                     : ScoreboardLayoutMetrics.serveIndicatorSize(
                         halfViewportSize: CGSize(width: viewport.width / 2, height: viewport.height)
                     )
-                ServingTriangle(pointLeft: isLeft, colorHex: ScoreboardDisplayStyle.renderHex(state.appearance.style?.serverIndicatorColor ?? "#30D158"))
+                ServingTriangle(pointLeft: isLeft, colorHex: ScoreboardDisplayStyle.renderHex(state.appearance.style?.serverIndicatorColor ?? "#30D158"), styleCode: state.appearance.style?.serverIndicatorStyle ?? "arrow", gameType: state.gameType).styleServerSelectable(hidden: state.appearance.style?.serverIndicatorHidden == true)
                     .frame(width: arrowSize, height: arrowSize)
                     .offset(x: isLeft ? -arrowSize / 2 : arrowSize / 2)
                     .allowsHitTesting(false)
@@ -837,6 +854,11 @@ struct ScoreboardExternalLiveView: View {
         let usesPhoneTypography = !projection.isLocalProjection
             && gameType != "basketball"
             && gameType != "three_basketball"
+        let phoneSecondaryMultiplier = CGFloat(
+            state.appearance.fontSizeMultipliers?["setGameScore"]
+                ?? state.appearance.fontSizeMultipliers?["setScore"]
+                ?? state.appearance.fontSizeMultipliers?["gameScore"] ?? 1
+        ).clamped(minimumMultiplier, 1.5)
         let phoneTypography: ScoreboardTypographyResult? = {
             guard usesPhoneTypography else { return nil }
             let profile: ScoreboardTypographyProfile
@@ -854,9 +876,7 @@ struct ScoreboardExternalLiveView: View {
                 scoreMultiplier: state.appearance.fontSizeMultipliers?["mainScore"] ?? 1,
                 nameMultiplier: state.appearance.fontSizeMultipliers?["teamName"]
                     ?? state.appearance.fontSizeMultipliers?["playerName"] ?? 1,
-                secondaryMultiplier: state.appearance.fontSizeMultipliers?["setGameScore"]
-                    ?? state.appearance.fontSizeMultipliers?["setScore"]
-                    ?? state.appearance.fontSizeMultipliers?["gameScore"] ?? 1
+                secondaryMultiplier: Double(phoneSecondaryMultiplier)
             )
             let panelSize = CGSize(width: viewport.width / 2, height: viewport.height)
             func resolve(_ side: DisplayTwoSideSideModel) -> ScoreboardTypographyResult {
@@ -889,9 +909,9 @@ struct ScoreboardExternalLiveView: View {
         }()
         let baseScoreFontSize = phoneTypography?.scoreFontSize ?? projectedScoreFontSize
         let baseNameFontSize = phoneTypography?.nameFontSize ?? projectedNameFontSize
-        let baseSetsFontSize = phoneTypography?.secondaryFontSize ?? projectedSetsFontSize
-        let baseGamesFontSize = phoneTypography?.secondaryFontSize ?? projectedGamesFontSize
-        let baseTennisSetsFontSize = phoneTypography?.secondaryFontSize ?? projectedTennisSetsFontSize
+        let baseSetsFontSize = phoneTypography.map { $0.secondaryFontSize * secondaryMultiplier / phoneSecondaryMultiplier } ?? projectedSetsFontSize
+        let baseGamesFontSize = phoneTypography.map { $0.secondaryFontSize * gamesMultiplier / phoneSecondaryMultiplier } ?? projectedGamesFontSize
+        let baseTennisSetsFontSize = phoneTypography.map { $0.secondaryFontSize * secondaryMultiplier / phoneSecondaryMultiplier } ?? projectedTennisSetsFontSize
         let baseLabelStatFontSize = phoneTypography?.secondaryFontSize ?? projectedLabelStatFontSize
 
         // 顶部标题带（对齐安卓 titleBandHeight：仅斯诺克且真实比赛抬头非空时预留，
@@ -2018,7 +2038,7 @@ private struct DisplayTwoSideSurface: View {
             if model.statMode == .tennis {
                 tennisPanel(side: side, isLeft: isLeft)
             } else {
-                standardPanel(side: side)
+                standardPanel(side: side, isLeft: isLeft)
             }
         }
         .padding(edge)
@@ -2037,8 +2057,9 @@ private struct DisplayTwoSideSurface: View {
     }
 
     /// 常规面板：名称 → 主分 → 次级信息 → 局分 pill（对齐安卓 TwoSidePanel 非 TENNIS 分支）。
-    private func standardPanel(side: DisplayTwoSideSideModel) -> some View {
-        VStack(spacing: 0) {
+    private func standardPanel(side: DisplayTwoSideSideModel, isLeft: Bool) -> some View {
+        let slot: ScoreboardStyleSlotKeyV2 = isLeft ? .sideLeft : .sideRight
+        return VStack(spacing: 0) {
             HStack(spacing: model.nameFontSize * 0.3) {
                 if side.reservesBreakerMark {
                     DisplayBreakerCueMark(
@@ -2048,10 +2069,11 @@ private struct DisplayTwoSideSurface: View {
                     )
                 }
                 Text(side.name)
-                    .font(.system(size: model.nameFontSize, weight: .bold))
+                    .font(ScoreboardNameFont.font(code: state.appearance.style?.nameFontCode, inherited: ScoreboardFont(displayCode: state.appearance.fontCode) ?? .default, size: model.nameFontSize))
                     .lineSpacing(max(0, model.nameFontSize * 1.2 - model.nameFontSize))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(Color(hex: side.textHex))
+                    .styleElementSelectable(.teamName, slotKey: slot)
                     .lineLimit(model.nameMaxLines)
                     .minimumScaleFactor(0.5)
             }
@@ -2060,19 +2082,21 @@ private struct DisplayTwoSideSurface: View {
             Text(side.scoreText)
                 .font(scoreFont(size: model.scoreFontSize))
                 .foregroundStyle(Color(hex: side.mainHex))
+                .styleElementSelectable(.mainScore, slotKey: slot)
                 .lineLimit(1)
                 .minimumScaleFactor(0.3)
             if side.showSecondary {
                 if model.mainScoreSecondaryGap > 0 {
                     Spacer().frame(height: model.mainScoreSecondaryGap)
                 }
-                secondaryScore(side: side)
+                secondaryScore(side: side, isLeft: isLeft)
             }
             if side.showSets {
                 Spacer().frame(height: (model.setsFontSize * 0.24).clamped(8, 20))
                 Text(side.setsText)
                     .font(scoreFont(size: model.setsFontSize))
                     .foregroundStyle(Color(hex: side.setsHex ?? side.secondaryHex))
+                    .styleElementSelectable(.setScore, slotKey: slot)
                     .lineLimit(1)
                     .padding(.horizontal, 4)
             }
@@ -2082,13 +2106,14 @@ private struct DisplayTwoSideSurface: View {
     }
 
     @ViewBuilder
-    private func secondaryScore(side: DisplayTwoSideSideModel) -> some View {
+    private func secondaryScore(side: DisplayTwoSideSideModel, isLeft: Bool) -> some View {
         let content = Text(ScoreAdditionTypography.attributedLabel(
             side.secondaryText.isEmpty ? "0" : side.secondaryText,
             numberFontSize: snookerSecondaryFontSize
         ))
             .font(scoreFont(size: snookerSecondaryFontSize))
             .foregroundStyle(side.secondaryText.isEmpty ? Color.clear : Color(hex: side.secondaryHex))
+            .styleElementSelectable(.setScore, slotKey: isLeft ? .sideLeft : .sideRight)
             .lineLimit(1)
         if state.gameType == "snooker" {
             content
@@ -2116,8 +2141,9 @@ private struct DisplayTwoSideSurface: View {
             let fittedNameFont = min(model.nameFontSize, max(12, nameHeight / (CGFloat(model.nameMaxLines) * 1.2)))
             ZStack {
                 Text(side.name)
-                    .font(.system(size: fittedNameFont, weight: .bold))
+                    .font(ScoreboardNameFont.font(code: state.appearance.style?.nameFontCode, inherited: ScoreboardFont(displayCode: state.appearance.fontCode) ?? .default, size: fittedNameFont))
                     .foregroundStyle(Color(hex: side.textHex))
+                    .styleElementSelectable(.teamName, slotKey: isLeft ? .sideLeft : .sideRight)
                     .lineLimit(model.nameMaxLines)
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.center)
@@ -2127,17 +2153,17 @@ private struct DisplayTwoSideSurface: View {
                     .padding(.top, nameTopPadding)
             HStack(spacing: 0) {
                 if isLeft {
-                    tennisMainScore(side: side)
+                    tennisMainScore(side: side, isLeft: isLeft)
                     if showMeta {
                         Spacer(minLength: model.tennisContentGap)
-                        tennisStatsColumn(side: side, columnWidth: columnWidth)
+                        tennisStatsColumn(side: side, isLeft: isLeft, columnWidth: columnWidth)
                     }
                 } else {
                     if showMeta {
-                        tennisStatsColumn(side: side, columnWidth: columnWidth)
+                        tennisStatsColumn(side: side, isLeft: isLeft, columnWidth: columnWidth)
                         Spacer(minLength: model.tennisContentGap)
                     }
-                    tennisMainScore(side: side)
+                    tennisMainScore(side: side, isLeft: isLeft)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -2152,27 +2178,30 @@ private struct DisplayTwoSideSurface: View {
         }
     }
 
-    private func tennisMainScore(side: DisplayTwoSideSideModel) -> some View {
+    private func tennisMainScore(side: DisplayTwoSideSideModel, isLeft: Bool) -> some View {
         Text(side.scoreText)
             .font(scoreFont(size: model.scoreFontSize))
             .foregroundStyle(Color(hex: side.mainHex))
+            .styleElementSelectable(.mainScore, slotKey: isLeft ? .sideLeft : .sideRight)
             .lineLimit(1)
             .minimumScaleFactor(0.4)
             .frame(width: model.tennisMainScoreWidth)
     }
 
-    private func tennisStatsColumn(side: DisplayTwoSideSideModel, columnWidth: CGFloat) -> some View {
+    private func tennisStatsColumn(side: DisplayTwoSideSideModel, isLeft: Bool, columnWidth: CGFloat) -> some View {
         VStack(spacing: (model.gamesFontSize * 0.28).clamped(8, 18)) {
             if side.showGames {
                 Text(side.gamesText)
                     .font(scoreFont(size: model.gamesFontSize))
                     .foregroundStyle(Color(hex: side.gamesHex ?? side.secondaryHex))
+                    .styleElementSelectable(.gameScore, slotKey: isLeft ? .sideLeft : .sideRight)
                     .lineLimit(1)
             }
             if side.showSets {
                 Text(side.setsText)
                     .font(scoreFont(size: model.tennisSetsFontSize))
                     .foregroundStyle(Color(hex: side.setsHex ?? side.secondaryHex))
+                    .styleElementSelectable(.setScore, slotKey: isLeft ? .sideLeft : .sideRight)
                     .lineLimit(1)
                     .frame(
                         width: model.tennisSetScoreBoxSize,
@@ -2197,7 +2226,7 @@ private struct DisplayTwoSideSurface: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .overlay(alignment: .trailing) {
                     if model.serverShowLeft {
-                        ServingTriangle(pointLeft: true, colorHex: ScoreboardDisplayStyle.renderHex(state.appearance.style?.serverIndicatorColor ?? "#30D158"))
+                        ServingTriangle(pointLeft: true, colorHex: ScoreboardDisplayStyle.renderHex(state.appearance.style?.serverIndicatorColor ?? "#30D158"), styleCode: state.appearance.style?.serverIndicatorStyle ?? "arrow", gameType: state.gameType).styleServerSelectable(hidden: state.appearance.style?.serverIndicatorHidden == true)
                             .frame(width: model.arrowSize, height: model.arrowSize)
                     }
                 }
@@ -2205,7 +2234,7 @@ private struct DisplayTwoSideSurface: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .overlay(alignment: .leading) {
                     if model.serverShowRight {
-                        ServingTriangle(pointLeft: false, colorHex: ScoreboardDisplayStyle.renderHex(state.appearance.style?.serverIndicatorColor ?? "#30D158"))
+                        ServingTriangle(pointLeft: false, colorHex: ScoreboardDisplayStyle.renderHex(state.appearance.style?.serverIndicatorColor ?? "#30D158"), styleCode: state.appearance.style?.serverIndicatorStyle ?? "arrow", gameType: state.gameType).styleServerSelectable(hidden: state.appearance.style?.serverIndicatorHidden == true)
                             .frame(width: model.arrowSize, height: model.arrowSize)
                     }
                 }
@@ -2326,21 +2355,12 @@ private struct DisplayChaseStatsStrip: View {
 private struct ServingTriangle: View {
     var pointLeft: Bool
     var colorHex: String = "#30D158"
-
+    var styleCode: String = "arrow"
+    var gameType: String = "pingpong"
     var body: some View {
-        Canvas { context, size in
-            var path = Path()
-            if pointLeft {
-                path.move(to: CGPoint(x: 0, y: size.height / 2))
-                path.addLine(to: CGPoint(x: size.width, y: 0))
-                path.addLine(to: CGPoint(x: size.width, y: size.height))
-            } else {
-                path.move(to: CGPoint(x: size.width, y: size.height / 2))
-                path.addLine(to: CGPoint(x: 0, y: 0))
-                path.addLine(to: CGPoint(x: 0, y: size.height))
-            }
-            path.closeSubpath()
-            context.fill(path, with: .color(Color(hex: colorHex)))
+        GeometryReader { proxy in
+            ScoreboardServeSymbol(direction: pointLeft ? .left : .right, size: min(proxy.size.width, proxy.size.height),
+                color: Color(hex: colorHex), styleCode: styleCode, gameType: gameType)
         }
     }
 }
@@ -2452,17 +2472,18 @@ private struct DisplayDoublesCourtSurface: View {
         rightTextHex: String
     ) -> some View {
         HStack(spacing: 0) {
-            doublesPlayerName(leftName, textHex: leftTextHex)
+            doublesPlayerName(leftName, textHex: leftTextHex, slot: .sideLeft)
                 .padding(.trailing, model.nameCenterGutter)
-            doublesPlayerName(rightName, textHex: rightTextHex)
+            doublesPlayerName(rightName, textHex: rightTextHex, slot: .sideRight)
                 .padding(.leading, model.nameCenterGutter)
         }
     }
 
-    private func doublesPlayerName(_ name: String, textHex: String) -> some View {
+    private func doublesPlayerName(_ name: String, textHex: String, slot: ScoreboardStyleSlotKeyV2) -> some View {
         Text(name)
-                .font(.system(size: model.nameFontSize, weight: .bold))
+                .font(ScoreboardNameFont.font(code: state.appearance.style?.nameFontCode, inherited: ScoreboardFont(displayCode: state.appearance.fontCode) ?? .default, size: model.nameFontSize))
                 .foregroundStyle(Color(hex: textHex))
+                .styleElementSelectable(.playerName, slotKey: slot)
                 .lineLimit(model.nameMaxLines)
                 .minimumScaleFactor(0.5)
                 .multilineTextAlignment(.center)
@@ -2493,12 +2514,14 @@ private struct DisplayDoublesCourtSurface: View {
         let main = Text(side.scoreText)
             .font(scoreFont(size: model.scoreFontSize))
             .foregroundStyle(Color(hex: side.mainHex))
+            .styleElementSelectable(.mainScore, slotKey: isLeft ? .sideLeft : .sideRight)
             .lineLimit(1)
             .minimumScaleFactor(0.3)
             .frame(width: side.showSets ? availableWidth * 0.65 : availableWidth)
         let sets = Text(side.showSets ? side.setsText : "")
             .font(scoreFont(size: min(model.setsFontSize, availableWidth * 0.23)))
             .foregroundStyle(Color(hex: side.secondaryHex))
+            .styleElementSelectable(.setGameScore, slotKey: isLeft ? .sideLeft : .sideRight)
             .lineLimit(1)
             .minimumScaleFactor(0.3)
             .frame(width: availableWidth * 0.27)
@@ -2529,6 +2552,7 @@ private struct DisplayDoublesCourtSurface: View {
                 Text(side.setsText)
                     .font(scoreFont(size: model.setsFontSize))
                     .foregroundStyle(Color(hex: side.setsHex ?? side.secondaryHex))
+                    .styleElementSelectable(.setScore, slotKey: isLeft ? .sideLeft : .sideRight)
                     .lineLimit(1)
                 .minimumScaleFactor(0.3)
                     .frame(width: boxSize, height: boxSize)
@@ -2539,6 +2563,7 @@ private struct DisplayDoublesCourtSurface: View {
         let main = Text(side.scoreText)
             .font(scoreFont(size: model.scoreFontSize))
             .foregroundStyle(Color(hex: side.mainHex))
+            .styleElementSelectable(.mainScore, slotKey: isLeft ? .sideLeft : .sideRight)
             .lineLimit(1)
                 .minimumScaleFactor(0.3)
             .minimumScaleFactor(0.3)
@@ -2564,7 +2589,7 @@ private struct DisplayDoublesCourtSurface: View {
         let yOffset = proxy.size.height * model.serveIndicatorOffsetFraction * (model.serverTopRow ? -1 : 1)
         return Group {
             if model.serverVisible {
-                ServingTriangle(pointLeft: model.serverPointLeft, colorHex: ScoreboardDisplayStyle.renderHex(state.appearance.style?.serverIndicatorColor ?? "#30D158"))
+                ServingTriangle(pointLeft: model.serverPointLeft, colorHex: ScoreboardDisplayStyle.renderHex(state.appearance.style?.serverIndicatorColor ?? "#30D158"), styleCode: state.appearance.style?.serverIndicatorStyle ?? "arrow", gameType: state.gameType).styleServerSelectable(hidden: state.appearance.style?.serverIndicatorHidden == true)
                     .frame(width: triangleSize, height: triangleSize)
                     .offset(x: xOffset, y: yOffset)
             }

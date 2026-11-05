@@ -28,13 +28,21 @@ final class ScoreboardStyleEditorController {
     var effective: ScoreboardStyleProfileV2 { isEditing ? draft : active }
 
     /// 与安卓 canResetStyleEditor 对齐：草稿等于默认样式时重置按钮置灰。
-    /// 比较基准须使用「用户当前全局主题」的默认样式，否则非默认主题下会误亮
-    /// 且重置会把主题刷回 default（主题丢失）。
+    /// 工作台恢复本项目的经典主题与全局默认排版（resolvedDefaultScoreboardFont + 倍率 1）；
+    /// 不会修改全局设置或其它项目。
     private var resetBaselineTheme: ScoreboardTheme {
-        ScoreboardTheme(rawValue: prefs.scoreboardTheme) ?? .defaultTheme
+        ScoreboardTheme.defaultTheme
     }
     var canResetDraft: Bool {
-        draft != ScoreboardStyleProfileV2.default(for: styleID, theme: resetBaselineTheme)
+        guard draft == ScoreboardStyleProfileV2.default(for: styleID, theme: resetBaselineTheme) else { return true }
+        guard let typographySession else { return false }
+        // 只比语义：字体 + 解析后的各元素倍率。`elementMultipliers` 的
+        // nil / 全量字典结构差异（`updateElementMultiplier` 会把 nil 展开成全量字典）
+        // 不代表用户改过字号，否则重置后按钮永远不置灰。
+        let baseline = ScoreboardTypographyPreference.default(font: prefs.resolvedDefaultScoreboardFont).resolved(for: styleID)
+        let current = typographySession.effectivePreference
+        return current.font != baseline.font
+            || current.resolvedElementMultipliers != baseline.resolvedElementMultipliers
     }
 
     /// 字号/字体沿用既有 TypographySession（preview → apply/cancel），随会话开关联动。
@@ -87,10 +95,11 @@ final class ScoreboardStyleEditorController {
         prefs.setScoreboardStyleProfilePreview(draft, for: styleID)
     }
 
-    /// 恢复默认样式（对齐安卓 resetDraft：重置为「当前主题下」的默认样式 + 默认字号）。
-    /// theme 取自用户全局主题，避免重置后主题被刷回 default（主题丢失）。
+    /// 恢复本项目经典样式与默认字号/字体（等价于该样式从未自定义过排版）。
+    /// 排版走 `resetPreview(preferences:)` 单一路径：既有预览被覆盖（不会残留旧的
+    /// 元素倍率），保存时 `applyPreview` 直接清掉持久化的排版键，而不是把倍率写回。
     func resetDraft() {
-        let theme = ScoreboardTheme(rawValue: prefs.scoreboardTheme) ?? .defaultTheme
+        let theme = ScoreboardTheme.defaultTheme
         draft = ScoreboardStyleProfileV2.default(for: styleID, theme: theme)
         prefs.setScoreboardStyleProfilePreview(draft, for: styleID)
         typographySession?.resetPreview(preferences: prefs)

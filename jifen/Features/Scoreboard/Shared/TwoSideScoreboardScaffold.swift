@@ -215,8 +215,10 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                     .simultaneousGesture(panelSwipeGesture(isLeft: false))
                 }
 
-                if !isEditMode, !finished, let seamOverlay {
+                if !isEditMode, !finished, !appearance.styleProfileV2.serverIndicatorHidden, let seamOverlay {
                     seamOverlay(appearance.serverIndicatorColor)
+                        .environment(\.scoreboardServerIndicatorStyle, appearance.styleProfileV2.serverIndicatorStyle ?? "arrow")
+                        .environment(\.scoreboardServerIndicatorGame, typographySession.styleID.rawValue)
                 }
 
                 // Only editable content (the Snooker title) remains during editing.
@@ -632,7 +634,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                 // top-pinned name from making the main score look too high.
                 VStack(spacing: 0) {
                     Text(name)
-                        .font(typographySession.effectivePreference.font.swiftUIFont(
+                        .font(appearance.nameFont(
                             size: nameSize,
                             weight: .bold
                         ))

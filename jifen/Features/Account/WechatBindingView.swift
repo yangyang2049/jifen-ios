@@ -515,7 +515,7 @@ struct WechatBindingSheet: View {
                         Text(footerTitle).fontWeight(.semibold)
                     }.frame(maxWidth: .infinity).frame(minHeight: 46)
                 }
-                .buttonStyle(.borderedProminent).tint(Theme.accentColor)
+                .buttonStyle(.borderedProminent).tint(Theme.accentColor).foregroundStyle(Theme.textOnPrimary)
                 .disabled(model.busy || (model.stage == .preview && model.preview?.canSubmit != true))
                 .accessibilityIdentifier("wechat_binding_primary")
                 if model.stage == .preview {

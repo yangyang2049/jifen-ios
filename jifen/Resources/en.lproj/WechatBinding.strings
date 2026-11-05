@@ -10,7 +10,7 @@
 "wechat_binding_huawei" = "HUAWEI ID";
 "wechat_binding_password" = "Password";
 "wechat_binding_upgrade_title" = "Link WeChat to use your account on other devices";
-"wechat_binding_upgrade_body" = "Use WeChat to access the same membership, groups and saved data on other devices.";
+"wechat_binding_upgrade_body" = "Use WeChat to access the same membership, groups and saved data on your other devices and the web.";
 "wechat_binding_later" = "Later";
 "wechat_binding_bind_now" = "Link Now";
 "wechat_binding_back" = "Back";

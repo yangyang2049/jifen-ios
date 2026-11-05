@@ -1621,6 +1621,7 @@ struct NineBallChaseScoreboardView: View {
             }
             let newStartedAt = Date()
             let newRecordID = UUID().uuidString
+            do {try GroupBilliardsPersistence.shared.inheritSource(from:previousIdentityRecord,to:newRecordID)} catch {ScoreboardPersistenceFailureReporter.report(error,context:"Group rematch source");isStartingNewMatch=false;return}
             let activeNames = (0..<state.playerCount).map { playerName($0) }
             // Existing values can be explicit custom choices, including the old default of 8.
             let freshConfig = state.config
@@ -1784,6 +1785,7 @@ struct NineBallChaseScoreboardView: View {
             extra: [
                 "playerNames": Array(playerNames.prefix(state.playerCount)),
                 "players": activePlayers,
+                "billiardsNaturalCompletion": state.finished && !manualFinishRequested,
                 "chaseRuleVersion": state.ruleVersion,
                 "chaseRoundNumber": state.roundNumber,
                 "chaseBreakerPlayer": state.breakerPlayer,

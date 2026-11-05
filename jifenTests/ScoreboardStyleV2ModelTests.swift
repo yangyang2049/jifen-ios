@@ -130,7 +130,7 @@ final class ScoreboardStyleV2ModelTests: XCTestCase {
     }
 
     func testLegacyDefaultPanelsKeepWhiteTextWithoutDisablingCustomAutoContrast() {
-        for id in ["basketball", "three_basketball", "nine_ball", "multi_scoreboard", "uno"] {
+        for id in ["nine_ball", "multi_scoreboard", "uno"] {
             var profile = ScoreboardStyleProfileV2.default(for: ScoreboardStyleID(rawValue: id))
             XCTAssertEqual(profile.resolvedTextHex(for: .team0), "FFFFFF", id)
             XCTAssertEqual(profile.resolvedTextHex(for: .center), "FFFFFF", id)
@@ -232,14 +232,14 @@ final class ScoreboardStyleV2ModelTests: XCTestCase {
 
     func testRegistryMatchesAndroidWhitelist() {
         let enabled = ScoreboardStyleV2Registry.enabledStyleIDs.map(\.rawValue)
-        XCTAssertEqual(Set(enabled).count, 28)
+        XCTAssertEqual(Set(enabled).count, 30)
         XCTAssertTrue(ScoreboardStyleV2Registry.isEnabled(ScoreboardStyleID(rawValue: "pingpong")))
         XCTAssertTrue(ScoreboardStyleV2Registry.isEnabled(ScoreboardStyleID(rawValue: "pingpong_doubles")))
         XCTAssertTrue(ScoreboardStyleV2Registry.isEnabled(ScoreboardStyleID(rawValue: "snooker")))
         XCTAssertTrue(ScoreboardStyleV2Registry.isEnabled(ScoreboardStyleID(rawValue: "doudizhu")))
         // 排除项（对齐安卓）
-        XCTAssertFalse(ScoreboardStyleV2Registry.isEnabled(ScoreboardStyleID(rawValue: "basketball")))
-        XCTAssertFalse(ScoreboardStyleV2Registry.isEnabled(ScoreboardStyleID(rawValue: "three_basketball")))
+        XCTAssertTrue(ScoreboardStyleV2Registry.isEnabled(ScoreboardStyleID(rawValue: "basketball")))
+        XCTAssertTrue(ScoreboardStyleV2Registry.isEnabled(ScoreboardStyleID(rawValue: "three_basketball")))
         XCTAssertFalse(ScoreboardStyleV2Registry.isEnabled(ScoreboardStyleID(rawValue: "nine_ball")))
         XCTAssertFalse(ScoreboardStyleV2Registry.isEnabled(ScoreboardStyleID(rawValue: "uno")))
         XCTAssertFalse(ScoreboardStyleV2Registry.isEnabled(ScoreboardStyleID(rawValue: "multi_scoreboard")))
@@ -251,6 +251,25 @@ final class ScoreboardStyleV2ModelTests: XCTestCase {
         XCTAssertEqual(capabilities.elementKeys.first, .matchTitle)
         XCTAssertEqual(capabilities.globalElementKeys, [.matchTitle])
         XCTAssertEqual(capabilities.sideElementKeys, [.teamName, .mainScore, .setScore])
+    }
+
+    func testBasketballModesSupportIndependentPanelsAndTextWithoutServeControls() throws {
+        for id in ["basketball", "three_basketball"] {
+            let styleID = ScoreboardStyleID(rawValue: id)
+            let capabilities = try XCTUnwrap(ScoreboardStyleV2Registry.capabilities(for: styleID))
+            XCTAssertEqual(capabilities.elementKeys, [.teamName, .mainScore])
+            XCTAssertFalse(capabilities.supportsServerIndicator)
+            let profile = ScoreboardStyleProfileV2.default(for: styleID)
+                .withPanelBackground("FFFFFF", for: .sideLeft)
+                .withElementTextColor(.mainScore, slotKey: .sideRight, mode: .manual, colorHex: "FDD835")
+            XCTAssertEqual(profile.resolvedElementTextHex(.mainScore, slotKey: .sideLeft), "111111")
+            XCTAssertEqual(profile.resolvedElementTextHex(.mainScore, slotKey: .sideRight), "FDD835")
+            let restored = try JSONDecoder().decode(ScoreboardStyleProfileV2.self, from: JSONEncoder().encode(profile))
+            XCTAssertEqual(profile, restored)
+            let wire = ScoreboardDisplayStyle(profile: restored, fontCode: "digital").projected(team0OnRight: true)
+            XCTAssertEqual(wire.color("mainScore", slot: "side_left"), "#FDD835")
+            XCTAssertEqual(wire.panelColor(slot: "side_right"), "#FFFFFF")
+        }
     }
 
     func testDoudizhuHasThreeSlots() throws {
@@ -298,5 +317,265 @@ private extension ScoreboardStyleProfileV2 {
         var copy = self
         copy.serverIndicatorColorHex = ScoreboardStyleProfileV2.normalizedHex(hex)
         return copy
+    }
+}
+
+@MainActor
+extension ScoreboardStyleV2ModelTests {
+    private func photoState(swapped: Bool = true, doubles: Bool = false) -> ScoreboardDisplayState {
+        var profile = ScoreboardStyleProfileV2.photoTheme(for: .init(rawValue: doubles ? "pingpong_doubles" : "pingpong"))
+        profile.nameFontCode = "serif"
+        profile.backdrop = .init(imageData: "data:image/jpeg;base64,/9j/2Q==", dim: 0.45, panelOpacity: 0.67)
+        let snapshot = ScoreboardAppearanceSnapshot(theme: .defaultTheme, styleProfileV2: profile, font: .sevenSegment,
+            keepScreenOn: false, immersiveMode: false, touchGuard: false, doubleTapSubtract: false)
+        var appearance = ScoreboardDisplayAppearance(snapshot: snapshot)
+        appearance.style = appearance.style?.projected(team0OnRight: swapped)
+        appearance.style?.fontSizeMultipliers = ["mainScore": 1.2, "teamName": 0.9, "gameScore": 1.4, "setScore": 0.8]
+        return .init(gameType: doubles ? "pingpong_doubles" : "pingpong", orientation: .landscape,
+            layoutKind: doubles ? .doublesCourt : .twoSide,
+            teams: [.init(id: "team_0", name: "Team A", score: 11, sets: 2, order: 0),
+                    .init(id: "team_1", name: "Team B", score: 8, sets: 1, order: 1)],
+            matchTitle: "Community Cup", players: doubles ? [
+                .init(id: "p0", name: "A1", teamID: "team_0", order: 0),
+                .init(id: "p1", name: "A2", teamID: "team_0", order: 1),
+                .init(id: "p2", name: "B1", teamID: "team_1", order: 2),
+                .init(id: "p3", name: "B2", teamID: "team_1", order: 3)] : nil,
+            sportState: ["team0ScreenSide": .string(swapped ? "right" : "left"), "servingTeam": .integer(0),
+                "tableTennisTeam0Yellow": .boolean(true), "tableTennisTeam0RedCount": .integer(2)],
+            appearance: appearance, updatedAt: 13, keyPoint: .init(kind: "match", side: swapped ? "right" : "left"),
+            clock: .init(elapsedMilliseconds: 61_000, isRunning: false, anchorWallClockMilliseconds: 0))
+    }
+
+    func testPhotoFieldsRoundtripThroughWireForSinglesAndDoubles() throws {
+        for doubles in [false, true] {
+            var source = photoState(doubles: doubles)
+            source.appearance.style?.serverIndicatorHidden = true
+            source.appearance.style?.serverIndicatorStyle = "sport"
+            let encoded = try XCTUnwrap(DisplayStateWireCodec.encode(source))
+            let transport = try JSONSerialization.jsonObject(with: JSONSerialization.data(withJSONObject: encoded)) as! [String: Any]
+            let decoded = try XCTUnwrap(DisplayStateWireCodec.decode(transport))
+            XCTAssertEqual(decoded.appearance.style?.backdrop, source.appearance.style?.backdrop)
+            XCTAssertEqual(decoded.appearance.style?.nameFontCode, "serif")
+            XCTAssertEqual(decoded.appearance.style?.serverIndicatorHidden, true)
+            XCTAssertEqual(decoded.appearance.style?.serverIndicatorStyle, "sport")
+            XCTAssertEqual(decoded.appearance.style?.fontCode, "seven_segment")
+            XCTAssertEqual(decoded.appearance.style?.fontSizeMultipliers["gameScore"], 1.4)
+            XCTAssertEqual(decoded.appearance.style?.fontSizeMultipliers["setScore"], 0.8)
+            XCTAssertEqual(decoded.matchTitle, source.matchTitle)
+            XCTAssertEqual(decoded.keyPoint, source.keyPoint)
+            XCTAssertEqual(decoded.players?.count ?? 0, doubles ? 4 : 0)
+        }
+    }
+
+    /// 生产链路（LocalScoreboardSyncCoordinator → `ScoreboardDisplayState(compactState:)`）的
+    /// 照片主题往返：compact 快照里的扁平 themeID 只是全局主题，V2 themeCode 与背景图必须
+    /// 原样跨端，既不能被扁平 theme 覆盖，也不能因扁平 theme 不是照片主题而被清空。
+    func testPhotoThemeSurvivesWireRoundTripThroughProductionCompactState() throws {
+        let styleID = ScoreboardStyleID(rawValue: "pingpong")
+        let imageData = "data:image/jpeg;base64," + Data(repeating: 0x7A, count: 96).base64EncodedString()
+        var profile = ScoreboardStyleProfileV2.photoTheme(for: styleID)
+        profile.backdrop = .init(imageData: imageData, dim: 0.45, panelOpacity: 0.67)
+        let preferences = PreferencesManager.shared
+        preferences.setScoreboardStyleProfilePreview(profile, for: styleID)
+        defer { preferences.setScoreboardStyleProfilePreview(nil, for: styleID) }
+
+        let compact = LocalScoreboardDisplayState(
+            gameID: "pingpong",
+            title: "Photo Cup",
+            leftName: "A",
+            rightName: "B",
+            leftScore: "11",
+            rightScore: "8",
+            themeID: "default",
+            fontID: "default",
+            finished: false,
+            revision: 7
+        )
+        let state = ScoreboardDisplayState(compactState: compact)
+        XCTAssertEqual(state.appearance.theme, "default")
+        XCTAssertEqual(state.appearance.style?.themeCode, "event_background")
+        XCTAssertEqual(state.appearance.style?.backdrop?.imageData, imageData)
+
+        let wire = try XCTUnwrap(DisplayStateWireCodec.encode(state))
+        let appearance = try XCTUnwrap(wire["appearance"] as? [String: Any])
+        // 扁平兼容字段跟随 V2 主题，样式自身的 themeCode 不被反向覆盖。
+        XCTAssertEqual(appearance["theme"] as? String, "event_background")
+        XCTAssertEqual((appearance["style"] as? [String: Any])?["themeCode"] as? String, "event_background")
+
+        let transport = try XCTUnwrap(JSONSerialization.jsonObject(
+            with: JSONSerialization.data(withJSONObject: wire)) as? [String: Any])
+        let decoded = try XCTUnwrap(DisplayStateWireCodec.decode(transport))
+        XCTAssertEqual(decoded.appearance.style?.themeCode, "event_background", "照片主题的 themeCode 丢失")
+        XCTAssertEqual(decoded.appearance.theme, "event_background")
+        XCTAssertEqual(decoded.appearance.style?.backdrop?.imageData, imageData, "照片背景图丢失")
+        XCTAssertEqual(decoded.appearance.style?.backdrop?.dim, 0.45)
+        XCTAssertEqual(decoded.appearance.style?.backdrop?.panelOpacity, 0.67)
+    }
+
+    /// 解码侧不得凭空补值：编码省略的可选字段（发球指示器隐藏/样式）必须保持缺失，
+    /// 否则往返结果不再 Equatable 相等、可能触发无谓刷新。
+    func testAbsentServerIndicatorFieldsStayAbsentThroughWireRoundTrip() throws {
+        var state = ScoreboardDisplayState(compactState: LocalScoreboardDisplayState(
+            gameID: "pingpong",
+            title: "",
+            leftName: "A",
+            rightName: "B",
+            leftScore: "3",
+            rightScore: "1",
+            themeID: "default",
+            fontID: "default",
+            finished: false,
+            revision: 1
+        ))
+        state.appearance.style?.serverIndicatorHidden = nil
+        state.appearance.style?.serverIndicatorStyle = nil
+
+        let wire = try XCTUnwrap(DisplayStateWireCodec.encode(state))
+        let style = try XCTUnwrap((wire["appearance"] as? [String: Any])?["style"] as? [String: Any])
+        XCTAssertNil(style["serverIndicatorHidden"], "nil 不应写出该 key")
+        XCTAssertNil(style["serverIndicatorStyle"], "nil 不应写出该 key")
+
+        let transport = try XCTUnwrap(JSONSerialization.jsonObject(
+            with: JSONSerialization.data(withJSONObject: wire)) as? [String: Any])
+        let decoded = try XCTUnwrap(DisplayStateWireCodec.decode(transport))
+        XCTAssertNil(decoded.appearance.style?.serverIndicatorHidden, "缺失字段不应被补成 false")
+        XCTAssertNil(decoded.appearance.style?.serverIndicatorStyle, "缺失字段不应被补成 arrow")
+
+        let reencoded = try XCTUnwrap(DisplayStateWireCodec.encode(decoded))
+        let reStyle = try XCTUnwrap((reencoded["appearance"] as? [String: Any])?["style"] as? [String: Any])
+        XCTAssertNil(reStyle["serverIndicatorHidden"])
+        XCTAssertNil(reStyle["serverIndicatorStyle"])
+
+        // 已存在的值保持原义：sport 仍是 sport，其余仍是 arrow。
+        state.appearance.style?.serverIndicatorHidden = false
+        state.appearance.style?.serverIndicatorStyle = "sport"
+        let presentWire = try XCTUnwrap(DisplayStateWireCodec.encode(state))
+        let presentStyle = try XCTUnwrap((presentWire["appearance"] as? [String: Any])?["style"] as? [String: Any])
+        XCTAssertEqual(presentStyle["serverIndicatorHidden"] as? Bool, false)
+        XCTAssertEqual(presentStyle["serverIndicatorStyle"] as? String, "sport")
+        let presentTransport = try XCTUnwrap(JSONSerialization.jsonObject(
+            with: JSONSerialization.data(withJSONObject: presentWire)) as? [String: Any])
+        let presentDecoded = try XCTUnwrap(DisplayStateWireCodec.decode(presentTransport))
+        XCTAssertEqual(presentDecoded.appearance.style?.serverIndicatorHidden, false)
+        XCTAssertEqual(presentDecoded.appearance.style?.serverIndicatorStyle, "sport")
+    }
+
+    func testPhotoProjectionMapsSwappedLogicalTeamsPlayersCardsAndServe() {
+        for doubles in [false, true] {
+            let state = photoState(doubles: doubles)
+            let left = ScoreboardPhotoProjection.team(state, visualIndex: 0)
+            let right = ScoreboardPhotoProjection.team(state, visualIndex: 1)
+            XCTAssertEqual(left.name, doubles ? "B1 / B2" : "Team B")
+            XCTAssertEqual(right.name, doubles ? "A1 / A2" : "Team A")
+            XCTAssertEqual(left.score, "8"); XCTAssertEqual(right.score, "11")
+            XCTAssertEqual(left.sets, "1"); XCTAssertEqual(right.sets, "2")
+            XCTAssertEqual(right.badgeKind, "match")
+            XCTAssertTrue(right.markers.hasYellowCard); XCTAssertEqual(right.markers.redCardCount, 2)
+            XCTAssertEqual(ScoreboardPhotoProjection.servingLeft(state), false)
+        }
+    }
+
+    func testPhotoNormalizationAndLegacyFontCompatibility() throws {
+        let invalid = ScoreboardBackdrop(imageData: "file:///private.jpg", dim: .nan, panelOpacity: -.infinity).normalized()
+        XCTAssertNil(invalid.imageData); XCTAssertEqual(invalid.dim, 0.30); XCTAssertEqual(invalid.panelOpacity, 0.84)
+        let profile = ScoreboardStyleProfileV2.default(for: .init(rawValue: "pingpong"))
+        // 新建 profile 不写死队名字体：nil 表示跟随全局计分字体（写死 "default" 会把队名钉死在系统字体）。
+        XCTAssertNil(profile.nameFontCode, "新建样式默认跟随全局计分字体")
+        var custom = profile; custom.nameFontCode = "rounded"; custom.serverIndicatorHidden = true; custom.serverIndicatorStyle = "sport"
+        custom.backdrop = .init(imageData: "data:image/jpeg;base64,/9j/2Q==")
+        XCTAssertEqual(try JSONDecoder().decode(ScoreboardStyleProfileV2.self, from: JSONEncoder().encode(custom)), custom)
+        XCTAssertNil(ScoreboardDisplayStyle(profile: custom, fontCode: "digital").backdrop)
+        custom.themeCode = "event_background"
+        XCTAssertNotNil(ScoreboardDisplayStyle(profile: custom, fontCode: "digital").backdrop)
+    }
+
+    func testPhotoNativeVisualScoreOverridesKeepLogicalNamesAndRosters() {
+        for doubles in [false, true] {
+            var state = photoState(doubles: doubles)
+            state.sportState?["leftDisplayScore"] = .string("8")
+            state.sportState?["rightDisplayScore"] = .string("11")
+            XCTAssertEqual(ScoreboardPhotoProjection.team(state, visualIndex: 0).name, doubles ? "B1 / B2" : "Team B")
+            XCTAssertEqual(ScoreboardPhotoProjection.team(state, visualIndex: 1).name, doubles ? "A1 / A2" : "Team A")
+        }
+    }
+
+    /// 发球指示器样式必须能在草稿里往返保存（编辑面板点击后依赖这个字段）。
+    func testServerIndicatorStyleSurvivesNormalizeAndWire() throws {
+        for styleID in ["pingpong", "badminton"] {
+            let base = ScoreboardStyleProfileV2.default(for: .init(rawValue: styleID))
+            var edited = base
+            edited.serverIndicatorStyle = "sport"
+            XCTAssertEqual(edited.normalized().serverIndicatorStyle, "sport")
+            let data = try JSONEncoder().encode(edited)
+            let decoded = try JSONDecoder().decode(ScoreboardStyleProfileV2.self, from: data)
+            XCTAssertEqual(decoded.serverIndicatorStyle, "sport")
+            var back = decoded
+            back.serverIndicatorStyle = "arrow"
+            XCTAssertEqual(back.normalized().serverIndicatorStyle, "arrow")
+        }
+    }
+
+    func testPresetThemesKeepManualAndAutomaticTextEdits() {
+        for theme in [ScoreboardTheme.proDark, .brb, .wrb] {
+            let profile = ScoreboardStyleProfileV2.default(for: .init(rawValue: "pingpong"), theme: theme)
+            let manual = profile.withElementTextColor(.mainScore, slotKey: .sideLeft, mode: .manual, colorHex: "FDD835").normalized()
+            XCTAssertEqual(manual.resolvedElementTextHex(.mainScore, slotKey: .sideLeft), "FDD835")
+            let automatic = manual.withElementTextColor(.mainScore, slotKey: .sideLeft, mode: .auto, colorHex: "FDD835").normalized()
+            XCTAssertFalse(automatic.elementHasManualColor(.mainScore, slotKey: .sideLeft))
+        }
+    }
+
+    func testPhotoDefaultTextIsWhiteOnBothPanelsAndKeepsManualOverrides() {
+        for id in ["pingpong", "pingpong_doubles"] {
+            let profile = ScoreboardStyleProfileV2.photoTheme(for: .init(rawValue: id))
+            let keys: [ScoreboardStyleElementKeyV2] = id == "pingpong" ? [.teamName, .mainScore, .setScore] : [.playerName, .mainScore, .setGameScore]
+            for slot in [ScoreboardStyleSlotKeyV2.sideLeft, .sideRight] {
+                for key in keys { XCTAssertEqual(profile.resolvedElementTextHex(key, slotKey: slot), "FFFFFF") }
+            }
+            let manual = profile.withElementTextColor(.mainScore, slotKey: .sideRight, mode: .manual, colorHex: "FDD835").normalized()
+            XCTAssertEqual(manual.resolvedElementTextHex(.mainScore, slotKey: .sideRight), "FDD835")
+        }
+    }
+
+    /// 复古主题是黑底绿字：AUTO 自动对比在纯黑底上会选白字，必须显式给手动绿字，
+    /// 否则预览与投屏都会丢掉主题色（回归：用户报告“复古预览是黑底白字”）。
+    /// 可复算证据：`docs/verification/audit-remediation-2026-10-25/ios-final.log` 中
+    /// `THEME[retro] … fg=00FF00` 与紧随其后的 `resolvedText t0=FFFFFF t1=FFFFFF`
+    /// 记录了修复前的黑底白字结果。
+    func testRetroThemeKeepsGreenTextInsteadOfAutoContrastWhite() throws {
+        for styleID in ["basketball", "pingpong", "badminton"] {
+            let profile = ScoreboardStyleProfileV2.default(
+                for: ScoreboardStyleID(rawValue: styleID),
+                theme: .retro
+            )
+            XCTAssertEqual(profile.themeCode, "retro", "\(styleID) theme code")
+            for slot in [ScoreboardStyleSlotKeyV2.sideLeft, .sideRight] {
+                XCTAssertEqual(profile.slotBackgroundHex(slot), "000000", "\(styleID) retro panel stays black")
+                for key in [ScoreboardStyleElementKeyV2.teamName, .mainScore] {
+                    XCTAssertEqual(
+                        profile.resolvedElementTextHex(key, slotKey: slot),
+                        "00FF00",
+                        "\(styleID) retro must render green text on \(slot.rawValue)"
+                    )
+                }
+            }
+        }
+        // 其它主题保持原有行为：纯黑底的 electronic 仍是白字。
+        let electronic = ScoreboardStyleProfileV2.default(
+            for: ScoreboardStyleID(rawValue: "basketball"),
+            theme: .electronic
+        )
+        XCTAssertEqual(electronic.resolvedElementTextHex(.mainScore, slotKey: .sideLeft), "FFFFFF")
+    }
+
+    func testPhotoUndoKeepsNewOpacityAndDimAndExpires() throws {
+        let now = Date(timeIntervalSince1970: 1_000)
+        let undo = ScoreboardPhotoImageUndo(imageData: "original", now: now)
+        let adjusted = ScoreboardBackdrop(imageData: nil, dim: 0.52, panelOpacity: 0.71)
+        let restored = try XCTUnwrap(undo.restoring(adjusted, now: now.addingTimeInterval(4)))
+        XCTAssertEqual(restored.imageData, "original")
+        XCTAssertEqual(restored.dim, 0.52)
+        XCTAssertEqual(restored.panelOpacity, 0.71)
+        XCTAssertNil(undo.restoring(adjusted, now: now.addingTimeInterval(5)))
     }
 }

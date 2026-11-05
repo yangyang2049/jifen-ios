@@ -502,6 +502,9 @@ struct ScoreboardTemplate: View {
                 // 中间层：仅比左右半区高一层，在编辑/底部按钮与菜单之下（如射箭的发球箭头+半区点击）；传入 isEditMode 以便编辑时隐藏/禁用，并传入指示器色
                 if !isEditMode && !isStyleEditing && !showDisplaySettings && !showMenu, let provider = contentOverlayProvider {
                     provider(isEditMode, appearance.serverIndicatorColor)
+                        .environment(\.scoreboardServerIndicatorStyle, appearance.styleProfileV2.serverIndicatorStyle ?? "arrow")
+                        .environment(\.scoreboardServerIndicatorGame, typographySession.styleID.rawValue)
+                        .opacity(appearance.styleProfileV2.serverIndicatorHidden ? 0 : 1)
                 }
 
                 if shouldShowImmersiveRevealZones {
@@ -1350,13 +1353,13 @@ struct TeamSection: View {
         } else if let doublesNames = doublesDisplayNames {
             VStack(spacing: 2) {
                 Text(doublesNames.0)
-                    .font(getFont(size: doublesNameSize, weight: .bold))
+                    .font(ScoreboardNameFont.font(code: styleProfile?.nameFontCode, inherited: scoreboardFont, size: doublesNameSize, weight: .bold))
                     .foregroundColor(elementColor(.playerName, fallback: foregroundColor))
                     .styleElementSelectable(.playerName, slotKey: isLeft ? .sideLeft : .sideRight)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                 Text(doublesNames.1)
-                    .font(getFont(size: doublesNameSize, weight: .bold))
+                    .font(ScoreboardNameFont.font(code: styleProfile?.nameFontCode, inherited: scoreboardFont, size: doublesNameSize, weight: .bold))
                     .foregroundColor(elementColor(.playerName, fallback: foregroundColor))
                     .styleElementSelectable(.playerName, slotKey: isLeft ? .sideLeft : .sideRight)
                     .lineLimit(1)
@@ -1365,7 +1368,7 @@ struct TeamSection: View {
             .padding(.horizontal, 8)
         } else {
             Text(team.name)
-                .font(getFont(size: nameSize, weight: .bold))
+                .font(ScoreboardNameFont.font(code: styleProfile?.nameFontCode, inherited: scoreboardFont, size: nameSize, weight: .bold))
                 .foregroundColor(elementColor(.teamName, fallback: foregroundColor))
                 .styleElementSelectable(.teamName, slotKey: isLeft ? .sideLeft : .sideRight)
                 .lineLimit(1)

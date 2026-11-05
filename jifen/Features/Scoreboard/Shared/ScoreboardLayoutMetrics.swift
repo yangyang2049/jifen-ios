@@ -661,7 +661,13 @@ enum ScoreboardTypographyResolver {
             availableWidth: max(1, (context.scoreAvailableWidth ?? availableWidth) - inlineSecondaryWidth),
             minimum: scoreMinimum
         )
-        let verticalLimit = max(1, (size.height - reservedHeight - 2) / max(1, lineHeightRatio))
+        // 垂直预算要剔除“队名自身行高”后再算主分上限。`reservedHeight` 里含
+        // nameSize*lineHeightRatio，而 nameSize 随用户倍率变大，导致把队名调大时
+        // 主分的垂直空间反而被挤小、主分从 82pt 掉到 64pt（越拖越小）。
+        // 主分只应和“主分自己的字号”竞争垂直空间，因此这里按基础字号重算预算。
+        let nameReserve = hasName ? nameSize * lineHeightRatio : 0
+        let scoreOnlyReserved = max(0, reservedHeight - nameReserve)
+        let verticalLimit = max(1, (size.height - scoreOnlyReserved - 2) / max(1, lineHeightRatio))
         let scoreSize = max(1, min(widthLimitedScore, verticalLimit))
 
         let nameScale = min(1, nameSize / max(1, requestedName))
@@ -706,6 +712,36 @@ enum ScoreboardTypographyResolver {
         if CharacterSet.decimalDigits.contains(scalar) { return 0.64 }
         if scalar.isASCII { return 0.58 }
         return 1
+    }
+}
+
+/// 字号倍率的「有效上限」：超过它再调大倍率，渲染字号不再变化。
+///
+/// 窄面板（如篮球三栏的侧栏，主分可用宽约 180pt）里，主分基础字号本身就已经
+/// 超过宽度上限，于是滑块能拖、数字也在变，实际字号却纹丝不动——用户报告为
+/// “字号调节没用”。这里算出真正还能生效的最大倍率，供字号面板封顶并给出提示。
+nonisolated enum ScoreboardFontSizeSaturation {
+    /// 在 `range` 上按 `step` 采样，返回最后一个仍能放大字号的倍率。
+    /// 从下限起就饱和时返回 `range.lowerBound`。
+    static func effectiveUpperBound(
+        range: ClosedRange<Double>,
+        step: Double,
+        epsilon: CGFloat = 0.5,
+        size: (Double) -> CGFloat
+    ) -> Double {
+        guard step > 0, range.upperBound > range.lowerBound else { return range.upperBound }
+        var best = range.lowerBound
+        var bestSize = size(range.lowerBound)
+        var value = range.lowerBound
+        while value < range.upperBound - 1e-9 {
+            value = min(range.upperBound, value + step)
+            let candidate = size(value)
+            // 字号对倍率单调不减，一旦不再变大，继续加也只会更小或持平。
+            guard candidate > bestSize + epsilon else { break }
+            best = value
+            bestSize = candidate
+        }
+        return best
     }
 }
 

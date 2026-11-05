@@ -191,7 +191,13 @@ struct GroupActivityView: View {
     private var me: GroupMember? { latest.members.first { $0.accountId == store.accountID && $0.status == "active" } }
     private var manager: Bool { GroupPermissions.manager(me) || me?.id == current.creatorMemberId }
     private var writable: Bool { latest.group.isActive && !store.cached && store.enabled }
-    var body: some View {
+    @ViewBuilder var body: some View {
+        if detail.group.sport == .billiards {
+            ScrollView { GroupBilliardsTab(detail:latest,tab:1,initialActivityID:activity.id,onStart:onStart).padding() }
+                .navigationTitle(groupText("activity_detail","Activity details")).groupAccountBoundary()
+        } else { legacyBody }
+    }
+    private var legacyBody: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.padding) {
                 HStack(spacing: Theme.sm) {

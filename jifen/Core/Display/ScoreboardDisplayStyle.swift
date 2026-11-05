@@ -23,6 +23,10 @@ struct ScoreboardDisplayStyle: Codable, Equatable, Sendable {
     var panels: [Panel]
     var elements: [Element]
     var serverIndicatorColor: String
+    var backdrop: ScoreboardBackdrop? = nil
+    var nameFontCode: String? = nil
+    var serverIndicatorHidden: Bool? = nil
+    var serverIndicatorStyle: String? = nil
     var styleRevision: Int64 = 0
 
     func color(_ element: String, slot: String) -> String? {
@@ -106,6 +110,10 @@ struct ScoreboardDisplayStyle: Codable, Equatable, Sendable {
 
     init(profile: ScoreboardStyleProfileV2, fontCode: String) {
         themeCode = profile.themeCode
+        backdrop = profile.isPhotoTheme ? profile.backdrop?.normalized() : nil
+        nameFontCode = profile.nameFontCode
+        serverIndicatorHidden = profile.serverIndicatorHidden
+        serverIndicatorStyle = profile.serverIndicatorStyle == "sport" ? "sport" : "arrow"
         self.fontCode = fontCode
         let candidates = (profile.panels?.map(\.slotKey) ?? [.sideLeft, .sideRight])
             + (profile.elements?.flatMap { $0.textColors.map(\.slotKey) } ?? []) + [.sideCenter]

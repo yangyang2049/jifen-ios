@@ -181,7 +181,14 @@ import UIKit
     }
     func testMinimumClientContractDisablesWrites() throws {
         var data = GroupCapabilities(groupNoLength: 6, nameMin: 2, nameMax: 24, descriptionMax: 200, memberLimitDefault: 30, memberLimitMax: 50)
-        data.minClientContractVersion = 2; XCTAssertFalse(data.allows("start_game"))
+        data.sports = [.init(sport: .pickleball, defaultRules: nil, ruleOptions: nil)]
+        // 合同版本与请求头同源（GroupContract.version）：服务端要求的最低版本等于本端版本时仍然可写。
+        data.minClientContractVersion = GroupContract.version
+        XCTAssertTrue(data.allows("start_game"))
+        XCTAssertNotNil(data.sport(.pickleball))
+        data.minClientContractVersion = GroupContract.version + 1
+        XCTAssertFalse(data.allows("start_game"))
+        XCTAssertNil(data.sport(.pickleball))
     }
     func testActivityAndTrainingSessionIdentitiesReachWireBody() throws {
         var value = body(); value.trainingSessionId = "training"

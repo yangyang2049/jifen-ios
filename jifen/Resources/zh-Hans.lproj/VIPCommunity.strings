@@ -1,0 +1,21 @@
+"entry" = "VIP 会员群";
+"unavailable" = "会员群暂时不可用，请稍后重试";
+"ok" = "好";
+"scan_hint" = "使用微信扫一扫，或保存二维码后从微信扫一扫的相册中选择。";
+"save" = "保存二维码";
+"open" = "打开入群页面";
+"later" = "稍后再说";
+"close" = "关闭";
+"photos_denied" = "请在设置中允许添加照片，以保存二维码。";
+"saved" = "二维码已保存到相册";
+"save_failed" = "保存失败，请重试";
+
+"join_title" = "加入 VIP 会员群";
+"description" = "交流使用心得，反馈问题与建议。";
+"scan_next" = "保存后，在微信扫一扫中从相册选择";
+"scan_saved" = "已保存，在微信扫一扫中从相册选择";
+"save_open_wechat" = "保存并打开微信";
+"open_web" = "打开入群网页";
+"saving" = "正在保存…";
+"saved_wechat_unavailable" = "二维码已保存，暂时无法打开微信，可改用入群网页";
+"entry_summary" = "交流心得 · 反馈建议";

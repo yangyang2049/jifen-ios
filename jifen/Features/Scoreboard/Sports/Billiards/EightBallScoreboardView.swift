@@ -566,6 +566,7 @@ struct EightBallScoreboardView: View {
             }
             let newStartedAt = Date()
             let newRecordID = UUID().uuidString
+            do {try GroupBilliardsPersistence.shared.inheritSource(from:previousIdentityRecord,to:newRecordID)} catch {ScoreboardPersistenceFailureReporter.report(error,context:"Group rematch source");isStartingNewMatch=false;return}
             let freshState = EightBallState.initial(
                 targetPoints: state.targetPoints,
                 handicapRacks: state.handicapRacks,

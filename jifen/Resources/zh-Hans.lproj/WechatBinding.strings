@@ -10,7 +10,7 @@
 "wechat_binding_huawei" = "华为账号";
 "wechat_binding_password" = "账号密码";
 "wechat_binding_upgrade_title" = "绑定微信，换设备也能继续用";
-"wechat_binding_upgrade_body" = "绑定后，可在安卓、鸿蒙和网页端用微信登录同一账号，继续使用会员、小组和常用数据。";
+"wechat_binding_upgrade_body" = "绑定后，可在其他设备和网页端用微信登录同一账号，继续使用会员、小组和常用数据。";
 "wechat_binding_later" = "稍后再说";
 "wechat_binding_bind_now" = "立即绑定";
 "wechat_binding_back" = "返回";

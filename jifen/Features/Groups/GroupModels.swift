@@ -2,16 +2,30 @@ import Foundation
 import ScoreCore
 
 nonisolated enum GroupSport: String, Codable, CaseIterable, Identifiable, Sendable {
-    case badminton, tableTennis = "table_tennis", tennis, pickleball
+    case badminton, tableTennis = "table_tennis", tennis, pickleball, billiards, unsupported
+    static var racketSports: [Self] { [.badminton,.tableTennis,.tennis,.pickleball] }
+    static var allCases: [Self] { racketSports + [.billiards] }
+    init(from decoder: Decoder) throws { self = Self(rawValue: try decoder.singleValueContainer().decode(String.self)) ?? .unsupported }
     var id: String { rawValue }
-    var gameType: GameType { switch self { case .badminton: .badminton; case .tableTennis: .pingpong; case .tennis: .tennis; case .pickleball: .pickleball } }
-    @MainActor var title: String { gameType.displayName }
+    var gameType: GameType { switch self { case .badminton: .badminton; case .tableTennis: .pingpong; case .tennis: .tennis; case .pickleball: .pickleball; case .billiards, .unsupported: .billiards } }
+    @MainActor var title: String { self == .unsupported ? billiardsText("unsupported") : gameType.displayName }
 }
 nonisolated enum GroupFormat: String, Codable, CaseIterable, Identifiable, Sendable {
-    case singles, doubles
+    case singles, doubles, individuals, mixed, unsupported
+    static var allCases: [Self] { [.singles, .doubles] }
+    init(from decoder: Decoder) throws { self = Self(rawValue: try decoder.singleValueContainer().decode(String.self)) ?? .unsupported }
     var id: String { rawValue }
     var seatsPerSide: Int { self == .singles ? 1 : 2 }
-    var title: String { groupText(rawValue, self == .singles ? "Singles" : "Doubles") }
+    /// 兜底文案按用例区分：`.individuals` / `.mixed` / `.unsupported` 过去都落到 "Doubles"，与真实赛制不符。
+    var title: String {
+        switch self {
+        case .singles: groupText(rawValue, "Singles")
+        case .doubles: groupText(rawValue, "Doubles")
+        case .individuals: groupText(rawValue, "Individual")
+        case .mixed: groupText(rawValue, "Mixed")
+        case .unsupported: groupText(rawValue, "Unsupported format")
+        }
+    }
 }
 nonisolated func groupText(_ key: String, _ fallback: String) -> String { NSLocalizedString(GroupCopyKey.resolve("group_" + key), value: fallback, comment: "Groups") }
 
@@ -131,6 +145,7 @@ nonisolated struct GroupResult: Codable, Identifiable, Sendable {
     var canAuthorityConfirm: Bool? = nil
     var submitterCanonicalMemberId: String? = nil
     var confirmedByCanonicalMemberId: String? = nil
+    var billiards: GroupBilliardsRow? = nil
     var date: Date { Date(timeIntervalSince1970: Double(playedAt) / 1000) }
 }
 nonisolated struct GroupRanking: Codable, Identifiable, Sendable {
@@ -158,6 +173,14 @@ nonisolated extension GroupGameSnapshot {
     }
 }
 nonisolated struct GroupGameResponse: Decodable, Sendable { var gameId: String; var clientSessionId: String }
+/// 小组接口合同版本。请求头 `X-Group-Contract-Version` 与上限判断必须同源，
+/// 对齐安卓 `HttpClient.kt`（header "2"）与鸿蒙 `RemoteGroupRepository.ts`（`> 2` 才拦截）。
+nonisolated enum GroupContract {
+    static let version = 2
+    static let headerName = "X-Group-Contract-Version"
+    static var headers: [String: String] { [headerName: "\(version)"] }
+}
+
 nonisolated struct GroupCapabilities: Codable, Sendable {
     var groupReportEvidenceEnabled: Bool? = nil
     var groupNoLength: Int; var nameMin: Int; var nameMax: Int; var descriptionMax: Int
@@ -180,10 +203,10 @@ nonisolated struct GroupCapabilities: Codable, Sendable {
         guard minimum > 0, maximum >= minimum else { return 6...8 }
         return minimum...maximum
     }
-    func allows(_ action: String) -> Bool { (minClientContractVersion ?? 1) <= 1 && (allowedActions?.contains(action) ?? true) }
+    func allows(_ action: String) -> Bool { (minClientContractVersion ?? 1) <= GroupContract.version && (allowedActions?.contains(action) ?? true) }
     /// This release creates peer groups only, even if the server later exposes coaching.
     var allowsPeerCreation: Bool { allows("create_group") && (groupTypes?.contains("peer") ?? true) }
-    func sport(_ sport: GroupSport) -> GroupSportCapability? { guard (minClientContractVersion ?? 1) <= 1, (ruleSchemaVersion ?? 1) == 1 else { return nil }; return sports?.first { $0.sport == sport } }
+    func sport(_ sport: GroupSport) -> GroupSportCapability? { guard (minClientContractVersion ?? 1) <= GroupContract.version, (ruleSchemaVersion ?? 1) == 1 else { return nil }; return sports?.first { $0.sport == sport } }
 }
 
 nonisolated struct GroupMatchRules: Codable, Hashable, Sendable {
@@ -230,8 +253,9 @@ nonisolated struct GroupMatchRules: Codable, Hashable, Sendable {
         return String(format: groupText(sport == .tennis ? "best_of_tennis_format" : "best_of_format", "Best of %1$@ (first to %2$@)"), total, wins)
     }
 
+    static func supports(_ sport:GroupSport)->Bool {GroupSport.racketSports.contains(sport)}
     var isValid: Bool {
-        version == 1 && (1...99).contains(maxSets) && (1...999).contains(pointsToWinSet)
+        Self.supports(sport) && version == 1 && (1...99).contains(maxSets) && (1...999).contains(pointsToWinSet)
         && ["best_of", "play_all"].contains(matchCompletionMode)
         && (matchCompletionMode == "play_all" || maxSets % 2 == 1)
         && (pointCap == nil || (pointCap! >= pointsToWinSet && pointCap! <= 9999))

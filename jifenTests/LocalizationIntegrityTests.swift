@@ -251,6 +251,20 @@ final class LocalizationIntegrityTests: XCTestCase {
         }
     }
 
+    /// 台球小组版本提示里的版本号来自包内的 CFBundleShortVersionString：
+    /// 47 个语言都必须保留 %@ 占位符，不能把某个具体版本写死在文案里。
+    func testBilliardsVersionNoticeKeepsAVersionPlaceholder() throws {
+        for locale in LocalizationTestSupport.promotedLocales {
+            let values = try LocalizationTestSupport.valuesByKey(relativePath: LocalizationTestSupport.localizablePaths[locale]!)
+            let message = try XCTUnwrap(values["group_billiards_create_notice_message"], "\(locale) notice missing")
+            XCTAssertEqual(LocalizationTestSupport.formatTokens(in: message), ["%@"], locale)
+            XCTAssertTrue(String(format: message, "9.9.9").contains("9.9.9"), "\(locale) did not substitute the version")
+            for stale in ["3.4.3", "3.4.1"] {
+                XCTAssertFalse(message.contains(stale), "\(locale) hardcodes release version \(stale)")
+            }
+        }
+    }
+
     func testParticipantIdentityTablesKeepKeysFormatsAndCompiledResourcesInSync() throws {
         let table = "ParticipantIdentity"
         let basePath = "jifen/Resources/en.lproj/\(table).strings"
@@ -313,13 +327,18 @@ final class LocalizationIntegrityTests: XCTestCase {
         NSLocalizedString("nil_table_key", tableName: nil, comment: "")
         localized("helper_key", bundle: bundle)
         NSLocalizedString("dynamic_\(key)", comment: "")
+        String(localized: "swiftui_key")
+        String(localized: "swiftui_table_key", table: "QRScan")
+        String(localized: "swiftui_dynamic_" + suffix)
         """#
         XCTAssertEqual(try LocalizationTestSupport.staticReferences(in: source), [
             .init(key: "default_key", tableName: "Localizable", line: 1),
             .init(key: "scan_key", tableName: "QRScan", line: 2),
             .init(key: "binding_key", tableName: "WechatBinding", line: 3),
             .init(key: "nil_table_key", tableName: "Localizable", line: 5),
-            .init(key: "helper_key", tableName: "Localizable", line: 6)
+            .init(key: "helper_key", tableName: "Localizable", line: 6),
+            .init(key: "swiftui_key", tableName: "Localizable", line: 8),
+            .init(key: "swiftui_table_key", tableName: "QRScan", line: 9)
         ])
     }
 

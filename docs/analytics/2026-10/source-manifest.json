@@ -1,0 +1,103 @@
+{
+  "property": "iscoreboard",
+  "propertyId": "555327954",
+  "dateStart": "2026-10-01",
+  "dateEnd": "2026-10-31",
+  "timezone": "GMT+04:00",
+  "currency": "USD",
+  "provisional": true,
+  "generatedAt": "2026-10-31T15:30:18+08:00",
+  "retentionObservedThrough": "2026-10-30",
+  "exploration": "https://analytics.google.com/analytics/web/?authuser=0&hl=en-US#/analysis/a254588017p555327954/edit/GJAHY-6nRAaOr-Bc8nlDYw",
+  "filters": [
+    "Stream name matches regex ^iScoreboard( Android)?$",
+    "App store matches regex ^(iTunes|com.android.vending)$"
+  ],
+  "files": [
+    {
+      "file": "acquisition.csv",
+      "sha256": "5076a7b858d4db8bcf78346b75ad253495635106af329fed13ddfe071c4b79c4",
+      "bytes": 617,
+      "exportedAt": "2026-10-31T15:10:47+08:00"
+    },
+    {
+      "file": "countries.csv",
+      "sha256": "3cbbd4a67cbbd156c2b0f7387a1015269675109c0d309b8ca7b2fbfce88b3221",
+      "bytes": 4605,
+      "exportedAt": "2026-10-31T15:00:27+08:00"
+    },
+    {
+      "file": "country-screen-events.csv",
+      "sha256": "1571a86e4cf4cf5a01c7ea14067945a4d0c89e93f1e2c1e049c03c7c3f5fece2",
+      "bytes": 274135,
+      "exportedAt": "2026-10-31T15:04:33+08:00"
+    },
+    {
+      "file": "country-screens.csv",
+      "sha256": "dd37dbf8c01b7c7e1597c36a0678316900ba2986a244424e7353a9f13412c34c",
+      "bytes": 49763,
+      "exportedAt": "2026-10-31T15:02:51+08:00"
+    },
+    {
+      "file": "daily.csv",
+      "sha256": "d81661f15dc08bdcc8e6fc1b32b12f18b98ff821f75577a04e829040efbbc835",
+      "bytes": 4770,
+      "exportedAt": "2026-10-31T15:00:53+08:00"
+    },
+    {
+      "file": "devices.csv",
+      "sha256": "17e027946874b4248e9846e78d1d44ba78a61020f1a2615b88d7ff7a6c68a7b5",
+      "bytes": 498,
+      "exportedAt": "2026-10-31T15:05:42+08:00"
+    },
+    {
+      "file": "events.csv",
+      "sha256": "2c7fc2013d9f97b4b2390a980c4c6bfe176c4385af6ad904ad6c149d07cf56d5",
+      "bytes": 4475,
+      "exportedAt": "2026-10-31T15:03:53+08:00"
+    },
+    {
+      "file": "installation-sources.csv",
+      "sha256": "0197b0346e6d841ce8b9aa3d5b0825d7ec6bf9a04f6d86c1e623611fea21ef05",
+      "bytes": 916,
+      "exportedAt": "2026-10-31T14:59:27+08:00"
+    },
+    {
+      "file": "languages.csv",
+      "sha256": "bab9c0b789175ff0aeabcc45efaf40ecfd7f12788cbf918ba763af7508873074",
+      "bytes": 1823,
+      "exportedAt": "2026-10-31T15:06:01+08:00"
+    },
+    {
+      "file": "platform-summary.csv",
+      "sha256": "2ba729d82cfe5d29ddbc8c646d109303b834d5ee6b8fff30246aab1b58318736",
+      "bytes": 790,
+      "exportedAt": "2026-10-31T14:57:08+08:00"
+    },
+    {
+      "file": "retention-cohorts.csv",
+      "sha256": "e953f38debed3906694df49587216db50941885f3e19db5db35d619f8af23269",
+      "bytes": 232994,
+      "exportedAt": "2026-10-31T15:07:32+08:00"
+    },
+    {
+      "file": "screens.csv",
+      "sha256": "958ab650fcff8690d6b45af0597ebe85a01251ed3702b2b0dcc9ddd4a5725e1b",
+      "bytes": 7700,
+      "exportedAt": "2026-10-31T15:01:42+08:00"
+    },
+    {
+      "file": "store-summary.csv",
+      "sha256": "a17125244aa57cd27bda2d91a5fe39ead30cc49164eda773fa225b2a833c1b8c",
+      "bytes": 592,
+      "exportedAt": "2026-10-31T15:00:04+08:00"
+    },
+    {
+      "file": "versions.csv",
+      "sha256": "8df9a2c3b34e513cdf340413fe646fbb5a0aeac867c8b7bf328b3355976a23b7",
+      "bytes": 652,
+      "exportedAt": "2026-10-31T15:05:21+08:00"
+    }
+  ],
+  "eventCountryScreenRows": 4189
+}

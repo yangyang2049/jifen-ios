@@ -489,6 +489,10 @@ struct HomeTab: View {
                 }
             )
         }
+        .vipCommunityInvitation(active: homeSheet == nil && !showNationalDayCampaign && !showNewGameDialog &&
+            !showQuickStartEditSheet && !showCreateBookingSheet && pendingScoreboardSetupItem == nil &&
+            path.isEmpty && groupPush.destination == nil && groupReminders.destination == nil &&
+            !SessionStore.shared.presentsWechatUpgradePrompt)
         #if DEBUG
         .overlay(alignment: .topLeading) {
             if GroupCaptureFixture.enabled && GroupCaptureFixture.nativeScene == "home" {

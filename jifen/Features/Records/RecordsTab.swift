@@ -279,9 +279,9 @@ struct RecordsTab: View {
             }
         }).count
         return HStack {
-            VStack { Text("\(personal.count)").font(.title2); Text(identityText("records_count", "记录")).font(.caption) }
+            VStack { RollingRecordStatistic(value: personal.count); Text(identityText("records_count", "记录")).font(.caption) }
             Spacer()
-            VStack { Text("\(projectCount)").font(.title2); Text(identityText("projects_count", "项目")).font(.caption) }
+            VStack { RollingRecordStatistic(value: projectCount); Text(identityText("projects_count", "项目")).font(.caption) }
         }.padding(.horizontal, 40).padding(.vertical, 16).background(Theme.appCardBackground)
             .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius)).padding(.horizontal, Theme.pageHorizontalInset)
     }

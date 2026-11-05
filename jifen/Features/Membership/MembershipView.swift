@@ -39,6 +39,7 @@ struct MembershipView: View {
     @State private var selectedProductID = StoreKitPurchaseManager.lifetimeProductID
     @State private var showLoginSheet = false
     @State private var showOfferCodeRedemption = false
+    @State private var communityRequest = 0
     @State private var agreementPage: MembershipAgreementPage?
 
     var body: some View {
@@ -85,6 +86,8 @@ struct MembershipView: View {
         .sheet(isPresented: $showLoginSheet) {
             AccountLoginSheet()
         }
+        .vipCommunityInvitation(active: !isBusy && !showLoginSheet && !showOfferCodeRedemption && agreementPage == nil,
+                                manualRequest: communityRequest)
     }
 
     private func membershipScrollContent(showLogo: Bool) -> some View {
@@ -113,6 +116,13 @@ struct MembershipView: View {
                     .multilineTextAlignment(.center)
                     .padding(.top, 16)
                 #endif
+                if isVIP && VipCommunityAvailability.shared.enabled {
+                    VipCommunityEntryBanner(enabled: !isBusy && !showLoginSheet && !showOfferCodeRedemption && agreementPage == nil) {
+                        communityRequest += 1
+                    }
+                    .padding(.top, 20)
+                    .accessibilityIdentifier("vip_community_entry")
+                }
             }
             .padding(.horizontal, Theme.pageHorizontalInset)
             .padding(.top, 8)

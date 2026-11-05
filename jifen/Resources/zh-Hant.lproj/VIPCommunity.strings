@@ -1,0 +1,21 @@
+"entry" = "VIP 會員群";
+"unavailable" = "會員群暫時不可用，請稍後重試";
+"ok" = "好";
+"scan_hint" = "使用微信掃一掃，或儲存二維碼後從微信掃一掃的相簿中選擇。";
+"save" = "儲存二維碼";
+"open" = "開啟入群頁面";
+"later" = "稍後再說";
+"close" = "關閉";
+"photos_denied" = "請在設定中允許加入照片，以儲存二維碼。";
+"saved" = "二維碼已儲存到相簿";
+"save_failed" = "儲存失敗，請重試";
+
+"join_title" = "加入 VIP 會員群";
+"description" = "交流使用心得，回報問題與建議。";
+"scan_next" = "儲存後，在微信掃一掃中從相簿選擇";
+"scan_saved" = "已儲存，在微信掃一掃中從相簿選擇";
+"save_open_wechat" = "儲存並開啟微信";
+"open_web" = "開啟入群網頁";
+"saving" = "正在儲存…";
+"saved_wechat_unavailable" = "二維碼已儲存，暫時無法開啟微信，可改用入群網頁";
+"entry_summary" = "交流心得 · 回饋建議";

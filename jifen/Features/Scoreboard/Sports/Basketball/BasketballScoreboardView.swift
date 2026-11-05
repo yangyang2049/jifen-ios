@@ -17,6 +17,7 @@ struct BasketballScoreboardView: View {
     @State private var typographySession: ScoreboardTypographySession
     @State private var preferences = PreferencesManager.shared
     @State private var showDisplaySettings = false
+    @State private var styleEditorEntry = ScoreboardStyleEditorEntry()
     @State private var showMenu = false
     @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var previousIdleTimerDisabled: Bool?
@@ -226,14 +227,14 @@ struct BasketballScoreboardView: View {
         .lockOrientation(.landscape)
         .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
         .onLongPressGesture(minimumDuration: 0.55) {
-            guard !isEditMode else { return }
+            guard !isEditMode, !styleEditorEntry.isEditing else { return }
             showMenu = true
             revealImmersiveChrome()
         }
         .simultaneousGesture(
             DragGesture(minimumDistance: 50)
                 .onEnded { value in
-                    guard !isEditMode,
+                    guard !isEditMode, !styleEditorEntry.isEditing,
                           !store.state.finished,
                           value.translation.width < -50,
                           abs(value.translation.width) > abs(value.translation.height) else { return }
@@ -319,6 +320,11 @@ struct BasketballScoreboardView: View {
             isPresented: $showDisplaySettings,
             session: typographySession,
             metrics: ScoreboardTypographyProfile.basketball.adjustableMetrics
+        )
+        .scoreboardStyleEditorEntry(
+            styleEditorEntry,
+            typographySession: typographySession,
+            onEditingChange: { _ in revealImmersiveChrome() }
         )
     }
 
@@ -407,9 +413,11 @@ struct BasketballScoreboardView: View {
         nameContentWidth: CGFloat
     ) -> some View {
         let isScreenLeft = screenSide == .left
-        let color = logicalSide(forScreen: screenSide) == .left
-            ? Color(hex: "C62828")
-            : Color(hex: "007AFF")
+        let slot: ScoreboardStyleSlotKeyV2 = logicalSide(forScreen: screenSide) == .left ? .sideLeft : .sideRight
+        let color = Color(hex: appearance.styleProfileV2.slotBackgroundHex(slot))
+        // 面板底色跟随用户样式后，编辑态控件不能写死白字：浅色面板上白字不可读。
+        // 复用面板文字色策略（== 安卓 resolvedAutoTextColor），默认主题仍是固定白字。
+        let controlColor = Color(hex: appearance.styleProfileV2.resolvedAutoTextHex(forSlot: slot))
 
         if isEditMode {
             BasketballEditTeamPanel(
@@ -418,6 +426,7 @@ struct BasketballScoreboardView: View {
                 fouls: isScreenLeft ? $editLeftFouls : $editRightFouls,
                 timeouts: isScreenLeft ? $editLeftTimeouts : $editRightTimeouts,
                 color: color,
+                controlColor: controlColor,
                 typography: typographyPreference,
                 panelSize: panelSize
             )
@@ -432,6 +441,8 @@ struct BasketballScoreboardView: View {
                 bonusThreshold: BasketballMatchEngine.bonusThreshold(store.state),
                 doubleBonusThreshold: BasketballMatchEngine.doubleBonusThreshold(store.state),
                 color: color,
+                appearance: appearance,
+                styleSlot: slot,
                 isLeftSide: isScreenLeft,
                 typography: typographyPreference,
                 panelSize: panelSize,
@@ -550,13 +561,13 @@ struct BasketballScoreboardView: View {
     }
 
     private var shouldShowChrome: Bool {
-        !appearance.immersiveMode || chromeVisible || isEditMode || showDisplaySettings || showMenu
+        !styleEditorEntry.isEditing && (!appearance.immersiveMode || chromeVisible || isEditMode || showDisplaySettings || showMenu)
     }
 
     private func revealImmersiveChrome() {
         chromeVisible = true
         immersiveGeneration += 1
-        guard appearance.immersiveMode, !isEditMode, !showDisplaySettings, !showMenu else { return }
+        guard appearance.immersiveMode, !isEditMode, !showDisplaySettings, !showMenu, !styleEditorEntry.isEditing else { return }
         let hideDelay: TimeInterval
         if let exitConfirmDeadline, Date() <= exitConfirmDeadline {
             hideDelay = max(exitConfirmDeadline.timeIntervalSinceNow, 0) + 0.05
@@ -569,6 +580,7 @@ struct BasketballScoreboardView: View {
                   appearance.immersiveMode,
                   !isEditMode,
                   !showDisplaySettings,
+                  !styleEditorEntry.isEditing,
                   !showMenu else { return }
             if let exitConfirmDeadline, Date() <= exitConfirmDeadline { return }
             chromeVisible = false
@@ -610,8 +622,11 @@ struct BasketballScoreboardView: View {
                 showConfirmToast(.finish)
             }
         case "displaySettings":
-            showDisplaySettings = true
             showMenu = false
+            if isEditMode { commitBasketballEdits() }
+            if !styleEditorEntry.handleDisplaySettings(styleID: typographySession.styleID, typographySession: typographySession) {
+                showDisplaySettings = true
+            }
         case "whistle":
             break
         default:
@@ -689,7 +704,7 @@ struct BasketballScoreboardView: View {
             },
             handleIntent: { intent in
                 guard LocalScoreboardMutationPolicy.allowsMutation(
-                    isEditing: isEditMode,
+                    isEditing: isEditMode || styleEditorEntry.isEditing,
                     finished: store.state.finished,
                     scoringLocked: false
                 ) else { return }
@@ -790,6 +805,7 @@ private struct BasketballEditTeamPanel: View {
     @Binding var fouls: Int
     @Binding var timeouts: Int
     let color: Color
+    let controlColor: Color
     let typography: ScoreboardTypographyPreference
     let panelSize: CGSize
 
@@ -818,7 +834,8 @@ private struct BasketballEditTeamPanel: View {
                     placeholder: NSLocalizedString("setup_team_name", value: "队伍名称", comment: ""),
                     text: $name,
                     nameType: ScoreboardCommonNamePolicy.nameType(for: .basketball),
-                    scoreboardFont: typography.font
+                    scoreboardFont: typography.font,
+                    textColor: controlColor
                 )
                 .padding(.horizontal, 16)
 
@@ -858,7 +875,7 @@ private struct BasketballEditTeamPanel: View {
                 .padding(.horizontal, 4)
                 .padding(.bottom, 10)
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(controlColor)
             .offset(y: ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: panelSize.height))
         }
     }
@@ -874,16 +891,16 @@ private struct BasketballEditTeamPanel: View {
         VStack(spacing: 2) {
             Text(label)
                 .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(.white.opacity(0.9))
+                .foregroundStyle(controlColor.opacity(0.9))
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
             HStack(spacing: 4) {
                 Button(action: minus) {
                     Image(systemName: "minus")
                         .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(minusEnabled ? .white.opacity(0.8) : .white.opacity(0.3))
+                        .foregroundStyle(controlColor.opacity(minusEnabled ? 0.8 : 0.3))
                         .frame(width: 38, height: 38)
-                        .background(Circle().fill(Color.white.opacity(0.1)))
+                        .background(Circle().fill(controlColor.opacity(0.1)))
                 }
                 .buttonStyle(.plain)
                 .disabled(!minusEnabled)
@@ -894,9 +911,9 @@ private struct BasketballEditTeamPanel: View {
                 Button(action: plus) {
                     Image(systemName: "plus")
                         .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(.white.opacity(0.8))
+                        .foregroundStyle(controlColor.opacity(0.8))
                         .frame(width: 38, height: 38)
-                        .background(Circle().fill(Color.white.opacity(0.1)))
+                        .background(Circle().fill(controlColor.opacity(0.1)))
                 }
                 .buttonStyle(.plain)
             }
@@ -911,9 +928,9 @@ private struct BasketballEditTeamPanel: View {
         }) {
             Image(systemName: systemName)
                 .font(.system(size: 20, weight: .bold))
-                .foregroundStyle(.white.opacity(0.8))
+                .foregroundStyle(controlColor.opacity(0.8))
                 .frame(width: 50, height: 50)
-                .background(Circle().fill(Color.white.opacity(0.1)))
+                .background(Circle().fill(controlColor.opacity(0.1)))
         }
         .buttonStyle(.plain)
     }
@@ -928,6 +945,8 @@ private struct BasketballTeamPanel: View {
     let bonusThreshold: Int
     let doubleBonusThreshold: Int
     let color: Color
+    let appearance: ScoreboardAppearanceSnapshot
+    let styleSlot: ScoreboardStyleSlotKeyV2
     let isLeftSide: Bool
     let typography: ScoreboardTypographyPreference
     let panelSize: CGSize
@@ -949,6 +968,10 @@ private struct BasketballTeamPanel: View {
     @State private var timeoutPendingConfirmation = false
 
     private let bonusYellow = Color(hex: "FACC15")
+
+    private var controlColor: Color {
+        .white
+    }
 
     private var resolvedTypography: ScoreboardTypographyResult {
         ScoreboardTypographyResolver.resolve(
@@ -978,12 +1001,12 @@ private struct BasketballTeamPanel: View {
     private var isActiveTimeoutSide: Bool { timeoutActiveSide == logicalSide }
 
     private var timeoutTone: Color {
-        guard isActiveTimeoutSide else { return .white.opacity(timeouts > 0 ? 0.9 : 0.5) }
+        guard isActiveTimeoutSide else { return controlColor.opacity(timeouts > 0 ? 0.9 : 0.5) }
         if timeoutRemainingSeconds == 0 { return Color(hex: "EF4444") }
         if timeoutRemainingSeconds <= Int(Double(timeoutDurationSeconds) * 0.2) {
             return Color(hex: "F0883E")
         }
-        return .white.opacity(0.9)
+        return controlColor.opacity(0.9)
     }
 
     var body: some View {
@@ -1002,7 +1025,8 @@ private struct BasketballTeamPanel: View {
                             * ScoreboardLayoutMetrics.threeDigitMainScoreScale(scoreText: "\(score)")
                     ))
                     .monospacedDigit()
-                    .foregroundStyle(.white)
+                    .foregroundStyle(appearance.elementForeground(.mainScore, slotKey: styleSlot))
+                    .accessibilityIdentifier(isLeftSide ? "basketball_score_left" : "basketball_score_right")
                     .minimumScaleFactor(0.4)
                     .lineLimit(1)
                     .padding(.horizontal, BasketballTeamPanelLayoutMetrics.contentPadding)
@@ -1017,11 +1041,11 @@ private struct BasketballTeamPanel: View {
 
             VStack {
                 Text(name)
-                    .font(typography.font.swiftUIFont(
+                    .font(appearance.nameFont(
                         size: resolvedTypography.nameFontSize,
                         weight: .bold
                     ))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(appearance.elementForeground(.teamName, slotKey: styleSlot))
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
                     .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: panelSize.height))
@@ -1065,9 +1089,9 @@ private struct BasketballTeamPanel: View {
                 Button(action: { onScore(point) }) {
                     AddValueLabel(value: "\(point)", numberFontSize: layout.scoreButtonFontSize)
                         .font(.system(size: layout.scoreButtonFontSize, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(controlColor)
                         .frame(width: layout.scoreButtonSize, height: layout.scoreButtonSize)
-                        .background(Circle().fill(Color.white.opacity(0.14)))
+                        .background(Circle().fill(controlColor.opacity(0.14)))
                         .contentShape(Circle())
                 }
                 .buttonStyle(.plain)
@@ -1087,12 +1111,12 @@ private struct BasketballTeamPanel: View {
                     size: min(18, max(12, resolvedTypography.secondaryFontSize * 0.35)),
                     weight: .semibold
                 ))
-                .foregroundStyle(.white)
+                .foregroundStyle(controlColor)
 
             HStack(spacing: 4) {
                 ForEach(0..<foulDisplayLimit, id: \.self) { index in
                     Circle()
-                        .fill(index < fouls ? Color.white : Color.white.opacity(0.25))
+                        .fill(index < fouls ? controlColor : controlColor.opacity(0.25))
                         .frame(width: 8, height: 8)
                 }
             }
@@ -1152,7 +1176,7 @@ private struct BasketballTeamPanel: View {
             Capsule().fill(
                 isActiveTimeoutSide || timeoutPendingConfirmation
                     ? timeoutTone.opacity(0.16)
-                    : Color.white.opacity(0.14)
+                    : controlColor.opacity(0.14)
             )
         )
         .contentShape(Capsule())

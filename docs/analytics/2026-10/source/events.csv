@@ -1,0 +1,96 @@
+# ----------------------------------------
+# iscoreboard
+# 202610 iOSGoogle Play -Free form 1
+# 20261001-20261031
+# ----------------------------------------
+
+Stream name,Event name,Total users,Active users,Sessions,User engagement,Views,Event count
+,,698,679,1961,3323791,11221,64627,Grand total
+iScoreboard,user_engagement,613,613,1835,3273245,0,17315
+iScoreboard,screen_view,609,608,1690,0,9569,9569
+iScoreboard,session_start,607,606,1834,0,0,1896
+iScoreboard,select_content,514,514,1321,0,0,4026
+iScoreboard,first_open,499,499,492,0,0,502
+iScoreboard,scoreboard_open,457,457,1170,0,0,2445
+iScoreboard,score_setup_confirm,451,451,1056,0,0,2015
+iScoreboard,scoreboard_action,357,357,825,0,0,7370
+iScoreboard,match_start,334,333,835,0,0,1917
+iScoreboard,app_update,218,184,261,0,0,343
+iScoreboard,record_save,191,191,405,0,0,994
+iScoreboard,match_finish,186,186,399,0,0,977
+iScoreboard,record_action,160,160,307,0,0,978
+iScoreboard,rate_app,139,137,144,0,0,188
+iScoreboard,tool_action,110,110,239,0,0,6614
+iScoreboard,os_update,69,55,56,0,0,74
+iScoreboard Android,first_open,66,66,66,0,0,66
+iScoreboard Android,screen_view,66,66,106,36253,1652,1652
+iScoreboard Android,session_start,66,66,115,0,0,121
+iScoreboard Android,tab_view,66,66,106,0,0,896
+iScoreboard,login,61,61,71,0,0,74
+iScoreboard Android,user_engagement,50,50,91,14293,0,247
+iScoreboard Android,open_page,47,47,82,0,0,940
+iScoreboard Android,(not set),41,41,35,0,0,0
+iScoreboard,common_data_action,40,40,55,0,0,223
+iScoreboard Android,start_game,40,40,52,0,0,165
+iScoreboard Android,score_setup_confirm,38,38,50,0,0,135
+iScoreboard Android,open_dialog,36,36,51,0,0,120
+iScoreboard,timer_start,33,33,39,0,0,121
+iScoreboard,auth_result,27,27,28,0,0,48
+iScoreboard,settings_change,25,25,26,0,0,56
+iScoreboard Android,select_content,25,25,46,0,0,202
+iScoreboard,timer_action,24,24,30,0,0,471
+iScoreboard Android,scoreboard_menu_open,24,24,31,0,0,90
+iScoreboard,purchase_flow,23,23,23,0,0,48
+iScoreboard Android,scoreboard_menu_action,22,22,28,0,0,143
+iScoreboard,timer_finish,21,21,21,0,0,56
+iScoreboard Android,score_setup_option_select,19,19,30,0,0,155
+iScoreboard Android,tool_action,19,19,34,0,0,282
+iScoreboard Android,app_remove,17,13,14,0,0,17
+iScoreboard Android,score_item_select,17,17,23,0,0,113
+iScoreboard Android,tool_result,15,15,19,0,0,81
+iScoreboard Android,timer_item_select,13,13,18,0,0,64
+iScoreboard,in_app_purchase,12,12,12,0,0,12
+iScoreboard Android,cast_stop,12,11,12,0,0,13
+iScoreboard Android,score_undo,12,12,15,0,0,45
+iScoreboard,cast_action,10,10,50,0,0,143
+iScoreboard Android,resume_game,10,10,12,0,0,24
+iScoreboard Android,tool_setting_change,10,10,16,0,0,77
+iScoreboard Android,record_view,9,9,16,0,0,49
+iScoreboard Android,timer_start,9,9,11,0,0,31
+iScoreboard Android,tool_reset,9,9,9,0,0,16
+iScoreboard,data_clear,8,8,8,0,0,8
+iScoreboard Android,timer_pause,8,8,9,0,0,12
+iScoreboard Android,toggle_setting,8,8,8,0,0,37
+iScoreboard Android,rate_invite_shown,7,7,7,0,0,7
+iScoreboard Android,save_record,7,7,10,0,0,13
+iScoreboard Android,timer_exit,7,7,9,0,0,12
+iScoreboard,share,6,5,10,0,0,20
+iScoreboard Android,rate_app,6,6,6,0,0,7
+iScoreboard Android,rate_app_click,6,6,6,0,0,6
+iScoreboard Android,timer_setup_option_select,6,6,6,0,0,94
+iScoreboard Android,apply_filter,5,5,6,0,0,10
+iScoreboard Android,save_quick_start,5,5,8,0,0,10
+iScoreboard Android,timer_switch_player,5,5,5,0,0,14
+iScoreboard,booking_action,4,4,4,0,0,7
+iScoreboard Android,record_note_menu_open,4,4,4,0,0,5
+iScoreboard Android,score_reset,4,4,5,0,0,5
+iScoreboard Android,voice_tts_prepare,4,4,11,0,0,36
+iScoreboard Android,group_create,3,3,3,0,0,12
+iScoreboard Android,group_create_duration,3,3,3,0,0,12
+iScoreboard Android,group_create_name_source,3,3,3,0,0,12
+iScoreboard Android,rate_invite_dismiss,3,3,3,0,0,3
+iScoreboard Android,record_note_text_save,3,3,3,0,0,3
+iScoreboard Android,share_app,3,3,3,0,0,3
+iScoreboard Android,timer_finish,3,3,4,0,0,7
+iScoreboard Android,clear_data,2,2,3,0,0,5
+iScoreboard Android,match_finish,2,2,2,0,0,2
+iScoreboard Android,timer_resume,2,2,2,0,0,2
+iScoreboard Android,cast_device_discovered,1,1,1,0,0,26
+iScoreboard Android,cast_presentation_ready,1,1,1,0,0,4
+iScoreboard Android,cast_presentation_start,1,1,1,0,0,4
+iScoreboard Android,cast_reconnect,1,1,1,0,0,3
+iScoreboard Android,password_login_failed,1,1,1,0,0,3
+iScoreboard Android,record_note_text_delete,1,1,1,0,0,1
+iScoreboard Android,submit_form,1,1,1,0,0,2
+iScoreboard Android,tool_item_select,1,1,1,0,0,1
+

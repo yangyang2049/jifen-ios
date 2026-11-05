@@ -89,11 +89,11 @@ import Observation
                     for result in page.items where Self.isMine(result, member: me) {
                         let payload = try JSONDecoder().decode([String: PersonalJSON].self, from: JSONEncoder().encode(result))
                         received.append(.init(libraryId: "group:" + group.id, recordKey: result.id, kind: "score",
-                            project: result.format == .doubles ? group.sport.gameType.canonicalScoreboardIdentifier + "_doubles" : group.sport.gameType.canonicalScoreboardIdentifier,
+                            project: result.billiards?.rules.knownVariant?.gameType.canonicalScoreboardIdentifier ?? (result.format == .doubles ? group.sport.gameType.canonicalScoreboardIdentifier + "_doubles" : group.sport.gameType.canonicalScoreboardIdentifier),
                             playedAt: result.playedAt, participantMode: "individual", participants: result.participants.map { seat in
                                 .init(seatKey: "\(seat.side):\(seat.seat)", kind: "PERSON", nameSnapshot: seat.displayName ?? roster.first(where: { $0.ownsHistoricalMember(seat.memberId) })?.displayName ?? "",
                                     personRef: seat.belongs(to: me) ? ParticipantIdentityStore.shared.person : nil, sideKey: seat.side)
-                            }, summary: ["title": .string(group.name), "leftScore": .integer(Int64(result.setScore.a)), "rightScore": .integer(Int64(result.setScore.b)), "groupGameId": .string(result.gameId)],
+                            }, summary: result.billiards?.personalSummary(groupName:group.name) ?? ["title": .string(group.name), "leftScore": .integer(Int64(result.setScore.a)), "rightScore": .integer(Int64(result.setScore.b)), "groupGameId": .string(result.gameId)],
                             origin: .init(nativeSchemaVersion: 1, sessionId: result.gameId, sourceSystem: "group"), nativePayload: payload, assetIds: []))
                     }
                     cursor = page.nextCursor

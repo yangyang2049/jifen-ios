@@ -89,15 +89,19 @@ struct ServeTriangleIndicator: View {
 
 /// 发球指示：箭头整体在发球方一侧，贴中心线。红队发球→箭头在红区右缘贴中线；蓝队发球→箭头在蓝区左缘贴中线。
 struct CenterLineServeIndicator: View {
+    @Environment(\.scoreboardServerIndicatorStyle) private var inheritedStyle
+    @Environment(\.scoreboardServerIndicatorGame) private var inheritedGame
     let isLeftServing: Bool
     let triangleSize: CGFloat
     var color: Color = Color(hex: "30D158")
+    var styleCode: String? = nil
+    var gameType: String? = nil
 
     var body: some View {
-        ServeTriangleIndicator(
+        ScoreboardServeSymbol(
             direction: ScoreboardServeGeometry.centerLineDirection(isLeftServing: isLeftServing),
-            triangleSize: triangleSize,
-            color: color
+            size: triangleSize,
+            color: color, styleCode: styleCode ?? inheritedStyle, gameType: gameType ?? inheritedGame
         )
         // 红队发球：箭头在左半区，右缘贴中线 → 整体左移 half。蓝队发球：箭头在右半区，左缘贴中线 → 整体右移 half。
         .offset(x: ScoreboardServeGeometry.centerLineOffsetX(
@@ -137,5 +141,47 @@ private struct ServeTriangleShape: Shape {
 
         path.closeSubpath()
         return path
+    }
+}
+
+
+struct ScoreboardServeSymbol: View {
+    var direction: ServeTriangleDirection
+    var size: CGFloat
+    var color: Color
+    var styleCode: String = "arrow"
+    var gameType: String = "pingpong"
+    private var asset: String {
+        if gameType.contains("badminton") || ["shuttlecock", "squash"].contains(gameType) { return "ic_badminton_indicator" }
+        if gameType.contains("tennis") || ["padel", "soft_tennis"].contains(gameType) { return "ic_tennis_serve" }
+        if gameType.contains("volleyball") { return "ic_volleyball_serve" }
+        if gameType.contains("pickleball") { return "ic_pickleball_serve" }
+        if gameType.contains("foosball") { return "ic_foosball_serve" }
+        if gameType.contains("archery") { return "ic_archery_indicator" }
+        if gameType == "snooker" { return "ic_snooker_cue" }
+        return "ic_pingpong_ball_indicator"
+    }
+    var body: some View {
+        Group {
+            if styleCode == "sport" {
+                Image(asset).renderingMode(.template).resizable().scaledToFit().foregroundStyle(color)
+            } else {
+                ServeTriangleShape(direction: direction).fill(color)
+            }
+        }.frame(width: size, height: size)
+    }
+}
+
+
+private struct ScoreboardServerIndicatorStyleKey: EnvironmentKey { static let defaultValue = "arrow" }
+private struct ScoreboardServerIndicatorGameKey: EnvironmentKey { static let defaultValue = "pingpong" }
+extension EnvironmentValues {
+    var scoreboardServerIndicatorStyle: String {
+        get { self[ScoreboardServerIndicatorStyleKey.self] }
+        set { self[ScoreboardServerIndicatorStyleKey.self] = newValue }
+    }
+    var scoreboardServerIndicatorGame: String {
+        get { self[ScoreboardServerIndicatorGameKey.self] }
+        set { self[ScoreboardServerIndicatorGameKey.self] = newValue }
     }
 }

@@ -1,0 +1,13 @@
+# ----------------------------------------
+# iscoreboard
+# 202610 iOSGoogle Play -Free form 1
+# 20261001-20261031
+# ----------------------------------------
+
+Stream name,Device category,Total users,Active users,Sessions,User engagement,Views,Event count
+,,698,679,1961,3323791,11221,64627,Grand total
+iScoreboard,mobile,573,556,1637,2980034,8432,51841
+iScoreboard Android,mobile,60,60,113,46736,1550,5774
+iScoreboard,tablet,59,57,199,293211,1137,6669
+iScoreboard Android,tablet,6,6,8,3810,102,343
+

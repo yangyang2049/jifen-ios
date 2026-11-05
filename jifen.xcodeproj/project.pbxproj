@@ -80,6 +80,8 @@
 		FEE320261003000000000002 /* FeedbackLanguageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE320261003000000000001 /* FeedbackLanguageTests.swift */; };
 		FF1000000000000000000002 /* ResumeSessionLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */; };
 		FF2000000000000000000002 /* ActionForegroundTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000000000000000000001 /* ActionForegroundTests.swift */; };
+		BA6DB744D2DFCEF8A6A01293 /* GroupBilliardsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7236088AD448F29B279FCF2D /* GroupBilliardsTests.swift */; };
+		0F42FD18EEB118C9F7272AB9 /* GroupBilliardsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF4CE2EEF5E63287FE52FB39 /* GroupBilliardsUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -167,6 +169,8 @@
 		FEE320261003000000000001 /* FeedbackLanguageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackLanguageTests.swift; sourceTree = "<group>"; };
 		FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ResumeSessionLifecycleTests.swift; sourceTree = "<group>"; };
 		FF2000000000000000000001 /* ActionForegroundTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ActionForegroundTests.swift; sourceTree = "<group>"; };
+		7236088AD448F29B279FCF2D /* GroupBilliardsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBilliardsTests.swift; sourceTree = "<group>"; };
+		DF4CE2EEF5E63287FE52FB39 /* GroupBilliardsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBilliardsUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -245,6 +249,7 @@
 				7F1078853789E2731F9870B9 /* MultiScorePagingTests.swift */,
 				68621CE31D5740DBAF6A4FDF /* GroupPreviewDecodingTests.swift */,
 				72FD1719554A44229EC4AEAA /* GroupContractTests.swift */,
+				7236088AD448F29B279FCF2D /* GroupBilliardsTests.swift */,
 				D67019110000000000000001 /* ReportSheetContractTests.swift */,
 				28F3A5C0DD0A45F09AFA5204 /* GroupPushAPNsProbeTests.swift */,
 				911E22E26F6E46118B7955CE /* GroupPortParityTests.swift */,
@@ -301,6 +306,7 @@
 				2D1273C47DF445F6918C0C49 /* GroupRedesignUITests.swift */,
 				BC2026102300000000000003 /* WechatBindingUITests.swift */,
 				D67019110000000000000003 /* GroupAlignedFormsUITests.swift */,
+				DF4CE2EEF5E63287FE52FB39 /* GroupBilliardsUITests.swift */,
 				D670D0010000000000000001 /* DuoGroupWalkthroughUITests.swift */,
 				D670D0020000000000000001 /* DuoToolsWalkthroughUITests.swift */,
 				D670D0030000000000000001 /* DuoTimerWalkthroughUITests.swift */,
@@ -545,6 +551,7 @@
 				04B923BF21624627AB1BCC66 /* GroupRedesignUITests.swift in Sources */,
 				BC2026102300000000000004 /* WechatBindingUITests.swift in Sources */,
 				D67019110000000000000004 /* GroupAlignedFormsUITests.swift in Sources */,
+				0F42FD18EEB118C9F7272AB9 /* GroupBilliardsUITests.swift in Sources */,
 				D670D0010000000000000002 /* DuoGroupWalkthroughUITests.swift in Sources */,
 				D670D0020000000000000002 /* DuoToolsWalkthroughUITests.swift in Sources */,
 				D670D0030000000000000002 /* DuoTimerWalkthroughUITests.swift in Sources */,
@@ -580,6 +587,7 @@
 				CCD15D3C49FDE98D34734F0E /* MultiScorePagingTests.swift in Sources */,
 				F530CC64174A44D0981AE32E /* GroupPreviewDecodingTests.swift in Sources */,
 				76E3C9919DBC4F7AAB4D90D0 /* GroupContractTests.swift in Sources */,
+				BA6DB744D2DFCEF8A6A01293 /* GroupBilliardsTests.swift in Sources */,
 				D67019110000000000000002 /* ReportSheetContractTests.swift in Sources */,
 				F8A5B36AA1FD4D438E85097C /* GroupPushAPNsProbeTests.swift in Sources */,
 				BB8112B0BEAB4E949E9E82DB /* GroupPortParityTests.swift in Sources */,
@@ -794,7 +802,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = jifen/Config/JifenDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 84;
+				CURRENT_PROJECT_VERSION = 86;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_APP_SANDBOX = YES;
@@ -822,7 +830,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
-				MARKETING_VERSION = 3.4.1;
+				MARKETING_VERSION = 3.4.3;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -852,7 +860,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = jifen/Config/JifenAppStore.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 84;
+				CURRENT_PROJECT_VERSION = 86;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_APP_SANDBOX = YES;
@@ -880,7 +888,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
-				MARKETING_VERSION = 3.4.1;
+				MARKETING_VERSION = 3.4.3;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

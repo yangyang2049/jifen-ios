@@ -5,3 +5,7 @@
 - After tests, screenshots or recordings, remove intermediate duplicates once the useful evidence is identified, and finish the batch with `python3 scripts/test_artifacts.py finish <batch-path>`. Add `--failed` for unresolved failures; it pins the evidence with `.keep`. Finish removes `.active` and cleans expired older batches. Never clear another running task's marker. Remove `.keep` only when that evidence has been resolved or explicitly made disposable.
 - Retention preserves all batches with activity in the last 14 days, always keeps the latest two, and skips `.active` or `.keep`. Preview with `python3 scripts/test_artifacts.py cleanup`; use `cleanup --apply` for deletion. Automation uses the installed helper under the artifact root's `.maintenance/`, so it survives checkout replacement.
 - Automated deletion is limited to recognized batches under that root's `runs/`. Never sweep `.git`, sources, existing documentation, unmarked directories, marketing material, formal releases, signing files, simulator data or another project. Skip live builds and tests. A macOS LaunchAgent runs daily at 04:00 Asia/Shanghai, checks after login, and retries hourly when a daily cleanup is due.
+
+# Action Button Foregrounds
+
+- Solid green Save and Confirm action buttons must use white text. When a local button bypasses shared action components, set its white foreground explicitly; automatic contrast must not turn it black.

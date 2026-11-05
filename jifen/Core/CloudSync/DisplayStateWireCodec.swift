@@ -102,8 +102,13 @@ enum DisplayStateWireCodec {
 
     /// iOS appearance（扁平面板色）→ 安卓 DisplayAppearanceState。
     private static func encodeAppearance(_ appearance: ScoreboardDisplayAppearance) -> [String: Any] {
+        // V2 样式是 themeCode 的权威来源：照片主题 `event_background` 只存在于 V2 链路
+        // （ScoreboardTheme 枚举没有该 case），扁平 theme 只在缺少 V2 样式时作为取值来源。
+        var style = appearance.style ?? ScoreboardDisplayStyle(appearance: appearance)
+        if style.themeCode != "event_background" { style.backdrop = nil }
         var map: [String: Any] = [
-            "theme": appearance.theme,
+            // 扁平兼容字段跟随已解析的 V2 主题，不能反向覆盖样式自身的 themeCode。
+            "theme": style.themeCode,
             "fontCode": ScoreboardFont(displayCode: appearance.fontCode)?.wireCode ?? "default"
         ]
         // 主分/盘局分逐元素色（Android DisplayAppearanceState 全局键：scoreColor=主分，secondaryScoreColor=盘局分）。
@@ -112,8 +117,6 @@ enum DisplayStateWireCodec {
         map["leftTeamColor"] = appearance.leftPanelHex
         map["rightTeamColor"] = appearance.rightPanelHex
         map["centerTeamColor"] = appearance.centerPanelHex
-        var style = appearance.style ?? ScoreboardDisplayStyle(appearance: appearance)
-        style.themeCode = appearance.theme
         style.fontCode = ScoreboardFont(displayCode: appearance.fontCode)?.wireCode ?? "default"
         style.fontSizeMultipliers = (appearance.fontSizeMultipliers ?? style.fontSizeMultipliers)
             .filter { !$0.key.hasPrefix("_") && $0.value.isFinite && $0.value > 0 }
@@ -408,6 +411,17 @@ enum DisplayStateWireCodec {
             var style = ScoreboardDisplayStyle(appearance: appearance)
             style.themeCode = theme
             style.fontCode = font
+            style.nameFontCode = ScoreboardNameFont.normalized(raw["nameFontCode"] as? String)
+            // 缺失的可选字段保持缺失：编码侧对 nil 不写 key，填默认值会让往返结果不再 Equatable 相等。
+            style.serverIndicatorHidden = raw["serverIndicatorHidden"] as? Bool
+            if let indicatorStyle = raw["serverIndicatorStyle"] as? String {
+                style.serverIndicatorStyle = indicatorStyle == "sport" ? "sport" : "arrow"
+            }
+            if let backdrop = raw["backdrop"] as? [String: Any] {
+                style.backdrop = ScoreboardBackdrop(imageData: backdrop["imageData"] as? String,
+                    dim: backdrop["dim"] as? Double ?? 0.30,
+                    panelOpacity: backdrop["panelOpacity"] as? Double ?? 0.84).normalized()
+            }
             style.serverIndicatorColor = serverColor
             style.styleRevision = revision.int64Value
             var panelSlots = Set<String>()
@@ -433,26 +447,26 @@ enum DisplayStateWireCodec {
             style.fontSizeMultipliers = (raw["fontSizeMultipliers"] as? [String: Double] ?? [:]).filter {
                 !$0.key.hasPrefix("_") && $0.value.isFinite && $0.value > 0
             }
-            if !style.panels.isEmpty {
-                appearance.style = style
-                appearance.theme = style.themeCode
-                appearance.fontCode = ScoreboardFont(displayCode: style.fontCode)?.rawValue ?? "default"
-                appearance.fontSizeMultipliers = style.fontSizeMultipliers
-                for panel in style.panels {
-                    switch panel.slotKey {
-                    case "side_left": appearance.leftPanelHex = ScoreboardDisplayStyle.renderHex(panel.backgroundColor)
-                    case "side_right": appearance.rightPanelHex = ScoreboardDisplayStyle.renderHex(panel.backgroundColor)
-                    case "side_center": appearance.centerPanelHex = ScoreboardDisplayStyle.renderHex(panel.backgroundColor)
-                    default: break
-                    }
+            // 样式赋值不依赖面板色：panels 为空（或整组被丢弃）的帧同样要保留
+            // themeCode 与照片主题 backdrop，否则照片主题跨端即丢失。
+            appearance.style = style
+            appearance.theme = style.themeCode
+            appearance.fontCode = ScoreboardFont(displayCode: style.fontCode)?.rawValue ?? "default"
+            appearance.fontSizeMultipliers = style.fontSizeMultipliers
+            for panel in style.panels {
+                switch panel.slotKey {
+                case "side_left": appearance.leftPanelHex = ScoreboardDisplayStyle.renderHex(panel.backgroundColor)
+                case "side_right": appearance.rightPanelHex = ScoreboardDisplayStyle.renderHex(panel.backgroundColor)
+                case "side_center": appearance.centerPanelHex = ScoreboardDisplayStyle.renderHex(panel.backgroundColor)
+                default: break
                 }
-                appearance.leftScoreHex = style.renderColor("mainScore", slot: "side_left") ?? appearance.leftScoreHex
-                appearance.rightScoreHex = style.renderColor("mainScore", slot: "side_right") ?? appearance.rightScoreHex
-                appearance.leftSecondaryHex = style.renderColor("setGameScore", slot: "side_left")
-                    ?? style.renderColor("setScore", slot: "side_left") ?? appearance.leftSecondaryHex
-                appearance.rightSecondaryHex = style.renderColor("setGameScore", slot: "side_right")
-                    ?? style.renderColor("setScore", slot: "side_right") ?? appearance.rightSecondaryHex
             }
+            appearance.leftScoreHex = style.renderColor("mainScore", slot: "side_left") ?? appearance.leftScoreHex
+            appearance.rightScoreHex = style.renderColor("mainScore", slot: "side_right") ?? appearance.rightScoreHex
+            appearance.leftSecondaryHex = style.renderColor("setGameScore", slot: "side_left")
+                ?? style.renderColor("setScore", slot: "side_left") ?? appearance.leftSecondaryHex
+            appearance.rightSecondaryHex = style.renderColor("setGameScore", slot: "side_right")
+                ?? style.renderColor("setScore", slot: "side_right") ?? appearance.rightSecondaryHex
         }
         return appearance
     }

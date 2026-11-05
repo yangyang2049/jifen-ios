@@ -204,12 +204,15 @@ struct TennisScoreboardView: View {
                 }
                 if terminalGamePresentation == nil,
                    !isEditMode,
-                   !store.state.finished {
+                   !store.state.finished,
+                   // 与 Rally / TwoSideScoreboardScaffold 统一：隐藏发球指示器时直接不渲染，
+                   // 不用 opacity(0) 留一个不可见节点（无障碍树里仍可被读到）。
+                   !appearance.styleProfileV2.serverIndicatorHidden {
                     if store.state.doublesPlayerNames == nil {
                         CenterLineServeIndicator(
                             isLeftServing: logicalSide(forScreen: .left) == store.state.servingSide,
                             triangleSize: serveIndicatorSize,
-                            color: appearance.serverIndicatorColor
+                            color: appearance.serverIndicatorColor, styleCode: appearance.styleProfileV2.serverIndicatorStyle ?? "arrow", gameType: "tennis"
                         )
                         .position(x: size.width / 2, y: size.height / 2)
                     } else if let isLeftServing = tennisDoublesServerIsLeftScreen,
@@ -217,7 +220,7 @@ struct TennisScoreboardView: View {
                         CenterLineServeIndicator(
                             isLeftServing: isLeftServing,
                             triangleSize: serveIndicatorSize,
-                            color: appearance.serverIndicatorColor
+                            color: appearance.serverIndicatorColor, styleCode: appearance.styleProfileV2.serverIndicatorStyle ?? "arrow", gameType: "tennis"
                         )
                         .position(
                             x: size.width / 2,
@@ -554,7 +557,7 @@ struct TennisScoreboardView: View {
 
         return VStack(spacing: 0) {
             Text(name)
-                .font(typographyPreference.font.swiftUIFont(size: nameSize, weight: .bold))
+                .font(appearance.nameFont(size: nameSize, weight: .bold))
                 .foregroundStyle(appearance.elementForeground(
                     .teamName,
                     slotKey: side == .left ? .sideLeft : .sideRight
@@ -1066,7 +1069,8 @@ struct TennisScoreboardView: View {
         let usesPadLayout = Theme.usesPadLayout
         // 安卓基准：局分 = halfPanelSecondaryScoreSp（与羽毛球辅分同公式）；
         // 盘分 = 主分 × 0.32，盒子 = 盘分 × 1.45（Pad 1.36）。
-        let gameSize = secondaryFontSize
+        let gameSize = secondaryFontSize / max(0.01, typographyPreference.secondaryMultiplier)
+            * typographyPreference.multiplier(for: store.state.doublesPlayerNames != nil ? .setGameScore : .gameScore)
         let setSize = (mainFontSize * 0.32 / max(0.01, typographyPreference.scoreMultiplier)
             * typographyPreference.multiplier(for: store.state.doublesPlayerNames != nil ? ScoreboardStyleElementKeyV2.setGameScore : .setScore)).rounded()
         let setBoxSize = max(
@@ -1163,7 +1167,7 @@ struct TennisScoreboardView: View {
                 Color(red: 1, green: 215 / 255, blue: 0).opacity(0.45)
             }
             Text(name)
-                .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
+                .font(appearance.nameFont(size: fontSize, weight: .bold))
                 .foregroundStyle(appearance.hasElementColor(.playerName, slotKey: slot.isMultiple(of: 2) ? .sideLeft : .sideRight)
                     ? appearance.elementForeground(.playerName, slotKey: slot.isMultiple(of: 2) ? .sideLeft : .sideRight)
                     : (isReceiver ? appearance.palette.secondary : appearance.palette.foreground.opacity(isServer ? 1 : 0.85)))
@@ -1705,11 +1709,7 @@ struct TennisScoreboardView: View {
             snapshot: appearance,
             fontCode: typographyPreference.font.rawValue
         )
-        compact.externalState?.appearance.fontSizeMultipliers = ScoreboardDisplayAppearance.multipliers(
-            score: typographyPreference.scoreMultiplier,
-            name: typographyPreference.nameMultiplier,
-            secondary: typographyPreference.secondaryMultiplier
-        )
+        compact.externalState?.appearance.fontSizeMultipliers = typographyPreference.resolvedElementMultipliers
         return compact
     }
 

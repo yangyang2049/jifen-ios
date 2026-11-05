@@ -10,7 +10,7 @@
 "wechat_binding_huawei" = "華為帳號";
 "wechat_binding_password" = "帳號密碼";
 "wechat_binding_upgrade_title" = "綁定微信，換裝置也能繼續用";
-"wechat_binding_upgrade_body" = "綁定後，可在安卓、鴻蒙和網頁端用微信登入同一帳號，繼續使用會員、小組和常用資料。";
+"wechat_binding_upgrade_body" = "綁定後，可在其他裝置和網頁端用微信登入同一帳號，繼續使用會員、小組和常用資料。";
 "wechat_binding_later" = "稍後再說";
 "wechat_binding_bind_now" = "立即綁定";
 "wechat_binding_back" = "返回";

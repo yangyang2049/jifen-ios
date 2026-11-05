@@ -1283,6 +1283,7 @@ struct SnookerScoreboardView: View {
             }
             let newStartedAt = Date()
             let newRecordID = UUID().uuidString
+            do {try GroupBilliardsPersistence.shared.inheritSource(from:previousIdentityRecord,to:newRecordID)} catch {ScoreboardPersistenceFailureReporter.report(error,context:"Group rematch source");isStartingNewMatch=false;return}
             let freshState = SnookerState.initial(
                 striker: state.firstBreaker,
                 maxFrames: state.maxFrames

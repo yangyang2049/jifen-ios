@@ -5,7 +5,7 @@ extension ScoreboardDisplayAppearance {
     init(snapshot: ScoreboardAppearanceSnapshot, fontCode: String? = nil) {
         let profile = snapshot.styleProfileV2
         self.init(
-            theme: snapshot.theme.rawValue,
+            theme: profile.themeCode,
             fontCode: fontCode ?? snapshot.font.rawValue,
             backgroundHex: "#\(profile.backgroundHex)",
             foregroundHex: "#\(profile.foregroundHex)",

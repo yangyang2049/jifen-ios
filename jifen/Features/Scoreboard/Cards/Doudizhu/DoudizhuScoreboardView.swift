@@ -640,7 +640,7 @@ struct DoudizhuScoreboardView: View {
 
                 VStack {
                     Text(player.name)
-                        .font(typographySession.effectivePreference.font.swiftUIFont(
+                        .font(appearance.nameFont(
                             size: nameSize,
                             weight: .bold
                         ))

@@ -1,0 +1,14 @@
+# ----------------------------------------
+# iscoreboard
+# 202610 iOSGoogle Play -Free form 1
+# 20261001-20261031
+# ----------------------------------------
+
+Stream name,App store,Platform,Total users,Active users,New users,Returning users,Sessions,Engaged sessions,Engagement rate,User engagement,Total revenue,Average engagement time per session
+,,,798,778,662,404,2280,1950,0.8552631578947368,4123768,105.609203,1808.6701754385965,Grand total
+iScoreboard,iTunes,iOS,632,613,502,361,1837,1592,0.8666303756124115,3272977,86.023031,1781.6967882416984
+iScoreboard Android,com.android.vending,Android,66,66,66,18,121,87,0.71900826446281,50546,0,417.73553719008265
+iScoreboard Android,manual_install,Android,52,51,50,4,64,53,0.828125,60192,19.586172,940.5
+iScoreboard,manual_install,iOS,47,47,43,21,253,217,0.857707509881423,740053,0,2925.110671936759
+iScoreboard Android,com.heytap.market,Android,1,1,1,0,1,0,0,0,0,0
+

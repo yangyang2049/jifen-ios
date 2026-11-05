@@ -426,6 +426,10 @@ nonisolated struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
     var panels: [ScoreboardStylePanelV2]?
     var elements: [ScoreboardStyleElementV2]?
     var serverIndicatorColorHex: String?
+    var nameFontCode: String? = nil
+    var serverIndicatorHidden: Bool = false
+    var serverIndicatorStyle: String? = "arrow"
+    var backdrop: ScoreboardBackdrop? = nil
 
     static func `default`(
         for styleID: ScoreboardStyleID,
@@ -537,12 +541,14 @@ nonisolated struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
         ]
         profile.elements = elements
         profile.serverIndicatorColorHex = "30D158"
+        // nameFontCode 保持 nil = 队名跟随全局计分字体（`ScoreboardNameFont.font(code:nil)`
+        // 回落 inherited），与旧 profile 解码结果一致；写死 "default" 会把队名钉死在系统字体。
         profile.mirrorFlatTextFromElements()
         return profile
     }
 
     /// 通用主题的每槽位文字色（对齐安卓 brbWrbTextColors）：
-    /// pro_dark 全槽位固定白字；brb/wrb 左红右蓝；其余 AUTO 自动对比。
+    /// pro_dark 全槽位固定白字；brb/wrb 左红右蓝；retro 固定绿字；其余 AUTO 自动对比。
     private static func genericSlotTextColors(
         _ theme: ScoreboardTheme,
         slotKeys: [ScoreboardStyleSlotKeyV2]
@@ -559,6 +565,13 @@ nonisolated struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
                     colorMode: .manual,
                     colorHex: $0 == .sideLeft ? "FF0000" : "1E5BFF"
                 )
+            }
+        }
+        // 复古主题是黑底绿字：AUTO 会在纯黑底上按对比度选白字，把主题的绿字吃掉，
+        // 所以必须显式给手动色（与 `ScoreboardTheme.retro.foregroundHex` 一致）。
+        if theme == .retro {
+            return slotKeys.map {
+                ScoreboardStyleTextColorV2(slotKey: $0, colorMode: .manual, colorHex: "00FF00")
             }
         }
         return slotKeys.map {
@@ -602,6 +615,7 @@ nonisolated struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
             )
         }
         profile.serverIndicatorColorHex = "30D158"
+        // 同 genericDefault：nil = 队名跟随全局计分字体，不再钉死系统字体。
         profile.mirrorFlatTextFromElements()
         return profile
     }
@@ -653,7 +667,7 @@ nonisolated struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
         case themeCode, team0Hex, team1Hex, centerHex
         case team0TextHex, team1TextHex, centerTextHex
         case foregroundHex, backgroundHex, autoContrast
-        case panels, elements
+        case panels, elements, nameFontCode, serverIndicatorHidden, serverIndicatorStyle, backdrop
         case serverIndicatorColorHex = "serverIndicatorColor"
     }
 
@@ -672,6 +686,10 @@ nonisolated struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
         panels = try values.decodeIfPresent([ScoreboardStylePanelV2].self, forKey: .panels)
         elements = try values.decodeIfPresent([ScoreboardStyleElementV2].self, forKey: .elements)
         serverIndicatorColorHex = try values.decodeIfPresent(String.self, forKey: .serverIndicatorColorHex)
+        nameFontCode = try values.decodeIfPresent(String.self, forKey: .nameFontCode)
+        serverIndicatorHidden = try values.decodeIfPresent(Bool.self, forKey: .serverIndicatorHidden) ?? false
+        serverIndicatorStyle = try values.decodeIfPresent(String.self, forKey: .serverIndicatorStyle) == "sport" ? "sport" : "arrow"
+        backdrop = try values.decodeIfPresent(ScoreboardBackdrop.self, forKey: .backdrop)?.normalized()
     }
 
     init(
@@ -782,7 +800,7 @@ nonisolated struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
         if themeCode == "pro_dark" || themeCode == "ddz_pro_dark" {
             return "FFFFFF"
         }
-        if themeCode == "default" {
+        if themeCode == "default" || themeCode == "event_background" {
             let defaultBackground: String?
             switch slotKey {
             case .sideLeft: defaultBackground = panels == nil ? "FF3B30" : ScoreboardTheme.defaultTheme.leftPanelHex
@@ -916,6 +934,8 @@ nonisolated struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
     /// 归一化：丢弃非法色值/空配置（保存前调用，对齐安卓 normalizeScoreboardStyleProfileV2）。
     func normalized() -> Self {
         var copy = self
+        copy.nameFontCode = ScoreboardNameFont.normalized(nameFontCode)
+        copy.backdrop = backdrop?.normalized()
         if var list = copy.panels {
             list = list.compactMap { panel in
                 guard let hex = Self.normalizedHex(panel.backgroundColorHex) else { return nil }
@@ -1172,7 +1192,8 @@ nonisolated enum ScoreboardStyleV2Registry {
         map["guandan"] = .capabilities(elementKeys: plain)
         map["shengji"] = .capabilities(elementKeys: plain)
         for identifier in [
-            "billiards", "football", "football_5v5", "boxing", "eight_ball", "simple_score"
+            "billiards", "football", "football_5v5", "boxing", "eight_ball", "simple_score",
+            "basketball", "three_basketball"
         ] {
             map[identifier] = .capabilities(elementKeys: plain, supportsServerIndicator: false)
         }
@@ -1634,6 +1655,10 @@ struct ScoreboardAppearanceSnapshot: Equatable {
     }
 
     /// 发球指示器颜色（未配置时回落默认绿 30D158）。
+    func nameFont(size: CGFloat, weight: Font.Weight = .bold) -> Font {
+        ScoreboardNameFont.font(code: styleProfileV2.nameFontCode, inherited: font, size: size, weight: weight)
+    }
+
     var serverIndicatorColor: Color {
         Color(hex: styleProfileV2.serverIndicatorColorHex ?? "30D158")
     }

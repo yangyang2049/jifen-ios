@@ -480,7 +480,7 @@ struct ScoreboardRecordSummary: Codable, Identifiable, Equatable {
         self.scoreCoreGameTypeRawValue = record.resolvedScoreCoreGameType?.rawValue
         self.personalRecordSeatNames = record.groupMatchContext == nil
             ? Dictionary(uniqueKeysWithValues: PersonalRecordAdapter.seatDescriptors(record).map { ($0.id, $0.name) }) : [:]
-        self.groupGameID = record.groupMatchContext?.gameID
+        self.groupGameID = record.groupMatchContext?.gameID ?? record.billiardsSource?.gameID
     }
     
     // Equatable conformance

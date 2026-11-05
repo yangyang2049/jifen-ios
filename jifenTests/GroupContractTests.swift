@@ -11,7 +11,7 @@ import PersistenceCore
         let numbers = NumberFormatter()
         numbers.locale = Locale(identifier: language)
         numbers.numberStyle = language.hasPrefix("zh") ? .spellOut : .decimal
-        for sport in GroupSport.allCases {
+        for sport in GroupSport.racketSports {
             var value = rules(); value.sport = sport
             for sets in [1, 3, 5, 7, 11] {
                 value.maxSets = sets
@@ -40,7 +40,7 @@ import PersistenceCore
                 relativePath: "jifen/Resources/\(language).lproj/Localizable.strings")
             let two = language == "zh-Hant" ? "兩" : "两"
             let playAll = language == "zh-Hant" ? "打滿" : "打满"
-            for sport in GroupSport.allCases {
+            for sport in GroupSport.racketSports {
                 let unit = sport == .tennis ? "盘" : "局"
                 let localizedUnit = language == "zh-Hant" && sport == .tennis ? "盤" : unit
                 let singleKey = sport == .tennis ? "tennis_set_option_best_of_1" : "pingpong_set_option_best_of_1"
@@ -122,7 +122,9 @@ import PersistenceCore
     }
     func testSharedRulesFixtures() throws {
         struct Fixture: Decodable { var name: String; var rules: GroupMatchRules; var setScore: GroupScore; var sets: [GroupScore]?; var valid: Bool }
-        let url = try XCTUnwrap(Bundle.main.url(forResource: "rules-v1", withExtension: "json"))
+        // fixture 放在 jifenTests/Fixtures 下：它是测试数据，不再随 app target 打进正式包。
+        let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .appendingPathComponent("Fixtures/rules-v1.json")
         let fixtures = try JSONDecoder().decode([Fixture].self, from: Data(contentsOf: url))
         XCTAssertEqual(fixtures.count, 17)
         for fixture in fixtures { XCTAssertEqual(fixture.rules.validResult(fixture.setScore, sets: fixture.sets), fixture.valid, fixture.name) }

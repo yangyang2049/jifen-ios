@@ -93,17 +93,31 @@ enum LocalizationTestSupport {
     /// tableName precedes bundle/value/comment in NSLocalizedString's signature.
     /// Read it with the key so keys from dedicated tables never enter Localizable.
     static func staticReferences(in source: String) throws -> [StaticReference] {
-        let pattern = #"\b(?:NSLocalizedString|localized)\s*\(\s*\"((?:\\.|[^\"\\])*)\"\s*,\s*(?:tableName\s*:\s*\"([^\"\\]*)\"\s*,)?"#
-        let regex = try NSRegularExpression(pattern: pattern)
-        return regex.matches(in: source, range: NSRange(source.startIndex..., in: source)).compactMap { match in
-            guard let keyRange = Range(match.range(at: 1), in: source),
-                  let callRange = Range(match.range, in: source) else { return nil }
-            let key = String(source[keyRange])
-            guard !key.contains(#"\("#) else { return nil }
-            let tableName = Range(match.range(at: 2), in: source).map { String(source[$0]) } ?? "Localizable"
-            return StaticReference(key: key, tableName: tableName.isEmpty ? "Localizable" : tableName,
-                                   line: source[..<callRange.lowerBound].filter { $0 == "\n" }.count + 1)
+        // `String(localized:)` needs its own pattern: its table defaults to Localizable,
+        // it spells the table argument `table:`, and the key may be the only argument.
+        let patterns = [
+            #"\b(?:NSLocalizedString|localized)\s*\(\s*\"((?:\\.|[^\"\\])*)\"\s*,\s*(?:tableName\s*:\s*\"([^\"\\]*)\"\s*,)?"#,
+            #"String\s*\(\s*localized\s*:\s*\"((?:\\.|[^\"\\])*)\"\s*(?:,\s*table\s*:\s*\"([^\"\\]*)\"\s*)?[,)]"#
+        ]
+        var found: [(line: Int, order: Int, reference: StaticReference)] = []
+        var order = 0
+        for pattern in patterns {
+            let regex = try NSRegularExpression(pattern: pattern)
+            let range = NSRange(source.startIndex..., in: source)
+            for match in regex.matches(in: source, range: range) {
+                guard let keyRange = Range(match.range(at: 1), in: source),
+                      let callRange = Range(match.range, in: source) else { continue }
+                let key = String(source[keyRange])
+                guard !key.contains(#"\("#) else { continue }
+                let tableName = Range(match.range(at: 2), in: source).map { String(source[$0]) } ?? "Localizable"
+                let line = source[..<callRange.lowerBound].filter { $0 == "\n" }.count + 1
+                found.append((line, order, StaticReference(key: key,
+                                                           tableName: tableName.isEmpty ? "Localizable" : tableName,
+                                                           line: line)))
+                order += 1
+            }
         }
+        return found.sorted { ($0.line, $0.order) < ($1.line, $1.order) }.map(\.reference)
     }
 
     static func formatTokens(in value: String) -> [String] {

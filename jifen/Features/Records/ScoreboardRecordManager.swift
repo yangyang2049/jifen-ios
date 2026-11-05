@@ -594,7 +594,8 @@ final class ScoreboardRecordManager {
             throw CocoaError(.fileWriteUnsupportedScheme)
         }
 
-        var record = GroupLocalPersistence.shared.annotate(input)
+        // 台球注解自身不抛错（损坏的本地文件只降级），不得阻断任何记分记录的保存。
+        var record = GroupBilliardsPersistence.shared.annotate(GroupLocalPersistence.shared.annotate(input))
         record.schemaVersion = ScoreboardRecord.currentSchemaVersion
         if record.winnerIdentity == nil {
             record.winnerIdentity = ScoreboardWinnerIdentity.fromStableLegacyToken(record.winner)
@@ -616,6 +617,8 @@ final class ScoreboardRecordManager {
             try store.save(record)
             do {
                 try GroupLocalPersistence.shared.enqueue(record)
+                try GroupBilliardsPersistence.shared.enqueue(record)
+                if record.billiardsSource != nil { Task { @MainActor in await GroupBilliardsSync.shared.sync() } }
                 if record.groupMatchContext != nil { Task { @MainActor in await GroupStore.shared.sync() } }
             } catch {
                 // The saved record retains the context so foreground repair can retry.

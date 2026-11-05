@@ -1,0 +1,155 @@
+# ----------------------------------------
+# iscoreboard
+# 202610 iOSGoogle Play -Free form 1
+# 20261001-20261031
+# ----------------------------------------
+
+Stream name,Page title and screen name,Total users,Active users,Sessions,User engagement,Views,Event count
+,,698,679,1961,3323791,11221,64627,Grand total
+iScoreboard,home_tab,609,608,1639,33872,2491,10527
+iScoreboard,(not set),523,500,728,0,0,1703
+iScoreboard,score_tab,246,246,400,6044,606,2158
+iScoreboard,records_tab,212,212,360,2779,554,1308
+iScoreboard,me_tab,208,208,296,1662,433,898
+iScoreboard,sports_record_detail,152,152,300,25919,773,3021
+iScoreboard,timer_tab,149,149,210,694,309,634
+iScoreboard,badminton_scoreboard,123,123,258,312670,473,5509
+iScoreboard,login_page,99,99,113,2322,194,580
+iScoreboard,basketball_scoreboard,82,82,143,177189,197,1769
+iScoreboard,billiards_scoreboard,70,70,192,802397,262,2651
+iScoreboard,nine_ball_scoreboard,69,69,208,750834,305,3679
+iScoreboard Android,(not set),66,66,121,4440,250,708
+iScoreboard Android,home_tab,66,66,106,5293,484,2012
+iScoreboard,vip_page,65,65,73,939,92,270
+iScoreboard,whistle_tool,65,65,82,1743,108,737
+iScoreboard,flip_coin,63,63,79,3443,108,1211
+iScoreboard,create_booking_page,60,60,70,18532,83,258
+iScoreboard,dice_tool,58,58,138,8466,204,5100
+iScoreboard,red_yellow_card,57,57,76,1247,92,490
+iScoreboard,pingpong_scoreboard,50,50,146,183069,295,2874
+iScoreboard,common_names_page,47,47,72,5479,112,514
+iScoreboard,points_table,46,46,57,1236,152,418
+iScoreboard,ten_second_challenge,46,46,59,2898,76,672
+iScoreboard,date_time_tool,43,43,49,810,53,175
+iScoreboard,cast_page,42,42,54,1573,71,223
+iScoreboard,badminton_doubles_scoreboard,38,38,69,98017,162,1780
+iScoreboard,aa_calculator,35,35,40,476,40,160
+iScoreboard,scoreboard_settings_page,33,33,38,545,49,147
+iScoreboard,simple_score_page,32,32,47,32039,69,481
+iScoreboard,volleyball_scoreboard,30,30,60,89358,82,711
+iScoreboard,common_places_page,29,29,32,692,38,114
+iScoreboard,multi_group_score,27,27,51,57098,77,732
+iScoreboard,cube_timer,26,26,26,1108,34,188
+iScoreboard,password_login_page,24,24,27,1013,47,125
+iScoreboard,eight_ball_scoreboard,23,23,42,88973,86,921
+iScoreboard,guandan_score,22,22,101,386020,139,1346
+iScoreboard,profile_page,22,22,26,709,44,115
+iScoreboard Android,records_tab,22,22,31,288,93,283
+iScoreboard Android,score_tab,21,21,27,1454,113,663
+iScoreboard,football_scoreboard,20,20,47,44675,70,605
+iScoreboard Android,me_tab,20,20,24,563,86,283
+iScoreboard,countdown_page,19,19,22,1116,29,119
+iScoreboard,points_table_detail,18,18,26,2922,63,218
+iScoreboard,tennis_scoreboard,17,17,21,4872,28,179
+iScoreboard Android,create_booking_page,16,16,19,639,34,40
+iScoreboard Android,timer_tab,16,16,22,778,102,589
+iScoreboard,stopwatch_page,14,14,19,13128,37,307
+iScoreboard,tools_page,14,14,15,995,56,295
+iScoreboard,doudizhu_score,13,13,15,18982,18,89
+iScoreboard,fullscreen_barrage,13,13,17,1674,17,77
+iScoreboard,qr_login_page,13,13,18,240,21,66
+iScoreboard Android,display_connection_screen,13,13,14,175,17,35
+iScoreboard,about_us_page,12,12,13,128,23,48
+iScoreboard,legal_web_page,12,12,12,92,14,26
+iScoreboard,random_team,12,12,14,989,27,165
+iScoreboard Android,basketball_scoreboard,12,12,12,6826,28,84
+iScoreboard Android,football_scoreboard,12,12,18,2642,23,90
+iScoreboard,(not set),10,9,9,0,0,13
+iScoreboard,schedule_list,10,10,10,165,12,45
+iScoreboard Android,scoreboard_settings_page,10,10,10,177,15,41
+iScoreboard Android,stopwatch_page,9,9,11,115,14,44
+iScoreboard,feedback_page,8,8,8,105,14,29
+iScoreboard,multiscore_record_detail,8,8,9,74,10,32
+iScoreboard,snooker_scoreboard,8,8,10,3061,11,71
+iScoreboard,uno_score,8,8,20,14587,29,172
+iScoreboard Android,countdown_page,8,8,11,689,11,62
+iScoreboard Android,flip_coin,8,8,9,257,10,98
+iScoreboard Android,points_table,8,8,11,49,38,79
+iScoreboard Android,points_table_detail,8,8,10,280,20,56
+iScoreboard Android,sports_record_detail,8,8,13,611,29,85
+iScoreboard Android,tennis_scoreboard,8,8,10,515,14,34
+iScoreboard Android,whistle_tool,8,8,18,2588,28,124
+iScoreboard,pingpong_doubles_scoreboard,7,7,21,24942,37,382
+iScoreboard,xiangqi_timer,7,7,7,1099,10,174
+iScoreboard Android,badminton_scoreboard,7,7,10,3837,16,29
+iScoreboard Android,common_names_page,7,7,9,133,9,9
+iScoreboard Android,pingpong_scoreboard,7,7,11,8006,28,114
+iScoreboard Android,simple_score_page,7,7,10,3058,14,57
+iScoreboard,faq_page,6,6,6,74,7,15
+iScoreboard,foosball_scoreboard,6,6,7,863,8,42
+iScoreboard,football_5v5_scoreboard,6,6,13,14746,30,336
+iScoreboard,shot_training_scoreboard,6,6,6,526,8,63
+iScoreboard,three_basketball_scoreboard,6,6,7,4562,6,67
+iScoreboard,timer_record_detail,6,6,6,61,12,43
+iScoreboard Android,date_time_tool,6,6,7,31,8,16
+iScoreboard Android,go_timer,6,6,6,42,7,26
+iScoreboard Android,red_yellow_card,6,6,6,664,8,30
+iScoreboard Android,ten_second_challenge,6,6,6,167,8,37
+iScoreboard,archery_scoreboard,5,5,6,913,7,44
+iScoreboard,boxing_scoreboard,5,5,6,560,9,67
+iScoreboard Android,about_us_page,5,5,5,32,5,5
+iScoreboard Android,fullscreen_barrage,5,5,7,250,9,31
+iScoreboard Android,vip_page,5,5,5,221,5,6
+iScoreboard,air_volleyball_scoreboard,4,4,6,13881,11,114
+iScoreboard,chess_timer,4,4,4,93,4,67
+iScoreboard Android,aa_calculator,4,4,4,20,4,19
+iScoreboard Android,chess_timer,4,4,5,68,5,30
+iScoreboard Android,common_places_page,4,4,4,31,5,5
+iScoreboard Android,cube_timer,4,4,6,36,6,13
+iScoreboard Android,feedback_tab,4,4,4,172,7,13
+iScoreboard Android,multi_group_score,4,4,8,1913,11,24
+iScoreboard,pickleball_scoreboard,3,3,3,630,4,25
+iScoreboard,shengji_score,3,3,4,181,3,17
+iScoreboard,shuttlecock_scoreboard,3,3,3,89,4,24
+iScoreboard Android,checkers_timer,3,3,4,6,4,8
+iScoreboard Android,faq_page,3,3,3,71,3,3
+iScoreboard Android,feedback_detail_page,3,3,3,22,3,3
+iScoreboard Android,group_create_page,3,3,3,114,3,39
+iScoreboard Android,random_team,3,3,3,94,6,26
+iScoreboard Android,schedule_list,3,3,4,11,5,13
+iScoreboard Android,three_basketball_scoreboard,3,3,3,119,3,9
+iScoreboard Android,xiangqi_timer,3,3,3,14,3,17
+iScoreboard,booking_detail_page,2,2,2,5,2,6
+iScoreboard,checkers_timer,2,2,2,60,2,126
+iScoreboard,go_timer,2,2,2,46,2,69
+iScoreboard,pickleball_doubles_scoreboard,2,2,2,54,2,14
+iScoreboard,soft_tennis_scoreboard,2,2,2,31,2,11
+iScoreboard,squash_scoreboard,2,2,2,66,4,20
+iScoreboard Android,archery_scoreboard,2,2,3,453,5,15
+iScoreboard Android,dice_tool,2,2,3,35,3,20
+iScoreboard Android,doudizhu_score,2,2,2,70,2,2
+iScoreboard Android,group_list_page,2,2,2,63,3,3
+iScoreboard Android,guandan_score,2,2,2,97,2,3
+iScoreboard Android,multiscore_record_detail,2,2,2,25,4,9
+iScoreboard Android,padel_scoreboard,2,2,2,87,2,4
+iScoreboard Android,tools_page,2,2,2,20,3,7
+iScoreboard Android,uno_score,2,2,2,394,3,3
+iScoreboard Android,volleyball_scoreboard,2,2,3,464,6,22
+iScoreboard,padel_scoreboard,1,1,1,29,1,5
+iScoreboard,soft_tennis_doubles_scoreboard,1,1,1,12,1,5
+iScoreboard,tennis_doubles_scoreboard,1,1,2,52,4,19
+iScoreboard Android,badminton_doubles_scoreboard,1,1,1,32,1,1
+iScoreboard Android,booking_detail_page,1,1,1,767,6,11
+iScoreboard Android,boxing_scoreboard,1,1,1,60,1,2
+iScoreboard Android,foosball_scoreboard,1,1,1,73,2,2
+iScoreboard Android,football_5v5_scoreboard,1,1,1,3,1,2
+iScoreboard Android,nine_ball_scoreboard,1,1,1,25,1,2
+iScoreboard Android,pingpong_doubles_scoreboard,1,1,1,11,1,1
+iScoreboard Android,profile_page,1,1,1,27,2,3
+iScoreboard Android,shot_training_scoreboard,1,1,2,90,2,2
+iScoreboard Android,snooker_scoreboard,1,1,1,67,3,3
+iScoreboard Android,soft_tennis_scoreboard,1,1,1,12,1,1
+iScoreboard Android,squash_scoreboard,1,1,2,135,2,3
+iScoreboard Android,tennis_doubles_scoreboard,1,1,1,24,1,2
+iScoreboard Android,timer_record_detail,1,1,1,1,1,2
+
