@@ -222,7 +222,7 @@ xcodebuild test -only-testing:jifenTests -resultBundlePath <batch>/unit-tests-fi
 
 | 复核项 | 结果 |
 |---|---|
-| `jifenTests` 全量重跑（14:28 起，`unit-tests.xcresult`） | ✅ **1012 通过 / 0 失败 / 1 跳过** |
+| `jifenTests` 全量重跑（14:28 起，`unit-tests.xcresult`） | ✅ **1011 通过 / 0 失败 / 1 跳过**（共 1012 项） |
 | 47 语言 key 矩阵（自写脚本重算） | ✅ 2392 key 全一致；占位符按「类型计数」比对 **0 不一致** |
 | 打包产物 `find jifen.app -name '*.json'` | ✅ 空（fixture 确已移出 app target） |
 | 已删符号残留（13 个符号 × `jifen`/`jifenTests`/`jifenUITests`） | ✅ 零命中 |
