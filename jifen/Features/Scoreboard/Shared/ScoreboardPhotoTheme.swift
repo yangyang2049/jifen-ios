@@ -8,7 +8,6 @@ nonisolated struct ScoreboardBackdrop: Codable, Equatable, Sendable {
     var panelOpacity: Double = 0.84
     /// 图片内容摘要（FNV-1a 64）。图片在一局里极少变化，投屏帧只在**变更的那一次**携带
     /// `imageData`，其余帧只带 `digest`，接收端按 digest 复用缓存——避免每个得分点重传整张图。
-    /// 算法与安卓 `ScoreboardBackdrop.digest`、鸿蒙 `backdropDigest` 一致。
     var digest: String? = nil
 
     /// 压暗/透明度钳制与图片数据无关，渲染期可逐帧取用而不触发 base64 校验。
@@ -53,7 +52,7 @@ nonisolated struct ScoreboardBackdrop: Codable, Equatable, Sendable {
         lhs.imageData == rhs.imageData && lhs.dim == rhs.dim && lhs.panelOpacity == rhs.panelOpacity
     }
 
-    /// FNV-1a 64 位内容摘要。三端必须逐位一致，否则接收端缓存键匹配不上、图片会重复下发。
+    /// FNV-1a 64 位内容摘要（16 位小写十六进制）。
     /// 用无分配的 UTF-8 遍历，避免为 80KB 字符串再复制一份字节数组。
     static func digest(of imageData: String) -> String {
         var hash: UInt64 = 0xcbf2_9ce4_8422_2325
