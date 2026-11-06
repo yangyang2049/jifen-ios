@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "ଶୈଳୀ";
 "style_workbench_reset" = "ଡିଫଲ୍ଟ ଶୈଳୀ ପୁନଃସ୍ଥାପନ କରନ୍ତୁ";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "ଥିମ୍";
 "style_workbench_background" = "ପୃଷ୍ଠଭୂମି";
 "style_workbench_font" = "ଫଣ୍ଟ";

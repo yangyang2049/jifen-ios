@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Phong cách";
 "style_workbench_reset" = "Khôi phục kiểu mặc định";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "Chủ đề";
 "style_workbench_background" = "Nền";
 "style_workbench_font" = "Phông chữ";

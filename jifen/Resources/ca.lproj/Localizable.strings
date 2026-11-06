@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Estil";
 "style_workbench_reset" = "Restaura l’estil per defecte";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "Tema";
 "style_workbench_background" = "Fons";
 "style_workbench_font" = "Tipus de lletra";

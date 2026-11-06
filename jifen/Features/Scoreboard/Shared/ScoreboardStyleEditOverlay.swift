@@ -256,16 +256,27 @@ struct ScoreboardStyleEditOverlayView: View {
                         }
                     }
                 } else {
-                    workbenchHeader
+                    // 横屏（可用宽 >= 高）即左右分栏；左右各半、顶栏等高 48，竖线贯穿到底。
+                    // 不用固定宽度阈值：手机横屏只有 780pt 左右，定 900 会退化成上下布局。
+                    // 横屏时 tab 并进右半顶栏；竖屏时退回设置区顶部。
                     if geometry.size.width >= geometry.size.height {
                         HStack(spacing: 0) {
-                            previewPane(viewport: previewViewport(geometry.size))
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            workbenchControls.frame(width: geometry.size.width * 0.46)
-                        }
+                            VStack(spacing: 0) {
+                                workbenchHeader
+                                previewPane(viewport: previewViewport(geometry.size))
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            }.frame(width: geometry.size.width * 0.5)
+                            Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1)
+                            VStack(spacing: 0) {
+                                workbenchTabBar
+                                workbenchControls(showTabs: false)
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            }.frame(maxWidth: .infinity)
+                        }.frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
+                        workbenchHeader
                         previewPane(viewport: previewViewport(geometry.size)).frame(height: geometry.size.height * 0.43)
-                        workbenchControls
+                        workbenchControls(showTabs: true)
                     }
                 }
             }
@@ -339,14 +350,23 @@ struct ScoreboardStyleEditOverlayView: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel(String(localized: "scoreboard_style_exit_edit")).accessibilityIdentifier("scoreboard_style_cancel")
             Text(String(localized: "style_workbench_title")).font(.system(size: 18, weight: .semibold))
-            Spacer()
+                .lineLimit(1).truncationMode(.tail)
+            Spacer(minLength: 4)
+            // 重置改为极简纯文字按钮（无图标/无背景/无边框），由 Spacer 推到顶栏最右侧。
+            // 视觉用短文案「重置」/ "Reset"，读屏仍读完整的「恢复默认样式」。
             Button { imageUndo = nil; controller.resetDraft() } label: {
-                Text(String(localized: "style_workbench_reset")).font(.system(size: 12))
-                    .foregroundStyle(Color(hex: "ADB5C2")).frame(minHeight: 44).contentShape(Rectangle())
+                Text(String(localized: "style_workbench_reset_short"))
+                    .font(.system(size: 13))
+                    .foregroundStyle(controller.canResetDraft ? Color(hex: "ADB5C2") : Color(hex: "555B65"))
+                    .lineLimit(1)
+                    .padding(.horizontal, 10)
+                    .frame(minHeight: 48)
+                    .contentShape(Rectangle())
             }
                 .buttonStyle(.plain).disabled(!controller.canResetDraft)
+                .accessibilityLabel(String(localized: "style_workbench_reset"))
                 .accessibilityIdentifier("scoreboard_style_reset")
-        }.padding(.horizontal, 12).frame(height: 56)
+        }.padding(.horizontal, 12).frame(height: 48)
             .accessibilityElement(children: .contain).accessibilityIdentifier("scoreboard_style_header")
     }
 
@@ -378,12 +398,14 @@ struct ScoreboardStyleEditOverlayView: View {
     }
 
     private func previewPane(viewport: CGSize) -> some View {
-        VStack(spacing: 8) {
-            previewTargetChips().frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 0) {
             workbenchPreview(viewport: viewport)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("scoreboard_style_live_preview")
+            // 画布级控件放画布下方：参与布局、不覆盖预览、无独立底栏。
+            previewTargetChips()
+                .frame(maxWidth: .infinity, alignment: .center)
         }.padding(12)
     }
 
@@ -619,27 +641,69 @@ struct ScoreboardStyleEditOverlayView: View {
     }
 
     private func previewTargetChips(tagPrefix: String = "preview", floating: Bool = false) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: floating ? 4 : 6) {
+            // 非浮动版：黑底上两个紧凑选项居中，不留横贯整栏的容器。
+            if !floating { Spacer(minLength: 0) }
             previewTargetChip(String(localized: "style_workbench_phone"), cast: false, tagPrefix: tagPrefix, floating: floating)
             previewTargetChip(String(localized: "style_workbench_cast"), cast: true, tagPrefix: tagPrefix, floating: floating)
+            if !floating { Spacer(minLength: 0) }
         }
-        .padding(4)
-        .frame(maxWidth: 220)
-        .frame(height: 44)
-        .background(.black.opacity(0.6), in: RoundedRectangle(cornerRadius: floating ? 22 : 12))
+        .padding(floating ? 4 : 0)
+        .frame(maxWidth: floating ? 220 : CGFloat.infinity)
+        .frame(height: floating ? 44 : 48)
+        .background {
+            if floating {
+                RoundedRectangle(cornerRadius: 22).fill(.black.opacity(0.6))
+            }
+        }
     }
 
     private func previewTargetChip(_ label: String, cast: Bool, tagPrefix: String, floating: Bool) -> some View {
         Button { castPreview = cast } label: {
-            Text(label).font(.system(size: 12)).foregroundStyle(.white)
+            Text(label).font(.system(size: floating ? 12 : 14)).foregroundStyle(.white)
                 .lineLimit(1).minimumScaleFactor(0.8)
-                .frame(maxWidth: .infinity).frame(height: 36)
-                .background(castPreview == cast ? StyleEditPalette.accentGreen.opacity(0.22) : .clear, in: RoundedRectangle(cornerRadius: floating ? 18 : 8))
-                .contentShape(RoundedRectangle(cornerRadius: floating ? 18 : 8))
+                .frame(minWidth: floating ? 0 : 64, maxWidth: floating ? CGFloat.infinity : 132)
+                .frame(height: 36)
+                .background(castPreview == cast ? StyleEditPalette.accentGreen.opacity(0.22) : .clear,
+                            in: RoundedRectangle(cornerRadius: floating ? 18 : 10))
         }
         .buttonStyle(.plain)
+        // 视觉 36，命中区 48（iOS HIG / Material 最小触摸目标）。
+        .frame(minHeight: 48)
+        .contentShape(Rectangle())
         .accessibilityAddTraits(castPreview == cast ? .isSelected : [])
         .accessibilityIdentifier("scoreboard_style_\(tagPrefix)_\(cast ? "cast" : "phone")")
+    }
+
+    /// 定稿 A 方案：等宽通栏 tab + 选中项底部 2pt 绿线，高 48。
+    /// 横屏并进右半顶栏，竖屏置于设置区顶部；不与内容区 workbenchChoice 复用样式。
+    private var workbenchTabBar: some View {
+        HStack(spacing: 0) {
+            ForEach(draft.isPhotoTheme ? ["theme", "background"] : workbenchTabs, id: \.self) { tab in
+                Button {
+                    customColorOpen = false; workbenchTab = tab
+                    if tab == "background" { uiState.openBackground() }
+                    else if tab == "font" { uiState.openPanel(.font) }
+                    else if tab == "theme" { uiState.openPanel(.theme) }
+                    else { uiState.openElement(capabilities.elementKeys.first ?? .mainScore, slot: .sideLeft) }
+                } label: {
+                    Text(String(localized: String.LocalizationValue("style_workbench_" + tab)))
+                        .font(.system(size: 14, weight: workbenchTab == tab ? .semibold : .regular))
+                        .foregroundStyle(workbenchTab == tab ? StyleEditPalette.accentGreen : Color(hex: "ADB5C2"))
+                        .lineLimit(1).minimumScaleFactor(0.8)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .contentShape(Rectangle())
+                        .overlay(alignment: .bottom) {
+                            if workbenchTab == tab {
+                                Rectangle().fill(StyleEditPalette.accentGreen).frame(height: 2)
+                            }
+                        }
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(workbenchTab == tab ? .isSelected : [])
+                .accessibilityIdentifier("scoreboard_style_tab_\(tab)")
+            }
+        }.frame(height: 48)
     }
 
     private func workbenchChoice(_ label: String, selected: Bool, action: @escaping () -> Void) -> some View {
@@ -659,22 +723,13 @@ struct ScoreboardStyleEditOverlayView: View {
         return tabs
     }
 
-    private var workbenchControls: some View {
+    private func workbenchControls(showTabs: Bool) -> some View {
         VStack(spacing: 0) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(draft.isPhotoTheme ? ["theme", "background"] : workbenchTabs, id: \.self) { tab in
-                        workbenchChoice(String(localized: String.LocalizationValue("style_workbench_" + tab)), selected: workbenchTab == tab) {
-                            customColorOpen = false; workbenchTab = tab
-                            if tab == "background" { uiState.openBackground() }
-                            else if tab == "font" { uiState.openPanel(.font) }
-                            else if tab == "theme" { uiState.openPanel(.theme) }
-                            else { uiState.openElement(capabilities.elementKeys.first ?? .mainScore, slot: .sideLeft) }
-                        }.accessibilityIdentifier("scoreboard_style_tab_\(tab)")
-                    }
-                }.padding(.horizontal, 12).padding(.vertical, 6)
+            // 横屏时 tab 已在右半顶栏，这里不重复；竖屏时置于设置区顶部。
+            if showTabs {
+                workbenchTabBar
+                Divider()
             }
-            Divider()
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     if customColorOpen {

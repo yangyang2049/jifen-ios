@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "스타일";
 "style_workbench_reset" = "기본 스타일로 복원";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "테마";
 "style_workbench_background" = "배경";
 "style_workbench_font" = "글꼴";

@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "பாணி";
 "style_workbench_reset" = "இயல்பு பாங்கை மீட்டமை";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "தீம்";
 "style_workbench_background" = "பின்னணி";
 "style_workbench_font" = "எழுத்துரு";

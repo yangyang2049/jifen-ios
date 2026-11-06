@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Style";
 "style_workbench_reset" = "Restaurer le style par défaut";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "Thème";
 "style_workbench_background" = "Arrière-plan";
 "style_workbench_font" = "Police";

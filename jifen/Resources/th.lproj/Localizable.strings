@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "สไตล์";
 "style_workbench_reset" = "คืนค่าสไตล์เริ่มต้น";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "ธีม";
 "style_workbench_background" = "พื้นหลัง";
 "style_workbench_font" = "ฟอนต์";

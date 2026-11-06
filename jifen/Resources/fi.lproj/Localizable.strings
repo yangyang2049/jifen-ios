@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Tyyli";
 "style_workbench_reset" = "Palauta oletustyyli";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "Teema";
 "style_workbench_background" = "Tausta";
 "style_workbench_font" = "Fontti";

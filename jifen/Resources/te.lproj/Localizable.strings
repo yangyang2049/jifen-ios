@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "శైలి";
 "style_workbench_reset" = "డిఫాల్ట్ స్టైల్‌ను పునరుద్ధరించండి";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "థీమ్";
 "style_workbench_background" = "నేపథ్యం";
 "style_workbench_font" = "ఫాంట్";

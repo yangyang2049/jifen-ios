@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Stílus";
 "style_workbench_reset" = "Alapértelmezett stílus visszaállítása";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "Téma";
 "style_workbench_background" = "Háttér";
 "style_workbench_font" = "Betűtípus";

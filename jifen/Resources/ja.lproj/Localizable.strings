@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "スタイル";
 "style_workbench_reset" = "デフォルトのスタイルに戻す";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "テーマ";
 "style_workbench_background" = "背景";
 "style_workbench_font" = "フォント";

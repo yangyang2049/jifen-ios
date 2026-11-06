@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "શૈલી";
 "style_workbench_reset" = "ડિફોલ્ટ સ્ટાઇલ પુનઃસ્થાપિત કરો";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "થીમ";
 "style_workbench_background" = "પૃષ્ઠભૂમિ";
 "style_workbench_font" = "ફોન્ટ";

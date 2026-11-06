@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Štýl";
 "style_workbench_reset" = "Obnoviť predvolený štýl";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "Téma";
 "style_workbench_background" = "Pozadie";
 "style_workbench_font" = "Písmo";

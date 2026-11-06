@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Стиль";
 "style_workbench_reset" = "Восстановить стиль по умолчанию";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "Тема";
 "style_workbench_background" = "Фон";
 "style_workbench_font" = "Шрифт";

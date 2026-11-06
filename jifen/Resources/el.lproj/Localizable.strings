@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Στυλ";
 "style_workbench_reset" = "Επαναφορά προεπιλεγμένου στυλ";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "Θέμα";
 "style_workbench_background" = "Φόντο";
 "style_workbench_font" = "Γραμματοσειρά";

@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "ಶೈಲಿ";
 "style_workbench_reset" = "ಡೀಫಾಲ್ಟ್ ಶೈಲಿ ಮರುಸ್ಥಾಪಿಸಿ";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "ಥೀಮ್";
 "style_workbench_background" = "ಹಿನ್ನೆಲೆ";
 "style_workbench_font" = "ಫಾಂಟ್";

@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Stil";
 "style_workbench_reset" = "Vrati zadani stil";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "Tema";
 "style_workbench_background" = "Pozadina";
 "style_workbench_font" = "Font";

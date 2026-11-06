@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "انداز";
 "style_workbench_reset" = "ڈیفالٹ اسٹائل بحال کریں";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "تھیم";
 "style_workbench_background" = "پس منظر";
 "style_workbench_font" = "فونٹ";

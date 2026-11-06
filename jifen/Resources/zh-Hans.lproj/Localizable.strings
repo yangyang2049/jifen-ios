@@ -2643,6 +2643,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "样式";
 "style_workbench_reset" = "恢复默认样式";
+"style_workbench_reset_short" = "重置";
 "style_workbench_theme" = "主题";
 "style_workbench_background" = "背景";
 "style_workbench_font" = "字体";

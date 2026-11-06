@@ -2716,6 +2716,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "ശൈലി";
 "style_workbench_reset" = "സ്ഥിര ശൈലി പുനഃസ്ഥാപിക്കുക";
+"style_workbench_reset_short" = "Reset";
 "style_workbench_theme" = "തീം";
 "style_workbench_background" = "പശ്ചാത്തലം";
 "style_workbench_font" = "ഫോണ്ട്";
