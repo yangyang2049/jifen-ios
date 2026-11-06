@@ -215,3 +215,45 @@ xcodebuild test -only-testing:jifenTests -resultBundlePath <batch>/unit-tests-fi
 3. 明确 `.ddzRetro` 名牌配色口径与照片主题可编辑范围。
 4. 补齐 CC BY-SA 的原始作品 URI / 版权声明行后再发版。
 5. 提交前确认并发写入已停止，并重跑 `jifenTests` 全量。
+
+## 十、二次复核（2026-11-06 14:xx，独立重跑）
+
+对 §二 / §三 / §四 逐条在当前工作树上重新取证（不直接采信上文结论），并重跑全量回归：
+
+| 复核项 | 结果 |
+|---|---|
+| `jifenTests` 全量重跑（14:28 起，`unit-tests.xcresult`） | ✅ **1012 通过 / 0 失败 / 1 跳过** |
+| 47 语言 key 矩阵（自写脚本重算） | ✅ 2392 key 全一致；占位符按「类型计数」比对 **0 不一致** |
+| 打包产物 `find jifen.app -name '*.json'` | ✅ 空（fixture 确已移出 app target） |
+| 已删符号残留（13 个符号 × `jifen`/`jifenTests`/`jifenUITests`） | ✅ 零命中 |
+| §2.1 33 个 `style_workbench_*` | ✅ 47 语言齐备 |
+| §2.2 合同版本单源 | ✅ `GroupContract.version = 2`，沙盒/仓库/上限判断同源 |
+| §2.3 照片主题往返 | ✅ 生产链路用例存在且全绿 |
+| §2.4 工作台重置 | ✅ `canResetDraft` 走语义比较，`resetDraft` 单一路径 |
+| §2.5/§2.6 台球解码与坏文件隔离 | ✅ `read()` 隔离 `.corrupt-*`、`annotate` 不抛错，主路径已无 `try` |
+| §三 P2/P3（绿钮白字、`got_it`、`%@` 占位、`.id()`、`nameFontCode`、受让方序号、重赛前置、篮球色、网球指示器、Rally 观察者） | ✅ 逐处命中，且 `3.4.3` 在 47 语言中零硬编码 |
+| §四 误报 10 条 | ✅ 逐条重新取证，结论与上文一致（安卓 `GroupSports.ALL` 含 `billiards`、后端更正按 `gameId`、`z.literal(3)`、`ScoreboardBackdrop.image` 仍被 `source.image` 使用等） |
+
+### 10.1 本次新发现并修复的真实回归（上文未覆盖）
+
+**`0413b8aa`（10:55，把图片上限放宽到 200,000）会击穿后端实时帧上限。**
+
+`REALTIME_MAX_PAYLOAD_BYTES` = 512KB，而投屏帧里**每个参与者各带一份完整 `displayState`**
+（`RemoteSyncController.mapDisplayStateToParticipants`；安卓同构，其
+`RemotePhotoThemePayloadTest` 明确断言「doubles must exercise four complete metadata copies」）。
+双打 4 份 × 200,000 字符 = 800,000，实测整帧 **811,868 字节 > 524,288**，服务端 `ws`
+会以 1009（message too big）**关闭连接** —— 不是图片降级，而是整条投屏断掉。
+
+处置：把上限收回 90,000（与安卓 `SCOREBOARD_BACKGROUND_MAX_DATA_LENGTH`、鸿蒙
+`scoreboardStyle.ts` 一致），并保留 `imageDataCharacterLimit` 常量承载「按最坏一帧倒推」的口径说明；
+同时新增 `testLargestPhotoImageKeepsDoublesFrameWithinBackendPayloadBudget`，用**真实映射**把整帧
+字节数和「4 份副本都带图」一起钉死。该用例在 200,000 下实测报红（811,868），回到 90,000 后转绿。
+
+> 注：`0413b8aa` 与网站端 `512ad73` 是同一批「1080p 清晰度」改动，网站端上限也是 200,000。
+> 网站是**接收端**，放宽上限本身不产生超帧，故未改；三端发送侧统一 90,000。
+
+### 10.2 仍未消除的交付风险（与上文一致，未改）
+
+- 44 个语言仍有英文占位译文，需翻译战役。
+- §五 的 4 项产品决策与 CC BY-SA 署名缺口保持原状。
+- `docs/analytics/2026-10/` 已在 `8b908d8e` 入库（22 文件），是否保留/剥离控制台链接仍待决策。

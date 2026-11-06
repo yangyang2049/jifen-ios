@@ -367,6 +367,37 @@ extension ScoreboardStyleV2ModelTests {
         }
     }
 
+    /// 投屏整帧预算回归：后端实时消息硬上限 512KB（`REALTIME_MAX_PAYLOAD_BYTES`），
+    /// 而每个参与者各带一份完整 displayState —— 双打帧里同一张图片会被复制 4 份。
+    /// 图片字符上限必须按「4 份副本 + 其它字段」倒推：2026-11-06 10:55 一度放宽到 200,000，
+    /// 4×200,000 = 800,000 > 524,288，服务端 `ws` 会以 1009（message too big）关闭连接、
+    /// 投屏整条断掉，而不是让图片降级。这里用真实映射把整帧字节数钉死。
+    func testLargestPhotoImageKeepsDoublesFrameWithinBackendPayloadBudget() throws {
+        let prefix = "data:image/jpeg;base64,"
+        let bodyLength = (ScoreboardBackdrop.imageDataCharacterLimit - prefix.count) / 4 * 4
+        let image = prefix + String(repeating: "A", count: bodyLength)
+        XCTAssertLessThanOrEqual(image.count, ScoreboardBackdrop.imageDataCharacterLimit)
+
+        var state = photoState(doubles: true)
+        state.appearance.style?.backdrop = .init(imageData: image, dim: 0.45, panelOpacity: 0.67)
+        let wire = try XCTUnwrap(DisplayStateWireCodec.encode(state))
+        let participants = RemoteSyncController.mapDisplayStateToParticipants(state, wire: wire)
+        XCTAssertEqual(participants.count, 4, "双打四个参与者各带一份完整 displayState")
+
+        let envelope: [String: Any] = [
+            "type": "participant_update",
+            "payload": ["matchId": "match", "sessionPhase": "active", "replace": false, "participants": participants]
+        ]
+        let bytes = try JSONSerialization.data(withJSONObject: envelope).count
+        XCTAssertLessThan(bytes, 512 * 1024, "整帧 \(bytes) 字节超出后端 512KB 上限")
+        for participant in participants {
+            let metadata = try XCTUnwrap(participant["metadata"] as? [String: Any])
+            let displayState = try XCTUnwrap(metadata["displayState"] as? [String: Any])
+            let style = try XCTUnwrap((displayState["appearance"] as? [String: Any])?["style"] as? [String: Any])
+            XCTAssertEqual((style["backdrop"] as? [String: Any])?["imageData"] as? String, image)
+        }
+    }
+
     /// 生产链路（LocalScoreboardSyncCoordinator → `ScoreboardDisplayState(compactState:)`）的
     /// 照片主题往返：compact 快照里的扁平 themeID 只是全局主题，V2 themeCode 与背景图必须
     /// 原样跨端，既不能被扁平 theme 覆盖，也不能因扁平 theme 不是照片主题而被清空。

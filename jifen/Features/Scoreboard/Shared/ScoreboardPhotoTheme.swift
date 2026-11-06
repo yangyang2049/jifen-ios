@@ -11,10 +11,13 @@ nonisolated struct ScoreboardBackdrop: Codable, Equatable, Sendable {
     var resolvedDim: Double { dim.isFinite ? min(0.8, max(0, dim)) : 0.30 }
     var resolvedPanelOpacity: Double { panelOpacity.isFinite ? min(1, max(0.15, panelOpacity)) : 0.84 }
 
-    /// data URI 字符上限。放宽到 200,000（约 145KB JPEG）以便 1080p 投屏清晰；
-    /// 仍远低于后端实时消息硬上限 `REALTIME_MAX_PAYLOAD_BYTES`（512KB），
-    /// 留给同一帧其它字段充足余量。网站接收端按同一常量做防御校验。
-    static let imageDataCharacterLimit = 200_000
+    /// data URI 字符上限。按「最坏一帧」倒推：后端实时消息硬上限
+    /// `REALTIME_MAX_PAYLOAD_BYTES` = 512KB，而每个参与者各带一份完整 displayState，
+    /// 双打帧会把同一张图片复制 4 份（`RemoteSyncController.mapDisplayStateToParticipants`）。
+    /// 4 × 90,000 = 360,000 字符，加上队伍/球员/sportState 等字段仍有充裕余量；
+    /// 4 × 200,000 = 800,000 会直接超帧，服务端 `ws` 以 1009 关闭连接（投屏整条断掉）。
+    /// 与安卓 `SCOREBOARD_BACKGROUND_MAX_DATA_LENGTH`、鸿蒙 `scoreboardStyle.ts` 同为 90,000。
+    static let imageDataCharacterLimit = 90_000
 
     func normalized() -> Self {
         var value = self
@@ -70,10 +73,8 @@ nonisolated struct ScoreboardBackdrop: Codable, Equatable, Sendable {
     }
 
     /// Downsample before encoding, keeping projection messages below the shared limit.
-    /// 分辨率阶梯提升到 1600，让 1080p 投屏有足够像素；编码目标 130KB JPEG
-    /// （转 base64 约 173,000 字符，落在 `imageDataCharacterLimit` 之内）。
     static func jpegDataURL(_ image: UIImage) -> String? {
-        for edge in [1600.0, 1280, 1024, 800, 640, 480, 320] {
+        for edge in [1024.0, 800, 640, 480, 320] {
             let ratio = min(1, edge / max(image.size.width, image.size.height))
             let size = CGSize(width: max(1, image.size.width * ratio), height: max(1, image.size.height * ratio))
             let format = UIGraphicsImageRendererFormat(); format.scale = 1; format.opaque = true
@@ -81,10 +82,10 @@ nonisolated struct ScoreboardBackdrop: Codable, Equatable, Sendable {
                 UIColor.white.setFill(); context.fill(CGRect(origin: .zero, size: size))
                 image.draw(in: CGRect(origin: .zero, size: size))
             }
-            for quality in [0.85, 0.7, 0.55, 0.42, 0.32] {
+            for quality in [0.82, 0.65, 0.48, 0.32] {
                 guard let bytes = reduced.jpegData(compressionQuality: quality) else { continue }
                 let source = "data:image/jpeg;base64," + bytes.base64EncodedString()
-                if bytes.count <= 130 * 1024, source.count <= imageDataCharacterLimit { return source }
+                if bytes.count <= 60 * 1024 { return source }
             }
         }
         return nil

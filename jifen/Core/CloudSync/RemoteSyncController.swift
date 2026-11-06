@@ -276,7 +276,8 @@ final class RemoteSyncController: ObservableObject {
 
     // MARK: 参与者映射（对齐安卓 RemoteParticipantMapper.mapDisplayStateToParticipants）
 
-    private static func mapDisplayStateToParticipants(
+    /// `internal` 以便整帧体积回归测试复用真实映射（每个参与者各带一份完整 displayState）。
+    static func mapDisplayStateToParticipants(
         _ displayState: ScoreboardDisplayState,
         wire: [String: Any]
     ) -> [[String: Any]] {
