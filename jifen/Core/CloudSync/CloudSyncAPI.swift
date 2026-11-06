@@ -153,7 +153,11 @@ enum CloudSyncGameTypes {
     ]
 
     static func isSupported(_ gameType: String) -> Bool {
-        supported.contains(gameType)
+        // 服务端 catalog 为仲裁口径；未加载或无该项目能力行时回退本地白名单。
+        if let serverValue = ScoreboardClientConfigStore.shared.canControl(gameType) {
+            return serverValue
+        }
+        return supported.contains(gameType)
     }
 
     /// 首页预开房占位类型（对齐安卓 CLOUD_SYNC_PLACEHOLDER_GAME_TYPE）。

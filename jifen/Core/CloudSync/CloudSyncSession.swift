@@ -53,6 +53,8 @@ final class CloudSyncSession: ObservableObject {
 
     /// 创建新会话；若已有旧会话则先强制结束（对齐安卓 CloudSyncSession.create）。
     func create(gameType: String = CloudSyncGameTypes.placeholder) {
+        // 开房时预取服务端 catalog（revision 缓存 + 5 分钟节流），失败静默回退本地白名单。
+        Task { await ScoreboardClientConfigStore.shared.refresh() }
         if let oldSession = state {
             oldSession.controller.forceDisconnect(
                 sendLeave: true,
