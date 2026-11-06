@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>样式编辑面板 · A 方案分栏等高 + 高度栅格对照</title>
+<style>
+  :root {
+    --page: #f5f6f8;
+    --ink: #1f2430;
+    --ink2: #5b6472;
+    --line: #e3e6eb;
+    --stage: #101215;
+    --bar: #1c1c1e;
+    --control: #272d35;
+    --accent: #30d158;
+    --accent-soft: rgba(48,209,88,.22);
+    --white: #f7f8fa;
+    --muted: #a6adba;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--page); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 13px; line-height: 1.6;
+  }
+  .page { max-width: 1120px; margin: 0 auto; padding: 28px 24px 60px; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 6px; }
+  h2 { font-size: 15px; font-weight: 600; margin: 28px 0 12px; }
+  h2 .sub { font-weight: 400; font-size: 12px; color: var(--ink2); margin-left: 8px; }
+  .lede { color: var(--ink2); margin: 0 0 20px; }
+  .controls {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 18px; display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: flex-start;
+  }
+  .ctl-label { display: block; font-size: 12px; color: var(--ink2); margin-bottom: 6px; }
+  .plans, .heights, .layouts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .plans label, .heights label, .layouts label {
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px;
+    border: 1px solid var(--line); border-radius: 8px; cursor: pointer; background: #fff; white-space: nowrap;
+  }
+  .plans label:has(input:checked), .heights label:has(input:checked), .layouts label:has(input:checked) {
+    border-color: #34a853; background: #f0faf2; color: #17692f;
+  }
+  .plans input, .heights input, .layouts input { accent-color: #2e9e4f; }
+  .disabled-opt { opacity: .45; text-decoration: line-through; }
+  .ctl-note { font-size: 11px; color: #8a93a3; margin-top: 6px; }
+  .stage-wrap { margin-top: 18px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+  .ruler { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; font-size: 11px; color: var(--ink2); }
+  .ruler span { background: #eef1f5; border-radius: 6px; padding: 4px 10px; }
+  .ruler span.hi { background: #e6f7eb; color: #17692f; font-weight: 500; }
+  .stage {
+    --h: 48px;
+    height: 500px; border-radius: 12px; overflow: hidden; background: var(--stage);
+    display: grid; grid-template-columns: 58% 42%;
+    grid-template-rows: var(--h) 1fr;
+    color: var(--white); box-shadow: 0 1px 3px rgba(0,0,0,.12);
+  }
+  .stage.split { grid-template-rows: 1fr; }
+  .globalbar, .titlebar {
+    height: var(--h); background: var(--bar);
+    border-bottom: 1px solid rgba(255,255,255,.07);
+    display: flex; align-items: center; padding: 0 16px; gap: 10px;
+  }
+  .globalbar { grid-column: 1 / -1; grid-row: 1; justify-content: flex-end; }
+  .titlebar { display: none; flex: 0 0 var(--h); }
+  .stage.split .titlebar { display: flex; }
+  .stage.split .globalbar { display: none; }
+  .titlebar .title { font-size: 14px; font-weight: 500; }
+  .reset {
+    border: 0; background: transparent; color: var(--muted);
+    font-size: 11px; padding: 5px 8px; border-radius: 7px; white-space: nowrap;
+  }
+  .titlebar .reset { margin-left: auto; }
+  .globalbar .reset { border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.06); padding: 5px 10px; }
+  .left-col, .right-col {
+    min-width: 0; display: flex; flex-direction: column;
+    grid-row: 2;
+  }
+  .left-col { grid-column: 1; }
+  .right-col { grid-column: 2; border-left: 1px solid rgba(255,255,255,.16); background: #16181c; }
+  .stage.split .left-col, .stage.split .right-col { grid-row: 1; }
+  .preview { flex: 1; padding: 18px; display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+  .segment {
+    display: flex; gap: 4px; padding: 4px; border-radius: 12px;
+    background: rgba(0,0,0,.6); width: 220px;
+  }
+  .segment span {
+    flex: 1; text-align: center; height: calc(var(--h) - 12px); line-height: calc(var(--h) - 12px);
+    font-size: 12px; border-radius: 8px; color: #fff;
+  }
+  .segment span.on { background: var(--accent-soft); }
+  .board {
+    flex: 1; border-radius: 12px;
+    background: linear-gradient(90deg,#16243a 0%,#16243a 49.7%,#3a1c22 50.3%,#3a1c22 100%);
+    display: flex; align-items: center; justify-content: space-around; min-height: 0;
+  }
+  .board .team { text-align: center; }
+  .board .team small { display: block; font-size: 11px; color: rgba(255,255,255,.6); margin-bottom: 8px; }
+  .board .team b { font-size: 54px; font-weight: 600; line-height: 1; }
+
+  /* Tab 行：左右顶栏等高，分栏时与左标题栏同色，形成「通栏被切开」的两半 */
+  .tabbar {
+    flex: 0 0 var(--h); height: var(--h); display: flex; gap: 0;
+    padding: 0 8px; align-items: stretch; background: #16181c;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+  }
+  .stage.split .tabbar { background: var(--bar); }
+  .tab {
+    flex: 1; height: 100%; border: 0; border-radius: 0; cursor: pointer;
+    background: transparent; color: #8a93a3; font-size: 12px; font-family: inherit;
+    position: relative; white-space: nowrap;
+  }
+  .tab.on { color: var(--accent); font-weight: 500; }
+  .plan-A .tab.on::after, .plan-B .tab.on::after, .plan-C .tab.on::after {
+    content: ""; position: absolute; bottom: 0; height: 2px; border-radius: 2px; background: var(--accent);
+  }
+  .plan-A .tab.on::after, .plan-C .tab.on::after { left: 8px; right: 8px; }
+  .plan-B .tab.on::after { left: 50%; width: 24px; transform: translateX(-50%); }
+  .plan-C .tab.on { background: rgba(48,209,88,.08); }
+  .plan-current .tabbar { padding: 7px 12px; gap: 6px; align-items: center; }
+  .plan-current .tab {
+    height: calc(var(--h) - 14px); background: var(--control); border-radius: 8px; color: var(--muted);
+  }
+  .plan-current .tab.on { background: var(--accent-soft); color: var(--accent); }
+
+  .panel-content { flex: 1; padding: 14px 16px; overflow: hidden; }
+  .group-label { font-size: 11px; color: #8a93a3; margin-bottom: 8px; }
+  .target-segment { display: flex; gap: 3px; padding: 3px; border-radius: 14px; background: rgba(255,255,255,.06); }
+  .target-segment span {
+    flex: 1; text-align: center; height: calc(var(--h) - 12px); line-height: calc(var(--h) - 12px);
+    font-size: 12px; border-radius: 10px; color: rgba(255,255,255,.62);
+  }
+  .target-segment span.on { background: var(--accent-soft); color: #fff; font-weight: 500; }
+  .swatches { display: flex; gap: 10px; margin-top: 16px; }
+  .swatches i { width: 46px; height: 46px; border-radius: 10px; background: #2b3038; display: block; }
+  .swatches i:nth-child(2) { background: #3b4250; }
+  .swatches i:nth-child(3) { background: #222a3a; }
+  .hint { margin-top: 14px; font-size: 11px; color: #747d8b; line-height: 1.7; }
+
+  /* 底部两栏同样等高 */
+  .foot {
+    flex: 0 0 calc(var(--h) + 16px); height: calc(var(--h) + 16px);
+    padding: 8px 16px; border-top: 1px solid rgba(255,255,255,.06);
+    display: flex; gap: 8px; align-items: center;
+  }
+  .leftfoot { color: #6f7887; font-size: 11px; }
+  .actions button { flex: 1; height: var(--h); border: 0; border-radius: calc(var(--h) / 2); font-size: 12px; font-family: inherit; color: #fff; background: var(--control); }
+  .actions button:last-child { background: var(--accent); color: #fff; font-weight: 500; }
+
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px; }
+  .metric { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .metric small { display: block; color: var(--ink2); font-size: 11px; }
+  .metric b { display: block; font-size: 22px; font-weight: 600; margin-top: 2px; }
+  .metric em { font-style: normal; font-size: 11px; color: #2e9e4f; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); font-size: 12px; }
+  th { background: #fafbfc; font-weight: 500; color: var(--ink2); }
+  tr:last-child td { border-bottom: 0; }
+  tr.pick td { background: #f2fbf4; }
+  tr.bad td { color: #9aa2ad; }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 5px; background: #eef7f0; color: #17692f; font-size: 11px; }
+  .no { color: #c0392b; }
+  .yes { color: #2e9e4f; }
+  .notes { color: var(--ink2); font-size: 12px; margin-top: 16px; }
+  .notes li { margin-bottom: 6px; }
+  @media (max-width: 760px) {
+    .stage { grid-template-columns: 1fr 1fr; }
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>样式编辑面板 · A 方案分栏等高 + 高度栅格</h1>
+  <p class="lede">按「采用 A + 做成分栏 + 左右等高」重做：顶部通栏切成左右各一半，<b>两半同高 H</b>，右半直接把 tab 放进自己的顶栏（不再多占一行 tab）。左半标题栏右侧放「恢复默认样式」文字按钮，竖分割线贯穿到底，底部两栏也等高。H 可在 44 / 48 / 52 / 56 间切换，所有相关控件统一用同一个 H。</p>
+
+  <section class="controls">
+    <div>
+      <span class="ctl-label">布局</span>
+      <div class="layouts" id="layouts">
+        <label><input type="radio" name="layout" value="split" checked> 分栏 · 左右等高（默认）</label>
+        <label><input type="radio" name="layout" value="full"> 通栏 · 对照</label>
+      </div>
+    </div>
+    <div>
+      <span class="ctl-label">统一高度 H（顶栏 / tab / 底部按钮同值）</span>
+      <div class="heights" id="heights">
+        <label><input type="radio" name="h" value="44"> 44 vp</label>
+        <label><input type="radio" name="h" value="48" checked> 48 vp ★</label>
+        <label><input type="radio" name="h" value="52"> 52 vp</label>
+        <label><input type="radio" name="h" value="56"> 56 vp</label>
+        <label class="disabled-opt" title="54 不是 4 的倍数，已排除">54 vp ✕</label>
+      </div>
+      <div class="ctl-note">54 = 4×13.5 非 4 倍数，排除；44/52 仅满足 4 倍数，48/56 同时是 8 倍数。</div>
+    </div>
+    <div>
+      <span class="ctl-label">Tab 样式（可切回对照）</span>
+      <div class="plans" id="plans">
+        <label><input type="radio" name="plan" value="A" checked> A · 底部绿线 ★</label>
+        <label><input type="radio" name="plan" value="B"> B · 居中短线</label>
+        <label><input type="radio" name="plan" value="C"> C · 绿线 + 淡底</label>
+        <label><input type="radio" name="plan" value="current"> 现状 · 填充圆角块</label>
+      </div>
+    </div>
+  </section>
+
+  <div class="stage-wrap">
+    <div class="ruler" id="ruler"></div>
+    <div class="stage split plan-A" id="stage">
+      <div class="globalbar"><button class="reset">恢复默认样式</button></div>
+      <div class="left-col">
+        <div class="titlebar">
+          <span class="title">样式编辑</span>
+          <button class="reset">恢复默认样式</button>
+        </div>
+        <div class="preview">
+          <div class="segment"><span class="on">本机</span><span>投屏</span></div>
+          <div class="board">
+            <div class="team"><small>主队</small><b>2</b></div>
+            <div class="team"><small>客队</small><b>1</b></div>
+          </div>
+        </div>
+        <div class="foot leftfoot"><span>实时预览 · 本机</span></div>
+      </div>
+      <div class="right-col">
+        <div class="tabbar" id="tabbar">
+          <button class="tab on" data-tab="theme">主题</button>
+          <button class="tab" data-tab="background">背景</button>
+          <button class="tab" data-tab="font">字体</button>
+          <button class="tab" data-tab="free">自由编辑</button>
+        </div>
+        <div class="panel-content">
+          <div class="group-label">主题背景</div>
+          <div class="target-segment"><span class="on">左侧</span><span>右侧</span><span>左右同色</span></div>
+          <div class="swatches"><i></i><i></i><i></i></div>
+          <div class="hint">选中态只保留浅绿填充与白色文字，已去掉 1vp 绿色描边；与「本机 / 投屏」保持同一套视觉。四个 tab 与左半标题栏等高、同底色，看起来仍是一整条被竖线切开的通栏。</div>
+        </div>
+        <div class="foot actions"><button>完整预览</button><button>保存</button></div>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><small>统一高度 H</small><b id="m-h">48 vp</b><em id="m-h-note">8×6 = 4×12</em></div>
+      <div class="metric"><small>头部占用（左右等高）</small><b id="m-head">48 vp</b><em id="m-head-delta">代码现状 106 vp，省 58 vp</em></div>
+      <div class="metric"><small>右栏净内容高度</small><b id="m-space">388 vp</b><em id="m-space-delta">500 − 头部 − 底部</em></div>
+      <div class="metric"><small>相对现状净增空间</small><b id="m-total">+54 vp</b><em id="m-total-note">A + 分栏 + H48</em></div>
+    </div>
+
+    <h2>高度档位对照 <span class="sub">全部按「A + 分栏」计算；舞台总高 500 vp，底部占用 H+16</span></h2>
+    <table>
+      <thead><tr><th>H</th><th>倍数合规</th><th>数值分解</th><th>三端触摸目标</th><th>头部 / 净内容高</th><th>相对现状</th><th>观感判断</th></tr></thead>
+      <tbody id="hrows"></tbody>
+    </table>
+
+    <h2>A 方案下各控件统一后的数值 <span class="sub">H 为唯一栅格基数，内部控件按 H 派生</span></h2>
+    <table>
+      <thead><tr><th>部位</th><th>取值</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>左半标题栏 / 右半 tab 顶栏</td><td><span class="hv">48</span> vp（同高）</td><td>同底色 #1C1C1E，中间竖线贯穿；这是「不要左右高度不一样」的关键</td></tr>
+        <tr><td>Tab 文字区 / 绿线 / 上下留白</td><td>22 / 2 / <span id="padv">12</span>×2 vp</td><td>22 + 2 + 24 = <span class="hv">48</span> vp；文字 14sp，绿线 2vp 贴底，左右内缩 8vp</td></tr>
+        <tr><td>底部按钮 / 底部条</td><td><span class="hv">48</span> / <span id="footv">64</span> vp</td><td>按钮高度 = H；两侧底条同高，保证上下边也对齐</td></tr>
+        <tr><td>「本机/投屏」「左右同色」内选项</td><td><span id="innerv">36</span> vp</td><td>H − 12，随 H 联动，不再写死 36</td></tr>
+        <tr><td>左半「恢复默认样式」</td><td>文字按钮，无填充</td><td>低频破坏性操作，不做成重胶囊；窄屏可缩成「恢复默认」或图标</td></tr>
+        <tr class="bad"><td>代码现状（基线）</td><td>54 vp（40 + 7×2）</td><td>54 非 4 倍数，且 40 填充块与下方胶囊按钮叠着显重</td></tr>
+      </tbody>
+    </table>
+
+    <ul class="notes">
+      <li><b>44 会不会偏矮？</b>能点，但不建议三端统一用。44 = 4×11 恰好是 iOS HIG 的最小 44pt，Android Material 与鸿蒙常用最小触摸目标是 48dp/vp，取 44 会在两端被无障碍/布局检查提示偏小；且 44 下上下留白只剩 10vp，14sp 文字离 2vp 绿线偏近，视觉发挤。<b>48 是唯一同时满足「8 的倍数 + 三端最小触摸目标 + 相对现状确实变轻」的值</b>，所以默认 48。</li>
+      <li>56 = 8×7 也合规，但已经比现状 54 还高，轻量化收益归零；52 = 4×13 不是 8 倍数，栅格不整。54 按你的要求直接排除。</li>
+      <li>「右边空间多一些」在等高方案里不是靠右栏顶天立地（那样左右错位），而是靠<b>把 tab 并进右半顶栏</b>：原来「52 通栏 + 54 tab 行」= 106 vp 的两层头，现在只有一层 H。H=48 时省 58 vp 头部，扣掉底部按钮 44→48 多出的 4 vp，净增 54 vp。</li>
+      <li>三端落地口径一致：HarmonyOS 用 vp、Android 用 dp、iOS 用 pt，数值都取 48；字号 14、绿线 2、左右内缩 8、上下留白 12。</li>
+      <li>此页只做视觉与尺寸对比，尚未落到三端代码；确认 H 后按端实施，并在真机/模拟器确认。</li>
+    </ul>
+  </div>
+</div>
+<script>
+  const stage = document.getElementById('stage');
+  const plans = document.getElementById('plans');
+  const heights = document.getElementById('heights');
+  const layouts = document.getElementById('layouts');
+  const tabbar = document.getElementById('tabbar');
+  const state = { plan: 'A', split: true, h: 48, tab: 'theme' };
+  const BASE_HEAD = 106;   // 代码现状：52 通栏 + 54 tab 行
+  const BASE_FOOT = 60;    // 代码现状：44 按钮 + 8×2 padding
+  const STAGE = 500;
+
+  const rowData = [
+    { h: 44, mult: '4×11', ok8: false, touch: '<span class="no">iOS 44 ✅ / Android 48 ❌ / 鸿蒙 48 ❌</span>', look: '偏紧、偏矮；上下留白 10vp，字贴绿线' },
+    { h: 48, mult: '8×6 = 4×12', ok8: true, touch: '<span class="yes">三端 ✅</span>', look: '推荐：最轻且三端都合规，留白 12vp' },
+    { h: 52, mult: '4×13', ok8: false, touch: '<span class="yes">三端 ✅</span>', look: '略松，非 8 倍数，栅格不整' },
+    { h: 56, mult: '8×7 = 4×14', ok8: true, touch: '<span class="yes">三端 ✅</span>', look: '比现状 54 还高，轻量化收益归零' },
+    { h: 54, mult: '<span class="no">非 4 倍数 ✕</span>', ok8: false, touch: '—', look: '按约定排除，仅作基线对照' }
+  ];
+
+  function buildHeightRows() {
+    document.getElementById('hrows').innerHTML = rowData.map(r => {
+      const pad = (r.h - 24) / 2;
+      const foot = r.h + 16;
+      const net = STAGE - r.h - foot;
+      const gain = (BASE_HEAD + BASE_FOOT) - (r.h + foot);
+      const cls = r.h === state.h ? 'pick' : (r.h === 54 ? 'bad' : '');
+      const label = r.h === 48 ? '48 vp <span class="tag">推荐</span>' : r.h + ' vp';
+      const excluded = r.h === 54;
+      const decomp = excluded ? '—' : '22 + 2 + ' + pad + '×2';
+      const sizeCell = excluded ? '—' : r.h + ' / ' + net + ' vp';
+      const gainCell = excluded ? '—' : '+' + gain + ' vp';
+      return '<tr class="' + cls + '"><td>' + label + '</td><td>' + r.mult + (r.ok8 ? ' ✅' : '') + '</td><td>' + decomp + '</td><td>' + r.touch + '</td><td>' + sizeCell + '</td><td>' + gainCell + '</td><td>' + r.look + '</td></tr>';
+    }).join('');
+  }
+
+  function render() {
+    const H = state.h;
+    stage.className = 'stage plan-' + state.plan + (state.split ? ' split' : '');
+    stage.style.setProperty('--h', H + 'px');
+    plans.querySelectorAll('input').forEach(i => { i.checked = i.value === state.plan; });
+    heights.querySelectorAll('input').forEach(i => { i.checked = Number(i.value) === H; });
+    layouts.querySelectorAll('input').forEach(i => { i.checked = (i.value === 'split') === state.split; });
+    tabbar.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === state.tab));
+
+    const head = state.split ? H : 2 * H;
+    const foot = H + 16;
+    const net = STAGE - head - foot;
+    const gain = (BASE_HEAD + BASE_FOOT) - (head + foot);
+    const mult = H % 8 === 0 ? '8×' + (H / 8) + ' = 4×' + (H / 4) : '4×' + (H / 4);
+
+    document.getElementById('m-h').textContent = H + ' vp';
+    document.getElementById('m-h-note').textContent = mult;
+    document.getElementById('m-head').textContent = head + ' vp';
+    document.getElementById('m-head-delta').textContent = state.split
+      ? '代码现状 106 vp，省 ' + (BASE_HEAD - head) + ' vp'
+      : '通栏 ' + H + ' + tab 行 ' + H;
+    document.getElementById('m-space').textContent = net + ' vp';
+    document.getElementById('m-space-delta').textContent = STAGE + ' − ' + head + ' 头部 − ' + foot + ' 底部';
+    document.getElementById('m-total').textContent = (gain >= 0 ? '+' : '') + gain + ' vp';
+    document.getElementById('m-total-note').textContent = state.plan.toUpperCase() + (state.split ? ' + 分栏' : ' + 通栏') + ' + H' + H;
+
+    document.querySelectorAll('.hv').forEach(e => { e.textContent = H; });
+    document.getElementById('padv').textContent = (H - 24) / 2;
+    document.getElementById('footv').textContent = H + 16;
+    document.getElementById('innerv').textContent = H - 12;
+
+    document.getElementById('ruler').innerHTML = state.split
+      ? '<span class="hi">左顶栏 ' + H + ' vp</span><span class="hi">右顶栏（tab）' + H + ' vp</span><span>左右等高 · 竖线贯穿到底</span><span>底部按钮 ' + H + ' vp</span><span>上下边同样对齐</span>'
+      : '<span class="hi">通栏 ' + H + ' vp（横跨两栏）</span><span class="hi">右栏 tab 行 ' + H + ' vp</span><span>头部共 ' + (2 * H) + ' vp</span><span>底部按钮 ' + H + ' vp</span>';
+
+    buildHeightRows();
+  }
+
+  plans.addEventListener('change', e => { state.plan = e.target.value; render(); });
+  heights.addEventListener('change', e => { state.h = Number(e.target.value); render(); });
+  layouts.addEventListener('change', e => { state.split = e.target.value === 'split'; render(); });
+  tabbar.addEventListener('click', e => {
+    const btn = e.target.closest('.tab');
+    if (!btn) return;
+    state.tab = btn.dataset.tab;
+    render();
+  });
+  render();
+</script>
+</body>
+</html>

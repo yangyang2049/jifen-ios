@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>样式编辑面板 · 左栏布局方案对比</title>
+<style>
+  :root {
+    --page:#f5f6f8; --ink:#1f2430; --ink2:#5b6472; --line:#e3e6eb;
+    --stage:#101215; --bar:#1c1c1e; --control:#272d35;
+    --accent:#30d158; --accent-soft:rgba(48,209,88,.22);
+    --white:#f7f8fa; --muted:#a6adba;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:13px; line-height:1.6; }
+  .page { max-width:1140px; margin:0 auto; padding:28px 24px 60px; }
+  h1 { font-size:20px; font-weight:600; margin:0 0 6px; }
+  h2 { font-size:15px; font-weight:600; margin:26px 0 12px; }
+  h2 .sub { font-weight:400; font-size:12px; color:var(--ink2); margin-left:8px; }
+  .lede { color:var(--ink2); margin:0 0 18px; }
+  .analysis { background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:18px; }
+  .analysis h3 { font-size:13px; margin:0 0 8px; }
+  .analysis p { margin:0 0 8px; color:var(--ink2); font-size:12px; }
+  .analysis p:last-child { margin-bottom:0; }
+  .analysis b { color:var(--ink); }
+  .pickbar { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .pickbar button {
+    padding:7px 13px; border:1px solid var(--line); border-radius:8px; background:#fff;
+    color:var(--ink2); font-size:12px; font-family:inherit; cursor:pointer;
+  }
+  .pickbar button.on { border-color:#34a853; background:#f0faf2; color:#17692f; font-weight:500; }
+  .big-head { display:flex; align-items:baseline; gap:12px; margin:0 0 10px; flex-wrap:wrap; }
+  .big-head b { font-size:15px; }
+  .big-head span { color:var(--ink2); font-size:12px; }
+  .big-wrap { background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; }
+
+  /* ---------- 舞台：沿用已定稿的 A + 分栏 + H=48 ---------- */
+  .stage {
+    --h:48px;
+    height:500px; border-radius:12px; overflow:hidden; background:var(--stage);
+    display:grid; grid-template-columns:58% 42%; grid-template-rows:1fr;
+    color:var(--white); box-shadow:0 1px 3px rgba(0,0,0,.12);
+  }
+  .left-col,.right-col { min-width:0; display:flex; flex-direction:column; grid-row:1; }
+  .left-col { grid-column:1; }
+  .right-col { grid-column:2; border-left:1px solid rgba(255,255,255,.16); background:#16181c; }
+  .titlebar,.tabbar {
+    flex:0 0 var(--h); height:var(--h); background:var(--bar);
+    border-bottom:1px solid rgba(255,255,255,.07);
+  }
+  .titlebar { display:flex; align-items:center; padding:0 16px; gap:10px; }
+  .titlebar .title { font-size:14px; font-weight:500; white-space:nowrap; }
+  .reset { margin-left:auto; border:0; background:transparent; color:var(--muted);
+    font-size:11px; padding:5px 8px; border-radius:7px; white-space:nowrap; }
+  .tabbar { display:flex; padding:0 8px; align-items:stretch; }
+  .tab { flex:1; height:100%; border:0; background:transparent; color:#8a93a3;
+    font-size:12px; font-family:inherit; position:relative; white-space:nowrap; }
+  .tab.on { color:var(--accent); font-weight:500; }
+  .tab.on::after { content:""; position:absolute; bottom:0; left:8px; right:8px;
+    height:2px; border-radius:2px; background:var(--accent); }
+  .preview { flex:1; padding:18px; display:flex; flex-direction:column; gap:14px; min-height:0; }
+  .segwrap { display:flex; justify-content:flex-start; flex:0 0 auto; }
+  .segment { display:flex; gap:4px; padding:4px; border-radius:12px; background:rgba(0,0,0,.6); width:220px; }
+  .segment span { flex:1; text-align:center; height:calc(var(--h) - 12px); line-height:calc(var(--h) - 12px);
+    font-size:12px; border-radius:8px; color:#fff; }
+  .segment span.on { background:var(--accent-soft); }
+  .board { flex:1; min-height:0; border-radius:12px;
+    background:linear-gradient(90deg,#16243a 0%,#16243a 49.7%,#3a1c22 50.3%,#3a1c22 100%);
+    display:flex; align-items:center; justify-content:space-around; }
+  .team { text-align:center; }
+  .team small { display:block; font-size:11px; color:rgba(255,255,255,.6); margin-bottom:8px; }
+  .team b { font-size:54px; font-weight:600; line-height:1; }
+  .foot { flex:0 0 calc(var(--h) + 16px); height:calc(var(--h) + 16px); padding:8px 16px;
+    border-top:1px solid rgba(255,255,255,.06); display:flex; gap:8px; align-items:center; }
+  .leftfoot { color:#6f7887; font-size:11px; }
+  .actions button { flex:1; height:var(--h); border:0; border-radius:calc(var(--h)/2);
+    font-size:12px; font-family:inherit; color:#fff; background:var(--control); }
+  .actions button:last-child { background:var(--accent); color:#fff; font-weight:500; }
+  .panel-content { flex:1; padding:14px 16px; overflow:hidden; }
+  .group-label { font-size:11px; color:#8a93a3; margin-bottom:8px; }
+  .target-segment { display:flex; gap:3px; padding:3px; border-radius:14px; background:rgba(255,255,255,.06); }
+  .target-segment span { flex:1; text-align:center; height:calc(var(--h) - 12px); line-height:calc(var(--h) - 12px);
+    font-size:12px; border-radius:10px; color:rgba(255,255,255,.62); }
+  .target-segment span.on { background:var(--accent-soft); color:#fff; font-weight:500; }
+  .swatches { display:flex; gap:10px; margin-top:16px; }
+  .swatches i { width:46px; height:46px; border-radius:10px; background:#2b3038; display:block; }
+  .swatches i:nth-child(2) { background:#3b4250; }
+  .swatches i:nth-child(3) { background:#222a3a; }
+  .hint { margin-top:14px; font-size:11px; color:#747d8b; line-height:1.7; }
+
+  /* ---------- 各方案差异 ---------- */
+  .v-S1 .segwrap, .v-S2 .segwrap { justify-content:center; }
+  .v-S2 .preview { justify-content:center; }
+  .v-S2 .board { flex:0 0 55%; }
+  .v-S3 .switchfoot { justify-content:center; }
+  .v-S3 .switchfoot .segment { background:rgba(0,0,0,.6); }
+  .v-S4 .titlebar .segwrap { flex:1; justify-content:center; }
+  .v-S4 .titlebar .segment { width:220px; }
+  .v-S4 .titlebar .reset { margin-left:0; }
+  .v-S5 .preview { position:relative; }
+  .v-S5 .segwrap { position:absolute; z-index:2; top:12px; left:0; right:0; justify-content:center; }
+  .v-S5 .segment { background:rgba(16,18,21,.82); box-shadow:0 2px 10px rgba(0,0,0,.3); }
+
+  /* ---------- 六宫格缩略 ---------- */
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:14px; }
+  .cell { background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px; cursor:pointer; }
+  .cell.on { border-color:#34a853; box-shadow:0 0 0 2px rgba(52,168,83,.15); }
+  .cell .cap { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+  .cell .cap b { font-size:12px; }
+  .cell .cap em { font-style:normal; font-size:10px; color:var(--ink2); }
+  .cell .desc { font-size:11px; color:var(--ink2); margin-top:8px; min-height:34px; }
+  .stage.mini { --h:26px; height:216px; border-radius:8px; box-shadow:none; }
+  .mini .titlebar,.mini .tabbar { padding-left:8px; padding-right:8px; }
+  .mini .titlebar { gap:5px; }
+  .mini .titlebar .title,.mini .tab { font-size:8px; }
+  .mini .reset { font-size:7px; padding:2px 3px; }
+  .mini .tab { font-size:8px; }
+  .mini .preview { padding:8px; gap:6px; }
+  .mini .segment { width:112px; gap:2px; padding:2px; border-radius:6px; }
+  .mini .segment span { height:calc(var(--h) - 12px); line-height:calc(var(--h) - 12px); font-size:8px; border-radius:4px; }
+  .mini .board { border-radius:6px; }
+  .mini .team small { font-size:7px; margin-bottom:3px; }
+  .mini .team b { font-size:22px; }
+  .mini .foot { flex-basis:calc(var(--h) + 8px); height:calc(var(--h) + 8px); padding:4px 8px; gap:4px; }
+  .mini .actions button { font-size:8px; border-radius:13px; }
+  .mini .leftfoot { font-size:8px; }
+  .mini .panel-content { padding:7px 8px; }
+  .mini .group-label { font-size:8px; margin-bottom:4px; }
+  .mini .target-segment { gap:2px; padding:2px; border-radius:7px; }
+  .mini .target-segment span { height:calc(var(--h) - 12px); line-height:calc(var(--h) - 12px); font-size:8px; border-radius:5px; }
+  .mini .swatches { gap:5px; margin-top:8px; }
+  .mini .swatches i { width:22px; height:22px; border-radius:5px; }
+  .mini .hint { font-size:8px; margin-top:8px; line-height:1.4; }
+  .stage.mini.v-S5 .segwrap { top:6px; }
+  .stage.mini.v-S4 .titlebar .segment { width:100px; }
+
+  table { width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  th,td { padding:9px 11px; text-align:left; border-bottom:1px solid var(--line); font-size:12px; vertical-align:top; }
+  th { background:#fafbfc; font-weight:500; color:var(--ink2); }
+  tr:last-child td { border-bottom:0; }
+  tr.on td { background:#f2fbf4; }
+  .tag { display:inline-block; padding:1px 7px; border-radius:5px; background:#eef7f0; color:#17692f; font-size:11px; }
+  .warn { color:#b26a00; }
+  .good { color:#2e9e4f; }
+  .notes { color:var(--ink2); font-size:12px; margin-top:14px; padding-left:20px; }
+  .notes li { margin-bottom:7px; }
+  @media (max-width:900px) { .grid { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:600px) { .grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>样式编辑面板 · 左栏布局方案对比</h1>
+  <p class="lede">右栏与顶栏口径已定稿（A 底部绿线 + 分栏等高 + H=48），本页只处理左栏：segment 的对齐与落点、假底栏去留、内容纵向分布。六个方案共用同一套右栏，点击缩略图可在上方大图细看。</p>
+
+  <section class="analysis">
+    <h3>先说三个判断</h3>
+    <p><b>① 左栏不该有条独立底栏。</b>上版里那条「实时预览 · 本机」是我为了「底边也对齐」硬加的凑数元素，没有真实功能。删掉它之后，两栏<b>仍然等高</b>（grid 同一行，都是 500vp），只是右栏内部有 actions、左栏预览自然延伸到底——这叫职责不对称，不叫高度不一样。你上一轮要求的「左右不要高度不一样」针对的是<b>顶栏</b>，顶栏等高继续保持。</p>
+    <p><b>② segment 左对齐确实别扭。</b>左栏本质是「记分牌预览画布」，构图是左右对称的主队/客队；「本机 / 投屏」作用于整块画布，属于画布级控件，理应跟随画布中轴。右栏 tab 是等宽通栏、天然中轴对齐；左栏 220vp 固定宽 + 18vp 左内边距，会把视觉重心拉到左边，两栏看起来不像一对。<b>反之</b>，如果把它当「设置项 / 工具条」语义，左对齐符合表单阅读习惯——所以留 S0 做对照，由你挑。</p>
+    <p><b>③ 「放底部」和「不要底栏」可以不冲突。</b>S3 不是加一条底栏，而是把切换器贴到底部，与右栏 actions 同高同位置，那条区域装的是真实控件，底边自然对齐。S4 更彻底：把切换器并进左半顶栏，左栏只剩一块纯预览画布，预览区最大。</p>
+  </section>
+
+  <div class="pickbar" id="pickbar"></div>
+  <div class="big-wrap">
+    <div class="big-head"><b id="bigName"></b><span id="bigDesc"></span></div>
+    <div id="bigStage"></div>
+  </div>
+
+  <h2>六方案缩略对比 <span class="sub">点击任一格切换上方大图</span></h2>
+  <div class="grid" id="grid"></div>
+
+  <h2>方案数据与取舍 <span class="sub">大舞台 500vp / H=48 / 底部 64vp；已扣除预览区 18vp×2 内边距与 segment 实高 44vp（36 + 4×2）</span></h2>
+  <table>
+    <thead><tr><th>方案</th><th>Segment 落点 / 对齐</th><th>左栏底栏</th><th>预览板高度</th><th>相对 S0</th><th>风险 / 适用</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <ul class="notes">
+    <li><b>推荐 S4（并入左顶栏）★</b>：左右顶栏语义成对——左切「给谁看」（本机/投屏），右切「改什么」（主题/背景/字体/自由编辑），都在 H=48 的等高顶栏里，正好呼应「顶部通栏切成两半」；左栏没有任何凑数元素，预览画布 416vp 最大（相对 S0 +122vp）。代价是 48vp 顶栏要塞标题 + segment + 恢复默认，窄屏需隐藏「样式编辑」标题或把 segment 收成紧凑宽。</li>
+    <li><b>次选 S3（底部切换）</b>：担心顶栏挤就用它。左栏底部那条与右栏 actions 同高同位置，装的是真控件而不是假提示，底边对齐且预览画布 352vp（相对 S0 +58vp）。适合把「本机/投屏」理解为操作而非导航的用法。</li>
+    <li><b>S1（顶部居中 + 去底栏）</b>是最小改动：只把 segment 居中 + 删假底栏，预览画布 358vp（+64vp），风险最低，但左栏仍有一条工具条横在画布上方。</li>
+    <li><b>S2（整体纵向居中）</b>构图最稳，适合大屏/平板横屏，但预览板缩到约 229vp、上下各留 65vp，小屏会明显浪费空间，且分数变小。</li>
+    <li><b>S5（浮动 overlay）</b>预览最大且最轻，但切换器会压在记分牌上，需要给比分内容留 top inset；深色主题下胶囊与画布对比也偏糊，三端实现成本最高。</li>
+    <li>无论选哪个，segment 宽度建议不要固定 220vp：改为「左栏内容宽的 60%、最大 260vp」或随 H 联动，避免宽画布上显得小、窄画布上溢出。</li>
+    <li>此页只做布局对比，尚未落到三端代码；选定后我会把左栏方案同步回主 demo，再按端实施。</li>
+  </ul>
+</div>
+<script>
+  const VARIANTS = [
+    { id:'S0', name:'S0 现状（对照）', short:'左对齐 + 假底栏',
+      desc:'segment 顶部左对齐（220vp），底部一条无功能的假底栏，预览被两头挤压。',
+      seg:'顶部 · 左对齐', foot:'有（假提示条）', board:294, delta:'基线',
+      risk:'重心偏左、假元素占位；仅作对照', cls:'' },
+    { id:'S1', name:'S1 顶部居中 + 去底栏', short:'最小改动',
+      desc:'segment 居中，删掉左栏假底栏，预览自然延伸到底。右栏 actions 保留。',
+      seg:'顶部 · 居中', foot:'无', board:358, delta:'+64 vp',
+      risk:'改动最小、风险最低；画布上仍横着一条工具条', cls:'' },
+    { id:'S2', name:'S2 内容整体纵向居中', short:'构图最稳',
+      desc:'segment + 预览板作为一组在左栏垂直居中，上下留白对称，预览板不再撑满。',
+      seg:'顶部 · 居中（成组）', foot:'无', board:229, delta:'−65 vp',
+      risk:'小屏浪费空间、分数变小；适合平板横屏', cls:'' },
+    { id:'S3', name:'S3 底部切换', short:'贴底 · 与右栏对齐',
+      desc:'预览在上撑满，segment 居中贴底，与右栏 actions 同高同位置；这条底区装的是真控件。',
+      seg:'底部 · 居中', foot:'有（真切换器）', board:352, delta:'+58 vp',
+      risk:'顶栏宽松、底边自然对齐；切换器离预览略远', cls:'' },
+    { id:'S4', name:'S4 并入左顶栏 ★', short:'推荐 · 预览最大',
+      desc:'segment 放进左半顶栏居中，与右半 tab 顶栏成对；左栏只剩一整块纯预览画布，无底栏。',
+      seg:'顶栏内 · 居中', foot:'无', board:416, delta:'+122 vp',
+      risk:'48vp 顶栏内容偏多，窄屏需隐藏标题或收窄 segment', cls:'good' },
+    { id:'S5', name:'S5 浮动 overlay', short:'最轻 · 有遮挡',
+      desc:'segment 以半透明胶囊浮在预览画布上方居中，左栏无底栏、无工具条行。',
+      seg:'浮层 · 居中', foot:'无', board:416, delta:'+122 vp（顶部约 56 被遮）',
+      risk:'遮挡记分牌、需 top inset；三端实现成本最高', cls:'warn' }
+  ];
+  let current = 'S4';
+
+  const SEG = '<div class="segwrap"><div class="segment"><span class="on">本机</span><span>投屏</span></div></div>';
+  const BOARD = '<div class="board"><div class="team"><small>主队</small><b>2</b></div><div class="team"><small>客队</small><b>1</b></div></div>';
+  const RIGHT = '<div class="right-col">'
+    + '<div class="tabbar"><button class="tab on">主题</button><button class="tab">背景</button><button class="tab">字体</button><button class="tab">自由编辑</button></div>'
+    + '<div class="panel-content"><div class="group-label">主题背景</div>'
+    + '<div class="target-segment"><span class="on">左侧</span><span>右侧</span><span>左右同色</span></div>'
+    + '<div class="swatches"><i></i><i></i><i></i></div>'
+    + '<div class="hint">选中态只保留浅绿填充与白字，已去掉描边。</div></div>'
+    + '<div class="foot actions"><button>完整预览</button><button>保存</button></div></div>';
+
+  function stageHTML(v, mini) {
+    let titleExtra = '', preview = '', foot = '';
+    switch (v) {
+      case 'S0': preview = SEG + BOARD; foot = '<div class="foot leftfoot"><span>实时预览 · 本机</span></div>'; break;
+      case 'S1': preview = SEG + BOARD; break;
+      case 'S2': preview = SEG + BOARD; break;
+      case 'S3': preview = BOARD; foot = '<div class="foot switchfoot">' + SEG + '</div>'; break;
+      case 'S4': titleExtra = SEG; preview = BOARD; break;
+      case 'S5': preview = SEG + BOARD; break;
+    }
+    const cls = 'stage v-' + v + (mini ? ' mini' : '');
+    return '<div class="' + cls + '">'
+      + '<div class="left-col"><div class="titlebar"><span class="title">样式编辑</span>'
+      + titleExtra + '<button class="reset">恢复默认样式</button></div>'
+      + '<div class="preview">' + preview + '</div>' + foot + '</div>'
+      + RIGHT + '</div>';
+  }
+
+  function render() {
+    const v = VARIANTS.find(x => x.id === current);
+    document.getElementById('bigName').textContent = v.name;
+    document.getElementById('bigDesc').textContent = v.desc;
+    document.getElementById('bigStage').innerHTML = stageHTML(current, false);
+    document.getElementById('pickbar').innerHTML = VARIANTS.map(x =>
+      '<button data-v="' + x.id + '" class="' + (x.id === current ? 'on' : '') + '">' + x.name + '</button>').join('');
+    document.getElementById('grid').innerHTML = VARIANTS.map(x =>
+      '<div class="cell ' + (x.id === current ? 'on' : '') + '" data-v="' + x.id + '">'
+      + '<div class="cap"><b>' + x.name + '</b><em>' + x.short + '</em></div>'
+      + stageHTML(x.id, true)
+      + '<div class="desc">' + x.desc + '</div></div>').join('');
+    document.getElementById('rows').innerHTML = VARIANTS.map(x =>
+      '<tr class="' + (x.id === current ? 'on' : '') + '"><td>' + x.name + '</td><td>' + x.seg + '</td><td>' + x.foot
+      + '</td><td>' + x.board + ' vp</td><td>' + x.delta + '</td><td class="' + x.cls + '">' + x.risk + '</td></tr>').join('');
+    document.querySelectorAll('[data-v]').forEach(el => {
+      el.addEventListener('click', () => { current = el.dataset.v; render(); });
+    });
+  }
+  render();
+</script>
+</body>
+</html>

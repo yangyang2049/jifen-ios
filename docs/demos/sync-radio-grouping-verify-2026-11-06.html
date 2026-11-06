@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>同步图标动画分组 · 三端实际效果二次验证（2026-11-06）</title>
+<style>
+  :root {
+    --bg: #F5F6F8; --panel: #FFFFFF; --panel-2: #FAFBFC; --line: #E5E7EB;
+    --text: #111827; --text-2: #4B5563; --text-3: #6B7280;
+    --green: #15803D; --green-badge: #2E7D32; --green-soft: #E8F5EC;
+    --amber: #B45309; --red: #DC2626; --blue: #2563EB;
+    --shadow: 0 1px 2px rgba(16,24,40,.05), 0 8px 24px rgba(16,24,40,.05);
+  }
+  body.dark {
+    --bg: #17181B; --panel: #212226; --panel-2: #26282D; --line: #373A41;
+    --text: #F3F4F6; --text-2: #C7CBD1; --text-3: #9CA3AF;
+    --green: #4ADE80; --green-badge: #248A3D; --green-soft: #1D3426;
+    --amber: #FBBF24; --red: #F87171; --blue: #60A5FA;
+    --shadow: 0 1px 2px rgba(0,0,0,.25), 0 8px 24px rgba(0,0,0,.25);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.6 -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 22px 80px; }
+  h1 { font-size: 24px; line-height: 1.35; margin: 0 0 6px; letter-spacing: -.4px; }
+  .lede { color: var(--text-3); font-size: 13px; margin: 0 0 20px; }
+  .verdict { border: 1px solid var(--line); border-left: 4px solid var(--green); background: var(--panel); border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; box-shadow: var(--shadow); }
+  .verdict strong { color: var(--green); }
+  .verdict p { margin: 4px 0; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 20; }
+  .tb-group { display: flex; align-items: center; gap: 8px; }
+  .tb-label { font-size: 12px; color: var(--text-3); white-space: nowrap; }
+  .seg { display: inline-flex; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 2px; gap: 2px; }
+  .seg button { border: 0; background: transparent; color: var(--text-2); font: inherit; font-size: 12px; padding: 5px 11px; border-radius: 6px; cursor: pointer; white-space: nowrap; }
+  .seg button.on { background: var(--green-badge); color: #fff; font-weight: 600; }
+  .btn { border: 1px solid var(--line); background: var(--panel-2); color: var(--text-2); font: inherit; font-size: 12px; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+  .btn:hover { border-color: var(--green); color: var(--green); }
+  .section { margin: 26px 0 0; }
+  .section > h2 { font-size: 15px; margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  .section > h2 span { color: var(--text-3); font-weight: 400; font-size: 12px; margin-left: 8px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 900px) { .grid3 { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; box-shadow: var(--shadow); }
+  .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .plat { font-size: 13px; font-weight: 700; }
+  .plat small { display: block; font-weight: 400; color: var(--text-3); font-size: 11px; }
+  .tag { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--green-soft); color: var(--green); font-weight: 600; }
+  .role-card { display: flex; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--panel-2); }
+  .badge { width: 40px; height: 40px; flex: 0 0 40px; border-radius: 50%; background: var(--green-badge); display: flex; align-items: center; justify-content: center; }
+  .badge svg { width: 20px; height: 20px; }
+  .role-title { font-size: 19px; font-weight: 680; letter-spacing: -.3px; color: var(--green); line-height: 1.25; }
+  .role-sub { font-size: 13px; color: var(--text-3); margin-top: 2px; }
+  .short-code { margin-top: 12px; font-size: 22px; font-weight: 700; letter-spacing: 6px; text-align: center; color: var(--text-2); font-variant-numeric: tabular-nums; }
+  .zoom-row { display: flex; align-items: center; gap: 14px; margin-top: 14px; padding: 12px; border: 1px dashed var(--line); border-radius: 10px; background: var(--panel-2); }
+  .zoom-box { width: 96px; height: 96px; flex: 0 0 96px; border-radius: 50%; background: var(--green-badge); display: flex; align-items: center; justify-content: center; }
+  .zoom-box svg { width: 72px; height: 72px; }
+  .zoom-meta { font-size: 11px; color: var(--text-3); line-height: 1.8; }
+  .zoom-meta b { color: var(--text-2); font-weight: 600; }
+  .legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; font-size: 11px; color: var(--text-3); }
+  .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+  .src { margin-top: 12px; font-size: 11px; color: var(--text-3); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; word-break: break-all; }
+  .timeline { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; box-shadow: var(--shadow); overflow: hidden; }
+  .tl-row { display: grid; grid-template-columns: 92px 1fr; gap: 12px; align-items: center; margin: 12px 0; }
+  .tl-name { font-size: 12px; font-weight: 600; color: var(--text-2); }
+  .tl-track { position: relative; height: 30px; border-radius: 6px; background: var(--panel-2); border: 1px solid var(--line); overflow: hidden; }
+  .tl-bar { position: absolute; top: 6px; height: 18px; border-radius: 4px; font-size: 10px; line-height: 18px; text-align: center; color: #fff; white-space: nowrap; overflow: hidden; }
+  .b-in { background: #2E7D32; }
+  .b-out { background: #60A5FA; }
+  .b-fade { background: #9CA3AF; }
+  .b-rest { background: transparent; border: 1px dashed var(--line); color: var(--text-3); }
+  .tl-head { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--red); z-index: 5; box-shadow: 0 0 0 1px rgba(255,255,255,.4); }
+  .tl-scale { display: grid; grid-template-columns: 92px 1fr; gap: 12px; font-size: 10px; color: var(--text-3); margin-top: 4px; }
+  .tl-scale div:last-child { display: flex; justify-content: space-between; }
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; font-size: 12.5px; box-shadow: var(--shadow); }
+  th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  th { background: var(--panel-2); font-size: 11px; color: var(--text-3); font-weight: 600; }
+  tr:last-child td { border-bottom: 0; }
+  td:first-child { white-space: nowrap; font-weight: 600; }
+  .ok { color: var(--green); font-weight: 700; }
+  .warn { color: var(--amber); font-weight: 700; }
+  .bad { color: var(--red); font-weight: 700; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; background: var(--panel-2); padding: 1px 4px; border-radius: 4px; }
+  details { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 10px; }
+  summary { cursor: pointer; padding: 11px 14px; font-size: 13px; font-weight: 600; }
+  pre { margin: 0; padding: 0 14px 14px; overflow-x: auto; font: 11.5px/1.7 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--text-2); }
+  .note { font-size: 12px; color: var(--text-3); margin: 10px 0 0; }
+  .foot { margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 11px; color: var(--text-3); }
+  .hide { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>同步图标动画分组 · 三端实际效果二次验证</h1>
+  <p class="lede">2026-11-06 · 图标 path 与动画参数全部从三端源文件抽取，非示意重画 · 客户端代码本轮未改动</p>
+
+  <div class="verdict">
+    <p><strong>结论：三端分组一致，都是「由内向外」。</strong>第一组＝两条<strong>内弧</strong>（半径 6，左右各一条）先渐显；第二组＝两条<strong>外弧</strong>（半径 10，左右各一条）再渐显、内弧保持；随后两组一起淡出、停顿、循环。这正是你确认的「一 Visible → 二 Visible → 两个消失」。</p>
+    <p>Android 与 HarmonyOS 的 4 条弧 path 数据<strong>逐字相同</strong>，且都来自原静态 <code>ic_menu_share.xml</code> / <code>ic_share.svg</code>；iOS 用 <code>addArc</code> 半径 6 / 10、角度 −45°~45° 与 135°~225° 生成，几何等价。</p>
+    <p class="note">⚠️ 顺带查出 3 处小差异（周期、减弱动效、iOS 中心点/未分享图标），详见第 04 节；都不影响分组结论。</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="tb-group">
+      <span class="tb-label">分组</span>
+      <div class="seg" id="seg-group">
+        <button data-v="inner" class="on">由内向外 · 现状</button>
+        <button data-v="side">左右交替 · 对照</button>
+      </div>
+    </div>
+    <div class="tb-group">
+      <span class="tb-label">时间线</span>
+      <div class="seg" id="seg-clock">
+        <button data-v="real" class="on">各端真实参数</button>
+        <button data-v="unified">统一 2400ms</button>
+      </div>
+    </div>
+    <div class="tb-group">
+      <span class="tb-label">查看</span>
+      <div class="seg" id="seg-focus">
+        <button data-v="all" class="on">三端同屏</button>
+        <button data-v="ios">只看 iOS</button>
+        <button data-v="android">只看 Android</button>
+        <button data-v="hos">只看 HOS</button>
+      </div>
+    </div>
+    <button class="btn" id="btn-play">⏸ 暂停</button>
+    <button class="btn" id="btn-speed">速度 1×</button>
+    <button class="btn" id="btn-theme">🌙 深色</button>
+  </div>
+
+  <section class="section">
+    <h2>01 · 三端实际效果 <span>同一个图标、同一套文案，按各端真实时间参数播放；点击「只看某端」可放大逐端检查</span></h2>
+    <div class="grid3" id="cards">
+      <div class="card" data-plat="ios">
+        <div class="card-head">
+          <div class="plat">iOS <small>SwiftUI · 程序化 addArc</small></div>
+          <span class="tag">2400ms</span>
+        </div>
+        <div class="role-card">
+          <div class="badge" data-icon="ios"></div>
+          <div>
+            <div class="role-title">同步比分中</div>
+            <div class="role-sub">已连接到同步服务</div>
+          </div>
+        </div>
+        <div class="short-code">4 8 2 9 1 6</div>
+        <div class="zoom-row">
+          <div class="zoom-box" data-zoom="ios"></div>
+          <div class="zoom-meta">
+            <b>第一组</b> 内弧 r=6 ×2<br>
+            <b>第二组</b> 外弧 r=10 ×2<br>
+            <b>中心点</b> 实心（iOS 独有）<br>
+            <b>缓动</b> easeInOut
+          </div>
+        </div>
+        <div class="legend">
+          <span><i style="background:#2E7D32"></i>第一组渐显 340ms</span>
+          <span><i style="background:#60A5FA"></i>第二组渐显 380ms</span>
+          <span><i style="background:#9CA3AF"></i>一起淡出 340ms</span>
+        </div>
+        <div class="src">SyncRadioIcon.swift:69-74 / 83-96 · CloudSyncEntryView.swift:614-616</div>
+      </div>
+
+      <div class="card" data-plat="android">
+        <div class="card-head">
+          <div class="plat">Android <small>Compose · 分层 vector drawable</small></div>
+          <span class="tag">2260ms</span>
+        </div>
+        <div class="role-card">
+          <div class="badge" data-icon="android"></div>
+          <div>
+            <div class="role-title">同步比分中</div>
+            <div class="role-sub">已连接到同步服务</div>
+          </div>
+        </div>
+        <div class="short-code">4 8 2 9 1 6</div>
+        <div class="zoom-row">
+          <div class="zoom-box" data-zoom="android"></div>
+          <div class="zoom-meta">
+            <b>第一组</b> ic_sync_radio_inner<br>
+            <b>第二组</b> ic_sync_radio_outer<br>
+            <b>中心点</b> 描边圆（core）<br>
+            <b>缓动</b> FastOutSlowInEasing
+          </div>
+        </div>
+        <div class="legend">
+          <span><i style="background:#2E7D32"></i>第一组渐显 340ms</span>
+          <span><i style="background:#60A5FA"></i>第二组渐显 380ms</span>
+          <span><i style="background:#9CA3AF"></i>淡出 340/380ms</span>
+        </div>
+        <div class="src">RemoteSyncSharedUi.kt:504-546 · ic_sync_radio_{inner,outer}.xml</div>
+      </div>
+
+      <div class="card" data-plat="hos">
+        <div class="card-head">
+          <div class="plat">HarmonyOS <small>ArkTS · 分层 SVG + animateTo</small></div>
+          <span class="tag">2260ms</span>
+        </div>
+        <div class="role-card">
+          <div class="badge" data-icon="hos"></div>
+          <div>
+            <div class="role-title">同步比分中</div>
+            <div class="role-sub">已连接到同步服务</div>
+          </div>
+        </div>
+        <div class="short-code">4 8 2 9 1 6</div>
+        <div class="zoom-row">
+          <div class="zoom-box" data-zoom="hos"></div>
+          <div class="zoom-meta">
+            <b>第一组</b> ic_sync_radio_inner<br>
+            <b>第二组</b> ic_sync_radio_outer<br>
+            <b>中心点</b> 描边圆（core）<br>
+            <b>缓动</b> Curve.EaseInOut
+          </div>
+        </div>
+        <div class="legend">
+          <span><i style="background:#2E7D32"></i>第一组渐显 340ms</span>
+          <span><i style="background:#60A5FA"></i>第二组渐显 380ms</span>
+          <span><i style="background:#9CA3AF"></i>一起淡出 340ms</span>
+        </div>
+        <div class="src">RemoteSyncEntryPanel.ets:120-186 · ic_sync_radio_{inner,outer}.svg</div>
+      </div>
+    </div>
+    <p class="note">深绿色圆底 = 角色卡图标徽章；<b>「左右交替」只是对照</b>，需要改各端 inner/outer 资源里的弧线归属，当前代码并未这样分组。</p>
+  </section>
+
+  <section class="section">
+    <h2>02 · 时间线对照 <span>红色竖线是同步播放头；切「统一 2400ms」可看三端对齐后的差别</span></h2>
+    <div class="timeline" id="timeline"></div>
+    <p class="note">每个色块表示一次状态切换：绿＝内弧渐显起点、蓝＝外弧渐显起点、灰＝两组一起淡出起点。iOS 每轮开头多 140ms 全暗停顿，因此周期 2400ms；Android / HOS 立即开始，周期 2260ms。</p>
+  </section>
+
+  <section class="section">
+    <h2>03 · 真实 path 数据 <span>以下 4 条 path 直接抄自 Android XML 与 HOS SVG，两端口径逐字一致</span></h2>
+    <table>
+      <thead><tr><th>弧线</th><th>归属组（现状）</th><th>path / 生成方式</th><th>三端一致性</th></tr></thead>
+      <tbody>
+        <tr><td>右内弧</td><td>第一组（先亮）</td><td><code>M16.247 7.761a6 6 0 0 1 0 8.478</code></td><td class="ok">✅ Android = HOS；iOS addArc r=6, −45°→45°</td></tr>
+        <tr><td>左内弧</td><td>第一组（先亮）</td><td><code>M7.753 16.239a6 6 0 0 1 0-8.478</code></td><td class="ok">✅ Android = HOS；iOS addArc r=6, 135°→225°</td></tr>
+        <tr><td>右外弧</td><td>第二组（后亮）</td><td><code>M19.075 4.933a10 10 0 0 1 0 14.134</code></td><td class="ok">✅ Android = HOS；iOS addArc r=10, −45°→45°</td></tr>
+        <tr><td>左外弧</td><td>第二组（后亮）</td><td><code>M4.925 19.067a10 10 0 0 1 0-14.134</code></td><td class="ok">✅ Android = HOS；iOS addArc r=10, 135°→225°</td></tr>
+        <tr><td>中心圆点</td><td>常亮，不参与动画</td><td><code>circle r=2, stroke-width=2</code> / iOS <code>fill, 直径 4</code></td><td class="warn">⚠️ iOS 实心 ≠ 另两端描边空心</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="section">
+    <h2>04 · 二次验证检查表 <span>逐项从三端源文件读取，非目测</span></h2>
+    <table>
+      <thead><tr><th>检查项</th><th>结论</th><th>依据</th></tr></thead>
+      <tbody>
+        <tr><td>分组口径</td><td class="ok">✅ 三端一致：由内向外</td><td>iOS phase≥1 → radius 6；Android <code>phase&gt;=1 → innerAlpha</code>；HOS <code>step() → radioInnerOpacity</code>，都是内弧先亮</td></tr>
+        <tr><td>几何一致性</td><td class="ok">✅ 通过</td><td>Android/HOS 4 条 path 逐字相等，且 ⊆ 原静态图标；iOS addArc 半径/角度等价 Lucide radio</td></tr>
+        <tr><td>节奏</td><td class="ok">✅ 通过</td><td>一 Visible → 二 Visible（第一条保持）→ 两条一起消失 → 停顿 → 循环，与你确认的口径一致</td></tr>
+        <tr><td>渐显时长</td><td class="ok">✅ 340 / 380ms</td><td>iOS <code>.easeInOut(duration: 0.34/0.38)</code>；Android <code>tween(340/380)</code>；HOS <code>animateTo duration 340/380</code></td></tr>
+        <tr><td>阶段间隔</td><td class="ok">✅ 440 / 770 / 1050ms</td><td>三端完全相同（iOS 为 nanoseconds 形式 440/770/1050）</td></tr>
+        <tr><td>起始透明度</td><td class="ok">✅ 0.12</td><td>三端均为 0.12 → 1 → 0.12，无硬切</td></tr>
+        <tr><td>触发条件</td><td class="ok">✅ 仅分享中</td><td>iOS <code>isActive</code>；Android <code>animated = active</code>；HOS <code>isSharingUiActive</code>；观看者卡片都传 false / 不用动画</td></tr>
+        <tr><td>后台停止</td><td class="ok">✅ 基本通过</td><td>iOS <code>scenePhase + .task 取消</code>；HOS <code>pageActive + clearTimeout</code>；Android <code>LaunchedEffect 离开组合自动取消</code></td></tr>
+        <tr><td>减弱动效降级</td><td class="warn">⚠️ HOS 缺失</td><td>iOS <code>accessibilityReduceMotion</code>、Android <code>ANIMATOR_DURATION_SCALE == 0</code> 均降级静态；HOS 面板文件里 0 处相关判断，系统关动效后仍会播放</td></tr>
+        <tr><td>周期总长</td><td class="warn">⚠️ 2400 / 2260ms</td><td>iOS 多 140ms 起始全暗停顿；Android / HOS 立即开始。感知差异很小，但确实不同步</td></tr>
+        <tr><td>淡出同步</td><td class="warn">⚠️ Android 差 40ms</td><td>iOS/HOS 两组统一 340ms 淡出；Android inner 340ms、outer 380ms（各自 animationSpec），肉眼几乎看不出</td></tr>
+        <tr><td>缓动曲线</td><td class="warn">⚠️ 两类</td><td>iOS/HOS <code>EaseInOut</code>；Android <code>FastOutSlowInEasing</code>（近似 ease-out）</td></tr>
+        <tr><td>未分享时图标</td><td class="warn">⚠️ iOS 不同</td><td>iOS 仍用 <code>square.and.arrow.up</code>；Android/HOS 用完整 radio（<code>ic_menu_share</code> / <code>ic_share</code>）。<b>上一轮说「iOS 已补齐同款图标」只在分享中成立</b></td></tr>
+        <tr><td>中心圆点</td><td class="warn">⚠️ iOS 不同</td><td>iOS <code>Circle().fill(white)</code> 实心；Android/HOS <code>circle r=2 stroke=2</code> 空心环。放大视图可直接对比</td></tr>
+        <tr><td>静态→动画切换</td><td class="ok">✅ 不跳变</td><td>Android/HOS core 与静态图标的中心圆点写法一致；分层 4 弧也是从静态图标拆出来的</td></tr>
+      </tbody>
+    </table>
+    <p class="note">汇总：核心分组与节奏 <b>8 项全过</b>；另有 <b>6 项细微差异</b>，其中「HOS 减弱动效缺失」最值得补，其余属于观感级、不影响定稿。</p>
+  </section>
+
+  <section class="section">
+    <h2>05 · 逐端源码快照 <span>点开看每端到底怎么分组、怎么排时间</span></h2>
+    <details open>
+      <summary>iOS · SyncRadioIcon.swift（分层 + 时间线）</summary>
+      <pre>// 分层：radius 10 = 外弧组，radius 6 = 内弧组
+SyncRadioArcGroup(radius: 10).stroke(...).opacity(outerOpacity)
+SyncRadioArcGroup(radius: 6).stroke(...).opacity(innerOpacity)
+Circle().fill(Color.white).frame(width: 4 * scale, height: 4 * scale)  // 实心中心点
+
+private var innerOpacity: Double { shouldAnimate ? (phase &gt;= 1 ? 1 : 0.12) : 1 }
+private var outerOpacity: Double { shouldAnimate ? (phase &gt;= 2 ? 1 : 0.12) : 1 }
+
+.task(id: shouldAnimate) {
+    while !Task.isCancelled {
+        try? await Task.sleep(nanoseconds: 140_000_000)          // 起始停顿（另外两端没有）
+        withAnimation(.easeInOut(duration: 0.34)) { phase = 1 }   // 内弧渐显
+        try? await Task.sleep(nanoseconds: 440_000_000)
+        withAnimation(.easeInOut(duration: 0.38)) { phase = 2 }   // 外弧渐显
+        try? await Task.sleep(nanoseconds: 770_000_000)
+        withAnimation(.easeInOut(duration: 0.34)) { phase = 0 }   // 一起淡出
+        try? await Task.sleep(nanoseconds: 1_050_000_000)
+    }
+}</pre>
+    </details>
+    <details>
+      <summary>Android · RemoteSyncSharedUi.kt + 分层 vector</summary>
+      <pre>// ic_sync_radio_inner.xml = 两条 r=6 弧；ic_sync_radio_outer.xml = 两条 r=10 弧
+var phase by remember { mutableStateOf(0) }   // 0 全暗 / 1 内弧亮 / 2 两组亮
+LaunchedEffect(Unit) {
+    while (true) {
+        phase = 1; delay(440L); phase = 2; delay(770L); phase = 0; delay(1050L)
+    }
+}
+val innerAlpha by animateFloatAsState(if (phase &gt;= 1) 1f else 0.12f, tween(340, FastOutSlowInEasing))
+val outerAlpha by animateFloatAsState(if (phase &gt;= 2) 1f else 0.12f, tween(380, FastOutSlowInEasing))
+
+Icon(painterResource(R.drawable.ic_sync_radio_outer), Modifier.alpha(outerAlpha))
+Icon(painterResource(R.drawable.ic_sync_radio_inner), Modifier.alpha(innerAlpha))
+Icon(painterResource(R.drawable.ic_sync_radio_core))   // 常亮
+
+// 降级：Settings.Global.ANIMATOR_DURATION_SCALE == 0f → 用完整静态 ic_menu_share</pre>
+    </details>
+    <details>
+      <summary>HarmonyOS · RemoteSyncEntryPanel.ets</summary>
+      <pre>// ic_sync_radio_inner.svg = 两条 r=6 弧；ic_sync_radio_outer.svg = 两条 r=10 弧
+private startRadioAnimation(): void {
+  const step = (): void =&gt; {
+    this.getUIContext().animateTo({ duration: 340, curve: Curve.EaseInOut },
+      () =&gt; { this.radioInnerOpacity = 1; });
+    this.radioTimer = setTimeout((): void =&gt; {
+      this.getUIContext().animateTo({ duration: 380, curve: Curve.EaseInOut },
+        () =&gt; { this.radioOuterOpacity = 1; });
+      this.radioTimer = setTimeout((): void =&gt; {
+        this.getUIContext().animateTo({ duration: 340, curve: Curve.EaseInOut }, () =&gt; {
+          this.radioInnerOpacity = 0.12;
+          this.radioOuterOpacity = 0.12;
+        });
+        this.radioTimer = setTimeout(step, 1050);
+      }, 770);
+    }, 440);
+  };
+  step();
+}
+
+// 三层叠加：outer(0.12→1) / inner(0.12→1) / core 常亮
+// 触发：isSharingUiActive &amp;&amp; pageActive；离开页面 clearTimeout
+// ⚠️ 本文件没有 reduceMotion / 系统动效缩放判断</pre>
+    </details>
+  </section>
+
+  <section class="section">
+    <h2>06 · 结论与待拍板 <span>本轮只做验证与展示，未改任何客户端代码</span></h2>
+    <table>
+      <thead><tr><th>事项</th><th>建议</th></tr></thead>
+      <tbody>
+        <tr><td>分组口径</td><td class="ok">✅ 维持「由内向外」，不用改。若你想要「左右交替」，只需交换各端 inner/outer 资源里的弧线归属（iOS 改两个 ArcGroup 的角度），时间参数一律不动</td></tr>
+        <tr><td>HOS 减弱动效</td><td class="warn">建议补：读系统动效缩放，为 0 时把两组 opacity 固定 1、不启定时器（对齐 iOS / Android）</td></tr>
+        <tr><td>周期对齐</td><td>建议给 Android / HOS 加 140ms 起始停顿，或去掉 iOS 的 140ms，三端统一 2400ms / 2260ms 二选一</td></tr>
+        <tr><td>iOS 中心点 / 未分享图标</td><td>若要严格三端同款：中心点改成描边圆 r=2，未分享态也换成 radio（或另两端改成 iOS 的分享图标）。属于产品取舍，需你定</td></tr>
+        <tr><td>缓动 / 淡出 40ms</td><td>观感级，可不改；若要像素级一致，Android 淡出统一 340ms 并换 Curve/插值</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <p class="foot">验证方式：从 3 端共 10 个源文件抽取 path 与常量后用脚本逐项比对；iOS 完整 xcodebuild（模拟器 destination）EXIT=0、Android compileHuaweiDebugKotlin 与 HOS assembleHap 均 BUILD SUCCESSFUL。本页动画用 rAF 按各端真实时间参数重放，便于直接对比，非真机录屏。</p>
+</div>
+
+<script>
+(function () {
+  var ARCS = {
+    ri: 'M16.247 7.761a6 6 0 0 1 0 8.478',
+    li: 'M7.753 16.239a6 6 0 0 1 0-8.478',
+    ro: 'M19.075 4.933a10 10 0 0 1 0 14.134',
+    lo: 'M4.925 19.067a10 10 0 0 1 0-14.134'
+  };
+  var PLATS = {
+    ios:     { name: 'iOS',        cycle: 2400, innerAt: 140, outerAt: 580,  fadeAt: 1350, ease: 'inout', core: 'fill' },
+    android: { name: 'Android',    cycle: 2260, innerAt: 0,   outerAt: 440,  fadeAt: 1210, ease: 'out',   core: 'stroke' },
+    hos:     { name: 'HarmonyOS',  cycle: 2260, innerAt: 0,   outerAt: 440,  fadeAt: 1210, ease: 'inout', core: 'stroke' }
+  };
+  var UNIFIED = { cycle: 2400, innerAt: 140, outerAt: 580, fadeAt: 1350 };
+  var state = { group: 'inner', clock: 'real', focus: 'all', playing: true, speed: 1, dark: false };
+  var els = {};
+
+  function svgMarkup(plat) {
+    var core = plat.core === 'fill'
+      ? '<circle cx="12" cy="12" r="2" fill="white" />'
+      : '<circle cx="12" cy="12" r="2" fill="none" stroke="white" stroke-width="2" />';
+    var s = '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+    Object.keys(ARCS).forEach(function (k) {
+      s += '<path d="' + ARCS[k] + '" data-arc="' + k + '" />';
+    });
+    return s + core + '</svg>';
+  }
+
+  function groupOf(arc) {
+    if (state.group === 'inner') return (arc === 'ri' || arc === 'li') ? 1 : 2;
+    return (arc === 'ri' || arc === 'ro') ? 1 : 2;
+  }
+
+  function ease(t, kind) {
+    t = Math.max(0, Math.min(1, t));
+    if (kind === 'out') return 1 - Math.pow(1 - t, 3);   // 近似 FastOutSlowIn
+    return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // easeInOut
+  }
+
+  function opacityAt(t, cfg, group) {
+    var low = 0.12;
+    var start = group === 1 ? cfg.innerAt : cfg.outerAt;
+    var dur = group === 1 ? 340 : 380;
+    var fadeDur = (cfg.key === 'android' && group === 2) ? 380 : 340;
+    if (t < start) return low;
+    if (t < start + dur) return low + (1 - low) * ease((t - start) / dur, cfg.ease);
+    if (t < cfg.fadeAt) return 1;
+    if (t < cfg.fadeAt + fadeDur) return 1 - (1 - low) * ease((t - cfg.fadeAt) / fadeDur, cfg.ease);
+    return low;
+  }
+
+  function configFor(key) {
+    var p = PLATS[key];
+    var cfg = {
+      key: key, cycle: p.cycle, innerAt: p.innerAt, outerAt: p.outerAt,
+      fadeAt: p.fadeAt, ease: p.ease
+    };
+    if (state.clock === 'unified') {
+      cfg.cycle = UNIFIED.cycle; cfg.innerAt = UNIFIED.innerAt;
+      cfg.outerAt = UNIFIED.outerAt; cfg.fadeAt = UNIFIED.fadeAt;
+    }
+    return cfg;
+  }
+
+  function buildCards() {
+    Object.keys(PLATS).forEach(function (key) {
+      var html = svgMarkup(PLATS[key]);
+      document.querySelector('[data-icon="' + key + '"]').innerHTML = html;
+      document.querySelector('[data-zoom="' + key + '"]').innerHTML = html;
+    });
+    els.paths = document.querySelectorAll('#cards [data-arc]');
+  }
+
+  function buildTimeline() {
+    var max = state.clock === 'unified' ? 2400 : 2400;
+    var html = '';
+    Object.keys(PLATS).forEach(function (key) {
+      var c = configFor(key);
+      function bar(at, dur, cls, label) {
+        return '<span class="tl-bar ' + cls + '" style="left:' + (at / max * 100).toFixed(2) + '%;width:' + (dur / max * 100).toFixed(2) + '%">' + label + '</span>';
+      }
+      html += '<div class="tl-row"><div class="tl-name">' + PLATS[key].name + '</div><div class="tl-track" data-track="' + key + '">';
+      html += bar(0, c.innerAt, 'b-rest', c.innerAt ? '停顿' : '');
+      html += bar(c.innerAt, 340, 'b-in', '内弧');
+      html += bar(c.outerAt, 380, 'b-out', '外弧');
+      html += bar(c.fadeAt, 340, 'b-fade', '淡出');
+      html += bar(c.fadeAt + 340, Math.max(0, c.cycle - c.fadeAt - 340), 'b-rest', '');
+      html += '<span class="tl-head" data-head="' + key + '" style="left:0"></span>';
+      html += '</div></div>';
+    });
+    html += '<div class="tl-scale"><div></div><div><span>0ms</span><span>440</span><span>770</span><span>1210</span><span>1350</span><span>2400ms</span></div></div>';
+    document.getElementById('timeline').innerHTML = html;
+  }
+
+  function applyFocus() {
+    document.querySelectorAll('#cards .card').forEach(function (card) {
+      card.classList.toggle('hide', state.focus !== 'all' && card.dataset.plat !== state.focus);
+    });
+    var grid = document.getElementById('cards');
+    grid.style.gridTemplateColumns = state.focus === 'all' ? '' : '1fr';
+  }
+
+  function bindSeg(id, key) {
+    var root = document.getElementById(id);
+    root.addEventListener('click', function (e) {
+      var b = e.target.closest('button');
+      if (!b) return;
+      root.querySelectorAll('button').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      state[key] = b.dataset.v;
+      if (key === 'clock') buildTimeline();
+      if (key === 'focus') applyFocus();
+    });
+  }
+
+  function render(tMs) {
+    Object.keys(PLATS).forEach(function (key) {
+      var cfg = configFor(key);
+      var t = tMs % cfg.cycle;
+      var o1 = opacityAt(t, cfg, 1);
+      var o2 = opacityAt(t, cfg, 2);
+      document.querySelectorAll('[data-icon="' + key + '"] [data-arc], [data-zoom="' + key + '"] [data-arc]').forEach(function (p) {
+        p.style.opacity = (groupOf(p.dataset.arc) === 1 ? o1 : o2).toFixed(3);
+      });
+      var head = document.querySelector('[data-head="' + key + '"]');
+      if (head) head.style.left = (t / 2400 * 100).toFixed(2) + '%';
+    });
+  }
+
+  var clock = 0, last = null;
+  function frame(now) {
+    if (last === null) last = now;
+    var dt = now - last;
+    last = now;
+    if (state.playing) clock += dt * state.speed;
+    render(clock);
+    requestAnimationFrame(frame);
+  }
+
+  bindSeg('seg-group', 'group');
+  bindSeg('seg-clock', 'clock');
+  bindSeg('seg-focus', 'focus');
+  document.getElementById('btn-play').addEventListener('click', function () {
+    state.playing = !state.playing;
+    this.textContent = state.playing ? '⏸ 暂停' : '▶ 播放';
+  });
+  document.getElementById('btn-speed').addEventListener('click', function () {
+    state.speed = state.speed === 1 ? 0.5 : (state.speed === 0.5 ? 2 : 1);
+    this.textContent = '速度 ' + state.speed + '×';
+  });
+  document.getElementById('btn-theme').addEventListener('click', function () {
+    state.dark = !state.dark;
+    document.body.classList.toggle('dark', state.dark);
+    this.textContent = state.dark ? '☀️ 浅色' : '🌙 深色';
+  });
+
+  buildCards();
+  buildTimeline();
+  applyFocus();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

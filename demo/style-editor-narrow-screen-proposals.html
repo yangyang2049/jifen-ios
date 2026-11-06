@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>样式编辑 · 窄屏顶栏装不装得下 &amp; 降级方案</title>
+<style>
+  :root {
+    --page:#f5f6f8; --ink:#1f2430; --ink2:#5b6472; --line:#e3e6eb;
+    --bar:#1c1c1e; --accent:#30d158; --soft:rgba(48,209,88,.22);
+    --red:#d9534f; --amber:#c98a12; --green:#2e9e4f;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:13px; line-height:1.6; }
+  .page { max-width:1160px; margin:0 auto; padding:28px 24px 60px; }
+  h1 { font-size:20px; font-weight:600; margin:0 0 6px; }
+  h2 { font-size:15px; font-weight:600; margin:26px 0 12px; }
+  h2 .sub { font-weight:400; font-size:12px; color:var(--ink2); margin-left:8px; }
+  .lede { color:var(--ink2); margin:0 0 18px; }
+  .verdict { background:#fff; border:1px solid var(--line); border-left:3px solid var(--red);
+    border-radius:10px; padding:14px 18px; margin-bottom:18px; }
+  .verdict b { color:var(--red); }
+  .verdict p { margin:0 0 6px; font-size:12px; color:var(--ink2); }
+  .verdict p:last-child { margin-bottom:0; }
+  .controls { background:#fff; border:1px solid var(--line); border-radius:12px;
+    padding:14px 18px; display:flex; flex-wrap:wrap; gap:16px 30px; align-items:flex-start; }
+  .ctl-label { display:block; font-size:12px; color:var(--ink2); margin-bottom:6px; }
+  .opts { display:flex; flex-wrap:wrap; gap:7px; }
+  .opts label { display:inline-flex; align-items:center; gap:5px; padding:6px 10px;
+    border:1px solid var(--line); border-radius:8px; cursor:pointer; background:#fff; white-space:nowrap; font-size:12px; }
+  .opts label:has(input:checked) { border-color:#34a853; background:#f0faf2; color:#17692f; }
+  .opts input { accent-color:#2e9e4f; }
+  .ctl-note { font-size:11px; color:#8a93a3; margin-top:6px; max-width:420px; }
+
+  .lab { background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px; margin-top:16px; overflow-x:auto; }
+  .lab-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+  .lab-head b { font-size:14px; }
+  .lab-head span { font-size:12px; color:var(--ink2); }
+  .frame { width:var(--devw); max-width:100%; transition:width .2s ease; }
+  .topbar {
+    height:56px; background:var(--bar); color:#f7f8fa; border-radius:8px 8px 0 0;
+    display:flex; align-items:center; gap:4px; padding:0 12px; position:relative;
+    border-bottom:1px solid rgba(255,255,255,.07);
+  }
+  .e { flex:0 0 auto; height:40px; display:flex; align-items:center; justify-content:center;
+    border-radius:7px; font-size:11px; white-space:nowrap; overflow:hidden; }
+  .e-close { width:44px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.18); font-size:16px; }
+  .e-title { width:72px; font-size:15px; font-weight:600; justify-content:flex-start; }
+  .e-seg { background:rgba(0,0,0,.6); border-radius:10px; color:#fff; gap:2px; padding:3px; }
+  .e-seg .chip { flex:1; height:100%; display:flex; align-items:center; justify-content:center;
+    border-radius:7px; font-size:11px; }
+  .e-seg .chip.on { background:var(--soft); color:#fff; }
+  .e-seg.icons .chip { font-size:15px; }
+  .e-reset { color:#aab2be; font-size:11px; }
+  .e-reset.icon { background:rgba(255,255,255,.07); border-radius:8px; font-size:17px; }
+  .e-reset.text { background:transparent; }
+  .spacer { flex:1 1 auto; }
+  .bubble { position:absolute; right:8px; top:52px; z-index:3; background:#f7f8fa; color:#1f2430;
+    border-radius:8px; padding:6px 10px; font-size:11px; box-shadow:0 4px 14px rgba(0,0,0,.35); white-space:nowrap; }
+  .bubble::before { content:""; position:absolute; right:16px; top:-5px; border:5px solid transparent;
+    border-bottom-color:#f7f8fa; border-top:0; }
+  .content { height:150px; background:#101215; border-radius:0 0 8px 8px; padding:12px;
+    display:flex; flex-direction:column; gap:10px; }
+  .content .inline-seg { height:44px; width:220px; max-width:100%; border-radius:10px; background:rgba(0,0,0,.6);
+    display:flex; gap:4px; padding:4px; align-self:center; }
+  .content .inline-seg span { flex:1; display:flex; align-items:center; justify-content:center;
+    border-radius:8px; font-size:11px; color:#fff; }
+  .content .inline-seg span.on { background:var(--soft); }
+  .board { flex:1; border-radius:8px;
+    background:linear-gradient(90deg,#16243a 0%,#16243a 49.7%,#3a1c22 50.3%,#3a1c22 100%);
+    display:flex; align-items:center; justify-content:space-around; color:#fff; font-size:30px; font-weight:600; }
+
+  .budget { margin-top:16px; }
+  .budget-label { font-size:11px; color:var(--ink2); margin-bottom:6px; display:flex; justify-content:space-between; }
+  .budget-label b { color:var(--ink); }
+  .bar { position:relative; height:30px; }
+  .bar-line { position:absolute; left:0; top:0; width:var(--devw); height:30px;
+    border-right:2px dashed var(--red); background:#f0f2f5; border-radius:5px 0 0 5px; }
+  .bar-inner { position:absolute; left:0; top:0; display:flex; height:30px; width:max-content; }
+  .bk { height:30px; display:flex; align-items:center; justify-content:center; font-size:9px; color:#fff;
+    border-right:1px solid rgba(255,255,255,.35); overflow:hidden; white-space:nowrap; }
+  .bk.pad { background:#d7dce3; color:#6b7480; }
+  .bk.gap { background:#e9ecf0; }
+  .bk.close { background:#6b7f9e; }
+  .bk.title { background:#8a7ab5; }
+  .bk.seg { background:#3d9a58; }
+  .bk.reset { background:#c98a4b; }
+  .bk.over { background:repeating-linear-gradient(45deg,#d9534f,#d9534f 6px,#e87874 6px,#e87874 12px); }
+  .bk.first { outline:2px solid #c98a12; outline-offset:-2px; }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-size:11px; color:var(--ink2); }
+  .legend i { width:10px; height:10px; border-radius:2px; display:inline-block; margin-right:4px; vertical-align:-1px; }
+
+  table { width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  th,td { padding:9px 10px; text-align:left; border-bottom:1px solid var(--line); font-size:11.5px; vertical-align:top; }
+  th { background:#fafbfc; font-weight:500; color:var(--ink2); }
+  tr:last-child td { border-bottom:0; }
+  tr.on td { background:#f2fbf4; }
+  .ok { color:var(--green); } .bad { color:var(--red); } .mid { color:var(--amber); }
+  .tag { display:inline-block; padding:1px 6px; border-radius:5px; background:#eef7f0; color:#17692f; font-size:10px; }
+  .notes { color:var(--ink2); font-size:12px; margin-top:14px; padding-left:20px; }
+  .notes li { margin-bottom:7px; }
+  code { background:#eef1f5; padding:1px 5px; border-radius:4px; font-size:11px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>样式编辑 · 窄屏顶栏装不装得下 &amp; 降级方案</h1>
+  <p class="lede">S4 把「本机/投屏」并进左半顶栏后，顶栏里就有 4 样东西：退出、标题、切换器、恢复默认。下面按三端现有真实尺寸算宽度预算，并给出窄屏降级方案（含图标、下拉、首次展开后收起）。</p>
+
+  <section class="verdict">
+    <p><b>结论：装不下，而且不是 iPhone SE 特例。</b>按 iOS/Android 现有 1:1 对齐的顶栏（高 56、左右内边距 12、关闭 44、标题 18sp、恢复默认 12sp 文字按钮），S4 全文字版需要 <b>468pt</b>（24 内边距 + 44 退出 + 72 标题 + 220 切换器 + 88 恢复默认 + 20 间距）。iPhone SE 竖屏 375pt 缺 93pt；SE 横屏切分后左栏约 360pt 缺 108pt；连 430pt 的大屏手机竖屏也差 38pt。只有 iPad 横屏（左栏约 553pt）才宽松，余 85pt。</p>
+    <p>所以 S4 必须带断点降级。<b>好消息是三端已经有可复用的断点</b>：鸿蒙 <code>ScoreboardStyleLayoutMetrics.ts:3</code> 定义 <code>LARGE_VIEWPORT_MIN_WIDTH_VP = 900</code>，iOS/Android 目前用「宽 ≥ 高」判断横屏分栏。把切分门槛统一到 <b>900</b>，窄屏根本不会走到四元素挤顶栏这一步。</p>
+  </section>
+
+  <section class="controls">
+    <div>
+      <span class="ctl-label">设备 / 左栏宽度</span>
+      <div class="opts" id="devices"></div>
+    </div>
+    <div>
+      <span class="ctl-label">顶栏方案</span>
+      <div class="opts" id="plans"></div>
+    </div>
+    <div>
+      <span class="ctl-label">渐进披露状态</span>
+      <div class="opts" id="firsts">
+        <label><input type="radio" name="first" value="first" checked> 首次进入（文字展开）</label>
+        <label><input type="radio" name="first" value="later"> 之后（收成图标）</label>
+      </div>
+      <div class="ctl-note">只对 N4 生效：首次展开文字 + 气泡，收起后常驻 ↺ 图标，长按/无障碍标签仍保留「恢复默认样式」。</div>
+    </div>
+  </section>
+
+  <div class="lab">
+    <div class="lab-head"><b id="labName"></b><span id="labDesc"></span></div>
+    <div class="frame" id="frame"></div>
+    <div class="budget">
+      <div class="budget-label"><span>顶栏宽度预算（虚线 = 可用宽度边界，斜纹 = 溢出）</span><b id="budgetValue"></b></div>
+      <div class="bar"><div class="bar-line"></div><div class="bar-inner" id="barInner"></div></div>
+      <div class="legend">
+        <span><i style="background:#d7dce3"></i>内边距 12×2</span>
+        <span><i style="background:#6b7f9e"></i>退出 44</span>
+        <span><i style="background:#8a7ab5"></i>标题 72（18sp×4字）</span>
+        <span><i style="background:#3d9a58"></i>切换器</span>
+        <span><i style="background:#c98a4b"></i>恢复默认</span>
+        <span><i style="background:repeating-linear-gradient(45deg,#d9534f,#d9534f 4px,#e87874 4px,#e87874 8px)"></i>超出</span>
+      </div>
+    </div>
+  </div>
+
+  <h2>各方案宽度预算 <span class="sub">需求宽 = 24 内边距 + 元素宽 + 4×间距；✅ 装得下 / 🔴 溢出</span></h2>
+  <table>
+    <thead><tr><th>方案</th><th>顶栏元素</th><th>需求宽</th><th>SE 竖 375</th><th>SE 横左栏 360</th><th>430 竖</th><th>iPad 横左栏 553</th><th>代价</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <h2>推荐的三档断点 <span class="sub">一套规则同时落 iOS / Android / HarmonyOS</span></h2>
+  <table>
+    <thead><tr><th>档位</th><th>条件</th><th>布局</th><th>左半顶栏</th><th>切换器</th><th>恢复默认</th></tr></thead>
+    <tbody>
+      <tr><td>窄屏</td><td>可用宽 &lt; 900</td><td><b>不切分</b>，通栏 + 上下堆叠（沿用现有竖屏布局）</td><td>退出 + 标题 + 文字按钮</td><td>回到内容区顶部居中，220</td><td>文字（首次与之后都显示）</td></tr>
+      <tr><td>中屏</td><td>900 ≤ 宽 &lt; 1200</td><td>切分两栏 + S4</td><td>退出 + 标题 + 紧凑切换器 + ↺</td><td>紧凑 140，或双图标 88</td><td>图标 + 首次展开文字/气泡</td></tr>
+      <tr><td>大屏</td><td>宽 ≥ 1200</td><td>切分两栏 + S4 全量</td><td>退出 + 标题 + 220 切换器 + 文字</td><td>文字 220</td><td>文字「恢复默认样式」</td></tr>
+    </tbody>
+  </table>
+
+  <ul class="notes">
+    <li><b>三端现状（本轮实查）</b>：iOS <code>ScoreboardStyleEditOverlay.swift:336-350</code> 与 Android <code>ScoreboardStyleEditOverlay.kt:353-371</code> 是 1:1 对齐的——顶栏 56、padding 12、关闭 44、标题 18sp、恢复默认 12sp；分栏条件都是 <code>width >= height</code>，右栏占 46%，竖屏上下 43%/57%。<code>PreviewTargetChips</code> 上限 220、高 44、字号 12。鸿蒙形态不同：是浮层面板，<code>ScoreboardStyleLayoutMetrics.ts</code> 用 900×560vp 断点、面板宽 300~420vp，<b>本来就没有「通栏切两半」</b>，若要统一形态得先决定。</li>
+    <li><b>你的三个点子都能用</b>：① 切换器改双图标（📱/📺）省 132pt，但语义需要学习，建议只在窄屏用；② 改下拉「本机 ▾」省 124pt，省空间但切换多一次点击，且当前态只剩一个字，不如双图标直观；③ 首次展开文字、之后收成图标最划算——<b>建议做成通用规则而非窄屏专属</b>，大屏也用，可减少常驻文字噪声。</li>
+    <li><b>渐进披露实现要点</b>：N4 收起后需 344pt（375 下余 31pt），但<b>首次真展开文字是 388pt——375 竖屏超 13pt、360pt 的 SE 横屏左栏超 28pt</b>（默认组合即可看到，切到「SE 横屏」更明显）。所以窄屏首次提示应做成<b>不占布局宽度的气泡</b>指向 ↺ 图标，或首次临时淡出标题；只有 ≥430pt 才允许真撑开。持久化标记用 iOS <code>UserDefaults</code> / Android <code>SharedPreferences</code> / HOS <code>Preferences</code>，键名三端统一；图标必须带 <code>accessibilityLabel</code>，长按可显示完整文案；提供「设置里可重新开启提示」避免用户找不到。</li>
+    <li><b>标题是第一个可以让位的东西</b>：窄屏隐藏「样式编辑」省 72pt，比把切换器变图标更不伤可发现性——退出按钮和右下角保存已经说明当前在编辑态。N3 就是这个思路。</li>
+    <li>断点建议用<b>可用窗口宽</b>而不是设备类型或方向（鸿蒙注释里已写了这个理由：避免平板分屏 / 桌面自由窗口误判）。旋转、分屏时要实时重算，别只在进入时算一次。</li>
+    <li>此页只做方案与宽度预算对比，<b>尚未落到三端代码</b>；你选定后我再连同 S4 一起实施。</li>
+  </ul>
+</div>
+<script>
+  const DEVICES = [
+    { id:'se-portrait', name:'iPhone SE 竖屏 375', w:375 },
+    { id:'se-landscape', name:'SE 横屏·左栏 360', w:360 },
+    { id:'phone-430', name:'大屏手机竖屏 430', w:430 },
+    { id:'android-360', name:'安卓小屏 360', w:360 },
+    { id:'hos-panel', name:'鸿蒙窄屏面板 300', w:300 },
+    { id:'ipad-landscape', name:'iPad 横屏·左栏 553', w:553 },
+    { id:'large-900', name:'900 断点·左栏 486', w:486 },
+    { id:'large-1200', name:'1200·左栏 648', w:648 }
+  ];
+  // 元素宽度：close 44 / title 72 / seg 可变 / reset 可变；padding 24、gap 4
+  const PLANS = [
+    { id:'N0', name:'N0 全文字硬塞', title:true, seg:220, segType:'text', reset:88, resetType:'text',
+      desc:'S4 原样，四项全用文字。这是「装不下」的对照组。', cost:'基准，最易读' },
+    { id:'N1', name:'N1 双图标 + ↺', title:true, seg:88, segType:'icons', reset:44, resetType:'icon',
+      desc:'切换器收成 📱 / 📺 两个图标，恢复默认收成 ↺。', cost:'省 132+44；图标语义需学习' },
+    { id:'N2', name:'N2 下拉 + ↺', title:true, seg:96, segType:'dropdown', reset:44, resetType:'icon',
+      desc:'切换器变成「本机 ▾」下拉，点击弹菜单选投屏。', cost:'省 124+44；切换多一次点击' },
+    { id:'N3', name:'N3 隐标题 + 紧凑', title:false, seg:140, segType:'compact', reset:88, resetType:'text',
+      desc:'隐藏「样式编辑」标题，切换器收窄到 140，其余保留文字。', cost:'省 72+80；无标题' },
+    { id:'N4', name:'N4 渐进披露 ★', title:true, seg:140, segType:'compact', reset:44, resetType:'icon-first', firstReset:88,
+      desc:'推荐：紧凑切换器 + ↺ 图标；首次进入展开文字与气泡，之后收起。', cost:'省 80+44；需持久化标记' },
+    { id:'N5', name:'N5 窄屏不切分', title:true, seg:0, segType:'none', reset:88, resetType:'text', inlineSeg:true,
+      desc:'窄屏直接不做 S4：顶栏保持通栏三件套，切换器回内容区顶部居中。', cost:'零新增交互，最稳' }
+  ];
+  const CHECK_W = [375, 360, 430, 553];
+  const state = { device:'se-portrait', plan:'N4', first:'first' };
+
+  // 与 DOM 子元素一一对应：spacer 宽度 0 但仍占一个 4px gap，保证预算尺和舞台一致
+  function partsOf(p, first) {
+    let rw = p.reset;
+    if (p.resetType === 'icon-first' && first === 'first') rw = p.firstReset;
+    const children = [{ k:'close', w:44, label:'退出' }];
+    if (p.title) children.push({ k:'title', w:72, label:'标题' });
+    children.push({ k:'spacer', w:0, label:'' });
+    if (p.seg > 0) {
+      children.push({ k:'seg', w:p.seg, label:String(p.seg) });
+      children.push({ k:'spacer', w:0, label:'' });
+    }
+    children.push({ k:'reset', w:rw, label:String(rw) });
+    const parts = [{ k:'pad', w:12, label:'' }];
+    children.forEach((c, i) => {
+      if (i > 0) parts.push({ k:'gap', w:4, label:'' });
+      if (c.w > 0) parts.push(c);
+    });
+    parts.push({ k:'pad', w:12, label:'' });
+    return parts;
+  }
+  function need(parts) { return parts.reduce((s, x) => s + x.w, 0); }
+
+  function segHTML(p) {
+    const w = p.seg;
+    if (p.segType === 'none') return '';
+    let inner;
+    if (p.segType === 'icons') inner = '<span class="chip on">▣</span><span class="chip">▤</span>';
+    else if (p.segType === 'dropdown') inner = '<span class="chip on">本机 ▾</span>';
+    else if (p.segType === 'compact') inner = '<span class="chip on">本机</span><span class="chip">投屏</span>';
+    else inner = '<span class="chip on">本机</span><span class="chip">投屏</span>';
+    return '<div class="e e-seg ' + (p.segType === 'icons' ? 'icons' : '') + '" style="width:' + w + 'px">' + inner + '</div>';
+  }
+  function resetHTML(p, first) {
+    if (p.resetType === 'icon') return '<div class="e e-reset icon" style="width:44px" title="恢复默认样式">↺</div>';
+    if (p.resetType === 'icon-first') {
+      if (first === 'first') return '<div class="e e-reset text" style="width:88px">恢复默认样式</div>';
+      return '<div class="e e-reset icon" style="width:44px" title="恢复默认样式">↺</div>';
+    }
+    return '<div class="e e-reset text" style="width:' + p.reset + 'px">' + (p.reset >= 80 ? '恢复默认样式' : '恢复默认') + '</div>';
+  }
+
+  function render() {
+    const d = DEVICES.find(x => x.id === state.device);
+    const p = PLANS.find(x => x.id === state.plan);
+    const parts = partsOf(p, state.first);
+    const total = need(parts);
+    const diff = total - d.w;
+
+    document.getElementById('devices').innerHTML = DEVICES.map(x =>
+      '<label><input type="radio" name="dev" value="' + x.id + '"' + (x.id === state.device ? ' checked' : '') + '>' + x.name + '</label>').join('');
+    document.getElementById('plans').innerHTML = PLANS.map(x =>
+      '<label><input type="radio" name="pl" value="' + x.id + '"' + (x.id === state.plan ? ' checked' : '') + '>' + x.name + '</label>').join('');
+    document.querySelectorAll('input[name="first"]').forEach(i => { i.checked = i.value === state.first; });
+
+    document.getElementById('labName').textContent = p.name + ' · ' + d.name;
+    document.getElementById('labDesc').textContent = p.desc;
+    const frame = document.getElementById('frame');
+    frame.style.setProperty('--devw', d.w + 'px');
+    document.querySelector('.lab').style.setProperty('--devw', d.w + 'px');
+    document.querySelector('.bar').style.setProperty('--devw', d.w + 'px');
+
+    let top = '<div class="topbar">'
+      + '<div class="e e-close">✕</div>'
+      + (p.title ? '<div class="e e-title">样式编辑</div>' : '')
+      + '<div class="spacer"></div>'
+      + (p.seg > 0 ? segHTML(p) + '<div class="spacer"></div>' : '')
+      + resetHTML(p, state.first)
+      + (p.resetType === 'icon-first' && state.first === 'first' ? '<div class="bubble">恢复默认样式 · 之后收成图标</div>' : '')
+      + '</div>';
+    let content = '<div class="content">'
+      + (p.inlineSeg ? '<div class="inline-seg"><span class="on">本机</span><span>投屏</span></div>' : '')
+      + '<div class="board"><span>2</span><span>1</span></div></div>';
+    frame.innerHTML = top + content;
+
+    let acc = 0;
+    document.getElementById('barInner').innerHTML = parts.map(x => {
+      const over = (acc + x.w) > d.w;
+      const isFirst = p.resetType === 'icon-first' && state.first === 'first' && x.k === 'reset';
+      acc += x.w;
+      return '<div class="bk ' + x.k + (over ? ' over' : '') + (isFirst ? ' first' : '') + '" style="width:' + x.w + 'px">' + (x.w >= 30 ? x.label : '') + '</div>';
+    }).join('');
+    document.getElementById('budgetValue').innerHTML = '需求 ' + total + 'pt / 可用 ' + d.w + 'pt · '
+      + (diff > 0 ? '<span class="bad">溢出 ' + diff + 'pt</span>' : '<span class="ok">余 ' + (-diff) + 'pt</span>');
+
+    document.getElementById('rows').innerHTML = PLANS.map(x => {
+      const t = need(partsOf(x, 'later'));
+      const cells = CHECK_W.map(w => (t <= w
+        ? '<span class="ok">✅ 余' + (w - t) + '</span>'
+        : '<span class="bad">🔴 超' + (t - w) + '</span>')).join('</td><td>');
+      return '<tr class="' + (x.id === state.plan ? 'on' : '') + '"><td>' + x.name + '</td><td>'
+        + (x.inlineSeg ? '退出+标题+恢复默认（切换器在内容区）' : (x.title ? '退出+标题+' : '退出+') + '切换器' + (x.resetType === 'text' ? '+文字' : '+↺'))
+        + '</td><td>' + t + 'pt</td><td>' + cells + '</td><td>' + x.cost + '</td></tr>';
+    }).join('');
+
+    document.querySelectorAll('input[name="dev"]').forEach(i => i.addEventListener('change', () => { state.device = i.value; render(); }));
+    document.querySelectorAll('input[name="pl"]').forEach(i => i.addEventListener('change', () => { state.plan = i.value; render(); }));
+    document.querySelectorAll('input[name="first"]').forEach(i => i.addEventListener('change', () => { state.first = i.value; render(); }));
+  }
+  render();
+</script>
+</body>
+</html>

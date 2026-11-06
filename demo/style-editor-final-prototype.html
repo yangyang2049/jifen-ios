@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>样式编辑面板 · 定稿原型（A + 分栏 + 底部本机/投屏）</title>
+<style>
+  :root{
+    --bg:#0d0d0f; --panel:#141416; --bar:#1c1c1e; --line:#2a2a2e;
+    --txt:#f2f2f4; --muted:#adb5c2; --green:#30d158; --soft:rgba(48,209,88,.18);
+    --H:48px; --w:1024px;
+    --fs:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:28px 20px 48px;background:var(--bg);color:var(--txt);
+    font:14px/1.6 -apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Noto Sans",Arial,sans-serif}
+  .wrap{max-width:1240px;margin:0 auto}
+  h1{font-size:20px;margin:0 0 6px;letter-spacing:.2px}
+  .lead{color:var(--muted);font-size:13px;margin:0 0 18px}
+  .lead b{color:var(--green);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+  .chip{background:#1c1c1e;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:12px;color:var(--muted)}
+  .chip b{color:var(--txt);font-weight:600}
+
+  /* ---------- 验证条 ---------- */
+  .controls{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px;background:#161618;border:1px solid var(--line);
+    border-radius:12px;padding:14px 16px;margin-bottom:22px}
+  .ctl{display:flex;flex-direction:column;gap:5px}
+  .ctl label{font-size:11px;color:var(--muted);letter-spacing:.3px}
+  select,button.tg{background:#222226;color:var(--txt);border:1px solid #35353b;border-radius:8px;
+    padding:7px 10px;font-size:12px;font-family:inherit;outline:none;cursor:pointer}
+  select{min-width:150px}
+  button.tg[data-on="1"]{border-color:var(--green);color:var(--green)}
+  .readout{margin-left:auto;font-size:12px;color:var(--muted);text-align:right;line-height:1.7}
+  .readout b{color:var(--txt);font-variant-numeric:tabular-nums}
+  .readout .bad{color:#ff6b6b}.readout .ok{color:var(--green)}
+
+  /* ---------- 舞台 ---------- */
+  .stagebox{display:flex;justify-content:center;overflow-x:auto;padding:6px 0 10px}
+  .panel{width:var(--w);height:560px;flex:none;display:flex;background:var(--panel);
+    border:1px solid #33333a;border-radius:14px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+  .col{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
+  .vline{width:1px;flex:none;background:var(--line)}
+  .panel.split .vline{display:block}
+  .panel:not(.split) .vline{display:none}
+
+  /* 顶栏：左右等高 H */
+  .topbar{height:var(--H);flex:none;display:flex;align-items:center;gap:4px;padding:0 12px;
+    background:var(--bar);border-bottom:1px solid var(--line)}
+  .topbar[dir="rtl"]{direction:rtl}
+  .close{width:44px;height:44px;flex:none;display:grid;place-items:center;font-size:20px;color:var(--txt);cursor:pointer;border-radius:8px}
+  .close:hover{background:#2a2a2e}
+  .title{font-size:18px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;flex:none}
+  .spacer{flex:1;min-width:4px}
+  .reset{font-size:12px;color:var(--muted);max-width:96px;min-height:44px;display:flex;
+    align-items:center;cursor:pointer;flex:none;padding:0 2px;min-width:0}
+  .reset span{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .reset:hover{color:var(--txt)}
+  .reset.icon{font-size:19px;max-width:44px;width:44px;justify-content:center}
+  .reset.icon span{overflow:visible}
+  .reset.clip{color:#ffc86b}
+  .reset.clip span{text-decoration:underline dotted;text-underline-offset:3px}
+
+  /* 右栏：A 方案底部绿线 tab，并进顶栏 */
+  .tabs{display:flex;align-items:stretch;height:100%;width:100%;gap:0}
+  .tab{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;position:relative;
+    font-size:var(--fs);color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;
+    padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tab span{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tab:hover{color:var(--txt)}
+  .tab.on{color:var(--green);border-bottom-color:var(--green);font-weight:600}
+  .tab.clip{color:#ffc86b}
+
+  /* 左栏画布 */
+  .canvas{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:18px;background:radial-gradient(ellipse at 50% 38%,#202024 0%,#141416 72%);position:relative;
+    container-type:size;overflow:hidden}
+  .board{width:min(100%,420px);max-height:100%;aspect-ratio:16/9;border-radius:12px;background:#0a0a0c;
+    border:1px solid #313138;display:flex;align-items:center;justify-content:space-between;padding:0 22px;
+    box-shadow:inset 0 0 60px rgba(0,0,0,.7)}
+  /* 窄屏单栏时画布只有 145px 高，按 16:9 反推宽度，避免记分牌被裁 */
+  @supports (width: 1cqh){
+    .board{width:min(100%,420px,calc(100cqh * 16 / 9))}
+  }
+  .side{display:flex;flex-direction:column;align-items:center;gap:10px;flex:1}
+  .sname{font-size:13px;color:#e8e8ea;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+  .sscore{font-size:62px;line-height:1;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+  .sgames{font-size:12px;color:var(--green)}
+  .mid{color:#55555c;font-size:26px;padding:0 12px}
+  .canvastag{position:absolute;top:10px;left:12px;font-size:10px;color:#5c5c64;letter-spacing:.5px}
+
+  /* 底部「本机 / 投屏」：非浮动、无栏 */
+  .switcher{height:var(--H);flex:none;display:flex;align-items:center;justify-content:center;gap:6px;
+    background:none;border:0;border-top:0;box-shadow:none;padding:0 12px;position:static}
+  .switcher[dir="rtl"]{direction:rtl}
+  .opt{height:36px;min-width:64px;max-width:132px;padding:0 16px;border-radius:10px;display:flex;
+    align-items:center;justify-content:center;font-size:var(--fs);color:var(--muted);cursor:pointer;
+    background:transparent;border:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .opt span{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .opt:hover{color:var(--txt)}
+  .opt.on{background:var(--soft);color:#fff;font-weight:600}
+  .opt.clip{color:#ffc86b}
+  .switcher.ghost{outline:1px dashed rgba(255,255,255,.14);outline-offset:-1px}
+
+  /* 右栏内容 */
+  .content{flex:1;min-height:0;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:14px}
+  .grp{display:flex;flex-direction:column;gap:9px}
+  .glabel{font-size:11px;color:#7c7c86;letter-spacing:.4px}
+  .swatches{display:flex;gap:8px;flex-wrap:wrap}
+  .sw{width:34px;height:34px;border-radius:9px;border:1px solid #3a3a42;cursor:pointer}
+  .sw.on{border:2px solid var(--green)}
+  .row{height:36px;border-radius:9px;background:#1e1e22;border:1px solid #2c2c32;display:flex;
+    align-items:center;justify-content:space-between;padding:0 12px;font-size:12px;color:var(--muted)}
+  .row .pill{width:34px;height:20px;border-radius:999px;background:var(--green);opacity:.85}
+  .hint{font-size:11px;color:#6e6e78;margin-top:auto}
+
+  /* 右栏底部按钮 */
+  .actions{height:64px;flex:none;display:flex;gap:10px;align-items:center;padding:8px 16px;background:transparent}
+  .actions .btn{flex:1;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;
+    gap:6px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+  .actions .btn span{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .btn.sec{background:#2a2a30;color:var(--txt)}
+  .btn.pri{background:var(--green);color:#0d1a10;font-weight:600}
+
+  /* 辅助线 */
+  .panel.guides .topbar{box-shadow:inset 0 0 0 1px rgba(48,209,88,.35)}
+  .panel.guides .canvas{box-shadow:inset 0 0 0 1px rgba(120,160,255,.25)}
+  .panel.guides .switcher{outline:1px dashed rgba(255,255,255,.22);outline-offset:-1px}
+  .panel.guides .vline{background:var(--green)}
+  .gH{display:none;position:absolute;left:0;top:0;width:34px;height:var(--H);background:rgba(48,209,88,.16);
+    color:var(--green);font-size:10px;align-items:center;justify-content:center;z-index:5;border-right:1px solid rgba(48,209,88,.4)}
+  .panel.guides .gH{display:flex}
+
+  /* 单栏降级 */
+  .panel:not(.split){flex-direction:column}
+  .panel:not(.split) .col.left{height:43%}
+  .panel:not(.split) .col.right{flex:1;border-top:1px solid var(--line)}
+  .panel:not(.split) .topbar.leftbar{border-bottom:0}
+
+  /* 规格表 */
+  h2{font-size:15px;margin:30px 0 10px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;background:#161618;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  th,td{padding:9px 12px;text-align:left;border-bottom:1px solid #242428;vertical-align:top}
+  th{background:#1d1d21;color:var(--muted);font-weight:600;font-size:11.5px;letter-spacing:.3px}
+  tr:last-child td{border-bottom:0}
+  td code{background:#242429;padding:1px 5px;border-radius:4px;font-size:11.5px;color:#b9e9c5}
+  .yes{color:var(--green)}.no{color:#ff8b8b}.warn{color:#ffc86b}
+  .notes{color:var(--muted);font-size:12.5px;margin:14px 0 0;padding-left:20px}
+  .notes li{margin:5px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>样式编辑面板 · 定稿原型</h1>
+  <p class="lead">A 方案底部绿线 tab + 顶栏左右等高 <b>H = 48</b> + 左栏底部「本机 / 投屏」<b>非浮动、无栏</b>。可切换语言与屏宽验证长文案。</p>
+  <div class="chips">
+    <span class="chip">顶栏 <b>48</b></span>
+    <span class="chip">tab <b>底部 2px 绿线</b></span>
+    <span class="chip">底部切换器 <b>48 / 选项 36</b></span>
+    <span class="chip">切分断点 <b>900</b></span>
+    <span class="chip">标题 <b>样式（已无「编辑」）</b></span>
+    <span class="chip">长文案 <b>单行 …</b></span>
+  </div>
+
+  <div class="controls">
+    <div class="ctl">
+      <label for="lang">语言（真实本地化文案）</label>
+      <select id="lang"></select>
+    </div>
+    <div class="ctl">
+      <label for="dev">窗口宽度</label>
+      <select id="dev"></select>
+    </div>
+    <div class="ctl">
+      <label>辅助</label>
+      <button class="tg" id="guides" data-on="0">尺寸辅助线</button>
+    </div>
+    <div class="ctl">
+      <label>交互</label>
+      <button class="tg" id="target" data-on="0">切换 本机 / 投屏</button>
+    </div>
+    <div class="readout" id="readout"></div>
+  </div>
+
+  <div class="stagebox">
+    <div class="panel split" id="panel">
+      <div class="col left" id="left">
+        <div class="gH">48</div>
+        <div class="topbar leftbar" id="leftbar">
+          <div class="close" title="退出">&#10005;</div>
+          <div class="title" id="titleEl">样式</div>
+          <div class="spacer"></div>
+          <div class="reset" id="resetEl" title=""><span id="resetText"></span></div>
+        </div>
+        <div class="canvas">
+          <div class="canvastag">记分牌预览</div>
+          <div class="board">
+            <div class="side"><div class="sname">主队</div><div class="sscore">3</div><div class="sgames">2 局</div></div>
+            <div class="mid">:</div>
+            <div class="side"><div class="sname">客队</div><div class="sscore">2</div><div class="sgames">1 局</div></div>
+          </div>
+        </div>
+        <div class="switcher" id="switcher">
+          <div class="opt on" data-target="0"><span></span></div>
+          <div class="opt" data-target="1"><span></span></div>
+        </div>
+      </div>
+      <div class="vline"></div>
+      <div class="col right">
+        <div class="gH">48</div>
+        <div class="topbar" id="rightbar">
+          <div class="tabs" id="tabs"></div>
+        </div>
+        <div class="content">
+          <div class="grp"><div class="glabel" id="g1">常用颜色</div>
+            <div class="swatches" id="swatches"></div>
+          </div>
+          <div class="grp"><div class="glabel" id="g2">显示选项</div>
+            <div class="row"><span id="r1">发球指示器</span><div class="pill"></div></div>
+            <div class="row"><span id="r2">对称字号</span><div class="pill"></div></div>
+            <div class="row"><span id="r3">背景亮度</span><div class="pill" style="opacity:.4"></div></div>
+          </div>
+          <div class="hint" id="hint">右侧内容区 · tab 并进顶栏后不再单独占一行</div>
+        </div>
+        <div class="actions" id="actions">
+          <div class="btn sec"><span id="a1">全屏预览</span></div>
+          <div class="btn pri"><span id="a2">保存</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>落地规格（三端 1 : 1）</h2>
+  <table>
+    <thead><tr><th style="width:20%">项</th><th style="width:14%">值</th><th style="width:22%">iOS (pt)</th><th style="width:22%">Android (dp)</th><th style="width:22%">HarmonyOS (vp)</th></tr></thead>
+    <tbody>
+      <tr><td>顶栏高 / tab 行</td><td>48（8×6）</td><td><code>.frame(height: 48)</code></td><td><code>Modifier.height(48.dp)</code></td><td><code>.height(48)</code></td></tr>
+      <tr><td>顶栏切分</td><td>左右各 50%，同底色</td><td><code>HStack(spacing: 0)</code></td><td><code>Row</code> + 1dp 竖线</td><td><code>Row</code> + 1vp 竖线</td></tr>
+      <tr><td>底部切换器</td><td>占高 48，选项 36（H−12）</td><td>列末项，<span class="yes">非 overlay</span></td><td>Column 末项</td><td>Column 末项</td></tr>
+      <tr><td>无栏</td><td class="yes">无 background / 无 border-top / 无分割线</td><td>不加 <code>.background</code></td><td>不加 <code>Modifier.background</code></td><td>不加 <code>.backgroundColor</code></td></tr>
+      <tr><td>切换器位置</td><td>水平居中，间距 6</td><td><code>Spacer(minLength:0)</code> 两侧</td><td><code>Arrangement.Center</code></td><td><code>justifyContent(FlexAlign.Center)</code></td></tr>
+      <tr><td>选中态</td><td>淡绿填充 + 白字，无描边</td><td colspan="3"><code>rgba(48,209,88,.18)</code>；<span class="no">不要</span> border / stroke（已在本轮删除）</td></tr>
+      <tr><td>标题</td><td>复用 <code>style_workbench_title</code></td><td>中文「样式」/ en "Style"</td><td colspan="2">现有 key 已是短文案，<span class="yes">无需改动</span></td></tr>
+      <tr><td>恢复默认（长文案）</td><td>单行 + 上限 96 + <b>…</b></td><td><code>.lineLimit(1).truncationMode(.tail)</code></td><td><code>maxLines=1, TextOverflow.Ellipsis</code></td><td><code>.maxLines(1).textOverflow(TextOverflow.Ellipsis)</code></td></tr>
+      <tr><td>恢复默认（窄屏）</td><td>收成 ↺ 图标 44×44</td><td><code>Image(systemName:"arrow.counterclockwise")</code></td><td><code>Icon(Icons.Rounded.Refresh)</code></td><td><code>SymbolGlyph / 图形</code></td></tr>
+      <tr><td>切换器 / tab 文字</td><td>单行 + …，不换行</td><td><code>.lineLimit(1)</code></td><td><code>maxLines=1</code></td><td><code>.maxLines(1)</code></td></tr>
+      <tr><td>切分断点</td><td>窗口宽 ≥ 900 才分栏</td><td><code>GeometryReader.size.width</code></td><td><code>LocalConfiguration.screenWidthDp</code></td><td><code>LARGE_VIEWPORT_MIN_WIDTH_VP</code>（已有 900）</td></tr>
+    </tbody>
+  </table>
+
+  <h2>多语言宽度实测（本轮查库结果）</h2>
+  <table>
+    <thead><tr><th style="width:22%">key</th><th>中文</th><th>English</th><th>Deutsch</th><th>最长语种</th></tr></thead>
+    <tbody>
+      <tr><td><code>style_workbench_title</code></td><td>样式（2）</td><td>Style（5）</td><td>Stil（4）</td><td>Phong cách（10, vi）</td></tr>
+      <tr><td><code>style_workbench_reset</code></td><td>恢复默认样式（6）</td><td>Restore default style（21）</td><td>Standardstil wiederherstellen（30）</td><td class="warn">శైలి…（38, te）／ Alapértelmezett stílus visszaállítása（37, hu）</td></tr>
+      <tr><td><code>style_workbench_phone</code></td><td>本机（2）</td><td>This device（11）</td><td>Dieses Gerät（13）</td><td>Это устройство（14, ru）</td></tr>
+      <tr><td><code>style_workbench_cast</code></td><td>投屏（2）</td><td>Cast（4）</td><td>Übertragen（10）</td><td>画面転送 / ko 等（4–5）</td></tr>
+    </tbody>
+  </table>
+
+  <ul class="notes">
+    <li><b>「不要编辑两个字」已经成立</b>：顶栏实际读的是 <code>style_workbench_title</code>，中文值就是「样式」；之前几版 demo 里的「样式编辑」是我写错的示意文案，不是代码现状。</li>
+    <li><b>长语言不会撑破布局</b>：所有顶栏/切换器/tab 文字都是单行 + 省略号，超限时文字变黄点标记（本原型可读数），完整文案走 <code>title</code> / <code>accessibilityLabel</code> / 长按提示。</li>
+    <li><b>RTL</b>（ar / he）下顶栏与切换器整体镜像由系统 <code>direction</code> 处理，原型用 <code>dir="rtl"</code> 演示；✕ 与 ↺ 图标本身不需要翻转。</li>
+    <li><b>非浮动</b>：切换器是左栏 flex 列的最后一个子项，预览区高度 = 舞台 − 48 顶栏 − 48 切换器；它不覆盖记分牌，也不会随滚动漂走。</li>
+    <li><b>无栏</b>：切换器没有独立底色、没有顶部分割线、没有横贯左栏的容器；只有两个选项本身带选中填充。</li>
+    <li>右栏底部按钮区仍为 64（= 48 + 16 内边距），两栏外框等高，顶栏等高；底边元素不需要左右镜像。</li>
+  </ul>
+</div>
+
+<script>
+  // 文案均取自 jifen-ios/jifen/Resources/<lang>.lproj/Localizable.strings 的真实值
+  var L = {
+    'zh-Hans':{n:'中文（简体）',title:'样式',reset:'恢复默认样式',phone:'本机',cast:'投屏',tabs:['主题','背景','字体','自由编辑'],g1:'常用颜色',r1:'发球指示器',r2:'对称字号',r3:'背景亮度',a1:'全屏预览',a2:'保存',rtl:0},
+    'en':{n:'English',title:'Style',reset:'Restore default style',phone:'This device',cast:'Cast',tabs:['Theme','Background','Font','Free edit'],g1:'Common colors',r1:'Serve indicator',r2:'Symmetric size',r3:'Background dim',a1:'Full preview',a2:'Save',rtl:0},
+    'de':{n:'Deutsch',title:'Stil',reset:'Standardstil wiederherstellen',phone:'Dieses Gerät',cast:'Übertragen',tabs:['Design','Hintergrund','Schrift','Frei'],g1:'Häufige Farben',r1:'Aufschlaganzeige',r2:'Symmetrische Größe',r3:'Hintergrundhelligkeit',a1:'Vollbild',a2:'Speichern',rtl:0},
+    'ru':{n:'Русский',title:'Стиль',reset:'Восстановить стиль по умолчанию',phone:'Это устройство',cast:'Трансляция',tabs:['Тема','Фон','Шрифт','Свободно'],g1:'Частые цвета',r1:'Индикатор подачи',r2:'Симметричный размер',r3:'Яркость фона',a1:'На весь экран',a2:'Сохранить',rtl:0},
+    'fr':{n:'Français',title:'Style',reset:'Restaurer le style par défaut',phone:'Cet appareil',cast:'Diffusion',tabs:['Thème','Fond','Police','Libre'],g1:'Couleurs courantes',r1:'Indicateur de service',r2:'Taille symétrique',r3:'Luminosité du fond',a1:'Plein écran',a2:'Enregistrer',rtl:0},
+    'es-ES':{n:'Español',title:'Estilo',reset:'Restaurar el estilo predeterminado',phone:'Este dispositivo',cast:'Emitir',tabs:['Tema','Fondo','Fuente','Libre'],g1:'Colores comunes',r1:'Indicador de saque',r2:'Tamaño simétrico',r3:'Brillo del fondo',a1:'Pantalla completa',a2:'Guardar',rtl:0},
+    'hu':{n:'Magyar（最长）',title:'Stílus',reset:'Alapértelmezett stílus visszaállítása',phone:'Ez az eszköz',cast:'Átküldés',tabs:['Téma','Háttér','Betűtípus','Szabad'],g1:'Gyakori színek',r1:'Adogatás jelző',r2:'Szimmetrikus méret',r3:'Háttér fényereje',a1:'Teljes képernyő',a2:'Mentés',rtl:0},
+    'ja':{n:'日本語',title:'スタイル',reset:'デフォルトのスタイルに戻す',phone:'このデバイス',cast:'キャスト',tabs:['テーマ','背景','フォント','自由編集'],g1:'よく使う色',r1:'サーブ表示',r2:'左右同じサイズ',r3:'背景の明るさ',a1:'全画面プレビュー',a2:'保存',rtl:0},
+    'ar':{n:'العربية（RTL）',title:'النمط',reset:'استعادة النمط الافتراضي',phone:'هذا الجهاز',cast:'البث',tabs:['المظهر','الخلفية','الخط','حر'],g1:'ألوان شائعة',r1:'مؤشر الإرسال',r2:'حجم متماثل',r3:'سطوع الخلفية',a1:'معاينة كاملة',a2:'حفظ',rtl:1},
+    'hi':{n:'हिन्दी',title:'शैली',reset:'डिफ़ॉल्ट स्टाइल पुनर्स्थापित करें',phone:'यह डाइवाइस',cast:'कास्ट',tabs:['थीम','बैकग्राउंड','फ़ॉन्ट','मुक्त'],g1:'सामान्य रंग',r1:'सर्व संकेतक',r2:'सममित आकार',r3:'पृष्ठभूमि चमक',a1:'पूर्ण पूर्वावलोकन',a2:'सहेजें',rtl:0}
+  };
+  var DEV=[{n:'iPhone SE 竖屏 · 375',w:375},{n:'大屏手机竖屏 · 430',w:430},
+    {n:'SE 横屏 · 667',w:667},{n:'小平板 · 768',w:768},
+    {n:'iPad 横屏 · 1024（默认）',w:1024},{n:'桌面 · 1200',w:1200}];
+  var state={lang:'zh-Hans',w:1024,guides:false,target:0,tab:0};
+  var SPLIT=900;
+
+  function $(id){return document.getElementById(id)}
+  function setText(el,txt){el.textContent=txt;el.title=txt}
+  function clipped(el){
+    var over=el.scrollWidth>el.clientWidth+1;
+    el.classList.toggle('clip',over);
+    return over;
+  }
+  function fillSelects(){
+    $('lang').innerHTML=Object.keys(L).map(function(k){return '<option value="'+k+'"'+(k===state.lang?' selected':'')+'>'+L[k].n+'</option>'}).join('');
+    $('dev').innerHTML=DEV.map(function(d,i){return '<option value="'+d.w+'"'+(d.w===state.w?' selected':'')+'>'+d.n+'</option>'}).join('');
+  }
+  function render(){
+    var d=L[state.lang];
+    var split=state.w>=SPLIT;
+    var leftW=Math.round(state.w/2);
+    $('panel').classList.toggle('split',split);
+    $('panel').classList.toggle('guides',state.guides);
+    $('panel').style.setProperty('--w',state.w+'px');
+    document.documentElement.style.setProperty('--w',state.w+'px');
+
+    // 文案
+    setText($('titleEl'),d.title);
+    var reset=$('resetEl');
+    var resetSpan=reset.querySelector('span');
+    var narrow=leftW<360 || !split;
+    reset.classList.toggle('icon',narrow);
+    reset.classList.remove('clip');
+    reset.title=d.reset;
+    setText(resetSpan,narrow?'↺':d.reset);
+    var rtl=d.rtl?'rtl':'ltr';
+    $('leftbar').setAttribute('dir',rtl);
+    $('rightbar').setAttribute('dir',rtl);
+    $('switcher').setAttribute('dir',rtl);
+    $('actions').setAttribute('dir',rtl);
+
+    var opts=$('switcher').querySelectorAll('.opt');
+    setText(opts[0].querySelector('span'),d.phone);
+    setText(opts[1].querySelector('span'),d.cast);
+    opts.forEach(function(o,i){o.classList.toggle('on',i===state.target)});
+
+    $('tabs').innerHTML=d.tabs.map(function(t,i){
+      return '<div class="tab'+(i===state.tab?' on':'')+'" data-tab="'+i+'"><span>'+t+'</span></div>';
+    }).join('');
+    setText($('g1'),d.g1);setText($('r1'),d.r1);setText($('r2'),d.r2);setText($('r3'),d.r3);
+    setText($('a1'),d.a1);setText($('a2'),d.a2);
+    $('swatches').innerHTML=['#30D158','#FF453A','#0A84FF','#FFD60A','#BF5AF2','#FFFFFF','#1C1C1E']
+      .map(function(c,i){return '<div class="sw'+(i===0?' on':'')+'" style="background:'+c+'"></div>'}).join('');
+
+    // 截断检测（真实渲染宽度，不靠估算）
+    var clips=[];
+    if(clipped($('titleEl')))clips.push('标题');
+    if(!narrow&&clipped(resetSpan)){clips.push('恢复默认');reset.classList.add('clip')}
+    $('tabs').querySelectorAll('.tab span').forEach(function(s){if(clipped(s))clips.push('tab')});
+    opts.forEach(function(o){if(clipped(o.querySelector('span')))clips.push('切换器')});
+    $('actions').querySelectorAll('.btn span').forEach(function(s){if(clipped(s))clips.push('按钮')});
+
+    var stageH=560;
+    var leftHeight=split?stageH:Math.round(stageH*0.43);
+    var leftInner=leftHeight-48-48;
+    $('readout').innerHTML=
+      '窗口 <b>'+state.w+'</b> · '+(split?'分栏，单栏宽 <b>'+leftW+'</b>':'单栏（上下 43/57）')+'<br>'+
+      '左栏预览画布 <b>'+leftInner+'</b>px（左栏 '+leftHeight+' − 48 顶栏 − 48 切换器）<br>'+
+      (clips.length?'<span class="bad">… 截断：'+clips.join('、')+'</span>':'<span class="ok">✓ 所有文案完整显示</span>')+
+      (narrow?' · <span class="ok">↺ 图标模式</span>':'');
+  }
+
+  fillSelects();
+  $('lang').addEventListener('change',function(e){state.lang=e.target.value;render()});
+  $('dev').addEventListener('change',function(e){state.w=parseInt(e.target.value,10);render()});
+  $('guides').addEventListener('click',function(e){
+    state.guides=!state.guides;e.target.dataset.on=state.guides?'1':'0';
+    e.target.textContent=state.guides?'尺寸辅助线 ✓':'尺寸辅助线';render();
+  });
+  $('target').addEventListener('click',function(e){
+    state.target=state.target?0:1;e.target.dataset.on=state.target?'1':'0';render();
+  });
+  $('panel').addEventListener('click',function(e){
+    var t=e.target.closest('[data-target]');
+    if(t){state.target=parseInt(t.dataset.target,10);render();return}
+    var b=e.target.closest('[data-tab]');
+    if(b){state.tab=parseInt(b.dataset.tab,10);render();return}
+    var r=e.target.closest('#resetEl');
+    if(r){r.style.opacity='.45';setTimeout(function(){r.style.opacity='1'},160)}
+  });
+  render();
+</script>
+</body>
+</html>
