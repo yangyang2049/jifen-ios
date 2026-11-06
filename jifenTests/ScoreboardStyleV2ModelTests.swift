@@ -367,11 +367,27 @@ extension ScoreboardStyleV2ModelTests {
         }
     }
 
-    /// 投屏整帧预算回归：后端实时消息硬上限 512KB（`REALTIME_MAX_PAYLOAD_BYTES`），
-    /// 而每个参与者各带一份完整 displayState —— 双打帧里同一张图片会被复制 4 份。
-    /// 图片字符上限必须按「4 份副本 + 其它字段」倒推：2026-11-06 10:55 一度放宽到 200,000，
-    /// 4×200,000 = 800,000 > 524,288，服务端 `ws` 会以 1009（message too big）关闭连接、
-    /// 投屏整条断掉，而不是让图片降级。这里用真实映射把整帧字节数钉死。
+    /// 投屏帧只带 1 份 displayState：四端显示端都是「扫描所有参与者、取最新的那份」，
+    /// 历史上为规避 PARTICIPANT_SYNC 首条旧态才给每个参与者各塞一份（双打 = 4 份纯冗余）。
+    /// 这里用真实映射钉死「只有第一个参与者带 displayState，其余显式清空」。
+    func testOnlyFirstParticipantCarriesDisplayState() throws {
+        for doubles in [false, true] {
+            let state = photoState(doubles: doubles)
+            let wire = try XCTUnwrap(DisplayStateWireCodec.encode(state))
+            let participants = RemoteSyncController.mapDisplayStateToParticipants(state, wire: wire)
+            XCTAssertGreaterThanOrEqual(participants.count, 2)
+
+            let firstMetadata = try XCTUnwrap(participants[0]["metadata"] as? [String: Any])
+            XCTAssertNotNil(firstMetadata["displayState"], "首个参与者必须携带 displayState")
+            for participant in participants.dropFirst() {
+                let metadata = participant["metadata"] as? [String: Any]
+                XCTAssertNil(metadata?["displayState"], "非首个参与者不得重复携带 displayState")
+            }
+        }
+    }
+
+    /// 整帧预算：后端实时消息硬上限 512KB（`REALTIME_MAX_PAYLOAD_BYTES`）。
+    /// 单副本后最大图片（90,000 字符）× 1 份仍应远低于上限，给其它字段留足余量。
     func testLargestPhotoImageKeepsDoublesFrameWithinBackendPayloadBudget() throws {
         let prefix = "data:image/jpeg;base64,"
         let bodyLength = (ScoreboardBackdrop.imageDataCharacterLimit - prefix.count) / 4 * 4
@@ -382,7 +398,6 @@ extension ScoreboardStyleV2ModelTests {
         state.appearance.style?.backdrop = .init(imageData: image, dim: 0.45, panelOpacity: 0.67)
         let wire = try XCTUnwrap(DisplayStateWireCodec.encode(state))
         let participants = RemoteSyncController.mapDisplayStateToParticipants(state, wire: wire)
-        XCTAssertEqual(participants.count, 4, "双打四个参与者各带一份完整 displayState")
 
         let envelope: [String: Any] = [
             "type": "participant_update",
@@ -390,12 +405,64 @@ extension ScoreboardStyleV2ModelTests {
         ]
         let bytes = try JSONSerialization.data(withJSONObject: envelope).count
         XCTAssertLessThan(bytes, 512 * 1024, "整帧 \(bytes) 字节超出后端 512KB 上限")
-        for participant in participants {
-            let metadata = try XCTUnwrap(participant["metadata"] as? [String: Any])
-            let displayState = try XCTUnwrap(metadata["displayState"] as? [String: Any])
-            let style = try XCTUnwrap((displayState["appearance"] as? [String: Any])?["style"] as? [String: Any])
-            XCTAssertEqual((style["backdrop"] as? [String: Any])?["imageData"] as? String, image)
-        }
+
+        let metadata = try XCTUnwrap(participants[0]["metadata"] as? [String: Any])
+        let displayState = try XCTUnwrap(metadata["displayState"] as? [String: Any])
+        let style = try XCTUnwrap((displayState["appearance"] as? [String: Any])?["style"] as? [String: Any])
+        XCTAssertEqual((style["backdrop"] as? [String: Any])?["imageData"] as? String, image)
+    }
+
+    /// 图片只在「变更的那一次」随帧下发：其余帧只带 digest，接收端按 digest 命中缓存。
+    func testBackdropImageIsOnlySentWhenItChanges() throws {
+        let imageData = "data:image/jpeg;base64," + Data(repeating: 0x5A, count: 240).base64EncodedString()
+        var state = photoState(doubles: true)
+        state.appearance.style?.backdrop = .init(imageData: imageData, dim: 0.45, panelOpacity: 0.67)
+        let digest = try XCTUnwrap(state.appearance.style?.backdrop?.contentDigest)
+        XCTAssertFalse(digest.isEmpty)
+
+        // 首帧（新显示端加入）必须带图。
+        let first = try XCTUnwrap(DisplayStateWireCodec.encode(state, includeBackdropImage: true))
+        XCTAssertEqual(Self.backdropImageData(first), imageData)
+        XCTAssertEqual(Self.backdropDigest(first), digest)
+
+        // 图片未变：只带 digest，图片字段消失。
+        ScoreboardBackdropImageCache.shared.removeAll()
+        let digestOnly = try XCTUnwrap(DisplayStateWireCodec.encode(state, includeBackdropImage: false))
+        XCTAssertNil(Self.backdropImageData(digestOnly))
+        XCTAssertEqual(Self.backdropDigest(digestOnly), digest)
+
+        // 接收端仅靠 digest 无法还原像素（缓存尚未写入）。
+        let cold = try XCTUnwrap(DisplayStateWireCodec.decode(digestOnly))
+        XCTAssertNil(cold.appearance.style?.backdrop?.imageData)
+
+        // 先收一次带图的帧把缓存填上，再收只带 digest 的帧，图片必须还原。
+        _ = try XCTUnwrap(DisplayStateWireCodec.decode(first))
+        let warm = try XCTUnwrap(DisplayStateWireCodec.decode(digestOnly))
+        XCTAssertEqual(warm.appearance.style?.backdrop?.imageData, imageData, "同 digest 必须命中缓存")
+    }
+
+    /// 发送策略：图片变了才带；新显示端加入必须补齐；图片被移除时不再带。
+    func testBackdropImageSendPolicy() {
+        XCTAssertTrue(RemoteSyncController.shouldIncludeBackdropImage(
+            digest: "a", hasImage: true, lastSentDigest: "a", mustSend: true), "新显示端加入必须补图")
+        XCTAssertFalse(RemoteSyncController.shouldIncludeBackdropImage(
+            digest: "a", hasImage: true, lastSentDigest: "a", mustSend: false), "图片未变不得重传")
+        XCTAssertTrue(RemoteSyncController.shouldIncludeBackdropImage(
+            digest: "b", hasImage: true, lastSentDigest: "a", mustSend: false), "图片变更必须重传")
+        XCTAssertFalse(RemoteSyncController.shouldIncludeBackdropImage(
+            digest: nil, hasImage: false, lastSentDigest: "a", mustSend: false), "无图时不得带 imageData")
+        XCTAssertTrue(RemoteSyncController.shouldIncludeBackdropImage(
+            digest: nil, hasImage: true, lastSentDigest: nil, mustSend: false), "缺摘要时必须照常带图")
+    }
+
+    private static func backdropImageData(_ wire: [String: Any]?) -> String? {
+        ((wire?["appearance"] as? [String: Any])?["style"] as? [String: Any])
+            .flatMap { ($0["backdrop"] as? [String: Any])?["imageData"] as? String }
+    }
+
+    private static func backdropDigest(_ wire: [String: Any]?) -> String? {
+        ((wire?["appearance"] as? [String: Any])?["style"] as? [String: Any])
+            .flatMap { ($0["backdrop"] as? [String: Any])?["digest"] as? String }
     }
 
     /// 生产链路（LocalScoreboardSyncCoordinator → `ScoreboardDisplayState(compactState:)`）的

@@ -6,6 +6,10 @@ nonisolated struct ScoreboardBackdrop: Codable, Equatable, Sendable {
     var imageData: String? = nil
     var dim: Double = 0.30
     var panelOpacity: Double = 0.84
+    /// 图片内容摘要（FNV-1a 64）。图片在一局里极少变化，投屏帧只在**变更的那一次**携带
+    /// `imageData`，其余帧只带 `digest`，接收端按 digest 复用缓存——避免每个得分点重传整张图。
+    /// 算法与安卓 `ScoreboardBackdrop.digest`、鸿蒙 `backdropDigest` 一致。
+    var digest: String? = nil
 
     /// 压暗/透明度钳制与图片数据无关，渲染期可逐帧取用而不触发 base64 校验。
     var resolvedDim: Double { dim.isFinite ? min(0.8, max(0, dim)) : 0.30 }
@@ -19,6 +23,8 @@ nonisolated struct ScoreboardBackdrop: Codable, Equatable, Sendable {
     /// 与安卓 `SCOREBOARD_BACKGROUND_MAX_DATA_LENGTH`、鸿蒙 `scoreboardStyle.ts` 同为 90,000。
     static let imageDataCharacterLimit = 90_000
 
+    /// 只做「合法性 + 钳制」，**不写 digest**：解码侧不得凭空造值，
+    /// 否则同一份 profile 往返后不再相等。digest 只在投屏编码/发送路径计算。
     func normalized() -> Self {
         var value = self
         if let imageData {
@@ -26,11 +32,42 @@ nonisolated struct ScoreboardBackdrop: Codable, Equatable, Sendable {
             let body = imageData.hasPrefix(prefix) ? imageData.dropFirst(prefix.count) : ""
             if imageData.count > Self.imageDataCharacterLimit || !Self.isBase64Body(body) {
                 value.imageData = nil
+                value.digest = nil
             }
+        } else if let digest, !Self.isDigest(digest) {
+            value.digest = nil
         }
         value.dim = resolvedDim
         value.panelOpacity = resolvedPanelOpacity
         return value
+    }
+
+    /// 投屏链路的图片摘要：始终由当前图片内容算出；无图时为 nil。
+    var contentDigest: String? {
+        imageData.map(Self.digest(of:))
+    }
+
+    /// digest 是传输层派生信息（图片内容相同的两个 backdrop 语义等价），
+    /// 不参与相等判断，否则「本地构造」与「线上解码」的同一张图会被判为不同。
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.imageData == rhs.imageData && lhs.dim == rhs.dim && lhs.panelOpacity == rhs.panelOpacity
+    }
+
+    /// FNV-1a 64 位内容摘要。三端必须逐位一致，否则接收端缓存键匹配不上、图片会重复下发。
+    /// 用无分配的 UTF-8 遍历，避免为 80KB 字符串再复制一份字节数组。
+    static func digest(of imageData: String) -> String {
+        var hash: UInt64 = 0xcbf2_9ce4_8422_2325
+        for byte in imageData.utf8 {
+            hash ^= UInt64(byte)
+            hash = hash &* 0x0000_0100_0000_01b3
+        }
+        var hex = String(hash, radix: 16, uppercase: false)
+        if hex.count < 16 { hex = String(repeating: "0", count: 16 - hex.count) + hex }
+        return hex
+    }
+
+    private static func isDigest(_ value: String) -> Bool {
+        value.count == 16 && value.allSatisfy { $0.isHexDigit }
     }
 
     /// base64 结构校验：只检查字符集与填充，不分配解码后的字节数组，
@@ -89,6 +126,46 @@ nonisolated struct ScoreboardBackdrop: Codable, Equatable, Sendable {
             }
         }
         return nil
+    }
+}
+
+/// 显示端按 `digest` 缓存最近收到过的背景图。
+/// 发送端只在图片变更的那一帧携带 `imageData`，其余帧只带 `digest`；
+/// 显示端据此复用缓存，既省带宽，又保证晚加入/短暂丢帧后仍能还原背景。
+nonisolated final class ScoreboardBackdropImageCache: @unchecked Sendable {
+    static let shared = ScoreboardBackdropImageCache()
+
+    private let lock = NSLock()
+    private var images: [String: String] = [:]
+    private var recency: [String] = []
+    /// 一局里最多只会有「当前图 + 撤销用的上一张」，留 4 个足够，也限制常驻内存。
+    private let capacity = 4
+
+    private init() {}
+
+    func store(_ imageData: String, for digest: String) {
+        guard !imageData.isEmpty, !digest.isEmpty else { return }
+        lock.lock(); defer { lock.unlock() }
+        images[digest] = imageData
+        recency.removeAll { $0 == digest }
+        recency.append(digest)
+        while recency.count > capacity {
+            images[recency.removeFirst()] = nil
+        }
+    }
+
+    func image(for digest: String) -> String? {
+        guard !digest.isEmpty else { return nil }
+        lock.lock(); defer { lock.unlock() }
+        guard let imageData = images[digest] else { return nil }
+        recency.removeAll { $0 == digest }
+        recency.append(digest)
+        return imageData
+    }
+
+    func removeAll() {
+        lock.lock(); defer { lock.unlock() }
+        images.removeAll(); recency.removeAll()
     }
 }
 

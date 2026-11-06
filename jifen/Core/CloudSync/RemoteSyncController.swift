@@ -29,6 +29,10 @@ final class RemoteSyncController: ObservableObject {
     private var activeGameType = CloudSyncGameTypes.placeholder
     private var gameTypeUpdateRevision: UInt64 = 0
     private var wsHandlerIDs: [(WsMessageType, UUID)] = []
+    /// 上一帧已下发的背景图摘要。图片未变时不再携带 imageData，只带 digest 供显示端命中缓存。
+    private var lastSentBackdropDigest: String?
+    /// 显示端新加入/重连时为 true：下一帧必须补全图片，否则它只有 digest、没有像素。
+    private var mustSendBackdropImage = true
 
     func isAttached() -> Bool { attached }
 
@@ -41,6 +45,9 @@ final class RemoteSyncController: ObservableObject {
     func attach() {
         guard !attached else { return }
         attached = true
+        // 新会话/重连：新显示端没有像素，首帧必须补全背景图。
+        lastSentBackdropDigest = nil
+        mustSendBackdropImage = true
         registerWsHandlers()
         // 订阅底层连接状态，保证 UI 上的连接指示实时刷新。
         connectionCancellable = MatchWebSocketManager.shared.$connectionState
@@ -200,9 +207,27 @@ final class RemoteSyncController: ObservableObject {
         if requestSnapshot,
            requestRevision == gameTypeUpdateRevision,
            state.isSharing {
-            snapshotRequestListener?()
+            requestFullSnapshot()
         }
         return true
+    }
+
+    /// 图片是否需要随本帧下发：只有「图片变了」或「新显示端加入」才带，
+    /// 其余帧只带 digest。纯函数，便于对「只在变更时传图」做回归。
+    static func shouldIncludeBackdropImage(digest: String?, hasImage: Bool,
+                                           lastSentDigest: String?, mustSend: Bool) -> Bool {
+        if mustSend { return true }
+        guard hasImage else { return false }
+        // 没有摘要就无法让对端命中缓存，只能照常带图。
+        guard let digest else { return true }
+        return digest != lastSentDigest
+    }
+
+    /// 显示端新加入 / 重订阅时请求一帧快照；下一帧必须带全图片，
+    /// 否则新显示端只有 digest、拿不到像素（晚加入会白屏）。
+    private func requestFullSnapshot() {
+        mustSendBackdropImage = true
+        snapshotRequestListener?()
     }
 
     // MARK: 推分
@@ -216,10 +241,17 @@ final class RemoteSyncController: ObservableObject {
             MatchWebSocketManager.shared.sendMatchStarted(gameType: activeGameType)
         }
 
-        guard let wire = DisplayStateWireCodec.encode(displayState),
+        let backdropDigest = displayState.appearance.style?.backdrop?.contentDigest
+        let includeBackdropImage = Self.shouldIncludeBackdropImage(
+            digest: backdropDigest, hasImage: displayState.appearance.style?.backdrop?.imageData != nil,
+            lastSentDigest: lastSentBackdropDigest, mustSend: mustSendBackdropImage)
+        guard let wire = DisplayStateWireCodec.encode(displayState, includeBackdropImage: includeBackdropImage),
               DisplayStateWireCodec.isValid(wire) else {
             return
         }
+        // 记录已下发的摘要：下一帧若图片未变就不再带 imageData。
+        lastSentBackdropDigest = backdropDigest
+        mustSendBackdropImage = false
 
         let participants = Self.mapDisplayStateToParticipants(displayState, wire: wire)
         MatchWebSocketManager.shared.sendParticipantUpdate(participants: participants, sessionPhase: sessionPhase)
@@ -276,7 +308,12 @@ final class RemoteSyncController: ObservableObject {
 
     // MARK: 参与者映射（对齐安卓 RemoteParticipantMapper.mapDisplayStateToParticipants）
 
-    /// `internal` 以便整帧体积回归测试复用真实映射（每个参与者各带一份完整 displayState）。
+    /// `internal` 以便整帧体积回归测试复用真实映射。
+    ///
+    /// **只有第一个参与者携带 displayState**：四端显示端都是「扫描所有参与者、取最新的那份」，
+    /// 其余副本是纯冗余（历史上为绕过 3.1 的 PARTICIPANT_SYNC 首条旧态而全量复制）。
+    /// 双打因此从「一帧 4 份完整状态」降到 1 份；非首个参与者显式下发空 metadata，
+    /// 以便服务端把历史遗留的旧副本清掉，避免它们继续占带宽。
     static func mapDisplayStateToParticipants(
         _ displayState: ScoreboardDisplayState,
         wire: [String: Any]
@@ -294,7 +331,6 @@ final class RemoteSyncController: ObservableObject {
                     "order": player.order
                 ]
                 if let color = player.color { map["color"] = color }
-                map["metadata"] = metadata
                 return map
             }
         } else {
@@ -309,11 +345,14 @@ final class RemoteSyncController: ObservableObject {
                 if let sets = team.sets { map["sets"] = sets }
                 if let games = team.games { map["games"] = games }
                 if let color = team.color { map["color"] = color }
-                map["metadata"] = metadata
                 return map
             }
         }
-        return base
+        return base.enumerated().map { index, participant in
+            var copy = participant
+            copy["metadata"] = index == 0 ? metadata : [String: Any]()
+            return copy
+        }
     }
 
     // MARK: WS 事件
@@ -341,18 +380,22 @@ final class RemoteSyncController: ObservableObject {
             guard let displays = envelope.displayPresences else { return }
             self?.state.connectedDisplays = displays
         }
-        wsHandlerIDs.append((.joinSuccess, ws.on(.joinSuccess, applyPresence)))
+        wsHandlerIDs.append((.joinSuccess, ws.on(.joinSuccess) { [weak self] envelope in
+            applyPresence(envelope)
+            // 重连后显示端可能已换人/丢过帧：下一帧补全背景图。
+            self?.mustSendBackdropImage = true
+        }))
         wsHandlerIDs.append((.displayJoined, ws.on(.displayJoined) { [weak self] envelope in
             applyPresence(envelope)
-            self?.snapshotRequestListener?()
+            self?.requestFullSnapshot()
         }))
         wsHandlerIDs.append((.displayLeft, ws.on(.displayLeft, applyPresence)))
         wsHandlerIDs.append((.displayDisconnected, ws.on(.displayDisconnected, applyPresence)))
         wsHandlerIDs.append((.displaySubscribed, ws.on(.displaySubscribed) { [weak self] _ in
-            self?.snapshotRequestListener?()
+            self?.requestFullSnapshot()
         }))
         wsHandlerIDs.append((.participantJoined, ws.on(.participantJoined) { [weak self] _ in
-            self?.snapshotRequestListener?()
+            self?.requestFullSnapshot()
         }))
     }
 }

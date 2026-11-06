@@ -10,7 +10,10 @@ enum DisplayStateWireCodec {
 
     // MARK: - Encode（iOS → 云端）
 
-    static func encode(_ state: ScoreboardDisplayState, atWallClockMilliseconds now: Int64 = currentWallClockMs()) -> [String: Any]? {
+    /// - Parameter includeBackdropImage: 图片未变更时置 false：只下发 `digest`，不下发 `imageData`。
+    ///   投屏帧每个得分点都要重发，图片（约 80KB）一局里极少变化，逐帧重传是纯浪费。
+    static func encode(_ state: ScoreboardDisplayState, atWallClockMilliseconds now: Int64 = currentWallClockMs(),
+                       includeBackdropImage: Bool = true) -> [String: Any]? {
         var map: [String: Any] = [
             "schemaVersion": ScoreboardDisplayState.schemaVersion,
             "gameType": state.gameType,
@@ -28,7 +31,7 @@ enum DisplayStateWireCodec {
         if let sportState = projectSportState(state) {
             map["sportState"] = sportState
         }
-        map["appearance"] = encodeAppearance(state.appearance)
+        map["appearance"] = encodeAppearance(state.appearance, includeBackdropImage: includeBackdropImage)
         if let result = state.result {
             map["result"] = encodeResult(result)
         }
@@ -101,11 +104,19 @@ enum DisplayStateWireCodec {
     }
 
     /// iOS appearance（扁平面板色）→ 安卓 DisplayAppearanceState。
-    private static func encodeAppearance(_ appearance: ScoreboardDisplayAppearance) -> [String: Any] {
+    private static func encodeAppearance(_ appearance: ScoreboardDisplayAppearance,
+                                         includeBackdropImage: Bool = true) -> [String: Any] {
         // V2 样式是 themeCode 的权威来源：照片主题 `event_background` 只存在于 V2 链路
         // （ScoreboardTheme 枚举没有该 case），扁平 theme 只在缺少 V2 样式时作为取值来源。
         var style = appearance.style ?? ScoreboardDisplayStyle(appearance: appearance)
         if style.themeCode != "event_background" { style.backdrop = nil }
+        if var backdrop = style.backdrop {
+            // 摘要由当前图片内容算出，作为接收端缓存键。
+            backdrop.digest = backdrop.contentDigest ?? backdrop.digest
+            // 图片未变更：保留 digest 供接收端命中缓存，省掉约 80KB 的重复传输。
+            if !includeBackdropImage { backdrop.imageData = nil }
+            style.backdrop = backdrop
+        }
         var map: [String: Any] = [
             // 扁平兼容字段跟随已解析的 V2 主题，不能反向覆盖样式自身的 themeCode。
             "theme": style.themeCode,
@@ -404,10 +415,12 @@ enum DisplayStateWireCodec {
         if let raw = map["style"] as? [String: Any], int(raw["version"]) == 2,
            let theme = raw["themeCode"] as? String, let font = raw["fontCode"] as? String,
            let panels = raw["panels"] as? [[String: Any]],
-           let elements = raw["elements"] as? [[String: Any]],
-           let serverColor = validColor(raw["serverIndicatorColor"]),
-           let revision = raw["styleRevision"] as? NSNumber,
-           revision.doubleValue.isFinite, revision.doubleValue >= 0 {
+           let elements = raw["elements"] as? [[String: Any]] {
+            // 对齐安卓 mapToDisplayStyleSnapshotV2：旧帧缺少 serverIndicatorColor / styleRevision
+            // 时按默认值回退，不再整块丢弃样式（含照片主题 backdrop）。
+            let serverColor = validColor(raw["serverIndicatorColor"]) ?? "#30D158"
+            let rawRevision = (raw["styleRevision"] as? NSNumber)?.doubleValue ?? 0
+            let revision = rawRevision.isFinite && rawRevision >= 0 ? Int64(rawRevision) : 0
             var style = ScoreboardDisplayStyle(appearance: appearance)
             style.themeCode = theme
             style.fontCode = font
@@ -418,12 +431,24 @@ enum DisplayStateWireCodec {
                 style.serverIndicatorStyle = indicatorStyle == "sport" ? "sport" : "arrow"
             }
             if let backdrop = raw["backdrop"] as? [String: Any] {
-                style.backdrop = ScoreboardBackdrop(imageData: backdrop["imageData"] as? String,
+                var parsed = ScoreboardBackdrop(imageData: backdrop["imageData"] as? String,
                     dim: backdrop["dim"] as? Double ?? 0.30,
                     panelOpacity: backdrop["panelOpacity"] as? Double ?? 0.84).normalized()
+                // 与安卓/鸿蒙/网站一致：只接受 16 位十六进制摘要，避免脏键污染缓存。
+                let wireDigest = (backdrop["digest"] as? String)?.lowercased()
+                parsed.digest = wireDigest?.count == 16 ? wireDigest : parsed.digest
+                // 发送端只在图片变更时带 imageData；未带时按 digest 命中本机缓存。
+                if parsed.imageData == nil, let digest = parsed.digest,
+                   let cached = ScoreboardBackdropImageCache.shared.image(for: digest) {
+                    parsed.imageData = cached
+                }
+                if let imageData = parsed.imageData, let digest = parsed.digest {
+                    ScoreboardBackdropImageCache.shared.store(imageData, for: digest)
+                }
+                style.backdrop = parsed
             }
             style.serverIndicatorColor = serverColor
-            style.styleRevision = revision.int64Value
+            style.styleRevision = revision
             var panelSlots = Set<String>()
             style.panels = panels.compactMap { panel in
                 guard let slot = panel["slotKey"] as? String, !slot.isEmpty,
@@ -530,6 +555,7 @@ enum DisplayStateWireCodec {
         "basketball_training": ["trainingMode", "trainingPoints",
                                 "trainingOneMade", "trainingOneMiss", "trainingTwoMade", "trainingTwoMiss",
                                 "trainingThreeMade", "trainingThreeMiss"],
+        "multi_scoreboard": ["multiScoreMode", "multiScoreCurrentRound", "multiScoreRoundDeltas"],
         "uno": ["unoRoundCount", "unoTargetScore"],
         "guandan": ["guandanRedRank", "guandanBlueRank", "guandanLeftAFailCount", "guandanRightAFailCount",
                     "guandanTripleAEnabled", "guandanBankerTeam"],
