@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>同步状态页改动 · 标题配色 + 辐射线依次渐显 Demo（2026-11-06 v3）</title>
+<style>
+  :root {
+    --dur: 1;
+    --bg: #F4F5F7;
+    --surface: #FFFFFF;
+    --surface-2: #F0F2F4;
+    --text: #111827;
+    --text-2: #6B7280;
+    --text-3: #9CA3AF;
+    --line: #E5E7EB;
+    --primary: #4CAF50;
+    --primary-rgb: 76, 175, 80;
+    --success: #22C55E;
+    --danger: #FF453A;
+    --card: #FFFFFF;
+    --shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 8px 24px rgba(16, 24, 40, .06);
+    --phone-bg: #F2F2F7;
+
+    /* 状态色：原始亮绿（现状小标题用）/ 调和版（推荐方案用） */
+    --state-color: #22C55E;
+    --accent: #15803D;
+    --accent-dark: #4ADE80;
+    /* 标题配色变量：由 body[data-palette] 或对比卡自身 [data-palette] 覆盖 */
+    --title-color: var(--text);
+    --sub-color: var(--state-color);
+    --sub-alpha: 1;
+    --title-color-dark: #FFFFFF;
+    --sub-color-dark: var(--state-color);
+  }
+  body[data-theme="dark"] {
+    --primary-rgb: 48, 209, 88;
+    --bg: #101114;
+    --surface: #1C1D20;
+    --surface-2: #26272B;
+    --text: #F5F5F7;
+    --text-2: #9CA3AF;
+    --text-3: #6B7280;
+    --line: #33353A;
+    --primary: #30D158;
+    --success: #30D158;
+    --card: #202022;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .28);
+    --phone-bg: #000000;
+  }
+
+  /* ---------- 6 套标题配色（body 与对比卡共用同一套属性选择器） ---------- */
+  [data-palette="origin"] {
+    --title-color: var(--text); --sub-color: var(--state-color); --sub-alpha: 1;
+    --title-color-dark: #FFFFFF; --sub-color-dark: var(--state-color);
+  }
+  [data-palette="plain"] {
+    --title-color: var(--text); --sub-color: var(--text-2); --sub-alpha: 1;
+    --title-color-dark: #FFFFFF; --sub-color-dark: #A1A1AA;
+  }
+  [data-palette="allgreen"] {
+    --title-color: var(--accent); --sub-color: var(--accent); --sub-alpha: .82;
+    --title-color-dark: var(--accent-dark); --sub-color-dark: var(--accent-dark);
+  }
+  [data-palette="soft"] {
+    --title-color: var(--text); --sub-color: var(--accent); --sub-alpha: 1;
+    --title-color-dark: #FFFFFF; --sub-color-dark: var(--accent-dark);
+  }
+  [data-palette="swap"] {
+    --title-color: var(--accent); --sub-color: var(--text-2); --sub-alpha: 1;
+    --title-color-dark: var(--accent-dark); --sub-color-dark: #A1A1AA;
+  }
+  [data-palette="recommend"] {
+    --title-color: var(--accent); --sub-color: var(--text-2); --sub-alpha: 1;
+    --title-color-dark: var(--accent-dark); --sub-color-dark: #A1A1AA;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", Roboto, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1280px; margin: 0 auto; padding: 32px 24px 80px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -.4px; margin: 0 0 6px; }
+  .lede { color: var(--text-2); font-size: 14px; margin: 0 0 4px; }
+  .meta { color: var(--text-3); font-size: 12px; margin: 0 0 24px; }
+  h2 { font-size: 17px; font-weight: 650; margin: 0 0 4px; letter-spacing: -.2px; }
+  .section { margin-top: 36px; }
+  .section-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .section-note { color: var(--text-2); font-size: 12.5px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+
+  /* ---------- toolbar ---------- */
+  .toolbar { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; padding: 14px 16px; }
+  .tb-group { display: flex; align-items: center; gap: 8px; }
+  .tb-label { font-size: 12px; color: var(--text-2); white-space: nowrap; }
+  .seg { display: inline-flex; background: var(--surface-2); border-radius: 9px; padding: 3px; gap: 2px; }
+  .seg button {
+    border: 0; background: transparent; color: var(--text-2); font: inherit; font-size: 12.5px;
+    padding: 6px 12px; border-radius: 7px; cursor: pointer; white-space: nowrap; transition: background .18s, color .18s;
+  }
+  .seg button:hover { color: var(--text); }
+  .seg button.on { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  body[data-theme="dark"] .seg button.on { background: #34363B; }
+  .switch { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--text-2); cursor: pointer; white-space: nowrap; }
+  .switch input { accent-color: var(--primary); width: 15px; height: 15px; cursor: pointer; }
+  input[type="range"] { accent-color: var(--primary); width: 88px; }
+
+  /* ---------- change chips ---------- */
+  .chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .chip { padding: 14px 16px; }
+  .chip .no { display: inline-block; font-size: 11px; font-weight: 700; color: var(--primary); letter-spacing: .5px; margin-bottom: 6px; }
+  .chip .ttl { font-size: 14px; font-weight: 650; margin-bottom: 4px; }
+  .chip p { margin: 0; font-size: 12.5px; color: var(--text-2); }
+  .chip code { font-size: 11.5px; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+  .callout {
+    margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: 12.5px;
+    background: rgba(var(--primary-rgb), .08); color: var(--text-2); border: 1px solid rgba(var(--primary-rgb), .2);
+  }
+  .callout strong { color: var(--text); }
+  .callout code { font-size: 11.5px; background: rgba(127,127,127,.12); padding: 1px 5px; border-radius: 4px; }
+  .banner-note { margin-top: 14px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .home-banner {
+    width: 306px; max-width: 100%; height: 58px; border-radius: 12px; background: var(--primary); color: #fff;
+    padding: 0 14px; display: flex; align-items: center; gap: 10px; flex: none;
+  }
+  .home-banner .bcol { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+  .brow { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
+  .wdot { width: 5px; height: 5px; border-radius: 50%; background: #fff; flex: none; }
+  .bcode { font-size: 16px; font-weight: 700; letter-spacing: 2px; }
+  .bchev { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,.18); display: grid; place-items: center; font-size: 15px; }
+  .banner-copy { font-size: 12.5px; color: var(--text-2); flex: 1; min-width: 220px; }
+  .banner-copy strong { color: var(--text); }
+
+  /* ---------- before / after ---------- */
+  .ba { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .ba-col { padding: 18px; }
+  .ba-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; letter-spacing: .4px; margin-bottom: 14px; }
+  .ba-tag.b { color: var(--text-3); }
+  .ba-tag.a { color: var(--primary); }
+  .mini { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+  .mini-head { display: flex; align-items: center; gap: 12px; }
+  .mini-text { min-width: 0; }
+  .mini-title { font-size: 15px; font-weight: 650; color: var(--text); }
+  .mini-title.big { font-size: 19px; font-weight: 680; letter-spacing: -.3px; color: var(--title-color); }
+  .mini-sub { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+  .mini-sub.state { color: var(--sub-color); opacity: var(--sub-alpha); }
+  .mini-body { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 12px; }
+  .status-row { display: none; align-items: center; justify-content: center; gap: 8px; font-size: 13px; color: var(--text-2); margin-bottom: 12px; }
+  body[data-keep-status="1"] .status-row { display: flex; }
+  .before .status-row { display: flex !important; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--success); flex: none; }
+  body.no-dot .dot { display: none; }
+  .before .dot { display: block !important; }
+  .code { text-align: center; font-size: 28px; font-weight: 700; letter-spacing: 4px; color: var(--text); }
+  .ba-legend { margin-top: 12px; font-size: 12px; color: var(--text-2); }
+  .ba-legend span { color: var(--danger); font-weight: 600; }
+  .ba-legend em { color: var(--primary); font-style: normal; font-weight: 600; }
+
+  /* ---------- palette comparison cards ---------- */
+  .palettes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .pal-card {
+    padding: 14px; cursor: pointer; border: 1.5px solid var(--line); transition: border-color .18s, transform .18s;
+  }
+  .pal-card:hover { transform: translateY(-2px); }
+  .pal-card.on { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(var(--primary-rgb), .12); }
+  .pal-preview {
+    background: var(--surface-2); border-radius: 10px; padding: 16px 14px; display: flex; align-items: center; gap: 11px; margin-bottom: 12px;
+  }
+  .pal-preview .badge { --badge: 38px; }
+  .pal-text { min-width: 0; }
+  .pal-big { font-size: 18px; font-weight: 680; letter-spacing: -.3px; line-height: 1.3; color: var(--title-color); }
+  .pal-sub { font-size: 12.5px; font-weight: 500; margin-top: 2px; color: var(--sub-color); opacity: var(--sub-alpha); }
+  .pal-name { font-size: 13.5px; font-weight: 650; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .pill { font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 5px; background: rgba(var(--primary-rgb), .14); color: var(--primary); }
+  .pill.rec { background: #15803D; color: #fff; }
+  body[data-theme="dark"] .pill.rec { background: #4ADE80; color: #101114; }
+  .pal-desc { font-size: 12px; color: var(--text-2); margin: 7px 0 0; line-height: 1.55; }
+  .pal-desc strong { color: var(--text); }
+  .pal-val { margin-top: 10px; padding-top: 9px; border-top: 1px dashed var(--line); font-size: 11px; color: var(--text-3); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .verdict { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
+  .verdict-col { padding: 12px 14px; }
+  .verdict-col .vt { font-size: 12.5px; font-weight: 650; margin-bottom: 5px; }
+  .verdict-col p { margin: 0; font-size: 12px; color: var(--text-2); }
+  .verdict-col.ok .vt { color: #15803D; }
+  body[data-theme="dark"] .verdict-col.ok .vt { color: #4ADE80; }
+
+  /* ---------- badge & animations ---------- */
+  .badge {
+    position: relative; flex: none; width: var(--badge, 40px); height: var(--badge, 40px);
+    border-radius: 50%; background: var(--primary); display: grid; place-items: center; isolation: isolate;
+  }
+  .badge-core { width: 50%; height: 50%; display: grid; place-items: center; position: relative; z-index: 2; }
+  .radio { width: 100%; height: 100%; color: #fff; overflow: visible; display: block; }
+  .radio .arc { opacity: 1; }
+  .radio .core { transform-origin: 12px 12px; }
+  .halo {
+    position: absolute; inset: -18%; border-radius: 50%; pointer-events: none; z-index: 0; opacity: 0;
+    background: radial-gradient(circle, rgba(var(--primary-rgb), .42) 0%, rgba(var(--primary-rgb), .12) 45%, transparent 72%);
+  }
+
+  /* A · 呼吸（对照） */
+  [data-motion="breath"] .badge-core { animation: breathe calc(2.4s * var(--dur)) ease-in-out infinite; }
+  [data-motion="breath"] .halo { animation: halo calc(2.4s * var(--dur)) ease-in-out infinite; }
+
+  /* B · 两条辐射线依次渐显：组 1 先亮，组 2 后亮，一起淡出，循环往复（已定稿） */
+  [data-motion="fade"] .radio .arc[data-group="1"],
+  [data-motion="combo"] .radio .arc[data-group="1"] { animation: fadeFirst calc(2.4s * var(--dur)) ease-in-out infinite; }
+  [data-motion="fade"] .radio .arc[data-group="2"],
+  [data-motion="combo"] .radio .arc[data-group="2"] { animation: fadeSecond calc(2.4s * var(--dur)) ease-in-out infinite; }
+
+  /* C · 渐显 + 呼吸 */
+  [data-motion="combo"] .badge-core { animation: breathe calc(2.4s * var(--dur)) ease-in-out infinite; }
+  [data-motion="combo"] .halo { animation: halo calc(2.4s * var(--dur)) ease-in-out infinite; }
+
+  @keyframes breathe { 0%, 100% { transform: scale(1); opacity: .93; } 50% { transform: scale(1.10); opacity: 1; } }
+  @keyframes halo { 0%, 100% { transform: scale(.92); opacity: .12; } 50% { transform: scale(1.38); opacity: .75; } }
+  @keyframes fadeFirst {
+    0%, 6%   { opacity: .12; }
+    20%, 56% { opacity: 1; }
+    74%, 100% { opacity: .12; }
+  }
+  @keyframes fadeSecond {
+    0%, 24%  { opacity: .12; }
+    40%, 56% { opacity: 1; }
+    74%, 100% { opacity: .12; }
+  }
+  /* 对照节奏：第一条亮 → 灭，第二条亮 → 灭，往复（本轮已确认不采用） */
+  @keyframes fadeAltFirst {
+    0%, 4%   { opacity: .12; }
+    16%, 46% { opacity: 1; }
+    58%, 100% { opacity: .12; }
+  }
+  @keyframes fadeAltSecond {
+    0%, 46%  { opacity: .12; }
+    58%, 88% { opacity: 1; }
+    100%     { opacity: .12; }
+  }
+  body[data-wave-mode="alt"] [data-motion="fade"] .radio .arc[data-group="1"],
+  body[data-wave-mode="alt"] [data-motion="combo"] .radio .arc[data-group="1"] { animation-name: fadeAltFirst; }
+  body[data-wave-mode="alt"] [data-motion="fade"] .radio .arc[data-group="2"],
+  body[data-wave-mode="alt"] [data-motion="combo"] .radio .arc[data-group="2"] { animation-name: fadeAltSecond; }
+  body.paused [data-motion] *, body.paused [data-motion] { animation-play-state: paused !important; }
+
+  /* ---------- scheme cards ---------- */
+  .schemes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .scheme {
+    padding: 20px; cursor: pointer; position: relative; text-align: left;
+    border: 1.5px solid var(--line); transition: border-color .18s, transform .18s;
+  }
+  .scheme:hover { transform: translateY(-2px); }
+  .scheme.on { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(var(--primary-rgb), .12); }
+  .scheme .stage {
+    height: 148px; border-radius: 10px; background: var(--surface-2); display: grid; place-items: center; margin-bottom: 16px;
+  }
+  .scheme .stage .badge { --badge: 92px; }
+  .scheme .name { font-size: 15px; font-weight: 650; display: flex; align-items: center; gap: 8px; }
+  .scheme p { font-size: 12.5px; color: var(--text-2); margin: 7px 0 0; }
+  .scheme .spec { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); font-size: 11.5px; color: var(--text-3); }
+  .timeline { display: flex; gap: 4px; margin-top: 12px; }
+  .timeline i { flex: 1; height: 5px; border-radius: 3px; background: var(--line); font-style: normal; }
+  .timeline i.g1 { background: rgba(var(--primary-rgb), .75); }
+  .timeline i.g2 { background: var(--primary); }
+  .timeline-cap { font-size: 11px; color: var(--text-3); margin-top: 5px; }
+
+  /* ---------- phone previews ---------- */
+  .phones { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: start; }
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .os-label { font-size: 12.5px; font-weight: 650; color: var(--text-2); }
+  .phone {
+    width: 306px; max-width: 100%; background: var(--card); border: 1px solid var(--line);
+    border-radius: 38px; padding: 7px; box-shadow: var(--shadow);
+  }
+  .screen {
+    background: var(--phone-bg); border-radius: 32px; overflow: hidden; min-height: 588px;
+    display: flex; flex-direction: column;
+  }
+  .statusbar {
+    height: 34px; padding: 0 18px; display: flex; align-items: center; justify-content: space-between;
+    font-size: 11px; font-weight: 650; color: var(--text);
+  }
+  .sb-right { display: flex; align-items: center; gap: 5px; }
+  .sb-bat { width: 17px; height: 9px; border: 1.2px solid var(--text); border-radius: 2.5px; position: relative; opacity: .8; }
+  .sb-bat::before { content: ""; position: absolute; inset: 1.5px; right: 4px; background: var(--text); border-radius: 1px; }
+  .sb-bat::after { content: ""; position: absolute; right: -3px; top: 2.5px; width: 2px; height: 3px; background: var(--text); border-radius: 0 1px 1px 0; }
+  .appbar { height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 16px; font-size: 13px; font-weight: 600; color: var(--text); }
+  .back { font-size: 20px; line-height: 1; color: var(--primary); font-weight: 400; }
+  .hero { font-size: 21px; font-weight: 700; letter-spacing: -.4px; padding: 4px 16px 12px; color: var(--text); }
+  body[data-title-pos="page"] .hero { color: var(--title-color); }
+  .hero-sub { display: none; font-size: 13px; color: var(--sub-color); opacity: var(--sub-alpha); padding: 0 16px 12px; margin-top: -8px; }
+  body[data-title-pos="page"] .hero-sub { display: block; }
+  .pcontent { padding: 0 12px 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .pcard { background: var(--card); border-radius: 14px; border: 1px solid var(--line); }
+  .intro { padding: 12px 14px; }
+  .intro-t { display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 650; }
+  .intro-t span:last-child { font-size: 11.5px; font-weight: 400; color: var(--text-3); }
+  .intro p { margin: 6px 0 0; font-size: 11.5px; color: var(--text-2); line-height: 1.5; }
+  .share-head { display: flex; align-items: center; gap: 11px; padding: 14px; }
+  .share-head .badge { --badge: 42px; }
+  .head-text { flex: 1; min-width: 0; }
+  .big-title { font-size: 19px; font-weight: 680; letter-spacing: -.3px; line-height: 1.3; color: var(--title-color); }
+  .big-title:not(.big) { font-size: 16px; font-weight: 650; }
+  .sub-state { font-size: 13px; margin-top: 2px; color: var(--sub-color); opacity: var(--sub-alpha); font-weight: 500; }
+  body[data-title-pos="page"] .sub-state { color: var(--text-2); opacity: 1; }
+  .share-body { padding: 0 14px 14px; }
+  .phone .code { font-size: 26px; letter-spacing: 3px; padding: 2px 0 12px; }
+  .device-row {
+    display: flex; align-items: center; gap: 8px; background: var(--surface-2); border-radius: 9px; padding: 9px 11px; margin-bottom: 11px;
+  }
+  .device-row .dname { font-size: 12px; font-weight: 600; }
+  .device-row .drole { font-size: 10.5px; color: var(--text-2); }
+  .device-row .dstatus { margin-left: auto; font-size: 11.5px; font-weight: 600; color: var(--success); }
+  .hint { font-size: 11.5px; color: var(--text-2); line-height: 1.55; margin-bottom: 12px; }
+  .btn-row { display: flex; gap: 8px; }
+  .btn-row button {
+    flex: 1; height: 36px; border-radius: 18px; background: transparent; font: inherit; font-size: 12px; font-weight: 600; cursor: default;
+  }
+  .btn-copy { border: 1px solid var(--success); color: var(--success); }
+  .btn-end { border: 1px solid var(--danger); color: var(--danger); }
+  .viewer { display: flex; align-items: center; gap: 11px; padding: 14px; }
+  .viewer .badge { --badge: 42px; background: var(--surface-2); }
+  .viewer .badge .radio { color: var(--text-2); }
+  .viewer .badge .halo { display: none; }
+  .viewer .vtitle { font-size: 14px; font-weight: 620; }
+  .viewer .vsub { font-size: 11.5px; color: var(--text-2); margin-top: 2px; }
+  .viewer .chev { margin-left: auto; color: var(--text-3); font-size: 17px; }
+  .no-dot .dot { display: none; }
+  .dup-tip { display: none; font-size: 11px; color: #F59E0B; margin-top: 8px; }
+  body[data-keep-status="1"] .dup-tip { display: block; }
+
+  /* ---------- dialog（固定深色卡，用 -dark 系列变量） ---------- */
+  .dialog-stage {
+    border-radius: 14px; padding: 30px; display: grid; place-items: center;
+    background: #151517; border: 1px solid var(--line);
+  }
+  .dlg { width: 340px; max-width: 100%; background: #2C2C2E; color: #fff; border-radius: 16px; padding: 20px; }
+  .dlg-top { display: flex; align-items: center; height: 36px; margin-bottom: 2px; }
+  .dlg-title { flex: 1; text-align: center; font-size: 18px; font-weight: 650; letter-spacing: -.2px; color: var(--title-color-dark); }
+  .dlg-x { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.12); display: grid; place-items: center; font-size: 15px; }
+  .dlg-sub { text-align: center; font-size: 13px; color: var(--sub-color-dark); opacity: var(--sub-alpha); margin: 0 0 14px; }
+  .dlg .code { color: #fff; padding: 4px 0 16px; }
+  .dlg-fill { width: 100%; height: 42px; border: 0; border-radius: 21px; background: var(--primary); color: #fff; font: inherit; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+  .dlg-row { display: flex; gap: 8px; }
+  .dlg-row button { flex: 1; height: 42px; border-radius: 21px; background: transparent; font: inherit; font-size: 13px; font-weight: 600; }
+  .dlg-row .c { border: 1px solid #22C55E; color: #22C55E; }
+  .dlg-row .e { border: 1px solid #FF453A; color: #FF453A; }
+
+  /* ---------- table ---------- */
+  .tbl-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--line); }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; background: var(--surface); min-width: 760px; }
+  th, td { padding: 11px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+  th { font-weight: 650; color: var(--text-2); background: var(--surface-2); white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  td code { font-size: 11.5px; color: var(--primary); }
+  .notes { margin: 14px 0 0; padding-left: 18px; font-size: 12.5px; color: var(--text-2); }
+  .notes li { margin-bottom: 6px; }
+  .notes strong { color: var(--text); }
+
+  @media (max-width: 980px) {
+    .chips, .schemes, .phones, .palettes, .verdict { grid-template-columns: 1fr; }
+    .ba { grid-template-columns: 1fr; }
+    .phone-wrap { align-items: center; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-motion] *, [data-motion] { animation: none !important; }
+  }
+</style>
+</head>
+<body class="no-dot" data-theme="light" data-conn="connected" data-title-pos="card" data-keep-status="0" data-palette="recommend">
+<div class="page">
+
+  <h1>同步状态页改动 · 标题配色 + 辐射线依次渐显</h1>
+  <p class="lede">动画已定稿（一 Visible → 二 Visible → 两个一起消失 → 循环）。本轮只解决标题配色：<strong>默认展示推荐方案 P6「大绿 + 小灰」</strong>，另 5 个方案同屏可切换对比，含你现在觉得"怪怪的"现状 P1。</p>
+  <p class="meta">2026-11-06 · v3 · 交互 Demo（配色 / 方案 / 分组 / 深浅色 / 连接状态 / 标题落点 / 周期）· 仅预览，未改动任何客户端代码</p>
+
+  <div class="card toolbar">
+    <div class="tb-group">
+      <span class="tb-label">标题配色</span>
+      <div class="seg" id="seg-palette">
+        <button data-v="origin">P1 现状</button>
+        <button data-v="plain">P2 全文字色</button>
+        <button data-v="allgreen">P3 全绿</button>
+        <button data-v="soft">P4 绿调柔</button>
+        <button data-v="swap">P5 文案互换</button>
+        <button data-v="recommend" class="on">P6 大绿小灰 ★</button>
+      </div>
+    </div>
+    <div class="tb-group">
+      <span class="tb-label">动画方案</span>
+      <div class="seg" id="seg-motion">
+        <button data-v="breath">A 呼吸（对照）</button>
+        <button data-v="fade" class="on">B 两段渐显 ✓</button>
+        <button data-v="combo">C 渐显 + 呼吸</button>
+      </div>
+    </div>
+    <div class="tb-group">
+      <span class="tb-label">两条辐射线分组</span>
+      <div class="seg" id="seg-group">
+        <button data-v="inner" class="on">由内向外</button>
+        <button data-v="side">左右交替</button>
+      </div>
+    </div>
+    <div class="tb-group">
+      <span class="tb-label">渐显节奏 ✓已定稿</span>
+      <div class="seg" id="seg-wave">
+        <button data-v="accum" class="on">累积扩散 ✓</button>
+        <button data-v="alt">轮流亮灭（对照）</button>
+      </div>
+    </div>
+    <div class="tb-group">
+      <span class="tb-label">标题落点</span>
+      <div class="seg" id="seg-title">
+        <button data-v="card" class="on">卡片头部</button>
+        <button data-v="page">页面大标题</button>
+      </div>
+    </div>
+    <div class="tb-group">
+      <span class="tb-label">连接状态</span>
+      <div class="seg" id="seg-conn">
+        <button data-v="connected" class="on">已连接</button>
+        <button data-v="connecting">连接中</button>
+        <button data-v="reconnecting">重连中</button>
+        <button data-v="disconnected">未连接</button>
+      </div>
+    </div>
+    <div class="tb-group">
+      <span class="tb-label">外观</span>
+      <div class="seg" id="seg-theme">
+        <button data-v="light" class="on">浅色</button>
+        <button data-v="dark">深色</button>
+      </div>
+    </div>
+    <div class="tb-group">
+      <label class="switch"><input type="checkbox" id="cb-status"> 保留下方文案行</label>
+      <label class="switch"><input type="checkbox" id="cb-pause"> 暂停动画</label>
+    </div>
+    <div class="tb-group">
+      <span class="tb-label">周期</span>
+      <input type="range" id="rg-speed" min="0.6" max="1.8" step="0.1" value="1">
+      <span class="tb-label" id="speed-val">1.0x</span>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="section-head"><h2>01 · 定稿口径</h2><span class="section-note">首页顶部绿条「同步比分中」保持不变，本次不动</span></div>
+    <div class="chips">
+      <div class="card chip">
+        <span class="no">01 / 文案</span>
+        <div class="ttl">大标题：同步比分中</div>
+        <p>小标题：<strong>已连接到同步服务</strong>。删掉展开区的小绿点及状态行，信息合并到标题区，不再重复。<strong>两行颜色本轮待定 → 见 03</strong>。</p>
+      </div>
+      <div class="card chip">
+        <span class="no">02 / 动画 · 已确认</span>
+        <div class="ttl">一 Visible → 二 Visible → 一起消失 → 循环</div>
+        <p>你已确认「就跟现在做的一样」＝<strong>累积扩散</strong>：第一条渐显后保持，第二条再渐显，两条一起淡出，停顿后重来。纯 <code>opacity</code>，无描边、无位移、无硬切。</p>
+      </div>
+      <div class="card chip">
+        <span class="no">03 / 范围</span>
+        <div class="ttl">三端 + 管理对话框统一</div>
+        <p>跨设备同步页的分享端卡片、计分板页「同步管理」对话框同步改；4 种连接态只影响<strong>状态色</strong>，不动文案结构。</p>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>本轮状态：</strong>动画节奏已定稿、无需再改；<strong>只剩两件事待定：① 两条线的分组（默认「由内向外」：内弧一组、外弧一组，左右对称同时亮；若你指「左边一条、右边一条」则切「左右交替」）；② 标题配色（推荐 P6）</strong>。图标实际是 Lucide <code>radio</code>，共 4 条弧，按两条一组的口径拆分，不改形状。「轮流亮灭」保留作对照，已确认<strong>不采用</strong>。
+    </div>
+    <div class="banner-note">
+      <div class="home-banner">
+        <div class="bcol">
+          <div class="brow"><span class="wdot"></span><span>同步比分中</span></div>
+          <div class="bcode">4 8 2 1 9 6</div>
+        </div>
+        <div class="bchev">›</div>
+      </div>
+      <div class="banner-copy"><strong>首页顶部绿条（顶部按钮）· 保持现状</strong><br>文案仍是「同步比分中」。里面的 5px 小白点是绿条自带状态点，不是本次要删的绿点（10px、位于同步页展开区）。</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>02 · Before / After 对照</h2><span class="section-note">分享端卡片展开态 · 随配色方案联动</span></div>
+    <div class="ba">
+      <div class="card ba-col before">
+        <div class="ba-tag b">BEFORE · 现状</div>
+        <div class="mini">
+          <div class="mini-head">
+            <div class="badge" data-motion="static" style="--badge:42px"></div>
+            <div class="mini-text">
+              <div class="mini-title">开始同步比分</div>
+              <div class="mini-sub">同步比分中</div>
+            </div>
+          </div>
+          <div class="mini-body">
+            <div class="status-row"><span class="dot"></span><span>已连接到同步服务</span></div>
+            <div class="code">4 8 2 1 9 6</div>
+          </div>
+        </div>
+        <div class="ba-legend"><span>绿点 + 状态文案</span>独占一行，状态信息分散；标题较小（16px）。</div>
+      </div>
+      <div class="card ba-col after">
+        <div class="ba-tag a">AFTER · 文案定稿 / 配色可切</div>
+        <div class="mini">
+          <div class="mini-head">
+            <div class="badge" data-sync-motion style="--badge:42px"></div>
+            <div class="mini-text">
+              <div class="mini-title big" data-live-title>同步比分中</div>
+              <div class="mini-sub state" data-live-sub>已连接到同步服务</div>
+            </div>
+          </div>
+          <div class="mini-body">
+            <div class="code">4 8 2 1 9 6</div>
+          </div>
+        </div>
+        <div class="ba-legend"><em>大标题 19px「同步比分中」+ 小标题 13px</em>；绿点状态行整行移除；两行颜色由 03 的方案决定。</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>03 · 标题配色：6 个方案同屏对比</h2><span class="section-note">点卡片或工具栏切换；三端预览 / Before-After / 对话框会跟随变化。P1 是现状</span></div>
+    <div class="palettes" id="palettes">
+      <div class="card pal-card" data-palette="origin" data-v="origin">
+        <div class="pal-preview">
+          <div class="badge" data-motion="static" style="--badge:38px"></div>
+          <div class="pal-text"><div class="pal-big">同步比分中</div><div class="pal-sub">已连接到同步服务</div></div>
+        </div>
+        <div class="pal-name">P1 · 现状 <span class="pill">大黑 / 小亮绿</span></div>
+        <p class="pal-desc">大标题主文字色，小标题原亮绿 <code>#22C55E</code>。13px 亮绿在白底只有 <strong>2.3:1</strong>（AA 要求 4.5:1），发飘、像链接 —— 这就是「上黑下绿怪怪的」的技术原因。</p>
+        <div class="pal-val">大 #111827 · 小 #22C55E</div>
+      </div>
+      <div class="card pal-card" data-palette="plain" data-v="plain">
+        <div class="pal-preview">
+          <div class="badge" data-motion="static" style="--badge:38px"></div>
+          <div class="pal-text"><div class="pal-big">同步比分中</div><div class="pal-sub">已连接到同步服务</div></div>
+        </div>
+        <div class="pal-name">P2 · 都用原来的文字色 <span class="pill">大黑 / 小灰</span></div>
+        <p class="pal-desc">两行都不用绿，回到最保守的正文层级。最不抢眼，但删掉绿点后<strong>整块再无状态色</strong>，「已连接」的反馈只剩左侧徽章。</p>
+        <div class="pal-val">大 #111827 · 小 #6B7280</div>
+      </div>
+      <div class="card pal-card" data-palette="allgreen" data-v="allgreen">
+        <div class="pal-preview">
+          <div class="badge" data-motion="static" style="--badge:38px"></div>
+          <div class="pal-text"><div class="pal-big">同步比分中</div><div class="pal-sub">已连接到同步服务</div></div>
+        </div>
+        <div class="pal-name">P3 · 都用绿色 <span class="pill">大绿 / 小绿</span></div>
+        <p class="pal-desc">两行同色、小字降到 82% 不透明度做层级。整块很「在线」，但<strong>信息层级只靠字号</strong>，且大字小字同色容易糊成一片。</p>
+        <div class="pal-val">大 #15803D · 小 #15803D @82%</div>
+      </div>
+      <div class="card pal-card" data-palette="soft" data-v="soft">
+        <div class="pal-preview">
+          <div class="badge" data-motion="static" style="--badge:38px"></div>
+          <div class="pal-text"><div class="pal-big">同步比分中</div><div class="pal-sub">已连接到同步服务</div></div>
+        </div>
+        <div class="pal-name">P4 · 绿色再调 <span class="pill">大黑 / 小深绿</span></div>
+        <p class="pal-desc">结构不变，只把小标题从亮绿调成<strong>降明度、降饱和</strong>的深绿，对比度从 2.3:1 提到 <strong>5.0:1</strong>。层级同 P1，但不再刺眼、可读性达标。</p>
+        <div class="pal-val">大 #111827 · 小 #15803D（深 #4ADE80）</div>
+      </div>
+      <div class="card pal-card" data-palette="swap" data-v="swap">
+        <div class="pal-preview">
+          <div class="badge" data-motion="static" style="--badge:38px"></div>
+          <div class="pal-text"><div class="pal-big">已连接到同步服务</div><div class="pal-sub">同步比分中</div></div>
+        </div>
+        <div class="pal-name">P5 · 位置调换 <span class="pill">大绿 / 小灰</span></div>
+        <p class="pal-desc">若「位置调换」指<strong>两行文案也换</strong>：大标题改「已连接到同步服务」（绿），小标题改「同步比分中」（灰）。会推翻上一轮的文案定稿，且 19px 放 9 个字偏长。</p>
+        <div class="pal-val">大 #15803D · 小 #6B7280</div>
+      </div>
+      <div class="card pal-card rec on" data-palette="recommend" data-v="recommend">
+        <div class="pal-preview">
+          <div class="badge" data-motion="static" style="--badge:38px"></div>
+          <div class="pal-text"><div class="pal-big">同步比分中</div><div class="pal-sub">已连接到同步服务</div></div>
+        </div>
+        <div class="pal-name">P6 · 大绿 + 小灰 <span class="pill rec">★ 推荐</span></div>
+        <p class="pal-desc">只把<strong>颜色的位置</strong>调换、文案不动：绿上移到最粗的大标题并调深，小标题降为次级灰。绿色接住被删掉的绿点语义，19px 大字 <strong>5.0:1</strong>、13px 小灰 <strong>4.8:1</strong> 均达标，层级最干净。</p>
+        <div class="pal-val">大 #15803D / #4ADE80 · 小 #6B7280 / #9CA3AF</div>
+      </div>
+    </div>
+    <div class="verdict">
+      <div class="card verdict-col ok">
+        <div class="vt">✓ 为什么「上黑下绿」会怪</div>
+        <p>状态色落在<strong>小字</strong>上：既不够醒目，又因亮绿浅底对比度不足而发虚；黑色大标题反而被绿色小字"抢注释位"。</p>
+      </div>
+      <div class="card verdict-col">
+        <div class="vt">✓ 推荐 P6 的逻辑</div>
+        <p>状态＝进行中，本来就该强调<strong>大标题</strong>；辅助说明降级为灰。绿色徽章 + 绿色大标题形成一处呼应，不再上下打架。</p>
+      </div>
+      <div class="card verdict-col">
+        <div class="vt">✓ 状态色不丢</div>
+        <p>P4/P5/P6 下绿色是<strong>状态色变量</strong>：连接中→琥珀 #B45309、重连中→琥珀、未连接→红 #DC2626；小标题恒灰，切 4 态验证。</p>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>推荐 P6，但 P1 也不算错：</strong>如果不想动颜色，最小改动是 <strong>P4（只把绿色调深）</strong> —— 保留你熟悉的层级，只修对比度。工具栏切「P1 现状 / P4 绿调柔 / P6 大绿小灰 ★」三者对比最直观。P5 会改文案，除非你确实想让「已连接到同步服务」当大标题，否则不建议；且 P5 的文案互换只在「卡片头部」落点生效，切到「页面大标题」时自动退回原结构。
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>04 · 图标动画（已定稿）</h2><span class="section-note">三张卡同屏实时播放；B 为定稿，点卡片可切换主方案</span></div>
+    <div class="schemes" id="schemes">
+      <div class="card scheme" data-v="breath">
+        <div class="stage"><div class="badge" data-motion="breath"></div></div>
+        <div class="name">A · 呼吸（对照）</div>
+        <p>整个徽章轻微缩放 + 外圈光晕呼吸，弧线常亮。留作对照，不是本次方案。</p>
+        <div class="spec">周期 2.4s · ease-in-out 往返 · 成本：低</div>
+      </div>
+      <div class="card scheme on" data-v="fade">
+        <div class="stage"><div class="badge" data-motion="fade"></div></div>
+        <div class="name">B · 两条辐射线依次渐显 <span class="pill">定稿</span></div>
+        <p>第一条渐显 → 第二条渐显（第一条保持亮）→ 两条同时保持 → 一起淡出 → 停顿 → 循环往复。纯 opacity 渐显，没有描边、没有位移、没有硬切。</p>
+        <div class="timeline"><i class="g1"></i><i class="g1"></i><i class="g2"></i><i class="g2"></i><i></i><i></i></div>
+        <div class="timeline-cap">0.14s 第一组渐显 → 0.38s 第二组渐显 → 1.34s 同时保持 → 1.78s 淡出 → 2.4s 循环</div>
+        <div class="spec">周期 2.4s · opacity .12 ⇄ 1 · 成本：低（三组状态即可实现）</div>
+      </div>
+      <div class="card scheme" data-v="combo">
+        <div class="stage"><div class="badge" data-motion="combo"></div></div>
+        <div class="name">C · 渐显 + 呼吸</div>
+        <p>在 B 的两段渐显之上叠加徽章轻微缩放和光晕呼吸。备选，如果觉得 B 太安静可以选它。</p>
+        <div class="spec">周期 2.4s · 同相位 · 成本：中</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>05 · 三端界面预览</h2><span class="section-note">同一套改动套进三端皮肤；卡片圆角/内边距按各自 Design Token</span></div>
+    <div class="phones">
+      <div class="phone-wrap">
+        <div class="os-label">iOS · SwiftUI</div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><div class="sb-right"><span>●●●</span><span>WiFi</span><div class="sb-bat"></div></div></div>
+          <div class="appbar"><span class="back">‹</span><span>跨设备同步</span></div>
+          <div class="hero">跨设备同步</div><div class="hero-sub" data-live-sub>已连接到同步服务</div>
+          <div class="pcontent">
+            <div class="pcard intro"><div class="intro-t"><span>同步比分怎么用</span><span>展开说明 ›</span></div><p>两台设备配合使用：分享端负责记分，显示端全屏展示比分。</p></div>
+            <div class="pcard">
+              <div class="share-head">
+                <div class="badge" data-sync-motion></div>
+                <div class="head-text"><div class="big-title">同步比分中</div><div class="sub-state">已连接到同步服务</div></div>
+              </div>
+              <div class="share-body">
+                <div class="status-row"><span class="dot"></span><span>已连接到同步服务</span></div>
+                <div class="code">4 8 2 1 9 6</div>
+                <div class="device-row"><div><div class="dname">小米平板 6</div><div class="drole">跨设备显示端</div></div><div class="dstatus">已连接</div></div>
+                <div class="hint">将此短码发给显示端设备即可开始同步；进入计分项目后比分会自动同步。</div>
+                <div class="btn-row"><button class="btn-copy">复制短码</button><button class="btn-end">结束同步</button></div>
+                <div class="dup-tip">提示：下方文案与卡片小标题重复，建议整行移除。</div>
+              </div>
+            </div>
+            <div class="pcard viewer"><div class="badge" data-motion="static"></div><div><div class="vtitle">观看比分</div><div class="vsub">输入 6 位短码观看比分</div></div><div class="chev">›</div></div>
+          </div>
+        </div></div>
+      </div>
+      <div class="phone-wrap">
+        <div class="os-label">Android · Compose</div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><div class="sb-right"><span>●●●</span><span>WiFi</span><div class="sb-bat"></div></div></div>
+          <div class="appbar"><span class="back">‹</span><span>跨设备同步</span></div>
+          <div class="hero">跨设备同步</div><div class="hero-sub" data-live-sub>已连接到同步服务</div>
+          <div class="pcontent">
+            <div class="pcard intro"><div class="intro-t"><span>同步比分怎么用</span><span>展开说明 ›</span></div><p>两台设备配合使用：分享端负责记分，显示端全屏展示比分。</p></div>
+            <div class="pcard">
+              <div class="share-head">
+                <div class="badge" data-sync-motion></div>
+                <div class="head-text"><div class="big-title">同步比分中</div><div class="sub-state">已连接到同步服务</div></div>
+              </div>
+              <div class="share-body">
+                <div class="status-row"><span class="dot"></span><span>已连接到同步服务</span></div>
+                <div class="code">4 8 2 1 9 6</div>
+                <div class="device-row"><div><div class="dname">小米平板 6</div><div class="drole">跨设备显示端</div></div><div class="dstatus">已连接</div></div>
+                <div class="hint">将此短码发给显示端设备即可开始同步；进入计分项目后比分会自动同步。</div>
+                <div class="btn-row"><button class="btn-copy">复制短码</button><button class="btn-end">结束同步</button></div>
+                <div class="dup-tip">提示：下方文案与卡片小标题重复，建议整行移除。</div>
+              </div>
+            </div>
+            <div class="pcard viewer"><div class="badge" data-motion="static"></div><div><div class="vtitle">观看比分</div><div class="vsub">输入 6 位短码观看比分</div></div><div class="chev">›</div></div>
+          </div>
+        </div></div>
+      </div>
+      <div class="phone-wrap">
+        <div class="os-label">HarmonyOS · ArkTS</div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><div class="sb-right"><span>●●●</span><span>WiFi</span><div class="sb-bat"></div></div></div>
+          <div class="appbar"><span class="back">‹</span><span>跨设备同步</span></div>
+          <div class="hero">跨设备同步</div><div class="hero-sub" data-live-sub>已连接到同步服务</div>
+          <div class="pcontent">
+            <div class="pcard intro" style="border-radius:12px"><div class="intro-t"><span>同步比分怎么用</span><span>展开说明 ›</span></div><p>两台设备配合使用：分享端负责记分，显示端全屏展示比分。</p></div>
+            <div class="pcard" style="border-radius:12px">
+              <div class="share-head" style="padding:18px">
+                <div class="badge" data-sync-motion></div>
+                <div class="head-text"><div class="big-title">同步比分中</div><div class="sub-state">已连接到同步服务</div></div>
+              </div>
+              <div class="share-body" style="padding:0 18px 18px">
+                <div class="status-row"><span class="dot"></span><span>已连接到同步服务</span></div>
+                <div class="code">4 8 2 1 9 6</div>
+                <div class="device-row"><div><div class="dname">小米平板 6</div><div class="drole">跨设备显示端</div></div><div class="dstatus">已连接</div></div>
+                <div class="hint">将此短码发给显示端设备即可开始同步；进入计分项目后比分会自动同步。</div>
+                <div class="btn-row"><button class="btn-copy">复制短码</button><button class="btn-end">结束同步</button></div>
+                <div class="dup-tip">提示：下方文案与卡片小标题重复，建议整行移除。</div>
+              </div>
+            </div>
+            <div class="pcard viewer" style="border-radius:12px"><div class="badge" data-motion="static"></div><div><div class="vtitle">观看比分</div><div class="vsub">输入 6 位短码观看比分</div></div><div class="chev">›</div></div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>06 · 计分板页「同步管理」对话框</h2><span class="section-note">固定深色卡 #2C2C2E，独立用一套亮色变量，随配色方案联动</span></div>
+    <div class="dialog-stage">
+      <div class="dlg">
+        <div class="dlg-top"><div style="width:36px"></div><div class="dlg-title">同步比分中</div><div class="dlg-x">✕</div></div>
+        <div class="dlg-sub" data-live-sub>已连接到同步服务</div>
+        <div class="code">4 8 2 1 9 6</div>
+        <button class="dlg-fill">强制同步大屏</button>
+        <div class="dlg-row"><button class="c">复制短码</button><button class="e">结束同步</button></div>
+      </div>
+    </div>
+    <p class="section-note" style="margin-top:10px">原对话框：16px「同步比分中」+ 下一行绿点状态；改后：18px 大标题「同步比分中」+ 13px 小标题「已连接到同步服务」，绿点行移除。此场景没有左侧大图标，不引入动画。深底上绿色用亮版 #4ADE80，不套用浅色页的深绿。</p>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>07 · 三端落地映射</h2><span class="section-note">确认「配色方案 + 分组口径」后即可动代码；本轮未修改任何工程文件</span></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>端</th><th>文件 / 位置</th><th>文案与绿点</th><th>两段渐显实现</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>iOS</strong><br>SwiftUI</td>
+            <td><code>Features/Display/CloudSyncEntryView.swift</code><br>L101–135 角色卡 / L749–787 对话框 / L420–438 状态色</td>
+            <td>大标题 <code>sync_status_active</code>（同步比分中，19pt / 680）；小标题 <code>sync_connected_service</code>（13pt）；删 <code>sharingActiveContent</code> 的绿点 HStack 与对话框 L780–788 状态行。</td>
+            <td>先补自定义 radio 图标（当前 iOS 是 <code>square.and.arrow.up</code>，与另两端不一致）；4 条弧拆两组，用 <code>PhaseAnimator</code> 或 <code>@State</code> + <code>withAnimation(.easeInOut)</code> 分相位驱动两组 <code>.opacity</code>，<code>.task</code> 里循环；呼吸备选加 <code>scaleEffect</code>。</td>
+          </tr>
+          <tr>
+            <td><strong>Android</strong><br>Compose</td>
+            <td><code>cloudsync/ui/RemoteSyncEntryPanel.kt</code> L294–320<br><code>cloudsync/ui/RemoteSyncSharedUi.kt</code> L529–548 / L662–691</td>
+            <td>角色卡 title 用 <code>sync_status_active</code> 放大到 19sp，subtitle 用 <code>sync_connected</code> 13sp；删 <code>SyncConnectionBadge</code> 的两处调用；对话框标题保持「同步比分中」并加大，状态行改为小标题。</td>
+            <td>图标现成 <code>res/drawable/ic_menu_share.xml</code>。4 个 path 按组设 <code>alpha</code>，用 <code>rememberInfiniteTransition</code> + 两个 <code>animateFloat</code>（错相）驱动；或 <code>LaunchedEffect</code> 里循环切换 3 个阶段（仅组1亮 / 两组亮 / 全暗）。</td>
+          </tr>
+          <tr>
+            <td><strong>HarmonyOS</strong><br>ArkTS</td>
+            <td><code>ets/pages/display/RemoteSyncEntryPanel.ets</code> L730–776 / L949–959<br><code>ets/cloudsync/ui/CloudSyncSharingDialog.ets</code> L152 / L176</td>
+            <td>卡片 title 用 <code>sync_status_active</code> 放大、副文案用 <code>sync_connected</code>；删 <code>buildConnectionStatusRow()</code>（原本只有文字、无圆点）；对话框标题保持「同步比分中」并加大，下方改小标题。</td>
+            <td>图标现成 <code>resources/base/media/ic_share.svg</code>（深浅色各一份）。用 <code>Canvas</code> 自绘 4 弧 + 圆，按组设 <code>globalAlpha</code>，<code>keyframeAnimateTo</code> 或 <code>animator</code> 驱动相位；也可拆成两张分层 SVG + <code>.opacity()</code> 动画，成本更低。</td>
+          </tr>
+          <tr>
+            <td><strong>配色</strong><br>三端共用</td>
+            <td>推荐 P6：大标题状态色 / 小标题次级文字色</td>
+            <td>浅色 <code>#15803D</code> + <code>#6B7280</code>；深色 <code>#4ADE80</code> + <code>#9CA3AF</code>；固定深色对话框 <code>#4ADE80</code> + <code>#A1A1AA</code>。若选 P4（最小改动）则只把原 <code>#22C55E</code> 调成 <code>#15803D</code> / <code>#4ADE80</code>。</td>
+            <td>状态色随 4 态变：已连接 #15803D / #4ADE80、连接中 #B45309 / #FBBF24、重连中同、未连接 #DC2626 / #F87171。P6 下状态色作用于<strong>大标题</strong>，小标题恒灰；P1/P4 下作用于小标题。</td>
+          </tr>
+          <tr>
+            <td><strong>共用</strong><br>文案 / 状态</td>
+            <td>zh-Hans / values-zh-rCN / zh_CN string.json</td>
+            <td>iOS 小标题 key 是 <code>sync_connected_service</code>，Android/HOS 是 <code>sync_connected</code>，中文值相同；大标题统一 <code>sync_status_active</code>；<code>home_sync_sharing</code>（首页绿条）不要误改。</td>
+            <td>4 态只影响小标题：已连接到同步服务 / 正在连接同步服务… / 正在重新连接同步服务… / 未连接到同步服务；未连接时动画降级为静态。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li><strong>动画节奏（已定稿）：</strong>累积扩散 —— 周期 2.4s，第一组 0.14s 起渐显、第二组 0.38s 起渐显、1.34s 前同时保持、1.78s 淡出、2.4s 重新开始；「轮流亮灭」已确认不采用，仅留作对照。全程 ease-in-out，无硬切，三端用同一组时间参数。</li>
+      <li><strong>动画分组：</strong>实际 4 条弧按「内弧 / 外弧」各一组（每组左右对称同时亮）是默认方案；切「左右交替」则变成左边一组、右边一组。<strong>这是落地前最后一个待确认口径。</strong></li>
+      <li><strong>配色对比度：</strong>P1 小标题 #22C55E 在白底仅 2.3:1（不达 AA 4.5:1）；调深为 #15803D 后 5.0:1；小标题灰 #6B7280 为 4.8:1；深色 #4ADE80 / #9CA3AF 在 #1C1D20 上约 9.7:1 / 6.6:1，均达标。</li>
+      <li><strong>动画生命周期：</strong>只在分享中（isSharingActive）且页面可见时播放；结束同步 / 退到后台要停止，避免无限重绘耗电。</li>
+      <li><strong>减弱动态效果：</strong>iOS <code>accessibilityReduceMotion</code>、Android 系统动画缩放、HOS 无障碍设置下，两条辐射线常亮（静态），不做渐显。</li>
+      <li><strong>深浅色：</strong>徽章主题绿 #4CAF50 / #30D158；HOS 的 <code>ic_share.svg</code> 在 base / dark 各一份，别只改一份。对话框固定深色，配色变量必须单独一套，不能复用页面色值。</li>
+      <li><strong>跨端一致性：</strong>iOS 图标替换后，三端徽章统一 40 圆底 + 20 图标；卡片圆角 iOS/Android 16、HOS 12，保持各自 Token。</li>
+    </ul>
+  </section>
+
+</div>
+
+<script>
+  function radioSVG() {
+    return '<svg class="radio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path class="arc" data-arc="inner-right" d="M16.247 7.761a6 6 0 0 1 0 8.478"/>' +
+      '<path class="arc" data-arc="inner-left" d="M7.753 16.239a6 6 0 0 1 0-8.478"/>' +
+      '<path class="arc" data-arc="outer-right" d="M19.075 4.933a10 10 0 0 1 0 14.134"/>' +
+      '<path class="arc" data-arc="outer-left" d="M4.925 19.067a10 10 0 0 1 0-14.134"/>' +
+      '<circle class="core" cx="12" cy="12" r="2"/>' +
+      '</svg>';
+  }
+  document.querySelectorAll('.badge').forEach(function (b) {
+    b.insertAdjacentHTML('afterbegin', '<span class="halo"></span><span class="badge-core">' + radioSVG() + '</span>');
+  });
+
+  var state = {
+    motion: 'fade', group: 'inner', waveMode: 'accum', palette: 'recommend',
+    titlePos: 'card', conn: 'connected', theme: 'light', keepStatus: false, paused: false, dur: 1
+  };
+  var connText = {
+    connected: '已连接到同步服务',
+    connecting: '正在连接同步服务…',
+    reconnecting: '正在重新连接同步服务…',
+    disconnected: '未连接到同步服务'
+  };
+  /* 原始状态色：P1 小标题、绿点、按钮沿用 */
+  var connRaw = {
+    connected: '#22C55E', connecting: '#F59E0B', reconnecting: '#F59E0B', disconnected: '#EF4444'
+  };
+  /* 调和后的状态色：浅色页降明度保证对比度；深色页 / 固定深色对话框用亮版 */
+  var tuned = {
+    light: { connected: '#15803D', connecting: '#B45309', reconnecting: '#B45309', disconnected: '#DC2626' },
+    dark:  { connected: '#4ADE80', connecting: '#FBBF24', reconnecting: '#FBBF24', disconnected: '#F87171' }
+  };
+
+  function applyGroup() {
+    document.querySelectorAll('.radio .arc').forEach(function (arc) {
+      var id = arc.dataset.arc;
+      var group;
+      if (state.group === 'inner') {
+        group = id.indexOf('inner') === 0 ? '1' : '2';
+      } else {
+        group = id.indexOf('-left') >= 0 ? '1' : '2';
+      }
+      arc.dataset.group = group;
+    });
+  }
+
+  function apply() {
+    var body = document.body;
+    var root = document.documentElement;
+    /* 文案互换只在「卡片头部」落点下生效；页面大标题模式不推翻原结构 */
+    var swap = state.palette === 'swap' && state.titlePos === 'card';
+
+    body.dataset.conn = state.conn;
+    body.dataset.titlePos = state.titlePos;
+    body.dataset.keepStatus = state.keepStatus ? '1' : '0';
+    body.dataset.waveMode = state.waveMode;
+    body.dataset.theme = state.theme;
+    body.dataset.palette = state.palette;
+    body.classList.toggle('paused', state.paused);
+
+    root.style.setProperty('--state-color', connRaw[state.conn]);
+    root.style.setProperty('--accent', tuned[state.theme][state.conn]);
+    root.style.setProperty('--accent-dark', tuned.dark[state.conn]);
+    root.style.setProperty('--dur', state.dur);
+    applyGroup();
+
+    document.querySelectorAll('.badge[data-sync-motion]').forEach(function (b) {
+      b.dataset.motion = state.conn === 'disconnected' ? 'static' : state.motion;
+    });
+
+    /* 大标题 / 小标题：文案由「标题落点 + 是否互换」共同决定，颜色全交给 CSS 变量 */
+    document.querySelectorAll('.big-title').forEach(function (el) {
+      el.textContent = state.titlePos === 'page' ? '开始同步比分' : (swap ? connText[state.conn] : '同步比分中');
+      el.classList.toggle('big', state.titlePos === 'card');
+    });
+    document.querySelectorAll('.sub-state').forEach(function (el) {
+      el.textContent = state.titlePos === 'page' ? '同步比分中' : (swap ? '同步比分中' : connText[state.conn]);
+    });
+    document.querySelectorAll('.hero').forEach(function (el) {
+      el.textContent = state.titlePos === 'page' ? '同步比分中' : '跨设备同步';
+    });
+    document.querySelectorAll('[data-live-title], .dlg-title').forEach(function (el) {
+      el.textContent = swap ? connText[state.conn] : '同步比分中';
+    });
+    document.querySelectorAll('[data-live-sub]').forEach(function (el) {
+      el.textContent = swap ? '同步比分中' : connText[state.conn];
+    });
+    document.querySelectorAll('.status-row span:last-child').forEach(function (el) {
+      el.textContent = connText[state.conn];
+    });
+
+    /* 6 张配色对比卡：各自固定展示自己的方案，只跟随连接态文案与状态色 */
+    document.querySelectorAll('.pal-card').forEach(function (cardEl) {
+      var isSwap = cardEl.dataset.v === 'swap';
+      cardEl.querySelector('.pal-big').textContent = isSwap ? connText[state.conn] : '同步比分中';
+      cardEl.querySelector('.pal-sub').textContent = isSwap ? '同步比分中' : connText[state.conn];
+      cardEl.classList.toggle('on', cardEl.dataset.v === state.palette);
+    });
+    document.querySelectorAll('#seg-palette button').forEach(function (b) {
+      b.classList.toggle('on', b.dataset.v === state.palette);
+    });
+    document.querySelectorAll('.scheme').forEach(function (s) {
+      s.classList.toggle('on', s.dataset.v === state.motion);
+    });
+    document.getElementById('speed-val').textContent = state.dur.toFixed(1) + 'x';
+  }
+
+  function bindSeg(id, key) {
+    var seg = document.getElementById(id);
+    seg.addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-v]');
+      if (!btn) return;
+      state[key] = btn.dataset.v;
+      seg.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b === btn); });
+      apply();
+    });
+  }
+  bindSeg('seg-palette', 'palette');
+  bindSeg('seg-motion', 'motion');
+  bindSeg('seg-group', 'group');
+  bindSeg('seg-wave', 'waveMode');
+  bindSeg('seg-title', 'titlePos');
+  bindSeg('seg-conn', 'conn');
+  bindSeg('seg-theme', 'theme');
+
+  document.getElementById('palettes').addEventListener('click', function (e) {
+    var cardEl = e.target.closest('.pal-card');
+    if (!cardEl) return;
+    state.palette = cardEl.dataset.v;
+    apply();
+  });
+  document.getElementById('schemes').addEventListener('click', function (e) {
+    var cardEl = e.target.closest('.scheme');
+    if (!cardEl) return;
+    state.motion = cardEl.dataset.v;
+    document.querySelectorAll('#seg-motion button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === state.motion); });
+    apply();
+  });
+  document.getElementById('cb-status').addEventListener('change', function (e) { state.keepStatus = e.target.checked; apply(); });
+  document.getElementById('cb-pause').addEventListener('change', function (e) { state.paused = e.target.checked; apply(); });
+  document.getElementById('rg-speed').addEventListener('input', function (e) { state.dur = parseFloat(e.target.value); apply(); });
+
+  apply();
+</script>
+</body>
+</html>

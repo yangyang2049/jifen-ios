@@ -127,6 +127,20 @@ struct Theme {
     static var moderationNoticeBackground: Color { adaptive(Color(hex: "FEF3C7"), Color(hex: "3A2E0A")) }
     static var moderationNoticeText: Color { adaptive(Color(hex: "B45309"), Color(hex: "FBBF24")) }
 
+    // MARK: - 同步状态标题色（P6 定稿）
+    // 状态色落在 19pt 大标题上，不再是 13pt 小字：浅色降明度/饱和度保证 WCAG AA
+    // （#15803D 在白底 5.02:1），深色用亮版（#4ADE80 在 #202022 约 8.6:1）。
+    // 与记分牌发球指示器、首页绿条的 #22C55E / #4CAF50 各自独立，不要互相替换。
+    static var syncStatusConnected: Color { adaptive(Color(hex: "15803D"), Color(hex: "4ADE80")) }
+    static var syncStatusPending: Color { adaptive(Color(hex: "B45309"), Color(hex: "FBBF24")) }
+    static var syncStatusError: Color { adaptive(Color(hex: "DC2626"), Color(hex: "F87171")) }
+
+    /// 同步管理对话框固定深色卡（#2C2C2E），用亮版状态色，不随系统深浅切换。
+    static let syncDialogStatusConnected = Color(hex: "4ADE80")
+    static let syncDialogStatusPending = Color(hex: "FBBF24")
+    static let syncDialogStatusError = Color(hex: "F87171")
+    static let syncDialogStatusSecondary = Color(hex: "A1A1AA")
+
     // Additional colors derived from HarmonyOS UI
     static let primary = accentColor // Map HarmonyOS 'primary' to existing accentColor
     static let primaryDark = Color(hex: "248A3D")

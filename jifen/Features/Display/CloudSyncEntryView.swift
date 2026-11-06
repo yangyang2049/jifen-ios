@@ -99,14 +99,19 @@ struct CloudSyncEntryPanel: View {
     // MARK: 分享端卡片
 
     private var scorerCard: some View {
-        CloudSyncRoleCard(
+        let connectionState = session.controller?.state.connectionState ?? .disconnected
+        return CloudSyncRoleCard(
             icon: "square.and.arrow.up",
-            title: NSLocalizedString("sync_role_scorer_title", value: "开始同步比分", comment: ""),
-            subtitle: isSharingActive
+            title: isSharingActive
                 ? NSLocalizedString("sync_status_active", value: "同步比分中", comment: "")
+                : NSLocalizedString("sync_role_scorer_title", value: "开始同步比分", comment: ""),
+            subtitle: isSharingActive
+                ? connectionText(connectionState)
                 : NSLocalizedString("sync_role_scorer_desc", value: "在本机记分，生成 6 位短码", comment: ""),
             expanded: expandedRole == .scorer || isSharingActive,
             collapsible: !isSharingActive,
+            isActive: isSharingActive,
+            activeTitleColor: connectionColor(connectionState),
             onToggle: {
                 guard !isSharingActive else { return }
                 expandedRole = expandedRole == .scorer ? .viewer : .scorer
@@ -125,16 +130,7 @@ struct CloudSyncEntryPanel: View {
         let sharingState = session.controller?.state ?? RemoteSyncController.SharingState()
 
         VStack(spacing: 12) {
-            HStack(spacing: 8) {
-                Circle()
-                    .fill(connectionColor(sharingState.connectionState))
-                    .frame(width: 10, height: 10)
-                Text(connectionText(sharingState.connectionState))
-                    .font(.system(size: 13))
-                    .foregroundStyle(Theme.textPrimary)
-            }
-            .frame(maxWidth: .infinity)
-
+            // 连接状态已上移到卡片头部小标题，展开区不再重复绿点与状态行（P6 定稿）。
             if !sharingState.shortCode.isEmpty {
                 Text(sharingState.shortCode.map(String.init).joined(separator: "  "))
                     .font(.system(size: 36, weight: .bold))
@@ -417,11 +413,13 @@ struct CloudSyncEntryPanel: View {
         .opacity(enabled ? 1 : 0.45)
     }
 
+    /// 页面级状态色（P6）：作用在 19pt 大标题上，浅色用降明度版本保证 WCAG AA。
+    /// 13pt 小标题固定为次级灰，不再承载状态色。
     private func connectionColor(_ state: WsConnectionState) -> Color {
         switch state {
-        case .connected: Color(hex: "22C55E")
-        case .connecting, .reconnecting: Color(hex: "F59E0B")
-        case .disconnected: Color(hex: "EF4444")
+        case .connected: Theme.syncStatusConnected
+        case .connecting, .reconnecting: Theme.syncStatusPending
+        case .disconnected: Theme.syncStatusError
         }
     }
 
@@ -599,6 +597,9 @@ struct CloudSyncRoleCard<Content: View>: View {
     let subtitle: String
     let expanded: Bool
     var collapsible = true
+    /// 分享中：大标题用状态色、图标播放「内弧 → 外弧」两段渐显（P6 定稿）。
+    var isActive = false
+    var activeTitleColor: Color = .clear
     let onToggle: () -> Void
     @ViewBuilder let content: () -> Content
 
@@ -608,16 +609,21 @@ struct CloudSyncRoleCard<Content: View>: View {
                 HStack(spacing: 12) {
                     ZStack {
                         Circle()
-                            .fill(Theme.primary.opacity(0.8))
+                            .fill(Theme.primary)
                             .frame(width: 40, height: 40)
-                        Image(systemName: icon)
-                            .font(.system(size: 17))
-                            .foregroundStyle(.white)
+                        if isActive {
+                            SyncRadioIcon(animated: true)
+                                .frame(width: 20, height: 20)
+                        } else {
+                            Image(systemName: icon)
+                                .font(.system(size: 17))
+                                .foregroundStyle(.white)
+                        }
                     }
                     VStack(alignment: .leading, spacing: 2) {
                         Text(title)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(Theme.textPrimary)
+                            .font(.system(size: isActive ? 19 : 16, weight: .semibold))
+                            .foregroundStyle(isActive ? activeTitleColor : Theme.textPrimary)
                         Text(subtitle)
                             .font(.system(size: 13))
                             .lineSpacing(3)
@@ -761,31 +767,28 @@ struct RemoteSyncSharingDialog: View {
                 .onTapGesture { onDismiss() }
 
             VStack(spacing: 14) {
-                HStack {
-                    Color.clear.frame(width: 36, height: 36)
-                    Spacer(minLength: 0)
-                    Text(NSLocalizedString("sync_status_active", value: "同步比分中", comment: ""))
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(.white)
-                    Spacer(minLength: 0)
-                    Button(action: onDismiss) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundStyle(.white)
-                            .frame(width: 36, height: 36)
-                            .background(.white.opacity(0.12), in: Circle())
+                VStack(spacing: 3) {
+                    HStack {
+                        Color.clear.frame(width: 36, height: 36)
+                        Spacer(minLength: 0)
+                        Text(NSLocalizedString("sync_status_active", value: "同步比分中", comment: ""))
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(dialogTitleColor)
+                        Spacer(minLength: 0)
+                        Button(action: onDismiss) {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(width: 36, height: 36)
+                                .background(.white.opacity(0.12), in: Circle())
+                        }
                     }
-                }
-
-                HStack(spacing: 8) {
-                    Circle()
-                        .fill(sharingState.connectionState == .connected ? Color(hex: "22C55E") : Color(hex: "F59E0B"))
-                        .frame(width: 10, height: 10)
+                    // 绿点状态行整行移除，连接文案降级为 13pt 次级灰小标题（P6 定稿）。
                     Text(connectionText)
                         .font(.system(size: 13))
-                        .foregroundStyle(.white.opacity(0.78))
+                        .foregroundStyle(Theme.syncDialogStatusSecondary)
+                        .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
 
                 if !sharingState.shortCode.isEmpty {
                     Text(sharingState.shortCode.map(String.init).joined(separator: "  "))
@@ -849,6 +852,15 @@ struct RemoteSyncSharingDialog: View {
             .padding(.horizontal, 24)
             .frame(maxWidth: 360)
             .transition(.opacity.combined(with: .scale(0.96)))
+        }
+    }
+
+    /// 固定深色卡用亮版状态色，不套用页面级的浅色深绿。
+    private var dialogTitleColor: Color {
+        switch sharingState.connectionState {
+        case .connected: Theme.syncDialogStatusConnected
+        case .connecting, .reconnecting: Theme.syncDialogStatusPending
+        case .disconnected: Theme.syncDialogStatusError
         }
     }
 
