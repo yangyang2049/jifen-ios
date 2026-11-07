@@ -1585,6 +1585,8 @@ struct ColorPickerPanel: View {
     let onCommit: (String) -> Void
     let onOpenCustom: () -> Void
 
+    @State private var containerWidth: CGFloat = 0
+
     var body: some View {
         let displayColors: [String] = {
             var result: [String] = []
@@ -1627,34 +1629,46 @@ struct ColorPickerPanel: View {
                 .font(.system(size: isLargeLayout ? 13 : 12, weight: .medium))
                 .foregroundStyle(.white.opacity(0.72))
 
-            let rows = (displayColors + ["custom"]).chunked(into: 6)
+            // 列数随容器宽度自适应（宽面板一行多放、窄面板少放避免溢出），圆点尺寸不变、格子等宽撑满整行；
+            // 与安卓 WorkbenchColors / 鸿蒙 columnsTemplate 同一换算：columns = floor((宽 + 间距) / (圆点 + 间距))，
+            // 首帧未量到宽度时退回原来的 6 列。
+            let dotSize: CGFloat = isLargeLayout ? 38 : 32
+            let swatchGap: CGFloat = isLargeLayout ? 8 : 5
+            let columns = containerWidth > 0 ? max(3, Int((containerWidth + swatchGap) / (dotSize + swatchGap))) : 6
+            let rows = (displayColors + ["custom"]).chunked(into: columns)
             ForEach(rows.indices, id: \.self) { rowIndex in
                 let row = rows[rowIndex]
-                HStack(spacing: isLargeLayout ? 8 : 5) {
-                    ForEach(row, id: \.self) { value in
-                        if value == "custom" {
-                            customColorDot
-                        } else {
-                            let isSelected = styleColorsEqual(selectedColor, value)
-                            Button {
-                                onPreview(value)
-                                onCommit(value)
-                            } label: {
-                                Circle()
-                                    .fill(value.styleColor)
-                                    .frame(width: isLargeLayout ? 38 : 32, height: isLargeLayout ? 38 : 32)
-                                    .overlay(Circle().strokeBorder(
-                                        isSelected ? StyleEditPalette.accentGreen : Color.white.opacity(0.32),
-                                        lineWidth: isSelected ? 3 : 1
-                                    ))
+                HStack(spacing: swatchGap) {
+                    ForEach(0..<columns, id: \.self) { index in
+                        ZStack {
+                            if index < row.count {
+                                let value = row[index]
+                                if value == "custom" {
+                                    customColorDot
+                                } else {
+                                    let isSelected = styleColorsEqual(selectedColor, value)
+                                    Button {
+                                        onPreview(value)
+                                        onCommit(value)
+                                    } label: {
+                                        Circle()
+                                            .fill(value.styleColor)
+                                            .frame(width: dotSize, height: dotSize)
+                                            .overlay(Circle().strokeBorder(
+                                                isSelected ? StyleEditPalette.accentGreen : Color.white.opacity(0.32),
+                                                lineWidth: isSelected ? 3 : 1
+                                            ))
+                                    }
+                                    .buttonStyle(.plain)
+                                }
                             }
-                            .buttonStyle(.plain)
                         }
+                        .frame(maxWidth: .infinity)
                     }
-                    Spacer(minLength: 0)
                 }
             }
         }
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { containerWidth = $0 }
     }
 
     private var customColorDot: some View {
