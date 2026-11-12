@@ -1819,6 +1819,36 @@ final class FullAppScreenshotUITests: XCTestCase {
         }
     }
 
+    func testFootballPhotoThemeKeepsClockAndMatchTitleEditing() {
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "football_5v5", label: "五人制足球"))
+        XCTAssertTrue(tapStart())
+        XCUIDevice.shared.orientation = .landscapeRight
+        let timer = app.descendants(matching: .any)["football_timer_toggle"].firstMatch
+        XCTAssertTrue(timer.waitForExistence(timeout: 5))
+        XCTAssertTrue(openPriorityScoreboardMenu())
+        app.descendants(matching: .any)["scoreboard_menu_action_displaySettings"].firstMatch.tap()
+        let editor = app.descendants(matching: .any)["scoreboard_style_editor"].firstMatch
+        XCTAssertTrue(editor.waitForExistence(timeout: 5))
+        let photo = app.buttons["scoreboard_style_theme_event_background"].firstMatch
+        let reset = app.buttons["scoreboard_style_reset"].firstMatch
+        if !photo.exists && reset.exists && reset.isEnabled { reset.tap() }
+        scrollStyleOptionIntoView(photo, editor: editor)
+        guard photo.exists else { XCTFail("Photo background is missing from the theme list"); return }
+        photo.tap()
+        app.buttons["scoreboard_style_save"].firstMatch.tap()
+        waitForDisappearance(editor)
+        XCTAssertTrue(app.descendants(matching: .any)["event_background_scoreboard"].firstMatch.waitForExistence(timeout: 5))
+        guard timer.isHittable else { XCTFail("The photo scoreboard must retain the football timer"); return }
+        let before = timer.label
+        timer.tap()
+        let clockRunning = expectation(for: NSPredicate(format: "label != %@", before), evaluatedWith: timer)
+        wait(for: [clockRunning], timeout: 5)
+        let edit = app.buttons["scoreboard_edit_button"].firstMatch
+        XCTAssertTrue(edit.isHittable)
+        edit.tap()
+        XCTAssertTrue(app.textFields["scoreboard_match_title_input"].firstMatch.waitForExistence(timeout: 5))
+    }
+
     private func assertUnifiedStyleEditorControls(_ editor: XCUIElement) {
         let exit = app.buttons["scoreboard_style_cancel"].firstMatch
         let save = app.buttons["scoreboard_style_save"].firstMatch

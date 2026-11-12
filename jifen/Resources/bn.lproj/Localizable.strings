@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "পটভূমি";
 "style_workbench_font" = "ফন্ট";
 "style_workbench_free" = "মুক্ত সম্পাদনা";
+"style_workbench_server" = "সার্ভ নির্দেশক";
 "style_workbench_phone" = "এই ডিভাইস";
 "style_workbench_cast" = "কাস্ট";
 "style_workbench_full_preview" = "সম্পূর্ণ প্রিভিউ";

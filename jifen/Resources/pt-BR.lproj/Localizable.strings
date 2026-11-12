@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Plano de fundo";
 "style_workbench_font" = "Fonte";
 "style_workbench_free" = "Edição livre";
+"style_workbench_server" = "Indicador de saque";
 "style_workbench_phone" = "Este dispositivo";
 "style_workbench_cast" = "Transmitir";
 "style_workbench_full_preview" = "Pré-visualização completa";

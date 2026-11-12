@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Arka Plan";
 "style_workbench_font" = "Yazı Tipi";
 "style_workbench_free" = "Serbest düzenleme";
+"style_workbench_server" = "Servis Göstergesi";
 "style_workbench_phone" = "Bu cihaz";
 "style_workbench_cast" = "Ekran Yayını";
 "style_workbench_full_preview" = "Tam önizleme";

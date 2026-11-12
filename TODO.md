@@ -12,7 +12,7 @@
 
 ### 下次测试提醒
 
-- [ ] **照片主题背景图的 CC BY-SA 署名**（2026-11-06，代码侧已做可做部分）：`scoreboard_event_background` 背景图按 CC BY-SA 4.0 使用，当前界面署名已含创作者（KeepActive.com.au）与许可链接（`ScoreboardStyleEditOverlay.swift` 的 `scoreboard_style_photo_credit`），但**原始作品 URI、版权声明行与「是否修改」说明仍缺**，需由版权方/采购人补充后再发版；同时确认 ShareAlike 与 App Store 分发的合规边界。
+- [ ] **照片主题背景图授权核验**：乒乓球默认照片的设置页显示 KeepActive.com.au 署名和原图链接，原图页列明 CC BY-SA 4.0。发版前核对裁切、压暗和 App Store 分发时的授权说明。
 
 - [ ] **[RECORDS-STAT-ROLL] 我的记录顶部统计滚动**（2026-11-04，代码已接入、待用户真机验收）：下次测试 iOS 时主动提醒用户检查记录/项目数字首次 1.2 秒、更新 0.35 秒，覆盖几百/几千、999→1000、筛选减少/归零、快速刷新、减少动态效果及 iPad/大字号；数字最终准确且不裁切。自检补充：隔离 iOS 模拟器 7 组最终显示比对通过（首次、加一、设值、进位、减少、归零、快速改值），真机手感仍待验收。入口 `jifen/Features/Records/RollingRecordStatistic.swift`；跨端范围见 `../jifen-hos/TODO.md` 同标记。
 

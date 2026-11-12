@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "الخلفية";
 "style_workbench_font" = "الخط";
 "style_workbench_free" = "تحرير حر";
+"style_workbench_server" = "مؤشر الإرسال";
 "style_workbench_phone" = "هذا الجهاز";
 "style_workbench_cast" = "البث";
 "style_workbench_full_preview" = "معاينة كاملة";

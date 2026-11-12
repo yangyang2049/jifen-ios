@@ -1546,7 +1546,7 @@
 "network_invalid_response" = "服务器响应无效";
 "network_request_failed" = "请求失败，请稍后重试";
 "qr_login_confirm_title" = "确认网页登录";
-"qr_login_expired" = "二维码已过期";
+"qr_login_expired" = "二维码已过期，请在网页端刷新后重试";
 "qr_login_invalid" = "不是有效的计分器登录二维码";
 "qr_login_unknown_device" = "网页设备";
 "qr_login_untrusted" = "二维码来自未受信任的服务器";
@@ -1696,7 +1696,7 @@
 "group_rules_missing" = "规则未记录";
 "group_save" = "保存";
 "group_save_failed" = "无法保存比赛，请重试。";
-"group_scan" = "扫描二维码";
+"group_scan" = "扫码";
 "group_scoreboard" = "现场计分";
 "group_set_details" = "每局比分";
 "group_set_input" = "每局比分（选填），每行一局，例如 21:19";
@@ -2648,6 +2648,7 @@
 "style_workbench_background" = "背景";
 "style_workbench_font" = "字体";
 "style_workbench_free" = "自由编辑";
+"style_workbench_server" = "发球指示";
 "style_workbench_phone" = "本机";
 "style_workbench_cast" = "投屏";
 "style_workbench_full_preview" = "完整预览";
@@ -2657,7 +2658,7 @@
 "style_workbench_photo" = "照片背景";
 "style_workbench_settings" = "设置";
 "style_workbench_select_photo" = "选择照片";
-"style_workbench_restore_photo" = "恢复默认背景";
+"style_workbench_restore_photo" = "默认图片";
 "style_workbench_dim" = "背景遮罩";
 "style_workbench_opacity" = "面板透明度";
 "style_workbench_score_font" = "比分字体";

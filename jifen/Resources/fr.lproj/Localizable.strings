@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Arrière-plan";
 "style_workbench_font" = "Police";
 "style_workbench_free" = "Édition libre";
+"style_workbench_server" = "Indicateur de service";
 "style_workbench_phone" = "Cet appareil";
 "style_workbench_cast" = "Diffusion";
 "style_workbench_full_preview" = "Aperçu complet";

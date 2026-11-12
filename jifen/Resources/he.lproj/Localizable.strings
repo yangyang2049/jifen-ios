@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "רקע";
 "style_workbench_font" = "גופן";
 "style_workbench_free" = "עריכה חופשית";
+"style_workbench_server" = "מחוון הגשה";
 "style_workbench_phone" = "מכשיר זה";
 "style_workbench_cast" = "שידור";
 "style_workbench_full_preview" = "תצוגה מקדימה מלאה";

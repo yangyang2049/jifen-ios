@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "배경";
 "style_workbench_font" = "글꼴";
 "style_workbench_free" = "자유 편집";
+"style_workbench_server" = "서브 표시";
 "style_workbench_phone" = "이 기기";
 "style_workbench_cast" = "화면 전송";
 "style_workbench_full_preview" = "전체 미리보기";

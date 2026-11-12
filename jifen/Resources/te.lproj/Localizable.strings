@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "నేపథ్యం";
 "style_workbench_font" = "ఫాంట్";
 "style_workbench_free" = "స్వేచ్ఛా సవరణ";
+"style_workbench_server" = "సర్వ్ ఇండికేటర్";
 "style_workbench_phone" = "ఈ పరికరం";
 "style_workbench_cast" = "కాస్ట్";
 "style_workbench_full_preview" = "పూర్తి ప్రివ్యూ";

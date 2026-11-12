@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Tło";
 "style_workbench_font" = "Czcionka";
 "style_workbench_free" = "Dowolna edycja";
+"style_workbench_server" = "Wskaźnik serwowania";
 "style_workbench_phone" = "To urządzenie";
 "style_workbench_cast" = "Przesyłanie ekranu";
 "style_workbench_full_preview" = "Pełny podgląd";

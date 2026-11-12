@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "पृष्ठभूमि";
 "style_workbench_font" = "फ़ॉन्ट";
 "style_workbench_free" = "मुक्त संपादन";
+"style_workbench_server" = "सर्व संकेतक";
 "style_workbench_phone" = "यह डिवाइस";
 "style_workbench_cast" = "कास्ट";
 "style_workbench_full_preview" = "पूर्ण प्रीव्यू";

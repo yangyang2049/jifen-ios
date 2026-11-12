@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Pozadí";
 "style_workbench_font" = "Písmo";
 "style_workbench_free" = "Volná úprava";
+"style_workbench_server" = "Indikátor podávání";
 "style_workbench_phone" = "Toto zařízení";
 "style_workbench_cast" = "Promítání";
 "style_workbench_full_preview" = "Kompletní náhled";

@@ -88,6 +88,12 @@ import PersistenceCore
         XCTAssertNotEqual(GroupInvitation(groupNo: "72856000").id, GroupInvitation(groupNo: "72856000").id)
     }
 
+    func testScannedInvitationKeepsTheJoinPreviewInsteadOfTheDirectEntry() {
+        XCTAssertTrue(GroupInvitationLink.usesInvitationLinkEntry(number: "72856000", fromScan: false))
+        XCTAssertFalse(GroupInvitationLink.usesInvitationLinkEntry(number: "72856000", fromScan: true))
+        XCTAssertFalse(GroupInvitationLink.usesInvitationLinkEntry(number: "72856", fromScan: false))
+    }
+
     func testInvitationRejectsUntrustedAndAmbiguousLinks() throws {
         let links = [
             "jifen://groups/join?groupNo=72856000",

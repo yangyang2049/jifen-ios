@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "背景";
 "style_workbench_font" = "フォント";
 "style_workbench_free" = "自由に編集";
+"style_workbench_server" = "サーブ表示";
 "style_workbench_phone" = "このデバイス";
 "style_workbench_cast" = "キャスト";
 "style_workbench_full_preview" = "全体プレビュー";

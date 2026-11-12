@@ -203,9 +203,34 @@ nonisolated enum ScoreboardNameFont {
     }
 }
 
+enum ScoreboardPhotoProjects {
+    static let supported: Set<String> = [
+        "pingpong", "pingpong_doubles", "badminton", "badminton_doubles",
+        "volleyball", "air_volleyball", "beach_volleyball", "squash", "shuttlecock",
+        "billiards", "football", "football_5v5", "simple_score"
+    ]
+    private static let withoutSets: Set<String> = ["billiards", "football", "football_5v5", "simple_score"]
+
+    static func showsSets(_ game: String) -> Bool { !withoutSets.contains(game) }
+    static func showsServer(_ game: String) -> Bool { showsSets(game) && game != "shuttlecock" }
+    static func isDoubles(_ game: String) -> Bool { game == "pingpong_doubles" || game == "badminton_doubles" }
+
+    static func artwork(_ game: String) -> String {
+        switch game {
+        case "badminton", "badminton_doubles": return "scoreboard_event_background_badminton"
+        case "volleyball", "air_volleyball": return "scoreboard_event_background_volleyball"
+        case "football", "football_5v5": return "scoreboard_event_background_football"
+        case "simple_score": return "scoreboard_event_background_simple"
+        case "beach_volleyball", "squash", "shuttlecock", "billiards":
+            return "scoreboard_event_background_\(game)"
+        default: return "scoreboard_event_background"
+        }
+    }
+}
+
 extension ScoreboardStyleProfileV2 {
     static func supportsPhotoTheme(_ styleID: ScoreboardStyleID) -> Bool {
-        ["pingpong", "pingpong_doubles"].contains(styleID.rawValue)
+        ScoreboardPhotoProjects.supported.contains(styleID.rawValue)
     }
     var isPhotoTheme: Bool { themeCode == "event_background" }
     static func photoTheme(for styleID: ScoreboardStyleID) -> Self {
@@ -217,14 +242,31 @@ extension ScoreboardStyleProfileV2 {
     }
 }
 
+struct ScoreboardPhotoTitleField: View {
+    @Binding var title: String
+
+    var body: some View {
+        TextField("", text: $title, prompt: Text("match_title_placeholder").foregroundStyle(.black.opacity(0.55)))
+            .foregroundStyle(.black)
+            .padding(.horizontal, 12)
+            .frame(height: 44)
+            .background(.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 8))
+            .frame(maxWidth: 360)
+            .padding(.horizontal, 64)
+            .accessibilityIdentifier("scoreboard_match_title_input")
+            .onChange(of: title) { _, value in title = ScoreboardMatchTitlePolicy.limitInput(value) }
+    }
+}
+
 struct ScoreboardPhotoBackground: View {
     let backdrop: ScoreboardBackdrop
+    var gameType: String = "pingpong"
     @State private var decodedImage: UIImage?
     var body: some View {
         GeometryReader { geometry in
             Group {
                 if let image = decodedImage { Image(uiImage: image).resizable() }
-                else { Image("scoreboard_event_background").resizable() }
+                else { Image(ScoreboardPhotoProjects.artwork(gameType)).resizable() }
             }
             .scaledToFill().frame(width: geometry.size.width, height: geometry.size.height).clipped()
             .overlay(Color.black.opacity(backdrop.resolvedDim))
@@ -262,10 +304,12 @@ struct ScoreboardPhotoScene: View {
     var indicatorStyle: String = "arrow"
     var gameType: String = "pingpong"
     var clock: ScoreboardDisplayClock? = nil
+    var clockControls: AnyView? = nil
     var onTap: ((Bool) -> Void)? = nil
     var onSubtract: ((Bool) -> Void)? = nil
     var onUndo: (() -> Void)? = nil
     var touchGuard = false
+    var allowsSwipeScoring = true
 
     var body: some View {
         GeometryReader { proxy in
@@ -276,30 +320,39 @@ struct ScoreboardPhotoScene: View {
             let bottom = size.height * (hasTitle ? 0.06 : 0.10)
             let gap = portrait ? size.height * 0.105 : size.width * 0.12
             ZStack {
-                ScoreboardPhotoBackground(backdrop: backdrop)
-                if hasTitle {
-                    Text(title ?? "").font(.system(size: min(48, max(18, size.width * (portrait ? 0.055 : 0.032))), weight: .bold))
-                        .lineLimit(2).minimumScaleFactor(0.5).multilineTextAlignment(.center)
-                        .frame(width: size.width * 0.84, height: top).frame(maxHeight: .infinity, alignment: .top)
-                }
-                Group {
-                    if portrait {
-                        VStack(spacing: 0) {
-                            card(left, isLeft: true)
-                            center(portrait: true, gap: gap, size: size).frame(height: gap)
-                            card(right, isLeft: false)
-                        }
+                ScoreboardPhotoBackground(backdrop: backdrop, gameType: gameType)
+                VStack(spacing: 0) {
+                    if let clockControls {
+                        clockControls.fixedSize(horizontal: false, vertical: true).padding(.bottom, 6)
+                    }
+                    if hasTitle {
+                        Text(title ?? "").font(.system(size: min(48, max(18, size.width * (portrait ? 0.055 : 0.032))), weight: .bold))
+                            .lineLimit(2).minimumScaleFactor(0.5).multilineTextAlignment(.center)
+                            .frame(width: size.width * 0.84, height: top)
                     } else {
-                        HStack(spacing: 0) {
-                            card(left, isLeft: true)
-                            center(portrait: false, gap: gap, size: size).frame(width: gap)
-                            card(right, isLeft: false)
+                        Spacer().frame(height: top)
+                    }
+                    Group {
+                        if portrait {
+                            VStack(spacing: 0) {
+                                card(left, isLeft: true)
+                                center(portrait: true, gap: gap, size: size).frame(height: gap)
+                                card(right, isLeft: false)
+                            }
+                        } else {
+                            HStack(spacing: 0) {
+                                card(left, isLeft: true)
+                                center(portrait: false, gap: gap, size: size).frame(width: gap)
+                                card(right, isLeft: false)
+                            }
                         }
                     }
+                    .padding(.horizontal, size.width * 0.055).padding(.bottom, bottom)
                 }
-                .padding(.horizontal, size.width * 0.055).padding(.top, top).padding(.bottom, bottom)
             }.foregroundStyle(.white)
-        }.accessibilityIdentifier("event_background_scoreboard")
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("event_background_scoreboard")
     }
 
     private func center(portrait: Bool, gap: CGFloat, size: CGSize) -> some View {
@@ -312,7 +365,7 @@ struct ScoreboardPhotoScene: View {
                         .font(.system(size: 18, weight: .semibold, design: .monospaced)).minimumScaleFactor(0.5).lineLimit(1)
                 }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: portrait ? .leading : .top)
             }
-            if let servingLeft {
+            if let servingLeft, ScoreboardPhotoProjects.showsServer(gameType) {
                 ScoreboardServeSymbol(direction: portrait ? (servingLeft ? .top : .bottom) : (servingLeft ? .left : .right),
                     size: indicatorSize, color: servingColor, styleCode: indicatorStyle, gameType: gameType)
                     .offset(x: portrait ? gap * 0.28 : (servingLeft ? -1 : 1) * gap * 0.29,
@@ -325,7 +378,8 @@ struct ScoreboardPhotoScene: View {
         GeometryReader { proxy in
             let size = proxy.size
             let nameHeight = size.height * 0.18
-            let scoreHeight = size.height * 0.60
+            let showsSets = ScoreboardPhotoProjects.showsSets(gameType)
+            let scoreHeight = showsSets ? size.height * 0.60 : size.height - nameHeight
             let dividerHeight = min(1, size.height * 0.01)
             let setsHeight = max(0, size.height - nameHeight - scoreHeight - dividerHeight)
             VStack(spacing: 0) {
@@ -339,21 +393,23 @@ struct ScoreboardPhotoScene: View {
                     .overlay(alignment: isLeft ? .topTrailing : .topLeading) {
                         if let kind = team.badgeKind { photoKeyPointBadge(kind: kind, maxWidth: size.width * 0.35).padding(4) }
                     }
-                    .contentShape(Rectangle()).onTapGesture { if touchGuard { onTap?(isLeft) } }
-                Divider().frame(height: dividerHeight).overlay(.white.opacity(0.24))
-                Text(team.sets).font(.system(size: min(104, setsHeight * 0.82), weight: .bold))
-                    .foregroundStyle(team.setsColor)
-                    .lineLimit(1).minimumScaleFactor(0.1)
-                    .frame(height: setsHeight).frame(maxWidth: .infinity)
-                    .overlay { TableTennisAdministrativeCards(status: team.markers, alignment: isLeft ? .trailing : .leading, scale: 0.85).padding(.horizontal, 6) }
-                    .clipped()
+                    .contentShape(Rectangle()).modifier(ScoreboardPhotoTapSurface(active: touchGuard) { onTap?(isLeft) })
+                if showsSets {
+                    Divider().frame(height: dividerHeight).overlay(.white.opacity(0.24))
+                    Text(team.sets).font(.system(size: min(104, setsHeight * 0.82), weight: .bold))
+                        .foregroundStyle(team.setsColor)
+                        .lineLimit(1).minimumScaleFactor(0.1)
+                        .frame(height: setsHeight).frame(maxWidth: .infinity)
+                        .overlay { TableTennisAdministrativeCards(status: team.markers, alignment: isLeft ? .trailing : .leading, scale: 0.85).padding(.horizontal, 6) }
+                        .clipped()
+                }
             }
             .padding(.horizontal, 10).frame(width: size.width, height: size.height)
             .background(team.color.opacity(backdrop.resolvedPanelOpacity), in: RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(.white.opacity(0.2), lineWidth: 1))
-            .contentShape(Rectangle()).onTapGesture { if !touchGuard { onTap?(isLeft) } }
+            .contentShape(Rectangle()).modifier(ScoreboardPhotoTapSurface(active: !touchGuard) { onTap?(isLeft) })
             .gesture(DragGesture(minimumDistance: 50).onEnded { value in
-                guard allowsGesture(startingAt: value.startLocation, in: size) else { return }
+                guard allowsSwipeScoring, allowsGesture(startingAt: value.startLocation, in: size) else { return }
                 if value.translation.width < -50 && abs(value.translation.height) < 50 { onUndo?() }
                 else if value.translation.height < -50 && abs(value.translation.width) < 50 { onTap?(isLeft) }
                 else if value.translation.height > 50 && abs(value.translation.width) < 50 { onSubtract?(isLeft) }
@@ -365,7 +421,8 @@ struct ScoreboardPhotoScene: View {
     /// 与卡片单击守卫保持同一判据，撤销/减分滑动同样受约束。
     private func allowsGesture(startingAt location: CGPoint, in size: CGSize) -> Bool {
         guard touchGuard else { return true }
-        return location.y >= size.height * 0.18 && location.y <= size.height * 0.78
+        let scoreBottom: CGFloat = ScoreboardPhotoProjects.showsSets(gameType) ? 0.78 : 1
+        return location.y >= size.height * 0.18 && location.y <= size.height * scoreBottom
     }
 
     private func photoKeyPointBadge(kind: String, maxWidth: CGFloat) -> some View {
@@ -377,6 +434,16 @@ struct ScoreboardPhotoScene: View {
             .frame(width: min(maxWidth, naturalWidth), height: 18)
             .background(ScoreboardKeyPointBadgePresentation.background(kind: kind, gameType: gameType),
                 in: RoundedRectangle(cornerRadius: 4))
+    }
+}
+
+/// 按条件**挂载**单击手势：未激活时完全不附加手势，避免内层手势吞掉外层的卡片单击。
+private struct ScoreboardPhotoTapSurface: ViewModifier {
+    let active: Bool
+    let action: () -> Void
+
+    @ViewBuilder func body(content: Content) -> some View {
+        if active { content.onTapGesture(perform: action) } else { content }
     }
 }
 
@@ -394,8 +461,8 @@ enum ScoreboardPhotoProjection {
         let slot = visualIndex == 0 ? "side_left" : "side_right"
         let prefix = logical0 ? "tableTennisTeam0" : "tableTennisTeam1"
         let style = state.appearance.style
-        let nameKey = state.gameType == "pingpong_doubles" ? "playerName" : "teamName"
-        let setsKey = state.gameType == "pingpong_doubles" ? "setGameScore" : "setScore"
+        let nameKey = ScoreboardPhotoProjects.isDoubles(state.gameType) ? "playerName" : "teamName"
+        let setsKey = ScoreboardPhotoProjects.isDoubles(state.gameType) ? "setGameScore" : "setScore"
         let score = state.sportString(visualIndex == 0 ? "leftDisplayScore" : "rightDisplayScore") ?? "\(team?.score ?? 0)"
         let badge = state.result?.ended != true && state.keyPoint?.side == (visualIndex == 0 ? "left" : "right") ? state.keyPoint?.kind : nil
         return .init(name: name, score: score, sets: "\(team?.sets ?? 0)",

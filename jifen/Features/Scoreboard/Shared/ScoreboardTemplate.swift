@@ -150,6 +150,8 @@ struct ScoreboardTemplate: View {
     @State private var showDisplaySettings = false
     @State private var styleEditorUiState = ScoreboardStyleEditorUiState()
     @State private var styleEditorController: ScoreboardStyleEditorController?
+    @State private var photoTitle = ""
+    @State private var photoTitleDraft = ""
     private let doubleTapWindow: TimeInterval = 0.24
     private var scoringEnabled: Bool { config.scoringEnabledProvider?() ?? true }
 
@@ -167,6 +169,11 @@ struct ScoreboardTemplate: View {
     }
 
     private var isStyleEditing: Bool { styleEditorController?.isEditing == true }
+    private var usesPhotoTheme: Bool {
+        appearance.styleProfileV2.isPhotoTheme && ScoreboardStyleProfileV2.supportsPhotoTheme(typographySession.styleID)
+    }
+    private var photoTitleKey: String { "scoreboard_match_title_" + typographySession.styleID.rawValue }
+    private var hasFootballClock: Bool { config.gameType == .football || config.gameType == .football5v5 }
 
     /// The scoreboard deliberately fills the whole display, so the geometry
     /// safe-area inset may be zero after `ignoresSafeArea()`. On iPad the
@@ -212,6 +219,9 @@ struct ScoreboardTemplate: View {
                 let contentLayout = isLandscape
                     ? AnyLayout(HStackLayout(spacing: 0))
                     : AnyLayout(VStackLayout(spacing: 0))
+                if usesPhotoTheme && !isEditMode {
+                    photoScene
+                } else {
                 contentLayout {
                     // Left team
                     if let baseViewModel = config.viewModel as? BaseScoreViewModel {
@@ -392,6 +402,13 @@ struct ScoreboardTemplate: View {
                     }
                 }
                 
+                }
+                if usesPhotoTheme && isEditMode {
+                    ScoreboardPhotoTitleField(title: $photoTitleDraft)
+                        .padding(.top, topChromeInset + 8)
+                        .frame(maxHeight: .infinity, alignment: .top)
+                }
+
                 // Edit / done stays immediately above the bottom-right Menu slot.
                 if shouldShowChromeButtons && (scoringEnabled || isEditMode) {
                     VStack {
@@ -500,11 +517,13 @@ struct ScoreboardTemplate: View {
                 }
 
                 // 中间层：仅比左右半区高一层，在编辑/底部按钮与菜单之下（如射箭的发球箭头+半区点击）；传入 isEditMode 以便编辑时隐藏/禁用，并传入指示器色
-                if !isEditMode && !isStyleEditing && !showDisplaySettings && !showMenu, let provider = contentOverlayProvider {
+                if !isEditMode && !isStyleEditing && !showDisplaySettings && !showMenu,
+                   !(usesPhotoTheme && hasFootballClock), let provider = contentOverlayProvider {
                     provider(isEditMode, appearance.serverIndicatorColor)
                         .environment(\.scoreboardServerIndicatorStyle, appearance.styleProfileV2.serverIndicatorStyle ?? "arrow")
                         .environment(\.scoreboardServerIndicatorGame, typographySession.styleID.rawValue)
-                        .opacity(appearance.styleProfileV2.serverIndicatorHidden ? 0 : 1)
+                        .opacity(!hasFootballClock && appearance.styleProfileV2.serverIndicatorHidden ? 0 : 1)
+                        .frame(maxHeight: .infinity, alignment: hasFootballClock ? .top : .center)
                 }
 
                 if shouldShowImmersiveRevealZones {
@@ -577,6 +596,13 @@ struct ScoreboardTemplate: View {
         .ignoresSafeArea()
         .onChange(of: isEditMode) { _, newValue in
             if newValue { cancelPendingTap() }
+            if usesPhotoTheme {
+                if newValue { photoTitleDraft = photoTitle }
+                else {
+                    photoTitle = ScoreboardMatchTitlePolicy.sanitize(photoTitleDraft) ?? ""
+                    UserDefaults.standard.set(photoTitle, forKey: photoTitleKey)
+                }
+            }
             config.onEditModeChange?(newValue)
             updateImmersiveChromeForBlockingState()
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -609,6 +635,7 @@ struct ScoreboardTemplate: View {
             config.onEditModeChange?(isEditMode)
             typographySession.reload()
             appearance = .current(styleID: typographySession.styleID)
+            photoTitle = UserDefaults.standard.string(forKey: photoTitleKey) ?? ""
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             applyScreenAwakePreference()
             revealImmersiveChrome()
@@ -827,61 +854,100 @@ struct ScoreboardTemplate: View {
             : [.name, .score, .secondary]
     }
 
+    private var photoScene: some View {
+        let style = appearance.styleProfileV2
+        let controls = hasFootballClock && !isStyleEditing && !showDisplaySettings && !showMenu
+            ? contentOverlayProvider?(false, appearance.serverIndicatorColor) : nil
+        let canSwipe = supportsPanelSwipeScoring && scoringEnabled && !config.viewModel.gameFinished
+            && !showMenu && !isStyleEditing && !showDisplaySettings
+        return ScoreboardPhotoScene(
+            left: photoTeam(screenLeft: true), right: photoTeam(screenLeft: false), title: photoTitle,
+            backdrop: style.backdrop ?? ScoreboardBackdrop(), gameType: typographySession.styleID.rawValue,
+            clockControls: controls,
+            onTap: { handleScorePanelTap(isLeft: logicalIsLeft(forScreen: $0)) },
+            onSubtract: canSwipe ? { screenLeft in
+                cancelPendingTap()
+                config.viewModel.subtractScore(isLeft: logicalIsLeft(forScreen: screenLeft), points: 1)
+                LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+            } : nil,
+            onUndo: canSwipe ? {
+                cancelPendingTap()
+                _ = config.viewModel.undo()
+                LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+            } : nil,
+            touchGuard: appearance.touchGuard, allowsSwipeScoring: canSwipe
+        )
+    }
+
+    private func photoTeam(screenLeft: Bool) -> ScoreboardPhotoScene.Team {
+        let isLeft = logicalIsLeft(forScreen: screenLeft)
+        let team = isLeft ? config.viewModel.leftTeam : config.viewModel.rightTeam
+        let slot: ScoreboardStyleSlotKeyV2 = isLeft ? .sideLeft : .sideRight
+        let style = appearance.styleProfileV2
+        return .init(name: team.name, score: scoreText(for: team, isLeft: isLeft), sets: "\(team.sets)",
+                     color: isLeft ? appearance.palette.left : appearance.palette.right,
+                     nameColor: Color(hex: style.resolvedElementTextHex(.teamName, slotKey: slot)),
+                     scoreColor: Color(hex: style.resolvedElementTextHex(.mainScore, slotKey: slot)))
+    }
+
     private func scoreTapGesture(isLeft: Bool, panelSize: CGSize) -> some Gesture {
         SpatialTapGesture(count: 1)
             .onEnded { value in
-                guard !isStyleEditing, scoringEnabled,
-                      !isEditMode,
-                      config.tapToAddEnabled,
-                      config.gameType != .boxing else { return }
                 guard isScoreTouchAllowed(location: value.location, panelSize: panelSize) else { return }
-                if let onScorePanelTap = config.onScorePanelTap {
-                    cancelPendingTap()
-                    VibrationManager.shared.vibrateLight()
-                    onScorePanelTap(isLeft)
-                    revealImmersiveChrome()
-                    return
-                }
-                guard doubleTapSubtractEnabled else {
-                    cancelPendingTap()
-                    VibrationManager.shared.vibrateLight()
-                    config.viewModel.addScore(isLeft: isLeft, points: 1)
-                    LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-                    revealImmersiveChrome()
-                    return
-                }
-                let now = Date()
-                if pendingTapSide == isLeft, now.timeIntervalSince(pendingTapAt) <= doubleTapWindow {
-                    cancelPendingTap()
-                    VibrationManager.shared.vibrateLight()
-                    config.viewModel.subtractScore(isLeft: isLeft, points: 1)
-                    LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-                    revealImmersiveChrome()
-                    return
-                }
-
-                if let previousSide = pendingTapSide, previousSide != isLeft {
-                    VibrationManager.shared.vibrateLight()
-                    config.viewModel.addScore(isLeft: previousSide, points: 1)
-                    LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-                }
-
-                pendingTapSide = isLeft
-                pendingTapAt = now
-                tapGeneration += 1
-                let generation = tapGeneration
-                revealImmersiveChrome()
-                DispatchQueue.main.asyncAfter(deadline: .now() + doubleTapWindow) {
-                    guard generation == tapGeneration, pendingTapSide == isLeft else { return }
-                    pendingTapSide = nil
-                    guard !isStyleEditing, scoringEnabled, !isEditMode,
-                          !showMenu, !showDisplaySettings,
-                          !config.viewModel.gameFinished, doubleTapSubtractEnabled else { return }
-                    VibrationManager.shared.vibrateLight()
-                    config.viewModel.addScore(isLeft: isLeft, points: 1)
-                    LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-                }
+                handleScorePanelTap(isLeft: isLeft)
             }
+    }
+
+    private func handleScorePanelTap(isLeft: Bool) {
+        guard !isStyleEditing, scoringEnabled, !isEditMode, config.tapToAddEnabled,
+              !showMenu, !showDisplaySettings, !config.viewModel.gameFinished,
+              config.gameType != .boxing else { return }
+        if let onScorePanelTap = config.onScorePanelTap {
+            cancelPendingTap()
+            VibrationManager.shared.vibrateLight()
+            onScorePanelTap(isLeft)
+            revealImmersiveChrome()
+            return
+        }
+        guard doubleTapSubtractEnabled else {
+            cancelPendingTap()
+            VibrationManager.shared.vibrateLight()
+            config.viewModel.addScore(isLeft: isLeft, points: 1)
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+            revealImmersiveChrome()
+            return
+        }
+        let now = Date()
+        if pendingTapSide == isLeft, now.timeIntervalSince(pendingTapAt) <= doubleTapWindow {
+            cancelPendingTap()
+            VibrationManager.shared.vibrateLight()
+            config.viewModel.subtractScore(isLeft: isLeft, points: 1)
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+            revealImmersiveChrome()
+            return
+        }
+
+        if let previousSide = pendingTapSide, previousSide != isLeft {
+            VibrationManager.shared.vibrateLight()
+            config.viewModel.addScore(isLeft: previousSide, points: 1)
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        }
+
+        pendingTapSide = isLeft
+        pendingTapAt = now
+        tapGeneration += 1
+        let generation = tapGeneration
+        revealImmersiveChrome()
+        DispatchQueue.main.asyncAfter(deadline: .now() + doubleTapWindow) {
+            guard generation == tapGeneration, pendingTapSide == isLeft else { return }
+            pendingTapSide = nil
+            guard !isStyleEditing, scoringEnabled, !isEditMode,
+                  !showMenu, !showDisplaySettings,
+                  !config.viewModel.gameFinished, doubleTapSubtractEnabled else { return }
+            VibrationManager.shared.vibrateLight()
+            config.viewModel.addScore(isLeft: isLeft, points: 1)
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        }
     }
 
     private func cancelPendingTap() {
@@ -929,7 +995,7 @@ struct ScoreboardTemplate: View {
         let right = rightIsLogicalLeft ? config.viewModel.leftTeam : config.viewModel.rightTeam
         var compact = LocalScoreboardDisplayState(
             gameID: config.gameType.canonicalScoreboardIdentifier,
-            title: "",
+            title: usesPhotoTheme ? photoTitle : "",
             leftName: left.name,
             rightName: right.name,
             leftScore: scoreText(for: left, isLeft: leftIsLogicalLeft),

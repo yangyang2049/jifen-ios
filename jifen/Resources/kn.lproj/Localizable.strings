@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "ಹಿನ್ನೆಲೆ";
 "style_workbench_font" = "ಫಾಂಟ್";
 "style_workbench_free" = "ಮುಕ್ತ ಸಂಪಾದನೆ";
+"style_workbench_server" = "ಸರ್ವ್ ಇಂಡಿಕೇಟರ್";
 "style_workbench_phone" = "ಈ ಸಾಧನ";
 "style_workbench_cast" = "ಕಾಸ್ಟ್";
 "style_workbench_full_preview" = "ಪೂರ್ಣ ಪೂರ್ವವೀಕ್ಷಣೆ";

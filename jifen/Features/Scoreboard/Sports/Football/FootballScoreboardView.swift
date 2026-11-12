@@ -362,7 +362,6 @@ struct FootballScoreboardView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.top, 4)
             }
-            Spacer()
         }
         .padding(.top, 12)
         .padding(.horizontal, 72)

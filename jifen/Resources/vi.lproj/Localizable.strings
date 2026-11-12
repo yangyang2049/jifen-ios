@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Nền";
 "style_workbench_font" = "Phông chữ";
 "style_workbench_free" = "Chỉnh sửa tự do";
+"style_workbench_server" = "Chỉ báo giao bóng";
 "style_workbench_phone" = "Thiết bị này";
 "style_workbench_cast" = "Truyền màn hình";
 "style_workbench_full_preview" = "Xem trước toàn bộ";

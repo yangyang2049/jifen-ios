@@ -1,4 +1,5 @@
 import SwiftUI
+import AVFoundation
 import PhotosUI
 import Vision
 import VisionKit
@@ -11,18 +12,29 @@ struct QRScanSheet: View {
     var hint: String
     /// 调用方在处理上一条结果（如登录请求进行中）时暂停扫描。
     var paused: Bool = false
+    var feedback: String? = nil
+    var onRetry: (() -> Void)? = nil
     /// 一张图片可能包含多个二维码，优先选择调用方能处理的内容。
     var prefersPhotoValue: (String) -> Bool = { _ in true }
     var onValue: (String) -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
     @State private var photo: PhotosPickerItem?
     @State private var decodingPhoto = false
     @State private var albumMissedQR = false
     @State private var isActive = true
+    /// 相机权限状态：未决定时先走系统弹窗（文案来自 NSCameraUsageDescription），
+    /// 被拒后给出「去设置」入口——此前这里只有一行文字，用户没有可点的补救动作。
+    @State private var cameraAuthorization = AVCaptureDevice.authorizationStatus(for: .video)
 
     private var cameraAvailable: Bool {
         DataScannerViewController.isSupported && DataScannerViewController.isAvailable
+            && cameraAuthorization == .authorized
+    }
+
+    private var canOpenCameraSettings: Bool {
+        DataScannerViewController.isSupported && cameraAuthorization == .denied
     }
 
     var body: some View {
@@ -31,7 +43,7 @@ struct QRScanSheet: View {
                 Theme.backgroundColor.ignoresSafeArea()
                 if cameraAvailable {
                     QRDataScannerView(paused: paused || decodingPhoto) { value in
-                        guard isActive, !decodingPhoto else { return }
+                        guard isActive, !paused, !decodingPhoto else { return }
                         onValue(value)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -49,7 +61,20 @@ struct QRScanSheet: View {
                     ContentUnavailableView {
                         Label(groupText("camera_unavailable", "Camera unavailable"), systemImage: "camera")
                     } description: {
-                        Text(groupText("camera_hint", "Allow camera access in Settings, or choose a photo."))
+                        VStack(spacing: 12) {
+                            if canOpenCameraSettings {
+                                Text(groupText("camera_hint", "Allow camera access in Settings, or choose a photo."))
+                                Button(NSLocalizedString("open_settings", value: "Settings", comment: "Open app settings")) {
+                                    guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+                                    UIApplication.shared.open(url)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .tint(Theme.primary)
+                                .accessibilityIdentifier("qr_scan_open_settings")
+                            } else {
+                                Text(groupText("album", "Choose photo"))
+                            }
+                        }
                     }
                 }
             }
@@ -65,40 +90,67 @@ struct QRScanSheet: View {
                     PhotosPicker(selection: $photo, matching: .images) {
                         Image(systemName: "photo").foregroundStyle(cameraAvailable ? .white : Theme.textPrimary)
                     }
+                    .disabled(paused || decodingPhoto)
                     .accessibilityLabel(groupText("album", "Choose photo"))
                     .accessibilityIdentifier("group_scan_photo")
                 }
             }
+            .onAppear { isActive = true }
             .onDisappear { isActive = false }
             .onChange(of: photo) { _, item in Task { await decodePhoto(item) } }
+            // 首次进入按需触发系统权限弹窗（用途文案由 Info.plist 提供）；从设置返回时重新读取状态。
+            .task { await prepareCameraAccess() }
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active { cameraAuthorization = AVCaptureDevice.authorizationStatus(for: .video) }
+            }
         }
     }
 
     // 底部提示横幅：相机画面上的通栏渐变（沿用扫码登录页样式），文字保持在安全区内。
     private var hintBanner: some View {
-        Text(bannerText)
-            .font(.system(size: 16, weight: .semibold))
-            .foregroundStyle(.white)
-            .multilineTextAlignment(.center)
-            .padding(.horizontal, 24)
-            .frame(maxWidth: .infinity)
-            .padding(.top, 46)
-            .padding(.bottom, 30)
-            .background(
-                LinearGradient(colors: [.black.opacity(0), .black.opacity(0.75)], startPoint: .top, endPoint: .bottom)
-                    .ignoresSafeArea()
-            )
-            .accessibilityIdentifier("qr_scan_hint")
+        VStack(spacing: 8) {
+            Text(bannerText)
+                .font(.system(size: 16, weight: .semibold))
+                .multilineTextAlignment(.center)
+                .accessibilityIdentifier("qr_scan_hint")
+            if feedback != nil, let onRetry {
+                Button(NSLocalizedString("retry", value: "Try again", comment: ""), action: onRetry)
+                    .buttonStyle(.bordered)
+                    .tint(.white)
+            }
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 24)
+        .frame(maxWidth: .infinity)
+        .padding(.top, 46)
+        .padding(.bottom, 30)
+        .background(
+            LinearGradient(colors: [.black.opacity(0), .black.opacity(0.75)], startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+        )
     }
 
     private var bannerText: String {
-        albumMissedQR
+        if let feedback { return feedback }
+        return albumMissedQR
             ? NSLocalizedString("qr_scan_album_not_found", tableName: "QRScan", value: "No QR code found. Choose another image or scan with the camera.", comment: "")
             : hint
     }
 
+    /// 只在「尚未询问」时触发系统弹窗；已被拒绝时不再重复请求，改为展示「去设置」。
+    private func prepareCameraAccess() async {
+        guard DataScannerViewController.isSupported else { return }
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .notDetermined:
+            let granted = await AVCaptureDevice.requestAccess(for: .video)
+            cameraAuthorization = granted ? .authorized : .denied
+        default:
+            cameraAuthorization = AVCaptureDevice.authorizationStatus(for: .video)
+        }
+    }
+
     private func decodePhoto(_ item: PhotosPickerItem?) async {
-        guard let item, !decodingPhoto else { return }
+        guard let item, !paused, !decodingPhoto else { return }
         decodingPhoto = true
         defer { decodingPhoto = false; photo = nil }
         do {

@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "พื้นหลัง";
 "style_workbench_font" = "ฟอนต์";
 "style_workbench_free" = "แก้ไขอิสระ";
+"style_workbench_server" = "ตัวบ่งชี้การเสิร์ฟ";
 "style_workbench_phone" = "อุปกรณ์นี้";
 "style_workbench_cast" = "แคสต์";
 "style_workbench_full_preview" = "ดูตัวอย่างเต็ม";

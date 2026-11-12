@@ -1,2 +1,4 @@
 // 統一掃碼 Sheet（小組加群 + 網頁掃碼登入）
 "qr_scan_album_not_found" = "未辨識到 QR Code，請換一張圖片或使用相機掃碼。";
+
+"qr_scanner_web_code_from_group" = "這是網頁登入碼，請到首頁掃碼";

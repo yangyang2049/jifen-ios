@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "पार्श्वभूमी";
 "style_workbench_font" = "फॉन्ट";
 "style_workbench_free" = "मोकळे संपादन";
+"style_workbench_server" = "सर्व्ह इंडिकेटर";
 "style_workbench_phone" = "हे डिव्हाइस";
 "style_workbench_cast" = "कास्ट";
 "style_workbench_full_preview" = "पूर्ण प्रीव्ह्यू";

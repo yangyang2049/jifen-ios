@@ -1,2 +1,4 @@
 // 统一扫码 Sheet（小组加群 + 网页扫码登录）
 "qr_scan_album_not_found" = "未识别到二维码，请换一张图片或使用相机扫码。";
+
+"qr_scanner_web_code_from_group" = "这是网页登录码，请到首页扫码";

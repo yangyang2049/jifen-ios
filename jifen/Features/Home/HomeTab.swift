@@ -430,7 +430,7 @@ struct HomeTab: View {
             }
             .navigationDestination(isPresented: Binding(get: { groupInvitation != nil }, set: { if !$0 { groupInvitation = nil } })) {
                 if let invitation = groupInvitation {
-                    GroupJoinView(initialGroupNo: invitation.groupNo, onStart: { type, _, sessionID in
+                    GroupJoinView(initialGroupNo: invitation.groupNo, fromScan: invitation.fromScan, onStart: { type, _, sessionID in
                         groupInvitation = nil
                         path.append(NavigationDestination.scoreboard(.init(gameType: type, recordId: sessionID, setupResult: nil, analyticsEntryPoint: .bookingDetail)))
                     }, usesParentNavigation: true)
@@ -450,7 +450,7 @@ struct HomeTab: View {
         .sheet(isPresented: $showHomeQRScan, onDismiss: {
             guard let number = pendingGroupNumber else { return }
             pendingGroupNumber = nil
-            groupInvitation = GroupInvitation(groupNo: number)
+            groupInvitation = GroupInvitation(groupNo: number, fromScan: true)
         }) {
             // 群二维码与登录确认共用扫码流。
             // 扫到群码时先关扫码页，等它真正退出后再置 groupInvitation 推入加群页，

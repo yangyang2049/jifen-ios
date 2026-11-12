@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "پس منظر";
 "style_workbench_font" = "فونٹ";
 "style_workbench_free" = "آزاد ترمیم";
+"style_workbench_server" = "سرو کا اشارہ";
 "style_workbench_phone" = "یہ ڈیوائس";
 "style_workbench_cast" = "کاسٹ";
 "style_workbench_full_preview" = "مکمل پری ویو";

@@ -278,7 +278,8 @@ final class RemoteSyncController: ObservableObject {
             for targetDelay in Self.snapshotRepairDelaysMs {
                 try? await Task.sleep(nanoseconds: UInt64(targetDelay - previousDelay) * 1_000_000)
                 previousDelay = targetDelay
-                guard let self, self.attached, self.state.isSharing, self.state.matchId == expectedMatchId else { return }
+                guard !Task.isCancelled, let self, self.attached,
+                      self.state.isSharing, self.state.matchId == expectedMatchId else { return }
                 MatchWebSocketManager.shared.sendParticipantUpdate(participants: participants, sessionPhase: sessionPhase)
             }
         }

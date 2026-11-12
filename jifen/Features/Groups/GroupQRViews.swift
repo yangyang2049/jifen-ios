@@ -24,14 +24,18 @@ struct GroupJoinView: View {
     @State private var submitting = false
     @State private var key = UUID().uuidString
     @State private var localError: String?
+    @State private var scanFeedback: String?
     /// 邀请链接带号进入：已是成员时直接进详情，不停留加入页（对齐微信「已在群聊直接进群」）。
     @State private var seededEntry = false
     @State private var seededAutoOpened = false
-    init(initialGroupNo: String = "", onStart: @escaping (GameType, SportsSetupResult, String) -> Void, usesParentNavigation: Bool = false) {
+    init(initialGroupNo: String = "", fromScan: Bool = false, onStart: @escaping (GameType, SportsSetupResult, String) -> Void, usesParentNavigation: Bool = false) {
         self.onStart = onStart
         self.usesParentNavigation = usesParentNavigation
-        _number = State(initialValue: GroupInvitationLink.validNumber(initialGroupNo, capabilities: GroupStore.shared.capabilities) ? initialGroupNo : "")
-        _seededEntry = State(initialValue: GroupInvitationLink.validNumber(initialGroupNo, capabilities: GroupStore.shared.capabilities))
+        let capabilities = GroupStore.shared.capabilities
+        let validNumber = GroupInvitationLink.validNumber(initialGroupNo, capabilities: capabilities)
+        _number = State(initialValue: validNumber ? initialGroupNo : "")
+        _seededEntry = State(initialValue: GroupInvitationLink.usesInvitationLinkEntry(
+            number: initialGroupNo, fromScan: fromScan, capabilities: capabilities))
     }
     var body: some View {
         if usesParentNavigation { destination }
@@ -48,7 +52,7 @@ struct GroupJoinView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.padding) {
                 if !seededEntry {
-                    Button { focusedInput = nil; sheet = .scanner } label: {
+                    Button { focusedInput = nil; scanFeedback = nil; sheet = .scanner } label: {
                         HStack(spacing: Theme.spacing) {
                             Image(systemName: "qrcode.viewfinder").font(.system(size: Theme.fontH3)).foregroundStyle(Theme.textSecondary)
                             VStack(alignment: .leading, spacing: Theme.xs) {
@@ -100,8 +104,11 @@ struct GroupJoinView: View {
                 case .scanner:
                     QRScanSheet(
                         hint: groupText("join_scan_hint", "Scan a group QR code"),
+                        paused: scanFeedback != nil,
+                        feedback: scanFeedback,
+                        onRetry: { scanFeedback = nil },
                         prefersPhotoValue: { GroupQRPayload.parse($0, capabilities: store.capabilities) != nil }
-                    ) { raw in sheet = nil; receive(raw) }
+                    ) { raw in receive(raw) }
                 case .report:
                     GroupPreviewReportView(groupNo: number)
                 case .login:
@@ -188,7 +195,15 @@ struct GroupJoinView: View {
             .buttonStyle(GroupAlignedActionStyle())
     }
     private func receive(_ raw: String) {
-        guard let code = GroupQRPayload.parse(raw, capabilities: store.capabilities) else { localError = groupText("invalid_qr", "This is not a valid group QR code."); return }
+        guard scanFeedback == nil else { return }
+        guard let code = GroupQRPayload.parse(raw, capabilities: store.capabilities) else {
+            scanFeedback = QRLoginPayload.isWebLoginCode(raw)
+                ? NSLocalizedString("qr_scanner_web_code_from_group", tableName: "QRScan",
+                                    value: "This is a web sign-in code. Open Scan on the Home tab.", comment: "")
+                : groupText("invalid_qr", "This is not a valid group QR code.")
+            return
+        }
+        sheet = nil
         if number == code { Task { await loadPreview() } } else { number = code }
     }
     private func loadPreview() async {

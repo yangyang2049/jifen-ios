@@ -300,7 +300,9 @@ struct ScoreboardStyleEditOverlayView: View {
         .onChange(of: uiState.activePanel) { _, panel in
             customColorOpen = false
             switch panel {
-            case .element, .server: workbenchTab = draft.isPhotoTheme ? "background" : "free"
+            // 背景图主题把发球指示单独成一栏：它是叠加在图片上的元素，不是背景设置。
+            case .server: workbenchTab = draft.isPhotoTheme ? "server" : "free"
+            case .element: workbenchTab = draft.isPhotoTheme ? "background" : "free"
             case .background: workbenchTab = "background"; backgroundTarget = resolvedInitialBackgroundTarget()
             case .font: workbenchTab = (draft.isPhotoTheme || !capabilities.supportsFont) ? "background" : "font"
             default: workbenchTab = "theme"
@@ -679,10 +681,13 @@ struct ScoreboardStyleEditOverlayView: View {
     /// 横屏并进右半顶栏，竖屏置于设置区顶部；不与内容区 workbenchChoice 复用样式。
     private var workbenchTabBar: some View {
         HStack(spacing: 0) {
-            ForEach(draft.isPhotoTheme ? ["theme", "background"] : workbenchTabs, id: \.self) { tab in
+            ForEach(draft.isPhotoTheme
+                ? (photoServerTabShown ? ["theme", "background", "server"] : ["theme", "background"])
+                : workbenchTabs, id: \.self) { tab in
                 Button {
                     customColorOpen = false; workbenchTab = tab
                     if tab == "background" { uiState.openBackground() }
+                    else if tab == "server" { uiState.openPanel(.server) }
                     else if tab == "font" { uiState.openPanel(.font) }
                     else if tab == "theme" { uiState.openPanel(.theme) }
                     else { uiState.openElement(capabilities.elementKeys.first ?? .mainScore, slot: .sideLeft) }
@@ -714,7 +719,12 @@ struct ScoreboardStyleEditOverlayView: View {
         }.buttonStyle(.plain).accessibilityAddTraits(selected ? .isSelected : [])
     }
 
-    /// 工作台标签：照片主题只保留主题/背景；字体标签按 `capabilities.supportsFont` 门控
+    /// 背景图主题的发球指示栏：只有确实会画指示器的项目才给这一栏，避免出现空栏。
+    private var photoServerTabShown: Bool {
+        capabilities.supportsServerIndicator && ScoreboardPhotoProjects.showsServer(controller.styleID.rawValue)
+    }
+
+    /// 工作台标签：照片主题只保留主题/背景（+ 发球指示）；字体标签按 `capabilities.supportsFont` 门控
     /// （与改造前工具条的 `if capabilities.supportsFont` 保持一致）。
     private var workbenchTabs: [String] {
         var tabs = ["theme", "background"]
@@ -740,6 +750,8 @@ struct ScoreboardStyleEditOverlayView: View {
                         workbenchThemes
                     } else if workbenchTab == "background" {
                         if draft.isPhotoTheme { photoBackgroundControls } else { backgroundPanel }
+                    } else if workbenchTab == "server" {
+                        photoServerPanel
                     } else if workbenchTab == "font" {
                         independentFontPanel
                     } else {
@@ -790,25 +802,32 @@ struct ScoreboardStyleEditOverlayView: View {
     }
 
     private var photoThumbnail: some View {
-        ScoreboardPhotoBackground(backdrop: draft.backdrop ?? ScoreboardBackdrop()).clipShape(RoundedRectangle(cornerRadius: 5))
+        ScoreboardPhotoBackground(backdrop: draft.backdrop ?? ScoreboardBackdrop(), gameType: controller.styleID.rawValue)
+            .clipShape(RoundedRectangle(cornerRadius: 5))
     }
 
     private var photoBackgroundControls: some View {
-        // 排布对齐安卓 PhotoThemeBackgroundControls：图片区 → 图片操作 → 压暗/透明度，
-        // 发球指示器单独作为最后一段（安卓在 ScoreboardStyleEditOverlay 里也是在
-        // PhotoThemeBackgroundControls 之后调用 ServerStyleChoices）。旧实现把发球
-        // 指示器插在缩略图和“选择图片”之间，切断了图片操作组。
+        // 背景栏提供图片操作和调整。发球指示在独立标签内设置。
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 12) {
                 photoThumbnail.frame(height: 110)
-                PhotosPicker(selection: $selectedPhoto, matching: .images) {
-                    Label(String(localized: "style_workbench_select_photo"), systemImage: "photo")
-                }.accessibilityIdentifier("scoreboard_style_select_photo")
-                Button(String(localized: "style_workbench_restore_photo")) {
-                    if let image = draft.backdrop?.imageData { imageUndo = .init(imageData: image) }
-                    var next = draft; next.backdrop?.imageData = nil; controller.updateDraft(next)
-                }.disabled(draft.backdrop?.imageData == nil)
-                .accessibilityIdentifier("scoreboard_style_restore_photo")
+                // 选择图片与恢复默认并排：两者都是「换图」动作，竖排会把下面的压暗/不透明度挤到折叠线以下。
+                HStack(spacing: 8) {
+                    PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                        Label(String(localized: "style_workbench_select_photo"), systemImage: "photo")
+                            .lineLimit(1).minimumScaleFactor(0.8)
+                            .frame(maxWidth: .infinity, minHeight: 36)
+                    }.buttonStyle(.borderedProminent)
+                        .accessibilityIdentifier("scoreboard_style_select_photo")
+                    Button(String(localized: "style_workbench_restore_photo")) {
+                        if let image = draft.backdrop?.imageData { imageUndo = .init(imageData: image) }
+                        var next = draft; next.backdrop?.imageData = nil; controller.updateDraft(next)
+                    }.disabled(draft.backdrop?.imageData == nil)
+                    .lineLimit(1).minimumScaleFactor(0.8)
+                    .frame(maxWidth: .infinity, minHeight: 36)
+                    .buttonStyle(.bordered)
+                    .accessibilityIdentifier("scoreboard_style_restore_photo")
+                }
                 if let imageUndo {
                     Button(String(localized: "undo")) {
                         if let restored = imageUndo.restoring(draft.backdrop ?? ScoreboardBackdrop()) {
@@ -848,19 +867,27 @@ struct ScoreboardStyleEditOverlayView: View {
                 }
             }
 
-            Divider().overlay(Color.white.opacity(0.12))
-
-            serverStyleChoices
-
-            Text(String(localized: "style_workbench_image_advice")).font(.caption).foregroundStyle(.secondary)
-            // CC BY-SA 4.0 署名：创作者 + 许可名称 + 许可链接。原始作品 URI 与版权声明
-            // 需由版权方补充（已登记 TODO.md），常量 URL 不再强制解包。
-            if let licenseURL = URL(string: "https://creativecommons.org/licenses/by-sa/4.0/") {
-                Link("Photo: KeepActive.com.au · CC BY-SA 4.0", destination: licenseURL)
+            if ["pingpong", "pingpong_doubles"].contains(controller.styleID.rawValue),
+               draft.backdrop?.imageData == nil,
+               let sourceURL = URL(string: "https://commons.wikimedia.org/wiki/File:Table_Tennis_racquet_and_ball_on_table_-_top_view.jpg") {
+                Link("Photo by KeepActive.com.au · CC BY-SA 4.0", destination: sourceURL)
                     .font(.caption2)
                     .accessibilityIdentifier("scoreboard_style_photo_credit")
             }
+
+            Text(String(localized: "style_workbench_image_advice")).font(.caption).foregroundStyle(.secondary)
         }.tint(StyleEditPalette.accentGreen)
+    }
+
+    /// 背景图主题的发球指示栏：箭头/项目图标 + 可见性 + 颜色，与自由编辑里的同一组设置。
+    private var photoServerPanel: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            serverStyleChoices
+            Toggle(String(localized: "style_workbench_server_visible"), isOn: Binding(get: { !draft.serverIndicatorHidden }, set: { value in
+                var next = draft; next.serverIndicatorHidden = !value; controller.updateDraft(next)
+            })).tint(StyleEditPalette.accentGreen).accessibilityIdentifier("scoreboard_style_server_visible")
+            serverIndicatorPanel
+        }
     }
 
     /// 图片主题的单项滑杆：标题与百分比同一行，滑杆在下（对齐安卓 PhotoThemeAdjustment）。

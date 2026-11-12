@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Fons";
 "style_workbench_font" = "Tipus de lletra";
 "style_workbench_free" = "Edició lliure";
+"style_workbench_server" = "Indicador de servei";
 "style_workbench_phone" = "Aquest dispositiu";
 "style_workbench_cast" = "Projecció";
 "style_workbench_full_preview" = "Vista prèvia completa";

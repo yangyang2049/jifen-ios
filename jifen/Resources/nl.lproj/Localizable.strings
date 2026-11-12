@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Achtergrond";
 "style_workbench_font" = "Lettertype";
 "style_workbench_free" = "Vrij bewerken";
+"style_workbench_server" = "Opslagindicator";
 "style_workbench_phone" = "Dit apparaat";
 "style_workbench_cast" = "Casten";
 "style_workbench_full_preview" = "Volledige voorbeeld";

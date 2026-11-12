@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Pozadina";
 "style_workbench_font" = "Font";
 "style_workbench_free" = "Slobodno uređivanje";
+"style_workbench_server" = "Indikator servisa";
 "style_workbench_phone" = "Ovaj uređaj";
 "style_workbench_cast" = "Prijenos zaslona";
 "style_workbench_full_preview" = "Potpuni pregled";

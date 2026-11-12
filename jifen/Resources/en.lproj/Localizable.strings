@@ -1546,7 +1546,7 @@
 "network_invalid_response" = "Invalid server response";
 "network_request_failed" = "Request failed. Please try again later.";
 "qr_login_confirm_title" = "Confirm Web Sign-In";
-"qr_login_expired" = "QR code expired";
+"qr_login_expired" = "This QR code has expired. Refresh it on the website.";
 "qr_login_invalid" = "Not a valid iScoreboard sign-in QR code";
 "qr_login_unknown_device" = "Web device";
 "qr_login_untrusted" = "The QR code comes from an untrusted server";
@@ -1696,7 +1696,7 @@
 "group_rules_missing" = "Rules were not recorded";
 "group_save" = "Save";
 "group_save_failed" = "Could not save the match. Please try again.";
-"group_scan" = "Scan QR Code";
+"group_scan" = "Scan QR code";
 "group_scoreboard" = "Scoreboard";
 "group_set_details" = "Set Details";
 "group_set_input" = "Set details (optional), one score per line: 21:19";
@@ -2647,6 +2647,7 @@
 "style_workbench_background" = "Background";
 "style_workbench_font" = "Font";
 "style_workbench_free" = "Free edit";
+"style_workbench_server" = "Indicator";
 "style_workbench_phone" = "This device";
 "style_workbench_cast" = "Cast";
 "style_workbench_full_preview" = "Full preview";
@@ -2656,7 +2657,7 @@
 "style_workbench_photo" = "Photo background";
 "style_workbench_settings" = "Settings";
 "style_workbench_select_photo" = "Choose photo";
-"style_workbench_restore_photo" = "Use default background";
+"style_workbench_restore_photo" = "Default image";
 "style_workbench_dim" = "Background dimming";
 "style_workbench_opacity" = "Panel opacity";
 "style_workbench_score_font" = "Score font";

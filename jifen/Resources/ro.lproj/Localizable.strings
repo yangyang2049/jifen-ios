@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Fundal";
 "style_workbench_font" = "Font";
 "style_workbench_free" = "Editare liberă";
+"style_workbench_server" = "Indicator de serviciu";
 "style_workbench_phone" = "Acest dispozitiv";
 "style_workbench_cast" = "Proiectare";
 "style_workbench_full_preview" = "Previzualizare completă";

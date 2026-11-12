@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Hintergrund";
 "style_workbench_font" = "Schriftart";
 "style_workbench_free" = "Freie Bearbeitung";
+"style_workbench_server" = "Aufschlaganzeige";
 "style_workbench_phone" = "Dieses Gerät";
 "style_workbench_cast" = "Übertragen";
 "style_workbench_full_preview" = "Komplette Vorschau";

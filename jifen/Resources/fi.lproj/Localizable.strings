@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Tausta";
 "style_workbench_font" = "Fontti";
 "style_workbench_free" = "Vapaa muokkaus";
+"style_workbench_server" = "Syötön ilmaisin";
 "style_workbench_phone" = "Tämä laite";
 "style_workbench_cast" = "Näytön jako";
 "style_workbench_full_preview" = "Täysi esikatselu";

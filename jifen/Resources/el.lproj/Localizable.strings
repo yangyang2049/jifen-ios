@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Φόντο";
 "style_workbench_font" = "Γραμματοσειρά";
 "style_workbench_free" = "Ελεύθερη επεξεργασία";
+"style_workbench_server" = "Ένδειξη σερβίς";
 "style_workbench_phone" = "Αυτή η συσκευή";
 "style_workbench_cast" = "Μετάδοση";
 "style_workbench_full_preview" = "Πλήρης προεπισκόπηση";

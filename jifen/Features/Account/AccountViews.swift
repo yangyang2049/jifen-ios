@@ -24,6 +24,7 @@ struct AccountCenterView: View {
 
 struct AccountLoginSheet: View {
     var dismissOnAuthentication = true
+    var message: String? = nil
     @Environment(\.dismiss) private var dismiss
     @Environment(SessionStore.self) private var session
     @State private var selectedDetent: PresentationDetent = .height(440)
@@ -32,7 +33,8 @@ struct AccountLoginSheet: View {
         NavigationStack {
             AccountLoginView(
                 onOpenLegal: { selectedDetent = .large },
-                onOpenPasswordLogin: { selectedDetent = .large }
+                onOpenPasswordLogin: { selectedDetent = .large },
+                message: message
             )
             .navigationTitle(NSLocalizedString("account_login_title", value: "登录", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
@@ -94,6 +96,7 @@ private struct AccountLoginView: View {
     @State private var showPasswordLogin = false
     var onOpenLegal: () -> Void = {}
     var onOpenPasswordLogin: () -> Void = {}
+    var message: String? = nil
 
     private var appLanguage: String { Bundle.main.preferredLocalizations.first ?? "en" }
     #if STAGING
@@ -106,7 +109,7 @@ private struct AccountLoginView: View {
             VStack(spacing: 16) {
                 AppLogoImage(size: 72)
                     .padding(.top, 12)
-                Text(NSLocalizedString("account_login_subtitle", value: "登录后同步常用数据、反馈和实时比分", comment: ""))
+                Text(message ?? NSLocalizedString("account_login_subtitle", value: "登录后同步常用数据、反馈和实时比分", comment: ""))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)

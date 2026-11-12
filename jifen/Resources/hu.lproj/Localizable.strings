@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Háttér";
 "style_workbench_font" = "Betűtípus";
 "style_workbench_free" = "Szabad szerkesztés";
+"style_workbench_server" = "Adogatásjelző";
 "style_workbench_phone" = "Ez az eszköz";
 "style_workbench_cast" = "Kivetítés";
 "style_workbench_full_preview" = "Teljes előnézet";

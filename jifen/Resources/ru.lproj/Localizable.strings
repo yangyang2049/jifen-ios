@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Фон";
 "style_workbench_font" = "Шрифт";
 "style_workbench_free" = "Свободное редактирование";
+"style_workbench_server" = "Индикатор подачи";
 "style_workbench_phone" = "Это устройство";
 "style_workbench_cast" = "Трансляция";
 "style_workbench_full_preview" = "Полный предпросмотр";

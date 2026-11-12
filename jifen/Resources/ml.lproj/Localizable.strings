@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "പശ്ചാത്തലം";
 "style_workbench_font" = "ഫോണ്ട്";
 "style_workbench_free" = "സ്വതന്ത്ര എഡിറ്റിംഗ്";
+"style_workbench_server" = "സെർവ് ഇൻഡിക്കേറ്റർ";
 "style_workbench_phone" = "ഈ ഉപകരണം";
 "style_workbench_cast" = "കാസ്റ്റ്";
 "style_workbench_full_preview" = "പൂർണ്ണ പ്രിവ്യൂ";

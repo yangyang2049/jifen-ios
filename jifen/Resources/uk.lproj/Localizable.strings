@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Фон";
 "style_workbench_font" = "Шрифт";
 "style_workbench_free" = "Вільне редагування";
+"style_workbench_server" = "Індикатор подачі";
 "style_workbench_phone" = "Цей пристрій";
 "style_workbench_cast" = "Трансляція";
 "style_workbench_full_preview" = "Повний попередній перегляд";

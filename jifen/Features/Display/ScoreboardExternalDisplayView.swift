@@ -569,15 +569,17 @@ struct ScoreboardExternalLiveView: View {
         GeometryReader { proxy in
             let twoSideModel = resolvedTwoSideModel(viewport: proxy.size)
             let doublesModel = template == .doublesCourt ? buildDoublesModel(viewport: proxy.size) : nil
+            let usesPhoto = state.appearance.style?.themeCode == "event_background"
+                && ScoreboardPhotoProjects.supported.contains(state.gameType) && template != .teamCourt
             ZStack {
                 Color(hex: state.appearance.backgroundHex)
-                if state.appearance.style?.themeCode == "event_background", ["pingpong", "pingpong_doubles"].contains(state.gameType) {
+                if usesPhoto {
                     photoScene
                 } else {
                     templateBody(viewport: proxy.size, twoSideModel: twoSideModel, doublesModel: doublesModel)
                 }
 
-                if state.appearance.style?.themeCode != "event_background" {
+                if !usesPhoto {
                 ScoreboardExternalKeyPointBadgeLayer(
                     state: state,
                     projection: projection,
@@ -588,7 +590,7 @@ struct ScoreboardExternalLiveView: View {
 
                 }
 
-                if (state.gameType == "pingpong" || state.gameType == "pingpong_doubles") && state.appearance.style?.themeCode != "event_background" {
+                if (state.gameType == "pingpong" || state.gameType == "pingpong_doubles") && !usesPhoto {
                     ScoreboardExternalTableTennisMarkerLayer(
                         state: state,
                         projection: projection,
@@ -606,7 +608,7 @@ struct ScoreboardExternalLiveView: View {
 
                 snookerMatchTitleOverlay(viewport: proxy.size)
 
-                if state.appearance.style?.themeCode != "event_background" { topChrome }
+                if !usesPhoto { topChrome }
 
                 if let rest = state.rest {
                     ScoreboardExternalRestOverlay(rest: rest, viewport: proxy.size, projection: projection)

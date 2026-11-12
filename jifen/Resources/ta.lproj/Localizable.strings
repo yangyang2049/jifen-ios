@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "பின்னணி";
 "style_workbench_font" = "எழுத்துரு";
 "style_workbench_free" = "திறந்த திருத்தம்";
+"style_workbench_server" = "சர்வ் காட்டி";
 "style_workbench_phone" = "இந்தச் சாதனம்";
 "style_workbench_cast" = "திரை ஒளிபரப்பு";
 "style_workbench_full_preview" = "முழு முன்தோற்றம்";

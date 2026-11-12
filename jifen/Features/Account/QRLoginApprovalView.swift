@@ -41,6 +41,17 @@ nonisolated struct QRLoginPayload: Decodable, Equatable, Sendable {
         return payload
     }
 
+    static func isWebLoginCode(_ raw: String) -> Bool {
+        do {
+            _ = try parse(raw)
+            return true
+        } catch QRLoginError.expired {
+            return true
+        } catch {
+            return false
+        }
+    }
+
     private func validate() throws {
         let sessionPattern = /^[A-Za-z0-9_-]{10,128}$/
         let tokenPattern = /^qrl_scan_[A-Za-z0-9_-]{43}$/
@@ -80,7 +91,7 @@ nonisolated enum QRLoginError: LocalizedError {
         switch self {
         case .invalidPayload: NSLocalizedString("qr_login_invalid", value: "不是有效的计分器登录二维码", comment: "")
         case .untrustedServer: NSLocalizedString("qr_login_untrusted", value: "二维码来自未受信任的服务器", comment: "")
-        case .expired: NSLocalizedString("qr_login_expired", value: "二维码已过期", comment: "")
+        case .expired: NSLocalizedString("qr_login_expired", value: "This QR code has expired. Refresh it on the website.", comment: "")
         }
     }
 }
@@ -101,11 +112,13 @@ nonisolated private struct QRConfirmResponse: Decodable, Sendable {
 struct QRLoginApprovalView: View {
     var onGroupInvitation: (String) -> Void
     @Environment(\.dismiss) private var dismiss
+    @Environment(SessionStore.self) private var session
     @State private var parsed: QRLoginPayload?
     @State private var scanResponse: QRScanResponse?
     @State private var errorMessage: String?
     @State private var isWorking = false
     @State private var scannerPaused = false
+    @State private var presentsReauthentication = false
     @State private var blockedScanValue: String?
 
     var body: some View {
@@ -118,11 +131,23 @@ struct QRLoginApprovalView: View {
                 QRScanSheet(
                     hint: groupText("group_qr", "Group QR code") + " · " + NSLocalizedString("qr_login_title", value: "扫码登录", comment: ""),
                     paused: scannerPaused,
+                    feedback: errorMessage,
+                    onRetry: retryScanning,
                     prefersPhotoValue: { (try? MeQRPayload.parse($0, capabilities: GroupStore.shared.capabilities)) != nil }
                 ) { raw in Task { await receive(raw) } }
             }
         }
+        .interactiveDismissDisabled(isWorking)
         .appAnalyticsScreen(.qrLoginPage)
+        .sheet(isPresented: $presentsReauthentication, onDismiss: {
+            if session.isAuthenticated {
+                retryScanning()
+            } else {
+                dismiss()
+            }
+        }) {
+            AccountLoginSheet(message: APIClientError.sessionExpired.localizedDescription)
+        }
         #if DEBUG
         .task {
             // Feed the real scanner callback on simulators without a camera.
@@ -136,7 +161,7 @@ struct QRLoginApprovalView: View {
         #endif
         .overlay { if isWorking { ProgressView().controlSize(.large) } }
         .overlay(alignment: .top) {
-            if let errorMessage {
+            if let errorMessage, parsed != nil {
                 HStack(alignment: .top, spacing: 10) {
                     Image(systemName: "exclamationmark.circle.fill")
                         .font(.system(size: 18, weight: .semibold))
@@ -147,14 +172,6 @@ struct QRLoginApprovalView: View {
                         .foregroundStyle(Theme.textPrimary)
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    if parsed == nil {
-                        Button(NSLocalizedString("retry", value: "重试", comment: "")) {
-                            retryScanning()
-                        }
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Theme.accentColor)
-                        .fixedSize()
-                    }
                 }
                 .padding(14)
                 .background(
@@ -261,7 +278,7 @@ struct QRLoginApprovalView: View {
     }
 
     private func receive(_ raw: String) async {
-        guard !isWorking, parsed == nil, raw != blockedScanValue else { return }
+        guard !isWorking, !presentsReauthentication, parsed == nil, raw != blockedScanValue else { return }
         isWorking = true
         scannerPaused = true
         errorMessage = nil
@@ -287,13 +304,36 @@ struct QRLoginApprovalView: View {
             scanResponse = response
             blockedScanValue = nil
             errorMessage = nil
+        } catch APIClientError.sessionExpired {
+            requireReauthentication()
+        } catch is CancellationError {
+            retryScanning()
         } catch {
             // Keep scanning paused after a failed request. DataScanner reports the
             // same visible QR code again as soon as it resumes, which previously
             // caused a rapid 410 loop followed by server-side 429 throttling.
             blockedScanValue = raw
-            errorMessage = error.localizedDescription
+            errorMessage = scanErrorMessage(error)
         }
+    }
+
+    private func requireReauthentication() {
+        scannerPaused = true
+        parsed = nil
+        scanResponse = nil
+        errorMessage = nil
+        presentsReauthentication = true
+    }
+
+    private func scanErrorMessage(_ error: Error) -> String {
+        isExpiredCode(error) ? QRLoginError.expired.localizedDescription : error.localizedDescription
+    }
+
+    private func isExpiredCode(_ error: Error) -> Bool {
+        if case .server(status: 410, code: _, message: _, nextAvailableAt: _) = error as? APIClientError {
+            return true
+        }
+        return false
     }
 
     private func retryScanning() {
@@ -303,7 +343,7 @@ struct QRLoginApprovalView: View {
     }
 
     private func confirm(approve: Bool) async {
-        guard let parsed else { return }
+        guard !isWorking, let parsed else { return }
         isWorking = true
         errorMessage = nil
         defer { isWorking = false }
@@ -321,9 +361,21 @@ struct QRLoginApprovalView: View {
                 AppAnalytics.trackAuthResult(method: "qr", result: .cancelled, errorCategory: "user_denied")
             }
             dismiss()
+        } catch is CancellationError {
+            return
         } catch {
-            AppAnalytics.trackAuthResult(method: "qr", result: .failed, errorCategory: "request")
-            errorMessage = error.localizedDescription
+            if !approve {
+                dismiss()
+            } else if (error as? APIClientError) == .sessionExpired {
+                requireReauthentication()
+            } else {
+                AppAnalytics.trackAuthResult(method: "qr", result: .failed, errorCategory: "request")
+                if isExpiredCode(error) {
+                    self.parsed = nil
+                    scanResponse = nil
+                }
+                errorMessage = scanErrorMessage(error)
+            }
         }
     }
 

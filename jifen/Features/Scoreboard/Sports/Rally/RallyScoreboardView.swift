@@ -378,6 +378,8 @@ struct RallyScoreboardView: View {
     @State private var preferences = PreferencesManager.shared
     @State private var showDisplaySettings = false
     @State private var styleEditorEntry = ScoreboardStyleEditorEntry()
+    @State private var photoTitle = ""
+    @State private var photoTitleDraft = ""
     @State private var showMenu = false
     @State private var previousIdleTimerDisabled: Bool?
     @State private var chromeVisible = true
@@ -560,6 +562,11 @@ struct RallyScoreboardView: View {
         }
     }
 
+    private var photoTitleKey: String { "scoreboard_match_title_" + typographySession.styleID.rawValue }
+    private var canEditPhotoTitle: Bool {
+        gameType == .pingpong || gameType == .pingpongDoubles || appearance.styleProfileV2.isPhotoTheme
+    }
+
     var body: some View {
         GeometryReader { proxy in
             let halfH = proxy.size.height
@@ -569,7 +576,8 @@ struct RallyScoreboardView: View {
             ZStack {
                 palette.background.ignoresSafeArea()
 
-                if appearance.styleProfileV2.isPhotoTheme, !isEditMode {
+                if appearance.styleProfileV2.isPhotoTheme, !isEditMode,
+                   RallyDisplayProjectionResolver.teamCourtRoster(gameType: gameType, state: store.state) == nil {
                     RallyPhotoDisplayObserver { photoScene($0) }
                 } else {
                 HStack(spacing: 0) {
@@ -588,6 +596,11 @@ struct RallyScoreboardView: View {
                     }
                 }
 
+                }
+
+                if isEditMode && canEditPhotoTitle {
+                    ScoreboardPhotoTitleField(title: $photoTitleDraft).padding(.top, 8)
+                        .frame(maxHeight: .infinity, alignment: .top)
                 }
 
                 if !appearance.styleProfileV2.isPhotoTheme && !appearance.styleProfileV2.serverIndicatorHidden && !isEditMode && !store.state.finished && showsServeIndicator && terminalSetPresentation == nil {
@@ -759,6 +772,7 @@ struct RallyScoreboardView: View {
             if voiceAnnouncementEnabled && !store.state.finished { ScoreVoiceAnnouncer.shared.checkSessionVoice() }
             typographySession.switchStyleID(ScoreboardStyleID(scoreCoreGameType: gameType))
             appearance = .current(styleID: ScoreboardStyleID(scoreCoreGameType: gameType))
+            photoTitle = UserDefaults.standard.string(forKey: photoTitleKey) ?? ""
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             registerScoreboardSync()
@@ -817,6 +831,13 @@ struct RallyScoreboardView: View {
         }
         .onChange(of: isEditMode) { _, editing in
             if editing { cancelPendingTap() }
+            if canEditPhotoTitle {
+                if editing { photoTitleDraft = photoTitle }
+                else {
+                    photoTitle = ScoreboardMatchTitlePolicy.sanitize(photoTitleDraft) ?? ""
+                    UserDefaults.standard.set(photoTitle, forKey: photoTitleKey)
+                }
+            }
             if editing {
                 syncEditNamesFromState()
             } else if !isFoosballDoubles {
@@ -945,7 +966,7 @@ struct RallyScoreboardView: View {
                 setsColor: Color(hex: appearance.styleProfileV2.resolvedElementTextHex(doubles ? .setGameScore : .setScore, slotKey: slot)),
                 markers: pingPongMarkerStatus(forScreen: screenSide), badgeKind: store.state.finished ? nil : badge)
         }
-        return ScoreboardPhotoScene(left: team(.left), right: team(.right), title: displayState?.matchTitle,
+        return ScoreboardPhotoScene(left: team(.left), right: team(.right), title: photoTitle,
             backdrop: appearance.styleProfileV2.backdrop ?? ScoreboardBackdrop(),
             servingLeft: appearance.styleProfileV2.serverIndicatorHidden || store.state.finished ? nil : logicalSide(forScreen: .left) == store.state.servingSide,
             servingColor: appearance.serverIndicatorColor, indicatorStyle: appearance.styleProfileV2.serverIndicatorStyle ?? "arrow", gameType: ScoreboardStyleID(scoreCoreGameType: gameType).rawValue, clock: displayState?.clock.flatMap { $0.visible ? $0 : nil },
@@ -2624,7 +2645,7 @@ struct RallyScoreboardView: View {
                 let rightSide = logicalSide(forScreen: .right)
                 var compact = LocalScoreboardDisplayState(
                     gameID: store.gameType.rawValue,
-                    title: "",
+                    title: photoTitle,
                     leftName: leftSide == .left ? store.state.leftName : store.state.rightName,
                     rightName: rightSide == .left ? store.state.leftName : store.state.rightName,
                     leftScore: "\(leftSide == .left ? store.state.leftPoints : store.state.rightPoints)",

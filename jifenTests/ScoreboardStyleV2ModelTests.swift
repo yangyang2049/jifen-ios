@@ -347,13 +347,16 @@ extension ScoreboardStyleV2ModelTests {
     }
 
     func testPhotoFieldsRoundtripThroughWireForSinglesAndDoubles() throws {
-        for doubles in [false, true] {
+        for game in ScoreboardPhotoProjects.supported.sorted() {
+            let doubles = ScoreboardPhotoProjects.isDoubles(game)
             var source = photoState(doubles: doubles)
+            source.gameType = game
             source.appearance.style?.serverIndicatorHidden = true
             source.appearance.style?.serverIndicatorStyle = "sport"
             let encoded = try XCTUnwrap(DisplayStateWireCodec.encode(source))
             let transport = try JSONSerialization.jsonObject(with: JSONSerialization.data(withJSONObject: encoded)) as! [String: Any]
             let decoded = try XCTUnwrap(DisplayStateWireCodec.decode(transport))
+            XCTAssertEqual(decoded.gameType, game)
             XCTAssertEqual(decoded.appearance.style?.backdrop, source.appearance.style?.backdrop)
             XCTAssertEqual(decoded.appearance.style?.nameFontCode, "serif")
             XCTAssertEqual(decoded.appearance.style?.serverIndicatorHidden, true)

@@ -1546,7 +1546,7 @@
 "network_invalid_response" = "服務器響應無效";
 "network_request_failed" = "請求失敗，請稍後重試";
 "qr_login_confirm_title" = "確認網頁登入";
-"qr_login_expired" = "二維碼已過期";
+"qr_login_expired" = "QR Code 已過期，請在網頁重新整理後再試";
 "qr_login_invalid" = "不是有效的計分器登入二維碼";
 "qr_login_unknown_device" = "網頁裝置";
 "qr_login_untrusted" = "二維碼來自未受信任的服務器";
@@ -1695,7 +1695,7 @@
 "group_rules_missing" = "規則未記錄";
 "group_save" = "儲存";
 "group_save_failed" = "無法儲存比賽，請重試。";
-"group_scan" = "掃描二維碼";
+"group_scan" = "掃碼";
 "group_scoreboard" = "現場計分";
 "group_set_details" = "每局比分";
 "group_set_input" = "每局比分（選填），每行一局，例如 21:19";
@@ -2645,6 +2645,7 @@
 "style_workbench_background" = "背景";
 "style_workbench_font" = "字體";
 "style_workbench_free" = "自由編輯";
+"style_workbench_server" = "發球指示";
 "style_workbench_phone" = "本機";
 "style_workbench_cast" = "投屏";
 "style_workbench_full_preview" = "完整預覽";
@@ -2654,7 +2655,7 @@
 "style_workbench_photo" = "照片背景";
 "style_workbench_settings" = "設定";
 "style_workbench_select_photo" = "選擇照片";
-"style_workbench_restore_photo" = "恢復預設背景";
+"style_workbench_restore_photo" = "預設圖片";
 "style_workbench_dim" = "背景遮罩";
 "style_workbench_opacity" = "面板透明度";
 "style_workbench_score_font" = "比分字體";

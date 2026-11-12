@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Baggrund";
 "style_workbench_font" = "Skrifttype";
 "style_workbench_free" = "Fri redigering";
+"style_workbench_server" = "Serveindikator";
 "style_workbench_phone" = "Denne enhed";
 "style_workbench_cast" = "Ekstern skærm";
 "style_workbench_full_preview" = "Fuld forhåndsvisning";

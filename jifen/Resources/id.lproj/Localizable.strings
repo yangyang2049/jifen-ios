@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "Latar Belakang";
 "style_workbench_font" = "Font";
 "style_workbench_free" = "Edit bebas";
+"style_workbench_server" = "Indikator Servis";
 "style_workbench_phone" = "Perangkat ini";
 "style_workbench_cast" = "Penayangan Layar";
 "style_workbench_full_preview" = "Pratinjau penuh";

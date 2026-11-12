@@ -2721,6 +2721,7 @@
 "style_workbench_background" = "પૃષ્ઠભૂમિ";
 "style_workbench_font" = "ફોન્ટ";
 "style_workbench_free" = "મુક્ત સંપાદન";
+"style_workbench_server" = "સર્વ સૂચક";
 "style_workbench_phone" = "આ ડિવાઇસ";
 "style_workbench_cast" = "કાસ્ટ";
 "style_workbench_full_preview" = "સંપૂર્ણ પ્રીવ્યૂ";
