@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "Stil ve Renkler";
 "scoreboard_style_edit" = "Stil";
 "style_background_color" = "Arka Plan Rengi";
+"style_server_color" = "Renk";
+"style_server_style" = "Style";
 "style_text_color" = "Metin Rengi";
 "style_server_indicator" = "Servis Göstergesi";
 "style_color_automatic" = "Otomatik";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "Büyük";
 "scoreboard_style_symmetric_size_same" = "Sol ve sağ boyutlar aynı kalır";
 "scoreboard_style_contrast_warning" = "Mevcut metin renginin kontrastı yetersiz ve okunması zor olabilir";
+"scoreboard_style_contrast_confirm_title" = "Bazı metinleri okumak zor olabilir";
+"scoreboard_style_contrast_confirm_message" = "Bu metin renkleri arka plan renklerine çok yakın:";
+"scoreboard_style_back_to_adjust" = "Ayarlamaya dön";
+"scoreboard_style_save_anyway" = "Yine de kaydet";
 "font_selection_title" = "Puan Yazı Tipi";
 "theme_selection_title" = "Skor Tahtası Teması";
 "scoreboard_style_left_team_name" = "Sol Takım Adı";
@@ -858,6 +864,9 @@
 "show_match_time" = "Süreyi Göster";
 "hide_match_time" = "Zamanı gizle";
 "scoreboard_match_time_this_game_only" = "Yalnızca bu maç; bir sonraki maç sporun varsayılan ayarına geri döner.";
+"scoreboard_match_time_menu" = "Süreyi göster";
+"scoreboard_match_time_shown_toast" = "Süre gösterildi";
+"scoreboard_match_time_hidden_toast" = "Süre gizlendi";
 "scoreboard_font_size" = "Yazı Tipi Boyutu";
 "scoreboard_font_size_reset" = "Varsayılana Sıfırla";
 "scoreboard_font_metric_score" = "Ana Skor";

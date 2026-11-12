@@ -543,10 +543,7 @@ struct SnookerScoreboardView: View {
 
     /// matchTitle 全局元素色：V2 已配置（.sideCenter 槽）时取元素色，否则保持白色。
     private func matchTitleColor(_ appearance: ScoreboardAppearanceSnapshot) -> Color {
-        if appearance.hasElementColor(.matchTitle, slotKey: .sideCenter) {
-            return appearance.elementForeground(.matchTitle, slotKey: .sideCenter)
-        }
-        return .white
+        Color(hex: appearance.styleProfileV2.resolvedMatchTitleTextHex())
     }
 
     private func commitMatchTitle() {

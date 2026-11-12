@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "סגנון וצבעים";
 "scoreboard_style_edit" = "סגנון";
 "style_background_color" = "צבע רקע";
+"style_server_color" = "צבע";
+"style_server_style" = "Style";
 "style_text_color" = "צבע טקסט";
 "style_server_indicator" = "מחוון הגשה";
 "style_color_automatic" = "אוטומטי";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "גדול";
 "scoreboard_style_symmetric_size_same" = "הגדלים בצד שמאל ובצד ימין נשארים זהים";
 "scoreboard_style_contrast_warning" = "לצבע הטקסט הנוכחי אין ניגודיות מספקת, ולכן ייתכן שיהיה קשה לקרוא אותו";
+"scoreboard_style_contrast_confirm_title" = "ייתכן שחלק מהטקסט קשה לקריאה";
+"scoreboard_style_contrast_confirm_message" = "צבעי הטקסט הבאים דומים מדי לצבעי הרקע שלהם:";
+"scoreboard_style_back_to_adjust" = "חזרה להתאמה";
+"scoreboard_style_save_anyway" = "שמירה בכל זאת";
 "font_selection_title" = "גופן התוצאה";
 "theme_selection_title" = "ערכת הנושא של לוח התוצאות";
 "scoreboard_style_left_team_name" = "שם הקבוצה השמאלית";
@@ -858,6 +864,9 @@
 "show_match_time" = "זמן הצג";
 "hide_match_time" = "הסתר זמן";
 "scoreboard_match_time_this_game_only" = "למשחק הזה בלבד; במשחק הבא תחזור הגדרת ברירת המחדל של הענף.";
+"scoreboard_match_time_menu" = "הצג זמן";
+"scoreboard_match_time_shown_toast" = "הזמן מוצג";
+"scoreboard_match_time_hidden_toast" = "הזמן הוסתר";
 "scoreboard_font_size" = "גודל גופן";
 "scoreboard_font_size_reset" = "איפוס לברירת מחדל";
 "scoreboard_font_metric_score" = "ניקוד ראשי";

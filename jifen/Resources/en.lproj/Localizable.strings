@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "Style & Colors";
 "scoreboard_style_edit" = "Style";
 "style_background_color" = "Background Color";
+"style_server_color" = "Color";
+"style_server_style" = "Style";
 "style_text_color" = "Text Color";
 "style_server_indicator" = "Serve Indicator";
 "style_color_automatic" = "Auto";
@@ -796,8 +798,12 @@
 "scoreboard_style_font_size_device_max" = "Max size on this device";
 "scoreboard_style_small" = "Small";
 "scoreboard_style_large" = "Large";
-"scoreboard_style_symmetric_size_same" = "Left and right sizes stay the same";
+"scoreboard_style_symmetric_size_same" = "Same on both sides";
 "scoreboard_style_contrast_warning" = "Current text color has insufficient contrast and may be hard to read";
+"scoreboard_style_contrast_confirm_title" = "Some text may be hard to read";
+"scoreboard_style_contrast_confirm_message" = "These text colors are too close to their backgrounds:";
+"scoreboard_style_back_to_adjust" = "Back to adjust";
+"scoreboard_style_save_anyway" = "Save anyway";
 "font_selection_title" = "Score Font";
 "theme_selection_title" = "Scoreboard Theme";
 "scoreboard_style_left_team_name" = "Left Team Name";
@@ -858,6 +864,9 @@
 "show_match_time" = "Show time";
 "hide_match_time" = "Hide time";
 "scoreboard_match_time_this_game_only" = "This match only; the next match reverts to the sport's default setting.";
+"scoreboard_match_time_menu" = "Time display";
+"scoreboard_match_time_shown_toast" = "Time shown";
+"scoreboard_match_time_hidden_toast" = "Time hidden";
 "scoreboard_font_size" = "Font Size";
 "scoreboard_font_size_reset" = "Reset to Default";
 "scoreboard_font_metric_score" = "Main Score";
@@ -2676,7 +2685,7 @@
 "style_workbench_photo_failed" = "Could not open this photo. Choose another image.";
 "style_workbench_image_advice" = "Use a 16:9 landscape image, such as 1920×1080. Images fill the screen with a centered crop.";
 
-"style_server_arrow" = "Default triangle";
+"style_server_arrow" = "Triangle";
 "style_server_sport" = "Sport icon";
 
 "style_preview_exit" = "Exit preview";

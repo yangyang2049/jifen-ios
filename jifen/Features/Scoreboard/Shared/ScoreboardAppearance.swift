@@ -792,12 +792,25 @@ nonisolated struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
         return panelHex(for: legacy)
     }
 
+    /// 专业深色（pro_dark / ddz_pro_dark）的**主题默认面板色**。
+    /// 自动对比的「固定白字」只在面板仍是这里的深色时才成立：
+    /// 用户把半区换成浅底后必须回到 WCAG 自动对比，否则白字贴在浅底上直接看不见
+    /// （与安卓 isProDarkThemePanelColor / 鸿蒙同一口径）。
+    nonisolated static let proDarkThemePanelHexes: Set<String> = ["972828", "8E2428", "155A9C", "15171A", "1B1B1F"]
+
+    /// 该背景是否仍属于专业深色主题的深色默认面板。
+    nonisolated static func isProDarkThemePanelHex(_ background: String) -> Bool {
+        guard let normalized = normalizedHex(background) else { return false }
+        return proDarkThemePanelHexes.contains(normalized)
+    }
+
     /// 自动对比文字色（1:1 对齐安卓 resolvedAutoTextColor）：
-    /// pro_dark 系固定白字；default 主题左右面板等于主题基色时固定白字
+    /// pro_dark 系且面板仍是主题深色时固定白字；default 主题左右面板等于主题基色时固定白字
     /// （纯红/纯蓝上 WCAG 数学会误选黑色，与主题设计不符）。
     func resolvedAutoTextHex(forSlot slotKey: ScoreboardStyleSlotKeyV2) -> String {
         let background = slotBackgroundHex(slotKey)
-        if themeCode == "pro_dark" || themeCode == "ddz_pro_dark" {
+        if themeCode == "pro_dark" || themeCode == "ddz_pro_dark",
+           Self.isProDarkThemePanelHex(background) {
             return "FFFFFF"
         }
         if themeCode == "default" || themeCode == "event_background" {
@@ -848,6 +861,30 @@ nonisolated struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
             return resolvedAutoTextHex(forSlot: slotKey)
         }
         return resolvedTextHex(for: legacy)
+    }
+
+    /// 斯诺克抬头取中间槽位；未配置时保留渲染端原有的白色回落。
+    func resolvedMatchTitleTextHex() -> String {
+        let configured = elements?.first(where: { $0.elementKey == .matchTitle })?
+            .textColors.contains(where: { $0.slotKey == .sideCenter }) == true
+        return configured ? resolvedElementTextHex(.matchTitle, slotKey: .sideCenter) : "FFFFFF"
+    }
+
+    /// 保存检查与画布使用同一颜色；全局抬头覆盖的所有背景都要检查，每个元素只报告一次。
+    func lowContrastTextTargets(
+        _ capabilities: ScoreboardStyleEditCapabilities
+    ) -> [(elementKey: ScoreboardStyleElementKeyV2, slotKey: ScoreboardStyleSlotKeyV2)] {
+        let slots: [ScoreboardStyleSlotKeyV2] = capabilities.slotKeys.isEmpty
+            ? [.sideLeft, .sideRight] : capabilities.slotKeys
+        return capabilities.elementKeys.compactMap { key in
+            let global = capabilities.globalElementKeys.contains(key)
+            guard let slot = slots.first(where: { candidate in
+                let color = global ? resolvedMatchTitleTextHex()
+                    : resolvedElementTextHex(key, slotKey: candidate)
+                return !ScoreboardStyleColorMath.isReadableTextColor(color, on: slotBackgroundHex(candidate))
+            }) else { return nil }
+            return (key, slot)
+        }
     }
 
     /// 指定元素在指定槽位是否有手动色（供投屏/同步端逐元素配色）。

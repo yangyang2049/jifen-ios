@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "스타일 및 색상";
 "scoreboard_style_edit" = "스타일";
 "style_background_color" = "배경색";
+"style_server_color" = "색상";
+"style_server_style" = "Style";
 "style_text_color" = "텍스트 색상";
 "style_server_indicator" = "서브 표시";
 "style_color_automatic" = "자동";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "크게";
 "scoreboard_style_symmetric_size_same" = "왼쪽과 오른쪽 크기는 동일합니다.";
 "scoreboard_style_contrast_warning" = "현재 텍스트 색상의 대비가 부족하여 읽기 어려울 수 있습니다.";
+"scoreboard_style_contrast_confirm_title" = "일부 글자가 잘 보이지 않을 수 있습니다";
+"scoreboard_style_contrast_confirm_message" = "다음 글자 색상이 배경색과 너무 비슷합니다:";
+"scoreboard_style_back_to_adjust" = "돌아가서 조정";
+"scoreboard_style_save_anyway" = "그래도 저장";
 "font_selection_title" = "점수 글꼴";
 "theme_selection_title" = "점수판 테마";
 "scoreboard_style_left_team_name" = "왼쪽 팀 이름";
@@ -858,6 +864,9 @@
 "show_match_time" = "경기 시간 표시";
 "hide_match_time" = "시간 숨기기";
 "scoreboard_match_time_this_game_only" = "이번 경기에만 적용됩니다. 다음 경기는 해당 종목의 기본 설정으로 돌아갑니다.";
+"scoreboard_match_time_menu" = "시간 표시";
+"scoreboard_match_time_shown_toast" = "경기 시간을 표시합니다";
+"scoreboard_match_time_hidden_toast" = "경기 시간을 숨겼습니다";
 "scoreboard_font_size" = "글꼴 크기";
 "scoreboard_font_size_reset" = "기본값으로 재설정";
 "scoreboard_font_metric_score" = "주 점수";

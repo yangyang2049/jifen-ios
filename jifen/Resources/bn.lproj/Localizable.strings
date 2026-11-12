@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "শৈলী এবং রং";
 "scoreboard_style_edit" = "স্টাইল";
 "style_background_color" = "পটভূমির রঙ";
+"style_server_color" = "রঙ";
+"style_server_style" = "Style";
 "style_text_color" = "পাঠ্যের রঙ";
 "style_server_indicator" = "সার্ভ নির্দেশক";
 "style_color_automatic" = "অটো";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "বড়";
 "scoreboard_style_symmetric_size_same" = "বাম এবং ডান মাপ একই থাকে";
 "scoreboard_style_contrast_warning" = "বর্তমান পাঠ্যের রঙের অপর্যাপ্ত বৈসাদৃশ্য রয়েছে এবং এটি পড়া কঠিন হতে পারে";
+"scoreboard_style_contrast_confirm_title" = "কিছু লেখা পড়তে অসুবিধা হতে পারে";
+"scoreboard_style_contrast_confirm_message" = "এই লেখাগুলির রং পটভূমির রঙের খুব কাছাকাছি:";
+"scoreboard_style_back_to_adjust" = "ফিরে গিয়ে বদলান";
+"scoreboard_style_save_anyway" = "তবুও সংরক্ষণ করুন";
 "font_selection_title" = "স্কোর ফন্ট";
 "theme_selection_title" = "স্কোরবোর্ড থিম";
 "scoreboard_style_left_team_name" = "বাম দলের নাম";
@@ -858,6 +864,9 @@
 "show_match_time" = "সময় দেখান";
 "hide_match_time" = "সময় লুকান";
 "scoreboard_match_time_this_game_only" = "শুধুমাত্র এই ম্যাচ; পরবর্তী ম্যাচটি খেলাধুলার ডিফল্ট সেটিংয়ে ফিরে আসে।";
+"scoreboard_match_time_menu" = "সময় দেখান";
+"scoreboard_match_time_shown_toast" = "সময় দেখানো হয়েছে";
+"scoreboard_match_time_hidden_toast" = "সময় লুকানো হয়েছে";
 "scoreboard_font_size" = "ফন্ট সাইজ";
 "scoreboard_font_size_reset" = "ডিফল্টে রিসেট করুন";
 "scoreboard_font_metric_score" = "প্রধান স্কোর";

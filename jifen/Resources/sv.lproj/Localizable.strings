@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "Stil och färger";
 "scoreboard_style_edit" = "Stil";
 "style_background_color" = "Bakgrundsfärg";
+"style_server_color" = "färg";
+"style_server_style" = "Style";
 "style_text_color" = "Textfärg";
 "style_server_indicator" = "Serveringsindikator";
 "style_color_automatic" = "Auto";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "Stor";
 "scoreboard_style_symmetric_size_same" = "Vänster och höger storlekar förblir desamma";
 "scoreboard_style_contrast_warning" = "Aktuell textfärg har otillräcklig kontrast och kan vara svår att läsa";
+"scoreboard_style_contrast_confirm_title" = "Viss text kan vara svår att läsa";
+"scoreboard_style_contrast_confirm_message" = "Dessa textfärger liknar bakgrunden för mycket:";
+"scoreboard_style_back_to_adjust" = "Tillbaka och justera";
+"scoreboard_style_save_anyway" = "Spara ändå";
 "font_selection_title" = "Teckensnitt för poäng";
 "theme_selection_title" = "Resultattavlans tema";
 "scoreboard_style_left_team_name" = "Vänster lagnamn";
@@ -858,6 +864,9 @@
 "show_match_time" = "Visa tid";
 "hide_match_time" = "Göm tid";
 "scoreboard_match_time_this_game_only" = "Endast den här matchen; nästa match återgår till sportens standardinställning.";
+"scoreboard_match_time_menu" = "Visa tid";
+"scoreboard_match_time_shown_toast" = "Tid visas";
+"scoreboard_match_time_hidden_toast" = "Tid dold";
 "scoreboard_font_size" = "Teckenstorlek";
 "scoreboard_font_size_reset" = "Återställ till standard";
 "scoreboard_font_metric_score" = "Huvudresultat";

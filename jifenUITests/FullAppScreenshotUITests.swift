@@ -1690,6 +1690,37 @@ final class FullAppScreenshotUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["+0:00"].firstMatch.waitForExistence(timeout: 2))
     }
 
+    func testStyleAutoSwatchRemainsAutomaticWhenSelectedAgain() {
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "pingpong", label: "乒乓球",
+            extraArguments: ["-UITestSportsVoiceMissing", "-national_day_2026_10_autopopup_count", "99"]))
+        XCTAssertTrue(tapStart())
+        XCUIDevice.shared.orientation = .landscapeRight
+        XCTAssertTrue(openPriorityScoreboardMenu())
+        app.descendants(matching: .any)["scoreboard_menu_action_displaySettings"].firstMatch.tap()
+        let editor = app.descendants(matching: .any)["scoreboard_style_editor"].firstMatch
+        XCTAssertTrue(editor.waitForExistence(timeout: 4))
+        app.buttons["scoreboard_style_tab_theme"].firstMatch.tap()
+        let theme = app.buttons["scoreboard_style_theme_default"].firstMatch
+        // 当前主题不会再次出现在可选列表里；默认主题已生效时直接继续。
+        if theme.exists {
+            scrollStyleOptionIntoView(theme, editor: editor)
+            XCTAssertTrue(theme.isHittable)
+            theme.tap()
+        }
+        app.buttons["scoreboard_style_tab_free"].firstMatch.tap()
+        let target = app.descendants(matching: .any)["style_element_mainScore_side_right"].firstMatch
+        XCTAssertTrue(target.waitForExistence(timeout: 3))
+        target.tap()
+        let automatic = app.buttons["scoreboard_style_text_auto"].firstMatch
+        XCTAssertTrue(automatic.waitForExistence(timeout: 3))
+        XCTAssertTrue(automatic.isSelected)
+        for _ in 0..<2 {
+            automatic.tap()
+            XCTAssertTrue(automatic.isSelected, "Selecting Auto again must not freeze a manual color")
+        }
+        app.buttons["scoreboard_style_cancel"].firstMatch.tap()
+    }
+
     func testUnifiedStyleFontLayout() {
         XCTAssertTrue(openPriorityScoreboardSetup(id: "pingpong", label: "乒乓球",
             extraArguments: ["-UITestSportsVoiceMissing", "-national_day_2026_10_autopopup_count", "99"]))

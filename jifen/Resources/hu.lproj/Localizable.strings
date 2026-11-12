@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "Stílus és színek";
 "scoreboard_style_edit" = "Stílus";
 "style_background_color" = "Háttérszín";
+"style_server_color" = "szín";
+"style_server_style" = "Style";
 "style_text_color" = "Szöveg színe";
 "style_server_indicator" = "Adogatásjelző";
 "style_color_automatic" = "Auto";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "Nagy";
 "scoreboard_style_symmetric_size_same" = "A bal és a jobb oldali méretek változatlanok maradnak";
 "scoreboard_style_contrast_warning" = "A szöveg jelenlegi színének kontrasztja nem elegendő, és nehezen olvasható";
+"scoreboard_style_contrast_confirm_title" = "Egyes szövegek nehezen olvashatók lehetnek";
+"scoreboard_style_contrast_confirm_message" = "Ezek a szövegszínek túlságosan hasonlítanak a háttér színére:";
+"scoreboard_style_back_to_adjust" = "Vissza a beállításokhoz";
+"scoreboard_style_save_anyway" = "Mentés mindenképpen";
 "font_selection_title" = "Pontszám betűtípus";
 "theme_selection_title" = "Eredménytábla téma";
 "scoreboard_style_left_team_name" = "Bal csapatnév";
@@ -858,6 +864,9 @@
 "show_match_time" = "Idő megjelenítése";
 "hide_match_time" = "Idő elrejtése";
 "scoreboard_match_time_this_game_only" = "Csak erre a mérkőzésre érvényes; a következőnél visszaáll a sportág alapértelmezett beállítása.";
+"scoreboard_match_time_menu" = "Idő megjelenítése";
+"scoreboard_match_time_shown_toast" = "Idő megjelenítve";
+"scoreboard_match_time_hidden_toast" = "Idő elrejtve";
 "scoreboard_font_size" = "Betűméret";
 "scoreboard_font_size_reset" = "Visszaállítás alapértelmezettre";
 "scoreboard_font_metric_score" = "Fő pontszám";

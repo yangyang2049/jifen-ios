@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "スタイルとカラー";
 "scoreboard_style_edit" = "スタイル";
 "style_background_color" = "背景色";
+"style_server_color" = "色";
+"style_server_style" = "Style";
 "style_text_color" = "文字色";
 "style_server_indicator" = "サーブ表示";
 "style_color_automatic" = "自動";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "大";
 "scoreboard_style_symmetric_size_same" = "左右の文字サイズは同じです";
 "scoreboard_style_contrast_warning" = "現在の文字色のコントラストが不十分で、読みにくい場合があります";
+"scoreboard_style_contrast_confirm_title" = "一部の文字が読みにくい可能性があります";
+"scoreboard_style_contrast_confirm_message" = "次の文字色は背景色に近すぎます：";
+"scoreboard_style_back_to_adjust" = "調整に戻る";
+"scoreboard_style_save_anyway" = "このまま保存";
 "font_selection_title" = "スコアフォント";
 "theme_selection_title" = "スコアボードのテーマ";
 "scoreboard_style_left_team_name" = "左のチーム名";
@@ -858,6 +864,9 @@
 "show_match_time" = "時間を表示";
 "hide_match_time" = "時間を非表示";
 "scoreboard_match_time_this_game_only" = "この試合にのみ適用され、次の試合では競技のデフォルト設定に戻ります。";
+"scoreboard_match_time_menu" = "時間表示";
+"scoreboard_match_time_shown_toast" = "試合時間を表示しました";
+"scoreboard_match_time_hidden_toast" = "試合時間を非表示にしました";
 "scoreboard_font_size" = "フォントサイズ";
 "scoreboard_font_size_reset" = "デフォルトにリセット";
 "scoreboard_font_metric_score" = "メインスコア";

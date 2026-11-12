@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "Slog in barve";
 "scoreboard_style_edit" = "Slog";
 "style_background_color" = "Barva ozadja";
+"style_server_color" = "barva";
+"style_server_style" = "Style";
 "style_text_color" = "Barva besedila";
 "style_server_indicator" = "Indikator servisa";
 "style_color_automatic" = "Samodejno";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "Veliko";
 "scoreboard_style_symmetric_size_same" = "Leva in desna velikost ostaneta enaki";
 "scoreboard_style_contrast_warning" = "Trenutna barva besedila nima zadostnega kontrasta in je morda težko berljiva";
+"scoreboard_style_contrast_confirm_title" = "Nekatera besedila so morda težko berljiva";
+"scoreboard_style_contrast_confirm_message" = "Te barve besedila so preveč podobne barvam ozadja:";
+"scoreboard_style_back_to_adjust" = "Nazaj na prilagoditve";
+"scoreboard_style_save_anyway" = "Vseeno shrani";
 "font_selection_title" = "Pisava rezultatov";
 "theme_selection_title" = "Tema semaforja";
 "scoreboard_style_left_team_name" = "Ime leve ekipe";
@@ -858,6 +864,9 @@
 "show_match_time" = "Prikaži čas";
 "hide_match_time" = "Skrij čas";
 "scoreboard_match_time_this_game_only" = "Samo ta tekma; naslednja tekma se vrne na privzeto nastavitev športa.";
+"scoreboard_match_time_menu" = "Prikaži čas";
+"scoreboard_match_time_shown_toast" = "Čas prikazan";
+"scoreboard_match_time_hidden_toast" = "Čas skrit";
 "scoreboard_font_size" = "Velikost pisave";
 "scoreboard_font_size_reset" = "Ponastavi na privzeto";
 "scoreboard_font_metric_score" = "Glavni rezultat";

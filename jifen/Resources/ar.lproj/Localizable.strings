@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "الطراز والألوان";
 "scoreboard_style_edit" = "النمط";
 "style_background_color" = "لون الخلفية";
+"style_server_color" = "اللون";
+"style_server_style" = "Style";
 "style_text_color" = "لون النص";
 "style_server_indicator" = "مؤشر الإرسال";
 "style_color_automatic" = "تلقائي";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "كبير";
 "scoreboard_style_symmetric_size_same" = "يظل الحجم الأيسر والأيمن كما هو";
 "scoreboard_style_contrast_warning" = "لون النص الحالي لا يحتوي على تباين كافٍ وقد يكون من الصعب قراءته";
+"scoreboard_style_contrast_confirm_title" = "قد يصعب قراءة بعض النصوص";
+"scoreboard_style_contrast_confirm_message" = "ألوان النصوص التالية قريبة جدًا من ألوان خلفياتها:";
+"scoreboard_style_back_to_adjust" = "العودة للتعديل";
+"scoreboard_style_save_anyway" = "الحفظ على أي حال";
 "font_selection_title" = "خط النتيجة";
 "theme_selection_title" = "سمة لوحة النتائج";
 "scoreboard_style_left_team_name" = "اسم الفريق الأيسر";
@@ -858,6 +864,9 @@
 "show_match_time" = "إظهار الوقت";
 "hide_match_time" = "إخفاء الوقت";
 "scoreboard_match_time_this_game_only" = "لهذه المباراة فقط؛ ستعود المباراة التالية إلى الإعداد الافتراضي للرياضة.";
+"scoreboard_match_time_menu" = "عرض الوقت";
+"scoreboard_match_time_shown_toast" = "تم عرض الوقت";
+"scoreboard_match_time_hidden_toast" = "تم إخفاء الوقت";
 "scoreboard_font_size" = "حجم الخط";
 "scoreboard_font_size_reset" = "إعادة التعيين إلى الوضع الافتراضي";
 "scoreboard_font_metric_score" = "النتيجة الرئيسية";

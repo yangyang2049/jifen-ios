@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "Stile e colori";
 "scoreboard_style_edit" = "Stile";
 "style_background_color" = "Colore di sfondo";
+"style_server_color" = "Color";
+"style_server_style" = "Style";
 "style_text_color" = "Colore del testo";
 "style_server_indicator" = "Indicatore di servizio";
 "style_color_automatic" = "Automatico";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "Grande";
 "scoreboard_style_symmetric_size_same" = "Le dimensioni sinistra e destra rimangono le stesse";
 "scoreboard_style_contrast_warning" = "Il colore del testo corrente ha un contrasto insufficiente e potrebbe essere difficile da leggere";
+"scoreboard_style_contrast_confirm_title" = "Alcuni testi potrebbero essere difficili da leggere";
+"scoreboard_style_contrast_confirm_message" = "Questi colori del testo sono troppo simili a quelli dello sfondo:";
+"scoreboard_style_back_to_adjust" = "Torna alle modifiche";
+"scoreboard_style_save_anyway" = "Salva comunque";
 "font_selection_title" = "Carattere punteggio";
 "theme_selection_title" = "Tema del tabellone segnapunti";
 "scoreboard_style_left_team_name" = "Nome della squadra a sinistra";
@@ -858,6 +864,9 @@
 "show_match_time" = "Mostra l'ora";
 "hide_match_time" = "Nascondi ora";
 "scoreboard_match_time_this_game_only" = "Solo questa partita; alla partita successiva verranno ripristinate le impostazioni predefinite dello sport.";
+"scoreboard_match_time_menu" = "Mostra tempo";
+"scoreboard_match_time_shown_toast" = "Tempo mostrato";
+"scoreboard_match_time_hidden_toast" = "Tempo nascosto";
 "scoreboard_font_size" = "Dimensione carattere";
 "scoreboard_font_size_reset" = "Ripristina le impostazioni predefinite";
 "scoreboard_font_metric_score" = "Punteggio principale";

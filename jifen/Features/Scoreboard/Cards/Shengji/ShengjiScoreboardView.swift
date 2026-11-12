@@ -57,6 +57,8 @@ struct ShengjiScoreboardView: View {
     @State private var leftName: String
     @State private var rightName: String
     @State private var showFinishedRecordDetail = false
+    /// 菜单开关类操作（时间显示）不收起菜单，用一次性 toast 反馈当前状态。
+    @State private var matchTimeToast: String?
     @State private var scoreboardEditing = false
     @State private var showGameOverDialog = false
     @State private var showPersistenceError = false
@@ -117,6 +119,11 @@ struct ShengjiScoreboardView: View {
     var body: some View {
         shengjiContent
         .cloudSyncSharingEntryOverlay()
+        .overlay(alignment: .bottom) {
+            if let matchTimeToast {
+                ToastView(message: matchTimeToast).padding(.bottom, 96)
+            }
+        }
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             finishedRecordDetailPage
         }
@@ -378,13 +385,13 @@ struct ShengjiScoreboardView: View {
             ?? PreferencesManager.shared.scoreboardMatchTimeVisible(for: .shengji)
         return [
             ScoreboardMenuItem(
-                title: visible
-                    ? NSLocalizedString("hide_match_time", value: "隐藏时间", comment: "")
-                    : NSLocalizedString("show_match_time", value: "显示时间", comment: ""),
+                // 开关类卡片恒定文案，状态交给颜色（对齐安卓 contentColor / 鸿蒙 activeColor）。
+                title: NSLocalizedString("scoreboard_match_time_menu", value: "时间显示", comment: ""),
                 action: "toggleMatchTime",
                 group: .tools,
                 icon: "clock",
-                keepDialogOpen: true
+                keepDialogOpen: true,
+                activeColor: visible ? Theme.primary : nil
             )
         ]
     }
@@ -393,6 +400,20 @@ struct ShengjiScoreboardView: View {
         guard let session = matchClockSession else { return }
         session.isVisible.toggle()
         PreferencesManager.shared.setScoreboardMatchTimeVisible(session.isVisible, for: .shengji)
+        showMatchTimeToast(session.isVisible)
+    }
+
+    /// 菜单保持打开，用 toast 说明时间显示已被切换。
+    private func showMatchTimeToast(_ visible: Bool) {
+        let message = NSLocalizedString(
+            visible ? "scoreboard_match_time_shown_toast" : "scoreboard_match_time_hidden_toast",
+            value: visible ? "已显示比赛时间" : "已隐藏比赛时间",
+            comment: ""
+        )
+        matchTimeToast = message
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            if matchTimeToast == message { matchTimeToast = nil }
+        }
     }
 
     private func finishMatch() {

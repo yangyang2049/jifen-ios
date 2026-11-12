@@ -9,6 +9,41 @@ import XCTest
 @testable import jifen
 
 final class ScoreboardStyleV2ModelTests: XCTestCase {
+    func testSaveContrastChecksBothSidesUsingRenderedCenterTitleColor() {
+        let caps = ScoreboardStyleEditCapabilities.capabilities(elementKeys: [.matchTitle], globalElementKeys: [.matchTitle])
+        let whiteTitle = ScoreboardStyleProfileV2.default(for: ScoreboardStyleID(rawValue: "snooker"), theme: .proDark)
+            .withElementTextColor(.matchTitle, slotKey: .sideCenter, mode: .manual, colorHex: "FFFFFF")
+            // The title renderer uses center, not this deliberately different left entry.
+            .withElementTextColor(.matchTitle, slotKey: .sideLeft, mode: .manual, colorHex: "111111")
+        for (left, right, badSide) in [("000000", "FFFFFF", ScoreboardStyleSlotKeyV2.sideRight),
+                                       ("FFFFFF", "000000", ScoreboardStyleSlotKeyV2.sideLeft)] {
+            let style = whiteTitle.withPanelBackground(left, for: .sideLeft)
+                .withPanelBackground(right, for: .sideRight)
+            XCTAssertEqual(style.resolvedMatchTitleTextHex(), "FFFFFF")
+            let targets = style.lowContrastTextTargets(caps)
+            XCTAssertEqual(targets.map(\.elementKey), [.matchTitle])
+            XCTAssertEqual(targets.map(\.slotKey), [badSide])
+        }
+        let readable = whiteTitle.withPanelBackground("000000", for: .sideLeft)
+            .withPanelBackground("000000", for: .sideRight)
+        XCTAssertTrue(readable.lowContrastTextTargets(caps).isEmpty)
+    }
+
+    func testSaveContrastKeepsTitleFallbackAndIndependentCenterColors() {
+        var style = ScoreboardStyleProfileV2.default(for: ScoreboardStyleID(rawValue: "snooker"))
+        style.elements = []
+        style = style.withPanelBackground("000000", for: .sideLeft)
+            .withPanelBackground("FFFFFF", for: .sideRight)
+        XCTAssertEqual(style.resolvedMatchTitleTextHex(), "FFFFFF")
+        let titleCaps = ScoreboardStyleEditCapabilities.capabilities(elementKeys: [.matchTitle], globalElementKeys: [.matchTitle])
+        XCTAssertEqual(style.lowContrastTextTargets(titleCaps).map(\.slotKey), [.sideRight])
+
+        let caps = ScoreboardStyleEditCapabilities.capabilities(elementKeys: [.mainScore], slotKeys: [.sideLeft, .sideCenter, .sideRight])
+        let threeSides = ScoreboardStyleProfileV2.default(for: ScoreboardStyleID(rawValue: "doudizhu"), theme: .ddzProDark)
+            .withPanelBackground("FFFFFF", for: .sideCenter)
+            .withElementTextColor(.mainScore, slotKey: .sideCenter, mode: .manual, colorHex: "FFFFFF")
+        XCTAssertEqual(threeSides.lowContrastTextTargets(caps).map(\.slotKey), [.sideCenter])
+    }
     // MARK: - 向后兼容解码
 
     func testDecodingLegacyFlatJSONKeepsNilV2Fields() throws {
@@ -163,9 +198,14 @@ final class ScoreboardStyleV2ModelTests: XCTestCase {
             profile.resolvedElementTextHex(.mainScore, slotKey: .sideLeft),
             "FFFFFF"
         )
-        // pro_dark 特例：任意自定义背景仍固定白字（对齐安卓 resolvedAutoTextColor）。
-        let custom = profile.withPanelBackground("FFFFFF", for: .sideLeft)
-        XCTAssertEqual(custom.resolvedElementTextHex(.mainScore, slotKey: .sideLeft), "FFFFFF")
+        // 专业深色的白字只绑定主题的深色面板：用户把半区换成浅底、再切回自动时，
+        // AUTO 必须回到 WCAG 自动对比，否则「切成浅底后点回自动仍是白字」，计分板上的文字就看不清。
+        let automatic = profile
+            .withElementTextColor(.mainScore, slotKey: .sideLeft, mode: .auto, colorHex: "FFFFFF")
+            .withElementTextColor(.mainScore, slotKey: .sideRight, mode: .auto, colorHex: "FFFFFF")
+            .withPanelBackground("FFFFFF", for: .sideLeft)
+        XCTAssertEqual(automatic.resolvedElementTextHex(.mainScore, slotKey: .sideLeft), "111111")
+        XCTAssertEqual(automatic.resolvedElementTextHex(.mainScore, slotKey: .sideRight), "FFFFFF")
     }
 
     func testDoudizhuDefaultProfileReplicatesAndroidThreePanels() {

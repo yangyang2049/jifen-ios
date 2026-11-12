@@ -276,6 +276,22 @@ enum DisplayTypographyResolver {
         return (shortEdge / 360).clamped(1, 1.5)
     }
 
+    /// 本机投屏离观众更远，名称与局/盘分等次级文字的默认字号上调；主分已按屏幕
+    /// 高度填满分数字带，不再额外放大（对齐安卓 LOCAL_PROJECTION_BASE_FONT_SCALE）。
+    /// 跨设备同步显示端维持原规格。
+    private static let localProjectionBaseFontScale: CGFloat = 1.08
+    /// 投屏端放宽字号上限，让样式里的字号倍率在大屏上仍有余量（对齐安卓
+    /// LOCAL_PROJECTION_FONT_CEILING_SCALE）。
+    private static let localProjectionFontCeilingScale: CGFloat = 1.18
+
+    static func projectionBaseFontScale(isLocalProjection: Bool) -> CGFloat {
+        isLocalProjection ? localProjectionBaseFontScale : 1
+    }
+
+    static func projectionCeiling(_ maximum: CGFloat, isLocalProjection: Bool) -> CGFloat {
+        isLocalProjection ? maximum * localProjectionFontCeilingScale : maximum
+    }
+
     /// 同步显示端名称缩放：手机横屏 0.78 基线，大屏恢复到 0.9
     /// （synchronizedDisplayNameScaleForViewport；本机投屏恒为 1）。
     static func synchronizedNameScale(for viewport: CGSize, isLocalProjection: Bool) -> CGFloat {
@@ -737,7 +753,7 @@ struct ScoreboardExternalLiveView: View {
             if case .strings(let names) = state.sportState?["teamCourtPlayers"] { return names }
             return []
         }()
-        let multipliers = projection.isLocalProjection ? [:] : (state.appearance.fontSizeMultipliers ?? [:])
+        let multipliers = state.appearance.fontSizeMultipliers ?? [:]
         let preference = ScoreboardTypographyPreference(
             font: ScoreboardFont(displayCode: state.appearance.fontCode) ?? .default,
             scoreMultiplier: multipliers["mainScore"] ?? 1,
@@ -763,7 +779,10 @@ struct ScoreboardExternalLiveView: View {
                         nameColor: Color(hex: state.appearance.style?.renderColor("playerName", slot: slot) ?? "#FFFFFF"),
                         scoreColor: Color(hex: state.appearance.style?.renderColor("mainScore", slot: slot) ?? "#FFFFFF"),
                         setsColor: Color(hex: state.appearance.style?.renderColor("setScore", slot: slot) ?? "#FFFFFF"),
-                        nameFontCode: state.appearance.style?.nameFontCode
+                        nameFontCode: state.appearance.style?.nameFontCode,
+                        // 样式编辑的「投屏」预览要能分辨左右两半：缺了它两半都落 side_left，
+                        // 点右侧会打开左侧的颜色面板，无障碍标识也会重名。
+                        styleSlotKey: visualIndex == 0 ? .sideLeft : .sideRight
                     )
                 }
             }
@@ -815,8 +834,11 @@ struct ScoreboardExternalLiveView: View {
             isPhone: isPhone
         )
 
-        // 字号倍率：仅同步显示端应用（安卓 styleMultipliers.takeUnless { isLocalProjection }）。
-        let multipliers = projection.isLocalProjection ? nil : state.appearance.fontSizeMultipliers
+        // 字号倍率：投屏与同步显示端同样应用；投屏端另有基线放大与上限放宽。
+        let multipliers = state.appearance.fontSizeMultipliers
+        let baseFontScale = DisplayTypographyResolver.projectionBaseFontScale(
+            isLocalProjection: projection.isLocalProjection
+        )
         let minimumMultiplier: CGFloat = isTablet ? 0.7 : 0.8
         let mainMultiplier = CGFloat(multipliers?["mainScore"] ?? 1).clamped(minimumMultiplier, 1.5)
         let nameMultiplier = CGFloat(multipliers?["teamName"] ?? multipliers?["playerName"] ?? 1).clamped(minimumMultiplier, 1.5)
@@ -825,10 +847,15 @@ struct ScoreboardExternalLiveView: View {
         ).clamped(minimumMultiplier, 1.5)
 
         let projectedScoreFontSize: CGFloat = {
+            let ceiling: (CGFloat) -> CGFloat = { maximum in
+                DisplayTypographyResolver.projectionCeiling(
+                    maximum, isLocalProjection: projection.isLocalProjection
+                )
+            }
             switch statMode {
-            case .tennis: return (tokens.score * 0.78 * mainMultiplier).clamped(56, 320)
-            case .label: return (tokens.score * mainMultiplier).clamped(56, 480)
-            default: return (tokens.score * mainMultiplier).clamped(48, 480)
+            case .tennis: return (tokens.score * 0.78 * mainMultiplier).clamped(56, ceiling(320))
+            case .label: return (tokens.score * mainMultiplier).clamped(56, ceiling(480))
+            default: return (tokens.score * mainMultiplier).clamped(48, ceiling(480))
             }
         }()
         let tennisNameScale: CGFloat = statMode == .tennis ? 1.16 : 1
@@ -841,14 +868,23 @@ struct ScoreboardExternalLiveView: View {
                 ? DisplayTypographyResolver.singlesNameScale(for: viewport)
                 : 1
             return (
-                base * tennisNameScale * nameMultiplier * chrome * syncNameScale * projectionNameScale
-            ).clamped(18, 96)
+                base * tennisNameScale * nameMultiplier * chrome * syncNameScale * projectionNameScale * baseFontScale
+            ).clamped(18, DisplayTypographyResolver.projectionCeiling(96, isLocalProjection: projection.isLocalProjection))
         }()
-        let projectedSetsFontSize = (tokens.sets * secondaryMultiplier * secondaryScale).clamped(18, 160)
+        let secondaryCeiling = DisplayTypographyResolver.projectionCeiling(
+            160, isLocalProjection: projection.isLocalProjection
+        )
+        let projectedSetsFontSize = (tokens.sets * secondaryMultiplier * secondaryScale * baseFontScale)
+            .clamped(18, secondaryCeiling)
         let gamesMultiplier = CGFloat(multipliers?["gameScore"] ?? Double(secondaryMultiplier)).clamped(minimumMultiplier, 1.5)
-        let projectedGamesFontSize = (tokens.games * gamesMultiplier * secondaryScale).clamped(18, 160)
-        let projectedTennisSetsFontSize = (tokens.tennisSets * secondaryMultiplier * secondaryScale).clamped(18, 160)
-        let projectedLabelStatFontSize = (tokens.labelStat * secondaryScale).clamped(14, 96)
+        let projectedGamesFontSize = (tokens.games * gamesMultiplier * secondaryScale * baseFontScale)
+            .clamped(18, secondaryCeiling)
+        let projectedTennisSetsFontSize = (tokens.tennisSets * secondaryMultiplier * secondaryScale * baseFontScale)
+            .clamped(18, secondaryCeiling)
+        let projectedLabelStatFontSize = (tokens.labelStat * secondaryScale * baseFontScale).clamped(
+            14,
+            DisplayTypographyResolver.projectionCeiling(96, isLocalProjection: projection.isLocalProjection)
+        )
 
         // The synchronized receiver is a button-free copy of the phone
         // scoreboard. Use the same measured typography resolver and profiles;
@@ -1390,7 +1426,10 @@ struct ScoreboardExternalLiveView: View {
             height: viewport.height,
             tennisDoubles: tennisDoubles
         )
-        let multipliers = projection.isLocalProjection ? nil : state.appearance.fontSizeMultipliers
+        let multipliers = state.appearance.fontSizeMultipliers
+        let baseFontScale = DisplayTypographyResolver.projectionBaseFontScale(
+            isLocalProjection: projection.isLocalProjection
+        )
         let minimumMultiplier: CGFloat = min(viewport.width, viewport.height) >= 600 ? 0.7 : 0.8
         let scoreMultiplier = CGFloat(multipliers?["mainScore"] ?? 1).clamped(minimumMultiplier, 1.5)
         let nameMultiplier = CGFloat(multipliers?["playerName"] ?? multipliers?["teamName"] ?? 1).clamped(minimumMultiplier, 1.5)
@@ -1399,10 +1438,22 @@ struct ScoreboardExternalLiveView: View {
             multipliers?[secondaryKey] ?? multipliers?["setScore"] ?? multipliers?["setGameScore"] ?? 1
         ).clamped(minimumMultiplier, 1.5)
 
-        let projectedScoreFontSize = (tokens.score * scoreMultiplier).clamped(48, 360)
-        let projectedNameFontSize = (tokens.name * nameMultiplier * nameScale * syncNameScale).clamped(24, 80)
-        let projectedGamesFontSize = (tokens.games * secondaryMultiplier * secondaryScale).clamped(18, 160)
-        let projectedSetsFontSize = (tokens.sets * secondaryMultiplier * secondaryScale).clamped(18, 160)
+        let secondaryCeiling = DisplayTypographyResolver.projectionCeiling(
+            160, isLocalProjection: projection.isLocalProjection
+        )
+        let projectedScoreFontSize = (tokens.score * scoreMultiplier).clamped(
+            48,
+            DisplayTypographyResolver.projectionCeiling(360, isLocalProjection: projection.isLocalProjection)
+        )
+        let projectedNameFontSize = (tokens.name * nameMultiplier * nameScale * syncNameScale * baseFontScale)
+            .clamped(
+                24,
+                DisplayTypographyResolver.projectionCeiling(80, isLocalProjection: projection.isLocalProjection)
+            )
+        let projectedGamesFontSize = (tokens.games * secondaryMultiplier * secondaryScale * baseFontScale)
+            .clamped(18, secondaryCeiling)
+        let projectedSetsFontSize = (tokens.sets * secondaryMultiplier * secondaryScale * baseFontScale)
+            .clamped(18, secondaryCeiling)
 
         let left = buildDoublesSide(isLeft: true, gameType: gameType)
         let right = buildDoublesSide(isLeft: false, gameType: gameType)
@@ -2787,13 +2838,19 @@ private struct DisplayMultiGridSurface: View {
         }
     }
 
+    /// 投屏端名称与次级文字按投影基线放大；主分维持原算法（对齐安卓/鸿蒙）。
+    private var projectionBaseScale: Double {
+        Double(DisplayTypographyResolver.projectionBaseFontScale(isLocalProjection: projection.isLocalProjection))
+    }
+
     private var typographyPreference: ScoreboardTypographyPreference {
         let multipliers = state.appearance.fontSizeMultipliers ?? [:]
+        let base = projectionBaseScale
         return ScoreboardTypographyPreference(
             font: ScoreboardFont(displayCode: state.appearance.fontCode) ?? .default,
             scoreMultiplier: multipliers["mainScore"] ?? 1,
-            nameMultiplier: multipliers["playerName"] ?? multipliers["teamName"] ?? 1,
-            secondaryMultiplier: multipliers["setGameScore"] ?? multipliers["setScore"] ?? multipliers["gameScore"] ?? 1
+            nameMultiplier: (multipliers["playerName"] ?? multipliers["teamName"] ?? 1) * base,
+            secondaryMultiplier: (multipliers["setGameScore"] ?? multipliers["setScore"] ?? multipliers["gameScore"] ?? 1) * base
         )
     }
 

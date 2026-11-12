@@ -24,6 +24,8 @@ struct SimpleScoreboardView: View {
     @State private var adjustTargetIsLeft: Bool?
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
+    /// 菜单开关类操作（时间显示）不收起菜单，用一次性 toast 反馈当前状态。
+    @State private var matchTimeToast: String?
     @State private var recordID: String
     @State private var registersParticipantOwner: Bool
 
@@ -76,23 +78,25 @@ struct SimpleScoreboardView: View {
                             ?? PreferencesManager.shared.scoreboardMatchTimeVisible(for: .simpleScore)
                         return [
                             ScoreboardMenuItem(
-                                title: visible
-                                    ? NSLocalizedString("hide_match_time", value: "隐藏时间", comment: "")
-                                    : NSLocalizedString("show_match_time", value: "显示时间", comment: ""),
+                                // 开关类卡片恒定文案，状态交给颜色（对齐安卓 contentColor / 鸿蒙 activeColor）。
+                                title: NSLocalizedString("scoreboard_match_time_menu", value: "时间显示", comment: ""),
                                 action: "toggleMatchTime",
                                 group: .tools,
                                 icon: "clock",
-                                keepDialogOpen: true
+                                keepDialogOpen: true,
+                                activeColor: visible ? Theme.primary : nil
                             )
                         ]
                     },
                     onMenuAction: { [matchClockSession] action in
                         guard action == "toggleMatchTime", let session = matchClockSession else { return }
+                        // 菜单保持打开（keepDialogOpen）：就地切换 + toast 提示当前状态。
                         session.isVisible.toggle()
                         PreferencesManager.shared.setScoreboardMatchTimeVisible(
                             session.isVisible,
                             for: .simpleScore
                         )
+                        showMatchTimeToast(session.isVisible)
                     },
                     onScorePanelTap: customAdjustEnabled
                         ? { isLeft in
@@ -171,6 +175,11 @@ struct SimpleScoreboardView: View {
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
+        .overlay(alignment: .bottom) {
+            if let matchTimeToast {
+                ToastView(message: matchTimeToast).padding(.bottom, 96)
+            }
+        }
         .registerParticipantSetupOnAppear(recordID: recordID, selections: registersParticipantOwner ? [:] : nil)
         .onAppear {
             if let setup = initialSetup {
@@ -236,6 +245,19 @@ struct SimpleScoreboardView: View {
         adjustTargetIsLeft = nil
         showGameOverDialog = false
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+    }
+
+    /// 菜单保持打开，用 toast 说明时间显示已被切换。
+    private func showMatchTimeToast(_ visible: Bool) {
+        let message = NSLocalizedString(
+            visible ? "scoreboard_match_time_shown_toast" : "scoreboard_match_time_hidden_toast",
+            value: visible ? "已显示比赛时间" : "已隐藏比赛时间",
+            comment: ""
+        )
+        matchTimeToast = message
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            if matchTimeToast == message { matchTimeToast = nil }
+        }
     }
 
     private func bindMatchClock() {

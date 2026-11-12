@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "Stil og farger";
 "scoreboard_style_edit" = "Stil";
 "style_background_color" = "Bakgrunnsfarge";
+"style_server_color" = "Color";
+"style_server_style" = "Style";
 "style_text_color" = "Tekstfarge";
 "style_server_indicator" = "Serveindikator";
 "style_color_automatic" = "Auto";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "Stor";
 "scoreboard_style_symmetric_size_same" = "Venstre og høyre størrelse forblir de samme";
 "scoreboard_style_contrast_warning" = "Gjeldende tekstfarge har utilstrekkelig kontrast og kan være vanskelig å lese";
+"scoreboard_style_contrast_confirm_title" = "Noe tekst kan være vanskelig å lese";
+"scoreboard_style_contrast_confirm_message" = "Disse tekstfargene ligner for mye på bakgrunnen:";
+"scoreboard_style_back_to_adjust" = "Tilbake og juster";
+"scoreboard_style_save_anyway" = "Lagre likevel";
 "font_selection_title" = "Poengskrift";
 "theme_selection_title" = "Resultattavle-tema";
 "scoreboard_style_left_team_name" = "Venstre lagnavn";
@@ -858,6 +864,9 @@
 "show_match_time" = "Vis tid";
 "hide_match_time" = "Skjul tid";
 "scoreboard_match_time_this_game_only" = "Kun denne kampen; neste kamp går tilbake til sportens standardinnstilling.";
+"scoreboard_match_time_menu" = "Vis tid";
+"scoreboard_match_time_shown_toast" = "Tid vist";
+"scoreboard_match_time_hidden_toast" = "Tid skjult";
 "scoreboard_font_size" = "Skriftstørrelse";
 "scoreboard_font_size_reset" = "Tilbakestill til standard";
 "scoreboard_font_metric_score" = "Hovedpoeng";

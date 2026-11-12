@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "Estilo e cores";
 "scoreboard_style_edit" = "Estilo";
 "style_background_color" = "Cor de fundo";
+"style_server_color" = "Color";
+"style_server_style" = "Style";
 "style_text_color" = "Cor do texto";
 "style_server_indicator" = "Indicador de saque";
 "style_color_automatic" = "Automático";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "Grande";
 "scoreboard_style_symmetric_size_same" = "Os tamanhos esquerdo e direito permanecem os mesmos";
 "scoreboard_style_contrast_warning" = "A cor do texto atual tem contraste insuficiente e pode ser difícil de ler";
+"scoreboard_style_contrast_confirm_title" = "Alguns textos podem ser difíceis de ler";
+"scoreboard_style_contrast_confirm_message" = "Estas cores de texto são muito parecidas com os fundos:";
+"scoreboard_style_back_to_adjust" = "Voltar e ajustar";
+"scoreboard_style_save_anyway" = "Salvar mesmo assim";
 "font_selection_title" = "Fonte do placar";
 "theme_selection_title" = "Tema do placar";
 "scoreboard_style_left_team_name" = "Nome da equipe da esquerda";
@@ -858,6 +864,9 @@
 "show_match_time" = "Mostrar tempo";
 "hide_match_time" = "Ocultar tempo";
 "scoreboard_match_time_this_game_only" = "Somente nesta partida; a próxima voltará à configuração padrão do esporte.";
+"scoreboard_match_time_menu" = "Mostrar tempo";
+"scoreboard_match_time_shown_toast" = "Tempo exibido";
+"scoreboard_match_time_hidden_toast" = "Tempo oculto";
 "scoreboard_font_size" = "Tamanho da fonte";
 "scoreboard_font_size_reset" = "Redefinir para padrão";
 "scoreboard_font_metric_score" = "Placar principal";

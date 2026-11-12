@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "Style et couleurs";
 "scoreboard_style_edit" = "Style";
 "style_background_color" = "Couleur d'arrière-plan";
+"style_server_color" = "Couleur";
+"style_server_style" = "Style";
 "style_text_color" = "Couleur du texte";
 "style_server_indicator" = "Indicateur de service";
 "style_color_automatic" = "Automatique";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "Grand";
 "scoreboard_style_symmetric_size_same" = "Les tailles à gauche et à droite restent identiques";
 "scoreboard_style_contrast_warning" = "La couleur actuelle du texte présente un contraste insuffisant et peut être difficile à lire";
+"scoreboard_style_contrast_confirm_title" = "Certains textes peuvent être difficiles à lire";
+"scoreboard_style_contrast_confirm_message" = "Ces couleurs de texte sont trop proches de leur arrière-plan :";
+"scoreboard_style_back_to_adjust" = "Revenir aux réglages";
+"scoreboard_style_save_anyway" = "Enregistrer quand même";
 "font_selection_title" = "Police du score";
 "theme_selection_title" = "Thème du tableau de score";
 "scoreboard_style_left_team_name" = "Nom de l’équipe de gauche";
@@ -858,6 +864,9 @@
 "show_match_time" = "Afficher le chronomètre";
 "hide_match_time" = "Masquer le chronomètre";
 "scoreboard_match_time_this_game_only" = "Uniquement pour ce match ; le prochain utilisera de nouveau le réglage par défaut du sport.";
+"scoreboard_match_time_menu" = "Afficher le chronomètre";
+"scoreboard_match_time_shown_toast" = "Chronomètre affiché";
+"scoreboard_match_time_hidden_toast" = "Chronomètre masqué";
 "scoreboard_font_size" = "Taille de la police";
 "scoreboard_font_size_reset" = "Rétablir la valeur par défaut";
 "scoreboard_font_metric_score" = "Score principal";

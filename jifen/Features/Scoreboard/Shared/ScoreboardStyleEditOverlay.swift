@@ -205,6 +205,8 @@ private extension ScoreboardStyleProfileV2 {
 
 /// 全屏样式编辑悬浮层（对齐安卓 ScoreboardStyleEditOverlay）。
 struct ScoreboardStyleEditOverlayView: View {
+    @ScaledMetric(relativeTo: .subheadline) private var fontSizeHeaderLabelSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .caption) private var fontSizeHeaderHintSize: CGFloat = 12
     /// Clearance for previews whose content begins at the very top edge.
     static var topControlsReservedHeight: CGFloat { Theme.usesPadLayout ? 84 : 64 }
 
@@ -229,6 +231,8 @@ struct ScoreboardStyleEditOverlayView: View {
     @State private var backgroundTarget: StyleBackgroundTarget = .slot(.sideLeft)
     /// 当前预览画布尺寸（随“本机 / 投屏”切换），用于判断字号是否还能放大。
     @State private var previewViewportSize: CGSize = .zero
+    @State private var lowContrastNames: [String] = []
+    @State private var lowContrastPrompt = false
 
     var body: some View {
         GeometryReader { geometry in
@@ -283,6 +287,45 @@ struct ScoreboardStyleEditOverlayView: View {
             .background(StyleEditPalette.workbenchCanvas).foregroundStyle(.white)
             .disabled(controller.isSaving || imageBusy)
             .overlay { if imageBusy { ProgressView().tint(.white) } }
+            .overlay {
+                if lowContrastPrompt {
+                    ZStack {
+                        Color.black.opacity(0.55).ignoresSafeArea()
+                            .onTapGesture { lowContrastPrompt = false }
+                        VStack(spacing: 12) {
+                            Text(NSLocalizedString("scoreboard_style_contrast_confirm_title",
+                                value: "部分文字可能看不清", comment: ""))
+                                .font(.system(size: 18, weight: .medium)).foregroundStyle(.white)
+                                .multilineTextAlignment(.center)
+                            Text(NSLocalizedString("scoreboard_style_contrast_confirm_message",
+                                value: "这些文字与背景颜色过于接近：", comment: "")
+                                + "\n" + lowContrastNames.joined(separator: "、"))
+                                .font(.system(size: 14)).foregroundStyle(.white.opacity(0.72))
+                                .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
+                            HStack(spacing: 10) {
+                                Button { lowContrastPrompt = false } label: {
+                                    Text(NSLocalizedString("scoreboard_style_back_to_adjust",
+                                        value: "返回调整", comment: ""))
+                                        .font(.system(size: 14)).frame(maxWidth: .infinity).frame(minHeight: 44)
+                                        .background(Color.white.opacity(0.12), in: Capsule())
+                                }.accessibilityIdentifier("scoreboard_style_contrast_back")
+                                Button { lowContrastPrompt = false; save() } label: {
+                                    Text(NSLocalizedString("scoreboard_style_save_anyway",
+                                        value: "仍然保存", comment: ""))
+                                        .font(.system(size: 14)).frame(maxWidth: .infinity).frame(minHeight: 44)
+                                        .background(StyleEditPalette.accentGreen, in: Capsule())
+                                }.accessibilityIdentifier("scoreboard_style_contrast_save")
+                            }.buttonStyle(.plain).foregroundStyle(.white).padding(.top, 4)
+                        }
+                        .padding(22)
+                        .frame(maxWidth: 420)
+                        .background(Color(hex: "2C2C2E"), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .padding(.horizontal, 24)
+                    }
+                    .accessibilityElement(children: .contain)
+                    .accessibilityIdentifier("scoreboard_style_contrast_prompt")
+                }
+            }
             // 字号面板需要知道预览画布尺寸，才能判断某元素的字号是否还能放大。
             .onChange(of: previewViewport(geometry.size), initial: true) { _, viewport in
                 previewViewportSize = viewport
@@ -382,7 +425,7 @@ struct ScoreboardStyleEditOverlayView: View {
                 }.frame(maxWidth: .infinity).frame(minHeight: 44)
                     .background(StyleEditPalette.controlBackground, in: Capsule())
             }.accessibilityIdentifier("scoreboard_style_full_preview")
-            Button(action: save) {
+            Button(action: requestSave) {
                 Text(String(localized: "save")).font(.system(size: 12, weight: .semibold))
                     .frame(maxWidth: .infinity).frame(minHeight: 44)
                     .background(StyleEditPalette.accentGreen, in: Capsule())
@@ -711,6 +754,20 @@ struct ScoreboardStyleEditOverlayView: View {
         }.frame(height: 48)
     }
 
+    /// 右侧绿色读数胶囊：字号与照片两个百分比共用同一口径。
+    /// 用固定高度 + 内层贴合行高，避免 SwiftUI 行盒比字形高把数字压到胶囊偏下。
+    private func valuePill(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 14, weight: .medium))
+            .foregroundStyle(StyleEditPalette.accentGreen)
+            .monospacedDigit()
+            .lineLimit(1)
+            .frame(height: 18)
+            .padding(.horizontal, 9)
+            .frame(minHeight: 24)
+            .background(StyleEditPalette.accentGreenSubtle, in: RoundedRectangle(cornerRadius: 10))
+    }
+
     private func workbenchChoice(_ label: String, selected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(label).font(.system(size: 12, weight: .medium)).padding(.horizontal, 12).frame(minHeight: 40)
@@ -882,10 +939,15 @@ struct ScoreboardStyleEditOverlayView: View {
     /// 背景图主题的发球指示栏：箭头/项目图标 + 可见性 + 颜色，与自由编辑里的同一组设置。
     private var photoServerPanel: some View {
         VStack(alignment: .leading, spacing: 12) {
-            serverStyleChoices
             Toggle(String(localized: "style_workbench_server_visible"), isOn: Binding(get: { !draft.serverIndicatorHidden }, set: { value in
                 var next = draft; next.serverIndicatorHidden = !value; controller.updateDraft(next)
             })).tint(StyleEditPalette.accentGreen).accessibilityIdentifier("scoreboard_style_server_visible")
+            // 「样式」「颜色」两段各一个标题，栏名不再重复。
+            serverStyleChoices
+            Divider().overlay(Color.white.opacity(0.10))
+            Text(NSLocalizedString("scoreboard_style_server_shared_hint", value: "左右指示器共用同一种颜色", comment: ""))
+                .font(.system(size: 12)).foregroundStyle(.white.opacity(0.58))
+                .fixedSize(horizontal: false, vertical: true)
             serverIndicatorPanel
         }
     }
@@ -901,10 +963,9 @@ struct ScoreboardStyleEditOverlayView: View {
     ) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(title).font(.system(size: 13, weight: .medium))
+                Text(title).font(.system(size: 14, weight: .medium))
                 Spacer()
-                Text(value().formatted(.percent.precision(.fractionLength(0))))
-                    .font(.system(size: 12)).foregroundStyle(.white.opacity(0.62)).monospacedDigit()
+                valuePill(value().formatted(.percent.precision(.fractionLength(0))))
             }
             Slider(value: Binding(get: value, set: onChange), in: range)
                 .accessibilityIdentifier(identifier)
@@ -958,16 +1019,37 @@ struct ScoreboardStyleEditOverlayView: View {
         }
     }
 
+    /// 两个选项把真实指示器预览放在文字左侧：三角是本项目的三角，项目图标是本项目的项目图标。
+    private func serverStyleChoice(_ label: String, style: String, identifier: String,
+                                   action: @escaping () -> Void) -> some View {
+        let chosen = style == "sport" ? draft.serverIndicatorStyle == "sport" : draft.serverIndicatorStyle != "sport"
+        let tint = chosen ? StyleEditPalette.accentGreen : Color(hex: "ADB5C2")
+        return Button(action: action) {
+            HStack(spacing: 6) {
+                ScoreboardServeSymbol(direction: .right, size: style == "sport" ? 14 : 12, color: tint,
+                                      styleCode: style, gameType: controller.styleID.rawValue)
+                Text(label).font(.system(size: 12, weight: .medium)).lineLimit(1).minimumScaleFactor(0.8)
+            }
+            .frame(maxWidth: .infinity).frame(minHeight: 40)
+            .foregroundStyle(tint)
+            .background(chosen ? StyleEditPalette.accentGreen.opacity(0.22) : StyleEditPalette.controlBackground,
+                        in: RoundedRectangle(cornerRadius: 8))
+        }.buttonStyle(.plain).accessibilityIdentifier(identifier)
+            .accessibilityAddTraits(chosen ? .isSelected : [])
+    }
+
     private var serverStyleChoices: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(String(localized: "style_server_indicator"))
-            HStack {
-                workbenchChoice(String(localized: "style_server_arrow"), selected: draft.serverIndicatorStyle != "sport") {
+            Text(String(localized: "style_server_style"))
+            HStack(spacing: 8) {
+                serverStyleChoice(String(localized: "style_server_arrow"), style: "arrow",
+                                  identifier: "scoreboard_style_server_style_arrow") {
                     var next = draft; next.serverIndicatorStyle = "arrow"; controller.updateDraft(next)
-                }.accessibilityIdentifier("scoreboard_style_server_style_arrow")
-                workbenchChoice(String(localized: "style_server_sport"), selected: draft.serverIndicatorStyle == "sport") {
+                }
+                serverStyleChoice(String(localized: "style_server_sport"), style: "sport",
+                                  identifier: "scoreboard_style_server_style_sport") {
                     var next = draft; next.serverIndicatorStyle = "sport"; controller.updateDraft(next)
-                }.accessibilityIdentifier("scoreboard_style_server_style_sport")
+                }
             }
         }
     }
@@ -993,15 +1075,8 @@ struct ScoreboardStyleEditOverlayView: View {
                 })).tint(StyleEditPalette.accentGreen).accessibilityIdentifier("scoreboard_style_server_visible")
                 serverIndicatorPanel
             } else {
-                if !capabilities.globalElementKeys.contains(uiState.activeElementKey) {
-                    HStack {
-                        ForEach(capabilities.slotKeys, id: \.self) { slot in
-                            workbenchChoice(slot.rawValue == "side_left" ? String(localized: "style_slot_left") : slot.rawValue == "side_center" ? String(localized: "style_slot_center") : String(localized: "style_slot_right"), selected: uiState.activeElementSlot == slot) {
-                                uiState.openElement(uiState.activeElementKey, slot: slot)
-                            }
-                        }
-                    }
-                }
+                // 字号是左右通用设置，排在「左侧 / 右侧」之前（与 Android / 鸿蒙一致）；
+                // 左右选择在 elementPanel 内部紧跟字号之后。
                 elementPanel
             }
         }
@@ -1021,6 +1096,32 @@ struct ScoreboardStyleEditOverlayView: View {
 
     private func save() {
         _ = controller.save()
+    }
+
+    /// 保存前的对比度复查：与面板里的即时警告同一口径，但覆盖整份草稿
+    /// （包括刚把背景改浅、文字没动过的情况）。发现问题交给用户「返回调整 / 仍然保存」。
+    private func lowContrastElementNames() -> [String] {
+        draft.lowContrastTextTargets(capabilities).map { target in
+            "\(slotLabelForPrompt(target.slotKey)) \(elementLabel(target.elementKey))"
+        }
+    }
+
+    private func slotLabelForPrompt(_ slot: ScoreboardStyleSlotKeyV2) -> String {
+        switch slot {
+        case .sideRight: return NSLocalizedString("style_slot_right", value: "右侧", comment: "")
+        case .sideCenter: return NSLocalizedString("style_slot_center", value: "中间", comment: "")
+        default: return NSLocalizedString("style_slot_left", value: "左侧", comment: "")
+        }
+    }
+
+    private func requestSave() {
+        let names = lowContrastElementNames()
+        if names.isEmpty {
+            save()
+        } else {
+            lowContrastNames = names
+            lowContrastPrompt = true
+        }
     }
 
     /// 当前项目可选主题（斗地主三栏用 ddz_*，其余通用主题）。
@@ -1098,7 +1199,10 @@ struct ScoreboardStyleEditOverlayView: View {
     }
 
     private func effectiveTextColor() -> String {
-        draft.resolvedElementTextHex(uiState.activeElementKey, slotKey: uiState.activeElementSlot)
+        if capabilities.globalElementKeys.contains(uiState.activeElementKey) {
+            return draft.resolvedMatchTitleTextHex()
+        }
+        return draft.resolvedElementTextHex(uiState.activeElementKey, slotKey: uiState.activeElementSlot)
     }
 
     private func isAutoContrastActive() -> Bool {
@@ -1287,7 +1391,8 @@ struct ScoreboardStyleEditOverlayView: View {
                 selectedColor: activeBackgroundColor(),
                 recentColors: recentColors,
                 presetColors: StyleEditPalette.backgroundPresets,
-                showCurrentColor: false,
+                showCurrentColor: true,
+                colorTitle: String(localized: "style_background_color"),
                 isLargeLayout: isLargeLayout,
                 onPreview: { previewBackground($0) },
                 onCommit: { commitRecentColor($0) },
@@ -1377,6 +1482,7 @@ struct ScoreboardStyleEditOverlayView: View {
                 recentColors: recentColors,
                 presetColors: StyleEditPalette.textColorCandidates,
                 showCurrentColor: true,
+                colorTitle: String(localized: "style_server_color"),
                 isLargeLayout: isLargeLayout,
                 onPreview: { previewServerIndicatorColor($0) },
                 onCommit: { commitRecentColor($0) },
@@ -1384,6 +1490,47 @@ struct ScoreboardStyleEditOverlayView: View {
             )
         }
         .padding(isLargeLayout ? 24 : 18)
+    }
+
+    private func fontSizeHeader<Readout: View>(@ViewBuilder readout: () -> Readout) -> some View {
+        let title = Text(NSLocalizedString("scoreboard_style_font_size", value: "字号", comment: ""))
+            .font(.system(size: fontSizeHeaderLabelSize, weight: .medium))
+            .foregroundStyle(.white)
+        let hint = Text(NSLocalizedString(
+            "scoreboard_style_symmetric_size_same", value: "左右侧字号始终一致", comment: ""
+        ))
+        .font(.system(size: fontSizeHeaderHintSize))
+        .foregroundStyle(.white.opacity(0.56))
+        let value = readout()
+
+        return ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                // Give both edges the same ideal width so the hint stays centered as the readout changes.
+                ZStack(alignment: .leading) {
+                    value.hidden().accessibilityHidden(true)
+                    title
+                }
+                .fixedSize()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                hint.fixedSize()
+                ZStack(alignment: .trailing) {
+                    title.hidden().accessibilityHidden(true)
+                    value
+                }
+                .fixedSize()
+                .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+            VStack(spacing: 6) {
+                HStack(spacing: 8) {
+                    title
+                    Spacer(minLength: 0)
+                    value.multilineTextAlignment(.trailing)
+                }
+                hint.multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity)
+            }
+        }
     }
 
     private var elementPanel: some View {
@@ -1396,11 +1543,7 @@ struct ScoreboardStyleEditOverlayView: View {
         let sliderRange = effectiveUpper.map { range.lowerBound ... max(range.lowerBound, $0) } ?? range
         return VStack(spacing: 12) {
             VStack(spacing: 6) {
-                HStack {
-                    Text(NSLocalizedString("scoreboard_style_font_size", value: "字号", comment: ""))
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(.white)
-                    Spacer()
+                fontSizeHeader {
                     if isFontSizeFrozen {
                         Text(NSLocalizedString(
                             "scoreboard_style_font_size_device_max",
@@ -1411,13 +1554,7 @@ struct ScoreboardStyleEditOverlayView: View {
                         .foregroundStyle(.white.opacity(0.56))
                         .accessibilityIdentifier("scoreboard_style_font_size_capped")
                     } else {
-                        Text(String(format: "%.2fx", multiplier))
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundStyle(Color(hex: "30D158"))
-                            .padding(.horizontal, 9)
-                            .padding(.vertical, 3)
-                            .background(StyleEditPalette.accentGreenSubtle)
-                            .clipShape(Capsule())
+                        valuePill(String(format: "%.2fx", multiplier))
                     }
                 }
                 Slider(
@@ -1429,18 +1566,16 @@ struct ScoreboardStyleEditOverlayView: View {
                 )
                 .disabled(isFontSizeFrozen)
                 .opacity(isFontSizeFrozen ? 0.4 : 1)
-                HStack {
-                    Text(NSLocalizedString("scoreboard_style_small", value: "小", comment: ""))
-                        .font(.system(size: 11))
-                        .foregroundStyle(.white.opacity(0.44))
-                    Spacer()
-                    Text(NSLocalizedString("scoreboard_style_symmetric_size_same", value: "左右侧字号始终一致", comment: ""))
-                        .font(.system(size: 12))
-                        .foregroundStyle(.white.opacity(0.56))
-                    Spacer()
-                    Text(NSLocalizedString("scoreboard_style_large", value: "大", comment: ""))
-                        .font(.system(size: 11))
-                        .foregroundStyle(.white.opacity(0.44))
+            }
+
+            // 左侧 / 右侧只影响文字颜色，因此紧跟在字号之后、颜色之前（与 Android / 鸿蒙一致）。
+            if !capabilities.globalElementKeys.contains(uiState.activeElementKey) {
+                HStack(spacing: 8) {
+                    ForEach(capabilities.slotKeys, id: \.self) { slot in
+                        workbenchChoice(slot.rawValue == "side_left" ? String(localized: "style_slot_left") : slot.rawValue == "side_center" ? String(localized: "style_slot_center") : String(localized: "style_slot_right"), selected: uiState.activeElementSlot == slot) {
+                            uiState.openElement(uiState.activeElementKey, slot: slot)
+                        }
+                    }
                 }
             }
 
@@ -1449,32 +1584,22 @@ struct ScoreboardStyleEditOverlayView: View {
                 .frame(height: 0.7)
 
             VStack(spacing: 10) {
-                HStack {
-                    Text(NSLocalizedString("style_text_color", value: "文字颜色", comment: ""))
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(.white)
-                    Spacer()
-                    Text(NSLocalizedString("style_color_automatic", value: "自动", comment: ""))
-                        .font(.system(size: 12))
-                        .foregroundStyle(.white.opacity(0.64))
-                    Toggle("", isOn: Binding(
-                        get: { isAutoContrastActive() },
-                        set: { toggleAutoContrast($0) }
-                    ))
-                    .labelsHidden()
-                    .tint(StyleEditPalette.accentGreen)
-                }
+                // 「自动」收进色板第一格；标题行只留色板自己的「文字颜色 + 当前生效色值」，
+                // 不再有同名开关，也不会出现两行「文字颜色」。
                 ColorPickerPanel(
                     selectedColor: effectiveTextColor(),
                     recentColors: recentColors,
                     presetColors: StyleEditPalette.textColorCandidates,
                     showCurrentColor: true,
+                    colorTitle: String(localized: "style_text_color"),
                     isLargeLayout: isLargeLayout,
+                    autoSelected: isAutoContrastActive(),
+                    onSelectAuto: { toggleAutoContrast(true) },
                     onPreview: { previewTextColor($0) },
                     onCommit: { commitRecentColor($0) },
                     onOpenCustom: { customColorOpen = true }
                 )
-                if !ScoreboardStyleColorMath.isReadableTextColor(
+                if !isAutoContrastActive() && !ScoreboardStyleColorMath.isReadableTextColor(
                     effectiveTextColor(),
                     on: slotBackground(uiState.activeElementSlot)
                 ) {
@@ -1607,7 +1732,12 @@ struct ColorPickerPanel: View {
     let recentColors: [String]
     let presetColors: [String]
     var showCurrentColor: Bool
+    /// 颜色区标题；不传则沿用「常用颜色」。
+    var colorTitle: String? = nil
     var isLargeLayout: Bool
+    /// 文字色板顶部的「自动」格子：自动对比不再是标题行里的独立开关。
+    var autoSelected: Bool = false
+    var onSelectAuto: (() -> Void)? = nil
     let onPreview: (String) -> Void
     let onCommit: (String) -> Void
     let onOpenCustom: () -> Void
@@ -1628,33 +1758,24 @@ struct ColorPickerPanel: View {
         }()
 
         return VStack(alignment: .leading, spacing: isLargeLayout ? 14 : 12) {
-            if showCurrentColor {
-                HStack(spacing: 10) {
+            // 标题行右侧带当前色值：取代过去那张独立的「当前颜色」卡片，信息保留但不再独占一层。
+            HStack(spacing: 10) {
+                Text(colorTitle ?? NSLocalizedString("style_common_colors", value: "常用颜色", comment: ""))
+                    .font(.system(size: isLargeLayout ? 13 : 12, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.72))
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+                if showCurrentColor {
                     Circle()
                         .fill(ScoreboardStyleProfileV2.normalizedHex(selectedColor).map { Color(hex: $0) } ?? .white)
-                        .frame(width: isLargeLayout ? 40 : 34, height: isLargeLayout ? 40 : 34)
-                        .overlay(Circle().strokeBorder(Color.white.opacity(0.48), lineWidth: 1))
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(NSLocalizedString("style_current_color", value: "当前颜色", comment: ""))
-                            .font(.system(size: 11))
-                            .foregroundStyle(.white.opacity(0.52))
-                        Text(selectedColor.styleDisplayHex)
-                            .font(.system(size: isLargeLayout ? 16 : 14, weight: .medium))
-                            .foregroundStyle(.white)
-                    }
-                    Spacer()
+                        .frame(width: 16, height: 16)
+                        .overlay(Circle().strokeBorder(Color.white.opacity(0.35), lineWidth: 1))
+                    Text(selectedColor.styleDisplayHex)
+                        .font(.system(size: 12))
+                        .foregroundStyle(.white.opacity(0.64))
+                        .lineLimit(1)
                 }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 8)
-                .background(Color.white.opacity(0.045))
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.09), lineWidth: 1))
             }
-
-            Text(NSLocalizedString("style_common_colors", value: "常用颜色", comment: ""))
-                .font(.system(size: isLargeLayout ? 13 : 12, weight: .medium))
-                .foregroundStyle(.white.opacity(0.72))
 
             // 列数随容器宽度自适应（宽面板一行多放、窄面板少放避免溢出），圆点尺寸不变、格子等宽撑满整行；
             // 与安卓 WorkbenchColors / 鸿蒙 columnsTemplate 同一换算：columns = floor((宽 + 间距) / (圆点 + 间距))，
@@ -1662,7 +1783,8 @@ struct ColorPickerPanel: View {
             let dotSize: CGFloat = isLargeLayout ? 38 : 32
             let swatchGap: CGFloat = isLargeLayout ? 8 : 5
             let columns = containerWidth > 0 ? max(3, Int((containerWidth + swatchGap) / (dotSize + swatchGap))) : 6
-            let rows = (displayColors + ["custom"]).chunked(into: columns)
+            let autoCell = onSelectAuto == nil ? [] : ["auto"]
+            let rows = (autoCell + displayColors + ["custom"]).chunked(into: columns)
             ForEach(rows.indices, id: \.self) { rowIndex in
                 let row = rows[rowIndex]
                 HStack(spacing: swatchGap) {
@@ -1672,6 +1794,8 @@ struct ColorPickerPanel: View {
                                 let value = row[index]
                                 if value == "custom" {
                                     customColorDot
+                                } else if value == "auto" {
+                                    autoColorDot(size: dotSize)
                                 } else {
                                     let isSelected = styleColorsEqual(selectedColor, value)
                                     Button {
@@ -1696,6 +1820,33 @@ struct ColorPickerPanel: View {
             }
         }
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { containerWidth = $0 }
+    }
+
+    /// 「自动」圆点：左白右黑，表示按背景自动选黑/白文字；选中时绿色描边 + 勾。
+    private func autoColorDot(size: CGFloat) -> some View {
+        Button(action: { onSelectAuto?() }) {
+            ZStack {
+                LinearGradient(
+                    colors: [Color(hex: "F2F2F7"), Color(hex: "F2F2F7"), Color(hex: "111111"), Color(hex: "111111")],
+                    startPoint: .leading, endPoint: .trailing
+                )
+                .clipShape(Circle())
+                .frame(width: size, height: size)
+                .overlay(Circle().strokeBorder(
+                    autoSelected ? StyleEditPalette.accentGreen : Color.white.opacity(0.32),
+                    lineWidth: autoSelected ? 3 : 1
+                ))
+                if autoSelected {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.black)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text(NSLocalizedString("style_color_automatic", value: "自动", comment: "")))
+        .accessibilityAddTraits(autoSelected ? [.isSelected] : [])
+        .accessibilityIdentifier("scoreboard_style_text_auto")
     }
 
     private var customColorDot: some View {

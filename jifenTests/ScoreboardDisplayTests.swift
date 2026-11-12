@@ -416,6 +416,14 @@ final class ScoreboardDisplayTests: XCTestCase {
         XCTAssertLessThan(keyPoint, ordinary)
     }
 
+    func testProjectionFontScaleAppliesToCastNamesAndSecondaryOnly() {
+        // 主分按屏幕高度自适应已接近上限，只有名称与次级文字使用投影基线放大。
+        XCTAssertEqual(DisplayTypographyResolver.projectionBaseFontScale(isLocalProjection: true), 1.08, accuracy: 0.0001)
+        XCTAssertEqual(DisplayTypographyResolver.projectionBaseFontScale(isLocalProjection: false), 1, accuracy: 0.0001)
+        XCTAssertEqual(DisplayTypographyResolver.projectionCeiling(160, isLocalProjection: true), 160 * 1.18, accuracy: 0.0001)
+        XCTAssertEqual(DisplayTypographyResolver.projectionCeiling(160, isLocalProjection: false), 160, accuracy: 0.0001)
+    }
+
     func testProjectionServeIndicatorOnlyExpandsOnTelevision() {
         XCTAssertEqual(DisplayServeIndicatorSizing.singles(baseSize: 10, projection: .localProjection), 36)
         XCTAssertEqual(DisplayServeIndicatorSizing.singles(baseSize: 100, projection: .localProjection), 84)

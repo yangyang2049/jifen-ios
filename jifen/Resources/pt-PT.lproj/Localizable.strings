@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "Estilo e cores";
 "scoreboard_style_edit" = "Estilo";
 "style_background_color" = "Cor de fundo";
+"style_server_color" = "Color";
+"style_server_style" = "Style";
 "style_text_color" = "Cor do texto";
 "style_server_indicator" = "Indicador de serviço";
 "style_color_automatic" = "Automático";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "Grande";
 "scoreboard_style_symmetric_size_same" = "Os tamanhos à esquerda e à direita permanecem iguais";
 "scoreboard_style_contrast_warning" = "A cor atual do texto não tem contraste suficiente e poderá ser difícil de ler";
+"scoreboard_style_contrast_confirm_title" = "Alguns textos podem ser difíceis de ler";
+"scoreboard_style_contrast_confirm_message" = "Estas cores de texto são muito semelhantes às dos fundos:";
+"scoreboard_style_back_to_adjust" = "Voltar e ajustar";
+"scoreboard_style_save_anyway" = "Guardar na mesma";
 "font_selection_title" = "Tipo de letra do marcador";
 "theme_selection_title" = "Tema do marcador";
 "scoreboard_style_left_team_name" = "Nome da equipa da esquerda";
@@ -858,6 +864,9 @@
 "show_match_time" = "Mostrar tempo";
 "hide_match_time" = "Ocultar tempo";
 "scoreboard_match_time_this_game_only" = "Apenas nesta partida; a próxima volta à definição predefinida do desporto.";
+"scoreboard_match_time_menu" = "Mostrar tempo";
+"scoreboard_match_time_shown_toast" = "Tempo apresentado";
+"scoreboard_match_time_hidden_toast" = "Tempo ocultado";
 "scoreboard_font_size" = "Tamanho do tipo de letra";
 "scoreboard_font_size_reset" = "Repor predefinição";
 "scoreboard_font_metric_score" = "Pontuação principal";

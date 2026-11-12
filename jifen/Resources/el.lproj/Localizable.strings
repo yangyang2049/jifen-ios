@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "Στυλ και χρώματα";
 "scoreboard_style_edit" = "Στυλ";
 "style_background_color" = "Χρώμα φόντου";
+"style_server_color" = "χρώμα";
+"style_server_style" = "Style";
 "style_text_color" = "Χρώμα κειμένου";
 "style_server_indicator" = "Ένδειξη σερβίς";
 "style_color_automatic" = "Αυτόματο";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "Μεγάλο";
 "scoreboard_style_symmetric_size_same" = "Τα μεγέθη αριστερά και δεξιά παραμένουν ίδια";
 "scoreboard_style_contrast_warning" = "Το τρέχον χρώμα κειμένου έχει ανεπαρκή αντίθεση και μπορεί να είναι δύσκολο να διαβαστεί";
+"scoreboard_style_contrast_confirm_title" = "Κάποιο κείμενο μπορεί να είναι δυσανάγνωστο";
+"scoreboard_style_contrast_confirm_message" = "Αυτά τα χρώματα κειμένου μοιάζουν πολύ με τα χρώματα φόντου:";
+"scoreboard_style_back_to_adjust" = "Πίσω για προσαρμογή";
+"scoreboard_style_save_anyway" = "Αποθήκευση ούτως ή άλλως";
 "font_selection_title" = "Γραμματοσειρά βαθμολογίας";
 "theme_selection_title" = "Θέμα πίνακα αποτελεσμάτων";
 "scoreboard_style_left_team_name" = "Όνομα αριστερής ομάδας";
@@ -858,6 +864,9 @@
 "show_match_time" = "Εμφάνιση ώρας";
 "hide_match_time" = "Απόκρυψη ώρας";
 "scoreboard_match_time_this_game_only" = "Μόνο για αυτόν τον αγώνα· ο επόμενος επανέρχεται στην προεπιλεγμένη ρύθμιση του αθλήματος.";
+"scoreboard_match_time_menu" = "Εμφάνιση χρόνου";
+"scoreboard_match_time_shown_toast" = "Ο χρόνος εμφανίστηκε";
+"scoreboard_match_time_hidden_toast" = "Ο χρόνος κρύφτηκε";
 "scoreboard_font_size" = "Μέγεθος γραμματοσειράς";
 "scoreboard_font_size_reset" = "Επαναφορά στην προεπιλογή";
 "scoreboard_font_metric_score" = "Κύριο σκορ";

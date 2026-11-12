@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "Štýl a farby";
 "scoreboard_style_edit" = "Štýl";
 "style_background_color" = "Farba pozadia";
+"style_server_color" = "farba";
+"style_server_style" = "Style";
 "style_text_color" = "Farba textu";
 "style_server_indicator" = "Indikátor podávania";
 "style_color_automatic" = "Auto";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "Veľký";
 "scoreboard_style_symmetric_size_same" = "Ľavá a pravá veľkosť zostávajú rovnaké";
 "scoreboard_style_contrast_warning" = "Aktuálna farba textu má nedostatočný kontrast a môže byť ťažko čitateľná";
+"scoreboard_style_contrast_confirm_title" = "Niektorý text môže byť ťažko čitateľný";
+"scoreboard_style_contrast_confirm_message" = "Tieto farby textu sú príliš podobné farbám pozadia:";
+"scoreboard_style_back_to_adjust" = "Späť na úpravy";
+"scoreboard_style_save_anyway" = "Napriek tomu uložiť";
 "font_selection_title" = "Písmo skóre";
 "theme_selection_title" = "Téma hodnotiacej tabuľky";
 "scoreboard_style_left_team_name" = "Názov ľavého tímu";
@@ -858,6 +864,9 @@
 "show_match_time" = "Zobraziť čas";
 "hide_match_time" = "Skryť čas";
 "scoreboard_match_time_this_game_only" = "Iba tento zápas; ďalší zápas sa vráti k predvolenému nastaveniu športu.";
+"scoreboard_match_time_menu" = "Zobraziť čas";
+"scoreboard_match_time_shown_toast" = "Čas zobrazený";
+"scoreboard_match_time_hidden_toast" = "Čas skrytý";
 "scoreboard_font_size" = "Veľkosť písma";
 "scoreboard_font_size_reset" = "Obnovte predvolené nastavenie";
 "scoreboard_font_metric_score" = "Hlavné skóre";

@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "Kiểu dáng & Màu sắc";
 "scoreboard_style_edit" = "Phong cách";
 "style_background_color" = "Màu nền";
+"style_server_color" = "Color";
+"style_server_style" = "Style";
 "style_text_color" = "Màu văn bản";
 "style_server_indicator" = "Chỉ báo giao bóng";
 "style_color_automatic" = "Tự động";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "Lớn";
 "scoreboard_style_symmetric_size_same" = "Kích thước bên trái và bên phải giữ nguyên";
 "scoreboard_style_contrast_warning" = "Màu văn bản hiện tại không đủ độ tương phản và có thể khó đọc";
+"scoreboard_style_contrast_confirm_title" = "Một số chữ có thể khó đọc";
+"scoreboard_style_contrast_confirm_message" = "Các màu chữ sau quá giống với màu nền:";
+"scoreboard_style_back_to_adjust" = "Quay lại điều chỉnh";
+"scoreboard_style_save_anyway" = "Vẫn lưu";
 "font_selection_title" = "Phông chữ điểm";
 "theme_selection_title" = "Chủ đề bảng điểm";
 "scoreboard_style_left_team_name" = "Tên đội bên trái";
@@ -858,6 +864,9 @@
 "show_match_time" = "Hiển thị thời gian";
 "hide_match_time" = "Ẩn thời gian";
 "scoreboard_match_time_this_game_only" = "Chỉ trận đấu này; trận đấu tiếp theo sẽ trở lại cài đặt mặc định của môn thể thao.";
+"scoreboard_match_time_menu" = "Hiển thị thời gian";
+"scoreboard_match_time_shown_toast" = "Đã hiển thị thời gian";
+"scoreboard_match_time_hidden_toast" = "Đã ẩn thời gian";
 "scoreboard_font_size" = "Cỡ chữ";
 "scoreboard_font_size_reset" = "Đặt lại về mặc định";
 "scoreboard_font_metric_score" = "Điểm chính";

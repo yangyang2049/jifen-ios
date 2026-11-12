@@ -37,6 +37,10 @@ struct ScoreboardMenuItem: Identifiable, Equatable {
     var enabled: Bool = true
     var sortOrder: Int = 0
     var placeAtEnd: Bool = false
+    /// 开启态着色：只把图标改用该颜色（如主色绿），标题保持菜单默认白/灰。
+    /// 与安卓 ScoreboardOperationMenuItem.iconColor / 鸿蒙 activeColor 同义，
+    /// 只表达「这一项现在是开的」，不改变文案层级。
+    var activeColor: Color? = nil
 }
 
 enum ScoreboardMenuActionPolicy {
@@ -697,7 +701,7 @@ struct MenuDialog: View {
                                 .font(.system(size: iconSize(size), weight: .semibold))
                         }
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(item.activeColor ?? .white)
                 }
 
                 Text(item.title)

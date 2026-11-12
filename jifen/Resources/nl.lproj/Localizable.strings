@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "Stijl en kleuren";
 "scoreboard_style_edit" = "Stijl";
 "style_background_color" = "Achtergrondkleur";
+"style_server_color" = "kleur";
+"style_server_style" = "Style";
 "style_text_color" = "Tekstkleur";
 "style_server_indicator" = "Opslagindicator";
 "style_color_automatic" = "Automatisch";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "Groot";
 "scoreboard_style_symmetric_size_same" = "De linker- en rechtermaten blijven hetzelfde";
 "scoreboard_style_contrast_warning" = "De huidige tekstkleur heeft onvoldoende contrast en is mogelijk moeilijk leesbaar";
+"scoreboard_style_contrast_confirm_title" = "Sommige tekst is mogelijk moeilijk leesbaar";
+"scoreboard_style_contrast_confirm_message" = "Deze tekstkleuren lijken te veel op hun achtergrond:";
+"scoreboard_style_back_to_adjust" = "Terug om aan te passen";
+"scoreboard_style_save_anyway" = "Toch opslaan";
 "font_selection_title" = "Scorelettertype";
 "theme_selection_title" = "Scorebordthema";
 "scoreboard_style_left_team_name" = "Linkerteamnaam";
@@ -858,6 +864,9 @@
 "show_match_time" = "Tijd weergeven";
 "hide_match_time" = "Tijd verbergen";
 "scoreboard_match_time_this_game_only" = "Alleen deze wedstrijd; de volgende wedstrijd keert terug naar de standaardinstelling van de sport.";
+"scoreboard_match_time_menu" = "Tijd tonen";
+"scoreboard_match_time_shown_toast" = "Tijd getoond";
+"scoreboard_match_time_hidden_toast" = "Tijd verborgen";
 "scoreboard_font_size" = "Lettergrootte";
 "scoreboard_font_size_reset" = "Terugzetten naar standaard";
 "scoreboard_font_metric_score" = "Hoofdscore";

@@ -766,6 +766,8 @@
 "scoreboard_style_editor" = "Tyyli ja värit";
 "scoreboard_style_edit" = "Tyyli";
 "style_background_color" = "Taustaväri";
+"style_server_color" = "väri";
+"style_server_style" = "Style";
 "style_text_color" = "Tekstin väri";
 "style_server_indicator" = "Syötön ilmaisin";
 "style_color_automatic" = "Automaattinen";
@@ -798,6 +800,10 @@
 "scoreboard_style_large" = "Suuri";
 "scoreboard_style_symmetric_size_same" = "Vasen ja oikea koot pysyvät samoina";
 "scoreboard_style_contrast_warning" = "Nykyisen tekstin värin kontrasti on riittämätön ja sitä voi olla vaikea lukea";
+"scoreboard_style_contrast_confirm_title" = "Osa tekstistä voi olla vaikealukuista";
+"scoreboard_style_contrast_confirm_message" = "Nämä tekstivärit ovat liian lähellä taustavärejä:";
+"scoreboard_style_back_to_adjust" = "Takaisin säätämään";
+"scoreboard_style_save_anyway" = "Tallenna silti";
 "font_selection_title" = "Pistefontti";
 "theme_selection_title" = "Tulostauluteema";
 "scoreboard_style_left_team_name" = "Vasemman joukkueen nimi";
@@ -858,6 +864,9 @@
 "show_match_time" = "Näytä aika";
 "hide_match_time" = "Piilota aika";
 "scoreboard_match_time_this_game_only" = "Vain tämä ottelu; seuraava ottelu palaa urheilulajin oletusasetuksiin.";
+"scoreboard_match_time_menu" = "Näytä aika";
+"scoreboard_match_time_shown_toast" = "Aika näytetään";
+"scoreboard_match_time_hidden_toast" = "Aika piilotettu";
 "scoreboard_font_size" = "Fonttikoko";
 "scoreboard_font_size_reset" = "Palauta oletusarvo";
 "scoreboard_font_metric_score" = "Päätulos";

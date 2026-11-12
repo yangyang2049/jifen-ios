@@ -1902,13 +1902,13 @@ struct RallyScoreboardView: View {
             let visible = matchClockSession?.isVisible ?? store.showMatchTimeEnabled
             extras.append(
                 ScoreboardMenuItem(
-                    title: visible
-                        ? NSLocalizedString("hide_match_time", value: "隐藏时间", comment: "")
-                        : NSLocalizedString("show_match_time", value: "显示时间", comment: ""),
+                    // 开关类卡片恒定文案，状态交给颜色（对齐安卓 contentColor / 鸿蒙 activeColor）。
+                    title: NSLocalizedString("scoreboard_match_time_menu", value: "时间显示", comment: ""),
                     action: "toggleMatchTime",
                     group: .tools,
                     icon: "clock",
-                    keepDialogOpen: true
+                    keepDialogOpen: true,
+                    activeColor: visible ? Theme.primary : nil
                 )
             )
         }
@@ -2020,8 +2020,14 @@ struct RallyScoreboardView: View {
             )
         case "toggleMatchTime":
             guard let session = matchClockSession else { break }
+            // 菜单保持打开（keepDialogOpen）：就地切换 + toast 提示当前状态。
             session.isVisible.toggle()
             PreferencesManager.shared.setScoreboardMatchTimeVisible(session.isVisible, for: appGameType)
+            showToast(NSLocalizedString(
+                session.isVisible ? "scoreboard_match_time_shown_toast" : "scoreboard_match_time_hidden_toast",
+                value: session.isVisible ? "已显示比赛时间" : "已隐藏比赛时间",
+                comment: ""
+            ))
         case "endLink":
 
             showMenu = false

@@ -769,6 +769,8 @@
 "scoreboard_style_editor" = "樣式與顏色";
 "scoreboard_style_edit" = "樣式";
 "style_background_color" = "背景顏色";
+"style_server_color" = "顏色";
+"style_server_style" = "樣式";
 "style_text_color" = "文字顏色";
 "style_server_indicator" = "發球指示器";
 "style_color_automatic" = "自動";
@@ -801,6 +803,10 @@
 "scoreboard_style_large" = "大";
 "scoreboard_style_symmetric_size_same" = "左右側字號始終一致";
 "scoreboard_style_contrast_warning" = "目前文字色與背景對比度不足，可能看不清";
+"scoreboard_style_contrast_confirm_title" = "部分文字可能看不清";
+"scoreboard_style_contrast_confirm_message" = "這些文字與背景顏色過於接近：";
+"scoreboard_style_back_to_adjust" = "返回調整";
+"scoreboard_style_save_anyway" = "仍然儲存";
 "font_selection_title" = "計分字型";
 "theme_selection_title" = "計分器主題";
 "scoreboard_style_left_team_name" = "左側隊名";
@@ -861,6 +867,9 @@
 "show_match_time" = "顯示時間";
 "hide_match_time" = "隱藏時間";
 "scoreboard_match_time_this_game_only" = "僅影響本局；下次開局仍使用項目設定。";
+"scoreboard_match_time_menu" = "時間顯示";
+"scoreboard_match_time_shown_toast" = "已顯示比賽時間";
+"scoreboard_match_time_hidden_toast" = "已隱藏比賽時間";
 "scoreboard_font_size" = "字號調節";
 "scoreboard_font_size_reset" = "恢復預設";
 "scoreboard_font_metric_score" = "主比分";
@@ -2674,7 +2683,7 @@
 "style_workbench_photo_failed" = "無法開啟照片，請選擇另一張圖片。";
 "style_workbench_image_advice" = "建議使用 16:9 橫圖，例如 1920×1080；圖片按螢幕居中裁切。";
 
-"style_server_arrow" = "預設三角箭頭";
+"style_server_arrow" = "三角箭頭";
 "style_server_sport" = "項目圖示";
 
 "style_preview_exit" = "退出預覽";
