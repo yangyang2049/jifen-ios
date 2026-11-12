@@ -754,11 +754,16 @@ struct ScoreboardExternalLiveView: View {
             return []
         }()
         let multipliers = state.appearance.fontSizeMultipliers ?? [:]
+        // 与安卓/鸿蒙同版式对齐：投屏端同样吃 1.08 投屏基线（上限由排版器按面板自适应，
+        // 等价于另两端对 twoSide 模型先乘 baseFontScale 的口径）。
+        let baseFontScale = DisplayTypographyResolver.projectionBaseFontScale(
+            isLocalProjection: projection.isLocalProjection
+        )
         let preference = ScoreboardTypographyPreference(
             font: ScoreboardFont(displayCode: state.appearance.fontCode) ?? .default,
-            scoreMultiplier: multipliers["mainScore"] ?? 1,
-            nameMultiplier: multipliers["playerName"] ?? multipliers["teamName"] ?? 1,
-            secondaryMultiplier: multipliers["setGameScore"] ?? multipliers["setScore"] ?? 1
+            scoreMultiplier: (multipliers["mainScore"] ?? 1) * Double(baseFontScale),
+            nameMultiplier: (multipliers["playerName"] ?? multipliers["teamName"] ?? 1) * Double(baseFontScale),
+            secondaryMultiplier: (multipliers["setGameScore"] ?? multipliers["setScore"] ?? 1) * Double(baseFontScale)
         )
         return ZStack {
             HStack(spacing: 0) {
