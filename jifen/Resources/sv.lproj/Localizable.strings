@@ -2718,8 +2718,6 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "Versionsinformation för biljardgrupper";
-"group_billiards_create_notice_cancel" = "Inte nu";
-"group_billiards_create_notice_confirm" = "Fortsätt skapa";
 "group_billiards_create_notice_message" = "Biljardgrupper kräver iScoreboard %@ eller senare.\n\nNya versioner släpps successivt på olika plattformar och i appbutikerna. Medlemmar som inte har uppdaterat appen, eller vars plattform ännu inte erbjuder den nya versionen, kan tills vidare inte gå med i eller använda biljardgrupper.\n\nNär gruppen har skapats ber vi dig påminna inbjudna medlemmar om att uppdatera appen. Medlemmar vars plattform ännu inte erbjuder den nya versionen behöver vänta tills den finns tillgänglig.";
 
 /* Scoreboard style workbench */

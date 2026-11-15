@@ -2718,8 +2718,6 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "당구 그룹 지원 버전 안내";
-"group_billiards_create_notice_cancel" = "나중에 만들기";
-"group_billiards_create_notice_confirm" = "계속 만들기";
 "group_billiards_create_notice_message" = "당구 그룹을 이용하려면 iScoreboard %@ 이상이 필요합니다.\n\n새 버전이 각 플랫폼과 앱 스토어에 순차적으로 출시되고 있습니다. 앱을 업데이트하지 않았거나 사용 중인 플랫폼에 새 버전이 아직 출시되지 않은 회원은 현재 당구 그룹에 참여하거나 이용할 수 없습니다.\n\n그룹을 만든 후 초대한 회원에게 앱을 업데이트하도록 안내해 주세요. 사용 중인 플랫폼에 새 버전이 아직 출시되지 않았다면 출시될 때까지 기다려야 합니다.";
 
 /* Scoreboard style workbench */

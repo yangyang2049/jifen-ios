@@ -2718,8 +2718,6 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "Pemberitahuan versi grup biliar";
-"group_billiards_create_notice_cancel" = "Nanti saja";
-"group_billiards_create_notice_confirm" = "Lanjutkan pembuatan";
 "group_billiards_create_notice_message" = "Grup biliar memerlukan iScoreboard %@ atau yang lebih baru.\n\nVersi baru sedang dirilis secara bertahap di berbagai platform dan toko aplikasi. Anggota yang belum memperbarui aplikasi, atau yang platformnya belum menyediakan versi baru, untuk sementara belum dapat bergabung atau menggunakan grup biliar.\n\nSetelah membuat grup, ingatkan anggota yang diundang untuk memperbarui aplikasi. Anggota yang platformnya belum menyediakan versi baru harus menunggu hingga versi tersebut tersedia.";
 
 /* Scoreboard style workbench */

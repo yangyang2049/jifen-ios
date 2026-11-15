@@ -2718,8 +2718,6 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "Avviso sulla versione per i gruppi di biliardo";
-"group_billiards_create_notice_cancel" = "Non ora";
-"group_billiards_create_notice_confirm" = "Continua la creazione";
 "group_billiards_create_notice_message" = "I gruppi di biliardo richiedono iScoreboard %@ o versioni successive.\n\nLe nuove versioni vengono pubblicate gradualmente sulle diverse piattaforme e nei vari store. I membri che non hanno aggiornato l’app, o la cui piattaforma non offre ancora la nuova versione, per il momento non possono unirsi ai gruppi di biliardo né utilizzarli.\n\nDopo aver creato il gruppo, ricorda ai membri invitati di aggiornare l’app. Chi non dispone ancora della nuova versione sulla propria piattaforma dovrà attendere che sia disponibile.";
 
 /* Scoreboard style workbench */

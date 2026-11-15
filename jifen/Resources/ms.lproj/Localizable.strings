@@ -2718,8 +2718,6 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "Notis versi kumpulan biliard";
-"group_billiards_create_notice_cancel" = "Bukan sekarang";
-"group_billiards_create_notice_confirm" = "Teruskan penciptaan";
 "group_billiards_create_notice_message" = "Kumpulan biliard memerlukan iScoreboard %@ atau lebih baharu.\n\nVersi baharu sedang dikeluarkan secara berperingkat pada pelbagai platform dan gedung aplikasi. Ahli yang belum mengemas kini aplikasi, atau yang platformnya belum menyediakan versi baharu, buat masa ini tidak dapat menyertai atau menggunakan kumpulan biliard.\n\nSelepas mencipta kumpulan, ingatkan ahli yang dijemput untuk mengemas kini aplikasi. Ahli yang platformnya belum menyediakan versi baharu perlu menunggu sehingga versi tersebut tersedia.";
 
 /* Scoreboard style workbench */

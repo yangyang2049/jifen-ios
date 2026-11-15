@@ -22,6 +22,28 @@ import XCTest
             result=f.result;result.scores[0].points=2147483648;XCTAssertThrowsError(try result.validate(rules:f.rules))
         }
     }
+    /// 战绩页要用响应里的 `bucket` 回显规则桶选中态，净积分榜要「场均」和「平」两列。
+    func testRankingBucketAverageAndDrawsDecode() throws {
+        let json = #"{"bucket":"bucket-1","items":[{"memberId":"m1","displayName":"A","rank":1,"games":6,"wins":3,"losses":2,"draws":1,"totalPoints":7,"averagePoints":1.1666,"winRateText":"50%"}]}"#
+        let ranking = try JSONDecoder().decode(GroupBilliardsRanking.self, from: Data(json.utf8))
+        XCTAssertEqual(ranking.bucket, "bucket-1")
+        let row = try XCTUnwrap(ranking.items?.first)
+        XCTAssertEqual(row.draws, 1)
+        XCTAssertEqual(row.averageText, "1.2")
+        XCTAssertEqual(row.signedPoints, "+7")
+        XCTAssertEqual(row.qualifiedWinRate, "50%")
+        XCTAssertNil(GroupBilliardsRank(memberId: "m2", displayName: "B", rank: 2, games: 4).qualifiedWinRate)
+        XCTAssertEqual(GroupBilliardsRank.signed(-3), "-3")
+        XCTAssertEqual(GroupBilliardsRank.signed(0), "0")
+    }
+    /// v2 契约新增的三个业务码必须有文案，不能退化成裸键。
+    func testBilliardsBusinessErrorCodesMapToCopy() {
+        for code in ["SESSION_FROZEN", "ACTIVITY_NOT_COMPLETE", "RESULT_VOIDED"] {
+            let message = groupErrorMessage(APIClientError.server(status: 409, code: code, message: nil, nextAvailableAt: nil))
+            XCTAssertFalse(message.isEmpty, code)
+            XCTAssertFalse(message.hasPrefix("group_"), "\(code) fell back to a raw key")
+        }
+    }
     func testUnknownValuesDoNotCrashListsAndV2CannotUseRacketRules() throws {
         XCTAssertEqual(try JSONDecoder().decode(GroupSport.self,from:Data("\"future_sport\"".utf8)),.unsupported)
         XCTAssertEqual(try JSONDecoder().decode(GroupFormat.self,from:Data("\"individuals\"".utf8)),.individuals)
@@ -70,6 +92,54 @@ import XCTest
         XCTAssertEqual(GroupBilliardsRules.defaults(.tournament).config.thirdFoul,2)
         XCTAssertEqual(GroupBilliardsRules.defaults(.tournament).config.totalRacks,10)
         XCTAssertEqual(GroupBilliardsRules.defaults(.tournament).config.breakRule,"winner")
+    }
+    /// 一步式入口：九球合一为 4 个玩法组，后端变体由页内规则族决定。
+    func testVariantGroupsMatchAndroid() {
+        XCTAssertEqual(GroupBilliardsGroup.allCases.map(\.rawValue), ["nine_ball", "eight_ball", "snooker", "standard"])
+        XCTAssertEqual(GroupBilliardsGroup.group(of: .folk), .nineBall)
+        XCTAssertEqual(GroupBilliardsGroup.group(of: .tournament), .nineBall)
+        for variant in [GroupBilliardsVariant.eight, .snooker, .standard] {
+            XCTAssertEqual(GroupBilliardsGroup.group(of: variant).backend(family: "tournament"), variant)
+        }
+        // 提交前必须还原成后端合法变体：nine_ball 这个前端组值不能流到接口。
+        XCTAssertEqual(GroupBilliardsGroup.nineBall.backend(family: "folk"), .folk)
+        XCTAssertEqual(GroupBilliardsGroup.nineBall.backend(family: "tournament"), .tournament)
+        XCTAssertEqual(GroupBilliardsRules.defaults(for: .nineBall, family: .tournament).variant, "nine_ball_tournament")
+        XCTAssertEqual(GroupBilliardsRules.defaults(for: .standard).variant, "standard")
+        // 普通台球没有任何可调规则，整块规则设置不渲染。
+        XCTAssertFalse(GroupBilliardsRules.defaults(.standard).knownVariant!.hasAdjustableRules)
+        XCTAssertTrue(GroupBilliardsRules.defaults(.snooker).knownVariant!.hasAdjustableRules)
+    }
+    /// 切玩法 / 切规则族：每个变体的 config 键集不同，换算后必须仍然通过校验。
+    func testSwitchingGroupAndFamilyKeepsRulesValid() throws {
+        var rules = GroupBilliardsRules.defaults(.folk, count: 3)
+        rules.config.bigGold = 12
+        rules.initialBreakerParticipantId = "p2"
+        XCTAssertEqual(rules.group, .nineBall)
+        XCTAssertEqual(rules.family, .folk)
+        let tournament = rules.converting(to: .tournament, count: 2)
+        try tournament.validate()
+        XCTAssertEqual(tournament.config.bigGold, 12)
+        XCTAssertEqual(tournament.playerCount, 2)
+        // 开球位必须落在实际人数里，否则请求会写出不存在的 p2。
+        XCTAssertNil(tournament.initialBreakerParticipantId)
+        let back = tournament.converting(to: .folk, count: 3)
+        try back.validate()
+        XCTAssertEqual(back.config.bigGold, 12)
+        XCTAssertEqual(back.config.handoffEnabled, GroupBilliardsRules.defaults(.folk).config.handoffEnabled)
+        for variant in [GroupBilliardsVariant.eight, .snooker, .standard] {
+            let converted = rules.converting(to: variant)
+            try converted.validate()
+            XCTAssertEqual(converted.group, GroupBilliardsGroup.group(of: variant))
+        }
+        // 黑八让局不能超过目标局数。
+        var eight = GroupBilliardsRules.defaults(.eight)
+        eight.config.handicapRacks = 3
+        eight.config.handicapBeneficiary = "p1"
+        eight.config.targetRacks = 2
+        let narrowed = eight.converting(to: .eight)
+        XCTAssertLessThanOrEqual(narrowed.config.handicapRacks ?? 0, 1)
+        try narrowed.validate()
     }
     func testTerminalBoundaryAndLedgerBalance() throws {
         for f in try fixtures() {

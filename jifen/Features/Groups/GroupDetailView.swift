@@ -44,6 +44,8 @@ struct GroupDetailView: View {
     @State private var confirmResult: GroupResult?
     @State private var busyResults = Set<String>()
     @State private var repairUpload: GroupPendingUpload?
+    /// 台球页签的数据是独立请求：父级下拉刷新/回到前台时用它单独触发一次。
+    @State private var billiardsRefresh = 0
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private var detail: GroupDetailCache? { store.cache.details[groupID] }
@@ -55,6 +57,11 @@ struct GroupDetailView: View {
         VStack(spacing: 0) {
             tabs
             if let detail {
+                if detail.group.sport == .billiards && tab != 3 {
+                    // 台球内页自带滚动、下拉刷新与底部操作栏（归档时整块收起），
+                    // 因此不再套外层的 ScrollView，避免嵌套滚动与底栏被内容带走。
+                    GroupBilliardsTab(detail: detail, tab: tab, refreshKey: billiardsRefresh, onSelectTab: { tab = $0 }, onStart: onStart)
+                } else {
                 ScrollView {
                     VStack(spacing: Theme.spacing) {
                         if let error = store.detailErrors[groupID] { GroupNotice(text: error) }
@@ -64,9 +71,7 @@ struct GroupDetailView: View {
                         } else if !detail.group.isActive {
                             GroupNotice(text: groupText("archive_readonly", "This group is archived. Its history is read-only."))
                         }
-                        if detail.group.sport == .billiards && tab != 3 {
-                            GroupBilliardsTab(detail: detail, tab: tab, onStart: onStart)
-                        } else if detail.group.sport == .unsupported {
+                        if detail.group.sport == .unsupported {
                             GroupNotice(text: billiardsText("unsupported"))
                         } else { switch tab {
                         case 0: overview(detail)
@@ -79,6 +84,7 @@ struct GroupDetailView: View {
                     }.padding(Theme.padding).frame(maxWidth: 960).expandedPhonePageContent(existingHorizontalInset: Theme.padding)
                         .frame(maxWidth: .infinity)
                 }.scrollDismissesKeyboard(.interactively).refreshable { await reload() }
+                }
             } else if let error = store.detailErrors[groupID] {
                 GroupEmptyCard(text: error, actionTitle: groupText("retry", "Retry"), isCard: false) { Task { await reload() } }
                     .padding(Theme.padding)
@@ -179,7 +185,10 @@ struct GroupDetailView: View {
         .task(id: recordFormat) { await store.loadHistory(groupID, format: recordFormat) }
         .task(id: rankFormat) { await store.loadRankings(groupID, format: rankFormat) }
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active { Task { await store.refreshFeatureFlag(); await store.sync(); await reload() } }
+            if phase == .active {
+                billiardsRefresh += 1
+                Task { await store.refreshFeatureFlag(); await store.sync(); await reload() }
+            }
         }
         .navigationDestination(isPresented: $editingProfile) {
             GroupManagementView(groupID: groupID, action: .init(kind: "profile"), usesParentNavigation: true)
@@ -333,6 +342,7 @@ struct GroupDetailView: View {
     }
 
     private func reload() async {
+        billiardsRefresh += 1
         await store.loadDetail(groupID, format: rankFormat)
         await store.loadHistory(groupID, format: recordFormat)
         #if DEBUG

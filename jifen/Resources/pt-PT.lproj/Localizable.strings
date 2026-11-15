@@ -2718,8 +2718,6 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "Aviso de versão dos grupos de bilhar";
-"group_billiards_create_notice_cancel" = "Agora não";
-"group_billiards_create_notice_confirm" = "Continuar a criação";
 "group_billiards_create_notice_message" = "Os grupos de bilhar requerem o iScoreboard %@ ou posterior.\n\nAs novas versões estão a ser lançadas gradualmente nas diferentes plataformas e lojas de aplicações. Os membros que não atualizaram a aplicação, ou cuja plataforma ainda não disponibiliza a nova versão, não podem aderir nem utilizar os grupos de bilhar por enquanto.\n\nDepois de criar o grupo, lembre os membros convidados de atualizar a aplicação. Quem ainda não dispõe da nova versão na sua plataforma terá de aguardar até que esteja disponível.";
 
 /* Scoreboard style workbench */

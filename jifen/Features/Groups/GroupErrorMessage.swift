@@ -44,6 +44,11 @@ nonisolated func groupErrorMessage(_ error: Error, bundle: Bundle = .main) -> St
         "GAME_NOT_FOUND": "game_unavailable",
         "GAME_ABANDONED": "game_unavailable",
         "GAME_NOT_OPEN": "error_session_completed",
+        // 台球 v2 契约新增的三个业务码（对齐安卓 `GroupErrors`）：
+        // 已冻结场次不能再改、活动还有待打场次不能结束、已作废成绩不能再确认。
+        "SESSION_FROZEN": "frozen_match_hint",
+        "ACTIVITY_NOT_COMPLETE": "error_activity_pending",
+        "RESULT_VOIDED": "error_result_state",
         "ACTIVITY_SESSION_REQUIRED": "activity_lineup",
         "ACTIVITY_NOT_OPEN": "error_activity_locked",
         "ACTIVITY_NOT_EDITABLE": "error_activity_locked",

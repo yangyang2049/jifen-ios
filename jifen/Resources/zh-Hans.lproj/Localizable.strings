@@ -2789,6 +2789,4 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "台球小组版本提示";
-"group_billiards_create_notice_cancel" = "暂不创建";
-"group_billiards_create_notice_confirm" = "继续创建";
 "group_billiards_create_notice_message" = "台球小组需要全能计分器 %@ 或更高版本。\n\n新版本正在各平台及应用商店陆续发布。未更新应用，或所在平台暂未提供新版本的成员，暂时无法加入和使用台球小组。\n\n创建后，请提醒受邀成员更新应用；尚未提供新版本的成员，需要等待对应平台上线。";

@@ -2718,8 +2718,6 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "הודעת גרסה לקבוצות ביליארד";
-"group_billiards_create_notice_cancel" = "לא עכשיו";
-"group_billiards_create_notice_confirm" = "המשך יצירה";
 "group_billiards_create_notice_message" = "קבוצות ביליארד דורשות iScoreboard בגרסה %@ ואילך.\n\nגרסאות חדשות מתפרסמות בהדרגה בפלטפורמות ובחנויות האפליקציות השונות. חברים שטרם עדכנו את האפליקציה, או שהגרסה החדשה עדיין אינה זמינה בפלטפורמה שלהם, אינם יכולים כרגע להצטרף לקבוצות ביליארד או להשתמש בהן.\n\nלאחר יצירת הקבוצה, יש להזכיר לחברים שהוזמנו לעדכן את האפליקציה. חברים שהגרסה החדשה עדיין אינה זמינה בפלטפורמה שלהם יצטרכו להמתין לפרסומה.";
 
 /* Scoreboard style workbench */

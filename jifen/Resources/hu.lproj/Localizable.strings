@@ -2718,8 +2718,6 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "Verzióinformáció a biliárdcsoportokhoz";
-"group_billiards_create_notice_cancel" = "Most nem";
-"group_billiards_create_notice_confirm" = "Létrehozás folytatása";
 "group_billiards_create_notice_message" = "A biliárdcsoportokhoz az iScoreboard %@-as vagy újabb verziója szükséges.\n\nAz új verziók fokozatosan jelennek meg az egyes platformokon és alkalmazásboltokban. Azok a tagok, akik nem frissítették az alkalmazást, vagy akiknek a platformján még nem érhető el az új verzió, egyelőre nem csatlakozhatnak biliárdcsoportokhoz és nem használhatják azokat.\n\nA csoport létrehozása után emlékeztesd a meghívott tagokat az alkalmazás frissítésére. Akiknek a platformján még nem érhető el az új verzió, azoknak meg kell várniuk a megjelenését.";
 
 /* Scoreboard style workbench */

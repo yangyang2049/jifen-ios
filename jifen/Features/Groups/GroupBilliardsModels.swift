@@ -6,8 +6,52 @@ nonisolated enum GroupBilliardsVariant: String, Codable, CaseIterable, Identifia
     var gameType: GameType { switch self { case .folk, .tournament: .nineBall; case .eight: .eightBall; case .snooker: .snooker; case .standard: .billiards } }
     @MainActor var title: String { switch self { case .folk: billiardsText("folk"); case .tournament: billiardsText("tournament"); default: gameType.displayName } }
     var resultKind: String { switch self { case .folk: "points_ledger"; case .eight: "rack_duel"; case .snooker: "frame_duel"; default: "points_duel" } }
+    /// 规则设置是否真的有可调项：普通台球只记净胜分，整块「规则设置」不渲染（对齐安卓 `STANDARD -> Unit`）。
+    var hasAdjustableRules: Bool { self != .standard }
+}
+/// 玩法组：入口页只列 4 项，九球的民间追分 / 比赛积分在页内用分段切换（对齐安卓 `BilliardsVariants.GROUPS`）。
+/// 这个值只活在前端（chip 选中态与预选），提交前必须经 `backend(family:)` 还原成后端变体，
+/// 不能写进 rules，也不能发给后端。
+nonisolated enum GroupBilliardsGroup: String, Codable, CaseIterable, Identifiable, Sendable {
+    case nineBall = "nine_ball", eight = "eight_ball", snooker, standard
+    var id: String { rawValue }
+    /// chip 文案分别是九球 / 黑八追局 / 斯诺克 / 台球，全部复用已复核键
+    /// （`schedule_billiards_nine_ball` 与 `GameType.displayName`），不新增 47 语种键。
+    @MainActor var title: String {
+        switch self {
+        case .nineBall: NSLocalizedString("schedule_billiards_nine_ball", value: "Nine-ball", comment: "Billiards group")
+        case .eight: GroupBilliardsVariant.eight.gameType.displayName
+        case .snooker: GroupBilliardsVariant.snooker.gameType.displayName
+        case .standard: GroupBilliardsVariant.standard.gameType.displayName
+        }
+    }
+    /// 后端变体 → 玩法组；已经传玩法组时由调用方直接用，不再二次换算。
+    static func group(of variant: GroupBilliardsVariant) -> GroupBilliardsGroup {
+        switch variant { case .folk, .tournament: .nineBall; case .eight: .eight; case .snooker: .snooker; case .standard: .standard }
+    }
+    /// 玩法组 → 后端变体；九球由页内规则族（民间 / 比赛积分）决定，其它玩法与后端变体一一对应。
+    func backend(family: String) -> GroupBilliardsVariant {
+        switch self { case .nineBall: family == "tournament" ? .tournament : .folk; case .eight: .eight; case .snooker: .snooker; case .standard: .standard }
+    }
+}
+/// 九球的规则族：页内分段（民间追分 / 比赛积分），不再作为两个独立玩法项。
+nonisolated enum GroupBilliardsFamily: String, CaseIterable, Identifiable, Sendable {
+    case folk, tournament
+    var id: String { rawValue }
+    /// 复用计分板设置页同一对已复核键：民间追分 / 赛事积分。
+    @MainActor var title: String {
+        self == .folk
+            ? NSLocalizedString("nine_ball_folk", value: "Casual chase", comment: "Nine-ball family")
+            : NSLocalizedString("nine_ball_tournament", value: "Tournament points", comment: "Nine-ball family")
+    }
 }
 nonisolated func billiardsText(_ key: String) -> String { NSLocalizedString("billiards_group_" + key, comment: "Billiards groups") }
+/// 台球内页新增的短标签一律先复用已复核的 `billiards_group_*` 键；
+/// 只有在现有键语义确实不覆盖时才用这个带英文兜底的重载，
+/// 避免为了几句新文案给 47 个语种加一轮翻译（与产品口径一致）。
+nonisolated func billiardsText(_ key: String, _ fallback: String) -> String {
+    NSLocalizedString("billiards_group_" + key, value: fallback, comment: "Billiards groups")
+}
 nonisolated struct GroupBilliardsConfig: Codable, Hashable, Sendable {
     var pointScheme: String? = nil
     var bigGold: Int? = nil; var smallGold: Int? = nil; var goldenNine: Int? = nil; var normalWin: Int? = nil; var foul: Int? = nil
@@ -59,6 +103,47 @@ nonisolated struct GroupBilliardsRules: Codable, Hashable, Sendable {
         case .standard: c = .init()
         }
         return .init(variant: v.rawValue, participantMode: v == .folk ? "individuals" : "two_sides", playerCount: v == .folk ? count : 2, config: c, engineRuleVersion: [.folk, .tournament].contains(v) ? 3 : nil)
+    }
+    /// 当前规则属于哪个玩法组、哪个规则族：入口页的 chip 与页内分段都由此回显。
+    var group: GroupBilliardsGroup { GroupBilliardsGroup.group(of: knownVariant ?? .folk) }
+    var family: GroupBilliardsFamily { knownVariant == .tournament ? .tournament : .folk }
+    static func defaults(for group: GroupBilliardsGroup, family: GroupBilliardsFamily = .folk, count: Int = 2) -> Self {
+        defaults(group.backend(family: family.rawValue), count: count)
+    }
+    /// 切玩法组 / 切规则族。每个变体允许的 config 键由 `validate()` 严格限制，
+    /// 所以只能在目标变体的默认值上覆盖同名字段，不能把旧 config 整份搬过去。
+    func converting(to target: GroupBilliardsVariant, count: Int = 2) -> Self {
+        var next = GroupBilliardsRules.defaults(target, count: count)
+        let old = config
+        switch target {
+        case .folk:
+            next.config.bigGold = old.bigGold ?? next.config.bigGold
+            next.config.smallGold = old.smallGold ?? next.config.smallGold
+            next.config.goldenNine = old.goldenNine ?? next.config.goldenNine
+            next.config.normalWin = old.normalWin ?? next.config.normalWin
+            next.config.foul = old.foul ?? next.config.foul
+        case .tournament:
+            next.config.bigGold = old.bigGold ?? next.config.bigGold
+            next.config.smallGold = old.smallGold ?? next.config.smallGold
+            next.config.normalWin = old.normalWin ?? next.config.normalWin
+            next.config.foul = old.foul ?? next.config.foul
+            next.config.thirdFoul = old.thirdFoul ?? next.config.thirdFoul
+            next.config.totalRacks = old.totalRacks ?? next.config.totalRacks
+            next.config.breakRule = old.breakRule ?? next.config.breakRule
+        case .eight:
+            next.config.targetRacks = old.targetRacks ?? next.config.targetRacks
+            next.config.handicapRacks = min(old.handicapRacks ?? 0, max(0, (next.config.targetRacks ?? 9) - 1))
+            next.config.handicapBeneficiary = (next.config.handicapRacks ?? 0) > 0 ? (old.handicapBeneficiary ?? "p1") : nil
+        case .snooker:
+            if let frames = old.maxFrames { next.config.maxFrames = max(1, frames % 2 == 0 ? frames + 1 : frames) }
+        case .standard: break
+        }
+        // 开球位必须落在实际人数里，否则请求会写出不存在的 pN。
+        next.initialBreakerParticipantId = initialBreakerParticipantId.flatMap { id in
+            guard let index = Int(id.dropFirst()), index < count else { return nil }
+            return "p\(index)"
+        }
+        return next
     }
     @MainActor func setup(names: [String]) throws -> SportsSetupResult {
         try validate()
@@ -151,8 +236,32 @@ nonisolated struct GroupBilliardsSource: Codable, Sendable {
     var accountID: String; var groupID: String; var groupName: String; var clientSessionID: String; var gameID: String? = nil
     var activityID: String? = nil; var activitySessionID: String? = nil; var rules: GroupBilliardsRules; var participants: [GroupBilliardsParticipant]; var names: [String]
 }
+/// 活动列表里台球独有的 `defaultMatchConfig`：活动本身仍是通用 `GroupActivity`，
+/// 台球默认规则只在这一层解，避免把台球字段塞进其它项目的活动模型。
+nonisolated struct GroupBilliardsActivity: Codable, Sendable, Identifiable {
+    var activity: GroupActivity
+    var defaultRules: GroupBilliardsRules?
+    var id: String { activity.id }
+    private enum Keys: String, CodingKey { case defaultMatchConfig }
+    init(activity: GroupActivity, defaultRules: GroupBilliardsRules? = nil) {
+        self.activity = activity; self.defaultRules = defaultRules
+    }
+    init(from decoder: Decoder) throws {
+        activity = try GroupActivity(from: decoder)
+        defaultRules = try decoder.container(keyedBy: Keys.self)
+            .decodeIfPresent(GroupBilliardsRules.self, forKey: .defaultMatchConfig)
+    }
+    func encode(to encoder: Encoder) throws {
+        try activity.encode(to: encoder)
+        var container = encoder.container(keyedBy: Keys.self)
+        try container.encodeIfPresent(defaultRules, forKey: .defaultMatchConfig)
+    }
+}
 nonisolated struct GroupBilliardsRanking: Codable, Sendable {
     var buckets: [GroupBilliardsBucket]? = nil; var items: [GroupBilliardsRank]? = nil; var statsRevision: String? = nil
+    /// 服务端回显的「当前规则桶」。本地还没点过桶时用它给 chips 兜底选中态
+    /// （对齐安卓 `ranking.text("bucket")`）。
+    var bucket: String? = nil
 }
 nonisolated struct GroupBilliardsBucket: Codable, Identifiable, Sendable {
     var key: String; var rules: GroupBilliardsRules
@@ -160,8 +269,21 @@ nonisolated struct GroupBilliardsBucket: Codable, Identifiable, Sendable {
 }
 nonisolated struct GroupBilliardsRank: Codable, Identifiable, Sendable {
     var memberId: String; var displayName: String; var rank: Int; var games: Int
-    var totalPoints: Int? = nil; var wins: Int? = nil; var losses: Int? = nil; var winRateText: String? = nil
+    var totalPoints: Int? = nil; var wins: Int? = nil; var losses: Int? = nil
+    /// 民间追分榜的场均分（1 位小数）与平局数；其它玩法不需要场均但不影响解码。
+    var averagePoints: Double? = nil; var draws: Int? = nil
+    var winRateText: String? = nil
     var id: String { memberId }
+    var name: String { displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? memberId : displayName }
+    /// 净积分带正负号（安卓 `signed()`）：0 与负数原样输出。
+    var signedPoints: String { Self.signed(totalPoints ?? 0) }
+    var averageText: String { String(format: "%.1f", averagePoints ?? 0) }
+    /// 胜率门槛与小组其它玩法一致：不足 5 场不给数字。
+    var qualifiedWinRate: String? {
+        guard games >= 5, let text = winRateText?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return nil }
+        return text
+    }
+    static func signed(_ value: Int) -> String { value > 0 ? "+\(value)" : "\(value)" }
 }
 
 nonisolated extension GroupResult {
@@ -247,8 +369,15 @@ nonisolated extension GroupResult {
 }
 
 @MainActor extension GroupBilliardsRow {
+    /// 分享文本与安卓 `BilliardsResultCard` 同序：玩法名 / 状态 / 规则摘要 / 每人一行「姓名 +分数」。
     var shareText:String {
-        let lines=result.scores.map { score in (participants.first{$0.participant.participantId==score.participantId}?.displayName ?? billiardsText("unknown"))+"  "+(rules.knownVariant == .folk && score.points>0 ? "+":"")+String(score.points) }
-        return ([rules.summary,billiardsText(status=="confirmed" ? "confirmed":status=="voided" ? "voided":"pending")]+(result.completion=="early_stop" ? [billiardsText("early_stop")]:[])+lines).joined(separator:"\n")
+        let variantTitle = rules.knownVariant?.title ?? billiardsText("unsupported")
+        let statusText = billiardsText(status=="confirmed" ? "confirmed":status=="voided" ? "voided":"pending")
+        let lines = result.scores.map { score in
+            let name = participants.first { $0.participant.participantId == score.participantId }?.displayName ?? billiardsText("unknown")
+            let signed = rules.knownVariant == .folk && score.points > 0 ? "+" : ""
+            return name + "  " + signed + String(score.points)
+        }
+        return ([variantTitle, statusText, rules.summary] + lines).joined(separator: "\n")
     }
 }

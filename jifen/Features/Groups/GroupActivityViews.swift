@@ -193,8 +193,10 @@ struct GroupActivityView: View {
     private var writable: Bool { latest.group.isActive && !store.cached && store.enabled }
     @ViewBuilder var body: some View {
         if detail.group.sport == .billiards {
-            ScrollView { GroupBilliardsTab(detail:latest,tab:1,initialActivityID:activity.id,onStart:onStart).padding() }
-                .navigationTitle(groupText("activity_detail","Activity details")).groupAccountBoundary()
+            // 台球活动页直接复用台球页签的「场次编排」：它自带滚动、下拉刷新与底部操作栏。
+            GroupBilliardsTab(detail: latest, tab: 1, initialActivityID: activity.id, onStart: onStart)
+                .navigationTitle(groupText("activity_detail", "Activity details")).navigationBarTitleDisplayMode(.inline)
+                .groupAccountBoundary()
         } else { legacyBody }
     }
     private var legacyBody: some View {

@@ -2718,8 +2718,6 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "Upozornenie na verziu pre biliardové skupiny";
-"group_billiards_create_notice_cancel" = "Teraz nie";
-"group_billiards_create_notice_confirm" = "Pokračovať vo vytváraní";
 "group_billiards_create_notice_message" = "Biliardové skupiny vyžadujú iScoreboard %@ alebo novší.\n\nNové verzie sa postupne vydávajú na jednotlivých platformách a v obchodoch s aplikáciami. Členovia, ktorí aplikáciu neaktualizovali alebo na ktorých platforme nová verzia ešte nie je dostupná, sa zatiaľ nemôžu pripojiť k biliardovým skupinám ani ich používať.\n\nPo vytvorení skupiny pripomeňte pozvaným členom, aby aplikáciu aktualizovali. Ak na ich platforme nová verzia ešte nie je dostupná, musia počkať na jej vydanie.";
 
 /* Scoreboard style workbench */

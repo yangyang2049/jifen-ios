@@ -2788,6 +2788,4 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "Billiards group version notice";
-"group_billiards_create_notice_cancel" = "Not now";
-"group_billiards_create_notice_confirm" = "Continue creating";
 "group_billiards_create_notice_message" = "Billiards groups require iScoreboard %@ or later.\n\nNew versions are being released gradually across platforms and app stores. Members who have not updated, or whose platform does not yet offer the new version, cannot join or use billiards groups yet.\n\nAfter creating the group, please remind invited members to update the app. Members whose platform does not yet offer the new version will need to wait until it is available.";

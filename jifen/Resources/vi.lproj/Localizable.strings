@@ -2718,8 +2718,6 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "Thông báo phiên bản cho nhóm bi-a";
-"group_billiards_create_notice_cancel" = "Chưa tạo";
-"group_billiards_create_notice_confirm" = "Tiếp tục tạo";
 "group_billiards_create_notice_message" = "Nhóm bi-a yêu cầu iScoreboard %@ trở lên.\n\nCác phiên bản mới đang được phát hành lần lượt trên các nền tảng và cửa hàng ứng dụng. Thành viên chưa cập nhật ứng dụng hoặc chưa có phiên bản mới trên nền tảng đang dùng hiện chưa thể tham gia hay sử dụng nhóm bi-a.\n\nSau khi tạo nhóm, hãy nhắc các thành viên được mời cập nhật ứng dụng. Những người chưa có phiên bản mới trên nền tảng đang dùng cần chờ đến khi phiên bản đó được phát hành.";
 
 /* Scoreboard style workbench */

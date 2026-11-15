@@ -379,8 +379,10 @@ struct GroupCreateView: View {
                 }
             }
             .alert(groupText("billiards_create_notice_title", "Billiards group version notice"), isPresented: $showBilliardsVersionNotice) {
-                Button(groupText("billiards_create_notice_cancel", "Not now"), role: .cancel) { }
-                Button(groupText("billiards_create_notice_confirm", "Continue creating")) { Task { await submit() } }
+                // Reuse reviewed short common labels (cancel/continue) instead of the longer
+                // notice-specific "Not now"/"Continue creating", matching Android and HarmonyOS.
+                Button(NSLocalizedString("cancel", value: "Cancel", comment: "Billiards group version notice"), role: .cancel) { }
+                Button(NSLocalizedString("continue", value: "Continue", comment: "Billiards group version notice")) { Task { await submit() } }
                     .disabled(busy || !valid)
             } message: {
                 Text(String(format: groupText("billiards_create_notice_message", ""), appVersion))
@@ -560,7 +562,7 @@ struct GroupResultDetailView: View {
     @ViewBuilder var body: some View {
         if current.sport == .billiards {
             if let detail = store.cache.details[current.groupId] {
-                ScrollView { GroupBilliardsTab(detail:detail,tab:2,resultID:current.id,onStart:{_,_,_ in}).padding() }
+                GroupBilliardsResultDetail(groupID: current.groupId, resultID: current.id, detail: detail, onStart: { _, _, _ in })
             } else { ProgressView().task { await store.loadDetail(current.groupId) } }
         } else { legacyBody }
     }

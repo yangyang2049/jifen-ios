@@ -2786,6 +2786,4 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "撞球小組版本提示";
-"group_billiards_create_notice_cancel" = "暫不建立";
-"group_billiards_create_notice_confirm" = "繼續建立";
 "group_billiards_create_notice_message" = "撞球小組需要全能計分器 %@ 或更新版本。\n\n新版本正於各平台及應用程式商店陸續發布。尚未更新應用程式，或所用平台暫未提供新版本的成員，目前無法加入及使用撞球小組。\n\n建立後，請提醒受邀成員更新應用程式；所用平台尚未提供新版本的成員，需等待對應平台上線。";

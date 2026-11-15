@@ -2718,8 +2718,6 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "Bilardo grupları için sürüm bildirimi";
-"group_billiards_create_notice_cancel" = "Şimdi değil";
-"group_billiards_create_notice_confirm" = "Oluşturmaya devam et";
 "group_billiards_create_notice_message" = "Bilardo grupları için iScoreboard %@ veya üzeri gerekir.\n\nYeni sürümler, farklı platformlarda ve uygulama mağazalarında kademeli olarak yayımlanmaktadır. Uygulamayı güncellememiş veya platformunda yeni sürüm henüz sunulmayan üyeler şu anda bilardo gruplarına katılamaz ve bu grupları kullanamaz.\n\nGrubu oluşturduktan sonra davet edilen üyelere uygulamayı güncellemelerini hatırlatın. Platformunda yeni sürüm henüz sunulmayan üyelerin sürüm kullanıma sunulana kadar beklemesi gerekir.";
 
 /* Scoreboard style workbench */

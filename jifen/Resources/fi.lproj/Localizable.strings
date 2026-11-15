@@ -2718,8 +2718,6 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "Biljardiryhmien versioilmoitus";
-"group_billiards_create_notice_cancel" = "Ei nyt";
-"group_billiards_create_notice_confirm" = "Jatka luomista";
 "group_billiards_create_notice_message" = "Biljardiryhmät edellyttävät iScoreboard-versiota %@ tai uudempaa.\n\nUudet versiot julkaistaan vaiheittain eri alustoilla ja sovelluskaupoissa. Jäsenet, jotka eivät ole päivittäneet sovellusta tai joiden alustalla uutta versiota ei vielä ole saatavilla, eivät toistaiseksi voi liittyä biljardiryhmiin tai käyttää niitä.\n\nMuistuta kutsuttuja jäseniä päivittämään sovellus ryhmän luomisen jälkeen. Jos uutta versiota ei vielä ole saatavilla heidän alustallaan, heidän on odotettava sen julkaisua.";
 
 /* Scoreboard style workbench */

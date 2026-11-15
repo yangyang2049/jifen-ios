@@ -2718,8 +2718,6 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "تنبيه إصدار مجموعات البلياردو";
-"group_billiards_create_notice_cancel" = "ليس الآن";
-"group_billiards_create_notice_confirm" = "متابعة الإنشاء";
 "group_billiards_create_notice_message" = "تتطلب مجموعات البلياردو الإصدار %@ أو أحدث من iScoreboard.\n\nتُطرح الإصدارات الجديدة تدريجيًا عبر المنصات ومتاجر التطبيقات. لا يمكن حاليًا للأعضاء الذين لم يحدّثوا التطبيق، أو الذين لم يتوفر الإصدار الجديد على منصتهم بعد، الانضمام إلى مجموعات البلياردو أو استخدامها.\n\nبعد إنشاء المجموعة، يُرجى تذكير الأعضاء المدعوين بتحديث التطبيق. وعلى من لم يتوفر الإصدار الجديد على منصتهم بعد الانتظار حتى يصبح متاحًا.";
 
 /* Scoreboard style workbench */

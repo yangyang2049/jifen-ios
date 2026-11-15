@@ -16,7 +16,12 @@ nonisolated enum GroupInvitationText {
     @MainActor static func message(group: ScoreGroup, regionCode: String? = Locale.current.region?.identifier,
                                    localization: String = Bundle.main.preferredLocalizations.first ?? "en", capabilities: GroupCapabilities? = nil) -> String {
         guard let url = GroupInvitationLink.joinURL(groupNo: group.groupNo, regionCode: regionCode, localization: localization, capabilities: capabilities) else { return "" }
-        let intro = String(format: groupText("invitation_intro_ball", "Join our %@ group to play and keep score together!"), group.sport.title)
+        // 台球是「小组类别」，GroupSport.billiards 落到计分板上会变成「普通台球」这种玩法名；
+        // 邀请文案面向组外的人，必须念小组名（台球小组），不能写成「普通台球小组」。
+        let sportName = group.sport == .billiards
+            ? groupText("sport_billiards", "Billiards")
+            : group.sport.title
+        let intro = String(format: groupText("invitation_intro_ball", "Join our %@ group to play and keep score together!"), sportName)
         return String(format: groupText("share_message", "%@\n\nGroup: %@\nGroup No.: %@\n\nJoin group: %@\n\nDownload iScoreboard and enter the group number to join:\n%@"),
                       intro, group.name, group.groupNo, url.absoluteString,
                       GroupInvitationLink.website(regionCode: regionCode, localization: localization) + "/download")

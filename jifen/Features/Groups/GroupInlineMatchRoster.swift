@@ -146,7 +146,8 @@ struct GroupInlineMatchRoster: View {
 }
 
 /// Intrinsic-width member pills wrap without truncating names to fixed grid columns.
-private struct GroupMemberPoolLayout: Layout {
+/// 台球入口页的组内成员胶囊复用它（同一套换行节奏），因此不再对文件私有。
+struct GroupMemberPoolLayout: Layout {
     var spacing: CGFloat
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let width = proposal.width ?? 560

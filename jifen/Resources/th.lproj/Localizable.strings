@@ -2718,8 +2718,6 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "แจ้งเวอร์ชันสำหรับกลุ่มบิลเลียด";
-"group_billiards_create_notice_cancel" = "ยังไม่สร้าง";
-"group_billiards_create_notice_confirm" = "สร้างต่อ";
 "group_billiards_create_notice_message" = "กลุ่มบิลเลียดต้องใช้ iScoreboard เวอร์ชัน %@ ขึ้นไป\n\nเวอร์ชันใหม่ กำลังทยอยเผยแพร่บนแพลตฟอร์มและร้านแอปต่าง ๆ สมาชิกที่ยังไม่ได้อัปเดตแอป หรือใช้แพลตฟอร์มที่ยังไม่มีเวอร์ชันใหม่ จะยังไม่สามารถเข้าร่วมหรือใช้กลุ่มบิลเลียดได้ในขณะนี้\n\nหลังสร้างกลุ่ม โปรดเตือนสมาชิกที่ได้รับเชิญให้อัปเดตแอป หากแพลตฟอร์มของสมาชิกยังไม่มีเวอร์ชันใหม่ จะต้องรอจนกว่าจะมีการเผยแพร่";
 
 /* Scoreboard style workbench */

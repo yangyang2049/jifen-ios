@@ -2718,8 +2718,6 @@
 
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "بلیئرڈز گروپ کے ورژن کی اطلاع";
-"group_billiards_create_notice_cancel" = "ابھی نہیں";
-"group_billiards_create_notice_confirm" = "بنانا جاری رکھیں";
 "group_billiards_create_notice_message" = "بلیئرڈز گروپس کے لیے iScoreboard %@ یا اس کے بعد کا ورژن درکار ہے۔\n\nنئے ورژن مختلف پلیٹ فارمز اور ایپ اسٹورز پر بتدریج جاری کیے جا رہے ہیں۔ جن اراکین نے ایپ اپ ڈیٹ نہیں کی یا جن کے پلیٹ فارم پر نیا ورژن ابھی دستیاب نہیں، وہ فی الحال بلیئرڈز گروپس میں شامل نہیں ہو سکتے یا انہیں استعمال نہیں کر سکتے۔\n\nگروپ بنانے کے بعد مدعو اراکین کو ایپ اپ ڈیٹ کرنے کی یاد دلائیں۔ جن کے پلیٹ فارم پر نیا ورژن ابھی دستیاب نہیں، انہیں اس کے دستیاب ہونے تک انتظار کرنا ہوگا۔";
 
 /* Scoreboard style workbench */

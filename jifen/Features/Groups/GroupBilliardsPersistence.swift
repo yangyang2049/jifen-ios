@@ -43,8 +43,12 @@ nonisolated final class GroupBilliardsPersistence: @unchecked Sendable {
         var r = input; var extra = r.extraData ?? [:]
         extra["groupBilliardsSource"] = AnyCodable(String(decoding: data, as: UTF8.self)); r.extraData = extra; return r
     }
-    func rows(accountID: String) throws -> [GroupBilliardsUpload] {
-        lock.lock(); defer { lock.unlock() }; return read("outbox.json", fallback: [GroupBilliardsUpload]()).filter { $0.accountID == accountID && !$0.done }
+    /// 待上传队列是**账号 + 小组**双维度的：只按账号过滤会把 A 组的待上传显示在 B 组，
+    /// 甚至允许在 B 组把它移出队列（数据错组 + 误丢弃）。不传 groupID 的调用方必须自己再过滤。
+    func rows(accountID: String, groupID: String? = nil) throws -> [GroupBilliardsUpload] {
+        lock.lock(); defer { lock.unlock() }
+        return read("outbox.json", fallback: [GroupBilliardsUpload]())
+            .filter { $0.accountID == accountID && !$0.done && (groupID == nil || $0.groupID == groupID) }
     }
     func enqueue(_ input: ScoreboardRecord) throws {
         guard input.status == .finished else { return }

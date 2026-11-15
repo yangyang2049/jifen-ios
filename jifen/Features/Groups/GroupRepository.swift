@@ -720,6 +720,10 @@ extension GroupStore {
             } else if resource == "results", parts.count == 3,
                       let result = detail.results.first(where: { $0.id == parts[2] }) {
                 payload = try encoded(result)
+            } else if resource == "rankings", parts.count == 2, parameter("variant") != nil {
+                // 台球排行按 `variant`/`bucket` 取，与球拍类小组的 `format` 不是同一套参数；
+                // 夹具返回空榜，让演示与 UI 测试看到「还没有排行」空态而不是错误横幅。
+                payload = try encoded(GroupBilliardsRanking())
             } else if resource == "rankings", parts.count == 2,
                       let format = GroupFormat(rawValue: parameter("format") ?? "singles") {
                 payload = try page(detail.rankings(for: format))
