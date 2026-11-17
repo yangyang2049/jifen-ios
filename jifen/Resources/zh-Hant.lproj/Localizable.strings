@@ -119,7 +119,7 @@
 "timer_manual_end" = "手動結束";
 "timer_first_player_format" = "%@先手";
 "timer_thinking_format" = "%@思考中…";
-"timer_tap_to_switch" = "點擊切換";
+"timer_tap_to_switch" = "點選切換";
 "timer_black_player" = "黑方";
 "timer_white_player" = "白方";
 "timer_red_player" = "紅方";
@@ -136,7 +136,7 @@
 "cube_timer_release_to_start" = "鬆開雙手開始計時";
 "cube_timer_place_hands" = "雙手放在螢幕上準備";
 "cube_timer_no_touchscreen_hint" = "💡 沒有觸摸屏無法工作，可在手機平板上使用";
-"click_again_to_exit" = "再次點擊退出";
+"click_again_to_exit" = "再次點選退出";
 "tap_again_to_exit" = "再次輕觸退出";
 "seconds_short" = "秒";
 "minute" = "分鐘";
@@ -277,9 +277,9 @@
 "change_sides" = "換邊";
 "please_change_sides_manually" = "請手動換邊";
 "press_again_to_exit" = "再按一次退出";
-"click_again_to_reset" = "再次點擊重置";
+"click_again_to_reset" = "再次點選重置";
 "click_again_to_finish" = "再點一次結束比賽";
-"click_again_to_exchange_sides" = "再次點擊確認換邊";
+"click_again_to_exchange_sides" = "再次點選確認換邊";
 "match_completion_sets" = "局數";
 "match_completion_sets_tennis" = "盤數";
 "match_completion_classic" = "經典";
@@ -352,7 +352,7 @@
 "coin_heads_text" = "666";
 
 /* Dice Tool */
-"tap_to_roll" = "點擊螢幕搖骰子";
+"tap_to_roll" = "點選螢幕搖骰子";
 "dice_count_1" = "1顆";
 "dice_count_2" = "2顆";
 "dice_count_3" = "3顆";
@@ -361,7 +361,7 @@
 /* Points Table Tool */
 "points_table_title" = "積分榜";
 "points_table_empty" = "暫無積分榜";
-"points_table_empty_hint" = "點擊右上角 + 創建";
+"points_table_empty_hint" = "點選右上角 + 建立";
 "points_table_teams" = "支隊伍";
 "points_table_new_name" = "新積分榜";
 "points_table_team_a" = "甲";
@@ -389,7 +389,7 @@
 
 /* Ten Second Challenge */
 "ten_second_title" = "十秒挑戰";
-"tap_to_start_stop" = "點擊開始，儘量在10秒時停止";
+"tap_to_start_stop" = "點選開始，儘量在10秒時停止";
 "target_10_seconds" = "目標是10.00秒";
 "error_label" = "誤差";
 "seconds" = "秒";
@@ -713,7 +713,7 @@
 "schedule_tiebreak_summary" = "搶七 %d 分";
 "tomorrow" = "明天";
 "unfinished_discard_button" = "放棄";
-"unfinished_abandon_confirm" = "再點擊一次丟棄比賽";
+"unfinished_abandon_confirm" = "再點選一次丟棄比賽";
 
 /* Record detail / Boxing */
 "boxing_round_n" = "第 %d 回合";
@@ -789,9 +789,9 @@
 "scoreboard_style_complete_panel" = "完成目前面板";
 "scoreboard_style_apply_color_same_side" = "將顏色套用至同側所有文字？";
 "scoreboard_style_usage_hint_title" = "樣式編輯使用說明";
-"scoreboard_style_usage_hint_select_text" = "👆 點擊任意帶框文字，開啟對應的編輯面板";
+"scoreboard_style_usage_hint_select_text" = "👆 點選任意帶框文字，開啟對應的編輯面板";
 "scoreboard_style_usage_hint_text_panel" = "🎨 在面板中調整文字顏色和字號";
-"scoreboard_style_usage_hint_more_styles" = "⚙️ 點擊右下角的樣式按鈕，編輯背景色、主題和字體等";
+"scoreboard_style_usage_hint_more_styles" = "⚙️ 點選右下角的樣式按鈕，編輯背景色、主題和字體等";
 "scoreboard_style_both_same" = "左右同色";
 "scoreboard_style_both_backgrounds" = "左右背景";
 "scoreboard_style_server_shared_hint" = "左右指示器共用同一種顏色";
@@ -828,7 +828,7 @@
 "competition_format_singles" = "單打";
 "competition_format_mixed_doubles" = "混合雙打";
 "football_half_length" = "半場時長";
-"football_setup_hint" = "預設每半場 20 分鐘；進入比賽後，點擊頂部計時器開始或暫停。";
+"football_setup_hint" = "預設每半場 20 分鐘；進入比賽後，點選頂部計時器開始或暫停。";
 "minutes_format" = "%d 分鐘";
 "soft_tennis_match_games" = "全場局數";
 "shuttlecock_red_1" = "紅A";
@@ -852,7 +852,7 @@
 "scoreboard_touch_guard" = "觸摸防誤觸";
 "scoreboard_double_tap_subtract" = "雙擊減分";
 "scoreboard_touch_guard_help_title" = "觸摸防誤觸";
-"scoreboard_touch_guard_help_message" = "僅點擊比分數字附近時才會計分，減少握持和擦拭螢幕時的誤觸。";
+"scoreboard_touch_guard_help_message" = "僅點選比分數字附近時才會計分，減少握持和擦拭螢幕時的誤觸。";
 "scoreboard_double_tap_help_title" = "雙擊減分";
 "scoreboard_double_tap_subtract_help_message" = "開啟後，支援的計分板可雙擊同一比分區或玩家格子減 1 分。關閉後請下滑減分或左滑撤銷。籃球、斯諾克等按鈕型計分板不受影響。";
 "scoreboard_official_break_help_title" = "局間休息說明";
@@ -1001,39 +1001,39 @@
 "scoreboard_usage_hint_menu" = "使用說明";
 "scoreboard_usage_hint_title" = "使用說明";
 "scoreboard_usage_hint_got_it" = "知道了";
-"scoreboard_usage_hint_football" = "👆 點擊左/右比分區加 1 球\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n⏱️ 從右下角選單進入「補時」，選擇時長後可撤銷或確認\n🏁 下半場及補時結束後，平局可進入上下半場各 15 分鐘的加時賽";
-"scoreboard_usage_hint_basketball" = "👆 點擊對應球隊的 +1、+2、+3 按鈕加分\n↩️ 左滑撤銷上一步\n🚩 點擊犯規區域增加犯規，長按減少犯規\n⏱️ 在籃球面板中操作計時、節次和暫停";
-"scoreboard_usage_hint_basketball_training" = "🏀 點擊未中或命中區域記錄一次投籃\n↩️ 左滑可撤銷上一次記錄\n⏹️ 重置和結束訓練從右下角選單操作";
-"scoreboard_usage_hint_three_basketball" = "👆 點擊對應球隊的分值按鈕加分\n↩️ 左滑撤銷上一步\n🚩 點擊犯規區域增加犯規，長按減少犯規\n⏱️ 在籃球面板中操作計時、節次和暫停";
-"scoreboard_usage_hint_volleyball" = "👆 點擊左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依排球規則判斷局分、賽點和結束";
-"scoreboard_usage_hint_beach_volleyball" = "👆 點擊左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依沙灘排球規則判斷局分、賽點和結束";
-"scoreboard_usage_hint_air_volleyball" = "👆 點擊左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依氣排球規則判斷局分、賽點和結束";
-"scoreboard_usage_hint_pingpong" = "👆 點擊左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依乒乓球規則判斷局分、賽點和結束";
-"scoreboard_usage_hint_pingpong_doubles" = "👆 點擊左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依乒乓球規則判斷局分、賽點和結束\n👥 雙打會顯示隊員和發球輪轉";
-"scoreboard_usage_hint_tennis" = "👆 點擊左/右比分區記一分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🎾 自動處理 0/15/30/40、平分、佔先、局分和盤分";
-"scoreboard_usage_hint_tennis_doubles" = "👆 點擊左/右比分區記一分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🎾 自動處理 0/15/30/40、平分、佔先、局分和盤分\n👥 雙打會顯示雙方隊員";
-"scoreboard_usage_hint_badminton" = "👆 點擊左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依羽毛球規則判斷局分、賽點和結束";
-"scoreboard_usage_hint_badminton_doubles" = "👆 點擊左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依羽毛球規則判斷局分、賽點和結束\n👥 雙打會顯示雙方隊員";
-"scoreboard_usage_hint_pickleball" = "👆 點擊左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依匹克球規則推進比分和局分";
-"scoreboard_usage_hint_pickleball_doubles" = "👆 點擊左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依匹克球規則推進比分和局分\n👥 雙打會顯示雙方隊員";
-"scoreboard_usage_hint_archery" = "👆 點擊選手區域後選擇箭值，記錄每箭和每組成績\n↩️ 誤操作可左滑撤銷上一步\n🏹 系統會按當前射箭賽制推進局分\n🎯 5:5 時按頁面提示完成一箭決勝";
-"scoreboard_usage_hint_boxing" = "🥊 點擊回合操作，輸入雙方本回合得分\n📊 完成回合後系統會累計總分和勝回合數\n↩️ 誤操作可從選單撤銷\n✏️ 需要修正時可使用編輯或結束比賽入口";
-"scoreboard_usage_hint_billiards" = "👆 點擊左/右比分區加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n✏️ 可用編輯或選單修正比分、截圖或結束";
-"scoreboard_usage_hint_eight_ball" = "👆 點擊左/右比分區記勝局\n⬆️ 上滑加 1 局\n⬇️ 下滑減 1 局\n↩️ 左滑撤銷上一步\n🏁 依目標局數判斷比賽結束";
-"scoreboard_usage_hint_nine_ball" = "👆 點擊玩家、球號或事件按鈕記錄追分\n🎱 這是追分訓練模式，請按頁面顯示的球號和事件操作\n↩️ 誤操作優先左滑或從選單撤銷\n✏️ 需要修正時使用編輯入口";
-"scoreboard_usage_hint_snooker" = "🔴 點擊紅球、綵球或得分按鈕記分\n⚠️ 犯規時使用「犯規」入口記錄罰分\n🔁 需要切換擊球方時點擊「換手」\n↩️ 誤操作優先撤銷，也可使用編輯入口\n☑️ 需要結算時從右下角選單進入「結算」";
+"scoreboard_usage_hint_football" = "👆 點選左/右比分區加 1 球\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n⏱️ 從右下角選單進入「補時」，選擇時長後可撤銷或確認\n🏁 下半場及補時結束後，平局可進入上下半場各 15 分鐘的加時賽";
+"scoreboard_usage_hint_basketball" = "👆 點選對應球隊的 +1、+2、+3 按鈕加分\n↩️ 左滑撤銷上一步\n🚩 點選犯規區域增加犯規，長按減少犯規\n⏱️ 在籃球面板中操作計時、節次和暫停";
+"scoreboard_usage_hint_basketball_training" = "🏀 點選未中或命中區域記錄一次投籃\n↩️ 左滑可撤銷上一次記錄\n⏹️ 重置和結束訓練從右下角選單操作";
+"scoreboard_usage_hint_three_basketball" = "👆 點選對應球隊的分值按鈕加分\n↩️ 左滑撤銷上一步\n🚩 點選犯規區域增加犯規，長按減少犯規\n⏱️ 在籃球面板中操作計時、節次和暫停";
+"scoreboard_usage_hint_volleyball" = "👆 點選左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依排球規則判斷局分、賽點和結束";
+"scoreboard_usage_hint_beach_volleyball" = "👆 點選左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依沙灘排球規則判斷局分、賽點和結束";
+"scoreboard_usage_hint_air_volleyball" = "👆 點選左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依氣排球規則判斷局分、賽點和結束";
+"scoreboard_usage_hint_pingpong" = "👆 點選左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依乒乓球規則判斷局分、賽點和結束";
+"scoreboard_usage_hint_pingpong_doubles" = "👆 點選左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依乒乓球規則判斷局分、賽點和結束\n👥 雙打會顯示隊員和發球輪轉";
+"scoreboard_usage_hint_tennis" = "👆 點選左/右比分區記一分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🎾 自動處理 0/15/30/40、平分、佔先、局分和盤分";
+"scoreboard_usage_hint_tennis_doubles" = "👆 點選左/右比分區記一分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🎾 自動處理 0/15/30/40、平分、佔先、局分和盤分\n👥 雙打會顯示雙方隊員";
+"scoreboard_usage_hint_badminton" = "👆 點選左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依羽毛球規則判斷局分、賽點和結束";
+"scoreboard_usage_hint_badminton_doubles" = "👆 點選左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依羽毛球規則判斷局分、賽點和結束\n👥 雙打會顯示雙方隊員";
+"scoreboard_usage_hint_pickleball" = "👆 點選左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依匹克球規則推進比分和局分";
+"scoreboard_usage_hint_pickleball_doubles" = "👆 點選左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 依匹克球規則推進比分和局分\n👥 雙打會顯示雙方隊員";
+"scoreboard_usage_hint_archery" = "👆 點選選手區域後選擇箭值，記錄每箭和每組成績\n↩️ 誤操作可左滑撤銷上一步\n🏹 系統會按當前射箭賽制推進局分\n🎯 5:5 時按頁面提示完成一箭決勝";
+"scoreboard_usage_hint_boxing" = "🥊 點選回合操作，輸入雙方本回合得分\n📊 完成回合後系統會累計總分和勝回合數\n↩️ 誤操作可從選單撤銷\n✏️ 需要修正時可使用編輯或結束比賽入口";
+"scoreboard_usage_hint_billiards" = "👆 點選左/右比分區加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n✏️ 可用編輯或選單修正比分、截圖或結束";
+"scoreboard_usage_hint_eight_ball" = "👆 點選左/右比分區記勝局\n⬆️ 上滑加 1 局\n⬇️ 下滑減 1 局\n↩️ 左滑撤銷上一步\n🏁 依目標局數判斷比賽結束";
+"scoreboard_usage_hint_nine_ball" = "👆 點選玩家、球號或事件按鈕記錄追分\n🎱 這是追分訓練模式，請按頁面顯示的球號和事件操作\n↩️ 誤操作優先左滑或從選單撤銷\n✏️ 需要修正時使用編輯入口";
+"scoreboard_usage_hint_snooker" = "🔴 點選紅球、綵球或得分按鈕記分\n⚠️ 犯規時使用「犯規」入口記錄罰分\n🔁 需要切換擊球方時點選「換手」\n↩️ 誤操作優先撤銷，也可使用編輯入口\n☑️ 需要結算時從右下角選單進入「結算」";
 "scoreboard_usage_hint_guandan" = "👆 使用左右兩側按鈕記錄本局結果和升級進度\n↕️ 編輯等級時可在對應一側上下滑動快速升降級\n🅰️ 過 A、重置、撤銷和手動結束在頁面或選單中完成\n↩️ 誤操作先撤銷，再按當前等級繼續";
-"scoreboard_usage_hint_shengji" = "👆 開局先點擊一方的「搶莊」確定莊家\n🏆 每局使用「上臺」或 +1、+2、+3 按鈕記錄結果\n↩️ 可從選單撤銷上一局\n✏️ 點擊右上角鉛筆可修改隊名和當前等級\n🔄 可重置或手動結束比賽";
-"scoreboard_usage_hint_uno" = "👆 點擊玩家打開本輪計分面板\n✏️ 長按玩家可編輯名稱和分數\n↩️ 可撤銷上一輪\n☑️ 可結算或手動結束比賽\n🖼️ 選單中可調整顯示和儲存截圖";
-"scoreboard_usage_hint_doudizhu" = "➕ 點擊底部中間的加號打開本局結算\n🧮 選擇底分、番數以及一位贏家或除一人外的全部贏家\n↩️ 左滑或從選單撤銷上一局\n✏️ 點擊右上角鉛筆可修改玩家和分數\n🔄 可重置或手動結束比賽";
-"scoreboard_usage_hint_foosball" = "👆 點擊左/右比分區加 1 球\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n☑️ 比賽結束時可用結算或結束比賽";
-"scoreboard_usage_hint_foosball_doubles" = "👆 點擊左/右比分區加 1 球\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n👥 2V2 隊名在賽前設定\n☑️ 比賽結束時可用結算或結束比賽";
+"scoreboard_usage_hint_shengji" = "👆 開局先點選一方的「搶莊」確定莊家\n🏆 每局使用「上臺」或 +1、+2、+3 按鈕記錄結果\n↩️ 可從選單撤銷上一局\n✏️ 點選右上角鉛筆可修改隊名和當前等級\n🔄 可重置或手動結束比賽";
+"scoreboard_usage_hint_uno" = "👆 點選玩家打開本輪計分面板\n✏️ 長按玩家可編輯名稱和分數\n↩️ 可撤銷上一輪\n☑️ 可結算或手動結束比賽\n🖼️ 選單中可調整顯示和儲存截圖";
+"scoreboard_usage_hint_doudizhu" = "➕ 點選底部中間的加號打開本局結算\n🧮 選擇底分、番數以及一位贏家或除一人外的全部贏家\n↩️ 左滑或從選單撤銷上一局\n✏️ 點選右上角鉛筆可修改玩家和分數\n🔄 可重置或手動結束比賽";
+"scoreboard_usage_hint_foosball" = "👆 點選左/右比分區加 1 球\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n☑️ 比賽結束時可用結算或結束比賽";
+"scoreboard_usage_hint_foosball_doubles" = "👆 點選左/右比分區加 1 球\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n👥 2V2 隊名在賽前設定\n☑️ 比賽結束時可用結算或結束比賽";
 "scoreboard_usage_hint_double_tap_point" = "👆 雙擊同一方可減 1 分";
 "scoreboard_usage_hint_double_tap_rack" = "👆 雙擊同一方可減 1 局";
 "scoreboard_usage_hint_double_tap_player" = "👆 雙擊同一玩家可減 1 分";
 "scoreboard_usage_hint_touch_guard" = "🛡️ 防誤觸模式請點大分數區計分";
-"scoreboard_usage_hint_anim_tap_title" = "點擊比分區加分";
-"scoreboard_usage_hint_anim_tap_caption" = "點擊左/右比分區，為對應一方加 1 分；綠色三角標記發球方";
+"scoreboard_usage_hint_anim_tap_title" = "點選比分區加分";
+"scoreboard_usage_hint_anim_tap_caption" = "點選左/右比分區，為對應一方加 1 分；綠色三角標記發球方";
 "scoreboard_usage_hint_anim_swipe_title" = "滑動微調比分";
 "scoreboard_usage_hint_anim_swipe_caption" = "在比分區上滑加分、下滑減分、左滑撤銷上一步";
 "scoreboard_usage_hint_anim_double_tap_title" = "雙擊減分";
@@ -1041,11 +1041,11 @@
 "scoreboard_usage_hint_anim_auto_title" = "自動判定局分與賽點";
 "scoreboard_usage_hint_anim_auto_caption" = "按羽毛球規則自動處理局分、賽點與比賽結束，無需手動計局";
 "scoreboard_usage_hint_anim_match_point" = "賽點";
-"scoreboard_usage_hint_anim_guard_ignored" = "已忽略連續快速點擊";
+"scoreboard_usage_hint_anim_guard_ignored" = "已忽略連續快速點選";
 "common_previous" = "上一頁";
 "common_next" = "下一頁";
-"scoreboard_usage_hint_simple_score" = "👆 點擊左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n✏️ 長按或編輯可改名稱和分數";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 點擊玩家格子加 1 分\n⬆️ 上滑加 1 分，⬇️ 下滑減 1 分\n↔️ 超過 9 人時左右滑動翻頁，也可用底部圓點箭頭\n↩️ 撤銷與找人請打開選單\n✏️ 長按玩家可編輯名稱和分數\n🎛️ 自訂調分模式下，點擊玩家會打開調分面板";
+"scoreboard_usage_hint_simple_score" = "👆 點選左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n✏️ 長按或編輯可改名稱和分數";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 點選玩家格子加 1 分\n⬆️ 上滑加 1 分，⬇️ 下滑減 1 分\n↔️ 超過 9 人時左右滑動翻頁，也可用底部圓點箭頭\n↩️ 撤銷與找人請打開選單\n✏️ 長按玩家可編輯名稱和分數\n🎛️ 自訂調分模式下，點選玩家會打開調分面板";
 "multi_score_portrait" = "豎屏";
 "multi_score_landscape" = "橫屏";
 "settle_match" = "結算";
@@ -1238,11 +1238,11 @@
 "tt_forfeit_confirm_button" = "確認判負";
 "medical_break" = "醫療中斷";
 "player" = "選手";
-"scoreboard_usage_hint_shuttlecock" = "👆 點擊左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 團隊毽球按所選目標分和賽制計分";
-"scoreboard_usage_hint_squash" = "👆 點擊左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 壁球預設五局三勝，領先兩分獲勝";
-"scoreboard_usage_hint_soft_tennis" = "👆 點擊左/右比分區記一分\n↩️ 左滑撤銷上一步\n🎾 按設定進行 7 局賽或 9 局賽，決勝局採 7 分且需領先 2 分\n🔄 換邊和休息提示按目前賽制自動執行";
-"scoreboard_usage_hint_padel" = "👆 點擊左/右比分區記一分\n↩️ 左滑撤銷上一步\n🎾 自動處理分、局、盤及所選的佔先、黃金分或 Star Point 平分模式\n🔄 換邊和休息提示按目前賽制自動執行";
-"scoreboard_usage_hint_football_5v5" = "👆 點擊左/右比分區加 1 球\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n⏯️ 點擊計時區域可暫停或繼續計時";
+"scoreboard_usage_hint_shuttlecock" = "👆 點選左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 團隊毽球按所選目標分和賽制計分";
+"scoreboard_usage_hint_squash" = "👆 點選左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 壁球預設五局三勝，領先兩分獲勝";
+"scoreboard_usage_hint_soft_tennis" = "👆 點選左/右比分區記一分\n↩️ 左滑撤銷上一步\n🎾 按設定進行 7 局賽或 9 局賽，決勝局採 7 分且需領先 2 分\n🔄 換邊和休息提示按目前賽制自動執行";
+"scoreboard_usage_hint_padel" = "👆 點選左/右比分區記一分\n↩️ 左滑撤銷上一步\n🎾 自動處理分、局、盤及所選的佔先、黃金分或 Star Point 平分模式\n🔄 換邊和休息提示按目前賽制自動執行";
+"scoreboard_usage_hint_football_5v5" = "👆 點選左/右比分區加 1 球\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n⏯️ 點選計時區域可暫停或繼續計時";
 /* AirPlay 专用扩展屏 */
 "cast_active" = "投影中";
 "home_sync_entry" = "同步比分";
@@ -1297,7 +1297,7 @@
 "record_note_delete_text_confirm" = "確定刪除這條文字筆記嗎？刪除後無法恢復。";
 "record_note_delete_voice_confirm" = "確定刪除這條語音筆記嗎？刪除後無法恢復。";
 "record_note_recording" = "正在錄音";
-"record_note_recording_hint" = "點擊停止後立即儲存；退出或進入背景會取消本次錄音。";
+"record_note_recording_hint" = "點選停止後立即儲存；退出或進入背景會取消本次錄音。";
 "record_note_minimum_hint" = "不足 2 秒將自動捨棄，不會取代原語音";
 "record_note_stop" = "停止並儲存";
 "record_note_voice_saved" = "語音筆記已儲存";
@@ -1331,7 +1331,7 @@
 "sync_login_and_create_room" = "登入並生成同步碼";
 "sync_login_join_display" = "加入同步";
 "sync_login_and_join_display" = "登入並加入同步";
-"sync_shortcode_create_failed" = "短碼產生失敗，請點擊下方按鈕重試";
+"sync_shortcode_create_failed" = "短碼產生失敗，請點選下方按鈕重試";
 "sync_retry_shortcode" = "重新產生短碼";
 "sync_manage" = "管理";
 "sync_copy_code" = "複製短碼";
@@ -2548,7 +2548,7 @@
 "nine_ball_compare_event_players" = "兩人單打";
 "nine_ball_compare_folk_foul" = "不自動累計三犯判負；可以開啓讓桿。";
 "nine_ball_compare_folk_players" = "2至4人獨立參與";
-"nine_ball_compare_golden" = "獨立黃金9；小金默認由本局開球人付分。";
+"nine_ball_compare_golden" = "獨立黃金9；小金預設由本局開球人付分。";
 "nine_ball_compare_small" = "合法開球進9算小金，沒有付分人。";
 "nine_ball_compare_transfer" = "贏家加分，付分人等額扣分。";
 "nine_ball_feedback_action" = "去反饋";

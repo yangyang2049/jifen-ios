@@ -164,11 +164,11 @@ struct SportsSetupSettingsSection: View {
         let minutes = draft.footballHalfLengthSeconds / 60
         VStack(spacing: 8) {
             HStack(spacing: 6) {
-                Text(NSLocalizedString("football_half_length", value: "每半场时长", comment: "Football half length"))
+                Text(NSLocalizedString("football_half_length", value: "半场时长", comment: "Football half length"))
                     .font(.system(size: 14))
                     .foregroundStyle(Theme.textSecondary)
                 SystemHelpButton(
-                    title: NSLocalizedString("football_half_length", value: "每半场时长", comment: "Football half length"),
+                    title: NSLocalizedString("football_half_length", value: "半场时长", comment: "Football half length"),
                     message: NSLocalizedString(
                         "football_setup_hint",
                         value: "默认每半场 20 分钟；进入比赛后，点击顶部计时器开始或暂停。",
