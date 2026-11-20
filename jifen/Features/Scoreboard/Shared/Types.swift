@@ -17,6 +17,25 @@ func resolvedScoreboardSetupName(_ name: String?, fallback: String) -> String {
     return trimmed.isEmpty ? fallback : trimmed
 }
 
+/// 语音口令族：每个族的裁判口令口径不同，播报口径提示据此选文案。
+/// 壁球虽然归乒乓族播报，但用的是自己一套壁球口令，所以单列。
+enum VoiceCallNoteFamily {
+    case pingPong, badminton, tennis, pickleball, volleyball, squash
+
+    init?(gameType: GameType?) {
+        guard let gameType else { return nil }
+        switch gameType {
+        case .pingpong: self = .pingPong
+        case .badminton, .shuttlecock: self = .badminton
+        case .tennis, .softTennis, .padel: self = .tennis
+        case .pickleball: self = .pickleball
+        case .volleyball, .beachVolleyball, .airVolleyball: self = .volleyball
+        case .squash: self = .squash
+        default: return nil
+        }
+    }
+}
+
 enum GameType: String, Codable, CaseIterable, Sendable {
     case pingpong = "pingpong"
     case badminton = "badminton"

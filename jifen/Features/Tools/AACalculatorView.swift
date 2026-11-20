@@ -133,7 +133,7 @@ struct AACalculatorView: View {
                             }) {
                                 Image(systemName: "minus")
                                     .font(.system(size: 28))
-                                    .foregroundColor(Theme.textPrimary)
+                                    .foregroundStyle(Theme.textSecondary)
                                     .frame(width: 60, height: 60)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
@@ -162,7 +162,7 @@ struct AACalculatorView: View {
                             }) {
                                 Image(systemName: "plus")
                                     .font(.system(size: 28))
-                                    .foregroundColor(Theme.textPrimary)
+                                    .foregroundStyle(Theme.textSecondary)
                                     .frame(width: 60, height: 60)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)

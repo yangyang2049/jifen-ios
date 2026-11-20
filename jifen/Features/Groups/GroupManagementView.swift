@@ -21,6 +21,7 @@ struct GroupManagementAction: Identifiable { let id = UUID(); var kind: String; 
 struct GroupManagementView: View {
     let groupID: String; let action: GroupManagementAction
     var usesParentNavigation = false
+    var onTemporaryCreated: ((GroupMember) -> Void)? = nil
     @State private var store = GroupStore.shared
     @State private var name = ""
     @State private var description = ""
@@ -226,6 +227,7 @@ struct GroupManagementView: View {
                     let member: GroupMember = try await store.repository.write("/\(groupID)/members/temporary", body: GroupActionBody(displayName: value), key: key)
                     guard store.acceptTemporaryMember(member, groupID: groupID, accountID: account, identity: identity) else { throw GroupFlowError.staleSession }
                     imported.insert(value)
+                    onTemporaryCreated?(member)
                 }
             case "member":
                 if let member = action.member { let _: GroupMember = try await store.repository.write("/\(groupID)/members/\(member.id)", body: GroupActionBody(displayName: member.kind == "temporary" ? name : nil, role: member.kind == "account" && isOwner && detail?.group.isCoaching != true ? (admin ? "admin" : "member") : nil), method: .patch) }

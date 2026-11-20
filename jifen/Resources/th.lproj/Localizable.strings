@@ -14,7 +14,9 @@
 "all" = "ทั้งหมด";
 "scoreboard" = "คะแนน";
 "timer" = "ตัวจับเวลา";
-"scoreboard_sports" = "กีฬา";
+"scoreboard_racket_sports" = "กีฬาประเภทแร็กเกต";
+"scoreboard_other_sports" = "กีฬาอื่น ๆ";
+"scoreboard_general_scoring" = "การนับคะแนนทั่วไป";
 "scoreboard_board_games" = "เกมกระดาน";
 "search_team_or_game" = "ค้นหาทีมหรือเกม";
 "match_count" = "%d นัด";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "คริส";
 "doudizhu_player_david" = "เดวิด";
 "shengji_claim_dealer" = "ชิงสิทธิ์เป็นเจ้ามือ";
+"shengji_pass_a" = "ผ่าน A";
 "guandan_edit_level_wrap_confirm_title" = "กลับอันดับเป็น 2?";
 "guandan_edit_level_wrap_confirm_message" = "การเพิ่มขึ้นอีกครั้งจะรีเซ็ตอันดับของทีมนี้เป็น 2";
 "shengji_take_dealer" = "เป็นเจ้ามือ";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "อังกฤษ";
 "voice_call_note_zh" = "เสียงเรียกภาษาจีน: คะแนนแบบ 3–2, เสมอแบบ 3 ทั้งหมด";
 "voice_call_note_en" = "เรียกแบบ ITTF: 0 คือ love, 0–0 คือ Love all, ชื่อเป็นพินอิน";
+"voice_call_note_pingpong_zh" = "เสียงเรียกภาษาจีน: คะแนนแบบ 3–2, เสมอแบบ 3 ทั้งหมด";
+"voice_call_note_pingpong_en" = "เรียกแบบ ITTF: 0 คือ love, 0–0 คือ Love all, ชื่อเป็นพินอิน";
+"voice_call_note_badminton_zh" = "คำขานภาษาจีน · 3–2 · เกมพอยต์";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · เปลี่ยนฝ่ายเสิร์ฟ = “Service over”";
+"voice_call_note_tennis_zh" = "คำขานภาษาจีน · 0/15/30/40 · เสมอ · ได้เปรียบ";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · เสมอ = “Deuce” · ได้เปรียบ = “Advantage”";
+"voice_call_note_pickleball_zh" = "คำขานภาษาจีน · 3–2 · ประเภทคู่แบบดั้งเดิม 3–2–1 (1 = หมายเลขผู้เสิร์ฟ)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · ประเภทคู่แบบดั้งเดิม 3–2–1 (1 = หมายเลขผู้เสิร์ฟ) · เปลี่ยนฝ่ายเสิร์ฟ = “Side out”";
+"voice_call_note_volleyball_zh" = "คำขานภาษาจีน · ขานคะแนนเท่านั้น (3–2)";
+"voice_call_note_volleyball_en" = "คำขานสากล · ขานคะแนนเท่านั้น (3–2)";
+"voice_call_note_squash_zh" = "คำขานภาษาจีน · 3–2 · 10–10 = 10 (เสมอ)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · เสมอ = “all” · เกมพอยต์ = “Game ball”";
 // Restored group feature resources.
 "group_account" = "สมาชิกที่มีบัญชี";
 "group_active_30d" = "ใช้งานใน 30 วัน";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "เซ็ตและเกม";
 "style_workbench_photo_failed" = "เปิดรูปภาพนี้ไม่ได้ โปรดเลือกรูปอื่น";
 "style_workbench_image_advice" = "ใช้รูปแนวนอน 16:9 เช่น 1920×1080 รูปจะเต็มจอโดยครอบตัดกึ่งกลาง";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

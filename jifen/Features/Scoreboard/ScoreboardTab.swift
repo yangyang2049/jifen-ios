@@ -24,10 +24,10 @@ struct ScoreboardTab: View {
             GeometryReader { proxy in
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: Theme.sectionSpacing) {
-                        ForEach(ScoreboardCatalogSection.allCases) { section in
+                        ForEach(ScoreboardTabSection.allCases) { section in
                             sectionGroup(
                                 title: section.title,
-                                items: GameCatalog.scoreboardItems(in: section),
+                                items: GameCatalog.scoreTabItems(in: section),
                                 availableWidth: max(0, min(proxy.size.width - horizontalInset * 2, expandedPhone ? Theme.expandedPhoneContentMaxWidth : (usesExpandedLayout ? 1080 : .infinity)))
                             )
                         }

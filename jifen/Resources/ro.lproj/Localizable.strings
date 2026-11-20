@@ -14,7 +14,9 @@
 "all" = "Toate";
 "scoreboard" = "Scor";
 "timer" = "Temporizator";
-"scoreboard_sports" = "Sport";
+"scoreboard_racket_sports" = "Sporturi cu rachetă";
+"scoreboard_other_sports" = "Alte sporturi";
+"scoreboard_general_scoring" = "Scor generic";
 "scoreboard_board_games" = "Jocuri de societate";
 "search_team_or_game" = "Caută o echipă sau un meci";
 "match_count" = "%d meciuri";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "Chris";
 "doudizhu_player_david" = "David";
 "shengji_claim_dealer" = "Licitează rolul de împărțitor";
+"shengji_pass_a" = "Pass A";
 "guandan_edit_level_wrap_confirm_title" = "Revii la rangul 2?";
 "guandan_edit_level_wrap_confirm_message" = "Creșterea din nou va reseta clasamentul acestei echipe la 2.";
 "shengji_take_dealer" = "Preia rolul de împărțitor";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "Engleză";
 "voice_call_note_zh" = "Anunțuri în chineză: scoruri ca 3–2, egalitate ca «3 toți».";
 "voice_call_note_en" = "Anunțuri în stil ITTF: 0 ca love, 0–0 ca Love all, numele în pinyin.";
+"voice_call_note_pingpong_zh" = "Anunțuri în chineză: scoruri ca 3–2, egalitate ca «3 toți».";
+"voice_call_note_pingpong_en" = "Anunțuri în stil ITTF: 0 ca love, 0–0 ca Love all, numele în pinyin.";
+"voice_call_note_badminton_zh" = "Anunțuri în chineză · 3–2 · Minge de ghem";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · Schimbarea serviciului = “Service over”";
+"voice_call_note_tennis_zh" = "Anunțuri în chineză · 0/15/30/40 · Egalitate · Avantaj";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · Egalitate = “Deuce” · Avantaj = “Advantage”";
+"voice_call_note_pickleball_zh" = "Anunțuri în chineză · 3–2 · Dublu tradițional 3–2–1 (1 = Numărul jucătorului la serviciu)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · Dublu tradițional 3–2–1 (1 = Numărul jucătorului la serviciu) · Schimbarea serviciului = “Side out”";
+"voice_call_note_volleyball_zh" = "Anunțuri în chineză · Doar scorul (3–2)";
+"voice_call_note_volleyball_en" = "Anunțuri internaționale · Doar scorul (3–2)";
+"voice_call_note_squash_zh" = "Anunțuri în chineză · 3–2 · 10–10 = 10 (Egalitate)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · Egalitate = “all” · Minge de ghem = “Game ball”";
 // Restored group feature resources.
 "group_account" = "Membru cu cont";
 "group_active_30d" = "Activ în ultimele 30 de zile";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "Seturi și game-uri";
 "style_workbench_photo_failed" = "Nu s-a putut deschide fotografia. Alege o altă imagine.";
 "style_workbench_image_advice" = "Folosește o imagine 16:9 în orientare peisaj, de exemplu 1920×1080. Imaginile umplu ecranul cu o decupare centrată.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

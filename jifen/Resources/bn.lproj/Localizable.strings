@@ -14,7 +14,9 @@
 "all" = "সব";
 "scoreboard" = "স্কোর";
 "timer" = "টাইমার";
-"scoreboard_sports" = "খেলাধুলা";
+"scoreboard_racket_sports" = "র‍্যাকেট খেলা";
+"scoreboard_other_sports" = "অন্যান্য খেলাধুলা";
+"scoreboard_general_scoring" = "সাধারণ স্কোরিং";
 "scoreboard_board_games" = "বোর্ড গেম";
 "search_team_or_game" = "দল বা খেলা খুঁজুন";
 "match_count" = "%d ম্যাচ";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "ক্রিস";
 "doudizhu_player_david" = "ডেভিড";
 "shengji_claim_dealer" = "ডিলার হওয়ার বিড করুন";
+"shengji_pass_a" = "পাশ A";
 "guandan_edit_level_wrap_confirm_title" = "র‍্যাঙ্ক 2 এ ফিরবেন?";
 "guandan_edit_level_wrap_confirm_message" = "আবার বাড়ানো এই দলের র‌্যাঙ্ক 2-এ রিসেট করবে।";
 "shengji_take_dealer" = "ডিলার হন";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "ইংরেজি";
 "voice_call_note_zh" = "চীনা কল: স্কোর 3–2 এর মতো, সমতা 3-সব এর মতো।";
 "voice_call_note_en" = "ITTF-ঘরানার কল: 0 হলো love, 0–0 হলো Love all, নাম পিনয়িনে।";
+"voice_call_note_pingpong_zh" = "চীনা কল: স্কোর 3–2 এর মতো, সমতা 3-সব এর মতো।";
+"voice_call_note_pingpong_en" = "ITTF-ঘরানার কল: 0 হলো love, 0–0 হলো Love all, নাম পিনয়িনে।";
+"voice_call_note_badminton_zh" = "চীনা ঘোষণা · 3–2 · গেম পয়েন্ট";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · সার্ভ বদল = “Service over”";
+"voice_call_note_tennis_zh" = "চীনা ঘোষণা · 0/15/30/40 · সমতা · সুবিধা";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · সমতা = “Deuce” · সুবিধা = “Advantage”";
+"voice_call_note_pickleball_zh" = "চীনা ঘোষণা · 3–2 · প্রচলিত ডাবলস 3–2–1 (1 = সার্ভারের নম্বর)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · প্রচলিত ডাবলস 3–2–1 (1 = সার্ভারের নম্বর) · সার্ভ বদল = “Side out”";
+"voice_call_note_volleyball_zh" = "চীনা ঘোষণা · শুধু স্কোর (3–2)";
+"voice_call_note_volleyball_en" = "আন্তর্জাতিক ঘোষণা · শুধু স্কোর (3–2)";
+"voice_call_note_squash_zh" = "চীনা ঘোষণা · 3–2 · 10–10 = 10 (সমতা)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · সমতা = “all” · গেম পয়েন্ট = “Game ball”";
 // Restored group feature resources.
 "group_account" = "অ্যাকাউন্টযুক্ত সদস্য";
 "group_active_30d" = "গত 30 দিনে সক্রিয়";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "সেট ও গেম";
 "style_workbench_photo_failed" = "এই ফটোটি খোলা যায়নি। অন্য ছবি বেছে নিন।";
 "style_workbench_image_advice" = "16:9 ল্যান্ডস্কেপ ছবি ব্যবহার করুন, যেমন 1920×1080। ছবি কেন্দ্রে ক্রপ হয়ে স্ক্রিন ভরে যায়।";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

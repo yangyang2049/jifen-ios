@@ -545,10 +545,21 @@ public enum ShengjiTierEvent: Codable, Equatable, Sendable {
 public struct ShengjiTierReducer: DomainReducer {
     public init() {}
 
+    /// 级牌推进（打A规则，与安卓 ShengjiTierReducer.advanceTier 同口径）：
+    /// 未到 A 时按步长前进并封顶到 A（index == cap，开始打 A，不结束）；
+    /// 已在 A 时再赢一局（delta > 0）即「过A」（index = cap + 1，比赛结束）。
+    private func advanceTier(_ current: Int, _ delta: Int, _ cap: Int) -> Int {
+        if delta <= 0 { return current }
+        if current >= cap { return cap + 1 }
+        return min(current + delta, cap)
+    }
+
     public func reduce(state: ShengjiTierState, intent: ShengjiTierIntent, at epochMilliseconds: Int64) -> ReduceResult<ShengjiTierState, ShengjiTierEvent> {
         var current = state
         let cap = max(0, current.maxTierIndex)
-        current.finished = current.finished || current.leftIndex >= cap || current.rightIndex >= cap
+        // 打A规则：升到 A（index == cap）只是开始打 A，比赛并未结束；
+        // 任一方在 A 阶段再赢一局（index 升到 cap + 1）才算「过A」结束比赛。
+        current.finished = current.finished || current.leftIndex > cap || current.rightIndex > cap
         if current.finished {
             switch intent {
             case .subtractLevels, .adminCorrect, .reset:
@@ -559,9 +570,10 @@ public struct ShengjiTierReducer: DomainReducer {
         }
         switch intent {
         case .adminCorrect(let left, let right):
-            current.leftIndex = min(max(0, left), cap)
-            current.rightIndex = min(max(0, right), cap)
-            current.finished = current.leftIndex >= cap || current.rightIndex >= cap
+            // 修正允许把级牌改到「过A」（cap + 1），再多没有意义。
+            current.leftIndex = min(max(0, left), cap + 1)
+            current.rightIndex = min(max(0, right), cap + 1)
+            current.finished = current.leftIndex > cap || current.rightIndex > cap
             return .init(
                 state: current,
                 events: [.administrativeCorrection(left: current.leftIndex, right: current.rightIndex)]
@@ -606,11 +618,11 @@ public struct ShengjiTierReducer: DomainReducer {
         guard delta > 0 else { return .rejected(state: state, reason: "Invalid delta") }
         var next = state
         if side == .left {
-            next.leftIndex = add ? min(cap, next.leftIndex + delta) : max(0, next.leftIndex - delta)
+            next.leftIndex = add ? advanceTier(next.leftIndex, delta, cap) : max(0, next.leftIndex - delta)
         } else {
-            next.rightIndex = add ? min(cap, next.rightIndex + delta) : max(0, next.rightIndex - delta)
+            next.rightIndex = add ? advanceTier(next.rightIndex, delta, cap) : max(0, next.rightIndex - delta)
         }
-        next.finished = add && (next.leftIndex >= cap || next.rightIndex >= cap)
+        next.finished = next.leftIndex > cap || next.rightIndex > cap
         return .init(state: next, events: [.tierAdjusted(add: add, side: side, delta: delta, left: next.leftIndex, right: next.rightIndex)])
     }
 }

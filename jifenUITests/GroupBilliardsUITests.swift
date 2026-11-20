@@ -7,6 +7,56 @@ final class GroupBilliardsUITests:XCTestCase {
         let end=origin.withOffset(CGVector(dx:app.frame.midX,dy:120))
         start.press(forDuration:0.05,thenDragTo:end)
     }
+    func testLaunchUsesSharedSetupAndRequiresMembers() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing",
+            "-UITestGroupsFixture", "-UITestGroupsFreshDrafts", "-UITestBilliardsGroup",
+            "-national_day_2026_10_autopopup_count", "99"
+        ]
+        app.launch()
+        let group = app.buttons["group_card_ui-group"]
+        XCTAssertTrue(group.waitForExistence(timeout: 15))
+        group.tap()
+        let start = app.buttons["billiards_start"]
+        XCTAssertTrue(start.waitForExistence(timeout: 10))
+        start.tap()
+        let first = app.buttons["group_seat_1"]
+        let second = app.buttons["group_seat_2"]
+        XCTAssertTrue(first.waitForExistence(timeout: 10))
+        let confirm = app.buttons["nine_ball_setup_start"]
+        XCTAssertTrue(confirm.exists)
+        XCTAssertFalse(confirm.isEnabled)
+        XCTAssertEqual(first.value as? String, "")
+        XCTAssertEqual(second.value as? String, "")
+        XCTAssertFalse(first.isSelected)
+        XCTAssertTrue(app.buttons["nine_ball_setup_help"].exists)
+        XCTAssertFalse(app.buttons["billiards_member_ui-a"].exists)
+        second.tap()
+        let close = app.buttons["group_match_picker_close"]
+        XCTAssertTrue(close.waitForExistence(timeout: 5))
+        close.tap()
+        XCTAssertTrue(close.waitForNonExistence(timeout: 5))
+        second.tap()
+        let member = app.buttons["group_member_pick_ui-a"]
+        XCTAssertTrue(member.waitForExistence(timeout: 5))
+        member.tap()
+        XCTAssertTrue(close.waitForNonExistence(timeout: 5))
+        XCTAssertEqual(second.value as? String, "甲")
+        XCTAssertFalse(confirm.isEnabled)
+        first.tap()
+        XCTAssertTrue(member.waitForExistence(timeout: 5))
+        XCTAssertFalse(member.isEnabled)
+        app.buttons["group_member_pick_ui-b"].tap()
+        XCTAssertTrue(confirm.isEnabled)
+        app.buttons["billiards_variant_chip_snooker"].tap()
+        let snooker = app.buttons["sports_setup_start"]
+        XCTAssertTrue(snooker.waitForExistence(timeout: 5))
+        XCTAssertFalse(snooker.isEnabled)
+    }
+
     func testCreationNoticePreservesDraftUntilConfirmed() {
         continueAfterFailure = false
         let app = XCUIApplication()
@@ -81,4 +131,60 @@ final class GroupBilliardsUITests:XCTestCase {
         XCTAssertFalse(app.buttons["billiards_family_folk"].exists, "普通台球不应出现九球分段")
         let attachment=XCTAttachment(screenshot:app.screenshot());attachment.name="three-player-group-manual";attachment.lifetime = .keepAlways;add(attachment)
     }
+
+    func testSignedScorePanelKeepsUnbalancedResultDisabledAtLargestTextSize() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing",
+            "-UITestGroupsFixture", "-UITestGroupsFreshDrafts", "-UITestBilliardsGroup",
+            "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge",
+            "-national_day_2026_10_autopopup_count", "99"
+        ]
+        app.launch()
+        let group = app.buttons["group_card_ui-group"]
+        XCTAssertTrue(group.waitForExistence(timeout: 15)); group.tap()
+        let manual = app.buttons["billiards_manual"]
+        XCTAssertTrue(manual.waitForExistence(timeout: 10)); manual.tap()
+
+        func tapVisible(_ id: String, avoidFooter: Bool = true) {
+            let button = app.buttons[id]
+            let footer = app.buttons["billiards_submit"]
+            for _ in 0..<10 {
+                let clearOfFooter = !avoidFooter || !footer.exists || button.frame.maxY <= footer.frame.minY
+                if button.isHittable && clearOfFooter { break }
+                scrollUp(app)
+            }
+            XCTAssertTrue(button.isHittable, id)
+            if avoidFooter, footer.exists {
+                XCTAssertLessThanOrEqual(button.frame.maxY, footer.frame.minY, "\(id) is covered by the sticky footer")
+            }
+            button.tap()
+        }
+
+        tapVisible("billiards_variant_chip_nine_ball")
+        tapVisible("billiards_family_folk")
+        tapVisible("billiards_member_ui-a")
+        tapVisible("billiards_member_ui-b")
+        let submit = app.buttons["billiards_submit"]
+        XCTAssertTrue(submit.isEnabled)
+        tapVisible("billiards_score_0")
+        XCTAssertTrue(app.buttons["billiards_score_key_5"].waitForExistence(timeout: 5))
+        tapVisible("billiards_score_key_5", avoidFooter: false)
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "billiards-score-panel-largest-text"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        tapVisible("billiards_score_key_done", avoidFooter: false)
+        XCTAssertTrue(app.buttons["billiards_score_key_done"].waitForNonExistence(timeout: 5))
+        XCTAssertFalse(submit.isEnabled)
+        tapVisible("billiards_score_1")
+        XCTAssertTrue(app.buttons["billiards_score_negative"].waitForExistence(timeout: 5))
+        tapVisible("billiards_score_negative", avoidFooter: false)
+        tapVisible("billiards_score_key_5", avoidFooter: false)
+        tapVisible("billiards_score_key_done", avoidFooter: false)
+        XCTAssertTrue(submit.isEnabled)
+    }
+
 }

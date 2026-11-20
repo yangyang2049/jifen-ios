@@ -14,7 +14,9 @@
 "all" = "બધા";
 "scoreboard" = "સ્કોર";
 "timer" = "ટાઈમર";
-"scoreboard_sports" = "રમતગમત";
+"scoreboard_racket_sports" = "રૅકેટ રમતો";
+"scoreboard_other_sports" = "અન્ય રમતો";
+"scoreboard_general_scoring" = "સામાન્ય સ્કોરિંગ";
 "scoreboard_board_games" = "બોર્ડ ગેમ્સ";
 "search_team_or_game" = "ટીમ અથવા રમત શોધો";
 "match_count" = "%d મેચ";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "ક્રિસ";
 "doudizhu_player_david" = "ડેવિડ";
 "shengji_claim_dealer" = "ડીલર બનવા બોલી લગાવો";
+"shengji_pass_a" = "A પાસ કરો";
 "guandan_edit_level_wrap_confirm_title" = "રેન્ક 2 પર પાછા ફરો?";
 "guandan_edit_level_wrap_confirm_message" = "ફરીથી વધવાથી આ ટીમનો ક્રમ 2 પર ફરીથી સેટ થશે.";
 "shengji_take_dealer" = "ડીલર બનો";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "અંગ્રેજી";
 "voice_call_note_zh" = "ચાઇનીઝ કૉલ: સ્કોર 3–2 જેવો, સમાન 3-બધા જેવો.";
 "voice_call_note_en" = "ITTF-શૈલી કૉલ: 0 એટલે love, 0–0 એટલે Love all, નામો પિનયિનમાં.";
+"voice_call_note_pingpong_zh" = "ચાઇનીઝ કૉલ: સ્કોર 3–2 જેવો, સમાન 3-બધા જેવો.";
+"voice_call_note_pingpong_en" = "ITTF-શૈલી કૉલ: 0 એટલે love, 0–0 એટલે Love all, નામો પિનયિનમાં.";
+"voice_call_note_badminton_zh" = "ચીની ઘોષણાઓ · 3–2 · ગેમ પૉઇન્ટ";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · સર્વિસ બદલાય = “Service over”";
+"voice_call_note_tennis_zh" = "ચીની ઘોષણાઓ · 0/15/30/40 · બરાબરી · એડવાન્ટેજ";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · બરાબરી = “Deuce” · એડવાન્ટેજ = “Advantage”";
+"voice_call_note_pickleball_zh" = "ચીની ઘોષણાઓ · 3–2 · પરંપરાગત ડબલ્સ 3–2–1 (1 = સર્વ કરનારનો નંબર)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · પરંપરાગત ડબલ્સ 3–2–1 (1 = સર્વ કરનારનો નંબર) · સર્વિસ બદલાય = “Side out”";
+"voice_call_note_volleyball_zh" = "ચીની ઘોષણાઓ · માત્ર સ્કોર (3–2)";
+"voice_call_note_volleyball_en" = "આંતરરાષ્ટ્રીય ઘોષણાઓ · માત્ર સ્કોર (3–2)";
+"voice_call_note_squash_zh" = "ચીની ઘોષણાઓ · 3–2 · 10–10 = 10 (બરાબરી)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · બરાબરી = “all” · ગેમ પૉઇન્ટ = “Game ball”";
 // Restored group feature resources.
 "group_account" = "ખાતું ધરાવતો સભ્ય";
 "group_active_30d" = "છેલ્લા 30 દિવસમાં સક્રિય";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "સેટ અને ગેમ";
 "style_workbench_photo_failed" = "આ ફોટો ખોલી શકાઈ નથી. બીજી ઇમેજ પસંદ કરો.";
 "style_workbench_image_advice" = "16:9 લેન્ડસ્કેપ ઇમેજ વાપરો, જેમ કે 1920×1080. ઇમેજ મધ્યમાંથી ક્રોપ થઈને સ્ક્રીન ભરી દે છે.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

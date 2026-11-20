@@ -22,6 +22,7 @@ struct SportsSetupDialogView: View {
     var maxDialogHeight: CGFloat = 680
     var onConfirm: ((SportsSetupResult) -> Void)?
     var onCancel: (() -> Void)?
+    var groupSelection: GroupSetupSelection? = nil
 
     @State private var draft = SportsSetupDraft()
     @State private var setupSendErrorText = ""
@@ -47,12 +48,14 @@ struct SportsSetupDialogView: View {
             ScrollViewReader { scrollProxy in
                 AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight) {
                     VStack(spacing: 20) {
+                        groupSelection?.projectRow
                         if showParticipants {
                         SportsSetupParticipantSection(
                             gameType: gameType,
                             defaultTeam1Name: defaultTeam1Name,
                             defaultTeam2Name: defaultTeam2Name,
-                            draft: $draft
+                            draft: $draft,
+                            groupSelection: groupSelection
                         )
                         }
 
@@ -129,8 +132,8 @@ struct SportsSetupDialogView: View {
     @ViewBuilder
     private func buildDialogActions() -> some View {
         VStack(spacing: 10) {
-            if !setupSendErrorText.isEmpty {
-                Text(setupSendErrorText)
+            if let error = groupSelection?.error ?? (setupSendErrorText.isEmpty ? nil : setupSendErrorText) {
+                Text(error)
                     .font(.system(size: 12))
                     .foregroundStyle(Theme.destructiveText)
                     .multilineTextAlignment(.center)
@@ -146,7 +149,7 @@ struct SportsSetupDialogView: View {
                         .background(Theme.dialogControlBackground)
                         .clipShape(Capsule())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plain).disabled(groupSelection?.busy == true)
 
                 startButton()
                     .clipShape(Capsule())
@@ -169,7 +172,12 @@ struct SportsSetupDialogView: View {
                 .background(Theme.primary)
         }
         .buttonStyle(.plain)
+        .disabled(groupSelection?.ready(groupSeatIndices) == false)
+        .opacity(groupSelection?.ready(groupSeatIndices) == false ? 0.4 : 1)
+        .accessibilityIdentifier("sports_setup_start")
     }
+
+    private var groupSeatIndices: [Int] { shouldUseDoublesPlayerInputs() ? [0, 1, 2, 3] : [0, 2] }
 
     private func requestCancelDialog() {
         onCancel?()
@@ -223,6 +231,21 @@ struct SportsSetupDialogView: View {
             gameType: gameType,
             usesDoublesPlayerInputs: shouldUseDoublesPlayerInputs()
         )
+
+        if let groupSelection {
+            guard groupSelection.ready(groupSeatIndices) else { return }
+            let names = groupSeatIndices.map { groupSelection.name(at: $0) }
+            let doubles = names.count == 4
+            finalConfig.team1Name = doubles ? names.prefix(2).joined(separator: " / ") : names[0]
+            finalConfig.team2Name = doubles ? names.suffix(2).joined(separator: " / ") : names[1]
+            finalConfig.team1Player1Name = doubles ? names[0] : nil
+            finalConfig.team1Player2Name = doubles ? names[1] : nil
+            finalConfig.team2Player1Name = doubles ? names[2] : nil
+            finalConfig.team2Player2Name = doubles ? names[3] : nil
+            finalConfig.participantSelections = nil
+            onConfirm?(finalConfig)
+            return
+        }
 
         if ParticipantIdentityRules.containsDuplicatePerson(Array((finalConfig.participantSelections ?? [:]).values)) {
             setupSendErrorText = identityText("already_playing", "你已在其他位置参赛")

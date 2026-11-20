@@ -14,7 +14,9 @@
 "all" = "すべて";
 "scoreboard" = "スコア";
 "timer" = "タイマー";
-"scoreboard_sports" = "スポーツ";
+"scoreboard_racket_sports" = "ラケットスポーツ";
+"scoreboard_other_sports" = "その他のスポーツ";
+"scoreboard_general_scoring" = "汎用スコア";
 "scoreboard_board_games" = "ボードゲーム";
 "search_team_or_game" = "チームまたはゲームを検索";
 "match_count" = "%d件の試合";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "クリス";
 "doudizhu_player_david" = "デビッド";
 "shengji_claim_dealer" = "親を宣言";
+"shengji_pass_a" = "パス A";
 "guandan_edit_level_wrap_confirm_title" = "ランクを2に戻しますか？";
 "guandan_edit_level_wrap_confirm_message" = "再度増やすと、このチームのランクは 2 にリセットされます。";
 "shengji_take_dealer" = "親を引き受ける";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "英語";
 "voice_call_note_zh" = "中国語の読み上げ：スコアは「3対2」、同点は「3平」。";
 "voice_call_note_en" = "ITTF式の読み上げ:0 は love、0–0 は Love all、名前はピンイン。";
+"voice_call_note_pingpong_zh" = "中国語の読み上げ：スコアは「3対2」、同点は「3平」。";
+"voice_call_note_pingpong_en" = "ITTF式の読み上げ:0 は love、0–0 は Love all、名前はピンイン。";
+"voice_call_note_badminton_zh" = "中国語のコール · 3–2 · ゲームポイント";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · サービス交代 = “Service over”";
+"voice_call_note_tennis_zh" = "中国語のコール · 0/15/30/40 · 同点 · アドバンテージ";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · 同点 = “Deuce” · アドバンテージ = “Advantage”";
+"voice_call_note_pickleball_zh" = "中国語のコール · 3–2 · 従来方式のダブルス 3–2–1 (1 = サーバー番号)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · 従来方式のダブルス 3–2–1 (1 = サーバー番号) · サービス交代 = “Side out”";
+"voice_call_note_volleyball_zh" = "中国語のコール · 得点のみ (3–2)";
+"voice_call_note_volleyball_en" = "国際ルールのコール · 得点のみ (3–2)";
+"voice_call_note_squash_zh" = "中国語のコール · 3–2 · 10–10 = 10 (同点)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · 同点 = “all” · ゲームポイント = “Game ball”";
 // Restored group feature resources.
 "group_account" = "アカウント連携メンバー";
 "group_active_30d" = "過去30日間に活動";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "セット・ゲーム";
 "style_workbench_photo_failed" = "この写真を開けませんでした。別の画像を選んでください。";
 "style_workbench_image_advice" = "16:9の横長画像(例:1920×1080)を使用してください。画像は中央で切り取られて画面いっぱいに表示されます。";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

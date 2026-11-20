@@ -67,7 +67,7 @@ struct GroupActivityCreateView: View {
                     HStack(spacing: Theme.sm) {
                         TextField(groupText("place", "Location"), text: $place).accessibilityIdentifier("group_activity_place")
                         Button { showCommonPlaces = true } label: { Image(systemName: "chevron.right") }
-                            .buttonStyle(.plain).foregroundStyle(Theme.primary).frame(width: 32, height: 24)
+                            .buttonStyle(.plain).foregroundStyle(Theme.textSecondary).frame(width: 32, height: 24)
                             .accessibilityLabel(NSLocalizedString("schedule_pick_common_place", value: "Choose a saved place", comment: ""))
                             .accessibilityIdentifier("group_activity_place_picker")
                     }.groupAlignedInput()
@@ -135,11 +135,11 @@ struct GroupActivityCreateView: View {
     }
     private var capacityControl: some View {
         HStack(spacing: 0) {
-            Button { capacity = max(minimumCapacity, capacity - 1) } label: { Image(systemName: "minus").frame(width: 40, height: 44) }
+            Button { capacity = max(minimumCapacity, capacity - 1) } label: { Image(systemName: "minus").frame(width: 40, height: 44).foregroundStyle(Theme.textSecondary) }
                 .disabled(capacity <= minimumCapacity)
             TextField("", value: $capacity, format: .number).keyboardType(.numberPad).multilineTextAlignment(.center)
                 .font(.system(size: Theme.fontBody1)).frame(width: 48, height: 44)
-            Button { capacity = min(100, capacity + 1) } label: { Image(systemName: "plus").frame(width: 40, height: 44) }
+            Button { capacity = min(100, capacity + 1) } label: { Image(systemName: "plus").frame(width: 40, height: 44).foregroundStyle(Theme.textSecondary) }
                 .disabled(capacity >= 100)
         }.buttonStyle(.plain).foregroundStyle(Theme.textPrimary)
             .background(GroupEditorColors.control, in: RoundedRectangle(cornerRadius: 8))
@@ -577,7 +577,7 @@ struct GroupDirectScheduleView: View {
                     HStack(spacing: Theme.sm) {
                         TextField(groupText("place", "Location"), text: $place)
                         Button { showCommonPlaces = true } label: { Image(systemName: "chevron.right") }
-                            .buttonStyle(.plain).foregroundStyle(Theme.primary)
+                            .buttonStyle(.plain).foregroundStyle(Theme.textSecondary)
                             .accessibilityLabel(NSLocalizedString("schedule_pick_common_place", value: "Choose a saved place", comment: ""))
                     }.groupAlignedInput()
                 }

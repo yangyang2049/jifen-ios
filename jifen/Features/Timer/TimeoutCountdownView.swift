@@ -467,7 +467,7 @@ struct TimeoutCountdownView: View {
         Button(action: action) {
             Image(systemName: systemName)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(Theme.textPrimary)
+                .foregroundStyle(Theme.textSecondary)
                 .frame(width: 44, height: 44)
                 .background(Theme.dialogControlBackground, in: Circle())
                 .contentShape(Circle())

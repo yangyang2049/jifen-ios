@@ -14,7 +14,9 @@
 "all" = "Tot";
 "scoreboard" = "Puntuació";
 "timer" = "Temporitzador";
-"scoreboard_sports" = "Esports";
+"scoreboard_racket_sports" = "Esports de raqueta";
+"scoreboard_other_sports" = "Altres esports";
+"scoreboard_general_scoring" = "Puntuació genèrica";
 "scoreboard_board_games" = "Jocs de taula";
 "search_team_or_game" = "Cerca un equip o una partida";
 "match_count" = "%d partides";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "Chris";
 "doudizhu_player_david" = "David";
 "shengji_claim_dealer" = "Aposta per ser el repartidor";
+"shengji_pass_a" = "Pass A";
 "guandan_edit_level_wrap_confirm_title" = "Tornar al rang 2?";
 "guandan_edit_level_wrap_confirm_message" = "Si torneu a augmentar, el rang d'aquest equip es restablirà a 2.";
 "shengji_take_dealer" = "Pren el rol de repartidor";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "Anglès";
 "voice_call_note_zh" = "Anuncis en xinès: marcadors com 3–2, empat com «3 a tot».";
 "voice_call_note_en" = "Anuncis a l'estil ITTF: 0 com a love, 0–0 com a Love all, noms en pinyin.";
+"voice_call_note_pingpong_zh" = "Anuncis en xinès: marcadors com 3–2, empat com «3 a tot».";
+"voice_call_note_pingpong_en" = "Anuncis a l'estil ITTF: 0 com a love, 0–0 com a Love all, noms en pinyin.";
+"voice_call_note_badminton_zh" = "Anuncis en xinès · 3–2 · Punt de joc";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · Canvi de servei = “Service over”";
+"voice_call_note_tennis_zh" = "Anuncis en xinès · 0/15/30/40 · Empat · Avantatge";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · Empat = “Deuce” · Avantatge = “Advantage”";
+"voice_call_note_pickleball_zh" = "Anuncis en xinès · 3–2 · Dobles tradicionals 3–2–1 (1 = Número del servidor)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · Dobles tradicionals 3–2–1 (1 = Número del servidor) · Canvi de servei = “Side out”";
+"voice_call_note_volleyball_zh" = "Anuncis en xinès · Només el marcador (3–2)";
+"voice_call_note_volleyball_en" = "Anuncis internacionals · Només el marcador (3–2)";
+"voice_call_note_squash_zh" = "Anuncis en xinès · 3–2 · 10–10 = 10 (Empat)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · Empat = “all” · Punt de joc = “Game ball”";
 // Restored group feature resources.
 "group_account" = "Membre amb compte";
 "group_active_30d" = "Actiu en els darrers 30 dies";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "Sets i jocs";
 "style_workbench_photo_failed" = "No s’ha pogut obrir aquesta foto. Trieu una altra imatge.";
 "style_workbench_image_advice" = "Fes servir una imatge horitzontal 16:9, per exemple 1920×1080. Les imatges omplen la pantalla amb un retall centrat.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

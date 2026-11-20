@@ -14,7 +14,9 @@
 "all" = "Vse";
 "scoreboard" = "Rezultat";
 "timer" = "Časovnik";
-"scoreboard_sports" = "Šport";
+"scoreboard_racket_sports" = "Športi z loparjem";
+"scoreboard_other_sports" = "Drugi športi";
+"scoreboard_general_scoring" = "Splošno točkovanje";
 "scoreboard_board_games" = "Družabne igre";
 "search_team_or_game" = "Iskanje ekipe ali igre";
 "match_count" = "%d tekem";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "Chris";
 "doudizhu_player_david" = "David";
 "shengji_claim_dealer" = "Poteguj se za delivca";
+"shengji_pass_a" = "Uspešno A";
 "guandan_edit_level_wrap_confirm_title" = "Vrniti uvrstitev na 2?";
 "guandan_edit_level_wrap_confirm_message" = "Ponovno zvišanje bo ponastavilo uvrstitev te ekipe na 2.";
 "shengji_take_dealer" = "Prevzemi vlogo delivca";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "Angleščina";
 "voice_call_note_zh" = "Kitajske najave: rezultati kot 3–2, izenačeno kot »3 za oba«.";
 "voice_call_note_en" = "Najave v slogu ITTF: 0 kot love, 0–0 kot Love all, imena v pinjinu.";
+"voice_call_note_pingpong_zh" = "Kitajske najave: rezultati kot 3–2, izenačeno kot »3 za oba«.";
+"voice_call_note_pingpong_en" = "Najave v slogu ITTF: 0 kot love, 0–0 kot Love all, imena v pinjinu.";
+"voice_call_note_badminton_zh" = "Najave v kitajščini · 3–2 · Točka za igro";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · Menjava servisa = “Service over”";
+"voice_call_note_tennis_zh" = "Najave v kitajščini · 0/15/30/40 · Izenačenje · Prednost";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · Izenačenje = “Deuce” · Prednost = “Advantage”";
+"voice_call_note_pickleball_zh" = "Najave v kitajščini · 3–2 · Tradicionalne dvojice 3–2–1 (1 = Številka igralca, ki servira)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · Tradicionalne dvojice 3–2–1 (1 = Številka igralca, ki servira) · Menjava servisa = “Side out”";
+"voice_call_note_volleyball_zh" = "Najave v kitajščini · Samo rezultat (3–2)";
+"voice_call_note_volleyball_en" = "Mednarodne najave · Samo rezultat (3–2)";
+"voice_call_note_squash_zh" = "Najave v kitajščini · 3–2 · 10–10 = 10 (Izenačenje)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · Izenačenje = “all” · Točka za igro = “Game ball”";
 // Restored group feature resources.
 "group_account" = "Član z računom";
 "group_active_30d" = "Aktiven v zadnjih 30 dneh";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "Nizi in igre";
 "style_workbench_photo_failed" = "Te fotografije ni mogoče odpreti. Izberite drugo sliko.";
 "style_workbench_image_advice" = "Uporabite ležečo sliko 16:9, npr. 1920×1080. Slike zapolnijo zaslon s sredinskim obrezovanjem.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

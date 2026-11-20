@@ -1,41 +1,138 @@
 import SwiftUI
 
+struct GroupSetupSelection {
+    let groupID: String
+    let members: [GroupMember]
+    let ids: Binding<[String]>
+    let busy: Bool
+    let error: String?
+    var projectRow: AnyView? = nil
+
+    func name(at index: Int) -> String {
+        members.first { $0.id == ids.wrappedValue[index] }?.displayName ?? ""
+    }
+
+    func ready(_ indices: [Int]) -> Bool {
+        let active = members.filter { $0.status == "active" }
+        let selected = indices.compactMap { index in active.first { $0.id == ids.wrappedValue[index] } }
+        return !busy && selected.count == indices.count &&
+            Set(selected.map { $0.canonicalMemberId ?? $0.id }).count == indices.count
+    }
+}
+
+struct GroupSetupSeatField: View {
+    let selection: GroupSetupSelection
+    let indices: [Int]
+    let index: Int
+    let label: String
+    @State private var picking = false
+
+    var body: some View {
+        Button { picking = true } label: {
+            HStack(spacing: Theme.sm) {
+                Text(selection.name(at: index).isEmpty ? groupText("choose_member", "Choose a member") : selection.name(at: index))
+                    .lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
+                    .foregroundStyle(selection.name(at: index).isEmpty ? Theme.textSecondary : Theme.textPrimary)
+                Image(systemName: "chevron.forward").foregroundStyle(Theme.textSecondary)
+            }
+            .padding(.horizontal, Theme.sm).frame(minHeight: 44)
+            .background(Theme.dialogControlBackground, in: RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain).disabled(selection.busy)
+        .accessibilityIdentifier("group_seat_" + label)
+        .accessibilityLabel(label).accessibilityValue(selection.name(at: index))
+        .sheet(isPresented: $picking) {
+            NavigationStack {
+                GroupMemberSelector(
+                    title: groupText("choose_member", "Choose a member") + " · " + label,
+                    selectedID: Binding(get: { selection.ids.wrappedValue[index] },
+                                        set: { selection.ids.wrappedValue[index] = $0 }),
+                    members: selection.members,
+                    excluded: Set(indices.filter { $0 != index }.map { selection.ids.wrappedValue[$0] }),
+                    rosterGroupID: selection.groupID, matchPicker: true
+                )
+            }.groupAccountBoundary()
+        }
+    }
+}
+
 struct GroupMemberSelector: View {
     var title: String
     @Binding var selectedID: String
     var members: [GroupMember]
     var excluded: Set<String> = []
     var rosterGroupID: String? = nil
+    var matchPicker = false
     @State private var store = GroupStore.shared
     private var currentMembers: [GroupMember] { rosterGroupID.flatMap { store.cache.details[$0]?.members } ?? members }
     @Environment(\.dismiss) private var dismiss
     @State private var query = ""
+    private var search: String { query.trimmingCharacters(in: .whitespacesAndNewlines) }
+    private var roster: [GroupMember] { currentMembers.filter { $0.status == "active" } }
+    private var filtered: [GroupMember] {
+        roster.filter {
+            (matchPicker || !excluded.contains($0.id) || $0.id == selectedID) &&
+                (search.isEmpty || $0.displayName.localizedCaseInsensitiveContains(search))
+        }
+    }
+    private func unavailable(_ member: GroupMember) -> Bool {
+        let identity = member.canonicalMemberId ?? member.id
+        return matchPicker && roster.contains {
+            excluded.contains($0.id) && ($0.canonicalMemberId ?? $0.id) == identity
+        }
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.sm) {
-                if currentMembers.filter({ $0.status == "active" }).count > 12 {
+                if roster.count >= (matchPicker ? 5 : 13) {
                     TextField(groupText("search_members", "Search members"), text: $query)
                         .textFieldStyle(.plain).groupAlignedInput()
                 }
-                Button(groupText("clear_seat", "Clear this seat")) { selectedID = ""; dismiss() }
-                    .buttonStyle(.plain).foregroundStyle(Theme.primary).frame(minHeight: 44)
-                if let rosterGroupID { GroupRosterAddButton(groupID: rosterGroupID) }
-                ForEach(currentMembers.filter { $0.status == "active" && (!excluded.contains($0.id) || $0.id == selectedID) && (query.isEmpty || $0.displayName.localizedCaseInsensitiveContains(query)) }) { member in
+                if !matchPicker || !selectedID.isEmpty {
+                    Button(groupText("clear_seat", "Clear this seat")) { selectedID = ""; dismiss() }
+                        .buttonStyle(.plain).foregroundStyle(Theme.primary).frame(minHeight: 44)
+                }
+                if !matchPicker, let rosterGroupID { GroupRosterAddButton(groupID: rosterGroupID) }
+                ForEach(filtered) { member in
                     Button { selectedID = member.id; dismiss() } label: {
                         HStack(spacing: Theme.sm) {
                             GroupAvatar(name: member.displayName, url: member.avatarUrl, size: 38)
-                            Text(member.displayName).font(.system(size: Theme.fontBody2)).fixedSize(horizontal: false, vertical: true)
+                            VStack(alignment: .leading) {
+                                Text(member.displayName).font(.system(size: Theme.fontBody2)).fixedSize(horizontal: false, vertical: true)
+                                if matchPicker, roster.filter({ $0.displayName == member.displayName }).count > 1 {
+                                    Text("#" + member.id.suffix(6)).font(.caption).foregroundStyle(Theme.textSecondary)
+                                }
+                            }
                             Spacer(minLength: 8)
                             if member.id == selectedID { Image(systemName: "checkmark").foregroundStyle(Theme.primary) }
                         }
                         .padding(Theme.sm).frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
                         .background(member.id == selectedID ? Theme.primary.opacity(0.12) : Theme.cardBackground, in: RoundedRectangle(cornerRadius: 8))
-                    }.buttonStyle(.plain).foregroundStyle(Theme.textPrimary)
+                    }.buttonStyle(.plain).foregroundStyle(Theme.textPrimary).disabled(unavailable(member)).opacity(unavailable(member) ? 0.45 : 1)
                         .accessibilityIdentifier("group_member_pick_" + member.id)
+                }
+                if matchPicker, filtered.isEmpty {
+                    Text(groupText("need_members", "No available members")).foregroundStyle(Theme.textSecondary)
                 }
             }.padding(Theme.padding).frame(maxWidth: 560).frame(maxWidth: .infinity)
         }.background(Theme.backgroundColor)
             .navigationTitle(title).navigationBarTitleDisplayMode(.inline).tint(Theme.primary)
+            .toolbar {
+                if matchPicker {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button { dismiss() } label: { Image(systemName: "xmark") }
+                            .accessibilityLabel(Text(NSLocalizedString("close", comment: "")))
+                            .accessibilityIdentifier("group_match_picker_close")
+                    }
+                }
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if matchPicker, search.isEmpty, let rosterGroupID {
+                    GroupRosterAddButton(groupID: rosterGroupID, onFirstCreated: { selectedID = $0.id })
+                        .padding(.horizontal, Theme.padding)
+                }
+            }
     }
 }
 
@@ -64,6 +161,9 @@ struct GroupSeatPicker: View {
 /// Opens the same batch/common-name flow used by the Members tab without replacing the editor.
 struct GroupRosterAddButton: View {
     let groupID: String
+    var chip = false
+    var onFirstCreated: ((GroupMember) -> Void)? = nil
+    @State private var firstCreated: GroupMember?
     @State private var store = GroupStore.shared
     @State private var presented = false
     private var allowed: Bool {
@@ -72,11 +172,24 @@ struct GroupRosterAddButton: View {
     }
     var body: some View {
         if allowed {
-            Button { presented = true } label: { Label(groupText("add_temporary", "Add temporary member"), systemImage: "plus").fontWeight(.semibold) }
-                .foregroundStyle(Theme.primary).accessibilityIdentifier("group_roster_add_temporary")
-                .sheet(isPresented: $presented, onDismiss: { Task { await store.loadDetail(groupID) } }) {
-                    GroupManagementView(groupID: groupID, action: .init(kind: "temporary"))
-                }
+            Button { firstCreated = nil; presented = true } label: {
+                Label(groupText("add_temporary", "Add temporary member"), systemImage: "plus")
+                    .fontWeight(.semibold)
+                    .padding(.horizontal, chip ? Theme.sm : 0)
+                    .frame(minHeight: 44)
+                    .background(chip ? GroupEditorColors.control : .clear, in: Capsule())
+                    .overlay(Capsule().strokeBorder(chip ? Color(uiColor: .separator) : .clear))
+            }
+            .buttonStyle(.plain).foregroundStyle(Theme.primary)
+            .accessibilityIdentifier("group_roster_add_temporary")
+            .sheet(isPresented: $presented, onDismiss: {
+                if let firstCreated { onFirstCreated?(firstCreated) }
+                Task { await store.loadDetail(groupID) }
+            }) {
+                GroupManagementView(groupID: groupID, action: .init(kind: "temporary"), onTemporaryCreated: {
+                    if firstCreated == nil { firstCreated = $0 }
+                })
+            }
         }
     }
 }
@@ -186,12 +299,12 @@ private struct GroupRuleNumberStepper: View {
             Text(title).font(.system(size: Theme.fontBody2)).foregroundStyle(Theme.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
             HStack(spacing: 0) {
-                Button { value = max(range.lowerBound, value - 1) } label: { Image(systemName: "minus").frame(width: 40, height: 44) }
+                Button { value = max(range.lowerBound, value - 1) } label: { Image(systemName: "minus").frame(width: 40, height: 44).foregroundStyle(Theme.textSecondary) }
                     .disabled(value <= range.lowerBound).accessibilityLabel(title + " −")
                 TextField(title, text: Binding(get: { String(value) }, set: { text in
                     if let number = Int(text.filter { $0.isASCII && $0.isNumber }) { value = min(range.upperBound, max(range.lowerBound, number)) }
                 })).keyboardType(.numberPad).multilineTextAlignment(.center).frame(width: 56, height: 44)
-                Button { value = min(range.upperBound, value + 1) } label: { Image(systemName: "plus").frame(width: 40, height: 44) }
+                Button { value = min(range.upperBound, value + 1) } label: { Image(systemName: "plus").frame(width: 40, height: 44).foregroundStyle(Theme.textSecondary) }
                     .disabled(value >= range.upperBound).accessibilityLabel(title + " +")
             }.buttonStyle(.plain).font(.system(size: Theme.fontBody2)).foregroundStyle(Theme.textPrimary)
                 .background(GroupEditorColors.input, in: RoundedRectangle(cornerRadius: 8))

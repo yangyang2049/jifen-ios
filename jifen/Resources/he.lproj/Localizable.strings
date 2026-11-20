@@ -14,7 +14,9 @@
 "all" = "הכל";
 "scoreboard" = "תוצאה";
 "timer" = "טיימר";
-"scoreboard_sports" = "ספורט";
+"scoreboard_racket_sports" = "ענפי מחבט";
+"scoreboard_other_sports" = "ענפי ספורט אחרים";
+"scoreboard_general_scoring" = "ניקוד כללי";
 "scoreboard_board_games" = "משחקי לוח";
 "search_team_or_game" = "חפש קבוצה או משחק";
 "match_count" = "%d משחקים";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "כריס";
 "doudizhu_player_david" = "דוד";
 "shengji_claim_dealer" = "התמודדות על המחלק";
+"shengji_pass_a" = "לעבור A";
 "guandan_edit_level_wrap_confirm_title" = "להחזיר את הדירוג ל-2?";
 "guandan_edit_level_wrap_confirm_message" = "עלייה חוזרת תאפס את הדירוג של קבוצה זו ל-2.";
 "shengji_take_dealer" = "קבלת תפקיד המחלק";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "אנגלית";
 "voice_call_note_zh" = "קריאות בסינית: תוצאות כמו 3–2, שיוויון כמו 3 לכולם.";
 "voice_call_note_en" = "קריאות בסגנון ITTF: 0 כ-love, 0–0 כ-Love all, שמות בפין-יין.";
+"voice_call_note_pingpong_zh" = "קריאות בסינית: תוצאות כמו 3–2, שיוויון כמו 3 לכולם.";
+"voice_call_note_pingpong_en" = "קריאות בסגנון ITTF: 0 כ-love, 0–0 כ-Love all, שמות בפין-יין.";
+"voice_call_note_badminton_zh" = "הכרזות בסינית · 3–2 · נקודת משחקון";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · החלפת הגשה = “Service over”";
+"voice_call_note_tennis_zh" = "הכרזות בסינית · 0/15/30/40 · שוויון · יתרון";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · שוויון = “Deuce” · יתרון = “Advantage”";
+"voice_call_note_pickleball_zh" = "הכרזות בסינית · 3–2 · זוגות מסורתיים 3–2–1 (1 = מספר המגיש)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · זוגות מסורתיים 3–2–1 (1 = מספר המגיש) · החלפת הגשה = “Side out”";
+"voice_call_note_volleyball_zh" = "הכרזות בסינית · התוצאה בלבד (3–2)";
+"voice_call_note_volleyball_en" = "הכרזות בינלאומיות · התוצאה בלבד (3–2)";
+"voice_call_note_squash_zh" = "הכרזות בסינית · 3–2 · 10–10 = 10 (שוויון)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · שוויון = “all” · נקודת משחקון = “Game ball”";
 // Restored group feature resources.
 "group_account" = "חבר עם חשבון";
 "group_active_30d" = "פעיל ב־30 הימים האחרונים";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "מערכות ומשחקונים";
 "style_workbench_photo_failed" = "לא ניתן לפתוח את התמונה הזו. בחרו תמונה אחרת.";
 "style_workbench_image_advice" = "השתמשו בתמונה אופקית 16:9, למשל 1920×1080. תמונות ממלאות את המסך בחיתוך ממורכז.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

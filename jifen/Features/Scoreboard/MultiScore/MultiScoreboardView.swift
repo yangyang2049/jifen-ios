@@ -166,8 +166,18 @@ struct MultiScoreboardView: View {
             ? (initialSetup?.participantSelections ?? [:]) : nil)
     }
 
+    /// 多人计分与 UNO 各有自己的「彩色 / 纯色」样式，分开读取；其它项目固定默认样式。
     private var gridStyle: MultiScoreboardStyle {
-        gameType == .multiScoreboard ? preferences.multiScoreboardStyle : .default
+        switch gameType {
+        case .multiScoreboard: return preferences.multiScoreboardStyle
+        case .uno: return preferences.unoScoreboardStyle
+        default: return .default
+        }
+    }
+
+    /// 这套样式只属于多人计分与 UNO：底色、空位、描边与投屏都要跟着它切换。
+    private var hasProjectGridStyle: Bool {
+        gameType == .multiScoreboard || gameType == .uno
     }
 
     var body: some View {
@@ -175,7 +185,7 @@ struct MultiScoreboardView: View {
             GeometryReader { geo in
                 ZStack {
                     Group {
-                        if gameType == .multiScoreboard, gridStyle.mode == .solid {
+                        if hasProjectGridStyle, gridStyle.mode == .solid {
                             Color(hex: gridStyle.solidColor.hex)
                         } else {
                             appearance.theme.palette.background
@@ -534,7 +544,7 @@ struct MultiScoreboardView: View {
     }
 
     private func extraCellPlaceholder(height: CGFloat, showEmoji: Bool) -> some View {
-        (gameType == .multiScoreboard && gridStyle.mode == .solid
+        (hasProjectGridStyle && gridStyle.mode == .solid
             ? Color(hex: gridStyle.solidColor.hex) : Color.white.opacity(0.05))
             .frame(maxWidth: .infinity)
             .frame(height: height)
@@ -721,7 +731,7 @@ struct MultiScoreboardView: View {
         .frame(height: height)
         .background(panelColor(index: index))
         .overlay {
-            if gameType == .multiScoreboard, gridStyle.mode == .solid {
+            if hasProjectGridStyle, gridStyle.mode == .solid {
                 Rectangle().strokeBorder(Color(hex: gridStyle.foregroundHex).opacity(0.1), lineWidth: 0.5)
                     .allowsHitTesting(false)
             }
@@ -1024,7 +1034,7 @@ struct MultiScoreboardView: View {
     }
 
     private func panelColor(index: Int) -> Color {
-        Color(hex: gridStyle.backgroundHex(index: index, theme: appearance.theme))
+        Color(hex: gridStyle.backgroundHex(index: index))
     }
 
     private func playerPlaceholder(_ index: Int) -> String {
@@ -1616,7 +1626,7 @@ struct MultiScoreboardView: View {
                     fontCode: typographySession.effectivePreference.font.rawValue
                 )
                 compact.externalState?.appearance.fontSizeMultipliers = multipliers
-                if gameType == .multiScoreboard, let displayAppearance = compact.externalState?.appearance {
+                if hasProjectGridStyle, let displayAppearance = compact.externalState?.appearance {
                     compact.externalState?.appearance.style = gridStyle.displayStyle(
                         appearance: displayAppearance,
                         players: displayPlayers

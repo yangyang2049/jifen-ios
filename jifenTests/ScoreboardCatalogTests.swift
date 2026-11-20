@@ -684,6 +684,52 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(GameCatalog.scoreboardItems.count, 29)
     }
 
+    func testScoreTabGroupsAndOrdersSportsByDisplayLanguage() {
+        for localization in ["zh-Hans", "zh-Hant-TW"] {
+            XCTAssertEqual(
+                GameCatalog.scoreTabItems(in: .racketSports, localization: localization).map(\.gameType),
+                [.pingpong, .badminton, .tennis, .pickleball, .squash, .softTennis, .padel]
+            )
+        }
+        XCTAssertEqual(
+            GameCatalog.scoreTabItems(in: .racketSports, localization: "en-GB").prefix(4).map(\.gameType),
+            [.tennis, .pickleball, .badminton, .pingpong]
+        )
+        XCTAssertEqual(
+            GameCatalog.scoreTabItems(in: .racketSports, localization: "ja").prefix(4).map(\.gameType),
+            [.badminton, .tennis, .pingpong, .pickleball]
+        )
+        XCTAssertEqual(
+            GameCatalog.scoreTabItems(in: .football, localization: "en").map(\.gameType),
+            [.football, .football5v5]
+        )
+        XCTAssertEqual(
+            GameCatalog.scoreTabItems(in: .basketball, localization: "en").map(\.gameType),
+            [.basketball, .threeBasketball, .basketballTraining]
+        )
+        XCTAssertEqual(
+            GameCatalog.scoreTabItems(in: .volleyball, localization: "en").map(\.gameType),
+            [.volleyball, .beachVolleyball]
+        )
+        XCTAssertEqual(
+            GameCatalog.scoreTabItems(in: .otherSports, localization: "zh-Hans").map(\.gameType),
+            [.archery, .boxing, .foosball, .shuttlecock]
+        )
+        XCTAssertEqual(
+            GameCatalog.scoreTabItems(in: .otherSports, localization: "en").map(\.gameType),
+            [.archery, .boxing, .foosball]
+        )
+        XCTAssertEqual(
+            GameCatalog.scoreTabItems(in: .generalScoring, localization: "en").map(\.gameType),
+            [.simpleScore, .multiScoreboard]
+        )
+        let allItems = ScoreboardTabSection.allCases.flatMap {
+            GameCatalog.scoreTabItems(in: $0, localization: "zh-Hans").map(\.gameType)
+        }
+        XCTAssertEqual(allItems.count, Set(allItems).count)
+        XCTAssertEqual(Set(allItems), Set(GameCatalog.scoreboardGameTypes))
+    }
+
     func testExactScoreboardIdentifiersMatchAndroid31Reference() {
         let expected: Set<String> = [
             "football", "football_5v5", "basketball", "basketball_training", "three_basketball",

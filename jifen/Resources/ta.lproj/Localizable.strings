@@ -14,7 +14,9 @@
 "all" = "அனைத்தும்";
 "scoreboard" = "மதிப்பெண்";
 "timer" = "டைமர்";
-"scoreboard_sports" = "விளையாட்டு";
+"scoreboard_racket_sports" = "ராக்கெட் விளையாட்டுகள்";
+"scoreboard_other_sports" = "பிற விளையாட்டுகள்";
+"scoreboard_general_scoring" = "பொதுவான மதிப்பெண் பதிவு";
 "scoreboard_board_games" = "பலகை விளையாட்டுகள்";
 "search_team_or_game" = "குழு அல்லது விளையாட்டைத் தேடுங்கள்";
 "match_count" = "%d போட்டிகள்";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "கிறிஸ்";
 "doudizhu_player_david" = "டேவிட்";
 "shengji_claim_dealer" = "டீலராக ஏலம் கோரவும்";
+"shengji_pass_a" = "பாஸ் ஏ";
 "guandan_edit_level_wrap_confirm_title" = "தரவரிசை 2 க்கு திரும்பவா?";
 "guandan_edit_level_wrap_confirm_message" = "மீண்டும் அதிகரிப்பது இந்த அணியின் தரவரிசையை 2 க்கு மீட்டமைக்கும்.";
 "shengji_take_dealer" = "டீலர் பொறுப்பை ஏற்கவும்";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "ஆங்கிலம்";
 "voice_call_note_zh" = "சீன அழைப்புகள்: மதிப்பெண் 3–2 போல, சமநிலை 3-அனைவரும் போல.";
 "voice_call_note_en" = "ITTF பாணி அழைப்புகள்: 0 என்பது love, 0–0 என்பது Love all, பெயர்கள் பின்யினில்.";
+"voice_call_note_pingpong_zh" = "சீன அழைப்புகள்: மதிப்பெண் 3–2 போல, சமநிலை 3-அனைவரும் போல.";
+"voice_call_note_pingpong_en" = "ITTF பாணி அழைப்புகள்: 0 என்பது love, 0–0 என்பது Love all, பெயர்கள் பின்யினில்.";
+"voice_call_note_badminton_zh" = "சீன அறிவிப்புகள் · 3–2 · கேம் புள்ளி";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · சர்வ் மாற்றம் = “Service over”";
+"voice_call_note_tennis_zh" = "சீன அறிவிப்புகள் · 0/15/30/40 · சமநிலை · முன்னிலை";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · சமநிலை = “Deuce” · முன்னிலை = “Advantage”";
+"voice_call_note_pickleball_zh" = "சீன அறிவிப்புகள் · 3–2 · பாரம்பரிய இரட்டையர் ஆட்டம் 3–2–1 (1 = சர்வ் செய்பவரின் எண்)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · பாரம்பரிய இரட்டையர் ஆட்டம் 3–2–1 (1 = சர்வ் செய்பவரின் எண்) · சர்வ் மாற்றம் = “Side out”";
+"voice_call_note_volleyball_zh" = "சீன அறிவிப்புகள் · ஸ்கோர் மட்டும் (3–2)";
+"voice_call_note_volleyball_en" = "சர்வதேச அறிவிப்புகள் · ஸ்கோர் மட்டும் (3–2)";
+"voice_call_note_squash_zh" = "சீன அறிவிப்புகள் · 3–2 · 10–10 = 10 (சமநிலை)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · சமநிலை = “all” · கேம் புள்ளி = “Game ball”";
 // Restored group feature resources.
 "group_account" = "கணக்குள்ள உறுப்பினர்";
 "group_active_30d" = "கடந்த 30 நாட்களில் செயலில்";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "செட் மற்றும் கேம்";
 "style_workbench_photo_failed" = "இந்தப் புகைப்படத்தைத் திறக்க முடியவில்லை. வேறு படத்தைத் தேர்ந்தெடுங்கள்.";
 "style_workbench_image_advice" = "16:9 நிலைப்படத்தைப் பயன்படுத்துங்கள், எ.கா. 1920×1080. படங்கள் நடுவில் வெட்டப்பட்டுத் திரையை நிரப்பும்.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

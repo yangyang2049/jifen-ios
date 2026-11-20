@@ -6,6 +6,7 @@ struct SportsSetupParticipantSection: View {
     let defaultTeam1Name: String
     let defaultTeam2Name: String
     @Binding var draft: SportsSetupDraft
+    var groupSelection: GroupSetupSelection? = nil
 
     @State private var activeNameInputTarget: NameInputTarget?
 
@@ -43,7 +44,23 @@ struct SportsSetupParticipantSection: View {
                 singlesDoublesSection
             }
 
-            if usesTeamPlayerInputs {
+            if let groupSelection {
+                let indices = usesDoublesPlayerInputs ? [0, 1, 2, 3] : [0, 2]
+                HStack(alignment: .top, spacing: Theme.sm) {
+                    VStack(spacing: Theme.sm) {
+                        GroupSetupSeatField(selection: groupSelection, indices: indices, index: 0, label: "A1")
+                        if usesDoublesPlayerInputs {
+                            GroupSetupSeatField(selection: groupSelection, indices: indices, index: 1, label: "A2")
+                        }
+                    }
+                    VStack(spacing: Theme.sm) {
+                        GroupSetupSeatField(selection: groupSelection, indices: indices, index: 2, label: "B1")
+                        if usesDoublesPlayerInputs {
+                            GroupSetupSeatField(selection: groupSelection, indices: indices, index: 3, label: "B2")
+                        }
+                    }
+                }
+            } else if usesTeamPlayerInputs {
                 shuttlecockTeamInputs
             } else if usesDoublesPlayerInputs {
                 doublesNameInputs
@@ -51,7 +68,7 @@ struct SportsSetupParticipantSection: View {
                 primaryNameInput
             }
 
-            ParticipantDuplicateNamesHint(names: participantNamesForWarning)
+            if groupSelection == nil { ParticipantDuplicateNamesHint(names: participantNamesForWarning) }
 
             if showsServingSideSelector {
                 servingSideSection

@@ -212,7 +212,7 @@ struct SportsSetupSettingsSection: View {
         Button(action: action) {
             Image(systemName: systemImage)
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(Theme.textPrimary)
+                .foregroundStyle(Theme.textSecondary)
                 .frame(width: 36, height: 36)
                 .background(Theme.dialogControlBackground)
                 .clipShape(Circle())

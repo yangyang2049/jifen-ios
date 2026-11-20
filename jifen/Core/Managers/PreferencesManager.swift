@@ -228,6 +228,7 @@ class PreferencesManager {
             "simpleScoreCustomAdjustEnabled", "multiScoreboardCustomAdjustEnabled",
             "multiScoreboardPlayerCount", "unoPlayerCount", "unoTargetScore",
             "multiScoreboardStyleMode", "multiScoreboardSolidColor",
+            "unoScoreboardStyleMode", "unoScoreboardSolidColor",
             "basketballRuleSet", "basketballPeriodSeconds", "basketballOvertimeSeconds",
             "guandanSetupTripleA", "guandanSetupPassACondition",
             "guandanSetupTripleAFallbackRank", "scoreboard_style_v2_recent_colors"
@@ -280,6 +281,21 @@ class PreferencesManager {
         set {
             defaults.set(newValue.mode.rawValue, forKey: "multiScoreboardStyleMode")
             defaults.set(newValue.solidColor.rawValue, forKey: "multiScoreboardSolidColor")
+            notifyScoreboardPreferencesChanged()
+        }
+    }
+
+    /// UNO 与多人计分各自保存自己的「彩色 / 纯色」样式，互不影响。
+    var unoScoreboardStyle: MultiScoreboardStyle {
+        get {
+            MultiScoreboardStyle(
+                mode: MultiScoreboardStyle.Mode(rawValue: defaults.string(forKey: "unoScoreboardStyleMode") ?? "") ?? .colorful,
+                solidColor: MultiScoreboardStyle.SolidColor(rawValue: defaults.string(forKey: "unoScoreboardSolidColor") ?? "") ?? .ink
+            )
+        }
+        set {
+            defaults.set(newValue.mode.rawValue, forKey: "unoScoreboardStyleMode")
+            defaults.set(newValue.solidColor.rawValue, forKey: "unoScoreboardSolidColor")
             notifyScoreboardPreferencesChanged()
         }
     }

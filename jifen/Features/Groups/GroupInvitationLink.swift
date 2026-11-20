@@ -59,9 +59,11 @@ nonisolated enum GroupInvitationLink {
         let scheme = components.scheme?.lowercased()
         let host = components.host?.lowercased()
         let path = components.path
-        let webLink = scheme == "https" && ["jifenqi.com", "iscoreboard.live"].contains(host ?? "")
+        let webLink = scheme == "https"
+            && ["jifenqi.com", "www.jifenqi.com", "api.jifenqi.com", "iscoreboard.live"].contains(host ?? "")
             && ["/groups/join", "/groups/join/"].contains(path)
-        guard webLink else { return nil }
+        let legacyLink = scheme == "jifenqi" && host == "groups" && ["/join", "/join/"].contains(path)
+        guard webLink || legacyLink else { return nil }
         let numbers = components.queryItems?.filter { $0.name == "groupNo" } ?? []
         guard numbers.count == 1, let number = numbers.first?.value, validNumber(number, capabilities: capabilities) else { return nil }
         return number

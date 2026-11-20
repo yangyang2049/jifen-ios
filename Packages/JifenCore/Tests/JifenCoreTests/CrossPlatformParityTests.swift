@@ -634,6 +634,51 @@ import SessionCore
     #expect(!result.state.finished)
 }
 
+/// 打A规则（对齐安卓 2026-11-17 `advanceTier`）：到 A 只是开始打 A，A 再赢一局「过A」才结束。
+@Test func shengjiReachingAStageDoesNotFinishUntilPassed() {
+    let reducer = ShengjiTierReducer()
+    let cap = 12
+    var state = ShengjiTierState(maxTierIndex: cap)
+    state = reducer.reduce(state: state, intent: .claimDealer(.left), at: 1).state
+    // 从 2 一路升到 A：每步按步长前进并封顶到 A。
+    state = reducer.reduce(state: state, intent: .addLevels(side: .left, delta: 4), at: 2).state
+    #expect(state.leftIndex == 4)
+    state = reducer.reduce(state: state, intent: .addLevels(side: .left, delta: 3), at: 2).state
+    state = reducer.reduce(state: state, intent: .addLevels(side: .left, delta: 3), at: 2).state
+    #expect(state.leftIndex == 10)
+    state = reducer.reduce(state: state, intent: .addLevels(side: .left, delta: 3), at: 2).state
+    #expect(state.leftIndex == cap)
+    #expect(!state.finished)
+
+    let passed = reducer.reduce(state: state, intent: .addLevels(side: .left, delta: 1), at: 3)
+    #expect(passed.accepted)
+    #expect(passed.state.leftIndex == cap + 1)
+    #expect(passed.state.finished)
+    #expect(passed.state.winnerSide == .left)
+
+    // 终局后拒绝继续推进；减级回到 A 阶段会重新可打。
+    let blocked = reducer.reduce(state: passed.state, intent: .addLevels(side: .right, delta: 1), at: 4)
+    #expect(!blocked.accepted)
+    let losingSideCorrection = reducer.reduce(state: passed.state, intent: .subtractLevels(side: .right, delta: 1), at: 5)
+    #expect(losingSideCorrection.state.finished)
+    let reopened = reducer.reduce(state: passed.state, intent: .subtractLevels(side: .left, delta: 1), at: 5)
+    #expect(reopened.accepted)
+    #expect(reopened.state.leftIndex == cap)
+    #expect(!reopened.state.finished)
+
+    // resolveRound 走同一口径：先到 A 不结束，A 再赢一局才过A。
+    var round = ShengjiTierState(maxTierIndex: cap)
+    round = reducer.reduce(state: round, intent: .claimDealer(.right), at: 6).state
+    for step in 0 ..< 4 {
+        round = reducer.reduce(state: round, intent: .resolveRound(winner: .right, delta: 3), at: Int64(7 + step)).state
+    }
+    #expect(round.rightIndex == cap)
+    #expect(!round.finished)
+    round = reducer.reduce(state: round, intent: .resolveRound(winner: .right, delta: 1), at: 11).state
+    #expect(round.rightIndex == cap + 1)
+    #expect(round.finished)
+}
+
 @Test func shengjiResolveRoundTransfersDealerAndUpgrades() {
     let reducer = ShengjiTierReducer()
     var state = ShengjiTierState()
@@ -649,13 +694,23 @@ import SessionCore
 @Test func shengjiAdministrativeTransitionsStayInsideReducer() {
     let reducer = ShengjiTierReducer()
     let seed = ShengjiTierState(leftIndex: 2, rightIndex: 4, maxTierIndex: 12, dealer: .right)
-    let corrected = reducer.reduce(
+    // 打A规则：改到 A（== cap）只是进入打 A 阶段，不结束；要到 cap + 1 才算「过A」。
+    let atA = reducer.reduce(
         state: seed,
         intent: .adminCorrect(left: 12, right: 3),
         at: 1
     )
+    #expect(atA.accepted)
+    #expect(atA.state.leftIndex == 12)
+    #expect(!atA.state.finished)
+
+    let corrected = reducer.reduce(
+        state: seed,
+        intent: .adminCorrect(left: 13, right: 3),
+        at: 1
+    )
     #expect(corrected.accepted)
-    #expect(corrected.state.leftIndex == 12)
+    #expect(corrected.state.leftIndex == 13)
     #expect(corrected.state.finished)
 
     let reset = reducer.reduce(state: corrected.state, intent: .reset, at: 2)

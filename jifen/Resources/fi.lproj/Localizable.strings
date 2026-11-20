@@ -14,7 +14,9 @@
 "all" = "Kaikki";
 "scoreboard" = "Pisteet";
 "timer" = "Ajastin";
-"scoreboard_sports" = "Urheilu";
+"scoreboard_racket_sports" = "Mailapelit";
+"scoreboard_other_sports" = "Muut urheilulajit";
+"scoreboard_general_scoring" = "Yleinen pistelasku";
 "scoreboard_board_games" = "Lautapelit";
 "search_team_or_game" = "Etsi joukkuetta tai peliä";
 "match_count" = "%d ottelua";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "Chris";
 "doudizhu_player_david" = "David";
 "shengji_claim_dealer" = "Tarjoa jakajan roolista";
+"shengji_pass_a" = "A-tason läpäisy";
 "guandan_edit_level_wrap_confirm_title" = "Palauta sijoitus 2?";
 "guandan_edit_level_wrap_confirm_message" = "Uudelleen korottaminen palauttaa tämän joukkueen sijoituksen 2:ksi.";
 "shengji_take_dealer" = "Ota jakajan rooli";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "Englanti";
 "voice_call_note_zh" = "Kiinankieliset ilmoitukset: pisteet kuten 3–2, tasan kuten 3 kaikille.";
 "voice_call_note_en" = "ITTF-tyyliset ilmoitukset: 0 on love, 0–0 on Love all, nimet pinyininä.";
+"voice_call_note_pingpong_zh" = "Kiinankieliset ilmoitukset: pisteet kuten 3–2, tasan kuten 3 kaikille.";
+"voice_call_note_pingpong_en" = "ITTF-tyyliset ilmoitukset: 0 on love, 0–0 on Love all, nimet pinyininä.";
+"voice_call_note_badminton_zh" = "Kiinankieliset kuulutukset · 3–2 · Pelipallo";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · Syöttövuoron vaihto = “Service over”";
+"voice_call_note_tennis_zh" = "Kiinankieliset kuulutukset · 0/15/30/40 · Tasatilanne · Etu";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · Tasatilanne = “Deuce” · Etu = “Advantage”";
+"voice_call_note_pickleball_zh" = "Kiinankieliset kuulutukset · 3–2 · Perinteinen nelinpeli 3–2–1 (1 = Syöttäjän numero)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · Perinteinen nelinpeli 3–2–1 (1 = Syöttäjän numero) · Syöttövuoron vaihto = “Side out”";
+"voice_call_note_volleyball_zh" = "Kiinankieliset kuulutukset · Vain pistetilanne (3–2)";
+"voice_call_note_volleyball_en" = "Kansainväliset kuulutukset · Vain pistetilanne (3–2)";
+"voice_call_note_squash_zh" = "Kiinankieliset kuulutukset · 3–2 · 10–10 = 10 (Tasatilanne)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · Tasatilanne = “all” · Pelipallo = “Game ball”";
 // Restored group feature resources.
 "group_account" = "Tilin käyttäjä";
 "group_active_30d" = "Aktiivinen viimeisen 30 päivän aikana";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "Erät ja pelit";
 "style_workbench_photo_failed" = "Valokuvaa ei voitu avata. Valitse toinen kuva.";
 "style_workbench_image_advice" = "Käytä vaaka-asennossa olevaa 16:9-kuvaa, esimerkiksi 1920×1080. Kuvat täyttävät näytön keskellä suoritetulla rajauksella.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

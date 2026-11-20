@@ -1,23 +1,35 @@
 import Foundation
 
-enum ScoreboardCatalogSection: String, CaseIterable, Identifiable {
-    case sports
+enum ScoreboardTabSection: String, CaseIterable, Identifiable {
+    case racketSports
+    case football
+    case basketball
+    case volleyball
     case billiards
+    case otherSports
     case cardGames
-    case other
+    case generalScoring
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
-        case .sports:
-            return NSLocalizedString("scoreboard_sports", value: "运动", comment: "Sports section")
+        case .racketSports:
+            return NSLocalizedString("scoreboard_racket_sports", value: "Racket Sports", comment: "Score tab section for racket and paddle sports")
+        case .football:
+            return GameType.football.displayName
+        case .basketball:
+            return GameType.basketball.displayName
+        case .volleyball:
+            return GameType.volleyball.displayName
         case .billiards:
             return NSLocalizedString("scoreboard_billiards", value: "台球", comment: "Billiards section")
+        case .otherSports:
+            return NSLocalizedString("scoreboard_other_sports", value: "Other Sports", comment: "Score tab section for archery, boxing, foosball and shuttlecock")
         case .cardGames:
             return NSLocalizedString("scoreboard_board_games", value: "棋牌", comment: "Board/card games section")
-        case .other:
-            return NSLocalizedString("scoreboard_other", value: "其他", comment: "Other section")
+        case .generalScoring:
+            return NSLocalizedString("scoreboard_general_scoring", value: "General Scoring", comment: "Score tab section for simple and multiplayer scoreboards")
         }
     }
 }
@@ -25,10 +37,11 @@ enum ScoreboardCatalogSection: String, CaseIterable, Identifiable {
 struct ScoreboardCatalogItem: Identifiable, Hashable {
     let gameType: GameType
     let emoji: String
-    let section: ScoreboardCatalogSection
+    let section: ScoreboardTabSection
 
     var id: String { gameType.rawValue }
     var title: String { gameType.displayName }
+
 }
 
 enum TimerDestination: String, Hashable, CaseIterable, Identifiable {
@@ -93,24 +106,24 @@ enum TimerDestination: String, Hashable, CaseIterable, Identifiable {
 
 enum GameCatalog {
     static let scoreboardItems: [ScoreboardCatalogItem] = [
-        ScoreboardCatalogItem(gameType: .badminton, emoji: "🏸", section: .sports),
-        ScoreboardCatalogItem(gameType: .tennis, emoji: "🎾", section: .sports),
-        ScoreboardCatalogItem(gameType: .pingpong, emoji: "🏓", section: .sports),
-        ScoreboardCatalogItem(gameType: .pickleball, emoji: "🏓", section: .sports),
-        ScoreboardCatalogItem(gameType: .shuttlecock, emoji: "🏸", section: .sports),
-        ScoreboardCatalogItem(gameType: .squash, emoji: "🎾", section: .sports),
-        ScoreboardCatalogItem(gameType: .softTennis, emoji: "🎾", section: .sports),
-        ScoreboardCatalogItem(gameType: .padel, emoji: "🎾", section: .sports),
-        ScoreboardCatalogItem(gameType: .football, emoji: "⚽", section: .sports),
-        ScoreboardCatalogItem(gameType: .football5v5, emoji: "⚽", section: .sports),
-        ScoreboardCatalogItem(gameType: .basketball, emoji: "🏀", section: .sports),
-        ScoreboardCatalogItem(gameType: .threeBasketball, emoji: "🏀", section: .sports),
-        ScoreboardCatalogItem(gameType: .basketballTraining, emoji: "🏀", section: .sports),
-        ScoreboardCatalogItem(gameType: .volleyball, emoji: "🏐", section: .sports),
-        ScoreboardCatalogItem(gameType: .beachVolleyball, emoji: "🏐", section: .sports),
-        ScoreboardCatalogItem(gameType: .airVolleyball, emoji: "🏐", section: .sports),
-        ScoreboardCatalogItem(gameType: .archery, emoji: "🏹", section: .sports),
-        ScoreboardCatalogItem(gameType: .boxing, emoji: "🥊", section: .sports),
+        ScoreboardCatalogItem(gameType: .badminton, emoji: "🏸", section: .racketSports),
+        ScoreboardCatalogItem(gameType: .tennis, emoji: "🎾", section: .racketSports),
+        ScoreboardCatalogItem(gameType: .pingpong, emoji: "🏓", section: .racketSports),
+        ScoreboardCatalogItem(gameType: .pickleball, emoji: "🏓", section: .racketSports),
+        ScoreboardCatalogItem(gameType: .shuttlecock, emoji: "🏸", section: .otherSports),
+        ScoreboardCatalogItem(gameType: .squash, emoji: "🎾", section: .racketSports),
+        ScoreboardCatalogItem(gameType: .softTennis, emoji: "🎾", section: .racketSports),
+        ScoreboardCatalogItem(gameType: .padel, emoji: "🎾", section: .racketSports),
+        ScoreboardCatalogItem(gameType: .football, emoji: "⚽", section: .football),
+        ScoreboardCatalogItem(gameType: .football5v5, emoji: "⚽", section: .football),
+        ScoreboardCatalogItem(gameType: .basketball, emoji: "🏀", section: .basketball),
+        ScoreboardCatalogItem(gameType: .threeBasketball, emoji: "🏀", section: .basketball),
+        ScoreboardCatalogItem(gameType: .basketballTraining, emoji: "🏀", section: .basketball),
+        ScoreboardCatalogItem(gameType: .volleyball, emoji: "🏐", section: .volleyball),
+        ScoreboardCatalogItem(gameType: .beachVolleyball, emoji: "🏐", section: .volleyball),
+        ScoreboardCatalogItem(gameType: .airVolleyball, emoji: "🏐", section: .volleyball),
+        ScoreboardCatalogItem(gameType: .archery, emoji: "🏹", section: .otherSports),
+        ScoreboardCatalogItem(gameType: .boxing, emoji: "🥊", section: .otherSports),
 
         ScoreboardCatalogItem(gameType: .billiards, emoji: "🎱", section: .billiards),
         ScoreboardCatalogItem(gameType: .snooker, emoji: "🎱", section: .billiards),
@@ -122,9 +135,9 @@ enum GameCatalog {
         ScoreboardCatalogItem(gameType: .shengji, emoji: "🃏", section: .cardGames),
         ScoreboardCatalogItem(gameType: .uno, emoji: "🎴", section: .cardGames),
 
-        ScoreboardCatalogItem(gameType: .foosball, emoji: "⚽", section: .other),
-        ScoreboardCatalogItem(gameType: .simpleScore, emoji: "🔢", section: .other),
-        ScoreboardCatalogItem(gameType: .multiScoreboard, emoji: "👥", section: .other)
+        ScoreboardCatalogItem(gameType: .foosball, emoji: "⚽", section: .otherSports),
+        ScoreboardCatalogItem(gameType: .simpleScore, emoji: "🔢", section: .generalScoring),
+        ScoreboardCatalogItem(gameType: .multiScoreboard, emoji: "👥", section: .generalScoring)
     ]
 
     private static var uiLocalization: String {
@@ -141,27 +154,52 @@ enum GameCatalog {
         return language.map { badmintonLanguages.contains($0) } == true
     }
 
-    static func scoreboardItems(in section: ScoreboardCatalogSection) -> [ScoreboardCatalogItem] {
-        let items = scoreboardItems.filter { $0.section == section && isSelectable($0.gameType) }
-        let leadingTypes: [GameType]
+    private static func preferredRacketOrder(for localization: String) -> [GameType] {
+        prefersBadminton(for: localization)
+            ? [.badminton, .tennis, .pingpong, .pickleball]
+            : [.tennis, .pickleball, .badminton, .pingpong]
+    }
+
+    private static func prioritizing(
+        _ leadingTypes: [GameType],
+        in items: [ScoreboardCatalogItem]
+    ) -> [ScoreboardCatalogItem] {
+        let leading = leadingTypes.compactMap { type in items.first { $0.gameType == type } }
+        return leading + items.filter { !leadingTypes.contains($0.gameType) }
+    }
+
+    static func scoreTabItems(
+        in section: ScoreboardTabSection,
+        localization: String = uiLocalization
+    ) -> [ScoreboardCatalogItem] {
+        let language = Locale(identifier: localization).language.languageCode?.identifier
+        let items = scoreboardItems.filter {
+            $0.section == section && isSelectable($0.gameType, isEnglish: language == "en")
+        }
         switch section {
-        case .sports:
-            leadingTypes = prefersBadminton(for: uiLocalization)
-                ? [.badminton, .tennis, .pingpong, .pickleball]
-                : [.tennis, .pickleball, .badminton, .pingpong]
+        case .racketSports:
+            let leading: [GameType] = language == "zh"
+                ? [.pingpong, .badminton, .tennis, .pickleball]
+                : preferredRacketOrder(for: localization)
+            return prioritizing(leading, in: items)
+        case .otherSports:
+            return prioritizing([.archery, .boxing, .foosball], in: items)
         case .cardGames:
-            leadingTypes = [.uno]
+            return prioritizing([.uno], in: items)
         default:
             return items
         }
-        let leading = leadingTypes.compactMap { type in items.first { $0.gameType == type } }
-        let rest = items.filter { !leadingTypes.contains($0.gameType) }
-        return leading + rest
     }
 
-    /// 所有选择入口与计分页复用显示顺序；原始目录仍保留完整记录项目。
     static var selectableScoreboardGameTypes: [GameType] {
-        ScoreboardCatalogSection.allCases.flatMap { scoreboardItems(in: $0).map(\.gameType) }
+        let eligible = scoreboardItems.filter { isSelectable($0.gameType) }
+        let ordered = prioritizing(preferredRacketOrder(for: uiLocalization), in: eligible)
+        guard let firstCard = ordered.firstIndex(where: { $0.section == .cardGames }) else {
+            return ordered.map(\.gameType)
+        }
+        // Quick start keeps catalog order and promotes UNO within the card section.
+        let tail = prioritizing([.uno], in: Array(ordered[firstCard...]))
+        return (ordered[..<firstCard] + tail).map(\.gameType)
     }
 
     /// 英文界面隐藏的项目：毽球/气排球只在中文等其余语言展示，英文版不再提供入口。
@@ -184,7 +222,7 @@ enum GameCatalog {
     }
 
     /// 项目所属的计分板分区；目录只收计分板项目，其余（计时类棋类等）返回 nil。
-    static func section(for gameType: GameType) -> ScoreboardCatalogSection? {
+    static func section(for gameType: GameType) -> ScoreboardTabSection? {
         scoreboardItems.first { $0.gameType == gameType }?.section
     }
 

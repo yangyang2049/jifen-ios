@@ -14,7 +14,9 @@
 "all" = "الكل";
 "scoreboard" = "النتيجة";
 "timer" = "مؤقت";
-"scoreboard_sports" = "الرياضات";
+"scoreboard_racket_sports" = "ألعاب المضرب";
+"scoreboard_other_sports" = "رياضات أخرى";
+"scoreboard_general_scoring" = "تسجيل النقاط العام";
 "scoreboard_board_games" = "ألعاب الطاولة";
 "search_team_or_game" = "ابحث عن فريق أو لعبة";
 "match_count" = "%d مباريات";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "كريس";
 "doudizhu_player_david" = "ديفيد";
 "shengji_claim_dealer" = "المزايدة على الموزّع";
+"shengji_pass_a" = "تمرير أ";
 "guandan_edit_level_wrap_confirm_title" = "إرجاع الرتبة إلى 2؟";
 "guandan_edit_level_wrap_confirm_message" = "الزيادة مرة أخرى ستؤدي إلى إعادة ترتيب رتبة هذا الفريق إلى 2.";
 "shengji_take_dealer" = "تولّي دور الموزّع";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "الإنجليزية";
 "voice_call_note_zh" = "نداءات صينية: النتائج مثل 3–2، والتعادل مثل 3 للجميع.";
 "voice_call_note_en" = "نداءات بنمط ITTF: الصفر love، و0–0 Love all، والأسماء بنظام بينيين.";
+"voice_call_note_pingpong_zh" = "نداءات صينية: النتائج مثل 3–2، والتعادل مثل 3 للجميع.";
+"voice_call_note_pingpong_en" = "نداءات بنمط ITTF: الصفر love، و0–0 Love all، والأسماء بنظام بينيين.";
+"voice_call_note_badminton_zh" = "النداءات الصينية · 3–2 · نقطة الشوط";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · تبديل الإرسال = “Service over”";
+"voice_call_note_tennis_zh" = "النداءات الصينية · 0/15/30/40 · تعادل · أفضلية";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · تعادل = “Deuce” · أفضلية = “Advantage”";
+"voice_call_note_pickleball_zh" = "النداءات الصينية · 3–2 · الزوجي التقليدي 3–2–1 (1 = رقم المُرسِل)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · الزوجي التقليدي 3–2–1 (1 = رقم المُرسِل) · تبديل الإرسال = “Side out”";
+"voice_call_note_volleyball_zh" = "النداءات الصينية · النتيجة فقط (3–2)";
+"voice_call_note_volleyball_en" = "النداءات الدولية · النتيجة فقط (3–2)";
+"voice_call_note_squash_zh" = "النداءات الصينية · 3–2 · 10–10 = 10 (تعادل)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · تعادل = “all” · نقطة الشوط = “Game ball”";
 // Restored group feature resources.
 "group_account" = "عضو بحساب";
 "group_active_30d" = "نشط خلال آخر 30 يوماً";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "الأشواط والألعاب";
 "style_workbench_photo_failed" = "تعذّر فتح هذه الصورة. اختر صورة أخرى.";
 "style_workbench_image_advice" = "استخدم صورة أفقية بنسبة 16:9، مثل 1920×1080. تملأ الصور الشاشة بقصّ وسطي.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

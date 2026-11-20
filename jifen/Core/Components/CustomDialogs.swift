@@ -43,7 +43,8 @@ struct SystemHelpButton: View {
                 .font(.system(size: iconFontSize, weight: .semibold))
                 .foregroundStyle(Theme.textSecondary)
                 .frame(width: 28, height: 28)
-                .contentShape(Rectangle())
+                // 可见图标仍是 28，热区扩到 44（与安卓 48dp / 鸿蒙 44vp 的「?」同口径），不改布局占位。
+                .contentShape(Rectangle().inset(by: -8))
         }
         .buttonStyle(.plain)
         .accessibilityLabel(title)

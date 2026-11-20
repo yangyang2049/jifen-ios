@@ -1024,6 +1024,35 @@ final class ScoreboardDisplayTests: XCTestCase {
         XCTAssertEqual(decoded, state)
     }
 
+    func testShengjiWireKeepsRankAndExplicitFinish() throws {
+        for (index, label, ended) in [(12, "A", true), (12, "A", false), (13, "Pass A", true)] {
+            // The winning logical team is on the right. The localized rank cannot be parsed as a score.
+            let compact = LocalScoreboardDisplayState(
+                gameID: "shengji", title: "", leftName: "Blue", rightName: "Red",
+                leftScore: "6", rightScore: label, leftDetail: nil, rightDetail: nil,
+                themeID: "default", fontID: "default", finished: ended, revision: 2
+            )
+            let state = ScoreboardDisplayState.enriched(
+                compact: compact,
+                layoutKind: .boardCard,
+                sportState: [
+                    "team0ScreenSide": .string("right"),
+                    "shengjiRedRank": .string(label),
+                    "shengjiBlueRank": .string("6")
+                ],
+                visualScores: (left: 4, right: index)
+            )
+            let wire = try XCTUnwrap(DisplayStateWireCodec.encode(state))
+            let decoded = try XCTUnwrap(DisplayStateWireCodec.decode(wire))
+            XCTAssertEqual(decoded.teams.map(\.score), [index, 4])
+            XCTAssertEqual(decoded.teams.first?.name, "Red")
+            XCTAssertEqual(decoded.sportString("shengjiRedRank"), label)
+            XCTAssertEqual(decoded.result?.ended == true, ended)
+            XCTAssertEqual(decoded.result?.winnerID, ended ? "team_0" : nil)
+            XCTAssertEqual(decoded.result?.finalScores?["team_0"]?.score, ended ? index : nil)
+        }
+    }
+
     func testOldCompactPayloadDecodesWithoutExternalState() throws {
         let json = #"{"gameID":"football","title":"Football","leftName":"A","rightName":"B","leftScore":"1","rightScore":"0","themeID":"default","fontID":"default","finished":false,"revision":2}"#
         let compact = try JSONDecoder().decode(LocalScoreboardDisplayState.self, from: Data(json.utf8))

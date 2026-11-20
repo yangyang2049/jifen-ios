@@ -77,7 +77,8 @@ import PersistenceCore
     }
 
     func testInvitationAcceptsBothDomains() throws {
-        for base in ["https://jifenqi.com/groups/join", "https://iscoreboard.live/groups/join"] {
+        for base in ["https://jifenqi.com/groups/join", "https://iscoreboard.live/groups/join",
+                     "https://www.jifenqi.com/groups/join", "https://api.jifenqi.com/groups/join", "jifenqi://groups/join"] {
             for number in ["123456", "1234567", "72856000"] {
                 let link = "\(base)?groupNo=\(number)"
                 XCTAssertEqual(GroupInvitationLink.groupNumber(from: try XCTUnwrap(URL(string: link))), number)

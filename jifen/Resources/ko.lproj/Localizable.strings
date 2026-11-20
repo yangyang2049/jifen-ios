@@ -14,7 +14,9 @@
 "all" = "전체";
 "scoreboard" = "점수";
 "timer" = "타이머";
-"scoreboard_sports" = "스포츠";
+"scoreboard_racket_sports" = "라켓 스포츠";
+"scoreboard_other_sports" = "기타 스포츠";
+"scoreboard_general_scoring" = "범용 점수 기록";
 "scoreboard_board_games" = "보드게임";
 "search_team_or_game" = "팀 또는 게임 검색";
 "match_count" = "%d 경기";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "크리스";
 "doudizhu_player_david" = "데이비드";
 "shengji_claim_dealer" = "딜러 선점";
+"shengji_pass_a" = "A 통과";
 "guandan_edit_level_wrap_confirm_title" = "등급을 2로 되돌릴까요?";
 "guandan_edit_level_wrap_confirm_message" = "한 단계 더 올리면 이 팀의 등급이 2로 초기화됩니다.";
 "shengji_take_dealer" = "딜러 맡기";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "영어";
 "voice_call_note_zh" = "중국어 안내: 점수는 «3 대 2», 동점은 «3 평».";
 "voice_call_note_en" = "ITTF식 안내: 0은 love, 0–0은 Love all, 이름은 병음으로.";
+"voice_call_note_pingpong_zh" = "중국어 안내: 점수는 «3 대 2», 동점은 «3 평».";
+"voice_call_note_pingpong_en" = "ITTF식 안내: 0은 love, 0–0은 Love all, 이름은 병음으로.";
+"voice_call_note_badminton_zh" = "중국어 콜 · 3–2 · 게임 포인트";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · 서브 교대 = “Service over”";
+"voice_call_note_tennis_zh" = "중국어 콜 · 0/15/30/40 · 동점 · 어드밴티지";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · 동점 = “Deuce” · 어드밴티지 = “Advantage”";
+"voice_call_note_pickleball_zh" = "중국어 콜 · 3–2 · 전통 방식 복식 3–2–1 (1 = 서버 번호)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · 전통 방식 복식 3–2–1 (1 = 서버 번호) · 서브 교대 = “Side out”";
+"voice_call_note_volleyball_zh" = "중국어 콜 · 점수만 (3–2)";
+"voice_call_note_volleyball_en" = "국제 경기 콜 · 점수만 (3–2)";
+"voice_call_note_squash_zh" = "중국어 콜 · 3–2 · 10–10 = 10 (동점)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · 동점 = “all” · 게임 포인트 = “Game ball”";
 // Restored group feature resources.
 "group_account" = "계정 회원";
 "group_active_30d" = "최근 30일 활동 회원";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "세트·게임";
 "style_workbench_photo_failed" = "이 사진을 열 수 없습니다. 다른 이미지를 선택하세요.";
 "style_workbench_image_advice" = "16:9 가로 이미지(예: 1920×1080)를 사용하세요. 이미지는 가운데를 기준으로 잘려 화면을 채웁니다.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

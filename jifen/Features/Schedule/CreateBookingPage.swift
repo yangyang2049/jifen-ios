@@ -94,12 +94,21 @@ struct CreateBookingPage: View {
 
                 reminderSection
 
-                Section(NSLocalizedString("schedule_notes", value: "备注", comment: "")) {
+                Section {
                     TextEditor(text: Binding(
                         get: { notes },
                         set: { notes = String($0.prefix(200)) }
                     ))
                     .frame(minHeight: 80)
+                    .overlay(alignment: .topLeading) {
+                        if notes.isEmpty {
+                            Text(NSLocalizedString("schedule_notes", value: "备注", comment: ""))
+                                .foregroundStyle(Theme.textSecondary)
+                                .padding(.top, 8)
+                                .padding(.leading, 5)
+                                .allowsHitTesting(false)
+                        }
+                    }
                 }
             }
             .scrollDismissesKeyboard(.interactively)
@@ -259,7 +268,7 @@ struct CreateBookingPage: View {
                 )
                 Button { showCommonPlaces = true } label: {
                     Image(systemName: "location.circle")
-                        .foregroundColor(Theme.accentColor)
+                        .foregroundColor(Theme.textSecondary)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(NSLocalizedString("schedule_pick_common_place", value: "选择常用地点", comment: ""))
@@ -300,6 +309,7 @@ struct CreateBookingPage: View {
                         NSLocalizedString("schedule_add_participant", value: "添加参与者", comment: ""),
                         systemImage: "plus.circle"
                     )
+                    .foregroundStyle(Theme.textSecondary)
                 }
             }
         } header: {
@@ -497,7 +507,7 @@ struct CreateBookingPage: View {
         } label: {
             Image(systemName: systemName)
                 .font(.system(size: 26))
-                .foregroundStyle(enabled ? Theme.accentColor : Theme.textSecondary.opacity(0.5))
+                .foregroundStyle(enabled ? Theme.textSecondary : Theme.textSecondary.opacity(0.5))
         }
         .buttonStyle(.plain)
         .disabled(!enabled)

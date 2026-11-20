@@ -14,7 +14,9 @@
 "all" = "Hepsi";
 "scoreboard" = "Skor";
 "timer" = "Zamanlayıcı";
-"scoreboard_sports" = "Spor";
+"scoreboard_racket_sports" = "Raket Sporları";
+"scoreboard_other_sports" = "Diğer Sporlar";
+"scoreboard_general_scoring" = "Genel Skor Tutma";
 "scoreboard_board_games" = "Masa Oyunları";
 "search_team_or_game" = "Takım veya oyun arayın";
 "match_count" = "%d maç";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "Chris";
 "doudizhu_player_david" = "David";
 "shengji_claim_dealer" = "Dağıtıcı Olmak İçin Teklif Ver";
+"shengji_pass_a" = "A'yı Geçin";
 "guandan_edit_level_wrap_confirm_title" = "Sıralama 2'ye döndürülsün mü?";
 "guandan_edit_level_wrap_confirm_message" = "Tekrar artırmak bu takımın sıralamasını 2'ye sıfırlayacaktır.";
 "shengji_take_dealer" = "Dağıtıcı Ol";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "İngilizce";
 "voice_call_note_zh" = "Çince anonslar: skorlar 3–2 gibi, beraberlik «3 hepsi» gibi.";
 "voice_call_note_en" = "ITTF tarzı anonslar: 0 love, 0–0 Love all, isimler pinyin.";
+"voice_call_note_pingpong_zh" = "Çince anonslar: skorlar 3–2 gibi, beraberlik «3 hepsi» gibi.";
+"voice_call_note_pingpong_en" = "ITTF tarzı anonslar: 0 love, 0–0 Love all, isimler pinyin.";
+"voice_call_note_badminton_zh" = "Çince anonslar · 3–2 · Oyun puanı";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · Servis değişimi = “Service over”";
+"voice_call_note_tennis_zh" = "Çince anonslar · 0/15/30/40 · Beraberlik · Avantaj";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · Beraberlik = “Deuce” · Avantaj = “Advantage”";
+"voice_call_note_pickleball_zh" = "Çince anonslar · 3–2 · Geleneksel çiftler 3–2–1 (1 = Servis atan oyuncunun numarası)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · Geleneksel çiftler 3–2–1 (1 = Servis atan oyuncunun numarası) · Servis değişimi = “Side out”";
+"voice_call_note_volleyball_zh" = "Çince anonslar · Yalnızca skor (3–2)";
+"voice_call_note_volleyball_en" = "Uluslararası anonslar · Yalnızca skor (3–2)";
+"voice_call_note_squash_zh" = "Çince anonslar · 3–2 · 10–10 = 10 (Beraberlik)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · Beraberlik = “all” · Oyun puanı = “Game ball”";
 // Restored group feature resources.
 "group_account" = "Hesabı olan üye";
 "group_active_30d" = "Son 30 günde etkin";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "Set ve oyun";
 "style_workbench_photo_failed" = "Bu fotoğraf açılamadı. Başka bir görsel seçin.";
 "style_workbench_image_advice" = "16:9 yatay bir görsel kullanın, örneğin 1920×1080. Görseller ekranı ortadan kırpılarak doldurur.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

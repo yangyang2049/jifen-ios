@@ -44,6 +44,7 @@ struct NineBallSetupDialogView: View {
     var maxDialogHeight: CGFloat = 680
     var onConfirm: (SportsSetupResult) -> Void
     var onCancel: (() -> Void)?
+    var groupSelection: GroupSetupSelection? = nil
     @State private var family: NineBallRuleFamily = .folk
     @State private var folk = NineBallChaseConfig()
     @State private var tournament = NineBallChaseConfig(ruleFamily: .tournament)
@@ -74,6 +75,7 @@ struct NineBallSetupDialogView: View {
     private var modified: Bool {
         config != .preset(config.pointScheme, family: family) || breaker.wrappedValue != 0 || !inputsValid
     }
+    private var canStart: Bool { inputsValid && groupSelection?.ready(Array(0..<count)) != false }
     private var inputsValid: Bool {
         fields.allSatisfy { field in
             let value = pointDrafts[draftKey(field)] ?? String(config[keyPath: field.keyPath])
@@ -103,6 +105,7 @@ struct NineBallSetupDialogView: View {
             ScrollViewReader { scrollProxy in
             AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight) {
                 VStack(spacing: 18) {
+                    groupSelection?.projectRow
                     Picker("", selection: $family) {
                         Text(nineBallText("nine_ball_folk", "Casual chase")).tag(NineBallRuleFamily.folk)
                         Text(nineBallText("nine_ball_tournament", "Tournament points")).tag(NineBallRuleFamily.tournament)
@@ -116,11 +119,15 @@ struct NineBallSetupDialogView: View {
                     }
                     VStack(spacing: 8) {
                         ForEach(0..<count, id: \.self) { index in
-                            InlineCommonNameTextField(placeholder: playerLabel(index), text: nameBinding(index),
-                                onChevronTap: { focusedInput = nil; activeNameIndex = index }, leadingLabel: String(index + 1))
+                            if let groupSelection {
+                                GroupSetupSeatField(selection: groupSelection, indices: Array(0..<count), index: index, label: String(index + 1))
+                            } else {
+                                InlineCommonNameTextField(placeholder: playerLabel(index), text: nameBinding(index),
+                                    onChevronTap: { focusedInput = nil; activeNameIndex = index }, leadingLabel: String(index + 1))
+                            }
                         }
                     }
-                    ParticipantDuplicateNamesHint(names: Array(playerNames.prefix(count)))
+                    if groupSelection == nil { ParticipantDuplicateNamesHint(names: Array(playerNames.prefix(count))) }
                     Text(NineBallPointField.summary(for: family).map { "\($0.title) \(config[keyPath: $0.keyPath])" }.joined(separator: " · "))
                         .font(.system(size: 11)).foregroundStyle(Theme.textSecondary)
                         .frame(maxWidth: .infinity, alignment: .leading).accessibilityIdentifier("nine_ball_point_summary")
@@ -157,16 +164,22 @@ struct NineBallSetupDialogView: View {
             }
         } actions: {
             VStack(spacing: 8) {
-                if !error.isEmpty { Text(error).font(.system(size: 12)).foregroundStyle(Theme.destructiveText) }
+                // 分值 / 局数被清空或越界时「开始」会置灰（保留未完成的输入，不静默纠正）：
+                // 把原因写在按钮上方，避免出现点不动的灰键。复用既有键，不新增 47 语种文案。
+                if !inputsValid {
+                    Text(NSLocalizedString("score_custom_adjust_invalid_value", comment: "Invalid value hint"))
+                        .font(.system(size: 12)).foregroundStyle(Theme.destructiveText)
+                }
+                if let message = groupSelection?.error ?? (error.isEmpty ? nil : error) { Text(message).font(.system(size: 12)).foregroundStyle(Theme.destructiveText) }
                 HStack(spacing: 12) {
                     Button { onCancel?() } label: {
                         Text(NSLocalizedString("cancel", comment: "")).foregroundStyle(Theme.textPrimary)
                             .frame(width: 100, height: 44).background(Theme.dialogControlBackground).clipShape(Capsule())
-                    }
+                    }.disabled(groupSelection?.busy == true)
                     Button { focusedInput = nil; Task { await confirm() } } label: {
                         Text(NSLocalizedString("start_game", comment: "")).fontWeight(.medium).foregroundStyle(Theme.textOnPrimary)
                             .frame(maxWidth: .infinity).frame(height: 44).background(Theme.primary).clipShape(Capsule())
-                    }.disabled(!inputsValid).opacity(inputsValid ? 1 : 0.4).accessibilityIdentifier("nine_ball_setup_start")
+                    }.disabled(!canStart).opacity(canStart ? 1 : 0.4).accessibilityIdentifier("nine_ball_setup_start")
                 }.font(.system(size: 16))
             }.buttonStyle(.plain).padding(.horizontal, 20).padding(.vertical, 16)
         }
@@ -185,6 +198,11 @@ struct NineBallSetupDialogView: View {
         }
         .onAppear(perform: applyInitialSetup)
         .onChange(of: playerCount) { _, count in folkBreaker = min(folkBreaker, count - 1) }
+        .onChange(of: count) { _, count in
+            if let groupSelection {
+                for index in count..<4 { groupSelection.ids.wrappedValue[index] = "" }
+            }
+        }
         .onChange(of: family) { _, _ in focusedInput = nil; error = "" }
         .onChange(of: focusedInput) { _, input in
             if input == "racks", !customRacksActive {
@@ -268,7 +286,7 @@ struct NineBallSetupDialogView: View {
             }
             Spacer(minLength: 8)
             HStack(spacing: 0) {
-                Button { step(field, -1) } label: { Image(systemName: "minus").frame(width: 37, height: 40) }
+                Button { step(field, -1) } label: { Image(systemName: "minus").frame(width: 37, height: 40).foregroundStyle(Theme.textSecondary) }
                     .disabled(config[keyPath: field.keyPath] <= 1).accessibilityLabel("− \(field.title)")
                 Divider().frame(height: 22)
                 TextField("", text: Binding(get: { pointDrafts[draftKey(field)] ?? String(config[keyPath: field.keyPath]) }, set: { value in
@@ -279,7 +297,7 @@ struct NineBallSetupDialogView: View {
                     .focused($focusedInput, equals: draftKey(field)).accessibilityLabel(field.title)
                     .accessibilityIdentifier("nine_ball_points_\(field.rawValue)")
                 Divider().frame(height: 22)
-                Button { step(field, 1) } label: { Image(systemName: "plus").frame(width: 37, height: 40) }
+                Button { step(field, 1) } label: { Image(systemName: "plus").frame(width: 37, height: 40).foregroundStyle(Theme.textSecondary) }
                     .disabled(config[keyPath: field.keyPath] >= 99).accessibilityLabel("+ \(field.title)")
             }.font(.system(size: 15)).background(Theme.dialogControlBackground).clipShape(Capsule()).fixedSize()
         }.frame(minHeight: 44).buttonStyle(.plain).id(draftKey(field))
@@ -298,7 +316,10 @@ struct NineBallSetupDialogView: View {
     private func playerLabel(_ index: Int) -> String {
         String.localizedStringWithFormat(NSLocalizedString("multi_score_player_default_format", value: "Player %d", comment: ""), index + 1)
     }
-    private func resolvedName(_ index: Int) -> String { let value = playerNames[index].trimmingCharacters(in: .whitespacesAndNewlines); return value.isEmpty ? playerLabel(index) : value }
+    private func resolvedName(_ index: Int) -> String {
+        let value = (groupSelection?.name(at: index) ?? playerNames[index]).trimmingCharacters(in: .whitespacesAndNewlines)
+        return value.isEmpty ? playerLabel(index) : value
+    }
     private func nameBinding(_ index: Int) -> Binding<String> { Binding(get: { playerNames[index] }, set: {
         if $0 != participantSelections["player:\(index)"]?.name { participantSelections.removeValue(forKey: "player:\(index)") }
         playerNames[index] = $0
@@ -322,10 +343,12 @@ struct NineBallSetupDialogView: View {
         participantSelections = setup.participantSelections ?? [:]
     }
     @MainActor private func confirm() async {
-        guard inputsValid else { return }
+        guard canStart else { return }
         let names = (0..<count).map(resolvedName)
         guard !ParticipantIdentityRules.containsDuplicatePerson(Array(validParticipantSelections.values)) else { error = identityText("already_playing", "你已在其他位置参赛"); return }
-        for (index, name) in names.enumerated() where name != playerLabel(index) { await CommonNamesManager.shared.saveNameIfNeeded(name, .player) }
+        if groupSelection == nil {
+            for (index, name) in names.enumerated() where name != playerLabel(index) { await CommonNamesManager.shared.saveNameIfNeeded(name, .player) }
+        }
         var result = SportsSetupResult(team1Name: names[0], team2Name: names[1], team3Name: names.count > 2 ? names[2] : nil,
             team4Name: names.count > 3 ? names[3] : nil, nineBallBigGold: config.bigGold, nineBallSmallGold: config.smallGold,
             nineBallGoldenNine: config.goldenNine, nineBallNormalWin: config.normalWin, nineBallBallInHand: 1, nineBallFoul: config.foul,

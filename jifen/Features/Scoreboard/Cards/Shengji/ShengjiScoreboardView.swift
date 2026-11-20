@@ -311,7 +311,14 @@ struct ShengjiScoreboardView: View {
         }
     }
 
-    private func level(_ index: Int) -> String { levels[min(max(0, index), levels.count - 1)] }
+    /// 级牌文案：升到 A 继续打 A；已「过A」（index 超出级牌链，即 cap + 1）显示「过A」。
+    /// 与安卓 ShengjiScoreScreen.levelLabel / 鸿蒙 ShengjiScore.getLevelText 同口径。
+    private func level(_ index: Int) -> String {
+        if index > levels.count - 1 {
+            return NSLocalizedString("shengji_pass_a", value: "过A", comment: "")
+        }
+        return levels[min(max(0, index), levels.count - 1)]
+    }
     private func send(_ intent: ShengjiTierIntent) {
         let timestamp = ReducerScoreboardRecordPersistence.nowMilliseconds()
         let result = reducer.reduce(state: state, intent: intent, at: timestamp)
@@ -423,10 +430,17 @@ struct ShengjiScoreboardView: View {
         let previousState = state
         let previousLeftName = leftName
         let previousRightName = rightName
-        let screenLeftIndex = levels.firstIndex(of: leftScore.uppercased())
-            ?? shengjiValue(onScreen: .left, left: state.leftIndex, right: state.rightIndex)
-        let screenRightIndex = levels.firstIndex(of: rightScore.uppercased())
-            ?? shengjiValue(onScreen: .right, left: state.leftIndex, right: state.rightIndex)
+        // 打A规则：编辑框里可以填「过A」（= cap + 1），否则只能改到 A。
+        let passALabel = NSLocalizedString("shengji_pass_a", value: "过A", comment: "")
+        func editIndex(_ text: String, fallback: Int) -> Int {
+            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.compare(passALabel, options: .caseInsensitive) == .orderedSame {
+                return levels.count
+            }
+            return levels.firstIndex(of: trimmed.uppercased()) ?? fallback
+        }
+        let screenLeftIndex = editIndex(leftScore, fallback: shengjiValue(onScreen: .left, left: state.leftIndex, right: state.rightIndex))
+        let screenRightIndex = editIndex(rightScore, fallback: shengjiValue(onScreen: .right, left: state.leftIndex, right: state.rightIndex))
         let leftIdentityOnScreenLeft = shengjiLogicalSide(onScreen: .left) == .left
         let nextLeftIndex = leftIdentityOnScreenLeft ? screenLeftIndex : screenRightIndex
         let nextRightIndex = leftIdentityOnScreenLeft ? screenRightIndex : screenLeftIndex
@@ -522,7 +536,11 @@ struct ShengjiScoreboardView: View {
         compact.externalState = ScoreboardDisplayState.enriched(
             compact: compact,
             layoutKind: .boardCard,
-            sportState: sportState
+            sportState: sportState,
+            visualScores: (
+                shengjiValue(onScreen: .left, left: state.leftIndex, right: state.rightIndex),
+                shengjiValue(onScreen: .right, left: state.leftIndex, right: state.rightIndex)
+            )
         )
         return compact
     }

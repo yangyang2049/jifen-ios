@@ -14,7 +14,9 @@
 "all" = "全部";
 "scoreboard" = "计分";
 "timer" = "计时";
-"scoreboard_sports" = "运动";
+"scoreboard_racket_sports" = "小球运动";
+"scoreboard_other_sports" = "其他运动";
+"scoreboard_general_scoring" = "通用计分";
 "scoreboard_board_games" = "棋牌";
 "search_team_or_game" = "搜索队伍或比赛";
 "match_count" = "%d 场";
@@ -51,7 +53,7 @@
 "home_tool_team" = "随机分组";
 
 /* Dialog */
-"dialog_new_game_title" = "选择比赛";
+"dialog_new_game_title" = "选择项目";
 
 /* Default Team Names */
 "red_team" = "红方";
@@ -189,6 +191,7 @@
 "doudizhu_player_chris" = "张飞";
 "doudizhu_player_david" = "诸葛亮";
 "shengji_claim_dealer" = "抢庄";
+"shengji_pass_a" = "过A";
 "guandan_edit_level_wrap_confirm_title" = "级牌回到 2？";
 "guandan_edit_level_wrap_confirm_message" = "继续增加会将该队级牌重置为 2。";
 "shengji_take_dealer" = "上台";
@@ -772,7 +775,7 @@
 "style_server_color" = "颜色";
 "style_server_style" = "样式";
 "style_text_color" = "文字颜色";
-"style_server_indicator" = "发球指示器";
+"style_server_indicator" = "发球指示";
 "style_color_automatic" = "自动";
 "style_slot_left" = "左侧";
 "style_slot_center" = "中间";
@@ -797,7 +800,7 @@
 "scoreboard_style_server_shared_hint" = "左右指示器共用同一种颜色";
 "scoreboard_style_font_shared_hint" = "所有文字统一使用所选字体";
 "scoreboard_style_theme_override_hint" = "选择主题会覆盖当前配色；之后可继续单独调整";
-"scoreboard_style_font_size" = "字号";
+"scoreboard_style_font_size" = "文字大小（双方）";
 "scoreboard_style_font_size_device_max" = "已达本机上限";
 "scoreboard_style_small" = "小";
 "scoreboard_style_large" = "大";
@@ -1587,8 +1590,18 @@
 "voice_announcement_language" = "播报语言";
 "voice_language_zh_cn" = "简体中文";
 "voice_language_en_us" = "English(英文)";
-"voice_call_note_zh" = "国内比赛口径:比分播「3比2」,平分播「3平」。";
-"voice_call_note_en" = "国际比赛口令:0 读 love、0–0 读 Love all,选手名转拼音。";
+"voice_call_note_pingpong_zh" = "国内比赛口径:比分播「3比2」,平分播「3平」。";
+"voice_call_note_pingpong_en" = "国际比赛口令:0 读 love、0–0 读 Love all,选手名转拼音。";
+"voice_call_note_badminton_zh" = "国内比赛口径:比分播「3比2」,局点播「局点」。";
+"voice_call_note_badminton_en" = "BWF 口令:0 读 love、29 平播 all,换发球播 Service over。";
+"voice_call_note_tennis_zh" = "国内比赛口径:平分播「平分」,占先播「占先」,其余比分播数字。";
+"voice_call_note_tennis_en" = "ITF 口令:0/15/30/40,平分播 Deuce,占先播 Advantage。";
+"voice_call_note_pickleball_zh" = "国内比赛口径:播两个数字;传统双打连发球员序号一起播。";
+"voice_call_note_pickleball_en" = "USAP 口令:播两个数字,传统双打带发球员序号,换发球播 Side out。";
+"voice_call_note_volleyball_zh" = "国内比赛口径:只播两个数字,不使用裁判口令。";
+"voice_call_note_volleyball_en" = "国际比赛口令:只播两个数字,不使用裁判口令。";
+"voice_call_note_squash_zh" = "国内比赛口径:比分播数字,平分播「10平」。";
+"voice_call_note_squash_en" = "WSF 口令:0 播 love,平分播 all,局点播 Game ball。";
 
 // Restored group feature resources.
 "group_account" = "账号成员";
@@ -1614,7 +1627,7 @@
 "group_cancel_activity" = "取消活动";
 "group_cancel_reason" = "取消原因";
 "group_cancelled" = "已取消";
-"group_capacity" = "报名容量";
+"group_capacity" = "报名人数";
 "group_choose_member" = "选择成员";
 "group_close" = "关闭";
 "group_closed" = "关闭加入";
@@ -1670,7 +1683,7 @@
 "group_need_login" = "请先登录后继续";
 "group_need_members" = "先邀请球友或添加临时成员，再开始比赛。";
 "group_new_activity" = "发起活动";
-"group_new_owner" = "新组主";
+"group_new_owner" = "新组长";
 "group_no_activities" = "暂无活动";
 "group_no_description" = "暂无简介";
 "group_no_rankings" = "比赛确认后将显示排行。";
@@ -1680,7 +1693,7 @@
 "group_open" = "直接加入";
 "group_overall_score" = "整场局分";
 "group_overview" = "概览";
-"group_owner" = "组主";
+"group_owner" = "组长";
 "group_participants" = "参赛成员与席位";
 "group_pending_approval" = "等待审批";
 "group_pending_confirmation" = "待确认";
@@ -1851,6 +1864,7 @@
 "group_clear_seat" = "清空";
 "group_common_names" = "常用名称";
 "group_complete_activity" = "结束活动";
+"group_complete_confirm" = "结束活动前请确认所有场次已处理。";
 "group_completion_mode" = "比赛结束方式";
 "group_default_rules" = "项目默认";
 "group_discard_upload" = "放弃上传";
@@ -2675,7 +2689,7 @@
 "style_workbench_name_default" = "默认";
 "style_workbench_name_rounded" = "圆体";
 "style_workbench_name_serif" = "衬线体";
-"style_workbench_server_visible" = "显示发球标记";
+"style_workbench_server_visible" = "显示发球指示";
 "style_workbench_match_title" = "比赛抬头";
 "style_workbench_team_name" = "队伍名称";
 "style_workbench_player_name" = "选手姓名";
@@ -2707,7 +2721,7 @@
 "billiards_group_pending" = "待上传或待确认";
 "billiards_group_confirmed" = "已确认";
 "billiards_group_voided" = "已作废";
-"billiards_group_owner_confirm" = "组主权威确认";
+"billiards_group_owner_confirm" = "组长确认";
 "billiards_group_void" = "作废成绩";
 "billiards_group_correction_reason" = "成绩更正";
 "billiards_group_ranking" = "同规则排行榜";
@@ -2790,3 +2804,16 @@
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "台球小组版本提示";
 "group_billiards_create_notice_message" = "台球小组需要全能计分器 %@ 或更高版本。\n\n新版本正在各平台及应用商店陆续发布。未更新应用，或所在平台暂未提供新版本的成员，暂时无法加入和使用台球小组。\n\n创建后，请提醒受邀成员更新应用；尚未提供新版本的成员，需要等待对应平台上线。";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "限免";
+"scoreboard_theme_free_badge_desc" = "限时免费";
+"style_workbench_pick" = "点击文字或发球图标进行编辑";
+"style_workbench_photo_source_default" = "默认图片";
+"style_workbench_photo_source_custom" = "自定义图片";
+"style_workbench_photo_crop_notice" = "图片按屏幕居中裁切";
+
+"billiards_group_score_panel_positive" = "正分";
+"billiards_group_score_panel_negative" = "负分";
+
+"billiards_group_switch_to_two" = "已切换为 2 人";

@@ -341,11 +341,12 @@ final class GroupRedesignUITests: XCTestCase {
         app.navigationBars["常用名称"].buttons.firstMatch.tap()
         XCTAssertTrue((names.value as? String)?.contains("Test Beta") == true)
         capture(app, "group-roster-match-original-batch-form")
-        app.navigationBars["临时成员"].buttons["关闭"].tap()
-        let selectedPlayer = app.buttons["group_member_pick_ui-a"]
-        for _ in 0..<3 where !selectedPlayer.isHittable { app.scrollViews.firstMatch.swipeDown() }
-        XCTAssertTrue(selectedPlayer.exists, "The member pool stays inline when the batch sheet closes")
-        XCTAssertTrue(selectedPlayer.isSelected, "A1 remains assigned and can be cleared by tapping its token")
+        app.buttons["modal_close_button"].tap()
+        let pickerClose = app.buttons["group_match_picker_close"]
+        XCTAssertTrue(pickerClose.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["group_member_pick_ui-a"].isEnabled, "A1's member is already seated")
+        pickerClose.tap()
+        XCTAssertTrue(pickerClose.waitForNonExistence(timeout: 5))
         XCTAssertTrue(app.buttons["group_seat_A2"].exists, "Doubles must remain selected")
         XCTAssertEqual(app.buttons["group_seat_A1"].value as? String, "甲", "The chosen A1 must survive")
         for _ in 0..<3 where !app.buttons["group_match_submit"].exists { app.swipeUp() }

@@ -14,7 +14,9 @@
 "all" = "Todos";
 "scoreboard" = "Marcador";
 "timer" = "Temporizador";
-"scoreboard_sports" = "Deportes";
+"scoreboard_racket_sports" = "Deportes de raqueta";
+"scoreboard_other_sports" = "Otros deportes";
+"scoreboard_general_scoring" = "Marcador genérico";
 "scoreboard_board_games" = "Juegos de mesa";
 "search_team_or_game" = "Buscar equipo o juego";
 "match_count" = "%d partidos";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "Chris";
 "doudizhu_player_david" = "David";
 "shengji_claim_dealer" = "Disputar la banca";
+"shengji_pass_a" = "Pase A";
 "guandan_edit_level_wrap_confirm_title" = "¿Devolver el rango a 2?";
 "guandan_edit_level_wrap_confirm_message" = "Aumentar nuevamente restablecerá el rango de este equipo a 2.";
 "shengji_take_dealer" = "Tomar la banca";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "Inglés";
 "voice_call_note_zh" = "Anuncios en chino: marcadores como 3–2, empate como «3 iguales».";
 "voice_call_note_en" = "Anuncios al estilo ITTF: 0 como love, 0–0 como Love all, nombres en pinyin.";
+"voice_call_note_pingpong_zh" = "Anuncios en chino: marcadores como 3–2, empate como «3 iguales».";
+"voice_call_note_pingpong_en" = "Anuncios al estilo ITTF: 0 como love, 0–0 como Love all, nombres en pinyin.";
+"voice_call_note_badminton_zh" = "Anuncios en chino · 3–2 · Punto de juego";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · Cambio de saque = “Service over”";
+"voice_call_note_tennis_zh" = "Anuncios en chino · 0/15/30/40 · Empate · Ventaja";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · Empate = “Deuce” · Ventaja = “Advantage”";
+"voice_call_note_pickleball_zh" = "Anuncios en chino · 3–2 · Dobles tradicionales 3–2–1 (1 = Número del sacador)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · Dobles tradicionales 3–2–1 (1 = Número del sacador) · Cambio de saque = “Side out”";
+"voice_call_note_volleyball_zh" = "Anuncios en chino · Solo el marcador (3–2)";
+"voice_call_note_volleyball_en" = "Anuncios internacionales · Solo el marcador (3–2)";
+"voice_call_note_squash_zh" = "Anuncios en chino · 3–2 · 10–10 = 10 (Empate)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · Empate = “all” · Punto de juego = “Game ball”";
 // Restored group feature resources.
 "group_account" = "Miembro con cuenta";
 "group_active_30d" = "Activo en los últimos 30 días";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "Sets y juegos";
 "style_workbench_photo_failed" = "No se pudo abrir esta foto. Elige otra imagen.";
 "style_workbench_image_advice" = "Usa una imagen horizontal 16:9, por ejemplo 1920×1080. La imagen llena la pantalla con un recorte centrado.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

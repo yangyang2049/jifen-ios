@@ -61,36 +61,59 @@ struct FlipCoinView: View {
 
                         // Statistics at bottom center (horizontal layout) - floating
                         if headsCount + tailsCount > 0 {
-                            HStack(spacing: 40) {
-                                // Heads count
-                                VStack(spacing: 4) {
-                                    Text(NSLocalizedString("heads", comment: "Heads"))
-                                        .font(.system(size: 12))
-                                        .foregroundColor(Theme.textSecondary)
-                                    Text("\(headsCount)")
-                                        .font(.system(size: 20, weight: .bold))
-                                        .foregroundColor(Theme.goldText)
+                            HStack(spacing: 20) {
+                                HStack(spacing: 40) {
+                                    // Heads count
+                                    VStack(spacing: 4) {
+                                        Text(NSLocalizedString("heads", comment: "Heads"))
+                                            .font(.system(size: 12))
+                                            .foregroundColor(Theme.textSecondary)
+                                        Text("\(headsCount)")
+                                            .font(.system(size: 20, weight: .bold))
+                                            .foregroundColor(Theme.goldText)
+                                    }
+
+                                    // Tails count
+                                    VStack(spacing: 4) {
+                                        Text(NSLocalizedString("tails", comment: "Tails"))
+                                            .font(.system(size: 12))
+                                            .foregroundColor(Theme.textSecondary)
+                                        Text("\(tailsCount)")
+                                            .font(.system(size: 20, weight: .bold))
+                                            .foregroundColor(Theme.goldText)
+                                    }
+
+                                    // Total count
+                                    VStack(spacing: 4) {
+                                        Text(NSLocalizedString("total", comment: "Total"))
+                                            .font(.system(size: 12))
+                                            .foregroundColor(Theme.textSecondary)
+                                        Text("\(headsCount + tailsCount)")
+                                            .font(.system(size: 20, weight: .bold))
+                                            .foregroundColor(Theme.textPrimary)
+                                    }
                                 }
 
-                                // Tails count
-                                VStack(spacing: 4) {
-                                    Text(NSLocalizedString("tails", comment: "Tails"))
-                                        .font(.system(size: 12))
-                                        .foregroundColor(Theme.textSecondary)
-                                    Text("\(tailsCount)")
-                                        .font(.system(size: 20, weight: .bold))
-                                        .foregroundColor(Theme.goldText)
-                                }
+                                // 统计与清空之间用竖分隔线，对齐安卓 FlipCoinScreen 的卡片内布局。
+                                Rectangle()
+                                    .fill(Theme.divider)
+                                    .frame(width: 1, height: 36)
 
-                                // Total count
-                                VStack(spacing: 4) {
-                                    Text(NSLocalizedString("total", comment: "Total"))
-                                        .font(.system(size: 12))
-                                        .foregroundColor(Theme.textSecondary)
-                                    Text("\(headsCount + tailsCount)")
-                                        .font(.system(size: 20, weight: .bold))
-                                        .foregroundColor(Theme.textPrimary)
+                                // 清空是破坏性操作：纯图标按钮（无胶囊底色），红色传达危险语义。
+                                // SF Symbols 没有扫帚，图标取自 Lucide 的 broom；
+                                // 热区 44pt 不小于系统最小值，图标本身不随热区放大。
+                                Button(action: clearHistory) {
+                                    Image("ic_broom")
+                                        .renderingMode(.template)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 20, height: 20)
+                                        .foregroundColor(Theme.destructiveText)
                                 }
+                                .buttonStyle(.plain)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                                .accessibilityLabel(NSLocalizedString("clear", comment: "Clear flip coin history"))
                             }
                             .padding(.horizontal, 24)
                             .padding(.vertical, 12)

@@ -56,16 +56,17 @@ final class GroupAlignedFormsUITests: XCTestCase {
         XCTAssertTrue(app.buttons["group_tab_3"].exists)
     }
 
-    func testMatchPagesKeepInlineRosterAndValidateDraft() {
+    func testOverviewHostsSharedSetupAndManualKeepsItsForm() {
         let app = openGroup()
         tap("group_overview_start", app)
         XCTAssertTrue(app.descendants(matching: .any)["group_seat_A1"].firstMatch.waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["modal_close_button"].exists)
+        XCTAssertFalse(app.buttons["sports_setup_start"].isEnabled)
         tap("group_seat_A1", app); tap("group_member_pick_ui-a", app)
         tap("group_seat_B1", app); tap("group_member_pick_ui-b", app)
-        XCTAssertTrue(app.buttons["group_match_submit"].isEnabled)
+        XCTAssertTrue(app.buttons["sports_setup_start"].isEnabled)
         screenshot("04-start-page-inline-roster", app)
-        back(app)
+        app.buttons["取消"].tap()
         tap("group_overview_addResult", app)
         XCTAssertTrue(app.buttons["group_match_submit"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["modal_close_button"].exists)

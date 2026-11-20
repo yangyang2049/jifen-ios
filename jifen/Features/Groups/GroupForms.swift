@@ -9,11 +9,13 @@ struct GroupMatchEditor: View {
     var trainingSession: GroupTrainingSession? = nil
     let manual: Bool
     var usesParentNavigation = false
+    var hostsScoreboardSetup = false
     var onStart: (GameType, SportsSetupResult, String) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var store = GroupStore.shared
     @State private var format = GroupFormat.singles
     @State private var ids = ["", "", "", ""]
+    @State private var servingSide = "left"
     @State private var setup = SportsSetupResult(team1Name: "", team2Name: "")
     @State private var presentedAccountID: String?
     @State private var frozenRules: GroupMatchRules?
@@ -56,9 +58,39 @@ struct GroupMatchEditor: View {
 
     var body: some View {
         Group {
-            if usesParentNavigation { editorContent }
+            if hostsScoreboardSetup { scoreboardSetup }
+            else if usesParentNavigation { editorContent }
             else { NavigationStack { editorContent } }
         }.groupAccountBoundary()
+    }
+
+    @ViewBuilder private var scoreboardSetup: some View {
+        if initialized, let defaults = store.capabilities?.sport(detail.group.sport)?.defaultRules {
+            SportsSetupDialogView(
+                gameType: detail.group.sport.gameType,
+                defaultTeam1Name: "", defaultTeam2Name: "",
+                initialMaxSets: defaults.maxSets, initialPointsPerSet: defaults.pointsToWinSet,
+                initialTieBreakPoints: defaults.tieBreakPoints,
+                initialSetup: defaults.setup(format: .singles),
+                onConfirm: { value in
+                    format = value.isSingles == false ? .doubles : .singles
+                    setup = value
+                    servingSide = value.servingSide ?? "left"
+                    Task { await submit(sharedSetup: value) }
+                },
+                onCancel: { if !busy { dismiss() } },
+                groupSelection: GroupSetupSelection(groupID: detail.group.id, members: choices, ids: $ids, busy: busy, error: error)
+            )
+            .interactiveDismissDisabled(busy)
+            .onChange(of: store.identityRevision) { _, _ in dismiss() }
+        } else if initialized {
+            VStack(spacing: Theme.md) {
+                Text(GroupFlowError.noCapabilities.localizedDescription)
+                Button(NSLocalizedString("cancel", comment: "")) { dismiss() }
+            }.padding(Theme.padding)
+        } else {
+            ProgressView().task { await initialize() }
+        }
     }
 
     private var editorContent: some View {
@@ -76,10 +108,21 @@ struct GroupMatchEditor: View {
                     GroupNotice(text: groupText("need_members", "Invite friends or add temporary members before starting a match.") + " (\(choices.count) / \(format.seatsPerSide * 2))")
                 }
                 GroupInlineMatchRoster(format: format, ids: $ids, members: choices, frozen: rosterFrozen,
-                                       frozenSeats: frozenSeats ?? activitySession?.seats ?? trainingSession?.seats ?? [])
+                                       frozenSeats: frozenSeats ?? activitySession?.seats ?? trainingSession?.seats ?? [],
+                                       opensPicker: !manual,
+                                       rosterGroupID: activity == nil && trainingSession == nil && frozenRules == nil ? detail.group.id : nil)
                     .disabled(frozenLoading || frozenLoadFailed)
-                if activity == nil && trainingSession == nil && frozenRules == nil {
-                    GroupRosterAddButton(groupID: detail.group.id)
+                // 只有真正用首发方的球拍项目才显示；台球的开球方在台球配置里选，这里再摆一个既无效又误导。
+                if !manual && boundGameID == nil && GroupSport.racketSports.contains(detail.group.sport) {
+                    HStack {
+                        servingButton("left", label: "setup_serving_left")
+                        Spacer()
+                        Text(NSLocalizedString("setup_serving_side", comment: "Opening serving side"))
+                            .font(GroupTypography.body)
+                        Spacer()
+                        servingButton("right", label: "setup_serving_right")
+                    }
+                    .disabled(busy || frozenLoading || frozenLoadFailed)
                 }
                 if manual {
                     GroupActivityDateField(selection: $playedAt, maximum: Date(), compact: true)
@@ -169,19 +212,40 @@ struct GroupMatchEditor: View {
             frozenLoadFailed = true; self.error = groupErrorMessage(error)
         }
     }
+    private func servingButton(_ side: String, label: String) -> some View {
+        let icon: String
+        switch detail.group.sport {
+        case .badminton: icon = "ic_badminton_serve"
+        case .tennis: icon = "ic_tennis_serve"
+        case .pickleball: icon = "ic_pickleball_serve"
+        default: icon = "ic_pingpong_serve"
+        }
+        return Button { servingSide = side } label: {
+            Image(icon).renderingMode(.template).resizable().scaledToFit()
+                .foregroundStyle(servingSide == side ? Theme.primary : Theme.textSecondary)
+                .frame(width: 26, height: 26).frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text(NSLocalizedString(label, comment: "Opening serving side")))
+        .accessibilityAddTraits(servingSide == side ? .isSelected : [])
+    }
+
     private func configuredSetup() -> SportsSetupResult {
         var value = currentRules.setup(format: format); value.isSingles = format == .singles; value.competitionFormat = format == .singles ? .singles : .doubles
+        value.servingSide = servingSide
         let a = seats.filter { $0.side == "A" }.compactMap(\.displayName), b = seats.filter { $0.side == "B" }.compactMap(\.displayName)
         value.team1Name = a.joined(separator: " / "); value.team2Name = b.joined(separator: " / ")
         value.team1Player1Name = a.first; value.team1Player2Name = a.count > 1 ? a[1] : nil
         value.team2Player1Name = b.first; value.team2Player2Name = b.count > 1 ? b[1] : nil
         return value
     }
-    private func submit() async {
+    private func submit(sharedSetup: SportsSetupResult? = nil) async {
+        guard !busy else { return }
         busy = true; defer { busy = false }
         guard let accountID = store.accountID, accountID == presentedAccountID else { error = groupText("need_login", "Please sign in to continue."); return }
         let revision = store.identityRevision
-        let config = configuredSetup(), rules = currentRules
+        let config = sharedSetup ?? configuredSetup(), rules = currentRules
         do {
             let authRevision = await store.repository.client.authSessionRevision()
             guard store.matchesIdentity(accountID, revision: revision), SessionStore.shared.user?.id == accountID else { return }

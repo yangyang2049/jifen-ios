@@ -14,7 +14,9 @@
 "all" = "Все";
 "scoreboard" = "Счёт";
 "timer" = "Таймер";
-"scoreboard_sports" = "Спорт";
+"scoreboard_racket_sports" = "Виды спорта с ракеткой";
+"scoreboard_other_sports" = "Другие виды спорта";
+"scoreboard_general_scoring" = "Универсальный счёт";
 "scoreboard_board_games" = "Настольные игры";
 "search_team_or_game" = "Поиск команды или игры";
 "match_count" = "Матчей: %d";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "Крис";
 "doudizhu_player_david" = "Дэвид";
 "shengji_claim_dealer" = "Стать раздающим";
+"shengji_pass_a" = "Проход A";
 "guandan_edit_level_wrap_confirm_title" = "Вернуть ранг на 2?";
 "guandan_edit_level_wrap_confirm_message" = "Повторное повышение приведет к сбросу ранга этой команды до 2.";
 "shengji_take_dealer" = "Стать раздающим";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "Английский";
 "voice_call_note_zh" = "Объявления по-китайски: счёт как 3–2, равный счёт как «3 у обоих».";
 "voice_call_note_en" = "Объявления в стиле ITTF: 0 как love, 0–0 как Love all, имена в пиньине.";
+"voice_call_note_pingpong_zh" = "Объявления по-китайски: счёт как 3–2, равный счёт как «3 у обоих».";
+"voice_call_note_pingpong_en" = "Объявления в стиле ITTF: 0 как love, 0–0 как Love all, имена в пиньине.";
+"voice_call_note_badminton_zh" = "Объявления на китайском · 3–2 · Геймбол";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · Смена подачи = “Service over”";
+"voice_call_note_tennis_zh" = "Объявления на китайском · 0/15/30/40 · Равный счёт · Преимущество";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · Равный счёт = “Deuce” · Преимущество = “Advantage”";
+"voice_call_note_pickleball_zh" = "Объявления на китайском · 3–2 · Традиционная парная игра 3–2–1 (1 = Номер подающего)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · Традиционная парная игра 3–2–1 (1 = Номер подающего) · Смена подачи = “Side out”";
+"voice_call_note_volleyball_zh" = "Объявления на китайском · Только счёт (3–2)";
+"voice_call_note_volleyball_en" = "Международные объявления · Только счёт (3–2)";
+"voice_call_note_squash_zh" = "Объявления на китайском · 3–2 · 10–10 = 10 (Равный счёт)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · Равный счёт = “all” · Геймбол = “Game ball”";
 // Restored group feature resources.
 "group_account" = "Участник с аккаунтом";
 "group_active_30d" = "Активен за последние 30 дней";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "Сеты и геймы";
 "style_workbench_photo_failed" = "Не удалось открыть это фото. Выберите другое изображение.";
 "style_workbench_image_advice" = "Используйте горизонтальное изображение 16:9, например 1920×1080. Изображение заполняет экран центральной обрезкой.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

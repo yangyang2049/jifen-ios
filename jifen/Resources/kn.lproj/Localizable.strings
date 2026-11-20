@@ -14,7 +14,9 @@
 "all" = "ಎಲ್ಲಾ";
 "scoreboard" = "ಸ್ಕೋರ್";
 "timer" = "ಟೈಮರ್";
-"scoreboard_sports" = "ಕ್ರೀಡೆ";
+"scoreboard_racket_sports" = "ರ‍್ಯಾಕೆಟ್ ಕ್ರೀಡೆಗಳು";
+"scoreboard_other_sports" = "ಇತರ ಕ್ರೀಡೆಗಳು";
+"scoreboard_general_scoring" = "ಸಾಮಾನ್ಯ ಸ್ಕೋರಿಂಗ್";
 "scoreboard_board_games" = "ಬೋರ್ಡ್ ಆಟಗಳು";
 "search_team_or_game" = "ತಂಡ ಅಥವಾ ಆಟವನ್ನು ಹುಡುಕಿ";
 "match_count" = "%d ಪಂದ್ಯಗಳು";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "ಕ್ರಿಸ್";
 "doudizhu_player_david" = "ಡೇವಿಡ್";
 "shengji_claim_dealer" = "ಬಿಡ್ ಡೀಲರ್";
+"shengji_pass_a" = "ಪಾಸ್ ಎ";
 "guandan_edit_level_wrap_confirm_title" = "ಶ್ರೇಣಿಯನ್ನು 2ಕ್ಕೆ ಹಿಂತಿರುಗಿಸುವುದೇ?";
 "guandan_edit_level_wrap_confirm_message" = "ಮತ್ತೆ ಹೆಚ್ಚಿಸುವುದರಿಂದ ಈ ತಂಡದ ಶ್ರೇಣಿಯನ್ನು 2ಕ್ಕೆ ಮರುಹೊಂದಿಸುತ್ತದೆ.";
 "shengji_take_dealer" = "ಡೀಲರ್ ಪಾತ್ರ ವಹಿಸಿ";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "ಇಂಗ್ಲಿಷ್";
 "voice_call_note_zh" = "ಚೀನೀ ಕರೆಗಳು: ಅಂಕ 3–2 ಹಾಗೆ, ಸಮಾನ 3-ಎಲ್ಲರೂ ಹಾಗೆ.";
 "voice_call_note_en" = "ITTF-ಶೈಲಿಯ ಕರೆಗಳು: 0 ಎಂದರೆ love, 0–0 ಎಂದರೆ Love all, ಹೆಸರುಗಳು ಪಿನ್ಯಿನ್‌ನಲ್ಲಿ.";
+"voice_call_note_pingpong_zh" = "ಚೀನೀ ಕರೆಗಳು: ಅಂಕ 3–2 ಹಾಗೆ, ಸಮಾನ 3-ಎಲ್ಲರೂ ಹಾಗೆ.";
+"voice_call_note_pingpong_en" = "ITTF-ಶೈಲಿಯ ಕರೆಗಳು: 0 ಎಂದರೆ love, 0–0 ಎಂದರೆ Love all, ಹೆಸರುಗಳು ಪಿನ್ಯಿನ್‌ನಲ್ಲಿ.";
+"voice_call_note_badminton_zh" = "ಚೀನೀ ಘೋಷಣೆಗಳು · 3–2 · ಗೇಮ್ ಪಾಯಿಂಟ್";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · ಸರ್ವ್ ಬದಲಾವಣೆ = “Service over”";
+"voice_call_note_tennis_zh" = "ಚೀನೀ ಘೋಷಣೆಗಳು · 0/15/30/40 · ಸಮಬಲ · ಮುನ್ನಡೆ";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · ಸಮಬಲ = “Deuce” · ಮುನ್ನಡೆ = “Advantage”";
+"voice_call_note_pickleball_zh" = "ಚೀನೀ ಘೋಷಣೆಗಳು · 3–2 · ಸಾಂಪ್ರದಾಯಿಕ ಡಬಲ್ಸ್ 3–2–1 (1 = ಸರ್ವ್ ಮಾಡುವವರ ಸಂಖ್ಯೆ)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · ಸಾಂಪ್ರದಾಯಿಕ ಡಬಲ್ಸ್ 3–2–1 (1 = ಸರ್ವ್ ಮಾಡುವವರ ಸಂಖ್ಯೆ) · ಸರ್ವ್ ಬದಲಾವಣೆ = “Side out”";
+"voice_call_note_volleyball_zh" = "ಚೀನೀ ಘೋಷಣೆಗಳು · ಸ್ಕೋರ್ ಮಾತ್ರ (3–2)";
+"voice_call_note_volleyball_en" = "ಅಂತರರಾಷ್ಟ್ರೀಯ ಘೋಷಣೆಗಳು · ಸ್ಕೋರ್ ಮಾತ್ರ (3–2)";
+"voice_call_note_squash_zh" = "ಚೀನೀ ಘೋಷಣೆಗಳು · 3–2 · 10–10 = 10 (ಸಮಬಲ)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · ಸಮಬಲ = “all” · ಗೇಮ್ ಪಾಯಿಂಟ್ = “Game ball”";
 // Restored group feature resources.
 "group_account" = "ಖಾತೆ ಇರುವ ಸದಸ್ಯ";
 "group_active_30d" = "ಕಳೆದ 30 ದಿನಗಳಲ್ಲಿ ಸಕ್ರಿಯ";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "ಸೆಟ್ ಮತ್ತು ಗೇಮ್";
 "style_workbench_photo_failed" = "ಈ ಫೋಟೊ ತೆರೆಯಲಾಗಲಿಲ್ಲ. ಬೇರೆ ಚಿತ್ರ ಆಯ್ಕೆ ಮಾಡಿ.";
 "style_workbench_image_advice" = "16:9 ಲ್ಯಾಂಡ್‌ಸ್ಕೇಪ್ ಚಿತ್ರ ಬಳಸಿ, ಉದಾಹರಣೆಗೆ 1920×1080. ಚಿತ್ರಗಳು ಮಧ್ಯದಲ್ಲಿ ಕತ್ತರಿಸಿ ಪರದೆಯನ್ನು ತುಂಬುತ್ತವೆ.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

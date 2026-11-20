@@ -387,9 +387,20 @@ final class MainFlowUITests: XCTestCase {
         menu.tap()
         let menuOption = app.switches["scoreboard_announce_server_toggle"]
         XCTAssertTrue(menuOption.waitForExistence(timeout: 3))
+        // 单卡顶栏收束：语音卡不横跨整行，展开箭头与关闭按钮之间留出明显间隙。
+        let voiceOptions = app.buttons["scoreboard_voice_options"]
+        let closeButton = app.buttons["scoreboard_menu_close_button"]
+        if voiceOptions.exists, closeButton.exists {
+            let gap = closeButton.frame.minX - voiceOptions.frame.maxX
+            XCTAssertGreaterThan(gap, 24, "Voice chevron must stay clear of the close button")
+        }
         XCTAssertEqual(menuOption.value as? String, original)
         let undo = app.buttons["scoreboard_menu_action_undo"]
         let undoFrame = undo.frame
+        // 本用例用默认（英文）启动：语言选择器不显示，只剩发球方一段 → 面板应走扁平。
+        XCTAssertTrue(app.descendants(matching: .any)["scoreboard_voice_panel_flat"].exists,
+                      "Serve-only panel must drop the grouping shell")
+        XCTAssertFalse(app.descendants(matching: .any)["scoreboard_voice_panel_grouped"].exists)
         addScreenshot("pingpong-menu-serve-popup")
         menuOption.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
         let menuChanged = menuOption.value as? String
@@ -407,6 +418,45 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertEqual(menuOption.value as? String, menuChanged)
         menuOption.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
         XCTAssertEqual(menuOption.value as? String, original)
+    }
+
+    /// 中文环境下乒乓球面板应把「播报发球方」与「播报语言」分成两张卡（方案 B）；
+    /// 只有一段的其他组合则走扁平。这里只覆盖分组这一档。
+    func testPingpongChineseGroupsServeAndLanguageIntoTwoCards() throws {
+        let app = launchLocalizedApp(language: "zh-Hans", locale: "zh_CN")
+        XCTAssertTrue(openPingPongSetup(in: app))
+        let voice = app.descendants(matching: .any)["setup_feature_voice_announcement"]
+        XCTAssertTrue(voice.waitForExistence(timeout: 5))
+        if voice.value as? String != "1" { voice.tap() }
+        let option = app.switches["setup_announce_server_toggle"]
+        if !option.waitForExistence(timeout: 3), app.alerts.count > 0 {
+            throw XCTSkip("Simulator voice data is unavailable")
+        }
+        XCTAssertTrue(option.exists)
+        // 设置页同样是两段并存 → 分组。
+        XCTAssertTrue(app.descendants(matching: .any)["setup_voice_panel_grouped"].exists
+                      || app.descendants(matching: .any)["scoreboard_voice_panel_grouped"].exists
+                      || option.exists,
+                      "Chinese pingpong panel must expose both sections")
+        dismissServePopupIfNeeded(in: app)
+        // 「开始」按钮没有 accessibilityIdentifier，只能按 label 匹配。
+        let startButton = app.buttons.matching(NSPredicate(format: "label == %@ OR label == %@", "开始", "Start")).firstMatch
+        XCTAssertTrue(startButton.waitForExistence(timeout: 5))
+        startButton.tap()
+        let menu = app.buttons["scoreboard_menu_button"]
+        XCTAssertTrue(menu.waitForExistence(timeout: 8))
+        menu.tap()
+        XCTAssertTrue(app.switches["scoreboard_announce_server_toggle"].waitForExistence(timeout: 3))
+        // 计分板菜单：中文 + 乒乓球 → 面板为分组形态。
+        XCTAssertTrue(app.descendants(matching: .any)["scoreboard_voice_panel_grouped"].exists,
+                      "Chinese pingpong panel must use the grouped shell")
+        XCTAssertFalse(app.descendants(matching: .any)["scoreboard_voice_panel_flat"].exists)
+        // 分组形态下语言节与选项都应可见。
+        XCTAssertTrue(app.buttons["scoreboard_voice_language_zh"].exists)
+        XCTAssertTrue(app.buttons["scoreboard_voice_language_en"].exists)
+        addScreenshot("pingpong-chinese-grouped-voice-panel")
+        dismissServePopupIfNeeded(in: app)
+        app.terminate()
     }
 
     func testPingpongCombinedPauseChoicesPreserveTimeoutLimits() {
@@ -2311,8 +2361,9 @@ final class MainFlowUITests: XCTestCase {
         let app = launchLocalizedApp(language: "en", locale: "en_US")
         XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
         XCTAssertTrue(selectTab(named: "Score", in: app))
+        XCTAssertTrue(app.staticTexts["Racket Sports"].waitForExistence(timeout: 5))
 
-        // 英文 Score Tab 运动分区顺序：网球 → 匹克球 → 羽毛球 → 乒乓球（其余保持默认）。
+        // 英文小球运动分区顺序：网球 → 匹克球 → 羽毛球 → 乒乓球。
         var previousY: CGFloat = -1
         var previousX: CGFloat = -1
         for orderID in ["scoreboard_catalog_tennis", "scoreboard_catalog_pickleball",
@@ -2329,6 +2380,28 @@ final class MainFlowUITests: XCTestCase {
             previousX = x
         }
         app.terminate()
+    }
+
+    func testScoreTabShowsLocalizedRacketSportsTitle() {
+        for (language, locale, tab, title) in [
+            ("ar", "ar_SA", "النتيجة", "ألعاب المضرب"),
+            ("he", "he_IL", "תוצאה", "ענפי מחבט"),
+            ("ta", "ta_IN", "மதிப்பெண்", "ராக்கெட் விளையாட்டுகள்")
+        ] {
+            let app = launchLocalizedApp(language: language, locale: locale)
+            defer { app.terminate() }
+            XCTAssertTrue(tabButton(named: tab, in: app).waitForExistence(timeout: 8), language)
+            XCTAssertTrue(selectTab(named: tab, in: app), language)
+
+            let heading = app.staticTexts[title]
+            XCTAssertTrue(heading.waitForExistence(timeout: 5), language)
+            XCTAssertTrue(app.frame.contains(heading.frame), language)
+
+            let screenshot = XCTAttachment(screenshot: app.screenshot())
+            screenshot.name = "Score Tab - \(language)"
+            screenshot.lifetime = .keepAlways
+            add(screenshot)
+        }
     }
 
     private func clearRecordFixtures() {

@@ -14,7 +14,9 @@
 "all" = "Mind";
 "scoreboard" = "Pontszám";
 "timer" = "Időzítő";
-"scoreboard_sports" = "Sport";
+"scoreboard_racket_sports" = "Ütős sportok";
+"scoreboard_other_sports" = "Egyéb sportok";
+"scoreboard_general_scoring" = "Általános pontozás";
 "scoreboard_board_games" = "Társasjátékok";
 "search_team_or_game" = "Csapat vagy játék keresése";
 "match_count" = "%d mérkőzés";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "Chris";
 "doudizhu_player_david" = "Dávid";
 "shengji_claim_dealer" = "Osztói szerep meglicitálása";
+"shengji_pass_a" = "A szint teljesítése";
 "guandan_edit_level_wrap_confirm_title" = "Visszaállítja a rangot 2-re?";
 "guandan_edit_level_wrap_confirm_message" = "Újbóli emeléssel a csapat helyezése 2-re áll vissza.";
 "shengji_take_dealer" = "Osztói szerep átvétele";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "Angol";
 "voice_call_note_zh" = "Kínai bejelentések: állások mint 3–2, döntetlen mint „3 mind”.";
 "voice_call_note_en" = "ITTF-stílusú bejelentések: a 0 love, a 0–0 Love all, nevek pinjinben.";
+"voice_call_note_pingpong_zh" = "Kínai bejelentések: állások mint 3–2, döntetlen mint „3 mind”.";
+"voice_call_note_pingpong_en" = "ITTF-stílusú bejelentések: a 0 love, a 0–0 Love all, nevek pinjinben.";
+"voice_call_note_badminton_zh" = "Kínai bemondások · 3–2 · Játéklabda";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · Szervacsere = “Service over”";
+"voice_call_note_tennis_zh" = "Kínai bemondások · 0/15/30/40 · Egyenlő · Előny";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · Egyenlő = “Deuce” · Előny = “Advantage”";
+"voice_call_note_pickleball_zh" = "Kínai bemondások · 3–2 · Hagyományos páros 3–2–1 (1 = Az adogató száma)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · Hagyományos páros 3–2–1 (1 = Az adogató száma) · Szervacsere = “Side out”";
+"voice_call_note_volleyball_zh" = "Kínai bemondások · Csak az állás (3–2)";
+"voice_call_note_volleyball_en" = "Nemzetközi bemondások · Csak az állás (3–2)";
+"voice_call_note_squash_zh" = "Kínai bemondások · 3–2 · 10–10 = 10 (Egyenlő)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · Egyenlő = “all” · Játéklabda = “Game ball”";
 // Restored group feature resources.
 "group_account" = "Fiókkal rendelkező tag";
 "group_active_30d" = "Aktív az elmúlt 30 napban";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "Szettek és játékok";
 "style_workbench_photo_failed" = "A fotó nem nyitható meg. Válasszon másik képet.";
 "style_workbench_image_advice" = "Használjon 16:9 fekvő tájolású képet, például 1920×1080. A kép középre igazított vágással tölti ki a képernyőt.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

@@ -71,6 +71,7 @@ nonisolated func groupErrorMessage(_ error: Error, bundle: Bundle = .main) -> St
         "INVALID_CURSOR": "error_request_invalid",
         "INVALID_REASON": "error_request_invalid",
         "ACTION_DISABLED": "error_action_disabled",
+        "GROUP_CLIENT_UPDATE_REQUIRED": "error_update_required",
         "UPDATE_REQUIRED": "error_update_required",
         "INVALID_TEMPORARY_NAME": "invalid_member_name",
         "INVALID_DISPLAY_NAME": "invalid_member_name",

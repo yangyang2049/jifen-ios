@@ -14,7 +14,9 @@
 "all" = "Alle";
 "scoreboard" = "Poengsum";
 "timer" = "Timer";
-"scoreboard_sports" = "Sport";
+"scoreboard_racket_sports" = "Racketsport";
+"scoreboard_other_sports" = "Andre idretter";
+"scoreboard_general_scoring" = "Generell poengtelling";
 "scoreboard_board_games" = "Brettspill";
 "search_team_or_game" = "Søk etter lag eller spill";
 "match_count" = "%d kamper";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "Chris";
 "doudizhu_player_david" = "David";
 "shengji_claim_dealer" = "By om giverrollen";
+"shengji_pass_a" = "Passer A";
 "guandan_edit_level_wrap_confirm_title" = "Vil du returnere rangering til 2?";
 "guandan_edit_level_wrap_confirm_message" = "Å øke igjen vil tilbakestille dette lagets rangering til 2.";
 "shengji_take_dealer" = "Overta giverrollen";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "Engelsk";
 "voice_call_note_zh" = "Kinesiske kall: stillinger som 3–2, uavgjort som «3 alle».";
 "voice_call_note_en" = "ITTF-stil kall: 0 som love, 0–0 som Love all, navn i pinyin.";
+"voice_call_note_pingpong_zh" = "Kinesiske kall: stillinger som 3–2, uavgjort som «3 alle».";
+"voice_call_note_pingpong_en" = "ITTF-stil kall: 0 som love, 0–0 som Love all, navn i pinyin.";
+"voice_call_note_badminton_zh" = "Kinesiske poengmeldinger · 3–2 · Gameball";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · Servebytte = “Service over”";
+"voice_call_note_tennis_zh" = "Kinesiske poengmeldinger · 0/15/30/40 · Likt · Fordel";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · Likt = “Deuce” · Fordel = “Advantage”";
+"voice_call_note_pickleball_zh" = "Kinesiske poengmeldinger · 3–2 · Tradisjonell double 3–2–1 (1 = Serverens nummer)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · Tradisjonell double 3–2–1 (1 = Serverens nummer) · Servebytte = “Side out”";
+"voice_call_note_volleyball_zh" = "Kinesiske poengmeldinger · Bare stillingen (3–2)";
+"voice_call_note_volleyball_en" = "Internasjonale poengmeldinger · Bare stillingen (3–2)";
+"voice_call_note_squash_zh" = "Kinesiske poengmeldinger · 3–2 · 10–10 = 10 (Likt)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · Likt = “all” · Gameball = “Game ball”";
 // Restored group feature resources.
 "group_account" = "Medlem med konto";
 "group_active_30d" = "Aktiv de siste 30 dagene";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "Sett og games";
 "style_workbench_photo_failed" = "Kunne ikke åpne fotoet. Velg et annet bilde.";
 "style_workbench_image_advice" = "Bruk et 16:9-bilde i liggende format, for eksempel 1920×1080. Bilder fyller skjermen med sentrert beskjæring.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

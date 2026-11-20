@@ -133,7 +133,7 @@ struct HomeSharingActiveHeaderView: View {
         // 对齐安卓：背景先于 contentPadding，绿条全宽贴边，内容由水平内边距承担。
         .padding(.horizontal, horizontalInset)
         .padding(.vertical, 2)
-        .frame(height: 84)
+        .frame(minHeight: 84)
         .frame(maxWidth: .infinity)
         .background(Theme.primary)
         .overlay(alignment: .bottom) {
@@ -149,53 +149,36 @@ struct HomeSharingActiveHeaderView: View {
     // MARK: 左侧信息列（状态行 + 短码/错误态）
 
     private var leadingColumn: some View {
-        Button(action: onNavigateToSync) {
-            VStack(alignment: .leading, spacing: 4) {
-                statusRow
-
-                if !spacedCode.isEmpty {
-                    codeRow
-                        .padding(.top, 4)
-                } else if sharingState.shortCodeError {
-                    errorContent
-                        .padding(.top, 4)
+        VStack(alignment: .leading, spacing: 4) {
+            Button(action: onNavigateToSync) {
+                HStack(spacing: 6) {
+                    Circle().fill(.white).frame(width: 5, height: 5)
+                    Text(NSLocalizedString("home_sync_sharing", value: "Sharing score", comment: ""))
+                        .font(.caption.weight(.medium)).foregroundStyle(.white)
                 }
-            }
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var statusRow: some View {
-        HStack(spacing: 6) {
-            Circle()
-                .fill(Color.white)
-                .frame(width: 5, height: 5)
-
-            Text(NSLocalizedString("home_sync_sharing", value: "同步比分中", comment: ""))
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(.white.opacity(0.95))
-                .lineLimit(1)
+            }.buttonStyle(.plain)
 
             if !sharingState.connectedDisplays.isEmpty {
-                Rectangle()
-                    .fill(Color.white.opacity(0.45))
-                    .frame(width: 1, height: 12)
-
-                Text(connectedDevicesText)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white.opacity(0.95))
-                    .lineLimit(1)
+                Text(connectedDevicesText).font(.headline).foregroundStyle(.white)
+                    .lineLimit(2).padding(.top, 4)
+            } else if sharingState.shortCodeError {
+                errorContent.padding(.top, 4)
+            } else if !spacedCode.isEmpty {
+                codeRow.padding(.top, 4)
             }
         }
     }
 
     private var connectedDevicesText: String {
         let displays = sharingState.connectedDisplays
-        if displays.count == 1 {
+        if displays.count == 1, !displays[0].name.isEmpty, sharingState.connectionState == .connected {
             return String(
                 format: NSLocalizedString("home_sync_connected_device", value: "%@ 已连接", comment: ""),
                 displays[0].name
             )
+        }
+        if sharingState.connectionState != .connected {
+            return NSLocalizedString("sync_reconnecting", value: "Reconnecting to sync service…", comment: "")
         }
         return String.localizedStringWithFormat(
             NSLocalizedString("home_sync_connected_devices", value: "%d 台设备已连接", comment: ""),

@@ -14,7 +14,9 @@
 "all" = "تمام";
 "scoreboard" = "سکور";
 "timer" = "ٹائمر";
-"scoreboard_sports" = "کھیل";
+"scoreboard_racket_sports" = "ریکیٹ کھیل";
+"scoreboard_other_sports" = "دیگر کھیل";
+"scoreboard_general_scoring" = "عمومی اسکورنگ";
 "scoreboard_board_games" = "بورڈ گیمز";
 "search_team_or_game" = "ٹیم یا گیم تلاش کریں۔";
 "match_count" = "%d میچ";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "کرس";
 "doudizhu_player_david" = "ڈیوڈ";
 "shengji_claim_dealer" = "ڈیلر کے لیے بولی لگائیں";
+"shengji_pass_a" = "A پاس کریں";
 "guandan_edit_level_wrap_confirm_title" = "رینک 2 پر واپس جائیں؟";
 "guandan_edit_level_wrap_confirm_message" = "دوبارہ بڑھنے سے اس ٹیم کا رینک 2 ہو جائے گا۔";
 "shengji_take_dealer" = "ڈیلر بنیں";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "انگریزی";
 "voice_call_note_zh" = "چینی کالز: اسکور 3–2 جیسا، برابری 3-سب جیسا۔";
 "voice_call_note_en" = "ITTF طرز کالز: 0 بطور love، 0–0 بطور Love all، نام پنایین میں۔";
+"voice_call_note_pingpong_zh" = "چینی کالز: اسکور 3–2 جیسا، برابری 3-سب جیسا۔";
+"voice_call_note_pingpong_en" = "ITTF طرز کالز: 0 بطور love، 0–0 بطور Love all، نام پنایین میں۔";
+"voice_call_note_badminton_zh" = "چینی اعلانات · 3–2 · گیم پوائنٹ";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · سرو کی تبدیلی = “Service over”";
+"voice_call_note_tennis_zh" = "چینی اعلانات · 0/15/30/40 · برابری · برتری";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · برابری = “Deuce” · برتری = “Advantage”";
+"voice_call_note_pickleball_zh" = "چینی اعلانات · 3–2 · روایتی ڈبلز 3–2–1 (1 = سرو کرنے والے کا نمبر)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · روایتی ڈبلز 3–2–1 (1 = سرو کرنے والے کا نمبر) · سرو کی تبدیلی = “Side out”";
+"voice_call_note_volleyball_zh" = "چینی اعلانات · صرف اسکور (3–2)";
+"voice_call_note_volleyball_en" = "بین الاقوامی اعلانات · صرف اسکور (3–2)";
+"voice_call_note_squash_zh" = "چینی اعلانات · 3–2 · 10–10 = 10 (برابری)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · برابری = “all” · گیم پوائنٹ = “Game ball”";
 // Restored group feature resources.
 "group_account" = "اکاؤنٹ والا رکن";
 "group_active_30d" = "گزشتہ 30 دن میں فعال";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "سیٹ اور گیم";
 "style_workbench_photo_failed" = "یہ تصویر کھلی نہیں جا سکی۔ کوئی اور تصویر منتخب کریں۔";
 "style_workbench_image_advice" = "16:9 لینڈ اسکیپ تصویر استعمال کریں، مثلاً 1920×1080۔ تصویر درمیان سے کٹ کر اسکرین بھر دیتی ہے۔";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

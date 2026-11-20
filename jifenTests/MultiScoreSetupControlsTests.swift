@@ -35,6 +35,33 @@ final class MultiScoreSetupControlsTests: XCTestCase {
     }
 
     @MainActor
+    func testUnoStylePreferencesStayIndependentFromMulti() throws {
+        let suite = "uno-score-style-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let preferences = PreferencesManager(defaults: defaults)
+        XCTAssertEqual(preferences.unoScoreboardStyle, .default)
+        preferences.unoScoreboardStyle = .init(mode: .solid, solidColor: .jade)
+        // 改 UNO 不影响多人计分，两者写各自的键。
+        XCTAssertNil(defaults.string(forKey: "multiScoreboardStyleMode"))
+        XCTAssertNil(defaults.string(forKey: "multiScoreboardSolidColor"))
+        XCTAssertEqual(preferences.multiScoreboardStyle, .default)
+        XCTAssertEqual(defaults.string(forKey: "unoScoreboardStyleMode"), "solid")
+        XCTAssertEqual(defaults.string(forKey: "unoScoreboardSolidColor"), "jade")
+        preferences.multiScoreboardStyle = .init(mode: .solid, solidColor: .rose)
+        let reloaded = PreferencesManager(defaults: defaults)
+        XCTAssertEqual(reloaded.unoScoreboardStyle, .init(mode: .solid, solidColor: .jade))
+        XCTAssertEqual(reloaded.multiScoreboardStyle, .init(mode: .solid, solidColor: .rose))
+        reloaded.resetToOfflineReleaseDefaults()
+        XCTAssertNil(defaults.object(forKey: "unoScoreboardStyleMode"))
+        XCTAssertNil(defaults.object(forKey: "unoScoreboardSolidColor"))
+        XCTAssertEqual(reloaded.unoScoreboardStyle, .default)
+        defaults.set("future-mode", forKey: "unoScoreboardStyleMode")
+        defaults.set("translated-label", forKey: "unoScoreboardSolidColor")
+        XCTAssertEqual(reloaded.unoScoreboardStyle, .default)
+    }
+
+    @MainActor
     func testDisplayStylePreservesAllPlayersAndUsesMatchingReadableColors() {
         let appearance = ScoreboardDisplayAppearance(snapshot: .current(), fontCode: ScoreboardFont.default.rawValue)
         let players = (0..<50).map { ScoreboardDisplayPlayer(id: "player_\($0)", name: "P\($0)", score: $0, order: $0) }
@@ -48,9 +75,10 @@ final class MultiScoreSetupControlsTests: XCTestCase {
             XCTAssertEqual(wire.panels[index].participantId, players[index].id)
         }
         let legacy = MultiScoreboardStyle.default
-        XCTAssertEqual(legacy.backgroundHex(index: 12, theme: .defaultTheme), "EF4444")
-        XCTAssertEqual(legacy.backgroundHex(index: 1, theme: .electronic), "000000")
-        XCTAssertEqual(paper.backgroundHex(index: 49, theme: .electronic), "F4F3EF")
+        XCTAssertEqual(legacy.backgroundHex(index: 12), "EF4444")
+        // 彩色只按 12 色调色板取色，不再受积分板主题（电子屏 / 复古等）影响。
+        XCTAssertEqual(legacy.backgroundHex(index: 1), "3B82F6")
+        XCTAssertEqual(paper.backgroundHex(index: 49), "F4F3EF")
     }
 
     func testEveryBundledLanguageProvidesAllStyleAndColorNames() throws {

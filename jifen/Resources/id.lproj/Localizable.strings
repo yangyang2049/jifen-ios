@@ -14,7 +14,9 @@
 "all" = "Semua";
 "scoreboard" = "Skor";
 "timer" = "Pengatur waktu";
-"scoreboard_sports" = "Olahraga";
+"scoreboard_racket_sports" = "Olahraga Raket";
+"scoreboard_other_sports" = "Olahraga Lain";
+"scoreboard_general_scoring" = "Pencatatan Skor Umum";
 "scoreboard_board_games" = "Permainan Papan";
 "search_team_or_game" = "Cari tim atau permainan";
 "match_count" = "%d pertandingan";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "Kris";
 "doudizhu_player_david" = "David";
 "shengji_claim_dealer" = "Rebut Posisi Pembagi";
+"shengji_pass_a" = "Lulus A";
 "guandan_edit_level_wrap_confirm_title" = "Kembalikan peringkat ke 2?";
 "guandan_edit_level_wrap_confirm_message" = "Meningkatkan lagi akan mereset peringkat tim ini menjadi 2.";
 "shengji_take_dealer" = "Jadi Pembagi";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "Inggris";
 "voice_call_note_zh" = "Pengumuman Mandarin: skor seperti 3–2, seri seperti «3 semua».";
 "voice_call_note_en" = "Panggilan gaya ITTF: 0 sebagai love, 0–0 sebagai Love all, nama dalam pinyin.";
+"voice_call_note_pingpong_zh" = "Pengumuman Mandarin: skor seperti 3–2, seri seperti «3 semua».";
+"voice_call_note_pingpong_en" = "Panggilan gaya ITTF: 0 sebagai love, 0–0 sebagai Love all, nama dalam pinyin.";
+"voice_call_note_badminton_zh" = "Pengumuman dalam bahasa Mandarin · 3–2 · Poin gim";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · Pergantian servis = “Service over”";
+"voice_call_note_tennis_zh" = "Pengumuman dalam bahasa Mandarin · 0/15/30/40 · Seri · Keunggulan";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · Seri = “Deuce” · Keunggulan = “Advantage”";
+"voice_call_note_pickleball_zh" = "Pengumuman dalam bahasa Mandarin · 3–2 · Ganda tradisional 3–2–1 (1 = Nomor pemain yang melakukan servis)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · Ganda tradisional 3–2–1 (1 = Nomor pemain yang melakukan servis) · Pergantian servis = “Side out”";
+"voice_call_note_volleyball_zh" = "Pengumuman dalam bahasa Mandarin · Skor saja (3–2)";
+"voice_call_note_volleyball_en" = "Pengumuman internasional · Skor saja (3–2)";
+"voice_call_note_squash_zh" = "Pengumuman dalam bahasa Mandarin · 3–2 · 10–10 = 10 (Seri)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · Seri = “all” · Poin gim = “Game ball”";
 // Restored group feature resources.
 "group_account" = "Anggota dengan akun";
 "group_active_30d" = "Aktif dalam 30 hari";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "Set dan game";
 "style_workbench_photo_failed" = "Tidak dapat membuka foto ini. Pilih gambar lain.";
 "style_workbench_image_advice" = "Gunakan gambar lanskap 16:9, misalnya 1920×1080. Gambar mengisi layar dengan pangkas terpusat.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

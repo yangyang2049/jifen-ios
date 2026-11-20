@@ -40,10 +40,8 @@ struct MultiScoreGridGeometry {
 enum MultiScorePaging {
     /// 超过该人数进入分页视图（与安卓 3～9 保持原布局一致）。
     static let pageThreshold = 9
-    /// 大窗口（平板 / 分屏）按实际可用空间决定容量，而不是按设备类别。
+    /// 大窗口（平板 / 分屏）按可用短边判定，与安卓 / 鸿蒙同一阈值。
     static let largeWindowShortSide: CGFloat = 600
-    static let minCellWidth: CGFloat = 160
-    static let minCellHeight: CGFloat = 180
 
     /// UNO 共用计分页，但 10 人仍保留原有整页布局与左滑撤销。
     static func usesPaging(gameType: GameType, playerCount: Int) -> Bool {
@@ -108,6 +106,9 @@ enum MultiScorePaging {
         )
     }
 
+    /// 固定列数口径（与安卓 / 鸿蒙一致）：横屏恒 5 列、竖屏恒 3 列。
+    /// 手机横屏 5×2（10/页）、竖屏 3×3（9/页）；平板 / 大窗口 5×3（15/页）、3×3（9/页），
+    /// 与投屏 / 接收端同一套 5 和 3。大窗口不再自适应算列数（曾最多 8 列）。
     static func columnRowCount(
         playerCount: Int,
         landscape: Bool,
@@ -117,39 +118,9 @@ enum MultiScorePaging {
             return landscape ? (5, 2) : (3, 3)
         }
         if min(size.width, size.height) >= largeWindowShortSide {
-            return largeWindowGrid(playerCount: playerCount, size: size)
+            return landscape ? (5, 3) : (3, 3)
         }
         return landscape ? (5, 2) : (3, 3)
-    }
-
-    /// 先减少页数，再在候选中优先让两位分数的可读面积更大，最后取空格更少的布局。
-    static func largeWindowGrid(playerCount: Int, size: CGSize) -> (columns: Int, rows: Int) {
-        let maxColumns = clamp(Int(size.width / minCellWidth), 2, 8)
-        let maxRows = clamp(Int(size.height / minCellHeight), 2, 8)
-        let minimumPages = ceilDiv(playerCount, maxColumns * maxRows)
-
-        var best: (columns: Int, rows: Int, readability: CGFloat)?
-        for rows in 1 ... maxRows {
-            for columns in 2 ... maxColumns {
-                let capacity = columns * rows
-                guard ceilDiv(playerCount, capacity) == minimumPages else { continue }
-                let cellWidth = size.width / CGFloat(columns)
-                let cellHeight = size.height / CGFloat(rows)
-                // 以「两位数字可用高度」近似字号可读性，等价于安卓按实时字体尺寸择优。
-                let readability = min(cellWidth / 2.2, cellHeight / 2.6)
-                if let current = best {
-                    if readability > current.readability + 0.01 || (abs(readability - current.readability) <= 0.01 && capacity > current.columns * current.rows) {
-                        best = (columns, rows, readability)
-                    }
-                } else {
-                    best = (columns, rows, readability)
-                }
-            }
-        }
-        if let best {
-            return (best.columns, best.rows)
-        }
-        return (maxColumns, maxRows)
     }
 
     /// 字号与实际分数区域共用同一高度，分页圆点的净空必须在排版前扣除。
@@ -160,9 +131,5 @@ enum MultiScorePaging {
     static func ceilDiv(_ value: Int, _ divisor: Int) -> Int {
         guard divisor > 0 else { return value }
         return (value + divisor - 1) / divisor
-    }
-
-    private static func clamp(_ value: Int, _ low: Int, _ high: Int) -> Int {
-        min(high, max(low, value))
     }
 }

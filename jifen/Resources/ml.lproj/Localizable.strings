@@ -14,7 +14,9 @@
 "all" = "എല്ലാം";
 "scoreboard" = "സ്കോർ";
 "timer" = "ടൈമർ";
-"scoreboard_sports" = "സ്പോർട്സ്";
+"scoreboard_racket_sports" = "റാക്കറ്റ് കായിക ഇനങ്ങൾ";
+"scoreboard_other_sports" = "മറ്റ് കായിക ഇനങ്ങൾ";
+"scoreboard_general_scoring" = "പൊതുവായ സ്കോറിംഗ്";
 "scoreboard_board_games" = "ബോർഡ് ഗെയിമുകൾ";
 "search_team_or_game" = "ടീം അല്ലെങ്കിൽ ഗെയിം തിരയുക";
 "match_count" = "%d മത്സരങ്ങൾ";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "ക്രിസ്";
 "doudizhu_player_david" = "ഡേവിഡ്";
 "shengji_claim_dealer" = "ബിഡ് ഡീലർ";
+"shengji_pass_a" = "പാസ് A";
 "guandan_edit_level_wrap_confirm_title" = "റാങ്ക് 2-ലേക്ക് തിരികെ നൽകണോ?";
 "guandan_edit_level_wrap_confirm_message" = "വീണ്ടും വർദ്ധിക്കുന്നത് ഈ ടീമിൻ്റെ റാങ്ക് 2 ആയി പുനഃസജ്ജമാക്കും.";
 "shengji_take_dealer" = "ഡീലറുടെ ചുമതല ഏറ്റെടുക്കുക";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "ഇംഗ്ലീഷ്";
 "voice_call_note_zh" = "ചൈനീസ് കോളുകൾ: സ്കോർ 3–2 പോലെ, സമനില 3-എല്ലാം പോലെ.";
 "voice_call_note_en" = "ITTF ശൈലിയിലുള്ള കോളുകൾ: 0 എന്നാൽ love, 0–0 എന്നാൽ Love all, പേരുകൾ പിൻയിനിൽ.";
+"voice_call_note_pingpong_zh" = "ചൈനീസ് കോളുകൾ: സ്കോർ 3–2 പോലെ, സമനില 3-എല്ലാം പോലെ.";
+"voice_call_note_pingpong_en" = "ITTF ശൈലിയിലുള്ള കോളുകൾ: 0 എന്നാൽ love, 0–0 എന്നാൽ Love all, പേരുകൾ പിൻയിനിൽ.";
+"voice_call_note_badminton_zh" = "ചൈനീസ് അറിയിപ്പുകൾ · 3–2 · ഗെയിം പോയിന്റ്";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · സെർവ് മാറ്റം = “Service over”";
+"voice_call_note_tennis_zh" = "ചൈനീസ് അറിയിപ്പുകൾ · 0/15/30/40 · സമനില · മുൻതൂക്കം";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · സമനില = “Deuce” · മുൻതൂക്കം = “Advantage”";
+"voice_call_note_pickleball_zh" = "ചൈനീസ് അറിയിപ്പുകൾ · 3–2 · പരമ്പരാഗത ഡബിൾസ് 3–2–1 (1 = സെർവ് ചെയ്യുന്നയാളുടെ നമ്പർ)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · പരമ്പരാഗത ഡബിൾസ് 3–2–1 (1 = സെർവ് ചെയ്യുന്നയാളുടെ നമ്പർ) · സെർവ് മാറ്റം = “Side out”";
+"voice_call_note_volleyball_zh" = "ചൈനീസ് അറിയിപ്പുകൾ · സ്കോർ മാത്രം (3–2)";
+"voice_call_note_volleyball_en" = "അന്താരാഷ്ട്ര അറിയിപ്പുകൾ · സ്കോർ മാത്രം (3–2)";
+"voice_call_note_squash_zh" = "ചൈനീസ് അറിയിപ്പുകൾ · 3–2 · 10–10 = 10 (സമനില)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · സമനില = “all” · ഗെയിം പോയിന്റ് = “Game ball”";
 // Restored group feature resources.
 "group_account" = "അക്കൗണ്ടുള്ള അംഗം";
 "group_active_30d" = "കഴിഞ്ഞ 30 ദിവസത്തിൽ സജീവം";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "സെറ്റും ഗെയിമും";
 "style_workbench_photo_failed" = "ഈ ഫോട്ടോ തുറക്കാനായില്ല. മറ്റൊരു ചിത്രം തിരഞ്ഞെടുക്കുക.";
 "style_workbench_image_advice" = "16:9 ലാൻഡ്സ്കേപ്പ് ചിത്രം ഉപയോഗിക്കുക, ഉദാ: 1920×1080. ചിത്രങ്ങൾ മധ്യഭാഗത്ത് വെട്ടിയെടുത്ത് സ്ക്രീൻ നിറയ്ക്കുന്നു.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

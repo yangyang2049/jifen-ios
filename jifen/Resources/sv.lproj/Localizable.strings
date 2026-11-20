@@ -14,7 +14,9 @@
 "all" = "Alla";
 "scoreboard" = "Poäng";
 "timer" = "Timer";
-"scoreboard_sports" = "Sport";
+"scoreboard_racket_sports" = "Racketsporter";
+"scoreboard_other_sports" = "Övriga sporter";
+"scoreboard_general_scoring" = "Allmän poängräkning";
 "scoreboard_board_games" = "Brädspel";
 "search_team_or_game" = "Sök efter lag eller spel";
 "match_count" = "%d matcher";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "Chris";
 "doudizhu_player_david" = "David";
 "shengji_claim_dealer" = "Bjud som dealer";
+"shengji_pass_a" = "Pass A";
 "guandan_edit_level_wrap_confirm_title" = "Återställ rang till 2?";
 "guandan_edit_level_wrap_confirm_message" = "Om du ökar igen återställs lagets rangordning till 2.";
 "shengji_take_dealer" = "Ta dealern";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "Engelska";
 "voice_call_note_zh" = "Kinesiska utrop: ställningar som 3–2, lika som «3 alla».";
 "voice_call_note_en" = "Utrop i ITTF-stil: 0 som love, 0–0 som Love all, namn i pinyin.";
+"voice_call_note_pingpong_zh" = "Kinesiska utrop: ställningar som 3–2, lika som «3 alla».";
+"voice_call_note_pingpong_en" = "Utrop i ITTF-stil: 0 som love, 0–0 som Love all, namn i pinyin.";
+"voice_call_note_badminton_zh" = "Utrop på kinesiska · 3–2 · Gameboll";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · Servebyte = “Service over”";
+"voice_call_note_tennis_zh" = "Utrop på kinesiska · 0/15/30/40 · Lika · Fördel";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · Lika = “Deuce” · Fördel = “Advantage”";
+"voice_call_note_pickleball_zh" = "Utrop på kinesiska · 3–2 · Traditionell dubbel 3–2–1 (1 = Servarens nummer)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · Traditionell dubbel 3–2–1 (1 = Servarens nummer) · Servebyte = “Side out”";
+"voice_call_note_volleyball_zh" = "Utrop på kinesiska · Bara ställningen (3–2)";
+"voice_call_note_volleyball_en" = "Internationella utrop · Bara ställningen (3–2)";
+"voice_call_note_squash_zh" = "Utrop på kinesiska · 3–2 · 10–10 = 10 (Lika)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · Lika = “all” · Gameboll = “Game ball”";
 // Restored group feature resources.
 "group_account" = "Medlem med konto";
 "group_active_30d" = "Aktiv de senaste 30 dagarna";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "Set och game";
 "style_workbench_photo_failed" = "Det gick inte att öppna fotot. Välj en annan bild.";
 "style_workbench_image_advice" = "Använd en 16:9-bild i liggande format, t.ex. 1920×1080. Bilder fyller skärmen med en centrerad beskärning.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

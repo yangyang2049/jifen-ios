@@ -2094,6 +2094,30 @@ final class FullAppScreenshotUITests: XCTestCase {
         XCTAssertTrue(app.buttons["multi_score_style_color_paper"].isSelected)
     }
 
+    func testShengjiCanRetreatFromAAndMustWinAgainToFinish() {
+        continueAfterFailure = false
+        defer { app?.terminate() }
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "shengji", label: "升级"))
+        XCTAssertTrue(tapStart())
+        XCTAssertTrue(waitForPriorityScoreboard())
+
+        let left = app.descendants(matching: .any)["scoreboard_left_panel"].firstMatch
+        XCTAssertTrue(left.waitForExistence(timeout: 5))
+        let atA = app.staticTexts["A"].firstMatch
+        let passedA = app.staticTexts["过A"].firstMatch
+
+        for _ in 0..<12 { left.swipeUp() }
+        XCTAssertTrue(atA.exists)
+        XCTAssertFalse(passedA.exists)
+        left.swipeDown()
+        XCTAssertTrue(app.staticTexts["K"].firstMatch.exists)
+        left.swipeUp()
+        XCTAssertTrue(atA.exists)
+        left.swipeUp()
+        XCTAssertTrue(passedA.waitForExistence(timeout: 5))
+        snap("shengji_pass_a")
+    }
+
     func testMultiScoreInvalidPlayerCountPreventsStarting() {
         continueAfterFailure = false
         defer { app?.terminate() }

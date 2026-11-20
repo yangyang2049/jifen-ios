@@ -473,9 +473,14 @@ struct MenuDialog: View {
                 .accessibilityHidden(true)
 
             HStack(spacing: 4) {
+                // 单卡顶栏(如只有「语音播报」)收束到 160pt 并居中:否则一张卡横跨整行,
+                // 展开箭头会被挤到关闭按钮旁边。多卡仍等分。
+                if items.count == 1 {
+                    Spacer(minLength: 0)
+                }
                 ForEach(items) { item in
                     menuCard(item: item, size: .medium, stripItem: true)
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: items.count == 1 ? 160 : .infinity)
                         .frame(height: syncCardHeight)
                         .onGeometryChange(for: CGFloat.self) { proxy in
                             proxy.frame(in: .named("scoreboard_menu")).midX
@@ -497,6 +502,9 @@ struct MenuDialog: View {
                                 }
                             }
                 }
+                if items.count == 1 {
+                    Spacer(minLength: 0)
+                }
             }
             .frame(maxWidth: .infinity)
 
@@ -515,43 +523,55 @@ struct MenuDialog: View {
                         .foregroundStyle(cardBackground)
                         .padding(.bottom, -3)
                         .offset(x: voiceAnchorOffset - servePopupOffset)
-                    VStack(spacing: 0) {
+                    VStack(spacing: voicePanelGrouped ? 8 : 0) {
+                        // UI 测试以独立的零尺寸元素识别分组或平铺，保留子开关的无障碍标识。
+                        Color.clear.frame(width: 0, height: 0)
+                            .accessibilityElement()
+                            .accessibilityIdentifier(voicePanelGrouped ? "scoreboard_voice_panel_grouped" : "scoreboard_voice_panel_flat")
                         if hasServeOption {
-                            Toggle(NSLocalizedString("voice_announce_server", value: "Announce server", comment: ""), isOn: $announceServer)
-                                .font(.system(size: 15))
-                                .foregroundStyle(.white)
-                                .tint(Theme.primary)
-                                .padding(14)
-                                .accessibilityIdentifier("scoreboard_announce_server_toggle")
-                                .onChange(of: announceServer) { _, _ in
-                                    ScoreVoiceAnnouncer.shared.stop()
-                                }
-                            sectionDivider.frame(height: 1).padding(.horizontal, 14)
+                            serveGroup {
+                                // 开关行用容器定高并垂直居中：直接给 Toggle 固定高度会裁切它，
+                                // 连无障碍树里的 switch 都会消失。
+                                Toggle(NSLocalizedString("voice_announce_server", value: "Announce server", comment: ""), isOn: $announceServer)
+                                    .font(.system(size: 15))
+                                    .foregroundStyle(.white)
+                                    .tint(Theme.primary)
+                                    .padding(.horizontal, horizontalInset)
+                                    .accessibilityIdentifier("scoreboard_announce_server_toggle")
+                                    .onChange(of: announceServer) { _, _ in
+                                        ScoreVoiceAnnouncer.shared.stop()
+                                    }
+                            }
                         }
                         if showsLanguagePicker {
-                            Text(NSLocalizedString("voice_announcement_language", value: "Announcement language", comment: ""))
-                                .font(.system(size: 12))
-                                .foregroundStyle(secondaryText)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal, 14)
-                                .padding(.top, 10)
-                            voiceLanguageRow(code: "zh-CN", identifier: "scoreboard_voice_language_zh")
-                            voiceLanguageRow(code: "en-US", identifier: "scoreboard_voice_language_en")
-                            if analyticsGameType == .pingpong {
-                                Text(selectedLanguageCode == "zh-CN"
-                                     ? NSLocalizedString("voice_call_note_zh", value: "国内比赛口径:比分播「3比2」,平分播「3平」。", comment: "")
-                                     : NSLocalizedString("voice_call_note_en", value: "ITTF-style calls: 0 as love, 0–0 as Love all, names in pinyin.", comment: ""))
-                                    .font(.system(size: 11))
+                            serveGroup {
+                                // 节标题 12pt 次级色:与 15pt 选项拉开层级。
+                                Text(NSLocalizedString("voice_announcement_language", value: "Announcement language", comment: ""))
+                                    .font(.system(size: 12))
                                     .foregroundStyle(secondaryText)
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(10)
-                                    .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
-                                    .padding(.horizontal, 14)
-                                    .padding(.top, 10)
+                                    .padding(.horizontal, horizontalInset)
+                                    .padding(.top, sectionTitleTop)
+                                voiceLanguageRow(code: "zh-CN", identifier: "scoreboard_voice_language_zh")
+                                voiceLanguageRow(code: "en-US", identifier: "scoreboard_voice_language_en")
+                                // 播报口径注释:每个语音项目都有自己的裁判口令,按项目族取文案;
+                                // 未覆盖的项目不显示,避免把乒乓球那句套给排球。
+                                if let noteKey = voiceCallNoteKey {
+                                    Text(NSLocalizedString(noteKey, comment: "Sport-specific scoring call examples"))
+                                        .font(.system(size: 11))
+                                        .foregroundStyle(secondaryText)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(10)
+                                        .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
+                                        .padding(.horizontal, horizontalInset)
+                                        .padding(.top, 10)
+                                        .padding(.bottom, noteBottom)
+                                }
                             }
                         }
                     }
-                    .padding(.bottom, showsLanguagePicker ? 14 : 0)
+                    // 注意：identifier 挂在容器上会覆盖子 Toggle 的 identifier（Toggle 会变成容器 id），
+                    // 所以面板形态只用 testTag 语义外的背景层标记，不参与无障碍合并。
                     .background(cardBackground, in: RoundedRectangle(cornerRadius: 14))
                 }
                 .frame(width: servePopupWidth)
@@ -560,6 +580,39 @@ struct MenuDialog: View {
             }
         }
         .zIndex(1)
+    }
+
+    /// 当前项目 + 所选语言对应的口径文案 key;未覆盖的项目返回 nil(不显示)。
+    private var voiceCallNoteKey: String? {
+        guard let family = VoiceCallNoteFamily(gameType: analyticsGameType) else { return nil }
+        let useZh = selectedLanguageCode == "zh-CN"
+        switch family {
+        case .pingPong: return useZh ? "voice_call_note_pingpong_zh" : "voice_call_note_pingpong_en"
+        case .badminton: return useZh ? "voice_call_note_badminton_zh" : "voice_call_note_badminton_en"
+        case .tennis: return useZh ? "voice_call_note_tennis_zh" : "voice_call_note_tennis_en"
+        case .pickleball: return useZh ? "voice_call_note_pickleball_zh" : "voice_call_note_pickleball_en"
+        case .volleyball: return useZh ? "voice_call_note_volleyball_zh" : "voice_call_note_volleyball_en"
+        case .squash: return useZh ? "voice_call_note_squash_zh" : "voice_call_note_squash_en"
+        }
+    }
+
+    /// 两段并存才分组套卡;只剩一段时把壳吃掉(与安卓 / 鸿蒙同一规则)。
+    private var voicePanelGrouped: Bool { hasServeOption && showsLanguagePicker }
+    private var horizontalInset: CGFloat { voicePanelGrouped ? 14 : 18 }
+    private var serveRowHeight: CGFloat { voicePanelGrouped ? 50 : 56 }
+    private var voiceOptionRowHeight: CGFloat { voicePanelGrouped ? 42 : 46 }
+    private var sectionTitleTop: CGFloat { voicePanelGrouped ? 12 : 16 }
+    private var noteBottom: CGFloat { voicePanelGrouped ? 10 : 18 }
+
+    /// 分组卡:两段以上每段一张 6% 白底小卡;单段时不画,内容直接铺在面板上。
+    @ViewBuilder
+    private func serveGroup<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        VStack(spacing: 0) { content() }
+            .frame(maxWidth: .infinity)
+            .background(
+                voicePanelGrouped ? Color.white.opacity(0.06) : Color.clear,
+                in: RoundedRectangle(cornerRadius: 12)
+            )
     }
 
     /// 气泡内的语言勾选行:点选即写偏好,下一次播报生效。
@@ -580,8 +633,8 @@ struct MenuDialog: View {
                         .foregroundStyle(Theme.primary)
                 }
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 11)
+            .padding(.horizontal, horizontalInset)
+            .frame(minHeight: voiceOptionRowHeight)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

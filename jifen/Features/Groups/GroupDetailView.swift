@@ -212,7 +212,7 @@ struct GroupDetailView: View {
         .onChange(of: directSchedule) { _, shown in if !shown { Task { await reload() } } }
         .navigationDestination(isPresented: $sharing) { if let group = detail?.group { GroupShareView(group: group) } }
         .sheet(isPresented: $reporting) { GroupReportView(groupID: groupID) }
-        .navigationDestination(isPresented: $match) { if let detail { GroupMatchEditor(detail: detail, manual: false, usesParentNavigation: true, onStart: onStart) } }
+        .sheet(isPresented: $match) { if let detail { GroupMatchEditor(detail: detail, manual: false, hostsScoreboardSetup: true, onStart: onStart) } }
         .navigationDestination(isPresented: $manual) { if let detail { GroupMatchEditor(detail: detail, manual: true, usesParentNavigation: true, onStart: onStart) } }
         .onChange(of: match) { _, shown in if !shown { Task { await reload() } } }
         .onChange(of: manual) { _, shown in if !shown { Task { await reload() } } }

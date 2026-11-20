@@ -38,6 +38,7 @@ nonisolated struct BilliardsEntryRequest: Identifiable, Sendable {
     /// 冻结场次只能沿原规则续打或补记：玩法 chip 与席位只读，规则只给摘要，
     /// 不出现展开箭头与「调整」入口（对齐安卓 BilliardsRulesSummary）。
     var frozen: Bool { rules != nil && mode != .arrange }
+    var canAdjustAtStart = false
 }
 
 /// 卡片内次级控件的统一底色：浅色白底 + 1px 描边，深色沿用既有层次。
@@ -73,6 +74,7 @@ struct GroupBilliardsEntryView: View {
     let request: BilliardsEntryRequest
     var onStart: (GameType, SportsSetupResult, String) -> Void
     var onDone: () -> Void = {}
+    var hostsScoreboardSetup = false
 
     @Environment(\.dismiss) private var dismiss
     @State private var store = GroupStore.shared
@@ -80,6 +82,12 @@ struct GroupBilliardsEntryView: View {
     @State private var rules: GroupBilliardsRules
     @State private var selected = ["", "", "", ""]
     @State private var activeSeat: Int?
+    private struct PickerSeat: Identifiable { let id: Int }
+    @State private var pickerSeat: PickerSeat?
+    @State private var reducedToTwo = false
+    private var usesMatchPicker: Bool { request.mode == .launch && !request.frozen }
+    private var pickerRosterGroupID: String? { request.allowedMemberIDs == nil ? detail.group.id : nil }
+    @State private var scoreSeat: BilliardsScoreSeat?
     @State private var scores = ["0", "0", "0", "0"]
     @State private var racks = ""
     @State private var early = false
@@ -93,10 +101,11 @@ struct GroupBilliardsEntryView: View {
     @State private var error: String?
     @State private var initialized = false
 
-    init(detail: GroupDetailCache, request: BilliardsEntryRequest, onStart: @escaping (GameType, SportsSetupResult, String) -> Void, onDone: @escaping () -> Void = {}) {
+    init(detail: GroupDetailCache, request: BilliardsEntryRequest, hostsScoreboardSetup: Bool = false, onStart: @escaping (GameType, SportsSetupResult, String) -> Void, onDone: @escaping () -> Void = {}) {
         self.detail = detail
         self.request = request
         self.onStart = onStart
+        self.hostsScoreboardSetup = hostsScoreboardSetup
         self.onDone = onDone
         let seed = request.rules ?? GroupBilliardsRules.defaults(request.variant ?? .folk)
         _rules = State(initialValue: seed)
@@ -114,8 +123,13 @@ struct GroupBilliardsEntryView: View {
 
     private var writable: Bool { detail.group.isActive && store.enabled && SessionStore.shared.isAuthenticated }
     private var manager: Bool { GroupPermissions.manager(detail.members.first { $0.accountId == store.accountID }) }
+    private var canEditPlannedRules: Bool {
+        request.canAdjustAtStart && request.mode == .launch && (request.gameID?.isEmpty ?? true) && manager
+    }
     private var choices: [GroupMember] {
-        let active = (detail.members + extraMembers).filter { $0.status == "active" }
+        let members = store.cache.details[detail.group.id]?.members ?? detail.members
+        let active = (members + extraMembers.filter { added in !members.contains { $0.id == added.id } })
+            .filter { $0.status == "active" }
         return active.filter { request.allowedMemberIDs == nil || request.allowedMemberIDs!.contains($0.id) }
     }
     /// 玩法组 → 后端合法变体。冻结场次直接用快照里的变体，避免「界面换族、请求换族」两套口径。
@@ -158,8 +172,10 @@ struct GroupBilliardsEntryView: View {
         guard ready else { return String(format: billiardsText("choose_member"), (firstEmptyIndex ?? 0) + 1) }
         switch request.mode {
         case .arrange: return groupText("save", "Save")
-        case .launch: return request.frozen ? billiardsText("resume") : groupText("copy_start_score", "Start scoring")
-        case .manual: return billiardsText("submit")
+        case .launch: return request.gameID?.isEmpty == false ? billiardsText("resume") : groupText("copy_start_score", "Start scoring")
+        case .manual:
+            if !validFolkScores { return billiardsText("invalid_score") }
+            return canSubmit ? billiardsText("submit") : billiardsText("balance")
         }
     }
 
@@ -171,11 +187,75 @@ struct GroupBilliardsEntryView: View {
         return ""
     }
     /// 两人 = A1 / B1；三 / 四人 = 1 / 2 / 3 / 4（与 GroupInlineMatchRoster 同一套编号）。
-    private func badge(_ index: Int) -> String { count == 2 ? (index == 0 ? "A1" : "B1") : "\(index + 1)" }
+    /// 席位编号：不论几人局都从 1 开始（两人局旧版是 A1/B1，与三四人局的 1234 不一致，已统一）。
+    private func badge(_ index: Int) -> String { "\(index + 1)" }
 
     // MARK: 版式
 
     var body: some View {
+        Group {
+            if hostsScoreboardSetup { scoreboardSetup.interactiveDismissDisabled(busy) }
+            else { entryContent }
+        }.groupAccountBoundary()
+    }
+
+    @ViewBuilder private var scoreboardSetup: some View {
+        if initialized {
+            let setup = try? rules.setup(names: [])
+            let selection = GroupSetupSelection(groupID: detail.group.id, members: choices, ids: $selected, busy: busy, error: error,
+                                                projectRow: AnyView(projectRow))
+            if group == .nineBall {
+                NineBallSetupDialogView(initialSetup: setup, onConfirm: submitSharedSetup,
+                    onCancel: { if !busy { dismiss() } }, groupSelection: selection)
+            } else {
+                let game = group.backend(family: rules.family.rawValue).gameType
+                SportsSetupDialogView(gameType: game, defaultTeam1Name: "", defaultTeam2Name: "",
+                    initialMaxSets: setup?.maxSets, initialPointsPerSet: nil, initialTieBreakPoints: nil,
+                    initialSetup: setup, onConfirm: submitSharedSetup, onCancel: { if !busy { dismiss() } },
+                    groupSelection: selection).id(game)
+            }
+        } else {
+            ProgressView().task { await prepare() }
+        }
+    }
+
+    private func submitSharedSetup(_ setup: SportsSetupResult) {
+        let variant = group.backend(family: setup.nineBallRuleFamily ?? "folk")
+        var next = GroupBilliardsRules.defaults(variant, count: setup.playerCount ?? 2)
+        switch variant {
+        case .folk, .tournament:
+            next.initialBreakerParticipantId = setup.nineBallBreakerPlayer.map { "p\($0)" }
+            next.config.bigGold = setup.nineBallBigGold
+            next.config.smallGold = setup.nineBallSmallGold
+            next.config.normalWin = setup.nineBallNormalWin
+            next.config.foul = setup.nineBallFoul
+            if variant == .folk {
+                next.config.pointScheme = setup.nineBallPointScheme
+                next.config.goldenNine = setup.nineBallGoldenNine
+                next.config.smallGoldAllPay = setup.nineBallSmallGoldAllPay
+                next.config.goldRetainsBreak = setup.nineBallGoldRetainsBreak
+                next.config.handoffEnabled = setup.nineBallHandoffEnabled
+            } else {
+                next.config.thirdFoul = setup.nineBallThirdFoul
+                next.config.breakRule = setup.nineBallBreakRule
+                next.config.totalRacks = setup.nineBallTotalRacks
+            }
+        case .eight:
+            next.config.targetRacks = setup.maxSets ?? 9
+            let handicap = min(setup.eightBallHandicapRacks ?? 0, (next.config.targetRacks ?? 9) - 1)
+            next.config.handicapRacks = handicap
+            next.config.handicapBeneficiary = handicap > 0 ? (setup.eightBallHandicapBeneficiary == "team1" ? "p0" : "p1") : nil
+        case .snooker:
+            next.config.maxFrames = setup.maxSets ?? 1
+            next.initialBreakerParticipantId = setup.servingSide == "right" ? "p1" : "p0"
+        case .standard: break
+        }
+        rules = next
+        guard ready, writable else { return }
+        Task { await start() }
+    }
+
+    private var entryContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.spacing) {
                 if let error { GroupNotice(text: error) }
@@ -184,11 +264,20 @@ struct GroupBilliardsEntryView: View {
                 projectRow
                 // 九球的民间 / 比赛积分是页内分段，不是第 5 个项目；其它玩法整块不渲染。
                 if !request.frozen, group == .nineBall {
-                    familySegment
+                    if !usesMatchPicker { familySegment }
                     // 人数只有九球民间可调，锦标赛与其余玩法固定 2 人，不出现这一块。
                     if backendVariant == .folk { playerCountSegment }
                 }
                 seatsBlock
+                if usesMatchPicker {
+                    if [.folk, .tournament, .snooker].contains(backendVariant) { openingBreaker }
+                    if backendVariant == .tournament { openingRacks }
+                    if group == .nineBall { familySegment }
+                    if reducedToTwo {
+                        Text(NSLocalizedString("billiards_group_switch_to_two", value: "Switched to 2 players", comment: ""))
+                            .font(.caption).foregroundStyle(Theme.textSecondary)
+                    }
+                }
                 rulesSection
                 if request.mode == .manual { scoreSection }
             }
@@ -197,6 +286,21 @@ struct GroupBilliardsEntryView: View {
         .background(Theme.backgroundColor).scrollDismissesKeyboard(.interactively)
         .navigationTitle(title).navigationBarTitleDisplayMode(.inline).groupAccountBoundary()
         .safeAreaInset(edge: .bottom, spacing: 0) { footer }
+        .sheet(item: $scoreSeat) { seat in
+            BilliardsScorePanel(name: seatName(seat.id), score: $scores[seat.id])
+                .groupAccountBoundary()
+        }
+        .sheet(item: $pickerSeat) { seat in
+            NavigationStack {
+                GroupMemberSelector(title: billiardsText("select") + " · " + badge(seat.id),
+                                    selectedID: Binding(get: { seatID(seat.id) }, set: { memberID in
+                                        guard usesMatchPicker, seat.id < count else { return }
+                                        selected[seat.id] = memberID
+                                    }),
+                                    members: choices, excluded: Set((0..<count).filter { $0 != seat.id }.map(seatID)),
+                                    rosterGroupID: pickerRosterGroupID, matchPicker: true)
+            }.groupAccountBoundary()
+        }
         .task { await prepare() }
         .onChange(of: count) { _, value in
             if let activeSeat, activeSeat >= value { self.activeSeat = nil }
@@ -213,7 +317,7 @@ struct GroupBilliardsEntryView: View {
                         Text(value.title).font(GroupTypography.caption.weight(.medium))
                             .lineLimit(1).minimumScaleFactor(0.8)
                             .padding(.horizontal, Theme.spacing).frame(minHeight: 40)
-                            .billiardsControl(active: active, radius: 20)
+                            .billiardsControl(active: active, radius: usesMatchPicker ? 8 : 20)
                     }.buttonStyle(.plain)
                         .disabled(request.frozen || busy)
                         .accessibilityAddTraits(active ? .isSelected : [])
@@ -266,15 +370,14 @@ struct GroupBilliardsEntryView: View {
     /// 座位与成员胶囊同处一块：点座位 → 选中该位；点下面的成员 → 填进当前位；再点一次已在场的人 → 移出。
     private var seatsBlock: some View {
         VStack(alignment: .leading, spacing: Theme.sm) {
-            if manager, !request.frozen { temporaryRow }
+            if manager, !request.frozen, request.mode == .arrange { temporaryRow }
             if count == 2 {
+                // 两人局也用序号 1 / 2，不再显示 A / B 侧标签：
+                // 台球是个人对抗，侧标签与席位里的序号徽标重复表达同一件事。
                 HStack(alignment: .top, spacing: Theme.spacing) {
                     ForEach(0..<2, id: \.self) { index in
-                        VStack(alignment: .leading, spacing: Theme.xs) {
-                            Text(index == 0 ? "A" : "B")
-                                .font(GroupTypography.caption.weight(.semibold)).foregroundStyle(Theme.textSecondary)
-                            seatButton(index)
-                        }.frame(maxWidth: .infinity, alignment: .leading)
+                        seatButton(index)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
             } else {
@@ -282,16 +385,17 @@ struct GroupBilliardsEntryView: View {
                     ForEach(0..<count, id: \.self) { index in seatButton(index) }
                 }
             }
-            if !request.frozen, !choices.isEmpty { memberChips }
+            if !request.frozen, !usesMatchPicker { memberChips }
         }
     }
 
     private func seatButton(_ index: Int) -> some View {
-        let highlighted = activeSeat == index || (activeSeat == nil && firstEmptyIndex == index)
+        let highlighted = !request.frozen && !usesMatchPicker && (activeSeat == index || (activeSeat == nil && firstEmptyIndex == index))
         let name = seatName(index)
         return Button {
             guard !request.frozen, !busy else { return }
-            activeSeat = index
+            if usesMatchPicker { pickerSeat = PickerSeat(id: index) }
+            else { activeSeat = index }
         } label: {
             HStack(spacing: Theme.sm) {
                 if let member = member(index) {
@@ -337,6 +441,9 @@ struct GroupBilliardsEntryView: View {
                     .accessibilityIdentifier("billiards_member_" + member.id)
                     .accessibilityAddTraits(assigned == nil ? [] : .isSelected)
             }
+            if request.mode == .manual, let groupID = pickerRosterGroupID {
+                GroupRosterAddButton(groupID: groupID, chip: true)
+            }
         }
     }
 
@@ -357,10 +464,33 @@ struct GroupBilliardsEntryView: View {
         }
     }
 
+    private var openingBreaker: some View {
+        HStack {
+            Text(billiardsText("breaker")).font(GroupTypography.body)
+            Spacer()
+            Picker(billiardsText("breaker"), selection: Binding(
+                get: { rules.initialBreakerParticipantId ?? "p0" },
+                set: { rules.initialBreakerParticipantId = $0 }
+            )) {
+                ForEach(0..<count, id: \.self) { index in
+                    let name = seatName(index)
+                    Text(name.isEmpty ? badge(index) : "\(badge(index)) · \(name)").tag("p\(index)")
+                }
+            }.pickerStyle(.menu).tint(Theme.primary).accessibilityIdentifier("billiards_breaker")
+        }.disabled(busy)
+    }
+
+    private var openingRacks: some View {
+        Stepper(value: Binding(get: { rules.config.totalRacks ?? 10 }, set: { rules.config.totalRacks = $0 }), in: 1...99) {
+            Text(billiardsText("total_racks") + " · " + String(rules.config.totalRacks ?? 10))
+                .font(GroupTypography.body)
+        }.disabled(busy).accessibilityIdentifier("billiards_total_racks")
+    }
+
     // MARK: 规则设置（页面上唯一带标题的一块）
 
     @ViewBuilder private var rulesSection: some View {
-        if request.frozen {
+        if request.frozen && !canEditPlannedRules {
             // 冻结场次只给摘要文本：不出现展开箭头，也没有「调整」入口。
             GroupSectionTitle(title: billiardsText("rules"))
             GroupSurface {
@@ -391,7 +521,7 @@ struct GroupBilliardsEntryView: View {
                         .accessibilityValue(rulesExpanded ? "expanded" : "collapsed")
                     if rulesExpanded {
                         Divider()
-                        BilliardsRuleDetailFields(rules: $rules, group: group, names: (0..<count).map(seatName))
+                        BilliardsRuleDetailFields(rules: $rules, group: group, names: (0..<count).map(seatName), inlineOpening: !usesMatchPicker)
                             .accessibilityIdentifier("billiards_rules_detail")
                     }
                 }
@@ -409,8 +539,8 @@ struct GroupBilliardsEntryView: View {
                     HStack(spacing: Theme.sm) {
                         Text(seatName(index)).font(GroupTypography.body).lineLimit(1)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        scoreField(index)
-                        if backendVariant == .folk { signButton(index) }
+                        if backendVariant == .folk { folkScoreButton(index) }
+                        else { scoreField(index) }
                     }
                 }
                 if backendVariant == .folk {
@@ -447,27 +577,37 @@ struct GroupBilliardsEntryView: View {
     private func scoreField(_ index: Int) -> some View {
         TextField("0", text: Binding(get: { scores.indices.contains(index) ? scores[index] : "0" },
                                     set: { if scores.indices.contains(index) { scores[index] = $0 } }))
-            .keyboardType(backendVariant == .folk ? .numbersAndPunctuation : .numberPad)
+            .keyboardType(.numberPad)
             .multilineTextAlignment(.trailing).font(GroupTypography.body)
             .padding(.horizontal, Theme.sm).frame(maxWidth: 96, minHeight: 40)
             .billiardsControl(radius: 10)
             .accessibilityIdentifier("billiards_score_\(index)")
     }
 
-    private func signButton(_ index: Int) -> some View {
-        Button { toggleSign(index) } label: {
-            Image(systemName: "plus.forwardslash.minus").font(.system(size: Theme.fontBody2))
-                .frame(width: 40, height: 40)
-                .billiardsControl(radius: 10)
-        }.buttonStyle(.plain).disabled(busy)
-            .accessibilityLabel(billiardsText("score"))
-            .accessibilityIdentifier("billiards_sign_\(index)")
+    private func folkScoreButton(_ index: Int) -> some View {
+        let score = Int(scores[index]) ?? 0
+        let enabled = !seatID(index).isEmpty
+        return Button { scoreSeat = .init(id: index) } label: {
+            Text(enabled ? (scores[index].isEmpty ? "—" : (score > 0 ? "+\(score)" : "\(score)")) : billiardsText("score"))
+                .font(GroupTypography.body.monospacedDigit())
+                .foregroundStyle(enabled ? Theme.textPrimary : Theme.textSecondary)
+                .padding(.horizontal, Theme.sm).frame(minWidth: 96, minHeight: 44)
+                .billiardsControl()
+        }.buttonStyle(.plain).disabled(!enabled || busy)
+            .accessibilityLabel(seatName(index) + " · " + billiardsText("score"))
+            .accessibilityValue("\(score)")
+            .accessibilityIdentifier("billiards_score_\(index)")
     }
 
     /// 补记的民间追分要求「净积分合计 = 0」才能提交，这里直接禁用主按钮（红字提示仍在成绩卡里）。
+    private var validFolkScores: Bool {
+        // 面板「清空」写回空串，净积分按 0 计；这里同样把空串当 0，否则清零后永远提交不了。
+        backendVariant != .folk || scores.prefix(count).allSatisfy { $0.isEmpty || Int($0) != nil }
+    }
+
     private var canSubmit: Bool {
         guard ready else { return false }
-        if request.mode == .manual, backendVariant == .folk { return netTotal == 0 }
+        if request.mode == .manual, backendVariant == .folk { return validFolkScores && netTotal == 0 }
         return true
     }
 
@@ -485,6 +625,8 @@ struct GroupBilliardsEntryView: View {
     private func pick(group value: GroupBilliardsGroup) {
         guard !request.frozen, !busy, group != value else { return }
         group = value
+        if hostsScoreboardSetup { selected = ["", "", "", ""] }
+        reducedToTwo = false
         // 切玩法：本机有同玩法的上次记录就按它预填，否则按目标玩法的默认值。
         let remembered = try? GroupBilliardsPersistence.shared.rememberedRules(accountID: store.accountID ?? "", groupID: detail.group.id)
         if let remembered, remembered.knownVariant != nil, remembered.group == value {
@@ -500,6 +642,10 @@ struct GroupBilliardsEntryView: View {
         guard !request.frozen, !busy, rules.family != value else { return }
         // 与计分板的台球设置一致：切到锦标赛固定 2 人，民间沿用当前人数。
         let nextCount = value == .tournament ? 2 : min(4, max(2, rules.playerCount))
+        reducedToTwo = usesMatchPicker && nextCount < count
+        if reducedToTwo {
+            for index in nextCount..<selected.count { selected[index] = "" }
+        }
         rules = rules.converting(to: group.backend(family: value.rawValue), count: nextCount)
         activeSeat = nil
     }
@@ -525,12 +671,6 @@ struct GroupBilliardsEntryView: View {
         ids[seat] = member.id
         selected = ids
         activeSeat = nil
-    }
-
-    private func toggleSign(_ position: Int) {
-        guard scores.indices.contains(position) else { return }
-        let value = scores[position].trimmingCharacters(in: .whitespaces)
-        scores[position] = value.hasPrefix("-") ? String(value.dropFirst()) : "-" + (value.hasPrefix("+") ? String(value.dropFirst()) : value)
     }
 
     private func addTemporary() async {
@@ -619,7 +759,7 @@ struct GroupBilliardsEntryView: View {
     // MARK: 主操作
 
     private func primary() async {
-        guard !busy, ready, writable else { return }
+        guard !busy, canSubmit, writable else { return }
         switch request.mode {
         case .arrange: await submitArrange()
         case .manual: await submitManual()
@@ -762,6 +902,7 @@ struct BilliardsRuleDetailFields: View {
     @Binding var rules: GroupBilliardsRules
     var group: GroupBilliardsGroup
     var names: [String] = []
+    var inlineOpening = true
 
     private func number(_ path: WritableKeyPath<GroupBilliardsConfig, Int?>, default value: Int = 1) -> Binding<Int> {
         Binding(get: { rules.config[keyPath: path] ?? value }, set: { rules.config[keyPath: path] = $0 })
@@ -818,7 +959,7 @@ struct BilliardsRuleDetailFields: View {
         numberRow(billiardsText("foul"), number(\.foul))
         if rules.family == .tournament {
             numberRow(billiardsText("third_foul"), number(\.thirdFoul))
-            numberRow(billiardsText("total_racks"), number(\.totalRacks))
+            if inlineOpening { numberRow(billiardsText("total_racks"), number(\.totalRacks)) }
             HStack(spacing: Theme.sm) {
                 Text(billiardsText("break_rule")).font(GroupTypography.body)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -833,7 +974,7 @@ struct BilliardsRuleDetailFields: View {
             Toggle(billiardsText("retains_break"), isOn: flag(\.goldRetainsBreak)).font(GroupTypography.body).tint(Theme.primary)
             Toggle(billiardsText("handoff"), isOn: flag(\.handoffEnabled)).font(GroupTypography.body).tint(Theme.primary)
         }
-        if rules.playerCount > 1 {
+        if inlineOpening && rules.playerCount > 1 {
             HStack(spacing: Theme.sm) {
                 Text(billiardsText("breaker")).font(GroupTypography.body)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -970,5 +1111,92 @@ extension GroupBilliardsRules {
             return participantID ?? ""
         }
         return String(index + 1)
+    }
+}
+
+private struct BilliardsScoreSeat: Identifiable { let id: Int }
+
+private struct BilliardsScorePanel: View {
+    let name: String
+    @Binding var score: String
+    @Environment(\.dismiss) private var dismiss
+    @State private var negative = false
+
+    private var points: Int { Int(score) ?? 0 }
+    private var signedPoints: String { score.isEmpty ? "—" : (points > 0 ? "+\(points)" : "\(points)") }
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: Theme.spacing) {
+                Text(name).font(GroupTypography.body.weight(.semibold))
+                HStack(spacing: Theme.sm) {
+                    scoreKey("−1") { step(-1) }
+                    Text(signedPoints).font(GroupTypography.body.weight(.semibold).monospacedDigit())
+                        .frame(maxWidth: .infinity)
+                        .accessibilityValue(signedPoints)
+                    scoreKey("+1") { step(1) }
+                }
+                HStack(spacing: Theme.sm) {
+                    signButton(false)
+                    signButton(true)
+                }
+                Grid(horizontalSpacing: Theme.sm, verticalSpacing: Theme.sm) {
+                    ForEach(0..<3) { row in
+                        GridRow {
+                            ForEach(1...3, id: \.self) { column in
+                                let digit = row * 3 + column
+                                scoreKey("\(digit)") { append(digit) }
+                            }
+                        }
+                    }
+                    GridRow {
+                        scoreKey(NSLocalizedString("clear", value: "Clear", comment: ""), id: "clear") {
+                            score = ""
+                        }
+                        scoreKey("0") { append(0) }
+                        scoreKey(billiardsText("confirm"), id: "done") { dismiss() }
+                    }
+                }
+            }.padding(Theme.padding).frame(maxWidth: 480).frame(maxWidth: .infinity)
+        }
+        .presentationDragIndicator(.visible)
+        .onAppear { negative = points < 0 }
+        .accessibilityIdentifier("billiards_score_panel")
+    }
+
+    private func scoreKey(_ title: String, id: String? = nil, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title).font(GroupTypography.body.weight(.semibold))
+                .frame(maxWidth: .infinity, minHeight: 44).padding(.horizontal, Theme.xs)
+                .billiardsControl()
+        }.buttonStyle(.plain).accessibilityIdentifier("billiards_score_key_" + (id ?? title))
+    }
+
+    private func signButton(_ value: Bool) -> some View {
+        Button {
+            negative = value
+            if !score.isEmpty { assign(abs(points)) }
+        } label: {
+            Image(systemName: value ? "minus" : "plus")
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .billiardsControl(active: negative == value)
+        }.buttonStyle(.plain)
+            .accessibilityLabel(NSLocalizedString(value ? "billiards_group_score_panel_negative" : "billiards_group_score_panel_positive",
+                                                    value: value ? "Negative" : "Positive", comment: ""))
+            .accessibilityAddTraits(negative == value ? .isSelected : [])
+            .accessibilityIdentifier(value ? "billiards_score_negative" : "billiards_score_positive")
+    }
+
+    private func assign(_ magnitude: Int) { score = String(negative ? -magnitude : magnitude) }
+
+    private func append(_ digit: Int) {
+        let magnitude = abs(points) * 10 + digit
+        if magnitude <= 9999 { assign(magnitude) }
+    }
+
+    private func step(_ delta: Int) {
+        let next = min(9999, max(-9999, points + delta))
+        negative = next < 0
+        score = String(next)
     }
 }

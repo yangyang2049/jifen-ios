@@ -130,84 +130,50 @@ struct CloudSyncEntryPanel: View {
         let sharingState = session.controller?.state ?? RemoteSyncController.SharingState()
 
         VStack(spacing: 12) {
-            // 连接状态已上移到卡片头部小标题，展开区不再重复绿点与状态行（P6 定稿）。
-            if !sharingState.shortCode.isEmpty {
-                Text(sharingState.shortCode.map(String.init).joined(separator: "  "))
-                    .font(.system(size: 36, weight: .bold))
-                    .kerning(4)
-                    .foregroundStyle(Theme.textPrimary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                    .frame(maxWidth: .infinity)
-            } else if sharingState.shortCodeError {
-                Text(NSLocalizedString(
-                    "sync_shortcode_create_failed",
-                    value: "短码生成失败，请点击下方按钮重试",
-                    comment: ""
-                ))
-                .font(.system(size: 14))
-                .lineSpacing(4)
-                .foregroundStyle(Color(hex: "FF3B30"))
-            }
-
             if !sharingState.connectedDisplays.isEmpty {
                 VStack(spacing: 8) {
                     ForEach(sharingState.connectedDisplays, id: \.connectionId) { display in
-                        ConnectedDisplayCard(display: display)
+                        ConnectedDisplayCard(display: display, linkUp: sharingState.connectionState == .connected)
                     }
                 }
-            }
-
-            if sharingState.shortCodeError {
-                Button {
-                    Task { await session.controller?.retryShortCode() }
-                } label: {
-                    Text(NSLocalizedString("sync_retry_shortcode", value: "重新生成短码", comment: ""))
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(Theme.primary)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 44)
-                        .contentShape(Capsule())
-                }
-                .background(Theme.appCardBackground, in: Capsule())
-                .overlay(
-                    Capsule()
-                        .strokeBorder(Theme.primary, lineWidth: 1)
-                )
+            } else if sharingState.shortCodeError {
+                Text(NSLocalizedString("sync_shortcode_create_failed", value: "Short code generation failed. Try again.", comment: ""))
+                    .font(.system(size: 14)).foregroundStyle(Theme.destructiveText)
             } else {
-                Text(NSLocalizedString(
-                    "sync_sharing_start_via_home_hint",
-                    value: "将此短码发给显示端设备即可开始同步；进入计分项目后比分会自动同步。",
-                    comment: ""
-                ))
-                .font(.system(size: 14))
-                .lineSpacing(4)
-                .foregroundStyle(Theme.textSecondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .fixedSize(horizontal: false, vertical: true)
-
-                sharingActionButtons
+                if !sharingState.shortCode.isEmpty {
+                    Text(sharingState.shortCode.map(String.init).joined(separator: "  "))
+                        .font(.system(size: 36, weight: .bold)).kerning(4)
+                        .foregroundStyle(Theme.textPrimary).lineLimit(1).minimumScaleFactor(0.5)
+                        .frame(maxWidth: .infinity)
+                }
+                Text(NSLocalizedString("sync_sharing_start_via_home_hint", value: "Send this code to the display device to start syncing.", comment: ""))
+                    .font(.system(size: 14)).foregroundStyle(Theme.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
             }
+
+            sharingActionButtons(sharingState)
         }
     }
 
-    private var sharingActionButtons: some View {
+    private func sharingActionButtons(_ state: RemoteSyncController.SharingState) -> some View {
         HStack(spacing: 8) {
-            outlineButton(
-                title: NSLocalizedString("sync_copy_code", value: "复制短码", comment: ""),
-                color: Color(hex: "22C55E"),
-                enabled: !(session.controller?.state.shortCode.isEmpty ?? true)
-            ) {
-                UIPasteboard.general.string = session.controller?.state.shortCode ?? ""
-                showToast(NSLocalizedString("sync_code_copied", value: "已复制短码", comment: ""))
+            if state.connectedDisplays.isEmpty {
+                if state.shortCodeError {
+                    outlineButton(title: NSLocalizedString("sync_retry_shortcode", value: "Retry short code", comment: ""),
+                                  color: Theme.primary) {
+                        Task { await session.controller?.retryShortCode() }
+                    }
+                } else {
+                    outlineButton(title: NSLocalizedString("sync_copy_code", value: "Copy code", comment: ""),
+                                  color: Theme.primary, enabled: !state.shortCode.isEmpty) {
+                        UIPasteboard.general.string = state.shortCode
+                        showToast(NSLocalizedString("sync_code_copied", value: "Code copied", comment: ""))
+                    }
+                }
             }
-
-            outlineButton(
-                title: NSLocalizedString("sync_end_sharing", value: "结束同步", comment: ""),
-                color: Color(hex: "FF3B30")
-            ) {
-                showEndConfirm = true
-            }
+            outlineButton(title: NSLocalizedString("sync_end_sharing", value: "End sharing", comment: ""),
+                          color: Theme.destructiveText) { showEndConfirm = true }
         }
     }
 
@@ -449,29 +415,35 @@ struct CloudSyncEntryPanel: View {
 
 private struct ConnectedDisplayCard: View {
     let display: WsDisplayPresence
+    let linkUp: Bool
+    var dark = false
 
     var body: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(display.name)
+                Text(display.name.isEmpty ? NSLocalizedString("sync_connected_display_role", value: "Remote display", comment: "") : display.name)
                     .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(Theme.textPrimary)
+                    .foregroundStyle(dark ? Color.white : Theme.textPrimary)
                     .lineLimit(1)
-                Text(NSLocalizedString("sync_connected_display_role", value: "跨设备显示端", comment: ""))
-                    .font(.system(size: 12))
-                    .foregroundStyle(Theme.textSecondary)
-                    .lineLimit(1)
+                if !display.name.isEmpty {
+                    Text(NSLocalizedString("sync_connected_display_role", value: "Remote display", comment: ""))
+                        .font(.system(size: 12))
+                        .foregroundStyle(dark ? Color.white.opacity(0.68) : Theme.textSecondary)
+                        .lineLimit(1)
+                }
             }
             Spacer(minLength: 0)
-            Text(NSLocalizedString("sync_connected_display_status", value: "已连接", comment: ""))
-                .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(Color(hex: "22C55E"))
-                .lineLimit(1)
+            if linkUp {
+                Text(NSLocalizedString("sync_connected_display_status", value: "Connected", comment: ""))
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(dark ? Theme.syncDialogStatusConnected : Theme.primary)
+                    .lineLimit(1)
+            }
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
         // 父级角色卡是 cardBackground（白色），设备行用 Sheet 内控件统一的灰色做出卡片区分。
-        .background(Theme.dialogControlBackground, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .background(dark ? Color.white.opacity(0.09) : Theme.dialogControlBackground, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }
 
@@ -790,61 +762,46 @@ struct RemoteSyncSharingDialog: View {
                         .frame(maxWidth: .infinity)
                 }
 
-                if !sharingState.shortCode.isEmpty {
-                    Text(sharingState.shortCode.map(String.init).joined(separator: "  "))
-                        .font(.system(size: 36, weight: .bold))
-                        .kerning(4)
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                        .frame(maxWidth: .infinity)
+                if !sharingState.connectedDisplays.isEmpty {
+                    ScrollView {
+                        VStack(spacing: 8) {
+                            ForEach(sharingState.connectedDisplays, id: \.connectionId) { display in
+                                ConnectedDisplayCard(display: display, linkUp: sharingState.connectionState == .connected, dark: true)
+                            }
+                        }
+                    }.defaultScrollAnchor(.top).frame(maxHeight: min(CGFloat(sharingState.connectedDisplays.count) * 66, 180))
                 } else if sharingState.shortCodeError {
-                    Text(NSLocalizedString(
-                        "sync_shortcode_create_failed",
-                        value: "短码生成失败，请点击下方按钮重试",
-                        comment: ""
-                    ))
-                    .font(.system(size: 14))
-                    .lineSpacing(4)
-                    .foregroundStyle(Color(hex: "FF453A"))
+                    Text(NSLocalizedString("sync_shortcode_create_failed", value: "Short code generation failed. Try again.", comment: ""))
+                        .font(.system(size: 14)).foregroundStyle(Color(hex: "FF453A"))
+                } else {
+                    if !sharingState.shortCode.isEmpty {
+                        Text(sharingState.shortCode.map(String.init).joined(separator: "  "))
+                            .font(.system(size: 36, weight: .bold)).kerning(4)
+                            .foregroundStyle(.white).lineLimit(1).minimumScaleFactor(0.5)
+                            .frame(maxWidth: .infinity)
+                    }
+                    Text(NSLocalizedString("sync_sharing_start_via_home_hint", value: "Send this code to the display device to start syncing.", comment: ""))
+                        .font(.system(size: 13)).foregroundStyle(Theme.syncDialogStatusSecondary)
+                        .multilineTextAlignment(.center)
                 }
 
-                if sharingState.shortCodeError, onRetryShortCode != nil {
-                    dialogButton(
-                        NSLocalizedString("sync_retry_shortcode", value: "重新生成短码", comment: ""),
-                        filled: true,
-                        color: Theme.primary,
-                        action: { onRetryShortCode?() }
-                    )
-                    dialogButton(
-                        NSLocalizedString("sync_end_sharing", value: "结束同步", comment: ""),
-                        filled: false,
-                        color: Color(hex: "FF453A"),
-                        action: onEndSharing
-                    )
-                } else {
-                    if onForceSync != nil {
-                        dialogButton(
-                            NSLocalizedString("sync_force_sync_button", value: "强制同步大屏", comment: ""),
-                            filled: true,
-                            color: Theme.primary,
-                            action: { onForceSync?() }
-                        )
+                HStack(spacing: 8) {
+                    if !sharingState.connectedDisplays.isEmpty {
+                        if let onForceSync {
+                            dialogOutlineButton(NSLocalizedString("sync_force_sync_button", value: "Resync display", comment: ""),
+                                                color: Theme.syncDialogStatusSecondary, enabled: true, action: onForceSync)
+                        }
+                    } else if sharingState.shortCodeError {
+                        if let onRetryShortCode {
+                            dialogOutlineButton(NSLocalizedString("sync_retry_shortcode", value: "Retry short code", comment: ""),
+                                                color: Theme.syncDialogStatusConnected, enabled: true, action: onRetryShortCode)
+                        }
+                    } else {
+                        dialogOutlineButton(NSLocalizedString("sync_copy_code", value: "Copy code", comment: ""),
+                                            color: Theme.syncDialogStatusConnected, enabled: !sharingState.shortCode.isEmpty, action: onCopyCode)
                     }
-                    HStack(spacing: 8) {
-                        dialogOutlineButton(
-                            NSLocalizedString("sync_copy_code", value: "复制短码", comment: ""),
-                            color: Color(hex: "22C55E"),
-                            enabled: !sharingState.shortCode.isEmpty,
-                            action: onCopyCode
-                        )
-                        dialogOutlineButton(
-                            NSLocalizedString("sync_end_sharing", value: "结束同步", comment: ""),
-                            color: Color(hex: "FF453A"),
-                            enabled: true,
-                            action: onEndSharing
-                        )
-                    }
+                    dialogOutlineButton(NSLocalizedString("sync_end_sharing", value: "End sharing", comment: ""),
+                                        color: Color(hex: "FF453A"), enabled: true, action: onEndSharing)
                 }
             }
             .padding(20)
@@ -877,44 +834,16 @@ struct RemoteSyncSharingDialog: View {
         }
     }
 
-    private func dialogButton(_ title: String, filled: Bool, color: Color, action: @escaping () -> Void) -> some View {
-        Group {
-            if filled {
-                Button(action: action) {
-                    Text(title)
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 44)
-                        .contentShape(Capsule())
-                }
-                .background(color, in: Capsule())
-            } else {
-                Button(action: action) {
-                    Text(title)
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(color)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 44)
-                        .contentShape(Capsule())
-                }
-                .overlay(
-                    Capsule()
-                        .strokeBorder(color, lineWidth: 1)
-                )
-            }
-        }
-    }
-
     private func dialogOutlineButton(_ title: String, color: Color, enabled: Bool,
                                      action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(color)
-                .lineLimit(1)
+                .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
-                .frame(height: 44)
+                .padding(.vertical, 6)
+                .frame(minHeight: 44)
                 .contentShape(Capsule())
         }
         .overlay(

@@ -9,6 +9,10 @@ struct GroupInlineMatchRoster: View {
     var frozenSeats: [GroupSeat] = []
     var showSeatLabels = true
     var prominentText = false
+    var opensPicker = false
+    var rosterGroupID: String?
+    private struct PickerSeat: Identifiable { let id: Int }
+    @State private var pickerSeat: PickerSeat?
     @State private var activeSeat: Int?
     @State private var query = ""
     @ScaledMetric(relativeTo: .body) private var nameSize: CGFloat = Theme.fontBody2
@@ -54,7 +58,7 @@ struct GroupInlineMatchRoster: View {
                 seatColumn(side: 0)
                 seatColumn(side: 1)
             }
-            if !frozen {
+            if !frozen && !opensPicker {
                 Text(groupText("inline_seat_hint", "Select a seat, then choose a member"))
                     .font(.system(size: badgeSize)).foregroundStyle(Theme.textSecondary)
                 if roster.count > 12 {
@@ -64,13 +68,31 @@ struct GroupInlineMatchRoster: View {
                 }
                 GroupMemberPoolLayout(spacing: Theme.xs) {
                     ForEach(filtered) { member in memberToken(member) }
+                    if query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, let rosterGroupID {
+                        GroupRosterAddButton(groupID: rosterGroupID, chip: true)
+                    }
                 }
                 if roster.isEmpty { Text(groupText("need_members", "Invite friends or add temporary members before starting a match."))
                     .font(.system(size: nameSize)).foregroundStyle(Theme.textSecondary) }
             }
         }
-        .onAppear { selectFirstEmpty() }
-        .onChange(of: format) { _, _ in selectFirstEmpty() }
+        .onAppear { if !opensPicker { selectFirstEmpty() } }
+        .onChange(of: format) { _, _ in pickerSeat = nil; if !opensPicker { selectFirstEmpty() } }
+        .sheet(item: $pickerSeat) { seat in
+            NavigationStack {
+                GroupMemberSelector(title: groupText("choose_member", "Choose a member") + " · " + badge(seat.id),
+                                    selectedID: Binding(get: { id(at: seat.id) }, set: { memberID in
+                                        guard !frozen, indices.contains(seat.id) else { return }
+                                        var next = Array(ids.prefix(4))
+                                        while next.count < 4 { next.append("") }
+                                        next[seat.id] = memberID
+                                        ids = next
+                                    }),
+                                    members: members, excluded: Set(indices.filter { $0 != seat.id }.map { id(at: $0) }),
+                                    rosterGroupID: rosterGroupID, matchPicker: true)
+            }
+            .groupAccountBoundary()
+        }
         .onChange(of: ids) { _, _ in
             if let activeSeat, !indices.contains(activeSeat) { selectFirstEmpty() }
         }
@@ -81,7 +103,10 @@ struct GroupInlineMatchRoster: View {
             ForEach(0..<format.seatsPerSide, id: \.self) { position in
                 let index = side * 2 + position
                 Button {
-                    if !frozen { activeSeat = index }
+                    if !frozen {
+                        if opensPicker { pickerSeat = PickerSeat(id: index) }
+                        else { activeSeat = index }
+                    }
                 } label: {
                     HStack(spacing: Theme.sm) {
                         if !id(at: index).isEmpty {

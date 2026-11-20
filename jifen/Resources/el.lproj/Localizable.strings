@@ -14,7 +14,9 @@
 "all" = "Όλα";
 "scoreboard" = "Βαθμολογία";
 "timer" = "Χρονοδιακόπτης";
-"scoreboard_sports" = "Αθλητισμός";
+"scoreboard_racket_sports" = "Αθλήματα με ρακέτα";
+"scoreboard_other_sports" = "Άλλα αθλήματα";
+"scoreboard_general_scoring" = "Γενική βαθμολογία";
 "scoreboard_board_games" = "Επιτραπέζια παιχνίδια";
 "search_team_or_game" = "Αναζήτηση ομάδας ή παιχνιδιού";
 "match_count" = "%d αγώνες";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "Κρις";
 "doudizhu_player_david" = "Ντέιβιντ";
 "shengji_claim_dealer" = "Διεκδίκηση ρόλου μοιραστή";
+"shengji_pass_a" = "Πέρασμα Α";
 "guandan_edit_level_wrap_confirm_title" = "Επιστροφή κατάταξης στο 2;";
 "guandan_edit_level_wrap_confirm_message" = "Εάν αυξήσετε ξανά, η κατάταξη αυτής της ομάδας θα επαναφερθεί στο 2.";
 "shengji_take_dealer" = "Ανάληψη ρόλου μοιραστή";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "Αγγλικά";
 "voice_call_note_zh" = "Κινεζικές ανακοινώσεις: σκορ όπως 3–2, ισοπαλία όπως «3 όλων».";
 "voice_call_note_en" = "Ανακοινώσεις τύπου ITTF: το 0 ως love, το 0–0 ως Love all, ονόματα σε pinyin.";
+"voice_call_note_pingpong_zh" = "Κινεζικές ανακοινώσεις: σκορ όπως 3–2, ισοπαλία όπως «3 όλων».";
+"voice_call_note_pingpong_en" = "Ανακοινώσεις τύπου ITTF: το 0 ως love, το 0–0 ως Love all, ονόματα σε pinyin.";
+"voice_call_note_badminton_zh" = "Αναγγελίες στα κινεζικά · 3–2 · Πόντος για το γκέιμ";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · Αλλαγή σερβίς = “Service over”";
+"voice_call_note_tennis_zh" = "Αναγγελίες στα κινεζικά · 0/15/30/40 · Ισοπαλία · Πλεονέκτημα";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · Ισοπαλία = “Deuce” · Πλεονέκτημα = “Advantage”";
+"voice_call_note_pickleball_zh" = "Αναγγελίες στα κινεζικά · 3–2 · Παραδοσιακό διπλό 3–2–1 (1 = Αριθμός παίκτη που σερβίρει)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · Παραδοσιακό διπλό 3–2–1 (1 = Αριθμός παίκτη που σερβίρει) · Αλλαγή σερβίς = “Side out”";
+"voice_call_note_volleyball_zh" = "Αναγγελίες στα κινεζικά · Μόνο το σκορ (3–2)";
+"voice_call_note_volleyball_en" = "Διεθνείς αναγγελίες · Μόνο το σκορ (3–2)";
+"voice_call_note_squash_zh" = "Αναγγελίες στα κινεζικά · 3–2 · 10–10 = 10 (Ισοπαλία)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · Ισοπαλία = “all” · Πόντος για το γκέιμ = “Game ball”";
 // Restored group feature resources.
 "group_account" = "Μέλος με λογαριασμό";
 "group_active_30d" = "Ενεργό τις τελευταίες 30 ημέρες";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "Σετ και γκέιμ";
 "style_workbench_photo_failed" = "Δεν ήταν δυνατό το άνοιγμα της φωτογραφίας. Επιλέξτε άλλη εικόνα.";
 "style_workbench_image_advice" = "Χρησιμοποιήστε οριζόντια εικόνα 16:9, π.χ. 1920×1080. Οι εικόνες γεμίζουν την οθόνη με κεντρική περικοπή.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

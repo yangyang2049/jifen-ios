@@ -14,7 +14,9 @@
 "all" = "Tất cả";
 "scoreboard" = "Điểm";
 "timer" = "Hẹn giờ";
-"scoreboard_sports" = "Thể thao";
+"scoreboard_racket_sports" = "Môn thể thao dùng vợt";
+"scoreboard_other_sports" = "Các môn thể thao khác";
+"scoreboard_general_scoring" = "Tính điểm đa dụng";
 "scoreboard_board_games" = "Trò chơi cờ bàn";
 "search_team_or_game" = "Tìm kiếm đội hoặc trò chơi";
 "match_count" = "%d trận đấu";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "Chris";
 "doudizhu_player_david" = "David";
 "shengji_claim_dealer" = "Giành quyền làm chủ bài";
+"shengji_pass_a" = "Đạt A";
 "guandan_edit_level_wrap_confirm_title" = "Trả thứ hạng về 2?";
 "guandan_edit_level_wrap_confirm_message" = "Tăng trở lại sẽ đặt lại thứ hạng của đội này xuống 2.";
 "shengji_take_dealer" = "Làm chủ bài";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "Tiếng Anh";
 "voice_call_note_zh" = "Lời thông báo tiếng Trung: tỉ số như 3–2, hòa như «3 tất cả».";
 "voice_call_note_en" = "Lời thông báo kiểu ITTF: 0 là love, 0–0 là Love all, tên theo pinyin.";
+"voice_call_note_pingpong_zh" = "Lời thông báo tiếng Trung: tỉ số như 3–2, hòa như «3 tất cả».";
+"voice_call_note_pingpong_en" = "Lời thông báo kiểu ITTF: 0 là love, 0–0 là Love all, tên theo pinyin.";
+"voice_call_note_badminton_zh" = "Xướng điểm tiếng Trung · 3–2 · Điểm kết thúc ván";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · Đổi quyền giao bóng = “Service over”";
+"voice_call_note_tennis_zh" = "Xướng điểm tiếng Trung · 0/15/30/40 · Hòa · Lợi điểm";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · Hòa = “Deuce” · Lợi điểm = “Advantage”";
+"voice_call_note_pickleball_zh" = "Xướng điểm tiếng Trung · 3–2 · Đánh đôi truyền thống 3–2–1 (1 = Số thứ tự người giao bóng)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · Đánh đôi truyền thống 3–2–1 (1 = Số thứ tự người giao bóng) · Đổi quyền giao bóng = “Side out”";
+"voice_call_note_volleyball_zh" = "Xướng điểm tiếng Trung · Chỉ xướng điểm (3–2)";
+"voice_call_note_volleyball_en" = "Xướng điểm quốc tế · Chỉ xướng điểm (3–2)";
+"voice_call_note_squash_zh" = "Xướng điểm tiếng Trung · 3–2 · 10–10 = 10 (Hòa)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · Hòa = “all” · Điểm kết thúc ván = “Game ball”";
 // Restored group feature resources.
 "group_account" = "Thành viên có tài khoản";
 "group_active_30d" = "Hoạt động trong 30 ngày";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "Set và game";
 "style_workbench_photo_failed" = "Không thể mở ảnh này. Hãy chọn ảnh khác.";
 "style_workbench_image_advice" = "Dùng ảnh ngang 16:9, ví dụ 1920×1080. Ảnh sẽ lấp đầy màn hình và được cắt ở giữa.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

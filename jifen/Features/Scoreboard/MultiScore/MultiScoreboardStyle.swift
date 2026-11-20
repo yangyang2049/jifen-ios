@@ -54,9 +54,9 @@ nonisolated struct MultiScoreboardStyle: Codable, Equatable, Sendable {
     var mode: Mode
     var solidColor: SolidColor
 
-    func backgroundHex(index: Int, theme: ScoreboardTheme) -> String {
+    /// 多人计分 / UNO 没有主题入口：彩色只按 12 色调色板取色，不受积分板主题影响。
+    func backgroundHex(index: Int) -> String {
         if mode == .solid { return solidColor.hex }
-        if theme == .electronic || theme == .retro { return "000000" }
         return Self.colorfulPalette[max(0, index) % Self.colorfulPalette.count]
     }
 
@@ -66,10 +66,9 @@ nonisolated struct MultiScoreboardStyle: Codable, Equatable, Sendable {
     @MainActor
     func displayStyle(appearance: ScoreboardDisplayAppearance, players: [ScoreboardDisplayPlayer]) -> ScoreboardDisplayStyle {
         var style = appearance.style ?? ScoreboardDisplayStyle(appearance: appearance)
-        let theme = ScoreboardTheme(rawValue: appearance.theme) ?? .defaultTheme
         style.panels = players.enumerated().map { index, player in
             .init(slotKey: "player_\(index)", participantId: player.id,
-                  backgroundColor: "#" + backgroundHex(index: index, theme: theme))
+                  backgroundColor: "#" + backgroundHex(index: index))
         }
         let colors = players.indices.map {
             ScoreboardDisplayStyle.TextColor(slotKey: "player_\($0)", color: "#" + foregroundHex)
@@ -168,7 +167,7 @@ struct MultiScoreboardStylePicker: View {
                     .foregroundStyle(Color(hex: style.foregroundHex))
                     .frame(maxWidth: .infinity)
                     .frame(height: 28)
-                    .background(Color(hex: style.backgroundHex(index: index, theme: .defaultTheme)))
+                    .background(Color(hex: style.backgroundHex(index: index)))
             }
         }
         .background(Color(hex: style.foregroundHex).opacity(0.15))

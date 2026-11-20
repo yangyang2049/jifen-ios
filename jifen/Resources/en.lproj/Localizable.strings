@@ -14,7 +14,9 @@
 "all" = "All";
 "scoreboard" = "Score";
 "timer" = "Timer";
-"scoreboard_sports" = "Sports";
+"scoreboard_racket_sports" = "Racket Sports";
+"scoreboard_other_sports" = "Other Sports";
+"scoreboard_general_scoring" = "General Scoring";
 "scoreboard_board_games" = "Board Games";
 "search_team_or_game" = "Search team or game";
 "match_count" = "%d matches";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "Chris";
 "doudizhu_player_david" = "David";
 "shengji_claim_dealer" = "Bid Dealer";
+"shengji_pass_a" = "Pass A";
 "guandan_edit_level_wrap_confirm_title" = "Return rank to 2?";
 "guandan_edit_level_wrap_confirm_message" = "Increasing again will reset this team's rank to 2.";
 "shengji_take_dealer" = "Take Dealer";
@@ -769,7 +772,7 @@
 "style_server_color" = "Color";
 "style_server_style" = "Style";
 "style_text_color" = "Text Color";
-"style_server_indicator" = "Serve Indicator";
+"style_server_indicator" = "Serving indicator";
 "style_color_automatic" = "Auto";
 "style_slot_left" = "Left";
 "style_slot_center" = "Center";
@@ -794,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "Left and right indicators share one color";
 "scoreboard_style_font_shared_hint" = "All text uses the selected font";
 "scoreboard_style_theme_override_hint" = "Choosing a theme overrides current colors; you can still adjust individually after";
-"scoreboard_style_font_size" = "Font Size";
+"scoreboard_style_font_size" = "Text size (both sides)";
 "scoreboard_style_font_size_device_max" = "Max size on this device";
 "scoreboard_style_small" = "Small";
 "scoreboard_style_large" = "Large";
@@ -1589,6 +1592,18 @@
 "voice_language_en_us" = "English";
 "voice_call_note_zh" = "Chinese calls: scores like 3–2, ties like 3-all.";
 "voice_call_note_en" = "ITTF-style calls: 0 as love, 0–0 as Love all, names in pinyin.";
+"voice_call_note_pingpong_zh" = "Chinese calls: scores like 3–2, ties like 3-all.";
+"voice_call_note_pingpong_en" = "ITTF-style calls: 0 as love, 0–0 as Love all, names in pinyin.";
+"voice_call_note_badminton_zh" = "Chinese calls · 3–2 · Game point";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · Change of serve = “Service over”";
+"voice_call_note_tennis_zh" = "Chinese calls · 0/15/30/40 · Tie · Advantage";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · Tie = “Deuce” · Advantage = “Advantage”";
+"voice_call_note_pickleball_zh" = "Chinese calls · 3–2 · Traditional doubles 3–2–1 (1 = Server number)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · Traditional doubles 3–2–1 (1 = Server number) · Change of serve = “Side out”";
+"voice_call_note_volleyball_zh" = "Chinese calls · Scores only (3–2)";
+"voice_call_note_volleyball_en" = "International calls · Scores only (3–2)";
+"voice_call_note_squash_zh" = "Chinese calls · 3–2 · 10–10 = 10 (Tie)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · Tie = “all” · Game point = “Game ball”";
 
 // Restored group feature resources.
 "group_account" = "Account member";
@@ -1853,6 +1868,7 @@
 "group_clear_seat" = "Clear This Seat";
 "group_common_names" = "Saved Names";
 "group_complete_activity" = "End Activity";
+"group_complete_confirm" = "Check that every match has been handled before ending this activity.";
 "group_completion_mode" = "Match Completion";
 "group_default_rules" = "Sport Default";
 "group_discard_upload" = "Discard upload";
@@ -2789,3 +2805,15 @@
 /* Billiards group compatibility notice before creation. */
 "group_billiards_create_notice_title" = "Billiards group version notice";
 "group_billiards_create_notice_message" = "Billiards groups require iScoreboard %@ or later.\n\nNew versions are being released gradually across platforms and app stores. Members who have not updated, or whose platform does not yet offer the new version, cannot join or use billiards groups yet.\n\nAfter creating the group, please remind invited members to update the app. Members whose platform does not yet offer the new version will need to wait until it is available.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+
+"billiards_group_switch_to_two" = "Switched to 2 players";
+"billiards_group_score_panel_positive" = "Positive";
+"billiards_group_score_panel_negative" = "Negative";

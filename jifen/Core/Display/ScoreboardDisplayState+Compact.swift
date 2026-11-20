@@ -106,12 +106,16 @@ extension ScoreboardDisplayState {
         }
     }
 
-    init(compactState state: LocalScoreboardDisplayState, tennisIsTieBreak: Bool = false) {
+    init(
+        compactState state: LocalScoreboardDisplayState,
+        tennisIsTieBreak: Bool = false,
+        visualScores: (left: Int, right: Int)? = nil
+    ) {
         let profile = ScoreboardAppearanceSnapshot.current(
             styleID: ScoreboardStyleID(rawValue: state.gameID)
         ).styleProfileV2
-        let leftValue = Self.wireProtocolScore(gameID: state.gameID, display: state.leftScore, isTieBreak: tennisIsTieBreak)
-        let rightValue = Self.wireProtocolScore(gameID: state.gameID, display: state.rightScore, isTieBreak: tennisIsTieBreak)
+        let leftValue = visualScores?.left ?? Self.wireProtocolScore(gameID: state.gameID, display: state.leftScore, isTieBreak: tennisIsTieBreak)
+        let rightValue = visualScores?.right ?? Self.wireProtocolScore(gameID: state.gameID, display: state.rightScore, isTieBreak: tennisIsTieBreak)
         let teams = [
             ScoreboardDisplayTeam(
                 id: "team_0",
@@ -237,11 +241,13 @@ extension ScoreboardDisplayState {
         players: [ScoreboardDisplayPlayer]? = nil,
         sportState: [String: ScoreboardDisplayValue] = [:],
         clock: ScoreboardDisplayClock? = nil,
-        rest: ScoreboardDisplayRest? = nil
+        rest: ScoreboardDisplayRest? = nil,
+        visualScores: (left: Int, right: Int)? = nil
     ) -> ScoreboardDisplayState {
         var value = ScoreboardDisplayState(
             compactState: compact,
-            tennisIsTieBreak: sportState["tennisIsTieBreak"] == .boolean(true)
+            tennisIsTieBreak: sportState["tennisIsTieBreak"] == .boolean(true),
+            visualScores: visualScores
         )
         value.layoutKind = layoutKind
         value.orientation = orientation ?? (layoutKind == .multiGrid ? .portrait : .landscape)

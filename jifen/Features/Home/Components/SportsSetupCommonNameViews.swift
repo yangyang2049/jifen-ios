@@ -115,6 +115,13 @@ extension View {
     }
 }
 
+/// Setup 名称行序号块底色：浅色品牌绿 #4CAF50，深色深一档的 #2E7D32（与安卓 PrimaryDark 同值）。
+private let InlineCommonNameIndexBadgeBackground = Color(uiColor: UIColor { traits in
+    traits.userInterfaceStyle == .dark
+        ? UIColor(red: 46 / 255, green: 125 / 255, blue: 50 / 255, alpha: 1)
+        : UIColor(red: 76 / 255, green: 175 / 255, blue: 80 / 255, alpha: 1)
+})
+
 struct InlineCommonNameTextField: View {
     let placeholder: String
     @Binding var text: String
@@ -130,11 +137,14 @@ struct InlineCommonNameTextField: View {
     var body: some View {
         HStack(spacing: 0) {
             if let leadingLabel {
+                // 与安卓 / 鸿蒙同一口径：序号块是实心绿 + 白字，深浅色都用白字。
+                // 底色不能再用 50% 透明绿：白字压在上面只有约 1.6:1；深色也不能用 #30D158
+                // （白字约 1.9:1），因此深色取深一档的 #2E7D32（白字约 4.9:1）。
                 Text(leadingLabel)
                     .font(.system(size: 16, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.white)
                     .frame(width: 40, height: height)
-                    .background(Theme.primary.opacity(0.5))
+                    .background(InlineCommonNameIndexBadgeBackground)
             }
 
             HStack(spacing: Theme.xs) {

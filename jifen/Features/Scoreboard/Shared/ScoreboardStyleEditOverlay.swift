@@ -448,6 +448,15 @@ struct ScoreboardStyleEditOverlayView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("scoreboard_style_live_preview")
+            if workbenchTab == "free" && !fullPreview {
+                // 与 Android 一致：只有自由编辑时预览可点选元素，提示放在画布正下方。
+                Text(String(localized: "style_workbench_pick"))
+                    .font(.system(size: 11)).foregroundStyle(Color(hex: "9EA6B3"))
+                    .lineLimit(1).minimumScaleFactor(0.8)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 4)
+                    .accessibilityIdentifier("scoreboard_style_pick_hint")
+            }
             // 画布级控件放画布下方：参与布局、不覆盖预览、无独立底栏。
             previewTargetChips()
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -825,21 +834,37 @@ struct ScoreboardStyleEditOverlayView: View {
 
     private var workbenchThemes: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text(String(localized: "style_workbench_current")).foregroundStyle(.secondary)
+            Text(String(localized: "style_workbench_current"))
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(Color(hex: "D7DCE5"))
             HStack {
-                if draft.isPhotoTheme { photoThumbnail.frame(width: 64, height: 36) }
-                else { themePreviewCard(for: ScoreboardTheme(rawValue: draft.themeCode) ?? .defaultTheme) }
+                if draft.isPhotoTheme { photoThumbnail.frame(width: 48, height: 27) }
+                else { themePreviewCard(for: ScoreboardTheme(rawValue: draft.themeCode) ?? .defaultTheme, width: 48, height: 27) }
                 Text(draft.isPhotoTheme ? String(localized: "style_workbench_photo") : (ScoreboardTheme(rawValue: draft.themeCode) ?? .defaultTheme).localizedTitle)
+                    .font(.system(size: 14)).lineLimit(1)
                 Spacer()
                 if draft.isPhotoTheme { Button(String(localized: "style_workbench_settings")) { workbenchTab = "background"; uiState.openBackground() } }
                 else { Image(systemName: "checkmark.circle.fill").foregroundStyle(StyleEditPalette.accentGreen) }
-            }.padding(12).background(StyleEditPalette.accentGreen.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
-            Text(String(localized: "style_workbench_available")).foregroundStyle(.secondary)
+            }
+            .padding(12)
+            .background(Color(hex: "253A30"), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(Color(hex: "30D158").opacity(0.65), lineWidth: 1))
+            .accessibilityIdentifier("scoreboard_style_current_theme")
+            Text(String(localized: "style_workbench_available"))
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(Color(hex: "D7DCE5"))
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 8) {
                 ForEach(scoreThemeOptions.filter { $0.rawValue != draft.themeCode }) { theme in
                     Button { selectTheme(theme) } label: {
-                        VStack { themePreviewCard(for: theme); Text(theme.localizedTitle).font(.caption).lineLimit(1) }
-                            .frame(maxWidth: .infinity).frame(height: 68).background(StyleEditPalette.controlBackground, in: RoundedRectangle(cornerRadius: 10))
+                        VStack(spacing: 5) {
+                            themePreviewCard(for: theme)
+                            Text(theme.localizedTitle)
+                                .font(.system(size: 11)).foregroundStyle(Color(hex: "D8DCE4"))
+                                .lineLimit(1).minimumScaleFactor(0.8)
+                        }
+                        .frame(maxWidth: .infinity).frame(height: 68)
+                        .background(StyleEditPalette.controlBackground, in: RoundedRectangle(cornerRadius: 10))
                     }.buttonStyle(.plain).accessibilityIdentifier("scoreboard_style_theme_\(theme.rawValue)")
                 }
                 if ScoreboardStyleProfileV2.supportsPhotoTheme(controller.styleID), !draft.isPhotoTheme {
@@ -850,8 +875,16 @@ struct ScoreboardStyleEditOverlayView: View {
                         next.serverIndicatorColorHex = draft.serverIndicatorColorHex
                         controller.updateDraft(next)
                     } label: {
-                        VStack { photoThumbnail.frame(width: 40, height: 23); Text(String(localized: "style_workbench_photo")).font(.caption) }
-                            .frame(maxWidth: .infinity).frame(height: 68).background(StyleEditPalette.controlBackground, in: RoundedRectangle(cornerRadius: 10))
+                        VStack(spacing: 5) {
+                            photoThumbnail.frame(width: 40, height: 22.5)
+                            Text(String(localized: "style_workbench_photo"))
+                                .font(.system(size: 11)).foregroundStyle(Color(hex: "D8DCE4")).lineLimit(1)
+                        }
+                        .frame(maxWidth: .infinity).frame(height: 68)
+                        .background(StyleEditPalette.controlBackground, in: RoundedRectangle(cornerRadius: 10))
+                        // 背景图片主题是限时免费入口：右上角斜切「限免」角标。
+                        .overlay(alignment: .topTrailing) { ThemeFreeBadge() }
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                     }.buttonStyle(.plain).accessibilityIdentifier("scoreboard_style_theme_event_background")
                 }
             }
@@ -863,11 +896,26 @@ struct ScoreboardStyleEditOverlayView: View {
             .clipShape(RoundedRectangle(cornerRadius: 5))
     }
 
+    /// 自选图不是 16:9（容差 9%）时提示会被居中裁切，与 Android 的判据一致。
+    private var photoCropNotice: Bool {
+        guard draft.backdrop?.imageData != nil, let image = draft.backdrop?.image else { return false }
+        let ratio = image.size.width / max(1, image.size.height)
+        return abs(ratio - 16.0 / 9.0) > 0.09
+    }
+
     private var photoBackgroundControls: some View {
         // 背景栏提供图片操作和调整。发球指示在独立标签内设置。
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 12) {
                 photoThumbnail.frame(height: 110)
+                // 图片来源：默认图片 / 自定义图片，换过图之后一眼能看出当前是哪一种。
+                Text(draft.backdrop?.imageData == nil
+                     ? String(localized: "style_workbench_photo_source_default")
+                     : String(localized: "style_workbench_photo_source_custom"))
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(Color(hex: "E5E9F0"))
+                    .lineLimit(1)
+                    .accessibilityIdentifier("scoreboard_style_photo_source")
                 // 选择图片与恢复默认并排：两者都是「换图」动作，竖排会把下面的压暗/不透明度挤到折叠线以下。
                 HStack(spacing: 8) {
                     PhotosPicker(selection: $selectedPhoto, matching: .images) {
@@ -932,7 +980,14 @@ struct ScoreboardStyleEditOverlayView: View {
                     .accessibilityIdentifier("scoreboard_style_photo_credit")
             }
 
-            Text(String(localized: "style_workbench_image_advice")).font(.caption).foregroundStyle(.secondary)
+            // 自选图不是 16:9 时提示会被居中裁切（沿用 Android 的 9% 容差口径）。
+            Text(photoCropNotice
+                 ? String(localized: "style_workbench_photo_crop_notice")
+                 : String(localized: "style_workbench_image_advice"))
+                .font(.caption).foregroundStyle(.secondary)
+                .accessibilityIdentifier(photoCropNotice
+                                         ? "scoreboard_style_photo_crop_hint"
+                                         : "scoreboard_style_photo_advice")
         }.tint(StyleEditPalette.accentGreen)
     }
 
@@ -969,6 +1024,15 @@ struct ScoreboardStyleEditOverlayView: View {
             }
             Slider(value: Binding(get: value, set: onChange), in: range)
                 .accessibilityIdentifier(identifier)
+            // 两端范围标签：与 Android PhotoThemeAdjustment 一致，明确可调区间。
+            HStack {
+                Text("\(Int((range.lowerBound * 100).rounded()))%")
+                Spacer()
+                Text("\(Int((range.upperBound * 100).rounded()))%")
+            }
+            .font(.system(size: 10))
+            .foregroundStyle(.white.opacity(0.56))
+            .accessibilityHidden(true)
         }
     }
 
@@ -1041,6 +1105,8 @@ struct ScoreboardStyleEditOverlayView: View {
     private var serverStyleChoices: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(String(localized: "style_server_style"))
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(Color(hex: "D7DCE5"))
             HStack(spacing: 8) {
                 serverStyleChoice(String(localized: "style_server_arrow"), style: "arrow",
                                   identifier: "scoreboard_style_server_style_arrow") {
@@ -1133,7 +1199,9 @@ struct ScoreboardStyleEditOverlayView: View {
 
     /// 主题迷你预览卡片（1:1 对齐安卓 ic_theme_* 图标：
     /// 背景 + 左右侧面板 + 中缝 + 前景数字 "3/5/2"）。
-    private func themePreviewCard(for theme: ScoreboardTheme) -> some View {
+    private func themePreviewCard(for theme: ScoreboardTheme,
+                                  width: CGFloat = 40,
+                                  height: CGFloat = 22.5) -> some View {
         let descriptor = theme.previewDescriptor
         return ZStack {
             Rectangle().fill(Color(hex: descriptor.backgroundHex))
@@ -1167,7 +1235,7 @@ struct ScoreboardStyleEditOverlayView: View {
                     .frame(maxWidth: .infinity)
             }
         }
-        .frame(width: 34, height: 20)
+        .frame(width: width, height: height)
         .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
     }
 
@@ -1330,59 +1398,26 @@ struct ScoreboardStyleEditOverlayView: View {
 
     // MARK: 各面板
 
-    private var backgroundPanel: some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 4) {
-                if capabilities.canEditBackground(.sideLeft) {
-                    backgroundTargetButton(.slot(.sideLeft))
-                }
-                if capabilities.canEditBackground(.sideCenter) {
-                    backgroundTargetButton(.slot(.sideCenter))
-                }
-                if capabilities.canEditBackground(.sideRight) {
-                    backgroundTargetButton(.slot(.sideRight))
-                }
-                if !capabilities.canEditBackground(.sideCenter),
-                   capabilities.canEditBackground(.sideLeft),
-                   capabilities.canEditBackground(.sideRight) {
-                    backgroundTargetButton(.both)
-                }
-            }
-            .padding(4)
-            .background(StyleEditPalette.controlBackground, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+    /// 背景栏 chip 的侧别文案：左 / 中间 / 右，与色板标题同一套资源。
+    private func slotTitle(_ slot: ScoreboardStyleSlotKeyV2) -> String {
+        switch slot {
+        case .sideLeft: return String(localized: "style_slot_left")
+        case .sideCenter: return String(localized: "style_slot_center")
+        case .sideRight: return String(localized: "style_slot_right")
+        // 多人计分的 player_N 槽位不会出现在背景 chips 里（capabilities.slotKeys 只给三栏侧别）。
+        default: return slot.rawValue
+        }
+    }
 
-            if backgroundTarget == .both {
-                HStack(spacing: 8) {
-                    Circle()
-                        .fill(slotBackground(.sideLeft).styleColor)
-                        .frame(width: 28, height: 28)
-                        .overlay(Circle().strokeBorder(Color.white.opacity(0.42), lineWidth: 1))
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(NSLocalizedString("scoreboard_style_both_backgrounds", value: "左右背景", comment: ""))
-                            .font(.system(size: 10))
-                            .foregroundStyle(.white.opacity(0.56))
-                        Text(slotBackground(.sideLeft).styleDisplayHex)
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(.white)
-                    }
-                    Spacer()
-                }
-                .padding(.horizontal, 9)
-                .padding(.vertical, 8)
-                .background(StyleEditPalette.accentGreenSubtle)
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .strokeBorder(Color(hex: "30D158").opacity(0.52), lineWidth: 1))
-            } else {
-                HStack(spacing: 8) {
-                    if capabilities.canEditBackground(.sideLeft) {
-                        backgroundOverviewCard(.sideLeft)
-                    }
-                    if capabilities.canEditBackground(.sideCenter) {
-                        backgroundOverviewCard(.sideCenter)
-                    }
-                    if capabilities.canEditBackground(.sideRight) {
-                        backgroundOverviewCard(.sideRight)
+    private var backgroundPanel: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // 纯色背景：左/中/右三个 chip + 一块色板，不再上图左右背景概览卡。
+            HStack(spacing: 8) {
+                ForEach(capabilities.slotKeys, id: \.self) { slot in
+                    if capabilities.canEditBackground(slot) {
+                        workbenchChoice(slotTitle(slot), selected: backgroundTarget == .slot(slot)) {
+                            setBackgroundTarget(.slot(slot))
+                        }
                     }
                 }
             }
@@ -1400,74 +1435,6 @@ struct ScoreboardStyleEditOverlayView: View {
             )
         }
         .padding(isLargeLayout ? 24 : 18)
-    }
-
-    private func backgroundTargetButton(_ target: StyleBackgroundTarget) -> some View {
-        let title: String = {
-            switch target {
-            case .slot(.sideLeft): return NSLocalizedString("style_slot_left", value: "左侧", comment: "")
-            case .slot(.sideCenter): return NSLocalizedString("style_slot_center", value: "中间", comment: "")
-            case .slot(.sideRight): return NSLocalizedString("style_slot_right", value: "右侧", comment: "")
-            case .slot: return NSLocalizedString("style_slot_left", value: "左侧", comment: "")
-            case .both: return NSLocalizedString("scoreboard_style_both_same", value: "左右同色", comment: "")
-            }
-        }()
-        let selected = backgroundTarget == target
-        // 与“本机 / 投屏”分段控件同款：外层容器 12pt 圆角 + 4pt 内边距，
-        // 内层选中块 8pt 圆角，两段同心，避免圆角套圆角。
-        return Button(action: { setBackgroundTarget(target) }) {
-            Text(title)
-                .font(.system(size: isLargeLayout ? 14 : 13, weight: selected ? .medium : .regular))
-                .foregroundStyle(selected ? Color.white : Color.white.opacity(0.62))
-                .lineLimit(1).minimumScaleFactor(0.8)
-                .frame(maxWidth: .infinity)
-                .frame(height: isLargeLayout ? 40 : 36)
-                .background(
-                    selected ? StyleEditPalette.accentGreenSoft : Color.clear,
-                    in: RoundedRectangle(cornerRadius: 8, style: .continuous)
-                )
-                .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-        }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(selected ? .isSelected : [])
-    }
-
-    private func backgroundOverviewCard(_ slot: ScoreboardStyleSlotKeyV2) -> some View {
-        let color = slot == .sideCenter && !capabilities.canEditBackground(.sideCenter)
-            ? slotBackground(.sideLeft)
-            : slotBackground(slot)
-        let title: String = {
-            switch slot {
-            case .sideLeft: return NSLocalizedString("style_slot_left", value: "左侧", comment: "")
-            case .sideCenter: return NSLocalizedString("style_slot_center", value: "中间", comment: "")
-            default: return NSLocalizedString("style_slot_right", value: "右侧", comment: "")
-            }
-        }()
-        let selected = backgroundTarget == .slot(slot)
-        return Button(action: { setBackgroundTarget(.slot(slot)) }) {
-            VStack(spacing: 4) {
-                Circle()
-                    .fill(color.styleColor)
-                    .frame(width: 26, height: 26)
-                    .overlay(Circle().strokeBorder(Color.white.opacity(0.42), lineWidth: 1))
-                Text(title)
-                    .font(.system(size: 10))
-                    .foregroundStyle(.white.opacity(0.56))
-                    .lineLimit(1)
-                Text(color.styleDisplayHex)
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 8)
-            .background(selected ? StyleEditPalette.accentGreenSubtle : Color.white.opacity(0.045))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .strokeBorder(selected ? StyleEditPalette.accentGreen.opacity(0.62) : Color.white.opacity(0.09), lineWidth: 1))
-        }
-        .buttonStyle(.plain)
     }
 
     private var serverIndicatorPanel: some View {
@@ -1599,19 +1566,6 @@ struct ScoreboardStyleEditOverlayView: View {
                     onCommit: { commitRecentColor($0) },
                     onOpenCustom: { customColorOpen = true }
                 )
-                if !isAutoContrastActive() && !ScoreboardStyleColorMath.isReadableTextColor(
-                    effectiveTextColor(),
-                    on: slotBackground(uiState.activeElementSlot)
-                ) {
-                    Text(NSLocalizedString(
-                        "scoreboard_style_contrast_warning",
-                        value: "当前文字色与背景对比度不足，可能看不清",
-                        comment: ""
-                    ))
-                    .font(.system(size: 12))
-                    .foregroundStyle(Color.red)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
             }
         }
         .padding(isLargeLayout ? 24 : 18)
@@ -1761,8 +1715,8 @@ struct ColorPickerPanel: View {
             // 标题行右侧带当前色值：取代过去那张独立的「当前颜色」卡片，信息保留但不再独占一层。
             HStack(spacing: 10) {
                 Text(colorTitle ?? NSLocalizedString("style_common_colors", value: "常用颜色", comment: ""))
-                    .font(.system(size: isLargeLayout ? 13 : 12, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.72))
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(Color(hex: "D7DCE5"))
                     .lineLimit(1)
                 Spacer(minLength: 0)
                 if showCurrentColor {
@@ -1780,8 +1734,9 @@ struct ColorPickerPanel: View {
             // 列数随容器宽度自适应（宽面板一行多放、窄面板少放避免溢出），圆点尺寸不变、格子等宽撑满整行；
             // 与安卓 WorkbenchColors / 鸿蒙 columnsTemplate 同一换算：columns = floor((宽 + 间距) / (圆点 + 间距))，
             // 首帧未量到宽度时退回原来的 6 列。
-            let dotSize: CGFloat = isLargeLayout ? 38 : 32
-            let swatchGap: CGFloat = isLargeLayout ? 8 : 5
+            // 与 Android WorkbenchColors 同径：色点 34、间距 9，不随大屏放大。
+            let dotSize: CGFloat = 34
+            let swatchGap: CGFloat = 9
             let columns = containerWidth > 0 ? max(3, Int((containerWidth + swatchGap) / (dotSize + swatchGap))) : 6
             let autoCell = onSelectAuto == nil ? [] : ["auto"]
             let rows = (autoCell + displayColors + ["custom"]).chunked(into: columns)
@@ -1809,6 +1764,15 @@ struct ColorPickerPanel: View {
                                                 isSelected ? StyleEditPalette.accentGreen : Color.white.opacity(0.32),
                                                 lineWidth: isSelected ? 3 : 1
                                             ))
+                                            // 选中色点内加勾，勾色按底色可见性取黑/白（与 Android 同一口径）。
+                                            .overlay {
+                                                if isSelected {
+                                                    Image(systemName: "checkmark")
+                                                        .font(.system(size: dotSize * 0.5, weight: .bold))
+                                                        .foregroundStyle(ScoreboardStyleColorMath.isReadableTextColor("FFFFFF", on: value)
+                                                            ? Color.white : Color.black)
+                                                }
+                                            }
                                     }
                                     .buttonStyle(.plain)
                                 }

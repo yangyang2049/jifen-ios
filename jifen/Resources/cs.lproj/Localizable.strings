@@ -14,7 +14,9 @@
 "all" = "Vše";
 "scoreboard" = "Skóre";
 "timer" = "Časovač";
-"scoreboard_sports" = "Sport";
+"scoreboard_racket_sports" = "Raketové sporty";
+"scoreboard_other_sports" = "Ostatní sporty";
+"scoreboard_general_scoring" = "Univerzální bodování";
 "scoreboard_board_games" = "Deskové hry";
 "search_team_or_game" = "Vyhledejte tým nebo hru";
 "match_count" = "%d zápasů";
@@ -188,6 +190,7 @@
 "doudizhu_player_chris" = "Chris";
 "doudizhu_player_david" = "Davide";
 "shengji_claim_dealer" = "Ucházet se o rozdávání";
+"shengji_pass_a" = "Úspěšné A";
 "guandan_edit_level_wrap_confirm_title" = "Vrátit hodnocení na 2?";
 "guandan_edit_level_wrap_confirm_message" = "Opětovné zvýšení resetuje hodnocení tohoto týmu na 2.";
 "shengji_take_dealer" = "Převzít rozdávání";
@@ -1584,6 +1587,18 @@
 "voice_language_en_us" = "Angličtina";
 "voice_call_note_zh" = "Čínská hlášení: skóre jako 3–2, vyrovnaný stav jako „3 všude“.";
 "voice_call_note_en" = "Hlášení ve stylu ITTF: 0 jako love, 0–0 jako Love all, jména v pinyin.";
+"voice_call_note_pingpong_zh" = "Čínská hlášení: skóre jako 3–2, vyrovnaný stav jako „3 všude“.";
+"voice_call_note_pingpong_en" = "Hlášení ve stylu ITTF: 0 jako love, 0–0 jako Love all, jména v pinyin.";
+"voice_call_note_badminton_zh" = "Hlášení v čínštině · 3–2 · Bod ke hře";
+"voice_call_note_badminton_en" = "BWF · 0 = “love” · 29–29 = “29 all” · Změna podání = “Service over”";
+"voice_call_note_tennis_zh" = "Hlášení v čínštině · 0/15/30/40 · Shoda · Výhoda";
+"voice_call_note_tennis_en" = "ITF · 0/15/30/40 · Shoda = “Deuce” · Výhoda = “Advantage”";
+"voice_call_note_pickleball_zh" = "Hlášení v čínštině · 3–2 · Tradiční čtyřhra 3–2–1 (1 = Číslo podávajícího)";
+"voice_call_note_pickleball_en" = "USAP · 3–2 · Tradiční čtyřhra 3–2–1 (1 = Číslo podávajícího) · Změna podání = “Side out”";
+"voice_call_note_volleyball_zh" = "Hlášení v čínštině · Pouze skóre (3–2)";
+"voice_call_note_volleyball_en" = "Mezinárodní hlášení · Pouze skóre (3–2)";
+"voice_call_note_squash_zh" = "Hlášení v čínštině · 3–2 · 10–10 = 10 (Shoda)";
+"voice_call_note_squash_en" = "WSF · 0 = “love” · Shoda = “all” · Bod ke hře = “Game ball”";
 // Restored group feature resources.
 "group_account" = "Člen s účtem";
 "group_active_30d" = "Aktivní za posledních 30 dní";
@@ -2756,3 +2771,11 @@
 "style_workbench_set_game_score" = "Sety a hry";
 "style_workbench_photo_failed" = "Tuto fotografii nelze otevřít. Zvolte jiný obrázek.";
 "style_workbench_image_advice" = "Použijte vodorovný obrázek 16:9, například 1920×1080. Obrázek vyplní obrazovku se středovým oříznutím.";
+
+/* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
+"scoreboard_theme_free_badge" = "Free";
+"scoreboard_theme_free_badge_desc" = "Free for a limited time";
+"style_workbench_pick" = "Tap text or the serving icon to edit";
+"style_workbench_photo_source_default" = "Default photo";
+"style_workbench_photo_source_custom" = "Custom photo";
+"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";

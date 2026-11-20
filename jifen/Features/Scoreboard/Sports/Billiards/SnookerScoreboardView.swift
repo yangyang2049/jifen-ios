@@ -655,11 +655,13 @@ struct SnookerScoreboardView: View {
                 showFoulPanel = true
             } label: {
                 Text(NSLocalizedString("snooker_foul_button", value: "犯规", comment: ""))
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(Color(hex: "FF453A"))
-                    .frame(minWidth: controlSize, minHeight: controlSize)
-                    .padding(.horizontal, actionHorizontalPadding)
-                    .background(Capsule().fill(Color.white.opacity(0.14)))
+                    .minimumScaleFactor(0.6)
+                    .lineLimit(1)
+                    .frame(width: controlSize, height: controlSize)
+                    .background(Circle().fill(Color.white.opacity(0.14)))
+                    .overlay(Circle().stroke(Color.white.opacity(0.25), lineWidth: 1))
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("snooker_foul_button")
@@ -669,11 +671,13 @@ struct SnookerScoreboardView: View {
                 send(.handover)
             } label: {
                 Text(NSLocalizedString("snooker_handover", value: "交杆", comment: ""))
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(.white)
-                    .frame(minWidth: controlSize, minHeight: controlSize)
-                    .padding(.horizontal, actionHorizontalPadding)
-                    .background(Capsule().fill(Color.white.opacity(0.14)))
+                    .minimumScaleFactor(0.6)
+                    .lineLimit(1)
+                    .frame(width: controlSize, height: controlSize)
+                    .background(Circle().fill(Color.white.opacity(0.14)))
+                    .overlay(Circle().stroke(Color.white.opacity(0.25), lineWidth: 1))
             }
             .buttonStyle(.plain)
             .accessibilityLabel(NSLocalizedString("snooker_handover", value: "交杆", comment: ""))

@@ -22,6 +22,8 @@ nonisolated struct GroupBilliardsActivityBody: Codable, Sendable {
     var activityType: String; var defaultMatchConfig: GroupBilliardsRules
     /// 报名制活动必须给人数上限，否则服务端按默认值兜底，卡片会显示成「3/30」这种看不懂的数。
     var capacity: Int = 100
+    var registrationClosesAt: Int64
+    var note: String
 }
 
 nonisolated enum BilliardsResultAction: String, Sendable { case correct, confirm, authorityConfirm, void }
@@ -31,20 +33,19 @@ nonisolated enum BilliardsResultAction: String, Sendable { case correct, confirm
 nonisolated private struct BilliardsBrowseCache: Codable, Sendable {
     var rows: [GroupBilliardsRow]; var activities: [GroupActivity]; var ranking: GroupBilliardsRanking
 }
-/// 「创建活动」弹层。玩法层已在 2026-11-14 删除：概览底栏直接进一步式配置页，
-/// 不再有「先选玩法」的 sheet。
-private enum BilliardsSheet: Identifiable {
-    case activityEditor
-    var id: String { "activity-editor" }
+private enum BilliardsActivityCreation {
+    case signup, direct
 }
 
-/// 需要二次确认的台球动作：作废成绩 / 取消活动 / 放弃本场。
-/// 三者都把失败信息显示在**弹窗内部**（对齐安卓），不再只写到被弹窗盖住的页面 banner。
+/// 作废、确认、结束活动和移除场次共用的操作弹窗。
 private struct BilliardsPrompt: Identifiable {
     enum Kind {
         case voidResult(GroupBilliardsRow)
         case cancelActivity
         case abandon(BilliardsResume)
+        case completeActivity(String)
+        case removeSession(activityID: String, sessionID: String)
+        case confirmResult(GroupBilliardsRow, authority: Bool)
     }
     var id = UUID()
     var kind: Kind
@@ -52,6 +53,15 @@ private struct BilliardsPrompt: Identifiable {
     var message: String
     var confirm: String
     var requiresReason = false
+    var destructive = true
+}
+
+private func billiardsResultConfirmation(_ row: GroupBilliardsRow, authority: Bool) -> BilliardsPrompt {
+    let title = billiardsText(authority ? "owner_confirm" : "confirm")
+    let message = authority
+        ? groupText("copy_result_confirm_authority_message", "Check the players and score before confirming on behalf of the group.")
+        : groupText("copy_result_confirm_member_message", "Check the players and score before confirming this result.")
+    return .init(kind: .confirmResult(row, authority: authority), title: title, message: message, confirm: title, destructive: false)
 }
 
 /// 确认弹窗本体（同一个视图节点只挂一个，避免与「创建活动」sheet 抢占）。
@@ -76,8 +86,10 @@ private struct BilliardsPromptDialog: View {
                 Text(prompt.title).font(.system(size: Theme.fontH5, weight: .semibold))
                     .foregroundStyle(Theme.textPrimary).multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading).accessibilityAddTraits(.isHeader)
-                Text(prompt.message).font(GroupTypography.body).foregroundStyle(Theme.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true).groupLineHeight(.body)
+                if !prompt.message.isEmpty {
+                    Text(prompt.message).font(GroupTypography.body).foregroundStyle(Theme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true).groupLineHeight(.body)
+                }
                 if prompt.requiresReason {
                     TextField(billiardsText("correction_reason"), text: $reason)
                         .font(GroupTypography.body).tint(Theme.primary)
@@ -95,7 +107,7 @@ private struct BilliardsPromptDialog: View {
                     Button(NSLocalizedString("cancel", value: "Cancel", comment: "")) { onCancel() }
                         .buttonStyle(GroupAlignedActionStyle(secondary: true)).disabled(busy)
                     Button(prompt.confirm) { onConfirm() }
-                        .buttonStyle(GroupAlignedActionStyle(destructive: true)).disabled(!canConfirm)
+                        .buttonStyle(GroupAlignedActionStyle(destructive: prompt.destructive)).disabled(!canConfirm)
                         .accessibilityIdentifier("billiards_prompt_confirm")
                 }
             }
@@ -156,7 +168,8 @@ private struct GroupBilliardsTabContent: View {
 
     @State private var rows: [GroupBilliardsRow] = []
     @State private var ranking = GroupBilliardsRanking()
-    @State private var variant = GroupBilliardsVariant.folk
+    @State private var variant: GroupBilliardsVariant
+    @State private var variantAccount: String?
     @State private var bucket = ""
     @State private var activities: [GroupBilliardsActivity] = []
     @State private var lineup: GroupBilliardsLineup?
@@ -166,7 +179,8 @@ private struct GroupBilliardsTabContent: View {
     @State private var error: String?
     @State private var busy = false
     @State private var loaded = false
-    @State private var sheet: BilliardsSheet?
+    @State private var activityCreation: BilliardsActivityCreation?
+    @State private var overviewSetup = false
     @State private var entry: BilliardsEntryRequest?
     @State private var prompt: BilliardsPrompt?
     @State private var promptReason = ""
@@ -181,6 +195,9 @@ private struct GroupBilliardsTabContent: View {
         self.refreshKey = refreshKey; self.onSelectTab = onSelectTab; self.onStart = onStart
         // 从活动详情页进来时直接展开该活动的场次编排（对齐安卓 initialActivityId）。
         _lineupActivityID = State(initialValue: initialActivityID)
+        let account = GroupStore.shared.accountID
+        _variantAccount = State(initialValue: account)
+        _variant = State(initialValue: Self.lastFilterVariant(account: account, groupID: detail.group.id))
     }
 
     private var groupID: String { detail.group.id }
@@ -193,6 +210,23 @@ private struct GroupBilliardsTabContent: View {
     /// 活动与赛果审核是服务端强一致动作：离线（缓存态）时整套入口收起（规格 §2 末尾）。
     private var serverWritable: Bool { writable && !store.cached }
     private var cacheKey: String { "billiards-cache-v2:" + groupID }
+    private static func filterKey(_ groupID: String) -> String { "billiards-filter:" + groupID }
+
+    private static func lastFilterVariant(account: String?, groupID: String) -> GroupBilliardsVariant {
+        guard let account else { return .folk }
+        if let saved = GroupLocalPersistence.shared.loadDraft(GroupBilliardsVariant.self, key: filterKey(groupID), accountID: account) {
+            return saved
+        }
+        return (try? GroupBilliardsPersistence.shared.rememberedRules(accountID: account, groupID: groupID))?.knownVariant ?? .folk
+    }
+
+    private func selectFilterVariant(_ value: GroupBilliardsVariant) {
+        guard variant != value else { return }
+        variant = value; bucket = ""
+        if let account = store.accountID {
+            try? GroupLocalPersistence.shared.saveDraft(value, key: Self.filterKey(groupID), accountID: account)
+        }
+    }
     private var confirmedCount: Int { rows.filter { $0.status == "confirmed" }.count }
     private var pendingCount: Int { rows.filter { $0.status == "pending_confirmation" }.count }
 
@@ -239,13 +273,19 @@ private struct GroupBilliardsTabContent: View {
         // 从计分板/补记页 pop 回来时补一次刷新：刚打完的一场不用手动下拉才出现（规格 §5.1）。
         .onAppear { if loaded { Task { await reload() } } }
         .onChange(of: entry?.id) { _, next in if next == nil { Task { await reload() } } }
+        .sheet(isPresented: $overviewSetup, onDismiss: { Task { await reload() } }) {
+            GroupBilliardsEntryView(detail: detail, request: .init(mode: .launch),
+                                   hostsScoreboardSetup: true, onStart: onStart)
+        }
         .navigationDestination(isPresented: Binding(get: { entry != nil }, set: { if !$0 { entry = nil } })) {
             if let entry { GroupBilliardsEntryView(detail: detail, request: entry, onStart: onStart) }
         }
         .navigationDestination(isPresented: $sharing) { GroupShareView(group: group) }
-        .sheet(item: $sheet, onDismiss: { Task { await reload() } }) { item in
-            switch item {
-            case .activityEditor: NavigationStack { GroupBilliardsActivityEditor(groupID: groupID) { sheet = nil } }.groupAccountBoundary()
+        .navigationDestination(isPresented: Binding(get: { activityCreation != nil }, set: { if !$0 { activityCreation = nil } })) {
+            if let activityCreation {
+                GroupBilliardsActivityEditor(detail: detail, direct: activityCreation == .direct, onStart: onStart,
+                                             onCreated: openActivity)
+                    .groupAccountBoundary()
             }
         }
     }
@@ -477,7 +517,7 @@ private struct GroupBilliardsTabContent: View {
                 HStack(spacing: Theme.sm) {
                     Text(activity.title).font(GroupTypography.cardTitle).lineLimit(1).truncationMode(.tail)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    BilliardsStatusChip(text: activity.statusLabel, tone: activityTone(activity.status))
+                    BilliardsStatusChip(text: activityStatusLabel(activity), tone: activityTone(activity.status))
                 }
                 Text(activityTimeLine(activity)).font(GroupTypography.caption).foregroundStyle(Theme.textSecondary)
                     .lineLimit(2).fixedSize(horizontal: false, vertical: true)
@@ -495,10 +535,15 @@ private struct GroupBilliardsTabContent: View {
         }
     }
 
+    private func activityStatusLabel(_ activity: GroupActivity) -> String {
+        activity.isDirect && activity.status == "recruiting"
+            ? groupText("activity_status_scheduled", "Scheduled") : activity.statusLabel
+    }
+
     private func activityTimeLine(_ activity: GroupActivity) -> String {
-        var text = activity.isSequenced
-            ? activity.date.formatted(.dateTime.year().month().day()) + " · " + groupText("activity_timing_sequence", "No fixed time")
-            : activity.date.formatted(date: .abbreviated, time: .shortened)
+        // 台球活动始终有开始时间，场次时间在此基础上编排；三端卡面统一显示具体时间，
+        // 不再按 timingMode=sequence 改写成「无固定时间」。
+        var text = activity.date.formatted(date: .abbreviated, time: .shortened)
         if !activity.place.isEmpty { text += " · " + activity.place }
         return text
     }
@@ -528,14 +573,17 @@ private struct GroupBilliardsTabContent: View {
                         .accessibilityIdentifier("billiards_back_to_activities")
                     Text(activity.title).font(GroupTypography.body.weight(.semibold)).lineLimit(1)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    BilliardsStatusChip(text: activity.statusLabel, tone: activityTone(activity.status))
+                    BilliardsStatusChip(text: activityStatusLabel(activity), tone: activityTone(activity.status))
                 }
                 Text(activityTimeLine(activity)).font(GroupTypography.caption).foregroundStyle(Theme.textSecondary)
                     .lineLimit(2).fixedSize(horizontal: false, vertical: true)
                 if let rules = activities.first(where: { $0.id == activity.id })?.defaultRules {
                     Text(rules.summary).font(GroupTypography.caption).foregroundStyle(Theme.textSecondary).lineLimit(2)
                 }
-                registrationControls(activity, lineup: lineup)
+                if !activity.note.isEmpty {
+                    Text(activity.note).font(GroupTypography.caption).foregroundStyle(Theme.textSecondary)
+                }
+                registrationControls(activity)
                 if lineup.canManage && serverWritable {
                     Divider()
                     HStack(spacing: Theme.sm) {
@@ -545,7 +593,12 @@ private struct GroupBilliardsTabContent: View {
                                           activityID: activity.id,
                                           allowedMemberIDs: activity.isDirect ? nil : activity.registeredMemberIds)
                         }
-                        BilliardsPillButton(text: billiardsText("complete_activity"), enabled: !busy) { Task { await completeActivity() } }
+                        BilliardsPillButton(text: billiardsText("complete_activity"), enabled: !busy) {
+                            let title = billiardsText("complete_activity")
+                            openPrompt(.init(kind: .completeActivity(activity.id), title: title,
+                                             message: groupText("complete_confirm", "End this activity?"),
+                                             confirm: title))
+                        }
                         if activity.status == "recruiting" {
                             BilliardsPillButton(text: billiardsText("cancel_activity"), destructive: true, enabled: !busy) {
                                 askCancelActivity()
@@ -564,22 +617,26 @@ private struct GroupBilliardsTabContent: View {
         }
     }
 
-    @ViewBuilder private func registrationControls(_ activity: GroupActivity, lineup: GroupBilliardsLineup) -> some View {
-        let registered = me.map { activity.registeredMemberIds.contains($0.id) } ?? false
-        let open = !activity.isDirect && ["recruiting", "in_progress"].contains(activity.status)
-        if open, me != nil {
-            HStack(spacing: Theme.sm) {
-                if registered {
-                    BilliardsPillButton(text: billiardsText("unregister"), enabled: serverWritable && !busy) {
-                        run { try await store.repository.action("/\(groupID)/activities/\(activity.id)/unregister", body: .init(memberId: me?.id)) }
-                    }
+    @ViewBuilder private func registrationControls(_ activity: GroupActivity) -> some View {
+        if !activity.isDirect, ["recruiting", "in_progress"].contains(activity.status), let memberID = me?.id {
+            let registered = activity.registeredMemberIds.contains(memberID)
+            let full = activity.registeredMemberIds.count >= activity.capacity
+            let closes = Date(timeIntervalSince1970: Double(activity.registrationClosesAt ?? activity.startsAt) / 1000)
+            TimelineView(.explicit([.distantPast, closes])) { _ in
+                if !activity.registrationOpen {
+                    Text(groupText("error_registration_closed", "Registration has closed."))
+                        .font(GroupTypography.caption).foregroundStyle(Theme.textSecondary)
                 } else {
-                    BilliardsPillButton(text: billiardsText("register"), primary: true, enabled: serverWritable && !busy) {
-                        run { try await store.repository.action("/\(groupID)/activities/\(activity.id)/register", body: .init(memberId: me?.id)) }
-                    }
+                    BilliardsPillButton(
+                        text: registered ? billiardsText("unregister") : (full ? groupText("activity_full", "Full") : billiardsText("register")),
+                        primary: !registered, enabled: serverWritable && !busy && (registered || !full)
+                    ) {
+                        guard activity.registrationOpen else { return }
+                        let action = registered ? "unregister" : "register"
+                        run { try await store.repository.action("/\(groupID)/activities/\(activity.id)/\(action)", body: .init(memberId: memberID)) }
+                    }.padding(.top, Theme.xs)
                 }
-                Spacer(minLength: 0)
-            }.padding(.top, Theme.xs)
+            }
         }
     }
 
@@ -594,11 +651,24 @@ private struct GroupBilliardsTabContent: View {
                     BilliardsStatusChip(text: sessionStatusText(session.status), tone: sessionTone(session.status))
                 }
                 if !session.participants.isEmpty {
-                    Text(session.participants.compactMap(\.displayName).joined(separator: " / "))
-                        .font(GroupTypography.caption).foregroundStyle(Theme.textSecondary).lineLimit(2)
+                    let columns = [GridItem(.adaptive(minimum: 120), alignment: .leading)]
+                    LazyVGrid(columns: columns, spacing: Theme.sm) {
+                        ForEach(session.participants.sorted { $0.participant.position < $1.participant.position }, id: \.memberId) { seat in
+                            let member = detail.members.first { $0.id == seat.memberId || $0.ownsHistoricalMember(seat.memberId) }
+                            let name = member?.displayName ?? seat.displayName ?? seat.memberId
+                            HStack(spacing: Theme.xs) {
+                                GroupAvatar(name: name, url: member?.avatarUrl, size: 24, isVip: member?.isVip == true)
+                                    .accessibilityHidden(true)
+                                Text(name).font(GroupTypography.caption).foregroundStyle(Theme.textPrimary)
+                            }
+                        }
+                    }
                 }
-                if !session.court.isEmpty {
-                    Text(session.court).font(GroupTypography.caption).foregroundStyle(Theme.textSecondary).lineLimit(1)
+                let time = Date(timeIntervalSince1970: Double(session.startsAt) / 1000)
+                if session.startsAt > 0 || !session.court.isEmpty {
+                    Text([session.startsAt > 0 ? time.formatted(date: .omitted, time: .shortened) : "", session.court]
+                        .filter { !$0.isEmpty }.joined(separator: " · "))
+                        .font(GroupTypography.caption).foregroundStyle(Theme.textSecondary)
                 }
                 if writable && (!session.isTerminal || session.canCorrect == true) {
                     HStack(spacing: Theme.sm) {
@@ -607,7 +677,8 @@ private struct GroupBilliardsTabContent: View {
                                 entry = .init(mode: .launch, variant: session.rules.knownVariant ?? .folk,
                                               activityID: activity.id, activitySessionID: session.id,
                                               gameID: session.gameId, rules: session.rules, seats: session.participants,
-                                              allowedMemberIDs: signup ? activity.registeredMemberIds : nil)
+                                              allowedMemberIDs: signup ? activity.registeredMemberIds : nil,
+                                              canAdjustAtStart: session.canStart == true && session.isFrozen != true)
                             }
                         }
                         BilliardsPillButton(text: billiardsText("manual"), enabled: !busy) {
@@ -627,13 +698,10 @@ private struct GroupBilliardsTabContent: View {
                                           allowedMemberIDs: signup ? activity.registeredMemberIds : nil,
                                           orderNo: session.orderNo)
                         }
-                        BilliardsPillButton(text: String(format: billiardsText("remove_session"), session.orderNo), destructive: true, enabled: !busy) {
-                            run {
-                                guard let current = lineup else { throw GroupBilliardsError.result }
-                                let sessions = current.sessions.filter { $0.id != session.id }.map(\.submission)
-                                let _: GroupBilliardsLineup = try await store.repository.write("/\(groupID)/activities/\(activity.id)/lineup",
-                                    body: GroupBilliardsLineupBody(sessionMinutes: current.sessionMinutes, sessions: sessions), method: .put, revision: current.revision)
-                            }
+                        let remove = String(format: billiardsText("remove_session"), session.orderNo)
+                        BilliardsPillButton(text: remove, destructive: true, enabled: !busy) {
+                            openPrompt(.init(kind: .removeSession(activityID: activity.id, sessionID: session.id),
+                                             title: remove, message: "", confirm: groupText("remove_session", "Remove")))
                         }
                     }
                 }
@@ -721,7 +789,7 @@ private struct GroupBilliardsTabContent: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: Theme.sm) {
                 ForEach(GroupBilliardsVariant.allCases) { value in
-                    Button { if variant != value { variant = value; bucket = "" } } label: {
+                    Button { selectFilterVariant(value) } label: {
                         // 灰卡片上的次级 chip：浅色白底 + 1px 描边，选中态主色实底 + 白字。
                         Text(value.title).font(GroupTypography.body.weight(.semibold))
                             .padding(.horizontal, Theme.padding).padding(.vertical, 8)
@@ -772,13 +840,9 @@ private struct GroupBilliardsTabContent: View {
         })
     }
 
-    /// 作废走弹窗（需要填原因且失败信息留在弹窗内），这里只处理确认类动作。
     private func performResultAction(_ row: GroupBilliardsRow, _ action: BilliardsResultAction) {
         guard action == .confirm || action == .authorityConfirm else { return }
-        run {
-            let body = GroupConfirmBody(authority: action == .authorityConfirm)
-            let _: GroupBilliardsRow = try await store.repository.write("/\(groupID)/results/\(row.id)/confirm", body: body, revision: row.revision)
-        }
+        openPrompt(billiardsResultConfirmation(row, authority: action == .authorityConfirm))
     }
 
     // MARK: 底部操作栏
@@ -796,7 +860,7 @@ private struct GroupBilliardsTabContent: View {
                         Text(groupText("manual_result", "Add match result")).frame(maxWidth: .infinity, minHeight: 48)
                     }.buttonStyle(GroupAlignedActionStyle(secondary: true)).disabled(busy)
                         .accessibilityIdentifier("billiards_manual")
-                    Button { entry = .init(mode: .launch) } label: {
+                    Button { overviewSetup = true } label: {
                         Text(groupText("start_score", "Start scoring")).frame(maxWidth: .infinity, minHeight: 48)
                     }.buttonStyle(GroupAlignedActionStyle()).disabled(busy)
                         .accessibilityIdentifier("billiards_start")
@@ -804,10 +868,16 @@ private struct GroupBilliardsTabContent: View {
             }
         } else if writable, tab == 1, manager, lineup == nil, serverWritable {
             barChrome {
-                Button { sheet = .activityEditor } label: {
-                    Label(groupText("create_activity", "Create activity"), systemImage: "plus").frame(maxWidth: .infinity, minHeight: 48)
-                }.buttonStyle(GroupAlignedActionStyle()).disabled(busy)
-                    .accessibilityIdentifier("billiards_create_activity")
+                let layout = dynamicTypeSize.isAccessibilitySize
+                    ? AnyLayout(VStackLayout(spacing: Theme.sm))
+                    : AnyLayout(HStackLayout(spacing: Theme.spacing))
+                layout {
+                    Button(groupText("activity_direct_title", "Arrange now")) { activityCreation = .direct }
+                        .buttonStyle(GroupAlignedActionStyle(secondary: true)).disabled(busy)
+                    Button(groupText("create_activity", "Create activity")) { activityCreation = .signup }
+                        .buttonStyle(GroupAlignedActionStyle()).disabled(busy)
+                        .accessibilityIdentifier("billiards_create_activity")
+                }
             }
         }
     }
@@ -869,6 +939,21 @@ private struct GroupBilliardsTabContent: View {
                     // 结束 / 取消前先取最新 lineup 拿 revision，避免刚交完成绩就用旧 revision 撞 409。
                     let fresh: GroupBilliardsLineup = try await store.repository.read("/\(groupID)/activities/\(activityID)/lineup")
                     try await store.repository.action("/\(groupID)/activities/\(activityID)/cancel", body: .init(reason: reason), revision: fresh.revision)
+                case .completeActivity(let activityID):
+                    let fresh: GroupBilliardsLineup = try await store.repository.read("/\(groupID)/activities/\(activityID)/lineup")
+                    guard store.matchesIdentity(account, revision: revision) else { throw GroupFlowError.staleSession }
+                    try await store.repository.action("/\(groupID)/activities/\(activityID)/complete", revision: fresh.revision)
+                case .removeSession(let activityID, let sessionID):
+                    let fresh: GroupBilliardsLineup = try await store.repository.read("/\(groupID)/activities/\(activityID)/lineup")
+                    guard store.matchesIdentity(account, revision: revision) else { throw GroupFlowError.staleSession }
+                    guard fresh.canManage, fresh.sessions.contains(where: { $0.id == sessionID && $0.isFrozen != true })
+                    else { throw GroupBilliardsError.result }
+                    let sessions = fresh.sessions.filter { $0.id != sessionID }.map(\.submission)
+                    let _: GroupBilliardsLineup = try await store.repository.write("/\(groupID)/activities/\(activityID)/lineup",
+                        body: GroupBilliardsLineupBody(sessionMinutes: fresh.sessionMinutes, sessions: sessions), method: .put, revision: fresh.revision)
+                case .confirmResult(let row, let authority):
+                    let _: GroupBilliardsRow = try await store.repository.write("/\(groupID)/results/\(row.id)/confirm",
+                        body: GroupConfirmBody(authority: authority), revision: row.revision)
                 case .abandon(let item):
                     if let game = item.source.gameID, !game.isEmpty {
                         try await store.repository.action("/\(groupID)/games/\(game)/abandon")
@@ -909,6 +994,11 @@ private struct GroupBilliardsTabContent: View {
 
     private func reload() async {
         guard let account = store.accountID else { return }
+        if variantAccount != account {
+            variantAccount = account
+            variant = Self.lastFilterVariant(account: account, groupID: groupID)
+            bucket = ""
+        }
         let revision = store.identityRevision
         if !loaded, let cached = GroupLocalPersistence.shared.loadDraft(BilliardsBrowseCache.self, key: cacheKey, accountID: account) {
             rows = cached.rows; activities = cached.activities.map { GroupBilliardsActivity(activity: $0) }; ranking = cached.ranking
@@ -952,15 +1042,7 @@ private struct GroupBilliardsTabContent: View {
         }
     }
 
-    /// 结束活动前先取一次最新 lineup 拿 revision，避免刚交完成绩就用旧 revision 撞 409。
-    private func completeActivity() async {
-        guard let activityID = lineupActivityID, !busy else { return }
-        busy = true; defer { busy = false }
-        if await store.perform({
-            let fresh: GroupBilliardsLineup = try await store.repository.read("/\(groupID)/activities/\(activityID)/lineup")
-            try await store.repository.action("/\(groupID)/activities/\(activityID)/complete", revision: fresh.revision)
-        }) { await reload() } else { error = store.error }
-    }
+
 }
 
 // MARK: - 小部件
@@ -1175,27 +1257,33 @@ struct GroupBilliardsResultDetail: View {
             if let prompt {
                 BilliardsPromptDialog(prompt: prompt, reason: $promptReason, error: promptError, busy: promptBusy,
                                       onCancel: { if !promptBusy { self.prompt = nil; promptError = nil } },
-                                      onConfirm: confirmVoid)
+                                      onConfirm: confirmPrompt)
             }
         }
         .task { await reload() }
     }
 
-    /// 作废：失败信息留在弹窗内部（页面 banner 会被弹窗盖住）。
-    private func confirmVoid() {
-        guard let row, !promptBusy, let account = store.accountID else { return }
+    private func confirmPrompt() {
+        guard let prompt, !promptBusy, let account = store.accountID else { return }
         let revision = store.identityRevision
         let reason = promptReason.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !reason.isEmpty else { return }
+        guard !prompt.requiresReason || !reason.isEmpty else { return }
         promptBusy = true; promptError = nil
         Task {
             let success = await store.perform {
-                try await store.repository.action("/\(groupID)/results/\(row.id)/void", body: .init(reason: reason), revision: row.revision)
+                switch prompt.kind {
+                case .voidResult(let row):
+                    try await store.repository.action("/\(groupID)/results/\(row.id)/void", body: .init(reason: reason), revision: row.revision)
+                case .confirmResult(let row, let authority):
+                    let _: GroupBilliardsRow = try await store.repository.write("/\(groupID)/results/\(row.id)/confirm",
+                        body: GroupConfirmBody(authority: authority), revision: row.revision)
+                default: throw GroupBilliardsError.result
+                }
             }
             guard store.matchesIdentity(account, revision: revision) else { promptBusy = false; return }
             promptBusy = false
             if success {
-                prompt = nil; promptReason = ""; promptError = nil
+                self.prompt = nil; promptReason = ""; promptError = nil
                 await reload()
             } else {
                 promptError = store.error
@@ -1203,18 +1291,10 @@ struct GroupBilliardsResultDetail: View {
         }
     }
 
-    /// 确认类动作；作废走弹窗（需要填原因且失败信息留在弹窗内）。
     private func perform(_ action: BilliardsResultAction, row: GroupBilliardsRow) {
         guard !busy, action == .confirm || action == .authorityConfirm else { return }
-        busy = true; error = nil
-        Task {
-            defer { busy = false }
-            let success = await store.perform {
-                let body = GroupConfirmBody(authority: action == .authorityConfirm)
-                let _: GroupBilliardsRow = try await store.repository.write("/\(groupID)/results/\(row.id)/confirm", body: body, revision: row.revision)
-            }
-            if success { await reload() } else { error = store.error }
-        }
+        promptReason = ""; promptError = nil
+        prompt = billiardsResultConfirmation(row, authority: action == .authorityConfirm)
     }
 
     private func reload() async {
@@ -1326,59 +1406,104 @@ private extension UIFont {
 // MARK: - 创建活动
 
 private struct GroupBilliardsActivityEditor: View {
-    let groupID: String
-    var onDismiss: () -> Void
+    let detail: GroupDetailCache
+    let direct: Bool
+    let onStart: (GameType, SportsSetupResult, String) -> Void
+    let onCreated: (GroupBilliardsActivity) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var store = GroupStore.shared
     @State private var title = ""
     @State private var place = ""
+    @State private var note = ""
     @State private var date = Date().addingTimeInterval(3600)
-    @State private var signup = false
+    @State private var deadline: Date?
     @State private var capacity = 8
     @State private var rules = GroupBilliardsRules.defaults(.folk)
+    @State private var entry: BilliardsEntryRequest?
     @State private var error: String?
     @State private var busy = false
+    @State private var submissionKey = UUID().uuidString
+
+    private var deadlineSelection: Binding<Date> {
+        Binding(get: { deadline ?? date }, set: { deadline = $0 })
+    }
+    private var heading: String {
+        direct ? groupText("activity_direct_title", "Arrange now") : groupText("create_activity", "Create activity")
+    }
 
     var body: some View {
-        Form {
-            Section {
-                TextField(billiardsText("activity_name"), text: $title)
-                TextField(billiardsText("place"), text: $place)
-                DatePicker(billiardsText("activity_date"), selection: $date, in: Date()...)
-                Toggle(billiardsText("signup"), isOn: $signup)
-                if signup {
-                    Stepper(String(format: groupText("capacity_value", "%1$d players"), capacity), value: $capacity, in: 2...100)
+        if let entry {
+            GroupBilliardsEntryView(detail: detail, request: entry, onStart: onStart)
+        } else {
+            Form {
+                Section {
+                    TextField(billiardsText("activity_name"), text: $title)
+                    TextField(billiardsText("place"), text: $place)
+                    DatePicker(billiardsText("activity_date"), selection: $date, in: Date()...)
+                        .onChange(of: date) { _, value in
+                            if let deadline, deadline > value { self.deadline = value }
+                        }
+                    if !direct {
+                        DatePicker(groupText("registration_closes", "Registration deadline"), selection: deadlineSelection,
+                                   in: ...date)
+                        Stepper("\(groupText("capacity", "Capacity")) \(capacity)",
+                                value: $capacity, in: 2...100)
+                    }
+                    TextField(groupText("note", "Note (optional)"), text: $note, axis: .vertical).lineLimit(2...5)
+                }
+                GroupBilliardsRulesFields(rules: $rules)
+                if let error { GroupNotice(text: error) }
+            }
+            .disabled(busy)
+            .tint(Theme.primary)
+            .navigationTitle(heading).navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(busy)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                GroupAlignedFooter {
+                    Button(direct ? groupText("edit_lineup", "Arrange match") : heading) {
+                        Task { await submit() }
+                    }
+                    .buttonStyle(GroupAlignedActionStyle())
+                    .disabled(busy || !store.enabled || date <= .now || (!direct && deadlineSelection.wrappedValue <= .now))
+                    .accessibilityIdentifier("billiards_activity_save")
                 }
             }
-            GroupBilliardsRulesFields(rules: $rules)
-            if let error { GroupNotice(text: error) }
-            Section {
-                Button(groupText("create_activity", "Create activity")) { Task { await submit() } }
-                    .disabled(busy || !store.enabled)
-                    .accessibilityIdentifier("billiards_activity_save")
+            .task {
+                if let account = store.accountID,
+                   let remembered = try? GroupBilliardsPersistence.shared.rememberedRules(accountID: account, groupID: detail.group.id),
+                   remembered.knownVariant != nil {
+                    rules = remembered
+                }
             }
         }
-        .tint(Theme.primary)
-        .navigationTitle(billiardsText("activity")).navigationBarTitleDisplayMode(.inline)
-        .toolbar { ToolbarItem(placement: .cancellationAction) {
-            Button(NSLocalizedString("cancel", value: "Cancel", comment: "")) { dismiss() }.disabled(busy)
-        } }
-        .interactiveDismissDisabled(busy)
     }
 
     private func submit() async {
-        guard !busy else { return }
-        busy = true; defer { busy = false }
+        let closes = direct ? date : deadlineSelection.wrappedValue
+        guard !busy, let account = store.accountID, date > .now, closes > .now, closes <= date else { return }
+        busy = true; error = nil
+        defer { busy = false }
+        let revision = store.identityRevision
         do {
             try rules.validate()
-            guard let account = store.accountID else { throw GroupFlowError.staleSession }
-            let body = GroupBilliardsActivityBody(title: title.trimmingCharacters(in: .whitespacesAndNewlines),
-                                                  startsAt: Int64(date.timeIntervalSince1970 * 1000), place: place,
-                                                  activityType: signup ? "signup" : "direct", defaultMatchConfig: rules,
-                                                  capacity: signup ? min(100, max(2, capacity)) : 100)
-            guard store.matchesIdentity(account, revision: store.identityRevision) else { return }
-            let _: GroupActivity = try await store.repository.write("/\(groupID)/activities", body: body, key: UUID().uuidString)
-            onDismiss(); dismiss()
-        } catch { self.error = groupErrorMessage(error) }
+            let body = GroupBilliardsActivityBody(title: String(title.trimmingCharacters(in: .whitespacesAndNewlines).prefix(40)),
+                                                  startsAt: Int64(date.timeIntervalSince1970 * 1000),
+                                                  place: String(place.trimmingCharacters(in: .whitespacesAndNewlines).prefix(80)), timingMode: "sequence",
+                                                  activityType: direct ? "direct" : "signup", defaultMatchConfig: rules,
+                                                  capacity: direct ? 100 : capacity,
+                                                  registrationClosesAt: Int64(closes.timeIntervalSince1970 * 1000),
+                                                  note: String(note.prefix(300)))
+            let created: GroupBilliardsActivity = try await store.repository.write("/\(detail.group.id)/activities", body: body, key: submissionKey)
+            guard store.matchesIdentity(account, revision: revision) else { return }
+            onCreated(created)
+            if direct {
+                entry = .init(mode: .arrange, variant: rules.knownVariant, activityID: created.id,
+                              rules: created.defaultRules ?? rules)
+            } else {
+                dismiss()
+            }
+        } catch {
+            if store.matchesIdentity(account, revision: revision) { self.error = groupErrorMessage(error) }
+        }
     }
 }

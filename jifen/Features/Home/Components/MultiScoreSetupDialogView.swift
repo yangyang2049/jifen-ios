@@ -39,7 +39,9 @@ struct MultiScoreSetupDialogView: View {
     @State private var activeCommonNameIndex: Int? = nil
     @State private var activeTeamNameTarget: TeamNameTarget? = nil
     @State private var showBulkNames = false
+    /// 多人计分与 UNO 的「彩色 / 纯色」样式分开保存、分开使用。
     @State private var boardStyle: MultiScoreboardStyle
+    @State private var unoBoardStyle: MultiScoreboardStyle
     @State private var showBoardStylePicker = false
 
     private enum TeamNameTarget: String, Identifiable {
@@ -153,6 +155,7 @@ struct MultiScoreSetupDialogView: View {
         }()
         _customAdjustEnabled = State(initialValue: initialCustomAdjust)
         _boardStyle = State(initialValue: PreferencesManager.shared.multiScoreboardStyle)
+        _unoBoardStyle = State(initialValue: PreferencesManager.shared.unoScoreboardStyle)
         _showMatchTime = State(initialValue: ScoreboardMatchTimePolicy.includesCasualSetupValue(for: gameType)
             ? (initialSetup?.showMatchTime
                 ?? PreferencesManager.shared.scoreboardMatchTimeVisible(for: gameType))
@@ -237,6 +240,8 @@ struct MultiScoreSetupDialogView: View {
                 if layoutMode == .multiScore {
                     customAdjustToggle
                         .frame(minHeight: 44)
+                }
+                if layoutMode == .multiScore || layoutMode == .uno {
                     boardStyleRow
                 }
 
@@ -270,7 +275,7 @@ struct MultiScoreSetupDialogView: View {
             .background(Theme.dialogSurfaceBackground)
         }
         .sheet(isPresented: $showBoardStylePicker) {
-            MultiScoreboardStylePicker(style: $boardStyle)
+            MultiScoreboardStylePicker(style: activeBoardStyle)
         }
         .sheet(isPresented: Binding(
             get: { activeCommonNameIndex != nil },
@@ -337,21 +342,27 @@ struct MultiScoreSetupDialogView: View {
         }
     }
 
+    /// 当前弹窗对应的那份样式：多人计分用 multi 偏好，UNO 用 UNO 偏好。
+    private var activeBoardStyle: Binding<MultiScoreboardStyle> {
+        layoutMode == .uno ? $unoBoardStyle : $boardStyle
+    }
+
     private var boardStyleRow: some View {
-        Button { showBoardStylePicker = true } label: {
+        let style = activeBoardStyle.wrappedValue
+        return Button { showBoardStylePicker = true } label: {
             HStack(spacing: Theme.sm) {
                 Text(NSLocalizedString("multi_score_style", comment: "Scoreboard style"))
                     .font(.system(size: 14, weight: .regular))
                     .foregroundStyle(Theme.textPrimary)
                 Spacer(minLength: Theme.sm)
-                if boardStyle.mode == .solid {
+                if style.mode == .solid {
                     Circle()
-                        .fill(Color(hex: boardStyle.solidColor.hex))
+                        .fill(Color(hex: style.solidColor.hex))
                         .frame(width: 14, height: 14)
                         .overlay(Circle().strokeBorder(Theme.textSecondary.opacity(0.3), lineWidth: 0.5))
                         .accessibilityHidden(true)
                 }
-                Text(boardStyle.mode.title)
+                Text(style.mode.title)
                     .foregroundStyle(Theme.textSecondary)
                 Image(systemName: "chevron.forward")
                     .font(.system(size: 12, weight: .medium))
@@ -772,6 +783,7 @@ struct MultiScoreSetupDialogView: View {
                 let targetScore = UnoTargetScorePolicy.normalized(unoTargetScore)
                 PreferencesManager.shared.unoPlayerCount = selectedPlayerCount
                 PreferencesManager.shared.unoTargetScore = targetScore
+                PreferencesManager.shared.unoScoreboardStyle = unoBoardStyle
                 result.targetScore = targetScore
             }
             Task {
