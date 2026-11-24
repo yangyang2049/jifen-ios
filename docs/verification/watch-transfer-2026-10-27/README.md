@@ -61,3 +61,52 @@ Apple 官方说明应用转移时保留 Bundle ID：https://developer.apple.com/
 - 恢复方式：解包覆盖回仓库对应路径，再按本文件前文的打包流程重签；手机侧联动入口仍未恢复。
 - 移除后 Debug 构建通过，产物不再嵌入 `Watch/jifenWatch Watch App.app`；详见 `docs/2026-10-30-ios-3.4.1-android-parity.md`。
 - 苹果回信后若要重启手表功能，需先确认 `com.douhua.jifen.ios.watchkitapp` 归属与注册，再决定是否恢复。
+
+## 后续：2026-11-21 苹果回复与本团队实时核查
+
+苹果就工单 102950865484 回复：转移时手表部分可能没有一并转移，请用户确认是否存在该手表应用。当天用团队 API key（`VW87YVJ355`，Admin）实测：
+
+- `GET /v1/bundleIds?filter[identifier]=com.douhua.jifen.ios` → 本团队持有（`L62G7WTAR7`）。
+- 同查询 `com.douhua.jifen.ios.watchkitapp` → 空；`GET /v1/apps?filter[bundleId]=…watchkitapp` → 空；团队全部 App 列表无手表应用。
+- `POST /v1/bundleIds` 尝试注册该标识（与 Xcode 分发签名时的服务端注册动作等价）→ **HTTP 409 / resultCode 9401**，"An App ID with Identifier 'com.douhua.jifen.ios.watchkitapp' is not available"，与 2026-10-27 导出失败完全一致。
+
+结论：该 App ID 仍归原团队持有，苹果尚未做任何释放；现在恢复手表工程打包上传必然在同一注册步骤失败，未再执行整包验证。手表源码仍可从 `aa24d1f3^` 恢复（2026-10-30 的 tarball 备份已随原目录清理）。可用出路：① 原团队账号在其 Identifiers 中删除该 App ID 后本团队即可注册；② 由苹果在工单中释放；③ 手表 target 改用新的 bundle ID 后缀（只须保留手机包 ID 前缀）；④ 独立手表 App（兜底）。
+
+## 后续：2026-11-21 应用户要求完整整包复测（3.4.3 (87)）
+
+应用户要求仍执行了完整恢复与打包验证，确认结论不变：
+
+- 恢复：从 `aa24d1f3^` 恢复 `jifenWatch Watch App`、`jifenWatch Watch AppTests`、LinkCore 两个源文件与 `Package.swift`/`RealtimeSync` 接线；pbxproj 由反向贴回手表移除补丁加 12 处冲突手工归并（手表专属条目全保留；FB1000…1/2 等 3.4.x 复用的 ID 丢弃；手机侧联动代码与入口仍不恢复）。
+- 编译适配 3.4.3 共享模块：手表补 `.badmintonMisconduct`、`.chaseTransferred`、`.breakerChanged` 事件投影、`.basketballTraining` 默认队名、`.handoff`（让杆）文案口径同手机端；包在 macOS 与 watchOS Simulator 均编译通过，手机 scheme（嵌手表）编译通过。
+- 版本：手机/手表对齐 3.4.3 (87)（watch 配置原残留 2.1 (21)）；`xcodebuild archive` 成功，手机与手表 `codesign --verify --deep --strict` 通过。
+- `-exportArchive`（app-store-connect + API key 认证 + 自动签名）：**EXPORT FAILED，退出码 70，未生成 IPA**。错误与 10-27 完全一致：`Failed Registering Bundle Identifier`，服务端 HTTP 409 / resultCode 9401（`com.douhua.jifen.ios.watchkitapp` "is not available"），随后报 `No profiles for 'com.douhua.jifen.ios.watchkitapp' were found`。
+- 三处独立证据（10-27 导出、11-21 API 注册预检、11-21 整包导出）指向同一结论：该 App ID 仍被原团队持有，等待删除/释放或改标识。
+- 完整证据批次：`~/Library/Developer/jifen-ios-test-artifacts/runs/20261121T052408118659Z-watch-restored-signing-retest-343/`（`.keep` 固定，含 xcdistributionlogs、9401 原始响应、移除补丁与编译适配记录）。归档：`~/Library/Developer/Xcode/Archives/2026-11-21/jifen 3.4.3 (87) Watch restored.xcarchive`。
+
+## 追加：2026-11-21 改名上传尝试被 ITMS-90477 拒绝（重要约束）
+
+曾尝试把手表 Bundle ID 改为 `com.douhua.jifen.ios.watchapp` 绕开归属问题：archive 与 **EXPORT SUCCEEDED** 均通过（前缀规则成立、新 App ID 可注册、IPA 43.9 MB、微信框架 minos 26.0 正常），但 altool 上传被 **ITMS-90477** 拒绝："Attempting to change bundle identifier from com.douhua.jifen.ios.watchkitapp to com.douhua.jifen.ios.watchapp is disallowed for bundle jifen.app/Watch/jifenWatch Watch App.app"。
+
+结论：**已上架应用的内嵌手表 Bundle ID 被历史构建锁定，不可改名**。因此对现有应用记录，内嵌手表路径只有原 `watchkitapp` 可用（必须原团队删除该 App ID 或苹果释放）；独立 watchOS App（新应用记录）不受此限制，是不依赖苹果的唯一兜底。已清理：`watchapp` App ID 记录删除、工程内 4 处配置回退为 `watchkitapp`；watchapp 归档与 IPA 留作证据（`jifen 3.4.3 (87) Watch watchapp.xcarchive`）。上传拒绝的原始 JSON 在证据批次 `apple-build-upload.json`。
+
+## 最终解决：2026-11-22 原团队删除 App ID 后上传成功
+
+原转让方（John Jin，用户的朋友）在其账号的 Identifiers 中删除了 `com.douhua.jifen.ios.watchkitapp`。当日：
+
+- API 注册验证：POST /v1/bundleIds 成功，本团队获得该 App ID（记录 `6HXQKLQ63F`）——阻塞 26 天的唯一一步解开。
+- 复用 11-21 已验证的归档导出成功（`jifen-ios-releases/2026-11-22-3.4.3-87-watch/`，本版未上传，用户选择升版本）。
+- 正式构建 **3.4.4 (88)**：archive + export 成功，包内手机/手表均 3.4.4 (88)、手表 `com.douhua.jifen.ios.watchkitapp`、签名严格校验通过；altool 上传成功（delivery UUID `5353de76-efe4-4655-97fb-60a923cefe8d`），产物在 `~/Library/Developer/jifen-ios-releases/2026-11-22-3.4.4-88-watch/`。
+- 工程内版本已升至 3.4.4 (88)（手机+手表 × Debug/Release 共 4 处配置）。3.4.3 (86) 留在原审核流程中未动。
+- 期间确认的完整约束链（供后续参考）：转户不带嵌入手表 App ID（9401）→ 已上架应用不可改内嵌手表标识（90477）→ 只能原团队删除或苹果释放 → 独立手表 App 无 WatchConnectivity（联动需走网络通道）。
+
+## 手机侧联动恢复（2026-11-22 下午，3.4.4 (89)）
+
+build 88 只恢复了手表端（按 2026-10-30 口径，手机侧联动服务未恢复）。当日按用户指示"从 git 历史抄回"补全手机侧：
+
+- **整文件抄回**（`aa24d1f3^`，`jifen/` 为同步组无需改工程）：`Core/Link/PhoneWatchLinkService/Session/Reliability/SideChannels/MessageHandling`、`WatchLinkMenuSupport`、`Features/Me/WatchLinkSettingsView`、`Features/Home/Services/SportsSetupWatchSessionLauncher`。
+- **集成点**：jifenApp（服务注入+强制接管弹窗）、AppFeatureFlags（联动判定，对齐鸿蒙 linkedScoreboardCapability）、HomeTab（手表比赛回传接续/linkedResumeDescriptor）、MenuDialog（resync/takeover/endLink）、CommonNamesManager（名词同步）、PreferencesManager（引导标记）、Info.plist（JifenWatchLinkEntryEnabled）、SettingsView（联动入口行）、LocalDataResetComposition（watchLinkState 清理步骤）、AppAnalytics（watchLinkStart/watchLinkResult 事件 + watchLinkPage 屏幕枚举 + scoreboardMenuAction）、HomeModels/UnfinishedGameBarView（linked 摘要与手表角标）。
+- **计分板嫁接**（3.4.x 演进 + watch 代码并存）：EightBall/Snooker/NineBallChase/Archery/Tennis/Rally + SportsSetupDialogView/NineBallSetupDialogView 的"开赛上手表"分体按钮。冲突共 76+ 处，用 git merge-file（HEAD 为 ours、aa24d1f3 为 base、aa24d1f3^ 为 theirs）逐一归并；费点：menu extraItems 需 3.4.3 rack rules 与 WatchLinkMenuSupport.extraItems 拼接、toggleMatchTime toast 归位、ScoreboardTemplate 纯演进全保 ours。
+- **store 适配**：3.4.x 重写后的 TennisSessionStore/RallySessionStore 补 `applyAuthoritativeState`/`mergeRemoteActions`/revision 门控（对齐 BilliardsSessionStore.rebase 语义），供手表权威快照/接管使用。
+- strings：en + zh-Hans 各回补 271 个联动键（其余语言回退 value 兜底）。
+- 结果：手机 scheme 编译通过，3.4.4 (89) 打包上传 TestFlight（产物 `~/Library/Developer/jifen-ios-releases/2026-11-22-3.4.4-89-watch-link/`）。
+- 未做：jifenTests 的 PhoneWatchLinkServiceTests 等测试文件未恢复；真机手表回归待 TestFlight 安装后进行；鸿蒙侧仅用作能力对标清单，未逐条核对行为细节（换边确认弹窗、断连重连文案等建议真机对测）。

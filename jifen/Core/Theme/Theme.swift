@@ -334,6 +334,8 @@ struct Theme {
 
     // Corner Radius
     static let cornerRadius: CGFloat = 12
+    static let panelCornerRadius: CGFloat = 16
+    static let dialogCornerRadius: CGFloat = 20
     static let xl: CGFloat = 22 // Extra large corner radius, specifically for ToolItem
     static let xxl: CGFloat = 24 // Extra extra large corner radius
 
@@ -344,6 +346,12 @@ struct Theme {
     static let fontH5: CGFloat = 18
     static let fontH4: CGFloat = 20
     static let fontH3: CGFloat = 24
+
+    static func sectionTitleFont(size: CGFloat = fontH5) -> Font {
+        .system(size: size, weight: .medium)
+    }
+
+    static let dialogTitleFont: Font = .title3.bold()
 
     /// Menu 里 role=.destructive 只会染文字，图标仍跟 tint；预着色保证垃圾桶为红。
     static let redTrashIcon: UIImage = {

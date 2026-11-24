@@ -8,6 +8,16 @@ import UIKit
 
 
 
+enum TwoSideScoreboardText {
+    static var linkedNewGameOnWatch: String {
+        NSLocalizedString(
+            "game_over_new_game_on_watch",
+            value: "再来一场\n（请在手表端操作）",
+            comment: ""
+        )
+    }
+}
+
 /// Two-side 50/50 scaffold aligned with the HOS boards for eight-ball, shengji, and guandan.
 struct TwoSideScoreboardScaffold<Center: View>: View {
     @Environment(\.scoreboardEditAboveMenu) private var editAboveMenu

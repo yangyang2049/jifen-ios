@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "انداز";
 "style_background_color" = "پس منظر کا رنگ";
 "style_server_color" = "رنگ";
-"style_server_style" = "Style";
+"style_server_style" = "انداز";
 "style_text_color" = "متن کا رنگ";
 "style_server_indicator" = "سرو کا اشارہ";
 "style_color_automatic" = "خودکار";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "بائیں اور دائیں اشاروں کا رنگ ایک ہی ہوتا ہے۔";
 "scoreboard_style_font_shared_hint" = "تمام متن منتخب فونٹ استعمال کرتا ہے۔";
 "scoreboard_style_theme_override_hint" = "تھیم منتخب کرنے سے موجودہ رنگ بدل جائیں گے؛ بعد میں ہر رنگ الگ سے بھی بدلا جا سکتا ہے۔";
-"scoreboard_style_font_size" = "فونٹ کا سائز";
+"scoreboard_style_font_size" = "فونٹ کا سائز (دونوں طرف یکساں)";
 "scoreboard_style_font_size_device_max" = "اس ڈیوائس پر زیادہ سے زیادہ سائز";
 "scoreboard_style_small" = "چھوٹا";
 "scoreboard_style_large" = "بڑا";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 1 گول بڑھانے کے لیے بائیں/دائیں اسکور کے حصے پر ٹیپ کریں\n⬆️ بڑھانے کے لیے اوپر سوائپ کریں\n⬇️ گھٹانے کے لیے نیچے سوائپ کریں\n↩️ واپس لینے کے لیے بائیں سوائپ کریں\n☑️ میچ ختم ہونے پر حساب مکمل کریں یا اختتام استعمال کریں";
 "scoreboard_usage_hint_foosball_doubles" = "👆 1 گول بڑھانے کے لیے بائیں/دائیں اسکور کے حصے پر ٹیپ کریں\n⬆️ بڑھانے کے لیے اوپر سوائپ کریں\n⬇️ گھٹانے کے لیے نیچے سوائپ کریں\n↩️ واپس لینے کے لیے بائیں سوائپ کریں\n👥 2V2 کے نام میچ سے پہلے مقرر کیے جاتے ہیں\n☑️ میچ ختم ہونے پر حساب مکمل کریں یا اختتام استعمال کریں";
 "scoreboard_usage_hint_simple_score" = "👆 شامل کرنے کے لیے بائیں/دائیں سکور ایریا پر ٹیپ کریں۔\n ⬆️ شامل کرنے کے لیے اوپر سوائپ کریں۔\n ⬇️ منہا کرنے کے لیے نیچے سوائپ کریں۔\n ↩️ کالعدم کرنے کے لیے بائیں طرف سوائپ کریں۔\n ✏️ نام اور اسکور تبدیل کرنے کے لیے دیر تک دبائیں یا ترمیم کریں";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 1 پوائنٹ بڑھانے کے لیے کھلاڑی کی ٹائل پر ٹیپ کریں\n⬆️ 1 بڑھانے کے لیے اوپر سوائپ کریں؛ ⬇️ 1 گھٹانے کے لیے نیچے سوائپ کریں\n↩️ واپس لینے کے لیے بائیں سوائپ کریں\n✏️ نام اور اسکور بدلنے کے لیے کھلاڑی کو دیر تک دبائیں\n🎛️ حسب ضرورت ایڈجسٹمنٹ موڈ میں کھلاڑی پر ٹیپ کرنے سے ایڈجسٹمنٹ پینل کھلتا ہے";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 1 پوائنٹ بڑھانے کے لیے کھلاڑی کی ٹائل پر ٹیپ کریں\n⬆️ 1 بڑھانے کے لیے اوپر سوائپ کریں؛ ⬇️ 1 گھٹانے کے لیے نیچے سوائپ کریں\n↔️ ۹ سے زیادہ کھلاڑی ہوں تو صفحہ بدلنے کے لیے بائیں یا دائیں سوائپ کریں یا نیچے کے نقطے اور تیر استعمال کریں\n↩️ پچھلا عمل واپس لینے یا کھلاڑی ڈھونڈنے کے لیے مینیو کھولیں\n✏️ نام اور اسکور بدلنے کے لیے کھلاڑی کو دیر تک دبائیں\n🎛️ حسب ضرورت ایڈجسٹمنٹ موڈ میں کھلاڑی پر ٹیپ کرنے سے ایڈجسٹمنٹ پینل کھلتا ہے";
 "scoreboard_usage_hint_double_tap_point" = "👆 1 کو گھٹانے کے لیے ایک ہی طرف دو بار تھپتھپائیں";
 "scoreboard_usage_hint_double_tap_rack" = "👆 1 ریک کو گھٹانے کے لیے ایک ہی طرف دو بار تھپتھپائیں";
 "scoreboard_usage_hint_double_tap_player" = "👆 1 کو گھٹانے کے لیے ایک ہی پلیئر کو دو بار تھپتھپائیں";
@@ -1173,7 +1173,7 @@
 "game_squash" = "اسکواش";
 "game_soft_tennis" = "سافٹ ٹینس";
 "game_padel" = "پیڈل";
-"game_football_5v5" = "5x5 فٹ بال";
+"game_football_5v5" = "5×5 فٹ بال";
 "padel_deuce_mode" = "ڈیوس رول";
 "padel_advantage" = "فائدہ";
 "padel_golden_point" = "گولڈن پوائنٹ";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "انداز";
 "style_workbench_reset" = "ڈیفالٹ اسٹائل بحال کریں";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "ری سیٹ کریں۔";
 "style_workbench_theme" = "تھیم";
 "style_workbench_background" = "پس منظر";
 "style_workbench_font" = "فونٹ";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "16:9 لینڈ اسکیپ تصویر استعمال کریں، مثلاً 1920×1080۔ تصویر درمیان سے کٹ کر اسکرین بھر دیتی ہے۔";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "مفت";
+"scoreboard_theme_free_badge_desc" = "محدود مدت کے لیے مفت";
+"style_workbench_pick" = "ترمیم کے لیے متن یا سروس کے آئیکن پر ٹیپ کریں";
+"style_workbench_photo_source_default" = "پہلے سے طے شدہ تصویر";
+"style_workbench_photo_source_custom" = "اپنی تصویر";
+"style_workbench_photo_crop_notice" = "اسکرین بھرنے کے لیے تصویر درمیان سے تراشی جاتی ہے";
+"billiards_group_switch_to_two" = "۲ کھلاڑیوں پر منتقل ہو گیا";
+"group_complete_confirm" = "سرگرمی ختم کرنے سے پہلے یقینی بنائیں کہ تمام میچ نمٹا دیے گئے ہیں۔";
+"billiards_group_score_panel_positive" = "مثبت";
+"billiards_group_score_panel_negative" = "منفی";
+"group_error_applicant_inactive" = "درخواست دہندہ کا اکاؤنٹ فعال نہیں ہے۔ درخواست منظور نہیں کی جا سکتی۔";

@@ -1139,7 +1139,7 @@ extension ScoreCore.GameType {
         case .softTennis: return NSLocalizedString("game_soft_tennis", value: "软式网球", comment: "")
         case .padel: return NSLocalizedString("game_padel", value: "板式网球", comment: "")
         case .basketballTraining: return NSLocalizedString("game_basketball_training", value: "投篮训练", comment: "")
-        case .football5v5: return NSLocalizedString("game_football_5v5", value: "5×5 足球", comment: "")
+        case .football5v5: return NSLocalizedString("game_football_5v5", value: "五人制足球", comment: "")
         default: return scoreboardAppGameType(for: self)?.displayName ?? rawValue
         }
     }

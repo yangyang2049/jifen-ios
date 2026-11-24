@@ -44,6 +44,19 @@ import XCTest
             XCTAssertFalse(message.hasPrefix("group_"), "\(code) fell back to a raw key")
         }
     }
+
+    func testJoinApprovalAndContractErrorsUseLocalizedCopy() {
+        let cases = [
+            ("APPLICANT_NOT_ACTIVE", "group_error_applicant_inactive"),
+            ("INVALID_CONTRACT_VERSION", "group_error_update_required"),
+        ]
+        for (code, key) in cases {
+            let error = APIClientError.server(status: 409, code: code, message: "Server copy", nextAvailableAt: nil)
+            let expected = Bundle.main.localizedString(forKey: key, value: nil, table: nil)
+            XCTAssertNotEqual(expected, key)
+            XCTAssertEqual(groupErrorMessage(error), expected)
+        }
+    }
     func testUnknownValuesDoNotCrashListsAndV2CannotUseRacketRules() throws {
         XCTAssertEqual(try JSONDecoder().decode(GroupSport.self,from:Data("\"future_sport\"".utf8)),.unsupported)
         XCTAssertEqual(try JSONDecoder().decode(GroupFormat.self,from:Data("\"individuals\"".utf8)),.individuals)

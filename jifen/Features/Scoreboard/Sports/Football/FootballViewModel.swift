@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import LinkCore
 import ScoreCore
 
 struct FootballResumeStateV2: Codable {
@@ -132,6 +133,58 @@ class FootballViewModel: LineScoreViewModel {
         )
         clockSession.resetForNewGame()
         stoppageAdditionHistory.removeAll()
+        clockRevision &+= 1
+    }
+
+    /// Goals carry the match-clock snapshot so records can render `53′` /
+    /// `45+2′` (same fields Android and Harmony write).
+    override func snapshotAnnotation(for intent: LineScoreIntent) -> String? {
+        guard case .pointWon = intent else { return nil }
+        return FootballClockAnnotation.encode(
+            period: clockSession.state.stage,
+            elapsedSeconds: clockSession.elapsedSecondsNow()
+        )
+    }
+
+    // MARK: - Linked session
+
+    /// Snapshot handed to the watch (or mirrored from it) during a linked match.
+    func linkedState() -> LinkedFootballState {
+        LinkedFootballState(
+            leftName: leftTeam.name,
+            rightName: rightTeam.name,
+            leftScore: leftTeam.score,
+            rightScore: rightTeam.score,
+            timer: clockSession.snapshot(),
+            kickedOff: gameType != .football5v5
+                || clockSession.state.isRunning
+                || clockSession.state.elapsedSeconds > 0
+                || clockSession.state.stage > 1,
+            finished: gameFinished
+        )
+    }
+
+    /// Applies an authoritative snapshot from the other device without touching
+    /// the local score/clock history.
+    func applyLinkedState(_ state: LinkedFootballState) {
+        if !state.leftName.isEmpty { leftTeam.name = state.leftName }
+        if !state.rightName.isEmpty { rightTeam.name = state.rightName }
+        leftTeam.score = state.leftScore
+        rightTeam.score = state.rightScore
+        var session = FootballMatchClockSession(state: state.timer, gameType: gameType)
+        session.reconcileAfterRestore()
+        clockSession = session
+        clockRevision &+= 1
+        gameFinished = state.finished
+    }
+
+    override func endGame() {
+        super.endGame()
+        // Freeze the match clock at the final whistle. The board keeps a 1s
+        // tick that refreshes the clock session, so without this every later
+        // save (background/exit) persisted a longer elapsed time than the
+        // moment the match actually ended.
+        clockSession.pause()
         clockRevision &+= 1
     }
 

@@ -726,12 +726,12 @@
     "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
   },
   "scoreboard_usage_hint_uno": {
-    "value": "👆 點擊玩家打開本輪計分面板\n✏️ 長按玩家可編輯名稱和分數\n↩️ 可撤銷上一輪\n☑️ 可結算或手動結束比賽\n🖼️ 選單中可調整顯示和儲存截圖",
+    "value": "👆 點選玩家打開本輪計分面板\n✏️ 長按玩家可編輯名稱和分數\n↩️ 可撤銷上一輪\n☑️ 可結算或手動結束比賽\n🖼️ 選單中可調整顯示和儲存截圖",
     "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
   },
   "scoreboard_usage_hint_multi_scoreboard": {
-    "value": "👆 點擊玩家格子加 1 分\n⬆️ 上滑加 1 分，⬇️ 下滑減 1 分\n↩️ 左滑撤銷上一步\n✏️ 長按玩家可編輯名稱和分數\n🎛️ 自訂調分模式下，點擊玩家會打開調分面板",
-    "reason": "Reviewed Taiwan terminology and localization audit correction 2026-10-21"
+    "value": "👆 點選玩家格子加 1 分\n⬆️ 上滑加 1 分，⬇️ 下滑減 1 分\n↔️ 超過 9 人時左右滑動翻頁，也可用底部圓點箭頭\n↩️ 撤銷與找人請打開選單\n✏️ 長按玩家可編輯名稱和分數\n🎛️ 自訂調分模式下，點選玩家會打開調分面板",
+    "reason": "Reviewed native iOS 3.4.3 release copy"
   },
   "record_detail_legacy_unavailable": {
     "value": "舊記錄缺少可靠的分局或時間資訊，已降級顯示比賽總覽。",
@@ -872,5 +872,17 @@
   "group_report_refresh": {
     "value": "重新整理進度",
     "reason": "Preserve reviewed report evidence wording; 2026-10-22"
+  },
+  "group_error_applicant_inactive": {
+    "value": "申請人的帳號已失效，無法通過這筆申請。",
+    "reason": "Reviewed native iOS 3.4.3 release copy"
+  },
+  "voice_call_note_zh": {
+    "value": "中文播報：比分讀作「3 比 2」，平分讀作「3 平」。",
+    "reason": "Reviewed native iOS 3.4.3 release copy"
+  },
+  "voice_call_note_en": {
+    "value": "國際桌總口徑：0 讀作 love，0 比 0 讀作 love all，中文姓名以拼音播報。",
+    "reason": "Reviewed native iOS 3.4.3 release copy"
   }
 }

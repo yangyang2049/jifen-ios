@@ -769,8 +769,8 @@
 "scoreboard_style_editor" = "Stil og farger";
 "scoreboard_style_edit" = "Stil";
 "style_background_color" = "Bakgrunnsfarge";
-"style_server_color" = "Color";
-"style_server_style" = "Style";
+"style_server_color" = "Farge";
+"style_server_style" = "Stil";
 "style_text_color" = "Tekstfarge";
 "style_server_indicator" = "Serveindikator";
 "style_color_automatic" = "Auto";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "Venstre og høyre indikatorer deler én farge";
 "scoreboard_style_font_shared_hint" = "All tekst bruker den valgte fonten";
 "scoreboard_style_theme_override_hint" = "Å velge et tema overstyrer gjeldende farger; du kan fortsatt justere individuelt etter";
-"scoreboard_style_font_size" = "Skriftstørrelse";
+"scoreboard_style_font_size" = "Skriftstørrelse (samme på begge sider)";
 "scoreboard_style_font_size_device_max" = "Maksimal størrelse på denne enheten";
 "scoreboard_style_small" = "Liten";
 "scoreboard_style_large" = "Stor";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Trykk på venstre/høyre resultatområde for å legge til 1 mål\n⬆️ Sveip opp for å legge til\n⬇️ Sveip ned for å trekke fra\n↩️ Sveip til venstre for å angre\n☑️ Bruk Gjør opp eller Avslutt når kampen er over";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Trykk på venstre/høyre resultatområde for å legge til 1 mål\n⬆️ Sveip opp for å legge til\n⬇️ Sveip ned for å trekke fra\n↩️ Sveip til venstre for å angre\n👥 2V2 navn settes før kampen\n☑️ Bruk Gjør opp eller Avslutt når kampen er over";
 "scoreboard_usage_hint_simple_score" = "👆 Trykk på venstre/høyre poengområde for å legge til\n⬆️ Sveip opp for å legge til\n⬇️ Sveip ned for å trekke fra\n↩️ Sveip til venstre for å angre\n✏️ Trykk lenge eller rediger for å endre navn og poeng";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Trykk på en spillerbrikke for å legge til 1 poeng\n⬆️ Sveip opp for å legge til 1;⬇️ sveip ned for å trekke fra 1\n↩️ Sveip til venstre for å angre\n✏️ Trykk lenge på en spiller for å redigere navnet og poengsummen\n🎛️ I tilpasset justeringsmodus åpnes justeringspanelet ved å trykke på en spiller";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Trykk på en spillerbrikke for å legge til 1 poeng\n⬆️ Sveip opp for å legge til 1;⬇️ sveip ned for å trekke fra 1\n↔️ Ved mer enn 9 spillere kan du bla til venstre eller høyre eller bruke prikkene og pilene nedenfor\n↩️ Åpne menyen for å angre eller finne en spiller\n✏️ Trykk lenge på en spiller for å redigere navnet og poengsummen\n🎛️ I tilpasset justeringsmodus åpnes justeringspanelet ved å trykke på en spiller";
 "scoreboard_usage_hint_double_tap_point" = "👆 Dobbelttrykk på samme side for å trekke fra 1";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Dobbelttrykk på samme side for å trekke fra 1 frame";
 "scoreboard_usage_hint_double_tap_player" = "👆 Dobbelttrykk på samme spiller for å trekke fra 1";
@@ -1173,7 +1173,7 @@
 "game_squash" = "Squash";
 "game_soft_tennis" = "Soft tennis";
 "game_padel" = "Padel";
-"game_football_5v5" = "5x5 fotball";
+"game_football_5v5" = "5×5 fotball";
 "padel_deuce_mode" = "Deuce-regel";
 "padel_advantage" = "Fordel";
 "padel_golden_point" = "Gyldent poeng";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Stil";
 "style_workbench_reset" = "Gjenopprett standardstilen";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Tilbakestill";
 "style_workbench_theme" = "Tema";
 "style_workbench_background" = "Bakgrunn";
 "style_workbench_font" = "Skrift";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "Bruk et 16:9-bilde i liggende format, for eksempel 1920×1080. Bilder fyller skjermen med sentrert beskjæring.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Gratis";
+"scoreboard_theme_free_badge_desc" = "Gratis i en begrenset periode";
+"style_workbench_pick" = "Trykk på teksten eller serveikonet for å redigere";
+"style_workbench_photo_source_default" = "Standardbilde";
+"style_workbench_photo_source_custom" = "Eget bilde";
+"style_workbench_photo_crop_notice" = "Bildet beskjæres rundt midten for å fylle skjermen";
+"billiards_group_switch_to_two" = "Byttet til 2 spillere";
+"group_complete_confirm" = "Kontroller at alle kampene er håndtert før du avslutter aktiviteten.";
+"billiards_group_score_panel_positive" = "Positiv";
+"billiards_group_score_panel_negative" = "Negativ";
+"group_error_applicant_inactive" = "Søkerens konto er inaktiv. Søknaden kan ikke godkjennes.";

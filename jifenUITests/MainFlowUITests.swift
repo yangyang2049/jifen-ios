@@ -725,6 +725,7 @@ final class MainFlowUITests: XCTestCase {
             let card = app.descendants(matching: .any)["scoreboard_catalog_\(gameID)"]
             XCTAssertTrue(scrollUntilExists(card, in: app), "Missing scoreboard card: \(gameID)")
             card.tap()
+            dismissEnglishWatchGuideIfNeeded(in: app)
             assertEnglishLocalization(in: app, context: "\(gameID) setup")
 
             let start = app.buttons["Start"]
@@ -790,6 +791,10 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["FAQ"].exists)
         XCTAssertTrue(app.staticTexts["About Us"].exists)
         XCTAssertFalse(app.staticTexts["Common Names"].exists)
+        // 手表联动独立成卡（对齐鸿蒙），iPhone 上应可见且可点进二级页。
+        XCTAssertTrue(app.staticTexts["Watch Link"].exists)
+        app.staticTexts["Watch Link"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Watch Link"].waitForExistence(timeout: 5))
     }
 
     func testRecordNoteSheetsHaveCloseControlsAndKeepSavedTextOnCancel() {
@@ -1020,11 +1025,13 @@ final class MainFlowUITests: XCTestCase {
         let updatedValue = String(describing: keepScreenOn.value)
         XCTAssertNotEqual(updatedValue, originalValue, "Setting toggle did not change")
 
-        let help = app.buttons["scoreboard_touch_guard_toggle_help"]
-        XCTAssertTrue(help.waitForExistence(timeout: 3), "Touch Guard help button is missing")
+        let help = app.buttons["scoreboard_immersive_mode_toggle_help"]
+        XCTAssertTrue(help.waitForExistence(timeout: 3))
         help.tap()
-        let helpDismiss = app.buttons["Got It"]
-        XCTAssertTrue(helpDismiss.waitForExistence(timeout: 3), "Scoreboard help dialog was not localized in English")
+        let helpAlert = app.alerts.firstMatch
+        XCTAssertTrue(helpAlert.waitForExistence(timeout: 3), "Scoreboard help Alert did not appear")
+        let helpDismiss = helpAlert.buttons["Got It"]
+        XCTAssertTrue(helpDismiss.waitForExistence(timeout: 2), "Scoreboard help Alert was not localized in English")
         helpDismiss.tap()
 
         app.buttons["settings_scoreboard_sheet_close"].tap()
@@ -1041,29 +1048,13 @@ final class MainFlowUITests: XCTestCase {
         app.buttons["settings_scoreboard_sheet_close"].tap()
         XCTAssertTrue(scoreboardSheet.waitForNonExistence(timeout: 5))
 
-        app.descendants(matching: .any)["settings_feedback_entry"].tap()
-        let feedbackSheet = app.descendants(matching: .any)["settings_feedback_sheet"]
-        XCTAssertTrue(feedbackSheet.waitForExistence(timeout: 5))
-        app.buttons["settings_feedback_sheet_close"].tap()
-        XCTAssertTrue(feedbackSheet.waitForNonExistence(timeout: 5))
-
         app.descendants(matching: .any)["settings_faq_entry"].tap()
         let faqSheet = app.descendants(matching: .any)["settings_faq_sheet"]
         XCTAssertTrue(faqSheet.waitForExistence(timeout: 5))
-        // 对齐安卓 FaqScreen：默认展开第一条。
-        XCTAssertTrue(
-            app.descendants(matching: .any)["settings_faq_answer_1"].waitForExistence(timeout: 3),
-            "FAQ first answer should be expanded by default"
-        )
         app.buttons["settings_faq_question_1"].tap()
         XCTAssertTrue(
-            app.descendants(matching: .any)["settings_faq_answer_1"].waitForNonExistence(timeout: 3),
-            "FAQ first answer should collapse after tapping"
-        )
-        app.buttons["settings_faq_question_2"].tap()
-        XCTAssertTrue(
-            app.descendants(matching: .any)["settings_faq_answer_2"].waitForExistence(timeout: 3),
-            "FAQ second answer did not expand"
+            app.descendants(matching: .any)["settings_faq_answer_1"].waitForExistence(timeout: 3),
+            "FAQ answer did not expand"
         )
         app.buttons["settings_faq_sheet_close"].tap()
         XCTAssertTrue(faqSheet.waitForNonExistence(timeout: 5))
@@ -1095,7 +1086,6 @@ final class MainFlowUITests: XCTestCase {
         var toggle = app.switches["scoreboard_keep_screen_on_toggle"]
         if !toggle.exists {
             for identifier in [
-                "settings_feedback_sheet_close",
                 "settings_faq_sheet_close",
                 "settings_about_sheet_close"
             ] {
@@ -1522,10 +1512,6 @@ final class MainFlowUITests: XCTestCase {
 
         XCTAssertTrue(openPingPongSetup(in: app))
         app.buttons["开始"].tap()
-        // 手机端计分板强制横屏；测试对齐为横屏并等几何落定，避免
-        // XCUIDevice 竖屏设定与 App 方向锁互相拉扯导致点击坐标错位。
-        XCUIDevice.shared.orientation = .landscapeRight
-        Thread.sleep(forTimeInterval: 1.0)
         XCTAssertFalse(
             dialog.waitForExistence(timeout: 2),
             "A scoreboard must not show its automatic hint twice"
@@ -1542,15 +1528,13 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertFalse(dialog.waitForExistence(timeout: 1))
         XCTAssertTrue(menuButton.isHittable)
 
-        // 不用 UI 双击返回退出：手机端计分板强制横屏，模拟器上 XCUIDevice
-        // 方向设定与 App 几何旋转请求互相拉扯，旋转过渡期合成点击会按旧
-        // 坐标投递落空（双击退出窗口 2s 内两击间隔经常超限），固有不稳定。
-        // 本测试核心是提示生命周期与菜单重开，计分板退出用终止重启，
-        // 与上方 602 行同模式；返回导航行为由真实设备/人工验证。
-        app.terminate()
-        XCTAssertTrue(launchAndWait(app), "Usage-hint app failed to relaunch")
+        backButton.tap()
+        backButton.tap()
+        if backButton.waitForExistence(timeout: 1) {
+            backButton.tap()
+        }
+        XCTAssertFalse(backButton.waitForExistence(timeout: 3))
         XCUIDevice.shared.orientation = .portrait
-        Thread.sleep(forTimeInterval: 1.0)
 
         XCTAssertTrue(openPingPongSetup(in: app))
         let modeControl = app.segmentedControls["singles_doubles_picker"]
@@ -2473,6 +2457,13 @@ final class MainFlowUITests: XCTestCase {
         attachment.name = name
         attachment.lifetime = .keepAlways
         add(attachment)
+    }
+
+    private func dismissEnglishWatchGuideIfNeeded(in app: XCUIApplication) {
+        let closeButton = app.buttons["linked_score_watch_start_guide_close"]
+        if closeButton.waitForExistence(timeout: 0.8), closeButton.isHittable {
+            closeButton.tap()
+        }
     }
 
     private func assertEnglishLocalization(

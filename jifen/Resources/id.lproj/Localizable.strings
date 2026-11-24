@@ -769,8 +769,8 @@
 "scoreboard_style_editor" = "Gaya & Warna";
 "scoreboard_style_edit" = "Gaya";
 "style_background_color" = "Warna Latar Belakang";
-"style_server_color" = "Color";
-"style_server_style" = "Style";
+"style_server_color" = "Warna";
+"style_server_style" = "Gaya";
 "style_text_color" = "Warna Teks";
 "style_server_indicator" = "Indikator Servis";
 "style_color_automatic" = "Otomatis";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "Indikator kiri dan kanan memiliki satu warna";
 "scoreboard_style_font_shared_hint" = "Semua teks menggunakan font yang dipilih";
 "scoreboard_style_theme_override_hint" = "Memilih tema menggantikan warna saat ini; Anda masih dapat menyesuaikan satu per satu setelahnya";
-"scoreboard_style_font_size" = "Ukuran Huruf";
+"scoreboard_style_font_size" = "Ukuran Huruf (sama di kedua sisi)";
 "scoreboard_style_font_size_device_max" = "Ukuran maksimum di perangkat ini";
 "scoreboard_style_small" = "Kecil";
 "scoreboard_style_large" = "Besar";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Ketuk area skor kiri/kanan untuk menambahkan 1 gol\n⬆️ Geser ke atas untuk menambahkan\n⬇️ Geser ke bawah untuk mengurangi\n↩️ Geser ke kiri untuk membatalkan\n☑️ Gunakan Selesaikan atau Akhiri saat pertandingan berakhir";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Ketuk area skor kiri/kanan untuk menambahkan 1 gol\n⬆️ Geser ke atas untuk menambahkan\n⬇️ Geser ke bawah untuk mengurangi\n↩️ Geser ke kiri untuk membatalkan\n👥 Nama 2V2 ditetapkan sebelum pertandingan\n☑️ Gunakan Selesaikan atau Akhiri saat pertandingan berakhir";
 "scoreboard_usage_hint_simple_score" = "👆 Ketuk area skor kiri/kanan untuk menambahkan\n⬆️ Geser ke atas untuk menambahkan\n⬇️ Geser ke bawah untuk mengurangi\n↩️ Geser ke kiri untuk membatalkan\n✏️ Tekan lama atau edit untuk mengubah nama dan skor";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Ketuk ubin pemain untuk menambahkan 1 poin\n⬆️ Geser ke atas untuk menambahkan 1;⬇️ geser ke bawah untuk mengurangi 1\n↩️ Geser ke kiri untuk membatalkan\n✏️ Tekan lama pemain untuk mengedit nama dan skor\n🎛️ Dalam mode penyesuaian khusus, mengetuk pemain akan membuka panel penyesuaian";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Ketuk ubin pemain untuk menambahkan 1 poin\n⬆️ Geser ke atas untuk menambahkan 1;⬇️ geser ke bawah untuk mengurangi 1\n↔️ Jika pemain lebih dari 9, geser ke kiri atau kanan atau gunakan titik dan panah di bawah untuk mengganti halaman\n↩️ Buka menu untuk mengurungkan tindakan atau mencari pemain\n✏️ Tekan lama pemain untuk mengedit nama dan skor\n🎛️ Dalam mode penyesuaian khusus, mengetuk pemain akan membuka panel penyesuaian";
 "scoreboard_usage_hint_double_tap_point" = "👆 Ketuk dua kali sisi yang sama untuk mengurangi 1";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Ketuk dua kali sisi yang sama untuk mengurangi 1 frame";
 "scoreboard_usage_hint_double_tap_player" = "👆 Ketuk dua kali pemain yang sama untuk mengurangi 1";
@@ -1173,7 +1173,7 @@
 "game_squash" = "Squash";
 "game_soft_tennis" = "Tenis Lembut";
 "game_padel" = "Padel";
-"game_football_5v5" = "Sepak Bola 5x5";
+"game_football_5v5" = "Sepak Bola 5×5";
 "padel_deuce_mode" = "Aturan Deuce";
 "padel_advantage" = "Advantage";
 "padel_golden_point" = "Poin Emas";
@@ -2698,7 +2698,7 @@
 "billiards_group_big_gold" = "Emas besar";
 "billiards_group_small_gold" = "Emas kecil";
 "billiards_group_normal_win" = "Kemenangan normal";
-"billiards_group_foul" = "Foul";
+"billiards_group_foul" = "Pelanggaran";
 "billiards_group_golden" = "Sembilan emas";
 "billiards_group_third_foul" = "Foul ketiga";
 "billiards_group_total_racks" = "Total rak";
@@ -2738,10 +2738,10 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Gaya";
 "style_workbench_reset" = "Pulihkan gaya bawaan";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Setel ulang";
 "style_workbench_theme" = "Tema";
 "style_workbench_background" = "Latar Belakang";
-"style_workbench_font" = "Font";
+"style_workbench_font" = "Jenis huruf";
 "style_workbench_free" = "Edit bebas";
 "style_workbench_server" = "Indikator Servis";
 "style_workbench_phone" = "Perangkat ini";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "Gunakan gambar lanskap 16:9, misalnya 1920×1080. Gambar mengisi layar dengan pangkas terpusat.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Gratis";
+"scoreboard_theme_free_badge_desc" = "Gratis untuk waktu terbatas";
+"style_workbench_pick" = "Ketuk teks atau ikon servis untuk mengedit";
+"style_workbench_photo_source_default" = "Foto bawaan";
+"style_workbench_photo_source_custom" = "Foto pilihan sendiri";
+"style_workbench_photo_crop_notice" = "Gambar dipotong dari tengah untuk memenuhi layar";
+"billiards_group_switch_to_two" = "Dialihkan ke 2 pemain";
+"group_complete_confirm" = "Pastikan semua pertandingan sudah ditangani sebelum mengakhiri kegiatan ini.";
+"billiards_group_score_panel_positive" = "Positif";
+"billiards_group_score_panel_negative" = "Negatif";
+"group_error_applicant_inactive" = "Akun pemohon tidak aktif. Permintaan tidak dapat disetujui.";

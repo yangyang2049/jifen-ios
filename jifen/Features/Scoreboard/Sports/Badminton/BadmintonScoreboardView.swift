@@ -26,6 +26,7 @@ struct BadmintonScoreboardView: View {
             participantSelections: initialSetup?.participantSelections ?? [:],
             openingServer: openingServer,
             voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement == true,
+            initialWatchSessionId: initialSetup?.linkedWatchSessionId,
             initialResumeSessionId: initialResumeSessionId,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() },

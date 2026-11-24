@@ -792,8 +792,7 @@ private struct GroupBilliardsTabContent: View {
                     Button { selectFilterVariant(value) } label: {
                         // 灰卡片上的次级 chip：浅色白底 + 1px 描边，选中态主色实底 + 白字。
                         Text(value.title).font(GroupTypography.body.weight(.semibold))
-                            .padding(.horizontal, Theme.padding).padding(.vertical, 8)
-                            .billiardsControl(active: variant == value, radius: 22)
+                            .billiardsChoice(active: variant == value)
                     }.buttonStyle(.plain)
                         .accessibilityAddTraits(variant == value ? .isSelected : [])
                         .accessibilityIdentifier("billiards_records_variant_\(value.rawValue)")
@@ -814,8 +813,7 @@ private struct GroupBilliardsTabContent: View {
                         Button { bucket = option.key } label: {
                             Text(option.rules.summary).font(.caption)
                                 .lineLimit(1)
-                                .padding(.horizontal, Theme.sm).padding(.vertical, 6)
-                                .billiardsControl(active: selectedKey == option.key, radius: 18)
+                                .billiardsChoice(active: selectedKey == option.key)
                         }.buttonStyle(.plain)
                             .accessibilityAddTraits(selectedKey == option.key ? .isSelected : [])
                             .accessibilityIdentifier("billiards_bucket_\(option.key)")

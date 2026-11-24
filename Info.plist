@@ -44,6 +44,8 @@
 			</array>
 		</dict>
 	</dict>
+	<key>JifenWatchLinkEntryEnabled</key>
+	<true/>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>

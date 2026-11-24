@@ -5,6 +5,7 @@
 //  Football scoreboard view
 //
 
+import LinkCore
 import ScoreCore
 import SwiftUI
 import UIKit
@@ -13,6 +14,7 @@ import Combine
 struct FootballScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService
     @ScaledMetric(relativeTo: .body) private var stoppageButtonFontSize: CGFloat = 17
     var onNavigationBack: (() -> Void)? = nil
     var initialSetup: SportsSetupResult? = nil
@@ -31,6 +33,11 @@ struct FootballScoreboardView: View {
     @State private var lastOutcomeSignature: String? = nil
     @State private var didApplyInitialSetup = false
     @State private var clockPulseScale: CGFloat = 1
+    /// Non-nil when this board follows a watch-started linked session.
+    @State private var watchSessionId: UUID?
+    @State private var manualFinishRequested = false
+    @State private var toastMessage: String?
+    @State private var toastTask: Task<Void, Never>?
 
     init(
         onNavigationBack: (() -> Void)? = nil,
@@ -58,9 +65,14 @@ struct FootballScoreboardView: View {
             resuming: initialResumeSessionId
         ))
         _registersParticipantOwner = State(initialValue: initialResumeSessionId == nil)
+        _watchSessionId = State(initialValue: initialSetup?.linkedWatchSessionId)
     }
 
     var body: some View {
+        boardWithLink
+    }
+
+    private var boardContent: some View {
         ZStack {
         ScoreboardTemplate(
             config: TemplateConfig(
@@ -74,45 +86,86 @@ struct FootballScoreboardView: View {
                 extraMenuItemsProvider: {
                     // 对齐安卓 S1DualSideScoreRouteScreen 的足球菜单项。
                     var items: [ScoreboardMenuItem] = []
-                    if viewModel.allowsStoppageTime {
-                        items.append(ScoreboardMenuItem(
-                            title: NSLocalizedString("football_injury_title", value: "伤停补时", comment: ""),
-                            action: "footballInjury", group: .match,
-                            icon: "clock.badge.plus", placeAtEnd: true
-                        ))
+                    if !scoringLocked {
+                        if viewModel.allowsStoppageTime {
+                            items.append(ScoreboardMenuItem(
+                                title: NSLocalizedString("football_injury_title", value: "伤停补时", comment: ""),
+                                action: "footballInjury", group: .match,
+                                icon: "clock.badge.plus", placeAtEnd: true
+                            ))
+                        }
+                        if firstHalfEnded {
+                            items.append(ScoreboardMenuItem(
+                                title: NSLocalizedString("football_switch_half", value: "进入下半场", comment: ""),
+                                action: "footballSwitchHalf",
+                                group: .tools,
+                                icon: "forward.end"
+                            ))
+                        }
+                        if regulationEndedTied {
+                            items.append(ScoreboardMenuItem(
+                                title: NSLocalizedString("football_post_regulation_action", value: "赛后处理", comment: ""),
+                                action: "footballPostRegulation",
+                                group: .match,
+                                customText: "ET",
+                                sortOrder: 10,
+                                placeAtEnd: true
+                            ))
+                        }
                     }
-                    if firstHalfEnded {
-                        items.append(ScoreboardMenuItem(
-                            title: NSLocalizedString("football_switch_half", value: "进入下半场", comment: ""),
-                            action: "footballSwitchHalf",
-                            group: .tools,
-                            icon: "forward.end"
-                        ))
-                    }
-                    if regulationEndedTied {
-                        items.append(ScoreboardMenuItem(
-                            title: NSLocalizedString("football_post_regulation_action", value: "赛后处理", comment: ""),
-                            action: "footballPostRegulation",
-                            group: .match,
-                            customText: "ET",
-                            sortOrder: 10,
-                            placeAtEnd: true
-                        ))
-                    }
+                    items.append(contentsOf: WatchLinkMenuSupport.extraItems(
+                        entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
+                        sessionId: watchSessionId,
+                        isFollower: watchLinkService.isFollower,
+                        watchBackgrounded: watchLinkService.watchBackgrounded
+                    ))
                     return items
                 },
                 onMenuAction: { action in
                     switch action {
                     case "footballInjury":
+                        guard !scoringLocked else { return }
                         showStoppageSettings = true
                     case "footballSwitchHalf":
+                        guard !scoringLocked else { return }
                         _ = viewModel.advanceClockStage()
                     case "footballPostRegulation":
+                        guard !scoringLocked else { return }
                         showPostRegulationDialog = true
+                    case "resync":
+                        watchLinkService.requestScoreResync()
+                    case "takeover":
+                        if let id = watchSessionId {
+                            Task {
+                                do {
+                                    try await watchLinkService.takeover(sessionId: id)
+                                    publishWatchIfNeeded()
+                                } catch {
+                                    showToast(error.localizedDescription)
+                                }
+                            }
+                        }
+                    case "forceTakeover":
+                        if let id = watchSessionId {
+                            Task {
+                                do {
+                                    try await watchLinkService.forceTakeover(sessionId: id)
+                                    publishWatchIfNeeded()
+                                } catch {
+                                    showToast(error.localizedDescription)
+                                }
+                            }
+                        }
+                    case "endLink":
+                        if let id = watchSessionId {
+                            watchLinkService.leaveSession(id)
+                            watchSessionId = nil
+                        }
                     default:
                         break
                     }
                 },
+                scoringEnabledProvider: { !scoringLocked },
                 externalStateEnricher: { compact in
                     var value = ScoreboardDisplayState.enriched(
                         compact: compact,
@@ -129,10 +182,7 @@ struct FootballScoreboardView: View {
                             footballHalf: viewModel.clockStage,
                             footballHalfLengthMs: Int64(viewModel.clockSession.currentPeriodLengthSeconds) * 1_000,
                             footballInjuryTargetMs: Int64(viewModel.clockSession.currentStoppageSeconds) * 1_000,
-                            injuryTimeText: {
-                                let seconds = max(0, viewModel.clockElapsedSeconds - viewModel.clockSession.currentPeriodLengthSeconds)
-                                return seconds > 0 ? String(format: "+%02d:%02d", seconds / 60, seconds % 60) : ""
-                            }()
+                            injuryTimeText: footballInjuryTimeText
                         )
                     )
                     let multipliers = value.appearance.fontSizeMultipliers
@@ -144,12 +194,15 @@ struct FootballScoreboardView: View {
                 }
             ),
             onBack: {
+                if let id = watchSessionId {
+                    watchLinkService.leaveSessionIfMatchFinished(id)
+                }
                 if let onNavigationBack = onNavigationBack {
                     onNavigationBack()
                 } else {
                     dismiss()
                 }
-                }
+            }
             )
 
 
@@ -161,14 +214,23 @@ struct FootballScoreboardView: View {
                     rightName: viewModel.rightTeam.name,
                     leftScore: viewModel.leftTeam.score,
                     rightScore: viewModel.rightTeam.score,
+                    newGameLabel: scoringLocked
+                        ? NSLocalizedString("game_over_new_game_on_watch", value: "再来一场\n（请在手表端操作）", comment: "")
+                        : nil,
+                    newGameDisabled: scoringLocked,
                     onNewGame: {
+                        guard !scoringLocked else { return }
                         startNewMatch()
                     },
                     onRecords: {
-                        viewModel.saveGameRecordInRealTime(
-                            recordID: recordID,
-                            isGameFinished: viewModel.gameFinished
-                        )
+                        let skipSave = watchSessionId != nil
+                            && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
+                        if !skipSave {
+                            viewModel.saveGameRecordInRealTime(
+                                recordID: recordID,
+                                isGameFinished: viewModel.gameFinished
+                            )
+                        }
                         showFinishedRecordDetail = true
                     },
                     onShare: {
@@ -177,10 +239,17 @@ struct FootballScoreboardView: View {
                         )
                     },
                     onExit: {
-                        viewModel.saveGameRecordInRealTime(
-                            recordID: recordID,
-                            isGameFinished: viewModel.gameFinished
-                        )
+                        if let id = watchSessionId {
+                            watchLinkService.leaveSessionIfMatchFinished(id)
+                        }
+                        let skipSave = watchSessionId != nil
+                            && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
+                        if !skipSave {
+                            viewModel.saveGameRecordInRealTime(
+                                recordID: recordID,
+                                isGameFinished: viewModel.gameFinished
+                            )
+                        }
                         performScoreboardExit(
                             onNavigationBack: onNavigationBack,
                             dismiss: dismiss
@@ -199,6 +268,21 @@ struct FootballScoreboardView: View {
 
             if showSwitchHalfConfirm {
                 switchHalfConfirmDialog
+            }
+
+            if let toastMessage {
+                VStack {
+                    Spacer()
+                    Text(toastMessage)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(Color.black.opacity(0.8), in: Capsule())
+                        .padding(.bottom, 28)
+                }
+                .allowsHitTesting(false)
+                .transition(.opacity)
             }
         }
         .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
@@ -221,6 +305,8 @@ struct FootballScoreboardView: View {
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
         .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+            // 终场后比赛钟已在 endGame() 冻结，不再刷新与广播。
+            guard !viewModel.gameFinished else { return }
             // 先处理时钟到期，再统一发布一次快照，确保广播的是到期后的最新状态。
             _ = viewModel.checkClockExpiry()
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -229,6 +315,10 @@ struct FootballScoreboardView: View {
         .onChange(of: viewModel.clockRevision) { _, _ in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
+    }
+
+    private var boardWithLifecycle: some View {
+        boardContent
         .registerParticipantSetupOnAppear(recordID: recordID, selections: registersParticipantOwner ? [:] : nil)
         .onAppear {
             viewModel.controller = controller
@@ -244,13 +334,57 @@ struct FootballScoreboardView: View {
                 onSetupConsumed?()
             }
             restoreResumeIfNeeded()
+            if let watchSessionId,
+               let update = watchLinkService.attachPage(sessionId: watchSessionId),
+               let remote = update.snapshot.footballState {
+                viewModel.applyLinkedState(remote)
+                showGameOverDialog = remote.finished
+                if !remote.finished { manualFinishRequested = false }
+            }
             refreshFootballOutcomePrompt()
         }
         .onChange(of: viewModel.gameFinished) { _, newValue in
-            if newValue {
-                showGameOverDialog = true
+            guard newValue else { return }
+            showGameOverDialog = true
+            if watchSessionId != nil {
+                if !watchLinkService.isFollower {
+                    viewModel.saveGameRecordInRealTime(recordID: recordID, isGameFinished: true)
+                    publishWatchIfNeeded()
+                    notifyLinkedFinishIfNeeded(manualEnd: manualFinishRequested)
+                }
+            } else {
                 viewModel.saveGameRecordInRealTime(recordID: recordID, isGameFinished: true)
             }
+        }
+        .onChange(of: viewModel.clockRevision) { _, _ in
+            publishWatchIfNeeded()
+        }
+        .onChange(of: viewModel.leftTeam.score) { _, _ in
+            publishWatchIfNeeded()
+        }
+        .onChange(of: viewModel.rightTeam.score) { _, _ in
+            publishWatchIfNeeded()
+        }
+        .onChange(of: viewModel.leftTeam.name) { _, _ in
+            publishWatchIfNeeded()
+        }
+        .onChange(of: viewModel.rightTeam.name) { _, _ in
+            publishWatchIfNeeded()
+        }
+        .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
+            guard let watchSessionId, let update, update.sessionId == watchSessionId,
+                  let remote = update.snapshot.footballState else { return }
+            viewModel.applyLinkedState(remote)
+            showGameOverDialog = remote.finished
+            if !remote.finished { manualFinishRequested = false }
+        }
+        .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in
+            guard let watchSessionId, let pending, pending.sessionId == watchSessionId,
+                  let remote = pending.snapshot.footballState else { return }
+            viewModel.applyLinkedState(remote)
+            showGameOverDialog = remote.finished
+            if !remote.finished { manualFinishRequested = false }
+            watchLinkService.completePhoneTakeover(messageId: pending.messageId)
         }
         .onChange(of: scenePhase) { _, phase in
             if phase != .active {
@@ -261,19 +395,119 @@ struct FootballScoreboardView: View {
             }
         }
         .onDisappear {
-            // Save record when leaving (for incomplete games)
-            #if DEBUG
-            print("[FootballScoreboardView] 📤 View disappearing, saving record")
-            #endif
+            let skipSave = watchSessionId != nil
+                && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
+            if let watchSessionId { watchLinkService.detachPage(sessionId: watchSessionId) }
+            guard !skipSave else { return }
             viewModel.saveGameRecordInRealTime(
                 recordID: recordID,
                 isGameFinished: viewModel.gameFinished
             )
-
         }
     }
 
+    private var boardWithLink: some View {
+        boardWithLifecycle
+            .alert(
+                NSLocalizedString(
+                    "linked_score_watch_reclaim_title",
+                    value: "手表请求重新接管",
+                    comment: ""
+                ),
+                isPresented: reclaimAlertPresented
+            ) {
+                Button(NSLocalizedString("linked_score_accept", value: "同意", comment: "")) {
+                    watchLinkService.resolveReclaimRequest(
+                        accepted: true,
+                        snapshot: .football(viewModel.linkedState()),
+                        detailedActions: []
+                    )
+                }
+                Button(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""), role: .cancel) {
+                    watchLinkService.resolveReclaimRequest(
+                        accepted: false,
+                        snapshot: .football(viewModel.linkedState()),
+                        detailedActions: []
+                    )
+                }
+            } message: {
+                Text(NSLocalizedString(
+                    "linked_score_watch_reclaim_message",
+                    value: "是否允许手表在 5 秒内重新接管计分？",
+                    comment: ""
+                ))
+            }
+    }
+
+    private var reclaimAlertPresented: Binding<Bool> {
+        Binding(
+            get: { watchLinkService.pendingReclaimRequest != nil },
+            set: { presented in
+                if !presented, watchLinkService.pendingReclaimRequest != nil {
+                    watchLinkService.resolveReclaimRequest(
+                        accepted: false,
+                        snapshot: .football(viewModel.linkedState()),
+                        detailedActions: []
+                    )
+                }
+            }
+        )
+    }
+
+    private func showToast(_ message: String) {
+        toastTask?.cancel()
+        toastMessage = message
+        toastTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2.5))
+            guard !Task.isCancelled else { return }
+            toastMessage = nil
+        }
+    }
+
+    private var footballInjuryTimeText: String {
+        let seconds = max(
+            0,
+            viewModel.clockElapsedSeconds - viewModel.clockSession.currentPeriodLengthSeconds
+        )
+        return seconds > 0 ? String(format: "+%02d:%02d", seconds / 60, seconds % 60) : ""
+    }
+
+    private var scoringLocked: Bool {
+        watchSessionId != nil
+            && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
+    }
+
+    private func publishWatchIfNeeded() {
+        guard let watchSessionId, watchLinkService.isController else { return }
+        watchLinkService.syncWatch(
+            sessionId: watchSessionId,
+            gameType: isFiveAside ? .football5v5 : .football,
+            snapshot: .football(viewModel.linkedState()),
+            detailedActions: [],
+            participantNames: [viewModel.leftTeam.name, viewModel.rightTeam.name]
+        )
+    }
+
+    private func notifyLinkedFinishIfNeeded(manualEnd: Bool) {
+        guard let watchSessionId, watchLinkService.isController else { return }
+        let winner: MatchSide? = viewModel.leftTeam.score == viewModel.rightTeam.score
+            ? nil
+            : (viewModel.leftTeam.score > viewModel.rightTeam.score ? .left : .right)
+        watchLinkService.notifyMatchFinished(
+            sessionId: watchSessionId,
+            snapshot: .football(viewModel.linkedState()),
+            recordId: recordID,
+            winnerSide: winner,
+            manualEnd: manualEnd,
+            startTime: viewModel.controller?.getGameStartTime() ?? Date(),
+            endTime: Date(),
+            totalScoreChanges: viewModel.controller?.getGameActions().count ?? 0,
+            participantNames: [viewModel.leftTeam.name, viewModel.rightTeam.name]
+        )
+    }
+
     private func startNewMatch() {
+        guard !scoringLocked else { return }
         viewModel.saveGameRecordInRealTime(recordID: recordID, isGameFinished: true)
 
         let freshState = viewModel.makeFreshMatchState()
@@ -282,7 +516,16 @@ struct FootballScoreboardView: View {
         try? ParticipantIdentityStore.shared.registerRecord(recordID)
         viewModel.restoreSession(state: freshState, history: [])
         viewModel.resetClock()
+        manualFinishRequested = false
         showGameOverDialog = false
+        if let watchSessionId, watchLinkService.isController {
+            watchLinkService.prepareControllerForNewMatch(
+                sessionId: watchSessionId,
+                gameType: isFiveAside ? .football5v5 : .football,
+                snapshot: .football(viewModel.linkedState()),
+                participantNames: [viewModel.leftTeam.name, viewModel.rightTeam.name]
+            )
+        }
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
     }
 
@@ -328,6 +571,7 @@ struct FootballScoreboardView: View {
                         background: Color(hex: "EF4444").opacity(0.08),
                         buttonTitle: NSLocalizedString("football_switch_half", value: "进入下半场", comment: "")
                     ) {
+                        guard !scoringLocked else { return }
                         showSwitchHalfConfirm = true
                     }
                 } else if extraTimeFirstHalfEnded {
@@ -337,6 +581,7 @@ struct FootballScoreboardView: View {
                         background: Color(hex: "F59E0B").opacity(0.12),
                         buttonTitle: NSLocalizedString("football_switch_extra_time_half", value: "进入加时赛下半场", comment: "")
                     ) {
+                        guard !scoringLocked else { return }
                         _ = viewModel.advanceClockStage()
                     }
                 } else if regulationEndedTied {
@@ -346,6 +591,7 @@ struct FootballScoreboardView: View {
                         background: Color(hex: "38BDF8").opacity(0.12),
                         buttonTitle: NSLocalizedString("football_post_regulation_action", value: "赛后处理", comment: "")
                     ) {
+                        guard !scoringLocked else { return }
                         showPostRegulationDialog = true
                     }
                 } else {
@@ -445,7 +691,7 @@ struct FootballScoreboardView: View {
             clockPulseScale = shouldPulse ? 1.12 : 1
         }
         .onTapGesture {
-            if viewModel.allowsManualClockPause {
+            if !scoringLocked, viewModel.allowsManualClockPause {
                 viewModel.toggleClock()
             }
         }
@@ -509,7 +755,7 @@ struct FootballScoreboardView: View {
     /// 对齐安卓 S1DualSideScoreRouteScreen 的 outcome 弹窗签名触发：
     /// 进入“常规时间打平待决策”状态时自动弹出；比分变化（重新打平）后再次弹出。
     private func refreshFootballOutcomePrompt() {
-        guard !showGameOverDialog else { return }
+        guard !showGameOverDialog, !scoringLocked else { return }
         guard regulationEndedTied else {
             if showPostRegulationDialog {
                 showPostRegulationDialog = false
@@ -541,6 +787,7 @@ struct FootballScoreboardView: View {
             confirmText: NSLocalizedString("football_enter_extra_time", value: "进入加时赛", comment: ""),
             cancelText: NSLocalizedString("football_end_as_draw", value: "以平局结束", comment: ""),
             confirmColor: Theme.primary,
+            confirmForeground: Theme.textOnPrimary,
             onConfirm: {
                 if viewModel.advanceClockStage() {
                     showPostRegulationDialog = false
@@ -611,6 +858,7 @@ struct FootballScoreboardView: View {
             confirmText: NSLocalizedString("confirm", value: "确认", comment: ""),
             cancelText: NSLocalizedString("cancel", value: "取消", comment: ""),
             confirmColor: Theme.primary,
+            confirmForeground: Theme.textOnPrimary,
             onConfirm: {
                 showSwitchHalfConfirm = false
                 _ = viewModel.advanceClockStage()

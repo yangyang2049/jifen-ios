@@ -769,8 +769,8 @@
 "scoreboard_style_editor" = "Kiểu dáng & Màu sắc";
 "scoreboard_style_edit" = "Phong cách";
 "style_background_color" = "Màu nền";
-"style_server_color" = "Color";
-"style_server_style" = "Style";
+"style_server_color" = "Màu";
+"style_server_style" = "Phong cách";
 "style_text_color" = "Màu văn bản";
 "style_server_indicator" = "Chỉ báo giao bóng";
 "style_color_automatic" = "Tự động";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "Đèn báo bên trái và bên phải có chung một màu";
 "scoreboard_style_font_shared_hint" = "Tất cả văn bản sử dụng phông chữ đã chọn";
 "scoreboard_style_theme_override_hint" = "Việc chọn chủ đề sẽ ghi đè các màu hiện tại; bạn vẫn có thể điều chỉnh riêng lẻ sau";
-"scoreboard_style_font_size" = "Cỡ chữ";
+"scoreboard_style_font_size" = "Cỡ chữ (giống nhau ở hai bên)";
 "scoreboard_style_font_size_device_max" = "Kích thước tối đa trên thiết bị này";
 "scoreboard_style_small" = "Nhỏ";
 "scoreboard_style_large" = "Lớn";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Nhấn vào khu vực ghi điểm trái/phải để thêm 1 bàn thắng\n⬆️ Vuốt lên để thêm\n⬇️ Vuốt xuống để trừ\n↩️ Vuốt sang trái để hoàn tác\n☑️ Sử dụng Chốt kết quả hoặc Kết thúc khi trận đấu kết thúc";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Nhấn vào khu vực ghi điểm trái/phải để thêm 1 bàn thắng\n⬆️ Vuốt lên để thêm\n⬇️ Vuốt xuống để trừ\n↩️ Vuốt sang trái để hoàn tác\n👥 Tên 2V2 được đặt trước trận đấu\n☑️ Sử dụng Chốt kết quả hoặc Kết thúc khi trận đấu kết thúc";
 "scoreboard_usage_hint_simple_score" = "👆 Nhấn vào vùng điểm trái/phải để thêm\n⬆️ Vuốt lên để thêm\n⬇️ Vuốt xuống để trừ\n↩️ Vuốt sang trái để hoàn tác\n✏️ Nhấn giữ hoặc chỉnh sửa để thay đổi tên và điểm số";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Nhấn vào ô người chơi để thêm 1 điểm\n⬆️ Vuốt lên để thêm 1;⬇️ vuốt xuống để trừ 1\n↩️ Vuốt sang trái để hoàn tác\n✏️ Nhấn và giữ một cầu thủ để chỉnh sửa tên và điểm số\n🎛️ Trong chế độ điều chỉnh tùy chỉnh, nhấn vào người chơi sẽ mở bảng điều chỉnh";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Nhấn vào ô người chơi để thêm 1 điểm\n⬆️ Vuốt lên để thêm 1;⬇️ vuốt xuống để trừ 1\n↔️ Nếu có hơn 9 người chơi, vuốt trái hoặc phải để chuyển trang hoặc dùng các dấu chấm và mũi tên bên dưới\n↩️ Mở menu để hoàn tác hoặc tìm người chơi\n✏️ Nhấn và giữ một cầu thủ để chỉnh sửa tên và điểm số\n🎛️ Trong chế độ điều chỉnh tùy chỉnh, nhấn vào người chơi sẽ mở bảng điều chỉnh";
 "scoreboard_usage_hint_double_tap_point" = "👆 Nhấn đúp vào cùng một bên để trừ 1";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Nhấn đúp cùng bên để trừ 1 ván";
 "scoreboard_usage_hint_double_tap_player" = "👆 Nhấn đúp vào cùng một người chơi để trừ 1";
@@ -1173,7 +1173,7 @@
 "game_squash" = "Bóng quần";
 "game_soft_tennis" = "Quần vợt mềm";
 "game_padel" = "Padel";
-"game_football_5v5" = "Bóng đá 5x5";
+"game_football_5v5" = "Bóng đá 5×5";
 "padel_deuce_mode" = "Quy tắc Deuce";
 "padel_advantage" = "Lợi điểm";
 "padel_golden_point" = "Điểm Vàng";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Phong cách";
 "style_workbench_reset" = "Khôi phục kiểu mặc định";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Đặt lại";
 "style_workbench_theme" = "Chủ đề";
 "style_workbench_background" = "Nền";
 "style_workbench_font" = "Phông chữ";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "Dùng ảnh ngang 16:9, ví dụ 1920×1080. Ảnh sẽ lấp đầy màn hình và được cắt ở giữa.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Miễn phí";
+"scoreboard_theme_free_badge_desc" = "Miễn phí trong thời gian giới hạn";
+"style_workbench_pick" = "Chạm vào văn bản hoặc biểu tượng giao bóng để chỉnh sửa";
+"style_workbench_photo_source_default" = "Ảnh mặc định";
+"style_workbench_photo_source_custom" = "Ảnh tùy chọn";
+"style_workbench_photo_crop_notice" = "Ảnh được cắt theo tâm để lấp đầy màn hình";
+"billiards_group_switch_to_two" = "Đã chuyển sang 2 người chơi";
+"group_complete_confirm" = "Hãy kiểm tra mọi trận đấu đã được xử lý trước khi kết thúc hoạt động.";
+"billiards_group_score_panel_positive" = "Dương";
+"billiards_group_score_panel_negative" = "Âm";
+"group_error_applicant_inactive" = "Tài khoản người đăng ký không hoạt động. Không thể duyệt yêu cầu.";

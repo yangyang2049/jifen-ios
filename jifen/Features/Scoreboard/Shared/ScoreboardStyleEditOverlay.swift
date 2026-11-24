@@ -183,15 +183,18 @@ private func styleColorsEqual(_ lhs: String, _ rhs: String) -> Bool {
     return a == b
 }
 
-/// 最近使用色：去重置顶，最多保留 6 个（对齐安卓 commitRecentColor）。
+/// 已有色点保持原位，新自定义色追加到末尾。
 private func mergeRecentStyleColor(_ colors: [String], _ color: String, limit: Int = 6) -> [String] {
-    guard let normalized = ScoreboardStyleProfileV2.normalizedHex(color) else { return colors }
-    var next = [normalized]
-    for existing in colors where !styleColorsEqual(existing, normalized) {
-        next.append(existing)
-        if next.count >= limit { break }
+    var saved: [String] = []
+    for raw in colors {
+        guard let existing = ScoreboardStyleProfileV2.normalizedHex(raw),
+              !saved.contains(where: { styleColorsEqual($0, existing) }) else { continue }
+        saved.append(existing)
     }
-    return next
+    saved = Array(saved.prefix(max(0, limit)))
+    guard let normalized = ScoreboardStyleProfileV2.normalizedHex(color),
+          !saved.contains(where: { styleColorsEqual($0, normalized) }) else { return saved }
+    return Array((saved + [normalized]).suffix(max(0, limit)))
 }
 
 private extension ScoreboardStyleProfileV2 {
@@ -206,7 +209,6 @@ private extension ScoreboardStyleProfileV2 {
 /// 全屏样式编辑悬浮层（对齐安卓 ScoreboardStyleEditOverlay）。
 struct ScoreboardStyleEditOverlayView: View {
     @ScaledMetric(relativeTo: .subheadline) private var fontSizeHeaderLabelSize: CGFloat = 14
-    @ScaledMetric(relativeTo: .caption) private var fontSizeHeaderHintSize: CGFloat = 12
     /// Clearance for previews whose content begins at the very top edge.
     static var topControlsReservedHeight: CGFloat { Theme.usesPadLayout ? 84 : 64 }
 
@@ -226,6 +228,7 @@ struct ScoreboardStyleEditOverlayView: View {
     @State private var fullPreview = false
     @State private var castPreview = false
     @State private var workbenchTab = "theme"
+    @State private var pickHintVisible = false
     @State private var customColorOpen = false
     @State private var recentColors: [String] = []
     @State private var backgroundTarget: StyleBackgroundTarget = .slot(.sideLeft)
@@ -336,6 +339,14 @@ struct ScoreboardStyleEditOverlayView: View {
         .ignoresSafeArea(.all, edges: fullPreview ? .all : [])
         .preferredColorScheme(.dark)
         .task { recentColors = PreferencesManager.shared.scoreboardRecentStyleColors }
+        .task(id: workbenchTab) {
+            pickHintVisible = workbenchTab == "free"
+            guard pickHintVisible else { return }
+            do {
+                try await Task.sleep(for: .milliseconds(2500))
+                pickHintVisible = false
+            } catch { }
+        }
         .task(id: imageUndo) {
             guard imageUndo != nil else { return }
             do { try await Task.sleep(for: .seconds(5)); imageUndo = nil } catch { }
@@ -446,17 +457,20 @@ struct ScoreboardStyleEditOverlayView: View {
         VStack(spacing: 0) {
             workbenchPreview(viewport: viewport)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .overlay(alignment: .bottom) {
+                    if workbenchTab == "free" && pickHintVisible && !fullPreview && !customColorOpen {
+                        Text(String(localized: "style_workbench_pick"))
+                            .font(.caption).foregroundStyle(.white)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 12).padding(.vertical, 4)
+                            .background(.black.opacity(0.82), in: Capsule())
+                            .padding(12)
+                            .allowsHitTesting(false)
+                            .accessibilityIdentifier("scoreboard_style_pick_hint")
+                    }
+                }
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("scoreboard_style_live_preview")
-            if workbenchTab == "free" && !fullPreview {
-                // 与 Android 一致：只有自由编辑时预览可点选元素，提示放在画布正下方。
-                Text(String(localized: "style_workbench_pick"))
-                    .font(.system(size: 11)).foregroundStyle(Color(hex: "9EA6B3"))
-                    .lineLimit(1).minimumScaleFactor(0.8)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 4)
-                    .accessibilityIdentifier("scoreboard_style_pick_hint")
-            }
             // 画布级控件放画布下方：参与布局、不覆盖预览、无独立底栏。
             previewTargetChips()
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -498,7 +512,9 @@ struct ScoreboardStyleEditOverlayView: View {
                             .environment(\.scoreboardStyleEditingActive, workbenchTab == "free" && !fullPreview)
                             .environment(\.scoreboardStylePreviewSwapped, source.sportString("team0ScreenSide") == "right" || source.teams.first?.id == "team_1")
                     } else {
-                        ScoreboardExternalLiveView(state: previewState(source), projection: .synchronizedDisplay)
+                        ScoreboardExternalLiveView(
+                            state: previewState(source), projection: .synchronizedDisplay, animateIdleClock: false
+                        )
                             .environment(\.scoreboardStyleEditingActive, workbenchTab == "free" && !fullPreview)
                             .environment(\.scoreboardStylePreviewSwapped, source.sportString("team0ScreenSide") == "right" || source.teams.first?.id == "team_1")
                     }
@@ -1122,7 +1138,7 @@ struct ScoreboardStyleEditOverlayView: View {
 
     private var freeEditingControls: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ScrollView(.horizontal, showsIndicators: false) {
+            centeredChipRow {
                 HStack {
                     ForEach(capabilities.elementKeys, id: \.self) { key in
                         workbenchChoice(elementLabel(key), selected: uiState.activePanel != .server && uiState.activeElementKey == key) {
@@ -1146,6 +1162,15 @@ struct ScoreboardStyleEditOverlayView: View {
                 elementPanel
             }
         }
+    }
+
+    private func centeredChipRow<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        let row = content()
+        return ViewThatFits(in: .horizontal) {
+            row.fixedSize(horizontal: true, vertical: false)
+            ScrollView(.horizontal, showsIndicators: false) { row }
+        }
+        .frame(maxWidth: .infinity)
     }
 
     private func elementLabel(_ key: ScoreboardStyleElementKeyV2) -> String {
@@ -1370,7 +1395,7 @@ struct ScoreboardStyleEditOverlayView: View {
         let next = mergeRecentStyleColor(recentColors, color)
         if next != recentColors {
             recentColors = next
-            PreferencesManager.shared.rememberScoreboardStyleColors(next)
+            PreferencesManager.shared.scoreboardRecentStyleColors = next
         }
     }
 
@@ -1430,7 +1455,6 @@ struct ScoreboardStyleEditOverlayView: View {
                 colorTitle: String(localized: "style_background_color"),
                 isLargeLayout: isLargeLayout,
                 onPreview: { previewBackground($0) },
-                onCommit: { commitRecentColor($0) },
                 onOpenCustom: { customColorOpen = true }
             )
         }
@@ -1452,7 +1476,6 @@ struct ScoreboardStyleEditOverlayView: View {
                 colorTitle: String(localized: "style_server_color"),
                 isLargeLayout: isLargeLayout,
                 onPreview: { previewServerIndicatorColor($0) },
-                onCommit: { commitRecentColor($0) },
                 onOpenCustom: { customColorOpen = true }
             )
         }
@@ -1460,43 +1483,15 @@ struct ScoreboardStyleEditOverlayView: View {
     }
 
     private func fontSizeHeader<Readout: View>(@ViewBuilder readout: () -> Readout) -> some View {
-        let title = Text(NSLocalizedString("scoreboard_style_font_size", value: "字号", comment: ""))
-            .font(.system(size: fontSizeHeaderLabelSize, weight: .medium))
-            .foregroundStyle(.white)
-        let hint = Text(NSLocalizedString(
-            "scoreboard_style_symmetric_size_same", value: "左右侧字号始终一致", comment: ""
-        ))
-        .font(.system(size: fontSizeHeaderHintSize))
-        .foregroundStyle(.white.opacity(0.56))
-        let value = readout()
-
-        return ViewThatFits(in: .horizontal) {
-            HStack(spacing: 8) {
-                // Give both edges the same ideal width so the hint stays centered as the readout changes.
-                ZStack(alignment: .leading) {
-                    value.hidden().accessibilityHidden(true)
-                    title
-                }
-                .fixedSize()
+        HStack(spacing: 8) {
+            Text(NSLocalizedString("scoreboard_style_font_size", value: "Text size (same on both sides)", comment: ""))
+                .font(.system(size: fontSizeHeaderLabelSize, weight: .medium))
+                .foregroundStyle(.white)
+                .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                hint.fixedSize()
-                ZStack(alignment: .trailing) {
-                    title.hidden().accessibilityHidden(true)
-                    value
-                }
-                .fixedSize()
-                .frame(maxWidth: .infinity, alignment: .trailing)
-            }
-            VStack(spacing: 6) {
-                HStack(spacing: 8) {
-                    title
-                    Spacer(minLength: 0)
-                    value.multilineTextAlignment(.trailing)
-                }
-                hint.multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity)
-            }
+            readout()
+                .multilineTextAlignment(.trailing)
+                .layoutPriority(1)
         }
     }
 
@@ -1522,6 +1517,7 @@ struct ScoreboardStyleEditOverlayView: View {
                         .accessibilityIdentifier("scoreboard_style_font_size_capped")
                     } else {
                         valuePill(String(format: "%.2fx", multiplier))
+                            .fixedSize(horizontal: true, vertical: false)
                     }
                 }
                 Slider(
@@ -1537,10 +1533,12 @@ struct ScoreboardStyleEditOverlayView: View {
 
             // 左侧 / 右侧只影响文字颜色，因此紧跟在字号之后、颜色之前（与 Android / 鸿蒙一致）。
             if !capabilities.globalElementKeys.contains(uiState.activeElementKey) {
-                HStack(spacing: 8) {
-                    ForEach(capabilities.slotKeys, id: \.self) { slot in
-                        workbenchChoice(slot.rawValue == "side_left" ? String(localized: "style_slot_left") : slot.rawValue == "side_center" ? String(localized: "style_slot_center") : String(localized: "style_slot_right"), selected: uiState.activeElementSlot == slot) {
-                            uiState.openElement(uiState.activeElementKey, slot: slot)
+                centeredChipRow {
+                    HStack(spacing: 8) {
+                        ForEach(capabilities.slotKeys, id: \.self) { slot in
+                            workbenchChoice(slotTitle(slot), selected: uiState.activeElementSlot == slot) {
+                                uiState.openElement(uiState.activeElementKey, slot: slot)
+                            }
                         }
                     }
                 }
@@ -1563,7 +1561,6 @@ struct ScoreboardStyleEditOverlayView: View {
                     autoSelected: isAutoContrastActive(),
                     onSelectAuto: { toggleAutoContrast(true) },
                     onPreview: { previewTextColor($0) },
-                    onCommit: { commitRecentColor($0) },
                     onOpenCustom: { customColorOpen = true }
                 )
             }
@@ -1682,6 +1679,7 @@ struct CircularColorPickerPage: View {
 // MARK: - 色板（常用色 + 最近色 + 自定义入口，对齐安卓 ColorPickerPanel）
 
 struct ColorPickerPanel: View {
+    @Environment(\.locale) private var locale
     let selectedColor: String
     let recentColors: [String]
     let presetColors: [String]
@@ -1693,7 +1691,6 @@ struct ColorPickerPanel: View {
     var autoSelected: Bool = false
     var onSelectAuto: (() -> Void)? = nil
     let onPreview: (String) -> Void
-    let onCommit: (String) -> Void
     let onOpenCustom: () -> Void
 
     @State private var containerWidth: CGFloat = 0
@@ -1706,8 +1703,8 @@ struct ColorPickerPanel: View {
                       !result.contains(where: { styleColorsEqual($0, normalized) }) else { return }
                 result.append(normalized)
             }
-            recentColors.forEach(add)
             presetColors.forEach(add)
+            recentColors.forEach(add)
             return result
         }()
 
@@ -1752,10 +1749,9 @@ struct ColorPickerPanel: View {
                                 } else if value == "auto" {
                                     autoColorDot(size: dotSize)
                                 } else {
-                                    let isSelected = styleColorsEqual(selectedColor, value)
+                                    let isSelected = !autoSelected && styleColorsEqual(selectedColor, value)
                                     Button {
                                         onPreview(value)
-                                        onCommit(value)
                                     } label: {
                                         Circle()
                                             .fill(value.styleColor)
@@ -1775,6 +1771,8 @@ struct ColorPickerPanel: View {
                                             }
                                     }
                                     .buttonStyle(.plain)
+                                    .accessibilityLabel(value.styleDisplayHex)
+                                    .accessibilityAddTraits(isSelected ? .isSelected : [])
                                 }
                             }
                         }
@@ -1800,11 +1798,12 @@ struct ColorPickerPanel: View {
                     autoSelected ? StyleEditPalette.accentGreen : Color.white.opacity(0.32),
                     lineWidth: autoSelected ? 3 : 1
                 ))
-                if autoSelected {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.black)
-                }
+                Text(verbatim: locale.language.languageCode?.identifier == "zh" ? "自" : "A")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 2)
+                    .padding(.vertical, 1)
+                    .background(StyleEditPalette.controlBackground, in: Capsule())
             }
         }
         .buttonStyle(.plain)

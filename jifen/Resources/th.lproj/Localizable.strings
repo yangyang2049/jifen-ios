@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "สไตล์";
 "style_background_color" = "สีพื้นหลัง";
 "style_server_color" = "สี";
-"style_server_style" = "Style";
+"style_server_style" = "สไตล์";
 "style_text_color" = "สีข้อความ";
 "style_server_indicator" = "ตัวบ่งชี้การเสิร์ฟ";
 "style_color_automatic" = "ออโต้";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "ตัวบ่งชี้ด้านซ้ายและขวามีสีเดียวกัน";
 "scoreboard_style_font_shared_hint" = "ข้อความทั้งหมดใช้แบบอักษรที่เลือก";
 "scoreboard_style_theme_override_hint" = "การเลือกธีมจะแทนที่สีปัจจุบันคุณยังคงสามารถปรับทีละรายการได้หลังจากนั้น";
-"scoreboard_style_font_size" = "ขนาดตัวอักษร";
+"scoreboard_style_font_size" = "ขนาดตัวอักษร (เท่ากันทั้งสองฝั่ง)";
 "scoreboard_style_font_size_device_max" = "ขนาดสูงสุดบนอุปกรณ์นี้";
 "scoreboard_style_small" = "เล็ก";
 "scoreboard_style_large" = "ใหญ่";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 แตะพื้นที่คะแนนซ้าย/ขวาเพื่อเพิ่ม 1 ประตู\n⬆️ปัดขึ้นเพื่อเพิ่ม\n⬇️ ปัดลงเพื่อลบ\n↩️ ปัดไปทางซ้ายเพื่อเลิกทำ\n☑️ ใช้ สรุปผลการแข่งขัน หรือ จบการแข่งขัน เมื่อการแข่งขันสิ้นสุดลง";
 "scoreboard_usage_hint_foosball_doubles" = "👆 แตะพื้นที่คะแนนซ้าย/ขวาเพื่อเพิ่ม 1 ประตู\n⬆️ปัดขึ้นเพื่อเพิ่ม\n⬇️ ปัดลงเพื่อลบ\n↩️ ปัดไปทางซ้ายเพื่อเลิกทำ\n👥 ตั้งชื่อ 2V2 ก่อนการแข่งขัน\n☑️ ใช้ สรุปผลการแข่งขัน หรือ จบการแข่งขัน เมื่อการแข่งขันสิ้นสุดลง";
 "scoreboard_usage_hint_simple_score" = "👆 แตะพื้นที่คะแนนซ้าย/ขวาเพื่อเพิ่ม\n⬆️ ปัดขึ้นเพื่อเพิ่ม\n⬇️ ปัดลงเพื่อลบ\n↩️ ปัดไปทางซ้ายเพื่อเลิกทำ\n✏️ กดค้างหรือแก้ไขเพื่อเปลี่ยนชื่อและคะแนน";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 แตะช่องผู้เล่นเพื่อเพิ่ม 1 แต้ม\n⬆️ ปัดขึ้นเพื่อเพิ่ม 1;⬇️ปัดลงเพื่อลบ 1\n↩️ ปัดไปทางซ้ายเพื่อเลิกทำ\n✏️ กดผู้เล่นค้างไว้เพื่อแก้ไขชื่อและคะแนน\n🎛️ ในโหมดปรับแต่งแบบกำหนดเอง การแตะที่ผู้เล่นจะเป็นการเปิดแผงการปรับแต่ง";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 แตะช่องผู้เล่นเพื่อเพิ่ม 1 แต้ม\n⬆️ ปัดขึ้นเพื่อเพิ่ม 1;⬇️ปัดลงเพื่อลบ 1\n↔️ เมื่อมีผู้เล่นมากกว่า 9 คน ให้ปัดซ้ายหรือขวาเพื่อเปลี่ยนหน้า หรือใช้จุดและลูกศรด้านล่าง\n↩️ เปิดเมนูเพื่อเลิกทำหรือค้นหาผู้เล่น\n✏️ กดผู้เล่นค้างไว้เพื่อแก้ไขชื่อและคะแนน\n🎛️ ในโหมดปรับแต่งแบบกำหนดเอง การแตะที่ผู้เล่นจะเป็นการเปิดแผงการปรับแต่ง";
 "scoreboard_usage_hint_double_tap_point" = "👆 แตะด้านเดียวกันสองครั้งเพื่อลบ 1";
 "scoreboard_usage_hint_double_tap_rack" = "👆 แตะฝั่งเดิมสองครั้งเพื่อลบ 1 เฟรม";
 "scoreboard_usage_hint_double_tap_player" = "👆 แตะสองครั้งที่ผู้เล่นคนเดียวกันเพื่อลบ 1";
@@ -1173,7 +1173,7 @@
 "game_squash" = "สควอช";
 "game_soft_tennis" = "ซอฟท์เทนนิส";
 "game_padel" = "พาเดล";
-"game_football_5v5" = "ฟุตบอล 5x5";
+"game_football_5v5" = "ฟุตบอล 5×5";
 "padel_deuce_mode" = "กฎดิวซ์";
 "padel_advantage" = "ความได้เปรียบ";
 "padel_golden_point" = "โกลเด้นพอยท์";
@@ -2672,7 +2672,7 @@
 "billiards_group_eight_rules" = "ชิงถึง %1$d · แฮนดิแคป %2$d";
 "billiards_group_snooker_rules" = "ชนะ %1$d เฟรมก่อน";
 "billiards_group_breaker_pays" = "ผู้เบรกจ่ายสมอลล์ โกลด์";
-"billiards_group_all_pay" = "สมอลล์ โกลด์:ผู้เล่นคนอื่นทั้งหมดเป็นผู้จ่าย";
+"billiards_group_all_pay" = "สมอลล์โกลด์: ผู้เล่นคนอื่นทั้งหมดเป็นผู้จ่าย";
 "billiards_group_review" = "ผลนี้ต้องแก้ไขก่อนอัปโหลด";
 "billiards_group_retry_hint" = "อัปโหลดหยุดชั่วคราว รีเฟรชเพื่อลองใหม่หรือตรวจสอบผล";
 "billiards_group_edit_session" = "แก้ไขการแข่งขัน %1$d";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "สไตล์";
 "style_workbench_reset" = "คืนค่าสไตล์เริ่มต้น";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "รีเซ็ต";
 "style_workbench_theme" = "ธีม";
 "style_workbench_background" = "พื้นหลัง";
 "style_workbench_font" = "ฟอนต์";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "ใช้รูปแนวนอน 16:9 เช่น 1920×1080 รูปจะเต็มจอโดยครอบตัดกึ่งกลาง";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "ฟรี";
+"scoreboard_theme_free_badge_desc" = "ฟรีในระยะเวลาจำกัด";
+"style_workbench_pick" = "แตะข้อความหรือไอคอนเสิร์ฟเพื่อแก้ไข";
+"style_workbench_photo_source_default" = "รูปภาพเริ่มต้น";
+"style_workbench_photo_source_custom" = "รูปภาพที่เลือกเอง";
+"style_workbench_photo_crop_notice" = "รูปภาพจะถูกครอบตัดจากกึ่งกลางให้เต็มหน้าจอ";
+"billiards_group_switch_to_two" = "เปลี่ยนเป็นผู้เล่น 2 คนแล้ว";
+"group_complete_confirm" = "ตรวจสอบว่าจัดการทุกแมตช์แล้วก่อนจบกิจกรรมนี้";
+"billiards_group_score_panel_positive" = "บวก";
+"billiards_group_score_panel_negative" = "ลบ";
+"group_error_applicant_inactive" = "บัญชีของผู้สมัครไม่ได้ใช้งาน จึงไม่สามารถอนุมัติคำขอได้";

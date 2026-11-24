@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "スタイル";
 "style_background_color" = "背景色";
 "style_server_color" = "色";
-"style_server_style" = "Style";
+"style_server_style" = "スタイル";
 "style_text_color" = "文字色";
 "style_server_indicator" = "サーブ表示";
 "style_color_automatic" = "自動";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "左右のインジケーターは同じ色を共有";
 "scoreboard_style_font_shared_hint" = "すべてのテキストは選択したフォントを使用します";
 "scoreboard_style_theme_override_hint" = "テーマを選択すると、現在の色が上書きされます。後でも個別に調整できます";
-"scoreboard_style_font_size" = "フォントサイズ";
+"scoreboard_style_font_size" = "フォントサイズ（左右共通）";
 "scoreboard_style_font_size_device_max" = "この端末では上限です";
 "scoreboard_style_small" = "小";
 "scoreboard_style_large" = "大";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 左右のスコアエリアをタップして1点追加\n⬆️ 上にスワイプして加点\n⬇️ 下にスワイプして減点\n↩️ 左にスワイプして元に戻す\n☑️ 試合終了時は「精算」または「終了」を使用します";
 "scoreboard_usage_hint_foosball_doubles" = "👆 左右のスコアエリアをタップして1点追加\n⬆️ 上にスワイプして加点\n⬇️ 下にスワイプして減点\n↩️ 左にスワイプして元に戻す\n👥 2対2の選手名は試合前に設定します\n☑️ 試合終了時は「精算」または「終了」を使用します";
 "scoreboard_usage_hint_simple_score" = "👆 左右のスコアエリアをタップして加点\n⬆️ 上にスワイプして加点\n⬇️ 下にスワイプして減点\n↩️ 左にスワイプして元に戻す\n✏️ 長押しまたは編集から名前と得点を変更できます";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 プレーヤーのタイルをタップして 1 ポイントを追加します\n⬆️ 上にスワイプして 1 ポイントを追加します。⬇️ 下にスワイプして 1 を減算します\n↩️ 左にスワイプして元に戻します\n✏️ プレーヤーを長押しして名前とスコアを編集します\n🎛️ カスタム調整モードでは、プレーヤーをタップすると調整パネルが開きます";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 プレーヤーのタイルをタップして 1 ポイントを追加します\n⬆️ 上にスワイプして 1 ポイントを追加します。⬇️ 下にスワイプして 1 を減算します\n↔️ 9人を超える場合は、左右にスワイプするか下の点や矢印でページを切り替えます\n↩️ 取り消しや選手検索はメニューから行います\n✏️ プレーヤーを長押しして名前とスコアを編集します\n🎛️ カスタム調整モードでは、プレーヤーをタップすると調整パネルが開きます";
 "scoreboard_usage_hint_double_tap_point" = "👆 同じ側をダブルタップして 1 を減算します";
 "scoreboard_usage_hint_double_tap_rack" = "👆 同じ側をダブルタップして 1 ラックを減算します";
 "scoreboard_usage_hint_double_tap_player" = "👆 同じプレイヤーをダブルタップして 1 を減算します";
@@ -2595,8 +2595,8 @@
 "multi_score_bulk_names" = "名前を一括入力";
 "multi_score_bulk_placeholder" = "1 行に 1 名。リストを貼り付けても OK";
 "multi_score_bulk_empty" = "名前は先頭から順に置き換えられ、残りの名前は変更されません。";
-"multi_score_bulk_apply" = "%d 件の名前:先頭の %d 人を置き換え、残りはそのまま";
-"multi_score_bulk_expand" = "%d 件の名前:人数は %d 人に変わります";
+"multi_score_bulk_apply" = "%d 件の名前：先頭の %d 人を置き換え、残りはそのまま";
+"multi_score_bulk_expand" = "%d 件の名前：人数は %d 人に変わります";
 "multi_score_bulk_too_many" = "最大 50 人です。適用する前にリストを短くしてください";
 "multi_score_bulk_name_long" = "名前 %d が 24 文字を超えています";
 "multi_score_find_player_action" = "プレイヤーを検索";
@@ -2672,7 +2672,7 @@
 "billiards_group_eight_rules" = "先取 %1$d ラック · ハンデ %2$d";
 "billiards_group_snooker_rules" = "%1$d フレーム先取";
 "billiards_group_breaker_pays" = "スモールゴールはブレイクした人が支払う";
-"billiards_group_all_pay" = "スモールゴール:他のプレイヤー全員が支払う";
+"billiards_group_all_pay" = "スモールゴール：他のプレイヤー全員が支払う";
 "billiards_group_review" = "この成績は修正してからアップロードしてください。";
 "billiards_group_retry_hint" = "アップロードは停止中です。更新して再試行するか、成績を確認してください。";
 "billiards_group_edit_session" = "試合 %1$d を編集";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "スタイル";
 "style_workbench_reset" = "デフォルトのスタイルに戻す";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "リセット";
 "style_workbench_theme" = "テーマ";
 "style_workbench_background" = "背景";
 "style_workbench_font" = "フォント";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "16:9の横長画像(例:1920×1080)を使用してください。画像は中央で切り取られて画面いっぱいに表示されます。";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "無料";
+"scoreboard_theme_free_badge_desc" = "期間限定で無料";
+"style_workbench_pick" = "編集するテキストやサーブアイコンをタップ";
+"style_workbench_photo_source_default" = "既定の写真";
+"style_workbench_photo_source_custom" = "カスタム写真";
+"style_workbench_photo_crop_notice" = "画面全体に表示するため、画像の中央を基準に切り抜きます";
+"billiards_group_switch_to_two" = "2人に切り替えました";
+"group_complete_confirm" = "すべての試合の処理が済んでいることを確認してから、この活動を終了してください。";
+"billiards_group_score_panel_positive" = "プラス";
+"billiards_group_score_panel_negative" = "マイナス";
+"group_error_applicant_inactive" = "申請者のアカウントが無効なため、申請を承認できません。";

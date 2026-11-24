@@ -182,7 +182,7 @@ enum ScoreboardUsageHintAutomaticPresentationPolicy {
         setup: SportsSetupResult?
     ) -> Bool {
         guard requested else { return false }
-        return true
+        return setup?.startOnWatch != true && setup?.linkedWatchSessionId == nil
     }
 }
 

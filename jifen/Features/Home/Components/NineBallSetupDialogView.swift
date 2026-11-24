@@ -33,13 +33,13 @@ enum NineBallPointField: String, CaseIterable, Identifiable {
         [.foul, .normalWin, .smallGold, .bigGold] + (family == .folk ? [.goldenNine] : [])
     }
 }
-
 private struct NineBallFieldScrollTarget: Equatable {
     let fieldID: String?
     let viewportHeight: CGFloat
 }
 
 struct NineBallSetupDialogView: View {
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService
     var initialSetup: SportsSetupResult? = nil
     var maxDialogHeight: CGFloat = 680
     var onConfirm: (SportsSetupResult) -> Void
@@ -64,7 +64,20 @@ struct NineBallSetupDialogView: View {
     @State private var customRacksActive = false
     @State private var error = ""
     @State private var initialized = false
+    @State private var isSendingSetupToWatch = false
+    @State private var setupSendErrorText = ""
+    @State private var showExitWhileSendingConfirm = false
+    @State private var showWatchNotForegroundAlert = false
+    @State private var showWatchStartGuide = false
     @FocusState private var focusedInput: String?
+
+    private var supportsWatchProject: Bool { true }
+
+    private var canStartOnWatch: Bool {
+        AppFeatureFlags.watchLinkEntryEnabled
+            && AppFeatureFlags.isWatchLinkSupportedOnCurrentDevice
+            && supportsWatchProject
+    }
 
     private var isFolk: Bool { family == .folk }
     private var count: Int { isFolk ? playerCount : 2 }
@@ -83,7 +96,6 @@ struct NineBallSetupDialogView: View {
         } && (isFolk || !customRacksActive || Int(customRacksText).map { (1...99).contains($0) } ?? false)
     }
     private func draftKey(_ field: NineBallPointField) -> String { family.rawValue + field.rawValue }
-
     var body: some View {
         AdaptiveSetupDialogLayout(maxHeight: maxDialogHeight) {
             ZStack {
@@ -207,8 +219,7 @@ struct NineBallSetupDialogView: View {
         .onChange(of: focusedInput) { _, input in
             if input == "racks", !customRacksActive {
                 customRacksActive = true; customRacksText = String(tournament.totalRacks)
-            }
-        }
+            }        }
     }
 
     private var adjustments: some View {
@@ -330,6 +341,51 @@ struct NineBallSetupDialogView: View {
             return value.personRef != nil && value.name == playerNames[index]
         }
     }
+
+    private func requestCancel() {
+        if isSendingSetupToWatch {
+            showExitWhileSendingConfirm = true
+        } else {
+            onCancel?()
+        }
+    }
+
+    private func dismissWatchStartGuide() {
+        showWatchStartGuide = false
+        PreferencesManager.shared.linkedScoreWatchStartGuideShown = true
+    }
+
+    @MainActor
+    private func presentWatchStartGuideIfNeeded() async {
+        guard canStartOnWatch else {
+            showWatchStartGuide = false
+            return
+        }
+        guard !PreferencesManager.shared.linkedScoreWatchStartGuideShown else {
+            showWatchStartGuide = false
+            return
+        }
+
+        do {
+            try await Task.sleep(for: LinkedScoreWatchStartGuidePolicy.showDelay)
+        } catch {
+            return
+        }
+        guard !Task.isCancelled,
+              canStartOnWatch,
+              !PreferencesManager.shared.linkedScoreWatchStartGuideShown else { return }
+
+        PreferencesManager.shared.linkedScoreWatchStartGuideShown = true
+        showWatchStartGuide = true
+
+        do {
+            try await Task.sleep(for: LinkedScoreWatchStartGuidePolicy.visibleDuration)
+        } catch {
+            return
+        }
+        showWatchStartGuide = false
+    }
+
     private func applyInitialSetup() {
         guard !initialized else { return }; initialized = true
         guard let setup = initialSetup, case let .nineBall(names, config) = setup.billiardsConfiguration(for: .nineBall) else { return }
@@ -342,7 +398,7 @@ struct NineBallSetupDialogView: View {
         for (index, name) in names.prefix(4).enumerated() { playerNames[index] = name }
         participantSelections = setup.participantSelections ?? [:]
     }
-    @MainActor private func confirm() async {
+    @MainActor private func confirm(startOnWatch: Bool = false) async {
         guard canStart else { return }
         let names = (0..<count).map(resolvedName)
         guard !ParticipantIdentityRules.containsDuplicatePerson(Array(validParticipantSelections.values)) else { error = identityText("already_playing", "你已在其他位置参赛"); return }
@@ -357,6 +413,43 @@ struct NineBallSetupDialogView: View {
             nineBallHandoffEnabled: config.handoffEnabled, nineBallThirdFoul: config.thirdFoul, nineBallBreakRule: config.breakRule.rawValue,
             nineBallTotalRacks: config.totalRacks, playerCount: count, playerNames: names)
         result.participantSelections = validParticipantSelections.isEmpty ? nil : validParticipantSelections
+
+        if startOnWatch {
+            guard canStartOnWatch else {
+                setupSendErrorText = PhoneWatchLinkService.InteractiveStartError.watchUnavailable.localizedDescription
+                return
+            }
+            isSendingSetupToWatch = true
+            setupSendErrorText = ""
+            do {
+                guard case let .some(.nineBall(projectedNames, nineConfig)) = result.billiardsConfiguration(for: .nineBall) else {
+                    return
+                }
+                let nine = NineBallChaseState.initial(
+                    config: nineConfig,
+                    playerCount: projectedNames.count,
+                    playerNames: projectedNames,
+                    ruleVersion: 3,
+                    breakerPlayer: result.nineBallBreakerPlayer ?? 0
+                )
+                result.linkedWatchSessionId = try await watchLinkService.startInteractiveOnWatch(
+                    snapshot: .nineBall(nine),
+                    gameType: .nineBall
+                )
+                result.startOnWatch = true
+            } catch {
+                isSendingSetupToWatch = false
+                if let startError = error as? PhoneWatchLinkService.InteractiveStartError,
+                   case .watchAppNotForeground = startError {
+                    setupSendErrorText = ""
+                    showWatchNotForegroundAlert = true
+                } else {
+                    setupSendErrorText = error.localizedDescription
+                }
+                return
+            }
+            isSendingSetupToWatch = false
+        }
         onConfirm(result)
     }
 }

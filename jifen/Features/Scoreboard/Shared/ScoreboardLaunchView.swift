@@ -256,8 +256,10 @@ struct ScoreboardLaunchView: View {
                     participantSelections: setupResult?.participantSelections ?? [:],
                     openingServer: setupResult?.servingSide == MatchSide.right.rawValue ? .right : .left,
                     voiceAnnouncementEnabled: setupResult?.voiceAnnouncement == true,
+                    initialWatchSessionId: setupResult?.linkedWatchSessionId,
                     initialResumeSessionId: initialResumeSessionId,
                     onNavigationBack: onBack,
+                    onPresented: { onSetupConsumed() },
                     usageHintCoordinatorOverride: usageHintCoordinator
                 )
             case .squash:
@@ -270,8 +272,10 @@ struct ScoreboardLaunchView: View {
                     participantSelections: setupResult?.participantSelections ?? [:],
                     openingServer: setupResult?.servingSide == MatchSide.right.rawValue ? .right : .left,
                     voiceAnnouncementEnabled: setupResult?.voiceAnnouncement == true,
+                    initialWatchSessionId: setupResult?.linkedWatchSessionId,
                     initialResumeSessionId: initialResumeSessionId,
                     onNavigationBack: onBack,
+                    onPresented: { onSetupConsumed() },
                     usageHintCoordinatorOverride: usageHintCoordinator
                 )
             case .tennis:
@@ -377,6 +381,7 @@ struct ScoreboardLaunchView: View {
                     ),
                     cancelText: NSLocalizedString("cancel", value: "取消", comment: ""),
                     confirmColor: Theme.accentColor,
+                    confirmForeground: Theme.textOnPrimary,
                     onConfirm: enableForcedIPadLandscape,
                     onCancel: dismissIPadLandscapeHint,
                     onDismiss: dismissIPadLandscapeHint

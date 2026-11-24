@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "Stil";
 "style_background_color" = "Arka Plan Rengi";
 "style_server_color" = "Renk";
-"style_server_style" = "Style";
+"style_server_style" = "Stil";
 "style_text_color" = "Metin Rengi";
 "style_server_indicator" = "Servis Göstergesi";
 "style_color_automatic" = "Otomatik";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "Sol ve sağ göstergeler aynı rengi paylaşıyor";
 "scoreboard_style_font_shared_hint" = "Tüm metin seçilen yazı tipini kullanır";
 "scoreboard_style_theme_override_hint" = "Bir tema seçildiğinde mevcut renkler geçersiz kılınır; sonrasında yine de ayrı ayrı ayarlayabilirsiniz";
-"scoreboard_style_font_size" = "Yazı Tipi Boyutu";
+"scoreboard_style_font_size" = "Yazı Tipi Boyutu (iki tarafta da aynı)";
 "scoreboard_style_font_size_device_max" = "Bu cihazda en büyük boyut";
 "scoreboard_style_small" = "Küçük";
 "scoreboard_style_large" = "Büyük";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 1 gol eklemek için sol/sağ skor alanına dokunun\n⬆️ Eklemek için yukarı kaydırın\n⬇️ Çıkarmak için aşağı kaydırın\n↩️ Geri almak için sola kaydırın\n☑️ Maç bittiğinde Sonuçlandır veya Bitir'i kullanın";
 "scoreboard_usage_hint_foosball_doubles" = "👆 1 gol eklemek için sol/sağ skor alanına dokunun\n⬆️ Eklemek için yukarı kaydırın\n⬇️ Çıkarmak için aşağı kaydırın\n↩️ Geri almak için sola kaydırın\n👥 2V2 isimleri maç öncesi belirlendi\n☑️ Maç bittiğinde Sonuçlandır veya Bitir'i kullanın";
 "scoreboard_usage_hint_simple_score" = "👆 Eklemek için sol/sağ puan alanına dokunun\n⬆️ Eklemek için yukarı kaydırın\n⬇️ Çıkarmak için aşağı kaydırın\n↩️ Geri almak için sola kaydırın\n✏️ İsimleri ve puanları değiştirmek için uzun basın veya düzenleyin";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 1 puan eklemek için bir oyuncu karosuna dokunun\n⬆️ 1 eklemek için yukarı kaydırın;⬇️ 1 çıkarmak için aşağı kaydırın\n↩️ Geri almak için sola kaydırın\n✏️ Adını ve skorunu düzenlemek için bir oyuncuya uzun basın\n🎛️ Özel ayarlama modunda, bir oyuncuya dokunulduğunda ayar paneli açılır";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 1 puan eklemek için bir oyuncu karosuna dokunun\n⬆️ 1 eklemek için yukarı kaydırın;⬇️ 1 çıkarmak için aşağı kaydırın\n↔️ 9’dan fazla oyuncu varsa sayfa değiştirmek için sağa veya sola kaydır ya da alttaki noktaları ve okları kullan\n↩️ Geri almak veya oyuncu aramak için menüyü aç\n✏️ Adını ve skorunu düzenlemek için bir oyuncuya uzun basın\n🎛️ Özel ayarlama modunda, bir oyuncuya dokunulduğunda ayar paneli açılır";
 "scoreboard_usage_hint_double_tap_point" = "👆 1 çıkarmak için aynı tarafa iki kez dokunun";
 "scoreboard_usage_hint_double_tap_rack" = "👆 1 frame çıkarmak için aynı tarafa çift dokunun";
 "scoreboard_usage_hint_double_tap_player" = "👆 1 çıkarmak için aynı oyuncuya iki kez dokunun";
@@ -1173,7 +1173,7 @@
 "game_squash" = "Squash";
 "game_soft_tennis" = "Yumuşak Tenis";
 "game_padel" = "Padel";
-"game_football_5v5" = "5x5 Futbol";
+"game_football_5v5" = "5×5 Futbol";
 "padel_deuce_mode" = "Deuce Kuralı";
 "padel_advantage" = "Avantaj";
 "padel_golden_point" = "Altın Puan";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Stil";
 "style_workbench_reset" = "Varsayılan stili geri yükle";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Sıfırla";
 "style_workbench_theme" = "Tema";
 "style_workbench_background" = "Arka Plan";
 "style_workbench_font" = "Yazı Tipi";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "16:9 yatay bir görsel kullanın, örneğin 1920×1080. Görseller ekranı ortadan kırpılarak doldurur.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Ücretsiz";
+"scoreboard_theme_free_badge_desc" = "Sınırlı süreyle ücretsiz";
+"style_workbench_pick" = "Düzenlemek için metne veya servis simgesine dokun";
+"style_workbench_photo_source_default" = "Varsayılan fotoğraf";
+"style_workbench_photo_source_custom" = "Özel fotoğraf";
+"style_workbench_photo_crop_notice" = "Görüntü, ekranı doldurmak için ortadan kırpılır";
+"billiards_group_switch_to_two" = "2 oyuncuya geçildi";
+"group_complete_confirm" = "Etkinliği bitirmeden önce tüm maçların işlendiğini kontrol et.";
+"billiards_group_score_panel_positive" = "Pozitif";
+"billiards_group_score_panel_negative" = "Negatif";
+"group_error_applicant_inactive" = "Başvuranın hesabı etkin değil. Başvuru onaylanamaz.";

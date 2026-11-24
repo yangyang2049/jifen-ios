@@ -769,8 +769,8 @@
 "scoreboard_style_editor" = "ശൈലിയും നിറങ്ങളും";
 "scoreboard_style_edit" = "ശൈലി";
 "style_background_color" = "പശ്ചാത്തല നിറം";
-"style_server_color" = "Color";
-"style_server_style" = "Style";
+"style_server_color" = "നിറം";
+"style_server_style" = "ശൈലി";
 "style_text_color" = "വാചക നിറം";
 "style_server_indicator" = "സെർവ് ഇൻഡിക്കേറ്റർ";
 "style_color_automatic" = "ഓട്ടോ";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "ഇടത്, വലത് സൂചകങ്ങൾ ഒരു നിറം പങ്കിടുന്നു";
 "scoreboard_style_font_shared_hint" = "എല്ലാ ടെക്സ്റ്റും തിരഞ്ഞെടുത്ത ഫോണ്ട് ഉപയോഗിക്കുന്നു";
 "scoreboard_style_theme_override_hint" = "ഒരു തീം തിരഞ്ഞെടുക്കുന്നത് നിലവിലെ നിറങ്ങളെ മറികടക്കുന്നു; അതിനുശേഷവും നിങ്ങൾക്ക് വ്യക്തിഗതമായി ക്രമീകരിക്കാൻ കഴിയും";
-"scoreboard_style_font_size" = "ഫോണ്ട് വലുപ്പം";
+"scoreboard_style_font_size" = "ഫോണ്ട് വലുപ്പം (ഇരുവശത്തും ഒരേ വലുപ്പം)";
 "scoreboard_style_font_size_device_max" = "ഈ ഉപകരണത്തിൽ പരമാവധി വലുപ്പം";
 "scoreboard_style_small" = "ചെറുത്";
 "scoreboard_style_large" = "വലുത്";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 1 ഗോൾ ചേർക്കാൻ ഇടത്/വലത് സ്കോർ ഏരിയയിൽ ടാപ്പ് ചെയ്യുക\n⬆️ ചേർക്കാൻ മുകളിലേക്ക് സ്വൈപ്പ് ചെയ്യുക\n⬇️ കുറയ്ക്കാൻ താഴേക്ക് സ്വൈപ്പ് ചെയ്യുക\n↩️ പഴയപടിയാക്കാൻ ഇടത്തേക്ക് സ്വൈപ്പ് ചെയ്യുക\n☑️ മത്സരം അവസാനിക്കുമ്പോൾ സെറ്റിൽ അല്ലെങ്കിൽ ഫിനിഷ് ഉപയോഗിക്കുക";
 "scoreboard_usage_hint_foosball_doubles" = "👆 1 ഗോൾ ചേർക്കാൻ ഇടത്/വലത് സ്കോർ ഏരിയയിൽ ടാപ്പ് ചെയ്യുക\n⬆️ ചേർക്കാൻ മുകളിലേക്ക് സ്വൈപ്പ് ചെയ്യുക\n⬇️ കുറയ്ക്കാൻ താഴേക്ക് സ്വൈപ്പ് ചെയ്യുക\n↩️ പഴയപടിയാക്കാൻ ഇടത്തേക്ക് സ്വൈപ്പ് ചെയ്യുക\n👥 2V2 പേരുകൾ മത്സരത്തിന് മുമ്പ് സജ്ജീകരിച്ചിരിക്കുന്നു\n☑️ മത്സരം അവസാനിക്കുമ്പോൾ സെറ്റിൽ അല്ലെങ്കിൽ ഫിനിഷ് ഉപയോഗിക്കുക";
 "scoreboard_usage_hint_simple_score" = "👆 ചേർക്കാൻ ഇടത്/വലത് സ്കോർ ഏരിയ ടാപ്പ് ചെയ്യുക\n⬆️ ചേർക്കാൻ മുകളിലേക്ക് സ്വൈപ്പ് ചെയ്യുക\n⬇️ കുറയ്ക്കാൻ താഴേക്ക് സ്വൈപ്പ് ചെയ്യുക\n↩️ പഴയപടിയാക്കാൻ ഇടത്തേക്ക് സ്വൈപ്പ് ചെയ്യുക\n✏️ പേരുകളും സ്കോറുകളും മാറ്റാൻ ദീർഘനേരം അമർത്തുക അല്ലെങ്കിൽ എഡിറ്റ് ചെയ്യുക";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 1 പോയിൻ്റ് ചേർക്കാൻ ഒരു പ്ലെയർ ടൈൽ ടാപ്പ് ചെയ്യുക\n⬆️ 1 ചേർക്കാൻ മുകളിലേക്ക് സ്വൈപ്പ് ചെയ്യുക; ⬇️ 1 കുറയ്ക്കാൻ താഴേക്ക് സ്വൈപ്പ് ചെയ്യുക\n↩️ പഴയപടിയാക്കാൻ ഇടത്തേക്ക് സ്വൈപ്പ് ചെയ്യുക\n✏️ പേരും സ്‌കോറും എഡിറ്റ് ചെയ്യാൻ ഒരു കളിക്കാരനെ ദീർഘനേരം അമർത്തുക\n🎛️ ഇഷ്‌ടാനുസൃത ക്രമീകരണ മോഡിൽ, ഒരു പ്ലെയർ ടാപ്പുചെയ്യുന്നത് ക്രമീകരണ പാനൽ തുറക്കുന്നു";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 1 പോയിൻ്റ് ചേർക്കാൻ ഒരു പ്ലെയർ ടൈൽ ടാപ്പ് ചെയ്യുക\n⬆️ 1 ചേർക്കാൻ മുകളിലേക്ക് സ്വൈപ്പ് ചെയ്യുക; ⬇️ 1 കുറയ്ക്കാൻ താഴേക്ക് സ്വൈപ്പ് ചെയ്യുക\n↔️ 9-ൽ കൂടുതൽ കളിക്കാരുണ്ടെങ്കിൽ പേജ് മാറ്റാൻ ഇടത്തേക്കോ വലത്തേക്കോ സ്വൈപ്പ് ചെയ്യുക, അല്ലെങ്കിൽ താഴെയുള്ള കുത്തുകളും അമ്പുകളും ഉപയോഗിക്കുക\n↩️ പ്രവർത്തനം പഴയപടിയാക്കാനോ കളിക്കാരെ കണ്ടെത്താനോ മെനു തുറക്കുക\n✏️ പേരും സ്‌കോറും എഡിറ്റ് ചെയ്യാൻ ഒരു കളിക്കാരനെ ദീർഘനേരം അമർത്തുക\n🎛️ ഇഷ്‌ടാനുസൃത ക്രമീകരണ മോഡിൽ, ഒരു പ്ലെയർ ടാപ്പുചെയ്യുന്നത് ക്രമീകരണ പാനൽ തുറക്കുന്നു";
 "scoreboard_usage_hint_double_tap_point" = "👆 1 കുറയ്ക്കാൻ അതേ വശത്ത് രണ്ടുതവണ ടാപ്പ് ചെയ്യുക";
 "scoreboard_usage_hint_double_tap_rack" = "👆 1 റാക്ക് കുറയ്ക്കാൻ അതേ വശത്ത് രണ്ടുതവണ ടാപ്പ് ചെയ്യുക";
 "scoreboard_usage_hint_double_tap_player" = "👆 1 കുറയ്ക്കാൻ ഒരേ പ്ലെയറിൽ രണ്ടുതവണ ടാപ്പ് ചെയ്യുക";
@@ -1173,7 +1173,7 @@
 "game_squash" = "സ്ക്വാഷ്";
 "game_soft_tennis" = "സോഫ്റ്റ് ടെന്നീസ്";
 "game_padel" = "പാഡൽ";
-"game_football_5v5" = "5x5 ഫുട്ബോൾ";
+"game_football_5v5" = "5×5 ഫുട്ബോൾ";
 "padel_deuce_mode" = "ഡ്യൂസ് റൂൾ";
 "padel_advantage" = "അഡ്വാന്റേജ്";
 "padel_golden_point" = "ഗോൾഡൻ പോയിൻ്റ്";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "ശൈലി";
 "style_workbench_reset" = "സ്ഥിര ശൈലി പുനഃസ്ഥാപിക്കുക";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "പുനഃസജ്ജമാക്കുക";
 "style_workbench_theme" = "തീം";
 "style_workbench_background" = "പശ്ചാത്തലം";
 "style_workbench_font" = "ഫോണ്ട്";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "16:9 ലാൻഡ്സ്കേപ്പ് ചിത്രം ഉപയോഗിക്കുക, ഉദാ: 1920×1080. ചിത്രങ്ങൾ മധ്യഭാഗത്ത് വെട്ടിയെടുത്ത് സ്ക്രീൻ നിറയ്ക്കുന്നു.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "സൗജന്യം";
+"scoreboard_theme_free_badge_desc" = "പരിമിത കാലത്തേക്ക് സൗജന്യം";
+"style_workbench_pick" = "തിരുത്താൻ എഴുത്തിലോ സർവ് ഐക്കണിലോ തട്ടുക";
+"style_workbench_photo_source_default" = "സ്ഥിരസ്ഥിതി ഫോട്ടോ";
+"style_workbench_photo_source_custom" = "സ്വന്തം ഫോട്ടോ";
+"style_workbench_photo_crop_notice" = "സ്‌ക്രീൻ നിറയ്ക്കാൻ ചിത്രം മധ്യഭാഗത്തെ അടിസ്ഥാനമാക്കി മുറിക്കുന്നു";
+"billiards_group_switch_to_two" = "2 കളിക്കാരിലേക്ക് മാറ്റി";
+"group_complete_confirm" = "പ്രവർത്തനം അവസാനിപ്പിക്കുന്നതിന് മുമ്പ് എല്ലാ മത്സരങ്ങളും കൈകാര്യം ചെയ്തിട്ടുണ്ടെന്ന് ഉറപ്പാക്കുക.";
+"billiards_group_score_panel_positive" = "ധന ചിഹ്നം";
+"billiards_group_score_panel_negative" = "ഋണ ചിഹ്നം";
+"group_error_applicant_inactive" = "അപേക്ഷകന്റെ അക്കൗണ്ട് സജീവമല്ല. അപേക്ഷ അംഗീകരിക്കാൻ കഴിയില്ല.";

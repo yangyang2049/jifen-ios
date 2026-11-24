@@ -45,6 +45,9 @@ struct ScoreboardMenuItem: Identifiable, Equatable {
 
 enum ScoreboardMenuActionPolicy {
     private static let actionsAllowedWhileScoringLocked: Set<String> = [
+        "resync",
+        "takeover",
+        "endLink",
         "usageHint",
         "displaySettings",
         "screenshot",
@@ -63,6 +66,7 @@ enum ScoreboardMenuActionID: String {
 // MARK: - Default items (aligned with HarmonyOS groups)
 
 enum ScoreboardMenuItemBuilder {
+    @MainActor
     static func defaultItems(
         showEndGame: Bool = false,
         showExchangeSide: Bool = true,
@@ -78,8 +82,14 @@ enum ScoreboardMenuItemBuilder {
         finishConfirming: Bool = false,
         settleConfirming: Bool = false,
         scoringEnabled: Bool = true,
-        extraItems: [ScoreboardMenuItem] = []
+        extraItems: [ScoreboardMenuItem] = [],
+        /// 当前是否正在投屏/共享。分享中才给出「结束同步」入口（对齐鸿蒙
+        /// `MenuDialog.ets` 的 `if (this.isSharing) { … sync_end_sharing … }`）。
+        /// 传 nil 表示由本函数读取当前会话状态（默认参数不能直接调用
+        /// MainActor 隔离的 `isSharingActive()`）。
+        sharingActive: Bool? = nil
     ) -> [ScoreboardMenuItem] {
+        let sharingActive = sharingActive ?? CloudSyncSession.shared.isSharingActive()
         var items: [ScoreboardMenuItem] = []
 
         items.append(
@@ -204,6 +214,16 @@ enum ScoreboardMenuItemBuilder {
             )
         )
 
+        if sharingActive {
+            items.append(
+                ScoreboardMenuItem(
+                    title: NSLocalizedString("sync_end_sharing", value: "结束同步", comment: ""),
+                    action: "endSharing",
+                    group: .sync,
+                    icon: "xmark.circle"
+                )
+            )
+        }
         items.append(contentsOf: extraItems.filter { $0.group == .sync })
         items.append(contentsOf: extraItems.filter { $0.group == .tools })
 
@@ -258,6 +278,7 @@ struct MenuDialog: View {
     @AppStorage("pingpongAnnounceServer") private var announceServer = true
     @AppStorage("voiceAnnouncementLanguage") private var voiceLanguagePref = "auto"
     @State private var showServePopup = false
+    @State private var showEndSharingConfirm = false
 
     /// "zh-CN"/"en-US" 当前生效值:显式偏好优先,未手动选择时跟随 App 语言。
     private var selectedLanguageCode: String {
@@ -414,6 +435,7 @@ struct MenuDialog: View {
                 // resolvedMatchSectionHeight 按行数撑开（上限 maxMatchSectionHeight
                 // 保证总高不超出屏幕）。不要用 frame(maxHeight:)——flexible frame
                 // 会把钳制后的提议高度当成自身尺寸，把卡片撑到接近全屏。
+                .frame(maxHeight: max(180, containerShortSide - 16))
                 .background(dialogBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                 .shadow(color: .black.opacity(0.12), radius: 32, x: 0, y: 12)
@@ -446,6 +468,21 @@ struct MenuDialog: View {
                 if enabled { revealServePopup() } else { showServePopup = false }
             }
             .onDisappear { showServePopup = false }
+            .alert(
+                NSLocalizedString("sync_end_confirm_title", value: "结束同步？", comment: ""),
+                isPresented: $showEndSharingConfirm
+            ) {
+                Button(NSLocalizedString("sync_end_sharing", value: "结束同步", comment: ""), role: .destructive) {
+                    CloudSyncSession.shared.end()
+                }
+                Button(NSLocalizedString("cancel", value: "取消", comment: ""), role: .cancel) { }
+            } message: {
+                Text(NSLocalizedString(
+                    "sync_end_confirm_message",
+                    value: "结束同步后将断开与当前显示端的连接。",
+                    comment: ""
+                ))
+            }
             .onGeometryChange(for: CGSize.self) { proxy in
                 proxy.size
             } action: { size in
@@ -713,6 +750,12 @@ struct MenuDialog: View {
             // Always notify parent first so pending green-confirm state can clear
             // when tapping non-confirm actions handled inside the dialog.
             onMenuItemClick(item.action)
+            if item.action == "endSharing" {
+                // 与投屏页「结束同步」同口径：二次确认后再断开，避免误触中断共享。
+                onClose()
+                DispatchQueue.main.async { showEndSharingConfirm = true }
+                return
+            }
             if item.action == "whistle" {
                 SoundManager.shared.playSound("whistle")
                 return

@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "Stílus";
 "style_background_color" = "Háttérszín";
 "style_server_color" = "szín";
-"style_server_style" = "Style";
+"style_server_style" = "Stílus";
 "style_text_color" = "Szöveg színe";
 "style_server_indicator" = "Adogatásjelző";
 "style_color_automatic" = "Auto";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "A bal és jobb oldali jelzőfények egy színnel rendelkeznek";
 "scoreboard_style_font_shared_hint" = "Minden szöveg a kiválasztott betűtípust használja";
 "scoreboard_style_theme_override_hint" = "A téma kiválasztása felülírja az aktuális színeket; után is lehet egyénileg beállítani";
-"scoreboard_style_font_size" = "Betűméret";
+"scoreboard_style_font_size" = "Betűméret (mindkét oldalon azonos)";
 "scoreboard_style_font_size_device_max" = "Maximális méret ezen az eszközön";
 "scoreboard_style_small" = "Kicsi";
 "scoreboard_style_large" = "Nagy";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Koppintson a bal/jobb pontozási területre 1 gól hozzáadásához\n⬆️ Húzza felfelé az ujját a hozzáadáshoz\n⬇️ Húzza lefelé az ujját a kivonáshoz\n↩️ Csúsztassa balra a visszavonáshoz\n☑️ Használja a Elszámolás vagy a Befejezés gombot, amikor a meccs véget ér";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Koppintson a bal/jobb pontozási területre 1 gól hozzáadásához\n⬆️ Húzza felfelé az ujját a hozzáadáshoz\n⬇️ Húzza lefelé az ujját a kivonáshoz\n↩️ Csúsztassa balra a visszavonáshoz\n👥 A 2V2 neveket a meccs előtt állítjuk be\n☑️ Használd a Elszámolás vagy a Befejezés gombot, amikor a meccs véget ér";
 "scoreboard_usage_hint_simple_score" = "👆 Érintse meg a bal/jobb pontozási területet a hozzáadáshoz\n⬆️ Húzza felfelé az ujját a hozzáadáshoz\n⬇️ Húzza lefelé az ujját a kivonáshoz\n↩️ Csúsztassa balra a visszavonáshoz\n✏️ A nevek és pontszámok módosításához nyomja meg hosszan vagy szerkessze";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Érintsen meg egy játékos lapkát 1 pont hozzáadásához\n⬆️ Csúsztassa felfelé az ujját 1 hozzáadásához;⬇️ Húzza lefelé az ujját 1 levonásához\n↩️ Csúsztassa balra a visszavonáshoz\n✏️ Nyomja meg hosszan a játékost a név és a pontszám szerkesztéséhez\n🎛️ Egyéni beállítási módban a játékos megérintésével megnyílik a beállító panel";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Érintsen meg egy játékos lapkát 1 pont hozzáadásához\n⬆️ Csúsztassa felfelé az ujját 1 hozzáadásához;⬇️ Húzza lefelé az ujját 1 levonásához\n↔️ 9-nél több játékos esetén lapozz balra vagy jobbra, vagy használd a lenti pontokat és nyilakat\n↩️ Visszavonáshoz vagy játékos kereséséhez nyisd meg a menüt\n✏️ Nyomja meg hosszan a játékost a név és a pontszám szerkesztéséhez\n🎛️ Egyéni beállítási módban a játékos megérintésével megnyílik a beállító panel";
 "scoreboard_usage_hint_double_tap_point" = "👆 Koppintson duplán ugyanarra az oldalra az 1 kivonásához";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Egy frém levonásához koppintson duplán ugyanarra az oldalra";
 "scoreboard_usage_hint_double_tap_player" = "👆 Koppintson duplán ugyanarra a játékosra az 1 levonásához";
@@ -1173,7 +1173,7 @@
 "game_squash" = "Squash";
 "game_soft_tennis" = "Soft tennis";
 "game_padel" = "Padel";
-"game_football_5v5" = "5x5 futball";
+"game_football_5v5" = "5×5 futball";
 "padel_deuce_mode" = "Egyenlő állás szabálya";
 "padel_advantage" = "Előny";
 "padel_golden_point" = "Aranypont";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Stílus";
 "style_workbench_reset" = "Alapértelmezett stílus visszaállítása";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Visszaállítás";
 "style_workbench_theme" = "Téma";
 "style_workbench_background" = "Háttér";
 "style_workbench_font" = "Betűtípus";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "Használjon 16:9 fekvő tájolású képet, például 1920×1080. A kép középre igazított vágással tölti ki a képernyőt.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Ingyenes";
+"scoreboard_theme_free_badge_desc" = "Korlátozott ideig ingyenes";
+"style_workbench_pick" = "A szerkesztéshez koppints a szövegre vagy az adogatás ikonjára";
+"style_workbench_photo_source_default" = "Alapértelmezett fotó";
+"style_workbench_photo_source_custom" = "Saját fotó";
+"style_workbench_photo_crop_notice" = "A kép középről vágva tölti ki a képernyőt";
+"billiards_group_switch_to_two" = "Átváltva 2 játékosra";
+"group_complete_confirm" = "A tevékenység lezárása előtt ellenőrizd, hogy minden mérkőzést feldolgoztál-e.";
+"billiards_group_score_panel_positive" = "Pozitív";
+"billiards_group_score_panel_negative" = "Negatív";
+"group_error_applicant_inactive" = "A kérelmező fiókja inaktív. A kérelem nem hagyható jóvá.";

@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "Стиль";
 "style_background_color" = "Колір фону";
 "style_server_color" = "колір";
-"style_server_style" = "Style";
+"style_server_style" = "Стиль";
 "style_text_color" = "Колір тексту";
 "style_server_indicator" = "Індикатор подачі";
 "style_color_automatic" = "Авто";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "Лівий і правий індикатори мають один колір";
 "scoreboard_style_font_shared_hint" = "Весь текст використовує вибраний шрифт";
 "scoreboard_style_theme_override_hint" = "Вибір теми замінить поточні кольори; після цього кожен із них можна змінити окремо";
-"scoreboard_style_font_size" = "Розмір шрифту";
+"scoreboard_style_font_size" = "Розмір шрифту (однаковий з обох боків)";
 "scoreboard_style_font_size_device_max" = "Максимальний розмір на цьому пристрої";
 "scoreboard_style_small" = "Маленький";
 "scoreboard_style_large" = "Великий";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Торкніться ліворуч/праворуч області рахунку, щоб додати 1 гол\n ⬆️ Проведіть пальцем угору, щоб додати\n ⬇️ Проведіть пальцем униз, щоб відняти\n ↩️ Проведіть пальцем ліворуч, щоб скасувати\n ☑️ Використовуйте Settle або Finish, коли матч закінчиться";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Торкніться ліворуч/праворуч області рахунку, щоб додати 1 гол\n ⬆️ Проведіть пальцем угору, щоб додати\n ⬇️ Проведіть пальцем униз, щоб відняти\n ↩️ Проведіть пальцем ліворуч, щоб скасувати\n 👥 Імена 2V2 встановлюються перед матчем\n ☑️ Використовуйте Settle або Finish, коли матч закінчиться";
 "scoreboard_usage_hint_simple_score" = "👆 Щоб додати, торкніться лівої/правої області балів\n ⬆️ Проведіть пальцем угору, щоб додати\n ⬇️ Проведіть пальцем униз, щоб відняти\n ↩️ Проведіть пальцем ліворуч, щоб скасувати\n ✏️ Натисніть і утримуйте або редагуйте, щоб змінити імена та бали";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Торкніться плитки гравця, щоб додати 1 бал\n ⬆️ Проведіть пальцем угору, щоб додати 1;⬇️ проведіть пальцем вниз, щоб відняти 1\n ↩️ Проведіть пальцем ліворуч, щоб скасувати\n ✏️ Натисніть і утримуйте гравця, щоб змінити ім’я та рахунок\n 🎛️ У режимі індивідуального налаштування торкання гравця відкриває панель налаштування";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Торкніться плитки гравця, щоб додати 1 бал\n⬆️ Проведіть пальцем угору, щоб додати 1;⬇️ проведіть пальцем вниз, щоб відняти 1\n↔️ Якщо гравців понад 9, гортайте сторінки вліво чи вправо або використовуйте крапки та стрілки внизу\n↩️ Відкрийте меню, щоб скасувати дію або знайти гравця\n✏️ Натисніть і утримуйте гравця, щоб змінити ім’я та рахунок\n🎛️ У режимі індивідуального налаштування торкання гравця відкриває панель налаштування";
 "scoreboard_usage_hint_double_tap_point" = "👆 Двічі торкніться однієї сторони, щоб відняти 1";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Двічі торкніться однієї сторони, щоб відняти 1 стійку";
 "scoreboard_usage_hint_double_tap_player" = "👆 Двічі торкніться того самого гравця, щоб відняти 1";
@@ -1173,7 +1173,7 @@
 "game_squash" = "Сквош";
 "game_soft_tennis" = "М'який теніс";
 "game_padel" = "Падель";
-"game_football_5v5" = "Футбол 5x5";
+"game_football_5v5" = "Футбол 5×5";
 "padel_deuce_mode" = "Правило «рівно»";
 "padel_advantage" = "Перевага";
 "padel_golden_point" = "Золоте очко";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Стиль";
 "style_workbench_reset" = "Відновити типовий стиль";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Скинути";
 "style_workbench_theme" = "Тема";
 "style_workbench_background" = "Фон";
 "style_workbench_font" = "Шрифт";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "Використовуйте горизонтальне зображення 16:9, наприклад 1920×1080. Зображення заповнює екран центральним обрізанням.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Безкоштовно";
+"scoreboard_theme_free_badge_desc" = "Безкоштовно протягом обмеженого часу";
+"style_workbench_pick" = "Торкніться тексту або значка подачі, щоб його змінити";
+"style_workbench_photo_source_default" = "Типове фото";
+"style_workbench_photo_source_custom" = "Власне фото";
+"style_workbench_photo_crop_notice" = "Зображення обрізається по центру, щоб заповнити екран";
+"billiards_group_switch_to_two" = "Увімкнено режим для 2 гравців";
+"group_complete_confirm" = "Перед завершенням події переконайтеся, що всі матчі опрацьовано.";
+"billiards_group_score_panel_positive" = "Плюс";
+"billiards_group_score_panel_negative" = "Мінус";
+"group_error_applicant_inactive" = "Обліковий запис заявника неактивний. Заявку неможливо схвалити.";

@@ -219,14 +219,16 @@ private struct VipCommunitySheet: View {
                         saveTask = Task { await save(image) }
                     } label: {
                         HStack(spacing: 8) {
-                            if saving { ProgressView().tint(Theme.actionForeground(on: Theme.accentColor)) }
+                            if saving { ProgressView().tint(Theme.textOnPrimary) }
                             else { Image(systemName: "square.and.arrow.down") }
                             Text(saving ? vipCommunityText("saving", "Saving…") :
                                     (hasWeChat ? vipCommunityText("save_open_wechat", "Save and open WeChat") : vipCommunityText("save", "Save QR code")))
-                        }.frame(maxWidth: .infinity)
+                        }
+                        .foregroundStyle(Theme.textOnPrimary)
+                        .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent).controlSize(.large)
-                    .tint(Theme.accentColor).foregroundStyle(Theme.actionForeground(on: Theme.accentColor))
+                    .tint(Theme.accentColor)
                     .disabled(saving)
                 }
                 if let url = config.validatedURL {

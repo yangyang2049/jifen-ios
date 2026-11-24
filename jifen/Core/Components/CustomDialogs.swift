@@ -3,7 +3,7 @@
 //  jifen
 //
 //  对齐安卓 ui/dialog/CustomConfirmDialog.kt：
-//  - CustomConfirmDialog：圆角 16 深卡、标题/正文居中、胶囊双按钮（取消在左、确认在右）
+//  - CustomConfirmDialog：圆角 20 卡片、标题/正文居中、胶囊双按钮（取消在左、确认在右）
 //  手机卡片宽 280，regular 布局 400（安卓 confirmDialogMaxWidthDp）。
 //
 
@@ -151,7 +151,7 @@ private var customDialogMaxWidth: CGFloat {
     Theme.usesPadLayout ? 400 : 280
 }
 
-/// 深色卡片容器：圆角 16、阴影、内边距 24，标题 20 Bold 居中。
+/// 居中确认卡片，共用弹窗圆角、内边距和标题字体。
 private struct CustomDialogCard<Content: View>: View {
     let title: String
     @ViewBuilder let content: () -> Content
@@ -159,19 +159,19 @@ private struct CustomDialogCard<Content: View>: View {
     var body: some View {
         VStack(spacing: 0) {
             Text(title)
-                .font(.system(size: 20, weight: .bold))
+                .font(Theme.dialogTitleFont)
                 .foregroundColor(Theme.textPrimary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
-                .padding(.bottom, 16)
+                .padding(.bottom, Theme.md)
 
             content()
         }
-        .padding(24)
+        .padding(Theme.lg)
         .frame(maxWidth: customDialogMaxWidth)
         .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Theme.cardBackground)
+            RoundedRectangle(cornerRadius: Theme.dialogCornerRadius)
+                .fill(Theme.dialogSurfaceBackground)
                 .shadow(color: .black.opacity(0.25), radius: 8)
         )
     }
@@ -222,6 +222,7 @@ struct CustomConfirmDialog: View {
     let confirmText: String
     var cancelText: String? = nil
     var confirmColor: Color = customDialogConfirmRed
+    var confirmForeground: Color? = nil
     let onConfirm: () -> Void
     /// 取消按钮独立回调；未提供时与点遮罩一样走 onDismiss（安卓 dismissOnClickOutside 语义）。
     var onCancel: (() -> Void)? = nil
@@ -249,7 +250,7 @@ struct CustomConfirmDialog: View {
                     CustomDialogPillButton(
                         title: confirmText,
                         background: confirmColor,
-                        foreground: Theme.actionForeground(on: confirmColor),
+                        foreground: confirmForeground ?? Theme.actionForeground(on: confirmColor),
                         action: onConfirm
                     )
                 }

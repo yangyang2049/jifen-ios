@@ -769,8 +769,8 @@
 "scoreboard_style_editor" = "Estilo e cores";
 "scoreboard_style_edit" = "Estilo";
 "style_background_color" = "Cor de fundo";
-"style_server_color" = "Color";
-"style_server_style" = "Style";
+"style_server_color" = "Cor";
+"style_server_style" = "Estilo";
 "style_text_color" = "Cor do texto";
 "style_server_indicator" = "Indicador de serviço";
 "style_color_automatic" = "Automático";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "Os indicadores esquerdo e direito partilham a mesma cor";
 "scoreboard_style_font_shared_hint" = "Todo o texto utiliza o tipo de letra selecionado";
 "scoreboard_style_theme_override_hint" = "Ao escolher um tema, as cores atuais serão substituídas; depois ainda poderá ajustá-las individualmente";
-"scoreboard_style_font_size" = "Tamanho do tipo de letra";
+"scoreboard_style_font_size" = "Tamanho do tipo de letra (igual dos dois lados)";
 "scoreboard_style_font_size_device_max" = "Tamanho máximo neste dispositivo";
 "scoreboard_style_small" = "Pequeno";
 "scoreboard_style_large" = "Grande";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Toque na área de pontuação esquerda/direita para adicionar 1 golo\n⬆️ Deslize para cima para adicionar\n⬇️ Deslize para baixo para subtrair\n↩️ Deslize para a esquerda para desfazer\n☑️ Utilize Encerrar ou Terminar quando a partida acabar";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Toque na área de pontuação esquerda/direita para adicionar 1 golo\n⬆️ Deslize para cima para adicionar\n⬇️ Deslize para baixo para subtrair\n↩️ Deslize para a esquerda para desfazer\n👥 Os nomes do modo 2x2 são definidos antes da partida\n☑️ Utilize Encerrar ou Terminar quando a partida acabar";
 "scoreboard_usage_hint_simple_score" = "👆 Toque na área de pontuação esquerda/direita para adicionar\n ⬆️ Deslize para cima para adicionar\n ⬇️ Deslize para baixo para subtrair\n ↩️ Deslize para a esquerda para desfazer\n ✏️ Mantenha pressionado ou edite para alterar nomes e pontuações";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Toque em uma peça de jogador para adicionar 1 ponto\n ⬆️ Deslize para cima para adicionar 1;⬇️ deslize para baixo para subtrair 1\n ↩️ Deslize para a esquerda para desfazer\n ✏️ Mantenha pressionado um jogador para editar o nome e a pontuação\n 🎛️ No modo de ajuste personalizado, tocar em um jogador abre o painel de ajuste";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Toque em uma peça de jogador para adicionar 1 ponto\n⬆️ Deslize para cima para adicionar 1;⬇️ deslize para baixo para subtrair 1\n↔️ Com mais de 9 jogadores, desliza para os lados ou usa os pontos e as setas na parte inferior para mudar de página\n↩️ Abre o menu para anular uma ação ou encontrar um jogador\n✏️ Mantenha pressionado um jogador para editar o nome e a pontuação\n🎛️ No modo de ajuste personalizado, tocar em um jogador abre o painel de ajuste";
 "scoreboard_usage_hint_double_tap_point" = "👆 Toque duas vezes no mesmo lado para subtrair 1";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Toque duas vezes no mesmo lado para subtrair 1 rack";
 "scoreboard_usage_hint_double_tap_player" = "👆 Toque duas vezes no mesmo jogador para subtrair 1";
@@ -1173,7 +1173,7 @@
 "game_squash" = "Squash";
 "game_soft_tennis" = "Soft tennis";
 "game_padel" = "Padel";
-"game_football_5v5" = "Futebol 5x5";
+"game_football_5v5" = "Futebol 5×5";
 "padel_deuce_mode" = "Regra de igualdade";
 "padel_advantage" = "Vantagem";
 "padel_golden_point" = "Ponto de ouro";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Estilo";
 "style_workbench_reset" = "Restaurar o estilo predefinido";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Repor";
 "style_workbench_theme" = "Tema";
 "style_workbench_background" = "Fundo";
 "style_workbench_font" = "Fonte";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "Utilize uma imagem horizontal 16:9, como 1920×1080. A imagem preenche o ecrã com um corte centrado.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Grátis";
+"scoreboard_theme_free_badge_desc" = "Grátis por tempo limitado";
+"style_workbench_pick" = "Toca no texto ou no ícone de serviço para editar";
+"style_workbench_photo_source_default" = "Foto predefinida";
+"style_workbench_photo_source_custom" = "Foto personalizada";
+"style_workbench_photo_crop_notice" = "A imagem é recortada pelo centro para preencher o ecrã";
+"billiards_group_switch_to_two" = "Alterado para 2 jogadores";
+"group_complete_confirm" = "Confirma que todos os jogos foram tratados antes de terminar a atividade.";
+"billiards_group_score_panel_positive" = "Positivo";
+"billiards_group_score_panel_negative" = "Negativo";
+"group_error_applicant_inactive" = "A conta do requerente está inativa. Não é possível aprovar o pedido.";

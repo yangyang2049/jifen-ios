@@ -190,7 +190,7 @@
 "doudizhu_player_chris" = "Chris";
 "doudizhu_player_david" = "David";
 "shengji_claim_dealer" = "Licitează rolul de împărțitor";
-"shengji_pass_a" = "Pass A";
+"shengji_pass_a" = "Treci de as";
 "guandan_edit_level_wrap_confirm_title" = "Revii la rangul 2?";
 "guandan_edit_level_wrap_confirm_message" = "Creșterea din nou va reseta clasamentul acestei echipe la 2.";
 "shengji_take_dealer" = "Preia rolul de împărțitor";
@@ -769,8 +769,8 @@
 "scoreboard_style_editor" = "Stil și culori";
 "scoreboard_style_edit" = "Stil";
 "style_background_color" = "Culoare de fundal";
-"style_server_color" = "Color";
-"style_server_style" = "Style";
+"style_server_color" = "Culoare";
+"style_server_style" = "Stil";
 "style_text_color" = "Culoare text";
 "style_server_indicator" = "Indicator de serviciu";
 "style_color_automatic" = "Auto";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "Indicatoarele din stânga și din dreapta au aceeași culoare";
 "scoreboard_style_font_shared_hint" = "Tot textul folosește fontul selectat";
 "scoreboard_style_theme_override_hint" = "Alegerea unei teme înlocuiește culorile curente; ulterior le poți ajusta individual";
-"scoreboard_style_font_size" = "Dimensiunea fontului";
+"scoreboard_style_font_size" = "Dimensiunea fontului (aceeași pe ambele părți)";
 "scoreboard_style_font_size_device_max" = "Dimensiune maximă pe acest dispozitiv";
 "scoreboard_style_small" = "Mic";
 "scoreboard_style_large" = "Mare";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Atinge zona de scor stânga/dreapta pentru a adăuga 1 gol\n⬆️ Glisează în sus pentru a adăuga\n⬇️ Glisează în jos pentru a scădea\n↩️ Glisează spre stânga pentru a anula\n☑️ Folosește Decontează sau Încheie la finalul meciului";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Atinge zona de scor stânga/dreapta pentru a adăuga 1 gol\n⬆️ Glisează în sus pentru a adăuga\n⬇️ Glisează în jos pentru a scădea\n↩️ Glisează spre stânga pentru a anula\n👥 Numele 2V2 se stabilesc înaintea meciului\n☑️ Folosește Decontează sau Încheie la finalul meciului";
 "scoreboard_usage_hint_simple_score" = "👆 Atinge zona de scor stânga/dreapta pentru a adăuga un punct\n⬆️ Glisează în sus pentru a adăuga\n⬇️ Glisează în jos pentru a scădea\n↩️ Glisează spre stânga pentru a anula\n✏️ Apasă lung sau editează pentru a schimba numele și scorurile";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Atinge caseta unui jucător pentru a adăuga 1 punct\n⬆️ Glisează în sus pentru a adăuga 1; ⬇️ în jos pentru a scădea 1\n↩️ Glisează spre stânga pentru a anula\n✏️ Apasă lung pe un jucător pentru a-i edita numele și scorul\n🎛️ În modul de ajustare personalizată, atingerea unui jucător deschide panoul de ajustare";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Atinge caseta unui jucător pentru a adăuga 1 punct\n⬆️ Glisează în sus pentru a adăuga 1; ⬇️ în jos pentru a scădea 1\n↔️ Cu mai mult de 9 jucători, glisează spre stânga sau spre dreapta ori folosește punctele și săgețile de jos\n↩️ Deschide meniul pentru a anula o acțiune sau a găsi un jucător\n✏️ Apasă lung pe un jucător pentru a-i edita numele și scorul\n🎛️ În modul de ajustare personalizată, atingerea unui jucător deschide panoul de ajustare";
 "scoreboard_usage_hint_double_tap_point" = "👆 Atingeți de două ori aceeași parte pentru a scădea 1";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Atinge de două ori aceeași parte pentru a scădea 1 joc";
 "scoreboard_usage_hint_double_tap_player" = "👆 Atingeți de două ori același jucător pentru a scădea 1";
@@ -1173,7 +1173,7 @@
 "game_squash" = "Squash";
 "game_soft_tennis" = "Soft tenis";
 "game_padel" = "Padel";
-"game_football_5v5" = "Fotbal 5x5";
+"game_football_5v5" = "Fotbal 5×5";
 "padel_deuce_mode" = "Regula de egalitate";
 "padel_advantage" = "Avantaj";
 "padel_golden_point" = "Punct de aur";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Stil";
 "style_workbench_reset" = "Restabilește stilul implicit";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Resetare";
 "style_workbench_theme" = "Tema";
 "style_workbench_background" = "Fundal";
 "style_workbench_font" = "Font";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "Folosește o imagine 16:9 în orientare peisaj, de exemplu 1920×1080. Imaginile umplu ecranul cu o decupare centrată.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Gratuit";
+"scoreboard_theme_free_badge_desc" = "Gratuit pentru o perioadă limitată";
+"style_workbench_pick" = "Atinge textul sau pictograma de serviciu pentru a edita";
+"style_workbench_photo_source_default" = "Fotografie implicită";
+"style_workbench_photo_source_custom" = "Fotografie proprie";
+"style_workbench_photo_crop_notice" = "Imaginea este decupată din centru pentru a umple ecranul";
+"billiards_group_switch_to_two" = "S-a trecut la 2 jucători";
+"group_complete_confirm" = "Verifică dacă toate meciurile au fost soluționate înainte de a încheia activitatea.";
+"billiards_group_score_panel_positive" = "Pozitiv";
+"billiards_group_score_panel_negative" = "Negativ";
+"group_error_applicant_inactive" = "Contul solicitantului este inactiv. Cererea nu poate fi aprobată.";

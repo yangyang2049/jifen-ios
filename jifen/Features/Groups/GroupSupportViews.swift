@@ -42,17 +42,33 @@ struct GroupSetupSeatField: View {
         .accessibilityIdentifier("group_seat_" + label)
         .accessibilityLabel(label).accessibilityValue(selection.name(at: index))
         .sheet(isPresented: $picking) {
-            NavigationStack {
-                GroupMemberSelector(
-                    title: groupText("choose_member", "Choose a member") + " · " + label,
-                    selectedID: Binding(get: { selection.ids.wrappedValue[index] },
-                                        set: { selection.ids.wrappedValue[index] = $0 }),
-                    members: selection.members,
-                    excluded: Set(indices.filter { $0 != index }.map { selection.ids.wrappedValue[$0] }),
-                    rosterGroupID: selection.groupID, matchPicker: true
-                )
-            }.groupAccountBoundary()
+            GroupMatchMemberPickerSheet(
+                title: groupText("choose_member", "Choose a member") + " · " + label,
+                selectedID: Binding(get: { selection.ids.wrappedValue[index] },
+                                    set: { selection.ids.wrappedValue[index] = $0 }),
+                members: selection.members,
+                excluded: Set(indices.filter { $0 != index }.map { selection.ids.wrappedValue[$0] }),
+                rosterGroupID: selection.groupID
+            )
         }
+    }
+}
+
+struct GroupMatchMemberPickerSheet: View {
+    let title: String
+    @Binding var selectedID: String
+    let members: [GroupMember]
+    let excluded: Set<String>
+    let rosterGroupID: String?
+
+    var body: some View {
+        NavigationStack {
+            GroupMemberSelector(title: title, selectedID: $selectedID, members: members,
+                                excluded: excluded, rosterGroupID: rosterGroupID, matchPicker: true)
+        }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+        .groupAccountBoundary()
     }
 }
 

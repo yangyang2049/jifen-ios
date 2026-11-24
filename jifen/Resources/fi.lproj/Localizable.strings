@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "Tyyli";
 "style_background_color" = "Taustaväri";
 "style_server_color" = "väri";
-"style_server_style" = "Style";
+"style_server_style" = "Tyyli";
 "style_text_color" = "Tekstin väri";
 "style_server_indicator" = "Syötön ilmaisin";
 "style_color_automatic" = "Automaattinen";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "Vasen ja oikea ilmaisin jakavat yhden värin";
 "scoreboard_style_font_shared_hint" = "Kaikki teksti käyttää valittua fonttia";
 "scoreboard_style_theme_override_hint" = "Teeman valitseminen ohittaa nykyiset värit; voit vielä säätää yksilöllisesti sen jälkeen";
-"scoreboard_style_font_size" = "Fonttikoko";
+"scoreboard_style_font_size" = "Fonttikoko (sama molemmilla puolilla)";
 "scoreboard_style_font_size_device_max" = "Suurin koko tällä laitteella";
 "scoreboard_style_small" = "Pieni";
 "scoreboard_style_large" = "Suuri";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Napauta vasenta/oikeaa tulosaluetta lisätäksesi 1 maalin\n⬆️ Lisää pyyhkäisemällä ylös\n⬇️ Vähennä pyyhkäisemällä alas\n↩️ Kumoa pyyhkäisemällä vasemmalle\n☑️ Käytä Päätä tai Lopeta, kun ottelu päättyy";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Napauta vasenta/oikeaa tulosaluetta lisätäksesi 1 maalin\n⬆️ Lisää pyyhkäisemällä ylös\n⬇️ Vähennä pyyhkäisemällä alas\n↩️ Kumoa pyyhkäisemällä vasemmalle\n👥 2V2-nimet asetetaan ennen ottelua\n☑️ Käytä Päätä tai Lopeta, kun ottelu päättyy";
 "scoreboard_usage_hint_simple_score" = "👆 Lisää napauttamalla vasenta/oikeaa tulosaluetta\n⬆️ Lisää pyyhkäisemällä ylös\n⬇️ Vähennä pyyhkäisemällä alas\n↩️ Kumoa pyyhkäisemällä vasemmalle\n✏️ Paina pitkään tai muokkaa nimiä ja pisteitä";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Napauta pelaajalaattaa lisätäksesi 1 pisteen\n⬆️ Lisää 1 pyyhkäisemällä ylös;⬇️ Pyyhkäise alas vähentääksesi 1\n↩️ Kumoa pyyhkäisemällä vasemmalle\n✏️ Paina pelaajaa pitkään muokataksesi nimeä ja tulosta\n🎛️ Mukautetussa säätötilassa pelaajan napauttaminen avaa säätöpaneelin";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Napauta pelaajalaattaa lisätäksesi 1 pisteen\n⬆️ Lisää 1 pyyhkäisemällä ylös;⬇️ Pyyhkäise alas vähentääksesi 1\n↔️ Kun pelaajia on yli 9, vaihda sivua pyyhkäisemällä sivulle tai käyttämällä alareunan pisteitä ja nuolia\n↩️ Kumoa toiminto tai etsi pelaaja valikosta\n✏️ Paina pelaajaa pitkään muokataksesi nimeä ja tulosta\n🎛️ Mukautetussa säätötilassa pelaajan napauttaminen avaa säätöpaneelin";
 "scoreboard_usage_hint_double_tap_point" = "👆 Kaksoisnapauta samaa puolta vähentääksesi 1";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Kaksoisnapauta samaa puolta vähentääksesi 1 freimin";
 "scoreboard_usage_hint_double_tap_player" = "👆 Kaksoisnapauta samaa pelaajaa vähentääksesi 1";
@@ -1173,7 +1173,7 @@
 "game_squash" = "Squash";
 "game_soft_tennis" = "Soft tennis";
 "game_padel" = "Padel";
-"game_football_5v5" = "5x5 jalkapallo";
+"game_football_5v5" = "5×5 jalkapallo";
 "padel_deuce_mode" = "Tasatilanteen sääntö";
 "padel_advantage" = "Etu";
 "padel_golden_point" = "Kultainen piste";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Tyyli";
 "style_workbench_reset" = "Palauta oletustyyli";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Nollaa";
 "style_workbench_theme" = "Teema";
 "style_workbench_background" = "Tausta";
 "style_workbench_font" = "Fontti";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "Käytä vaaka-asennossa olevaa 16:9-kuvaa, esimerkiksi 1920×1080. Kuvat täyttävät näytön keskellä suoritetulla rajauksella.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Maksuton";
+"scoreboard_theme_free_badge_desc" = "Maksuton rajoitetun ajan";
+"style_workbench_pick" = "Muokkaa tekstiä tai syöttökuvaketta napauttamalla";
+"style_workbench_photo_source_default" = "Oletuskuva";
+"style_workbench_photo_source_custom" = "Oma kuva";
+"style_workbench_photo_crop_notice" = "Kuva rajataan keskeltä niin, että se täyttää näytön";
+"billiards_group_switch_to_two" = "Vaihdettiin 2 pelaajaan";
+"group_complete_confirm" = "Varmista ennen tapahtuman päättämistä, että kaikki ottelut on käsitelty.";
+"billiards_group_score_panel_positive" = "Positiivinen";
+"billiards_group_score_panel_negative" = "Negatiivinen";
+"group_error_applicant_inactive" = "Hakijan tili ei ole aktiivinen. Pyyntöä ei voi hyväksyä.";

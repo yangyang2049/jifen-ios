@@ -7,9 +7,12 @@ enum HomeToolsLayoutPolicy {
     static let wideItemMinimumWidth: CGFloat = 92
     static let wideColumnSpacing: CGFloat = 8
 
+    /// 与鸿蒙 `toolCatalog.ts` 的 HOME_TOOL_IDS 对齐：10 项、顺序一致。
+    /// 此前缺 random_team / fullscreen_barrage，两端口径不一致。
     private static let compactToolIDs = [
-        "flip_coin", "dice", "whistle", "red_yellow_card",
-        "points_table", "time", "aa_calculator", "ten_second"
+        "whistle", "flip_coin", "points_table", "random_team",
+        "dice", "ten_second", "red_yellow_card", "fullscreen_barrage",
+        "time", "aa_calculator"
     ]
 
     static func tools(isPad: Bool) -> [ToolItem] {

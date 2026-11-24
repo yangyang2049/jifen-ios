@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "Styl";
 "style_background_color" = "Barva pozadí";
 "style_server_color" = "barva";
-"style_server_style" = "Style";
+"style_server_style" = "Styl";
 "style_text_color" = "Barva textu";
 "style_server_indicator" = "Indikátor podávání";
 "style_color_automatic" = "Auto";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "Levý a pravý indikátor sdílejí jednu barvu";
 "scoreboard_style_font_shared_hint" = "Veškerý text používá vybrané písmo";
 "scoreboard_style_theme_override_hint" = "Výběr motivu přepíše aktuální barvy; můžete i poté individuálně upravit";
-"scoreboard_style_font_size" = "Velikost písma";
+"scoreboard_style_font_size" = "Velikost písma (stejná na obou stranách)";
 "scoreboard_style_font_size_device_max" = "Maximální velikost v tomto zařízení";
 "scoreboard_style_small" = "Malý";
 "scoreboard_style_large" = "Velký";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Klepnutím na levou/pravou oblast skóre přidejte 1 gól\n⬆️ Chcete-li přidat, přejeďte prstem nahoru\n⬇️ Přejetím dolů odečtete\n↩️ Přejetím doleva akci vrátíte zpět\n☑️ Po skončení zápasu použijte možnost Vyhodnotit nebo Dokončit";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Klepnutím na levou/pravou oblast skóre přidáte 1 gól\n⬆️ Chcete-li přidat, přejeďte prstem nahoru\n⬇️ Přejetím dolů odečtete\n↩️ Přejetím doleva akci vrátíte zpět\n👥 Před zápasem jsou nastavena jména 2V2\n☑️ Po skončení zápasu použijte možnost Vyhodnotit nebo Dokončit";
 "scoreboard_usage_hint_simple_score" = "👆 Klepnutím do levé/pravé oblasti skóre přidejte\n⬆️ Chcete-li přidat, přejeďte prstem nahoru\n⬇️ Přejetím dolů odečtete\n↩️ Přejetím doleva akci vrátíte zpět\n✏️ Dlouhým stisknutím nebo úpravou změníte jména a skóre";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Klepnutím na destičku hráče přidáte 1 bod\n⬆️ Přejetím nahoru přidáte 1; ⬇️ přejetím dolů odečtete 1\n↩️ Přejetím doleva akci vrátíte zpět\n✏️ Dlouhým stisknutím hráče upravíte jméno a skóre\n🎛️ V režimu vlastních úprav se klepnutím na hráče otevře panel úprav";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Klepnutím na destičku hráče přidáte 1 bod\n⬆️ Přejetím nahoru přidáte 1; ⬇️ přejetím dolů odečtete 1\n↔️ Při více než 9 hráčích listujte tahem doleva či doprava nebo použijte tečky a šipky dole\n↩️ Pro vrácení akce nebo vyhledání hráče otevřete nabídku\n✏️ Dlouhým stisknutím hráče upravíte jméno a skóre\n🎛️ V režimu vlastních úprav se klepnutím na hráče otevře panel úprav";
 "scoreboard_usage_hint_double_tap_point" = "👆 Dvojitým klepnutím na stejnou stranu odečtete 1";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Dvojitým klepnutím na stejnou stranu odečtete 1 frame";
 "scoreboard_usage_hint_double_tap_player" = "👆 Dvojitým klepnutím na stejného hráče odečtete 1";
@@ -1173,7 +1173,7 @@
 "game_squash" = "Squash";
 "game_soft_tennis" = "Měkký tenis";
 "game_padel" = "Padel";
-"game_football_5v5" = "Fotbal 5x5";
+"game_football_5v5" = "Fotbal 5×5";
 "padel_deuce_mode" = "Pravidlo při shodě";
 "padel_advantage" = "Výhoda";
 "padel_golden_point" = "Zlatý bod";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Styl";
 "style_workbench_reset" = "Obnovit výchozí styl";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Resetovat";
 "style_workbench_theme" = "Téma";
 "style_workbench_background" = "Pozadí";
 "style_workbench_font" = "Písmo";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "Použijte vodorovný obrázek 16:9, například 1920×1080. Obrázek vyplní obrazovku se středovým oříznutím.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Zdarma";
+"scoreboard_theme_free_badge_desc" = "Po omezenou dobu zdarma";
+"style_workbench_pick" = "Klepnutím na text nebo ikonu podání je upravíte";
+"style_workbench_photo_source_default" = "Výchozí fotografie";
+"style_workbench_photo_source_custom" = "Vlastní fotografie";
+"style_workbench_photo_crop_notice" = "Obrázek se ořízne kolem středu, aby vyplnil obrazovku";
+"billiards_group_switch_to_two" = "Přepnuto na 2 hráče";
+"group_complete_confirm" = "Před ukončením aktivity zkontrolujte, že jsou vyřešeny všechny zápasy.";
+"billiards_group_score_panel_positive" = "Kladné";
+"billiards_group_score_panel_negative" = "Záporné";
+"group_error_applicant_inactive" = "Účet žadatele není aktivní. Žádost nelze schválit.";

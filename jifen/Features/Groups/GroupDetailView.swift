@@ -363,6 +363,15 @@ struct GroupDetailView: View {
     }
 
     @ViewBuilder private func overview(_ d: GroupDetailCache) -> some View {
+        // Bound the SwiftUI metadata depth for this screen on devices with smaller stacks.
+        AnyView(overviewHeader(d))
+        let pending = GroupPermissions.confirmationTasks(d.pendingResults ?? d.results, group: d.group, me: me)
+        AnyView(overviewNotices(d, pendingCount: pending.count))
+        AnyView(overviewSchedule(d))
+        AnyView(overviewResults(d, latest: d.results.first ?? pending.first))
+    }
+
+    private func overviewHeader(_ d: GroupDetailCache) -> some View {
         GroupSurface {
             if dynamicTypeSize.isAccessibilitySize {
                 HStack { AppCatalogIcon(gameType: d.group.sport.gameType, size: 52); Text(d.group.name).font(GroupTypography.groupTitle).lineLimit(2).fixedSize(horizontal: false, vertical: true) }
@@ -416,15 +425,20 @@ struct GroupDetailView: View {
             }
             }
         }
+    }
+
+    @ViewBuilder private func overviewNotices(_ d: GroupDetailCache, pendingCount: Int) -> some View {
         if d.group.isCoaching, me?.role == "owner", let count = d.leaveNotices?.filter({ $0.status == "open" }).count, count > 0 {
             Button { tab = 1 } label: { GroupSurface { HStack { Text(groupText("leave_notices", "Student leave notices")); Spacer(); Text("\(count)"); Image(systemName: "chevron.right") } } }.buttonStyle(.plain)
         }
-        let pending = GroupPermissions.confirmationTasks(d.pendingResults ?? d.results, group: d.group, me: me)
-        if !pending.isEmpty {
+        if pendingCount > 0 {
             Button { tab = 2 } label: {
-                GroupSurface { HStack { Text(groupText("pending_confirmation", "To confirm")); Spacer(); Text("\(pending.count)"); Image(systemName: "chevron.right") } }
+                GroupSurface { HStack { Text(groupText("pending_confirmation", "To confirm")); Spacer(); Text("\(pendingCount)"); Image(systemName: "chevron.right") } }
             }.buttonStyle(.plain).accessibilityIdentifier("group_overview_pending")
         }
+    }
+
+    @ViewBuilder private func overviewSchedule(_ d: GroupDetailCache) -> some View {
         let now = Int64(Date().timeIntervalSince1970 * 1000)
         if d.group.isCoaching {
             let sessions = (d.trainingPlans ?? []).flatMap { plan in plan.sessions.filter { plan.status != "cancelled" || !($0.startedGameId ?? "").isEmpty } }
@@ -448,10 +462,13 @@ struct GroupDetailView: View {
                 }
             }
         }
+    }
+
+    @ViewBuilder private func overviewResults(_ d: GroupDetailCache, latest: GroupResult?) -> some View {
         if overviewActions(d).showLatestResults {
             VStack(alignment: .leading, spacing: Theme.xs) {
                 GroupSectionTitle(title: groupText("latest_results", "Latest results"), navigate: { tab = 2 })
-                if let result = d.results.first ?? pending.first { resultRow(result) }
+                if let latest { resultRow(latest) }
                 else { GroupEmptyCard(text: groupText("no_results", "No matches recorded yet")) }
             }
         }
@@ -747,7 +764,7 @@ struct GroupDetailView: View {
                 memberRow(member)
                 if index < members.count - 1 { Divider().padding(.leading, 68) }
             }
-        }.background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 18))
+        }.background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: Theme.panelCornerRadius))
     }
     @ViewBuilder private func memberRow(_ member: GroupMember) -> some View {
         memberRowContent(member)
@@ -828,7 +845,7 @@ private struct GroupRemovedMembersSection<Content: View>: View {
 
 struct GroupSurface<Content: View>: View {
     @ViewBuilder var content: Content
-    var body: some View { VStack(alignment: .leading, spacing: Theme.spacing) { content }.font(GroupTypography.body).padding(Theme.cardPadding).frame(maxWidth: .infinity, alignment: .leading).background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 18)) }
+    var body: some View { VStack(alignment: .leading, spacing: Theme.spacing) { content }.font(GroupTypography.body).padding(Theme.cardPadding).frame(maxWidth: .infinity, alignment: .leading).background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: Theme.panelCornerRadius)) }
 }
 
 struct GroupSectionTitle: View {
@@ -836,7 +853,7 @@ struct GroupSectionTitle: View {
     var count: Int? = nil
     var subtitle: String? = nil
     var navigate: (() -> Void)? = nil
-    var body: some View { HStack(spacing: Theme.sm) { RoundedRectangle(cornerRadius: 2).fill(Theme.primary).frame(width: 3, height: 14); Text(title).font(.system(size: Theme.fontBody1, weight: .semibold)); if let subtitle { Text(subtitle).font(.caption).foregroundStyle(.secondary) } else if let count { Text("\(count)").font(.caption).foregroundStyle(.secondary) }; Spacer(); if let navigate { Button(action: navigate) { Image(systemName: "chevron.right").foregroundStyle(Theme.textSecondary) }.frame(minWidth: 44, minHeight: 44).contentShape(Rectangle()).accessibilityLabel(title) } } }
+    var body: some View { HStack(spacing: Theme.sm) { RoundedRectangle(cornerRadius: 2).fill(Theme.primary).frame(width: 3, height: 14); Text(title).font(GroupTypography.section); if let subtitle { Text(subtitle).font(.caption).foregroundStyle(.secondary) } else if let count { Text("\(count)").font(.caption).foregroundStyle(.secondary) }; Spacer(); if let navigate { Button(action: navigate) { Image(systemName: "chevron.right").foregroundStyle(Theme.textSecondary) }.frame(minWidth: 44, minHeight: 44).contentShape(Rectangle()).accessibilityLabel(title) } } }
 }
 
 /// 活动卡内的赛制/「直接排赛」小标签（灰底）。

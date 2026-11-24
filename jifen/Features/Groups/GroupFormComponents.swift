@@ -3,7 +3,7 @@ import UIKit
 
 /// Group text roles reuse the app's existing type scale; page/navigation titles stay native.
 enum GroupTypography {
-    static let section = Font.system(size: Theme.fontBody1, weight: .semibold)
+    static let section = Theme.sectionTitleFont(size: Theme.fontBody1)
     static let cardTitle = Font.system(size: Theme.fontBody1, weight: .medium)
     static let groupTitle = Font.system(size: Theme.fontH5, weight: .semibold)
     static let body = Font.system(size: Theme.fontBody2)

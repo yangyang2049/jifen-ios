@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "Stil";
 "style_background_color" = "Baggrundsfarve";
 "style_server_color" = "farve";
-"style_server_style" = "Style";
+"style_server_style" = "Stil";
 "style_text_color" = "Tekstfarve";
 "style_server_indicator" = "Serveindikator";
 "style_color_automatic" = "Auto";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "Venstre og højre indikatorer deler én farve";
 "scoreboard_style_font_shared_hint" = "Al tekst bruger den valgte skrifttype";
 "scoreboard_style_theme_override_hint" = "Valg af et tema tilsidesætter aktuelle farver; du kan stadig justere individuelt efter";
-"scoreboard_style_font_size" = "Skriftstørrelse";
+"scoreboard_style_font_size" = "Skriftstørrelse (samme på begge sider)";
 "scoreboard_style_font_size_device_max" = "Maksimal størrelse på denne enhed";
 "scoreboard_style_small" = "Lille";
 "scoreboard_style_large" = "Stor";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Tryk på venstre/højre scoreområde for at tilføje 1 mål\n⬆️ Stryg op for at tilføje\n⬇️ Stryg ned for at trække fra\n↩️ Stryg til venstre for at fortryde\n☑️ Brug Afregn eller Afslut, når kampen slutter";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Tryk på venstre/højre scoreområde for at tilføje 1 mål\n⬆️ Stryg op for at tilføje\n⬇️ Stryg ned for at trække fra\n↩️ Stryg til venstre for at fortryde\n👥 2V2 navne indstilles før kampen\n☑️ Brug Afregn eller Afslut, når kampen slutter";
 "scoreboard_usage_hint_simple_score" = "👆 Tryk på venstre/højre scoreområde for at tilføje\n⬆️ Stryg op for at tilføje\n⬇️ Stryg ned for at trække fra\n↩️ Stryg til venstre for at fortryde\n✏️ Tryk længe eller rediger for at ændre navne og point";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Tryk på en spillerbrikke for at tilføje 1 point\n⬆️ Stryg opad for at tilføje 1;⬇️ stryg ned for at trække 1 fra\n↩️ Stryg til venstre for at fortryde\n✏️ Tryk længe på en spiller for at redigere navnet og scoren\n🎛️ I brugerdefineret justeringstilstand åbnes justeringspanelet ved at trykke på en spiller";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Tryk på en spillerbrikke for at tilføje 1 point\n⬆️ Stryg opad for at tilføje 1;⬇️ stryg ned for at trække 1 fra\n↔️ Ved mere end 9 spillere kan du bladre til venstre eller højre eller bruge prikkerne og pilene nedenfor\n↩️ Brug menuen til at fortryde eller finde en spiller\n✏️ Tryk længe på en spiller for at redigere navnet og scoren\n🎛️ I brugerdefineret justeringstilstand åbnes justeringspanelet ved at trykke på en spiller";
 "scoreboard_usage_hint_double_tap_point" = "👆 Tryk to gange på samme side for at trække 1 fra";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Tryk to gange på samme side for at trække 1 frame fra";
 "scoreboard_usage_hint_double_tap_player" = "👆 Dobbelttryk på samme spiller for at trække 1 fra";
@@ -1173,7 +1173,7 @@
 "game_squash" = "Squash";
 "game_soft_tennis" = "Soft tennis";
 "game_padel" = "Padel";
-"game_football_5v5" = "5x5 fodbold";
+"game_football_5v5" = "5×5 fodbold";
 "padel_deuce_mode" = "Deuce-regel";
 "padel_advantage" = "Fordel";
 "padel_golden_point" = "Gyldent point";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Stil";
 "style_workbench_reset" = "Gendan standardstilen";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Nulstil";
 "style_workbench_theme" = "Tema";
 "style_workbench_background" = "Baggrund";
 "style_workbench_font" = "Skrifttype";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "Brug et liggende 16:9-billede, f.eks. 1920×1080. Billeder fylder skærmen med centreret beskæring.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Gratis";
+"scoreboard_theme_free_badge_desc" = "Gratis i en begrænset periode";
+"style_workbench_pick" = "Tryk på teksten eller serveikonet for at redigere";
+"style_workbench_photo_source_default" = "Standardfoto";
+"style_workbench_photo_source_custom" = "Eget foto";
+"style_workbench_photo_crop_notice" = "Billedet beskæres omkring midten for at udfylde skærmen";
+"billiards_group_switch_to_two" = "Skiftet til 2 spillere";
+"group_complete_confirm" = "Kontrollér, at alle kampe er håndteret, før du afslutter aktiviteten.";
+"billiards_group_score_panel_positive" = "Positiv";
+"billiards_group_score_panel_negative" = "Negativ";
+"group_error_applicant_inactive" = "Ansøgerens konto er inaktiv. Ansøgningen kan ikke godkendes.";

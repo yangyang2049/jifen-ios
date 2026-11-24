@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "பாணி";
 "style_background_color" = "பின்னணி நிறம்";
 "style_server_color" = "நிறம்";
-"style_server_style" = "Style";
+"style_server_style" = "பாணி";
 "style_text_color" = "உரை நிறம்";
 "style_server_indicator" = "சர்வ் காட்டி";
 "style_color_automatic" = "ஆட்டோ";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "இடது மற்றும் வலது குறிகாட்டிகள் ஒரு வண்ணத்தைப் பகிர்ந்து கொள்கின்றன";
 "scoreboard_style_font_shared_hint" = "எல்லா உரைகளும் தேர்ந்தெடுக்கப்பட்ட எழுத்துருவைப் பயன்படுத்துகின்றன";
 "scoreboard_style_theme_override_hint" = "தீம் ஒன்றைத் தேர்ந்தெடுப்பது தற்போதைய வண்ணங்களை மீறுகிறது; பிறகும் நீங்கள் தனித்தனியாக சரிசெய்யலாம்";
-"scoreboard_style_font_size" = "எழுத்துரு அளவு";
+"scoreboard_style_font_size" = "எழுத்துரு அளவு (இரு பக்கங்களிலும் ஒரே அளவு)";
 "scoreboard_style_font_size_device_max" = "இந்தச் சாதனத்தில் அதிகபட்ச அளவு";
 "scoreboard_style_small" = "சிறியது";
 "scoreboard_style_large" = "பெரியது";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 1 கோலைச் சேர்க்க இடது/வலது ஸ்கோர் பகுதியைத் தட்டவும்\n⬆️ சேர்க்க மேலே ஸ்வைப் செய்யவும்\n⬇️ கழிப்பதற்கு கீழே ஸ்வைப் செய்யவும்\n↩️ செயல்தவிர்க்க இடதுபுறமாக ஸ்வைப் செய்யவும்\n☑️ போட்டி முடியும் போது தீர்வு அல்லது முடி ஐப் பயன்படுத்தவும்";
 "scoreboard_usage_hint_foosball_doubles" = "👆 1 கோலைச் சேர்க்க இடது/வலது ஸ்கோர் பகுதியைத் தட்டவும்\n⬆️ சேர்க்க மேலே ஸ்வைப் செய்யவும்\n⬇️ கழிக்க கீழே ஸ்வைப் செய்யவும்\n↩️ செயல்தவிர்க்க இடதுபுறமாக ஸ்வைப் செய்யவும்\n👥 2V2 பெயர்கள் போட்டிக்கு முன் அமைக்கப்பட்டன\n☑️ போட்டி முடிந்ததும் தீர்வு அல்லது முடி ஐப் பயன்படுத்தவும்";
 "scoreboard_usage_hint_simple_score" = "👆 சேர்க்க இடது/வலது மதிப்பெண் பகுதியைத் தட்டவும்\n⬆️ சேர்க்க மேலே ஸ்வைப் செய்யவும்\n⬇️ கழிக்க கீழே ஸ்வைப் செய்யவும்\n↩️ செயல்தவிர்க்க இடதுபுறமாக ஸ்வைப் செய்யவும்\n✏️ பெயர்கள் மற்றும் மதிப்பெண்களை மாற்ற நீண்ட நேரம் அழுத்தவும் அல்லது திருத்தவும்";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 1 புள்ளியைச் சேர்க்க, பிளேயர் டைலைத் தட்டவும்\n⬆️ 1 ஐச் சேர்க்க மேலே ஸ்வைப் செய்யவும்; ⬇️ 1ஐக் கழிக்க கீழே ஸ்வைப் செய்யவும்\n↩️ செயல்தவிர்க்க இடதுபுறமாக ஸ்வைப் செய்யவும்\n✏️ பெயரையும் ஸ்கோரையும் திருத்த பிளேயரை நீண்ட நேரம் அழுத்தவும்\n🎛️ தனிப்பயன் சரிப்படுத்தும் பயன்முறையில், பிளேயரைத் தட்டினால், சரிசெய்தல் பேனலைத் திறக்கும்";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 1 புள்ளியைச் சேர்க்க, பிளேயர் டைலைத் தட்டவும்\n⬆️ 1 ஐச் சேர்க்க மேலே ஸ்வைப் செய்யவும்; ⬇️ 1ஐக் கழிக்க கீழே ஸ்வைப் செய்யவும்\n↔️ 9-க்கும் அதிகமான வீரர்கள் இருந்தால் பக்கம் மாற்ற இடது அல்லது வலதுபுறமாக ஸ்வைப் செய்யவும், அல்லது கீழேயுள்ள புள்ளிகளையும் அம்புகளையும் பயன்படுத்தவும்\n↩️ செயலைத் திரும்பப்பெற அல்லது வீரரைத் தேட மெனுவைத் திறக்கவும்\n✏️ பெயரையும் ஸ்கோரையும் திருத்த பிளேயரை நீண்ட நேரம் அழுத்தவும்\n🎛️ தனிப்பயன் சரிப்படுத்தும் பயன்முறையில், பிளேயரைத் தட்டினால், சரிசெய்தல் பேனலைத் திறக்கும்";
 "scoreboard_usage_hint_double_tap_point" = "👆 1ஐக் கழிக்க அதே பக்கத்தை இருமுறை தட்டவும்";
 "scoreboard_usage_hint_double_tap_rack" = "👆 1 ரேக்கைக் கழிக்க அதே பக்கத்தை இருமுறை தட்டவும்";
 "scoreboard_usage_hint_double_tap_player" = "👆 1ஐக் கழிக்க அதே பிளேயரை இருமுறை தட்டவும்";
@@ -1173,7 +1173,7 @@
 "game_squash" = "ஸ்குவாஷ்";
 "game_soft_tennis" = "மென்மையான டென்னிஸ்";
 "game_padel" = "பேடல்";
-"game_football_5v5" = "5x5 கால்பந்து";
+"game_football_5v5" = "5×5 கால்பந்து";
 "padel_deuce_mode" = "டியூஸ் விதி";
 "padel_advantage" = "அட்வான்டேஜ்";
 "padel_golden_point" = "கோல்டன் பாயிண்ட்";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "பாணி";
 "style_workbench_reset" = "இயல்பு பாங்கை மீட்டமை";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "மீட்டமை";
 "style_workbench_theme" = "தீம்";
 "style_workbench_background" = "பின்னணி";
 "style_workbench_font" = "எழுத்துரு";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "16:9 நிலைப்படத்தைப் பயன்படுத்துங்கள், எ.கா. 1920×1080. படங்கள் நடுவில் வெட்டப்பட்டுத் திரையை நிரப்பும்.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "இலவசம்";
+"scoreboard_theme_free_badge_desc" = "குறிப்பிட்ட காலத்திற்கு இலவசம்";
+"style_workbench_pick" = "திருத்த உரையையோ சர்வ் சின்னத்தையோ தட்டவும்";
+"style_workbench_photo_source_default" = "இயல்புப் படம்";
+"style_workbench_photo_source_custom" = "சொந்தப் படம்";
+"style_workbench_photo_crop_notice" = "திரையை நிரப்ப படத்தின் மையத்தை வைத்து வெட்டப்படுகிறது";
+"billiards_group_switch_to_two" = "2 வீரர்களுக்கு மாற்றப்பட்டது";
+"group_complete_confirm" = "செயல்பாட்டை முடிக்கும் முன் அனைத்து போட்டிகளும் கையாளப்பட்டனவா எனச் சரிபார்க்கவும்.";
+"billiards_group_score_panel_positive" = "நேர்மம்";
+"billiards_group_score_panel_negative" = "எதிர்மம்";
+"group_error_applicant_inactive" = "விண்ணப்பதாரரின் கணக்கு செயலில் இல்லை. கோரிக்கையை ஏற்க முடியாது.";

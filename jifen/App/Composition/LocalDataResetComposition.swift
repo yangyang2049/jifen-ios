@@ -4,6 +4,7 @@ import PersistenceCore
 @MainActor
 extension LocalDataResetCoordinator {
     static func live(
+        watchLinkService: PhoneWatchLinkService,
         appearance: AppAppearanceStore,
         defaults: UserDefaults = .standard,
         fileManager: FileManager = .default
@@ -34,6 +35,9 @@ extension LocalDataResetCoordinator {
             },
             LocalDataResetStep(category: .resumeSessions) {
                 try await ResumeSessionRepository().clear()
+            },
+            LocalDataResetStep(category: .watchLinkState) {
+                watchLinkService.clearLocalTransientStateForDataReset()
             },
             LocalDataResetStep(category: .legacySyncData) {
                 try AnonymousIdentityProvider.shared.clearLocalIdentity()

@@ -2639,9 +2639,18 @@ final class FullAppScreenshotUITests: XCTestCase {
             byLabel.tap()
         }
 
+        dismissWatchStartGuideIfNeeded()
         return app.buttons["开始"].waitForExistence(timeout: 4)
             || app.buttons["Start"].waitForExistence(timeout: 1)
             || app.buttons["确认"].waitForExistence(timeout: 1)
+    }
+
+    private func dismissWatchStartGuideIfNeeded() {
+        let closeButton = app.buttons["linked_score_watch_start_guide_close"]
+        if closeButton.waitForExistence(timeout: 0.8), closeButton.isHittable {
+            closeButton.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
     }
 
     private func selectSinglesDoublesMode(doubles: Bool) -> Bool {
@@ -3022,9 +3031,17 @@ final class FullAppScreenshotUITests: XCTestCase {
         closeMeDestination("settings_scoreboard_sheet_close")
 
         selectTab("我的")
-        XCTAssertFalse(app.staticTexts["手表联动"].exists)
-        XCTAssertFalse(app.buttons["手表联动"].exists)
-        XCTAssertFalse(app.buttons["Watch Link"].exists)
+        if app.staticTexts["手表联动"].exists || app.buttons["手表联动"].exists
+            || app.staticTexts["Watch Link"].exists || app.buttons["Watch Link"].exists {
+            tapRow("手表联动")
+            if !(app.navigationBars["手表联动"].waitForExistence(timeout: 2)
+                || app.navigationBars["Watch Link"].waitForExistence(timeout: 1)) {
+                tapRow("Watch Link")
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+            snap("41b_me_watch_link")
+            navigateBack()
+        }
 
         selectTab("我的")
         tapRow("外观")
@@ -3216,6 +3233,12 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     @discardableResult
     private func tapStart() -> Bool {
+        // 首次进入支持手表联动的项目时，关闭锚定在手表按钮上的一次性引导。
+        let guideDismiss = app.buttons["linked_score_watch_start_guide_close"]
+        if guideDismiss.waitForExistence(timeout: 0.8), guideDismiss.isHittable {
+            guideDismiss.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
         for label in ["开始", "Start", "确认"] {
             let button = app.buttons[label].firstMatch
             if button.waitForExistence(timeout: 1.2), button.isHittable {

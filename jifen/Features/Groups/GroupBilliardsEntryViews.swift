@@ -59,6 +59,12 @@ extension View {
             .overlay(RoundedRectangle(cornerRadius: radius)
                 .strokeBorder(active ? Theme.primary : BilliardsControlStyle.stroke, lineWidth: 1))
     }
+
+    func billiardsChoice(active: Bool) -> some View {
+        padding(.horizontal, Theme.spacing)
+            .frame(minHeight: 40)
+            .billiardsControl(active: active)
+    }
 }
 
 // MARK: - 一步式配置页
@@ -291,15 +297,15 @@ struct GroupBilliardsEntryView: View {
                 .groupAccountBoundary()
         }
         .sheet(item: $pickerSeat) { seat in
-            NavigationStack {
-                GroupMemberSelector(title: billiardsText("select") + " · " + badge(seat.id),
-                                    selectedID: Binding(get: { seatID(seat.id) }, set: { memberID in
-                                        guard usesMatchPicker, seat.id < count else { return }
-                                        selected[seat.id] = memberID
-                                    }),
-                                    members: choices, excluded: Set((0..<count).filter { $0 != seat.id }.map(seatID)),
-                                    rosterGroupID: pickerRosterGroupID, matchPicker: true)
-            }.groupAccountBoundary()
+            GroupMatchMemberPickerSheet(
+                title: billiardsText("select") + " · " + badge(seat.id),
+                selectedID: Binding(get: { seatID(seat.id) }, set: { memberID in
+                    guard usesMatchPicker, seat.id < count else { return }
+                    selected[seat.id] = memberID
+                }),
+                members: choices, excluded: Set((0..<count).filter { $0 != seat.id }.map(seatID)),
+                rosterGroupID: pickerRosterGroupID
+            )
         }
         .task { await prepare() }
         .onChange(of: count) { _, value in
@@ -316,8 +322,7 @@ struct GroupBilliardsEntryView: View {
                     Button { pick(group: value) } label: {
                         Text(value.title).font(GroupTypography.caption.weight(.medium))
                             .lineLimit(1).minimumScaleFactor(0.8)
-                            .padding(.horizontal, Theme.spacing).frame(minHeight: 40)
-                            .billiardsControl(active: active, radius: usesMatchPicker ? 8 : 20)
+                            .billiardsChoice(active: active)
                     }.buttonStyle(.plain)
                         .disabled(request.frozen || busy)
                         .accessibilityAddTraits(active ? .isSelected : [])
@@ -1121,13 +1126,14 @@ private struct BilliardsScorePanel: View {
     @Binding var score: String
     @Environment(\.dismiss) private var dismiss
     @State private var negative = false
+    @State private var panelHeight: CGFloat = 360
 
     private var points: Int { Int(score) ?? 0 }
     private var signedPoints: String { score.isEmpty ? "—" : (points > 0 ? "+\(points)" : "\(points)") }
 
     var body: some View {
         ScrollView {
-            VStack(spacing: Theme.spacing) {
+            VStack(spacing: Theme.sm) {
                 Text(name).font(GroupTypography.body.weight(.semibold))
                 HStack(spacing: Theme.sm) {
                     scoreKey("−1") { step(-1) }
@@ -1140,7 +1146,7 @@ private struct BilliardsScorePanel: View {
                     signButton(false)
                     signButton(true)
                 }
-                Grid(horizontalSpacing: Theme.sm, verticalSpacing: Theme.sm) {
+                Grid(horizontalSpacing: Theme.sm, verticalSpacing: Theme.xs) {
                     ForEach(0..<3) { row in
                         GridRow {
                             ForEach(1...3, id: \.self) { column in
@@ -1157,8 +1163,15 @@ private struct BilliardsScorePanel: View {
                         scoreKey(billiardsText("confirm"), id: "done") { dismiss() }
                     }
                 }
-            }.padding(Theme.padding).frame(maxWidth: 480).frame(maxWidth: .infinity)
+            }
+            .padding(Theme.padding)
+            .frame(maxWidth: 480)
+            .frame(maxWidth: .infinity)
+            .onGeometryChange(for: CGFloat.self) { ceil($0.size.height) } action: { height in
+                panelHeight = height
+            }
         }
+        .presentationDetents([.height(panelHeight)])
         .presentationDragIndicator(.visible)
         .onAppear { negative = points < 0 }
         .accessibilityIdentifier("billiards_score_panel")
@@ -1181,8 +1194,9 @@ private struct BilliardsScorePanel: View {
                 .frame(maxWidth: .infinity, minHeight: 44)
                 .billiardsControl(active: negative == value)
         }.buttonStyle(.plain)
-            .accessibilityLabel(NSLocalizedString(value ? "billiards_group_score_panel_negative" : "billiards_group_score_panel_positive",
-                                                    value: value ? "Negative" : "Positive", comment: ""))
+            .accessibilityLabel(value
+                ? NSLocalizedString("billiards_group_score_panel_negative", value: "Negative", comment: "")
+                : NSLocalizedString("billiards_group_score_panel_positive", value: "Positive", comment: ""))
             .accessibilityAddTraits(negative == value ? .isSelected : [])
             .accessibilityIdentifier(value ? "billiards_score_negative" : "billiards_score_positive")
     }

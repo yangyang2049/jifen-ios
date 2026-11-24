@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "Slog";
 "style_background_color" = "Barva ozadja";
 "style_server_color" = "barva";
-"style_server_style" = "Style";
+"style_server_style" = "Slog";
 "style_text_color" = "Barva besedila";
 "style_server_indicator" = "Indikator servisa";
 "style_color_automatic" = "Samodejno";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "Levi in desni indikator imata eno barvo";
 "scoreboard_style_font_shared_hint" = "Vse besedilo uporablja izbrano pisavo";
 "scoreboard_style_theme_override_hint" = "Izbira teme preglasi trenutne barve; še vedno lahko prilagodite individualno";
-"scoreboard_style_font_size" = "Velikost pisave";
+"scoreboard_style_font_size" = "Velikost pisave (enaka na obeh straneh)";
 "scoreboard_style_font_size_device_max" = "Največja velikost v tej napravi";
 "scoreboard_style_small" = "Majhna";
 "scoreboard_style_large" = "Veliko";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Dotaknite se levo/desno območja rezultatov, da dodate 1 gol\n⬆️ Za dodajanje povlecite navzgor\n⬇️ Za odštevanje povlecite navzdol\n↩️ Za razveljavitev povlecite v levo\n☑️ Ko se tekma konča, uporabite Obračunaj ali Končaj";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Dotaknite se levo/desno območja rezultatov, da dodate 1 gol\n⬆️ Za dodajanje povlecite navzgor\n⬇️ Za odštevanje povlecite navzdol\n↩️ Za razveljavitev povlecite v levo\n👥 Imena 2V2 so nastavljena pred tekmo\n☑️ Ko se tekma konča, uporabite Obračunaj ali Končaj";
 "scoreboard_usage_hint_simple_score" = "👆 Tapnite levo/desno območje rezultatov, da dodate\n⬆️ Za dodajanje povlecite navzgor\n⬇️ Za odštevanje povlecite navzdol\n↩️ Za razveljavitev povlecite v levo\n✏️ Dolgo pritisnite ali uredite, da spremenite imena in rezultate";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Dotaknite se ploščice igralca, da dodate 1 točko\n⬆️ Povlecite navzgor, da dodate 1; ⬇️ povlecite navzdol, da odštejete 1\n↩️ Za razveljavitev povlecite v levo\n✏️ Dolgo pritisnite igralca, da uredite ime in rezultat\n🎛️ V načinu prilagajanja po meri se z dotikom igralca odpre plošča za prilagajanje";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Dotaknite se ploščice igralca, da dodate 1 točko\n⬆️ Povlecite navzgor, da dodate 1; ⬇️ povlecite navzdol, da odštejete 1\n↔️ Pri več kot 9 igralcih preklapljajte strani s potegom levo ali desno oziroma s pikami in puščicami spodaj\n↩️ Za razveljavitev dejanja ali iskanje igralca odprite meni\n✏️ Dolgo pritisnite igralca, da uredite ime in rezultat\n🎛️ V načinu prilagajanja po meri se z dotikom igralca odpre plošča za prilagajanje";
 "scoreboard_usage_hint_double_tap_point" = "👆 Dvakrat se dotaknite iste strani, da odštejete 1";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Dvakrat tapnite isto stran, da odštejete 1 igro";
 "scoreboard_usage_hint_double_tap_player" = "👆 Dvakrat tapnite istega igralca, da odštejete 1";
@@ -1173,7 +1173,7 @@
 "game_squash" = "Squash";
 "game_soft_tennis" = "Mehki tenis";
 "game_padel" = "Padel";
-"game_football_5v5" = "Nogomet 5x5";
+"game_football_5v5" = "Nogomet 5×5";
 "padel_deuce_mode" = "Pravilo pri izenačenju";
 "padel_advantage" = "Prednost";
 "padel_golden_point" = "Zlata točka";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Slog";
 "style_workbench_reset" = "Obnovi privzeti slog";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Ponastavi";
 "style_workbench_theme" = "Tema";
 "style_workbench_background" = "Ozadje";
 "style_workbench_font" = "Pisava";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "Uporabite ležečo sliko 16:9, npr. 1920×1080. Slike zapolnijo zaslon s sredinskim obrezovanjem.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Brezplačno";
+"scoreboard_theme_free_badge_desc" = "Brezplačno za omejen čas";
+"style_workbench_pick" = "Za urejanje tapnite besedilo ali ikono servisa";
+"style_workbench_photo_source_default" = "Privzeta fotografija";
+"style_workbench_photo_source_custom" = "Lastna fotografija";
+"style_workbench_photo_crop_notice" = "Slika se obreže okoli sredine, da zapolni zaslon";
+"billiards_group_switch_to_two" = "Preklopljeno na 2 igralca";
+"group_complete_confirm" = "Pred koncem dejavnosti preverite, ali so obravnavane vse tekme.";
+"billiards_group_score_panel_positive" = "Pozitivno";
+"billiards_group_score_panel_negative" = "Negativno";
+"group_error_applicant_inactive" = "Račun prosilca ni aktiven. Zahteve ni mogoče odobriti.";

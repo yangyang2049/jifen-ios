@@ -8,12 +8,14 @@ final class MultiScorePagingTests: XCTestCase {
     private let largePortrait = CGSize(width: 834, height: 1112)
     private let largeLandscape = CGSize(width: 1112, height: 834)
 
-    func testDuoPortraitSafeAreaDoesNotConsumeFirstRowScore() {
+    func testDuoPortraitSafeAreaDoesNotConsumeFirstRowScore() throws {
         let fullSize = CGSize(width: 669, height: 951)
         let geometry = MultiScoreGridGeometry(size: fullSize, topInset: 86)
         let layout = MultiScorePaging.layout(playerCount: 50, landscape: false,
                                             size: geometry.contentSize, anchorPlayer: 40)
-        XCTAssertEqual(layout.capacity, 16, "The notch must participate in the usable grid capacity")
+        XCTAssertEqual(layout.capacity, 9, "Portrait paging uses a fixed 3 × 3 grid")
+        let columnCount = try XCTUnwrap(layout.rows.first).count
+        XCTAssertEqual(columnCount, 3)
         let rowCount = layout.rows.count
         let firstHeight = geometry.rowHeight(at: 0, rowCount: rowCount)
         let otherHeight = geometry.rowHeight(at: 1, rowCount: rowCount)
@@ -25,7 +27,7 @@ final class MultiScorePagingTests: XCTestCase {
             let typography = ScoreboardTypographyResolver.resolve(.init(
                 profile: .multi,
                 containerSize: MultiScorePaging.scoreContentSize(
-                    CGSize(width: fullSize.width / 4, height: firstHeight - geometry.topInset), bottomInset: 62),
+                    CGSize(width: fullSize.width / CGFloat(columnCount), height: firstHeight - geometry.topInset), bottomInset: 62),
                 nameText: "Player 41", scoreText: score,
                 preference: .init(font: .default, scoreMultiplier: 1, nameMultiplier: 1, secondaryMultiplier: 1),
                 horizontalPadding: 12, reservedHeight: 36

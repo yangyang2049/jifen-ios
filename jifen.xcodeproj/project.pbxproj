@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		04B923BF21624627AB1BCC66 /* GroupRedesignUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1273C47DF445F6918C0C49 /* GroupRedesignUITests.swift */; };
 		09319D3A1866E048009AFE52 /* MultiScoreDisplayPagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DD8908E7A30CF3B9BF14AC /* MultiScoreDisplayPagingTests.swift */; };
+		0F42FD18EEB118C9F7272AB9 /* GroupBilliardsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF4CE2EEF5E63287FE52FB39 /* GroupBilliardsUITests.swift */; };
+		0FA5BAED2F18F44000182375 /* jifenWatch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 0FA5BAE32F18F43E00182375 /* jifenWatch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1C857D8A97FF7AD9E36B1DD6 /* MultiScoreSetupControlsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 718565C11C07A06DB996CEB5 /* MultiScoreSetupControlsTests.swift */; };
 		2DB38D61DF48EE1A17B38843 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C476D58990954AF104F51A /* Foundation.framework */; };
 		614D317A62708BF7CFA926F2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C476D58990954AF104F51A /* Foundation.framework */; };
@@ -17,6 +19,7 @@
 		AA1000000000000000000002 /* Support/LocalizationTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000001 /* Support/LocalizationTestSupport.swift */; };
 		AB1000000000000000000002 /* AccountPasswordLoginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1000000000000000000001 /* AccountPasswordLoginTests.swift */; };
 		B27931C15EF1056A3BF7C5E2 /* ScheduleModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D82E75ABD730744578E876 /* ScheduleModelTests.swift */; };
+		BA6DB744D2DFCEF8A6A01293 /* GroupBilliardsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7236088AD448F29B279FCF2D /* GroupBilliardsTests.swift */; };
 		BB8112B0BEAB4E949E9E82DB /* GroupPortParityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911E22E26F6E46118B7955CE /* GroupPortParityTests.swift */; };
 		BC2026102300000000000002 /* WechatBindingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2026102300000000000001 /* WechatBindingTests.swift */; };
 		BC2026102300000000000004 /* WechatBindingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2026102300000000000003 /* WechatBindingUITests.swift */; };
@@ -33,6 +36,11 @@
 		C10000000000000000000006 /* TimerCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000006 /* TimerCore */; };
 		C10000000000000000000007 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000007 /* FirebaseCore */; };
 		C10000000000000000000008 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000008 /* FirebaseAnalyticsCore */; };
+		C20000000000000000000001 /* ScoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000001 /* ScoreCore */; };
+		C20000000000000000000002 /* SessionCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000002 /* SessionCore */; };
+		C20000000000000000000003 /* RecordCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000003 /* RecordCore */; };
+		C20000000000000000000004 /* PersistenceCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000004 /* PersistenceCore */; };
+		C20000000000000000000005 /* LinkCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000005 /* LinkCore */; };
 		C23000000000000000000001 /* WechatOpenSDK in Frameworks */ = {isa = PBXBuildFile; productRef = A23000000000000000000001 /* WechatOpenSDK */; };
 		C748D22B660C17B977BC6AE9 /* BookingBasketballTimingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F8EC0DD915B1306E2528D /* BookingBasketballTimingTests.swift */; };
 		CCD15D3C49FDE98D34734F0E /* MultiScorePagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F1078853789E2731F9870B9 /* MultiScorePagingTests.swift */; };
@@ -80,11 +88,17 @@
 		FEE320261003000000000002 /* FeedbackLanguageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE320261003000000000001 /* FeedbackLanguageTests.swift */; };
 		FF1000000000000000000002 /* ResumeSessionLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */; };
 		FF2000000000000000000002 /* ActionForegroundTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000000000000000000001 /* ActionForegroundTests.swift */; };
-		BA6DB744D2DFCEF8A6A01293 /* GroupBilliardsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7236088AD448F29B279FCF2D /* GroupBilliardsTests.swift */; };
-		0F42FD18EEB118C9F7272AB9 /* GroupBilliardsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF4CE2EEF5E63287FE52FB39 /* GroupBilliardsUITests.swift */; };
+		PB1000000000000000000001 /* PhoneWatchLinkServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PB1000000000000000000002 /* PhoneWatchLinkServiceTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		0FA5BAEB2F18F44000182375 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0FA5BAC92F18F3EB00182375 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0FA5BAE22F18F43E00182375;
+			remoteInfo = "jifenWatch Watch App";
+		};
 		43607C4E36BA1140CEFAD7CE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0FA5BAC92F18F3EB00182375 /* Project object */;
@@ -99,11 +113,40 @@
 			remoteGlobalIDString = 0FA5BAD02F18F3EB00182375;
 			remoteInfo = jifen;
 		};
+		D20000000000000000000007 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0FA5BAC92F18F3EB00182375 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0FA5BAE22F18F43E00182375;
+			remoteInfo = "jifenWatch Watch App";
+		};
+		E90000000000000000000009 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0FA5BAC92F18F3EB00182375 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0FA5BAE22F18F43E00182375;
+			remoteInfo = "jifenWatch Watch App";
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0FA5BAF12F18F44000182375 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				0FA5BAED2F18F44000182375 /* jifenWatch Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		07D82E75ABD730744578E876 /* ScheduleModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScheduleModelTests.swift; sourceTree = "<group>"; };
 		0FA5BAD12F18F3EB00182375 /* jifen.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = jifen.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0FA5BAE32F18F43E00182375 /* jifenWatch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "jifenWatch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0FA5BAF02F18F50000182375 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		28F3A5C0DD0A45F09AFA5204 /* GroupPushAPNsProbeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPushAPNsProbeTests.swift; sourceTree = "<group>"; };
 		2D1273C47DF445F6918C0C49 /* GroupRedesignUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GroupRedesignUITests.swift; sourceTree = "<group>"; };
@@ -112,6 +155,7 @@
 		6698F86CD13F72512D8A63C9 /* jifenTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = jifenTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		68621CE31D5740DBAF6A4FDF /* GroupPreviewDecodingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GroupPreviewDecodingTests.swift; sourceTree = "<group>"; };
 		718565C11C07A06DB996CEB5 /* MultiScoreSetupControlsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiScoreSetupControlsTests.swift; sourceTree = "<group>"; };
+		7236088AD448F29B279FCF2D /* GroupBilliardsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBilliardsTests.swift; sourceTree = "<group>"; };
 		72FD1719554A44229EC4AEAA /* GroupContractTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GroupContractTests.swift; sourceTree = "<group>"; };
 		7F1078853789E2731F9870B9 /* MultiScorePagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiScorePagingTests.swift; sourceTree = "<group>"; };
 		911E22E26F6E46118B7955CE /* GroupPortParityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPortParityTests.swift; sourceTree = "<group>"; };
@@ -128,6 +172,7 @@
 		BC2026102500000000000005 /* PersonalRecordAccessPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalRecordAccessPolicyTests.swift; sourceTree = "<group>"; };
 		BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = jifenUITests.swift; sourceTree = "<group>"; };
 		C0D320261002000000000001 /* APIClientSessionIsolationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = APIClientSessionIsolationTests.swift; sourceTree = "<group>"; };
+		D20000000000000000000001 /* jifenWatch Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "jifenWatch Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D42000000000000000000001 /* LocalDataResetCoordinatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalDataResetCoordinatorTests.swift; sourceTree = "<group>"; };
 		D43000000000000000000001 /* OfflineReleaseBoundaryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OfflineReleaseBoundaryTests.swift; sourceTree = "<group>"; };
 		D44000000000000000000001 /* TimerAndToolOfflineTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TimerAndToolOfflineTests.swift; sourceTree = "<group>"; };
@@ -137,9 +182,11 @@
 		D670D0020000000000000001 /* DuoToolsWalkthroughUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuoToolsWalkthroughUITests.swift; sourceTree = "<group>"; };
 		D670D0030000000000000001 /* DuoTimerWalkthroughUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuoTimerWalkthroughUITests.swift; sourceTree = "<group>"; };
 		D8B51BCB1FC8EEE1F9DFA4A8 /* jifenUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = jifenUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF4CE2EEF5E63287FE52FB39 /* GroupBilliardsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBilliardsUITests.swift; sourceTree = "<group>"; };
 		E10000000000000000000001 /* RallySessionStoreTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RallySessionStoreTests.swift; sourceTree = "<group>"; };
 		E10000000000000000000003 /* BoardTimerConfigTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BoardTimerConfigTests.swift; sourceTree = "<group>"; };
 		E20000000000000000000001 /* RecordRecapUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecordRecapUITests.swift; sourceTree = "<group>"; };
+		E90000000000000000000001 /* jifenWatch Watch AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "jifenWatch Watch AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F10000000000000000000001 /* FullAppScreenshotUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FullAppScreenshotUITests.swift; sourceTree = "<group>"; };
 		F10000000000000000000003 /* UITestScreenshotStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UITestScreenshotStore.swift; sourceTree = "<group>"; };
 		F10000000000000000000005 /* SupplementalScreenshotUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SupplementalScreenshotUITests.swift; sourceTree = "<group>"; };
@@ -169,14 +216,41 @@
 		FEE320261003000000000001 /* FeedbackLanguageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackLanguageTests.swift; sourceTree = "<group>"; };
 		FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ResumeSessionLifecycleTests.swift; sourceTree = "<group>"; };
 		FF2000000000000000000001 /* ActionForegroundTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ActionForegroundTests.swift; sourceTree = "<group>"; };
-		7236088AD448F29B279FCF2D /* GroupBilliardsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBilliardsTests.swift; sourceTree = "<group>"; };
-		DF4CE2EEF5E63287FE52FB39 /* GroupBilliardsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBilliardsUITests.swift; sourceTree = "<group>"; };
+		PB1000000000000000000002 /* PhoneWatchLinkServiceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhoneWatchLinkServiceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D30000000000000000000001 /* Exceptions for "jifenWatch Watch App" folder in "jifenWatch Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 0FA5BAE22F18F43E00182375 /* jifenWatch Watch App */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0FA5BAD32F18F3EB00182375 /* jifen */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = jifen;
+			sourceTree = "<group>";
+		};
+		0FA5BAE42F18F43E00182375 /* jifenWatch Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D30000000000000000000001 /* Exceptions for "jifenWatch Watch App" folder in "jifenWatch Watch App" target */,
+			);
+			path = "jifenWatch Watch App";
+			sourceTree = "<group>";
+		};
+		D20000000000000000000002 /* jifenWatch Watch AppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "jifenWatch Watch AppTests";
+			sourceTree = "<group>";
+		};
+		E90000000000000000000002 /* jifenWatch Watch AppUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "jifenWatch Watch AppUITests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -198,11 +272,37 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0FA5BAE02F18F43E00182375 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C20000000000000000000001 /* ScoreCore in Frameworks */,
+				C20000000000000000000002 /* SessionCore in Frameworks */,
+				C20000000000000000000003 /* RecordCore in Frameworks */,
+				C20000000000000000000004 /* PersistenceCore in Frameworks */,
+				C20000000000000000000005 /* LinkCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3F21E360EFF91A6D01ECFB3F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				614D317A62708BF7CFA926F2 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D20000000000000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E90000000000000000000006 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -222,9 +322,12 @@
 			children = (
 				0FA5BAF02F18F50000182375 /* Info.plist */,
 				0FA5BAD32F18F3EB00182375 /* jifen */,
+				0FA5BAE42F18F43E00182375 /* jifenWatch Watch App */,
 				0FA5BAD22F18F3EB00182375 /* Products */,
 				8C76EE3CB0FD1BF87723242C /* Frameworks */,
 				4BEAA1146F45CAF74810C41D /* jifenTests */,
+				D20000000000000000000002 /* jifenWatch Watch AppTests */,
+				E90000000000000000000002 /* jifenWatch Watch AppUITests */,
 				CB5A5C00CFDC9B30D0B4EDFC /* jifenUITests */,
 			);
 			sourceTree = "<group>";
@@ -233,7 +336,10 @@
 			isa = PBXGroup;
 			children = (
 				0FA5BAD12F18F3EB00182375 /* jifen.app */,
+				0FA5BAE32F18F43E00182375 /* jifenWatch Watch App.app */,
 				6698F86CD13F72512D8A63C9 /* jifenTests.xctest */,
+				D20000000000000000000001 /* jifenWatch Watch AppTests.xctest */,
+				E90000000000000000000001 /* jifenWatch Watch AppUITests.xctest */,
 				D8B51BCB1FC8EEE1F9DFA4A8 /* jifenUITests.xctest */,
 			);
 			name = Products;
@@ -255,6 +361,7 @@
 				911E22E26F6E46118B7955CE /* GroupPortParityTests.swift */,
 				AB1000000000000000000001 /* AccountPasswordLoginTests.swift */,
 				D42000000000000000000001 /* LocalDataResetCoordinatorTests.swift */,
+				PB1000000000000000000002 /* PhoneWatchLinkServiceTests.swift */,
 				D43000000000000000000001 /* OfflineReleaseBoundaryTests.swift */,
 				D44000000000000000000001 /* TimerAndToolOfflineTests.swift */,
 				07D82E75ABD730744578E876 /* ScheduleModelTests.swift */,
@@ -344,10 +451,12 @@
 				0FA5BACE2F18F3EB00182375 /* Frameworks */,
 				0FA5BACF2F18F3EB00182375 /* Resources */,
 				BC2026102500000000000079 /* Normalize WeChat Framework Metadata */,
+				0FA5BAF12F18F44000182375 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				0FA5BAEC2F18F44000182375 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				0FA5BAD32F18F3EB00182375 /* jifen */,
@@ -366,6 +475,33 @@
 			);
 			productName = jifen;
 			productReference = 0FA5BAD12F18F3EB00182375 /* jifen.app */;
+			productType = "com.apple.product-type.application";
+		};
+		0FA5BAE22F18F43E00182375 /* jifenWatch Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0FA5BAEE2F18F44000182375 /* Build configuration list for PBXNativeTarget "jifenWatch Watch App" */;
+			buildPhases = (
+				0FA5BADF2F18F43E00182375 /* Sources */,
+				0FA5BAE02F18F43E00182375 /* Frameworks */,
+				0FA5BAE12F18F43E00182375 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				0FA5BAE42F18F43E00182375 /* jifenWatch Watch App */,
+			);
+			name = "jifenWatch Watch App";
+			packageProductDependencies = (
+				B10000000000000000000001 /* ScoreCore */,
+				B10000000000000000000002 /* SessionCore */,
+				B10000000000000000000003 /* RecordCore */,
+				B10000000000000000000004 /* PersistenceCore */,
+				B10000000000000000000005 /* LinkCore */,
+			);
+			productName = "jifenWatch Watch App";
+			productReference = 0FA5BAE32F18F43E00182375 /* jifenWatch Watch App.app */;
 			productType = "com.apple.product-type.application";
 		};
 		2359CCD2086CD5E81A2F31FA /* jifenUITests */ = {
@@ -404,6 +540,48 @@
 			productReference = 6698F86CD13F72512D8A63C9 /* jifenTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		D20000000000000000000006 /* jifenWatch Watch AppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D2000000000000000000000B /* Build configuration list for PBXNativeTarget "jifenWatch Watch AppTests" */;
+			buildPhases = (
+				D20000000000000000000005 /* Sources */,
+				D20000000000000000000003 /* Frameworks */,
+				D20000000000000000000004 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D20000000000000000000008 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				D20000000000000000000002 /* jifenWatch Watch AppTests */,
+			);
+			name = "jifenWatch Watch AppTests";
+			productName = "jifenWatch Watch AppTests";
+			productReference = D20000000000000000000001 /* jifenWatch Watch AppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		E90000000000000000000003 /* jifenWatch Watch AppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E90000000000000000000004 /* Build configuration list for PBXNativeTarget "jifenWatch Watch AppUITests" */;
+			buildPhases = (
+				E90000000000000000000005 /* Sources */,
+				E90000000000000000000006 /* Frameworks */,
+				E90000000000000000000007 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E90000000000000000000008 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				E90000000000000000000002 /* jifenWatch Watch AppUITests */,
+			);
+			name = "jifenWatch Watch AppUITests";
+			productName = "jifenWatch Watch AppUITests";
+			productReference = E90000000000000000000001 /* jifenWatch Watch AppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -417,6 +595,9 @@
 					0FA5BAD02F18F3EB00182375 = {
 						CreatedOnToolsVersion = 26.2;
 					};
+					0FA5BAE22F18F43E00182375 = {
+						CreatedOnToolsVersion = 26.2;
+					};
 					2359CCD2086CD5E81A2F31FA = {
 						CreatedOnToolsVersion = 26.2;
 						TestTargetID = 0FA5BAD02F18F3EB00182375;
@@ -424,6 +605,14 @@
 					BAD76ABED0DB2CDE0A4515E2 = {
 						CreatedOnToolsVersion = 26.2;
 						TestTargetID = 0FA5BAD02F18F3EB00182375;
+					};
+					D20000000000000000000006 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 0FA5BAE22F18F43E00182375;
+					};
+					E90000000000000000000003 = {
+						CreatedOnToolsVersion = 27.2;
+						TestTargetID = 0FA5BAE22F18F43E00182375;
 					};
 				};
 			};
@@ -493,7 +682,10 @@
 			projectRoot = "";
 			targets = (
 				0FA5BAD02F18F3EB00182375 /* jifen */,
+				0FA5BAE22F18F43E00182375 /* jifenWatch Watch App */,
 				BAD76ABED0DB2CDE0A4515E2 /* jifenTests */,
+				D20000000000000000000006 /* jifenWatch Watch AppTests */,
+				E90000000000000000000003 /* jifenWatch Watch AppUITests */,
 				2359CCD2086CD5E81A2F31FA /* jifenUITests */,
 			);
 		};
@@ -501,6 +693,13 @@
 
 /* Begin PBXResourcesBuildPhase section */
 		0FA5BACF2F18F3EB00182375 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0FA5BAE12F18F43E00182375 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -515,6 +714,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D081E4FFA434AD3CBEFBDE4B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D20000000000000000000004 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E90000000000000000000007 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -576,6 +789,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0FA5BADF2F18F43E00182375 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BEB3E77A0BD305D2C5C1DF02 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -593,6 +813,7 @@
 				BB8112B0BEAB4E949E9E82DB /* GroupPortParityTests.swift in Sources */,
 				AB1000000000000000000002 /* AccountPasswordLoginTests.swift in Sources */,
 				D42000000000000000000002 /* LocalDataResetCoordinatorTests.swift in Sources */,
+				PB1000000000000000000001 /* PhoneWatchLinkServiceTests.swift in Sources */,
 				D43000000000000000000002 /* OfflineReleaseBoundaryTests.swift in Sources */,
 				D44000000000000000000002 /* TimerAndToolOfflineTests.swift in Sources */,
 				B27931C15EF1056A3BF7C5E2 /* ScheduleModelTests.swift in Sources */,
@@ -629,9 +850,28 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D20000000000000000000005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E90000000000000000000005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		0FA5BAEC2F18F44000182375 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0FA5BAE22F18F43E00182375 /* jifenWatch Watch App */;
+			targetProxy = 0FA5BAEB2F18F44000182375 /* PBXContainerItemProxy */;
+		};
 		2818B9F1E71B27CB0CFA528A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = jifen;
@@ -643,6 +883,17 @@
 			name = jifen;
 			target = 0FA5BAD02F18F3EB00182375 /* jifen */;
 			targetProxy = 43607C4E36BA1140CEFAD7CE /* PBXContainerItemProxy */;
+		};
+		D20000000000000000000008 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "jifenWatch Watch App";
+			target = 0FA5BAE22F18F43E00182375 /* jifenWatch Watch App */;
+			targetProxy = D20000000000000000000007 /* PBXContainerItemProxy */;
+		};
+		E90000000000000000000008 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0FA5BAE22F18F43E00182375 /* jifenWatch Watch App */;
+			targetProxy = E90000000000000000000009 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -802,7 +1053,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = jifen/Config/JifenDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 86;
+				CURRENT_PROJECT_VERSION = 89;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_APP_SANDBOX = YES;
@@ -830,7 +1081,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
-				MARKETING_VERSION = 3.4.3;
+				MARKETING_VERSION = 3.4.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -860,7 +1111,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = jifen/Config/JifenAppStore.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 86;
+				CURRENT_PROJECT_VERSION = 89;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_APP_SANDBOX = YES;
@@ -888,7 +1139,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
-				MARKETING_VERSION = 3.4.3;
+				MARKETING_VERSION = 3.4.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -908,6 +1159,75 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Release;
+		};
+		0FA5BAEF2F18F44000182375 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 89;
+				DEVELOPMENT_TEAM = X9VDZZL3C3;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "jifenWatch Watch App/Info.plist";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.douhua.jifen.ios;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 3.4.4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.douhua.jifen.ios.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_WATCHOS_DEPLOYMENT_TARGET)";
+			};
+			name = Debug;
+		};
+		0FA5BAF02F18F44000182375 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 89;
+				DEVELOPMENT_TEAM = X9VDZZL3C3;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "jifenWatch Watch App/Info.plist";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.douhua.jifen.ios;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 3.4.4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.douhua.jifen.ios.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_WATCHOS_DEPLOYMENT_TARGET)";
 			};
 			name = Release;
 		};
@@ -983,6 +1303,108 @@
 			};
 			name = Release;
 		};
+		D20000000000000000000009 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = X9VDZZL3C3;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.douhua.jifen.ios.watchkitapp.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/jifenWatch Watch App.app/jifenWatch Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 11.6;
+			};
+			name = Debug;
+		};
+		D2000000000000000000000A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = X9VDZZL3C3;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.douhua.jifen.ios.watchkitapp.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/jifenWatch Watch App.app/jifenWatch Watch App";
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 11.6;
+			};
+			name = Release;
+		};
+		E9000000000000000000000A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = X9VDZZL3C3;
+				ENABLE_TESTING_SEARCH_PATHS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.douhua.jifen.ios.watchkitapp.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "jifenWatch Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 11.6;
+			};
+			name = Debug;
+		};
+		E9000000000000000000000B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = X9VDZZL3C3;
+				ENABLE_TESTING_SEARCH_PATHS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.douhua.jifen.ios.watchkitapp.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "jifenWatch Watch App";
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 11.6;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1004,11 +1426,38 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		0FA5BAEE2F18F44000182375 /* Build configuration list for PBXNativeTarget "jifenWatch Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0FA5BAEF2F18F44000182375 /* Debug */,
+				0FA5BAF02F18F44000182375 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		4BF094371EAAEB82F3DED2C8 /* Build configuration list for PBXNativeTarget "jifenUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				060D44424D5D2C882224703D /* Release */,
 				AA7343AB94A683BC48372064 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D2000000000000000000000B /* Build configuration list for PBXNativeTarget "jifenWatch Watch AppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D20000000000000000000009 /* Debug */,
+				D2000000000000000000000A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E90000000000000000000004 /* Build configuration list for PBXNativeTarget "jifenWatch Watch AppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E9000000000000000000000A /* Debug */,
+				E9000000000000000000000B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1095,6 +1544,31 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D23000000000000000000001 /* XCRemoteSwiftPackageReference "WechatOpenSDK" */;
 			productName = WechatOpenSDK;
+		};
+		B10000000000000000000001 /* ScoreCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
+			productName = ScoreCore;
+		};
+		B10000000000000000000002 /* SessionCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
+			productName = SessionCore;
+		};
+		B10000000000000000000003 /* RecordCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
+			productName = RecordCore;
+		};
+		B10000000000000000000004 /* PersistenceCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
+			productName = PersistenceCore;
+		};
+		B10000000000000000000005 /* LinkCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
+			productName = LinkCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

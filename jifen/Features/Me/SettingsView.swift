@@ -8,6 +8,8 @@ private enum AppSupportURLs {
     static let appStore = URL(string: "https://apps.apple.com/us/app/iscoreboard-score-and-timer/id6759768784")!
     static let support = URL(string: "https://jifenqi.com/contact")!
     static let wechatGroup = URL(string: "https://jifenqi.com/contact?utm_source=jifenqi_app&utm_medium=app_link&utm_campaign=official_wechat_group&utm_content=about_page")!
+    /// 关于页的反馈入口（对齐鸿蒙 AboutUsPage 的 WEB_FEEDBACK_URL）。
+    static let feedback = URL(string: "https://jifenqi.com/feedback")!
     static let qqGroupNumber = "825096333"
 
     private static var usesEnglish: Bool {
@@ -63,6 +65,7 @@ struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     @Environment(AppAppearanceStore.self) private var appearance
     @Environment(SessionStore.self) private var session
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService
     var isTabRoot: Bool = false
     @State private var showClearConfirm = false
     @State private var showAppShareSheet = false
@@ -86,6 +89,7 @@ struct SettingsView: View {
                             feedbackCard
                         }
                         preferencesCard
+                        watchLinkCard
                         supportCard
                     }
                     .frame(maxWidth: Theme.meTabContentMaxWidth)
@@ -317,6 +321,21 @@ struct SettingsView: View {
         }
     }
 
+    /// 手表联动独立成卡（对齐鸿蒙 `MeTab.ets`「手表联动（独立成组，放在「功能设置」下方）」）。
+    /// 与其它一级卡一致：不设组标题，仅一张卡片 + 单行入口。
+    @ViewBuilder
+    private var watchLinkCard: some View {
+        if AppFeatureFlags.watchLinkEntryEnabled
+            && AppFeatureFlags.isWatchLinkSupportedOnCurrentDevice {
+            SettingsSection {
+                NavigationLink { WatchLinkSettingsView() } label: {
+                    SettingsNavigationRow(title: NSLocalizedString("watch_link_title", value: "手表联动", comment: ""))
+                }
+                .accessibilityIdentifier("settings_watch_link_entry")
+            }
+        }
+    }
+
     private var supportCard: some View {
         SettingsSection {
             VStack(spacing: 0) {
@@ -383,6 +402,7 @@ struct SettingsView: View {
         isClearingData = true
         Task {
             let result = await LocalDataResetCoordinator.live(
+                watchLinkService: watchLinkService,
                 appearance: appearance
             ).clearAll()
             ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
@@ -694,12 +714,6 @@ private struct ScoreboardSettingsView: View {
                         )
                         Divider().overlay(Theme.divider)
                         ScoreboardToggleSettingRow(
-                            title: NSLocalizedString("vibration", value: "振动", comment: ""),
-                            isOn: $vibrationEnabled,
-                            toggleAccessibilityIdentifier: "scoreboard_vibration_toggle"
-                        )
-                        Divider().overlay(Theme.divider)
-                        ScoreboardToggleSettingRow(
                             title: NSLocalizedString("scoreboard_touch_guard", value: "触摸防误触", comment: ""),
                             isOn: $touchGuard,
                             toggleAccessibilityIdentifier: "scoreboard_touch_guard_toggle",
@@ -711,6 +725,14 @@ private struct ScoreboardSettingsView: View {
                             isOn: $doubleTapSubtract,
                             toggleAccessibilityIdentifier: "scoreboard_double_tap_subtract_toggle",
                             help: .doubleTapSubtract
+                        )
+                        // 振动固定在末位，与鸿蒙 ScoreboardSettingsPage 顺序一致
+                        // （强制横屏 → 常亮 → [沉浸] → 防误触 → 双击减分 → 振动）。
+                        Divider().overlay(Theme.divider)
+                        ScoreboardToggleSettingRow(
+                            title: NSLocalizedString("vibration", value: "振动", comment: ""),
+                            isOn: $vibrationEnabled,
+                            toggleAccessibilityIdentifier: "scoreboard_vibration_toggle"
                         )
                     }
                 }
@@ -940,7 +962,9 @@ private struct FAQView: View {
     @State private var expandedID: Int?
 
     private var items: [FAQItem] {
-        [1, 2, 3, 5, 6, 7, 8].map { index in
+        // 与鸿蒙 FaqPage 对齐：q1–q8 + q10（备份迁移）+ q11（隐私），q9 已移除。
+        // 这三条文案此前已在各语言中存在，只是没被渲染。
+        [1, 2, 3, 4, 5, 6, 7, 8, 10, 11].map { index in
             FAQItem(
                 id: index,
                 question: NSLocalizedString("faq_question_\(index)", value: "", comment: ""),
@@ -1032,6 +1056,14 @@ private struct AboutUsView: View {
                             url: LegalDocuments.privacyURL,
                             accessibilityIdentifier: "settings_about_privacy_link",
                             tracksLegalAnalytics: true
+                        )
+                        // 对齐鸿蒙 AboutUsPage：关于页直接给反馈入口。
+                        SettingsRowDivider()
+                        webLinkRow(
+                            title: NSLocalizedString("me_feedback_entry", value: "反馈社区", comment: ""),
+                            url: AppSupportURLs.feedback,
+                            accessibilityIdentifier: "settings_about_feedback_link",
+                            tracksLegalAnalytics: false
                         )
                         if isChineseLocale {
                             SettingsRowDivider()

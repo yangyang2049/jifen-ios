@@ -191,7 +191,10 @@ class LineScoreViewModel: BaseScoreViewModel {
         if stateHistory.count > 50 { stateHistory.removeFirst() }
         controller?.pushHistory(left: before.leftScore, right: before.rightScore)
         apply(result.state)
-        recordSnapshot(code: operationCode(for: intent))
+        recordSnapshot(
+            code: operationCode(for: intent),
+            annotation: snapshotAnnotation(for: intent)
+        )
         persistenceRevision &+= 1
         controller?.performVibration(type: .light)
     }
@@ -211,10 +214,18 @@ class LineScoreViewModel: BaseScoreViewModel {
         }
     }
 
-    private func recordSnapshot(code: String) {
-        controller?.recordScoreAction(
-            action: "snapshot|\(code)|\(leftTeam.score),\(rightTeam.score)"
-        )
+    /// Optional extra segment appended after the set scores, e.g. the football
+    /// match-clock snapshot. Subclasses override to enrich their action log.
+    func snapshotAnnotation(for intent: LineScoreIntent) -> String? { nil }
+
+    private func recordSnapshot(code: String, annotation: String? = nil) {
+        var action = "snapshot|\(code)|\(leftTeam.score),\(rightTeam.score)"
+        if let annotation {
+            // Keep the set-score segment present so the parser reads the
+            // annotation from the sixth field.
+            action += "||\(annotation)"
+        }
+        controller?.recordScoreAction(action: action)
     }
 
     private var state: LineScoreState {

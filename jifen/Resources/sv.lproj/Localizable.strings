@@ -190,7 +190,7 @@
 "doudizhu_player_chris" = "Chris";
 "doudizhu_player_david" = "David";
 "shengji_claim_dealer" = "Bjud som dealer";
-"shengji_pass_a" = "Pass A";
+"shengji_pass_a" = "Klara A";
 "guandan_edit_level_wrap_confirm_title" = "Återställ rang till 2?";
 "guandan_edit_level_wrap_confirm_message" = "Om du ökar igen återställs lagets rangordning till 2.";
 "shengji_take_dealer" = "Ta dealern";
@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "Stil";
 "style_background_color" = "Bakgrundsfärg";
 "style_server_color" = "färg";
-"style_server_style" = "Style";
+"style_server_style" = "Stil";
 "style_text_color" = "Textfärg";
 "style_server_indicator" = "Serveringsindikator";
 "style_color_automatic" = "Auto";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "Vänster och höger indikatorer delar en färg";
 "scoreboard_style_font_shared_hint" = "All text använder det valda teckensnittet";
 "scoreboard_style_theme_override_hint" = "Väljer du ett tema ersätts nuvarande färger; du kan fortfarande justera varje färg efteråt.";
-"scoreboard_style_font_size" = "Teckenstorlek";
+"scoreboard_style_font_size" = "Teckenstorlek (samma på båda sidor)";
 "scoreboard_style_font_size_device_max" = "Maximal storlek på den här enheten";
 "scoreboard_style_small" = "Liten";
 "scoreboard_style_large" = "Stor";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Tryck på vänster/höger poängyta för att lägga till 1 mål\n⬆️ Svep uppåt för att lägga till\n⬇️ Svep nedåt för att dra av\n↩️ Svep åt vänster för att ångra\n☑️ Använd Avgör eller Avsluta när matchen är slut";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Tryck på vänster/höger poängyta för att lägga till 1 mål\n⬆️ Svep uppåt för att lägga till\n⬇️ Svep nedåt för att dra av\n↩️ Svep åt vänster för att ångra\n👥 2V2-namn anges före matchen\n☑️ Använd Avgör eller Avsluta när matchen är slut";
 "scoreboard_usage_hint_simple_score" = "👆 Tryck på vänster/höger poängyta för att lägga till\n⬆️ Svep uppåt för att lägga till\n⬇️ Svep nedåt för att dra av\n↩️ Svep åt vänster för att ångra\n✏️ Tryck länge eller redigera för att ändra namn och poäng";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Tryck på en spelarruta för att lägga till 1 poäng\n⬆️ Svep uppåt för att lägga till 1; ⬇️ svep nedåt för att dra av 1\n↩️ Svep åt vänster för att ångra\n✏️ Tryck länge på en spelare för att redigera namn och poäng\n🎛️ I anpassat justeringsläge öppnas justeringspanelen när du trycker på en spelare";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Tryck på en spelarruta för att lägga till 1 poäng\n⬆️ Svep uppåt för att lägga till 1; ⬇️ svep nedåt för att dra av 1\n↔️ Med fler än 9 spelare kan du bläddra åt vänster eller höger eller använda prickarna och pilarna nedan\n↩️ Öppna menyn för att ångra en åtgärd eller hitta en spelare\n✏️ Tryck länge på en spelare för att redigera namn och poäng\n🎛️ I anpassat justeringsläge öppnas justeringspanelen när du trycker på en spelare";
 "scoreboard_usage_hint_double_tap_point" = "👆 Dubbeltryck på samma sida för att dra av 1";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Dubbeltryck på samma sida för att dra av ett rack";
 "scoreboard_usage_hint_double_tap_player" = "👆 Dubbeltryck på samma spelare för att dra av 1";
@@ -1173,7 +1173,7 @@
 "game_squash" = "Squash";
 "game_soft_tennis" = "Mjuk tennis";
 "game_padel" = "Padel";
-"game_football_5v5" = "5x5 fotboll";
+"game_football_5v5" = "5×5 fotboll";
 "padel_deuce_mode" = "Deuce-regel";
 "padel_advantage" = "Fördel";
 "padel_golden_point" = "Gyllene punkt";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Stil";
 "style_workbench_reset" = "Återställ standardstilen";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Återställ";
 "style_workbench_theme" = "Tema";
 "style_workbench_background" = "Bakgrund";
 "style_workbench_font" = "Teckensnitt";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "Använd en 16:9-bild i liggande format, t.ex. 1920×1080. Bilder fyller skärmen med en centrerad beskärning.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Gratis";
+"scoreboard_theme_free_badge_desc" = "Gratis under en begränsad tid";
+"style_workbench_pick" = "Tryck på texten eller serveikonen för att redigera";
+"style_workbench_photo_source_default" = "Standardfoto";
+"style_workbench_photo_source_custom" = "Eget foto";
+"style_workbench_photo_crop_notice" = "Bilden beskärs runt mitten för att fylla skärmen";
+"billiards_group_switch_to_two" = "Bytte till 2 spelare";
+"group_complete_confirm" = "Kontrollera att alla matcher har hanterats innan du avslutar aktiviteten.";
+"billiards_group_score_panel_positive" = "Positiv";
+"billiards_group_score_panel_negative" = "Negativ";
+"group_error_applicant_inactive" = "Den sökandes konto är inaktivt. Begäran kan inte godkännas.";

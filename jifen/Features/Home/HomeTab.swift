@@ -157,7 +157,10 @@ struct HomeTab: View {
     @State private var pendingGroupNumber: String?
     @State private var groupReminders = GroupActivityReminder.shared
     @State private var groupPush = GroupPushManager.shared
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService
     @State private var upcomingBookings: [LocalBooking] = []
+    /// 首页球局卡「一键开赛」防重复点击（对齐鸿蒙 ScheduleEntrySection 的 Block 命中）。
+    @State private var startingBookingID: String?
     @State private var unfinishedRecord: UnfinishedGameSummary?
     @State private var showNewGameDialog = false
     @State private var showNationalDayCampaign = false
@@ -215,6 +218,8 @@ struct HomeTab: View {
         case toolsList
         case schedule
         case groups
+        case groupCreate
+        case groupJoin
         case groupDetail(groupID: String)
         case groupNotices
         case commonNames
@@ -365,6 +370,26 @@ struct HomeTab: View {
                 case .toolsList:
                     ToolsListPageView(onToolTap: { path.append($0) })
                         .toolbar(.hidden, for: .tabBar)
+                case .groupCreate:
+                    GroupCreateView(onStart: { type, setup, sessionID in
+                        path.append(NavigationDestination.scoreboard(.init(
+                            gameType: type,
+                            recordId: sessionID,
+                            setupResult: setup,
+                            analyticsEntryPoint: .bookingDetail
+                        )))
+                    }, usesParentNavigation: true)
+                    .toolbar(.hidden, for: .tabBar)
+                case .groupJoin:
+                    GroupJoinView(onStart: { type, setup, sessionID in
+                        path.append(NavigationDestination.scoreboard(.init(
+                            gameType: type,
+                            recordId: sessionID,
+                            setupResult: setup,
+                            analyticsEntryPoint: .bookingDetail
+                        )))
+                    }, usesParentNavigation: true)
+                    .toolbar(.hidden, for: .tabBar)
                 case .groups:
                     #if DEBUG
                     if GroupCaptureFixture.enabled {
@@ -602,7 +627,9 @@ struct HomeTab: View {
             // durable so the resume bar cannot miss the new session.
             loadUnfinishedRecord()
         }
-
+        .onChange(of: watchLinkService.resumeStateToken) { _, _ in
+            loadUnfinishedRecord()
+        }
         .onChange(of: unfinishedRecord?.recordIdentifier) { _, _ in
             resetDiscardConfirmation()
         }
@@ -764,6 +791,15 @@ struct HomeTab: View {
         resumeLoadGeneration = generation
         let libraryId = recordIdentity.state.activeLibraryId
 
+        if let linked = watchLinkService.linkedResumeDescriptor {
+            // When a linked descriptor exists we must resolve it here and return.
+            // It also invalidates any older local scan so that scan can never
+            // clear a newer Watch result after one of its awaits returns.
+            resumeLoadTask = nil
+            unfinishedRecord = UnfinishedGameSummary(linked: linked)
+            resumeLoadErrorMessage = nil
+            return
+        }
 
         resumeLoadTask = Task { @MainActor in
             defer {
@@ -854,7 +890,11 @@ struct HomeTab: View {
                 }
 
                 guard resumeLoadGeneration == generation, !Task.isCancelled else { return }
-
+                if let linked = watchLinkService.linkedResumeDescriptor {
+                    unfinishedRecord = UnfinishedGameSummary(linked: linked)
+                    resumeLoadErrorMessage = nil
+                    return
+                }
 
                 unfinishedRecord = outcome.candidate
                 resumeLoadErrorMessage = outcome.candidate == nil && outcome.hasUnreadableEntry
@@ -866,7 +906,11 @@ struct HomeTab: View {
                     : nil
             } catch {
                 guard resumeLoadGeneration == generation, !Task.isCancelled else { return }
-
+                if let linked = watchLinkService.linkedResumeDescriptor {
+                    unfinishedRecord = UnfinishedGameSummary(linked: linked)
+                    resumeLoadErrorMessage = nil
+                    return
+                }
                 unfinishedRecord = nil
                 resumeLoadErrorMessage = String(
                     format: NSLocalizedString(
@@ -884,6 +928,9 @@ struct HomeTab: View {
         switch summary.source {
         case .resume(let sessionId):
             return PersonalRecordAccessPolicy.allowsNativeRecord(PersonalRecordAccessPolicy.resumeRecordKey(sessionId))
+        case .linked:
+            // 手表联动描述符来自本机当前会话，可直接续赛。
+            return true
         }
     }
 
@@ -898,6 +945,10 @@ struct HomeTab: View {
             recordId = unfinishedRecord.recordIdentifier
             setupResult = nil
             automaticallyShowsUsageHint = true
+        case .linked:
+            recordId = nil
+            setupResult = unfinishedRecord.linkedSetupResult
+            automaticallyShowsUsageHint = false
         }
         path.append(
             NavigationDestination.scoreboard(
@@ -977,6 +1028,14 @@ struct HomeTab: View {
                     )
                 }
             }
+        case .linked(let sessionId):
+            watchLinkService.leaveSession(sessionId)
+            AppAnalytics.track(.scoreboardMenuAction, parameters: [
+                .gameType: .string(unfinishedRecord.gameType.analyticsIdentifier),
+                .actionName: .string("discard_unfinished"),
+                .result: .string(AnalyticsResult.success.rawValue)
+            ])
+            loadUnfinishedRecord()
         }
     }
 
@@ -1211,7 +1270,7 @@ struct HomeTab: View {
                 }
                 VStack(spacing: 12) {
                     if visibleGroups.isEmpty {
-                        homeGroupCard(nil)
+                        homeGroupEmptyCard()
                     } else {
                         ForEach(visibleGroups) { group in
                             homeGroupCard(group)
@@ -1220,6 +1279,57 @@ struct HomeTab: View {
                 }
             }
         }
+    }
+
+    /// 空态卡：直接给「创建」「加入」两个入口，少一层跳转（对齐鸿蒙 HomeGroupSection.emptyState）。
+    @ViewBuilder
+    private func homeGroupEmptyCard() -> some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 12) {
+                Image(systemName: "person.3").foregroundStyle(Theme.primary)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(groupText("list_add_title", "Create or join a group"))
+                        .font(.subheadline.weight(.medium))
+                    Text(groupText("join_hint", "Join with a group number or QR code."))
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+            }
+
+            HStack(spacing: 10) {
+                Button {
+                    path.append(NavigationDestination.groupCreate)
+                } label: {
+                    Text(groupText("create", "Create"))
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(Theme.textOnPrimary)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 40)
+                        .background(Theme.primary)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("home_group_create")
+
+                Button {
+                    path.append(NavigationDestination.groupJoin)
+                } label: {
+                    Text(groupText("join", "Join"))
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(Theme.textPrimary)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 40)
+                        .background(Theme.controlBackground)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("home_group_join")
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 16))
+        .accessibilityIdentifier("home_group_empty")
     }
 
     private func homeGroupCard(_ group: ScoreGroup?) -> some View {
@@ -1402,39 +1512,44 @@ struct HomeTab: View {
                 .clipShape(RoundedRectangle(cornerRadius: 20))
             } else {
                 ForEach(upcomingBookings) { booking in
-                    Button {
+                    // 行内可能嵌套「一键开赛」按钮，因此整行用 onTapGesture 而不是 Button，
+                    // 否则嵌套 Button 的命中会被外层吞掉（对齐鸿蒙 onClick + Block 命中）。
+                    HStack(spacing: 12) {
+                        AppCatalogIcon(bookingSport: booking.sportType, size: 28)
+                            .frame(width: 42, height: 42)
+
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(booking.sportType.displayName)
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(Theme.homeNeutralCardTextPrimary)
+                                .lineLimit(1)
+                            Text(scheduleMetaText(for: booking))
+                                .font(.system(size: 13))
+                                .foregroundColor(Theme.homeNeutralCardTextSecondary)
+                                .lineLimit(1)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                        if showsStartButton(for: booking) {
+                            startBookingButton(for: booking)
+                        } else {
+                            scheduleTimeStatusTag(for: booking.dateTime)
+                        }
+                    }
+                    .padding(.horizontal, Theme.compactCardPadding)
+                    .padding(.vertical, Theme.compactCardPadding)
+                    .frame(maxWidth: .infinity)
+                    .background(Theme.homeNeutralCardBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .contentShape(Rectangle())
+                    .onTapGesture {
                         AppAnalytics.trackContentSelection(
                             contentType: "booking",
                             itemID: booking.resolvedGameType?.analyticsIdentifier ?? booking.sportType.rawValue,
                             entryPoint: .scheduleList
                         )
                         path.append(NavigationDestination.bookingDetail(bookingId: booking.id))
-                    } label: {
-                        HStack(spacing: 12) {
-                            AppCatalogIcon(bookingSport: booking.sportType, size: 28)
-                                .frame(width: 42, height: 42)
-
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text(booking.sportType.displayName)
-                                    .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(Theme.homeNeutralCardTextPrimary)
-                                    .lineLimit(1)
-                                Text(scheduleMetaText(for: booking))
-                                    .font(.system(size: 13))
-                                    .foregroundColor(Theme.homeNeutralCardTextSecondary)
-                                    .lineLimit(1)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                            scheduleTimeStatusTag(for: booking.dateTime)
-                        }
-                        .padding(.horizontal, Theme.compactCardPadding)
-                        .padding(.vertical, Theme.compactCardPadding)
-                        .frame(maxWidth: .infinity)
-                        .background(Theme.homeNeutralCardBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
                     }
-                    .buttonStyle(.plain)
                 }
             }
         }
@@ -1456,11 +1571,59 @@ struct HomeTab: View {
     }
 
     @ViewBuilder
+    /// 预约即将开始/已到点时，把状态标签换成「一键开赛」，少一次跳转（对齐鸿蒙
+    /// `ScheduleEntrySection.shouldShowStartButton`：仅 STARTING_SOON / READY 显示）。
+    private func showsStartButton(for booking: LocalBooking) -> Bool {
+        guard booking.makeStartRequest() != nil else { return false }
+        switch getScheduleTimeStatus(scheduledAt: booking.dateTime) {
+        case .startingSoon, .ready:
+            return true
+        case .scheduled, .overdue:
+            return false
+        }
+    }
+
+    @ViewBuilder
+    private func startBookingButton(for booking: LocalBooking) -> some View {
+        let isStarting = startingBookingID == booking.id
+        Button {
+            guard let request = booking.makeStartRequest(), startingBookingID == nil else { return }
+            startingBookingID = booking.id
+            AppAnalytics.trackContentSelection(
+                contentType: "scoreboard",
+                itemID: request.gameType.analyticsIdentifier,
+                entryPoint: .scheduleList
+            )
+            Task { @MainActor in
+                _ = await startScheduledBooking(request)
+                startingBookingID = nil
+                loadUpcomingBookings()
+            }
+        } label: {
+            Group {
+                if isStarting {
+                    ProgressView().tint(Theme.textOnPrimary)
+                } else {
+                    Text(NSLocalizedString("schedule_start_game", value: "一键开赛", comment: ""))
+                        .font(.system(size: 13, weight: .medium))
+                }
+            }
+            .foregroundStyle(Theme.textOnPrimary)
+            .padding(.horizontal, 12)
+            .frame(height: 30)
+            .background(Theme.primary)
+            .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .disabled(isStarting || startingBookingID != nil)
+        .accessibilityIdentifier("home_booking_start_\(booking.id)")
+    }
+
     private func scheduleTimeStatusTag(for date: Date) -> some View {
         let status = getScheduleTimeStatus(scheduledAt: date)
         let style = status.style
 
-        Text(status.localizedLabel)
+        return Text(status.localizedLabel)
             .font(.system(size: 12, weight: .medium))
             .foregroundColor(style.textColor)
             .padding(.horizontal, 9)
@@ -1472,10 +1635,6 @@ struct HomeTab: View {
             )
             .clipShape(RoundedRectangle(cornerRadius: 10))
     }
-}
-
-#Preview {
-    HomeTab()
 }
 
 /// iPad 首页对话框容器（对齐本机 SettingsFormSheet：NavigationStack + 右上角关闭 + form sheet）。

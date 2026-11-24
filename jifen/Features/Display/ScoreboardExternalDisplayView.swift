@@ -569,6 +569,7 @@ private struct DisplaySportInfoSegments {
 struct ScoreboardExternalLiveView: View {
     let state: ScoreboardDisplayState
     var projection: ScoreboardExternalProjection = .localProjection
+    var animateIdleClock: Bool = true
     /// 多人计分分页锚点（全局玩家下标）：本机投屏由手机端分页控件给出，
     /// 跨设备接收端由接收端自己的箭头给出；不进入 wire 协议。
     var multiScoreAnchorPlayer: Int = 0
@@ -694,7 +695,8 @@ struct ScoreboardExternalLiveView: View {
                         fontCode: state.appearance.fontCode,
                         timeScale: projection.isLocalProjection
                             ? (min(proxy.size.width, proxy.size.height) / 360).clamped(1.5, 2)
-                            : DisplayTypographyResolver.chromeScale(for: proxy.size)
+                            : DisplayTypographyResolver.chromeScale(for: proxy.size),
+                        animateIdleClock: animateIdleClock
                     )
                     .padding(.top, clockTopInset)
                 }
@@ -3397,6 +3399,7 @@ private struct ScoreboardExternalClockView: View {
     let clock: ScoreboardDisplayClock
     let fontCode: String
     let timeScale: CGFloat
+    let animateIdleClock: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
@@ -3405,7 +3408,7 @@ private struct ScoreboardExternalClockView: View {
                 atWallClockMilliseconds: Int64(context.date.timeIntervalSince1970 * 1_000)
             )
             let football = footballPresentation(projectedMs: projectedMs)
-            let shouldPulse = !reduceMotion && !clock.isRunning && projectedMs == 0
+            let shouldPulse = animateIdleClock && !reduceMotion && !clock.isRunning && projectedMs == 0
             VStack(spacing: 2 * timeScale) {
                 if let football {
                     HStack(spacing: 10 * timeScale) {

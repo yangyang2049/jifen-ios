@@ -806,7 +806,7 @@ struct ScoreboardRecordDetailPage: View {
         let doudizhuDetails = DoudizhuRecordDetailPolicy.scoreDetails(for: action, record: record)
         return VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .top, spacing: 10) {
-                Text(actionTime(action, index: index, start: record.startTime))
+                Text(actionTime(action, index: index, start: record.startTime, record: record))
                     .font(.caption.monospacedDigit()).foregroundStyle(Theme.textSecondary).frame(width: 42, alignment: .leading)
                 Text(actionTitle(action, record: record)).font(.subheadline)
                 Spacer()
@@ -911,12 +911,49 @@ struct ScoreboardRecordDetailPage: View {
         }
     }
 
-    private func actionTime(_ action: DetailedScoreAction, index: Int, start: Date) -> String {
-        relativeActionTime(
+    private func actionTime(
+        _ action: DetailedScoreAction,
+        index: Int,
+        start: Date,
+        record: ScoreboardRecord
+    ) -> String {
+        if let minute = footballGoalMinute(action, record: record) {
+            return minute
+        }
+        return relativeActionTime(
             epochMilliseconds: action.epochMilliseconds,
             index: index,
             start: start
         )
+    }
+
+    /// Football goals show the match minute ("53′" / "45+2′") like Android and
+    /// HarmonyOS; everything else keeps the relative timestamp.
+    private func footballGoalMinute(
+        _ action: DetailedScoreAction,
+        record: ScoreboardRecord
+    ) -> String? {
+        guard record.gameType == .football || record.gameType == .football5v5,
+              action.type == .scoreChanged,
+              action.footballElapsedSeconds != nil else {
+            return nil
+        }
+        return FootballGoalMinute.label(
+            isFiveAside: record.gameType == .football5v5,
+            halfLengthSeconds: footballHalfLengthSeconds(record),
+            period: action.footballPeriod,
+            elapsedSeconds: action.footballElapsedSeconds
+        )
+    }
+
+    private func footballHalfLengthSeconds(_ record: ScoreboardRecord) -> Int? {
+        guard let raw = record.mergedProjectConfiguration["footballHalfLengthSeconds"]?.value else {
+            return nil
+        }
+        if let value = raw as? Int { return value }
+        if let value = raw as? Double { return Int(value) }
+        if let value = raw as? String { return Int(value) }
+        return nil
     }
 
     private func relativeActionTime(

@@ -275,15 +275,15 @@ struct ScoreboardTemplate: View {
                             scoringOptions: config.controller.getScoringOptions()
                         )
                         .frame(width: panelSize.width, height: panelSize.height, alignment: .leading)
-                        .accessibilityElement(children: .contain)
                         .accessibilityIdentifier("scoreboard_left_panel")
                         .contentShape(Rectangle())
+                        .allowsHitTesting(!isEditMode || true) // Allow hit testing for buttons in edit mode
                         .gesture(scoreTapGesture(isLeft: leftLogicalIsLeft, panelSize: panelSize))
                         .simultaneousGesture(
                             DragGesture(minimumDistance: 50)
                                 .onEnded { value in
                                     // Swipe left to undo
-                                    if !isStyleEditing, scoringEnabled,
+                                    if scoringEnabled,
                                        value.translation.width < -50 && abs(value.translation.height) < 50 {
                                         if !isEditMode {
                                             let success = config.viewModel.undo()
@@ -294,7 +294,7 @@ struct ScoreboardTemplate: View {
                                                 showToastMessage(NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))
                                             }
                                         }
-                                    } else if !isStyleEditing, scoringEnabled,
+                                    } else if scoringEnabled,
                                               supportsPanelSwipeScoring,
                                               !isEditMode,
                                               abs(value.translation.height) > 50 && abs(value.translation.width) < 50 {
@@ -363,15 +363,15 @@ struct ScoreboardTemplate: View {
                             scoringOptions: config.controller.getScoringOptions()
                         )
                         .frame(width: panelSize.width, height: panelSize.height, alignment: .leading)
-                        .accessibilityElement(children: .contain)
                         .accessibilityIdentifier("scoreboard_right_panel")
                         .contentShape(Rectangle())
+                        .allowsHitTesting(!isEditMode || true) // Allow hit testing for buttons in edit mode
                         .gesture(scoreTapGesture(isLeft: rightLogicalIsLeft, panelSize: panelSize))
                         .simultaneousGesture(
                             DragGesture(minimumDistance: 50)
                                 .onEnded { value in
                                     // Swipe left to undo
-                                    if !isStyleEditing, scoringEnabled,
+                                    if scoringEnabled,
                                        value.translation.width < -50 && abs(value.translation.height) < 50 {
                                         if !isEditMode {
                                             let success = config.viewModel.undo()
@@ -382,7 +382,7 @@ struct ScoreboardTemplate: View {
                                                 showToastMessage(NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))
                                             }
                                         }
-                                    } else if !isStyleEditing, scoringEnabled,
+                                    } else if scoringEnabled,
                                               supportsPanelSwipeScoring,
                                               !isEditMode,
                                               abs(value.translation.height) > 50 && abs(value.translation.width) < 50 {
@@ -669,7 +669,7 @@ struct ScoreboardTemplate: View {
     private func handleMenuItemClick(_ action: String) {
         if !scoringEnabled,
            !ScoreboardMenuActionPolicy.isAllowedWhileScoringLocked(action) {
-            showToastMessage(NSLocalizedString("scoreboard_scoring_locked", value: "当前不可计分", comment: ""))
+            showToastMessage(NSLocalizedString("linked_score_phone_follower", value: "当前由手表计分", comment: ""))
             return
         }
         config.controller.performVibration(type: .medium)
@@ -1436,7 +1436,6 @@ struct TeamSection: View {
             Text(team.name)
                 .font(ScoreboardNameFont.font(code: styleProfile?.nameFontCode, inherited: scoreboardFont, size: nameSize, weight: .bold))
                 .foregroundColor(elementColor(.teamName, fallback: foregroundColor))
-                .styleElementSelectable(.teamName, slotKey: isLeft ? .sideLeft : .sideRight)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .padding(.horizontal, 8)
@@ -1470,7 +1469,6 @@ struct TeamSection: View {
                 .font(getFont(size: displayFontSize))
                 .monospacedDigit()
                 .foregroundColor(elementColor(.mainScore, fallback: foregroundColor))
-                .styleElementSelectable(.mainScore, slotKey: isLeft ? .sideLeft : .sideRight)
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
         }
@@ -1523,7 +1521,6 @@ struct TeamSection: View {
                 .font(getFont(size: fontSize))
                 .monospacedDigit()
                 .foregroundColor(elementColor(element, fallbackOpacity: 0.7))
-                .styleElementSelectable(element, slotKey: isLeft ? .sideLeft : .sideRight)
         }
     }
 

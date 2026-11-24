@@ -1804,36 +1804,53 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertFalse(fresh.finished)
     }
 
-
-
-
-
-    func testSportsSetupFeatureCardsShrinkToFitCompactDialogs() {
-        XCTAssertEqual(
-            SportsSetupFeatureCardLayout.cardWidth(
-                availableWidth: 248,
-                itemCount: 3,
-                preferredMaxWidth: 96,
-                spacing: 8
-            ),
-            232.0 / 3.0,
-            accuracy: 0.000_001
-        )
-        XCTAssertEqual(
-            SportsSetupFeatureCardLayout.cardWidth(
-                availableWidth: 440,
-                itemCount: 3,
-                preferredMaxWidth: 96,
-                spacing: 8
-            ),
-            96
-        )
+    func testPhoneWatchStartScopeMatchesExistingWatchMatchProjectsOnly() {
+        // 对齐 HOS linkedScoreboardCapability.ts：18 个项目里除投篮训练外全部放行，
+        // 手机端 GameType 缺独立双打项（羽/乒/网/匹克球/桌足共用单打项 + isSingles）。
+        let supported: Set<jifen.GameType> = [
+            .pingpong, .badminton, .tennis, .pickleball,
+            .archery, .eightBall, .nineBall, .snooker,
+            .shuttlecock, .squash, .foosball,
+            .football, .football5v5
+        ]
+        let actual = Set(GameCatalog.scoreboardItems.map(\.gameType).filter {
+            AppFeatureFlags.isWatchLinkSupportedProject($0)
+        })
+        XCTAssertEqual(actual, supported)
+        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedProject(.basketball))
+        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedProject(.threeBasketball))
+        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedProject(.basketballTraining))
+        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedProject(.foosball))
+        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .pingpong, isSingles: true))
+        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .pingpong, isSingles: false))
+        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .nineBall, nineBallPlayerCount: 2))
+        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .nineBall, nineBallPlayerCount: 4))
+        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .nineBall, nineBallPlayerCount: 5))
+        // 手表抢分板是双人双色板，6 人毽球团队赛不放行。
+        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .shuttlecock, competitionFormat: .team))
+        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .shuttlecock, competitionFormat: .singles))
+        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .shuttlecock, competitionFormat: .doubles))
+        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .shuttlecock, competitionFormat: .mixedDoubles))
     }
 
-    func testScoreboardModeAuditMatrixCount() throws {
+    func testWatchLinkEntryIsAvailableOnlyOnPhone() {
+        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedHostDevice(.phone))
+        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedHostDevice(.pad))
+        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedHostDevice(.mac))
+        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedHostDevice(.tv))
+    }
+
+    func testTwentyNineModeAuditMatrixIncludesWatchOnlyBasketballTraining() throws {
         let phoneModes = GameCatalog.scoreboardItems.count
             + GameCatalog.scoreboardItems.map(\.gameType).filter(\.supportsSinglesAndDoubles).count
         XCTAssertEqual(phoneModes, 37)
+
+        let repositoryRoot = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        let managerSource = try String(
+            contentsOf: repositoryRoot.appendingPathComponent("jifenWatch Watch App/Managers/WatchRecordManager.swift"),
+            encoding: .utf8
+        )
+        XCTAssertTrue(managerSource.contains("record.gameType != .basketballTraining"))
     }
 
     func testPickleballUsesTableTennisIcon() throws {
@@ -2128,8 +2145,8 @@ final class ScoreboardCatalogTests: XCTestCase {
     }
 
     func testStandardTeamNamesNormalizeEmptyAndLegacyLabelsWithoutReplacingCustomNames() {
-        let expectedRed = NSLocalizedString("scoreboard_team_red", value: "红方", comment: "")
-        let expectedBlue = NSLocalizedString("scoreboard_team_blue", value: "蓝方", comment: "")
+        let expectedRed = NSLocalizedString("watch_team_red", value: "红方", comment: "")
+        let expectedBlue = NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
 
         let emptyNames = BaseScoreViewModel()
         emptyNames.leftTeam.name = ""
@@ -2255,10 +2272,10 @@ final class ScoreboardCatalogTests: XCTestCase {
         assertDefaultParticipantPair(.beachVolleyball, "team_a", "team_b")
         assertDefaultParticipantPair(.airVolleyball, "team_a", "team_b")
         assertDefaultParticipantPair(.football, "team_home", "team_away")
-        assertDefaultParticipantPair(.boxing, "scoreboard_team_red", "scoreboard_team_blue")
+        assertDefaultParticipantPair(.boxing, "watch_team_red", "watch_team_blue")
         assertDefaultParticipantPair(.guandan, "team_a", "team_b")
         assertDefaultParticipantPair(.shengji, "team_a", "team_b")
-        assertDefaultParticipantPair(.simpleScore, "scoreboard_team_red", "scoreboard_team_blue")
+        assertDefaultParticipantPair(.simpleScore, "watch_team_red", "watch_team_blue")
     }
 
     func testIndividualDefaultParticipantNamesDoNotUseTeamLabels() {
@@ -2359,8 +2376,8 @@ final class ScoreboardCatalogTests: XCTestCase {
         assertDefaultParticipantPair(.xiangqi, "timer_red_player", "timer_black_player")
         assertDefaultParticipantPair(.chess, "timer_white_player", "timer_black_player")
         assertDefaultParticipantPair(.checkers, "timer_red_player", "timer_black_player")
-        assertDefaultParticipantPair(.counter, "scoreboard_team_red", "scoreboard_team_blue")
-        assertDefaultParticipantPair(.stopwatch, "scoreboard_team_red", "scoreboard_team_blue")
+        assertDefaultParticipantPair(.counter, "watch_team_red", "watch_team_blue")
+        assertDefaultParticipantPair(.stopwatch, "watch_team_red", "watch_team_blue")
     }
 
     func testEveryGameTypeResolvesToNonEmptyDefaultParticipantNames() {

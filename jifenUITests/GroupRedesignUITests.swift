@@ -349,8 +349,9 @@ final class GroupRedesignUITests: XCTestCase {
         XCTAssertTrue(pickerClose.waitForNonExistence(timeout: 5))
         XCTAssertTrue(app.buttons["group_seat_A2"].exists, "Doubles must remain selected")
         XCTAssertEqual(app.buttons["group_seat_A1"].value as? String, "甲", "The chosen A1 must survive")
-        for _ in 0..<3 where !app.buttons["group_match_submit"].exists { app.swipeUp() }
-        XCTAssertFalse(app.buttons["group_match_submit"].isEnabled, "An incomplete match cannot start")
+        let start = app.buttons["sports_setup_start"]
+        XCTAssertTrue(start.waitForExistence(timeout: 5))
+        XCTAssertFalse(start.isEnabled, "An incomplete match cannot start")
         capture(app, "group-roster-match-draft-retained")
     }
 
@@ -687,7 +688,7 @@ final class GroupRedesignUITests: XCTestCase {
         app.buttons["group_tab_3"].tap()
         XCTAssertTrue(app.staticTexts["组长"].exists)
         XCTAssertTrue(app.staticTexts["新队友"].exists)
-        XCTAssertTrue(app.buttons["同意"].exists)
+        XCTAssertTrue(app.buttons["通过"].exists)
         XCTAssertTrue(app.buttons["拒绝"].exists)
         XCTAssertTrue(app.staticTexts["临时成员"].firstMatch.exists)
         capture(app, "groups-members")
@@ -948,8 +949,8 @@ final class GroupRedesignUITests: XCTestCase {
         XCTAssertTrue(submit.waitForExistence(timeout: 5), app.debugDescription); XCTAssertTrue(submit.isEnabled)
         capture(app, "groups-native-temporary-batch")
     }
-    func testFooterButtonsFitAvailableWidthAtCurrentDynamicTypeSize() {
-        let app = openGroup()
+    func testFooterButtonsFitAvailableWidthAtAccessibilityTextSize() {
+        let app = openGroup(["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityM"])
         let primary = app.buttons["group_overview_start"], secondary = app.buttons["group_overview_addResult"]
         XCTAssertTrue(primary.waitForExistence(timeout: 5)); XCTAssertTrue(primary.isHittable); XCTAssertTrue(secondary.isHittable)
         let bounds = app.windows.firstMatch.frame

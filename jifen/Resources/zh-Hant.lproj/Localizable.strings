@@ -800,7 +800,7 @@
 "scoreboard_style_server_shared_hint" = "左右指示器共用同一種顏色";
 "scoreboard_style_font_shared_hint" = "所有文字統一使用所選字型";
 "scoreboard_style_theme_override_hint" = "選擇主題會覆蓋目前配色；之後仍可繼續單獨調整";
-"scoreboard_style_font_size" = "文字大小（雙方）";
+"scoreboard_style_font_size" = "文字大小（左右相同）";
 "scoreboard_style_font_size_device_max" = "已達本機上限";
 "scoreboard_style_small" = "小";
 "scoreboard_style_large" = "大";
@@ -1173,7 +1173,7 @@
 "game_squash" = "壁球";
 "game_soft_tennis" = "軟式網球";
 "game_padel" = "板式網球";
-"game_football_5v5" = "5×5 足球";
+"game_football_5v5" = "五人制足球";
 "padel_deuce_mode" = "平分規則";
 "padel_advantage" = "佔先";
 "padel_golden_point" = "黃金分";
@@ -2814,3 +2814,6 @@
 "billiards_group_score_panel_negative" = "負分";
 
 "billiards_group_switch_to_two" = "已切換為 2 人";
+"voice_call_note_zh" = "中文播報：比分讀作「3 比 2」，平分讀作「3 平」。";
+"voice_call_note_en" = "國際桌總口徑：0 讀作 love，0 比 0 讀作 love all，中文姓名以拼音播報。";
+"group_error_applicant_inactive" = "申請人的帳號已失效，無法通過這筆申請。";

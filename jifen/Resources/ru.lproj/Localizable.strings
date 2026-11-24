@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "Стиль";
 "style_background_color" = "Цвет фона";
 "style_server_color" = "цвет";
-"style_server_style" = "Style";
+"style_server_style" = "Стиль";
 "style_text_color" = "Цвет текста";
 "style_server_indicator" = "Индикатор подачи";
 "style_color_automatic" = "Авто";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "Левый и правый индикаторы имеют один цвет.";
 "scoreboard_style_font_shared_hint" = "Весь текст использует выбранный шрифт.";
 "scoreboard_style_theme_override_hint" = "При выборе темы текущие цвета будут заменены; после этого каждый цвет можно настроить отдельно";
-"scoreboard_style_font_size" = "Размер шрифта";
+"scoreboard_style_font_size" = "Размер шрифта (одинаковый с обеих сторон)";
 "scoreboard_style_font_size_device_max" = "Максимальный размер на этом устройстве";
 "scoreboard_style_small" = "Маленький";
 "scoreboard_style_large" = "Большой";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Коснитесь области счёта слева или справа, чтобы добавить 1 гол\n⬆️ Проведите вверх, чтобы добавить\n⬇️ Проведите вниз, чтобы вычесть\n↩️ Проведите влево, чтобы отменить\n☑️ В конце матча нажмите «Завершить» или «Готово»";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Коснитесь области счёта слева или справа, чтобы добавить 1 гол\n⬆️ Проведите вверх, чтобы добавить\n⬇️ Проведите вниз, чтобы вычесть\n↩️ Проведите влево, чтобы отменить\n👥 Имена для игры 2×2 задаются до матча\n☑️ В конце матча нажмите «Завершить» или «Готово»";
 "scoreboard_usage_hint_simple_score" = "👆 Коснитесь области счёта слева или справа, чтобы добавить\n⬆️ Проведите вверх, чтобы добавить\n⬇️ Проведите вниз, чтобы вычесть\n↩️ Проведите влево, чтобы отменить\n✏️ Удерживайте область или нажмите «Изменить», чтобы изменить имена и счёт";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Коснитесь карточки игрока, чтобы добавить 1 очко\n⬆️ Проведите вверх, чтобы добавить 1; ⬇️ проведите вниз, чтобы вычесть 1\n↩️ Проведите влево, чтобы отменить\n✏️ Удерживайте карточку игрока, чтобы изменить имя и счёт\n🎛️ В режиме ручной корректировки касание игрока открывает панель изменения";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Коснитесь карточки игрока, чтобы добавить 1 очко\n⬆️ Проведите вверх, чтобы добавить 1; ⬇️ проведите вниз, чтобы вычесть 1\n↔️ Если игроков больше 9, листайте страницы смахиванием влево или вправо либо используйте точки и стрелки внизу\n↩️ Откройте меню, чтобы отменить действие или найти игрока\n✏️ Удерживайте карточку игрока, чтобы изменить имя и счёт\n🎛️ В режиме ручной корректировки касание игрока открывает панель изменения";
 "scoreboard_usage_hint_double_tap_point" = "👆 Дважды коснитесь одной и той же стороны, чтобы вычесть 1.";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Дважды коснитесь той же стороны, чтобы вычесть 1 партию";
 "scoreboard_usage_hint_double_tap_player" = "👆 Дважды коснитесь того же игрока, чтобы вычесть 1.";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Стиль";
 "style_workbench_reset" = "Восстановить стиль по умолчанию";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Сбросить";
 "style_workbench_theme" = "Тема";
 "style_workbench_background" = "Фон";
 "style_workbench_font" = "Шрифт";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "Используйте горизонтальное изображение 16:9, например 1920×1080. Изображение заполняет экран центральной обрезкой.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Бесплатно";
+"scoreboard_theme_free_badge_desc" = "Бесплатно ограниченное время";
+"style_workbench_pick" = "Нажмите на текст или значок подачи, чтобы изменить его";
+"style_workbench_photo_source_default" = "Фото по умолчанию";
+"style_workbench_photo_source_custom" = "Своё фото";
+"style_workbench_photo_crop_notice" = "Изображение обрезается по центру, чтобы заполнить экран";
+"billiards_group_switch_to_two" = "Включён режим на 2 игроков";
+"group_complete_confirm" = "Прежде чем завершить мероприятие, убедитесь, что все матчи обработаны.";
+"billiards_group_score_panel_positive" = "Плюс";
+"billiards_group_score_panel_negative" = "Минус";
+"group_error_applicant_inactive" = "Аккаунт заявителя неактивен. Одобрить заявку невозможно.";

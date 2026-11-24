@@ -6,7 +6,7 @@ import SwiftUI
 /// 绿色取 `Theme.accentColor`（浅色 #4CAF50、深色 #30D158），与安卓 `Primary` 一致。
 struct SectionTitleView: View {
     let title: String
-    var font: Font = .system(size: Theme.fontH5, weight: .medium)
+    var font: Font = Theme.sectionTitleFont()
     var color: Color = Theme.textPrimary
 
     var body: some View {

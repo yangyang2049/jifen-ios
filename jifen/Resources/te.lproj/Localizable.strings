@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "శైలి";
 "style_background_color" = "నేపథ్య రంగు";
 "style_server_color" = "రంగు";
-"style_server_style" = "Style";
+"style_server_style" = "శైలి";
 "style_text_color" = "వచన రంగు";
 "style_server_indicator" = "సర్వ్ ఇండికేటర్";
 "style_color_automatic" = "ఆటో";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "ఎడమ మరియు కుడి సూచికలు ఒక రంగును పంచుకుంటాయి";
 "scoreboard_style_font_shared_hint" = "అన్ని టెక్స్ట్ ఎంచుకున్న ఫాంట్‌ను ఉపయోగిస్తుంది";
 "scoreboard_style_theme_override_hint" = "థీమ్‌ను ఎంచుకోవడం ప్రస్తుత రంగులను భర్తీ చేస్తుంది; మీరు ఇప్పటికీ వ్యక్తిగతంగా సర్దుబాటు చేయవచ్చు";
-"scoreboard_style_font_size" = "ఫాంట్ పరిమాణం";
+"scoreboard_style_font_size" = "ఫాంట్ పరిమాణం (రెండు వైపులా ఒకే పరిమాణం)";
 "scoreboard_style_font_size_device_max" = "ఈ పరికరంలో గరిష్ఠ పరిమాణం";
 "scoreboard_style_small" = "చిన్నది";
 "scoreboard_style_large" = "పెద్దది";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 1 గోల్‌ని జోడించడానికి ఎడమ/కుడి స్కోర్ ప్రాంతాన్ని నొక్కండి\n⬆️ జోడించడానికి పైకి స్వైప్ చేయండి\n⬇️ తీసివేయడానికి క్రిందికి స్వైప్ చేయండి\n↩️ చర్యరద్దు చేయడానికి ఎడమవైపుకు స్వైప్ చేయండి\n☑️ మ్యాచ్ ముగిసినప్పుడు సెటిల్ లేదా ఫినిష్‌ని ఉపయోగించండి";
 "scoreboard_usage_hint_foosball_doubles" = "👆 1 గోల్‌ని జోడించడానికి ఎడమ/కుడి స్కోర్ ప్రాంతాన్ని నొక్కండి\n⬆️ జోడించడానికి పైకి స్వైప్ చేయండి\n⬇️ తీసివేయడానికి క్రిందికి స్వైప్ చేయండి\n↩️ చర్యరద్దు చేయడానికి ఎడమవైపుకు స్వైప్ చేయండి\n👥 2V2 పేర్లు మ్యాచ్‌కు ముందు సెట్ చేయబడ్డాయి\n☑️ మ్యాచ్ ముగిసినప్పుడు సెటిల్ లేదా ఫినిష్‌ని ఉపయోగించండి";
 "scoreboard_usage_hint_simple_score" = "👆 జోడించడానికి ఎడమ/కుడి స్కోర్ ప్రాంతాన్ని నొక్కండి\n⬆️ జోడించడానికి పైకి స్వైప్ చేయండి\n⬇️ తీసివేయడానికి క్రిందికి స్వైప్ చేయండి\n↩️ చర్యరద్దు చేయడానికి ఎడమవైపుకు స్వైప్ చేయండి\n✏️ పేర్లు మరియు స్కోర్‌లను మార్చడానికి ఎక్కువసేపు నొక్కండి లేదా సవరించండి";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 1 పాయింట్‌ని జోడించడానికి ప్లేయర్ టైల్‌ను నొక్కండి\n⬆️ 1ని జోడించడానికి పైకి స్వైప్ చేయండి; ⬇️ 1ని తీసివేయడానికి క్రిందికి స్వైప్ చేయండి\n↩️ చర్యరద్దు చేయడానికి ఎడమవైపుకు స్వైప్ చేయండి\n✏️ పేరు మరియు స్కోర్‌ని సవరించడానికి ప్లేయర్‌ని ఎక్కువసేపు నొక్కండి\n🎛️ అనుకూల సర్దుబాటు మోడ్‌లో, ప్లేయర్‌ను నొక్కడం ద్వారా సర్దుబాటు ప్యానెల్ తెరవబడుతుంది";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 1 పాయింట్‌ని జోడించడానికి ప్లేయర్ టైల్‌ను నొక్కండి\n⬆️ 1ని జోడించడానికి పైకి స్వైప్ చేయండి; ⬇️ 1ని తీసివేయడానికి క్రిందికి స్వైప్ చేయండి\n↔️ 9 మంది కంటే ఎక్కువ ఉంటే పేజీ మార్చడానికి ఎడమకు లేదా కుడికి స్వైప్ చేయండి లేదా దిగువ చుక్కలు, బాణాలు వాడండి\n↩️ చర్యను రద్దు చేయడానికి లేదా ఆటగాడిని వెతకడానికి మెనూ తెరవండి\n✏️ పేరు మరియు స్కోర్‌ని సవరించడానికి ప్లేయర్‌ని ఎక్కువసేపు నొక్కండి\n🎛️ అనుకూల సర్దుబాటు మోడ్‌లో, ప్లేయర్‌ను నొక్కడం ద్వారా సర్దుబాటు ప్యానెల్ తెరవబడుతుంది";
 "scoreboard_usage_hint_double_tap_point" = "👆 1ని తీసివేయడానికి అదే వైపు రెండుసార్లు నొక్కండి";
 "scoreboard_usage_hint_double_tap_rack" = "👆 1 ర్యాక్‌ని తీసివేయడానికి అదే వైపు రెండుసార్లు నొక్కండి";
 "scoreboard_usage_hint_double_tap_player" = "👆 1ని తీసివేయడానికి అదే ప్లేయర్‌ని రెండుసార్లు నొక్కండి";
@@ -1173,7 +1173,7 @@
 "game_squash" = "స్క్వాష్";
 "game_soft_tennis" = "సాఫ్ట్ టెన్నిస్";
 "game_padel" = "పాడెల్";
-"game_football_5v5" = "5x5 ఫుట్‌బాల్";
+"game_football_5v5" = "5×5 ఫుట్‌బాల్";
 "padel_deuce_mode" = "డ్యూస్ రూల్";
 "padel_advantage" = "అడ్వాంటేజ్";
 "padel_golden_point" = "గోల్డెన్ పాయింట్";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "శైలి";
 "style_workbench_reset" = "డిఫాల్ట్ స్టైల్‌ను పునరుద్ధరించండి";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "రీసెట్ చేయండి";
 "style_workbench_theme" = "థీమ్";
 "style_workbench_background" = "నేపథ్యం";
 "style_workbench_font" = "ఫాంట్";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "16:9 ల్యాండ్‌స్కేప్ చిత్రాన్ని వాడండి, ఉదా. 1920×1080. చిత్రాలు మధ్యలో కత్తిరించి స్క్రీన్‌ని నింపుతాయి.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "ఉచితం";
+"scoreboard_theme_free_badge_desc" = "పరిమిత కాలం పాటు ఉచితం";
+"style_workbench_pick" = "సవరించడానికి టెక్స్ట్ లేదా సర్వ్ చిహ్నాన్ని ట్యాప్ చేయండి";
+"style_workbench_photo_source_default" = "డిఫాల్ట్ ఫోటో";
+"style_workbench_photo_source_custom" = "సొంత ఫోటో";
+"style_workbench_photo_crop_notice" = "స్క్రీన్ నిండేలా చిత్రాన్ని మధ్య నుంచి కత్తిరిస్తారు";
+"billiards_group_switch_to_two" = "2 మంది ఆటగాళ్లకు మార్చబడింది";
+"group_complete_confirm" = "ఈ కార్యకలాపాన్ని ముగించే ముందు అన్ని మ్యాచ్‌లు పరిష్కరించబడ్డాయని నిర్ధారించుకోండి.";
+"billiards_group_score_panel_positive" = "ధనాత్మకం";
+"billiards_group_score_panel_negative" = "రుణాత్మకం";
+"group_error_applicant_inactive" = "దరఖాస్తుదారు ఖాతా సక్రియంగా లేదు. అభ్యర్థనను ఆమోదించలేము.";

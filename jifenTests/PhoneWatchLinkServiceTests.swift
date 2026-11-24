@@ -1,0 +1,1079 @@
+import XCTest
+import LinkCore
+import RecordCore
+import ScoreCore
+import SwiftUI
+import UIKit
+@testable import jifen
+
+@MainActor
+final class PhoneWatchLinkServiceTests: XCTestCase {
+    func testRestoresFollowerRoleAndLatestSnapshotAfterProcessRestart() throws {
+        let store = InMemoryLinkDataStore()
+        let fixture = makeContext(revision: 6, authorityEpoch: 3)
+        store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
+
+        let service = PhoneWatchLinkService(
+            transport: FakeWatchLinkTransport(),
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+
+        let restored = try XCTUnwrap(service.linkedResumeDescriptor)
+        XCTAssertEqual(restored.handle, fixture.handle)
+        XCTAssertEqual(restored.role, .phoneFollower)
+        XCTAssertEqual(restored.authorityEpoch, 3)
+        XCTAssertEqual(restored.revision, 6)
+        XCTAssertEqual(restored.snapshot, fixture.snapshot)
+    }
+
+    func testForceTakeoverUsesCorrelatedStatusAndRaisesAuthorityEpoch() async throws {
+        let store = InMemoryLinkDataStore()
+        let fixture = makeContext(revision: 4, authorityEpoch: 7)
+        store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
+        let transport = FakeWatchLinkTransport()
+        transport.automaticallyRespondToStatusQueries = true
+        let service = PhoneWatchLinkService(
+            transport: transport,
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+
+        try await service.forceTakeover(sessionId: fixture.handle.sessionId)
+
+        let current = try XCTUnwrap(service.linkedResumeDescriptor)
+        XCTAssertEqual(current.role, .phoneController)
+        XCTAssertEqual(current.authorityEpoch, 8)
+        XCTAssertEqual(current.revision, 5)
+        XCTAssertEqual(current.snapshot, fixture.snapshot)
+        XCTAssertEqual(transport.publishedSnapshots.count, 1)
+
+        let persistedData = try XCTUnwrap(store.data(forKey: "phone_link_context"))
+        let persisted = try JSONDecoder().decode(PhoneLinkResumeContext.self, from: persistedData)
+        XCTAssertEqual(persisted.role, .phoneController)
+        XCTAssertEqual(persisted.authorityEpoch, 8)
+    }
+
+    func testForegroundStatusRefreshCoalescesOverlappingQueries() async throws {
+        let store = InMemoryLinkDataStore()
+        let fixture = makeContext(revision: 4, authorityEpoch: 7)
+        store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport,
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+
+        NotificationCenter.default.post(
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+        NotificationCenter.default.post(
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+        await settleMainQueue()
+
+        let queries = transport.realtimeMessages.compactMap {
+            try? JSONDecoder().decode(LinkEnvelope<EmptyLinkPayload>.self, from: $0)
+        }.filter { $0.kind == .statusQuery }
+        let query = try XCTUnwrap(queries.first)
+        XCTAssertEqual(queries.count, 1)
+
+        let response = LinkEnvelope(
+            correlationId: query.messageId,
+            sessionId: query.sessionId,
+            matchId: query.matchId,
+            matchGeneration: query.matchGeneration,
+            authorityEpoch: query.authorityEpoch,
+            kind: .statusResponse,
+            sender: .watch,
+            senderSequence: 1,
+            sessionRevision: query.sessionRevision,
+            sentAtEpochMilliseconds: query.sentAtEpochMilliseconds + 1,
+            payload: LinkStatusPayload(
+                role: .watchController,
+                revision: query.sessionRevision
+            )
+        )
+        transport.deliver(try JSONEncoder().encode(response))
+        await settleMainQueue()
+
+        XCTAssertEqual(service.linkedResumeDescriptor?.role, .phoneFollower)
+    }
+
+    func testResumeDescriptorIsNilWhileSetupHandshakeIsPending() async throws {
+        let store = InMemoryLinkDataStore()
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport,
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+        let state = RallyMatchEngine.initial(
+            leftName: "Alice",
+            rightName: "Bob",
+            rules: .badminton()
+        )
+        let snapshot = LinkedScoreboardSnapshot.rally(state)
+
+        let setupTask = Task {
+            try await service.startInteractiveSession(
+                gameType: .badminton,
+                maxSets: state.rules.maxSets,
+                initialSnapshot: snapshot,
+                participantNames: ["Alice", "Bob"]
+            )
+        }
+        try await settleMainQueue()
+
+        // The setup request is in flight but the watch has not accepted yet —
+        // no session exists, so no resume descriptor (no Resume GameBar).
+        XCTAssertNil(service.linkedResumeDescriptor)
+
+        let request = try XCTUnwrap(
+            transport.realtimeMessages.compactMap {
+                try? JSONDecoder().decode(
+                    LinkEnvelope<LinkedScoreboardSetup>.self,
+                    from: $0
+                )
+            }.first { $0.kind == .setupRequest }
+        )
+        let accepted = LinkEnvelope<EmptyLinkPayload>(
+            correlationId: request.messageId,
+            sessionId: request.sessionId,
+            matchId: request.matchId,
+            matchGeneration: request.matchGeneration,
+            authorityEpoch: 0,
+            kind: .setupAccepted,
+            sender: .watch,
+            senderSequence: 1,
+            sessionRevision: 0,
+            sentAtEpochMilliseconds: request.sentAtEpochMilliseconds + 1,
+            payload: EmptyLinkPayload()
+        )
+        transport.deliver(try JSONEncoder().encode(accepted))
+        await settleMainQueue()
+
+        // Watch accepted: the session is established and the descriptor appears.
+        let descriptor = try XCTUnwrap(service.linkedResumeDescriptor)
+        XCTAssertEqual(descriptor.handle.sessionId, request.sessionId)
+        _ = await setupTask.result
+    }
+
+    func testLeaveSessionIfMatchFinishedEndsFinishedLinkedSession() async throws {
+        let store = InMemoryLinkDataStore()
+        let fixture = makeContext(revision: 4, authorityEpoch: 2)
+        store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport,
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+
+        // Watch reports the match finished: the session lifecycle becomes
+        // `.matchFinished` and the descriptor surfaces (GameBar visible).
+        transport.deliver(try JSONEncoder().encode(
+            finishedEnvelope(handle: fixture.handle, authorityEpoch: 2, revision: 5, snapshot: fixture.snapshot)
+        ))
+        await settleMainQueue()
+        XCTAssertNotNil(service.linkedResumeDescriptor)
+
+        // Exiting the finished scoreboard ends the session, so no stale
+        // GameBar is left behind on Home.
+        service.leaveSessionIfMatchFinished(fixture.handle.sessionId)
+        await settleMainQueue()
+        XCTAssertNil(service.linkedResumeDescriptor)
+    }
+
+    func testLeaveSessionIfMatchFinishedKeepsUnfinishedLinkedSession() async throws {
+        let store = InMemoryLinkDataStore()
+        let fixture = makeContext(revision: 4, authorityEpoch: 2)
+        store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport,
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+        await settleMainQueue()
+
+        // Mid-match exit must keep the session so the user can re-attach.
+        XCTAssertNotNil(service.linkedResumeDescriptor)
+        service.leaveSessionIfMatchFinished(fixture.handle.sessionId)
+        await settleMainQueue()
+        XCTAssertNotNil(service.linkedResumeDescriptor)
+    }
+
+    func testStartupRecordLoadersRunOnlyWhenRequestedAndCoalesce() async {
+        let scoreboardCounter = LockedInvocationCounter()
+        let scoreboardVM = ScoreboardRecordsViewModel {
+            scoreboardCounter.increment()
+            return []
+        }
+
+        XCTAssertFalse(scoreboardVM.hasLoaded)
+        scoreboardVM.ensureLoaded()
+        scoreboardVM.ensureLoaded()
+        // 冷启动的模拟器上主队列可能积压（Firebase 初始化等），轮询窗口放宽到 2s。
+        for _ in 0..<200 where !scoreboardVM.hasLoaded {
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        XCTAssertTrue(scoreboardVM.hasLoaded)
+        XCTAssertEqual(scoreboardCounter.value, 1)
+
+        var timerLoadCount = 0
+        let timerVM = TimerRecordsViewModel {
+            timerLoadCount += 1
+            return []
+        }
+        XCTAssertFalse(timerVM.hasLoaded)
+        timerVM.ensureLoaded()
+        timerVM.ensureLoaded()
+        // 与 scoreboard 段一致：加载在后台队列 + 主线程回填，必须轮询等待。
+        for _ in 0..<200 where !timerVM.hasLoaded {
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
+        XCTAssertTrue(timerVM.hasLoaded)
+        XCTAssertEqual(timerLoadCount, 1)
+    }
+
+    func testRecordSummaryCacheRefreshesAfterExternalMutationNotification() async {
+        let notificationCenter = NotificationCenter()
+        let counter = LockedInvocationCounter()
+        let viewModel = ScoreboardRecordsViewModel(
+            summaryLoader: {
+                counter.increment()
+                return []
+            },
+            notificationCenter: notificationCenter
+        )
+
+        viewModel.ensureLoaded()
+        for _ in 0..<50 where !viewModel.hasLoaded {
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
+        XCTAssertTrue(viewModel.hasLoaded)
+        XCTAssertEqual(counter.value, 1)
+
+        notificationCenter.post(name: .scoreboardRecordsDidChange, object: nil)
+        for _ in 0..<50 where counter.value < 2 {
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
+        XCTAssertEqual(counter.value, 2)
+    }
+
+    func testQuickStartConfigurationDecodesOnce() throws {
+        let suiteName = "QuickStartConfigManagerTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let persisted = QuickStartConfig(primarySport: .tennis, secondarySport: .boxing)
+        defaults.set(try JSONEncoder().encode(persisted), forKey: "quick-start-test")
+
+        let manager = QuickStartConfigManager(
+            userDefaults: defaults,
+            configKey: "quick-start-test"
+        )
+        manager.configureDefaultsIfNeeded(isLargeScreen: true, is2in1: false)
+        manager.configureDefaultsIfNeeded(isLargeScreen: false, is2in1: false)
+
+        XCTAssertEqual(manager.quickStartConfig, persisted)
+        XCTAssertEqual(manager.configurationReadCount, 1)
+    }
+
+    func testLegacyTwoSlotQuickStartConfigurationDefaultsTertiaryToTennis() throws {
+        let data = Data(#"{"primarySport":"tennis","secondarySport":"boxing"}"#.utf8)
+
+        let decoded = try JSONDecoder().decode(QuickStartConfig.self, from: data)
+
+        XCTAssertEqual(decoded.primarySport, .tennis)
+        XCTAssertEqual(decoded.secondarySport, .boxing)
+        XCTAssertEqual(decoded.tertiarySport, .tennis)
+    }
+
+    func testQuickStartNormalizesLegacyPingPongIdentifiersToTableTennis() throws {
+        let legacy = Data(
+            #"{"primarySport":"pingpong","secondarySport":"table_tennis"}"#.utf8
+        )
+
+        let decoded = try JSONDecoder().decode(QuickStartConfig.self, from: legacy)
+        XCTAssertEqual(decoded.primarySport, .pingpong)
+        XCTAssertEqual(decoded.secondarySport, .pingpong)
+        XCTAssertEqual(decoded.tertiarySport, .tennis)
+
+        let encoded = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: JSONEncoder().encode(decoded)) as? [String: String]
+        )
+        XCTAssertEqual(encoded["primarySport"], "table_tennis")
+        XCTAssertEqual(encoded["secondarySport"], "table_tennis")
+    }
+
+    func testQuickStartDefaultsMatchAndroidAndHarmony() {
+        for config in [
+            QuickStartConfig.defaultPhoneConfig,
+            .defaultTabletConfig,
+            .default2In1Config
+        ] {
+            XCTAssertEqual(config.primarySport, .basketball)
+            XCTAssertEqual(config.secondarySport, .badminton)
+            XCTAssertEqual(config.tertiarySport, .tennis)
+        }
+    }
+
+    func testQuickStartSelectableGamesComeFromCatalogAndExcludeStopwatch() {
+        XCTAssertEqual(
+            QuickStartConfig.selectableGameTypes,
+            GameCatalog.quickStartSelectableGameTypes.filter { $0 != .stopwatch }
+        )
+        XCTAssertFalse(QuickStartConfig.selectableGameTypes.contains(.stopwatch))
+    }
+
+    /// 首页快捷开始已改为全窗口双槽（左侧一张卡 + 右侧两张卡），
+    /// 不再按宽度显示第三槽；用例对齐当前产品口径。
+    func testQuickStartLayoutUsesTwoSlotsForAllWindowSizes() {
+        for sizeClass in [UserInterfaceSizeClass?.none, .compact, .regular] {
+            XCTAssertFalse(
+                QuickStartLayoutPolicy.showsTertiarySlot(horizontalSizeClass: sizeClass, isPad: true),
+                "iPad \(String(describing: sizeClass)) 不应显示第三槽"
+            )
+            XCTAssertFalse(
+                QuickStartLayoutPolicy.showsTertiarySlot(horizontalSizeClass: sizeClass, isPad: false),
+                "iPhone \(String(describing: sizeClass)) 不应显示第三槽"
+            )
+        }
+    }
+
+    func testPhoneCanStartExactlyTheEighteenSupportedWatchScoreboards() {
+        let supported = Set(
+            ScoreCore.GameType.allCases.filter(PhoneWatchLinkService.phoneInteractiveStartSupported)
+        )
+        let expected: Set<ScoreCore.GameType> = [
+            .pingpong, .pingpongDoubles,
+            .badminton, .badmintonDoubles,
+            .tennis, .tennisDoubles,
+            .pickleball, .pickleballDoubles,
+            .shuttlecock, .squash,
+            .foosball, .foosballDoubles,
+            .football, .football5v5,
+            .archeryDual, .eightBall, .nineBall, .snooker
+        ]
+
+        XCTAssertEqual(supported.count, 18)
+        XCTAssertEqual(supported, expected)
+    }
+
+    /// UI 开关（设置弹窗的「在手表开始」按钮）与服务层白名单必须一致：
+    /// UI 放行而服务拒绝时，用户会看到与真实原因无关的“Apple Watch 未连接”。
+    /// 见 docs/audit/2026-11-24/watch-full-check.md P1-1。
+    func testWatchLinkUIProjectGateMatchesServiceWhitelist() {
+        let serviceSupported = Set(
+            ScoreCore.GameType.allCases.filter(PhoneWatchLinkService.phoneInteractiveStartSupported)
+        )
+        for gameType in serviceSupported {
+            guard let appType = jifen.GameType(scoreCoreGameType: gameType) else {
+                XCTFail("服务白名单项目 \(gameType.rawValue) 缺少 App GameType 映射")
+                continue
+            }
+            XCTAssertTrue(
+                AppFeatureFlags.isWatchLinkSupportedProject(appType),
+                "UI 项目开关必须放行 \(appType.rawValue)（服务层支持 \(gameType.rawValue)）"
+            )
+        }
+        for appType in jifen.GameType.allCases where AppFeatureFlags.isWatchLinkSupportedProject(appType) {
+            let serviceTypes = ScoreCore.GameType.allCases
+                .filter { jifen.GameType(scoreCoreGameType: $0) == appType }
+            let backed = serviceTypes.contains { PhoneWatchLinkService.phoneInteractiveStartSupported($0) }
+            XCTAssertTrue(
+                backed,
+                "UI 项目开关放行了 \(appType.rawValue)，但服务层白名单不支持其任何 ScoreCore 类型"
+            )
+        }
+    }
+
+    func testCompactQuickStartSavePreservesTertiaryAndRegularSaveUpdatesIt() async throws {
+        let suiteName = "QuickStartConfigManagerTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let key = "quick-start-three-slot-test"
+        let initial = QuickStartConfig(
+            primarySport: .basketball,
+            secondarySport: .badminton,
+            tertiarySport: .tennis
+        )
+        defaults.set(try JSONEncoder().encode(initial), forKey: key)
+        let manager = QuickStartConfigManager(userDefaults: defaults, configKey: key)
+
+        try await manager.setSports(primary: .football, secondary: .chess, tertiary: nil)
+        XCTAssertEqual(manager.quickStartConfig.primarySport, .football)
+        XCTAssertEqual(manager.quickStartConfig.secondarySport, .chess)
+        XCTAssertEqual(manager.quickStartConfig.tertiarySport, .tennis)
+
+        try await manager.setSports(primary: .football, secondary: .chess, tertiary: .boxing)
+        XCTAssertEqual(manager.quickStartConfig.tertiarySport, .boxing)
+        let storedData = try XCTUnwrap(defaults.data(forKey: key))
+        XCTAssertEqual(
+            try JSONDecoder().decode(QuickStartConfig.self, from: storedData),
+            manager.quickStartConfig
+        )
+    }
+
+    func testRetrySchedulerStaysIdleWithoutWorkAndStartsForRestoredOutbox() throws {
+        let idleStore = InMemoryLinkDataStore()
+        let idleService = PhoneWatchLinkService(
+            transport: FakeWatchLinkTransport(),
+            contextStore: idleStore,
+            outboxStore: idleStore,
+            recordSink: RecordingPhoneLinkSink()
+        )
+        XCTAssertFalse(idleService.hasScheduledRetryForTesting)
+
+        let pendingStore = InMemoryLinkDataStore()
+        let handle = LinkedMatchHandle(sessionId: UUID(), matchId: UUID())
+        let outbox = LinkDurableOutbox(items: [
+            .init(
+                messageId: UUID(),
+                handle: handle,
+                data: Data([1]),
+                lastSentAtEpochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000)
+            )
+        ])
+        pendingStore.set(
+            try JSONEncoder().encode(outbox),
+            forKey: "phone_link_terminal_outbox"
+        )
+        let pendingService = PhoneWatchLinkService(
+            transport: FakeWatchLinkTransport(),
+            contextStore: pendingStore,
+            outboxStore: pendingStore,
+            recordSink: RecordingPhoneLinkSink()
+        )
+        XCTAssertTrue(pendingService.hasScheduledRetryForTesting)
+    }
+
+    func testLegacyLinkCleanupRunsOnlyOnce() {
+        let store = InMemoryLinkDataStore()
+        let legacyKeys = [
+            "phone_link_context_v1",
+            "phone_link_terminal_outbox_v1",
+            "phone_link_pending_ack_v1"
+        ]
+        legacyKeys.forEach { store.set(Data([1]), forKey: $0) }
+
+        _ = PhoneWatchLinkService(
+            transport: FakeWatchLinkTransport(),
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+        legacyKeys.forEach { XCTAssertNil(store.data(forKey: $0)) }
+
+        legacyKeys.forEach { store.set(Data([2]), forKey: $0) }
+        _ = PhoneWatchLinkService(
+            transport: FakeWatchLinkTransport(),
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+        legacyKeys.forEach {
+            XCTAssertEqual(store.data(forKey: $0), Data([2]))
+            XCTAssertEqual(store.removalCounts[$0], 1)
+        }
+    }
+
+    func testWatchControllerTwoMatchesCreateExactlyTwoRecords() async throws {
+        let store = InMemoryLinkDataStore()
+        let fixture = makeContext(revision: 0, authorityEpoch: 2)
+        store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
+        let transport = FakeWatchLinkTransport()
+        let sink = RecordingPhoneLinkSink()
+        let service = PhoneWatchLinkService(
+            transport: transport,
+            contextStore: store,
+            outboxStore: store,
+            recordSink: sink
+        )
+
+        let firstFinished = finishedEnvelope(
+            handle: fixture.handle,
+            authorityEpoch: 2,
+            revision: 1,
+            snapshot: fixture.snapshot
+        )
+        transport.deliver(try JSONEncoder().encode(firstFinished))
+        await settleMainQueue()
+
+        let secondHandle = fixture.handle.nextMatch()
+        let secondState = RallyMatchEngine.initial(
+            leftName: "Alice",
+            rightName: "Bob",
+            rules: .badminton()
+        )
+        let secondSnapshot = LinkedScoreboardSnapshot.rally(secondState)
+        let nextMatch = LinkEnvelope(
+            sessionId: secondHandle.sessionId,
+            matchId: secondHandle.matchId,
+            matchGeneration: secondHandle.matchGeneration,
+            authorityEpoch: 2,
+            kind: .stateSnapshot,
+            sender: .watch,
+            senderSequence: 2,
+            sessionRevision: 1,
+            sentAtEpochMilliseconds: 2_000,
+            payload: LinkedScoreboardSetup(
+                gameType: .badminton,
+                maxSets: secondState.rules.maxSets,
+                initialSnapshot: secondSnapshot,
+                participantNames: ["Alice", "Bob"]
+            )
+        )
+        transport.deliver(try JSONEncoder().encode(nextMatch))
+        await settleMainQueue()
+
+        let secondFinished = finishedEnvelope(
+            handle: secondHandle,
+            authorityEpoch: 2,
+            revision: 2,
+            snapshot: secondSnapshot
+        )
+        let secondFinishedData = try JSONEncoder().encode(secondFinished)
+        transport.deliver(secondFinishedData)
+        transport.deliver(secondFinishedData)
+        await settleMainQueue()
+
+        XCTAssertEqual(sink.matchIds, [fixture.handle.matchId, secondHandle.matchId])
+        XCTAssertEqual(Set(sink.matchIds).count, 2)
+        XCTAssertEqual(service.linkedResumeDescriptor?.handle, secondHandle)
+    }
+
+    func testFinishedSnapshotSurvivesMatchFinishedFirstInterleaving() async throws {
+        let store = InMemoryLinkDataStore()
+        let fixture = makeContext(revision: 0, authorityEpoch: 2)
+        store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport,
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+        let finished = finishedRallySnapshot()
+
+        // transferUserInfo (matchFinished) can arrive before the final
+        // sendMessageData snapshot. The phone accepts rev 3 first...
+        transport.deliver(try JSONEncoder().encode(
+            finishedEnvelope(handle: fixture.handle, authorityEpoch: 2, revision: 3, snapshot: finished)
+        ))
+        await settleMainQueue()
+        XCTAssertEqual(service.latestRemoteSnapshot?.revision, 3)
+        XCTAssertEqual(service.latestRemoteSnapshot?.snapshot.rallyState?.finished, true)
+
+        // ...so the final snapshot (rev 2, finished) arrives as
+        // duplicateOrOlder. Mirroring HarmonyOS it must still be surfaced
+        // rather than dropped, so the finish signal can never be lost.
+        transport.deliver(try JSONEncoder().encode(
+            snapshotEnvelope(handle: fixture.handle, authorityEpoch: 2, revision: 2, snapshot: finished)
+        ))
+        await settleMainQueue()
+
+        let latest = try XCTUnwrap(service.latestRemoteSnapshot)
+        XCTAssertEqual(latest.revision, 2)
+        XCTAssertEqual(latest.snapshot.rallyState?.finished, true)
+    }
+
+    func testUnfinishedDuplicateSnapshotDoesNotOverrideFinishedSignal() async throws {
+        let store = InMemoryLinkDataStore()
+        let fixture = makeContext(revision: 0, authorityEpoch: 2)
+        store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport,
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+
+        // The watch reports the match finished first...
+        transport.deliver(try JSONEncoder().encode(
+            finishedEnvelope(handle: fixture.handle, authorityEpoch: 2, revision: 3, snapshot: finishedRallySnapshot())
+        ))
+        await settleMainQueue()
+        XCTAssertEqual(service.latestRemoteSnapshot?.snapshot.rallyState?.finished, true)
+
+        // A stale unfinished retry (rev 2, e.g. a lost ACK replayed) is
+        // duplicateOrOlder — surfacing it would wrongly dismiss the finish
+        // dialog. Only finished duplicates are surfaced.
+        transport.deliver(try JSONEncoder().encode(
+            snapshotEnvelope(handle: fixture.handle, authorityEpoch: 2, revision: 2, snapshot: fixture.snapshot)
+        ))
+        await settleMainQueue()
+
+        let latest = try XCTUnwrap(service.latestRemoteSnapshot)
+        XCTAssertEqual(latest.revision, 3)
+        XCTAssertEqual(latest.snapshot.rallyState?.finished, true)
+    }
+
+    // MARK: - Detailed action incremental merge
+
+    func testMergeDetailedActionsKeepsConcurrentLocalActionsAndDeduplicates() {
+        let store = InMemoryLinkDataStore()
+        let service = PhoneWatchLinkService(
+            transport: FakeWatchLinkTransport(),
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+
+        let localOld = DetailedScoreAction(
+            id: UUID(), type: .scoreChanged, epochMilliseconds: 1_000,
+            team: .team1, scores: [1, 0]
+        )
+        let localNew = DetailedScoreAction(
+            id: UUID(), type: .scoreChanged, epochMilliseconds: 3_000,
+            team: .team2, scores: [1, 1]
+        )
+        service.mergeDetailedActions([localOld, localNew])
+
+        // Watch snapshot overlaps localOld and adds a concurrent remote action.
+        let watchNew = DetailedScoreAction(
+            id: UUID(), type: .scoreChanged, epochMilliseconds: 2_000,
+            team: .team1, scores: [2, 1]
+        )
+        let replayedLocalOld = DetailedScoreAction(
+            id: localOld.id, type: .scoreChanged, epochMilliseconds: 1_000,
+            team: .team1, scores: [1, 0]
+        )
+        service.mergeDetailedActions([replayedLocalOld, watchNew])
+
+        XCTAssertEqual(
+            service.mergedDetailedActions.map(\.id),
+            [localOld.id, watchNew.id, localNew.id],
+            "Union by id keeps concurrent remote actions, dedups overlaps, sorts by epoch"
+        )
+    }
+
+    func testMergeDetailedActionsKeepsLocalActionsWhenIncomingIsEmpty() {
+        let store = InMemoryLinkDataStore()
+        let service = PhoneWatchLinkService(
+            transport: FakeWatchLinkTransport(),
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+
+        let local = DetailedScoreAction(
+            id: UUID(), type: .scoreChanged, epochMilliseconds: 1_000,
+            team: .team1, scores: [1, 0]
+        )
+        service.mergeDetailedActions([local])
+        service.mergeDetailedActions(nil)
+        service.mergeDetailedActions([])
+
+        XCTAssertEqual(service.mergedDetailedActions.map(\.id), [local.id])
+    }
+
+    func testFootballTakeoverAcknowledgementAppliesAuthoritativeFootballSnapshot() async throws {
+        let store = InMemoryLinkDataStore()
+        let handle = LinkedMatchHandle(sessionId: UUID(), matchId: UUID())
+        let initialFootball = LinkedFootballState(
+            leftName: "主队",
+            rightName: "客队",
+            leftScore: 1,
+            rightScore: 0,
+            timer: FootballTimerStateV2(halfLengthSeconds: 2700),
+            kickedOff: true,
+            finished: false
+        )
+        let setup = LinkedScoreboardSetup(
+            gameType: .football,
+            maxSets: nil,
+            initialSnapshot: .football(initialFootball),
+            participantNames: ["主队", "客队"]
+        )
+        let context = PhoneLinkResumeContext(
+            handle: handle,
+            setup: setup,
+            role: .phoneFollower,
+            authorityEpoch: 1,
+            revision: 2,
+            latestAuthoritativeSnapshot: .football(initialFootball),
+            detailedActions: [],
+            completedMatchIds: [],
+            pendingTerminalMessageIds: []
+        )
+        store.set(try JSONEncoder().encode(context), forKey: "phone_link_context")
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport,
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+        transport.refreshStatus()
+
+        try await service.takeover(sessionId: handle.sessionId)
+        await settleMainQueue()
+
+        let takeoverRequest = try XCTUnwrap(
+            transport.realtimeMessages.compactMap {
+                try? JSONDecoder().decode(
+                    LinkEnvelope<LinkAuthorityTransferPayload>.self,
+                    from: $0
+                )
+            }.first { $0.kind == .takeoverByPhone }
+        )
+
+        let updatedFootball = LinkedFootballState(
+            leftName: "主队",
+            rightName: "客队",
+            leftScore: 2,
+            rightScore: 1,
+            timer: FootballTimerStateV2(halfLengthSeconds: 2700),
+            kickedOff: true,
+            finished: false
+        )
+        let ack = LinkEnvelope(
+            correlationId: takeoverRequest.messageId,
+            sessionId: handle.sessionId,
+            matchId: handle.matchId,
+            matchGeneration: handle.matchGeneration,
+            authorityEpoch: 2,
+            kind: .acknowledgement,
+            sender: .watch,
+            senderSequence: 3,
+            sessionRevision: 3,
+            sentAtEpochMilliseconds: 5_000,
+            payload: LinkAcknowledgementPayload(
+                acknowledgedMessageId: takeoverRequest.messageId,
+                acknowledgedRevision: 3,
+                authoritativeSnapshot: .football(updatedFootball)
+            )
+        )
+        transport.deliver(try JSONEncoder().encode(ack))
+        await settleMainQueue()
+
+        XCTAssertEqual(service.pendingTakeoverApplication?.snapshot, .football(updatedFootball))
+        XCTAssertEqual(service.latestRemoteSnapshot?.snapshot, .football(updatedFootball))
+        XCTAssertEqual(service.controlRole, .phoneController)
+    }
+
+    func testPhoneSnapshotStripsDetailedActionsFromApplicationContextAndPreservesOnEmptyReceive() async throws {
+        let store = InMemoryLinkDataStore()
+        var fixture = makeContext(revision: 2, authorityEpoch: 1)
+        fixture.context.role = .phoneController
+        store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport,
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+
+        let action = DetailedScoreAction(
+            id: UUID(),
+            type: .scoreChanged,
+            epochMilliseconds: 1_500,
+            team: .team1,
+            scores: [1, 0]
+        )
+        service.sendSnapshotIfController(
+            sessionId: fixture.handle.sessionId,
+            gameType: .badminton,
+            snapshot: fixture.snapshot,
+            detailedActions: [action]
+        )
+        await settleMainQueue()
+
+        let contextEnvelope = try JSONDecoder().decode(
+            LinkEnvelope<LinkedScoreboardSetup>.self,
+            from: try XCTUnwrap(transport.publishedSnapshots.last)
+        )
+        let realtimeEnvelope = try JSONDecoder().decode(
+            LinkEnvelope<LinkedScoreboardSetup>.self,
+            from: try XCTUnwrap(transport.realtimeMessages.last)
+        )
+        XCTAssertTrue(contextEnvelope.payload.detailedActions.isEmpty)
+        XCTAssertEqual(realtimeEnvelope.payload.detailedActions.map(\.id), [action.id])
+
+        // Receiver path: follower receiving a stripped applicationContext snapshot
+        // must keep already-merged detailedActions on both mergedDetailedActions and setup.
+        let followerStore = InMemoryLinkDataStore()
+        var followerFixture = makeContext(revision: 2, authorityEpoch: 1)
+        followerFixture.context.detailedActions = [action]
+        followerStore.set(try JSONEncoder().encode(followerFixture.context), forKey: "phone_link_context")
+        let followerTransport = FakeWatchLinkTransport()
+        let followerService = PhoneWatchLinkService(
+            transport: followerTransport,
+            contextStore: followerStore,
+            outboxStore: followerStore,
+            recordSink: RecordingPhoneLinkSink()
+        )
+
+        let strippedIncoming = snapshotEnvelope(
+            handle: followerFixture.handle,
+            authorityEpoch: 1,
+            revision: 3,
+            snapshot: followerFixture.snapshot
+        )
+        followerTransport.deliver(try JSONEncoder().encode(strippedIncoming))
+        await settleMainQueue()
+
+        XCTAssertEqual(followerService.mergedDetailedActions.map(\.id), [action.id])
+        XCTAssertEqual(followerService.activeSession?.setup.detailedActions.map(\.id), [action.id])
+    }
+
+    private func makeContext(
+        revision: UInt64,
+        authorityEpoch: UInt64
+    ) -> (
+        handle: LinkedMatchHandle,
+        snapshot: LinkedScoreboardSnapshot,
+        context: PhoneLinkResumeContext
+    ) {
+        let handle = LinkedMatchHandle(sessionId: UUID(), matchId: UUID())
+        let state = RallyMatchEngine.initial(
+            leftName: "Alice",
+            rightName: "Bob",
+            rules: .badminton()
+        )
+        let snapshot = LinkedScoreboardSnapshot.rally(state)
+        let setup = LinkedScoreboardSetup(
+            gameType: .badminton,
+            maxSets: state.rules.maxSets,
+            initialSnapshot: snapshot,
+            participantNames: ["Alice", "Bob"]
+        )
+        return (
+            handle,
+            snapshot,
+            PhoneLinkResumeContext(
+                handle: handle,
+                setup: setup,
+                role: .phoneFollower,
+                authorityEpoch: authorityEpoch,
+                revision: revision,
+                latestAuthoritativeSnapshot: snapshot,
+                detailedActions: [],
+                completedMatchIds: [],
+                pendingTerminalMessageIds: []
+            )
+        )
+    }
+
+    private func finishedRallySnapshot() -> LinkedScoreboardSnapshot {
+        var state = RallyMatchEngine.initial(
+            leftName: "Alice",
+            rightName: "Bob",
+            rules: .badminton()
+        )
+        state.leftPoints = 21
+        state.rightPoints = 18
+        state.leftSets = 2
+        state.rightSets = 0
+        state.finished = true
+        return .rally(state)
+    }
+
+    private func snapshotEnvelope(
+        handle: LinkedMatchHandle,
+        authorityEpoch: UInt64,
+        revision: UInt64,
+        snapshot: LinkedScoreboardSnapshot
+    ) -> LinkEnvelope<LinkedScoreboardSetup> {
+        LinkEnvelope(
+            sessionId: handle.sessionId,
+            matchId: handle.matchId,
+            matchGeneration: handle.matchGeneration,
+            authorityEpoch: authorityEpoch,
+            kind: .stateSnapshot,
+            sender: .watch,
+            senderSequence: revision,
+            sessionRevision: revision,
+            sentAtEpochMilliseconds: Int64(revision) * 1_000,
+            payload: LinkedScoreboardSetup(
+                gameType: .badminton,
+                maxSets: snapshot.rallyState?.rules.maxSets ?? 3,
+                initialSnapshot: snapshot,
+                participantNames: ["Alice", "Bob"]
+            )
+        )
+    }
+
+    private func finishedEnvelope(
+        handle: LinkedMatchHandle,
+        authorityEpoch: UInt64,
+        revision: UInt64,
+        snapshot: LinkedScoreboardSnapshot
+    ) -> LinkEnvelope<LinkMatchFinishedPayload> {
+        LinkEnvelope(
+            sessionId: handle.sessionId,
+            matchId: handle.matchId,
+            matchGeneration: handle.matchGeneration,
+            authorityEpoch: authorityEpoch,
+            kind: .matchFinished,
+            sender: .watch,
+            senderSequence: revision,
+            sessionRevision: revision,
+            sentAtEpochMilliseconds: Int64(revision) * 1_000,
+            payload: LinkMatchFinishedPayload(
+                snapshot: snapshot,
+                recordId: "watch-\(handle.matchId.uuidString)",
+                startTimeEpochMilliseconds: 1_000,
+                endTimeEpochMilliseconds: 2_000,
+                durationSeconds: 1,
+                totalScoreChanges: 1,
+                participantNames: ["Alice", "Bob"]
+            )
+        )
+    }
+
+    private func settleMainQueue() async {
+        try? await Task.sleep(nanoseconds: 20_000_000)
+    }
+}
+
+private final class InMemoryLinkDataStore: @unchecked Sendable, LinkDataStore {
+    private var values: [String: Data] = [:]
+    private(set) var removalCounts: [String: Int] = [:]
+
+    func data(forKey key: String) -> Data? {
+        values[key]
+    }
+
+    func set(_ data: Data, forKey key: String) {
+        values[key] = data
+    }
+
+    func removeObject(forKey key: String) {
+        removalCounts[key, default: 0] += 1
+        values.removeValue(forKey: key)
+    }
+}
+
+private final class LockedInvocationCounter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var count = 0
+
+    var value: Int {
+        lock.withLock { count }
+    }
+
+    func increment() {
+        lock.withLock { count += 1 }
+    }
+}
+
+@MainActor
+private final class RecordingPhoneLinkSink: PhoneLinkRecordSink {
+    private(set) var matchIds: [UUID] = []
+
+    func ingest(
+        payload: LinkMatchFinishedPayload,
+        gameType: ScoreCore.GameType,
+        matchId: UUID
+    ) throws -> String {
+        matchIds.append(matchId)
+        return "record-\(matchId.uuidString)"
+    }
+}
+
+private final class FakeWatchLinkTransport: @unchecked Sendable, WatchLinkTransport {
+    var status = WatchConnectivityStatus(
+        isSupported: true,
+        isActivated: true,
+        isPaired: true,
+        isWatchAppInstalled: true,
+        isReachable: true
+    )
+    var receivedApplicationContext: [String: Any] = [:]
+    var isReachable: Bool { status.isReachable }
+
+    var onReceive: (@Sendable (Data) -> Void)?
+    var onSendError: (@Sendable (Error) -> Void)?
+    var onStatusChange: (@Sendable (WatchConnectivityStatus) -> Void)?
+    var onApplicationContext: (@Sendable ([String: Any]) -> Void)?
+    var onWatchRecordData: (@Sendable (Data) -> Void)?
+    var onCommonNameUsageData: (@Sendable (Data) -> Void)?
+    var onCommonNameMutationsData: (@Sendable (Data) -> Void)?
+    var onCommonNameMutationAckData: (@Sendable (Data) -> Void)?
+    var onCatchUpRequest: (@Sendable () -> Void)?
+    var onClearPendingRequest: (@Sendable ([String]) -> Void)?
+    var onPendingRecords: (@Sendable ([Data]) -> Void)?
+
+    var automaticallyRespondToStatusQueries = false
+    private(set) var realtimeMessages: [Data] = []
+    private(set) var publishedSnapshots: [Data] = []
+    private(set) var durableMessages: [Data] = []
+
+    func activate() {}
+
+    func refreshStatus() {
+        onStatusChange?(status)
+    }
+
+    func sendRealtime(_ data: Data) async throws {
+        realtimeMessages.append(data)
+        guard automaticallyRespondToStatusQueries,
+              let query = try? JSONDecoder().decode(
+                  LinkEnvelope<EmptyLinkPayload>.self,
+                  from: data
+              ),
+              query.kind == .statusQuery else {
+            return
+        }
+        let response = LinkEnvelope(
+            correlationId: query.messageId,
+            sessionId: query.sessionId,
+            matchId: query.matchId,
+            matchGeneration: query.matchGeneration,
+            authorityEpoch: query.authorityEpoch,
+            kind: .statusResponse,
+            sender: .watch,
+            senderSequence: 1,
+            sessionRevision: query.sessionRevision,
+            sentAtEpochMilliseconds: query.sentAtEpochMilliseconds + 1,
+            payload: LinkStatusPayload(
+                role: .watchController,
+                revision: query.sessionRevision
+            )
+        )
+        onReceive?(try JSONEncoder().encode(response))
+    }
+
+    func publishLatestSnapshot(_ data: Data) throws {
+        publishedSnapshots.append(data)
+    }
+
+    func enqueueDurable(_ data: Data) throws {
+        durableMessages.append(data)
+    }
+
+    func sendInteractive(_ data: Data) throws {
+        realtimeMessages.append(data)
+    }
+
+    func updateApplicationContext(_ context: [String: Any]) throws {
+        receivedApplicationContext.merge(context) { _, latest in latest }
+    }
+
+    func transferWatchRecord(_ data: Data) throws {}
+    func transferCommonNameUsage(_ data: Data) throws {}
+    func transferCommonNameMutations(_ data: Data) throws {}
+    func transferCommonNameMutationAcknowledgement(_ data: Data) throws {}
+    func requestPendingWatchRecords() {}
+    func sendPendingWatchRecords(_ datas: [Data]) {}
+    func clearPendingWatchRecords(ids: [String]) {}
+
+    func deliver(_ data: Data) {
+        onReceive?(data)
+    }
+}

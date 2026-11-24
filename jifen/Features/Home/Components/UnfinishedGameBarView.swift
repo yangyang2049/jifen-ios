@@ -1,3 +1,4 @@
+import LinkCore
 import PersistenceCore
 import ScoreCore
 import SessionCore
@@ -6,6 +7,7 @@ import SwiftUI
 struct UnfinishedGameSummary: Sendable {
     enum Source: Sendable {
         case resume(UUID)
+        case linked(UUID)
     }
 
     let source: Source
@@ -14,10 +16,12 @@ struct UnfinishedGameSummary: Sendable {
     let scoreText: String
     let matchTitle: String
     let linkStatusText: String?
+    let linkedSetupResult: SportsSetupResult?
 
     var recordIdentifier: String {
         switch source {
         case .resume(let id): id.uuidString
+        case .linked(let id): id.uuidString
         }
     }
 
@@ -34,6 +38,7 @@ struct UnfinishedGameSummary: Sendable {
         exactScoreCoreGameType = entry.gameType
         matchTitle = Self.matchTitle(participants: entry.participants, gameType: entry.gameType)
         linkStatusText = nil
+        linkedSetupResult = nil
 
         let url = ResumeSessionRepository.defaultRootURL().appendingPathComponent(entry.snapshotPath)
         guard let envelopeData = try? Data(contentsOf: url),
@@ -117,7 +122,71 @@ struct UnfinishedGameSummary: Sendable {
         }
     }
 
+    init?(linked descriptor: PhoneWatchLinkService.LinkedResumeDescriptor) {
+        guard let appGameType = GameType(scoreCoreGameType: descriptor.gameType) else {
+            return nil
+        }
+        source = .linked(descriptor.handle.sessionId)
+        gameType = appGameType
+        exactScoreCoreGameType = descriptor.gameType
+        let names = descriptor.setup.participantNames
 
+        switch descriptor.snapshot {
+        case .rally(let state):
+            scoreText = state.leftSets > 0 || state.rightSets > 0
+                ? "\(state.leftSets) : \(state.rightSets)"
+                : "\(state.leftPoints) : \(state.rightPoints)"
+            matchTitle = Self.racketMatchTitle(
+                leftName: state.leftName,
+                rightName: state.rightName,
+                doublesNames: state.doubles?.playerNames
+            )
+        case .tennis(let state):
+            scoreText = "\(state.leftSets) : \(state.rightSets)"
+            matchTitle = Self.racketMatchTitle(
+                leftName: state.leftName,
+                rightName: state.rightName,
+                doublesNames: state.doublesPlayerNames
+            )
+        case .archery(let state):
+            scoreText = state.leftSetPoints > 0 || state.rightSetPoints > 0
+                ? "\(state.leftSetPoints) : \(state.rightSetPoints)"
+                : "\(state.leftArrowSum) : \(state.rightArrowSum)"
+            matchTitle = "\(state.leftName) vs \(state.rightName)"
+        case .eightBall(let state):
+            scoreText = "\(state.leftPoints) : \(state.rightPoints)"
+            matchTitle = Self.namesTitle(names)
+        case .nineBall(let state):
+            scoreText = state.playerPoints.prefix(state.playerCount)
+                .map(String.init)
+                .joined(separator: " : ")
+            matchTitle = (0..<state.playerCount)
+                .map { state.resolvedName(at: $0) }
+                .joined(separator: " · ")
+        case .snooker(let state):
+            scoreText = state.maxFrames > 1
+                ? "\(state.leftFrames) : \(state.rightFrames)"
+                : "\(state.leftScore) : \(state.rightScore)"
+            matchTitle = Self.namesTitle(names)
+        case .football(let state):
+            scoreText = "\(state.leftScore) : \(state.rightScore)"
+            matchTitle = Self.namesTitle(names)
+        }
+
+        let authority = descriptor.role == .phoneController
+            ? NSLocalizedString("linked_score_phone_controller", value: "手机主控", comment: "")
+            : NSLocalizedString("linked_score_watch_controller", value: "手表主控", comment: "")
+        let connection: String
+        if descriptor.watchBackgrounded {
+            connection = NSLocalizedString("linked_score_interrupted", value: "已中断", comment: "")
+        } else if descriptor.isReachable {
+            connection = NSLocalizedString("linked_score_connected", value: "已连接", comment: "")
+        } else {
+            connection = NSLocalizedString("linked_score_disconnected", value: "已断开", comment: "")
+        }
+        linkStatusText = "\(authority) · \(connection)"
+        linkedSetupResult = Self.linkedSetupResult(descriptor)
+    }
 
     nonisolated static func matchTitle(
         participants: [SessionParticipant],
@@ -163,11 +232,108 @@ struct UnfinishedGameSummary: Sendable {
         return names.count >= 2 ? "\(names[0]) vs \(names[1])" : names.joined(separator: " vs ")
     }
 
+    private static func racketMatchTitle(
+        leftName: String,
+        rightName: String,
+        doublesNames: [String]?
+    ) -> String {
+        guard let doublesNames, doublesNames.count >= 4 else {
+            return "\(leftName) vs \(rightName)"
+        }
+        return "\(doublesNames[0])/\(doublesNames[2]) vs \(doublesNames[1])/\(doublesNames[3])"
+    }
 
+    private static func namesTitle(_ names: [String]) -> String {
+        let trimmed = names
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        return trimmed.count >= 2
+            ? "\(trimmed[0]) vs \(trimmed[1])"
+            : trimmed.joined(separator: " vs ")
+    }
 
+    private static func linkedSetupResult(
+        _ descriptor: PhoneWatchLinkService.LinkedResumeDescriptor
+    ) -> SportsSetupResult {
+        let fallbackNames = descriptor.setup.participantNames
+        var result = SportsSetupResult(
+            team1Name: fallbackNames.first ?? "",
+            team2Name: fallbackNames.dropFirst().first ?? ""
+        )
+        result.linkedWatchSessionId = descriptor.handle.sessionId
+        result.startOnWatch = descriptor.role == .phoneFollower
+        result.isSingles = !descriptor.gameType.isDoublesScoreboard
 
-
-
+        switch descriptor.snapshot {
+        case .football(let state):
+            result.team1Name = state.leftName
+            result.team2Name = state.rightName
+            result.footballHalfLengthSeconds = state.timer.halfLengthSeconds
+        case .rally(let state):
+            result.team1Name = state.leftName
+            result.team2Name = state.rightName
+            result.maxSets = state.rules.maxSets
+            result.matchCompletionMode = state.rules.matchCompletionMode
+            result.pointsPerSet = state.rules.pointsToWinSet
+            result.targetScore = state.rules.pointsToWinSet
+            result.winByTwo = state.rules.winByTwo
+            result.scoreCap = state.rules.pointCap
+            result.autoChangeSides = state.rules.autoChangeSides
+            result.useRallyScoring = state.rules.useRallyScoring
+            result.servingSide = state.openingServerSide.rawValue
+            if let names = state.doubles?.playerNames, names.count >= 4 {
+                result.team1Player1Name = names[0]
+                result.team2Player1Name = names[1]
+                result.team1Player2Name = names[2]
+                result.team2Player2Name = names[3]
+            }
+        case .tennis(let state):
+            result.team1Name = state.leftName
+            result.team2Name = state.rightName
+            result.maxSets = state.rules.maxSets
+            result.matchCompletionMode = state.rules.matchCompletionMode
+            result.tieBreakPoints = state.rules.tieBreakPoints
+            result.gamesPerSet = state.rules.gamesPerSet
+            if state.rules.familyProfile == .softTennis {
+                result.softTennisMatchGames = state.rules.softTennisMatchGames ?? 7
+            }
+            result.setScoringMode = state.rules.setScoringMode.rawValue
+            result.tennisDeuceMode = state.rules.usesNoAdScoring ? "no_ad" : "advantage"
+            result.autoChangeSides = state.rules.autoChangeSides
+            result.servingSide = state.openingServerSide.rawValue
+            if let names = state.doublesPlayerNames, names.count >= 4 {
+                result.team1Player1Name = names[0]
+                result.team2Player1Name = names[1]
+                result.team1Player2Name = names[2]
+                result.team2Player2Name = names[3]
+            }
+        case .archery(let state):
+            result.team1Name = state.leftName
+            result.team2Name = state.rightName
+            result.servingSide = state.openingShooterIsLeft ? "left" : "right"
+        case .eightBall(let state):
+            result.maxSets = state.targetPoints
+            result.eightBallHandicapRacks = state.handicapRacks
+            result.eightBallHandicapBeneficiary = state.handicapBeneficiary == .left
+                ? "team1"
+                : (state.handicapBeneficiary == .right ? "team2" : "none")
+        case .nineBall(let state):
+            result.playerCount = state.playerCount
+            result.playerNames = (0..<state.playerCount).map {
+                state.resolvedName(at: $0)
+            }
+            result.nineBallBigGold = state.config.bigGold
+            result.nineBallSmallGold = state.config.smallGold
+            result.nineBallGoldenNine = state.config.goldenNine
+            result.nineBallNormalWin = state.config.normalWin
+            result.nineBallBallInHand = state.config.ballInHand
+            result.nineBallFoul = state.config.foul
+        case .snooker(let state):
+            result.maxSets = state.maxFrames
+            result.servingSide = state.firstBreaker.rawValue
+        }
+        return result
+    }
 }
 
 struct UnfinishedGameBarView: View {
@@ -184,12 +350,35 @@ struct UnfinishedGameBarView: View {
         barPadding + iconSize + barPadding
     }
 
+    private var iconBackgroundColor: Color {
+        (getGameGradient(type: record.gameType).first ?? Color(hex: "#71717A")).opacity(0.5)
+    }
+
+
     var body: some View {
         HStack(spacing: 0) {
             HStack(spacing: 0) {
                 ZStack(alignment: .bottomTrailing) {
                     AppCatalogIcon(gameType: record.gameType, size: 36, artworkSize: 40)
                         .frame(width: iconSize, height: iconSize)
+                        .background {
+                            // 对齐安卓 UnfinishedPhoneDockBar：运动类无背景圆，
+                            // 仅非运动类（桌上足球、棋牌等）保留圆形底色。
+                            if !record.gameType.isSportsResumeIcon {
+                                Circle().fill(iconBackgroundColor)
+                            }
+                        }
+
+                    if case .linked = record.source {
+                        Image(systemName: "applewatch")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(width: 18, height: 18)
+                            .background(Theme.primary)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Theme.homeNeutralCardBackground, lineWidth: 2))
+                            .offset(x: 3, y: 3)
+                    }
                 }
                 .padding(.trailing, 16)
 
@@ -281,5 +470,22 @@ struct UnfinishedGameDiscardToast: View {
             .background(Theme.homeNeutralCardBackground)
             .clipShape(Capsule())
             .shadow(color: Theme.overlayShadow, radius: 4, x: 0, y: -2)
+    }
+}
+
+// 对齐安卓 HomeUnfinishedRecentComponents.kt 的 GameType.isSportsResumeIcon：
+// 运动类未完赛条图标为无背景圆的大 emoji，非运动类（桌上足球、棋牌、简单/多人计分等）保留圆形底色。
+extension GameType {
+    var isSportsResumeIcon: Bool {
+        switch self {
+        case .football, .football5v5, .basketball, .basketballTraining, .threeBasketball,
+             .volleyball, .airVolleyball, .beachVolleyball,
+             .pingpong, .tennis, .shuttlecock, .squash, .softTennis, .padel,
+             .badminton, .boxing, .billiards, .eightBall, .nineBall, .snooker,
+             .pickleball, .archery:
+            return true
+        default:
+            return false
+        }
     }
 }

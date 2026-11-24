@@ -27,10 +27,13 @@ enum AnalyticsEvent: String, CaseIterable {
     case feedbackAction = "feedback_action"
     case settingsChange = "settings_change"
     case dataClear = "data_clear"
+    case scoreboardMenuAction = "scoreboard_menu_action"
     case rateApp = "rate_app"
     case castAction = "cast_action"
     case purchaseFlow = "purchase_flow"
     case bookingReminderOpen = "booking_reminder_open"
+    case watchLinkStart = "watch_link_start"
+    case watchLinkResult = "watch_link_result"
 }
 
 enum AnalyticsParameter: String, CaseIterable {
@@ -85,6 +88,7 @@ enum AnalyticsScreen: String, CaseIterable {
     case commonNamesPage = "common_names_page"
     case commonPlacesPage = "common_places_page"
     case scoreboardSettingsPage = "scoreboard_settings_page"
+    case watchLinkPage = "watch_link_page"
     case castPage = "cast_page"
     case feedbackPage = "feedback_page"
     case faqPage = "faq_page"
@@ -172,6 +176,7 @@ enum AnalyticsEntryPoint: String, Hashable {
     case bookingNotification = "booking_notification"
     case meTab = "me_tab"
     case autoAfterLaunchThreshold = "auto_after_launch_threshold"
+    case watchLink = "watch_link"
     case homeTools = "home_tools"
     case toolsPage = "tools_page"
 }
@@ -722,7 +727,7 @@ extension AnalyticsScreen {
             return "schedule"
         case .loginPage, .passwordLoginPage, .qrLoginPage, .profilePage, .accountDeletionPage, .vipPage:
             return "account"
-        case .commonNamesPage, .commonPlacesPage, .scoreboardSettingsPage,
+        case .commonNamesPage, .commonPlacesPage, .scoreboardSettingsPage, .watchLinkPage,
              .feedbackPage, .faqPage, .aboutUsPage, .legalConsentPage, .legalWebPage:
             return "settings"
         case .castPage:

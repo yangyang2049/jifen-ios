@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "النمط";
 "style_background_color" = "لون الخلفية";
 "style_server_color" = "اللون";
-"style_server_style" = "Style";
+"style_server_style" = "النمط";
 "style_text_color" = "لون النص";
 "style_server_indicator" = "مؤشر الإرسال";
 "style_color_automatic" = "تلقائي";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "مؤشرات اليسار واليمين تشترك في لون واحد";
 "scoreboard_style_font_shared_hint" = "يستخدم كل النص الخط المحدد";
 "scoreboard_style_theme_override_hint" = "يؤدي اختيار سمة إلى استبدال الألوان الحالية، ويمكنك تعديل كل لون على حدة بعد ذلك";
-"scoreboard_style_font_size" = "حجم الخط";
+"scoreboard_style_font_size" = "حجم الخط (نفس الحجم على الجانبين)";
 "scoreboard_style_font_size_device_max" = "الحد الأقصى للحجم على هذا الجهاز";
 "scoreboard_style_small" = "صغير";
 "scoreboard_style_large" = "كبير";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 اضغط على منطقة التسجيل اليسرى / اليمنى لإضافة هدف واحد\n ⬆️ اسحب لأعلى للإضافة\n ⬇️ اسحب للأسفل للطرح\n ↩️ اسحب لليسار للتراجع\n ☑️ استخدم التسوية أو النهاية عند انتهاء المباراة";
 "scoreboard_usage_hint_foosball_doubles" = "👆 اضغط على منطقة التسجيل اليسرى / اليمنى لإضافة هدف واحد\n ⬆️ اسحب لأعلى للإضافة\n ⬇️ اسحب للأسفل للطرح\n ↩️ اسحب لليسار للتراجع\n 👥 يتم تحديد أسماء 2V2 قبل المباراة\n ☑️ استخدم التسوية أو النهاية عند انتهاء المباراة";
 "scoreboard_usage_hint_simple_score" = "👆 اضغط على منطقة النتيجة اليسرى / اليمنى للإضافة\n ⬆️ اسحب لأعلى للإضافة\n ⬇️ اسحب للأسفل للطرح\n ↩️ اسحب لليسار للتراجع\n ✏️ اضغط لفترة طويلة أو قم بالتحرير لتغيير الأسماء والنتائج";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 اضغط على بلاطة اللاعب لإضافة نقطة واحدة\n ⬆️ اسحب لأعلى لإضافة 1؛⬇️ اسحب لأسفل للطرح 1\n ↩️ اسحب لليسار للتراجع\n ✏️ الضغط لفترة طويلة على اللاعب لتعديل الاسم والنتيجة\n 🎛️ في وضع الضبط المخصص، يؤدي النقر على اللاعب إلى فتح لوحة الضبط";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 اضغط على بلاطة اللاعب لإضافة نقطة واحدة\n⬆️ اسحب لأعلى لإضافة 1؛⬇️ اسحب لأسفل للطرح 1\n↔️ إذا زاد العدد على 9 لاعبين، اسحب يمينًا أو يسارًا للتنقل أو استخدم النقاط والأسهم أدناه\n↩️ افتح القائمة للتراجع أو للعثور على لاعب\n✏️ الضغط لفترة طويلة على اللاعب لتعديل الاسم والنتيجة\n🎛️ في وضع الضبط المخصص، يؤدي النقر على اللاعب إلى فتح لوحة الضبط";
 "scoreboard_usage_hint_double_tap_point" = "👆 اضغط مرتين على نفس الجانب لطرح 1";
 "scoreboard_usage_hint_double_tap_rack" = "👆 انقر مرتين على الجانب نفسه لطرح شوط واحد";
 "scoreboard_usage_hint_double_tap_player" = "👆 اضغط مرتين على نفس اللاعب لطرح 1";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "النمط";
 "style_workbench_reset" = "استعادة النمط الافتراضي";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "إعادة تعيين";
 "style_workbench_theme" = "السمة";
 "style_workbench_background" = "الخلفية";
 "style_workbench_font" = "الخط";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "استخدم صورة أفقية بنسبة 16:9، مثل 1920×1080. تملأ الصور الشاشة بقصّ وسطي.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "مجاني";
+"scoreboard_theme_free_badge_desc" = "مجاني لفترة محدودة";
+"style_workbench_pick" = "اضغط على النص أو رمز الإرسال للتعديل";
+"style_workbench_photo_source_default" = "صورة افتراضية";
+"style_workbench_photo_source_custom" = "صورة مخصصة";
+"style_workbench_photo_crop_notice" = "تُقص الصورة من المنتصف لملء الشاشة";
+"billiards_group_switch_to_two" = "تم التبديل إلى لاعبين";
+"group_complete_confirm" = "تأكد من معالجة جميع المباريات قبل إنهاء هذا النشاط.";
+"billiards_group_score_panel_positive" = "موجب";
+"billiards_group_score_panel_negative" = "سالب";
+"group_error_applicant_inactive" = "حساب مقدم الطلب غير نشط. لا يمكن الموافقة على الطلب.";

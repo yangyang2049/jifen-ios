@@ -480,6 +480,57 @@ final class RallySessionStore {
             completion()
         }
     }
+    // MARK: - Watch authoritative sync（恢复的手表联动：手机作为跟随方接受手表权威状态）
+
+    private var lastAppliedRemoteGeneration: UInt64?
+    private var lastAppliedRemoteRevision: UInt64?
+
+    func mergeRemoteActions(_ incoming: [DetailedScoreAction]) {
+        guard !incoming.isEmpty else { return }
+        detailedActions = incoming.sorted {
+            ($0.epochMilliseconds ?? 0, $0.id.uuidString) < ($1.epochMilliseconds ?? 0, $1.id.uuidString)
+        }
+    }
+
+    @discardableResult
+    func applyAuthoritativeState(
+        _ state: RallyMatchState,
+        detailedActions incoming: [DetailedScoreAction],
+        revision: UInt64,
+        matchGeneration: UInt64? = nil,
+        persistFormalRecord: Bool = true
+    ) async -> Bool {
+        if let matchGeneration {
+            if lastAppliedRemoteGeneration != matchGeneration {
+                lastAppliedRemoteGeneration = matchGeneration
+                lastAppliedRemoteRevision = nil
+            }
+        }
+        if let lastAppliedRemoteRevision, revision <= lastAppliedRemoteRevision {
+            return false
+        }
+        lastAppliedRemoteRevision = revision
+        _ = await operationTask?.value
+        let session = await core.rebase(to: state, status: state.finished ? .finished : .live)
+        guard lastAppliedRemoteRevision == revision else { return false }
+        self.state = session.state
+        if session.status == .live || !persistFormalRecord {
+            hasPersistedFinishedRecord = false
+        }
+        mergeRemoteActions(incoming)
+        completedSetScores = Self.completedSetScores(from: detailedActions)
+        recordUndoCheckpoints.removeAll(keepingCapacity: true)
+        await synchronizeParticipants(for: session.state)
+        await core.setResumeAuxiliaryPayload(recordContext.encoded)
+        let bundle = await core.resumeBundle()
+        do {
+            try await persist(bundle)
+        } catch {
+            reportPersistenceFailure(error)
+        }
+        return true
+    }
+
 
 
 

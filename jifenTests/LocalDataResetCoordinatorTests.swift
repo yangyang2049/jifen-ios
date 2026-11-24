@@ -1,5 +1,6 @@
 import XCTest
 import Combine
+import LinkCore
 import Observation
 @testable import jifen
 
@@ -66,6 +67,11 @@ final class LocalDataResetCoordinatorTests: XCTestCase {
     func testLiveResetScopeContainsOnlyUserGeneratedDataAndLocalPreferences() {
         let appearance = AppAppearanceStore(defaults: defaults)
         let coordinator = LocalDataResetCoordinator.live(
+            watchLinkService: PhoneWatchLinkService(
+                transport: WatchConnectivityTransport(),
+                contextStore: UserDefaultsLinkDataStore(defaults: defaults),
+                outboxStore: UserDefaultsLinkDataStore(defaults: defaults)
+            ),
             appearance: appearance,
             defaults: defaults
         )
@@ -78,6 +84,7 @@ final class LocalDataResetCoordinatorTests: XCTestCase {
                 .timerRecords,
                 .bookingsAndNotifications,
                 .resumeSessions,
+                .watchLinkState,
                 .legacySyncData,
                 .localPreferencesAndTools,
             ]

@@ -190,7 +190,7 @@
 "doudizhu_player_chris" = "Chris";
 "doudizhu_player_david" = "David";
 "shengji_claim_dealer" = "Aposta per ser el repartidor";
-"shengji_pass_a" = "Pass A";
+"shengji_pass_a" = "Supera l’as";
 "guandan_edit_level_wrap_confirm_title" = "Tornar al rang 2?";
 "guandan_edit_level_wrap_confirm_message" = "Si torneu a augmentar, el rang d'aquest equip es restablirà a 2.";
 "shengji_take_dealer" = "Pren el rol de repartidor";
@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "Estil";
 "style_background_color" = "Color de fons";
 "style_server_color" = "Color";
-"style_server_style" = "Style";
+"style_server_style" = "Estil";
 "style_text_color" = "Color del text";
 "style_server_indicator" = "Indicador de servei";
 "style_color_automatic" = "Automàtic";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "Els indicadors esquerre i dret comparteixen un color";
 "scoreboard_style_font_shared_hint" = "Tot el text utilitza el tipus de lletra seleccionat";
 "scoreboard_style_theme_override_hint" = "Triar un tema substitueix els colors actuals; després els pots ajustar individualment";
-"scoreboard_style_font_size" = "Mida de la lletra";
+"scoreboard_style_font_size" = "Mida de la lletra (igual als dos costats)";
 "scoreboard_style_font_size_device_max" = "Mida màxima en aquest dispositiu";
 "scoreboard_style_small" = "Petit";
 "scoreboard_style_large" = "Gran";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Toca la zona de puntuació esquerra/dreta per sumar 1 gol\n⬆️ Llisca amunt per afegir\n⬇️ Llisca avall per restar\n↩️ Llisca a l’esquerra per desfer\n☑️ Fes servir Liquida o Acaba quan acabi la partida";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Toca la zona de puntuació esquerra/dreta per sumar 1 gol\n⬆️ Llisca amunt per afegir\n⬇️ Llisca avall per restar\n↩️ Llisca a l’esquerra per desfer\n👥 Els noms 2V2 es defineixen abans de la partida\n☑️ Fes servir Liquida o Acaba quan acabi la partida";
 "scoreboard_usage_hint_simple_score" = "👆 Toca la zona de puntuació esquerra/dreta per afegir\n⬆️ Llisca amunt per afegir\n⬇️ Llisca avall per restar\n↩️ Llisca a l’esquerra per desfer\n✏️ Mantén premut o edita per canviar noms i puntuacions";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Toca la targeta d’un jugador per afegir 1 punt\n⬆️ Llisca amunt per sumar 1; ⬇️ llisca avall per restar 1\n↩️ Llisca a l’esquerra per desfer\n✏️ Mantén premut un jugador per editar-ne el nom i la puntuació\n🎛️ En mode d’ajust personalitzat, toca un jugador per obrir el tauler d’ajust";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Toca la targeta d’un jugador per afegir 1 punt\n⬆️ Llisca amunt per sumar 1; ⬇️ llisca avall per restar 1\n↔️ Amb més de 9 jugadors, llisca a esquerra o dreta per canviar de pàgina, o fes servir els punts i les fletxes de sota\n↩️ Obre el menú per desfer una acció o cercar un jugador\n✏️ Mantén premut un jugador per editar-ne el nom i la puntuació\n🎛️ En mode d’ajust personalitzat, toca un jugador per obrir el tauler d’ajust";
 "scoreboard_usage_hint_double_tap_point" = "👆 Fes doble toc al mateix costat per restar 1";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Fes doble toc al mateix costat per restar 1 partida";
 "scoreboard_usage_hint_double_tap_player" = "👆 Fes doble toc al mateix jugador per restar 1";
@@ -1173,7 +1173,7 @@
 "game_squash" = "Esquaix";
 "game_soft_tennis" = "Tennis suau";
 "game_padel" = "Pàdel";
-"game_football_5v5" = "Futbol 5x5";
+"game_football_5v5" = "Futbol 5×5";
 "padel_deuce_mode" = "Regla d’iguals";
 "padel_advantage" = "Avantatge";
 "padel_golden_point" = "Punt daurat";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Estil";
 "style_workbench_reset" = "Restaura l’estil per defecte";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Restableix";
 "style_workbench_theme" = "Tema";
 "style_workbench_background" = "Fons";
 "style_workbench_font" = "Tipus de lletra";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "Fes servir una imatge horitzontal 16:9, per exemple 1920×1080. Les imatges omplen la pantalla amb un retall centrat.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Gratuït";
+"scoreboard_theme_free_badge_desc" = "Gratuït per temps limitat";
+"style_workbench_pick" = "Toca el text o la icona de servei per editar-los";
+"style_workbench_photo_source_default" = "Foto predeterminada";
+"style_workbench_photo_source_custom" = "Foto personalitzada";
+"style_workbench_photo_crop_notice" = "La imatge es retalla pel centre per omplir la pantalla";
+"billiards_group_switch_to_two" = "S’ha canviat a 2 jugadors";
+"group_complete_confirm" = "Comprova que s’hagin gestionat tots els partits abans de finalitzar l’activitat.";
+"billiards_group_score_panel_positive" = "Positiu";
+"billiards_group_score_panel_negative" = "Negatiu";
+"group_error_applicant_inactive" = "El compte del sol·licitant és inactiu. No es pot aprovar la sol·licitud.";

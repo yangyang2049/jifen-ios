@@ -79,19 +79,18 @@ struct GroupInlineMatchRoster: View {
         .onAppear { if !opensPicker { selectFirstEmpty() } }
         .onChange(of: format) { _, _ in pickerSeat = nil; if !opensPicker { selectFirstEmpty() } }
         .sheet(item: $pickerSeat) { seat in
-            NavigationStack {
-                GroupMemberSelector(title: groupText("choose_member", "Choose a member") + " · " + badge(seat.id),
-                                    selectedID: Binding(get: { id(at: seat.id) }, set: { memberID in
-                                        guard !frozen, indices.contains(seat.id) else { return }
-                                        var next = Array(ids.prefix(4))
-                                        while next.count < 4 { next.append("") }
-                                        next[seat.id] = memberID
-                                        ids = next
-                                    }),
-                                    members: members, excluded: Set(indices.filter { $0 != seat.id }.map { id(at: $0) }),
-                                    rosterGroupID: rosterGroupID, matchPicker: true)
-            }
-            .groupAccountBoundary()
+            GroupMatchMemberPickerSheet(
+                title: groupText("choose_member", "Choose a member") + " · " + badge(seat.id),
+                selectedID: Binding(get: { id(at: seat.id) }, set: { memberID in
+                    guard !frozen, indices.contains(seat.id) else { return }
+                    var next = Array(ids.prefix(4))
+                    while next.count < 4 { next.append("") }
+                    next[seat.id] = memberID
+                    ids = next
+                }),
+                members: members, excluded: Set(indices.filter { $0 != seat.id }.map { id(at: $0) }),
+                rosterGroupID: rosterGroupID
+            )
         }
         .onChange(of: ids) { _, _ in
             if let activeSeat, !indices.contains(activeSeat) { selectFirstEmpty() }

@@ -506,6 +506,7 @@ final class LocalizationIntegrityTests: XCTestCase {
     func testEnglishResourcesDoNotContainUnexpectedChineseOrBlankValues() throws {
         let tables = [
             "jifen/Resources/en.lproj/Localizable.strings",
+            "jifenWatch Watch App/Resources/en.lproj/Localizable.strings",
             "jifen/Resources/en.lproj/InfoPlist.strings"
         ]
         // Xiangqi piece faces are Chinese glyphs in every app language.
@@ -574,13 +575,10 @@ final class LocalizationIntegrityTests: XCTestCase {
             "faq_question_1", "faq_answer_1",
             "faq_question_2", "faq_answer_2",
             "faq_question_3", "faq_answer_3",
-            "faq_question_4", "faq_answer_4",
             "faq_question_5", "faq_answer_5",
             "faq_question_6", "faq_answer_6",
             "faq_question_7", "faq_answer_7",
-            "faq_question_8", "faq_answer_8",
-            "faq_question_10", "faq_answer_10",
-            "faq_question_11", "faq_answer_11"
+            "faq_question_8", "faq_answer_8"
         ]
         for (locale, path) in LocalizationTestSupport.localizablePaths {
             let keys = Set(try LocalizationTestSupport.entries(relativePath: path).map(\.key))
@@ -758,7 +756,7 @@ final class LocalizationIntegrityTests: XCTestCase {
         let pattern = #"(?:Text|Button|Label|navigationTitle|alert|confirmationDialog|Section|Picker|TextField|SecureField|accessibilityLabel|accessibilityHint)\s*\(\s*\"([^\"]*[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF][^\"]*)\""#
         var failures: [String] = []
 
-        for directory in ["jifen"] {
+        for directory in ["jifen", "jifenWatch Watch App"] {
             for file in try swiftFiles(in: directory) {
                 let source = try String(contentsOf: file, encoding: .utf8)
                 // 语言门控的纯中文活动页可用「i18n-exempt: <原因>」注记整文件豁免。
@@ -782,6 +780,7 @@ final class LocalizationIntegrityTests: XCTestCase {
             "jifen/Features/Activity/RecentActivityPage.swift",
             "jifen/Features/Activity/TimerRecordDetailPage.swift",
             "jifen/Features/Me/SettingsView.swift",
+            "jifen/Features/Me/WatchLinkSettingsView.swift",
             "jifen/Features/Schedule/SchedulePage.swift",
             "jifen/Features/Home/Components/CommonDataManagementShared.swift",
             "jifen/Features/Tools/ToolsTab.swift",

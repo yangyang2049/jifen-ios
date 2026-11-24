@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "סגנון";
 "style_background_color" = "צבע רקע";
 "style_server_color" = "צבע";
-"style_server_style" = "Style";
+"style_server_style" = "סגנון";
 "style_text_color" = "צבע טקסט";
 "style_server_indicator" = "מחוון הגשה";
 "style_color_automatic" = "אוטומטי";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "מחוונים משמאל וימין חולקים צבע אחד";
 "scoreboard_style_font_shared_hint" = "כל הטקסט משתמש בגופן שנבחר";
 "scoreboard_style_theme_override_hint" = "בחירת ערכת נושא תחליף את הצבעים הנוכחיים; לאחר מכן עדיין אפשר לכוונן כל צבע בנפרד";
-"scoreboard_style_font_size" = "גודל גופן";
+"scoreboard_style_font_size" = "גודל גופן (זהה בשני הצדדים)";
 "scoreboard_style_font_size_device_max" = "גודל מרבי במכשיר זה";
 "scoreboard_style_small" = "קטן";
 "scoreboard_style_large" = "גדול";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 הקישו על אזור הניקוד השמאלי או הימני כדי להוסיף שער לצד המתאים\n⬆️ החליקו למעלה להוספת שער\n⬇️ החליקו למטה להפחתת שער\n↩️ החליקו שמאלה לביטול הפעולה האחרונה\n☑️ בסיום המשחק השתמשו ברישום התוצאה או בסיום המשחק";
 "scoreboard_usage_hint_foosball_doubles" = "👆 הקישו על אזור הניקוד השמאלי או הימני כדי להוסיף שער לצד המתאים\n⬆️ החליקו למעלה להוספת שער\n⬇️ החליקו למטה להפחתת שער\n↩️ החליקו שמאלה לביטול הפעולה האחרונה\n👥 הגדירו שמות לזוגות לפני המשחק\n☑️ בסיום המשחק השתמשו ברישום התוצאה או בסיום המשחק";
 "scoreboard_usage_hint_simple_score" = "👆 הקש על אזור הניקוד שמאלה/ימינה כדי להוסיף\n ⬆️ החלק למעלה כדי להוסיף\n ⬇️ החלק מטה כדי לגרוע\n ↩️ החלק שמאלה כדי לבטל\n ✏️ לחץ לחיצה ארוכה או ערוך כדי לשנות שמות וציונים";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 הקש על אריח שחקן כדי להוסיף נקודה אחת\n ⬆️ החלק למעלה כדי להוסיף 1;⬇️ החלק מטה כדי לגרוע 1\n ↩️ החלק שמאלה כדי לבטל\n ✏️ לחץ לחיצה ארוכה על שחקן כדי לערוך את השם והניקוד\n 🎛️ במצב התאמה מותאמת אישית, הקשה על נגן פותחת את לוח ההתאמה";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 הקש על אריח שחקן כדי להוסיף נקודה אחת\n⬆️ החלק למעלה כדי להוסיף 1;⬇️ החלק מטה כדי לגרוע 1\n↔️ כשיש יותר מ־9 שחקנים, אפשר לדפדף בהחלקה ימינה או שמאלה או בעזרת הנקודות והחצים למטה\n↩️ יש לפתוח את התפריט כדי לבטל פעולה או למצוא שחקן\n✏️ לחץ לחיצה ארוכה על שחקן כדי לערוך את השם והניקוד\n🎛️ במצב התאמה מותאמת אישית, הקשה על נגן פותחת את לוח ההתאמה";
 "scoreboard_usage_hint_double_tap_point" = "👆 הקש פעמיים על אותו צד כדי להחסיר 1";
 "scoreboard_usage_hint_double_tap_rack" = "👆 הקישו פעמיים באותו צד כדי להפחית משחקון אחד";
 "scoreboard_usage_hint_double_tap_player" = "👆 הקש פעמיים על אותו שחקן כדי להחסיר 1";
@@ -1173,7 +1173,7 @@
 "game_squash" = "סקווש";
 "game_soft_tennis" = "טניס רך";
 "game_padel" = "פאדל";
-"game_football_5v5" = "5x5 כדורגל";
+"game_football_5v5" = "5×5 כדורגל";
 "padel_deuce_mode" = "כלל שוויון";
 "padel_advantage" = "יתרון";
 "padel_golden_point" = "נקודת הזהב";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "סגנון";
 "style_workbench_reset" = "שחזור הסגנון המוגדר כברירת מחדל";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "איפוס";
 "style_workbench_theme" = "ערכת נושא";
 "style_workbench_background" = "רקע";
 "style_workbench_font" = "גופן";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "השתמשו בתמונה אופקית 16:9, למשל 1920×1080. תמונות ממלאות את המסך בחיתוך ממורכז.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "חינם";
+"scoreboard_theme_free_badge_desc" = "חינם לזמן מוגבל";
+"style_workbench_pick" = "יש להקיש על הטקסט או על סמל ההגשה כדי לערוך";
+"style_workbench_photo_source_default" = "תמונת ברירת מחדל";
+"style_workbench_photo_source_custom" = "תמונה אישית";
+"style_workbench_photo_crop_notice" = "התמונה נחתכת סביב המרכז כדי למלא את המסך";
+"billiards_group_switch_to_two" = "הועבר למצב של 2 שחקנים";
+"group_complete_confirm" = "יש לוודא שכל המשחקים טופלו לפני סיום הפעילות.";
+"billiards_group_score_panel_positive" = "חיובי";
+"billiards_group_score_panel_negative" = "שלילי";
+"group_error_applicant_inactive" = "חשבון המבקש אינו פעיל. לא ניתן לאשר את הבקשה.";

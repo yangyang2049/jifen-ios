@@ -1,3 +1,4 @@
+import LinkCore
 import OSLog
 import RecordCore
 import ScoreCore
@@ -7,6 +8,7 @@ import UIKit
 
 struct EightBallScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService
     let initialSetup: SportsSetupResult?
     var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)?
@@ -24,6 +26,7 @@ struct EightBallScoreboardView: View {
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
     @State private var showPersistenceError = false
+    @State private var watchSessionId: UUID?
     @State private var manualFinishRequested = false
     @State private var isStartingNewMatch = false
     @State private var scoreboardEditing = false
@@ -117,12 +120,14 @@ struct EightBallScoreboardView: View {
         _rightName = State(initialValue: right)
         _showGameOverDialog = State(initialValue: showFinished)
         _initialParticipantSelections = State(initialValue: initialResumeSessionId == nil ? (initialSetup?.participantSelections ?? [:]) : nil)
+        _watchSessionId = State(initialValue: initialSetup?.linkedWatchSessionId)
     }
 
     private var state: EightBallState { sessionStore.state }
 
     private var scoringLocked: Bool {
-        false
+        watchSessionId != nil
+            && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
     }
 
     var body: some View {
@@ -134,28 +139,66 @@ struct EightBallScoreboardView: View {
         .onAppear {
             onSetupConsumed?()
             registerSync()
-
+            if let watchSessionId,
+               let update = watchLinkService.attachPage(sessionId: watchSessionId),
+               let remote = update.snapshot.eightBallState {
+                detailedActions = update.detailedActions
+                applyAuthoritativeEightBall(remote)
+            }
         }
         .onChange(of: state.finished) { _, finished in
             if finished {
                 showGameOverDialog = true
-
+                notifyLinkedFinishIfNeeded()
             }
         }
         .onChange(of: state) { _, newState in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-
+            publishWatchIfNeeded(newState)
         }
         .onChange(of: sessionStore.persistenceFailureSignal) { _, signal in
             if signal > 0 { showPersistenceError = true }
         }
-
+        .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
+            guard let watchSessionId, let update, update.sessionId == watchSessionId,
+                  let remote = update.snapshot.eightBallState else { return }
+            detailedActions = update.detailedActions
+            applyAuthoritativeEightBall(remote)
+        }
+        .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in
+            guard let watchSessionId, let pending, pending.sessionId == watchSessionId,
+                  let remote = pending.snapshot.eightBallState else { return }
+            detailedActions = pending.detailedActions
+            applyAuthoritativeEightBall(remote)
+            watchLinkService.completePhoneTakeover(messageId: pending.messageId)
+        }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
-
-            sessionStore.flush {
-                _ = saveRecord()
+            let skipSave = watchSessionId != nil
+                && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
+            if let watchSessionId { watchLinkService.detachPage(sessionId: watchSessionId) }
+            if !skipSave {
+                sessionStore.flush {
+                    _ = saveRecord()
+                }
             }
+        }
+        .alert(
+            NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
+            isPresented: reclaimAlertPresented
+        ) {
+            Button(NSLocalizedString("linked_score_accept", value: "同意", comment: "")) {
+                watchLinkService.resolveReclaimRequest(
+                    accepted: true,
+                    snapshot: .eightBall(state),
+                    detailedActions: detailedActions
+                )
+            }
+            Button(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""), role: .cancel) {
+                rejectWatchReclaim()
+            }
+        } message: {
+            Text(NSLocalizedString("linked_score_watch_reclaim_message", value: "是否允许手表在 5 秒内重新接管计分？", comment: ""))
         }
         .alert(
             NSLocalizedString("save_failed", value: "保存失败", comment: ""),
@@ -179,7 +222,7 @@ struct EightBallScoreboardView: View {
                     rightName: rightName,
                     leftScore: state.leftPoints,
                     rightScore: state.rightPoints,
-                    newGameLabel: nil,
+                    newGameLabel: scoringLocked ? TwoSideScoreboardText.linkedNewGameOnWatch : nil,
                     newGameDisabled: scoringLocked || isStartingNewMatch,
                     onNewGame: {
                         startNewMatch()
@@ -229,11 +272,17 @@ struct EightBallScoreboardView: View {
             rightDetail: nil,
             finished: state.finished,
             onLeftTap: {
-
+                guard !scoringLocked else {
+                    showToastMessage(NSLocalizedString("linked_score_watch_control_readonly_toast", value: "手表计分中，手机暂不能计分", comment: ""))
+                    return
+                }
                 send(.addRack(screenSide(.left)))
             },
             onRightTap: {
-
+                guard !scoringLocked else {
+                    showToastMessage(NSLocalizedString("linked_score_watch_control_readonly_toast", value: "手表计分中，手机暂不能计分", comment: ""))
+                    return
+                }
                 send(.addRack(screenSide(.right)))
             },
             onUndo: { scoringLocked ? false : undo() },
@@ -264,12 +313,20 @@ struct EightBallScoreboardView: View {
             },
             onDoubleTapSubtract: { isLeft in
                 // 对齐安卓 subtractRack：终局后不再减；减分下限由 canAdjustRacks 守住（含让杆）。
-
+                guard !scoringLocked else {
+                    showToastMessage(NSLocalizedString("linked_score_watch_control_readonly_toast", value: "手表计分中，手机暂不能计分", comment: ""))
+                    return
+                }
                 guard !state.finished else { return }
                 adjustScore(onScreen: isLeft ? .left : .right, delta: -1)
             },
-            extraMenuItems: [],
-            onMenuAction: { _ in },
+            extraMenuItems: WatchLinkMenuSupport.extraItems(
+                entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
+                sessionId: watchSessionId,
+                isFollower: watchLinkService.isFollower,
+                watchBackgrounded: watchLinkService.watchBackgrounded
+            ),
+            onMenuAction: handleWatchMenu,
             panelAccessory: { isLeft in
                 AnyView(
                     Group {
@@ -305,7 +362,34 @@ struct EightBallScoreboardView: View {
         }
     }
 
-
+    private func handleWatchMenu(_ action: String) {
+        switch action {
+        case "resync":
+            watchLinkService.requestScoreResync()
+        case "takeover":
+            if let id = watchSessionId {
+                Task {
+                    do {
+                        try await watchLinkService.takeover(sessionId: id)
+                        publishWatchIfNeeded(state)
+                    } catch {
+                        showToastMessage(error.localizedDescription)
+                    }
+                }
+            }
+        case "forceTakeover":
+            if let id = watchSessionId {
+                watchLinkService.requestForceTakeoverConfirmation(id)
+            }
+        case "endLink":
+            if let id = watchSessionId {
+                watchLinkService.leaveSession(id)
+                watchSessionId = nil
+            }
+        default:
+            break
+        }
+    }
 
     private func showToastMessage(_ message: String) {
         overflowToastMessage = message
@@ -316,7 +400,16 @@ struct EightBallScoreboardView: View {
         }
     }
 
-
+    private func publishWatchIfNeeded(_ state: EightBallState) {
+        guard let watchSessionId, watchLinkService.isController else { return }
+        watchLinkService.syncWatch(
+            sessionId: watchSessionId,
+            gameType: .eightBall,
+            snapshot: .eightBall(state),
+            detailedActions: detailedActions,
+            participantNames: [leftName, rightName]
+        )
+    }
 
     private var finishedWinnerName: String {
         if state.leftPoints > state.rightPoints { return leftName }
@@ -521,8 +614,13 @@ struct EightBallScoreboardView: View {
         )
     }
     private func exit() {
+        if let id = watchSessionId {
+            watchLinkService.leaveSessionIfMatchFinished(id)
+        }
+        let skipSave = watchSessionId != nil
+            && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
         sessionStore.flush {
-            _ = saveRecord()
+            if !skipSave { _ = saveRecord() }
             performScoreboardExit(
                 onNavigationBack: onNavigationBack,
                 dismiss: dismiss
@@ -546,13 +644,50 @@ struct EightBallScoreboardView: View {
         }
     }
 
+    private var reclaimAlertPresented: Binding<Bool> {
+        Binding(
+            get: { watchLinkService.pendingReclaimRequest != nil },
+            set: { presented in
+                if !presented, watchLinkService.pendingReclaimRequest != nil {
+                    rejectWatchReclaim()
+                }
+            }
+        )
+    }
 
+    private func rejectWatchReclaim() {
+        watchLinkService.resolveReclaimRequest(accepted: false, snapshot: nil, detailedActions: [])
+    }
 
+    private func applyAuthoritativeEightBall(_ remote: EightBallState) {
+        sessionStore.rebase(to: remote) { applied in
+            actionCount = max(actionCount, detailedActions.count)
+            persistRecordContext()
+            if applied.finished, !scoringLocked {
+                _ = saveRecord()
+            }
+            showGameOverDialog = applied.finished
+            manualFinishRequested = false
+        }
+    }
 
-
-
-
-
+    private func notifyLinkedFinishIfNeeded() {
+        guard let watchSessionId, watchLinkService.isController else { return }
+        let winner: MatchSide? = state.leftPoints == state.rightPoints
+            ? nil
+            : (state.leftPoints > state.rightPoints ? .left : .right)
+        watchLinkService.notifyMatchFinished(
+            sessionId: watchSessionId,
+            snapshot: .eightBall(state),
+            recordId: recordID,
+            winnerSide: winner,
+            manualEnd: manualFinishRequested,
+            startTime: startedAt,
+            endTime: Date(),
+            totalScoreChanges: actionCount,
+            participantNames: [leftName, rightName]
+        )
+    }
 
     private func startNewMatch() {
         let previousIdentityRecord = recordID
@@ -597,13 +732,20 @@ struct EightBallScoreboardView: View {
                 scoreboardEditing = false
                 showGameOverDialog = false
                 LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-
+                if let watchSessionId {
+                    watchLinkService.prepareControllerForNewMatch(
+                        sessionId: watchSessionId,
+                        gameType: .eightBall,
+                        snapshot: .eightBall(freshState),
+                        participantNames: [leftName, rightName]
+                    )
+                }
             }
         }
     }
     private func syncSnapshot() -> LocalScoreboardDisplayState {
         var snapshot = LocalScoreboardDisplayState(
-            gameID: GameType.eightBall.canonicalScoreboardIdentifier, title: "",
+            gameID: GameType.eightBall.canonicalScoreboardIdentifier, title: GameType.eightBall.displayName,
               leftName: displayName(onScreen: .left), rightName: displayName(onScreen: .right),
               leftScore: "\(logical(.left))", rightScore: "\(logical(.right))",
               leftDetail: nil, rightDetail: nil,

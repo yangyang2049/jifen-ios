@@ -190,7 +190,7 @@
 "doudizhu_player_chris" = "Chris";
 "doudizhu_player_david" = "David";
 "shengji_claim_dealer" = "Bieddealer";
-"shengji_pass_a" = "Pass A";
+"shengji_pass_a" = "Voorbij A";
 "guandan_edit_level_wrap_confirm_title" = "Rang terugzetten op 2?";
 "guandan_edit_level_wrap_confirm_message" = "Opnieuw verhogen zal de rang van dit team terugzetten op 2.";
 "shengji_take_dealer" = "Neem Dealer";
@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "Stijl";
 "style_background_color" = "Achtergrondkleur";
 "style_server_color" = "kleur";
-"style_server_style" = "Style";
+"style_server_style" = "Stijl";
 "style_text_color" = "Tekstkleur";
 "style_server_indicator" = "Opslagindicator";
 "style_color_automatic" = "Automatisch";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "De linker- en rechterindicatoren delen één kleur";
 "scoreboard_style_font_shared_hint" = "Alle tekst gebruikt het geselecteerde lettertype";
 "scoreboard_style_theme_override_hint" = "Het kiezen van een thema heeft voorrang op de huidige kleuren; je kunt het daarna nog steeds individueel aanpassen";
-"scoreboard_style_font_size" = "Lettergrootte";
+"scoreboard_style_font_size" = "Lettergrootte (gelijk aan beide kanten)";
 "scoreboard_style_font_size_device_max" = "Maximale grootte op dit apparaat";
 "scoreboard_style_small" = "Klein";
 "scoreboard_style_large" = "Groot";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Tik op het linker/rechter scoregebied om 1 doelpunt toe te voegen\n⬆️ Veeg omhoog om toe te voegen\n⬇️ Veeg omlaag om af te trekken\n↩️ Veeg naar links om ongedaan te maken\n☑️ Gebruik Afrekenen of Voltooien wanneer de wedstrijd eindigt";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Tik op het linker/rechter scoregebied om 1 doelpunt toe te voegen\n⬆️ Veeg omhoog om toe te voegen\n⬇️ Veeg omlaag om af te trekken\n↩️ Veeg naar links om ongedaan te maken\n👥 2V2-namen worden vóór de wedstrijd vastgelegd\n☑️ Gebruik Afrekenen of Voltooien wanneer de wedstrijd eindigt";
 "scoreboard_usage_hint_simple_score" = "👆 Tik op het linker/rechter scoregebied om toe te voegen\n⬆️ Veeg omhoog om toe te voegen\n⬇️ Veeg omlaag om af te trekken\n↩️ Veeg naar links om ongedaan te maken\n✏️ Druk lang of bewerk om namen en scores te wijzigen";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Tik op een spelerstegel om 1 punt toe te voegen\n⬆️ Veeg omhoog om 1 toe te voegen; ⬇️ veeg naar beneden om 1 af te trekken\n↩️ Veeg naar links om ongedaan te maken\n✏️ Druk lang op een speler om de naam en score te bewerken\n🎛️ Als je in de aangepaste aanpassingsmodus op een speler tikt, wordt het aanpassingspaneel geopend";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Tik op een spelerstegel om 1 punt toe te voegen\n⬆️ Veeg omhoog om 1 toe te voegen; ⬇️ veeg naar beneden om 1 af te trekken\n↔️ Veeg bij meer dan 9 spelers naar links of rechts, of gebruik de stippen en pijlen onderaan om te bladeren\n↩️ Gebruik het menu om iets ongedaan te maken of een speler te zoeken\n✏️ Druk lang op een speler om de naam en score te bewerken\n🎛️ Als je in de aangepaste aanpassingsmodus op een speler tikt, wordt het aanpassingspaneel geopend";
 "scoreboard_usage_hint_double_tap_point" = "👆 Dubbeltik op dezelfde kant om 1 af te trekken";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Dubbeltik op dezelfde kant om 1 rek af te trekken";
 "scoreboard_usage_hint_double_tap_player" = "👆 Dubbeltik op dezelfde speler om 1 af te trekken";
@@ -1173,7 +1173,7 @@
 "game_squash" = "Squash";
 "game_soft_tennis" = "Soft tennis";
 "game_padel" = "Padel";
-"game_football_5v5" = "5x5 voetbal";
+"game_football_5v5" = "5×5 voetbal";
 "padel_deuce_mode" = "Deuce-regel";
 "padel_advantage" = "Voordeel";
 "padel_golden_point" = "Gouden punt";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Stijl";
 "style_workbench_reset" = "Standaardstijl herstellen";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Opnieuw instellen";
 "style_workbench_theme" = "Thema";
 "style_workbench_background" = "Achtergrond";
 "style_workbench_font" = "Lettertype";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "Gebruik een liggende 16:9-afbeelding, bijvoorbeeld 1920×1080. De afbeelding vult het scherm met een gecentreerde uitsnede.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Gratis";
+"scoreboard_theme_free_badge_desc" = "Tijdelijk gratis";
+"style_workbench_pick" = "Tik op de tekst of het servicepictogram om die te bewerken";
+"style_workbench_photo_source_default" = "Standaardfoto";
+"style_workbench_photo_source_custom" = "Eigen foto";
+"style_workbench_photo_crop_notice" = "De afbeelding wordt vanuit het midden bijgesneden om het scherm te vullen";
+"billiards_group_switch_to_two" = "Overgeschakeld naar 2 spelers";
+"group_complete_confirm" = "Controleer of alle wedstrijden zijn afgehandeld voordat je de activiteit beëindigt.";
+"billiards_group_score_panel_positive" = "Positief";
+"billiards_group_score_panel_negative" = "Negatief";
+"group_error_applicant_inactive" = "Het account van de aanvrager is inactief. Het verzoek kan niet worden goedgekeurd.";

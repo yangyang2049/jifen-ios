@@ -769,8 +769,8 @@
 "scoreboard_style_editor" = "ଶୈଳୀ ଓ ରଙ୍ଗ";
 "scoreboard_style_edit" = "ଶୈଳୀ";
 "style_background_color" = "ପୃଷ୍ଠଭୂମି ରଙ୍ଗ";
-"style_server_color" = "Color";
-"style_server_style" = "Style";
+"style_server_color" = "ରଙ୍ଗ";
+"style_server_style" = "ଶୈଳୀ";
 "style_text_color" = "ପାଠ୍ୟ ରଙ୍ଗ";
 "style_server_indicator" = "ସର୍ଭ୍ ସୂଚକ";
 "style_color_automatic" = "ଅଟୋ";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "ବାମ ଏବଂ ଡାହାଣ ସୂଚକ ଗୋଟିଏ ରଙ୍ଗ ଅଂଶୀଦାର କରନ୍ତି";
 "scoreboard_style_font_shared_hint" = "ସମସ୍ତ ପାଠ୍ୟ ମନୋନୀତ ଫଣ୍ଟ ବ୍ୟବହାର କରେ";
 "scoreboard_style_theme_override_hint" = "ଥିମ୍ ବାଛିଲେ ବର୍ତ୍ତମାନର ରଙ୍ଗ ବଦଳିଯିବ; ପରେ ମଧ୍ୟ ଆପଣ ଅଲଗା ଅଲଗା ଭାବେ ସଜାଡ଼ିପାରିବେ";
-"scoreboard_style_font_size" = "ଫଣ୍ଟ ଆକାର";
+"scoreboard_style_font_size" = "ଫଣ୍ଟ ଆକାର (ଉଭୟ ପାର୍ଶ୍ୱରେ ସମାନ)";
 "scoreboard_style_font_size_device_max" = "ଏହି ଡିଭାଇସରେ ସର୍ବାଧିକ ଆକାର";
 "scoreboard_style_small" = "ଛୋଟ";
 "scoreboard_style_large" = "ବଡ଼";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 1 ଗୋଲ୍ ଯୋଡ଼ିବାକୁ ବାଆଁ/ଡାହାଣ ସ୍କୋର ଅଞ୍ଚଳ ଟ୍ୟାପ୍ କରନ୍ତୁ\n⬆️ ଯୋଡ଼ିବାକୁ ଉପରକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ\n⬇️ କମ଼ାଇବାକୁ ତଳକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ\n↩️ ପୂର୍ବବତ୍ କରିବାକୁ ବାଆଁକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ\n☑️ ମ୍ୟାଚ୍ ଶେଷ ହେଲେ ସେଟଲ୍ ବା ଫିନିଶ୍ ବ୍ୟବହାର କରନ୍ତୁ";
 "scoreboard_usage_hint_foosball_doubles" = "👆 1 ଗୋଲ୍ ଯୋଡ଼ିବାକୁ ବାଆଁ/ଡାହାଣ ସ୍କୋର ଅଞ୍ଚଳ ଟ୍ୟାପ୍ କରନ୍ତୁ\n⬆️ ଯୋଡ଼ିବାକୁ ଉପରକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ\n⬇️ କମ଼ାଇବାକୁ ତଳକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ\n↩️ ପୂର୍ବବତ୍ କରିବାକୁ ବାଆଁକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ\n👥 2V2 ନାମ ମ୍ୟାଚ୍ ପୂର୍ବରୁ ସ୍ଥିର ହୁଏ\n☑️ ମ୍ୟାଚ୍ ଶେଷ ହେଲେ ସେଟଲ୍ ବା ଫିନିଶ୍ ବ୍ୟବହାର କରନ୍ତୁ";
 "scoreboard_usage_hint_simple_score" = "👆 ଯୋଡ଼ିବାକୁ ବାଆଁ/ଡାହାଣ ସ୍କୋର ଅଞ୍ଚଳ ଟ୍ୟାପ୍ କରନ୍ତୁ\n⬆️ ଯୋଡ଼ିବାକୁ ଉପରକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ\n⬇️ କମ଼ାଇବାକୁ ତଳକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ\n↩️ ପୂର୍ବବତ୍ କରିବାକୁ ବାଆଁକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ\n✏️ ନାମ ଓ ସ୍କୋର ବଦଳାଇବାକୁ ଲମ୍ବା ଦବାନ୍ତୁ ବା ଏଡିଟ୍ କରନ୍ତୁ";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 1 ପଏଣ୍ଟ ଯୋଡ଼ିବାକୁ ଖେଳାଳି ଟାଇଲ ଟ୍ୟାପ୍ କରନ୍ତୁ\n⬆️ 1 ଯୋଡ଼ିବାକୁ ଉପରକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ; ⬇️ 1 କମ଼ାଇବାକୁ ତଳକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ\n↩️ ପୂର୍ବବତ୍ କରିବାକୁ ବାଆଁକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ\n✏️ ନାମ ଓ ସ୍କୋର ସଜାଡ଼ିବାକୁ ଖେଳାଳିଙ୍କୁ ଲମ୍ବା ଦବାନ୍ତୁ\n🎛️ କଷ୍ଟମ୍ ଆଡଜଷ୍ଟ ମୋଡ୍ ରେ ଖେଳାଳି ଟ୍ୟାପ୍ କଲେ ଆଡଜଷ୍ଟମେଣ୍ଟ ପ୍ୟାନେଲ ଖୋଲେ";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 1 ପଏଣ୍ଟ ଯୋଡ଼ିବାକୁ ଖେଳାଳି ଟାଇଲ ଟ୍ୟାପ୍ କରନ୍ତୁ\n⬆️ 1 ଯୋଡ଼ିବାକୁ ଉପରକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ; ⬇️ 1 କମ଼ାଇବାକୁ ତଳକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ\n↔️ ୯ରୁ ଅଧିକ ଖେଳାଳି ଥିଲେ ପୃଷ୍ଠା ବଦଳାଇବାକୁ ବାମକୁ କିମ୍ବା ଡାହାଣକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ ବା ତଳର ବିନ୍ଦୁ ଓ ତୀର ବ୍ୟବହାର କରନ୍ତୁ\n↩️ କାମ ପୂର୍ବବତ୍ କରିବାକୁ କିମ୍ବା ଖେଳାଳି ଖୋଜିବାକୁ ମେନୁ ଖୋଲନ୍ତୁ\n✏️ ନାମ ଓ ସ୍କୋର ସଜାଡ଼ିବାକୁ ଖେଳାଳିଙ୍କୁ ଲମ୍ବା ଦବାନ୍ତୁ\n🎛️ କଷ୍ଟମ୍ ଆଡଜଷ୍ଟ ମୋଡ୍ ରେ ଖେଳାଳି ଟ୍ୟାପ୍ କଲେ ଆଡଜଷ୍ଟମେଣ୍ଟ ପ୍ୟାନେଲ ଖୋଲେ";
 "scoreboard_usage_hint_double_tap_point" = "👆 1 କମାଇବାକୁ ସମାନ ପାର୍ଶ୍ୱ ଦୁଇଥର ଟ୍ୟାପ୍ କରନ୍ତୁ";
 "scoreboard_usage_hint_double_tap_rack" = "👆 1 ର୍ୟାକ୍ କମାଇବାକୁ ସମାନ ପାର୍ଶ୍ୱ ଦୁଇଥର ଟ୍ୟାପ୍ କରନ୍ତୁ";
 "scoreboard_usage_hint_double_tap_player" = "👆 1 କମାଇବାକୁ ସମାନ ଖେଳାଳିଙ୍କୁ ଦୁଇଥର ଟ୍ୟାପ୍ କରନ୍ତୁ";
@@ -1173,7 +1173,7 @@
 "game_squash" = "ସ୍କ୍ୱାସ୍";
 "game_soft_tennis" = "ସଫ୍ଟ ଟେନିସ୍";
 "game_padel" = "ପ୍ୟାଡେଲ୍";
-"game_football_5v5" = "5x5 ଫୁଟବଲ୍";
+"game_football_5v5" = "5×5 ଫୁଟବଲ୍";
 "padel_deuce_mode" = "ଡ୍ୟୁସ୍ ନିୟମ";
 "padel_advantage" = "ଆଡଭାଣ୍ଟେଜ୍";
 "padel_golden_point" = "ଗୋଲଡେନ୍ ପଏଣ୍ଟ";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "ଶୈଳୀ";
 "style_workbench_reset" = "ଡିଫଲ୍ଟ ଶୈଳୀ ପୁନଃସ୍ଥାପନ କରନ୍ତୁ";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "ରିସେଟ୍ କରନ୍ତୁ";
 "style_workbench_theme" = "ଥିମ୍";
 "style_workbench_background" = "ପୃଷ୍ଠଭୂମି";
 "style_workbench_font" = "ଫଣ୍ଟ";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "16:9 ଲାଣ୍ଡସ୍କେପ୍ ପ୍ରତିଛବି ବ୍ୟବହାର କରନ୍ତୁ, ଯେପରି 1920×1080। ପ୍ରତିଛବି ମଝିରେ କାଟି ସ୍କ୍ରିନ୍ ଭରିଯାଏ।";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "ମାଗଣା";
+"scoreboard_theme_free_badge_desc" = "ସୀମିତ ସମୟ ପାଇଁ ମାଗଣା";
+"style_workbench_pick" = "ସମ୍ପାଦନ କରିବାକୁ ଲେଖା କିମ୍ବା ସର୍ଭ ଆଇକନ୍‌ରେ ଟାପ୍ କରନ୍ତୁ";
+"style_workbench_photo_source_default" = "ଡିଫଲ୍ଟ ଫଟୋ";
+"style_workbench_photo_source_custom" = "ନିଜ ଫଟୋ";
+"style_workbench_photo_crop_notice" = "ସ୍କ୍ରିନ୍ ପୂରଣ କରିବାକୁ ଛବିଟି ମଝିରୁ କଟାଯାଏ";
+"billiards_group_switch_to_two" = "୨ ଜଣ ଖେଳାଳିକୁ ବଦଳାଗଲା";
+"group_complete_confirm" = "ଏହି କାର୍ଯ୍ୟକଳାପ ଶେଷ କରିବା ପୂର୍ବରୁ ସବୁ ମ୍ୟାଚ୍‌ର କାମ ସରିଛି କି ଦେଖନ୍ତୁ।";
+"billiards_group_score_panel_positive" = "ଧନାତ୍ମକ";
+"billiards_group_score_panel_negative" = "ଋଣାତ୍ମକ";
+"group_error_applicant_inactive" = "ଆବେଦକଙ୍କ ଆକାଉଣ୍ଟ ସକ୍ରିୟ ନାହିଁ। ଅନୁରୋଧ ଅନୁମୋଦନ କରାଯାଇପାରିବ ନାହିଁ।";

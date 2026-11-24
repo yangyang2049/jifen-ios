@@ -9,6 +9,7 @@ final class GroupBilliardsUITests:XCTestCase {
     }
     func testLaunchUsesSharedSetupAndRequiresMembers() {
         continueAfterFailure = false
+        XCUIDevice.shared.orientation = .portrait
         let app = XCUIApplication()
         app.launchArguments = [
             "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent",
@@ -37,6 +38,10 @@ final class GroupBilliardsUITests:XCTestCase {
         second.tap()
         let close = app.buttons["group_match_picker_close"]
         XCTAssertTrue(close.waitForExistence(timeout: 5))
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            XCTAssertGreaterThan(close.frame.midY, app.frame.height * 0.25)
+        }
+        UITestScreenshotStore.capture(app, name: "billiards-compact-seat-picker", testCase: self)
         close.tap()
         XCTAssertTrue(close.waitForNonExistence(timeout: 5))
         second.tap()
@@ -115,6 +120,7 @@ final class GroupBilliardsUITests:XCTestCase {
         for group in ["nine_ball","eight_ball","snooker","standard"] {
             XCTAssertTrue(app.buttons["billiards_variant_chip_"+group].waitForExistence(timeout:10), "缺少玩法组 chip: "+group)
         }
+        UITestScreenshotStore.capture(app, name: "billiards-manual-choices", testCase: self)
         // 九球的民间 / 比赛积分是页内分段，人数分段只在民间出现。
         XCTAssertTrue(app.buttons["billiards_family_folk"].exists);XCTAssertTrue(app.buttons["billiards_family_tournament"].exists)
         let count=app.buttons["billiards_count_3"];XCTAssertTrue(count.waitForExistence(timeout:5));count.tap()
@@ -133,13 +139,23 @@ final class GroupBilliardsUITests:XCTestCase {
     }
 
     func testSignedScorePanelKeepsUnbalancedResultDisabledAtLargestTextSize() {
+        checkSignedScorePanel(largeText: true)
+    }
+
+    func testSignedScorePanelFitsCompactHeight() {
+        checkSignedScorePanel(largeText: false)
+    }
+
+    private func checkSignedScorePanel(largeText: Bool) {
         continueAfterFailure = false
+        XCUIDevice.shared.orientation = .portrait
         let app = XCUIApplication()
         app.launchArguments = [
             "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent",
             "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing",
             "-UITestGroupsFixture", "-UITestGroupsFreshDrafts", "-UITestBilliardsGroup",
-            "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge",
+            "-UIPreferredContentSizeCategoryName",
+            largeText ? "UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge" : "UICTContentSizeCategoryL",
             "-national_day_2026_10_autopopup_count", "99"
         ]
         app.launch()
@@ -171,9 +187,15 @@ final class GroupBilliardsUITests:XCTestCase {
         XCTAssertTrue(submit.isEnabled)
         tapVisible("billiards_score_0")
         XCTAssertTrue(app.buttons["billiards_score_key_5"].waitForExistence(timeout: 5))
+        if !largeText {
+            let panel = app.scrollViews["billiards_score_panel"]
+            XCTAssertTrue(panel.exists)
+            XCTAssertLessThan(panel.frame.height, app.frame.height * 0.75)
+            XCTAssertTrue(app.buttons["billiards_score_key_done"].isHittable)
+        }
         tapVisible("billiards_score_key_5", avoidFooter: false)
         let attachment = XCTAttachment(screenshot: app.screenshot())
-        attachment.name = "billiards-score-panel-largest-text"
+        attachment.name = largeText ? "billiards-score-panel-largest-text" : "billiards-score-panel-compact"
         attachment.lifetime = .keepAlways
         add(attachment)
         tapVisible("billiards_score_key_done", avoidFooter: false)

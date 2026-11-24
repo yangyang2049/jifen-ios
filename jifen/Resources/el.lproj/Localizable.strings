@@ -770,7 +770,7 @@
 "scoreboard_style_edit" = "Στυλ";
 "style_background_color" = "Χρώμα φόντου";
 "style_server_color" = "χρώμα";
-"style_server_style" = "Style";
+"style_server_style" = "Στυλ";
 "style_text_color" = "Χρώμα κειμένου";
 "style_server_indicator" = "Ένδειξη σερβίς";
 "style_color_automatic" = "Αυτόματο";
@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "Η αριστερή και η δεξιά ένδειξη μοιράζονται ένα χρώμα";
 "scoreboard_style_font_shared_hint" = "Όλο το κείμενο χρησιμοποιεί την επιλεγμένη γραμματοσειρά";
 "scoreboard_style_theme_override_hint" = "Η επιλογή ενός θέματος αντικαθιστά τα τρέχοντα χρώματα. Μπορείτε ακόμα να προσαρμόσετε μεμονωμένα μετά";
-"scoreboard_style_font_size" = "Μέγεθος γραμματοσειράς";
+"scoreboard_style_font_size" = "Μέγεθος γραμματοσειράς (ίδιο και στις δύο πλευρές)";
 "scoreboard_style_font_size_device_max" = "Μέγιστο μέγεθος σε αυτήν τη συσκευή";
 "scoreboard_style_small" = "Μικρό";
 "scoreboard_style_large" = "Μεγάλο";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Πατήστε αριστερή/δεξιά περιοχή σκορ για να προσθέσετε 1 γκολ\n⬆️ Σύρετε προς τα επάνω για προσθήκη\n⬇️ Σύρετε προς τα κάτω για αφαίρεση\n↩️ Σύρετε προς τα αριστερά για αναίρεση\n☑️ Χρησιμοποιήστε το Διακανονισμός ή το Ολοκλήρωση όταν τελειώσει ο αγώνας";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Πατήστε αριστερή/δεξιά περιοχή σκορ για να προσθέσετε 1 γκολ\n⬆️ Σύρετε προς τα επάνω για προσθήκη\n⬇️ Σύρετε προς τα κάτω για αφαίρεση\n↩️ Σύρετε προς τα αριστερά για αναίρεση\n👥 Τα ονόματα 2V2 ορίζονται πριν από τον αγώνα\n☑️ Χρησιμοποιήστε το Διακανονισμός ή Ολοκλήρωση όταν τελειώσει ο αγώνας";
 "scoreboard_usage_hint_simple_score" = "👆 Πατήστε αριστερά/δεξιά περιοχή βαθμολογίας για προσθήκη\n⬆️ Σύρετε προς τα επάνω για προσθήκη\n⬇️ Σύρετε προς τα κάτω για αφαίρεση\n↩️ Σύρετε προς τα αριστερά για αναίρεση\n✏️ Πατήστε παρατεταμένα ή επεξεργαστείτε για να αλλάξετε ονόματα και βαθμολογίες";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Πατήστε ένα πλακίδιο παίκτη για να προσθέσετε 1 πόντο\n⬆️ Σύρετε προς τα επάνω για να προσθέσετε 1.⬇️ Σύρετε προς τα κάτω για να αφαιρέσετε 1\n↩️ Σύρετε προς τα αριστερά για αναίρεση\n✏️ Πατήστε παρατεταμένα έναν παίκτη για να επεξεργαστείτε το όνομα και το σκορ\n🎛️ Στη λειτουργία προσαρμοσμένης προσαρμογής, πατώντας ένα παίκτη ανοίγει ο πίνακας προσαρμογής";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Πατήστε ένα πλακίδιο παίκτη για να προσθέσετε 1 πόντο\n⬆️ Σύρετε προς τα επάνω για να προσθέσετε 1.⬇️ Σύρετε προς τα κάτω για να αφαιρέσετε 1\n↔️ Με περισσότερους από 9 παίκτες, σύρε αριστερά ή δεξιά για αλλαγή σελίδας ή χρησιμοποίησε τις τελείες και τα βέλη κάτω\n↩️ Άνοιξε το μενού για αναίρεση ή εύρεση παίκτη\n✏️ Πατήστε παρατεταμένα έναν παίκτη για να επεξεργαστείτε το όνομα και το σκορ\n🎛️ Στη λειτουργία προσαρμοσμένης προσαρμογής, πατώντας ένα παίκτη ανοίγει ο πίνακας προσαρμογής";
 "scoreboard_usage_hint_double_tap_point" = "👆 Πατήστε δύο φορές στην ίδια πλευρά για να αφαιρέσετε 1";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Πατήστε δύο φορές στην ίδια πλευρά για αφαίρεση 1 φρέιμ";
 "scoreboard_usage_hint_double_tap_player" = "👆 Πατήστε δύο φορές τον ίδιο παίκτη για να αφαιρέσετε 1";
@@ -1173,7 +1173,7 @@
 "game_squash" = "Σκουός";
 "game_soft_tennis" = "Soft tennis";
 "game_padel" = "Πάντελ";
-"game_football_5v5" = "Ποδόσφαιρο 5x5";
+"game_football_5v5" = "Ποδόσφαιρο 5×5";
 "padel_deuce_mode" = "Κανόνας ισοπαλίας";
 "padel_advantage" = "Πλεονέκτημα";
 "padel_golden_point" = "Χρυσός Πόντος";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Στυλ";
 "style_workbench_reset" = "Επαναφορά προεπιλεγμένου στυλ";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Επαναφορά";
 "style_workbench_theme" = "Θέμα";
 "style_workbench_background" = "Φόντο";
 "style_workbench_font" = "Γραμματοσειρά";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "Χρησιμοποιήστε οριζόντια εικόνα 16:9, π.χ. 1920×1080. Οι εικόνες γεμίζουν την οθόνη με κεντρική περικοπή.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Δωρεάν";
+"scoreboard_theme_free_badge_desc" = "Δωρεάν για περιορισμένο χρόνο";
+"style_workbench_pick" = "Πάτησε το κείμενο ή το εικονίδιο του σερβίς για επεξεργασία";
+"style_workbench_photo_source_default" = "Προεπιλεγμένη φωτογραφία";
+"style_workbench_photo_source_custom" = "Δική σου φωτογραφία";
+"style_workbench_photo_crop_notice" = "Η εικόνα περικόπτεται γύρω από το κέντρο για να καλύψει την οθόνη";
+"billiards_group_switch_to_two" = "Έγινε αλλαγή σε 2 παίκτες";
+"group_complete_confirm" = "Βεβαιώσου ότι έχουν διευθετηθεί όλοι οι αγώνες πριν ολοκληρώσεις τη δραστηριότητα.";
+"billiards_group_score_panel_positive" = "Θετικό";
+"billiards_group_score_panel_negative" = "Αρνητικό";
+"group_error_applicant_inactive" = "Ο λογαριασμός του αιτούντος είναι ανενεργός. Το αίτημα δεν μπορεί να εγκριθεί.";

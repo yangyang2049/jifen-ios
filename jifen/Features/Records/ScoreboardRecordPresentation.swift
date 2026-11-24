@@ -514,6 +514,9 @@ enum ScoreboardRecordActionAdapter {
                     let code = parts[safe: 2] ?? "state"
                     let snapshotScores = parts[safe: 3]?.split(separator: ",").compactMap { Int($0) } ?? []
                     let snapshotSets = parts[safe: 4]?.split(separator: ",").compactMap { Int($0) } ?? []
+                    // Football goals append "football:<period>:<elapsed>" after
+                    // the set-score segment so records can show 53′ / 45+2′.
+                    let footballClock = parts[safe: 5].flatMap(parseFootballClock)
                     let type: DetailedScoreActionType
                     if code == "undo" { type = .undo }
                     else if code == "reset" { type = .reset }
@@ -525,7 +528,7 @@ enum ScoreboardRecordActionAdapter {
                     else { type = .scoreChanged }
                     scores.replaceSubrange(0..<min(scores.count, snapshotScores.count), with: snapshotScores.prefix(scores.count))
                     if !snapshotSets.isEmpty { setScores.replaceSubrange(0..<min(setScores.count, snapshotSets.count), with: snapshotSets.prefix(setScores.count)) }
-                    result.append(DetailedScoreAction(type: type, epochMilliseconds: timestamp, scores: snapshotScores, setScores: snapshotSets, setNumber: setNumber, roundNumber: roundNumber, periodNumber: periodNumber, operationCode: code, summary: code))
+                    result.append(DetailedScoreAction(type: type, epochMilliseconds: timestamp, scores: snapshotScores, setScores: snapshotSets, setNumber: setNumber, roundNumber: roundNumber, periodNumber: periodNumber, operationCode: code, summary: code, footballPeriod: footballClock?.0, footballElapsedSeconds: footballClock?.1))
                     if type == .roundFinished { roundNumber += 1 }
                     continue
                 case "reset": result.append(DetailedScoreAction(type: .reset, epochMilliseconds: timestamp, scores: scores, operationCode: "reset", summary: raw)); scores = [0, 0, 0, 0]; continue
@@ -597,6 +600,11 @@ enum ScoreboardRecordActionAdapter {
         default: resolvedTeam = nil
         }
         return DetailedScoreAction(type: type, epochMilliseconds: time, team: resolvedTeam, scores: scores, setScores: sets, setNumber: set, roundNumber: round, periodNumber: period, scoreChange: delta, operationCode: raw.split(separator: "|").dropFirst().first.map(String.init), summary: raw)
+    }
+
+    private static func parseFootballClock(_ token: String) -> (period: Int, elapsed: Int)? {
+        guard let decoded = FootballClockAnnotation.decode(token) else { return nil }
+        return (decoded.period, decoded.elapsedSeconds)
     }
 
     private static func parseSideDelta(_ raw: String) -> (index: Int, delta: Int)? {

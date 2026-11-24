@@ -797,7 +797,7 @@
 "scoreboard_style_server_shared_hint" = "Les indicateurs gauche et droit partagent une seule couleur";
 "scoreboard_style_font_shared_hint" = "Tout le texte utilise la police sélectionnée";
 "scoreboard_style_theme_override_hint" = "Choisir un thème remplace les couleurs actuelles ; vous pourrez ensuite les régler individuellement";
-"scoreboard_style_font_size" = "Taille de la police";
+"scoreboard_style_font_size" = "Taille de la police (identique des deux côtés)";
 "scoreboard_style_font_size_device_max" = "Taille maximale sur cet appareil";
 "scoreboard_style_small" = "Petit";
 "scoreboard_style_large" = "Grand";
@@ -1032,7 +1032,7 @@
 "scoreboard_usage_hint_foosball" = "👆 Touchez la zone de score gauche/droite pour ajouter 1 but\n⬆️ Balayez vers le haut pour ajouter\n⬇️ Balayez vers le bas pour soustraire\n↩️ Balayez vers la gauche pour annuler\n☑️ Utilisez Clôturer ou Terminer à la fin du match";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Touchez la zone de score gauche/droite pour ajouter 1 but\n⬆️ Balayez vers le haut pour ajouter\n⬇️ Balayez vers le bas pour soustraire\n↩️ Balayez vers la gauche pour annuler\n👥 Les noms du mode 2c2 sont définis avant le match\n☑️ Utilisez Clôturer ou Terminer à la fin du match";
 "scoreboard_usage_hint_simple_score" = "👆 Appuyez sur la zone de score gauche/droite pour ajouter\n ⬆️ Faites glisser votre doigt vers le haut pour ajouter\n ⬇️ Faites glisser votre doigt vers le bas pour soustraire\n ↩️ Balayez vers la gauche pour annuler\n ✏️ Appuyez longuement ou modifiez pour modifier les noms et les scores";
-"scoreboard_usage_hint_multi_scoreboard" = "👆 Touchez la vignette d’un joueur pour ajouter 1 point\n⬆️ Balayez vers le haut pour ajouter 1 ; ⬇️ balayez vers le bas pour soustraire 1\n↩️ Balayez vers la gauche pour annuler\n✏️ Appuyez longuement sur un joueur pour modifier son nom et son score\n🎛️ En mode de réglage personnalisé, toucher un joueur ouvre le panneau de réglage";
+"scoreboard_usage_hint_multi_scoreboard" = "👆 Touchez la vignette d’un joueur pour ajouter 1 point\n⬆️ Balayez vers le haut pour ajouter 1 ; ⬇️ balayez vers le bas pour soustraire 1\n↔️ Au-delà de 9 joueurs, balaie vers la gauche ou la droite ou utilise les points et les flèches du bas pour changer de page\n↩️ Ouvre le menu pour annuler une action ou trouver un joueur\n✏️ Appuyez longuement sur un joueur pour modifier son nom et son score\n🎛️ En mode de réglage personnalisé, toucher un joueur ouvre le panneau de réglage";
 "scoreboard_usage_hint_double_tap_point" = "👆 Appuyez deux fois sur le même côté pour soustraire 1";
 "scoreboard_usage_hint_double_tap_rack" = "👆 Appuyez deux fois sur le même côté pour soustraire 1 rack";
 "scoreboard_usage_hint_double_tap_player" = "👆 Appuyez deux fois sur le même joueur pour soustraire 1";
@@ -2738,7 +2738,7 @@
 /* Scoreboard style workbench */
 "style_workbench_title" = "Style";
 "style_workbench_reset" = "Restaurer le style par défaut";
-"style_workbench_reset_short" = "Reset";
+"style_workbench_reset_short" = "Réinitialiser";
 "style_workbench_theme" = "Thème";
 "style_workbench_background" = "Arrière-plan";
 "style_workbench_font" = "Police";
@@ -2773,9 +2773,14 @@
 "style_workbench_image_advice" = "Utilisez une image horizontale 16:9, par exemple 1920×1080. L’image remplit l’écran avec un recadrage centré.";
 
 /* Style workbench: limit-free badge, free-edit hint, photo source and crop hint. */
-"scoreboard_theme_free_badge" = "Free";
-"scoreboard_theme_free_badge_desc" = "Free for a limited time";
-"style_workbench_pick" = "Tap text or the serving icon to edit";
-"style_workbench_photo_source_default" = "Default photo";
-"style_workbench_photo_source_custom" = "Custom photo";
-"style_workbench_photo_crop_notice" = "The image is center-cropped to fill the screen";
+"scoreboard_theme_free_badge" = "Gratuit";
+"scoreboard_theme_free_badge_desc" = "Gratuit pour une durée limitée";
+"style_workbench_pick" = "Touche le texte ou l’icône de service pour le modifier";
+"style_workbench_photo_source_default" = "Photo par défaut";
+"style_workbench_photo_source_custom" = "Photo personnalisée";
+"style_workbench_photo_crop_notice" = "L’image est recadrée au centre pour remplir l’écran";
+"billiards_group_switch_to_two" = "Passage à 2 joueurs";
+"group_complete_confirm" = "Vérifie que tous les matchs ont été traités avant de terminer l’activité.";
+"billiards_group_score_panel_positive" = "Positif";
+"billiards_group_score_panel_negative" = "Négatif";
+"group_error_applicant_inactive" = "Le compte du demandeur est inactif. La demande ne peut pas être approuvée.";

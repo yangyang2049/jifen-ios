@@ -1,3 +1,4 @@
+import LinkCore
 import OSLog
 import RecordCore
 import ScoreCore
@@ -83,6 +84,7 @@ struct NineBallPendingTransfer: Equatable {
 struct NineBallChaseScoreboardView: View {
     @Environment(\.scoreboardEditAboveMenu) private var editAboveMenu
     @Environment(\.dismiss) private var dismiss
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService
     let initialSetup: SportsSetupResult?
     var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)?
@@ -120,11 +122,13 @@ struct NineBallChaseScoreboardView: View {
     @State private var chromeVisible = true
     @State private var immersiveGeneration = 0
     @State private var previousIdleTimerDisabled: Bool?
+    @State private var watchSessionId: UUID?
     @State private var manualFinishRequested = false
     @State private var isStartingNewMatch = false
 
     private var scoringLocked: Bool {
-        false
+        watchSessionId != nil
+            && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
     }
 
     private var hasChaseDialog: Bool {
@@ -152,7 +156,7 @@ struct NineBallChaseScoreboardView: View {
             finishConfirming: menuConfirm.finishConfirming,
             settleConfirming: menuConfirm.settleConfirming,
             scoringEnabled: !scoringLocked,
-            extraItems: state.usesRackRules ? [
+            extraItems: (state.usesRackRules ? [
                 ScoreboardMenuItem(
                     title: NSLocalizedString("nine_ball_current_breaker", value: "本局开球人", comment: ""),
                     action: "nineBallBreaker",
@@ -160,7 +164,12 @@ struct NineBallChaseScoreboardView: View {
                     iconAsset: "ic_snooker_cue",
                     enabled: !state.finished
                 )
-            ] : []
+            ] : []) + WatchLinkMenuSupport.extraItems(
+                entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
+                sessionId: watchSessionId,
+                isFollower: watchLinkService.isFollower,
+                watchBackgrounded: watchLinkService.watchBackgrounded
+            )
         )
     }
 
@@ -253,6 +262,7 @@ struct NineBallChaseScoreboardView: View {
         _playerNames = State(initialValue: names)
         _showGameOverDialog = State(initialValue: showFinished)
         _initialParticipantSelections = State(initialValue: initialResumeSessionId == nil ? (initialSetup?.participantSelections ?? [:]) : nil)
+        _watchSessionId = State(initialValue: initialSetup?.linkedWatchSessionId)
     }
 
     private var state: NineBallChaseState { sessionStore.state }
@@ -379,7 +389,7 @@ struct NineBallChaseScoreboardView: View {
                     gameType: .nineBall,
                     multiNames: (0..<state.playerCount).map { playerName($0) },
                     multiScores: Array(state.playerPoints.prefix(state.playerCount)),
-                    newGameLabel: nil,
+                    newGameLabel: scoringLocked ? TwoSideScoreboardText.linkedNewGameOnWatch : nil,
                     newGameDisabled: scoringLocked || isStartingNewMatch,
                     onNewGame: {
                         startNewMatch()
@@ -428,11 +438,34 @@ struct NineBallChaseScoreboardView: View {
                             showNineBallToast(ScoreboardMenuConfirmAction.exchangeSide.localizedToast)
                         }
                     case "displaySettings": showDisplaySettings = true; showMenu = false
+                    case "resync":
+                        watchLinkService.requestScoreResync()
+                        showMenu = false
+                    case "takeover":
+                        if let id = watchSessionId {
+                            Task {
+                                do {
+                                    try await watchLinkService.takeover(sessionId: id)
+                                    publishWatchIfNeeded(state)
+                                } catch {
+                                    showNineBallToast(error.localizedDescription)
+                                }
+                            }
+                        }
+                        showMenu = false
+                    case "forceTakeover":
+                        if let id = watchSessionId {
+                            watchLinkService.requestForceTakeoverConfirmation(id)
+                        }
+                        showMenu = false
                     case "nineBallBreaker":
                         showMenu = false
                         showBreakerPicker = true
                     case "endLink":
-
+                        if let id = watchSessionId {
+                            watchLinkService.leaveSession(id)
+                            watchSessionId = nil
+                        }
                         showMenu = false
                     default: break
                     }
@@ -500,7 +533,12 @@ struct NineBallChaseScoreboardView: View {
             appearance = .current(styleID: typographySession.styleID)
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
-
+            if let watchSessionId,
+               let update = watchLinkService.attachPage(sessionId: watchSessionId),
+               let remote = update.snapshot.nineBallState {
+                detailedActions = update.detailedActions
+                applyAuthoritativeNineBall(remote)
+            }
             revealImmersiveChrome()
             if state.usesRackRules,
                !UserDefaults.standard.bool(forKey: "nineBall14710BreakerIntroSeen") {
@@ -526,7 +564,7 @@ struct NineBallChaseScoreboardView: View {
         .onChange(of: state.finished) { _, finished in
             if finished {
                 showGameOverDialog = true
-
+                notifyLinkedFinishIfNeeded()
             }
         }
         .onChange(of: state) { _, newState in
@@ -535,19 +573,35 @@ struct NineBallChaseScoreboardView: View {
                 showNineBallRetryToast()
             }
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-
+            publishWatchIfNeeded(newState)
         }
         .onChange(of: sessionStore.persistenceFailureSignal) { _, signal in
             if signal > 0 {
                 showNineBallToast(NSLocalizedString("scoreboard_save_failed", value: "保存失败，请稍后重试", comment: ""))
             }
         }
-
+        .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
+            guard let watchSessionId, let update, update.sessionId == watchSessionId,
+                  let remote = update.snapshot.nineBallState else { return }
+            detailedActions = update.detailedActions
+            applyAuthoritativeNineBall(remote)
+        }
+        .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in
+            guard let watchSessionId, let pending, pending.sessionId == watchSessionId,
+                  let remote = pending.snapshot.nineBallState else { return }
+            detailedActions = pending.detailedActions
+            applyAuthoritativeNineBall(remote)
+            watchLinkService.completePhoneTakeover(messageId: pending.messageId)
+        }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
-
-            sessionStore.flush {
-                _ = saveRecord()
+            let skipSave = watchSessionId != nil
+                && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
+            if let watchSessionId { watchLinkService.detachPage(sessionId: watchSessionId) }
+            if !skipSave {
+                sessionStore.flush {
+                    _ = saveRecord()
+                }
             }
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
         }
@@ -566,9 +620,39 @@ struct NineBallChaseScoreboardView: View {
                     }
             }
         }
+        .alert(
+            NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
+            isPresented: reclaimAlertPresented
+        ) {
+            Button(NSLocalizedString("linked_score_accept", value: "同意", comment: "")) {
+                var snapshot = state
+                snapshot.playerNames = Array((playerNames + Array(repeating: "", count: 4)).prefix(4))
+                watchLinkService.resolveReclaimRequest(
+                    accepted: true,
+                    snapshot: .nineBall(snapshot),
+                    detailedActions: detailedActions
+                )
+            }
+            Button(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""), role: .cancel) {
+                rejectWatchReclaim()
+            }
+        } message: {
+            Text(NSLocalizedString("linked_score_watch_reclaim_message", value: "是否允许手表在 5 秒内重新接管计分？", comment: ""))
+        }
     }
 
-
+    private func publishWatchIfNeeded(_ state: NineBallChaseState) {
+        guard let watchSessionId, watchLinkService.isController else { return }
+        var snapshot = state
+        snapshot.playerNames = Array((playerNames + Array(repeating: "", count: 4)).prefix(4))
+        watchLinkService.syncWatch(
+            sessionId: watchSessionId,
+            gameType: .nineBall,
+            snapshot: .nineBall(snapshot),
+            detailedActions: detailedActions,
+            participantNames: (0..<state.playerCount).map { playerName($0) }
+        )
+    }
 
     private var finishedWinnerName: String {
         let active = Array(state.playerPoints.prefix(state.playerCount))
@@ -661,7 +745,7 @@ struct NineBallChaseScoreboardView: View {
 
                 Spacer(minLength: 0)
 
-                if !showEditPanel && !showDisplaySettings {
+                if !showEditPanel {
                     // 安卓 NineBallScoreScreen ChaseStatGrid（edgeToEdge 横排 3-4 人）：
                     // 3 列 × 2 行、1pt 缝隙、白 11% 直角格、标签 13pt/白 78%、数值 16pt Bold。
                     VStack(spacing: 1) {
@@ -1577,8 +1661,13 @@ struct NineBallChaseScoreboardView: View {
     }
 
     private func exit() {
+        if let id = watchSessionId {
+            watchLinkService.leaveSessionIfMatchFinished(id)
+        }
+        let skipSave = watchSessionId != nil
+            && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
         sessionStore.flush {
-            _ = saveRecord()
+            if !skipSave { _ = saveRecord() }
             performScoreboardExit(
                 onNavigationBack: onNavigationBack,
                 dismiss: dismiss
@@ -1602,13 +1691,56 @@ struct NineBallChaseScoreboardView: View {
         }
     }
 
+    private var reclaimAlertPresented: Binding<Bool> {
+        Binding(
+            get: { watchLinkService.pendingReclaimRequest != nil },
+            set: { presented in
+                if !presented, watchLinkService.pendingReclaimRequest != nil {
+                    rejectWatchReclaim()
+                }
+            }
+        )
+    }
 
+    private func rejectWatchReclaim() {
+        watchLinkService.resolveReclaimRequest(accepted: false, snapshot: nil, detailedActions: [])
+    }
 
+    private func applyAuthoritativeNineBall(_ remote: NineBallChaseState) {
+        sessionStore.rebase(to: remote) { applied in
+            actionCount = max(actionCount, detailedActions.count)
+            persistRecordContext()
+            if applied.playerNames.contains(where: { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) {
+                playerNames = (0..<4).map { applied.resolvedName(at: $0, fallback: playerNames[safe: $0]) }
+            }
+            if applied.finished, !scoringLocked {
+                _ = saveRecord()
+            }
+            showGameOverDialog = applied.finished
+            manualFinishRequested = false
+        }
+    }
 
-
-
-
-
+    private func notifyLinkedFinishIfNeeded() {
+        guard let watchSessionId, watchLinkService.isController else { return }
+        let activeScores = Array(state.playerPoints.prefix(state.playerCount))
+        let winner: MatchSide? = state.playerCount == 2 && activeScores.count >= 2 && activeScores[0] != activeScores[1]
+            ? (activeScores[0] > activeScores[1] ? .left : .right)
+            : nil
+        var snapshot = state
+        snapshot.playerNames = Array((playerNames + Array(repeating: "", count: 4)).prefix(4))
+        watchLinkService.notifyMatchFinished(
+            sessionId: watchSessionId,
+            snapshot: .nineBall(snapshot),
+            recordId: recordID,
+            winnerSide: winner,
+            manualEnd: manualFinishRequested,
+            startTime: startedAt,
+            endTime: Date(),
+            totalScoreChanges: actionCount,
+            participantNames: (0..<state.playerCount).map { playerName($0) }
+        )
+    }
     private func startNewMatch() {
         let previousIdentityRecord = recordID
         guard !scoringLocked, !isStartingNewMatch else { return }
@@ -1666,7 +1798,14 @@ struct NineBallChaseScoreboardView: View {
                 manualFinishRequested = false
                 showGameOverDialog = false
                 LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-
+                if let watchSessionId {
+                    watchLinkService.prepareControllerForNewMatch(
+                        sessionId: watchSessionId,
+                        gameType: .nineBall,
+                        snapshot: .nineBall(freshState),
+                        participantNames: activeNames
+                    )
+                }
             }
         }
     }
@@ -1675,7 +1814,7 @@ struct NineBallChaseScoreboardView: View {
         let rightPlayer = state.playerCount == 2 ? logicalPlayer(forScreenIndex: 1) : 1
         var compact = LocalScoreboardDisplayState(
             gameID: GameType.nineBall.canonicalScoreboardIdentifier,
-            title: "",
+            title: GameType.nineBall.displayName,
             leftName: playerName(leftPlayer),
             rightName: playerName(rightPlayer),
             leftScore: "\(state.playerPoints[leftPlayer])",
