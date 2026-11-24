@@ -722,6 +722,35 @@ struct WatchDoublesDisplayState: Equatable {
     }
 }
 
+/// Gives a stacked score its own space below the name, including on small watches.
+struct WatchScoreboardFace<Name: View, Score: View>: View {
+    let isHorizontal: Bool
+    var topInset: CGFloat = 12
+    var bottomInset: CGFloat = 0
+    @ViewBuilder let name: () -> Name
+    @ViewBuilder let score: () -> Score
+
+    var body: some View {
+        if isHorizontal {
+            ZStack {
+                score()
+                name()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.top, WatchLayout.scoreboardTopNameInset)
+            }
+        } else {
+            VStack(spacing: 0) {
+                name()
+                    .layoutPriority(1)
+                score()
+                    .frame(maxHeight: .infinity)
+            }
+            .padding(.top, topInset)
+            .padding(.bottom, bottomInset)
+        }
+    }
+}
+
 struct WatchDoublesBoard: View {
     let left: WatchDoublesHalfModel
     let right: WatchDoublesHalfModel
@@ -753,7 +782,6 @@ struct WatchDoublesBoard: View {
                 .offset(y: WatchLayout.scoreboardNameVerticalOffset)
             playerName(model.bottomName, alignment: .bottom)
                 .padding(.bottom, WatchLayout.isCompactScreen ? 24 : 32)
-                .offset(y: WatchLayout.scoreboardNameVerticalOffset)
 
             if let servingPosition = model.servingPosition {
                 WatchServerIndicator(
@@ -770,7 +798,7 @@ struct WatchDoublesBoard: View {
                     )
                 )
                 .padding(.vertical, WatchLayout.isCompactScreen ? 24 : 32)
-                .offset(y: WatchLayout.scoreboardNameVerticalOffset)
+                .offset(y: servingPosition == .top ? WatchLayout.scoreboardNameVerticalOffset : 0)
             }
         }
         .frame(width: size.width, height: size.height)
@@ -838,7 +866,7 @@ struct WatchDoublesBoard: View {
 
     private func playerName(_ name: String, alignment: Alignment) -> some View {
         Text(name)
-            .font(.system(size: WatchLayout.isCompactScreen ? 10 : 12, weight: .medium))
+            .font(.system(size: WatchLayout.isCompactScreen ? 12 : WatchScoreTypography.teamNameSize, weight: .medium))
             .foregroundStyle(.white.opacity(0.82))
             .lineLimit(2)
             .minimumScaleFactor(0.65)

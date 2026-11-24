@@ -239,60 +239,55 @@ struct WatchArcheryScoreView: View {
     }
 
     private func side(isRed: Bool, size: CGSize) -> some View {
+        let isHorizontal = scoreboardLayout == "horizontal"
         let setPts = isRed ? redSets : blueSets
         let ringPts = isRed ? redScore : blueScore
         let name = isRed ? leftName : rightName
         let scoreText = "\(ringPts)"
         let mainScoreFontSize = WatchScoreTypography.adaptiveFontSize(
-            baseSize: scoreboardLayout == "horizontal" ? 64 : 72,
+            baseSize: isHorizontal ? 64 : 72,
             scoreText: scoreText,
-            minimumSize: scoreboardLayout == "horizontal" ? 42 : 48,
+            minimumSize: isHorizontal ? 42 : 48,
             availableWidth: size.width,
             horizontalPadding: 12
         )
         let setScoreYOffset: CGFloat = 56 + WatchLayout.scoreboardMetaVerticalOffset
-        return ZStack {
-            if scoreboardLayout == "horizontal" {
-                Text(scoreText)
-                    .font(WatchScoreTypography.primaryScore(size: mainScoreFontSize))
-                    .monospacedDigit()
-                    .foregroundColor(.white)
+        let showSets = redSets + blueSets > 0
+        let scoreLabel = Text(scoreText)
+            .font(WatchScoreTypography.primaryScore(size: mainScoreFontSize))
+            .monospacedDigit()
+            .foregroundStyle(.white)
+            .lineLimit(1)
+            .minimumScaleFactor(0.55)
+        let setLabel = Text("\(setPts)")
+            .font(WatchScoreTypography.secondaryScore(size: isHorizontal ? 24 : 18))
+            .monospacedDigit()
+            .foregroundStyle(.white.opacity(0.65))
 
-                if redSets + blueSets > 0 {
-                    Text("\(setPts)")
-                        .font(WatchScoreTypography.secondaryScore(size: 24))
-                        .monospacedDigit()
-                        .foregroundColor(Color.white.opacity(0.65))
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                        .offset(y: setScoreYOffset)
-                }
-            } else {
-                VStack(spacing: 4) {
-                    if redSets + blueSets > 0 {
-                        Text("\(setPts)")
-                            .font(WatchScoreTypography.secondaryScore(size: 24))
-                            .monospacedDigit()
-                            .foregroundColor(Color.white.opacity(0.65))
-                            .offset(y: WatchLayout.scoreboardMetaVerticalOffset)
+        return ZStack {
+            WatchScoreboardFace(isHorizontal: isHorizontal) {
+                Text(name)
+                    .font(.system(size: WatchScoreTypography.teamNameSize, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.9))
+                    .lineLimit(1)
+                    .minimumScaleFactor(isHorizontal ? 0.6 : 1)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 8)
+            } score: {
+                if !isHorizontal, showSets {
+                    VStack(spacing: 0) {
+                        scoreLabel.frame(maxHeight: .infinity)
+                        setLabel.padding(.bottom, 6)
                     }
-                    Text(scoreText)
-                        .font(WatchScoreTypography.primaryScore(size: mainScoreFontSize))
-                        .monospacedDigit()
-                        .foregroundColor(.white)
+                } else {
+                    scoreLabel
                 }
             }
-
-            Text(name)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.9))
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 8)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .padding(.top, scoreboardLayout == "horizontal" ? 28 : 8)
-                .offset(y: WatchLayout.scoreboardNameVerticalOffset)
-
+            if isHorizontal, showSets {
+                setLabel
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .offset(y: setScoreYOffset)
+            }
             serverIndicatorOverlay(isRed: isRed)
         }
         .frame(width: size.width, height: size.height)

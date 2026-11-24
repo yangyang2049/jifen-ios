@@ -497,37 +497,43 @@ struct WatchRallyScoreView: View {
             availableWidth: size.width,
             horizontalPadding: 12
         )
+        let scoreLabel = Text(scoreText)
+            .font(WatchScoreTypography.primaryScore(size: mainScoreFont))
+            .monospacedDigit()
+            .foregroundStyle(.white)
+            .lineLimit(1)
+            .minimumScaleFactor(0.55)
+        let setLabel = Text("\(sets)")
+            .font(WatchScoreTypography.secondaryScore(size: isHorizontal ? 20 : 22))
+            .monospacedDigit()
+            .foregroundStyle(.white.opacity(0.65))
 
         return ZStack {
-            // Main point score (Harmony-style: no helper caption).
-            Text(scoreText)
-                .font(WatchScoreTypography.primaryScore(size: mainScoreFont))
-                .monospacedDigit()
-                .foregroundStyle(.white)
+            WatchScoreboardFace(isHorizontal: isHorizontal) {
+                Text(name)
+                    .font(.system(size: WatchScoreTypography.teamNameSize, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.9))
+                    .lineLimit(isHorizontal ? 2 : 1)
+                    .minimumScaleFactor(isHorizontal ? 0.65 : 1)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 8)
+            } score: {
+                if !isHorizontal, showSets {
+                    HStack(spacing: 4) {
+                        setLabel.frame(width: 32)
+                        scoreLabel.frame(maxWidth: .infinity)
+                        Color.clear.frame(width: 32, height: 1)
+                    }
+                    .padding(.horizontal, 8)
+                } else {
+                    scoreLabel
+                }
+            }
 
-            // Team name
-            Text(name)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.9))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 8)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: isHorizontal ? .top : .top)
-                .padding(.top, isHorizontal ? 28 : 8)
-                .offset(y: WatchLayout.scoreboardNameVerticalOffset)
-
-            // Set score on each half (no floating center card).
-            if showSets {
-                Text("\(sets)")
-                    .font(WatchScoreTypography.secondaryScore(size: isHorizontal ? 20 : 22))
-                    .monospacedDigit()
-                    .foregroundStyle(.white.opacity(0.65))
-                    .frame(
-                        maxWidth: .infinity,
-                        maxHeight: .infinity,
-                        alignment: isHorizontal ? .bottom : .leading
-                    )
-                    .padding(.bottom, isHorizontal ? 28 : 0)
-                    .padding(.leading, isHorizontal ? 0 : 16)
+            if isHorizontal, showSets {
+                setLabel
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                    .padding(.bottom, 28)
                     .offset(y: WatchLayout.scoreboardMetaVerticalOffset)
             }
 

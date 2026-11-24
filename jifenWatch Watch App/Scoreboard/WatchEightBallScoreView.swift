@@ -59,6 +59,9 @@ struct WatchEightBallScoreView: View {
 
     private var scoringLocked: Bool { linkedSessionId != nil && linkService.isFollower }
     private var isHorizontal: Bool { scoreboardLayout == "horizontal" }
+    private var showsTargetBadge: Bool { !showMenu && !showFinishedOverlay }
+    private static let targetBadgeHeight: CGFloat = 24
+    private static let targetClearance: CGFloat = targetBadgeHeight / 2 + 6
 
     var body: some View {
         ZStack {
@@ -68,17 +71,12 @@ struct WatchEightBallScoreView: View {
                 onLeft: { addRack(eightBallLogicalSide(onScreen: .left)) },
                 onRight: { addRack(eightBallLogicalSide(onScreen: .right)) }
             )
-            if !showMenu && !showFinishedOverlay {
-                Text("\(state.targetPoints)")
-                    .font(WatchScoreTypography.secondaryScore(size: 17))
-                    .monospacedDigit()
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 5)
-                    .background(WatchTheme.panelScrim)
-                    .clipShape(Capsule())
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    .padding(.top, 6)
+            if showsTargetBadge {
+                GeometryReader { proxy in
+                    targetBadge.position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+                }
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
             }
             if showMenu {
                 WatchScoreboardMenuOverlay(
@@ -162,6 +160,18 @@ struct WatchEightBallScoreView: View {
             onExit: exitEightBall
         )
         .watchUndoToast(token: $undoToastToken)
+    }
+
+    private var targetBadge: some View {
+        Text("\(state.targetPoints)")
+            .font(WatchScoreTypography.secondaryScore(size: 17))
+            .monospacedDigit()
+            .foregroundStyle(.white)
+            .lineLimit(1)
+            .padding(.horizontal, 7)
+            .frame(minWidth: Self.targetBadgeHeight)
+            .frame(height: Self.targetBadgeHeight)
+            .background(WatchTheme.panelScrim, in: Capsule())
     }
 
     private func addRack(_ side: MatchSide) {
@@ -249,44 +259,19 @@ struct WatchEightBallScoreView: View {
         onLeft: @escaping () -> Void,
         onRight: @escaping () -> Void
     ) -> some View {
+        let left = scoreHalf(.left, text: leftLabel, action: onLeft)
+        let right = scoreHalf(.right, text: rightLabel, action: onRight)
+
         Group {
             if isHorizontal {
                 HStack(spacing: 0) {
-                    scoreHalf(
-                        leftLabel,
-                        name: eightBallName(onScreen: .left),
-                        handicap: handicapText(for: eightBallLogicalSide(onScreen: .left)),
-                        color: eightBallLogicalSide(onScreen: .left) == .left
-                            ? WatchTheme.teamRed : WatchTheme.teamBlue,
-                        action: onLeft
-                    )
-                    scoreHalf(
-                        rightLabel,
-                        name: eightBallName(onScreen: .right),
-                        handicap: handicapText(for: eightBallLogicalSide(onScreen: .right)),
-                        color: eightBallLogicalSide(onScreen: .right) == .left
-                            ? WatchTheme.teamRed : WatchTheme.teamBlue,
-                        action: onRight
-                    )
+                    left
+                    right
                 }
             } else {
                 VStack(spacing: 0) {
-                    scoreHalf(
-                        leftLabel,
-                        name: eightBallName(onScreen: .left),
-                        handicap: handicapText(for: eightBallLogicalSide(onScreen: .left)),
-                        color: eightBallLogicalSide(onScreen: .left) == .left
-                            ? WatchTheme.teamRed : WatchTheme.teamBlue,
-                        action: onLeft
-                    )
-                    scoreHalf(
-                        rightLabel,
-                        name: eightBallName(onScreen: .right),
-                        handicap: handicapText(for: eightBallLogicalSide(onScreen: .right)),
-                        color: eightBallLogicalSide(onScreen: .right) == .left
-                            ? WatchTheme.teamRed : WatchTheme.teamBlue,
-                        action: onRight
-                    )
+                    left
+                    right
                 }
             }
         }
@@ -298,10 +283,6 @@ struct WatchEightBallScoreView: View {
         TeamScreenLayout(sidesSwapped: state.sidesSwapped).engineSide(onScreen: side)
     }
 
-    private func eightBallName(onScreen side: MatchSide) -> String {
-        eightBallLogicalSide(onScreen: side) == .left ? leftName : rightName
-    }
-
     private func eightBallPoints(onScreen side: MatchSide) -> Int {
         WatchEightBallScorePresentation.displayedRacks(
             state: state,
@@ -310,40 +291,57 @@ struct WatchEightBallScoreView: View {
     }
 
     private func scoreHalf(
-        _ text: String,
-        name: String,
-        handicap: String?,
-        color: Color,
+        _ screenSide: MatchSide,
+        text: String,
         action: @escaping () -> Void
     ) -> some View {
+        let logicalSide = eightBallLogicalSide(onScreen: screenSide)
+        let name = logicalSide == .left ? leftName : rightName
+        let handicap = handicapText(for: logicalSide)
+        let color = logicalSide == .left ? WatchTheme.teamRed : WatchTheme.teamBlue
         let scoreFont = WatchScoreTypography.adaptiveFontSize(
             baseSize: isHorizontal ? 56 : 62,
             scoreText: text,
             minimumSize: isHorizontal ? 40 : 44
         )
+        let scoreLabel = Text(text)
+            .font(WatchScoreTypography.primaryScore(size: scoreFont))
+            .monospacedDigit()
+            .foregroundStyle(.white)
+            .lineLimit(1)
+            .minimumScaleFactor(0.55)
+        let nameLabel = Text(name)
+            .font(.system(size: WatchScoreTypography.teamNameSize, weight: .semibold))
+            .lineLimit(isHorizontal ? 2 : 1)
+            .minimumScaleFactor(isHorizontal ? 0.65 : 1)
+            .multilineTextAlignment(.center)
+            .foregroundStyle(.white.opacity(0.9))
+
         return ZStack {
-            Text(text)
-                .font(WatchScoreTypography.primaryScore(size: scoreFont))
-                .monospacedDigit()
-                .foregroundStyle(.white)
+            // Both vertical names clear the target badge by the same distance.
+            WatchScoreboardFace(
+                isHorizontal: isHorizontal,
+                topInset: Self.targetClearance,
+                bottomInset: Self.targetClearance
+            ) {
+                nameLabel.padding(.horizontal, 8)
+            } score: {
+                if !isHorizontal, let handicap {
+                    HStack(spacing: 4) {
+                        Color.clear.frame(width: 34, height: 1)
+                        scoreLabel.frame(maxWidth: .infinity)
+                        handicapLabel(handicap).frame(width: 34)
+                    }
+                    .padding(.horizontal, 8)
+                } else {
+                    scoreLabel
+                }
+            }
 
-            Text(name)
-                .font(.system(size: 11, weight: .semibold))
-                .lineLimit(2)
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.white.opacity(0.9))
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .padding(.horizontal, 8)
-                .padding(.top, isHorizontal ? 28 : 8)
-                .offset(y: WatchLayout.scoreboardNameVerticalOffset)
-
-            if let handicap {
-                Text(handicap)
-                    .font(WatchScoreTypography.secondaryScore(size: isHorizontal ? 20 : 22))
-                    .monospacedDigit()
-                    .foregroundStyle(.white.opacity(0.65))
+            if isHorizontal, let handicap {
+                handicapLabel(handicap)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                    .padding(.bottom, isHorizontal ? 28 : 12)
+                    .padding(.bottom, 28)
                     .offset(y: WatchLayout.scoreboardMetaVerticalOffset)
             }
         }
@@ -354,6 +352,13 @@ struct WatchEightBallScoreView: View {
             guard !suppressTapAfterLongPress else { return }
             action()
         }
+    }
+
+    private func handicapLabel(_ handicap: String) -> some View {
+        Text(handicap)
+            .font(WatchScoreTypography.secondaryScore(size: isHorizontal ? 20 : 17))
+            .monospacedDigit()
+            .foregroundStyle(.white.opacity(0.65))
     }
 
     private func normalizedLayout(_ raw: String) -> String {

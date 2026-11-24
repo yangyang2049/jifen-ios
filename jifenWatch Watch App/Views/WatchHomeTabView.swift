@@ -103,8 +103,6 @@ struct WatchHomeTabView: View {
     @State private var pinnedItems: [WatchHomeItem] = []
     @State private var preflightPicker: WatchHomePreflightPicker?
     @State private var pinDialogItem: WatchHomeItem?
-    /// 待确认放弃的续玩会话（关闭浮条前的二次确认）。
-    @State private var pendingResumeClose: WatchResumeSession?
     @State private var showPinLimitAlert = false
     @State private var toastMessage: String?
     @State private var toastToken = UUID()
@@ -161,13 +159,9 @@ struct WatchHomeTabView: View {
                 WatchResumeGameBar(
                     session: session,
                     onResume: { onResume(session) },
-                    onClose: {
-                        WatchHaptics.shared.play(.light)
-                        // 关闭浮条会丢弃续玩会话，误触代价是整局丢失；
-                        // 因此先弹确认（对齐鸿蒙 WatchHomeTab 的两步关闭）。
-                        pendingResumeClose = session
-                    }
+                    onDiscard: { discardResume(session) }
                 )
+                .id(session.startedAt)
                 .padding(.horizontal, WatchLayout.pageHorizontalPadding)
                 .transition(.move(edge: .top).combined(with: .opacity))
                 .zIndex(1)
@@ -224,26 +218,6 @@ struct WatchHomeTabView: View {
         } message: {
             Text(pinDialogMessage)
         }
-        .confirmationDialog(
-            pendingResumeClose?.discardActionTitle
-                ?? NSLocalizedString("watch_resume_discard", value: "放弃未完成比赛", comment: ""),
-            isPresented: Binding(
-                get: { pendingResumeClose != nil },
-                set: { if !$0 { pendingResumeClose = nil } }
-            ),
-            titleVisibility: .visible
-        ) {
-            Button(
-                pendingResumeClose?.discardActionTitle
-                    ?? NSLocalizedString("watch_resume_discard", value: "放弃未完成比赛", comment: ""),
-                role: .destructive
-            ) {
-                discardPendingResume()
-            }
-            Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) {
-                pendingResumeClose = nil
-            }
-        }
         .alert(
             NSLocalizedString(
                 "watch_home_pin_full_title",
@@ -262,11 +236,11 @@ struct WatchHomeTabView: View {
         }
     }
 
-    /// 用户在确认弹层里选择「放弃」后才真正清理会话。
-    private func discardPendingResume() {
-        guard let session = pendingResumeClose else { return }
-        pendingResumeClose = nil
-        if let context = session.link {
+    private func discardResume(_ session: WatchResumeSession) {
+        guard let current = resumeStore.session,
+              current.startedAt == session.startedAt,
+              current.link?.handle == session.link?.handle else { return }
+        if let context = current.link {
             if linkService.resumeContext == nil {
                 linkService.restoreSuspendedSession(context)
             }

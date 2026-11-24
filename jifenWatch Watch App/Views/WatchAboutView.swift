@@ -16,7 +16,7 @@ struct WatchAboutView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 8) {
-                Image("AppIcon")
+                Image("watch_app_icon")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 64, height: 64)

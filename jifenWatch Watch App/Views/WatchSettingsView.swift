@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WatchSettingsView: View {
+    @Environment(\.locale) private var locale
     @AppStorage("watch_vibration_enabled") private var vibrationEnabled: Bool = true
     @AppStorage("watch_sound_enabled") private var soundEnabled: Bool = true
     @AppStorage("watch_set_break_enabled") private var setBreakEnabled: Bool = true
@@ -15,7 +16,7 @@ struct WatchSettingsView: View {
     /// 前缀口径与手机端 AboutUsView 保持一致：缺 "v" 时补上。
     /// 中文环境才显示微信群入口（对齐鸿蒙 WatchSettingsTab 的 isChineseLocale 门控）。
     private var isChineseLocale: Bool {
-        Locale.current.language.languageCode?.identifier.hasPrefix("zh") == true
+        WatchSupportLink.showsWeChatGroup(locale: locale)
     }
 
     private var appVersion: String {
@@ -76,11 +77,7 @@ struct WatchSettingsView: View {
                     navigationRow(
                         title: NSLocalizedString("watch_wechat_group_title", value: "用户微信群", comment: "")
                     ) {
-                        WatchSupportQRCodeView(
-                            title: NSLocalizedString("watch_wechat_group_title", value: "用户微信群", comment: ""),
-                            link: WatchSupportLink.wechatGroup,
-                            imageName: "watch_contact_qr"
-                        )
+                        WatchWechatGroupView()
                     }
                 }
                 navigationRow(

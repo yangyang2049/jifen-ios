@@ -9,6 +9,8 @@ struct WatchLayout {
     static let cachedScreenWidth: CGFloat = WKInterfaceDevice.current().screenBounds.width
     /// 计分板发球/当前选手的三角指示器尺寸，单打和双打统一。
     static let serverIndicatorSize: CGFloat = 10
+    /// Full-bleed scoreboard content starts below the watchOS clock.
+    static let scoreboardTopNameInset: CGFloat = 40
     /// Avoid the system clock by moving scoreboard names down consistently.
     static let scoreboardNameVerticalOffset: CGFloat = 8
     /// Horizontal indicators follow the lowered names; vertical indicators stay flush to the top/bottom edge.
@@ -153,10 +155,10 @@ struct WatchLayout {
     static var recordRowLineSpacing: CGFloat { isNarrowForContent ? 5 : 1 }
 }
 
-/// Main scoreboard number sizing shared by every sport.
-/// Mirrors the HarmonyOS rule: compact screens lose 2pt, then text with three
-/// or more characters shrinks by 18% for every character after the second.
+/// Scoreboard typography shared by sports.
 struct WatchScoreTypography {
+    static let teamNameSize: CGFloat = 13
+    // For scores, compact screens lose 2pt and extra digits shrink the text.
     static let compactBaseReduction: CGFloat = 2
     static let extraCharacterScale: CGFloat = 0.82
     static let averageCharacterWidthRatio: CGFloat = 0.66

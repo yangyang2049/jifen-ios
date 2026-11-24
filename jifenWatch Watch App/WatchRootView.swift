@@ -356,8 +356,7 @@ struct WatchRootView: View {
     private func destinationView(for route: WatchScoreboardRoute) -> some View {
         if case .setup(let sport, let playerCount) = route {
             WatchSportsSetupView(sport: sport, playerCount: playerCount) { config in
-                scoreboardLaunchID = UUID()
-                scoreboardRoute = .configured(config)
+                startLocalScoreboard(.configured(config))
             }
         } else {
             scoreDestination(for: route)
@@ -652,24 +651,35 @@ struct WatchRootView: View {
         Binding(
             get: { scoreboardRoute },
             set: { route in
-                if let context = resumeStore.session?.link {
-                    if linkService.resumeContext == nil {
-                        linkService.restoreSuspendedSession(context)
-                    }
-                    linkService.discardResumableSession(reason: .newScoreboardStart)
-                } else if linkedSessionId != nil {
-                    linkService.leaveSession()
+                guard let route else {
+                    scoreboardRoute = nil
+                    return
                 }
-                resumeStore.clear()
-                activeResumeSession = nil
-                linkedSetup = nil
-                linkedSessionId = nil
-                if route != nil {
+                if case .setup = route {
                     scoreboardLaunchID = UUID()
+                    scoreboardRoute = route
+                } else {
+                    startLocalScoreboard(route)
                 }
-                scoreboardRoute = route
             }
         )
+    }
+
+    private func startLocalScoreboard(_ route: WatchScoreboardRoute) {
+        if let context = resumeStore.session?.link {
+            if linkService.resumeContext == nil {
+                linkService.restoreSuspendedSession(context)
+            }
+            linkService.discardResumableSession(reason: .newScoreboardStart)
+        } else if linkedSessionId != nil {
+            linkService.leaveSession()
+        }
+        resumeStore.clear()
+        activeResumeSession = nil
+        linkedSetup = nil
+        linkedSessionId = nil
+        scoreboardLaunchID = UUID()
+        scoreboardRoute = route
     }
 
     private func rallyResumeBundle(

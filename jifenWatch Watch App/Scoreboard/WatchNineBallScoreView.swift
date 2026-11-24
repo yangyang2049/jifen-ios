@@ -280,7 +280,13 @@ struct WatchNineBallScoreView: View {
             scoreText: scoreText,
             minimumSize: minimumScoreFont
         )
-        let nameFont: CGFloat = state.playerCount > 2 ? 11 : 13
+        let nameFont: CGFloat = state.playerCount > 2 ? 12 : 14
+        let scoreLabel = Text(scoreText)
+            .font(WatchScoreTypography.primaryScore(size: scoreFont))
+            .monospacedDigit()
+            .foregroundStyle(.white)
+            .minimumScaleFactor(0.5)
+            .lineLimit(1)
         let nameRow = HStack(spacing: 4) {
             if state.usesRackRules && player == state.breakerPlayer {
                 let cueSize: CGFloat = state.playerCount > 2 ? 12 : 14
@@ -296,38 +302,25 @@ struct WatchNineBallScoreView: View {
                 .font(.system(size: nameFont, weight: .medium))
                 .foregroundStyle(.white.opacity(0.75))
                 .lineLimit(1)
-                .minimumScaleFactor(0.7)
+                .minimumScaleFactor(isHorizontal ? 0.65 : 1)
         }
         return Group {
             if state.playerCount == 4 {
-                // 4 人 2×2 布局：顶部两格避开右上角系统时钟（watchOS 46mm 时钟下沿约 34pt），并用 VStack 防止小表（40mm）下姓名与比分重叠。
+                // Both rows use the same name inset in the vertical layout.
                 VStack(spacing: 0) {
                     nameRow
                         .padding(.horizontal, 4)
-                        .padding(.top, index < 2 ? (WatchLayout.isCompactScreen ? 30 : 38) : 8)
+                        .padding(.top, isHorizontal && index < 2 ? (WatchLayout.isCompactScreen ? 30 : 38) : 12)
                     Spacer(minLength: 2)
-                    Text(scoreText)
-                        .font(WatchScoreTypography.primaryScore(size: scoreFont))
-                        .monospacedDigit()
-                        .foregroundStyle(.white)
-                        .minimumScaleFactor(0.5)
-                        .lineLimit(1)
+                    scoreLabel
                     Spacer(minLength: 4)
                 }
             } else {
-                ZStack {
-                    Text(scoreText)
-                        .font(WatchScoreTypography.primaryScore(size: scoreFont))
-                        .monospacedDigit()
-                        .foregroundStyle(.white)
-                        .minimumScaleFactor(0.5)
-                        .lineLimit(1)
-
+                WatchScoreboardFace(isHorizontal: isHorizontal, bottomInset: 4) {
                     nameRow
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                         .padding(.horizontal, state.playerCount > 2 ? 4 : 8)
-                        .padding(.top, isHorizontal ? 28 : 8)
-                        .offset(y: WatchLayout.scoreboardNameVerticalOffset)
+                } score: {
+                    scoreLabel
                 }
             }
         }

@@ -90,9 +90,14 @@ struct WatchSnookerScoreView: View {
                         scoreHalf(.right)
                     }
                 } else {
-                    VStack(spacing: 0) {
-                        scoreHalf(.left)
-                        scoreHalf(.right)
+                    GeometryReader { proxy in
+                        let halfHeight = proxy.size.height / 2
+                        VStack(spacing: 0) {
+                            scoreHalf(.left)
+                                .frame(height: halfHeight)
+                            scoreHalf(.right)
+                                .frame(height: halfHeight)
+                        }
                     }
                 }
             }
@@ -208,28 +213,40 @@ struct WatchSnookerScoreView: View {
             scoreText: scoreText,
             minimumSize: isHorizontal ? 40 : 44
         )
+        let frameScore = Text("\(frames)")
+            .font(WatchScoreTypography.secondaryScore(size: 14))
+            .monospacedDigit()
+            .foregroundStyle(.white.opacity(0.7))
+        let scoreLabel = Text(scoreText)
+            .font(WatchScoreTypography.primaryScore(size: scoreFont))
+            .monospacedDigit()
+            .foregroundStyle(.white)
+            .lineLimit(1)
+            .minimumScaleFactor(0.55)
+
         return ZStack {
-            Text(scoreText)
-                .font(WatchScoreTypography.primaryScore(size: scoreFont))
-                .monospacedDigit()
-                .foregroundStyle(.white)
-            Text(name)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.9))
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 8)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .padding(.top, isHorizontal ? 28 : 8)
-                .offset(y: WatchLayout.scoreboardNameVerticalOffset)
-            if state.maxFrames > 1 {
-                Text("\(frames)")
-                    .font(WatchScoreTypography.secondaryScore(size: 14))
-                    .monospacedDigit()
-                    .foregroundStyle(.white.opacity(0.7))
+            WatchScoreboardFace(isHorizontal: isHorizontal) {
+                Text(name)
+                    .font(.system(size: WatchScoreTypography.teamNameSize, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.9))
+                    .lineLimit(1)
+                    .minimumScaleFactor(isHorizontal ? 0.6 : 1)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 8)
+            } score: {
+                if !isHorizontal, state.maxFrames > 1 {
+                    VStack(spacing: 0) {
+                        scoreLabel.frame(maxHeight: .infinity)
+                        frameScore.padding(.bottom, 6)
+                    }
+                } else {
+                    scoreLabel
+                }
+            }
+            if isHorizontal, state.maxFrames > 1 {
+                frameScore
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                    .padding(.bottom, isHorizontal ? 22 : 16)
+                    .padding(.bottom, 22)
                     .offset(y: WatchLayout.scoreboardMetaVerticalOffset)
             }
             snookerServerIndicator(onScreen: screenSide, logicalSide: side)

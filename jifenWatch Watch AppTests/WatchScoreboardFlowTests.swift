@@ -250,4 +250,37 @@ final class WatchScoreboardFlowTests: XCTestCase {
         XCTAssertNotEqual(trainingSession.resumeActionTitle, matchSession.resumeActionTitle)
         XCTAssertNotEqual(trainingSession.discardActionTitle, matchSession.discardActionTitle)
     }
+
+    // MARK: - 支持页与微信群二维码分语言路由
+
+    func testSupportLinksAndWeChatGroupLocaleRouting() {
+        let zhHans = Locale(identifier: "zh-Hans-CN")
+        let zhHant = Locale(identifier: "zh-Hant-TW")
+        let enUS = Locale(identifier: "en-US")
+        let jaJP = Locale(identifier: "ja-JP")
+
+        XCTAssertTrue(WatchSupportLink.isSimplifiedChinese(locale: zhHans))
+        XCTAssertFalse(WatchSupportLink.isSimplifiedChinese(locale: zhHant))
+        XCTAssertFalse(WatchSupportLink.isSimplifiedChinese(locale: enUS))
+        XCTAssertFalse(WatchSupportLink.isSimplifiedChinese(locale: jaJP))
+
+        XCTAssertTrue(WatchSupportLink.showsWeChatGroup(locale: zhHans))
+        XCTAssertTrue(WatchSupportLink.showsWeChatGroup(locale: zhHant))
+        XCTAssertFalse(WatchSupportLink.showsWeChatGroup(locale: enUS))
+        XCTAssertFalse(WatchSupportLink.showsWeChatGroup(locale: jaJP))
+
+        XCTAssertEqual(WatchSupportLink.contact(for: zhHans), "https://jifenqi.com/contact")
+        XCTAssertEqual(WatchSupportLink.feedback(for: zhHans), "https://jifenqi.com/feedback")
+        XCTAssertEqual(WatchSupportLink.contactQRImageName(for: zhHans), "watch_contact_qr")
+        XCTAssertEqual(WatchSupportLink.feedbackQRImageName(for: zhHans), "watch_feedback_qr")
+
+        for intl in [zhHant, enUS, jaJP] {
+            XCTAssertEqual(WatchSupportLink.contact(for: intl), "https://iscoreboard.live/contact")
+            XCTAssertEqual(WatchSupportLink.feedback(for: intl), "https://iscoreboard.live/feedback")
+            XCTAssertEqual(WatchSupportLink.contactQRImageName(for: intl), "watch_contact_qr_intl")
+            XCTAssertEqual(WatchSupportLink.feedbackQRImageName(for: intl), "watch_feedback_qr_intl")
+        }
+
+        XCTAssertEqual(WatchSupportLink.wechatGroup, "https://c.weixin.com/g/n1ltxDV-Ogi46YYG")
+    }
 }

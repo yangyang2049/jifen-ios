@@ -156,6 +156,7 @@
 "watch_continue_scoring" = "继续计分";
 "watch_resume_discard" = "放弃未完成比赛";
 "watch_resume_discard_training" = "放弃未完成训练";
+"watch_resume_confirm_discard" = "确认放弃";
 "unit_hour" = "时";
 "unit_minute" = "分";
 "unit_second" = "秒";
@@ -399,6 +400,7 @@
 "watch_about_app_name" = "全能计分器";
 "watch_about_version" = "版本 %@";
 "watch_wechat_group_title" = "用户微信群";
+"watch_wechat_group_scan_hint" = "使用微信扫码加入用户群";
 
 "nine_ball_handoff" = "让杆";
 "nine_ball_no_score" = "不计分";

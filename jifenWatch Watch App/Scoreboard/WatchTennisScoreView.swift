@@ -523,28 +523,55 @@ struct WatchTennisScoreView: View {
             availableWidth: size.width,
             horizontalPadding: 12
         )
+        let scoreLabel = Text(pointText)
+            .font(WatchScoreTypography.primaryScore(size: mainScoreFont))
+            .monospacedDigit()
+            .foregroundStyle(.white)
+            .lineLimit(1)
+            .minimumScaleFactor(0.55)
 
         return ZStack {
-            Text(pointText)
-                .font(WatchScoreTypography.primaryScore(size: mainScoreFont))
-                .monospacedDigit()
-                .foregroundStyle(.white)
-
-            Text(name)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.9))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 8)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .padding(.top, isHorizontal ? 28 : 8)
-                .offset(y: WatchLayout.scoreboardNameVerticalOffset)
+            WatchScoreboardFace(isHorizontal: isHorizontal) {
+                VStack(spacing: 3) {
+                    Text(name)
+                        .font(.system(size: WatchScoreTypography.teamNameSize, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.9))
+                        .lineLimit(isHorizontal ? 2 : 1)
+                        .minimumScaleFactor(isHorizontal ? 0.65 : 1)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 8)
+                        .frame(minHeight: isHorizontal && hasSets ? 26 : nil, alignment: .top)
+                    if isHorizontal, hasSets {
+                        tennisSetDots(count: sets, vertical: false)
+                    }
+                }
+            } score: {
+                if !isHorizontal, hasSets || hasGames {
+                    HStack(spacing: 4) {
+                        ZStack {
+                            if hasGames {
+                                Text("\(games)")
+                                    .font(WatchScoreTypography.secondaryScore(size: 24))
+                                    .monospacedDigit()
+                            }
+                        }
+                        .frame(width: 32)
+                        scoreLabel.frame(maxWidth: .infinity)
+                        ZStack {
+                            if hasSets {
+                                tennisSetDots(count: sets, vertical: true)
+                            }
+                        }
+                        .frame(width: 32)
+                    }
+                    .foregroundStyle(.white.opacity(0.78))
+                    .padding(.horizontal, 16)
+                } else {
+                    scoreLabel
+                }
+            }
 
             if isHorizontal {
-                if hasSets {
-                    tennisSetDots(count: sets, vertical: false)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                        .padding(.top, 62)
-                }
                 if hasGames {
                     Text("\(games)")
                         .font(WatchScoreTypography.secondaryScore(size: 20))
@@ -554,27 +581,6 @@ struct WatchTennisScoreView: View {
                         .padding(.bottom, 40)
                         .offset(y: WatchLayout.scoreboardMetaVerticalOffset)
                 }
-            } else if hasSets || hasGames {
-                HStack {
-                    Group {
-                        if hasGames {
-                            Text("\(games)")
-                                .font(WatchScoreTypography.secondaryScore(size: 24))
-                                .monospacedDigit()
-                        } else {
-                            Color.clear.frame(width: 24, height: 24)
-                        }
-                    }
-                    Spacer()
-                    if hasSets {
-                        tennisSetDots(count: sets, vertical: true)
-                    } else {
-                        Color.clear.frame(width: 24, height: 24)
-                    }
-                }
-                .foregroundStyle(.white.opacity(0.78))
-                .padding(.horizontal, 40)
-                .offset(y: WatchLayout.scoreboardMetaVerticalOffset)
             }
 
             if isServing {

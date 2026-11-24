@@ -55,30 +55,13 @@ final class WatchNineBallUITests: XCTestCase {
 
     /// 上一轮用例会留下未完成的续赛会话，首页顶部因此出现续赛浮条；这里先丢弃它。
     ///
-    /// watchOS 的 confirmationDialog 会额外插入一个「关闭」动作按钮，且浮条上的 X
-    /// 与弹层里的「放弃未完成比赛」同名；只能点可命中的那一个，否则弹层会一直挡住
-    /// 首页列表，后续滑动和点击全部失效。
     private func dismissResumeBarIfNeeded(_ app: XCUIApplication) {
         let discard = app.buttons["放弃未完成比赛"]
         guard discard.waitForExistence(timeout: 2) else { return }
         discard.tap()
-        sleep(2)
-
-        let options = app.buttons.matching(NSPredicate(format: "label == %@", "放弃未完成比赛"))
-        var tapped = false
-        for index in 0..<options.count {
-            let candidate = options.element(boundBy: index)
-            if candidate.isHittable {
-                candidate.tap()
-                tapped = true
-                break
-            }
-        }
-        if !tapped {
-            let cancel = app.buttons["关闭"]
-            if cancel.exists { cancel.tap() }
-        }
-        sleep(2)
+        let confirm = app.buttons["确认放弃"]
+        XCTAssertTrue(confirm.waitForExistence(timeout: 2))
+        confirm.tap()
     }
 
     /// watchOS 首页是超长列表，swipeUp 一屏跳 ~660pt 且带惯性，容易把目标项直接

@@ -25,23 +25,9 @@ final class WatchDialogConsistencyUITests: XCTestCase {
             let discard = app.buttons[discardLabel]
             guard discard.waitForExistence(timeout: 2) else { continue }
             discard.tap()
-            sleep(2)
-
-            let options = app.buttons.matching(NSPredicate(format: "label == %@", discardLabel))
-            var tapped = false
-            for index in 0..<options.count {
-                let candidate = options.element(boundBy: index)
-                if candidate.isHittable {
-                    candidate.tap()
-                    tapped = true
-                    break
-                }
-            }
-            if !tapped {
-                let cancel = app.buttons["关闭"]
-                if cancel.exists { cancel.tap() }
-            }
-            sleep(2)
+            let confirm = app.buttons["确认放弃"]
+            XCTAssertTrue(confirm.waitForExistence(timeout: 2))
+            confirm.tap()
             break
         }
     }
@@ -158,5 +144,85 @@ final class WatchDialogConsistencyUITests: XCTestCase {
         close.tap()
         sleep(1)
         XCTAssertFalse(app.buttons["+30"].exists, "点击顶栏关闭后应关闭伤停补时面板")
+    }
+
+    func testSettingsAboutAndSupportQRPages() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN"]
+        app.launch()
+        sleep(3)
+
+        // 从默认首页（Tab 1）向左划两页到设置（Tab 3）
+        app.swipeLeft()
+        usleep(600_000)
+        app.swipeLeft()
+        sleep(1)
+        XCTAssertTrue(app.staticTexts["设置"].waitForExistence(timeout: 3), "应切换到设置 Tab")
+
+        // 滚动到底部验证：意见反馈 / 联系我们 / 用户微信群 / 关于我们
+        let wechatRow = app.buttons["用户微信群"]
+        for _ in 0..<14 {
+            if wechatRow.isHittable { break }
+            smallDrag(app, dy: -65)
+        }
+        XCTAssertTrue(wechatRow.isHittable, "中文设置页应显示「用户微信群」入口")
+        wechatRow.tap()
+        sleep(1)
+        let wechatQR = app.images["用户微信群"]
+        XCTAssertTrue(wechatQR.waitForExistence(timeout: 3), "应展示用户微信群二维码")
+        XCTAssertEqual(wechatQR.value as? String, "https://c.weixin.com/g/n1ltxDV-Ogi46YYG")
+        capture("settings_01_wechat_group")
+
+        let back = app.navigationBars.buttons.firstMatch
+        if back.isHittable { back.tap() } else { app.swipeRight() }
+        sleep(1)
+
+        let contactRow = app.buttons["联系我们"]
+        for _ in 0..<6 {
+            if contactRow.isHittable { break }
+            smallDrag(app, dy: 45)
+        }
+        XCTAssertTrue(contactRow.isHittable, "设置页应可点「联系我们」")
+        contactRow.tap()
+        sleep(1)
+        let contactQRZh = app.images["联系我们"]
+        XCTAssertTrue(contactQRZh.waitForExistence(timeout: 3))
+        XCTAssertEqual(contactQRZh.value as? String, "https://jifenqi.com/contact")
+        if back.isHittable { back.tap() } else { app.swipeRight() }
+        sleep(1)
+
+        let aboutRow = app.buttons["关于我们"]
+        for _ in 0..<6 {
+            if aboutRow.isHittable { break }
+            smallDrag(app, dy: -55)
+        }
+        XCTAssertTrue(aboutRow.isHittable, "设置页应可点「关于我们」")
+        aboutRow.tap()
+        sleep(1)
+        XCTAssertTrue(app.staticTexts["全能计分器"].waitForExistence(timeout: 3))
+        capture("settings_02_about_icon")
+
+        // 切英文验证：隐藏微信群、联系我们切到 iscoreboard.live
+        app.terminate()
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        sleep(3)
+        app.swipeLeft()
+        usleep(600_000)
+        app.swipeLeft()
+        sleep(1)
+        let contactRowEn = app.buttons["Contact Us"]
+        for _ in 0..<14 {
+            if contactRowEn.isHittable { break }
+            smallDrag(app, dy: -65)
+        }
+        XCTAssertTrue(contactRowEn.isHittable, "英文设置页应显示 Contact Us")
+        XCTAssertFalse(app.buttons["WeChat Group"].exists, "非中文环境不应显示微信群入口")
+        contactRowEn.tap()
+        sleep(1)
+        let contactQREn = app.images["Contact Us"]
+        XCTAssertTrue(contactQREn.waitForExistence(timeout: 3))
+        XCTAssertEqual(contactQREn.value as? String, "https://iscoreboard.live/contact")
+        capture("settings_03_contact_en")
     }
 }

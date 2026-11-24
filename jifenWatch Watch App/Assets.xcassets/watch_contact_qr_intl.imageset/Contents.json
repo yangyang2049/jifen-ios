@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "watch_contact_qr_intl.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

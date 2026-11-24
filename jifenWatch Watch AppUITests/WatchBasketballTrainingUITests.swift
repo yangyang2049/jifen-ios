@@ -2,8 +2,8 @@ import XCTest
 
 /// 手表端投篮训练的开局前弹层与续赛浮条 UI 验证。
 final class WatchBasketballTrainingUITests: XCTestCase {
-    private func capture(_ name: String) {
-        sleep(1)
+    private func capture(_ name: String, settle: UInt32 = 1) {
+        sleep(settle)
         let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         attachment.name = "shot_\(name)"
         attachment.lifetime = .keepAlways
@@ -21,23 +21,9 @@ final class WatchBasketballTrainingUITests: XCTestCase {
             let discard = app.buttons[discardLabel]
             guard discard.waitForExistence(timeout: 2) else { continue }
             discard.tap()
-            sleep(2)
-
-            let options = app.buttons.matching(NSPredicate(format: "label == %@", discardLabel))
-            var tapped = false
-            for index in 0..<options.count {
-                let candidate = options.element(boundBy: index)
-                if candidate.isHittable {
-                    candidate.tap()
-                    tapped = true
-                    break
-                }
-            }
-            if !tapped {
-                let cancel = app.buttons["关闭"]
-                if cancel.exists { cancel.tap() }
-            }
-            sleep(2)
+            let confirm = app.buttons["确认放弃"]
+            XCTAssertTrue(confirm.waitForExistence(timeout: 2))
+            confirm.tap()
             break
         }
     }
@@ -62,7 +48,9 @@ final class WatchBasketballTrainingUITests: XCTestCase {
     }
 
     func testModePickerAndResumeBarWording() throws {
+        continueAfterFailure = false
         let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN"]
         app.launch()
         sleep(3)
         dismissResumeBarIfNeeded(app)
@@ -99,26 +87,69 @@ final class WatchBasketballTrainingUITests: XCTestCase {
         )
         capture("bb_02_resume_bar")
 
-        let discardButton = app.buttons["放弃未完成训练"]
-        XCTAssertTrue(
-            discardButton.waitForExistence(timeout: 3),
-            "投篮训练续赛浮条关闭按钮应使用「放弃未完成训练」"
-        )
-        discardButton.tap()
-        sleep(2)
-
-        let confirmButtons = app.buttons.matching(NSPredicate(format: "label == %@", "放弃未完成训练"))
-        var confirmed = false
-        for index in 0..<confirmButtons.count {
-            let candidate = confirmButtons.element(boundBy: index)
-            if candidate.isHittable {
-                candidate.tap()
-                confirmed = true
-                break
-            }
+        tapSportTile("羽毛球", in: app)
+        XCTAssertTrue(app.buttons["开始"].waitForExistence(timeout: 4))
+        let back = app.navigationBars.buttons.firstMatch
+        if back.isHittable {
+            back.tap()
+        } else {
+            app.swipeRight()
         }
-        XCTAssertTrue(confirmed, "二次确认弹层中应可点击「放弃未完成训练」")
-        sleep(1)
-        XCTAssertFalse(app.buttons["继续计分"].exists, "确认放弃后续赛浮条应消失")
+        XCTAssertTrue(resumeScoring.waitForExistence(timeout: 4), "退出新比赛设置应保留原续赛")
+
+        let discard = app.buttons["放弃未完成训练"]
+        let confirm = expandDiscardButton(
+            discard, on: resumeScoring, confirmation: app.buttons["确认放弃"]
+        )
+        capture("bb_03_confirm_zh_hans", settle: 0)
+        XCTAssertTrue(confirm.waitForNonExistence(timeout: 4))
+        XCTAssertTrue(discard.exists)
+        XCTAssertTrue(resumeScoring.exists, "确认超时后应保留续赛")
+
+        app.terminate()
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        _ = expandDiscardButton(
+            app.buttons["Discard unfinished training"],
+            on: app.buttons["Resume scoring"],
+            confirmation: app.buttons["Confirm Discard"]
+        )
+        capture("bb_04_confirm_en", settle: 0)
+
+        app.terminate()
+        app.launchArguments = ["-AppleLanguages", "(zh-Hant)", "-AppleLocale", "zh_TW"]
+        app.launch()
+        let traditionalResume = app.buttons["繼續計分"]
+        let traditionalConfirm = expandDiscardButton(
+            app.buttons["放棄未完成訓練"],
+            on: traditionalResume,
+            confirmation: app.buttons["確認放棄"]
+        )
+        capture("bb_05_confirm_zh_hant", settle: 0)
+        let confirmFrame = traditionalConfirm.frame
+        let overlap = confirmFrame.intersection(traditionalResume.frame)
+        traditionalConfirm.coordinate(withNormalizedOffset: CGVector(
+            dx: (overlap.midX - confirmFrame.minX) / confirmFrame.width,
+            dy: 0.5
+        )).tap()
+        XCTAssertTrue(traditionalResume.waitForNonExistence(timeout: 4), "点覆盖区域应放弃续赛")
+    }
+
+    private func expandDiscardButton(
+        _ discard: XCUIElement,
+        on resume: XCUIElement,
+        confirmation: XCUIElement
+    ) -> XCUIElement {
+        XCTAssertTrue(discard.waitForExistence(timeout: 3))
+        let discardFrame = discard.frame
+        let resumeFrame = resume.frame
+        discard.tap()
+        XCTAssertTrue(confirmation.waitForExistence(timeout: 2))
+        let confirmationFrame = confirmation.frame
+        XCTAssertGreaterThan(confirmationFrame.width, discardFrame.width)
+        XCTAssertEqual(confirmationFrame.maxX, discardFrame.maxX, accuracy: 1)
+        XCTAssertEqual(resume.frame, resumeFrame, "展开时续赛内容应留在原位")
+        XCTAssertTrue(confirmationFrame.intersects(resumeFrame), "确认按钮应覆盖续赛内容")
+        return confirmation
     }
 }

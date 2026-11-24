@@ -6,11 +6,9 @@ import SwiftUI
 
 /// Watch-local football board.
 ///
-/// Layout follows the HarmonyOS watch board: a full-bleed two-side scoreboard
-/// with the match clock at the bottom, so the top stays free for team names and
-/// nothing sits behind a black bar. 11-a-side shows a compact clock pill;
-/// 5-a-side waits for a centre kick-off button and then swaps to a full-width
-/// clock panel. Scoring is one goal per tap; long-press opens the menu.
+/// Full-bleed two-side scoreboard with the match clock at the bottom.
+/// 5-a-side shows a kick-off button before revealing its clock controls.
+/// Scoring is one goal per tap; long-press opens the menu.
 struct WatchFootballScoreView: View {
     private enum Confirmation {
         case finish
@@ -27,10 +25,10 @@ struct WatchFootballScoreView: View {
     }
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(WatchResumeSessionStore.self) private var resumeStore
     @Environment(WatchLinkService.self) private var linkService
 
-    static let bottomPanelHeight: CGFloat = 46
     private static let amber = Color(hex: 0xFFB340)
 
     let isFiveAside: Bool
@@ -155,15 +153,7 @@ struct WatchFootballScoreView: View {
 
             VStack(spacing: 0) {
                 Spacer(minLength: 0)
-                if isFiveAside, !kickedOff, !isHorizontal {
-                    // Vertical layout: the bottom half owns the lower quarter of
-                    // the dial, so the kick-off button centres instead of covering
-                    // that team's score.
-                    kickOffButton
-                    Spacer(minLength: 0)
-                } else {
-                    bottomControl
-                }
+                bottomControl
             }
             .ignoresSafeArea()
             .disabled(!interactionsEnabled)
@@ -272,9 +262,14 @@ struct WatchFootballScoreView: View {
                 half(.right)
             }
         } else {
-            VStack(spacing: 0) {
-                half(.left)
-                half(.right)
+            GeometryReader { proxy in
+                let halfHeight = proxy.size.height / 2
+                VStack(spacing: 0) {
+                    half(.left)
+                        .frame(height: halfHeight)
+                    half(.right)
+                        .frame(height: halfHeight)
+                }
             }
         }
     }
@@ -284,32 +279,31 @@ struct WatchFootballScoreView: View {
         let name = isLeft ? leftName : rightName
         let score = isLeft ? leftScore : rightScore
         let scoreText = "\(score)"
+        let verticalScoreSize: CGFloat = WatchLayout.cachedScreenWidth <= 176 ? 46 : 62
         let scoreFont = WatchScoreTypography.adaptiveFontSize(
-            baseSize: isHorizontal ? 56 : 62,
+            baseSize: isHorizontal ? 56 : verticalScoreSize,
             scoreText: scoreText,
             minimumSize: isHorizontal ? 40 : 44
         )
-        return ZStack {
-            Text(scoreText)
-                .font(WatchScoreTypography.primaryScore(size: scoreFont))
-                .monospacedDigit()
-                .foregroundStyle(.white)
-                .lineLimit(1)
-                .minimumScaleFactor(0.55)
-                // Vertical layout stacks two halves: lift the lower score above
-                // the bottom clock so the digits are never clipped.
-                .offset(y: -verticalScoreLift(for: side))
+        let scoreLabel = Text(scoreText)
+            .font(WatchScoreTypography.primaryScore(size: scoreFont))
+            .monospacedDigit()
+            .foregroundStyle(.white)
+            .lineLimit(1)
+            .minimumScaleFactor(0.55)
+        let nameLabel = Text(name)
+            .font(.system(size: 14, weight: .medium))
+            .foregroundStyle(.white.opacity(0.86))
+            .lineLimit(1)
+            .minimumScaleFactor(isHorizontal ? 0.6 : 1)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 8)
 
-            Text(name)
-                .font(.system(size: isHorizontal ? 12 : 13, weight: .medium))
-                .foregroundStyle(.white.opacity(0.86))
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 8)
+        return ZStack {
+            scoreLabel
+            nameLabel
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                // Keep the top-row name clear of the watchOS status time.
-                .padding(.top, nameTopPadding(for: side))
+                .padding(.top, isHorizontal ? WatchLayout.scoreboardTopNameInset : 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(isLeft ? WatchTheme.teamRed : WatchTheme.teamBlue)
@@ -322,25 +316,6 @@ struct WatchFootballScoreView: View {
         .accessibilityLabel("\(name) \(scoreText)")
         .accessibilityHint(NSLocalizedString("football_goal_hint", value: "轻点加一球", comment: ""))
         .accessibilityAddTraits(.isButton)
-    }
-
-    private func nameTopPadding(for side: MatchSide) -> CGFloat {
-        guard !isHorizontal else { return 26 }
-        return side == .left ? 26 : 8
-    }
-
-    /// Height the bottom clock occupies over the board (0 when hidden).
-    private var bottomControlInset: CGFloat {
-        guard !isFinished else { return 0 }
-        if isFiveAside {
-            return kickedOff ? Self.bottomPanelHeight + 2 : 0
-        }
-        return 40
-    }
-
-    private func verticalScoreLift(for side: MatchSide) -> CGFloat {
-        guard !isHorizontal, side == .right else { return 0 }
-        return bottomControlInset / 2
     }
 
     // MARK: - Bottom clock
@@ -402,7 +377,7 @@ struct WatchFootballScoreView: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 4)
         .background(Color.black.opacity(0.55), in: Capsule())
-        .padding(.bottom, 18)
+        .padding(.bottom, isHorizontal ? 18 : 0)
         .contentShape(Capsule())
         .onTapGesture(perform: handleClockTap)
         .accessibilityElement(children: .combine)
@@ -412,44 +387,66 @@ struct WatchFootballScoreView: View {
         .accessibilityAddTraits(clockSession.periodCompleted ? [.isButton] : [])
     }
 
-    /// 5-a-side after kick-off: full-width panel, the whole bar toggles the clock.
+    /// 5-a-side after kick-off: the entire capsule toggles the clock.
     private var fiveV5ClockPanel: some View {
-        HStack(spacing: 6) {
-            halfBadge
-            Text(clockText)
-                .font(.system(size: 20, weight: .bold, design: .rounded))
-                .monospacedDigit()
-                .foregroundStyle(clockTextColor)
-            Image(systemName: clockSession.state.isRunning ? "pause.fill" : "play.fill")
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(clockSession.state.isRunning ? .white : WatchTheme.accent)
+        Button(action: toggleClock) {
+            HStack(spacing: 6) {
+                halfBadge
+                Text(clockText)
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(clockTextColor)
+                fiveV5ClockIcon
+                    .frame(width: 24)
+            }
+            .padding(.horizontal, 16)
+            .frame(height: isHorizontal ? 44 : 32)
+            .background(Color.black.opacity(0.82), in: Capsule())
+            .contentShape(Capsule())
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: Self.bottomPanelHeight)
-        .background(Color.black.opacity(0.82))
-        .contentShape(Rectangle())
-        .onTapGesture(perform: toggleClock)
-        .padding(.horizontal, 4)
-        .padding(.bottom, 2)
-        .accessibilityElement(children: .combine)
+        .buttonStyle(.plain)
         .accessibilityLabel(
+            clockSession.state.isRunning
+                ? NSLocalizedString("watch_football_pause", value: "暂停", comment: "")
+                : NSLocalizedString("watch_football_resume", value: "继续", comment: "")
+        )
+        .accessibilityValue(
             "\(WatchFootballRules.stageTitle(clockSession.state.stage)) \(clockText)"
         )
-        .accessibilityAddTraits(.isButton)
+        .padding(.bottom, isHorizontal ? 8 : 0)
+    }
+
+    @ViewBuilder
+    private var fiveV5ClockIcon: some View {
+        let isRunning = clockSession.state.isRunning
+        let icon = Image(systemName: isRunning ? "pause.fill" : "play.fill")
+            .font(.system(size: 20, weight: .semibold))
+            .foregroundStyle(isRunning ? .white : WatchTheme.accent)
+
+        if !isRunning, !clockSession.periodCompleted, interactionsEnabled, !reduceMotion {
+            icon.phaseAnimator([1.0, 1.12]) { content, scale in
+                content.scaleEffect(scale)
+            } animation: { _ in
+                .easeInOut(duration: 0.9)
+            }
+        } else {
+            icon
+        }
     }
 
     /// 5-a-side before kick-off: no time at all, just a pulsing start button.
     private var kickOffButton: some View {
         Button(action: kickOff) {
             Image(systemName: "play.fill")
-                .font(.system(size: 26, weight: .bold))
+                .font(.system(size: isHorizontal ? 26 : 18, weight: .bold))
                 .foregroundStyle(WatchTheme.accent)
-                .frame(width: 64, height: 64)
+                .scaleEffect(isHorizontal ? 1 : kickOffPulseScale)
+                .frame(width: isHorizontal ? 64 : 32, height: isHorizontal ? 64 : 32)
                 .background(Color(hex: 0x2C2C2E), in: Circle())
-                .scaleEffect(kickOffPulseScale)
+                .scaleEffect(isHorizontal ? kickOffPulseScale : 1)
         }
         .buttonStyle(.plain)
-        .padding(.bottom, 10)
+        .padding(.bottom, isHorizontal ? 10 : 0)
         .accessibilityLabel(NSLocalizedString("watch_football_start", value: "开始", comment: ""))
         .onAppear(perform: startKickOffPulse)
     }

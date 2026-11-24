@@ -156,6 +156,7 @@
 "watch_continue_scoring" = "Resume scoring";
 "watch_resume_discard" = "Discard unfinished game";
 "watch_resume_discard_training" = "Discard unfinished training";
+"watch_resume_confirm_discard" = "Confirm Discard";
 "unit_hour" = "h";
 "unit_minute" = "m";
 "unit_second" = "s";
@@ -399,6 +400,7 @@
 "watch_about_app_name" = "iScoreboard";
 "watch_about_version" = "Version %@";
 "watch_wechat_group_title" = "WeChat Group";
+"watch_wechat_group_scan_hint" = "Scan with WeChat to join the user group";
 
 "nine_ball_handoff" = "Handoff";
 "nine_ball_no_score" = "No score";
