@@ -225,7 +225,8 @@ struct WatchHomeTabView: View {
             Text(pinDialogMessage)
         }
         .confirmationDialog(
-            NSLocalizedString("watch_resume_discard", value: "放弃未完成比赛", comment: ""),
+            pendingResumeClose?.discardActionTitle
+                ?? NSLocalizedString("watch_resume_discard", value: "放弃未完成比赛", comment: ""),
             isPresented: Binding(
                 get: { pendingResumeClose != nil },
                 set: { if !$0 { pendingResumeClose = nil } }
@@ -233,7 +234,8 @@ struct WatchHomeTabView: View {
             titleVisibility: .visible
         ) {
             Button(
-                NSLocalizedString("watch_resume_discard", value: "放弃未完成比赛", comment: ""),
+                pendingResumeClose?.discardActionTitle
+                    ?? NSLocalizedString("watch_resume_discard", value: "放弃未完成比赛", comment: ""),
                 role: .destructive
             ) {
                 discardPendingResume()
@@ -413,18 +415,22 @@ struct WatchHomeTabView: View {
             .buttonStyle(.plain)
             .accessibilityLabel(NSLocalizedString("cancel", value: "取消", comment: ""))
 
-            VStack(spacing: compact ? 6 : 8) {
-                Text(
-                    picker == .nineBallPlayers
+            VStack(spacing: 0) {
+                WatchDialogHeader(
+                    title: picker == .nineBallPlayers
                         ? NSLocalizedString("watch_setup_select_players", value: "选择人数", comment: "")
-                        : NSLocalizedString("watch_bb_select_mode", value: "选择计分方式", comment: "")
+                        : NSLocalizedString("watch_bb_select_mode", value: "选择计分方式", comment: ""),
+                    onClose: { preflightPicker = nil }
                 )
-                .font(.system(size: compact ? 15 : 16, weight: .medium))
-                .foregroundStyle(WatchTheme.primaryText)
-                .multilineTextAlignment(.center)
+                .padding(
+                    .bottom,
+                    picker == .basketballTraining
+                        ? (compact ? 12 : 14)
+                        : (compact ? 8 : 12)
+                )
 
                 if picker == .nineBallPlayers {
-                    VStack(spacing: compact ? 5 : 7) {
+                    VStack(spacing: compact ? 6 : 7) {
                         ForEach(2...4, id: \.self) { count in
                             preflightButton(
                                 String.localizedStringWithFormat(
@@ -438,7 +444,7 @@ struct WatchHomeTabView: View {
                         }
                     }
                 } else {
-                    VStack(spacing: 6) {
+                    VStack(spacing: compact ? 8 : 10) {
                         HStack(spacing: 6) {
                             trainingModeButton(.onePoint, title: NSLocalizedString("watch_bb_1pt", value: "1分", comment: ""))
                             trainingModeButton(.twoPoint, title: NSLocalizedString("watch_bb_2pt", value: "2分", comment: ""))
@@ -452,15 +458,12 @@ struct WatchHomeTabView: View {
                     }
                 }
             }
-            .padding(compact ? 10 : 12)
+            .padding(.horizontal, compact ? 10 : 12)
+            .padding(.top, compact ? 10 : 12)
+            .padding(.bottom, compact ? 10 : 14)
             .frame(maxWidth: .infinity)
             .background(WatchTheme.listItemBackground)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .overlay(alignment: .topTrailing) {
-                WatchDialogCloseButton { preflightPicker = nil }
-                .accessibilityLabel(NSLocalizedString("cancel", value: "取消", comment: ""))
-                .padding(2)
-            }
             .padding(.horizontal, WatchLayout.pageHorizontalPadding)
             .padding(.top, compact ? 22 : 26)
             .padding(.bottom, compact ? 4 : 8)
@@ -496,7 +499,7 @@ struct WatchHomeTabView: View {
                 .font(.system(size: WatchLayout.isCompactScreen ? 14 : 15, weight: .medium))
                 .foregroundStyle(WatchTheme.primaryText)
                 .frame(maxWidth: .infinity)
-                .frame(height: WatchLayout.isCompactScreen ? 34 : 38)
+                .frame(height: WatchLayout.isCompactScreen ? 32 : 36)
                 .background(WatchTheme.subtleFill)
                 .clipShape(Capsule())
         }

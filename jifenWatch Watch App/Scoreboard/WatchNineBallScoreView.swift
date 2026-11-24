@@ -390,7 +390,7 @@ struct WatchNineBallScoreView: View {
                             .background(WatchTheme.accent.opacity(0.22), in: Capsule())
                     }
                 }
-                .padding(.bottom, compact ? 1 : 4)
+                .padding(.bottom, compact ? 3 : 8)
                 LazyVGrid(
                     columns: [GridItem(.flexible()), GridItem(.flexible())],
                     spacing: compact ? 4 : 6
@@ -512,7 +512,7 @@ struct WatchNineBallScoreView: View {
                         .foregroundStyle(WatchTheme.secondaryText)
                         .lineLimit(1)
                 }
-                .padding(.bottom, 1)
+                .padding(.bottom, compact ? 2 : 6)
 
                 VStack(spacing: compact ? 4 : 6) {
                     ForEach(candidates, id: \.self) { candidate in
@@ -621,6 +621,7 @@ struct WatchNineBallScoreView: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.white.opacity(0.9))
                     .lineLimit(1)
+                    .padding(.bottom, compact ? 2 : 6)
                 VStack(spacing: state.playerCount >= 4 ? 4 : 6) {
                     ForEach(0..<state.playerCount, id: \.self) { player in
                         let isCurrent = player == state.breakerPlayer

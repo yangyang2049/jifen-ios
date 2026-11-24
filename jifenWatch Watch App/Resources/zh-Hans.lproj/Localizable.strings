@@ -123,6 +123,8 @@
 "watch_bb_end_training" = "结束训练";
 "watch_training_finish_confirm_title" = "结束训练？";
 "watch_training_finish_confirm_message" = "将结束并保存本次训练。";
+"watch_counter_finish_confirm_title" = "结束计数？";
+"watch_counter_finish_confirm_message" = "将结束并保存本次计数。";
 "watch_bb_restart" = "再来一次";
 
 /* Records */
@@ -151,7 +153,9 @@
 "watch_tiebreak_indicator_7" = "抢七";
 "watch_tiebreak_indicator_10" = "抢十";
 "watch_continue_match" = "继续比赛";
+"watch_continue_scoring" = "继续计分";
 "watch_resume_discard" = "放弃未完成比赛";
+"watch_resume_discard_training" = "放弃未完成训练";
 "unit_hour" = "时";
 "unit_minute" = "分";
 "unit_second" = "秒";

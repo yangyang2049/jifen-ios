@@ -87,7 +87,11 @@ struct WatchTenSecondChallengeView: View {
         } message: {
             Text(NSLocalizedString("watch_ten_second_usage", comment: "Ten second usage message"))
         }
-        .navigationTitle(NSLocalizedString("tool_ten_second", comment: "10s Challenge"))
+        .navigationTitle(
+            showHistoryOverlay
+                ? ""
+                : NSLocalizedString("tool_ten_second", comment: "10s Challenge")
+        )
         .navigationBarTitleDisplayMode(.inline)
         .gesture(
             DragGesture(minimumDistance: 30, coordinateSpace: .local)
@@ -142,16 +146,18 @@ struct WatchTenSecondChallengeView: View {
     }
 
     private var historyOverlay: some View {
-        ZStack {
-            Color.black.opacity(0.85)
+        let compact = WatchLayout.isCompactScreen
+        return ZStack {
+            Color.black.opacity(0.82)
                 .ignoresSafeArea()
                 .onTapGesture { showHistoryOverlay = false }
 
-            VStack(spacing: 8) {
-                Text(NSLocalizedString("records", comment: "Records"))
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(WatchTheme.primaryText)
-                    .padding(.top, 12)
+            VStack(spacing: 0) {
+                WatchDialogHeader(
+                    title: NSLocalizedString("records", comment: "Records"),
+                    onClose: { showHistoryOverlay = false }
+                )
+                .padding(.bottom, compact ? 6 : 10)
 
                 ScrollView {
                     VStack(spacing: 0) {
@@ -161,30 +167,39 @@ struct WatchTenSecondChallengeView: View {
                                 Text("#\(history.count - idx)")
                                     .font(.system(size: 12))
                                     .foregroundColor(WatchTheme.secondaryText)
-                                    .frame(width: 40, alignment: .leading)
+                                    .frame(width: 38, alignment: .leading)
 
                                 Text(formatShortTime(time))
-                                    .font(.system(size: 20, weight: .medium))
+                                    .font(.system(size: compact ? 18 : 20, weight: .medium))
                                     .foregroundColor(WatchTheme.primaryText)
                                     .frame(maxWidth: .infinity, alignment: .center)
                             }
-                            .padding(.horizontal, 16)
-                            .frame(height: 44)
+                            .padding(.horizontal, 10)
+                            .frame(height: compact ? 38 : 42)
 
                             if idx != history.indices.first {
                                 Rectangle()
                                     .fill(WatchTheme.subtleFill)
                                     .frame(height: 0.5)
-                                    .padding(.horizontal, 12)
+                                    .padding(.horizontal, 6)
                             }
                         }
                     }
                 }
             }
-            .frame(width: 140, height: 170)
-            .background(WatchTheme.card)
-            .cornerRadius(16)
+            .padding(.horizontal, compact ? 10 : 12)
+            .padding(.top, compact ? 10 : 12)
+            .padding(.bottom, compact ? 8 : 10)
+            .frame(maxWidth: .infinity)
+            .frame(height: compact ? 152 : 186)
+            .background(WatchTheme.listItemBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .padding(.horizontal, WatchLayout.pageHorizontalPadding)
+            .padding(.top, compact ? 22 : 26)
+            .padding(.bottom, compact ? 4 : 8)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private func toggleChallenge() {

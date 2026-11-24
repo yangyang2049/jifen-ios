@@ -123,6 +123,8 @@
 "watch_bb_end_training" = "End training";
 "watch_training_finish_confirm_title" = "End training?";
 "watch_training_finish_confirm_message" = "This training session will end and be saved.";
+"watch_counter_finish_confirm_title" = "End counting?";
+"watch_counter_finish_confirm_message" = "This count will end and be saved.";
 "watch_bb_restart" = "Restart";
 
 /* Records */
@@ -151,7 +153,9 @@
 "watch_tiebreak_indicator_7" = "7-Point Tiebreak";
 "watch_tiebreak_indicator_10" = "10-Point Tiebreak";
 "watch_continue_match" = "Resume game";
+"watch_continue_scoring" = "Resume scoring";
 "watch_resume_discard" = "Discard unfinished game";
+"watch_resume_discard_training" = "Discard unfinished training";
 "unit_hour" = "h";
 "unit_minute" = "m";
 "unit_second" = "s";

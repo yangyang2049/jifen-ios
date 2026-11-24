@@ -352,9 +352,10 @@ struct WatchConfirmationOverlay: View {
     }
 
     var body: some View {
+        let compact = WatchLayout.isCompactScreen
         ZStack {
             Color.black.opacity(resolvedBackdropOpacity).ignoresSafeArea()
-            VStack(spacing: WatchLayout.isCompactScreen ? 8 : 12) {
+            VStack(spacing: compact ? 8 : 10) {
                 Text(title)
                     .font(.headline)
                     .foregroundStyle(.white)
@@ -363,7 +364,7 @@ struct WatchConfirmationOverlay: View {
                     .foregroundStyle(.white.opacity(0.72))
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
-                HStack(spacing: WatchLayout.isCompactScreen ? 18 : 22) {
+                HStack(spacing: compact ? 20 : 24) {
                     confirmationIconButton(
                         systemImage: "xmark",
                         background: Color(hex: 0x636366),
@@ -377,8 +378,10 @@ struct WatchConfirmationOverlay: View {
                         action: onConfirm
                     )
                 }
+                .padding(.top, compact ? 8 : 12)
             }
-            .padding(.horizontal, WatchLayout.isCompactScreen ? 10 : 14)
+            .padding(.horizontal, compact ? 12 : 16)
+            .padding(.top, compact ? 14 : 18)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.black.opacity(resolvedCardOpacity))
         }
@@ -515,9 +518,10 @@ struct WatchFinishedOverlay: View {
     @State private var undoDeadline: Date = .distantPast
 
     var body: some View {
+        let compact = WatchLayout.isCompactScreen
         ZStack {
             Color.black.opacity(0.40).ignoresSafeArea()
-            VStack(spacing: WatchLayout.isCompactScreen ? 6 : 9) {
+            VStack(spacing: compact ? 6 : 9) {
                 Text(title)
                     .font(.headline)
                 finishedScoreRow
@@ -527,29 +531,33 @@ struct WatchFinishedOverlay: View {
                         .foregroundStyle(.white.opacity(0.78))
                         .lineLimit(2)
                 }
-                if undoAvailable {
+                VStack(spacing: compact ? 6 : 8) {
+                    if undoAvailable {
+                        finishedActionButton(
+                            title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
+                            background: WatchTheme.card,
+                            countdownDeadline: undoDeadline,
+                            action: onUndo
+                        )
+                    } else {
+                        finishedActionButton(
+                            title: NSLocalizedString("watch_play_again", value: "再来一场", comment: ""),
+                            background: WatchTheme.successGreen,
+                            action: onPlayAgain
+                        )
+                    }
                     finishedActionButton(
-                        title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
+                        title: NSLocalizedString("watch_exit", value: "退出", comment: ""),
                         background: WatchTheme.card,
-                        countdownDeadline: undoDeadline,
-                        action: onUndo
-                    )
-                } else {
-                    finishedActionButton(
-                        title: NSLocalizedString("watch_play_again", value: "再来一场", comment: ""),
-                        background: WatchTheme.successGreen,
-                        action: onPlayAgain
+                        action: onExit
                     )
                 }
-                finishedActionButton(
-                    title: NSLocalizedString("watch_exit", value: "退出", comment: ""),
-                    background: WatchTheme.card,
-                    action: onExit
-                )
+                .padding(.top, compact ? 4 : 8)
             }
             .foregroundStyle(.white)
-            .padding(.horizontal, WatchLayout.isCompactScreen ? 10 : 16)
-            .padding(.vertical, WatchLayout.isCompactScreen ? 8 : 12)
+            .padding(.horizontal, compact ? 10 : 16)
+            .padding(.top, compact ? 14 : 20)
+            .padding(.bottom, compact ? 8 : 12)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(WatchTheme.panelScrim)
         }

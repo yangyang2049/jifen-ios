@@ -558,110 +558,153 @@ struct WatchFootballScoreView: View {
     }
 
     private var injuryPanel: some View {
-        ZStack {
-            Color.black.opacity(0.35)
+        let compact = WatchLayout.isCompactScreen
+        return ZStack {
+            Color.black.opacity(0.76)
                 .ignoresSafeArea()
                 .onTapGesture { showStoppagePanel = false }
 
-            VStack(spacing: 10) {
-                HStack(spacing: 8) {
-                    Text(NSLocalizedString("football_injury_title", value: "伤停补时", comment: ""))
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(.white)
+            VStack(spacing: 0) {
+                WatchDialogHeader(
+                    title: NSLocalizedString("football_injury_title", value: "伤停补时", comment: ""),
+                    onClose: { showStoppagePanel = false }
+                ) {
                     Text(WatchFootballRules.formattedStoppage(
                         seconds: clockSession.currentStoppageSeconds
                     ))
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(.system(size: compact ? 11 : 14, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(clockSession.currentStoppageSeconds > 0
                         ? WatchTheme.accent
                         : .white.opacity(0.45))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+                    .fixedSize(horizontal: true, vertical: false)
                 }
+                .padding(.bottom, compact ? 8 : 12)
 
-                HStack(spacing: 10) {
-                    injuryChip(15)
-                    injuryChip(30)
+                VStack(spacing: compact ? 6 : 10) {
+                    HStack(spacing: compact ? 12 : 14) {
+                        injuryChip(15)
+                        injuryChip(30)
+                    }
+                    HStack(spacing: compact ? 12 : 14) {
+                        injuryChip(60)
+                        injuryChip(90)
+                    }
                 }
-                HStack(spacing: 10) {
-                    injuryChip(60)
-                    injuryChip(90)
-                }
+                .padding(.bottom, compact ? 8 : 12)
 
-                Button(NSLocalizedString(
-                    "football_undo_stoppage",
-                    value: "撤销最近一次补时",
-                    comment: ""
-                )) {
+                Button {
                     undoLastStoppage()
+                } label: {
+                    Text(NSLocalizedString(
+                        "football_undo_stoppage",
+                        value: "撤销最近一次补时",
+                        comment: ""
+                    ))
+                    .font(.system(size: compact ? 10 : 11, weight: .medium))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: compact ? 30 : 34)
+                    .background(Color(hex: 0x2C2C2E), in: Capsule())
                 }
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .frame(height: 32)
-                .background(Color(hex: 0x2C2C2E), in: Capsule())
+                .buttonStyle(.plain)
                 .disabled(stoppageHistory.isEmpty)
                 .opacity(stoppageHistory.isEmpty ? 0.5 : 1)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .frame(width: 172)
-            .background(Color(hex: 0x1C1C1E), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .padding(.horizontal, compact ? 10 : 12)
+            .padding(.top, compact ? 8 : 12)
+            .padding(.bottom, compact ? 10 : 14)
+            .frame(maxWidth: .infinity)
+            .background(WatchTheme.overlayCard, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .padding(.horizontal, WatchLayout.pageHorizontalPadding)
+            .padding(.top, compact ? 24 : 32)
+            .padding(.bottom, compact ? 4 : 8)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private func injuryChip(_ seconds: Int) -> some View {
-        Button {
+        let size: CGFloat = WatchLayout.isCompactScreen ? 36 : 46
+        return Button {
             addStoppage(seconds)
         } label: {
             Text("+\(seconds)")
-                .font(.system(size: 14, weight: .bold))
+                .font(.system(size: WatchLayout.isCompactScreen ? 13 : 14, weight: .bold))
                 .foregroundStyle(.white)
-                .frame(width: 52, height: 52)
+                .frame(width: size, height: size)
                 .background(WatchTheme.accent, in: Circle())
         }
         .buttonStyle(.plain)
     }
 
     private var postRegulationPanel: some View {
-        ZStack {
-            Color.black.opacity(0.35)
+        let compact = WatchLayout.isCompactScreen
+        return ZStack {
+            Color.black.opacity(0.76)
                 .ignoresSafeArea()
                 .onTapGesture { showPostRegulationPanel = false }
 
-            VStack(spacing: 10) {
-                Text(NSLocalizedString(
-                    "football_enter_extra_time_title",
-                    value: "常规时间结束",
-                    comment: ""
-                ))
-                .font(.system(size: 14, weight: .bold))
-                .foregroundStyle(.white)
+            VStack(spacing: 0) {
+                WatchDialogHeader(
+                    title: NSLocalizedString(
+                        "football_enter_extra_time_title",
+                        value: "常规时间结束",
+                        comment: ""
+                    ),
+                    onClose: { showPostRegulationPanel = false }
+                )
+                .padding(.bottom, compact ? 8 : 10)
 
                 Text("\(leftScore) : \(rightScore)")
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .font(.system(size: compact ? 20 : 24, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(.white)
+                    .padding(.bottom, compact ? 10 : 14)
 
-                Button(NSLocalizedString("football_enter_extra_time", value: "进入加时赛", comment: "")) {
-                    showPostRegulationPanel = false
-                    advanceStage()
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(WatchTheme.successGreen)
-                .foregroundStyle(.white)
-                .frame(width: WatchLayout.overlayActionButtonWidth)
+                VStack(spacing: compact ? 6 : 8) {
+                    Button {
+                        showPostRegulationPanel = false
+                        advanceStage()
+                    } label: {
+                        Text(NSLocalizedString("football_enter_extra_time", value: "进入加时赛", comment: ""))
+                            .font(.system(size: compact ? 13 : 14, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: compact ? 34 : 38)
+                            .background(WatchTheme.successGreen, in: Capsule())
+                    }
+                    .buttonStyle(.plain)
 
-                Button(NSLocalizedString("football_end_as_draw", value: "以平局结束", comment: "")) {
-                    showPostRegulationPanel = false
-                    confirmation = .finish
+                    Button {
+                        showPostRegulationPanel = false
+                        confirmation = .finish
+                    } label: {
+                        Text(NSLocalizedString("football_end_as_draw", value: "以平局结束", comment: ""))
+                            .font(.system(size: compact ? 13 : 14, weight: .medium))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: compact ? 34 : 38)
+                            .background(WatchTheme.card, in: Capsule())
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.bordered)
-                .frame(width: WatchLayout.overlayActionButtonWidth)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .background(Color(hex: 0x1C1C1E), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .padding(.horizontal, compact ? 10 : 12)
+            .padding(.top, compact ? 10 : 12)
+            .padding(.bottom, compact ? 12 : 14)
+            .frame(maxWidth: .infinity)
+            .background(WatchTheme.overlayCard, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .padding(.horizontal, WatchLayout.pageHorizontalPadding)
+            .padding(.top, compact ? 22 : 26)
+            .padding(.bottom, compact ? 4 : 8)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     @ViewBuilder

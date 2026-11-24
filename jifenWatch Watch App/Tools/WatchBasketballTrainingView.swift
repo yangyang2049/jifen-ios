@@ -337,15 +337,16 @@ struct WatchBasketballTrainingView: View {
     }
 
     private var endOverlay: some View {
-        ZStack {
+        let compact = WatchLayout.isCompactScreen
+        return ZStack {
             Color.black.opacity(0.40).ignoresSafeArea()
-            VStack(spacing: WatchLayout.isCompactScreen ? 5 : 7) {
+            VStack(spacing: compact ? 5 : 8) {
                 Text(NSLocalizedString("watch_bb_hit_rate", value: "命中率", comment: ""))
-                    .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14))
+                    .font(.system(size: compact ? 12 : 14))
                     .foregroundStyle(WatchTheme.secondaryText)
                 Text(hitRateText)
                     .font(WatchScoreTypography.secondaryScore(
-                        size: WatchLayout.isCompactScreen ? 17 : 19,
+                        size: compact ? 17 : 19,
                         weight: .bold
                     ))
                     .foregroundStyle(WatchTheme.accent)
@@ -367,32 +368,41 @@ struct WatchBasketballTrainingView: View {
                         }
                     }
                 }
-                Button {
-                    restartAfterFinish()
-                } label: {
-                    Text(NSLocalizedString("watch_bb_restart", value: "再来一次", comment: ""))
-                        .frame(
-                            width: WatchLayout.isCompactScreen ? 134 : 144,
-                            height: WatchLayout.isCompactScreen ? 34 : 38
-                        )
+                VStack(spacing: compact ? 6 : 8) {
+                    Button {
+                        restartAfterFinish()
+                    } label: {
+                        Text(NSLocalizedString("watch_bb_restart", value: "再来一次", comment: ""))
+                            .font(.system(size: compact ? 13 : 15, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .frame(
+                                width: WatchLayout.overlayActionButtonWidth,
+                                height: compact ? 34 : 38
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .background(WatchTheme.successGreen)
+                    .clipShape(Capsule())
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text(NSLocalizedString("exit", value: "退出", comment: ""))
+                            .font(.system(size: compact ? 13 : 15, weight: .medium))
+                            .foregroundStyle(.white)
+                            .frame(
+                                width: WatchLayout.overlayActionButtonWidth,
+                                height: compact ? 34 : 38
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .background(WatchTheme.card)
+                    .clipShape(Capsule())
                 }
-                .buttonStyle(.plain)
-                .background(WatchTheme.successGreen)
-                .clipShape(Capsule())
-                Button {
-                    dismiss()
-                } label: {
-                    Text(NSLocalizedString("exit", value: "退出", comment: ""))
-                        .frame(
-                            width: WatchLayout.isCompactScreen ? 134 : 144,
-                            height: WatchLayout.isCompactScreen ? 34 : 38
-                        )
-                }
-                .buttonStyle(.plain)
-                .background(WatchTheme.card)
-                .clipShape(Capsule())
+                .padding(.top, compact ? 4 : 8)
             }
-            .padding(WatchLayout.isCompactScreen ? 10 : 12)
+            .padding(.horizontal, compact ? 10 : 12)
+            .padding(.top, compact ? 14 : 20)
+            .padding(.bottom, compact ? 8 : 12)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(WatchTheme.panelScrim)
         }

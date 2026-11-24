@@ -104,6 +104,8 @@
 "watch_bb_end_training" = "結束訓練";
 "watch_training_finish_confirm_title" = "結束訓練？";
 "watch_training_finish_confirm_message" = "將結束並儲存本次訓練。";
+"watch_counter_finish_confirm_title" = "結束計數？";
+"watch_counter_finish_confirm_message" = "將結束並儲存本次計數。";
 "watch_bb_restart" = "再來一次";
 "clear_all_records" = "刪除全部記錄";
 "clear_all_records_message" = "將刪除所有記錄，此操作無法撤銷。";
@@ -128,7 +130,9 @@
 "watch_tiebreak_indicator_7" = "搶七";
 "watch_tiebreak_indicator_10" = "搶十";
 "watch_continue_match" = "繼續比賽";
+"watch_continue_scoring" = "繼續計分";
 "watch_resume_discard" = "放棄未完成比賽";
+"watch_resume_discard_training" = "放棄未完成訓練";
 "unit_hour" = "時";
 "unit_minute" = "分";
 "unit_second" = "秒";

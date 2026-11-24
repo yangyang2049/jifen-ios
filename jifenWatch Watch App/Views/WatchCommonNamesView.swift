@@ -60,7 +60,11 @@ struct WatchCommonNamesView: View {
             }
         }
         .background(WatchTheme.background)
-        .navigationTitle(NSLocalizedString("watch_common_names_title", value: "常用名称", comment: ""))
+        .navigationTitle(
+            actionMenuName == nil
+                ? NSLocalizedString("watch_common_names_title", value: "常用名称", comment: "")
+                : ""
+        )
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if !currentNames.isEmpty {
@@ -221,60 +225,67 @@ struct WatchCommonNamesView: View {
     }
 
     private func actionMenu(for name: String) -> some View {
-        ZStack {
-            Color.black.opacity(0.58)
+        let compact = WatchLayout.isCompactScreen
+        return ZStack {
+            Color.black.opacity(0.76)
                 .ignoresSafeArea()
                 .onTapGesture {
                     closeActionMenu()
                 }
 
-            VStack(spacing: 8) {
-                Text(name)
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(WatchTheme.primaryText)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
+            VStack(spacing: 0) {
+                WatchDialogHeader(title: name, onClose: closeActionMenu)
+                    .padding(.bottom, compact ? 10 : 14)
 
-                Button {
-                    closeActionMenu()
-                    editorText = name
-                    editorContext = .init(originalName: name)
-                } label: {
-                    Label(
-                        NSLocalizedString("edit", value: "编辑", comment: ""),
-                        systemImage: "pencil"
-                    )
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(WatchTheme.primaryText)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 40)
-                    .background(Color.white.opacity(0.10))
-                    .clipShape(Capsule())
-                }
-                .buttonStyle(.plain)
+                VStack(spacing: compact ? 8 : 10) {
+                    Button {
+                        closeActionMenu()
+                        editorText = name
+                        editorContext = .init(originalName: name)
+                    } label: {
+                        Label(
+                            NSLocalizedString("edit", value: "编辑", comment: ""),
+                            systemImage: "pencil"
+                        )
+                        .font(.system(size: compact ? 13 : 14, weight: .semibold))
+                        .foregroundStyle(WatchTheme.primaryText)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: compact ? 38 : 42)
+                        .background(Color.white.opacity(0.10))
+                        .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
 
-                Button {
-                    closeActionMenu()
-                    pendingDeleteName = name
-                } label: {
-                    Label(
-                        NSLocalizedString("delete", value: "删除", comment: ""),
-                        systemImage: "trash"
-                    )
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 40)
-                    .background(Color.red.opacity(0.78))
-                    .clipShape(Capsule())
+                    Button {
+                        closeActionMenu()
+                        pendingDeleteName = name
+                    } label: {
+                        Label(
+                            NSLocalizedString("delete", value: "删除", comment: ""),
+                            systemImage: "trash"
+                        )
+                        .font(.system(size: compact ? 13 : 14, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: compact ? 38 : 42)
+                        .background(Color.red.opacity(0.78))
+                        .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
-            .padding(12)
-            .background(Color(hex: 0x222222))
-            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-            .padding(.horizontal, 12)
+            .padding(.horizontal, compact ? 10 : 12)
+            .padding(.top, compact ? 10 : 12)
+            .padding(.bottom, compact ? 12 : 14)
+            .frame(maxWidth: .infinity)
+            .background(WatchTheme.listItemBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .padding(.horizontal, WatchLayout.pageHorizontalPadding)
+            .padding(.top, compact ? 22 : 26)
+            .padding(.bottom, compact ? 4 : 8)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private func closeActionMenu() {

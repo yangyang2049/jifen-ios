@@ -277,86 +277,107 @@ struct WatchSnookerScoreView: View {
     }
 
     private func snookerScoringPanel(for side: MatchSide) -> some View {
-        let closeButtonSize = WatchLayout.overlayCloseButtonSize
-        return ZStack(alignment: .bottom) {
-            Color.black.opacity(0.84)
+        let compact = WatchLayout.isCompactScreen
+        return ZStack {
+            WatchTheme.overlayCard
                 .ignoresSafeArea()
-                .onTapGesture { scoringSide = nil }
-            ScrollView {
-                VStack(spacing: WatchLayout.isCompactScreen ? 6 : 8) {
-                    Text(side == .left ? leftName : rightName)
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white.opacity(0.8))
-                    LazyVGrid(
-                        columns: Array(repeating: GridItem(.flexible()), count: 4),
-                        spacing: 5
-                    ) {
-                        ForEach(SnookerBall.allCases, id: \.rawValue) { ball in
-                            let isAvailable = WatchSnookerBallAvailability.isAvailable(ball, in: state)
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(spacing: compact ? 8 : 10) {
+                        Text(side == .left ? leftName : rightName)
+                            .font(.system(size: compact ? 12 : 14, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.85))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                        LazyVGrid(
+                            columns: Array(repeating: GridItem(.flexible()), count: 4),
+                            spacing: 5
+                        ) {
+                            ForEach(SnookerBall.allCases, id: \.rawValue) { ball in
+                                let isAvailable = WatchSnookerBallAvailability.isAvailable(ball, in: state)
+                                Button {
+                                    apply(.potBallAsSide(side: side, points: ball.rawValue))
+                                    scoringSide = nil
+                                } label: {
+                                    ZStack {
+                                        Circle()
+                                            .fill(snookerBallColor(ball))
+                                        Text("\(ball.rawValue)")
+                                            .font(.system(
+                                                size: compact ? 14 : 16,
+                                                weight: .bold,
+                                                design: .rounded
+                                            ))
+                                            .foregroundStyle(snookerBallTextColor(ball))
+                                    }
+                                    .frame(
+                                        width: WatchLayout.snookerBallButtonSize,
+                                        height: WatchLayout.snookerBallButtonSize
+                                    )
+                                    .frame(maxWidth: .infinity)
+                                    .opacity(isAvailable ? 1 : 0.45)
+                                }
+                                .buttonStyle(.plain)
+                                .disabled(!isAvailable)
+                            }
+                        }
+                        HStack(spacing: 4) {
+                            ForEach(4...7, id: \.self) { points in
+                                Button {
+                                    pendingFoul = PendingSnookerFoul(side: side, points: points)
+                                } label: {
+                                    Text("\(NSLocalizedString("watch_snooker_foul", value: "犯规", comment: "")) \(points)")
+                                        .font(.system(size: compact ? 9 : 10, weight: .semibold))
+                                        .foregroundStyle(.white)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.65)
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: compact ? 28 : 32)
+                                        .background(WatchTheme.dangerRed.opacity(0.82), in: Capsule())
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        HStack(spacing: 6) {
                             Button {
-                                apply(.potBallAsSide(side: side, points: ball.rawValue))
+                                apply(.handoverFromPanel(side))
                                 scoringSide = nil
                             } label: {
-                                ZStack {
-                                    Circle()
-                                        .fill(snookerBallColor(ball))
-                                    Text("\(ball.rawValue)")
-                                        .font(.system(
-                                            size: WatchLayout.isCompactScreen ? 14 : 16,
-                                            weight: .bold,
-                                            design: .rounded
-                                        ))
-                                        .foregroundStyle(snookerBallTextColor(ball))
-                                }
-                                .frame(
-                                    width: WatchLayout.snookerBallButtonSize,
-                                    height: WatchLayout.snookerBallButtonSize
-                                )
-                                .frame(maxWidth: .infinity)
-                                .opacity(isAvailable ? 1 : 0.45)
+                                Text(NSLocalizedString("watch_snooker_handover", value: "换手", comment: ""))
+                                    .font(.system(size: compact ? 11 : 12, weight: .semibold))
+                                    .foregroundStyle(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: compact ? 32 : 36)
+                                    .background(WatchTheme.card, in: Capsule())
                             }
                             .buttonStyle(.plain)
-                            .disabled(!isAvailable)
-                        }
-                    }
-                    HStack(spacing: 5) {
-                        ForEach(4...7, id: \.self) { points in
-                            Button("\(NSLocalizedString("watch_snooker_foul", value: "犯规", comment: "")) \(points)") {
-                                pendingFoul = PendingSnookerFoul(side: side, points: points)
+                            Button {
+                                scoringSide = nil
+                                showFrameSettlement = true
+                            } label: {
+                                Text(NSLocalizedString("watch_snooker_settle_frame", value: "结算本局", comment: ""))
+                                    .font(.system(size: compact ? 11 : 12, weight: .semibold))
+                                    .foregroundStyle(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: compact ? 32 : 36)
+                                    .background(WatchTheme.card, in: Capsule())
                             }
-                            .font(.system(size: 9, weight: .semibold))
-                            .buttonStyle(.bordered)
-                            .tint(WatchTheme.dangerRed)
+                            .buttonStyle(.plain)
                         }
                     }
-                    HStack(spacing: 6) {
-                        Button {
-                            apply(.handoverFromPanel(side))
-                            scoringSide = nil
-                        } label: {
-                            Text(NSLocalizedString("watch_snooker_handover", value: "换手", comment: ""))
-                                .frame(maxWidth: .infinity, minHeight: 32)
-                        }
-                        Button {
-                            scoringSide = nil
-                            showFrameSettlement = true
-                        } label: {
-                            Text(NSLocalizedString("watch_snooker_settle_frame", value: "结算本局", comment: ""))
-                                .frame(maxWidth: .infinity, minHeight: 32)
-                        }
-                    }
-                    .font(.system(size: 10, weight: .semibold))
-                    .buttonStyle(.bordered)
+                    .padding(.horizontal, 8)
+                    .padding(.top, compact ? 26 : 34)
+                    .padding(.bottom, 8)
                 }
-                .padding(.horizontal, 8)
-                .padding(.top, 8)
-                .padding(.bottom, closeButtonSize + 20)
+                .scrollIndicators(.hidden)
+
+                WatchMenuCloseButton { scoringSide = nil }
+                    .padding(.top, 4)
+                    .padding(.bottom, compact ? 4 : 6)
+                    .frame(maxWidth: .infinity)
+                    .background(WatchTheme.overlayCard)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(WatchTheme.overlayCard)
-
-            WatchMenuCloseButton { scoringSide = nil }
-                .padding(.bottom, WatchLayout.isCompactScreen ? 4 : 6)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
@@ -421,47 +442,81 @@ struct WatchSnookerScoreView: View {
     }
 
     private var snookerFrameSettlementPanel: some View {
-        ZStack(alignment: .topTrailing) {
-            Color.black.opacity(0.86).ignoresSafeArea()
-            VStack(spacing: 10) {
-                Text(NSLocalizedString("watch_snooker_choose_frame_winner", value: "选择本局胜者", comment: ""))
-                    .font(.headline)
-                Button(leftName) {
-                    showFrameSettlement = false
-                    apply(.settleFrame(winner: .left))
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(WatchTheme.teamRed)
-                .frame(width: WatchLayout.overlayActionButtonWidth)
-                Button(rightName) {
-                    showFrameSettlement = false
-                    apply(.settleFrame(winner: .right))
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(WatchTheme.teamBlue)
-                .frame(width: WatchLayout.overlayActionButtonWidth)
-            }
-            .padding(14)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(WatchTheme.overlayCard)
+        let compact = WatchLayout.isCompactScreen
+        return ZStack {
+            WatchTheme.overlayCard
+                .ignoresSafeArea()
 
-            WatchMenuCloseButton { showFrameSettlement = false }
-                .accessibilityLabel(NSLocalizedString("cancel", value: "取消", comment: ""))
-                .padding(4)
+            VStack(spacing: 0) {
+                Spacer(minLength: compact ? 30 : 38)
+
+                VStack(spacing: compact ? 8 : 12) {
+                    Text(NSLocalizedString("watch_snooker_choose_frame_winner", value: "选择本局胜者", comment: ""))
+                        .font(.system(size: compact ? 14 : 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .padding(.bottom, compact ? 2 : 4)
+
+                    Button {
+                        showFrameSettlement = false
+                        apply(.settleFrame(winner: .left))
+                    } label: {
+                        Text(leftName)
+                            .font(.system(size: compact ? 13 : 15, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: compact ? 36 : 42)
+                            .background(WatchTheme.teamRed, in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .frame(width: WatchLayout.overlayActionButtonWidth)
+
+                    Button {
+                        showFrameSettlement = false
+                        apply(.settleFrame(winner: .right))
+                    } label: {
+                        Text(rightName)
+                            .font(.system(size: compact ? 13 : 15, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: compact ? 36 : 42)
+                            .background(WatchTheme.teamBlue, in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .frame(width: WatchLayout.overlayActionButtonWidth)
+                }
+
+                Spacer(minLength: compact ? 6 : 10)
+
+                WatchMenuCloseButton { showFrameSettlement = false }
+                    .accessibilityLabel(NSLocalizedString("cancel", value: "取消", comment: ""))
+                    .padding(.bottom, compact ? 4 : 8)
+            }
+            .padding(.horizontal, 12)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
     }
 
     private var snookerNextFramePanel: some View {
-        ZStack {
+        let compact = WatchLayout.isCompactScreen
+        return ZStack {
             Color.black.opacity(0.86).ignoresSafeArea()
-            VStack(spacing: 9) {
+            VStack(spacing: compact ? 8 : 11) {
                 Text(NSLocalizedString("watch_snooker_frame_finished", value: "本局结束", comment: ""))
                     .font(.headline)
+                    .foregroundStyle(.white)
                 Text("\(state.leftFrames) : \(state.rightFrames)")
-                    .font(WatchScoreTypography.primaryScore(size: 20))
+                    .font(WatchScoreTypography.primaryScore(size: compact ? 20 : 22))
                     .monospacedDigit()
+                    .foregroundStyle(.white)
+                    .padding(.bottom, compact ? 2 : 6)
                 Button(NSLocalizedString("watch_snooker_next_frame", value: "下一局", comment: "")) {
                     apply(.confirmNextFrame)
                 }
@@ -475,7 +530,9 @@ struct WatchSnookerScoreView: View {
                 .buttonStyle(.bordered)
                 .frame(width: WatchLayout.overlayActionButtonWidth)
             }
-            .padding(14)
+            .padding(.horizontal, 14)
+            .padding(.top, compact ? 18 : 22)
+            .padding(.bottom, 12)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(WatchTheme.overlayCard)
         }

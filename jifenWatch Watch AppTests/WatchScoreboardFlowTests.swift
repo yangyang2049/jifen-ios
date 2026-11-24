@@ -200,4 +200,54 @@ final class WatchScoreboardFlowTests: XCTestCase {
             XCTFail("休息期间不应接受计分")
         }
     }
+
+    // MARK: - 续赛浮条文案
+
+    func testBasketballTrainingResumeUsesScoringWording() {
+        let now = Date()
+        let trainingSession = WatchResumeSession(
+            startedAt: now,
+            scoreLine: "2/3 = 67%",
+            emoji: "🏀",
+            payload: .basketballTraining(
+                mode: .twoPoint,
+                history: [
+                    WatchBasketballTrainingShot(points: 2, made: true, timestamp: now)
+                ]
+            )
+        )
+        let matchSession = WatchResumeSession(
+            startedAt: now,
+            scoreLine: "1 : 0",
+            emoji: "🎱",
+            payload: .nineBall(
+                state: NineBallChaseState.initial(
+                    playerCount: 2,
+                    playerNames: ["选手 1", "选手 2"]
+                ),
+                undoStates: []
+            )
+        )
+
+        XCTAssertTrue(trainingSession.isTrainingSession)
+        XCTAssertFalse(matchSession.isTrainingSession)
+        XCTAssertEqual(
+            trainingSession.resumeActionTitle,
+            NSLocalizedString("watch_continue_scoring", value: "继续计分", comment: "")
+        )
+        XCTAssertEqual(
+            trainingSession.discardActionTitle,
+            NSLocalizedString("watch_resume_discard_training", value: "放弃未完成训练", comment: "")
+        )
+        XCTAssertEqual(
+            matchSession.resumeActionTitle,
+            NSLocalizedString("watch_continue_match", value: "继续比赛", comment: "")
+        )
+        XCTAssertEqual(
+            matchSession.discardActionTitle,
+            NSLocalizedString("watch_resume_discard", value: "放弃未完成比赛", comment: "")
+        )
+        XCTAssertNotEqual(trainingSession.resumeActionTitle, matchSession.resumeActionTitle)
+        XCTAssertNotEqual(trainingSession.discardActionTitle, matchSession.discardActionTitle)
+    }
 }

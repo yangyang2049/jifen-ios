@@ -61,6 +61,7 @@ struct WatchSportsSetupView: View {
         }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(selectedNameIndex != nil)
     }
 
     private var startButton: some View {
@@ -362,6 +363,7 @@ struct WatchSportsSetupView: View {
                     .frame(width: 34, height: 34)
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(NSLocalizedString("watch_common_names_select_player", value: "选择选手", comment: ""))
         }
         .padding(.trailing, 4)
         .frame(maxWidth: .infinity)
@@ -535,37 +537,41 @@ struct WatchSportsSetupView: View {
     }
 
     private func commonNamePicker(for index: Int) -> some View {
-        ZStack {
-            Color.black.opacity(0.35)
+        let compact = WatchLayout.isCompactScreen
+        return ZStack {
+            Color.black.opacity(0.76)
                 .ignoresSafeArea()
                 .onTapGesture { selectedNameIndex = nil }
 
-            VStack(spacing: 10) {
-                Text(NSLocalizedString("watch_common_names_select_player", value: "选择选手", comment: ""))
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(WatchTheme.primaryText)
+            VStack(spacing: 0) {
+                WatchDialogHeader(
+                    title: NSLocalizedString("watch_common_names_select_player", value: "选择选手", comment: ""),
+                    onClose: { selectedNameIndex = nil }
+                )
+                .padding(.bottom, compact ? 10 : 12)
 
                 let names = WatchCommonNamesStore.shared.players
                 if names.isEmpty {
                     Text(NSLocalizedString("watch_common_names_no_records", value: "暂无常用名称", comment: ""))
                         .font(.system(size: 13))
                         .foregroundStyle(WatchTheme.secondaryText)
-                        .frame(height: WatchLayout.isCompactScreen ? 72 : 100)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: compact ? 76 : 104)
                 } else {
                     ScrollView {
-                        VStack(spacing: 6) {
+                        VStack(spacing: compact ? 6 : 8) {
                             ForEach(names, id: \.self) { name in
                                 Button {
                                     draft.playerNames[index] = String(name.prefix(24))
                                     selectedNameIndex = nil
                                 } label: {
                                     Text(name)
-                                        .font(.system(size: 14, weight: .medium))
+                                        .font(.system(size: compact ? 13 : 14, weight: .medium))
                                         .foregroundStyle(WatchTheme.primaryText)
                                         .lineLimit(1)
                                         .frame(maxWidth: .infinity, alignment: .leading)
-                                        .padding(.horizontal, 14)
-                                        .frame(height: 44)
+                                        .padding(.horizontal, 12)
+                                        .frame(height: compact ? 38 : 42)
                                         .background(WatchTheme.subtleFill)
                                         .clipShape(Capsule())
                                 }
@@ -573,30 +579,21 @@ struct WatchSportsSetupView: View {
                             }
                         }
                     }
-                    .frame(height: WatchLayout.isCompactScreen ? 92 : 132)
+                    .frame(height: compact ? 104 : 138)
                 }
-
-                Button {
-                    selectedNameIndex = nil
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.system(size: WatchLayout.dialogCloseIconSize, weight: .bold))
-                        .foregroundStyle(WatchTheme.accent)
-                        .frame(
-                            width: WatchLayout.overlayCloseButtonSize,
-                            height: WatchLayout.overlayCloseButtonSize
-                        )
-                        .background(Color.white.opacity(0.15))
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
             }
-            .padding(14)
-            .frame(maxWidth: 208)
+            .padding(.horizontal, compact ? 10 : 12)
+            .padding(.top, compact ? 10 : 12)
+            .padding(.bottom, compact ? 10 : 14)
+            .frame(maxWidth: .infinity)
             .background(WatchTheme.listItemBackground)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .padding(.horizontal, WatchLayout.pageHorizontalPadding)
+            .padding(.top, compact ? 26 : 32)
+            .padding(.bottom, compact ? 6 : 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private func updateSnookerCustomFrames(_ rawValue: String) {

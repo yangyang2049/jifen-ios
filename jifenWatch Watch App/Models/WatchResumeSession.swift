@@ -153,6 +153,27 @@ struct WatchResumeSession: Codable, Sendable {
         self.actionLog = actionLog ?? WatchScoreActionLog(startedAt: startedAt)
         self.link = link
     }
+
+    var isTrainingSession: Bool {
+        if case .basketballTraining = payload {
+            return true
+        }
+        return false
+    }
+
+    var resumeActionTitle: String {
+        if isTrainingSession {
+            return NSLocalizedString("watch_continue_scoring", value: "继续计分", comment: "")
+        }
+        return NSLocalizedString("watch_continue_match", value: "继续比赛", comment: "")
+    }
+
+    var discardActionTitle: String {
+        if isTrainingSession {
+            return NSLocalizedString("watch_resume_discard_training", value: "放弃未完成训练", comment: "")
+        }
+        return NSLocalizedString("watch_resume_discard", value: "放弃未完成比赛", comment: "")
+    }
 }
 
 @MainActor

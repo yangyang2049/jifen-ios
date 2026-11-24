@@ -299,6 +299,7 @@ struct WatchMenuCloseButton: View {
 }
 
 struct WatchDialogCloseButton: View {
+    var touchTargetSize: CGFloat = WatchLayout.overlayCloseButtonSize
     let action: () -> Void
 
     var body: some View {
@@ -307,12 +308,48 @@ struct WatchDialogCloseButton: View {
                 .font(.system(size: WatchLayout.dialogCloseIconSize))
                 .foregroundStyle(WatchTheme.secondaryText)
                 .frame(
-                    width: WatchLayout.overlayCloseButtonSize,
-                    height: WatchLayout.overlayCloseButtonSize
+                    width: touchTargetSize,
+                    height: touchTargetSize
                 )
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
+    }
+}
+
+/// 卡片式弹层统一顶栏：左标题（可附状态徽标）+ 右上角关闭钮，避免标题与关闭钮挤压。
+struct WatchDialogHeader<Accessory: View>: View {
+    let title: String
+    let onClose: () -> Void
+    @ViewBuilder var accessory: () -> Accessory
+
+    init(
+        title: String,
+        onClose: @escaping () -> Void,
+        @ViewBuilder accessory: @escaping () -> Accessory = { EmptyView() }
+    ) {
+        self.title = title
+        self.onClose = onClose
+        self.accessory = accessory
+    }
+
+    var body: some View {
+        let compact = WatchLayout.isCompactScreen
+        HStack(alignment: .center, spacing: 6) {
+            Text(title)
+                .font(.system(size: compact ? 13 : 15, weight: .semibold))
+                .foregroundStyle(WatchTheme.primaryText)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+
+            accessory()
+
+            Spacer(minLength: 4)
+
+            WatchDialogCloseButton(touchTargetSize: compact ? 24 : 26, action: onClose)
+                .accessibilityLabel(NSLocalizedString("cancel", value: "取消", comment: ""))
+        }
+        .padding(.leading, 4)
     }
 }
 

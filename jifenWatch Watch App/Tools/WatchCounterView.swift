@@ -101,7 +101,7 @@ struct WatchCounterView: View {
             Text(NSLocalizedString("press_again_to_reset", comment: ""))
         }
         .confirmationDialog(
-            NSLocalizedString("watch_finish_confirm_title", value: "结束比赛？", comment: ""),
+            NSLocalizedString("watch_counter_finish_confirm_title", value: "结束计数？", comment: ""),
             isPresented: $showFinishConfirm,
             titleVisibility: .visible
         ) {
@@ -110,7 +110,7 @@ struct WatchCounterView: View {
             }
             Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
         } message: {
-            Text(NSLocalizedString("watch_finish_confirm_message", value: "将结束并保存本场比赛。", comment: ""))
+            Text(NSLocalizedString("watch_counter_finish_confirm_message", value: "将结束并保存本次计数。", comment: ""))
         }
         .onAppear { startTime = Date() }
         .gesture(

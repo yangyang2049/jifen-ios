@@ -220,26 +220,28 @@ struct WatchRootView: View {
                 .ignoresSafeArea()
                 .allowsHitTesting(false)
 
+                let compact = WatchLayout.isCompactScreen
+                let actionSize: CGFloat = compact ? 42 : 50
                 VStack(spacing: 0) {
-                    VStack(spacing: 4) {
+                    VStack(spacing: compact ? 2 : 4) {
                         Text(NSLocalizedString(
                             "linked_score_phone_started_scoreboard",
                             value: "手机已发起计分",
                             comment: ""
                         ))
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(size: compact ? 11 : 12, weight: .medium))
                         .foregroundStyle(WatchTheme.secondaryText)
                         .multilineTextAlignment(.center)
 
                         Text(confirmSportTitle)
-                            .font(.system(size: 18, weight: .bold))
+                            .font(.system(size: compact ? 16 : 18, weight: .bold))
                             .foregroundStyle(WatchTheme.primaryText)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                             .multilineTextAlignment(.center)
                     }
 
-                    VStack(spacing: 8) {
+                    VStack(spacing: compact ? 6 : 8) {
                         HStack(spacing: 3) {
                             confirmNameColumn(
                                 name: confirmLeftName,
@@ -257,28 +259,29 @@ struct WatchRootView: View {
 
                         if let rules = confirmRulesText {
                             Text(rules)
-                                .font(.system(size: 12, weight: .medium))
+                                .font(.system(size: compact ? 11 : 12, weight: .medium))
                                 .foregroundStyle(WatchTheme.secondaryText)
                                 .lineLimit(1)
+                                .minimumScaleFactor(0.8)
                         }
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
+                    .padding(.horizontal, compact ? 10 : 12)
+                    .padding(.vertical, compact ? 7 : 10)
                     .frame(maxWidth: .infinity)
                     .background(Color.white.opacity(0.055))
-                    .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                    .padding(.top, 8)
+                    .clipShape(RoundedRectangle(cornerRadius: compact ? 18 : 24, style: .continuous))
+                    .padding(.top, compact ? 6 : 8)
 
-                    Spacer(minLength: 8)
+                    Spacer(minLength: compact ? 6 : 8)
 
-                    HStack(spacing: 22) {
+                    HStack(spacing: compact ? 18 : 22) {
                         Button {
                             linkService.rejectPendingSetup()
                         } label: {
                             Image(systemName: "xmark")
-                                .font(.system(size: 18, weight: .bold))
+                                .font(.system(size: compact ? 16 : 18, weight: .bold))
                                 .foregroundStyle(WatchTheme.primaryText)
-                                .frame(width: 50, height: 50)
+                                .frame(width: actionSize, height: actionSize)
                                 .background(WatchTheme.listItemBackground)
                                 .clipShape(Circle())
                         }
@@ -289,9 +292,9 @@ struct WatchRootView: View {
                             linkService.acceptPendingSetup()
                         } label: {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 20, weight: .bold))
+                                .font(.system(size: compact ? 18 : 20, weight: .bold))
                                 .foregroundStyle(.white)
-                                .frame(width: 50, height: 50)
+                                .frame(width: actionSize, height: actionSize)
                                 .background(WatchTheme.accent)
                                 .clipShape(Circle())
                         }
@@ -299,8 +302,8 @@ struct WatchRootView: View {
                         .accessibilityLabel(NSLocalizedString("linked_score_accept", value: "接受", comment: ""))
                     }
                 }
-                .padding(.horizontal, 18)
-                .padding(.vertical, 22)
+                .padding(.horizontal, compact ? 14 : 18)
+                .padding(.vertical, compact ? 14 : 22)
             }
             .onChange(of: remaining) { _, value in
                 if value <= 0, linkService.pendingConfirmRequest != nil {
