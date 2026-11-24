@@ -206,6 +206,7 @@ struct WatchMenuExtraAction: Identifiable {
     let id: String
     let title: String
     let systemImage: String
+    var assetImage: String? = nil
     var background: Color = WatchTheme.card
     let action: () -> Void
 }
@@ -219,32 +220,47 @@ struct WatchScoreboardMenuOverlay: View {
     var extraActions: [WatchMenuExtraAction] = []
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            WatchTheme.fullScreenScrim
-                .ignoresSafeArea()
-                .onTapGesture(perform: onDismiss)
-
-            VStack(spacing: 4) {
-                LazyVGrid(
-                    columns: [GridItem(.flexible()), GridItem(.flexible())],
-                    spacing: WatchLayout.isCompactScreen ? 5 : 6
-                ) {
+        let compact = WatchLayout.isCompactScreen
+        let gridSpacing: CGFloat = compact ? 5 : 6
+        let needsScroll = extraActions.count > 1 || (onReclaim != nil && !extraActions.isEmpty)
+        let menuContent = VStack(spacing: compact ? 5 : 6) {
+            LazyVGrid(
+                columns: [GridItem(.flexible()), GridItem(.flexible())],
+                spacing: gridSpacing
+            ) {
+                WatchMenuGridButton(
+                    title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
+                    systemImage: "arrow.uturn.backward",
+                    action: onUndo
+                )
+                WatchMenuGridButton(
+                    title: NSLocalizedString("watch_menu_restart", value: "重新开始", comment: ""),
+                    systemImage: "arrow.counterclockwise",
+                    action: onReset
+                )
+                if extraActions.count == 1, let onlyExtra = extraActions.first {
                     WatchMenuGridButton(
-                        title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
-                        systemImage: "arrow.uturn.backward",
-                        action: onUndo
+                        title: onlyExtra.title,
+                        systemImage: onlyExtra.systemImage,
+                        assetImage: onlyExtra.assetImage,
+                        background: onlyExtra.background,
+                        action: onlyExtra.action
                     )
                     WatchMenuGridButton(
-                        title: NSLocalizedString("watch_menu_restart", value: "重新开始", comment: ""),
-                        systemImage: "arrow.counterclockwise",
-                        action: onReset
+                        title: NSLocalizedString("watch_menu_end_match", value: "结束比赛", comment: ""),
+                        systemImage: "flag.checkered",
+                        background: WatchTheme.dangerRed,
+                        action: onFinish
                     )
                 }
+            }
 
+            if extraActions.count != 1 {
                 ForEach(extraActions) { extra in
                     WatchMenuGridButton(
                         title: extra.title,
                         systemImage: extra.systemImage,
+                        assetImage: extra.assetImage,
                         background: extra.background,
                         action: extra.action
                     )
@@ -256,23 +272,42 @@ struct WatchScoreboardMenuOverlay: View {
                     background: WatchTheme.dangerRed,
                     action: onFinish
                 )
+            }
 
-                if let onReclaim {
-                    WatchMenuGridButton(
-                        title: NSLocalizedString("linked_score_watch_reclaim", value: "手表接管", comment: ""),
-                        systemImage: "applewatch.radiowaves.left.and.right",
-                        background: WatchTheme.successGreen,
-                        action: onReclaim
-                    )
+            if let onReclaim {
+                WatchMenuGridButton(
+                    title: NSLocalizedString("linked_score_watch_reclaim", value: "手表接管", comment: ""),
+                    systemImage: "applewatch.radiowaves.left.and.right",
+                    background: WatchTheme.successGreen,
+                    action: onReclaim
+                )
+            }
+        }
+        return ZStack(alignment: .bottom) {
+            WatchTheme.fullScreenScrim
+                .ignoresSafeArea()
+                .onTapGesture(perform: onDismiss)
+
+            VStack(spacing: compact ? 6 : 8) {
+                if needsScroll {
+                    ScrollView {
+                        menuContent
+                            .padding(.top, compact ? 28 : 36)
+                    }
+                    .scrollIndicators(.hidden)
+                    .scrollBounceBehavior(.basedOnSize)
+                } else {
+                    Spacer(minLength: compact ? 28 : 38)
+                    menuContent
                 }
 
                 WatchMenuCloseButton(action: onDismiss)
             }
-            .padding(.horizontal, WatchLayout.isCompactScreen ? 20 : 26)
-            .padding(.top, WatchLayout.isCompactScreen ? 8 : 12)
-            .padding(.bottom, WatchLayout.isCompactScreen ? 4 : 6)
+            .padding(.horizontal, compact ? 14 : 20)
+            .padding(.bottom, compact ? 6 : 10)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
             .background(WatchTheme.panelScrim)
+            .ignoresSafeArea()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()

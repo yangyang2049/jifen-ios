@@ -188,7 +188,7 @@ struct WatchHomeTabView: View {
             }
         }
         .background(WatchTheme.background)
-        .navigationTitle(NSLocalizedString("tab_score", comment: "Score"))
+        .navigationTitle(preflightPicker == nil ? NSLocalizedString("tab_score", comment: "Score") : "")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             loadPinnedItems()
@@ -400,6 +400,7 @@ struct WatchHomeTabView: View {
 
     @ViewBuilder
     private func preflightOverlay(_ picker: WatchHomePreflightPicker) -> some View {
+        let compact = WatchLayout.isCompactScreen
         ZStack {
             Button {
                 preflightPicker = nil
@@ -412,18 +413,18 @@ struct WatchHomeTabView: View {
             .buttonStyle(.plain)
             .accessibilityLabel(NSLocalizedString("cancel", value: "取消", comment: ""))
 
-            VStack(spacing: WatchLayout.isCompactScreen ? 8 : 10) {
+            VStack(spacing: compact ? 6 : 8) {
                 Text(
                     picker == .nineBallPlayers
                         ? NSLocalizedString("watch_setup_select_players", value: "选择人数", comment: "")
                         : NSLocalizedString("watch_bb_select_mode", value: "选择计分方式", comment: "")
                 )
-                .font(.system(size: 16, weight: .medium))
+                .font(.system(size: compact ? 15 : 16, weight: .medium))
                 .foregroundStyle(WatchTheme.primaryText)
                 .multilineTextAlignment(.center)
 
                 if picker == .nineBallPlayers {
-                    VStack(spacing: 8) {
+                    VStack(spacing: compact ? 5 : 7) {
                         ForEach(2...4, id: \.self) { count in
                             preflightButton(
                                 String.localizedStringWithFormat(
@@ -451,7 +452,7 @@ struct WatchHomeTabView: View {
                     }
                 }
             }
-            .padding(WatchLayout.cardContentPadding)
+            .padding(compact ? 10 : 12)
             .frame(maxWidth: .infinity)
             .background(WatchTheme.listItemBackground)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
@@ -461,8 +462,11 @@ struct WatchHomeTabView: View {
                 .padding(2)
             }
             .padding(.horizontal, WatchLayout.pageHorizontalPadding)
+            .padding(.top, compact ? 22 : 26)
+            .padding(.bottom, compact ? 4 : 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private func trainingModeButton(
@@ -489,10 +493,10 @@ struct WatchHomeTabView: View {
     private func preflightButton(_ title: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 15, weight: .medium))
+                .font(.system(size: WatchLayout.isCompactScreen ? 14 : 15, weight: .medium))
                 .foregroundStyle(WatchTheme.primaryText)
                 .frame(maxWidth: .infinity)
-                .frame(height: 40)
+                .frame(height: WatchLayout.isCompactScreen ? 34 : 38)
                 .background(WatchTheme.subtleFill)
                 .clipShape(Capsule())
         }

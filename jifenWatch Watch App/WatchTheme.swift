@@ -243,14 +243,24 @@ struct WatchTheme {
 struct WatchMenuGridButton: View {
     let title: String
     let systemImage: String
+    var assetImage: String? = nil
     var background: Color = WatchTheme.card
     let action: () -> Void
 
     var body: some View {
+        let iconSize: CGFloat = WatchLayout.isCompactScreen ? 15 : 17
         Button(action: action) {
             VStack(spacing: 3) {
-                Image(systemName: systemImage)
-                    .font(.system(size: WatchLayout.isCompactScreen ? 14 : 16, weight: .semibold))
+                if let assetImage {
+                    Image(assetImage)
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: iconSize, height: iconSize)
+                } else {
+                    Image(systemName: systemImage)
+                        .font(.system(size: WatchLayout.isCompactScreen ? 14 : 16, weight: .semibold))
+                }
                 Text(title)
                     .font(.system(size: WatchLayout.isCompactScreen ? 9 : 10, weight: .medium))
                     .lineLimit(1)

@@ -70,7 +70,6 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0FA5BAE22F18F43E00182375"
             BuildableName = "jifenWatch Watch App.app"
-            BlueprintName = "jifenWatch Watch App"
             ReferencedContainer = "container:jifen.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

@@ -72,35 +72,6 @@ enum WatchNineBallSelectionPolicy {
     }
 }
 
-private struct WatchCueStickIcon: View {
-    var size: CGFloat = 11
-
-    var body: some View {
-        Canvas { context, canvasSize in
-            let w = canvasSize.width
-            let h = canvasSize.height
-            var shaft = Path()
-            shaft.move(to: CGPoint(x: w * 0.16, y: h * 0.84))
-            shaft.addLine(to: CGPoint(x: w * 0.78, y: h * 0.22))
-            context.stroke(
-                shaft,
-                with: .color(.white),
-                style: StrokeStyle(lineWidth: max(1.4, size * 0.16), lineCap: .round)
-            )
-            var tip = Path()
-            tip.move(to: CGPoint(x: w * 0.76, y: h * 0.24))
-            tip.addLine(to: CGPoint(x: w * 0.88, y: h * 0.12))
-            context.stroke(
-                tip,
-                with: .color(.white),
-                style: StrokeStyle(lineWidth: max(2.0, size * 0.22), lineCap: .round)
-            )
-        }
-        .frame(width: size, height: size)
-        .accessibilityHidden(true)
-    }
-}
-
 struct WatchNineBallScoreView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(WatchLinkService.self) private var linkService
@@ -310,30 +281,55 @@ struct WatchNineBallScoreView: View {
             minimumSize: minimumScoreFont
         )
         let nameFont: CGFloat = state.playerCount > 2 ? 11 : 13
-        return ZStack {
-            Text(scoreText)
-                .font(WatchScoreTypography.primaryScore(size: scoreFont))
-                .monospacedDigit()
-                .foregroundStyle(.white)
-                .minimumScaleFactor(0.5)
-                .lineLimit(1)
-
-            HStack(spacing: 3) {
-                if state.usesRackRules && player == state.breakerPlayer {
-                    WatchCueStickIcon(size: state.playerCount > 2 ? 9 : 11)
-                        .padding(2.5)
-                        .background(Color.white.opacity(0.22), in: Circle())
-                }
-                Text(displayName(at: player))
-                    .font(.system(size: nameFont, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.75))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+        let nameRow = HStack(spacing: 4) {
+            if state.usesRackRules && player == state.breakerPlayer {
+                let cueSize: CGFloat = state.playerCount > 2 ? 12 : 14
+                Image("ic_snooker_cue")
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: cueSize, height: cueSize)
+                    .foregroundStyle(.white)
+                    .accessibilityHidden(true)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .padding(.horizontal, state.playerCount > 2 ? 4 : 8)
-            .padding(.top, state.playerCount == 4 ? 8 : (isHorizontal ? 28 : 8))
-            .offset(y: WatchLayout.scoreboardNameVerticalOffset)
+            Text(displayName(at: player))
+                .font(.system(size: nameFont, weight: .medium))
+                .foregroundStyle(.white.opacity(0.75))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        return Group {
+            if state.playerCount == 4 {
+                // 4 人 2×2 布局：顶部两格避开右上角系统时钟（watchOS 46mm 时钟下沿约 34pt），并用 VStack 防止小表（40mm）下姓名与比分重叠。
+                VStack(spacing: 0) {
+                    nameRow
+                        .padding(.horizontal, 4)
+                        .padding(.top, index < 2 ? (WatchLayout.isCompactScreen ? 30 : 38) : 8)
+                    Spacer(minLength: 2)
+                    Text(scoreText)
+                        .font(WatchScoreTypography.primaryScore(size: scoreFont))
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
+                    Spacer(minLength: 4)
+                }
+            } else {
+                ZStack {
+                    Text(scoreText)
+                        .font(WatchScoreTypography.primaryScore(size: scoreFont))
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
+
+                    nameRow
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                        .padding(.horizontal, state.playerCount > 2 ? 4 : 8)
+                        .padding(.top, isHorizontal ? 28 : 8)
+                        .offset(y: WatchLayout.scoreboardNameVerticalOffset)
+                }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(playerColor(at: player))
@@ -355,6 +351,7 @@ struct WatchNineBallScoreView: View {
                 id: "nineBallBreaker",
                 title: NSLocalizedString("nine_ball_current_breaker", value: "本局开球人", comment: ""),
                 systemImage: "line.diagonal",
+                assetImage: "ic_snooker_cue",
                 action: {
                     showMenu = false
                     showBreakerPicker = true
@@ -370,11 +367,12 @@ struct WatchNineBallScoreView: View {
 
     private func nineBallEventPicker(for player: Int) -> some View {
         let isBreaker = state.usesRackRules && player == state.breakerPlayer
+        let compact = WatchLayout.isCompactScreen
         return ZStack {
             Color.black.opacity(0.78)
                 .ignoresSafeArea()
                 .onTapGesture { eventPickerPlayer = nil }
-            VStack(spacing: WatchLayout.isCompactScreen ? 3 : 7) {
+            VStack(spacing: compact ? 4 : 6) {
                 HStack(spacing: 4) {
                     Circle()
                         .fill(playerColor(at: player))
@@ -392,10 +390,10 @@ struct WatchNineBallScoreView: View {
                             .background(WatchTheme.accent.opacity(0.22), in: Capsule())
                     }
                 }
-                .padding(.bottom, 6)
+                .padding(.bottom, compact ? 1 : 4)
                 LazyVGrid(
                     columns: [GridItem(.flexible()), GridItem(.flexible())],
-                    spacing: WatchLayout.isCompactScreen ? 5 : 7
+                    spacing: compact ? 4 : 6
                 ) {
                     // v2/v3 状态的合法事件与 v1 不同（ball_in_hand 并入 foul，
                     // 新增 handoff），按状态实际支持的事件渲染。
@@ -410,13 +408,13 @@ struct WatchNineBallScoreView: View {
                         } label: {
                             VStack(spacing: 1) {
                                 Text(nineBallEventTitle(kind))
-                                    .font(.system(size: WatchLayout.isCompactScreen ? 11 : 12, weight: .semibold))
+                                    .font(.system(size: compact ? 11 : 12, weight: .semibold))
                                 Text(nineBallEventPointText(kind, for: player))
                                     .font(WatchScoreTypography.secondaryScore(size: 10))
                                     .monospacedDigit()
                                     .foregroundStyle(.white.opacity(0.72))
                             }
-                            .frame(maxWidth: .infinity, minHeight: WatchLayout.isCompactScreen ? 36 : 42)
+                            .frame(maxWidth: .infinity, minHeight: compact ? 34 : 40)
                         }
                         .buttonStyle(.plain)
                         .background(kind == .foul ? WatchTheme.dangerRed : WatchTheme.card)
@@ -425,10 +423,19 @@ struct WatchNineBallScoreView: View {
                         .opacity(unavailable ? 0.35 : 1)
                     }
                 }
-                WatchMenuCloseButton { eventPickerPlayer = nil }
+                Button { eventPickerPlayer = nil } label: {
+                    let closeSize: CGFloat = compact ? 32 : WatchLayout.overlayCloseButtonSize
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: closeSize))
+                        .foregroundStyle(WatchTheme.secondaryText)
+                        .frame(width: closeSize, height: closeSize)
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
             }
-            .padding(.horizontal, WatchLayout.isCompactScreen ? 8 : 12)
-            .padding(.vertical, WatchLayout.isCompactScreen ? 4 : 12)
+            .padding(.horizontal, compact ? 8 : 12)
+            .padding(.top, compact ? 26 : 34)
+            .padding(.bottom, compact ? 4 : 8)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(WatchTheme.overlayCard)
         }
@@ -481,20 +488,21 @@ struct WatchNineBallScoreView: View {
             }
         }()
         let payerCost: Int = pending.kind == .smallGold ? state.config.smallGold : state.config.normalWin
-        let rowHeight: CGFloat = WatchLayout.isCompactScreen ? 34 : 38
+        let compact = WatchLayout.isCompactScreen
+        let rowHeight: CGFloat = compact ? (candidates.count <= 2 ? 36 : 32) : 36
 
         return ZStack {
             Color.black.opacity(0.78)
                 .ignoresSafeArea()
                 .onTapGesture { pendingPlayerSelection = nil }
-            VStack(spacing: WatchLayout.isCompactScreen ? 4 : 6) {
+            VStack(spacing: compact ? 4 : 6) {
                 VStack(spacing: 1) {
                     HStack(spacing: 4) {
                         Circle()
                             .fill(playerColor(at: pending.actor))
                             .frame(width: 7, height: 7)
                         Text("\(displayName(at: pending.actor)) · \(nineBallEventTitle(pending.kind))")
-                            .font(.system(size: WatchLayout.isCompactScreen ? 11 : 12, weight: .semibold))
+                            .font(.system(size: compact ? 11 : 12, weight: .semibold))
                             .foregroundStyle(.white)
                             .lineLimit(1)
                             .minimumScaleFactor(0.75)
@@ -504,9 +512,9 @@ struct WatchNineBallScoreView: View {
                         .foregroundStyle(WatchTheme.secondaryText)
                         .lineLimit(1)
                 }
-                .padding(.bottom, 2)
+                .padding(.bottom, 1)
 
-                VStack(spacing: WatchLayout.isCompactScreen ? 5 : 6) {
+                VStack(spacing: compact ? 4 : 6) {
                     ForEach(candidates, id: \.self) { candidate in
                         let isRecommended = candidate == recommended
                         Button {
@@ -528,49 +536,49 @@ struct WatchNineBallScoreView: View {
                                 ))
                             }
                         } label: {
-                            HStack(spacing: 6) {
-                                Circle()
-                                    .fill(playerColor(at: candidate))
-                                    .frame(width: 7, height: 7)
-                                Text(displayName(at: candidate))
-                                    .font(.system(size: WatchLayout.isCompactScreen ? 12 : 13, weight: .semibold))
-                                    .foregroundStyle(.white)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.75)
-                                if isRecommended {
-                                    Text(recommendedBadge)
-                                        .font(.system(size: 9, weight: .semibold))
-                                        .foregroundStyle(Color(hex: 0x83DA98))
-                                        .padding(.horizontal, 5)
-                                        .padding(.vertical, 1.5)
-                                        .background(WatchTheme.accent.opacity(0.22), in: Capsule())
-                                }
-                                Spacer(minLength: 4)
-                                if pending.mode == .payer {
-                                    Text("-\(payerCost)")
-                                        .font(WatchScoreTypography.secondaryScore(size: 11, weight: .semibold))
-                                        .foregroundStyle(Color(hex: 0xF09892))
-                                } else {
-                                    Text(NSLocalizedString("watch_nine_ball_continue_badge", value: "接杆", comment: ""))
-                                        .font(.system(size: 9, weight: .medium))
-                                        .foregroundStyle(.white.opacity(0.82))
-                                        .padding(.horizontal, 5)
-                                        .padding(.vertical, 1.5)
-                                        .background(Color.white.opacity(0.12), in: Capsule())
-                                }
-                            }
-                            .padding(.horizontal, 10)
-                            .frame(maxWidth: .infinity, minHeight: rowHeight)
-                            .background(
-                                isRecommended ? WatchTheme.accent.opacity(0.12) : WatchTheme.card,
-                                in: RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            )
-                            .overlay {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .fill(isRecommended ? WatchTheme.accent.opacity(0.12) : WatchTheme.card)
                                 if isRecommended {
                                     RoundedRectangle(cornerRadius: 10, style: .continuous)
                                         .stroke(WatchTheme.accent.opacity(0.55), lineWidth: 1.2)
                                 }
+                                HStack(spacing: 6) {
+                                    Circle()
+                                        .fill(playerColor(at: candidate))
+                                        .frame(width: 7, height: 7)
+                                    Text(displayName(at: candidate))
+                                        .font(.system(size: compact ? 12 : 13, weight: .semibold))
+                                        .foregroundStyle(.white)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.75)
+                                    if isRecommended {
+                                        Text(recommendedBadge)
+                                            .font(.system(size: 9, weight: .semibold))
+                                            .foregroundStyle(Color(hex: 0x83DA98))
+                                            .padding(.horizontal, 5)
+                                            .padding(.vertical, 1.5)
+                                            .background(WatchTheme.accent.opacity(0.22), in: Capsule())
+                                    }
+                                    Spacer(minLength: 4)
+                                    if pending.mode == .payer {
+                                        Text("-\(payerCost)")
+                                            .font(WatchScoreTypography.secondaryScore(size: 11, weight: .semibold))
+                                            .foregroundStyle(Color(hex: 0xF09892))
+                                    } else {
+                                        Text(NSLocalizedString("watch_nine_ball_continue_badge", value: "接杆", comment: ""))
+                                            .font(.system(size: 9, weight: .medium))
+                                            .foregroundStyle(.white.opacity(0.82))
+                                            .padding(.horizontal, 5)
+                                            .padding(.vertical, 1.5)
+                                            .background(Color.white.opacity(0.12), in: Capsule())
+                                    }
+                                }
+                                .padding(.horizontal, 10)
                             }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: rowHeight)
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }
@@ -582,14 +590,15 @@ struct WatchNineBallScoreView: View {
                     eventPickerPlayer = actor
                 } label: {
                     Image(systemName: "arrow.backward.circle.fill")
-                        .font(.system(size: WatchLayout.isCompactScreen ? 32 : 36))
+                        .font(.system(size: compact ? 30 : 36))
                         .foregroundStyle(WatchTheme.secondaryText)
                 }
                 .buttonStyle(.plain)
-                .padding(.top, 2)
+                .padding(.top, compact ? 1 : 2)
             }
-            .padding(.horizontal, WatchLayout.isCompactScreen ? 8 : 12)
-            .padding(.vertical, WatchLayout.isCompactScreen ? 6 : 10)
+            .padding(.horizontal, compact ? 8 : 12)
+            .padding(.top, compact ? 26 : 34)
+            .padding(.bottom, compact ? 4 : 8)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(WatchTheme.overlayCard)
         }
@@ -598,14 +607,16 @@ struct WatchNineBallScoreView: View {
     }
 
     private var nineBallBreakerPicker: some View {
+        let compact = WatchLayout.isCompactScreen
         let compactRowHeight: CGFloat = state.playerCount >= 4
-            ? (WatchLayout.isCompactScreen ? 28 : 32)
-            : (WatchLayout.isCompactScreen ? 34 : 38)
+            ? (compact ? 26 : 32)
+            : (compact ? 32 : 36)
+        let closeSize: CGFloat = (compact && state.playerCount >= 4) ? 28 : WatchLayout.overlayCloseButtonSize
         return ZStack {
             Color.black.opacity(0.78)
                 .ignoresSafeArea()
                 .onTapGesture { showBreakerPicker = false }
-            VStack(spacing: WatchLayout.isCompactScreen ? 4 : 6) {
+            VStack(spacing: compact ? 4 : 6) {
                 Text(NSLocalizedString("nine_ball_current_breaker", value: "本局开球人", comment: ""))
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.white.opacity(0.9))
@@ -617,42 +628,50 @@ struct WatchNineBallScoreView: View {
                             apply(.setBreaker(player: player))
                             showBreakerPicker = false
                         } label: {
-                            HStack(spacing: 6) {
-                                Circle()
-                                    .fill(playerColor(at: player))
-                                    .frame(width: 7, height: 7)
-                                Text(displayName(at: player))
-                                    .font(.system(size: WatchLayout.isCompactScreen ? 12 : 13, weight: .semibold))
-                                    .foregroundStyle(.white)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.75)
-                                Spacer(minLength: 4)
-                                if isCurrent {
-                                    Image(systemName: "checkmark")
-                                        .font(.system(size: 11, weight: .bold))
-                                        .foregroundStyle(WatchTheme.accent)
-                                }
-                            }
-                            .padding(.horizontal, 10)
-                            .frame(maxWidth: .infinity, minHeight: compactRowHeight)
-                            .background(
-                                isCurrent ? WatchTheme.accent.opacity(0.16) : WatchTheme.card,
-                                in: RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            )
-                            .overlay {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .fill(isCurrent ? WatchTheme.accent.opacity(0.16) : WatchTheme.card)
                                 if isCurrent {
                                     RoundedRectangle(cornerRadius: 10, style: .continuous)
                                         .stroke(WatchTheme.accent, lineWidth: 1.2)
                                 }
+                                HStack(spacing: 6) {
+                                    Circle()
+                                        .fill(playerColor(at: player))
+                                        .frame(width: 7, height: 7)
+                                    Text(displayName(at: player))
+                                        .font(.system(size: compact ? 12 : 13, weight: .semibold))
+                                        .foregroundStyle(.white)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.75)
+                                    Spacer(minLength: 4)
+                                    if isCurrent {
+                                        Image(systemName: "checkmark")
+                                            .font(.system(size: 11, weight: .bold))
+                                            .foregroundStyle(WatchTheme.accent)
+                                    }
+                                }
+                                .padding(.horizontal, 10)
                             }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: compactRowHeight)
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }
                 }
-                WatchMenuCloseButton { showBreakerPicker = false }
+                Button { showBreakerPicker = false } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: closeSize))
+                        .foregroundStyle(WatchTheme.secondaryText)
+                        .frame(width: closeSize, height: closeSize)
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
             }
-            .padding(.horizontal, WatchLayout.isCompactScreen ? 8 : 12)
-            .padding(.vertical, WatchLayout.isCompactScreen ? 6 : 10)
+            .padding(.horizontal, compact ? 8 : 12)
+            .padding(.top, compact ? 26 : 34)
+            .padding(.bottom, compact ? 4 : 8)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(WatchTheme.overlayCard)
         }
