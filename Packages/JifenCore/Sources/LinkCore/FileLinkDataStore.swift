@@ -40,9 +40,18 @@ public final class FileLinkDataStore: @unchecked Sendable, LinkDataStore {
     }
 
     public func data(forKey key: String) -> Data? {
+        try? dataOrThrow(forKey: key)
+    }
+
+    /// Distinguishes an absent value from a read failure at a durability boundary.
+    public func dataOrThrow(forKey key: String) throws -> Data? {
         lock.lock()
         defer { lock.unlock() }
-        return try? Data(contentsOf: Self.fileURL(directory: directoryURL, key: key))
+        do {
+            return try Data(contentsOf: Self.fileURL(directory: directoryURL, key: key))
+        } catch let error as CocoaError where error.code == .fileReadNoSuchFile || error.code == .fileNoSuchFile {
+            return nil
+        }
     }
 
     public func set(_ data: Data, forKey key: String) {
@@ -74,10 +83,14 @@ public final class FileLinkDataStore: @unchecked Sendable, LinkDataStore {
     }
 
     public func allKeys() -> [String] {
+        (try? allKeysOrThrow()) ?? []
+    }
+
+    func allKeysOrThrow() throws -> [String] {
         lock.lock()
         defer { lock.unlock() }
-        let items = (try? FileManager.default.contentsOfDirectory(atPath: directoryURL.path)) ?? []
-        return items.compactMap(Self.key(fromFileName:))
+        return try FileManager.default.contentsOfDirectory(atPath: directoryURL.path)
+            .compactMap(Self.key(fromFileName:))
     }
 
     // MARK: - Safe file-name mapping
