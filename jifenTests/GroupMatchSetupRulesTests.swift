@@ -107,8 +107,8 @@ final class GroupMatchSetupRulesTests: XCTestCase {
         var base = defaults(.badminton)
         base.useRallyScoring = true
         base.winByTwo = false
-        let seeded = GroupMatchSetupBridge.draft(from: base, format: .singles, pointPresets: [11, 15])
-        XCTAssertEqual(seeded.customPointsText, "21")
+        let seeded = GroupMatchSetupBridge.draft(from: base, format: .singles)
+        XCTAssertEqual(seeded.customPointsText, "")
         var draft = seeded
         draft.selectedPointsPerSet = 15
         draft.voiceAnnouncement = true

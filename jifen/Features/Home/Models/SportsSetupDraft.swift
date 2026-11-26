@@ -9,6 +9,8 @@ import ScoreCore
 struct SportsSetupDraft: Equatable {
     static let badmintonClassicSetPresets = [1, 3, 5]
     static let pingpongPointPresets = [7, 9, 11, 15]
+    static let tennisGamesPerSetPresets = [4, 6]
+    static let tennisTieBreakPresets = [7, 10]
 
     var team1Name = ""
     var team2Name = ""
@@ -81,7 +83,6 @@ extension SportsSetupDraft {
         initialMaxSets: Int?,
         initialPointsPerSet: Int?,
         initialTieBreakPoints: Int?,
-        groupPointPresets: [Int]? = nil,
         preferences: PreferencesManager = .shared
     ) {
         participantSelections = initialSetup?.participantSelections ?? [:]
@@ -126,8 +127,7 @@ extension SportsSetupDraft {
             ?? initialPointsPerSet
             ?? Self.defaultPointsPerSet(for: gameType)
             ?? 0
-        let points = groupPointPresets ?? pointPresets(for: gameType)
-        customPointsText = points.contains(selectedPointsPerSet)
+        customPointsText = pointPresets(for: gameType).contains(selectedPointsPerSet)
             ? ""
             : String(selectedPointsPerSet)
         tennisGamesPerSet = setup?.gamesPerSet == 4 ? 4 : 6

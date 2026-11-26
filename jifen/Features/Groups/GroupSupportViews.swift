@@ -1,3 +1,4 @@
+import ScoreCore
 import SwiftUI
 
 struct GroupSetupSelection {
@@ -7,7 +8,6 @@ struct GroupSetupSelection {
     let busy: Bool
     let error: String?
     var projectRow: AnyView? = nil
-    var pointPresets: [Int]? = nil
 
     func name(at index: Int) -> String {
         members.first { $0.id == ids.wrappedValue[index] }?.displayName ?? ""
@@ -258,39 +258,45 @@ struct GroupMatchRuleSummary: View {
     }
 }
 
-/// Shared rule fields preserve the capability catalog in both inline and modal presentation.
+/// Inline and modal rule editors use the same local presets as the scoreboard setup.
 struct GroupRulesFields: View {
     @Binding var rules: GroupMatchRules
     var capability: GroupSportCapability?
+
+    private var presets: SportsSetupDraft {
+        var draft = SportsSetupDraft()
+        draft.matchCompletionMode = rules.matchCompletionMode == "play_all" ? .playAll : .bestOf
+        return draft
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.padding) {
-            if let options = capability?.ruleOptions {
-                GroupRuleChoices(title: groupText("completion_mode", "Match completion"), values: options.matchCompletionModes ?? [rules.matchCompletionMode], selection: $rules.matchCompletionMode, label: { mode in var value = rules; value.matchCompletionMode = mode; return value.formatTitle })
-                let setOptions = options.maxSets ?? [rules.maxSets]
+            if let capability {
+                GroupRuleChoices(title: groupText("completion_mode", "Match completion"), values: ["best_of", "play_all"], selection: $rules.matchCompletionMode, label: { mode in var value = rules; value.matchCompletionMode = mode; return value.formatTitle })
+                let setOptions = presets.matchCompletionPresets(for: rules.sport.gameType)
                 let sets = setOptions.contains(rules.maxSets) ? setOptions : (setOptions + [rules.maxSets]).sorted()
                 GroupRuleChoices(title: groupText("max_sets", "Games per match"), values: sets, selection: $rules.maxSets, label: { String($0) })
-                if capability?.supportsCustomRules == true {
+                if capability.supportsCustomRules == true {
                     GroupRuleNumberStepper(title: groupText("max_sets", "Games per match"), value: $rules.maxSets, range: 1...99)
                 }
                 if rules.sport == .tennis {
-                    GroupRuleChoices(title: groupText("tennis_scoring", "Set scoring"), values: options.setScoringModes ?? [rules.setScoringMode], selection: $rules.setScoringMode, label: { groupText($0, $0) })
-                    GroupRuleChoices(title: groupText("games_per_set", "Games per set"), values: options.gamesPerSet ?? [rules.gamesPerSet], selection: $rules.gamesPerSet, label: { String($0) })
-                    GroupRuleChoices(title: groupText("tie_break", "Tie-break points"), values: options.tieBreakPoints ?? [rules.tieBreakPoints], selection: $rules.tieBreakPoints, label: { String($0) })
+                    GroupRuleChoices(title: groupText("tennis_scoring", "Set scoring"), values: ["regular", "tiebreak_only"], selection: $rules.setScoringMode, label: { groupText($0, $0) })
+                    GroupRuleChoices(title: groupText("games_per_set", "Games per set"), values: SportsSetupDraft.tennisGamesPerSetPresets, selection: $rules.gamesPerSet, label: { String($0) })
+                    GroupRuleChoices(title: groupText("tie_break", "Tie-break points"), values: SportsSetupDraft.tennisTieBreakPresets, selection: $rules.tieBreakPoints, label: { String($0) })
                     ruleToggle(groupText("no_ad", "No-ad scoring"), selection: $rules.usesNoAdScoring)
-                        .disabled(Set(options.usesNoAdScoring ?? []).count < 2)
                 } else {
-                    let presets = options.pointsToWinSet ?? [rules.pointsToWinSet]
-                    let values = presets.contains(rules.pointsToWinSet) ? presets : (presets + [rules.pointsToWinSet]).sorted()
+                    let points = rules.sport == .pickleball ? SportsSetupDraft.pickleballTargetPresets : presets.pointPresets(for: rules.sport.gameType)
+                    let values = points.contains(rules.pointsToWinSet) ? points : (points + [rules.pointsToWinSet]).sorted()
                     GroupRuleChoices(title: groupText("target_points", "Points to win"), values: values, selection: $rules.pointsToWinSet, label: { String($0) })
-                    if capability?.supportsCustomRules == true {
+                    if capability.supportsCustomRules == true {
                         GroupRuleNumberStepper(title: groupText("target_points", "Points to win"), value: $rules.pointsToWinSet, range: 1...999)
                     }
-                    if rules.sport == .pickleball, Set(options.useRallyScoring ?? []).count == 2 {
+                    if rules.sport == .pickleball {
                         GroupRuleChoices(title: "", values: [false, true], selection: $rules.useRallyScoring) {
                             $0 ? GroupMatchSetupBridge.rallyScoringText : GroupMatchSetupBridge.serverScoringText
                         }
                     }
-                    if capability?.supportsCustomRules == true {
+                    if capability.supportsCustomRules == true {
                         ruleToggle(groupText("point_cap", "Maximum score"), selection: Binding(get: { rules.pointCap != nil }, set: { rules.pointCap = $0 ? max(rules.pointsToWinSet, rules.pointCap ?? rules.pointsToWinSet) : nil }))
                         if rules.pointCap != nil {
                             GroupRuleNumberStepper(title: groupText("point_cap", "Maximum score"), value: Binding(get: { rules.pointCap ?? rules.pointsToWinSet }, set: { rules.pointCap = $0 }), range: min(rules.pointsToWinSet, 9999)...9999)
@@ -298,7 +304,7 @@ struct GroupRulesFields: View {
                     }
                 }
                 if !rules.isValid { GroupNotice(text: groupText("invalid_rules", "Please check the match rules.")) }
-                if let defaults = capability?.defaultRules {
+                if let defaults = capability.defaultRules {
                     Button(groupText("default_rules", "Restore default rules")) { rules = defaults }
                         .buttonStyle(.plain).foregroundStyle(Theme.primary).frame(minHeight: 44)
                 }

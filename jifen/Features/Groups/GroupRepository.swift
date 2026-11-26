@@ -823,7 +823,7 @@ extension GroupStore {
             let pointOptions: [Int]
             switch sport {
             case .badminton: pointOptions = [11, 15, 21]
-            case .tableTennis: pointOptions = [7, 9, 11, 15]
+            case .tableTennis: pointOptions = [17, 19] // Deliberately differs from the local Setup presets.
             case .tennis: pointOptions = [4, 6]
             default: pointOptions = [7, 11, 15, 21]
             }

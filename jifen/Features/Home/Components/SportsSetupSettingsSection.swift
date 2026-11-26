@@ -14,7 +14,6 @@ struct SportsSetupSettingsSection: View {
     @Binding var draft: SportsSetupDraft
     /// 小组活动开赛复用同一套赛制/内联控件，但不渲染本机「比赛功能」卡片。
     var showsMatchFeatures = true
-    var groupPointPresets: [Int]? = nil
     /// 匹克球「计分方式」的呈现：本机 Setup 用开关，小组活动开赛按定稿用两枚并列选项。
     var pickleballScoringControl: PickleballScoringControl = .toggle
     var onCustomFieldFocus: (String?) -> Void = { _ in }
@@ -329,7 +328,7 @@ struct SportsSetupSettingsSection: View {
             buildMatchCompletionSection(useTennisWording: true)
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 8) {
-                    ForEach([4, 6], id: \.self) { games in
+                    ForEach(SportsSetupDraft.tennisGamesPerSetPresets, id: \.self) { games in
                         Button {
                             draft.tennisGamesPerSet = games
                         } label: {
@@ -354,7 +353,7 @@ struct SportsSetupSettingsSection: View {
             }
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 8) {
-                    ForEach([7, 10], id: \.self) { points in
+                    ForEach(SportsSetupDraft.tennisTieBreakPresets, id: \.self) { points in
                         Button {
                             draft.regularTieBreakPoints = points
                         } label: {
@@ -685,7 +684,7 @@ struct SportsSetupSettingsSection: View {
     }
 
     private var pointPresets: [Int] {
-        groupPointPresets ?? draft.pointPresets(for: gameType)
+        draft.pointPresets(for: gameType)
     }
 
     private func chipRow(

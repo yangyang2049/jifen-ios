@@ -4,6 +4,18 @@ import XCTest
 final class GroupMatchSetupUITests: XCTestCase {
     private static let sports = ["badminton", "table_tennis", "tennis", "pickleball"]
 
+    func testTableTennisUsesLocalPointsWhenServerOffersDifferentPresets() {
+        let app = launch(sport: "table_tennis", singles: false)
+        openActivityMatchSetup(app, format: "doubles")
+
+        for points in ["7", "9", "11", "15"] {
+            XCTAssertTrue(app.buttons[points].waitForExistence(timeout: 5), points)
+        }
+        for points in ["17", "19"] {
+            XCTAssertFalse(app.buttons[points].exists, points)
+        }
+    }
+
     func testActivityStartScoringShowsFinalizedSetupForEverySportAndFormat() {
         for sport in Self.sports {
             for format in ["doubles", "singles"] {

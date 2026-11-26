@@ -46,11 +46,6 @@ struct GroupMatchEditor: View {
         if let serverDefaultRules { return serverDefaultRules }
         return GroupMatchRules(sport: detail.group.sport, setup: setup)
     }
-    private var groupPointPresets: [Int]? {
-        guard detail.group.sport == .badminton || detail.group.sport == .tableTennis else { return nil }
-        let choices = sportCapability?.ruleOptions?.pointsToWinSet ?? []
-        return choices.isEmpty ? [defaultRules.pointsToWinSet] : choices
-    }
     /// 活动排阵后的开赛复用本机 Setup 定稿样式；补记结果、训练和历史记录仍走原有入口。
     private var usesSharedSetup: Bool {
         !manual && GroupSport.racketSports.contains(detail.group.sport) && editableRules
@@ -110,8 +105,7 @@ struct GroupMatchEditor: View {
                 },
                 onCancel: { if !busy { dismiss() } },
                 groupSelection: GroupSetupSelection(
-                    groupID: detail.group.id, members: choices, ids: $ids, busy: busy, error: error,
-                    pointPresets: groupPointPresets
+                    groupID: detail.group.id, members: choices, ids: $ids, busy: busy, error: error
                 )
             )
             .interactiveDismissDisabled(busy)
@@ -168,8 +162,7 @@ struct GroupMatchEditor: View {
                 if usesSharedSetup {
                     // 赛制区本身不设容器标识：SwiftUI 会把容器标识盖到每个子控件上。
                     GroupMatchSetupSection(
-                        rules: currentRules, sport: detail.group.sport, draft: $setupDraft,
-                        pointPresets: groupPointPresets
+                        rules: currentRules, sport: detail.group.sport, draft: $setupDraft
                     )
                         .padding(Theme.padding).frame(maxWidth: .infinity, alignment: .leading)
                         .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 12))
@@ -229,7 +222,7 @@ struct GroupMatchEditor: View {
                   boundGameID == nil, setup.groupMatchRules == nil else { return }
             setup = current.setup(format: format)
             setupDraft = GroupMatchSetupBridge.draft(
-                from: current, format: format, pointPresets: groupPointPresets
+                from: current, format: format
             )
         }
         .onChange(of: resultDraft.detailsExpanded) { _, value in if value { resultDraft.reconcileDetails(currentRules) } }
@@ -241,7 +234,7 @@ struct GroupMatchEditor: View {
         if let serverDefaultRules { setup = serverDefaultRules.setup(format: format) }
         else { setup.maxSets = detail.group.sport == .tableTennis ? 5 : 3 }
         setupDraft = GroupMatchSetupBridge.draft(
-            from: defaultRules, format: format, pointPresets: groupPointPresets
+            from: defaultRules, format: format
         )
         let fixed = activitySession?.seats ?? trainingSession?.seats
         if let fixed { for seat in fixed where (0..<2).contains(seat.seat) { ids[(seat.side == "A" ? 0 : 2) + seat.seat] = seat.memberId } }

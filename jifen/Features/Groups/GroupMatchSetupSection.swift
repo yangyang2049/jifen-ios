@@ -12,7 +12,7 @@ enum GroupMatchSetupBridge {
     /// 用小组规则（默认值或已有设置）回填草稿，让「经典／打满」「局数」「分数」显示实际生效的规则。
     @MainActor
     static func draft(
-        from rules: GroupMatchRules, format: GroupFormat, pointPresets: [Int]? = nil
+        from rules: GroupMatchRules, format: GroupFormat
     ) -> SportsSetupDraft {
         var draft = SportsSetupDraft()
         draft.initialize(
@@ -20,8 +20,7 @@ enum GroupMatchSetupBridge {
             initialSetup: rules.setup(format: format),
             initialMaxSets: rules.maxSets,
             initialPointsPerSet: rules.pointsToWinSet,
-            initialTieBreakPoints: rules.tieBreakPoints,
-            groupPointPresets: pointPresets
+            initialTieBreakPoints: rules.tieBreakPoints
         )
         return draft
     }
@@ -115,7 +114,6 @@ struct GroupMatchSetupSection: View {
     let rules: GroupMatchRules
     let sport: GroupSport
     @Binding var draft: SportsSetupDraft
-    var pointPresets: [Int]? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.md) {
@@ -124,7 +122,6 @@ struct GroupMatchSetupSection: View {
                 gameType: sport.gameType,
                 draft: $draft,
                 showsMatchFeatures: false,
-                groupPointPresets: pointPresets,
                 pickleballScoringControl: .choices
             )
             if let ruleLine {

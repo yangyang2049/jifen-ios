@@ -189,7 +189,6 @@ struct SportsSetupDialogView: View {
 
                         SportsSetupSettingsSection(
                             gameType: gameType, draft: $draft,
-                            groupPointPresets: groupSelection?.pointPresets,
                             pickleballScoringControl: groupSelection == nil ? .toggle : .choices
                         ) {
                             focusedSetupFieldID = $0
@@ -410,8 +409,7 @@ struct SportsSetupDialogView: View {
             initialSetup: initialSetup,
             initialMaxSets: initialMaxSets,
             initialPointsPerSet: initialPointsPerSet,
-            initialTieBreakPoints: initialTieBreakPoints,
-            groupPointPresets: groupSelection?.pointPresets
+            initialTieBreakPoints: initialTieBreakPoints
         )
         setupSendErrorText = ""
     }
