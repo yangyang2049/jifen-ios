@@ -70,16 +70,14 @@ final class WatchLinkServiceTests: XCTestCase {
         let transport = WatchLinkTestTransport()
         let sink = RecordingWatchLinkSink()
         let service = WatchLinkService(transport: transport, contextStore: store, outboxStore: store, recordSink: sink)
-        let start = makeWatchLinkSetup(supportsSharedEditing: true)
+        let start = makeWatchLinkSetup()
         service.receive(try JSONEncoder().encode(start.envelope))
         service.acceptPendingSetup()
         await settleWatchLinkService()
         let accepted = try XCTUnwrap(transport.realtimeMessages.compactMap {
             try? JSONDecoder().decode(LinkEnvelope<EmptyLinkPayload>.self, from: $0)
         }.first { $0.kind == .setupAccepted })
-        XCTAssertEqual(accepted.supportsSharedEditing, true)
         XCTAssertTrue(service.canEditLinkedMatch)
-        XCTAssertFalse(service.isFollower)
 
         var phoneState = try XCTUnwrap(start.snapshot.rallyState)
         phoneState.leftPoints = 1
@@ -118,7 +116,6 @@ final class WatchLinkServiceTests: XCTestCase {
         let restored = WatchLinkService(
             transport: WatchLinkTestTransport(), contextStore: store, outboxStore: store, recordSink: sink
         )
-        XCTAssertEqual(restored.controlRole, .shared)
         XCTAssertEqual(restored.latestSnapshot?.snapshot, .rally(watchState))
         XCTAssertNil(restored.incomingSnapshot)
     }
@@ -221,8 +218,8 @@ final class WatchLinkServiceTests: XCTestCase {
         XCTAssertEqual(next.handle.sessionId, firstHandle.sessionId)
         XCTAssertEqual(next.handle.matchGeneration, firstHandle.matchGeneration + 1)
         XCTAssertNotEqual(next.handle.matchId, firstHandle.matchId)
-        XCTAssertEqual(next.revision, 1)
-        XCTAssertEqual(next.role, .watchController)
+        XCTAssertEqual(LinkSharedRevision.writer(of: next.revision), .watch)
+        XCTAssertTrue(service.canEditLinkedMatch)
         XCTAssertEqual(transport.publishedSnapshots.count, 1)
     }
 
@@ -279,8 +276,8 @@ final class WatchLinkServiceTests: XCTestCase {
         let fixture = makeWatchLinkSetup()
         let first = fixture.envelope.handle
         let context = WatchLinkResumeContext(
-            handle: first, setup: fixture.envelope.payload, role: .watchFollower,
-            authorityEpoch: 1, revision: 2, latestAuthoritativeSnapshot: fixture.snapshot,
+            handle: first, setup: fixture.envelope.payload,
+            revision: 2, latestAuthoritativeSnapshot: fixture.snapshot,
             detailedActions: [], completedMatchIds: [], pendingTerminalMessageIds: []
         )
         store.set(try JSONEncoder().encode(context), forKey: "watch_link_context")
@@ -292,7 +289,7 @@ final class WatchLinkServiceTests: XCTestCase {
         func finish(_ handle: LinkedMatchHandle) -> Data {
             LinkFinishedEncoding.encode(LinkEnvelope(
                 sessionId: handle.sessionId, matchId: handle.matchId, matchGeneration: handle.matchGeneration,
-                authorityEpoch: 1, kind: .matchFinished, sender: .phone, senderSequence: 4,
+                kind: .matchFinished, sender: .phone, senderSequence: 4,
                 sessionRevision: 3, sentAtEpochMilliseconds: 4_000,
                 payload: LinkMatchFinishedPayload(snapshot: .rally(state), recordId: handle.matchId.uuidString)
             ), compress: true)
@@ -303,7 +300,7 @@ final class WatchLinkServiceTests: XCTestCase {
         XCTAssertEqual(service.latestSnapshot?.snapshot, .rally(state))
         let lateSnapshot = LinkEnvelope(
             sessionId: next.sessionId, matchId: next.matchId, matchGeneration: next.matchGeneration,
-            authorityEpoch: 1, kind: .stateSnapshot, sender: .phone,
+            kind: .stateSnapshot, sender: .phone,
             senderSequence: 5, sessionRevision: 4, sentAtEpochMilliseconds: 4_010,
             payload: fixture.envelope.payload
         )
@@ -392,7 +389,7 @@ final class WatchLinkServiceTests: XCTestCase {
         })
     }
 
-    func testWatchLinkTakeoverIsCorrelatedIdempotentAndRestoresFollower() async throws {
+    func testSharedLinkKeepsBothPeersEditableAndRestoresSameHandle() async throws {
         let store = WatchLinkTestDataStore()
         let transport = WatchLinkTestTransport()
         let service = WatchLinkService(
@@ -405,48 +402,26 @@ final class WatchLinkServiceTests: XCTestCase {
         await settleWatchLinkService()
         service.acceptPendingSetup()
         let handle = try XCTUnwrap(service.resumeContext?.handle)
-        let takeover = LinkEnvelope(
-            sessionId: handle.sessionId,
-            matchId: handle.matchId,
-            matchGeneration: handle.matchGeneration,
-            authorityEpoch: 0,
-            kind: .takeoverByPhone,
-            sender: .phone,
-            senderSequence: 2,
-            sessionRevision: 0,
-            sentAtEpochMilliseconds: 2,
-            payload: LinkAuthorityTransferPayload(
-                snapshot: setup.snapshot,
-                baseRevision: 0
-            )
-        )
-        let takeoverData = try JSONEncoder().encode(takeover)
+        XCTAssertTrue(service.canEditLinkedMatch, "共享会话下手表本就可计分")
 
-        transport.deliver(takeoverData)
+        // 手表的本地计分照常发布，不依赖任何控制权移交。
+        service.publishSnapshot(setup.snapshot, detailedActions: [])
         await settleWatchLinkService()
-        transport.deliver(takeoverData)
-        await settleWatchLinkService()
+        let published = transport.realtimeMessages.compactMap {
+            try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0)
+        }.filter { $0.kind == .stateSnapshot }
+        XCTAssertFalse(published.isEmpty)
 
         let context = try XCTUnwrap(service.resumeContext)
-        XCTAssertEqual(context.role, .watchFollower)
-        XCTAssertEqual(context.authorityEpoch, 1)
-        let acknowledgements = transport.realtimeMessages.compactMap {
-            try? JSONDecoder().decode(
-                LinkEnvelope<LinkAcknowledgementPayload>.self,
-                from: $0
-            )
-        }.filter { $0.correlationId == takeover.messageId }
-        XCTAssertEqual(acknowledgements.count, 2)
-        XCTAssertTrue(acknowledgements.allSatisfy { $0.authorityEpoch == 1 })
+        XCTAssertEqual(context.handle, handle)
 
         let restored = WatchLinkService(
             transport: WatchLinkTestTransport(),
             contextStore: store,
             outboxStore: store
         )
-        XCTAssertEqual(restored.resumeContext?.role, .watchFollower)
-        XCTAssertEqual(restored.resumeContext?.authorityEpoch, 1)
         XCTAssertEqual(restored.resumeContext?.handle, handle)
+        XCTAssertTrue(restored.canEditLinkedMatch)
     }
 
     func testWatchLinkAcceptsNewlyUnlockedSportsAndValidatesDoublesContracts() {
@@ -542,8 +517,6 @@ final class WatchLinkServiceTests: XCTestCase {
         let linkContext = WatchLinkResumeContext(
             handle: handle,
             setup: setup,
-            role: .watchFollower,
-            authorityEpoch: 1,
             revision: 1,
             latestAuthoritativeSnapshot: .football(initialFootball),
             detailedActions: [],
@@ -566,7 +539,7 @@ final class WatchLinkServiceTests: XCTestCase {
                 leftName: "红队",
                 rightName: "蓝队"
             ),
-            link: linkContext
+            linkHandle: linkContext.handle
         ))
 
         let remoteFootball = LinkedFootballState(
@@ -651,33 +624,18 @@ final class WatchLinkServiceTests: XCTestCase {
         XCTAssertTrue(contextEnvelope.payload.detailedActions.isEmpty)
         XCTAssertEqual(realtimeEnvelope.payload.detailedActions.map(\.id), [action.id])
 
-        // Transfer to phone controller, then receive a stripped applicationContext
-        // snapshot with detailedActions == []; local merged actions must be preserved.
+        // 接收一份剥离动作历史的 applicationContext 快照：
+        // 本地已合并的动作必须保留（共享会话按 id 并集合并）。
         let handle = try XCTUnwrap(service.resumeContext?.handle)
-        let takeover = LinkEnvelope(
-            sessionId: handle.sessionId,
-            matchId: handle.matchId,
-            matchGeneration: handle.matchGeneration,
-            authorityEpoch: 0,
-            kind: .takeoverByPhone,
-            sender: .phone,
-            senderSequence: 2,
-            sessionRevision: 1,
-            sentAtEpochMilliseconds: 2_500,
-            payload: LinkAuthorityTransferPayload(snapshot: setup.snapshot, baseRevision: 1)
-        )
-        transport.deliver(try JSONEncoder().encode(takeover))
-        await settleWatchLinkService()
 
         let strippedFromPhone = LinkEnvelope(
             sessionId: handle.sessionId,
             matchId: handle.matchId,
             matchGeneration: handle.matchGeneration,
-            authorityEpoch: 1,
             kind: .stateSnapshot,
             sender: .phone,
             senderSequence: 3,
-            sessionRevision: 2,
+            sessionRevision: 3,
             sentAtEpochMilliseconds: 3_000,
             payload: LinkedScoreboardSetup(
                 gameType: .badminton,
@@ -776,8 +734,6 @@ final class WatchLinkServiceTests: XCTestCase {
         let context = WatchLinkResumeContext(
             handle: LinkedMatchHandle(sessionId: UUID()),
             setup: .init(gameType: .basketballTraining, initialSnapshot: snapshot),
-            role: .watchFollower,
-            authorityEpoch: 1,
             revision: 2,
             latestAuthoritativeSnapshot: snapshot,
             detailedActions: [],
@@ -789,7 +745,7 @@ final class WatchLinkServiceTests: XCTestCase {
             scoreLine: "0/1 = 0%",
             emoji: "🏀",
             payload: .basketballTraining(mode: .free, history: []),
-            link: context
+            linkHandle: context.handle
         ))
 
         resumeStore.applyLinkedSnapshot(snapshot, context: context)
@@ -986,7 +942,6 @@ final class WatchLinkServiceTests: XCTestCase {
             sessionId: handle.sessionId,
             matchId: handle.matchId,
             matchGeneration: handle.matchGeneration,
-            authorityEpoch: 1,
             kind: .matchFinished,
             sender: .phone,
             senderSequence: 3,
@@ -1067,7 +1022,7 @@ final class WatchLinkServiceTests: XCTestCase {
         badminton.finished = true
         let finished = LinkEnvelope(
             sessionId: old.sessionId, matchId: old.matchId, matchGeneration: old.matchGeneration,
-            authorityEpoch: 1, kind: .matchFinished, sender: .phone, senderSequence: 3,
+            kind: .matchFinished, sender: .phone, senderSequence: 3,
             sessionRevision: 3, sentAtEpochMilliseconds: 3_100,
             payload: LinkMatchFinishedPayload(
                 snapshot: .rally(badminton), recordId: recordID, winnerSide: .left,
@@ -1168,7 +1123,6 @@ final class WatchLinkServiceTests: XCTestCase {
             sessionId: handle.sessionId,
             matchId: handle.matchId,
             matchGeneration: handle.matchGeneration,
-            authorityEpoch: realtimeFinished.authorityEpoch,
             kind: .recordAcknowledgement,
             sender: .phone,
             senderSequence: 4,
@@ -1234,7 +1188,7 @@ final class WatchLinkServiceTests: XCTestCase {
         XCTAssertEqual(WatchRecordManager.shared.syncState(for: recordId), .sent)
     }
 
-    private func makeWatchLinkSetup(supportsSharedEditing: Bool? = nil) -> (
+    private func makeWatchLinkSetup() -> (
         envelope: LinkEnvelope<LinkedScoreboardSetup>,
         snapshot: LinkedScoreboardSnapshot
     ) {
@@ -1247,7 +1201,6 @@ final class WatchLinkServiceTests: XCTestCase {
         let handle = LinkedMatchHandle(sessionId: UUID())
         return (
             LinkEnvelope(
-                supportsSharedEditing: supportsSharedEditing,
                 sessionId: handle.sessionId,
                 matchId: handle.matchId,
                 matchGeneration: handle.matchGeneration,
@@ -1346,7 +1299,7 @@ extension WatchLinkServiceTests {
         let service = WatchLinkService(
             transport: transport, contextStore: store, outboxStore: store
         )
-        let setup = makeWatchLinkSetup(supportsSharedEditing: true)
+        let setup = makeWatchLinkSetup()
         transport.deliver(try JSONEncoder().encode(setup.envelope))
         await settleWatchLinkService()
         service.acceptPendingSetup()

@@ -121,7 +121,7 @@ struct WatchNineBallScoreView: View {
         _actionLog = State(initialValue: resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt))
     }
 
-    private var scoringLocked: Bool { linkedSessionId != nil && linkService.isFollower }
+    private var scoringLocked: Bool { linkedSessionId != nil && !linkService.canEditLinkedMatch }
     private var isHorizontal: Bool { scoreboardLayout == "horizontal" }
 
     var body: some View {
@@ -146,10 +146,6 @@ struct WatchNineBallScoreView: View {
                         showMenu = false
                         confirmation = .reset
                     },
-                    onReclaim: scoringLocked ? {
-                        linkService.requestReclaim()
-                        showMenu = false
-                    } : nil,
                     extraActions: nineBallMenuExtraActions
                 )
             }
@@ -201,7 +197,7 @@ struct WatchNineBallScoreView: View {
                   update.matchGeneration == linkService.activeHandle?.matchGeneration,
                   let remote = update.snapshot.nineBallState else { return }
             let acceptsScore = linkService.incomingSnapshot != nil
-            if acceptsScore, linkService.controlRole == .shared, update.beginsMatch(after: previous) {
+            if acceptsScore, update.beginsMatch(after: previous) {
                 matchStartTime = Date()
                 actionLog.reset(at: matchStartTime)
             }
@@ -217,13 +213,6 @@ struct WatchNineBallScoreView: View {
             lastAppliedRemoteGeneration = update.matchGeneration
             lastAppliedRemoteRevision = update.revision
             applyAuthoritativeNineBall(remote)
-        }
-        .onChange(of: linkService.pendingReclaimAcceptance) { _, pending in
-            guard let linkedSessionId, let pending, pending.sessionId == linkedSessionId,
-                  let remote = pending.snapshot.nineBallState else { return }
-            actionLog.merge(detailedActions: pending.detailedActions)
-            applyAuthoritativeNineBall(remote)
-            linkService.completeReclaimAcceptance(messageId: pending.messageId)
         }
         .onChange(of: state) { _, _ in
             persistResumeSession()
@@ -1030,7 +1019,7 @@ struct WatchNineBallScoreView: View {
                 undoStates: undoStack
             ),
             actionLog: actionLog,
-            link: linkService.resumeContext
+            linkHandle: linkService.resumeContext?.handle
         ))
     }
 

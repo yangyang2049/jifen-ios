@@ -10,7 +10,6 @@ extension WatchLinkService {
         messageId: UUID,
         revision: UInt64,
         handle: LinkedMatchHandle? = nil,
-        authorityEpoch: UInt64? = nil,
         recordAck: Bool = false,
         authoritativeSnapshot: LinkedScoreboardSnapshot? = nil,
         detailedActions: [DetailedScoreAction]? = nil
@@ -24,7 +23,6 @@ extension WatchLinkService {
             sessionId: sessionId,
             matchId: resolvedHandle.matchId,
             matchGeneration: resolvedHandle.matchGeneration,
-            authorityEpoch: authorityEpoch ?? self.authorityEpoch,
             kind: recordAck ? .recordAcknowledgement : .acknowledgement,
             sender: .watch,
             senderSequence: sequence,
@@ -144,8 +142,7 @@ extension WatchLinkService {
     func sendRemainingActions(after frame: LinkEnvelope<LinkedScoreboardSetup>) {
         guard pendingAck.pending == nil, peerSupportsDeltaActions, canEditLinkedMatch,
               let machine = sessionMachine, machine.lifecycle == .active,
-              machine.handle == frame.handle, machine.authorityEpoch == frame.authorityEpoch,
-              machine.role == .shared || machine.revision == frame.sessionRevision,
+              machine.handle == frame.handle,
               let next = deltaActionTracker.continuation(
                 of: frame, actions: mergedDetailedActions, removedActionIDs: actionHistory.removedActionIDs,
                 sequence: sequence + 1, now: nowMs()
@@ -159,6 +156,46 @@ extension WatchLinkService {
                 guard pendingAck.pending?.messageId == next.messageId, transport.isReachable else { return }
                 try? await transport.sendRealtime(wire.data)
             }
+        }
+    }
+
+    /// 恢复上下文后没有内存 pendingAck：用同一 handle 的已持久化动作/删除
+    /// 重建一帧待发增量（仅历史，不改比分）。
+    func sendRestoredDeltaIfNeeded() {
+        guard let sessionId = activeSessionId, let gameType = activeGameType,
+              let handle = activeHandle, sessionMachine?.lifecycle == .active,
+              let snapshot = activeSetup?.initialSnapshot,
+              !mergedDetailedActions.isEmpty || !actionHistory.removedActionIDs.isEmpty else { return }
+        let removals = deltaActionTracker.pendingRemovalIDs(actionHistory.removedActionIDs)
+        sequence += 1
+        let payload = LinkedScoreboardSetup(
+            gameType: gameType,
+            maxSets: maxSets(for: snapshot),
+            initialSnapshot: snapshot,
+            detailedActions: mergedDetailedActions,
+            participantNames: activeSetup?.participantNames ?? [],
+            isDeltaActions: removals.isEmpty,
+            removedActionIDs: removals.isEmpty ? nil : removals
+        )
+        let envelope = LinkEnvelope(
+            messageId: UUID(),
+            sessionId: sessionId,
+            matchId: handle.matchId,
+            matchGeneration: handle.matchGeneration,
+            kind: .stateSnapshot,
+            sender: .watch,
+            senderSequence: sequence,
+            sessionRevision: activeRevision,
+            sentAtEpochMilliseconds: nowMs(),
+            payload: payload
+        )
+        let wire = LinkEnvelopeEncoding.snapshotFrame(envelope)
+        guard wire.carriesHistory else { return }
+        enqueueLiveSnapshot(envelope, frame: wire)
+        guard transport.isReachable else { return }
+        Task {
+            guard pendingAck.pending?.messageId == envelope.messageId else { return }
+            try? await transport.sendRealtime(wire.data)
         }
     }
 
@@ -225,12 +262,10 @@ extension WatchLinkService {
                sendImmediately: tracksHistory && retryActionSnapshotImmediately
            ) {
             Task {
-                let shared = controlRole == .shared
-                guard transport.isReachable || !shared else { return }
                 do {
                     try await transport.sendRealtime(data)
                 } catch {
-                    if !shared { lastLinkErrorMessage = error.localizedDescription }
+                    lastLinkErrorMessage = error.localizedDescription
                 }
             }
         } else if let pendingMessageId,
@@ -239,19 +274,21 @@ extension WatchLinkService {
                 _ = machine.acknowledge(messageId: pendingMessageId)
                 sessionMachine = machine
             }
-            if controlRole != .shared {
-                lastLinkErrorMessage = NSLocalizedString(
-                    "linked_score_sync_timeout",
-                    value: "比分同步超时，将在重新连接后继续同步。",
-                    comment: ""
-                )
-            }
+            lastLinkErrorMessage = NSLocalizedString(
+                "linked_score_sync_timeout",
+                value: "比分同步超时，将在重新连接后继续同步。",
+                comment: ""
+            )
         }
         let dueTerminalItems = terminalOutbox.retryDueItems(
             nowEpochMilliseconds: nowMs()
         )
         if !dueTerminalItems.isEmpty {
-            persistTerminalOutbox()
+            // 先确认 outbox 已落盘再投影/发送；落盘失败保留待发，下一轮重试。
+            guard persistTerminalOutbox() else {
+                rescheduleRetryIfNeeded()
+                return
+            }
             for item in dueTerminalItems {
                 if item.pendingLocalRecord != nil, !prepareLocalFinishedRecord(item) { continue }
                 let frame = item.data
@@ -268,13 +305,13 @@ extension WatchLinkService {
     /// finish marking and ACK clearing gate on this.
     @discardableResult
     func persistTerminalOutbox() -> Bool {
-        guard !terminalOutbox.isEmpty else {
-            outboxStore.removeObject(forKey: terminalOutboxKey)
-            return true
-        }
         do {
-            let data = try JSONEncoder().encode(terminalOutbox)
-            try outboxStore.setOrThrow(data, forKey: terminalOutboxKey)
+            if terminalOutbox.isEmpty {
+                try outboxStore.removeOrThrow(forKey: terminalOutboxKey)
+            } else {
+                let data = try JSONEncoder().encode(terminalOutbox)
+                try outboxStore.setOrThrow(data, forKey: terminalOutboxKey)
+            }
             return true
         } catch {
             reportPersistenceError(error)
@@ -282,20 +319,24 @@ extension WatchLinkService {
         }
     }
 
-    func persistPendingSessionEnds() {
-        guard !pendingSessionEnds.isEmpty else {
-            outboxStore.removeObject(forKey: pendingSessionEndsKey)
-            return
-        }
+    @discardableResult
+    func persistPendingSessionEnds() -> Bool {
         do {
-            let data = try JSONEncoder().encode(pendingSessionEnds)
-            outboxStore.set(data, forKey: pendingSessionEndsKey)
+            if pendingSessionEnds.isEmpty {
+                try outboxStore.removeOrThrow(forKey: pendingSessionEndsKey)
+            } else {
+                let data = try JSONEncoder().encode(pendingSessionEnds)
+                try outboxStore.setOrThrow(data, forKey: pendingSessionEndsKey)
+            }
+            return true
         } catch {
             reportPersistenceError(error)
+            return false
         }
     }
 
     func flushPendingSessionEnds() {
+        guard !pendingSessionEnds.isEmpty, persistPendingSessionEnds() else { return }
         for request in pendingSessionEnds {
             let sessionId = request.handle.sessionId
             guard !pendingSessionEndInFlight.contains(sessionId),
@@ -310,7 +351,6 @@ extension WatchLinkService {
                 sessionId: sessionId,
                 matchId: request.handle.matchId,
                 matchGeneration: request.handle.matchGeneration,
-                authorityEpoch: request.authorityEpoch,
                 kind: .sessionLeft,
                 sender: .watch,
                 senderSequence: sequence,
@@ -325,10 +365,15 @@ extension WatchLinkService {
                 }
                 do {
                     try await send(envelope)
-                    pendingSessionEnds.removeAll { $0 == request }
-                    persistPendingSessionEnds()
                     if activeHandle == request.handle {
+                        // Retire the durable resume pointer before dropping the queued end.
+                        try contextStore.removeOrThrow(forKey: contextKey)
                         endLocalSession()
+                    }
+                    let previousRequests = pendingSessionEnds
+                    pendingSessionEnds.removeAll { $0 == request }
+                    if !persistPendingSessionEnds() {
+                        pendingSessionEnds = previousRequests
                     }
                 } catch {
                     lastLinkErrorMessage = error.localizedDescription
@@ -342,10 +387,18 @@ extension WatchLinkService {
     }
 
 
+    /// `link/` 下已持久化的权威联动上下文（只读）。续玩草稿只能与它匹配，
+    /// 不能凭草稿重建或覆盖服务状态；上下文缺失、损坏或不匹配即返回 nil。
+    var storedLinkContext: WatchLinkResumeContext? {
+        guard let data = contextStore.data(forKey: contextKey),
+              let context = try? JSONDecoder().decode(WatchLinkResumeContext.self, from: data),
+              let snapshot = context.latestAuthoritativeSnapshot,
+              snapshot.matches(gameType: context.setup.gameType) else { return nil }
+        return context
+    }
+
     func persistContext() {
-        guard let handle = activeHandle,
-              let setup = activeSetup,
-              let role = controlRole else {
+        guard let handle = activeHandle, let setup = activeSetup else {
             contextStore.removeObject(forKey: contextKey)
             return
         }
@@ -355,8 +408,6 @@ extension WatchLinkService {
         let context = WatchLinkResumeContext(
             handle: handle,
             setup: storedSetup,
-            role: role,
-            authorityEpoch: authorityEpoch,
             revision: activeRevision,
             latestAuthoritativeSnapshot: latestSnapshot?.snapshot
                 ?? setup.initialSnapshot,
@@ -395,6 +446,10 @@ extension WatchLinkService {
             contextStore.removeObject(forKey: contextKey)
             return
         }
+        guard !pendingSessionEnds.contains(where: { $0.handle == context.handle }) else {
+            contextStore.removeObject(forKey: contextKey)
+            return
+        }
         installStateMachine(from: context)
         synchronizeSessionStateFromMachine()
         activeGameType = context.setup.gameType
@@ -402,7 +457,6 @@ extension WatchLinkService {
         peerSupportsCompressedFinish = context.peerSupportsCompressedFinish == true
         negotiatedPeerCapabilities = context.negotiatedPeerCapabilities ?? []
         actionHistory = context.actionHistory ?? LinkSnapshotHistory()
-        phoneTookOver = context.role == .watchFollower
         mergedDetailedActions = context.detailedActions
         activeSetup?.detailedActions = mergedDetailedActions
         if let snapshot = context.latestAuthoritativeSnapshot {

@@ -84,53 +84,13 @@ enum WatchResumePayload: Codable, Sendable {
 
 extension WatchLinkResumeContext {
     var sessionId: UUID { handle.sessionId }
-    var controlRole: LinkControlRole { role }
-
-    init(
-        handle: LinkedMatchHandle,
-        revision: UInt64,
-        authorityEpoch: UInt64,
-        controlRole: LinkControlRole,
-        setup: LinkedScoreboardSetup,
-        actionHistory: LinkSnapshotHistory? = nil
-    ) {
-        self.init(
-            handle: handle,
-            setup: setup,
-            role: controlRole,
-            authorityEpoch: authorityEpoch,
-            revision: revision,
-            latestAuthoritativeSnapshot: setup.initialSnapshot,
-            detailedActions: setup.detailedActions,
-            completedMatchIds: [],
-            pendingTerminalMessageIds: [],
-            actionHistory: actionHistory
-        )
-    }
-
-    init(
-        sessionId: UUID,
-        revision: UInt64,
-        authorityEpoch: UInt64 = 0,
-        controlRole: LinkControlRole,
-        setup: LinkedScoreboardSetup,
-        actionHistory: LinkSnapshotHistory? = nil
-    ) {
-        self.init(
-            handle: LinkedMatchHandle(sessionId: sessionId),
-            revision: revision,
-            authorityEpoch: authorityEpoch,
-            controlRole: controlRole,
-            setup: setup,
-            actionHistory: actionHistory
-        )
-    }
 }
 
 struct WatchResumeSession: Codable, Sendable {
     /// 首发格式直接起算：restore 只接受当前 schema 版本，旧版本会话一律视为
-    /// 无会话丢弃，不做任何迁移。
-    static let currentSchemaVersion = 3
+    /// 无会话丢弃，不做任何迁移。v4 起联动草稿只保存完整 handle 引用，
+    /// 会话身份、revision 与权威快照全部来自 link/ 联动上下文。
+    static let currentSchemaVersion = 4
 
     let schemaVersion: Int
     var savedAt: Date
@@ -139,7 +99,8 @@ struct WatchResumeSession: Codable, Sendable {
     let emoji: String
     let payload: WatchResumePayload
     let actionLog: WatchScoreActionLog
-    let link: WatchLinkResumeContext?
+    /// 仅用于匹配同一场次的完整 handle 引用；nil 表示本地独立比赛。
+    let linkHandle: LinkedMatchHandle?
 
     init(
         savedAt: Date = Date(),
@@ -148,7 +109,7 @@ struct WatchResumeSession: Codable, Sendable {
         emoji: String,
         payload: WatchResumePayload,
         actionLog: WatchScoreActionLog? = nil,
-        link: WatchLinkResumeContext? = nil
+        linkHandle: LinkedMatchHandle? = nil
     ) {
         schemaVersion = Self.currentSchemaVersion
         self.savedAt = savedAt
@@ -157,7 +118,7 @@ struct WatchResumeSession: Codable, Sendable {
         self.emoji = emoji
         self.payload = payload
         self.actionLog = actionLog ?? WatchScoreActionLog(startedAt: startedAt)
-        self.link = link
+        self.linkHandle = linkHandle
     }
 
     var isTrainingSession: Bool {
@@ -368,7 +329,7 @@ final class WatchResumeSessionStore {
             flushPendingWrite()
             return false
         }
-        if let session, session.link == nil, hasRecordStart(session.startedAt, record: candidate) {
+        if let session, session.linkHandle == nil, hasRecordStart(session.startedAt, record: candidate) {
             clear()
         }
         removePendingFinishedRecords { $0.id == candidate.id }
@@ -431,8 +392,9 @@ final class WatchResumeSessionStore {
         )
     }
 
+    /// 草稿只记录 handle 引用；联动上下文永远来自 link/ 权威存储。
     func refreshLinkContext(_ context: WatchLinkResumeContext) {
-        guard let value = session, value.link?.handle == context.handle else { return }
+        guard let value = session, value.linkHandle == context.handle else { return }
         var actionLog = value.actionLog
         actionLog.merge(detailedActions: context.detailedActions, removing: context.actionHistory?.removedActionIDs ?? [])
         save(WatchResumeSession(
@@ -441,20 +403,24 @@ final class WatchResumeSessionStore {
             emoji: value.emoji,
             payload: value.payload,
             actionLog: actionLog,
-            link: context
+            linkHandle: context.handle
         ))
     }
 
-    /// Apply phone-controller updates while the scoreboard is suspended on the
-    /// watch home screen. Remote changes become a new replay seed, so future
-    /// watch undo never crosses the phone takeover boundary.
+    /// 计分板挂起在手表桌面时应用对端权威快照。远端变化成为新的重放种子，
+    /// 之后的本地撤销不会跨过对端权威边界。
+    /// - Returns: 是否真的用权威快照重建并保存了草稿。`false` 表示草稿与上下文
+    ///   不匹配或快照无法映射，调用方不得用旧草稿继续展示。
+    @discardableResult
     func applyLinkedSnapshot(
         _ snapshot: LinkedScoreboardSnapshot,
         context: WatchLinkResumeContext
-    ) {
-        guard let value = session, let previous = value.link, previous.sessionId == context.sessionId else { return }
-        let beganNewMatch = previous.handle.matchGeneration < context.handle.matchGeneration
-        guard previous.handle == context.handle || beganNewMatch else { return }
+    ) -> Bool {
+        guard let value = session, let previous = value.linkHandle, previous.sessionId == context.sessionId else {
+            return false
+        }
+        let beganNewMatch = previous.matchGeneration < context.handle.matchGeneration
+        guard previous == context.handle || beganNewMatch else { return false }
 
         let updated: (payload: WatchResumePayload, scoreLine: String)?
         let startedAt = snapshot.basketballTrainingState?.startTime ?? (beganNewMatch ? now() : value.startedAt)
@@ -535,18 +501,96 @@ final class WatchResumeSessionStore {
             updated = nil
         }
 
-        guard let updated else { return }
+        guard let updated else { return false }
+        // 完全相同 typed state 的恢复：保留草稿自己的 undo 栈，只合并动作与显式删除。
+        let sameState = !beganNewMatch && Self.sameLinkedState(updated.payload, value.payload)
+        let payload = sameState
+            ? Self.carryingUndo(from: value.payload, into: updated.payload)
+            : updated.payload
         var actionLog = beganNewMatch ? WatchScoreActionLog(startedAt: startedAt) : value.actionLog
         actionLog.merge(detailedActions: context.detailedActions, removing: context.actionHistory?.removedActionIDs ?? [])
-        actionLog.clearUndoHistory()
+        if !sameState { actionLog.clearUndoHistory() }
         save(WatchResumeSession(
             startedAt: startedAt,
             scoreLine: updated.scoreLine,
             emoji: value.emoji,
-            payload: updated.payload,
+            payload: payload,
             actionLog: actionLog,
-            link: context
+            linkHandle: context.handle
         ))
+        return true
+    }
+
+    /// 两个草稿负载是否描述同一份 typed 状态（忽略 undo 栈与休息遮罩）。
+    private static func sameLinkedState(_ lhs: WatchResumePayload, _ rhs: WatchResumePayload) -> Bool {
+        switch (lhs, rhs) {
+        case (.rally(let lType, let lBundle, _), .rally(let rType, let rBundle, _)):
+            return lType == rType && lBundle.currentSession.state == rBundle.currentSession.state
+        case (.tennis(let lDouble, let lBundle, _), .tennis(let rDouble, let rBundle, _)):
+            return lDouble == rDouble && lBundle.currentSession.state == rBundle.currentSession.state
+        case (.archery(let lState, _, _), .archery(let rState, _, _)):
+            return lState == rState
+        case (.eightBall(let lState, _, _, _), .eightBall(let rState, _, _, _)):
+            return lState == rState
+        case (.nineBall(let lState, _), .nineBall(let rState, _)):
+            return lState == rState
+        case (.snooker(let lState, _, _, _), .snooker(let rState, _, _, _)):
+            return lState == rState
+        case (.football(let lFive, let lState, _, _, _), .football(let rFive, let rState, _, _, _)):
+            return lFive == rFive && lState == rState
+        case (.basketballTraining(let lMode, let lHistory, let lEarlier), .basketballTraining(let rMode, let rHistory, let rEarlier)):
+            return lMode == rMode && lHistory == rHistory && lEarlier == rEarlier
+        default:
+            return false
+        }
+    }
+
+    /// 把草稿原有的 undo 栈搬到权威重建后的负载上。
+    private static func carryingUndo(
+        from source: WatchResumePayload,
+        into target: WatchResumePayload
+    ) -> WatchResumePayload {
+        switch (source, target) {
+        case (.archery(_, let undo, _), .archery(let state, _, let rest)):
+            return .archery(state: state, undoStates: undo, restState: rest)
+        case (.eightBall(_, let undo, let left, let right), .eightBall(let state, _, _, _)):
+            return .eightBall(state: state, undoStates: undo, leftName: left, rightName: right)
+        case (.nineBall(_, let undo), .nineBall(let state, _)):
+            return .nineBall(state: state, undoStates: undo)
+        case (.snooker(_, let undo, let left, let right), .snooker(let state, _, _, _)):
+            return .snooker(state: state, undoStates: undo, leftName: left, rightName: right)
+        case (.football(let five, _, let undo, let left, let right), .football(_, let state, _, _, _)):
+            return .football(
+                isFiveAside: five, state: state, undoStates: undo,
+                leftName: left, rightName: right
+            )
+        default:
+            return target
+        }
+    }
+
+    /// 恢复前的权威性判定：草稿的完整 handle 必须与 link/ 上下文完全一致，
+    /// 项目一致，且上下文本身可判定为同一场有效会话。旧草稿、错场引用与
+    /// 损坏引用一律不复活联动，也不会被当成独立比赛。
+    func linkContextForResume(
+        _ context: WatchLinkResumeContext?
+    ) -> WatchLinkResumeContext? {
+        guard let session, let linkHandle = session.linkHandle, let context else { return nil }
+        guard context.handle == linkHandle else { return nil }
+        guard WatchGameType(scoreCoreGameType: context.setup.gameType) == session.payload.gameType else { return nil }
+        switch session.payload {
+        case .rally(_, let bundle, _):
+            guard bundle.currentSession.gameType == context.setup.gameType else { return nil }
+        case .tennis(let isDoubles, _, _):
+            guard context.setup.gameType == (isDoubles ? .tennisDoubles : .tennis) else { return nil }
+        case .football(let isFiveAside, _, _, _, _):
+            guard context.setup.gameType == (isFiveAside ? .football5v5 : .football) else { return nil }
+        default:
+            break
+        }
+        guard let snapshot = context.latestAuthoritativeSnapshot,
+              snapshot.matches(gameType: context.setup.gameType) else { return nil }
+        return context
     }
 
     @discardableResult

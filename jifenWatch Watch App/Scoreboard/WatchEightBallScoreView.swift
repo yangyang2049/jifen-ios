@@ -61,7 +61,7 @@ struct WatchEightBallScoreView: View {
         _actionLog = State(initialValue: resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt))
     }
 
-    private var scoringLocked: Bool { linkedSessionId != nil && linkService.isFollower }
+    private var scoringLocked: Bool { linkedSessionId != nil && !linkService.canEditLinkedMatch }
     private var isHorizontal: Bool { scoreboardLayout == "horizontal" }
     private var showsTargetBadge: Bool { !showMenu && !showFinishedOverlay }
     private static let targetBadgeHeight: CGFloat = 24
@@ -99,11 +99,7 @@ struct WatchEightBallScoreView: View {
                         guard !scoringLocked else { return }
                         showMenu = false
                         confirmation = .reset
-                    },
-                    onReclaim: scoringLocked ? {
-                        linkService.requestReclaim()
-                        showMenu = false
-                    } : nil
+                    }
                 )
             }
             if showFinishedOverlay {
@@ -143,7 +139,7 @@ struct WatchEightBallScoreView: View {
                   update.matchGeneration == linkService.activeHandle?.matchGeneration,
                   let remote = update.snapshot.eightBallState else { return }
             let acceptsScore = linkService.incomingSnapshot != nil
-            if acceptsScore, linkService.controlRole == .shared, update.beginsMatch(after: previous) {
+            if acceptsScore, update.beginsMatch(after: previous) {
                 matchStartTime = Date()
                 actionLog.reset(at: matchStartTime)
             }
@@ -159,13 +155,6 @@ struct WatchEightBallScoreView: View {
             lastAppliedRemoteGeneration = update.matchGeneration
             lastAppliedRemoteRevision = update.revision
             applyAuthoritativeEightBall(remote)
-        }
-        .onChange(of: linkService.pendingReclaimAcceptance) { _, pending in
-            guard let linkedSessionId, let pending, pending.sessionId == linkedSessionId,
-                  let remote = pending.snapshot.eightBallState else { return }
-            actionLog.merge(detailedActions: pending.detailedActions)
-            applyAuthoritativeEightBall(remote)
-            linkService.completeReclaimAcceptance(messageId: pending.messageId)
         }
         .onChange(of: state) { _, _ in
             persistResumeSession()
@@ -542,7 +531,7 @@ struct WatchEightBallScoreView: View {
                 rightName: rightName
             ),
             actionLog: actionLog,
-            link: linkService.resumeContext
+            linkHandle: linkService.resumeContext?.handle
         ))
     }
 

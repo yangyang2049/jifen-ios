@@ -133,12 +133,6 @@ struct WatchBasketballTrainingView: View {
         .onChange(of: linkService.publishedFinishedMatchIds) { _, _ in
             applyRecoveredLinkedFinish()
         }
-        .onChange(of: linkService.pendingReclaimAcceptance, initial: true) { _, pending in
-            guard isLinked, let pending, pending.sessionId == linkedSessionId,
-                  let state = pending.snapshot.basketballTrainingState else { return }
-            applyLinkedState(state)
-            linkService.completeReclaimAcceptance(messageId: pending.messageId)
-        }
     }
 
     private var isLinked: Bool {
@@ -219,42 +213,35 @@ struct WatchBasketballTrainingView: View {
                 .onTapGesture { showMenu = false }
 
             VStack(spacing: WatchLayout.isCompactScreen ? 5 : 6) {
-                if scoringLocked {
+                LazyVGrid(
+                    columns: [GridItem(.flexible()), GridItem(.flexible())],
+                    spacing: WatchLayout.isCompactScreen ? 5 : 6
+                ) {
                     WatchMenuGridButton(
-                        title: NSLocalizedString("linked_score_watch_reclaim", value: "手表接管", comment: ""),
-                        systemImage: "applewatch"
+                        title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
+                        systemImage: "arrow.uturn.backward"
                     ) {
+                        guard !scoringLocked else { return }
                         showMenu = false
-                        linkService.requestReclaim()
-                    }
-                } else {
-                    LazyVGrid(
-                        columns: [GridItem(.flexible()), GridItem(.flexible())],
-                        spacing: WatchLayout.isCompactScreen ? 5 : 6
-                    ) {
-                        WatchMenuGridButton(
-                            title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
-                            systemImage: "arrow.uturn.backward"
-                        ) {
-                            showMenu = false
-                            undo()
-                        }
-                        WatchMenuGridButton(
-                            title: NSLocalizedString("watch_menu_restart", value: "重新开始", comment: ""),
-                            systemImage: "arrow.counterclockwise"
-                        ) {
-                            showMenu = false
-                            confirmation = .reset
-                        }
+                        undo()
                     }
                     WatchMenuGridButton(
-                        title: NSLocalizedString("watch_bb_end_training", value: "结束训练", comment: ""),
-                        systemImage: "flag.checkered",
-                        background: WatchTheme.dangerRed
+                        title: NSLocalizedString("watch_menu_restart", value: "重新开始", comment: ""),
+                        systemImage: "arrow.counterclockwise"
                     ) {
+                        guard !scoringLocked else { return }
                         showMenu = false
-                        confirmation = .finish
+                        confirmation = .reset
                     }
+                }
+                WatchMenuGridButton(
+                    title: NSLocalizedString("watch_bb_end_training", value: "结束训练", comment: ""),
+                    systemImage: "flag.checkered",
+                    background: WatchTheme.dangerRed
+                ) {
+                    guard !scoringLocked else { return }
+                    showMenu = false
+                    confirmation = .finish
                 }
                 WatchMenuCloseButton { showMenu = false }
             }
@@ -717,7 +704,7 @@ struct WatchBasketballTrainingView: View {
                 history: history,
                 earlierCounts: earlierCounts
             ),
-            link: isLinked ? linkService.resumeContext : nil
+            linkHandle: isLinked ? linkService.resumeContext?.handle : nil
         ))
     }
 

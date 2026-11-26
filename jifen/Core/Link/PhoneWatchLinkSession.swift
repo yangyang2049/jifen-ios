@@ -12,7 +12,7 @@ extension PhoneWatchLinkService {
     @discardableResult
     func requestScoreResync() -> Bool {
         guard let session = activeSession,
-              LinkManualResyncPolicy.phoneCanRequest(role: session.role) else {
+              LinkManualResyncPolicy.canRequest(hasActiveSession: true) else {
             return false
         }
         sequence += 1
@@ -23,7 +23,6 @@ extension PhoneWatchLinkService {
             sessionId: session.sessionId,
             matchId: session.handle.matchId,
             matchGeneration: session.handle.matchGeneration,
-            authorityEpoch: session.authorityEpoch,
             kind: .resyncRequest,
             sender: .phone,
             senderSequence: sequence,
@@ -140,161 +139,11 @@ extension PhoneWatchLinkService {
         )
     }
 
-    func takeover(sessionId: UUID) async throws {
-        guard let session = activeSession,
-              session.sessionId == sessionId,
-              session.role == .phoneFollower,
-              connectivityStatus.canStartInteractiveSession else {
-            throw InteractiveStartError.watchUnavailable
-        }
-        sequence += 1
-        let messageId = UUID()
-        let update = latestRemoteSnapshot
-        let envelope = LinkEnvelope(
-            messageId: messageId,
-            correlationId: messageId,
-            sessionId: sessionId,
-            matchId: session.handle.matchId,
-            matchGeneration: session.handle.matchGeneration,
-            authorityEpoch: session.authorityEpoch,
-            kind: .takeoverByPhone,
-            sender: .phone,
-            senderSequence: sequence,
-            sessionRevision: session.revision,
-            sentAtEpochMilliseconds: nowMs(),
-            payload: LinkAuthorityTransferPayload(
-                snapshot: update?.sessionId == sessionId ? update?.snapshot : nil,
-                detailedActions: update?.sessionId == sessionId ? update?.detailedActions ?? [] : [],
-                baseRevision: session.revision
-            )
-        )
-        let data = LinkEnvelopeEncoding.data(
-            envelope,
-            actionsKeyPath: \LinkAuthorityTransferPayload.detailedActions
-        )
-        pendingTakeoverMessageId = messageId
-        if var machine = sessionMachine {
-            guard machine.beginAuthorityTransfer(
-                correlationId: messageId,
-                targetRole: .phoneController,
-                kind: .phoneTakeover
-            ) else { throw InteractiveStartError.notFollower }
-            machine.registerPendingAcknowledgement(messageId)
-            sessionMachine = machine
-        }
-        pendingAck.enqueue(.init(
-            messageId: messageId,
-            sessionId: sessionId,
-            revision: session.revision,
-            data: data,
-            lastSentAtEpochMilliseconds: nowMs()
-        ))
-        rescheduleRetryIfNeeded()
-        do {
-            try await transport.sendRealtime(data)
-        } catch {
-            _ = pendingAck.acknowledge(messageId: messageId)
-            rescheduleRetryIfNeeded()
-            pendingTakeoverMessageId = nil
-            if var machine = sessionMachine {
-                _ = machine.acknowledge(messageId: messageId)
-                _ = machine.rejectAuthorityTransfer(correlationId: messageId)
-                sessionMachine = machine
-            }
-            throw error
-        }
-    }
-
-    /// Emergency authority transfer. A correlated status query gets a full
-    /// three-second opportunity to complete first. If the peer cannot answer,
-    /// takeover is allowed only from the last snapshot the Watch previously
-    /// confirmed or published.
-    func forceTakeover(sessionId: UUID) async throws {
-        guard activeSession?.sessionId == sessionId,
-              activeSession?.role == .phoneFollower else {
-            throw InteractiveStartError.notFollower
-        }
-
-        _ = try? await queryStatus(timeoutSeconds: 3)
-
-        guard let currentSession = activeSession,
-              currentSession.sessionId == sessionId,
-              currentSession.role == .phoneFollower,
-              var machine = sessionMachine else {
-            throw InteractiveStartError.notFollower
-        }
-        guard let snapshot = latestRemoteSnapshot?.sessionId == sessionId
-                ? latestRemoteSnapshot?.snapshot
-                : currentSession.setup.initialSnapshot else {
-            throw InteractiveStartError.noConfirmedSnapshot
-        }
-
-        _ = machine.forceAuthority(to: .phoneController)
-        _ = machine.advanceRevision()
-        sessionMachine = machine
-        synchronizeActiveSessionFromStateMachine()
-        guard var session = activeSession else {
-            throw InteractiveStartError.notFollower
-        }
-        session.setup = LinkedScoreboardSetup(
-            gameType: session.gameType,
-            maxSets: maxSets(for: snapshot),
-            initialSnapshot: snapshot,
-            detailedActions: mergedDetailedActions,
-            participantNames: session.setup.participantNames
-        )
-        activeSession = session
-        controlRole = .phoneController
-        watchBackgrounded = false
-        latestRemoteSnapshot = .init(
-            sessionId: sessionId,
-            revision: session.revision,
-            matchGeneration: session.handle.matchGeneration,
-            snapshot: snapshot,
-            detailedActions: mergedDetailedActions
-        )
-        persistContext()
-
-        sequence += 1
-        let messageId = UUID()
-        let envelope = LinkEnvelope(
-            messageId: messageId,
-            sessionId: sessionId,
-            matchId: session.handle.matchId,
-            matchGeneration: session.handle.matchGeneration,
-            authorityEpoch: session.authorityEpoch,
-            kind: .stateSnapshot,
-            sender: .phone,
-            senderSequence: sequence,
-            sessionRevision: session.revision,
-            sentAtEpochMilliseconds: nowMs(),
-            payload: session.setup
-        )
-        let data = LinkEnvelopeEncoding.data(
-            envelope,
-            actionsKeyPath: \LinkedScoreboardSetup.detailedActions
-        )
-        sessionMachine?.registerPendingAcknowledgement(messageId)
-        pendingAck.enqueue(.init(
-            messageId: messageId,
-            sessionId: sessionId,
-            revision: session.revision,
-            data: data,
-            lastSentAtEpochMilliseconds: nowMs()
-        ))
-        rescheduleRetryIfNeeded()
-        try transport.publishLatestSnapshot(
-            LinkEnvelopeEncoding.applicationContextData(envelope)
-        )
-        if transport.isReachable {
-            try await transport.sendRealtime(data)
-        }
-    }
-
+    /// Query the Watch for the status of the current linked match.
     @discardableResult
     func queryStatus(timeoutSeconds: TimeInterval) async throws -> LinkStatusPayload {
         guard let session = activeSession else {
-            throw InteractiveStartError.notFollower
+            throw CancellationError()
         }
         if pendingStatusCorrelationId != nil {
             return try await withCheckedThrowingContinuation { continuation in
@@ -309,7 +158,6 @@ extension PhoneWatchLinkService {
             sessionId: session.sessionId,
             matchId: session.handle.matchId,
             matchGeneration: session.handle.matchGeneration,
-            authorityEpoch: session.authorityEpoch,
             kind: .statusQuery,
             sender: .phone,
             senderSequence: sequence,
@@ -351,129 +199,10 @@ extension PhoneWatchLinkService {
         }
     }
 
-    func resolveReclaimRequest(
-        accepted: Bool,
-        snapshot: LinkedScoreboardSnapshot?,
-        detailedActions: [DetailedScoreAction]
-    ) {
-        guard let request = pendingReclaimRequest,
-              let currentSession = activeSession,
-              currentSession.sessionId == request.sessionId,
-              currentSession.role == .phoneController else { return }
-        reclaimTimeoutTask?.cancel()
-        reclaimTimeoutTask = nil
-        pendingReclaimRequest = nil
-        sequence += 1
-
-        if !accepted || snapshot == nil {
-            let envelope = LinkEnvelope(
-                correlationId: request.messageId,
-                sessionId: request.sessionId,
-                matchId: currentSession.handle.matchId,
-                matchGeneration: currentSession.handle.matchGeneration,
-                authorityEpoch: currentSession.authorityEpoch,
-                kind: .reclaimDenied,
-                sender: .phone,
-                senderSequence: sequence,
-                sessionRevision: currentSession.revision,
-                sentAtEpochMilliseconds: nowMs(),
-                payload: LinkAuthorityTransferPayload(baseRevision: currentSession.revision)
-            )
-            sendReportingError(envelope)
-            return
-        }
-
-        let messageId = UUID()
-        guard var machine = sessionMachine,
-              machine.beginAuthorityTransfer(
-                  correlationId: messageId,
-                  targetRole: .phoneFollower,
-                  kind: .watchReclaim
-              ),
-              machine.prepareAuthorityTransfer(
-                  correlationId: messageId,
-                  epoch: machine.authorityEpoch + 1
-              ) else { return }
-        _ = machine.advanceRevision()
-        machine.registerPendingAcknowledgement(messageId)
-        sessionMachine = machine
-        synchronizeActiveSessionFromStateMachine()
-        guard let session = activeSession else { return }
-        persistContext()
-        let envelope = LinkEnvelope(
-            messageId: messageId,
-            correlationId: request.messageId,
-            sessionId: request.sessionId,
-            matchId: session.handle.matchId,
-            matchGeneration: session.handle.matchGeneration,
-            authorityEpoch: session.authorityEpoch,
-            kind: .reclaimAccepted,
-            sender: .phone,
-            senderSequence: sequence,
-            sessionRevision: session.revision,
-            sentAtEpochMilliseconds: nowMs(),
-            payload: LinkAuthorityTransferPayload(
-                snapshot: snapshot,
-                detailedActions: detailedActions,
-                baseRevision: session.revision
-            )
-        )
-        do {
-            let data = LinkEnvelopeEncoding.data(
-                envelope,
-                actionsKeyPath: \LinkAuthorityTransferPayload.detailedActions
-            )
-            pendingReclaimGrantMessageId = messageId
-            pendingAck.enqueue(.init(
-                messageId: messageId,
-                sessionId: request.sessionId,
-                revision: session.revision,
-                data: data,
-                lastSentAtEpochMilliseconds: nowMs()
-            ))
-            rescheduleRetryIfNeeded()
-            Task {
-                do {
-                    try await transport.sendRealtime(data)
-                } catch {
-                    lastErrorMessage = error.localizedDescription
-                }
-            }
-        } catch {
-            if var machine = sessionMachine {
-                _ = machine.acknowledge(messageId: messageId)
-                _ = machine.rejectAuthorityTransfer(correlationId: messageId)
-                sessionMachine = machine
-                synchronizeActiveSessionFromStateMachine()
-            }
-            pendingReclaimGrantMessageId = nil
-            lastErrorMessage = error.localizedDescription
-            persistContext()
-        }
-    }
-
-    func completePhoneTakeover(messageId: UUID) {
-        guard let pending = pendingTakeoverApplication,
-              pending.messageId == messageId,
-              activeSession?.sessionId == pending.sessionId,
-              sessionMachine?.role == .phoneController else { return }
-        pendingTakeoverApplication = nil
-        latestRemoteSnapshot = .init(
-            sessionId: pending.sessionId,
-            revision: pending.revision,
-            matchGeneration: activeSession?.handle.matchGeneration ?? 0,
-            snapshot: pending.snapshot,
-            detailedActions: pending.detailedActions
-        )
-        watchBackgrounded = false
-        persistContext()
-    }
-
     func leaveSession(_ sessionId: UUID) {
         guard let session = activeSession, session.sessionId == sessionId else { return }
         let request = LinkPendingSessionEnd(
             handle: session.handle,
-            authorityEpoch: session.authorityEpoch,
             revision: session.revision
         )
         if let index = pendingSessionEnds.firstIndex(where: {
@@ -483,7 +212,10 @@ extension PhoneWatchLinkService {
         } else {
             pendingSessionEnds.append(request)
         }
+        // 先持久化退役上下文（含 pending end 记录）再清空内存待发状态：
+        // 崩溃窗口内重启也不会把该 handle 当成可恢复联动。
         persistPendingSessionEnds()
+        persistContext()
         flushPendingSessionEnds()
         rescheduleRetryIfNeeded()
     }
@@ -551,7 +283,6 @@ extension PhoneWatchLinkService {
             sessionId: sessionId,
             matchId: session.handle.matchId,
             matchGeneration: session.handle.matchGeneration,
-            authorityEpoch: session.authorityEpoch,
             kind: .matchFinished,
             sender: .phone,
             senderSequence: sequence,
@@ -626,18 +357,10 @@ extension PhoneWatchLinkService {
         simultaneousEditNotice = nil
         peerSupportsCompressedFinish = false
         sessionMachine = nil
-        controlRole = nil
-        pendingTakeoverMessageId = nil
-        pendingReclaimGrantMessageId = nil
-        pendingReclaimRequest = nil
-        pendingTakeoverApplication = nil
-        forceTakeoverConfirmationSessionId = nil
         pendingStatusCorrelationId = nil
         statusTimeoutTask?.cancel()
         statusTimeoutTask = nil
         resumeStatusContinuations(throwing: CancellationError())
-        reclaimTimeoutTask?.cancel()
-        reclaimTimeoutTask = nil
         actionHistory = LinkSnapshotHistory()
         deltaActionTracker.reset()
         negotiatedPeerCapabilities = []
@@ -646,7 +369,6 @@ extension PhoneWatchLinkService {
         latestRemoteSnapshot = nil
         mergedDetailedActions = []
         publishedFinishedMatchIds.removeAll()
-        watchBackgrounded = false
         persistContext()
     }
 
@@ -656,8 +378,6 @@ extension PhoneWatchLinkService {
     ) {
         sessionMachine = LinkSessionStateMachine(
             handle: session.handle,
-            role: session.role,
-            authorityEpoch: session.authorityEpoch,
             revision: session.revision,
             completedMatchIds: session.completedMatchIds,
             lifecycle: lifecycle,
@@ -674,11 +394,8 @@ extension PhoneWatchLinkService {
               session.sessionId == machine.handle.sessionId else { return }
         session.handle = machine.handle
         session.revision = machine.revision
-        session.role = machine.role
-        session.authorityEpoch = machine.authorityEpoch
         session.completedMatchIds = machine.completedMatchIds
         activeSession = session
-        controlRole = machine.role
     }
 
     func trackSetupAnalyticsResult(_ result: AnalyticsResult) {

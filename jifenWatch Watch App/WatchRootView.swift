@@ -119,20 +119,13 @@ struct WatchRootView: View {
             scoreboardRoute = route
             linkService.clearAcceptedSetup()
         }
-        .onChange(of: linkService.controlRole) { _, role in
-            if role == nil, linkedSessionId != nil {
-                // Phone left — return home if still on linked board.
+        .onChange(of: linkService.activeSessionId) { _, sessionId in
+            if sessionId == nil, linkedSessionId != nil {
+                // 联动会话已结束：清掉草稿与页面，回到手表首页。
                 resumeStore.clear()
                 linkedSetup = nil
                 linkedSessionId = nil
                 scoreboardRoute = nil
-            } else if role == .watchFollower,
-                      resumeStore.session == nil,
-                      scoreboardRoute == nil {
-                // Resume was discarded: the phone owns the still-live linked
-                // session, while watch navigation is now fully local.
-                linkedSetup = nil
-                linkedSessionId = nil
             }
         }
         .onChange(of: scoreboardRoute) { _, route in
@@ -141,9 +134,6 @@ struct WatchRootView: View {
             }
         }
         .onChange(of: scenePhase) { _, phase in
-            if phase == .background {
-                linkService.notifyBackgrounded()
-            }
             if phase == .background || phase == .inactive {
                 // 续玩写入是 750ms 防抖的；非活跃/挂起前必须落盘，否则最后一次
                 // 得分的续玩状态会随 Task 一起被冻结丢失。
@@ -159,29 +149,64 @@ struct WatchRootView: View {
     private func resume(_ session: WatchResumeSession) {
         resumeStore.reload()
         guard let currentSession = resumeStore.session,
-              currentSession.startedAt == session.startedAt,
-              let route = WatchScoreboardRoute(resumeSession: currentSession) else {
+              currentSession.startedAt == session.startedAt else {
             resumeStore.clear()
             return
         }
-        if let context = currentSession.link {
-            linkService.restoreSuspendedSession(context)
+
+        // 联动草稿只带 handle 引用：会话身份、revision 与权威快照一律来自
+        // link/ 上下文。上下文缺失、损坏、错场或已完赛时不复活联动，也不把
+        // 草稿当成独立比赛开启，直接回首页。
+        if currentSession.linkHandle != nil {
+            let live = linkService.resumeContext
+            guard let context = resumeStore.linkContextForResume(live ?? linkService.storedLinkContext),
+                  !context.completedMatchIds.contains(context.handle.matchId),
+                  context.latestAuthoritativeSnapshot?.isFinished != true,
+                  live != nil || linkService.restoreSuspendedSession(context) else {
+                resumeStore.clear()
+                linkedSetup = nil
+                linkedSessionId = nil
+                scoreboardRoute = nil
+                return
+            }
+            // 用服务的最新权威状态重建要展示的草稿，避免旧草稿或旧磁盘副本回退比分。
+            guard let snapshot = context.latestAuthoritativeSnapshot,
+                  resumeStore.applyLinkedSnapshot(snapshot, context: context) else {
+                resumeStore.clear()
+                linkedSetup = nil
+                linkedSessionId = nil
+                scoreboardRoute = nil
+                return
+            }
             linkedSetup = context.setup
             linkedSessionId = context.sessionId
         } else {
             linkedSetup = nil
             linkedSessionId = nil
         }
-        activeResumeSession = currentSession
+
+        guard let displaySession = resumeStore.session,
+              let route = WatchScoreboardRoute(resumeSession: displaySession) else {
+            resumeStore.clear()
+            linkedSetup = nil
+            linkedSessionId = nil
+            return
+        }
+        activeResumeSession = displaySession
         _ = resumeStore.consume()
         scoreboardLaunchID = UUID()
         scoreboardRoute = route
     }
 
     private func restoreStoredLinkContextIfNeeded() {
-        guard linkService.resumeContext == nil,
-              let context = resumeStore.session?.link else { return }
-        linkService.restoreSuspendedSession(context)
+        // 已有活跃联动时只与它匹配，绝不拿旧磁盘上下文覆盖另一个 live handle；
+        // 只有完全没有 live 会话时才读存储。
+        let live = linkService.resumeContext
+        guard live == nil,
+              let context = resumeStore.linkContextForResume(linkService.storedLinkContext),
+              !context.completedMatchIds.contains(context.handle.matchId),
+              context.latestAuthoritativeSnapshot?.isFinished != true else { return }
+        guard linkService.restoreSuspendedSession(context) else { return }
         linkedSetup = context.setup
         linkedSessionId = context.sessionId
     }
@@ -502,11 +527,22 @@ struct WatchRootView: View {
     }
 
     private func startLocalScoreboard(_ route: WatchScoreboardRoute) {
-        if let context = resumeStore.session?.link {
-            if linkService.resumeContext == nil {
-                linkService.restoreSuspendedSession(context)
+        if let handle = resumeStore.session?.linkHandle {
+            // 先匹配当前活跃上下文；只有完全没有 live 会话时才读存储。
+            // 旧磁盘上下文绝不覆盖另一个 live handle，引用失效则不复活。
+            let live = linkService.resumeContext
+            let matched: WatchLinkResumeContext?
+            if let live {
+                matched = live.handle == handle ? live : nil
+            } else {
+                matched = resumeStore.linkContextForResume(linkService.storedLinkContext)
             }
-            linkService.discardResumableSession(reason: .newScoreboardStart)
+            if let matched {
+                if linkService.resumeContext == nil {
+                    linkService.restoreSuspendedSession(matched)
+                }
+                linkService.discardResumableSession()
+            }
         } else if linkedSessionId != nil {
             linkService.leaveSession()
         }

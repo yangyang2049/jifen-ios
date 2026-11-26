@@ -22,12 +22,9 @@ import Testing
     #expect(queue.pending == nil)
 }
 
-@Test func manualResyncOnlyFlowsFromPhoneFollowerToWatchController() throws {
-    #expect(LinkManualResyncPolicy.phoneCanRequest(role: .phoneFollower))
-    #expect(!LinkManualResyncPolicy.phoneCanRequest(role: .phoneController))
-    #expect(!LinkManualResyncPolicy.phoneCanRequest(role: nil))
-    #expect(LinkManualResyncPolicy.watchCanRespond(role: .watchController))
-    #expect(!LinkManualResyncPolicy.watchCanRespond(role: .watchFollower))
+@Test func manualResyncIsBidirectionalInSharedSessions() throws {
+    #expect(LinkManualResyncPolicy.canRequest(hasActiveSession: true))
+    #expect(!LinkManualResyncPolicy.canRequest(hasActiveSession: false))
 
     let envelope = LinkEnvelope(
         sessionId: UUID(),
@@ -96,18 +93,7 @@ import Testing
     #expect(outbox.isEmpty)
 }
 
-@Test func authorityTransferPayloadUsesFormalV1Fields() throws {
-    let payload = LinkAuthorityTransferPayload(baseRevision: 4)
-    let decoded = try JSONDecoder().decode(
-        LinkAuthorityTransferPayload.self,
-        from: JSONEncoder().encode(payload)
-    )
-    #expect(decoded.snapshot == nil)
-    #expect(decoded.detailedActions.isEmpty)
-    #expect(decoded.baseRevision == 4)
-}
-
-@Test func takeoverAcknowledgementCarriesFinalSnapshot() throws {
+@Test func acknowledgementCarriesAuthoritativeSnapshotAndHistory() throws {
     var state = TennisMatchState(leftName: "A", rightName: "B")
     state.leftPoints = 2
     state.rightPoints = 1
@@ -223,85 +209,70 @@ import Testing
     }
 }
 
-@Test func linkSessionStateMachineRejectsStaleEpochAndWrongMatch() {
+@Test func linkSessionStateMachineRejectsWrongMatchAndAdvancesGeneration() {
     let handle = LinkedMatchHandle(sessionId: UUID())
     var machine = LinkSessionStateMachine(
         handle: handle,
-        role: .phoneController,
-        authorityEpoch: 3,
         revision: 7
     )
 
-    #expect(
-        machine.accept(handle: handle, authorityEpoch: 2, revision: 8)
-            == .staleAuthority
-    )
     let conflictingHandle = LinkedMatchHandle(
         sessionId: handle.sessionId,
         matchId: UUID(),
         matchGeneration: handle.matchGeneration
     )
     #expect(
-        machine.accept(handle: conflictingHandle, authorityEpoch: 3, revision: 8)
+        machine.accept(handle: conflictingHandle, revision: 8)
             == .wrongMatch
     )
+    #expect(machine.handle == handle, "wrongMatch 不推进状态")
     let nextHandle = handle.nextMatch()
     #expect(
-        machine.accept(handle: nextHandle, authorityEpoch: 3, revision: 1)
+        machine.accept(handle: nextHandle, revision: 1)
             == .current
     )
     #expect(machine.handle == nextHandle)
     #expect(machine.revision == 1)
 }
-
-@Test func linkSessionStateMachineOwnsSetupTransferFinishAckAndEndLifecycle() {
+@Test func linkSessionStateMachineOwnsSetupFinishAckAndEndLifecycle() {
     let handle = LinkedMatchHandle(sessionId: UUID())
     let setupCorrelation = UUID()
     var machine = LinkSessionStateMachine(
         handle: handle,
-        role: .phoneFollower,
         lifecycle: .starting
     )
 
     let didBeginSetup = machine.beginSetup(correlationId: setupCorrelation)
     #expect(didBeginSetup)
+    // 错误 correlation 的拒绝直接返回 false，不影响生命周期。
     let didResolveWrongSetup = machine.resolveSetup(
         correlationId: UUID(),
-        acceptedRole: .phoneFollower
+        accepted: false
     )
     #expect(!didResolveWrongSetup)
-    let didResolveSetup = machine.resolveSetup(
+    #expect(machine.lifecycle == .starting)
+    // 正确 correlation 的拒绝 → 终局。
+    let didRejectSetup = machine.resolveSetup(
         correlationId: setupCorrelation,
-        acceptedRole: .phoneFollower
+        accepted: false
+    )
+    #expect(didRejectSetup)
+    #expect(machine.lifecycle == .ended)
+
+    // 重新开局验证正常接受路径。
+    machine = LinkSessionStateMachine(
+        handle: handle,
+        lifecycle: .starting
+    )
+    let freshCorrelation = UUID()
+    let didBeginFreshSetup = machine.beginSetup(correlationId: freshCorrelation)
+    #expect(didBeginFreshSetup)
+    let didResolveSetup = machine.resolveSetup(
+        correlationId: freshCorrelation,
+        accepted: true
     )
     #expect(didResolveSetup)
     #expect(machine.lifecycle == .active)
-
-    let takeoverCorrelation = UUID()
-    let didBeginTransfer = machine.beginAuthorityTransfer(
-        correlationId: takeoverCorrelation,
-        targetRole: .phoneController,
-        kind: .phoneTakeover
-    )
-    #expect(didBeginTransfer)
-    let didPrepareWrongTransfer = machine.prepareAuthorityTransfer(
-        correlationId: UUID(),
-        epoch: 1
-    )
-    #expect(!didPrepareWrongTransfer)
-    let didPrepareTransfer = machine.prepareAuthorityTransfer(
-        correlationId: takeoverCorrelation,
-        epoch: 1
-    )
-    #expect(didPrepareTransfer)
-    let didCommitWrongTransfer = machine.commitAuthorityTransfer(correlationId: UUID())
-    #expect(!didCommitWrongTransfer)
-    let didCommitTransfer = machine.commitAuthorityTransfer(
-        correlationId: takeoverCorrelation
-    )
-    #expect(didCommitTransfer)
-    #expect(machine.role == .phoneController)
-    #expect(machine.authorityEpoch == 1)
 
     let terminalMessageId = UUID()
     machine.registerPendingAcknowledgement(terminalMessageId)
@@ -324,66 +295,7 @@ import Testing
     #expect(
         machine.accept(
             handle: nextHandle,
-            authorityEpoch: machine.authorityEpoch,
             revision: 1
         ) == .endedSession
     )
-}
-
-@Test func linkSessionStateMachineRejectsStaleAndMismatchedTransferCorrelations() {
-    let handle = LinkedMatchHandle(sessionId: UUID())
-    let correlation = UUID()
-    var machine = LinkSessionStateMachine(
-        handle: handle,
-        role: .watchController,
-        authorityEpoch: 4,
-        revision: 9
-    )
-
-    let didBeginTransfer = machine.beginAuthorityTransfer(
-        correlationId: correlation,
-        targetRole: .watchFollower,
-        kind: .phoneTakeover
-    )
-    #expect(didBeginTransfer)
-    let didBeginOverlappingTransfer = machine.beginAuthorityTransfer(
-        correlationId: UUID(),
-        targetRole: .watchFollower,
-        kind: .phoneTakeover
-    )
-    #expect(!didBeginOverlappingTransfer)
-    let didPrepareStaleEpoch = machine.prepareAuthorityTransfer(
-        correlationId: correlation,
-        epoch: 4
-    )
-    #expect(!didPrepareStaleEpoch)
-    let didRejectWrongTransfer = machine.rejectAuthorityTransfer(correlationId: UUID())
-    #expect(!didRejectWrongTransfer)
-    let didRejectTransfer = machine.rejectAuthorityTransfer(correlationId: correlation)
-    #expect(didRejectTransfer)
-    #expect(machine.pendingAuthorityTransfer == nil)
-
-    let rollbackCorrelation = UUID()
-    let didBeginRollbackTransfer = machine.beginAuthorityTransfer(
-        correlationId: rollbackCorrelation,
-        targetRole: .watchFollower,
-        kind: .phoneTakeover
-    )
-    #expect(didBeginRollbackTransfer)
-    let didPrepareRollbackTransfer = machine.prepareAuthorityTransfer(
-        correlationId: rollbackCorrelation,
-        epoch: 5
-    )
-    #expect(didPrepareRollbackTransfer)
-    #expect(machine.authorityEpoch == 5)
-    let didRollbackPreparedTransfer = machine.rejectAuthorityTransfer(
-        correlationId: rollbackCorrelation
-    )
-    #expect(didRollbackPreparedTransfer)
-    #expect(machine.authorityEpoch == 4)
-    #expect(machine.role == .watchController)
-
-    #expect(machine.forceAuthority(to: .watchFollower) == 5)
-    #expect(machine.role == .watchFollower)
-    #expect(machine.authorityEpoch == 5)
 }

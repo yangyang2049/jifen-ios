@@ -4,60 +4,29 @@ import RecordCore
 import ScoreCore
 
 /// Shared Watch-link menu extras for phone scoreboards.
+///
+/// M3 起联动会话恒为 `.shared`：两端都能计分，只保留双向「同步积分」与
+/// 「结束联动」，不再有接管、强制接管或手表后台提示。
 enum WatchLinkMenuSupport {
     static func extraItems(
         entryEnabled: Bool,
-        sessionId: UUID?,
-        isFollower: Bool,
-        watchBackgrounded: Bool = false
+        sessionId: UUID?
     ) -> [ScoreboardMenuItem] {
         guard entryEnabled, sessionId != nil else { return [] }
-        var items: [ScoreboardMenuItem] = []
-        if isFollower {
-            if watchBackgrounded {
-                items.append(
-                    ScoreboardMenuItem(
-                        title: NSLocalizedString("linked_watch_backgrounded", value: "⚠️ 手表已进入后台，建议接管计分", comment: ""),
-                        action: "watchBackgroundedHint",
-                        group: .sync,
-                        icon: "exclamationmark.triangle"
-                    )
-                )
-            }
-            items.append(
-                ScoreboardMenuItem(
-                    title: NSLocalizedString("linked_score_resync", value: "同步积分", comment: ""),
-                    action: "resync",
-                    group: .sync,
-                    icon: "arrow.triangle.2.circlepath"
-                )
-            )
-            items.append(
-                ScoreboardMenuItem(
-                    title: NSLocalizedString("linked_score_takeover", value: "接管计分", comment: ""),
-                    action: "takeover",
-                    group: .sync,
-                    icon: "applewatch"
-                )
-            )
-            items.append(
-                ScoreboardMenuItem(
-                    title: NSLocalizedString("linked_score_force_takeover", value: "强制接管", comment: ""),
-                    action: "forceTakeover",
-                    group: .sync,
-                    icon: "exclamationmark.shield"
-                )
-            )
-        }
-        items.append(
+        return [
+            ScoreboardMenuItem(
+                title: NSLocalizedString("linked_score_resync", value: "同步积分", comment: ""),
+                action: "resync",
+                group: .sync,
+                icon: "arrow.triangle.2.circlepath"
+            ),
             ScoreboardMenuItem(
                 title: NSLocalizedString("linked_score_end", value: "结束联动", comment: ""),
                 action: "endLink",
                 group: .sync,
                 icon: "xmark.circle"
             )
-        )
-        return items
+        ]
     }
 }
 

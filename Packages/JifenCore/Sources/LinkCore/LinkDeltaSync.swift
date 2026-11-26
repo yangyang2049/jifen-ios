@@ -62,7 +62,6 @@ public struct LinkDeltaActionTracker: Equatable, Sendable {
               carriesHistory(messageId: pending.messageId),
               let frame = try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: pending.data),
               frame.kind == .stateSnapshot, frame.handle == ack.handle,
-              frame.authorityEpoch == ack.authorityEpoch,
               frame.sessionRevision == ack.payload.acknowledgedRevision else { return nil }
         return frame
     }
@@ -91,7 +90,6 @@ public struct LinkDeltaActionTracker: Equatable, Sendable {
             sessionId: frame.sessionId,
             matchId: frame.matchId,
             matchGeneration: frame.matchGeneration,
-            authorityEpoch: frame.authorityEpoch,
             kind: .stateSnapshot,
             sender: frame.sender,
             senderSequence: sequence,

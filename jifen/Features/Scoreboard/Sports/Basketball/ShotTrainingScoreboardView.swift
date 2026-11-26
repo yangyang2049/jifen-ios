@@ -124,7 +124,7 @@ struct ShotTrainingScoreboardView: View {
     private var counts: ShotTrainingCounts { .build(from: shots, earlier: earlierCounts) }
 
     private var scoringLocked: Bool {
-        watchSessionId != nil && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
+        watchSessionId != nil && (!watchLinkService.canEditLinkedMatch)
     }
 
     private var linkedSnapshot: LinkedScoreboardSnapshot {
@@ -155,32 +155,10 @@ struct ShotTrainingScoreboardView: View {
                       let id else { return }
                 finalizedRecordID = id
             }
-            .onChange(of: watchLinkService.pendingTakeoverApplication, initial: true) { _, pending in
-                guard let watchSessionId, let pending, pending.sessionId == watchSessionId,
-                      let state = pending.snapshot.basketballTrainingState else { return }
-                applyLinkedState(state)
-                watchLinkService.completePhoneTakeover(messageId: pending.messageId)
-            }
             .onChange(of: watchLinkService.activeSessionId) { _, sessionId in
                 guard let watchSessionId, sessionId != watchSessionId else { return }
                 finalizedRecordID = currentFinishedRecordID
                 self.watchSessionId = nil
-            }
-            .alert(
-                NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
-                isPresented: reclaimAlertPresented
-            ) {
-                Button(NSLocalizedString("linked_score_accept", value: "同意", comment: "")) {
-                    resolveWatchReclaim(accepted: true)
-                }
-                Button(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""), role: .cancel) {
-                    resolveWatchReclaim(accepted: false)
-                }
-            } message: {
-                Text(NSLocalizedString(
-                    "linked_score_watch_reclaim_message",
-                    value: "是否允许手表在 5 秒内重新接管计分？", comment: ""
-                ))
             }
     }
 
@@ -540,9 +518,7 @@ struct ShotTrainingScoreboardView: View {
             : items
         return availableItems + WatchLinkMenuSupport.extraItems(
             entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
-            sessionId: watchSessionId,
-            isFollower: watchLinkService.isFollower,
-            watchBackgrounded: watchLinkService.watchBackgrounded
+            sessionId: watchSessionId
         )
     }
 
@@ -551,19 +527,6 @@ struct ShotTrainingScoreboardView: View {
         switch action {
         case "resync":
             watchLinkService.requestScoreResync()
-        case "takeover", "forceTakeover":
-            guard let watchSessionId else { return }
-            Task {
-                do {
-                    if action == "forceTakeover" {
-                        try await watchLinkService.forceTakeover(sessionId: watchSessionId)
-                    } else {
-                        try await watchLinkService.takeover(sessionId: watchSessionId)
-                    }
-                } catch {
-                    showToastMessage(error.localizedDescription)
-                }
-            }
         case "endLink":
             guard let watchSessionId else { return }
             watchLinkService.leaveSession(watchSessionId)
@@ -899,18 +862,6 @@ struct ShotTrainingScoreboardView: View {
             totalScoreChanges: counts.attempts,
             recordAlreadySaved: true
         )
-    }
-
-    private var reclaimAlertPresented: Binding<Bool> {
-        Binding(
-            get: { watchSessionId != nil && watchLinkService.pendingReclaimRequest?.sessionId == watchSessionId },
-            set: { if !$0 { resolveWatchReclaim(accepted: false) } }
-        )
-    }
-
-    private func resolveWatchReclaim(accepted: Bool) {
-        guard let watchSessionId, watchLinkService.pendingReclaimRequest?.sessionId == watchSessionId else { return }
-        watchLinkService.resolveReclaimRequest(accepted: accepted, snapshot: linkedSnapshot, detailedActions: [])
     }
 
     @discardableResult

@@ -154,6 +154,10 @@ extension PhoneWatchLinkService {
         pushCommonNamesToWatch()
         guard status.isReachable else { return }
         if becameReachable { retryLiveSnapshotOnReconnect() }
+        if needsInitialResend, activeSession != nil, canEditLinkedMatch {
+            needsInitialResend = false
+            sendRestoredDeltaIfNeeded()
+        }
         flushPendingSessionEnds()
         requestStatusForActiveSession()
         requestPendingWatchRecordsFromWatch()

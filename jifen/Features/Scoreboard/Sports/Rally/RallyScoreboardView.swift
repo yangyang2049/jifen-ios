@@ -550,7 +550,7 @@ struct RallyScoreboardView: View {
     private var terminalSetPresentation: RallyTerminalSetPresentation? { terminalHold.value }
     private var linkScoringLocked: Bool {
         watchSessionId != nil
-            && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
+            && !watchLinkService.canEditLinkedMatch
     }
     private var scoringLocked: Bool {
         terminalSetPresentation != nil || linkScoringLocked || officialBreakSession.inputFrozen
@@ -844,7 +844,7 @@ struct RallyScoreboardView: View {
                   let update,
                   update.sessionId == watchSessionId,
                   let rally = update.snapshot.rallyState else { return }
-            if watchLinkService.controlRole == .shared, update.beginsMatch(after: previous) {
+            if update.beginsMatch(after: previous) {
                 let finishedStore = store
                 store = finishedStore.makeFreshMatchStore(initialState: rally)
                 ParticipantIdentityStore.shared.copySelections(
@@ -872,24 +872,6 @@ struct RallyScoreboardView: View {
                     showGameOverDialog = snapshotFinished
                     applyRemoteOfficialBreak(remoteBreak)
                 }
-            }
-        }
-        .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in
-            guard let watchSessionId,
-                  let pending,
-                  pending.sessionId == watchSessionId,
-                  let state = pending.snapshot.rallyState else { return }
-            cancelTerminalSetPresentation()
-            Task {
-                let applied = await store.applyAuthoritativeState(
-                    state,
-                    detailedActions: pending.detailedActions,
-                    revision: pending.revision
-                )
-                if applied {
-                    syncOfficialBreakFromState(state.finished ? nil : state.officialBreakState)
-                }
-                watchLinkService.completePhoneTakeover(messageId: pending.messageId)
             }
         }
         .onChange(of: showMenu) { _, isOpen in
@@ -943,7 +925,7 @@ struct RallyScoreboardView: View {
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
             // Capture before leave — ending the session clears follower role.
             let skipPersist = watchSessionId != nil
-                && (watchLinkService.isFollower || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
+                && (!watchLinkService.canEditLinkedMatch || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
             if let watchSessionId {
                 watchLinkService.detachPage(sessionId: watchSessionId)
             }
@@ -981,38 +963,6 @@ struct RallyScoreboardView: View {
             Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
         } message: {
             Text(badmintonDisqualifyConfirmMessage)
-        }
-        .alert(
-            NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
-            isPresented: Binding(
-                get: { watchLinkService.pendingReclaimRequest != nil },
-                set: { presented in
-                    if !presented, watchLinkService.pendingReclaimRequest != nil {
-                        watchLinkService.resolveReclaimRequest(
-                            accepted: false,
-                            snapshot: nil,
-                            detailedActions: []
-                        )
-                    }
-                }
-            )
-        ) {
-            Button(NSLocalizedString("linked_score_accept", value: "同意", comment: "")) {
-                watchLinkService.resolveReclaimRequest(
-                    accepted: true,
-                    snapshot: .rally(store.state),
-                    detailedActions: store.actionTimeline
-                )
-            }
-            Button(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""), role: .cancel) {
-                watchLinkService.resolveReclaimRequest(
-                    accepted: false,
-                    snapshot: nil,
-                    detailedActions: []
-                )
-            }
-        } message: {
-            Text(NSLocalizedString("linked_score_watch_reclaim_message", value: "是否允许手表在 5 秒内重新接管计分？", comment: ""))
         }
     }
 
@@ -2007,9 +1957,7 @@ struct RallyScoreboardView: View {
         var extras: [ScoreboardMenuItem] = []
         extras.append(contentsOf: WatchLinkMenuSupport.extraItems(
             entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
-            sessionId: watchSessionId,
-            isFollower: watchLinkService.isFollower,
-            watchBackgrounded: watchLinkService.watchBackgrounded
+            sessionId: watchSessionId
         ))
         if VoiceAnnouncementSupport.isSupported(gameType) {
             extras.append(
@@ -2162,31 +2110,6 @@ struct RallyScoreboardView: View {
             ))
         case "resync":
             watchLinkService.requestScoreResync()
-            showMenu = false
-        case "takeover":
-            Task {
-                if let id = watchSessionId {
-                    if let update = watchLinkService.latestRemoteSnapshot,
-                       update.sessionId == id,
-                       let state = update.snapshot.rallyState {
-                        _ = await store.applyAuthoritativeState(
-                            state,
-                            detailedActions: update.detailedActions,
-                            revision: update.revision
-                        )
-                    }
-                    do {
-                        try await watchLinkService.takeover(sessionId: id)
-                    } catch {
-                        showToast(error.localizedDescription)
-                    }
-                }
-                showMenu = false
-            }
-        case "forceTakeover":
-            if let id = watchSessionId {
-                watchLinkService.requestForceTakeoverConfirmation(id)
-            }
             showMenu = false
         case "endLink":
             if let id = watchSessionId {

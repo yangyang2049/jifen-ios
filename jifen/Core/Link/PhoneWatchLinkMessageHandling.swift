@@ -21,12 +21,8 @@ extension PhoneWatchLinkService {
         case .setupAccepted, .setupRejected: _ = handleSetupResponse(data)
         case .acknowledgement, .recordAcknowledgement: _ = handleAck(data)
         case .stateSnapshot: _ = handleSnapshotFromWatch(data)
-        case .takeoverByPhone, .reclaimRequest, .reclaimAccepted, .reclaimDenied:
-            _ = handleTakeoverRelated(data)
         case .matchFinished: _ = handleMatchFinishedFromWatch(data)
         case .scoreboardExitedToHome: _ = handleScoreboardExitedToHome(data)
-        case .watchBackgrounded: _ = handleWatchBackgrounded(data)
-        case .resumeDiscarded: _ = handleResumeDiscarded(data)
         case .sessionLeft: _ = handleSessionLeft(data)
         case .statusQuery, .statusResponse: _ = handleStatus(data)
         case .setupRequest, .matchStarted, .resyncRequest, .connectivityProbeResponse:
@@ -77,8 +73,7 @@ extension PhoneWatchLinkService {
            accepted.kind == .setupAccepted,
            accepted.sender == .watch,
            accepted.handle == activeSession?.handle,
-           accepted.correlationId == pendingSetupMessageId,
-           accepted.authorityEpoch == activeSession?.authorityEpoch {
+           accepted.correlationId == pendingSetupMessageId {
             setupTimeoutTask?.cancel()
             setupTimeoutTask = nil
             guard (LinkProtocol.minimumSupportedVersion...LinkProtocol.currentVersion).contains(accepted.protocolVersion),
@@ -97,7 +92,7 @@ extension PhoneWatchLinkService {
                var machine = sessionMachine,
                machine.resolveSetup(
                    correlationId: correlationId,
-                   acceptedRole: accepted.supportsSharedEditing == true ? .shared : .phoneFollower
+                   accepted: true
                ) {
                 sessionMachine = machine
                 synchronizeActiveSessionFromStateMachine()
@@ -130,7 +125,7 @@ extension PhoneWatchLinkService {
                var machine = sessionMachine {
                 _ = machine.resolveSetup(
                     correlationId: correlationId,
-                    acceptedRole: nil
+                    accepted: false
                 )
                 sessionMachine = machine
             }
@@ -179,6 +174,7 @@ extension PhoneWatchLinkService {
         let terminalCandidate = terminalOutbox.items.first {
             $0.messageId == acknowledgedMessageId
         }
+        let previousOutbox = terminalOutbox
         let terminalItem: LinkDurableOutbox.Item?
         if let terminalCandidate,
            envelope.kind == .recordAcknowledgement,
@@ -188,57 +184,13 @@ extension PhoneWatchLinkService {
             terminalItem = nil
         }
         if terminalItem != nil {
-            persistTerminalOutbox()
+            guard persistTerminalOutbox() else {
+                terminalOutbox = previousOutbox
+                rescheduleRetryIfNeeded()
+                return true
+            }
             persistContext()
             flushPendingSessionEnds()
-        }
-        if acknowledgedMessageId == pendingTakeoverMessageId,
-           let session = activeSession,
-           session.handle == envelope.handle,
-           var machine = sessionMachine,
-           machine.prepareAuthorityTransfer(
-               correlationId: acknowledgedMessageId,
-               epoch: envelope.authorityEpoch
-           ) {
-            pendingTakeoverMessageId = nil
-            _ = machine.accept(
-                handle: envelope.handle,
-                authorityEpoch: envelope.authorityEpoch,
-                revision: envelope.payload.acknowledgedRevision
-            )
-            if let snapshot = envelope.payload.authoritativeSnapshot {
-                mergeDetailedActions(envelope.payload.detailedActions)
-                pendingTakeoverApplication = .init(
-                    messageId: acknowledgedMessageId,
-                    sessionId: envelope.sessionId,
-                    revision: envelope.payload.acknowledgedRevision,
-                    snapshot: snapshot,
-                    detailedActions: mergedDetailedActions
-                )
-                latestRemoteSnapshot = .init(
-                    sessionId: envelope.sessionId,
-                    revision: envelope.payload.acknowledgedRevision,
-                    matchGeneration: session.handle.matchGeneration,
-                    snapshot: snapshot,
-                    detailedActions: mergedDetailedActions
-                )
-            }
-            _ = machine.commitAuthorityTransfer(correlationId: acknowledgedMessageId)
-            sessionMachine = machine
-            synchronizeActiveSessionFromStateMachine()
-            persistContext()
-        }
-        if acknowledgedMessageId == pendingReclaimGrantMessageId,
-           activeSession?.handle == envelope.handle,
-           var machine = sessionMachine,
-           envelope.authorityEpoch == machine.authorityEpoch,
-           machine.commitAuthorityTransfer(
-               correlationId: acknowledgedMessageId
-           ) {
-            pendingReclaimGrantMessageId = nil
-            sessionMachine = machine
-            synchronizeActiveSessionFromStateMachine()
-            persistContext()
         }
         if let acknowledgedSnapshot {
             sendRemainingActions(after: acknowledgedSnapshot)
@@ -260,31 +212,23 @@ extension PhoneWatchLinkService {
             return false
         }
 
-        let shared = machine.role == .shared
-        if shared {
-            guard envelope.authorityEpoch == machine.authorityEpoch,
-                  LinkSharedRevision.writer(of: envelope.sessionRevision) == .watch else { return false }
-        }
-        if machine.completedMatchIds.contains(envelope.matchId), shared || !snapshot.isFinished {
+        guard LinkSharedRevision.writer(of: envelope.sessionRevision) == .watch else { return false }
+        if machine.completedMatchIds.contains(envelope.matchId) {
             sendAck(
                 sessionId: envelope.sessionId, messageId: envelope.messageId,
-                revision: envelope.sessionRevision, handle: envelope.handle,
-                authorityEpoch: envelope.authorityEpoch
+                revision: envelope.sessionRevision, handle: envelope.handle
             )
             return true
         }
         let previousHandle = machine.handle
         let validation = machine.accept(
             handle: envelope.handle,
-            authorityEpoch: envelope.authorityEpoch,
             revision: envelope.sessionRevision
         )
         guard validation == .current || validation == .duplicateOrOlder else {
             return false
         }
-        if shared, sharedEditTracker.shouldShowNotice(
-            for: envelope, now: nowMs()
-        ) {
+        if sharedEditTracker.shouldShowNotice(for: envelope, now: nowMs()) {
             simultaneousEditNotice = UUID()
         }
         let beganNewMatch = machine.handle != previousHandle
@@ -306,7 +250,6 @@ extension PhoneWatchLinkService {
             finishedRecordId = nil
             mergedDetailedActions = []
             latestRemoteSnapshot = nil
-            watchBackgrounded = false
             _ = revisionGate.beginMatch(
                 envelope.handle,
                 initialRevision: envelope.sessionRevision
@@ -320,7 +263,7 @@ extension PhoneWatchLinkService {
 
         // Application context can arrive ahead of the realtime copy with the
         // same revision. The realtime copy can still supply the action history.
-        let history = envelope.payload.carriesHistory && envelope.authorityEpoch == machine.authorityEpoch
+        let history = envelope.payload.carriesHistory
         if validation == .current, var session = activeSession {
             actionHistory.noteRemoteRemovals(envelope.payload.removedActionIDs ?? [])
             mergeDetailedActions(envelope.payload.detailedActions)
@@ -335,8 +278,6 @@ extension PhoneWatchLinkService {
                 snapshot: snapshot,
                 detailedActions: mergedDetailedActions
             )
-            // Watch resumed scoring — clear the background-interruption flag.
-            watchBackgrounded = false
             persistContext()
         } else if history {
             // A checkpoint or newer edit can arrive first. Incorporate
@@ -350,7 +291,7 @@ extension PhoneWatchLinkService {
             latestRemoteSnapshot?.detailedActions = mergedDetailedActions
             persistContext()
         }
-        if !shared, validation == .duplicateOrOlder, snapshot.isFinished {
+        if validation == .duplicateOrOlder, snapshot.isFinished {
             // Mirror HarmonyOS: a finished snapshot is authoritative for the
             // finish dialog even when its revision is older than the machine's —
             // the match-finished envelope may have been accepted first, leaving
@@ -371,63 +312,9 @@ extension PhoneWatchLinkService {
             sessionId: envelope.sessionId,
             messageId: envelope.messageId,
             revision: envelope.sessionRevision,
-            handle: envelope.handle,
-            authorityEpoch: envelope.authorityEpoch
+            handle: envelope.handle
         )
         return true
-    }
-
-    private func handleTakeoverRelated(_ data: Data) -> Bool {
-        guard let envelope = try? JSONDecoder().decode(LinkEnvelope<LinkAuthorityTransferPayload>.self, from: data),
-              envelope.sender == .watch,
-              envelope.handle == activeSession?.handle,
-              envelope.authorityEpoch >= activeSession?.authorityEpoch ?? 0 else { return false }
-        switch envelope.kind {
-        case .reclaimRequest:
-            guard activeSession?.role == .phoneController else {
-                sequence += 1
-                let denied = LinkEnvelope(
-                    correlationId: envelope.messageId,
-                    sessionId: envelope.sessionId,
-                    matchId: envelope.matchId,
-                    matchGeneration: envelope.matchGeneration,
-                    authorityEpoch: activeSession?.authorityEpoch
-                        ?? envelope.authorityEpoch,
-                    kind: .reclaimDenied,
-                    sender: .phone,
-                    senderSequence: sequence,
-                    sessionRevision: activeSession?.revision ?? envelope.sessionRevision,
-                    sentAtEpochMilliseconds: nowMs(),
-                    payload: LinkAuthorityTransferPayload(
-                        baseRevision: activeSession?.revision ?? envelope.sessionRevision
-                    )
-                )
-                sendReportingError(denied)
-                return true
-            }
-            pendingReclaimRequest = .init(
-                messageId: envelope.messageId,
-                sessionId: envelope.sessionId,
-                revision: envelope.sessionRevision
-            )
-            reclaimTimeoutTask?.cancel()
-            reclaimTimeoutTask = Task { [weak self] in
-                try? await Task.sleep(for: .seconds(5))
-                guard !Task.isCancelled else { return }
-                await MainActor.run {
-                    self?.resolveReclaimRequest(
-                        accepted: false,
-                        snapshot: nil,
-                        detailedActions: []
-                    )
-                }
-            }
-            return true
-        case .reclaimAccepted, .reclaimDenied:
-            return true
-        default:
-            return false
-        }
     }
 
     func handleMatchFinishedFromWatch(_ data: Data) -> Bool {
@@ -438,7 +325,7 @@ extension PhoneWatchLinkService {
         let liveSession = activeRecordSession
         let isActiveSession = liveSession?.handle.sessionId == envelope.sessionId
         let session = isActiveSession ? liveSession : retiredRecordSessions[envelope.sessionId]
-        guard let session, session.accepts(handle: envelope.handle, authorityEpoch: envelope.authorityEpoch),
+        guard let session, session.accepts(handle: envelope.handle),
               envelope.payload.snapshot.matches(gameType: session.gameType) else { return false }
 
         if !session.completedMatchIds.contains(envelope.matchId) {
@@ -447,7 +334,7 @@ extension PhoneWatchLinkService {
             var machine = sessionMachine
             if isCurrentMatch || beginsNewMatch {
                 let validation = machine?.accept(
-                    handle: envelope.handle, authorityEpoch: envelope.authorityEpoch,
+                    handle: envelope.handle,
                     revision: envelope.sessionRevision
                 )
                 guard validation == .current || validation == .duplicateOrOlder else { return false }
@@ -480,7 +367,6 @@ extension PhoneWatchLinkService {
                     }
                     mergedDetailedActions = payload.detailedActions
                     finishedRecordId = recordID
-                    watchBackgrounded = false
                     latestRemoteSnapshot = .init(
                         sessionId: envelope.sessionId,
                         revision: envelope.sessionRevision,
@@ -504,7 +390,6 @@ extension PhoneWatchLinkService {
             messageId: envelope.messageId,
             revision: envelope.sessionRevision,
             handle: envelope.handle,
-            authorityEpoch: envelope.authorityEpoch,
             recordAck: true
         )
         return true
@@ -515,10 +400,9 @@ extension PhoneWatchLinkService {
               envelope.sender == .watch,
               envelope.kind == .sessionLeft else { return false }
         guard envelope.handle == activeSession?.handle else {
-            retiredRecordSessions.removeConfirmedSession(handle: envelope.handle, authorityEpoch: envelope.authorityEpoch)
+            retiredRecordSessions.removeConfirmedSession(handle: envelope.handle)
             return false
         }
-        guard envelope.authorityEpoch >= (activeSession?.authorityEpoch ?? 0) else { return false }
         let pendingCount = pendingSessionEnds.count
         pendingSessionEnds.removeAll { $0.handle.sessionId == envelope.sessionId }
         if pendingSessionEnds.count != pendingCount {
@@ -526,7 +410,7 @@ extension PhoneWatchLinkService {
             rescheduleRetryIfNeeded()
         }
         clearSession()
-        retiredRecordSessions.removeConfirmedSession(handle: envelope.handle, authorityEpoch: envelope.authorityEpoch)
+        retiredRecordSessions.removeConfirmedSession(handle: envelope.handle)
         return true
     }
 
@@ -540,38 +424,6 @@ extension PhoneWatchLinkService {
         return true
     }
 
-    private func handleWatchBackgrounded(_ data: Data) -> Bool {
-        guard let envelope = try? JSONDecoder().decode(LinkEnvelope<EmptyLinkPayload>.self, from: data),
-              envelope.sender == .watch,
-              envelope.kind == .watchBackgrounded,
-              envelope.sessionId == activeSession?.sessionId else { return false }
-        if controlRole != .shared { watchBackgrounded = true }
-        persistContext()
-        return true
-    }
-
-    private func handleResumeDiscarded(_ data: Data) -> Bool {
-        guard let envelope = try? JSONDecoder().decode(LinkEnvelope<LinkResumeDiscardPayload>.self, from: data),
-              envelope.sender == .watch,
-              envelope.kind == .resumeDiscarded,
-              envelope.sessionId == activeSession?.sessionId else { return false }
-        if var machine = sessionMachine, machine.role != .shared {
-            _ = machine.accept(
-                handle: envelope.handle,
-                authorityEpoch: envelope.authorityEpoch,
-                revision: envelope.sessionRevision
-            )
-            _ = machine.adoptAuthority(
-                role: .phoneController,
-                epoch: envelope.authorityEpoch
-            )
-            sessionMachine = machine
-            synchronizeActiveSessionFromStateMachine()
-        }
-        persistContext()
-        return true
-    }
-
     private func handleStatus(_ data: Data) -> Bool {
         guard let envelope = try? JSONDecoder().decode(LinkEnvelope<LinkStatusPayload>.self, from: data),
               envelope.sender == .watch,
@@ -579,34 +431,10 @@ extension PhoneWatchLinkService {
               envelope.correlationId == pendingStatusCorrelationId,
               let session = activeSession,
               envelope.sessionId == session.sessionId,
-              envelope.handle == session.handle,
-              envelope.authorityEpoch == session.authorityEpoch else { return false }
+              envelope.handle == session.handle else { return false }
         pendingStatusCorrelationId = nil
         statusTimeoutTask?.cancel()
         statusTimeoutTask = nil
-        if var machine = sessionMachine, machine.role != .shared {
-            _ = machine.accept(
-                handle: envelope.handle,
-                authorityEpoch: envelope.authorityEpoch,
-                revision: envelope.payload.revision
-            )
-            let localRole: LinkControlRole
-            switch envelope.payload.role {
-            case .watchController:
-                localRole = .phoneFollower
-            case .watchFollower:
-                localRole = .phoneController
-            case .phoneController, .phoneFollower, .shared:
-                localRole = machine.role
-            }
-            _ = machine.adoptAuthority(
-                role: localRole,
-                epoch: envelope.authorityEpoch
-            )
-            sessionMachine = machine
-            synchronizeActiveSessionFromStateMachine()
-            persistContext()
-        }
         resumeStatusContinuations(returning: envelope.payload)
         return true
     }

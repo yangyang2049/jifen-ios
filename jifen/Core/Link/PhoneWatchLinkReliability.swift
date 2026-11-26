@@ -57,37 +57,26 @@ extension PhoneWatchLinkService {
         if let existing = activeSession?.sessionId {
             leaveSession(existing)
         }
-        pendingTakeoverMessageId = nil
-        pendingReclaimGrantMessageId = nil
-        pendingReclaimRequest = nil
-        pendingTakeoverApplication = nil
-        forceTakeoverConfirmationSessionId = nil
         pendingStatusCorrelationId = nil
         statusTimeoutTask?.cancel()
         statusTimeoutTask = nil
         resumeStatusContinuations(throwing: CancellationError())
-        reclaimTimeoutTask?.cancel()
-        reclaimTimeoutTask = nil
         pendingAck.clear()
         peerSupportsCompressedFinish = false
         negotiatedPeerCapabilities = []
         actionHistory = LinkSnapshotHistory()
         deltaActionTracker.reset()
         mergedDetailedActions = []
-        watchBackgrounded = false
         activeSession = ActiveSession(
             handle: LinkedMatchHandle(sessionId: sessionId),
             gameType: gameType,
             revision: 0,
-            role: .phoneFollower,
-            authorityEpoch: 0,
             setup: setup,
             completedMatchIds: []
         )
         if let session = activeSession {
             installStateMachine(from: session, lifecycle: .starting)
         }
-        controlRole = .phoneFollower
         latestRemoteSnapshot = nil
         finishedRecordId = nil
         publishedFinishedMatchIds.removeAll()
@@ -99,11 +88,9 @@ extension PhoneWatchLinkService {
         sequence += 1
         let envelope = LinkEnvelope(
             supportsCompressedFinish: true,
-            supportsSharedEditing: true,
             sessionId: sessionId,
             matchId: activeSession?.handle.matchId,
             matchGeneration: activeSession?.handle.matchGeneration ?? 1,
-            authorityEpoch: 0,
             kind: .setupRequest,
             sender: .phone,
             senderSequence: sequence,
@@ -173,11 +160,10 @@ extension PhoneWatchLinkService {
               !peerFinishedSharedMatch,
               !currentSession.completedMatchIds.contains(currentSession.handle.matchId),
               var machine = sessionMachine else { return }
-        let shared = machine.role == .shared
         let baseRevision = machine.revision
         let priorActions = mergedDetailedActions
         let removedActions = applyLocalHistory(detailedActions)
-        if shared, !removedActions, priorActions == mergedDetailedActions,
+        if !removedActions, priorActions == mergedDetailedActions,
            baseRevision != 0 || currentSession.handle.matchGeneration == 1,
            snapshot == (latestRemoteSnapshot?.snapshot ?? currentSession.setup.initialSnapshot),
            participantNames == nil || participantNames == currentSession.setup.participantNames {
@@ -206,12 +192,11 @@ extension PhoneWatchLinkService {
         sequence += 1
         let messageId = UUID()
         let envelope = LinkEnvelope(
-            baseSnapshotRevision: shared ? baseRevision : nil,
+            baseSnapshotRevision: baseRevision,
             messageId: messageId,
             sessionId: sessionId,
             matchId: session.handle.matchId,
             matchGeneration: session.handle.matchGeneration,
-            authorityEpoch: session.authorityEpoch,
             kind: .stateSnapshot,
             sender: .phone,
             senderSequence: sequence,
@@ -225,17 +210,15 @@ extension PhoneWatchLinkService {
                 fullActions: mergedDetailedActions
             )
         )
-        if shared {
-            sharedEditTracker.recordLocalEdit(
-                handle: envelope.handle, revision: envelope.sessionRevision,
-                baseRevision: baseRevision, sentAt: envelope.sentAtEpochMilliseconds
-            )
-        }
+        sharedEditTracker.recordLocalEdit(
+            handle: envelope.handle, revision: envelope.sessionRevision,
+            baseRevision: baseRevision, sentAt: envelope.sentAtEpochMilliseconds
+        )
         Task {
             guard let current = activeSession, current.handle == envelope.handle,
                   canEditLinkedMatch else { return }
             let isLatest = current.revision == envelope.sessionRevision
-            let supersededByWatch = shared && LinkSharedRevision.writer(of: current.revision) == .watch
+            let supersededByWatch = LinkSharedRevision.writer(of: current.revision) == .watch
             guard isLatest || supersededByWatch else { return }
             let frame = LinkEnvelopeEncoding.snapshotFrame(envelope)
             if !isLatest {
@@ -268,7 +251,6 @@ extension PhoneWatchLinkService {
         messageId: UUID,
         revision: UInt64,
         handle: LinkedMatchHandle? = nil,
-        authorityEpoch: UInt64? = nil,
         recordAck: Bool = false
     ) {
         let resolvedHandle = handle
@@ -280,9 +262,6 @@ extension PhoneWatchLinkService {
             sessionId: sessionId,
             matchId: resolvedHandle.matchId,
             matchGeneration: resolvedHandle.matchGeneration,
-            authorityEpoch: authorityEpoch
-                ?? activeSession?.authorityEpoch
-                ?? 0,
             kind: recordAck ? .recordAcknowledgement : .acknowledgement,
             sender: .phone,
             senderSequence: sequence,
@@ -400,8 +379,7 @@ extension PhoneWatchLinkService {
     func sendRemainingActions(after frame: LinkEnvelope<LinkedScoreboardSetup>) {
         guard pendingAck.pending == nil, peerSupportsDeltaActions, canEditLinkedMatch,
               let machine = sessionMachine, machine.lifecycle == .active,
-              machine.handle == frame.handle, machine.authorityEpoch == frame.authorityEpoch,
-              machine.role == .shared || machine.revision == frame.sessionRevision,
+              machine.handle == frame.handle,
               let next = deltaActionTracker.continuation(
                 of: frame, actions: mergedDetailedActions, removedActionIDs: actionHistory.removedActionIDs,
                 sequence: sequence + 1, now: nowMs()
@@ -416,6 +394,51 @@ extension PhoneWatchLinkService {
                 try? await transport.sendRealtime(wire.data)
             }
         }
+    }
+
+    /// 恢复上下文后没有内存 pendingAck：用同一 handle 的已持久化动作/删除
+    /// 重建一帧待发增量（仅历史，不改比分）。
+    func sendRestoredDeltaIfNeeded() {
+        guard let session = activeSession, sessionMachine?.lifecycle == .active,
+              !mergedDetailedActions.isEmpty || !actionHistory.removedActionIDs.isEmpty else { return }
+        guard let frame = restoredDeltaFrame(for: session) else { return }
+        let wire = LinkEnvelopeEncoding.snapshotFrame(frame)
+        guard wire.carriesHistory else { return }
+        enqueueLiveSnapshot(frame, frame: wire)
+        guard transport.isReachable else { return }
+        Task {
+            guard pendingAck.pending?.messageId == frame.messageId else { return }
+            try? await transport.sendRealtime(wire.data)
+        }
+    }
+
+    private func restoredDeltaFrame(
+        for session: ActiveSession
+    ) -> LinkEnvelope<LinkedScoreboardSetup>? {
+        guard let setup = session.setup.initialSnapshot else { return nil }
+        let removals = deltaActionTracker.pendingRemovalIDs(actionHistory.removedActionIDs)
+        let payload = LinkedScoreboardSetup(
+            gameType: session.gameType,
+            maxSets: maxSets(for: setup),
+            initialSnapshot: setup,
+            detailedActions: mergedDetailedActions,
+            participantNames: session.setup.participantNames,
+            isDeltaActions: removals.isEmpty,
+            removedActionIDs: removals.isEmpty ? nil : removals
+        )
+        sequence += 1
+        return LinkEnvelope(
+            messageId: UUID(),
+            sessionId: session.sessionId,
+            matchId: session.handle.matchId,
+            matchGeneration: session.handle.matchGeneration,
+            kind: .stateSnapshot,
+            sender: .phone,
+            senderSequence: sequence,
+            sessionRevision: session.revision,
+            sentAtEpochMilliseconds: nowMs(),
+            payload: payload
+        )
     }
 
     func retryLiveSnapshotOnReconnect() {
@@ -477,8 +500,6 @@ extension PhoneWatchLinkService {
         let pendingMessageId = pendingAck.pending?.messageId
         let tracksHistory = peerSupportsDeltaActions
             && (pendingMessageId.map { deltaActionTracker.carriesHistory(messageId: $0) } ?? false)
-        let authorityTransferPending = pendingMessageId == pendingTakeoverMessageId
-            || pendingMessageId == pendingReclaimGrantMessageId
         if !tracksHistory || transport.isReachable,
            let data = pendingAck.retryIfDue(
                nowEpochMilliseconds: nowMs(),
@@ -500,34 +521,25 @@ extension PhoneWatchLinkService {
                   pendingAck.pending == nil {
             if var machine = sessionMachine {
                 _ = machine.acknowledge(messageId: pendingMessageId)
-                if authorityTransferPending {
-                    _ = machine.rejectAuthorityTransfer(
-                        correlationId: pendingMessageId
-                    )
-                }
                 sessionMachine = machine
                 synchronizeActiveSessionFromStateMachine()
             }
-            if pendingTakeoverMessageId == pendingMessageId {
-                pendingTakeoverMessageId = nil
-            }
-            if pendingReclaimGrantMessageId == pendingMessageId {
-                pendingReclaimGrantMessageId = nil
-            }
-            lastErrorMessage = authorityTransferPending
-                ? InteractiveStartError.authorityTransferTimedOut.localizedDescription
-                : NSLocalizedString(
-                    "linked_score_sync_timeout",
-                    value: "比分同步超时，将在重新连接后继续同步。",
-                    comment: ""
-                )
+            lastErrorMessage = NSLocalizedString(
+                "linked_score_sync_timeout",
+                value: "比分同步超时，将在重新连接后继续同步。",
+                comment: ""
+            )
             persistContext()
         }
         let dueTerminalItems = terminalOutbox.retryDueItems(
             nowEpochMilliseconds: nowMs()
         )
         if !dueTerminalItems.isEmpty {
-            persistTerminalOutbox()
+            // 先确认 outbox 已落盘再投影/发送；落盘失败保留待发，下一轮重试。
+            guard persistTerminalOutbox() else {
+                rescheduleRetryIfNeeded()
+                return
+            }
             for item in dueTerminalItems {
                 let frame = item.data
                 let override = item.peerSupportsFileTransfer
@@ -547,13 +559,13 @@ extension PhoneWatchLinkService {
     /// finish marking and ACK clearing gate on this.
     @discardableResult
     func persistTerminalOutbox() -> Bool {
-        guard !terminalOutbox.isEmpty else {
-            outboxStore.removeObject(forKey: terminalOutboxKey)
-            return true
-        }
         do {
-            let data = try JSONEncoder().encode(terminalOutbox)
-            try outboxStore.setOrThrow(data, forKey: terminalOutboxKey)
+            if terminalOutbox.isEmpty {
+                try outboxStore.removeOrThrow(forKey: terminalOutboxKey)
+            } else {
+                let data = try JSONEncoder().encode(terminalOutbox)
+                try outboxStore.setOrThrow(data, forKey: terminalOutboxKey)
+            }
             return true
         } catch {
             reportPersistenceError(error)
@@ -561,20 +573,24 @@ extension PhoneWatchLinkService {
         }
     }
 
-    func persistPendingSessionEnds() {
-        guard !pendingSessionEnds.isEmpty else {
-            outboxStore.removeObject(forKey: pendingSessionEndsKey)
-            return
-        }
+    @discardableResult
+    func persistPendingSessionEnds() -> Bool {
         do {
-            let data = try JSONEncoder().encode(pendingSessionEnds)
-            outboxStore.set(data, forKey: pendingSessionEndsKey)
+            if pendingSessionEnds.isEmpty {
+                try outboxStore.removeOrThrow(forKey: pendingSessionEndsKey)
+            } else {
+                let data = try JSONEncoder().encode(pendingSessionEnds)
+                try outboxStore.setOrThrow(data, forKey: pendingSessionEndsKey)
+            }
+            return true
         } catch {
             reportPersistenceError(error)
+            return false
         }
     }
 
     func flushPendingSessionEnds() {
+        guard !pendingSessionEnds.isEmpty, persistPendingSessionEnds() else { return }
         for request in pendingSessionEnds {
             let sessionId = request.handle.sessionId
             guard !pendingSessionEndInFlight.contains(sessionId),
@@ -589,7 +605,6 @@ extension PhoneWatchLinkService {
                 sessionId: sessionId,
                 matchId: request.handle.matchId,
                 matchGeneration: request.handle.matchGeneration,
-                authorityEpoch: request.authorityEpoch,
                 kind: .sessionLeft,
                 sender: .phone,
                 senderSequence: sequence,
@@ -604,10 +619,15 @@ extension PhoneWatchLinkService {
                 }
                 do {
                     try await sendEnvelope(envelope)
-                    pendingSessionEnds.removeAll { $0 == request }
-                    persistPendingSessionEnds()
                     if activeSession?.handle == request.handle {
+                        // Retire the durable resume pointer before dropping the queued end.
+                        try contextStore.removeOrThrow(forKey: contextKey)
                         clearSession()
+                    }
+                    let previousRequests = pendingSessionEnds
+                    pendingSessionEnds.removeAll { $0 == request }
+                    if !persistPendingSessionEnds() {
+                        pendingSessionEnds = previousRequests
                     }
                 } catch {
                     // 会话结束消息的后台重发失败（如手表暂不可达）不弹窗，
@@ -631,8 +651,6 @@ extension PhoneWatchLinkService {
         let context = PhoneLinkResumeContext(
             handle: session.handle,
             setup: storedSetup,
-            role: session.role,
-            authorityEpoch: session.authorityEpoch,
             revision: session.revision,
             latestAuthoritativeSnapshot: latestRemoteSnapshot?.snapshot
                 ?? session.setup.initialSnapshot,
@@ -672,14 +690,17 @@ extension PhoneWatchLinkService {
             contextStore.removeObject(forKey: contextKey)
             return
         }
+        // 本地已登记「结束联动」的 handle 不再恢复：否则重启会把它当成活跃联动复活。
+        guard !pendingSessionEnds.contains(where: { $0.handle == context.handle }) else {
+            contextStore.removeObject(forKey: contextKey)
+            return
+        }
         var restoredSetup = context.setup
         restoredSetup.detailedActions = context.detailedActions
         activeSession = ActiveSession(
             handle: context.handle,
             gameType: context.setup.gameType,
             revision: context.revision,
-            role: context.role,
-            authorityEpoch: context.authorityEpoch,
             setup: restoredSetup,
             completedMatchIds: context.completedMatchIds
         )
@@ -709,5 +730,9 @@ extension PhoneWatchLinkService {
             context.handle,
             initialRevision: context.revision
         )
+        // 进程重启后 pendingAck 为空，但上下文里的动作/删除仍未送达：
+        // 同一 handle 下重建待发内容，重连时补发而不是静默丢弃。
+        needsInitialResend = !context.detailedActions.isEmpty
+            || !(context.actionHistory?.removedActionIDs.isEmpty ?? true)
     }
 }

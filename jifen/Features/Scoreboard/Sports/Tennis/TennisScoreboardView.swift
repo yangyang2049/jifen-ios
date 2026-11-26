@@ -172,7 +172,7 @@ struct TennisScoreboardView: View {
 
     private var linkScoringLocked: Bool {
         watchSessionId != nil
-            && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
+            && !watchLinkService.canEditLinkedMatch
     }
     private var terminalGamePresentation: TennisTerminalGamePresentation? { terminalHold.value }
     private var scoringLocked: Bool {
@@ -483,7 +483,7 @@ struct TennisScoreboardView: View {
                   let update,
                   update.sessionId == watchSessionId,
                   let tennis = update.snapshot.tennisState else { return }
-            if watchLinkService.controlRole == .shared, update.beginsMatch(after: previous) {
+            if update.beginsMatch(after: previous) {
                 let finishedStore = store
                 store = finishedStore.makeFreshMatchStore(initialState: tennis)
                 ParticipantIdentityStore.shared.copySelections(
@@ -510,25 +510,6 @@ struct TennisScoreboardView: View {
                     showGameOverDialog = snapshotFinished
                     applyRemoteOfficialBreak(remoteBreak)
                 }
-            }
-        }
-        .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in
-            guard let watchSessionId,
-                  let pending,
-                  pending.sessionId == watchSessionId,
-                  let state = pending.snapshot.tennisState else { return }
-            cancelTerminalGamePresentation()
-            Task {
-                let applied = await store.applyAuthoritativeState(
-                    state,
-                    detailedActions: pending.detailedActions,
-                    revision: pending.revision
-                )
-                if applied {
-                    if state.finished { showGameOverDialog = true }
-                    syncOfficialBreakFromState(state.finished ? nil : state.officialBreakState)
-                }
-                watchLinkService.completePhoneTakeover(messageId: pending.messageId)
             }
         }
         .onChange(of: showMenu) { _, isOpen in
@@ -558,38 +539,6 @@ struct TennisScoreboardView: View {
             typographySession: typographySession,
             onEditingChange: { _ in updateImmersiveForBlocking() }
         )
-        .alert(
-            NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
-            isPresented: Binding(
-                get: { watchLinkService.pendingReclaimRequest != nil },
-                set: { presented in
-                    if !presented, watchLinkService.pendingReclaimRequest != nil {
-                        watchLinkService.resolveReclaimRequest(
-                            accepted: false,
-                            snapshot: nil,
-                            detailedActions: []
-                        )
-                    }
-                }
-            )
-        ) {
-            Button(NSLocalizedString("linked_score_accept", value: "同意", comment: "")) {
-                watchLinkService.resolveReclaimRequest(
-                    accepted: true,
-                    snapshot: .tennis(store.state),
-                    detailedActions: store.actionTimeline
-                )
-            }
-            Button(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""), role: .cancel) {
-                watchLinkService.resolveReclaimRequest(
-                    accepted: false,
-                    snapshot: nil,
-                    detailedActions: []
-                )
-            }
-        } message: {
-            Text(NSLocalizedString("linked_score_watch_reclaim_message", value: "是否允许手表在 5 秒内重新接管计分？", comment: ""))
-        }
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: (watchSessionId == nil ? nil : watchLinkService.finishedRecordId) ?? store.sessionId.uuidString)
@@ -619,7 +568,7 @@ struct TennisScoreboardView: View {
                 UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled
             }
             let skipPersist = watchSessionId != nil
-                && (watchLinkService.isFollower || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
+                && (!watchLinkService.canEditLinkedMatch || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
             if let watchSessionId {
                 watchLinkService.detachPage(sessionId: watchSessionId)
             }
@@ -1936,9 +1885,7 @@ struct TennisScoreboardView: View {
         ] : []
         extras.insert(contentsOf: WatchLinkMenuSupport.extraItems(
             entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
-            sessionId: watchSessionId,
-            isFollower: watchLinkService.isFollower,
-            watchBackgrounded: watchLinkService.watchBackgrounded
+            sessionId: watchSessionId
         ), at: 0)
         return ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
@@ -2010,31 +1957,6 @@ struct TennisScoreboardView: View {
             (usageHintCoordinator ?? usageHintCoordinatorOverride)?.presentFromMenu()
         case "resync":
             watchLinkService.requestScoreResync()
-            showMenu = false
-        case "takeover":
-            Task {
-                if let id = watchSessionId {
-                    if let update = watchLinkService.latestRemoteSnapshot,
-                       update.sessionId == id,
-                       let state = update.snapshot.tennisState {
-                        _ = await store.applyAuthoritativeState(
-                            state,
-                            detailedActions: update.detailedActions,
-                            revision: update.revision
-                        )
-                    }
-                    do {
-                        try await watchLinkService.takeover(sessionId: id)
-                    } catch {
-                        showToast(error.localizedDescription)
-                    }
-                }
-                showMenu = false
-            }
-        case "forceTakeover":
-            if let id = watchSessionId {
-                watchLinkService.requestForceTakeoverConfirmation(id)
-            }
             showMenu = false
         case "endLink":
             if let id = watchSessionId {

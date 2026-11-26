@@ -128,7 +128,7 @@ struct NineBallChaseScoreboardView: View {
 
     private var scoringLocked: Bool {
         watchSessionId != nil
-            && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
+            && !watchLinkService.canEditLinkedMatch
     }
 
     private var hasChaseDialog: Bool {
@@ -166,9 +166,7 @@ struct NineBallChaseScoreboardView: View {
                 )
             ] : []) + WatchLinkMenuSupport.extraItems(
                 entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
-                sessionId: watchSessionId,
-                isFollower: watchLinkService.isFollower,
-                watchBackgrounded: watchLinkService.watchBackgrounded
+                sessionId: watchSessionId
             )
         )
     }
@@ -441,23 +439,6 @@ struct NineBallChaseScoreboardView: View {
                     case "resync":
                         watchLinkService.requestScoreResync()
                         showMenu = false
-                    case "takeover":
-                        if let id = watchSessionId {
-                            Task {
-                                do {
-                                    try await watchLinkService.takeover(sessionId: id)
-                                    publishWatchIfNeeded(state)
-                                } catch {
-                                    showNineBallToast(error.localizedDescription)
-                                }
-                            }
-                        }
-                        showMenu = false
-                    case "forceTakeover":
-                        if let id = watchSessionId {
-                            watchLinkService.requestForceTakeoverConfirmation(id)
-                        }
-                        showMenu = false
                     case "nineBallBreaker":
                         showMenu = false
                         showBreakerPicker = true
@@ -583,7 +564,7 @@ struct NineBallChaseScoreboardView: View {
         .onChange(of: watchLinkService.latestRemoteSnapshot) { previous, update in
             guard watchLinkService.incomingSnapshot != nil, let watchSessionId, let update, update.sessionId == watchSessionId,
                   let remote = update.snapshot.nineBallState else { return }
-            if watchLinkService.controlRole == .shared, update.beginsMatch(after: previous) {
+            if update.beginsMatch(after: previous) {
                 let previousRecordID = recordID
                 startedAt = Date()
                 recordID = ScoreboardRecordIdentity.next(prefix: GameType.nineBall.canonicalScoreboardIdentifier)
@@ -595,17 +576,10 @@ struct NineBallChaseScoreboardView: View {
             detailedActions = update.detailedActions
             applyAuthoritativeNineBall(remote)
         }
-        .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in
-            guard let watchSessionId, let pending, pending.sessionId == watchSessionId,
-                  let remote = pending.snapshot.nineBallState else { return }
-            detailedActions = pending.detailedActions
-            applyAuthoritativeNineBall(remote)
-            watchLinkService.completePhoneTakeover(messageId: pending.messageId)
-        }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             let skipSave = watchSessionId != nil
-                && (watchLinkService.isFollower || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
+                && (!watchLinkService.canEditLinkedMatch || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
             if let watchSessionId { watchLinkService.detachPage(sessionId: watchSessionId) }
             if !skipSave {
                 sessionStore.flush {
@@ -628,25 +602,6 @@ struct NineBallChaseScoreboardView: View {
                         }
                     }
             }
-        }
-        .alert(
-            NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
-            isPresented: reclaimAlertPresented
-        ) {
-            Button(NSLocalizedString("linked_score_accept", value: "同意", comment: "")) {
-                var snapshot = state
-                snapshot.playerNames = Array((playerNames + Array(repeating: "", count: 4)).prefix(4))
-                watchLinkService.resolveReclaimRequest(
-                    accepted: true,
-                    snapshot: .nineBall(snapshot),
-                    detailedActions: detailedActions
-                )
-            }
-            Button(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""), role: .cancel) {
-                rejectWatchReclaim()
-            }
-        } message: {
-            Text(NSLocalizedString("linked_score_watch_reclaim_message", value: "是否允许手表在 5 秒内重新接管计分？", comment: ""))
         }
     }
 
@@ -1674,7 +1629,7 @@ struct NineBallChaseScoreboardView: View {
             watchLinkService.leaveSessionIfMatchFinished(id)
         }
         let skipSave = watchSessionId != nil
-            && (watchLinkService.isFollower || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
+            && (!watchLinkService.canEditLinkedMatch || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
         sessionStore.flush {
             if !skipSave { _ = saveRecord() }
             performScoreboardExit(
@@ -1698,21 +1653,6 @@ struct NineBallChaseScoreboardView: View {
             case .requestSnapshot: break
             }
         }
-    }
-
-    private var reclaimAlertPresented: Binding<Bool> {
-        Binding(
-            get: { watchLinkService.pendingReclaimRequest != nil },
-            set: { presented in
-                if !presented, watchLinkService.pendingReclaimRequest != nil {
-                    rejectWatchReclaim()
-                }
-            }
-        )
-    }
-
-    private func rejectWatchReclaim() {
-        watchLinkService.resolveReclaimRequest(accepted: false, snapshot: nil, detailedActions: [])
     }
 
     private func applyAuthoritativeNineBall(_ remote: NineBallChaseState) {
@@ -1979,7 +1919,6 @@ struct NineBallChaseScoreboardView: View {
         return success
     }
 }
-
 
 private extension String {
     var nonEmpty: String? { isEmpty ? nil : self }

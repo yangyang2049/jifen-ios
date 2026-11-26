@@ -8,39 +8,20 @@ import UIKit
 @MainActor
 @Observable
 final class PhoneWatchLinkService {
-    struct ReclaimConfirmationRequest: Equatable {
-        let messageId: UUID
-        let sessionId: UUID
-        let revision: UInt64
-    }
-
-    struct PendingPhoneTakeoverApplication: Equatable {
-        let messageId: UUID
-        let sessionId: UUID
-        let revision: UInt64
-        let snapshot: LinkedScoreboardSnapshot
-        let detailedActions: [DetailedScoreAction]
-    }
-
     struct LinkedResumeDescriptor: Equatable {
         let handle: LinkedMatchHandle
         let gameType: ScoreCore.GameType
         let setup: LinkedScoreboardSetup
-        let role: LinkControlRole
-        let authorityEpoch: UInt64
         let revision: UInt64
         let snapshot: LinkedScoreboardSnapshot
         let detailedActions: [DetailedScoreAction]
         let isReachable: Bool
-        let watchBackgrounded: Bool
     }
 
     struct ActiveSession {
         var handle: LinkedMatchHandle
         let gameType: ScoreCore.GameType
         var revision: UInt64
-        var role: LinkControlRole
-        var authorityEpoch: UInt64
         var setup: LinkedScoreboardSetup
         var completedMatchIds: Set<UUID>
 
@@ -83,8 +64,8 @@ final class PhoneWatchLinkService {
         guard let session = activeSession, sessionMachine?.lifecycle != .starting else { return nil }
         return LinkRecordSession(
             handle: session.handle, gameType: session.gameType,
-            authorityEpoch: session.authorityEpoch, completedMatchIds: session.completedMatchIds,
-            allowsPeerNextMatch: session.role == .phoneFollower || session.role == .shared
+            completedMatchIds: session.completedMatchIds,
+            allowsPeerNextMatch: true
         )
     }
     var setupContinuation: CheckedContinuation<UUID, Error>?
@@ -94,13 +75,13 @@ final class PhoneWatchLinkService {
     var didTrackSetupAnalyticsResult = false
     var ackRetryTask: Task<Void, Never>?
     var revisionGate = LinkRevisionGate()
-    var pendingTakeoverMessageId: UUID?
     var pendingStatusCorrelationId: UUID?
     var statusContinuations: [CheckedContinuation<LinkStatusPayload, Error>] = []
     var statusTimeoutTask: Task<Void, Never>?
-    var pendingReclaimGrantMessageId: UUID?
-    var reclaimTimeoutTask: Task<Void, Never>?
     var mergedDetailedActions: [DetailedScoreAction] = []
+    /// 恢复上下文时本地仍有未送达增量：重连后据此重建待发帧，
+    /// 避免「离线→杀进程→重连」丢掉离线期间的动作与显式删除。
+    var needsInitialResend = false
     var publishedFinishedMatchIds: Set<UUID> = []
     let contextKey = "phone_link_context"
     let terminalOutboxKey = "phone_link_terminal_outbox"
@@ -109,26 +90,15 @@ final class PhoneWatchLinkService {
     var pendingSessionEndInFlight: Set<UUID> = []
 
     internal(set) var connectivityStatus: WatchConnectivityStatus
-    internal(set) var controlRole: LinkControlRole?
     internal(set) var latestRemoteSnapshot: LinkedSnapshotUpdate?
     var sharedEditTracker = LinkSharedEditTracker()
     var simultaneousEditNotice: UUID?
     internal(set) var finishedRecordId: String?
-    internal(set) var watchBackgrounded: Bool = false
     internal(set) var lastErrorMessage: String?
     /// Last watch record id auto-synced into phone records (for toast / UI).
     internal(set) var lastSyncedWatchRecordId: String?
     /// Guards against firing the catch-up pull repeatedly while one is in flight.
     var watchRecordCatchUpInFlight = false
-    internal(set) var pendingReclaimRequest: ReclaimConfirmationRequest?
-    internal(set) var pendingTakeoverApplication: PendingPhoneTakeoverApplication?
-    internal(set) var forceTakeoverConfirmationSessionId: UUID?
-
-    var isAuthorityTransferPending: Bool {
-        pendingTakeoverMessageId != nil
-            || pendingReclaimGrantMessageId != nil
-            || pendingTakeoverApplication != nil
-    }
 
     #if DEBUG
     var hasScheduledRetryForTesting: Bool { ackRetryTask != nil }
@@ -145,11 +115,7 @@ final class PhoneWatchLinkService {
         case watchAppNotForeground
         case setupRejected
         case setupTimedOut
-        case notController
-        case notFollower
         case statusQueryTimedOut
-        case noConfirmedSnapshot
-        case authorityTransferTimedOut
 
         var errorDescription: String? {
             switch self {
@@ -177,34 +143,10 @@ final class PhoneWatchLinkService {
                     value: "等待手表确认超时，请重试。",
                     comment: ""
                 )
-            case .notController:
-                return NSLocalizedString(
-                    "linked_score_not_controller",
-                    value: "当前不是主控端，无法执行该操作。",
-                    comment: ""
-                )
-            case .notFollower:
-                return NSLocalizedString(
-                    "linked_score_not_follower",
-                    value: "当前手机不是跟随端，无需接管。",
-                    comment: ""
-                )
             case .statusQueryTimedOut:
                 return NSLocalizedString(
                     "linked_score_status_timeout",
                     value: "等待手表状态响应超时。",
-                    comment: ""
-                )
-            case .noConfirmedSnapshot:
-                return NSLocalizedString(
-                    "linked_score_no_confirmed_snapshot",
-                    value: "没有已确认的比赛快照，无法安全强制接管。",
-                    comment: ""
-                )
-            case .authorityTransferTimedOut:
-                return NSLocalizedString(
-                    "linked_score_control_timeout",
-                    value: "控制权切换超时，请重试。",
                     comment: ""
                 )
             }
@@ -334,27 +276,21 @@ final class PhoneWatchLinkService {
         continuation?.resume(throwing: InteractiveStartError.setupRejected)
     }
 
-    var isFollower: Bool {
-        controlRole == .phoneFollower
-    }
-
-    var isController: Bool {
-        controlRole == .phoneController
-    }
-
+    /// 共享会话下两端都可计分；只有会话未建立时才只读。
     var canEditLinkedMatch: Bool {
-        isController || controlRole == .shared
+        guard let machine = sessionMachine else { return false }
+        return machine.lifecycle == .active || machine.lifecycle == .matchFinished
     }
 
+    /// 对端 revision 已生效且由手表写入时才作为权威快照应用。
     var incomingSnapshot: LinkedSnapshotUpdate? {
-        guard let update = latestRemoteSnapshot,
-              isFollower || (controlRole == .shared && LinkSharedRevision.writer(of: update.revision) == .watch)
-        else { return nil }
+        guard let update = latestRemoteSnapshot, canEditLinkedMatch,
+              LinkSharedRevision.writer(of: update.revision) == .watch else { return nil }
         return update
     }
 
     var peerFinishedSharedMatch: Bool {
-        controlRole == .shared && incomingSnapshot?.snapshot.isFinished == true
+        incomingSnapshot?.snapshot.isFinished == true
     }
 
     var activeSessionId: UUID? {
@@ -378,13 +314,10 @@ final class PhoneWatchLinkService {
             handle: session.handle,
             gameType: session.gameType,
             setup: session.setup,
-            role: session.role,
-            authorityEpoch: session.authorityEpoch,
             revision: session.revision,
             snapshot: snapshot,
             detailedActions: mergedDetailedActions,
-            isReachable: connectivityStatus.isReachable,
-            watchBackgrounded: watchBackgrounded
+            isReachable: connectivityStatus.isReachable
         )
     }
 
@@ -396,12 +329,9 @@ final class PhoneWatchLinkService {
             session.handle.sessionId.uuidString,
             session.handle.matchId.uuidString,
             String(session.handle.matchGeneration),
-            String(session.authorityEpoch),
             String(session.revision),
-            session.role.rawValue,
             pendingSessionEnds.contains { $0.handle.sessionId == session.sessionId }.description,
-            connectivityStatus.isReachable.description,
-            watchBackgrounded.description
+            connectivityStatus.isReachable.description
         ].joined(separator: ":")
     }
 
@@ -437,31 +367,6 @@ final class PhoneWatchLinkService {
         contextStore.removeObject(forKey: contextKey)
         outboxStore.removeObject(forKey: terminalOutboxKey)
         outboxStore.removeObject(forKey: pendingSessionEndsKey)
-    }
-
-    func requestForceTakeoverConfirmation(_ sessionId: UUID) {
-        guard activeSession?.sessionId == sessionId,
-              activeSession?.role == .phoneFollower else {
-            lastErrorMessage = InteractiveStartError.notFollower.localizedDescription
-            return
-        }
-        forceTakeoverConfirmationSessionId = sessionId
-    }
-
-    func cancelForceTakeoverConfirmation() {
-        forceTakeoverConfirmationSessionId = nil
-    }
-
-    func confirmForceTakeover() {
-        guard let sessionId = forceTakeoverConfirmationSessionId else { return }
-        forceTakeoverConfirmationSessionId = nil
-        Task {
-            do {
-                try await forceTakeover(sessionId: sessionId)
-            } catch {
-                lastErrorMessage = error.localizedDescription
-            }
-        }
     }
 
 }

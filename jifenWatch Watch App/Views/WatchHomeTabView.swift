@@ -238,12 +238,13 @@ struct WatchHomeTabView: View {
     private func discardResume(_ session: WatchResumeSession) {
         guard let current = resumeStore.session,
               current.startedAt == session.startedAt,
-              current.link?.handle == session.link?.handle else { return }
-        if let context = current.link {
+              current.linkHandle == session.linkHandle else { return }
+        if current.linkHandle != nil,
+           let context = resumeStore.linkContextForResume(linkService.storedLinkContext) {
             if linkService.resumeContext == nil {
                 linkService.restoreSuspendedSession(context)
             }
-            linkService.discardResumableSession(reason: .resumeBarClose)
+            linkService.discardResumableSession()
         }
         resumeStore.clear()
     }

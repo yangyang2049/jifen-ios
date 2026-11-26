@@ -16,7 +16,6 @@ struct LinkCapabilityNegotiationTests {
          "sessionId":"\(UUID().uuidString)",
          "matchId":"\(UUID().uuidString)",
          "matchGeneration":1,
-         "authorityEpoch":0,
          "kind":"stateSnapshot",
          "sender":"phone",
          "senderSequence":1,
@@ -28,14 +27,14 @@ struct LinkCapabilityNegotiationTests {
     }
 
     @Test func unknownCapabilityValuesDecodeWithoutFailure() throws {
-        let data = try makeEnvelopeJSON(capabilities: ["\"independentMatches\"", "\"authorityEpoch\"", "\"correlatedRequests\"", "\"durableTerminalQueue\"", "\"futureCapability\""])
+        let data = try makeEnvelopeJSON(capabilities: ["\"independentMatches\"", "\"correlatedRequests\"", "\"durableTerminalQueue\"", "\"futureCapability\""])
         let envelope = try JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: data)
         #expect(envelope.capabilities.contains(LinkCapability(rawValue: "futureCapability")))
     }
 
     @Test func negotiationPassesWhenRequiredSubsetIsPresent() {
         let peer: Set<LinkCapability> = [
-            .independentMatches, .authorityEpoch, .correlatedRequests, .durableTerminalQueue,
+            .independentMatches, .correlatedRequests, .durableTerminalQueue,
             LinkCapability(rawValue: "unknownFuture")
         ]
         let negotiated = LinkProtocol.negotiate(local: LinkProtocol.capabilities, peer: peer)
@@ -44,7 +43,7 @@ struct LinkCapabilityNegotiationTests {
     }
 
     @Test func negotiationFailsWhenRequiredCapabilityIsMissing() {
-        let peer: Set<LinkCapability> = [.independentMatches, .authorityEpoch, .correlatedRequests]
+        let peer: Set<LinkCapability> = [.independentMatches, .correlatedRequests]
         #expect(LinkProtocol.negotiate(local: LinkProtocol.capabilities, peer: peer) == nil)
     }
 

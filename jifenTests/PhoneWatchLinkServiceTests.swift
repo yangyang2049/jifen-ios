@@ -26,16 +26,14 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         let setup = try XCTUnwrap(transport.realtimeMessages.compactMap {
             try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0)
         }.first { $0.kind == .setupRequest })
-        XCTAssertEqual(setup.supportsSharedEditing, true)
         service.handleIncoming(try JSONEncoder().encode(LinkEnvelope(
-            supportsSharedEditing: true, correlationId: setup.messageId,
+            correlationId: setup.messageId,
             sessionId: setup.sessionId, matchId: setup.matchId, kind: .setupAccepted,
             sender: .watch, senderSequence: 1, sessionRevision: 0,
             sentAtEpochMilliseconds: setup.sentAtEpochMilliseconds, payload: EmptyLinkPayload()
         )))
         let sessionId = try await start.value
         XCTAssertTrue(service.canEditLinkedMatch)
-        XCTAssertFalse(service.isFollower)
 
         var first = initial
         first.leftPoints = 1
@@ -74,14 +72,13 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             transport: FakeWatchLinkTransport(), contextStore: store, outboxStore: store,
             recordSink: RecordingPhoneLinkSink()
         )
-        XCTAssertEqual(restored.linkedResumeDescriptor?.role, .shared)
         XCTAssertEqual(restored.linkedResumeDescriptor?.snapshot, .rally(concurrent))
         XCTAssertNil(restored.incomingSnapshot)
     }
 
-    func testRestoresFollowerRoleAndLatestSnapshotAfterProcessRestart() throws {
+    func testRestoresSharedSessionAndLatestSnapshotAfterProcessRestart() throws {
         let store = InMemoryLinkDataStore()
-        let fixture = makeContext(revision: 6, authorityEpoch: 3)
+        let fixture = makeContext(revision: 6)
         store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
 
         let service = PhoneWatchLinkService(
@@ -93,43 +90,13 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
 
         let restored = try XCTUnwrap(service.linkedResumeDescriptor)
         XCTAssertEqual(restored.handle, fixture.handle)
-        XCTAssertEqual(restored.role, .phoneFollower)
-        XCTAssertEqual(restored.authorityEpoch, 3)
         XCTAssertEqual(restored.revision, 6)
         XCTAssertEqual(restored.snapshot, fixture.snapshot)
     }
 
-    func testForceTakeoverUsesCorrelatedStatusAndRaisesAuthorityEpoch() async throws {
-        let store = InMemoryLinkDataStore()
-        let fixture = makeContext(revision: 4, authorityEpoch: 7)
-        store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
-        let transport = FakeWatchLinkTransport()
-        transport.automaticallyRespondToStatusQueries = true
-        let service = PhoneWatchLinkService(
-            transport: transport,
-            contextStore: store,
-            outboxStore: store,
-            recordSink: RecordingPhoneLinkSink()
-        )
-
-        try await service.forceTakeover(sessionId: fixture.handle.sessionId)
-
-        let current = try XCTUnwrap(service.linkedResumeDescriptor)
-        XCTAssertEqual(current.role, .phoneController)
-        XCTAssertEqual(current.authorityEpoch, 8)
-        XCTAssertEqual(current.revision, 5)
-        XCTAssertEqual(current.snapshot, fixture.snapshot)
-        XCTAssertEqual(transport.publishedSnapshots.count, 1)
-
-        let persistedData = try XCTUnwrap(store.data(forKey: "phone_link_context"))
-        let persisted = try JSONDecoder().decode(PhoneLinkResumeContext.self, from: persistedData)
-        XCTAssertEqual(persisted.role, .phoneController)
-        XCTAssertEqual(persisted.authorityEpoch, 8)
-    }
-
     func testForegroundStatusRefreshCoalescesOverlappingQueries() async throws {
         let store = InMemoryLinkDataStore()
-        let fixture = makeContext(revision: 4, authorityEpoch: 7)
+        let fixture = makeContext(revision: 4)
         store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
         let transport = FakeWatchLinkTransport()
         let service = PhoneWatchLinkService(
@@ -160,21 +127,16 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             sessionId: query.sessionId,
             matchId: query.matchId,
             matchGeneration: query.matchGeneration,
-            authorityEpoch: query.authorityEpoch,
-            kind: .statusResponse,
+                        kind: .statusResponse,
             sender: .watch,
             senderSequence: 1,
             sessionRevision: query.sessionRevision,
             sentAtEpochMilliseconds: query.sentAtEpochMilliseconds + 1,
-            payload: LinkStatusPayload(
-                role: .watchController,
-                revision: query.sessionRevision
-            )
+            payload: LinkStatusPayload(revision: query.sessionRevision)
         )
         transport.deliver(try JSONEncoder().encode(response))
         await settleMainQueue()
-
-        XCTAssertEqual(service.linkedResumeDescriptor?.role, .phoneFollower)
+        XCTAssertNil(service.pendingStatusCorrelationId)
     }
 
     func testResumeDescriptorIsNilWhileSetupHandshakeIsPending() async throws {
@@ -220,7 +182,6 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             sessionId: request.sessionId,
             matchId: request.matchId,
             matchGeneration: request.matchGeneration,
-            authorityEpoch: 0,
             kind: .setupAccepted,
             sender: .watch,
             senderSequence: 1,
@@ -239,7 +200,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
 
     func testLeaveSessionIfMatchFinishedEndsFinishedLinkedSession() async throws {
         let store = InMemoryLinkDataStore()
-        let fixture = makeContext(revision: 4, authorityEpoch: 2)
+        let fixture = makeContext(revision: 4)
         store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
         let transport = FakeWatchLinkTransport()
         let service = PhoneWatchLinkService(
@@ -252,7 +213,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         // Watch reports the match finished: the session lifecycle becomes
         // `.matchFinished` and the descriptor surfaces (GameBar visible).
         transport.deliver(try JSONEncoder().encode(
-            finishedEnvelope(handle: fixture.handle, authorityEpoch: 2, revision: 5, snapshot: fixture.snapshot)
+            finishedEnvelope(handle: fixture.handle, revision: 5, snapshot: fixture.snapshot)
         ))
         await settleMainQueue()
         XCTAssertNotNil(service.linkedResumeDescriptor)
@@ -266,7 +227,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
 
     func testLeaveSessionIfMatchFinishedKeepsUnfinishedLinkedSession() async throws {
         let store = InMemoryLinkDataStore()
-        let fixture = makeContext(revision: 4, authorityEpoch: 2)
+        let fixture = makeContext(revision: 4)
         store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
         let transport = FakeWatchLinkTransport()
         let service = PhoneWatchLinkService(
@@ -529,9 +490,9 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         XCTAssertTrue(pendingService.hasScheduledRetryForTesting)
     }
 
-    func testWatchControllerTwoMatchesCreateExactlyTwoRecords() async throws {
+    func testWatchFinishesTwoSharedMatchesWithExactlyTwoRecords() async throws {
         let store = InMemoryLinkDataStore()
-        let fixture = makeContext(revision: 0, authorityEpoch: 2)
+        let fixture = makeContext(revision: 0)
         store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
         let transport = FakeWatchLinkTransport()
         let sink = RecordingPhoneLinkSink()
@@ -553,11 +514,10 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             sessionId: secondHandle.sessionId,
             matchId: secondHandle.matchId,
             matchGeneration: secondHandle.matchGeneration,
-            authorityEpoch: 2,
-            kind: .stateSnapshot,
+                        kind: .stateSnapshot,
             sender: .watch,
             senderSequence: 2,
-            sessionRevision: 1,
+            sessionRevision: 2,
             sentAtEpochMilliseconds: 2_000,
             payload: LinkedScoreboardSetup(
                 gameType: .badminton,
@@ -572,8 +532,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         // A durable finish from the previous match may arrive after the new one starts.
         let firstFinished = finishedEnvelope(
             handle: fixture.handle,
-            authorityEpoch: 2,
-            revision: 1,
+            revision: 2,
             snapshot: fixture.snapshot
         )
         transport.deliver(try JSONEncoder().encode(firstFinished))
@@ -584,8 +543,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
 
         let secondFinished = finishedEnvelope(
             handle: secondHandle,
-            authorityEpoch: 2,
-            revision: 2,
+            revision: 4,
             snapshot: secondSnapshot
         )
         let secondFinishedData = try JSONEncoder().encode(secondFinished)
@@ -600,7 +558,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
 
     func testFinishedSnapshotSurvivesMatchFinishedFirstInterleaving() async throws {
         let store = InMemoryLinkDataStore()
-        let fixture = makeContext(revision: 0, authorityEpoch: 2)
+        let fixture = makeContext(revision: 0)
         store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
         let transport = FakeWatchLinkTransport()
         let service = PhoneWatchLinkService(
@@ -610,36 +568,33 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             recordSink: RecordingPhoneLinkSink()
         )
         let finished = finishedRallySnapshot()
+        let lastPoint = DetailedScoreAction(type: .scoreChanged, epochMilliseconds: 1, team: .team1, scores: [21, 18])
 
         // transferUserInfo (matchFinished) can arrive before the final
-        // sendMessageData snapshot. The phone accepts rev 3 first...
-        transport.deliver(try JSONEncoder().encode(
-            finishedEnvelope(handle: fixture.handle, authorityEpoch: 2, revision: 3, snapshot: finished)
-        ))
+        // sendMessageData snapshot. The terminal frame owns the finished result.
+        var terminal = finishedEnvelope(handle: fixture.handle, revision: 4, snapshot: finished)
+        terminal.payload.detailedActions = [lastPoint]
+        transport.deliver(try JSONEncoder().encode(terminal))
         await settleMainQueue()
-        XCTAssertEqual(service.latestRemoteSnapshot?.revision, 3)
+        XCTAssertEqual(service.latestRemoteSnapshot?.revision, 4)
         XCTAssertEqual(service.latestRemoteSnapshot?.snapshot.rallyState?.finished, true)
 
-        // ...so the final snapshot (rev 2, finished) arrives as
-        // duplicateOrOlder. Mirroring HarmonyOS it must still be surfaced
-        // rather than dropped, so the finish signal can never be lost.
-        var finalSnapshot = snapshotEnvelope(
-            handle: fixture.handle, authorityEpoch: 2, revision: 2, snapshot: finished
+        // The older snapshot must leave the accepted terminal state intact.
+        let finalSnapshot = snapshotEnvelope(
+            handle: fixture.handle, revision: 2, snapshot: finished
         )
-        let lastPoint = DetailedScoreAction(type: .scoreChanged, epochMilliseconds: 1, team: .team1, scores: [21, 18])
-        finalSnapshot.payload.detailedActions = [lastPoint]
         transport.deliver(try JSONEncoder().encode(finalSnapshot))
         await settleMainQueue()
 
         let latest = try XCTUnwrap(service.latestRemoteSnapshot)
         XCTAssertTrue(latest.detailedActions.contains { $0.id == lastPoint.id })
-        XCTAssertEqual(latest.revision, 2)
+        XCTAssertEqual(latest.revision, 4)
         XCTAssertEqual(latest.snapshot.rallyState?.finished, true)
     }
 
     func testUnfinishedDuplicateSnapshotDoesNotOverrideFinishedSignal() async throws {
         let store = InMemoryLinkDataStore()
-        let fixture = makeContext(revision: 0, authorityEpoch: 2)
+        let fixture = makeContext(revision: 0)
         store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
         let transport = FakeWatchLinkTransport()
         let service = PhoneWatchLinkService(
@@ -651,7 +606,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
 
         // The watch reports the match finished first...
         transport.deliver(try JSONEncoder().encode(
-            finishedEnvelope(handle: fixture.handle, authorityEpoch: 2, revision: 3, snapshot: finishedRallySnapshot())
+            finishedEnvelope(handle: fixture.handle, revision: 3, snapshot: finishedRallySnapshot())
         ))
         await settleMainQueue()
         XCTAssertEqual(service.latestRemoteSnapshot?.snapshot.rallyState?.finished, true)
@@ -660,7 +615,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         // duplicateOrOlder — surfacing it would wrongly dismiss the finish
         // dialog. Only finished duplicates are surfaced.
         transport.deliver(try JSONEncoder().encode(
-            snapshotEnvelope(handle: fixture.handle, authorityEpoch: 2, revision: 2, snapshot: fixture.snapshot)
+            snapshotEnvelope(handle: fixture.handle, revision: 2, snapshot: fixture.snapshot)
         ))
         await settleMainQueue()
 
@@ -728,7 +683,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         XCTAssertEqual(service.mergedDetailedActions.map(\.id), [local.id])
     }
 
-    func testFootballTakeoverAcknowledgementAppliesAuthoritativeFootballSnapshot() async throws {
+    func testSharedFootballSnapshotFromWatchAppliesWhilePhoneCanEdit() async throws {
         let store = InMemoryLinkDataStore()
         let handle = LinkedMatchHandle(sessionId: UUID(), matchId: UUID())
         let initialFootball = LinkedFootballState(
@@ -749,8 +704,6 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         let context = PhoneLinkResumeContext(
             handle: handle,
             setup: setup,
-            role: .phoneFollower,
-            authorityEpoch: 1,
             revision: 2,
             latestAuthoritativeSnapshot: .football(initialFootball),
             detailedActions: [],
@@ -766,18 +719,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             recordSink: RecordingPhoneLinkSink()
         )
         transport.refreshStatus()
-
-        try await service.takeover(sessionId: handle.sessionId)
-        await settleMainQueue()
-
-        let takeoverRequest = try XCTUnwrap(
-            transport.realtimeMessages.compactMap {
-                try? JSONDecoder().decode(
-                    LinkEnvelope<LinkAuthorityTransferPayload>.self,
-                    from: $0
-                )
-            }.first { $0.kind == .takeoverByPhone }
-        )
+        XCTAssertTrue(service.canEditLinkedMatch, "共享会话下手机本就可计分，无需任何接管")
 
         let updatedFootball = LinkedFootballState(
             leftName: "主队",
@@ -788,32 +730,31 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             kickedOff: true,
             finished: false
         )
-        let ack = LinkEnvelope(
-            correlationId: takeoverRequest.messageId,
+        let snapshotEnvelope = LinkEnvelope(
             sessionId: handle.sessionId,
             matchId: handle.matchId,
             matchGeneration: handle.matchGeneration,
-            authorityEpoch: 2,
-            kind: .acknowledgement,
+            kind: .stateSnapshot,
             sender: .watch,
             senderSequence: 3,
-            sessionRevision: 3,
+            sessionRevision: 4,
             sentAtEpochMilliseconds: 5_000,
-            payload: LinkAcknowledgementPayload(
-                acknowledgedMessageId: takeoverRequest.messageId,
-                acknowledgedRevision: 3,
-                authoritativeSnapshot: .football(updatedFootball)
+            payload: LinkedScoreboardSetup(
+                gameType: .football,
+                maxSets: nil,
+                initialSnapshot: .football(updatedFootball),
+                participantNames: ["主队", "客队"]
             )
         )
-        transport.deliver(try JSONEncoder().encode(ack))
+        service.handleIncoming(try JSONEncoder().encode(snapshotEnvelope))
         await settleMainQueue()
 
-        XCTAssertEqual(service.pendingTakeoverApplication?.snapshot, .football(updatedFootball))
         XCTAssertEqual(service.latestRemoteSnapshot?.snapshot, .football(updatedFootball))
-        XCTAssertEqual(service.controlRole, .phoneController)
+        XCTAssertEqual(service.activeSession?.revision, 4)
+        XCTAssertTrue(service.canEditLinkedMatch)
     }
 
-    func testTrainingTakeoverAppliesLastWatchShotBeforeUnlockingScoring() async throws {
+    func testTrainingLinkedSnapshotAppliesLatestWatchShotWhileScoringStaysUnlocked() async throws {
         let store = InMemoryLinkDataStore()
         let handle = LinkedMatchHandle(sessionId: UUID())
         let startedAt = Date(timeIntervalSince1970: 1_700_000_000)
@@ -828,46 +769,50 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         let context = PhoneLinkResumeContext(
             handle: handle,
             setup: .init(gameType: .basketballTraining, initialSnapshot: stalledSnapshot),
-            role: .phoneFollower, authorityEpoch: 0, revision: 1,
+            revision: 1,
             latestAuthoritativeSnapshot: stalledSnapshot, detailedActions: [],
             completedMatchIds: [], pendingTerminalMessageIds: []
         )
         store.set(try JSONEncoder().encode(context), forKey: "phone_link_context")
         let transport = FakeWatchLinkTransport()
         let service = PhoneWatchLinkService(transport: transport, contextStore: store, outboxStore: store)
-        try await service.takeover(sessionId: handle.sessionId)
-        let request = try XCTUnwrap(transport.realtimeMessages.compactMap {
-            try? JSONDecoder().decode(LinkEnvelope<LinkAuthorityTransferPayload>.self, from: $0)
-        }.first { $0.kind == .takeoverByPhone })
-        XCTAssertEqual(request.payload.snapshot, stalledSnapshot)
+        transport.refreshStatus()
 
-        // The watch's second shot only arrives in the takeover acknowledgement.
-        let ack = LinkEnvelope(
-            correlationId: request.messageId, sessionId: handle.sessionId, matchId: handle.matchId,
-            matchGeneration: handle.matchGeneration, authorityEpoch: 1,
-            kind: .acknowledgement, sender: .watch, senderSequence: 2,
-            sessionRevision: 2, sentAtEpochMilliseconds: 2_000,
-            payload: LinkAcknowledgementPayload(
-                acknowledgedMessageId: request.messageId, acknowledgedRevision: 2,
-                authoritativeSnapshot: latestSnapshot
+        let snapshotEnvelope = LinkEnvelope(
+            sessionId: handle.sessionId,
+            matchId: handle.matchId,
+            matchGeneration: handle.matchGeneration,
+            kind: .stateSnapshot,
+            sender: .watch,
+            senderSequence: 2,
+            sessionRevision: 2,
+            sentAtEpochMilliseconds: 2_000,
+            payload: LinkedScoreboardSetup(
+                gameType: .basketballTraining,
+                initialSnapshot: latestSnapshot,
+                participantNames: []
             )
         )
-        service.handleIncoming(try JSONEncoder().encode(ack))
-        let pending = try XCTUnwrap(service.pendingTakeoverApplication)
-        XCTAssertTrue(service.isController)
-        XCTAssertTrue(service.isAuthorityTransferPending)
-        XCTAssertEqual(pending.snapshot.basketballTrainingState?.shots, [firstShot, lastShot])
-        XCTAssertEqual(service.latestRemoteSnapshot?.snapshot, latestSnapshot)
+        service.handleIncoming(try JSONEncoder().encode(snapshotEnvelope))
+        await settleMainQueue()
 
-        service.completePhoneTakeover(messageId: pending.messageId)
-        XCTAssertFalse(service.isAuthorityTransferPending)
-        let restored = PhoneWatchLinkService(transport: FakeWatchLinkTransport(), contextStore: store, outboxStore: store)
-        XCTAssertEqual(restored.linkedResumeDescriptor?.snapshot, latestSnapshot)
+        XCTAssertEqual(
+            service.latestRemoteSnapshot?.snapshot.basketballTrainingState?.shots,
+            [firstShot, lastShot]
+        )
+        XCTAssertTrue(service.canEditLinkedMatch, "共享会话不锁定手机计分")
+
+        let restored = PhoneWatchLinkService(
+            transport: FakeWatchLinkTransport(), contextStore: store, outboxStore: store
+        )
+        XCTAssertEqual(
+            restored.linkedResumeDescriptor?.snapshot.basketballTrainingState?.shots,
+            [firstShot, lastShot]
+        )
     }
 
     func testPhoneCanStartNextMatchBeforeWatchAcknowledgesPreviousMatch() async throws {
-        var fixture = makeContext(revision: 1, authorityEpoch: 1)
-        fixture.context.role = .phoneController
+        var fixture = makeContext(revision: 1)
         fixture.context.peerSupportsCompressedFinish = true
         let store = InMemoryLinkDataStore()
         store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
@@ -891,7 +836,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         XCTAssertEqual(transport.durableMessages, [oldFinish.data])
         let ack = LinkEnvelope(
             correlationId: oldFinish.messageId, sessionId: fixture.handle.sessionId, matchId: fixture.handle.matchId,
-            matchGeneration: fixture.handle.matchGeneration, authorityEpoch: 1, kind: .recordAcknowledgement,
+            matchGeneration: fixture.handle.matchGeneration, kind: .recordAcknowledgement,
             sender: .watch, senderSequence: 8, sessionRevision: 2, sentAtEpochMilliseconds: 6_000,
             payload: LinkAcknowledgementPayload(acknowledgedMessageId: oldFinish.messageId, acknowledgedRevision: 2)
         )
@@ -902,7 +847,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
     }
 
     func testNewWatchFinishCanArriveBeforeItsSnapshotAndOlderTerminalCanArriveLast() async throws {
-        let fixture = makeContext(revision: 2, authorityEpoch: 1)
+        let fixture = makeContext(revision: 2)
         let store = InMemoryLinkDataStore()
         store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
         let transport = FakeWatchLinkTransport()
@@ -912,23 +857,21 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         var state = try XCTUnwrap(fixture.snapshot.rallyState)
         state.leftPoints = 21
         state.finished = true
-        func finish(_ handle: LinkedMatchHandle, epoch: UInt64 = 1) -> LinkEnvelope<LinkMatchFinishedPayload> {
+        func finish(_ handle: LinkedMatchHandle) -> LinkEnvelope<LinkMatchFinishedPayload> {
             LinkEnvelope(
                 sessionId: handle.sessionId, matchId: handle.matchId, matchGeneration: handle.matchGeneration,
-                authorityEpoch: epoch, kind: .matchFinished, sender: .watch,
-                senderSequence: 4, sessionRevision: 3, sentAtEpochMilliseconds: 4_000,
+                kind: .matchFinished, sender: .watch,
+                senderSequence: 4, sessionRevision: 2, sentAtEpochMilliseconds: 4_000,
                 payload: LinkMatchFinishedPayload(snapshot: .rally(state), recordId: handle.matchId.uuidString)
             )
         }
         let nextFinish = finish(next)
-        service.handleIncoming(LinkFinishedEncoding.encode(finish(next, epoch: 0), compress: true))
-        XCTAssertTrue(sink.matchIds.isEmpty)
         service.handleIncoming(LinkFinishedEncoding.encode(nextFinish, compress: true))
         XCTAssertEqual(service.activeSession?.handle, next)
         XCTAssertEqual(service.latestRemoteSnapshot?.snapshot, .rally(state))
         let lateSnapshot = LinkEnvelope(
             sessionId: next.sessionId, matchId: next.matchId, matchGeneration: next.matchGeneration,
-            authorityEpoch: 1, kind: .stateSnapshot, sender: .watch,
+            kind: .stateSnapshot, sender: .watch,
             senderSequence: 5, sessionRevision: 4, sentAtEpochMilliseconds: 4_010,
             payload: fixture.context.setup
         )
@@ -949,7 +892,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
 
     func testDelayedWatchFinishPersistsAfterNewSessionAndRestart() async throws {
         let store = InMemoryLinkDataStore()
-        let old = makeContext(revision: 2, authorityEpoch: 1)
+        let old = makeContext(revision: 2)
         store.set(try JSONEncoder().encode(old.context), forKey: "phone_link_context")
         let transport = FakeWatchLinkTransport()
         let service = PhoneWatchLinkService(transport: transport, contextStore: store, outboxStore: store)
@@ -983,8 +926,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         badminton.finished = true
         let finished = LinkEnvelope(
             sessionId: old.handle.sessionId, matchId: old.handle.matchId,
-            matchGeneration: old.handle.matchGeneration, authorityEpoch: 1,
-            kind: .matchFinished, sender: .watch, senderSequence: 3,
+            matchGeneration: old.handle.matchGeneration,             kind: .matchFinished, sender: .watch, senderSequence: 3,
             sessionRevision: 3, sentAtEpochMilliseconds: 3_100,
             payload: LinkMatchFinishedPayload(
                 snapshot: .rally(badminton), recordId: recordID, winnerSide: .left,
@@ -1024,8 +966,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
 
     func testPhoneSnapshotStripsDetailedActionsFromApplicationContextAndPreservesOnEmptyReceive() async throws {
         let store = InMemoryLinkDataStore()
-        var fixture = makeContext(revision: 2, authorityEpoch: 1)
-        fixture.context.role = .phoneController
+        var fixture = makeContext(revision: 2)
         store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
         let transport = FakeWatchLinkTransport()
         let service = PhoneWatchLinkService(
@@ -1064,7 +1005,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         // Receiver path: follower receiving a stripped applicationContext snapshot
         // must keep already-merged detailedActions on both mergedDetailedActions and setup.
         let followerStore = InMemoryLinkDataStore()
-        var followerFixture = makeContext(revision: 2, authorityEpoch: 1)
+        var followerFixture = makeContext(revision: 2)
         followerFixture.context.detailedActions = [action]
         followerStore.set(try JSONEncoder().encode(followerFixture.context), forKey: "phone_link_context")
         let followerTransport = FakeWatchLinkTransport()
@@ -1077,8 +1018,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
 
         let strippedIncoming = snapshotEnvelope(
             handle: followerFixture.handle,
-            authorityEpoch: 1,
-            revision: 3,
+            revision: 4,
             snapshot: followerFixture.snapshot
         )
         followerTransport.deliver(try JSONEncoder().encode(strippedIncoming))
@@ -1417,8 +1357,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
 
         // Phone notifyMatchFinished should enqueue durable AND deliver realtime when reachable.
         let store = InMemoryLinkDataStore()
-        var fixture = makeContext(revision: 2, authorityEpoch: 2)
-        fixture.context.role = .phoneController
+        var fixture = makeContext(revision: 2)
         store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
         let transport = FakeWatchLinkTransport()
         let service = PhoneWatchLinkService(
@@ -1447,8 +1386,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
     }
 
     private func makeContext(
-        revision: UInt64,
-        authorityEpoch: UInt64
+        revision: UInt64
     ) -> (
         handle: LinkedMatchHandle,
         snapshot: LinkedScoreboardSnapshot,
@@ -1473,8 +1411,6 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             PhoneLinkResumeContext(
                 handle: handle,
                 setup: setup,
-                role: .phoneFollower,
-                authorityEpoch: authorityEpoch,
                 revision: revision,
                 latestAuthoritativeSnapshot: snapshot,
                 detailedActions: [],
@@ -1500,7 +1436,6 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
 
     private func snapshotEnvelope(
         handle: LinkedMatchHandle,
-        authorityEpoch: UInt64,
         revision: UInt64,
         snapshot: LinkedScoreboardSnapshot
     ) -> LinkEnvelope<LinkedScoreboardSetup> {
@@ -1508,7 +1443,6 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             sessionId: handle.sessionId,
             matchId: handle.matchId,
             matchGeneration: handle.matchGeneration,
-            authorityEpoch: authorityEpoch,
             kind: .stateSnapshot,
             sender: .watch,
             senderSequence: revision,
@@ -1525,7 +1459,6 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
 
     private func finishedEnvelope(
         handle: LinkedMatchHandle,
-        authorityEpoch: UInt64,
         revision: UInt64,
         snapshot: LinkedScoreboardSnapshot
     ) -> LinkEnvelope<LinkMatchFinishedPayload> {
@@ -1533,7 +1466,6 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             sessionId: handle.sessionId,
             matchId: handle.matchId,
             matchGeneration: handle.matchGeneration,
-            authorityEpoch: authorityEpoch,
             kind: .matchFinished,
             sender: .watch,
             senderSequence: revision,
@@ -1587,8 +1519,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             sessionId: unwrappedReq1.sessionId,
             matchId: unwrappedReq1.matchId,
             matchGeneration: unwrappedReq1.matchGeneration,
-            authorityEpoch: unwrappedReq1.authorityEpoch,
-            kind: .setupAccepted,
+                        kind: .setupAccepted,
             sender: .watch,
             senderSequence: 1,
             sessionRevision: 0,
@@ -1612,7 +1543,6 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             sessionId: session1Id,
             matchId: handle1.matchId,
             matchGeneration: handle1.matchGeneration,
-            authorityEpoch: 0,
             kind: .stateSnapshot,
             sender: .watch,
             senderSequence: 2,
@@ -1627,7 +1557,6 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             )
         )))
         await settleMainQueue()
-        service.watchBackgrounded = true
 
         // 2. Switch directly to Match 2 (Tennis Doubles) while S1 is still active.
         let tennisDoublesInitial = TennisMatchState(
@@ -1658,8 +1587,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             sessionId: unwrappedReq2.sessionId,
             matchId: unwrappedReq2.matchId,
             matchGeneration: unwrappedReq2.matchGeneration,
-            authorityEpoch: unwrappedReq2.authorityEpoch,
-            kind: .setupAccepted,
+                        kind: .setupAccepted,
             sender: .watch,
             senderSequence: 1,
             sessionRevision: 0,
@@ -1669,8 +1597,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         let session2Id = try await session2Task.value
 
         XCTAssertNotEqual(session1Id, session2Id)
-        XCTAssertFalse(service.watchBackgrounded)
-        XCTAssertFalse(service.isAuthorityTransferPending)
+        XCTAssertTrue(service.canEditLinkedMatch)
         XCTAssertTrue(service.mergedDetailedActions.isEmpty)
 
         // 3. Watch scores a point + triggers a set break in Tennis Doubles; Phone updates.
@@ -1687,11 +1614,10 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             sessionId: session2Id,
             matchId: handle2.matchId,
             matchGeneration: handle2.matchGeneration,
-            authorityEpoch: 0,
             kind: .stateSnapshot,
             sender: .watch,
             senderSequence: 2,
-            sessionRevision: 1,
+            sessionRevision: 2,
             sentAtEpochMilliseconds: 3_000,
             payload: LinkedScoreboardSetup(
                 gameType: .tennisDoubles,
@@ -1838,7 +1764,7 @@ extension PhoneWatchLinkServiceTests {
             try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0)
         }.first { $0.kind == .setupRequest })
         service.handleIncoming(try JSONEncoder().encode(LinkEnvelope(
-            supportsSharedEditing: true, correlationId: setup.messageId,
+            correlationId: setup.messageId,
             sessionId: setup.sessionId, matchId: setup.matchId, kind: .setupAccepted,
             sender: .watch, senderSequence: 1, sessionRevision: 0,
             sentAtEpochMilliseconds: setup.sentAtEpochMilliseconds, payload: EmptyLinkPayload()
@@ -1961,7 +1887,7 @@ extension PhoneWatchLinkServiceTests {
             try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0)
         }.first { $0.kind == .setupRequest })
         service.handleIncoming(try JSONEncoder().encode(LinkEnvelope(
-            supportsSharedEditing: true, correlationId: setup.messageId,
+            correlationId: setup.messageId,
             sessionId: setup.sessionId, matchId: setup.matchId, kind: .setupAccepted,
             sender: .watch, senderSequence: 1, sessionRevision: 0,
             sentAtEpochMilliseconds: setup.sentAtEpochMilliseconds, payload: EmptyLinkPayload()
@@ -2067,7 +1993,7 @@ extension PhoneWatchLinkServiceTests {
             try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0)
         }.first { $0.kind == .setupRequest })
         service.handleIncoming(try JSONEncoder().encode(LinkEnvelope(
-            supportsSharedEditing: true, correlationId: setup.messageId,
+            correlationId: setup.messageId,
             sessionId: setup.sessionId, matchId: setup.matchId, kind: .setupAccepted,
             sender: .watch, senderSequence: 1, sessionRevision: 0,
             sentAtEpochMilliseconds: setup.sentAtEpochMilliseconds, payload: EmptyLinkPayload()
@@ -2235,16 +2161,12 @@ final class FakeWatchLinkTransport: @unchecked Sendable, WatchLinkTransport {
             sessionId: query.sessionId,
             matchId: query.matchId,
             matchGeneration: query.matchGeneration,
-            authorityEpoch: query.authorityEpoch,
-            kind: .statusResponse,
+                        kind: .statusResponse,
             sender: .watch,
             senderSequence: 1,
             sessionRevision: query.sessionRevision,
             sentAtEpochMilliseconds: query.sentAtEpochMilliseconds + 1,
-            payload: LinkStatusPayload(
-                role: .watchController,
-                revision: query.sessionRevision
-            )
+            payload: LinkStatusPayload(revision: query.sessionRevision)
         )
         onReceive?(try JSONEncoder().encode(response))
     }

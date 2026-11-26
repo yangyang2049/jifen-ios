@@ -53,7 +53,7 @@ struct ArcheryScoreboardView: View {
 
     private var scoringLocked: Bool {
         watchSessionId != nil
-            && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
+            && !watchLinkService.canEditLinkedMatch
     }
 
     init(
@@ -111,30 +111,13 @@ struct ArcheryScoreboardView: View {
                     extraMenuItemsProvider: {
                         WatchLinkMenuSupport.extraItems(
                             entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
-                            sessionId: watchSessionId,
-                            isFollower: watchLinkService.isFollower,
-                            watchBackgrounded: watchLinkService.watchBackgrounded
+                            sessionId: watchSessionId
                         )
                     },
                     onMenuAction: { action in
                         switch action {
                         case "resync":
                             watchLinkService.requestScoreResync()
-                        case "takeover":
-                            if let id = watchSessionId {
-                                Task {
-                                    do {
-                                        try await watchLinkService.takeover(sessionId: id)
-                                        publishWatchIfNeeded()
-                                    } catch {
-                                        showToast(error.localizedDescription)
-                                    }
-                                }
-                            }
-                        case "forceTakeover":
-                            if let id = watchSessionId {
-                                watchLinkService.requestForceTakeoverConfirmation(id)
-                            }
                         case "endLink":
                             if let id = watchSessionId {
                                 watchLinkService.leaveSession(id)
@@ -273,7 +256,7 @@ struct ArcheryScoreboardView: View {
         .onChange(of: viewModel.gameFinished) { _, finished in
             if finished {
                 showGameOverDialog = true
-                if !watchLinkService.isFollower {
+                if watchLinkService.canEditLinkedMatch {
                     saveGameRecordInRealTime(isGameFinished: true)
                 }
                 publishWatchIfNeeded(finished: true)
@@ -281,7 +264,7 @@ struct ArcheryScoreboardView: View {
             }
         }
         .onChange(of: viewModel.persistenceRevision) { _, _ in
-            if !viewModel.match.finished, !watchLinkService.isFollower {
+            if !viewModel.match.finished, watchLinkService.canEditLinkedMatch {
                 saveGameRecordInRealTime()
             }
         }
@@ -292,7 +275,7 @@ struct ArcheryScoreboardView: View {
         .onChange(of: watchLinkService.latestRemoteSnapshot) { previous, update in
             guard watchLinkService.incomingSnapshot != nil, let watchSessionId, let update, update.sessionId == watchSessionId,
                   let remote = update.snapshot.archeryState else { return }
-            if watchLinkService.controlRole == .shared, update.beginsMatch(after: previous) {
+            if update.beginsMatch(after: previous) {
                 let previousRecordID = recordID
                 controller.beginNewMatch()
                 recordID = ScoreboardRecordIdentity.next(prefix: GameType.archery.canonicalScoreboardIdentifier)
@@ -301,52 +284,19 @@ struct ArcheryScoreboardView: View {
             }
             applyRemoteArchery(remote)
         }
-        .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in
-            guard let watchSessionId, let pending, pending.sessionId == watchSessionId,
-                  let remote = pending.snapshot.archeryState else { return }
-            applyRemoteArchery(remote)
-            watchLinkService.completePhoneTakeover(messageId: pending.messageId)
-        }
-        .onChange(of: watchLinkService.isFollower) { _, _ in
-            viewModel.mutationLocked = scoringLocked
-        }
-        .onChange(of: watchLinkService.isAuthorityTransferPending) { _, _ in
+        .onChange(of: watchLinkService.canEditLinkedMatch) { _, _ in
             viewModel.mutationLocked = scoringLocked
         }
         .onDisappear {
             let skipSave = watchSessionId != nil
-                && (watchLinkService.isFollower || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
+                && (!watchLinkService.canEditLinkedMatch || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
             if let watchSessionId { watchLinkService.detachPage(sessionId: watchSessionId) }
             if !skipSave {
                 saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
             }
         }
-        .alert(
-            NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
-            isPresented: reclaimAlertPresented
-        ) {
-            Button(NSLocalizedString("linked_score_accept", value: "同意", comment: "")) {
-                watchLinkService.resolveReclaimRequest(
-                    accepted: true,
-                    snapshot: .archery(viewModel.linkedSnapshot()),
-                    detailedActions: []
-                )
-            }
-            Button(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""), role: .cancel) {
-                rejectWatchReclaim()
-            }
-        } message: {
-            Text(reclaimMessage)
-        }
     }
 
-    private var reclaimMessage: String {
-        NSLocalizedString(
-            "linked_score_watch_reclaim_message",
-            value: "是否允许手表在 5 秒内重新接管计分？",
-            comment: ""
-        )
-    }
 
     private func showToast(_ message: String) {
         toastMessage = message
@@ -681,21 +631,6 @@ struct ArcheryScoreboardView: View {
         // finished, and dismisses it when a new unfinished match arrives after
         // 再来一场). Setting both directions, not just true.
         showGameOverDialog = remote.finished
-    }
-
-    private var reclaimAlertPresented: Binding<Bool> {
-        Binding(
-            get: { watchLinkService.pendingReclaimRequest != nil },
-            set: { presented in
-                if !presented, watchLinkService.pendingReclaimRequest != nil {
-                    rejectWatchReclaim()
-                }
-            }
-        )
-    }
-
-    private func rejectWatchReclaim() {
-        watchLinkService.resolveReclaimRequest(accepted: false, snapshot: nil, detailedActions: [])
     }
 
     private func notifyLinkedFinishIfNeeded() {

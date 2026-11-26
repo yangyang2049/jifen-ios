@@ -14,7 +14,6 @@ public enum LinkProtocol {
     /// Capabilities every peer must advertise before a linked session starts.
     public static let requiredCapabilities: Set<LinkCapability> = [
         .independentMatches,
-        .authorityEpoch, // M1 still runs the existing authority protocol.
         .correlatedRequests,
         .durableTerminalQueue
     ]
@@ -27,7 +26,6 @@ public enum LinkProtocol {
     /// older peers keep working and newer additions degrade gracefully.
     public static let capabilities: Set<LinkCapability> = [
         .independentMatches,
-        .authorityEpoch,
         .correlatedRequests,
         .durableTerminalQueue,
         .latestSnapshotContext,
@@ -57,7 +55,6 @@ public struct LinkCapability: RawRepresentable, Codable, Hashable, Sendable {
     public init(rawValue: String) { self.rawValue = rawValue }
 
     public static let independentMatches = Self(rawValue: "independentMatches")
-    public static let authorityEpoch = Self(rawValue: "authorityEpoch")
     public static let correlatedRequests = Self(rawValue: "correlatedRequests")
     public static let durableTerminalQueue = Self(rawValue: "durableTerminalQueue")
     public static let latestSnapshotContext = Self(rawValue: "latestSnapshotContext")
@@ -93,14 +90,6 @@ public struct LinkedMatchHandle: Codable, Equatable, Hashable, Sendable {
 public enum LinkPeer: String, Codable, Sendable {
     case phone
     case watch
-}
-
-public enum LinkControlRole: String, Codable, Sendable {
-    case phoneController
-    case phoneFollower
-    case watchController
-    case watchFollower
-    case shared
 }
 
 public struct LinkSharedEditTracker: Sendable {
@@ -149,15 +138,11 @@ public enum LinkSharedRevision {
     }
 }
 
-/// Manual score resync is intentionally one-way: the phone follower asks and
-/// the authoritative Watch controller answers with a fresh full snapshot.
+/// Manual score resync is bidirectional in a shared session: either device may
+/// ask the peer for a fresh full snapshot, and either device answers.
 public enum LinkManualResyncPolicy {
-    public static func phoneCanRequest(role: LinkControlRole?) -> Bool {
-        role == .phoneFollower
-    }
-
-    public static func watchCanRespond(role: LinkControlRole?) -> Bool {
-        role == .watchController
+    public static func canRequest(hasActiveSession: Bool) -> Bool {
+        hasActiveSession
     }
 }
 
@@ -171,15 +156,9 @@ public enum LinkMessageKind: String, Codable, Sendable {
     case statusQuery
     case statusResponse
     case resyncRequest
-    case takeoverByPhone
-    case reclaimRequest
-    case reclaimAccepted
-    case reclaimDenied
     case matchFinished
     case recordAcknowledgement
     case scoreboardExitedToHome
-    case watchBackgrounded
-    case resumeDiscarded
     case sessionLeft
     case commonNamesSyncRequest
     case connectivityProbe
@@ -514,36 +493,6 @@ public struct EmptyLinkPayload: Codable, Equatable, Sendable {
     public init() {}
 }
 
-public struct LinkAuthorityTransferPayload: Codable, Equatable, Sendable {
-    public var snapshot: LinkedScoreboardSnapshot?
-    public var detailedActions: [DetailedScoreAction]
-    public var baseRevision: UInt64
-
-    public init(
-        snapshot: LinkedScoreboardSnapshot? = nil,
-        detailedActions: [DetailedScoreAction] = [],
-        baseRevision: UInt64
-    ) {
-        self.snapshot = snapshot
-        self.detailedActions = detailedActions
-        self.baseRevision = baseRevision
-    }
-}
-
-public enum LinkResumeDiscardReason: String, Codable, Sendable {
-    case resumeBarClose
-    case newScoreboardStart
-    case expired
-}
-
-public struct LinkResumeDiscardPayload: Codable, Equatable, Sendable {
-    public let reason: LinkResumeDiscardReason
-
-    public init(reason: LinkResumeDiscardReason) {
-        self.reason = reason
-    }
-}
-
 public struct LinkAcknowledgementPayload: Codable, Equatable, Sendable {
     public var acknowledgedMessageId: UUID
     public var acknowledgedRevision: UInt64
@@ -601,18 +550,15 @@ public struct LinkMatchFinishedPayload: Codable, Equatable, Sendable {
 }
 
 public struct LinkStatusPayload: Codable, Equatable, Sendable {
-    public var role: LinkControlRole
     public var revision: UInt64
     public var reachable: Bool
     public var capabilities: Set<LinkCapability>
 
     public init(
-        role: LinkControlRole,
         revision: UInt64,
         reachable: Bool = true,
         capabilities: Set<LinkCapability> = LinkProtocol.capabilities
     ) {
-        self.role = role
         self.revision = revision
         self.reachable = reachable
         self.capabilities = capabilities
@@ -622,8 +568,6 @@ public struct LinkStatusPayload: Codable, Equatable, Sendable {
 public struct PhoneLinkResumeContext: Codable, Equatable, Sendable {
     public var handle: LinkedMatchHandle
     public var setup: LinkedScoreboardSetup
-    public var role: LinkControlRole
-    public var authorityEpoch: UInt64
     public var revision: UInt64
     public var latestAuthoritativeSnapshot: LinkedScoreboardSnapshot?
     public var detailedActions: [DetailedScoreAction]
@@ -639,8 +583,6 @@ public struct PhoneLinkResumeContext: Codable, Equatable, Sendable {
     public init(
         handle: LinkedMatchHandle,
         setup: LinkedScoreboardSetup,
-        role: LinkControlRole,
-        authorityEpoch: UInt64,
         revision: UInt64,
         latestAuthoritativeSnapshot: LinkedScoreboardSnapshot?,
         detailedActions: [DetailedScoreAction],
@@ -653,8 +595,6 @@ public struct PhoneLinkResumeContext: Codable, Equatable, Sendable {
     ) {
         self.handle = handle
         self.setup = setup
-        self.role = role
-        self.authorityEpoch = authorityEpoch
         self.revision = revision
         self.latestAuthoritativeSnapshot = latestAuthoritativeSnapshot
         self.detailedActions = detailedActions
@@ -670,8 +610,6 @@ public struct PhoneLinkResumeContext: Codable, Equatable, Sendable {
 public struct WatchLinkResumeContext: Codable, Equatable, Sendable {
     public var handle: LinkedMatchHandle
     public var setup: LinkedScoreboardSetup
-    public var role: LinkControlRole
-    public var authorityEpoch: UInt64
     public var revision: UInt64
     public var latestAuthoritativeSnapshot: LinkedScoreboardSnapshot?
     public var detailedActions: [DetailedScoreAction]
@@ -686,8 +624,6 @@ public struct WatchLinkResumeContext: Codable, Equatable, Sendable {
     public init(
         handle: LinkedMatchHandle,
         setup: LinkedScoreboardSetup,
-        role: LinkControlRole,
-        authorityEpoch: UInt64,
         revision: UInt64,
         latestAuthoritativeSnapshot: LinkedScoreboardSnapshot?,
         detailedActions: [DetailedScoreAction],
@@ -699,8 +635,6 @@ public struct WatchLinkResumeContext: Codable, Equatable, Sendable {
     ) {
         self.handle = handle
         self.setup = setup
-        self.role = role
-        self.authorityEpoch = authorityEpoch
         self.revision = revision
         self.latestAuthoritativeSnapshot = latestAuthoritativeSnapshot
         self.detailedActions = detailedActions
@@ -918,31 +852,28 @@ public struct LinkDurableOutbox: Codable, Equatable, Sendable {
 public struct LinkRecordSession: Codable, Sendable {
     public let handle: LinkedMatchHandle
     public let gameType: GameType
-    public let authorityEpoch: UInt64
     public fileprivate(set) var completedMatchIds: Set<UUID>
     public let allowsPeerNextMatch: Bool?
 
     public init(
         handle: LinkedMatchHandle,
         gameType: GameType,
-        authorityEpoch: UInt64,
         completedMatchIds: Set<UUID>,
         allowsPeerNextMatch: Bool? = nil
     ) {
         self.handle = handle
         self.gameType = gameType
-        self.authorityEpoch = authorityEpoch
         self.completedMatchIds = completedMatchIds
         self.allowsPeerNextMatch = allowsPeerNextMatch
     }
 
-    public func accepts(handle incoming: LinkedMatchHandle, authorityEpoch incomingEpoch: UInt64) -> Bool {
+    public func accepts(handle incoming: LinkedMatchHandle) -> Bool {
         guard incoming.sessionId == handle.sessionId else { return false }
         if incoming.matchGeneration < handle.matchGeneration { return true }
         if incoming.matchGeneration > handle.matchGeneration {
-            return allowsPeerNextMatch == true && incomingEpoch == authorityEpoch
+            return allowsPeerNextMatch == true
         }
-        return incoming == handle && incomingEpoch >= authorityEpoch
+        return incoming == handle
     }
 }
 
@@ -965,8 +896,7 @@ public struct LinkRetiredRecordSessions: Sendable {
         let id = session.handle.sessionId
         var retained = session
         if let existing = sessions[id] {
-            if existing.handle.matchGeneration > session.handle.matchGeneration
-                || (existing.handle == session.handle && existing.authorityEpoch > session.authorityEpoch) {
+            if existing.handle.matchGeneration > session.handle.matchGeneration {
                 retained = existing
             }
             retained.completedMatchIds.formUnion(existing.completedMatchIds)
@@ -981,7 +911,7 @@ public struct LinkRetiredRecordSessions: Sendable {
         session.completedMatchIds.insert(handle.matchId)
         if handle.matchGeneration > session.handle.matchGeneration {
             session = LinkRecordSession(
-                handle: handle, gameType: session.gameType, authorityEpoch: session.authorityEpoch,
+                handle: handle, gameType: session.gameType,
                 completedMatchIds: session.completedMatchIds, allowsPeerNextMatch: session.allowsPeerNextMatch
             )
         }
@@ -989,9 +919,8 @@ public struct LinkRetiredRecordSessions: Sendable {
         persist()
     }
 
-    public mutating func removeConfirmedSession(handle: LinkedMatchHandle, authorityEpoch: UInt64) {
-        guard let session = sessions[handle.sessionId], session.handle == handle,
-              authorityEpoch >= session.authorityEpoch else { return }
+    public mutating func removeConfirmedSession(handle: LinkedMatchHandle) {
+        guard let session = sessions[handle.sessionId], session.handle == handle else { return }
         sessions.removeValue(forKey: handle.sessionId)
         persist()
     }
@@ -1012,16 +941,13 @@ public struct LinkRetiredRecordSessions: Sendable {
 /// for the same session has been acknowledged.
 public struct LinkPendingSessionEnd: Codable, Equatable, Sendable {
     public let handle: LinkedMatchHandle
-    public let authorityEpoch: UInt64
     public let revision: UInt64
 
     public init(
         handle: LinkedMatchHandle,
-        authorityEpoch: UInt64,
         revision: UInt64
     ) {
         self.handle = handle
-        self.authorityEpoch = authorityEpoch
         self.revision = revision
     }
 }
@@ -1070,14 +996,12 @@ public struct LinkEnvelope<Payload: Codable & Sendable>: Codable, Sendable {
     public let protocolVersion: Int
     public let capabilities: Set<LinkCapability>
     public let supportsCompressedFinish: Bool?
-    public let supportsSharedEditing: Bool?
     public let baseSnapshotRevision: UInt64?
     public let messageId: UUID
     public let correlationId: UUID?
     public let sessionId: UUID
     public let matchId: UUID
     public let matchGeneration: UInt64
-    public let authorityEpoch: UInt64
     public let kind: LinkMessageKind
     public let sender: LinkPeer
     public let senderSequence: UInt64
@@ -1089,14 +1013,12 @@ public struct LinkEnvelope<Payload: Codable & Sendable>: Codable, Sendable {
         protocolVersion: Int = LinkProtocol.currentVersion,
         capabilities: Set<LinkCapability> = LinkProtocol.capabilities,
         supportsCompressedFinish: Bool? = nil,
-        supportsSharedEditing: Bool? = nil,
         baseSnapshotRevision: UInt64? = nil,
         messageId: UUID = UUID(),
         correlationId: UUID? = nil,
         sessionId: UUID,
         matchId: UUID? = nil,
         matchGeneration: UInt64 = 1,
-        authorityEpoch: UInt64 = 0,
         kind: LinkMessageKind,
         sender: LinkPeer,
         senderSequence: UInt64,
@@ -1107,14 +1029,12 @@ public struct LinkEnvelope<Payload: Codable & Sendable>: Codable, Sendable {
         self.protocolVersion = protocolVersion
         self.capabilities = capabilities
         self.supportsCompressedFinish = supportsCompressedFinish
-        self.supportsSharedEditing = supportsSharedEditing
         self.baseSnapshotRevision = baseSnapshotRevision
         self.messageId = messageId
         self.correlationId = correlationId
         self.sessionId = sessionId
         self.matchId = matchId ?? sessionId
         self.matchGeneration = max(1, matchGeneration)
-        self.authorityEpoch = authorityEpoch
         self.kind = kind
         self.sender = sender
         self.senderSequence = senderSequence
@@ -1139,7 +1059,6 @@ public struct LinkEnvelopeHead: Decodable, Sendable {
     public let sessionId: UUID
     public let matchId: UUID
     public let matchGeneration: UInt64
-    public let authorityEpoch: UInt64
     public let kind: LinkMessageKind
     public let sender: LinkPeer
     public let sessionRevision: UInt64
@@ -1170,9 +1089,6 @@ public enum LinkEnvelopeEncoding {
         if let ackEnvelope = envelope as? LinkEnvelope<LinkAcknowledgementPayload> {
             return data(ackEnvelope, actionsKeyPath: \.detailedActions)
         }
-        if let transferEnvelope = envelope as? LinkEnvelope<LinkAuthorityTransferPayload> {
-            return data(transferEnvelope, actionsKeyPath: \.detailedActions)
-        }
         return data(envelope)
     }
 
@@ -1202,14 +1118,12 @@ public enum LinkEnvelopeEncoding {
             protocolVersion: envelope.protocolVersion,
             capabilities: envelope.capabilities,
             supportsCompressedFinish: envelope.supportsCompressedFinish,
-            supportsSharedEditing: envelope.supportsSharedEditing,
             baseSnapshotRevision: envelope.baseSnapshotRevision,
             messageId: UUID(),
             correlationId: envelope.correlationId,
             sessionId: envelope.sessionId,
             matchId: envelope.matchId,
             matchGeneration: envelope.matchGeneration,
-            authorityEpoch: envelope.authorityEpoch,
             kind: envelope.kind,
             sender: envelope.sender,
             senderSequence: envelope.senderSequence,
@@ -1232,10 +1146,6 @@ public enum LinkEnvelopeEncoding {
         if var ackEnvelope = envelope as? LinkEnvelope<LinkAcknowledgementPayload> {
             ackEnvelope.payload.detailedActions = []
             return data(ackEnvelope)
-        }
-        if var transferEnvelope = envelope as? LinkEnvelope<LinkAuthorityTransferPayload> {
-            transferEnvelope.payload.detailedActions = []
-            return data(transferEnvelope)
         }
         return data(envelope)
     }
@@ -1406,73 +1316,33 @@ public struct LinkSessionStateMachine: Codable, Equatable, Sendable {
         case ended
     }
 
-    public enum AuthorityTransferKind: String, Codable, Equatable, Sendable {
-        case phoneTakeover
-        case watchReclaim
-        case forcedPhoneTakeover
-    }
-
-    public struct PendingAuthorityTransfer: Codable, Equatable, Sendable {
-        public let correlationId: UUID
-        public let targetRole: LinkControlRole
-        public let kind: AuthorityTransferKind
-        public let previousEpoch: UInt64
-        public private(set) var preparedEpoch: UInt64?
-
-        fileprivate init(
-            correlationId: UUID,
-            targetRole: LinkControlRole,
-            kind: AuthorityTransferKind,
-            previousEpoch: UInt64
-        ) {
-            self.correlationId = correlationId
-            self.targetRole = targetRole
-            self.kind = kind
-            self.previousEpoch = previousEpoch
-            preparedEpoch = nil
-        }
-
-        fileprivate mutating func prepare(epoch: UInt64) {
-            preparedEpoch = epoch
-        }
-    }
-
     public enum Validation: Equatable, Sendable {
         case current
         case duplicateOrOlder
         case wrongSession
         case wrongMatch
-        case staleAuthority
         case endedSession
     }
 
     public private(set) var handle: LinkedMatchHandle
-    public private(set) var role: LinkControlRole
-    public private(set) var authorityEpoch: UInt64
     public private(set) var revision: UInt64
     public private(set) var completedMatchIds: Set<UUID>
     public private(set) var lifecycle: Lifecycle
     public private(set) var setupCorrelationId: UUID?
-    public private(set) var pendingAuthorityTransfer: PendingAuthorityTransfer?
     public private(set) var pendingAcknowledgementIds: Set<UUID>
 
     public init(
         handle: LinkedMatchHandle,
-        role: LinkControlRole,
-        authorityEpoch: UInt64 = 0,
         revision: UInt64 = 0,
         completedMatchIds: Set<UUID> = [],
         lifecycle: Lifecycle = .active,
         pendingAcknowledgementIds: Set<UUID> = []
     ) {
         self.handle = handle
-        self.role = role
-        self.authorityEpoch = authorityEpoch
         self.revision = revision
         self.completedMatchIds = completedMatchIds
         self.lifecycle = lifecycle
         setupCorrelationId = nil
-        pendingAuthorityTransfer = nil
         self.pendingAcknowledgementIds = pendingAcknowledgementIds
     }
 
@@ -1487,17 +1357,15 @@ public struct LinkSessionStateMachine: Codable, Equatable, Sendable {
     @discardableResult
     public mutating func resolveSetup(
         correlationId: UUID,
-        acceptedRole: LinkControlRole?
+        accepted: Bool
     ) -> Bool {
         guard lifecycle == .starting,
               setupCorrelationId == correlationId else { return false }
         setupCorrelationId = nil
-        guard let acceptedRole else {
+        guard accepted else {
             lifecycle = .ended
-            pendingAuthorityTransfer = nil
             return true
         }
-        role = acceptedRole
         lifecycle = .active
         return true
     }
@@ -1508,7 +1376,6 @@ public struct LinkSessionStateMachine: Codable, Equatable, Sendable {
         revision = 0
         lifecycle = .active
         setupCorrelationId = nil
-        pendingAuthorityTransfer = nil
         // 新一场比赛的 ACK 属于旧 matchId，不再等待。
         pendingAcknowledgementIds = []
         return handle
@@ -1516,7 +1383,7 @@ public struct LinkSessionStateMachine: Codable, Equatable, Sendable {
 
     @discardableResult
     public mutating func advanceRevision(sender: LinkPeer? = nil) -> UInt64 {
-        if role == .shared, let sender {
+        if let sender {
             // Each edit advances the logical round. Same-round edits have a
             // stable order on both peers without relying on device clocks.
             let round = revision / 2 + revision % 2
@@ -1529,12 +1396,10 @@ public struct LinkSessionStateMachine: Codable, Equatable, Sendable {
 
     public mutating func accept(
         handle incoming: LinkedMatchHandle,
-        authorityEpoch incomingEpoch: UInt64,
         revision incomingRevision: UInt64
     ) -> Validation {
         guard lifecycle != .ended else { return .endedSession }
         guard incoming.sessionId == handle.sessionId else { return .wrongSession }
-        guard incomingEpoch >= authorityEpoch else { return .staleAuthority }
         if incoming.matchGeneration < handle.matchGeneration {
             return .wrongMatch
         }
@@ -1544,106 +1409,14 @@ public struct LinkSessionStateMachine: Codable, Equatable, Sendable {
         }
         if incoming.matchGeneration > handle.matchGeneration {
             handle = incoming
-            authorityEpoch = incomingEpoch
             revision = incomingRevision
             lifecycle = .active
             setupCorrelationId = nil
-            pendingAuthorityTransfer = nil
             return .current
         }
         guard incomingRevision > revision else { return .duplicateOrOlder }
-        authorityEpoch = incomingEpoch
         revision = incomingRevision
         return .current
-    }
-
-    @discardableResult
-    public mutating func transferAuthority(to role: LinkControlRole) -> UInt64 {
-        authorityEpoch += 1
-        self.role = role
-        lifecycle = .active
-        pendingAuthorityTransfer = nil
-        return authorityEpoch
-    }
-
-    public mutating func adoptAuthority(role: LinkControlRole, epoch: UInt64) -> Bool {
-        guard lifecycle != .ended else { return false }
-        guard epoch >= authorityEpoch else { return false }
-        authorityEpoch = epoch
-        self.role = role
-        lifecycle = .active
-        return true
-    }
-
-    @discardableResult
-    public mutating func beginAuthorityTransfer(
-        correlationId: UUID,
-        targetRole: LinkControlRole,
-        kind: AuthorityTransferKind
-    ) -> Bool {
-        guard lifecycle != .ended,
-              pendingAuthorityTransfer == nil else { return false }
-        pendingAuthorityTransfer = PendingAuthorityTransfer(
-            correlationId: correlationId,
-            targetRole: targetRole,
-            kind: kind,
-            previousEpoch: authorityEpoch
-        )
-        return true
-    }
-
-    @discardableResult
-    public mutating func prepareAuthorityTransfer(
-        correlationId: UUID,
-        epoch: UInt64
-    ) -> Bool {
-        guard var pending = pendingAuthorityTransfer,
-              pending.correlationId == correlationId,
-              epoch > authorityEpoch else { return false }
-        pending.prepare(epoch: epoch)
-        pendingAuthorityTransfer = pending
-        authorityEpoch = epoch
-        return true
-    }
-
-    @discardableResult
-    public mutating func commitAuthorityTransfer(correlationId: UUID) -> Bool {
-        guard let pending = pendingAuthorityTransfer,
-              pending.correlationId == correlationId,
-              let preparedEpoch = pending.preparedEpoch,
-              preparedEpoch == authorityEpoch else { return false }
-        authorityEpoch = preparedEpoch
-        role = pending.targetRole
-        lifecycle = .active
-        pendingAuthorityTransfer = nil
-        return true
-    }
-
-    @discardableResult
-    public mutating func rejectAuthorityTransfer(correlationId: UUID) -> Bool {
-        guard let pending = pendingAuthorityTransfer,
-              pending.correlationId == correlationId else {
-            return false
-        }
-        authorityEpoch = pending.previousEpoch
-        pendingAuthorityTransfer = nil
-        return true
-    }
-
-    @discardableResult
-    /// Forced authority transfer. `kind` is reserved for analytics/diagnostics;
-    /// every forced transfer behaves the same (raise the epoch, flip the role,
-    /// clear pending transfer state).
-    public mutating func forceAuthority(
-        to role: LinkControlRole,
-        kind: AuthorityTransferKind = .forcedPhoneTakeover
-    ) -> UInt64 {
-        _ = kind
-        authorityEpoch += 1
-        self.role = role
-        lifecycle = .active
-        pendingAuthorityTransfer = nil
-        return authorityEpoch
     }
 
     public mutating func registerPendingAcknowledgement(_ messageId: UUID) {
@@ -1667,7 +1440,6 @@ public struct LinkSessionStateMachine: Codable, Equatable, Sendable {
     public mutating func endSession() {
         lifecycle = .ended
         setupCorrelationId = nil
-        pendingAuthorityTransfer = nil
         pendingAcknowledgementIds = []
     }
 }

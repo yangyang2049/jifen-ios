@@ -239,7 +239,7 @@ struct WatchRallyScoreView: View {
     }
 
     private var scoringLocked: Bool {
-        linkedSessionId != nil && linkService.isFollower
+        linkedSessionId != nil && !linkService.canEditLinkedMatch
     }
 
     private var isHorizontal: Bool { scoreboardLayout == "horizontal" }
@@ -272,11 +272,7 @@ struct WatchRallyScoreView: View {
                         guard !scoringLocked else { return }
                         showMenu = false
                         confirmation = .reset
-                    },
-                    onReclaim: scoringLocked ? {
-                        linkService.requestReclaim()
-                        showMenu = false
-                    } : nil
+                    }
                 )
             }
             if let restState {
@@ -395,18 +391,6 @@ struct WatchRallyScoreView: View {
                     didFinalizeFinish = false
                     restState = WatchRestState.fromOfficialBreak(state.officialBreakState)
                 }
-            }
-        }
-        .onChange(of: linkService.pendingReclaimAcceptance) { _, pending in
-            guard let linkedSessionId,
-                  let pending,
-                  pending.sessionId == linkedSessionId,
-                  let state = pending.snapshot.rallyState else { return }
-            store.mergeRemoteActions(pending.detailedActions)
-            Task {
-                guard await store.applyAuthoritativeState(state, revision: pending.revision) else { return }
-                restState = WatchRestState.fromOfficialBreak(state.finished ? nil : state.officialBreakState)
-                linkService.completeReclaimAcceptance(messageId: pending.messageId)
             }
         }
         .onDisappear {
@@ -1167,7 +1151,7 @@ struct WatchRallyScoreView: View {
                 restState: restState
             ),
             actionLog: store.actionLog,
-            link: linkService.resumeContext
+            linkHandle: linkService.resumeContext?.handle
         ))
     }
 

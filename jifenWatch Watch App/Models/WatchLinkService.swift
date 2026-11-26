@@ -7,12 +7,10 @@ import ScoreCore
 struct LinkedSetupRequest: Equatable {
     let handle: LinkedMatchHandle
     let messageId: UUID
-    let authorityEpoch: UInt64
     let setup: LinkedScoreboardSetup
     var peerSupportsCompressedFinish = false
     /// Capability intersection negotiated from the request envelope.
     var peerCapabilities: Set<LinkCapability> = []
-    var peerSupportsSharedEditing = false
 
     var sessionId: UUID { handle.sessionId }
 }
@@ -30,14 +28,6 @@ struct LinkedSnapshotUpdate: Equatable {
     }
 }
 
-struct PendingWatchReclaimAcceptance: Equatable {
-    let messageId: UUID
-    let correlationId: UUID
-    let sessionId: UUID
-    let revision: UInt64
-    let snapshot: LinkedScoreboardSnapshot
-    let detailedActions: [DetailedScoreAction]
-}
 
 enum WatchPhoneLinkTestState: Equatable {
     case idle
@@ -102,9 +92,7 @@ final class WatchLinkService {
     var latestSnapshot: LinkedSnapshotUpdate?
     var sharedEditTracker = LinkSharedEditTracker()
     var simultaneousEditNotice: UUID?
-    var controlRole: LinkControlRole?
-    var phoneTookOver: Bool = false
-    var pendingReclaimAcceptance: PendingWatchReclaimAcceptance?
+    /// 联动会话恒为 `.shared`：两端都能计分，不再有主控/跟随角色。
     internal(set) var connectivityStatus: WatchConnectivityStatus
     internal(set) var phoneLinkTestState: WatchPhoneLinkTestState = .idle
     internal(set) var phoneLinkTestFailure: WatchPhoneLinkTestFailure?
@@ -146,20 +134,19 @@ final class WatchLinkService {
               sessionMachine?.lifecycle != .starting else { return nil }
         return LinkRecordSession(
             handle: handle, gameType: gameType,
-            authorityEpoch: authorityEpoch, completedMatchIds: publishedFinishedMatchIds,
-            allowsPeerNextMatch: controlRole == .watchFollower || controlRole == .shared
+            completedMatchIds: publishedFinishedMatchIds,
+            allowsPeerNextMatch: true
         )
     }
     var publishedFinishedMatchIds: Set<UUID> = []
-    var pendingReclaimRequestMessageId: UUID?
-    var reclaimRequestTimeoutTask: Task<Void, Never>?
     var activeSessionId: UUID?
     var activeHandle: LinkedMatchHandle?
     var activeRevision: UInt64 = 0
-    var authorityEpoch: UInt64 = 0
     var activeGameType: GameType?
     var activeSetup: LinkedScoreboardSetup?
     var mergedDetailedActions: [DetailedScoreAction] = []
+    /// 恢复上下文时本地仍有未送达增量：重连后据此重建待发帧。
+    var needsInitialResend = false
     var ackRetryTask: Task<Void, Never>?
     let pendingWatchRecordsKey = "watch_pending_record_transfers_v1"
     var pendingWatchRecords: [WatchRecordTransferPayload] = []
@@ -238,6 +225,10 @@ final class WatchLinkService {
                 self.flushPendingWatchRecords()
                 self.flushPendingCommonNameMutations(force: false)
                 if becameReachable { self.retryLiveSnapshotOnReconnect() }
+                if self.needsInitialResend, self.activeSessionId != nil, self.canEditLinkedMatch {
+                    self.needsInitialResend = false
+                    self.sendRestoredDeltaIfNeeded()
+                }
                 if status.isReachable {
                     self.requestCommonNamesSnapshot()
                 }
@@ -271,23 +262,21 @@ final class WatchLinkService {
         #endif
     }
 
-    var isController: Bool {
-        controlRole == .watchController
-    }
-
+    /// 共享会话下两端都可计分；只有会话未建立时才只读。
     var canEditLinkedMatch: Bool {
-        isController || controlRole == .shared
+        guard let machine = sessionMachine else { return false }
+        return machine.lifecycle == .active || machine.lifecycle == .matchFinished
     }
 
+    /// 对端 revision 已生效且由手机写入时才作为权威快照应用。
     var incomingSnapshot: LinkedSnapshotUpdate? {
-        guard let update = latestSnapshot,
-              isFollower || (controlRole == .shared && LinkSharedRevision.writer(of: update.revision) == .phone)
-        else { return nil }
+        guard let update = latestSnapshot, canEditLinkedMatch,
+              LinkSharedRevision.writer(of: update.revision) == .phone else { return nil }
         return update
     }
 
     var peerFinishedSharedMatch: Bool {
-        controlRole == .shared && incomingSnapshot?.snapshot.isFinished == true
+        incomingSnapshot?.snapshot.isFinished == true
     }
 
     #if DEBUG

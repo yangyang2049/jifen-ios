@@ -691,10 +691,15 @@ final class WatchSportsSetupTests: XCTestCase {
         let store = WatchResumeSessionStore(directoryURL: directory, now: { currentDate })
         let sessionID = UUID()
         let link = WatchLinkResumeContext(
-            sessionId: sessionID,
+            handle: LinkedMatchHandle(sessionId: sessionID),
+            setup: LinkedScoreboardSetup(gameType: .basketballTraining),
             revision: 3,
-            controlRole: .watchController,
-            setup: LinkedScoreboardSetup(gameType: .basketball)
+            latestAuthoritativeSnapshot: .basketballTraining(
+                .init(mode: .free, startTime: currentDate, shots: [])
+            ),
+            detailedActions: [],
+            completedMatchIds: [],
+            pendingTerminalMessageIds: []
         )
         let shot = ShotTrainingShot(points: 2, made: true, timestamp: currentDate)
         store.save(WatchResumeSession(
@@ -702,7 +707,7 @@ final class WatchSportsSetupTests: XCTestCase {
             scoreLine: "2 / 1",
             emoji: "🏀",
             payload: .basketballTraining(mode: .free, history: [shot]),
-            link: link
+            linkHandle: link.handle
         ))
         // 落盘是 750ms 防抖的，跨实例持久化断言前先冲掉待写数据。
         store.flushPendingWrite()
@@ -760,13 +765,7 @@ final class WatchSportsSetupTests: XCTestCase {
             emoji: "🏸",
             payload: .basketballTraining(mode: .free, history: []),
             actionLog: WatchScoreActionLog(startedAt: now),
-            link: WatchLinkResumeContext(
-                handle: handle,
-                revision: 1,
-                authorityEpoch: 0,
-                controlRole: .watchFollower,
-                setup: LinkedScoreboardSetup(gameType: .badminton)
-            )
+            linkHandle: handle
         ))
 
         let remoteAction = DetailedScoreAction(
@@ -783,10 +782,12 @@ final class WatchSportsSetupTests: XCTestCase {
         history.noteRemoteRemovals([localRemovedID])
         var context = WatchLinkResumeContext(
             handle: handle,
+            setup: LinkedScoreboardSetup(gameType: .badminton),
             revision: 2,
-            authorityEpoch: 0,
-            controlRole: .watchFollower,
-            setup: LinkedScoreboardSetup(gameType: .badminton)
+            latestAuthoritativeSnapshot: nil,
+            detailedActions: [],
+            completedMatchIds: [],
+            pendingTerminalMessageIds: []
         )
         context.detailedActions = [remoteAction]
         context.actionHistory = history

@@ -180,10 +180,6 @@ struct WatchFootballScoreView: View {
                         showMenu = false
                         confirmation = .reset
                     },
-                    onReclaim: scoringLocked ? {
-                        showMenu = false
-                        linkService.requestReclaim()
-                    } : nil,
                     extraActions: menuExtraActions
                 )
             }
@@ -231,7 +227,7 @@ struct WatchFootballScoreView: View {
                   update.matchGeneration == linkService.activeHandle?.matchGeneration,
                   let remote = update.snapshot.footballState else { return }
             let acceptsScore = linkService.incomingSnapshot != nil
-            if acceptsScore, linkService.controlRole == .shared, update.beginsMatch(after: previous) {
+            if acceptsScore, update.beginsMatch(after: previous) {
                 matchStartTime = Date()
                 actionLog.reset(at: matchStartTime)
             }
@@ -247,13 +243,6 @@ struct WatchFootballScoreView: View {
             lastAppliedRemoteGeneration = update.matchGeneration
             lastAppliedRemoteRevision = update.revision
             applyLinkedState(remote)
-        }
-        .onChange(of: linkService.pendingReclaimAcceptance) { _, pending in
-            guard let linkedSessionId, let pending, pending.sessionId == linkedSessionId,
-                  let remote = pending.snapshot.footballState else { return }
-            actionLog.merge(detailedActions: pending.detailedActions)
-            applyLinkedState(remote)
-            linkService.completeReclaimAcceptance(messageId: pending.messageId)
         }
         .onDisappear {
             finishTask?.cancel()
@@ -832,7 +821,7 @@ struct WatchFootballScoreView: View {
     // MARK: - Linked session
 
     private var scoringLocked: Bool {
-        linkedSessionId != nil && linkService.isFollower
+        linkedSessionId != nil && !linkService.canEditLinkedMatch
     }
 
     private var linkedSnapshot: LinkedFootballState {
@@ -1173,7 +1162,7 @@ struct WatchFootballScoreView: View {
                 rightName: rightName
             ),
             actionLog: actionLog,
-            link: linkService.resumeContext
+            linkHandle: linkService.resumeContext?.handle
         ))
     }
 

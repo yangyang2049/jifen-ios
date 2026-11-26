@@ -116,9 +116,7 @@ struct FootballScoreboardView: View {
                     }
                     items.append(contentsOf: WatchLinkMenuSupport.extraItems(
                         entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
-                        sessionId: watchSessionId,
-                        isFollower: watchLinkService.isFollower,
-                        watchBackgrounded: watchLinkService.watchBackgrounded
+                        sessionId: watchSessionId
                     ))
                     return items
                 },
@@ -135,28 +133,6 @@ struct FootballScoreboardView: View {
                         showPostRegulationDialog = true
                     case "resync":
                         watchLinkService.requestScoreResync()
-                    case "takeover":
-                        if let id = watchSessionId {
-                            Task {
-                                do {
-                                    try await watchLinkService.takeover(sessionId: id)
-                                    publishWatchIfNeeded()
-                                } catch {
-                                    showToast(error.localizedDescription)
-                                }
-                            }
-                        }
-                    case "forceTakeover":
-                        if let id = watchSessionId {
-                            Task {
-                                do {
-                                    try await watchLinkService.forceTakeover(sessionId: id)
-                                    publishWatchIfNeeded()
-                                } catch {
-                                    showToast(error.localizedDescription)
-                                }
-                            }
-                        }
                     case "endLink":
                         if let id = watchSessionId {
                             watchLinkService.leaveSession(id)
@@ -206,7 +182,6 @@ struct FootballScoreboardView: View {
             }
             )
 
-
             if showGameOverDialog {
                 GameOverDialog(
                     winnerName: viewModel.getWinnerName(),
@@ -225,7 +200,7 @@ struct FootballScoreboardView: View {
                     },
                     onRecords: {
                         let skipSave = watchSessionId != nil
-                            && (watchLinkService.isFollower || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
+                            && (!watchLinkService.canEditLinkedMatch || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
                         if !skipSave {
                             viewModel.saveGameRecordInRealTime(
                                 recordID: recordID,
@@ -244,7 +219,7 @@ struct FootballScoreboardView: View {
                             watchLinkService.leaveSessionIfMatchFinished(id)
                         }
                         let skipSave = watchSessionId != nil
-                            && (watchLinkService.isFollower || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
+                            && (!watchLinkService.canEditLinkedMatch || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
                         if !skipSave {
                             viewModel.saveGameRecordInRealTime(
                                 recordID: recordID,
@@ -349,7 +324,7 @@ struct FootballScoreboardView: View {
             guard newValue else { return }
             showGameOverDialog = true
             if watchSessionId != nil {
-                if !watchLinkService.isFollower, !watchLinkService.peerFinishedSharedMatch {
+                if watchLinkService.canEditLinkedMatch, !watchLinkService.peerFinishedSharedMatch {
                     viewModel.saveGameRecordInRealTime(recordID: recordID, isGameFinished: true)
                     publishWatchIfNeeded()
                     notifyLinkedFinishIfNeeded(manualEnd: manualFinishRequested)
@@ -376,7 +351,7 @@ struct FootballScoreboardView: View {
         .onChange(of: watchLinkService.latestRemoteSnapshot) { previous, update in
             guard watchLinkService.incomingSnapshot != nil, let watchSessionId, let update, update.sessionId == watchSessionId,
                   let remote = update.snapshot.footballState else { return }
-            if watchLinkService.controlRole == .shared, update.beginsMatch(after: previous) {
+            if update.beginsMatch(after: previous) {
                 let previousRecordID = recordID
                 controller.beginNewMatch()
                 let gameType: GameType = isFiveAside ? .football5v5 : .football
@@ -389,15 +364,6 @@ struct FootballScoreboardView: View {
             showGameOverDialog = remote.finished
             if !remote.finished { manualFinishRequested = false }
         }
-        .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in
-            guard let watchSessionId, let pending, pending.sessionId == watchSessionId,
-                  let remote = pending.snapshot.footballState else { return }
-            viewModel.applyLinkedState(remote)
-            appliedWatchClockRevision = viewModel.clockRevision
-            showGameOverDialog = remote.finished
-            if !remote.finished { manualFinishRequested = false }
-            watchLinkService.completePhoneTakeover(messageId: pending.messageId)
-        }
         .onChange(of: scenePhase) { _, phase in
             if phase != .active, watchSessionId == nil || !watchLinkService.peerFinishedSharedMatch {
                 viewModel.saveGameRecordInRealTime(
@@ -408,7 +374,7 @@ struct FootballScoreboardView: View {
         }
         .onDisappear {
             let skipSave = watchSessionId != nil
-                && (watchLinkService.isFollower || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
+                && (!watchLinkService.canEditLinkedMatch || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
             if let watchSessionId { watchLinkService.detachPage(sessionId: watchSessionId) }
             guard !skipSave else { return }
             viewModel.saveGameRecordInRealTime(
@@ -420,50 +386,6 @@ struct FootballScoreboardView: View {
 
     private var boardWithLink: some View {
         boardWithLifecycle
-            .alert(
-                NSLocalizedString(
-                    "linked_score_watch_reclaim_title",
-                    value: "手表请求重新接管",
-                    comment: ""
-                ),
-                isPresented: reclaimAlertPresented
-            ) {
-                Button(NSLocalizedString("linked_score_accept", value: "同意", comment: "")) {
-                    watchLinkService.resolveReclaimRequest(
-                        accepted: true,
-                        snapshot: .football(viewModel.linkedState()),
-                        detailedActions: []
-                    )
-                }
-                Button(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""), role: .cancel) {
-                    watchLinkService.resolveReclaimRequest(
-                        accepted: false,
-                        snapshot: .football(viewModel.linkedState()),
-                        detailedActions: []
-                    )
-                }
-            } message: {
-                Text(NSLocalizedString(
-                    "linked_score_watch_reclaim_message",
-                    value: "是否允许手表在 5 秒内重新接管计分？",
-                    comment: ""
-                ))
-            }
-    }
-
-    private var reclaimAlertPresented: Binding<Bool> {
-        Binding(
-            get: { watchLinkService.pendingReclaimRequest != nil },
-            set: { presented in
-                if !presented, watchLinkService.pendingReclaimRequest != nil {
-                    watchLinkService.resolveReclaimRequest(
-                        accepted: false,
-                        snapshot: .football(viewModel.linkedState()),
-                        detailedActions: []
-                    )
-                }
-            }
-        )
     }
 
     private func showToast(_ message: String) {
@@ -486,15 +408,14 @@ struct FootballScoreboardView: View {
 
     private var scoringLocked: Bool {
         watchSessionId != nil
-            && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
+            && !watchLinkService.canEditLinkedMatch
     }
 
     private func publishWatchIfNeeded() {
         guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
         // Applying a remote clock snapshot changes its local wall-clock anchor.
         // Send only after a local goal, name change, or clock operation.
-        if watchLinkService.controlRole == .shared,
-           appliedWatchClockRevision == viewModel.clockRevision,
+        if appliedWatchClockRevision == viewModel.clockRevision,
            let remote = watchLinkService.incomingSnapshot?.snapshot.footballState,
            remote.leftScore == viewModel.leftTeam.score, remote.rightScore == viewModel.rightTeam.score,
            remote.leftName == viewModel.leftTeam.name, remote.rightName == viewModel.rightTeam.name,
