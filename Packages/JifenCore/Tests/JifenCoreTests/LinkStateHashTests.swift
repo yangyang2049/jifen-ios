@@ -1,5 +1,5 @@
 import Foundation
-import LinkCore
+import LinkSync
 import Testing
 
 struct LinkStateHashTests {

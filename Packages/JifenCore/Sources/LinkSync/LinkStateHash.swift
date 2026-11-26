@@ -1,4 +1,5 @@
 import Foundation
+import LinkCore
 
 /// A keyed snapshot that explicitly opts in to link-state hashing.
 ///
@@ -27,5 +28,19 @@ public enum LinkStateHash {
         encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
         encoder.dateEncodingStrategy = .millisecondsSince1970
         return fnv1a64(try encoder.encode(snapshot))
+    }
+}
+
+extension LinkStateHash {
+    /// Version 1 hashes the authoritative wire snapshot. Project running clocks
+    /// to stable anchors before constructing the snapshot. Audit new fields for
+    /// stable ordering and keep client-only metadata out of this representation.
+    public static func snapshot(_ snapshot: LinkedScoreboardSnapshot) throws -> UInt64 {
+        try fnv1a64(orderedJSON: VersionedSnapshot(schemaVersion: 1, snapshot: snapshot))
+    }
+
+    private struct VersionedSnapshot: LinkStateHashSnapshot {
+        let schemaVersion: Int
+        let snapshot: LinkedScoreboardSnapshot
     }
 }

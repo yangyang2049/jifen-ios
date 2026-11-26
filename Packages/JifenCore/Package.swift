@@ -14,6 +14,7 @@ let package = Package(
         .library(name: "RecordCore", targets: ["RecordCore"]),
         .library(name: "PersistenceCore", targets: ["PersistenceCore"]),
         .library(name: "LinkCore", targets: ["LinkCore"]),
+        .library(name: "LinkSync", targets: ["LinkSync"]),
         .library(name: "TimerCore", targets: ["TimerCore"])
     ],
     targets: [
@@ -22,7 +23,8 @@ let package = Package(
         .target(name: "RecordCore", dependencies: ["ScoreCore", "SessionCore"]),
         .target(name: "PersistenceCore", dependencies: ["ScoreCore", "SessionCore", "RecordCore"]),
         .target(name: "LinkCore", dependencies: ["ScoreCore", "SessionCore", "RecordCore", "PersistenceCore"]),
+        .target(name: "LinkSync", dependencies: ["LinkCore", "SessionCore", "ScoreCore", "RecordCore"]),
         .target(name: "TimerCore", dependencies: ["ScoreCore"]),
-        .testTarget(name: "JifenCoreTests", dependencies: ["ScoreCore", "SessionCore", "RecordCore", "PersistenceCore", "LinkCore", "TimerCore"])
+        .testTarget(name: "JifenCoreTests", dependencies: ["ScoreCore", "SessionCore", "RecordCore", "PersistenceCore", "LinkCore", "LinkSync", "TimerCore"])
     ]
 )

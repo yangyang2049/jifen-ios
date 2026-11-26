@@ -80,7 +80,7 @@ public struct EightBallState: Codable, Equatable, Sendable {
     }
 }
 
-public enum EightBallIntent: Codable, Sendable {
+public enum EightBallIntent: Codable, Equatable, Sendable {
     case addRack(MatchSide)
     case applyPot(side: MatchSide, ball: Int)
     case adminAdjust(left: Int, right: Int)
@@ -354,7 +354,7 @@ public struct NineBallChaseState: Codable, Equatable, Sendable {
     }
 }
 
-public enum NineBallChaseIntent: Codable, Sendable {
+public enum NineBallChaseIntent: Codable, Equatable, Sendable {
     /// Only valid for legacy sessions. New sessions require the transfer intent.
     case chaseEvent(player: Int, kind: NineBallChaseKind)
     case chaseTransfer(player: Int, kind: NineBallChaseKind, payer: Int?, continuePlayer: Int?)
