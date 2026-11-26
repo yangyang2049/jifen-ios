@@ -35,6 +35,32 @@ import Testing
         #expect(phone.checkpoint.committedRevision == 2)
     }
 
+    @Test func realJournalRecoversAnAcceptedOperationBeforeProjectionOrAck() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        typealias DiskJournal = LinkOperationJournal<PhoneHostCheckpoint<Score>, LinkOperationCommitPayload>
+        let op = operation(.rally(.pointWon(.right)), from: .watch, sequence: 1)
+        let initialReceipt: LinkOperationCommitPayload
+        do {
+            let journal = try DiskJournal(directoryURL: directory, handle: handle)
+            var phone = makePhone()
+            initialReceipt = try phone.process(
+                op, from: .watch, phoneClockReferenceEpochMilliseconds: 1_100,
+                lookup: journal.outcome(for:), persist: journal.append(checkpoint:outcome:)
+            )
+        }
+        let recovered = try DiskJournal(directoryURL: directory, handle: handle)
+        let checkpoint = try #require(recovered.latestCheckpoint)
+        var phone = makePhone(checkpoint: checkpoint)
+        let retried = try phone.process(
+            op, from: .watch, phoneClockReferenceEpochMilliseconds: 90_000,
+            lookup: recovered.outcome(for:), persist: recovered.append(checkpoint:outcome:)
+        )
+        #expect(retried == initialReceipt)
+        #expect(phone.checkpoint.state.right == 1 && phone.checkpoint.committedRevision == 1)
+        #expect(try recovered.results(after: 0) == [initialReceipt])
+    }
+
     @Test func persistenceErrorsLeaveBothStatesAndQueuesUnchanged() throws {
         var phone = makePhone()
         var watch = makeWatch()
@@ -315,7 +341,7 @@ import Testing
         try JSONDecoder().decode(Value.self, from: JSONEncoder().encode(value))
     }
 
-    private final class Journal<State> {
+    private final class Journal<State: Sendable> {
         var receipts: [UUID: LinkOperationCommitPayload] = [:]
 
         func submit(

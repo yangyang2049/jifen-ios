@@ -4,7 +4,7 @@ import RecordCore
 
 /// A complete, per-match durable cursor. `State` is a value containing any
 /// reducer history necessary to apply or undo another operation after restart.
-public struct PhoneHostCheckpoint<State> {
+public struct PhoneHostCheckpoint<State: Sendable>: Sendable {
     public let handle: LinkedMatchHandle
     public let state: State
     public let committedRevision: UInt64
@@ -50,8 +50,8 @@ public struct PhoneHostCheckpoint<State> {
 }
 
 extension PhoneHostCheckpoint: Codable where State: Codable {}
-extension PhoneHostCheckpoint: Sendable where State: Sendable {}
 extension PhoneHostCheckpoint: Equatable where State: Equatable {}
+extension PhoneHostCheckpoint: LinkOperationJournalCheckpoint where State: Codable {}
 
 public enum PhoneHostSequenceError: Error, Equatable {
     case wrongHandle
@@ -62,7 +62,7 @@ public enum PhoneHostSequenceError: Error, Equatable {
     case sequenceExhausted
 }
 
-public struct PhoneHostSequencer<State> {
+public struct PhoneHostSequencer<State: Sendable> {
     public private(set) var checkpoint: PhoneHostCheckpoint<State>
     private let futureToleranceMilliseconds: Int64
     private let snapshot: (State) -> LinkedScoreboardSnapshot

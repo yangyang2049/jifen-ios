@@ -135,6 +135,11 @@ public struct LinkOperationCommitPayload: Codable, Equatable, Sendable {
     }
 }
 
+extension LinkOperationCommitPayload: LinkOperationJournalOutcome {
+    public var journalOperationID: UUID { op.opId }
+    public var journalOperationHandle: LinkedMatchHandle { op.handle }
+}
+
 /// The small part of a journal receipt needed to reconcile one submitted Watch operation.
 public struct LinkProcessedOperation: Codable, Equatable, Sendable {
     public let opId: UUID
