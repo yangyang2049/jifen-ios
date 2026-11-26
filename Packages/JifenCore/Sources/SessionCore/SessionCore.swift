@@ -98,7 +98,9 @@ public enum DispatchResult<State: Codable & Sendable, Event: Codable & Sendable>
     case rejected(session: ScoreSession<State, Event>, reason: String)
 }
 
-public actor ScoreSessionCore<Reducer: DomainReducer> {
+/// Synchronous session lifecycle and replay state. Each copy owns its
+/// own score, undo history, and resume data.
+public struct ScoreSessionMachine<Reducer: DomainReducer>: Sendable {
     public typealias State = Reducer.State
     public typealias Intent = Reducer.Intent
     public typealias Event = Reducer.Event
@@ -113,7 +115,7 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
     private let canDispatch: @Sendable (String, Intent) -> Bool
     private let canUndo: @Sendable (String) -> Bool
     private let shouldFinish: @Sendable (Intent, State) -> Bool
-    private var currentSession: ScoreSession<State, Event>
+    public private(set) var currentSession: ScoreSession<State, Event>
     private var undoStack: [UndoFrame] = []
     private var timeline: [SessionIntentRecord<Intent>] = []
     private var resumeAuxiliaryPayload: Data?
@@ -183,7 +185,7 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
 
     /// Replaces app-owned resume context without creating an undo frame or
     /// changing reducer/session versions. The next `resumeBundle()` includes it.
-    public func setResumeAuxiliaryPayload(_ payload: Data?) {
+    public mutating func setResumeAuxiliaryPayload(_ payload: Data?) {
         resumeAuxiliaryPayload = payload
     }
 
@@ -195,7 +197,7 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
     /// Existing undo frames are rewritten with the same participant metadata so
     /// undoing a score never resurrects stale names in resume/session indexes.
     @discardableResult
-    public func updateParticipants(_ participants: [SessionParticipant]) -> ScoreSession<State, Event> {
+    public mutating func updateParticipants(_ participants: [SessionParticipant]) -> ScoreSession<State, Event> {
         func replacingParticipants(
             in session: ScoreSession<State, Event>,
             version: UInt64? = nil
@@ -232,7 +234,7 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
     /// Replay seed and existing undo frames are rewritten so undoing a score
     /// never resurrects an obsolete title or other local presentation data.
     @discardableResult
-    public func updateMetadata(_ metadata: SessionMetadata) -> ScoreSession<State, Event> {
+    public mutating func updateMetadata(_ metadata: SessionMetadata) -> ScoreSession<State, Event> {
         func replacingMetadata(
             in session: ScoreSession<State, Event>,
             version: UInt64? = nil
@@ -270,7 +272,7 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
     /// remote intents are not available locally, so neither undo nor replay may
     /// cross back into the previous controller's history.
     @discardableResult
-    public func rebase(to state: State, status: SessionStatus) -> ScoreSession<State, Event> {
+    public mutating func rebase(to state: State, status: SessionStatus) -> ScoreSession<State, Event> {
         let rebased: ScoreSession<State, Event> = ScoreSession(
             sessionId: currentSession.sessionId,
             gameType: currentSession.gameType,
@@ -290,7 +292,7 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
         return rebased
     }
 
-    public func dispatch(
+    public mutating func dispatch(
         actorId: String,
         intent: Intent,
         at epochMilliseconds: Int64
@@ -298,7 +300,7 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
         dispatch(actorId: actorId, intent: intent, at: epochMilliseconds, recordsUndo: true)
     }
 
-    public func dispatchNonUndoable(
+    public mutating func dispatchNonUndoable(
         actorId: String,
         intent: Intent,
         at epochMilliseconds: Int64
@@ -306,7 +308,7 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
         dispatch(actorId: actorId, intent: intent, at: epochMilliseconds, recordsUndo: false)
     }
 
-    private func dispatch(
+    private mutating func dispatch(
         actorId: String,
         intent: Intent,
         at epochMilliseconds: Int64,
@@ -346,7 +348,7 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
         return .accepted(session: currentSession, events: result.events)
     }
 
-    public func undo(actorId: String, mergingState: (@Sendable (State, State) -> State)? = nil) -> Bool {
+    public mutating func undo(actorId: String, mergingState: (@Sendable (State, State) -> State)? = nil) -> Bool {
         guard canUndo(actorId), let frame = undoStack.popLast() else {
             return false
         }
@@ -388,6 +390,102 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
             )
         }
         return session
+    }
+}
+
+/// Actor-isolated session API used by the phone and other asynchronous callers.
+public actor ScoreSessionCore<Reducer: DomainReducer> {
+    public typealias State = Reducer.State
+    public typealias Intent = Reducer.Intent
+    public typealias Event = Reducer.Event
+
+    private var machine: ScoreSessionMachine<Reducer>
+
+    public init(
+        seedSession: ScoreSession<State, Event>,
+        reducer: Reducer,
+        canDispatch: @escaping @Sendable (String, Intent) -> Bool = { _, _ in true },
+        canUndo: @escaping @Sendable (String) -> Bool = { _ in true },
+        shouldFinish: @escaping @Sendable (Intent, State) -> Bool = { _, _ in false }
+    ) {
+        machine = ScoreSessionMachine(
+            seedSession: seedSession,
+            reducer: reducer,
+            canDispatch: canDispatch,
+            canUndo: canUndo,
+            shouldFinish: shouldFinish
+        )
+    }
+
+    public init(
+        resumeBundle: ScoreSessionResumeBundle<State, Event, Intent>,
+        reducer: Reducer,
+        canDispatch: @escaping @Sendable (String, Intent) -> Bool = { _, _ in true },
+        canUndo: @escaping @Sendable (String) -> Bool = { _ in true },
+        shouldFinish: @escaping @Sendable (Intent, State) -> Bool = { _, _ in false }
+    ) {
+        machine = ScoreSessionMachine(
+            resumeBundle: resumeBundle,
+            reducer: reducer,
+            canDispatch: canDispatch,
+            canUndo: canUndo,
+            shouldFinish: shouldFinish
+        )
+    }
+
+    public func snapshot() -> ScoreSession<State, Event> {
+        machine.snapshot()
+    }
+
+    public func resumeBundle() -> ScoreSessionResumeBundle<State, Event, Intent> {
+        machine.resumeBundle()
+    }
+
+    public func setResumeAuxiliaryPayload(_ payload: Data?) {
+        machine.setResumeAuxiliaryPayload(payload)
+    }
+
+    public func intentTimeline() -> [SessionIntentRecord<Intent>] {
+        machine.intentTimeline()
+    }
+
+    @discardableResult
+    public func updateParticipants(_ participants: [SessionParticipant]) -> ScoreSession<State, Event> {
+        machine.updateParticipants(participants)
+    }
+
+    @discardableResult
+    public func updateMetadata(_ metadata: SessionMetadata) -> ScoreSession<State, Event> {
+        machine.updateMetadata(metadata)
+    }
+
+    @discardableResult
+    public func rebase(to state: State, status: SessionStatus) -> ScoreSession<State, Event> {
+        machine.rebase(to: state, status: status)
+    }
+
+    public func dispatch(
+        actorId: String,
+        intent: Intent,
+        at epochMilliseconds: Int64
+    ) -> DispatchResult<State, Event> {
+        machine.dispatch(actorId: actorId, intent: intent, at: epochMilliseconds)
+    }
+
+    public func dispatchNonUndoable(
+        actorId: String,
+        intent: Intent,
+        at epochMilliseconds: Int64
+    ) -> DispatchResult<State, Event> {
+        machine.dispatchNonUndoable(actorId: actorId, intent: intent, at: epochMilliseconds)
+    }
+
+    public func undo(actorId: String, mergingState: (@Sendable (State, State) -> State)? = nil) -> Bool {
+        machine.undo(actorId: actorId, mergingState: mergingState)
+    }
+
+    public func replay() throws -> ScoreSession<State, Event> {
+        try machine.replay()
     }
 }
 

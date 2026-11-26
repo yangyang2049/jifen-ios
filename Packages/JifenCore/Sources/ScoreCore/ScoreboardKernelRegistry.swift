@@ -72,6 +72,15 @@ public enum ScoreboardKernelRegistry {
         return .init(gameType: gameType, ruleFamily: family, kind: kind, reducerType: "\(kind.rawValue)/v1")
     }
 
+    /// New football sessions use the dedicated reducer. The default descriptor
+    /// still identifies the line-score drafts already used by the phone.
+    public static func footballReducerType(for gameType: GameType) -> String? {
+        switch gameType {
+        case .football, .football5v5: "football/v1"
+        default: nil
+        }
+    }
+
     public static func defaultRallyRules(for gameType: GameType) -> RallyRuleSet? {
         switch gameType {
         case .pingpong, .pingpongDoubles: .pingPong()
