@@ -96,6 +96,7 @@ public enum LinkOperationRejectionReason: String, Codable, Sendable {
     case matchFinished
     case invalidBaseRevision
     case reducerRejected
+    case intentFamilyMismatch
     case undoTargetUnavailable
     case invalidNextMatch
     case unsupportedSessionControl

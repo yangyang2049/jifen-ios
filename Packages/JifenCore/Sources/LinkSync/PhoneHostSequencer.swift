@@ -209,6 +209,9 @@ public struct PhoneHostSequencer<State: Sendable> {
         }
         guard !isFinished(checkpoint.state) else { return .rejected(.matchFinished) }
         guard op.baseRevision <= checkpoint.committedRevision else { return .rejected(.invalidBaseRevision) }
+        if case .undo(targetOpId: nil) = op.intent, op.baseRevision != checkpoint.committedRevision {
+            return .rejected(.undoTargetUnavailable)
+        }
         guard !op.intent.usesSportSpecificSessionControl else { return .rejected(.unsupportedSessionControl) }
         return transition(checkpoint.state, op, time)
     }
