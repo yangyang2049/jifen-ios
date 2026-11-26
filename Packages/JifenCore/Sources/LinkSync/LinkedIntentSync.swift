@@ -84,6 +84,48 @@ public struct LinkOperation: Codable, Equatable, Identifiable, Sendable {
         self.createdAtEpochMilliseconds = createdAtEpochMilliseconds
         self.intent = intent
     }
+
+    // M5 wire layout: [op/session/match UUID bytes, generation, origin,
+    // client sequence, base revision, created-at milliseconds, typed intent].
+    // Packed binary UUIDs avoid repeating three long UUID strings in commits.
+    public func encode(to encoder: Encoder) throws {
+        var fields = encoder.unkeyedContainer()
+        var ids = withUnsafeBytes(of: opId.uuid) { Data($0) }
+        ids.append(withUnsafeBytes(of: handle.sessionId.uuid) { Data($0) })
+        ids.append(withUnsafeBytes(of: handle.matchId.uuid) { Data($0) })
+        try fields.encode(ids)
+        try fields.encode(handle.matchGeneration)
+        try fields.encode(origin)
+        try fields.encode(clientSeq)
+        try fields.encode(baseRevision)
+        try fields.encode(createdAtEpochMilliseconds)
+        try fields.encode(intent)
+    }
+
+    public init(from decoder: Decoder) throws {
+        var fields = try decoder.unkeyedContainer()
+        let ids = try fields.decode(Data.self)
+        let generation = try fields.decode(UInt64.self)
+        guard ids.count == 48, generation > 0 else {
+            throw DecodingError.dataCorruptedError(in: fields, debugDescription: "Invalid linked operation identity")
+        }
+        let (opId, sessionId, matchId) = ids.withUnsafeBytes { bytes in
+            (
+                UUID(uuid: bytes.loadUnaligned(fromByteOffset: 0, as: uuid_t.self)),
+                UUID(uuid: bytes.loadUnaligned(fromByteOffset: 16, as: uuid_t.self)),
+                UUID(uuid: bytes.loadUnaligned(fromByteOffset: 32, as: uuid_t.self))
+            )
+        }
+        self.init(
+            opId: opId,
+            handle: LinkedMatchHandle(sessionId: sessionId, matchId: matchId, matchGeneration: generation),
+            origin: try fields.decode(LinkPeer.self),
+            clientSeq: try fields.decode(UInt64.self),
+            baseRevision: try fields.decode(UInt64.self),
+            createdAtEpochMilliseconds: try fields.decode(Int64.self),
+            intent: try fields.decode(LinkedScoreboardIntent.self)
+        )
+    }
 }
 
 public enum LinkOperationOutcome: String, Codable, Equatable, Sendable {
@@ -112,6 +154,18 @@ public struct LinkOperationCommitPayload: Codable, Equatable, Sendable {
     public let stateHash: UInt64
     public let authoritativeSnapshot: LinkedScoreboardSnapshot?
     public let deltaActions: [DetailedScoreAction]
+
+    private enum CodingKeys: String, CodingKey {
+        case committedRevision = "v"
+        case op = "op"
+        case outcome = "o"
+        case effectiveEpochMilliseconds = "t"
+        case timeWasClamped = "c"
+        case rejectionReason = "e"
+        case stateHash = "h"
+        case authoritativeSnapshot = "s"
+        case deltaActions = "a"
+    }
 
     public init(
         committedRevision: UInt64,

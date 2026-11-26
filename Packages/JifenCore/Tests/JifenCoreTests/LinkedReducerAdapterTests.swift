@@ -68,6 +68,33 @@ struct LinkedReducerAdapterTests {
         #expect(actions.first?.scores == [1, 0])
     }
 
+    @Test func ordinaryScoreOperationAndCommitFitCorePayloadBudgets() throws {
+        let time: Int64 = 1_795_000_000_000
+        let side = MatchSide.left
+        let adapter = makeAdapter()
+        let rally = RallyMatchEngine.initial(leftName: "L", rightName: "R", rules: .pingPong())
+        let seed = try #require(LinkedReducerState(gameType: .pingpong, state: .rally(rally)))
+        var phone = PhoneHostSequencer(
+            checkpoint: PhoneHostCheckpoint(handle: handle, state: seed, initialEpochMilliseconds: time),
+            snapshot: adapter.snapshot, isFinished: adapter.isFinished, transition: adapter.transition
+        )
+        let op = LinkOperation(
+            opId: UUID(), handle: handle, origin: .watch, clientSeq: 1, baseRevision: 0,
+            createdAtEpochMilliseconds: time, intent: .rally(.pointWon(side))
+        )
+        let commit = try phone.process(
+            op, from: .watch, phoneClockReferenceEpochMilliseconds: time, lookup: { _ in nil }, persist: { _, _ in }
+        )
+        #expect(commit.authoritativeSnapshot == nil)
+        #expect(commit.deltaActions.count == 1)
+        let opData = try JSONEncoder().encode(op)
+        let commitData = try JSONEncoder().encode(commit)
+        #expect(opData.count < 300)
+        #expect(commitData.count < 500)
+        #expect(try JSONDecoder().decode(LinkOperation.self, from: opData) == op)
+        #expect(try JSONDecoder().decode(LinkOperationCommitPayload.self, from: commitData) == commit)
+    }
+
     @Test func intentAndReducerFamilyMustMatch() throws {
         let adapter = makeAdapter()
         let initial = RallyMatchEngine.initial(leftName: "L", rightName: "R", rules: .pingPong())
