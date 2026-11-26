@@ -4,7 +4,7 @@
 >
 > **适用仓库**：`jifen-ios`（主工程 `jifen`、手表端 `jifenWatch Watch App`、共享本地 Swift Package `Packages/JifenCore`）。
 >
-> **基准提交 / 分支**：以 `3.4.3` 分支的 `72a0b19e` 为 M1 实施基线。
+> **基准提交 / 分支**：M1 从 `72a0b19e` 开始。M1（`483f5c37`）和 M2（`c44479f5`）已验收。M3 从包含本规范修订的 M2 基线开始。
 
 ---
 
@@ -16,7 +16,7 @@
 - 本次重塑利用 Watch 重新上线前的窗口，一次做透四个模块（**A + B + C + D**），按 **5 个独立可编译、可测试、可提交的里程碑（M1–M5）** 推进。
 
 ### 1.2 核心目标
-1. **更精简**：消灭伪历史兼容/迁移债、多轨模型翻译税、冗余单主控权移交状态机与双端镜像复制代码（预期协作层与计分板联动胶水代码净减 40%～50%）。
+1. **更精简**：消灭伪历史兼容/迁移债、多轨模型翻译税、冗余单主控权移交状态机与双端镜像复制代码。
 2. **更高效**：重型业务数据全面迁离 `UserDefaults`、引入 `index.json` + 单记录原子文件、引入 `WCSession.transferFile` 与增量动作同步、消除 `receive()` 10+ 次盲解 JSON 与主线程同步编码。
 3. **更具扩展性**：开放式能力协商（不再被 `==` 锁死升级）、单一事实来源运动能力注册表、全部 19 项联动运动 100% Reducer 化、Phone 定序 Intent 并发同步 + Watch 乐观重放、代码层存储容器抽象（平滑预留未来 App Group / WidgetKit / HealthKit）。
 
@@ -30,6 +30,8 @@
 | **D-4** | 手表本地记录上限 | 维持 **500 条**，改用 `index.json` + 单条原子文件存储，列表只读轻量索引，记录详情与正文按单条读取。 |
 | **D-5** | 已发布数据的兼容边界 | 保持 iPhone 的 `ScoreboardRecord`（schema v5）、`RecordCore.DetailedScoreAction`、独立续玩草稿及 `RecordSyncOutbox` / `CloudSync` 的存储和编码兼容。Watch 联动与独立记录摄取到手机后仍适配现有 `ScoreboardRecord`。Watch 旧开发版数据和双端旧联动协议、联动续赛、联动终态队列及退役场次均无需兼容。 |
 | **D-6** | 分阶段与门禁 | 拆为 M1→M2→M3→M4→M5 五个里程碑；**每个里程碑结束必须保证 `JifenCore`、手表端、手机端全量构建与单测通过**才进入下一里程碑。 |
+| **D-7** | 首次公开联动 | Watch 联动在 M5 通过并发与恢复验收后首次启用。如 iPhone 提前发布，以正式候选独立验收，保持 Watch 联动未公开。 |
+| **D-8** | 后三阶段安排 | M3 移除接管并统一联动恢复来源，M4 统一 Reducer 与 Store，M5 按最终 Op 协议一次抽取引擎并新增 `LinkSync`。保留现有存储容器、运动注册表和类型化 Intent。 |
 
 ---
 
@@ -72,12 +74,11 @@
 │ 3. RecordCore      : ScoreboardWinnerIdentity / RecordGameKind               │
 │                      + CanonicalMatchRecord / DetailedScoreAction            │
 │                      + 共享 ScoreActionProjector & MatchRecordProjector       │
-│ 4. PersistenceCore : AtomicJSONFileStore                                    │
-│                      + 通用索引+单文件 RecordStore / StorageContainer 抽象     │
-│ 5. LinkCore        : FileLinkDataStore + 开放式 LinkCapability 协商           │
-│                      + WatchSportRegistry                                   │
-│                      + LinkEnvelopeHead 单次解码路由 + LinkSessionEngine      │
-│                      + WCSession 三通道传输抽象 + Intent/Op 并发协议          │
+│ 4. PersistenceCore : AtomicJSONFileStore 与通用存储原语                       │
+│ 5. LinkCore        : Envelope / LinkCapability / WatchSportRegistry          │
+│                      + 会话上下文、outbox、FileLinkDataStore 与三通道抽象      │
+│                      + M5 LinkSessionEngine（会话生命周期与路由）              │
+│ 6. LinkSync（M5）  : 类型化 Intent/Op、Phone 定序、Watch 重放、stateHash       │
 └──────────────────────────────────┬───────────────────────────┬───────────────┘
                                    │                           │
                 ┌──────────────────▼────────────┐  ┌───────────▼───────────────┐
@@ -90,37 +91,22 @@
                 └───────────────────────────────┘  └───────────────────────────┘
 ```
 
+`LinkSync` 依赖 `LinkCore`、`SessionCore`、`ScoreCore`。两端服务按 `LinkCore` 的消息种类解码 `LinkSync` payload。定序与重放接收状态、操作和注入的时间并返回结果，连接状态、I/O 和发包由服务负责。Watch 存储仍从现有容器注入 `rootURL`，运动注册表继续映射项目与规则家族。
+
 ### 3.2 WCSession 三通道分层（替代“64KB 硬塞 + 砍动作”）
 
 | 通道 | WCSession API | 承载内容 | 字节预算 | 离线/大包策略 |
 |---|---|---|---|---|
-| **① 实时交互通道** | `sendMessageData` | 握手（`setupRequest`/`Accepted`/`Rejected`）、`intentSubmit`（M5 <300B）、`intentCommit`（M5 <500B）、增量 `stateSnapshot`（M1/M3）、`resyncRequest`、`connectivityProbe`、`sessionLeft` | ≤ 60,000 B（正常 < 4KB） | 仅前台可达使用；仅带**未 ACK 增量动作** |
-| **② 最新状态兜底** | `updateApplicationContext` | `latestLinkSnapshot`（剥离动作历史，仅轻状态/checkpoint）+ `commonNames` 轻量快照 | 总字典 < 60KB（其中常用名预算 ≤ 24KB） | 各自写入前强制预算校验，防止互相挤爆 |
+| **① 实时交互通道** | `sendMessageData` | 握手（`setupRequest`/`Accepted`/`Rejected`）、`intentSubmit`（M5 <300B）、`intentCommit`（M5 <500B）、增量 `stateSnapshot`（M1–M4）、`resyncRequest`、`connectivityProbe`、`sessionLeft` | ≤ 60,000 B（正常 < 4KB） | 仅前台可达使用；仅带**未 ACK 增量动作** |
+| **② 最新状态兜底** | `updateApplicationContext` | M1–M4 使用轻量快照，M5 只发布手机权威检查点（含比赛身份与确认版本）+ `commonNames` 轻量快照 | 总字典 < 60KB（其中常用名预算 ≤ 24KB） | 各自写入前强制预算校验，防止互相挤爆 |
 | **③ 离线可靠大包** | `transferUserInfo` + **`transferFile`** | 联动完赛 `matchFinished`、手表独立完赛记录 `CanonicalWatchRecordTransfer`、常用名变更批次 `CommonNameMutationBatch` | `≤ 32KB` 走 `transferUserInfo`；`> 32KB`（或 LZFSE 压缩后仍超 60KB）走 `transferFile` | 应用队列保留完整记录，按接收端落库回执出队 |
 
 ### 3.3 M5（D2-彻底）Phone 定序与 Watch 乐观重放时序
 
-```text
-[Watch UI] ──(同步 dispatch)──▶ [WatchReducerSessionStore]
-   │                              │ 1. 追加 pendingLocalOps (持久化)
-   │                              │ 2. 本地乐观重放 UI 零延迟刷新
-   │                              ▼
-   │                        [LinkOperation(opId, clientSeq, baseRev, intent)]
-   │                              │ sendMessageData (.intentSubmit)
-   │                              ▼
-[Phone UI] ──(同步本地提交)──▶ [PhoneHostSequencer (@MainActor)]
-                                  │ 3. opId 幂等判重
-                                  │ 4. 校验 baseRev / 足球时间戳单调钳制
-                                  │ 5. Reducer 执行并分配 committedRevision += 1
-                                  │ 6. 每 10 次或 rejected/undo/nextMatch 附带 snapshot checkpoint
-                                  │
-                                  ├──▶ [Phone UI] 即时推进 confirmedState + 重放(若有)
-                                  └──▶ sendMessageData (.intentCommit) ──▶ [Watch]
-                                                                             │ 7. 推进 confirmedState
-                                                                             │ 8. 弹出已确认 opId
-                                                                             │ 9. 重放剩余 pendingLocalOps
-                                                                             │ 10. 校验 stateHash，漂移/跳号则发 .resyncRequest
-```
+1. Watch 先持久化本场待确认操作，再乐观重放并刷新界面。联网后按 `clientSeq` 送出。
+2. 手机本地操作与 Watch 补发经同一入口。手机校验场次、顺序与幂等键，确定生效时间并执行 Reducer。
+3. 手机先持久化操作处理结果，再更新确认快照及必要的完赛记录，最后发送 commit 或业务 ACK。
+4. Watch 校验场次、版本及哈希，用生效时间重放或安装手机权威检查点。保存确认状态和队列进度后重放其余待确认操作。发现跳号或哈希漂移时向手机请求修复。
 
 ---
 
@@ -413,62 +399,31 @@
 
 ---
 
-### Milestone 3 (M3)：纯 `.shared` 协作瘦身与共享 `LinkSessionEngine` 下沉
-- **对应原方案**：模块 C（已拍板：双端均可计分，移除单主控移交）
-- **阶段目标**：彻底删除 1,000+ 行单主控权移交代码（`takeover` / `forceTakeover` / `reclaim` / `watchBackgrounded` / `authorityEpoch` 三阶段提交），并将双端镜像重复的 `LinkSession` / `Reliability` 引擎下沉到 `LinkCore`。
+### Milestone 3 (M3)：纯 `.shared` 协作与联动恢复存储收口
+- **对应原方案**：模块 C。双端均可计分，移除单主控移交。
+- **阶段目标**：删除接管、强制接管、取回控制及其 UI、定时器、协议和持久化字段。联动恢复使用服务持久化的上下文。完整 `LinkSessionEngine` 合并放到 M5。
 
-#### 1. 精确 Swift 契约与类型设计
+#### 1. 协议与行为
 
-1. **协议与状态机瘦身（`Packages/JifenCore/Sources/LinkCore/LinkCore.swift`）**
-   - 精简 `LinkControlRole` 为 `.shared`，同时切换到本阶段的联动持久化格式。
-   - 精简 `LinkMessageKind`：删除 `.takeoverByPhone`、`.reclaimRequest`、`.reclaimAccepted`、`.reclaimDenied`、`.watchBackgrounded`、`.resumeDiscarded`。保留：
-     - `.setupRequest`、`.setupAccepted`、`.setupRejected`
-     - `.stateSnapshot`、`.acknowledgement`、`.recordAcknowledgement`
-     - `.statusQuery`、`.statusResponse`、`.resyncRequest`
-     - `.matchFinished`、`.scoreboardExitedToHome`、`.sessionLeft`
-     - `.commonNamesSyncRequest`、`.connectivityProbe`、`.connectivityProbeResponse`
-     *(同时移除已废弃的 `LinkAuthorityTransferPayload`、`LinkResumeDiscardReason`、`LinkResumeDiscardPayload`、`LinkManualResyncPolicy` 的单向限制)*。
-   - **双向 `resyncRequest` 策略**：任何一端处于活跃 `.shared` 会话中均可发起 `.resyncRequest`，对端收到后立即回发自身当前最新的 `.stateSnapshot`（携带完整 `mergedDetailedActions` 或自对端已确认游标后的全量动作，供修复漏帧）。
-   - 精简 `LinkSessionStateMachine`：
-     - 删除 `PendingAuthorityTransfer`、`beginAuthorityTransfer`、`prepareAuthorityTransfer`、`commitAuthorityTransfer`、`rejectAuthorityTransfer`、`adoptAuthority`、`transferAuthority`、`forceAuthority`、`authorityEpoch`（或将 `authorityEpoch` 从状态机移除）。
-     - 保留 `handle: LinkedMatchHandle`、`revision: UInt64`（沿用奇偶轮次定序 `LinkSharedRevision` 直到 M5 切换为 Host 定序）、`completedMatchIds`、`lifecycle`、`pendingAcknowledgementIds`。
-     - **删除冗余 `LinkRevisionGate`**：所有消息排序、重复判定和 `matchGeneration` 推进统一由 `LinkSessionStateMachine.accept(handle:revision:)` 单一真相源完成。
+- 删除 `takeoverByPhone`、`forceTakeover`、`reclaimRequest` / `reclaimAccepted` / `reclaimDenied`、`watchBackgrounded`、`resumeDiscarded`、`authorityEpoch` 及对应握手、回执、重试和权限分支。联动角色统一为 `.shared`，或省去恒定的内部角色字段。
+- 保留开局协商、比分和动作同步、双向「同步积分」、业务 ACK、完赛、回首页和结束联动、连通性及常用名通道。主动丢弃联动草稿仍发送 `sessionLeft`；保留 `peerFinishedSharedMatch` 或等价完赛护栏。活跃菜单保留「同步积分」和「结束联动」，休息遮罩仍可继续、撤销、退出。
+- M3–M4 沿用奇偶 revision、快照与增量动作通道。会话状态机统一判定 `LinkedMatchHandle`、revision、迟到消息和换场，移除重叠的版本判定。保持动作按 ID 合并和显式撤销、重连补发与同场幂等落库。
+- 两端仍使用各自服务和上下文类型。接口已稳定的小工具（如重试调度）可复用。共享引擎及 Op 协议在 M5 实现。清理与接管绑定的只读和锁定分支，保留独立计分、续玩及完赛逻辑。
 
-2. **合并双端上下文与下沉共享引擎 `[新增] Packages/JifenCore/Sources/LinkCore/LinkSessionEngine.swift`**
-   - 合并 `PhoneLinkResumeContext` 与 `WatchLinkResumeContext` 为统一的 `LinkSessionContext`（在 M1 已去除重复 `detailedActions` 嵌套的基础上）。
-   - 抽出共享结构体 `LinkedSnapshotUpdate: Equatable, Sendable`（移入 `LinkCore`，两端共用，不再双边各写一份）。
-   - 抽出共享动作合并器 `DetailedActionMerger`（按 `id` 并集合并 + 时间排序）。
-   - 抽出核心协议与参数化引擎 `LinkSessionEngine`:
-     - 参数化 `localPeer: LinkPeer`（`.phone` vs `.watch`）、`contextKey`、`outboxKey`、`pendingEndsKey`、`localRecordIDPrefix`（`"w_"` / `""`）。
-     - 统一封装：`sessionMachine` 持有、`pendingAck` 重试队列、`terminalOutbox` 持久化及防重、`pendingSessionEnds` 管理、统一 `nextRetryDelayNanoseconds()` / `performRetryWork()`、`mergeDetailedActions`、增量 `acknowledgedActionIDs` 跟踪、`handleIncoming(_:)` 路由分派、`sendEnvelope(_:)` / `sendAck(...)`。
-     - 两端的 `PhoneWatchLinkService` 与 `WatchLinkService` 从各 2,500+ 行退化为**极薄的 `@MainActor @Observable` SwiftUI 状态绑定层 + 端特有辅助**（Phone 端特有：发起 `setupRequest`、本地清理 hook；Watch 端特有：待确认浮层 `pendingConfirmRequest`、侧通道记录队列）。
+#### 2. 每端联动会话只从权威上下文恢复
 
-3. **双端 UI 与菜单同步瘦身**
-   - `jifen/Core/Link/WatchLinkMenuSupport.swift`：
-     - 删除 `takeover`、`forceTakeover`、`watchBackgroundedHint` 菜单项及参数 `isFollower` / `watchBackgrounded`。
-     - 只要 `entryEnabled && sessionId != nil`，即展示：**「同步积分」(`resync`)** + **「结束联动」(`endLink`)**。
-   - 清理手机端 8 个计分板 View（`RallyScoreboardView`、`TennisScoreboardView`、`ArcheryScoreboardView`、`FootballScoreboardView`、`EightBallScoreboardView`、`NineBallChaseScoreboardView`、`SnookerScoreboardView`、`ShotTrainingScoreboardView`）及 `jifenApp.swift`、`UnfinishedGameBarView.swift` 中所有的 `isFollower`、`takeover`、`forceTakeover`、`reclaimAlert`、`pendingTakeoverApplication`、`watchBackgrounded`、`forceTakeoverConfirmationSessionId` 死分支。
-   - 清理手表端 8 个计分板 View + `WatchScoreboardMenuOverlay` + `WatchRestOverlay` + `WatchRootView` 中的 `scoringLocked`、`isFollower`、`onReclaim`、`pendingReclaimAcceptance`、`isReadOnly`（连带顺手关闭此前审查记录中的 P2-3「只读休息遮罩无退出按钮」与 `WatchBasketballTrainingView` 相关残留）。
+- Watch 的会话身份、generation、revision、最新权威快照及动作同步进度从 `link/` 下的联动上下文恢复。`resume/current.json` 只保留续玩所需的本地状态和动作，以及可选的 `LinkedMatchHandle` 引用。引用仅用于匹配同一场次，旧草稿不能重建或覆盖服务状态。
+- 恢复时校验完整 handle 和项目，联动草稿只与同场有效上下文组合。以联动上下文中已接受的比分和 revision 为准，合并未同步本地动作并应用显式删除。上下文缺失、损坏、已终止或不匹配时，不以草稿复活联动或把草稿误当成独立比赛。
+- 终态 outbox 独立持久化并按 handle 隔离。写入中断后从已持久化队列恢复待发送状态。活动上下文清空、重启或换场仍可送达旧场未回执完赛，同协议内迟到完赛仍可落库及回执。
+- 手机联动以自己的持久化上下文恢复。手机已发布的独立草稿、记录、云同步及 `RecordSyncOutbox` 沿用现有格式。复用 M1 容器与原子写入能力。
 
-#### 2. 涉及文件清单
-- **新增**：`Packages/JifenCore/Sources/LinkCore/LinkSessionEngine.swift`
-- **修改（LinkCore）**：`LinkCore.swift`
-- **修改（Phone）**：`PhoneWatchLinkService.swift`、`PhoneWatchLinkSession.swift`、`PhoneWatchLinkMessageHandling.swift`、`PhoneWatchLinkReliability.swift`、`PhoneWatchLinkSideChannels.swift`、`WatchLinkMenuSupport.swift`、`jifenApp.swift`、`UnfinishedGameBarView.swift`、以及手机端 8 个计分板 View
-- **修改（Watch）**：`WatchLinkService.swift`、`WatchLinkSession.swift`、`WatchLinkMessageHandling.swift`、`WatchLinkReliability.swift`、`WatchRootView.swift`、`WatchScoreboardComponents.swift`、以及手表端 8 个计分板 View
-- **更新/重写测试**：`WatchLinkServiceTests.swift`、`PhoneWatchLinkServiceTests.swift`、`LinkPendingAckQueueTests.swift`、`ScoreboardDisplayTests.swift`（删除针对 `takeover`/`forceTakeover`/`reclaim`/`follower` 的失效用例，补齐纯 `.shared` 下双端并发编辑、双向 `resyncRequest`、断连恢复、再来一场与双端同时完赛幂等用例）
+#### 3. 文件与验收
 
-#### 3. 避坑要点
-- **切勿在删除 `isFollower` 时误删 `peerFinishedSharedMatch` 护栏**：在 `.shared` 模式下，如果手机或手表其中一端已经先点了「结束比赛」，`peerFinishedSharedMatch` 仍负责防止另一端在收完赛弹层期间再次调用 `publishMatchFinished` / `notifyMatchFinished` 产生第二条记录！
-- **Watch 端 `WatchScoreboardComponents` 休息层**：移除了 `isReadOnly` 分支后，休息遮罩在双端 `.shared` 下本地始终允许点「继续/撤销」（因为双端都可操作）。
-- **`UnfinishedGameBarView.swift`**：删除 `watchBackgrounded` 与 `phoneFollower` 文案分支后，续赛栏文案统一展示「双端联动 · 已连接/已断开」。
-
-#### 4. M3 验收清单与标准
-- **静态检查**：全局检索 `takeoverByPhone`、`forceTakeover`、`reclaimRequest`、`watchBackgrounded`、`resumeDiscarded`、`phoneTookOver`、`isFollower`、`scoringLocked` 全部 **0 命中**。
-- **新增/更新测试**：
-  - `LinkCoreTests`：`LinkSessionEngine` 状态流转（setup → shared scoring → bidirectional resync → nextMatch → matchFinished → sessionLeft）、并发 revision 奇偶冲突通知触发、已完赛 session 对同协议内迟到的上一场完赛包幂等应答。
-  - `WatchLinkServiceTests` & `PhoneWatchLinkServiceTests`：全部保留/重写用例全绿。
-- **验收标准**：`swift test` + Watch & iPhone 构建 + `jifenWatch Watch AppTests` + `PhoneWatchLinkServiceTests` + `WatchDialogConsistencyUITests` 全绿。
-- **Commit 建议**：`refactor(link): M3 pure shared collaboration & unified LinkSessionEngine`
+- 工作范围包括 `LinkCore.swift`，双端 LinkService、Session、MessageHandling、Reliability，`WatchResumeSession.swift`、`WatchRootView.swift`、`WatchLinkMenuSupport.swift`、`UnfinishedGameBarView.swift`、休息遮罩、计分入口、接管相关本地化和现有测试文件。
+- 源码与协议测试中无接管、`isFollower` 或权限移交的有效路径。验证双端计分、双向手动同步、仅历史增量和显式撤销、断连补发、换场、结束联动、同时完赛幂等及迟到完赛回执。
+- 故障测试覆盖过时草稿、上下文更新快于草稿、上下文缺失或损坏、换场后旧引用残留、完赛 outbox 与上下文写入前后中断。确认比分不回退、旧联动不复活、待确认完赛不丢失。
+- 执行 §5.1–§5.4（核心、Watch 全量单测、iPhone 全量单测、Watch 两组 UI 冒烟），记录可选探针跳过原因。M3 为开发验收，公开发布仍须 §5.5。
+- **Commit 建议**：`refactor(link): remove authority transfer and unify linked resume storage`
 
 ---
 
@@ -614,7 +569,7 @@
 
 #### 1. 精确 Swift 契约与类型设计
 
-1. **统一联动 Intent 与 Op 协议（`[新增] Packages/JifenCore/Sources/LinkCore/LinkedIntentSync.swift`）**
+1. **统一联动 Intent 与 Op 协议（`[新增] Packages/JifenCore/Sources/LinkSync/LinkedIntentSync.swift`）**
    - 覆盖全部 8 类 Reducer 的可序列化 Intent 外加会话控制动作：
      ```swift
      public enum LinkedScoreboardIntent: Codable, Equatable, Sendable {
@@ -633,6 +588,7 @@
 
      public struct LinkOperation: Codable, Equatable, Identifiable, Sendable {
          public let opId: UUID
+         public let handle: LinkedMatchHandle
          public let origin: LinkPeer
          public let clientSeq: UInt64
          public let baseRevision: UInt64
@@ -644,13 +600,14 @@
      public enum LinkOperationOutcome: String, Codable, Equatable, Sendable {
          case accepted
          case rejected
-         case duplicateIgnored = "duplicate_ignored"
      }
 
      public struct LinkOperationCommitPayload: Codable, Equatable, Sendable {
          public let committedRevision: UInt64
          public let op: LinkOperation
          public let outcome: LinkOperationOutcome
+         public let effectiveEpochMilliseconds: Int64
+         public let timeWasClamped: Bool
          public let rejectionReason: String?
          public let stateHash: UInt64
          /// 每 N=10 个 commit、或 undo/rejected/nextMatch 时携带，平时为 nil 保持帧 < 500B
@@ -662,47 +619,46 @@
    - 在 `LinkProtocol.capabilities` 中正式加入 `.sharedIntentSync`。
    - **确定性 `StateHash`**：在 `LinkedScoreboardSnapshot` 上实现跨进程稳定的 FNV-1a 64-bit 哈希（**严禁使用 `Swift.Hasher`**，因为 Swift `Hasher` 每次进程重启随机化种子！必须基于 `JSONEncoder` 配合 `[.sortedKeys]` 对 Snapshot 规范编码后计算 FNV-1a 64 位整数），用于两端比对是否完全一致。
 
-2. **Phone Host Sequencer (`LinkCore/PhoneHostSequencer.swift` + `PhoneWatchLinkSession.swift`)**
-   - **唯一真相源定序**：无论是 Phone 本地点击还是收到 Watch 发来的 `.intentSubmit`，Phone 端全部通过同一入口 `submitOperation(_ op: LinkOperation)` 处理：
-     1. 检查 `opId` 是否已在已处理滑窗集合 `processedOpIds`（保留最近 1,000 条）中——若已存在，直接返回幂等结果（`duplicateIgnored`），或补发上次对应 `commit`，绝不重复计分；
-     2. 对于 **足球时钟时间戳定序规则**：若 Watch 离线时按了进球但手机钟已推进到更晚锚点，Phone 执行前以 `max(op.createdAtEpochMilliseconds, lastCommittedEpochMs)` 作为确定性 `reduce(..., at:)` 时间参数，**并把定序后实际采用的 `effectiveEpochMilliseconds` 写入 `commit.op` 回传**，确保 Watch 重放时与 Phone 计算出的 `timer.savedWallClockMilliseconds` 与 `stateHash` 比特级一致！
-     3. 用对应运动 `DomainReducer` 执行，推进 `committedRevision += 1`、投影追加 `DetailedScoreAction`、更新 `confirmedSnapshot` 与 `stateHash`；
-     4. 将 `commit` 通过 `sendRealtime` 发给 Watch（并持久化在待重发队列，直到 Watch ACK 或推进确认游标），同时更新 `applicationContext` 中的轻量化最新 snapshot；
-     5. 若 `committedRevision % 10 == 0` 或 `outcome == .rejected` 或 `.undo` / `.nextMatch`，附带 `authoritativeSnapshot` checkpoint。
-   - 收到 Watch 批量离线恢复积压的多个 `pendingLocalOps` 时，支持按 `clientSeq` 顺序批量定序；若 Watch 重连时发现跳号（`commit.committedRevision > confirmedRevision + 1`）或 `stateHash != localConfirmedHash`，自动发 `.resyncRequest`，Phone 立即回发当前最新 `confirmedSnapshot` + `committedRevision` + 未确认增量动作。
-   - 双端的联动结束请求均进入同一手机定序入口。Watch 补发时，同场离线操作按 `clientSeq` 先于随后发起的结束请求处理。每场只确认一次完赛，以 `LinkedMatchHandle.matchId` 作为双端记录的共同幂等键。手机先确认完赛时，后到操作获取已确认的完赛结果和各自的处理结果，既有记录的比分和动作保持稳定。
+2. **M5 一次抽取共享引擎**
+   - 在确定 Op、检查点和存储接口后，将共享生命周期、消息路由、重试和可靠发送抽入 `LinkCore.LinkSessionEngine`。Op payload 交由两端服务接入 `LinkSync`。
+   - `LinkSync` 定义类型化 Intent/Op、`PhoneHostSequencer`、`WatchOptimisticReplayEngine` 与哈希。应用服务接入原有独立存储、记录、云同步和投屏。
+   - 删除奇偶 revision、双方可发的比分整包覆盖分支及旧计分回退。手机权威检查点负责跳号、哈希漂移及恢复。Watch 发起同步时请求手机状态并补发待确认操作；手机可请求 Watch 补发并回传处理结果或检查点。
 
-3. **Watch Optimistic Replay Engine (`WatchLinkService` & `WatchReducerSessionStore`)**
-   - **状态模型**：Watch 端持有双态：
-     - `confirmedState` / `confirmedRevision` / `confirmedHash`（经 Phone `intentCommit` 确认的最新状态）
-     - `pendingLocalOps: [LinkOperation]`（本地已触发但尚未收到 Phone `.intentCommit` 的操作，持久化到 `WatchStorageContainer` 的 `link/pending-ops.json`）
-     - `displayedState` = `replay(confirmedState, over: pendingLocalOps)`（同步计算，UI 零等待）
-   - **提交路径**：用户在手表点加分 → 同步生成 `LinkOperation(origin: .watch, clientSeq += 1, baseRevision: confirmedRevision, createdAtEpochMilliseconds: nowMs, intent: ...)` → 立即追加 `pendingLocalOps`、同步重放刷新表盘与 `actionLog`、同时经 `sendMessageData(.intentSubmit)` 发送（若断连则保留在 `pendingLocalOps`，重连恢复可达时按 `clientSeq` 顺序补发）。
-   - **离线结束**：将结束请求排在同场已记录的计分操作之后，一起持久化。手表当场显示「待同步确认」，重启后恢复该状态。收到手机确认的完赛结果后，再以同一比赛 ID 保存联动记录。手表独立开局仍走本地直接保存流程。
-   - **收到 `.intentCommit` 处理**：
-     1. 校验 `committedRevision == confirmedRevision + 1`（若跳号 → 触发 `.resyncRequest` 并暂缓本地重放覆盖）；
-     2. 若 `commit.op.origin == .watch`，从 `pendingLocalOps` 弹出 `commit.op.opId`；
-     3. 在 `confirmedState` 上用 `commit.op.createdAtEpochMilliseconds` 重放 `commit.op.intent`（若为 `.accepted`）或直接使用 `commit.authoritativeSnapshot`（特别是 `.rejected` / `.undo` / checkpoint 时）；
-     4. 若无 `authoritativeSnapshot`，比对重放后的 FNV-1a `stateHash` 与 `commit.stateHash`——若一致则无感推进；若意外不一致则自动发 `.resyncRequest` 用 Phone 权威快照自我修复；
-     5. 若 `commit.outcome == .rejected`，则剔除被拒操作并重放其余仍合法的操作。若手机已先确认完赛，Watch 对齐手机的完赛结果，按唯一操作 ID 统计因该场已结束而未纳入的离线操作，并显示实际笔数，例如「有 2 笔离线操作未纳入本场成绩」。重复回执和重复结束请求不增加计数。
+#### 2. 四条实现契约
 
-4. **双端计分板接入**
-   - 手表端：只需在 `WatchReducerSessionStore` 内部统一对接 `WatchLinkService.submitLinkedIntent(...)` —— 8 块手表计分板 UI 代码几乎零额外改动！
-   - 手机端：8 块计分板（`RallySessionStore`、`TennisSessionStore`、`ArcherySessionStore`、`BilliardsSessionStore`、`FootballViewModel`、`ShotTrainingScoreboardView`）在处于联动会话时，将本地用户操作通过 `PhoneWatchLinkService.submitLocalIntent(...)` 走 Phone Host Sequencer 统一定序，并在收到 Watch op 导致的 state 更新时平滑刷新自身 UI。
+1. **先持久化处理结果，再更新投影并确认**
+   - 手机按场次串行处理，校验完整 handle、来源和 `clientSeq`，按 `opId` 去重。每个首次处理的合法身份操作分配一个 commit revision，拒绝结果推进结果版本且不改比分。重投复用原结果和版本。低的 `baseRevision` 本身不拒绝同场可合并的加分；撤销、结束、换场按当前状态校验。
+   - 先追加操作日志（输入、已采用时间、revision、处理结果及投影必需数据），再更新快照和必要的完赛记录，最后发 commit 或业务 ACK。日志失败时不推进已确认状态。日志成功后中断时，恢复补齐投影及回执，不再执行一次计分。完赛以 `matchId` 幂等写入，首个确认结果固定。
+   - 裁剪日志前持久化检查点与去重进度，并保证未确认结果可补发。最近 1,000 个 `opId` 只用作内存缓存；跨重启、日志压缩和旧场重投按持久 ID 或场次与来源的持久序号去重。
+   - Watch 先持久化待发操作再乐观显示。收到 commit 先校验场次、版本和哈希，用生效时间重放或校验并安装手机检查点。原子更新确认版本、状态与队列进度后重放余项。跳号或哈希不符时保留待确认操作并请求修复。检查点携带必要的处理结果，区分已纳入、已拒绝和仍待送的操作。
 
-#### 2. 涉及文件清单
-- **新增（LinkCore）**：`Packages/JifenCore/Sources/LinkCore/LinkedIntentSync.swift`、`Packages/JifenCore/Sources/LinkCore/PhoneHostSequencer.swift`、`Packages/JifenCore/Sources/LinkCore/WatchOptimisticReplayEngine.swift`
-- **修改（LinkCore）**：`LinkCore.swift`、`LinkSessionEngine.swift`
+2. **生效时间与时钟偏移**
+   - `createdAtEpochMilliseconds` 是原始输入。手机确定并持久化 `effectiveEpochMilliseconds` 及钳制标记，并在 commit 回传；确认态重放使用生效时间。
+   - 手机维护可注入的非回退时间基准。下界为该场上一确认时间或初始时钟锚点，上界为 `max(下界, phoneClockReference + futureTolerance)`。钳制远端时间后执行 Reducer。容差以 2 秒作为初始测试值，发布参数以真机校验为准。系统时间倒拨不得让锚点回退。离线批次按 `clientSeq` 排序，原始时间保留供诊断。
+   - 哈希采用版本化规范编码，只覆盖双方可确定性复现的权威状态；实时显示时间由本地显示层推导。
+
+3. **会话和完赛隔离**
+   - 同一配对关系只允许一个活跃联动会话。Watch 待确认时不能主动开启下一联动场。手机可能在 Watch 断连期间进入下一场，所有操作与终态结果须按 `sessionId`、`matchId`、`matchGeneration` 隔离，晚到旧场只取得旧场结果或明确拒绝。
+   - Watch 离线结束排在同场计分之后并持久化，重启可恢复「待同步确认」。双端经手机定序确认，以同一比赛 ID 落库。手机先结束时，Watch 对齐结果并提示因比赛已结束而未纳入的唯一计分操作数量。重复回执及结束请求不增加笔数。Watch 独立开局可直接保存。
+
+4. **待确认队列上限与诊断**
+   - 首轮以每场 500 条、最长 7 天待确认作为测试阈值，为结束请求和协议控制数据预留空间。超限时暂停接收新增待确认计分并提示重连。已有操作保留至手机给出处理结果，超龄不会静默删除。
+   - 开发诊断显示场次、确认 revision、stateHash、队列深度及最近 20 条操作的 outcome。诊断不记录队伍或用户姓名等无关内容。
+
+#### 3. 双端接入
+
+- Watch 的 `WatchReducerSessionStore` 统一提交联动 Intent。确认态及显示态由同步结果和剩余操作推导。手机八个计分板的联动操作统一进入手机定序器。独立计分、已发布的手机续玩与业务记录保持原有入口及兼容。
+- 只撤销未发送的本地操作时，待发序号保持连续或显式登记取消。已发送操作经定序器撤销；指定目标不再可撤销时明确拒绝，避免误撤另一端较新得分。
+- 手机重同步可携带检查点及未确认结果。超预算时沿用 §3.2 可靠通道，不能丢失恢复必需信息。
+
+#### 4. 涉及文件清单
+- **新增（LinkSync）**：`Packages/JifenCore/Sources/LinkSync/LinkedIntentSync.swift`、`PhoneHostSequencer.swift`、`WatchOptimisticReplayEngine.swift` 与确定性哈希；修改 `Packages/JifenCore/Package.swift` 和双端产品依赖。
+- **新增（LinkCore）**：`Packages/JifenCore/Sources/LinkCore/LinkSessionEngine.swift`；修改 `LinkCore.swift`。
 - **修改（Watch）**：`WatchReducerSessionStore.swift`、`WatchLinkService.swift`、`WatchLinkSession.swift`、`WatchLinkMessageHandling.swift`、`WatchLinkReliability.swift`（计分板显示「待同步确认」及未纳入的离线操作笔数）
 - **修改（Phone）**：`PhoneWatchLinkService.swift`、`PhoneWatchLinkSession.swift`、`PhoneWatchLinkMessageHandling.swift`、手机端 6 个 Store / ViewModel（`RallySessionStore`、`TennisSessionStore`、`ArcherySessionStore`、`BilliardsSessionStore`、`FootballViewModel`、`ShotTrainingScoreboardView`）及对应 ScoreboardView 接入 `submitLocalIntent`
 - **新增/更新测试**：`Packages/JifenCore/Tests/JifenCoreTests/SharedIntentSyncTests.swift`（[新增]）、`WatchLinkServiceTests.swift`、`PhoneWatchLinkServiceTests.swift`（记得把 `jifenTests/` 新测试文件加入 `project.pbxproj`）
 
-#### 3. 避坑要点
-- **绝对不要用 `Swift.Hasher` 计算跨端 `stateHash`**：跨进程种子不同必假报警！必须用自定义确定的 FNV-1a 64-bit 算在 `.sortedKeys` JSON `Data` 上。
-- **双端本地撤销 `.undo` 在并发下的语义**：Phone Sequencer 收到 Watch 发来的 `.undo(targetOpId)` 时，应基于 Phone 自己的 `ScoreSessionMachine` 回退；对于“手表的离线本地误触撤销” vs “只撤销自己的最后一分”，M5 约定：若 `targetOpId` 仍在 Watch 尚未发出的本地 `pendingLocalOps` 队列里，Watch 直接在本地队列弹出即可，无需发给 Phone；若 `targetOpId` 已发出或无指定，则作为 `.undo` op 送 Phone 定序回退，且 `commit` 强制携带 `authoritativeSnapshot` 让 Watch 直接对齐，避免双端撤销栈步调不一致。
-- **Phone 端 `FootballViewModel` / `RallySessionStore` 等原有持久化与 CloudSync**：Phone Host Sequencer 产出的最新状态仍要同步写入手机的 `ScoreSessionCore` / `ResumeSessionRepository`，确保手机端退出重进与投屏（`LocalScoreboardSyncCoordinator` / `RemoteSyncController`）不受影响。
-
-#### 4. M5 验收清单与标准
+#### 5. M5 验收清单与标准
 - **必须覆盖的 7 类并发边界单测（在 `SharedIntentSyncTests` 与双端 LinkTests 中强制断言）**：
   1. **并发各加一分合并**：Phone 与 Watch 在同一 `baseRevision = 0` 下各自加 1 分（左+1、右+1），定序后最终比分 **必须为 `1:1`**（彻底解决原 LWW 覆盖丢分问题），且双端 `stateHash` 一致。
   2. **重复 `opId` 幂等**：同一 `.intentSubmit` 重发 3 次，Phone 只推进 1 次 revision，比分只加 1 分。
@@ -712,8 +668,10 @@
      - Phone 已先确认完赛。Watch 重连补发两笔离线计分和结束请求后，对齐 Phone 的完赛结果，显示「有 2 笔离线操作未纳入本场成绩」。重复投递后仍为 2 笔，两端各保留一条该场记录。
      - 两端同时发起结束请求，最终共享一个完赛结果和比赛 ID。另验证 Watch 独立开局在断连时可直接保存。
   5. **撤销竞态**：Watch 本地快速连打 2 分后立刻本地撤销第 2 分（若尚未送出直接本地消除；若已送出由 Phone 返回 `.undo` + 权威快照），最终双端一致。
-  6. **Watch 离线连打 10 分后重连**：Watch 在 `isReachable == false` 时连续得分 10 次并保存 `pendingLocalOps`（甚至模拟 Watch 进程重启恢复），重连后按 `clientSeq` 顺序补发，与期间 Phone 得分无损合并。
-  7. **足球时钟单调定序**：Phone 时钟在前，Watch 携带稍早时钟时间戳送 `.goal`，Phone 按单调时钟定序后回传确定时间戳，双端时钟锚点与进球分钟标注完全一致且 `stateHash` 匹配。
+  6. **Watch 离线连续 10 笔与 50 笔后重连**：覆盖重启、与 Phone 计分合并、补发及晚到旧场。操作按 `clientSeq` 有序，确认、拒绝及未纳入笔数可复现。
+  7. **足球时钟单调定序**：覆盖 Watch 时间落后、快 3 分钟及手机系统时间倒拨。双端生效时间、时钟锚点、进球分钟和 `stateHash` 一致。
+- **故障注入**：在日志前、日志后投影前、投影后 ACK 前中断。重启后比分不重复，同一 `matchId` 经重投、重启和换场后每端仍只有一条记录。覆盖 Watch 确认与队列进度恢复、队列超限及结束保留位。
+- **结构验收**：删除旧双向比分整包覆盖、奇偶版号和旧计分回退路径。确认态只接受手机权威检查点或定序结果，Watch 乐观态由待确认操作重放。 `LinkSync` 的纯同步测试可独立运行。
 - **验收标准**：`swift test` + Watch & iPhone 构建 + `jifenWatch Watch AppTests` + `jifenTests` + `WatchDialogConsistencyUITests` + 多人计分发布门禁全部通过。
 - **Commit 建议**：`feat(link): M5 phone-sequenced intent sync & watch optimistic replay`
 
@@ -808,9 +766,9 @@ python3 scripts/test_artifacts.py finish "$BATCH"
 - **Spec 复核重点（动手前）**：
   1. 核对 M1 的 Watch 目录划分和清理行为，以及已发布手机数据的兼容边界。检查双端联动是否只处理首发格式，并保留同协议下重启、补发、去重和迟到完赛。
   2. 核对 M2 中 `ShotTrainingMode` 与 `ScoreboardRecord` v5 的向后兼容（手机本地存量草稿/记录解码零回归）。
-  3. 核对 M3 移除所有单主控移交（`takeover`/`reclaim`/`isFollower`）后，`peerFinishedSharedMatch` 防重复完赛保护及 `WatchScoreboardComponents` 休息遮罩退出路径是否完备。
+  3. 核对 M3 删除接管后仍保留双向手动同步、完赛护栏和休息遮罩退出。检查联动恢复只读权威上下文，旧草稿不能回退 revision、复活旧场或丢掉旧场待确认完赛。完整引擎留在 M5。
   4. 核对 M4 `FootballMatchReducer` 的时钟锚点结算是否 100% 纯函数、且 1 秒 UI 刷新不触发不必要持久化/网络帧。
-  5. 核对 M5 `stateHash` 算法确定性（`.sortedKeys` JSON + FNV-1a，禁止 `Swift.Hasher`）与足球单调时钟定序、`.undo` 对齐与 7 个并发边界用例设计是否有漏洞。
+  5. 核对 M5 `LinkSync` 依赖方向、哈希确定性、生效时间、落盘和确认顺序、场次隔离、队列上限、唯一权威快照与行为门禁。
 - **代码 Review 重点（每阶段执行后）**：
   1. `git diff` 核查 `.entitlements` 和 Watch `Info.plist` 无未授权能力新增。
   2. 核查 `WCSessionDelegate.session(_:didReceive file:)` 是否在回调返回前同步读取/拷贝了文件。
