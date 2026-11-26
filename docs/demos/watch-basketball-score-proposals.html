@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apple Watch 篮球记分 · 最终方案</title>
+<style>
+  :root{ --page:#f2f3f5; --ink:#14161b; --ink2:#5c6472; --line:#e2e5ea; --r:52px; }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--page); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:13px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  }
+  .page{max-width:1180px;margin:0 auto;padding:34px 24px 80px}
+  h1{font-size:22px;font-weight:650;letter-spacing:-.01em;margin:0 0 8px}
+  .lede{color:var(--ink2);margin:0;max-width:84ch}
+  .lede b{color:var(--ink);font-weight:600}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em;background:#eceff3;border-radius:4px;padding:1px 4px}
+
+  .toolbar{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 16px;margin:18px 0 8px}
+  .field{display:flex;align-items:center;gap:10px}
+  .field .label{font-size:11.5px;color:var(--ink2);white-space:nowrap}
+  .seg{display:inline-flex;background:#eef0f4;border-radius:9px;padding:2px}
+  .seg button{border:0;background:transparent;font:inherit;font-size:12px;color:var(--ink2);padding:5px 11px;border-radius:7px;cursor:pointer}
+  .seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12);font-weight:600}
+  .spacer{flex:1}
+  .ghost{border:1px solid var(--line);background:#fff;border-radius:9px;font:inherit;font-size:12px;padding:6px 12px;cursor:pointer;color:var(--ink)}
+  .ghost:hover{border-color:#c9cfd8}
+  .hintbar{font-size:12px;color:#8a93a1;margin:0 0 4px}
+  .hintbar b{color:#5c6472;font-weight:600}
+
+  .hero{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:44px;align-items:center;
+        background:#fff;border:1px solid var(--line);border-radius:26px;padding:26px;margin-top:16px}
+  .hero-watch{width:452px;max-width:100%}
+  .hero-watch .stage{background:radial-gradient(120% 85% at 50% 0%,#262a31 0%,#0c0e11 72%);border-radius:20px;padding:22px 20px;display:flex;justify-content:center}
+  .hero-copy h2{font-size:19px;margin:0 0 8px;letter-spacing:-.01em}
+  .hero-copy p{margin:0 0 12px;color:var(--ink2);font-size:13px}
+  @media (max-width: 960px){ .hero{grid-template-columns:1fr;gap:22px} }
+
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.1em;color:#177b3a;background:#e4f7ea;border-radius:999px;padding:4px 10px;margin-bottom:9px}
+  .points{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+  .points li{font-size:12.5px;color:var(--ink2);display:flex;gap:8px;align-items:flex-start}
+  .points li::before{content:"";flex:0 0 auto;width:5px;height:5px;border-radius:50%;background:#c3cad4;margin-top:8px}
+  .points li b{color:var(--ink);font-weight:600}
+  .points li.good::before{background:#30c25a}
+  .points li.warn::before{background:#ffb340}
+
+  .stage{background:radial-gradient(120% 85% at 50% 0%,#262a31 0%,#0c0e11 72%);border-radius:18px;padding:16px 14px;display:flex;justify-content:center;align-items:flex-start}
+
+  /* 手表 */
+  .watch{--w:396px;--h:484px;--k:.78;
+    width:calc((var(--w) + 32px)*var(--k));
+    height:calc((var(--h) + 34px)*var(--k));}
+  .bezel{
+    width:calc(var(--w) + 32px); height:calc(var(--h) + 34px);
+    padding:16px 16px 18px;
+    transform:scale(var(--k)); transform-origin:top left;
+    background:linear-gradient(168deg,#54585f 0%,#2a2d32 34%,#17191d 78%,#101216 100%);
+    border-radius:calc(var(--r) + 16px);
+    box-shadow:0 22px 44px rgba(10,12,16,.34), 0 2px 6px rgba(10,12,16,.3),
+               inset 0 1px 0 rgba(255,255,255,.22), inset 0 0 0 1px rgba(255,255,255,.06);
+  }
+  .screen{
+    position:relative; overflow:hidden;
+    width:var(--w); height:var(--h);
+    border-radius:var(--r);
+    background:#000; color:#fff;
+    font-size:calc(16px * var(--sc,1));
+    display:flex; flex-direction:column;
+    user-select:none; -webkit-user-select:none;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",sans-serif;
+    font-variant-numeric:tabular-nums;
+  }
+  .screen *{box-sizing:border-box}
+  :where(.screen) button{font:inherit;color:inherit;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+
+  /* 顶部：节次 + 单节剩余；右侧留给系统时钟 */
+  .topbar{flex:0 0 auto;height:2.5em;display:flex;align-items:center;justify-content:center;gap:.4em}
+  .topbar span{font-size:1.15em;line-height:1;color:#8e8e93;letter-spacing:.02em}
+  .topbar .clk{color:#d2d2d8;font-variant-numeric:tabular-nums}
+
+  /* 两块色片 */
+  .c-body{flex:1;display:flex;min-height:0;padding-bottom:.3em;position:relative}
+  .half{flex:1;display:flex;flex-direction:column;min-width:0;
+        background:linear-gradient(180deg,var(--soft),var(--s2) 100%)}
+  .c-divider{flex:0 0 1px;background:rgba(255,255,255,.12)}
+
+  /* 分数区 = ＋1 按钮 */
+  .score-zone{flex:0 0 40%;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;
+              padding:.35em .4em .6em;position:relative;border-radius:.9em}
+  .score-zone:active{background:rgba(255,255,255,.07)}
+  .score-zone .n{font-size:1.15em;line-height:1.2;font-weight:600;color:var(--c);letter-spacing:.06em;white-space:nowrap}
+  .score-line{display:flex;align-items:center;justify-content:center;width:100%;min-width:0}
+  .score-line .s{font-size:5.2em;font-weight:700;line-height:1;letter-spacing:-.045em}
+  /* 任一队到三位数，两队一起缩字号，避免左右两个数字大小不一 */
+  .screen.big .score-line .s{font-size:4.4em}
+  /* ＋1 浮字：正下方、居中、不占横向宽度、不抢点击 */
+  .plus1{font-size:1.25em;font-weight:600;line-height:1;color:rgba(255,255,255,.6);
+         letter-spacing:.02em;white-space:nowrap;pointer-events:none;margin-top:.35em}
+
+  .zones{flex:1;display:flex;flex-direction:column;min-height:0}
+  .zone{flex:1;display:flex;align-items:center;justify-content:center;
+        font-size:4.1em;font-weight:700;line-height:1;color:var(--c);border-top:1px solid rgba(255,255,255,.16)}
+  /* 2 分上方那条更重：它是「点分数＝＋1」和「点下面＝＋2/＋3」的分界 */
+  .zone:first-child{border-top:1px solid rgba(255,255,255,.32)}
+  .screen .zone:active{background-color:var(--s3);color:#fff}
+
+  /* 撤销：骑在两个比分中间 */
+  .undo-mid{position:absolute;left:50%;top:var(--undoTop,3.78em);transform:translate(-50%,-50%);
+    width:2.55em;height:2.55em;border-radius:50%;background:#33343b;color:#d4d4dc;
+    box-shadow:0 0 0 1.5px rgba(255,255,255,.16), 0 4px 12px rgba(0,0,0,.55);
+    display:flex;align-items:center;justify-content:center;line-height:1;z-index:3}
+  .undo-mid span{font-size:1.5em;line-height:1}
+  .undo-mid:active{background:#3d3e46;color:#fff}
+
+  .toast{position:absolute;left:50%;bottom:.9em;transform:translate(-50%,10px);opacity:0;pointer-events:none;
+         background:rgba(58,58,62,.95);color:#fff;font-size:.82em;padding:.34em .8em;border-radius:999px;
+         white-space:nowrap;transition:opacity .16s ease, transform .16s ease;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  @keyframes bump{0%{transform:scale(1)}34%{transform:scale(1.09)}100%{transform:scale(1)}}
+  .bump{animation:bump .26s cubic-bezier(.3,.8,.4,1)}
+
+  section.block{margin-top:44px}
+  h2.block-title{font-size:16px;margin:0 0 6px}
+  h2.block-title .sub{font-weight:400;font-size:12.5px;color:var(--ink2);margin-left:8px}
+  .sizes{display:flex;gap:26px;flex-wrap:wrap;margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px}
+  .size-item{display:flex;flex-direction:column;gap:10px;align-items:center}
+  .size-item .cap-txt{text-align:center;font-size:11.5px;color:var(--ink2);line-height:1.5}
+  .size-item .cap-txt b{display:block;color:var(--ink);font-size:12px}
+  .size-item .watch{--k:.6}
+
+  table{border-collapse:collapse;width:100%;min-width:660px;font-size:12.5px;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .table-wrap{overflow-x:auto}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#f7f8fa;font-weight:600;font-size:11.5px;color:#48505c}
+  tr:last-child td{border-bottom:0}
+  td b{font-weight:600}
+  .swatch{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;vertical-align:1px}
+  .notes{margin-top:14px;display:grid;gap:8px;padding-left:0;list-style:none}
+  .notes li{font-size:12.5px;color:var(--ink2)}
+  .notes li b{color:var(--ink);font-weight:600}
+  .foot{margin-top:34px;font-size:11.5px;color:#98a1ae}
+
+  /* ── 圆表 466 × 466 ─────────────────── */
+  .watch.round{--w:466px;--h:466px;--r:233px;
+    width:calc((var(--w) + 24px)*var(--k)); height:calc((var(--h) + 24px)*var(--k))}
+  .watch.round .bezel{width:calc(var(--w) + 24px);height:calc(var(--h) + 24px);padding:12px;border-radius:50%}
+  .watch.round .screen{border-radius:50%}
+  .watch.round .c-divider{background:rgba(255,255,255,.14)}
+  .round-row{display:flex;gap:20px;flex-wrap:wrap;margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px}
+  .round-item{display:flex;flex-direction:column;gap:12px;align-items:center}
+  .round-item .cap-txt{text-align:center;font-size:11.5px;color:var(--ink2);line-height:1.5;max-width:300px}
+  .round-item .cap-txt b{display:block;color:var(--ink);font-size:12px}
+
+  /* R2：分数并排在上、2/3 变 2×2 网格 */
+  .r2{flex:1;display:flex;flex-direction:column;min-height:0;padding:0 .5em .4em;position:relative}
+  .r2-top{flex:0 0 auto;height:2.1em;display:flex;align-items:center;justify-content:center;gap:.4em}
+  .r2-top span{font-size:1.05em;line-height:1;color:#8e8e93}
+  .r2-top .clk{color:#d2d2d8}
+  .r2-scores{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:.25em;margin-top:1.15em}
+  .r2-score{width:7.2em;display:flex;flex-direction:column;align-items:center;justify-content:center;
+            border-radius:1.1em;padding:.25em 0 .4em;background:linear-gradient(180deg,var(--soft),rgba(255,255,255,.03))}
+  .r2-score:active{filter:brightness(1.35)}
+  .r2-score .n{font-size:.95em;line-height:1.2;font-weight:600;color:var(--c);letter-spacing:.06em}
+  .r2-score .s{font-size:3.9em;line-height:1;font-weight:700;letter-spacing:-.04em}
+  .r2-score .p{font-size:.8em;line-height:1;color:rgba(255,255,255,.6);margin-top:.25em}
+  .r2 .undo-mid{position:static;transform:none;width:2.3em;height:2.3em;flex:0 0 auto;font-size:1em}
+  .r2 .undo-mid span{font-size:1.3em}
+  .r2-grid{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:.4em;
+           padding:.55em .35em .95em;min-height:0}
+  .r2-cell{border-radius:1em;display:flex;align-items:center;justify-content:center;
+           font-size:2.3em;font-weight:700;line-height:1;color:var(--c);
+           background-color:rgba(255,255,255,.07);
+           background-image:linear-gradient(180deg,var(--soft),rgba(255,255,255,0) 72%);
+           box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+  .r2-cell:active{filter:brightness(1.45)}
+  .screen.big .r2-score .s{font-size:2.9em}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Apple Watch 篮球记分 · 最终方案</h1>
+  <p class="lede">
+    圆角矩形表盘（45mm 396 × 484）。一块屏只放三件事：<b>左红右蓝两块色片 = 两队</b>，
+    <b>色片顶端 = 比分，点它就是 ＋1</b>，<b>下面两条 = 2 分 / 3 分</b>。
+    竖向按 40% / 30% / 30% 分配：分数区最大，2 和 3 是两条不需要瞄准的带子。
+    记一次分永远是一下点击；记错就长按同一位置减分，或点中间那枚 ↺ 撤销。
+    文件末尾附了<b>圆表 466 × 466</b>（华为 / Wear OS）的适配：同一套逻辑，换个摆法。
+  </p>
+
+  <div class="toolbar">
+    <div class="field">
+      <span class="label">分值档位</span>
+      <div class="seg" id="ruleSeg">
+        <button data-rule="fiba" class="on">5v5 · ＋1 / 2 / 3</button>
+        <button data-rule="three">三人篮球 · ＋1 / 2</button>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <button class="ghost" id="threeDigits">试试三位数</button>
+    <button class="ghost" id="resetBtn">重置比分</button>
+  </div>
+  <p class="hintbar">可以直接点：<b>点分数 = ＋1，点下面 = ＋2 / ＋3，长按同一位置 = 减去该分值，中间 ↺ 撤一笔</b>。红队是主队（左），蓝队是客队（右）。</p>
+
+  <section class="hero">
+    <div class="hero-watch">
+      <div class="stage"><div class="watch"><div class="bezel"><div class="screen" data-scheme="c"></div></div></div></div>
+    </div>
+    <div class="hero-copy">
+      <span class="tag">最终版</span>
+      <h2>分数即 ＋1，下面两层是 2 分和 3 分</h2>
+      <p>罚球是最常按的一档，所以它占了最大、最靠上的那块面；2 分和 3 分各占下面 30%，闭着眼也不会按错。</p>
+      <ul class="points">
+        <li class="good">＋1 命中面 <b>99 × 88 pt</b>，2 / 3 各 <b>99 × 66 pt</b>，都远超 44 pt 建议。</li>
+        <li>＋1 只是<b>分数正下方的两个灰字</b>（10 pt / 白 60%），不占横向宽度，也不抢点击；三位数比分照样能占满半屏。</li>
+        <li>2 分上方那条分隔线比 2 / 3 之间更重（白 32% vs 16%）——它负责把「点分数＝1」和「点下面＝2/3」分开。</li>
+        <li>撤销 20 pt 圆点骑在两个比分的中线上，不占独立一行；顶栏只放节次和单节剩余，右侧让开系统时钟。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="block-title">三档尺寸<span class="sub">同一套字号等比缩，不用为小表盘改结构</span></h2>
+    <div class="sizes">
+      <div class="size-item">
+        <div class="watch" style="--w:352px;--h:430px;--r:46px"><div class="bezel"><div class="screen" data-scheme="c" style="--w:352px;--h:430px;--r:46px;--sc:.889"></div></div></div>
+        <div class="cap-txt"><b>41mm</b>352 × 430 px<br>176 × 215 pt · 分数区 88 × 78 pt</div>
+      </div>
+      <div class="size-item">
+        <div class="watch" style="--w:396px;--h:484px;--r:52px"><div class="bezel"><div class="screen" data-scheme="c" style="--w:396px;--h:484px;--r:52px;--sc:1"></div></div></div>
+        <div class="cap-txt"><b>45mm</b>396 × 484 px<br>198 × 242 pt · 分数区 99 × 88 pt</div>
+      </div>
+      <div class="size-item">
+        <div class="watch" style="--w:410px;--h:502px;--r:54px"><div class="bezel"><div class="screen" data-scheme="c" style="--w:410px;--h:502px;--r:54px;--sc:1.035"></div></div></div>
+        <div class="cap-txt"><b>49mm Ultra</b>410 × 502 px<br>205 × 251 pt · 分数区 102 × 91 pt</div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="block">
+    <h2 class="block-title">圆表 466 × 466<span class="sub">华为 / Wear OS 常见规格（466 px 见方，可视区是一个直径 466 的圆）</span></h2>
+    <div class="round-row">
+      <div class="round-item">
+        <div class="watch round" style="--k:.62"><div class="bezel"><div class="screen" data-scheme="c" style="--sc:1.177"></div></div></div>
+        <div class="cap-txt"><b>R1 · 直接套用原方案</b>色片铺满整圆，内容按同一套比例排。<br>比分、2 分都还在，但最下面那条 3 分被圆弧切掉两个外角，视觉上变成月牙；最底部的可点面积只剩中间一段。</div>
+      </div>
+      <div class="round-item">
+        <div class="watch round" style="--k:.62"><div class="bezel"><div class="screen" data-scheme="r2" style="--sc:1.177"></div></div></div>
+        <div class="cap-txt"><b>R2 · 圆表适配</b>比分并排挪到圆心上方（最宽处），＋1 在各自比分里；2 / 3 改成 2 × 2 网格，行 = 分值、列 = 队。<br>四个格子都在圆心附近，不被弧线切。</div>
+      </div>
+    </div>
+    <div class="measure">
+      <div><b>为什么不能照搬</b>：原方案靠「上 1 / 中 2 / 下 3」的竖直顺序，可圆表的顶部和底部都是窄弧。3 分那条越往下越窄，屏幕最底端宽度收成 0，实际可点区域只有矩形的一半左右。</div>
+      <div><b>R1 的实测</b>：2 分 / 3 分各 116 × 60 dp；3 分的外下角超出圆弧 <b>46 dp</b>，比分块的上外角超出 <b>33 dp</b>——两处都会被圆直接切掉。</div>
+      <div><b>R2 的实测</b>：比分块 68 × 63 dp、数字 37 dp；2 / 3 每格 107 × 59 dp，四边全部落在圆内（外角最多贴到弧线 1.5 dp，被圆角吃掉，看不见）。</div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="block-title">规格<span class="sub">45mm 实测值，括号里是 41mm</span></h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>元素</th><th>尺寸</th><th>颜色 / 字</th><th>行为</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><b>分数区（＋1）</b></td><td>99 × 88 pt（88 × 78）</td><td>比分白 41.6 pt（三位数 35.2 pt）；队名 18 pt 队色</td><td>点 = ＋1，长按 = −1</td></tr>
+          <tr><td><b>＋1 浮字</b></td><td>10 pt，距数字 7 px</td><td>白 60%，居中在分数正下方</td><td>不接收点击</td></tr>
+          <tr><td><b>2 分 / 3 分</b></td><td>99 × 66 pt 各一（88 × 58）</td><td>队色数字 41 pt</td><td>点 = ＋2 / ＋3，长按 = 对应负分</td></tr>
+          <tr><td><b>分隔线</b></td><td>1 px</td><td>2 分上方白 32%；2 / 3 之间白 16%</td><td>—</td></tr>
+          <tr><td><b>撤销</b></td><td>20 pt 圆，命中区扩到 44 pt</td><td>#33343b 底 + 白 16% 描边</td><td>撤一笔，居中于两队比分中线</td></tr>
+          <tr><td><b>顶栏</b></td><td>高 20 pt，右侧留 3.4 em</td><td>9 pt 灰字：第 X 节 · mm:ss</td><td>只读</td></tr>
+          <tr><td><b>队色</b></td><td>色片透明度按亮度归一化（红 ×1.34 / 蓝 ×1.04）</td><td><span class="swatch" style="background:#FF4D45"></span>主队 #FF4D45（左）<br><span class="swatch" style="background:#4A9EFF"></span>客队 #4A9EFF（右）</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="block-title">落地要点<span class="sub">对应当前 watch 工程</span></h2>
+    <ul class="notes">
+      <li><b>入口</b>：<code>WatchHomeTabView.swift</code> 的 <code>WatchHomeItem</code> 现在有意不含 <code>basketball</code>（只有手机发起的联动能开历史板）；加回来时把「本机开赛」和「手机联动」两条路径分开。</li>
+      <li><b>动作码</b>：＋1 / ＋2 / ＋3 都落一条 <code>WatchScoreAction</code>，operationCode 复用手机在发的 <code>basketball_score_1|2|3</code>（<code>BasketballSessionStore.swift:389</code>）；长按减分用同码 <code>scoreChange</code> 负值，撤销沿用 <code>undoCheckpoints</code>。</li>
+      <li><b>分数区是按钮</b>：整块（队名 + 比分 + ＋1 浮字）用 <code>.contentShape(Rectangle())</code>，按下时整块泛白约 80 ms；浮字加 <code>.allowsHitTesting(false)</code>，别让它挖出死区。</li>
+      <li><b>首次提示只做一次</b>：第一次进表盘时分数区呼吸高亮 1.5 s、＋1 上浮一次，之后永不再现——这是整套设计里唯一的「需要解释」的地方。</li>
+      <li><b>三人篮球</b>：只有 ＋1 和 ＋2，下面只剩一层、自动撑满，布局不换。</li>
+    </ul>
+    <p class="foot">演示文件 · 交互为前端模拟，不含真实计分引擎。尺寸按公开的屏幕像素规格绘制，圆角半径为近似值（≈ 屏宽 13%）。</p>
+  </section>
+</div>
+
+<script>
+(function () {
+  var ZONES = { fiba: [2, 3], three: [2] };
+  var state = {
+    rule: 'fiba',
+    teams: [
+      { name: '主队', color: '#FF4D45', score: 0 },
+      { name: '客队', color: '#4A9EFF', score: 0 }
+    ],
+    history: []
+  };
+
+  function rgba(hex, a) {
+    var r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+  }
+  function lum(hex) {
+    var r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  }
+  // 红和蓝在同一档 alpha 下亮度差得远，按亮度补偿，两块色片才一样重
+  function styleFor(t) {
+    var k = 0.60 / lum(t.color);
+    return '--c:' + t.color +
+      ';--soft:' + rgba(t.color, 0.20 * k) +
+      ';--s1:' + rgba(t.color, 0.05 * k) +
+      ';--s2:' + rgba(t.color, 0.10 * k) +
+      ';--s3:' + rgba(t.color, 0.16 * k);
+  }
+
+  function tplC() {
+    var t = state.teams;
+    var half = function (i, side) {
+      return '<section class="half ' + side + '" style="' + styleFor(t[i]) + '">' +
+        '<button class="score-zone" data-team="' + i + '" data-points="1">' +
+          '<span class="n">' + t[i].name + '</span>' +
+          '<span class="score-line"><span class="s" data-score="' + i + '">0</span></span>' +
+          '<span class="plus1">\uFF0B1</span>' +
+        '</button>' +
+        '<div class="zones" data-zones="' + i + '"></div></section>';
+    };
+    return '<div class="topbar"><span>第 1 节</span><span>·</span><span class="clk">07:42</span></div>' +
+      '<div class="c-body">' + half(0, 'left') + '<div class="c-divider"></div>' + half(1, 'right') +
+      '<button class="undo-mid" data-undo aria-label="撤销"><span>\u21BA</span></button></div>' +
+      '<div class="toast"></div>';
+  }
+
+  function tplR2() {
+    var t = state.teams;
+    var score = function (i) {
+      return '<button class="r2-score" style="' + styleFor(t[i]) + '" data-team="' + i + '" data-points="1">' +
+        '<span class="n">' + t[i].name + '</span>' +
+        '<span class="s" data-score="' + i + '">0</span>' +
+        '<span class="p">＋1</span></button>';
+    };
+    return '<div class="r2">' +
+      '<div class="r2-top"><span>第 1 节</span><span>·</span><span class="clk">07:42</span></div>' +
+      '<div class="r2-scores">' + score(0) +
+        '<button class="undo-mid" data-undo aria-label="撤销"><span>↺</span></button>' + score(1) + '</div>' +
+      '<div class="r2-grid" data-r2grid></div>' +
+      '<div class="toast"></div></div>';
+  }
+
+  var TPL = { c: tplC, r2: tplR2 };
+
+  function buildScreens() {
+    document.querySelectorAll('.screen[data-scheme]').forEach(function (node) {
+      node.innerHTML = TPL[node.dataset.scheme]();
+    });
+    buildKeys();
+    updateScores();
+  }
+
+  function buildKeys() {
+    var vals = ZONES[state.rule];
+    document.querySelectorAll('[data-r2grid]').forEach(function (box) {
+      var html = '';
+      vals.forEach(function (v) {
+        [0, 1].forEach(function (team) {
+          html += '<button class="r2-cell" style="' + styleFor(state.teams[team]) + '" data-team="' + team +
+            '" data-points="' + v + '">' + v + '</button>';
+        });
+      });
+      box.innerHTML = html;
+    });
+    document.querySelectorAll('[data-zones]').forEach(function (box) {
+      var team = +box.dataset.zones;
+      box.innerHTML = vals.map(function (v) {
+        return '<button class="zone" data-team="' + team + '" data-points="' + v + '">' + v + '</button>';
+      }).join('');
+    });
+  }
+
+  function updateScores() {
+    document.querySelectorAll('[data-score]').forEach(function (n) {
+      n.textContent = state.teams[+n.dataset.score].score;
+    });
+    var threeDigit = state.teams.some(function (t) { return t.score >= 100; });
+    document.querySelectorAll('.screen').forEach(function (s) {
+      s.classList.toggle('big', threeDigit);
+      layoutUndo(s);
+    });
+  }
+
+  // 撤销钮永远贴住两个比分的垂直中线（位数变化也成立）
+  function layoutUndo(screen) {
+    var body = screen.querySelector('.c-body');
+    var score = screen.querySelector('.score-line');
+    var undo = screen.querySelector('.undo-mid');
+    if (!body || !score || !undo) return;
+    var b = body.getBoundingClientRect(), s = score.getBoundingClientRect();
+    var k = b.width / parseFloat(getComputedStyle(screen).getPropertyValue('--w'));
+    body.style.setProperty('--undoTop', ((s.top + s.bottom) / 2 - b.top) / k + 'px');
+  }
+
+  function bump(screen, team) {
+    if (!screen) return;
+    screen.querySelectorAll('[data-score="' + team + '"]').forEach(function (n) {
+      n.classList.remove('bump'); void n.offsetWidth; n.classList.add('bump');
+    });
+  }
+
+  var toastTimers = new WeakMap();
+  function toast(screen, text, color) {
+    if (!screen) return;
+    var t = screen.querySelector('.toast');
+    if (!t) return;
+    t.textContent = text;
+    t.style.border = color ? '1px solid ' + rgba(color, .45) : 'none';
+    t.classList.add('show');
+    clearTimeout(toastTimers.get(t));
+    toastTimers.set(t, setTimeout(function () { t.classList.remove('show'); }, 1000));
+  }
+
+  function addPoints(team, points, btn) {
+    var t = state.teams[team];
+    t.score += points;
+    state.history.push({ team: team, points: points, kind: 'add' });
+    updateScores();
+    var screen = btn && btn.closest('.screen');
+    bump(screen, team);
+    toast(screen, '\uFF0B' + points + '  ' + t.name, t.color);
+  }
+
+  function subtract(team, points, btn) {
+    var t = state.teams[team], screen = btn && btn.closest('.screen');
+    if (t.score < points) { toast(screen, t.name + ' 不够减 ' + points + ' 分', '#8e8e93'); return; }
+    t.score -= points;
+    state.history.push({ team: team, points: points, kind: 'sub' });
+    updateScores();
+    bump(screen, team);
+    toast(screen, '\u2212' + points + '  ' + t.name, t.color);
+  }
+
+  function undo(btn) {
+    var screen = btn && btn.closest('.screen');
+    var last = state.history.pop();
+    if (!last) { toast(screen, '没有可撤销的操作', '#8e8e93'); return; }
+    var t = state.teams[last.team];
+    if (last.kind === 'add') t.score -= last.points; else t.score += last.points;
+    updateScores();
+    bump(screen, last.team);
+    toast(screen, '撤销 ' + (last.kind === 'add' ? '\uFF0B' : '\u2212') + last.points + '  ' + t.name, '#8e8e93');
+  }
+
+  var pressTimer = null, suppressClick = false;
+  document.addEventListener('pointerdown', function (e) {
+    var btn = e.target.closest('[data-points]');
+    if (!btn) return;
+    suppressClick = false;
+    clearTimeout(pressTimer);
+    pressTimer = setTimeout(function () {
+      suppressClick = true;
+      subtract(+btn.dataset.team, +btn.dataset.points, btn);
+    }, 460);
+  });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) {
+    document.addEventListener(ev, function () { clearTimeout(pressTimer); });
+  });
+
+  document.addEventListener('click', function (e) {
+    var u = e.target.closest('[data-undo]');
+    if (u) { undo(u); return; }
+    var btn = e.target.closest('[data-points]');
+    if (!btn) return;
+    if (suppressClick) { suppressClick = false; return; }
+    addPoints(+btn.dataset.team, +btn.dataset.points, btn);
+  });
+
+  document.querySelectorAll('#ruleSeg button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      state.rule = b.dataset.rule;
+      document.querySelectorAll('#ruleSeg button').forEach(function (x) { x.classList.toggle('on', x === b); });
+      buildKeys();
+      document.querySelectorAll('.screen').forEach(layoutUndo);
+    });
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    state.teams.forEach(function (t) { t.score = 0; });
+    state.history = [];
+    updateScores();
+  });
+  document.getElementById('threeDigits').addEventListener('click', function () {
+    state.teams[0].score = 108; state.teams[1].score = 96;
+    updateScores();
+  });
+
+  function fit() {
+    document.querySelectorAll('.stage .watch').forEach(function (w) {
+      if (w.closest('.sizes')) return;
+      var stage = w.closest('.stage');
+      var avail = stage.clientWidth - 28;
+      var k = Math.max(.42, Math.min(.95, avail / 428));
+      w.style.setProperty('--k', k.toFixed(3));
+    });
+  }
+  window.addEventListener('resize', fit);
+
+  buildScreens();
+  fit();
+})();
+</script>
+</body>
+</html>

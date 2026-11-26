@@ -25,3 +25,6 @@ APP_*.docx
 /marketing/artifacts/**/before-*/
 /marketing/google-play/localization-*/before-*/
 /marketing/google-play/localization-*/package/
+
+# 宣传片等大体积成片留在本地，不入库（由 scripts/ 合成脚本复现）
+/marketing/**/*.mp4

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>手表端九球（追分）3–4 人交互与开球人切换 · UI 走查</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 44px 34px 90px; background: #0a0c0f; color: #e8ecf1;
+    font: 15px/1.68 -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+  }
+  h1 { font-size: 27px; margin: 0 0 8px; letter-spacing: .2px; }
+  h2 { font-size: 20px; margin: 0 0 6px; }
+  h3 { font-size: 16px; margin: 30px 0 10px; }
+  .sub { color: #8b949e; margin: 0 0 26px; font-size: 14px; }
+  section { margin: 0 0 52px; padding-top: 10px; border-top: 1px solid #1d242c; }
+  .lead { color: #99a3ae; margin: 4px 0 22px; font-size: 14px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 24px; padding: 0; list-style: none; }
+  .meta li { background: #11151a; border: 1px solid #1e252d; border-radius: 10px; padding: 8px 12px; font-size: 13px; color: #b7c0c9; }
+  .meta b { color: #eef2f6; font-weight: 600; margin-right: 4px; }
+  .pass { background: #0f1d14; border: 1px solid #24512f; color: #8ce6ac; border-radius: 12px; padding: 12px 16px; font-size: 13.5px; margin: 0 0 26px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(228px, 1fr)); gap: 22px; }
+  .card { margin: 0; background: #11151a; border: 1px solid #1e252d; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+  .card img { width: 100%; display: block; background: #000; }
+  figcaption { padding: 12px 14px 14px; }
+  .shot-no { display: inline-block; font-size: 11px; font-weight: 700; color: #08090a; background: #30d158; border-radius: 6px; padding: 1px 7px; margin-bottom: 8px; }
+  .shot-page { font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+  .shot-state { color: #99a3ae; font-size: 13px; }
+  .shot-file { margin-top: 8px; font-family: "SF Mono", ui-monospace, monospace; font-size: 11px; color: #4d5964; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #1a212a; vertical-align: top; }
+  th { color: #8b949e; font-weight: 600; }
+  .mono { font-family: "SF Mono", ui-monospace, monospace; color: #7ee2a8; }
+  .issues { background: #12100c; border: 1px solid #46331a; border-radius: 16px; padding: 20px 24px; }
+  .issues h2 { color: #ffb86b; }
+  .issue { border-top: 1px dashed #2c2418; padding: 14px 0 4px; }
+  .issue:first-of-type { border-top: none; }
+  .issue-head { font-weight: 600; font-size: 14.5px; margin-bottom: 6px; }
+  .issue ul { margin: 0; padding-left: 20px; color: #b7c0c9; font-size: 13.5px; }
+  .issue li { margin-bottom: 6px; }
+  .sev { font-size: 11px; padding: 1px 7px; border-radius: 5px; margin-right: 8px; font-weight: 700; vertical-align: 1px; }
+  .p2 { background: #ff9f5a; color: #2a1400; }
+  .p3 { background: #ffd479; color: #241a00; }
+  .obs { background: #6aa9ff; color: #001733; }
+  code { background: #1b222a; padding: 1px 5px; border-radius: 5px; font-size: 12.5px; }
+  details { margin-top: 16px; }
+  summary { cursor: pointer; color: #8b949e; font-size: 13px; }
+  a { color: #7ee2a8; }
+</style>
+</head>
+<body>
+  <h1>手表端九球（追分）3–4 人交互与开球人切换 · UI 走查</h1>
+  <p class="sub">Apple Watch 模拟器实跑：XCTest 驱动真实点击/长按，逐步截图；每张图下方标注「第几页 · 哪个页面 · 哪种状态」。共 34 张。</p>
+
+  <ul class="meta">
+    <li><b>设备</b>Apple Watch Series 12 (46mm) · 208×248pt</li>
+    <li><b>系统</b>watchOS 27.2</li>
+    <li><b>构建</b>Xcode 27.2 · Debug</li>
+    <li><b>用例</b>jifenWatch Watch AppUITests / WatchNineBallUITests</li>
+    <li><b>结果</b>3 个用例全部通过</li>
+  </ul>
+
+  <p class="pass">✔ 3 条用例全部通过：<code>testThreePlayerBreakerAndPayerFlows</code>（17 项断言）、<code>testFourPlayerQuadrantFlows</code>（6 项断言）、<code>testTwoPlayerSmallGoldUnavailableForBreaker</code>（4 项断言）。
+  截图与断言一起检查：开球徽标、二级选人推荐人、置灰状态、比分变化全部与规则一致；下面列出 6 条可以改进的界面问题。</p>
+
+  <h3>覆盖矩阵</h3>
+  <table>
+    <thead><tr><th>交互点</th><th>对应截图</th></tr></thead>
+    <tbody><tr><td>开球人徽标（计分板姓名左侧）</td><td class='mono'>3p_04 / 3p_10 / 4p_01 / 4p_07 / 2p_01</td></tr><tr><td>开球人徽标（事件面板标题「开球」）</td><td class='mono'>3p_05 / 3p_16 / 2p_02</td></tr><tr><td>长按菜单 → 本局开球人</td><td class='mono'>3p_08 / 3p_09 / 4p_05 / 4p_06</td></tr><tr><td>3–4 人普通胜 → 选择付分人（推荐上家）</td><td class='mono'>3p_06 / 4p_03</td></tr><tr><td>3–4 人小金 → 选择付分人（推荐开球）</td><td class='mono'>3p_12 / 4p_08</td></tr><tr><td>3 人让杆 → 选择继续击球人（推荐下家）</td><td class='mono'>3p_14</td></tr><tr><td>大金 1 步直出（仅开球人可点）</td><td class='mono'>3p_16 / 3p_17 / 3p_11</td></tr><tr><td>2 人开球人小金置灰</td><td class='mono'>2p_02 / 2p_03 / 2p_04</td></tr><tr><td>完赛确认与完赛遮罩</td><td class='mono'>3p_18 / 3p_19</td></tr><tr><td>设置页首屏与滚动</td><td class='mono'>3p_03 / 3p_03b / 4p_00 / 4p_00b</td></tr></tbody>
+  </table>
+
+  <h3>发现的问题（待统一决定改法）</h3>
+  <div class="issues">
+    <h2>6 条</h2>
+    
+    <article class="issue">
+      <div class="issue-head"><span class="sev p2">P2</span>「选择人数」弹层里「4 人」按钮超出卡片底部，点下缘会把弹层关掉</div>
+      <ul><li>无障碍树里 <code>Button '4 人'</code> 的 frame 是 <code>{{28,180},{152,68}}</code>（pt），即按钮从 180pt 一直延到 248pt 屏幕底；而卡片背景在 233.5pt 处收边（截图 <code>3p_02</code> 中间列像素扫描：y≈467px 之后已回到遮罩色）。</li><li>UI 测试第一版按元素中心 <code>tap()</code> 时直接失败——弹层被遮罩关掉、停在首页；改成点按钮上部坐标后才稳定进入设置页。</li><li>建议：三个选项放进等分高度或可滚动容器，卡片底部留 8–10pt 内边距，别让最后一行压到卡片圆角外。</li></ul>
+    </article>
+    <article class="issue">
+      <div class="issue-head"><span class="sev p2">P2</span>九球 3/4 人设置页首屏看不到第 3（4）名选手的名称行</div>
+      <ul><li>设置页 ScrollView 行高 52pt，行起点 112 / 164 / 216pt，而「开始」按钮悬浮在 188–248pt，正好把第 3 行整块盖住：截图 <code>3p_03_setup</code> 首屏只有选手 1、2 与绿色「开始」；向上滚动后才露出选手 3（<code>3p_03b_setup_scrolled</code>）。</li><li>4 人局同理（<code>4p_00_setup</code> / <code>4p_00b_setup_scrolled</code>）：首屏只能看到前两行。</li><li>影响：开 3/4 人局时第一眼以为只有 2 个名字框，需要额外一次滚动才发现还要填第 3、4 人。</li><li>建议：名称行改紧凑（行高 44pt 或折叠成「选手」入口），或让「开始」只占内容高度、不覆盖最后一行。</li></ul>
+    </article>
+    <article class="issue">
+      <div class="issue-head"><span class="sev p3">P3</span>4 人棋盘下球杆徽标偏小，辨识度低于 2 人布局</div>
+      <ul><li>徽标白色笔画实测 bbox：4 人布局 16×16px（≈8×8pt），2 人布局 20×20px（≈10×10pt）。</li><li>3 人布局里 OCR 会把徽标和姓名连读成「／ 选手1」（<code>3p_04</code>），说明笔画已经细到接近文字噪点级别。</li><li>建议：4 人布局下徽标不小于 10pt，或在比分下方补一条「开球」文字标签。</li></ul>
+    </article>
+    <article class="issue">
+      <div class="issue-head"><span class="sev p3">P3</span>事件面板标题里「开球」胶囊与姓名几乎贴在一起</div>
+      <ul><li><code>3p_16</code> 的 OCR 把标题读成一整串「● 选手2开球」，说明 4pt 的间距在 9pt 胶囊下视觉上粘连。</li><li>建议：间距提到 6–8pt，或加一个分隔点。</li></ul>
+    </article>
+    <article class="issue">
+      <div class="issue-head"><span class="sev p3">P3</span>普通胜 / 小金 结算后开球人自动轮转，界面没有任何提示</div>
+      <ul><li><code>3p_07</code> 得分后球杆徽标已经从选手 1 跑到选手 2，<code>3p_09</code> 的开球人面板对勾也落在选手 2（规则见 <code>ScoreCore/NineBallChaseTransfers.swift:73-77</code>：普通胜/小金结束后 breaker 轮到下家，大金/金九保留）。</li><li>但计分板上没有任何「开球人已轮转」的反馈，用户容易以为徽标在乱跳。</li><li>建议：结算后 toast 一句「开球人 → 选手 2」，或在开球人面板标题补「本局 · 第 N 局」。</li></ul>
+    </article>
+    <article class="issue">
+      <div class="issue-head"><span class="sev obs">观察</span>2 人单人付分时开球人的「小金」直接置灰，没有任何文字解释</div>
+      <ul><li>截图 <code>2p_02</code>：小金格子区域最大亮度 73（禁用）；<code>2p_03</code> 同一位置最大亮度 255（可用），置灰确实生效。</li><li>与手机端行为一致，属于预期；但手表屏幕小，建议禁用时补一句「小金需非开球人」或在 2 人单人付分下直接隐藏该按钮。</li></ul>
+    </article>
+  </div>
+
+  
+  <section>
+    <h2>场景 A · 3 人局（主流程）</h2>
+    <p class="lead">从首页进入九球 3 人局：开球人徽标 → 事件面板 → 普通胜/小金/让杆的一步式选人 → 长按菜单切换开球人 → 大金直出 → 完赛遮罩。</p>
+    <div class="grid">
+      <figure class="card" id="3p_01_home">
+        <a href="shots/3p_01_home.png" target="_blank" rel="noopener">
+          <img src="shots/3p_01_home.png" alt="第 1 页 · 首页（计分 Tab）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">01</div>
+          <div class="shot-page">第 1 页 · 首页（计分 Tab）</div>
+          <div class="shot-state">默认项目列表；点「追分」进入九球</div>
+          <div class="shot-file">shots/3p_01_home.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_02_players">
+        <a href="shots/3p_02_players.png" target="_blank" rel="noopener">
+          <img src="shots/3p_02_players.png" alt="第 2 页 · 选择人数" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">02</div>
+          <div class="shot-page">第 2 页 · 选择人数</div>
+          <div class="shot-state">九球开局前选 2/3/4 人；本次选「3 人」</div>
+          <div class="shot-file">shots/3p_02_players.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_03_setup">
+        <a href="shots/3p_03_setup.png" target="_blank" rel="noopener">
+          <img src="shots/3p_03_setup.png" alt="第 3 页 · 九球设置（首屏）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">03</div>
+          <div class="shot-page">第 3 页 · 九球设置（首屏）</div>
+          <div class="shot-state">首屏只能看到选手 1/2；选手 3 的名称行被底部「开始」按钮盖住</div>
+          <div class="shot-file">shots/3p_03_setup.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_03b_setup_scrolled">
+        <a href="shots/3p_03b_setup_scrolled.png" target="_blank" rel="noopener">
+          <img src="shots/3p_03b_setup_scrolled.png" alt="第 3 页 · 九球设置（向上滚动后）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">03b</div>
+          <div class="shot-page">第 3 页 · 九球设置（向上滚动后）</div>
+          <div class="shot-state">滚动后才露出选手 3 的名称行；「开始」始终悬浮在底部</div>
+          <div class="shot-file">shots/3p_03b_setup_scrolled.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_04_board">
+        <a href="shots/3p_04_board.png" target="_blank" rel="noopener">
+          <img src="shots/3p_04_board.png" alt="第 4 页 · 3 人计分板（初始）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">04</div>
+          <div class="shot-page">第 4 页 · 3 人计分板（初始）</div>
+          <div class="shot-state">0 : 0 : 0；选手 1 姓名左侧有白色球杆徽标＝当前开球人</div>
+          <div class="shot-file">shots/3p_04_board.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_05_event_panel_breaker">
+        <a href="shots/3p_05_event_panel_breaker.png" target="_blank" rel="noopener">
+          <img src="shots/3p_05_event_panel_breaker.png" alt="第 4 页 · 事件面板（选手 1 ＝ 开球人）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">05</div>
+          <div class="shot-page">第 4 页 · 事件面板（选手 1 ＝ 开球人）</div>
+          <div class="shot-state">标题右侧绿色「开球」徽标；大金可用（只有开球人能打）</div>
+          <div class="shot-file">shots/3p_05_event_panel_breaker.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_06_payer_picker">
+        <a href="shots/3p_06_payer_picker.png" target="_blank" rel="noopener">
+          <img src="shots/3p_06_payer_picker.png" alt="第 4 页 · 二级选择：付分人" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">06</div>
+          <div class="shot-page">第 4 页 · 二级选择：付分人</div>
+          <div class="shot-state">普通胜 → 1 步选付分人；绿框推荐「上家」（选手 3），右侧显示 -4</div>
+          <div class="shot-file">shots/3p_06_payer_picker.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_07_after_normal_win">
+        <a href="shots/3p_07_after_normal_win.png" target="_blank" rel="noopener">
+          <img src="shots/3p_07_after_normal_win.png" alt="第 4 页 · 计分结果（普通胜）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">07</div>
+          <div class="shot-page">第 4 页 · 计分结果（普通胜）</div>
+          <div class="shot-state">选手 1 +4、选手 3 -4；二级面板自动关闭；本局结束 → 开球人轮转到选手 2</div>
+          <div class="shot-file">shots/3p_07_after_normal_win.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_08_menu">
+        <a href="shots/3p_08_menu.png" target="_blank" rel="noopener">
+          <img src="shots/3p_08_menu.png" alt="第 4 页 · 长按菜单" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">08</div>
+          <div class="shot-page">第 4 页 · 长按菜单</div>
+          <div class="shot-state">撤销 / 重新开始 / 本局开球人 / 结束比赛</div>
+          <div class="shot-file">shots/3p_08_menu.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_09_breaker_picker">
+        <a href="shots/3p_09_breaker_picker.png" target="_blank" rel="noopener">
+          <img src="shots/3p_09_breaker_picker.png" alt="第 4 页 · 本局开球人面板" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">09</div>
+          <div class="shot-page">第 4 页 · 本局开球人面板</div>
+          <div class="shot-state">全屏选人列表；对勾落在普通胜后自动轮转到的选手 2</div>
+          <div class="shot-file">shots/3p_09_breaker_picker.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_10_breaker_switched">
+        <a href="shots/3p_10_breaker_switched.png" target="_blank" rel="noopener">
+          <img src="shots/3p_10_breaker_switched.png" alt="第 4 页 · 计分板（开球人改成选手 3）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">10</div>
+          <div class="shot-page">第 4 页 · 计分板（开球人改成选手 3）</div>
+          <div class="shot-state">球杆徽标从选手 2 移到选手 3；比分保持不变</div>
+          <div class="shot-file">shots/3p_10_breaker_switched.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_11_event_panel_nonbreaker">
+        <a href="shots/3p_11_event_panel_nonbreaker.png" target="_blank" rel="noopener">
+          <img src="shots/3p_11_event_panel_nonbreaker.png" alt="第 4 页 · 事件面板（选手 1 ≠ 开球人）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">11</div>
+          <div class="shot-page">第 4 页 · 事件面板（选手 1 ≠ 开球人）</div>
+          <div class="shot-state">无「开球」徽标；大金置灰，其余事件仍可用</div>
+          <div class="shot-file">shots/3p_11_event_panel_nonbreaker.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_12_smallgold_picker">
+        <a href="shots/3p_12_smallgold_picker.png" target="_blank" rel="noopener">
+          <img src="shots/3p_12_smallgold_picker.png" alt="第 4 页 · 二级选择：小金付分人" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">12</div>
+          <div class="shot-page">第 4 页 · 二级选择：小金付分人</div>
+          <div class="shot-state">单人付分的小金 → 推荐「开球」（选手 3），右侧 -7</div>
+          <div class="shot-file">shots/3p_12_smallgold_picker.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_13_after_smallgold">
+        <a href="shots/3p_13_after_smallgold.png" target="_blank" rel="noopener">
+          <img src="shots/3p_13_after_smallgold.png" alt="第 4 页 · 计分结果（小金）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">13</div>
+          <div class="shot-page">第 4 页 · 计分结果（小金）</div>
+          <div class="shot-state">选手 1 +7（累计 11）、选手 2 -7</div>
+          <div class="shot-file">shots/3p_13_after_smallgold.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_14_continue_picker">
+        <a href="shots/3p_14_continue_picker.png" target="_blank" rel="noopener">
+          <img src="shots/3p_14_continue_picker.png" alt="第 4 页 · 二级选择：继续击球人" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">14</div>
+          <div class="shot-page">第 4 页 · 二级选择：继续击球人</div>
+          <div class="shot-state">让杆 → 推荐「下家」（选手 2），行尾「接杆」标记，不计分</div>
+          <div class="shot-file">shots/3p_14_continue_picker.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_15_after_handoff">
+        <a href="shots/3p_15_after_handoff.png" target="_blank" rel="noopener">
+          <img src="shots/3p_15_after_handoff.png" alt="第 4 页 · 计分结果（让杆）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">15</div>
+          <div class="shot-page">第 4 页 · 计分结果（让杆）</div>
+          <div class="shot-state">交给选手 2 继续，比分不变；让杆不换开球人</div>
+          <div class="shot-file">shots/3p_15_after_handoff.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_16_event_panel_breaker_big_gold">
+        <a href="shots/3p_16_event_panel_breaker_big_gold.png" target="_blank" rel="noopener">
+          <img src="shots/3p_16_event_panel_breaker_big_gold.png" alt="第 4 页 · 事件面板（选手 2 ＝ 开球人）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">16</div>
+          <div class="shot-page">第 4 页 · 事件面板（选手 2 ＝ 开球人）</div>
+          <div class="shot-state">让杆不换开球人：选手 2 的面板仍带「开球」徽标、大金可用</div>
+          <div class="shot-file">shots/3p_16_event_panel_breaker_big_gold.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_17_after_big_gold">
+        <a href="shots/3p_17_after_big_gold.png" target="_blank" rel="noopener">
+          <img src="shots/3p_17_after_big_gold.png" alt="第 4 页 · 计分结果（大金）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">17</div>
+          <div class="shot-page">第 4 页 · 计分结果（大金）</div>
+          <div class="shot-state">大金 1 步直出：选手 1 只剩 1 分、选手 3 -14、选手 2 由 -7 变 13；无二级选人面板</div>
+          <div class="shot-file">shots/3p_17_after_big_gold.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_18_finish_confirm">
+        <a href="shots/3p_18_finish_confirm.png" target="_blank" rel="noopener">
+          <img src="shots/3p_18_finish_confirm.png" alt="第 4 页 · 结束比赛二次确认" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">18</div>
+          <div class="shot-page">第 4 页 · 结束比赛二次确认</div>
+          <div class="shot-state">长按 → 结束比赛 → 「结束比赛？」确认弹层（取消 / 确认）</div>
+          <div class="shot-file">shots/3p_18_finish_confirm.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="3p_19_finished">
+        <a href="shots/3p_19_finished.png" target="_blank" rel="noopener">
+          <img src="shots/3p_19_finished.png" alt="第 4 页 · 完赛遮罩" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">19</div>
+          <div class="shot-page">第 4 页 · 完赛遮罩</div>
+          <div class="shot-state">三人最终比分 / 胜者文案 / 再来一局；二级面板与开球人面板均已关闭</div>
+          <div class="shot-file">shots/3p_19_finished.png</div>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+  <section>
+    <h2>场景 B · 4 人局（2×2 棋盘）</h2>
+    <p class="lead">4 人棋盘布局下的同一套规则：一步式付分人、开球人切换、小金推荐「开球」。</p>
+    <div class="grid">
+      <figure class="card" id="4p_00_setup">
+        <a href="shots/4p_00_setup.png" target="_blank" rel="noopener">
+          <img src="shots/4p_00_setup.png" alt="第 3 页 · 4 人九球设置（首屏）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">00</div>
+          <div class="shot-page">第 3 页 · 4 人九球设置（首屏）</div>
+          <div class="shot-state">首屏只能看到前两个选手名称行；第 3/4 行落在底部「开始」按钮下面</div>
+          <div class="shot-file">shots/4p_00_setup.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="4p_00_setup_scrolled">
+        <a href="shots/4p_00_setup_scrolled.png" target="_blank" rel="noopener">
+          <img src="shots/4p_00_setup_scrolled.png" alt="第 3 页 · 4 人九球设置（向上滚动后）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">00</div>
+          <div class="shot-page">第 3 页 · 4 人九球设置（向上滚动后）</div>
+          <div class="shot-state">滚动后才露出第 3（4）个选手名称行；「开始」始终悬浮在底部</div>
+          <div class="shot-file">shots/4p_00_setup_scrolled.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="4p_01_board">
+        <a href="shots/4p_01_board.png" target="_blank" rel="noopener">
+          <img src="shots/4p_01_board.png" alt="第 4 页 · 4 人计分板（2×2 棋盘）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">01</div>
+          <div class="shot-page">第 4 页 · 4 人计分板（2×2 棋盘）</div>
+          <div class="shot-state">四个象限各一名选手；选手 1 姓名左侧带球杆徽标（开球人）</div>
+          <div class="shot-file">shots/4p_01_board.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="4p_02_event_panel">
+        <a href="shots/4p_02_event_panel.png" target="_blank" rel="noopener">
+          <img src="shots/4p_02_event_panel.png" alt="第 4 页 · 4 人事件面板（选手 2）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">02</div>
+          <div class="shot-page">第 4 页 · 4 人事件面板（选手 2）</div>
+          <div class="shot-state">紧凑两列事件网格；非开球人无「开球」徽标、大金置灰</div>
+          <div class="shot-file">shots/4p_02_event_panel.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="4p_03_payer_picker">
+        <a href="shots/4p_03_payer_picker.png" target="_blank" rel="noopener">
+          <img src="shots/4p_03_payer_picker.png" alt="第 4 页 · 4 人付分人选择" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">03</div>
+          <div class="shot-page">第 4 页 · 4 人付分人选择</div>
+          <div class="shot-state">3 个候选（选手 1/3/4）；绿框推荐上家（选手 1），-4</div>
+          <div class="shot-file">shots/4p_03_payer_picker.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="4p_04_after_normal_win">
+        <a href="shots/4p_04_after_normal_win.png" target="_blank" rel="noopener">
+          <img src="shots/4p_04_after_normal_win.png" alt="第 4 页 · 计分结果（4 人普通胜）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">04</div>
+          <div class="shot-page">第 4 页 · 计分结果（4 人普通胜）</div>
+          <div class="shot-state">选手 2 +4、选手 4 -4；开球人轮转到选手 3</div>
+          <div class="shot-file">shots/4p_04_after_normal_win.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="4p_05_menu">
+        <a href="shots/4p_05_menu.png" target="_blank" rel="noopener">
+          <img src="shots/4p_05_menu.png" alt="第 4 页 · 4 人长按菜单" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">05</div>
+          <div class="shot-page">第 4 页 · 4 人长按菜单</div>
+          <div class="shot-state">同样有「本局开球人」入口</div>
+          <div class="shot-file">shots/4p_05_menu.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="4p_06_breaker_picker">
+        <a href="shots/4p_06_breaker_picker.png" target="_blank" rel="noopener">
+          <img src="shots/4p_06_breaker_picker.png" alt="第 4 页 · 4 人本局开球人面板" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">06</div>
+          <div class="shot-page">第 4 页 · 4 人本局开球人面板</div>
+          <div class="shot-state">4 行紧凑列表；对勾落在轮转后的选手 3</div>
+          <div class="shot-file">shots/4p_06_breaker_picker.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="4p_07_breaker_switched">
+        <a href="shots/4p_07_breaker_switched.png" target="_blank" rel="noopener">
+          <img src="shots/4p_07_breaker_switched.png" alt="第 4 页 · 4 人计分板（开球人＝选手 4）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">07</div>
+          <div class="shot-page">第 4 页 · 4 人计分板（开球人＝选手 4）</div>
+          <div class="shot-state">球杆徽标移到右下角选手 4</div>
+          <div class="shot-file">shots/4p_07_breaker_switched.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="4p_08_smallgold_picker">
+        <a href="shots/4p_08_smallgold_picker.png" target="_blank" rel="noopener">
+          <img src="shots/4p_08_smallgold_picker.png" alt="第 4 页 · 4 人小金付分人" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">08</div>
+          <div class="shot-page">第 4 页 · 4 人小金付分人</div>
+          <div class="shot-state">非开球人小金 → 推荐「开球」（选手 4），-7</div>
+          <div class="shot-file">shots/4p_08_smallgold_picker.png</div>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+  <section>
+    <h2>场景 C · 2 人局（对齐手机端的小金置灰）</h2>
+    <p class="lead">2 人单人付分时，开球人的「小金」置灰；非开球人小金直接出分，不弹二级选人。</p>
+    <div class="grid">
+      <figure class="card" id="2p_01_board">
+        <a href="shots/2p_01_board.png" target="_blank" rel="noopener">
+          <img src="shots/2p_01_board.png" alt="第 4 页 · 2 人计分板" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">01</div>
+          <div class="shot-page">第 4 页 · 2 人计分板</div>
+          <div class="shot-state">两人横向布局；选手 1 姓名左侧带球杆徽标（开球人）</div>
+          <div class="shot-file">shots/2p_01_board.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="2p_02_event_panel_breaker">
+        <a href="shots/2p_02_event_panel_breaker.png" target="_blank" rel="noopener">
+          <img src="shots/2p_02_event_panel_breaker.png" alt="第 4 页 · 2 人事件面板（开球人）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">02</div>
+          <div class="shot-page">第 4 页 · 2 人事件面板（开球人）</div>
+          <div class="shot-state">开球人打小金无意义 → 「小金」置灰禁用（对齐手机端）</div>
+          <div class="shot-file">shots/2p_02_event_panel_breaker.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="2p_03_event_panel_opponent">
+        <a href="shots/2p_03_event_panel_opponent.png" target="_blank" rel="noopener">
+          <img src="shots/2p_03_event_panel_opponent.png" alt="第 4 页 · 2 人事件面板（非开球人）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">03</div>
+          <div class="shot-page">第 4 页 · 2 人事件面板（非开球人）</div>
+          <div class="shot-state">非开球人「小金」可用；2 人不弹二级选人</div>
+          <div class="shot-file">shots/2p_03_event_panel_opponent.png</div>
+        </figcaption>
+      </figure>
+      <figure class="card" id="2p_04_after_smallgold">
+        <a href="shots/2p_04_after_smallgold.png" target="_blank" rel="noopener">
+          <img src="shots/2p_04_after_smallgold.png" alt="第 4 页 · 计分结果（2 人小金）" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="shot-no">04</div>
+          <div class="shot-page">第 4 页 · 计分结果（2 人小金）</div>
+          <div class="shot-state">选手 2 +7、开球人选手 1 -7（默认开球人付分）</div>
+          <div class="shot-file">shots/2p_04_after_smallgold.png</div>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>截图清单</h2>
+    <table>
+      <thead><tr><th>文件</th><th>页面</th><th>状态</th></tr></thead>
+      <tbody><tr><td class='mono'>2p_01_board</td><td>第 4 页 · 2 人计分板</td><td>两人横向布局；选手 1 姓名左侧带球杆徽标（开球人）</td></tr><tr><td class='mono'>2p_02_event_panel_breaker</td><td>第 4 页 · 2 人事件面板（开球人）</td><td>开球人打小金无意义 → 「小金」置灰禁用（对齐手机端）</td></tr><tr><td class='mono'>2p_03_event_panel_opponent</td><td>第 4 页 · 2 人事件面板（非开球人）</td><td>非开球人「小金」可用；2 人不弹二级选人</td></tr><tr><td class='mono'>2p_04_after_smallgold</td><td>第 4 页 · 计分结果（2 人小金）</td><td>选手 2 +7、开球人选手 1 -7（默认开球人付分）</td></tr><tr><td class='mono'>3p_01_home</td><td>第 1 页 · 首页（计分 Tab）</td><td>默认项目列表；点「追分」进入九球</td></tr><tr><td class='mono'>3p_02_players</td><td>第 2 页 · 选择人数</td><td>九球开局前选 2/3/4 人；本次选「3 人」</td></tr><tr><td class='mono'>3p_03_setup</td><td>第 3 页 · 九球设置（首屏）</td><td>首屏只能看到选手 1/2；选手 3 的名称行被底部「开始」按钮盖住</td></tr><tr><td class='mono'>3p_03b_setup_scrolled</td><td>第 3 页 · 九球设置（向上滚动后）</td><td>滚动后才露出选手 3 的名称行；「开始」始终悬浮在底部</td></tr><tr><td class='mono'>3p_04_board</td><td>第 4 页 · 3 人计分板（初始）</td><td>0 : 0 : 0；选手 1 姓名左侧有白色球杆徽标＝当前开球人</td></tr><tr><td class='mono'>3p_05_event_panel_breaker</td><td>第 4 页 · 事件面板（选手 1 ＝ 开球人）</td><td>标题右侧绿色「开球」徽标；大金可用（只有开球人能打）</td></tr><tr><td class='mono'>3p_06_payer_picker</td><td>第 4 页 · 二级选择：付分人</td><td>普通胜 → 1 步选付分人；绿框推荐「上家」（选手 3），右侧显示 -4</td></tr><tr><td class='mono'>3p_07_after_normal_win</td><td>第 4 页 · 计分结果（普通胜）</td><td>选手 1 +4、选手 3 -4；二级面板自动关闭；本局结束 → 开球人轮转到选手 2</td></tr><tr><td class='mono'>3p_08_menu</td><td>第 4 页 · 长按菜单</td><td>撤销 / 重新开始 / 本局开球人 / 结束比赛</td></tr><tr><td class='mono'>3p_09_breaker_picker</td><td>第 4 页 · 本局开球人面板</td><td>全屏选人列表；对勾落在普通胜后自动轮转到的选手 2</td></tr><tr><td class='mono'>3p_10_breaker_switched</td><td>第 4 页 · 计分板（开球人改成选手 3）</td><td>球杆徽标从选手 2 移到选手 3；比分保持不变</td></tr><tr><td class='mono'>3p_11_event_panel_nonbreaker</td><td>第 4 页 · 事件面板（选手 1 ≠ 开球人）</td><td>无「开球」徽标；大金置灰，其余事件仍可用</td></tr><tr><td class='mono'>3p_12_smallgold_picker</td><td>第 4 页 · 二级选择：小金付分人</td><td>单人付分的小金 → 推荐「开球」（选手 3），右侧 -7</td></tr><tr><td class='mono'>3p_13_after_smallgold</td><td>第 4 页 · 计分结果（小金）</td><td>选手 1 +7（累计 11）、选手 2 -7</td></tr><tr><td class='mono'>3p_14_continue_picker</td><td>第 4 页 · 二级选择：继续击球人</td><td>让杆 → 推荐「下家」（选手 2），行尾「接杆」标记，不计分</td></tr><tr><td class='mono'>3p_15_after_handoff</td><td>第 4 页 · 计分结果（让杆）</td><td>交给选手 2 继续，比分不变；让杆不换开球人</td></tr><tr><td class='mono'>3p_16_event_panel_breaker_big_gold</td><td>第 4 页 · 事件面板（选手 2 ＝ 开球人）</td><td>让杆不换开球人：选手 2 的面板仍带「开球」徽标、大金可用</td></tr><tr><td class='mono'>3p_17_after_big_gold</td><td>第 4 页 · 计分结果（大金）</td><td>大金 1 步直出：选手 1 只剩 1 分、选手 3 -14、选手 2 由 -7 变 13；无二级选人面板</td></tr><tr><td class='mono'>3p_18_finish_confirm</td><td>第 4 页 · 结束比赛二次确认</td><td>长按 → 结束比赛 → 「结束比赛？」确认弹层（取消 / 确认）</td></tr><tr><td class='mono'>3p_19_finished</td><td>第 4 页 · 完赛遮罩</td><td>三人最终比分 / 胜者文案 / 再来一局；二级面板与开球人面板均已关闭</td></tr><tr><td class='mono'>4p_00_setup</td><td>第 3 页 · 4 人九球设置（首屏）</td><td>首屏只能看到前两个选手名称行；第 3/4 行落在底部「开始」按钮下面</td></tr><tr><td class='mono'>4p_00_setup_scrolled</td><td>第 3 页 · 4 人九球设置（向上滚动后）</td><td>滚动后才露出第 3（4）个选手名称行；「开始」始终悬浮在底部</td></tr><tr><td class='mono'>4p_01_board</td><td>第 4 页 · 4 人计分板（2×2 棋盘）</td><td>四个象限各一名选手；选手 1 姓名左侧带球杆徽标（开球人）</td></tr><tr><td class='mono'>4p_02_event_panel</td><td>第 4 页 · 4 人事件面板（选手 2）</td><td>紧凑两列事件网格；非开球人无「开球」徽标、大金置灰</td></tr><tr><td class='mono'>4p_03_payer_picker</td><td>第 4 页 · 4 人付分人选择</td><td>3 个候选（选手 1/3/4）；绿框推荐上家（选手 1），-4</td></tr><tr><td class='mono'>4p_04_after_normal_win</td><td>第 4 页 · 计分结果（4 人普通胜）</td><td>选手 2 +4、选手 4 -4；开球人轮转到选手 3</td></tr><tr><td class='mono'>4p_05_menu</td><td>第 4 页 · 4 人长按菜单</td><td>同样有「本局开球人」入口</td></tr><tr><td class='mono'>4p_06_breaker_picker</td><td>第 4 页 · 4 人本局开球人面板</td><td>4 行紧凑列表；对勾落在轮转后的选手 3</td></tr><tr><td class='mono'>4p_07_breaker_switched</td><td>第 4 页 · 4 人计分板（开球人＝选手 4）</td><td>球杆徽标移到右下角选手 4</td></tr><tr><td class='mono'>4p_08_smallgold_picker</td><td>第 4 页 · 4 人小金付分人</td><td>非开球人小金 → 推荐「开球」（选手 4），-7</td></tr></tbody>
+    </table>
+    <details>
+      <summary>生成信息</summary>
+      <p>测试批次：<code>20261124T083548388287Z-watch-nineball-ui-final</code>（14 天保留策略，过期自动清理）。截图目录：<code>docs/verification/watch-nineball-ui-2026-11-24/shots/</code>。</p>
+      <p>缺失说明：无；无说明的截图：无。</p>
+    </details>
+  </section>
+</body>
+</html>

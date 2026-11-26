@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>黑八「抢局」方案 Demo（已定稿 · 反馈 cmwwtql5d0dlxv5idphmd6zqg）</title>
+<style>
+  :root {
+    --bg: #f2f3f5; --sheet: #ffffff; --line: #e5e6ea; --text: #1a1a1a;
+    --sub: #8a8f99; --green: #34c759; --green-soft: #e8f8ee;
+    --blue: #3478f6; --chip: #f2f3f7; --chip-line: #dcdfe4; --warn: #b8860b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+    background: var(--bg); color: var(--text);
+    display: flex; justify-content: center; padding: 24px 12px 80px;
+  }
+  .page { width: 100%; max-width: 430px; }
+  .page-title { font-size: 22px; font-weight: 700; margin: 8px 0 2px; }
+  .page-sub { font-size: 13px; color: var(--sub); line-height: 1.5; margin-bottom: 16px; }
+
+  .sheet {
+    background: var(--sheet); border-radius: 16px; padding: 16px 16px 20px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.08); margin-bottom: 16px;
+  }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .sheet-title { font-size: 17px; font-weight: 600; }
+  .sheet-tag { font-size: 11px; color: var(--sub); }
+
+  .row-label { display: flex; align-items: center; gap: 6px; margin: 14px 0 8px; }
+  .row-label .name { font-size: 15px; font-weight: 500; }
+  .q-chip {
+    width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--blue);
+    color: var(--blue); font-size: 13px; font-weight: 700; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; user-select: none; background: #fff; flex: none;
+  }
+  .q-chip.on { background: var(--blue); color: #fff; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    min-width: 52px; height: 36px; padding: 0 12px; border-radius: 10px;
+    background: var(--chip); border: 1px solid var(--chip-line);
+    font-size: 15px; display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; user-select: none; color: #333; font-variant-numeric: tabular-nums;
+    transition: transform .06s ease;
+  }
+  .chip:active { transform: scale(.94); }
+  .chip.sel { background: var(--green-soft); border-color: var(--green); color: #1d8a41; font-weight: 700; }
+  .chip.small { min-width: 40px; height: 32px; font-size: 14px; }
+  .chip.custom { min-width: 84px; }
+  .chip.custom input {
+    width: 56px; border: 0; background: transparent; font-size: 15px; text-align: center; outline: none;
+    font-variant-numeric: tabular-nums; color: inherit;
+  }
+  .chip.custom input::placeholder { color: #b6bac2; }
+
+  .tip {
+    margin-top: 10px; background: #f0f6ff; border: 1px solid #d5e5fb; border-radius: 12px;
+    padding: 12px; font-size: 13px; line-height: 1.65; color: #24405e; display: none;
+  }
+  .tip.show { display: block; animation: pop .16s ease; }
+  @keyframes pop { from { opacity: 0; transform: translateY(-4px);} to { opacity: 1; transform: none;} }
+  .tip b { color: #1d5fb4; }
+  .tip table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .tip td, .tip th { border-top: 1px solid #dfe9f6; padding: 5px 4px; font-size: 12.5px; text-align: left; }
+  .tip th { color: #6b7c92; font-weight: 600; border-top: 0; }
+  .tip .hl { background: #e4efff; font-weight: 700; }
+
+  .note { font-size: 12px; color: var(--sub); margin-top: 10px; line-height: 1.6; }
+  .warnbox {
+    background: #fdf6e7; border: 1px solid #ecd9a8; border-radius: 12px;
+    padding: 12px; font-size: 13px; line-height: 1.7; color: #6b5200; margin-bottom: 16px;
+  }
+
+  .board {
+    margin-top: 6px; border-radius: 14px; padding: 14px 14px 16px;
+    background: linear-gradient(160deg, #17341f, #0d2415); color: #fff;
+  }
+  .board-top { display: flex; justify-content: space-between; align-items: center; font-size: 12px; opacity: .85; }
+  .board-score { display: flex; align-items: flex-end; justify-content: space-between; margin: 10px 0 6px; }
+  .board-score .side { text-align: center; flex: 1; }
+  .board-score .num { font-size: 52px; font-weight: 200; line-height: 1; font-variant-numeric: tabular-nums; }
+  .board-score .pname { font-size: 13px; opacity: .9; }
+  .board-score .colon { font-size: 26px; opacity: .5; padding: 0 10px 6px; }
+  .board-sub { text-align: center; font-size: 13px; color: #cfe8d6; }
+
+  h2.sec { font-size: 16px; font-weight: 700; margin: 20px 0 10px; }
+  .plan { border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 14px; background: #fff; }
+  .plan h3 { font-size: 15px; margin-bottom: 6px; }
+  .plan p { font-size: 13px; color: #555; line-height: 1.65; margin-bottom: 8px; }
+  .plan-code {
+    font-size: 12px; background: #f6f7f9; border-radius: 8px; padding: 10px; margin-top: 10px;
+    font-family: ui-monospace, Menlo, monospace; color: #333; line-height: 1.7; white-space: pre-wrap; word-break: break-all;
+  }
+  .btnrow { display: flex; gap: 8px; margin-top: 8px; }
+  .btnrow .chip { flex: 1; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-title">黑八「抢局」· 定稿 Demo</div>
+  <div class="page-sub">
+    范围：仅黑八（eightBall），九球、斯诺克不动。方案：B —— 局数标签改成「抢局」，档位只显示纯数字
+    3 / 5 / 7 / 13（+自定义），不加「几局几胜」/ BO 等任何小字，所有解释（对应几局几胜、让局上限）都收进问号说明；
+    记分板不改；让局范围收窄为「抢N − 1」。
+    来源：用户反馈「台球记分建议」（uid 11354，11-26）。
+  </div>
+
+  <!-- ============ 设置弹窗模拟 ============ -->
+  <div class="sheet">
+    <div class="sheet-head">
+      <div class="sheet-title">黑八追局 · 比赛设置</div>
+      <div class="sheet-tag">SportsSetupSettingsSection · buildEightBallSettings</div>
+    </div>
+
+    <!-- 抢局 -->
+    <div class="row-label">
+      <span class="name">抢局</span>
+      <span class="q-chip" id="qChip" title="点我看说明">?</span>
+    </div>
+    <div class="chips" id="raceChips"></div>
+    <div class="tip" id="raceTip"></div>
+
+    <!-- 让局：范围收窄为 抢N-1 -->
+    <div class="row-label"><span class="name">让局</span></div>
+    <div class="chips">
+      <div class="chip small sel" id="hcpNone">无</div>
+      <div id="hcpChips" style="display:contents"></div>
+    </div>
+    <div class="note" id="hcpNote"></div>
+  </div>
+
+  <!-- ============ 让局联动说明 ============ -->
+  <div class="warnbox" id="hcpExplain"></div>
+
+  <!-- ============ 计分板预览（不改，仅确认） ============ -->
+  <div class="sheet">
+    <div class="sheet-head">
+      <div class="sheet-title">计分板 · 不改</div>
+      <div class="sheet-tag">与现网一致</div>
+    </div>
+    <div class="board">
+      <div class="board-top"><span>第 3 局</span><span id="boardRace">目标 5 局</span></div>
+      <div class="board-score">
+        <div class="side"><div class="num">2</div><div class="pname">张三</div></div>
+        <div class="colon">:</div>
+        <div class="side"><div class="num">1</div><div class="pname">李四</div></div>
+      </div>
+      <div class="board-sub">局分 2:1 · 先到 3 局胜</div>
+    </div>
+    <div class="note">
+      记分板继续显示「第 N 局 / 局分 / 目标总局数」，与现在完全一样。
+      「抢局」只是设置页的选档叫法，底层存的总局数不变，老记录、联动、分享图都不受影响。
+    </div>
+  </div>
+
+  <h2 class="sec">改动清单（落码范围）</h2>
+  <div class="plan">
+    <h3>只动黑八设置这一处</h3>
+    <div class="plan-code">jifen/Features/Home/Components/SportsSetupSettingsSection.swift
+
+buildEightBallSettings():
+  1. 局数标题 「局数」 → 「抢局」（新字符串键 eight_ball_race_label）
+     英文 "Race target"，数字档位无需翻译。
+  2. 档位 [1, 3, 5, 7, 9, 11] → [3, 5, 7, 13]，只显示纯数字（不加「N局N胜」/BO 小字，保留自定义输入，maxValue 不变）。
+  3. 标题旁加问号按钮，点开显示对照表（几局几胜 + 让局上限，见上方气泡）。
+
+让局：无需改代码（已核实）。
+  引擎 EightBallState 的 finished = points >= targetPoints，targetPoints 本来就是
+  「先赢几局」；让局上限早已是 target - 1：
+    · 手机 buildEightBallSettings: ForEach(1..<selectedMaxSets)
+    · 手表 WatchSportsSetupDraft.maxEightBallHandicap = max(0, target - 1)
+  所以抢3 最多让 2 现在就是成立的，只需档位含义跟着改叫「抢局」。
+
+SportsSetupDraft.swift:
+  frameCountPresets(.eightBall) → [3, 5, 7, 13]（原与 .billiards 共用 [1,3,5,7,9,11]）
+  defaultMaxSets(.eightBall) 9 → 5（落在新档位内，与手表端一致）</div>
+  </div>
+  <div class="plan">
+    <h3>不改的部分</h3>
+    <div class="plan-code">· 记分板（EightBallScoreboardView）：显示逻辑原样。
+· 让局逻辑（手机 + 手表）：本来就是抢N − 1，未改一行。
+· 数据层：仍存 targetPoints，存储/记录/联动/分享全兼容。
+· 九球（chasePlayerPoints 体系）、斯诺克（buildSnookerSettings）。
+
+手表端（WatchSportsSetupView / WatchSetupModels）同步改：
+  · 档位 [1,3,5,7,9,11,13,15] → [3, 5, 7, 13]
+  · 标题「目标局数」→「抢局」，档位下一行小字「选 3 = 抢3：先赢 3 局」
+  · 旧存值 9/11/15 保留并按需追加显示，不回落到默认</div>
+  </div>
+
+<script>
+(function () {
+  var PRESETS = [3, 5, 7, 13];
+  var sel = 3;            // 抢N
+  var tipOpen = false;
+  var hcpMode = 'none';   // none | number
+  var hcpVal = 1;
+
+  function framesOf(n) { return 2 * n - 1; }
+  function maxHcp(n) { return n - 1; }
+
+  function renderChips() {
+    var box = document.getElementById('raceChips');
+    box.innerHTML = '';
+    PRESETS.forEach(function (n) {
+      var d = document.createElement('div');
+      d.className = 'chip' + (n === sel ? ' sel' : '');
+      d.textContent = String(n);
+      d.onclick = function () {
+        sel = n;
+        // 让局超出新上限时收回
+        if (hcpMode !== 'none' && hcpVal > maxHcp(n)) { hcpVal = maxHcp(n); }
+        renderAll();
+      };
+      box.appendChild(d);
+    });
+    var c = document.createElement('div');
+    c.className = 'chip custom';
+    c.innerHTML = '<input placeholder="自定义…">';
+    box.appendChild(c);
+  }
+
+  function renderHcp() {
+    var box = document.getElementById('hcpChips');
+    box.innerHTML = '';
+    var m = maxHcp(sel);
+    for (var i = 1; i <= m; i++) {
+      (function (i) {
+        var d = document.createElement('div');
+        d.className = 'chip small' + (hcpMode !== 'none' && hcpVal === i ? ' sel' : '');
+        d.textContent = i;
+        d.onclick = function () { hcpMode = 'number'; hcpVal = i; document.getElementById('hcpNone').classList.remove('sel'); renderHcp(); renderExplain(); };
+        box.appendChild(d);
+      })(i);
+    }
+  }
+
+  function renderTip() {
+    var tip = document.getElementById('raceTip');
+    if (!tipOpen) { tip.className = 'tip'; return; }
+    tip.className = 'tip show';
+    var rows = PRESETS.map(function (n) {
+      return '<tr' + (n === sel ? ' class="hl"' : '') + '><td><b>' + n + '</b></td><td>先赢 ' + n +
+        ' 局获胜</td><td>' + framesOf(n) + '</td><td>最多让 ' + maxHcp(n) + '</td></tr>';
+    }).join('');
+    tip.innerHTML = '<b>「抢局」是什么意思？</b><br>' +
+      '选 3 就是台球常说的「抢3」：先赢 3 局获胜，等价于 5局3胜。<br>' +
+      '<table><tr><th>档位</th><th>含义</th><th>总局数</th><th>让局上限</th></tr>' + rows + '</table>';
+  }
+
+  function renderExplain() {
+    var el = document.getElementById('hcpExplain');
+    el.innerHTML = '<b>让局为什么要收窄？</b><br>' +
+      '现在「局数」按总局数算，5 局最多让 4；改成「抢局」后数字含义变成「先赢 N 局」，' +
+      '让局上限也要跟着变成 <b>抢N − 1</b>：<br>' +
+      '· 抢3：最多让 2（再让对方赢 1 局就完了）<br>' +
+      '· 抢5：最多让 4 · 抢7：最多让 6 · 抢13：最多让 12<br>' +
+      '你说的没错——抢 3 最多只能让 2。旧比赛如果让局数超过新上限，开局时静默夹到上限（对齐安卓 normalize 的做法）。';
+    document.getElementById('hcpNote').textContent =
+      '让局数：1 ～ ' + maxHcp(sel) + '（抢' + sel + ' − 1）';
+  }
+
+  function renderAll() { renderChips(); renderTip(); renderHcp(); renderExplain(); }
+
+  document.getElementById('qChip').onclick = function () { tipOpen = !tipOpen; renderAll(); };
+  document.getElementById('hcpNone').onclick = function () {
+    hcpMode = 'none';
+    document.getElementById('hcpNone').classList.add('sel');
+    renderHcp(); renderExplain();
+  };
+
+  renderAll();
+})();
+</script>
+</body>
+</html>

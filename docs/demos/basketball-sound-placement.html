@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>篮球记分板 · 哨子与蜂鸣器</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f3f4ef;
+    --surface: #fff;
+    --text: #1b241f;
+    --muted: #515e56;
+    --line: #dce1d9;
+    --green: #235d40;
+    --selected: #e7f2e9;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--text); }
+  button, input { font: inherit; }
+  button { cursor: pointer; }
+  button:disabled { cursor: default; }
+  button:focus-visible, input:focus-visible { outline: 3px solid #67a788; outline-offset: 3px; }
+  h1, h2, p { margin: 0; }
+  [hidden] { display: none !important; }
+  .page { max-width: 1100px; margin: auto; padding: 34px 24px 44px; }
+  .masthead { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 22px; }
+  h1 { font-size: clamp(27px, 4vw, 38px); line-height: 1.15; letter-spacing: -.045em; }
+  .masthead p { margin-top: 10px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .volume { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; white-space: nowrap; padding-bottom: 1px; }
+  .volume input { width: 88px; accent-color: var(--green); }
+  .volume output { min-width: 34px; text-align: right; font-variant-numeric: tabular-nums; }
+  .choices { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+  .choice { min-height: 70px; text-align: left; padding: 10px 13px; border: 1px solid var(--line); border-radius: 11px; color: var(--text); background: var(--surface); }
+  .choice:hover { border-color: #86a191; }
+  .choice[aria-pressed="true"] { background: var(--selected); border-color: #78a68b; color: #194d34; }
+  .choice strong { display: block; font-size: 15px; }
+  .choice span { display: block; margin-top: 4px; font-size: 12px; color: var(--muted); }
+  .preview { overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+  .toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px 14px; padding: 10px 15px; }
+  .toolbar h2 { font-size: 15px; }
+  .settings, .segment { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .segment { background: #eff2ee; border-radius: 8px; padding: 3px; gap: 2px; }
+  .segment button, .restart { min-height: 36px; padding: 0 10px; color: var(--muted); border: 0; border-radius: 6px; background: transparent; font-size: 12px; white-space: nowrap; }
+  .segment button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px #18251c25; }
+  .restart { border: 1px solid var(--line); }
+  .stage { display: grid; place-items: center; padding: 16px; background: #212a27; }
+  .device { position: relative; overflow: hidden; width: min(100%, var(--board-w)); aspect-ratio: var(--w) / var(--h); border-radius: 15px; box-shadow: 0 5px 25px #0005; }
+  .court { position: relative; isolation: isolate; display: grid; grid-template-columns: 1fr var(--center-width, 180px) 1fr; width: var(--board-w); height: var(--board-h); transform: scale(var(--scale, 1)); transform-origin: left top; background: #111827; color: white; font-variant-numeric: tabular-nums; user-select: none; }
+  .court.compact { --center-width: 160px; }
+  .court button { border: 0; color: inherit; -webkit-tap-highlight-color: transparent; }
+  .court button:disabled { opacity: .48; }
+  .court button:focus-visible { outline-color: white; }
+  .team { position: relative; display: grid; place-items: center; background: #c62828; min-width: 0; }
+  .team.right { background: #007aff; }
+  .team-name { position: absolute; top: 21px; left: 54px; right: 54px; text-align: center; font-size: 32px; font-weight: 680; }
+  .score { font-size: 80px; font-weight: 750; line-height: 1; margin-left: 46px; }
+  .right .score { margin: 0 46px 0 0; }
+  .points { display: grid; gap: 10px; position: absolute; left: 58px; top: 50%; transform: translateY(-50%); }
+  .right .points { left: auto; right: 58px; }
+  .points button { width: 50px; height: 50px; border-radius: 50%; background: #ffffff26; font-weight: 750; }
+  .points button:active, .timeout:active { background: #ffffff4a; }
+  .fouls { position: absolute; bottom: 53px; font-size: 15px; background: transparent; min-height: 44px; padding: 0 8px; white-space: nowrap; }
+  .fouls span { opacity: .52; letter-spacing: 2px; }
+  .timeout { position: absolute; right: 12px; bottom: 0; min-height: 44px; padding: 0; background: transparent; }
+  .timeout span { display: block; padding: 5px 9px; border-radius: 999px; background: #ffffff25; font-size: 14px; white-space: nowrap; }
+  .right .timeout { left: 12px; right: auto; }
+  .compact .team-name { font-size: 27px; }
+  .compact .score { font-size: 67px; }
+  .compact .points { left: 17px; }
+  .compact .right .points { left: auto; right: 17px; }
+  .compact .fouls { bottom: 60px; font-size: 13px; }
+  .compact .right .timeout { left: 7px; }
+  .compact .timeout span { font-size: 12px; padding-inline: 6px; }
+  .court[data-layout="edge"] .fouls { bottom: 75px; }
+  .court[data-layout="split"] .fouls { bottom: 98px; min-height: 36px; }
+  .court[data-layout="split"] .team .timeout { left: 50%; right: auto; bottom: 56px; transform: translateX(-50%); }
+  .court.compact[data-layout="split"] .fouls { bottom: 96px; }
+  .court.compact[data-layout="split"] .team .timeout { bottom: 54px; }
+  .center { display: flex; flex-direction: column; align-items: center; gap: 11px; padding: 16px 4px 19px; }
+  .period { background: #ffffff15; border-radius: 12px; min-height: 44px; min-width: 60px; padding: 0 9px; font-size: 17px; font-weight: 750; display: grid; place-items: center; }
+  .period-label { background: transparent; }
+  .game-clock { line-height: 1; font-size: 47px; font-weight: 780; letter-spacing: -.04em; }
+  .clock-toggle { display: grid; place-items: center; width: 88px; height: 88px; border-radius: 50%; background: #ffffff24; }
+  .clock-toggle i { display: block; color: white; width: 36px; height: 36px; background: currentColor; clip-path: polygon(19% 0, 99% 50%, 19% 100%); }
+  .clock-toggle[aria-pressed="true"] i { clip-path: polygon(12% 0, 40% 0, 40% 100%, 12% 100%, 12% 0, 60% 0, 88% 0, 88% 100%, 60% 100%, 60% 0); }
+  .shot-clock { font-size: 37px; line-height: 1; color: #facc15; font-weight: 780; letter-spacing: -.03em; }
+  .shot-clock.expired { color: #ff6868; }
+  .shot-resets { display: flex; margin-top: auto; gap: 10px; }
+  .shot-resets button { min-width: 52px; height: 44px; border-radius: 99px; background: #ffffff20; font-weight: 650; }
+  .compact .game-clock { font-size: 42px; }
+  .timeout-clock { display: grid; min-height: 28px; place-items: center; color: #ffd685; font-weight: 700; font-size: 13px; }
+  .court[data-timeout="true"] .center { gap: 6px; }
+  .court[data-timeout="true"] .clock-toggle { width: 72px; height: 72px; }
+  .sound-row { display: flex; gap: 6px; align-items: center; }
+  .center .sound-row { margin-top: 1px; }
+  .court[data-layout="center"] .center { gap: 8px; }
+  .court[data-layout="center"] .shot-resets { margin-top: 3px; }
+  .court[data-layout="center"] .clock-toggle { width: 68px; height: 68px; }
+  .court[data-layout="center"] .clock-toggle i { width: 29px; height: 29px; }
+  .court[data-layout="center"][data-timeout="true"] .center { gap: 5px; }
+  .court[data-layout="center"][data-timeout="true"] .clock-toggle { width: 52px; height: 52px; }
+  .chrome { z-index: 1; position: absolute; display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border-radius: 50%; background: #0004; font-size: 23px; }
+  .back { bottom: 19px; left: 20px; }
+  .edit { top: 20px; right: 20px; }
+  .lower-right { z-index: 1; position: absolute; bottom: 19px; right: 20px; display: flex; align-items: center; gap: 8px; }
+  .lower-right .chrome { position: static; }
+  .hamburger, .hamburger::before, .hamburger::after { display: block; width: 18px; height: 1.5px; border-radius: 2px; background: currentColor; }
+  .hamburger { position: relative; }
+  .hamburger::before, .hamburger::after { position: absolute; left: 0; content: ""; }
+  .hamburger::before { top: -5px; }
+  .hamburger::after { top: 5px; }
+  .quick { min-width: 56px; min-height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 0 4px; background: #0005; border-radius: 12px; font-size: 11px; font-weight: 650; white-space: nowrap; }
+  .compact .quick, .center .quick { min-width: 44px; min-height: 44px; }
+  .compact .lower-right { gap: 6px; }
+  .center .quick { min-width: 64px; background: #ffffff14; }
+  .signal-icon { width: 23px; height: 23px; object-fit: contain; pointer-events: none; }
+  .team .signal-anchor { position: absolute; right: 12px; bottom: 19px; z-index: 1; }
+  .team.right .signal-anchor { left: 12px; right: auto; }
+  .team .quick.icon-only { width: 48px; height: 48px; min-width: 48px; min-height: 48px; padding: 0; border-radius: 50%; background: #0004; box-shadow: inset 0 0 0 1px #ffffff2b; }
+  .icon-only[data-action="buzzer"] .signal-icon { width: 26px; height: 26px; }
+  .icon-only[data-action="whistle"] .signal-icon { width: 28px; height: 28px; }
+  .signal-hint { position: absolute; left: 50%; bottom: calc(100% + 7px); transform: translate(-50%, 0); padding: 3px 8px; border-radius: 999px; background: #111827db; box-shadow: 0 2px 8px #0005, inset 0 0 0 1px #ffffff26; color: #fff; font-size: 11px; font-weight: 600; line-height: 1.3; white-space: nowrap; pointer-events: none; opacity: 1; transition: opacity .35s ease, transform .35s ease; }
+  .signal-hint::after { content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%); border: 4px solid transparent; border-top-color: #111827db; }
+  .court[data-signal-hint="false"] .signal-hint { opacity: 0; transform: translate(-50%, 4px); }
+  .quick:active, .quick[data-playing="true"], .card[data-playing="true"] { background: #245d45; box-shadow: inset 0 0 0 1.5px #76d5ab; }
+  .layer { position: absolute; z-index: 3; inset: 0; display: grid; place-items: center; background: #0009; }
+  .layer.transparent { background: transparent; }
+  .operation-menu { width: 402px; max-height: calc(100% - 16px); overflow: auto; border-radius: 20px; background: #202124; box-shadow: 0 12px 32px #0005; }
+  .operation-menu header { height: 48px; display: flex; justify-content: end; align-items: center; padding: 5px 10px 0; }
+  .close { background: #ffffff13; display: grid; place-items: center; border-radius: 50%; width: 44px; height: 44px; padding: 0; font-size: 25px; }
+  .match-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 11px 16px 14px; }
+  .card { display: flex; min-height: 75px; flex-direction: column; gap: 4px; align-items: center; justify-content: center; border-radius: 12px; background: #ffffff13; font-size: 14px; }
+  .card:hover, .close:hover { background: #ffffff23; }
+  .card[data-playing="true"] { background: #245d45; }
+  .card[data-confirming="true"] { background: #257447; color: white; }
+  .card-icon { display: grid; place-items: center; height: 33px; font-size: 29px; line-height: 1; }
+  .card-icon .signal-icon { width: 36px; height: 36px; }
+  .tools { display: flex; justify-content: center; gap: 6px; padding: 10px 14px 13px; border-top: 1px solid #ffffff1e; }
+  .tools .card { border-radius: 8px; min-height: 52px; width: 56px; background: transparent; color: #e4e4e7; font-size: 11px; }
+  .tools .card:hover { background: #ffffff13; }
+  .tools .card[data-playing="true"] { background: #245d45; }
+  .tools .card[data-confirming="true"] { background: #257447; color: white; }
+  .tools .card:disabled { opacity: .62; }
+  .tools .card-icon { height: 20px; font-size: 19px; }
+  .tools .signal-icon { width: 24px; height: 24px; }
+  .popover { position: absolute; right: 76px; bottom: 77px; display: flex; gap: 6px; padding: 6px; border-radius: 14px; background: #202124; box-shadow: 0 8px 24px #0007; }
+  .popover .quick { min-height: 56px; min-width: 72px; }
+  .popover .signal-icon { width: 27px; height: 27px; }
+  .period-picker { position: absolute; top: 66px; left: 50%; transform: translateX(-50%); padding: 7px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; width: 132px; border-radius: 12px; background: #202631; }
+  .period-picker button { min-height: 44px; background: #ffffff15; border-radius: 6px; }
+  .period-picker button:last-child { grid-column: span 2; }
+  .message { padding: 16px; max-width: 340px; border-radius: 16px; background: #202124; }
+  .message header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .message p { margin: 6px 0 2px; font-size: 14px; line-height: 1.5; color: #e4e4e7; }
+  .notes { padding: 13px 16px 15px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 16px; align-items: start; }
+  .notes p { font-size: 13px; line-height: 1.55; color: var(--muted); }
+  #status { margin: 0; min-width: 110px; color: var(--green); text-align: right; }
+  @media (max-width: 670px) {
+    .page { padding: 24px 12px; }
+    .masthead { display: grid; gap: 12px; margin-bottom: 14px; }
+    .choices { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+    .choice { grid-column: span 2; padding-inline: 8px; min-height: 61px; }
+    .choice strong { font-size: 13px; }
+    .choice:nth-last-child(-n+2) { grid-column: span 3; }
+    .toolbar { padding-inline: 9px; }
+    .stage { padding: 6px; }
+    .device { border-radius: 8px; }
+    .notes { grid-template-columns: minmax(0, 1fr); padding-inline: 10px; }
+    #status { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="masthead">
+    <div>
+      <h1>篮球记分板的哨子与蜂鸣器</h1>
+      <p>切换方案，在横屏记分板里试一下。也可以点加分和计时，感受按键之间的距离。</p>
+    </div>
+    <label class="volume">试听音量 <input id="volume" type="range" min="0" max="100" value="35"><output id="volume-value" for="volume">35%</output></label>
+  </header>
+
+  <nav class="choices" aria-label="布局方案">
+    <button class="choice" data-layout="menu" aria-pressed="false"><strong>A · 菜单大卡片</strong><span>打开菜单再按声效</span></button>
+    <button class="choice" data-layout="edge" aria-pressed="false"><strong>B · 右下双按钮</strong><span>主屏直接触发</span></button>
+    <button class="choice" data-layout="center" aria-pressed="false"><strong>C · 中央计时栏</strong><span>主屏直接触发</span></button>
+    <button class="choice" data-layout="popover" aria-pressed="false"><strong>D · 右下声音键</strong><span>打开声音键再选择</span></button>
+    <button class="choice" data-layout="split" aria-pressed="true"><strong>E · 两队内侧角</strong><span>左蜂鸣、右哨子</span></button>
+  </nav>
+
+  <section class="preview" aria-labelledby="preview-title">
+    <div class="toolbar">
+      <h2 id="preview-title">E · 两队内侧角</h2>
+      <div class="settings">
+        <div class="segment" role="group" aria-label="横屏尺寸">
+          <button data-size="regular" aria-pressed="true">常规 iPhone</button>
+          <button data-size="compact" aria-pressed="false">小屏 iPhone</button>
+        </div>
+        <div class="segment" role="group" aria-label="比赛人数">
+          <button data-mode="five" aria-pressed="true">5 对 5</button>
+          <button data-mode="three" aria-pressed="false">3 对 3</button>
+        </div>
+        <button class="restart" id="replay-hint">重播 3 秒提示</button>
+        <button class="restart" id="restart">还原演示</button>
+      </div>
+    </div>
+    <div class="stage" aria-label="横屏预览">
+      <div class="device" id="device">
+        <div class="court" id="court" aria-label="篮球记分板预览">
+          <div id="board" style="display: contents"></div>
+          <div id="overlays" style="display: contents"></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <p id="layout-note"></p>
+      <p id="status" role="status">可以试听声音</p>
+    </div>
+  </section>
+</main>
+
+<script>
+  const assetRoot = '../../jifen/Assets.xcassets';
+  const signals = {
+    whistle: { label: '哨子', image: `${assetRoot}/icon_3d_whistle.imageset/whistle@1x.png` },
+    buzzer: { label: '蜂鸣器', image: `${assetRoot}/icon_3d_buzzer.imageset/buzzer@1x.png` },
+  };
+  const sounds = Object.fromEntries(Object.keys(signals).map(name => {
+    const audio = new Audio(`../../jifen/Resources/${name}.mp3`);
+    audio.preload = 'auto';
+    return [name, audio];
+  }));
+  const proposals = {
+    menu: '操作菜单首排依次放哨子、蜂鸣器、撤销。换边移到底部。声音键点一下就响，菜单保留，方便连续操作。',
+    edge: '哨子和蜂鸣器并排放在右下角、操作菜单左侧。单击发声，左右比分和中央计时维持原位。',
+    center: '两个声音在进攻计时复位键下方，左右手都好够到。中央栏需要重新分配高度，试试小屏和球队暂停。',
+    popover: '右下角放一个独立的声音键，点开后显示哨子和蜂鸣器。发声后收起，主屏少占一个按钮的位置。',
+    split: '暂停移到各队犯规正下方（避开底栏按钮）。两队内侧角用 48×48 圆形图标键（左蜂鸣 26px、右哨子 28px），入场上方浮现小字提示 3 秒后淡出；播放中再点可立即停止。',
+  };
+  const cards = {
+    ...signals,
+    undo: { label: '撤销', icon: '↶' },
+    swap: { label: '换边', icon: '⇄' },
+    reset: { label: '重置', icon: '⟲' },
+    finish: { label: '结束比赛', icon: '⚑' },
+    style: { label: '样式', icon: '◈' },
+    screenshot: { label: '截图', icon: '▣' },
+    help: { label: '使用说明', icon: 'ⓘ' },
+  };
+  const sizeOptions = { regular: [852, 393], compact: [667, 375] };
+  const device = document.querySelector('#device');
+  const court = document.querySelector('#court');
+  const board = document.querySelector('#board');
+  const overlays = document.querySelector('#overlays');
+  const status = document.querySelector('#status');
+  const volume = document.querySelector('#volume');
+  const undoHistory = [];
+  const replayHintButton = document.querySelector('#replay-hint');
+  let signalHintVisible = true;
+  let signalHintTimer = 0;
+  let layout = 'split';
+  let size = 'regular';
+  let mode = 'five';
+  let modal = '';
+  let pending = '';
+  let restoreFocus = '';
+  let playing = '';
+  let soundGeneration = 0;
+  let state = initialMatch();
+
+  function initialMatch(fromStart = false) {
+    return {
+      teams: [
+        { name: '主队', score: fromStart ? 0 : mode === 'five' ? 71 : 11, fouls: 0, timeouts: mode === 'five' ? 3 : 1, color: 'left' },
+        { name: '客队', score: fromStart ? 0 : mode === 'five' ? 68 : 9, fouls: 0, timeouts: mode === 'five' ? 3 : 1, color: 'right' },
+      ],
+      period: fromStart ? 'Q1' : 'Q4', game: fromStart ? 600 : 580, shot: mode === 'five' ? 24 : 12,
+      running: false, timeout: null, finished: false, alternate: false,
+    };
+  }
+
+  function announce(message) {
+    status.textContent = message;
+  }
+
+  function remember() {
+    undoHistory.push(structuredClone(state));
+  }
+
+  function clockText(seconds) {
+    return [Math.floor(seconds / 60), seconds % 60].map(value => String(value).padStart(2, '0')).join(':');
+  }
+
+  function cardIcon(card) {
+    return card.image ? `<img class="signal-icon" src="${card.image}" alt="" draggable="false">` : card.icon;
+  }
+
+  function showSignalHint() {
+    clearTimeout(signalHintTimer);
+    signalHintVisible = layout === 'split';
+    court.dataset.signalHint = String(signalHintVisible);
+    if (!signalHintVisible) return;
+    signalHintTimer = setTimeout(() => {
+      signalHintVisible = false;
+      court.dataset.signalHint = 'false';
+    }, 3000);
+  }
+
+  function hideSignalHint() {
+    clearTimeout(signalHintTimer);
+    signalHintVisible = false;
+    court.dataset.signalHint = 'false';
+  }
+
+  function quickButton(name, iconOnly = false) {
+    const signal = signals[name];
+    if (iconOnly) {
+      return `<div class="signal-anchor"><span class="signal-hint" aria-hidden="true">${signal.label}</span><button class="quick icon-only" data-action="${name}" aria-label="${signal.label}">${cardIcon(signal)}</button></div>`;
+    }
+    return `<button class="quick" data-action="${name}">${cardIcon(signal)}<span>${signal.label}</span></button>`;
+  }
+
+  function cardButton(name) {
+    const card = cards[name];
+    return `<button class="card" data-action="${name}" ${name === 'screenshot' ? 'disabled title="截图仅供布局示意"' : ''}>
+      <span class="card-icon" aria-hidden="true">${cardIcon(card)}</span>
+      <span>${pending === name ? `确认${card.label}` : card.label}</span>
+    </button>`;
+  }
+
+  function teamPanel(team, index) {
+    const isRight = index === 1;
+    const dots = '●'.repeat(Math.min(team.fouls, 5)) + '○'.repeat(Math.max(0, 5 - team.fouls));
+    const locked = state.finished || state.timeout;
+    const colors = layout === 'split' ? { left: '#007aff', right: '#c62828' } : { left: '#c62828', right: '#007aff' };
+    const color = state.alternate ? { left: '#20554b', right: '#59439c' }[team.color] : colors[team.color];
+    return `<section class="team${isRight ? ' right' : ''}" style="background-color:${color}" aria-label="${team.name}">
+      <span class="team-name">${team.name}</span>
+      <strong class="score" aria-label="${team.name} ${team.score} 分">${team.score}</strong>
+      <div class="points">${[1, 2, 3].map(points => `<button data-action="score" data-team="${index}" data-points="${points}" aria-label="${team.name}加 ${points} 分" ${locked ? 'disabled' : ''}>+${points}</button>`).join('')}</div>
+      <button class="fouls" data-action="foul" data-team="${index}" aria-label="${team.name}增加犯规，当前 ${team.fouls} 次" ${locked ? 'disabled' : ''}>犯规 ${team.fouls} <span aria-hidden="true">${dots}</span></button>
+      <button class="timeout" data-action="timeout" data-team="${index}" aria-label="${team.name}暂停，剩余 ${team.timeouts} 次" ${locked || team.timeouts <= 0 ? 'disabled' : ''}><span>暂停（${team.timeouts}）</span></button>
+      ${layout === 'split' ? quickButton(isRight ? 'whistle' : 'buzzer', true) : ''}
+    </section>`;
+  }
+
+  function centerPanel() {
+    const period = mode === 'three'
+      ? '<span class="period period-label">3×3</span>'
+      : `<button class="period" data-action="period" ${state.timeout || state.finished ? 'disabled' : ''}>${state.period} ⌄</button>`;
+    return `<section class="center" aria-label="比赛计时">
+      ${period}
+      <span class="game-clock" id="game-clock">${clockText(state.game)}</span>
+      ${state.timeout ? `<div class="timeout-clock" id="timeout-clock">${state.timeout.name}暂停 · ${clockText(state.timeout.seconds)}</div>` : ''}
+      <button class="clock-toggle" data-action="clock" aria-pressed="${state.running}" aria-label="${state.timeout ? '结束球队暂停' : state.running ? '暂停比赛计时' : '开始比赛计时'}" ${state.finished ? 'disabled' : ''}><i aria-hidden="true"></i></button>
+      <span class="shot-clock${state.shot === 0 ? ' expired' : ''}" id="shot-clock">${state.shot}″</span>
+      <div class="shot-resets">${(mode === 'five' ? [14, 24] : [12]).map(seconds => `<button data-action="shot" data-seconds="${seconds}" aria-label="进攻计时重设为 ${seconds} 秒" ${state.finished || state.timeout ? 'disabled' : ''}>${seconds}</button>`).join('')}</div>
+      ${layout === 'center' ? `<div class="sound-row" aria-label="声音">${quickButton('whistle')}${quickButton('buzzer')}</div>` : ''}
+    </section>`;
+  }
+
+  function renderBoard() {
+    board.innerHTML = `${teamPanel(state.teams[0], 0)}${centerPanel()}${teamPanel(state.teams[1], 1)}
+      <button class="chrome back" data-action="back" aria-label="返回">‹</button>
+      <button class="chrome edit" data-action="edit" aria-label="编辑">✎</button>
+      <div class="lower-right">
+        ${layout === 'edge' ? `<div class="sound-row" aria-label="声音">${quickButton('whistle')}${quickButton('buzzer')}</div>` : ''}
+        ${layout === 'popover' ? '<button class="quick" data-action="signals" aria-haspopup="dialog"><span aria-hidden="true" style="font-size:20px;line-height:1">◖))</span><span>声音</span></button>' : ''}
+        <button class="chrome" data-action="menu" aria-label="操作菜单" aria-haspopup="dialog"><i class="hamburger" aria-hidden="true"></i></button>
+      </div>`;
+    court.dataset.layout = layout;
+    court.dataset.timeout = String(Boolean(state.timeout));
+    court.dataset.signalHint = String(signalHintVisible);
+    replayHintButton.hidden = layout !== 'split';
+    board.inert = Boolean(modal);
+    syncSoundFeedback();
+  }
+
+  function renderOverlay() {
+    if (modal === 'menu') {
+      const large = layout === 'menu' ? ['whistle', 'buzzer', 'undo', 'reset', 'finish'] : ['undo', 'reset', 'finish'];
+      const small = layout === 'menu' ? ['swap', 'style', 'screenshot', 'help'] : ['whistle', 'buzzer', 'swap', 'style', 'screenshot', 'help'];
+      overlays.innerHTML = `<div class="layer" data-dismiss><section class="operation-menu" role="dialog" aria-modal="true" aria-label="操作菜单">
+        <header><button class="close" data-action="close" aria-label="关闭操作菜单">×</button></header>
+        <div class="match-grid">${large.map(cardButton).join('')}</div>
+        <div class="tools">${small.map(cardButton).join('')}</div>
+      </section></div>`;
+      if (pending) overlays.querySelector(`[data-action="${pending}"]`).dataset.confirming = 'true';
+    } else if (modal === 'signals') {
+      overlays.innerHTML = `<div class="layer transparent" data-dismiss><div class="popover" role="dialog" aria-modal="true" aria-label="声音">${quickButton('whistle')}${quickButton('buzzer')}</div></div>`;
+    } else if (modal === 'period') {
+      overlays.innerHTML = `<div class="layer" data-dismiss><div class="period-picker" role="dialog" aria-modal="true" aria-label="选择节次">${['Q1', 'Q2', 'Q3', 'Q4', 'OT'].map(period => `<button data-action="select-period" data-period="${period}">${period}</button>`).join('')}</div></div>`;
+    } else if (modal) {
+      const messages = {
+        back: ['返回', '当前是独立的记分板演示，关闭提示可以继续。'],
+        edit: ['编辑', '演示可通过两队的加分键修改比分。'],
+        help: ['使用说明', '两侧可加分、登记犯规和请求暂停。中央可启动计时和重设进攻时间。'],
+        finish: ['比赛结束', `${state.teams[0].name} ${state.teams[0].score} : ${state.teams[1].score} ${state.teams[1].name}`],
+      };
+      const [title, description] = messages[modal];
+      overlays.innerHTML = `<div class="layer" data-dismiss><section class="message" role="dialog" aria-modal="true" aria-label="${title}"><header><strong>${title}</strong><button class="close" data-action="close" aria-label="关闭提示">×</button></header><p>${description}</p></section></div>`;
+    } else {
+      overlays.replaceChildren();
+    }
+    board.inert = Boolean(modal);
+    syncSoundFeedback();
+  }
+
+  function openOverlay(name, invoker = name) {
+    modal = name;
+    pending = '';
+    restoreFocus = invoker;
+    renderOverlay();
+    overlays.querySelector('button:not(:disabled)')?.focus({ preventScroll: true });
+  }
+
+  function closeOverlay() {
+    modal = '';
+    pending = '';
+    renderOverlay();
+    board.querySelector(`[data-action="${restoreFocus}"]`)?.focus({ preventScroll: true });
+    restoreFocus = '';
+  }
+
+  function resize() {
+    const [width, height] = sizeOptions[size];
+    device.style.setProperty('--w', width);
+    device.style.setProperty('--h', height);
+    device.style.setProperty('--board-w', `${width}px`);
+    device.style.setProperty('--board-h', `${height}px`);
+    device.style.setProperty('--scale', device.clientWidth / width);
+    court.classList.toggle('compact', size === 'compact');
+  }
+
+  function renderSelection() {
+    const option = document.querySelector(`.choice[data-layout="${layout}"]`);
+    document.querySelector('#preview-title').textContent = option.querySelector('strong').textContent;
+    document.querySelector('#layout-note').textContent = proposals[layout];
+    for (const button of document.querySelectorAll('.choice, [data-size], [data-mode]')) {
+      const active = (button.dataset.layout === layout || button.dataset.size === size || button.dataset.mode === mode);
+      button.setAttribute('aria-pressed', String(active));
+    }
+    resize();
+    renderBoard();
+    renderOverlay();
+  }
+
+  function syncSoundFeedback() {
+    for (const button of court.querySelectorAll('[data-action="whistle"], [data-action="buzzer"]')) {
+      button.dataset.playing = String(button.dataset.action === playing);
+    }
+  }
+
+  function playSound(name, message = `已触发${signals[name].label}`) {
+    if (signalHintVisible) hideSignalHint();
+    if (playing === name) {
+      soundGeneration++;
+      sounds[name].pause();
+      sounds[name].currentTime = 0;
+      playing = '';
+      syncSoundFeedback();
+      announce(`已停止${signals[name].label}`);
+      return;
+    }
+    const generation = ++soundGeneration;
+    if (playing) sounds[playing].pause();
+    const audio = sounds[name];
+    audio.currentTime = 0;
+    audio.volume = Number(volume.value) / 100;
+    playing = name;
+    syncSoundFeedback();
+    audio.play().then(() => {
+      if (generation === soundGeneration) announce(`${message}${volume.value === '0' ? '（静音）' : ''}`);
+    }).catch(() => {
+      if (generation !== soundGeneration) return;
+      playing = '';
+      syncSoundFeedback();
+      announce('声音无法播放，请检查浏览器音频权限');
+    });
+  }
+
+  for (const [name, audio] of Object.entries(sounds)) {
+    audio.addEventListener('ended', () => {
+      if (playing !== name) return;
+      playing = '';
+      syncSoundFeedback();
+    });
+  }
+
+  volume.addEventListener('input', () => {
+    document.querySelector('#volume-value').value = `${volume.value}%`;
+    if (playing) sounds[playing].volume = Number(volume.value) / 100;
+  });
+
+  document.querySelector('.choices').addEventListener('click', event => {
+    const option = event.target.closest('.choice');
+    if (!option) return;
+    layout = option.dataset.layout;
+    modal = '';
+    pending = '';
+    announce('可以试听声音');
+    renderSelection();
+    if (layout === 'split') showSignalHint();
+    else hideSignalHint();
+    if (layout === 'menu') openOverlay('menu');
+  });
+
+  document.querySelector('.settings').addEventListener('click', event => {
+    const button = event.target.closest('button');
+    if (!button) return;
+    if (button.id === 'replay-hint') {
+      modal = '';
+      pending = '';
+      renderOverlay();
+      showSignalHint();
+      announce('已显示 3 秒按钮提示');
+      return;
+    }
+    if (button.dataset.size) size = button.dataset.size;
+    if (button.id === 'restart' || (button.dataset.mode && mode !== button.dataset.mode)) {
+      mode = button.dataset.mode || mode;
+      state = initialMatch();
+      undoHistory.length = 0;
+      modal = '';
+      pending = '';
+      announce('演示已还原');
+      renderSelection();
+      if (layout === 'split') showSignalHint();
+      return;
+    }
+    renderSelection();
+  });
+
+  court.addEventListener('click', event => {
+    const button = event.target.closest('button[data-action]');
+    if (!button) {
+      if (event.target.matches('[data-dismiss]')) closeOverlay();
+      return;
+    }
+    const { action } = button.dataset;
+    if (pending && action !== pending) {
+      const previous = overlays.querySelector(`[data-action="${pending}"]`);
+      previous.removeAttribute('data-confirming');
+      previous.lastElementChild.textContent = cards[pending].label;
+      pending = '';
+    }
+    if (action in sounds) {
+      playSound(action);
+      if (modal === 'signals') closeOverlay();
+      return;
+    }
+    if (action === 'close') {
+      closeOverlay();
+      return;
+    }
+    if (['menu', 'signals', 'period', 'back', 'edit', 'help'].includes(action)) {
+      openOverlay(action, action === 'help' ? 'menu' : action);
+      return;
+    }
+    if (['swap', 'reset', 'finish'].includes(action) && pending !== action) {
+      pending = action;
+      button.dataset.confirming = 'true';
+      button.lastElementChild.textContent = `确认${cards[action].label}`;
+      announce(`再按一次确认${cards[action].label}`);
+      return;
+    }
+    const team = state.teams[Number(button.dataset.team)];
+    switch (action) {
+      case 'score':
+        remember();
+        team.score += Number(button.dataset.points);
+        break;
+      case 'foul':
+        remember();
+        team.fouls++;
+        break;
+      case 'timeout':
+        remember();
+        team.timeouts--;
+        state.running = false;
+        state.timeout = { name: team.name, seconds: 60 };
+        break;
+      case 'clock':
+        if (state.timeout) {
+          state.timeout = null;
+          state.running = true;
+        } else {
+          state.running = !state.running;
+        }
+        break;
+      case 'shot':
+        remember();
+        state.shot = Number(button.dataset.seconds);
+        break;
+      case 'select-period':
+        remember();
+        state.period = button.dataset.period;
+        closeOverlay();
+        break;
+      case 'undo': {
+        const previous = undoHistory.pop();
+        if (previous) state = previous;
+        announce(previous ? '已撤销' : '没有可撤销的操作');
+        break;
+      }
+      case 'swap':
+        remember();
+        state.teams.reverse();
+        pending = '';
+        renderOverlay();
+        overlays.querySelector('[data-action="swap"]').focus({ preventScroll: true });
+        announce('已换边');
+        break;
+      case 'reset':
+        remember();
+        state = initialMatch(true);
+        closeOverlay();
+        announce('已重置比赛');
+        break;
+      case 'finish':
+        remember();
+        state.finished = true;
+        state.running = false;
+        state.timeout = null;
+        openOverlay('finish', 'menu');
+        break;
+      case 'style':
+        state.alternate = !state.alternate;
+        closeOverlay();
+        announce('已切换演示配色');
+        break;
+    }
+    renderBoard();
+    if (!modal && !court.contains(button)) {
+      const selector = button.dataset.team === undefined
+        ? `[data-action="${action}"]`
+        : `[data-action="${action}"][data-team="${button.dataset.team}"]${button.dataset.points ? `[data-points="${button.dataset.points}"]` : ''}`;
+      const focusTarget = action === 'select-period' ? '[data-action="period"]'
+        : ['reset', 'style'].includes(action) ? '[data-action="menu"]' : selector;
+      board.querySelector(focusTarget)?.focus({ preventScroll: true });
+    }
+  });
+
+  court.addEventListener('keydown', event => {
+    if (!modal) return;
+    if (event.key === 'Escape') closeOverlay();
+    if (event.key !== 'Tab') return;
+    const buttons = overlays.querySelectorAll('button:not(:disabled)');
+    const first = buttons[0];
+    const last = buttons[buttons.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus({ preventScroll: true });
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus({ preventScroll: true });
+    }
+  });
+
+  setInterval(() => {
+    if (state.timeout?.seconds > 0) {
+      state.timeout.seconds--;
+      document.querySelector('#timeout-clock').textContent = `${state.timeout.name}暂停 · ${clockText(state.timeout.seconds)}`;
+      return;
+    }
+    if (!state.running) return;
+    const previousGameSeconds = state.game;
+    state.game = Math.max(0, state.game - 1);
+    state.shot = Math.max(0, state.shot - 1);
+    document.querySelector('#game-clock').textContent = clockText(state.game);
+    const shot = document.querySelector('#shot-clock');
+    shot.textContent = `${state.shot}″`;
+    shot.classList.toggle('expired', state.shot === 0);
+    if (state.game === 0 || state.shot === 0) {
+      state.running = false;
+      renderBoard();
+    }
+    if (previousGameSeconds > 0 && state.game === 0) {
+      announce('主计时结束');
+    }
+  }, 1000);
+
+  new ResizeObserver(resize).observe(device);
+  renderSelection();
+  showSignalHint();
+</script>
+</body>
+</html>
