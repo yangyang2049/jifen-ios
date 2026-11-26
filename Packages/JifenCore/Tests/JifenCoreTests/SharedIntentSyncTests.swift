@@ -279,10 +279,7 @@ import Testing
             return result.accepted ? .accepted(state: result.state) : .rejected(.reducerRejected)
         }
         func snapshot(_ state: FootballMatchState) -> LinkedScoreboardSnapshot {
-            .football(LinkedFootballState(
-                leftName: state.leftName, rightName: state.rightName, leftScore: state.leftScore,
-                rightScore: state.rightScore, timer: state.timer, kickedOff: state.kickedOff, finished: state.finished
-            ))
+            .football(state)
         }
         var phone = PhoneHostSequencer(
             checkpoint: PhoneHostCheckpoint(handle: handle, state: initial, initialEpochMilliseconds: 1_000),

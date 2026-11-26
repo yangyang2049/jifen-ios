@@ -1,5 +1,6 @@
 import Observation
 import LinkCore
+import LinkSync
 import RecordCore
 import ScoreCore
 import SessionCore
@@ -15,6 +16,7 @@ struct WatchRallyScoreView: View {
     let rules: RallyRuleSet
     let linkedSessionId: UUID?
     @State private var showRecordSaveFailure = false
+    @State private var linkedMatchHandle: LinkedMatchHandle?
     @State private var store: WatchReducerSessionStore<RallyMatchReducer>
     @State private var showMenu = false
     @State private var matchStartTime = Date()
@@ -28,7 +30,6 @@ struct WatchRallyScoreView: View {
     @State private var didFinalizeFinish = false
     @State private var finishTask: Task<Void, Never>?
     @State private var suppressTapAfterLongPress = false
-    @State private var manualFinishRequested = false
     @State private var restTriggers = WatchRestTriggerRegistry()
     @State private var sideExchangeTask: Task<Void, Never>?
     @State private var completedSetPresentation: WatchRallyCompletedSetPresentation?
@@ -97,13 +98,128 @@ struct WatchRallyScoreView: View {
         _restState = State(initialValue: resumedRestState)
     }
 
+    private var linkedMatchUnavailable: Bool {
+        guard linkedSessionId != nil else { return false }
+        guard let linkedMatchHandle, linkedMatchHandle == linkService.activeHandle else { return true }
+        return !linkService.canEditLinkedMatch
+    }
+
     private var scoringLocked: Bool {
-        linkedSessionId != nil && !linkService.canEditLinkedMatch
+        linkedMatchUnavailable || store.isPendingLinkedFinish || store.isLinkedFinishConfirmed
+    }
+
+    private var canPlayAgain: Bool {
+        guard linkedSessionId != nil else { return !scoringLocked }
+        guard let linkedMatchHandle else { return false }
+        return !linkedMatchUnavailable && store.isLinkedFinishConfirmed && store.savedRecordID != nil
+            && !linkService.intentSync.hasPendingOperations(for: linkedMatchHandle)
+    }
+
+    private var linkedMenuActions: [WatchMenuExtraAction] {
+        guard linkedMatchHandle != nil, !linkedMatchUnavailable else { return [] }
+        return [
+            WatchMenuExtraAction(
+                id: "sync-linked-scores",
+                title: NSLocalizedString("linked_score_resync", value: "Sync score", comment: ""),
+                systemImage: "arrow.triangle.2.circlepath"
+            ) {
+                showMenu = false
+                linkService.syncLinkedScores()
+            },
+            WatchMenuExtraAction(
+                id: "end-score-link",
+                title: NSLocalizedString("linked_score_end", value: "End link", comment: ""),
+                systemImage: "link.badge.minus"
+            ) {
+                guard !store.isPendingLinkedFinish else { return }
+                showMenu = false
+                linkService.leaveSession()
+            }
+        ]
     }
 
     private var isHorizontal: Bool { scoreboardLayout == "horizontal" }
 
+    private var pendingFinishUndoAction: (() -> Void)? {
+        guard store.canUndo else { return nil }
+        return { undoScoreboard() }
+    }
+
+    @ViewBuilder
+    private var finishLayer: some View {
+        if store.isPendingLinkedFinish, completedSetPresentation == nil {
+            WatchLinkedFinishWaitingOverlay(
+                onSync: { linkService.syncLinkedScores() },
+                onUndo: pendingFinishUndoAction
+            )
+        } else if showFinishedOverlay {
+            WatchFinishedOverlay(
+                title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
+                scoreItems: [
+                    WatchFinishedScoreItem(
+                        name: store.state.leftName,
+                        score: store.state.leftSets + store.state.rightSets > 0
+                            ? store.state.leftSets
+                            : store.state.leftPoints,
+                        doublesNames: store.state.doubles?.playerNames,
+                        side: .left
+                    ),
+                    WatchFinishedScoreItem(
+                        name: store.state.rightName,
+                        score: store.state.leftSets + store.state.rightSets > 0
+                            ? store.state.rightSets
+                            : store.state.rightPoints,
+                        doublesNames: store.state.doubles?.playerNames,
+                        side: .right
+                    )
+                ],
+                winner: .side(finishedWinner),
+                undoAvailable: finishUndoAvailable,
+                canPlayAgain: canPlayAgain,
+                onUndo: undoFinish,
+                onPlayAgain: playAgain,
+                onExit: finishAndExit
+            )
+        }
+    }
+
     var body: some View {
+        scoreboardLayers
+            .ignoresSafeArea()
+            .watchFinishSaveFailure(isPresented: $showRecordSaveFailure) { finalizeFinish() }
+            .onAppear {
+                if store.state.doubles == nil {
+                    scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
+                }
+                guard linkedSessionId == nil else { return }
+                bindStateChanges()
+                if store.state.finished {
+                    beginProvisionalFinish()
+                } else if restState == nil, let remoteBreak = store.state.officialBreakState {
+                    restState = WatchRestState.fromOfficialBreak(remoteBreak)
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
+                guard store.state.doubles == nil else { return }
+                scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
+            }
+            .onChange(of: linkService.intentSync.update, initial: true) { _, update in
+                applyLinkedUpdate(update)
+            }
+            .onDisappear {
+                finishTask?.cancel()
+                sideExchangeTask?.cancel()
+                completedScoreTask?.cancel()
+                scoreEventToastTask?.cancel()
+                if linkedSessionId == nil, store.state.finished {
+                    finalizeFinish()
+                }
+                persistResumeSession()
+                store.onStateChanged = nil
+            }
+    }
+
+    private var scoreboardLayers: some View {
         ZStack {
             mainBoard
             if showSideExchangeToast {
@@ -130,8 +246,9 @@ struct WatchRallyScoreView: View {
                     onReset: {
                         guard !scoringLocked else { return }
                         showMenu = false
-                        confirmation = .reset
-                    }
+                        confirmation = linkedSessionId == nil ? .reset : .finish
+                    },
+                    extraActions: linkedMenuActions
                 )
             }
             if let restState {
@@ -139,49 +256,15 @@ struct WatchRallyScoreView: View {
                     state: restState,
                     isReadOnly: scoringLocked,
                     onContinue: {
-                        guard !scoringLocked else { return }
-                        self.restState = nil
-                        syncOfficialBreakState(nil)
+                        _ = updateOfficialBreak(nil)
                     },
                     onUndo: {
-                        guard !scoringLocked else { return }
-                        let triggerID = restState.triggerID
-                        self.restState = nil
-                        restTriggers.release(triggerID)
-                        syncOfficialBreakState(nil)
-                        undoScoreboard()
+                        guard !scoringLocked, performUndoScoreboard() else { return }
+                        if updateOfficialBreak(nil) { restTriggers.release(restState.triggerID) }
                     }
                 )
             }
-            if showFinishedOverlay {
-                WatchFinishedOverlay(
-                    title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
-                    scoreItems: [
-                        WatchFinishedScoreItem(
-                            name: store.state.leftName,
-                            score: store.state.leftSets + store.state.rightSets > 0
-                                ? store.state.leftSets
-                                : store.state.leftPoints,
-                            doublesNames: store.state.doubles?.playerNames,
-                            side: .left
-                        ),
-                        WatchFinishedScoreItem(
-                            name: store.state.rightName,
-                            score: store.state.leftSets + store.state.rightSets > 0
-                                ? store.state.rightSets
-                                : store.state.rightPoints,
-                            doublesNames: store.state.doubles?.playerNames,
-                            side: .right
-                        )
-                    ],
-                    winner: .side(finishedWinner),
-                    undoAvailable: finishUndoAvailable,
-                    canPlayAgain: !scoringLocked,
-                    onUndo: undoFinish,
-                    onPlayAgain: playAgain,
-                    onExit: finishAndExit
-                )
-            }
+            finishLayer
             if let confirmation {
                 WatchConfirmationOverlay(
                     confirmation: confirmation,
@@ -189,76 +272,6 @@ struct WatchRallyScoreView: View {
                     onConfirm: { confirm(confirmation) }
                 )
             }
-        }
-        .ignoresSafeArea()
-        .watchFinishSaveFailure(isPresented: $showRecordSaveFailure) { finalizeFinish() }
-        .onAppear {
-            if store.state.doubles == nil {
-                scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
-            }
-            store.onStateChanged = { [linkService] state, events in
-                if linkedSessionId != nil {
-                    guard linkService.canEditLinkedMatch else { return }
-                    linkService.publishSnapshot(.rally(state), detailedActions: store.actionLog.detailedActions)
-                }
-                handle(events: events, state: state)
-                persistResumeSession()
-            }
-            if store.state.finished {
-                beginProvisionalFinish()
-            } else if restState == nil, let remoteBreak = store.state.officialBreakState {
-                restState = WatchRestState.fromOfficialBreak(remoteBreak)
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
-            guard store.state.doubles == nil else { return }
-            scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
-        }
-        .onChange(of: linkService.latestSnapshot, initial: true) { previous, update in
-            guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
-                  update.matchGeneration == linkService.activeHandle?.matchGeneration,
-                  let state = update.snapshot.rallyState else { return }
-            let acceptsScore = linkService.incomingSnapshot != nil
-            if acceptsScore, update.beginsMatch(after: previous) {
-                matchStartTime = Date()
-                store.beginRemoteMatch(at: matchStartTime)
-            }
-            let historyChanged = store.mergeRemoteActions(update.detailedActions, removing: update.removedActionIDs)
-            guard acceptsScore else {
-                if historyChanged { persistResumeSession() }
-                return
-            }
-            guard update.matchGeneration == linkService.activeHandle?.matchGeneration else { return }
-            let scoreApplied = store.applyAuthoritativeState(
-                state, revision: update.revision, matchGeneration: update.matchGeneration
-            )
-            guard scoreApplied else {
-                if historyChanged { persistResumeSession() }
-                return
-            }
-            if state.finished {
-                restState = nil
-                beginRemoteFinishPresentation()
-            } else {
-                completedScoreTask?.cancel()
-                completedScoreTask = nil
-                completedSetPresentation = nil
-                finishTask?.cancel()
-                showFinishedOverlay = false
-                finishUndoAvailable = false
-                didFinalizeFinish = false
-                restState = WatchRestState.fromOfficialBreak(state.officialBreakState)
-            }
-        }
-        .onDisappear {
-            finishTask?.cancel()
-            sideExchangeTask?.cancel()
-            completedScoreTask?.cancel()
-            scoreEventToastTask?.cancel()
-            if store.state.finished {
-                finalizeFinish()
-            }
-            persistResumeSession()
         }
     }
 
@@ -367,7 +380,7 @@ struct WatchRallyScoreView: View {
             servingPosition: servingPosition,
             onTap: {
                 guard interactionsEnabled, !suppressTapAfterLongPress else { return }
-                store.dispatch(.pointWon(logicalSide))
+                dispatchScore(.pointWon(logicalSide))
             }
         )
     }
@@ -449,11 +462,11 @@ struct WatchRallyScoreView: View {
         .accessibilityAddTraits(.isButton)
         .accessibilityAction {
             guard interactionsEnabled, !suppressTapAfterLongPress else { return }
-            store.dispatch(.pointWon(logicalSide))
+            dispatchScore(.pointWon(logicalSide))
         }
         .onTapGesture {
             guard interactionsEnabled, !suppressTapAfterLongPress else { return }
-            store.dispatch(.pointWon(logicalSide))
+            dispatchScore(.pointWon(logicalSide))
         }
     }
 
@@ -658,8 +671,7 @@ struct WatchRallyScoreView: View {
             durationSeconds: duration,
             triggerID: triggerID
         )
-        restState = nextRest
-        syncOfficialBreakState(nextRest)
+        if !updateOfficialBreak(nextRest) { restTriggers.release(triggerID) }
     }
 
     @discardableResult
@@ -682,8 +694,10 @@ struct WatchRallyScoreView: View {
                 durationSeconds: 60,
                 triggerID: triggerID
             )
-            restState = nextRest
-            syncOfficialBreakState(nextRest)
+            guard updateOfficialBreak(nextRest) else {
+                restTriggers.release(triggerID)
+                return false
+            }
         } else {
             let leader: MatchSide = state.leftPoints > state.rightPoints ? .left : .right
             let leaderName = rallyDisplayName(for: leader, state: state)
@@ -809,7 +823,7 @@ struct WatchRallyScoreView: View {
     }
 
     private func beginProvisionalFinish() {
-        guard !showFinishedOverlay else { return }
+        guard !showFinishedOverlay, linkedSessionId == nil || store.isLinkedFinishConfirmed else { return }
         sideExchangeTask?.cancel()
         scoreEventToastTask?.cancel()
         restState = nil
@@ -818,7 +832,12 @@ struct WatchRallyScoreView: View {
         scoreEventToast = nil
         scoreEventToastTask = nil
         showFinishedOverlay = true
-        finishUndoAvailable = !scoringLocked
+        if linkedSessionId != nil {
+            finishUndoAvailable = false
+            didFinalizeFinish = store.savedRecordID != nil
+            return
+        }
+        finishUndoAvailable = !scoringLocked && store.canUndo
         didFinalizeFinish = false
         finishTask?.cancel()
         guard !scoringLocked else { return }
@@ -832,26 +851,23 @@ struct WatchRallyScoreView: View {
 
     @discardableResult
     private func finalizeFinish() -> Bool {
-        guard store.state.finished, !didFinalizeFinish, !scoringLocked else { return true }
-        finishUndoAvailable = false
-        let saved: Bool
         if linkedSessionId != nil {
-            let winner: MatchSide? = store.state.leftSets == store.state.rightSets
-                ? nil
-                : (store.state.leftSets > store.state.rightSets ? .left : .right)
-            saved = linkService.publishMatchFinished(
-                snapshot: .rally(store.state),
-                recordId: "w_\(UUID().uuidString)",
-                winnerSide: winner,
-                manualEnd: manualFinishRequested,
-                startTime: matchStartTime,
-                endTime: Date(),
-                totalScoreChanges: store.actionLog.scoreChangeCount,
-                detailedActions: store.actionLog.detailedActions
-            )
-        } else {
-            saved = transferLocalFinishedRecordIfNeeded(store.state)
+            guard !linkedMatchUnavailable, store.isLinkedFinishConfirmed else { return false }
+            if store.savedRecordID == nil {
+                linkService.intentSync.retryPendingAfterReconnect()
+                store.applyLinkedIntentUpdate(linkService.intentSync.update)
+            }
+            guard store.savedRecordID != nil else {
+                showRecordSaveFailure = true
+                return false
+            }
+            didFinalizeFinish = true
+            if resumeStore.session?.linkHandle == linkedMatchHandle { resumeStore.clear() }
+            return true
         }
+        guard store.state.finished, !didFinalizeFinish else { return true }
+        finishUndoAvailable = false
+        let saved = transferLocalFinishedRecordIfNeeded(store.state)
         guard saved else {
             showRecordSaveFailure = true
             return false
@@ -874,11 +890,33 @@ struct WatchRallyScoreView: View {
     }
 
     private func undoScoreboard() {
-        guard store.undo() else { return }
+        performUndoScoreboard()
+    }
+
+    @discardableResult
+    private func performUndoScoreboard() -> Bool {
+        if linkedSessionId != nil {
+            let previous = store.state
+            guard !linkedMatchUnavailable, !store.isLinkedFinishConfirmed,
+                  store.undoLinked(), store.state != previous else { return false }
+            if !store.state.finished {
+                resetLinkedFinishPresentation()
+                restState = WatchRestState.fromOfficialBreak(store.state.officialBreakState)
+            }
+            persistResumeSession()
+        } else if !store.undo() {
+            return false
+        }
         undoToastToken = UUID()
+        return true
     }
 
     private func playAgain() {
+        if linkedSessionId != nil {
+            guard canPlayAgain else { return }
+            store.requestLinkedNextMatch()
+            return
+        }
         guard !scoringLocked else { return }
         guard finalizeFinish() else { return }
         finishTask?.cancel()
@@ -886,7 +924,6 @@ struct WatchRallyScoreView: View {
         finishUndoAvailable = false
         didTransferFinishedRecord = false
         didFinalizeFinish = false
-        manualFinishRequested = false
         restTriggers.reset()
         sideExchangeTask?.cancel()
         scoreEventToastTask?.cancel()
@@ -909,9 +946,12 @@ struct WatchRallyScoreView: View {
             return
         }
         confirmation = nil
+        if linkedSessionId != nil {
+            if store.requestLinkedFinish() { persistResumeSession() }
+            return
+        }
         switch value {
         case .finish:
-            manualFinishRequested = true
             store.dispatch(.finish)
         case .reset:
             resumeStore.clear()
@@ -920,7 +960,6 @@ struct WatchRallyScoreView: View {
             restState = nil
             didTransferFinishedRecord = false
             didFinalizeFinish = false
-            manualFinishRequested = false
             restTriggers.reset()
             sideExchangeTask?.cancel()
             scoreEventToastTask?.cancel()
@@ -955,47 +994,115 @@ struct WatchRallyScoreView: View {
             actionLog: WatchScoreActionLog(startedAt: timestamp),
             startedAt: timestamp
         )
-        freshStore.onStateChanged = { [linkService, weak freshStore] state, events in
-            if linkedSessionId != nil {
-                guard linkService.canEditLinkedMatch, let freshStore else { return }
-                linkService.publishSnapshot(
-                    .rally(state),
-                    detailedActions: freshStore.actionLog.detailedActions
-                )
-            }
+        store.onStateChanged = nil
+        store = freshStore
+        bindStateChanges()
+        matchStartTime = timestamp
+    }
+
+    private func bindStateChanges() {
+        store.onStateChanged = { state, events in
             handle(events: events, state: state)
             persistResumeSession()
         }
-        store = freshStore
-        matchStartTime = timestamp
+    }
+
+    private func dispatchScore(_ intent: RallyMatchIntent) {
         if linkedSessionId != nil {
-            linkService.startNextMatch(
-                snapshot: .rally(result.state),
-                participantNames: result.state.doubles?.playerNames
-                    ?? [result.state.leftName, result.state.rightName]
-            )
+            guard !scoringLocked else { return }
+            guard case .accepted(let session, let events) = store.dispatch(intent) else { return }
+            handle(events: events, state: session.state)
+            persistResumeSession()
+        } else {
+            store.dispatch(intent)
         }
     }
 
-    private func syncOfficialBreakState(_ rest: WatchRestState?) {
-        guard linkedSessionId != nil, linkService.canEditLinkedMatch else { return }
+    private func applyLinkedUpdate(_ update: WatchLinkedIntentUpdate?) {
+        guard let linkedSessionId, let update, update.handle.sessionId == linkedSessionId,
+              update.handle == linkService.activeHandle,
+              update.displayedSnapshot.rallyState != nil else { return }
+        let previous = store.state
+        let wasAttached = linkedMatchHandle != nil
+        if let linkedMatchHandle {
+            guard linkedMatchHandle == update.handle else { return }
+            store.applyLinkedIntentUpdate(update)
+        } else {
+            linkedMatchHandle = update.handle
+            store.attachLinkedMatch(
+                update.handle, sync: linkService.intentSync,
+                intent: { .rally($0) }, state: { $0.rallyState }
+            )
+        }
+        guard store.linkedIntentUpdate?.presentationSequence == update.presentationSequence else { return }
+        matchStartTime = store.startedAt
+
+        if store.isPendingLinkedFinish {
+            showMenu = false
+            confirmation = nil
+            restState = nil
+        } else if store.isLinkedFinishConfirmed {
+            restState = nil
+            showMenu = false
+            confirmation = nil
+            finishTask?.cancel()
+            finishUndoAvailable = false
+            didFinalizeFinish = store.savedRecordID != nil
+            if didFinalizeFinish { showRecordSaveFailure = false }
+            beginRemoteFinishPresentation()
+        } else {
+            if previous.finished || showFinishedOverlay {
+                resetLinkedFinishPresentation()
+            }
+            if !wasAttached || previous.officialBreakState != store.state.officialBreakState {
+                restState = WatchRestState.fromOfficialBreak(store.state.officialBreakState)
+            }
+        }
+        persistResumeSession()
+    }
+
+    private func resetLinkedFinishPresentation() {
+        completedScoreTask?.cancel()
+        completedScoreTask = nil
+        completedSetPresentation = nil
+        finishTask?.cancel()
+        showFinishedOverlay = false
+        finishUndoAvailable = false
+        didFinalizeFinish = false
+    }
+
+    @discardableResult
+    private func updateOfficialBreak(_ rest: WatchRestState?) -> Bool {
+        guard !scoringLocked else { return false }
         let mapped = rest?.officialBreakState(for: gameType)
-        guard store.state.officialBreakState != mapped else { return }
-        store.dispatchNonUndoable(.setOfficialBreakState(mapped))
+        if linkedSessionId != nil, store.state.officialBreakState != mapped {
+            guard case .accepted = store.dispatchNonUndoable(.setOfficialBreakState(mapped)) else { return false }
+        }
+        restState = rest
+        persistResumeSession()
+        return true
     }
 
     private func exitBoard() {
-        if let linkedSessionId { linkService.exitScoreboard(sessionId: linkedSessionId) }
+        guard !store.isPendingLinkedFinish else { return }
+        if let linkedSessionId {
+            guard !linkedMatchUnavailable else { return }
+            linkService.exitScoreboard(sessionId: linkedSessionId)
+        }
         dismiss()
     }
 
     private func persistResumeSession() {
-        if let linkedSessionId, linkService.activeSessionId != linkedSessionId {
-            return
+        let linkHandle: LinkedMatchHandle?
+        if linkedSessionId != nil {
+            guard let linkedMatchHandle, linkedMatchHandle == linkService.activeHandle else { return }
+            linkHandle = linkedMatchHandle
+        } else {
+            linkHandle = nil
         }
         let state = store.state
         if state.finished {
-            if didFinalizeFinish { resumeStore.clear() }
+            if didFinalizeFinish, resumeStore.session?.linkHandle == linkHandle { resumeStore.clear() }
             return
         }
         guard state.leftPoints != 0 || state.rightPoints != 0
@@ -1015,7 +1122,7 @@ struct WatchRallyScoreView: View {
                 restState: restState
             ),
             actionLog: store.actionLog,
-            linkHandle: linkService.resumeContext?.handle
+            linkHandle: linkHandle
         ))
     }
 
@@ -1041,5 +1148,33 @@ struct WatchRallyScoreView: View {
         guard resumeStore.saveFinishedRecord(record) else { return false }
         didTransferFinishedRecord = true
         return true
+    }
+}
+
+/// Keeps the scoreboard frozen while the phone is still confirming a finish.
+struct WatchLinkedFinishWaitingOverlay: View {
+    let onSync: () -> Void
+    let onUndo: (() -> Void)?
+
+    var body: some View {
+        WatchFullScreenOverlay(scrim: WatchTheme.background) { _, _ in
+            VStack(spacing: 8) {
+                Text(NSLocalizedString("linked_score_pending_finish", value: "Waiting for sync", comment: ""))
+                    .font(.headline)
+                    .multilineTextAlignment(.center)
+                    .accessibilityIdentifier("linked_score_pending_finish")
+                Button(action: onSync) {
+                    Text(NSLocalizedString("linked_score_resync", value: "Sync score", comment: ""))
+                }
+                .buttonStyle(.borderedProminent)
+                if let onUndo {
+                    Button(action: onUndo) {
+                        Text(NSLocalizedString("menu_undo", value: "撤销", comment: ""))
+                    }
+                    .buttonStyle(.bordered)
+                }
+            }
+            .padding(.horizontal, 12)
+        }
     }
 }

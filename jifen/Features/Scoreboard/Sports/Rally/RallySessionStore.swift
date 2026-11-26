@@ -20,6 +20,9 @@ final class RallySessionStore {
     private var scoreInputFrozen: Bool
     private var lastPersistenceErrorPresentationAt: Date?
     private var hasPersistedFinishedRecord = false
+    @ObservationIgnored var isManagedByLink = false
+    private(set) var linkedMatchGeneration: UInt64?
+    private var linkedRevision: UInt64?
     private let logger = Logger(subsystem: "com.douhua.jifen.ios", category: "RallyPersistence")
 
     private(set) var state: RallyMatchState
@@ -330,6 +333,7 @@ final class RallySessionStore {
     }
 
     private func persistPresentationMetadata() {
+        guard !isManagedByLink else { return }
         let previousTask = operationTask
         operationTask = Task { [weak self, core] in
             _ = await previousTask?.value
@@ -456,6 +460,10 @@ final class RallySessionStore {
     }
 
     func persistSnapshot(completion: ((Bool) -> Void)? = nil) {
+        if isManagedByLink {
+            completion?(true)
+            return
+        }
         let previousTask = operationTask
         operationTask = Task { [core] in
             _ = await previousTask?.value
@@ -480,67 +488,58 @@ final class RallySessionStore {
             completion()
         }
     }
-    // MARK: - Watch authoritative sync（恢复的手表联动：手机作为跟随方接受手表权威状态）
 
-    private var lastAppliedRemoteGeneration: UInt64?
-    private var lastAppliedRemoteRevision: UInt64?
-
-    func mergeRemoteActions(_ incoming: [DetailedScoreAction]) {
-        guard !incoming.isEmpty else { return }
-        detailedActions = incoming.sorted {
-            ($0.epochMilliseconds ?? 0, $0.id.uuidString) < ($1.epochMilliseconds ?? 0, $1.id.uuidString)
-        }
-    }
-
+    /// Installs the journaled phone projection without dispatching to the standalone reducer.
     @discardableResult
-    func applyAuthoritativeState(
+    func applyLinkedProjection(
         _ state: RallyMatchState,
-        detailedActions incoming: [DetailedScoreAction],
+        detailedActions: [DetailedScoreAction],
         revision: UInt64,
-        matchGeneration: UInt64? = nil,
-        persistFormalRecord: Bool = true
-    ) async -> Bool {
-        if let matchGeneration {
-            if lastAppliedRemoteGeneration != matchGeneration {
-                lastAppliedRemoteGeneration = matchGeneration
-                lastAppliedRemoteRevision = nil
+        matchGeneration: UInt64
+    ) -> Bool {
+        if let linkedMatchGeneration {
+            guard matchGeneration >= linkedMatchGeneration else { return false }
+            if matchGeneration == linkedMatchGeneration, let linkedRevision, revision <= linkedRevision {
+                return false
             }
         }
-        if revision == lastAppliedRemoteRevision {
-            mergeRemoteActions(incoming)
-            completedSetScores = Self.completedSetScores(from: detailedActions)
-            return false
-        }
-        if let lastAppliedRemoteRevision, revision < lastAppliedRemoteRevision {
-            return false
-        }
-        lastAppliedRemoteRevision = revision
-        _ = await operationTask?.value
-        let session = await core.rebase(to: state, status: state.finished ? .finished : .live)
-        guard lastAppliedRemoteRevision == revision,
-              matchGeneration == nil || lastAppliedRemoteGeneration == matchGeneration else { return false }
-        self.state = session.state
-        if session.status == .live {
-            hasPersistedFinishedRecord = false
-        } else if !persistFormalRecord {
-            hasPersistedFinishedRecord = true
-        }
-        mergeRemoteActions(incoming)
+        isManagedByLink = true
+        linkedMatchGeneration = matchGeneration
+        linkedRevision = revision
+        self.state = state
+        self.detailedActions = detailedActions
         completedSetScores = Self.completedSetScores(from: detailedActions)
-        recordUndoCheckpoints.removeAll(keepingCapacity: true)
-        await synchronizeParticipants(for: session.state)
-        await core.setResumeAuxiliaryPayload(recordContext.encoded)
-        let bundle = await core.resumeBundle()
-        do {
-            try await persist(bundle)
-        } catch {
-            reportPersistenceFailure(error)
-        }
+        trimCompletedSetScores(toMatch: state)
+        hasPersistedFinishedRecord = state.finished
         return true
     }
 
-
-
+    /// Rebase the standalone actor only when the user ends the link on this page.
+    func continueStandaloneFromLink() {
+        isManagedByLink = false
+        guard linkedMatchGeneration != nil else { return }
+        linkedMatchGeneration = nil
+        linkedRevision = nil
+        recordUndoCheckpoints.removeAll(keepingCapacity: true)
+        let projectedState = state
+        let previousTask = operationTask
+        operationTask = Task { [weak self, core] in
+            _ = await previousTask?.value
+            guard let self else { return }
+            let session = await core.rebase(to: projectedState, status: projectedState.finished ? .finished : .live)
+            var metadata = session.metadata
+            metadata.extras["voiceAnnouncementEnabled"] = String(self.voiceAnnouncementEnabled)
+            metadata.extras["showMatchTime"] = String(self.showMatchTimeEnabled)
+            _ = await core.updateMetadata(metadata)
+            await self.synchronizeParticipants(for: projectedState)
+            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
+            do {
+                try await self.persist(await core.resumeBundle())
+            } catch {
+                self.reportPersistenceFailure(error)
+            }
+        }
+    }
 
     private func append(events: [RallyMatchEvent], at milliseconds: Int64, state: RallyMatchState) {
         let completedSetNumber = events.compactMap { event -> Int? in
@@ -700,6 +699,7 @@ final class RallySessionStore {
     private func persist(
         _ bundle: ResumeBundle
     ) async throws {
+        guard !isManagedByLink else { return }
         let reachedFinishedCommit = try await ScoreSessionPersistenceSupport.persist(
             bundle,
             repository: resumeRepository,

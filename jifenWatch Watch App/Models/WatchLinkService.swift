@@ -1,5 +1,6 @@
 import Foundation
 import LinkCore
+import LinkSync
 import Observation
 import RecordCore
 import ScoreCore
@@ -8,7 +9,7 @@ struct LinkedSetupRequest: Equatable {
     let handle: LinkedMatchHandle
     let messageId: UUID
     let setup: LinkedScoreboardSetup
-    var peerSupportsCompressedFinish = false
+    var senderEpochMilliseconds: Int64 = 0
     /// Capability intersection negotiated from the request envelope.
     var peerCapabilities: Set<LinkCapability> = []
 
@@ -90,8 +91,6 @@ final class WatchLinkService {
     /// After accept, active linked setup for scoreboard routing.
     var acceptedSetup: LinkedSetupRequest?
     var latestSnapshot: LinkedSnapshotUpdate?
-    var sharedEditTracker = LinkSharedEditTracker()
-    var simultaneousEditNotice: UUID?
     /// 联动会话恒为 `.shared`：两端都能计分，不再有主控/跟随角色。
     internal(set) var connectivityStatus: WatchConnectivityStatus
     internal(set) var phoneLinkTestState: WatchPhoneLinkTestState = .idle
@@ -105,39 +104,29 @@ final class WatchLinkService {
     let outboxStore: any LinkDataStore
     let clock: any LinkClock
     let recordSink: any WatchLinkRecordSink
-    var revisionGate = LinkRevisionGate()
+    let intentStore: FileLinkDataStore
+    @ObservationIgnored lazy var intentSessionEngine: LinkSessionEngine = {
+        let transport = self.transport
+        return LinkSessionEngine(localPeer: .watch, transport: transport, clock: clock) { data, kind in
+            try transport.transferFileData(data, metadata: [
+                WatchConnectivityTransport.transferFileKindKey: kind.rawValue
+            ])
+        }
+    }()
+    @ObservationIgnored lazy var intentSync: WatchLinkIntentSync = {
+        let sync = WatchLinkIntentSync(service: self, store: intentStore)
+        sync.onMatchStarted = { [weak self] handle, setup in
+            guard let self else { throw CancellationError() }
+            try installAuthoritativeIntentStart(handle: handle, setup: setup)
+        }
+        return sync
+    }()
+
     var sequence: UInt64 = 0
-    /// Authoritative linked-match and control lifecycle. The scalar fields
-    /// below are projections used by existing Watch views and persistence.
     var sessionMachine: LinkSessionStateMachine?
-    var pendingAck = LinkControlRetryQueue()
-    var terminalOutbox = LinkDurableOutbox()
-    var peerSupportsCompressedFinish = false
-    /// Capability intersection agreed during the setup handshake; gates the
-    /// new channels (file transfer, delta actions) until both sides declared.
     var negotiatedPeerCapabilities: Set<LinkCapability> = []
-    var deltaActionTracker = LinkDeltaActionTracker()
-    /// 对端帧送达的动作来源账本：本地权威替换时保留这些并发有效动作。
-    var actionHistory = LinkSnapshotHistory()
-    @ObservationIgnored var retiredRecordSessions: LinkRetiredRecordSessions
+    var peerSupportsFileTransfer: Bool { negotiatedPeerCapabilities.contains(.fileTransfer) }
 
-    var peerSupportsFileTransfer: Bool {
-        negotiatedPeerCapabilities.contains(.fileTransfer)
-    }
-
-    var peerSupportsDeltaActions: Bool {
-        negotiatedPeerCapabilities.contains(.deltaActions)
-    }
-
-    var activeRecordSession: LinkRecordSession? {
-        guard let handle = activeHandle, let gameType = activeGameType,
-              sessionMachine?.lifecycle != .starting else { return nil }
-        return LinkRecordSession(
-            handle: handle, gameType: gameType,
-            completedMatchIds: publishedFinishedMatchIds,
-            allowsPeerNextMatch: true
-        )
-    }
     var publishedFinishedMatchIds: Set<UUID> = []
     var activeSessionId: UUID?
     var activeHandle: LinkedMatchHandle?
@@ -145,8 +134,6 @@ final class WatchLinkService {
     var activeGameType: GameType?
     var activeSetup: LinkedScoreboardSetup?
     var mergedDetailedActions: [DetailedScoreAction] = []
-    /// 恢复上下文时本地仍有未送达增量：重连后据此重建待发帧。
-    var needsInitialResend = false
     var ackRetryTask: Task<Void, Never>?
     let pendingWatchRecordsKey = "watch_pending_record_transfers_v1"
     var pendingWatchRecords: [WatchRecordTransferPayload] = []
@@ -154,8 +141,7 @@ final class WatchLinkService {
     var probeTracker = WatchPhoneLinkProbeTracker()
     var probeTimeoutTask: Task<Void, Never>?
     let lastCommunicationAtKey = "watch_phone_link_last_communication_at_v1"
-    let contextKey = "watch_link_context"
-    let terminalOutboxKey = "watch_link_terminal_outbox"
+    let contextKey = "watch_intent_active_context"
     let pendingSessionEndsKey = "watch_link_pending_session_ends"
     var pendingSessionEnds: [LinkPendingSessionEnd] = []
     var pendingSessionEndInFlight: Set<UUID> = []
@@ -165,22 +151,19 @@ final class WatchLinkService {
         contextStore: any LinkDataStore = WatchStorageContainer.shared.linkDataStore,
         outboxStore: any LinkDataStore = WatchStorageContainer.shared.linkDataStore,
         clock: any LinkClock = SystemLinkClock(),
-        recordSink: (any WatchLinkRecordSink)? = nil
+        recordSink: (any WatchLinkRecordSink)? = nil,
+        intentStore: FileLinkDataStore? = nil
     ) {
         self.transport = transport
         self.contextStore = contextStore
-        retiredRecordSessions = LinkRetiredRecordSessions(store: contextStore)
         self.outboxStore = outboxStore
+        self.intentStore = intentStore ?? (contextStore as? FileLinkDataStore) ?? WatchStorageContainer.shared.linkDataStore
         self.clock = clock
         self.recordSink = recordSink ?? DefaultWatchLinkRecordSink()
         connectivityStatus = transport.status
         lastCommunicationAtEpochMilliseconds = Int64(
             WatchPreferences.shared.int(forKey: lastCommunicationAtKey)
         )
-        if let data = outboxStore.data(forKey: terminalOutboxKey),
-           let outbox = try? JSONDecoder().decode(LinkDurableOutbox.self, from: data) {
-            terminalOutbox = outbox
-        }
         if let data = outboxStore.data(forKey: pendingSessionEndsKey),
            let requests = try? JSONDecoder().decode([LinkPendingSessionEnd].self, from: data) {
             pendingSessionEnds = requests
@@ -220,15 +203,16 @@ final class WatchLinkService {
             DispatchQueue.main.async {
                 guard let self else { return }
                 let becameReachable = !self.connectivityStatus.isReachable && status.isReachable
+                let becameActivated = !self.connectivityStatus.isActivated && status.isActivated
                 self.connectivityStatus = status
                 guard status.isActivated else { return }
                 self.flushPendingWatchRecords()
                 self.flushPendingCommonNameMutations(force: false)
-                if becameReachable { self.retryLiveSnapshotOnReconnect() }
-                if self.needsInitialResend, self.activeSessionId != nil, self.canEditLinkedMatch {
-                    self.needsInitialResend = false
-                    self.sendRestoredDeltaIfNeeded()
+                if becameReachable || becameActivated {
+                    self.intentSync.retryPendingAfterReconnect()
+                    self.flushPendingSessionEnds()
                 }
+                self.rescheduleRetryIfNeeded()
                 if status.isReachable {
                     self.requestCommonNamesSnapshot()
                 }
@@ -256,6 +240,9 @@ final class WatchLinkService {
         if connectivityStatus.isActivated {
             handleApplicationContext(transport.receivedApplicationContext)
             flushPendingCommonNameMutations(force: false)
+            intentSync.retryPendingAfterReconnect()
+            flushPendingSessionEnds()
+            rescheduleRetryIfNeeded()
         }
         #if DEBUG
         print("[WatchLink] recordTransferHandler registered at WatchLinkService init")
@@ -264,19 +251,17 @@ final class WatchLinkService {
 
     /// 共享会话下两端都可计分；只有会话未建立时才只读。
     var canEditLinkedMatch: Bool {
-        guard let machine = sessionMachine else { return false }
+        guard let handle = activeHandle, intentSync.update?.handle == handle,
+              !pendingSessionEnds.contains(where: { $0.handle == handle }),
+              let machine = sessionMachine else { return false }
         return machine.lifecycle == .active || machine.lifecycle == .matchFinished
     }
 
-    /// 对端 revision 已生效且由手机写入时才作为权威快照应用。
-    var incomingSnapshot: LinkedSnapshotUpdate? {
-        guard let update = latestSnapshot, canEditLinkedMatch,
-              LinkSharedRevision.writer(of: update.revision) == .phone else { return nil }
-        return update
-    }
+    /// Read-only projection for callers moving to intentSync.update.
 
-    var peerFinishedSharedMatch: Bool {
-        incomingSnapshot?.snapshot.isFinished == true
+    var hasPendingIntentFinish: Bool {
+        guard let update = intentSync.update, update.handle == activeHandle else { return false }
+        return update.isPendingFinish || (update.displayedSnapshot.isFinished && !update.confirmedSnapshot.isFinished)
     }
 
     #if DEBUG

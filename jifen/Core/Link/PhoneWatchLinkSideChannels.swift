@@ -49,17 +49,15 @@ extension PhoneWatchLinkService {
         }
     }
 
-    /// Reliable-channel file from the watch: route by metadata kind, falling
-    /// back to the compressed-frame magic probe for matchFinished frames.
+    /// Route reliable files through the same receiver as other intent frames.
     func handleReceivedFile(_ data: Data, metadata: [String: Any]) {
         let kind = metadata[WatchConnectivityTransport.transferFileKindKey] as? String
         if kind == WatchTransferFileKind.watchRecord.rawValue {
             handleWatchRecordTransfer(data)
             return
         }
-        if kind == WatchTransferFileKind.matchFinished.rawValue
-            || LinkFinishedEncoding.isCompressedFrame(data) {
-            _ = handleMatchFinishedFromWatch(data)
+        if kind == WatchTransferFileKind.intentFrame.rawValue {
+            handleIncoming(data)
             return
         }
         if (try? JSONDecoder().decode(WatchRecordTransferPayload.self, from: data)) != nil {
@@ -153,10 +151,8 @@ extension PhoneWatchLinkService {
         connectivityStatus = status
         pushCommonNamesToWatch()
         guard status.isReachable else { return }
-        if becameReachable { retryLiveSnapshotOnReconnect() }
-        if needsInitialResend, activeSession != nil, canEditLinkedMatch {
-            needsInitialResend = false
-            sendRestoredDeltaIfNeeded()
+        if becameReachable, let handle = activeSession?.handle {
+            requestWatchIntentReplay(handle: handle)
         }
         flushPendingSessionEnds()
         requestStatusForActiveSession()

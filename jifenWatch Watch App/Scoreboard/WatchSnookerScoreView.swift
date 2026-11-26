@@ -1,4 +1,5 @@
 import LinkCore
+import LinkSync
 import RecordCore
 import ScoreCore
 import SessionCore
@@ -40,8 +41,7 @@ struct WatchSnookerScoreView: View {
     @Environment(WatchResumeSessionStore.self) private var resumeStore
 
     let linkedSessionId: UUID?
-    @State private var lastAppliedRemoteRevision: UInt64?
-    @State private var lastAppliedRemoteGeneration: UInt64?
+    @State private var linkedMatchHandle: LinkedMatchHandle?
 
     @State private var showRecordSaveFailure = false
     @State private var leftName: String
@@ -50,7 +50,7 @@ struct WatchSnookerScoreView: View {
     @State private var store: WatchReducerSessionStore<SnookerReducer>
     @State private var showMenu = false
     @State private var matchStartTime = Date()
-    @State private var didSaveFinishedRecord = false
+    @State private var localRecordID = "w_\(UUID().uuidString)"
     @State private var scoreboardLayout: String = "horizontal"
     @State private var scoringSide: MatchSide?
     @State private var pendingFoul: PendingSnookerFoul?
@@ -115,8 +115,75 @@ struct WatchSnookerScoreView: View {
 
     private var state: SnookerState { store.state }
 
-    private var scoringLocked: Bool { linkedSessionId != nil && !linkService.canEditLinkedMatch }
+    private var linkedMatchUnavailable: Bool {
+        guard linkedSessionId != nil else { return false }
+        guard let linkedMatchHandle, linkedMatchHandle == linkService.activeHandle,
+              store.linkedIntentUpdate?.handle == linkedMatchHandle else { return true }
+        return !linkService.canEditLinkedMatch
+    }
+
+    private var scoringLocked: Bool {
+        linkedMatchUnavailable || store.isPendingLinkedFinish || store.isLinkedFinishConfirmed
+    }
+
+    private var canPlayAgain: Bool {
+        guard linkedSessionId != nil else { return true }
+        guard let handle = linkedMatchHandle, !linkedMatchUnavailable, store.isLinkedFinishConfirmed else { return false }
+        return store.savedRecordID == "w_\(handle.matchId.uuidString)"
+            && !linkService.intentSync.hasPendingOperations(for: handle)
+    }
+
+    private var linkedMenuActions: [WatchMenuExtraAction] {
+        guard linkedSessionId != nil, !linkedMatchUnavailable else { return [] }
+        return [
+            WatchMenuExtraAction(
+                id: "sync-linked-scores",
+                title: NSLocalizedString("linked_score_resync", value: "Sync score", comment: ""),
+                systemImage: "arrow.triangle.2.circlepath"
+            ) {
+                showMenu = false
+                linkService.syncLinkedScores()
+            },
+            WatchMenuExtraAction(
+                id: "end-score-link",
+                title: NSLocalizedString("linked_score_end", value: "End link", comment: ""),
+                systemImage: "link.badge.minus"
+            ) {
+                guard !store.isPendingLinkedFinish else { return }
+                showMenu = false
+                linkService.leaveSession()
+            }
+        ]
+    }
     private var isHorizontal: Bool { scoreboardLayout == "horizontal" }
+
+    private var pendingFinishUndoAction: (() -> Void)? {
+        guard store.canUndo else { return nil }
+        return { undo() }
+    }
+
+    @ViewBuilder
+    private var finishLayer: some View {
+        if store.isPendingLinkedFinish {
+            WatchLinkedFinishWaitingOverlay(onSync: { linkService.syncLinkedScores() }, onUndo: pendingFinishUndoAction)
+        } else if showFinishedOverlay {
+            WatchFinishedOverlay(
+                title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
+                scoreItems: [
+                    WatchFinishedScoreItem(name: leftName, score: state.maxFrames == 1 ? state.leftScore : state.leftFrames),
+                    WatchFinishedScoreItem(name: rightName, score: state.maxFrames == 1 ? state.rightScore : state.rightFrames)
+                ],
+                undoAvailable: linkedSessionId == nil && finishUndoAvailable,
+                canPlayAgain: canPlayAgain,
+                onUndo: undoFinishedSnooker,
+                onPlayAgain: restartMatch,
+                onExit: {
+                    if linkedSessionId == nil, !finalizeSnooker() { return }
+                    exitSnooker()
+                }
+            )
+        }
+    }
 
     var body: some View {
         ZStack {
@@ -156,8 +223,13 @@ struct WatchSnookerScoreView: View {
                     onReset: {
                         guard !scoringLocked else { return }
                         showMenu = false
-                        confirmation = .reset
-                    }
+                        if linkedSessionId == nil {
+                            confirmation = .reset
+                        } else {
+                            restartMatch()
+                        }
+                    },
+                    extraActions: linkedMenuActions
                 )
             }
             if let scoringSide {
@@ -172,23 +244,7 @@ struct WatchSnookerScoreView: View {
             if state.frameCompletePending {
                 snookerNextFramePanel
             }
-            if showFinishedOverlay {
-                WatchFinishedOverlay(
-                    title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
-                    scoreItems: [
-                        WatchFinishedScoreItem(name: leftName, score: state.maxFrames == 1 ? state.leftScore : state.leftFrames),
-                        WatchFinishedScoreItem(name: rightName, score: state.maxFrames == 1 ? state.rightScore : state.rightFrames)
-                    ],
-                    undoAvailable: finishUndoAvailable,
-                    canPlayAgain: !scoringLocked,
-                    onUndo: undoFinishedSnooker,
-                    onPlayAgain: restartMatch,
-                    onExit: {
-                        guard finalizeSnooker() else { return }
-                        exitSnooker()
-                    }
-                )
-            }
+            finishLayer
             if let confirmation {
                 WatchConfirmationOverlay(
                     confirmation: confirmation,
@@ -204,34 +260,15 @@ struct WatchSnookerScoreView: View {
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
-        .onChange(of: linkService.latestSnapshot, initial: true) { previous, update in
-            guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
-                  update.matchGeneration == linkService.activeHandle?.matchGeneration,
-                  let remote = update.snapshot.snookerState else { return }
-            let acceptsScore = linkService.incomingSnapshot != nil
-            if acceptsScore, update.beginsMatch(after: previous) {
-                matchStartTime = Date()
-                store.beginRemoteMatch(at: matchStartTime)
-            }
-            let historyChanged = store.mergeRemoteActions(update.detailedActions, removing: update.removedActionIDs)
-            let advancesScore = lastAppliedRemoteGeneration != update.matchGeneration
-                || update.revision > (lastAppliedRemoteRevision ?? 0)
-            let finishesCurrentScore = update.revision == lastAppliedRemoteRevision
-                && update.snapshot.isFinished && previous?.snapshot.isFinished == false
-            guard acceptsScore, advancesScore || finishesCurrentScore else {
-                if historyChanged { persistResumeSession() }
-                return
-            }
-            lastAppliedRemoteGeneration = update.matchGeneration
-            lastAppliedRemoteRevision = update.revision
-            applyAuthoritativeSnooker(remote)
+        .onChange(of: linkService.intentSync.update, initial: true) { _, update in
+            applyLinkedUpdate(update)
         }
         .onChange(of: state) { _, _ in
             persistResumeSession()
         }
         .onDisappear {
             finishTask?.cancel()
-            if state.finished { finalizeSnooker() }
+            if linkedSessionId == nil, state.finished { finalizeSnooker() }
             persistResumeSession()
         }
         .watchScoreboardGestures(
@@ -625,39 +662,27 @@ struct WatchSnookerScoreView: View {
     }
 
     private func apply(_ intent: SnookerIntent) {
-        guard !scoringLocked, !showFinishedOverlay else { return }
-        // 比分、撤销帧与动作日志投影全部由宿主同步完成。
-        guard case .accepted(_, _) = store.dispatch(intent) else { return }
-        publish()
-        if state.finished {
-            beginSnookerFinish(manualEnd: false)
-        }
+        guard !scoringLocked, !state.finished, case .accepted = store.dispatch(intent) else { return }
+        if linkedSessionId == nil, state.finished { beginSnookerFinish(manualEnd: false) }
     }
 
     private func finishMatch() {
-        guard case .accepted(_, _) = store.dispatch(.finishMatch) else { return }
-        publish()
-        if state.finished {
-            beginSnookerFinish(manualEnd: true)
+        guard !scoringLocked, !state.finished else { return }
+        if linkedSessionId != nil {
+            if store.requestLinkedFinish() { persistResumeSession() }
+            return
         }
-    }
-
-    private func publish() {
-        guard linkedSessionId != nil, linkService.canEditLinkedMatch else { return }
-        linkService.publishSnapshot(
-            .snooker(state),
-            detailedActions: store.actionLog.detailedActions,
-            participantNames: [leftName, rightName]
-        )
+        guard case .accepted = store.dispatch(.finishMatch) else { return }
+        beginSnookerFinish(manualEnd: true)
     }
 
     private func saveLocalRecordIfNeeded() -> Bool {
-        guard linkedSessionId == nil, !didSaveFinishedRecord else { return true }
+        guard linkedSessionId == nil, store.savedRecordID == nil else { return true }
         guard state.finished || state.leftScore + state.rightScore + state.leftFrames + state.rightFrames > 0 else { return true }
         return store.saveFinishedRecord(
             into: resumeStore,
             gameType: .snooker,
-            recordID: "w_\(UUID().uuidString)",
+            recordID: localRecordID,
             endTime: Date(),
             participantNames: [leftName, rightName],
             totalScoreChanges: store.actionLog.scoreChangeCount
@@ -669,13 +694,24 @@ struct WatchSnookerScoreView: View {
     }
 
     private func undo() {
-        guard !scoringLocked, store.undo() else { return }
-        publish()
+        guard !linkedMatchUnavailable, !store.isLinkedFinishConfirmed, store.undo() else { return }
         undoToastToken = UUID()
     }
 
     private func restartMatch() {
-        guard !scoringLocked, finalizeSnooker() else { return }
+        if linkedSessionId != nil {
+            if canPlayAgain {
+                store.requestLinkedNextMatch()
+            } else if !scoringLocked, !state.finished {
+                linkService.lastLinkErrorMessage = NSLocalizedString(
+                    "linked_score_reset_unavailable",
+                    value: "Finish this match before starting a new one.",
+                    comment: "Live linked matches cannot be reset"
+                )
+            }
+            return
+        }
+        guard finalizeSnooker() else { return }
         resumeStore.clear()
         finishTask?.cancel()
         let restartedAt = Date()
@@ -684,21 +720,13 @@ struct WatchSnookerScoreView: View {
         store.beginRemoteMatch(at: restartedAt)
         // 新一局重新允许落库与续玩草稿写入。
         store.clearSavedRecord()
-        didSaveFinishedRecord = false
+        localRecordID = "w_\(UUID().uuidString)"
         matchStartTime = restartedAt
         pendingFoul = nil
         scoringSide = nil
         showFrameSettlement = false
         showFinishedOverlay = false
         finishUndoAvailable = false
-        if linkedSessionId != nil {
-            linkService.startNextMatch(
-                snapshot: .snooker(state),
-                participantNames: [leftName, rightName]
-            )
-        } else {
-            publish()
-        }
     }
 
     private var interactionsEnabled: Bool {
@@ -707,30 +735,52 @@ struct WatchSnookerScoreView: View {
     }
 
     private var menuGesturesEnabled: Bool {
-        !state.finished && !showMenu && scoringSide == nil && pendingFoul == nil && !showFrameSettlement
+        !store.isPendingLinkedFinish && !state.finished && !showMenu && scoringSide == nil && pendingFoul == nil && !showFrameSettlement
             && !state.frameCompletePending && confirmation == nil && !showFinishedOverlay
     }
 
-    private func applyAuthoritativeSnooker(_ remote: SnookerState) {
+    private func applyLinkedUpdate(_ update: WatchLinkedIntentUpdate?) {
+        guard let linkedSessionId, let update, update.handle.sessionId == linkedSessionId,
+              update.handle == linkService.activeHandle, case .snooker = update.displayedSnapshot else { return }
+        let previous = state
+        let wasConfirmed = store.isLinkedFinishConfirmed
+        if let linkedMatchHandle {
+            guard linkedMatchHandle == update.handle else { return }
+            store.applyLinkedIntentUpdate(update)
+        } else {
+            linkedMatchHandle = update.handle
+            store.attachLinkedMatch(
+                update.handle, sync: linkService.intentSync, intent: { .snooker($0) },
+                state: { $0.snookerState }
+            )
+        }
+        guard store.linkedIntentUpdate?.presentationSequence == update.presentationSequence else { return }
+        matchStartTime = store.startedAt
         if let names = linkService.activeParticipantNames, names.count >= 2 {
             let remoteLeft = names[0].trimmingCharacters(in: .whitespacesAndNewlines)
             let remoteRight = names[1].trimmingCharacters(in: .whitespacesAndNewlines)
             if !remoteLeft.isEmpty { leftName = remoteLeft }
             if !remoteRight.isEmpty { rightName = remoteRight }
         }
-        // 对端权威状态是撤销/重放边界：安装后本机不再能撤销到旧历史。
-        store.rebase(to: remote, status: remote.finished ? .finished : .live)
-        pendingFoul = nil
-        scoringSide = nil
-        showFrameSettlement = false
-        if state.finished {
-            beginSnookerRemoteFinishPresentation()
-        } else {
+        if previous != state || store.isPendingLinkedFinish || store.isLinkedFinishConfirmed {
+            showMenu = false
+            confirmation = nil
+            pendingFoul = nil
+            scoringSide = nil
+            showFrameSettlement = false
+        }
+        if store.isPendingLinkedFinish {
             finishTask?.cancel()
             showFinishedOverlay = false
             finishUndoAvailable = false
-            didSaveFinishedRecord = false
+        } else if store.isLinkedFinishConfirmed {
+            if !wasConfirmed { beginSnookerRemoteFinishPresentation() }
+        } else if showFinishedOverlay || previous.finished {
+            finishTask?.cancel()
+            showFinishedOverlay = false
+            finishUndoAvailable = false
         }
+        persistResumeSession()
     }
 
     private func confirmSnooker(_ value: WatchScoreboardConfirmation) {
@@ -758,7 +808,7 @@ struct WatchSnookerScoreView: View {
             try? await Task.sleep(for: .seconds(WatchTiming.finishedUndoCountdown))
             guard !Task.isCancelled else { return }
             finishUndoAvailable = false
-            finalizeSnooker(manualEnd: manualEnd)
+            finalizeSnooker()
         }
     }
 
@@ -774,74 +824,60 @@ struct WatchSnookerScoreView: View {
     }
 
     @discardableResult
-    private func finalizeSnooker(manualEnd: Bool = false) -> Bool {
-        guard state.finished, !didSaveFinishedRecord, !scoringLocked else { return true }
+    private func finalizeSnooker() -> Bool {
+        guard linkedSessionId == nil, state.finished, store.savedRecordID == nil else { return true }
         finishUndoAvailable = false
-        let saved: Bool
-        if linkedSessionId != nil {
-            saved = linkService.publishMatchFinished(
-                snapshot: .snooker(state),
-                recordId: "w_\(UUID().uuidString)",
-                winnerSide: state.leftFrames == state.rightFrames
-                    ? nil
-                    : (state.leftFrames > state.rightFrames ? .left : .right),
-                manualEnd: manualEnd,
-                startTime: matchStartTime,
-                endTime: Date(),
-                totalScoreChanges: store.actionLog.scoreChangeCount,
-                detailedActions: store.actionLog.detailedActions,
-                participantNames: [leftName, rightName]
-            )
-        } else {
-            saved = saveLocalRecordIfNeeded()
-        }
-        guard saved else {
+        guard saveLocalRecordIfNeeded() else {
             showRecordSaveFailure = true
             return false
         }
-        didSaveFinishedRecord = true
         resumeStore.clear()
         return true
     }
 
     private func undoFinishedSnooker() {
-        guard finishUndoAvailable else { return }
+        guard linkedSessionId == nil, finishUndoAvailable else { return }
         finishTask?.cancel()
         // 完赛撤销窗内同样走宿主撤销：回到完赛前的比分与动作日志。
         guard store.undo() else { return }
         showFinishedOverlay = false
         finishUndoAvailable = false
-        didSaveFinishedRecord = false
-        publish()
         undoToastToken = UUID()
     }
 
     private func exitSnooker() {
-        if let linkedSessionId { linkService.exitScoreboard(sessionId: linkedSessionId) }
+        guard !store.isPendingLinkedFinish else { return }
+        if let handle = linkedMatchHandle, handle == linkService.activeHandle {
+            linkService.exitScoreboard(sessionId: handle.sessionId)
+        }
         persistResumeSession()
         dismiss()
     }
 
     private func persistResumeSession() {
-        if state.finished {
-            if didSaveFinishedRecord { resumeStore.clear() }
+        let context: WatchLinkResumeContext?
+        if linkedSessionId != nil {
+            guard let handle = linkedMatchHandle, handle == linkService.activeHandle,
+                  let linkedContext = linkService.resumeContext, linkedContext.handle == handle else { return }
+            if store.savedRecordID == "w_\(handle.matchId.uuidString)" {
+                if resumeStore.session?.linkHandle == handle { resumeStore.clear() }
+                return
+            }
+            context = linkedContext
+        } else {
+            if state.finished {
+                if store.savedRecordID != nil, resumeStore.session?.linkHandle == nil { resumeStore.clear() }
+                return
+            }
+            context = nil
+        }
+        guard hasSnookerProgress || store.isPendingLinkedFinish || store.isLinkedFinishConfirmed else {
+            if linkedSessionId == nil, resumeStore.session?.linkHandle == nil { resumeStore.clear() }
             return
         }
-        guard state.leftScore != 0 || state.rightScore != 0
-                || state.leftFrames != 0 || state.rightFrames != 0
-                || state.currentFrame > 1 || store.canUndo else {
-            resumeStore.clear()
-            return
-        }
-        _ = store.persistResumeSession(
-            into: resumeStore,
-            link: linkService.resumeContext,
-            startedAt: matchStartTime,
-            payload: .snooker(
-                bundle: store.resumeBundle(),
-                leftName: leftName,
-                rightName: rightName
-            )
+        store.persistResumeSession(
+            into: resumeStore, link: context, startedAt: matchStartTime,
+            payload: .snooker(bundle: store.resumeBundle(), leftName: leftName, rightName: rightName)
         )
     }
 

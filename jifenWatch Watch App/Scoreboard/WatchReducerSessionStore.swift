@@ -1,5 +1,6 @@
 import Foundation
 import LinkCore
+import LinkSync
 import Observation
 import RecordCore
 import ScoreCore
@@ -70,6 +71,16 @@ struct WatchReducerUndoSummary {
 final class WatchReducerSessionStore<R: DomainReducer> where R.State: Equatable {
     typealias ResumeBundle = ScoreSessionResumeBundle<R.State, R.Event, R.Intent>
 
+    private struct LinkedMatch {
+        let handle: LinkedMatchHandle
+        let sync: WatchLinkIntentSync
+        let intent: (R.Intent) -> LinkedScoreboardIntent
+        let state: (LinkedScoreboardSnapshot) -> R.State?
+    }
+
+    @ObservationIgnored private var linkedMatch: LinkedMatch?
+    private(set) var linkedIntentUpdate: WatchLinkedIntentUpdate?
+
     private(set) var machine: ScoreSessionMachine<R>
     /// 动作日志仍允许计分板做联动合并/清零（`merge`、`reset`、`omitSecondaryScores`），
     /// 但计分追加与撤销记录只走 `dispatch`/`undo`。
@@ -90,7 +101,24 @@ final class WatchReducerSessionStore<R: DomainReducer> where R.State: Equatable 
     var state: R.State { machine.currentSession.state }
     var status: SessionStatus { machine.currentSession.status }
     var isFinished: Bool { machine.currentSession.status == .finished }
-    var canUndo: Bool { undoDepth > 0 }
+    var canUndo: Bool {
+        if isUsingLinkedIntents {
+            return linkedIntentUpdate?.latestUndoableOperationId != nil
+                && linkedIntentUpdate?.isPendingFinish != true && !isLinkedFinishConfirmed
+        }
+        return undoDepth > 0
+    }
+
+    var isUsingLinkedIntents: Bool { linkedMatch != nil }
+
+    var isPendingLinkedFinish: Bool {
+        guard let update = linkedIntentUpdate else { return false }
+        return !update.confirmedSnapshot.isFinished
+            && (update.isPendingFinish || update.displayedSnapshot.isFinished)
+    }
+
+    var isLinkedFinishConfirmed: Bool { linkedIntentUpdate?.confirmedSnapshot.isFinished == true }
+    var excludedLinkedScoringOperationCount: Int { linkedIntentUpdate?.excludedScoringOperationCount ?? 0 }
 
     init(
         seedSession: ScoreSession<R.State, R.Event>,
@@ -151,6 +179,9 @@ final class WatchReducerSessionStore<R: DomainReducer> where R.State: Equatable 
         recordsUndo: Bool = true,
         recordsNonUndoableActions: Bool = false
     ) -> DispatchResult<R.State, R.Event> {
+        if let linkedMatch {
+            return dispatchLinked(intent, at: timestamp, actorId: actorId, in: linkedMatch)
+        }
         let nowMs = Self.epochMilliseconds(timestamp)
         if recordsUndo {
             actionLog.beginUndoableMutation()
@@ -212,6 +243,9 @@ final class WatchReducerSessionStore<R: DomainReducer> where R.State: Equatable 
     @discardableResult
     func undo(at timestamp: Date = Date()) -> Bool {
         guard savedRecordID == nil, canUndo else { return false }
+        if isUsingLinkedIntents {
+            return undoLinked(at: timestamp)
+        }
         guard machine.undo(actorId: "watch") else { return false }
         undoDepth = max(0, undoDepth - 1)
         let summary = binding.undoSummary(state)
@@ -228,6 +262,138 @@ final class WatchReducerSessionStore<R: DomainReducer> where R.State: Equatable 
 
     // MARK: - 联动
 
+    /// Attach before enabling linked controls. A new full handle needs its own store.
+    func attachLinkedMatch(
+        _ handle: LinkedMatchHandle,
+        sync: WatchLinkIntentSync,
+        intent: @escaping (R.Intent) -> LinkedScoreboardIntent,
+        state: @escaping (LinkedScoreboardSnapshot) -> R.State?
+    ) {
+        if let linkedMatch {
+            guard linkedMatch.handle == handle, linkedMatch.sync === sync else { return }
+        } else {
+            linkedMatch = LinkedMatch(handle: handle, sync: sync, intent: intent, state: state)
+            savedRecordID = nil
+        }
+        applyLinkedIntentUpdate(sync.update)
+    }
+
+    /// The view observes the bridge's presentation, including optimistic edits
+    /// that leave the confirmed revision unchanged.
+    @discardableResult
+    func applyLinkedIntentUpdate(_ update: WatchLinkedIntentUpdate?) -> Bool {
+        guard let linkedMatch, let update, update.handle == linkedMatch.handle,
+              let state = linkedMatch.state(update.displayedSnapshot) else { return false }
+        if let previous = linkedIntentUpdate, update.presentationSequence <= previous.presentationSequence {
+            return false
+        }
+        startedAt = Date(timeIntervalSince1970: Double(update.startEpochMilliseconds) / 1_000)
+        machine.rebase(to: state, status: update.displayedSnapshot.isFinished ? .finished : .live)
+        var log = WatchScoreActionLog(startedAt: startedAt)
+        log.removeActions(withIDs: Set(log.actions.map(\.id)))
+        log.append(contentsOf: update.detailedActions)
+        actionLog = log
+        undoDepth = 0
+        savedRecordID = update.savedRecordID
+        linkedIntentUpdate = update
+        return true
+    }
+
+    @discardableResult
+    func requestLinkedFinish(at timestamp: Date = Date()) -> Bool {
+        if isPendingLinkedFinish || isLinkedFinishConfirmed { return true }
+        return submitLinkedControl(.finish, at: timestamp)
+    }
+
+    @discardableResult
+    func requestLinkedNextMatch(at timestamp: Date = Date()) -> Bool {
+        guard let handle = linkedMatch?.handle, handle.matchGeneration < UInt64.max else { return false }
+        return submitLinkedControl(
+            .nextMatch(matchId: UUID(), matchGeneration: handle.matchGeneration + 1), at: timestamp
+        )
+    }
+
+    @discardableResult
+    func undoLinked(targetOpId: UUID? = nil, at timestamp: Date = Date()) -> Bool {
+        guard let linkedMatch else { return false }
+        do {
+            guard try linkedMatch.sync.undo(
+                handle: linkedMatch.handle, targetOpId: targetOpId,
+                createdAtEpochMilliseconds: Self.epochMilliseconds(timestamp)
+            ) else { return false }
+            applyLinkedIntentUpdate(linkedMatch.sync.update)
+            return true
+        } catch {
+            linkedMatch.sync.report(error)
+            return false
+        }
+    }
+
+    private func submitLinkedControl(_ intent: LinkedScoreboardIntent, at timestamp: Date) -> Bool {
+        guard let linkedMatch else { return false }
+        do {
+            try linkedMatch.sync.submit(
+                intent, handle: linkedMatch.handle, createdAtEpochMilliseconds: Self.epochMilliseconds(timestamp)
+            )
+            applyLinkedIntentUpdate(linkedMatch.sync.update)
+            return true
+        } catch {
+            linkedMatch.sync.report(error)
+            return false
+        }
+    }
+
+    private func dispatchLinked(
+        _ intent: R.Intent, at timestamp: Date, actorId: String, in match: LinkedMatch
+    ) -> DispatchResult<R.State, R.Event> {
+        guard let update = match.sync.update, update.handle == match.handle else {
+            return .rejected(session: machine.currentSession, reason: "Linked match unavailable")
+        }
+        applyLinkedIntentUpdate(update)
+        guard linkedIntentUpdate?.presentationSequence == update.presentationSequence else {
+            return .rejected(session: machine.currentSession, reason: "Linked state unavailable")
+        }
+        guard !binding.resetsActionLog(intent) else {
+            return .rejected(session: machine.currentSession, reason: "Use linked next match")
+        }
+
+        // Some views depend on typed reducer events, such as an archery set
+        // becoming ready. Preview on a copy and publish only the durable replay.
+        let timestampMs = Self.epochMilliseconds(timestamp)
+        var preview = machine
+        let result = preview.dispatchNonUndoable(
+            actorId: actorId, intent: intent, at: max(timestampMs, update.optimisticEpochMilliseconds)
+        )
+        let predicted: ScoreSession<R.State, R.Event>
+        let events: [R.Event]
+        switch result {
+        case .accepted(let session, let reducerEvents):
+            predicted = session
+            events = reducerEvents
+        case .rejected(_, let reason):
+            return .rejected(session: machine.currentSession, reason: reason)
+        }
+        do {
+            switch match.intent(intent) {
+            case .shotTraining(.undoLastShot):
+                guard try match.sync.undo(handle: match.handle, createdAtEpochMilliseconds: timestampMs) else {
+                    return .rejected(session: machine.currentSession, reason: "Undo target unavailable")
+                }
+            case .rally(.finish), .tennis(.finish), .archery(.finish), .eightBall(.finishMatch),
+                 .nineBall(.finishMatch), .snooker(.finishMatch), .football(.finish), .shotTraining(.finish):
+                try match.sync.submit(.finish, handle: match.handle, createdAtEpochMilliseconds: timestampMs)
+            case let linkedIntent:
+                try match.sync.submit(linkedIntent, handle: match.handle, createdAtEpochMilliseconds: timestampMs)
+            }
+            applyLinkedIntentUpdate(match.sync.update)
+            let displayEvents = binding.snapshot(predicted.state) == binding.snapshot(state) ? events : []
+            return .accepted(session: machine.currentSession, events: displayEvents)
+        } catch {
+            match.sync.report(error)
+            return .rejected(session: machine.currentSession, reason: error.localizedDescription)
+        }
+    }
+
     /// 安装对端权威状态。revision/generation 校验保留在宿主内，避免各板重复。
     @discardableResult
     func applyAuthoritativeState(
@@ -236,6 +402,7 @@ final class WatchReducerSessionStore<R: DomainReducer> where R.State: Equatable 
         matchGeneration: UInt64? = nil,
         status: SessionStatus? = nil
     ) -> Bool {
+        guard !isUsingLinkedIntents else { return false }
         let newStatus = status ?? (binding.snapshot(state).isFinished ? .finished : .live)
         let startsNewMatch: Bool
         if let matchGeneration, lastAppliedRemoteGeneration != matchGeneration {
@@ -258,6 +425,7 @@ final class WatchReducerSessionStore<R: DomainReducer> where R.State: Equatable 
     }
 
     func beginRemoteMatch(at timestamp: Date) {
+        guard !isUsingLinkedIntents else { return }
         startedAt = timestamp
         actionLog.reset(at: timestamp)
         if canUndo || !machine.intentTimeline().isEmpty { machine.rebase(to: state, status: status) }
@@ -267,11 +435,13 @@ final class WatchReducerSessionStore<R: DomainReducer> where R.State: Equatable 
 
     @discardableResult
     func mergeRemoteActions(_ actions: [DetailedScoreAction], removing removedIDs: Set<UUID> = []) -> Bool {
-        actionLog.merge(detailedActions: actions, removing: removedIDs)
+        guard !isUsingLinkedIntents else { return false }
+        return actionLog.merge(detailedActions: actions, removing: removedIDs)
     }
 
     /// A changed authoritative state becomes the new undo boundary.
     func rebase(to state: R.State, status: SessionStatus? = nil, preserveUndoWhenUnchanged: Bool = true) {
+        guard !isUsingLinkedIntents else { return }
         let newStatus = status ?? (binding.snapshot(state).isFinished ? .finished : .live)
         if preserveUndoWhenUnchanged, self.state == state, self.status == newStatus { return }
         machine.rebase(to: state, status: newStatus)
@@ -281,6 +451,7 @@ final class WatchReducerSessionStore<R: DomainReducer> where R.State: Equatable 
 
     /// 展示态补丁（不改变撤销栈与时间线），例如射箭待定局分提示。
     func replaceDisplayedState(_ state: R.State) {
+        guard !isUsingLinkedIntents else { return }
         machine.overrideCurrentState(state)
     }
 
@@ -330,6 +501,7 @@ final class WatchReducerSessionStore<R: DomainReducer> where R.State: Equatable 
         additionalConfiguration: [String: String] = [:],
         isFinished: Bool = true
     ) -> Bool {
+        guard !isUsingLinkedIntents else { return savedRecordID != nil }
         guard savedRecordID == nil else { return true }
         var log = actionLog
         log.appendGameEndIfNeeded(
@@ -356,10 +528,12 @@ final class WatchReducerSessionStore<R: DomainReducer> where R.State: Equatable 
     }
 
     func markRecordSaved(_ recordID: String) {
+        guard !isUsingLinkedIntents else { return }
         savedRecordID = recordID
     }
 
     func clearSavedRecord() {
+        guard !isUsingLinkedIntents else { return }
         savedRecordID = nil
     }
 

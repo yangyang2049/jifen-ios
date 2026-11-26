@@ -34,7 +34,7 @@ struct LinkCapabilityNegotiationTests {
 
     @Test func negotiationPassesWhenRequiredSubsetIsPresent() {
         let peer: Set<LinkCapability> = [
-            .independentMatches, .correlatedRequests, .durableTerminalQueue,
+            .independentMatches, .correlatedRequests, .durableTerminalQueue, .sharedIntentSync,
             LinkCapability(rawValue: "unknownFuture")
         ]
         let negotiated = LinkProtocol.negotiate(local: LinkProtocol.capabilities, peer: peer)

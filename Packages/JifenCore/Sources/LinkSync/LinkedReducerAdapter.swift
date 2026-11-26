@@ -94,38 +94,98 @@ public struct LinkedReducerState: Codable, Equatable, Sendable {
         seed = state
     }
 
-    public var latestUndoableOperationId: UUID? { steps.last?.operation.opId }
+    public var latestUndoableOperationId: UUID? {
+        steps.last { !$0.operation.intent.isOfficialBreakChange }?.operation.opId
+    }
+
+    /// Score undo skips intervening football clock changes. Those changes
+    /// remain in the replay log and must still succeed when the goal is removed.
+    public var latestFootballScoreUndoTargetId: UUID? {
+        guard case .football = current, !current.isFinished else { return nil }
+        for step in steps.reversed() {
+            let intent = step.operation.intent
+            if intent.isFootballScoreEdit { return step.operation.opId }
+            guard intent.isFootballClockEdit else { return nil }
+        }
+        return nil
+    }
+
+    /// Returns the newest retained shot matching every supplied filter.
+    public func latestShotTrainingUndoTargetId(made: Bool? = nil, points: Int? = nil) -> UUID? {
+        guard case .shotTraining = current, !current.isFinished else { return nil }
+        for step in steps.suffix(ShotTrainingState.maxDetailedShots).reversed() {
+            guard case .shotTraining(.recordShot(let shotPoints, let shotMade)) = step.operation.intent else {
+                return nil
+            }
+            if (made == nil || made == shotMade) && (points == nil || points == shotPoints) {
+                return step.operation.opId
+            }
+        }
+        return nil
+    }
+
+    fileprivate func indexOfUndoTarget(_ target: UUID?) -> Int? {
+        guard let target = target ?? latestUndoableOperationId else { return nil }
+        guard let index = steps.lastIndex(where: { $0.operation.opId == target }) else { return nil }
+        let intent = steps[index].operation.intent
+        guard !intent.isOfficialBreakChange else { return nil }
+        if index == steps.count - 1 { return index }
+
+        let laterSteps = steps.suffix(from: index + 1)
+        if laterSteps.allSatisfy({ $0.operation.intent.isOfficialBreakChange }) { return index }
+        if intent.isFootballScoreEdit, laterSteps.allSatisfy({ $0.operation.intent.isFootballClockEdit }) {
+            return index
+        }
+        if case .shotTraining(.recordShot) = intent,
+           laterSteps.count < ShotTrainingState.maxDetailedShots,
+           laterSteps.allSatisfy({ step in
+               if case .shotTraining(.recordShot) = step.operation.intent { return true }
+               return false
+           }) {
+            return index
+        }
+        return nil
+    }
+}
+
+private extension LinkedScoreboardIntent {
+    var isOfficialBreakChange: Bool {
+        switch self {
+        case .rally(.setOfficialBreakState), .tennis(.setOfficialBreakState): true
+        default: false
+        }
+    }
+
+    var isFootballScoreEdit: Bool {
+        switch self {
+        case .football(.goal), .football(.subtractGoal): true
+        default: false
+        }
+    }
+
+    var isFootballClockEdit: Bool {
+        switch self {
+        case .football(.kickOff), .football(.toggleClock), .football(.startClock), .football(.pauseClock),
+             .football(.addStoppage), .football(.undoLastStoppage), .football(.advanceStage):
+            true
+        default:
+            false
+        }
+    }
 }
 
 public struct LinkedReducerAdapter {
-    private let encodeArchery: (ArcheryMatchState) -> LinkedScoreboardSnapshot
-    private let decodeArchery: (LinkedScoreboardSnapshot) -> ArcheryMatchState?
-    private let encodeFootball: (FootballMatchState) -> LinkedScoreboardSnapshot
-    private let decodeFootball: (LinkedScoreboardSnapshot) -> FootballMatchState?
-
-    /// Bind the app's shared, lossless native wire representation for archery
-    /// and football. The six remaining wire cases already carry native states.
-    public init(
-        encodeArchery: @escaping (ArcheryMatchState) -> LinkedScoreboardSnapshot,
-        decodeArchery: @escaping (LinkedScoreboardSnapshot) -> ArcheryMatchState?,
-        encodeFootball: @escaping (FootballMatchState) -> LinkedScoreboardSnapshot,
-        decodeFootball: @escaping (LinkedScoreboardSnapshot) -> FootballMatchState?
-    ) {
-        self.encodeArchery = encodeArchery
-        self.decodeArchery = decodeArchery
-        self.encodeFootball = encodeFootball
-        self.decodeFootball = decodeFootball
-    }
+    public init() {}
 
     public func snapshot(_ state: LinkedReducerState) -> LinkedScoreboardSnapshot {
         switch state.current {
         case .rally(let value): .rally(value)
         case .tennis(let value): .tennis(value)
-        case .archery(let value): encodeArchery(value)
+        case .archery(let value): .archery(value)
         case .eightBall(let value): .eightBall(value)
         case .nineBall(let value): .nineBall(value)
         case .snooker(let value): .snooker(value)
-        case .football(let value): encodeFootball(value)
+        case .football(let value): .football(value)
         case .shotTraining(let value): .basketballTraining(value)
         }
     }
@@ -137,15 +197,11 @@ public struct LinkedReducerAdapter {
         switch snapshot {
         case .rally(let value): native = .rally(value)
         case .tennis(let value): native = .tennis(value)
-        case .archery:
-            guard let value = decodeArchery(snapshot) else { return nil }
-            native = .archery(value)
+        case .archery(let value): native = .archery(value)
         case .eightBall(let value): native = .eightBall(value)
         case .nineBall(let value): native = .nineBall(value)
         case .snooker(let value): native = .snooker(value)
-        case .football:
-            guard let value = decodeFootball(snapshot) else { return nil }
-            native = .football(value)
+        case .football(let value): native = .football(value)
         case .basketballTraining(let value): native = .shotTraining(value)
         }
         return LinkedReducerState(gameType: gameType, state: native)
@@ -156,6 +212,52 @@ public struct LinkedReducerAdapter {
     ) -> LinkedReducerState? {
         if self.snapshot(current) == snapshot { return current }
         return state(gameType: current.gameType, from: snapshot)
+    }
+
+    /// Derives the successor of a finished match. Pass the effective time
+    /// from the accepted rollover receipt when opening or recovering its seed.
+    public func nextMatchSnapshot(
+        from finishedState: LinkedReducerState,
+        at epochMilliseconds: Int64
+    ) -> LinkedScoreboardSnapshot? {
+        guard finishedState.current.isFinished, (0...9_000_000_000_000_000).contains(epochMilliseconds) else {
+            return nil
+        }
+
+        func reset<Reducer: DomainReducer>(
+            _ state: Reducer.State,
+            with reducer: Reducer,
+            intent: Reducer.Intent,
+            wrap: (Reducer.State) -> LinkedReducerSnapshot
+        ) -> LinkedReducerSnapshot? {
+            let result = reducer.reduce(state: state, intent: intent, at: epochMilliseconds)
+            return result.accepted ? wrap(result.state) : nil
+        }
+
+        let fresh = switch finishedState.current {
+        case .rally(let state):
+            reset(state, with: RallyMatchReducer(), intent: .reset, wrap: LinkedReducerSnapshot.rally)
+        case .tennis(let state):
+            reset(state, with: TennisMatchReducer(), intent: .reset, wrap: LinkedReducerSnapshot.tennis)
+        case .archery(let state):
+            reset(state, with: ArcheryMatchReducer(), intent: .reset, wrap: LinkedReducerSnapshot.archery)
+        case .eightBall(let state):
+            reset(state, with: EightBallReducer(), intent: .reset, wrap: LinkedReducerSnapshot.eightBall)
+        case .nineBall(let state):
+            reset(state, with: NineBallChaseReducer(), intent: .resetScores, wrap: LinkedReducerSnapshot.nineBall)
+        case .snooker(let state):
+            reset(state, with: SnookerReducer(), intent: .reset, wrap: LinkedReducerSnapshot.snooker)
+        case .football(let state):
+            reset(state, with: FootballMatchReducer(), intent: .reset(), wrap: LinkedReducerSnapshot.football)
+        case .shotTraining(let state):
+            reset(state, with: ShotTrainingReducer(), intent: .reset, wrap: LinkedReducerSnapshot.shotTraining)
+        }
+
+        guard let fresh, !fresh.isFinished,
+              let seed = LinkedReducerState(gameType: finishedState.gameType, state: fresh) else { return nil }
+        let wire = snapshot(seed)
+        guard state(gameType: seed.gameType, from: wire)?.current == fresh else { return nil }
+        return wire
     }
 
     public func transition(
@@ -187,17 +289,15 @@ public struct LinkedReducerAdapter {
     private func undo(
         _ current: LinkedReducerState, op: LinkOperation, target: UUID?, at time: Int64
     ) -> LinkIntentTransition<LinkedReducerState> {
-        guard let latest = current.steps.last, target == nil || target == latest.operation.opId else {
-            return .rejected(.undoTargetUnavailable)
-        }
+        guard let index = current.indexOfUndoTarget(target) else { return .rejected(.undoTargetUnavailable) }
         var next = current
-        next.steps.removeLast()
+        let removed = next.steps.remove(at: index)
         var restored = next.seed
         for step in next.steps {
             let intent = step.operation.intent == .finish ? restored.finishIntent : step.operation.intent
             guard let replayed = apply(
                 restored, gameType: next.gameType, op: step.operation, intent: intent, time: step.time, projectActions: false
-            ) else { return .rejected(.reducerRejected) }
+            ) else { return .rejected(.undoTargetUnavailable) }
             restored = replayed.state
         }
         next.current = restored
@@ -205,7 +305,7 @@ public struct LinkedReducerAdapter {
         return .accepted(state: next, deltaActions: [
             DetailedScoreAction(
                 id: op.opId, type: .undo, epochMilliseconds: time, scores: score.scores,
-                setScores: score.sets, operationCode: "undo", operationPayload: latest.operation.opId.uuidString
+                setScores: score.sets, operationCode: "undo", operationPayload: removed.operation.opId.uuidString
             ),
         ])
     }
@@ -274,13 +374,9 @@ public struct LinkedReducerAdapter {
         case (.snooker(let value), .snooker(let action)):
             reduce(value, action, reducer: SnookerReducer(), wrap: LinkedReducerSnapshot.snooker, project: ScoreActionProjector.snooker)
         case (.football(let value), .football(let action)):
-            reduce(value, action, reducer: FootballMatchReducer(), wrap: LinkedReducerSnapshot.football) { _, events, state, date in
-                Self.footballActions(events, state: state, timestamp: date)
-            }
+            reduce(value, action, reducer: FootballMatchReducer(), wrap: LinkedReducerSnapshot.football, project: ScoreActionProjector.football)
         case (.shotTraining(let value), .shotTraining(let action)):
-            reduce(value, action, reducer: ShotTrainingReducer(), wrap: LinkedReducerSnapshot.shotTraining) { _, events, _, date in
-                Self.trainingActions(events, timestamp: date)
-            }
+            reduce(value, action, reducer: ShotTrainingReducer(), wrap: LinkedReducerSnapshot.shotTraining, project: ScoreActionProjector.shotTraining)
         default:
             nil
         }
@@ -288,69 +384,6 @@ public struct LinkedReducerAdapter {
 }
 
 private extension LinkedReducerAdapter {
-    static func footballActions(
-        _ events: [FootballMatchEvent], state: FootballMatchState, timestamp: Date
-    ) -> [DetailedScoreAction] {
-        let scores = (state.leftScore, state.rightScore)
-        return events.map { event in
-            switch event {
-            case .goalScored(let side, let left, let right, let period, let elapsed),
-                 .goalSubtracted(let side, let left, let right, let period, let elapsed):
-                let delta = if case .goalScored = event { 1 } else { -1 }
-                return ScoreActionProjector.action(
-                    delta > 0 ? .scoreChanged : .undo, code: delta > 0 ? "football_goal" : "football_goal_undo",
-                    side: side, scores: (left, right), delta: delta,
-                    periodNumber: period, footballPeriod: period, footballElapsedSeconds: elapsed, timestamp: timestamp
-                )
-            case .kickedOff:
-                return ScoreActionProjector.action(.stateChanged, code: "football_clock_start", scores: scores, timestamp: timestamp)
-            case .clockToggled(let running, let period):
-                return ScoreActionProjector.action(
-                    .stateChanged, code: running ? "football_clock_start" : "football_clock_pause",
-                    scores: scores, periodNumber: period, timestamp: timestamp
-                )
-            case .stoppageAdded(let seconds, let period), .stoppageUndone(let seconds, let period):
-                let delta = if case .stoppageAdded = event { seconds } else { -seconds }
-                return ScoreActionProjector.action(
-                    .stateChanged, code: delta > 0 ? "football_stoppage_add" : "football_undo_stoppage",
-                    scores: scores, delta: delta, periodNumber: period, timestamp: timestamp
-                )
-            case .stageAdvanced(let stage):
-                return ScoreActionProjector.action(
-                    .periodFinished, code: "football_period_end", scores: scores, periodNumber: stage - 1, timestamp: timestamp
-                )
-            case .namesChanged:
-                return ScoreActionProjector.action(.stateChanged, code: "rename", scores: scores, timestamp: timestamp)
-            case .sidesExchanged:
-                return ScoreActionProjector.action(.sideChanged, code: "exchange_sides", scores: scores, timestamp: timestamp)
-            case .matchFinished(let winner):
-                return ScoreActionProjector.action(.matchFinished, code: "game_end", scores: scores, winner: winner, timestamp: timestamp)
-            case .matchReset:
-                return ScoreActionProjector.action(.reset, code: "reset", scores: scores, timestamp: timestamp)
-            }
-        }
-    }
-
-    static func trainingActions(_ events: [ShotTrainingEvent], timestamp: Date) -> [DetailedScoreAction] {
-        events.map { event in
-            switch event {
-            case .shotRecorded(let points, let made, let counts):
-                return ScoreActionProjector.action(
-                    .scoreChanged, code: "training_\(points)pt_\(made ? "made" : "miss")",
-                    side: made ? .right : .left, scores: (counts.missed, counts.made), delta: 1, timestamp: timestamp
-                )
-            case .shotUndone(let counts):
-                return ScoreActionProjector.action(.undo, code: "undo", scores: (counts.missed, counts.made), timestamp: timestamp)
-            case .finished(let counts):
-                return ScoreActionProjector.action(
-                    .matchFinished, code: "training_rate_\(counts.rate)", scores: (counts.missed, counts.made), timestamp: timestamp
-                )
-            case .reset:
-                return ScoreActionProjector.action(.reset, code: "reset", scores: (0, 0), timestamp: timestamp)
-            }
-        }
-    }
-
     func stabilized(_ actions: [DetailedScoreAction], opId: UUID) -> [DetailedScoreAction] {
         actions.enumerated().map { index, action in
             DetailedScoreAction(

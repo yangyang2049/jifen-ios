@@ -116,11 +116,13 @@ struct ScoreboardTemplate: View {
     @State private var typographySession: ScoreboardTypographySession
     // Refresh parent-owned overlay state instead of retaining its initial closure in config.
     private let contentOverlayProvider: ((Bool, Color) -> AnyView)?
+    private let showsReset: Bool
     var onBack: (() -> Void)? = nil
 
     init(
         config: TemplateConfig,
         typographySession: ScoreboardTypographySession? = nil,
+        showsReset: Bool = true,
         onBack: (() -> Void)? = nil
     ) {
         self._config = State(initialValue: config)
@@ -131,6 +133,7 @@ struct ScoreboardTemplate: View {
             styleID: ScoreboardStyleID(gameType: config.gameType)
         ))
         self.contentOverlayProvider = config.contentOverlayProvider
+        self.showsReset = showsReset
         self.onBack = onBack
     }
     @State private var showMenu: Bool = false
@@ -558,7 +561,7 @@ struct ScoreboardTemplate: View {
                         settleConfirming: menuConfirm.settleConfirming,
                         scoringEnabled: scoringEnabled,
                         extraItems: config.extraMenuItemsProvider?() ?? []
-                    ),
+                    ).filter { showsReset || $0.action != "reset" },
                     analyticsGameType: config.gameType
                 )
                 
@@ -711,6 +714,7 @@ struct ScoreboardTemplate: View {
             }
             
         case "reset":
+            guard showsReset else { return }
             if menuConfirm.armOrConfirm(.reset) {
                 config.viewModel.reset()
                 if !config.viewModel.recordsResetActionInternally {

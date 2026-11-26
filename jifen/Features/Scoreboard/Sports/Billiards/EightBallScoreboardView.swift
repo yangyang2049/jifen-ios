@@ -125,6 +125,10 @@ struct EightBallScoreboardView: View {
 
     private var state: EightBallState { sessionStore.state }
 
+    private var linkedMatch: BilliardsWatchLink? {
+        watchSessionId.map { BilliardsWatchLink(sessionId: $0, service: watchLinkService) }
+    }
+
     private var scoringLocked: Bool {
         watchSessionId != nil
             && !watchLinkService.canEditLinkedMatch
@@ -140,27 +144,23 @@ struct EightBallScoreboardView: View {
             onSetupConsumed?()
             registerSync()
             if let watchSessionId,
-               let update = watchLinkService.attachPage(sessionId: watchSessionId),
-               let remote = update.snapshot.eightBallState {
-                detailedActions = update.detailedActions
-                applyAuthoritativeEightBall(remote)
+               let update = watchLinkService.attachPage(sessionId: watchSessionId) {
+                applyAuthoritativeEightBall(update)
             }
         }
         .onChange(of: state.finished) { _, finished in
             if finished {
                 showGameOverDialog = true
-                notifyLinkedFinishIfNeeded()
             }
         }
-        .onChange(of: state) { _, newState in
+        .onChange(of: state) { _, _ in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-            publishWatchIfNeeded(newState)
         }
         .onChange(of: sessionStore.persistenceFailureSignal) { _, signal in
             if signal > 0 { showPersistenceError = true }
         }
         .onChange(of: watchLinkService.latestRemoteSnapshot) { previous, update in
-            guard watchLinkService.incomingSnapshot != nil, let watchSessionId, let update, update.sessionId == watchSessionId,
+            guard let watchSessionId, let update, update.sessionId == watchSessionId,
                   let remote = update.snapshot.eightBallState else { return }
             if update.beginsMatch(after: previous) {
                 let previousRecordID = recordID
@@ -170,14 +170,13 @@ struct EightBallScoreboardView: View {
                 ParticipantIdentityStore.shared.copySelections(from: previousRecordID, to: recordID)
                 actionCount = 0
                 actionLog.removeAll()
+                scoreboardEditing = false
             }
-            detailedActions = update.detailedActions
-            applyAuthoritativeEightBall(remote)
+            applyAuthoritativeEightBall(update)
         }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             let skipSave = watchSessionId != nil
-                && (!watchLinkService.canEditLinkedMatch || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
             if let watchSessionId { watchLinkService.detachPage(sessionId: watchSessionId) }
             if !skipSave {
                 sessionStore.flush {
@@ -271,7 +270,14 @@ struct EightBallScoreboardView: View {
                 send(.addRack(screenSide(.right)))
             },
             onUndo: { scoringLocked ? false : undo() },
-            onReset: { guard !scoringLocked else { return }; send(.reset) },
+            onReset: {
+                guard !scoringLocked else { return }
+                if linkedMatch != nil {
+                    showToastMessage(BilliardsWatchLink.resetUnavailableMessage)
+                } else {
+                    send(.reset)
+                }
+            },
             onExchange: { guard !scoringLocked else { return }; send(.exchangeSides) },
             onBack: exit,
             showEndGame: true,
@@ -351,6 +357,11 @@ struct EightBallScoreboardView: View {
             watchLinkService.requestScoreResync()
         case "endLink":
             if let id = watchSessionId {
+                if let linkedRecordId = watchLinkService.finishedRecordId {
+                    recordID = linkedRecordId
+                    sessionStore.markFinishedRecordCommitted()
+                }
+                sessionStore.leaveLinkedMatch()
                 watchLinkService.leaveSession(id)
                 watchSessionId = nil
             }
@@ -366,17 +377,6 @@ struct EightBallScoreboardView: View {
                 overflowToastMessage = nil
             }
         }
-    }
-
-    private func publishWatchIfNeeded(_ state: EightBallState) {
-        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
-        watchLinkService.syncWatch(
-            sessionId: watchSessionId,
-            gameType: .eightBall,
-            snapshot: .eightBall(state),
-            detailedActions: detailedActions,
-            participantNames: [leftName, rightName]
-        )
     }
 
     private var finishedWinnerName: String {
@@ -443,6 +443,7 @@ struct EightBallScoreboardView: View {
         guard !scoringLocked else { return }
         sessionStore.send(
             intent,
+            linked: linkedMatch,
             completion: { _, next, _ in
                 projectAcceptedEightBallIntent(intent, next: next)
             },
@@ -453,13 +454,17 @@ struct EightBallScoreboardView: View {
     }
 
     private func projectAcceptedEightBallIntent(_ intent: EightBallIntent, next: EightBallState) {
-        actionCount += 1
-        actionLog.append(ReducerScoreboardRecordPersistence.snapshot(
-            code: String(describing: intent),
-            scores: [next.leftPoints, next.rightPoints]
-        ))
-        appendEightBallAction(intent)
-        persistRecordContext()
+        if linkedMatch != nil {
+            readLinkedRecordContext()
+        } else {
+            actionCount += 1
+            actionLog.append(ReducerScoreboardRecordPersistence.snapshot(
+                code: String(describing: intent),
+                scores: [next.leftPoints, next.rightPoints]
+            ))
+            appendEightBallAction(intent)
+            persistRecordContext()
+        }
         if next.finished {
             if case .finishMatch = intent {} else { manualFinishRequested = false }
             showGameOverDialog = true
@@ -472,6 +477,12 @@ struct EightBallScoreboardView: View {
     }
     private func applyEditNames(left: String, right: String) {
         guard !scoringLocked else { return }
+        if linkedMatch != nil {
+            if left != displayName(onScreen: .left) || right != displayName(onScreen: .right) {
+                showToastMessage(BilliardsWatchLink.renameUnavailableMessage)
+            }
+            return
+        }
         let screenEdits: [(MatchSide, String)] = [(.left, left), (.right, right)]
         for (screen, name) in screenEdits where !name.isEmpty {
             if screenSide(screen) == .left {
@@ -512,6 +523,7 @@ struct EightBallScoreboardView: View {
                 let right = current.rightPoints + (authoritativeSide == .right ? delta : 0)
                 return .adminAdjust(left: left, right: right)
             },
+            linked: linkedMatch,
             completion: { intent, _, next, _ in
                 projectAcceptedEightBallIntent(intent, next: next)
             },
@@ -530,7 +542,7 @@ struct EightBallScoreboardView: View {
     }
     private func undo() -> Bool {
         guard !scoringLocked else { return false }
-        return sessionStore.undo { success, restored in
+        return sessionStore.undo(linked: linkedMatch) { success, restored in
             guard success else { return }
             actionLog = sessionStore.recordContext.actionLog
             detailedActions = sessionStore.recordContext.detailedActions
@@ -586,7 +598,6 @@ struct EightBallScoreboardView: View {
             watchLinkService.leaveSessionIfMatchFinished(id)
         }
         let skipSave = watchSessionId != nil
-            && (!watchLinkService.canEditLinkedMatch || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
         sessionStore.flush {
             if !skipSave { _ = saveRecord() }
             performScoreboardExit(
@@ -612,40 +623,32 @@ struct EightBallScoreboardView: View {
         }
     }
 
-    private func applyAuthoritativeEightBall(_ remote: EightBallState) {
-        sessionStore.rebase(to: remote) { applied in
-            actionCount = max(actionCount, detailedActions.count)
-            persistRecordContext()
-            if applied.finished, !scoringLocked {
-                _ = saveRecord()
-            }
-            showGameOverDialog = applied.finished
-            manualFinishRequested = false
-        }
+    private func applyAuthoritativeEightBall(_ update: PhoneWatchLinkService.LinkedSnapshotUpdate) {
+        let installed = sessionStore.installLinkedUpdate(update)
+        readLinkedRecordContext()
+        guard installed else { return }
+        showGameOverDialog = state.finished
+        manualFinishRequested = false
     }
 
-    private func notifyLinkedFinishIfNeeded() {
-        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
-        let winner: MatchSide? = state.leftPoints == state.rightPoints
-            ? nil
-            : (state.leftPoints > state.rightPoints ? .left : .right)
-        watchLinkService.notifyMatchFinished(
-            sessionId: watchSessionId,
-            snapshot: .eightBall(state),
-            recordId: recordID,
-            winnerSide: winner,
-            manualEnd: manualFinishRequested,
-            startTime: startedAt,
-            endTime: Date(),
-            totalScoreChanges: actionCount,
-            participantNames: [leftName, rightName],
-            detailedActions: detailedActions
-        )
+    private func readLinkedRecordContext() {
+        let context = sessionStore.recordContext
+        actionLog = context.actionLog
+        detailedActions = context.detailedActions
+        actionCount = context.actionCount
     }
 
     private func startNewMatch() {
         let previousIdentityRecord = recordID
         guard !scoringLocked, !isStartingNewMatch else { return }
+        if let watchSessionId {
+            do {
+                try watchLinkService.startNextIntentMatch(sessionId: watchSessionId)
+            } catch {
+                showToastMessage(error.localizedDescription)
+            }
+            return
+        }
         isStartingNewMatch = true
         let finishedStore = sessionStore
         finishedStore.persistSnapshot { persisted in
@@ -686,14 +689,6 @@ struct EightBallScoreboardView: View {
                 scoreboardEditing = false
                 showGameOverDialog = false
                 LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-                if let watchSessionId {
-                    watchLinkService.prepareControllerForNewMatch(
-                        sessionId: watchSessionId,
-                        gameType: .eightBall,
-                        snapshot: .eightBall(freshState),
-                        participantNames: [leftName, rightName]
-                    )
-                }
             }
         }
     }
@@ -726,7 +721,7 @@ struct EightBallScoreboardView: View {
     }
     @discardableResult
     private func saveRecord() -> Bool {
-        if watchSessionId != nil, watchLinkService.peerFinishedSharedMatch { return true }
+        if watchSessionId != nil { return true }
         if state.finished, sessionStore.hasCommittedFinishedRecord {
             return true
         }

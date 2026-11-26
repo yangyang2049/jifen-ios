@@ -126,6 +126,10 @@ struct NineBallChaseScoreboardView: View {
     @State private var manualFinishRequested = false
     @State private var isStartingNewMatch = false
 
+    private var linkedMatch: BilliardsWatchLink? {
+        watchSessionId.map { BilliardsWatchLink(sessionId: $0, service: watchLinkService) }
+    }
+
     private var scoringLocked: Bool {
         watchSessionId != nil
             && !watchLinkService.canEditLinkedMatch
@@ -444,6 +448,11 @@ struct NineBallChaseScoreboardView: View {
                         showBreakerPicker = true
                     case "endLink":
                         if let id = watchSessionId {
+                            if let linkedRecordId = watchLinkService.finishedRecordId {
+                                recordID = linkedRecordId
+                                sessionStore.markFinishedRecordCommitted()
+                            }
+                            sessionStore.leaveLinkedMatch()
                             watchLinkService.leaveSession(id)
                             watchSessionId = nil
                         }
@@ -515,10 +524,8 @@ struct NineBallChaseScoreboardView: View {
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             if let watchSessionId,
-               let update = watchLinkService.attachPage(sessionId: watchSessionId),
-               let remote = update.snapshot.nineBallState {
-                detailedActions = update.detailedActions
-                applyAuthoritativeNineBall(remote)
+               let update = watchLinkService.attachPage(sessionId: watchSessionId) {
+                applyAuthoritativeNineBall(update)
             }
             revealImmersiveChrome()
             if state.usesRackRules,
@@ -545,7 +552,6 @@ struct NineBallChaseScoreboardView: View {
         .onChange(of: state.finished) { _, finished in
             if finished {
                 showGameOverDialog = true
-                notifyLinkedFinishIfNeeded()
             }
         }
         .onChange(of: state) { _, newState in
@@ -554,7 +560,6 @@ struct NineBallChaseScoreboardView: View {
                 showNineBallRetryToast()
             }
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-            publishWatchIfNeeded(newState)
         }
         .onChange(of: sessionStore.persistenceFailureSignal) { _, signal in
             if signal > 0 {
@@ -562,7 +567,7 @@ struct NineBallChaseScoreboardView: View {
             }
         }
         .onChange(of: watchLinkService.latestRemoteSnapshot) { previous, update in
-            guard watchLinkService.incomingSnapshot != nil, let watchSessionId, let update, update.sessionId == watchSessionId,
+            guard let watchSessionId, let update, update.sessionId == watchSessionId,
                   let remote = update.snapshot.nineBallState else { return }
             if update.beginsMatch(after: previous) {
                 let previousRecordID = recordID
@@ -572,14 +577,20 @@ struct NineBallChaseScoreboardView: View {
                 ParticipantIdentityStore.shared.copySelections(from: previousRecordID, to: recordID)
                 actionCount = 0
                 actionLog.removeAll()
+                editPlayerNames.removeAll()
+                editPlayerScores.removeAll()
+                activeChasePlayer = nil
+                pendingTransfer = nil
+                correctingSmallGoldPayer = false
+                showBreakerPicker = false
+                showBreakerIntro = !UserDefaults.standard.bool(forKey: "nineBall14710BreakerIntroSeen")
+                showEditPanel = false
             }
-            detailedActions = update.detailedActions
-            applyAuthoritativeNineBall(remote)
+            applyAuthoritativeNineBall(update)
         }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             let skipSave = watchSessionId != nil
-                && (!watchLinkService.canEditLinkedMatch || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
             if let watchSessionId { watchLinkService.detachPage(sessionId: watchSessionId) }
             if !skipSave {
                 sessionStore.flush {
@@ -603,19 +614,6 @@ struct NineBallChaseScoreboardView: View {
                     }
             }
         }
-    }
-
-    private func publishWatchIfNeeded(_ state: NineBallChaseState) {
-        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
-        var snapshot = state
-        snapshot.playerNames = Array((playerNames + Array(repeating: "", count: 4)).prefix(4))
-        watchLinkService.syncWatch(
-            sessionId: watchSessionId,
-            gameType: .nineBall,
-            snapshot: .nineBall(snapshot),
-            detailedActions: detailedActions,
-            participantNames: (0..<state.playerCount).map { playerName($0) }
-        )
     }
 
     private var finishedWinnerName: String {
@@ -1370,7 +1368,9 @@ struct NineBallChaseScoreboardView: View {
         if !state.isTournament && state.usesRackRules && scores.reduce(0, +) != 0 {
             showNineBallToast(nineBallText("nine_ball_unbalanced_edit", "The edited scores do not total zero."))
         }
-        playerNames = Array((names + Array(playerNames.dropFirst(state.playerCount))).prefix(4))
+        if linkedMatch == nil {
+            playerNames = Array((names + Array(playerNames.dropFirst(state.playerCount))).prefix(4))
+        }
         send(.adminCorrect(playerNames: names, playerPoints: scores))
         showGameOverDialog = false
         showEditPanel = false
@@ -1398,13 +1398,22 @@ struct NineBallChaseScoreboardView: View {
                 }
                 return validated
             },
+            linked: linkedMatch,
             completion: { intent, _, next, events in
-                actionCount += 1
-                actionLog.append(ReducerScoreboardRecordPersistence.snapshot(code: String(describing: intent), scores: next.playerPoints))
+                let writesLocalHistory = linkedMatch == nil
+                if writesLocalHistory {
+                    actionCount += 1
+                    actionLog.append(ReducerScoreboardRecordPersistence.snapshot(code: String(describing: intent), scores: next.playerPoints))
+                } else {
+                    readLinkedRecordContext()
+                }
+                func recordLocalAction(_ action: @autoclosure () -> DetailedScoreAction) {
+                    if writesLocalHistory { detailedActions.append(action()) }
+                }
                 for event in events {
                     switch event {
                     case .chaseApplied(let player, let scorePlayer, let kind, let delta):
-                        detailedActions.append(nineBallDetailedAction(
+                        recordLocalAction(nineBallDetailedAction(
                             type: kind == .foul ? .foul : .scoreChanged,
                             team: RecordTeam.allCases.indices.contains(scorePlayer)
                                 ? RecordTeam.allCases[scorePlayer]
@@ -1435,7 +1444,7 @@ struct NineBallChaseScoreboardView: View {
                             let label = third ? nineBallText("nine_ball_third_foul", "Third-foul loss") : chaseTitle(kind)
                             summary = "\(playerName(player)) · \(label)：\(changes)"
                         }
-                        detailedActions.append(nineBallDetailedAction(
+                        recordLocalAction(nineBallDetailedAction(
                             type: kind == .foul ? .foul : (kind == .handoff ? .stateChanged : .scoreChanged),
                             team: RecordTeam.allCases.indices.contains(player) ? RecordTeam.allCases[player] : nil,
                             delta: deltas[player], code: "nine_ball_\(next.isTournament ? "tournament" : "transfer")_\(kind.rawValue)",
@@ -1446,28 +1455,28 @@ struct NineBallChaseScoreboardView: View {
                         let summary = String.localizedStringWithFormat(
                             NSLocalizedString("nine_ball_breaker_changed_format", value: "本局改为%@开球", comment: ""), playerName(player)
                         )
-                        detailedActions.append(nineBallDetailedAction(
+                        recordLocalAction(nineBallDetailedAction(
                             type: .stateChanged, code: "nine_ball_breaker_changed",
                             roundNumber: next.roundNumber, summary: summary
                         ))
                         showNineBallToast(summary)
                     case .sidesExchanged:
-                        detailedActions.append(nineBallDetailedAction(type: .sideChanged, code: "exchange_side"))
+                        recordLocalAction(nineBallDetailedAction(type: .sideChanged, code: "exchange_side"))
                     case .totalsAdjusted:
                         let type: DetailedScoreActionType
                         if case .resetScores = intent { type = .reset } else { type = .stateChanged }
-                        detailedActions.append(nineBallDetailedAction(type: type, code: type == .reset ? "reset" : "nine_ball_edit"))
-                        if case .adminCorrect = intent {
+                        recordLocalAction(nineBallDetailedAction(type: type, code: type == .reset ? "reset" : "nine_ball_edit"))
+                        if writesLocalHistory, case .adminCorrect = intent {
                             playerNames = (0..<4).map { next.resolvedName(at: $0, fallback: playerNames[safe: $0]) }
                             sessionStore.updateParticipants((0..<next.playerCount).map {
                                 .init(id: "player_\($0 + 1)", name: playerNames[$0], role: "player")
                             })
                         }
                     case .matchFinished:
-                        detailedActions.append(nineBallDetailedAction(type: .matchFinished, code: "finish"))
+                        recordLocalAction(nineBallDetailedAction(type: .matchFinished, code: "finish"))
                     }
                 }
-                persistRecordContext()
+                if writesLocalHistory { persistRecordContext() }
             },
             afterFinalized: { _, _, next, _ in
                 if next.finished { _ = saveRecord() }
@@ -1480,6 +1489,11 @@ struct NineBallChaseScoreboardView: View {
         send(.finishMatch)
     }
     private func confirmReset() {
+        if linkedMatch != nil {
+            showNineBallToast(BilliardsWatchLink.resetUnavailableMessage)
+            showMenu = false
+            return
+        }
         if menuConfirm.armOrConfirm(.reset) {
             send(.resetScores)
             showGameOverDialog = false
@@ -1511,11 +1525,15 @@ struct NineBallChaseScoreboardView: View {
             finished: state.finished,
             gameOverPresented: showGameOverDialog
         ) {
-            sessionStore.undo { success, restored in
+            sessionStore.undo(linked: linkedMatch) { success, restored in
                 guard success else { return }
-                actionLog = sessionStore.recordContext.actionLog
-                detailedActions = sessionStore.recordContext.detailedActions
-                actionCount = sessionStore.recordContext.actionCount
+                if linkedMatch != nil {
+                    readLinkedRecordContext()
+                } else {
+                    actionLog = sessionStore.recordContext.actionLog
+                    detailedActions = sessionStore.recordContext.detailedActions
+                    actionCount = sessionStore.recordContext.actionCount
+                }
                 showGameOverDialog = restored.finished
             }
         }
@@ -1629,7 +1647,6 @@ struct NineBallChaseScoreboardView: View {
             watchLinkService.leaveSessionIfMatchFinished(id)
         }
         let skipSave = watchSessionId != nil
-            && (!watchLinkService.canEditLinkedMatch || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
         sessionStore.flush {
             if !skipSave { _ = saveRecord() }
             performScoreboardExit(
@@ -1655,45 +1672,33 @@ struct NineBallChaseScoreboardView: View {
         }
     }
 
-    private func applyAuthoritativeNineBall(_ remote: NineBallChaseState) {
-        sessionStore.rebase(to: remote) { applied in
-            actionCount = max(actionCount, detailedActions.count)
-            persistRecordContext()
-            if applied.playerNames.contains(where: { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) {
-                playerNames = (0..<4).map { applied.resolvedName(at: $0, fallback: playerNames[safe: $0]) }
-            }
-            if applied.finished, !scoringLocked {
-                _ = saveRecord()
-            }
-            showGameOverDialog = applied.finished
-            manualFinishRequested = false
-        }
+    private func applyAuthoritativeNineBall(_ update: PhoneWatchLinkService.LinkedSnapshotUpdate) {
+        let installed = sessionStore.installLinkedUpdate(update)
+        readLinkedRecordContext()
+        guard installed else { return }
+        showGameOverDialog = state.finished
+        manualFinishRequested = false
     }
 
-    private func notifyLinkedFinishIfNeeded() {
-        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
-        let activeScores = Array(state.playerPoints.prefix(state.playerCount))
-        let winner: MatchSide? = state.playerCount == 2 && activeScores.count >= 2 && activeScores[0] != activeScores[1]
-            ? (activeScores[0] > activeScores[1] ? .left : .right)
-            : nil
-        var snapshot = state
-        snapshot.playerNames = Array((playerNames + Array(repeating: "", count: 4)).prefix(4))
-        watchLinkService.notifyMatchFinished(
-            sessionId: watchSessionId,
-            snapshot: .nineBall(snapshot),
-            recordId: recordID,
-            winnerSide: winner,
-            manualEnd: manualFinishRequested,
-            startTime: startedAt,
-            endTime: Date(),
-            totalScoreChanges: actionCount,
-            participantNames: (0..<state.playerCount).map { playerName($0) },
-            detailedActions: detailedActions
-        )
+    private func readLinkedRecordContext() {
+        let context = sessionStore.recordContext
+        actionLog = context.actionLog
+        detailedActions = context.detailedActions
+        actionCount = context.actionCount
+        playerNames = (0..<4).map { state.resolvedName(at: $0, fallback: playerNames[safe: $0]) }
     }
+
     private func startNewMatch() {
         let previousIdentityRecord = recordID
         guard !scoringLocked, !isStartingNewMatch else { return }
+        if let watchSessionId {
+            do {
+                try watchLinkService.startNextIntentMatch(sessionId: watchSessionId)
+            } catch {
+                showNineBallToast(error.localizedDescription)
+            }
+            return
+        }
         isStartingNewMatch = true
         let finishedStore = sessionStore
         finishedStore.persistSnapshot { persisted in
@@ -1748,14 +1753,6 @@ struct NineBallChaseScoreboardView: View {
                 manualFinishRequested = false
                 showGameOverDialog = false
                 LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-                if let watchSessionId {
-                    watchLinkService.prepareControllerForNewMatch(
-                        sessionId: watchSessionId,
-                        gameType: .nineBall,
-                        snapshot: .nineBall(freshState),
-                        participantNames: activeNames
-                    )
-                }
             }
         }
     }
@@ -1848,7 +1845,7 @@ struct NineBallChaseScoreboardView: View {
     }
     @discardableResult
     private func saveRecord() -> Bool {
-        if watchSessionId != nil, watchLinkService.peerFinishedSharedMatch { return true }
+        if watchSessionId != nil { return true }
         if state.finished, sessionStore.hasCommittedFinishedRecord {
             return true
         }

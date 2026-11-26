@@ -3103,6 +3103,8 @@
 
 "linked_score_shared_mode" = "Score on both devices";
 "linked_score_shared_start_guide_message" = "Tap the watch button. Once accepted, you can score on either device.";
+"linked_score_rename_unavailable" = "End linked scoring before changing player names.";
+"linked_score_reset_unavailable" = "While linked scoring is active, finish the current match before starting a new one.";
 "watch_sync_shared_usage_step_2" = "Send the match to your watch. Once accepted, you can score on either device.";
 "watch_sync_shared_usage_step_3" = "Scores update on both devices. The phone saves the record when you finish.";
 "linked_score_simultaneous_edit" = "Both devices made changes. Check the score.";

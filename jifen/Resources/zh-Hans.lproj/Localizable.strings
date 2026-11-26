@@ -3105,6 +3105,8 @@
 
 "linked_score_shared_mode" = "双端计分";
 "linked_score_shared_start_guide_message" = "点手表按钮发起联动。手表确认后，两端都可以计分。";
+"linked_score_rename_unavailable" = "请在结束联动后修改选手名称。";
+"linked_score_reset_unavailable" = "联动计分期间请先结束本场，再开始新一局。";
 "watch_sync_shared_usage_step_2" = "发送到手表，手表确认后，两端都可以计分。";
 "watch_sync_shared_usage_step_3" = "两端实时同步比分，结束后手机会保存记录。";
 "linked_score_simultaneous_edit" = "两端刚刚都改了比分，请核对";

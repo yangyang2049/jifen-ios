@@ -1,5 +1,6 @@
 import Combine
 import LinkCore
+import LinkSync
 import RecordCore
 import ScoreCore
 import SessionCore
@@ -34,11 +35,9 @@ struct WatchFootballScoreView: View {
 
     let isFiveAside: Bool
     let halfLengthSeconds: Int
-    /// Non-nil when this board follows a phone-started linked session.
     let linkedSessionId: UUID?
 
-    @State private var lastAppliedRemoteRevision: UInt64?
-    @State private var lastAppliedRemoteGeneration: UInt64?
+    @State private var linkedHandle: LinkedMatchHandle?
 
     @State private var showRecordSaveFailure = false
     /// 通用同步宿主：比分、时钟锚点、补时历史、撤销栈与动作日志只有这一处真相。
@@ -190,7 +189,7 @@ struct WatchFootballScoreView: View {
                         confirmation = .finish
                     },
                     onReset: {
-                        guard !scoringLocked else { return }
+                        guard linkedSessionId == nil, !scoringLocked else { return }
                         showMenu = false
                         confirmation = .reset
                     },
@@ -206,15 +205,17 @@ struct WatchFootballScoreView: View {
                 postRegulationPanel
             }
 
-            if showFinishedOverlay {
+            if presentsFinishOverlay {
                 WatchFinishedOverlay(
-                    title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
+                    title: store.isPendingLinkedFinish
+                        ? NSLocalizedString("linked_score_pending_finish", value: "Waiting for sync", comment: "")
+                        : NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
                     scoreItems: [
                         WatchFinishedScoreItem(name: leftName, score: leftScore),
                         WatchFinishedScoreItem(name: rightName, score: rightScore)
                     ],
-                    undoAvailable: finishUndoAvailable,
-                    canPlayAgain: !scoringLocked,
+                    undoAvailable: linkedSessionId == nil && finishUndoAvailable,
+                    canPlayAgain: linkedSessionId == nil ? !scoringLocked : canStartLinkedNextMatch,
                     onUndo: undo,
                     onPlayAgain: restartMatch,
                     onExit: {
@@ -222,6 +223,11 @@ struct WatchFootballScoreView: View {
                         exitBoard()
                     }
                 )
+                .overlay(alignment: .topTrailing) {
+                    if hasCurrentLinkedMatch, store.savedRecordID == nil {
+                        linkedFinishSyncButton
+                    }
+                }
             }
 
             confirmationOverlay
@@ -229,6 +235,7 @@ struct WatchFootballScoreView: View {
         .watchFinishSaveFailure(isPresented: $showRecordSaveFailure) { finalizeFinish() }
         .onAppear {
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
+            applyLinkedIntentUpdate(linkService.intentSync.update)
         }
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
@@ -236,34 +243,17 @@ struct WatchFootballScoreView: View {
         .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
             tickClock()
         }
-        .onChange(of: linkService.latestSnapshot, initial: true) { previous, update in
-            guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
-                  update.matchGeneration == linkService.activeHandle?.matchGeneration,
-                  let remote = update.snapshot.footballState else { return }
-            let acceptsScore = linkService.incomingSnapshot != nil
-            if acceptsScore, update.beginsMatch(after: previous) {
-                matchStartTime = Date()
-                store.beginRemoteMatch(at: matchStartTime)
-            }
-            let historyChanged = store.mergeRemoteActions(update.detailedActions, removing: update.removedActionIDs)
-            let advancesScore = lastAppliedRemoteGeneration != update.matchGeneration
-                || update.revision > (lastAppliedRemoteRevision ?? 0)
-            let finishesCurrentScore = update.revision == lastAppliedRemoteRevision
-                && update.snapshot.isFinished && previous?.snapshot.isFinished == false
-            guard acceptsScore, advancesScore || finishesCurrentScore else {
-                if historyChanged { persistResumeSession() }
-                return
-            }
-            lastAppliedRemoteGeneration = update.matchGeneration
-            lastAppliedRemoteRevision = update.revision
-            applyLinkedState(remote)
+        .onChange(of: linkService.intentSync.update) { _, update in
+            applyLinkedIntentUpdate(update)
         }
         .onDisappear {
             finishTask?.cancel()
             if !scoringLocked, !isFinished {
                 flushPendingGoal()
+            } else {
+                cancelPendingGoal()
             }
-            if isFinished {
+            if linkedSessionId == nil, isFinished {
                 finalizeFinish()
             }
             persistResumeSession()
@@ -503,6 +493,19 @@ struct WatchFootballScoreView: View {
     }
 
     private var menuExtraActions: [WatchMenuExtraAction] {
+        var actions = footballMenuActions
+        if hasCurrentLinkedMatch {
+            actions.append(WatchMenuExtraAction(
+                id: "football_sync_scores", title: linkedSyncLabel, systemImage: "arrow.clockwise", action: {
+                    showMenu = false
+                    syncLinkedScores()
+                }
+            ))
+        }
+        return actions
+    }
+
+    private var footballMenuActions: [WatchMenuExtraAction] {
         guard !scoringLocked, !isFinished else { return [] }
         switch menuAction {
         case .nextHalf:
@@ -785,7 +788,6 @@ struct WatchFootballScoreView: View {
         clockNowMilliseconds = Self.nowMilliseconds()
         WatchHaptics.shared.play(.undo)
         persistResumeSession()
-        publishLinkedIfNeeded()
     }
 
     private func addGoal(_ side: MatchSide) {
@@ -794,7 +796,6 @@ struct WatchFootballScoreView: View {
         clockNowMilliseconds = Self.nowMilliseconds()
         WatchHaptics.shared.play(.light)
         persistResumeSession()
-        publishLinkedIfNeeded()
     }
 
     private static func nowMilliseconds() -> Int64 {
@@ -803,39 +804,83 @@ struct WatchFootballScoreView: View {
 
     // MARK: - Linked session
 
+    private var hasCurrentLinkedMatch: Bool {
+        guard let linkedHandle else { return false }
+        return linkedHandle == linkService.activeHandle && linkService.intentSync.update?.handle == linkedHandle
+    }
+
     private var scoringLocked: Bool {
-        linkedSessionId != nil && !linkService.canEditLinkedMatch
+        guard linkedSessionId != nil else { return false }
+        return !hasCurrentLinkedMatch || !store.isUsingLinkedIntents
+            || !linkService.canEditLinkedMatch || store.isPendingLinkedFinish || store.isLinkedFinishConfirmed
     }
 
-    /// 联动快照就是 Reducer State 本身：时钟锚点、分秒余量、补时与换边
-    /// 一并随帧传输，不再手工拼装 DTO。
-    private var linkedSnapshot: LinkedScoreboardSnapshot { store.snapshot }
-
-    private func publishLinkedIfNeeded() {
-        guard linkedSessionId != nil, linkService.canEditLinkedMatch else { return }
-        linkService.publishSnapshot(
-            .football(state),
-            detailedActions: store.actionLog.detailedActions,
-            participantNames: [leftName, rightName]
-        )
+    private var presentsFinishOverlay: Bool {
+        if linkedSessionId != nil { return store.isPendingLinkedFinish || store.isLinkedFinishConfirmed }
+        return showFinishedOverlay
     }
 
-    private func applyLinkedState(_ remote: FootballMatchState) {
+    private var canStartLinkedNextMatch: Bool {
+        guard let linkedHandle, hasCurrentLinkedMatch, linkService.canEditLinkedMatch,
+              store.isLinkedFinishConfirmed, store.savedRecordID != nil else { return false }
+        return !linkService.intentSync.hasPendingOperations(for: linkedHandle)
+    }
+
+    private var linkedSyncLabel: String {
+        NSLocalizedString("linked_score_resync", value: "Sync score", comment: "")
+    }
+
+    private var linkedFinishSyncButton: some View {
+        Button(action: syncLinkedScores) {
+            Image(systemName: "arrow.clockwise")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .padding(.trailing, 6)
+        .accessibilityLabel(linkedSyncLabel)
+        .accessibilityIdentifier("watch_football_sync_scores")
+    }
+
+    private func syncLinkedScores() {
+        guard hasCurrentLinkedMatch else { return }
+        linkService.syncLinkedScores()
+    }
+
+    private func applyLinkedIntentUpdate(_ update: WatchLinkedIntentUpdate?) {
+        guard let linkedSessionId, let update, update.handle.sessionId == linkedSessionId,
+              update.handle == linkService.activeHandle, linkService.activeGameType == gameType,
+              update.displayedSnapshot.footballState?.isFiveAside == isFiveAside else { return }
+        if let linkedHandle {
+            guard update.handle == linkedHandle else { return }
+            guard store.applyLinkedIntentUpdate(update)
+                    || store.linkedIntentUpdate?.presentationSequence == update.presentationSequence else { return }
+        } else {
+            linkedHandle = update.handle
+            store.attachLinkedMatch(update.handle, sync: linkService.intentSync, intent: LinkedScoreboardIntent.football) {
+                $0.footballState
+            }
+        }
+        clockNowMilliseconds = Self.nowMilliseconds()
+        if store.isPendingLinkedFinish || store.isLinkedFinishConfirmed {
+            cancelPendingGoal()
+            showMenu = false
+            showStoppagePanel = false
+            showPostRegulationPanel = false
+            confirmation = nil
+        }
+        if store.savedRecordID != nil, resumeStore.session?.linkHandle == update.handle {
+            resumeStore.clear()
+        } else {
+            persistResumeSession()
+        }
+    }
+
+    private func cancelPendingGoal() {
         pendingGoal?.task.cancel()
         pendingGoal = nil
-        store.rebase(to: remote, status: remote.finished ? .finished : .live)
-        clockNowMilliseconds = Self.nowMilliseconds()
-        showStoppagePanel = false
-        showPostRegulationPanel = false
-        confirmation = nil
-        if remote.finished {
-            showFinishedOverlay = true
-            finishUndoAvailable = false
-            finishTask?.cancel()
-        } else {
-            showFinishedOverlay = false
-            didSaveRecord = false
-        }
     }
 
     private func kickOff() {
@@ -844,7 +889,6 @@ struct WatchFootballScoreView: View {
         clockNowMilliseconds = Self.nowMilliseconds()
         WatchHaptics.shared.play(.medium)
         persistResumeSession()
-        publishLinkedIfNeeded()
     }
 
     private func toggleClock() {
@@ -857,7 +901,6 @@ struct WatchFootballScoreView: View {
         clockNowMilliseconds = Self.nowMilliseconds()
         WatchHaptics.shared.play(.light)
         persistResumeSession()
-        publishLinkedIfNeeded()
     }
 
     private func handleClockTap() {
@@ -884,7 +927,6 @@ struct WatchFootballScoreView: View {
         clockNowMilliseconds = Self.nowMilliseconds()
         WatchHaptics.shared.play(.strong)
         persistResumeSession()
-        publishLinkedIfNeeded()
     }
 
     private func addStoppage(_ seconds: Int) {
@@ -892,7 +934,6 @@ struct WatchFootballScoreView: View {
         guard case .accepted(_, _) = store.dispatch(.addStoppage(seconds: seconds)) else { return }
         clockNowMilliseconds = Self.nowMilliseconds()
         persistResumeSession()
-        publishLinkedIfNeeded()
     }
 
     private func undoLastStoppage() {
@@ -900,7 +941,6 @@ struct WatchFootballScoreView: View {
         guard case .accepted(_, _) = store.dispatch(.undoLastStoppage) else { return }
         clockNowMilliseconds = Self.nowMilliseconds()
         persistResumeSession()
-        publishLinkedIfNeeded()
     }
 
     /// 1 秒只读刷新：只推进显示锚点，不写状态、不入撤销栈、不发联动帧。
@@ -919,10 +959,13 @@ struct WatchFootballScoreView: View {
     private func finishMatch() {
         guard !isFinished, !scoringLocked else { return }
         flushPendingGoal()
+        if linkedSessionId != nil {
+            if store.requestLinkedFinish() { applyLinkedIntentUpdate(linkService.intentSync.update) }
+            return
+        }
         finishTask?.cancel()
         guard case .accepted(_, _) = store.dispatch(.finish) else { return }
         clockNowMilliseconds = Self.nowMilliseconds()
-        publishLinkedIfNeeded()
         finishUndoAvailable = store.canUndo
         showFinishedOverlay = true
         finishTask = Task { @MainActor in
@@ -935,26 +978,11 @@ struct WatchFootballScoreView: View {
 
     @discardableResult
     private func finalizeFinish() -> Bool {
+        // The linked coordinator writes the confirmed record under the match ID.
+        guard linkedSessionId == nil else { return true }
         guard isFinished, store.savedRecordID == nil, !didSaveRecord, !scoringLocked else { return true }
         finishUndoAvailable = false
-        let saved: Bool
-        if linkedSessionId != nil {
-            let winner: MatchSide? = leftScore == rightScore ? nil : (leftScore > rightScore ? .left : .right)
-            saved = linkService.publishMatchFinished(
-                snapshot: .football(state),
-                recordId: recordID,
-                winnerSide: winner,
-                manualEnd: true,
-                startTime: matchStartTime,
-                endTime: Date(),
-                totalScoreChanges: store.actionLog.scoreChangeCount,
-                detailedActions: store.actionLog.detailedActions,
-                participantNames: [leftName, rightName]
-            )
-            } else {
-            saved = saveRecordIfNeeded()
-        }
-        guard saved else {
+        guard saveRecordIfNeeded() else {
             showRecordSaveFailure = true
             return false
         }
@@ -985,6 +1013,13 @@ struct WatchFootballScoreView: View {
 
     private func undo() {
         guard !scoringLocked, !isFinished || finishUndoAvailable else { return }
+        if linkedSessionId != nil {
+            guard let target = store.linkedIntentUpdate?.latestUndoableOperationId,
+                  store.undoLinked(targetOpId: target) else { return }
+            undoToastToken = UUID()
+            applyLinkedIntentUpdate(linkService.intentSync.update)
+            return
+        }
         finishTask?.cancel()
         guard store.undo() else { return }
         clockNowMilliseconds = Self.nowMilliseconds()
@@ -999,10 +1034,14 @@ struct WatchFootballScoreView: View {
         finishUndoAvailable = false
         undoToastToken = UUID()
         persistResumeSession()
-        publishLinkedIfNeeded()
     }
 
     private func restartMatch() {
+        if linkedSessionId != nil {
+            guard canStartLinkedNextMatch else { return }
+            _ = store.requestLinkedNextMatch()
+            return
+        }
         guard !scoringLocked else { return }
         guard !isFinished || finalizeFinish() else { return }
         finishTask?.cancel()
@@ -1021,22 +1060,27 @@ struct WatchFootballScoreView: View {
         showFinishedOverlay = false
         finishUndoAvailable = false
         persistResumeSession()
-        if linkedSessionId != nil {
-            linkService.startNextMatch(
-                snapshot: .football(state),
-                participantNames: [leftName, rightName]
-            )
-        }
     }
 
     private func exitBoard() {
-        if let linkedSessionId { linkService.exitScoreboard(sessionId: linkedSessionId) }
-        persistResumeSession()
+        if hasCurrentLinkedMatch, let linkedHandle {
+            if !scoringLocked { flushPendingGoal() }
+            persistResumeSession()
+            linkService.exitScoreboard(sessionId: linkedHandle.sessionId)
+        } else if linkedSessionId == nil {
+            persistResumeSession()
+        }
         dismiss()
     }
 
     /// 续玩草稿统一走标准 bundle：状态、撤销帧与时间线一次性持久化。
     private func persistResumeSession() {
+        if linkedSessionId != nil {
+            guard hasCurrentLinkedMatch, let linkedHandle, let context = linkService.resumeContext,
+                  context.handle == linkedHandle, !store.isPendingLinkedFinish, !store.isLinkedFinishConfirmed else { return }
+            _ = store.persistResumeSession(into: resumeStore, link: context, startedAt: store.startedAt)
+            return
+        }
         guard !isFinished else {
             if store.savedRecordID != nil { resumeStore.clear() }
             return
@@ -1051,7 +1095,6 @@ struct WatchFootballScoreView: View {
         }
         _ = store.persistResumeSession(
             into: resumeStore,
-            link: linkService.resumeContext,
             startedAt: matchStartTime,
             payload: .football(isFiveAside: isFiveAside, bundle: store.resumeBundle())
         )
@@ -1068,7 +1111,7 @@ struct WatchFootballScoreView: View {
             && !showStoppagePanel
             && !showPostRegulationPanel
             && confirmation == nil
-            && !showFinishedOverlay
+            && !presentsFinishOverlay
     }
 
     private var menuGesturesEnabled: Bool {
@@ -1077,6 +1120,6 @@ struct WatchFootballScoreView: View {
             && !showStoppagePanel
             && !showPostRegulationPanel
             && confirmation == nil
-            && !showFinishedOverlay
+            && !presentsFinishOverlay
     }
 }

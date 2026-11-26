@@ -136,6 +136,7 @@ public enum LinkOperationOutcome: String, Codable, Equatable, Sendable {
 /// Stable wire codes. Presentation and diagnostics can map these to localized copy.
 public enum LinkOperationRejectionReason: String, Codable, Sendable {
     case matchFinished
+    case sessionInactive
     case invalidBaseRevision
     case reducerRejected
     case intentFamilyMismatch

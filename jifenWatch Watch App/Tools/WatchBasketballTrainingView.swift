@@ -1,13 +1,14 @@
 import LinkCore
+import LinkSync
 import ScoreCore
 import SessionCore
 import RecordCore
 import SwiftUI
 
 struct WatchBasketballTrainingView: View {
-    private enum PendingFinish {
-        case standalone
-        case linked(LinkedMatchHandle)
+    private struct PendingFinish {
+        let endTime: Date
+        let recordID: String
     }
 
     @Environment(\.dismiss) private var dismiss
@@ -74,6 +75,9 @@ struct WatchBasketballTrainingView: View {
     private var earlierCounts: ShotTrainingCounts { store.state.earlierCounts }
     private var startTime: Date { store.state.startTime }
     private var savedRecordID: String? { store.savedRecordID }
+    private var showsFinishOverlay: Bool {
+        showEndDialog || (linkedSessionId != nil && (store.isPendingLinkedFinish || store.isLinkedFinishConfirmed))
+    }
 
     var body: some View {
         ZStack {
@@ -82,9 +86,7 @@ struct WatchBasketballTrainingView: View {
             if showMenu {
                 trainingMenuOverlay
             }
-            if showEndDialog {
-                endOverlay
-            }
+            if showsFinishOverlay { endOverlay }
             if showFreeGuide {
                 freeGuideOverlay
             }
@@ -121,7 +123,7 @@ struct WatchBasketballTrainingView: View {
         .ignoresSafeArea()
         .watchScoreboardGestures(
             suppressTapAfterLongPress: $suppressTapAfterLongPress,
-            enabled: !showMenu && !showEndDialog && confirmation == nil,
+            enabled: !showMenu && !showsFinishOverlay && confirmation == nil,
             onMenu: { showMenu = true },
             onUndo: undo,
             onExit: exitBoard
@@ -132,10 +134,6 @@ struct WatchBasketballTrainingView: View {
             retry: finishTraining
         )
         .onAppear {
-            if isLinked,
-               let state = linkService.resumeContext?.latestAuthoritativeSnapshot?.basketballTrainingState {
-                applyLinkedState(state)
-            }
             scoreboardLayout = WatchPreferences.shared.scoreboardLayout
             if mode == .free {
                 showFreeGuide = true
@@ -155,71 +153,69 @@ struct WatchBasketballTrainingView: View {
         .onDisappear {
             persistResumeSession()
         }
-        .onChange(of: linkService.incomingSnapshot, initial: true) { _, update in
-            guard isLinked, let update, update.sessionId == linkedSessionId,
-                  let state = update.snapshot.basketballTrainingState else { return }
-            applyLinkedState(state)
-        }
-        .onChange(of: linkService.publishedFinishedMatchIds) { _, _ in
-            applyRecoveredLinkedFinish()
+        .onChange(of: linkService.intentSync.update, initial: true) { _, update in
+            applyLinkedUpdate(update)
         }
     }
 
-    private var isLinked: Bool {
-        linkedSessionId != nil && linkedSessionId == linkService.activeSessionId
+    private var linkedHandle: LinkedMatchHandle? {
+        guard let linkedSessionId, let handle = linkService.activeHandle, handle.sessionId == linkedSessionId else { return nil }
+        return handle
+    }
+
+    private var linkedRecordSaved: Bool {
+        guard let handle = linkedHandle, store.linkedIntentUpdate?.handle == handle else { return false }
+        return store.isLinkedFinishConfirmed && savedRecordID == "w_\(handle.matchId.uuidString)"
     }
 
     private var scoringLocked: Bool {
-        linkedSessionId != nil && (!isLinked || !linkService.canEditLinkedMatch)
+        guard linkedSessionId != nil else { return false }
+        guard let handle = linkedHandle, store.linkedIntentUpdate?.handle == handle else { return true }
+        return !linkService.canEditLinkedMatch || store.isPendingLinkedFinish
     }
 
-    /// 联动快照直接是 `ShotTrainingState`：出手历史、earlierCounts 折叠与完赛标记
-    /// 都在 Reducer State 里，无需另造 DTO。
-    private func linkedSnapshot() -> LinkedScoreboardSnapshot {
-        .basketballTraining(store.state)
-    }
-
-    private func applyLinkedState(_ state: ShotTrainingState) {
-        store.rebase(to: state, status: state.finished ? .finished : .live)
-        showEndDialog = state.finished
-        if state.finished, let handle = linkService.activeHandle {
-            store.markRecordSaved("w_\(handle.matchId.uuidString)")
+    private func applyLinkedUpdate(_ update: WatchLinkedIntentUpdate?) {
+        guard let handle = linkedHandle, let update, update.handle == handle,
+              case .basketballTraining(let state) = update.displayedSnapshot else { return }
+        let previous = store.state
+        if store.linkedIntentUpdate?.handle != handle {
+            if store.isUsingLinkedIntents {
+                let descriptor = ScoreboardKernelRegistry.descriptor(for: .basketballTraining)
+                let startedAt = Date(timeIntervalSince1970: Double(update.startEpochMilliseconds) / 1_000)
+                let seed = ScoreSession<ShotTrainingState, ShotTrainingEvent>(
+                    gameType: .basketballTraining, ruleFamily: descriptor.ruleFamily,
+                    reducerType: descriptor.reducerType, state: state,
+                    status: state.finished ? .finished : .live
+                )
+                store = WatchReducerSessionStore(
+                    seedSession: seed, reducer: ShotTrainingReducer(),
+                    binding: WatchBoardBindings.shotTraining(mode: state.mode),
+                    actionLog: WatchScoreActionLog(startedAt: startedAt), startedAt: startedAt
+                )
+            }
+            store.attachLinkedMatch(handle, sync: linkService.intentSync, intent: LinkedScoreboardIntent.shotTraining) {
+                if case .basketballTraining(let state) = $0 { return state }
+                return nil
+            }
+            recentShotID = nil
+        } else if !store.applyLinkedIntentUpdate(update) {
+            return
         }
-        confirmation = nil
-        recentShotID = nil
+        if previous != state || showsFinishOverlay {
+            confirmation = nil
+            showMenu = false
+            showFreeGuide = false
+            recentShotID = nil
+        }
         persistResumeSession()
     }
 
-    private func publishLinkedTraining() {
-        guard isLinked, linkService.canEditLinkedMatch else { return }
-        linkService.publishSnapshot(linkedSnapshot())
-    }
-
-    /// 保存失败后取消：清掉待完成标记与失败提示，棋盘继续可计分/可重试。
     private func cancelFinishTraining() {
-        applyRecoveredLinkedFinish()
-        switch pendingFinish {
-        case .linked(let handle):
-            linkService.cancelPendingTrainingFinish(handle: handle)
-        case .standalone:
-            resumeStore.cancelPendingTrainingFinish(startedAt: startTime)
-        case nil:
-            break
-        }
+        guard linkedSessionId == nil, pendingFinish != nil else { return }
+        resumeStore.cancelPendingTrainingFinish(startedAt: startTime)
         pendingFinish = nil
         showRecordSaveFailure = false
-        showEndDialog = false
-        store.clearSavedRecord()
         persistResumeSession()
-    }
-
-    private func applyRecoveredLinkedFinish() {
-        guard isLinked, case .linked(let handle) = pendingFinish, handle == linkService.activeHandle,
-              linkService.publishedFinishedMatchIds.contains(handle.matchId),
-              let state = linkService.latestSnapshot?.snapshot.basketballTrainingState, state.finished else { return }
-        pendingFinish = nil
-        showRecordSaveFailure = false
-        applyLinkedState(state)
     }
 
     private func exitBoard() {
@@ -262,7 +258,22 @@ struct WatchBasketballTrainingView: View {
                     ) {
                         guard !scoringLocked else { return }
                         showMenu = false
-                        confirmation = .reset
+                        if linkedSessionId == nil {
+                            confirmation = .reset
+                        } else {
+                            showToast(NSLocalizedString(
+                                "linked_score_reset_unavailable", value: "联动计分期间请先结束本场，再开始新一局。", comment: ""
+                            ))
+                        }
+                    }
+                }
+                if linkedHandle != nil {
+                    WatchMenuGridButton(
+                        title: NSLocalizedString("linked_score_resync", value: "Sync score", comment: ""),
+                        systemImage: "arrow.clockwise"
+                    ) {
+                        showMenu = false
+                        linkService.syncLinkedScores()
                     }
                 }
                 WatchMenuGridButton(
@@ -323,7 +334,7 @@ struct WatchBasketballTrainingView: View {
             .frame(width: fullWidth, height: fullHeight)
             .offset(x: -proxy.safeAreaInsets.leading, y: -proxy.safeAreaInsets.top)
             .overlay(alignment: scoreboardLayout == "vertical" ? .topLeading : .top) {
-                if !showMenu && !showEndDialog {
+                if !showMenu && !showsFinishOverlay {
                     Text(
                         String.localizedStringWithFormat(
                             NSLocalizedString("watch_training_point_value", value: "%d分", comment: ""),
@@ -347,7 +358,7 @@ struct WatchBasketballTrainingView: View {
                 }
             }
             .overlay(alignment: .bottom) {
-                if !scoringLocked && !showMenu && !showEndDialog && confirmation == nil {
+                if !scoringLocked && !showMenu && !showsFinishOverlay && confirmation == nil {
                     Button {
                         WatchHaptics.shared.play(.light)
                         confirmation = .finish
@@ -433,7 +444,7 @@ struct WatchBasketballTrainingView: View {
             points
         )
         return Button {
-            guard !showMenu, !showEndDialog, confirmation == nil,
+            guard !showMenu, !showsFinishOverlay, confirmation == nil,
                   !suppressTapAfterLongPress else { return }
             addShot(points: points, made: made)
         } label: {
@@ -476,9 +487,12 @@ struct WatchBasketballTrainingView: View {
         let compact = WatchLayout.isCompactScreen
         return WatchFullScreenOverlay(scrim: Color.black.opacity(0.76)) { _, _ in
             VStack(spacing: compact ? 5 : 8) {
-                Text(NSLocalizedString("watch_bb_hit_rate", value: "命中率", comment: ""))
+                Text(store.isPendingLinkedFinish
+                    ? NSLocalizedString("linked_score_pending_finish", value: "Waiting for sync", comment: "")
+                    : NSLocalizedString("watch_bb_hit_rate", value: "命中率", comment: ""))
                     .font(.system(size: compact ? 12 : 14))
                     .foregroundStyle(WatchTheme.secondaryText)
+                    .accessibilityIdentifier(store.isPendingLinkedFinish ? "linked_score_pending_finish" : "watch_training_hit_rate")
                 Text(hitRateText)
                     .font(WatchScoreTypography.secondaryScore(
                         size: compact ? 17 : 19,
@@ -504,21 +518,27 @@ struct WatchBasketballTrainingView: View {
                     }
                 }
                 VStack(spacing: compact ? 6 : 8) {
-                    Button {
-                        restartAfterFinish()
-                    } label: {
-                        Text(NSLocalizedString("watch_bb_restart", value: "再来一次", comment: ""))
-                            .font(.system(size: compact ? 13 : 15, weight: .semibold))
-                            .foregroundStyle(.white)
-                            .frame(
-                                width: WatchLayout.overlayActionButtonWidth,
-                                height: compact ? 34 : 38
-                            )
+                    if linkedSessionId == nil || linkedRecordSaved {
+                        Button {
+                            restartAfterFinish()
+                        } label: {
+                            Text(NSLocalizedString("watch_bb_restart", value: "再来一次", comment: ""))
+                                .font(.system(size: compact ? 13 : 15, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(width: WatchLayout.overlayActionButtonWidth, height: compact ? 34 : 38)
+                        }
+                        .buttonStyle(.plain)
+                        .background(WatchTheme.successGreen)
+                        .clipShape(Capsule())
+                        .disabled(scoringLocked)
+                    } else if linkedHandle != nil {
+                        WatchMenuGridButton(
+                            title: NSLocalizedString("linked_score_resync", value: "Sync score", comment: ""),
+                            systemImage: "arrow.clockwise"
+                        ) {
+                            linkService.syncLinkedScores()
+                        }
                     }
-                    .buttonStyle(.plain)
-                    .background(WatchTheme.successGreen)
-                    .clipShape(Capsule())
-                    .disabled(scoringLocked)
                     Button {
                         exitBoard()
                     } label: {
@@ -562,9 +582,8 @@ struct WatchBasketballTrainingView: View {
     }
 
     private func addShot(points: Int, made: Bool) {
-        guard !scoringLocked, pendingFinish == nil, !showEndDialog, savedRecordID == nil else { return }
+        guard !scoringLocked, pendingFinish == nil, !showsFinishOverlay, savedRecordID == nil else { return }
         guard case .accepted(_, _) = store.dispatch(.recordShot(points: points, made: made)) else { return }
-        publishLinkedTraining()
         let shotID = store.state.shots.last?.id
         recentShotID = shotID
         WatchHaptics.shared.play(made ? .score : .strong)
@@ -578,34 +597,37 @@ struct WatchBasketballTrainingView: View {
     }
 
     private func undo() {
-        guard !scoringLocked, pendingFinish == nil, !showEndDialog, savedRecordID == nil else { return }
-        guard case .accepted(_, _) = store.dispatch(.undoLastShot) else { return }
-        publishLinkedTraining()
+        guard !scoringLocked, pendingFinish == nil, !showsFinishOverlay, savedRecordID == nil else { return }
+        if linkedSessionId != nil {
+            guard store.undo() else { return }
+        } else {
+            guard case .accepted(_, _) = store.dispatch(.undoLastShot) else { return }
+        }
         recentShotID = nil
         WatchHaptics.shared.play(.undo)
         showToast(NSLocalizedString("watch_undo_toast", value: "已撤销", comment: ""))
     }
 
     private func reset() {
-        guard !scoringLocked, pendingFinish == nil, !showEndDialog else { return }
+        guard linkedSessionId == nil, !scoringLocked, pendingFinish == nil, !showsFinishOverlay else { return }
         resumeStore.clear()
         store.clearSavedRecord()
         guard case .accepted(_, _) = store.dispatch(.reset) else { return }
         recentShotID = nil
-        publishLinkedTraining()
     }
 
     private func restartAfterFinish() {
         guard !scoringLocked else { return }
+        if linkedSessionId != nil {
+            if linkedRecordSaved { store.requestLinkedNextMatch() }
+            return
+        }
         resumeStore.clear()
         store.clearSavedRecord()
         guard case .accepted(_, _) = store.dispatch(.reset) else { return }
         store.beginRemoteMatch(at: Date())
         recentShotID = nil
         showEndDialog = false
-        if isLinked {
-            linkService.startNextMatch(snapshot: linkedSnapshot())
-        }
     }
 
     private func showToast(_ text: String) {
@@ -623,34 +645,27 @@ struct WatchBasketballTrainingView: View {
             showEndDialog = true
             return
         }
-        let endTime = Date()
-        guard case .accepted(_, _) = store.dispatch(.finish, at: endTime) else {
-            showEndDialog = true
+        if linkedSessionId != nil {
+            store.requestLinkedFinish()
+            persistResumeSession()
             return
         }
-        if isLinked {
-            guard linkService.canEditLinkedMatch, let handle = linkService.activeHandle else { return }
-            pendingFinish = .linked(handle)
-            let recordID = "w_\(handle.matchId.uuidString)"
-            guard linkService.publishMatchFinished(
-                snapshot: linkedSnapshot(),
-                recordId: recordID,
-                winnerSide: nil,
-                manualEnd: true,
-                startTime: startTime,
-                endTime: endTime,
-                totalScoreChanges: totalAttempts
-            ) else {
-                showRecordSaveFailure = true
-                return
-            }
+
+        // Keep the live reducer state until the standalone record is saved.
+        // The same record and finish time are reused when a write is retried.
+        let finish = pendingFinish ?? PendingFinish(
+            endTime: Date(),
+            recordID: "watch-basketballTraining-\(UUID().uuidString)"
+        )
+        pendingFinish = finish
+        let endTime = finish.endTime
+        let candidate = ShotTrainingReducer().reduce(
+            state: store.state, intent: .finish, at: epochMilliseconds(endTime)
+        )
+        guard candidate.accepted else {
             pendingFinish = nil
-            store.markRecordSaved(recordID)
-            showEndDialog = true
-            resumeStore.clear()
             return
         }
-        pendingFinish = .standalone
         let modeName = mode.fixedPoints.map(String.init) ?? "free"
         var misses = store.state.earlierCounts.missed
         var made = store.state.earlierCounts.made
@@ -692,7 +707,6 @@ struct WatchBasketballTrainingView: View {
                 summary: "training_rate_\(percentage)"
             )
         )
-        let recordID = "watch-basketballTraining-\(UUID().uuidString)"
         var projectConfiguration = [
             "type": "basketball_training",
             "gameMode": mode.fixedPoints.map { "\($0)pt" } ?? "free",
@@ -704,9 +718,9 @@ struct WatchBasketballTrainingView: View {
             projectConfiguration["targetScore"] = String(fixedPoints)
         }
         guard let record = WatchScoreboardRecord(
-            localSnapshot: linkedSnapshot(),
+            localSnapshot: .basketballTraining(candidate.state),
             gameType: .basketballTraining,
-            id: recordID,
+            id: finish.recordID,
             startTime: startTime,
             endTime: endTime,
             participantNames: [
@@ -722,23 +736,29 @@ struct WatchBasketballTrainingView: View {
         }
         resumeStore.clear()
         pendingFinish = nil
-        store.markRecordSaved(recordID)
+        _ = store.dispatch(.finish, at: endTime)
+        store.markRecordSaved(finish.recordID)
         showEndDialog = true
     }
 
     /// 续玩统一走标准 bundle：出手历史与 earlierCounts 折叠都在 Reducer State 里。
     private func persistResumeSession() {
-        guard linkedSessionId == nil || isLinked else { return }
+        if linkedSessionId != nil {
+            guard let handle = linkedHandle, store.linkedIntentUpdate?.handle == handle,
+                  let context = linkService.resumeContext, context.handle == handle else { return }
+            if linkedRecordSaved {
+                if resumeStore.session?.linkHandle == handle { resumeStore.clear() }
+                return
+            }
+            guard totalAttempts > 0 || store.isPendingLinkedFinish || store.isLinkedFinishConfirmed else { return }
+            store.persistResumeSession(into: resumeStore, link: context, startedAt: startTime)
+            return
+        }
         guard !showEndDialog, savedRecordID == nil, totalAttempts > 0 else {
             resumeStore.clear()
             return
         }
-        _ = store.persistResumeSession(
-            into: resumeStore,
-            link: isLinked ? linkService.resumeContext : nil,
-            startedAt: startTime,
-            payload: .basketballTraining(bundle: store.resumeBundle())
-        )
+        store.persistResumeSession(into: resumeStore, startedAt: startTime)
     }
 
     private func epochMilliseconds(_ date: Date) -> Int64 {

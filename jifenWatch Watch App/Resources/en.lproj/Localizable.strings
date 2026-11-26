@@ -420,3 +420,8 @@
 
 "watch_phone_shared_link_intro" = "Start on your phone and score on either device.";
 "linked_score_simultaneous_edit" = "Both devices made changes. Check the score.";
+"linked_score_pending_finish" = "Waiting for sync";
+"linked_score_resync" = "Sync score";
+"linked_score_end" = "End link";
+"linked_score_excluded_operations" = "%d offline scores excluded";
+"linked_score_reconnect_to_continue" = "Reconnect to your iPhone to continue scoring.";

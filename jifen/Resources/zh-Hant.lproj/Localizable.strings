@@ -2844,6 +2844,8 @@
 
 "linked_score_shared_mode" = "雙端計分";
 "linked_score_shared_start_guide_message" = "點手錶按鈕發起連動。手錶確認後，兩端都可以計分。";
+"linked_score_rename_unavailable" = "請在結束聯動後修改選手名稱。";
+"linked_score_reset_unavailable" = "聯動計分期間請先結束本場，再開始新一局。";
 "watch_sync_shared_usage_step_2" = "傳送到手錶，手錶確認後，兩端都可以計分。";
 "watch_sync_shared_usage_step_3" = "兩端即時同步比分，結束後手機會儲存紀錄。";
 "linked_score_simultaneous_edit" = "兩端剛剛都改了比分，請核對";

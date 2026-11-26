@@ -5,15 +5,10 @@ import RecordCore
 import ScoreCore
 
 extension WatchLinkService {
-    /// 单条记录超 64KB 时按最旧动作减半裁剪：WCSession 超限会直接抛原生异常，
-    /// 裁剪后投递优先；记录的 actions 摘要列表保持不变，仅 detailedActions 尾部丢失。
-    /// Reliable-channel file from the phone: currently only terminal
-    /// matchFinished frames travel phone → watch. The compressed-frame magic
-    /// probe covers frames whose metadata was lost.
+    /// Large intent commits and repair checkpoints use the same receive route.
     func handleReceivedFile(_ data: Data, metadata: [String: Any]) {
         let kind = metadata[WatchConnectivityTransport.transferFileKindKey] as? String
-        guard kind == nil || kind == WatchTransferFileKind.matchFinished.rawValue
-            || LinkFinishedEncoding.isCompressedFrame(data) else { return }
+        guard kind == nil || kind == WatchTransferFileKind.intentFrame.rawValue else { return }
         receive(data)
     }
 

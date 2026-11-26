@@ -13,6 +13,7 @@ struct WatchRootView: View {
     @State private var linkedSetup: LinkedScoreboardSetup?
     @State private var linkedSessionId: UUID?
     @State private var confirmDeadline: Date?
+    @State private var excludedOperationsNotice: Int?
     // Regenerated on every scoreboard launch. Applied as `.id(...)` to the pushed
     // destination so SwiftUI rebuilds the board (and its session store) from the
     // freshly received Setup instead of reusing a previously-mounted board's
@@ -37,20 +38,20 @@ struct WatchRootView: View {
         }
         .accentColor(WatchTheme.accent)
         .overlay(alignment: .bottom) {
-            if scoreboardRoute != nil, let linkedSessionId,
-               linkService.activeSessionId == linkedSessionId,
-               let notice = linkService.simultaneousEditNotice {
-                WatchToastView(message: NSLocalizedString(
-                    "linked_score_simultaneous_edit", value: "Both devices made changes. Check the score.", comment: ""
+            if let count = excludedOperationsNotice {
+                WatchToastView(message: String(
+                    format: NSLocalizedString(
+                        "linked_score_excluded_operations",
+                        value: "%d offline scores excluded",
+                        comment: "Count of offline score operations excluded from the finished match"
+                    ), count
                 ))
                 .padding(.bottom, 8)
-                .accessibilityIdentifier("linked_score_simultaneous_edit")
+                .accessibilityIdentifier("linked_score_excluded_operations")
                 .allowsHitTesting(false)
-                .task(id: notice) {
-                    do { try await Task.sleep(for: .seconds(2)) } catch { return }
-                    if linkService.simultaneousEditNotice == notice {
-                        linkService.simultaneousEditNotice = nil
-                    }
+                .task(id: count) {
+                    do { try await Task.sleep(for: .seconds(4)) } catch { return }
+                    if excludedOperationsNotice == count { excludedOperationsNotice = nil }
                 }
             }
         }
@@ -103,21 +104,15 @@ struct WatchRootView: View {
             }
         }
         .onChange(of: linkService.acceptedSetup) { _, request in
-            guard let request, let route = WatchScoreboardRoute(linkedSetup: request.setup) else { return }
-            // A pending resume session may still hold a stale team names bundle
-            // (e.g. from a previously linked match). Drop only the local resume
-            // cache here; linkService already holds the new context
-            // (acceptPendingSetup → persistContext), so do NOT call
-            // discardResumableSession/leaveSession — those would corrupt the
-            // new session's control role. The regenerated scoreboardLaunchID
-            // guarantees the board is rebuilt fresh from the received Setup.
-            resumeStore.clear()
-            activeResumeSession = nil
-            linkedSetup = request.setup
-            linkedSessionId = request.sessionId
-            scoreboardLaunchID = UUID()
-            scoreboardRoute = route
+            guard let request, request.handle == linkService.activeHandle else { return }
+            openLinkedBoard(setup: request.setup, handle: request.handle)
             linkService.clearAcceptedSetup()
+        }
+        .onChange(of: linkService.intentSync.update) { previous, update in
+            noticeExcludedOperations(previous: previous, update: update)
+        }
+        .onChange(of: linkService.intentSync.retiredFinishUpdate) { previous, update in
+            noticeExcludedOperations(previous: previous, update: update)
         }
         .onChange(of: linkService.activeSessionId) { _, sessionId in
             if sessionId == nil, linkedSessionId != nil {
@@ -142,7 +137,7 @@ struct WatchRootView: View {
         }
         .onAppear {
             resumeStore.retryPendingFinishedRecords()
-            restoreStoredLinkContextIfNeeded()
+            restoreLinkedBoardIfNeeded()
         }
     }
 
@@ -154,36 +149,16 @@ struct WatchRootView: View {
             return
         }
 
-        // 联动草稿只带 handle 引用：会话身份、revision 与权威快照一律来自
-        // link/ 上下文。上下文缺失、损坏、错场或已完赛时不复活联动，也不把
-        // 草稿当成独立比赛开启，直接回首页。
-        if currentSession.linkHandle != nil {
-            let live = linkService.resumeContext
-            guard let context = resumeStore.linkContextForResume(live ?? linkService.storedLinkContext),
-                  !context.completedMatchIds.contains(context.handle.matchId),
-                  context.latestAuthoritativeSnapshot?.isFinished != true,
-                  live != nil || linkService.restoreSuspendedSession(context) else {
+        if let handle = currentSession.linkHandle {
+            guard handle == linkService.activeHandle, let setup = linkService.activeSetup else {
                 resumeStore.clear()
-                linkedSetup = nil
-                linkedSessionId = nil
-                scoreboardRoute = nil
                 return
             }
-            // 用服务的最新权威状态重建要展示的草稿，避免旧草稿或旧磁盘副本回退比分。
-            guard let snapshot = context.latestAuthoritativeSnapshot,
-                  resumeStore.applyLinkedSnapshot(snapshot, context: context) else {
-                resumeStore.clear()
-                linkedSetup = nil
-                linkedSessionId = nil
-                scoreboardRoute = nil
-                return
-            }
-            linkedSetup = context.setup
-            linkedSessionId = context.sessionId
-        } else {
-            linkedSetup = nil
-            linkedSessionId = nil
+            openLinkedBoard(setup: setup, handle: handle)
+            return
         }
+        linkedSetup = nil
+        linkedSessionId = nil
 
         guard let displaySession = resumeStore.session,
               let route = WatchScoreboardRoute(resumeSession: displaySession) else {
@@ -198,17 +173,36 @@ struct WatchRootView: View {
         scoreboardRoute = route
     }
 
-    private func restoreStoredLinkContextIfNeeded() {
-        // 已有活跃联动时只与它匹配，绝不拿旧磁盘上下文覆盖另一个 live handle；
-        // 只有完全没有 live 会话时才读存储。
-        let live = linkService.resumeContext
-        guard live == nil,
-              let context = resumeStore.linkContextForResume(linkService.storedLinkContext),
-              !context.completedMatchIds.contains(context.handle.matchId),
-              context.latestAuthoritativeSnapshot?.isFinished != true else { return }
-        guard linkService.restoreSuspendedSession(context) else { return }
-        linkedSetup = context.setup
-        linkedSessionId = context.sessionId
+    private func restoreLinkedBoardIfNeeded() {
+        guard scoreboardRoute == nil, let update = linkService.intentSync.update,
+              let setup = linkService.activeSetup, update.handle == linkService.activeHandle else { return }
+        let shouldReveal = resumeStore.session == nil || update.isPendingFinish
+            || (update.displayedSnapshot.isFinished && !update.confirmedSnapshot.isFinished)
+        if shouldReveal { openLinkedBoard(setup: setup, handle: update.handle) }
+    }
+
+    private func openLinkedBoard(setup: LinkedScoreboardSetup, handle: LinkedMatchHandle) {
+        guard let update = linkService.intentSync.update, update.handle == handle else { return }
+        let projected = LinkedScoreboardSetup(
+            gameType: setup.gameType, maxSets: setup.maxSets,
+            initialSnapshot: update.displayedSnapshot, detailedActions: update.detailedActions,
+            participantNames: setup.participantNames, capabilities: setup.capabilities
+        )
+        guard let route = WatchScoreboardRoute(linkedSetup: projected) else { return }
+        resumeStore.clear()
+        activeResumeSession = nil
+        linkedSetup = projected
+        linkedSessionId = handle.sessionId
+        scoreboardLaunchID = UUID()
+        scoreboardRoute = route
+    }
+
+    private func noticeExcludedOperations(previous: WatchLinkedIntentUpdate?, update: WatchLinkedIntentUpdate?) {
+        guard let update, update.confirmedSnapshot.isFinished,
+              update.excludedScoringOperationCount > 0,
+              previous?.handle != update.handle
+                  || previous?.excludedScoringOperationCount != update.excludedScoringOperationCount else { return }
+        excludedOperationsNotice = update.excludedScoringOperationCount
     }
 
     @ViewBuilder

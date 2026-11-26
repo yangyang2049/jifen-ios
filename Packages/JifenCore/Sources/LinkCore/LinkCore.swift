@@ -15,15 +15,16 @@ public enum LinkProtocol {
     public static let requiredCapabilities: Set<LinkCapability> = [
         .independentMatches,
         .correlatedRequests,
-        .durableTerminalQueue
+        .durableTerminalQueue,
+        .sharedIntentSync
     ]
 
     /// `applicationContext` common-names partition byte budget (see
     /// `CommonNamesSyncSnapshot.budgetConstrainedData`).
     public static let commonNamesContextBudgetBytes = 24_000
 
-    /// Everything this build understands. Handshakes intersect both sides so
-    /// older peers keep working and newer additions degrade gracefully.
+    /// Everything this build understands. Optional capabilities are enabled
+    /// only when advertised by both peers.
     public static let capabilities: Set<LinkCapability> = [
         .independentMatches,
         .correlatedRequests,
@@ -31,7 +32,8 @@ public enum LinkProtocol {
         .latestSnapshotContext,
         .compressedFinish,
         .deltaActions,
-        .fileTransfer
+        .fileTransfer,
+        .sharedIntentSync
     ]
 
     /// Open-subset handshake check: required capabilities must all be present,
@@ -61,6 +63,7 @@ public struct LinkCapability: RawRepresentable, Codable, Hashable, Sendable {
     public static let compressedFinish = Self(rawValue: "compressedFinish")
     public static let deltaActions = Self(rawValue: "deltaActions")
     public static let fileTransfer = Self(rawValue: "fileTransfer")
+    public static let sharedIntentSync = Self(rawValue: "sharedIntentSync")
 }
 
 public struct LinkedMatchHandle: Codable, Equatable, Hashable, Sendable {
@@ -92,52 +95,6 @@ public enum LinkPeer: String, Codable, Sendable {
     case watch
 }
 
-public struct LinkSharedEditTracker: Sendable {
-    private struct Edit: Sendable {
-        let handle: LinkedMatchHandle
-        let revision: UInt64
-        let baseRevision: UInt64
-        let sentAt: Int64
-    }
-
-    private var localEdit: Edit?
-    private var lastNoticedRevision: UInt64?
-
-    public init() {}
-
-    public mutating func recordLocalEdit(
-        handle: LinkedMatchHandle,
-        revision: UInt64,
-        baseRevision: UInt64,
-        sentAt: Int64
-    ) {
-        localEdit = Edit(handle: handle, revision: revision, baseRevision: baseRevision, sentAt: sentAt)
-        lastNoticedRevision = nil
-    }
-
-    public mutating func shouldShowNotice(
-        for envelope: LinkEnvelope<LinkedScoreboardSetup>,
-        now: Int64
-    ) -> Bool {
-        guard let localEdit, let baseRevision = envelope.baseSnapshotRevision,
-              localEdit.handle == envelope.handle,
-              envelope.sessionRevision > localEdit.baseRevision,
-              baseRevision < localEdit.revision,
-              lastNoticedRevision != localEdit.revision,
-              abs(Double(envelope.sentAtEpochMilliseconds) - Double(localEdit.sentAt)) <= 2_000,
-              abs(Double(now) - Double(envelope.sentAtEpochMilliseconds)) <= 2_000 else { return false }
-        lastNoticedRevision = localEdit.revision
-        return true
-    }
-}
-
-public enum LinkSharedRevision {
-    public static func writer(of revision: UInt64) -> LinkPeer? {
-        guard revision > 0 else { return nil }
-        return revision.isMultiple(of: 2) ? .watch : .phone
-    }
-}
-
 /// Manual score resync is bidirectional in a shared session: either device may
 /// ask the peer for a fresh full snapshot, and either device answers.
 public enum LinkManualResyncPolicy {
@@ -156,6 +113,9 @@ public enum LinkMessageKind: String, Codable, Sendable {
     case statusQuery
     case statusResponse
     case resyncRequest
+    case intentSubmit
+    case intentCommit
+    case intentCheckpoint
     case matchFinished
     case recordAcknowledgement
     case scoreboardExitedToHome
@@ -188,6 +148,7 @@ public struct LinkSetupRejectedPayload: Codable, Equatable, Sendable {
 public enum WatchTransferFileKind: String, Codable, Sendable {
     case watchRecord = "watch_record"
     case matchFinished = "match_finished"
+    case intentFrame = "intent_frame"
 }
 
 /// Linked snapshots carry the reducer state itself. Football therefore travels
@@ -1234,19 +1195,6 @@ public struct LinkSessionStateMachine: Codable, Equatable, Sendable {
         // 新一场比赛的 ACK 属于旧 matchId，不再等待。
         pendingAcknowledgementIds = []
         return handle
-    }
-
-    @discardableResult
-    public mutating func advanceRevision(sender: LinkPeer? = nil) -> UInt64 {
-        if let sender {
-            // Each edit advances the logical round. Same-round edits have a
-            // stable order on both peers without relying on device clocks.
-            let round = revision / 2 + revision % 2
-            revision = round * 2 + (sender == .phone ? 1 : 2)
-        } else {
-            revision += 1
-        }
-        return revision
     }
 
     public mutating func accept(

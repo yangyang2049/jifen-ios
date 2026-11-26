@@ -105,8 +105,6 @@ public struct PhoneHostSequencer<State: Sendable> {
             guard previous.op == op else { throw PhoneHostSequenceError.conflictingOperationID }
             return previous
         }
-        guard isActiveMatch || isFinished(checkpoint.state) else { throw PhoneHostSequenceError.wrongHandle }
-
         let lastClientSeq = origin == .phone ? checkpoint.phoneClientSeq : checkpoint.watchClientSeq
         guard op.clientSeq > lastClientSeq else { throw PhoneHostSequenceError.alreadyProcessedSequence }
         guard checkpoint.committedRevision < UInt64.max else { throw PhoneHostSequenceError.sequenceExhausted }
@@ -197,8 +195,11 @@ public struct PhoneHostSequencer<State: Sendable> {
         at time: Int64,
         isActiveMatch: Bool
     ) -> LinkIntentTransition<State> {
+        if !isActiveMatch {
+            return .rejected(isFinished(checkpoint.state) ? .matchFinished : .sessionInactive)
+        }
         if case .nextMatch(let matchId, let generation) = op.intent {
-            guard isActiveMatch, isFinished(checkpoint.state),
+            guard isFinished(checkpoint.state),
                   checkpoint.nextMatchHandle == nil, op.handle.matchId != matchId,
                   op.handle.matchGeneration < UInt64.max, generation == op.handle.matchGeneration + 1,
                   op.baseRevision <= checkpoint.committedRevision else {

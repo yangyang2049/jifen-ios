@@ -420,3 +420,8 @@
 
 "watch_phone_shared_link_intro" = "手机发起，两端都能计分";
 "linked_score_simultaneous_edit" = "两端刚刚都改了比分，请核对";
+"linked_score_pending_finish" = "待同步确认";
+"linked_score_resync" = "同步积分";
+"linked_score_end" = "结束联动";
+"linked_score_excluded_operations" = "有 %d 笔离线操作未纳入本场成绩";
+"linked_score_reconnect_to_continue" = "请重新连接 iPhone 后继续计分。";
