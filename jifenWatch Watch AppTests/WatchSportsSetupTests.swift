@@ -1636,9 +1636,12 @@ final class WatchSportsSetupTests: XCTestCase {
         let futsal = WatchSportsSetupDraft(sport: .football5v5, preferences: preferences)
         XCTAssertEqual(futsal.footballHalfLengthMinutes, 20)
 
-        XCTAssertEqual(WatchSportsSetupDraft.normalizedFootballHalfLengthMinutes(0), 5)
-        XCTAssertEqual(WatchSportsSetupDraft.normalizedFootballHalfLengthMinutes(44), 45)
+        // 1–90 任意分钟与手机同口径：只夹取边界，不再吸附到最近档位。
+        XCTAssertEqual(WatchSportsSetupDraft.normalizedFootballHalfLengthMinutes(0), 1)
+        XCTAssertEqual(WatchSportsSetupDraft.normalizedFootballHalfLengthMinutes(35), 35)
+        XCTAssertEqual(WatchSportsSetupDraft.normalizedFootballHalfLengthMinutes(44), 44)
         XCTAssertEqual(WatchSportsSetupDraft.normalizedFootballHalfLengthMinutes(120), 90)
+        XCTAssertEqual(WatchSportsSetupDraft.footballHalfLengthRange, 1...90)
 
         // The active value must stay visible in the horizontally scrolling chips.
         XCTAssertEqual(WatchSportsSetupDraft.footballHalfLengthOptions(for: .football).first, 45)
@@ -1661,6 +1664,14 @@ final class WatchSportsSetupTests: XCTestCase {
         let restored = WatchSportsSetupDraft(sport: .football5v5, preferences: preferences)
         XCTAssertEqual(restored.footballHalfLengthMinutes, 30)
         XCTAssertEqual(WatchScoreboardLaunchConfig(draft: restored).footballHalfLengthSeconds, 1800)
+
+        // 自定义输入的非档位分钟数也要原样保留，并进入开赛配置。
+        var custom = WatchSportsSetupDraft(sport: .football, preferences: preferences)
+        custom.footballHalfLengthMinutes = 35
+        custom.persistRules(to: preferences)
+        let customRestored = WatchSportsSetupDraft(sport: .football, preferences: preferences)
+        XCTAssertEqual(customRestored.footballHalfLengthMinutes, 35)
+        XCTAssertEqual(WatchScoreboardLaunchConfig(draft: customRestored).footballHalfLengthSeconds, 2100)
     }
 
     func testFootballLaunchConfigMapsClockStateAndGameType() throws {

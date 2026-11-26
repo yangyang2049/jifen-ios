@@ -107,7 +107,6 @@ struct WatchSportsSetupDraft: Hashable {
     var eightBallTargetRacks: Int
     var eightBallHandicapRacks: Int
     var eightBallHandicapBeneficiary: WatchEightBallHandicapBeneficiary
-    var snookerCustomFrames: String
     var footballHalfLengthMinutes: Int
     /// 桌上足球：决胜局净胜 2 分（对齐手机 foosballWinByTwo）。
     var foosballWinByTwo: Bool = false
@@ -132,7 +131,6 @@ struct WatchSportsSetupDraft: Hashable {
         eightBallTargetRacks = 5
         eightBallHandicapRacks = 0
         eightBallHandicapBeneficiary = .none
-        snookerCustomFrames = ""
         footballHalfLengthMinutes = sport.defaultFootballHalfLengthMinutes
         foosballWinByTwo = false
         foosballScoreCap = nil
@@ -241,7 +239,6 @@ struct WatchSportsSetupDraft: Hashable {
             maxSets = preferences.int(forKey: "watchSnookerSetupMaxSets", defaultValue: 1)
             if !(1...99).contains(maxSets) { maxSets = 1 }
             pointsPerSet = 0
-            snookerCustomFrames = Self.snookerFrameOptions.contains(maxSets) ? "" : String(maxSets)
         case .football, .football5v5:
             maxSets = 0
             pointsPerSet = 0
@@ -286,12 +283,13 @@ struct WatchSportsSetupDraft: Hashable {
         }
     }
 
+    /// 半场时长与手机同口径：1–90 任意分钟，不再吸附到最近档位
+    /// （35 分钟这类取值此前会被悄悄改成 30 或 45）。
     static func normalizedFootballHalfLengthMinutes(_ minutes: Int) -> Int {
-        let clamped = min(90, max(1, minutes))
-        return footballHalfLengthMinuteOptions.min {
-            abs($0 - clamped) < abs($1 - clamped)
-        } ?? clamped
+        min(90, max(1, minutes))
     }
+
+    static let footballHalfLengthRange = 1...90
 
     static func maxEightBallHandicap(for targetRacks: Int) -> Int {
         max(0, targetRacks - 1)

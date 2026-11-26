@@ -8,6 +8,16 @@ private enum SetupChipMetrics {
     static let cornerRadius: CGFloat = 10
 }
 
+/// 自定义数字弹层的请求：记下范围、初始值与回写动作，确认时写回对应草稿字段。
+private struct WatchKeypadField: Identifiable {
+    let id = UUID()
+    let minValue: Int
+    let maxValue: Int
+    let requiresOdd: Bool
+    let initialValue: Int?
+    let apply: (Int) -> Void
+}
+
 struct WatchSportsSetupView: View {
     @Environment(WatchLinkService.self) private var linkService
 
@@ -17,6 +27,7 @@ struct WatchSportsSetupView: View {
     @State private var namesExpanded: Bool
     @State private var selectedNameIndex: Int?
     @State private var toastMessage: String?
+    @State private var keypadField: WatchKeypadField?
 
     init(
         sport: WatchSetupSport,
@@ -56,6 +67,20 @@ struct WatchSportsSetupView: View {
 
             if let index = selectedNameIndex {
                 commonNamePicker(for: index)
+            }
+
+            if let field = keypadField {
+                WatchNumberKeypad(
+                    minValue: field.minValue,
+                    maxValue: field.maxValue,
+                    requiresOdd: field.requiresOdd,
+                    initialValue: field.initialValue,
+                    onConfirm: { value in
+                        field.apply(value)
+                        keypadField = nil
+                    },
+                    onClose: { keypadField = nil }
+                )
             }
 
             if let toastMessage {
@@ -111,51 +136,65 @@ struct WatchSportsSetupView: View {
             integerSection(
                 title: NSLocalizedString("watch_setup_sets", value: "局数", comment: ""),
                 values: [1, 3, 5],
-                selection: $draft.maxSets
+                selection: $draft.maxSets,
+                customRange: 1...99,
+                requiresOdd: true
             )
             integerSection(
                 title: NSLocalizedString("watch_setup_points_per_set", value: "每局分数", comment: ""),
                 values: [11, 15, 21],
-                selection: $draft.pointsPerSet
+                selection: $draft.pointsPerSet,
+                customRange: 1...999
             )
         case .pingpong, .pingpongDoubles:
             integerSection(
                 title: NSLocalizedString("watch_setup_sets", value: "局数", comment: ""),
                 values: [1, 3, 5, 7],
-                selection: $draft.maxSets
+                selection: $draft.maxSets,
+                customRange: 1...99,
+                requiresOdd: true
             )
             integerSection(
                 title: NSLocalizedString("watch_setup_points_per_set", value: "每局分数", comment: ""),
                 values: draft.pingpongPointOptions,
-                selection: $draft.pointsPerSet
+                selection: $draft.pointsPerSet,
+                customRange: 1...999
             )
         case .shuttlecock:
             integerSection(
                 title: NSLocalizedString("watch_setup_sets", value: "局数", comment: ""),
                 values: [1, 3, 5],
-                selection: $draft.maxSets
+                selection: $draft.maxSets,
+                customRange: 1...99,
+                requiresOdd: true
             )
             integerSection(
                 title: NSLocalizedString("watch_setup_points_per_set", value: "每局分数", comment: ""),
                 values: [11, 15, 21],
-                selection: $draft.pointsPerSet
+                selection: $draft.pointsPerSet,
+                customRange: 1...999
             )
         case .squash:
             integerSection(
                 title: NSLocalizedString("watch_setup_sets", value: "局数", comment: ""),
                 values: [1, 3, 5, 7],
-                selection: $draft.maxSets
+                selection: $draft.maxSets,
+                customRange: 1...99,
+                requiresOdd: true
             )
         case .foosball:
             integerSection(
                 title: NSLocalizedString("watch_setup_sets", value: "局数", comment: ""),
                 values: [1, 3, 5, 7],
-                selection: $draft.maxSets
+                selection: $draft.maxSets,
+                customRange: 1...99,
+                requiresOdd: true
             )
             integerSection(
                 title: NSLocalizedString("watch_setup_points_per_set", value: "每局分数", comment: ""),
                 values: [5, 7, 8],
-                selection: $draft.pointsPerSet
+                selection: $draft.pointsPerSet,
+                customRange: 1...99
             )
             // 对齐手机：净胜 2 分只作用于决胜局，开启后才可设封顶分。
             toggleSection(
@@ -169,14 +208,17 @@ struct WatchSportsSetupView: View {
                     selection: Binding(
                         get: { draft.foosballScoreCap ?? draft.pointsPerSet + 2 },
                         set: { draft.foosballScoreCap = $0 }
-                    )
+                    ),
+                    customRange: max(1, draft.pointsPerSet)...99
                 )
             }
         case .tennis, .tennisDoubles:
             integerSection(
                 title: NSLocalizedString("watch_setup_sets", value: "局数", comment: ""),
                 values: [1, 3, 5],
-                selection: $draft.maxSets
+                selection: $draft.maxSets,
+                customRange: 1...99,
+                requiresOdd: true
             )
             stringSection(
                 title: NSLocalizedString("watch_setup_tennis_deuce", value: "平分规则", comment: ""),
@@ -190,12 +232,15 @@ struct WatchSportsSetupView: View {
             integerSection(
                 title: NSLocalizedString("watch_setup_sets", value: "局数", comment: ""),
                 values: [1, 3, 5],
-                selection: $draft.maxSets
+                selection: $draft.maxSets,
+                customRange: 1...99,
+                requiresOdd: true
             )
             integerSection(
                 title: NSLocalizedString("watch_setup_target_score", value: "目标分", comment: ""),
                 values: [11, 15, 21],
-                selection: $draft.pickleballTargetScore
+                selection: $draft.pickleballTargetScore,
+                customRange: 1...99
             )
             toggleSection(
                 title: NSLocalizedString("watch_setup_rally_scoring", value: "每球得分", comment: ""),
@@ -211,7 +256,8 @@ struct WatchSportsSetupView: View {
                         draft.eightBallTargetRacks = $0
                         draft.normalizeEightBallHandicap()
                     }
-                )
+                ),
+                customRange: 1...99
             )
             // 与手机端一致：档位只显示纯数字，含义用一句例子说明，不做整表枚举。
             Text(NSLocalizedString(
@@ -241,34 +287,16 @@ struct WatchSportsSetupView: View {
                 values: WatchSportsSetupDraft.snookerFrameOptions,
                 selection: Binding(
                     get: { draft.maxSets },
-                    set: {
-                        draft.maxSets = $0
-                        draft.snookerCustomFrames = ""
-                    }
-                )
+                    set: { draft.maxSets = $0 }
+                ),
+                customRange: 1...99
             )
-            VStack(spacing: 4) {
-                sectionTitle(NSLocalizedString("watch_setup_custom_frames", value: "自定义局数", comment: ""))
-                TextField(
-                    NSLocalizedString("watch_setup_custom_frames_placeholder", value: "1-99", comment: ""),
-                    text: Binding(
-                        get: { draft.snookerCustomFrames },
-                        set: { updateSnookerCustomFrames($0) }
-                    )
-                )
-                .multilineTextAlignment(.center)
-                .textFieldStyle(.plain)
-                .font(.system(size: 14))
-                .frame(maxWidth: .infinity)
-                .frame(height: 48)
-                .background(WatchTheme.subtleFill)
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            }
         case .football, .football5v5:
             integerSection(
                 title: NSLocalizedString("watch_setup_half_length", value: "半场时长（分钟）", comment: ""),
                 values: WatchSportsSetupDraft.footballHalfLengthOptions(for: draft.sport),
-                selection: $draft.footballHalfLengthMinutes
+                selection: $draft.footballHalfLengthMinutes,
+                customRange: WatchSportsSetupDraft.footballHalfLengthRange
             )
         case .archery, .nineBall:
             EmptyView()
@@ -410,7 +438,9 @@ struct WatchSportsSetupView: View {
     private func integerSection(
         title: String,
         values: [Int],
-        selection: Binding<Int>
+        selection: Binding<Int>,
+        customRange: ClosedRange<Int>? = nil,
+        requiresOdd: Bool = false
     ) -> some View {
         VStack(spacing: 4) {
             sectionTitle(title)
@@ -423,8 +453,62 @@ struct WatchSportsSetupView: View {
                         selection.wrappedValue = value
                     }
                 }
+                if let customRange {
+                    customNumberChip(
+                        value: selection.wrappedValue,
+                        presets: values,
+                        title: title
+                    ) {
+                        let isCustom = WatchNumberKeypadRules.isCustomActive(
+                            value: selection.wrappedValue,
+                            presets: values
+                        )
+                        keypadField = WatchKeypadField(
+                            minValue: customRange.lowerBound,
+                            maxValue: customRange.upperBound,
+                            requiresOdd: requiresOdd,
+                            initialValue: isCustom ? selection.wrappedValue : nil,
+                            apply: { selection.wrappedValue = $0 }
+                        )
+                    }
+                }
             }
         }
+    }
+
+    /// 末位铅笔方格：没选自定义时只给图标，选中后直接把自定义值显示在格子上（对齐鸿蒙手表）。
+    private func customNumberChip(
+        value: Int,
+        presets: [Int],
+        title: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        let active = WatchNumberKeypadRules.isCustomActive(value: value, presets: presets)
+        return Button(action: action) {
+            Group {
+                if active {
+                    Text("\(value)")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Color.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                } else {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(WatchTheme.primaryText.opacity(0.85))
+                }
+            }
+            .frame(width: SetupChipMetrics.side, height: SetupChipMetrics.side)
+            .background(active ? WatchTheme.accent : Color.white.opacity(0.10))
+            .clipShape(RoundedRectangle(cornerRadius: SetupChipMetrics.cornerRadius, style: .continuous))
+            .frame(width: SetupChipMetrics.minimumHitSide, height: SetupChipMetrics.minimumHitSide)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("watch_setup_custom_number")
+        .accessibilityLabel(title)
+        .accessibilityValue(active ? "\(value)" : "")
+        .accessibilityAddTraits(active ? .isSelected : [])
     }
 
     /// 封顶分候选：每局分数 +2 起，最多到 99（对齐手机 5...99 的合法区间）。
@@ -652,15 +736,6 @@ struct WatchSportsSetupView: View {
         .ignoresSafeArea()
     }
 
-    private func updateSnookerCustomFrames(_ rawValue: String) {
-        let digits = rawValue.filter(\.isNumber)
-        let clipped = String(digits.prefix(2))
-        draft.snookerCustomFrames = clipped
-        if let value = Int(clipped), (1...99).contains(value) {
-            draft.maxSets = value
-        }
-    }
-
     private func start() {
         let enteredNames = Array(draft.playerNames.prefix(visibleNameCount))
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -672,13 +747,6 @@ struct WatchSportsSetupView: View {
                     comment: ""
                 )
             )
-            return
-        }
-
-        if draft.sport == .snooker,
-           !draft.snookerCustomFrames.isEmpty,
-           !(1...99).contains(Int(draft.snookerCustomFrames) ?? 0) {
-            showToast(NSLocalizedString("watch_setup_custom_frames_invalid", value: "请输入 1-99", comment: ""))
             return
         }
 
